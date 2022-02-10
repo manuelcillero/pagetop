@@ -1,0 +1,14 @@
+[package]
+name = "app"
+version = "0.1.0"
+edition = "2021"
+
+# Ver más claves y sus definiciones en
+# https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+pagetop = { path = "pagetop" }
+actix-web = "4.0.0-rc.3"
+
+[[bin]]
+name = "app"
