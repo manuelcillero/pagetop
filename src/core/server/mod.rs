@@ -1,4 +1,4 @@
-pub use actix_web::{web, App, HttpRequest, HttpResponse, HttpServer, Responder};
+pub use actix_web::{App, HttpRequest, HttpResponse, HttpServer, Responder, web};
 
 mod main;
 pub use main::run;
