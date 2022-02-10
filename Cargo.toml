@@ -25,6 +25,7 @@ categories = [
 
 [dependencies]
 actix-web = "4.0.0-rc.3"
+sycamore = { version = "0.8.0-beta.2", features = ["ssr"] }
 
 [lib]
 name = "pagetop"
