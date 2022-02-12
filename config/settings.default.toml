@@ -1,0 +1,9 @@
+[app]
+name = "PageTop Application"
+description = "Developed with the amazing PageTop framework."
+
+[webserver]
+# Configuración opcional del servidor web.
+# Usar bind_address = "" para deshabilitar el servidor web.
+bind_address = "localhost"
+bind_port = 8088

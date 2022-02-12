@@ -1,6 +1,6 @@
 use crate::core::server;
 
-/// Modules must implement this trait.
+/// Los módulos deben implementar este *trait*.
 pub trait Module: Send + Sync {
     fn name(&self) -> String;
 

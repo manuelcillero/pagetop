@@ -1,3 +1,4 @@
+use pagetop::config_get;
 use pagetop::core::module::Module;
 use pagetop::core::{register_module, server};
 
@@ -16,7 +17,7 @@ impl Module for Greet {
 }
 
 async fn greet() -> impl server::Responder {
-    "Hello!"
+    format!("Hello from {}!", config_get!("app.name"))
 }
 
 struct GreetWithParam;
@@ -46,7 +47,7 @@ fn bootstrap() {
     register_module(&GreetWithParam);
 }
 
-#[pagetop::main]
+#[tokio::main]
 async fn main() -> std::io::Result<()> {
     server::run(Some(bootstrap))?.await
 }

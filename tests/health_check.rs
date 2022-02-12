@@ -1,5 +1,7 @@
+use pagetop::core::server;
+
 fn spawn_app() {
-    let server = pagetop::core::server::run().expect("Failed to bind address");
+    let server = server::run(None).expect("Failed to bind address");
     let _ = tokio::spawn(server);
 }
 

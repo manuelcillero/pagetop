@@ -8,7 +8,7 @@ edition = "2021"
 
 [dependencies]
 pagetop = { path = "pagetop" }
-actix-web = "4.0.0-rc.3"
+tokio = { version = "1.16", features = ["macros", "rt-multi-thread"] }
 
 [[bin]]
 name = "app"

@@ -4,7 +4,7 @@ use crate::core::module::Module;
 use std::sync::RwLock;
 
 // -----------------------------------------------------------------------------
-// Registered modules.
+// Módulos registrados.
 // -----------------------------------------------------------------------------
 
 pub static MODULES: Lazy<RwLock<Vec<&dyn Module>>> = Lazy::new(|| {
