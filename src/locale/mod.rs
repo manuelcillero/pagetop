@@ -43,5 +43,15 @@ macro_rules! localize {
         ) -> String {
             LOCALES.lookup_with_args(&LANGID, key, args)
         }
+
+        #[allow(dead_code)]
+        pub fn e(
+            key: &str,
+            args: &std::collections::HashMap<String, FluentValue>
+        ) -> crate::core::theme::PreEscaped<String> {
+            crate::core::theme::PreEscaped(
+                LOCALES.lookup_with_args(&LANGID, key, args)
+            )
+        }
     };
 }

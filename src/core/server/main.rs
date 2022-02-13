@@ -8,13 +8,14 @@ pub fn run(bootstrap: Option<fn()>) -> Result<Server, std::io::Error> {
         let _ = &(bootstrap.unwrap())();
     }
 
-    // Registra la página de inicio de PageTop como último módulo.
-    // Así, la función de arranque de la aplicación podría sobrecargarlo.
+    // Registra el módulo para la página de inicio de PageTop.
+    // Al ser el último, puede sobrecargarse en la función de arranque.
     register_module(&base::module::homepage::HomepageModule);
 
     // Inicializa el servidor web.
     let server = server::HttpServer::new(|| {
         server::App::new()
+            .configure(&all::themes)
             .configure(&all::modules)
         })
         .bind(format!("{}:{}",

@@ -14,26 +14,16 @@ impl Module for HomepageModule {
     }
 
     fn configure_module(&self, cfg: &mut server::web::ServiceConfig) {
-        cfg.service(
-            server::web::resource("/")
-                .route(server::web::get().to(greet))
-        );
-        cfg.service(
-            server::web::resource("/{name}")
-                .route(server::web::get().to(greet_with_param))
-        );
+        cfg.service(server::web::resource("/").to(home));
+        cfg.service(server::web::resource("/{name}").to(home));
     }
 }
 
-async fn greet() -> impl server::Responder {
-    t("greeting", &args!["name" => config_get!("app.name")])
-}
-
-async fn greet_with_param(req: server::HttpRequest) -> server::HttpResponse {
+async fn home(req: server::HttpRequest) -> server::Result<Markup> {
     let name: String = req.match_info().get("name").unwrap_or("World").into();
-    let args = args!["name" => name];
-    server::HttpResponse::Ok()
-        .body(sycamore::render_to_string(|ctx| sycamore::view! { ctx,
-            p { (t("greeting", &args)) }
+    Page::prepare()
+        .add_to("content", Chunck::markup(html! {
+            h1 { (t("greetings", &args![ "name" => name])) }
         }))
+        .render()
 }

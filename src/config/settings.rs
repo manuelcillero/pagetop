@@ -73,6 +73,7 @@ pub struct App {
     pub name         : String,
     pub description  : String,
     pub language     : String,
+    pub theme        : String,
     pub run_mode     : String,
 }
 
@@ -98,6 +99,7 @@ Ajustes globales y valores predeterminados para las secciones *\[app\]* y
     "app.name"               => "PageTop Application",
     "app.description"        => "Developed with the amazing PageTop framework.",
     "app.language"           => "en-US",
+    "app.theme"              => "Minimal",
 
     // [webserver]
     "webserver.bind_address" => "localhost",
