@@ -72,6 +72,7 @@ macro_rules! config_map {
 pub struct App {
     pub name         : String,
     pub description  : String,
+    pub language     : String,
     pub run_mode     : String,
 }
 
@@ -88,7 +89,7 @@ pub struct Settings {
 }
 
 config_map!(r#"
-Ajustes globales y valores por defecto para las secciones *\[app\]* y
+Ajustes globales y valores predeterminados para las secciones *\[app\]* y
 *\[webserver\]* específicas de PageTop.
 "#,
     SETTINGS, Settings,
@@ -96,6 +97,7 @@ Ajustes globales y valores por defecto para las secciones *\[app\]* y
     // [app]
     "app.name"               => "PageTop Application",
     "app.description"        => "Developed with the amazing PageTop framework.",
+    "app.language"           => "en-US",
 
     // [webserver]
     "webserver.bind_address" => "localhost",

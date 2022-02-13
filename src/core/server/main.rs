@@ -1,11 +1,16 @@
+use crate::base;
 use crate::config::SETTINGS;
-use crate::core::{Server, all, server};
+use crate::core::{Server, all, register_module, server};
 
 pub fn run(bootstrap: Option<fn()>) -> Result<Server, std::io::Error> {
-    // Ejecuta la función de inicio específica para la aplicación.
+    // Ejecuta la función de arranque de la aplicación.
     if bootstrap != None {
         let _ = &(bootstrap.unwrap())();
     }
+
+    // Registra la página de inicio de PageTop como último módulo.
+    // Así, la función de arranque de la aplicación podría sobrecargarlo.
+    register_module(&base::module::homepage::HomepageModule);
 
     // Inicializa el servidor web.
     let server = server::HttpServer::new(|| {

@@ -1,6 +1,8 @@
 [app]
 name = "PageTop Application"
 description = "Developed with the amazing PageTop framework."
+# Idioma (localización) predeterminado.
+language = "en-US"
 
 [webserver]
 # Configuración opcional del servidor web.
