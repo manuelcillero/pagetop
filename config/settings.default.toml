@@ -5,8 +5,11 @@ description = "Developed with the amazing PageTop framework."
 language = "en-US"
 # Tema predeterminado.
 theme = "Minimal"
-# Rótulo al inicio: "Off", "Slant", "Small", "Speed" or "Starwars".
+# Rótulo al inicio: "Off", "Slant", "Small", "Speed" o "Starwars".
 startup_banner = "Small"
+# Traza de la ejecución: "Error", "Warn", "Info", "Debug" o "Trace".
+# Ejemplos: "Error,actix_server::builder=Info,tracing_actix_web=Debug".
+tracing = "Info"
 
 [webserver]
 # Configuración opcional del servidor web.

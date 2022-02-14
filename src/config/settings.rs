@@ -75,6 +75,7 @@ pub struct App {
     pub language      : String,
     pub theme         : String,
     pub startup_banner: String,
+    pub tracing       : String,
     pub run_mode      : String,
 }
 
@@ -102,6 +103,7 @@ Ajustes globales y valores predeterminados para las secciones *\[app\]* y
     "app.language"           => "en-US",
     "app.theme"              => "Minimal",
     "app.startup_banner"     => "Small",
+    "app.tracing"            => "Info",
 
     // [webserver]
     "webserver.bind_address" => "localhost",
