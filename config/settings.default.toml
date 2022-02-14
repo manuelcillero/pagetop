@@ -5,6 +5,8 @@ description = "Developed with the amazing PageTop framework."
 language = "en-US"
 # Tema predeterminado.
 theme = "Minimal"
+# Rótulo al inicio: "Off", "Slant", "Small", "Speed" or "Starwars".
+startup_banner = "Small"
 
 [webserver]
 # Configuración opcional del servidor web.

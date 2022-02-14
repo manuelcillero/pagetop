@@ -70,23 +70,24 @@ macro_rules! config_map {
 
 #[derive(Debug, Deserialize)]
 pub struct App {
-    pub name         : String,
-    pub description  : String,
-    pub language     : String,
-    pub theme        : String,
-    pub run_mode     : String,
+    pub name          : String,
+    pub description   : String,
+    pub language      : String,
+    pub theme         : String,
+    pub startup_banner: String,
+    pub run_mode      : String,
 }
 
 #[derive(Debug, Deserialize)]
 pub struct Webserver {
-    pub bind_address : String,
-    pub bind_port    : u16,
+    pub bind_address  : String,
+    pub bind_port     : u16,
 }
 
 #[derive(Debug, Deserialize)]
 pub struct Settings {
-    pub app          : App,
-    pub webserver    : Webserver,
+    pub app           : App,
+    pub webserver     : Webserver,
 }
 
 config_map!(r#"
@@ -100,6 +101,7 @@ Ajustes globales y valores predeterminados para las secciones *\[app\]* y
     "app.description"        => "Developed with the amazing PageTop framework.",
     "app.language"           => "en-US",
     "app.theme"              => "Minimal",
+    "app.startup_banner"     => "Small",
 
     // [webserver]
     "webserver.bind_address" => "localhost",
