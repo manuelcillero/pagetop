@@ -75,8 +75,15 @@ pub struct App {
     pub language      : String,
     pub theme         : String,
     pub startup_banner: String,
-    pub tracing       : String,
     pub run_mode      : String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Log {
+    pub tracing       : String,
+    pub rolling       : String,
+    pub path          : String,
+    pub prefix        : String,
 }
 
 #[derive(Debug, Deserialize)]
@@ -88,12 +95,13 @@ pub struct Webserver {
 #[derive(Debug, Deserialize)]
 pub struct Settings {
     pub app           : App,
+    pub log           : Log,
     pub webserver     : Webserver,
 }
 
 config_map!(r#"
-Ajustes globales y valores predeterminados para las secciones *\[app\]* y
-*\[webserver\]* específicas de PageTop.
+Ajustes globales y valores predeterminados para las secciones *\[app\]*,
+*\[log\]* y *\[webserver\]* específicas de PageTop.
 "#,
     SETTINGS, Settings,
 
@@ -103,7 +111,12 @@ Ajustes globales y valores predeterminados para las secciones *\[app\]* y
     "app.language"           => "en-US",
     "app.theme"              => "Minimal",
     "app.startup_banner"     => "Small",
-    "app.tracing"            => "Info",
+
+    // [log]
+    "log.tracing"            => "Info",
+    "log.rolling"            => "Daily",
+    "log.path"               => "log",
+    "log.prefix"             => "tracing.log",
 
     // [webserver]
     "webserver.bind_address" => "localhost",

@@ -2,27 +2,54 @@ use crate::{base, trace};
 use crate::config::SETTINGS;
 use crate::core::{Server, all, register_module, server};
 
-use tracing::subscriber::set_global_default;
+use tracing_log::LogTracer;
 use tracing_subscriber::{EnvFilter, Registry};
 use tracing_subscriber::layer::SubscriberExt;
+use tracing::subscriber::set_global_default;
 use tracing_bunyan_formatter::{BunyanFormattingLayer, JsonStorageLayer};
-use tracing_log::LogTracer;
 use tracing_actix_web::TracingLogger;
 
 pub fn run(bootstrap: Option<fn()>) -> Result<Server, std::io::Error> {
-    // Inicia el seguimiento de la traza de ejecución de la aplicación.
-    let env_filter = EnvFilter::try_new(String::from(&SETTINGS.app.tracing))
-        .unwrap_or(EnvFilter::new(String::from("Info")));
+    // Inicia la traza de ejecución de la aplicación.
+    let env_filter = EnvFilter::try_new(&SETTINGS.log.tracing)
+        .unwrap_or(EnvFilter::new("Info"));
+
+    let rolling = SETTINGS.log.rolling.to_lowercase();
+    let (non_blocking, _guard) = match rolling.as_str() {
+        "stdout" => tracing_appender::non_blocking(
+            std::io::stdout()
+        ),
+        _ => tracing_appender::non_blocking({
+            let path = &SETTINGS.log.path;
+            let prefix = &SETTINGS.log.prefix;
+            match rolling.as_str() {
+                "daily" => tracing_appender::rolling::daily(path, prefix),
+                "hourly" => tracing_appender::rolling::hourly(path, prefix),
+                "minutely" => tracing_appender::rolling::minutely(path, prefix),
+                "endless" => tracing_appender::rolling::never(path, prefix),
+                _ => {
+                    println!(
+                        "Rolling value \"{}\" not valid. Using \"daily\"",
+                        rolling
+                    );
+                    tracing_appender::rolling::daily(path, prefix)
+                }
+            }
+        })
+    };
     let formatting_layer = BunyanFormattingLayer::new(
         String::from(&SETTINGS.app.name),
-        std::io::stdout
+        non_blocking
     );
+
     let subscriber = Registry::default()
         .with(env_filter)
         .with(JsonStorageLayer)
         .with(formatting_layer);
-    LogTracer::init().expect("Failed to set logger");
-    set_global_default(subscriber).expect("Failed to set subscriber");
+
+    set_global_default(subscriber).expect("Unable to setup subscriber!");
+
+    LogTracer::init().expect("Unable to setup log tracer!");
 
     // Imprime el rótulo (opcional) de bienvenida.
     if SETTINGS.app.startup_banner.to_lowercase() != "off" {
@@ -34,7 +61,7 @@ pub fn run(bootstrap: Option<fn()>) -> Result<Server, std::io::Error> {
                 "starwars" => include_str!("../../../resources/starwars.flf"),
                 _ => {
                     trace::warn!(
-                        ">>> FIGfont \"{}\" not found for banner. Using \"{}\"",
+                        "FIGfont \"{}\" not found for banner. Using \"{}\"",
                         SETTINGS.app.startup_banner, "Small"
                     );
                     include_str!("../../../resources/small.flf")

@@ -7,9 +7,17 @@ language = "en-US"
 theme = "Minimal"
 # Rótulo al inicio: "Off", "Slant", "Small", "Speed" o "Starwars".
 startup_banner = "Small"
-# Traza de la ejecución: "Error", "Warn", "Info", "Debug" o "Trace".
+
+[log]
+# Traza de ejecución: "Error", "Warn", "Info", "Debug" o "Trace".
 # Ejemplos: "Error,actix_server::builder=Info,tracing_actix_web=Debug".
 tracing = "Info"
+# En terminal ("Stdout") o archivos "Daily", "Hourly", "Minutely" o "Endless".
+rolling = "Daily"
+# Directorio para los archivos de traza (si rolling != "Stdout").
+path = "log"
+# Prefijo para los archivos de traza (si rolling != "Stdout").
+prefix = "tracing.log"
 
 [webserver]
 # Configuración opcional del servidor web.
