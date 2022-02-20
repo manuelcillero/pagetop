@@ -176,6 +176,7 @@ pub struct Assets {
     metadata   : Vec<(String, String)>,
     stylesheets: Vec<StyleSheet>,
     javascripts: Vec<JavaScript>,
+    with_jquery: bool,
     seqid_count: u16,
 }
 
@@ -186,6 +187,7 @@ impl Assets {
             metadata   : Vec::new(),
             stylesheets: Vec::new(),
             javascripts: Vec::new(),
+            with_jquery: false,
             seqid_count: 0,
         }
     }
@@ -218,6 +220,20 @@ impl Assets {
                 self.javascripts.push(js);
             },
             _ => self.javascripts.push(js)
+        }
+        self
+    }
+
+    pub fn add_jquery(&mut self) -> &mut Self {
+        if !self.with_jquery {
+            self.add_javascript(
+                JavaScript::source(
+                    "/assets/js/jquery.min.js?ver=3.6.0"
+                )
+                .with_weight(i8::MIN)
+                .with_mode(JSMode::Normal)
+            );
+            self.with_jquery = true;
         }
         self
     }

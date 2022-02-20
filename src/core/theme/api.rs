@@ -1,6 +1,7 @@
 use crate::core::server;
 use crate::core::theme::{Markup, html};
 use crate::core::response::page::{Page, PageAssets, PageComponent};
+use crate::base::component::Chunck;
 
 /// Los temas deben implementar este "trait".
 pub trait Theme: Send + Sync {
@@ -80,5 +81,16 @@ pub trait Theme: Send + Sync {
             _ => None
         }
     */
+    }
+
+    fn render_error_page(&self, s: server::http::StatusCode) -> server::Result<Markup> {
+        Page::prepare()
+            .with_title(format!("Error {}", s.as_str()).as_str())
+            .add_to("content", Chunck::markup(html! {
+                div {
+                    h1 { (s) }
+                }
+            }))
+            .render()
     }
 }

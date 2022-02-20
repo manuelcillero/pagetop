@@ -4,7 +4,7 @@ description = "Developed with the amazing PageTop framework."
 # Idioma (localización) predeterminado.
 language = "en-US"
 # Tema predeterminado.
-theme = "Minimal"
+theme = "Bootsier"
 # Rótulo al inicio: "Off", "Slant", "Small", "Speed" o "Starwars".
 startup_banner = "Small"
 

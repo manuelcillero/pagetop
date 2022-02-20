@@ -34,7 +34,7 @@ impl PageComponent for Container {
 
     fn default_render(&self, assets: &mut PageAssets) -> Markup {
         let classes = match self.container {
-            ContainerType::Wrapper => "wrapper",
+            ContainerType::Wrapper => "container",
             ContainerType::Row     => "row",
             ContainerType::Column  => "col",
         };

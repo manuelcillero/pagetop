@@ -109,7 +109,7 @@ Ajustes globales y valores predeterminados para las secciones *\[app\]*,
     "app.name"               => "PageTop Application",
     "app.description"        => "Developed with the amazing PageTop framework.",
     "app.language"           => "en-US",
-    "app.theme"              => "Minimal",
+    "app.theme"              => "Bootsier",
     "app.startup_banner"     => "Small",
 
     // [log]

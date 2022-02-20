@@ -42,6 +42,9 @@ async fn login() -> server::Result<Markup> {
         .with_title(
             "Identificación del usuario"
         )
-        .add_to("content", form_login())
+        .add_to("content", Container::prepare()
+            .with_id("welcome")
+            .add(form_login())
+        )
         .render()
 }

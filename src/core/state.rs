@@ -14,7 +14,9 @@ use std::collections::HashMap;
 
 pub static THEMES: Lazy<RwLock<Vec<&dyn Theme>>> = Lazy::new(|| {
     RwLock::new(vec![
+        &base::theme::aliner::AlinerTheme,
         &base::theme::minimal::MinimalTheme,
+        &base::theme::bootsier::BootsierTheme,
     ])
 });
 
@@ -24,7 +26,7 @@ pub static THEME: Lazy<&dyn Theme> = Lazy::new(|| {
             return *t;
         }
     }
-    &base::theme::minimal::MinimalTheme
+    &base::theme::bootsier::BootsierTheme
 });
 
 pub fn register_theme(t: &'static (dyn Theme + 'static)) {
