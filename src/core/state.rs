@@ -36,7 +36,9 @@ pub fn register_theme(t: &'static (dyn Theme + 'static)) {
 // -----------------------------------------------------------------------------
 
 pub static MODULES: Lazy<RwLock<Vec<&dyn Module>>> = Lazy::new(|| {
-    RwLock::new(vec![])
+    RwLock::new(vec![
+        &base::module::user::UserModule,
+    ])
 });
 
 pub fn register_module(m: &'static (dyn Module + 'static)) {

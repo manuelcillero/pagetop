@@ -9,6 +9,8 @@ use tracing::subscriber::set_global_default;
 use tracing_bunyan_formatter::{BunyanFormattingLayer, JsonStorageLayer};
 use tracing_actix_web::TracingLogger;
 
+use actix_web::middleware::normalize;
+
 pub fn run(bootstrap: Option<fn()>) -> Result<Server, std::io::Error> {
     // Inicia la traza de ejecución de la aplicación.
     let env_filter = EnvFilter::try_new(&SETTINGS.log.tracing)
@@ -90,6 +92,7 @@ pub fn run(bootstrap: Option<fn()>) -> Result<Server, std::io::Error> {
     let server = server::HttpServer::new(|| {
         server::App::new()
             .wrap(TracingLogger)
+            .wrap(normalize::NormalizePath::new(normalize::TrailingSlash::Trim))
             .configure(&all::themes)
             .configure(&all::modules)
         })

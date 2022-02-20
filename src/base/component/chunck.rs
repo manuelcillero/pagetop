@@ -37,13 +37,11 @@ impl PageComponent for Chunck {
 
 impl Chunck {
 
-    // Chunck BUILDER.
-
     pub fn markup(markup: Markup) -> Self {
-        let mut chunck = Chunck::prepare();
-        chunck.markup.push(markup);
-        chunck
+        Chunck::prepare().add_markup(markup)
     }
+
+    // Chunck BUILDER.
 
     pub fn with_renderable(mut self, renderable: fn() -> bool) -> Self {
         self.renderable = renderable;

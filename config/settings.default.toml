@@ -20,7 +20,6 @@ path = "log"
 prefix = "tracing.log"
 
 [webserver]
-# Configuración opcional del servidor web.
-# Usar bind_address = "" para deshabilitar el servidor web.
+# Configuración del servidor web.
 bind_address = "localhost"
 bind_port = 8088

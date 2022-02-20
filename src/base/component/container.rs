@@ -48,8 +48,6 @@ impl PageComponent for Container {
 
 impl Container {
 
-    // Container BUILDER.
-
     pub fn row() -> Self {
         let mut grid = Container::prepare();
         grid.container = ContainerType::Row;
@@ -61,6 +59,8 @@ impl Container {
         grid.container = ContainerType::Column;
         grid
     }
+
+    // Container BUILDER.
 
     pub fn with_renderable(mut self, renderable: fn() -> bool) -> Self {
         self.renderable = renderable;
