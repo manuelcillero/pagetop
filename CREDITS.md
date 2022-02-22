@@ -1,9 +1,9 @@
 # FIGfonts
 
 PageTop utiliza el paquete [figlet-rs](https://crates.io/crates/figlet-rs) de
-*yuanbohan* para mostrar al inicio un rótulo con el nombre de la aplicación
-usando [FIGlet](http://www.figlet.org/). Las fuentes incluidas en `resources`
-son:
+*yuanbohan*, que muestra al inicio de la ejecución un rótulo con el nombre de
+la aplicación usando caracteres [FIGlet](http://www.figlet.org/). Las fuentes
+incluidas en `resources` son:
 
 * [slant.flf](http://www.figlet.org/fontdb_example.cgi?font=slant.flf)
   por *Glenn Chappell*.

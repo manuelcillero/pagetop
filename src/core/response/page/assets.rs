@@ -228,7 +228,7 @@ impl Assets {
         if !self.with_jquery {
             self.add_javascript(
                 JavaScript::source(
-                    "/assets/js/jquery.min.js?ver=3.6.0"
+                    "/theme/js/jquery.min.js?v=3.6.0"
                 )
                 .with_weight(i8::MIN)
                 .with_mode(JSMode::Normal)

@@ -4,28 +4,30 @@ use std::env;
 use std::path::Path;
 
 fn main() {
-    resource_dir("./resources/assets")
+    resource_dir("./static/theme")
         .with_generated_filename(
             Path::new(env::var("OUT_DIR").unwrap().as_str())
-                .join("assets.rs")
+                .join("theme.rs")
         )
         .with_generated_fn("assets")
         .build()
         .unwrap();
 
-    resource_dir("./src/base/theme/aliner/assets")
+    resource_dir("./static/aliner")
         .with_generated_filename(
             Path::new(env::var("OUT_DIR").unwrap().as_str())
                 .join("aliner.rs")
         )
+        .with_generated_fn("assets")
         .build()
         .unwrap();
 
-    resource_dir("./src/base/theme/bootsier/assets")
+    resource_dir("./static/bootsier")
         .with_generated_filename(
             Path::new(env::var("OUT_DIR").unwrap().as_str())
                 .join("bootsier.rs")
         )
+        .with_generated_fn("assets")
         .build()
         .unwrap();
 }

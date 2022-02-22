@@ -5,10 +5,10 @@ use crate::base::component::Chunck;
 
 /// Los temas deben implementar este "trait".
 pub trait Theme: Send + Sync {
-    fn name(&self) -> &str;
+    fn name(&self) -> String;
 
-    fn description(&self) -> &str {
-        ""
+    fn description(&self) -> String {
+        "".to_string()
     }
 
     #[allow(unused_variables)]
@@ -41,7 +41,7 @@ pub trait Theme: Send + Sync {
 
     fn render_page_body(&self, page: &mut Page) -> Markup {
         html! {
-            body id="body" class=(page.body_classes()) {
+            body class=(page.body_classes()) {
                 @match page.template() {
                     "admin" => {
                         @for region in &["top-menu", "side-menu", "content"] {

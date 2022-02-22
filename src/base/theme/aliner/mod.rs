@@ -5,14 +5,14 @@ include!(concat!(env!("OUT_DIR"), "/aliner.rs"));
 pub struct AlinerTheme;
 
 impl Theme for AlinerTheme {
-    fn name(&self) -> &str {
-        "Aliner"
+    fn name(&self) -> String {
+        "Aliner".to_string()
     }
 
     fn configure_theme(&self, cfg: &mut server::web::ServiceConfig) {
         cfg.service(actix_web_static_files::ResourceFiles::new(
             "/aliner",
-            generate()
+            assets()
         ));
     }
 

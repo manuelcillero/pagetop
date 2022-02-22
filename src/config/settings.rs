@@ -6,7 +6,10 @@ use serde::Deserialize;
 
 use std::env;
 
-/// Carga los ajustes globales "clave = valor" al arrancar la aplicación.
+/// Al arrancar la aplicación, carga los valores originales "clave = valor" de
+/// los archivos de configuración. Con [`config_map`] se asignarán los ajustes
+/// globales ([`SETTINGS`]); y se podrán asignar los ajustes específicos de la
+/// aplicación, o también de un tema, módulo o componente.
 pub static CONFIG: Lazy<Config> = Lazy::new(|| {
     // Establece el modo de ejecución según el valor de la variable de entorno
     // PAGETOP_RUN_MODE. Asume "default" por defecto.
@@ -15,8 +18,7 @@ pub static CONFIG: Lazy<Config> = Lazy::new(|| {
     // Inicializa los ajustes.
     let mut settings = Config::default();
 
-    // Lee los ajustes combinando los archivos de configuración disponibles y
-    // asigna el modo de ejecución.
+    // Combina los archivos de configuración y asigna el modo de ejecución.
     settings
         .merge(
             File::with_name(
@@ -36,23 +38,13 @@ pub static CONFIG: Lazy<Config> = Lazy::new(|| {
 });
 
 #[macro_export]
-/// Usar esta macro para obtener el valor de cualquier ajuste global, donde
-/// clave y valor son cadenas de caracteres. Devuelve la cadena vacía si no
-/// encuentra un ajuste para la clave.
-macro_rules! config_get {
-    ( $key:expr ) => {
-        $crate::config::CONFIG.get_str($key).unwrap_or("".to_string())
-    };
-}
-
-#[macro_export]
-/// Carga los ajustes específicos de tu módulo o aplicación en una estructura
-/// similar a [`SETTINGS`] con tipos de variables seguros. Genera un *panic!*
-/// en caso de asignaciones no válidas.
+/// Asigna los ajustes específicos de la aplicación, o de un tema, módulo o
+/// componente, en una estructura similar a [`SETTINGS`] con tipos de variables
+/// seguros. Produce un *panic!* en caso de asignaciones no válidas.
 macro_rules! config_map {
-    ( $COMMENT:expr, $CONF:ident, $TYPE:tt $(, $key:expr => $value:expr)* ) => {
+    ( $COMM:expr, $CONF:ident, $TYPE:tt $(, $key:expr => $value:expr)* ) => {
         $crate::doc_comment! {
-            concat!($COMMENT),
+            concat!($COMM),
 
             pub static $CONF: $crate::Lazy<$TYPE> = $crate::Lazy::new(|| {
                 let mut settings = $crate::config::CONFIG.clone();
@@ -101,7 +93,7 @@ pub struct Settings {
 
 config_map!(r#"
 Ajustes globales y valores predeterminados para las secciones *\[app\]*,
-*\[log\]* y *\[webserver\]* específicas de PageTop.
+*\[log\]* y *\[webserver\]* de PageTop.
 "#,
     SETTINGS, Settings,
 

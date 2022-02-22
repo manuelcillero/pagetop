@@ -7,14 +7,14 @@ localize!("en-US", "src/base/theme/bootsier/locales");
 pub struct BootsierTheme;
 
 impl Theme for BootsierTheme {
-    fn name(&self) -> &str {
-        "Bootsier"
+    fn name(&self) -> String {
+        "Bootsier".to_string()
     }
 
     fn configure_theme(&self, cfg: &mut server::web::ServiceConfig) {
         cfg.service(actix_web_static_files::ResourceFiles::new(
             "/bootsier",
-            generate()
+            assets()
         ));
     }
 
@@ -26,15 +26,15 @@ impl Theme for BootsierTheme {
             )
             .add_stylesheet(
                 StyleSheet::source(
-                    "/bootsier/css/bootstrap.min.css"
+                    "/bootsier/css/bootstrap.min.css?v=5.1.3"
                 )
                 .with_weight(-99)
             )
             .add_javascript(
                 JavaScript::source(
-                    "/bootsier/js/bootstrap.bundle.min.js"
+                    "/bootsier/js/bootstrap.bundle.min.js?v=5.1.3"
                 )
-                .with_weight(-98)
+                .with_weight(-99)
             )
             .add_jquery();
     }

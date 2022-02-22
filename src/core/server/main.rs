@@ -57,16 +57,16 @@ pub fn run(bootstrap: Option<fn()>) -> Result<Server, std::io::Error> {
     if SETTINGS.app.startup_banner.to_lowercase() != "off" {
         let figfont = figlet_rs::FIGfont::from_content(
             match SETTINGS.app.startup_banner.to_lowercase().as_str() {
-                "slant"    => include_str!("../../../resources/slant.flf"),
-                "small"    => include_str!("../../../resources/small.flf"),
-                "speed"    => include_str!("../../../resources/speed.flf"),
-                "starwars" => include_str!("../../../resources/starwars.flf"),
+                "slant"    => include_str!("figfonts/slant.flf"),
+                "small"    => include_str!("figfonts/small.flf"),
+                "speed"    => include_str!("figfonts/speed.flf"),
+                "starwars" => include_str!("figfonts/starwars.flf"),
                 _ => {
                     trace::warn!(
                         "FIGfont \"{}\" not found for banner. Using \"{}\"",
                         SETTINGS.app.startup_banner, "Small"
                     );
-                    include_str!("../../../resources/small.flf")
+                    include_str!("figfonts/small.flf")
                 }
             }
         ).unwrap();
