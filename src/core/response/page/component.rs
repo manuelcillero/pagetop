@@ -9,6 +9,14 @@ pub trait Component: Downcast + Send + Sync {
 
     fn prepare() -> Self where Self: Sized;
 
+    fn name(&self) -> &str {
+        let name = type_name::<Self>();
+        match name.rfind("::") {
+            Some(position) => &name[(position + 2)..],
+            None => name
+        }
+    }
+
     fn qualified_name(&self) -> &str {
         type_name::<Self>()
     }

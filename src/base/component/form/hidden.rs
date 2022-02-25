@@ -1,27 +1,19 @@
 use crate::prelude::*;
 
 pub struct Hidden {
-    renderable  : fn() -> bool,
-    weight      : i8,
-    name        : Option<String>,
-    value       : Option<String>,
-    template    : String,
+    weight    : i8,
+    name      : Option<String>,
+    value     : Option<String>,
 }
 
 impl PageComponent for Hidden {
 
     fn prepare() -> Self {
         Hidden {
-            renderable  : always,
-            weight      : 0,
-            name        : None,
-            value       : None,
-            template    : "default".to_string(),
+            weight    : 0,
+            name      : None,
+            value     : None,
         }
-    }
-
-    fn is_renderable(&self) -> bool {
-        (self.renderable)()
     }
 
     fn weight(&self) -> i8 {
@@ -51,60 +43,28 @@ impl Hidden {
 
     // Hidden BUILDER.
 
-    pub fn with_renderable(mut self, renderable: fn() -> bool) -> Self {
-        self.renderable = renderable;
-        self
-    }
-
     pub fn with_weight(mut self, weight: i8) -> Self {
         self.weight = weight;
         self
     }
 
     pub fn with_name(mut self, name: &str) -> Self {
-        self.name = if name.is_empty() {
-            None
-        } else {
-            Some(name.replace(" ", "_"))
-        };
+        self.name = util::valid_id(name);
         self
     }
 
     pub fn with_value(mut self, value: &str) -> Self {
-        self.value = if value.is_empty() {
-            None
-        } else {
-            Some(value.to_string())
-        };
-        self
-    }
-
-    pub fn using_template(mut self, template: &str) -> Self {
-        self.template = template.to_string();
+        self.value = util::optional_value(value);
         self
     }
 
     // Hidden GETTERS.
 
     pub fn name(&self) -> &str {
-        match &self.name {
-            Some(name) => name.as_str(),
-            _ => ""
-        }
+        util::assigned_value(&self.name)
     }
 
     pub fn value(&self) -> &str {
-        match &self.value {
-            Some(value) => value.as_str(),
-            _ => ""
-        }
+        util::assigned_value(&self.value)
     }
-
-    pub fn template(&self) -> &str {
-        self.template.as_str()
-    }
-}
-
-fn always() -> bool {
-    true
 }

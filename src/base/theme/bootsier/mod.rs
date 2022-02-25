@@ -26,13 +26,13 @@ impl Theme for BootsierTheme {
             )
             .add_stylesheet(
                 StyleSheet::source(
-                    "/bootsier/css/bootstrap.min.css?v=5.1.3"
+                    "/bootsier/css/bootstrap.min.css?ver=5.1.3"
                 )
                 .with_weight(-99)
             )
             .add_javascript(
                 JavaScript::source(
-                    "/bootsier/js/bootstrap.bundle.min.js?v=5.1.3"
+                    "/bootsier/js/bootstrap.bundle.min.js?ver=5.1.3"
                 )
                 .with_weight(-99)
             )

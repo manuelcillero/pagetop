@@ -162,20 +162,12 @@ impl Input {
     }
 
     pub fn with_name(mut self, name: &str) -> Self {
-        self.name = if name.is_empty() {
-            None
-        } else {
-            Some(name.replace(" ", "_"))
-        };
+        self.name = util::valid_id(name);
         self
     }
 
     pub fn with_value(mut self, value: &str) -> Self {
-        self.value = if value.is_empty() {
-            None
-        } else {
-            Some(value.to_string())
-        };
+        self.value = util::optional_value(value);
         self
     }
 
@@ -200,11 +192,7 @@ impl Input {
     }
 
     pub fn with_placeholder(mut self, placeholder: &str) -> Self {
-        self.placeholder = if placeholder.is_empty() {
-            None
-        } else {
-            Some(placeholder.to_string())
-        };
+        self.placeholder = util::optional_value(placeholder);
         self
     }
 
@@ -261,17 +249,11 @@ impl Input {
     // Input GETTERS.
 
     pub fn name(&self) -> &str {
-        match &self.name {
-            Some(name) => name.as_str(),
-            _ => ""
-        }
+        util::assigned_value(&self.name)
     }
 
     pub fn value(&self) -> &str {
-        match &self.value {
-            Some(value) => value.as_str(),
-            _ => ""
-        }
+        util::assigned_value(&self.value)
     }
 
     pub fn label(&self) -> &str {
@@ -291,10 +273,7 @@ impl Input {
     }
 
     pub fn placeholder(&self) -> &str {
-        match &self.placeholder {
-            Some(placeholder) => placeholder.as_str(),
-            _ => ""
-        }
+        util::assigned_value(&self.placeholder)
     }
 
     pub fn has_autofocus(&self) -> bool {

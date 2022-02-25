@@ -1,25 +1,23 @@
 use crate::prelude::*;
 
-enum ContainerType { Column, Row, Wrapper }
-
-pub struct Container {
+pub struct Block {
     renderable: fn() -> bool,
     weight    : i8,
     id        : Option<String>,
-    container : ContainerType,
-    components: PageContainer,
+    title     : String,
+    markup    : Vec<Markup>,
     template  : String,
 }
 
-impl PageComponent for Container {
+impl PageComponent for Block {
 
     fn prepare() -> Self {
-        Container {
+        Block {
             renderable: always,
             weight    : 0,
             id        : None,
-            container : ContainerType::Wrapper,
-            components: PageContainer::new(),
+            title     : "".to_string(),
+            markup    : Vec::new(),
             template  : "default".to_string(),
         }
     }
@@ -33,34 +31,29 @@ impl PageComponent for Container {
     }
 
     fn default_render(&self, assets: &mut PageAssets) -> Markup {
-        let classes = match self.container {
-            ContainerType::Wrapper => "container",
-            ContainerType::Row     => "row",
-            ContainerType::Column  => "col",
-        };
+        let id = assets.required_id(self.name(), self.id());
         html! {
-            div id=[&self.id] class=(classes) {
-                (self.components.render(assets))
+            div id=(id) class="block" {
+                @if !self.title.is_empty() {
+                    h2 class="block-title" { (self.title) }
+                }
+                div class="block-body" {
+                    @for markup in self.markup.iter() {
+                        (*markup)
+                    }
+                }
             }
         }
     }
 }
 
-impl Container {
+impl Block {
 
-    pub fn row() -> Self {
-        let mut grid = Container::prepare();
-        grid.container = ContainerType::Row;
-        grid
+    pub fn markup(markup: Markup) -> Self {
+        Block::prepare().add_markup(markup)
     }
 
-    pub fn column() -> Self {
-        let mut grid = Container::prepare();
-        grid.container = ContainerType::Column;
-        grid
-    }
-
-    // Container BUILDER.
+    // Block BUILDER.
 
     pub fn with_renderable(mut self, renderable: fn() -> bool) -> Self {
         self.renderable = renderable;
@@ -77,8 +70,13 @@ impl Container {
         self
     }
 
-    pub fn add(mut self, component: impl PageComponent) -> Self {
-        self.components.add(component);
+    pub fn with_title(mut self, title: &str) -> Self {
+        self.title = title.to_string();
+        self
+    }
+
+    pub fn add_markup(mut self, markup: Markup) -> Self {
+        self.markup.push(markup);
         self
     }
 
@@ -87,10 +85,14 @@ impl Container {
         self
     }
 
-    // Container GETTERS.
+    // Block GETTERS.
 
     pub fn id(&self) -> &str {
         util::assigned_value(&self.id)
+    }
+
+    pub fn title(&self) -> &str {
+        self.title.as_str()
     }
 
     pub fn template(&self) -> &str {

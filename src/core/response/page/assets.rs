@@ -177,7 +177,7 @@ pub struct Assets {
     stylesheets: Vec<StyleSheet>,
     javascripts: Vec<JavaScript>,
     with_jquery: bool,
-    seqid_count: u16,
+    id_counter : u32,
 }
 
 impl Assets {
@@ -188,7 +188,7 @@ impl Assets {
             stylesheets: Vec::new(),
             javascripts: Vec::new(),
             with_jquery: false,
-            seqid_count: 0,
+            id_counter : 0,
         }
     }
 
@@ -228,7 +228,7 @@ impl Assets {
         if !self.with_jquery {
             self.add_javascript(
                 JavaScript::source(
-                    "/theme/js/jquery.min.js?v=3.6.0"
+                    "/theme/js/jquery.min.js?ver=3.6.0"
                 )
                 .with_weight(i8::MIN)
                 .with_mode(JSMode::Normal)
@@ -262,13 +262,20 @@ impl Assets {
         }
     }
 
-    // Assets GETTERS.
+    // Assets EXTRAS.
 
-    pub fn seqid(&mut self, id: &str) -> String {
+    pub fn required_id(&mut self, prefix: &str, id: &str) -> String {
         if id.is_empty() {
-            self.seqid_count += 1;
-            return format!("seqid-{}", self.seqid_count);
+            let prefix = prefix.trim().replace(" ", "_").to_lowercase();
+            let prefix = if prefix.is_empty() {
+                "prefix".to_string()
+            } else {
+                prefix
+            };
+            self.id_counter += 1;
+            [prefix, self.id_counter.to_string()].join("-")
+        } else {
+            id.to_string()
         }
-        id.to_string()
     }
 }

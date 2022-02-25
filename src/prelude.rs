@@ -1,6 +1,8 @@
 //! Re-exporta recursos comunes.
 
 pub use crate::args;
+pub use crate::util;
+
 pub use crate::config::SETTINGS;
 pub use crate::trace;
 pub use crate::localize;

@@ -71,20 +71,12 @@ impl Form {
     }
 
     pub fn with_id(mut self, id: &str) -> Self {
-        self.id = if id.is_empty() {
-            None
-        } else {
-            Some(id.replace(" ", "_"))
-        };
+        self.id = util::valid_id(id);
         self
     }
 
     pub fn with_action(mut self, action: &str) -> Self {
-        self.action = if action.is_empty() {
-            None
-        } else {
-            Some(action.to_string())
-        };
+        self.action = util::optional_value(action);
         self
     }
 
@@ -94,11 +86,7 @@ impl Form {
     }
 
     pub fn with_charset(mut self, charset: &str) -> Self {
-        self.charset = if charset.is_empty() {
-            None
-        } else {
-            Some(charset.to_string())
-        };
+        self.charset = util::optional_value(charset);
         self
     }
 
@@ -115,17 +103,11 @@ impl Form {
     // Form GETTERS.
 
     pub fn id(&self) -> &str {
-        match &self.id {
-            Some(id) => id.as_str(),
-            _ => ""
-        }
+        util::assigned_value(&self.id)
     }
 
     pub fn action(&self) -> &str {
-        match &self.action {
-            Some(action) => action.as_str(),
-            _ => ""
-        }
+        util::assigned_value(&self.action)
     }
 
     pub fn method(&self) -> &str {
@@ -136,10 +118,7 @@ impl Form {
     }
 
     pub fn charset(&self) -> &str {
-        match &self.charset {
-            Some(charset) => charset.as_str(),
-            _ => ""
-        }
+        util::assigned_value(&self.charset)
     }
 
     pub fn template(&self) -> &str {
