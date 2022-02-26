@@ -5,6 +5,8 @@ use crate::base::component::Chunck;
 
 /// Los temas deben implementar este "trait".
 pub trait Theme: Send + Sync {
+    fn id(&self) -> &'static str;
+
     fn name(&self) -> String;
 
     fn description(&self) -> String {

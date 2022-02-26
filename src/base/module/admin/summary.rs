@@ -33,7 +33,7 @@ pub async fn summary() -> server::Result<Markup> {
 
     Page::prepare()
 
-        .using_theme(&bootsier::BootsierTheme)
+        .using_theme("bootsier")
 
         .with_title("Admin")
 

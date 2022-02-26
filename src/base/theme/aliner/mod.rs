@@ -5,6 +5,10 @@ include!(concat!(env!("OUT_DIR"), "/aliner.rs"));
 pub struct AlinerTheme;
 
 impl Theme for AlinerTheme {
+    fn id(&self) -> &'static str {
+        "aliner"
+    }
+
     fn name(&self) -> String {
         "Aliner".to_string()
     }

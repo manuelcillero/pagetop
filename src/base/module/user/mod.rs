@@ -5,6 +5,10 @@ localize!("en-US", "src/base/module/user/locales");
 pub struct UserModule;
 
 impl Module for UserModule {
+    fn id(&self) -> &'static str {
+        "user"
+    }
+
     fn name(&self) -> String {
         l("module_name")
     }

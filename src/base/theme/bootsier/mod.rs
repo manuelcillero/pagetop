@@ -7,6 +7,10 @@ localize!("en-US", "src/base/theme/bootsier/locales");
 pub struct BootsierTheme;
 
 impl Theme for BootsierTheme {
+    fn id(&self) -> &'static str {
+        "bootsier"
+    }
+
     fn name(&self) -> String {
         "Bootsier".to_string()
     }

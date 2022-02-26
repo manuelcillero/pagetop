@@ -1,5 +1,5 @@
 use crate::core::all::DEFAULT_THEME;
-use crate::core::theme::{Markup, PreEscaped, Theme, html};
+use crate::core::theme::{Markup, PreEscaped, Theme, find_theme, html};
 
 // -----------------------------------------------------------------------------
 // Favicon.
@@ -195,8 +195,8 @@ impl Assets {
         }
     }
 
-    pub fn using_theme(&mut self, theme: &'static dyn Theme) -> &mut Self {
-        self.theme = theme;
+    pub fn using_theme(&mut self, theme_id: &str) -> &mut Self {
+        self.theme = find_theme(theme_id).unwrap_or(*DEFAULT_THEME);
         self
     }
 

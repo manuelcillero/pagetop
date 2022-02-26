@@ -2,6 +2,8 @@ use crate::core::server;
 
 /// Los módulos deben implementar este *trait*.
 pub trait Module: Send + Sync {
+    fn id(&self) -> &'static str;
+
     fn name(&self) -> String;
 
     fn description(&self) -> String {

@@ -1,7 +1,7 @@
 use crate::config::SETTINGS;
 use crate::core::server;
 use crate::core::all::COMPONENTS;
-use crate::core::theme::{DOCTYPE, Markup, Theme, html};
+use crate::core::theme::{DOCTYPE, Markup, html};
 use crate::core::response::page::{PageAssets, PageComponent, PageContainer};
 
 use std::borrow::Cow;
@@ -159,8 +159,8 @@ impl<'a> Page<'a> {
 
     // Page EXTRAS.
 
-    pub fn using_theme(&mut self, theme: &'static dyn Theme) -> &mut Self {
-        self.assets.using_theme(theme);
+    pub fn using_theme(&mut self, theme_id: &str) -> &mut Self {
+        self.assets.using_theme(theme_id);
         self
     }
 }

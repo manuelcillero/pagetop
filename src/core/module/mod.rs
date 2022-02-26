@@ -7,9 +7,9 @@ pub fn register_module(m: &'static (dyn Module + 'static)) {
     MODULES.write().unwrap().push(m);
 }
 
-pub fn find_module(name: &str) -> Option<&'static (dyn Module + 'static)> {
+pub fn find_module(id: &str) -> Option<&'static (dyn Module + 'static)> {
     let modules = MODULES.write().unwrap();
-    match modules.iter().find(|t| t.name() == name) {
+    match modules.iter().find(|t| t.id() == id) {
         Some(module) => Some(*module),
         _ => None,
     }
