@@ -1,4 +1,5 @@
-use crate::core::theme::{Markup, PreEscaped, html};
+use crate::core::all::DEFAULT_THEME;
+use crate::core::theme::{Markup, PreEscaped, Theme, html};
 
 // -----------------------------------------------------------------------------
 // Favicon.
@@ -172,6 +173,7 @@ impl JavaScript {
 // -----------------------------------------------------------------------------
 
 pub struct Assets {
+    theme      : &'static dyn Theme,
     favicon    : Option<Favicon>,
     metadata   : Vec<(String, String)>,
     stylesheets: Vec<StyleSheet>,
@@ -183,6 +185,7 @@ pub struct Assets {
 impl Assets {
     pub fn new() -> Self {
         Assets {
+            theme      : *DEFAULT_THEME,
             favicon    : None,
             metadata   : Vec::new(),
             stylesheets: Vec::new(),
@@ -190,6 +193,11 @@ impl Assets {
             with_jquery: false,
             id_counter : 0,
         }
+    }
+
+    pub fn using_theme(&mut self, theme: &'static dyn Theme) -> &mut Self {
+        self.theme = theme;
+        self
     }
 
     pub fn with_favicon(&mut self, favicon: Favicon) -> &mut Self {
@@ -237,6 +245,14 @@ impl Assets {
         }
         self
     }
+
+    /// Assets GETTERS.
+
+    pub fn theme(&mut self) -> &'static dyn Theme {
+        self.theme
+    }
+
+    /// Assets RENDER.
 
     pub fn render(&mut self) -> Markup {
         let ordered_css = &mut self.stylesheets;

@@ -1,7 +1,7 @@
 use crate::config::SETTINGS;
 use crate::core::server;
-use crate::core::state::{COMPONENTS, THEME};
-use crate::core::theme::{DOCTYPE, Markup, html};
+use crate::core::all::COMPONENTS;
+use crate::core::theme::{DOCTYPE, Markup, Theme, html};
 use crate::core::response::page::{PageAssets, PageComponent, PageContainer};
 
 use std::borrow::Cow;
@@ -132,13 +132,13 @@ impl<'a> Page<'a> {
 
     pub fn render(&mut self) -> server::Result<Markup> {
         // Acciones del tema antes de renderizar la página.
-        THEME.before_render_page(self);
+        self.assets.theme().before_render_page(self);
 
         // Primero, renderizar el cuerpo.
-        let body = THEME.render_page_body(self);
+        let body = self.assets.theme().render_page_body(self);
 
         // Luego, renderizar la cabecera.
-        let head = THEME.render_page_head(self);
+        let head = self.assets.theme().render_page_head(self);
 
         // Finalmente, renderizar la página.
         return Ok(html! {
@@ -156,6 +156,13 @@ impl<'a> Page<'a> {
             None => html! {}
         }
     }
+
+    // Page EXTRAS.
+
+    pub fn using_theme(&mut self, theme: &'static dyn Theme) -> &mut Self {
+        self.assets.using_theme(theme);
+        self
+    }
 }
 
 pub fn render_component(
@@ -163,7 +170,7 @@ pub fn render_component(
     assets: &mut PageAssets
 ) -> Markup {
     match component.is_renderable() {
-        true => match THEME.render_component(component, assets) {
+        true => match assets.theme().render_component(component, assets) {
             Some(markup) => markup,
             None => component.default_render(assets)
         },

@@ -32,6 +32,9 @@ pub async fn summary() -> server::Result<Markup> {
         .add(MenuItem::label("Opción 4"));
 
     Page::prepare()
+
+        .using_theme(&bootsier::BootsierTheme)
+
         .with_title("Admin")
 
         .add_to("top-menu", top_menu)

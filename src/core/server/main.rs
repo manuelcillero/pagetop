@@ -1,6 +1,7 @@
 use crate::{base, trace};
 use crate::config::SETTINGS;
-use crate::core::{Server, all, register_module, server};
+use crate::core::{Server, all, server};
+use crate::core::module::register_module;
 
 use tracing_log::LogTracer;
 use tracing_subscriber::{EnvFilter, Registry};
