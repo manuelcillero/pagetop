@@ -42,7 +42,12 @@ pub static CONFIG: Lazy<Config> = Lazy::new(|| {
 /// componente, en una estructura similar a [`SETTINGS`] con tipos de variables
 /// seguros. Produce un *panic!* en caso de asignaciones no válidas.
 macro_rules! config_map {
-    ( $COMM:expr, $CONF:ident, $TYPE:tt $(, $key:expr => $value:expr)* ) => {
+    (
+        $COMM:expr,
+        $CONF:ident,
+        $TYPE:tt
+        $(, $key:expr => $value:expr)*
+    ) => {
         $crate::doc_comment! {
             concat!($COMM),
 
@@ -64,8 +69,9 @@ macro_rules! config_map {
 pub struct App {
     pub name          : String,
     pub description   : String,
-    pub language      : String,
     pub theme         : String,
+    pub language      : String,
+    pub direction     : String,
     pub startup_banner: String,
     pub run_mode      : String,
 }
@@ -76,6 +82,7 @@ pub struct Log {
     pub rolling       : String,
     pub path          : String,
     pub prefix        : String,
+    pub format        : String,
 }
 
 #[derive(Debug, Deserialize)]
@@ -100,8 +107,9 @@ Ajustes globales y valores predeterminados para las secciones *\[app\]*,
     // [app]
     "app.name"               => "PageTop Application",
     "app.description"        => "Developed with the amazing PageTop framework.",
-    "app.language"           => "en-US",
     "app.theme"              => "Bootsier",
+    "app.language"           => "en-US",
+    "app.direction"          => "ltr",
     "app.startup_banner"     => "Small",
 
     // [log]
@@ -109,6 +117,7 @@ Ajustes globales y valores predeterminados para las secciones *\[app\]*,
     "log.rolling"            => "Daily",
     "log.path"               => "log",
     "log.prefix"             => "tracing.log",
+    "log.format"             => "json",
 
     // [webserver]
     "webserver.bind_address" => "localhost",

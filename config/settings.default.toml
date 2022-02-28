@@ -1,10 +1,12 @@
 [app]
 name = "PageTop Application"
 description = "Developed with the amazing PageTop framework."
-# Idioma (localización) predeterminado.
-language = "en-US"
 # Tema predeterminado.
 theme = "Bootsier"
+# Idioma (localización) predeterminado.
+language = "en-US"
+# Dirección predeterminada para el texto: "ltr", "rtl" o "auto".
+direction = "ltr"
 # Rótulo al inicio: "Off", "Slant", "Small", "Speed" o "Starwars".
 startup_banner = "Small"
 
@@ -18,6 +20,8 @@ rolling = "Daily"
 path = "log"
 # Prefijo para los archivos de traza (si rolling != "Stdout").
 prefix = "tracing.log"
+# Presentación de las trazas: "Json", "Full", "Compact" o "Pretty".
+format = "Json"
 
 [webserver]
 # Configuración del servidor web.
