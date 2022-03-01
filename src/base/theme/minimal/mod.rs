@@ -3,11 +3,11 @@ use crate::prelude::*;
 pub struct MinimalTheme;
 
 impl Theme for MinimalTheme {
-    fn id(&self) -> &'static str {
+    fn name(&self) -> &'static str {
         "minimal"
     }
 
-    fn name(&self) -> String {
+    fn fullname(&self) -> String {
         "Minimal".to_string()
     }
 }

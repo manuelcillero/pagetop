@@ -7,16 +7,16 @@ mod summary;
 pub struct AdminModule;
 
 impl Module for AdminModule {
-    fn id(&self) -> &'static str {
+    fn name(&self) -> &'static str {
         "admin"
     }
 
-    fn name(&self) -> String {
-        l("module_name")
+    fn fullname(&self) -> String {
+        l("module_fullname")
     }
 
     fn description(&self) -> String {
-        l("module_desc")
+        l("module_description")
     }
 
     fn configure_module(&self, cfg: &mut server::web::ServiceConfig) {

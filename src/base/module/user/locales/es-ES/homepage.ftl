@@ -1,5 +1,5 @@
-module_name = Usuario
-module_desc = Gestion el registro de usuarios y el sistema de accesos.
+module_fullname = Usuario
+module_description = Gestion el registro de usuarios y el sistema de accesos.
 
 username = Nombre de usuario
 password = Contraseña

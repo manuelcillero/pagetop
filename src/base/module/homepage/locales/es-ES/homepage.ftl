@@ -1,5 +1,5 @@
-module_name = Página de inicio predeterminada
-module_desc = Muestra una página de inicio predeterminada cuando no hay ninguna configurada.
+module_fullname = Página de inicio predeterminada
+module_description = Muestra una página de inicio predeterminada cuando no hay ninguna configurada.
 
 page_title = ¡Hola mundo!
 

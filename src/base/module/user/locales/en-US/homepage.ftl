@@ -1,5 +1,5 @@
-module_name = User
-module_desc = Manages the user registration and login system.
+module_fullname = User
+module_description = Manages the user registration and login system.
 
 username = User name
 password = Password

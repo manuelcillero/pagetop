@@ -1,5 +1,5 @@
-module_name = Default homepage
-module_desc = Displays a default homepage when none is configured.
+module_fullname = Default homepage
+module_description = Displays a default homepage when none is configured.
 
 page_title = Hello world!
 

@@ -5,16 +5,16 @@ localize!("en-US", "src/base/module/homepage/locales");
 pub struct HomepageModule;
 
 impl Module for HomepageModule {
-    fn id(&self) -> &'static str {
+    fn name(&self) -> &'static str {
         "homepage"
     }
 
-    fn name(&self) -> String {
-        l("module_name")
+    fn fullname(&self) -> String {
+        l("module_fullname")
     }
 
     fn description(&self) -> String {
-        l("module_desc")
+        l("module_description")
     }
 
     fn configure_module(&self, cfg: &mut server::web::ServiceConfig) {

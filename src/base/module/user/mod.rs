@@ -5,16 +5,16 @@ localize!("en-US", "src/base/module/user/locales");
 pub struct UserModule;
 
 impl Module for UserModule {
-    fn id(&self) -> &'static str {
+    fn name(&self) -> &'static str {
         "user"
     }
 
-    fn name(&self) -> String {
-        l("module_name")
+    fn fullname(&self) -> String {
+        l("module_fullname")
     }
 
     fn description(&self) -> String {
-        l("module_desc")
+        l("module_description")
     }
 
     fn configure_module(&self, cfg: &mut server::web::ServiceConfig) {
