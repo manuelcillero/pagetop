@@ -1,13 +1,14 @@
-use crate::core::server;
+use crate::config::SETTINGS;
+use crate::core::{all, server};
 use crate::core::theme::{Markup, html};
 use crate::core::response::page::{Page, PageAssets, PageComponent};
 use crate::base::component::Chunck;
 
 /// Los temas deben implementar este "trait".
 pub trait Theme: Send + Sync {
-    fn id(&self) -> &'static str;
+    fn name(&self) -> &'static str;
 
-    fn name(&self) -> String;
+    fn fullname(&self) -> String;
 
     fn description(&self) -> String {
         "".to_string()
@@ -22,19 +23,26 @@ pub trait Theme: Send + Sync {
     }
 
     fn render_page_head(&self, page: &mut Page) -> Markup {
-        let viewport = "width=device-width, initial-scale=1, shrink-to-fit=no";
+        let title = page.title();
+        let title = if title.is_empty() {
+            SETTINGS.app.name.to_string()
+        } else {
+            [SETTINGS.app.name.to_string(), title.to_string()].join(" | ")
+        };
         let description = page.description();
+        let viewport = "width=device-width, initial-scale=1, shrink-to-fit=no";
         html! {
             head {
                 meta charset="utf-8";
 
-                meta http-equiv="X-UA-Compatible" content="IE=edge";
-                meta name="viewport" content=(viewport);
+                title { (title) }
+
                 @if !description.is_empty() {
                     meta name="description" content=(description);
                 }
 
-                title { (page.title()) }
+                meta http-equiv="X-UA-Compatible" content="IE=edge";
+                meta name="viewport" content=(viewport);
 
                 (page.assets().render())
             }
@@ -72,8 +80,8 @@ pub trait Theme: Send + Sync {
     /*
         Cómo usarlo:
 
-        match component.type_name() {
-            "Block" => {
+        match component.handle() {
+            "block" => {
                 let block = component.downcast_mut::<Block>().unwrap();
                 match block.template() {
                     "default" => Some(block_default(block)),
@@ -94,5 +102,17 @@ pub trait Theme: Send + Sync {
                 }
             }))
             .render()
+    }
+}
+
+pub fn register_theme(t: &'static (dyn Theme + 'static)) {
+    all::THEMES.write().unwrap().push(t);
+}
+
+pub fn find_theme(name: &str) -> Option<&'static (dyn Theme + 'static)> {
+    let themes = all::THEMES.write().unwrap();
+    match themes.iter().find(|t| t.name() == name) {
+        Some(theme) => Some(*theme),
+        _ => None,
     }
 }

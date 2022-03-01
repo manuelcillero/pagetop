@@ -9,7 +9,7 @@ pub trait Component: Downcast + Send + Sync {
 
     fn prepare() -> Self where Self: Sized;
 
-    fn name(&self) -> &str {
+    fn name(&self) -> &'static str {
         let name = type_name::<Self>();
         match name.rfind("::") {
             Some(position) => &name[(position + 2)..],
@@ -17,12 +17,12 @@ pub trait Component: Downcast + Send + Sync {
         }
     }
 
-    fn qualified_name(&self) -> &str {
-        type_name::<Self>()
+    fn fullname(&self) -> String {
+        type_name::<Self>().to_string()
     }
 
-    fn description(&self) -> &str {
-        ""
+    fn description(&self) -> String {
+        "".to_string()
     }
 
     fn is_renderable(&self) -> bool {

@@ -1,5 +1,4 @@
 use crate::Lazy;
-use crate::config::SETTINGS;
 use crate::core::theme::Theme;
 use crate::core::module::Module;
 use crate::core::response::page::PageContainer;
@@ -21,15 +20,6 @@ pub static THEMES: Lazy<RwLock<Vec<&dyn Theme>>> = Lazy::new(|| {
         &base::theme::minimal::MinimalTheme,
         &base::theme::bootsier::BootsierTheme,
     ])
-});
-
-pub static DEFAULT_THEME: Lazy<&dyn Theme> = Lazy::new(|| {
-    for t in THEMES.read().unwrap().iter() {
-        if t.name().to_lowercase() == SETTINGS.app.theme.to_lowercase() {
-            return *t;
-        }
-    }
-    &base::theme::bootsier::BootsierTheme
 });
 
 pub fn themes(cfg: &mut server::web::ServiceConfig) {

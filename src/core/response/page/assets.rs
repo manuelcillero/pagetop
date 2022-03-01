@@ -1,5 +1,16 @@
-use crate::core::all::DEFAULT_THEME;
+use crate::{Lazy, base};
+use crate::config::SETTINGS;
+use crate::core::all;
 use crate::core::theme::{Markup, PreEscaped, Theme, find_theme, html};
+
+pub static DEFAULT_THEME: Lazy<&dyn Theme> = Lazy::new(|| {
+    for t in all::THEMES.read().unwrap().iter() {
+        if t.name().to_lowercase() == SETTINGS.app.theme.to_lowercase() {
+            return *t;
+        }
+    }
+    &base::theme::bootsier::BootsierTheme
+});
 
 // -----------------------------------------------------------------------------
 // Favicon.
