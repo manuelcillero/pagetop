@@ -4,15 +4,15 @@ use crate::core::response::page::{PageAssets, PageComponent, render_component};
 use std::sync::Arc;
 
 #[derive(Clone)]
-pub struct Container(Vec<Arc<dyn PageComponent>>);
+pub struct PageContainer(Vec<Arc<dyn PageComponent>>);
 
-impl Container {
+impl PageContainer {
     pub fn new() -> Self {
-        Container(Vec::new())
+        PageContainer(Vec::new())
     }
 
     pub fn new_with(component: impl PageComponent) -> Self {
-        let mut container = Container::new();
+        let mut container = PageContainer::new();
         container.add(component);
         container
     }

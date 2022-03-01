@@ -7,7 +7,7 @@ use crate::core::response::page::{PageAssets, PageComponent, PageContainer};
 use std::borrow::Cow;
 use std::collections::HashMap;
 
-pub static DEFAULT_LANGUAGE: Lazy<Option<String>> = Lazy::new(|| {
+static DEFAULT_LANGUAGE: Lazy<Option<String>> = Lazy::new(|| {
     let language = SETTINGS.app.language[..2].to_lowercase();
     if !language.is_empty() {
         Some(language)
@@ -16,7 +16,7 @@ pub static DEFAULT_LANGUAGE: Lazy<Option<String>> = Lazy::new(|| {
     }
 });
 
-pub static DEFAULT_DIRECTION: Lazy<Option<String>> = Lazy::new(|| {
+static DEFAULT_DIRECTION: Lazy<Option<String>> = Lazy::new(|| {
     let direction = SETTINGS.app.direction.to_lowercase();
     match direction.as_str() {
         "auto" => Some("auto".to_string()),
@@ -188,8 +188,8 @@ impl<'a> Page<'a> {
 
     // Page EXTRAS.
 
-    pub fn using_theme(&mut self, theme_id: &str) -> &mut Self {
-        self.assets.using_theme(theme_id);
+    pub fn using_theme(&mut self, theme_name: &str) -> &mut Self {
+        self.assets.using_theme(theme_name);
         self
     }
 }

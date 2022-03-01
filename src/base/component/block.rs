@@ -31,7 +31,7 @@ impl PageComponent for Block {
     }
 
     fn default_render(&self, assets: &mut PageAssets) -> Markup {
-        let id = assets.required_id(self.name(), self.id());
+        let id = assets.serial_id(self.name(), self.id());
         html! {
             div id=(id) class="block" {
                 @if !self.title.is_empty() {

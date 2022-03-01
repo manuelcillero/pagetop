@@ -186,7 +186,7 @@ impl PageComponent for Menu {
             ))
             .add_jquery();
 
-        let id = assets.required_id(self.name(), self.id());
+        let id = assets.serial_id(self.name(), self.id());
         html! {
             ul id=(id) class="sm sm-clean" {
                 (self.render_items(assets))

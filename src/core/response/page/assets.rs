@@ -3,7 +3,7 @@ use crate::config::SETTINGS;
 use crate::core::all;
 use crate::core::theme::{Markup, PreEscaped, Theme, find_theme, html};
 
-pub static DEFAULT_THEME: Lazy<&dyn Theme> = Lazy::new(|| {
+static DEFAULT_THEME: Lazy<&dyn Theme> = Lazy::new(|| {
     for t in all::THEMES.read().unwrap().iter() {
         if t.name().to_lowercase() == SETTINGS.app.theme.to_lowercase() {
             return *t;
@@ -183,7 +183,7 @@ impl JavaScript {
 // Page assets.
 // -----------------------------------------------------------------------------
 
-pub struct Assets {
+pub struct PageAssets {
     theme      : &'static dyn Theme,
     favicon    : Option<Favicon>,
     metadata   : Vec<(String, String)>,
@@ -193,9 +193,9 @@ pub struct Assets {
     id_counter : u32,
 }
 
-impl Assets {
+impl PageAssets {
     pub fn new() -> Self {
-        Assets {
+        PageAssets {
             theme      : *DEFAULT_THEME,
             favicon    : None,
             metadata   : Vec::new(),
@@ -206,8 +206,8 @@ impl Assets {
         }
     }
 
-    pub fn using_theme(&mut self, theme_id: &str) -> &mut Self {
-        self.theme = find_theme(theme_id).unwrap_or(*DEFAULT_THEME);
+    pub fn using_theme(&mut self, theme_name: &str) -> &mut Self {
+        self.theme = find_theme(theme_name).unwrap_or(*DEFAULT_THEME);
         self
     }
 
@@ -291,7 +291,7 @@ impl Assets {
 
     // Assets EXTRAS.
 
-    pub fn required_id(&mut self, prefix: &str, id: &str) -> String {
+    pub fn serial_id(&mut self, prefix: &str, id: &str) -> String {
         if id.is_empty() {
             let prefix = prefix.trim().replace(" ", "_").to_lowercase();
             let prefix = if prefix.is_empty() {

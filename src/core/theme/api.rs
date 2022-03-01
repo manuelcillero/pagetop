@@ -80,7 +80,7 @@ pub trait Theme: Send + Sync {
     /*
         Cómo usarlo:
 
-        match component.handle() {
+        match component.name() {
             "block" => {
                 let block = component.downcast_mut::<Block>().unwrap();
                 match block.template() {

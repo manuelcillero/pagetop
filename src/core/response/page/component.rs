@@ -5,7 +5,7 @@ use downcast_rs::{Downcast, impl_downcast};
 
 use std::any::type_name;
 
-pub trait Component: Downcast + Send + Sync {
+pub trait PageComponent: Downcast + Send + Sync {
 
     fn prepare() -> Self where Self: Sized;
 
@@ -39,4 +39,4 @@ pub trait Component: Downcast + Send + Sync {
     }
 }
 
-impl_downcast!(Component);
+impl_downcast!(PageComponent);

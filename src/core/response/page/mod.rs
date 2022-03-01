@@ -1,11 +1,16 @@
-pub mod assets;
-pub use assets::Assets as PageAssets;
+mod assets;
+pub use assets::{
+    Favicon,
+    StyleSheet,
+    JavaScript, JSMode,
+    PageAssets,
+};
 
 mod component;
-pub use component::Component as PageComponent;
+pub use component::PageComponent;
 
 mod container;
-pub use container::Container as PageContainer;
+pub use container::PageContainer;
 
 mod page;
 pub use page::Page;
