@@ -2,14 +2,12 @@ pub use fluent_templates::{static_loader as static_locale, Loader as Locale};
 pub use fluent_templates;
 pub use fluent_templates::fluent_bundle::FluentValue;
 
-mod locale;
-pub use locale::LANGID;
-
 #[macro_export]
 /// Permite integrar fácilmente localización en temas, módulos y componentes.
 macro_rules! localize {
     ( $DEF_LANGID:literal, $locales:literal $(, $core_locales:literal)? ) => {
         use $crate::locale::*;
+        use $crate::core::server::LANGID;
 
         static_locale! {
             static LOCALES = {

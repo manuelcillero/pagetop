@@ -1,4 +1,4 @@
-use crate::{Lazy, base, locale, trace};
+use crate::{Lazy, base, trace};
 use crate::config::SETTINGS;
 use crate::core::{Server, all, server};
 use crate::core::module::register_module;
@@ -32,11 +32,11 @@ pub fn run(bootstrap: Option<fn()>) -> Result<Server, std::io::Error> {
         );
     }
 
-    // Traza de seguimiento.
-    Lazy::force(&trace::TRACING);
+    // Inicia la traza de la aplicación.
+    Lazy::force(&server::tracing::TRACING);
 
-    // Identificador de idioma.
-    Lazy::force(&locale::LANGID);
+    // Asigna identificador de idioma.
+    Lazy::force(&server::langid::LANGID);
 
     // Ejecuta la función de inicio de la aplicación.
     if bootstrap != None {
