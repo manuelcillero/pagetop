@@ -13,8 +13,8 @@ impl Module for UserModule {
         l("module_fullname")
     }
 
-    fn description(&self) -> String {
-        l("module_description")
+    fn description(&self) -> Option<String> {
+        Some(l("module_description"))
     }
 
     fn configure_module(&self, cfg: &mut server::web::ServiceConfig) {
@@ -29,7 +29,7 @@ fn form_login() -> impl PageComponent {
             .with_name("name")
             .with_label(l("username").as_str())
             .with_help_text(t("username_help", &args![
-                "app" => SETTINGS.app.name.to_string()
+                "app" => SETTINGS.app.name.to_owned()
             ]).as_str())
             .autofocus(true)
         )

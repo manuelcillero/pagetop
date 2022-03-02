@@ -54,17 +54,17 @@ impl Hidden {
     }
 
     pub fn with_value(mut self, value: &str) -> Self {
-        self.value = util::optional_value(value);
+        self.value = util::optional_str(value);
         self
     }
 
     // Hidden GETTERS.
 
     pub fn name(&self) -> &str {
-        util::assigned_value(&self.name)
+        util::assigned_str(&self.name)
     }
 
     pub fn value(&self) -> &str {
-        util::assigned_value(&self.value)
+        util::assigned_str(&self.value)
     }
 }

@@ -1,10 +1,12 @@
 use crate::Lazy;
-use crate::config::CONFIG_DIR;
 
 use config_rs::{Config, File};
 use serde::Deserialize;
 
 use std::env;
+
+/// Nombre del directorio donde se encuentra la configuración.
+const CONFIG_DIR: &'static str = "config";
 
 /// Al arrancar la aplicación, carga los valores originales "clave = valor" de
 /// los archivos de configuración. Con [`config_map`] se asignarán los ajustes

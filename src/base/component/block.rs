@@ -4,7 +4,7 @@ pub struct Block {
     renderable: fn() -> bool,
     weight    : i8,
     id        : Option<String>,
-    title     : String,
+    title     : Option<String>,
     markup    : Vec<Markup>,
     template  : String,
 }
@@ -16,9 +16,9 @@ impl PageComponent for Block {
             renderable: always,
             weight    : 0,
             id        : None,
-            title     : "".to_string(),
+            title     : None,
             markup    : Vec::new(),
-            template  : "default".to_string(),
+            template  : "default".to_owned(),
         }
     }
 
@@ -34,8 +34,8 @@ impl PageComponent for Block {
         let id = assets.serial_id(self.name(), self.id());
         html! {
             div id=(id) class="block" {
-                @if !self.title.is_empty() {
-                    h2 class="block-title" { (self.title) }
+                @if self.title != None {
+                    h2 class="block-title" { (self.title()) }
                 }
                 div class="block-body" {
                     @for markup in self.markup.iter() {
@@ -71,7 +71,7 @@ impl Block {
     }
 
     pub fn with_title(mut self, title: &str) -> Self {
-        self.title = title.to_string();
+        self.title = util::optional_str(title);
         self
     }
 
@@ -81,18 +81,18 @@ impl Block {
     }
 
     pub fn using_template(mut self, template: &str) -> Self {
-        self.template = template.to_string();
+        self.template = template.to_owned();
         self
     }
 
     // Block GETTERS.
 
     pub fn id(&self) -> &str {
-        util::assigned_value(&self.id)
+        util::assigned_str(&self.id)
     }
 
     pub fn title(&self) -> &str {
-        self.title.as_str()
+        util::assigned_str(&self.title)
     }
 
     pub fn template(&self) -> &str {

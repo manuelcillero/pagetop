@@ -1,6 +1,6 @@
 use crate::{Lazy, trace, util};
 use crate::config::SETTINGS;
-use crate::core::{all, server};
+use crate::core::{global, server};
 use crate::core::theme::{DOCTYPE, Markup, html};
 use crate::core::response::page::{PageAssets, PageComponent, PageContainer};
 
@@ -19,9 +19,9 @@ static DEFAULT_LANGUAGE: Lazy<Option<String>> = Lazy::new(|| {
 static DEFAULT_DIRECTION: Lazy<Option<String>> = Lazy::new(|| {
     let direction = SETTINGS.app.direction.to_lowercase();
     match direction.as_str() {
-        "auto" => Some("auto".to_string()),
-        "ltr" => Some("ltr".to_string()),
-        "rtl" => Some("rtl".to_string()),
+        "auto" => Some("auto".to_owned()),
+        "ltr" => Some("ltr".to_owned()),
+        "rtl" => Some("rtl".to_owned()),
         "" => None,
         _ => {
             trace::warn!(
@@ -44,7 +44,7 @@ pub struct Page<'a> {
     assets      : PageAssets,
     body_classes: Cow<'a, str>,
     regions     : HashMap<&'a str, PageContainer>,
-    template    : Option<String>,
+    template    : String,
 }
 
 impl<'a> Page<'a> {
@@ -52,45 +52,45 @@ impl<'a> Page<'a> {
     pub fn prepare() -> Self {
         Page {
             language    : match &*DEFAULT_LANGUAGE {
-                Some(language) => Some(language.to_string()),
+                Some(language) => Some(language.to_owned()),
                 _ => None,
             },
             direction   : match &*DEFAULT_DIRECTION {
-                Some(direction) => Some(direction.to_string()),
+                Some(direction) => Some(direction.to_owned()),
                 _ => None,
             },
             title       : None,
             description : None,
             body_classes: "body".into(),
             assets      : PageAssets::new(),
-            regions     : all::COMPONENTS.read().unwrap().clone(),
-            template    : Some("default".to_string()),
+            regions     : global::COMPONENTS.read().unwrap().clone(),
+            template    : "default".to_owned(),
         }
     }
 
     // Page BUILDER.
 
     pub fn with_language(&mut self, language: &str) -> &mut Self {
-        self.language = util::optional_value(language);
+        self.language = util::optional_str(language);
         self
     }
 
     pub fn with_direction(&mut self, dir: TextDirection) -> &mut Self {
         self.direction = match dir {
-            TextDirection::Auto => Some("auto".to_string()),
-            TextDirection::LeftToRight => Some("ltr".to_string()),
-            TextDirection::RightToLeft => Some("rtl".to_string()),
+            TextDirection::Auto => Some("auto".to_owned()),
+            TextDirection::LeftToRight => Some("ltr".to_owned()),
+            TextDirection::RightToLeft => Some("rtl".to_owned()),
         };
         self
     }
 
     pub fn with_title(&mut self, title: &str) -> &mut Self {
-        self.title = util::optional_value(title);
+        self.title = util::optional_str(title);
         self
     }
 
     pub fn with_description(&mut self, description: &str) -> &mut Self {
-        self.description = util::optional_value(description);
+        self.description = util::optional_str(description);
         self
     }
 
@@ -120,26 +120,26 @@ impl<'a> Page<'a> {
     }
 
     pub fn using_template(&mut self, template: &str) -> &mut Self {
-        self.template = util::optional_value(template);
+        self.template = template.to_owned();
         self
     }
 
     // Page GETTERS.
 
     pub fn language(&self) -> &str {
-        util::assigned_value(&self.language)
+        util::assigned_str(&self.language)
     }
 
     pub fn direction(&self) -> &str {
-        util::assigned_value(&self.direction)
+        util::assigned_str(&self.direction)
     }
 
     pub fn title(&self) -> &str {
-        util::assigned_value(&self.title)
+        util::assigned_str(&self.title)
     }
 
     pub fn description(&self) -> &str {
-        util::assigned_value(&self.description)
+        util::assigned_str(&self.description)
     }
 
     pub fn body_classes(&self) -> &str {
@@ -154,7 +154,7 @@ impl<'a> Page<'a> {
     }
 
     pub fn template(&self) -> &str {
-        util::assigned_value(&self.template)
+        self.template.as_str()
     }
 
     // Page RENDER.
@@ -208,7 +208,7 @@ pub fn render_component(
 }
 
 pub fn add_component_to(region: &'static str, component: impl PageComponent) {
-    let mut hmap = all::COMPONENTS.write().unwrap();
+    let mut hmap = global::COMPONENTS.write().unwrap();
     if let Some(regions) = hmap.get_mut(region) {
         regions.add(component);
     } else {

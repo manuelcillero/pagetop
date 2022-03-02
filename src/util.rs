@@ -26,17 +26,17 @@ pub fn valid_id(id: &str) -> Option<String> {
     }
 }
 
-pub fn optional_value(value: &str) -> Option<String> {
-    let value = value.to_string();
-    match value.is_empty() {
+pub fn optional_str(s: &str) -> Option<String> {
+    let s = s.to_owned();
+    match s.is_empty() {
         true => None,
-        false => Some(value),
+        false => Some(s),
     }
 }
 
-pub fn assigned_value(value: &Option<String>) -> &str {
-    match value {
-        Some(value) => value.as_str(),
+pub fn assigned_str(optional: &Option<String>) -> &str {
+    match optional {
+        Some(o) => o.as_str(),
         _ => "",
     }
 }

@@ -8,7 +8,7 @@ pub struct Input {
     input_type  : InputType,
     name        : Option<String>,
     value       : Option<String>,
-    label       : String,
+    label       : Option<String>,
     size        : Option<u16>,
     minlength   : Option<u16>,
     maxlength   : Option<u16>,
@@ -18,7 +18,7 @@ pub struct Input {
     disabled    : Option<String>,
     readonly    : Option<String>,
     required    : Option<String>,
-    help_text   : String,
+    help_text   : Option<String>,
     template    : String,
 }
 
@@ -31,7 +31,7 @@ impl PageComponent for Input {
             input_type  : InputType::Textfield,
             name        : None,
             value       : None,
-            label       : "".to_string(),
+            label       : None,
             size        : Some(60),
             minlength   : None,
             maxlength   : Some(128),
@@ -41,8 +41,8 @@ impl PageComponent for Input {
             disabled    : None,
             readonly    : None,
             required    : None,
-            help_text   : "".to_string(),
-            template    : "default".to_string(),
+            help_text   : None,
+            template    : "default".to_owned(),
         }
     }
 
@@ -75,9 +75,9 @@ impl PageComponent for Input {
         };
         html! {
             div class=(class_item) {
-                @if !self.label.is_empty() {
+                @if self.label != None {
                     label class="form-label" for=[&id_item] {
-                        (self.label) " "
+                        (self.label()) " "
                         @if self.required != None {
                             span
                                 class="form-required"
@@ -103,9 +103,9 @@ impl PageComponent for Input {
                     readonly=[&self.readonly]
                     required=[&self.required]
                     disabled=[&self.disabled];
-                @if !self.help_text.is_empty() {
+                @if self.help_text != None {
                     div class="form-text" {
-                        (self.help_text)
+                        (self.help_text())
                     }
                 }
             }
@@ -167,12 +167,12 @@ impl Input {
     }
 
     pub fn with_value(mut self, value: &str) -> Self {
-        self.value = util::optional_value(value);
+        self.value = util::optional_str(value);
         self
     }
 
     pub fn with_label(mut self, label: &str) -> Self {
-        self.label = label.to_string();
+        self.label = util::optional_str(label);
         self
     }
 
@@ -192,13 +192,13 @@ impl Input {
     }
 
     pub fn with_placeholder(mut self, placeholder: &str) -> Self {
-        self.placeholder = util::optional_value(placeholder);
+        self.placeholder = util::optional_str(placeholder);
         self
     }
 
     pub fn autofocus(mut self, toggle: bool) -> Self {
         self.autofocus = match toggle {
-            true => Some("autofocus".to_string()),
+            true => Some("autofocus".to_owned()),
             false => None
         };
         self
@@ -207,14 +207,14 @@ impl Input {
     pub fn autocomplete(mut self, toggle: bool) -> Self {
         self.autocomplete = match toggle {
             true => None,
-            false => Some("off".to_string())
+            false => Some("off".to_owned())
         };
         self
     }
 
     pub fn disabled(mut self, toggle: bool) -> Self {
         self.disabled = match toggle {
-            true => Some("disabled".to_string()),
+            true => Some("disabled".to_owned()),
             false => None
         };
         self
@@ -222,7 +222,7 @@ impl Input {
 
     pub fn readonly(mut self, toggle: bool) -> Self {
         self.readonly = match toggle {
-            true => Some("readonly".to_string()),
+            true => Some("readonly".to_owned()),
             false => None
         };
         self
@@ -230,34 +230,34 @@ impl Input {
 
     pub fn required(mut self, toggle: bool) -> Self {
         self.required = match toggle {
-            true => Some("required".to_string()),
+            true => Some("required".to_owned()),
             false => None
         };
         self
     }
 
     pub fn with_help_text(mut self, help_text: &str) -> Self {
-        self.help_text = help_text.to_string();
+        self.help_text = util::optional_str(help_text);
         self
     }
 
     pub fn using_template(mut self, template: &str) -> Self {
-        self.template = template.to_string();
+        self.template = template.to_owned();
         self
     }
 
     // Input GETTERS.
 
     pub fn name(&self) -> &str {
-        util::assigned_value(&self.name)
+        util::assigned_str(&self.name)
     }
 
     pub fn value(&self) -> &str {
-        util::assigned_value(&self.value)
+        util::assigned_str(&self.value)
     }
 
     pub fn label(&self) -> &str {
-        self.label.as_str()
+        util::assigned_str(&self.label)
     }
 
     pub fn size(&self) -> Option<u16> {
@@ -273,7 +273,7 @@ impl Input {
     }
 
     pub fn placeholder(&self) -> &str {
-        util::assigned_value(&self.placeholder)
+        util::assigned_str(&self.placeholder)
     }
 
     pub fn has_autofocus(&self) -> bool {
@@ -312,7 +312,7 @@ impl Input {
     }
 
     pub fn help_text(&self) -> &str {
-        self.help_text.as_str()
+        util::assigned_str(&self.help_text)
     }
 
     pub fn template(&self) -> &str {

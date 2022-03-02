@@ -22,9 +22,9 @@ impl PageComponent for Form {
             id        : None,
             action    : None,
             method    : FormMethod::Post,
-            charset   : Some("UTF-8".to_string()),
+            charset   : Some("UTF-8".to_owned()),
             elements  : PageContainer::new(),
-            template  : "default".to_string(),
+            template  : "default".to_owned(),
         }
     }
 
@@ -39,7 +39,7 @@ impl PageComponent for Form {
     fn default_render(&self, assets: &mut PageAssets) -> Markup {
         let method = match self.method {
             FormMethod::Get => None,
-            FormMethod::Post => Some("post".to_string())
+            FormMethod::Post => Some("post".to_owned())
         };
         html! {
             form
@@ -76,7 +76,7 @@ impl Form {
     }
 
     pub fn with_action(mut self, action: &str) -> Self {
-        self.action = util::optional_value(action);
+        self.action = util::optional_str(action);
         self
     }
 
@@ -86,7 +86,7 @@ impl Form {
     }
 
     pub fn with_charset(mut self, charset: &str) -> Self {
-        self.charset = util::optional_value(charset);
+        self.charset = util::optional_str(charset);
         self
     }
 
@@ -96,18 +96,18 @@ impl Form {
     }
 
     pub fn using_template(mut self, template: &str) -> Self {
-        self.template = template.to_string();
+        self.template = template.to_owned();
         self
     }
 
     // Form GETTERS.
 
     pub fn id(&self) -> &str {
-        util::assigned_value(&self.id)
+        util::assigned_str(&self.id)
     }
 
     pub fn action(&self) -> &str {
-        util::assigned_value(&self.action)
+        util::assigned_str(&self.action)
     }
 
     pub fn method(&self) -> &str {
@@ -118,7 +118,7 @@ impl Form {
     }
 
     pub fn charset(&self) -> &str {
-        util::assigned_value(&self.charset)
+        util::assigned_str(&self.charset)
     }
 
     pub fn template(&self) -> &str {

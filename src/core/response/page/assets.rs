@@ -1,10 +1,10 @@
 use crate::{Lazy, base};
 use crate::config::SETTINGS;
-use crate::core::all;
+use crate::core::global;
 use crate::core::theme::{Markup, PreEscaped, Theme, find_theme, html};
 
 static DEFAULT_THEME: Lazy<&dyn Theme> = Lazy::new(|| {
-    for t in all::THEMES.read().unwrap().iter() {
+    for t in global::THEMES.read().unwrap().iter() {
         if t.name().to_lowercase() == SETTINGS.app.theme.to_lowercase() {
             return *t;
         }
@@ -73,7 +73,7 @@ impl Favicon {
     ) -> Self {
         let mut link: String = format!("<link rel=\"{}\"", rel);
         if let Some(i) = source.rfind('.') {
-            link = match source[i..].to_string().to_lowercase().as_str() {
+            link = match source[i..].to_owned().to_lowercase().as_str() {
                 ".gif" => format!("{} type=\"image/gif\"", link),
                 ".ico" => format!("{} type=\"image/x-icon\"", link),
                 ".jpg" => format!("{} type=\"image/jpg\"", link),
@@ -295,14 +295,14 @@ impl PageAssets {
         if id.is_empty() {
             let prefix = prefix.trim().replace(" ", "_").to_lowercase();
             let prefix = if prefix.is_empty() {
-                "prefix".to_string()
+                "prefix".to_owned()
             } else {
                 prefix
             };
             self.id_counter += 1;
             [prefix, self.id_counter.to_string()].join("-")
         } else {
-            id.to_string()
+            id.to_owned()
         }
     }
 }

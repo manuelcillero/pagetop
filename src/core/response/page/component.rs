@@ -18,11 +18,11 @@ pub trait PageComponent: Downcast + Send + Sync {
     }
 
     fn fullname(&self) -> String {
-        type_name::<Self>().to_string()
+        type_name::<Self>().to_owned()
     }
 
-    fn description(&self) -> String {
-        "".to_string()
+    fn description(&self) -> Option<String> {
+        None
     }
 
     fn is_renderable(&self) -> bool {

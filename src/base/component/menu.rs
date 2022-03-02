@@ -75,7 +75,7 @@ impl MenuItem {
         MenuItem {
             renderable: always,
             weight    : 0,
-            item_type : Some(MenuItemType::Label(label.to_string())),
+            item_type : Some(MenuItemType::Label(label.to_owned())),
         }
     }
 
@@ -84,8 +84,8 @@ impl MenuItem {
             renderable: always,
             weight    : 0,
             item_type : Some(MenuItemType::Link(
-                label.to_string(),
-                path.to_string(),
+                label.to_owned(),
+                path.to_owned(),
             )),
         }
     }
@@ -95,8 +95,8 @@ impl MenuItem {
             renderable: always,
             weight    : 0,
             item_type : Some(MenuItemType::LinkBlank(
-                label.to_string(),
-                path.to_string(),
+                label.to_owned(),
+                path.to_owned(),
             )),
         }
     }
@@ -122,7 +122,7 @@ impl MenuItem {
             renderable: always,
             weight    : 0,
             item_type : Some(MenuItemType::Submenu(
-                label.to_string(),
+                label.to_owned(),
                 menu
             )),
         }
@@ -161,7 +161,7 @@ impl PageComponent for Menu {
             weight    : 0,
             id        : None,
             items     : PageContainer::new(),
-            template  : "default".to_string(),
+            template  : "default".to_owned(),
         }
     }
 
@@ -226,14 +226,14 @@ impl Menu {
     }
 
     pub fn using_template(mut self, template: &str) -> Self {
-        self.template = template.to_string();
+        self.template = template.to_owned();
         self
     }
 
     // Menu GETTERS.
 
     pub fn id(&self) -> &str {
-        util::assigned_value(&self.id)
+        util::assigned_str(&self.id)
     }
 
     pub fn template(&self) -> &str {

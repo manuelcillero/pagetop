@@ -24,7 +24,7 @@ impl PageComponent for Button {
             value      : None,
             autofocus  : None,
             disabled   : None,
-            template   : "default".to_string(),
+            template   : "default".to_owned(),
         }
     }
 
@@ -101,13 +101,13 @@ impl Button {
     }
 
     pub fn with_value(mut self, value: &str) -> Self {
-        self.value = util::optional_value(value);
+        self.value = util::optional_str(value);
         self
     }
 
     pub fn autofocus(mut self, toggle: bool) -> Self {
         self.autofocus = match toggle {
-            true => Some("autofocus".to_string()),
+            true => Some("autofocus".to_owned()),
             false => None
         };
         self
@@ -115,25 +115,25 @@ impl Button {
 
     pub fn disabled(mut self, toggle: bool) -> Self {
         self.disabled = match toggle {
-            true => Some("disabled".to_string()),
+            true => Some("disabled".to_owned()),
             false => None
         };
         self
     }
 
     pub fn using_template(mut self, template: &str) -> Self {
-        self.template = template.to_string();
+        self.template = template.to_owned();
         self
     }
 
     // Button GETTERS.
 
     pub fn name(&self) -> &str {
-        util::assigned_value(&self.name)
+        util::assigned_str(&self.name)
     }
 
     pub fn value(&self) -> &str {
-        util::assigned_value(&self.value)
+        util::assigned_str(&self.value)
     }
 
     pub fn has_autofocus(&self) -> bool {

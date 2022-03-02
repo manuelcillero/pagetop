@@ -14,7 +14,7 @@ impl PageComponent for Chunck {
             renderable: always,
             weight    : 0,
             markup    : Vec::new(),
-            template  : "default".to_string(),
+            template  : "default".to_owned(),
         }
     }
 
@@ -59,7 +59,7 @@ impl Chunck {
     }
 
     pub fn using_template(mut self, template: &str) -> Self {
-        self.template = template.to_string();
+        self.template = template.to_owned();
         self
     }
 

@@ -12,7 +12,7 @@ impl Theme for BootsierTheme {
     }
 
     fn fullname(&self) -> String {
-        "Bootsier".to_string()
+        "Bootsier".to_owned()
     }
 
     fn configure_theme(&self, cfg: &mut server::web::ServiceConfig) {

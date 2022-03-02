@@ -3,7 +3,6 @@ use crate::core::theme::Theme;
 use crate::core::module::Module;
 use crate::core::response::page::PageContainer;
 use crate::core::server;
-use crate::base;
 
 use std::sync::RwLock;
 use std::collections::HashMap;
@@ -15,11 +14,7 @@ include!(concat!(env!("OUT_DIR"), "/theme.rs"));
 // -----------------------------------------------------------------------------
 
 pub static THEMES: Lazy<RwLock<Vec<&dyn Theme>>> = Lazy::new(|| {
-    RwLock::new(vec![
-        &base::theme::aliner::AlinerTheme,
-        &base::theme::minimal::MinimalTheme,
-        &base::theme::bootsier::BootsierTheme,
-    ])
+    RwLock::new(Vec::new())
 });
 
 pub fn themes(cfg: &mut server::web::ServiceConfig) {
@@ -38,10 +33,7 @@ pub fn themes(cfg: &mut server::web::ServiceConfig) {
 // -----------------------------------------------------------------------------
 
 pub static MODULES: Lazy<RwLock<Vec<&dyn Module>>> = Lazy::new(|| {
-    RwLock::new(vec![
-        &base::module::admin::AdminModule,
-        &base::module::user::UserModule,
-    ])
+    RwLock::new(Vec::new())
 });
 
 pub fn modules(cfg: &mut server::web::ServiceConfig) {

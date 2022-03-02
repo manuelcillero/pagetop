@@ -5,14 +5,14 @@ pub struct Date {
     weight      : i8,
     name        : Option<String>,
     value       : Option<String>,
-    label       : String,
+    label       : Option<String>,
     placeholder : Option<String>,
     autofocus   : Option<String>,
     autocomplete: Option<String>,
     disabled    : Option<String>,
     readonly    : Option<String>,
     required    : Option<String>,
-    help_text   : String,
+    help_text   : Option<String>,
     template    : String,
 }
 
@@ -24,15 +24,15 @@ impl PageComponent for Date {
             weight      : 0,
             name        : None,
             value       : None,
-            label       : "".to_string(),
+            label       : None,
             placeholder : None,
             autofocus   : None,
             autocomplete: None,
             disabled    : None,
             readonly    : None,
             required    : None,
-            help_text   : "".to_string(),
-            template    : "default".to_string(),
+            help_text   : None,
+            template    : "default".to_owned(),
         }
     }
 
@@ -51,15 +51,15 @@ impl PageComponent for Date {
                 Some(format!("edit-{}", name))
             ),
             None => (
-                "form-item form-type-date".to_string(),
+                "form-item form-type-date".to_owned(),
                 None
             )
         };
         html! {
             div class=(class_item) {
-                @if !self.label.is_empty() {
+                @if self.label != None {
                     label class="form-label" for=[&id_item] {
-                        (self.label) " "
+                        (self.label()) " "
                         @if self.required != None {
                             span
                                 class="form-required"
@@ -82,9 +82,9 @@ impl PageComponent for Date {
                     readonly=[&self.readonly]
                     required=[&self.required]
                     disabled=[&self.disabled];
-                @if !self.help_text.is_empty() {
+                @if self.help_text != None {
                     div class="form-text" {
-                        (self.help_text)
+                        (self.help_text())
                     }
                 }
             }
@@ -112,23 +112,23 @@ impl Date {
     }
 
     pub fn with_value(mut self, value: &str) -> Self {
-        self.value = util::optional_value(value);
+        self.value = util::optional_str(value);
         self
     }
 
     pub fn with_label(mut self, label: &str) -> Self {
-        self.label = label.to_string();
+        self.label = util::optional_str(label);
         self
     }
 
     pub fn with_placeholder(mut self, placeholder: &str) -> Self {
-        self.placeholder = util::optional_value(placeholder);
+        self.placeholder = util::optional_str(placeholder);
         self
     }
 
     pub fn autofocus(mut self, toggle: bool) -> Self {
         self.autofocus = match toggle {
-            true => Some("autofocus".to_string()),
+            true => Some("autofocus".to_owned()),
             false => None
         };
         self
@@ -137,14 +137,14 @@ impl Date {
     pub fn autocomplete(mut self, toggle: bool) -> Self {
         self.autocomplete = match toggle {
             true => None,
-            false => Some("off".to_string())
+            false => Some("off".to_owned())
         };
         self
     }
 
     pub fn disabled(mut self, toggle: bool) -> Self {
         self.disabled = match toggle {
-            true => Some("disabled".to_string()),
+            true => Some("disabled".to_owned()),
             false => None
         };
         self
@@ -152,7 +152,7 @@ impl Date {
 
     pub fn readonly(mut self, toggle: bool) -> Self {
         self.readonly = match toggle {
-            true => Some("readonly".to_string()),
+            true => Some("readonly".to_owned()),
             false => None
         };
         self
@@ -160,38 +160,38 @@ impl Date {
 
     pub fn required(mut self, toggle: bool) -> Self {
         self.required = match toggle {
-            true => Some("required".to_string()),
+            true => Some("required".to_owned()),
             false => None
         };
         self
     }
 
     pub fn with_help_text(mut self, help_text: &str) -> Self {
-        self.help_text = help_text.to_string();
+        self.help_text = util::optional_str(help_text);
         self
     }
 
     pub fn using_template(mut self, template: &str) -> Self {
-        self.template = template.to_string();
+        self.template = template.to_owned();
         self
     }
 
     // Date GETTERS.
 
     pub fn name(&self) -> &str {
-        util::assigned_value(&self.name)
+        util::assigned_str(&self.name)
     }
 
     pub fn value(&self) -> &str {
-        util::assigned_value(&self.value)
+        util::assigned_str(&self.value)
     }
 
     pub fn label(&self) -> &str {
-        self.label.as_str()
+        util::assigned_str(&self.label)
     }
 
     pub fn placeholder(&self) -> &str {
-        util::assigned_value(&self.placeholder)
+        util::assigned_str(&self.placeholder)
     }
 
     pub fn has_autofocus(&self) -> bool {
@@ -230,7 +230,7 @@ impl Date {
     }
 
     pub fn help_text(&self) -> &str {
-        self.help_text.as_str()
+        util::assigned_str(&self.help_text)
     }
 
     pub fn template(&self) -> &str {

@@ -1,6 +1,6 @@
 pub use actix_web::dev::Server;
 
-mod all;
+mod global;
 
 pub mod theme;
 pub mod module;

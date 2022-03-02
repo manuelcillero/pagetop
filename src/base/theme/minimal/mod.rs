@@ -8,6 +8,6 @@ impl Theme for MinimalTheme {
     }
 
     fn fullname(&self) -> String {
-        "Minimal".to_string()
+        "Minimal".to_owned()
     }
 }

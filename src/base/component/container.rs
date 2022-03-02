@@ -20,7 +20,7 @@ impl PageComponent for Container {
             id        : None,
             container : ContainerType::Wrapper,
             components: PageContainer::new(),
-            template  : "default".to_string(),
+            template  : "default".to_owned(),
         }
     }
 
@@ -83,14 +83,14 @@ impl Container {
     }
 
     pub fn using_template(mut self, template: &str) -> Self {
-        self.template = template.to_string();
+        self.template = template.to_owned();
         self
     }
 
     // Container GETTERS.
 
     pub fn id(&self) -> &str {
-        util::assigned_value(&self.id)
+        util::assigned_str(&self.id)
     }
 
     pub fn template(&self) -> &str {

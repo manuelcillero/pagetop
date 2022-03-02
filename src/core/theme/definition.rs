@@ -1,5 +1,5 @@
 use crate::config::SETTINGS;
-use crate::core::{all, server};
+use crate::core::server;
 use crate::core::theme::{Markup, html};
 use crate::core::response::page::{Page, PageAssets, PageComponent};
 use crate::base::component::Chunck;
@@ -10,8 +10,8 @@ pub trait Theme: Send + Sync {
 
     fn fullname(&self) -> String;
 
-    fn description(&self) -> String {
-        "".to_string()
+    fn description(&self) -> Option<String> {
+        None
     }
 
     #[allow(unused_variables)]
@@ -25,7 +25,7 @@ pub trait Theme: Send + Sync {
     fn render_page_head(&self, page: &mut Page) -> Markup {
         let title = page.title();
         let title = if title.is_empty() {
-            SETTINGS.app.name.to_string()
+            SETTINGS.app.name.to_owned()
         } else {
             [SETTINGS.app.name.to_string(), title.to_string()].join(" | ")
         };
@@ -102,17 +102,5 @@ pub trait Theme: Send + Sync {
                 }
             }))
             .render()
-    }
-}
-
-pub fn register_theme(t: &'static (dyn Theme + 'static)) {
-    all::THEMES.write().unwrap().push(t);
-}
-
-pub fn find_theme(name: &str) -> Option<&'static (dyn Theme + 'static)> {
-    let themes = all::THEMES.write().unwrap();
-    match themes.iter().find(|t| t.name() == name) {
-        Some(theme) => Some(*theme),
-        _ => None,
     }
 }

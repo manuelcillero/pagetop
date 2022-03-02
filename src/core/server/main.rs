@@ -1,6 +1,7 @@
-use crate::{Lazy, base, trace};
+use crate::{Lazy, base, locale, trace};
 use crate::config::SETTINGS;
-use crate::core::{Server, all, server};
+use crate::core::{Server, global, server};
+use crate::core::theme::register_theme;
 use crate::core::module::register_module;
 
 use actix_web::middleware::normalize;
@@ -32,11 +33,20 @@ pub fn run(bootstrap: Option<fn()>) -> Result<Server, std::io::Error> {
         );
     }
 
-    // Inicia la traza de la aplicación.
+    // Inicia registro de trazas y eventos.
     Lazy::force(&server::tracing::TRACING);
 
     // Asigna identificador de idioma.
-    Lazy::force(&server::langid::LANGID);
+    Lazy::force(&locale::LANGID);
+
+    // Registra los temas predefinidos.
+    register_theme(&base::theme::aliner::AlinerTheme);
+    register_theme(&base::theme::minimal::MinimalTheme);
+    register_theme(&base::theme::bootsier::BootsierTheme);
+
+    // Registra los módulos predeterminados.
+    register_module(&base::module::admin::AdminModule);
+    register_module(&base::module::user::UserModule);
 
     // Ejecuta la función de inicio de la aplicación.
     if bootstrap != None {
@@ -54,8 +64,8 @@ pub fn run(bootstrap: Option<fn()>) -> Result<Server, std::io::Error> {
         server::App::new()
             .wrap(tracing_actix_web::TracingLogger)
             .wrap(normalize::NormalizePath::new(normalize::TrailingSlash::Trim))
-            .configure(&all::themes)
-            .configure(&all::modules)
+            .configure(&global::themes)
+            .configure(&global::modules)
         })
         .bind(format!("{}:{}",
             &SETTINGS.webserver.bind_address,

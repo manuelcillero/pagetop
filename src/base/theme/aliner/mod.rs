@@ -10,7 +10,7 @@ impl Theme for AlinerTheme {
     }
 
     fn fullname(&self) -> String {
-        "Aliner".to_string()
+        "Aliner".to_owned()
     }
 
     fn configure_theme(&self, cfg: &mut server::web::ServiceConfig) {

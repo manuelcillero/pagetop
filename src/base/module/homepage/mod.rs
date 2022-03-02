@@ -13,8 +13,8 @@ impl Module for HomepageModule {
         l("module_fullname")
     }
 
-    fn description(&self) -> String {
-        l("module_description")
+    fn description(&self) -> Option<String> {
+        Some(l("module_description"))
     }
 
     fn configure_module(&self, cfg: &mut server::web::ServiceConfig) {
