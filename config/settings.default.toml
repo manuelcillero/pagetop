@@ -23,6 +23,20 @@ prefix = "tracing.log"
 # Presentación de las trazas: "Json", "Full", "Compact" o "Pretty".
 format = "Json"
 
+[database]
+# Ajustes para conectar con la base de datos.
+# El tipo de base de datos es una característica de compilación.
+# Nombre (mysql/postgres) o referencia (sqlite) de la base de datos.
+db_name = "dbname"
+# Usuario y contraseña (mysql/postgres).
+db_user = "dbuser"
+db_pass = "dbpass"
+# Servidor (mysql/postgres) y puerto predeterminado (0 para 3306 ó 5432).
+db_host = "localhost"
+db_port = 0
+# Número máximo de conexiones habilitadas.
+max_pool_size = 5
+
 [webserver]
 # Configuración del servidor web.
 bind_address = "localhost"

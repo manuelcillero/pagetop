@@ -1,8 +1,9 @@
 use crate::prelude::*;
+use super::l;
 
 pub async fn summary() -> server::Result<Markup> {
     let top_menu = Menu::prepare()
-        .add(MenuItem::label("Opción 1"))
+        .add(MenuItem::label(l("module_fullname").as_str()))
         .add(MenuItem::link("Opción 2", "https://www.google.es"))
         .add(MenuItem::link_blank("Opción 3", "https://www.google.es"))
         .add(MenuItem::submenu("Submenú 1", Menu::prepare()

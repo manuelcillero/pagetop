@@ -4,5 +4,7 @@ pub use actix_web::{
 
 mod tracing;
 
-mod main;
-pub use main::run;
+mod dbconn;
+
+mod app;
+pub use app::Application;

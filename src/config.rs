@@ -88,6 +88,16 @@ pub struct Log {
 }
 
 #[derive(Debug, Deserialize)]
+pub struct Database {
+    pub db_name       : String,
+    pub db_user       : String,
+    pub db_pass       : String,
+    pub db_host       : String,
+    pub db_port       : u16,
+    pub max_pool_size : u32,
+}
+
+#[derive(Debug, Deserialize)]
 pub struct Webserver {
     pub bind_address  : String,
     pub bind_port     : u16,
@@ -97,6 +107,7 @@ pub struct Webserver {
 pub struct Settings {
     pub app           : App,
     pub log           : Log,
+    pub database      : Database,
     pub webserver     : Webserver,
 }
 
@@ -120,6 +131,14 @@ Ajustes globales y valores predeterminados para las secciones *\[app\]*,
     "log.path"               => "log",
     "log.prefix"             => "tracing.log",
     "log.format"             => "json",
+
+    // [database]
+    "database.db_name"       => "dbname",
+    "database.db_user"       => "dbuser",
+    "database.db_pass"       => "dbpass",
+    "database.db_host"       => "localhost",
+    "database.db_port"       => 0,
+    "database.max_pool_size" => 5,
 
     // [webserver]
     "webserver.bind_address" => "localhost",
