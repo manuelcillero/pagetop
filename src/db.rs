@@ -1,17 +1,14 @@
-pub use url::Url as Uri;
+pub use url::Url as DbUri;
 
-#[cfg(feature = "mysql")]
-pub use {
-    barrel::backend::MySql as Database,
-    sqlx::MySqlPool as Conn,
+pub use sea_orm::{
+    DbErr,
+    DatabaseConnection as DbConn,
 };
 
-#[cfg(feature = "postgres")]
-pub use {
-    barrel::backend::Pg as Database,
-    sqlx::PgPool as Conn,
-};
+pub mod entity {
+    pub use sea_orm::entity::prelude::*;
+}
 
-pub use barrel::{Migration, types};
-pub use refinery::embed_migrations;
-pub use refinery::Runner as Migrations;
+pub mod migration {
+    pub use sea_schema::migration::prelude::*;
+}

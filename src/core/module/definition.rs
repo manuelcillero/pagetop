@@ -15,7 +15,8 @@ pub trait Module: Send + Sync {
     fn configure_module(&self, cfg: &mut server::web::ServiceConfig) {
     }
 
-    fn configure_migrations(&self) -> Option<db::Migrations> {
-        None
+    #[allow(unused_variables)]
+    fn migrations(&self, dbconn: &db::DbConn) -> Result<(), db::DbErr> {
+        Ok(())
     }
 }

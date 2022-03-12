@@ -42,15 +42,9 @@ pub fn modules(cfg: &mut server::web::ServiceConfig) {
     }
 }
 
-pub fn migrations(db_uri: db::Uri) {
-    let mut conn = refinery::config::Config::try_from(db_uri).unwrap();
+pub fn migrations(dbconn: &db::DbConn) {
     for m in MODULES.read().unwrap().iter() {
-        match m.configure_migrations() {
-            Some(migrations) => {
-                migrations.run(&mut conn).expect("Failed to run migrations");
-            },
-            _ => {}
-        };
+        m.migrations(dbconn).expect("Failed to run migrations");
     }
 }
 

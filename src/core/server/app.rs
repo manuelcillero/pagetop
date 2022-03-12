@@ -5,18 +5,7 @@ use crate::core::theme::register_theme;
 use crate::core::module::register_module;
 
 use std::io::Error;
-use std::sync::RwLock;
 use actix_web::middleware::normalize::{NormalizePath, TrailingSlash};
-
-#[cfg(feature = "mysql")]
-use sqlx::mysql::MySqlPoolOptions as DbPoolOptions;
-
-#[cfg(feature = "postgres")]
-use sqlx::postgres::PgPoolOptions as DbPoolOptions;
-
-static DBCONN: Lazy<RwLock<Option<db::Conn>>> = Lazy::new(|| {
-    RwLock::new(None)
-});
 
 pub struct Application {
     server: Server,
@@ -70,7 +59,7 @@ impl Application {
         let db_type = "postgres";
 
         // https://github.com/launchbadge/sqlx/issues/1624
-        let mut db_uri = db::Uri::parse(format!(
+        let mut db_uri = db::DbUri::parse(format!(
             "{}://{}/{}",
             db_type,
             &SETTINGS.database.db_host,
@@ -82,14 +71,14 @@ impl Application {
             db_uri.set_port(Some(SETTINGS.database.db_port)).unwrap();
         }
 
-        let db_pool = DbPoolOptions::new()
-            .max_connections(SETTINGS.database.max_pool_size)
-            .connect(db_uri.as_str())
-            .await
-            .expect("Failed to connect to database");
+        let mut db_options = sea_orm::ConnectOptions::new(db_uri.to_string());
+        db_options.max_connections(SETTINGS.database.max_pool_size);
 
-        let mut dbconn = DBCONN.write().unwrap();
-        *dbconn = Some(db_pool);
+        let dbconn = sea_orm::Database::connect::<sea_orm::ConnectOptions>(
+            db_options.into()
+        )
+        .await
+        .expect("Failed to connect to database");
 
         // Registra los temas predefinidos.
         register_theme(&base::theme::aliner::AlinerTheme);
@@ -112,13 +101,14 @@ impl Application {
 
         // Run migrations.
         trace::info!("Running migrations.");
-        global::migrations(db_uri);
+        global::migrations(&dbconn);
 
         // Prepara el servidor web.
-        let server = server::HttpServer::new(|| {
+        let server = server::HttpServer::new(move || {
             server::App::new()
                 .wrap(tracing_actix_web::TracingLogger)
                 .wrap(NormalizePath::new(TrailingSlash::Trim))
+                .data(dbconn.clone())
                 .configure(&global::themes)
                 .configure(&global::modules)
             })

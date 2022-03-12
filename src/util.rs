@@ -9,12 +9,23 @@
 /// ];
 /// ```
 macro_rules! args {
-    ( $($key:expr => $value:expr),* ) => {{
+    ( $($KEY:expr => $VALUE:expr),* ) => {{
         let mut a = std::collections::HashMap::new();
         $(
-            a.insert(String::from($key), $value.into());
+            a.insert(String::from($KEY), $VALUE.into());
         )*
         a
+    }};
+}
+
+#[macro_export]
+macro_rules! db_migrations {
+    ( $DBCONN:ident ) => {{
+        $crate::run_now({
+            use $crate::db::migration::MigratorTrait;
+
+            migration::Migrator::up($DBCONN, None)
+        })
     }};
 }
 

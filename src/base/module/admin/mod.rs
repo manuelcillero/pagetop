@@ -1,7 +1,6 @@
 use crate::prelude::*;
 
 localize!("en-US", "src/base/module/admin/locales");
-embed_migrations!("src/base/module/admin/migrations");
 
 mod summary;
 
@@ -25,9 +24,5 @@ impl Module for AdminModule {
             server::web::scope("/admin")
                 .route("", server::web::get().to(summary::summary))
         );
-    }
-
-    fn configure_migrations(&self) -> Option<db::Migrations> {
-        Some(migrations::runner())
     }
 }
