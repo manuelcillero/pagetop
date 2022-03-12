@@ -1,6 +1,7 @@
 use crate::prelude::*;
 
 localize!("en-US", "src/base/module/user/locales");
+embed_migrations!("src/base/module/user/migrations");
 
 pub struct UserModule;
 
@@ -19,6 +20,10 @@ impl Module for UserModule {
 
     fn configure_module(&self, cfg: &mut server::web::ServiceConfig) {
         cfg.route("/user/login", server::web::get().to(login));
+    }
+
+    fn configure_migrations(&self) -> Option<db::Migrations> {
+        Some(migrations::runner())
     }
 }
 

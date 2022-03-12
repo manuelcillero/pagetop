@@ -1,4 +1,4 @@
-use crate::Lazy;
+use crate::{Lazy, db};
 use crate::core::theme::Theme;
 use crate::core::module::Module;
 use crate::core::response::page::PageContainer;
@@ -39,6 +39,18 @@ pub static MODULES: Lazy<RwLock<Vec<&dyn Module>>> = Lazy::new(|| {
 pub fn modules(cfg: &mut server::web::ServiceConfig) {
     for m in MODULES.read().unwrap().iter() {
         m.configure_module(cfg);
+    }
+}
+
+pub fn migrations(db_uri: db::Uri) {
+    let mut conn = refinery::config::Config::try_from(db_uri).unwrap();
+    for m in MODULES.read().unwrap().iter() {
+        match m.configure_migrations() {
+            Some(migrations) => {
+                migrations.run(&mut conn).expect("Failed to run migrations");
+            },
+            _ => {}
+        };
     }
 }
 

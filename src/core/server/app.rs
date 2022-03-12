@@ -1,11 +1,22 @@
-use crate::{Lazy, base, locale, trace};
+use crate::{Lazy, base, db, locale, trace};
 use crate::config::SETTINGS;
 use crate::core::{Server, global, server};
 use crate::core::theme::register_theme;
 use crate::core::module::register_module;
 
 use std::io::Error;
+use std::sync::RwLock;
 use actix_web::middleware::normalize::{NormalizePath, TrailingSlash};
+
+#[cfg(feature = "mysql")]
+use sqlx::mysql::MySqlPoolOptions as DbPoolOptions;
+
+#[cfg(feature = "postgres")]
+use sqlx::postgres::PgPoolOptions as DbPoolOptions;
+
+static DBCONN: Lazy<RwLock<Option<db::Conn>>> = Lazy::new(|| {
+    RwLock::new(None)
+});
 
 pub struct Application {
     server: Server,
@@ -52,49 +63,33 @@ impl Application {
             &SETTINGS.database.max_pool_size
         );
 
-        #[cfg(any(feature = "default", feature = "mysql"))]
-        let db_uri = format!(
-            "mysql://{}/{}",
-            &SETTINGS.database.db_host,
-            &SETTINGS.database.db_name
-        );
+        #[cfg(feature = "mysql")]
+        let db_type = "mysql";
 
         #[cfg(feature = "postgres")]
-        let db_uri = format!(
-            "postgres://{}/{}",
-            &SETTINGS.database.db_host,
-            &SETTINGS.database.db_name
-        );
-
-        #[cfg(feature = "sqlite")]
-        let db_uri = format!("sqlite://{}", &SETTINGS.database.db_name);
-
-        let mut uri = url::Url::parse(&db_uri).unwrap();
+        let db_type = "postgres";
 
         // https://github.com/launchbadge/sqlx/issues/1624
-
-        #[cfg(not(feature = "sqlite"))]
-        uri.set_username(&SETTINGS.database.db_user.as_str()).unwrap();
-
-        #[cfg(not(feature = "sqlite"))]
-        uri.set_password(Some(&SETTINGS.database.db_pass.as_str())).unwrap();
-
-        #[cfg(not(feature = "sqlite"))]
+        let mut db_uri = db::Uri::parse(format!(
+            "{}://{}/{}",
+            db_type,
+            &SETTINGS.database.db_host,
+            &SETTINGS.database.db_name
+        ).as_str()).unwrap();
+        db_uri.set_username(&SETTINGS.database.db_user.as_str()).unwrap();
+        db_uri.set_password(Some(&SETTINGS.database.db_pass.as_str())).unwrap();
         if SETTINGS.database.db_port != 0 {
-            uri.set_port(Some(SETTINGS.database.db_port)).unwrap();
+            db_uri.set_port(Some(SETTINGS.database.db_port)).unwrap();
         }
 
-        let mut db_options = sea_orm::ConnectOptions::new(uri.to_string());
-        db_options.max_connections(SETTINGS.database.max_pool_size);
-
-        let mut db_conn = server::dbconn::DBCONN.write().unwrap();
-        *db_conn = Some(
-            sea_orm::Database::connect::<sea_orm::ConnectOptions>(
-                db_options.into()
-            )
+        let db_pool = DbPoolOptions::new()
+            .max_connections(SETTINGS.database.max_pool_size)
+            .connect(db_uri.as_str())
             .await
-            .expect("Failed to connect to database")
-        );
+            .expect("Failed to connect to database");
+
+        let mut dbconn = DBCONN.write().unwrap();
+        *dbconn = Some(db_pool);
 
         // Registra los temas predefinidos.
         register_theme(&base::theme::aliner::AlinerTheme);
@@ -107,13 +102,17 @@ impl Application {
 
         // Ejecuta la función de inicio de la aplicación.
         if bootstrap != None {
-            trace::debug!("Calling application bootstrap");
+            trace::info!("Calling application bootstrap.");
             let _ = &(bootstrap.unwrap())();
         }
 
         // Registra el módulo para la página de inicio de PageTop.
         // Al ser el último, puede sobrecargarse con la función de inicio.
         register_module(&base::module::homepage::HomepageModule);
+
+        // Run migrations.
+        trace::info!("Running migrations.");
+        global::migrations(db_uri);
 
         // Prepara el servidor web.
         let server = server::HttpServer::new(|| {
