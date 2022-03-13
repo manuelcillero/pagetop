@@ -1,3 +1,20 @@
 [app]
-name = "PageTop Essence"
-description = "A modern Content Management System for sharing the world."
+name = "Drust"
+description = """\
+    A modern Content Management System for sharing the world.\
+"""
+language = "es-ES"
+#theme = "Aliner"
+#theme = "Minimal"
+theme = "Bootsier"
+
+[database]
+db_name = "drust"
+db_user = "drust"
+db_pass = "DrU__#3T"
+
+[log]
+tracing = "Info"
+#Info,actix_server::builder=Error,tracing_actix_web=Warn"
+rolling = "Stdout"
+format = "Compact"

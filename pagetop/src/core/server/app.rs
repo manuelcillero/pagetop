@@ -47,7 +47,7 @@ impl Application {
 
         // Inicializa la conexión con la base de datos.
         trace::info!(
-            "Connecting to database \"{}\" with a pool of {} connections.",
+            "Connecting to database \"{}\" using a pool of {} connections.",
             &SETTINGS.database.db_name,
             &SETTINGS.database.max_pool_size
         );
