@@ -11,11 +11,14 @@ pub use futures::executor::block_on as run_now;
 pub mod config;     // Gestión de la configuración.
 pub mod trace;      // Registro de trazas y eventos de la aplicación.
 pub mod locale;     // Localización.
+
+#[cfg(any(feature = "mysql", feature = "postgres", feature = "sqlite"))]
 pub mod db;         // Acceso a la base de datos.
+
 pub mod core;       // Servidor web y APIs para Temas, Módulos y Respuestas web.
 pub mod base;       // Temas, Módulos y Componentes base.
 pub mod util;       // Macros y funciones útiles.
 
 pub mod prelude;    // Re-exporta recursos comunes.
 
-pub use crate::core::server::Application;
+pub use crate::core::server::app::Application;

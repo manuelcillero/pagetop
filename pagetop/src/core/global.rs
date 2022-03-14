@@ -1,4 +1,4 @@
-use crate::{Lazy, db};
+use crate::{Lazy, trace};
 use crate::core::theme::Theme;
 use crate::core::module::Module;
 use crate::core::response::page::PageContainer;
@@ -42,9 +42,13 @@ pub fn modules(cfg: &mut server::web::ServiceConfig) {
     }
 }
 
-pub fn migrations(dbconn: &db::DbConn) {
+#[cfg(any(feature = "mysql", feature = "postgres", feature = "sqlite"))]
+pub fn check_migrations() {
+    trace::info!("Checking migrations.");
     for m in MODULES.read().unwrap().iter() {
-        m.migrations(dbconn).expect("Failed to run migrations");
+        m.migrations(
+            &*server::db::DBCONN.read().unwrap()
+        ).expect("Failed to run migrations");
     }
 }
 

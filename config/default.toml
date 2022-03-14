@@ -9,12 +9,10 @@ language = "es-ES"
 theme = "Bootsier"
 
 [database]
+db_type = "mysql"
 db_name = "drust"
 db_user = "drust"
 db_pass = "DrU__#3T"
 
 [log]
-tracing = "Info"
-#Info,actix_server::builder=Error,tracing_actix_web=Warn"
-rolling = "Stdout"
-format = "Compact"
+tracing = "Info,sqlx::query=Warn"

@@ -89,6 +89,7 @@ pub struct Log {
 
 #[derive(Debug, Deserialize)]
 pub struct Database {
+    pub db_type       : String,
     pub db_name       : String,
     pub db_user       : String,
     pub db_pass       : String,
@@ -127,15 +128,16 @@ Ajustes globales y valores predeterminados para las secciones *\[app\]*,
 
     // [log]
     "log.tracing"            => "Info",
-    "log.rolling"            => "Daily",
+    "log.rolling"            => "Stdout",
     "log.path"               => "log",
     "log.prefix"             => "tracing.log",
-    "log.format"             => "json",
+    "log.format"             => "Full",
 
     // [database]
-    "database.db_name"       => "dbname",
-    "database.db_user"       => "dbuser",
-    "database.db_pass"       => "dbpass",
+    "database.db_type"       => "",
+    "database.db_name"       => "",
+    "database.db_user"       => "",
+    "database.db_pass"       => "",
     "database.db_host"       => "localhost",
     "database.db_port"       => 0,
     "database.max_pool_size" => 5,

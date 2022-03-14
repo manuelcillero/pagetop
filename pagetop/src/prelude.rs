@@ -1,15 +1,12 @@
 //! Re-exporta recursos comunes.
 
-pub use crate::{
-    args,
-    db_migrations,
-};
-
+pub use crate::args;
 pub use crate::config::SETTINGS;
 pub use crate::trace;
 pub use crate::localize;
 
-pub use crate::db;
+#[cfg(any(feature = "mysql", feature = "postgres", feature = "sqlite"))]
+pub use crate::{db, db_migrations};
 
 pub use crate::core::theme::*;
 pub use crate::core::module::*;

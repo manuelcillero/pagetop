@@ -1,4 +1,4 @@
-use crate::{Lazy, base, db, locale, trace};
+use crate::{Lazy, base, trace};
 use crate::config::SETTINGS;
 use crate::core::{Server, global, server};
 use crate::core::theme::register_theme;
@@ -13,7 +13,7 @@ pub struct Application {
 
 impl Application {
     pub async fn build(bootstrap: Option<fn()>) -> Result<Self, Error> {
-        // Imprime rótulo (opcional) de bienvenida.
+        // Imprime un rótulo de presentación (opcional).
         if SETTINGS.app.startup_banner.to_lowercase() != "off" {
             let figfont = figlet_rs::FIGfont::from_content(
                 match SETTINGS.app.startup_banner.to_lowercase().as_str() {
@@ -43,42 +43,11 @@ impl Application {
         Lazy::force(&server::tracing::TRACING);
 
         // Valida el identificador de idioma.
-        Lazy::force(&locale::LANGID);
+        Lazy::force(&server::locale::LANGID);
 
-        // Inicializa la conexión con la base de datos.
-        trace::info!(
-            "Connecting to database \"{}\" using a pool of {} connections.",
-            &SETTINGS.database.db_name,
-            &SETTINGS.database.max_pool_size
-        );
-
-        #[cfg(feature = "mysql")]
-        let db_type = "mysql";
-
-        #[cfg(feature = "postgres")]
-        let db_type = "postgres";
-
-        // https://github.com/launchbadge/sqlx/issues/1624
-        let mut db_uri = db::DbUri::parse(format!(
-            "{}://{}/{}",
-            db_type,
-            &SETTINGS.database.db_host,
-            &SETTINGS.database.db_name
-        ).as_str()).unwrap();
-        db_uri.set_username(&SETTINGS.database.db_user.as_str()).unwrap();
-        db_uri.set_password(Some(&SETTINGS.database.db_pass.as_str())).unwrap();
-        if SETTINGS.database.db_port != 0 {
-            db_uri.set_port(Some(SETTINGS.database.db_port)).unwrap();
-        }
-
-        let mut db_options = sea_orm::ConnectOptions::new(db_uri.to_string());
-        db_options.max_connections(SETTINGS.database.max_pool_size);
-
-        let dbconn = sea_orm::Database::connect::<sea_orm::ConnectOptions>(
-            db_options.into()
-        )
-        .await
-        .expect("Failed to connect to database");
+        // Conecta con la base de datos (opcional).
+        #[cfg(any(feature = "mysql", feature = "postgres", feature = "sqlite"))]
+        Lazy::force(&server::db::DBCONN);
 
         // Registra los temas predefinidos.
         register_theme(&base::theme::aliner::AlinerTheme);
@@ -87,6 +56,8 @@ impl Application {
 
         // Registra los módulos predeterminados.
         register_module(&base::module::admin::AdminModule);
+        // Registra los módulos que requieren base de datos.
+        #[cfg(any(feature = "mysql", feature = "postgres", feature = "sqlite"))]
         register_module(&base::module::user::UserModule);
 
         // Ejecuta la función de inicio de la aplicación.
@@ -99,16 +70,15 @@ impl Application {
         // Al ser el último, puede sobrecargarse con la función de inicio.
         register_module(&base::module::homepage::HomepageModule);
 
-        // Run migrations.
-        trace::info!("Running migrations.");
-        global::migrations(&dbconn);
+        // Comprueba actualizaciones pendientes de la base de datos (opcional).
+        #[cfg(any(feature = "mysql", feature = "postgres", feature = "sqlite"))]
+        global::check_migrations();
 
         // Prepara el servidor web.
         let server = server::HttpServer::new(move || {
             server::App::new()
                 .wrap(tracing_actix_web::TracingLogger)
                 .wrap(NormalizePath::new(TrailingSlash::Trim))
-                .data(dbconn.clone())
                 .configure(&global::themes)
                 .configure(&global::modules)
             })

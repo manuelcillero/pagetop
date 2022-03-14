@@ -2,35 +2,12 @@ pub use fluent_templates::{static_loader as static_locale, Loader as Locale};
 pub use fluent_templates;
 pub use fluent_templates::fluent_bundle::FluentValue;
 
-use crate::{Lazy, trace};
-use crate::config::SETTINGS;
-
-use unic_langid::LanguageIdentifier;
-
-/// Almacena el Identificador de Idioma Unicode ([Unicode Language Identifier]
-/// (https://unicode.org/reports/tr35/tr35.html#Unicode_language_identifier)) de
-/// la aplicación, obtenido de `SETTINGS.app.language`.
-pub static LANGID: Lazy<LanguageIdentifier> = Lazy::new(|| {
-    match SETTINGS.app.language.parse() {
-        Ok(language) => language,
-        Err(_) => {
-            trace::warn!(
-                "Failed to parse language \"{}\". {}. {}. {}.",
-                SETTINGS.app.language,
-                "Unicode Language Identifier not recognized",
-                "Using \"en-US\"",
-                "Check the settings file",
-            );
-            "en-US".parse().unwrap()
-        }
-    }
-});
-
 #[macro_export]
 /// Permite integrar fácilmente localización en temas, módulos y componentes.
 macro_rules! localize {
     ( $DEF_LANGID:literal, $locales:literal $(, $core_locales:literal)? ) => {
         use $crate::locale::*;
+        use $crate::core::server::locale::LANGID;
 
         static_locale! {
             static LOCALES = {

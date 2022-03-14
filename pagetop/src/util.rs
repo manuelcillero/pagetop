@@ -18,17 +18,6 @@ macro_rules! args {
     }};
 }
 
-#[macro_export]
-macro_rules! db_migrations {
-    ( $DBCONN:ident ) => {{
-        $crate::run_now({
-            use $crate::db::migration::MigratorTrait;
-
-            migration::Migrator::up($DBCONN, None)
-        })
-    }};
-}
-
 pub fn valid_id(id: &str) -> Option<String> {
     let id = id.trim().replace(" ", "_").to_lowercase();
     match id.is_empty() {

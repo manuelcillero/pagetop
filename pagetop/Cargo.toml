@@ -36,6 +36,7 @@ config_rs = { package = "config", version = "0.11.0", features = ["toml"] }
 tracing = "0.1"
 tracing-appender = "0.2"
 tracing-subscriber = { version = "0.3", features = ["json", "env-filter"] }
+tracing-unwrap = { version = "0.9", default-features = false }
 tracing-actix-web = "0.2"
 
 fluent-templates = "0.6.1"
@@ -53,16 +54,19 @@ serde = { version = "1.0", features = ["derive"] }
 version = "0.6"
 features = ["debug-print", "macros", "runtime-async-std-native-tls"]
 default-features = false
+optional = true
 
 [dependencies.sea-schema]
 version = "0.5"
 features = ["debug-print", "migration"]
 default-features = false
+optional = true
 
 [features]
-default  = ["mysql"]
-mysql    = ["sea-orm/sqlx-mysql"]
-postgres = ["sea-orm/sqlx-postgres"]
+default  = []
+mysql    = ["sea-orm", "sea-schema", "sea-orm/sqlx-mysql"]
+postgres = ["sea-orm", "sea-schema", "sea-orm/sqlx-postgres"]
+sqlite   = ["sea-orm", "sea-schema", "sea-orm/sqlx-sqlite"]
 
 [build-dependencies]
 actix-web-static-files = "3.0.5"

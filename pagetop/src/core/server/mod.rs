@@ -4,5 +4,9 @@ pub use actix_web::{
 
 mod tracing;
 
-mod app;
-pub use app::Application;
+pub mod locale;
+
+#[cfg(any(feature = "mysql", feature = "postgres", feature = "sqlite"))]
+pub mod db;
+
+pub mod app;

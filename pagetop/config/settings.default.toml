@@ -15,24 +15,26 @@ startup_banner = "Small"
 # Ejemplos: "Error,actix_server::builder=Info,tracing_actix_web=Debug".
 tracing = "Info"
 # En terminal ("Stdout") o archivos "Daily", "Hourly", "Minutely" o "Endless".
-rolling = "Daily"
+rolling = "Stdout"
 # Directorio para los archivos de traza (si rolling != "Stdout").
 path = "log"
 # Prefijo para los archivos de traza (si rolling != "Stdout").
 prefix = "tracing.log"
-# Presentación de las trazas: "Json", "Full", "Compact" o "Pretty".
-format = "Json"
+# Presentación de las trazas: "Full", "Compact", "Pretty" o "Json".
+format = "Full"
 
 [database]
-# Ajustes para conectar con la base de datos.
-# El tipo de base de datos es una característica de compilación.
-# Nombre (mysql/postgres) o referencia (sqlite) de la base de datos.
-db_name = "dbname"
-# Usuario y contraseña (mysql/postgres).
-db_user = "dbuser"
-db_pass = "dbpass"
-# Servidor (mysql/postgres) y puerto predeterminado (0 para 3306 ó 5432).
+# Conecta con una base de datos (opcional).
+# Tipo de la base de datos (mysql, postgres ó sqlite).
+db_type = ""
+# Nombre (para mysql/postgres) o referencia (para sqlite) de la base de datos.
+db_name = ""
+# Usuario y contraseña (para mysql/postgres).
+db_user = ""
+db_pass = ""
+# Servidor (para mysql/postgres).
 db_host = "localhost"
+# Puerto (para mysql/postgres), siendo 0 el puerto predeterminado (3306 ó 5432).
 db_port = 0
 # Número máximo de conexiones habilitadas.
 max_pool_size = 5
