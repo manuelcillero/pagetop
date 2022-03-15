@@ -43,7 +43,7 @@ pub fn modules(cfg: &mut server::web::ServiceConfig) {
 }
 
 #[cfg(any(feature = "mysql", feature = "postgres", feature = "sqlite"))]
-pub fn check_migrations() {
+pub fn run_migrations() {
     trace::info!("Checking migrations.");
     for m in MODULES.read().unwrap().iter() {
         m.migrations(
