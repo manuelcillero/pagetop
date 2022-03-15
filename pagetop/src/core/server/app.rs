@@ -5,7 +5,6 @@ use crate::core::theme::register_theme;
 use crate::core::module::register_module;
 
 use std::io::Error;
-use actix_web::middleware::normalize::{NormalizePath, TrailingSlash};
 
 pub struct Application {
     server: Server,
@@ -77,8 +76,7 @@ impl Application {
         // Prepara el servidor web.
         let server = server::HttpServer::new(move || {
             server::App::new()
-                .wrap(tracing_actix_web::TracingLogger)
-                .wrap(NormalizePath::new(TrailingSlash::Trim))
+                .wrap(tracing_actix_web::TracingLogger::default())
                 .configure(&global::themes)
                 .configure(&global::modules)
             })
