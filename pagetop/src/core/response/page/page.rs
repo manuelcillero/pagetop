@@ -1,11 +1,16 @@
 use crate::{Lazy, trace, util};
 use crate::config::SETTINGS;
-use crate::core::{global, server};
-use crate::core::theme::{DOCTYPE, Markup, html};
+use crate::core::html::{DOCTYPE, Markup, html};
 use crate::core::response::page::{PageAssets, PageComponent, PageContainer};
+use crate::core::server;
 
 use std::borrow::Cow;
+use std::sync::RwLock;
 use std::collections::HashMap;
+
+static COMPONENTS: Lazy<RwLock<HashMap<&str, PageContainer>>> = Lazy::new(|| {
+    RwLock::new(HashMap::new())
+});
 
 static DEFAULT_LANGUAGE: Lazy<Option<String>> = Lazy::new(|| {
     let language = SETTINGS.app.language[..2].to_lowercase();
@@ -25,9 +30,9 @@ static DEFAULT_DIRECTION: Lazy<Option<String>> = Lazy::new(|| {
         "" => None,
         _ => {
             trace::warn!(
-                "Text direction \"{}\" not valid. {}.",
+                "Text direction \"{}\" not valid, {}",
                 SETTINGS.app.direction,
-                "Check the settings file"
+                "check the settings file"
             );
             None
         }
@@ -63,7 +68,7 @@ impl<'a> Page<'a> {
             description : None,
             body_classes: "body".into(),
             assets      : PageAssets::new(),
-            regions     : global::COMPONENTS.read().unwrap().clone(),
+            regions     : COMPONENTS.read().unwrap().clone(),
             template    : "default".to_owned(),
         }
     }
@@ -208,7 +213,7 @@ pub fn render_component(
 }
 
 pub fn add_component_to(region: &'static str, component: impl PageComponent) {
-    let mut hmap = global::COMPONENTS.write().unwrap();
+    let mut hmap = COMPONENTS.write().unwrap();
     if let Some(regions) = hmap.get_mut(region) {
         regions.add(component);
     } else {

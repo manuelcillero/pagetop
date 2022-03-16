@@ -4,7 +4,7 @@ include!(concat!(env!("OUT_DIR"), "/aliner.rs"));
 
 pub struct AlinerTheme;
 
-impl Theme for AlinerTheme {
+impl ThemeTrait for AlinerTheme {
     fn name(&self) -> &'static str {
         "aliner"
     }

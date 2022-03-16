@@ -1,4 +1,4 @@
-use crate::core::theme::{Markup, html};
+use crate::core::html::{Markup, html};
 use crate::core::response::page::PageAssets;
 
 use downcast_rs::{Downcast, impl_downcast};

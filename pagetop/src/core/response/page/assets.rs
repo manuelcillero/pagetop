@@ -1,10 +1,11 @@
 use crate::{Lazy, base};
 use crate::config::SETTINGS;
-use crate::core::global;
-use crate::core::theme::{Markup, PreEscaped, Theme, find_theme, html};
+use crate::core::all;
+use crate::core::html::{Markup, PreEscaped, html};
+use crate::core::theme::*;
 
-static DEFAULT_THEME: Lazy<&dyn Theme> = Lazy::new(|| {
-    for t in global::THEMES.read().unwrap().iter() {
+static DEFAULT_THEME: Lazy<&dyn ThemeTrait> = Lazy::new(|| {
+    for t in all::THEMES.read().unwrap().iter() {
         if t.name().to_lowercase() == SETTINGS.app.theme.to_lowercase() {
             return *t;
         }
@@ -184,7 +185,7 @@ impl JavaScript {
 // -----------------------------------------------------------------------------
 
 pub struct PageAssets {
-    theme      : &'static dyn Theme,
+    theme      : &'static dyn ThemeTrait,
     favicon    : Option<Favicon>,
     metadata   : Vec<(String, String)>,
     stylesheets: Vec<StyleSheet>,
@@ -259,7 +260,7 @@ impl PageAssets {
 
     /// Assets GETTERS.
 
-    pub fn theme(&mut self) -> &'static dyn Theme {
+    pub fn theme(&mut self) -> &'static dyn ThemeTrait {
         self.theme
     }
 

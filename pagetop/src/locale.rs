@@ -37,8 +37,8 @@ macro_rules! localize {
         fn e(
             key: &str,
             args: &std::collections::HashMap<String, FluentValue>
-        ) -> crate::core::theme::PreEscaped<String> {
-            crate::core::theme::PreEscaped(
+        ) -> crate::core::html::PreEscaped<String> {
+            crate::core::html::PreEscaped(
                 LOCALES.lookup_with_args(&LANGID, key, args)
             )
         }

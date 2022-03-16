@@ -7,7 +7,7 @@ mod migration;
 
 pub struct UserModule;
 
-impl Module for UserModule {
+impl ModuleTrait for UserModule {
     fn name(&self) -> &'static str {
         "user"
     }

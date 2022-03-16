@@ -11,11 +11,12 @@ pub static LANGID: Lazy<LanguageIdentifier> = Lazy::new(|| {
         Ok(language) => language,
         Err(_) => {
             trace::warn!(
-                "Failed to parse language \"{}\". {}. {}. {}.",
+                "{}, {} \"{}\"! {}, {}",
+                "Failed to parse language",
+                "unrecognized Unicode Language Identifier",
                 SETTINGS.app.language,
-                "Unrecognized Unicode Language Identifier",
                 "Using \"en-US\"",
-                "Check the settings file",
+                "check the settings file",
             );
             "en-US".parse().unwrap()
         }

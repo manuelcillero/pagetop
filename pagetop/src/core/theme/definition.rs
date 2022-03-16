@@ -1,11 +1,11 @@
 use crate::config::SETTINGS;
-use crate::core::server;
-use crate::core::theme::{Markup, html};
+use crate::core::html::{Markup, html};
 use crate::core::response::page::{Page, PageAssets, PageComponent};
+use crate::core::server;
 use crate::base::component::Chunck;
 
 /// Los temas deben implementar este "trait".
-pub trait Theme: Send + Sync {
+pub trait ThemeTrait: Send + Sync {
     fn name(&self) -> &'static str;
 
     fn fullname(&self) -> String;

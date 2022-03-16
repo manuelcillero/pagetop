@@ -1,4 +1,6 @@
+use pagetop::prelude::*;
+
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    pagetop::Application::build(None).await?.run()?.await
+    Application::prepare(essence).await?.run()?.await
 }

@@ -1,4 +1,4 @@
-use crate::core::theme::{Markup, html};
+use crate::core::html::{Markup, html};
 use crate::core::response::page::{PageAssets, PageComponent, render_component};
 
 use std::sync::Arc;

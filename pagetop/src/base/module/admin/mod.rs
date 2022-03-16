@@ -6,7 +6,7 @@ mod summary;
 
 pub struct AdminModule;
 
-impl Module for AdminModule {
+impl ModuleTrait for AdminModule {
     fn name(&self) -> &'static str {
         "admin"
     }

@@ -4,7 +4,7 @@ use crate::core::server;
 use crate::db;
 
 /// Los módulos deben implementar este *trait*.
-pub trait Module: Send + Sync {
+pub trait ModuleTrait: Send + Sync {
     fn name(&self) -> &'static str;
 
     fn fullname(&self) -> String;

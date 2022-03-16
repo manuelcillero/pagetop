@@ -6,7 +6,7 @@ localize!("en-US", "src/base/theme/bootsier/locales");
 
 pub struct BootsierTheme;
 
-impl Theme for BootsierTheme {
+impl ThemeTrait for BootsierTheme {
     fn name(&self) -> &'static str {
         "bootsier"
     }

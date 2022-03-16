@@ -1,13 +1,12 @@
 use crate::{Lazy, db, run_now, trace};
 use crate::config::SETTINGS;
 
-use std::sync::RwLock;
 use sea_orm::{ConnectOptions, Database};
 use tracing_unwrap::ResultExt;
 
-pub static DBCONN: Lazy<RwLock<db::DbConn>> = Lazy::new(|| {
+pub static DBCONN: Lazy<db::DbConn> = Lazy::new(|| {
     trace::info!(
-        "Connecting to database \"{}\" using a pool of {} connections.",
+        "Connecting to database \"{}\" using a pool of {} connections",
         &SETTINGS.database.db_name,
         &SETTINGS.database.max_pool_size
     );
@@ -41,20 +40,18 @@ pub static DBCONN: Lazy<RwLock<db::DbConn>> = Lazy::new(|| {
             ).as_str()).unwrap(),
         _ => {
             trace::error!(
-                "Unrecognized database type \"{}\".",
+                "Unrecognized database type \"{}\"",
                 &SETTINGS.database.db_type
             );
             db::DbUri::parse("").unwrap()
         }
     };
 
-    let db_conn = run_now(
+    run_now(
         Database::connect::<ConnectOptions>({
             let mut db_opt = ConnectOptions::new(db_uri.to_string());
             db_opt.max_connections(SETTINGS.database.max_pool_size);
             db_opt.into()
         })
-    ).expect_or_log("Failed to connect to database");
-
-    RwLock::new(db_conn)
+    ).expect_or_log("Failed to connect to database")
 });

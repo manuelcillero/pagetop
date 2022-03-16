@@ -20,5 +20,3 @@ pub mod base;       // Temas, Módulos y Componentes base.
 pub mod util;       // Macros y funciones útiles.
 
 pub mod prelude;    // Re-exporta recursos comunes.
-
-pub use crate::core::server::app::Application;

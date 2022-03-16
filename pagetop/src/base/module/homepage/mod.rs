@@ -4,7 +4,7 @@ localize!("en-US", "src/base/module/homepage/locales");
 
 pub struct HomepageModule;
 
-impl Module for HomepageModule {
+impl ModuleTrait for HomepageModule {
     fn name(&self) -> &'static str {
         "homepage"
     }

@@ -8,10 +8,12 @@ pub use crate::localize;
 #[cfg(any(feature = "mysql", feature = "postgres", feature = "sqlite"))]
 pub use crate::{db, db_migrations};
 
+pub use crate::core::html::*;
 pub use crate::core::theme::*;
 pub use crate::core::module::*;
 pub use crate::core::response::page::*;
 pub use crate::core::server;
+pub use crate::core::server::app::{Application, essence};
 
 pub use crate::base::component::*;
 

@@ -1,6 +1,6 @@
 use crate::{Lazy, base, trace};
 use crate::config::SETTINGS;
-use crate::core::{Server, global, server};
+use crate::core::{Server, all, server};
 use crate::core::theme::register_theme;
 use crate::core::module::register_module;
 
@@ -11,8 +11,12 @@ pub struct Application {
     server: Server,
 }
 
+pub fn essence() {
+    trace::info!("No bootstrap configured");
+}
+
 impl Application {
-    pub async fn build(bootstrap: Option<fn()>) -> Result<Self, Error> {
+    pub async fn prepare(bootstrap: fn()) -> Result<Self, Error> {
         // Imprime un rótulo de presentación (opcional).
         if SETTINGS.app.startup_banner.to_lowercase() != "off" {
             let figfont = figlet_rs::FIGfont::from_content(
@@ -61,10 +65,8 @@ impl Application {
         register_module(&base::module::user::UserModule);
 
         // Ejecuta la función de inicio de la aplicación.
-        if bootstrap != None {
-            trace::info!("Calling application bootstrap.");
-            let _ = &(bootstrap.unwrap())();
-        }
+        trace::info!("Calling application bootstrap");
+        let _ = &bootstrap();
 
         // Registra el módulo para la página de inicio de PageTop.
         // Al ser el último, puede sobrecargarse con la función de inicio.
@@ -72,15 +74,15 @@ impl Application {
 
         // Comprueba actualizaciones pendientes de la base de datos (opcional).
         #[cfg(any(feature = "mysql", feature = "postgres", feature = "sqlite"))]
-        global::run_migrations();
+        all::migrations();
 
         // Prepara el servidor web.
         let server = server::HttpServer::new(move || {
             server::App::new()
                 .wrap(tracing_actix_web::TracingLogger)
                 .wrap(NormalizePath::new(TrailingSlash::Trim))
-                .configure(&global::themes)
-                .configure(&global::modules)
+                .configure(&all::themes)
+                .configure(&all::modules)
             })
             .bind(format!("{}:{}",
                 &SETTINGS.webserver.bind_address,
