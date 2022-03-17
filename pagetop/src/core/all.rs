@@ -1,4 +1,5 @@
-use crate::{Lazy, trace};
+use crate::{Lazy, run_now};
+use crate::db::migration::*;
 use crate::core::theme::ThemeTrait;
 use crate::core::module::ModuleTrait;
 use crate::core::server;
@@ -41,9 +42,18 @@ pub fn modules(cfg: &mut server::web::ServiceConfig) {
 }
 
 #[cfg(any(feature = "mysql", feature = "postgres", feature = "sqlite"))]
-pub fn migrations() {
-    trace::info!("Checking migrations");
-    for m in MODULES.read().unwrap().iter() {
-        m.migrations(&*server::db::DBCONN).expect("Failed to run migrations");
-    }
+pub fn run_migrations() {
+    run_now({
+        struct Migrator;
+        impl MigratorTrait for Migrator {
+            fn migrations() -> Vec<Box<dyn MigrationTrait>> {
+                let mut migrations = vec![];
+                for m in MODULES.read().unwrap().iter() {
+                    migrations.append(&mut m.migrations());
+                }
+                migrations
+            }
+        }
+        Migrator::up(&server::db::DBCONN, None)
+    }).unwrap();
 }

@@ -19,7 +19,7 @@ pub trait ModuleTrait: Send + Sync {
 
     #[cfg(any(feature = "mysql", feature = "postgres", feature = "sqlite"))]
     #[allow(unused_variables)]
-    fn migrations(&self, dbconn: &db::DbConn) -> Result<(), db::DbErr> {
-        Ok(())
+    fn migrations(&self) -> Vec<Box<dyn db::migration::MigrationTrait>> {
+        vec![]
     }
 }

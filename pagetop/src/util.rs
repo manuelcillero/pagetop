@@ -9,10 +9,10 @@
 /// ];
 /// ```
 macro_rules! args {
-    ( $($KEY:expr => $VALUE:expr),* ) => {{
+    ( $($key:expr => $value:expr),* ) => {{
         let mut a = std::collections::HashMap::new();
         $(
-            a.insert(String::from($KEY), $VALUE.into());
+            a.insert(String::from($key), $value.into());
         )*
         a
     }};

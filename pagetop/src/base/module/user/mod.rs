@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-localize!("en-US", "src/base/module/user/locales");
+localize!("src/base/module/user/locales");
 
 mod entity;
 mod migration;
@@ -24,8 +24,10 @@ impl ModuleTrait for UserModule {
         cfg.route("/user/login", server::web::get().to(login));
     }
 
-    fn migrations(&self, dbconn: &db::DbConn) -> Result<(), db::DbErr> {
-        db_migrations!(dbconn)
+    fn migrations(&self) -> Vec<Box<dyn db::migration::MigrationTrait>> {
+        vec![
+            boxed_migration!(m20220312_000001_create_table_user)
+        ]
     }
 }
 

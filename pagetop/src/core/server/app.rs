@@ -74,7 +74,7 @@ impl Application {
 
         // Comprueba actualizaciones pendientes de la base de datos (opcional).
         #[cfg(any(feature = "mysql", feature = "postgres", feature = "sqlite"))]
-        all::migrations();
+        all::run_migrations();
 
         // Prepara el servidor web.
         let server = server::HttpServer::new(move || {

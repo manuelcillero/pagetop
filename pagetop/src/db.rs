@@ -14,12 +14,8 @@ pub mod migration {
 }
 
 #[macro_export]
-macro_rules! db_migrations {
-    ( $DBCONN:ident ) => {{
-        $crate::run_now({
-            use $crate::db::migration::MigratorTrait;
-
-            migration::Migrator::up($DBCONN, None)
-        })
+macro_rules! boxed_migration {
+    ( $migration_module:ident ) => {{
+        Box::new(migration::$migration_module::Migration)
     }};
 }

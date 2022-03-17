@@ -45,15 +45,15 @@ pub static CONFIG: Lazy<Config> = Lazy::new(|| {
 /// seguros. Produce un *panic!* en caso de asignaciones no válidas.
 macro_rules! config_map {
     (
-        $COMM:expr,
-        $CONF:ident,
-        $TYPE:tt
+        $doc:expr,
+        $SETTINGS:ident,
+        $Type:tt
         $(, $key:expr => $value:expr)*
     ) => {
         $crate::doc_comment! {
-            concat!($COMM),
+            concat!($doc),
 
-            pub static $CONF: $crate::Lazy<$TYPE> = $crate::Lazy::new(|| {
+            pub static $SETTINGS: $crate::Lazy<$Type> = $crate::Lazy::new(|| {
                 let mut settings = $crate::config::CONFIG.clone();
                 $(
                     settings.set_default($key, $value).unwrap();

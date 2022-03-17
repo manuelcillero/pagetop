@@ -6,7 +6,7 @@ pub use crate::trace;
 pub use crate::localize;
 
 #[cfg(any(feature = "mysql", feature = "postgres", feature = "sqlite"))]
-pub use crate::{db, db_migrations};
+pub use crate::{db, boxed_migration};
 
 pub use crate::core::html::*;
 pub use crate::core::theme::*;
