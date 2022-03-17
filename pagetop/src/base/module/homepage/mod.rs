@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-localize!("en-US", "src/base/module/homepage/locales");
+localize!("src/base/module/homepage/locales");
 
 pub struct HomepageModule;
 

@@ -2,7 +2,7 @@ use crate::prelude::*;
 
 include!(concat!(env!("OUT_DIR"), "/bootsier.rs"));
 
-localize!("en-US", "src/base/theme/bootsier/locales");
+localize!("src/base/theme/bootsier/locales");
 
 pub struct BootsierTheme;
 

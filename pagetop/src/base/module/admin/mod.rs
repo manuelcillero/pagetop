@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-localize!("en-US", "src/base/module/admin/locales");
+localize!("src/base/module/admin/locales");
 
 mod summary;
 
