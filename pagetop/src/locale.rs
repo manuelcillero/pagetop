@@ -7,7 +7,7 @@ pub use fluent_templates::fluent_bundle::FluentValue;
 macro_rules! localize {
     ( $dir_locales:literal $(, $core_locales:literal)? ) => {
         use $crate::locale::*;
-        use $crate::core::server::locale::LANGID;
+        use $crate::app::locale::LANGID;
 
         static_locale! {
             static LOCALES = {
@@ -37,8 +37,8 @@ macro_rules! localize {
         fn e(
             key: &str,
             args: &std::collections::HashMap<String, FluentValue>
-        ) -> $crate::core::html::PreEscaped<String> {
-            $crate::core::html::PreEscaped(
+        ) -> $crate::html::PreEscaped<String> {
+            $crate::html::PreEscaped(
                 LOCALES.lookup_with_args(&LANGID, key, args)
             )
         }

@@ -1,0 +1,29 @@
+[package]
+name = "app"
+version = "0.1.0"
+edition = "2021"
+
+# Ver más claves y sus definiciones en
+# https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies.pagetop]
+path = "../pagetop"
+# Opcional. Por defecto se puede usar PageTop sin base de datos.
+features = ["mysql"]
+# features = ["postgres"]
+# features = ["sqlite"]
+# PageTop puede dar soporte a todas las bases de datos.
+# features = ["mysql", "postgres", "sqlite"]
+# Sólo cuando no se usen las características predeterminadas.
+default-features = false
+
+[dependencies]
+# Opcional. Sólo si se usa la macro html!.
+maud = { version = "0.23.0" }
+# Opcional. Si se requiere serialización de estructuras de datos.
+serde = { version = "1.0", features = ["derive"] }
+
+[dependencies.sea-orm]
+version = "0.6.0"
+features = ["debug-print", "macros"]
+default-features = false

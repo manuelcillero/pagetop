@@ -1,0 +1,22 @@
+[package]
+name = "pagetop-user"
+version = "0.0.1"
+edition = "2021"
+
+authors = [
+    "Manuel Cillero <manuel@cillero.es>"
+]
+description = """\
+    Allows content to be submitted to the site and displayed on pages.\
+"""
+homepage = "https://suitepro.cillero.es/projects/drust"
+repository = "https://gitlab.com/manuelcillero/drust"
+
+[dependencies]
+pagetop = { path = "../pagetop" }
+serde = { version = "1.0", features = ["derive"] }
+
+[dependencies.sea-orm]
+version = "0.6.0"
+features = ["debug-print", "macros"]
+default-features = false
