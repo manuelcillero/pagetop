@@ -1,7 +1,6 @@
-use crate::{Lazy, all, app, trace};
+use crate::{Lazy, app, base, global, trace};
 use crate::config::SETTINGS;
-use crate::theme::*;
-use crate::module::*;
+use crate::module::register_module;
 
 use std::io::Error;
 use actix_web::middleware::normalize::{NormalizePath, TrailingSlash};
@@ -52,30 +51,25 @@ impl Application {
         #[cfg(any(feature = "mysql", feature = "postgres", feature = "sqlite"))]
         Lazy::force(&app::db::DBCONN);
 
-        // Registra los temas predefinidos.
-        register_theme(&aliner::AlinerTheme);
-        register_theme(&minimal::MinimalTheme);
-        register_theme(&bootsier::BootsierTheme);
-
         // Ejecuta la función de inicio de la aplicación.
         trace::info!("Calling application bootstrap");
         let _ = &bootstrap();
 
-        // Registra el módulo para la página de inicio de PageTop.
-        // Al ser el último, puede sobrecargarse con la función de inicio.
-        register_module(&homepage::HomepageModule);
+        // Registra el módulo para una página de presentación de PageTop.
+        // Normalmente se sobrecargará en la función de inicio.
+        register_module(&base::module::homepage::HomepageModule);
 
         // Comprueba actualizaciones pendientes de la base de datos (opcional).
         #[cfg(any(feature = "mysql", feature = "postgres", feature = "sqlite"))]
-        all::run_migrations();
+        global::run_migrations();
 
         // Prepara el servidor web.
         let server = app::HttpServer::new(move || {
             app::App::new()
                 .wrap(tracing_actix_web::TracingLogger)
                 .wrap(NormalizePath::new(TrailingSlash::Trim))
-                .configure(&all::themes)
-                .configure(&all::modules)
+                .configure(&global::themes)
+                .configure(&global::modules)
             })
             .bind(format!("{}:{}",
                 &SETTINGS.webserver.bind_address,

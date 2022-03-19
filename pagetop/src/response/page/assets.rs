@@ -1,16 +1,6 @@
-use crate::{Lazy, all};
-use crate::config::SETTINGS;
+use crate::global::DEFAULT_THEME;
 use crate::html::{Markup, PreEscaped, html};
 use crate::theme::*;
-
-static DEFAULT_THEME: Lazy<&dyn ThemeTrait> = Lazy::new(|| {
-    for t in all::THEMES.read().unwrap().iter() {
-        if t.name().to_lowercase() == SETTINGS.app.theme.to_lowercase() {
-            return *t;
-        }
-    }
-    &bootsier::BootsierTheme
-});
 
 // -----------------------------------------------------------------------------
 // Favicon.
@@ -207,7 +197,7 @@ impl PageAssets {
     }
 
     pub fn using_theme(&mut self, theme_name: &str) -> &mut Self {
-        self.theme = find_theme(theme_name).unwrap_or(*DEFAULT_THEME);
+        self.theme = theme_by_name(theme_name).unwrap_or(*DEFAULT_THEME);
         self
     }
 

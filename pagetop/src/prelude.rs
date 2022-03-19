@@ -16,6 +16,6 @@ pub use crate::response::page::*;
 pub use crate::app;
 pub use crate::app::application::{Application, essence};
 
-pub use crate::component::*;
+pub use crate::base::component::*;
 
 pub use crate::util;

@@ -1,6 +1,7 @@
+use crate::app;
+
 #[cfg(any(feature = "mysql", feature = "postgres", feature = "sqlite"))]
 use crate::db;
-use crate::app;
 
 use std::any::type_name;
 

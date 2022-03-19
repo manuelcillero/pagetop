@@ -1,8 +1,8 @@
+use crate::app;
 use crate::config::SETTINGS;
 use crate::html::{Markup, html};
 use crate::response::page::{Page, PageAssets, PageComponent};
-use crate::app;
-use crate::component::Chunck;
+use crate::base::component::Chunck;
 
 /// Los temas deben implementar este "trait".
 pub trait ThemeTrait: Send + Sync {
