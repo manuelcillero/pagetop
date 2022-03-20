@@ -9,7 +9,6 @@ fn main() {
             Path::new(env::var("OUT_DIR").unwrap().as_str())
                 .join("theme.rs")
         )
-        .with_generated_fn("assets")
         .build()
         .unwrap();
 
@@ -18,7 +17,6 @@ fn main() {
             Path::new(env::var("OUT_DIR").unwrap().as_str())
                 .join("aliner.rs")
         )
-        .with_generated_fn("assets")
         .build()
         .unwrap();
 
@@ -27,7 +25,6 @@ fn main() {
             Path::new(env::var("OUT_DIR").unwrap().as_str())
                 .join("bootsier.rs")
         )
-        .with_generated_fn("assets")
         .build()
         .unwrap();
 }

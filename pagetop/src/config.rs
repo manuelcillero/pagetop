@@ -105,11 +105,17 @@ pub struct Webserver {
 }
 
 #[derive(Debug, Deserialize)]
+pub struct Dev {
+    pub static_files  : String,
+}
+
+#[derive(Debug, Deserialize)]
 pub struct Settings {
     pub app           : App,
     pub log           : Log,
     pub database      : Database,
     pub webserver     : Webserver,
+    pub dev           : Dev,
 }
 
 config_map!(r#"
@@ -144,5 +150,8 @@ Ajustes globales y valores predeterminados para las secciones *\[app\]*,
 
     // [webserver]
     "webserver.bind_address" => "localhost",
-    "webserver.bind_port"    => 8088
+    "webserver.bind_port"    => 8088,
+
+    // [dev]
+    "dev.static_files"       => ""
 );

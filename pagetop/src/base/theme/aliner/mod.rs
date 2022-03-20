@@ -14,10 +14,7 @@ impl ThemeTrait for AlinerTheme {
     }
 
     fn configure_theme(&self, cfg: &mut app::web::ServiceConfig) {
-        cfg.service(actix_web_static_files::ResourceFiles::new(
-            "/aliner",
-            assets()
-        ));
+        theme_static_files!(cfg, "/aliner");
     }
 
     fn before_render_page(&self, page: &mut Page) {

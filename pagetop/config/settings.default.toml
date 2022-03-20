@@ -43,3 +43,11 @@ max_pool_size = 5
 # Configuración del servidor web.
 bind_address = "localhost"
 bind_port = 8088
+
+[dev]
+# Los archivos estáticos requeridos por temas y componentes incluidos en PageTop
+# se integran de manera predeterminada en el binario ejecutable. Sin embargo, es
+# útil servir estos archivos desde su propio directorio durante el desarrollo ya
+# que no requiere compilar cada vez que se modifican. En este caso, normalmente,
+# basta con indicar el directorio "pagetop/static".
+static_files = ""

@@ -7,10 +7,8 @@ authors = [
     "Manuel Cillero <manuel@cillero.es>"
 ]
 description = """\
-    PageTop es un proyecto personal para aprender Rust. Incluye algunos de los \
-    crates más estables y populares para desarrollar soluciones web modulares, \
-    extensibles y configurables. También es un sistema para la gestión de \
-    contenidos web.\
+    PageTop is an opinionated framework for using the most stable and popular \
+    Rust packages to build modular, extensible and configurable web solutions.\
 """
 homepage = "https://suitepro.cillero.es/projects/pagetop"
 repository = "https://gitlab.com/manuelcillero/pagetop"
@@ -44,6 +42,7 @@ unic-langid = "0.9.0"
 
 actix-web = "3.3.3"
 actix-web-static-files = "3.0.5"
+actix-files = "0.4.1"
 
 maud = { version = "0.23.0", features = ["actix-web"] }
 sycamore = { version = "0.7.1", features = ["ssr"] }
@@ -62,9 +61,6 @@ features = ["debug-print", "migration"]
 default-features = false
 optional = true
 
-[dev-dependencies]
-tokio = { version = "1.17.0", features = ["macros", "rt-multi-thread"] }
-
 [features]
 default  = []
 mysql    = ["sea-orm", "sea-schema", "sea-orm/sqlx-mysql"]
@@ -73,6 +69,9 @@ sqlite   = ["sea-orm", "sea-schema", "sea-orm/sqlx-sqlite"]
 
 [build-dependencies]
 actix-web-static-files = "3.0.5"
+
+[dev-dependencies]
+tokio = { version = "1.17.0", features = ["macros", "rt-multi-thread"] }
 
 [lib]
 name = "pagetop"

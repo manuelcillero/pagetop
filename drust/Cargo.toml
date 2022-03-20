@@ -7,7 +7,7 @@ authors = [
     "Manuel Cillero <manuel@cillero.es>"
 ]
 description = """\
-    A modern Content Management System for sharing the world.\
+    A modern web Content Management System to share your world.\
 """
 homepage = "https://suitepro.cillero.es/projects/drust"
 repository = "https://gitlab.com/manuelcillero/drust"

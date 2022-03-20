@@ -1,4 +1,4 @@
-use crate::{Lazy, app, base, run_now, trace};
+use crate::{Lazy, app, base, run_now, theme_static_files, trace};
 use crate::config::SETTINGS;
 use crate::db::migration::*;
 use crate::module::*;
@@ -84,10 +84,7 @@ pub fn theme_by_name(name: &str) -> Option<&'static dyn ThemeTrait> {
 }
 
 pub fn themes(cfg: &mut app::web::ServiceConfig) {
-    cfg.service(actix_web_static_files::ResourceFiles::new(
-        "/theme",
-        assets()
-    ));
+    theme_static_files!(cfg, "/theme");
 
     for t in THEMES.read().unwrap().iter() {
         t.configure_theme(cfg);

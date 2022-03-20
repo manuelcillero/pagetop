@@ -1,12 +1,12 @@
 [app]
 name = "Drust"
 description = """\
-    A modern Content Management System for sharing the world.\
+    A modern web Content Management System to share your world.\
 """
-language = "es-ES"
 #theme = "Aliner"
 #theme = "Minimal"
 theme = "Bootsier"
+language = "es-ES"
 
 [database]
 db_type = "mysql"
@@ -16,3 +16,6 @@ db_pass = "DrU__#3T"
 
 [log]
 tracing = "Info,sqlx::query=Warn"
+
+[dev]
+#static_files = "pagetop/static"

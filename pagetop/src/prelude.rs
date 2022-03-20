@@ -1,6 +1,11 @@
 //! Re-exporta recursos comunes.
 
-pub use crate::args;
+// Macros.
+pub use crate::{
+    args,
+    theme_static_files,
+};
+
 pub use crate::config::SETTINGS;
 pub use crate::trace;
 pub use crate::localize;
