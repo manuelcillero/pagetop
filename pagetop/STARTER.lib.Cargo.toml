@@ -8,9 +8,9 @@ edition = "2021"
 
 [dependencies]
 pagetop = { path = "../pagetop" }
-# Opcional. Sólo si se usa la macro html!:
+# Si se usa la macro html!:
 maud = { version = "0.23.0" }
-# Opcional. Sólo si se usa base de datos:
+# Si se usa base de datos:
 sea-orm = { version = "0.6.0" }
-# Opcional. Para la serialización de estructuras de datos:
+# Si se requiere serialización de estructuras de datos:
 serde = { version = "1.0", features = ["derive"] }

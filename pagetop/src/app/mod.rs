@@ -3,6 +3,8 @@ pub use actix_web::{
 };
 use actix_web::dev::Server;
 
+mod banner;
+
 mod tracing;
 
 pub mod locale;

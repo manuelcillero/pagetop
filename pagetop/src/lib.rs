@@ -8,8 +8,6 @@ pub use futures::executor::block_on as run_now;
 // APIs públicas.
 // -----------------------------------------------------------------------------
 
-mod global;         // Ref. privadas globales a todos los temas y módulos.
-
 pub mod config;     // Gestión de la configuración.
 pub mod trace;      // Registro de trazas y eventos de la aplicación.
 pub mod locale;     // Localización.

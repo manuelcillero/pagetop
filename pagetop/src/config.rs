@@ -130,7 +130,7 @@ Ajustes globales y valores predeterminados para las secciones *\[app\]*,
     "app.theme"              => "Bootsier",
     "app.language"           => "en-US",
     "app.direction"          => "ltr",
-    "app.startup_banner"     => "Small",
+    "app.startup_banner"     => "Slant",
 
     // [log]
     "log.tracing"            => "Info",

@@ -8,7 +8,7 @@ language = "en-US"
 # Dirección predeterminada para el texto: "ltr", "rtl" o "auto".
 direction = "ltr"
 # Rótulo al inicio: "Off", "Slant", "Small", "Speed" o "Starwars".
-startup_banner = "Small"
+startup_banner = "Slant"
 
 [log]
 # Traza de ejecución: "Error", "Warn", "Info", "Debug" o "Trace".
@@ -25,7 +25,7 @@ format = "Full"
 
 [database]
 # Conecta con una base de datos (opcional).
-# Tipo de la base de datos (mysql, postgres ó sqlite).
+# Tipo de base de datos (mysql, postgres ó sqlite).
 db_type = ""
 # Nombre (para mysql/postgres) o referencia (para sqlite) de la base de datos.
 db_name = ""

@@ -1,4 +1,5 @@
 mod definition;
 pub use definition::ModuleTrait;
 
-pub use crate::global::register_module;
+pub(crate) mod all;
+pub use all::register_module;
