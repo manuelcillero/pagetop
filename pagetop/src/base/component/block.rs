@@ -71,7 +71,7 @@ impl Block {
     }
 
     pub fn with_title(mut self, title: &str) -> Self {
-        self.title = util::optional_str(title);
+        self.title = util::valid_str(title);
         self
     }
 

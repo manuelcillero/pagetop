@@ -1,10 +1,14 @@
 use crate::prelude::*;
 
-localize!("src/base/module/homepage/locales");
+localize!("src/base/module/demopage/locales");
 
-pub struct HomepageModule;
+pub struct DemopageModule;
 
-impl ModuleTrait for HomepageModule {
+impl ModuleTrait for DemopageModule {
+    fn name(&self) -> &'static str {
+        "Demopage"
+    }
+
     fn fullname(&self) -> String {
         l("module_fullname")
     }
@@ -20,9 +24,13 @@ impl ModuleTrait for HomepageModule {
 
 async fn home() -> app::Result<Markup> {
     Page::prepare()
+        .using_theme("Bootsier")
         .with_title(
             l("page_title").as_str()
         )
+
+
+
         .add_to("content", Container::prepare()
             .with_id("welcome")
             .add(Chunck::markup(html! {

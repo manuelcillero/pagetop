@@ -27,13 +27,18 @@ impl Application {
         #[cfg(any(feature = "mysql", feature = "postgres", feature = "sqlite"))]
         Lazy::force(&app::db::DBCONN);
 
+        // Registra los temas predeterminados.
+        theme::register_theme(&base::theme::aliner::AlinerTheme);
+        theme::register_theme(&base::theme::minimal::MinimalTheme);
+        theme::register_theme(&base::theme::bootsier::BootsierTheme);
+
         // Ejecuta la función de inicio de la aplicación.
         trace::info!("Calling application bootstrap");
         let _ = &bootstrap();
 
-        // Registra el módulo para una página de presentación de PageTop.
+        // Registra el módulo de presentación de PageTop.
         // Normalmente se sobrecargará en la función de inicio.
-        module::register_module(&base::module::homepage::HomepageModule);
+        module::register_module(&base::module::demopage::DemopageModule);
 
         // Actualizaciones pendientes de la base de datos (opcional).
         #[cfg(any(feature = "mysql", feature = "postgres", feature = "sqlite"))]

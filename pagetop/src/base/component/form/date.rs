@@ -112,17 +112,17 @@ impl Date {
     }
 
     pub fn with_value(mut self, value: &str) -> Self {
-        self.value = util::optional_str(value);
+        self.value = util::valid_str(value);
         self
     }
 
     pub fn with_label(mut self, label: &str) -> Self {
-        self.label = util::optional_str(label);
+        self.label = util::valid_str(label);
         self
     }
 
     pub fn with_placeholder(mut self, placeholder: &str) -> Self {
-        self.placeholder = util::optional_str(placeholder);
+        self.placeholder = util::valid_str(placeholder);
         self
     }
 
@@ -167,7 +167,7 @@ impl Date {
     }
 
     pub fn with_help_text(mut self, help_text: &str) -> Self {
-        self.help_text = util::optional_str(help_text);
+        self.help_text = util::valid_str(help_text);
         self
     }
 

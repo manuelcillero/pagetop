@@ -4,7 +4,7 @@ pub struct MinimalTheme;
 
 impl ThemeTrait for MinimalTheme {
     fn name(&self) -> &'static str {
-        "minimal"
+        "Minimal"
     }
 
     fn fullname(&self) -> String {

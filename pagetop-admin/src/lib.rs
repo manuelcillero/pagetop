@@ -7,6 +7,10 @@ mod summary;
 pub struct AdminModule;
 
 impl ModuleTrait for AdminModule {
+    fn name(&self) -> &'static str {
+        "Admin"
+    }
+
     fn fullname(&self) -> String {
         l("module_fullname")
     }

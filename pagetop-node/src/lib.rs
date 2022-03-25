@@ -8,6 +8,10 @@ mod migration;
 pub struct NodeModule;
 
 impl ModuleTrait for NodeModule {
+    fn name(&self) -> &'static str {
+        "Node"
+    }
+
     fn fullname(&self) -> String {
         l("module_fullname")
     }

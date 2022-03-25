@@ -10,13 +10,24 @@ static MODULES: Lazy<RwLock<Vec<&dyn ModuleTrait>>> = Lazy::new(|| {
 });
 
 pub fn register_module(module: &'static dyn ModuleTrait) {
-    let mut modules = MODULES.write().unwrap();
-    match modules.iter().find(|m| m.name() == module.name()) {
-        None => {
-            trace::info!("{}", module.name());
-            modules.push(module);
-        },
-        Some(_) => {},
+    let mut list: Vec<&dyn ModuleTrait> = Vec::new();
+    add_to(&mut list, module);
+    list.reverse();
+    MODULES.write().unwrap().append(&mut list);
+}
+
+fn add_to(list: &mut Vec<&dyn ModuleTrait>, module: &'static dyn ModuleTrait) {
+    if !MODULES.read().unwrap().iter().any(|m| m.name() == module.name()) {
+        if !list.iter().any(|m| m.name() == module.name()) {
+            trace::debug!("Registering \"{}\" module", module.name());
+            list.push(module);
+
+            let mut dependencies = module.dependencies();
+            dependencies.reverse();
+            for d in dependencies.iter() {
+                add_to(list, *d);
+            }
+        }
     }
 }
 

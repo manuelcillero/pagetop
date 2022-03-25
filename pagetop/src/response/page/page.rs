@@ -75,7 +75,7 @@ impl<'a> Page<'a> {
     // Page BUILDER.
 
     pub fn with_language(&mut self, language: &str) -> &mut Self {
-        self.language = util::optional_str(language);
+        self.language = util::valid_str(language);
         self
     }
 
@@ -89,12 +89,12 @@ impl<'a> Page<'a> {
     }
 
     pub fn with_title(&mut self, title: &str) -> &mut Self {
-        self.title = util::optional_str(title);
+        self.title = util::valid_str(title);
         self
     }
 
     pub fn with_description(&mut self, description: &str) -> &mut Self {
-        self.description = util::optional_str(description);
+        self.description = util::valid_str(description);
         self
     }
 

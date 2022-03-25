@@ -3,17 +3,9 @@ use crate::app;
 #[cfg(any(feature = "mysql", feature = "postgres", feature = "sqlite"))]
 use crate::db;
 
-use std::any::type_name;
-
 /// Los módulos deben implementar este *trait*.
 pub trait ModuleTrait: Send + Sync {
-    fn name(&self) -> &'static str {
-        let name = type_name::<Self>();
-        match name.rfind("::") {
-            Some(position) => &name[(position + 2)..],
-            None => name
-        }
-    }
+    fn name(&self) -> &'static str;
 
     fn fullname(&self) -> String;
 

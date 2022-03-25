@@ -8,7 +8,7 @@ pub struct BootsierTheme;
 
 impl ThemeTrait for BootsierTheme {
     fn name(&self) -> &'static str {
-        "bootsier"
+        "Bootsier"
     }
 
     fn fullname(&self) -> String {
@@ -23,7 +23,7 @@ impl ThemeTrait for BootsierTheme {
         page.assets()
             .with_favicon(
                 Favicon::new()
-                    .with_icon("/bootsier/favicon.png")
+                    .with_icon("/theme/favicon.png")
             )
             .add_stylesheet(
                 StyleSheet::source(

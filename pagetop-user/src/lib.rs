@@ -8,6 +8,10 @@ mod migration;
 pub struct UserModule;
 
 impl ModuleTrait for UserModule {
+    fn name(&self) -> &'static str {
+        "User"
+    }
+
     fn fullname(&self) -> String {
         l("module_fullname")
     }

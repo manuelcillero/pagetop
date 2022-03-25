@@ -76,7 +76,7 @@ impl Form {
     }
 
     pub fn with_action(mut self, action: &str) -> Self {
-        self.action = util::optional_str(action);
+        self.action = util::valid_str(action);
         self
     }
 
@@ -86,7 +86,7 @@ impl Form {
     }
 
     pub fn with_charset(mut self, charset: &str) -> Self {
-        self.charset = util::optional_str(charset);
+        self.charset = util::valid_str(charset);
         self
     }
 

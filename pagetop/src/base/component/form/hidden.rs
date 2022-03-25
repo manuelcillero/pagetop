@@ -54,7 +54,7 @@ impl Hidden {
     }
 
     pub fn with_value(mut self, value: &str) -> Self {
-        self.value = util::optional_str(value);
+        self.value = util::valid_str(value);
         self
     }
 

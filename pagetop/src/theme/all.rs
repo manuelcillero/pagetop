@@ -1,4 +1,4 @@
-use crate::{Lazy, app, base, theme_static_files, trace};
+use crate::{Lazy, app, theme_static_files, trace};
 use super::ThemeTrait;
 
 use std::sync::RwLock;
@@ -7,21 +7,14 @@ include!(concat!(env!("OUT_DIR"), "/theme.rs"));
 
 // Temas registrados.
 static THEMES: Lazy<RwLock<Vec<&dyn ThemeTrait>>> = Lazy::new(|| {
-    RwLock::new(vec![
-        &base::theme::aliner::AlinerTheme,
-        &base::theme::minimal::MinimalTheme,
-        &base::theme::bootsier::BootsierTheme,
-    ])
+    RwLock::new(Vec::new())
 });
 
 pub fn register_theme(theme: &'static dyn ThemeTrait) {
     let mut themes = THEMES.write().unwrap();
-    match themes.iter().find(|t| t.name() == theme.name()) {
-        None => {
-            trace::info!("{}", theme.name());
-            themes.push(theme);
-        },
-        Some(_) => {},
+    if !themes.iter().any(|t| t.name() == theme.name()) {
+        trace::debug!("Registering \"{}\" theme", theme.name());
+        themes.push(theme);
     }
 }
 

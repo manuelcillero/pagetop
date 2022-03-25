@@ -1,7 +1,7 @@
 use crate::app;
 use crate::config::SETTINGS;
 use crate::html::{Markup, html};
-use crate::response::page::{Page, PageAssets, PageComponent};
+use crate::response::page::{Favicon, Page, PageAssets, PageComponent};
 use crate::base::component::Chunck;
 
 /// Los temas deben implementar este "trait".
@@ -20,6 +20,11 @@ pub trait ThemeTrait: Send + Sync {
 
     #[allow(unused_variables)]
     fn before_render_page(&self, page: &mut Page) {
+        page.assets()
+            .with_favicon(
+                Favicon::new()
+                    .with_icon("/theme/favicon.png")
+            );
     }
 
     fn render_page_head(&self, page: &mut Page) -> Markup {

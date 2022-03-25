@@ -1,1 +1,1 @@
-pub mod homepage;
+pub mod demopage;
