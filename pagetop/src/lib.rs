@@ -1,8 +1,8 @@
-// Global.
+// Local.
 
-pub use doc_comment::doc_comment;
-pub use once_cell::sync::Lazy;
-pub use futures::executor::block_on as run_now;
+pub(crate) use doc_comment::doc_comment;
+pub(crate) use once_cell::sync::Lazy;
+pub(crate) use futures::executor::block_on as run_now;
 
 // -----------------------------------------------------------------------------
 // APIs públicas.
