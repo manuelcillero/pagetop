@@ -6,42 +6,42 @@ pub struct Input {
     renderable  : fn() -> bool,
     weight      : i8,
     input_type  : InputType,
-    name        : Option<String>,
-    value       : Option<String>,
-    label       : Option<String>,
+    name        : OptionId,
+    value       : OptionAttr,
+    label       : OptionAttr,
     size        : Option<u16>,
     minlength   : Option<u16>,
     maxlength   : Option<u16>,
-    placeholder : Option<String>,
-    autofocus   : Option<String>,
-    autocomplete: Option<String>,
-    disabled    : Option<String>,
-    readonly    : Option<String>,
-    required    : Option<String>,
-    help_text   : Option<String>,
+    placeholder : OptionAttr,
+    autofocus   : OptionAttr,
+    autocomplete: OptionAttr,
+    disabled    : OptionAttr,
+    readonly    : OptionAttr,
+    required    : OptionAttr,
+    help_text   : OptionAttr,
     template    : String,
 }
 
 impl PageComponent for Input {
 
-    fn prepare() -> Self {
+    fn new() -> Self {
         Input {
             renderable  : always,
             weight      : 0,
             input_type  : InputType::Textfield,
-            name        : None,
-            value       : None,
-            label       : None,
+            name        : OptionId::none(),
+            value       : OptionAttr::none(),
+            label       : OptionAttr::none(),
             size        : Some(60),
             minlength   : None,
             maxlength   : Some(128),
-            placeholder : None,
-            autofocus   : None,
-            autocomplete: None,
-            disabled    : None,
-            readonly    : None,
-            required    : None,
-            help_text   : None,
+            placeholder : OptionAttr::none(),
+            autofocus   : OptionAttr::none(),
+            autocomplete: OptionAttr::none(),
+            disabled    : OptionAttr::none(),
+            readonly    : OptionAttr::none(),
+            required    : OptionAttr::none(),
+            help_text   : OptionAttr::none(),
             template    : "default".to_owned(),
         }
     }
@@ -63,7 +63,7 @@ impl PageComponent for Input {
             InputType::Textfield => ("text",     "form-type-textfield"),
             InputType::Url       => ("url",      "form-type-url")
         };
-        let (class_item, id_item) = match &self.name {
+        let (class_item, id_item) = match &self.name.option() {
             Some(name) => (
                 format!("form-item form-item-{} {}", name, class_type),
                 Some(format!("edit-{}", name))
@@ -75,10 +75,10 @@ impl PageComponent for Input {
         };
         html! {
             div class=(class_item) {
-                @if self.label != None {
+                @if self.label.has_value() {
                     label class="form-label" for=[&id_item] {
-                        (self.label()) " "
-                        @if self.required != None {
+                        (self.label.value()) " "
+                        @if self.required.has_value() {
                             span
                                 class="form-required"
                                 title="Este campo es obligatorio."
@@ -92,20 +92,20 @@ impl PageComponent for Input {
                     type=(input_type)
                     id=[&id_item]
                     class="form-control"
-                    name=[&self.name]
-                    value=[&self.value]
+                    name=[&self.name.option()]
+                    value=[&self.value.option()]
                     size=[self.size]
                     minlength=[self.minlength]
                     maxlength=[self.maxlength]
-                    placeholder=[&self.placeholder]
-                    autofocus=[&self.autofocus]
-                    autocomplete=[&self.autocomplete]
-                    readonly=[&self.readonly]
-                    required=[&self.required]
-                    disabled=[&self.disabled];
-                @if self.help_text != None {
+                    placeholder=[&self.placeholder.option()]
+                    autofocus=[&self.autofocus.option()]
+                    autocomplete=[&self.autocomplete.option()]
+                    readonly=[&self.readonly.option()]
+                    required=[&self.required.option()]
+                    disabled=[&self.disabled.option()];
+                @if self.help_text.has_value() {
                     div class="form-text" {
-                        (self.help_text())
+                        (self.help_text.value())
                     }
                 }
             }
@@ -116,35 +116,35 @@ impl PageComponent for Input {
 impl Input {
 
     pub fn textfield() -> Self {
-        Input::prepare()
+        Input::new()
     }
 
     pub fn password() -> Self {
-        let mut input = Input::prepare();
+        let mut input = Input::new();
         input.input_type = InputType::Password;
         input
     }
 
     pub fn search() -> Self {
-        let mut input = Input::prepare();
+        let mut input = Input::new();
         input.input_type = InputType::Search;
         input
     }
 
     pub fn email() -> Self {
-        let mut input = Input::prepare();
+        let mut input = Input::new();
         input.input_type = InputType::Email;
         input
     }
 
     pub fn telephone() -> Self {
-        let mut input = Input::prepare();
+        let mut input = Input::new();
         input.input_type = InputType::Telephone;
         input
     }
 
     pub fn url() -> Self {
-        let mut input = Input::prepare();
+        let mut input = Input::new();
         input.input_type = InputType::Url;
         input
     }
@@ -162,17 +162,17 @@ impl Input {
     }
 
     pub fn with_name(mut self, name: &str) -> Self {
-        self.name = util::valid_id(name);
+        self.name.with_value(name);
         self
     }
 
     pub fn with_value(mut self, value: &str) -> Self {
-        self.value = util::valid_str(value);
+        self.value.with_value(value);
         self
     }
 
     pub fn with_label(mut self, label: &str) -> Self {
-        self.label = util::valid_str(label);
+        self.label.with_value(label);
         self
     }
 
@@ -192,52 +192,52 @@ impl Input {
     }
 
     pub fn with_placeholder(mut self, placeholder: &str) -> Self {
-        self.placeholder = util::valid_str(placeholder);
+        self.placeholder.with_value(placeholder);
         self
     }
 
     pub fn autofocus(mut self, toggle: bool) -> Self {
-        self.autofocus = match toggle {
-            true => Some("autofocus".to_owned()),
-            false => None
-        };
+        self.autofocus.with_value(match toggle {
+            true => "autofocus",
+            false => "",
+        });
         self
     }
 
     pub fn autocomplete(mut self, toggle: bool) -> Self {
-        self.autocomplete = match toggle {
-            true => None,
-            false => Some("off".to_owned())
-        };
+        self.autocomplete.with_value(match toggle {
+            true => "",
+            false => "off",
+        });
         self
     }
 
     pub fn disabled(mut self, toggle: bool) -> Self {
-        self.disabled = match toggle {
-            true => Some("disabled".to_owned()),
-            false => None
-        };
+        self.disabled.with_value(match toggle {
+            true => "disabled",
+            false => "",
+        });
         self
     }
 
     pub fn readonly(mut self, toggle: bool) -> Self {
-        self.readonly = match toggle {
-            true => Some("readonly".to_owned()),
-            false => None
-        };
+        self.readonly.with_value(match toggle {
+            true => "readonly",
+            false => "",
+        });
         self
     }
 
     pub fn required(mut self, toggle: bool) -> Self {
-        self.required = match toggle {
-            true => Some("required".to_owned()),
-            false => None
-        };
+        self.required.with_value(match toggle {
+            true => "required",
+            false => "",
+        });
         self
     }
 
     pub fn with_help_text(mut self, help_text: &str) -> Self {
-        self.help_text = util::valid_str(help_text);
+        self.help_text.with_value(help_text);
         self
     }
 
@@ -249,15 +249,15 @@ impl Input {
     // Input GETTERS.
 
     pub fn name(&self) -> &str {
-        util::assigned_str(&self.name)
+        self.name.value()
     }
 
     pub fn value(&self) -> &str {
-        util::assigned_str(&self.value)
+        self.value.value()
     }
 
     pub fn label(&self) -> &str {
-        util::assigned_str(&self.label)
+        self.label.value()
     }
 
     pub fn size(&self) -> Option<u16> {
@@ -273,46 +273,31 @@ impl Input {
     }
 
     pub fn placeholder(&self) -> &str {
-        util::assigned_str(&self.placeholder)
+        self.placeholder.value()
     }
 
     pub fn has_autofocus(&self) -> bool {
-        match &self.autofocus {
-            Some(_) => true,
-            _ => false
-        }
+        self.autofocus.has_value()
     }
 
     pub fn has_autocomplete(&self) -> bool {
-        match &self.autocomplete {
-            Some(_) => false,
-            _ => true
-        }
+        !self.autocomplete.has_value()
     }
 
     pub fn is_disabled(&self) -> bool {
-        match &self.disabled {
-            Some(_) => true,
-            _ => false
-        }
+        self.disabled.has_value()
     }
 
     pub fn is_readonly(&self) -> bool {
-        match &self.readonly {
-            Some(_) => true,
-            _ => false
-        }
+        self.readonly.has_value()
     }
 
     pub fn is_required(&self) -> bool {
-        match &self.required {
-            Some(_) => true,
-            _ => false
-        }
+        self.required.has_value()
     }
 
     pub fn help_text(&self) -> &str {
-        util::assigned_str(&self.help_text)
+        self.help_text.value()
     }
 
     pub fn template(&self) -> &str {

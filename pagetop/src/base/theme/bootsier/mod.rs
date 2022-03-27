@@ -52,9 +52,9 @@ impl ThemeTrait for BootsierTheme {
                 s = app::http::StatusCode::INTERNAL_SERVER_ERROR;
             }
         }
-        Page::prepare()
+        Page::new()
             .with_title(format!("Error {}", s.as_str()).as_str())
-            .add_to("content", Chunck::markup(html! {
+            .add_to("content", Chunck::with(html! {
                 div class="jumbotron" {
                     div class="media" {
                         img

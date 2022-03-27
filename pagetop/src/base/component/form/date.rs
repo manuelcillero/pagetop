@@ -3,35 +3,35 @@ use crate::prelude::*;
 pub struct Date {
     renderable  : fn() -> bool,
     weight      : i8,
-    name        : Option<String>,
-    value       : Option<String>,
-    label       : Option<String>,
-    placeholder : Option<String>,
-    autofocus   : Option<String>,
-    autocomplete: Option<String>,
-    disabled    : Option<String>,
-    readonly    : Option<String>,
-    required    : Option<String>,
-    help_text   : Option<String>,
+    name        : OptionAttr,
+    value       : OptionAttr,
+    label       : OptionAttr,
+    placeholder : OptionAttr,
+    autofocus   : OptionAttr,
+    autocomplete: OptionAttr,
+    disabled    : OptionAttr,
+    readonly    : OptionAttr,
+    required    : OptionAttr,
+    help_text   : OptionAttr,
     template    : String,
 }
 
 impl PageComponent for Date {
 
-    fn prepare() -> Self {
+    fn new() -> Self {
         Date {
             renderable  : always,
             weight      : 0,
-            name        : None,
-            value       : None,
-            label       : None,
-            placeholder : None,
-            autofocus   : None,
-            autocomplete: None,
-            disabled    : None,
-            readonly    : None,
-            required    : None,
-            help_text   : None,
+            name        : OptionAttr::none(),
+            value       : OptionAttr::none(),
+            label       : OptionAttr::none(),
+            placeholder : OptionAttr::none(),
+            autofocus   : OptionAttr::none(),
+            autocomplete: OptionAttr::none(),
+            disabled    : OptionAttr::none(),
+            readonly    : OptionAttr::none(),
+            required    : OptionAttr::none(),
+            help_text   : OptionAttr::none(),
             template    : "default".to_owned(),
         }
     }
@@ -45,7 +45,7 @@ impl PageComponent for Date {
     }
 
     fn default_render(&self, _: &mut PageAssets) -> Markup {
-        let (class_item, id_item) = match &self.name {
+        let (class_item, id_item) = match self.name.option() {
             Some(name) => (
                 format!("form-item form-item-{} form-type-date", name),
                 Some(format!("edit-{}", name))
@@ -57,10 +57,10 @@ impl PageComponent for Date {
         };
         html! {
             div class=(class_item) {
-                @if self.label != None {
+                @if self.label.has_value() {
                     label class="form-label" for=[&id_item] {
-                        (self.label()) " "
-                        @if self.required != None {
+                        (self.label.value()) " "
+                        @if self.required.has_value() {
                             span
                                 class="form-required"
                                 title="Este campo es obligatorio."
@@ -74,17 +74,17 @@ impl PageComponent for Date {
                     type="date"
                     id=[&id_item]
                     class="form-control"
-                    name=[&self.name]
-                    value=[&self.value]
-                    placeholder=[&self.placeholder]
-                    autofocus=[&self.autofocus]
-                    autocomplete=[&self.autocomplete]
-                    readonly=[&self.readonly]
-                    required=[&self.required]
-                    disabled=[&self.disabled];
-                @if self.help_text != None {
+                    name=[&self.name.option()]
+                    value=[&self.value.option()]
+                    placeholder=[&self.placeholder.option()]
+                    autofocus=[&self.autofocus.option()]
+                    autocomplete=[&self.autocomplete.option()]
+                    readonly=[&self.readonly.option()]
+                    required=[&self.required.option()]
+                    disabled=[&self.disabled.option()];
+                @if self.help_text.has_value() {
                     div class="form-text" {
-                        (self.help_text())
+                        (self.help_text.value())
                     }
                 }
             }
@@ -107,67 +107,67 @@ impl Date {
     }
 
     pub fn with_name(mut self, name: &str) -> Self {
-        self.name = util::valid_id(name);
+        self.name.with_value(name);
         self
     }
 
     pub fn with_value(mut self, value: &str) -> Self {
-        self.value = util::valid_str(value);
+        self.value.with_value(value);
         self
     }
 
     pub fn with_label(mut self, label: &str) -> Self {
-        self.label = util::valid_str(label);
+        self.label.with_value(label);
         self
     }
 
     pub fn with_placeholder(mut self, placeholder: &str) -> Self {
-        self.placeholder = util::valid_str(placeholder);
+        self.placeholder.with_value(placeholder);
         self
     }
 
     pub fn autofocus(mut self, toggle: bool) -> Self {
-        self.autofocus = match toggle {
-            true => Some("autofocus".to_owned()),
-            false => None
-        };
+        self.autofocus.with_value(match toggle {
+            true => "autofocus",
+            false => "",
+        });
         self
     }
 
     pub fn autocomplete(mut self, toggle: bool) -> Self {
-        self.autocomplete = match toggle {
-            true => None,
-            false => Some("off".to_owned())
-        };
+        self.autocomplete.with_value(match toggle {
+            true => "",
+            false => "off",
+        });
         self
     }
 
     pub fn disabled(mut self, toggle: bool) -> Self {
-        self.disabled = match toggle {
-            true => Some("disabled".to_owned()),
-            false => None
-        };
+        self.disabled.with_value(match toggle {
+            true => "disabled",
+            false => "",
+        });
         self
     }
 
     pub fn readonly(mut self, toggle: bool) -> Self {
-        self.readonly = match toggle {
-            true => Some("readonly".to_owned()),
-            false => None
-        };
+        self.readonly.with_value(match toggle {
+            true => "readonly",
+            false => "",
+        });
         self
     }
 
     pub fn required(mut self, toggle: bool) -> Self {
-        self.required = match toggle {
-            true => Some("required".to_owned()),
-            false => None
-        };
+        self.required.with_value(match toggle {
+            true => "required",
+            false => "",
+        });
         self
     }
 
     pub fn with_help_text(mut self, help_text: &str) -> Self {
-        self.help_text = util::valid_str(help_text);
+        self.help_text.with_value(help_text);
         self
     }
 
@@ -179,58 +179,43 @@ impl Date {
     // Date GETTERS.
 
     pub fn name(&self) -> &str {
-        util::assigned_str(&self.name)
+        self.name.value()
     }
 
     pub fn value(&self) -> &str {
-        util::assigned_str(&self.value)
+        self.value.value()
     }
 
     pub fn label(&self) -> &str {
-        util::assigned_str(&self.label)
+        self.label.value()
     }
 
     pub fn placeholder(&self) -> &str {
-        util::assigned_str(&self.placeholder)
+        self.placeholder.value()
     }
 
     pub fn has_autofocus(&self) -> bool {
-        match &self.autofocus {
-            Some(_) => true,
-            _ => false
-        }
+        self.autofocus.has_value()
     }
 
     pub fn has_autocomplete(&self) -> bool {
-        match &self.autocomplete {
-            Some(_) => false,
-            _ => true
-        }
+        !self.autocomplete.has_value()
     }
 
     pub fn is_disabled(&self) -> bool {
-        match &self.disabled {
-            Some(_) => true,
-            _ => false
-        }
+        self.disabled.has_value()
     }
 
     pub fn is_readonly(&self) -> bool {
-        match &self.readonly {
-            Some(_) => true,
-            _ => false
-        }
+        self.readonly.has_value()
     }
 
     pub fn is_required(&self) -> bool {
-        match &self.required {
-            Some(_) => true,
-            _ => false
-        }
+        self.required.has_value()
     }
 
     pub fn help_text(&self) -> &str {
-        util::assigned_str(&self.help_text)
+        self.help_text.value()
     }
 
     pub fn template(&self) -> &str {

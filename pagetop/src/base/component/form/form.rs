@@ -5,24 +5,24 @@ pub enum FormMethod {Get, Post}
 pub struct Form {
     renderable: fn() -> bool,
     weight    : i8,
-    id        : Option<String>,
-    action    : Option<String>,
+    id        : OptionId,
+    action    : OptionAttr,
     method    : FormMethod,
-    charset   : Option<String>,
+    charset   : OptionAttr,
     elements  : PageContainer,
     template  : String,
 }
 
 impl PageComponent for Form {
 
-    fn prepare() -> Self {
+    fn new() -> Self {
         Form {
             renderable: always,
             weight    : 0,
-            id        : None,
-            action    : None,
+            id        : OptionId::none(),
+            action    : OptionAttr::none(),
             method    : FormMethod::Post,
-            charset   : Some("UTF-8".to_owned()),
+            charset   : OptionAttr::some("UTF-8"),
             elements  : PageContainer::new(),
             template  : "default".to_owned(),
         }
@@ -43,10 +43,10 @@ impl PageComponent for Form {
         };
         html! {
             form
-                id=[&self.id]
-                action=[&self.action]
+                id=[&self.id.option()]
+                action=[&self.action.option()]
                 method=[method]
-                accept-charset=[&self.charset]
+                accept-charset=[&self.charset.option()]
             {
                 div {
                     (self.elements.render(assets))
@@ -71,12 +71,12 @@ impl Form {
     }
 
     pub fn with_id(mut self, id: &str) -> Self {
-        self.id = util::valid_id(id);
+        self.id.with_value(id);
         self
     }
 
     pub fn with_action(mut self, action: &str) -> Self {
-        self.action = util::valid_str(action);
+        self.action.with_value(action);
         self
     }
 
@@ -86,7 +86,7 @@ impl Form {
     }
 
     pub fn with_charset(mut self, charset: &str) -> Self {
-        self.charset = util::valid_str(charset);
+        self.charset.with_value(charset);
         self
     }
 
@@ -103,11 +103,11 @@ impl Form {
     // Form GETTERS.
 
     pub fn id(&self) -> &str {
-        util::assigned_str(&self.id)
+        self.id.value()
     }
 
     pub fn action(&self) -> &str {
-        util::assigned_str(&self.action)
+        self.action.value()
     }
 
     pub fn method(&self) -> &str {
@@ -118,7 +118,7 @@ impl Form {
     }
 
     pub fn charset(&self) -> &str {
-        util::assigned_str(&self.charset)
+        self.charset.value()
     }
 
     pub fn template(&self) -> &str {

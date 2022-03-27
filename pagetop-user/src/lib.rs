@@ -32,7 +32,7 @@ impl ModuleTrait for UserModule {
 }
 
 fn form_login() -> impl PageComponent {
-    Form::prepare()
+    Form::new()
         .with_id("user-login")
         .add(form::Input::textfield()
             .with_name("name")
@@ -51,11 +51,11 @@ fn form_login() -> impl PageComponent {
 }
 
 async fn login() -> app::Result<Markup> {
-    Page::prepare()
+    Page::new()
         .with_title(
             "Identificación del usuario"
         )
-        .add_to("content", Container::prepare()
+        .add_to("content", Container::new()
             .with_id("welcome")
             .add(form_login())
         )

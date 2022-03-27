@@ -35,26 +35,3 @@ macro_rules! theme_static_files {
         }
     }};
 }
-
-pub fn valid_id(id: &str) -> Option<String> {
-    let id = id.trim();
-    match id.is_empty() {
-        true => None,
-        false => Some(id.replace(" ", "_").to_lowercase()),
-    }
-}
-
-pub fn valid_str(s: &str) -> Option<String> {
-    let s = s.trim();
-    match s.is_empty() {
-        true => None,
-        false => Some(s.to_owned()),
-    }
-}
-
-pub fn assigned_str(optional: &Option<String>) -> &str {
-    match optional {
-        Some(o) => o.as_str(),
-        None => "",
-    }
-}

@@ -35,7 +35,7 @@ impl ModuleTrait for NodeModule {
 }
 
 async fn node() -> app::Result<Markup> {
-    Page::prepare()
+    Page::new()
         .with_title(
             "Nodo"
         )

@@ -7,7 +7,7 @@ use std::any::type_name;
 
 pub trait PageComponent: Downcast + Send + Sync {
 
-    fn prepare() -> Self where Self: Sized;
+    fn new() -> Self where Self: Sized;
 
     fn name(&self) -> &'static str {
         let name = type_name::<Self>();

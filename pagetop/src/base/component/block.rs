@@ -3,21 +3,21 @@ use crate::prelude::*;
 pub struct Block {
     renderable: fn() -> bool,
     weight    : i8,
-    id        : Option<String>,
-    title     : Option<String>,
-    markup    : Vec<Markup>,
+    id        : OptionId,
+    title     : OptionAttr,
+    html      : Vec<Markup>,
     template  : String,
 }
 
 impl PageComponent for Block {
 
-    fn prepare() -> Self {
+    fn new() -> Self {
         Block {
             renderable: always,
             weight    : 0,
-            id        : None,
-            title     : None,
-            markup    : Vec::new(),
+            id        : OptionId::none(),
+            title     : OptionAttr::none(),
+            html      : Vec::new(),
             template  : "default".to_owned(),
         }
     }
@@ -31,15 +31,16 @@ impl PageComponent for Block {
     }
 
     fn default_render(&self, assets: &mut PageAssets) -> Markup {
-        let id = assets.serial_id(self.name(), self.id());
+        let id = assets.serial_id(self.name(), self.id.value());
+        let title = self.title.value();
         html! {
             div id=(id) class="block" {
-                @if self.title != None {
-                    h2 class="block-title" { (self.title()) }
+                @if !title.is_empty() {
+                    h2 class="block-title" { (title) }
                 }
                 div class="block-body" {
-                    @for markup in self.markup.iter() {
-                        (*markup)
+                    @for html in self.html.iter() {
+                        (*html)
                     }
                 }
             }
@@ -49,8 +50,8 @@ impl PageComponent for Block {
 
 impl Block {
 
-    pub fn markup(markup: Markup) -> Self {
-        Block::prepare().add_markup(markup)
+    pub fn with(html: Markup) -> Self {
+        Block::new().add(html)
     }
 
     // Block BUILDER.
@@ -66,17 +67,17 @@ impl Block {
     }
 
     pub fn with_id(mut self, id: &str) -> Self {
-        self.id = util::valid_id(id);
+        self.id.with_value(id);
         self
     }
 
     pub fn with_title(mut self, title: &str) -> Self {
-        self.title = util::valid_str(title);
+        self.title.with_value(title);
         self
     }
 
-    pub fn add_markup(mut self, markup: Markup) -> Self {
-        self.markup.push(markup);
+    pub fn add(mut self, html: Markup) -> Self {
+        self.html.push(html);
         self
     }
 
@@ -88,11 +89,11 @@ impl Block {
     // Block GETTERS.
 
     pub fn id(&self) -> &str {
-        util::assigned_str(&self.id)
+        self.id.value()
     }
 
     pub fn title(&self) -> &str {
-        util::assigned_str(&self.title)
+        self.title.value()
     }
 
     pub fn template(&self) -> &str {

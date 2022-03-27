@@ -1,9 +1,8 @@
-use crate::{Lazy, app, trace, util};
+use crate::{Lazy, app, trace};
 use crate::config::SETTINGS;
-use crate::html::{DOCTYPE, Markup, html};
+use crate::html::{Classes, DOCTYPE, Markup, OptionAttr, html};
 use crate::response::page::{PageAssets, PageComponent, PageContainer};
 
-use std::borrow::Cow;
 use std::sync::RwLock;
 use std::collections::HashMap;
 
@@ -41,31 +40,31 @@ static DEFAULT_DIRECTION: Lazy<Option<String>> = Lazy::new(|| {
 pub enum TextDirection { Auto, LeftToRight, RightToLeft }
 
 pub struct Page<'a> {
-    language    : Option<String>,
-    direction   : Option<String>,
-    title       : Option<String>,
-    description : Option<String>,
+    language    : OptionAttr,
+    direction   : OptionAttr,
+    title       : OptionAttr,
+    description : OptionAttr,
     assets      : PageAssets,
-    body_classes: Cow<'a, str>,
+    body_classes: Classes,
     regions     : HashMap<&'a str, PageContainer>,
     template    : String,
 }
 
 impl<'a> Page<'a> {
 
-    pub fn prepare() -> Self {
+    pub fn new() -> Self {
         Page {
             language    : match &*DEFAULT_LANGUAGE {
-                Some(language) => Some(language.to_owned()),
-                _ => None,
+                Some(language) => OptionAttr::some(language),
+                _ => OptionAttr::none(),
             },
             direction   : match &*DEFAULT_DIRECTION {
-                Some(direction) => Some(direction.to_owned()),
-                _ => None,
+                Some(direction) => OptionAttr::some(direction),
+                _ => OptionAttr::none(),
             },
-            title       : None,
-            description : None,
-            body_classes: "body".into(),
+            title       : OptionAttr::none(),
+            description : OptionAttr::none(),
+            body_classes: Classes::some_class("body"),
             assets      : PageAssets::new(),
             regions     : COMPONENTS.read().unwrap().clone(),
             template    : "default".to_owned(),
@@ -75,38 +74,36 @@ impl<'a> Page<'a> {
     // Page BUILDER.
 
     pub fn with_language(&mut self, language: &str) -> &mut Self {
-        self.language = util::valid_str(language);
+        self.language.with_value(language);
         self
     }
 
     pub fn with_direction(&mut self, dir: TextDirection) -> &mut Self {
-        self.direction = match dir {
-            TextDirection::Auto => Some("auto".to_owned()),
-            TextDirection::LeftToRight => Some("ltr".to_owned()),
-            TextDirection::RightToLeft => Some("rtl".to_owned()),
-        };
+        self.direction.with_value(match dir {
+            TextDirection::Auto => "auto",
+            TextDirection::LeftToRight => "ltr",
+            TextDirection::RightToLeft => "rtl",
+        });
         self
     }
 
     pub fn with_title(&mut self, title: &str) -> &mut Self {
-        self.title = util::valid_str(title);
+        self.title.with_value(title);
         self
     }
 
     pub fn with_description(&mut self, description: &str) -> &mut Self {
-        self.description = util::valid_str(description);
+        self.description.with_value(description);
         self
     }
 
-    pub fn with_body_classes(&mut self, body_classes: &'a str) -> &mut Self {
-        self.body_classes = body_classes.into();
+    pub fn add_body_class(&mut self, class: &str) -> &mut Self {
+        self.body_classes.add_class(class);
         self
     }
 
-    pub fn add_body_classes(&mut self, body_classes: &'a str) -> &mut Self {
-        self.body_classes = String::from(
-            format!("{} {}", self.body_classes, body_classes).trim()
-        ).into();
+    pub fn add_body_classes(&mut self, classes: Vec<String>) -> &mut Self {
+        self.body_classes.add_classes(classes);
         self
     }
 
@@ -131,26 +128,23 @@ impl<'a> Page<'a> {
     // Page GETTERS.
 
     pub fn language(&self) -> &str {
-        util::assigned_str(&self.language)
+        self.language.value()
     }
 
     pub fn direction(&self) -> &str {
-        util::assigned_str(&self.direction)
+        self.direction.value()
     }
 
     pub fn title(&self) -> &str {
-        util::assigned_str(&self.title)
+        self.title.value()
     }
 
     pub fn description(&self) -> &str {
-        util::assigned_str(&self.description)
+        self.description.value()
     }
 
-    pub fn body_classes(&self) -> &str {
-        if self.body_classes.is_empty() {
-            return "body";
-        }
-        &self.body_classes
+    pub fn body_classes(&mut self) -> &str {
+        self.body_classes.classes()
     }
 
     pub fn assets(&mut self) -> &mut PageAssets {
@@ -176,7 +170,7 @@ impl<'a> Page<'a> {
         // Finalmente, renderizar la página.
         return Ok(html! {
             (DOCTYPE)
-            html lang=[&self.language] dir=[&self.direction] {
+            html lang=[&self.language.option()] dir=[&self.direction.option()] {
                 (head)
                 (body)
             }
@@ -204,7 +198,7 @@ pub fn render_component(
 ) -> Markup {
     match component.is_renderable() {
         true => match assets.theme().render_component(component, assets) {
-            Some(markup) => markup,
+            Some(html) => html,
             None => component.default_render(assets)
         },
         false => html! {}

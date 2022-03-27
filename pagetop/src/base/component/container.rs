@@ -1,11 +1,11 @@
 use crate::prelude::*;
 
-enum ContainerType { Column, Row, Wrapper }
+enum ContainerType { Header, Footer, Main, Section, Wrapper }
 
 pub struct Container {
     renderable: fn() -> bool,
     weight    : i8,
-    id        : Option<String>,
+    id        : OptionId,
     container : ContainerType,
     components: PageContainer,
     template  : String,
@@ -13,11 +13,11 @@ pub struct Container {
 
 impl PageComponent for Container {
 
-    fn prepare() -> Self {
+    fn new() -> Self {
         Container {
             renderable: always,
             weight    : 0,
-            id        : None,
+            id        : OptionId::none(),
             container : ContainerType::Wrapper,
             components: PageContainer::new(),
             template  : "default".to_owned(),
@@ -33,14 +33,39 @@ impl PageComponent for Container {
     }
 
     fn default_render(&self, assets: &mut PageAssets) -> Markup {
-        let classes = match self.container {
-            ContainerType::Wrapper => "container",
-            ContainerType::Row     => "row",
-            ContainerType::Column  => "col",
-        };
-        html! {
-            div id=[&self.id] class=(classes) {
-                (self.components.render(assets))
+        match self.container {
+            ContainerType::Header => html! {
+                header id=[&self.id.option()] class="header" {
+                    div class="container" {
+                        (self.components.render(assets))
+                    }
+                }
+            },
+            ContainerType::Footer => html! {
+                footer id=[&self.id.option()] class="footer" {
+                    div class="container" {
+                        (self.components.render(assets))
+                    }
+                }
+            },
+            ContainerType::Main => html! {
+                main id=[&self.id.option()] class="main" {
+                    div class="container" {
+                        (self.components.render(assets))
+                    }
+                }
+            },
+            ContainerType::Section => html! {
+                section id=[&self.id.option()] class="section" {
+                    div class="container" {
+                        (self.components.render(assets))
+                    }
+                }
+            },
+            _ => html! {
+                div id=[&self.id.option()] class="container" {
+                    (self.components.render(assets))
+                }
             }
         }
     }
@@ -48,16 +73,28 @@ impl PageComponent for Container {
 
 impl Container {
 
-    pub fn row() -> Self {
-        let mut grid = Container::prepare();
-        grid.container = ContainerType::Row;
-        grid
+    pub fn header() -> Self {
+        let mut c = Container::new();
+        c.container = ContainerType::Header;
+        c
     }
 
-    pub fn column() -> Self {
-        let mut grid = Container::prepare();
-        grid.container = ContainerType::Column;
-        grid
+    pub fn footer() -> Self {
+        let mut c = Container::new();
+        c.container = ContainerType::Footer;
+        c
+    }
+
+    pub fn main() -> Self {
+        let mut c = Container::new();
+        c.container = ContainerType::Main;
+        c
+    }
+
+    pub fn section() -> Self {
+        let mut c = Container::new();
+        c.container = ContainerType::Section;
+        c
     }
 
     // Container BUILDER.
@@ -73,7 +110,7 @@ impl Container {
     }
 
     pub fn with_id(mut self, id: &str) -> Self {
-        self.id = util::valid_id(id);
+        self.id.with_value(id);
         self
     }
 
@@ -90,7 +127,7 @@ impl Container {
     // Container GETTERS.
 
     pub fn id(&self) -> &str {
-        util::assigned_str(&self.id)
+        self.id.value()
     }
 
     pub fn template(&self) -> &str {

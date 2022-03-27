@@ -4,7 +4,7 @@ enum MenuItemType {
     Label(String),
     Link(String, String),
     LinkBlank(String, String),
-    Markup(Markup),
+    Html(Markup),
     Separator,
     Submenu(String, Menu),
 }
@@ -21,7 +21,7 @@ pub struct MenuItem {
 
 impl PageComponent for MenuItem {
 
-    fn prepare() -> Self {
+    fn new() -> Self {
         MenuItem {
             renderable: always,
             weight    : 0,
@@ -50,8 +50,8 @@ impl PageComponent for MenuItem {
                     a href=(path) target="_blank" { (label) }
                 }
             },
-            Some(MenuItemType::Markup(markup)) => html! {
-                li class="markup" { (*markup) }
+            Some(MenuItemType::Html(html)) => html! {
+                li class="html" { (*html) }
             },
             Some(MenuItemType::Submenu(label, menu)) => html! {
                 li class="submenu" {
@@ -101,11 +101,11 @@ impl MenuItem {
         }
     }
 
-    pub fn markup(markup: Markup) -> Self {
+    pub fn html(html: Markup) -> Self {
         MenuItem {
             renderable: always,
             weight    : 0,
-            item_type : Some(MenuItemType::Markup(markup)),
+            item_type : Some(MenuItemType::Html(html)),
         }
     }
 
@@ -148,18 +148,18 @@ impl MenuItem {
 pub struct Menu {
     renderable: fn() -> bool,
     weight    : i8,
-    id        : Option<String>,
+    id        : OptionId,
     items     : PageContainer,
     template  : String,
 }
 
 impl PageComponent for Menu {
 
-    fn prepare() -> Self {
+    fn new() -> Self {
         Menu {
             renderable: always,
             weight    : 0,
-            id        : None,
+            id        : OptionId::none(),
             items     : PageContainer::new(),
             template  : "default".to_owned(),
         }
@@ -186,7 +186,7 @@ impl PageComponent for Menu {
             ))
             .add_jquery();
 
-        let id = assets.serial_id(self.name(), self.id());
+        let id = assets.serial_id(self.name(), self.id.value());
         html! {
             ul id=(id) class="sm sm-clean" {
                 (self.render_items(assets))
@@ -216,7 +216,7 @@ impl Menu {
     }
 
     pub fn with_id(mut self, id: &str) -> Self {
-        self.id = util::valid_id(id);
+        self.id.with_value(id);
         self
     }
 
@@ -233,7 +233,7 @@ impl Menu {
     // Menu GETTERS.
 
     pub fn id(&self) -> &str {
-        util::assigned_str(&self.id)
+        self.id.value()
     }
 
     pub fn template(&self) -> &str {

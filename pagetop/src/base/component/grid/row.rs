@@ -1,19 +1,21 @@
 use crate::prelude::*;
 
-pub struct Chunck {
+pub struct Row {
     renderable: fn() -> bool,
     weight    : i8,
-    html      : Vec<Markup>,
+    id        : OptionId,
+    columns   : PageContainer,
     template  : String,
 }
 
-impl PageComponent for Chunck {
+impl PageComponent for Row {
 
     fn new() -> Self {
-        Chunck {
+        Row {
             renderable: always,
             weight    : 0,
-            html      : Vec::new(),
+            id        : OptionId::none(),
+            columns   : PageContainer::new(),
             template  : "default".to_owned(),
         }
     }
@@ -26,22 +28,18 @@ impl PageComponent for Chunck {
         self.weight
     }
 
-    fn default_render(&self, _: &mut PageAssets) -> Markup {
+    fn default_render(&self, assets: &mut PageAssets) -> Markup {
         html! {
-            @for html in self.html.iter() {
-                (*html)
+            div id=[&self.id.option()] class="row" {
+                (self.columns.render(assets))
             }
         }
     }
 }
 
-impl Chunck {
+impl Row {
 
-    pub fn with(html: Markup) -> Self {
-        Chunck::new().add(html)
-    }
-
-    // Chunck BUILDER.
+    // Row BUILDER.
 
     pub fn with_renderable(mut self, renderable: fn() -> bool) -> Self {
         self.renderable = renderable;
@@ -53,8 +51,13 @@ impl Chunck {
         self
     }
 
-    pub fn add(mut self, html: Markup) -> Self {
-        self.html.push(html);
+    pub fn with_id(mut self, id: &str) -> Self {
+        self.id.with_value(id);
+        self
+    }
+
+    pub fn add_column(mut self, column: grid::Column) -> Self {
+        self.columns.add(column);
         self
     }
 
@@ -63,7 +66,11 @@ impl Chunck {
         self
     }
 
-    // Chunck GETTERS.
+    // Row GETTERS.
+
+    pub fn id(&self) -> &str {
+        self.id.value()
+    }
 
     pub fn template(&self) -> &str {
         self.template.as_str()

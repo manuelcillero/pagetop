@@ -99,9 +99,9 @@ pub trait ThemeTrait: Send + Sync {
     }
 
     fn render_error_page(&self, s: app::http::StatusCode) -> app::Result<Markup> {
-        Page::prepare()
+        Page::new()
             .with_title(format!("Error {}", s.as_str()).as_str())
-            .add_to("content", Chunck::markup(html! {
+            .add_to("content", Chunck::with(html! {
                 div {
                     h1 { (s) }
                 }
