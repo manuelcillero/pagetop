@@ -3,16 +3,16 @@ use crate::prelude::*;
 pub struct Date {
     renderable  : fn() -> bool,
     weight      : i8,
-    name        : OptionAttr,
-    value       : OptionAttr,
-    label       : OptionAttr,
-    placeholder : OptionAttr,
-    autofocus   : OptionAttr,
-    autocomplete: OptionAttr,
-    disabled    : OptionAttr,
-    readonly    : OptionAttr,
-    required    : OptionAttr,
-    help_text   : OptionAttr,
+    name        : OptAttr,
+    value       : OptAttr,
+    label       : OptAttr,
+    placeholder : OptAttr,
+    autofocus   : OptAttr,
+    autocomplete: OptAttr,
+    disabled    : OptAttr,
+    readonly    : OptAttr,
+    required    : OptAttr,
+    help_text   : OptAttr,
     template    : String,
 }
 
@@ -22,16 +22,16 @@ impl PageComponent for Date {
         Date {
             renderable  : always,
             weight      : 0,
-            name        : OptionAttr::none(),
-            value       : OptionAttr::none(),
-            label       : OptionAttr::none(),
-            placeholder : OptionAttr::none(),
-            autofocus   : OptionAttr::none(),
-            autocomplete: OptionAttr::none(),
-            disabled    : OptionAttr::none(),
-            readonly    : OptionAttr::none(),
-            required    : OptionAttr::none(),
-            help_text   : OptionAttr::none(),
+            name        : OptAttr::none(),
+            value       : OptAttr::none(),
+            label       : OptAttr::none(),
+            placeholder : OptAttr::none(),
+            autofocus   : OptAttr::none(),
+            autocomplete: OptAttr::none(),
+            disabled    : OptAttr::none(),
+            readonly    : OptAttr::none(),
+            required    : OptAttr::none(),
+            help_text   : OptAttr::none(),
             template    : "default".to_owned(),
         }
     }
@@ -45,7 +45,7 @@ impl PageComponent for Date {
     }
 
     fn default_render(&self, _: &mut PageAssets) -> Markup {
-        let (class_item, id_item) = match self.name.option() {
+        let (class, id) = match self.name.option() {
             Some(name) => (
                 format!("form-item form-item-{} form-type-date", name),
                 Some(format!("edit-{}", name))
@@ -56,9 +56,9 @@ impl PageComponent for Date {
             )
         };
         html! {
-            div class=(class_item) {
+            div class=(class) {
                 @if self.label.has_value() {
-                    label class="form-label" for=[&id_item] {
+                    label class="form-label" for=[&id] {
                         (self.label.value()) " "
                         @if self.required.has_value() {
                             span
@@ -72,7 +72,7 @@ impl PageComponent for Date {
                 }
                 input
                     type="date"
-                    id=[&id_item]
+                    id=[&id]
                     class="form-control"
                     name=[&self.name.option()]
                     value=[&self.value.option()]

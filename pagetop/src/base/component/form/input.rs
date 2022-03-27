@@ -6,19 +6,19 @@ pub struct Input {
     renderable  : fn() -> bool,
     weight      : i8,
     input_type  : InputType,
-    name        : OptionId,
-    value       : OptionAttr,
-    label       : OptionAttr,
+    name        : OptIden,
+    value       : OptAttr,
+    label       : OptAttr,
     size        : Option<u16>,
     minlength   : Option<u16>,
     maxlength   : Option<u16>,
-    placeholder : OptionAttr,
-    autofocus   : OptionAttr,
-    autocomplete: OptionAttr,
-    disabled    : OptionAttr,
-    readonly    : OptionAttr,
-    required    : OptionAttr,
-    help_text   : OptionAttr,
+    placeholder : OptAttr,
+    autofocus   : OptAttr,
+    autocomplete: OptAttr,
+    disabled    : OptAttr,
+    readonly    : OptAttr,
+    required    : OptAttr,
+    help_text   : OptAttr,
     template    : String,
 }
 
@@ -29,19 +29,19 @@ impl PageComponent for Input {
             renderable  : always,
             weight      : 0,
             input_type  : InputType::Textfield,
-            name        : OptionId::none(),
-            value       : OptionAttr::none(),
-            label       : OptionAttr::none(),
+            name        : OptIden::none(),
+            value       : OptAttr::none(),
+            label       : OptAttr::none(),
             size        : Some(60),
             minlength   : None,
             maxlength   : Some(128),
-            placeholder : OptionAttr::none(),
-            autofocus   : OptionAttr::none(),
-            autocomplete: OptionAttr::none(),
-            disabled    : OptionAttr::none(),
-            readonly    : OptionAttr::none(),
-            required    : OptionAttr::none(),
-            help_text   : OptionAttr::none(),
+            placeholder : OptAttr::none(),
+            autofocus   : OptAttr::none(),
+            autocomplete: OptAttr::none(),
+            disabled    : OptAttr::none(),
+            readonly    : OptAttr::none(),
+            required    : OptAttr::none(),
+            help_text   : OptAttr::none(),
             template    : "default".to_owned(),
         }
     }
@@ -55,7 +55,7 @@ impl PageComponent for Input {
     }
 
     fn default_render(&self, _: &mut PageAssets) -> Markup {
-        let (input_type, class_type) = match &self.input_type {
+        let (type_input, type_class) = match &self.input_type {
             InputType::Email     => ("email",    "form-type-email"),
             InputType::Password  => ("password", "form-type-password"),
             InputType::Search    => ("search",   "form-type-search"),
@@ -63,20 +63,20 @@ impl PageComponent for Input {
             InputType::Textfield => ("text",     "form-type-textfield"),
             InputType::Url       => ("url",      "form-type-url")
         };
-        let (class_item, id_item) = match &self.name.option() {
+        let (class, id) = match &self.name.option() {
             Some(name) => (
-                format!("form-item form-item-{} {}", name, class_type),
+                format!("form-item form-item-{} {}", name, type_class),
                 Some(format!("edit-{}", name))
             ),
             None => (
-                format!("form-item {}", class_type),
+                format!("form-item {}", type_class),
                 None
             )
         };
         html! {
-            div class=(class_item) {
+            div class=(class) {
                 @if self.label.has_value() {
-                    label class="form-label" for=[&id_item] {
+                    label class="form-label" for=[&id] {
                         (self.label.value()) " "
                         @if self.required.has_value() {
                             span
@@ -89,8 +89,8 @@ impl PageComponent for Input {
                     }
                 }
                 input
-                    type=(input_type)
-                    id=[&id_item]
+                    type=(type_input)
+                    id=[&id]
                     class="form-control"
                     name=[&self.name.option()]
                     value=[&self.value.option()]

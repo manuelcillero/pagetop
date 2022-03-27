@@ -3,7 +3,7 @@ use crate::prelude::*;
 pub struct Row {
     renderable: fn() -> bool,
     weight    : i8,
-    id        : OptionId,
+    id        : OptIden,
     columns   : PageContainer,
     template  : String,
 }
@@ -14,7 +14,7 @@ impl PageComponent for Row {
         Row {
             renderable: always,
             weight    : 0,
-            id        : OptionId::none(),
+            id        : OptIden::none(),
             columns   : PageContainer::new(),
             template  : "default".to_owned(),
         }

@@ -6,10 +6,10 @@ pub struct Button {
     renderable : fn() -> bool,
     weight     : i8,
     button_type: ButtonType,
-    name       : OptionAttr,
-    value      : OptionAttr,
-    autofocus  : OptionAttr,
-    disabled   : OptionAttr,
+    name       : OptAttr,
+    value      : OptAttr,
+    autofocus  : OptAttr,
+    disabled   : OptAttr,
     template   : String,
 }
 
@@ -20,10 +20,10 @@ impl PageComponent for Button {
             renderable : always,
             weight     : 0,
             button_type: ButtonType::Button,
-            name       : OptionAttr::none(),
-            value      : OptionAttr::none(),
-            autofocus  : OptionAttr::none(),
-            disabled   : OptionAttr::none(),
+            name       : OptAttr::none(),
+            value      : OptAttr::none(),
+            autofocus  : OptAttr::none(),
+            disabled   : OptAttr::none(),
             template   : "default".to_owned(),
         }
     }
@@ -42,14 +42,14 @@ impl PageComponent for Button {
             ButtonType::Reset  => ("reset",  "btn btn-primary form-reset" ),
             ButtonType::Submit => ("submit", "btn btn-primary form-submit")
         };
-        let id_item = match &self.name.option() {
+        let id = match &self.name.option() {
             Some(name) => Some(format!("edit-{}", name)),
             _ => None
         };
         html! {
             button
                 type=(button_type)
-                id=[&id_item]
+                id=[&id]
                 class=(button_class)
                 name=[&self.name.option()]
                 value=[&self.value.option()]

@@ -3,8 +3,8 @@ use crate::prelude::*;
 pub struct Block {
     renderable: fn() -> bool,
     weight    : i8,
-    id        : OptionId,
-    title     : OptionAttr,
+    id        : OptIden,
+    title     : OptAttr,
     html      : Vec<Markup>,
     template  : String,
 }
@@ -15,8 +15,8 @@ impl PageComponent for Block {
         Block {
             renderable: always,
             weight    : 0,
-            id        : OptionId::none(),
-            title     : OptionAttr::none(),
+            id        : OptIden::none(),
+            title     : OptAttr::none(),
             html      : Vec::new(),
             template  : "default".to_owned(),
         }

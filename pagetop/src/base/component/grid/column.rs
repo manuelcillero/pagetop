@@ -3,7 +3,7 @@ use crate::prelude::*;
 pub struct Column {
     renderable: fn() -> bool,
     weight    : i8,
-    id        : OptionId,
+    id        : OptIden,
     components: PageContainer,
     template  : String,
 }
@@ -14,7 +14,7 @@ impl PageComponent for Column {
         Column {
             renderable: always,
             weight    : 0,
-            id        : OptionId::none(),
+            id        : OptIden::none(),
             components: PageContainer::new(),
             template  : "default".to_owned(),
         }

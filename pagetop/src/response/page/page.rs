@@ -1,6 +1,6 @@
 use crate::{Lazy, app, trace};
 use crate::config::SETTINGS;
-use crate::html::{Classes, DOCTYPE, Markup, OptionAttr, html};
+use crate::html::{Classes, DOCTYPE, Markup, OptAttr, html};
 use crate::response::page::{PageAssets, PageComponent, PageContainer};
 
 use std::sync::RwLock;
@@ -40,10 +40,10 @@ static DEFAULT_DIRECTION: Lazy<Option<String>> = Lazy::new(|| {
 pub enum TextDirection { Auto, LeftToRight, RightToLeft }
 
 pub struct Page<'a> {
-    language    : OptionAttr,
-    direction   : OptionAttr,
-    title       : OptionAttr,
-    description : OptionAttr,
+    language    : OptAttr,
+    direction   : OptAttr,
+    title       : OptAttr,
+    description : OptAttr,
     assets      : PageAssets,
     body_classes: Classes,
     regions     : HashMap<&'a str, PageContainer>,
@@ -55,15 +55,15 @@ impl<'a> Page<'a> {
     pub fn new() -> Self {
         Page {
             language    : match &*DEFAULT_LANGUAGE {
-                Some(language) => OptionAttr::some(language),
-                _ => OptionAttr::none(),
+                Some(language) => OptAttr::some(language),
+                _ => OptAttr::none(),
             },
             direction   : match &*DEFAULT_DIRECTION {
-                Some(direction) => OptionAttr::some(direction),
-                _ => OptionAttr::none(),
+                Some(direction) => OptAttr::some(direction),
+                _ => OptAttr::none(),
             },
-            title       : OptionAttr::none(),
-            description : OptionAttr::none(),
+            title       : OptAttr::none(),
+            description : OptAttr::none(),
             body_classes: Classes::some_class("body"),
             assets      : PageAssets::new(),
             regions     : COMPONENTS.read().unwrap().clone(),

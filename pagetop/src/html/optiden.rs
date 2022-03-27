@@ -1,8 +1,8 @@
-pub struct OptionId(Option<String>);
+pub struct OptIden(Option<String>);
 
-impl OptionId {
+impl OptIden {
     pub fn none() -> Self {
-        OptionId(None)
+        OptIden(None)
     }
 
     pub fn with_value(&mut self, id: &str) {

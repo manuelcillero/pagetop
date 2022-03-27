@@ -5,10 +5,10 @@ pub enum FormMethod {Get, Post}
 pub struct Form {
     renderable: fn() -> bool,
     weight    : i8,
-    id        : OptionId,
-    action    : OptionAttr,
+    id        : OptIden,
+    action    : OptAttr,
     method    : FormMethod,
-    charset   : OptionAttr,
+    charset   : OptAttr,
     elements  : PageContainer,
     template  : String,
 }
@@ -19,10 +19,10 @@ impl PageComponent for Form {
         Form {
             renderable: always,
             weight    : 0,
-            id        : OptionId::none(),
-            action    : OptionAttr::none(),
+            id        : OptIden::none(),
+            action    : OptAttr::none(),
             method    : FormMethod::Post,
-            charset   : OptionAttr::some("UTF-8"),
+            charset   : OptAttr::some("UTF-8"),
             elements  : PageContainer::new(),
             template  : "default".to_owned(),
         }

@@ -1,8 +1,8 @@
 pub use maud::{DOCTYPE, Markup, PreEscaped, html};
 
-mod optional_id;
-pub use optional_id::OptionId;
-mod optional_attr;
-pub use optional_attr::OptionAttr;
+mod optiden;
+pub use optiden::OptIden;
+mod optattr;
+pub use optattr::OptAttr;
 mod classes;
 pub use classes::Classes;

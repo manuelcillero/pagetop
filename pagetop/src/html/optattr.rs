@@ -1,15 +1,15 @@
-pub struct OptionAttr(Option<String>);
+pub struct OptAttr(Option<String>);
 
-impl OptionAttr {
+impl OptAttr {
     pub fn none() -> Self {
-        OptionAttr(None)
+        OptAttr(None)
     }
 
     pub fn some(value: &str) -> Self {
         let value = value.trim();
         match value.is_empty() {
-            true => OptionAttr(None),
-            false => OptionAttr(Some(value.to_owned())),
+            true => OptAttr(None),
+            false => OptAttr(Some(value.to_owned())),
         }
     }
 

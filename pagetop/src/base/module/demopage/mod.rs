@@ -27,7 +27,7 @@ async fn demo() -> app::Result<Markup> {
         .using_theme("Bootsier")
         .with_title(l("page_title").as_str())
         .add_to("content", hello_world())
-        .add_to("content", hello_world2())
+        .add_to("content", hello_world_original())
         .add_to("content", just_visiting())
         .add_to("content", about_pagetop())
         .add_to("content", promo_pagetop())
@@ -35,7 +35,7 @@ async fn demo() -> app::Result<Markup> {
         .render()
 }
 
-fn hello_world2() -> Container {
+fn hello_world() -> Container {
     Container::header()
         .add(grid::Row::new()
             .add_column(grid::Column::new()
@@ -76,7 +76,7 @@ fn hello_world2() -> Container {
         )
 }
 
-fn hello_world() -> Chunck {
+fn hello_world_original() -> Chunck {
     Chunck::with(html! {
         header id="header" class="header" {
             div class="container" {

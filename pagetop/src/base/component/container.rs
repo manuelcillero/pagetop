@@ -5,7 +5,7 @@ enum ContainerType { Header, Footer, Main, Section, Wrapper }
 pub struct Container {
     renderable: fn() -> bool,
     weight    : i8,
-    id        : OptionId,
+    id        : OptIden,
     container : ContainerType,
     components: PageContainer,
     template  : String,
@@ -17,7 +17,7 @@ impl PageComponent for Container {
         Container {
             renderable: always,
             weight    : 0,
-            id        : OptionId::none(),
+            id        : OptIden::none(),
             container : ContainerType::Wrapper,
             components: PageContainer::new(),
             template  : "default".to_owned(),

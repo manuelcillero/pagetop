@@ -148,7 +148,7 @@ impl MenuItem {
 pub struct Menu {
     renderable: fn() -> bool,
     weight    : i8,
-    id        : OptionId,
+    id        : OptIden,
     items     : PageContainer,
     template  : String,
 }
@@ -159,7 +159,7 @@ impl PageComponent for Menu {
         Menu {
             renderable: always,
             weight    : 0,
-            id        : OptionId::none(),
+            id        : OptIden::none(),
             items     : PageContainer::new(),
             template  : "default".to_owned(),
         }
