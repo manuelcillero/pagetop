@@ -5,6 +5,12 @@ impl OptIden {
         OptIden(None)
     }
 
+    pub fn some(id: &str) -> Self {
+        let mut o = OptIden::none();
+        o.with_value(id);
+        o
+    }
+
     pub fn with_value(&mut self, id: &str) {
         let id = id.trim();
         self.0 = match id.is_empty() {
@@ -21,10 +27,7 @@ impl OptIden {
     }
 
     pub fn has_value(&self) -> bool {
-        match &self.0 {
-            Some(_) => true,
-            None => false,
-        }
+        self.0 != None
     }
 
     pub fn option(&self) -> &Option<String> {

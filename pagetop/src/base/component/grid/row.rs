@@ -4,6 +4,7 @@ pub struct Row {
     renderable: fn() -> bool,
     weight    : i8,
     id        : OptIden,
+    classes   : Classes,
     columns   : PageContainer,
     template  : String,
 }
@@ -15,6 +16,7 @@ impl PageComponent for Row {
             renderable: always,
             weight    : 0,
             id        : OptIden::none(),
+            classes   : Classes::some(vec!["row"]),
             columns   : PageContainer::new(),
             template  : "default".to_owned(),
         }
@@ -30,7 +32,7 @@ impl PageComponent for Row {
 
     fn default_render(&self, assets: &mut PageAssets) -> Markup {
         html! {
-            div id=[&self.id.option()] class="row" {
+            div id=[&self.id.option()] class=[&self.classes.option()] {
                 (self.columns.render(assets))
             }
         }
@@ -53,6 +55,11 @@ impl Row {
 
     pub fn with_id(mut self, id: &str) -> Self {
         self.id.with_value(id);
+        self
+    }
+
+    pub fn add_classes(mut self, classes: Vec<&str>) -> Self {
+        self.classes.add_classes(classes);
         self
     }
 

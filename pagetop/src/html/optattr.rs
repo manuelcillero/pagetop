@@ -6,11 +6,9 @@ impl OptAttr {
     }
 
     pub fn some(value: &str) -> Self {
-        let value = value.trim();
-        match value.is_empty() {
-            true => OptAttr(None),
-            false => OptAttr(Some(value.to_owned())),
-        }
+        let mut o = OptAttr::none();
+        o.with_value(value);
+        o
     }
 
     pub fn with_value(&mut self, value: &str) {
@@ -29,10 +27,7 @@ impl OptAttr {
     }
 
     pub fn has_value(&self) -> bool {
-        match &self.0 {
-            Some(_) => true,
-            None => false,
-        }
+        self.0 != None
     }
 
     pub fn option(&self) -> &Option<String> {

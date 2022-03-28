@@ -27,4 +27,12 @@ fn main() {
         )
         .build()
         .unwrap();
+
+    resource_dir("./static/bulmix")
+        .with_generated_filename(
+            Path::new(env::var("OUT_DIR").unwrap().as_str())
+                .join("bulmix.rs")
+        )
+        .build()
+        .unwrap();
 }

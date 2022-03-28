@@ -1,63 +1,48 @@
-pub struct Classes {
-    classes: Vec<String>,
-    option : Option<String>,
-    updated: bool,
-}
+use crate::concat_string;
+
+pub struct Classes(Option<String>);
 
 impl Classes {
     pub fn none() -> Self {
-        Classes {
-            classes: Vec::new(),
-            option : None,
-            updated: true,
-        }
+        Classes(None)
     }
 
-    pub fn some_class(class: &str) -> Self {
-        let mut c = Classes::none();
-        c.add_class(class);
-        c
-    }
-
-    pub fn some_classes(classes: Vec<String>) -> Self {
+    pub fn some(classes: Vec<&str>) -> Self {
         let mut c = Classes::none();
         c.add_classes(classes);
         c
     }
 
-    pub fn add_class(&mut self, class: &str) {
-        let class = class.trim().replace(" ", "_");
-        if !class.is_empty() && !self.classes.iter().any(|c| *c == class) {
-            self.classes.push(class.to_owned());
-            self.updated = false;
-        }
-    }
-
-    pub fn add_classes(&mut self, classes: Vec<String>) {
+    pub fn add_classes(&mut self, classes: Vec<&str>) {
         for class in classes.iter() {
             self.add_class(class);
         }
     }
 
-    pub fn classes(&mut self) -> &str {
-        match self.option() {
+    fn add_class(&mut self, class: &str) {
+        let class = class.trim().replace(" ", "_");
+        if !class.is_empty() {
+            match &self.0 {
+                None => self.0 = Some(class),
+                Some(classes) => if !classes.split(" ").any(|c| *c == class) {
+                    self.0 = Some(concat_string!(classes, " ", class))
+                }
+            }
+        }
+    }
+
+    pub fn classes(&self) -> &str {
+        match &self.0 {
             Some(classes) => classes.as_str(),
             None => "",
         }
     }
 
     pub fn has_classes(&self) -> bool {
-        self.classes.len() > 0
+        self.0 != None
     }
 
-    pub fn option(&mut self) -> &Option<String> {
-        if !self.updated {
-            self.option = match self.classes.len() {
-                0 => None,
-                _ => Some(self.classes.join(" ")),
-            };
-            self.updated = true;
-        }
-        &self.option
+    pub fn option(&self) -> &Option<String> {
+        &self.0
     }
 }

@@ -1,5 +1,6 @@
 // Local.
 
+pub(crate) use concat_string::concat_string;
 pub(crate) use doc_comment::doc_comment;
 pub(crate) use once_cell::sync::Lazy;
 pub(crate) use futures::executor::block_on as run_now;

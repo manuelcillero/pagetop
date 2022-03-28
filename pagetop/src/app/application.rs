@@ -31,6 +31,7 @@ impl Application {
         theme::register_theme(&base::theme::aliner::AlinerTheme);
         theme::register_theme(&base::theme::minimal::MinimalTheme);
         theme::register_theme(&base::theme::bootsier::BootsierTheme);
+        theme::register_theme(&base::theme::bulmix::BulmixTheme);
 
         // Ejecuta la función de inicio de la aplicación.
         trace::info!("Calling application bootstrap");

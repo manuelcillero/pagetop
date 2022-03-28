@@ -64,7 +64,7 @@ impl<'a> Page<'a> {
             },
             title       : OptAttr::none(),
             description : OptAttr::none(),
-            body_classes: Classes::some_class("body"),
+            body_classes: Classes::some(vec!["body"]),
             assets      : PageAssets::new(),
             regions     : COMPONENTS.read().unwrap().clone(),
             template    : "default".to_owned(),
@@ -97,12 +97,7 @@ impl<'a> Page<'a> {
         self
     }
 
-    pub fn add_body_class(&mut self, class: &str) -> &mut Self {
-        self.body_classes.add_class(class);
-        self
-    }
-
-    pub fn add_body_classes(&mut self, classes: Vec<String>) -> &mut Self {
+    pub fn add_body_classes(&mut self, classes: Vec<&str>) -> &mut Self {
         self.body_classes.add_classes(classes);
         self
     }
