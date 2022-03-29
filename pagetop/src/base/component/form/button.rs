@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-enum ButtonType {Button, Reset, Submit}
+pub enum ButtonType {Button, Reset, Submit}
 
 pub struct Button {
     renderable : fn() -> bool,
@@ -37,26 +37,29 @@ impl PageComponent for Button {
     }
 
     fn default_render(&self, _: &mut PageAssets) -> Markup {
-        let (button_type, button_class) = match &self.button_type {
+        let (button_type, button_class) = match self.button_type() {
             ButtonType::Button => ("button", "btn btn-primary form-button"),
             ButtonType::Reset  => ("reset",  "btn btn-primary form-reset" ),
-            ButtonType::Submit => ("submit", "btn btn-primary form-submit")
+            ButtonType::Submit => ("submit", "btn btn-primary form-submit"),
         };
-        let id = match &self.name.option() {
-            Some(name) => Some(format!("edit-{}", name)),
+        let id = match self.name() {
+            Some(name) => Some(concat_string!("edit-", name)),
             _ => None
         };
         html! {
             button
                 type=(button_type)
-                id=[&id]
+                id=[id]
                 class=(button_class)
-                name=[&self.name.option()]
-                value=[&self.value.option()]
-                autofocus=[&self.autofocus.option()]
-                disabled=[&self.disabled.option()]
+                name=[self.name()]
+                value=[self.value()]
+                autofocus=[self.autofocus()]
+                disabled=[self.disabled()]
             {
-                (self.value.value())
+                @match self.value() {
+                    Some(value) => { (value) },
+                    None => {},
+                }
             }
         }
     }
@@ -102,7 +105,7 @@ impl Button {
         self
     }
 
-    pub fn autofocus(mut self, toggle: bool) -> Self {
+    pub fn with_autofocus(mut self, toggle: bool) -> Self {
         self.autofocus.with_value(match toggle {
             true => "autofocus",
             false => "",
@@ -110,7 +113,7 @@ impl Button {
         self
     }
 
-    pub fn disabled(mut self, toggle: bool) -> Self {
+    pub fn with_disabled(mut self, toggle: bool) -> Self {
         self.disabled.with_value(match toggle {
             true => "disabled",
             false => "",
@@ -125,20 +128,24 @@ impl Button {
 
     // Button GETTERS.
 
-    pub fn name(&self) -> &str {
-        self.name.value()
+    pub fn button_type(&self) -> &ButtonType {
+        &self.button_type
     }
 
-    pub fn value(&self) -> &str {
-        self.value.value()
+    pub fn name(&self) -> &Option<String> {
+        self.name.option()
     }
 
-    pub fn has_autofocus(&self) -> bool {
-        self.autofocus.has_value()
+    pub fn value(&self) -> &Option<String> {
+        self.value.option()
     }
 
-    pub fn is_disabled(&self) -> bool {
-        self.disabled.has_value()
+    pub fn autofocus(&self) -> &Option<String> {
+        self.autofocus.option()
+    }
+
+    pub fn disabled(&self) -> &Option<String> {
+        self.disabled.option()
     }
 
     pub fn template(&self) -> &str {

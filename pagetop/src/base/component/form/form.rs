@@ -7,8 +7,8 @@ pub struct Form {
     weight    : i8,
     id        : OptIden,
     action    : OptAttr,
-    method    : FormMethod,
     charset   : OptAttr,
+    method    : FormMethod,
     elements  : PageContainer,
     template  : String,
 }
@@ -21,8 +21,8 @@ impl PageComponent for Form {
             weight    : 0,
             id        : OptIden::none(),
             action    : OptAttr::none(),
-            method    : FormMethod::Post,
             charset   : OptAttr::some("UTF-8"),
+            method    : FormMethod::Post,
             elements  : PageContainer::new(),
             template  : "default".to_owned(),
         }
@@ -37,19 +37,19 @@ impl PageComponent for Form {
     }
 
     fn default_render(&self, assets: &mut PageAssets) -> Markup {
-        let method = match self.method {
+        let method = match self.method() {
             FormMethod::Get => None,
             FormMethod::Post => Some("post".to_owned())
         };
         html! {
             form
-                id=[&self.id.option()]
-                action=[&self.action.option()]
+                id=[self.id()]
+                action=[self.action()]
                 method=[method]
-                accept-charset=[&self.charset.option()]
+                accept-charset=[self.charset()]
             {
                 div {
-                    (self.elements.render(assets))
+                    (self.render_elements(assets))
                 }
             }
         }
@@ -80,13 +80,13 @@ impl Form {
         self
     }
 
-    pub fn with_method(mut self, method: FormMethod) -> Self {
-        self.method = method;
+    pub fn with_charset(mut self, charset: &str) -> Self {
+        self.charset.with_value(charset);
         self
     }
 
-    pub fn with_charset(mut self, charset: &str) -> Self {
-        self.charset.with_value(charset);
+    pub fn with_method(mut self, method: FormMethod) -> Self {
+        self.method = method;
         self
     }
 
@@ -102,27 +102,30 @@ impl Form {
 
     // Form GETTERS.
 
-    pub fn id(&self) -> &str {
-        self.id.value()
+    pub fn id(&self) -> &Option<String> {
+        self.id.option()
     }
 
-    pub fn action(&self) -> &str {
-        self.action.value()
+    pub fn action(&self) -> &Option<String> {
+        self.action.option()
     }
 
-    pub fn method(&self) -> &str {
-        match &self.method {
-            FormMethod::Get => "get",
-            FormMethod::Post => "post"
-        }
+    pub fn charset(&self) -> &Option<String> {
+        self.charset.option()
     }
 
-    pub fn charset(&self) -> &str {
-        self.charset.value()
+    pub fn method(&self) -> &FormMethod {
+        &self.method
     }
 
     pub fn template(&self) -> &str {
         self.template.as_str()
+    }
+
+    // Form EXTRAS.
+
+    pub fn render_elements(&self, assets: &mut PageAssets) -> Markup {
+        html! { (self.elements.render(assets)) }
     }
 }
 

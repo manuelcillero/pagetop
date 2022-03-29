@@ -1,12 +1,13 @@
 use crate::prelude::*;
 
-enum MenuItemType {
+pub enum MenuItemType {
     Label(String),
     Link(String, String),
     LinkBlank(String, String),
     Html(Markup),
     Separator,
     Submenu(String, Menu),
+    Void,
 }
 
 // -----------------------------------------------------------------------------
@@ -16,7 +17,7 @@ enum MenuItemType {
 pub struct MenuItem {
     renderable: fn() -> bool,
     weight    : i8,
-    item_type : Option<MenuItemType>,
+    item_type : MenuItemType,
 }
 
 impl PageComponent for MenuItem {
@@ -25,7 +26,7 @@ impl PageComponent for MenuItem {
         MenuItem {
             renderable: always,
             weight    : 0,
-            item_type : None,
+            item_type : MenuItemType::Void,
         }
     }
 
@@ -38,22 +39,22 @@ impl PageComponent for MenuItem {
     }
 
     fn default_render(&self, assets: &mut PageAssets) -> Markup {
-        match &self.item_type {
-            Some(MenuItemType::Label(label)) => html! {
+        match self.item_type() {
+            MenuItemType::Label(label) => html! {
                 li class="label" { a href="#" { (label) } }
             },
-            Some(MenuItemType::Link(label, path)) => html! {
+            MenuItemType::Link(label, path) => html! {
                 li class="link" { a href=(path) { (label) } }
             },
-            Some(MenuItemType::LinkBlank(label, path)) => html! {
+            MenuItemType::LinkBlank(label, path) => html! {
                 li class="link_blank" {
                     a href=(path) target="_blank" { (label) }
                 }
             },
-            Some(MenuItemType::Html(html)) => html! {
+            MenuItemType::Html(html) => html! {
                 li class="html" { (*html) }
             },
-            Some(MenuItemType::Submenu(label, menu)) => html! {
+            MenuItemType::Submenu(label, menu) => html! {
                 li class="submenu" {
                     a href="#" { (label) }
                     ul {
@@ -61,10 +62,10 @@ impl PageComponent for MenuItem {
                     }
                 }
             },
-            Some(MenuItemType::Separator) => html! {
+            MenuItemType::Separator => html! {
                 li class="separator" { }
             },
-            None => html! {}
+            MenuItemType::Void => html! {},
         }
     }
 }
@@ -75,7 +76,7 @@ impl MenuItem {
         MenuItem {
             renderable: always,
             weight    : 0,
-            item_type : Some(MenuItemType::Label(label.to_owned())),
+            item_type : MenuItemType::Label(label.to_owned()),
         }
     }
 
@@ -83,10 +84,10 @@ impl MenuItem {
         MenuItem {
             renderable: always,
             weight    : 0,
-            item_type : Some(MenuItemType::Link(
+            item_type : MenuItemType::Link(
                 label.to_owned(),
                 path.to_owned(),
-            )),
+            ),
         }
     }
 
@@ -94,10 +95,10 @@ impl MenuItem {
         MenuItem {
             renderable: always,
             weight    : 0,
-            item_type : Some(MenuItemType::LinkBlank(
+            item_type : MenuItemType::LinkBlank(
                 label.to_owned(),
                 path.to_owned(),
-            )),
+            ),
         }
     }
 
@@ -105,7 +106,7 @@ impl MenuItem {
         MenuItem {
             renderable: always,
             weight    : 0,
-            item_type : Some(MenuItemType::Html(html)),
+            item_type : MenuItemType::Html(html),
         }
     }
 
@@ -113,7 +114,7 @@ impl MenuItem {
         MenuItem {
             renderable: always,
             weight    : 0,
-            item_type : Some(MenuItemType::Separator),
+            item_type : MenuItemType::Separator,
         }
     }
 
@@ -121,10 +122,10 @@ impl MenuItem {
         MenuItem {
             renderable: always,
             weight    : 0,
-            item_type : Some(MenuItemType::Submenu(
+            item_type : MenuItemType::Submenu(
                 label.to_owned(),
                 menu
-            )),
+            ),
         }
     }
 
@@ -138,6 +139,12 @@ impl MenuItem {
     pub fn with_weight(mut self, weight: i8) -> Self {
         self.weight = weight;
         self
+    }
+
+    // MenuItem GETTERS.
+
+    pub fn item_type(&self) -> &MenuItemType {
+        &self.item_type
     }
 }
 
@@ -186,7 +193,7 @@ impl PageComponent for Menu {
             ))
             .add_jquery();
 
-        let id = assets.serial_id(self.name(), self.id.value());
+        let id = assets.serial_id(self.name(), self.id());
         html! {
             ul id=(id) class="sm sm-clean" {
                 (self.render_items(assets))
@@ -232,8 +239,8 @@ impl Menu {
 
     // Menu GETTERS.
 
-    pub fn id(&self) -> &str {
-        self.id.value()
+    pub fn id(&self) -> &Option<String> {
+        self.id.option()
     }
 
     pub fn template(&self) -> &str {

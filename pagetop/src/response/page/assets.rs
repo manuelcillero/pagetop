@@ -1,4 +1,4 @@
-use crate::{Lazy, base};
+use crate::{Lazy, base, concat_string};
 use crate::config::SETTINGS;
 use crate::html::{Markup, PreEscaped, html};
 use crate::theme::*;
@@ -289,18 +289,19 @@ impl PageAssets {
 
     // Assets EXTRAS.
 
-    pub fn serial_id(&mut self, prefix: &str, id: &str) -> String {
-        if id.is_empty() {
-            let prefix = prefix.trim().replace(" ", "_").to_lowercase();
-            let prefix = if prefix.is_empty() {
-                "prefix".to_owned()
-            } else {
-                prefix
-            };
-            self.id_counter += 1;
-            [prefix, self.id_counter.to_string()].join("-")
-        } else {
-            id.to_owned()
+    pub fn serial_id(&mut self, prefix: &str, id: &Option<String>) -> String {
+        match id {
+            Some(id) => id.to_string(),
+            None => {
+                let prefix = prefix.trim().replace(" ", "_").to_lowercase();
+                let prefix = if prefix.is_empty() {
+                    "prefix".to_owned()
+                } else {
+                    prefix
+                };
+                self.id_counter += 1;
+                concat_string!(prefix, "-", self.id_counter.to_string())
+            }
         }
     }
 }

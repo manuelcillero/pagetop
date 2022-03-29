@@ -1,4 +1,4 @@
-use crate::app;
+use crate::{app, concat_string};
 use crate::config::SETTINGS;
 use crate::html::{Markup, html};
 use crate::response::page::{Favicon, Page, PageAssets, PageComponent};
@@ -28,22 +28,21 @@ pub trait ThemeTrait: Send + Sync {
     }
 
     fn render_page_head(&self, page: &mut Page) -> Markup {
-        let title = page.title();
-        let title = if title.is_empty() {
-            SETTINGS.app.name.to_owned()
-        } else {
-            [SETTINGS.app.name.to_string(), title.to_string()].join(" | ")
-        };
-        let description = page.description();
         let viewport = "width=device-width, initial-scale=1, shrink-to-fit=no";
         html! {
             head {
                 meta charset="utf-8";
 
-                title { (title) }
+                @match page.title() {
+                    Some(t) => title {
+                        (concat_string!(SETTINGS.app.name, " | ", t))
+                    },
+                    None => title { (SETTINGS.app.name) }
+                }
 
-                @if !description.is_empty() {
-                    meta name="description" content=(description);
+                @match page.description() {
+                    Some(d) => meta name="description" content=(d);,
+                    None => {}
                 }
 
                 meta http-equiv="X-UA-Compatible" content="IE=edge";

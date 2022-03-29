@@ -31,15 +31,15 @@ impl PageComponent for Block {
     }
 
     fn default_render(&self, assets: &mut PageAssets) -> Markup {
-        let id = assets.serial_id(self.name(), self.id.value());
-        let title = self.title.value();
+        let id = assets.serial_id(self.name(), self.id());
         html! {
             div id=(id) class="block" {
-                @if !title.is_empty() {
-                    h2 class="block-title" { (title) }
+                @match self.title() {
+                    Some(title) => h2 class="block-title" { (title) },
+                    None => {}
                 }
                 div class="block-body" {
-                    @for html in self.html.iter() {
+                    @for html in self.html().iter() {
                         (*html)
                     }
                 }
@@ -88,12 +88,16 @@ impl Block {
 
     // Block GETTERS.
 
-    pub fn id(&self) -> &str {
-        self.id.value()
+    pub fn id(&self) -> &Option<String> {
+        self.id.option()
     }
 
-    pub fn title(&self) -> &str {
-        self.title.value()
+    pub fn title(&self) -> &Option<String> {
+        self.title.option()
+    }
+
+    pub fn html(&self) -> &Vec<Markup> {
+        &self.html
     }
 
     pub fn template(&self) -> &str {

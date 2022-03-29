@@ -1,12 +1,12 @@
 use crate::prelude::*;
 
-enum ContainerType { Header, Footer, Main, Section, Wrapper }
+pub enum ContainerType { Header, Footer, Main, Section, Wrapper }
 
 pub struct Container {
     renderable: fn() -> bool,
     weight    : i8,
-    id        : OptIden,
     container : ContainerType,
+    id        : OptIden,
     components: PageContainer,
     template  : String,
 }
@@ -17,8 +17,8 @@ impl PageComponent for Container {
         Container {
             renderable: always,
             weight    : 0,
-            id        : OptIden::none(),
             container : ContainerType::Wrapper,
+            id        : OptIden::none(),
             components: PageContainer::new(),
             template  : "default".to_owned(),
         }
@@ -33,38 +33,38 @@ impl PageComponent for Container {
     }
 
     fn default_render(&self, assets: &mut PageAssets) -> Markup {
-        match self.container {
+        match self.container_type() {
             ContainerType::Header => html! {
-                header id=[&self.id.option()] class="header" {
+                header id=[self.id()] class="header" {
                     div class="container" {
-                        (self.components.render(assets))
+                        (self.render_components(assets))
                     }
                 }
             },
             ContainerType::Footer => html! {
-                footer id=[&self.id.option()] class="footer" {
+                footer id=[self.id()] class="footer" {
                     div class="container" {
-                        (self.components.render(assets))
+                        (self.render_components(assets))
                     }
                 }
             },
             ContainerType::Main => html! {
-                main id=[&self.id.option()] class="main" {
+                main id=[self.id()] class="main" {
                     div class="container" {
-                        (self.components.render(assets))
+                        (self.render_components(assets))
                     }
                 }
             },
             ContainerType::Section => html! {
-                section id=[&self.id.option()] class="section" {
+                section id=[self.id()] class="section" {
                     div class="container" {
-                        (self.components.render(assets))
+                        (self.render_components(assets))
                     }
                 }
             },
             _ => html! {
-                div id=[&self.id.option()] class="container" {
-                    (self.components.render(assets))
+                div id=[self.id()] class="container" {
+                    (self.render_components(assets))
                 }
             }
         }
@@ -126,12 +126,22 @@ impl Container {
 
     // Container GETTERS.
 
-    pub fn id(&self) -> &str {
-        self.id.value()
+    pub fn container_type(&self) -> &ContainerType {
+        &self.container
+    }
+
+    pub fn id(&self) -> &Option<String> {
+        self.id.option()
     }
 
     pub fn template(&self) -> &str {
         self.template.as_str()
+    }
+
+    // Container EXTRAS.
+
+    pub fn render_components(&self, assets: &mut PageAssets) -> Markup {
+        html! { (self.components.render(assets)) }
     }
 }
 

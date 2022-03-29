@@ -28,7 +28,7 @@ impl PageComponent for Chunck {
 
     fn default_render(&self, _: &mut PageAssets) -> Markup {
         html! {
-            @for html in self.html.iter() {
+            @for html in self.html().iter() {
                 (*html)
             }
         }
@@ -64,6 +64,10 @@ impl Chunck {
     }
 
     // Chunck GETTERS.
+
+    pub fn html(&self) -> &Vec<Markup> {
+        &self.html
+    }
 
     pub fn template(&self) -> &str {
         self.template.as_str()

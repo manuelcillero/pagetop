@@ -140,7 +140,7 @@ fn just_visiting() -> Chunck {
                                 span {
                                     (l("visiting_title"))
                                 }
-                                br {}
+                                br;
                                 (l("visiting_subtitle"))
                             }
                             p { (l("visiting_text1")) }

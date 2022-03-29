@@ -122,20 +122,20 @@ impl<'a> Page<'a> {
 
     // Page GETTERS.
 
-    pub fn language(&self) -> &str {
-        self.language.value()
+    pub fn language(&self) -> &Option<String> {
+        self.language.option()
     }
 
-    pub fn direction(&self) -> &str {
-        self.direction.value()
+    pub fn direction(&self) -> &Option<String> {
+        self.direction.option()
     }
 
-    pub fn title(&self) -> &str {
-        self.title.value()
+    pub fn title(&self) -> &Option<String> {
+        self.title.option()
     }
 
-    pub fn description(&self) -> &str {
-        self.description.value()
+    pub fn description(&self) -> &Option<String> {
+        self.description.option()
     }
 
     pub fn body_classes(&mut self) -> &str {
@@ -165,7 +165,7 @@ impl<'a> Page<'a> {
         // Finalmente, renderizar la página.
         return Ok(html! {
             (DOCTYPE)
-            html lang=[&self.language.option()] dir=[&self.direction.option()] {
+            html lang=[self.language()] dir=[self.direction()] {
                 (head)
                 (body)
             }

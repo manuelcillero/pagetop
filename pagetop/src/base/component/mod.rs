@@ -1,5 +1,5 @@
 mod container;
-pub use container::Container;
+pub use container::{Container, ContainerType};
 
 pub mod grid;
 
@@ -10,7 +10,7 @@ pub use block::Block;
 mod image;
 pub use image::Image;
 mod menu;
-pub use menu::{Menu, MenuItem};
+pub use menu::{Menu, MenuItem, MenuItemType};
 
 pub mod form;
 pub use form::{Form, FormMethod};

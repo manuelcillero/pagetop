@@ -45,10 +45,10 @@ impl PageComponent for Date {
     }
 
     fn default_render(&self, _: &mut PageAssets) -> Markup {
-        let (class, id) = match self.name.option() {
+        let (class, id) = match self.name() {
             Some(name) => (
-                format!("form-item form-item-{} form-type-date", name),
-                Some(format!("edit-{}", name))
+                concat_string!("form-item form-item-", name, " form-type-date"),
+                Some(concat_string!("edit-", name))
             ),
             None => (
                 "form-item form-type-date".to_owned(),
@@ -57,35 +57,33 @@ impl PageComponent for Date {
         };
         html! {
             div class=(class) {
-                @if self.label.has_value() {
-                    label class="form-label" for=[&id] {
-                        (self.label.value()) " "
-                        @if self.required.has_value() {
-                            span
+                @match self.label() {
+                    Some(label) => label class="form-label" for=[&id] {
+                        (label) " "
+                        @match self.required() {
+                            Some(_) => span
                                 class="form-required"
-                                title="Este campo es obligatorio."
-                            {
-                                "*"
-                            } " "
+                                title="Este campo es obligatorio." { "*" } " ",
+                            None => {}
                         }
-                    }
+                    },
+                    None => {}
                 }
                 input
                     type="date"
-                    id=[&id]
+                    id=[id]
                     class="form-control"
-                    name=[&self.name.option()]
-                    value=[&self.value.option()]
-                    placeholder=[&self.placeholder.option()]
-                    autofocus=[&self.autofocus.option()]
-                    autocomplete=[&self.autocomplete.option()]
-                    readonly=[&self.readonly.option()]
-                    required=[&self.required.option()]
-                    disabled=[&self.disabled.option()];
-                @if self.help_text.has_value() {
-                    div class="form-text" {
-                        (self.help_text.value())
-                    }
+                    name=[self.name()]
+                    value=[self.value()]
+                    placeholder=[self.placeholder()]
+                    autofocus=[self.autofocus()]
+                    autocomplete=[self.autocomplete()]
+                    readonly=[self.readonly()]
+                    required=[self.required()]
+                    disabled=[self.disabled()];
+                @match self.help_text() {
+                    Some(help_text) => div class="form-text" { (help_text) },
+                    None => {}
                 }
             }
         }
@@ -126,7 +124,7 @@ impl Date {
         self
     }
 
-    pub fn autofocus(mut self, toggle: bool) -> Self {
+    pub fn with_autofocus(mut self, toggle: bool) -> Self {
         self.autofocus.with_value(match toggle {
             true => "autofocus",
             false => "",
@@ -134,7 +132,7 @@ impl Date {
         self
     }
 
-    pub fn autocomplete(mut self, toggle: bool) -> Self {
+    pub fn with_autocomplete(mut self, toggle: bool) -> Self {
         self.autocomplete.with_value(match toggle {
             true => "",
             false => "off",
@@ -142,7 +140,7 @@ impl Date {
         self
     }
 
-    pub fn disabled(mut self, toggle: bool) -> Self {
+    pub fn with_disabled(mut self, toggle: bool) -> Self {
         self.disabled.with_value(match toggle {
             true => "disabled",
             false => "",
@@ -150,7 +148,7 @@ impl Date {
         self
     }
 
-    pub fn readonly(mut self, toggle: bool) -> Self {
+    pub fn with_readonly(mut self, toggle: bool) -> Self {
         self.readonly.with_value(match toggle {
             true => "readonly",
             false => "",
@@ -158,7 +156,7 @@ impl Date {
         self
     }
 
-    pub fn required(mut self, toggle: bool) -> Self {
+    pub fn with_required(mut self, toggle: bool) -> Self {
         self.required.with_value(match toggle {
             true => "required",
             false => "",
@@ -178,44 +176,44 @@ impl Date {
 
     // Date GETTERS.
 
-    pub fn name(&self) -> &str {
-        self.name.value()
+    pub fn name(&self) -> &Option<String> {
+        self.name.option()
     }
 
-    pub fn value(&self) -> &str {
-        self.value.value()
+    pub fn value(&self) -> &Option<String> {
+        self.value.option()
     }
 
-    pub fn label(&self) -> &str {
-        self.label.value()
+    pub fn label(&self) -> &Option<String> {
+        self.label.option()
     }
 
-    pub fn placeholder(&self) -> &str {
-        self.placeholder.value()
+    pub fn placeholder(&self) -> &Option<String> {
+        self.placeholder.option()
     }
 
-    pub fn has_autofocus(&self) -> bool {
-        self.autofocus.has_value()
+    pub fn autofocus(&self) -> &Option<String> {
+        self.autofocus.option()
     }
 
-    pub fn has_autocomplete(&self) -> bool {
-        !self.autocomplete.has_value()
+    pub fn autocomplete(&self) -> &Option<String> {
+        self.autocomplete.option()
     }
 
-    pub fn is_disabled(&self) -> bool {
-        self.disabled.has_value()
+    pub fn disabled(&self) -> &Option<String> {
+        self.disabled.option()
     }
 
-    pub fn is_readonly(&self) -> bool {
-        self.readonly.has_value()
+    pub fn readonly(&self) -> &Option<String> {
+        self.readonly.option()
     }
 
-    pub fn is_required(&self) -> bool {
-        self.required.has_value()
+    pub fn required(&self) -> &Option<String> {
+        self.required.option()
     }
 
-    pub fn help_text(&self) -> &str {
-        self.help_text.value()
+    pub fn help_text(&self) -> &Option<String> {
+        self.help_text.option()
     }
 
     pub fn template(&self) -> &str {

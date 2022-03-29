@@ -1,18 +1,18 @@
 use crate::prelude::*;
 
 pub struct Hidden {
-    weight    : i8,
-    name      : OptIden,
-    value     : OptAttr,
+    weight: i8,
+    name  : OptIden,
+    value : OptAttr,
 }
 
 impl PageComponent for Hidden {
 
     fn new() -> Self {
         Hidden {
-            weight    : 0,
-            name      : OptIden::none(),
-            value     : OptAttr::none(),
+            weight: 0,
+            name  : OptIden::none(),
+            value : OptAttr::none(),
         }
     }
 
@@ -21,16 +21,12 @@ impl PageComponent for Hidden {
     }
 
     fn default_render(&self, _: &mut PageAssets) -> Markup {
-        let id = match self.name.option() {
-            Some(name) => Some(format!("value-{}", name)),
+        let id = match self.name() {
+            Some(name) => Some(concat_string!("value-", name)),
             _ => None
         };
         html! {
-            input
-                type="hidden"
-                id=[&id]
-                name=[&self.name.option()]
-                value=[&self.value.option()];
+            input type="hidden" id=[id] name=[self.name()] value=[self.value()];
         }
     }
 }
@@ -60,11 +56,11 @@ impl Hidden {
 
     // Hidden GETTERS.
 
-    pub fn name(&self) -> &str {
-        self.name.value()
+    pub fn name(&self) -> &Option<String> {
+        self.name.option()
     }
 
-    pub fn value(&self) -> &str {
-        self.value.value()
+    pub fn value(&self) -> &Option<String> {
+        self.value.option()
     }
 }

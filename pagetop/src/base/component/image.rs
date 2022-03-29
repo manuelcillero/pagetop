@@ -3,7 +3,7 @@ use crate::prelude::*;
 pub struct Image {
     renderable: fn() -> bool,
     weight    : i8,
-    source    : Option<String>,
+    source    : OptAttr,
     template  : String,
 }
 
@@ -13,7 +13,7 @@ impl PageComponent for Image {
         Image {
             renderable: always,
             weight    : 0,
-            source    : None,
+            source    : OptAttr::none(),
             template  : "default".to_owned(),
         }
     }
@@ -28,7 +28,7 @@ impl PageComponent for Image {
 
     fn default_render(&self, _: &mut PageAssets) -> Markup {
         html! {
-            img src=[&self.source] class="img-fluid" {}
+            img src=[self.source()] class="img-fluid";
         }
     }
 }
@@ -36,9 +36,7 @@ impl PageComponent for Image {
 impl Image {
 
     pub fn image(source: &str) -> Self {
-        let mut i = Image::new();
-        i.source = Some(source.to_owned());
-        i
+        Image::new().with_source(source)
     }
 
     // Image BUILDER.
@@ -53,12 +51,21 @@ impl Image {
         self
     }
 
+    pub fn with_source(mut self, source: &str) -> Self {
+        self.source.with_value(source);
+        self
+    }
+
     pub fn using_template(mut self, template: &str) -> Self {
         self.template = template.to_owned();
         self
     }
 
     // Image GETTERS.
+
+    pub fn source(&self) -> &Option<String> {
+        self.source.option()
+    }
 
     pub fn template(&self) -> &str {
         self.template.as_str()

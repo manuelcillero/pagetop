@@ -19,17 +19,6 @@ impl OptIden {
         };
     }
 
-    pub fn value(&self) -> &str {
-        match &self.0 {
-            Some(id) => id.as_str(),
-            None => "",
-        }
-    }
-
-    pub fn has_value(&self) -> bool {
-        self.0 != None
-    }
-
     pub fn option(&self) -> &Option<String> {
         &self.0
     }

@@ -40,7 +40,7 @@ fn form_login() -> impl PageComponent {
             .with_help_text(t("username_help", &args![
                 "app" => SETTINGS.app.name.to_owned()
             ]).as_str())
-            .autofocus(true)
+            .with_autofocus(true)
         )
         .add(form::Input::password()
             .with_name("pass")

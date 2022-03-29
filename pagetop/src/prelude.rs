@@ -3,6 +3,7 @@
 // Macros.
 pub use crate::{
     args,
+    concat_string,
     theme_static_files,
 };
 
