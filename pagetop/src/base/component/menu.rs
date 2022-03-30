@@ -155,8 +155,9 @@ impl MenuItem {
 pub struct Menu {
     renderable: fn() -> bool,
     weight    : i8,
-    id        : OptIden,
     items     : PageContainer,
+    id        : OptIden,
+    classes   : Classes,
     template  : String,
 }
 
@@ -166,8 +167,9 @@ impl PageComponent for Menu {
         Menu {
             renderable: always,
             weight    : 0,
-            id        : OptIden::none(),
             items     : PageContainer::new(),
+            id        : OptIden::none(),
+            classes   : Classes::none(),
             template  : "default".to_owned(),
         }
     }
@@ -195,7 +197,7 @@ impl PageComponent for Menu {
 
         let id = assets.serial_id(self.name(), self.id());
         html! {
-            ul id=(id) class="sm sm-clean" {
+            ul id=(id) class=[self.classes("sm sm-clean")] {
                 (self.render_items(assets))
             }
             script type="text/javascript" defer {
@@ -222,13 +224,23 @@ impl Menu {
         self
     }
 
+    pub fn add(mut self, item: MenuItem) -> Self {
+        self.items.add(item);
+        self
+    }
+
     pub fn with_id(mut self, id: &str) -> Self {
         self.id.with_value(id);
         self
     }
 
-    pub fn add(mut self, item: MenuItem) -> Self {
-        self.items.add(item);
+    pub fn set_classes(mut self, classes: &str) -> Self {
+        self.classes.set_classes(classes);
+        self
+    }
+
+    pub fn add_classes(mut self, classes: &str) -> Self {
+        self.classes.add_classes(classes);
         self
     }
 
@@ -241,6 +253,10 @@ impl Menu {
 
     pub fn id(&self) -> &Option<String> {
         self.id.option()
+    }
+
+    pub fn classes(&self, default: &str) -> Option<String> {
+        self.classes.option(default)
     }
 
     pub fn template(&self) -> &str {

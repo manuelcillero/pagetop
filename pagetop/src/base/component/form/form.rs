@@ -5,11 +5,12 @@ pub enum FormMethod {Get, Post}
 pub struct Form {
     renderable: fn() -> bool,
     weight    : i8,
-    id        : OptIden,
     action    : OptAttr,
     charset   : OptAttr,
     method    : FormMethod,
     elements  : PageContainer,
+    id        : OptIden,
+    classes   : Classes,
     template  : String,
 }
 
@@ -19,11 +20,12 @@ impl PageComponent for Form {
         Form {
             renderable: always,
             weight    : 0,
-            id        : OptIden::none(),
             action    : OptAttr::none(),
             charset   : OptAttr::some("UTF-8"),
             method    : FormMethod::Post,
             elements  : PageContainer::new(),
+            id        : OptIden::none(),
+            classes   : Classes::none(),
             template  : "default".to_owned(),
         }
     }
@@ -44,6 +46,7 @@ impl PageComponent for Form {
         html! {
             form
                 id=[self.id()]
+                class=[self.classes("form")]
                 action=[self.action()]
                 method=[method]
                 accept-charset=[self.charset()]
@@ -70,11 +73,6 @@ impl Form {
         self
     }
 
-    pub fn with_id(mut self, id: &str) -> Self {
-        self.id.with_value(id);
-        self
-    }
-
     pub fn with_action(mut self, action: &str) -> Self {
         self.action.with_value(action);
         self
@@ -95,16 +93,27 @@ impl Form {
         self
     }
 
+    pub fn with_id(mut self, id: &str) -> Self {
+        self.id.with_value(id);
+        self
+    }
+
+    pub fn set_classes(mut self, classes: &str) -> Self {
+        self.classes.set_classes(classes);
+        self
+    }
+
+    pub fn add_classes(mut self, classes: &str) -> Self {
+        self.classes.add_classes(classes);
+        self
+    }
+
     pub fn using_template(mut self, template: &str) -> Self {
         self.template = template.to_owned();
         self
     }
 
     // Form GETTERS.
-
-    pub fn id(&self) -> &Option<String> {
-        self.id.option()
-    }
 
     pub fn action(&self) -> &Option<String> {
         self.action.option()
@@ -116,6 +125,14 @@ impl Form {
 
     pub fn method(&self) -> &FormMethod {
         &self.method
+    }
+
+    pub fn id(&self) -> &Option<String> {
+        self.id.option()
+    }
+
+    pub fn classes(&self, default: &str) -> Option<String> {
+        self.classes.option(default)
     }
 
     pub fn template(&self) -> &str {

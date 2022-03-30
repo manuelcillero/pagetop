@@ -3,9 +3,9 @@ use crate::prelude::*;
 pub struct Row {
     renderable: fn() -> bool,
     weight    : i8,
+    columns   : PageContainer,
     id        : OptIden,
     classes   : Classes,
-    columns   : PageContainer,
     template  : String,
 }
 
@@ -15,11 +15,15 @@ impl PageComponent for Row {
         Row {
             renderable: always,
             weight    : 0,
-            id        : OptIden::none(),
-            classes   : Classes::some(vec!["row"]),
             columns   : PageContainer::new(),
+            id        : OptIden::none(),
+            classes   : Classes::none(),
             template  : "default".to_owned(),
         }
+    }
+
+    fn name(&self) -> &'static str {
+        "GridRow"
     }
 
     fn is_renderable(&self) -> bool {
@@ -32,7 +36,7 @@ impl PageComponent for Row {
 
     fn default_render(&self, assets: &mut PageAssets) -> Markup {
         html! {
-            div id=[self.id()] class=[self.classes()] {
+            div id=[self.id()] class=[self.classes("row")] {
                 (self.render_columns(assets))
             }
         }
@@ -53,18 +57,23 @@ impl Row {
         self
     }
 
+    pub fn add_column(mut self, column: grid::Column) -> Self {
+        self.columns.add(column);
+        self
+    }
+
     pub fn with_id(mut self, id: &str) -> Self {
         self.id.with_value(id);
         self
     }
 
-    pub fn add_classes(mut self, classes: Vec<&str>) -> Self {
-        self.classes.add_classes(classes);
+    pub fn set_classes(mut self, classes: &str) -> Self {
+        self.classes.set_classes(classes);
         self
     }
 
-    pub fn add_column(mut self, column: grid::Column) -> Self {
-        self.columns.add(column);
+    pub fn add_classes(mut self, classes: &str) -> Self {
+        self.classes.add_classes(classes);
         self
     }
 
@@ -79,8 +88,8 @@ impl Row {
         self.id.option()
     }
 
-    pub fn classes(&self) -> &Option<String> {
-        self.classes.option()
+    pub fn classes(&self, default: &str) -> Option<String> {
+        self.classes.option(default)
     }
 
     pub fn template(&self) -> &str {

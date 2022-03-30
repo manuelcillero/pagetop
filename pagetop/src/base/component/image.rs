@@ -4,6 +4,8 @@ pub struct Image {
     renderable: fn() -> bool,
     weight    : i8,
     source    : OptAttr,
+    id        : OptIden,
+    classes   : Classes,
     template  : String,
 }
 
@@ -14,6 +16,8 @@ impl PageComponent for Image {
             renderable: always,
             weight    : 0,
             source    : OptAttr::none(),
+            id        : OptIden::none(),
+            classes   : Classes::none(),
             template  : "default".to_owned(),
         }
     }
@@ -28,7 +32,10 @@ impl PageComponent for Image {
 
     fn default_render(&self, _: &mut PageAssets) -> Markup {
         html! {
-            img src=[self.source()] class="img-fluid";
+            img
+                src=[self.source()]
+                id=[self.id()]
+                class=[self.classes("img-fluid")];
         }
     }
 }
@@ -56,6 +63,21 @@ impl Image {
         self
     }
 
+    pub fn with_id(mut self, id: &str) -> Self {
+        self.id.with_value(id);
+        self
+    }
+
+    pub fn set_classes(mut self, classes: &str) -> Self {
+        self.classes.set_classes(classes);
+        self
+    }
+
+    pub fn add_classes(mut self, classes: &str) -> Self {
+        self.classes.add_classes(classes);
+        self
+    }
+
     pub fn using_template(mut self, template: &str) -> Self {
         self.template = template.to_owned();
         self
@@ -65,6 +87,14 @@ impl Image {
 
     pub fn source(&self) -> &Option<String> {
         self.source.option()
+    }
+
+    pub fn id(&self) -> &Option<String> {
+        self.id.option()
+    }
+
+    pub fn classes(&self, default: &str) -> Option<String> {
+        self.classes.option(default)
     }
 
     pub fn template(&self) -> &str {

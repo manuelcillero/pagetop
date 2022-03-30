@@ -13,6 +13,7 @@ pub struct Date {
     readonly    : OptAttr,
     required    : OptAttr,
     help_text   : OptAttr,
+    classes     : Classes,
     template    : String,
 }
 
@@ -32,6 +33,7 @@ impl PageComponent for Date {
             readonly    : OptAttr::none(),
             required    : OptAttr::none(),
             help_text   : OptAttr::none(),
+            classes     : Classes::none(),
             template    : "default".to_owned(),
         }
     }
@@ -45,7 +47,7 @@ impl PageComponent for Date {
     }
 
     fn default_render(&self, _: &mut PageAssets) -> Markup {
-        let (class, id) = match self.name() {
+        let (classes, id) = match self.name() {
             Some(name) => (
                 concat_string!("form-item form-item-", name, " form-type-date"),
                 Some(concat_string!("edit-", name))
@@ -56,7 +58,7 @@ impl PageComponent for Date {
             )
         };
         html! {
-            div class=(class) {
+            div class=[self.classes(classes.as_str())] {
                 @match self.label() {
                     Some(label) => label class="form-label" for=[&id] {
                         (label) " "
@@ -169,6 +171,16 @@ impl Date {
         self
     }
 
+    pub fn set_classes(mut self, classes: &str) -> Self {
+        self.classes.set_classes(classes);
+        self
+    }
+
+    pub fn add_classes(mut self, classes: &str) -> Self {
+        self.classes.add_classes(classes);
+        self
+    }
+
     pub fn using_template(mut self, template: &str) -> Self {
         self.template = template.to_owned();
         self
@@ -214,6 +226,10 @@ impl Date {
 
     pub fn help_text(&self) -> &Option<String> {
         self.help_text.option()
+    }
+
+    pub fn classes(&self, default: &str) -> Option<String> {
+        self.classes.option(default)
     }
 
     pub fn template(&self) -> &str {

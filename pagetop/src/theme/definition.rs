@@ -55,7 +55,7 @@ pub trait ThemeTrait: Send + Sync {
 
     fn render_page_body(&self, page: &mut Page) -> Markup {
         html! {
-            body class=(page.body_classes()) {
+            body class=[page.body_classes("body")] {
                 @match page.template() {
                     "admin" => {
                         @for region in &["top-menu", "side-menu", "content"] {
@@ -85,8 +85,8 @@ pub trait ThemeTrait: Send + Sync {
         Cómo usarlo:
 
         match component.name() {
-            "block" => {
-                let block = component.downcast_mut::<Block>().unwrap();
+            "Block" => {
+                let block = component.downcast_ref::<Block>().unwrap();
                 match block.template() {
                     "default" => Some(block_default(block)),
                     _ => None

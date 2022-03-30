@@ -10,6 +10,7 @@ pub struct Button {
     value      : OptAttr,
     autofocus  : OptAttr,
     disabled   : OptAttr,
+    classes    : Classes,
     template   : String,
 }
 
@@ -24,6 +25,7 @@ impl PageComponent for Button {
             value      : OptAttr::none(),
             autofocus  : OptAttr::none(),
             disabled   : OptAttr::none(),
+            classes    : Classes::none(),
             template   : "default".to_owned(),
         }
     }
@@ -50,7 +52,7 @@ impl PageComponent for Button {
             button
                 type=(button_type)
                 id=[id]
-                class=(button_class)
+                class=[self.classes(button_class)]
                 name=[self.name()]
                 value=[self.value()]
                 autofocus=[self.autofocus()]
@@ -121,6 +123,16 @@ impl Button {
         self
     }
 
+    pub fn set_classes(mut self, classes: &str) -> Self {
+        self.classes.set_classes(classes);
+        self
+    }
+
+    pub fn add_classes(mut self, classes: &str) -> Self {
+        self.classes.add_classes(classes);
+        self
+    }
+
     pub fn using_template(mut self, template: &str) -> Self {
         self.template = template.to_owned();
         self
@@ -146,6 +158,10 @@ impl Button {
 
     pub fn disabled(&self) -> &Option<String> {
         self.disabled.option()
+    }
+
+    pub fn classes(&self, default: &str) -> Option<String> {
+        self.classes.option(default)
     }
 
     pub fn template(&self) -> &str {

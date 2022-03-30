@@ -19,6 +19,7 @@ pub struct Input {
     readonly    : OptAttr,
     required    : OptAttr,
     help_text   : OptAttr,
+    classes     : Classes,
     template    : String,
 }
 
@@ -42,6 +43,7 @@ impl PageComponent for Input {
             readonly    : OptAttr::none(),
             required    : OptAttr::none(),
             help_text   : OptAttr::none(),
+            classes     : Classes::none(),
             template    : "default".to_owned(),
         }
     }
@@ -239,6 +241,16 @@ impl Input {
         self
     }
 
+    pub fn set_classes(mut self, classes: &str) -> Self {
+        self.classes.set_classes(classes);
+        self
+    }
+
+    pub fn add_classes(mut self, classes: &str) -> Self {
+        self.classes.add_classes(classes);
+        self
+    }
+
     pub fn using_template(mut self, template: &str) -> Self {
         self.template = template.to_owned();
         self
@@ -300,6 +312,10 @@ impl Input {
 
     pub fn help_text(&self) -> &Option<String> {
         self.help_text.option()
+    }
+
+    pub fn classes(&self, default: &str) -> Option<String> {
+        self.classes.option(default)
     }
 
     pub fn template(&self) -> &str {

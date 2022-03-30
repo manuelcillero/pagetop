@@ -3,9 +3,10 @@ use crate::prelude::*;
 pub struct Block {
     renderable: fn() -> bool,
     weight    : i8,
-    id        : OptIden,
     title     : OptAttr,
     html      : Vec<Markup>,
+    id        : OptIden,
+    classes   : Classes,
     template  : String,
 }
 
@@ -15,9 +16,10 @@ impl PageComponent for Block {
         Block {
             renderable: always,
             weight    : 0,
-            id        : OptIden::none(),
             title     : OptAttr::none(),
             html      : Vec::new(),
+            id        : OptIden::none(),
+            classes   : Classes::none(),
             template  : "default".to_owned(),
         }
     }
@@ -33,7 +35,7 @@ impl PageComponent for Block {
     fn default_render(&self, assets: &mut PageAssets) -> Markup {
         let id = assets.serial_id(self.name(), self.id());
         html! {
-            div id=(id) class="block" {
+            div id=(id) class=[self.classes("block")] {
                 @match self.title() {
                     Some(title) => h2 class="block-title" { (title) },
                     None => {}
@@ -66,11 +68,6 @@ impl Block {
         self
     }
 
-    pub fn with_id(mut self, id: &str) -> Self {
-        self.id.with_value(id);
-        self
-    }
-
     pub fn with_title(mut self, title: &str) -> Self {
         self.title.with_value(title);
         self
@@ -81,6 +78,21 @@ impl Block {
         self
     }
 
+    pub fn with_id(mut self, id: &str) -> Self {
+        self.id.with_value(id);
+        self
+    }
+
+    pub fn set_classes(mut self, classes: &str) -> Self {
+        self.classes.set_classes(classes);
+        self
+    }
+
+    pub fn add_classes(mut self, classes: &str) -> Self {
+        self.classes.add_classes(classes);
+        self
+    }
+
     pub fn using_template(mut self, template: &str) -> Self {
         self.template = template.to_owned();
         self
@@ -88,16 +100,20 @@ impl Block {
 
     // Block GETTERS.
 
-    pub fn id(&self) -> &Option<String> {
-        self.id.option()
-    }
-
     pub fn title(&self) -> &Option<String> {
         self.title.option()
     }
 
     pub fn html(&self) -> &Vec<Markup> {
         &self.html
+    }
+
+    pub fn id(&self) -> &Option<String> {
+        self.id.option()
+    }
+
+    pub fn classes(&self, default: &str) -> Option<String> {
+        self.classes.option(default)
     }
 
     pub fn template(&self) -> &str {

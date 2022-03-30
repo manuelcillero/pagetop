@@ -6,8 +6,9 @@ pub struct Container {
     renderable: fn() -> bool,
     weight    : i8,
     container : ContainerType,
-    id        : OptIden,
     components: PageContainer,
+    id        : OptIden,
+    classes   : Classes,
     template  : String,
 }
 
@@ -18,8 +19,9 @@ impl PageComponent for Container {
             renderable: always,
             weight    : 0,
             container : ContainerType::Wrapper,
-            id        : OptIden::none(),
             components: PageContainer::new(),
+            id        : OptIden::none(),
+            classes   : Classes::none(),
             template  : "default".to_owned(),
         }
     }
@@ -35,35 +37,35 @@ impl PageComponent for Container {
     fn default_render(&self, assets: &mut PageAssets) -> Markup {
         match self.container_type() {
             ContainerType::Header => html! {
-                header id=[self.id()] class="header" {
+                header id=[self.id()] class=[self.classes("header")] {
                     div class="container" {
                         (self.render_components(assets))
                     }
                 }
             },
             ContainerType::Footer => html! {
-                footer id=[self.id()] class="footer" {
+                footer id=[self.id()] class=[self.classes("footer")] {
                     div class="container" {
                         (self.render_components(assets))
                     }
                 }
             },
             ContainerType::Main => html! {
-                main id=[self.id()] class="main" {
+                main id=[self.id()] class=[self.classes("main")] {
                     div class="container" {
                         (self.render_components(assets))
                     }
                 }
             },
             ContainerType::Section => html! {
-                section id=[self.id()] class="section" {
+                section id=[self.id()] class=[self.classes("section")] {
                     div class="container" {
                         (self.render_components(assets))
                     }
                 }
             },
             _ => html! {
-                div id=[self.id()] class="container" {
+                div id=[self.id()] class=[self.classes("container")] {
                     (self.render_components(assets))
                 }
             }
@@ -109,13 +111,23 @@ impl Container {
         self
     }
 
+    pub fn add(mut self, component: impl PageComponent) -> Self {
+        self.components.add(component);
+        self
+    }
+
     pub fn with_id(mut self, id: &str) -> Self {
         self.id.with_value(id);
         self
     }
 
-    pub fn add(mut self, component: impl PageComponent) -> Self {
-        self.components.add(component);
+    pub fn set_classes(mut self, classes: &str) -> Self {
+        self.classes.set_classes(classes);
+        self
+    }
+
+    pub fn add_classes(mut self, classes: &str) -> Self {
+        self.classes.add_classes(classes);
         self
     }
 
@@ -132,6 +144,10 @@ impl Container {
 
     pub fn id(&self) -> &Option<String> {
         self.id.option()
+    }
+
+    pub fn classes(&self, default: &str) -> Option<String> {
+        self.classes.option(default)
     }
 
     pub fn template(&self) -> &str {

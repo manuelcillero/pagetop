@@ -31,4 +31,30 @@ impl ThemeTrait for BulmixTheme {
             )
             .add_jquery();
     }
+
+    fn render_component(
+        &self,
+        component: &dyn PageComponent,
+        assets: &mut PageAssets
+    ) -> Option<Markup> {
+        match component.name() {
+            "GridRow" => {
+                let row = component.downcast_ref::<grid::Row>().unwrap();
+                Some(html! {
+                    div id=[row.id()] class=[row.classes("columns")] {
+                        (row.render_columns(assets))
+                    }
+                })
+            },
+            "GridColumn" => {
+                let col = component.downcast_ref::<grid::Column>().unwrap();
+                Some(html! {
+                    div id=[col.id()] class=[col.classes("column")] {
+                        (col.render_components(assets))
+                    }
+                })
+            },
+            _ => None
+        }
+    }
 }

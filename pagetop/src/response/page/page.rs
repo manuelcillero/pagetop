@@ -45,8 +45,8 @@ pub struct Page<'a> {
     title       : OptAttr,
     description : OptAttr,
     assets      : PageAssets,
-    body_classes: Classes,
     regions     : HashMap<&'a str, PageContainer>,
+    body_classes: Classes,
     template    : String,
 }
 
@@ -64,9 +64,9 @@ impl<'a> Page<'a> {
             },
             title       : OptAttr::none(),
             description : OptAttr::none(),
-            body_classes: Classes::some(vec!["body"]),
             assets      : PageAssets::new(),
             regions     : COMPONENTS.read().unwrap().clone(),
+            body_classes: Classes::none(),
             template    : "default".to_owned(),
         }
     }
@@ -97,11 +97,6 @@ impl<'a> Page<'a> {
         self
     }
 
-    pub fn add_body_classes(&mut self, classes: Vec<&str>) -> &mut Self {
-        self.body_classes.add_classes(classes);
-        self
-    }
-
     pub fn add_to(
         &mut self,
         region: &'a str,
@@ -112,6 +107,16 @@ impl<'a> Page<'a> {
         } else {
             self.regions.insert(region, PageContainer::new_with(component));
         }
+        self
+    }
+
+    pub fn set_body_classes(&mut self, classes: &str) -> &mut Self {
+        self.body_classes.set_classes(classes);
+        self
+    }
+
+    pub fn add_body_classes(&mut self, classes: &str) -> &mut Self {
+        self.body_classes.add_classes(classes);
         self
     }
 
@@ -138,12 +143,12 @@ impl<'a> Page<'a> {
         self.description.option()
     }
 
-    pub fn body_classes(&mut self) -> &str {
-        self.body_classes.classes()
-    }
-
     pub fn assets(&mut self) -> &mut PageAssets {
         &mut self.assets
+    }
+
+    pub fn body_classes(&self, default: &str) -> Option<String> {
+        self.body_classes.option(default)
     }
 
     pub fn template(&self) -> &str {
