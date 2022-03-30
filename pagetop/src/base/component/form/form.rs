@@ -51,9 +51,7 @@ impl PageComponent for Form {
                 method=[method]
                 accept-charset=[self.charset()]
             {
-                div {
-                    (self.render_elements(assets))
-                }
+                div { (self.elements().render(assets)) }
             }
         }
     }
@@ -127,6 +125,10 @@ impl Form {
         &self.method
     }
 
+    pub fn elements(&self) -> &PageContainer {
+        &self.elements
+    }
+
     pub fn id(&self) -> &Option<String> {
         self.id.option()
     }
@@ -137,12 +139,6 @@ impl Form {
 
     pub fn template(&self) -> &str {
         self.template.as_str()
-    }
-
-    // Form EXTRAS.
-
-    pub fn render_elements(&self, assets: &mut PageAssets) -> Markup {
-        html! { (self.elements.render(assets)) }
     }
 }
 

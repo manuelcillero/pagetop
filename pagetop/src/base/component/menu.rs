@@ -58,7 +58,7 @@ impl PageComponent for MenuItem {
                 li class="submenu" {
                     a href="#" { (label) }
                     ul {
-                        (menu.render_items(assets))
+                        (menu.items().render(assets))
                     }
                 }
             },
@@ -198,7 +198,7 @@ impl PageComponent for Menu {
         let id = assets.serial_id(self.name(), self.id());
         html! {
             ul id=(id) class=[self.classes("sm sm-clean")] {
-                (self.render_items(assets))
+                (self.items().render(assets))
             }
             script type="text/javascript" defer {
                 "jQuery(function(){jQuery('#" (id) "').smartmenus({"
@@ -251,6 +251,10 @@ impl Menu {
 
     // Menu GETTERS.
 
+    pub fn items(&self) -> &PageContainer {
+        &self.items
+    }
+
     pub fn id(&self) -> &Option<String> {
         self.id.option()
     }
@@ -261,12 +265,6 @@ impl Menu {
 
     pub fn template(&self) -> &str {
         self.template.as_str()
-    }
-
-    // Menu EXTRAS.
-
-    pub fn render_items(&self, assets: &mut PageAssets) -> Markup {
-        html! { (self.items.render(assets)) }
     }
 }
 

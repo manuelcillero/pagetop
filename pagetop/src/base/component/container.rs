@@ -39,34 +39,34 @@ impl PageComponent for Container {
             ContainerType::Header => html! {
                 header id=[self.id()] class=[self.classes("header")] {
                     div class="container" {
-                        (self.render_components(assets))
+                        (self.components().render(assets))
                     }
                 }
             },
             ContainerType::Footer => html! {
                 footer id=[self.id()] class=[self.classes("footer")] {
                     div class="container" {
-                        (self.render_components(assets))
+                        (self.components().render(assets))
                     }
                 }
             },
             ContainerType::Main => html! {
                 main id=[self.id()] class=[self.classes("main")] {
                     div class="container" {
-                        (self.render_components(assets))
+                        (self.components().render(assets))
                     }
                 }
             },
             ContainerType::Section => html! {
                 section id=[self.id()] class=[self.classes("section")] {
                     div class="container" {
-                        (self.render_components(assets))
+                        (self.components().render(assets))
                     }
                 }
             },
             _ => html! {
                 div id=[self.id()] class=[self.classes("container")] {
-                    (self.render_components(assets))
+                    (self.components().render(assets))
                 }
             }
         }
@@ -142,6 +142,10 @@ impl Container {
         &self.container
     }
 
+    pub fn components(&self) -> &PageContainer {
+        &self.components
+    }
+
     pub fn id(&self) -> &Option<String> {
         self.id.option()
     }
@@ -152,12 +156,6 @@ impl Container {
 
     pub fn template(&self) -> &str {
         self.template.as_str()
-    }
-
-    // Container EXTRAS.
-
-    pub fn render_components(&self, assets: &mut PageAssets) -> Markup {
-        html! { (self.components.render(assets)) }
     }
 }
 
