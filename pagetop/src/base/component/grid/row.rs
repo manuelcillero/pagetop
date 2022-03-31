@@ -37,7 +37,7 @@ impl PageComponent for Row {
     fn default_render(&self, assets: &mut PageAssets) -> Markup {
         html! {
             div id=[self.id()] class=[self.classes("row")] {
-                (self.render_columns(assets))
+                (self.columns().render(assets))
             }
         }
     }
@@ -84,6 +84,10 @@ impl Row {
 
     // Row GETTERS.
 
+    pub fn columns(&self) -> &PageContainer {
+        &self.columns
+    }
+
     pub fn id(&self) -> &Option<String> {
         self.id.option()
     }
@@ -94,12 +98,6 @@ impl Row {
 
     pub fn template(&self) -> &str {
         self.template.as_str()
-    }
-
-    // Row EXTRAS.
-
-    pub fn render_columns(&self, assets: &mut PageAssets) -> Markup {
-        html! { (self.columns.render(assets)) }
     }
 }
 

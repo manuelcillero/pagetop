@@ -42,7 +42,7 @@ impl ThemeTrait for BulmixTheme {
                 let row = component.downcast_ref::<grid::Row>().unwrap();
                 Some(html! {
                     div id=[row.id()] class=[row.classes("columns")] {
-                        (row.render_columns(assets))
+                        (row.columns().render(assets))
                     }
                 })
             },
@@ -50,7 +50,7 @@ impl ThemeTrait for BulmixTheme {
                 let col = component.downcast_ref::<grid::Column>().unwrap();
                 Some(html! {
                     div id=[col.id()] class=[col.classes("column")] {
-                        (col.render_components(assets))
+                        (col.components().render(assets))
                     }
                 })
             },

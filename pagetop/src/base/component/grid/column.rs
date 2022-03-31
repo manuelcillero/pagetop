@@ -37,7 +37,7 @@ impl PageComponent for Column {
     fn default_render(&self, assets: &mut PageAssets) -> Markup {
         html! {
             div id=[self.id()] class=[self.classes("col")] {
-                (self.render_components(assets))
+                (self.components().render(assets))
             }
         }
     }
@@ -84,6 +84,10 @@ impl Column {
 
     // Column GETTERS.
 
+    pub fn components(&self) -> &PageContainer {
+        &self.components
+    }
+
     pub fn id(&self) -> &Option<String> {
         self.id.option()
     }
@@ -94,12 +98,6 @@ impl Column {
 
     pub fn template(&self) -> &str {
         self.template.as_str()
-    }
-
-    // Column EXTRAS.
-
-    pub fn render_components(&self, assets: &mut PageAssets) -> Markup {
-        html! { (self.components.render(assets)) }
     }
 }
 
