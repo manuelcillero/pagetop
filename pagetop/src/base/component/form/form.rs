@@ -15,7 +15,6 @@ pub struct Form {
 }
 
 impl PageComponent for Form {
-
     fn new() -> Self {
         Form {
             renderable: always,

@@ -8,7 +8,6 @@ pub struct Chunck {
 }
 
 impl PageComponent for Chunck {
-
     fn new() -> Self {
         Chunck {
             renderable: always,
@@ -36,7 +35,6 @@ impl PageComponent for Chunck {
 }
 
 impl Chunck {
-
     pub fn with(html: Markup) -> Self {
         Chunck::new().add(html)
     }

@@ -21,7 +21,6 @@ pub struct MenuItem {
 }
 
 impl PageComponent for MenuItem {
-
     fn new() -> Self {
         MenuItem {
             renderable: always,
@@ -71,7 +70,6 @@ impl PageComponent for MenuItem {
 }
 
 impl MenuItem {
-
     pub fn label(label: &str) -> Self {
         MenuItem {
             renderable: always,
@@ -162,7 +160,6 @@ pub struct Menu {
 }
 
 impl PageComponent for Menu {
-
     fn new() -> Self {
         Menu {
             renderable: always,

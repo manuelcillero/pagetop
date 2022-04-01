@@ -10,7 +10,6 @@ pub struct Row {
 }
 
 impl PageComponent for Row {
-
     fn new() -> Self {
         Row {
             renderable: always,

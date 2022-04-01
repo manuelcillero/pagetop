@@ -10,7 +10,6 @@ pub struct Image {
 }
 
 impl PageComponent for Image {
-
     fn new() -> Self {
         Image {
             renderable: always,
@@ -41,7 +40,6 @@ impl PageComponent for Image {
 }
 
 impl Image {
-
     pub fn image(source: &str) -> Self {
         Image::new().with_source(source)
     }

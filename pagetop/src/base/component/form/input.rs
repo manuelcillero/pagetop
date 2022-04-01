@@ -24,7 +24,6 @@ pub struct Input {
 }
 
 impl PageComponent for Input {
-
     fn new() -> Self {
         Input {
             renderable  : always,
@@ -114,7 +113,6 @@ impl PageComponent for Input {
 }
 
 impl Input {
-
     pub fn textfield() -> Self {
         Input::new()
     }

@@ -18,7 +18,6 @@ pub struct Date {
 }
 
 impl PageComponent for Date {
-
     fn new() -> Self {
         Date {
             renderable  : always,

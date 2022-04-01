@@ -11,7 +11,6 @@ pub struct Block {
 }
 
 impl PageComponent for Block {
-
     fn new() -> Self {
         Block {
             renderable: always,
@@ -51,7 +50,6 @@ impl PageComponent for Block {
 }
 
 impl Block {
-
     pub fn with(html: Markup) -> Self {
         Block::new().add(html)
     }

@@ -7,7 +7,6 @@ pub struct Hidden {
 }
 
 impl PageComponent for Hidden {
-
     fn new() -> Self {
         Hidden {
             weight: 0,
@@ -32,7 +31,6 @@ impl PageComponent for Hidden {
 }
 
 impl Hidden {
-
     pub fn set(name: &str, value: &str) -> Self {
         Hidden::new().with_name(name).with_value(value)
     }

@@ -10,7 +10,6 @@ pub struct Column {
 }
 
 impl PageComponent for Column {
-
     fn new() -> Self {
         Column {
             renderable: always,

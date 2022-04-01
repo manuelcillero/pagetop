@@ -13,7 +13,6 @@ pub struct Container {
 }
 
 impl PageComponent for Container {
-
     fn new() -> Self {
         Container {
             renderable: always,
@@ -74,7 +73,6 @@ impl PageComponent for Container {
 }
 
 impl Container {
-
     pub fn header() -> Self {
         let mut c = Container::new();
         c.container = ContainerType::Header;

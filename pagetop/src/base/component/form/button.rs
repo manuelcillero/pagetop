@@ -15,7 +15,6 @@ pub struct Button {
 }
 
 impl PageComponent for Button {
-
     fn new() -> Self {
         Button {
             renderable : always,
@@ -68,7 +67,6 @@ impl PageComponent for Button {
 }
 
 impl Button {
-
     pub fn button(value: &str) -> Self {
         Button::new().with_value(value)
     }
