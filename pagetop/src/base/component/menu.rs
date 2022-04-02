@@ -222,7 +222,7 @@ impl Menu {
     }
 
     pub fn add(mut self, item: MenuItem) -> Self {
-        self.items.add(item);
+        self.items.add(item.arc());
         self
     }
 

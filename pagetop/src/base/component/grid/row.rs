@@ -57,7 +57,7 @@ impl Row {
     }
 
     pub fn add_column(mut self, column: grid::Column) -> Self {
-        self.columns.add(column);
+        self.columns.add(column.arc());
         self
     }
 

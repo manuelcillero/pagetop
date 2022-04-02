@@ -85,7 +85,7 @@ impl Form {
         self
     }
 
-    pub fn add(mut self, element: impl PageComponent) -> Self {
+    pub fn add(mut self, element: ArcComponent) -> Self {
         self.elements.add(element);
         self
     }

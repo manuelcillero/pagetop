@@ -56,7 +56,7 @@ impl Column {
         self
     }
 
-    pub fn add(mut self, component: impl PageComponent) -> Self {
+    pub fn add(mut self, component: ArcComponent) -> Self {
         self.components.add(component);
         self
     }

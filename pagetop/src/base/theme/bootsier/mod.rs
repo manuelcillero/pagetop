@@ -77,7 +77,7 @@ impl ThemeTrait for BootsierTheme {
                         }
                     }
                 }
-            }))
+            }).arc())
             .render()
     }
 }

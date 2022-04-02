@@ -1,7 +1,7 @@
 use crate::{Lazy, app, trace};
 use crate::config::SETTINGS;
 use crate::html::{Classes, DOCTYPE, Markup, OptAttr, html};
-use crate::response::page::{PageAssets, PageComponent, PageContainer};
+use crate::response::page::*;
 
 use std::sync::RwLock;
 use std::collections::HashMap;
@@ -100,7 +100,7 @@ impl<'a> Page<'a> {
     pub fn add_to(
         &mut self,
         region: &'a str,
-        component: impl PageComponent
+        component: ArcComponent
     ) -> &mut Self {
         if let Some(regions) = self.regions.get_mut(region) {
             regions.add(component);
@@ -205,7 +205,7 @@ pub fn render_component(
     }
 }
 
-pub fn add_component_to(region: &'static str, component: impl PageComponent) {
+pub fn add_component_to(region: &'static str, component: ArcComponent) {
     let mut hmap = COMPONENTS.write().unwrap();
     if let Some(regions) = hmap.get_mut(region) {
         regions.add(component);
