@@ -36,27 +36,29 @@ impl PageComponent for Chunck {
 
 impl Chunck {
     pub fn with(html: Markup) -> Self {
-        Chunck::new().add(html)
+        let mut chunck = Chunck::new();
+        chunck.add(html);
+        chunck
     }
 
     // Chunck BUILDER.
 
-    pub fn with_renderable(mut self, renderable: fn() -> bool) -> Self {
+    pub fn with_renderable(&mut self, renderable: fn() -> bool) -> &Self {
         self.renderable = renderable;
         self
     }
 
-    pub fn with_weight(mut self, weight: i8) -> Self {
+    pub fn with_weight(&mut self, weight: i8) -> &Self {
         self.weight = weight;
         self
     }
 
-    pub fn add(mut self, html: Markup) -> Self {
+    pub fn add(&mut self, html: Markup) -> &Self {
         self.html.push(html);
         self
     }
 
-    pub fn using_template(mut self, template: &str) -> Self {
+    pub fn using_template(&mut self, template: &str) -> &Self {
         self.template = template.to_owned();
         self
     }

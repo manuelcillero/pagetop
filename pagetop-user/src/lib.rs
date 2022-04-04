@@ -32,7 +32,7 @@ impl ModuleTrait for UserModule {
 }
 
 fn form_login() -> ArcComponent {
-    Form::new()
+    Form::new()/*
         .with_id("user-login")
         .add(form::Input::textfield()
             .with_name("name")
@@ -49,7 +49,7 @@ fn form_login() -> ArcComponent {
             .with_help_text(l("password_help").as_str())
             .arc()
         )
-        .add(form::Button::submit(l("login").as_str()).arc())
+        .add(form::Button::submit(l("login").as_str()).arc())*/
         .arc()
 }
 
@@ -57,11 +57,11 @@ async fn login() -> app::Result<Markup> {
     Page::new()
         .with_title(
             "Identificación del usuario"
-        )
+        )/*
         .add_to("content", Container::new()
             .with_id("welcome")
             .add(form_login())
             .arc()
-        )
+        )*/
         .render()
 }

@@ -46,12 +46,12 @@ impl Column {
 
     // Column BUILDER.
 
-    pub fn with_renderable(mut self, renderable: fn() -> bool) -> Self {
+    pub fn with_renderable(&mut self, renderable: fn() -> bool) -> &Self {
         self.renderable = renderable;
         self
     }
 
-    pub fn with_weight(mut self, weight: i8) -> Self {
+    pub fn with_weight(&mut self, weight: i8) -> &Self {
         self.weight = weight;
         self
     }
@@ -61,22 +61,22 @@ impl Column {
         self
     }
 
-    pub fn with_id(mut self, id: &str) -> Self {
+    pub fn with_id(&mut self, id: &str) -> &Self {
         self.id.with_value(id);
         self
     }
 
-    pub fn set_classes(mut self, classes: &str) -> Self {
+    pub fn set_classes(&mut self, classes: &str) -> &Self {
         self.classes.set_classes(classes);
         self
     }
 
-    pub fn add_classes(mut self, classes: &str) -> Self {
+    pub fn add_classes(&mut self, classes: &str) -> &Self {
         self.classes.add_classes(classes);
         self
     }
 
-    pub fn using_template(mut self, template: &str) -> Self {
+    pub fn using_template(&mut self, template: &str) -> &Self {
         self.template = template.to_owned();
         self
     }

@@ -32,22 +32,25 @@ impl PageComponent for Hidden {
 
 impl Hidden {
     pub fn set(name: &str, value: &str) -> Self {
-        Hidden::new().with_name(name).with_value(value)
+        let mut hidden = Hidden::new();
+        hidden.with_name(name);
+        hidden.with_value(value);
+        hidden
     }
 
     // Hidden BUILDER.
 
-    pub fn with_weight(mut self, weight: i8) -> Self {
+    pub fn with_weight(&mut self, weight: i8) -> &Self {
         self.weight = weight;
         self
     }
 
-    pub fn with_name(mut self, name: &str) -> Self {
+    pub fn with_name(&mut self, name: &str) -> &Self {
         self.name.with_value(name);
         self
     }
 
-    pub fn with_value(mut self, value: &str) -> Self {
+    pub fn with_value(&mut self, value: &str) -> &Self {
         self.value.with_value(value);
         self
     }

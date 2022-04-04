@@ -60,27 +60,27 @@ impl Form {
 
     // Form BUILDER.
 
-    pub fn with_renderable(mut self, renderable: fn() -> bool) -> Self {
+    pub fn with_renderable(&mut self, renderable: fn() -> bool) -> &Self {
         self.renderable = renderable;
         self
     }
 
-    pub fn with_weight(mut self, weight: i8) -> Self {
+    pub fn with_weight(&mut self, weight: i8) -> &Self {
         self.weight = weight;
         self
     }
 
-    pub fn with_action(mut self, action: &str) -> Self {
+    pub fn with_action(&mut self, action: &str) -> &Self {
         self.action.with_value(action);
         self
     }
 
-    pub fn with_charset(mut self, charset: &str) -> Self {
+    pub fn with_charset(&mut self, charset: &str) -> &Self {
         self.charset.with_value(charset);
         self
     }
 
-    pub fn with_method(mut self, method: FormMethod) -> Self {
+    pub fn with_method(&mut self, method: FormMethod) -> &Self {
         self.method = method;
         self
     }
@@ -90,22 +90,22 @@ impl Form {
         self
     }
 
-    pub fn with_id(mut self, id: &str) -> Self {
+    pub fn with_id(&mut self, id: &str) -> &Self {
         self.id.with_value(id);
         self
     }
 
-    pub fn set_classes(mut self, classes: &str) -> Self {
+    pub fn set_classes(&mut self, classes: &str) -> &Self {
         self.classes.set_classes(classes);
         self
     }
 
-    pub fn add_classes(mut self, classes: &str) -> Self {
+    pub fn add_classes(&mut self, classes: &str) -> &Self {
         self.classes.add_classes(classes);
         self
     }
 
-    pub fn using_template(mut self, template: &str) -> Self {
+    pub fn using_template(&mut self, template: &str) -> &Self {
         self.template = template.to_owned();
         self
     }

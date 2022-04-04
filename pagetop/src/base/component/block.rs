@@ -51,47 +51,49 @@ impl PageComponent for Block {
 
 impl Block {
     pub fn with(html: Markup) -> Self {
-        Block::new().add(html)
+        let mut block = Block::new();
+        block.add(html);
+        block
     }
 
     // Block BUILDER.
 
-    pub fn with_renderable(mut self, renderable: fn() -> bool) -> Self {
+    pub fn with_renderable(&mut self, renderable: fn() -> bool) -> &Self {
         self.renderable = renderable;
         self
     }
 
-    pub fn with_weight(mut self, weight: i8) -> Self {
+    pub fn with_weight(&mut self, weight: i8) -> &Self {
         self.weight = weight;
         self
     }
 
-    pub fn with_title(mut self, title: &str) -> Self {
+    pub fn with_title(&mut self, title: &str) -> &Self {
         self.title.with_value(title);
         self
     }
 
-    pub fn add(mut self, html: Markup) -> Self {
+    pub fn add(&mut self, html: Markup) -> &Self {
         self.html.push(html);
         self
     }
 
-    pub fn with_id(mut self, id: &str) -> Self {
+    pub fn with_id(&mut self, id: &str) -> &Self {
         self.id.with_value(id);
         self
     }
 
-    pub fn set_classes(mut self, classes: &str) -> Self {
+    pub fn set_classes(&mut self, classes: &str) -> &Self {
         self.classes.set_classes(classes);
         self
     }
 
-    pub fn add_classes(mut self, classes: &str) -> Self {
+    pub fn add_classes(&mut self, classes: &str) -> &Self {
         self.classes.add_classes(classes);
         self
     }
 
-    pub fn using_template(mut self, template: &str) -> Self {
+    pub fn using_template(&mut self, template: &str) -> &Self {
         self.template = template.to_owned();
         self
     }
