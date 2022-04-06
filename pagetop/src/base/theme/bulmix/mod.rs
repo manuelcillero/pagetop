@@ -34,17 +34,21 @@ impl ThemeTrait for BulmixTheme {
 
     fn render_component(
         &self,
-        component: &dyn PageComponent,
+        component: &mut dyn PageComponent,
         assets: &mut PageAssets
     ) -> Option<Markup> {
         match component.name() {
             "GridRow" => {
-                let row = component.downcast_ref::<grid::Row>().unwrap();
+                let row = component.downcast_mut::<grid::Row>().unwrap();
+                row.set_classes_ref("Prueba");
+                None
+                /*
                 Some(html! {
                     div id=[row.id()] class=[row.classes("columns")] {
                         (row.columns().render(assets))
                     }
                 })
+                */
             },
             "GridColumn" => {
                 let col = component.downcast_ref::<grid::Column>().unwrap();

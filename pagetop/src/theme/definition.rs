@@ -77,7 +77,7 @@ pub trait ThemeTrait: Send + Sync {
     #[allow(unused_variables)]
     fn render_component(
         &self,
-        component: &dyn PageComponent,
+        component: &mut dyn PageComponent,
         assets: &mut PageAssets
     ) -> Option<Markup> {
         None

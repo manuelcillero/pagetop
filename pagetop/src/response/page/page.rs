@@ -193,7 +193,7 @@ impl<'a> Page<'a> {
 }
 
 pub fn render_component(
-    component: &dyn PageComponent,
+    component: &mut dyn PageComponent,
     assets: &mut PageAssets
 ) -> Markup {
     match component.is_renderable() {

@@ -1,10 +1,10 @@
 use crate::html::{Markup, html};
 use crate::response::page::{PageAssets, PageComponent, render_component};
 
-use std::sync::Arc;
+use std::sync::{Arc, RwLock};
 
 #[derive(Clone)]
-pub struct PageContainer(Vec<Arc<dyn PageComponent>>);
+pub struct PageContainer(Vec<Arc<RwLock<dyn PageComponent>>>);
 
 impl PageContainer {
     pub fn new() -> Self {
@@ -18,15 +18,15 @@ impl PageContainer {
     }
 
     pub fn add(&mut self, component: impl PageComponent) {
-        self.0.push(Arc::new(component));
+        self.0.push(Arc::new(RwLock::new(component)));
     }
 
     pub fn render(&self, assets: &mut PageAssets) -> Markup {
         let mut components = self.0.clone();
-        components.sort_by_key(|c| c.weight());
+        components.sort_by_key(|c| c.read().unwrap().weight());
         html! {
             @for c in components.iter() {
-                (render_component(&**c, assets))
+                (render_component(&mut *c.write().unwrap(), assets))
             }
         }
     }

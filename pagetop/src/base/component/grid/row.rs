@@ -77,6 +77,11 @@ impl Row {
         self
     }
 
+    pub fn set_classes_ref(&mut self, classes: &str) -> &Self {
+        self.classes.set_classes(classes);
+        self
+    }
+
     pub fn add_classes(mut self, classes: &str) -> Self {
         self.classes.add_classes(classes);
         self
