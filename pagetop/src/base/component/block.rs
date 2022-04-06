@@ -3,8 +3,8 @@ use crate::prelude::*;
 pub struct Block {
     renderable: fn() -> bool,
     weight    : i8,
+    components: PageContainer,
     title     : OptAttr,
-    html      : Vec<Markup>,
     id        : OptIden,
     classes   : Classes,
     template  : String,
@@ -15,8 +15,8 @@ impl PageComponent for Block {
         Block {
             renderable: always,
             weight    : 0,
+            components: PageContainer::new(),
             title     : OptAttr::none(),
-            html      : Vec::new(),
             id        : OptIden::none(),
             classes   : Classes::none(),
             template  : "default".to_owned(),
@@ -40,9 +40,7 @@ impl PageComponent for Block {
                     None => {}
                 }
                 div class="block-body" {
-                    @for html in self.html().iter() {
-                        (*html)
-                    }
+                    (self.components().render(assets))
                 }
             }
         }
@@ -50,50 +48,51 @@ impl PageComponent for Block {
 }
 
 impl Block {
-    pub fn with(html: Markup) -> Self {
-        let mut block = Block::new();
-        block.add(html);
-        block
+
+    // Block CONTAINER.
+
+    pub fn add(mut self, component: impl PageComponent) -> Self {
+        self.components.add(component);
+        self
+    }
+
+    pub fn components(&self) -> &PageContainer {
+        &self.components
     }
 
     // Block BUILDER.
 
-    pub fn with_renderable(&mut self, renderable: fn() -> bool) -> &Self {
+    pub fn with_renderable(mut self, renderable: fn() -> bool) -> Self {
         self.renderable = renderable;
         self
     }
 
-    pub fn with_weight(&mut self, weight: i8) -> &Self {
+    pub fn with_weight(mut self, weight: i8) -> Self {
         self.weight = weight;
         self
     }
 
-    pub fn with_title(&mut self, title: &str) -> &Self {
+    pub fn with_title(mut self, title: &str) -> Self {
         self.title.with_value(title);
         self
     }
 
-    pub fn add(&mut self, html: Markup) -> &Self {
-        self.html.push(html);
-        self
-    }
-
-    pub fn with_id(&mut self, id: &str) -> &Self {
+    pub fn with_id(mut self, id: &str) -> Self {
         self.id.with_value(id);
         self
     }
 
-    pub fn set_classes(&mut self, classes: &str) -> &Self {
+    pub fn set_classes(mut self, classes: &str) -> Self {
         self.classes.set_classes(classes);
         self
     }
 
-    pub fn add_classes(&mut self, classes: &str) -> &Self {
+    pub fn add_classes(mut self, classes: &str) -> Self {
         self.classes.add_classes(classes);
         self
     }
 
-    pub fn using_template(&mut self, template: &str) -> &Self {
+    pub fn using_template(mut self, template: &str) -> Self {
         self.template = template.to_owned();
         self
     }
@@ -102,10 +101,6 @@ impl Block {
 
     pub fn title(&self) -> &Option<String> {
         self.title.option()
-    }
-
-    pub fn html(&self) -> &Vec<Markup> {
-        &self.html
     }
 
     pub fn id(&self) -> &Option<String> {

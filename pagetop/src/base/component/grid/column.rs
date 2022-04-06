@@ -44,48 +44,50 @@ impl PageComponent for Column {
 
 impl Column {
 
-    // Column BUILDER.
+    // Column CONTAINER.
 
-    pub fn with_renderable(&mut self, renderable: fn() -> bool) -> &Self {
-        self.renderable = renderable;
-        self
-    }
-
-    pub fn with_weight(&mut self, weight: i8) -> &Self {
-        self.weight = weight;
-        self
-    }
-
-    pub fn add(mut self, component: ArcComponent) -> Self {
+    pub fn add(mut self, component: impl PageComponent) -> Self {
         self.components.add(component);
         self
     }
 
-    pub fn with_id(&mut self, id: &str) -> &Self {
+    pub fn components(&self) -> &PageContainer {
+        &self.components
+    }
+
+    // Column BUILDER.
+
+    pub fn with_renderable(mut self, renderable: fn() -> bool) -> Self {
+        self.renderable = renderable;
+        self
+    }
+
+    pub fn with_weight(mut self, weight: i8) -> Self {
+        self.weight = weight;
+        self
+    }
+
+    pub fn with_id(mut self, id: &str) -> Self {
         self.id.with_value(id);
         self
     }
 
-    pub fn set_classes(&mut self, classes: &str) -> &Self {
+    pub fn set_classes(mut self, classes: &str) -> Self {
         self.classes.set_classes(classes);
         self
     }
 
-    pub fn add_classes(&mut self, classes: &str) -> &Self {
+    pub fn add_classes(mut self, classes: &str) -> Self {
         self.classes.add_classes(classes);
         self
     }
 
-    pub fn using_template(&mut self, template: &str) -> &Self {
+    pub fn using_template(mut self, template: &str) -> Self {
         self.template = template.to_owned();
         self
     }
 
     // Column GETTERS.
-
-    pub fn components(&self) -> &PageContainer {
-        &self.components
-    }
 
     pub fn id(&self) -> &Option<String> {
         self.id.option()

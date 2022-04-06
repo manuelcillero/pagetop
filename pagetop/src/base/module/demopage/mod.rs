@@ -35,7 +35,7 @@ async fn demo() -> app::Result<Markup> {
         .render()
 }
 
-fn hello_world() -> ArcComponent {
+fn hello_world() -> Container {
     Container::header()
         .add(grid::Row::new()
             .add_column(grid::Column::new()
@@ -68,17 +68,15 @@ fn hello_world() -> ArcComponent {
                         i class="fas fa-paper-plane" {}
                         "Get quote"
                     }
-                }).arc())
+                }))
             )
             .add_column(grid::Column::new()
-                .add(Image::image("/bootsier/images/demo-header.svg").arc())
+                .add(Image::image("/bootsier/images/demo-header.svg"))
             )
-            .arc()
         )
-        .arc()
 }
 
-fn hello_world_original() -> ArcComponent {
+fn hello_world_original() -> Chunck {
     Chunck::with(html! {
         header id="header" class="header" {
             div class="container" {
@@ -123,10 +121,10 @@ fn hello_world_original() -> ArcComponent {
                 }
             }
         }
-    }).arc()
+    })
 }
 
-fn just_visiting() -> ArcComponent {
+fn just_visiting() -> Chunck {
     Chunck::with(html! {
         div id="details" class="basic-1" {
             div class="container" {
@@ -153,10 +151,10 @@ fn just_visiting() -> ArcComponent {
                 }
             }
         }
-    }).arc()
+    })
 }
 
-fn about_pagetop() -> ArcComponent {
+fn about_pagetop() -> Chunck {
     Chunck::with(html! {
         div id="pagetop" class="basic-2" {
             div class="container" {
@@ -177,10 +175,10 @@ fn about_pagetop() -> ArcComponent {
                 }
             }
         }
-    }).arc()
+    })
 }
 
-fn promo_pagetop() -> ArcComponent {
+fn promo_pagetop() -> Chunck {
     Chunck::with(html! {
         div id="promo" class="basic-3" {
             div class="container" {
@@ -202,10 +200,10 @@ fn promo_pagetop() -> ArcComponent {
                 }
             }
         }
-    }).arc()
+    })
 }
 
-fn reporting_problems() -> ArcComponent {
+fn reporting_problems() -> Chunck {
     Chunck::with(html! {
         div id="reporting" class="basic-4" {
             div class="container" {
@@ -225,5 +223,5 @@ fn reporting_problems() -> ArcComponent {
                 }
             }
         }
-    }).arc()
+    })
 }

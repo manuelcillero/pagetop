@@ -209,6 +209,17 @@ impl PageComponent for Menu {
 
 impl Menu {
 
+    // Menu CONTAINER.
+
+    pub fn add(mut self, item: MenuItem) -> Self {
+        self.items.add(item);
+        self
+    }
+
+    pub fn items(&self) -> &PageContainer {
+        &self.items
+    }
+
     // Menu BUILDER.
 
     pub fn with_renderable(mut self, renderable: fn() -> bool) -> Self {
@@ -218,11 +229,6 @@ impl Menu {
 
     pub fn with_weight(mut self, weight: i8) -> Self {
         self.weight = weight;
-        self
-    }
-
-    pub fn add(mut self, item: MenuItem) -> Self {
-        self.items.add(item.arc());
         self
     }
 
@@ -247,10 +253,6 @@ impl Menu {
     }
 
     // Menu GETTERS.
-
-    pub fn items(&self) -> &PageContainer {
-        &self.items
-    }
 
     pub fn id(&self) -> &Option<String> {
         self.id.option()

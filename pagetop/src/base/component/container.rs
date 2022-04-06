@@ -5,8 +5,8 @@ pub enum ContainerType { Header, Footer, Main, Section, Wrapper }
 pub struct Container {
     renderable: fn() -> bool,
     weight    : i8,
-    container : ContainerType,
     components: PageContainer,
+    container : ContainerType,
     id        : OptIden,
     classes   : Classes,
     template  : String,
@@ -17,8 +17,8 @@ impl PageComponent for Container {
         Container {
             renderable: always,
             weight    : 0,
-            container : ContainerType::Wrapper,
             components: PageContainer::new(),
+            container : ContainerType::Wrapper,
             id        : OptIden::none(),
             classes   : Classes::none(),
             template  : "default".to_owned(),
@@ -97,39 +97,45 @@ impl Container {
         c
     }
 
-    // Container BUILDER.
+    // Container CONTAINER.
 
-    pub fn with_renderable(&mut self, renderable: fn() -> bool) -> &Self {
-        self.renderable = renderable;
-        self
-    }
-
-    pub fn with_weight(&mut self, weight: i8) -> &Self {
-        self.weight = weight;
-        self
-    }
-
-    pub fn add(mut self, component: ArcComponent) -> Self {
+    pub fn add(mut self, component: impl PageComponent) -> Self {
         self.components.add(component);
         self
     }
 
-    pub fn with_id(&mut self, id: &str) -> &Self {
+    pub fn components(&self) -> &PageContainer {
+        &self.components
+    }
+
+    // Container BUILDER.
+
+    pub fn with_renderable(mut self, renderable: fn() -> bool) -> Self {
+        self.renderable = renderable;
+        self
+    }
+
+    pub fn with_weight(mut self, weight: i8) -> Self {
+        self.weight = weight;
+        self
+    }
+
+    pub fn with_id(mut self, id: &str) -> Self {
         self.id.with_value(id);
         self
     }
 
-    pub fn set_classes(&mut self, classes: &str) -> &Self {
+    pub fn set_classes(mut self, classes: &str) -> Self {
         self.classes.set_classes(classes);
         self
     }
 
-    pub fn add_classes(&mut self, classes: &str) -> &Self {
+    pub fn add_classes(mut self, classes: &str) -> Self {
         self.classes.add_classes(classes);
         self
     }
 
-    pub fn using_template(&mut self, template: &str) -> &Self {
+    pub fn using_template(mut self, template: &str) -> Self {
         self.template = template.to_owned();
         self
     }
@@ -138,10 +144,6 @@ impl Container {
 
     pub fn container_type(&self) -> &ContainerType {
         &self.container
-    }
-
-    pub fn components(&self) -> &PageContainer {
-        &self.components
     }
 
     pub fn id(&self) -> &Option<String> {

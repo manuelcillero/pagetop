@@ -31,8 +31,8 @@ impl ModuleTrait for UserModule {
     }
 }
 
-fn form_login() -> ArcComponent {
-    Form::new()/*
+fn form_login() -> Form {
+    Form::new()
         .with_id("user-login")
         .add(form::Input::textfield()
             .with_name("name")
@@ -41,27 +41,23 @@ fn form_login() -> ArcComponent {
                 "app" => SETTINGS.app.name.to_owned()
             ]).as_str())
             .with_autofocus(true)
-            .arc()
         )
         .add(form::Input::password()
             .with_name("pass")
             .with_label(l("password").as_str())
             .with_help_text(l("password_help").as_str())
-            .arc()
         )
-        .add(form::Button::submit(l("login").as_str()).arc())*/
-        .arc()
+        .add(form::Button::submit(l("login").as_str()))
 }
 
 async fn login() -> app::Result<Markup> {
     Page::new()
         .with_title(
             "Identificación del usuario"
-        )/*
+        )
         .add_to("content", Container::new()
             .with_id("welcome")
             .add(form_login())
-            .arc()
-        )*/
+        )
         .render()
 }

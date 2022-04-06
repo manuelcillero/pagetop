@@ -3,7 +3,7 @@ use crate::prelude::*;
 pub struct Chunck {
     renderable: fn() -> bool,
     weight    : i8,
-    html      : Vec<Markup>,
+    html      : Markup,
     template  : String,
 }
 
@@ -12,7 +12,7 @@ impl PageComponent for Chunck {
         Chunck {
             renderable: always,
             weight    : 0,
-            html      : Vec::new(),
+            html      : html! {},
             template  : "default".to_owned(),
         }
     }
@@ -26,46 +26,37 @@ impl PageComponent for Chunck {
     }
 
     fn default_render(&self, _: &mut PageAssets) -> Markup {
-        html! {
-            @for html in self.html().iter() {
-                (*html)
-            }
-        }
+        html! { (*self.html()) }
     }
 }
 
 impl Chunck {
     pub fn with(html: Markup) -> Self {
         let mut chunck = Chunck::new();
-        chunck.add(html);
+        chunck.html = html;
         chunck
     }
 
     // Chunck BUILDER.
 
-    pub fn with_renderable(&mut self, renderable: fn() -> bool) -> &Self {
+    pub fn with_renderable(mut self, renderable: fn() -> bool) -> Self {
         self.renderable = renderable;
         self
     }
 
-    pub fn with_weight(&mut self, weight: i8) -> &Self {
+    pub fn with_weight(mut self, weight: i8) -> Self {
         self.weight = weight;
         self
     }
 
-    pub fn add(&mut self, html: Markup) -> &Self {
-        self.html.push(html);
-        self
-    }
-
-    pub fn using_template(&mut self, template: &str) -> &Self {
+    pub fn using_template(mut self, template: &str) -> Self {
         self.template = template.to_owned();
         self
     }
 
     // Chunck GETTERS.
 
-    pub fn html(&self) -> &Vec<Markup> {
+    pub fn html(&self) -> &Markup {
         &self.html
     }
 

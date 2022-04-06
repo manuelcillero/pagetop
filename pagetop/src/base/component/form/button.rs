@@ -68,48 +68,44 @@ impl PageComponent for Button {
 
 impl Button {
     pub fn button(value: &str) -> Self {
-        let mut button = Button::new();
-        button.with_value(value);
-        button
+        Button::new().with_value(value)
     }
 
     pub fn reset(value: &str) -> Self {
-        let mut button = Button::new();
-        button.with_value(value);
+        let mut button = Button::new().with_value(value);
         button.button_type = ButtonType::Reset;
         button
     }
 
     pub fn submit(value: &str) -> Self {
-        let mut button = Button::new();
-        button.with_value(value);
+        let mut button = Button::new().with_value(value);
         button.button_type = ButtonType::Submit;
         button
     }
 
     // Button BUILDER.
 
-    pub fn with_renderable(&mut self, renderable: fn() -> bool) -> &Self {
+    pub fn with_renderable(mut self, renderable: fn() -> bool) -> Self {
         self.renderable = renderable;
         self
     }
 
-    pub fn with_weight(&mut self, weight: i8) -> &Self {
+    pub fn with_weight(mut self, weight: i8) -> Self {
         self.weight = weight;
         self
     }
 
-    pub fn with_name(&mut self, name: &str) -> &Self {
+    pub fn with_name(mut self, name: &str) -> Self {
         self.name.with_value(name);
         self
     }
 
-    pub fn with_value(&mut self, value: &str) -> &Self {
+    pub fn with_value(mut self, value: &str) -> Self {
         self.value.with_value(value);
         self
     }
 
-    pub fn with_autofocus(&mut self, toggle: bool) -> &Self {
+    pub fn with_autofocus(mut self, toggle: bool) -> Self {
         self.autofocus.with_value(match toggle {
             true => "autofocus",
             false => "",
@@ -117,7 +113,7 @@ impl Button {
         self
     }
 
-    pub fn with_disabled(&mut self, toggle: bool) -> &Self {
+    pub fn with_disabled(mut self, toggle: bool) -> Self {
         self.disabled.with_value(match toggle {
             true => "disabled",
             false => "",
@@ -125,17 +121,17 @@ impl Button {
         self
     }
 
-    pub fn set_classes(&mut self, classes: &str) -> &Self {
+    pub fn set_classes(mut self, classes: &str) -> Self {
         self.classes.set_classes(classes);
         self
     }
 
-    pub fn add_classes(&mut self, classes: &str) -> &Self {
+    pub fn add_classes(mut self, classes: &str) -> Self {
         self.classes.add_classes(classes);
         self
     }
 
-    pub fn using_template(&mut self, template: &str) -> &Self {
+    pub fn using_template(mut self, template: &str) -> Self {
         self.template = template.to_owned();
         self
     }

@@ -104,7 +104,7 @@ pub trait ThemeTrait: Send + Sync {
                 div {
                     h1 { (s) }
                 }
-            }).arc())
+            }))
             .render()
     }
 }

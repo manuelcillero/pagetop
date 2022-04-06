@@ -95,37 +95,37 @@ impl Date {
 
     // Date BUILDER.
 
-    pub fn with_renderable(&mut self, renderable: fn() -> bool) -> &Self {
+    pub fn with_renderable(mut self, renderable: fn() -> bool) -> Self {
         self.renderable = renderable;
         self
     }
 
-    pub fn with_weight(&mut self, weight: i8) -> &Self {
+    pub fn with_weight(mut self, weight: i8) -> Self {
         self.weight = weight;
         self
     }
 
-    pub fn with_name(&mut self, name: &str) -> &Self {
+    pub fn with_name(mut self, name: &str) -> Self {
         self.name.with_value(name);
         self
     }
 
-    pub fn with_value(&mut self, value: &str) -> &Self {
+    pub fn with_value(mut self, value: &str) -> Self {
         self.value.with_value(value);
         self
     }
 
-    pub fn with_label(&mut self, label: &str) -> &Self {
+    pub fn with_label(mut self, label: &str) -> Self {
         self.label.with_value(label);
         self
     }
 
-    pub fn with_placeholder(&mut self, placeholder: &str) -> &Self {
+    pub fn with_placeholder(mut self, placeholder: &str) -> Self {
         self.placeholder.with_value(placeholder);
         self
     }
 
-    pub fn with_autofocus(&mut self, toggle: bool) -> &Self {
+    pub fn with_autofocus(mut self, toggle: bool) -> Self {
         self.autofocus.with_value(match toggle {
             true => "autofocus",
             false => "",
@@ -133,7 +133,7 @@ impl Date {
         self
     }
 
-    pub fn with_autocomplete(&mut self, toggle: bool) -> &Self {
+    pub fn with_autocomplete(mut self, toggle: bool) -> Self {
         self.autocomplete.with_value(match toggle {
             true => "",
             false => "off",
@@ -141,7 +141,7 @@ impl Date {
         self
     }
 
-    pub fn with_disabled(&mut self, toggle: bool) -> &Self {
+    pub fn with_disabled(mut self, toggle: bool) -> Self {
         self.disabled.with_value(match toggle {
             true => "disabled",
             false => "",
@@ -149,7 +149,7 @@ impl Date {
         self
     }
 
-    pub fn with_readonly(&mut self, toggle: bool) -> &Self {
+    pub fn with_readonly(mut self, toggle: bool) -> Self {
         self.readonly.with_value(match toggle {
             true => "readonly",
             false => "",
@@ -157,7 +157,7 @@ impl Date {
         self
     }
 
-    pub fn with_required(&mut self, toggle: bool) -> &Self {
+    pub fn with_required(mut self, toggle: bool) -> Self {
         self.required.with_value(match toggle {
             true => "required",
             false => "",
@@ -165,22 +165,22 @@ impl Date {
         self
     }
 
-    pub fn with_help_text(&mut self, help_text: &str) -> &Self {
+    pub fn with_help_text(mut self, help_text: &str) -> Self {
         self.help_text.with_value(help_text);
         self
     }
 
-    pub fn set_classes(&mut self, classes: &str) -> &Self {
+    pub fn set_classes(mut self, classes: &str) -> Self {
         self.classes.set_classes(classes);
         self
     }
 
-    pub fn add_classes(&mut self, classes: &str) -> &Self {
+    pub fn add_classes(mut self, classes: &str) -> Self {
         self.classes.add_classes(classes);
         self
     }
 
-    pub fn using_template(&mut self, template: &str) -> &Self {
+    pub fn using_template(mut self, template: &str) -> Self {
         self.template = template.to_owned();
         self
     }

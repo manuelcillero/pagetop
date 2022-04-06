@@ -3,10 +3,7 @@ use crate::response::page::PageAssets;
 
 use downcast_rs::{Downcast, impl_downcast};
 
-use std::sync::Arc;
 use std::any::type_name;
-
-pub type ArcComponent = Arc<dyn PageComponent>;
 
 pub trait PageComponent: Downcast + Send + Sync {
 
@@ -34,12 +31,6 @@ pub trait PageComponent: Downcast + Send + Sync {
 
     fn weight(&self) -> i8 {
         0
-    }
-
-    #[allow(unused_mut)]
-    fn arc(mut self) -> ArcComponent where Self: Sized {
-        let component = self;
-        Arc::new(component)
     }
 
     #[allow(unused_variables)]

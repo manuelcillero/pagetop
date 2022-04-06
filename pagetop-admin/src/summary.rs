@@ -38,18 +38,17 @@ pub async fn summary() -> app::Result<Markup> {
 
         .with_title("Admin")
 
-        .add_to("top-menu", top_menu.arc())
+        .add_to("top-menu", top_menu)
 
         .add_to("content", grid::Row::new()
             .add_column(grid::Column::new()
-                .add(side_menu.arc())
+                .add(side_menu)
             )
             .add_column(grid::Column::new()
                 .add(Chunck::with(html! {
                     p { "Columna 2"}
-                }).arc())
+                }))
             )
-            .arc()
         )
 
 
