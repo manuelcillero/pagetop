@@ -11,6 +11,6 @@ pagetop = { path = "../pagetop" }
 # Si se usa la macro html!:
 maud = { version = "0.23.0" }
 # Si se usa base de datos:
-sea-orm = { version = "0.6.0" }
+sea-orm = { version = "0.7.1" }
 # Si se requiere serialización de estructuras de datos:
 serde = { version = "1.0", features = ["derive"] }
