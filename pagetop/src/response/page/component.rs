@@ -34,6 +34,10 @@ pub trait PageComponent: Downcast + Send + Sync {
     }
 
     #[allow(unused_variables)]
+    fn before_render(&mut self, assets: &mut PageAssets) {
+    }
+
+    #[allow(unused_variables)]
     fn default_render(&self, assets: &mut PageAssets) -> Markup {
         html! {}
     }

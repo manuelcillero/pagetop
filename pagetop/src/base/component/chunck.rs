@@ -10,7 +10,7 @@ pub struct Chunck {
 impl PageComponent for Chunck {
     fn new() -> Self {
         Chunck {
-            renderable: always,
+            renderable: render_always,
             weight    : 0,
             html      : html! {},
             template  : "default".to_owned(),
@@ -32,24 +32,49 @@ impl PageComponent for Chunck {
 
 impl Chunck {
     pub fn with(html: Markup) -> Self {
-        let mut chunck = Chunck::new();
-        chunck.html = html;
-        chunck
+        Chunck::new().with_html(html)
     }
 
     // Chunck BUILDER.
 
     pub fn with_renderable(mut self, renderable: fn() -> bool) -> Self {
-        self.renderable = renderable;
+        self.alter_renderable(renderable);
         self
     }
 
     pub fn with_weight(mut self, weight: i8) -> Self {
-        self.weight = weight;
+        self.alter_weight(weight);
+        self
+    }
+
+    pub fn with_html(mut self, html: Markup) -> Self {
+        self.alter_html(html);
         self
     }
 
     pub fn using_template(mut self, template: &str) -> Self {
+        self.alter_template(template);
+        self
+    }
+
+    // Chunck ALTER.
+
+    pub fn alter_renderable(&mut self, renderable: fn() -> bool) -> &mut Self {
+        self.renderable = renderable;
+        self
+    }
+
+    pub fn alter_weight(&mut self, weight: i8) -> &mut Self {
+        self.weight = weight;
+        self
+    }
+
+    pub fn alter_html(&mut self, html: Markup) -> &mut Self {
+        self.html = html;
+        self
+    }
+
+    pub fn alter_template(&mut self, template: &str) -> &mut Self {
         self.template = template.to_owned();
         self
     }
@@ -63,8 +88,4 @@ impl Chunck {
     pub fn template(&self) -> &str {
         self.template.as_str()
     }
-}
-
-fn always() -> bool {
-    true
 }

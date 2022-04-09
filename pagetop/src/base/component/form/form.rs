@@ -17,14 +17,14 @@ pub struct Form {
 impl PageComponent for Form {
     fn new() -> Self {
         Form {
-            renderable: always,
+            renderable: render_always,
             weight    : 0,
             elements  : PageContainer::new(),
-            action    : OptAttr::none(),
-            charset   : OptAttr::some("UTF-8"),
+            action    : OptAttr::new(),
+            charset   : OptAttr::new_with_value("UTF-8"),
             method    : FormMethod::Post,
-            id        : OptIden::none(),
-            classes   : Classes::none(),
+            id        : OptIden::new(),
+            classes   : Classes::new_with_default("form"),
             template  : "default".to_owned(),
         }
     }
@@ -45,7 +45,7 @@ impl PageComponent for Form {
         html! {
             form
                 id=[self.id()]
-                class=[self.classes("form")]
+                class=[self.classes()]
                 action=[self.action()]
                 method=[method]
                 accept-charset=[self.charset()]
@@ -72,46 +72,83 @@ impl Form {
     // Form BUILDER.
 
     pub fn with_renderable(mut self, renderable: fn() -> bool) -> Self {
-        self.renderable = renderable;
+        self.alter_renderable(renderable);
         self
     }
 
     pub fn with_weight(mut self, weight: i8) -> Self {
-        self.weight = weight;
+        self.alter_weight(weight);
         self
     }
 
     pub fn with_action(mut self, action: &str) -> Self {
-        self.action.with_value(action);
+        self.alter_action(action);
         self
     }
 
     pub fn with_charset(mut self, charset: &str) -> Self {
-        self.charset.with_value(charset);
+        self.alter_charset(charset);
         self
     }
 
     pub fn with_method(mut self, method: FormMethod) -> Self {
-        self.method = method;
+        self.alter_method(method);
         self
     }
 
     pub fn with_id(mut self, id: &str) -> Self {
-        self.id.with_value(id);
+        self.alter_id(id);
         self
     }
 
-    pub fn set_classes(mut self, classes: &str) -> Self {
-        self.classes.set_classes(classes);
-        self
-    }
-
-    pub fn add_classes(mut self, classes: &str) -> Self {
-        self.classes.add_classes(classes);
+    pub fn with_classes(mut self, classes: &str, op: ClassesOp) -> Self {
+        self.alter_classes(classes, op);
         self
     }
 
     pub fn using_template(mut self, template: &str) -> Self {
+        self.alter_template(template);
+        self
+    }
+
+    // Form ALTER.
+
+    pub fn alter_renderable(&mut self, renderable: fn() -> bool) -> &mut Self {
+        self.renderable = renderable;
+        self
+    }
+
+    pub fn alter_weight(&mut self, weight: i8) -> &mut Self {
+        self.weight = weight;
+        self
+    }
+
+    pub fn alter_action(&mut self, action: &str) -> &mut Self {
+        self.action.with_value(action);
+        self
+    }
+
+    pub fn alter_charset(&mut self, charset: &str) -> &mut Self {
+        self.charset.with_value(charset);
+        self
+    }
+
+    pub fn alter_method(&mut self, method: FormMethod) -> &mut Self {
+        self.method = method;
+        self
+    }
+
+    pub fn alter_id(&mut self, id: &str) -> &mut Self {
+        self.id.with_value(id);
+        self
+    }
+
+    pub fn alter_classes(&mut self, classes: &str, op: ClassesOp) -> &mut Self {
+        self.classes.alter(classes, op);
+        self
+    }
+
+    pub fn alter_template(&mut self, template: &str) -> &mut Self {
         self.template = template.to_owned();
         self
     }
@@ -134,15 +171,11 @@ impl Form {
         self.id.option()
     }
 
-    pub fn classes(&self, default: &str) -> Option<String> {
-        self.classes.option(default)
+    pub fn classes(&self) -> &Option<String> {
+        self.classes.option()
     }
 
     pub fn template(&self) -> &str {
         self.template.as_str()
     }
-}
-
-fn always() -> bool {
-    true
 }

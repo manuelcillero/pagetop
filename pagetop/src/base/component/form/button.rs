@@ -17,16 +17,17 @@ pub struct Button {
 impl PageComponent for Button {
     fn new() -> Self {
         Button {
-            renderable : always,
+            renderable : render_always,
             weight     : 0,
             button_type: ButtonType::Button,
-            name       : OptAttr::none(),
-            value      : OptAttr::none(),
-            autofocus  : OptAttr::none(),
-            disabled   : OptAttr::none(),
-            classes    : Classes::none(),
+            name       : OptAttr::new(),
+            value      : OptAttr::new(),
+            autofocus  : OptAttr::new(),
+            disabled   : OptAttr::new(),
+            classes    : Classes::new_with_default("btn btn-primary"),
             template   : "default".to_owned(),
         }
+        .with_classes("form-button", ClassesOp::AddFirst)
     }
 
     fn is_renderable(&self) -> bool {
@@ -38,10 +39,10 @@ impl PageComponent for Button {
     }
 
     fn default_render(&self, _: &mut PageAssets) -> Markup {
-        let (button_type, button_class) = match self.button_type() {
-            ButtonType::Button => ("button", "btn btn-primary form-button"),
-            ButtonType::Reset  => ("reset",  "btn btn-primary form-reset" ),
-            ButtonType::Submit => ("submit", "btn btn-primary form-submit"),
+        let button_type = match self.button_type() {
+            ButtonType::Button => "button",
+            ButtonType::Reset  => "reset",
+            ButtonType::Submit => "submit",
         };
         let id = match self.name() {
             Some(name) => Some(concat_string!("edit-", name)),
@@ -51,7 +52,7 @@ impl PageComponent for Button {
             button
                 type=(button_type)
                 id=[id]
-                class=[self.classes(button_class)]
+                class=[self.classes()]
                 name=[self.name()]
                 value=[self.value()]
                 autofocus=[self.autofocus()]
@@ -72,13 +73,17 @@ impl Button {
     }
 
     pub fn reset(value: &str) -> Self {
-        let mut button = Button::new().with_value(value);
+        let mut button = Button::new()
+            .with_classes("form-reset", ClassesOp::Replace("form-button"))
+            .with_value(value);
         button.button_type = ButtonType::Reset;
         button
     }
 
     pub fn submit(value: &str) -> Self {
-        let mut button = Button::new().with_value(value);
+        let mut button = Button::new()
+            .with_classes("form-submit", ClassesOp::Replace("form-button"))
+            .with_value(value);
         button.button_type = ButtonType::Submit;
         button
     }
@@ -86,26 +91,68 @@ impl Button {
     // Button BUILDER.
 
     pub fn with_renderable(mut self, renderable: fn() -> bool) -> Self {
-        self.renderable = renderable;
+        self.alter_renderable(renderable);
         self
     }
 
     pub fn with_weight(mut self, weight: i8) -> Self {
-        self.weight = weight;
+        self.alter_weight(weight);
         self
     }
 
     pub fn with_name(mut self, name: &str) -> Self {
-        self.name.with_value(name);
+        self.alter_name(name);
         self
     }
 
     pub fn with_value(mut self, value: &str) -> Self {
-        self.value.with_value(value);
+        self.alter_value(value);
         self
     }
 
     pub fn with_autofocus(mut self, toggle: bool) -> Self {
+        self.alter_autofocus(toggle);
+        self
+    }
+
+    pub fn with_disabled(mut self, toggle: bool) -> Self {
+        self.alter_disabled(toggle);
+        self
+    }
+
+    pub fn with_classes(mut self, classes: &str, op: ClassesOp) -> Self {
+        self.alter_classes(classes, op);
+        self
+    }
+
+    pub fn using_template(mut self, template: &str) -> Self {
+        self.alter_template(template);
+        self
+    }
+
+    // Button ALTER.
+
+    pub fn alter_renderable(&mut self, renderable: fn() -> bool) -> &mut Self {
+        self.renderable = renderable;
+        self
+    }
+
+    pub fn alter_weight(&mut self, weight: i8) -> &mut Self {
+        self.weight = weight;
+        self
+    }
+
+    pub fn alter_name(&mut self, name: &str) -> &mut Self {
+        self.name.with_value(name);
+        self
+    }
+
+    pub fn alter_value(&mut self, value: &str) -> &mut Self {
+        self.value.with_value(value);
+        self
+    }
+
+    pub fn alter_autofocus(&mut self, toggle: bool) -> &mut Self {
         self.autofocus.with_value(match toggle {
             true => "autofocus",
             false => "",
@@ -113,7 +160,7 @@ impl Button {
         self
     }
 
-    pub fn with_disabled(mut self, toggle: bool) -> Self {
+    pub fn alter_disabled(&mut self, toggle: bool) -> &mut Self {
         self.disabled.with_value(match toggle {
             true => "disabled",
             false => "",
@@ -121,17 +168,12 @@ impl Button {
         self
     }
 
-    pub fn set_classes(mut self, classes: &str) -> Self {
-        self.classes.set_classes(classes);
+    pub fn alter_classes(&mut self, classes: &str, op: ClassesOp) -> &mut Self {
+        self.classes.alter(classes, op);
         self
     }
 
-    pub fn add_classes(mut self, classes: &str) -> Self {
-        self.classes.add_classes(classes);
-        self
-    }
-
-    pub fn using_template(mut self, template: &str) -> Self {
+    pub fn alter_template(&mut self, template: &str) -> &mut Self {
         self.template = template.to_owned();
         self
     }
@@ -158,15 +200,11 @@ impl Button {
         self.disabled.option()
     }
 
-    pub fn classes(&self, default: &str) -> Option<String> {
-        self.classes.option(default)
+    pub fn classes(&self) -> &Option<String> {
+        self.classes.option()
     }
 
     pub fn template(&self) -> &str {
         self.template.as_str()
     }
-}
-
-fn always() -> bool {
-    true
 }

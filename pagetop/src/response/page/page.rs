@@ -1,6 +1,6 @@
 use crate::{Lazy, app, trace};
 use crate::config::SETTINGS;
-use crate::html::{Classes, DOCTYPE, Markup, OptAttr, html};
+use crate::html::*;
 use crate::response::page::*;
 
 use std::sync::RwLock;
@@ -55,18 +55,18 @@ impl<'a> Page<'a> {
     pub fn new() -> Self {
         Page {
             language    : match &*DEFAULT_LANGUAGE {
-                Some(language) => OptAttr::some(language),
-                _ => OptAttr::none(),
+                Some(language) => OptAttr::new_with_value(language),
+                _ => OptAttr::new(),
             },
             direction   : match &*DEFAULT_DIRECTION {
-                Some(direction) => OptAttr::some(direction),
-                _ => OptAttr::none(),
+                Some(direction) => OptAttr::new_with_value(direction),
+                _ => OptAttr::new(),
             },
-            title       : OptAttr::none(),
-            description : OptAttr::none(),
+            title       : OptAttr::new(),
+            description : OptAttr::new(),
             assets      : PageAssets::new(),
             regions     : COMPONENTS.read().unwrap().clone(),
-            body_classes: Classes::none(),
+            body_classes: Classes::new_with_default("body"),
             template    : "default".to_owned(),
         }
     }
@@ -110,13 +110,8 @@ impl<'a> Page<'a> {
         self
     }
 
-    pub fn set_body_classes(&mut self, classes: &str) -> &mut Self {
-        self.body_classes.set_classes(classes);
-        self
-    }
-
-    pub fn add_body_classes(&mut self, classes: &str) -> &mut Self {
-        self.body_classes.add_classes(classes);
+    pub fn alter_body_classes(&mut self, classes: &str, op: ClassesOp) -> &mut Self {
+        self.body_classes.alter(classes, op);
         self
     }
 
@@ -147,8 +142,8 @@ impl<'a> Page<'a> {
         &mut self.assets
     }
 
-    pub fn body_classes(&self, default: &str) -> Option<String> {
-        self.body_classes.option(default)
+    pub fn body_classes(&self) -> &Option<String> {
+        self.body_classes.option()
     }
 
     pub fn template(&self) -> &str {
@@ -192,14 +187,15 @@ impl<'a> Page<'a> {
     }
 }
 
-pub fn render_component(
-    component: &mut dyn PageComponent,
-    assets: &mut PageAssets
-) -> Markup {
+pub fn render_component(component: &mut dyn PageComponent, assets: &mut PageAssets) -> Markup {
+    component.before_render(assets);
+    assets.theme().before_render_component(component, assets);
     match component.is_renderable() {
-        true => match assets.theme().render_component(component, assets) {
-            Some(html) => html,
-            None => component.default_render(assets)
+        true => {
+            match assets.theme().render_component(component, assets) {
+                Some(html) => html,
+                None => component.default_render(assets)
+            }
         },
         false => html! {}
     }

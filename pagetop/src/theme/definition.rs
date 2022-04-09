@@ -55,7 +55,7 @@ pub trait ThemeTrait: Send + Sync {
 
     fn render_page_body(&self, page: &mut Page) -> Markup {
         html! {
-            body class=[page.body_classes("body")] {
+            body class=[page.body_classes()] {
                 @match page.template() {
                     "admin" => {
                         @for region in &["top-menu", "side-menu", "content"] {
@@ -75,9 +75,28 @@ pub trait ThemeTrait: Send + Sync {
     }
 
     #[allow(unused_variables)]
-    fn render_component(
+    fn before_render_component(
         &self,
         component: &mut dyn PageComponent,
+        assets: &mut PageAssets
+    ) {
+    /*
+        Cómo usarlo:
+
+        match component.name() {
+            "Block" => {
+                let block = component.downcast_mut::<Block>().unwrap();
+                block.alter_title("New title");
+            },
+            _ => {},
+        }
+    */
+    }
+
+    #[allow(unused_variables)]
+    fn render_component(
+        &self,
+        component: &dyn PageComponent,
         assets: &mut PageAssets
     ) -> Option<Markup> {
         None
@@ -89,10 +108,10 @@ pub trait ThemeTrait: Send + Sync {
                 let block = component.downcast_ref::<Block>().unwrap();
                 match block.template() {
                     "default" => Some(block_default(block)),
-                    _ => None
+                    _ => None,
                 }
             },
-            _ => None
+            _ => None,
         }
     */
     }

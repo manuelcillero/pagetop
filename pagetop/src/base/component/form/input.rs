@@ -26,25 +26,26 @@ pub struct Input {
 impl PageComponent for Input {
     fn new() -> Self {
         Input {
-            renderable  : always,
+            renderable  : render_always,
             weight      : 0,
             input_type  : InputType::Textfield,
-            name        : OptIden::none(),
-            value       : OptAttr::none(),
-            label       : OptAttr::none(),
+            name        : OptIden::new(),
+            value       : OptAttr::new(),
+            label       : OptAttr::new(),
             size        : Some(60),
             minlength   : None,
             maxlength   : Some(128),
-            placeholder : OptAttr::none(),
-            autofocus   : OptAttr::none(),
-            autocomplete: OptAttr::none(),
-            disabled    : OptAttr::none(),
-            readonly    : OptAttr::none(),
-            required    : OptAttr::none(),
-            help_text   : OptAttr::none(),
-            classes     : Classes::none(),
+            placeholder : OptAttr::new(),
+            autofocus   : OptAttr::new(),
+            autocomplete: OptAttr::new(),
+            disabled    : OptAttr::new(),
+            readonly    : OptAttr::new(),
+            required    : OptAttr::new(),
+            help_text   : OptAttr::new(),
+            classes     : Classes::new_with_default("form-item"),
             template    : "default".to_owned(),
         }
+        .with_classes("form-type-textfield", ClassesOp::AddFirst)
     }
 
     fn is_renderable(&self) -> bool {
@@ -55,27 +56,28 @@ impl PageComponent for Input {
         self.weight
     }
 
+    fn before_render(&mut self, _: &mut PageAssets) {
+        if let Some(name) = self.name() {
+            let class = concat_string!("form-item-", name);
+            self.alter_classes(class.as_str(), ClassesOp::AddFirst);
+        }
+    }
+
     fn default_render(&self, _: &mut PageAssets) -> Markup {
-        let (type_input, type_class) = match self.input_type() {
-            InputType::Email     => ("email",    "form-type-email"),
-            InputType::Password  => ("password", "form-type-password"),
-            InputType::Search    => ("search",   "form-type-search"),
-            InputType::Telephone => ("tel",      "form-type-telephone"),
-            InputType::Textfield => ("text",     "form-type-textfield"),
-            InputType::Url       => ("url",      "form-type-url")
+        let type_input = match self.input_type() {
+            InputType::Email     => "email",
+            InputType::Password  => "password",
+            InputType::Search    => "search",
+            InputType::Telephone => "tel",
+            InputType::Textfield => "text",
+            InputType::Url       => "url",
         };
-        let (class, id) = match self.name() {
-            Some(name) => (
-                concat_string!("form-item form-item-", name, " ", type_class),
-                Some(concat_string!("edit-", name))
-            ),
-            None => (
-                concat_string!("form-item ", type_class),
-                None
-            )
+        let id = match self.name() {
+            Some(name) => Some(concat_string!("edit-", name)),
+            None => None,
         };
         html! {
-            div class=(class) {
+            div class=[self.classes()] {
                 @match self.label() {
                     Some(label) => label class="form-label" for=[&id] {
                         (label) " "
@@ -118,31 +120,36 @@ impl Input {
     }
 
     pub fn password() -> Self {
-        let mut input = Input::new();
+        let mut input = Input::new()
+            .with_classes("form-type-password", ClassesOp::Replace("form-type-textfield"));
         input.input_type = InputType::Password;
         input
     }
 
     pub fn search() -> Self {
-        let mut input = Input::new();
+        let mut input = Input::new()
+            .with_classes("form-type-search", ClassesOp::Replace("form-type-textfield"));
         input.input_type = InputType::Search;
         input
     }
 
     pub fn email() -> Self {
-        let mut input = Input::new();
+        let mut input = Input::new()
+            .with_classes("form-type-email", ClassesOp::Replace("form-type-textfield"));
         input.input_type = InputType::Email;
         input
     }
 
     pub fn telephone() -> Self {
-        let mut input = Input::new();
+        let mut input = Input::new()
+            .with_classes("form-type-telephone", ClassesOp::Replace("form-type-textfield"));
         input.input_type = InputType::Telephone;
         input
     }
 
     pub fn url() -> Self {
-        let mut input = Input::new();
+        let mut input = Input::new()
+            .with_classes("form-type-url", ClassesOp::Replace("form-type-textfield"));
         input.input_type = InputType::Url;
         input
     }
@@ -150,51 +157,138 @@ impl Input {
     // Input BUILDER.
 
     pub fn with_renderable(mut self, renderable: fn() -> bool) -> Self {
-        self.renderable = renderable;
+        self.alter_renderable(renderable);
         self
     }
 
     pub fn with_weight(mut self, weight: i8) -> Self {
-        self.weight = weight;
+        self.alter_weight(weight);
         self
     }
 
     pub fn with_name(mut self, name: &str) -> Self {
-        self.name.with_value(name);
+        self.alter_name(name);
         self
     }
 
     pub fn with_value(mut self, value: &str) -> Self {
-        self.value.with_value(value);
+        self.alter_value(value);
         self
     }
 
     pub fn with_label(mut self, label: &str) -> Self {
-        self.label.with_value(label);
+        self.alter_label(label);
         self
     }
 
     pub fn with_size(mut self, size: Option<u16>) -> Self {
-        self.size = size;
+        self.alter_size(size);
         self
     }
 
     pub fn with_minlength(mut self, minlength: Option<u16>) -> Self {
-        self.minlength = minlength;
+        self.alter_minlength(minlength);
         self
     }
 
     pub fn with_maxlength(mut self, maxlength: Option<u16>) -> Self {
-        self.maxlength = maxlength;
+        self.alter_maxlength(maxlength);
         self
     }
 
     pub fn with_placeholder(mut self, placeholder: &str) -> Self {
-        self.placeholder.with_value(placeholder);
+        self.alter_placeholder(placeholder);
         self
     }
 
     pub fn with_autofocus(mut self, toggle: bool) -> Self {
+        self.alter_autofocus(toggle);
+        self
+    }
+
+    pub fn with_autocomplete(mut self, toggle: bool) -> Self {
+        self.alter_autocomplete(toggle);
+        self
+    }
+
+    pub fn with_disabled(mut self, toggle: bool) -> Self {
+        self.alter_disabled(toggle);
+        self
+    }
+
+    pub fn with_readonly(mut self, toggle: bool) -> Self {
+        self.alter_readonly(toggle);
+        self
+    }
+
+    pub fn with_required(mut self, toggle: bool) -> Self {
+        self.alter_required(toggle);
+        self
+    }
+
+    pub fn with_help_text(mut self, help_text: &str) -> Self {
+        self.alter_help_text(help_text);
+        self
+    }
+
+    pub fn with_classes(mut self, classes: &str, op: ClassesOp) -> Self {
+        self.alter_classes(classes, op);
+        self
+    }
+
+    pub fn using_template(mut self, template: &str) -> Self {
+        self.alter_template(template);
+        self
+    }
+
+    // Input ALTER.
+
+    pub fn alter_renderable(&mut self, renderable: fn() -> bool) -> &mut Self {
+        self.renderable = renderable;
+        self
+    }
+
+    pub fn alter_weight(&mut self, weight: i8) -> &mut Self {
+        self.weight = weight;
+        self
+    }
+
+    pub fn alter_name(&mut self, name: &str) -> &mut Self {
+        self.name.with_value(name);
+        self
+    }
+
+    pub fn alter_value(&mut self, value: &str) -> &mut Self {
+        self.value.with_value(value);
+        self
+    }
+
+    pub fn alter_label(&mut self, label: &str) -> &mut Self {
+        self.label.with_value(label);
+        self
+    }
+
+    pub fn alter_size(&mut self, size: Option<u16>) -> &mut Self {
+        self.size = size;
+        self
+    }
+
+    pub fn alter_minlength(&mut self, minlength: Option<u16>) -> &mut Self {
+        self.minlength = minlength;
+        self
+    }
+
+    pub fn alter_maxlength(&mut self, maxlength: Option<u16>) -> &mut Self {
+        self.maxlength = maxlength;
+        self
+    }
+
+    pub fn alter_placeholder(&mut self, placeholder: &str) -> &mut Self {
+        self.placeholder.with_value(placeholder);
+        self
+    }
+
+    pub fn alter_autofocus(&mut self, toggle: bool) -> &mut Self {
         self.autofocus.with_value(match toggle {
             true => "autofocus",
             false => "",
@@ -202,7 +296,7 @@ impl Input {
         self
     }
 
-    pub fn with_autocomplete(mut self, toggle: bool) -> Self {
+    pub fn alter_autocomplete(&mut self, toggle: bool) -> &mut Self {
         self.autocomplete.with_value(match toggle {
             true => "",
             false => "off",
@@ -210,7 +304,7 @@ impl Input {
         self
     }
 
-    pub fn with_disabled(mut self, toggle: bool) -> Self {
+    pub fn alter_disabled(&mut self, toggle: bool) -> &mut Self {
         self.disabled.with_value(match toggle {
             true => "disabled",
             false => "",
@@ -218,7 +312,7 @@ impl Input {
         self
     }
 
-    pub fn with_readonly(mut self, toggle: bool) -> Self {
+    pub fn alter_readonly(&mut self, toggle: bool) -> &mut Self {
         self.readonly.with_value(match toggle {
             true => "readonly",
             false => "",
@@ -226,7 +320,7 @@ impl Input {
         self
     }
 
-    pub fn with_required(mut self, toggle: bool) -> Self {
+    pub fn alter_required(&mut self, toggle: bool) -> &mut Self {
         self.required.with_value(match toggle {
             true => "required",
             false => "",
@@ -234,22 +328,17 @@ impl Input {
         self
     }
 
-    pub fn with_help_text(mut self, help_text: &str) -> Self {
+    pub fn alter_help_text(&mut self, help_text: &str) -> &mut Self {
         self.help_text.with_value(help_text);
         self
     }
 
-    pub fn set_classes(mut self, classes: &str) -> Self {
-        self.classes.set_classes(classes);
+    pub fn alter_classes(&mut self, classes: &str, op: ClassesOp) -> &mut Self {
+        self.classes.alter(classes, op);
         self
     }
 
-    pub fn add_classes(mut self, classes: &str) -> Self {
-        self.classes.add_classes(classes);
-        self
-    }
-
-    pub fn using_template(mut self, template: &str) -> Self {
+    pub fn alter_template(&mut self, template: &str) -> &mut Self {
         self.template = template.to_owned();
         self
     }
@@ -312,15 +401,11 @@ impl Input {
         self.help_text.option()
     }
 
-    pub fn classes(&self, default: &str) -> Option<String> {
-        self.classes.option(default)
+    pub fn classes(&self) -> &Option<String> {
+        self.classes.option()
     }
 
     pub fn template(&self) -> &str {
         self.template.as_str()
     }
-}
-
-fn always() -> bool {
-    true
 }

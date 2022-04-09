@@ -10,8 +10,8 @@ impl PageComponent for Hidden {
     fn new() -> Self {
         Hidden {
             weight: 0,
-            name  : OptIden::none(),
-            value : OptAttr::none(),
+            name  : OptIden::new(),
+            value : OptAttr::new(),
         }
     }
 
@@ -32,24 +32,39 @@ impl PageComponent for Hidden {
 
 impl Hidden {
     pub fn set(name: &str, value: &str) -> Self {
-        Hidden::new()
-            .with_name(name)
-            .with_value(value)
+        Hidden::new().with_name(name).with_value(value)
     }
 
     // Hidden BUILDER.
 
     pub fn with_weight(mut self, weight: i8) -> Self {
-        self.weight = weight;
+        self.alter_weight(weight);
         self
     }
 
     pub fn with_name(mut self, name: &str) -> Self {
-        self.name.with_value(name);
+        self.alter_name(name);
         self
     }
 
     pub fn with_value(mut self, value: &str) -> Self {
+        self.alter_value(value);
+        self
+    }
+
+    // Hidden ALTER.
+
+    pub fn alter_weight(&mut self, weight: i8) -> &mut Self {
+        self.weight = weight;
+        self
+    }
+
+    pub fn alter_name(&mut self, name: &str) -> &mut Self {
+        self.name.with_value(name);
+        self
+    }
+
+    pub fn alter_value(&mut self, value: &str) -> &mut Self {
         self.value.with_value(value);
         self
     }

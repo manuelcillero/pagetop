@@ -5,4 +5,4 @@ pub use optiden::OptIden;
 mod optattr;
 pub use optattr::OptAttr;
 mod classes;
-pub use classes::Classes;
+pub use classes::{Classes, ClassesOp};

@@ -1,14 +1,14 @@
 pub struct OptAttr(Option<String>);
 
 impl OptAttr {
-    pub fn none() -> Self {
+    pub fn new() -> Self {
         OptAttr(None)
     }
 
-    pub fn some(value: &str) -> Self {
-        let mut o = OptAttr(None);
-        o.with_value(value);
-        o
+    pub fn new_with_value(value: &str) -> Self {
+        let mut option = Self::new();
+        option.with_value(value);
+        option
     }
 
     pub fn with_value(&mut self, value: &str) -> &mut Self {

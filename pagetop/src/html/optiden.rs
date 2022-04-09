@@ -1,17 +1,17 @@
 pub struct OptIden(Option<String>);
 
 impl OptIden {
-    pub fn none() -> Self {
+    pub fn new() -> Self {
         OptIden(None)
     }
 
-    pub fn some(id: &str) -> Self {
-        let mut o = OptIden(None);
-        o.with_value(id);
-        o
+    pub fn new_with_value(id: &str) -> Self {
+        let mut option = Self::new();
+        option.with_value(id);
+        option
     }
 
-    pub fn with_value(&mut self, id: &str) -> &mut Self {
+    pub fn with_value(&mut self, id: &str) -> &Self {
         let id = id.trim();
         self.0 = match id.is_empty() {
             true => None,

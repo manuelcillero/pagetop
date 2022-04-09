@@ -23,7 +23,7 @@ pub struct MenuItem {
 impl PageComponent for MenuItem {
     fn new() -> Self {
         MenuItem {
-            renderable: always,
+            renderable: render_always,
             weight    : 0,
             item_type : MenuItemType::Void,
         }
@@ -72,7 +72,7 @@ impl PageComponent for MenuItem {
 impl MenuItem {
     pub fn label(label: &str) -> Self {
         MenuItem {
-            renderable: always,
+            renderable: render_always,
             weight    : 0,
             item_type : MenuItemType::Label(label.to_owned()),
         }
@@ -80,7 +80,7 @@ impl MenuItem {
 
     pub fn link(label: &str, path: &str) -> Self {
         MenuItem {
-            renderable: always,
+            renderable: render_always,
             weight    : 0,
             item_type : MenuItemType::Link(
                 label.to_owned(),
@@ -91,7 +91,7 @@ impl MenuItem {
 
     pub fn link_blank(label: &str, path: &str) -> Self {
         MenuItem {
-            renderable: always,
+            renderable: render_always,
             weight    : 0,
             item_type : MenuItemType::LinkBlank(
                 label.to_owned(),
@@ -102,7 +102,7 @@ impl MenuItem {
 
     pub fn html(html: Markup) -> Self {
         MenuItem {
-            renderable: always,
+            renderable: render_always,
             weight    : 0,
             item_type : MenuItemType::Html(html),
         }
@@ -110,7 +110,7 @@ impl MenuItem {
 
     pub fn separator() -> Self {
         MenuItem {
-            renderable: always,
+            renderable: render_always,
             weight    : 0,
             item_type : MenuItemType::Separator,
         }
@@ -118,7 +118,7 @@ impl MenuItem {
 
     pub fn submenu(label: &str, menu: Menu) -> Self {
         MenuItem {
-            renderable: always,
+            renderable: render_always,
             weight    : 0,
             item_type : MenuItemType::Submenu(
                 label.to_owned(),
@@ -130,11 +130,23 @@ impl MenuItem {
     // MenuItem BUILDER.
 
     pub fn with_renderable(mut self, renderable: fn() -> bool) -> Self {
-        self.renderable = renderable;
+        self.alter_renderable(renderable);
         self
     }
 
     pub fn with_weight(mut self, weight: i8) -> Self {
+        self.alter_weight(weight);
+        self
+    }
+
+    // MenuItem ALTER.
+
+    pub fn alter_renderable(&mut self, renderable: fn() -> bool) -> &mut Self {
+        self.renderable = renderable;
+        self
+    }
+
+    pub fn alter_weight(&mut self, weight: i8) -> &mut Self {
         self.weight = weight;
         self
     }
@@ -162,11 +174,11 @@ pub struct Menu {
 impl PageComponent for Menu {
     fn new() -> Self {
         Menu {
-            renderable: always,
+            renderable: render_always,
             weight    : 0,
             items     : PageContainer::new(),
-            id        : OptIden::none(),
-            classes   : Classes::none(),
+            id        : OptIden::new(),
+            classes   : Classes::new_with_default("sm sm-clean"),
             template  : "default".to_owned(),
         }
     }
@@ -194,7 +206,7 @@ impl PageComponent for Menu {
 
         let id = assets.serial_id(self.name(), self.id());
         html! {
-            ul id=(id) class=[self.classes("sm sm-clean")] {
+            ul id=(id) class=[self.classes()] {
                 (self.items().render(assets))
             }
             script type="text/javascript" defer {
@@ -223,31 +235,53 @@ impl Menu {
     // Menu BUILDER.
 
     pub fn with_renderable(mut self, renderable: fn() -> bool) -> Self {
-        self.renderable = renderable;
+        self.alter_renderable(renderable);
         self
     }
 
     pub fn with_weight(mut self, weight: i8) -> Self {
-        self.weight = weight;
+        self.alter_weight(weight);
         self
     }
 
     pub fn with_id(mut self, id: &str) -> Self {
-        self.id.with_value(id);
+        self.alter_id(id);
         self
     }
 
-    pub fn set_classes(mut self, classes: &str) -> Self {
-        self.classes.set_classes(classes);
-        self
-    }
-
-    pub fn add_classes(mut self, classes: &str) -> Self {
-        self.classes.add_classes(classes);
+    pub fn with_classes(mut self, classes: &str, op: ClassesOp) -> Self {
+        self.alter_classes(classes, op);
         self
     }
 
     pub fn using_template(mut self, template: &str) -> Self {
+        self.alter_template(template);
+        self
+    }
+
+    // Menu ALTER.
+
+    pub fn alter_renderable(&mut self, renderable: fn() -> bool) -> &mut Self {
+        self.renderable = renderable;
+        self
+    }
+
+    pub fn alter_weight(&mut self, weight: i8) -> &mut Self {
+        self.weight = weight;
+        self
+    }
+
+    pub fn alter_id(&mut self, id: &str) -> &mut Self {
+        self.id.with_value(id);
+        self
+    }
+
+    pub fn alter_classes(&mut self, classes: &str, op: ClassesOp) -> &mut Self {
+        self.classes.alter(classes, op);
+        self
+    }
+
+    pub fn alter_template(&mut self, template: &str) -> &mut Self {
         self.template = template.to_owned();
         self
     }
@@ -258,15 +292,11 @@ impl Menu {
         self.id.option()
     }
 
-    pub fn classes(&self, default: &str) -> Option<String> {
-        self.classes.option(default)
+    pub fn classes(&self) -> &Option<String> {
+        self.classes.option()
     }
 
     pub fn template(&self) -> &str {
         self.template.as_str()
     }
-}
-
-fn always() -> bool {
-    true
 }

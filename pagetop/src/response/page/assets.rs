@@ -257,7 +257,7 @@ impl PageAssets {
 
     /// Assets GETTERS.
 
-    pub fn theme(&mut self) -> &'static dyn ThemeTrait {
+    pub(crate) fn theme(&mut self) -> &'static dyn ThemeTrait {
         self.theme
     }
 
