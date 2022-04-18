@@ -11,6 +11,7 @@ pub mod entity {
 
 pub mod migration {
     pub use sea_schema::migration::prelude::*;
+    pub use crate::module_name;
 }
 
 #[macro_export]

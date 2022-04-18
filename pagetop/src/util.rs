@@ -19,6 +19,17 @@ macro_rules! args {
 }
 
 #[macro_export]
+macro_rules! module_name {
+    () => {{
+        let name = module_path!();
+        match name.rfind("::") {
+            Some(position) => &name[(position + 2)..],
+            None => name
+        }
+    }};
+}
+
+#[macro_export]
 macro_rules! theme_static_files {
     ( $cfg:ident, $dir:expr ) => {{
         let static_files = &$crate::config::SETTINGS.dev.static_files;

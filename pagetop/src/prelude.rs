@@ -4,6 +4,7 @@
 pub use crate::{
     args,
     concat_string,
+    module_name,
     theme_static_files,
 };
 
