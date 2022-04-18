@@ -1,1 +1,4 @@
-pub mod m20220312_000001_create_table_user;
+pub mod m20220312_000001_create_table_role;
+pub mod m20220312_000002_create_table_role_permission;
+pub mod m20220312_000003_create_table_user;
+pub mod m20220312_000004_create_table_user_role;

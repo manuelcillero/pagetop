@@ -26,7 +26,10 @@ impl ModuleTrait for UserModule {
 
     fn migrations(&self) -> Vec<Box<dyn db::migration::MigrationTrait>> {
         vec![
-            boxed_migration!(m20220312_000001_create_table_user)
+            boxed_migration!(m20220312_000001_create_table_role),
+            boxed_migration!(m20220312_000002_create_table_role_permission),
+            boxed_migration!(m20220312_000003_create_table_user),
+            boxed_migration!(m20220312_000004_create_table_user_role),
         ]
     }
 }
