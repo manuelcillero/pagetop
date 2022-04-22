@@ -2,7 +2,6 @@ use pagetop::prelude::*;
 
 localize!("src/locales");
 
-mod entity;
 mod migration;
 
 pub struct UserModule;
