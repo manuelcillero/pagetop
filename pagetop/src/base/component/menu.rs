@@ -68,7 +68,7 @@ impl PageComponent for MenuItem {
         }
     }
 
-    fn as_any(&mut self) -> &dyn AnyComponent {
+    fn as_any(&self) -> &dyn AnyComponent {
         self
     }
 
@@ -226,7 +226,7 @@ impl PageComponent for Menu {
         }
     }
 
-    fn as_any(&mut self) -> &dyn AnyComponent {
+    fn as_any(&self) -> &dyn AnyComponent {
         self
     }
 

@@ -42,7 +42,7 @@ pub trait PageComponent: AnyComponent + Send + Sync {
         html! {}
     }
 
-    fn as_any(&mut self) -> &dyn AnyComponent;
+    fn as_any(&self) -> &dyn AnyComponent;
 
     fn as_mut_any(&mut self) -> &mut dyn AnyComponent;
 }

@@ -29,7 +29,7 @@ impl PageComponent for Hidden {
         }
     }
 
-    fn as_any(&mut self) -> &dyn AnyComponent {
+    fn as_any(&self) -> &dyn AnyComponent {
         self
     }
 
