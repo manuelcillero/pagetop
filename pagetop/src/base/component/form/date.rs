@@ -84,6 +84,10 @@ impl PageComponent for Date {
             }
         }
     }
+
+    fn as_any(&mut self) -> &mut dyn AnyComponent {
+        self
+    }
 }
 
 impl Date {

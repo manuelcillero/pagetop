@@ -45,6 +45,10 @@ impl PageComponent for Block {
             }
         }
     }
+
+    fn as_any(&mut self) -> &mut dyn AnyComponent {
+        self
+    }
 }
 
 impl Block {

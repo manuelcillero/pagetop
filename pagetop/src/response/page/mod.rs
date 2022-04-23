@@ -7,7 +7,7 @@ pub use assets::{
 };
 
 mod component;
-pub use component::PageComponent;
+pub use component::{AnyComponent, PageComponent};
 
 mod container;
 pub use container::PageContainer;

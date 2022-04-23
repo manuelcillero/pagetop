@@ -54,6 +54,10 @@ impl PageComponent for Form {
             }
         }
     }
+
+    fn as_any(&mut self) -> &mut dyn AnyComponent {
+        self
+    }
 }
 
 impl Form {

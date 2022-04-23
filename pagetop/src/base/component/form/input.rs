@@ -112,6 +112,10 @@ impl PageComponent for Input {
             }
         }
     }
+
+    fn as_any(&mut self) -> &mut dyn AnyComponent {
+        self
+    }
 }
 
 impl Input {
