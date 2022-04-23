@@ -37,6 +37,10 @@ impl PageComponent for Image {
                 class=[self.classes()];
         }
     }
+
+    fn as_mut_any(&mut self) -> &mut dyn AnyComponent {
+        self
+    }
 }
 
 impl Image {

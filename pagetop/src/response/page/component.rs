@@ -1,11 +1,11 @@
 use crate::html::{Markup, html};
 use crate::response::page::PageAssets;
 
-use downcast_rs::{Downcast, impl_downcast};
-
 use std::any::type_name;
 
-pub trait PageComponent: Downcast + Send + Sync {
+pub use std::any::Any as AnyComponent;
+
+pub trait PageComponent: AnyComponent + Send + Sync {
 
     fn new() -> Self where Self: Sized;
 
@@ -41,6 +41,6 @@ pub trait PageComponent: Downcast + Send + Sync {
     fn default_render(&self, assets: &mut PageAssets) -> Markup {
         html! {}
     }
-}
 
-impl_downcast!(PageComponent);
+    fn as_mut_any(&mut self) -> &mut dyn AnyComponent;
+}

@@ -28,6 +28,10 @@ impl PageComponent for Hidden {
             input type="hidden" id=[id] name=[self.name()] value=[self.value()];
         }
     }
+
+    fn as_mut_any(&mut self) -> &mut dyn AnyComponent {
+        self
+    }
 }
 
 impl Hidden {

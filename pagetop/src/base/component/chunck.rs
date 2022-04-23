@@ -28,6 +28,10 @@ impl PageComponent for Chunck {
     fn default_render(&self, _: &mut PageAssets) -> Markup {
         html! { (*self.html()) }
     }
+
+    fn as_mut_any(&mut self) -> &mut dyn AnyComponent {
+        self
+    }
 }
 
 impl Chunck {

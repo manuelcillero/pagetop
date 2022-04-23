@@ -40,6 +40,10 @@ impl PageComponent for Column {
             }
         }
     }
+
+    fn as_mut_any(&mut self) -> &mut dyn AnyComponent {
+        self
+    }
 }
 
 impl Column {

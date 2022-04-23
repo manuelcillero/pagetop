@@ -65,6 +65,10 @@ impl PageComponent for Button {
             }
         }
     }
+
+    fn as_mut_any(&mut self) -> &mut dyn AnyComponent {
+        self
+    }
 }
 
 impl Button {

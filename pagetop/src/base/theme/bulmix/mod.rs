@@ -39,11 +39,11 @@ impl ThemeTrait for BulmixTheme {
     ) {
         match component.name() {
             "GridRow" => {
-                let row = component.downcast_mut::<grid::Row>().unwrap();
+                let row = component.as_mut_any().downcast_mut::<grid::Row>().unwrap();
                 row.alter_classes("columns", ClassesOp::SetDefault);
             },
             "GridColumn" => {
-                let col = component.downcast_mut::<grid::Column>().unwrap();
+                let col = component.as_mut_any().downcast_mut::<grid::Column>().unwrap();
                 col.alter_classes("column", ClassesOp::SetDefault);
             },
             _ => {},

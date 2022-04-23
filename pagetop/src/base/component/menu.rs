@@ -67,6 +67,10 @@ impl PageComponent for MenuItem {
             MenuItemType::Void => html! {},
         }
     }
+
+    fn as_mut_any(&mut self) -> &mut dyn AnyComponent {
+        self
+    }
 }
 
 impl MenuItem {
@@ -216,6 +220,10 @@ impl PageComponent for Menu {
                 "});});"
             }
         }
+    }
+
+    fn as_mut_any(&mut self) -> &mut dyn AnyComponent {
+        self
     }
 }
 
