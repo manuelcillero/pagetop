@@ -1,18 +1,8 @@
 pub use url::Url as DbUri;
 
-pub use sea_orm::{
-    DbErr,
-    DatabaseConnection as DbConn,
-};
+pub use sea_orm::{DatabaseConnection as DbConn, ExecResult, QueryResult};
 
-pub mod entity {
-    pub use sea_orm::entity::prelude::*;
-}
-
-pub mod migration {
-    pub use sea_schema::migration::prelude::*;
-    pub use crate::module_name;
-}
+pub use sea_schema::migration::prelude::*;
 
 #[macro_export]
 macro_rules! boxed_migration {

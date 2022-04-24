@@ -13,7 +13,7 @@ pub use crate::trace;
 pub use crate::localize;
 
 #[cfg(any(feature = "mysql", feature = "postgres", feature = "sqlite"))]
-pub use crate::{db, boxed_migration};
+pub use crate::{db, db::*, boxed_migration};
 
 pub use crate::html::*;
 pub use crate::theme::*;

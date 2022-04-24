@@ -1,10 +1,11 @@
-use crate::{Lazy, db, run_now, trace};
+use crate::{Lazy, run_now, trace};
 use crate::config::SETTINGS;
+use crate::db::*;
 
-use sea_orm::{ConnectOptions, Database};
+use sea_orm::{ConnectionTrait, ConnectOptions, Database, DatabaseBackend, Statement};
 use tracing_unwrap::ResultExt;
 
-pub static DBCONN: Lazy<db::DbConn> = Lazy::new(|| {
+pub static DBCONN: Lazy<DbConn> = Lazy::new(|| {
     trace::info!(
         "Connecting to database \"{}\" using a pool of {} connections",
         &SETTINGS.database.db_name,
@@ -13,7 +14,7 @@ pub static DBCONN: Lazy<db::DbConn> = Lazy::new(|| {
 
     let db_uri = match SETTINGS.database.db_type.as_str() {
         "mysql" | "postgres" => {
-            let mut tmp_uri = db::DbUri::parse(format!(
+            let mut tmp_uri = DbUri::parse(format!(
                 "{}://{}/{}",
                 &SETTINGS.database.db_type,
                 &SETTINGS.database.db_host,
@@ -33,7 +34,7 @@ pub static DBCONN: Lazy<db::DbConn> = Lazy::new(|| {
             }
             tmp_uri
         },
-        "sqlite" => db::DbUri::parse(
+        "sqlite" => DbUri::parse(
             format!("{}://{}",
                 &SETTINGS.database.db_type,
                 &SETTINGS.database.db_name
@@ -43,7 +44,7 @@ pub static DBCONN: Lazy<db::DbConn> = Lazy::new(|| {
                 "Unrecognized database type \"{}\"",
                 &SETTINGS.database.db_type
             );
-            db::DbUri::parse("").unwrap()
+            DbUri::parse("").unwrap()
         }
     };
 
@@ -55,3 +56,34 @@ pub static DBCONN: Lazy<db::DbConn> = Lazy::new(|| {
         })
     ).expect_or_log("Failed to connect to database")
 });
+
+static DBBACKEND: Lazy<DatabaseBackend> = Lazy::new(|| {
+    DBCONN.get_database_backend()
+});
+
+
+pub async fn query<Q: QueryStatementWriter>(stmt: &mut Q) -> Result<Vec<QueryResult>, DbErr> {
+    DBCONN.query_all(Statement::from_string(
+        *DBBACKEND,
+        match *DBBACKEND {
+            DatabaseBackend::MySql    => stmt.to_string(MysqlQueryBuilder),
+            DatabaseBackend::Postgres => stmt.to_string(PostgresQueryBuilder),
+            DatabaseBackend::Sqlite   => stmt.to_string(SqliteQueryBuilder),
+        }
+    )).await
+}
+
+pub async fn exec<Q: QueryStatementWriter>(stmt: &mut Q) -> Result<Option<QueryResult>, DbErr> {
+    DBCONN.query_one(Statement::from_string(
+        *DBBACKEND,
+        match *DBBACKEND {
+            DatabaseBackend::MySql    => stmt.to_string(MysqlQueryBuilder),
+            DatabaseBackend::Postgres => stmt.to_string(PostgresQueryBuilder),
+            DatabaseBackend::Sqlite   => stmt.to_string(SqliteQueryBuilder),
+        }
+    )).await
+}
+
+pub async fn exec_raw(stmt: String) -> Result<ExecResult, DbErr> {
+    DBCONN.execute(Statement::from_string(*DBBACKEND, stmt)).await
+}

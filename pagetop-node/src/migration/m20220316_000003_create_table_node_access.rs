@@ -1,4 +1,4 @@
-use pagetop::db::migration::*;
+use pagetop::prelude::*;
 
 // Identifies which realm/grant pairs a user must possess in order to view, update, or delete specific nodes.
 #[derive(Iden)]

@@ -1,4 +1,4 @@
-use pagetop::db::migration::*;
+use pagetop::prelude::*;
 
 /// The base table for nodes.
 #[derive(Iden)]

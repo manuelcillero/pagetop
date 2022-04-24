@@ -1,4 +1,4 @@
-use pagetop::db::migration::*;
+use pagetop::prelude::*;
 
 #[derive(Iden)]
 enum User { Table,

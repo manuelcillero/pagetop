@@ -1,5 +1,5 @@
 use crate::{Lazy, app, run_now, trace};
-use crate::db::migration::*;
+use crate::db::*;
 use super::ModuleTrait;
 
 use std::sync::RwLock;

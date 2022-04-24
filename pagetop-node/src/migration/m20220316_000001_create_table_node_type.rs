@@ -1,4 +1,4 @@
-use pagetop::db::migration::*;
+use pagetop::prelude::*;
 
 /// Stores information about all defined {node} types.
 #[derive(Iden)]

@@ -24,7 +24,7 @@ impl ModuleTrait for NodeModule {
         cfg.route("/node", app::web::get().to(node));
     }
 
-    fn migrations(&self) -> Vec<Box<dyn db::migration::MigrationTrait>> {
+    fn migrations(&self) -> Vec<Box<dyn db::MigrationTrait>> {
         vec![
             boxed_migration!(m20220316_000001_create_table_node_type),
             boxed_migration!(m20220316_000002_create_table_node),

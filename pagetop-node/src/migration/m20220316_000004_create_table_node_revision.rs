@@ -1,4 +1,4 @@
-use pagetop::db::migration::*;
+use pagetop::prelude::*;
 
 // Stores information about each saved version of a {node}.
 #[derive(Iden)]
