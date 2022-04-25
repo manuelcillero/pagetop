@@ -2,7 +2,7 @@ use pagetop::prelude::*;
 
 #[derive(Iden)]
 enum NodeType {
-    Table,              // Stores information about all defined Node types.
+    Table,              // node_type: Stores information about all defined Node types.
 
     Type,               // The machine-readable name of this type.
     Name,               // The human-readable name of this type.

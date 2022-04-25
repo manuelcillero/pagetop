@@ -2,7 +2,7 @@ use pagetop::prelude::*;
 
 #[derive(Iden)]
 enum Role {
-    Table,              // Store user roles.
+    Table,              // role: Store user roles.
 
     Rid,                // Primary Key: Unique role ID.
     Name,               // Unique role name.
@@ -31,23 +31,25 @@ impl MigrationTrait for Migration {
             .col(ColumnDef::new(Role::Weight)
                 .integer()
                 .not_null()
-                .default(0)
+                .default(10)
             )
             // INDEXES.
             .index(Index::create()
-                .name("name-weight")
-                .col(Role::Name)
+                .name("weight-name")
                 .col(Role::Weight)
+                .col(Role::Name)
             )
             .to_owned()
         )
         .await?;
 
+        // Built-in roles.
         app::db::exec::<InsertStatement>(Query::insert()
             .into_table(Role::Table)
-            .columns(vec![Role::Name])
-            .values_panic(vec!["anonymous".into()])
-            .values_panic(vec!["authenticated".into()])
+            .columns(vec![Role::Name, Role::Weight])
+            .values_panic(vec!["anonymous".into(),     "1".into()])
+            .values_panic(vec!["authenticated".into(), "2".into()])
+            .values_panic(vec!["administrator".into(), "3".into()])
         )
         .await.map(|_| ())
     }

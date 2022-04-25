@@ -2,10 +2,10 @@ use pagetop::prelude::*;
 
 #[derive(Iden)]
 enum NodeAccess {
-    Table,              // Identifies which realm/grant pairs a user must possess in order to view,
-                        // update, or delete specific nodes.
+    Table,              // node_access: Identifies which realm/grant pairs a user must possess in
+                        // order to view, update, or delete specific nodes.
 
-    Nid,                // The {node}.nid this record affects.
+    Nid,                // The Node.nid this record affects.
     Gid,                // The grant ID a user must possess in the specified realm to gain this
                         // row's privileges on the node.
     Realm,              // The realm in which the user must possess the grant ID. Each node access

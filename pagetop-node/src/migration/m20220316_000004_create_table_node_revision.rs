@@ -2,11 +2,11 @@ use pagetop::prelude::*;
 
 #[derive(Iden)]
 enum NodeRevision {
-    Table,              // Stores information about each saved version of a {node}.
+    Table,              // node_revision: Stores information about each saved version of a Node.
 
-    Nid,                // The {node} this version belongs to.
+    Nid,                // The Node this version belongs to.
     Vid,                // The primary identifier for this version.
-    Uid,                // The {users}.uid that created this version.
+    Uid,                // The User.uid that created this version.
     Title,              // The title of this version.
     Log,                // The log entry explaining the changes in this version.
     Timestamp,          // A Unix timestamp indicating when this version was created.

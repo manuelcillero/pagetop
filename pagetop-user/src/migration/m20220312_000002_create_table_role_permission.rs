@@ -2,11 +2,10 @@ use pagetop::prelude::*;
 
 #[derive(Iden)]
 enum RolePermission {
-    Table,              // Stores the permissions assigned to user roles.
+    Table,              // role_permission: Stores the permissions assigned to user roles.
 
     Rid,                // Foreign Key: Role::Rid.
     Permission,         // A single permission granted to the role identified by Rid.
-    Module,             // The module declaring the permission.
 }
 
 #[derive(Iden)]
@@ -28,10 +27,6 @@ impl MigrationTrait for Migration {
                 .string_len(128)
                 .not_null()
             )
-            .col(ColumnDef::new(RolePermission::Module)
-                .string_len(255)
-                .not_null()
-            )
             // INDEXES.
             .primary_key(Index::create()
                 .col(RolePermission::Rid)
@@ -45,8 +40,8 @@ impl MigrationTrait for Migration {
                 .name("fk_role_permission-rid")
                 .from(RolePermission::Table, RolePermission::Rid)
                 .to(Role::Table, Role::Rid)
-                .on_delete(ForeignKeyAction::Cascade)
-                .on_update(ForeignKeyAction::Cascade)
+                .on_delete(ForeignKeyAction::Restrict)
+                .on_update(ForeignKeyAction::Restrict)
             )
             .to_owned()
         )

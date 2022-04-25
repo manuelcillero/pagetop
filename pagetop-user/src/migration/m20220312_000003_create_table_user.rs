@@ -2,7 +2,7 @@ use pagetop::prelude::*;
 
 #[derive(Iden)]
 enum User {
-    Table,              // Stores user data.
+    Table,              // user: Stores user data.
 
     Uid,                // Primary Key: Unique user ID.
     Name,               // Unique user name.

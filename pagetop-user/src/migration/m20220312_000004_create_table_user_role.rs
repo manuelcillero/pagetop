@@ -2,7 +2,7 @@ use pagetop::prelude::*;
 
 #[derive(Iden)]
 enum UserRole {
-    Table,              // Maps users to roles.
+    Table,              // user_role: Maps users to roles.
 
     Uid,                // Foreign Key: User::Uid for user.
     Rid,                // Foreign Key: Role::Rid for role.
@@ -39,15 +39,15 @@ impl MigrationTrait for Migration {
                 .name("fk_user_role-uid")
                 .from(UserRole::Table, UserRole::Uid)
                 .to(User::Table, User::Uid)
-                .on_delete(ForeignKeyAction::Cascade)
-                .on_update(ForeignKeyAction::Cascade)
+                .on_delete(ForeignKeyAction::Restrict)
+                .on_update(ForeignKeyAction::Restrict)
             )
             .foreign_key(ForeignKey::create()
                 .name("fk_user_role-rid")
                 .from(UserRole::Table, UserRole::Rid)
                 .to(Role::Table, Role::Rid)
-                .on_delete(ForeignKeyAction::Cascade)
-                .on_update(ForeignKeyAction::Cascade)
+                .on_delete(ForeignKeyAction::Restrict)
+                .on_update(ForeignKeyAction::Restrict)
             )
             .to_owned()
         )

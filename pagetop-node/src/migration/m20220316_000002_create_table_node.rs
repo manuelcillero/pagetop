@@ -2,14 +2,14 @@ use pagetop::prelude::*;
 
 #[derive(Iden)]
 enum Node {
-    Table,              // The base table for nodes.
+    Table,              // node: The base table for nodes.
 
     Nid,                // The primary identifier for a node.
-    Vid,                // The current {node_revision}.vid version identifier.
-    Type,               // The {node_type}.type of this node.
+    Vid,                // The current NodeRevision.vid version identifier.
+    Type,               // The NodeType.type of this node.
     Language,           // The {languages}.language of this node.
     Title,              // The title of this node, always treated as non-markup plain text.
-    Uid,                // The {users}.uid that owns this node; initially, this is the user that
+    Uid,                // The User.uid that owns this node; initially, this is the user that
                         // created it.
     Status,             // Boolean indicating whether the node is published (visible to
                         // non-administrators).
