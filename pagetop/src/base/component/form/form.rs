@@ -55,7 +55,7 @@ impl PageComponent for Form {
         }
     }
 
-    fn as_any(&self) -> &dyn AnyComponent {
+    fn as_ref_any(&self) -> &dyn AnyComponent {
         self
     }
 

@@ -41,7 +41,7 @@ impl PageComponent for Column {
         }
     }
 
-    fn as_any(&self) -> &dyn AnyComponent {
+    fn as_ref_any(&self) -> &dyn AnyComponent {
         self
     }
 

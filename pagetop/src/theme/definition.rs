@@ -85,7 +85,7 @@ pub trait ThemeTrait: Send + Sync {
 
         match component.name() {
             "Block" => {
-                let block = component.as_mut_any().downcast_mut::<Block>().unwrap();
+                let block = component_mut::<Block>(component);
                 block.alter_title("New title");
             },
             _ => {},
@@ -105,7 +105,7 @@ pub trait ThemeTrait: Send + Sync {
 
         match component.name() {
             "Block" => {
-                let block = component.as_any().downcast_ref::<Block>().unwrap();
+                let block = component_ref::<Block>(component);
                 match block.template() {
                     "default" => Some(block_default(block)),
                     _ => None,
