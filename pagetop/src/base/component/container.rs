@@ -13,7 +13,7 @@ pub struct Container {
     template     : String,
 }
 
-impl PageComponent for Container {
+impl ComponentTrait for Container {
     fn new() -> Self {
         Container {
             renderable   : render_always,
@@ -109,7 +109,7 @@ impl Container {
 
     // Container CONTAINER.
 
-    pub fn add(mut self, component: impl PageComponent) -> Self {
+    pub fn add(mut self, component: impl ComponentTrait) -> Self {
         self.components.add(component);
         self
     }

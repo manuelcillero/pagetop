@@ -9,7 +9,7 @@ pub struct Row {
     template  : String,
 }
 
-impl PageComponent for Row {
+impl ComponentTrait for Row {
     fn new() -> Self {
         Row {
             renderable: render_always,

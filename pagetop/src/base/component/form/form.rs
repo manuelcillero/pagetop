@@ -14,7 +14,7 @@ pub struct Form {
     template  : String,
 }
 
-impl PageComponent for Form {
+impl ComponentTrait for Form {
     fn new() -> Self {
         Form {
             renderable: render_always,
@@ -68,7 +68,7 @@ impl Form {
 
     // Form CONTAINER.
 
-    pub fn add(mut self, element: impl PageComponent) -> Self {
+    pub fn add(mut self, element: impl ComponentTrait) -> Self {
         self.elements.add(element);
         self
     }

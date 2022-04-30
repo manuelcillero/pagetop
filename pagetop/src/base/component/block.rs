@@ -10,7 +10,7 @@ pub struct Block {
     template  : String,
 }
 
-impl PageComponent for Block {
+impl ComponentTrait for Block {
     fn new() -> Self {
         Block {
             renderable: render_always,
@@ -59,7 +59,7 @@ impl Block {
 
     // Block CONTAINER.
 
-    pub fn add(mut self, component: impl PageComponent) -> Self {
+    pub fn add(mut self, component: impl ComponentTrait) -> Self {
         self.components.add(component);
         self
     }

@@ -7,7 +7,7 @@ pub struct Chunck {
     template  : String,
 }
 
-impl PageComponent for Chunck {
+impl ComponentTrait for Chunck {
     fn new() -> Self {
         Chunck {
             renderable: render_always,

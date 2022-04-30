@@ -17,7 +17,7 @@ pub struct Date {
     template    : String,
 }
 
-impl PageComponent for Date {
+impl ComponentTrait for Date {
     fn new() -> Self {
         Date {
             renderable  : render_always,

@@ -1,7 +1,7 @@
 use crate::{app, concat_string};
 use crate::config::SETTINGS;
 use crate::html::{Markup, html};
-use crate::response::page::{Favicon, Page, PageAssets, PageComponent};
+use crate::response::page::{ComponentTrait, Favicon, Page, PageAssets};
 use crate::base::component::Chunck;
 
 /// Los temas deben implementar este "trait".
@@ -77,7 +77,7 @@ pub trait ThemeTrait: Send + Sync {
     #[allow(unused_variables)]
     fn before_render_component(
         &self,
-        component: &mut dyn PageComponent,
+        component: &mut dyn ComponentTrait,
         assets: &mut PageAssets
     ) {
     /*
@@ -96,7 +96,7 @@ pub trait ThemeTrait: Send + Sync {
     #[allow(unused_variables)]
     fn render_component(
         &self,
-        component: &dyn PageComponent,
+        component: &dyn ComponentTrait,
         assets: &mut PageAssets
     ) -> Option<Markup> {
         None

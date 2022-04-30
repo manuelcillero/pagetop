@@ -5,7 +5,7 @@ use std::any::type_name;
 
 pub use std::any::Any as AnyComponent;
 
-pub trait PageComponent: AnyComponent + Send + Sync {
+pub trait ComponentTrait: AnyComponent + Send + Sync {
 
     fn new() -> Self where Self: Sized;
 
@@ -47,10 +47,10 @@ pub trait PageComponent: AnyComponent + Send + Sync {
     fn as_mut_any(&mut self) -> &mut dyn AnyComponent;
 }
 
-pub fn component_ref<T: 'static>(component: &dyn PageComponent) -> &T {
+pub fn component_ref<T: 'static>(component: &dyn ComponentTrait) -> &T {
     component.as_ref_any().downcast_ref::<T>().unwrap()
 }
 
-pub fn component_mut<T: 'static>(component: &mut dyn PageComponent) -> &mut T {
+pub fn component_mut<T: 'static>(component: &mut dyn ComponentTrait) -> &mut T {
     component.as_mut_any().downcast_mut::<T>().unwrap()
 }

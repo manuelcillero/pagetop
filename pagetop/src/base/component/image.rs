@@ -9,7 +9,7 @@ pub struct Image {
     template  : String,
 }
 
-impl PageComponent for Image {
+impl ComponentTrait for Image {
     fn new() -> Self {
         Image {
             renderable: render_always,

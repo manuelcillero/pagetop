@@ -23,7 +23,7 @@ pub struct Input {
     template    : String,
 }
 
-impl PageComponent for Input {
+impl ComponentTrait for Input {
     fn new() -> Self {
         Input {
             renderable  : render_always,

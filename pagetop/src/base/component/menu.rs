@@ -20,7 +20,7 @@ pub struct MenuItem {
     item_type : MenuItemType,
 }
 
-impl PageComponent for MenuItem {
+impl ComponentTrait for MenuItem {
     fn new() -> Self {
         MenuItem {
             renderable: render_always,
@@ -179,7 +179,7 @@ pub struct Menu {
     template  : String,
 }
 
-impl PageComponent for Menu {
+impl ComponentTrait for Menu {
     fn new() -> Self {
         Menu {
             renderable: render_always,

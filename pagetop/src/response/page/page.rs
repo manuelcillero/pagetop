@@ -100,7 +100,7 @@ impl<'a> Page<'a> {
     pub fn add_to(
         &mut self,
         region: &'a str,
-        component: impl PageComponent
+        component: impl ComponentTrait
     ) -> &mut Self {
         if let Some(regions) = self.regions.get_mut(region) {
             regions.add(component);
@@ -187,7 +187,7 @@ impl<'a> Page<'a> {
     }
 }
 
-pub fn render_component(component: &mut dyn PageComponent, assets: &mut PageAssets) -> Markup {
+pub fn render_component(component: &mut dyn ComponentTrait, assets: &mut PageAssets) -> Markup {
     component.before_render(assets);
     assets.theme().before_render_component(component, assets);
     match component.is_renderable() {
@@ -201,7 +201,7 @@ pub fn render_component(component: &mut dyn PageComponent, assets: &mut PageAsse
     }
 }
 
-pub fn add_component_to(region: &'static str, component: impl PageComponent) {
+pub fn add_component_to(region: &'static str, component: impl ComponentTrait) {
     let mut hmap = COMPONENTS.write().unwrap();
     if let Some(regions) = hmap.get_mut(region) {
         regions.add(component);

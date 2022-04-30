@@ -6,7 +6,7 @@ pub struct Hidden {
     value : OptAttr,
 }
 
-impl PageComponent for Hidden {
+impl ComponentTrait for Hidden {
     fn new() -> Self {
         Hidden {
             weight: 0,

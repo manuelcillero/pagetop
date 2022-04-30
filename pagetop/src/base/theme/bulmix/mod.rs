@@ -34,7 +34,7 @@ impl ThemeTrait for BulmixTheme {
 
     fn before_render_component(
         &self,
-        component: &mut dyn PageComponent,
+        component: &mut dyn ComponentTrait,
         _assets: &mut PageAssets
     ) {
         match component.name() {

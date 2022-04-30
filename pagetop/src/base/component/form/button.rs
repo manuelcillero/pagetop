@@ -14,7 +14,7 @@ pub struct Button {
     template   : String,
 }
 
-impl PageComponent for Button {
+impl ComponentTrait for Button {
     fn new() -> Self {
         Button {
             renderable : render_always,

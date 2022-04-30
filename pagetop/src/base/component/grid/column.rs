@@ -9,7 +9,7 @@ pub struct Column {
     template  : String,
 }
 
-impl PageComponent for Column {
+impl ComponentTrait for Column {
     fn new() -> Self {
         Column {
             renderable: render_always,
@@ -54,7 +54,7 @@ impl Column {
 
     // Column CONTAINER.
 
-    pub fn add(mut self, component: impl PageComponent) -> Self {
+    pub fn add(mut self, component: impl ComponentTrait) -> Self {
         self.components.add(component);
         self
     }
