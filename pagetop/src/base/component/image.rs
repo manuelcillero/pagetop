@@ -1,5 +1,7 @@
 use crate::prelude::*;
 
+pub const TYPENAME_IMAGE: &str = "pagetop::base::component::image::Image";
+
 pub struct Image {
     renderable: fn() -> bool,
     weight    : i8,

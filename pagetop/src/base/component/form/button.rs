@@ -1,5 +1,7 @@
 use crate::prelude::*;
 
+pub const TYPENAME_BUTTON: &str = "pagetop::base::component::form::button::Button";
+
 pub enum ButtonType {Button, Reset, Submit}
 
 pub struct Button {

@@ -2,15 +2,11 @@ use crate::prelude::*;
 
 localize!("src/base/module/demopage/locales");
 
-pub struct DemopageModule;
+pub struct Demopage;
 
-impl ModuleTrait for DemopageModule {
-    fn name(&self) -> &'static str {
-        "Demopage"
-    }
-
-    fn fullname(&self) -> String {
-        l("module_fullname")
+impl ModuleTrait for Demopage {
+    fn name(&self) -> String {
+        l("module_name")
     }
 
     fn description(&self) -> Option<String> {

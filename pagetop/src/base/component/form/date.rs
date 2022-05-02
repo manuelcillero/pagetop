@@ -1,5 +1,7 @@
 use crate::prelude::*;
 
+pub const TYPENAME_DATE: &str = "pagetop::base::component::form::date::Date";
+
 pub struct Date {
     renderable  : fn() -> bool,
     weight      : i8,

@@ -28,10 +28,10 @@ impl Application {
         Lazy::force(&app::db::DBCONN);
 
         // Registra los temas predeterminados.
-        theme::register_theme(&base::theme::aliner::AlinerTheme);
-        theme::register_theme(&base::theme::minimal::MinimalTheme);
-        theme::register_theme(&base::theme::bootsier::BootsierTheme);
-        theme::register_theme(&base::theme::bulmix::BulmixTheme);
+        theme::register_theme(&base::theme::aliner::Aliner);
+        theme::register_theme(&base::theme::minimal::Minimal);
+        theme::register_theme(&base::theme::bootsier::Bootsier);
+        theme::register_theme(&base::theme::bulmix::Bulmix);
 
         // Ejecuta la función de inicio de la aplicación.
         trace::info!("Calling application bootstrap");
@@ -39,7 +39,7 @@ impl Application {
 
         // Registra el módulo de presentación de PageTop.
         // Normalmente se sobrecargará en la función de inicio.
-        module::register_module(&base::module::demopage::DemopageModule);
+        module::register_module(&base::module::demopage::Demopage);
 
         // Actualizaciones pendientes de la base de datos (opcional).
         #[cfg(any(feature = "mysql", feature = "postgres", feature = "sqlite"))]

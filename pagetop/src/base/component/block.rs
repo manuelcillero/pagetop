@@ -1,5 +1,7 @@
 use crate::prelude::*;
 
+pub const TYPENAME_BLOCK: &str = "pagetop::base::component::block::Block";
+
 pub struct Block {
     renderable: fn() -> bool,
     weight    : i8,
@@ -32,7 +34,7 @@ impl ComponentTrait for Block {
     }
 
     fn default_render(&self, assets: &mut PageAssets) -> Markup {
-        let id = assets.serial_id(self.name(), self.id());
+        let id = assets.serial_id(self.single_name(), self.id());
         html! {
             div id=(id) class=[self.classes()] {
                 @match self.title() {

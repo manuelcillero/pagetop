@@ -1,5 +1,7 @@
 use crate::prelude::*;
 
+pub const TYPENAME_INPUT: &str = "pagetop::base::component::form::input::Input";
+
 pub enum InputType {Email, Password, Search, Telephone, Textfield, Url}
 
 pub struct Input {

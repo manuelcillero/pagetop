@@ -4,15 +4,11 @@ localize!("src/locales");
 
 mod migration;
 
-pub struct UserModule;
+pub struct User;
 
-impl ModuleTrait for UserModule {
-    fn name(&self) -> &'static str {
-        "User"
-    }
-
-    fn fullname(&self) -> String {
-        l("module_fullname")
+impl ModuleTrait for User {
+    fn name(&self) -> String {
+        l("module_name")
     }
 
     fn description(&self) -> Option<String> {

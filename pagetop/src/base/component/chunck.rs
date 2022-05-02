@@ -1,5 +1,7 @@
 use crate::prelude::*;
 
+pub const TYPENAME_CHUNCK: &str = "pagetop::base::component::chunck::Chunck";
+
 pub struct Chunck {
     renderable: fn() -> bool,
     weight    : i8,

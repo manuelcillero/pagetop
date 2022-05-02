@@ -2,17 +2,9 @@ use crate::prelude::*;
 
 include!(concat!(env!("OUT_DIR"), "/bulmix.rs"));
 
-pub struct BulmixTheme;
+pub struct Bulmix;
 
-impl ThemeTrait for BulmixTheme {
-    fn name(&self) -> &'static str {
-        "Bulmix"
-    }
-
-    fn fullname(&self) -> String {
-        "Bulmix".to_owned()
-    }
-
+impl ThemeTrait for Bulmix {
     fn configure_theme(&self, cfg: &mut app::web::ServiceConfig) {
         theme_static_files!(cfg, "/bulmix");
     }
@@ -37,12 +29,12 @@ impl ThemeTrait for BulmixTheme {
         component: &mut dyn ComponentTrait,
         _assets: &mut PageAssets
     ) {
-        match component.name() {
-            "GridRow" => {
+        match component.type_name() {
+            grid::TYPENAME_ROW => {
                 let row = component_mut::<grid::Row>(component);
                 row.alter_classes("columns", ClassesOp::SetDefault);
             },
-            "GridColumn" => {
+            grid::TYPENAME_COLUMN => {
                 let col = component_mut::<grid::Column>(component);
                 col.alter_classes("column", ClassesOp::SetDefault);
             },

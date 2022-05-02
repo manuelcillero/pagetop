@@ -1,5 +1,7 @@
 use crate::prelude::*;
 
+pub const TYPENAME_FORM: &str = "pagetop::base::component::form::form::Form";
+
 pub enum FormMethod {Get, Post}
 
 pub struct Form {

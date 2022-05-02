@@ -1,5 +1,8 @@
 use crate::prelude::*;
 
+pub const TYPENAME_MENU: &str = "pagetop::base::component::menu::Menu";
+pub const TYPENAME_MENUITEM: &str = "pagetop::base::component::menu::MenuItem";
+
 pub enum MenuItemType {
     Label(String),
     Link(String, String),
@@ -10,9 +13,7 @@ pub enum MenuItemType {
     Void,
 }
 
-// -----------------------------------------------------------------------------
 // MenuItem.
-// -----------------------------------------------------------------------------
 
 pub struct MenuItem {
     renderable: fn() -> bool,
@@ -166,9 +167,7 @@ impl MenuItem {
     }
 }
 
-// -----------------------------------------------------------------------------
 // Menu.
-// -----------------------------------------------------------------------------
 
 pub struct Menu {
     renderable: fn() -> bool,
@@ -212,7 +211,7 @@ impl ComponentTrait for Menu {
             ))
             .add_jquery();
 
-        let id = assets.serial_id(self.name(), self.id());
+        let id = assets.serial_id(self.single_name(), self.id());
         html! {
             ul id=(id) class=[self.classes()] {
                 (self.items().render(assets))

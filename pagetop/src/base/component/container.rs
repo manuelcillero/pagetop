@@ -1,5 +1,7 @@
 use crate::prelude::*;
 
+pub const TYPENAME_CONTAINER: &str = "pagetop::base::component::container::Container";
+
 pub enum ContainerType { Header, Footer, Main, Section, Wrapper }
 
 pub struct Container {

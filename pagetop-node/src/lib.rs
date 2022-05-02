@@ -5,15 +5,11 @@ localize!("src/locales");
 //mod entity;
 mod migration;
 
-pub struct NodeModule;
+pub struct Node;
 
-impl ModuleTrait for NodeModule {
-    fn name(&self) -> &'static str {
-        "Node"
-    }
-
-    fn fullname(&self) -> String {
-        l("module_fullname")
+impl ModuleTrait for Node {
+    fn name(&self) -> String {
+        l("module_name")
     }
 
     fn description(&self) -> Option<String> {

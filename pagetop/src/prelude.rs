@@ -11,11 +11,11 @@ pub use crate::{
 pub use crate::config::SETTINGS;
 pub use crate::trace;
 pub use crate::localize;
+pub use crate::html::*;
 
 #[cfg(any(feature = "mysql", feature = "postgres", feature = "sqlite"))]
 pub use crate::{db, db::*, boxed_migration};
 
-pub use crate::html::*;
 pub use crate::theme::*;
 pub use crate::module::*;
 pub use crate::response::page::*;

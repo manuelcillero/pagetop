@@ -1,5 +1,7 @@
 use crate::prelude::*;
 
+pub const TYPENAME_HIDDEN: &str = "pagetop::base::component::form::hidden::Hidden";
+
 pub struct Hidden {
     weight: i8,
     name  : OptIden,

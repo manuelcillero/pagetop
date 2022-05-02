@@ -6,13 +6,11 @@ use crate::theme::*;
 static DEFAULT_THEME: Lazy<&dyn ThemeTrait> = Lazy::new(|| {
     match theme_by_name(&SETTINGS.app.theme) {
         Some(theme) => theme,
-        None => &base::theme::bootsier::BootsierTheme,
+        None => &base::theme::bootsier::Bootsier,
     }
 });
 
-// -----------------------------------------------------------------------------
 // Favicon.
-// -----------------------------------------------------------------------------
 
 pub struct Favicon(Vec<String>);
 
@@ -99,9 +97,7 @@ impl Favicon {
     }
 }
 
-// -----------------------------------------------------------------------------
 // StyleSheet.
-// -----------------------------------------------------------------------------
 
 pub struct StyleSheet {
     source: &'static str,
@@ -131,9 +127,7 @@ impl StyleSheet {
     }
 }
 
-// -----------------------------------------------------------------------------
 // JavaScript.
-// -----------------------------------------------------------------------------
 
 #[derive(PartialEq)]
 pub enum JSMode { Async, Defer, Normal }
@@ -177,9 +171,7 @@ impl JavaScript {
     }
 }
 
-// -----------------------------------------------------------------------------
 // Page assets.
-// -----------------------------------------------------------------------------
 
 pub struct PageAssets {
     theme      : &'static dyn ThemeTrait,

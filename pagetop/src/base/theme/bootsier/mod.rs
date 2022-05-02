@@ -4,17 +4,9 @@ include!(concat!(env!("OUT_DIR"), "/bootsier.rs"));
 
 localize!("src/base/theme/bootsier/locales");
 
-pub struct BootsierTheme;
+pub struct Bootsier;
 
-impl ThemeTrait for BootsierTheme {
-    fn name(&self) -> &'static str {
-        "Bootsier"
-    }
-
-    fn fullname(&self) -> String {
-        "Bootsier".to_owned()
-    }
-
+impl ThemeTrait for Bootsier {
     fn configure_theme(&self, cfg: &mut app::web::ServiceConfig) {
         theme_static_files!(cfg, "/bootsier");
     }

@@ -1,4 +1,8 @@
 mod row;
-pub use row::Row;
+pub use row::{
+    TYPENAME_ROW, Row
+};
 mod column;
-pub use column::Column;
+pub use column::{
+    TYPENAME_COLUMN, Column
+};

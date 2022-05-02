@@ -4,15 +4,11 @@ localize!("src/locales");
 
 mod summary;
 
-pub struct AdminModule;
+pub struct Admin;
 
-impl ModuleTrait for AdminModule {
-    fn name(&self) -> &'static str {
-        "Admin"
-    }
-
-    fn fullname(&self) -> String {
-        l("module_fullname")
+impl ModuleTrait for Admin {
+    fn name(&self) -> String {
+        l("module_name")
     }
 
     fn description(&self) -> Option<String> {

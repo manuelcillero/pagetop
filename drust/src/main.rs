@@ -1,9 +1,9 @@
 use pagetop::prelude::*;
 
 fn bootstrap() {
-    register_module(&pagetop_admin::AdminModule);
-    register_module(&pagetop_user::UserModule);
-    register_module(&pagetop_node::NodeModule);
+    register_module(&pagetop_admin::Admin);
+    register_module(&pagetop_user::User);
+    register_module(&pagetop_node::Node);
 }
 
 #[actix_web::main]

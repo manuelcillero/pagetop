@@ -1,13 +1,6 @@
 use crate::prelude::*;
 
-pub struct MinimalTheme;
+pub struct Minimal;
 
-impl ThemeTrait for MinimalTheme {
-    fn name(&self) -> &'static str {
-        "Minimal"
-    }
-
-    fn fullname(&self) -> String {
-        "Minimal".to_owned()
-    }
+impl ThemeTrait for Minimal {
 }

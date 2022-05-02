@@ -3,7 +3,7 @@ use super::l;
 
 pub async fn summary() -> app::Result<Markup> {
     let top_menu = Menu::new()
-        .add(MenuItem::label(l("module_fullname").as_str()))
+        .add(MenuItem::label(l("module_name").as_str()))
         .add(MenuItem::link("Opción 2", "https://www.google.es"))
         .add(MenuItem::link_blank("Opción 3", "https://www.google.es"))
         .add(MenuItem::submenu("Submenú 1", Menu::new()

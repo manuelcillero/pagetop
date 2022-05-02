@@ -1,11 +1,21 @@
 mod form;
-pub use form::{Form, FormMethod};
+pub use form::{
+    TYPENAME_FORM, Form, FormMethod
+};
 
 mod input;
-pub use input::{Input, InputType};
+pub use input::{
+    TYPENAME_INPUT, Input, InputType
+};
 mod hidden;
-pub use hidden::Hidden;
+pub use hidden::{
+    TYPENAME_HIDDEN, Hidden
+};
 mod date;
-pub use date::Date;
+pub use date::{
+    TYPENAME_DATE, Date
+};
 mod button;
-pub use button::{Button, ButtonType};
+pub use button::{
+    TYPENAME_BUTTON, Button, ButtonType
+};

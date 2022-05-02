@@ -1,16 +1,28 @@
 mod container;
-pub use container::{Container, ContainerType};
+pub use container::{
+    TYPENAME_CONTAINER, Container, ContainerType
+};
 
 pub mod grid;
 
 mod chunck;
-pub use chunck::Chunck;
+pub use chunck::{
+    TYPENAME_CHUNCK, Chunck
+};
 mod block;
-pub use block::Block;
+pub use block::{
+    TYPENAME_BLOCK, Block
+};
 mod image;
-pub use image::Image;
+pub use image::{
+    TYPENAME_IMAGE, Image
+};
 mod menu;
-pub use menu::{Menu, MenuItem, MenuItemType};
+pub use menu::{
+    TYPENAME_MENU, TYPENAME_MENUITEM, Menu, MenuItem, MenuItemType
+};
 
 pub mod form;
-pub use form::{Form, FormMethod};
+pub use form::{
+    TYPENAME_FORM, Form, FormMethod
+};

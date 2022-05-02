@@ -2,17 +2,9 @@ use crate::prelude::*;
 
 include!(concat!(env!("OUT_DIR"), "/aliner.rs"));
 
-pub struct AlinerTheme;
+pub struct Aliner;
 
-impl ThemeTrait for AlinerTheme {
-    fn name(&self) -> &'static str {
-        "Aliner"
-    }
-
-    fn fullname(&self) -> String {
-        "Aliner".to_owned()
-    }
-
+impl ThemeTrait for Aliner {
     fn configure_theme(&self, cfg: &mut app::web::ServiceConfig) {
         theme_static_files!(cfg, "/aliner");
     }
