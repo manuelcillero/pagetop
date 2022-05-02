@@ -1,24 +1,23 @@
 use crate::html::{Markup, html};
 use crate::response::page::PageAssets;
-
-use std::any::type_name;
+use crate::util::partial_type_name;
 
 pub use std::any::Any as AnyComponent;
 
-pub trait ComponentTrait: AnyComponent + Send + Sync {
+pub trait BaseComponent {
+    fn type_name(&self) -> &'static str;
+
+    fn single_name(&self) -> &'static str;
+
+    fn qualified_name(&self, last: usize) -> &'static str;
+}
+
+pub trait ComponentTrait: AnyComponent + BaseComponent + Send + Sync {
 
     fn new() -> Self where Self: Sized;
 
-    fn name(&self) -> &'static str {
-        let name = type_name::<Self>();
-        match name.rfind("::") {
-            Some(position) => &name[(position + 2)..],
-            None => name
-        }
-    }
-
-    fn fullname(&self) -> String {
-        type_name::<Self>().to_owned()
+    fn name(&self) -> String {
+        self.single_name().to_owned()
     }
 
     fn description(&self) -> Option<String> {
@@ -47,10 +46,24 @@ pub trait ComponentTrait: AnyComponent + Send + Sync {
     fn as_mut_any(&mut self) -> &mut dyn AnyComponent;
 }
 
-pub fn component_ref<T: 'static>(component: &dyn ComponentTrait) -> &T {
-    component.as_ref_any().downcast_ref::<T>().unwrap()
+impl<C: ?Sized + ComponentTrait> BaseComponent for C {
+    fn type_name(&self) -> &'static str {
+        std::any::type_name::<Self>()
+    }
+
+    fn single_name(&self) -> &'static str {
+        partial_type_name(std::any::type_name::<Self>(), 1)
+    }
+
+    fn qualified_name(&self, last: usize) -> &'static str {
+        partial_type_name(std::any::type_name::<Self>(), last)
+    }
 }
 
-pub fn component_mut<T: 'static>(component: &mut dyn ComponentTrait) -> &mut T {
-    component.as_mut_any().downcast_mut::<T>().unwrap()
+pub fn component_ref<C: 'static>(component: &dyn ComponentTrait) -> &C {
+    component.as_ref_any().downcast_ref::<C>().unwrap()
+}
+
+pub fn component_mut<C: 'static>(component: &mut dyn ComponentTrait) -> &mut C {
+    component.as_mut_any().downcast_mut::<C>().unwrap()
 }

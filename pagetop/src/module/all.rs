@@ -19,7 +19,7 @@ pub fn register_module(module: &'static dyn ModuleTrait) {
 fn add_to(list: &mut Vec<&dyn ModuleTrait>, module: &'static dyn ModuleTrait) {
     if !MODULES.read().unwrap().iter().any(|m| m.name() == module.name()) {
         if !list.iter().any(|m| m.name() == module.name()) {
-            trace::debug!("Registering \"{}\" module", module.name());
+            trace::debug!("Registering \"{}\" module", module.single_name());
             list.push(module);
 
             let mut dependencies = module.dependencies();

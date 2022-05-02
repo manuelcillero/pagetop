@@ -9,6 +9,7 @@ pub use assets::{
 mod component;
 pub use component::{
     AnyComponent,
+    BaseComponent,
     ComponentTrait,
     component_ref,
     component_mut,

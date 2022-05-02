@@ -1,5 +1,8 @@
 mod definition;
-pub use definition::ThemeTrait;
+pub use definition::{
+    BaseTheme,
+    ThemeTrait,
+};
 
 pub(crate) mod all;
 pub use all::{
