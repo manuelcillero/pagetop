@@ -1,7 +1,7 @@
 use crate::{app, concat_string};
 use crate::config::SETTINGS;
 use crate::html::{Markup, html};
-use crate::response::page::{ComponentTrait, Favicon, Page, PageAssets};
+use crate::core::response::page::{ComponentTrait, Favicon, Page, PageAssets};
 use crate::base::component::Chunck;
 use crate::util::partial_type_name;
 

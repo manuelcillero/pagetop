@@ -16,9 +16,11 @@ pub use crate::html::*;
 #[cfg(any(feature = "mysql", feature = "postgres", feature = "sqlite"))]
 pub use crate::{db, db::*, boxed_migration};
 
-pub use crate::theme::*;
-pub use crate::module::*;
-pub use crate::response::page::*;
+pub use crate::core::{
+    module::*,
+    response::page::*,
+    theme::*,
+};
 
 pub use crate::app;
 pub use crate::app::application::{Application, essence};

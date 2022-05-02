@@ -1,7 +1,7 @@
 use crate::{Lazy, app, trace};
 use crate::config::SETTINGS;
 use crate::html::*;
-use crate::response::page::*;
+use crate::core::response::page::*;
 
 use std::sync::RwLock;
 use std::collections::HashMap;

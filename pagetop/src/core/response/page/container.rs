@@ -1,5 +1,5 @@
 use crate::html::{Markup, html};
-use crate::response::page::{PageAssets, ComponentTrait, render_component};
+use crate::core::response::page::{PageAssets, ComponentTrait, render_component};
 
 use std::sync::{Arc, RwLock};
 

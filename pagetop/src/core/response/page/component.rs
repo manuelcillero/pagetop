@@ -1,5 +1,5 @@
 use crate::html::{Markup, html};
-use crate::response::page::PageAssets;
+use crate::core::response::page::PageAssets;
 use crate::util::partial_type_name;
 
 pub use std::any::Any as AnyComponent;
