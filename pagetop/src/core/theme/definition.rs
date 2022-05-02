@@ -92,7 +92,7 @@ pub trait ThemeTrait: BaseTheme + Send + Sync {
     /*
         Cómo usarlo:
 
-        match component.name() {
+        match component.single_name() {
             "Block" => {
                 let block = component_mut::<Block>(component);
                 block.alter_title("New title");
@@ -112,7 +112,7 @@ pub trait ThemeTrait: BaseTheme + Send + Sync {
     /*
         Cómo usarlo:
 
-        match component.name() {
+        match component.single_name() {
             "Block" => {
                 let block = component_ref::<Block>(component);
                 match block.template() {
