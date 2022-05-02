@@ -3,14 +3,14 @@ use crate::config::SETTINGS;
 use crate::html::{Markup, html};
 use crate::core::response::page::{ComponentTrait, Favicon, Page, PageAssets};
 use crate::base::component::Chunck;
-use crate::util::partial_type_name;
+use crate::util;
 
 pub trait BaseTheme {
     fn type_name(&self) -> &'static str;
 
     fn single_name(&self) -> &'static str;
 
-    fn qualified_name(&self, last: usize) -> &'static str;
+    fn qualified_name(&self, last: u8) -> &'static str;
 }
 
 /// Los temas deben implementar este "trait".
@@ -143,10 +143,10 @@ impl<T: ?Sized + ThemeTrait> BaseTheme for T {
     }
 
     fn single_name(&self) -> &'static str {
-        partial_type_name(std::any::type_name::<Self>(), 1)
+        util::partial_type_name(std::any::type_name::<Self>(), 1)
     }
 
-    fn qualified_name(&self, last: usize) -> &'static str {
-        partial_type_name(std::any::type_name::<Self>(), last)
+    fn qualified_name(&self, last: u8) -> &'static str {
+        util::partial_type_name(std::any::type_name::<Self>(), last)
     }
 }
