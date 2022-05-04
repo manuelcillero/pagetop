@@ -1,6 +1,8 @@
 use crate::html::{Markup, html};
-use crate::core::response::page::PageAssets;
 use crate::util;
+use crate::api::action::{action_ref, run_actions};
+use super::PageAssets;
+use super::action::ComponentAction;
 
 pub use std::any::Any as AnyComponent;
 
@@ -66,4 +68,28 @@ pub fn component_ref<C: 'static>(component: &dyn ComponentTrait) -> &C {
 
 pub fn component_mut<C: 'static>(component: &mut dyn ComponentTrait) -> &mut C {
     component.as_mut_any().downcast_mut::<C>().unwrap()
+}
+
+pub fn render_component(component: &mut dyn ComponentTrait, assets: &mut PageAssets) -> Markup {
+    // Acciones del componente antes de renderizar.
+    component.before_render(assets);
+
+    // Acciones de los módulos antes de renderizar el componente.
+    run_actions(
+        "",
+        |a| action_ref::<ComponentAction>(&**a).before_render_component(component, assets)
+    );
+
+    // Acciones del tema antes de renderizar el componente.
+    assets.theme().before_render_component(component, assets);
+
+    match component.is_renderable() {
+        true => {
+            match assets.theme().render_component(component, assets) {
+                Some(html) => html,
+                None => component.default_render(assets)
+            }
+        },
+        false => html! {}
+    }
 }

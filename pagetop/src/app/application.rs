@@ -1,6 +1,6 @@
 use crate::{Lazy, app, base, trace};
 use crate::config::SETTINGS;
-use crate::core::{module, theme};
+use crate::api::{module, theme};
 
 use std::io::Error;
 use actix_web::middleware::normalize::{NormalizePath, TrailingSlash};

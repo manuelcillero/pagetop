@@ -3,8 +3,6 @@ use crate::{app, util};
 #[cfg(any(feature = "mysql", feature = "postgres", feature = "sqlite"))]
 use crate::db;
 
-use super::ExtensionTrait;
-
 pub trait BaseModule {
     fn type_name(&self) -> &'static str;
 
@@ -25,10 +23,6 @@ pub trait ModuleTrait: BaseModule + Send + Sync {
 
     #[allow(unused_variables)]
     fn configure_module(&self, cfg: &mut app::web::ServiceConfig) {
-    }
-
-    fn extensions(&self) -> Vec<&'static dyn ExtensionTrait> {
-        vec![]
     }
 
     #[cfg(any(feature = "mysql", feature = "postgres", feature = "sqlite"))]

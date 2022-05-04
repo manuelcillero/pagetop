@@ -1,14 +1,12 @@
 use crate::{Lazy, app, trace};
 use crate::config::SETTINGS;
 use crate::html::*;
-use crate::core::response::page::*;
+use crate::api::action::{action_ref, run_actions};
+use crate::api::component::*;
 
-use std::sync::RwLock;
 use std::collections::HashMap;
 
-static COMPONENTS: Lazy<RwLock<HashMap<&str, PageContainer>>> = Lazy::new(|| {
-    RwLock::new(HashMap::new())
-});
+use super::action::PageAction;
 
 static DEFAULT_LANGUAGE: Lazy<Option<String>> = Lazy::new(|| {
     let language = SETTINGS.app.language[..2].to_lowercase();
@@ -65,7 +63,7 @@ impl<'a> Page<'a> {
             title       : OptAttr::new(),
             description : OptAttr::new(),
             assets      : PageAssets::new(),
-            regions     : COMPONENTS.read().unwrap().clone(),
+            regions     : common_components(),
             body_classes: Classes::new_with_default("body"),
             template    : "default".to_owned(),
         }
@@ -153,6 +151,12 @@ impl<'a> Page<'a> {
     // Page RENDER.
 
     pub fn render(&mut self) -> app::Result<Markup> {
+        // Acciones de los módulos antes de renderizar el tema.
+        run_actions(
+            "",
+            |a| action_ref::<PageAction>(&**a).before_render_page(self)
+        );
+
         // Acciones del tema antes de renderizar la página.
         self.assets.theme().before_render_page(self);
 
@@ -184,28 +188,5 @@ impl<'a> Page<'a> {
     pub fn using_theme(&mut self, theme_name: &str) -> &mut Self {
         self.assets.using_theme(theme_name);
         self
-    }
-}
-
-pub fn render_component(component: &mut dyn ComponentTrait, assets: &mut PageAssets) -> Markup {
-    component.before_render(assets);
-    assets.theme().before_render_component(component, assets);
-    match component.is_renderable() {
-        true => {
-            match assets.theme().render_component(component, assets) {
-                Some(html) => html,
-                None => component.default_render(assets)
-            }
-        },
-        false => html! {}
-    }
-}
-
-pub fn add_component_to(region: &'static str, component: impl ComponentTrait) {
-    let mut hmap = COMPONENTS.write().unwrap();
-    if let Some(regions) = hmap.get_mut(region) {
-        regions.add(component);
-    } else {
-        hmap.insert(region, PageContainer::new_with(component));
     }
 }

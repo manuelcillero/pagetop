@@ -1,3 +1,5 @@
+pub mod action;
+
 mod assets;
 pub use assets::{
     Favicon,
@@ -6,22 +8,24 @@ pub use assets::{
     PageAssets,
 };
 
-mod component;
-pub use component::{
+mod definition;
+pub use definition::{
     AnyComponent,
     BaseComponent,
     ComponentTrait,
     component_ref,
     component_mut,
 };
+use definition::render_component;
 
 mod container;
 pub use container::PageContainer;
 
-mod page;
-pub use page::Page;
-pub use page::render_component;
-pub use page::add_component_to;
+mod all;
+pub use all::{
+    add_component_to,
+    common_components,
+};
 
 pub fn render_always() -> bool { true }
 

@@ -1,6 +1,8 @@
 use crate::util;
 
-pub trait BaseExtension {
+pub use std::any::Any as AnyAction;
+
+pub trait BaseAction {
     fn type_name(&self) -> &'static str;
 
     fn single_name(&self) -> &'static str;
@@ -8,14 +10,17 @@ pub trait BaseExtension {
     fn qualified_name(&self, last: u8) -> &'static str;
 }
 
-/// Las extensiones deben extender este *trait*.
-pub trait ExtensionTrait: BaseExtension + Send + Sync {
+pub trait ActionTrait: AnyAction + BaseAction + Send + Sync {
+    fn new() -> Self where Self: Sized;
+
     fn weight(&self) -> i8 {
         0
     }
+
+    fn as_ref_any(&self) -> &dyn AnyAction;
 }
 
-impl<E: ?Sized + ExtensionTrait> BaseExtension for E {
+impl<C: ?Sized + ActionTrait> BaseAction for C {
     fn type_name(&self) -> &'static str {
         std::any::type_name::<Self>()
     }
@@ -27,4 +32,8 @@ impl<E: ?Sized + ExtensionTrait> BaseExtension for E {
     fn qualified_name(&self, last: u8) -> &'static str {
         util::partial_type_name(std::any::type_name::<Self>(), last)
     }
+}
+
+pub fn action_ref<A: 'static>(action: &dyn ActionTrait) -> &A {
+    action.as_ref_any().downcast_ref::<A>().unwrap()
 }
