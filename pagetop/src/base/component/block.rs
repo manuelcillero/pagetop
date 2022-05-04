@@ -4,7 +4,7 @@ pub const TYPENAME_BLOCK: &str = "pagetop::base::component::block::Block";
 
 pub struct Block {
     renderable: fn() -> bool,
-    weight    : i8,
+    weight    : isize,
     components: PageContainer,
     title     : OptAttr,
     id        : OptIden,
@@ -29,7 +29,7 @@ impl ComponentTrait for Block {
         (self.renderable)()
     }
 
-    fn weight(&self) -> i8 {
+    fn weight(&self) -> isize {
         self.weight
     }
 
@@ -77,7 +77,7 @@ impl Block {
         self
     }
 
-    pub fn with_weight(mut self, weight: i8) -> Self {
+    pub fn with_weight(mut self, weight: isize) -> Self {
         self.alter_weight(weight);
         self
     }
@@ -109,7 +109,7 @@ impl Block {
         self
     }
 
-    pub fn alter_weight(&mut self, weight: i8) -> &mut Self {
+    pub fn alter_weight(&mut self, weight: isize) -> &mut Self {
         self.weight = weight;
         self
     }

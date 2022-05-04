@@ -8,7 +8,7 @@ pub trait BaseModule {
 
     fn single_name(&self) -> &'static str;
 
-    fn qualified_name(&self, last: u8) -> &'static str;
+    fn qualified_name(&self, last: usize) -> &'static str;
 }
 
 /// Los módulos deben implementar este *trait*.
@@ -45,7 +45,7 @@ impl<M: ?Sized + ModuleTrait> BaseModule for M {
         util::partial_type_name(std::any::type_name::<Self>(), 1)
     }
 
-    fn qualified_name(&self, last: u8) -> &'static str {
+    fn qualified_name(&self, last: usize) -> &'static str {
         util::partial_type_name(std::any::type_name::<Self>(), last)
     }
 }

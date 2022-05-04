@@ -17,7 +17,7 @@ pub enum MenuItemType {
 
 pub struct MenuItem {
     renderable: fn() -> bool,
-    weight    : i8,
+    weight    : isize,
     item_type : MenuItemType,
 }
 
@@ -34,7 +34,7 @@ impl ComponentTrait for MenuItem {
         (self.renderable)()
     }
 
-    fn weight(&self) -> i8 {
+    fn weight(&self) -> isize {
         self.weight
     }
 
@@ -143,7 +143,7 @@ impl MenuItem {
         self
     }
 
-    pub fn with_weight(mut self, weight: i8) -> Self {
+    pub fn with_weight(mut self, weight: isize) -> Self {
         self.alter_weight(weight);
         self
     }
@@ -155,7 +155,7 @@ impl MenuItem {
         self
     }
 
-    pub fn alter_weight(&mut self, weight: i8) -> &mut Self {
+    pub fn alter_weight(&mut self, weight: isize) -> &mut Self {
         self.weight = weight;
         self
     }
@@ -171,7 +171,7 @@ impl MenuItem {
 
 pub struct Menu {
     renderable: fn() -> bool,
-    weight    : i8,
+    weight    : isize,
     items     : PageContainer,
     id        : OptIden,
     classes   : Classes,
@@ -194,7 +194,7 @@ impl ComponentTrait for Menu {
         (self.renderable)()
     }
 
-    fn weight(&self) -> i8 {
+    fn weight(&self) -> isize {
         self.weight
     }
 
@@ -254,7 +254,7 @@ impl Menu {
         self
     }
 
-    pub fn with_weight(mut self, weight: i8) -> Self {
+    pub fn with_weight(mut self, weight: isize) -> Self {
         self.alter_weight(weight);
         self
     }
@@ -281,7 +281,7 @@ impl Menu {
         self
     }
 
-    pub fn alter_weight(&mut self, weight: i8) -> &mut Self {
+    pub fn alter_weight(&mut self, weight: isize) -> &mut Self {
         self.weight = weight;
         self
     }

@@ -8,7 +8,7 @@ pub enum TypeAction {
 
 pub struct ComponentAction {
     action: TypeAction,
-    weight: i8,
+    weight: isize,
 }
 
 impl ActionTrait for ComponentAction {
@@ -19,7 +19,7 @@ impl ActionTrait for ComponentAction {
         }
     }
 
-    fn weight(&self) -> i8 {
+    fn weight(&self) -> isize {
         self.weight
     }
 
@@ -36,7 +36,7 @@ impl ComponentAction {
         }
     }
 
-    pub fn new_with_weight(action: TypeAction, weight: i8) -> Self {
+    pub fn new_with_weight(action: TypeAction, weight: isize) -> Self {
         ComponentAction {
             action,
             weight,

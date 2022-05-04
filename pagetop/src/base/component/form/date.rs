@@ -4,7 +4,7 @@ pub const TYPENAME_DATE: &str = "pagetop::base::component::form::date::Date";
 
 pub struct Date {
     renderable  : fn() -> bool,
-    weight      : i8,
+    weight      : isize,
     name        : OptAttr,
     value       : OptAttr,
     label       : OptAttr,
@@ -44,7 +44,7 @@ impl ComponentTrait for Date {
         (self.renderable)()
     }
 
-    fn weight(&self) -> i8 {
+    fn weight(&self) -> isize {
         self.weight
     }
 
@@ -105,7 +105,7 @@ impl Date {
         self
     }
 
-    pub fn with_weight(mut self, weight: i8) -> Self {
+    pub fn with_weight(mut self, weight: isize) -> Self {
         self.alter_weight(weight);
         self
     }
@@ -177,7 +177,7 @@ impl Date {
         self
     }
 
-    pub fn alter_weight(&mut self, weight: i8) -> &mut Self {
+    pub fn alter_weight(&mut self, weight: isize) -> &mut Self {
         self.weight = weight;
         self
     }

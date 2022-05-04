@@ -6,7 +6,7 @@ pub enum InputType {Email, Password, Search, Telephone, Textfield, Url}
 
 pub struct Input {
     renderable  : fn() -> bool,
-    weight      : i8,
+    weight      : isize,
     input_type  : InputType,
     name        : OptIden,
     value       : OptAttr,
@@ -54,7 +54,7 @@ impl ComponentTrait for Input {
         (self.renderable)()
     }
 
-    fn weight(&self) -> i8 {
+    fn weight(&self) -> isize {
         self.weight
     }
 
@@ -171,7 +171,7 @@ impl Input {
         self
     }
 
-    pub fn with_weight(mut self, weight: i8) -> Self {
+    pub fn with_weight(mut self, weight: isize) -> Self {
         self.alter_weight(weight);
         self
     }
@@ -258,7 +258,7 @@ impl Input {
         self
     }
 
-    pub fn alter_weight(&mut self, weight: i8) -> &mut Self {
+    pub fn alter_weight(&mut self, weight: isize) -> &mut Self {
         self.weight = weight;
         self
     }

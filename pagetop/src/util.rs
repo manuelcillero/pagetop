@@ -47,12 +47,11 @@ macro_rules! theme_static_files {
     }};
 }
 
-pub(crate) fn partial_type_name(type_name: &'static str, last: u8) -> &'static str {
+pub(crate) fn partial_type_name(type_name: &'static str, last: usize) -> &'static str {
     if last == 0 {
         return type_name;
     }
     let positions: Vec<_> = type_name.rmatch_indices("::").collect();
-    let last: usize = last as usize;
     if positions.len() < last {
         return type_name;
     }

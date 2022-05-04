@@ -101,7 +101,7 @@ impl Favicon {
 
 pub struct StyleSheet {
     source: &'static str,
-    weight: i8,
+    weight: isize,
 }
 impl StyleSheet {
     pub fn source(s: &'static str) -> Self {
@@ -111,12 +111,12 @@ impl StyleSheet {
         }
     }
 
-    pub fn with_weight(mut self, weight: i8) -> Self {
+    pub fn with_weight(mut self, weight: isize) -> Self {
         self.weight = weight;
         self
     }
 
-    pub fn weight(self) -> i8 {
+    pub fn weight(self) -> isize {
         self.weight
     }
 
@@ -134,7 +134,7 @@ pub enum JSMode { Async, Defer, Normal }
 
 pub struct JavaScript {
     source: &'static str,
-    weight: i8,
+    weight: isize,
     mode  : JSMode,
 }
 impl JavaScript {
@@ -146,7 +146,7 @@ impl JavaScript {
         }
     }
 
-    pub fn with_weight(mut self, weight: i8) -> Self {
+    pub fn with_weight(mut self, weight: isize) -> Self {
         self.weight = weight;
         self
     }
@@ -156,7 +156,7 @@ impl JavaScript {
         self
     }
 
-    pub fn weight(self) -> i8 {
+    pub fn weight(self) -> isize {
         self.weight
     }
 
@@ -180,7 +180,7 @@ pub struct PageAssets {
     stylesheets: Vec<StyleSheet>,
     javascripts: Vec<JavaScript>,
     with_jquery: bool,
-    id_counter : u32,
+    id_counter : usize,
 }
 
 impl PageAssets {
@@ -239,7 +239,7 @@ impl PageAssets {
                 JavaScript::source(
                     "/theme/js/jquery.min.js?ver=3.6.0"
                 )
-                .with_weight(i8::MIN)
+                .with_weight(isize::MIN)
                 .with_mode(JSMode::Normal)
             );
             self.with_jquery = true;

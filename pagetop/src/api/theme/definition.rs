@@ -11,7 +11,7 @@ pub trait BaseTheme {
 
     fn single_name(&self) -> &'static str;
 
-    fn qualified_name(&self, last: u8) -> &'static str;
+    fn qualified_name(&self, last: usize) -> &'static str;
 }
 
 /// Los temas deben implementar este "trait".
@@ -147,7 +147,7 @@ impl<T: ?Sized + ThemeTrait> BaseTheme for T {
         util::partial_type_name(std::any::type_name::<Self>(), 1)
     }
 
-    fn qualified_name(&self, last: u8) -> &'static str {
+    fn qualified_name(&self, last: usize) -> &'static str {
         util::partial_type_name(std::any::type_name::<Self>(), last)
     }
 }

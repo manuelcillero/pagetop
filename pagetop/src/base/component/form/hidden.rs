@@ -3,7 +3,7 @@ use crate::prelude::*;
 pub const TYPENAME_HIDDEN: &str = "pagetop::base::component::form::hidden::Hidden";
 
 pub struct Hidden {
-    weight: i8,
+    weight: isize,
     name  : OptIden,
     value : OptAttr,
 }
@@ -17,7 +17,7 @@ impl ComponentTrait for Hidden {
         }
     }
 
-    fn weight(&self) -> i8 {
+    fn weight(&self) -> isize {
         self.weight
     }
 
@@ -47,7 +47,7 @@ impl Hidden {
 
     // Hidden BUILDER.
 
-    pub fn with_weight(mut self, weight: i8) -> Self {
+    pub fn with_weight(mut self, weight: isize) -> Self {
         self.alter_weight(weight);
         self
     }
@@ -64,7 +64,7 @@ impl Hidden {
 
     // Hidden ALTER.
 
-    pub fn alter_weight(&mut self, weight: i8) -> &mut Self {
+    pub fn alter_weight(&mut self, weight: isize) -> &mut Self {
         self.weight = weight;
         self
     }

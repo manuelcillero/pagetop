@@ -7,13 +7,13 @@ pub trait BaseAction {
 
     fn single_name(&self) -> &'static str;
 
-    fn qualified_name(&self, last: u8) -> &'static str;
+    fn qualified_name(&self, last: usize) -> &'static str;
 }
 
 pub trait ActionTrait: AnyAction + BaseAction + Send + Sync {
     fn new() -> Self where Self: Sized;
 
-    fn weight(&self) -> i8 {
+    fn weight(&self) -> isize {
         0
     }
 
@@ -29,7 +29,7 @@ impl<C: ?Sized + ActionTrait> BaseAction for C {
         util::partial_type_name(std::any::type_name::<Self>(), 1)
     }
 
-    fn qualified_name(&self, last: u8) -> &'static str {
+    fn qualified_name(&self, last: usize) -> &'static str {
         util::partial_type_name(std::any::type_name::<Self>(), last)
     }
 }

@@ -6,7 +6,7 @@ pub enum FormMethod {Get, Post}
 
 pub struct Form {
     renderable: fn() -> bool,
-    weight    : i8,
+    weight    : isize,
     elements  : PageContainer,
     action    : OptAttr,
     charset   : OptAttr,
@@ -35,7 +35,7 @@ impl ComponentTrait for Form {
         (self.renderable)()
     }
 
-    fn weight(&self) -> i8 {
+    fn weight(&self) -> isize {
         self.weight
     }
 
@@ -86,7 +86,7 @@ impl Form {
         self
     }
 
-    pub fn with_weight(mut self, weight: i8) -> Self {
+    pub fn with_weight(mut self, weight: isize) -> Self {
         self.alter_weight(weight);
         self
     }
@@ -128,7 +128,7 @@ impl Form {
         self
     }
 
-    pub fn alter_weight(&mut self, weight: i8) -> &mut Self {
+    pub fn alter_weight(&mut self, weight: isize) -> &mut Self {
         self.weight = weight;
         self
     }
