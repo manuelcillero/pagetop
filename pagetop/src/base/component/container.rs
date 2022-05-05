@@ -37,7 +37,7 @@ impl ComponentTrait for Container {
         self.weight
     }
 
-    fn default_render(&self, assets: &mut PageAssets) -> Markup {
+    fn default_render(&self, assets: &mut Assets) -> Markup {
         match self.container_type() {
             ContainerType::Header => html! {
                 header id=[self.id()] class=[self.classes()] {

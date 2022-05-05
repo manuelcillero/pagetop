@@ -38,7 +38,7 @@ impl ComponentTrait for MenuItem {
         self.weight
     }
 
-    fn default_render(&self, assets: &mut PageAssets) -> Markup {
+    fn default_render(&self, assets: &mut Assets) -> Markup {
         match self.item_type() {
             MenuItemType::Label(label) => html! {
                 li class="label" { a href="#" { (label) } }
@@ -198,7 +198,7 @@ impl ComponentTrait for Menu {
         self.weight
     }
 
-    fn default_render(&self, assets: &mut PageAssets) -> Markup {
+    fn default_render(&self, assets: &mut Assets) -> Markup {
         assets
             .add_stylesheet(StyleSheet::source(
                 "/theme/menu/css/menu.css?ver=1.1.1"

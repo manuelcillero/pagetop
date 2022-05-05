@@ -27,7 +27,7 @@ impl ThemeTrait for Bulmix {
     fn before_render_component(
         &self,
         component: &mut dyn ComponentTrait,
-        _assets: &mut PageAssets
+        _assets: &mut Assets
     ) {
         match component.type_name() {
             grid::TYPENAME_ROW => {

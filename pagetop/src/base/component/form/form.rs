@@ -39,7 +39,7 @@ impl ComponentTrait for Form {
         self.weight
     }
 
-    fn default_render(&self, assets: &mut PageAssets) -> Markup {
+    fn default_render(&self, assets: &mut Assets) -> Markup {
         let method = match self.method() {
             FormMethod::Get => None,
             FormMethod::Post => Some("post".to_owned())

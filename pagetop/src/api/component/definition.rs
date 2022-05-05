@@ -2,7 +2,7 @@ use crate::html::{Markup, html};
 use crate::api::action::{action_ref, run_actions};
 use crate::util;
 use super::{ACTION_BEFORE_RENDER_COMPONENT, ActionBeforeRenderComponent};
-use super::PageAssets;
+use super::Assets;
 
 pub use std::any::Any as AnyComponent;
 
@@ -35,11 +35,11 @@ pub trait ComponentTrait: AnyComponent + BaseComponent + Send + Sync {
     }
 
     #[allow(unused_variables)]
-    fn before_render(&mut self, assets: &mut PageAssets) {
+    fn before_render(&mut self, assets: &mut Assets) {
     }
 
     #[allow(unused_variables)]
-    fn default_render(&self, assets: &mut PageAssets) -> Markup {
+    fn default_render(&self, assets: &mut Assets) -> Markup {
         html! {}
     }
 
@@ -70,7 +70,7 @@ pub fn component_mut<C: 'static>(component: &mut dyn ComponentTrait) -> &mut C {
     component.as_mut_any().downcast_mut::<C>().unwrap()
 }
 
-pub fn render_component(component: &mut dyn ComponentTrait, assets: &mut PageAssets) -> Markup {
+pub fn render_component(component: &mut dyn ComponentTrait, assets: &mut Assets) -> Markup {
     // Acciones del componente antes de renderizar.
     component.before_render(assets);
 

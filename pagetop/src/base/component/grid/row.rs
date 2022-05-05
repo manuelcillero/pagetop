@@ -31,7 +31,7 @@ impl ComponentTrait for Row {
         self.weight
     }
 
-    fn default_render(&self, assets: &mut PageAssets) -> Markup {
+    fn default_render(&self, assets: &mut Assets) -> Markup {
         html! {
             div id=[self.id()] class=[self.classes()] {
                 (self.columns().render(assets))

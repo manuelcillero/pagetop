@@ -173,7 +173,7 @@ impl JavaScript {
 
 // Page assets.
 
-pub struct PageAssets {
+pub struct Assets {
     theme      : &'static dyn ThemeTrait,
     favicon    : Option<Favicon>,
     metadata   : Vec<(String, String)>,
@@ -183,9 +183,9 @@ pub struct PageAssets {
     id_counter : usize,
 }
 
-impl PageAssets {
+impl Assets {
     pub fn new() -> Self {
-        PageAssets {
+        Assets {
             theme      : *DEFAULT_THEME,
             favicon    : None,
             metadata   : Vec::new(),

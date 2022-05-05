@@ -33,7 +33,7 @@ impl ComponentTrait for Block {
         self.weight
     }
 
-    fn default_render(&self, assets: &mut PageAssets) -> Markup {
+    fn default_render(&self, assets: &mut Assets) -> Markup {
         let id = assets.serial_id(self.single_name(), self.id());
         html! {
             div id=(id) class=[self.classes()] {

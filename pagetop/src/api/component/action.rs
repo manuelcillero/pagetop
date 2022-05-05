@@ -1,10 +1,10 @@
 use crate::api::action::{ActionTrait, AnyAction};
-use super::{ComponentTrait, PageAssets};
+use super::{Assets, ComponentTrait};
 
 pub const ACTION_BEFORE_RENDER_COMPONENT: &str = "pagetop::render::before_render_component";
 
 pub struct ActionBeforeRenderComponent {
-    action: Option<fn(&mut dyn ComponentTrait, &mut PageAssets)>,
+    action: Option<fn(&mut dyn ComponentTrait, &mut Assets)>,
     weight: isize,
 }
 
@@ -30,7 +30,7 @@ impl ActionTrait for ActionBeforeRenderComponent {
 }
 
 impl ActionBeforeRenderComponent {
-    pub fn with_action(mut self, action: fn(&mut dyn ComponentTrait, &mut PageAssets)) -> Self {
+    pub fn with_action(mut self, action: fn(&mut dyn ComponentTrait, &mut Assets)) -> Self {
         self.action = Some(action);
         self
     }
@@ -40,7 +40,7 @@ impl ActionBeforeRenderComponent {
         self
     }
 
-    pub fn run(&self, component: &mut dyn ComponentTrait, assets: &mut PageAssets) {
+    pub fn run(&self, component: &mut dyn ComponentTrait, assets: &mut Assets) {
         if let Some(action) = self.action {
             action(component, assets)
         }

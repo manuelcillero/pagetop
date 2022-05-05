@@ -6,10 +6,10 @@ pub use action::{
 
 mod assets;
 pub use assets::{
+    Assets,
     Favicon,
     StyleSheet,
     JavaScript, JSMode,
-    PageAssets,
 };
 
 mod definition;

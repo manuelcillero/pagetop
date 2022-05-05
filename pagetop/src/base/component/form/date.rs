@@ -48,7 +48,7 @@ impl ComponentTrait for Date {
         self.weight
     }
 
-    fn default_render(&self, _: &mut PageAssets) -> Markup {
+    fn default_render(&self, _: &mut Assets) -> Markup {
         let id = match self.name() {
             Some(name) => Some(concat_string!("edit-", name)),
             None => None,

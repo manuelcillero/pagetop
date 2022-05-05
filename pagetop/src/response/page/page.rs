@@ -41,7 +41,7 @@ pub struct Page<'a> {
     direction   : OptAttr,
     title       : OptAttr,
     description : OptAttr,
-    assets      : PageAssets,
+    assets      : Assets,
     regions     : HashMap<&'a str, ComponentsHolder>,
     body_classes: Classes,
     template    : String,
@@ -61,7 +61,7 @@ impl<'a> Page<'a> {
             },
             title       : OptAttr::new(),
             description : OptAttr::new(),
-            assets      : PageAssets::new(),
+            assets      : Assets::new(),
             regions     : common_components(),
             body_classes: Classes::new_with_default("body"),
             template    : "default".to_owned(),
@@ -135,7 +135,7 @@ impl<'a> Page<'a> {
         self.description.option()
     }
 
-    pub fn assets(&mut self) -> &mut PageAssets {
+    pub fn assets(&mut self) -> &mut Assets {
         &mut self.assets
     }
 

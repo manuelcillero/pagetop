@@ -1,5 +1,5 @@
 use crate::html::{Markup, html};
-use super::{ComponentTrait, PageAssets};
+use super::{Assets, ComponentTrait};
 
 use std::sync::{Arc, RwLock};
 
@@ -21,7 +21,7 @@ impl ComponentsHolder {
         self.0.push(Arc::new(RwLock::new(component)));
     }
 
-    pub fn render(&self, assets: &mut PageAssets) -> Markup {
+    pub fn render(&self, assets: &mut Assets) -> Markup {
         let mut components = self.0.clone();
         components.sort_by_key(|c| c.read().unwrap().weight());
         html! {
