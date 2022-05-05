@@ -72,7 +72,7 @@ impl Classes {
 
             ClassesOp::SetDefault => self.default = classes.to_owned(),
         }
-        self.option = Some(concat_string!(self.default, " ", self.added).trim().to_owned());
+        self.option = Some(concat_string!(self.default, " ", self.added.trim()).to_owned());
         self
     }
 

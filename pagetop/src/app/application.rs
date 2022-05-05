@@ -9,12 +9,10 @@ pub struct Application {
     server: app::Server,
 }
 
-pub fn essence() {
-    trace::info!("No bootstrap configured");
-}
+pub enum UsingBootstrap {Fn(fn()), No}
 
 impl Application {
-    pub async fn prepare(bootstrap: fn()) -> Result<Self, Error> {
+    pub async fn prepare(bootstrap: UsingBootstrap) -> Result<Self, Error> {
         // Rótulo de presentación.
         app::banner::print_on_startup();
 
@@ -36,15 +34,20 @@ impl Application {
 
         // Ejecuta la función de inicio de la aplicación.
         trace::info!("Calling application bootstrap");
-        let _ = &bootstrap();
+        if let UsingBootstrap::Fn(bootstrap) = bootstrap {
+            let _ = &bootstrap();
+        }
 
         // Registra el módulo de presentación de PageTop.
         // Normalmente se sobrecargará en la función de inicio.
         module::register_module(&base::module::demopage::Demopage);
 
+        // Registra las acciones de todos los módulos.
+        module::all::register_actions();
+
         // Actualizaciones pendientes de la base de datos (opcional).
         #[cfg(any(feature = "mysql", feature = "postgres", feature = "sqlite"))]
-        module::all::migrations();
+        module::all::run_migrations();
 
         // Prepara el servidor web.
         let server = app::HttpServer::new(move || {

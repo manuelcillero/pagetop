@@ -20,12 +20,18 @@ impl ModuleTrait for Node {
         cfg.route("/node", app::web::get().to(node));
     }
 
-    fn migrations(&self) -> Vec<Box<dyn db::MigrationTrait>> {
+    fn actions(&self) -> Vec<ActionItem> {
         vec![
-            boxed_migration!(m20220316_000001_create_table_node_type),
-            boxed_migration!(m20220316_000002_create_table_node),
-            boxed_migration!(m20220316_000003_create_table_node_access),
-            boxed_migration!(m20220316_000004_create_table_node_revision),
+            action_item!(ActionBeforeRenderPage => before_render_page, -1)
+        ]
+    }
+
+    fn migrations(&self) -> Vec<MigrationItem> {
+        vec![
+            migration_item!(m20220316_000001_create_table_node_type),
+            migration_item!(m20220316_000002_create_table_node),
+            migration_item!(m20220316_000003_create_table_node_access),
+            migration_item!(m20220316_000004_create_table_node_revision),
         ]
     }
 }
@@ -36,4 +42,8 @@ async fn node() -> app::Result<Markup> {
             "Nodo"
         )
         .render()
+}
+
+fn before_render_page(page: &mut Page) {
+    page.alter_body_classes("test-node", ClassesOp::Add);
 }

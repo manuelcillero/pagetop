@@ -19,17 +19,6 @@ macro_rules! args {
 }
 
 #[macro_export]
-macro_rules! module_name {
-    () => {{
-        let name = module_path!();
-        match name.rfind("::") {
-            Some(position) => &name[(position + 2)..],
-            None => name
-        }
-    }};
-}
-
-#[macro_export]
 macro_rules! theme_static_files {
     ( $cfg:ident, $dir:expr ) => {{
         let static_files = &$crate::config::SETTINGS.dev.static_files;
@@ -47,7 +36,7 @@ macro_rules! theme_static_files {
     }};
 }
 
-pub(crate) fn partial_type_name(type_name: &'static str, last: usize) -> &'static str {
+pub fn partial_type_name(type_name: &'static str, last: usize) -> &'static str {
     if last == 0 {
         return type_name;
     }

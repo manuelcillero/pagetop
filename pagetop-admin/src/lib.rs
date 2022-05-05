@@ -21,4 +21,14 @@ impl ModuleTrait for Admin {
                 .route("", app::web::get().to(summary::summary))
         );
     }
+
+    fn actions(&self) -> Vec<ActionItem> {
+        vec![
+            action_item!(ActionBeforeRenderPage => before_render_page)
+        ]
+    }
+}
+
+fn before_render_page(page: &mut Page) {
+    page.alter_body_classes("test-admin", ClassesOp::Add);
 }

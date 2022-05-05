@@ -16,7 +16,7 @@ enum User {
     Timezone,           // User's time zone.
 }
 
-pub struct Migration;
+pub_migration!(Migration);
 
 #[async_trait::async_trait]
 impl MigrationTrait for Migration {
@@ -75,11 +75,5 @@ impl MigrationTrait for Migration {
             .to_owned()
         )
         .await
-    }
-}
-
-impl MigrationName for Migration {
-    fn name(&self) -> &str {
-        module_name!()
     }
 }

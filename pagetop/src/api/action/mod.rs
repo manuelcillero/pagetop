@@ -2,18 +2,21 @@ mod definition;
 pub use definition::{
     ActionTrait,
     AnyAction,
-    BaseAction,
     action_ref,
 };
 
 mod holder;
 pub use holder::{
     ActionItem,
+};
+pub(crate) use holder::{
     ActionsHolder,
 };
 
 mod all;
 pub use all::{
-    register_action,
     run_actions,
+};
+pub(crate) use all::{
+    add_action,
 };

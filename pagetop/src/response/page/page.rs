@@ -6,7 +6,7 @@ use crate::api::component::*;
 
 use std::collections::HashMap;
 
-use super::action::PageAction;
+use super::{ACTION_BEFORE_RENDER_PAGE, ActionBeforeRenderPage};
 
 static DEFAULT_LANGUAGE: Lazy<Option<String>> = Lazy::new(|| {
     let language = SETTINGS.app.language[..2].to_lowercase();
@@ -151,10 +151,10 @@ impl<'a> Page<'a> {
     // Page RENDER.
 
     pub fn render(&mut self) -> app::Result<Markup> {
-        // Acciones de los módulos antes de renderizar el tema.
+        // Acciones de los módulos antes de renderizar la página.
         run_actions(
-            "",
-            |a| action_ref::<PageAction>(&**a).before_render_page(self)
+            ACTION_BEFORE_RENDER_PAGE,
+            |a| action_ref::<ActionBeforeRenderPage>(&**a).run(self)
         );
 
         // Acciones del tema antes de renderizar la página.

@@ -1,7 +1,8 @@
 use crate::{app, util};
+use crate::api::action::ActionItem;
 
 #[cfg(any(feature = "mysql", feature = "postgres", feature = "sqlite"))]
-use crate::db;
+use crate::db::MigrationItem;
 
 pub trait BaseModule {
     fn type_name(&self) -> &'static str;
@@ -25,9 +26,13 @@ pub trait ModuleTrait: BaseModule + Send + Sync {
     fn configure_module(&self, cfg: &mut app::web::ServiceConfig) {
     }
 
+    fn actions(&self) -> Vec<ActionItem> {
+        vec![]
+    }
+
     #[cfg(any(feature = "mysql", feature = "postgres", feature = "sqlite"))]
     #[allow(unused_variables)]
-    fn migrations(&self) -> Vec<Box<dyn db::MigrationTrait>> {
+    fn migrations(&self) -> Vec<MigrationItem> {
         vec![]
     }
 

@@ -19,12 +19,12 @@ impl ModuleTrait for User {
         cfg.route("/user/login", app::web::get().to(login));
     }
 
-    fn migrations(&self) -> Vec<Box<dyn db::MigrationTrait>> {
+    fn migrations(&self) -> Vec<MigrationItem> {
         vec![
-            boxed_migration!(m20220312_000001_create_table_role),
-            boxed_migration!(m20220312_000002_create_table_role_permission),
-            boxed_migration!(m20220312_000003_create_table_user),
-            boxed_migration!(m20220312_000004_create_table_user_role),
+            migration_item!(m20220312_000001_create_table_role),
+            migration_item!(m20220312_000002_create_table_role_permission),
+            migration_item!(m20220312_000003_create_table_user),
+            migration_item!(m20220312_000004_create_table_user_role),
         ]
     }
 }

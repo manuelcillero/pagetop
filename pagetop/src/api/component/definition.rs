@@ -2,7 +2,7 @@ use crate::html::{Markup, html};
 use crate::util;
 use crate::api::action::{action_ref, run_actions};
 use super::PageAssets;
-use super::action::ComponentAction;
+use super::{ACTION_BEFORE_RENDER_COMPONENT, ActionBeforeRenderComponent};
 
 pub use std::any::Any as AnyComponent;
 
@@ -76,8 +76,8 @@ pub fn render_component(component: &mut dyn ComponentTrait, assets: &mut PageAss
 
     // Acciones de los módulos antes de renderizar el componente.
     run_actions(
-        "",
-        |a| action_ref::<ComponentAction>(&**a).before_render_component(component, assets)
+        ACTION_BEFORE_RENDER_COMPONENT,
+        |a| action_ref::<ActionBeforeRenderComponent>(&**a).run(component, assets)
     );
 
     // Acciones del tema antes de renderizar el componente.

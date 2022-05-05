@@ -8,5 +8,5 @@ fn bootstrap() {
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    Application::prepare(bootstrap).await?.run()?.await
+    Application::prepare(UsingBootstrap::Fn(bootstrap)).await?.run()?.await
 }

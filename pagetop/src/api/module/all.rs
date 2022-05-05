@@ -1,4 +1,5 @@
 use crate::{Lazy, app, run_now, trace};
+use crate::api::action::add_action;
 use crate::db::*;
 use super::ModuleTrait;
 
@@ -37,12 +38,20 @@ pub fn modules(cfg: &mut app::web::ServiceConfig) {
     }
 }
 
+pub fn register_actions() {
+    for m in MODULES.read().unwrap().iter() {
+        for a in m.actions().into_iter() {
+            add_action(a);
+        }
+    }
+}
+
 #[cfg(any(feature = "mysql", feature = "postgres", feature = "sqlite"))]
-pub fn migrations() {
+pub fn run_migrations() {
     run_now({
         struct Migrator;
         impl MigratorTrait for Migrator {
-            fn migrations() -> Vec<Box<dyn MigrationTrait>> {
+            fn migrations() -> Vec<MigrationItem> {
                 let mut migrations = vec![];
                 for m in MODULES.read().unwrap().iter() {
                     migrations.append(&mut m.migrations());

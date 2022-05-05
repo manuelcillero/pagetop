@@ -1,24 +1,23 @@
 use crate::api::action::{ActionTrait, AnyAction};
-use crate::api::component::{ComponentTrait, PageAssets};
 use super::Page;
 
-pub enum TypeAction {
-    BeforeRenderPage(fn(&mut Page)),
-    BeforeRenderComponent(fn(&mut dyn ComponentTrait, &mut PageAssets)),
-    None,
-}
+pub const ACTION_BEFORE_RENDER_PAGE: &str = "pagetop::render::before_render_page";
 
-pub struct PageAction {
-    action: TypeAction,
+pub struct ActionBeforeRenderPage {
+    action: Option<fn(&mut Page)>,
     weight: isize,
 }
 
-impl ActionTrait for PageAction {
+impl ActionTrait for ActionBeforeRenderPage {
     fn new() -> Self {
-        PageAction {
-            action: TypeAction::None,
+        ActionBeforeRenderPage {
+            action: None,
             weight: 0,
         }
+    }
+
+    fn machine_name(&self) -> &'static str {
+        ACTION_BEFORE_RENDER_PAGE
     }
 
     fn weight(&self) -> isize {
@@ -30,34 +29,20 @@ impl ActionTrait for PageAction {
     }
 }
 
-impl PageAction {
-    pub fn new(action: TypeAction) -> Self {
-        PageAction {
-            action,
-            weight: 0,
-        }
+impl ActionBeforeRenderPage {
+    pub fn with_action(mut self, action: fn(&mut Page)) -> Self {
+        self.action = Some(action);
+        self
     }
 
-    pub fn new_with_weight(action: TypeAction, weight: isize) -> Self {
-        PageAction {
-            action,
-            weight,
-        }
+    pub fn with_weight(mut self, weight: isize) -> Self {
+        self.weight = weight;
+        self
     }
 
-    pub fn before_render_page(&self, page: &mut Page) {
-        if let TypeAction::BeforeRenderPage(f) = self.action {
-            f(page)
-        }
-    }
-
-    pub fn before_render_component(
-        &self,
-        component: &mut dyn ComponentTrait,
-        assets: &mut PageAssets)
-    {
-        if let TypeAction::BeforeRenderComponent(f) = self.action {
-            f(component, assets)
+    pub fn run(&self, page: &mut Page) {
+        if let Some(action) = self.action {
+            action(page)
         }
     }
 }

@@ -1,4 +1,8 @@
-pub mod action;
+mod action;
+pub use action::{
+    ACTION_BEFORE_RENDER_COMPONENT,
+    ActionBeforeRenderComponent,
+};
 
 mod assets;
 pub use assets::{
