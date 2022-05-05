@@ -34,7 +34,7 @@ fn add_to(list: &mut Vec<&dyn ModuleTrait>, module: &'static dyn ModuleTrait) {
 
 pub fn modules(cfg: &mut app::web::ServiceConfig) {
     for m in MODULES.read().unwrap().iter() {
-        m.configure_module(cfg);
+        m.configure_service(cfg);
     }
 }
 

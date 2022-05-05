@@ -1,5 +1,5 @@
 use crate::html::{Markup, html};
-use super::{PageAssets, ComponentTrait, render_component};
+use super::{ComponentTrait, PageAssets};
 
 use std::sync::{Arc, RwLock};
 
@@ -26,7 +26,7 @@ impl PageContainer {
         components.sort_by_key(|c| c.read().unwrap().weight());
         html! {
             @for c in components.iter() {
-                (render_component(&mut *c.write().unwrap(), assets))
+                (super::render_component(&mut *c.write().unwrap(), assets))
             }
         }
     }

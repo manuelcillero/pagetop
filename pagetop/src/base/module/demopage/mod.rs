@@ -13,7 +13,7 @@ impl ModuleTrait for Demopage {
         Some(l("module_description"))
     }
 
-    fn configure_module(&self, cfg: &mut app::web::ServiceConfig) {
+    fn configure_service(&self, cfg: &mut app::web::ServiceConfig) {
         cfg.route("/", app::web::get().to(demo));
     }
 }

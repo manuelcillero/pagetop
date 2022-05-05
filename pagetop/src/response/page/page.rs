@@ -3,10 +3,9 @@ use crate::config::SETTINGS;
 use crate::html::*;
 use crate::api::action::{action_ref, run_actions};
 use crate::api::component::*;
+use super::{ACTION_BEFORE_RENDER_PAGE, ActionBeforeRenderPage};
 
 use std::collections::HashMap;
-
-use super::{ACTION_BEFORE_RENDER_PAGE, ActionBeforeRenderPage};
 
 static DEFAULT_LANGUAGE: Lazy<Option<String>> = Lazy::new(|| {
     let language = SETTINGS.app.language[..2].to_lowercase();

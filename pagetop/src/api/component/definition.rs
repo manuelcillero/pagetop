@@ -1,8 +1,8 @@
 use crate::html::{Markup, html};
-use crate::util;
 use crate::api::action::{action_ref, run_actions};
-use super::PageAssets;
+use crate::util;
 use super::{ACTION_BEFORE_RENDER_COMPONENT, ActionBeforeRenderComponent};
+use super::PageAssets;
 
 pub use std::any::Any as AnyComponent;
 

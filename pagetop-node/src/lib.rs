@@ -16,7 +16,7 @@ impl ModuleTrait for Node {
         Some(l("module_description"))
     }
 
-    fn configure_module(&self, cfg: &mut app::web::ServiceConfig) {
+    fn configure_service(&self, cfg: &mut app::web::ServiceConfig) {
         cfg.route("/node", app::web::get().to(node));
     }
 

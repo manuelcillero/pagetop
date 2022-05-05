@@ -23,7 +23,7 @@ pub trait ModuleTrait: BaseModule + Send + Sync {
     }
 
     #[allow(unused_variables)]
-    fn configure_module(&self, cfg: &mut app::web::ServiceConfig) {
+    fn configure_service(&self, cfg: &mut app::web::ServiceConfig) {
     }
 
     fn actions(&self) -> Vec<ActionItem> {

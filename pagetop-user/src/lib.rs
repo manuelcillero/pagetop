@@ -15,7 +15,7 @@ impl ModuleTrait for User {
         Some(l("module_description"))
     }
 
-    fn configure_module(&self, cfg: &mut app::web::ServiceConfig) {
+    fn configure_service(&self, cfg: &mut app::web::ServiceConfig) {
         cfg.route("/user/login", app::web::get().to(login));
     }
 
@@ -27,6 +27,18 @@ impl ModuleTrait for User {
             migration_item!(m20220312_000004_create_table_user_role),
         ]
     }
+}
+
+async fn login() -> app::Result<Markup> {
+    Page::new()
+        .with_title(
+            "Identificación del usuario"
+        )
+        .add_to("content", Container::new()
+            .with_id("welcome")
+            .add(form_login())
+        )
+        .render()
 }
 
 fn form_login() -> Form {
@@ -46,16 +58,4 @@ fn form_login() -> Form {
             .with_help_text(l("password_help").as_str())
         )
         .add(form::Button::submit(l("login").as_str()))
-}
-
-async fn login() -> app::Result<Markup> {
-    Page::new()
-        .with_title(
-            "Identificación del usuario"
-        )
-        .add_to("content", Container::new()
-            .with_id("welcome")
-            .add(form_login())
-        )
-        .render()
 }

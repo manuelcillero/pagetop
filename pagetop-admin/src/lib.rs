@@ -15,7 +15,7 @@ impl ModuleTrait for Admin {
         Some(l("module_description"))
     }
 
-    fn configure_module(&self, cfg: &mut app::web::ServiceConfig) {
+    fn configure_service(&self, cfg: &mut app::web::ServiceConfig) {
         cfg.service(
             app::web::scope("/admin")
                 .route("", app::web::get().to(summary::summary))
