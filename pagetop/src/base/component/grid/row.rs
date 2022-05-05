@@ -5,7 +5,7 @@ pub const TYPENAME_ROW: &str = "pagetop::base::component::grid::row::Row";
 pub struct Row {
     renderable: fn() -> bool,
     weight    : isize,
-    columns   : PageContainer,
+    columns   : ComponentsHolder,
     id        : OptIden,
     classes   : Classes,
     template  : String,
@@ -16,7 +16,7 @@ impl ComponentTrait for Row {
         Row {
             renderable: render_always,
             weight    : 0,
-            columns   : PageContainer::new(),
+            columns   : ComponentsHolder::new(),
             id        : OptIden::new(),
             classes   : Classes::new_with_default("row"),
             template  : "default".to_owned(),
@@ -57,7 +57,7 @@ impl Row {
         self
     }
 
-    pub fn columns(&self) -> &PageContainer {
+    pub fn columns(&self) -> &ComponentsHolder {
         &self.columns
     }
 

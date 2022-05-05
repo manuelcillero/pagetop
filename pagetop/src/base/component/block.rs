@@ -5,7 +5,7 @@ pub const TYPENAME_BLOCK: &str = "pagetop::base::component::block::Block";
 pub struct Block {
     renderable: fn() -> bool,
     weight    : isize,
-    components: PageContainer,
+    components: ComponentsHolder,
     title     : OptAttr,
     id        : OptIden,
     classes   : Classes,
@@ -17,7 +17,7 @@ impl ComponentTrait for Block {
         Block {
             renderable: render_always,
             weight    : 0,
-            components: PageContainer::new(),
+            components: ComponentsHolder::new(),
             title     : OptAttr::new(),
             id        : OptIden::new(),
             classes   : Classes::new_with_default("block"),
@@ -66,7 +66,7 @@ impl Block {
         self
     }
 
-    pub fn components(&self) -> &PageContainer {
+    pub fn components(&self) -> &ComponentsHolder {
         &self.components
     }
 

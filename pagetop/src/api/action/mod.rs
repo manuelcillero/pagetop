@@ -9,7 +9,7 @@ mod holder;
 pub use holder::{
     ActionItem,
 };
-pub(crate) use holder::{
+use holder::{
     ActionsHolder,
 };
 

@@ -4,15 +4,15 @@ use super::{ComponentTrait, PageAssets};
 use std::sync::{Arc, RwLock};
 
 #[derive(Clone)]
-pub struct PageContainer(Vec<Arc<RwLock<dyn ComponentTrait>>>);
+pub struct ComponentsHolder(Vec<Arc<RwLock<dyn ComponentTrait>>>);
 
-impl PageContainer {
+impl ComponentsHolder {
     pub fn new() -> Self {
-        PageContainer(Vec::new())
+        ComponentsHolder(Vec::new())
     }
 
     pub fn new_with(component: impl ComponentTrait) -> Self {
-        let mut container = PageContainer::new();
+        let mut container = ComponentsHolder::new();
         container.add(component);
         container
     }

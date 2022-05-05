@@ -20,10 +20,14 @@ pub use definition::{
     component_ref,
     component_mut,
 };
-use definition::render_component;
+use definition::{
+    render_component,
+};
 
-mod container;
-pub use container::PageContainer;
+mod holder;
+pub use holder::{
+    ComponentsHolder,
+};
 
 mod all;
 pub use all::{

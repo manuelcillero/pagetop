@@ -42,7 +42,7 @@ pub struct Page<'a> {
     title       : OptAttr,
     description : OptAttr,
     assets      : PageAssets,
-    regions     : HashMap<&'a str, PageContainer>,
+    regions     : HashMap<&'a str, ComponentsHolder>,
     body_classes: Classes,
     template    : String,
 }
@@ -102,7 +102,7 @@ impl<'a> Page<'a> {
         if let Some(regions) = self.regions.get_mut(region) {
             regions.add(component);
         } else {
-            self.regions.insert(region, PageContainer::new_with(component));
+            self.regions.insert(region, ComponentsHolder::new_with(component));
         }
         self
     }

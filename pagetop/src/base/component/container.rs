@@ -7,7 +7,7 @@ pub enum ContainerType { Header, Footer, Main, Section, Wrapper }
 pub struct Container {
     renderable   : fn() -> bool,
     weight       : isize,
-    components   : PageContainer,
+    components   : ComponentsHolder,
     container    : ContainerType,
     id           : OptIden,
     classes      : Classes,
@@ -20,7 +20,7 @@ impl ComponentTrait for Container {
         Container {
             renderable   : render_always,
             weight       : 0,
-            components   : PageContainer::new(),
+            components   : ComponentsHolder::new(),
             container    : ContainerType::Wrapper,
             id           : OptIden::new(),
             classes      : Classes::new_with_default("container"),
@@ -116,7 +116,7 @@ impl Container {
         self
     }
 
-    pub fn components(&self) -> &PageContainer {
+    pub fn components(&self) -> &ComponentsHolder {
         &self.components
     }
 

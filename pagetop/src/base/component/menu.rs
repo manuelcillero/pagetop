@@ -172,7 +172,7 @@ impl MenuItem {
 pub struct Menu {
     renderable: fn() -> bool,
     weight    : isize,
-    items     : PageContainer,
+    items     : ComponentsHolder,
     id        : OptIden,
     classes   : Classes,
     template  : String,
@@ -183,7 +183,7 @@ impl ComponentTrait for Menu {
         Menu {
             renderable: render_always,
             weight    : 0,
-            items     : PageContainer::new(),
+            items     : ComponentsHolder::new(),
             id        : OptIden::new(),
             classes   : Classes::new_with_default("sm sm-clean"),
             template  : "default".to_owned(),
@@ -243,7 +243,7 @@ impl Menu {
         self
     }
 
-    pub fn items(&self) -> &PageContainer {
+    pub fn items(&self) -> &ComponentsHolder {
         &self.items
     }
 

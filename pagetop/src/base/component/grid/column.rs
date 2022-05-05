@@ -5,7 +5,7 @@ pub const TYPENAME_COLUMN: &str = "pagetop::base::component::grid::column::Colum
 pub struct Column {
     renderable: fn() -> bool,
     weight    : isize,
-    components: PageContainer,
+    components: ComponentsHolder,
     id        : OptIden,
     classes   : Classes,
     template  : String,
@@ -16,7 +16,7 @@ impl ComponentTrait for Column {
         Column {
             renderable: render_always,
             weight    : 0,
-            components: PageContainer::new(),
+            components: ComponentsHolder::new(),
             id        : OptIden::new(),
             classes   : Classes::new_with_default("col"),
             template  : "default".to_owned(),
@@ -57,7 +57,7 @@ impl Column {
         self
     }
 
-    pub fn components(&self) -> &PageContainer {
+    pub fn components(&self) -> &ComponentsHolder {
         &self.components
     }
 

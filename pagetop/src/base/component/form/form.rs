@@ -7,7 +7,7 @@ pub enum FormMethod {Get, Post}
 pub struct Form {
     renderable: fn() -> bool,
     weight    : isize,
-    elements  : PageContainer,
+    elements  : ComponentsHolder,
     action    : OptAttr,
     charset   : OptAttr,
     method    : FormMethod,
@@ -21,7 +21,7 @@ impl ComponentTrait for Form {
         Form {
             renderable: render_always,
             weight    : 0,
-            elements  : PageContainer::new(),
+            elements  : ComponentsHolder::new(),
             action    : OptAttr::new(),
             charset   : OptAttr::new_with_value("UTF-8"),
             method    : FormMethod::Post,
@@ -75,7 +75,7 @@ impl Form {
         self
     }
 
-    pub fn elements(&self) -> &PageContainer {
+    pub fn elements(&self) -> &ComponentsHolder {
         &self.elements
     }
 
