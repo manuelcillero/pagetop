@@ -34,7 +34,9 @@ impl Classes {
     pub fn alter(&mut self, classes: &str, op: ClassesOp) -> &Self {
         let classes = classes.trim();
         match op {
-            ClassesOp::Add => self.added.push_str(concat_string!(" ", classes).as_str()),
+            ClassesOp::Add => {
+                self.added = concat_string!(self.added, " ", classes).trim().to_owned()
+            },
 
             ClassesOp::AddAfter(class) => {
                 let mut v_added: Vec<&str> = self.added.split_ascii_whitespace().collect();
@@ -54,7 +56,9 @@ impl Classes {
                 self.added = v_added.join(" ");
             },
 
-            ClassesOp::AddFirst => self.added = concat_string!(classes, " ", self.added),
+            ClassesOp::AddFirst => {
+                self.added = concat_string!(classes, " ", self.added).trim().to_owned()
+            },
 
             ClassesOp::Replace(class) => {
                 let mut v_added: Vec<&str> = self.added.split_ascii_whitespace().collect();
@@ -72,7 +76,7 @@ impl Classes {
 
             ClassesOp::SetDefault => self.default = classes.to_owned(),
         }
-        self.option = Some(concat_string!(self.default, " ", self.added.trim()).to_owned());
+        self.option = Some(concat_string!(self.default, " ", self.added).trim().to_owned());
         self
     }
 
