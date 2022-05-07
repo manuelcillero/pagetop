@@ -5,8 +5,8 @@ mod assets;
 pub use assets::{
     Assets,
     Favicon,
-    StyleSheet,
     JavaScript, JSMode,
+    StyleSheet,
 };
 
 mod definition;
