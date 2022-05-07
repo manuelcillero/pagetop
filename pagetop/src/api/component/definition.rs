@@ -1,8 +1,7 @@
 use crate::html::{Markup, html};
-use crate::api::action::{action_ref, run_actions};
+use crate::api::{TypeId, action::{action_ref, run_actions}};
 use crate::util;
-use super::{ACTION_BEFORE_RENDER_COMPONENT, ActionBeforeRenderComponent};
-use super::Assets;
+use super::{ActionBeforeRenderComponent, Assets};
 
 pub use std::any::Any as AnyComponent;
 
@@ -76,7 +75,7 @@ pub fn render_component(component: &mut dyn ComponentTrait, assets: &mut Assets)
 
     // Acciones de los módulos antes de renderizar el componente.
     run_actions(
-        ACTION_BEFORE_RENDER_COMPONENT,
+        TypeId::of::<ActionBeforeRenderComponent>(),
         |a| action_ref::<ActionBeforeRenderComponent>(&**a).run(component, assets)
     );
 

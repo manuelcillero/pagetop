@@ -1,8 +1,5 @@
 mod action;
-pub use action::{
-    ACTION_BEFORE_RENDER_PAGE,
-    ActionBeforeRenderPage,
-};
+pub use action::ActionBeforeRenderPage;
 
 mod page;
 pub use page::Page;

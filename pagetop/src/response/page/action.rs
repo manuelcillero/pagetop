@@ -1,8 +1,6 @@
 use crate::api::action::{ActionTrait, AnyAction};
 use super::Page;
 
-pub const ACTION_BEFORE_RENDER_PAGE: &str = "pagetop::render::before_render_page";
-
 pub struct ActionBeforeRenderPage {
     action: Option<fn(&mut Page)>,
     weight: isize,
@@ -14,10 +12,6 @@ impl ActionTrait for ActionBeforeRenderPage {
             action: None,
             weight: 0,
         }
-    }
-
-    fn machine_name(&self) -> &'static str {
-        ACTION_BEFORE_RENDER_PAGE
     }
 
     fn weight(&self) -> isize {

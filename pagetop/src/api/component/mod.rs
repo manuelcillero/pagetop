@@ -1,8 +1,5 @@
 mod action;
-pub use action::{
-    ACTION_BEFORE_RENDER_COMPONENT,
-    ActionBeforeRenderComponent,
-};
+pub use action::ActionBeforeRenderComponent;
 
 mod assets;
 pub use assets::{
