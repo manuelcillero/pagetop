@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-pub const TYPENAME_COLUMN: &str = "pagetop::base::component::grid::column::Column";
+pub const COLUMN_COMPONENT: &str = "pagetop::component::grid::column";
 
 pub struct Column {
     renderable: fn() -> bool,
@@ -21,6 +21,10 @@ impl ComponentTrait for Column {
             classes   : Classes::new_with_default("col"),
             template  : "default".to_owned(),
         }
+    }
+
+    fn handler(&self) -> &'static str {
+        COLUMN_COMPONENT
     }
 
     fn is_renderable(&self) -> bool {

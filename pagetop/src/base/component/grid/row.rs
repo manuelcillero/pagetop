@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-pub const TYPENAME_ROW: &str = "pagetop::base::component::grid::row::Row";
+pub const ROW_COMPONENT: &str = "pagetop::component::grid::row";
 
 pub struct Row {
     renderable: fn() -> bool,
@@ -21,6 +21,10 @@ impl ComponentTrait for Row {
             classes   : Classes::new_with_default("row"),
             template  : "default".to_owned(),
         }
+    }
+
+    fn handler(&self) -> &'static str {
+        ROW_COMPONENT
     }
 
     fn is_renderable(&self) -> bool {

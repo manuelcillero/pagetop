@@ -1,28 +1,28 @@
 mod container;
 pub use container::{
-    TYPENAME_CONTAINER, Container, ContainerType
+    CONTAINER_COMPONENT, Container, ContainerType
 };
 
 pub mod grid;
 
 mod chunck;
 pub use chunck::{
-    TYPENAME_CHUNCK, Chunck
+    CHUNCK_COMPONENT, Chunck
 };
 mod block;
 pub use block::{
-    TYPENAME_BLOCK, Block
+    BLOCK_COMPONENT, Block
 };
 mod image;
 pub use image::{
-    TYPENAME_IMAGE, Image
+    IMAGE_COMPONENT, Image
 };
 mod menu;
 pub use menu::{
-    TYPENAME_MENU, TYPENAME_MENUITEM, Menu, MenuItem, MenuItemType
+    MENU_COMPONENT, MENUITEM_COMPONENT, Menu, MenuItem, MenuItemType
 };
 
 pub mod form;
 pub use form::{
-    TYPENAME_FORM, Form, FormMethod
+    FORM_COMPONENT, Form, FormMethod
 };

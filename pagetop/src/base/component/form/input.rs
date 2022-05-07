@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-pub const TYPENAME_INPUT: &str = "pagetop::base::component::form::input::Input";
+pub const INPUT_COMPONENT: &str = "pagetop::component::form::input";
 
 pub enum InputType {Email, Password, Search, Telephone, Textfield, Url}
 
@@ -48,6 +48,10 @@ impl ComponentTrait for Input {
             template    : "default".to_owned(),
         }
         .with_classes("form-type-textfield", ClassesOp::AddFirst)
+    }
+
+    fn handler(&self) -> &'static str {
+        INPUT_COMPONENT
     }
 
     fn is_renderable(&self) -> bool {

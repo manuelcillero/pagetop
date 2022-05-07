@@ -6,18 +6,12 @@ use crate::response::page::Page;
 use crate::base::component::Chunck;
 use crate::util;
 
-pub trait BaseTheme {
-    fn type_name(&self) -> &'static str;
-
-    fn single_name(&self) -> &'static str;
-
-    fn qualified_name(&self, last: usize) -> &'static str;
-}
-
 /// Los temas deben implementar este "trait".
-pub trait ThemeTrait: BaseTheme + Send + Sync {
+pub trait ThemeTrait: Send + Sync {
+    fn handler(&self) -> &'static str;
+
     fn name(&self) -> String {
-        self.single_name().to_owned()
+        util::single_type_name::<Self>().to_owned()
     }
 
     fn description(&self) -> Option<String> {
@@ -93,8 +87,8 @@ pub trait ThemeTrait: BaseTheme + Send + Sync {
     /*
         Cómo usarlo:
 
-        match component.single_name() {
-            "Block" => {
+        match component.handler() {
+            BLOCK_COMPONENT => {
                 let block = component_mut::<Block>(component);
                 block.alter_title("New title");
             },
@@ -113,8 +107,8 @@ pub trait ThemeTrait: BaseTheme + Send + Sync {
     /*
         Cómo usarlo:
 
-        match component.single_name() {
-            "Block" => {
+        match component.handler() {
+            BLOCK_COMPONENT => {
                 let block = component_ref::<Block>(component);
                 match block.template() {
                     "default" => Some(block_default(block)),
@@ -135,19 +129,5 @@ pub trait ThemeTrait: BaseTheme + Send + Sync {
                 }
             }))
             .render()
-    }
-}
-
-impl<T: ?Sized + ThemeTrait> BaseTheme for T {
-    fn type_name(&self) -> &'static str {
-        std::any::type_name::<Self>()
-    }
-
-    fn single_name(&self) -> &'static str {
-        util::partial_type_name(std::any::type_name::<Self>(), 1)
-    }
-
-    fn qualified_name(&self, last: usize) -> &'static str {
-        util::partial_type_name(std::any::type_name::<Self>(), last)
     }
 }

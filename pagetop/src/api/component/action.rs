@@ -1,17 +1,23 @@
 use crate::api::action::{ActionTrait, AnyAction};
 use super::{Assets, ComponentTrait};
 
-pub struct ActionBeforeRenderComponent {
+pub const BEFORE_RENDER_COMPONENT_ACTION: &str = "pagetop::action::before_render_component";
+
+pub struct BeforeRenderComponentAction {
     action: Option<fn(&mut dyn ComponentTrait, &mut Assets)>,
     weight: isize,
 }
 
-impl ActionTrait for ActionBeforeRenderComponent {
+impl ActionTrait for BeforeRenderComponentAction {
     fn new() -> Self {
-        ActionBeforeRenderComponent {
+        BeforeRenderComponentAction {
             action: None,
             weight: 0,
         }
+    }
+
+    fn handler(&self) -> &'static str {
+        BEFORE_RENDER_COMPONENT_ACTION
     }
 
     fn weight(&self) -> isize {
@@ -23,7 +29,7 @@ impl ActionTrait for ActionBeforeRenderComponent {
     }
 }
 
-impl ActionBeforeRenderComponent {
+impl BeforeRenderComponentAction {
     pub fn with_action(mut self, action: fn(&mut dyn ComponentTrait, &mut Assets)) -> Self {
         self.action = Some(action);
         self

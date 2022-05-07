@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-pub const TYPENAME_CHUNCK: &str = "pagetop::base::component::chunck::Chunck";
+pub const CHUNCK_COMPONENT: &str = "pagetop::component::chunck";
 
 pub struct Chunck {
     renderable: fn() -> bool,
@@ -17,6 +17,10 @@ impl ComponentTrait for Chunck {
             html      : html! {},
             template  : "default".to_owned(),
         }
+    }
+
+    fn handler(&self) -> &'static str {
+        CHUNCK_COMPONENT
     }
 
     fn is_renderable(&self) -> bool {

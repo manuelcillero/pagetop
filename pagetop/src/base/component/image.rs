@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-pub const TYPENAME_IMAGE: &str = "pagetop::base::component::image::Image";
+pub const IMAGE_COMPONENT: &str = "pagetop::component::image";
 
 pub struct Image {
     renderable: fn() -> bool,
@@ -21,6 +21,10 @@ impl ComponentTrait for Image {
             classes   : Classes::new_with_default("img-fluid"),
             template  : "default".to_owned(),
         }
+    }
+
+    fn handler(&self) -> &'static str {
+        IMAGE_COMPONENT
     }
 
     fn is_renderable(&self) -> bool {

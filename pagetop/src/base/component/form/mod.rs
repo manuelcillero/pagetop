@@ -1,21 +1,21 @@
 mod form;
 pub use form::{
-    TYPENAME_FORM, Form, FormMethod
+    FORM_COMPONENT, Form, FormMethod
 };
 
 mod input;
 pub use input::{
-    TYPENAME_INPUT, Input, InputType
+    INPUT_COMPONENT, Input, InputType
 };
 mod hidden;
 pub use hidden::{
-    TYPENAME_HIDDEN, Hidden
+    HIDDEN_COMPONENT, Hidden
 };
 mod date;
 pub use date::{
-    TYPENAME_DATE, Date
+    DATE_COMPONENT, Date
 };
 mod button;
 pub use button::{
-    TYPENAME_BUTTON, Button, ButtonType
+    BUTTON_COMPONENT, Button, ButtonType
 };

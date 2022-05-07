@@ -1,10 +1,16 @@
 use crate::prelude::*;
 
+pub const ALINER_THEME: &str = "pagetop::theme::aliner";
+
 include!(concat!(env!("OUT_DIR"), "/aliner.rs"));
 
 pub struct Aliner;
 
 impl ThemeTrait for Aliner {
+    fn handler(&self) -> &'static str {
+        ALINER_THEME
+    }
+
     fn configure_theme(&self, cfg: &mut app::web::ServiceConfig) {
         theme_static_files!(cfg, "/aliner");
     }

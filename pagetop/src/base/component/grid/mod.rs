@@ -1,8 +1,8 @@
 mod row;
 pub use row::{
-    TYPENAME_ROW, Row
+    ROW_COMPONENT, Row
 };
 mod column;
 pub use column::{
-    TYPENAME_COLUMN, Column
+    COLUMN_COMPONENT, Column
 };

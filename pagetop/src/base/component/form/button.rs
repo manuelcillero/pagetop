@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-pub const TYPENAME_BUTTON: &str = "pagetop::base::component::form::button::Button";
+pub const BUTTON_COMPONENT: &str = "pagetop::component::form::button";
 
 pub enum ButtonType {Button, Reset, Submit}
 
@@ -30,6 +30,10 @@ impl ComponentTrait for Button {
             template   : "default".to_owned(),
         }
         .with_classes("form-button", ClassesOp::AddFirst)
+    }
+
+    fn handler(&self) -> &'static str {
+        BUTTON_COMPONENT
     }
 
     fn is_renderable(&self) -> bool {

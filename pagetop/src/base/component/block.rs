@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-pub const TYPENAME_BLOCK: &str = "pagetop::base::component::block::Block";
+pub const BLOCK_COMPONENT: &str = "pagetop::component::block";
 
 pub struct Block {
     renderable: fn() -> bool,
@@ -25,6 +25,10 @@ impl ComponentTrait for Block {
         }
     }
 
+    fn handler(&self) -> &'static str {
+        BLOCK_COMPONENT
+    }
+
     fn is_renderable(&self) -> bool {
         (self.renderable)()
     }
@@ -34,7 +38,7 @@ impl ComponentTrait for Block {
     }
 
     fn default_render(&self, assets: &mut Assets) -> Markup {
-        let id = assets.serial_id(self.single_name(), self.id());
+        let id = assets.serial_id("block", self.id());
         html! {
             div id=(id) class=[self.classes()] {
                 @match self.title() {

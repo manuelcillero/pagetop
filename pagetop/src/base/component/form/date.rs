@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-pub const TYPENAME_DATE: &str = "pagetop::base::component::form::date::Date";
+pub const DATE_COMPONENT: &str = "pagetop::component::form::date";
 
 pub struct Date {
     renderable  : fn() -> bool,
@@ -38,6 +38,10 @@ impl ComponentTrait for Date {
             template    : "default".to_owned(),
         }
         .with_classes("form-type-date", ClassesOp::AddFirst)
+    }
+
+    fn handler(&self) -> &'static str {
+        DATE_COMPONENT
     }
 
     fn is_renderable(&self) -> bool {

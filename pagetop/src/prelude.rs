@@ -21,7 +21,6 @@ pub use crate::{
 };
 
 pub use crate::{action_item, api::{
-    TypeId,
     action::*,
     component::*,
     module::*,

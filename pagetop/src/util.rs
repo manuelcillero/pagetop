@@ -46,3 +46,7 @@ pub fn partial_type_name(type_name: &'static str, last: usize) -> &'static str {
     }
     &type_name[(positions[last - 1].0 + 2)..]
 }
+
+pub fn single_type_name<T: ?Sized>() -> &'static str {
+    partial_type_name(std::any::type_name::<T>(), 1)
+}

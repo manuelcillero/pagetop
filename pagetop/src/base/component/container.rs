@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-pub const TYPENAME_CONTAINER: &str = "pagetop::base::component::container::Container";
+pub const CONTAINER_COMPONENT: &str = "pagetop::component::container";
 
 pub enum ContainerType { Header, Footer, Main, Section, Wrapper }
 
@@ -27,6 +27,10 @@ impl ComponentTrait for Container {
             inner_classes: Classes::new_with_default("container"),
             template     : "default".to_owned(),
         }
+    }
+
+    fn handler(&self) -> &'static str {
+        CONTAINER_COMPONENT
     }
 
     fn is_renderable(&self) -> bool {

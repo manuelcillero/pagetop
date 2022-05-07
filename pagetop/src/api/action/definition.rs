@@ -3,6 +3,8 @@ pub use std::any::Any as AnyAction;
 pub trait ActionTrait: AnyAction + Send + Sync {
     fn new() -> Self where Self: Sized;
 
+    fn handler(&self) -> &'static str;
+
     fn weight(&self) -> isize {
         0
     }

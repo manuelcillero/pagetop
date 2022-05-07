@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-pub const TYPENAME_HIDDEN: &str = "pagetop::base::component::form::hidden::Hidden";
+pub const HIDDEN_COMPONENT: &str = "pagetop::component::form::hidden";
 
 pub struct Hidden {
     weight: isize,
@@ -15,6 +15,10 @@ impl ComponentTrait for Hidden {
             name  : OptIden::new(),
             value : OptAttr::new(),
         }
+    }
+
+    fn handler(&self) -> &'static str {
+        HIDDEN_COMPONENT
     }
 
     fn weight(&self) -> isize {

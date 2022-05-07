@@ -1,10 +1,16 @@
 use crate::prelude::*;
 
+pub const DEMOPAGE_MODULE: &str = "pagetop::module::demopage";
+
 localize!("src/base/module/demopage/locales");
 
 pub struct Demopage;
 
 impl ModuleTrait for Demopage {
+    fn handler(&self) -> &'static str {
+        DEMOPAGE_MODULE
+    }
+
     fn name(&self) -> String {
         l("module_name")
     }

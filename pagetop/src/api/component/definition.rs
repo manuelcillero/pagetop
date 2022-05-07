@@ -1,24 +1,18 @@
 use crate::html::{Markup, html};
-use crate::api::{TypeId, action::{action_ref, run_actions}};
+use crate::api::action::{action_ref, run_actions};
 use crate::util;
-use super::{ActionBeforeRenderComponent, Assets};
+use super::{BEFORE_RENDER_COMPONENT_ACTION, BeforeRenderComponentAction};
+use super::Assets;
 
 pub use std::any::Any as AnyComponent;
 
-pub trait BaseComponent {
-    fn type_name(&self) -> &'static str;
-
-    fn single_name(&self) -> &'static str;
-
-    fn qualified_name(&self, last: usize) -> &'static str;
-}
-
-pub trait ComponentTrait: AnyComponent + BaseComponent + Send + Sync {
-
+pub trait ComponentTrait: AnyComponent + Send + Sync {
     fn new() -> Self where Self: Sized;
 
+    fn handler(&self) -> &'static str;
+
     fn name(&self) -> String {
-        self.single_name().to_owned()
+        util::single_type_name::<Self>().to_owned()
     }
 
     fn description(&self) -> Option<String> {
@@ -47,20 +41,6 @@ pub trait ComponentTrait: AnyComponent + BaseComponent + Send + Sync {
     fn as_mut_any(&mut self) -> &mut dyn AnyComponent;
 }
 
-impl<C: ?Sized + ComponentTrait> BaseComponent for C {
-    fn type_name(&self) -> &'static str {
-        std::any::type_name::<Self>()
-    }
-
-    fn single_name(&self) -> &'static str {
-        util::partial_type_name(std::any::type_name::<Self>(), 1)
-    }
-
-    fn qualified_name(&self, last: usize) -> &'static str {
-        util::partial_type_name(std::any::type_name::<Self>(), last)
-    }
-}
-
 pub fn component_ref<C: 'static>(component: &dyn ComponentTrait) -> &C {
     component.as_ref_any().downcast_ref::<C>().unwrap()
 }
@@ -75,8 +55,8 @@ pub fn render_component(component: &mut dyn ComponentTrait, assets: &mut Assets)
 
     // Acciones de los módulos antes de renderizar el componente.
     run_actions(
-        TypeId::of::<ActionBeforeRenderComponent>(),
-        |a| action_ref::<ActionBeforeRenderComponent>(&**a).run(component, assets)
+        BEFORE_RENDER_COMPONENT_ACTION,
+        |a| action_ref::<BeforeRenderComponentAction>(&**a).run(component, assets)
     );
 
     // Acciones del tema antes de renderizar el componente.

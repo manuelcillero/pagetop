@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-pub const TYPENAME_FORM: &str = "pagetop::base::component::form::form::Form";
+pub const FORM_COMPONENT: &str = "pagetop::component::form";
 
 pub enum FormMethod {Get, Post}
 
@@ -29,6 +29,10 @@ impl ComponentTrait for Form {
             classes   : Classes::new_with_default("form"),
             template  : "default".to_owned(),
         }
+    }
+
+    fn handler(&self) -> &'static str {
+        FORM_COMPONENT
     }
 
     fn is_renderable(&self) -> bool {

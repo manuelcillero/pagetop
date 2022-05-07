@@ -1,5 +1,8 @@
 mod action;
-pub use action::ActionBeforeRenderComponent;
+pub use action::{
+    BEFORE_RENDER_COMPONENT_ACTION,
+    BeforeRenderComponentAction,
+};
 
 mod assets;
 pub use assets::{
@@ -12,7 +15,6 @@ pub use assets::{
 mod definition;
 pub use definition::{
     AnyComponent,
-    BaseComponent,
     ComponentTrait,
     component_ref,
     component_mut,

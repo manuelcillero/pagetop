@@ -1,7 +1,7 @@
 use crate::prelude::*;
 
-pub const TYPENAME_MENU: &str = "pagetop::base::component::menu::Menu";
-pub const TYPENAME_MENUITEM: &str = "pagetop::base::component::menu::MenuItem";
+pub const MENU_COMPONENT: &str = "pagetop::component::menu";
+pub const MENUITEM_COMPONENT: &str = "pagetop::component::menu";
 
 pub enum MenuItemType {
     Label(String),
@@ -28,6 +28,10 @@ impl ComponentTrait for MenuItem {
             weight    : 0,
             item_type : MenuItemType::Void,
         }
+    }
+
+    fn handler(&self) -> &'static str {
+        MENUITEM_COMPONENT
     }
 
     fn is_renderable(&self) -> bool {
@@ -190,6 +194,10 @@ impl ComponentTrait for Menu {
         }
     }
 
+    fn handler(&self) -> &'static str {
+        MENU_COMPONENT
+    }
+
     fn is_renderable(&self) -> bool {
         (self.renderable)()
     }
@@ -211,7 +219,7 @@ impl ComponentTrait for Menu {
             ))
             .add_jquery();
 
-        let id = assets.serial_id(self.single_name(), self.id());
+        let id = assets.serial_id("menu", self.id());
         html! {
             ul id=(id) class=[self.classes()] {
                 (self.items().render(assets))
