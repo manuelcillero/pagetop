@@ -1,4 +1,4 @@
-use crate::{Lazy, base, concat_string};
+use crate::{Lazy, base, concat_string, util};
 use crate::config::SETTINGS;
 use crate::html::{Markup, PreEscaped, html};
 use crate::api::theme::*;
@@ -281,11 +281,14 @@ impl Assets {
 
     // Assets EXTRAS.
 
-    pub fn serial_id(&mut self, prefix: &str, id: &Option<String>) -> String {
+    pub fn required_id<T>(&mut self, id: &Option<String>) -> String {
         match id {
             Some(id) => id.to_string(),
             None => {
-                let prefix = prefix.trim().replace(" ", "_").to_lowercase();
+                let prefix = util::single_type_name::<T>()
+                    .trim()
+                    .replace(" ", "_")
+                    .to_lowercase();
                 let prefix = if prefix.is_empty() {
                     "prefix".to_owned()
                 } else {

@@ -1,6 +1,6 @@
+use crate::util;
 use crate::html::{Markup, html};
 use crate::api::action::{action_ref, run_actions};
-use crate::util;
 use super::{BEFORE_RENDER_COMPONENT_ACTION, BeforeRenderComponentAction};
 use super::Assets;
 

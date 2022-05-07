@@ -219,7 +219,7 @@ impl ComponentTrait for Menu {
             ))
             .add_jquery();
 
-        let id = assets.serial_id("menu", self.id());
+        let id = assets.required_id::<Menu>(self.id());
         html! {
             ul id=(id) class=[self.classes()] {
                 (self.items().render(assets))

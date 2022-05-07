@@ -1,10 +1,9 @@
-use crate::{app, concat_string};
+use crate::{app, concat_string, util};
 use crate::config::SETTINGS;
 use crate::html::{Markup, html};
 use crate::api::component::{Assets, ComponentTrait, Favicon};
 use crate::response::page::Page;
 use crate::base::component::Chunck;
-use crate::util;
 
 /// Los temas deben implementar este "trait".
 pub trait ThemeTrait: Send + Sync {

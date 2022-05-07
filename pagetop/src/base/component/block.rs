@@ -38,7 +38,7 @@ impl ComponentTrait for Block {
     }
 
     fn default_render(&self, assets: &mut Assets) -> Markup {
-        let id = assets.serial_id("block", self.id());
+        let id = assets.required_id::<Block>(self.id());
         html! {
             div id=(id) class=[self.classes()] {
                 @match self.title() {

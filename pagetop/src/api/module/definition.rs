@@ -1,6 +1,5 @@
-use crate::app;
+use crate::{app, util};
 use crate::api::action::ActionItem;
-use crate::util;
 
 #[cfg(any(feature = "mysql", feature = "postgres", feature = "sqlite"))]
 use crate::db::MigrationItem;

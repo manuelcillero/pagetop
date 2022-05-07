@@ -1,4 +1,4 @@
-// External.
+// External re-exports.
 
 pub use once_cell::sync::Lazy;
 pub use concat_string::concat_string;
@@ -25,6 +25,6 @@ pub mod app;        // Aplicación y servidor web.
 pub mod base;       // Base de componentes, módulos y temas.
 pub mod util;       // Macros y funciones útiles.
 
-// Re-exports.
+// Internal re-exports.
 
 pub mod prelude;
