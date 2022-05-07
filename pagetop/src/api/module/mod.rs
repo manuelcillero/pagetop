@@ -1,5 +1,10 @@
 mod definition;
-pub use definition::ModuleTrait;
+pub use definition::{
+    BaseModule,
+    ModuleTrait,
+};
 
 pub(crate) mod all;
-pub use all::register_module;
+pub use all::{
+    include_module,
+};

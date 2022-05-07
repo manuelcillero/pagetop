@@ -4,16 +4,24 @@ use crate::api::action::ActionItem;
 #[cfg(any(feature = "mysql", feature = "postgres", feature = "sqlite"))]
 use crate::db::MigrationItem;
 
+pub trait BaseModule {
+    fn single_name(&self) -> &'static str;
+}
+
 /// Los módulos deben implementar este *trait*.
-pub trait ModuleTrait: Send + Sync {
+pub trait ModuleTrait: BaseModule + Send + Sync {
     fn handler(&self) -> &'static str;
 
     fn name(&self) -> String {
-        util::single_type_name::<Self>().to_owned()
+        self.single_name().to_owned()
     }
 
     fn description(&self) -> Option<String> {
         None
+    }
+
+    fn dependencies(&self) -> Vec<&'static dyn ModuleTrait> {
+        vec![]
     }
 
     #[allow(unused_variables)]
@@ -29,8 +37,10 @@ pub trait ModuleTrait: Send + Sync {
     fn migrations(&self) -> Vec<MigrationItem> {
         vec![]
     }
+}
 
-    fn dependencies(&self) -> Vec<&'static dyn ModuleTrait> {
-        vec![]
+impl<M: ?Sized + ModuleTrait> BaseModule for M {
+    fn single_name(&self) -> &'static str {
+        util::single_type_name::<Self>()
     }
 }

@@ -10,7 +10,7 @@ static MODULES: Lazy<RwLock<Vec<&dyn ModuleTrait>>> = Lazy::new(|| {
     RwLock::new(Vec::new())
 });
 
-pub fn register_module(module: &'static dyn ModuleTrait) {
+pub fn include_module(module: &'static dyn ModuleTrait) {
     let mut list: Vec<&dyn ModuleTrait> = Vec::new();
     add_to(&mut list, module);
     list.reverse();
@@ -20,7 +20,7 @@ pub fn register_module(module: &'static dyn ModuleTrait) {
 fn add_to(list: &mut Vec<&dyn ModuleTrait>, module: &'static dyn ModuleTrait) {
     if !MODULES.read().unwrap().iter().any(|m| m.handler() == module.handler()) {
         if !list.iter().any(|m| m.handler() == module.handler()) {
-            trace::debug!("Register module: \"{}\"", module.name());
+            trace::debug!("Including module \"{}\"", module.single_name());
             list.push(module);
 
             let mut dependencies = module.dependencies();

@@ -5,12 +5,16 @@ use crate::api::component::{Assets, ComponentTrait, Favicon};
 use crate::response::page::Page;
 use crate::base::component::Chunck;
 
+pub trait BaseTheme {
+    fn single_name(&self) -> &'static str;
+}
+
 /// Los temas deben implementar este "trait".
-pub trait ThemeTrait: Send + Sync {
+pub trait ThemeTrait: BaseTheme + Send + Sync {
     fn handler(&self) -> &'static str;
 
     fn name(&self) -> String {
-        util::single_type_name::<Self>().to_owned()
+        self.single_name().to_owned()
     }
 
     fn description(&self) -> Option<String> {
@@ -128,5 +132,11 @@ pub trait ThemeTrait: Send + Sync {
                 }
             }))
             .render()
+    }
+}
+
+impl<T: ?Sized + ThemeTrait> BaseTheme for T {
+    fn single_name(&self) -> &'static str {
+        util::single_type_name::<Self>()
     }
 }

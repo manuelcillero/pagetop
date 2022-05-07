@@ -4,7 +4,7 @@ use crate::html::{Markup, PreEscaped, html};
 use crate::api::theme::*;
 
 static DEFAULT_THEME: Lazy<&dyn ThemeTrait> = Lazy::new(|| {
-    match theme_by_name(&SETTINGS.app.theme) {
+    match theme_by_single_name(&SETTINGS.app.theme) {
         Some(theme) => theme,
         None => &base::theme::bootsier::Bootsier,
     }
@@ -197,7 +197,7 @@ impl Assets {
     }
 
     pub fn using_theme(&mut self, theme_name: &str) -> &mut Self {
-        self.theme = theme_by_name(theme_name).unwrap_or(*DEFAULT_THEME);
+        self.theme = theme_by_single_name(theme_name).unwrap_or(*DEFAULT_THEME);
         self
     }
 

@@ -40,7 +40,7 @@ impl Application {
 
         // Registra el módulo de presentación de PageTop.
         // Normalmente se sobrecargará en la función de inicio.
-        module::register_module(&base::module::demopage::Demopage);
+        module::include_module(&base::module::demopage::Demopage);
 
         // Registra las acciones de todos los módulos.
         module::all::register_actions();

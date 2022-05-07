@@ -13,14 +13,14 @@ static THEMES: Lazy<RwLock<Vec<&dyn ThemeTrait>>> = Lazy::new(|| {
 pub fn register_theme(theme: &'static dyn ThemeTrait) {
     let mut themes = THEMES.write().unwrap();
     if !themes.iter().any(|t| t.handler() == theme.handler()) {
-        trace::debug!("Register theme: \"{}\"", theme.name());
+        trace::debug!("Registering theme \"{}\"", theme.single_name());
         themes.push(theme);
     }
 }
 
-pub fn theme_by_name(name: &str) -> Option<&'static dyn ThemeTrait> {
+pub fn theme_by_single_name(single_name: &str) -> Option<&'static dyn ThemeTrait> {
     match THEMES.write().unwrap().iter().find(
-        |t| t.name().to_lowercase() == name.to_lowercase()
+        |t| t.single_name().to_lowercase() == single_name.to_lowercase()
     ) {
         Some(theme) => Some(*theme),
         _ => None,
