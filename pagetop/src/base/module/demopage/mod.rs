@@ -26,7 +26,6 @@ impl ModuleTrait for Demopage {
 
 async fn demo() -> app::Result<Markup> {
     Page::new()
-        .using_theme("Bulmix")
         .with_title(l("page_title").as_str())
         .add_to("content", hello_world())
         .add_to("content", hello_world_original())

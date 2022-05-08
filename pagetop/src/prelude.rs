@@ -1,10 +1,11 @@
 //! Re-exporta recursos comunes.
 
-// Macros.
+// Macros, globals and helpers.
 pub use crate::{
     args,
     concat_string,
     theme_static_files,
+    util,
 };
 
 pub use crate::config::SETTINGS;
@@ -33,6 +34,3 @@ pub use crate::core::app::application::Application;
 pub use crate::response::page::*;
 
 pub use crate::base::component::*;
-pub use crate::base::module::demopage;
-
-pub use crate::util;

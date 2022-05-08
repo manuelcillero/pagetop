@@ -34,7 +34,6 @@ impl Application {
             &base::theme::aliner::Aliner,
             &base::theme::minimal::Minimal,
             &base::theme::bootsier::Bootsier,
-            &base::theme::bulmix::Bulmix,
         ]);
         // Registra los temas de la aplicación.
         theme::all::register_themes(app.themes());

@@ -8,7 +8,13 @@ impl AppTrait for Drust {
             &pagetop_admin::Admin,
             &pagetop_user::User,
             &pagetop_node::Node,
-            &demopage::Demopage,
+            &pagetop::base::module::demopage::Demopage,
+        ]
+    }
+
+    fn themes(&self) -> Vec<&'static dyn ThemeTrait> {
+        vec![
+            &pagetop::base::theme::bulmix::Bulmix,
         ]
     }
 }
