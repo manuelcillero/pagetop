@@ -26,9 +26,9 @@ impl ModuleTrait for Node {
         cfg.route("/node", app::web::get().to(node));
     }
 
-    fn actions(&self) -> Vec<ActionItem> {
+    fn actions(&self) -> Vec<HookItem> {
         vec![
-            action_item!(ActionBeforeRenderPage => before_render_page, -1)
+            hook_item!(BeforeRenderPageHook => before_render_page, -1)
         ]
     }
 

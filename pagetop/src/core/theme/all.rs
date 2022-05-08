@@ -1,4 +1,5 @@
-use crate::{Lazy, app, theme_static_files, trace};
+use crate::{Lazy, theme_static_files, trace};
+use crate::core::app;
 use super::ThemeTrait;
 
 use std::sync::RwLock;
@@ -9,6 +10,12 @@ include!(concat!(env!("OUT_DIR"), "/theme.rs"));
 static THEMES: Lazy<RwLock<Vec<&dyn ThemeTrait>>> = Lazy::new(|| {
     RwLock::new(Vec::new())
 });
+
+pub fn register_themes(themes: Vec<&'static dyn ThemeTrait>) {
+    for t in themes {
+        register_theme(t)
+    }
+}
 
 pub fn register_theme(theme: &'static dyn ThemeTrait) {
     let mut themes = THEMES.write().unwrap();

@@ -1,9 +1,10 @@
-use crate::{Lazy, app, trace};
+use crate::{Lazy, trace};
 use crate::config::SETTINGS;
 use crate::html::*;
-use crate::api::action::{action_ref, run_actions};
-use crate::api::component::*;
-use super::{BEFORE_RENDER_PAGE_ACTION, ActionBeforeRenderPage};
+use crate::core::app;
+use crate::core::hook::{hook_ref, run_hooks};
+use crate::core::component::*;
+use super::{BEFORE_RENDER_PAGE_HOOK, BeforeRenderPageHook};
 
 use std::collections::HashMap;
 
@@ -151,9 +152,9 @@ impl<'a> Page<'a> {
 
     pub fn render(&mut self) -> app::Result<Markup> {
         // Acciones de los módulos antes de renderizar la página.
-        run_actions(
-            BEFORE_RENDER_PAGE_ACTION,
-            |a| action_ref::<ActionBeforeRenderPage>(&**a).run(self)
+        run_hooks(
+            BEFORE_RENDER_PAGE_HOOK,
+            |a| hook_ref::<BeforeRenderPageHook>(&**a).run(self)
         );
 
         // Acciones del tema antes de renderizar la página.

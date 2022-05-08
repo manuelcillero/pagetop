@@ -1,5 +1,6 @@
-use crate::{app, util};
-use crate::api::action::ActionItem;
+use crate::util;
+use crate::core::app;
+use crate::core::hook::HookItem;
 
 #[cfg(any(feature = "mysql", feature = "postgres", feature = "sqlite"))]
 use crate::db::MigrationItem;
@@ -28,7 +29,7 @@ pub trait ModuleTrait: BaseModule + Send + Sync {
     fn configure_service(&self, cfg: &mut app::web::ServiceConfig) {
     }
 
-    fn actions(&self) -> Vec<ActionItem> {
+    fn actions(&self) -> Vec<HookItem> {
         vec![]
     }
 

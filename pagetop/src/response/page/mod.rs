@@ -1,7 +1,7 @@
-mod action;
-pub use action::{
-    BEFORE_RENDER_PAGE_ACTION,
-    ActionBeforeRenderPage,
+mod hook;
+pub use hook::{
+    BEFORE_RENDER_PAGE_HOOK,
+    BeforeRenderPageHook,
 };
 
 mod page;

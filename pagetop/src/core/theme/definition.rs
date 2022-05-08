@@ -1,7 +1,8 @@
-use crate::{app, concat_string, util};
+use crate::{concat_string, util};
 use crate::config::SETTINGS;
 use crate::html::{Markup, html};
-use crate::api::component::{Assets, ComponentTrait, Favicon};
+use crate::core::app;
+use crate::core::component::{Assets, ComponentTrait, Favicon};
 use crate::response::page::Page;
 use crate::base::component::Chunck;
 

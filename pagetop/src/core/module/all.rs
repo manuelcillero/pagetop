@@ -1,26 +1,38 @@
-use crate::{Lazy, app, run_now, trace};
-use crate::api::action::add_action;
+use crate::{Lazy, run_now, trace};
+use crate::core::app;
+use crate::core::hook::add_hook;
 use crate::db::*;
 use super::ModuleTrait;
 
 use std::sync::RwLock;
 
-// Módulos registrados.
-static MODULES: Lazy<RwLock<Vec<&dyn ModuleTrait>>> = Lazy::new(|| {
+// Enabled modules.
+static ENABLED_MODULES: Lazy<RwLock<Vec<&dyn ModuleTrait>>> = Lazy::new(|| {
     RwLock::new(Vec::new())
 });
 
-pub fn include_module(module: &'static dyn ModuleTrait) {
+/* Disabled modules.
+static DISABLED_MODULES: Lazy<RwLock<Vec<&dyn ModuleTrait>>> = Lazy::new(|| {
+    RwLock::new(Vec::new())
+}); */
+
+pub fn enable_modules(modules: Vec<&'static dyn ModuleTrait>) {
+    for m in modules {
+        enable_module(m)
+    }
+}
+
+pub fn enable_module(module: &'static dyn ModuleTrait) {
     let mut list: Vec<&dyn ModuleTrait> = Vec::new();
     add_to(&mut list, module);
     list.reverse();
-    MODULES.write().unwrap().append(&mut list);
+    ENABLED_MODULES.write().unwrap().append(&mut list);
 }
 
 fn add_to(list: &mut Vec<&dyn ModuleTrait>, module: &'static dyn ModuleTrait) {
-    if !MODULES.read().unwrap().iter().any(|m| m.handler() == module.handler()) {
+    if !ENABLED_MODULES.read().unwrap().iter().any(|m| m.handler() == module.handler()) {
         if !list.iter().any(|m| m.handler() == module.handler()) {
-            trace::debug!("Including module \"{}\"", module.single_name());
+            trace::debug!("Enabling module \"{}\"", module.single_name());
             list.push(module);
 
             let mut dependencies = module.dependencies();
@@ -32,16 +44,20 @@ fn add_to(list: &mut Vec<&dyn ModuleTrait>, module: &'static dyn ModuleTrait) {
     }
 }
 
+#[allow(unused_variables)]
+pub fn disable_module(module: &'static dyn ModuleTrait) {
+}
+
 pub fn modules(cfg: &mut app::web::ServiceConfig) {
-    for m in MODULES.read().unwrap().iter() {
+    for m in ENABLED_MODULES.read().unwrap().iter() {
         m.configure_service(cfg);
     }
 }
 
-pub fn register_actions() {
-    for m in MODULES.read().unwrap().iter() {
+pub fn register_hooks() {
+    for m in ENABLED_MODULES.read().unwrap().iter() {
         for a in m.actions().into_iter() {
-            add_action(a);
+            add_hook(a);
         }
     }
 }
@@ -53,7 +69,7 @@ pub fn run_migrations() {
         impl MigratorTrait for Migrator {
             fn migrations() -> Vec<MigrationItem> {
                 let mut migrations = vec![];
-                for m in MODULES.read().unwrap().iter() {
+                for m in ENABLED_MODULES.read().unwrap().iter() {
                     migrations.append(&mut m.migrations());
                 }
                 migrations

@@ -1,7 +1,7 @@
-mod action;
-pub use action::{
-    BEFORE_RENDER_COMPONENT_ACTION,
-    BeforeRenderComponentAction,
+mod hook;
+pub use hook::{
+    BEFORE_RENDER_COMPONENT_HOOK,
+    BeforeRenderComponentHook,
 };
 
 mod assets;

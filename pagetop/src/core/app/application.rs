@@ -1,57 +1,63 @@
-use crate::{Lazy, app, base, trace};
+use crate::{Lazy, base, trace};
 use crate::config::SETTINGS;
-use crate::api::{module, theme};
+use crate::core::{module, theme};
+use super::AppTrait;
 
 use std::io::Error;
 use actix_web::middleware::normalize::{NormalizePath, TrailingSlash};
 
 pub struct Application {
-    server: app::Server,
+    server: super::Server,
 }
 
-pub enum UsingBootstrap {Fn(fn()), No}
-
 impl Application {
-    pub async fn prepare(bootstrap: UsingBootstrap) -> Result<Self, Error> {
+    pub async fn prepare(brrrz: impl AppTrait) -> Result<Self, Error> {
         // Rótulo de presentación.
-        app::banner::print_on_startup();
+        super::banner::print_on_startup();
 
         // Inicia registro de trazas y eventos.
-        Lazy::force(&app::tracing::TRACING);
+        Lazy::force(&super::tracing::TRACING);
 
         // Valida el identificador de idioma.
-        Lazy::force(&app::locale::LANGID);
+        Lazy::force(&super::locale::LANGID);
 
         // Conecta con la base de datos (opcional).
         #[cfg(any(feature = "mysql", feature = "postgres", feature = "sqlite"))]
-        Lazy::force(&app::db::DBCONN);
+        Lazy::force(&super::db::DBCONN);
 
         // Registra los temas predeterminados.
-        theme::register_theme(&base::theme::aliner::Aliner);
-        theme::register_theme(&base::theme::minimal::Minimal);
-        theme::register_theme(&base::theme::bootsier::Bootsier);
-        theme::register_theme(&base::theme::bulmix::Bulmix);
+        theme::register_themes(vec![
+            &base::theme::aliner::Aliner,
+            &base::theme::minimal::Minimal,
+            &base::theme::bootsier::Bootsier,
+            &base::theme::bulmix::Bulmix,
+        ]);
+        theme::register_themes(brrrz.register_themes());
+
+        // Habilita los módulos predeterminados.
+        module::enable_modules(brrrz.enabled_modules());
+        // Habilita el módulo de presentación de PageTop.
+        // Normalmente se sobrecargará en la función de inicio.
+        module::enable_module(&base::module::demopage::Demopage);
+
+        // Registra las acciones de todos los módulos.
+        module::all::register_hooks();
 
         // Ejecuta la función de inicio de la aplicación.
         trace::info!("Calling application bootstrap");
+        brrrz.bootstrap();
+        /*
         if let UsingBootstrap::Fn(bootstrap) = bootstrap {
             let _ = &bootstrap();
-        }
-
-        // Registra el módulo de presentación de PageTop.
-        // Normalmente se sobrecargará en la función de inicio.
-        module::include_module(&base::module::demopage::Demopage);
-
-        // Registra las acciones de todos los módulos.
-        module::all::register_actions();
+        }*/
 
         // Actualizaciones pendientes de la base de datos (opcional).
         #[cfg(any(feature = "mysql", feature = "postgres", feature = "sqlite"))]
         module::all::run_migrations();
 
         // Prepara el servidor web.
-        let server = app::HttpServer::new(move || {
-            app::App::new()
+        let server = super::HttpServer::new(move || {
+            super::App::new()
                 .wrap(tracing_actix_web::TracingLogger)
                 .wrap(NormalizePath::new(TrailingSlash::Trim))
                 .configure(&module::all::modules)
@@ -66,7 +72,7 @@ impl Application {
         Ok(Self { server })
     }
 
-    pub fn run(self) -> Result<app::Server, Error> {
+    pub fn run(self) -> Result<super::Server, Error> {
         Ok(self.server)
     }
 }

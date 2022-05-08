@@ -6,5 +6,7 @@ pub use definition::{
 
 pub(crate) mod all;
 pub use all::{
-    include_module,
+    disable_module,
+    enable_module,
+    enable_modules,
 };

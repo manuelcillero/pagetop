@@ -1,7 +1,7 @@
 use crate::{Lazy, base, concat_string, util};
 use crate::config::SETTINGS;
 use crate::html::{Markup, PreEscaped, html};
-use crate::api::theme::*;
+use crate::core::theme::*;
 
 static DEFAULT_THEME: Lazy<&dyn ThemeTrait> = Lazy::new(|| {
     match theme_by_single_name(&SETTINGS.app.theme) {
