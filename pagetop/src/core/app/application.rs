@@ -5,13 +5,14 @@ use super::AppTrait;
 
 use std::io::Error;
 use actix_web::middleware::normalize::{NormalizePath, TrailingSlash};
+use actix_web::dev::Server;
 
 pub struct Application {
-    server: super::Server,
+    server: Server,
 }
 
 impl Application {
-    pub async fn prepare(brrrz: impl AppTrait) -> Result<Self, Error> {
+    pub async fn prepare(app: impl AppTrait) -> Result<Self, Error> {
         // Rótulo de presentación.
         super::banner::print_on_startup();
 
@@ -25,35 +26,29 @@ impl Application {
         #[cfg(any(feature = "mysql", feature = "postgres", feature = "sqlite"))]
         Lazy::force(&super::db::DBCONN);
 
+        // Habilita los módulos de la aplicación.
+        module::all::enable_modules(app.enable_modules());
+
         // Registra los temas predeterminados.
-        theme::register_themes(vec![
+        theme::all::register_themes(vec![
             &base::theme::aliner::Aliner,
             &base::theme::minimal::Minimal,
             &base::theme::bootsier::Bootsier,
             &base::theme::bulmix::Bulmix,
         ]);
-        theme::register_themes(brrrz.register_themes());
-
-        // Habilita los módulos predeterminados.
-        module::enable_modules(brrrz.enabled_modules());
-        // Habilita el módulo de presentación de PageTop.
-        // Normalmente se sobrecargará en la función de inicio.
-        module::enable_module(&base::module::demopage::Demopage);
+        // Registra los temas de la aplicación.
+        theme::all::register_themes(app.themes());
 
         // Registra las acciones de todos los módulos.
         module::all::register_hooks();
 
-        // Ejecuta la función de inicio de la aplicación.
-        trace::info!("Calling application bootstrap");
-        brrrz.bootstrap();
-        /*
-        if let UsingBootstrap::Fn(bootstrap) = bootstrap {
-            let _ = &bootstrap();
-        }*/
-
-        // Actualizaciones pendientes de la base de datos (opcional).
+        // Ejecuta actualizaciones pendientes de la base de datos (opcional).
         #[cfg(any(feature = "mysql", feature = "postgres", feature = "sqlite"))]
         module::all::run_migrations();
+
+        // Ejecuta la función de inicio de la aplicación.
+        trace::info!("Calling application bootstrap");
+        app.bootstrap();
 
         // Prepara el servidor web.
         let server = super::HttpServer::new(move || {
@@ -72,7 +67,7 @@ impl Application {
         Ok(Self { server })
     }
 
-    pub fn run(self) -> Result<super::Server, Error> {
+    pub fn run(self) -> Result<Server, Error> {
         Ok(self.server)
     }
 }

@@ -1,7 +1,6 @@
 pub use actix_web::{
     App, HttpRequest, HttpResponse, HttpServer, Responder, Result, http, web
 };
-use actix_web::dev::Server;
 
 mod banner;
 

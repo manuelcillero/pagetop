@@ -1,13 +1,14 @@
-use pagetop::{prelude::*, core::app::AppTrait};
+use pagetop::prelude::*;
 
 struct Drust;
 
 impl AppTrait for Drust {
-    fn enabled_modules(&self) -> Vec<&'static dyn ModuleTrait> {
+    fn enable_modules(&self) -> Vec<&'static dyn ModuleTrait> {
         vec![
             &pagetop_admin::Admin,
             &pagetop_user::User,
             &pagetop_node::Node,
+            &demopage::Demopage,
         ]
     }
 }

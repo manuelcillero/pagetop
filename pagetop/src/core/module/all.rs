@@ -18,11 +18,11 @@ static DISABLED_MODULES: Lazy<RwLock<Vec<&dyn ModuleTrait>>> = Lazy::new(|| {
 
 pub fn enable_modules(modules: Vec<&'static dyn ModuleTrait>) {
     for m in modules {
-        enable_module(m)
+        enable(m)
     }
 }
 
-pub fn enable_module(module: &'static dyn ModuleTrait) {
+fn enable(module: &'static dyn ModuleTrait) {
     let mut list: Vec<&dyn ModuleTrait> = Vec::new();
     add_to(&mut list, module);
     list.reverse();
@@ -43,11 +43,11 @@ fn add_to(list: &mut Vec<&dyn ModuleTrait>, module: &'static dyn ModuleTrait) {
         }
     }
 }
-
+/*
 #[allow(unused_variables)]
 pub fn disable_module(module: &'static dyn ModuleTrait) {
 }
-
+*/
 pub fn modules(cfg: &mut app::web::ServiceConfig) {
     for m in ENABLED_MODULES.read().unwrap().iter() {
         m.configure_service(cfg);

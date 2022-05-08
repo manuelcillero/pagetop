@@ -13,11 +13,11 @@ static THEMES: Lazy<RwLock<Vec<&dyn ThemeTrait>>> = Lazy::new(|| {
 
 pub fn register_themes(themes: Vec<&'static dyn ThemeTrait>) {
     for t in themes {
-        register_theme(t)
+        register(t)
     }
 }
 
-pub fn register_theme(theme: &'static dyn ThemeTrait) {
+fn register(theme: &'static dyn ThemeTrait) {
     let mut themes = THEMES.write().unwrap();
     if !themes.iter().any(|t| t.handler() == theme.handler()) {
         trace::debug!("Registering theme \"{}\"", theme.single_name());
