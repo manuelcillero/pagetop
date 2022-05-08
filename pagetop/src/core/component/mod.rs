@@ -25,10 +25,8 @@ mod holder;
 pub use holder::ComponentsHolder;
 
 mod all;
-pub use all::{
-    add_component_to,
-    common_components,
-};
+pub use all::add_component_to;
+pub(crate) use all::common_components;
 
 pub fn render_always() -> bool { true }
 

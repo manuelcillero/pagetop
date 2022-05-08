@@ -6,8 +6,8 @@ pub type HookItem = Box<dyn HookTrait>;
 
 #[macro_export]
 macro_rules! hook_item {
-    ( $action:ident => $f:ident $(, $weight:expr)? ) => {{
-        Box::new($action::new().with_hook($f)$(.with_weight($weight))?)
+    ( $hook:ident => $f:ident $(, $weight:expr)? ) => {{
+        Box::new($hook::new().with_hook($f)$(.with_weight($weight))?)
     }};
 }
 
@@ -18,15 +18,15 @@ impl HooksHolder {
         HooksHolder(Arc::new(RwLock::new(Vec::new())))
     }
 
-    pub fn new_with(action: HookItem) -> Self {
+    pub fn new_with(hook: HookItem) -> Self {
         let mut container = HooksHolder::new();
-        container.add(action);
+        container.add(hook);
         container
     }
 
-    pub fn add(&mut self, action: HookItem) {
+    pub fn add(&mut self, hook: HookItem) {
         let mut actions = self.0.write().unwrap();
-        actions.push(action);
+        actions.push(hook);
         actions.sort_by_key(|a| a.weight());
     }
 

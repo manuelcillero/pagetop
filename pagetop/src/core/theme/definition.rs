@@ -23,7 +23,7 @@ pub trait ThemeTrait: BaseTheme + Send + Sync {
     }
 
     #[allow(unused_variables)]
-    fn configure_theme(&self, cfg: &mut app::web::ServiceConfig) {
+    fn configure_service(&self, cfg: &mut app::web::ServiceConfig) {
     }
 
     #[allow(unused_variables)]

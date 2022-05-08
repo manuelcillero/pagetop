@@ -1,7 +1,7 @@
 use crate::core::hook::{HookTrait, AnyHook};
 use super::Page;
 
-pub const BEFORE_RENDER_PAGE_HOOK: &str = "pagetop::action::before_render_page";
+pub const BEFORE_RENDER_PAGE_HOOK: &str = "pagetop::hook::before_render_page";
 
 pub struct BeforeRenderPageHook {
     hook: Option<fn(&mut Page)>,

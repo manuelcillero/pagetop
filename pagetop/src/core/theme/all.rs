@@ -38,6 +38,6 @@ pub fn themes(cfg: &mut app::web::ServiceConfig) {
     theme_static_files!(cfg, "/theme");
 
     for t in THEMES.read().unwrap().iter() {
-        t.configure_theme(cfg);
+        t.configure_service(cfg);
     }
 }

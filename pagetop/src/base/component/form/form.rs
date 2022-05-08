@@ -95,7 +95,7 @@ impl Form {
         self
     }
 
-    pub fn with_hook(mut self, action: &str) -> Self {
+    pub fn with_action(mut self, action: &str) -> Self {
         self.alter_action(action);
         self
     }

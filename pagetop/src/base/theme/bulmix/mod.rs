@@ -11,7 +11,7 @@ impl ThemeTrait for Bulmix {
         BULMIX_THEME
     }
 
-    fn configure_theme(&self, cfg: &mut app::web::ServiceConfig) {
+    fn configure_service(&self, cfg: &mut app::web::ServiceConfig) {
         theme_static_files!(cfg, "/bulmix");
     }
 

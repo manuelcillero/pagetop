@@ -1,7 +1,7 @@
 use crate::core::hook::{HookTrait, AnyHook};
 use super::{Assets, ComponentTrait};
 
-pub const BEFORE_RENDER_COMPONENT_HOOK: &str = "pagetop::action::before_render_component";
+pub const BEFORE_RENDER_COMPONENT_HOOK: &str = "pagetop::hook::before_render_component";
 
 pub struct BeforeRenderComponentHook {
     hook: Option<fn(&mut dyn ComponentTrait, &mut Assets)>,

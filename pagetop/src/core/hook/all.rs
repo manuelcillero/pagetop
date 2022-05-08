@@ -9,13 +9,13 @@ static ACTIONS: Lazy<RwLock<HashMap<&str, HooksHolder>>> = Lazy::new(|| {
     RwLock::new(HashMap::new())
 });
 
-pub fn add_hook(action: HookItem) {
+pub fn add_hook(hook: HookItem) {
     let mut hmap = ACTIONS.write().unwrap();
-    let action_handler = action.handler();
+    let action_handler = hook.handler();
     if let Some(actions) = hmap.get_mut(action_handler) {
-        actions.add(action);
+        actions.add(hook);
     } else {
-        hmap.insert(action_handler, HooksHolder::new_with(action));
+        hmap.insert(action_handler, HooksHolder::new_with(hook));
     }
 }
 

@@ -12,6 +12,6 @@ pub trait HookTrait: AnyHook + Send + Sync {
     fn as_ref_any(&self) -> &dyn AnyHook;
 }
 
-pub fn hook_ref<A: 'static>(action: &dyn HookTrait) -> &A {
-    action.as_ref_any().downcast_ref::<A>().unwrap()
+pub fn hook_ref<A: 'static>(hook: &dyn HookTrait) -> &A {
+    hook.as_ref_any().downcast_ref::<A>().unwrap()
 }
