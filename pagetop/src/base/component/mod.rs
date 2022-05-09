@@ -9,6 +9,14 @@ mod chunck;
 pub use chunck::{
     CHUNCK_COMPONENT, Chunck
 };
+mod heading;
+pub use heading::{
+    HEADING_COMPONENT, Heading, HeadingDisplay, HeadingType
+};
+mod paragraph;
+pub use paragraph::{
+    PARAGRAPH_COMPONENT, Paragraph, ParagraphDisplay
+};
 mod block;
 pub use block::{
     BLOCK_COMPONENT, Block

@@ -41,22 +41,24 @@ fn hello_world() -> Container {
         .add(grid::Row::new()
             .add_column(grid::Column::new()
                 .add(Chunck::with(html! {
-                    div class="section-title" {
+                    div class="area-title" {
                         (t("welcome_to", &args![
                             "app" => SETTINGS.app.name.as_str()
                         ]))
                     }
-                    h1 class="h1-large" {
-                        (l("page_title"))
-                    }
-                    p class="p-large" {
-                        (e("welcome_intro", &args![
-                            "app" => format!(
-                                "<strong>{}</strong>",
-                                &SETTINGS.app.name
-                            )
-                        ]))
-                    }
+                }))
+                .add(Heading::with(HeadingType::H1(
+                    l("page_title"))
+                ).with_display(HeadingDisplay::Large))
+                .add(Paragraph::with(html! {
+                    (e("welcome_intro", &args![
+                        "app" => format!(
+                            "<strong>{}</strong>",
+                            &SETTINGS.app.name
+                        )
+                    ]))
+                }).with_display(ParagraphDisplay::Large))
+                .add(Chunck::with(html! {
                     p {
                         (e("welcome_pagetop", &args![
                             "pagetop" => "<a href=\"https://pagetop-rs\">PageTop</a>"

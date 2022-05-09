@@ -36,6 +36,35 @@ impl ThemeTrait for Bulmix {
         _assets: &mut Assets
     ) {
         match component.handler() {
+            HEADING_COMPONENT => {
+                let h = component_mut::<Heading>(component);
+                h.alter_classes(
+                    concat_string!("title ", match h.display() {
+                        HeadingDisplay::XxLarge    => "is-1",
+                        HeadingDisplay::Large      => "is-2",
+                        HeadingDisplay::Normal     => "",
+                        HeadingDisplay::Medium     => "is-3",
+                        HeadingDisplay::Small      => "is-4",
+                        HeadingDisplay::XxSmall    => "is-5",
+                    }).as_str(),
+                    ClassesOp::SetDefault
+                );
+            },
+            PARAGRAPH_COMPONENT => {
+                let p = component_mut::<Paragraph>(component);
+                p.alter_classes(
+                    match p.display() {
+                        ParagraphDisplay::XxLarge    => "is-size-2",
+                        ParagraphDisplay::Large      => "is-size-3",
+                        ParagraphDisplay::MediumPlus => "is-size-4",
+                        ParagraphDisplay::Normal     => "",
+                        ParagraphDisplay::Medium     => "is-size-5",
+                        ParagraphDisplay::Small      => "is-size-6",
+                        ParagraphDisplay::XxSmall    => "is-size-7",
+                    },
+                    ClassesOp::SetDefault
+                );
+            },
             grid::ROW_COMPONENT => {
                 let row = component_mut::<grid::Row>(component);
                 row.alter_classes("columns", ClassesOp::SetDefault);
