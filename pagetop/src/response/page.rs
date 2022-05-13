@@ -4,5 +4,5 @@ pub use hook::{
     BeforeRenderPageHook,
 };
 
-mod page;
-pub use page::Page;
+mod definition;
+pub use definition::Page;
