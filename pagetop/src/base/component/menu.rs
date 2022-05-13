@@ -1,7 +1,7 @@
 use crate::prelude::*;
 
 pub const MENU_COMPONENT: &str = "pagetop::component::menu";
-pub const MENUITEM_COMPONENT: &str = "pagetop::component::menu";
+pub const MENUITEM_COMPONENT: &str = "pagetop::component::menu_item";
 
 pub enum MenuItemType {
     Label(String),
