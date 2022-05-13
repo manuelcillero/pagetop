@@ -40,30 +40,27 @@ fn hello_world() -> Container {
     Container::header()
         .add(grid::Row::new()
             .add_column(grid::Column::new()
-                .add(Chunck::with(html! {
-                    div class="area-title" {
-                        (t("welcome_to", &args![
-                            "app" => SETTINGS.app.name.as_str()
-                        ]))
-                    }
+                .add(Heading::h1(html! {
+                    (l("page_title"))
+                }).with_display(HeadingDisplay::Large))
+                .add(Paragraph::with(html! {
+                    (t("welcome_to", &args![
+                        "app" => SETTINGS.app.name.as_str()
+                    ]))
                 }))
-                .add(Heading::with(HeadingType::H1(
-                    l("page_title"))
-                ).with_display(HeadingDisplay::Large))
                 .add(Paragraph::with(html! {
                     (e("welcome_intro", &args![
-                        "app" => format!(
-                            "<strong>{}</strong>",
-                            &SETTINGS.app.name
-                        )
+                        "app" => format!("<strong>{}</strong>", &SETTINGS.app.name)
                     ]))
-                }).with_display(ParagraphDisplay::Large))
+                }).with_display(ParagraphDisplay::Small))
+                .add(Paragraph::with(html! {
+                    (e("welcome_pagetop", &args![
+                        "pagetop" => "<a href=\"https://pagetop-rs\">PageTop</a>"
+                    ]))
+                }))
+                .add(Anchor::button("#", html! { ("Offered services") }))
+                .add(Anchor::button("#", html! { ("Get quote") }))
                 .add(Chunck::with(html! {
-                    p {
-                        (e("welcome_pagetop", &args![
-                            "pagetop" => "<a href=\"https://pagetop-rs\">PageTop</a>"
-                        ]))
-                    }
                     a class="btn-solid-lg" href="#services" {
                         "Offered services"
                     }

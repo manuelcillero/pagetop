@@ -38,32 +38,32 @@ impl ThemeTrait for Bulmix {
         match component.handler() {
             HEADING_COMPONENT => {
                 let h = component_mut::<Heading>(component);
-                h.alter_classes(
-                    concat_string!("title ", match h.display() {
-                        HeadingDisplay::XxLarge    => "is-1",
-                        HeadingDisplay::Large      => "is-2",
-                        HeadingDisplay::Normal     => "",
-                        HeadingDisplay::Medium     => "is-3",
-                        HeadingDisplay::Small      => "is-4",
-                        HeadingDisplay::XxSmall    => "is-5",
-                    }).as_str(),
-                    ClassesOp::SetDefault
-                );
+                h.alter_classes(concat_string!("title ", match h.display() {
+                    HeadingDisplay::XxLarge => "is-1",
+                    HeadingDisplay::Large   => "is-2",
+                    HeadingDisplay::Medium  => "is-3",
+                    HeadingDisplay::Small   => "is-4",
+                    HeadingDisplay::XxSmall => "is-5",
+                    HeadingDisplay::Normal  => "",
+                }).as_str(), ClassesOp::SetDefault);
             },
             PARAGRAPH_COMPONENT => {
                 let p = component_mut::<Paragraph>(component);
-                p.alter_classes(
-                    match p.display() {
-                        ParagraphDisplay::XxLarge    => "is-size-2",
-                        ParagraphDisplay::Large      => "is-size-3",
-                        ParagraphDisplay::MediumPlus => "is-size-4",
-                        ParagraphDisplay::Normal     => "",
-                        ParagraphDisplay::Medium     => "is-size-5",
-                        ParagraphDisplay::Small      => "is-size-6",
-                        ParagraphDisplay::XxSmall    => "is-size-7",
-                    },
-                    ClassesOp::SetDefault
-                );
+                p.alter_classes(match p.display() {
+                    ParagraphDisplay::XxLarge => "is-size-2",
+                    ParagraphDisplay::Large   => "is-size-3",
+                    ParagraphDisplay::Medium  => "is-size-4",
+                    ParagraphDisplay::Small   => "is-size-5",
+                    ParagraphDisplay::XxSmall => "is-size-6",
+                    ParagraphDisplay::Normal  => "",
+                }, ClassesOp::SetDefault);
+            },
+            ANCHOR_COMPONENT => {
+                let a = component_mut::<Anchor>(component);
+                a.alter_classes(match a.anchor_type() {
+                    AnchorType::Button => "button is-primary",
+                    _ => "",
+                }, ClassesOp::SetDefault);
             },
             grid::ROW_COMPONENT => {
                 let row = component_mut::<grid::Row>(component);
@@ -71,7 +71,7 @@ impl ThemeTrait for Bulmix {
             },
             grid::COLUMN_COMPONENT => {
                 let col = component_mut::<grid::Column>(component);
-                col.alter_classes("column", ClassesOp::SetDefault);
+                col.alter_classes("column content", ClassesOp::SetDefault);
             },
             _ => {},
         }

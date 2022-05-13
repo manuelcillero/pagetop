@@ -17,6 +17,10 @@ mod paragraph;
 pub use paragraph::{
     PARAGRAPH_COMPONENT, Paragraph, ParagraphDisplay
 };
+mod anchor;
+pub use anchor::{
+    ANCHOR_COMPONENT, Anchor, AnchorTarget, AnchorType
+};
 mod block;
 pub use block::{
     BLOCK_COMPONENT, Block

@@ -8,6 +8,7 @@ pub enum ClassesOp {
     Replace(&'static str),
     Reset,
     SetDefault,
+    SetDefaultIfEmpty,
 }
 
 pub struct Classes {
@@ -75,6 +76,10 @@ impl Classes {
             ClassesOp::Reset => self.added = classes.to_owned(),
 
             ClassesOp::SetDefault => self.default = classes.to_owned(),
+
+            ClassesOp::SetDefaultIfEmpty => if self.default.is_empty() {
+                self.default = classes.to_owned()
+            },
         }
         self.option = Some(concat_string!(self.default, " ", self.added).trim().to_owned());
         self

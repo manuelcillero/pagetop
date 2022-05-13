@@ -2,28 +2,22 @@ use crate::prelude::*;
 
 pub const HEADING_COMPONENT: &str = "pagetop::component::heading";
 
-pub enum HeadingType {
-    H1(String),
-    H2(String),
-    H3(String),
-    H4(String),
-    H5(String),
-    H6(String),
-}
+pub enum HeadingType { H1, H2, H3, H4, H5, H6 }
 
 pub enum HeadingDisplay {
     XxLarge,
     Large,
-    Normal,
     Medium,
     Small,
     XxSmall,
+    Normal,
 }
 
 pub struct Heading {
     renderable: fn() -> bool,
     weight    : isize,
     heading   : HeadingType,
+    html      : Markup,
     display   : HeadingDisplay,
     id        : OptIden,
     classes   : Classes,
@@ -35,7 +29,8 @@ impl ComponentTrait for Heading {
         Heading {
             renderable: render_always,
             weight    : 0,
-            heading   : HeadingType::H1("".to_owned()),
+            heading   : HeadingType::H1,
+            html      : html! {},
             display   : HeadingDisplay::Normal,
             id        : OptIden::new(),
             classes   : Classes::new(),
@@ -57,12 +52,12 @@ impl ComponentTrait for Heading {
 
     fn default_render(&self, _: &mut Assets) -> Markup {
         html! { @match &self.heading() {
-            HeadingType::H1(text) => h1 id=[self.id()] class=[self.classes()] { (text) },
-            HeadingType::H2(text) => h2 id=[self.id()] class=[self.classes()] { (text) },
-            HeadingType::H3(text) => h3 id=[self.id()] class=[self.classes()] { (text) },
-            HeadingType::H4(text) => h4 id=[self.id()] class=[self.classes()] { (text) },
-            HeadingType::H5(text) => h5 id=[self.id()] class=[self.classes()] { (text) },
-            HeadingType::H6(text) => h6 id=[self.id()] class=[self.classes()] { (text) },
+            HeadingType::H1 => h1 id=[self.id()] class=[self.classes()] { (*self.html()) },
+            HeadingType::H2 => h2 id=[self.id()] class=[self.classes()] { (*self.html()) },
+            HeadingType::H3 => h3 id=[self.id()] class=[self.classes()] { (*self.html()) },
+            HeadingType::H4 => h4 id=[self.id()] class=[self.classes()] { (*self.html()) },
+            HeadingType::H5 => h5 id=[self.id()] class=[self.classes()] { (*self.html()) },
+            HeadingType::H6 => h6 id=[self.id()] class=[self.classes()] { (*self.html()) },
         }}
     }
 
@@ -76,8 +71,28 @@ impl ComponentTrait for Heading {
 }
 
 impl Heading {
-    pub fn with(heading: HeadingType) -> Self {
-        Heading::new().with_heading(heading)
+    pub fn h1(html: Markup) -> Self {
+        Heading::new().with_heading(HeadingType::H1).with_html(html)
+    }
+
+    pub fn h2(html: Markup) -> Self {
+        Heading::new().with_heading(HeadingType::H2).with_html(html)
+    }
+
+    pub fn h3(html: Markup) -> Self {
+        Heading::new().with_heading(HeadingType::H3).with_html(html)
+    }
+
+    pub fn h4(html: Markup) -> Self {
+        Heading::new().with_heading(HeadingType::H4).with_html(html)
+    }
+
+    pub fn h5(html: Markup) -> Self {
+        Heading::new().with_heading(HeadingType::H5).with_html(html)
+    }
+
+    pub fn h6(html: Markup) -> Self {
+        Heading::new().with_heading(HeadingType::H6).with_html(html)
     }
 
     // Heading BUILDER.
@@ -94,6 +109,11 @@ impl Heading {
 
     pub fn with_heading(mut self, heading: HeadingType) -> Self {
         self.alter_heading(heading);
+        self
+    }
+
+    pub fn with_html(mut self, html: Markup) -> Self {
+        self.alter_html(html);
         self
     }
 
@@ -134,15 +154,20 @@ impl Heading {
         self
     }
 
+    pub fn alter_html(&mut self, html: Markup) -> &mut Self {
+        self.html = html;
+        self
+    }
+
     pub fn alter_display(&mut self, display: HeadingDisplay) -> &mut Self {
         self.display = display;
         self.classes.alter(match &self.display() {
-            HeadingDisplay::XxLarge    => "display-2",
-            HeadingDisplay::Large      => "display-3",
-            HeadingDisplay::Normal     => "",
-            HeadingDisplay::Medium     => "display-4",
-            HeadingDisplay::Small      => "display-5",
-            HeadingDisplay::XxSmall    => "display-6",
+            HeadingDisplay::XxLarge => "display-2",
+            HeadingDisplay::Large   => "display-3",
+            HeadingDisplay::Medium  => "display-4",
+            HeadingDisplay::Small   => "display-5",
+            HeadingDisplay::XxSmall => "display-6",
+            HeadingDisplay::Normal  => "",
         }, ClassesOp::SetDefault);
         self
     }
@@ -166,6 +191,10 @@ impl Heading {
 
     pub fn heading(&self) -> &HeadingType {
         &self.heading
+    }
+
+    pub fn html(&self) -> &Markup {
+        &self.html
     }
 
     pub fn display(&self) -> &HeadingDisplay {
