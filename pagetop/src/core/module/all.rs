@@ -1,5 +1,4 @@
-use crate::{Lazy, run_now, trace};
-use crate::core::app;
+use crate::{Lazy, app, run_now, trace};
 use crate::core::hook::add_hook;
 use crate::db::*;
 use super::ModuleTrait;

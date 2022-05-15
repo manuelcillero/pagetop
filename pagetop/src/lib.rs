@@ -18,7 +18,9 @@ pub mod html;       // HTML en código.
 #[cfg(any(feature = "mysql", feature = "postgres", feature = "sqlite"))]
 pub mod db;         // Acceso a base de datos.
 
-pub mod core;       // Main APIs for app, components, hooks, modules and themes.
+pub mod app;        // Prepare and run the application.
+
+pub mod core;       // Main APIs for components, hooks, modules and themes.
 
 pub mod response;   // Tipos de respuestas web.
 pub mod base;       // Base de componentes, módulos y temas.

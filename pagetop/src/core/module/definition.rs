@@ -1,5 +1,4 @@
-use crate::util;
-use crate::core::app;
+use crate::{app, util};
 use crate::core::hook::HookItem;
 
 #[cfg(any(feature = "mysql", feature = "postgres", feature = "sqlite"))]

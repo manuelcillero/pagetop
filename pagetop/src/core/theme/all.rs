@@ -1,5 +1,4 @@
-use crate::{Lazy, theme_static_files, trace};
-use crate::core::app;
+use crate::{Lazy, app, theme_static_files, trace};
 use super::ThemeTrait;
 
 use std::sync::RwLock;

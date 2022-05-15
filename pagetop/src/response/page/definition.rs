@@ -1,7 +1,6 @@
-use crate::{Lazy, trace};
+use crate::{Lazy, app, trace};
 use crate::config::SETTINGS;
 use crate::html::*;
-use crate::core::app;
 use crate::core::hook::{hook_ref, run_hooks};
 use crate::core::component::*;
 use super::{BEFORE_RENDER_PAGE_HOOK, BeforeRenderPageHook};

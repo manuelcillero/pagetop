@@ -21,15 +21,16 @@ pub use crate::{
     migration_item,
 };
 
+pub use crate::app;
+pub use crate::app::AppTrait;
+pub use crate::app::application::Application;
+
 pub use crate::{hook_item, core::{
-    app,
     component::*,
     hook::*,
     module::*,
     theme::*,
 }};
-pub use crate::core::app::AppTrait;
-pub use crate::core::app::application::Application;
 
 pub use crate::response::page::*;
 

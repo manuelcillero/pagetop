@@ -7,7 +7,7 @@ pub use fluent_templates::fluent_bundle::FluentValue;
 macro_rules! localize {
     ( $dir_locales:literal $(, $core_locales:literal)? ) => {
         use $crate::locale::*;
-        use $crate::core::app::locale::LANGID;
+        use $crate::app::locale::LANGID;
 
         static_locale! {
             static LOCALES = {
