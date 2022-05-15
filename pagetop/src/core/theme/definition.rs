@@ -2,7 +2,7 @@ use crate::{concat_string, util};
 use crate::config::SETTINGS;
 use crate::html::{Markup, html};
 use crate::core::app;
-use crate::core::component::{Assets, ComponentTrait, Favicon};
+use crate::core::component::{ComponentTrait, Context, Favicon};
 use crate::response::page::Page;
 use crate::base::component::Chunck;
 
@@ -28,7 +28,7 @@ pub trait ThemeTrait: BaseTheme + Send + Sync {
 
     #[allow(unused_variables)]
     fn before_render_page(&self, page: &mut Page) {
-        page.assets()
+        page.context()
             .with_favicon(
                 Favicon::new()
                     .with_icon("/theme/favicon.png")
@@ -56,7 +56,7 @@ pub trait ThemeTrait: BaseTheme + Send + Sync {
                 meta http-equiv="X-UA-Compatible" content="IE=edge";
                 meta name="viewport" content=(viewport);
 
-                (page.assets().render())
+                (page.context().render())
             }
         }
     }
@@ -86,7 +86,7 @@ pub trait ThemeTrait: BaseTheme + Send + Sync {
     fn before_render_component(
         &self,
         component: &mut dyn ComponentTrait,
-        assets: &mut Assets
+        context: &mut Context
     ) {
     /*
         Cómo usarlo:
@@ -105,7 +105,7 @@ pub trait ThemeTrait: BaseTheme + Send + Sync {
     fn render_component(
         &self,
         component: &dyn ComponentTrait,
-        assets: &mut Assets
+        context: &mut Context
     ) -> Option<Markup> {
         None
     /*

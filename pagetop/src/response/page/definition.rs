@@ -42,7 +42,7 @@ pub struct Page<'a> {
     direction   : OptAttr,
     title       : OptAttr,
     description : OptAttr,
-    assets      : Assets,
+    context     : Context,
     regions     : HashMap<&'a str, ComponentsHolder>,
     body_classes: Classes,
     template    : String,
@@ -62,7 +62,7 @@ impl<'a> Page<'a> {
             },
             title       : OptAttr::new(),
             description : OptAttr::new(),
-            assets      : Assets::new(),
+            context     : Context::new(),
             regions     : common_components(),
             body_classes: Classes::new_with_default("body"),
             template    : "default".to_owned(),
@@ -136,8 +136,8 @@ impl<'a> Page<'a> {
         self.description.option()
     }
 
-    pub fn assets(&mut self) -> &mut Assets {
-        &mut self.assets
+    pub fn context(&mut self) -> &mut Context {
+        &mut self.context
     }
 
     pub fn body_classes(&self) -> &Option<String> {
@@ -158,13 +158,13 @@ impl<'a> Page<'a> {
         );
 
         // Acciones del tema antes de renderizar la página.
-        self.assets.theme().before_render_page(self);
+        self.context.theme().before_render_page(self);
 
         // Primero, renderizar el cuerpo.
-        let body = self.assets.theme().render_page_body(self);
+        let body = self.context.theme().render_page_body(self);
 
         // Luego, renderizar la cabecera.
-        let head = self.assets.theme().render_page_head(self);
+        let head = self.context.theme().render_page_head(self);
 
         // Finalmente, renderizar la página.
         return Ok(html! {
@@ -178,7 +178,7 @@ impl<'a> Page<'a> {
 
     pub fn render_region(&mut self, region: &str) -> Markup {
         match self.regions.get_mut(region) {
-            Some(components) => components.render(&mut self.assets),
+            Some(components) => components.render(&mut self.context),
             None => html! {}
         }
     }
@@ -186,7 +186,7 @@ impl<'a> Page<'a> {
     // Page EXTRAS.
 
     pub fn using_theme(&mut self, theme_name: &str) -> &mut Self {
-        self.assets.using_theme(theme_name);
+        self.context.using_theme(theme_name);
         self
     }
 }

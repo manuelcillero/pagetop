@@ -16,7 +16,7 @@ impl ThemeTrait for Bulmix {
     }
 
     fn before_render_page(&self, page: &mut Page) {
-        page.assets()
+        page.context()
             .with_favicon(
                 Favicon::new()
                     .with_icon("/theme/favicon.png")
@@ -33,7 +33,7 @@ impl ThemeTrait for Bulmix {
     fn before_render_component(
         &self,
         component: &mut dyn ComponentTrait,
-        _assets: &mut Assets
+        _context: &mut Context
     ) {
         match component.handler() {
             HEADING_COMPONENT => {

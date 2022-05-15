@@ -42,7 +42,7 @@ impl ComponentTrait for MenuItem {
         self.weight
     }
 
-    fn default_render(&self, assets: &mut Assets) -> Markup {
+    fn default_render(&self, context: &mut Context) -> Markup {
         match self.item_type() {
             MenuItemType::Label(label) => html! {
                 li class="label" { a href="#" { (label) } }
@@ -62,7 +62,7 @@ impl ComponentTrait for MenuItem {
                 li class="submenu" {
                     a href="#" { (label) }
                     ul {
-                        (menu.items().render(assets))
+                        (menu.items().render(context))
                     }
                 }
             },
@@ -206,8 +206,8 @@ impl ComponentTrait for Menu {
         self.weight
     }
 
-    fn default_render(&self, assets: &mut Assets) -> Markup {
-        assets
+    fn default_render(&self, context: &mut Context) -> Markup {
+        context
             .add_stylesheet(StyleSheet::source(
                 "/theme/menu/css/menu.css?ver=1.1.1"
             ))
@@ -219,10 +219,10 @@ impl ComponentTrait for Menu {
             ))
             .add_jquery();
 
-        let id = assets.required_id::<Menu>(self.id());
+        let id = context.required_id::<Menu>(self.id());
         html! {
             ul id=(id) class=[self.classes()] {
-                (self.items().render(assets))
+                (self.items().render(context))
             }
             script type="text/javascript" defer {
                 "jQuery(function(){jQuery('#" (id) "').smartmenus({"

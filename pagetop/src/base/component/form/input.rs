@@ -62,14 +62,14 @@ impl ComponentTrait for Input {
         self.weight
     }
 
-    fn before_render(&mut self, _: &mut Assets) {
+    fn before_render(&mut self, _: &mut Context) {
         if let Some(name) = self.name() {
             let class = concat_string!("form-item-", name);
             self.alter_classes(class.as_str(), ClassesOp::AddFirst);
         }
     }
 
-    fn default_render(&self, _: &mut Assets) -> Markup {
+    fn default_render(&self, _: &mut Context) -> Markup {
         let type_input = match self.input_type() {
             InputType::Email     => "email",
             InputType::Password  => "password",

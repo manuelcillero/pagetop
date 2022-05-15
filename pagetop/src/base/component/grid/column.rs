@@ -35,10 +35,10 @@ impl ComponentTrait for Column {
         self.weight
     }
 
-    fn default_render(&self, assets: &mut Assets) -> Markup {
+    fn default_render(&self, context: &mut Context) -> Markup {
         html! {
             div id=[self.id()] class=[self.classes()] {
-                (self.components().render(assets))
+                (self.components().render(context))
             }
         }
     }

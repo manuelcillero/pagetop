@@ -37,8 +37,8 @@ impl ComponentTrait for Block {
         self.weight
     }
 
-    fn default_render(&self, assets: &mut Assets) -> Markup {
-        let id = assets.required_id::<Block>(self.id());
+    fn default_render(&self, context: &mut Context) -> Markup {
+        let id = context.required_id::<Block>(self.id());
         html! {
             div id=(id) class=[self.classes()] {
                 @match self.title() {
@@ -46,7 +46,7 @@ impl ComponentTrait for Block {
                     None => {}
                 }
                 div class="block-body" {
-                    (self.components().render(assets))
+                    (self.components().render(context))
                 }
             }
         }

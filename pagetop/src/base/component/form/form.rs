@@ -43,7 +43,7 @@ impl ComponentTrait for Form {
         self.weight
     }
 
-    fn default_render(&self, assets: &mut Assets) -> Markup {
+    fn default_render(&self, context: &mut Context) -> Markup {
         let method = match self.method() {
             FormMethod::Get => None,
             FormMethod::Post => Some("post".to_owned())
@@ -56,7 +56,7 @@ impl ComponentTrait for Form {
                 method=[method]
                 accept-charset=[self.charset()]
             {
-                div { (self.elements().render(assets)) }
+                div { (self.elements().render(context)) }
             }
         }
     }

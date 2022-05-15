@@ -41,39 +41,39 @@ impl ComponentTrait for Container {
         self.weight
     }
 
-    fn default_render(&self, assets: &mut Assets) -> Markup {
+    fn default_render(&self, context: &mut Context) -> Markup {
         match self.container_type() {
             ContainerType::Header => html! {
                 header id=[self.id()] class=[self.classes()] {
                     div class=[self.inner_classes()] {
-                        (self.components().render(assets))
+                        (self.components().render(context))
                     }
                 }
             },
             ContainerType::Footer => html! {
                 footer id=[self.id()] class=[self.classes()] {
                     div class=[self.inner_classes()] {
-                        (self.components().render(assets))
+                        (self.components().render(context))
                     }
                 }
             },
             ContainerType::Main => html! {
                 main id=[self.id()] class=[self.classes()] {
                     div class=[self.inner_classes()] {
-                        (self.components().render(assets))
+                        (self.components().render(context))
                     }
                 }
             },
             ContainerType::Section => html! {
                 section id=[self.id()] class=[self.classes()] {
                     div class=[self.inner_classes()] {
-                        (self.components().render(assets))
+                        (self.components().render(context))
                     }
                 }
             },
             _ => html! {
                 div id=[self.id()] class=[self.classes()] {
-                    (self.components().render(assets))
+                    (self.components().render(context))
                 }
             }
         }

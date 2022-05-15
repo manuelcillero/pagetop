@@ -31,7 +31,7 @@ impl ComponentTrait for Chunck {
         self.weight
     }
 
-    fn default_render(&self, _: &mut Assets) -> Markup {
+    fn default_render(&self, _: &mut Context) -> Markup {
         html! { (*self.html()) }
     }
 

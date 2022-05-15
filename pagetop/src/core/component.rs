@@ -4,9 +4,9 @@ pub use hook::{
     BeforeRenderComponentHook,
 };
 
-mod assets;
-pub use assets::{
-    Assets,
+mod context;
+pub use context::{
+    Context,
     Favicon,
     JavaScript, JSMode,
     StyleSheet,

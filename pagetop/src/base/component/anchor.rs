@@ -55,7 +55,7 @@ impl ComponentTrait for Anchor {
         self.weight
     }
 
-    fn default_render(&self, _: &mut Assets) -> Markup {
+    fn default_render(&self, _: &mut Context) -> Markup {
         let target = match &self.target() {
             AnchorTarget::Blank         => Some("_blank"),
             AnchorTarget::Context(name) => Some(name.as_str()),

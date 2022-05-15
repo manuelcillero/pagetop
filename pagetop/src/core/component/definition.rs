@@ -1,8 +1,7 @@
 use crate::util;
 use crate::html::{Markup, html};
 use crate::core::hook::{hook_ref, run_hooks};
-use super::{BEFORE_RENDER_COMPONENT_HOOK, BeforeRenderComponentHook};
-use super::Assets;
+use super::{BEFORE_RENDER_COMPONENT_HOOK, BeforeRenderComponentHook, Context};
 
 pub use std::any::Any as AnyComponent;
 
@@ -28,11 +27,11 @@ pub trait ComponentTrait: AnyComponent + Send + Sync {
     }
 
     #[allow(unused_variables)]
-    fn before_render(&mut self, assets: &mut Assets) {
+    fn before_render(&mut self, context: &mut Context) {
     }
 
     #[allow(unused_variables)]
-    fn default_render(&self, assets: &mut Assets) -> Markup {
+    fn default_render(&self, context: &mut Context) -> Markup {
         html! {}
     }
 
@@ -49,24 +48,24 @@ pub fn component_mut<C: 'static>(component: &mut dyn ComponentTrait) -> &mut C {
     component.as_mut_any().downcast_mut::<C>().unwrap()
 }
 
-pub fn render_component(component: &mut dyn ComponentTrait, assets: &mut Assets) -> Markup {
+pub fn render_component(component: &mut dyn ComponentTrait, context: &mut Context) -> Markup {
     // Acciones del componente antes de renderizar.
-    component.before_render(assets);
+    component.before_render(context);
 
     // Acciones de los módulos antes de renderizar el componente.
     run_hooks(
         BEFORE_RENDER_COMPONENT_HOOK,
-        |a| hook_ref::<BeforeRenderComponentHook>(&**a).run(component, assets)
+        |a| hook_ref::<BeforeRenderComponentHook>(&**a).run(component, context)
     );
 
     // Acciones del tema antes de renderizar el componente.
-    assets.theme().before_render_component(component, assets);
+    context.theme().before_render_component(component, context);
 
     match component.is_renderable() {
         true => {
-            match assets.theme().render_component(component, assets) {
+            match context.theme().render_component(component, context) {
                 Some(html) => html,
-                None => component.default_render(assets)
+                None => component.default_render(context)
             }
         },
         false => html! {}
