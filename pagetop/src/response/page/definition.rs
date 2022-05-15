@@ -153,7 +153,7 @@ impl<'a> Page<'a> {
         // Acciones de los módulos antes de renderizar la página.
         run_hooks(
             BEFORE_RENDER_PAGE_HOOK,
-            |a| hook_ref::<BeforeRenderPageHook>(&**a).run(self)
+            |hook| hook_ref::<BeforeRenderPageHook>(&**hook).run(self)
         );
 
         // Acciones del tema antes de renderizar la página.

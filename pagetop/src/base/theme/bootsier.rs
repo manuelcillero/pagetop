@@ -24,13 +24,13 @@ impl ThemeTrait for Bootsier {
                     .with_icon("/theme/favicon.png")
             )
             .add_stylesheet(
-                StyleSheet::source(
+                StyleSheet::with_source(
                     "/bootsier/css/bootstrap.min.css?ver=5.1.3"
                 )
                 .with_weight(-99)
             )
             .add_javascript(
-                JavaScript::source(
+                JavaScript::with_source(
                     "/bootsier/js/bootstrap.bundle.min.js?ver=5.1.3"
                 )
                 .with_weight(-99)

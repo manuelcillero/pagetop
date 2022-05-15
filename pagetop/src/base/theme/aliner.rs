@@ -22,7 +22,7 @@ impl ThemeTrait for Aliner {
                     .with_icon("/theme/favicon.png")
             )
             .add_stylesheet(
-                StyleSheet::source(
+                StyleSheet::with_source(
                     "/aliner/css/styles.css"
                 )
                 .with_weight(-99)

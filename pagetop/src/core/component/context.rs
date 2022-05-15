@@ -101,7 +101,7 @@ pub struct JavaScript {
     mode  : JSMode,
 }
 impl JavaScript {
-    pub fn source(s: &'static str) -> Self {
+    pub fn with_source(s: &'static str) -> Self {
         JavaScript {
             source: s,
             weight: 0,
@@ -119,11 +119,7 @@ impl JavaScript {
         self
     }
 
-    pub fn weight(self) -> isize {
-        self.weight
-    }
-
-    pub fn render(&self) -> Markup {
+    fn render(&self) -> Markup {
         html! {
             script type="text/javascript"
                 src=(self.source)
@@ -141,7 +137,7 @@ pub struct StyleSheet {
     weight: isize,
 }
 impl StyleSheet {
-    pub fn source(s: &'static str) -> Self {
+    pub fn with_source(s: &'static str) -> Self {
         StyleSheet {
             source: s,
             weight: 0,
@@ -151,10 +147,6 @@ impl StyleSheet {
     pub fn with_weight(mut self, weight: isize) -> Self {
         self.weight = weight;
         self
-    }
-
-    pub fn weight(self) -> isize {
-        self.weight
     }
 
     fn render(&self) -> Markup {
@@ -234,7 +226,7 @@ impl InContext {
     pub fn add_jquery(&mut self) -> &mut Self {
         if !self.with_jquery {
             self.add_javascript(
-                JavaScript::source(
+                JavaScript::with_source(
                     "/theme/js/jquery.min.js?ver=3.6.0"
                 )
                 .with_weight(isize::MIN)

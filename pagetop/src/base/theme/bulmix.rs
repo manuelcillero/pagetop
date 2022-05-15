@@ -22,7 +22,7 @@ impl ThemeTrait for Bulmix {
                     .with_icon("/theme/favicon.png")
             )
             .add_stylesheet(
-                StyleSheet::source(
+                StyleSheet::with_source(
                     "/bulmix/css/bulma.min.css?ver=0.9.3"
                 )
                 .with_weight(-99)

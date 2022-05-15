@@ -55,7 +55,7 @@ pub fn render_component(component: &mut dyn ComponentTrait, context: &mut InCont
     // Acciones de los módulos antes de renderizar el componente.
     run_hooks(
         BEFORE_RENDER_COMPONENT_HOOK,
-        |a| hook_ref::<BeforeRenderComponentHook>(&**a).run(component, context)
+        |hook| hook_ref::<BeforeRenderComponentHook>(&**hook).run(component, context)
     );
 
     // Acciones del tema antes de renderizar el componente.

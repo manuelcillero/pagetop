@@ -208,13 +208,13 @@ impl ComponentTrait for Menu {
 
     fn default_render(&self, context: &mut InContext) -> Markup {
         context
-            .add_stylesheet(StyleSheet::source(
+            .add_stylesheet(StyleSheet::with_source(
                 "/theme/menu/css/menu.css?ver=1.1.1"
             ))
-            .add_stylesheet(StyleSheet::source(
+            .add_stylesheet(StyleSheet::with_source(
                 "/theme/menu/css/menu-clean.css?ver=1.1.1"
             ))
-            .add_javascript(JavaScript::source(
+            .add_javascript(JavaScript::with_source(
                 "/theme/menu/js/menu.min.js?ver=1.1.1"
             ))
             .add_jquery();
