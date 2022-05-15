@@ -42,7 +42,7 @@ impl ComponentTrait for MenuItem {
         self.weight
     }
 
-    fn default_render(&self, context: &mut Context) -> Markup {
+    fn default_render(&self, context: &mut InContext) -> Markup {
         match self.item_type() {
             MenuItemType::Label(label) => html! {
                 li class="label" { a href="#" { (label) } }
@@ -176,7 +176,7 @@ impl MenuItem {
 pub struct Menu {
     renderable: fn() -> bool,
     weight    : isize,
-    items     : ComponentsHolder,
+    items     : ComponentsBundle,
     id        : OptIden,
     classes   : Classes,
     template  : String,
@@ -187,7 +187,7 @@ impl ComponentTrait for Menu {
         Menu {
             renderable: render_always,
             weight    : 0,
-            items     : ComponentsHolder::new(),
+            items     : ComponentsBundle::new(),
             id        : OptIden::new(),
             classes   : Classes::new_with_default("sm sm-clean"),
             template  : "default".to_owned(),
@@ -206,7 +206,7 @@ impl ComponentTrait for Menu {
         self.weight
     }
 
-    fn default_render(&self, context: &mut Context) -> Markup {
+    fn default_render(&self, context: &mut InContext) -> Markup {
         context
             .add_stylesheet(StyleSheet::source(
                 "/theme/menu/css/menu.css?ver=1.1.1"
@@ -251,7 +251,7 @@ impl Menu {
         self
     }
 
-    pub fn items(&self) -> &ComponentsHolder {
+    pub fn items(&self) -> &ComponentsBundle {
         &self.items
     }
 

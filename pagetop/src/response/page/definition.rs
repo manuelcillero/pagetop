@@ -42,8 +42,8 @@ pub struct Page<'a> {
     direction   : OptAttr,
     title       : OptAttr,
     description : OptAttr,
-    context     : Context,
-    regions     : HashMap<&'a str, ComponentsHolder>,
+    context     : InContext,
+    regions     : HashMap<&'a str, ComponentsBundle>,
     body_classes: Classes,
     template    : String,
 }
@@ -62,7 +62,7 @@ impl<'a> Page<'a> {
             },
             title       : OptAttr::new(),
             description : OptAttr::new(),
-            context     : Context::new(),
+            context     : InContext::new(),
             regions     : common_components(),
             body_classes: Classes::new_with_default("body"),
             template    : "default".to_owned(),
@@ -103,7 +103,7 @@ impl<'a> Page<'a> {
         if let Some(regions) = self.regions.get_mut(region) {
             regions.add(component);
         } else {
-            self.regions.insert(region, ComponentsHolder::new_with(component));
+            self.regions.insert(region, ComponentsBundle::new_with(component));
         }
         self
     }
@@ -136,7 +136,7 @@ impl<'a> Page<'a> {
         self.description.option()
     }
 
-    pub fn context(&mut self) -> &mut Context {
+    pub fn context(&mut self) -> &mut InContext {
         &mut self.context
     }
 

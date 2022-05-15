@@ -7,7 +7,7 @@ pub enum FormMethod {Get, Post}
 pub struct Form {
     renderable: fn() -> bool,
     weight    : isize,
-    elements  : ComponentsHolder,
+    elements  : ComponentsBundle,
     action    : OptAttr,
     charset   : OptAttr,
     method    : FormMethod,
@@ -21,7 +21,7 @@ impl ComponentTrait for Form {
         Form {
             renderable: render_always,
             weight    : 0,
-            elements  : ComponentsHolder::new(),
+            elements  : ComponentsBundle::new(),
             action    : OptAttr::new(),
             charset   : OptAttr::new_with_value("UTF-8"),
             method    : FormMethod::Post,
@@ -43,7 +43,7 @@ impl ComponentTrait for Form {
         self.weight
     }
 
-    fn default_render(&self, context: &mut Context) -> Markup {
+    fn default_render(&self, context: &mut InContext) -> Markup {
         let method = match self.method() {
             FormMethod::Get => None,
             FormMethod::Post => Some("post".to_owned())
@@ -79,7 +79,7 @@ impl Form {
         self
     }
 
-    pub fn elements(&self) -> &ComponentsHolder {
+    pub fn elements(&self) -> &ComponentsBundle {
         &self.elements
     }
 

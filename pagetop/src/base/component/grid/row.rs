@@ -5,7 +5,7 @@ pub const ROW_COMPONENT: &str = "pagetop::component::grid::row";
 pub struct Row {
     renderable: fn() -> bool,
     weight    : isize,
-    columns   : ComponentsHolder,
+    columns   : ComponentsBundle,
     id        : OptIden,
     classes   : Classes,
     template  : String,
@@ -16,7 +16,7 @@ impl ComponentTrait for Row {
         Row {
             renderable: render_always,
             weight    : 0,
-            columns   : ComponentsHolder::new(),
+            columns   : ComponentsBundle::new(),
             id        : OptIden::new(),
             classes   : Classes::new_with_default("row"),
             template  : "default".to_owned(),
@@ -35,7 +35,7 @@ impl ComponentTrait for Row {
         self.weight
     }
 
-    fn default_render(&self, context: &mut Context) -> Markup {
+    fn default_render(&self, context: &mut InContext) -> Markup {
         html! {
             div id=[self.id()] class=[self.classes()] {
                 (self.columns().render(context))
@@ -61,7 +61,7 @@ impl Row {
         self
     }
 
-    pub fn columns(&self) -> &ComponentsHolder {
+    pub fn columns(&self) -> &ComponentsBundle {
         &self.columns
     }
 

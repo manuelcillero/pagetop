@@ -5,8 +5,8 @@ pub use hook::{
 };
 
 mod context;
+pub use context::InContext;
 pub use context::{
-    Context,
     Favicon,
     JavaScript, JSMode,
     StyleSheet,
@@ -21,8 +21,8 @@ pub use definition::{
 };
 use definition::render_component;
 
-mod holder;
-pub use holder::ComponentsHolder;
+mod bundle;
+pub use bundle::ComponentsBundle;
 
 mod all;
 pub use all::add_component_to;

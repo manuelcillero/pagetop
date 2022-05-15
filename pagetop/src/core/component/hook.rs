@@ -1,10 +1,10 @@
 use crate::core::hook::{HookTrait, AnyHook};
-use super::{ComponentTrait, Context};
+use super::{ComponentTrait, InContext};
 
 pub const BEFORE_RENDER_COMPONENT_HOOK: &str = "pagetop::hook::before_render_component";
 
 pub struct BeforeRenderComponentHook {
-    hook: Option<fn(&mut dyn ComponentTrait, &mut Context)>,
+    hook: Option<fn(&mut dyn ComponentTrait, &mut InContext)>,
     weight: isize,
 }
 
@@ -30,7 +30,7 @@ impl HookTrait for BeforeRenderComponentHook {
 }
 
 impl BeforeRenderComponentHook {
-    pub fn with_hook(mut self, hook: fn(&mut dyn ComponentTrait, &mut Context)) -> Self {
+    pub fn with_hook(mut self, hook: fn(&mut dyn ComponentTrait, &mut InContext)) -> Self {
         self.hook = Some(hook);
         self
     }
@@ -40,7 +40,7 @@ impl BeforeRenderComponentHook {
         self
     }
 
-    pub fn run(&self, component: &mut dyn ComponentTrait, context: &mut Context) {
+    pub fn run(&self, component: &mut dyn ComponentTrait, context: &mut InContext) {
         if let Some(hook) = self.hook {
             hook(component, context)
         }

@@ -2,7 +2,7 @@ use crate::{concat_string, util};
 use crate::config::SETTINGS;
 use crate::html::{Markup, html};
 use crate::core::app;
-use crate::core::component::{ComponentTrait, Context, Favicon};
+use crate::core::component::{ComponentTrait, Favicon, InContext};
 use crate::response::page::Page;
 use crate::base::component::Chunck;
 
@@ -86,7 +86,7 @@ pub trait ThemeTrait: BaseTheme + Send + Sync {
     fn before_render_component(
         &self,
         component: &mut dyn ComponentTrait,
-        context: &mut Context
+        context: &mut InContext
     ) {
     /*
         Cómo usarlo:
@@ -105,7 +105,7 @@ pub trait ThemeTrait: BaseTheme + Send + Sync {
     fn render_component(
         &self,
         component: &dyn ComponentTrait,
-        context: &mut Context
+        context: &mut InContext
     ) -> Option<Markup> {
         None
     /*

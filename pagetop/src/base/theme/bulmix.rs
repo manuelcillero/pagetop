@@ -33,7 +33,7 @@ impl ThemeTrait for Bulmix {
     fn before_render_component(
         &self,
         component: &mut dyn ComponentTrait,
-        _context: &mut Context
+        _context: &mut InContext
     ) {
         match component.handler() {
             HEADING_COMPONENT => {

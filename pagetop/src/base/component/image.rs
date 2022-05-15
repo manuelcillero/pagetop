@@ -35,7 +35,7 @@ impl ComponentTrait for Image {
         self.weight
     }
 
-    fn default_render(&self, _: &mut Context) -> Markup {
+    fn default_render(&self, _: &mut InContext) -> Markup {
         html! {
             img
                 src=[self.source()]

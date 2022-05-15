@@ -5,7 +5,7 @@ pub const BLOCK_COMPONENT: &str = "pagetop::component::block";
 pub struct Block {
     renderable: fn() -> bool,
     weight    : isize,
-    components: ComponentsHolder,
+    components: ComponentsBundle,
     title     : OptAttr,
     id        : OptIden,
     classes   : Classes,
@@ -17,7 +17,7 @@ impl ComponentTrait for Block {
         Block {
             renderable: render_always,
             weight    : 0,
-            components: ComponentsHolder::new(),
+            components: ComponentsBundle::new(),
             title     : OptAttr::new(),
             id        : OptIden::new(),
             classes   : Classes::new_with_default("block"),
@@ -37,7 +37,7 @@ impl ComponentTrait for Block {
         self.weight
     }
 
-    fn default_render(&self, context: &mut Context) -> Markup {
+    fn default_render(&self, context: &mut InContext) -> Markup {
         let id = context.required_id::<Block>(self.id());
         html! {
             div id=(id) class=[self.classes()] {
@@ -70,7 +70,7 @@ impl Block {
         self
     }
 
-    pub fn components(&self) -> &ComponentsHolder {
+    pub fn components(&self) -> &ComponentsBundle {
         &self.components
     }
 

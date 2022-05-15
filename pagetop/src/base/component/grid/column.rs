@@ -5,7 +5,7 @@ pub const COLUMN_COMPONENT: &str = "pagetop::component::grid::column";
 pub struct Column {
     renderable: fn() -> bool,
     weight    : isize,
-    components: ComponentsHolder,
+    components: ComponentsBundle,
     id        : OptIden,
     classes   : Classes,
     template  : String,
@@ -16,7 +16,7 @@ impl ComponentTrait for Column {
         Column {
             renderable: render_always,
             weight    : 0,
-            components: ComponentsHolder::new(),
+            components: ComponentsBundle::new(),
             id        : OptIden::new(),
             classes   : Classes::new_with_default("col"),
             template  : "default".to_owned(),
@@ -35,7 +35,7 @@ impl ComponentTrait for Column {
         self.weight
     }
 
-    fn default_render(&self, context: &mut Context) -> Markup {
+    fn default_render(&self, context: &mut InContext) -> Markup {
         html! {
             div id=[self.id()] class=[self.classes()] {
                 (self.components().render(context))
@@ -61,7 +61,7 @@ impl Column {
         self
     }
 
-    pub fn components(&self) -> &ComponentsHolder {
+    pub fn components(&self) -> &ComponentsBundle {
         &self.components
     }
 

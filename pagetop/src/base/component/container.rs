@@ -7,7 +7,7 @@ pub enum ContainerType { Header, Footer, Main, Section, Wrapper }
 pub struct Container {
     renderable   : fn() -> bool,
     weight       : isize,
-    components   : ComponentsHolder,
+    components   : ComponentsBundle,
     container    : ContainerType,
     id           : OptIden,
     classes      : Classes,
@@ -20,7 +20,7 @@ impl ComponentTrait for Container {
         Container {
             renderable   : render_always,
             weight       : 0,
-            components   : ComponentsHolder::new(),
+            components   : ComponentsBundle::new(),
             container    : ContainerType::Wrapper,
             id           : OptIden::new(),
             classes      : Classes::new_with_default("container"),
@@ -41,7 +41,7 @@ impl ComponentTrait for Container {
         self.weight
     }
 
-    fn default_render(&self, context: &mut Context) -> Markup {
+    fn default_render(&self, context: &mut InContext) -> Markup {
         match self.container_type() {
             ContainerType::Header => html! {
                 header id=[self.id()] class=[self.classes()] {
@@ -120,7 +120,7 @@ impl Container {
         self
     }
 
-    pub fn components(&self) -> &ComponentsHolder {
+    pub fn components(&self) -> &ComponentsBundle {
         &self.components
     }
 

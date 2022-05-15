@@ -1,18 +1,18 @@
 use crate::html::{Markup, html};
-use super::{Context, ComponentTrait};
+use super::{InContext, ComponentTrait};
 
 use std::sync::{Arc, RwLock};
 
 #[derive(Clone)]
-pub struct ComponentsHolder(Vec<Arc<RwLock<dyn ComponentTrait>>>);
+pub struct ComponentsBundle(Vec<Arc<RwLock<dyn ComponentTrait>>>);
 
-impl ComponentsHolder {
+impl ComponentsBundle {
     pub fn new() -> Self {
-        ComponentsHolder(Vec::new())
+        ComponentsBundle(Vec::new())
     }
 
     pub fn new_with(component: impl ComponentTrait) -> Self {
-        let mut container = ComponentsHolder::new();
+        let mut container = ComponentsBundle::new();
         container.add(component);
         container
     }
@@ -21,7 +21,7 @@ impl ComponentsHolder {
         self.0.push(Arc::new(RwLock::new(component)));
     }
 
-    pub fn render(&self, context: &mut Context) -> Markup {
+    pub fn render(&self, context: &mut InContext) -> Markup {
         let mut components = self.0.clone();
         components.sort_by_key(|c| c.read().unwrap().weight());
         html! {

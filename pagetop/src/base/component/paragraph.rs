@@ -46,7 +46,7 @@ impl ComponentTrait for Paragraph {
         self.weight
     }
 
-    fn default_render(&self, _: &mut Context) -> Markup {
+    fn default_render(&self, _: &mut InContext) -> Markup {
         html! {
             p id=[self.id()] class=[self.classes()] { (*self.html()) }
         }

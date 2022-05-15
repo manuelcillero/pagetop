@@ -44,7 +44,7 @@ impl ComponentTrait for Button {
         self.weight
     }
 
-    fn default_render(&self, _: &mut Context) -> Markup {
+    fn default_render(&self, _: &mut InContext) -> Markup {
         let button_type = match self.button_type() {
             ButtonType::Button => "button",
             ButtonType::Reset  => "reset",

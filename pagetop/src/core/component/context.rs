@@ -19,7 +19,7 @@ static DEFAULT_THEME: Lazy<&dyn ThemeTrait> = Lazy::new(|| {
     }
 });
 
-pub struct Context {
+pub struct InContext {
     theme      : &'static dyn ThemeTrait,
     favicon    : Option<Favicon>,
     metadata   : Vec<(String, String)>,
@@ -29,9 +29,9 @@ pub struct Context {
     id_counter : usize,
 }
 
-impl Context {
+impl InContext {
     pub fn new() -> Self {
-        Context {
+        InContext {
             theme      : *DEFAULT_THEME,
             favicon    : None,
             metadata   : Vec::new(),
@@ -93,20 +93,20 @@ impl Context {
         self
     }
 
-    /// Context GETTERS.
+    /// InContext GETTERS.
 
     pub(crate) fn theme(&mut self) -> &'static dyn ThemeTrait {
         self.theme
     }
 
-    /// Context RENDER.
+    /// InContext RENDER.
 
     pub fn render(&mut self) -> Markup {
         let ordered_css = &mut self.stylesheets;
-        ordered_css.sort_by_key(|o| o.weight);
+        ordered_css.sort_by_key(|css| css.weight);
 
         let ordered_js = &mut self.javascripts;
-        ordered_js.sort_by_key(|o| o.weight);
+        ordered_js.sort_by_key(|js| js.weight);
 
         html! {
             @match &self.favicon {
@@ -125,7 +125,7 @@ impl Context {
         }
     }
 
-    // Context EXTRAS.
+    // InContext EXTRAS.
 
     pub fn required_id<T>(&mut self, id: &Option<String>) -> String {
         match id {

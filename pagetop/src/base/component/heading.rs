@@ -50,7 +50,7 @@ impl ComponentTrait for Heading {
         self.weight
     }
 
-    fn default_render(&self, _: &mut Context) -> Markup {
+    fn default_render(&self, _: &mut InContext) -> Markup {
         html! { @match &self.heading() {
             HeadingType::H1 => h1 id=[self.id()] class=[self.classes()] { (*self.html()) },
             HeadingType::H2 => h2 id=[self.id()] class=[self.classes()] { (*self.html()) },
