@@ -6,6 +6,7 @@ pub use doc_comment::doc_comment;
 
 // Local.
 
+#[allow(unused_imports)]
 pub(crate) use futures::executor::block_on as run_now;
 
 // Public APIs.

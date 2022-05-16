@@ -1,7 +1,12 @@
-use crate::{Lazy, app, run_now, trace};
+use crate::{Lazy, app, trace};
 use crate::core::hook::add_hook;
-use crate::db::*;
 use super::ModuleTrait;
+
+#[cfg(any(feature = "mysql", feature = "postgres", feature = "sqlite"))]
+use crate::{
+    db::*,
+    run_now,
+};
 
 use std::sync::RwLock;
 
