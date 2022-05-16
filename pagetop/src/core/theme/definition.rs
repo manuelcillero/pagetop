@@ -1,7 +1,7 @@
 use crate::{app, concat_string, util};
 use crate::config::SETTINGS;
-use crate::html::{Markup, html};
-use crate::core::component::{ComponentTrait, Favicon, InContext};
+use crate::html::{Favicon, Markup, html};
+use crate::core::component::{ComponentTrait, InContext};
 use crate::response::page::Page;
 use crate::base::component::Chunck;
 
@@ -28,10 +28,9 @@ pub trait ThemeTrait: BaseTheme + Send + Sync {
     #[allow(unused_variables)]
     fn before_render_page(&self, page: &mut Page) {
         page.context()
-            .with_favicon(
-                Favicon::new()
-                    .with_icon("/theme/favicon.png")
-            );
+            .with_favicon(Some(Favicon::new()
+                .with_icon("/theme/favicon.png")
+            ));
     }
 
     fn render_page_head(&self, page: &mut Page) -> Markup {

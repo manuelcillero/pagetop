@@ -19,10 +19,9 @@ impl ThemeTrait for Bootsier {
 
     fn before_render_page(&self, page: &mut Page) {
         page.context()
-            .with_favicon(
-                Favicon::new()
-                    .with_icon("/theme/favicon.png")
-            )
+            .with_favicon(Some(Favicon::new()
+                .with_icon("/theme/favicon.png")
+            ))
             .add_stylesheet(
                 StyleSheet::with_source(
                     "/bootsier/css/bootstrap.min.css?ver=5.1.3"

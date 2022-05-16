@@ -17,10 +17,9 @@ impl ThemeTrait for Bulmix {
 
     fn before_render_page(&self, page: &mut Page) {
         page.context()
-            .with_favicon(
-                Favicon::new()
-                    .with_icon("/theme/favicon.png")
-            )
+            .with_favicon(Some(Favicon::new()
+                .with_icon("/theme/favicon.png")
+            ))
             .add_stylesheet(
                 StyleSheet::with_source(
                     "/bulmix/css/bulma.min.css?ver=0.9.3"

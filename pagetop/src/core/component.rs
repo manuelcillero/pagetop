@@ -6,11 +6,6 @@ pub use hook::{
 
 mod context;
 pub use context::InContext;
-pub use context::{
-    Favicon,
-    JavaScript, JSMode,
-    StyleSheet,
-};
 
 mod definition;
 pub use definition::{

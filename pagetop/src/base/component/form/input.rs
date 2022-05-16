@@ -47,6 +47,7 @@ impl ComponentTrait for Input {
             classes     : Classes::new_with_default("form-item"),
             template    : "default".to_owned(),
         }
+        .with_classes("form-type-textfield", ClassesOp::AddFirst)
     }
 
     fn handler(&self) -> &'static str {
@@ -126,31 +127,36 @@ impl Input {
     }
 
     pub fn password() -> Self {
-        let mut input = Input::new();
+        let mut input = Input::new()
+            .with_classes("form-type-password", ClassesOp::Replace("form-type-textfield"));
         input.input_type = InputType::Password;
         input
     }
 
     pub fn search() -> Self {
-        let mut input = Input::new();
+        let mut input = Input::new()
+            .with_classes("form-type-search", ClassesOp::Replace("form-type-textfield"));
         input.input_type = InputType::Search;
         input
     }
 
     pub fn email() -> Self {
-        let mut input = Input::new();
+        let mut input = Input::new()
+            .with_classes("form-type-email", ClassesOp::Replace("form-type-textfield"));
         input.input_type = InputType::Email;
         input
     }
 
     pub fn telephone() -> Self {
-        let mut input = Input::new();
+        let mut input = Input::new()
+            .with_classes("form-type-telephone", ClassesOp::Replace("form-type-textfield"));
         input.input_type = InputType::Telephone;
         input
     }
 
     pub fn url() -> Self {
-        let mut input = Input::new();
+        let mut input = Input::new()
+            .with_classes("form-type-url", ClassesOp::Replace("form-type-textfield"));
         input.input_type = InputType::Url;
         input
     }
@@ -256,6 +262,10 @@ impl Input {
 
     pub fn alter_name(&mut self, name: &str) -> &mut Self {
         self.name.with_value(name);
+        self.alter_classes(
+            concat_string!("form-item form-item-", name).as_str(),
+            ClassesOp::SetDefault
+        );
         self
     }
 
