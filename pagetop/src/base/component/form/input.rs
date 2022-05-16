@@ -47,7 +47,6 @@ impl ComponentTrait for Input {
             classes     : Classes::new_with_default("form-item"),
             template    : "default".to_owned(),
         }
-        .with_classes("form-type-textfield", ClassesOp::AddFirst)
     }
 
     fn handler(&self) -> &'static str {
@@ -60,13 +59,6 @@ impl ComponentTrait for Input {
 
     fn weight(&self) -> isize {
         self.weight
-    }
-
-    fn before_render(&mut self, _: &mut InContext) {
-        if let Some(name) = self.name() {
-            let class = concat_string!("form-item-", name);
-            self.alter_classes(class.as_str(), ClassesOp::AddFirst);
-        }
     }
 
     fn default_render(&self, _: &mut InContext) -> Markup {
@@ -134,36 +126,31 @@ impl Input {
     }
 
     pub fn password() -> Self {
-        let mut input = Input::new()
-            .with_classes("form-type-password", ClassesOp::Replace("form-type-textfield"));
+        let mut input = Input::new();
         input.input_type = InputType::Password;
         input
     }
 
     pub fn search() -> Self {
-        let mut input = Input::new()
-            .with_classes("form-type-search", ClassesOp::Replace("form-type-textfield"));
+        let mut input = Input::new();
         input.input_type = InputType::Search;
         input
     }
 
     pub fn email() -> Self {
-        let mut input = Input::new()
-            .with_classes("form-type-email", ClassesOp::Replace("form-type-textfield"));
+        let mut input = Input::new();
         input.input_type = InputType::Email;
         input
     }
 
     pub fn telephone() -> Self {
-        let mut input = Input::new()
-            .with_classes("form-type-telephone", ClassesOp::Replace("form-type-textfield"));
+        let mut input = Input::new();
         input.input_type = InputType::Telephone;
         input
     }
 
     pub fn url() -> Self {
-        let mut input = Input::new()
-            .with_classes("form-type-url", ClassesOp::Replace("form-type-textfield"));
+        let mut input = Input::new();
         input.input_type = InputType::Url;
         input
     }

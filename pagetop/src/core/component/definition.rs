@@ -27,10 +27,6 @@ pub trait ComponentTrait: AnyComponent + Send + Sync {
     }
 
     #[allow(unused_variables)]
-    fn before_render(&mut self, context: &mut InContext) {
-    }
-
-    #[allow(unused_variables)]
     fn default_render(&self, context: &mut InContext) -> Markup {
         html! {}
     }
@@ -49,9 +45,6 @@ pub fn component_mut<C: 'static>(component: &mut dyn ComponentTrait) -> &mut C {
 }
 
 pub fn render_component(component: &mut dyn ComponentTrait, context: &mut InContext) -> Markup {
-    // Acciones del componente antes de renderizar.
-    component.before_render(context);
-
     // Acciones de los módulos antes de renderizar el componente.
     run_hooks(
         BEFORE_RENDER_COMPONENT_HOOK,
