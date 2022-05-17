@@ -9,6 +9,10 @@ mod chunck;
 pub use chunck::{
     CHUNCK_COMPONENT, Chunck
 };
+mod icon;
+pub use icon::{
+    ICON_COMPONENT, Icon
+};
 mod heading;
 pub use heading::{
     HEADING_COMPONENT, Heading, HeadingDisplay, HeadingType
@@ -19,7 +23,7 @@ pub use paragraph::{
 };
 mod anchor;
 pub use anchor::{
-    ANCHOR_COMPONENT, Anchor, AnchorTarget, AnchorType
+    ANCHOR_COMPONENT, Anchor, AnchorIcon, AnchorTarget, AnchorType
 };
 mod block;
 pub use block::{

@@ -21,6 +21,10 @@ impl ComponentsBundle {
         self.0.push(Arc::new(RwLock::new(component)));
     }
 
+    pub fn clear(&mut self) {
+        self.0.clear();
+    }
+
     pub fn render(&self, context: &mut InContext) -> Markup {
         let mut components = self.0.clone();
         components.sort_by_key(|c| c.read().unwrap().weight());

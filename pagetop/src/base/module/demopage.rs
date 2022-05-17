@@ -58,17 +58,20 @@ fn hello_world() -> Container {
                         "pagetop" => "<a href=\"https://pagetop-rs\">PageTop</a>"
                     ]))
                 }))
-                .add(Anchor::button("#", html! { ("Offered services") }))
-                .add(Anchor::button("#", html! { ("Get quote") }))
-                .add(Chunck::with(html! {
-                    a class="btn-solid-lg" href="#services" {
-                        "Offered services"
-                    }
-                    a class="quote" href="#contact" {
-                        i class="fas fa-paper-plane" {}
-                        "Get quote"
-                    }
-                }))
+                .add(Anchor::button("#",
+                    html! {
+                        ("Offered services")
+                    }).with_left_icon(
+                        Icon::with("card-checklist")
+                    )
+                )
+                .add(Anchor::button("#",
+                    html! {
+                        ("Get quote")
+                    }).with_left_icon(
+                        Icon::with("envelope-open-heart-fill")
+                    )
+                )
             )
             .add_column(grid::Column::new()
                 .add(Image::image("/bootsier/images/demo-header.svg"))

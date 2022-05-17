@@ -16,12 +16,16 @@ pub enum AnchorTarget {
     Top,
 }
 
+pub type AnchorIcon = ComponentsBundle;
+
 pub struct Anchor {
     renderable : fn() -> bool,
     weight     : isize,
     anchor_type: AnchorType,
     href       : OptAttr,
     html       : Markup,
+    left_icon  : AnchorIcon,
+    right_icon : AnchorIcon,
     target     : AnchorTarget,
     id         : OptIden,
     classes    : Classes,
@@ -36,6 +40,8 @@ impl ComponentTrait for Anchor {
             anchor_type: AnchorType::Link,
             href       : OptAttr::new(),
             html       : html! {},
+            left_icon  : AnchorIcon::new(),
+            right_icon : AnchorIcon::new(),
             target     : AnchorTarget::Default,
             id         : OptIden::new(),
             classes    : Classes::new(),
@@ -55,7 +61,7 @@ impl ComponentTrait for Anchor {
         self.weight
     }
 
-    fn default_render(&self, _: &mut InContext) -> Markup {
+    fn default_render(&self, context: &mut InContext) -> Markup {
         let target = match &self.target() {
             AnchorTarget::Blank         => Some("_blank"),
             AnchorTarget::Context(name) => Some(name.as_str()),
@@ -70,7 +76,9 @@ impl ComponentTrait for Anchor {
                 href=[self.href()]
                 target=[target]
             {
-                (*self.html())
+                (self.left_icon().render(context))
+                (" ")(*self.html())(" ")
+                (self.right_icon().render(context))
             }
         }
     }
@@ -121,6 +129,16 @@ impl Anchor {
 
     pub fn with_html(mut self, html: Markup) -> Self {
         self.alter_html(html);
+        self
+    }
+
+    pub fn with_left_icon(mut self, icon: Icon) -> Self {
+        self.alter_left_icon(icon);
+        self
+    }
+
+    pub fn with_right_icon(mut self, icon: Icon) -> Self {
+        self.alter_right_icon(icon);
         self
     }
 
@@ -175,6 +193,18 @@ impl Anchor {
         self
     }
 
+    pub fn alter_left_icon(&mut self, icon: Icon) -> &mut Self {
+        self.left_icon.clear();
+        self.left_icon.add(icon);
+        self
+    }
+
+    pub fn alter_right_icon(&mut self, icon: Icon) -> &mut Self {
+        self.right_icon.clear();
+        self.right_icon.add(icon);
+        self
+    }
+
     pub fn alter_target(&mut self, target: AnchorTarget) -> &mut Self {
         self.target = target;
         self
@@ -207,6 +237,14 @@ impl Anchor {
 
     pub fn html(&self) -> &Markup {
         &self.html
+    }
+
+    pub fn left_icon(&self) -> &AnchorIcon {
+        &self.left_icon
+    }
+
+    pub fn right_icon(&self) -> &AnchorIcon {
+        &self.right_icon
     }
 
     pub fn target(&self) -> &AnchorTarget {
