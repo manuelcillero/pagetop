@@ -14,6 +14,7 @@ incluidas en `src/app/banner` son:
 * [starwars.flf](http://www.figlet.org/fontdb_example.cgi?font=starwars.flf)
   por *Ryan Youck*.
 
+
 # Icono
 
 El monstruo sonriente de Frankenstein es una divertida creación de

@@ -11,6 +11,7 @@ description = """\
 """
 homepage = "https://suitepro.cillero.es/projects/drust"
 repository = "https://gitlab.com/manuelcillero/drust"
+license = "Apache-2.0 or MIT"
 
 [dependencies.pagetop]
 path = "../pagetop"
