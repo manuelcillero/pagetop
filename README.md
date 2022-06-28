@@ -24,15 +24,15 @@ El repositorio se organiza en un *workspace* con los siguientes subproyectos:
 * [pagetop-admin](pagetop_admin/), módulo que proporciona a otros módulos un lugar común donde
   presentar a los administradores sus opciones de configuración.
 
-* [pagetop-user](pagetop_user/), módulo para añadir una gestión de usuarios, roles, permisos y
-  sesiones en aplicaciones desarrolladas con PageTop.
+* [pagetop-user](pagetop_user/), módulo para añadir gestión de usuarios, roles, permisos y sesiones
+  en aplicaciones desarrolladas con PageTop.
 
-* [pagetop-node](pagetop_node/), módulo para crear y extender los tipos de contenido que puede
-  gestionar una solución web de propósito general o personalizado.
+* [pagetop-node](pagetop_node/), módulo para crear, extender o personalizar los tipos de contenido
+  que puede administrar un sitio web.
 
-* [drust](drust/), es una aplicación humildemente inspirada en [Drupal](https://www.drupal.org) que
+* [drust](drust/) es una aplicación inspirada modestamente en [Drupal](https://www.drupal.org) que
   proporciona un CMS (*Content Management System*) o sistema de gestión de contenidos para construir
-  sitios web administrados y configurables.
+  sitios web dinámicos, administrados y configurables.
 
 
 # Licencia

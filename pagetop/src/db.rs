@@ -2,7 +2,7 @@ pub use url::Url as DbUri;
 
 pub use sea_orm::{DatabaseConnection as DbConn, ExecResult, QueryResult};
 
-pub use sea_schema::migration::prelude::*;
+pub use sea_orm_migration::prelude::*;
 
 pub type MigrationItem = Box<dyn MigrationTrait>;
 
