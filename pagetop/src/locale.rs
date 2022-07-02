@@ -5,15 +5,15 @@ pub use fluent_templates::fluent_bundle::FluentValue;
 #[macro_export]
 /// Permite integrar fácilmente localización en temas, módulos y componentes.
 macro_rules! localize {
-    ( $DEF_LANGID:literal, $locales:literal $(, $core_locales:literal)? ) => {
+    ( $dir_locales:literal $(, $core_locales:literal)? ) => {
         use $crate::locale::*;
-        use $crate::core::server::locale::LANGID;
+        use $crate::app::locale::LANGID;
 
         static_locale! {
             static LOCALES = {
-                locales: $locales,
+                locales: $dir_locales,
                 $( core_locales: $core_locales, )?
-                fallback_language: $DEF_LANGID,
+                fallback_language: "en-US",
 
                 // Elimina las marcas Unicode que delimitan los argumentos.
                 customise: |bundle| bundle.set_use_isolating(false),
@@ -37,8 +37,8 @@ macro_rules! localize {
         fn e(
             key: &str,
             args: &std::collections::HashMap<String, FluentValue>
-        ) -> crate::core::theme::PreEscaped<String> {
-            crate::core::theme::PreEscaped(
+        ) -> $crate::html::PreEscaped<String> {
+            $crate::html::PreEscaped(
                 LOCALES.lookup_with_args(&LANGID, key, args)
             )
         }

@@ -1,0 +1,17 @@
+[package]
+name = "pagetop-node"
+version = "0.0.1"
+edition = "2021"
+
+authors = [
+    "Manuel Cillero <manuel@cillero.es>"
+]
+description = """\
+    Allows content to be submitted to the site and displayed on pages.\
+"""
+homepage = "https://suitepro.cillero.es/projects/pagetop"
+repository = "https://gitlab.com/manuelcillero/pagetop"
+license = "Apache-2.0 or MIT"
+
+[dependencies]
+pagetop = { path = "../pagetop" }

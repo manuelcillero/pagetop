@@ -45,15 +45,15 @@ pub static CONFIG: Lazy<Config> = Lazy::new(|| {
 /// seguros. Produce un *panic!* en caso de asignaciones no válidas.
 macro_rules! config_map {
     (
-        $COMM:expr,
-        $CONF:ident,
-        $TYPE:tt
+        $doc:expr,
+        $SETTINGS:ident,
+        $Type:tt
         $(, $key:expr => $value:expr)*
     ) => {
         $crate::doc_comment! {
-            concat!($COMM),
+            concat!($doc),
 
-            pub static $CONF: $crate::Lazy<$TYPE> = $crate::Lazy::new(|| {
+            pub static $SETTINGS: $crate::Lazy<$Type> = $crate::Lazy::new(|| {
                 let mut settings = $crate::config::CONFIG.clone();
                 $(
                     settings.set_default($key, $value).unwrap();
@@ -105,11 +105,17 @@ pub struct Webserver {
 }
 
 #[derive(Debug, Deserialize)]
+pub struct Dev {
+    pub static_files  : String,
+}
+
+#[derive(Debug, Deserialize)]
 pub struct Settings {
     pub app           : App,
     pub log           : Log,
     pub database      : Database,
     pub webserver     : Webserver,
+    pub dev           : Dev,
 }
 
 config_map!(r#"
@@ -124,7 +130,7 @@ Ajustes globales y valores predeterminados para las secciones *\[app\]*,
     "app.theme"              => "Bootsier",
     "app.language"           => "en-US",
     "app.direction"          => "ltr",
-    "app.startup_banner"     => "Small",
+    "app.startup_banner"     => "Slant",
 
     // [log]
     "log.tracing"            => "Info",
@@ -144,5 +150,8 @@ Ajustes globales y valores predeterminados para las secciones *\[app\]*,
 
     // [webserver]
     "webserver.bind_address" => "localhost",
-    "webserver.bind_port"    => 8088
+    "webserver.bind_port"    => 8088,
+
+    // [dev]
+    "dev.static_files"       => ""
 );

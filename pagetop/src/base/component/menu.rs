@@ -1,195 +1,228 @@
 use crate::prelude::*;
 
-enum MenuItemType {
+pub const MENU_COMPONENT: &str = "pagetop::component::menu";
+pub const MENUITEM_COMPONENT: &str = "pagetop::component::menu_item";
+
+pub enum MenuItemType {
     Label(String),
     Link(String, String),
     LinkBlank(String, String),
-    Markup(Markup),
+    Html(Markup),
     Separator,
     Submenu(String, Menu),
+    Void,
 }
 
-// -----------------------------------------------------------------------------
 // MenuItem.
-// -----------------------------------------------------------------------------
 
 pub struct MenuItem {
     renderable: fn() -> bool,
-    weight    : i8,
-    item_type : Option<MenuItemType>,
+    weight    : isize,
+    item_type : MenuItemType,
 }
 
-impl PageComponent for MenuItem {
-
-    fn prepare() -> Self {
+impl ComponentTrait for MenuItem {
+    fn new() -> Self {
         MenuItem {
-            renderable: always,
+            renderable: render_always,
             weight    : 0,
-            item_type : None,
+            item_type : MenuItemType::Void,
         }
+    }
+
+    fn handler(&self) -> &'static str {
+        MENUITEM_COMPONENT
     }
 
     fn is_renderable(&self) -> bool {
         (self.renderable)()
     }
 
-    fn weight(&self) -> i8 {
+    fn weight(&self) -> isize {
         self.weight
     }
 
-    fn default_render(&self, assets: &mut PageAssets) -> Markup {
-        match &self.item_type {
-            Some(MenuItemType::Label(label)) => html! {
+    fn default_render(&self, context: &mut InContext) -> Markup {
+        match self.item_type() {
+            MenuItemType::Label(label) => html! {
                 li class="label" { a href="#" { (label) } }
             },
-            Some(MenuItemType::Link(label, path)) => html! {
+            MenuItemType::Link(label, path) => html! {
                 li class="link" { a href=(path) { (label) } }
             },
-            Some(MenuItemType::LinkBlank(label, path)) => html! {
+            MenuItemType::LinkBlank(label, path) => html! {
                 li class="link_blank" {
                     a href=(path) target="_blank" { (label) }
                 }
             },
-            Some(MenuItemType::Markup(markup)) => html! {
-                li class="markup" { (*markup) }
+            MenuItemType::Html(html) => html! {
+                li class="html" { (*html) }
             },
-            Some(MenuItemType::Submenu(label, menu)) => html! {
+            MenuItemType::Submenu(label, menu) => html! {
                 li class="submenu" {
                     a href="#" { (label) }
                     ul {
-                        (menu.render_items(assets))
+                        (menu.items().render(context))
                     }
                 }
             },
-            Some(MenuItemType::Separator) => html! {
+            MenuItemType::Separator => html! {
                 li class="separator" { }
             },
-            None => html! {}
+            MenuItemType::Void => html! {},
         }
+    }
+
+    fn as_ref_any(&self) -> &dyn AnyComponent {
+        self
+    }
+
+    fn as_mut_any(&mut self) -> &mut dyn AnyComponent {
+        self
     }
 }
 
 impl MenuItem {
-
     pub fn label(label: &str) -> Self {
         MenuItem {
-            renderable: always,
+            renderable: render_always,
             weight    : 0,
-            item_type : Some(MenuItemType::Label(label.to_owned())),
+            item_type : MenuItemType::Label(label.to_owned()),
         }
     }
 
     pub fn link(label: &str, path: &str) -> Self {
         MenuItem {
-            renderable: always,
+            renderable: render_always,
             weight    : 0,
-            item_type : Some(MenuItemType::Link(
+            item_type : MenuItemType::Link(
                 label.to_owned(),
                 path.to_owned(),
-            )),
+            ),
         }
     }
 
     pub fn link_blank(label: &str, path: &str) -> Self {
         MenuItem {
-            renderable: always,
+            renderable: render_always,
             weight    : 0,
-            item_type : Some(MenuItemType::LinkBlank(
+            item_type : MenuItemType::LinkBlank(
                 label.to_owned(),
                 path.to_owned(),
-            )),
+            ),
         }
     }
 
-    pub fn markup(markup: Markup) -> Self {
+    pub fn html(html: Markup) -> Self {
         MenuItem {
-            renderable: always,
+            renderable: render_always,
             weight    : 0,
-            item_type : Some(MenuItemType::Markup(markup)),
+            item_type : MenuItemType::Html(html),
         }
     }
 
     pub fn separator() -> Self {
         MenuItem {
-            renderable: always,
+            renderable: render_always,
             weight    : 0,
-            item_type : Some(MenuItemType::Separator),
+            item_type : MenuItemType::Separator,
         }
     }
 
     pub fn submenu(label: &str, menu: Menu) -> Self {
         MenuItem {
-            renderable: always,
+            renderable: render_always,
             weight    : 0,
-            item_type : Some(MenuItemType::Submenu(
+            item_type : MenuItemType::Submenu(
                 label.to_owned(),
                 menu
-            )),
+            ),
         }
     }
 
     // MenuItem BUILDER.
 
     pub fn with_renderable(mut self, renderable: fn() -> bool) -> Self {
+        self.alter_renderable(renderable);
+        self
+    }
+
+    pub fn with_weight(mut self, weight: isize) -> Self {
+        self.alter_weight(weight);
+        self
+    }
+
+    // MenuItem ALTER.
+
+    pub fn alter_renderable(&mut self, renderable: fn() -> bool) -> &mut Self {
         self.renderable = renderable;
         self
     }
 
-    pub fn with_weight(mut self, weight: i8) -> Self {
+    pub fn alter_weight(&mut self, weight: isize) -> &mut Self {
         self.weight = weight;
         self
     }
+
+    // MenuItem GETTERS.
+
+    pub fn item_type(&self) -> &MenuItemType {
+        &self.item_type
+    }
 }
 
-// -----------------------------------------------------------------------------
 // Menu.
-// -----------------------------------------------------------------------------
 
 pub struct Menu {
     renderable: fn() -> bool,
-    weight    : i8,
-    id        : Option<String>,
-    items     : PageContainer,
+    weight    : isize,
+    items     : ComponentsBundle,
+    id        : OptIden,
+    classes   : Classes,
     template  : String,
 }
 
-impl PageComponent for Menu {
-
-    fn prepare() -> Self {
+impl ComponentTrait for Menu {
+    fn new() -> Self {
         Menu {
-            renderable: always,
+            renderable: render_always,
             weight    : 0,
-            id        : None,
-            items     : PageContainer::new(),
+            items     : ComponentsBundle::new(),
+            id        : OptIden::new(),
+            classes   : Classes::new_with_default("sm sm-clean"),
             template  : "default".to_owned(),
         }
+    }
+
+    fn handler(&self) -> &'static str {
+        MENU_COMPONENT
     }
 
     fn is_renderable(&self) -> bool {
         (self.renderable)()
     }
 
-    fn weight(&self) -> i8 {
+    fn weight(&self) -> isize {
         self.weight
     }
 
-    fn default_render(&self, assets: &mut PageAssets) -> Markup {
-        assets
-            .add_stylesheet(StyleSheet::source(
+    fn default_render(&self, context: &mut InContext) -> Markup {
+        context
+            .add_stylesheet(StyleSheet::with_source(
                 "/theme/menu/css/menu.css?ver=1.1.1"
             ))
-            .add_stylesheet(StyleSheet::source(
+            .add_stylesheet(StyleSheet::with_source(
                 "/theme/menu/css/menu-clean.css?ver=1.1.1"
             ))
-            .add_javascript(JavaScript::source(
+            .add_javascript(JavaScript::with_source(
                 "/theme/menu/js/menu.min.js?ver=1.1.1"
             ))
             .add_jquery();
 
-        let id = assets.serial_id(self.name(), self.id());
+        let id = context.required_id::<Menu>(self.id());
         html! {
-            ul id=(id) class="sm sm-clean" {
-                (self.render_items(assets))
+            ul id=(id) class=[self.classes()] {
+                (self.items().render(context))
             }
             script type="text/javascript" defer {
                 "jQuery(function(){jQuery('#" (id) "').smartmenus({"
@@ -199,54 +232,94 @@ impl PageComponent for Menu {
             }
         }
     }
+
+    fn as_ref_any(&self) -> &dyn AnyComponent {
+        self
+    }
+
+    fn as_mut_any(&mut self) -> &mut dyn AnyComponent {
+        self
+    }
 }
 
 impl Menu {
 
-    // Menu BUILDER.
-
-    pub fn with_renderable(mut self, renderable: fn() -> bool) -> Self {
-        self.renderable = renderable;
-        self
-    }
-
-    pub fn with_weight(mut self, weight: i8) -> Self {
-        self.weight = weight;
-        self
-    }
-
-    pub fn with_id(mut self, id: &str) -> Self {
-        self.id = util::valid_id(id);
-        self
-    }
+    // Menu CONTAINER.
 
     pub fn add(mut self, item: MenuItem) -> Self {
         self.items.add(item);
         self
     }
 
+    pub fn items(&self) -> &ComponentsBundle {
+        &self.items
+    }
+
+    // Menu BUILDER.
+
+    pub fn with_renderable(mut self, renderable: fn() -> bool) -> Self {
+        self.alter_renderable(renderable);
+        self
+    }
+
+    pub fn with_weight(mut self, weight: isize) -> Self {
+        self.alter_weight(weight);
+        self
+    }
+
+    pub fn with_id(mut self, id: &str) -> Self {
+        self.alter_id(id);
+        self
+    }
+
+    pub fn with_classes(mut self, classes: &str, op: ClassesOp) -> Self {
+        self.alter_classes(classes, op);
+        self
+    }
+
     pub fn using_template(mut self, template: &str) -> Self {
+        self.alter_template(template);
+        self
+    }
+
+    // Menu ALTER.
+
+    pub fn alter_renderable(&mut self, renderable: fn() -> bool) -> &mut Self {
+        self.renderable = renderable;
+        self
+    }
+
+    pub fn alter_weight(&mut self, weight: isize) -> &mut Self {
+        self.weight = weight;
+        self
+    }
+
+    pub fn alter_id(&mut self, id: &str) -> &mut Self {
+        self.id.with_value(id);
+        self
+    }
+
+    pub fn alter_classes(&mut self, classes: &str, op: ClassesOp) -> &mut Self {
+        self.classes.alter(classes, op);
+        self
+    }
+
+    pub fn alter_template(&mut self, template: &str) -> &mut Self {
         self.template = template.to_owned();
         self
     }
 
     // Menu GETTERS.
 
-    pub fn id(&self) -> &str {
-        util::assigned_str(&self.id)
+    pub fn id(&self) -> &Option<String> {
+        self.id.option()
+    }
+
+    pub fn classes(&self) -> &Option<String> {
+        self.classes.option()
     }
 
     pub fn template(&self) -> &str {
         self.template.as_str()
     }
-
-    // Menu EXTRAS.
-
-    pub fn render_items(&self, assets: &mut PageAssets) -> Markup {
-        html! { (self.items.render(assets)) }
-    }
-}
-
-fn always() -> bool {
-    true
 }

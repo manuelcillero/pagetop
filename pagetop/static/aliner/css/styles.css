@@ -1,5 +1,16 @@
 html {
 	background-color: white;
+	padding: 1px 3px;
+}
+body {
+	padding: 1px 3px;
+}
+div {
+	padding: 1px 3px;
+	margin: 5px;
+}
+h1, h2, h3, h4,h5, h6, p {
+	background-color: snow;
 }
 * * {
 	outline: 5px solid rgba(255,0,0,.1);
@@ -21,7 +32,9 @@ html {
 	background: #faa;
 	border-radius: 3px;
 	font: normal normal 400 10px/1.2 monospace;
+	vertical-align: middle;
 	padding: 1px 3px;
+	margin: 0 3px;
 }
 *::before {
 	content: "(";

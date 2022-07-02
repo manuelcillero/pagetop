@@ -1,0 +1,18 @@
+[package]
+name = "pagetop-admin"
+version = "0.0.1"
+edition = "2021"
+
+authors = [
+    "Manuel Cillero <manuel@cillero.es>"
+]
+description = """\
+    ...\
+"""
+homepage = "https://suitepro.cillero.es/projects/pagetop"
+repository = "https://gitlab.com/manuelcillero/pagetop"
+license = "Apache-2.0 or MIT"
+
+[dependencies]
+pagetop = { path = "../pagetop" }
+maud = { version = "0.23.0" }

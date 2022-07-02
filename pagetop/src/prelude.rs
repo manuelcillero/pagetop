@@ -1,18 +1,37 @@
 //! Re-exporta recursos comunes.
 
-pub use crate::args;
+// Macros, globals and helpers.
+pub use crate::{
+    args,
+    concat_string,
+    theme_static_files,
+    util,
+};
+
 pub use crate::config::SETTINGS;
 pub use crate::trace;
 pub use crate::localize;
+pub use crate::html::*;
 
 #[cfg(any(feature = "mysql", feature = "postgres", feature = "sqlite"))]
-pub use crate::{db, db_migrations};
+pub use crate::{
+    db,
+    db::*,
+    pub_migration,
+    migration_item,
+};
 
-pub use crate::core::theme::*;
-pub use crate::core::module::*;
-pub use crate::core::response::page::*;
-pub use crate::core::server;
+pub use crate::app;
+pub use crate::app::AppTrait;
+pub use crate::app::application::Application;
+
+pub use crate::{hook_item, core::{
+    component::*,
+    hook::*,
+    module::*,
+    theme::*,
+}};
+
+pub use crate::response::page::*;
 
 pub use crate::base::component::*;
-
-pub use crate::util;

@@ -1,70 +1,95 @@
 use crate::prelude::*;
 
+pub const HIDDEN_COMPONENT: &str = "pagetop::component::form::hidden";
+
 pub struct Hidden {
-    weight    : i8,
-    name      : Option<String>,
-    value     : Option<String>,
+    weight: isize,
+    name  : OptIden,
+    value : OptAttr,
 }
 
-impl PageComponent for Hidden {
-
-    fn prepare() -> Self {
+impl ComponentTrait for Hidden {
+    fn new() -> Self {
         Hidden {
-            weight    : 0,
-            name      : None,
-            value     : None,
+            weight: 0,
+            name  : OptIden::new(),
+            value : OptAttr::new(),
         }
     }
 
-    fn weight(&self) -> i8 {
+    fn handler(&self) -> &'static str {
+        HIDDEN_COMPONENT
+    }
+
+    fn weight(&self) -> isize {
         self.weight
     }
 
-    fn default_render(&self, _: &mut PageAssets) -> Markup {
-        let id_item = match &self.name {
-            Some(name) => Some(format!("value-{}", name)),
+    fn default_render(&self, _: &mut InContext) -> Markup {
+        let id = match self.name() {
+            Some(name) => Some(concat_string!("value-", name)),
             _ => None
         };
         html! {
-            input
-                type="hidden"
-                id=[&id_item]
-                name=[&self.name]
-                value=[&self.value];
+            input type="hidden" id=[id] name=[self.name()] value=[self.value()];
         }
+    }
+
+    fn as_ref_any(&self) -> &dyn AnyComponent {
+        self
+    }
+
+    fn as_mut_any(&mut self) -> &mut dyn AnyComponent {
+        self
     }
 }
 
 impl Hidden {
-
     pub fn set(name: &str, value: &str) -> Self {
-        Hidden::prepare().with_name(name).with_value(value)
+        Hidden::new().with_name(name).with_value(value)
     }
 
     // Hidden BUILDER.
 
-    pub fn with_weight(mut self, weight: i8) -> Self {
-        self.weight = weight;
+    pub fn with_weight(mut self, weight: isize) -> Self {
+        self.alter_weight(weight);
         self
     }
 
     pub fn with_name(mut self, name: &str) -> Self {
-        self.name = util::valid_id(name);
+        self.alter_name(name);
         self
     }
 
     pub fn with_value(mut self, value: &str) -> Self {
-        self.value = util::optional_str(value);
+        self.alter_value(value);
+        self
+    }
+
+    // Hidden ALTER.
+
+    pub fn alter_weight(&mut self, weight: isize) -> &mut Self {
+        self.weight = weight;
+        self
+    }
+
+    pub fn alter_name(&mut self, name: &str) -> &mut Self {
+        self.name.with_value(name);
+        self
+    }
+
+    pub fn alter_value(&mut self, value: &str) -> &mut Self {
+        self.value.with_value(value);
         self
     }
 
     // Hidden GETTERS.
 
-    pub fn name(&self) -> &str {
-        util::assigned_str(&self.name)
+    pub fn name(&self) -> &Option<String> {
+        self.name.option()
     }
 
-    pub fn value(&self) -> &str {
-        util::assigned_str(&self.value)
+    pub fn value(&self) -> &Option<String> {
+        self.value.option()
     }
 }
