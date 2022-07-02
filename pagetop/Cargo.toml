@@ -43,11 +43,11 @@ fluent-templates = "0.7.1"
 unic-langid = "0.9.0"
 
 actix-web = "4.1.0"
-actix-web-static-files = "4.0.0"
 actix-files = "0.6.1"
+actix-web-static-files = "4.0.0"
+static-files = "0.2.3"
 
-maud = { git = "https://github.com/lambda-fairy/maud", rev = "e6787cd62165a075c7f16a32f8bbacc398f52d13", features = ["actix-web"] }
-sycamore = { version = "0.7.1", features = ["ssr"] }
+maud = { git = "https://github.com/lambda-fairy/maud", rev = "e6787cd6", features = ["actix-web"] }
 
 serde = { version = "1.0", features = ["derive"] }
 

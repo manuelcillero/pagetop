@@ -127,7 +127,7 @@ pub trait ThemeTrait: BaseTheme + Send + Sync {
             .with_title(format!("Error {}", s.as_str()).as_str())
             .add_to("content", Chunck::with(html! {
                 div {
-                    h1 { (s) }
+                    h1 { (s.as_str()) }
                 }
             }))
             .render()

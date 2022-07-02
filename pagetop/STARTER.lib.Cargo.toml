@@ -9,6 +9,6 @@ edition = "2021"
 [dependencies]
 pagetop = { path = "../pagetop" }
 # Si se usa la macro html!:
-maud = { version = "0.23.0" }
+maud = { git = "https://github.com/lambda-fairy/maud", rev = "e6787cd6" }
 # Si se requiere serialización de estructuras de datos:
 serde = { version = "1.0", features = ["derive"] }
