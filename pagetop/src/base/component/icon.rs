@@ -3,17 +3,19 @@ use crate::prelude::*;
 pub const ICON_COMPONENT: &str = "pagetop::component::icon";
 
 pub struct Icon {
-    renderable: fn() -> bool,
-    weight    : isize,
-    icon_name : String,
+    renderable   : fn() -> bool,
+    weight       : isize,
+    classes      : Classes,
+    inline_styles: InlineStyles,
 }
 
 impl ComponentTrait for Icon {
     fn new() -> Self {
         Icon {
-            renderable: render_always,
-            weight    : 0,
-            icon_name : "question-circle-fill".to_owned(),
+            renderable   : render_always,
+            weight       : 0,
+            classes      : Classes::new_with_default("bi-question-circle-fill"),
+            inline_styles: InlineStyles::new(),
         }
     }
 
@@ -35,8 +37,7 @@ impl ComponentTrait for Icon {
                 "/theme/icons/bootstrap-icons.css?ver=1.8.2"
             ));
 
-        let name = concat_string!("bi-", self.icon_name);
-        html! { i class=(name) {}; }
+        html! { i class=[self.classes()] style=[self.inline_styles()] {}; }
     }
 
     fn as_ref_any(&self) -> &dyn AnyComponent {
@@ -70,6 +71,16 @@ impl Icon {
         self
     }
 
+    pub fn with_classes(mut self, classes: &str, op: ClassesOp) -> Self {
+        self.alter_classes(classes, op);
+        self
+    }
+
+    pub fn with_inline_style(mut self, style: &str, value: Option<&str>) -> Self {
+        self.alter_inline_style(style, value);
+        self
+    }
+
     // Icon ALTER.
 
     pub fn alter_renderable(&mut self, renderable: fn() -> bool) -> &mut Self {
@@ -83,13 +94,27 @@ impl Icon {
     }
 
     pub fn alter_icon_name(&mut self, name: &str) -> &mut Self {
-        self.icon_name = name.to_owned();
+        self.classes.alter(concat_string!("bi-", name).as_str(), ClassesOp::SetDefault);
+        self
+    }
+
+    pub fn alter_classes(&mut self, classes: &str, op: ClassesOp) -> &mut Self {
+        self.classes.alter(classes, op);
+        self
+    }
+
+    pub fn alter_inline_style(&mut self, style: &str, value: Option<&str>) -> &mut Self {
+        self.inline_styles.add_style(style, value);
         self
     }
 
     // Icon GETTERS.
 
-    pub fn icon_name(&self) -> &str {
-        &self.icon_name
+    pub fn classes(&self) -> &Option<String> {
+        self.classes.option()
+    }
+
+    pub fn inline_styles(&self) -> Option<String> {
+        self.inline_styles.option()
     }
 }

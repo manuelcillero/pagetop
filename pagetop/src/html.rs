@@ -16,3 +16,6 @@ pub use optattr::OptAttr;
 
 mod classes;
 pub use classes::{Classes, ClassesOp};
+
+mod inline_styles;
+pub use inline_styles::InlineStyles;
