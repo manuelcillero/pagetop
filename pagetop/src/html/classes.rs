@@ -14,7 +14,6 @@ pub enum ClassesOp {
 pub struct Classes {
     default: String,
     added  : String,
-    option : Option<String>,
 }
 
 impl Classes {
@@ -22,7 +21,6 @@ impl Classes {
         Classes {
             default: "".to_owned(),
             added  : "".to_owned(),
-            option : None,
         }
     }
 
@@ -81,11 +79,14 @@ impl Classes {
                 self.default = classes.to_owned()
             },
         }
-        self.option = Some(concat_string!(self.default, " ", self.added).trim().to_owned());
         self
     }
 
-    pub fn option(&self) -> &Option<String> {
-        &self.option
+    pub fn get(&self) -> Option<String> {
+        if self.default.is_empty() && self.added.is_empty() {
+            None
+        } else {
+            Some(concat_string!(self.default, " ", self.added).trim().to_owned())
+        }
     }
 }

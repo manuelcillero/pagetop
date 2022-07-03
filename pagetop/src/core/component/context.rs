@@ -97,8 +97,8 @@ impl InContext {
 
     // InContext EXTRAS.
 
-    pub fn required_id<T>(&mut self, id: &Option<String>) -> String {
-        match id {
+    pub fn required_id<T>(&mut self, id: &IdentifierValue) -> String {
+        match id.get() {
             Some(id) => id.to_string(),
             None => {
                 let prefix = util::single_type_name::<T>()

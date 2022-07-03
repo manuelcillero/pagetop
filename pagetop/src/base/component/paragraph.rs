@@ -16,7 +16,7 @@ pub struct Paragraph {
     weight    : isize,
     html      : Markup,
     display   : ParagraphDisplay,
-    id        : OptIden,
+    id        : IdentifierValue,
     classes   : Classes,
     template  : String,
 }
@@ -28,7 +28,7 @@ impl ComponentTrait for Paragraph {
             weight    : 0,
             html      : html! {},
             display   : ParagraphDisplay::Normal,
-            id        : OptIden::new(),
+            id        : IdentifierValue::new(),
             classes   : Classes::new(),
             template  : "default".to_owned(),
         }
@@ -48,7 +48,7 @@ impl ComponentTrait for Paragraph {
 
     fn default_render(&self, _: &mut InContext) -> Markup {
         html! {
-            p id=[self.id()] class=[self.classes()] { (*self.html()) }
+            p id=[self.id().get()] class=[self.classes().get()] { (*self.html()) }
         }
     }
 
@@ -158,12 +158,12 @@ impl Paragraph {
         &self.display
     }
 
-    pub fn id(&self) -> &Option<String> {
-        self.id.option()
+    pub fn id(&self) -> &IdentifierValue {
+        &self.id
     }
 
-    pub fn classes(&self) -> &Option<String> {
-        self.classes.option()
+    pub fn classes(&self) -> &Classes {
+        &self.classes
     }
 
     pub fn template(&self) -> &str {

@@ -9,7 +9,7 @@ pub struct Container {
     weight       : isize,
     components   : ComponentsBundle,
     container    : ContainerType,
-    id           : OptIden,
+    id           : IdentifierValue,
     classes      : Classes,
     inner_classes: Classes,
     template     : String,
@@ -22,7 +22,7 @@ impl ComponentTrait for Container {
             weight       : 0,
             components   : ComponentsBundle::new(),
             container    : ContainerType::Wrapper,
-            id           : OptIden::new(),
+            id           : IdentifierValue::new(),
             classes      : Classes::new_with_default("container"),
             inner_classes: Classes::new_with_default("container"),
             template     : "default".to_owned(),
@@ -44,35 +44,35 @@ impl ComponentTrait for Container {
     fn default_render(&self, context: &mut InContext) -> Markup {
         match self.container_type() {
             ContainerType::Header => html! {
-                header id=[self.id()] class=[self.classes()] {
-                    div class=[self.inner_classes()] {
+                header id=[self.id().get()] class=[self.classes().get()] {
+                    div class=[self.inner_classes().get()] {
                         (self.components().render(context))
                     }
                 }
             },
             ContainerType::Footer => html! {
-                footer id=[self.id()] class=[self.classes()] {
-                    div class=[self.inner_classes()] {
+                footer id=[self.id().get()] class=[self.classes().get()] {
+                    div class=[self.inner_classes().get()] {
                         (self.components().render(context))
                     }
                 }
             },
             ContainerType::Main => html! {
-                main id=[self.id()] class=[self.classes()] {
-                    div class=[self.inner_classes()] {
+                main id=[self.id().get()] class=[self.classes().get()] {
+                    div class=[self.inner_classes().get()] {
                         (self.components().render(context))
                     }
                 }
             },
             ContainerType::Section => html! {
-                section id=[self.id()] class=[self.classes()] {
-                    div class=[self.inner_classes()] {
+                section id=[self.id().get()] class=[self.classes().get()] {
+                    div class=[self.inner_classes().get()] {
                         (self.components().render(context))
                     }
                 }
             },
             _ => html! {
-                div id=[self.id()] class=[self.classes()] {
+                div id=[self.id().get()] class=[self.classes().get()] {
                     (self.components().render(context))
                 }
             }
@@ -194,16 +194,16 @@ impl Container {
         &self.container
     }
 
-    pub fn id(&self) -> &Option<String> {
-        self.id.option()
+    pub fn id(&self) -> &IdentifierValue {
+        &self.id
     }
 
-    pub fn classes(&self) -> &Option<String> {
-        self.classes.option()
+    pub fn classes(&self) -> &Classes {
+        &self.classes
     }
 
-    pub fn inner_classes(&self) -> &Option<String> {
-        self.inner_classes.option()
+    pub fn inner_classes(&self) -> &Classes {
+        &self.inner_classes
     }
 
     pub fn template(&self) -> &str {

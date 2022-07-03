@@ -3,19 +3,19 @@ use crate::prelude::*;
 pub const ICON_COMPONENT: &str = "pagetop::component::icon";
 
 pub struct Icon {
-    renderable   : fn() -> bool,
-    weight       : isize,
-    classes      : Classes,
-    inline_styles: InlineStyles,
+    renderable: fn() -> bool,
+    weight    : isize,
+    classes   : Classes,
+    layout    : Layout,
 }
 
 impl ComponentTrait for Icon {
     fn new() -> Self {
         Icon {
-            renderable   : render_always,
-            weight       : 0,
-            classes      : Classes::new_with_default("bi-question-circle-fill"),
-            inline_styles: InlineStyles::new(),
+            renderable: render_always,
+            weight    : 0,
+            classes   : Classes::new_with_default("bi-question-circle-fill"),
+            layout    : Layout::new(),
         }
     }
 
@@ -37,7 +37,7 @@ impl ComponentTrait for Icon {
                 "/theme/icons/bootstrap-icons.css?ver=1.8.2"
             ));
 
-        html! { i class=[self.classes()] style=[self.inline_styles()] {}; }
+        html! { i class=[self.classes().get()] style=[self.layout().get()] {}; }
     }
 
     fn as_ref_any(&self) -> &dyn AnyComponent {
@@ -76,8 +76,8 @@ impl Icon {
         self
     }
 
-    pub fn with_inline_style(mut self, style: &str, value: Option<&str>) -> Self {
-        self.alter_inline_style(style, value);
+    pub fn with_layout(mut self, property: LayoutProperty, value: LayoutUnit) -> Self {
+        self.alter_layout(property, value);
         self
     }
 
@@ -103,18 +103,18 @@ impl Icon {
         self
     }
 
-    pub fn alter_inline_style(&mut self, style: &str, value: Option<&str>) -> &mut Self {
-        self.inline_styles.add_style(style, value);
+    pub fn alter_layout(&mut self, property: LayoutProperty, value: LayoutUnit) -> &mut Self {
+        self.layout.add(property, value);
         self
     }
 
     // Icon GETTERS.
 
-    pub fn classes(&self) -> &Option<String> {
-        self.classes.option()
+    pub fn classes(&self) -> &Classes {
+        &self.classes
     }
 
-    pub fn inline_styles(&self) -> Option<String> {
-        self.inline_styles.option()
+    pub fn layout(&self) -> &Layout {
+        &self.layout
     }
 }

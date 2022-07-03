@@ -8,10 +8,10 @@ pub struct Button {
     renderable : fn() -> bool,
     weight     : isize,
     button_type: ButtonType,
-    name       : OptAttr,
-    value      : OptAttr,
-    autofocus  : OptAttr,
-    disabled   : OptAttr,
+    name       : AttributeValue,
+    value      : AttributeValue,
+    autofocus  : AttributeValue,
+    disabled   : AttributeValue,
     classes    : Classes,
     template   : String,
 }
@@ -22,10 +22,10 @@ impl ComponentTrait for Button {
             renderable : render_always,
             weight     : 0,
             button_type: ButtonType::Button,
-            name       : OptAttr::new(),
-            value      : OptAttr::new(),
-            autofocus  : OptAttr::new(),
-            disabled   : OptAttr::new(),
+            name       : AttributeValue::new(),
+            value      : AttributeValue::new(),
+            autofocus  : AttributeValue::new(),
+            disabled   : AttributeValue::new(),
             classes    : Classes::new_with_default("btn btn-primary"),
             template   : "default".to_owned(),
         }
@@ -50,7 +50,7 @@ impl ComponentTrait for Button {
             ButtonType::Reset  => "reset",
             ButtonType::Submit => "submit",
         };
-        let id = match self.name() {
+        let id = match self.name().get() {
             Some(name) => Some(concat_string!("edit-", name)),
             _ => None
         };
@@ -58,13 +58,13 @@ impl ComponentTrait for Button {
             button
                 type=(button_type)
                 id=[id]
-                class=[self.classes()]
-                name=[self.name()]
-                value=[self.value()]
-                autofocus=[self.autofocus()]
-                disabled=[self.disabled()]
+                class=[self.classes().get()]
+                name=[self.name().get()]
+                value=[self.value().get()]
+                autofocus=[self.autofocus().get()]
+                disabled=[self.disabled().get()]
             {
-                @match self.value() {
+                @match self.value().get() {
                     Some(value) => { (value) },
                     None => {},
                 }
@@ -198,24 +198,24 @@ impl Button {
         &self.button_type
     }
 
-    pub fn name(&self) -> &Option<String> {
-        self.name.option()
+    pub fn name(&self) -> &AttributeValue {
+        &self.name
     }
 
-    pub fn value(&self) -> &Option<String> {
-        self.value.option()
+    pub fn value(&self) -> &AttributeValue {
+        &self.value
     }
 
-    pub fn autofocus(&self) -> &Option<String> {
-        self.autofocus.option()
+    pub fn autofocus(&self) -> &AttributeValue {
+        &self.autofocus
     }
 
-    pub fn disabled(&self) -> &Option<String> {
-        self.disabled.option()
+    pub fn disabled(&self) -> &AttributeValue {
+        &self.disabled
     }
 
-    pub fn classes(&self) -> &Option<String> {
-        self.classes.option()
+    pub fn classes(&self) -> &Classes {
+        &self.classes
     }
 
     pub fn template(&self) -> &str {

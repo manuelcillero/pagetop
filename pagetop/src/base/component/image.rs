@@ -5,8 +5,8 @@ pub const IMAGE_COMPONENT: &str = "pagetop::component::image";
 pub struct Image {
     renderable: fn() -> bool,
     weight    : isize,
-    source    : OptAttr,
-    id        : OptIden,
+    source    : AttributeValue,
+    id        : IdentifierValue,
     classes   : Classes,
     template  : String,
 }
@@ -16,8 +16,8 @@ impl ComponentTrait for Image {
         Image {
             renderable: render_always,
             weight    : 0,
-            source    : OptAttr::new(),
-            id        : OptIden::new(),
+            source    : AttributeValue::new(),
+            id        : IdentifierValue::new(),
             classes   : Classes::new_with_default("img-fluid"),
             template  : "default".to_owned(),
         }
@@ -38,9 +38,9 @@ impl ComponentTrait for Image {
     fn default_render(&self, _: &mut InContext) -> Markup {
         html! {
             img
-                src=[self.source()]
-                id=[self.id()]
-                class=[self.classes()];
+                src=[self.source().get()]
+                id=[self.id().get()]
+                class=[self.classes().get()];
         }
     }
 
@@ -124,16 +124,16 @@ impl Image {
 
     // Image GETTERS.
 
-    pub fn source(&self) -> &Option<String> {
-        self.source.option()
+    pub fn source(&self) -> &AttributeValue {
+        &self.source
     }
 
-    pub fn id(&self) -> &Option<String> {
-        self.id.option()
+    pub fn id(&self) -> &IdentifierValue {
+        &self.id
     }
 
-    pub fn classes(&self) -> &Option<String> {
-        self.classes.option()
+    pub fn classes(&self) -> &Classes {
+        &self.classes
     }
 
     pub fn template(&self) -> &str {

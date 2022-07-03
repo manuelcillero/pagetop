@@ -6,8 +6,8 @@ pub struct Block {
     renderable: fn() -> bool,
     weight    : isize,
     components: ComponentsBundle,
-    title     : OptAttr,
-    id        : OptIden,
+    title     : AttributeValue,
+    id        : IdentifierValue,
     classes   : Classes,
     template  : String,
 }
@@ -18,8 +18,8 @@ impl ComponentTrait for Block {
             renderable: render_always,
             weight    : 0,
             components: ComponentsBundle::new(),
-            title     : OptAttr::new(),
-            id        : OptIden::new(),
+            title     : AttributeValue::new(),
+            id        : IdentifierValue::new(),
             classes   : Classes::new_with_default("block"),
             template  : "default".to_owned(),
         }
@@ -40,8 +40,8 @@ impl ComponentTrait for Block {
     fn default_render(&self, context: &mut InContext) -> Markup {
         let id = context.required_id::<Block>(self.id());
         html! {
-            div id=(id) class=[self.classes()] {
-                @match self.title() {
+            div id=(id) class=[self.classes().get()] {
+                @match self.title().get() {
                     Some(title) => h2 class="block-title" { (title) },
                     None => {}
                 }
@@ -140,16 +140,16 @@ impl Block {
 
     // Block GETTERS.
 
-    pub fn title(&self) -> &Option<String> {
-        self.title.option()
+    pub fn title(&self) -> &AttributeValue {
+        &self.title
     }
 
-    pub fn id(&self) -> &Option<String> {
-        self.id.option()
+    pub fn id(&self) -> &IdentifierValue {
+        &self.id
     }
 
-    pub fn classes(&self) -> &Option<String> {
-        self.classes.option()
+    pub fn classes(&self) -> &Classes {
+        &self.classes
     }
 
     pub fn template(&self) -> &str {

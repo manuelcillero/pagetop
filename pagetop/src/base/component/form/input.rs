@@ -8,19 +8,19 @@ pub struct Input {
     renderable  : fn() -> bool,
     weight      : isize,
     input_type  : InputType,
-    name        : OptIden,
-    value       : OptAttr,
-    label       : OptAttr,
+    name        : IdentifierValue,
+    value       : AttributeValue,
+    label       : AttributeValue,
     size        : Option<u16>,
     minlength   : Option<u16>,
     maxlength   : Option<u16>,
-    placeholder : OptAttr,
-    autofocus   : OptAttr,
-    autocomplete: OptAttr,
-    disabled    : OptAttr,
-    readonly    : OptAttr,
-    required    : OptAttr,
-    help_text   : OptAttr,
+    placeholder : AttributeValue,
+    autofocus   : AttributeValue,
+    autocomplete: AttributeValue,
+    disabled    : AttributeValue,
+    readonly    : AttributeValue,
+    required    : AttributeValue,
+    help_text   : AttributeValue,
     classes     : Classes,
     template    : String,
 }
@@ -31,19 +31,19 @@ impl ComponentTrait for Input {
             renderable  : render_always,
             weight      : 0,
             input_type  : InputType::Textfield,
-            name        : OptIden::new(),
-            value       : OptAttr::new(),
-            label       : OptAttr::new(),
+            name        : IdentifierValue::new(),
+            value       : AttributeValue::new(),
+            label       : AttributeValue::new(),
             size        : Some(60),
             minlength   : None,
             maxlength   : Some(128),
-            placeholder : OptAttr::new(),
-            autofocus   : OptAttr::new(),
-            autocomplete: OptAttr::new(),
-            disabled    : OptAttr::new(),
-            readonly    : OptAttr::new(),
-            required    : OptAttr::new(),
-            help_text   : OptAttr::new(),
+            placeholder : AttributeValue::new(),
+            autofocus   : AttributeValue::new(),
+            autocomplete: AttributeValue::new(),
+            disabled    : AttributeValue::new(),
+            readonly    : AttributeValue::new(),
+            required    : AttributeValue::new(),
+            help_text   : AttributeValue::new(),
             classes     : Classes::new_with_default("form-item"),
             template    : "default".to_owned(),
         }
@@ -71,16 +71,16 @@ impl ComponentTrait for Input {
             InputType::Textfield => "text",
             InputType::Url       => "url",
         };
-        let id = match self.name() {
+        let id = match self.name().get() {
             Some(name) => Some(concat_string!("edit-", name)),
             None => None,
         };
         html! {
-            div class=[self.classes()] {
-                @match self.label() {
+            div class=[self.classes().get()] {
+                @match self.label().get() {
                     Some(label) => label class="form-label" for=[&id] {
                         (label) " "
-                        @match self.required() {
+                        @match self.required().get() {
                             Some(_) => span
                                 class="form-required"
                                 title="Este campo es obligatorio." { "*" } " ",
@@ -93,18 +93,18 @@ impl ComponentTrait for Input {
                     type=(type_input)
                     id=[id]
                     class="form-control"
-                    name=[self.name()]
-                    value=[self.value()]
+                    name=[self.name().get()]
+                    value=[self.value().get()]
                     size=[self.size()]
                     minlength=[self.minlength()]
                     maxlength=[self.maxlength()]
-                    placeholder=[self.placeholder()]
-                    autofocus=[self.autofocus()]
-                    autocomplete=[self.autocomplete()]
-                    readonly=[self.readonly()]
-                    required=[self.required()]
-                    disabled=[self.disabled()];
-                @match self.help_text() {
+                    placeholder=[self.placeholder().get()]
+                    autofocus=[self.autofocus().get()]
+                    autocomplete=[self.autocomplete().get()]
+                    readonly=[self.readonly().get()]
+                    required=[self.required().get()]
+                    disabled=[self.disabled().get()];
+                @match self.help_text().get() {
                     Some(help_text) => div class="form-text" { (help_text) },
                     None => {}
                 }
@@ -360,16 +360,16 @@ impl Input {
         &self.input_type
     }
 
-    pub fn name(&self) -> &Option<String> {
-        self.name.option()
+    pub fn name(&self) -> &IdentifierValue {
+        &self.name
     }
 
-    pub fn value(&self) -> &Option<String> {
-        self.value.option()
+    pub fn value(&self) -> &AttributeValue {
+        &self.value
     }
 
-    pub fn label(&self) -> &Option<String> {
-        self.label.option()
+    pub fn label(&self) -> &AttributeValue {
+        &self.label
     }
 
     pub fn size(&self) -> Option<u16> {
@@ -384,36 +384,36 @@ impl Input {
         self.maxlength
     }
 
-    pub fn placeholder(&self) -> &Option<String> {
-        self.placeholder.option()
+    pub fn placeholder(&self) -> &AttributeValue {
+        &self.placeholder
     }
 
-    pub fn autofocus(&self) -> &Option<String> {
-        self.autofocus.option()
+    pub fn autofocus(&self) -> &AttributeValue {
+        &self.autofocus
     }
 
-    pub fn autocomplete(&self) -> &Option<String> {
-        self.autocomplete.option()
+    pub fn autocomplete(&self) -> &AttributeValue {
+        &self.autocomplete
     }
 
-    pub fn disabled(&self) -> &Option<String> {
-        self.disabled.option()
+    pub fn disabled(&self) -> &AttributeValue {
+        &self.disabled
     }
 
-    pub fn readonly(&self) -> &Option<String> {
-        self.readonly.option()
+    pub fn readonly(&self) -> &AttributeValue {
+        &self.readonly
     }
 
-    pub fn required(&self) -> &Option<String> {
-        self.required.option()
+    pub fn required(&self) -> &AttributeValue {
+        &self.required
     }
 
-    pub fn help_text(&self) -> &Option<String> {
-        self.help_text.option()
+    pub fn help_text(&self) -> &AttributeValue {
+        &self.help_text
     }
 
-    pub fn classes(&self) -> &Option<String> {
-        self.classes.option()
+    pub fn classes(&self) -> &Classes {
+        &self.classes
     }
 
     pub fn template(&self) -> &str {

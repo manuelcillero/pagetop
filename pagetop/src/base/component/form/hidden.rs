@@ -4,16 +4,16 @@ pub const HIDDEN_COMPONENT: &str = "pagetop::component::form::hidden";
 
 pub struct Hidden {
     weight: isize,
-    name  : OptIden,
-    value : OptAttr,
+    name  : IdentifierValue,
+    value : AttributeValue,
 }
 
 impl ComponentTrait for Hidden {
     fn new() -> Self {
         Hidden {
             weight: 0,
-            name  : OptIden::new(),
-            value : OptAttr::new(),
+            name  : IdentifierValue::new(),
+            value : AttributeValue::new(),
         }
     }
 
@@ -26,12 +26,12 @@ impl ComponentTrait for Hidden {
     }
 
     fn default_render(&self, _: &mut InContext) -> Markup {
-        let id = match self.name() {
+        let id = match self.name().get() {
             Some(name) => Some(concat_string!("value-", name)),
             _ => None
         };
         html! {
-            input type="hidden" id=[id] name=[self.name()] value=[self.value()];
+            input type="hidden" id=[id] name=[self.name().get()] value=[self.value().get()];
         }
     }
 
@@ -85,11 +85,11 @@ impl Hidden {
 
     // Hidden GETTERS.
 
-    pub fn name(&self) -> &Option<String> {
-        self.name.option()
+    pub fn name(&self) -> &IdentifierValue {
+        &self.name
     }
 
-    pub fn value(&self) -> &Option<String> {
-        self.value.option()
+    pub fn value(&self) -> &AttributeValue {
+        &self.value
     }
 }

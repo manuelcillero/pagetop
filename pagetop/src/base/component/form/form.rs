@@ -8,10 +8,10 @@ pub struct Form {
     renderable: fn() -> bool,
     weight    : isize,
     elements  : ComponentsBundle,
-    action    : OptAttr,
-    charset   : OptAttr,
+    action    : AttributeValue,
+    charset   : AttributeValue,
     method    : FormMethod,
-    id        : OptIden,
+    id        : IdentifierValue,
     classes   : Classes,
     template  : String,
 }
@@ -22,10 +22,10 @@ impl ComponentTrait for Form {
             renderable: render_always,
             weight    : 0,
             elements  : ComponentsBundle::new(),
-            action    : OptAttr::new(),
-            charset   : OptAttr::new_with_value("UTF-8"),
+            action    : AttributeValue::new(),
+            charset   : AttributeValue::new_with_value("UTF-8"),
             method    : FormMethod::Post,
-            id        : OptIden::new(),
+            id        : IdentifierValue::new(),
             classes   : Classes::new_with_default("form"),
             template  : "default".to_owned(),
         }
@@ -50,11 +50,11 @@ impl ComponentTrait for Form {
         };
         html! {
             form
-                id=[self.id()]
-                class=[self.classes()]
-                action=[self.action()]
+                id=[self.id().get()]
+                class=[self.classes().get()]
+                action=[self.action().get()]
                 method=[method]
-                accept-charset=[self.charset()]
+                accept-charset=[self.charset().get()]
             {
                 div { (self.elements().render(context)) }
             }
@@ -169,24 +169,24 @@ impl Form {
 
     // Form GETTERS.
 
-    pub fn action(&self) -> &Option<String> {
-        self.action.option()
+    pub fn action(&self) -> &AttributeValue {
+        &self.action
     }
 
-    pub fn charset(&self) -> &Option<String> {
-        self.charset.option()
+    pub fn charset(&self) -> &AttributeValue {
+        &self.charset
     }
 
     pub fn method(&self) -> &FormMethod {
         &self.method
     }
 
-    pub fn id(&self) -> &Option<String> {
-        self.id.option()
+    pub fn id(&self) -> &IdentifierValue {
+        &self.id
     }
 
-    pub fn classes(&self) -> &Option<String> {
-        self.classes.option()
+    pub fn classes(&self) -> &Classes {
+        &self.classes
     }
 
     pub fn template(&self) -> &str {

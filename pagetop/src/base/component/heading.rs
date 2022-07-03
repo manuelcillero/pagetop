@@ -19,7 +19,7 @@ pub struct Heading {
     heading   : HeadingType,
     html      : Markup,
     display   : HeadingDisplay,
-    id        : OptIden,
+    id        : IdentifierValue,
     classes   : Classes,
     template  : String,
 }
@@ -32,7 +32,7 @@ impl ComponentTrait for Heading {
             heading   : HeadingType::H1,
             html      : html! {},
             display   : HeadingDisplay::Normal,
-            id        : OptIden::new(),
+            id        : IdentifierValue::new(),
             classes   : Classes::new(),
             template  : "default".to_owned(),
         }
@@ -51,13 +51,15 @@ impl ComponentTrait for Heading {
     }
 
     fn default_render(&self, _: &mut InContext) -> Markup {
+        let id = self.id().get();
+        let classes = self.classes().get();
         html! { @match &self.heading() {
-            HeadingType::H1 => h1 id=[self.id()] class=[self.classes()] { (*self.html()) },
-            HeadingType::H2 => h2 id=[self.id()] class=[self.classes()] { (*self.html()) },
-            HeadingType::H3 => h3 id=[self.id()] class=[self.classes()] { (*self.html()) },
-            HeadingType::H4 => h4 id=[self.id()] class=[self.classes()] { (*self.html()) },
-            HeadingType::H5 => h5 id=[self.id()] class=[self.classes()] { (*self.html()) },
-            HeadingType::H6 => h6 id=[self.id()] class=[self.classes()] { (*self.html()) },
+            HeadingType::H1 => h1 id=[id] class=[classes] { (*self.html()) },
+            HeadingType::H2 => h2 id=[id] class=[classes] { (*self.html()) },
+            HeadingType::H3 => h3 id=[id] class=[classes] { (*self.html()) },
+            HeadingType::H4 => h4 id=[id] class=[classes] { (*self.html()) },
+            HeadingType::H5 => h5 id=[id] class=[classes] { (*self.html()) },
+            HeadingType::H6 => h6 id=[id] class=[classes] { (*self.html()) },
         }}
     }
 
@@ -201,12 +203,12 @@ impl Heading {
         &self.display
     }
 
-    pub fn id(&self) -> &Option<String> {
-        self.id.option()
+    pub fn id(&self) -> &IdentifierValue {
+        &self.id
     }
 
-    pub fn classes(&self) -> &Option<String> {
-        self.classes.option()
+    pub fn classes(&self) -> &Classes {
+        &self.classes
     }
 
     pub fn template(&self) -> &str {

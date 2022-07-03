@@ -39,14 +39,14 @@ pub trait ThemeTrait: BaseTheme + Send + Sync {
             head {
                 meta charset="utf-8";
 
-                @match page.title() {
+                @match page.title().get() {
                     Some(t) => title {
                         (concat_string!(SETTINGS.app.name, " | ", t))
                     },
                     None => title { (SETTINGS.app.name) }
                 }
 
-                @match page.description() {
+                @match page.description().get() {
                     Some(d) => meta name="description" content=(d);,
                     None => {}
                 }
@@ -61,7 +61,7 @@ pub trait ThemeTrait: BaseTheme + Send + Sync {
 
     fn render_page_body(&self, page: &mut Page) -> Markup {
         html! {
-            body class=[page.body_classes()] {
+            body class=[page.body_classes().get()] {
                 @match page.template() {
                     "admin" => {
                         @for region in &["top-menu", "side-menu", "content"] {

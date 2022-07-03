@@ -68,7 +68,9 @@ fn hello_world() -> Container {
                 .add(Anchor::button("#",
                     html! {
                         ("Get quote")
-                    }).with_left_icon(
+                    }).with_layout(
+                        LayoutProperty::MarginLeft, LayoutUnit::Px(8)
+                    ).with_left_icon(
                         Icon::with("envelope-open-heart-fill")
                     )
                 )

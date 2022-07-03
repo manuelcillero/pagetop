@@ -22,13 +22,14 @@ pub struct Anchor {
     renderable : fn() -> bool,
     weight     : isize,
     anchor_type: AnchorType,
-    href       : OptAttr,
+    href       : AttributeValue,
     html       : Markup,
     left_icon  : AnchorIcon,
     right_icon : AnchorIcon,
     target     : AnchorTarget,
-    id         : OptIden,
+    id         : IdentifierValue,
     classes    : Classes,
+    layout     : Layout,
     template   : String,
 }
 
@@ -38,13 +39,14 @@ impl ComponentTrait for Anchor {
             renderable : render_always,
             weight     : 0,
             anchor_type: AnchorType::Link,
-            href       : OptAttr::new(),
+            href       : AttributeValue::new(),
             html       : html! {},
             left_icon  : AnchorIcon::new(),
             right_icon : AnchorIcon::new(),
             target     : AnchorTarget::Default,
-            id         : OptIden::new(),
+            id         : IdentifierValue::new(),
             classes    : Classes::new(),
+            layout     : Layout::new(),
             template   : "default".to_owned(),
         }
     }
@@ -71,9 +73,10 @@ impl ComponentTrait for Anchor {
         };
         html! {
             a
-                id=[self.id()]
-                class=[self.classes()]
-                href=[self.href()]
+                id=[self.id().get()]
+                class=[self.classes().get()]
+                style=[self.layout().get()]
+                href=[self.href().get()]
                 target=[target]
             {
                 (self.left_icon().render(context))
@@ -157,6 +160,11 @@ impl Anchor {
         self
     }
 
+    pub fn with_layout(mut self, property: LayoutProperty, value: LayoutUnit) -> Self {
+        self.alter_layout(property, value);
+        self
+    }
+
     pub fn using_template(mut self, template: &str) -> Self {
         self.alter_template(template);
         self
@@ -195,13 +203,13 @@ impl Anchor {
 
     pub fn alter_left_icon(&mut self, icon: Icon) -> &mut Self {
         self.left_icon.clear();
-        self.left_icon.add(icon.with_inline_style("margin-right", Some("5px")));
+        self.left_icon.add(icon.with_layout(LayoutProperty::MarginRight, LayoutUnit::Px(5)));
         self
     }
 
     pub fn alter_right_icon(&mut self, icon: Icon) -> &mut Self {
         self.right_icon.clear();
-        self.right_icon.add(icon.with_inline_style("margin-left", Some("5px")));
+        self.right_icon.add(icon.with_layout(LayoutProperty::MarginLeft, LayoutUnit::Px(5)));
         self
     }
 
@@ -220,6 +228,11 @@ impl Anchor {
         self
     }
 
+    pub fn alter_layout(&mut self, property: LayoutProperty, value: LayoutUnit) -> &mut Self {
+        self.layout.add(property, value);
+        self
+    }
+
     pub fn alter_template(&mut self, template: &str) -> &mut Self {
         self.template = template.to_owned();
         self
@@ -231,8 +244,8 @@ impl Anchor {
         &self.anchor_type
     }
 
-    pub fn href(&self) -> &Option<String> {
-        self.href.option()
+    pub fn href(&self) -> &AttributeValue {
+        &self.href
     }
 
     pub fn html(&self) -> &Markup {
@@ -251,12 +264,16 @@ impl Anchor {
         &self.target
     }
 
-    pub fn id(&self) -> &Option<String> {
-        self.id.option()
+    pub fn id(&self) -> &IdentifierValue {
+        &self.id
     }
 
-    pub fn classes(&self) -> &Option<String> {
-        self.classes.option()
+    pub fn classes(&self) -> &Classes {
+        &self.classes
+    }
+
+    pub fn layout(&self) -> &Layout {
+        &self.layout
     }
 
     pub fn template(&self) -> &str {

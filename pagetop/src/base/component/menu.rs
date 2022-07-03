@@ -177,7 +177,7 @@ pub struct Menu {
     renderable: fn() -> bool,
     weight    : isize,
     items     : ComponentsBundle,
-    id        : OptIden,
+    id        : IdentifierValue,
     classes   : Classes,
     template  : String,
 }
@@ -188,7 +188,7 @@ impl ComponentTrait for Menu {
             renderable: render_always,
             weight    : 0,
             items     : ComponentsBundle::new(),
-            id        : OptIden::new(),
+            id        : IdentifierValue::new(),
             classes   : Classes::new_with_default("sm sm-clean"),
             template  : "default".to_owned(),
         }
@@ -221,7 +221,7 @@ impl ComponentTrait for Menu {
 
         let id = context.required_id::<Menu>(self.id());
         html! {
-            ul id=(id) class=[self.classes()] {
+            ul id=(id) class=[self.classes().get()] {
                 (self.items().render(context))
             }
             script type="text/javascript" defer {
@@ -311,12 +311,12 @@ impl Menu {
 
     // Menu GETTERS.
 
-    pub fn id(&self) -> &Option<String> {
-        self.id.option()
+    pub fn id(&self) -> &IdentifierValue {
+        &self.id
     }
 
-    pub fn classes(&self) -> &Option<String> {
-        self.classes.option()
+    pub fn classes(&self) -> &Classes {
+        &self.classes
     }
 
     pub fn template(&self) -> &str {

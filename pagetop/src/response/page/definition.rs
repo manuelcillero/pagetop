@@ -37,10 +37,10 @@ static DEFAULT_DIRECTION: Lazy<Option<String>> = Lazy::new(|| {
 pub enum TextDirection { Auto, LeftToRight, RightToLeft }
 
 pub struct Page<'a> {
-    language    : OptAttr,
-    direction   : OptAttr,
-    title       : OptAttr,
-    description : OptAttr,
+    language    : AttributeValue,
+    direction   : AttributeValue,
+    title       : AttributeValue,
+    description : AttributeValue,
     context     : InContext,
     regions     : HashMap<&'a str, ComponentsBundle>,
     body_classes: Classes,
@@ -52,15 +52,15 @@ impl<'a> Page<'a> {
     pub fn new() -> Self {
         Page {
             language    : match &*DEFAULT_LANGUAGE {
-                Some(language) => OptAttr::new_with_value(language),
-                _ => OptAttr::new(),
+                Some(language) => AttributeValue::new_with_value(language),
+                _ => AttributeValue::new(),
             },
             direction   : match &*DEFAULT_DIRECTION {
-                Some(direction) => OptAttr::new_with_value(direction),
-                _ => OptAttr::new(),
+                Some(direction) => AttributeValue::new_with_value(direction),
+                _ => AttributeValue::new(),
             },
-            title       : OptAttr::new(),
-            description : OptAttr::new(),
+            title       : AttributeValue::new(),
+            description : AttributeValue::new(),
             context     : InContext::new(),
             regions     : common_components(),
             body_classes: Classes::new_with_default("body"),
@@ -119,28 +119,28 @@ impl<'a> Page<'a> {
 
     // Page GETTERS.
 
-    pub fn language(&self) -> &Option<String> {
-        self.language.option()
+    pub fn language(&self) -> &AttributeValue {
+        &self.language
     }
 
-    pub fn direction(&self) -> &Option<String> {
-        self.direction.option()
+    pub fn direction(&self) -> &AttributeValue {
+        &self.direction
     }
 
-    pub fn title(&self) -> &Option<String> {
-        self.title.option()
+    pub fn title(&self) -> &AttributeValue {
+        &self.title
     }
 
-    pub fn description(&self) -> &Option<String> {
-        self.description.option()
+    pub fn description(&self) -> &AttributeValue {
+        &self.description
     }
 
     pub fn context(&mut self) -> &mut InContext {
         &mut self.context
     }
 
-    pub fn body_classes(&self) -> &Option<String> {
-        self.body_classes.option()
+    pub fn body_classes(&self) -> &Classes {
+        &self.body_classes
     }
 
     pub fn template(&self) -> &str {
@@ -168,7 +168,7 @@ impl<'a> Page<'a> {
         // Finalmente, renderizar la página.
         return Ok(html! {
             (DOCTYPE)
-            html lang=[self.language()] dir=[self.direction()] {
+            html lang=[self.language().get()] dir=[self.direction().get()] {
                 (head)
                 (body)
             }

@@ -5,16 +5,16 @@ pub const DATE_COMPONENT: &str = "pagetop::component::form::date";
 pub struct Date {
     renderable  : fn() -> bool,
     weight      : isize,
-    name        : OptAttr,
-    value       : OptAttr,
-    label       : OptAttr,
-    placeholder : OptAttr,
-    autofocus   : OptAttr,
-    autocomplete: OptAttr,
-    disabled    : OptAttr,
-    readonly    : OptAttr,
-    required    : OptAttr,
-    help_text   : OptAttr,
+    name        : AttributeValue,
+    value       : AttributeValue,
+    label       : AttributeValue,
+    placeholder : AttributeValue,
+    autofocus   : AttributeValue,
+    autocomplete: AttributeValue,
+    disabled    : AttributeValue,
+    readonly    : AttributeValue,
+    required    : AttributeValue,
+    help_text   : AttributeValue,
     classes     : Classes,
     template    : String,
 }
@@ -24,16 +24,16 @@ impl ComponentTrait for Date {
         Date {
             renderable  : render_always,
             weight      : 0,
-            name        : OptAttr::new(),
-            value       : OptAttr::new(),
-            label       : OptAttr::new(),
-            placeholder : OptAttr::new(),
-            autofocus   : OptAttr::new(),
-            autocomplete: OptAttr::new(),
-            disabled    : OptAttr::new(),
-            readonly    : OptAttr::new(),
-            required    : OptAttr::new(),
-            help_text   : OptAttr::new(),
+            name        : AttributeValue::new(),
+            value       : AttributeValue::new(),
+            label       : AttributeValue::new(),
+            placeholder : AttributeValue::new(),
+            autofocus   : AttributeValue::new(),
+            autocomplete: AttributeValue::new(),
+            disabled    : AttributeValue::new(),
+            readonly    : AttributeValue::new(),
+            required    : AttributeValue::new(),
+            help_text   : AttributeValue::new(),
             classes     : Classes::new_with_default("form-item"),
             template    : "default".to_owned(),
         }
@@ -53,16 +53,16 @@ impl ComponentTrait for Date {
     }
 
     fn default_render(&self, _: &mut InContext) -> Markup {
-        let id = match self.name() {
+        let id = match self.name().get() {
             Some(name) => Some(concat_string!("edit-", name)),
             None => None,
         };
         html! {
-            div class=[self.classes()] {
-                @match self.label() {
+            div class=[self.classes().get()] {
+                @match self.label().get() {
                     Some(label) => label class="form-label" for=[&id] {
                         (label) " "
-                        @match self.required() {
+                        @match self.required().get() {
                             Some(_) => span
                                 class="form-required"
                                 title="Este campo es obligatorio." { "*" } " ",
@@ -75,15 +75,15 @@ impl ComponentTrait for Date {
                     type="date"
                     id=[id]
                     class="form-control"
-                    name=[self.name()]
-                    value=[self.value()]
-                    placeholder=[self.placeholder()]
-                    autofocus=[self.autofocus()]
-                    autocomplete=[self.autocomplete()]
-                    readonly=[self.readonly()]
-                    required=[self.required()]
-                    disabled=[self.disabled()];
-                @match self.help_text() {
+                    name=[self.name().get()]
+                    value=[self.value().get()]
+                    placeholder=[self.placeholder().get()]
+                    autofocus=[self.autofocus().get()]
+                    autocomplete=[self.autocomplete().get()]
+                    readonly=[self.readonly().get()]
+                    required=[self.required().get()]
+                    disabled=[self.disabled().get()];
+                @match self.help_text().get() {
                     Some(help_text) => div class="form-text" { (help_text) },
                     None => {}
                 }
@@ -263,48 +263,48 @@ impl Date {
 
     // Date GETTERS.
 
-    pub fn name(&self) -> &Option<String> {
-        self.name.option()
+    pub fn name(&self) -> &AttributeValue {
+        &self.name
     }
 
-    pub fn value(&self) -> &Option<String> {
-        self.value.option()
+    pub fn value(&self) -> &AttributeValue {
+        &self.value
     }
 
-    pub fn label(&self) -> &Option<String> {
-        self.label.option()
+    pub fn label(&self) -> &AttributeValue {
+        &self.label
     }
 
-    pub fn placeholder(&self) -> &Option<String> {
-        self.placeholder.option()
+    pub fn placeholder(&self) -> &AttributeValue {
+        &self.placeholder
     }
 
-    pub fn autofocus(&self) -> &Option<String> {
-        self.autofocus.option()
+    pub fn autofocus(&self) -> &AttributeValue {
+        &self.autofocus
     }
 
-    pub fn autocomplete(&self) -> &Option<String> {
-        self.autocomplete.option()
+    pub fn autocomplete(&self) -> &AttributeValue {
+        &self.autocomplete
     }
 
-    pub fn disabled(&self) -> &Option<String> {
-        self.disabled.option()
+    pub fn disabled(&self) -> &AttributeValue {
+        &self.disabled
     }
 
-    pub fn readonly(&self) -> &Option<String> {
-        self.readonly.option()
+    pub fn readonly(&self) -> &AttributeValue {
+        &self.readonly
     }
 
-    pub fn required(&self) -> &Option<String> {
-        self.required.option()
+    pub fn required(&self) -> &AttributeValue {
+        &self.required
     }
 
-    pub fn help_text(&self) -> &Option<String> {
-        self.help_text.option()
+    pub fn help_text(&self) -> &AttributeValue {
+        &self.help_text
     }
 
-    pub fn classes(&self) -> &Option<String> {
-        self.classes.option()
+    pub fn classes(&self) -> &Classes {
+        &self.classes
     }
 
     pub fn template(&self) -> &str {

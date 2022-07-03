@@ -6,7 +6,7 @@ pub struct Column {
     renderable: fn() -> bool,
     weight    : isize,
     components: ComponentsBundle,
-    id        : OptIden,
+    id        : IdentifierValue,
     classes   : Classes,
     template  : String,
 }
@@ -17,7 +17,7 @@ impl ComponentTrait for Column {
             renderable: render_always,
             weight    : 0,
             components: ComponentsBundle::new(),
-            id        : OptIden::new(),
+            id        : IdentifierValue::new(),
             classes   : Classes::new_with_default("col"),
             template  : "default".to_owned(),
         }
@@ -37,7 +37,7 @@ impl ComponentTrait for Column {
 
     fn default_render(&self, context: &mut InContext) -> Markup {
         html! {
-            div id=[self.id()] class=[self.classes()] {
+            div id=[self.id().get()] class=[self.classes().get()] {
                 (self.components().render(context))
             }
         }
@@ -121,12 +121,12 @@ impl Column {
 
     // Column GETTERS.
 
-    pub fn id(&self) -> &Option<String> {
-        self.id.option()
+    pub fn id(&self) -> &IdentifierValue {
+        &self.id
     }
 
-    pub fn classes(&self) -> &Option<String> {
-        self.classes.option()
+    pub fn classes(&self) -> &Classes {
+        &self.classes
     }
 
     pub fn template(&self) -> &str {
