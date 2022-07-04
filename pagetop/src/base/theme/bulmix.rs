@@ -22,7 +22,7 @@ impl ThemeTrait for Bulmix {
             ))
             .add_stylesheet(
                 StyleSheet::with_source(
-                    "/bulmix/css/bulma.min.css?ver=0.9.3"
+                    "/bulmix/css/bulma.min.css?ver=0.9.4"
                 )
                 .with_weight(-99)
             )
