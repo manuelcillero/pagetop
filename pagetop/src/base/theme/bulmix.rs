@@ -35,6 +35,13 @@ impl ThemeTrait for Bulmix {
         _context: &mut InContext
     ) {
         match component.handler() {
+            ANCHOR_COMPONENT => {
+                let a = component_mut::<Anchor>(component);
+                a.alter_classes(match a.anchor_type() {
+                    AnchorType::Button => "button is-primary",
+                    _ => "",
+                }, ClassesOp::SetDefault);
+            },
             HEADING_COMPONENT => {
                 let h = component_mut::<Heading>(component);
                 h.alter_classes(concat_string!("title ", match h.display() {
@@ -57,22 +64,37 @@ impl ThemeTrait for Bulmix {
                     ParagraphDisplay::Normal  => "",
                 }, ClassesOp::SetDefault);
             },
-            ANCHOR_COMPONENT => {
-                let a = component_mut::<Anchor>(component);
-                a.alter_classes(match a.anchor_type() {
-                    AnchorType::Button => "button is-primary",
-                    _ => "",
-                }, ClassesOp::SetDefault);
+            grid::COLUMN_COMPONENT => {
+                let col = component_mut::<grid::Column>(component);
+                col.alter_classes("column content", ClassesOp::SetDefault);
             },
             grid::ROW_COMPONENT => {
                 let row = component_mut::<grid::Row>(component);
                 row.alter_classes("columns", ClassesOp::SetDefault);
             },
-            grid::COLUMN_COMPONENT => {
-                let col = component_mut::<grid::Column>(component);
-                col.alter_classes("column content", ClassesOp::SetDefault);
-            },
             _ => {},
+        }
+    }
+
+    fn render_component(
+        &self,
+        component: &dyn ComponentTrait,
+        context: &mut InContext
+    ) -> Option<Markup> {
+        match component.handler() {
+            ICON_COMPONENT => {
+                let icon = component_ref::<Icon>(component);
+                context
+                    .add_stylesheet(StyleSheet::with_source(
+                        "/theme/icons/bootstrap-icons.css?ver=1.8.2"
+                    ));
+                Some(html! {
+                    span class="icon" {
+                        i class=[icon.classes().get()] style=[icon.layout().get()] {};
+                    }
+                })
+            },
+            _ => None,
         }
     }
 }

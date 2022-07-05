@@ -80,7 +80,7 @@ impl ComponentTrait for Anchor {
                 target=[target]
             {
                 (self.left_icon().render(context))
-                (*self.html())
+                span { (*self.html()) }
                 (self.right_icon().render(context))
             }
         }
@@ -203,13 +203,13 @@ impl Anchor {
 
     pub fn alter_left_icon(&mut self, icon: Icon) -> &mut Self {
         self.left_icon.clear();
-        self.left_icon.add(icon.with_layout(LayoutProperty::MarginRight, LayoutUnit::Px(5)));
+        self.left_icon.add(icon);
         self
     }
 
     pub fn alter_right_icon(&mut self, icon: Icon) -> &mut Self {
         self.right_icon.clear();
-        self.right_icon.add(icon.with_layout(LayoutProperty::MarginLeft, LayoutUnit::Px(5)));
+        self.right_icon.add(icon);
         self
     }
 

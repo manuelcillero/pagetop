@@ -28,7 +28,6 @@ async fn demo() -> app::Result<Markup> {
     Page::new()
         .with_title(l("page_title").as_str())
         .add_to("content", hello_world())
-        .add_to("content", hello_world_original())
         .add_to("content", just_visiting())
         .add_to("content", about_pagetop())
         .add_to("content", promo_pagetop())
@@ -68,9 +67,7 @@ fn hello_world() -> Container {
                 .add(Anchor::button("#",
                     html! {
                         ("Get quote")
-                    }).with_layout(
-                        LayoutProperty::MarginLeft, LayoutUnit::Px(8)
-                    ).with_left_icon(
+                    }).with_left_icon(
                         Icon::with("envelope-open-heart-fill")
                     )
                 )
@@ -79,54 +76,6 @@ fn hello_world() -> Container {
                 .add(Image::image("/bootsier/images/demo-header.svg"))
             )
         )
-}
-
-fn hello_world_original() -> Chunck {
-    Chunck::with(html! {
-        header id="header" class="header" {
-            div class="container" {
-                div class="row" {
-                    div class="col-lg-6 col-xl-5" {
-                        div class="text-container" {
-                            div class="section-title" {
-                                (t("welcome_to", &args![
-                                    "app" => SETTINGS.app.name.as_str()
-                                ]))
-                            }
-                            h1 class="h1-large" {
-                                (l("page_title"))
-                            }
-                            p class="p-large" {
-                                (e("welcome_intro", &args![
-                                    "app" => format!(
-                                        "<strong>{}</strong>",
-                                        &SETTINGS.app.name
-                                    )
-                                ]))
-                            }
-                            p {
-                                (e("welcome_pagetop", &args![
-                                    "pagetop" => "<a href=\"https://pagetop-rs\">PageTop</a>"
-                                ]))
-                            }
-                            a class="btn-solid-lg" href="#services" {
-                                "Offered services"
-                            }
-                            a class="quote" href="#contact" {
-                                i class="fas fa-paper-plane" {}
-                                "Get quote"
-                            }
-                        }
-                    }
-                    div class="col-lg-6 col-xl-7" {
-                        div class="image-container" {
-                            img class="img-fluid" src="/bootsier/images/demo-header.svg" alt="alternative" {}
-                        }
-                    }
-                }
-            }
-        }
-    })
 }
 
 fn just_visiting() -> Chunck {
