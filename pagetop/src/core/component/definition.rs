@@ -27,6 +27,10 @@ pub trait ComponentTrait: AnyComponent + Send + Sync {
     }
 
     #[allow(unused_variables)]
+    fn before_render(&mut self, context: &mut InContext) {
+    }
+
+    #[allow(unused_variables)]
     fn default_render(&self, context: &mut InContext) -> Markup {
         html! {}
     }
@@ -45,6 +49,9 @@ pub fn component_mut<C: 'static>(component: &mut dyn ComponentTrait) -> &mut C {
 }
 
 pub fn render_component(component: &mut dyn ComponentTrait, context: &mut InContext) -> Markup {
+    // Acciones del propio componente antes de renderizarlo.
+    component.before_render(context);
+
     // Acciones de los módulos antes de renderizar el componente.
     run_hooks(
         BEFORE_RENDER_COMPONENT_HOOK,
@@ -55,11 +62,9 @@ pub fn render_component(component: &mut dyn ComponentTrait, context: &mut InCont
     context.theme().before_render_component(component, context);
 
     match component.is_renderable() {
-        true => {
-            match context.theme().render_component(component, context) {
-                Some(html) => html,
-                None => component.default_render(context)
-            }
+        true => match context.theme().render_component(component, context) {
+            Some(html) => html,
+            None => component.default_render(context)
         },
         false => html! {}
     }

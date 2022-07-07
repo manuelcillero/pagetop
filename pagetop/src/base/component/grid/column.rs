@@ -2,12 +2,29 @@ use crate::prelude::*;
 
 pub const COLUMN_COMPONENT: &str = "pagetop::component::grid::column";
 
+pub enum ColumnSize {
+    Default,
+    Is1of12,
+    Is2of12,
+    Is3of12,
+    Is4of12,
+    Is5of12,
+    Is6of12,
+    Is7of12,
+    Is8of12,
+    Is9of12,
+    Is10of12,
+    Is11of12,
+    IsFull,
+}
 pub struct Column {
     renderable: fn() -> bool,
     weight    : isize,
-    components: ComponentsBundle,
     id        : IdentifierValue,
     classes   : Classes,
+    spaces    : Spaces,
+    size      : ColumnSize,
+    components: ComponentsBundle,
     template  : String,
 }
 
@@ -16,9 +33,11 @@ impl ComponentTrait for Column {
         Column {
             renderable: render_always,
             weight    : 0,
-            components: ComponentsBundle::new(),
             id        : IdentifierValue::new(),
-            classes   : Classes::new_with_default("col-md"),
+            classes   : Classes::new(),
+            spaces    : Spaces::new(),
+            size      : ColumnSize::Default,
+            components: ComponentsBundle::new(),
             template  : "default".to_owned(),
         }
     }
@@ -35,9 +54,27 @@ impl ComponentTrait for Column {
         self.weight
     }
 
+    fn before_render(&mut self, _context: &mut InContext) {
+        match self.size() {
+            ColumnSize::Default  => self.alter_classes("col-sm",    ClassesOp::SetDefault),
+            ColumnSize::Is1of12  => self.alter_classes("col-sm-1",  ClassesOp::SetDefault),
+            ColumnSize::Is2of12  => self.alter_classes("col-sm-2",  ClassesOp::SetDefault),
+            ColumnSize::Is3of12  => self.alter_classes("col-sm-3",  ClassesOp::SetDefault),
+            ColumnSize::Is4of12  => self.alter_classes("col-sm-4",  ClassesOp::SetDefault),
+            ColumnSize::Is5of12  => self.alter_classes("col-sm-5",  ClassesOp::SetDefault),
+            ColumnSize::Is6of12  => self.alter_classes("col-sm-6",  ClassesOp::SetDefault),
+            ColumnSize::Is7of12  => self.alter_classes("col-sm-7",  ClassesOp::SetDefault),
+            ColumnSize::Is8of12  => self.alter_classes("col-sm-8",  ClassesOp::SetDefault),
+            ColumnSize::Is9of12  => self.alter_classes("col-sm-9",  ClassesOp::SetDefault),
+            ColumnSize::Is10of12 => self.alter_classes("col-sm-10", ClassesOp::SetDefault),
+            ColumnSize::Is11of12 => self.alter_classes("col-sm-11", ClassesOp::SetDefault),
+            ColumnSize::IsFull   => self.alter_classes("col-sm-12", ClassesOp::SetDefault),
+        };
+    }
+
     fn default_render(&self, context: &mut InContext) -> Markup {
         html! {
-            div id=[self.id().get()] class=[self.classes().get()] {
+            div id=[self.id().get()] class=[self.classes().get()] style=[self.spaces().get()] {
                 (self.components().render(context))
             }
         }
@@ -53,17 +90,6 @@ impl ComponentTrait for Column {
 }
 
 impl Column {
-
-    // Column CONTAINER.
-
-    pub fn add(mut self, component: impl ComponentTrait) -> Self {
-        self.components.add(component);
-        self
-    }
-
-    pub fn components(&self) -> &ComponentsBundle {
-        &self.components
-    }
 
     // Column BUILDER.
 
@@ -84,6 +110,21 @@ impl Column {
 
     pub fn with_classes(mut self, classes: &str, op: ClassesOp) -> Self {
         self.alter_classes(classes, op);
+        self
+    }
+
+    pub fn with_spaces(mut self, spaces: &[SpaceSet]) -> Self {
+        self.alter_spaces(spaces);
+        self
+    }
+
+    pub fn with_size(mut self, size: ColumnSize) -> Self {
+        self.alter_size(size);
+        self
+    }
+
+    pub fn with_component(mut self, component: impl ComponentTrait) -> Self {
+        self.alter_component(component);
         self
     }
 
@@ -114,6 +155,20 @@ impl Column {
         self
     }
 
+    pub fn alter_spaces(&mut self, spaces: &[SpaceSet]) -> &mut Self {
+        self.spaces.add(spaces);
+        self
+    }
+
+    pub fn alter_size(&mut self, size: ColumnSize) -> &mut Self {
+        self.size = size;
+        self
+    }
+
+    pub fn alter_component(&mut self, component: impl ComponentTrait) -> &mut Self {
+        self.components.add(component);
+        self
+    }
     pub fn alter_template(&mut self, template: &str) -> &mut Self {
         self.template = template.to_owned();
         self
@@ -127,6 +182,18 @@ impl Column {
 
     pub fn classes(&self) -> &Classes {
         &self.classes
+    }
+
+    pub fn spaces(&self) -> &Spaces {
+        &self.spaces
+    }
+
+    pub fn size(&self) -> &ColumnSize {
+        &self.size
+    }
+
+    pub fn components(&self) -> &ComponentsBundle {
+        &self.components
     }
 
     pub fn template(&self) -> &str {

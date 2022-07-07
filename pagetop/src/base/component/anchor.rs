@@ -21,15 +21,15 @@ pub type AnchorIcon = ComponentsBundle;
 pub struct Anchor {
     renderable : fn() -> bool,
     weight     : isize,
+    id         : IdentifierValue,
+    classes    : Classes,
+    spaces     : Spaces,
     anchor_type: AnchorType,
     href       : AttributeValue,
     html       : Markup,
     left_icon  : AnchorIcon,
     right_icon : AnchorIcon,
     target     : AnchorTarget,
-    id         : IdentifierValue,
-    classes    : Classes,
-    spaces     : Spaces,
     template   : String,
 }
 
@@ -38,15 +38,15 @@ impl ComponentTrait for Anchor {
         Anchor {
             renderable : render_always,
             weight     : 0,
+            id         : IdentifierValue::new(),
+            classes    : Classes::new(),
+            spaces     : Spaces::new(),
             anchor_type: AnchorType::Link,
             href       : AttributeValue::new(),
             html       : html! {},
             left_icon  : AnchorIcon::new(),
             right_icon : AnchorIcon::new(),
             target     : AnchorTarget::Default,
-            id         : IdentifierValue::new(),
-            classes    : Classes::new(),
-            spaces     : Spaces::new(),
             template   : "default".to_owned(),
         }
     }
@@ -120,6 +120,21 @@ impl Anchor {
         self
     }
 
+    pub fn with_id(mut self, id: &str) -> Self {
+        self.alter_id(id);
+        self
+    }
+
+    pub fn with_classes(mut self, classes: &str, op: ClassesOp) -> Self {
+        self.alter_classes(classes, op);
+        self
+    }
+
+    pub fn with_spaces(mut self, spaces: &[SpaceSet]) -> Self {
+        self.alter_spaces(spaces);
+        self
+    }
+
     pub fn with_type(mut self, anchor_type: AnchorType) -> Self {
         self.alter_type(anchor_type);
         self
@@ -150,21 +165,6 @@ impl Anchor {
         self
     }
 
-    pub fn with_id(mut self, id: &str) -> Self {
-        self.alter_id(id);
-        self
-    }
-
-    pub fn with_classes(mut self, classes: &str, op: ClassesOp) -> Self {
-        self.alter_classes(classes, op);
-        self
-    }
-
-    pub fn with_spaces(mut self, spaces: &[SpaceSet]) -> Self {
-        self.alter_spaces(spaces);
-        self
-    }
-
     pub fn using_template(mut self, template: &str) -> Self {
         self.alter_template(template);
         self
@@ -179,6 +179,21 @@ impl Anchor {
 
     pub fn alter_weight(&mut self, weight: isize) -> &mut Self {
         self.weight = weight;
+        self
+    }
+
+    pub fn alter_id(&mut self, id: &str) -> &mut Self {
+        self.id.with_value(id);
+        self
+    }
+
+    pub fn alter_classes(&mut self, classes: &str, op: ClassesOp) -> &mut Self {
+        self.classes.alter(classes, op);
+        self
+    }
+
+    pub fn alter_spaces(&mut self, spaces: &[SpaceSet]) -> &mut Self {
+        self.spaces.add(spaces);
         self
     }
 
@@ -218,27 +233,24 @@ impl Anchor {
         self
     }
 
-    pub fn alter_id(&mut self, id: &str) -> &mut Self {
-        self.id.with_value(id);
-        self
-    }
-
-    pub fn alter_classes(&mut self, classes: &str, op: ClassesOp) -> &mut Self {
-        self.classes.alter(classes, op);
-        self
-    }
-
-    pub fn alter_spaces(&mut self, spaces: &[SpaceSet]) -> &mut Self {
-        self.spaces.add(spaces);
-        self
-    }
-
     pub fn alter_template(&mut self, template: &str) -> &mut Self {
         self.template = template.to_owned();
         self
     }
 
     // Anchor GETTERS.
+
+    pub fn id(&self) -> &IdentifierValue {
+        &self.id
+    }
+
+    pub fn classes(&self) -> &Classes {
+        &self.classes
+    }
+
+    pub fn spaces(&self) -> &Spaces {
+        &self.spaces
+    }
 
     pub fn anchor_type(&self) -> &AnchorType {
         &self.anchor_type
@@ -262,18 +274,6 @@ impl Anchor {
 
     pub fn target(&self) -> &AnchorTarget {
         &self.target
-    }
-
-    pub fn id(&self) -> &IdentifierValue {
-        &self.id
-    }
-
-    pub fn classes(&self) -> &Classes {
-        &self.classes
-    }
-
-    pub fn spaces(&self) -> &Spaces {
-        &self.spaces
     }
 
     pub fn template(&self) -> &str {

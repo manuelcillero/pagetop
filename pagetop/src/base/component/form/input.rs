@@ -7,6 +7,7 @@ pub enum InputType {Email, Password, Search, Telephone, Textfield, Url}
 pub struct Input {
     renderable  : fn() -> bool,
     weight      : isize,
+    classes     : Classes,
     input_type  : InputType,
     name        : IdentifierValue,
     value       : AttributeValue,
@@ -21,7 +22,6 @@ pub struct Input {
     readonly    : AttributeValue,
     required    : AttributeValue,
     help_text   : AttributeValue,
-    classes     : Classes,
     template    : String,
 }
 
@@ -30,6 +30,7 @@ impl ComponentTrait for Input {
         Input {
             renderable  : render_always,
             weight      : 0,
+            classes     : Classes::new_with_default("form-item"),
             input_type  : InputType::Textfield,
             name        : IdentifierValue::new(),
             value       : AttributeValue::new(),
@@ -44,7 +45,6 @@ impl ComponentTrait for Input {
             readonly    : AttributeValue::new(),
             required    : AttributeValue::new(),
             help_text   : AttributeValue::new(),
-            classes     : Classes::new_with_default("form-item"),
             template    : "default".to_owned(),
         }
         .with_classes("form-type-textfield", ClassesOp::AddFirst)
@@ -173,6 +173,11 @@ impl Input {
         self
     }
 
+    pub fn with_classes(mut self, classes: &str, op: ClassesOp) -> Self {
+        self.alter_classes(classes, op);
+        self
+    }
+
     pub fn with_name(mut self, name: &str) -> Self {
         self.alter_name(name);
         self
@@ -238,11 +243,6 @@ impl Input {
         self
     }
 
-    pub fn with_classes(mut self, classes: &str, op: ClassesOp) -> Self {
-        self.alter_classes(classes, op);
-        self
-    }
-
     pub fn using_template(mut self, template: &str) -> Self {
         self.alter_template(template);
         self
@@ -257,6 +257,11 @@ impl Input {
 
     pub fn alter_weight(&mut self, weight: isize) -> &mut Self {
         self.weight = weight;
+        self
+    }
+
+    pub fn alter_classes(&mut self, classes: &str, op: ClassesOp) -> &mut Self {
+        self.classes.alter(classes, op);
         self
     }
 
@@ -344,17 +349,16 @@ impl Input {
         self
     }
 
-    pub fn alter_classes(&mut self, classes: &str, op: ClassesOp) -> &mut Self {
-        self.classes.alter(classes, op);
-        self
-    }
-
     pub fn alter_template(&mut self, template: &str) -> &mut Self {
         self.template = template.to_owned();
         self
     }
 
     // Input GETTERS.
+
+    pub fn classes(&self) -> &Classes {
+        &self.classes
+    }
 
     pub fn input_type(&self) -> &InputType {
         &self.input_type
@@ -410,10 +414,6 @@ impl Input {
 
     pub fn help_text(&self) -> &AttributeValue {
         &self.help_text
-    }
-
-    pub fn classes(&self) -> &Classes {
-        &self.classes
     }
 
     pub fn template(&self) -> &str {

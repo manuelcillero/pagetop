@@ -37,76 +37,68 @@ async fn demo() -> app::Result<Markup> {
 
 fn hello_world() -> Container {
     Container::header()
-        .add(grid::Row::new()
-            .add_column(grid::Column::new()
-                .add(Heading::h1(html! {
-                    (l("page_title"))
-                }).with_display(HeadingDisplay::Large))
-                .add(Paragraph::with(html! {
-                    (t("welcome_to", &args![
-                        "app" => SETTINGS.app.name.as_str()
-                    ]))
-                }))
-                .add(Paragraph::with(html! {
-                    (e("welcome_intro", &args![
-                        "app" => format!("<strong>{}</strong>", &SETTINGS.app.name)
-                    ]))
-                }).with_display(ParagraphDisplay::Small))
-                .add(Paragraph::with(html! {
-                    (e("welcome_pagetop", &args![
-                        "pagetop" => "<a href=\"https://pagetop-rs\">PageTop</a>"
-                    ]))
-                }))
-                .add(Anchor::button("#",
-                    html! {
-                        ("Offered services")
-                    }).with_left_icon(
-                        Icon::with("card-checklist")
-                    )
+        .with_component(grid::Row::new()
+            .with_column(grid::Column::new()
+                .with_component(Heading::h1(html! {
+                        (l("page_title"))
+                    })
+                    .with_display(HeadingDisplay::Large)
                 )
-                .add(Anchor::button("#",
-                    html! {
+                .with_component(Paragraph::with(html! {
+                        (t("welcome_to", &args!["app" => SETTINGS.app.name.as_str()]))
+                    })
+                )
+                .with_component(Paragraph::with(html! {
+                        (e("welcome_intro", &args![
+                            "app" => format!("<strong>{}</strong>", &SETTINGS.app.name)
+                        ]))
+                    })
+                    .with_display(ParagraphDisplay::Small)
+                )
+                .with_component(Paragraph::with(html! {
+                        (e("welcome_pagetop", &args![
+                            "pagetop" => "<a href=\"https://pagetop-rs\">PageTop</a>"
+                        ]))
+                    })
+                )
+                .with_component(Anchor::button("#", html! {
+                        ("Offered services")
+                    })
+                    .with_left_icon(Icon::with("card-checklist"))
+                )
+                .with_component(Anchor::button("#", html! {
                         ("Get quote")
-                    }).with_left_icon(
-                        Icon::with("envelope-open-heart-fill")
-                    )
+                    })
+                    .with_left_icon(Icon::with("envelope-open-heart-fill"))
                 )
             )
-            .add_column(grid::Column::new()
-                .add(Image::image("/theme/images/demo-header.svg"))
+            .with_column(grid::Column::new()
+                .with_component(Image::image("/theme/images/demo-header.svg"))
             )
             .with_spaces(&[SpaceSet::PaddingBoth(SpaceValue::RelEm(2.0), SpaceValue::RelPct(5.0))])
         )
 }
 
-fn just_visiting() -> Chunck {
-    Chunck::with(html! {
-        div id="details" class="basic-1" {
-            div class="container" {
-                div class="row" {
-                    div class="col-lg-6 col-xl-7" {
-                        div class="image-container" {
-                            img class="img-fluid" src="/bootsier/images/demo-visiting.svg" alt="alternative" {}
-                        }
-                    }
-                    div class="col-lg-6 col-xl-5" {
-                        div class="text-container" {
-                            h2 {
-                                span {
-                                    (l("visiting_title"))
-                                }
-                                br;
-                                (l("visiting_subtitle"))
-                            }
-                            p { (l("visiting_text1")) }
-                            p { (l("visiting_text2")) }
-                            a class="btn-solid-reg" data-bs-toggle="modal" data-bs-target="#staticBackdrop" { "Modal" }
-                        }
-                    }
-                }
-            }
-        }
-    })
+fn just_visiting() -> Container {
+    Container::new()
+        .with_component(grid::Row::new()
+            .with_column(grid::Column::new()
+                .with_size(grid::ColumnSize::Is5of12)
+                .with_component(Image::image("/theme/images/demo-visiting.svg"))
+                .with_spaces(&[SpaceSet::PaddingAll(SpaceValue::RelPct(2.0))])
+            )
+            .with_column(grid::Column::new()
+                .with_component(Heading::h2(html! { (l("visiting_title")) }))
+                .with_component(Heading::h3(html! { (l("visiting_subtitle")) }))
+                .with_component(Paragraph::with(html! { (l("visiting_text1")) }))
+                .with_component(Paragraph::with(html! { (l("visiting_text2")) }))
+                .with_spaces(&[
+                    SpaceSet::PaddingTop(SpaceValue::RelPct(2.5)),
+                    SpaceSet::PaddingLeft(SpaceValue::RelPct(5.0)),
+                ])
+            )
+            .with_spaces(&[SpaceSet::PaddingBoth(SpaceValue::RelEm(1.0), SpaceValue::RelPct(5.0))])
+        )
 }
 
 fn about_pagetop() -> Chunck {

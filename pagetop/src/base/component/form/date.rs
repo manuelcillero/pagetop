@@ -5,6 +5,7 @@ pub const DATE_COMPONENT: &str = "pagetop::component::form::date";
 pub struct Date {
     renderable  : fn() -> bool,
     weight      : isize,
+    classes     : Classes,
     name        : AttributeValue,
     value       : AttributeValue,
     label       : AttributeValue,
@@ -15,7 +16,6 @@ pub struct Date {
     readonly    : AttributeValue,
     required    : AttributeValue,
     help_text   : AttributeValue,
-    classes     : Classes,
     template    : String,
 }
 
@@ -24,6 +24,7 @@ impl ComponentTrait for Date {
         Date {
             renderable  : render_always,
             weight      : 0,
+            classes     : Classes::new_with_default("form-item"),
             name        : AttributeValue::new(),
             value       : AttributeValue::new(),
             label       : AttributeValue::new(),
@@ -34,7 +35,6 @@ impl ComponentTrait for Date {
             readonly    : AttributeValue::new(),
             required    : AttributeValue::new(),
             help_text   : AttributeValue::new(),
-            classes     : Classes::new_with_default("form-item"),
             template    : "default".to_owned(),
         }
         .with_classes("form-type-date", ClassesOp::AddFirst)
@@ -114,6 +114,11 @@ impl Date {
         self
     }
 
+    pub fn with_classes(mut self, classes: &str, op: ClassesOp) -> Self {
+        self.alter_classes(classes, op);
+        self
+    }
+
     pub fn with_name(mut self, name: &str) -> Self {
         self.alter_name(name);
         self
@@ -164,11 +169,6 @@ impl Date {
         self
     }
 
-    pub fn with_classes(mut self, classes: &str, op: ClassesOp) -> Self {
-        self.alter_classes(classes, op);
-        self
-    }
-
     pub fn using_template(mut self, template: &str) -> Self {
         self.alter_template(template);
         self
@@ -183,6 +183,11 @@ impl Date {
 
     pub fn alter_weight(&mut self, weight: isize) -> &mut Self {
         self.weight = weight;
+        self
+    }
+
+    pub fn alter_classes(&mut self, classes: &str, op: ClassesOp) -> &mut Self {
+        self.classes.alter(classes, op);
         self
     }
 
@@ -251,17 +256,16 @@ impl Date {
         self
     }
 
-    pub fn alter_classes(&mut self, classes: &str, op: ClassesOp) -> &mut Self {
-        self.classes.alter(classes, op);
-        self
-    }
-
     pub fn alter_template(&mut self, template: &str) -> &mut Self {
         self.template = template.to_owned();
         self
     }
 
     // Date GETTERS.
+
+    pub fn classes(&self) -> &Classes {
+        &self.classes
+    }
 
     pub fn name(&self) -> &AttributeValue {
         &self.name
@@ -301,10 +305,6 @@ impl Date {
 
     pub fn help_text(&self) -> &AttributeValue {
         &self.help_text
-    }
-
-    pub fn classes(&self) -> &Classes {
-        &self.classes
     }
 
     pub fn template(&self) -> &str {

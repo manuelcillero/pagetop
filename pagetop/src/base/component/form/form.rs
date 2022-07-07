@@ -7,12 +7,12 @@ pub enum FormMethod {Get, Post}
 pub struct Form {
     renderable: fn() -> bool,
     weight    : isize,
-    elements  : ComponentsBundle,
+    id        : IdentifierValue,
+    classes   : Classes,
     action    : AttributeValue,
     charset   : AttributeValue,
     method    : FormMethod,
-    id        : IdentifierValue,
-    classes   : Classes,
+    elements  : ComponentsBundle,
     template  : String,
 }
 
@@ -21,12 +21,12 @@ impl ComponentTrait for Form {
         Form {
             renderable: render_always,
             weight    : 0,
-            elements  : ComponentsBundle::new(),
+            id        : IdentifierValue::new(),
+            classes   : Classes::new_with_default("form"),
             action    : AttributeValue::new(),
             charset   : AttributeValue::new_with_value("UTF-8"),
             method    : FormMethod::Post,
-            id        : IdentifierValue::new(),
-            classes   : Classes::new_with_default("form"),
+            elements  : ComponentsBundle::new(),
             template  : "default".to_owned(),
         }
     }
@@ -72,17 +72,6 @@ impl ComponentTrait for Form {
 
 impl Form {
 
-    // Form CONTAINER.
-
-    pub fn add(mut self, element: impl ComponentTrait) -> Self {
-        self.elements.add(element);
-        self
-    }
-
-    pub fn elements(&self) -> &ComponentsBundle {
-        &self.elements
-    }
-
     // Form BUILDER.
 
     pub fn with_renderable(mut self, renderable: fn() -> bool) -> Self {
@@ -92,6 +81,16 @@ impl Form {
 
     pub fn with_weight(mut self, weight: isize) -> Self {
         self.alter_weight(weight);
+        self
+    }
+
+    pub fn with_id(mut self, id: &str) -> Self {
+        self.alter_id(id);
+        self
+    }
+
+    pub fn with_classes(mut self, classes: &str, op: ClassesOp) -> Self {
+        self.alter_classes(classes, op);
         self
     }
 
@@ -110,13 +109,8 @@ impl Form {
         self
     }
 
-    pub fn with_id(mut self, id: &str) -> Self {
-        self.alter_id(id);
-        self
-    }
-
-    pub fn with_classes(mut self, classes: &str, op: ClassesOp) -> Self {
-        self.alter_classes(classes, op);
+    pub fn with_element(mut self, element: impl ComponentTrait) -> Self {
+        self.alter_element(element);
         self
     }
 
@@ -137,6 +131,16 @@ impl Form {
         self
     }
 
+    pub fn alter_id(&mut self, id: &str) -> &mut Self {
+        self.id.with_value(id);
+        self
+    }
+
+    pub fn alter_classes(&mut self, classes: &str, op: ClassesOp) -> &mut Self {
+        self.classes.alter(classes, op);
+        self
+    }
+
     pub fn alter_action(&mut self, action: &str) -> &mut Self {
         self.action.with_value(action);
         self
@@ -152,13 +156,8 @@ impl Form {
         self
     }
 
-    pub fn alter_id(&mut self, id: &str) -> &mut Self {
-        self.id.with_value(id);
-        self
-    }
-
-    pub fn alter_classes(&mut self, classes: &str, op: ClassesOp) -> &mut Self {
-        self.classes.alter(classes, op);
+    pub fn alter_element(&mut self, element: impl ComponentTrait) -> &mut Self {
+        self.elements.add(element);
         self
     }
 
@@ -168,6 +167,14 @@ impl Form {
     }
 
     // Form GETTERS.
+
+    pub fn id(&self) -> &IdentifierValue {
+        &self.id
+    }
+
+    pub fn classes(&self) -> &Classes {
+        &self.classes
+    }
 
     pub fn action(&self) -> &AttributeValue {
         &self.action
@@ -181,12 +188,8 @@ impl Form {
         &self.method
     }
 
-    pub fn id(&self) -> &IdentifierValue {
-        &self.id
-    }
-
-    pub fn classes(&self) -> &Classes {
-        &self.classes
+    pub fn elements(&self) -> &ComponentsBundle {
+        &self.elements
     }
 
     pub fn template(&self) -> &str {

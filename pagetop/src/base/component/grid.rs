@@ -4,5 +4,5 @@ pub use row::{
 };
 mod column;
 pub use column::{
-    COLUMN_COMPONENT, Column
+    COLUMN_COMPONENT, Column, ColumnSize
 };

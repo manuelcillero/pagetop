@@ -5,10 +5,10 @@ pub const ROW_COMPONENT: &str = "pagetop::component::grid::row";
 pub struct Row {
     renderable: fn() -> bool,
     weight    : isize,
-    columns   : ComponentsBundle,
     id        : IdentifierValue,
     classes   : Classes,
-    spaces   : Spaces,
+    spaces    : Spaces,
+    columns   : ComponentsBundle,
     template  : String,
 }
 
@@ -17,10 +17,10 @@ impl ComponentTrait for Row {
         Row {
             renderable: render_always,
             weight    : 0,
-            columns   : ComponentsBundle::new(),
             id        : IdentifierValue::new(),
             classes   : Classes::new_with_default("row"),
-            spaces   : Spaces::new(),
+            spaces    : Spaces::new(),
+            columns   : ComponentsBundle::new(),
             template  : "default".to_owned(),
         }
     }
@@ -56,17 +56,6 @@ impl ComponentTrait for Row {
 
 impl Row {
 
-    // Row CONTAINER.
-
-    pub fn add_column(mut self, column: grid::Column) -> Self {
-        self.columns.add(column);
-        self
-    }
-
-    pub fn columns(&self) -> &ComponentsBundle {
-        &self.columns
-    }
-
     // Row BUILDER.
 
     pub fn with_renderable(mut self, renderable: fn() -> bool) -> Self {
@@ -91,6 +80,11 @@ impl Row {
 
     pub fn with_spaces(mut self, spaces: &[SpaceSet]) -> Self {
         self.alter_spaces(spaces);
+        self
+    }
+
+    pub fn with_column(mut self, column: grid::Column) -> Self {
+        self.alter_column(column);
         self
     }
 
@@ -126,6 +120,11 @@ impl Row {
         self
     }
 
+    pub fn alter_column(&mut self, column: grid::Column) -> &mut Self {
+        self.columns.add(column);
+        self
+    }
+
     pub fn alter_template(&mut self, template: &str) -> &mut Self {
         self.template = template.to_owned();
         self
@@ -143,6 +142,10 @@ impl Row {
 
     pub fn spaces(&self) -> &Spaces {
         &self.spaces
+    }
+
+    pub fn columns(&self) -> &ComponentsBundle {
+        &self.columns
     }
 
     pub fn template(&self) -> &str {

@@ -5,9 +5,9 @@ pub const IMAGE_COMPONENT: &str = "pagetop::component::image";
 pub struct Image {
     renderable: fn() -> bool,
     weight    : isize,
-    source    : AttributeValue,
     id        : IdentifierValue,
     classes   : Classes,
+    source    : AttributeValue,
     template  : String,
 }
 
@@ -16,9 +16,9 @@ impl ComponentTrait for Image {
         Image {
             renderable: render_always,
             weight    : 0,
-            source    : AttributeValue::new(),
             id        : IdentifierValue::new(),
             classes   : Classes::new_with_default("img-fluid"),
+            source    : AttributeValue::new(),
             template  : "default".to_owned(),
         }
     }
@@ -70,11 +70,6 @@ impl Image {
         self
     }
 
-    pub fn with_source(mut self, source: &str) -> Self {
-        self.alter_source(source);
-        self
-    }
-
     pub fn with_id(mut self, id: &str) -> Self {
         self.alter_id(id);
         self
@@ -82,6 +77,11 @@ impl Image {
 
     pub fn with_classes(mut self, classes: &str, op: ClassesOp) -> Self {
         self.alter_classes(classes, op);
+        self
+    }
+
+    pub fn with_source(mut self, source: &str) -> Self {
+        self.alter_source(source);
         self
     }
 
@@ -102,11 +102,6 @@ impl Image {
         self
     }
 
-    pub fn alter_source(&mut self, source: &str) -> &mut Self {
-        self.source.with_value(source);
-        self
-    }
-
     pub fn alter_id(&mut self, id: &str) -> &mut Self {
         self.id.with_value(id);
         self
@@ -117,6 +112,11 @@ impl Image {
         self
     }
 
+    pub fn alter_source(&mut self, source: &str) -> &mut Self {
+        self.source.with_value(source);
+        self
+    }
+
     pub fn alter_template(&mut self, template: &str) -> &mut Self {
         self.template = template.to_owned();
         self
@@ -124,16 +124,16 @@ impl Image {
 
     // Image GETTERS.
 
-    pub fn source(&self) -> &AttributeValue {
-        &self.source
-    }
-
     pub fn id(&self) -> &IdentifierValue {
         &self.id
     }
 
     pub fn classes(&self) -> &Classes {
         &self.classes
+    }
+
+    pub fn source(&self) -> &AttributeValue {
+        &self.source
     }
 
     pub fn template(&self) -> &str {

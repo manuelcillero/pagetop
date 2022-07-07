@@ -5,10 +5,10 @@ pub const BLOCK_COMPONENT: &str = "pagetop::component::block";
 pub struct Block {
     renderable: fn() -> bool,
     weight    : isize,
-    components: ComponentsBundle,
-    title     : AttributeValue,
     id        : IdentifierValue,
     classes   : Classes,
+    title     : AttributeValue,
+    components: ComponentsBundle,
     template  : String,
 }
 
@@ -17,10 +17,10 @@ impl ComponentTrait for Block {
         Block {
             renderable: render_always,
             weight    : 0,
-            components: ComponentsBundle::new(),
-            title     : AttributeValue::new(),
             id        : IdentifierValue::new(),
             classes   : Classes::new_with_default("block"),
+            title     : AttributeValue::new(),
+            components: ComponentsBundle::new(),
             template  : "default".to_owned(),
         }
     }
@@ -63,17 +63,6 @@ impl ComponentTrait for Block {
 
 impl Block {
 
-    // Block CONTAINER.
-
-    pub fn add(mut self, component: impl ComponentTrait) -> Self {
-        self.components.add(component);
-        self
-    }
-
-    pub fn components(&self) -> &ComponentsBundle {
-        &self.components
-    }
-
     // Block BUILDER.
 
     pub fn with_renderable(mut self, renderable: fn() -> bool) -> Self {
@@ -86,11 +75,6 @@ impl Block {
         self
     }
 
-    pub fn with_title(mut self, title: &str) -> Self {
-        self.alter_title(title);
-        self
-    }
-
     pub fn with_id(mut self, id: &str) -> Self {
         self.alter_id(id);
         self
@@ -98,6 +82,16 @@ impl Block {
 
     pub fn with_classes(mut self, classes: &str, op: ClassesOp) -> Self {
         self.alter_classes(classes, op);
+        self
+    }
+
+    pub fn with_title(mut self, title: &str) -> Self {
+        self.alter_title(title);
+        self
+    }
+
+    pub fn with_component(mut self, component: impl ComponentTrait) -> Self {
+        self.alter_component(component);
         self
     }
 
@@ -118,11 +112,6 @@ impl Block {
         self
     }
 
-    pub fn alter_title(&mut self, title: &str) -> &mut Self {
-        self.title.with_value(title);
-        self
-    }
-
     pub fn alter_id(&mut self, id: &str) -> &mut Self {
         self.id.with_value(id);
         self
@@ -133,6 +122,16 @@ impl Block {
         self
     }
 
+    pub fn alter_title(&mut self, title: &str) -> &mut Self {
+        self.title.with_value(title);
+        self
+    }
+
+    pub fn alter_component(&mut self, component: impl ComponentTrait) -> &mut Self {
+        self.components.add(component);
+        self
+    }
+
     pub fn alter_template(&mut self, template: &str) -> &mut Self {
         self.template = template.to_owned();
         self
@@ -140,16 +139,20 @@ impl Block {
 
     // Block GETTERS.
 
-    pub fn title(&self) -> &AttributeValue {
-        &self.title
-    }
-
     pub fn id(&self) -> &IdentifierValue {
         &self.id
     }
 
     pub fn classes(&self) -> &Classes {
         &self.classes
+    }
+
+    pub fn title(&self) -> &AttributeValue {
+        &self.title
+    }
+
+    pub fn components(&self) -> &ComponentsBundle {
+        &self.components
     }
 
     pub fn template(&self) -> &str {

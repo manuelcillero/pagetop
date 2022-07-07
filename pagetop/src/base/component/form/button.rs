@@ -7,12 +7,12 @@ pub enum ButtonType {Button, Reset, Submit}
 pub struct Button {
     renderable : fn() -> bool,
     weight     : isize,
+    classes    : Classes,
     button_type: ButtonType,
     name       : AttributeValue,
     value      : AttributeValue,
     autofocus  : AttributeValue,
     disabled   : AttributeValue,
-    classes    : Classes,
     template   : String,
 }
 
@@ -21,12 +21,12 @@ impl ComponentTrait for Button {
         Button {
             renderable : render_always,
             weight     : 0,
+            classes    : Classes::new_with_default("btn btn-primary"),
             button_type: ButtonType::Button,
             name       : AttributeValue::new(),
             value      : AttributeValue::new(),
             autofocus  : AttributeValue::new(),
             disabled   : AttributeValue::new(),
-            classes    : Classes::new_with_default("btn btn-primary"),
             template   : "default".to_owned(),
         }
         .with_classes("form-button", ClassesOp::AddFirst)
@@ -114,6 +114,11 @@ impl Button {
         self
     }
 
+    pub fn with_classes(mut self, classes: &str, op: ClassesOp) -> Self {
+        self.alter_classes(classes, op);
+        self
+    }
+
     pub fn with_name(mut self, name: &str) -> Self {
         self.alter_name(name);
         self
@@ -134,11 +139,6 @@ impl Button {
         self
     }
 
-    pub fn with_classes(mut self, classes: &str, op: ClassesOp) -> Self {
-        self.alter_classes(classes, op);
-        self
-    }
-
     pub fn using_template(mut self, template: &str) -> Self {
         self.alter_template(template);
         self
@@ -153,6 +153,11 @@ impl Button {
 
     pub fn alter_weight(&mut self, weight: isize) -> &mut Self {
         self.weight = weight;
+        self
+    }
+
+    pub fn alter_classes(&mut self, classes: &str, op: ClassesOp) -> &mut Self {
+        self.classes.alter(classes, op);
         self
     }
 
@@ -182,17 +187,16 @@ impl Button {
         self
     }
 
-    pub fn alter_classes(&mut self, classes: &str, op: ClassesOp) -> &mut Self {
-        self.classes.alter(classes, op);
-        self
-    }
-
     pub fn alter_template(&mut self, template: &str) -> &mut Self {
         self.template = template.to_owned();
         self
     }
 
     // Button GETTERS.
+
+    pub fn classes(&self) -> &Classes {
+        &self.classes
+    }
 
     pub fn button_type(&self) -> &ButtonType {
         &self.button_type
@@ -212,10 +216,6 @@ impl Button {
 
     pub fn disabled(&self) -> &AttributeValue {
         &self.disabled
-    }
-
-    pub fn classes(&self) -> &Classes {
-        &self.classes
     }
 
     pub fn template(&self) -> &str {

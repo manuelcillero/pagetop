@@ -5,8 +5,9 @@ pub const ICON_COMPONENT: &str = "pagetop::component::icon";
 pub struct Icon {
     renderable: fn() -> bool,
     weight    : isize,
+    icon_name : String,
     classes   : Classes,
-    spaces   : Spaces,
+    spaces    : Spaces,
 }
 
 impl ComponentTrait for Icon {
@@ -14,8 +15,9 @@ impl ComponentTrait for Icon {
         Icon {
             renderable: render_always,
             weight    : 0,
-            classes   : Classes::new_with_default("bi-question-circle-fill"),
-            spaces   : Spaces::new(),
+            icon_name : "question-circle-fill".to_owned(),
+            classes   : Classes::new(),
+            spaces    : Spaces::new(),
         }
     }
 
@@ -31,12 +33,16 @@ impl ComponentTrait for Icon {
         self.weight
     }
 
-    fn default_render(&self, context: &mut InContext) -> Markup {
+    fn before_render(&mut self, context: &mut InContext) {
         context
             .add_stylesheet(StyleSheet::with_source(
                 "/theme/icons/bootstrap-icons.css?ver=1.8.2"
             ));
 
+        self.alter_classes(concat_string!("bi-", self.icon_name()).as_str(), ClassesOp::SetDefault);
+    }
+
+    fn default_render(&self, _context: &mut InContext) -> Markup {
         html! { i class=[self.classes().get()] style=[self.spaces().get()] {}; }
     }
 
@@ -94,7 +100,7 @@ impl Icon {
     }
 
     pub fn alter_icon_name(&mut self, name: &str) -> &mut Self {
-        self.classes.alter(concat_string!("bi-", name).as_str(), ClassesOp::SetDefault);
+        self.icon_name = name.to_owned();
         self
     }
 
@@ -109,6 +115,10 @@ impl Icon {
     }
 
     // Icon GETTERS.
+
+    pub fn icon_name(&self) -> &str {
+        self.icon_name.as_str()
+    }
 
     pub fn classes(&self) -> &Classes {
         &self.classes

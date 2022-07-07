@@ -42,7 +42,7 @@ async fn login() -> app::Result<Markup> {
         )
         .add_to("content", Container::new()
             .with_id("welcome")
-            .add(form_login())
+            .with_component(form_login())
         )
         .render()
 }
@@ -50,7 +50,7 @@ async fn login() -> app::Result<Markup> {
 fn form_login() -> Form {
     Form::new()
         .with_id("user-login")
-        .add(form::Input::textfield()
+        .with_element(form::Input::textfield()
             .with_name("name")
             .with_label(l("username").as_str())
             .with_help_text(t("username_help", &args![
@@ -58,10 +58,10 @@ fn form_login() -> Form {
             ]).as_str())
             .with_autofocus(true)
         )
-        .add(form::Input::password()
+        .with_element(form::Input::password()
             .with_name("pass")
             .with_label(l("password").as_str())
             .with_help_text(l("password_help").as_str())
         )
-        .add(form::Button::submit(l("login").as_str()))
+        .with_element(form::Button::submit(l("login").as_str()))
 }

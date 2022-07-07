@@ -66,7 +66,21 @@ impl ThemeTrait for Bulmix {
             },
             grid::COLUMN_COMPONENT => {
                 let col = component_mut::<grid::Column>(component);
-                col.alter_classes("column content", ClassesOp::SetDefault);
+                col.alter_classes(concat_string!("column", match col.size() {
+                    grid::ColumnSize::Default  => "",
+                    grid::ColumnSize::Is1of12  => " is-1",
+                    grid::ColumnSize::Is2of12  => " is-2",
+                    grid::ColumnSize::Is3of12  => " is-3",
+                    grid::ColumnSize::Is4of12  => " is-4",
+                    grid::ColumnSize::Is5of12  => " is-5",
+                    grid::ColumnSize::Is6of12  => " is-6",
+                    grid::ColumnSize::Is7of12  => " is-7",
+                    grid::ColumnSize::Is8of12  => " is-8",
+                    grid::ColumnSize::Is9of12  => " is-9",
+                    grid::ColumnSize::Is10of12 => " is-10",
+                    grid::ColumnSize::Is11of12 => " is-11",
+                    grid::ColumnSize::IsFull   => " is-12",
+                }, " content").as_str(), ClassesOp::SetDefault);
             },
             grid::ROW_COMPONENT => {
                 let row = component_mut::<grid::Row>(component);
@@ -79,15 +93,11 @@ impl ThemeTrait for Bulmix {
     fn render_component(
         &self,
         component: &dyn ComponentTrait,
-        context: &mut InContext
+        _context: &mut InContext
     ) -> Option<Markup> {
         match component.handler() {
             ICON_COMPONENT => {
                 let icon = component_ref::<Icon>(component);
-                context
-                    .add_stylesheet(StyleSheet::with_source(
-                        "/theme/icons/bootstrap-icons.css?ver=1.8.2"
-                    ));
                 Some(html! {
                     span class="icon" {
                         i class=[icon.classes().get()] style=[icon.spaces().get()] {};

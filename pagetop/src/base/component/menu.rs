@@ -176,9 +176,9 @@ impl MenuItem {
 pub struct Menu {
     renderable: fn() -> bool,
     weight    : isize,
-    items     : ComponentsBundle,
     id        : IdentifierValue,
     classes   : Classes,
+    items     : ComponentsBundle,
     template  : String,
 }
 
@@ -206,7 +206,7 @@ impl ComponentTrait for Menu {
         self.weight
     }
 
-    fn default_render(&self, context: &mut InContext) -> Markup {
+    fn before_render(&mut self, context: &mut InContext) {
         context
             .add_stylesheet(StyleSheet::with_source(
                 "/theme/menu/css/menu.css?ver=1.1.1"
@@ -218,7 +218,9 @@ impl ComponentTrait for Menu {
                 "/theme/menu/js/menu.min.js?ver=1.1.1"
             ))
             .add_jquery();
+    }
 
+    fn default_render(&self, context: &mut InContext) -> Markup {
         let id = context.required_id::<Menu>(self.id());
         html! {
             ul id=(id) class=[self.classes().get()] {
@@ -244,17 +246,6 @@ impl ComponentTrait for Menu {
 
 impl Menu {
 
-    // Menu CONTAINER.
-
-    pub fn add(mut self, item: MenuItem) -> Self {
-        self.items.add(item);
-        self
-    }
-
-    pub fn items(&self) -> &ComponentsBundle {
-        &self.items
-    }
-
     // Menu BUILDER.
 
     pub fn with_renderable(mut self, renderable: fn() -> bool) -> Self {
@@ -274,6 +265,11 @@ impl Menu {
 
     pub fn with_classes(mut self, classes: &str, op: ClassesOp) -> Self {
         self.alter_classes(classes, op);
+        self
+    }
+
+    pub fn with_item(mut self, item: MenuItem) -> Self {
+        self.alter_item(item);
         self
     }
 
@@ -304,6 +300,11 @@ impl Menu {
         self
     }
 
+    pub fn alter_item(&mut self, item: MenuItem) -> &mut Self {
+        self.items.add(item);
+        self
+    }
+
     pub fn alter_template(&mut self, template: &str) -> &mut Self {
         self.template = template.to_owned();
         self
@@ -317,6 +318,10 @@ impl Menu {
 
     pub fn classes(&self) -> &Classes {
         &self.classes
+    }
+
+    pub fn items(&self) -> &ComponentsBundle {
+        &self.items
     }
 
     pub fn template(&self) -> &str {

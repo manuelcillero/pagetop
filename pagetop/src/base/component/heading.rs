@@ -14,27 +14,27 @@ pub enum HeadingDisplay {
 }
 
 pub struct Heading {
-    renderable: fn() -> bool,
-    weight    : isize,
-    heading   : HeadingType,
-    html      : Markup,
-    display   : HeadingDisplay,
-    id        : IdentifierValue,
-    classes   : Classes,
-    template  : String,
+    renderable  : fn() -> bool,
+    weight      : isize,
+    id          : IdentifierValue,
+    classes     : Classes,
+    heading_type: HeadingType,
+    html        : Markup,
+    display     : HeadingDisplay,
+    template    : String,
 }
 
 impl ComponentTrait for Heading {
     fn new() -> Self {
         Heading {
-            renderable: render_always,
-            weight    : 0,
-            heading   : HeadingType::H1,
-            html      : html! {},
-            display   : HeadingDisplay::Normal,
-            id        : IdentifierValue::new(),
-            classes   : Classes::new(),
-            template  : "default".to_owned(),
+            renderable  : render_always,
+            weight      : 0,
+            id          : IdentifierValue::new(),
+            classes     : Classes::new(),
+            heading_type: HeadingType::H1,
+            html        : html! {},
+            display     : HeadingDisplay::Normal,
+            template    : "default".to_owned(),
         }
     }
 
@@ -53,7 +53,7 @@ impl ComponentTrait for Heading {
     fn default_render(&self, _: &mut InContext) -> Markup {
         let id = self.id().get();
         let classes = self.classes().get();
-        html! { @match &self.heading() {
+        html! { @match &self.heading_type() {
             HeadingType::H1 => h1 id=[id] class=[classes] { (*self.html()) },
             HeadingType::H2 => h2 id=[id] class=[classes] { (*self.html()) },
             HeadingType::H3 => h3 id=[id] class=[classes] { (*self.html()) },
@@ -74,27 +74,27 @@ impl ComponentTrait for Heading {
 
 impl Heading {
     pub fn h1(html: Markup) -> Self {
-        Heading::new().with_heading(HeadingType::H1).with_html(html)
+        Heading::new().with_heading_type(HeadingType::H1).with_html(html)
     }
 
     pub fn h2(html: Markup) -> Self {
-        Heading::new().with_heading(HeadingType::H2).with_html(html)
+        Heading::new().with_heading_type(HeadingType::H2).with_html(html)
     }
 
     pub fn h3(html: Markup) -> Self {
-        Heading::new().with_heading(HeadingType::H3).with_html(html)
+        Heading::new().with_heading_type(HeadingType::H3).with_html(html)
     }
 
     pub fn h4(html: Markup) -> Self {
-        Heading::new().with_heading(HeadingType::H4).with_html(html)
+        Heading::new().with_heading_type(HeadingType::H4).with_html(html)
     }
 
     pub fn h5(html: Markup) -> Self {
-        Heading::new().with_heading(HeadingType::H5).with_html(html)
+        Heading::new().with_heading_type(HeadingType::H5).with_html(html)
     }
 
     pub fn h6(html: Markup) -> Self {
-        Heading::new().with_heading(HeadingType::H6).with_html(html)
+        Heading::new().with_heading_type(HeadingType::H6).with_html(html)
     }
 
     // Heading BUILDER.
@@ -109,8 +109,18 @@ impl Heading {
         self
     }
 
-    pub fn with_heading(mut self, heading: HeadingType) -> Self {
-        self.alter_heading(heading);
+    pub fn with_id(mut self, id: &str) -> Self {
+        self.alter_id(id);
+        self
+    }
+
+    pub fn with_classes(mut self, classes: &str, op: ClassesOp) -> Self {
+        self.alter_classes(classes, op);
+        self
+    }
+
+    pub fn with_heading_type(mut self, heading_type: HeadingType) -> Self {
+        self.alter_heading_type(heading_type);
         self
     }
 
@@ -121,16 +131,6 @@ impl Heading {
 
     pub fn with_display(mut self, display: HeadingDisplay) -> Self {
         self.alter_display(display);
-        self
-    }
-
-    pub fn with_id(mut self, id: &str) -> Self {
-        self.alter_id(id);
-        self
-    }
-
-    pub fn with_classes(mut self, classes: &str, op: ClassesOp) -> Self {
-        self.alter_classes(classes, op);
         self
     }
 
@@ -151,8 +151,18 @@ impl Heading {
         self
     }
 
-    pub fn alter_heading(&mut self, heading: HeadingType) -> &mut Self {
-        self.heading = heading;
+    pub fn alter_id(&mut self, id: &str) -> &mut Self {
+        self.id.with_value(id);
+        self
+    }
+
+    pub fn alter_classes(&mut self, classes: &str, op: ClassesOp) -> &mut Self {
+        self.classes.alter(classes, op);
+        self
+    }
+
+    pub fn alter_heading_type(&mut self, heading_type: HeadingType) -> &mut Self {
+        self.heading_type = heading_type;
         self
     }
 
@@ -174,16 +184,6 @@ impl Heading {
         self
     }
 
-    pub fn alter_id(&mut self, id: &str) -> &mut Self {
-        self.id.with_value(id);
-        self
-    }
-
-    pub fn alter_classes(&mut self, classes: &str, op: ClassesOp) -> &mut Self {
-        self.classes.alter(classes, op);
-        self
-    }
-
     pub fn alter_template(&mut self, template: &str) -> &mut Self {
         self.template = template.to_owned();
         self
@@ -191,8 +191,16 @@ impl Heading {
 
     // Paragraph GETTERS.
 
-    pub fn heading(&self) -> &HeadingType {
-        &self.heading
+    pub fn id(&self) -> &IdentifierValue {
+        &self.id
+    }
+
+    pub fn classes(&self) -> &Classes {
+        &self.classes
+    }
+
+    pub fn heading_type(&self) -> &HeadingType {
+        &self.heading_type
     }
 
     pub fn html(&self) -> &Markup {
@@ -201,14 +209,6 @@ impl Heading {
 
     pub fn display(&self) -> &HeadingDisplay {
         &self.display
-    }
-
-    pub fn id(&self) -> &IdentifierValue {
-        &self.id
-    }
-
-    pub fn classes(&self) -> &Classes {
-        &self.classes
     }
 
     pub fn template(&self) -> &str {

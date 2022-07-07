@@ -14,10 +14,10 @@ pub enum ParagraphDisplay {
 pub struct Paragraph {
     renderable: fn() -> bool,
     weight    : isize,
-    html      : Markup,
-    display   : ParagraphDisplay,
     id        : IdentifierValue,
     classes   : Classes,
+    html      : Markup,
+    display   : ParagraphDisplay,
     template  : String,
 }
 
@@ -26,10 +26,10 @@ impl ComponentTrait for Paragraph {
         Paragraph {
             renderable: render_always,
             weight    : 0,
-            html      : html! {},
-            display   : ParagraphDisplay::Normal,
             id        : IdentifierValue::new(),
             classes   : Classes::new(),
+            html      : html! {},
+            display   : ParagraphDisplay::Normal,
             template  : "default".to_owned(),
         }
     }
@@ -78,16 +78,6 @@ impl Paragraph {
         self
     }
 
-    pub fn with_html(mut self, html: Markup) -> Self {
-        self.alter_html(html);
-        self
-    }
-
-    pub fn with_display(mut self, display: ParagraphDisplay) -> Self {
-        self.alter_display(display);
-        self
-    }
-
     pub fn with_id(mut self, id: &str) -> Self {
         self.alter_id(id);
         self
@@ -95,6 +85,16 @@ impl Paragraph {
 
     pub fn with_classes(mut self, classes: &str, op: ClassesOp) -> Self {
         self.alter_classes(classes, op);
+        self
+    }
+
+    pub fn with_html(mut self, html: Markup) -> Self {
+        self.alter_html(html);
+        self
+    }
+
+    pub fn with_display(mut self, display: ParagraphDisplay) -> Self {
+        self.alter_display(display);
         self
     }
 
@@ -112,6 +112,16 @@ impl Paragraph {
 
     pub fn alter_weight(&mut self, weight: isize) -> &mut Self {
         self.weight = weight;
+        self
+    }
+
+    pub fn alter_id(&mut self, id: &str) -> &mut Self {
+        self.id.with_value(id);
+        self
+    }
+
+    pub fn alter_classes(&mut self, classes: &str, op: ClassesOp) -> &mut Self {
+        self.classes.alter(classes, op);
         self
     }
 
@@ -133,16 +143,6 @@ impl Paragraph {
         self
     }
 
-    pub fn alter_id(&mut self, id: &str) -> &mut Self {
-        self.id.with_value(id);
-        self
-    }
-
-    pub fn alter_classes(&mut self, classes: &str, op: ClassesOp) -> &mut Self {
-        self.classes.alter(classes, op);
-        self
-    }
-
     pub fn alter_template(&mut self, template: &str) -> &mut Self {
         self.template = template.to_owned();
         self
@@ -150,20 +150,20 @@ impl Paragraph {
 
     // Paragraph GETTERS.
 
-    pub fn html(&self) -> &Markup {
-        &self.html
-    }
-
-    pub fn display(&self) -> &ParagraphDisplay {
-        &self.display
-    }
-
     pub fn id(&self) -> &IdentifierValue {
         &self.id
     }
 
     pub fn classes(&self) -> &Classes {
         &self.classes
+    }
+
+    pub fn html(&self) -> &Markup {
+        &self.html
+    }
+
+    pub fn display(&self) -> &ParagraphDisplay {
+        &self.display
     }
 
     pub fn template(&self) -> &str {
