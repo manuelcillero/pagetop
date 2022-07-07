@@ -90,7 +90,7 @@ impl ThemeTrait for Bulmix {
                     ));
                 Some(html! {
                     span class="icon" {
-                        i class=[icon.classes().get()] style=[icon.layout().get()] {};
+                        i class=[icon.classes().get()] style=[icon.spaces().get()] {};
                     }
                 })
             },

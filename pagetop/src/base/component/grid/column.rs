@@ -18,7 +18,7 @@ impl ComponentTrait for Column {
             weight    : 0,
             components: ComponentsBundle::new(),
             id        : IdentifierValue::new(),
-            classes   : Classes::new_with_default("col"),
+            classes   : Classes::new_with_default("col-md"),
             template  : "default".to_owned(),
         }
     }

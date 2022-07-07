@@ -29,7 +29,7 @@ pub struct Anchor {
     target     : AnchorTarget,
     id         : IdentifierValue,
     classes    : Classes,
-    layout     : Layout,
+    spaces     : Spaces,
     template   : String,
 }
 
@@ -46,7 +46,7 @@ impl ComponentTrait for Anchor {
             target     : AnchorTarget::Default,
             id         : IdentifierValue::new(),
             classes    : Classes::new(),
-            layout     : Layout::new(),
+            spaces     : Spaces::new(),
             template   : "default".to_owned(),
         }
     }
@@ -75,7 +75,7 @@ impl ComponentTrait for Anchor {
             a
                 id=[self.id().get()]
                 class=[self.classes().get()]
-                style=[self.layout().get()]
+                style=[self.spaces().get()]
                 href=[self.href().get()]
                 target=[target]
             {
@@ -160,8 +160,8 @@ impl Anchor {
         self
     }
 
-    pub fn with_layout(mut self, property: LayoutProperty, value: LayoutUnit) -> Self {
-        self.alter_layout(property, value);
+    pub fn with_spaces(mut self, spaces: &[SpaceSet]) -> Self {
+        self.alter_spaces(spaces);
         self
     }
 
@@ -228,8 +228,8 @@ impl Anchor {
         self
     }
 
-    pub fn alter_layout(&mut self, property: LayoutProperty, value: LayoutUnit) -> &mut Self {
-        self.layout.add(property, value);
+    pub fn alter_spaces(&mut self, spaces: &[SpaceSet]) -> &mut Self {
+        self.spaces.add(spaces);
         self
     }
 
@@ -272,8 +272,8 @@ impl Anchor {
         &self.classes
     }
 
-    pub fn layout(&self) -> &Layout {
-        &self.layout
+    pub fn spaces(&self) -> &Spaces {
+        &self.spaces
     }
 
     pub fn template(&self) -> &str {

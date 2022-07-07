@@ -73,8 +73,9 @@ fn hello_world() -> Container {
                 )
             )
             .add_column(grid::Column::new()
-                .add(Image::image("/bootsier/images/demo-header.svg"))
+                .add(Image::image("/theme/images/demo-header.svg"))
             )
+            .with_spaces(&[SpaceSet::PaddingBoth(SpaceValue::RelEm(2.0), SpaceValue::RelPct(5.0))])
         )
 }
 

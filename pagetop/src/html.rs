@@ -17,5 +17,5 @@ pub use identifier::IdentifierValue;
 mod classes;
 pub use classes::{Classes, ClassesOp};
 
-mod layout;
-pub use layout::{Layout, LayoutProperty, LayoutUnit};
+mod spacing;
+pub use spacing::{Spaces, SpaceSet, SpaceValue};

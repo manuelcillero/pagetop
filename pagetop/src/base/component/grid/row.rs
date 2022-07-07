@@ -8,6 +8,7 @@ pub struct Row {
     columns   : ComponentsBundle,
     id        : IdentifierValue,
     classes   : Classes,
+    spaces   : Spaces,
     template  : String,
 }
 
@@ -19,6 +20,7 @@ impl ComponentTrait for Row {
             columns   : ComponentsBundle::new(),
             id        : IdentifierValue::new(),
             classes   : Classes::new_with_default("row"),
+            spaces   : Spaces::new(),
             template  : "default".to_owned(),
         }
     }
@@ -37,7 +39,7 @@ impl ComponentTrait for Row {
 
     fn default_render(&self, context: &mut InContext) -> Markup {
         html! {
-            div id=[self.id().get()] class=[self.classes().get()] {
+            div id=[self.id().get()] class=[self.classes().get()] style=[self.spaces().get()] {
                 (self.columns().render(context))
             }
         }
@@ -87,6 +89,11 @@ impl Row {
         self
     }
 
+    pub fn with_spaces(mut self, spaces: &[SpaceSet]) -> Self {
+        self.alter_spaces(spaces);
+        self
+    }
+
     pub fn using_template(mut self, template: &str) -> Self {
         self.alter_template(template);
         self
@@ -114,6 +121,11 @@ impl Row {
         self
     }
 
+    pub fn alter_spaces(&mut self, spaces: &[SpaceSet]) -> &mut Self {
+        self.spaces.add(spaces);
+        self
+    }
+
     pub fn alter_template(&mut self, template: &str) -> &mut Self {
         self.template = template.to_owned();
         self
@@ -127,6 +139,10 @@ impl Row {
 
     pub fn classes(&self) -> &Classes {
         &self.classes
+    }
+
+    pub fn spaces(&self) -> &Spaces {
+        &self.spaces
     }
 
     pub fn template(&self) -> &str {

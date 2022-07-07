@@ -6,7 +6,7 @@ pub struct Icon {
     renderable: fn() -> bool,
     weight    : isize,
     classes   : Classes,
-    layout    : Layout,
+    spaces   : Spaces,
 }
 
 impl ComponentTrait for Icon {
@@ -15,7 +15,7 @@ impl ComponentTrait for Icon {
             renderable: render_always,
             weight    : 0,
             classes   : Classes::new_with_default("bi-question-circle-fill"),
-            layout    : Layout::new(),
+            spaces   : Spaces::new(),
         }
     }
 
@@ -37,7 +37,7 @@ impl ComponentTrait for Icon {
                 "/theme/icons/bootstrap-icons.css?ver=1.8.2"
             ));
 
-        html! { i class=[self.classes().get()] style=[self.layout().get()] {}; }
+        html! { i class=[self.classes().get()] style=[self.spaces().get()] {}; }
     }
 
     fn as_ref_any(&self) -> &dyn AnyComponent {
@@ -76,8 +76,8 @@ impl Icon {
         self
     }
 
-    pub fn with_layout(mut self, property: LayoutProperty, value: LayoutUnit) -> Self {
-        self.alter_layout(property, value);
+    pub fn with_spaces(mut self, spaces: &[SpaceSet]) -> Self {
+        self.alter_spaces(spaces);
         self
     }
 
@@ -103,8 +103,8 @@ impl Icon {
         self
     }
 
-    pub fn alter_layout(&mut self, property: LayoutProperty, value: LayoutUnit) -> &mut Self {
-        self.layout.add(property, value);
+    pub fn alter_spaces(&mut self, spaces: &[SpaceSet]) -> &mut Self {
+        self.spaces.add(spaces);
         self
     }
 
@@ -114,7 +114,7 @@ impl Icon {
         &self.classes
     }
 
-    pub fn layout(&self) -> &Layout {
-        &self.layout
+    pub fn spaces(&self) -> &Spaces {
+        &self.spaces
     }
 }
