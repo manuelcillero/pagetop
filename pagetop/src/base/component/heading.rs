@@ -11,6 +11,7 @@ pub enum HeadingDisplay {
     Small,
     XxSmall,
     Normal,
+    Subtitle,
 }
 
 pub struct Heading {
@@ -174,12 +175,13 @@ impl Heading {
     pub fn alter_display(&mut self, display: HeadingDisplay) -> &mut Self {
         self.display = display;
         self.classes.alter(match &self.display() {
-            HeadingDisplay::XxLarge => "display-2",
-            HeadingDisplay::Large   => "display-3",
-            HeadingDisplay::Medium  => "display-4",
-            HeadingDisplay::Small   => "display-5",
-            HeadingDisplay::XxSmall => "display-6",
-            HeadingDisplay::Normal  => "",
+            HeadingDisplay::XxLarge  => "display-2",
+            HeadingDisplay::Large    => "display-3",
+            HeadingDisplay::Medium   => "display-4",
+            HeadingDisplay::Small    => "display-5",
+            HeadingDisplay::XxSmall  => "display-6",
+            HeadingDisplay::Normal   => "",
+            HeadingDisplay::Subtitle => "",
         }, ClassesOp::SetDefault);
         self
     }

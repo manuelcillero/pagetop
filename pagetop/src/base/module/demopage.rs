@@ -88,9 +88,20 @@ fn just_visiting() -> Container {
                 .with_spaces(&[SpaceSet::PaddingAll(SpaceValue::RelPct(2.0))])
             )
             .with_column(grid::Column::new()
-                .with_component(Heading::h2(html! { (l("visiting_title")) }))
-                .with_component(Heading::h3(html! { (l("visiting_subtitle")) }))
-                .with_component(Paragraph::with(html! { (l("visiting_text1")) }))
+                .with_component(Heading::h2(html! {
+                        (l("visiting_title"))
+                    })
+                )
+                .with_component(Heading::h3(html! {
+                        (l("visiting_subtitle"))
+                    })
+                    .with_display(HeadingDisplay::Subtitle)
+                )
+                .with_component(Paragraph::with(html! {
+                        (l("visiting_text1"))
+                    })
+                    .with_display(ParagraphDisplay::Small)
+                )
                 .with_component(Paragraph::with(html! { (l("visiting_text2")) }))
                 .with_spaces(&[
                     SpaceSet::PaddingTop(SpaceValue::RelPct(2.5)),

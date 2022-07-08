@@ -44,14 +44,15 @@ impl ThemeTrait for Bulmix {
             },
             HEADING_COMPONENT => {
                 let h = component_mut::<Heading>(component);
-                h.alter_classes(concat_string!("title ", match h.display() {
-                    HeadingDisplay::XxLarge => "is-1",
-                    HeadingDisplay::Large   => "is-2",
-                    HeadingDisplay::Medium  => "is-3",
-                    HeadingDisplay::Small   => "is-4",
-                    HeadingDisplay::XxSmall => "is-5",
-                    HeadingDisplay::Normal  => "",
-                }).as_str(), ClassesOp::SetDefault);
+                h.alter_classes(match h.display() {
+                    HeadingDisplay::XxLarge  => "title is-1",
+                    HeadingDisplay::Large    => "title is-2",
+                    HeadingDisplay::Medium   => "title is-3",
+                    HeadingDisplay::Small    => "title is-4",
+                    HeadingDisplay::XxSmall  => "title is-5",
+                    HeadingDisplay::Normal   => "title",
+                    HeadingDisplay::Subtitle => "subtitle",
+                }, ClassesOp::SetDefault);
             },
             PARAGRAPH_COMPONENT => {
                 let p = component_mut::<Paragraph>(component);
