@@ -101,7 +101,7 @@ impl ThemeTrait for Bulmix {
                 let icon = component_ref::<Icon>(component);
                 Some(html! {
                     span class="icon" {
-                        i class=[icon.classes().get()] style=[icon.spaces().get()] {};
+                        i class=[icon.classes().get()] style=[icon.layout().get()] {};
                     }
                 })
             },

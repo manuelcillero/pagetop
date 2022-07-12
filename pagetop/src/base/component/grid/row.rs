@@ -7,7 +7,7 @@ pub struct Row {
     weight    : isize,
     id        : IdentifierValue,
     classes   : Classes,
-    spaces    : Spaces,
+    layout    : InlineLayout,
     columns   : ComponentsBundle,
     template  : String,
 }
@@ -19,7 +19,7 @@ impl ComponentTrait for Row {
             weight    : 0,
             id        : IdentifierValue::new(),
             classes   : Classes::new_with_default("row"),
-            spaces    : Spaces::new(),
+            layout    : InlineLayout::new(),
             columns   : ComponentsBundle::new(),
             template  : "default".to_owned(),
         }
@@ -39,7 +39,7 @@ impl ComponentTrait for Row {
 
     fn default_render(&self, context: &mut InContext) -> Markup {
         html! {
-            div id=[self.id().get()] class=[self.classes().get()] style=[self.spaces().get()] {
+            div id=[self.id().get()] class=[self.classes().get()] style=[self.layout().get()] {
                 (self.columns().render(context))
             }
         }
@@ -78,8 +78,8 @@ impl Row {
         self
     }
 
-    pub fn with_spaces(mut self, spaces: &[SpaceSet]) -> Self {
-        self.alter_spaces(spaces);
+    pub fn with_layout(mut self, layout: &[LayoutSet]) -> Self {
+        self.alter_layout(layout);
         self
     }
 
@@ -115,8 +115,8 @@ impl Row {
         self
     }
 
-    pub fn alter_spaces(&mut self, spaces: &[SpaceSet]) -> &mut Self {
-        self.spaces.add(spaces);
+    pub fn alter_layout(&mut self, layout: &[LayoutSet]) -> &mut Self {
+        self.layout.set(layout);
         self
     }
 
@@ -140,8 +140,8 @@ impl Row {
         &self.classes
     }
 
-    pub fn spaces(&self) -> &Spaces {
-        &self.spaces
+    pub fn layout(&self) -> &InlineLayout {
+        &self.layout
     }
 
     pub fn columns(&self) -> &ComponentsBundle {

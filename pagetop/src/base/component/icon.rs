@@ -7,7 +7,7 @@ pub struct Icon {
     weight    : isize,
     icon_name : String,
     classes   : Classes,
-    spaces    : Spaces,
+    layout    : InlineLayout,
 }
 
 impl ComponentTrait for Icon {
@@ -17,7 +17,7 @@ impl ComponentTrait for Icon {
             weight    : 0,
             icon_name : "question-circle-fill".to_owned(),
             classes   : Classes::new(),
-            spaces    : Spaces::new(),
+            layout    : InlineLayout::new(),
         }
     }
 
@@ -43,7 +43,7 @@ impl ComponentTrait for Icon {
     }
 
     fn default_render(&self, _context: &mut InContext) -> Markup {
-        html! { i class=[self.classes().get()] style=[self.spaces().get()] {}; }
+        html! { i class=[self.classes().get()] style=[self.layout().get()] {}; }
     }
 
     fn as_ref_any(&self) -> &dyn AnyComponent {
@@ -82,8 +82,8 @@ impl Icon {
         self
     }
 
-    pub fn with_spaces(mut self, spaces: &[SpaceSet]) -> Self {
-        self.alter_spaces(spaces);
+    pub fn with_layout(mut self, layout: &[LayoutSet]) -> Self {
+        self.alter_layout(layout);
         self
     }
 
@@ -109,8 +109,8 @@ impl Icon {
         self
     }
 
-    pub fn alter_spaces(&mut self, spaces: &[SpaceSet]) -> &mut Self {
-        self.spaces.add(spaces);
+    pub fn alter_layout(&mut self, layout: &[LayoutSet]) -> &mut Self {
+        self.layout.set(layout);
         self
     }
 
@@ -124,7 +124,7 @@ impl Icon {
         &self.classes
     }
 
-    pub fn spaces(&self) -> &Spaces {
-        &self.spaces
+    pub fn layout(&self) -> &InlineLayout {
+        &self.layout
     }
 }

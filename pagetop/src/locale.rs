@@ -1,5 +1,5 @@
-pub use fluent_templates::{static_loader as static_locale, Loader as Locale};
 pub use fluent_templates;
+pub use fluent_templates::{Loader as Locale, static_loader as static_locale};
 pub use fluent_templates::fluent_bundle::FluentValue;
 
 #[macro_export]

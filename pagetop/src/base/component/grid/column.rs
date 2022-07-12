@@ -22,7 +22,7 @@ pub struct Column {
     weight    : isize,
     id        : IdentifierValue,
     classes   : Classes,
-    spaces    : Spaces,
+    layout    : InlineLayout,
     size      : ColumnSize,
     components: ComponentsBundle,
     template  : String,
@@ -35,7 +35,7 @@ impl ComponentTrait for Column {
             weight    : 0,
             id        : IdentifierValue::new(),
             classes   : Classes::new(),
-            spaces    : Spaces::new(),
+            layout    : InlineLayout::new(),
             size      : ColumnSize::Default,
             components: ComponentsBundle::new(),
             template  : "default".to_owned(),
@@ -74,7 +74,7 @@ impl ComponentTrait for Column {
 
     fn default_render(&self, context: &mut InContext) -> Markup {
         html! {
-            div id=[self.id().get()] class=[self.classes().get()] style=[self.spaces().get()] {
+            div id=[self.id().get()] class=[self.classes().get()] style=[self.layout().get()] {
                 (self.components().render(context))
             }
         }
@@ -113,8 +113,8 @@ impl Column {
         self
     }
 
-    pub fn with_spaces(mut self, spaces: &[SpaceSet]) -> Self {
-        self.alter_spaces(spaces);
+    pub fn with_layout(mut self, layout: &[LayoutSet]) -> Self {
+        self.alter_layout(layout);
         self
     }
 
@@ -155,8 +155,8 @@ impl Column {
         self
     }
 
-    pub fn alter_spaces(&mut self, spaces: &[SpaceSet]) -> &mut Self {
-        self.spaces.add(spaces);
+    pub fn alter_layout(&mut self, layout: &[LayoutSet]) -> &mut Self {
+        self.layout.set(layout);
         self
     }
 
@@ -184,8 +184,8 @@ impl Column {
         &self.classes
     }
 
-    pub fn spaces(&self) -> &Spaces {
-        &self.spaces
+    pub fn layout(&self) -> &InlineLayout {
+        &self.layout
     }
 
     pub fn size(&self) -> &ColumnSize {

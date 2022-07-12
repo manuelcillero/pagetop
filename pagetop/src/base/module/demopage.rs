@@ -37,12 +37,17 @@ async fn demo() -> app::Result<Markup> {
 
 fn hello_world() -> Container {
     Container::header()
+        .with_id("hello-world")
         .with_component(grid::Row::new()
+            .with_layout(
+                &[LayoutSet::PaddingSide(UnitValue::RelEm(2.0), UnitValue::RelPct(5.0))]
+            )
             .with_column(grid::Column::new()
+                .with_size(grid::ColumnSize::Is4of12)
                 .with_component(Heading::h1(html! {
                         (l("page_title"))
                     })
-                    .with_display(HeadingDisplay::Large)
+                    .with_display(HeadingDisplay::Medium)
                 )
                 .with_component(Paragraph::with(html! {
                         (t("welcome_to", &args!["app" => SETTINGS.app.name.as_str()]))
@@ -65,6 +70,10 @@ fn hello_world() -> Container {
                         ("Offered services")
                     })
                     .with_left_icon(Icon::with("card-checklist"))
+                    .with_layout(&[
+                        LayoutSet::PaddingSide(UnitValue::UnSet, UnitValue::RelEm(1.5)),
+                        LayoutSet::RadiusAll(UnitValue::RelEm(1.5)),
+                    ])
                 )
                 .with_component(Anchor::button("#", html! {
                         ("Get quote")
@@ -75,19 +84,26 @@ fn hello_world() -> Container {
             .with_column(grid::Column::new()
                 .with_component(Image::image("/theme/images/demo-header.svg"))
             )
-            .with_spaces(&[SpaceSet::PaddingBoth(SpaceValue::RelEm(2.0), SpaceValue::RelPct(5.0))])
         )
 }
 
 fn just_visiting() -> Container {
     Container::new()
+        .with_id("visiting")
         .with_component(grid::Row::new()
-            .with_column(grid::Column::new()
-                .with_size(grid::ColumnSize::Is5of12)
-                .with_component(Image::image("/theme/images/demo-visiting.svg"))
-                .with_spaces(&[SpaceSet::PaddingAll(SpaceValue::RelPct(2.0))])
+            .with_layout(
+                &[LayoutSet::PaddingSide(UnitValue::RelEm(1.0), UnitValue::RelPct(5.0))]
             )
             .with_column(grid::Column::new()
+                .with_layout(&[LayoutSet::PaddingAll(UnitValue::RelPct(2.0))])
+                .with_size(grid::ColumnSize::Is5of12)
+                .with_component(Image::image("/theme/images/demo-visiting.svg"))
+            )
+            .with_column(grid::Column::new()
+                .with_layout(&[
+                    LayoutSet::PaddingTop(UnitValue::RelPct(2.5)),
+                    LayoutSet::PaddingLeft(UnitValue::RelPct(5.0)),
+                ])
                 .with_component(Heading::h2(html! {
                         (l("visiting_title"))
                     })
@@ -103,83 +119,110 @@ fn just_visiting() -> Container {
                     .with_display(ParagraphDisplay::Small)
                 )
                 .with_component(Paragraph::with(html! { (l("visiting_text2")) }))
-                .with_spaces(&[
-                    SpaceSet::PaddingTop(SpaceValue::RelPct(2.5)),
-                    SpaceSet::PaddingLeft(SpaceValue::RelPct(5.0)),
-                ])
             )
-            .with_spaces(&[SpaceSet::PaddingBoth(SpaceValue::RelEm(1.0), SpaceValue::RelPct(5.0))])
         )
 }
 
-fn about_pagetop() -> Chunck {
-    Chunck::with(html! {
-        div id="pagetop" class="basic-2" {
-            div class="container" {
-                div class="row" {
-                    div class="col-lg-6 col-xl-5" {
-                        div class="text-container" {
-                            h2 { (l("pagetop_title")) }
-                            p { (l("pagetop_text1")) }
-                            p { (l("pagetop_text2")) }
-                            p { (l("pagetop_text3")) }
-                        }
-                    }
-                    div class="col-lg-6 col-xl-7" {
-                        div class="image-container" {
-                            img class="img-fluid" src="/bootsier/images/demo-pagetop.svg" alt="alternative" {}
-                        }
-                    }
-                }
-            }
-        }
-    })
+fn about_pagetop() -> Container {
+    Container::new()
+        .with_id("pagetop")
+        .with_component(grid::Row::new()
+            .with_layout(
+                &[LayoutSet::PaddingSide(UnitValue::RelEm(1.0), UnitValue::RelPct(5.0))]
+            )
+            .with_column(grid::Column::new()
+                .with_layout(&[
+                    LayoutSet::PaddingTop(UnitValue::RelPct(2.5)),
+                    LayoutSet::PaddingLeft(UnitValue::RelPct(5.0)),
+                ])
+                .with_size(grid::ColumnSize::Is7of12)
+                .with_component(Heading::h2(html! {
+                        (l("pagetop_title"))
+                    })
+                )
+                .with_component(Paragraph::with(html! {
+                        (l("pagetop_text1"))
+                    })
+                    .with_display(ParagraphDisplay::Small)
+                )
+                .with_component(Paragraph::with(html! {
+                        (l("pagetop_text2"))
+                    })
+                )
+                .with_component(Paragraph::with(html! {
+                        (l("pagetop_text3"))
+                    })
+                )
+            )
+            .with_column(grid::Column::new()
+                .with_layout(&[LayoutSet::PaddingAll(UnitValue::RelPct(2.0))])
+                .with_component(Image::image("/theme/images/demo-pagetop.svg"))
+            )
+        )
 }
 
-fn promo_pagetop() -> Chunck {
-    Chunck::with(html! {
-        div id="promo" class="basic-3" {
-            div class="container" {
-                div class="row" {
-                    div class="col-lg-6 col-xl-5" {
-                        div class="text-container" {
-                            h2 { (l("pagetop_promo_title")) }
-                            p  { (e("pagetop_promo_text1", &args![
-                                "pagetop" =>
-                                    "<a href=\"https://pagetop-rs\">PageTop</a>"
-                            ])) }
-                        }
-                    }
-                    div class="col-lg-6 col-xl-7" {
-                        div class="image-container" {
-                            img class="img-fluid" src="/bootsier/images/demo-pagetop.svg" alt="alternative" {}
-                        }
-                    }
-                }
-            }
-        }
-    })
+fn promo_pagetop() -> Container {
+    Container::new()
+        .with_id("promo")
+        .with_component(grid::Row::new()
+            .with_layout(
+                &[LayoutSet::PaddingSide(UnitValue::RelEm(1.0), UnitValue::RelPct(5.0))]
+            )
+            .with_column(grid::Column::new()
+                .with_layout(&[LayoutSet::PaddingAll(UnitValue::RelPct(2.0))])
+                .with_size(grid::ColumnSize::Is5of12)
+                .with_component(Image::image("/theme/images/demo-pagetop.svg"))
+            )
+            .with_column(grid::Column::new()
+                .with_layout(&[
+                    LayoutSet::PaddingTop(UnitValue::RelPct(2.5)),
+                    LayoutSet::PaddingLeft(UnitValue::RelPct(5.0)),
+                ])
+                .with_component(Heading::h2(html! {
+                        (l("pagetop_promo_title"))
+                    })
+                )
+                .with_component(Paragraph::with(html! {
+                        (e("pagetop_promo_text1", &args![
+                            "pagetop" => "<a href=\"https://pagetop-rs\">PageTop</a>"
+                        ]))
+                    })
+                    .with_display(ParagraphDisplay::Small)
+                )
+            )
+        )
 }
 
-fn reporting_problems() -> Chunck {
-    Chunck::with(html! {
-        div id="reporting" class="basic-4" {
-            div class="container" {
-                div class="row" {
-                    div class="col-lg-6 col-xl-5" {
-                        div class="text-container" {
-                            h2 { (l("report_problems_title")) }
-                            p { (l("report_problems_text1")) }
-                            p { (l("report_problems_text2")) }
-                        }
-                    }
-                    div class="col-lg-6 col-xl-7" {
-                        div class="image-container" {
-                            img class="img-fluid" src="/bootsier/images/demo-pagetop.svg" alt="alternative" {}
-                        }
-                    }
-                }
-            }
-        }
-    })
+fn reporting_problems() -> Container {
+    Container::new()
+        .with_id("reporting")
+        .with_component(grid::Row::new()
+            .with_layout(
+                &[LayoutSet::PaddingSide(UnitValue::RelEm(1.0), UnitValue::RelPct(5.0))]
+            )
+            .with_column(grid::Column::new()
+                .with_layout(&[
+                    LayoutSet::PaddingTop(UnitValue::RelPct(2.5)),
+                    LayoutSet::PaddingLeft(UnitValue::RelPct(5.0)),
+                ])
+                .with_size(grid::ColumnSize::Is7of12)
+                .with_component(Heading::h2(html! {
+                        (l("report_problems_title"))
+                    })
+                )
+                .with_component(Paragraph::with(html! {
+                        (l("report_problems_text1"))
+                    })
+                    .with_display(ParagraphDisplay::Small)
+                )
+                .with_component(Paragraph::with(html! {
+                        (l("report_problems_text2"))
+                    })
+                )
+            )
+            .with_column(grid::Column::new()
+                .with_layout(&[LayoutSet::PaddingAll(UnitValue::RelPct(2.0))])
+                .with_component(Image::image("/theme/images/demo-pagetop.svg"))
+            )
+        )
 }
