@@ -20,11 +20,11 @@ impl ThemeTrait for Aliner {
             .with_favicon(Some(Favicon::new()
                 .with_icon("/theme/favicon.png")
             ))
-            .add_stylesheet(
-                StyleSheet::with_source(
+            .with_stylesheet(AssetsOp::Add(
+                StyleSheet::located(
                     "/aliner/css/styles.css"
                 )
                 .with_weight(-99)
-            );
+            ));
     }
 }

@@ -22,18 +22,16 @@ impl ThemeTrait for Bootsier {
             .with_favicon(Some(Favicon::new()
                 .with_icon("/theme/favicon.png")
             ))
-            .add_stylesheet(
-                StyleSheet::with_source(
-                    "/bootsier/css/bootstrap.min.css?ver=5.1.3"
-                )
-                .with_weight(-99)
-            )
-            .add_javascript(
-                JavaScript::with_source(
-                    "/bootsier/js/bootstrap.bundle.min.js?ver=5.1.3"
-                )
-                .with_weight(-99)
-            )
+            .with_stylesheet(AssetsOp::Add(
+                StyleSheet::located("/bootsier/css/bootstrap.min.css")
+                    .with_version("5.1.3")
+                    .with_weight(-99)
+            ))
+            .with_javascript(AssetsOp::Add(
+                JavaScript::located("/bootsier/js/bootstrap.bundle.min.js")
+                    .with_version("5.1.3")
+                    .with_weight(-99)
+            ))
             .add_jquery();
     }
 

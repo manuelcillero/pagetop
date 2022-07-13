@@ -1,7 +1,7 @@
 pub use maud::{DOCTYPE, Markup, PreEscaped, html};
 
 mod assets;
-pub use assets::Assets;
+pub use assets::{Assets, AssetsOp, SourceValue};
 pub use assets::javascript::{JavaScript, JSMode};
 pub use assets::stylesheet::StyleSheet;
 

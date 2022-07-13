@@ -1,13 +1,15 @@
 use crate::html::{Markup, html};
-use super::AssetsTrait;
+use super::{AssetsTrait, SourceValue};
 
 pub struct StyleSheet {
-    source: &'static str,
-    weight: isize,
+    source : SourceValue,
+    prefix : &'static str,
+    version: &'static str,
+    weight : isize,
 }
 
 impl AssetsTrait for StyleSheet {
-    fn source(&self) -> &'static str {
+    fn source(&self) -> SourceValue {
         self.source
     }
 
@@ -17,17 +19,30 @@ impl AssetsTrait for StyleSheet {
 
     fn render(&self) -> Markup {
         html! {
-            link rel="stylesheet" href=(self.source);
+            link
+                rel="stylesheet"
+                href=(crate::concat_string!(self.source, self.prefix, self.version));
         }
     }
 }
 
 impl StyleSheet {
-    pub fn with_source(s: &'static str) -> Self {
+    pub fn located(source: SourceValue) -> Self {
         StyleSheet {
-            source: s,
-            weight: 0,
+            source,
+            prefix : "",
+            version: "",
+            weight : 0,
         }
+    }
+
+    pub fn with_version(mut self, version: &'static str) -> Self {
+        (self.prefix, self.version) = if version.is_empty() {
+            ("", "")
+        } else {
+            ("?ver=", version)
+        };
+        self
     }
 
     pub fn with_weight(mut self, weight: isize) -> Self {

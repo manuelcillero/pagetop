@@ -20,12 +20,11 @@ impl ThemeTrait for Bulmix {
             .with_favicon(Some(Favicon::new()
                 .with_icon("/theme/favicon.png")
             ))
-            .add_stylesheet(
-                StyleSheet::with_source(
-                    "/bulmix/css/bulma.min.css?ver=0.9.4"
-                )
-                .with_weight(-99)
-            )
+            .with_stylesheet(AssetsOp::Add(
+                StyleSheet::located("/bulmix/css/bulma.min.css")
+                    .with_version("0.9.4")
+                    .with_weight(-99)
+            ))
             .add_jquery();
     }
 

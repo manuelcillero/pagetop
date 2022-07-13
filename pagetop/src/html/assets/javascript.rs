@@ -1,17 +1,19 @@
 use crate::html::{Markup, html};
-use super::AssetsTrait;
+use super::{AssetsTrait, SourceValue};
 
 #[derive(PartialEq)]
 pub enum JSMode { Async, Defer, Normal }
 
 pub struct JavaScript {
-    source: &'static str,
-    weight: isize,
-    mode  : JSMode,
+    source : SourceValue,
+    prefix : &'static str,
+    version: &'static str,
+    weight : isize,
+    mode   : JSMode,
 }
 
 impl AssetsTrait for JavaScript {
-    fn source(&self) -> &'static str {
+    fn source(&self) -> SourceValue {
         self.source
     }
 
@@ -22,7 +24,7 @@ impl AssetsTrait for JavaScript {
     fn render(&self) -> Markup {
         html! {
             script type="text/javascript"
-                src=(self.source)
+                src=(crate::concat_string!(self.source, self.prefix, self.version))
                 async[self.mode == JSMode::Async]
                 defer[self.mode == JSMode::Defer]
                 {};
@@ -31,12 +33,23 @@ impl AssetsTrait for JavaScript {
 }
 
 impl JavaScript {
-    pub fn with_source(s: &'static str) -> Self {
+    pub fn located(source: SourceValue) -> Self {
         JavaScript {
-            source: s,
-            weight: 0,
-            mode  : JSMode::Defer,
+            source,
+            prefix : "",
+            version: "",
+            weight : 0,
+            mode   : JSMode::Defer,
         }
+    }
+
+    pub fn with_version(mut self, version: &'static str) -> Self {
+        (self.prefix, self.version) = if version.is_empty() {
+            ("", "")
+        } else {
+            ("?ver=", version)
+        };
+        self
     }
 
     pub fn with_weight(mut self, weight: isize) -> Self {

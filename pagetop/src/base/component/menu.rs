@@ -208,14 +208,17 @@ impl ComponentTrait for Menu {
 
     fn before_render(&mut self, context: &mut InContext) {
         context
-            .add_stylesheet(StyleSheet::with_source(
-                "/theme/menu/css/menu.css?ver=1.1.1"
+            .with_stylesheet(AssetsOp::Add(
+                StyleSheet::located("/theme/menu/css/menu.css")
+                    .with_version("1.1.1")
             ))
-            .add_stylesheet(StyleSheet::with_source(
-                "/theme/menu/css/menu-clean.css?ver=1.1.1"
+            .with_stylesheet(AssetsOp::Add(
+                StyleSheet::located("/theme/menu/css/menu-clean.css")
+                    .with_version("1.1.1")
             ))
-            .add_javascript(JavaScript::with_source(
-                "/theme/menu/js/menu.min.js?ver=1.1.1"
+            .with_javascript(AssetsOp::Add(
+                JavaScript::located("/theme/menu/js/menu.min.js")
+                    .with_version("1.1.1")
             ))
             .add_jquery();
     }

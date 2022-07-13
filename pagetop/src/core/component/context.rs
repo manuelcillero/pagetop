@@ -49,25 +49,24 @@ impl InContext {
         self
     }
 
-    pub fn add_stylesheet(&mut self, css: StyleSheet) -> &mut Self {
-        self.stylesheets.add(css);
+    pub fn with_stylesheet(&mut self, css: AssetsOp<StyleSheet>) -> &mut Self {
+        self.stylesheets.alter(css);
         self
     }
 
-    pub fn add_javascript(&mut self, js: JavaScript) -> &mut Self {
-        self.javascripts.add(js);
+    pub fn with_javascript(&mut self, js: AssetsOp<JavaScript>) -> &mut Self {
+        self.javascripts.alter(js);
         self
     }
 
     pub fn add_jquery(&mut self) -> &mut Self {
         if !self.with_jquery {
-            self.add_javascript(
-                JavaScript::with_source(
-                    "/theme/js/jquery.min.js?ver=3.6.0"
-                )
-                .with_weight(isize::MIN)
-                .with_mode(JSMode::Normal)
-            );
+            self.with_javascript(AssetsOp::Add(
+                JavaScript::located("/theme/js/jquery.min.js")
+                    .with_version("3.6.0")
+                    .with_weight(isize::MIN)
+                    .with_mode(JSMode::Normal)
+            ));
             self.with_jquery = true;
         }
         self

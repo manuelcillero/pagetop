@@ -35,8 +35,9 @@ impl ComponentTrait for Icon {
 
     fn before_render(&mut self, context: &mut InContext) {
         context
-            .add_stylesheet(StyleSheet::with_source(
-                "/theme/icons/bootstrap-icons.css?ver=1.8.2"
+            .with_stylesheet(AssetsOp::Add(
+                StyleSheet::located("/theme/icons/bootstrap-icons.css")
+                    .with_version("1.8.2")
             ));
 
         self.alter_classes(concat_string!("bi-", self.icon_name()).as_str(), ClassesOp::SetDefault);
