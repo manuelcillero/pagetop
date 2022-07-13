@@ -1,11 +1,14 @@
 use crate::concat_string;
 
+pub type ClassValue = &'static str;
+
 pub enum ClassesOp {
     Add,
-    AddAfter(&'static str),
-    AddBefore(&'static str),
+    AddAfter(ClassValue),
+    AddBefore(ClassValue),
     AddFirst,
-    Replace(&'static str),
+    Remove,
+    Replace(ClassValue),
     Reset,
     SetDefault,
     SetDefaultIfEmpty,
@@ -57,6 +60,17 @@ impl Classes {
 
             ClassesOp::AddFirst => {
                 self.added = concat_string!(classes, " ", self.added).trim().to_owned()
+            },
+
+            ClassesOp::Remove => {
+                let v_list: Vec<&str> = classes.split_ascii_whitespace().collect();
+                let mut v_added: Vec<&str> = self.added.split_ascii_whitespace().collect();
+                for class in v_list {
+                    if let Some(pos) = v_added.iter().position(|c| c.eq(&class)) {
+                        v_added.remove(pos);
+                    }
+                }
+                self.added = v_added.join(" ");
             },
 
             ClassesOp::Replace(class) => {
