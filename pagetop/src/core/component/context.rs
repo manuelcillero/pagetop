@@ -11,6 +11,15 @@ static DEFAULT_THEME: Lazy<&dyn ThemeTrait> = Lazy::new(|| {
     }
 });
 
+pub enum InContextOp {
+    AddMetadata(&'static str, &'static str),
+    Favicon(Option<Favicon>),
+    SetTheme(&'static str),
+    StyleSheet(AssetsOp<StyleSheet>),
+    JavaScript(AssetsOp<JavaScript>),
+    AddJQuery,
+}
+
 pub struct InContext {
     theme      : &'static dyn ThemeTrait,
     favicon    : Option<Favicon>,
@@ -34,40 +43,32 @@ impl InContext {
         }
     }
 
-    pub fn using_theme(&mut self, theme_name: &str) -> &mut Self {
-        self.theme = theme_by_single_name(theme_name).unwrap_or(*DEFAULT_THEME);
-        self
-    }
-
-    pub fn with_favicon(&mut self, favicon: Option<Favicon>) -> &mut Self {
-        self.favicon = favicon;
-        self
-    }
-
-    pub fn add_metadata(&mut self, name: String, content: String) -> &mut Self {
-        self.metadata.push((name, content));
-        self
-    }
-
-    pub fn with_stylesheet(&mut self, css: AssetsOp<StyleSheet>) -> &mut Self {
-        self.stylesheets.alter(css);
-        self
-    }
-
-    pub fn with_javascript(&mut self, js: AssetsOp<JavaScript>) -> &mut Self {
-        self.javascripts.alter(js);
-        self
-    }
-
-    pub fn add_jquery(&mut self) -> &mut Self {
-        if !self.with_jquery {
-            self.with_javascript(AssetsOp::Add(
-                JavaScript::located("/theme/js/jquery.min.js")
-                    .with_version("3.6.0")
-                    .with_weight(isize::MIN)
-                    .with_mode(JSMode::Normal)
-            ));
-            self.with_jquery = true;
+    pub fn alter(&mut self, op: InContextOp) -> &mut Self {
+        match op {
+            InContextOp::AddMetadata(name, content) => {
+                self.metadata.push((name.to_owned(), content.to_owned()));
+            },
+            InContextOp::Favicon(favicon) => {
+                self.favicon = favicon;
+            },
+            InContextOp::SetTheme(theme_name) => {
+                self.theme = theme_by_single_name(theme_name).unwrap_or(*DEFAULT_THEME);
+            },
+            InContextOp::StyleSheet(css) => {
+                self.stylesheets.alter(css);
+            },
+            InContextOp::JavaScript(js) => {
+                self.javascripts.alter(js);
+            },
+            InContextOp::AddJQuery => if !self.with_jquery {
+                self.javascripts.alter(AssetsOp::Add(
+                    JavaScript::located("/theme/js/jquery.min.js")
+                        .with_version("3.6.0")
+                        .with_weight(isize::MIN)
+                        .with_mode(JSMode::Normal)
+                ));
+                self.with_jquery = true;
+            },
         }
         self
     }

@@ -39,16 +39,7 @@ fn hello_world() -> Container {
     Container::header()
         .with_id("hello-world")
         .with_component(grid::Row::new()
-            .with_layout(&[
-                LayoutSet::PaddingTop(UnitValue::RelEm(2.0)),
-                LayoutSet::PaddingBottom(UnitValue::RelEm(2.0)),
-                LayoutSet::PaddingLeft(UnitValue::RelPct(2.0)),
-            ])
             .with_column(grid::Column::new()
-                .with_layout(&[
-                    LayoutSet::PaddingTop(UnitValue::RelEm(2.0)),
-                    LayoutSet::PaddingBottom(UnitValue::RelEm(2.0)),
-                ])
                 .with_size(grid::ColumnSize::Is4of12)
                 .with_component(Heading::h1(html! {
                         (l("page_title"))
@@ -72,10 +63,6 @@ fn hello_world() -> Container {
                         ("Offered services")
                     })
                     .with_left_icon(Icon::with("card-checklist"))
-                    .with_layout(&[
-                        LayoutSet::PaddingSide(UnitValue::UnSet, UnitValue::RelEm(1.5)),
-                        LayoutSet::RadiusAll(UnitValue::RelEm(1.5)),
-                    ])
                 )
                 .with_component(Anchor::button("#", html! {
                         ("Get quote")
@@ -93,19 +80,11 @@ fn welcome() -> Container {
     Container::new()
         .with_id("visiting")
         .with_component(grid::Row::new()
-            .with_layout(&[
-                LayoutSet::PaddingSide(UnitValue::RelEm(1.0), UnitValue::RelPct(5.0))
-            ])
             .with_column(grid::Column::new()
-                .with_layout(&[LayoutSet::PaddingAll(UnitValue::RelPct(2.0))])
                 .with_size(grid::ColumnSize::Is5of12)
                 .with_component(Image::image("/theme/images/demo-visiting.svg"))
             )
             .with_column(grid::Column::new()
-                .with_layout(&[
-                    LayoutSet::PaddingTop(UnitValue::RelPct(2.5)),
-                    LayoutSet::PaddingLeft(UnitValue::RelPct(5.0)),
-                ])
                 .with_component(Heading::h2(html! {
                     (t("welcome_to", &args!["app" => SETTINGS.app.name.as_str()]))
                 }))
@@ -128,14 +107,7 @@ fn about_pagetop() -> Container {
     Container::new()
         .with_id("pagetop")
         .with_component(grid::Row::new()
-            .with_layout(&[
-                LayoutSet::PaddingSide(UnitValue::RelEm(1.0), UnitValue::RelPct(5.0))
-            ])
             .with_column(grid::Column::new()
-                .with_layout(&[
-                    LayoutSet::PaddingTop(UnitValue::RelPct(2.5)),
-                    LayoutSet::PaddingLeft(UnitValue::RelPct(5.0)),
-                ])
                 .with_size(grid::ColumnSize::Is7of12)
                 .with_component(Heading::h2(html! {
                         (l("pagetop_title"))
@@ -156,7 +128,6 @@ fn about_pagetop() -> Container {
                 )
             )
             .with_column(grid::Column::new()
-                .with_layout(&[LayoutSet::PaddingAll(UnitValue::RelPct(2.0))])
                 .with_component(Image::image("/theme/images/demo-pagetop.svg"))
             )
         )
@@ -166,19 +137,11 @@ fn promo_pagetop() -> Container {
     Container::new()
         .with_id("promo")
         .with_component(grid::Row::new()
-            .with_layout(&[
-                LayoutSet::PaddingSide(UnitValue::RelEm(1.0), UnitValue::RelPct(5.0))
-            ])
             .with_column(grid::Column::new()
-                .with_layout(&[LayoutSet::PaddingAll(UnitValue::RelPct(2.0))])
                 .with_size(grid::ColumnSize::Is5of12)
                 .with_component(Image::image("/theme/images/demo-pagetop.svg"))
             )
             .with_column(grid::Column::new()
-                .with_layout(&[
-                    LayoutSet::PaddingTop(UnitValue::RelPct(2.5)),
-                    LayoutSet::PaddingLeft(UnitValue::RelPct(5.0)),
-                ])
                 .with_component(Heading::h2(html! {
                         (l("pagetop_promo_title"))
                     })
@@ -198,14 +161,7 @@ fn reporting_problems() -> Container {
     Container::new()
         .with_id("reporting")
         .with_component(grid::Row::new()
-            .with_layout(&[
-                LayoutSet::PaddingSide(UnitValue::RelEm(1.0), UnitValue::RelPct(5.0))
-            ])
             .with_column(grid::Column::new()
-                .with_layout(&[
-                    LayoutSet::PaddingTop(UnitValue::RelPct(2.5)),
-                    LayoutSet::PaddingLeft(UnitValue::RelPct(5.0)),
-                ])
                 .with_size(grid::ColumnSize::Is7of12)
                 .with_component(Heading::h2(html! {
                         (l("report_problems_title"))
@@ -222,7 +178,6 @@ fn reporting_problems() -> Container {
                 )
             )
             .with_column(grid::Column::new()
-                .with_layout(&[LayoutSet::PaddingAll(UnitValue::RelPct(2.0))])
                 .with_component(Image::image("/theme/images/demo-pagetop.svg"))
             )
         )

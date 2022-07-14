@@ -36,21 +36,22 @@ static DEFAULT_DIRECTION: Lazy<Option<String>> = Lazy::new(|| {
 
 pub enum TextDirection { Auto, LeftToRight, RightToLeft }
 
-pub struct Page<'a> {
+pub struct Page {
+    context     : InContext,
     language    : AttributeValue,
     direction   : AttributeValue,
     title       : AttributeValue,
     description : AttributeValue,
-    context     : InContext,
-    regions     : HashMap<&'a str, ComponentsBundle>,
     body_classes: Classes,
+    regions     : HashMap<&'static str, ComponentsBundle>,
     template    : String,
 }
 
-impl<'a> Page<'a> {
+impl Page {
 
     pub fn new() -> Self {
         Page {
+            context     : InContext::new(),
             language    : match &*DEFAULT_LANGUAGE {
                 Some(language) => AttributeValue::new_with_value(language),
                 _ => AttributeValue::new(),
@@ -61,44 +62,49 @@ impl<'a> Page<'a> {
             },
             title       : AttributeValue::new(),
             description : AttributeValue::new(),
-            context     : InContext::new(),
-            regions     : common_components(),
             body_classes: Classes::new_with_default("body"),
+            regions     : common_components(),
             template    : "default".to_owned(),
         }
     }
 
     // Page BUILDER.
 
-    pub fn with_language(&mut self, language: &str) -> &mut Self {
-        self.language.with_value(language);
+    pub fn with_context(mut self, op: InContextOp) -> Self {
+        self.alter_context(op);
         self
     }
 
-    pub fn with_direction(&mut self, dir: TextDirection) -> &mut Self {
-        self.direction.with_value(match dir {
-            TextDirection::Auto => "auto",
-            TextDirection::LeftToRight => "ltr",
-            TextDirection::RightToLeft => "rtl",
-        });
+    pub fn with_language(mut self, language: &str) -> Self {
+        self.alter_language(language);
         self
     }
 
-    pub fn with_title(&mut self, title: &str) -> &mut Self {
-        self.title.with_value(title);
+    pub fn with_direction(mut self, dir: TextDirection) -> Self {
+        self.alter_direction(dir);
         self
     }
 
-    pub fn with_description(&mut self, description: &str) -> &mut Self {
-        self.description.with_value(description);
+    pub fn with_title(mut self, title: &str) -> Self {
+        self.alter_title(title);
+        self
+    }
+
+    pub fn with_description(mut self, description: &str) -> Self {
+        self.alter_description(description);
+        self
+    }
+
+    pub fn with_body_classes(mut self, op: ClassesOp, classes: &str) -> Self {
+        self.alter_body_classes(op, classes);
         self
     }
 
     pub fn add_to(
-        &mut self,
-        region: &'a str,
+        mut self,
+        region: &'static str,
         component: impl ComponentTrait
-    ) -> &mut Self {
+    ) -> Self {
         if let Some(regions) = self.regions.get_mut(region) {
             regions.add(component);
         } else {
@@ -107,17 +113,57 @@ impl<'a> Page<'a> {
         self
     }
 
+    pub fn using_template(mut self, template: &str) -> Self {
+        self.alter_template(template);
+        self
+    }
+
+    // Page ALTER.
+
+    pub fn alter_context(&mut self, op: InContextOp) -> &mut Self {
+        self.context.alter(op);
+        self
+    }
+
+    pub fn alter_language(&mut self, language: &str) -> &mut Self {
+        self.language.with_value(language);
+        self
+    }
+
+    pub fn alter_direction(&mut self, dir: TextDirection) -> &mut Self {
+        self.direction.with_value(match dir {
+            TextDirection::Auto => "auto",
+            TextDirection::LeftToRight => "ltr",
+            TextDirection::RightToLeft => "rtl",
+        });
+        self
+    }
+
+    pub fn alter_title(&mut self, title: &str) -> &mut Self {
+        self.title.with_value(title);
+        self
+    }
+
+    pub fn alter_description(&mut self, description: &str) -> &mut Self {
+        self.description.with_value(description);
+        self
+    }
+
     pub fn alter_body_classes(&mut self, op: ClassesOp, classes: &str) -> &mut Self {
         self.body_classes.alter(op, classes);
         self
     }
 
-    pub fn using_template(&mut self, template: &str) -> &mut Self {
+    pub fn alter_template(&mut self, template: &str) -> &mut Self {
         self.template = template.to_owned();
         self
     }
 
     // Page GETTERS.
+
+    pub fn context(&mut self) -> &mut InContext {
+        &mut self.context
+    }
 
     pub fn language(&self) -> &AttributeValue {
         &self.language
@@ -133,10 +179,6 @@ impl<'a> Page<'a> {
 
     pub fn description(&self) -> &AttributeValue {
         &self.description
-    }
-
-    pub fn context(&mut self) -> &mut InContext {
-        &mut self.context
     }
 
     pub fn body_classes(&self) -> &Classes {
@@ -184,8 +226,4 @@ impl<'a> Page<'a> {
 
     // Page EXTRAS.
 
-    pub fn using_theme(&mut self, theme_name: &str) -> &mut Self {
-        self.context.using_theme(theme_name);
-        self
-    }
 }

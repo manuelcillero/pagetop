@@ -22,7 +22,6 @@ pub struct Column {
     weight    : isize,
     id        : IdentifierValue,
     classes   : Classes,
-    layout    : InlineLayout,
     size      : ColumnSize,
     components: ComponentsBundle,
     template  : String,
@@ -35,7 +34,6 @@ impl ComponentTrait for Column {
             weight    : 0,
             id        : IdentifierValue::new(),
             classes   : Classes::new(),
-            layout    : InlineLayout::new(),
             size      : ColumnSize::Default,
             components: ComponentsBundle::new(),
             template  : "default".to_owned(),
@@ -74,7 +72,7 @@ impl ComponentTrait for Column {
 
     fn default_render(&self, context: &mut InContext) -> Markup {
         html! {
-            div id=[self.id().get()] class=[self.classes().get()] style=[self.layout().get()] {
+            div id=[self.id().get()] class=[self.classes().get()] {
                 (self.components().render(context))
             }
         }
@@ -110,11 +108,6 @@ impl Column {
 
     pub fn with_classes(mut self, op: ClassesOp, classes: &str) -> Self {
         self.alter_classes(op, classes);
-        self
-    }
-
-    pub fn with_layout(mut self, layout: &[LayoutSet]) -> Self {
-        self.alter_layout(layout);
         self
     }
 
@@ -155,11 +148,6 @@ impl Column {
         self
     }
 
-    pub fn alter_layout(&mut self, layout: &[LayoutSet]) -> &mut Self {
-        self.layout.set(layout);
-        self
-    }
-
     pub fn alter_size(&mut self, size: ColumnSize) -> &mut Self {
         self.size = size;
         self
@@ -182,10 +170,6 @@ impl Column {
 
     pub fn classes(&self) -> &Classes {
         &self.classes
-    }
-
-    pub fn layout(&self) -> &InlineLayout {
-        &self.layout
     }
 
     pub fn size(&self) -> &ColumnSize {

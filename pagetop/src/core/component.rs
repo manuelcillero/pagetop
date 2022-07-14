@@ -5,7 +5,7 @@ pub use hook::{
 };
 
 mod context;
-pub use context::InContext;
+pub use context::{InContext, InContextOp};
 
 mod definition;
 pub use definition::{

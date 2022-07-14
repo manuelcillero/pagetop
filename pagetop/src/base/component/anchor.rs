@@ -23,7 +23,6 @@ pub struct Anchor {
     weight     : isize,
     id         : IdentifierValue,
     classes    : Classes,
-    layout     : InlineLayout,
     anchor_type: AnchorType,
     href       : AttributeValue,
     html       : Markup,
@@ -40,7 +39,6 @@ impl ComponentTrait for Anchor {
             weight     : 0,
             id         : IdentifierValue::new(),
             classes    : Classes::new(),
-            layout     : InlineLayout::new(),
             anchor_type: AnchorType::Link,
             href       : AttributeValue::new(),
             html       : html! {},
@@ -75,7 +73,6 @@ impl ComponentTrait for Anchor {
             a
                 id=[self.id().get()]
                 class=[self.classes().get()]
-                style=[self.layout().get()]
                 href=[self.href().get()]
                 target=[target]
             {
@@ -127,11 +124,6 @@ impl Anchor {
 
     pub fn with_classes(mut self, op: ClassesOp, classes: &str) -> Self {
         self.alter_classes(op, classes);
-        self
-    }
-
-    pub fn with_layout(mut self, layout: &[LayoutSet]) -> Self {
-        self.alter_layout(layout);
         self
     }
 
@@ -192,11 +184,6 @@ impl Anchor {
         self
     }
 
-    pub fn alter_layout(&mut self, layout: &[LayoutSet]) -> &mut Self {
-        self.layout.set(layout);
-        self
-    }
-
     pub fn alter_type(&mut self, anchor_type: AnchorType) -> &mut Self {
         self.anchor_type = anchor_type;
         self.classes.alter(ClassesOp::SetDefault, match self.anchor_type {
@@ -246,10 +233,6 @@ impl Anchor {
 
     pub fn classes(&self) -> &Classes {
         &self.classes
-    }
-
-    pub fn layout(&self) -> &InlineLayout {
-        &self.layout
     }
 
     pub fn anchor_type(&self) -> &AnchorType {

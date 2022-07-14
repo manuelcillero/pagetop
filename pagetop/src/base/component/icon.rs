@@ -7,7 +7,6 @@ pub struct Icon {
     weight    : isize,
     icon_name : String,
     classes   : Classes,
-    layout    : InlineLayout,
 }
 
 impl ComponentTrait for Icon {
@@ -17,7 +16,6 @@ impl ComponentTrait for Icon {
             weight    : 0,
             icon_name : "question-circle-fill".to_owned(),
             classes   : Classes::new(),
-            layout    : InlineLayout::new(),
         }
     }
 
@@ -35,16 +33,16 @@ impl ComponentTrait for Icon {
 
     fn before_render(&mut self, context: &mut InContext) {
         context
-            .with_stylesheet(AssetsOp::Add(
+            .alter(InContextOp::StyleSheet(AssetsOp::Add(
                 StyleSheet::located("/theme/icons/bootstrap-icons.css")
                     .with_version("1.8.2")
-            ));
+            )));
 
         self.alter_classes(ClassesOp::SetDefault, concat_string!("bi-", self.icon_name()).as_str());
     }
 
     fn default_render(&self, _context: &mut InContext) -> Markup {
-        html! { i class=[self.classes().get()] style=[self.layout().get()] {}; }
+        html! { i class=[self.classes().get()] {}; }
     }
 
     fn as_ref_any(&self) -> &dyn AnyComponent {
@@ -83,11 +81,6 @@ impl Icon {
         self
     }
 
-    pub fn with_layout(mut self, layout: &[LayoutSet]) -> Self {
-        self.alter_layout(layout);
-        self
-    }
-
     // Icon ALTER.
 
     pub fn alter_renderable(&mut self, renderable: fn() -> bool) -> &mut Self {
@@ -110,11 +103,6 @@ impl Icon {
         self
     }
 
-    pub fn alter_layout(&mut self, layout: &[LayoutSet]) -> &mut Self {
-        self.layout.set(layout);
-        self
-    }
-
     // Icon GETTERS.
 
     pub fn icon_name(&self) -> &str {
@@ -123,9 +111,5 @@ impl Icon {
 
     pub fn classes(&self) -> &Classes {
         &self.classes
-    }
-
-    pub fn layout(&self) -> &InlineLayout {
-        &self.layout
     }
 }

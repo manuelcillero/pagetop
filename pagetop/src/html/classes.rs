@@ -33,7 +33,7 @@ impl Classes {
         classes
     }
 
-    pub fn alter(&mut self, op: ClassesOp, classes: &str) -> &Self {
+    pub fn alter(&mut self, op: ClassesOp, classes: &str) -> &mut Self {
         let classes = classes.trim();
         match op {
             ClassesOp::Add => {

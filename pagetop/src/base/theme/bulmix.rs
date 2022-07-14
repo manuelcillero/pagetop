@@ -16,16 +16,16 @@ impl ThemeTrait for Bulmix {
     }
 
     fn before_render_page(&self, page: &mut Page) {
-        page.context()
-            .with_favicon(Some(Favicon::new()
+        page
+            .alter_context(InContextOp::Favicon(Some(Favicon::new()
                 .with_icon("/theme/favicon.png")
-            ))
-            .with_stylesheet(AssetsOp::Add(
+            )))
+            .alter_context(InContextOp::StyleSheet(AssetsOp::Add(
                 StyleSheet::located("/bulmix/css/bulma.min.css")
                     .with_version("0.9.4")
                     .with_weight(-99)
-            ))
-            .add_jquery();
+            )))
+            .alter_context(InContextOp::AddJQuery);
     }
 
     fn before_render_component(
@@ -100,7 +100,7 @@ impl ThemeTrait for Bulmix {
                 let icon = component_ref::<Icon>(component);
                 Some(html! {
                     span class="icon" {
-                        i class=[icon.classes().get()] style=[icon.layout().get()] {};
+                        i class=[icon.classes().get()] {};
                     }
                 })
             },

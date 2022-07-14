@@ -34,7 +34,7 @@ pub async fn summary() -> app::Result<Markup> {
 
     Page::new()
 
-        .using_theme("Bootsier")
+        .with_context(InContextOp::SetTheme("Bootsier"))
 
         .with_title("Admin")
 
