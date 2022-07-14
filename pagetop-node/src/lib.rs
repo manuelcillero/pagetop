@@ -51,5 +51,5 @@ async fn node() -> app::Result<Markup> {
 }
 
 fn before_render_page(page: &mut Page) {
-    page.alter_body_classes("test-node", ClassesOp::Add);
+    page.alter_body_classes(ClassesOp::Add, "test-node");
 }

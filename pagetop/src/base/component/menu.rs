@@ -266,8 +266,8 @@ impl Menu {
         self
     }
 
-    pub fn with_classes(mut self, classes: &str, op: ClassesOp) -> Self {
-        self.alter_classes(classes, op);
+    pub fn with_classes(mut self, op: ClassesOp, classes: &str) -> Self {
+        self.alter_classes(op, classes);
         self
     }
 
@@ -298,8 +298,8 @@ impl Menu {
         self
     }
 
-    pub fn alter_classes(&mut self, classes: &str, op: ClassesOp) -> &mut Self {
-        self.classes.alter(classes, op);
+    pub fn alter_classes(&mut self, op: ClassesOp, classes: &str) -> &mut Self {
+        self.classes.alter(op, classes);
         self
     }
 

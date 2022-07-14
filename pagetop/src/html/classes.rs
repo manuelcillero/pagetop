@@ -29,11 +29,11 @@ impl Classes {
 
     pub fn new_with_default(default: &str) -> Self {
         let mut classes = Self::new();
-        classes.alter(default, ClassesOp::SetDefault);
+        classes.alter(ClassesOp::SetDefault, default);
         classes
     }
 
-    pub fn alter(&mut self, classes: &str, op: ClassesOp) -> &Self {
+    pub fn alter(&mut self, op: ClassesOp, classes: &str) -> &Self {
         let classes = classes.trim();
         match op {
             ClassesOp::Add => {

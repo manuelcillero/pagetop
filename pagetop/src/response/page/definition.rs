@@ -107,8 +107,8 @@ impl<'a> Page<'a> {
         self
     }
 
-    pub fn alter_body_classes(&mut self, classes: &str, op: ClassesOp) -> &mut Self {
-        self.body_classes.alter(classes, op);
+    pub fn alter_body_classes(&mut self, op: ClassesOp, classes: &str) -> &mut Self {
+        self.body_classes.alter(op, classes);
         self
     }
 

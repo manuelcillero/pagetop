@@ -90,25 +90,25 @@ impl ComponentTrait for Container {
 
 impl Container {
     pub fn header() -> Self {
-        let mut c = Container::new().with_classes("header", ClassesOp::SetDefault);
+        let mut c = Container::new().with_classes(ClassesOp::SetDefault, "header");
         c.container_type = ContainerType::Header;
         c
     }
 
     pub fn footer() -> Self {
-        let mut c = Container::new().with_classes("footer", ClassesOp::SetDefault);
+        let mut c = Container::new().with_classes(ClassesOp::SetDefault, "footer");
         c.container_type = ContainerType::Footer;
         c
     }
 
     pub fn main() -> Self {
-        let mut c = Container::new().with_classes("main", ClassesOp::SetDefault);
+        let mut c = Container::new().with_classes(ClassesOp::SetDefault, "main");
         c.container_type = ContainerType::Main;
         c
     }
 
     pub fn section() -> Self {
-        let mut c = Container::new().with_classes("section", ClassesOp::SetDefault);
+        let mut c = Container::new().with_classes(ClassesOp::SetDefault, "section");
         c.container_type = ContainerType::Section;
         c
     }
@@ -130,13 +130,13 @@ impl Container {
         self
     }
 
-    pub fn with_classes(mut self, classes: &str, op: ClassesOp) -> Self {
-        self.alter_classes(classes, op);
+    pub fn with_classes(mut self, op: ClassesOp, classes: &str) -> Self {
+        self.alter_classes(op, classes);
         self
     }
 
-    pub fn with_inner_classes(mut self, classes: &str, op: ClassesOp) -> Self {
-        self.alter_inner_classes(classes, op);
+    pub fn with_inner_classes(mut self, op: ClassesOp, classes: &str) -> Self {
+        self.alter_inner_classes(op, classes);
         self
     }
 
@@ -167,13 +167,13 @@ impl Container {
         self
     }
 
-    pub fn alter_classes(&mut self, classes: &str, op: ClassesOp) -> &mut Self {
-        self.classes.alter(classes, op);
+    pub fn alter_classes(&mut self, op: ClassesOp, classes: &str) -> &mut Self {
+        self.classes.alter(op, classes);
         self
     }
 
-    pub fn alter_inner_classes(&mut self, classes: &str, op: ClassesOp) -> &mut Self {
-        self.inner_classes.alter(classes, op);
+    pub fn alter_inner_classes(&mut self, op: ClassesOp, classes: &str) -> &mut Self {
+        self.inner_classes.alter(op, classes);
         self
     }
 

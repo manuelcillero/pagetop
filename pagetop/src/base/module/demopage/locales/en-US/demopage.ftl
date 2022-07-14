@@ -3,14 +3,13 @@ module_description = Displays a demo homepage when none is configured.
 
 page_title = Hello world!
 
-welcome_to = Welcome to { $app }
-welcome_intro = This page is used to test the proper operation of { $app } after installation.
-welcome_pagetop = This web solution is powered by { $pagetop }.
+hello_intro = This page is used to test the proper operation of { $app } after installation.
+hello_pagetop = This web solution is powered by { $pagetop }.
 
-visiting_title = Just visiting?
-visiting_subtitle = Are you user of this website?
-visiting_text1 = If you don't know what this page is about, this probably means that the site is either experiencing problems or is undergoing routine maintenance.
-visiting_text2 = If the problem persists, please contact your system administrator.
+welcome_to = Welcome to { $app }
+welcome_subtitle = Are you user of this website?
+welcome_text1 = If you don't know what this page is about, this probably means that the site is either experiencing problems or is undergoing routine maintenance.
+welcome_text2 = If the problem persists, please contact your system administrator.
 
 pagetop_title = About PageTop
 pagetop_text1 = If you can read this page, it means that the PageTop server is working properly, but has not yet been configured.

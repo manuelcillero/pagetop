@@ -36,5 +36,5 @@ impl ModuleTrait for Admin {
 }
 
 fn before_render_page(page: &mut Page) {
-    page.alter_body_classes("test-admin", ClassesOp::Add);
+    page.alter_body_classes(ClassesOp::Add, "test-admin");
 }

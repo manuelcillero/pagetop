@@ -28,7 +28,7 @@ async fn demo() -> app::Result<Markup> {
     Page::new()
         .with_title(l("page_title").as_str())
         .add_to("content", hello_world())
-        .add_to("content", just_visiting())
+        .add_to("content", welcome())
         .add_to("content", about_pagetop())
         .add_to("content", promo_pagetop())
         .add_to("content", reporting_problems())
@@ -39,10 +39,16 @@ fn hello_world() -> Container {
     Container::header()
         .with_id("hello-world")
         .with_component(grid::Row::new()
-            .with_layout(
-                &[LayoutSet::PaddingSide(UnitValue::RelEm(2.0), UnitValue::RelPct(5.0))]
-            )
+            .with_layout(&[
+                LayoutSet::PaddingTop(UnitValue::RelEm(2.0)),
+                LayoutSet::PaddingBottom(UnitValue::RelEm(2.0)),
+                LayoutSet::PaddingLeft(UnitValue::RelPct(2.0)),
+            ])
             .with_column(grid::Column::new()
+                .with_layout(&[
+                    LayoutSet::PaddingTop(UnitValue::RelEm(2.0)),
+                    LayoutSet::PaddingBottom(UnitValue::RelEm(2.0)),
+                ])
                 .with_size(grid::ColumnSize::Is4of12)
                 .with_component(Heading::h1(html! {
                         (l("page_title"))
@@ -50,18 +56,14 @@ fn hello_world() -> Container {
                     .with_display(HeadingDisplay::Medium)
                 )
                 .with_component(Paragraph::with(html! {
-                        (t("welcome_to", &args!["app" => SETTINGS.app.name.as_str()]))
-                    })
-                )
-                .with_component(Paragraph::with(html! {
-                        (e("welcome_intro", &args![
+                        (e("hello_intro", &args![
                             "app" => format!("<strong>{}</strong>", &SETTINGS.app.name)
                         ]))
                     })
                     .with_display(ParagraphDisplay::Small)
                 )
                 .with_component(Paragraph::with(html! {
-                        (e("welcome_pagetop", &args![
+                        (e("hello_pagetop", &args![
                             "pagetop" => "<a href=\"https://pagetop-rs\">PageTop</a>"
                         ]))
                     })
@@ -87,13 +89,13 @@ fn hello_world() -> Container {
         )
 }
 
-fn just_visiting() -> Container {
+fn welcome() -> Container {
     Container::new()
         .with_id("visiting")
         .with_component(grid::Row::new()
-            .with_layout(
-                &[LayoutSet::PaddingSide(UnitValue::RelEm(1.0), UnitValue::RelPct(5.0))]
-            )
+            .with_layout(&[
+                LayoutSet::PaddingSide(UnitValue::RelEm(1.0), UnitValue::RelPct(5.0))
+            ])
             .with_column(grid::Column::new()
                 .with_layout(&[LayoutSet::PaddingAll(UnitValue::RelPct(2.0))])
                 .with_size(grid::ColumnSize::Is5of12)
@@ -105,20 +107,19 @@ fn just_visiting() -> Container {
                     LayoutSet::PaddingLeft(UnitValue::RelPct(5.0)),
                 ])
                 .with_component(Heading::h2(html! {
-                        (l("visiting_title"))
-                    })
-                )
+                    (t("welcome_to", &args!["app" => SETTINGS.app.name.as_str()]))
+                }))
                 .with_component(Heading::h3(html! {
-                        (l("visiting_subtitle"))
+                        (l("welcome_subtitle"))
                     })
                     .with_display(HeadingDisplay::Subtitle)
                 )
                 .with_component(Paragraph::with(html! {
-                        (l("visiting_text1"))
+                        (l("welcome_text1"))
                     })
                     .with_display(ParagraphDisplay::Small)
                 )
-                .with_component(Paragraph::with(html! { (l("visiting_text2")) }))
+                .with_component(Paragraph::with(html! { (l("welcome_text2")) }))
             )
         )
 }
@@ -127,9 +128,9 @@ fn about_pagetop() -> Container {
     Container::new()
         .with_id("pagetop")
         .with_component(grid::Row::new()
-            .with_layout(
-                &[LayoutSet::PaddingSide(UnitValue::RelEm(1.0), UnitValue::RelPct(5.0))]
-            )
+            .with_layout(&[
+                LayoutSet::PaddingSide(UnitValue::RelEm(1.0), UnitValue::RelPct(5.0))
+            ])
             .with_column(grid::Column::new()
                 .with_layout(&[
                     LayoutSet::PaddingTop(UnitValue::RelPct(2.5)),
@@ -165,9 +166,9 @@ fn promo_pagetop() -> Container {
     Container::new()
         .with_id("promo")
         .with_component(grid::Row::new()
-            .with_layout(
-                &[LayoutSet::PaddingSide(UnitValue::RelEm(1.0), UnitValue::RelPct(5.0))]
-            )
+            .with_layout(&[
+                LayoutSet::PaddingSide(UnitValue::RelEm(1.0), UnitValue::RelPct(5.0))
+            ])
             .with_column(grid::Column::new()
                 .with_layout(&[LayoutSet::PaddingAll(UnitValue::RelPct(2.0))])
                 .with_size(grid::ColumnSize::Is5of12)
@@ -197,9 +198,9 @@ fn reporting_problems() -> Container {
     Container::new()
         .with_id("reporting")
         .with_component(grid::Row::new()
-            .with_layout(
-                &[LayoutSet::PaddingSide(UnitValue::RelEm(1.0), UnitValue::RelPct(5.0))]
-            )
+            .with_layout(&[
+                LayoutSet::PaddingSide(UnitValue::RelEm(1.0), UnitValue::RelPct(5.0))
+            ])
             .with_column(grid::Column::new()
                 .with_layout(&[
                     LayoutSet::PaddingTop(UnitValue::RelPct(2.5)),

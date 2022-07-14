@@ -40,7 +40,7 @@ impl ComponentTrait for Icon {
                     .with_version("1.8.2")
             ));
 
-        self.alter_classes(concat_string!("bi-", self.icon_name()).as_str(), ClassesOp::SetDefault);
+        self.alter_classes(ClassesOp::SetDefault, concat_string!("bi-", self.icon_name()).as_str());
     }
 
     fn default_render(&self, _context: &mut InContext) -> Markup {
@@ -78,8 +78,8 @@ impl Icon {
         self
     }
 
-    pub fn with_classes(mut self, classes: &str, op: ClassesOp) -> Self {
-        self.alter_classes(classes, op);
+    pub fn with_classes(mut self, op: ClassesOp, classes: &str) -> Self {
+        self.alter_classes(op, classes);
         self
     }
 
@@ -105,8 +105,8 @@ impl Icon {
         self
     }
 
-    pub fn alter_classes(&mut self, classes: &str, op: ClassesOp) -> &mut Self {
-        self.classes.alter(classes, op);
+    pub fn alter_classes(&mut self, op: ClassesOp, classes: &str) -> &mut Self {
+        self.classes.alter(op, classes);
         self
     }
 

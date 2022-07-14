@@ -36,14 +36,14 @@ impl ThemeTrait for Bulmix {
         match component.handler() {
             ANCHOR_COMPONENT => {
                 let a = component_mut::<Anchor>(component);
-                a.alter_classes(match a.anchor_type() {
+                a.alter_classes(ClassesOp::SetDefault, match a.anchor_type() {
                     AnchorType::Button => "button is-primary",
                     _ => "",
-                }, ClassesOp::SetDefault);
+                });
             },
             HEADING_COMPONENT => {
                 let h = component_mut::<Heading>(component);
-                h.alter_classes(match h.display() {
+                h.alter_classes(ClassesOp::SetDefault, match h.display() {
                     HeadingDisplay::XxLarge  => "title is-1",
                     HeadingDisplay::Large    => "title is-2",
                     HeadingDisplay::Medium   => "title is-3",
@@ -51,22 +51,22 @@ impl ThemeTrait for Bulmix {
                     HeadingDisplay::XxSmall  => "title is-5",
                     HeadingDisplay::Normal   => "title",
                     HeadingDisplay::Subtitle => "subtitle",
-                }, ClassesOp::SetDefault);
+                });
             },
             PARAGRAPH_COMPONENT => {
                 let p = component_mut::<Paragraph>(component);
-                p.alter_classes(match p.display() {
+                p.alter_classes(ClassesOp::SetDefault, match p.display() {
                     ParagraphDisplay::XxLarge => "is-size-2",
                     ParagraphDisplay::Large   => "is-size-3",
                     ParagraphDisplay::Medium  => "is-size-4",
                     ParagraphDisplay::Small   => "is-size-5",
                     ParagraphDisplay::XxSmall => "is-size-6",
                     ParagraphDisplay::Normal  => "",
-                }, ClassesOp::SetDefault);
+                });
             },
             grid::COLUMN_COMPONENT => {
                 let col = component_mut::<grid::Column>(component);
-                col.alter_classes(concat_string!("column", match col.size() {
+                col.alter_classes(ClassesOp::SetDefault, concat_string!("column", match col.size() {
                     grid::ColumnSize::Default  => "",
                     grid::ColumnSize::Is1of12  => " is-1",
                     grid::ColumnSize::Is2of12  => " is-2",
@@ -80,11 +80,11 @@ impl ThemeTrait for Bulmix {
                     grid::ColumnSize::Is10of12 => " is-10",
                     grid::ColumnSize::Is11of12 => " is-11",
                     grid::ColumnSize::IsFull   => " is-12",
-                }, " content").as_str(), ClassesOp::SetDefault);
+                }, " content").as_str());
             },
             grid::ROW_COMPONENT => {
                 let row = component_mut::<grid::Row>(component);
-                row.alter_classes("columns", ClassesOp::SetDefault);
+                row.alter_classes(ClassesOp::SetDefault, "columns");
             },
             _ => {},
         }

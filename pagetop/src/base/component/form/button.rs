@@ -29,7 +29,7 @@ impl ComponentTrait for Button {
             disabled   : AttributeValue::new(),
             template   : "default".to_owned(),
         }
-        .with_classes("form-button", ClassesOp::AddFirst)
+        .with_classes(ClassesOp::AddFirst, "form-button")
     }
 
     fn handler(&self) -> &'static str {
@@ -88,7 +88,7 @@ impl Button {
 
     pub fn reset(value: &str) -> Self {
         let mut button = Button::new()
-            .with_classes("form-reset", ClassesOp::Replace("form-button"))
+            .with_classes(ClassesOp::Replace("form-button"), "form-reset")
             .with_value(value);
         button.button_type = ButtonType::Reset;
         button
@@ -96,7 +96,7 @@ impl Button {
 
     pub fn submit(value: &str) -> Self {
         let mut button = Button::new()
-            .with_classes("form-submit", ClassesOp::Replace("form-button"))
+            .with_classes(ClassesOp::Replace("form-button"), "form-submit")
             .with_value(value);
         button.button_type = ButtonType::Submit;
         button
@@ -114,8 +114,8 @@ impl Button {
         self
     }
 
-    pub fn with_classes(mut self, classes: &str, op: ClassesOp) -> Self {
-        self.alter_classes(classes, op);
+    pub fn with_classes(mut self, op: ClassesOp, classes: &str) -> Self {
+        self.alter_classes(op, classes);
         self
     }
 
@@ -156,8 +156,8 @@ impl Button {
         self
     }
 
-    pub fn alter_classes(&mut self, classes: &str, op: ClassesOp) -> &mut Self {
-        self.classes.alter(classes, op);
+    pub fn alter_classes(&mut self, op: ClassesOp, classes: &str) -> &mut Self {
+        self.classes.alter(op, classes);
         self
     }
 

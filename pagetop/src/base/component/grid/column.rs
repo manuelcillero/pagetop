@@ -56,19 +56,19 @@ impl ComponentTrait for Column {
 
     fn before_render(&mut self, _context: &mut InContext) {
         match self.size() {
-            ColumnSize::Default  => self.alter_classes("col-sm",    ClassesOp::SetDefault),
-            ColumnSize::Is1of12  => self.alter_classes("col-sm-1",  ClassesOp::SetDefault),
-            ColumnSize::Is2of12  => self.alter_classes("col-sm-2",  ClassesOp::SetDefault),
-            ColumnSize::Is3of12  => self.alter_classes("col-sm-3",  ClassesOp::SetDefault),
-            ColumnSize::Is4of12  => self.alter_classes("col-sm-4",  ClassesOp::SetDefault),
-            ColumnSize::Is5of12  => self.alter_classes("col-sm-5",  ClassesOp::SetDefault),
-            ColumnSize::Is6of12  => self.alter_classes("col-sm-6",  ClassesOp::SetDefault),
-            ColumnSize::Is7of12  => self.alter_classes("col-sm-7",  ClassesOp::SetDefault),
-            ColumnSize::Is8of12  => self.alter_classes("col-sm-8",  ClassesOp::SetDefault),
-            ColumnSize::Is9of12  => self.alter_classes("col-sm-9",  ClassesOp::SetDefault),
-            ColumnSize::Is10of12 => self.alter_classes("col-sm-10", ClassesOp::SetDefault),
-            ColumnSize::Is11of12 => self.alter_classes("col-sm-11", ClassesOp::SetDefault),
-            ColumnSize::IsFull   => self.alter_classes("col-sm-12", ClassesOp::SetDefault),
+            ColumnSize::Default  => self.alter_classes(ClassesOp::SetDefault, "col-md"),
+            ColumnSize::Is1of12  => self.alter_classes(ClassesOp::SetDefault, "col-md-1"),
+            ColumnSize::Is2of12  => self.alter_classes(ClassesOp::SetDefault, "col-md-2"),
+            ColumnSize::Is3of12  => self.alter_classes(ClassesOp::SetDefault, "col-md-3"),
+            ColumnSize::Is4of12  => self.alter_classes(ClassesOp::SetDefault, "col-md-4"),
+            ColumnSize::Is5of12  => self.alter_classes(ClassesOp::SetDefault, "col-md-5"),
+            ColumnSize::Is6of12  => self.alter_classes(ClassesOp::SetDefault, "col-md-6"),
+            ColumnSize::Is7of12  => self.alter_classes(ClassesOp::SetDefault, "col-md-7"),
+            ColumnSize::Is8of12  => self.alter_classes(ClassesOp::SetDefault, "col-md-8"),
+            ColumnSize::Is9of12  => self.alter_classes(ClassesOp::SetDefault, "col-md-9"),
+            ColumnSize::Is10of12 => self.alter_classes(ClassesOp::SetDefault, "col-md-10"),
+            ColumnSize::Is11of12 => self.alter_classes(ClassesOp::SetDefault, "col-md-11"),
+            ColumnSize::IsFull   => self.alter_classes(ClassesOp::SetDefault, "col-md-12"),
         };
     }
 
@@ -108,8 +108,8 @@ impl Column {
         self
     }
 
-    pub fn with_classes(mut self, classes: &str, op: ClassesOp) -> Self {
-        self.alter_classes(classes, op);
+    pub fn with_classes(mut self, op: ClassesOp, classes: &str) -> Self {
+        self.alter_classes(op, classes);
         self
     }
 
@@ -150,8 +150,8 @@ impl Column {
         self
     }
 
-    pub fn alter_classes(&mut self, classes: &str, op: ClassesOp) -> &mut Self {
-        self.classes.alter(classes, op);
+    pub fn alter_classes(&mut self, op: ClassesOp, classes: &str) -> &mut Self {
+        self.classes.alter(op, classes);
         self
     }
 

@@ -3,14 +3,13 @@ module_description = Muestra una página de demostración predeterminada cuando 
 
 page_title = ¡Hola mundo!
 
-welcome_to = Bienvenido a { $app }
-welcome_intro = Esta página se utiliza para probar el correcto funcionamiento de { $app } después de la instalación.
-welcome_pagetop = Esta solución web funciona con { $pagetop }.
+hello_intro = Esta página se utiliza para probar el correcto funcionamiento de { $app } después de la instalación.
+hello_pagetop = Esta solución web funciona con { $pagetop }.
 
-visiting_title = ¿Sólo de visita?
-visiting_subtitle = ¿Eres usuario de este sitio web?
-visiting_text1 = Si no sabes de qué trata esta página, probablemente significa que el sitio está experimentando problemas o está pasando por un mantenimiento de rutina.
-visiting_text2 = Si el problema persiste, póngase en contacto con el administrador del sistema.
+welcome_to = Bienvenido a { $app }
+welcome_subtitle = ¿Eres usuario de este sitio web?
+welcome_text1 = Si no sabes de qué trata esta página, probablemente significa que el sitio está experimentando problemas o está pasando por un mantenimiento de rutina.
+welcome_text2 = Si el problema persiste, póngase en contacto con el administrador del sistema.
 
 pagetop_title = Sobre PageTop
 pagetop_text1 = Si puedes leer esta página, significa que el servidor PageTop funciona correctamente, pero aún no se ha configurado.

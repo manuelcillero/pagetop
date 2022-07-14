@@ -125,8 +125,8 @@ impl Anchor {
         self
     }
 
-    pub fn with_classes(mut self, classes: &str, op: ClassesOp) -> Self {
-        self.alter_classes(classes, op);
+    pub fn with_classes(mut self, op: ClassesOp, classes: &str) -> Self {
+        self.alter_classes(op, classes);
         self
     }
 
@@ -187,8 +187,8 @@ impl Anchor {
         self
     }
 
-    pub fn alter_classes(&mut self, classes: &str, op: ClassesOp) -> &mut Self {
-        self.classes.alter(classes, op);
+    pub fn alter_classes(&mut self, op: ClassesOp, classes: &str) -> &mut Self {
+        self.classes.alter(op, classes);
         self
     }
 
@@ -199,10 +199,10 @@ impl Anchor {
 
     pub fn alter_type(&mut self, anchor_type: AnchorType) -> &mut Self {
         self.anchor_type = anchor_type;
-        self.classes.alter(match self.anchor_type {
+        self.classes.alter(ClassesOp::SetDefault, match self.anchor_type {
             AnchorType::Button => "btn btn-primary",
             _ => "",
-        }, ClassesOp::SetDefault);
+        });
         self
     }
 

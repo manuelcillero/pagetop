@@ -115,8 +115,8 @@ impl Heading {
         self
     }
 
-    pub fn with_classes(mut self, classes: &str, op: ClassesOp) -> Self {
-        self.alter_classes(classes, op);
+    pub fn with_classes(mut self, op: ClassesOp, classes: &str) -> Self {
+        self.alter_classes(op, classes);
         self
     }
 
@@ -157,8 +157,8 @@ impl Heading {
         self
     }
 
-    pub fn alter_classes(&mut self, classes: &str, op: ClassesOp) -> &mut Self {
-        self.classes.alter(classes, op);
+    pub fn alter_classes(&mut self, op: ClassesOp, classes: &str) -> &mut Self {
+        self.classes.alter(op, classes);
         self
     }
 
@@ -174,7 +174,7 @@ impl Heading {
 
     pub fn alter_display(&mut self, display: HeadingDisplay) -> &mut Self {
         self.display = display;
-        self.classes.alter(match &self.display() {
+        self.classes.alter(ClassesOp::SetDefault, match &self.display() {
             HeadingDisplay::XxLarge  => "display-2",
             HeadingDisplay::Large    => "display-3",
             HeadingDisplay::Medium   => "display-4",
@@ -182,7 +182,7 @@ impl Heading {
             HeadingDisplay::XxSmall  => "display-6",
             HeadingDisplay::Normal   => "",
             HeadingDisplay::Subtitle => "",
-        }, ClassesOp::SetDefault);
+        });
         self
     }
 

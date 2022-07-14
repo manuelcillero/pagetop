@@ -47,7 +47,7 @@ impl ComponentTrait for Input {
             help_text   : AttributeValue::new(),
             template    : "default".to_owned(),
         }
-        .with_classes("form-type-textfield", ClassesOp::AddFirst)
+        .with_classes(ClassesOp::AddFirst, "form-type-textfield")
     }
 
     fn handler(&self) -> &'static str {
@@ -128,35 +128,35 @@ impl Input {
 
     pub fn password() -> Self {
         let mut input = Input::new()
-            .with_classes("form-type-password", ClassesOp::Replace("form-type-textfield"));
+            .with_classes(ClassesOp::Replace("form-type-textfield"), "form-type-password");
         input.input_type = InputType::Password;
         input
     }
 
     pub fn search() -> Self {
         let mut input = Input::new()
-            .with_classes("form-type-search", ClassesOp::Replace("form-type-textfield"));
+            .with_classes(ClassesOp::Replace("form-type-textfield"), "form-type-search");
         input.input_type = InputType::Search;
         input
     }
 
     pub fn email() -> Self {
         let mut input = Input::new()
-            .with_classes("form-type-email", ClassesOp::Replace("form-type-textfield"));
+            .with_classes(ClassesOp::Replace("form-type-textfield"), "form-type-email");
         input.input_type = InputType::Email;
         input
     }
 
     pub fn telephone() -> Self {
         let mut input = Input::new()
-            .with_classes("form-type-telephone", ClassesOp::Replace("form-type-textfield"));
+            .with_classes(ClassesOp::Replace("form-type-textfield"), "form-type-telephone");
         input.input_type = InputType::Telephone;
         input
     }
 
     pub fn url() -> Self {
         let mut input = Input::new()
-            .with_classes("form-type-url", ClassesOp::Replace("form-type-textfield"));
+            .with_classes(ClassesOp::Replace("form-type-textfield"), "form-type-url");
         input.input_type = InputType::Url;
         input
     }
@@ -173,8 +173,8 @@ impl Input {
         self
     }
 
-    pub fn with_classes(mut self, classes: &str, op: ClassesOp) -> Self {
-        self.alter_classes(classes, op);
+    pub fn with_classes(mut self, op: ClassesOp, classes: &str) -> Self {
+        self.alter_classes(op, classes);
         self
     }
 
@@ -260,16 +260,15 @@ impl Input {
         self
     }
 
-    pub fn alter_classes(&mut self, classes: &str, op: ClassesOp) -> &mut Self {
-        self.classes.alter(classes, op);
+    pub fn alter_classes(&mut self, op: ClassesOp, classes: &str) -> &mut Self {
+        self.classes.alter(op, classes);
         self
     }
 
     pub fn alter_name(&mut self, name: &str) -> &mut Self {
         self.name.with_value(name);
-        self.alter_classes(
-            concat_string!("form-item form-item-", name).as_str(),
-            ClassesOp::SetDefault
+        self.alter_classes(ClassesOp::SetDefault,
+            concat_string!("form-item form-item-", name).as_str()
         );
         self
     }
