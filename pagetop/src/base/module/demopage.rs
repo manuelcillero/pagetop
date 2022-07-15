@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-pub const DEMOPAGE_MODULE: &str = "pagetop::module::demopage";
+pub const MODULE_DEMOPAGE: &str = "pagetop::module::demopage";
 
 localize!("src/base/module/demopage/locales");
 
@@ -8,7 +8,7 @@ pub struct Demopage;
 
 impl ModuleTrait for Demopage {
     fn handler(&self) -> &'static str {
-        DEMOPAGE_MODULE
+        MODULE_DEMOPAGE
     }
 
     fn name(&self) -> String {
@@ -27,6 +27,9 @@ impl ModuleTrait for Demopage {
 async fn demo() -> app::Result<Markup> {
     Page::new()
         .with_title(l("page_title").as_str())
+        .with_context(InContextOp::StyleSheet(AssetsOp::Add(
+            StyleSheet::located("/theme/module/demopage/styles.css")
+        )))
         .add_to("content", hello_world())
         .add_to("content", welcome())
         .add_to("content", about_pagetop())
@@ -40,6 +43,7 @@ fn hello_world() -> Container {
         .with_id("hello-world")
         .with_component(grid::Row::new()
             .with_column(grid::Column::new()
+                .with_classes(ClassesOp::Add, "hello-col-text")
                 .with_size(grid::ColumnSize::Is4of12)
                 .with_component(Heading::h1(html! {
                         (l("page_title"))
@@ -63,6 +67,7 @@ fn hello_world() -> Container {
                         ("Offered services")
                     })
                     .with_left_icon(Icon::with("card-checklist"))
+                    .with_classes(ClassesOp::Add, "services-link")
                 )
                 .with_component(Anchor::button("#", html! {
                         ("Get quote")
@@ -71,6 +76,7 @@ fn hello_world() -> Container {
                 )
             )
             .with_column(grid::Column::new()
+                .with_classes(ClassesOp::Add, "hello-col-image")
                 .with_component(Image::image("/theme/images/demo-header.svg"))
             )
         )
@@ -78,13 +84,15 @@ fn hello_world() -> Container {
 
 fn welcome() -> Container {
     Container::new()
-        .with_id("visiting")
+        .with_id("welcome")
         .with_component(grid::Row::new()
             .with_column(grid::Column::new()
+                .with_classes(ClassesOp::Add, "welcome-col-image")
                 .with_size(grid::ColumnSize::Is5of12)
                 .with_component(Image::image("/theme/images/demo-visiting.svg"))
             )
             .with_column(grid::Column::new()
+                .with_classes(ClassesOp::Add, "welcome-col-text")
                 .with_component(Heading::h2(html! {
                     (t("welcome_to", &args!["app" => SETTINGS.app.name.as_str()]))
                 }))

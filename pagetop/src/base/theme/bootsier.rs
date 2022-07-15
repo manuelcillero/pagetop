@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-pub const BOOTSIER_THEME: &str = "pagetop::theme::bootsier";
+pub const THEME_BOOTSIER: &str = "pagetop::theme::bootsier";
 
 include!(concat!(env!("OUT_DIR"), "/bootsier.rs"));
 
@@ -10,7 +10,7 @@ pub struct Bootsier;
 
 impl ThemeTrait for Bootsier {
     fn handler(&self) -> &'static str {
-        BOOTSIER_THEME
+        THEME_BOOTSIER
     }
 
     fn configure_service(&self, cfg: &mut app::web::ServiceConfig) {

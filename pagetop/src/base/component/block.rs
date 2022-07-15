@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-pub const BLOCK_COMPONENT: &str = "pagetop::component::block";
+pub const COMPONENT_BLOCK: &str = "pagetop::component::block";
 
 pub struct Block {
     renderable: fn() -> bool,
@@ -26,15 +26,15 @@ impl ComponentTrait for Block {
     }
 
     fn handler(&self) -> &'static str {
-        BLOCK_COMPONENT
-    }
-
-    fn is_renderable(&self) -> bool {
-        (self.renderable)()
+        COMPONENT_BLOCK
     }
 
     fn weight(&self) -> isize {
         self.weight
+    }
+
+    fn is_renderable(&self, _: &InContext) -> bool {
+        (self.renderable)()
     }
 
     fn default_render(&self, context: &mut InContext) -> Markup {
@@ -65,13 +65,13 @@ impl Block {
 
     // Block BUILDER.
 
-    pub fn with_renderable(mut self, renderable: fn() -> bool) -> Self {
-        self.alter_renderable(renderable);
+    pub fn with_weight(mut self, weight: isize) -> Self {
+        self.alter_weight(weight);
         self
     }
 
-    pub fn with_weight(mut self, weight: isize) -> Self {
-        self.alter_weight(weight);
+    pub fn with_renderable(mut self, renderable: fn() -> bool) -> Self {
+        self.alter_renderable(renderable);
         self
     }
 
@@ -102,13 +102,13 @@ impl Block {
 
     // Block ALTER.
 
-    pub fn alter_renderable(&mut self, renderable: fn() -> bool) -> &mut Self {
-        self.renderable = renderable;
+    pub fn alter_weight(&mut self, weight: isize) -> &mut Self {
+        self.weight = weight;
         self
     }
 
-    pub fn alter_weight(&mut self, weight: isize) -> &mut Self {
-        self.weight = weight;
+    pub fn alter_renderable(&mut self, renderable: fn() -> bool) -> &mut Self {
+        self.renderable = renderable;
         self
     }
 

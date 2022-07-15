@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-pub const PARAGRAPH_COMPONENT: &str = "pagetop::component::paragraph";
+pub const COMPONENT_PARAGRAPH: &str = "pagetop::component::paragraph";
 
 pub enum ParagraphDisplay {
     XxLarge,
@@ -35,15 +35,15 @@ impl ComponentTrait for Paragraph {
     }
 
     fn handler(&self) -> &'static str {
-        PARAGRAPH_COMPONENT
-    }
-
-    fn is_renderable(&self) -> bool {
-        (self.renderable)()
+        COMPONENT_PARAGRAPH
     }
 
     fn weight(&self) -> isize {
         self.weight
+    }
+
+    fn is_renderable(&self, _: &InContext) -> bool {
+        (self.renderable)()
     }
 
     fn default_render(&self, _: &mut InContext) -> Markup {
@@ -68,13 +68,13 @@ impl Paragraph {
 
     // Paragraph BUILDER.
 
-    pub fn with_renderable(mut self, renderable: fn() -> bool) -> Self {
-        self.alter_renderable(renderable);
+    pub fn with_weight(mut self, weight: isize) -> Self {
+        self.alter_weight(weight);
         self
     }
 
-    pub fn with_weight(mut self, weight: isize) -> Self {
-        self.alter_weight(weight);
+    pub fn with_renderable(mut self, renderable: fn() -> bool) -> Self {
+        self.alter_renderable(renderable);
         self
     }
 
@@ -105,13 +105,13 @@ impl Paragraph {
 
     // Paragraph ALTER.
 
-    pub fn alter_renderable(&mut self, renderable: fn() -> bool) -> &mut Self {
-        self.renderable = renderable;
+    pub fn alter_weight(&mut self, weight: isize) -> &mut Self {
+        self.weight = weight;
         self
     }
 
-    pub fn alter_weight(&mut self, weight: isize) -> &mut Self {
-        self.weight = weight;
+    pub fn alter_renderable(&mut self, renderable: fn() -> bool) -> &mut Self {
+        self.renderable = renderable;
         self
     }
 

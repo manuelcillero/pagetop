@@ -3,7 +3,7 @@ use crate::config::SETTINGS;
 use crate::html::*;
 use crate::core::hook::{hook_ref, run_hooks};
 use crate::core::component::*;
-use super::{BEFORE_RENDER_PAGE_HOOK, BeforeRenderPageHook};
+use super::{HOOK_BEFORE_RENDER_PAGE, BeforeRenderPageHook};
 
 use std::collections::HashMap;
 
@@ -194,7 +194,7 @@ impl Page {
     pub fn render(&mut self) -> app::Result<Markup> {
         // Acciones de los módulos antes de renderizar la página.
         run_hooks(
-            BEFORE_RENDER_PAGE_HOOK,
+            HOOK_BEFORE_RENDER_PAGE,
             |hook| hook_ref::<BeforeRenderPageHook>(&**hook).run(self)
         );
 

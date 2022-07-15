@@ -12,9 +12,9 @@ static DEFAULT_THEME: Lazy<&dyn ThemeTrait> = Lazy::new(|| {
 });
 
 pub enum InContextOp {
+    SetTheme(&'static str),
     AddMetadata(&'static str, &'static str),
     Favicon(Option<Favicon>),
-    SetTheme(&'static str),
     StyleSheet(AssetsOp<StyleSheet>),
     JavaScript(AssetsOp<JavaScript>),
     AddJQuery,
@@ -45,14 +45,14 @@ impl InContext {
 
     pub fn alter(&mut self, op: InContextOp) -> &mut Self {
         match op {
+            InContextOp::SetTheme(theme_name) => {
+                self.theme = theme_by_single_name(theme_name).unwrap_or(*DEFAULT_THEME);
+            },
             InContextOp::AddMetadata(name, content) => {
                 self.metadata.push((name.to_owned(), content.to_owned()));
             },
             InContextOp::Favicon(favicon) => {
                 self.favicon = favicon;
-            },
-            InContextOp::SetTheme(theme_name) => {
-                self.theme = theme_by_single_name(theme_name).unwrap_or(*DEFAULT_THEME);
             },
             InContextOp::StyleSheet(css) => {
                 self.stylesheets.alter(css);

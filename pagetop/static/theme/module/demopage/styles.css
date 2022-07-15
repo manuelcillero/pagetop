@@ -1,0 +1,30 @@
+#hello-world {
+	padding: 2em 5%;
+}
+#hello-world a {
+	margin: .25em;
+}
+#hello-world a.services-link {
+	padding-left: 1.5em;
+	padding-right: 1.5em;
+	border-radius: 1.5em;
+}
+#welcome {
+	padding: 1em 5%;
+}
+#welcome .welcome-col-text {
+	padding-left: 5%;
+}
+/* Responsiveness */
+@media (max-width: 992px) {
+	#hello-world .hello-col-text {
+		text-align: center;
+	}
+	#hello-world .hello-col-image {
+		padding-top: 5%;
+	}
+	#welcome .welcome-col-text {
+		text-align: center;
+		padding-left: 0;
+	}
+}

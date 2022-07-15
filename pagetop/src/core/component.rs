@@ -1,6 +1,6 @@
 mod hook;
 pub use hook::{
-    BEFORE_RENDER_COMPONENT_HOOK,
+    HOOK_BEFORE_RENDER_COMPONENT,
     BeforeRenderComponentHook,
 };
 

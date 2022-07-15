@@ -1,7 +1,7 @@
 use crate::util;
 use crate::html::{Markup, html};
 use crate::core::hook::{hook_ref, run_hooks};
-use super::{BEFORE_RENDER_COMPONENT_HOOK, BeforeRenderComponentHook, InContext};
+use super::{HOOK_BEFORE_RENDER_COMPONENT, BeforeRenderComponentHook, InContext};
 
 pub use std::any::Any as AnyComponent;
 
@@ -18,16 +18,13 @@ pub trait ComponentTrait: AnyComponent + Send + Sync {
         None
     }
 
-    fn is_renderable(&self) -> bool {
-        true
-    }
-
     fn weight(&self) -> isize {
         0
     }
 
     #[allow(unused_variables)]
-    fn before_render(&mut self, context: &mut InContext) {
+    fn is_renderable(&self, context: &InContext) -> bool {
+        true
     }
 
     #[allow(unused_variables)]
@@ -49,19 +46,16 @@ pub fn component_mut<C: 'static>(component: &mut dyn ComponentTrait) -> &mut C {
 }
 
 pub fn render_component(component: &mut dyn ComponentTrait, context: &mut InContext) -> Markup {
-    // Acciones del propio componente antes de renderizarlo.
-    component.before_render(context);
-
     // Acciones de los módulos antes de renderizar el componente.
     run_hooks(
-        BEFORE_RENDER_COMPONENT_HOOK,
+        HOOK_BEFORE_RENDER_COMPONENT,
         |hook| hook_ref::<BeforeRenderComponentHook>(&**hook).run(component, context)
     );
 
     // Acciones del tema antes de renderizar el componente.
     context.theme().before_render_component(component, context);
 
-    match component.is_renderable() {
+    match component.is_renderable(context) {
         true => match context.theme().render_component(component, context) {
             Some(html) => html,
             None => component.default_render(context)

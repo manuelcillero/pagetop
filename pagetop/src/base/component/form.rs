@@ -1,21 +1,21 @@
 mod form;
 pub use form::{
-    FORM_COMPONENT, Form, FormMethod
+    COMPONENT_FORM, Form, FormMethod
 };
 
 mod input;
 pub use input::{
-    INPUT_COMPONENT, Input, InputType
+    COMPONENT_INPUT, Input, InputType
 };
 mod hidden;
 pub use hidden::{
-    HIDDEN_COMPONENT, Hidden
+    COMPONENT_HIDDEN, Hidden
 };
 mod date;
 pub use date::{
-    DATE_COMPONENT, Date
+    COMPONENT_DATE, Date
 };
 mod button;
 pub use button::{
-    BUTTON_COMPONENT, Button, ButtonType
+    COMPONENT_BUTTON, Button, ButtonType
 };

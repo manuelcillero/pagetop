@@ -1,7 +1,7 @@
 use crate::core::hook::{HookTrait, AnyHook};
 use super::{ComponentTrait, InContext};
 
-pub const BEFORE_RENDER_COMPONENT_HOOK: &str = "pagetop::hook::before_render_component";
+pub const HOOK_BEFORE_RENDER_COMPONENT: &str = "pagetop::hook::before_render_component";
 
 pub struct BeforeRenderComponentHook {
     hook: Option<fn(&mut dyn ComponentTrait, &mut InContext)>,
@@ -17,7 +17,7 @@ impl HookTrait for BeforeRenderComponentHook {
     }
 
     fn handler(&self) -> &'static str {
-        BEFORE_RENDER_COMPONENT_HOOK
+        HOOK_BEFORE_RENDER_COMPONENT
     }
 
     fn weight(&self) -> isize {

@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-pub const BULMIX_THEME: &str = "pagetop::theme::bulmix";
+pub const THEME_BULMIX: &str = "pagetop::theme::bulmix";
 
 include!(concat!(env!("OUT_DIR"), "/bulmix.rs"));
 
@@ -8,7 +8,7 @@ pub struct Bulmix;
 
 impl ThemeTrait for Bulmix {
     fn handler(&self) -> &'static str {
-        BULMIX_THEME
+        THEME_BULMIX
     }
 
     fn configure_service(&self, cfg: &mut app::web::ServiceConfig) {
@@ -34,14 +34,14 @@ impl ThemeTrait for Bulmix {
         _context: &mut InContext
     ) {
         match component.handler() {
-            ANCHOR_COMPONENT => {
+            COMPONENT_ANCHOR => {
                 let a = component_mut::<Anchor>(component);
                 a.alter_classes(ClassesOp::SetDefault, match a.anchor_type() {
                     AnchorType::Button => "button is-primary",
                     _ => "",
                 });
             },
-            HEADING_COMPONENT => {
+            COMPONENT_HEADING => {
                 let h = component_mut::<Heading>(component);
                 h.alter_classes(ClassesOp::SetDefault, match h.display() {
                     HeadingDisplay::XxLarge  => "title is-1",
@@ -53,7 +53,7 @@ impl ThemeTrait for Bulmix {
                     HeadingDisplay::Subtitle => "subtitle",
                 });
             },
-            PARAGRAPH_COMPONENT => {
+            COMPONENT_PARAGRAPH => {
                 let p = component_mut::<Paragraph>(component);
                 p.alter_classes(ClassesOp::SetDefault, match p.display() {
                     ParagraphDisplay::XxLarge => "is-size-2",
@@ -64,7 +64,7 @@ impl ThemeTrait for Bulmix {
                     ParagraphDisplay::Normal  => "",
                 });
             },
-            grid::COLUMN_COMPONENT => {
+            grid::COMPONENT_COLUMN => {
                 let col = component_mut::<grid::Column>(component);
                 col.alter_classes(ClassesOp::SetDefault, concat_string!("column", match col.size() {
                     grid::ColumnSize::Default  => "",
@@ -82,7 +82,7 @@ impl ThemeTrait for Bulmix {
                     grid::ColumnSize::IsFull   => " is-12",
                 }, " content").as_str());
             },
-            grid::ROW_COMPONENT => {
+            grid::COMPONENT_ROW => {
                 let row = component_mut::<grid::Row>(component);
                 row.alter_classes(ClassesOp::SetDefault, "columns");
             },
@@ -96,7 +96,7 @@ impl ThemeTrait for Bulmix {
         _context: &mut InContext
     ) -> Option<Markup> {
         match component.handler() {
-            ICON_COMPONENT => {
+            COMPONENT_ICON => {
                 let icon = component_ref::<Icon>(component);
                 Some(html! {
                     span class="icon" {

@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-pub const HEADING_COMPONENT: &str = "pagetop::component::heading";
+pub const COMPONENT_HEADING: &str = "pagetop::component::heading";
 
 pub enum HeadingType { H1, H2, H3, H4, H5, H6 }
 
@@ -40,15 +40,15 @@ impl ComponentTrait for Heading {
     }
 
     fn handler(&self) -> &'static str {
-        HEADING_COMPONENT
-    }
-
-    fn is_renderable(&self) -> bool {
-        (self.renderable)()
+        COMPONENT_HEADING
     }
 
     fn weight(&self) -> isize {
         self.weight
+    }
+
+    fn is_renderable(&self, _: &InContext) -> bool {
+        (self.renderable)()
     }
 
     fn default_render(&self, _: &mut InContext) -> Markup {
@@ -100,13 +100,13 @@ impl Heading {
 
     // Heading BUILDER.
 
-    pub fn with_renderable(mut self, renderable: fn() -> bool) -> Self {
-        self.alter_renderable(renderable);
+    pub fn with_weight(mut self, weight: isize) -> Self {
+        self.alter_weight(weight);
         self
     }
 
-    pub fn with_weight(mut self, weight: isize) -> Self {
-        self.alter_weight(weight);
+    pub fn with_renderable(mut self, renderable: fn() -> bool) -> Self {
+        self.alter_renderable(renderable);
         self
     }
 
@@ -142,13 +142,13 @@ impl Heading {
 
     // Heading ALTER.
 
-    pub fn alter_renderable(&mut self, renderable: fn() -> bool) -> &mut Self {
-        self.renderable = renderable;
+    pub fn alter_weight(&mut self, weight: isize) -> &mut Self {
+        self.weight = weight;
         self
     }
 
-    pub fn alter_weight(&mut self, weight: isize) -> &mut Self {
-        self.weight = weight;
+    pub fn alter_renderable(&mut self, renderable: fn() -> bool) -> &mut Self {
+        self.renderable = renderable;
         self
     }
 

@@ -1,6 +1,20 @@
 use crate::prelude::*;
 
-pub const COLUMN_COMPONENT: &str = "pagetop::component::grid::column";
+pub const COMPONENT_COLUMN: &str = "pagetop::component::grid::column";
+
+const SIZE_DEFAULT:  &str = "col-md";
+const SIZE_1_OF_12:  &str = "col-md-1";
+const SIZE_2_OF_12:  &str = "col-md-2";
+const SIZE_3_OF_12:  &str = "col-md-3";
+const SIZE_4_OF_12:  &str = "col-md-4";
+const SIZE_5_OF_12:  &str = "col-md-5";
+const SIZE_6_OF_12:  &str = "col-md-6";
+const SIZE_7_OF_12:  &str = "col-md-7";
+const SIZE_8_OF_12:  &str = "col-md-8";
+const SIZE_9_OF_12:  &str = "col-md-9";
+const SIZE_10_OF_12: &str = "col-md-10";
+const SIZE_11_OF_12: &str = "col-md-11";
+const SIZE_12_OF_12: &str = "col-md-12";
 
 pub enum ColumnSize {
     Default,
@@ -33,7 +47,7 @@ impl ComponentTrait for Column {
             renderable: render_always,
             weight    : 0,
             id        : IdentifierValue::new(),
-            classes   : Classes::new(),
+            classes   : Classes::new_with_default(SIZE_DEFAULT),
             size      : ColumnSize::Default,
             components: ComponentsBundle::new(),
             template  : "default".to_owned(),
@@ -41,33 +55,15 @@ impl ComponentTrait for Column {
     }
 
     fn handler(&self) -> &'static str {
-        COLUMN_COMPONENT
-    }
-
-    fn is_renderable(&self) -> bool {
-        (self.renderable)()
+        COMPONENT_COLUMN
     }
 
     fn weight(&self) -> isize {
         self.weight
     }
 
-    fn before_render(&mut self, _context: &mut InContext) {
-        match self.size() {
-            ColumnSize::Default  => self.alter_classes(ClassesOp::SetDefault, "col-md"),
-            ColumnSize::Is1of12  => self.alter_classes(ClassesOp::SetDefault, "col-md-1"),
-            ColumnSize::Is2of12  => self.alter_classes(ClassesOp::SetDefault, "col-md-2"),
-            ColumnSize::Is3of12  => self.alter_classes(ClassesOp::SetDefault, "col-md-3"),
-            ColumnSize::Is4of12  => self.alter_classes(ClassesOp::SetDefault, "col-md-4"),
-            ColumnSize::Is5of12  => self.alter_classes(ClassesOp::SetDefault, "col-md-5"),
-            ColumnSize::Is6of12  => self.alter_classes(ClassesOp::SetDefault, "col-md-6"),
-            ColumnSize::Is7of12  => self.alter_classes(ClassesOp::SetDefault, "col-md-7"),
-            ColumnSize::Is8of12  => self.alter_classes(ClassesOp::SetDefault, "col-md-8"),
-            ColumnSize::Is9of12  => self.alter_classes(ClassesOp::SetDefault, "col-md-9"),
-            ColumnSize::Is10of12 => self.alter_classes(ClassesOp::SetDefault, "col-md-10"),
-            ColumnSize::Is11of12 => self.alter_classes(ClassesOp::SetDefault, "col-md-11"),
-            ColumnSize::IsFull   => self.alter_classes(ClassesOp::SetDefault, "col-md-12"),
-        };
+    fn is_renderable(&self, _: &InContext) -> bool {
+        (self.renderable)()
     }
 
     fn default_render(&self, context: &mut InContext) -> Markup {
@@ -91,13 +87,13 @@ impl Column {
 
     // Column BUILDER.
 
-    pub fn with_renderable(mut self, renderable: fn() -> bool) -> Self {
-        self.alter_renderable(renderable);
+    pub fn with_weight(mut self, weight: isize) -> Self {
+        self.alter_weight(weight);
         self
     }
 
-    pub fn with_weight(mut self, weight: isize) -> Self {
-        self.alter_weight(weight);
+    pub fn with_renderable(mut self, renderable: fn() -> bool) -> Self {
+        self.alter_renderable(renderable);
         self
     }
 
@@ -128,13 +124,13 @@ impl Column {
 
     // Column ALTER.
 
-    pub fn alter_renderable(&mut self, renderable: fn() -> bool) -> &mut Self {
-        self.renderable = renderable;
+    pub fn alter_weight(&mut self, weight: isize) -> &mut Self {
+        self.weight = weight;
         self
     }
 
-    pub fn alter_weight(&mut self, weight: isize) -> &mut Self {
-        self.weight = weight;
+    pub fn alter_renderable(&mut self, renderable: fn() -> bool) -> &mut Self {
+        self.renderable = renderable;
         self
     }
 
@@ -149,6 +145,21 @@ impl Column {
     }
 
     pub fn alter_size(&mut self, size: ColumnSize) -> &mut Self {
+        match size {
+            ColumnSize::Default  => self.alter_classes(ClassesOp::SetDefault, SIZE_DEFAULT),
+            ColumnSize::Is1of12  => self.alter_classes(ClassesOp::SetDefault, SIZE_1_OF_12),
+            ColumnSize::Is2of12  => self.alter_classes(ClassesOp::SetDefault, SIZE_2_OF_12),
+            ColumnSize::Is3of12  => self.alter_classes(ClassesOp::SetDefault, SIZE_3_OF_12),
+            ColumnSize::Is4of12  => self.alter_classes(ClassesOp::SetDefault, SIZE_4_OF_12),
+            ColumnSize::Is5of12  => self.alter_classes(ClassesOp::SetDefault, SIZE_5_OF_12),
+            ColumnSize::Is6of12  => self.alter_classes(ClassesOp::SetDefault, SIZE_6_OF_12),
+            ColumnSize::Is7of12  => self.alter_classes(ClassesOp::SetDefault, SIZE_7_OF_12),
+            ColumnSize::Is8of12  => self.alter_classes(ClassesOp::SetDefault, SIZE_8_OF_12),
+            ColumnSize::Is9of12  => self.alter_classes(ClassesOp::SetDefault, SIZE_9_OF_12),
+            ColumnSize::Is10of12 => self.alter_classes(ClassesOp::SetDefault, SIZE_10_OF_12),
+            ColumnSize::Is11of12 => self.alter_classes(ClassesOp::SetDefault, SIZE_11_OF_12),
+            ColumnSize::IsFull   => self.alter_classes(ClassesOp::SetDefault, SIZE_12_OF_12),
+        };
         self.size = size;
         self
     }

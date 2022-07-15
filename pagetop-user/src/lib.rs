@@ -1,6 +1,6 @@
 use pagetop::prelude::*;
 
-pub const USER_MODULE: &str = "pagetop-user::module::user";
+pub const MODULE_USER: &str = "pagetop-user::module::user";
 
 localize!("src/locales");
 
@@ -10,7 +10,7 @@ pub struct User;
 
 impl ModuleTrait for User {
     fn handler(&self) -> &'static str {
-        USER_MODULE
+        MODULE_USER
     }
 
     fn name(&self) -> String {

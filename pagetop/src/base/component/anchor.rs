@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-pub const ANCHOR_COMPONENT: &str = "pagetop::component::anchor";
+pub const COMPONENT_ANCHOR: &str = "pagetop::component::anchor";
 
 pub enum AnchorType {
     Button,
@@ -50,15 +50,15 @@ impl ComponentTrait for Anchor {
     }
 
     fn handler(&self) -> &'static str {
-        ANCHOR_COMPONENT
-    }
-
-    fn is_renderable(&self) -> bool {
-        (self.renderable)()
+        COMPONENT_ANCHOR
     }
 
     fn weight(&self) -> isize {
         self.weight
+    }
+
+    fn is_renderable(&self, _: &InContext) -> bool {
+        (self.renderable)()
     }
 
     fn default_render(&self, context: &mut InContext) -> Markup {
@@ -107,13 +107,13 @@ impl Anchor {
 
     // Anchor BUILDER.
 
-    pub fn with_renderable(mut self, renderable: fn() -> bool) -> Self {
-        self.alter_renderable(renderable);
+    pub fn with_weight(mut self, weight: isize) -> Self {
+        self.alter_weight(weight);
         self
     }
 
-    pub fn with_weight(mut self, weight: isize) -> Self {
-        self.alter_weight(weight);
+    pub fn with_renderable(mut self, renderable: fn() -> bool) -> Self {
+        self.alter_renderable(renderable);
         self
     }
 
@@ -164,13 +164,13 @@ impl Anchor {
 
     // Anchor ALTER.
 
-    pub fn alter_renderable(&mut self, renderable: fn() -> bool) -> &mut Self {
-        self.renderable = renderable;
+    pub fn alter_weight(&mut self, weight: isize) -> &mut Self {
+        self.weight = weight;
         self
     }
 
-    pub fn alter_weight(&mut self, weight: isize) -> &mut Self {
-        self.weight = weight;
+    pub fn alter_renderable(&mut self, renderable: fn() -> bool) -> &mut Self {
+        self.renderable = renderable;
         self
     }
 

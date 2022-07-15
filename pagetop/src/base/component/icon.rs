@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-pub const ICON_COMPONENT: &str = "pagetop::component::icon";
+pub const COMPONENT_ICON: &str = "pagetop::component::icon";
 
 pub struct Icon {
     renderable: fn() -> bool,
@@ -15,33 +15,29 @@ impl ComponentTrait for Icon {
             renderable: render_always,
             weight    : 0,
             icon_name : "question-circle-fill".to_owned(),
-            classes   : Classes::new(),
+            classes   : Classes::new_with_default("bi-question-circle-fill"),
         }
     }
 
     fn handler(&self) -> &'static str {
-        ICON_COMPONENT
-    }
-
-    fn is_renderable(&self) -> bool {
-        (self.renderable)()
+        COMPONENT_ICON
     }
 
     fn weight(&self) -> isize {
         self.weight
     }
 
-    fn before_render(&mut self, context: &mut InContext) {
+    fn is_renderable(&self, _: &InContext) -> bool {
+        (self.renderable)()
+    }
+
+    fn default_render(&self, context: &mut InContext) -> Markup {
         context
             .alter(InContextOp::StyleSheet(AssetsOp::Add(
                 StyleSheet::located("/theme/icons/bootstrap-icons.css")
                     .with_version("1.8.2")
             )));
 
-        self.alter_classes(ClassesOp::SetDefault, concat_string!("bi-", self.icon_name()).as_str());
-    }
-
-    fn default_render(&self, _context: &mut InContext) -> Markup {
         html! { i class=[self.classes().get()] {}; }
     }
 
@@ -61,13 +57,13 @@ impl Icon {
 
     // Icon BUILDER.
 
-    pub fn with_renderable(mut self, renderable: fn() -> bool) -> Self {
-        self.alter_renderable(renderable);
+    pub fn with_weight(mut self, weight: isize) -> Self {
+        self.alter_weight(weight);
         self
     }
 
-    pub fn with_weight(mut self, weight: isize) -> Self {
-        self.alter_weight(weight);
+    pub fn with_renderable(mut self, renderable: fn() -> bool) -> Self {
+        self.alter_renderable(renderable);
         self
     }
 
@@ -83,18 +79,19 @@ impl Icon {
 
     // Icon ALTER.
 
-    pub fn alter_renderable(&mut self, renderable: fn() -> bool) -> &mut Self {
-        self.renderable = renderable;
-        self
-    }
-
     pub fn alter_weight(&mut self, weight: isize) -> &mut Self {
         self.weight = weight;
         self
     }
 
+    pub fn alter_renderable(&mut self, renderable: fn() -> bool) -> &mut Self {
+        self.renderable = renderable;
+        self
+    }
+
     pub fn alter_icon_name(&mut self, name: &str) -> &mut Self {
         self.icon_name = name.to_owned();
+        self.alter_classes(ClassesOp::SetDefault, concat_string!("bi-", self.icon_name).as_str());
         self
     }
 

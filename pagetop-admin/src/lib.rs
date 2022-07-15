@@ -1,6 +1,6 @@
 use pagetop::prelude::*;
 
-pub const ADMIN_MODULE: &str = "pagetop-admin::module::admin";
+pub const MODULE_ADMIN: &str = "pagetop-admin::module::admin";
 
 localize!("src/locales");
 
@@ -10,7 +10,7 @@ pub struct Admin;
 
 impl ModuleTrait for Admin {
     fn handler(&self) -> &'static str {
-        ADMIN_MODULE
+        MODULE_ADMIN
     }
 
     fn name(&self) -> String {

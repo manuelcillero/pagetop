@@ -1,44 +1,44 @@
 mod container;
 pub use container::{
-    CONTAINER_COMPONENT, Container, ContainerType
+    COMPONENT_CONTAINER, Container, ContainerType
 };
 
 pub mod grid;
 
 mod chunck;
 pub use chunck::{
-    CHUNCK_COMPONENT, Chunck
+    COMPONENT_CHUNCK, Chunck
 };
 mod icon;
 pub use icon::{
-    ICON_COMPONENT, Icon
+    COMPONENT_ICON, Icon
 };
 mod heading;
 pub use heading::{
-    HEADING_COMPONENT, Heading, HeadingDisplay, HeadingType
+    COMPONENT_HEADING, Heading, HeadingDisplay, HeadingType
 };
 mod paragraph;
 pub use paragraph::{
-    PARAGRAPH_COMPONENT, Paragraph, ParagraphDisplay
+    COMPONENT_PARAGRAPH, Paragraph, ParagraphDisplay
 };
 mod anchor;
 pub use anchor::{
-    ANCHOR_COMPONENT, Anchor, AnchorIcon, AnchorTarget, AnchorType
+    COMPONENT_ANCHOR, Anchor, AnchorIcon, AnchorTarget, AnchorType
 };
 mod block;
 pub use block::{
-    BLOCK_COMPONENT, Block
+    COMPONENT_BLOCK, Block
 };
 mod image;
 pub use image::{
-    IMAGE_COMPONENT, Image
+    COMPONENT_IMAGE, Image
 };
 mod menu;
 pub use menu::{
-    MENU_COMPONENT, MENUITEM_COMPONENT, Menu, MenuItem, MenuItemType
+    COMPONENT_MENU, COMPONENT_MENUITEM, Menu, MenuItem, MenuItemType
 };
 
 pub mod form;
 pub use form::{
-    FORM_COMPONENT, Form, FormMethod
+    COMPONENT_FORM, Form, FormMethod
 };

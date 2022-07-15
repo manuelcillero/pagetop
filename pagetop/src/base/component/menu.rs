@@ -1,7 +1,7 @@
 use crate::prelude::*;
 
-pub const MENU_COMPONENT: &str = "pagetop::component::menu";
-pub const MENUITEM_COMPONENT: &str = "pagetop::component::menu_item";
+pub const COMPONENT_MENU: &str = "pagetop::component::menu";
+pub const COMPONENT_MENUITEM: &str = "pagetop::component::menu_item";
 
 pub enum MenuItemType {
     Label(String),
@@ -31,15 +31,15 @@ impl ComponentTrait for MenuItem {
     }
 
     fn handler(&self) -> &'static str {
-        MENUITEM_COMPONENT
-    }
-
-    fn is_renderable(&self) -> bool {
-        (self.renderable)()
+        COMPONENT_MENUITEM
     }
 
     fn weight(&self) -> isize {
         self.weight
+    }
+
+    fn is_renderable(&self, _: &InContext) -> bool {
+        (self.renderable)()
     }
 
     fn default_render(&self, context: &mut InContext) -> Markup {
@@ -142,25 +142,25 @@ impl MenuItem {
 
     // MenuItem BUILDER.
 
-    pub fn with_renderable(mut self, renderable: fn() -> bool) -> Self {
-        self.alter_renderable(renderable);
-        self
-    }
-
     pub fn with_weight(mut self, weight: isize) -> Self {
         self.alter_weight(weight);
         self
     }
 
-    // MenuItem ALTER.
-
-    pub fn alter_renderable(&mut self, renderable: fn() -> bool) -> &mut Self {
-        self.renderable = renderable;
+    pub fn with_renderable(mut self, renderable: fn() -> bool) -> Self {
+        self.alter_renderable(renderable);
         self
     }
 
+    // MenuItem ALTER.
+
     pub fn alter_weight(&mut self, weight: isize) -> &mut Self {
         self.weight = weight;
+        self
+    }
+
+    pub fn alter_renderable(&mut self, renderable: fn() -> bool) -> &mut Self {
+        self.renderable = renderable;
         self
     }
 
@@ -195,18 +195,18 @@ impl ComponentTrait for Menu {
     }
 
     fn handler(&self) -> &'static str {
-        MENU_COMPONENT
-    }
-
-    fn is_renderable(&self) -> bool {
-        (self.renderable)()
+        COMPONENT_MENU
     }
 
     fn weight(&self) -> isize {
         self.weight
     }
 
-    fn before_render(&mut self, context: &mut InContext) {
+    fn is_renderable(&self, _: &InContext) -> bool {
+        (self.renderable)()
+    }
+
+    fn default_render(&self, context: &mut InContext) -> Markup {
         context
             .alter(InContextOp::StyleSheet(AssetsOp::Add(
                 StyleSheet::located("/theme/menu/css/menu.css")
@@ -221,10 +221,9 @@ impl ComponentTrait for Menu {
                     .with_version("1.1.1")
             )))
             .alter(InContextOp::AddJQuery);
-    }
 
-    fn default_render(&self, context: &mut InContext) -> Markup {
         let id = context.required_id::<Menu>(self.id());
+
         html! {
             ul id=(id) class=[self.classes().get()] {
                 (self.items().render(context))
@@ -251,13 +250,13 @@ impl Menu {
 
     // Menu BUILDER.
 
-    pub fn with_renderable(mut self, renderable: fn() -> bool) -> Self {
-        self.alter_renderable(renderable);
+    pub fn with_weight(mut self, weight: isize) -> Self {
+        self.alter_weight(weight);
         self
     }
 
-    pub fn with_weight(mut self, weight: isize) -> Self {
-        self.alter_weight(weight);
+    pub fn with_renderable(mut self, renderable: fn() -> bool) -> Self {
+        self.alter_renderable(renderable);
         self
     }
 
@@ -283,13 +282,13 @@ impl Menu {
 
     // Menu ALTER.
 
-    pub fn alter_renderable(&mut self, renderable: fn() -> bool) -> &mut Self {
-        self.renderable = renderable;
+    pub fn alter_weight(&mut self, weight: isize) -> &mut Self {
+        self.weight = weight;
         self
     }
 
-    pub fn alter_weight(&mut self, weight: isize) -> &mut Self {
-        self.weight = weight;
+    pub fn alter_renderable(&mut self, renderable: fn() -> bool) -> &mut Self {
+        self.renderable = renderable;
         self
     }
 
