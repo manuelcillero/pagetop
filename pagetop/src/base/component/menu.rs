@@ -16,16 +16,16 @@ pub enum MenuItemType {
 // MenuItem.
 
 pub struct MenuItem {
-    renderable: fn() -> bool,
     weight    : isize,
+    renderable: Renderable,
     item_type : MenuItemType,
 }
 
 impl ComponentTrait for MenuItem {
     fn new() -> Self {
         MenuItem {
-            renderable: render_always,
             weight    : 0,
+            renderable: render_always,
             item_type : MenuItemType::Void,
         }
     }
@@ -38,8 +38,8 @@ impl ComponentTrait for MenuItem {
         self.weight
     }
 
-    fn is_renderable(&self, _: &InContext) -> bool {
-        (self.renderable)()
+    fn is_renderable(&self, context: &InContext) -> bool {
+        (self.renderable)(context)
     }
 
     fn default_render(&self, context: &mut InContext) -> Markup {
@@ -85,16 +85,16 @@ impl ComponentTrait for MenuItem {
 impl MenuItem {
     pub fn label(label: &str) -> Self {
         MenuItem {
-            renderable: render_always,
             weight    : 0,
+            renderable: render_always,
             item_type : MenuItemType::Label(label.to_owned()),
         }
     }
 
     pub fn link(label: &str, path: &str) -> Self {
         MenuItem {
-            renderable: render_always,
             weight    : 0,
+            renderable: render_always,
             item_type : MenuItemType::Link(
                 label.to_owned(),
                 path.to_owned(),
@@ -104,8 +104,8 @@ impl MenuItem {
 
     pub fn link_blank(label: &str, path: &str) -> Self {
         MenuItem {
-            renderable: render_always,
             weight    : 0,
+            renderable: render_always,
             item_type : MenuItemType::LinkBlank(
                 label.to_owned(),
                 path.to_owned(),
@@ -115,24 +115,24 @@ impl MenuItem {
 
     pub fn html(html: Markup) -> Self {
         MenuItem {
-            renderable: render_always,
             weight    : 0,
+            renderable: render_always,
             item_type : MenuItemType::Html(html),
         }
     }
 
     pub fn separator() -> Self {
         MenuItem {
-            renderable: render_always,
             weight    : 0,
+            renderable: render_always,
             item_type : MenuItemType::Separator,
         }
     }
 
     pub fn submenu(label: &str, menu: Menu) -> Self {
         MenuItem {
-            renderable: render_always,
             weight    : 0,
+            renderable: render_always,
             item_type : MenuItemType::Submenu(
                 label.to_owned(),
                 menu
@@ -147,7 +147,7 @@ impl MenuItem {
         self
     }
 
-    pub fn with_renderable(mut self, renderable: fn() -> bool) -> Self {
+    pub fn with_renderable(mut self, renderable: Renderable) -> Self {
         self.alter_renderable(renderable);
         self
     }
@@ -159,7 +159,7 @@ impl MenuItem {
         self
     }
 
-    pub fn alter_renderable(&mut self, renderable: fn() -> bool) -> &mut Self {
+    pub fn alter_renderable(&mut self, renderable: Renderable) -> &mut Self {
         self.renderable = renderable;
         self
     }
@@ -174,8 +174,8 @@ impl MenuItem {
 // Menu.
 
 pub struct Menu {
-    renderable: fn() -> bool,
     weight    : isize,
+    renderable: Renderable,
     id        : IdentifierValue,
     classes   : Classes,
     items     : ComponentsBundle,
@@ -185,8 +185,8 @@ pub struct Menu {
 impl ComponentTrait for Menu {
     fn new() -> Self {
         Menu {
-            renderable: render_always,
             weight    : 0,
+            renderable: render_always,
             items     : ComponentsBundle::new(),
             id        : IdentifierValue::new(),
             classes   : Classes::new_with_default("sm sm-clean"),
@@ -202,8 +202,8 @@ impl ComponentTrait for Menu {
         self.weight
     }
 
-    fn is_renderable(&self, _: &InContext) -> bool {
-        (self.renderable)()
+    fn is_renderable(&self, context: &InContext) -> bool {
+        (self.renderable)(context)
     }
 
     fn default_render(&self, context: &mut InContext) -> Markup {
@@ -255,7 +255,7 @@ impl Menu {
         self
     }
 
-    pub fn with_renderable(mut self, renderable: fn() -> bool) -> Self {
+    pub fn with_renderable(mut self, renderable: Renderable) -> Self {
         self.alter_renderable(renderable);
         self
     }
@@ -287,7 +287,7 @@ impl Menu {
         self
     }
 
-    pub fn alter_renderable(&mut self, renderable: fn() -> bool) -> &mut Self {
+    pub fn alter_renderable(&mut self, renderable: Renderable) -> &mut Self {
         self.renderable = renderable;
         self
     }

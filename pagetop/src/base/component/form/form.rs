@@ -5,8 +5,8 @@ pub const COMPONENT_FORM: &str = "pagetop::component::form";
 pub enum FormMethod {Get, Post}
 
 pub struct Form {
-    renderable: fn() -> bool,
     weight    : isize,
+    renderable: Renderable,
     id        : IdentifierValue,
     classes   : Classes,
     action    : AttributeValue,
@@ -19,8 +19,8 @@ pub struct Form {
 impl ComponentTrait for Form {
     fn new() -> Self {
         Form {
-            renderable: render_always,
             weight    : 0,
+            renderable: render_always,
             id        : IdentifierValue::new(),
             classes   : Classes::new_with_default("form"),
             action    : AttributeValue::new(),
@@ -39,8 +39,8 @@ impl ComponentTrait for Form {
         self.weight
     }
 
-    fn is_renderable(&self, _: &InContext) -> bool {
-        (self.renderable)()
+    fn is_renderable(&self, context: &InContext) -> bool {
+        (self.renderable)(context)
     }
 
     fn default_render(&self, context: &mut InContext) -> Markup {
@@ -79,7 +79,7 @@ impl Form {
         self
     }
 
-    pub fn with_renderable(mut self, renderable: fn() -> bool) -> Self {
+    pub fn with_renderable(mut self, renderable: Renderable) -> Self {
         self.alter_renderable(renderable);
         self
     }
@@ -126,7 +126,7 @@ impl Form {
         self
     }
 
-    pub fn alter_renderable(&mut self, renderable: fn() -> bool) -> &mut Self {
+    pub fn alter_renderable(&mut self, renderable: Renderable) -> &mut Self {
         self.renderable = renderable;
         self
     }

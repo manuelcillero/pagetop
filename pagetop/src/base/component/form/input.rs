@@ -5,8 +5,8 @@ pub const COMPONENT_INPUT: &str = "pagetop::component::form::input";
 pub enum InputType {Email, Password, Search, Telephone, Textfield, Url}
 
 pub struct Input {
-    renderable  : fn() -> bool,
     weight      : isize,
+    renderable  : Renderable,
     classes     : Classes,
     input_type  : InputType,
     name        : IdentifierValue,
@@ -28,8 +28,8 @@ pub struct Input {
 impl ComponentTrait for Input {
     fn new() -> Self {
         Input {
-            renderable  : render_always,
             weight      : 0,
+            renderable  : render_always,
             classes     : Classes::new_with_default("form-item"),
             input_type  : InputType::Textfield,
             name        : IdentifierValue::new(),
@@ -58,8 +58,8 @@ impl ComponentTrait for Input {
         self.weight
     }
 
-    fn is_renderable(&self, _: &InContext) -> bool {
-        (self.renderable)()
+    fn is_renderable(&self, context: &InContext) -> bool {
+        (self.renderable)(context)
     }
 
     fn default_render(&self, _: &mut InContext) -> Markup {
@@ -168,7 +168,7 @@ impl Input {
         self
     }
 
-    pub fn with_renderable(mut self, renderable: fn() -> bool) -> Self {
+    pub fn with_renderable(mut self, renderable: Renderable) -> Self {
         self.alter_renderable(renderable);
         self
     }
@@ -255,7 +255,7 @@ impl Input {
         self
     }
 
-    pub fn alter_renderable(&mut self, renderable: fn() -> bool) -> &mut Self {
+    pub fn alter_renderable(&mut self, renderable: Renderable) -> &mut Self {
         self.renderable = renderable;
         self
     }

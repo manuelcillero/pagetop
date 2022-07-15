@@ -32,8 +32,8 @@ pub enum ColumnSize {
     IsFull,
 }
 pub struct Column {
-    renderable: fn() -> bool,
     weight    : isize,
+    renderable: Renderable,
     id        : IdentifierValue,
     classes   : Classes,
     size      : ColumnSize,
@@ -44,8 +44,8 @@ pub struct Column {
 impl ComponentTrait for Column {
     fn new() -> Self {
         Column {
-            renderable: render_always,
             weight    : 0,
+            renderable: render_always,
             id        : IdentifierValue::new(),
             classes   : Classes::new_with_default(SIZE_DEFAULT),
             size      : ColumnSize::Default,
@@ -62,8 +62,8 @@ impl ComponentTrait for Column {
         self.weight
     }
 
-    fn is_renderable(&self, _: &InContext) -> bool {
-        (self.renderable)()
+    fn is_renderable(&self, context: &InContext) -> bool {
+        (self.renderable)(context)
     }
 
     fn default_render(&self, context: &mut InContext) -> Markup {
@@ -92,7 +92,7 @@ impl Column {
         self
     }
 
-    pub fn with_renderable(mut self, renderable: fn() -> bool) -> Self {
+    pub fn with_renderable(mut self, renderable: Renderable) -> Self {
         self.alter_renderable(renderable);
         self
     }
@@ -129,7 +129,7 @@ impl Column {
         self
     }
 
-    pub fn alter_renderable(&mut self, renderable: fn() -> bool) -> &mut Self {
+    pub fn alter_renderable(&mut self, renderable: Renderable) -> &mut Self {
         self.renderable = renderable;
         self
     }

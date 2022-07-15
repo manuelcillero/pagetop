@@ -3,8 +3,8 @@ use crate::prelude::*;
 pub const COMPONENT_CHUNCK: &str = "pagetop::component::chunck";
 
 pub struct Chunck {
-    renderable: fn() -> bool,
     weight    : isize,
+    renderable: Renderable,
     html      : Markup,
     template  : String,
 }
@@ -12,8 +12,8 @@ pub struct Chunck {
 impl ComponentTrait for Chunck {
     fn new() -> Self {
         Chunck {
-            renderable: render_always,
             weight    : 0,
+            renderable: render_always,
             html      : html! {},
             template  : "default".to_owned(),
         }
@@ -27,8 +27,8 @@ impl ComponentTrait for Chunck {
         self.weight
     }
 
-    fn is_renderable(&self, _: &InContext) -> bool {
-        (self.renderable)()
+    fn is_renderable(&self, context: &InContext) -> bool {
+        (self.renderable)(context)
     }
 
     fn default_render(&self, _: &mut InContext) -> Markup {
@@ -56,7 +56,7 @@ impl Chunck {
         self
     }
 
-    pub fn with_renderable(mut self, renderable: fn() -> bool) -> Self {
+    pub fn with_renderable(mut self, renderable: Renderable) -> Self {
         self.alter_renderable(renderable);
         self
     }
@@ -78,7 +78,7 @@ impl Chunck {
         self
     }
 
-    pub fn alter_renderable(&mut self, renderable: fn() -> bool) -> &mut Self {
+    pub fn alter_renderable(&mut self, renderable: Renderable) -> &mut Self {
         self.renderable = renderable;
         self
     }

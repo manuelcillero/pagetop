@@ -3,8 +3,8 @@ use crate::prelude::*;
 pub const COMPONENT_ROW: &str = "pagetop::component::grid::row";
 
 pub struct Row {
-    renderable: fn() -> bool,
     weight    : isize,
+    renderable: Renderable,
     id        : IdentifierValue,
     classes   : Classes,
     columns   : ComponentsBundle,
@@ -14,8 +14,8 @@ pub struct Row {
 impl ComponentTrait for Row {
     fn new() -> Self {
         Row {
-            renderable: render_always,
             weight    : 0,
+            renderable: render_always,
             id        : IdentifierValue::new(),
             classes   : Classes::new_with_default("row"),
             columns   : ComponentsBundle::new(),
@@ -31,8 +31,8 @@ impl ComponentTrait for Row {
         self.weight
     }
 
-    fn is_renderable(&self, _: &InContext) -> bool {
-        (self.renderable)()
+    fn is_renderable(&self, context: &InContext) -> bool {
+        (self.renderable)(context)
     }
 
     fn default_render(&self, context: &mut InContext) -> Markup {
@@ -61,7 +61,7 @@ impl Row {
         self
     }
 
-    pub fn with_renderable(mut self, renderable: fn() -> bool) -> Self {
+    pub fn with_renderable(mut self, renderable: Renderable) -> Self {
         self.alter_renderable(renderable);
         self
     }
@@ -93,7 +93,7 @@ impl Row {
         self
     }
 
-    pub fn alter_renderable(&mut self, renderable: fn() -> bool) -> &mut Self {
+    pub fn alter_renderable(&mut self, renderable: Renderable) -> &mut Self {
         self.renderable = renderable;
         self
     }

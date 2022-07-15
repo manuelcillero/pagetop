@@ -5,8 +5,8 @@ pub const COMPONENT_BUTTON: &str = "pagetop::component::form::button";
 pub enum ButtonType {Button, Reset, Submit}
 
 pub struct Button {
-    renderable : fn() -> bool,
     weight     : isize,
+    renderable : Renderable,
     classes    : Classes,
     button_type: ButtonType,
     name       : AttributeValue,
@@ -19,8 +19,8 @@ pub struct Button {
 impl ComponentTrait for Button {
     fn new() -> Self {
         Button {
-            renderable : render_always,
             weight     : 0,
+            renderable : render_always,
             classes    : Classes::new_with_default("btn btn-primary"),
             button_type: ButtonType::Button,
             name       : AttributeValue::new(),
@@ -40,8 +40,8 @@ impl ComponentTrait for Button {
         self.weight
     }
 
-    fn is_renderable(&self, _: &InContext) -> bool {
-        (self.renderable)()
+    fn is_renderable(&self, context: &InContext) -> bool {
+        (self.renderable)(context)
     }
 
     fn default_render(&self, _: &mut InContext) -> Markup {
@@ -109,7 +109,7 @@ impl Button {
         self
     }
 
-    pub fn with_renderable(mut self, renderable: fn() -> bool) -> Self {
+    pub fn with_renderable(mut self, renderable: Renderable) -> Self {
         self.alter_renderable(renderable);
         self
     }
@@ -151,7 +151,7 @@ impl Button {
         self
     }
 
-    pub fn alter_renderable(&mut self, renderable: fn() -> bool) -> &mut Self {
+    pub fn alter_renderable(&mut self, renderable: Renderable) -> &mut Self {
         self.renderable = renderable;
         self
     }

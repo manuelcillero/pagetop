@@ -3,8 +3,8 @@ use crate::prelude::*;
 pub const COMPONENT_ICON: &str = "pagetop::component::icon";
 
 pub struct Icon {
-    renderable: fn() -> bool,
     weight    : isize,
+    renderable: Renderable,
     icon_name : String,
     classes   : Classes,
 }
@@ -12,8 +12,8 @@ pub struct Icon {
 impl ComponentTrait for Icon {
     fn new() -> Self {
         Icon {
-            renderable: render_always,
             weight    : 0,
+            renderable: render_always,
             icon_name : "question-circle-fill".to_owned(),
             classes   : Classes::new_with_default("bi-question-circle-fill"),
         }
@@ -27,8 +27,8 @@ impl ComponentTrait for Icon {
         self.weight
     }
 
-    fn is_renderable(&self, _: &InContext) -> bool {
-        (self.renderable)()
+    fn is_renderable(&self, context: &InContext) -> bool {
+        (self.renderable)(context)
     }
 
     fn default_render(&self, context: &mut InContext) -> Markup {
@@ -62,7 +62,7 @@ impl Icon {
         self
     }
 
-    pub fn with_renderable(mut self, renderable: fn() -> bool) -> Self {
+    pub fn with_renderable(mut self, renderable: Renderable) -> Self {
         self.alter_renderable(renderable);
         self
     }
@@ -84,7 +84,7 @@ impl Icon {
         self
     }
 
-    pub fn alter_renderable(&mut self, renderable: fn() -> bool) -> &mut Self {
+    pub fn alter_renderable(&mut self, renderable: Renderable) -> &mut Self {
         self.renderable = renderable;
         self
     }

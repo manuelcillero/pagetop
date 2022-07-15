@@ -3,8 +3,8 @@ use crate::prelude::*;
 pub const COMPONENT_BLOCK: &str = "pagetop::component::block";
 
 pub struct Block {
-    renderable: fn() -> bool,
     weight    : isize,
+    renderable: Renderable,
     id        : IdentifierValue,
     classes   : Classes,
     title     : AttributeValue,
@@ -15,8 +15,8 @@ pub struct Block {
 impl ComponentTrait for Block {
     fn new() -> Self {
         Block {
-            renderable: render_always,
             weight    : 0,
+            renderable: render_always,
             id        : IdentifierValue::new(),
             classes   : Classes::new_with_default("block"),
             title     : AttributeValue::new(),
@@ -33,8 +33,8 @@ impl ComponentTrait for Block {
         self.weight
     }
 
-    fn is_renderable(&self, _: &InContext) -> bool {
-        (self.renderable)()
+    fn is_renderable(&self, context: &InContext) -> bool {
+        (self.renderable)(context)
     }
 
     fn default_render(&self, context: &mut InContext) -> Markup {
@@ -70,7 +70,7 @@ impl Block {
         self
     }
 
-    pub fn with_renderable(mut self, renderable: fn() -> bool) -> Self {
+    pub fn with_renderable(mut self, renderable: Renderable) -> Self {
         self.alter_renderable(renderable);
         self
     }
@@ -107,7 +107,7 @@ impl Block {
         self
     }
 
-    pub fn alter_renderable(&mut self, renderable: fn() -> bool) -> &mut Self {
+    pub fn alter_renderable(&mut self, renderable: Renderable) -> &mut Self {
         self.renderable = renderable;
         self
     }
