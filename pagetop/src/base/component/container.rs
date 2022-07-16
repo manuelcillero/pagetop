@@ -2,6 +2,11 @@ use crate::prelude::*;
 
 pub const COMPONENT_CONTAINER: &str = "pagetop::component::container";
 
+hook_before_render_component!(
+    HOOK_BEFORE_RENDER_CONTAINER = "pagetop::action::before_render_container",
+    Container
+);
+
 pub enum ContainerType { Header, Footer, Main, Section, Wrapper }
 
 pub struct Container {
@@ -39,6 +44,10 @@ impl ComponentTrait for Container {
 
     fn is_renderable(&self, context: &InContext) -> bool {
         (self.renderable)(context)
+    }
+
+    fn before_render(&mut self, context: &mut InContext) {
+        before_render_inline(self, context);
     }
 
     fn default_render(&self, context: &mut InContext) -> Markup {

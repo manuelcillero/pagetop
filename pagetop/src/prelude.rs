@@ -1,6 +1,6 @@
 //! Re-exporta recursos comunes.
 
-// Macros, globals and helpers.
+// Global macros and helpers.
 pub use crate::{
     args,
     concat_string,
@@ -25,12 +25,17 @@ pub use crate::app;
 pub use crate::app::AppTrait;
 pub use crate::app::application::Application;
 
-pub use crate::{hook_action, core::{
+pub use crate::core::{
     component::*,
     hook::*,
     module::*,
     theme::*,
-}};
+};
+pub use crate::{
+    hook_action,
+    hook_before_render_component,
+};
+
 
 pub use crate::response::page::*;
 

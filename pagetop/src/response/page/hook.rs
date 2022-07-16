@@ -3,8 +3,10 @@ use super::Page;
 
 pub const HOOK_BEFORE_RENDER_PAGE: &str = "pagetop::hook::before_render_page";
 
+type Hook = fn(&mut Page);
+
 pub struct BeforeRenderPageHook {
-    hook: Option<fn(&mut Page)>,
+    hook: Option<Hook>,
     weight: isize,
 }
 
@@ -30,7 +32,7 @@ impl HookTrait for BeforeRenderPageHook {
 }
 
 impl BeforeRenderPageHook {
-    pub fn with_hook(mut self, hook: fn(&mut Page)) -> Self {
+    pub fn with_hook(mut self, hook: Hook) -> Self {
         self.hook = Some(hook);
         self
     }

@@ -2,6 +2,11 @@ use crate::prelude::*;
 
 pub const COMPONENT_COLUMN: &str = "pagetop::component::grid::column";
 
+hook_before_render_component!(
+    HOOK_BEFORE_RENDER_COLUMN = "pagetop::action::before_render_column",
+    Column
+);
+
 const SIZE_DEFAULT:  &str = "col-md";
 const SIZE_1_OF_12:  &str = "col-md-1";
 const SIZE_2_OF_12:  &str = "col-md-2";
@@ -64,6 +69,10 @@ impl ComponentTrait for Column {
 
     fn is_renderable(&self, context: &InContext) -> bool {
         (self.renderable)(context)
+    }
+
+    fn before_render(&mut self, context: &mut InContext) {
+        before_render_inline(self, context);
     }
 
     fn default_render(&self, context: &mut InContext) -> Markup {

@@ -2,6 +2,11 @@ use crate::prelude::*;
 
 pub const COMPONENT_BLOCK: &str = "pagetop::component::block";
 
+hook_before_render_component!(
+    HOOK_BEFORE_RENDER_BLOCK = "pagetop::action::before_render_block",
+    Block
+);
+
 pub struct Block {
     weight    : isize,
     renderable: Renderable,
@@ -35,6 +40,10 @@ impl ComponentTrait for Block {
 
     fn is_renderable(&self, context: &InContext) -> bool {
         (self.renderable)(context)
+    }
+
+    fn before_render(&mut self, context: &mut InContext) {
+        before_render_inline(self, context);
     }
 
     fn default_render(&self, context: &mut InContext) -> Markup {

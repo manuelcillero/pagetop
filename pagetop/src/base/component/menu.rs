@@ -1,6 +1,5 @@
 use crate::prelude::*;
 
-pub const COMPONENT_MENU: &str = "pagetop::component::menu";
 pub const COMPONENT_MENUITEM: &str = "pagetop::component::menu_item";
 
 pub enum MenuItemType {
@@ -173,6 +172,13 @@ impl MenuItem {
 
 // Menu.
 
+pub const COMPONENT_MENU: &str = "pagetop::component::menu";
+
+hook_before_render_component!(
+    HOOK_BEFORE_RENDER_MENU = "pagetop::action::before_render_menu",
+    Menu
+);
+
 pub struct Menu {
     weight    : isize,
     renderable: Renderable,
@@ -204,6 +210,10 @@ impl ComponentTrait for Menu {
 
     fn is_renderable(&self, context: &InContext) -> bool {
         (self.renderable)(context)
+    }
+
+    fn before_render(&mut self, context: &mut InContext) {
+        before_render_inline(self, context);
     }
 
     fn default_render(&self, context: &mut InContext) -> Markup {

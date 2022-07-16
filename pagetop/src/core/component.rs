@@ -1,9 +1,3 @@
-mod hook;
-pub use hook::{
-    HOOK_BEFORE_RENDER_COMPONENT,
-    BeforeRenderComponentHook,
-};
-
 mod context;
 pub use context::{InContext, InContextOp};
 

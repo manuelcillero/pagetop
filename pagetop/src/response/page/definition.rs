@@ -1,7 +1,7 @@
 use crate::{Lazy, app, trace};
 use crate::config::SETTINGS;
 use crate::html::*;
-use crate::core::hook::{hook_ref, run_hooks};
+use crate::core::hook::{action_ref, run_actions};
 use crate::core::component::*;
 use super::{HOOK_BEFORE_RENDER_PAGE, BeforeRenderPageHook};
 
@@ -193,9 +193,9 @@ impl Page {
 
     pub fn render(&mut self) -> app::Result<Markup> {
         // Acciones de los módulos antes de renderizar la página.
-        run_hooks(
+        run_actions(
             HOOK_BEFORE_RENDER_PAGE,
-            |hook| hook_ref::<BeforeRenderPageHook>(&**hook).run(self)
+            |hook| action_ref::<BeforeRenderPageHook>(&**hook).run(self)
         );
 
         // Acciones del tema antes de renderizar la página.

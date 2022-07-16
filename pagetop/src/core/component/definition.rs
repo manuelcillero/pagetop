@@ -1,7 +1,6 @@
 use crate::util;
 use crate::html::{Markup, html};
-use crate::core::hook::{hook_ref, run_hooks};
-use super::{HOOK_BEFORE_RENDER_COMPONENT, BeforeRenderComponentHook, InContext};
+use super::InContext;
 
 pub use std::any::Any as AnyComponent;
 
@@ -50,11 +49,8 @@ pub fn component_mut<C: 'static>(component: &mut dyn ComponentTrait) -> &mut C {
 }
 
 pub fn render_component(component: &mut dyn ComponentTrait, context: &mut InContext) -> Markup {
-    // Acciones de los módulos antes de renderizar el componente.
-    run_hooks(
-        HOOK_BEFORE_RENDER_COMPONENT,
-        |hook| hook_ref::<BeforeRenderComponentHook>(&**hook).run(component, context)
-    );
+    // Acciones del componente antes de renderizar.
+    component.before_render(context);
 
     // Acciones del tema antes de renderizar el componente.
     context.theme().before_render_component(component, context);
@@ -66,4 +62,69 @@ pub fn render_component(component: &mut dyn ComponentTrait, context: &mut InCont
         },
         false => html! {}
     }
+}
+
+#[macro_export]
+macro_rules! hook_before_render_component {
+    ( $ACTION_HANDLER:ident = $handler:literal, $Component:ty ) => {
+        paste::paste! {
+            const $ACTION_HANDLER: &str = $handler;
+
+            type Action = fn(&$Component, &mut InContext);
+
+            pub struct [< BeforeRender $Component >] {
+                action: Option<Action>,
+                weight: isize,
+            }
+
+            impl HookTrait for [< BeforeRender $Component >] {
+                fn new() -> Self {
+                    [< BeforeRender $Component >] {
+                        action: None,
+                        weight: 0,
+                    }
+                }
+
+                fn handler(&self) -> &'static str {
+                    $ACTION_HANDLER
+                }
+
+                fn weight(&self) -> isize {
+                    self.weight
+                }
+
+                fn as_ref_any(&self) -> &dyn AnyHook {
+                    self
+                }
+            }
+
+            impl [< BeforeRender $Component >] {
+                #[allow(dead_code)]
+                pub fn with_hook(mut self, action: Action) -> Self {
+                    self.action = Some(action);
+                    self
+                }
+
+                #[allow(dead_code)]
+                pub fn with_weight(mut self, weight: isize) -> Self {
+                    self.weight = weight;
+                    self
+                }
+
+                pub fn run(&self, component: &mut $Component, context: &mut InContext) {
+                    if let Some(action) = self.action {
+                        action(component, context)
+                    }
+                }
+            }
+
+            #[inline(always)]
+            fn before_render_inline(component: &mut $Component, context: &mut InContext) {
+                run_actions(
+                    $ACTION_HANDLER,
+                    |action| action_ref::<[< BeforeRender $Component >]>(&**action).run(component, context)
+                );
+            }
+        }
+    };
 }

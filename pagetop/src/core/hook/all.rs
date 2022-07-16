@@ -19,7 +19,7 @@ pub fn add_hook(hook: HookAction) {
     }
 }
 
-pub fn run_hooks<B, F>(action_handler: &str, f: F) where F: FnMut(&HookAction) -> B {
+pub fn run_actions<B, F>(action_handler: &str, f: F) where F: FnMut(&HookAction) -> B {
     if let Some(actions) = ACTIONS.read().unwrap().get(action_handler) {
         actions.iter_map(f)
     }
