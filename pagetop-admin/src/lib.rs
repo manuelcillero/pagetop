@@ -28,9 +28,9 @@ impl ModuleTrait for Admin {
         );
     }
 
-    fn actions(&self) -> Vec<HookItem> {
+    fn actions(&self) -> Vec<HookAction> {
         vec![
-            hook_item!(BeforeRenderPageHook => before_render_page)
+            hook_action!(BeforeRenderPageHook => before_render_page)
         ]
     }
 }

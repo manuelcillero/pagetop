@@ -28,6 +28,10 @@ pub trait ComponentTrait: AnyComponent + Send + Sync {
     }
 
     #[allow(unused_variables)]
+    fn before_render(&mut self, context: &mut InContext) {
+    }
+
+    #[allow(unused_variables)]
     fn default_render(&self, context: &mut InContext) -> Markup {
         html! {}
     }

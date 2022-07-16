@@ -6,7 +6,7 @@ pub use definition::{
 };
 
 mod holder;
-pub use holder::HookItem;
+pub use holder::HookAction;
 use holder::HooksHolder;
 
 mod all;

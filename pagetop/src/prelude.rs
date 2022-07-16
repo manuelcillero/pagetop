@@ -25,7 +25,7 @@ pub use crate::app;
 pub use crate::app::AppTrait;
 pub use crate::app::application::Application;
 
-pub use crate::{hook_item, core::{
+pub use crate::{hook_action, core::{
     component::*,
     hook::*,
     module::*,
