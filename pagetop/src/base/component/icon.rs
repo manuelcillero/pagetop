@@ -31,13 +31,15 @@ impl ComponentTrait for Icon {
         (self.renderable)(context)
     }
 
-    fn default_render(&self, context: &mut InContext) -> Markup {
+    fn before_render(&mut self, context: &mut InContext) {
         context
             .alter(InContextOp::StyleSheet(AssetsOp::Add(
                 StyleSheet::located("/theme/icons/bootstrap-icons.css")
                     .with_version("1.8.2")
             )));
+    }
 
+    fn default_render(&self, _: &mut InContext) -> Markup {
         html! { i class=[self.classes().get()] {}; }
     }
 

@@ -9,22 +9,64 @@
 	padding-right: 1.5em;
 	border-radius: 1.5em;
 }
+
 #welcome {
-	padding: 1em 5%;
+	padding: 2em 10%;
 }
-#welcome .welcome-col-text {
+#welcome > div.container {
+	padding: 3rem 8rem;
+	border-radius: 28px;
+	background: url("/theme/images/demo-welcome.jpg") center center no-repeat;
+	background-size: auto;
+	background-size: cover;
+	text-align: center;
+	color: #fff;
+}
+#welcome > div.container > h2 {
+	color: #fff;
+}
+#welcome > div.container > h3 {
+	color: #ccc;
+}
+
+#pagetop {
+	padding: 2em 5%;
+}
+#pagetop .pagetop-col-text {
+	padding-top: 2em;
 	padding-left: 5%;
 }
+
+#promo {
+	padding: 4em 5% 2em;
+}
+#promo .promo-col-text {
+	padding-top: 2em;
+	padding-left: 5%;
+}
+
+#reporting {
+	padding: 4em 5%;
+}
+#reporting .reporting-col-text {
+	text-align: center;
+}
+
 /* Responsiveness */
+@media (min-width: 993px) {
+	#reporting .reporting-col-text {
+		padding-right: 3em;
+		text-align: right;
+	}
+}
 @media (max-width: 992px) {
-	#hello-world .hello-col-text {
+	[class$="-col-text"] {
 		text-align: center;
 	}
 	#hello-world .hello-col-image {
 		padding-top: 5%;
 	}
-	#welcome .welcome-col-text {
-		text-align: center;
-		padding-left: 0;
+	#welcome > div.container {
+		padding: 3rem 1rem;
 	}
 }

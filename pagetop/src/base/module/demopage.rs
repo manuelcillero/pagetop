@@ -83,32 +83,23 @@ fn hello_world() -> Container {
 }
 
 fn welcome() -> Container {
-    Container::new()
+    Container::section()
         .with_id("welcome")
-        .with_component(grid::Row::new()
-            .with_column(grid::Column::new()
-                .with_classes(ClassesOp::Add, "welcome-col-image")
-                .with_size(grid::ColumnSize::Is5of12)
-                .with_component(Image::image("/theme/images/demo-visiting.svg"))
-            )
-            .with_column(grid::Column::new()
-                .with_classes(ClassesOp::Add, "welcome-col-text")
-                .with_component(Heading::h2(html! {
-                    (t("welcome_to", &args!["app" => SETTINGS.app.name.as_str()]))
-                }))
-                .with_component(Heading::h3(html! {
-                        (l("welcome_subtitle"))
-                    })
-                    .with_display(HeadingDisplay::Subtitle)
-                )
-                .with_component(Paragraph::with(html! {
-                        (l("welcome_text1"))
-                    })
-                    .with_display(ParagraphDisplay::Small)
-                )
-                .with_component(Paragraph::with(html! { (l("welcome_text2")) }))
-            )
+        .with_classes(ClassesOp::Add, "welcome-col-text")
+        .with_component(Heading::h2(html! {
+            (t("welcome_to", &args!["app" => SETTINGS.app.name.as_str()]))
+        }))
+        .with_component(Heading::h3(html! {
+                (l("welcome_subtitle"))
+            })
+            .with_display(HeadingDisplay::Subtitle)
         )
+        .with_component(Paragraph::with(html! {
+                (l("welcome_text1"))
+            })
+            .with_display(ParagraphDisplay::Small)
+        )
+        .with_component(Paragraph::with(html! { (l("welcome_text2")) }))
 }
 
 fn about_pagetop() -> Container {
@@ -116,11 +107,15 @@ fn about_pagetop() -> Container {
         .with_id("pagetop")
         .with_component(grid::Row::new()
             .with_column(grid::Column::new()
-                .with_size(grid::ColumnSize::Is7of12)
+                .with_classes(ClassesOp::Add, "pagetop-col-image")
+                .with_size(grid::ColumnSize::Is5of12)
+                .with_component(Image::image("/theme/images/demo-about.svg"))
+            )
+            .with_column(grid::Column::new()
+                .with_classes(ClassesOp::Add, "pagetop-col-text")
                 .with_component(Heading::h2(html! {
-                        (l("pagetop_title"))
-                    })
-                )
+                    (l("pagetop_title"))
+                }))
                 .with_component(Paragraph::with(html! {
                         (l("pagetop_text1"))
                     })
@@ -135,9 +130,6 @@ fn about_pagetop() -> Container {
                     })
                 )
             )
-            .with_column(grid::Column::new()
-                .with_component(Image::image("/theme/images/demo-pagetop.svg"))
-            )
         )
 }
 
@@ -146,10 +138,12 @@ fn promo_pagetop() -> Container {
         .with_id("promo")
         .with_component(grid::Row::new()
             .with_column(grid::Column::new()
+                .with_classes(ClassesOp::Add, "promo-col-image")
                 .with_size(grid::ColumnSize::Is5of12)
                 .with_component(Image::image("/theme/images/demo-pagetop.svg"))
             )
             .with_column(grid::Column::new()
+                .with_classes(ClassesOp::Add, "promo-col-text")
                 .with_component(Heading::h2(html! {
                         (l("pagetop_promo_title"))
                     })
@@ -170,6 +164,7 @@ fn reporting_problems() -> Container {
         .with_id("reporting")
         .with_component(grid::Row::new()
             .with_column(grid::Column::new()
+                .with_classes(ClassesOp::Add, "reporting-col-text")
                 .with_size(grid::ColumnSize::Is7of12)
                 .with_component(Heading::h2(html! {
                         (l("report_problems_title"))
@@ -186,6 +181,7 @@ fn reporting_problems() -> Container {
                 )
             )
             .with_column(grid::Column::new()
+                .with_classes(ClassesOp::Add, "reporting-col-image")
                 .with_component(Image::image("/theme/images/demo-pagetop.svg"))
             )
         )
