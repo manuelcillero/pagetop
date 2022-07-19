@@ -78,10 +78,7 @@ impl ComponentTrait for Input {
             InputType::Textfield => "text",
             InputType::Url       => "url",
         };
-        let id = match self.name().get() {
-            Some(name) => Some(concat_string!("edit-", name)),
-            None => None,
-        };
+        let id = self.name().get().map(|name| concat_string!("edit-", name));
         html! {
             div class=[self.classes().get()] {
                 @match self.label().get() {

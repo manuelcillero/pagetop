@@ -20,5 +20,5 @@ pub use image::{Image, COMPONENT_IMAGE};
 mod menu;
 pub use menu::{Menu, MenuItem, MenuItemType, COMPONENT_MENU, COMPONENT_MENUITEM};
 
-pub mod form;
-pub use form::{Form, FormMethod, COMPONENT_FORM};
+pub mod form_element;
+pub use form_element::{Form, FormMethod, COMPONENT_FORM};

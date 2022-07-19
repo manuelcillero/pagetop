@@ -1,5 +1,6 @@
 use crate::html::{html, Markup, PreEscaped};
 
+#[derive(Default)]
 pub struct Favicon(Vec<String>);
 
 impl Favicon {

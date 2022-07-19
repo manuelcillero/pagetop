@@ -3,7 +3,7 @@ use crate::html::{html, Markup};
 
 use std::sync::{Arc, RwLock};
 
-#[derive(Clone)]
+#[derive(Clone, Default)]
 pub struct ComponentsBundle(Vec<Arc<RwLock<dyn ComponentTrait>>>);
 
 impl ComponentsBundle {

@@ -25,11 +25,11 @@ pub static DBCONN: Lazy<DbConn> = Lazy::new(|| {
             )
             .unwrap();
             tmp_uri
-                .set_username(&SETTINGS.database.db_user.as_str())
+                .set_username(SETTINGS.database.db_user.as_str())
                 .unwrap();
             // https://github.com/launchbadge/sqlx/issues/1624
             tmp_uri
-                .set_password(Some(&SETTINGS.database.db_pass.as_str()))
+                .set_password(Some(SETTINGS.database.db_pass.as_str()))
                 .unwrap();
             if SETTINGS.database.db_port != 0 {
                 tmp_uri.set_port(Some(SETTINGS.database.db_port)).unwrap();
@@ -56,7 +56,7 @@ pub static DBCONN: Lazy<DbConn> = Lazy::new(|| {
     run_now(Database::connect::<ConnectOptions>({
         let mut db_opt = ConnectOptions::new(db_uri.to_string());
         db_opt.max_connections(SETTINGS.database.max_pool_size);
-        db_opt.into()
+        db_opt
     }))
     .expect_or_log("Failed to connect to database")
 });

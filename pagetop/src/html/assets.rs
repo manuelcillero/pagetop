@@ -17,6 +17,8 @@ pub enum AssetsOp<T: AssetsTrait> {
     Add(T),
     Remove(SourceValue),
 }
+
+#[derive(Default)]
 pub struct Assets<T>(Vec<T>);
 
 impl<T: AssetsTrait> Assets<T> {

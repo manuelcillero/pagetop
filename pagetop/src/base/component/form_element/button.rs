@@ -54,10 +54,7 @@ impl ComponentTrait for Button {
             ButtonType::Reset  => "reset",
             ButtonType::Submit => "submit",
         };
-        let id = match self.name().get() {
-            Some(name) => Some(concat_string!("edit-", name)),
-            _ => None,
-        };
+        let id = self.name().get().map(|name| concat_string!("edit-", name));
         html! {
             button
                 type=(button_type)
@@ -86,7 +83,7 @@ impl ComponentTrait for Button {
 }
 
 impl Button {
-    pub fn button(value: &str) -> Self {
+    pub fn new_with_value(value: &str) -> Self {
         Button::new().with_value(value)
     }
 

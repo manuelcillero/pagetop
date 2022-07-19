@@ -100,11 +100,11 @@ impl InContext {
 
     pub fn required_id<T>(&mut self, id: &IdentifierValue) -> String {
         match id.get() {
-            Some(id) => id.to_string(),
+            Some(id) => id,
             None => {
                 let prefix = util::single_type_name::<T>()
                     .trim()
-                    .replace(" ", "_")
+                    .replace(' ', "_")
                     .to_lowercase();
                 let prefix = if prefix.is_empty() {
                     "prefix".to_owned()

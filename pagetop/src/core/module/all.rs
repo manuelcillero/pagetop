@@ -33,17 +33,15 @@ fn add_to(list: &mut Vec<&dyn ModuleTrait>, module: &'static dyn ModuleTrait) {
         .read()
         .unwrap()
         .iter()
-        .any(|m| m.handler() == module.handler())
+        .any(|m| m.handler() == module.handler()) && !list.iter().any(|m| m.handler() == module.handler())
     {
-        if !list.iter().any(|m| m.handler() == module.handler()) {
-            trace::debug!("Enabling module \"{}\"", module.single_name());
-            list.push(module);
+        trace::debug!("Enabling module \"{}\"", module.single_name());
+        list.push(module);
 
-            let mut dependencies = module.dependencies();
-            dependencies.reverse();
-            for d in dependencies.iter() {
-                add_to(list, *d);
-            }
+        let mut dependencies = module.dependencies();
+        dependencies.reverse();
+        for d in dependencies.iter() {
+            add_to(list, *d);
         }
     }
 }

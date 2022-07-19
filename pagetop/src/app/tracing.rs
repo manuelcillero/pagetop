@@ -18,7 +18,7 @@ use tracing_subscriber::EnvFilter;
 /// enviarán antes de terminar la ejecución.
 
 pub static TRACING: Lazy<WorkerGuard> = Lazy::new(|| {
-    let env_filter = EnvFilter::try_new(&SETTINGS.log.tracing).unwrap_or(EnvFilter::new("Info"));
+    let env_filter = EnvFilter::try_new(&SETTINGS.log.tracing).unwrap_or_else(|_| EnvFilter::new("Info"));
 
     let rolling = SETTINGS.log.rolling.to_lowercase();
     let (non_blocking, guard) = match rolling.as_str() {
@@ -33,8 +33,8 @@ pub static TRACING: Lazy<WorkerGuard> = Lazy::new(|| {
                 "endless"  => tracing_appender::rolling::never(path, prefix),
                 _ => {
                     println!(
-                        "Rolling value \"{}\" not valid. {}. {}.",
-                        SETTINGS.log.rolling, "Using \"daily\"", "Check the settings file",
+                        "Rolling value \"{}\" not valid. Using \"daily\". Check the settings file.",
+                        SETTINGS.log.rolling,
                     );
                     tracing_appender::rolling::daily(path, prefix)
                 }
@@ -52,8 +52,8 @@ pub static TRACING: Lazy<WorkerGuard> = Lazy::new(|| {
         "pretty"  => subscriber.pretty().init(),
         _ => {
             println!(
-                "Tracing format \"{}\" not valid. {}. {}.",
-                SETTINGS.log.format, "Using \"Full\"", "Check the settings file",
+                "Tracing format \"{}\" not valid. Using \"Full\". Check the settings file.",
+                SETTINGS.log.format,
             );
             subscriber.init();
         }

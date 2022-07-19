@@ -6,7 +6,7 @@ use serde::Deserialize;
 use std::env;
 
 /// Nombre del directorio donde se encuentra la configuración.
-const CONFIG_DIR: &'static str = "config";
+const CONFIG_DIR: &str = "config";
 
 /// Al arrancar la aplicación, carga los valores originales "clave = valor" de
 /// los archivos de configuración. Con [`config_map`] se asignarán los ajustes
@@ -15,7 +15,7 @@ const CONFIG_DIR: &'static str = "config";
 pub static CONFIG: Lazy<Config> = Lazy::new(|| {
     // Establece el modo de ejecución según el valor de la variable de entorno
     // PAGETOP_RUN_MODE. Asume "default" por defecto.
-    let run_mode = env::var("PAGETOP_RUN_MODE").unwrap_or("default".into());
+    let run_mode = env::var("PAGETOP_RUN_MODE").unwrap_or_else(|_| "default".into());
 
     // Inicializa los ajustes.
     let mut settings = Config::default();

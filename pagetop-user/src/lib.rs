@@ -51,7 +51,7 @@ fn form_login() -> Form {
     Form::new()
         .with_id("user-login")
         .with_element(
-            form::Input::textfield()
+            form_element::Input::textfield()
                 .with_name("name")
                 .with_label(l("username").as_str())
                 .with_help_text(
@@ -66,10 +66,10 @@ fn form_login() -> Form {
                 .with_autofocus(true),
         )
         .with_element(
-            form::Input::password()
+            form_element::Input::password()
                 .with_name("pass")
                 .with_label(l("password").as_str())
                 .with_help_text(l("password_help").as_str()),
         )
-        .with_element(form::Button::submit(l("login").as_str()))
+        .with_element(form_element::Button::submit(l("login").as_str()))
 }

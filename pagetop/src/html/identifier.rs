@@ -1,3 +1,4 @@
+#[derive(Default)]
 pub struct IdentifierValue(String);
 
 impl IdentifierValue {
@@ -12,7 +13,7 @@ impl IdentifierValue {
     }
 
     pub fn with_value(&mut self, value: &str) -> &Self {
-        self.0 = value.trim().replace(" ", "_");
+        self.0 = value.trim().replace(' ', "_");
         self
     }
 

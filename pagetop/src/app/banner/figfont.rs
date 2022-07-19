@@ -17,8 +17,8 @@ pub static FIGFONT: Lazy<FIGfont> = Lazy::new(|| {
         "starwars" => starwars,
         _ => {
             println!(
-                "\n FIGfont \"{}\" not found for banner. {}. {}.",
-                SETTINGS.app.startup_banner, "Using \"Slant\"", "Check the settings file",
+                "\n FIGfont \"{}\" not found for banner. Using \"Slant\". Check the settings file.",
+                SETTINGS.app.startup_banner,
             );
             slant
         }

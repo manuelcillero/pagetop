@@ -14,6 +14,7 @@ pub enum ClassesOp {
     SetDefaultIfEmpty,
 }
 
+#[derive(Default)]
 pub struct Classes {
     default: String,
     added  : String,

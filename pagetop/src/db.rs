@@ -13,7 +13,7 @@ macro_rules! pub_migration {
 
         impl MigrationName for $migration {
             fn name(&self) -> &str {
-                crate::util::partial_type_name(module_path!(), 1)
+                $crate::util::partial_type_name(module_path!(), 1)
             }
         }
     };

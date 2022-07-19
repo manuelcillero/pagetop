@@ -87,7 +87,7 @@ fn hello_world() -> Container {
             .with_column(
                 grid::Column::new()
                     .with_classes(ClassesOp::Add, "hello-col-image")
-                    .with_component(Image::image("/theme/images/demo-header.svg")),
+                    .with_component(Image::new_with_source("/theme/images/demo-header.svg")),
             ),
     )
 }
@@ -121,7 +121,7 @@ fn about_pagetop() -> Container {
                 grid::Column::new()
                     .with_classes(ClassesOp::Add, "pagetop-col-image")
                     .with_size(grid::ColumnSize::Is5of12)
-                    .with_component(Image::image("/theme/images/demo-about.svg")),
+                    .with_component(Image::new_with_source("/theme/images/demo-about.svg")),
             )
             .with_column(
                 grid::Column::new()
@@ -152,7 +152,7 @@ fn promo_pagetop() -> Container {
                 grid::Column::new()
                     .with_classes(ClassesOp::Add, "promo-col-image")
                     .with_size(grid::ColumnSize::Is5of12)
-                    .with_component(Image::image("/theme/images/demo-pagetop.svg")),
+                    .with_component(Image::new_with_source("/theme/images/demo-pagetop.svg")),
             )
             .with_column(
                 grid::Column::new()
@@ -195,7 +195,7 @@ fn reporting_problems() -> Container {
             .with_column(
                 grid::Column::new()
                     .with_classes(ClassesOp::Add, "reporting-col-image")
-                    .with_component(Image::image("/theme/images/demo-pagetop.svg")),
+                    .with_component(Image::new_with_source("/theme/images/demo-pagetop.svg")),
             ),
     )
 }
