@@ -101,7 +101,6 @@ impl ComponentTrait for Date {
 }
 
 impl Date {
-
     // Date BUILDER.
 
     pub fn with_weight(mut self, weight: isize) -> Self {

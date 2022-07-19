@@ -2,13 +2,8 @@ mod context;
 pub use context::{InContext, InContextOp};
 
 mod definition;
-pub use definition::{
-    AnyComponent,
-    ComponentTrait,
-    component_ref,
-    component_mut,
-};
 use definition::render_component;
+pub use definition::{component_mut, component_ref, AnyComponent, ComponentTrait};
 
 mod bundle;
 pub use bundle::ComponentsBundle;
@@ -19,6 +14,10 @@ pub(crate) use all::common_components;
 
 pub type Renderable = fn(_: &InContext) -> bool;
 
-pub fn render_always(_: &InContext) -> bool { true }
+pub fn render_always(_: &InContext) -> bool {
+    true
+}
 
-pub fn render_never(_: &InContext) -> bool { false }
+pub fn render_never(_: &InContext) -> bool {
+    false
+}

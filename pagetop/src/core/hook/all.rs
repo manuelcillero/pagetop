@@ -1,13 +1,12 @@
-use crate::Lazy;
 use super::{HookAction, HooksHolder};
+use crate::Lazy;
 
-use std::sync::RwLock;
 use std::collections::HashMap;
+use std::sync::RwLock;
 
 // Registered actions.
-static ACTIONS: Lazy<RwLock<HashMap<&str, HooksHolder>>> = Lazy::new(|| {
-    RwLock::new(HashMap::new())
-});
+static ACTIONS: Lazy<RwLock<HashMap<&str, HooksHolder>>> =
+    Lazy::new(|| RwLock::new(HashMap::new()));
 
 pub fn add_hook(hook: HookAction) {
     let mut hmap = ACTIONS.write().unwrap();
@@ -19,7 +18,10 @@ pub fn add_hook(hook: HookAction) {
     }
 }
 
-pub fn run_actions<B, F>(action_handler: &str, f: F) where F: FnMut(&HookAction) -> B {
+pub fn run_actions<B, F>(action_handler: &str, f: F)
+where
+    F: FnMut(&HookAction) -> B,
+{
     if let Some(actions) = ACTIONS.read().unwrap().get(action_handler) {
         actions.iter_map(f)
     }

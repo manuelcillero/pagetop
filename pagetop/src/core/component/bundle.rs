@@ -1,5 +1,5 @@
-use crate::html::{Markup, html};
-use super::{InContext, ComponentTrait};
+use super::{ComponentTrait, InContext};
+use crate::html::{html, Markup};
 
 use std::sync::{Arc, RwLock};
 

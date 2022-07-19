@@ -14,7 +14,8 @@ pub fn print_on_startup() {
                 if SETTINGS.app.name.len() > maxlen {
                     app = format!("{}...", app);
                 }
-                println!("\n{} {}\n\n Powered by PageTop {}\n",
+                println!(
+                    "\n{} {}\n\n Powered by PageTop {}\n",
                     FIGFONT.convert(&app).unwrap(),
                     &SETTINGS.app.description,
                     env!("CARGO_PKG_VERSION")
@@ -22,7 +23,8 @@ pub fn print_on_startup() {
                 return;
             }
         }
-        println!("\n{}\n{}\n\nPowered by PageTop {}\n",
+        println!(
+            "\n{}\n{}\n\nPowered by PageTop {}\n",
             &SETTINGS.app.name,
             &SETTINGS.app.description,
             env!("CARGO_PKG_VERSION")

@@ -1,8 +1,12 @@
-use crate::html::{Markup, html};
 use super::{AssetsTrait, SourceValue};
+use crate::html::{html, Markup};
 
 #[derive(PartialEq)]
-pub enum JSMode { Async, Defer, Normal }
+pub enum JSMode {
+    Async,
+    Defer,
+    Normal,
+}
 
 pub struct JavaScript {
     source : SourceValue,

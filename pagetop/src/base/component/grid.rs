@@ -1,8 +1,4 @@
 mod row;
-pub use row::{
-    COMPONENT_ROW, Row
-};
+pub use row::{Row, COMPONENT_ROW};
 mod column;
-pub use column::{
-    COMPONENT_COLUMN, Column, ColumnSize
-};
+pub use column::{Column, ColumnSize, COMPONENT_COLUMN};

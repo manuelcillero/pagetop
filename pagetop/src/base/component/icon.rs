@@ -32,11 +32,9 @@ impl ComponentTrait for Icon {
     }
 
     fn before_render(&mut self, context: &mut InContext) {
-        context
-            .alter(InContextOp::StyleSheet(AssetsOp::Add(
-                StyleSheet::located("/theme/icons/bootstrap-icons.css")
-                    .with_version("1.8.2")
-            )));
+        context.alter(InContextOp::StyleSheet(AssetsOp::Add(
+            StyleSheet::located("/theme/icons/bootstrap-icons.css").with_version("1.8.2"),
+        )));
     }
 
     fn default_render(&self, _: &mut InContext) -> Markup {
@@ -93,7 +91,10 @@ impl Icon {
 
     pub fn alter_icon_name(&mut self, name: &str) -> &mut Self {
         self.icon_name = name.to_owned();
-        self.alter_classes(ClassesOp::SetDefault, concat_string!("bi-", self.icon_name).as_str());
+        self.alter_classes(
+            ClassesOp::SetDefault,
+            concat_string!("bi-", self.icon_name).as_str(),
+        );
         self
     }
 

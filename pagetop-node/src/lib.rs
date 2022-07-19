@@ -27,9 +27,7 @@ impl ModuleTrait for Node {
     }
 
     fn actions(&self) -> Vec<HookAction> {
-        vec![
-            hook_action!(BeforeRenderPageHook => before_render_page, -1)
-        ]
+        vec![hook_action!(BeforeRenderPageHook => before_render_page, -1)]
     }
 
     fn migrations(&self) -> Vec<MigrationItem> {
@@ -43,11 +41,7 @@ impl ModuleTrait for Node {
 }
 
 async fn node() -> app::Result<Markup> {
-    Page::new()
-        .with_title(
-            "Nodo"
-        )
-        .render()
+    Page::new().with_title("Nodo").render()
 }
 
 fn before_render_page(page: &mut Page) {

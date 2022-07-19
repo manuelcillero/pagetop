@@ -1,6 +1,6 @@
 pub use fluent_templates;
-pub use fluent_templates::{Loader as Locale, static_loader as static_locale};
 pub use fluent_templates::fluent_bundle::FluentValue;
+pub use fluent_templates::{static_loader as static_locale, Loader as Locale};
 
 #[macro_export]
 /// Permite integrar fácilmente localización en temas, módulos y componentes.

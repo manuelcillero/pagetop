@@ -23,45 +23,31 @@ pub_migration!(Migration);
 #[async_trait::async_trait]
 impl MigrationTrait for Migration {
     async fn up(&self, manager: &SchemaManager) -> Result<(), DbErr> {
-        manager.create_table(Table::create()
-            .table(NodeAccess::Table)
-            .if_not_exists()
-            .col(ColumnDef::new(NodeAccess::Nid)
-                .integer()
-                .not_null()
-                .auto_increment()
-                .primary_key(),
+        manager
+            .create_table(
+                Table::create()
+                    .table(NodeAccess::Table)
+                    .if_not_exists()
+                    .col(
+                        ColumnDef::new(NodeAccess::Nid)
+                            .integer()
+                            .not_null()
+                            .auto_increment()
+                            .primary_key(),
+                    )
+                    .col(ColumnDef::new(NodeAccess::Gid).string().not_null())
+                    .col(ColumnDef::new(NodeAccess::Realm).string().not_null())
+                    .col(ColumnDef::new(NodeAccess::GrantView).string().not_null())
+                    .col(ColumnDef::new(NodeAccess::GrantUpdate).string().not_null())
+                    .col(ColumnDef::new(NodeAccess::GrantDelete).string().not_null())
+                    .to_owned(),
             )
-            .col(ColumnDef::new(NodeAccess::Gid)
-                .string()
-                .not_null()
-            )
-            .col(ColumnDef::new(NodeAccess::Realm)
-                .string()
-                .not_null()
-            )
-            .col(ColumnDef::new(NodeAccess::GrantView)
-                .string()
-                .not_null()
-            )
-            .col(ColumnDef::new(NodeAccess::GrantUpdate)
-                .string()
-                .not_null()
-            )
-            .col(ColumnDef::new(NodeAccess::GrantDelete)
-                .string()
-                .not_null()
-            )
-            .to_owned()
-        )
-        .await
+            .await
     }
 
     async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr> {
-        manager.drop_table(Table::drop()
-            .table(NodeAccess::Table)
-            .to_owned()
-        )
-        .await
+        manager
+            .drop_table(Table::drop().table(NodeAccess::Table).to_owned())
+            .await
     }
 }

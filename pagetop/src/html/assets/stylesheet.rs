@@ -1,5 +1,5 @@
-use crate::html::{Markup, html};
 use super::{AssetsTrait, SourceValue};
+use crate::html::{html, Markup};
 
 pub struct StyleSheet {
     source : SourceValue,

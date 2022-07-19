@@ -28,7 +28,7 @@ impl ComponentTrait for Hidden {
     fn default_render(&self, _: &mut InContext) -> Markup {
         let id = match self.name().get() {
             Some(name) => Some(concat_string!("value-", name)),
-            _ => None
+            _ => None,
         };
         html! {
             input type="hidden" id=[id] name=[self.name().get()] value=[self.value().get()];

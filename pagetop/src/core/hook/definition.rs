@@ -1,7 +1,9 @@
 pub use std::any::Any as AnyHook;
 
 pub trait HookTrait: AnyHook + Send + Sync {
-    fn new() -> Self where Self: Sized;
+    fn new() -> Self
+    where
+        Self: Sized;
 
     fn handler(&self) -> &'static str;
 

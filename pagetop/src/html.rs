@@ -1,9 +1,9 @@
-pub use maud::{DOCTYPE, Markup, PreEscaped, html};
+pub use maud::{html, Markup, PreEscaped, DOCTYPE};
 
 mod assets;
-pub use assets::{Assets, AssetsOp, SourceValue};
-pub use assets::javascript::{JavaScript, JSMode};
+pub use assets::javascript::{JSMode, JavaScript};
 pub use assets::stylesheet::StyleSheet;
+pub use assets::{Assets, AssetsOp, SourceValue};
 
 mod favicon;
 pub use favicon::Favicon;
@@ -15,4 +15,4 @@ mod identifier;
 pub use identifier::IdentifierValue;
 
 mod classes;
-pub use classes::{Classes, ClassesOp, ClassValue};
+pub use classes::{ClassValue, Classes, ClassesOp};

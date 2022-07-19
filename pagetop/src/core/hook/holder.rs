@@ -30,7 +30,11 @@ impl HooksHolder {
         actions.sort_by_key(|a| a.weight());
     }
 
-    pub fn iter_map<B, F>(&self, f: F) where Self: Sized, F: FnMut(&HookAction) -> B {
+    pub fn iter_map<B, F>(&self, f: F)
+    where
+        Self: Sized,
+        F: FnMut(&HookAction) -> B,
+    {
         let _: Vec<_> = self.0.read().unwrap().iter().map(f).collect();
     }
 }

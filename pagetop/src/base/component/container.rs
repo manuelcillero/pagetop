@@ -7,7 +7,13 @@ hook_before_render_component!(
     Container
 );
 
-pub enum ContainerType { Header, Footer, Main, Section, Wrapper }
+pub enum ContainerType {
+    Header,
+    Footer,
+    Main,
+    Section,
+    Wrapper,
+}
 
 pub struct Container {
     weight        : isize,
@@ -84,7 +90,7 @@ impl ComponentTrait for Container {
                 div id=[self.id().get()] class=[self.classes().get()] {
                     (self.components().render(context))
                 }
-            }
+            },
         }
     }
 

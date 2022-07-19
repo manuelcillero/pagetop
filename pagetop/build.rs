@@ -13,7 +13,7 @@ fn main() -> std::io::Result<()> {
 fn build_resource_dir(dir: &str, name: &str) -> std::io::Result<()> {
     let mut resource = resource_dir(dir);
     resource.with_generated_filename(
-        Path::new(env::var("OUT_DIR").unwrap().as_str()).join(format!("{}.rs", name))
+        Path::new(env::var("OUT_DIR").unwrap().as_str()).join(format!("{}.rs", name)),
     );
     resource.with_module_name(format!("resources_{}", name));
     resource.build()

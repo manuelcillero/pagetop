@@ -71,7 +71,6 @@ impl ComponentTrait for Block {
 }
 
 impl Block {
-
     // Block BUILDER.
 
     pub fn with_weight(mut self, weight: isize) -> Self {

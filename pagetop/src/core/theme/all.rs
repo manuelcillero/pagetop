@@ -1,14 +1,12 @@
-use crate::{Lazy, app, theme_static_files, trace};
 use super::ThemeTrait;
+use crate::{app, theme_static_files, trace, Lazy};
 
 use std::sync::RwLock;
 
 include!(concat!(env!("OUT_DIR"), "/theme.rs"));
 
 // Temas registrados.
-static THEMES: Lazy<RwLock<Vec<&dyn ThemeTrait>>> = Lazy::new(|| {
-    RwLock::new(Vec::new())
-});
+static THEMES: Lazy<RwLock<Vec<&dyn ThemeTrait>>> = Lazy::new(|| RwLock::new(Vec::new()));
 
 pub fn register_themes(themes: Vec<&'static dyn ThemeTrait>) {
     for t in themes {
@@ -25,9 +23,12 @@ fn register(theme: &'static dyn ThemeTrait) {
 }
 
 pub fn theme_by_single_name(single_name: &str) -> Option<&'static dyn ThemeTrait> {
-    match THEMES.write().unwrap().iter().find(
-        |t| t.single_name().to_lowercase() == single_name.to_lowercase()
-    ) {
+    match THEMES
+        .write()
+        .unwrap()
+        .iter()
+        .find(|t| t.single_name().to_lowercase() == single_name.to_lowercase())
+    {
         Some(theme) => Some(*theme),
         _ => None,
     }

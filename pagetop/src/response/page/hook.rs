@@ -1,5 +1,5 @@
-use crate::core::hook::{HookTrait, AnyHook};
 use super::Page;
+use crate::core::hook::{AnyHook, HookTrait};
 
 pub const HOOK_BEFORE_RENDER_PAGE: &str = "pagetop::hook::before_render_page";
 

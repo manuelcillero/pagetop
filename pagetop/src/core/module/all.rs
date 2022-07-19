@@ -1,19 +1,14 @@
-use crate::{Lazy, app, trace};
-use crate::core::hook::add_hook;
 use super::ModuleTrait;
+use crate::core::hook::add_hook;
+use crate::{app, trace, Lazy};
 
 #[cfg(any(feature = "mysql", feature = "postgres", feature = "sqlite"))]
-use crate::{
-    db::*,
-    run_now,
-};
+use crate::{db::*, run_now};
 
 use std::sync::RwLock;
 
 // Enabled modules.
-static ENABLED_MODULES: Lazy<RwLock<Vec<&dyn ModuleTrait>>> = Lazy::new(|| {
-    RwLock::new(Vec::new())
-});
+static ENABLED_MODULES: Lazy<RwLock<Vec<&dyn ModuleTrait>>> = Lazy::new(|| RwLock::new(Vec::new()));
 
 /* Disabled modules.
 static DISABLED_MODULES: Lazy<RwLock<Vec<&dyn ModuleTrait>>> = Lazy::new(|| {
@@ -34,7 +29,12 @@ fn enable(module: &'static dyn ModuleTrait) {
 }
 
 fn add_to(list: &mut Vec<&dyn ModuleTrait>, module: &'static dyn ModuleTrait) {
-    if !ENABLED_MODULES.read().unwrap().iter().any(|m| m.handler() == module.handler()) {
+    if !ENABLED_MODULES
+        .read()
+        .unwrap()
+        .iter()
+        .any(|m| m.handler() == module.handler())
+    {
         if !list.iter().any(|m| m.handler() == module.handler()) {
             trace::debug!("Enabling module \"{}\"", module.single_name());
             list.push(module);
@@ -80,5 +80,6 @@ pub fn run_migrations() {
             }
         }
         Migrator::up(&app::db::DBCONN, None)
-    }).unwrap();
+    })
+    .unwrap();
 }

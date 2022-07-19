@@ -2,7 +2,14 @@ use crate::prelude::*;
 
 pub const COMPONENT_INPUT: &str = "pagetop::component::form::input";
 
-pub enum InputType {Email, Password, Search, Telephone, Textfield, Url}
+pub enum InputType {
+    Email,
+    Password,
+    Search,
+    Telephone,
+    Textfield,
+    Url,
+}
 
 pub struct Input {
     weight      : isize,
@@ -127,36 +134,46 @@ impl Input {
     }
 
     pub fn password() -> Self {
-        let mut input = Input::new()
-            .with_classes(ClassesOp::Replace("form-type-textfield"), "form-type-password");
+        let mut input = Input::new().with_classes(
+            ClassesOp::Replace("form-type-textfield"),
+            "form-type-password",
+        );
         input.input_type = InputType::Password;
         input
     }
 
     pub fn search() -> Self {
-        let mut input = Input::new()
-            .with_classes(ClassesOp::Replace("form-type-textfield"), "form-type-search");
+        let mut input = Input::new().with_classes(
+            ClassesOp::Replace("form-type-textfield"),
+            "form-type-search",
+        );
         input.input_type = InputType::Search;
         input
     }
 
     pub fn email() -> Self {
-        let mut input = Input::new()
-            .with_classes(ClassesOp::Replace("form-type-textfield"), "form-type-email");
+        let mut input = Input::new().with_classes(
+            ClassesOp::Replace("form-type-textfield"),
+            "form-type-email"
+        );
         input.input_type = InputType::Email;
         input
     }
 
     pub fn telephone() -> Self {
-        let mut input = Input::new()
-            .with_classes(ClassesOp::Replace("form-type-textfield"), "form-type-telephone");
+        let mut input = Input::new().with_classes(
+            ClassesOp::Replace("form-type-textfield"),
+            "form-type-telephone",
+        );
         input.input_type = InputType::Telephone;
         input
     }
 
     pub fn url() -> Self {
-        let mut input = Input::new()
-            .with_classes(ClassesOp::Replace("form-type-textfield"), "form-type-url");
+        let mut input = Input::new().with_classes(
+            ClassesOp::Replace("form-type-textfield"),
+            "form-type-url"
+        );
         input.input_type = InputType::Url;
         input
     }
@@ -267,8 +284,9 @@ impl Input {
 
     pub fn alter_name(&mut self, name: &str) -> &mut Self {
         self.name.with_value(name);
-        self.alter_classes(ClassesOp::SetDefault,
-            concat_string!("form-item form-item-", name).as_str()
+        self.alter_classes(
+            ClassesOp::SetDefault,
+            concat_string!("form-item form-item-", name).as_str(),
         );
         self
     }

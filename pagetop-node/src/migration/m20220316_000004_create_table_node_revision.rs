@@ -25,61 +25,35 @@ pub_migration!(Migration);
 #[async_trait::async_trait]
 impl MigrationTrait for Migration {
     async fn up(&self, manager: &SchemaManager) -> Result<(), DbErr> {
-        manager.create_table(Table::create()
-            .table(NodeRevision::Table)
-            .if_not_exists()
-            .col(ColumnDef::new(NodeRevision::Nid)
-                .integer()
-                .not_null()
-                .auto_increment()
-                .primary_key(),
+        manager
+            .create_table(
+                Table::create()
+                    .table(NodeRevision::Table)
+                    .if_not_exists()
+                    .col(
+                        ColumnDef::new(NodeRevision::Nid)
+                            .integer()
+                            .not_null()
+                            .auto_increment()
+                            .primary_key(),
+                    )
+                    .col(ColumnDef::new(NodeRevision::Vid).string().not_null())
+                    .col(ColumnDef::new(NodeRevision::Uid).string().not_null())
+                    .col(ColumnDef::new(NodeRevision::Title).string().not_null())
+                    .col(ColumnDef::new(NodeRevision::Log).string().not_null())
+                    .col(ColumnDef::new(NodeRevision::Timestamp).string().not_null())
+                    .col(ColumnDef::new(NodeRevision::Status).string().not_null())
+                    .col(ColumnDef::new(NodeRevision::Comment).string().not_null())
+                    .col(ColumnDef::new(NodeRevision::Promote).string().not_null())
+                    .col(ColumnDef::new(NodeRevision::Sticky).string().not_null())
+                    .to_owned(),
             )
-            .col(ColumnDef::new(NodeRevision::Vid)
-                .string()
-                .not_null()
-            )
-            .col(ColumnDef::new(NodeRevision::Uid)
-                .string()
-                .not_null()
-            )
-            .col(ColumnDef::new(NodeRevision::Title)
-                .string()
-                .not_null()
-            )
-            .col(ColumnDef::new(NodeRevision::Log)
-                .string()
-                .not_null()
-            )
-            .col(ColumnDef::new(NodeRevision::Timestamp)
-                .string()
-                .not_null()
-            )
-            .col(ColumnDef::new(NodeRevision::Status)
-                .string()
-                .not_null()
-            )
-            .col(ColumnDef::new(NodeRevision::Comment)
-                .string()
-                .not_null()
-            )
-            .col(ColumnDef::new(NodeRevision::Promote)
-                .string()
-                .not_null()
-            )
-            .col(ColumnDef::new(NodeRevision::Sticky)
-                .string()
-                .not_null()
-            )
-            .to_owned()
-        )
-        .await
+            .await
     }
 
     async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr> {
-        manager.drop_table(Table::drop()
-            .table(NodeRevision::Table)
-            .to_owned()
-        )
-        .await
+        manager
+            .drop_table(Table::drop().table(NodeRevision::Table).to_owned())
+            .await
     }
 }

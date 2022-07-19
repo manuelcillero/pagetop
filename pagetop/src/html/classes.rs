@@ -38,7 +38,7 @@ impl Classes {
         match op {
             ClassesOp::Add => {
                 self.added = concat_string!(self.added, " ", classes).trim().to_owned()
-            },
+            }
 
             ClassesOp::AddAfter(class) => {
                 let mut v_added: Vec<&str> = self.added.split_ascii_whitespace().collect();
@@ -47,7 +47,7 @@ impl Classes {
                     _ => v_added.push(classes),
                 }
                 self.added = v_added.join(" ");
-            },
+            }
 
             ClassesOp::AddBefore(class) => {
                 let mut v_added: Vec<&str> = self.added.split_ascii_whitespace().collect();
@@ -56,11 +56,11 @@ impl Classes {
                     _ => v_added.insert(0, classes),
                 }
                 self.added = v_added.join(" ");
-            },
+            }
 
             ClassesOp::AddFirst => {
                 self.added = concat_string!(classes, " ", self.added).trim().to_owned()
-            },
+            }
 
             ClassesOp::Remove => {
                 let v_list: Vec<&str> = classes.split_ascii_whitespace().collect();
@@ -71,7 +71,7 @@ impl Classes {
                     }
                 }
                 self.added = v_added.join(" ");
-            },
+            }
 
             ClassesOp::Replace(class) => {
                 let mut v_added: Vec<&str> = self.added.split_ascii_whitespace().collect();
@@ -79,19 +79,21 @@ impl Classes {
                     Some(pos) => {
                         v_added.remove(pos);
                         v_added.insert(pos, classes);
-                    },
+                    }
                     _ => v_added.push(classes),
                 }
                 self.added = v_added.join(" ");
-            },
+            }
 
             ClassesOp::Reset => self.added = classes.to_owned(),
 
             ClassesOp::SetDefault => self.default = classes.to_owned(),
 
-            ClassesOp::SetDefaultIfEmpty => if self.default.is_empty() {
-                self.default = classes.to_owned()
-            },
+            ClassesOp::SetDefaultIfEmpty => {
+                if self.default.is_empty() {
+                    self.default = classes.to_owned()
+                }
+            }
         }
         self
     }
@@ -100,7 +102,11 @@ impl Classes {
         if self.default.is_empty() && self.added.is_empty() {
             None
         } else {
-            Some(concat_string!(self.default, " ", self.added).trim().to_owned())
+            Some(
+                concat_string!(self.default, " ", self.added)
+                    .trim()
+                    .to_owned(),
+            )
         }
     }
 }

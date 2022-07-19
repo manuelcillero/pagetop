@@ -2,7 +2,14 @@ use crate::prelude::*;
 
 pub const COMPONENT_HEADING: &str = "pagetop::component::heading";
 
-pub enum HeadingType { H1, H2, H3, H4, H5, H6 }
+pub enum HeadingType {
+    H1,
+    H2,
+    H3,
+    H4,
+    H5,
+    H6,
+}
 
 pub enum HeadingDisplay {
     XxLarge,
@@ -75,27 +82,39 @@ impl ComponentTrait for Heading {
 
 impl Heading {
     pub fn h1(html: Markup) -> Self {
-        Heading::new().with_heading_type(HeadingType::H1).with_html(html)
+        Heading::new()
+            .with_heading_type(HeadingType::H1)
+            .with_html(html)
     }
 
     pub fn h2(html: Markup) -> Self {
-        Heading::new().with_heading_type(HeadingType::H2).with_html(html)
+        Heading::new()
+            .with_heading_type(HeadingType::H2)
+            .with_html(html)
     }
 
     pub fn h3(html: Markup) -> Self {
-        Heading::new().with_heading_type(HeadingType::H3).with_html(html)
+        Heading::new()
+            .with_heading_type(HeadingType::H3)
+            .with_html(html)
     }
 
     pub fn h4(html: Markup) -> Self {
-        Heading::new().with_heading_type(HeadingType::H4).with_html(html)
+        Heading::new()
+            .with_heading_type(HeadingType::H4)
+            .with_html(html)
     }
 
     pub fn h5(html: Markup) -> Self {
-        Heading::new().with_heading_type(HeadingType::H5).with_html(html)
+        Heading::new()
+            .with_heading_type(HeadingType::H5)
+            .with_html(html)
     }
 
     pub fn h6(html: Markup) -> Self {
-        Heading::new().with_heading_type(HeadingType::H6).with_html(html)
+        Heading::new()
+            .with_heading_type(HeadingType::H6)
+            .with_html(html)
     }
 
     // Heading BUILDER.
@@ -174,15 +193,18 @@ impl Heading {
 
     pub fn alter_display(&mut self, display: HeadingDisplay) -> &mut Self {
         self.display = display;
-        self.classes.alter(ClassesOp::SetDefault, match &self.display() {
-            HeadingDisplay::XxLarge  => "display-2",
-            HeadingDisplay::Large    => "display-3",
-            HeadingDisplay::Medium   => "display-4",
-            HeadingDisplay::Small    => "display-5",
-            HeadingDisplay::XxSmall  => "display-6",
-            HeadingDisplay::Normal   => "",
-            HeadingDisplay::Subtitle => "",
-        });
+        self.classes.alter(
+            ClassesOp::SetDefault,
+            match &self.display() {
+                HeadingDisplay::XxLarge  => "display-2",
+                HeadingDisplay::Large    => "display-3",
+                HeadingDisplay::Medium   => "display-4",
+                HeadingDisplay::Small    => "display-5",
+                HeadingDisplay::XxSmall  => "display-6",
+                HeadingDisplay::Normal   => "",
+                HeadingDisplay::Subtitle => "",
+            },
+        );
         self
     }
 

@@ -22,16 +22,11 @@ impl ModuleTrait for Admin {
     }
 
     fn configure_service(&self, cfg: &mut app::web::ServiceConfig) {
-        cfg.service(
-            app::web::scope("/admin")
-                .route("", app::web::get().to(summary::summary))
-        );
+        cfg.service(app::web::scope("/admin").route("", app::web::get().to(summary::summary)));
     }
 
     fn actions(&self) -> Vec<HookAction> {
-        vec![
-            hook_action!(BeforeRenderPageHook => before_render_page)
-        ]
+        vec![hook_action!(BeforeRenderPageHook => before_render_page)]
     }
 }
 

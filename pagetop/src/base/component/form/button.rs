@@ -2,7 +2,11 @@ use crate::prelude::*;
 
 pub const COMPONENT_BUTTON: &str = "pagetop::component::form::button";
 
-pub enum ButtonType {Button, Reset, Submit}
+pub enum ButtonType {
+    Button,
+    Reset,
+    Submit,
+}
 
 pub struct Button {
     weight     : isize,
@@ -52,7 +56,7 @@ impl ComponentTrait for Button {
         };
         let id = match self.name().get() {
             Some(name) => Some(concat_string!("edit-", name)),
-            _ => None
+            _ => None,
         };
         html! {
             button

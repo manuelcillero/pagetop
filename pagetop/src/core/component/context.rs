@@ -1,15 +1,14 @@
-use crate::{Lazy, base, concat_string, util};
 use crate::config::SETTINGS;
-use crate::html::*;
-use crate::core::theme::ThemeTrait;
 use crate::core::theme::all::theme_by_single_name;
+use crate::core::theme::ThemeTrait;
+use crate::html::*;
+use crate::{base, concat_string, util, Lazy};
 
-static DEFAULT_THEME: Lazy<&dyn ThemeTrait> = Lazy::new(|| {
-    match theme_by_single_name(&SETTINGS.app.theme) {
+static DEFAULT_THEME: Lazy<&dyn ThemeTrait> =
+    Lazy::new(|| match theme_by_single_name(&SETTINGS.app.theme) {
         Some(theme) => theme,
         None => &base::theme::bootsier::Bootsier,
-    }
-});
+    });
 
 pub enum InContextOp {
     SetTheme(&'static str),
@@ -47,28 +46,30 @@ impl InContext {
         match op {
             InContextOp::SetTheme(theme_name) => {
                 self.theme = theme_by_single_name(theme_name).unwrap_or(*DEFAULT_THEME);
-            },
+            }
             InContextOp::AddMetadata(name, content) => {
                 self.metadata.push((name.to_owned(), content.to_owned()));
-            },
+            }
             InContextOp::Favicon(favicon) => {
                 self.favicon = favicon;
-            },
+            }
             InContextOp::StyleSheet(css) => {
                 self.stylesheets.alter(css);
-            },
+            }
             InContextOp::JavaScript(js) => {
                 self.javascripts.alter(js);
-            },
-            InContextOp::AddJQuery => if !self.with_jquery {
-                self.javascripts.alter(AssetsOp::Add(
-                    JavaScript::located("/theme/js/jquery.min.js")
-                        .with_version("3.6.0")
-                        .with_weight(isize::MIN)
-                        .with_mode(JSMode::Normal)
-                ));
-                self.with_jquery = true;
-            },
+            }
+            InContextOp::AddJQuery => {
+                if !self.with_jquery {
+                    self.javascripts.alter(AssetsOp::Add(
+                        JavaScript::located("/theme/js/jquery.min.js")
+                            .with_version("3.6.0")
+                            .with_weight(isize::MIN)
+                            .with_mode(JSMode::Normal),
+                    ));
+                    self.with_jquery = true;
+                }
+            }
         }
         self
     }

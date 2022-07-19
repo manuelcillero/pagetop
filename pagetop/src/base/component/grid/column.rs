@@ -93,7 +93,6 @@ impl ComponentTrait for Column {
 }
 
 impl Column {
-
     // Column BUILDER.
 
     pub fn with_weight(mut self, weight: isize) -> Self {

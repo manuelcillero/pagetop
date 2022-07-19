@@ -7,7 +7,10 @@ hook_before_render_component!(
     Form
 );
 
-pub enum FormMethod {Get, Post}
+pub enum FormMethod {
+    Get,
+    Post,
+}
 
 pub struct Form {
     weight    : isize,
@@ -55,7 +58,7 @@ impl ComponentTrait for Form {
     fn default_render(&self, context: &mut InContext) -> Markup {
         let method = match self.method() {
             FormMethod::Get => None,
-            FormMethod::Post => Some("post".to_owned())
+            FormMethod::Post => Some("post".to_owned()),
         };
         html! {
             form
@@ -80,7 +83,6 @@ impl ComponentTrait for Form {
 }
 
 impl Form {
-
     // Form BUILDER.
 
     pub fn with_weight(mut self, weight: isize) -> Self {

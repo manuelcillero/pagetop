@@ -1,2 +1,2 @@
-pub use tracing::{Level, event, span};
 pub use tracing::{debug, error, info, trace, warn};
+pub use tracing::{event, span, Level};

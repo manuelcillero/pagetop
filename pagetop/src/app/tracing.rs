@@ -1,5 +1,5 @@
-use crate::Lazy;
 use crate::config::SETTINGS;
+use crate::Lazy;
 
 use tracing_appender::non_blocking::WorkerGuard;
 use tracing_subscriber::EnvFilter;
@@ -18,14 +18,11 @@ use tracing_subscriber::EnvFilter;
 /// enviarán antes de terminar la ejecución.
 
 pub static TRACING: Lazy<WorkerGuard> = Lazy::new(|| {
-    let env_filter = EnvFilter::try_new(&SETTINGS.log.tracing)
-        .unwrap_or(EnvFilter::new("Info"));
+    let env_filter = EnvFilter::try_new(&SETTINGS.log.tracing).unwrap_or(EnvFilter::new("Info"));
 
     let rolling = SETTINGS.log.rolling.to_lowercase();
     let (non_blocking, guard) = match rolling.as_str() {
-        "stdout" => tracing_appender::non_blocking(
-            std::io::stdout()
-        ),
+        "stdout" => tracing_appender::non_blocking(std::io::stdout()),
         _ => tracing_appender::non_blocking({
             let path = &SETTINGS.log.path;
             let prefix = &SETTINGS.log.prefix;
@@ -37,14 +34,12 @@ pub static TRACING: Lazy<WorkerGuard> = Lazy::new(|| {
                 _ => {
                     println!(
                         "Rolling value \"{}\" not valid. {}. {}.",
-                        SETTINGS.log.rolling,
-                        "Using \"daily\"",
-                        "Check the settings file",
+                        SETTINGS.log.rolling, "Using \"daily\"", "Check the settings file",
                     );
                     tracing_appender::rolling::daily(path, prefix)
                 }
             }
-        })
+        }),
     };
     let subscriber = tracing_subscriber::fmt()
         .with_env_filter(env_filter)
@@ -58,9 +53,7 @@ pub static TRACING: Lazy<WorkerGuard> = Lazy::new(|| {
         _ => {
             println!(
                 "Tracing format \"{}\" not valid. {}. {}.",
-                SETTINGS.log.format,
-                "Using \"Full\"",
-                "Check the settings file",
+                SETTINGS.log.format, "Using \"Full\"", "Check the settings file",
             );
             subscriber.init();
         }

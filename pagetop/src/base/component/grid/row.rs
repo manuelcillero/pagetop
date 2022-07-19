@@ -62,7 +62,6 @@ impl ComponentTrait for Row {
 }
 
 impl Row {
-
     // Row BUILDER.
 
     pub fn with_weight(mut self, weight: isize) -> Self {

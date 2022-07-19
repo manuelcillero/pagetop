@@ -1,9 +1,9 @@
-use crate::{app, concat_string, util};
-use crate::config::SETTINGS;
-use crate::html::{Favicon, Markup, html};
-use crate::core::component::{ComponentTrait, InContext, InContextOp};
-use crate::response::page::Page;
 use crate::base::component::Chunck;
+use crate::config::SETTINGS;
+use crate::core::component::{ComponentTrait, InContext, InContextOp};
+use crate::html::{html, Favicon, Markup};
+use crate::response::page::Page;
+use crate::{app, concat_string, util};
 
 pub trait BaseTheme {
     fn single_name(&self) -> &'static str;
@@ -22,15 +22,13 @@ pub trait ThemeTrait: BaseTheme + Send + Sync {
     }
 
     #[allow(unused_variables)]
-    fn configure_service(&self, cfg: &mut app::web::ServiceConfig) {
-    }
+    fn configure_service(&self, cfg: &mut app::web::ServiceConfig) {}
 
     #[allow(unused_variables)]
     fn before_render_page(&self, page: &mut Page) {
-        page
-            .alter_context(InContextOp::Favicon(Some(Favicon::new()
-                .with_icon("/theme/favicon.png")
-            )));
+        page.alter_context(InContextOp::Favicon(Some(
+            Favicon::new().with_icon("/theme/favicon.png"),
+        )));
     }
 
     fn render_page_head(&self, page: &mut Page) -> Markup {
@@ -81,55 +79,54 @@ pub trait ThemeTrait: BaseTheme + Send + Sync {
     }
 
     #[allow(unused_variables)]
-    fn before_render_component(
-        &self,
-        component: &mut dyn ComponentTrait,
-        context: &mut InContext
-    ) {
-    /*
-        Cómo usarlo:
+    fn before_render_component(&self, component: &mut dyn ComponentTrait, context: &mut InContext) {
+        /*
+            Cómo usarlo:
 
-        match component.handler() {
-            BLOCK_COMPONENT => {
-                let block = component_mut::<Block>(component);
-                block.alter_title("New title");
-            },
-            _ => {},
-        }
-    */
+            match component.handler() {
+                BLOCK_COMPONENT => {
+                    let block = component_mut::<Block>(component);
+                    block.alter_title("New title");
+                },
+                _ => {},
+            }
+        */
     }
 
     #[allow(unused_variables)]
     fn render_component(
         &self,
         component: &dyn ComponentTrait,
-        context: &mut InContext
+        context: &mut InContext,
     ) -> Option<Markup> {
         None
-    /*
-        Cómo usarlo:
+        /*
+            Cómo usarlo:
 
-        match component.handler() {
-            BLOCK_COMPONENT => {
-                let block = component_ref::<Block>(component);
-                match block.template() {
-                    "default" => Some(block_default(block)),
-                    _ => None,
-                }
-            },
-            _ => None,
-        }
-    */
+            match component.handler() {
+                BLOCK_COMPONENT => {
+                    let block = component_ref::<Block>(component);
+                    match block.template() {
+                        "default" => Some(block_default(block)),
+                        _ => None,
+                    }
+                },
+                _ => None,
+            }
+        */
     }
 
     fn render_error_page(&self, s: app::http::StatusCode) -> app::Result<Markup> {
         Page::new()
             .with_title(format!("Error {}", s.as_str()).as_str())
-            .add_to("content", Chunck::with(html! {
-                div {
-                    h1 { (s.as_str()) }
-                }
-            }))
+            .add_to(
+                "content",
+                Chunck::with(html! {
+                    div {
+                        h1 { (s.as_str()) }
+                    }
+                }),
+            )
             .render()
     }
 }

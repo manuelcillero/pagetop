@@ -22,19 +22,14 @@ pub static CONFIG: Lazy<Config> = Lazy::new(|| {
 
     // Combina los archivos de configuración y asigna el modo de ejecución.
     settings
-        .merge(
-            File::with_name(
-                &format!("{}/{}.toml", CONFIG_DIR, "common")
-            ).required(false)).unwrap()
-        .merge(
-            File::with_name(
-                &format!("{}/{}.toml", CONFIG_DIR, run_mode)
-            ).required(false)).unwrap()
-        .merge(
-            File::with_name(
-                &format!("{}/{}.toml", CONFIG_DIR, "local")
-            ).required(false)).unwrap()
-        .set("app.run_mode", run_mode).unwrap();
+        .merge(File::with_name(&format!("{}/{}.toml", CONFIG_DIR, "common")).required(false))
+        .unwrap()
+        .merge(File::with_name(&format!("{}/{}.toml", CONFIG_DIR, run_mode)).required(false))
+        .unwrap()
+        .merge(File::with_name(&format!("{}/{}.toml", CONFIG_DIR, "local")).required(false))
+        .unwrap()
+        .set("app.run_mode", run_mode)
+        .unwrap();
 
     settings
 });

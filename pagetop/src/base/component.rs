@@ -1,44 +1,24 @@
 mod container;
-pub use container::{
-    COMPONENT_CONTAINER, Container, ContainerType
-};
+pub use container::{Container, ContainerType, COMPONENT_CONTAINER};
 
 pub mod grid;
 
 mod chunck;
-pub use chunck::{
-    COMPONENT_CHUNCK, Chunck
-};
+pub use chunck::{Chunck, COMPONENT_CHUNCK};
 mod icon;
-pub use icon::{
-    COMPONENT_ICON, Icon
-};
+pub use icon::{Icon, COMPONENT_ICON};
 mod heading;
-pub use heading::{
-    COMPONENT_HEADING, Heading, HeadingDisplay, HeadingType
-};
+pub use heading::{Heading, HeadingDisplay, HeadingType, COMPONENT_HEADING};
 mod paragraph;
-pub use paragraph::{
-    COMPONENT_PARAGRAPH, Paragraph, ParagraphDisplay
-};
+pub use paragraph::{Paragraph, ParagraphDisplay, COMPONENT_PARAGRAPH};
 mod anchor;
-pub use anchor::{
-    COMPONENT_ANCHOR, Anchor, AnchorIcon, AnchorTarget, AnchorType
-};
+pub use anchor::{Anchor, AnchorIcon, AnchorTarget, AnchorType, COMPONENT_ANCHOR};
 mod block;
-pub use block::{
-    COMPONENT_BLOCK, Block
-};
+pub use block::{Block, COMPONENT_BLOCK};
 mod image;
-pub use image::{
-    COMPONENT_IMAGE, Image
-};
+pub use image::{Image, COMPONENT_IMAGE};
 mod menu;
-pub use menu::{
-    COMPONENT_MENU, COMPONENT_MENUITEM, Menu, MenuItem, MenuItemType
-};
+pub use menu::{Menu, MenuItem, MenuItemType, COMPONENT_MENU, COMPONENT_MENUITEM};
 
 pub mod form;
-pub use form::{
-    COMPONENT_FORM, Form, FormMethod
-};
+pub use form::{Form, FormMethod, COMPONENT_FORM};

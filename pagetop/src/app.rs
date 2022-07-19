@@ -1,6 +1,4 @@
-pub use actix_web::{
-    App, HttpRequest, HttpResponse, HttpServer, Responder, Result, http, web
-};
+pub use actix_web::{http, web, App, HttpRequest, HttpResponse, HttpServer, Responder, Result};
 
 mod banner;
 

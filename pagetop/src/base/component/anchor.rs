@@ -98,7 +98,10 @@ impl Anchor {
     }
 
     pub fn button(href: &str, html: Markup) -> Self {
-        Anchor::new().with_type(AnchorType::Button).with_href(href).with_html(html)
+        Anchor::new()
+            .with_type(AnchorType::Button)
+            .with_href(href)
+            .with_html(html)
     }
 
     pub fn location(id: &str) -> Self {
@@ -186,10 +189,13 @@ impl Anchor {
 
     pub fn alter_type(&mut self, anchor_type: AnchorType) -> &mut Self {
         self.anchor_type = anchor_type;
-        self.classes.alter(ClassesOp::SetDefault, match self.anchor_type {
-            AnchorType::Button => "btn btn-primary",
-            _ => "",
-        });
+        self.classes.alter(
+            ClassesOp::SetDefault,
+            match self.anchor_type {
+                AnchorType::Button => "btn btn-primary",
+                _ => "",
+            },
+        );
         self
     }
 

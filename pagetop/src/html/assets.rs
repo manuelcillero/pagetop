@@ -1,7 +1,7 @@
 pub mod javascript;
 pub mod stylesheet;
 
-use crate::html::{Markup, html};
+use crate::html::{html, Markup};
 
 pub type SourceValue = &'static str;
 
@@ -26,19 +26,21 @@ impl<T: AssetsTrait> Assets<T> {
 
     pub fn alter(&mut self, op: AssetsOp<T>) -> &mut Self {
         match op {
-            AssetsOp::Add(asset) => match self.0.iter().position(
-                |x| x.source() == asset.source()
-            ) {
-                Some(index) => if self.0[index].weight() > asset.weight() {
-                    self.0.remove(index);
-                    self.0.push(asset);
-                },
-                _ => self.0.push(asset)
+            AssetsOp::Add(asset) => {
+                match self.0.iter().position(|x| x.source() == asset.source()) {
+                    Some(index) => {
+                        if self.0[index].weight() > asset.weight() {
+                            self.0.remove(index);
+                            self.0.push(asset);
+                        }
+                    }
+                    _ => self.0.push(asset),
+                }
             }
-            AssetsOp::Remove(source) => if let Some(index) = self.0.iter().position(
-                |x| x.source() == source
-            ) {
-                self.0.remove(index);
+            AssetsOp::Remove(source) => {
+                if let Some(index) = self.0.iter().position(|x| x.source() == source) {
+                    self.0.remove(index);
+                }
             }
         }
         self

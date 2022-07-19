@@ -94,10 +94,7 @@ impl MenuItem {
         MenuItem {
             weight    : 0,
             renderable: render_always,
-            item_type : MenuItemType::Link(
-                label.to_owned(),
-                path.to_owned(),
-            ),
+            item_type : MenuItemType::Link(label.to_owned(), path.to_owned()),
         }
     }
 
@@ -105,10 +102,7 @@ impl MenuItem {
         MenuItem {
             weight    : 0,
             renderable: render_always,
-            item_type : MenuItemType::LinkBlank(
-                label.to_owned(),
-                path.to_owned(),
-            ),
+            item_type : MenuItemType::LinkBlank(label.to_owned(), path.to_owned()),
         }
     }
 
@@ -132,10 +126,7 @@ impl MenuItem {
         MenuItem {
             weight    : 0,
             renderable: render_always,
-            item_type : MenuItemType::Submenu(
-                label.to_owned(),
-                menu
-            ),
+            item_type : MenuItemType::Submenu(label.to_owned(), menu),
         }
     }
 
@@ -219,16 +210,13 @@ impl ComponentTrait for Menu {
     fn default_render(&self, context: &mut InContext) -> Markup {
         context
             .alter(InContextOp::StyleSheet(AssetsOp::Add(
-                StyleSheet::located("/theme/menu/css/menu.css")
-                    .with_version("1.1.1")
+                StyleSheet::located("/theme/menu/css/menu.css").with_version("1.1.1"),
             )))
             .alter(InContextOp::StyleSheet(AssetsOp::Add(
-                StyleSheet::located("/theme/menu/css/menu-clean.css")
-                    .with_version("1.1.1")
+                StyleSheet::located("/theme/menu/css/menu-clean.css").with_version("1.1.1"),
             )))
             .alter(InContextOp::JavaScript(AssetsOp::Add(
-                JavaScript::located("/theme/menu/js/menu.min.js")
-                    .with_version("1.1.1")
+                JavaScript::located("/theme/menu/js/menu.min.js").with_version("1.1.1"),
             )))
             .alter(InContextOp::AddJQuery);
 
@@ -257,7 +245,6 @@ impl ComponentTrait for Menu {
 }
 
 impl Menu {
-
     // Menu BUILDER.
 
     pub fn with_weight(mut self, weight: isize) -> Self {

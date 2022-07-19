@@ -1,10 +1,10 @@
-use crate::{Lazy, base, trace};
+use super::AppTrait;
 use crate::config::SETTINGS;
 use crate::core::{module, theme};
-use super::AppTrait;
+use crate::{base, trace, Lazy};
 
-use std::io::Error;
 use actix_web::dev::Server;
+use std::io::Error;
 
 pub struct Application {
     server: Server,
@@ -26,9 +26,7 @@ impl Application {
         Lazy::force(&super::db::DBCONN);
 
         // Habilita los módulos predeterminados.
-        module::all::enable_modules(vec![
-            &base::module::homepage::DefaultHomePage,
-        ]);
+        module::all::enable_modules(vec![&base::module::homepage::DefaultHomePage]);
         // Habilita los módulos de la aplicación.
         module::all::enable_modules(app.enable_modules());
 
@@ -59,12 +57,12 @@ impl Application {
                 .wrap(tracing_actix_web::TracingLogger::default())
                 .configure(&module::all::modules)
                 .configure(&theme::all::themes)
-            })
-            .bind(format!("{}:{}",
-                &SETTINGS.webserver.bind_address,
-                &SETTINGS.webserver.bind_port
-            ))?
-            .run();
+        })
+        .bind(format!(
+            "{}:{}",
+            &SETTINGS.webserver.bind_address, &SETTINGS.webserver.bind_port
+        ))?
+        .run();
 
         Ok(Self { server })
     }

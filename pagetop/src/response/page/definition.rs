@@ -1,9 +1,9 @@
-use crate::{Lazy, app, trace};
+use super::{BeforeRenderPageHook, HOOK_BEFORE_RENDER_PAGE};
 use crate::config::SETTINGS;
-use crate::html::*;
-use crate::core::hook::{action_ref, run_actions};
 use crate::core::component::*;
-use super::{HOOK_BEFORE_RENDER_PAGE, BeforeRenderPageHook};
+use crate::core::hook::{action_ref, run_actions};
+use crate::html::*;
+use crate::{app, trace, Lazy};
 
 use std::collections::HashMap;
 
@@ -34,7 +34,11 @@ static DEFAULT_DIRECTION: Lazy<Option<String>> = Lazy::new(|| {
     }
 });
 
-pub enum TextDirection { Auto, LeftToRight, RightToLeft }
+pub enum TextDirection {
+    Auto,
+    LeftToRight,
+    RightToLeft,
+}
 
 pub struct Page {
     context     : InContext,
@@ -48,7 +52,6 @@ pub struct Page {
 }
 
 impl Page {
-
     pub fn new() -> Self {
         Page {
             context     : InContext::new(),
@@ -100,15 +103,12 @@ impl Page {
         self
     }
 
-    pub fn add_to(
-        mut self,
-        region: &'static str,
-        component: impl ComponentTrait
-    ) -> Self {
+    pub fn add_to(mut self, region: &'static str, component: impl ComponentTrait) -> Self {
         if let Some(regions) = self.regions.get_mut(region) {
             regions.add(component);
         } else {
-            self.regions.insert(region, ComponentsBundle::new_with(component));
+            self.regions
+                .insert(region, ComponentsBundle::new_with(component));
         }
         self
     }
@@ -193,10 +193,9 @@ impl Page {
 
     pub fn render(&mut self) -> app::Result<Markup> {
         // Acciones de los módulos antes de renderizar la página.
-        run_actions(
-            HOOK_BEFORE_RENDER_PAGE,
-            |hook| action_ref::<BeforeRenderPageHook>(&**hook).run(self)
-        );
+        run_actions(HOOK_BEFORE_RENDER_PAGE, |hook| {
+            action_ref::<BeforeRenderPageHook>(&**hook).run(self)
+        });
 
         // Acciones del tema antes de renderizar la página.
         self.context.theme().before_render_page(self);
@@ -208,7 +207,7 @@ impl Page {
         let head = self.context.theme().render_page_head(self);
 
         // Finalmente, renderizar la página.
-        return Ok(html! {
+        Ok(html! {
             (DOCTYPE)
             html lang=[self.language().get()] dir=[self.direction().get()] {
                 (head)
@@ -220,10 +219,9 @@ impl Page {
     pub fn render_region(&mut self, region: &str) -> Markup {
         match self.regions.get_mut(region) {
             Some(components) => components.render(&mut self.context),
-            None => html! {}
+            None => html! {},
         }
     }
 
     // Page EXTRAS.
-
 }

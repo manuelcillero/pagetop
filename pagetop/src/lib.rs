@@ -1,32 +1,42 @@
-// External re-exports.
+// EXTERNAL RE-EXPORTS.
 
-pub use once_cell::sync::Lazy;
 pub use concat_string::concat_string;
 pub use doc_comment::doc_comment;
+pub use once_cell::sync::Lazy;
 
-// Local.
+// LOCAL.
 
 #[allow(unused_imports)]
 pub(crate) use futures::executor::block_on as run_now;
 
-// Public APIs.
+// PUBLIC APIs.
 
-pub mod config;     // Gestión de la configuración.
-pub mod trace;      // Registro de trazas y eventos de la aplicación.
-pub mod locale;     // Localización.
-pub mod html;       // HTML en código.
+// Gestión de la configuración.
+pub mod config;
+// Registro de trazas y eventos de la aplicación.
+pub mod trace;
+// Localización.
+pub mod locale;
+// HTML en código.
+pub mod html;
 
+// Acceso a base de datos.
 #[cfg(any(feature = "mysql", feature = "postgres", feature = "sqlite"))]
-pub mod db;         // Acceso a base de datos.
+pub mod db;
 
-pub mod app;        // Prepare and run the application.
+// Prepare and run the application.
+pub mod app;
 
-pub mod core;       // Main APIs for components, hooks, modules and themes.
+// Main APIs for components, hooks, modules and themes.
+pub mod core;
 
-pub mod response;   // Tipos de respuestas web.
-pub mod base;       // Base de componentes, módulos y temas.
-pub mod util;       // Macros y funciones útiles.
+// Tipos de respuestas web.
+pub mod response;
+// Base de componentes, módulos y temas.
+pub mod base;
+// Macros y funciones útiles.
+pub mod util;
 
-// Internal re-exports.
+// INTERNAL RE-EXPORTS.
 
 pub mod prelude;
