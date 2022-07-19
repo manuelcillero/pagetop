@@ -25,6 +25,10 @@ impl Application {
         #[cfg(any(feature = "mysql", feature = "postgres", feature = "sqlite"))]
         Lazy::force(&super::db::DBCONN);
 
+        // Habilita los módulos predeterminados.
+        module::all::enable_modules(vec![
+            &base::module::homepage::DefaultHomePage,
+        ]);
         // Habilita los módulos de la aplicación.
         module::all::enable_modules(app.enable_modules());
 
@@ -33,6 +37,7 @@ impl Application {
             &base::theme::aliner::Aliner,
             &base::theme::minimal::Minimal,
             &base::theme::bootsier::Bootsier,
+            &base::theme::bulmix::Bulmix,
         ]);
         // Registra los temas de la aplicación.
         theme::all::register_themes(app.themes());

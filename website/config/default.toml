@@ -1,0 +1,9 @@
+[app]
+name = "PageTop WebSite"
+description = """\
+    The definitive PageTop Guide for PageTop Users.\
+"""
+language = "es-ES"
+
+[log]
+rolling = "Daily"

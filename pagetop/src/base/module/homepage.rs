@@ -1,14 +1,14 @@
 use crate::prelude::*;
 
-pub const MODULE_DEMOPAGE: &str = "pagetop::module::demopage";
+pub const MODULE_DEFAULT_HOMEPAGE: &str = "pagetop::module::homepage::default";
 
-localize!("src/base/module/demopage/locales");
+localize!("src/base/module/homepage/locales");
 
-pub struct Demopage;
+pub struct DefaultHomePage;
 
-impl ModuleTrait for Demopage {
+impl ModuleTrait for DefaultHomePage {
     fn handler(&self) -> &'static str {
-        MODULE_DEMOPAGE
+        MODULE_DEFAULT_HOMEPAGE
     }
 
     fn name(&self) -> String {
@@ -28,7 +28,7 @@ async fn demo() -> app::Result<Markup> {
     Page::new()
         .with_title(l("page_title").as_str())
         .with_context(InContextOp::StyleSheet(AssetsOp::Add(
-            StyleSheet::located("/theme/module/demopage/styles.css")
+            StyleSheet::located("/theme/module/homepage/styles.css")
         )))
         .add_to("content", hello_world())
         .add_to("content", welcome())

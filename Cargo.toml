@@ -5,4 +5,5 @@ members = [
     "pagetop-admin",
     "pagetop-user",
     "pagetop-node",
+    "website",
 ]

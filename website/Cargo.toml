@@ -1,0 +1,20 @@
+[package]
+name = "pagetop-website"
+version = "0.0.1"
+edition = "2021"
+
+authors = [
+    "Manuel Cillero <manuel@cillero.es>"
+]
+description = """\
+    PageTop and Drust website.\
+"""
+homepage = "https://pagetop.cillero.es"
+repository = "https://gitlab.com/manuelcillero/pagetop/website"
+license = "Apache-2.0 or MIT"
+
+[dependencies.pagetop]
+path = "../pagetop"
+
+[dependencies]
+actix-web = "4.1.0"

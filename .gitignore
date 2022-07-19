@@ -1,4 +1,5 @@
-workdir
 **/target
-**/log/*.log
+**/log/*.log*
+**/update.sh
 Cargo.lock
+workdir
