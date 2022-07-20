@@ -1,20 +1,20 @@
-use super::{HookAction, HooksHolder};
+use super::{HookAction, ActionsHolder};
 use crate::Lazy;
 
 use std::collections::HashMap;
 use std::sync::RwLock;
 
 // Registered actions.
-static ACTIONS: Lazy<RwLock<HashMap<&str, HooksHolder>>> =
+static ACTIONS: Lazy<RwLock<HashMap<&str, ActionsHolder>>> =
     Lazy::new(|| RwLock::new(HashMap::new()));
 
-pub fn add_hook(hook: HookAction) {
-    let mut hmap = ACTIONS.write().unwrap();
-    let action_handler = hook.handler();
-    if let Some(actions) = hmap.get_mut(action_handler) {
-        actions.add(hook);
+pub fn add_action(action: HookAction) {
+    let mut actions = ACTIONS.write().unwrap();
+    let action_handler = action.handler();
+    if let Some(holder) = actions.get_mut(action_handler) {
+        holder.add(action);
     } else {
-        hmap.insert(action_handler, HooksHolder::new_with(hook));
+        actions.insert(action_handler, ActionsHolder::new_with(action));
     }
 }
 
@@ -22,7 +22,7 @@ pub fn run_actions<B, F>(action_handler: &str, f: F)
 where
     F: FnMut(&HookAction) -> B,
 {
-    if let Some(actions) = ACTIONS.read().unwrap().get(action_handler) {
-        actions.iter_map(f)
+    if let Some(holder) = ACTIONS.read().unwrap().get(action_handler) {
+        holder.iter_map(f)
     }
 }

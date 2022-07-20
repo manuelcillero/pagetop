@@ -1,8 +1,8 @@
-use super::HookTrait;
+use super::HookActionTrait;
 
 use std::sync::{Arc, RwLock};
 
-pub type HookAction = Box<dyn HookTrait>;
+pub type HookAction = Box<dyn HookActionTrait>;
 
 #[macro_export]
 macro_rules! hook_action {
@@ -11,23 +11,23 @@ macro_rules! hook_action {
     }};
 }
 
-pub struct HooksHolder(Arc<RwLock<Vec<HookAction>>>);
+pub struct ActionsHolder(Arc<RwLock<Vec<HookAction>>>);
 
-impl HooksHolder {
+impl ActionsHolder {
     pub fn new() -> Self {
-        HooksHolder(Arc::new(RwLock::new(Vec::new())))
+        ActionsHolder(Arc::new(RwLock::new(Vec::new())))
     }
 
-    pub fn new_with(hook: HookAction) -> Self {
-        let mut container = HooksHolder::new();
-        container.add(hook);
-        container
+    pub fn new_with(action: HookAction) -> Self {
+        let mut holder = ActionsHolder::new();
+        holder.add(action);
+        holder
     }
 
-    pub fn add(&mut self, hook: HookAction) {
-        let mut actions = self.0.write().unwrap();
-        actions.push(hook);
-        actions.sort_by_key(|a| a.weight());
+    pub fn add(&mut self, action: HookAction) {
+        let mut holder = self.0.write().unwrap();
+        holder.push(action);
+        holder.sort_by_key(|a| a.weight());
     }
 
     pub fn iter_map<B, F>(&self, f: F)

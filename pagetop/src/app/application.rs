@@ -41,7 +41,7 @@ impl Application {
         theme::all::register_themes(app.themes());
 
         // Registra las acciones de todos los módulos.
-        module::all::register_hooks();
+        module::all::register_actions();
 
         // Ejecuta actualizaciones pendientes de la base de datos (opcional).
         #[cfg(any(feature = "mysql", feature = "postgres", feature = "sqlite"))]

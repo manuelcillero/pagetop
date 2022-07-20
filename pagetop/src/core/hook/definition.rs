@@ -1,6 +1,6 @@
-pub use std::any::Any as AnyHook;
+pub use std::any::Any as AnyHookAction;
 
-pub trait HookTrait: AnyHook + Send + Sync {
+pub trait HookActionTrait: AnyHookAction + Send + Sync {
     fn new() -> Self
     where
         Self: Sized;
@@ -11,9 +11,9 @@ pub trait HookTrait: AnyHook + Send + Sync {
         0
     }
 
-    fn as_ref_any(&self) -> &dyn AnyHook;
+    fn as_ref_any(&self) -> &dyn AnyHookAction;
 }
 
-pub fn action_ref<A: 'static>(hook: &dyn HookTrait) -> &A {
-    hook.as_ref_any().downcast_ref::<A>().unwrap()
+pub fn action_ref<A: 'static>(action: &dyn HookActionTrait) -> &A {
+    action.as_ref_any().downcast_ref::<A>().unwrap()
 }

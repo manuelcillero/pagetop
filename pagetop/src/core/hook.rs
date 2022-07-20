@@ -1,10 +1,10 @@
 mod definition;
-pub use definition::{action_ref, AnyHook, HookTrait};
+pub use definition::{action_ref, AnyHookAction, HookActionTrait};
 
 mod holder;
 pub use holder::HookAction;
-use holder::HooksHolder;
+use holder::ActionsHolder;
 
 mod all;
-pub(crate) use all::add_hook;
+pub(crate) use all::add_action;
 pub use all::run_actions;

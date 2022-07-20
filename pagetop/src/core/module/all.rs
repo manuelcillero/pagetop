@@ -1,5 +1,5 @@
 use super::ModuleTrait;
-use crate::core::hook::add_hook;
+use crate::core::hook::add_action;
 use crate::{app, trace, Lazy};
 
 #[cfg(any(feature = "mysql", feature = "postgres", feature = "sqlite"))]
@@ -56,10 +56,10 @@ pub fn modules(cfg: &mut app::web::ServiceConfig) {
     }
 }
 
-pub fn register_hooks() {
+pub fn register_actions() {
     for m in ENABLED_MODULES.read().unwrap().iter() {
         for a in m.actions().into_iter() {
-            add_hook(a);
+            add_action(a);
         }
     }
 }

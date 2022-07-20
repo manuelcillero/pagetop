@@ -84,7 +84,7 @@ macro_rules! hook_before_render_component {
                 weight: isize,
             }
 
-            impl HookTrait for [< BeforeRender $Component >] {
+            impl HookActionTrait for [< BeforeRender $Component >] {
                 fn new() -> Self {
                     [< BeforeRender $Component >] {
                         action: None,
@@ -100,7 +100,7 @@ macro_rules! hook_before_render_component {
                     self.weight
                 }
 
-                fn as_ref_any(&self) -> &dyn AnyHook {
+                fn as_ref_any(&self) -> &dyn AnyHookAction {
                     self
                 }
             }

@@ -1,5 +1,5 @@
 use super::Page;
-use crate::core::hook::{AnyHook, HookTrait};
+use crate::core::hook::{AnyHookAction, HookActionTrait};
 
 pub const HOOK_BEFORE_RENDER_PAGE: &str = "pagetop::hook::before_render_page";
 
@@ -10,7 +10,7 @@ pub struct BeforeRenderPageHook {
     weight: isize,
 }
 
-impl HookTrait for BeforeRenderPageHook {
+impl HookActionTrait for BeforeRenderPageHook {
     fn new() -> Self {
         BeforeRenderPageHook {
             hook: None,
@@ -26,7 +26,7 @@ impl HookTrait for BeforeRenderPageHook {
         self.weight
     }
 
-    fn as_ref_any(&self) -> &dyn AnyHook {
+    fn as_ref_any(&self) -> &dyn AnyHookAction {
         self
     }
 }
