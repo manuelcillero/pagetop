@@ -4,7 +4,11 @@ use crate::util;
 
 pub use std::any::Any as AnyComponent;
 
-pub trait ComponentTrait: AnyComponent + Send + Sync {
+pub trait BaseComponent {
+    fn render(&mut self, context: &mut InContext) -> Markup;
+}
+
+pub trait ComponentTrait: AnyComponent + BaseComponent + Send + Sync {
     fn new() -> Self
     where
         Self: Sized;
@@ -41,28 +45,30 @@ pub trait ComponentTrait: AnyComponent + Send + Sync {
     fn as_mut_any(&mut self) -> &mut dyn AnyComponent;
 }
 
+impl<C: ComponentTrait> BaseComponent for C {
+    fn render(&mut self, context: &mut InContext) -> Markup {
+        // Acciones del componente antes de renderizar.
+        self.before_render(context);
+
+        // Acciones del tema antes de renderizar el componente.
+        context.theme().before_render_component(self, context);
+
+        match self.is_renderable(context) {
+            true => match context.theme().render_component(self, context) {
+                Some(html) => html,
+                None => self.default_render(context),
+            },
+            false => html! {},
+        }
+    }
+}
+
 pub fn component_ref<C: 'static>(component: &dyn ComponentTrait) -> &C {
     component.as_ref_any().downcast_ref::<C>().unwrap()
 }
 
 pub fn component_mut<C: 'static>(component: &mut dyn ComponentTrait) -> &mut C {
     component.as_mut_any().downcast_mut::<C>().unwrap()
-}
-
-pub fn render_component(component: &mut dyn ComponentTrait, context: &mut InContext) -> Markup {
-    // Acciones del componente antes de renderizar.
-    component.before_render(context);
-
-    // Acciones del tema antes de renderizar el componente.
-    context.theme().before_render_component(component, context);
-
-    match component.is_renderable(context) {
-        true => match context.theme().render_component(component, context) {
-            Some(html) => html,
-            None => component.default_render(context),
-        },
-        false => html! {},
-    }
 }
 
 #[macro_export]

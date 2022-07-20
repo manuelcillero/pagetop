@@ -2,8 +2,7 @@ mod context;
 pub use context::{InContext, InContextOp};
 
 mod definition;
-use definition::render_component;
-pub use definition::{component_mut, component_ref, AnyComponent, ComponentTrait};
+pub use definition::{component_mut, component_ref, AnyComponent, BaseComponent, ComponentTrait};
 
 mod bundle;
 pub use bundle::ComponentsBundle;

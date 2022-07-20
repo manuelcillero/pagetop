@@ -2,4 +2,8 @@
 **/log/*.log*
 **/update.sh
 Cargo.lock
+
+website/website
+
+.sitecopy
 workdir

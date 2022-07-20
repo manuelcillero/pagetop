@@ -30,7 +30,7 @@ impl ComponentsBundle {
         components.sort_by_key(|c| c.read().unwrap().weight());
         html! {
             @for c in components.iter() {
-                (" ")(super::render_component(&mut *c.write().unwrap(), context))(" ")
+                (" ")(c.write().unwrap().render(context))(" ")
             }
         }
     }
