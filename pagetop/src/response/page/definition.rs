@@ -1,9 +1,10 @@
-use super::{BeforeRenderPageHook, HOOK_BEFORE_RENDER_PAGE};
+use super::{BeforeRenderPageHook, ResultPage, HOOK_BEFORE_RENDER_PAGE};
+use crate::app::fatal_error::FatalError;
 use crate::config::SETTINGS;
 use crate::core::component::*;
 use crate::core::hook::{action_ref, run_actions};
 use crate::html::*;
-use crate::{app, trace, Lazy};
+use crate::{trace, Lazy};
 
 use std::collections::HashMap;
 
@@ -191,7 +192,7 @@ impl Page {
 
     // Page RENDER.
 
-    pub fn render(&mut self) -> app::Result<Markup> {
+    pub fn render(&mut self) -> ResultPage<Markup, FatalError> {
         // Acciones de los módulos antes de renderizar la página.
         run_actions(HOOK_BEFORE_RENDER_PAGE, |hook| {
             action_ref::<BeforeRenderPageHook>(&**hook).run(self)
@@ -222,6 +223,4 @@ impl Page {
             None => html! {},
         }
     }
-
-    // Page EXTRAS.
 }

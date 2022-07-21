@@ -40,7 +40,7 @@ impl ModuleTrait for Node {
     }
 }
 
-async fn node() -> app::Result<Markup> {
+async fn node() -> ResultPage<Markup, FatalError> {
     Page::new().with_title("Nodo").render()
 }
 

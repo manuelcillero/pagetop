@@ -24,7 +24,7 @@ impl ModuleTrait for DefaultHomePage {
     }
 }
 
-async fn demo() -> app::Result<Markup> {
+async fn demo() -> ResultPage<Markup, FatalError> {
     Page::new()
         .with_title(l("page_title").as_str())
         .with_context(InContextOp::StyleSheet(AssetsOp::Add(StyleSheet::located(

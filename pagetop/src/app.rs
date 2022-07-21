@@ -1,4 +1,4 @@
-pub use actix_web::{http, web, App, HttpRequest, HttpResponse, HttpServer, Responder, Result};
+pub use actix_web::{http, web, App, HttpRequest, HttpResponse, HttpServer, Responder};
 
 mod banner;
 
@@ -13,3 +13,5 @@ mod definition;
 pub use definition::AppTrait;
 
 pub mod application;
+
+pub mod fatal_error;

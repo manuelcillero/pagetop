@@ -35,7 +35,7 @@ impl ModuleTrait for User {
     }
 }
 
-async fn login() -> app::Result<Markup> {
+async fn login() -> ResultPage<Markup, FatalError> {
     Page::new()
         .with_title("Identificación del usuario")
         .add_to(

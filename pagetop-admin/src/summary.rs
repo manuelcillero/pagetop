@@ -1,7 +1,7 @@
 use super::l;
 use pagetop::prelude::*;
 
-pub async fn summary() -> app::Result<Markup> {
+pub async fn summary() -> ResultPage<Markup, FatalError> {
     let top_menu = Menu::new()
         .with_item(MenuItem::label(l("module_name").as_str()))
         .with_item(MenuItem::link("Opción 2", "https://www.google.es"))

@@ -34,7 +34,7 @@ impl ThemeTrait for Bootsier {
         .alter_context(InContextOp::AddJQuery);
     }
 
-    fn render_error_page(&self, mut s: app::http::StatusCode) -> app::Result<Markup> {
+    fn render_error_page(&self, mut s: app::http::StatusCode) -> ResultPage<Markup, FatalError> {
         let mut description = "e500-description";
         let mut message = "e500-description";
         match s {
