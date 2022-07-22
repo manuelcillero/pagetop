@@ -1,10 +1,10 @@
-use crate::base::component::Chunck;
+use crate::app;
+use crate::base::component::{Chunck, Container};
 use crate::config::SETTINGS;
 use crate::core::component::{ComponentTrait, InContext, InContextOp};
 use crate::html::{html, Favicon, Markup};
+use crate::response::page::Page;
 use crate::{concat_string, util};
-use crate::{app, app::fatal_error::FatalError};
-use crate::response::page::{Page, ResultPage};
 
 pub trait BaseTheme {
     fn single_name(&self) -> &'static str;
@@ -117,18 +117,26 @@ pub trait ThemeTrait: BaseTheme + Send + Sync {
         */
     }
 
-    fn render_error_page(&self, s: app::http::StatusCode) -> ResultPage<Markup, FatalError> {
-        Page::new()
-            .with_title(format!("Error {}", s.as_str()).as_str())
-            .add_to(
-                "content",
+    fn error_404_not_found(&self) -> Container {
+        Container::new()
+            .with_component(
                 Chunck::with(html! {
                     div {
-                        h1 { (s.as_str()) }
+                        h1 { ("RESOURCE NOT FOUND") }
                     }
-                }),
+                })
             )
-            .render()
+    }
+
+    fn error_403_access_denied(&self) -> Container {
+        Container::new()
+            .with_component(
+                Chunck::with(html! {
+                    div {
+                        h1 { ("FORBIDDEN ACCESS") }
+                    }
+                })
+            )
     }
 }
 

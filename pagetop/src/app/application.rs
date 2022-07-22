@@ -1,6 +1,8 @@
-use super::AppTrait;
+use super::{fatal_error::FatalError, AppTrait};
 use crate::config::SETTINGS;
 use crate::core::{module, theme};
+use crate::html::Markup;
+use crate::response::page::{Page, ResultPage};
 use crate::{base, trace, Lazy};
 
 use actix_web::dev::Server;
@@ -57,6 +59,7 @@ impl Application {
                 .wrap(tracing_actix_web::TracingLogger::default())
                 .configure(&module::all::modules)
                 .configure(&theme::all::themes)
+                .default_service(super::web::route().to(service_not_found))
         })
         .bind(format!(
             "{}:{}",
@@ -70,4 +73,24 @@ impl Application {
     pub fn run(self) -> Result<Server, Error> {
         Ok(self.server)
     }
+}
+
+async fn service_not_found() -> ResultPage<Markup, FatalError> {
+    let mut page = Page::new();
+    let content_error = page.context().theme().error_404_not_found();
+    page
+        .with_title("Error RESOURCE NOT FOUND")
+        .using_template("error")
+        .add_to("content", content_error)
+        .render()
+}
+
+async fn _access_denied() -> ResultPage<Markup, FatalError> {
+    let mut page = Page::new();
+    let content_error = page.context().theme().error_403_access_denied();
+    page
+        .with_title("Error FORBIDDEN ACCESS")
+        .using_template("error")
+        .add_to("content", content_error)
+        .render()
 }

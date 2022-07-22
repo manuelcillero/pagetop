@@ -34,35 +34,22 @@ impl ThemeTrait for Bootsier {
         .alter_context(InContextOp::AddJQuery);
     }
 
-    fn render_error_page(&self, mut s: app::http::StatusCode) -> ResultPage<Markup, FatalError> {
-        let mut description = "e500-description";
-        let mut message = "e500-description";
-        match s {
-            app::http::StatusCode::NOT_FOUND => {
-                description = "e404-description";
-                message = "e404-message";
-            }
-            _ => {
-                s = app::http::StatusCode::INTERNAL_SERVER_ERROR;
-            }
-        }
-        Page::new()
-            .with_title(format!("Error {}", s.as_str()).as_str())
-            .add_to(
-                "content",
+    fn error_404_not_found(&self) -> Container {
+        Container::new()
+            .with_component(
                 Chunck::with(html! {
                     div class="jumbotron" {
                         div class="media" {
                             img
-                                src="/static/bootsier/images/caution.png"
+                                src="/bootsier/images/caution.png"
                                 class="mr-4"
                                 style="width: 20%; max-width: 188px"
                                 alt="Caution!";
                             div class="media-body" {
-                                h1 class="display-4" { (s.as_str()) }
-                                p class="lead" { (l(description)) }
+                                h1 class="display-4" { ("RESOURCE NOT FOUND") }
+                                p class="lead" { (l("e404-description")) }
                                 hr class="my-4";
-                                p { (l(message)) }
+                                p { (l("e404-description")) }
                                 a
                                     class="btn btn-primary btn-lg"
                                     href="/"
@@ -73,8 +60,7 @@ impl ThemeTrait for Bootsier {
                             }
                         }
                     }
-                }),
+                })
             )
-            .render()
     }
 }
