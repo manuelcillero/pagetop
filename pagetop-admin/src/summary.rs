@@ -48,7 +48,7 @@ pub async fn summary() -> ResultPage<Markup, FatalError> {
             "content",
             grid::Row::new()
                 .with_column(grid::Column::new().with_component(side_menu))
-                .with_column(grid::Column::new().with_component(Chunck::with(html! {
+                .with_column(grid::Column::new().with_component(Html::with(html! {
                     p { "Columna 2"}
                 }))),
         )

@@ -1,17 +1,17 @@
 use crate::prelude::*;
 
-pub const COMPONENT_CHUNCK: &str = "pagetop::component::chunck";
+pub const COMPONENT_HTML: &str = "pagetop::component::html";
 
-pub struct Chunck {
+pub struct Html {
     weight    : isize,
     renderable: Renderable,
     html      : Markup,
     template  : String,
 }
 
-impl ComponentTrait for Chunck {
+impl ComponentTrait for Html {
     fn new() -> Self {
-        Chunck {
+        Html {
             weight    : 0,
             renderable: render_always,
             html      : html! {},
@@ -20,7 +20,7 @@ impl ComponentTrait for Chunck {
     }
 
     fn handler(&self) -> &'static str {
-        COMPONENT_CHUNCK
+        COMPONENT_HTML
     }
 
     fn weight(&self) -> isize {
@@ -44,12 +44,12 @@ impl ComponentTrait for Chunck {
     }
 }
 
-impl Chunck {
+impl Html {
     pub fn with(html: Markup) -> Self {
-        Chunck::new().with_html(html)
+        Html::new().with_html(html)
     }
 
-    // Chunck BUILDER.
+    // Html BUILDER.
 
     pub fn with_weight(mut self, weight: isize) -> Self {
         self.alter_weight(weight);
@@ -71,7 +71,7 @@ impl Chunck {
         self
     }
 
-    // Chunck ALTER.
+    // Html ALTER.
 
     pub fn alter_weight(&mut self, weight: isize) -> &mut Self {
         self.weight = weight;
@@ -93,7 +93,7 @@ impl Chunck {
         self
     }
 
-    // Chunck GETTERS.
+    // Html GETTERS.
 
     pub fn html(&self) -> &Markup {
         &self.html

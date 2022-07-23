@@ -37,7 +37,7 @@ impl ThemeTrait for Bootsier {
     fn error_404_not_found(&self) -> Container {
         Container::new()
             .with_component(
-                Chunck::with(html! {
+                Html::with(html! {
                     div class="jumbotron" {
                         div class="media" {
                             img

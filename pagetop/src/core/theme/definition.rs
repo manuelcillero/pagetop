@@ -1,5 +1,5 @@
 use crate::app;
-use crate::base::component::{Chunck, Container};
+use crate::base::component::{Container, Html};
 use crate::config::SETTINGS;
 use crate::core::component::{ComponentTrait, InContext, InContextOp};
 use crate::html::{html, Favicon, Markup};
@@ -120,7 +120,7 @@ pub trait ThemeTrait: BaseTheme + Send + Sync {
     fn error_404_not_found(&self) -> Container {
         Container::new()
             .with_component(
-                Chunck::with(html! {
+                Html::with(html! {
                     div {
                         h1 { ("RESOURCE NOT FOUND") }
                     }
@@ -131,7 +131,7 @@ pub trait ThemeTrait: BaseTheme + Send + Sync {
     fn error_403_access_denied(&self) -> Container {
         Container::new()
             .with_component(
-                Chunck::with(html! {
+                Html::with(html! {
                     div {
                         h1 { ("FORBIDDEN ACCESS") }
                     }
