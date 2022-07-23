@@ -2,7 +2,7 @@ use super::{fatal_error::FatalError, AppTrait};
 use crate::config::SETTINGS;
 use crate::core::{module, theme};
 use crate::html::Markup;
-use crate::response::page::{Page, ResultPage};
+use crate::response::page::ResultPage;
 use crate::{base, trace, Lazy};
 
 use actix_web::dev::Server;
@@ -76,21 +76,5 @@ impl Application {
 }
 
 async fn service_not_found() -> ResultPage<Markup, FatalError> {
-    let mut page = Page::new();
-    let content_error = page.context().theme().error_404_not_found();
-    page
-        .with_title("Error RESOURCE NOT FOUND")
-        .using_template("error")
-        .add_to("content", content_error)
-        .render()
-}
-
-async fn _access_denied() -> ResultPage<Markup, FatalError> {
-    let mut page = Page::new();
-    let content_error = page.context().theme().error_403_access_denied();
-    page
-        .with_title("Error FORBIDDEN ACCESS")
-        .using_template("error")
-        .add_to("content", content_error)
-        .render()
+    Err(FatalError::NotFound)
 }
