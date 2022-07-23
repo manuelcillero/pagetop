@@ -1,11 +1,11 @@
 use crate::config::SETTINGS;
 use crate::db::*;
-use crate::{run_now, trace, Lazy};
+use crate::{run_now, trace, LazyStatic};
 
 use sea_orm::{ConnectOptions, ConnectionTrait, Database, DatabaseBackend, Statement};
 use tracing_unwrap::ResultExt;
 
-pub static DBCONN: Lazy<DbConn> = Lazy::new(|| {
+pub static DBCONN: LazyStatic<DbConn> = LazyStatic::new(|| {
     trace::info!(
         "Connecting to database \"{}\" using a pool of {} connections",
         &SETTINGS.database.db_name,
@@ -61,7 +61,7 @@ pub static DBCONN: Lazy<DbConn> = Lazy::new(|| {
     .expect_or_log("Failed to connect to database")
 });
 
-static DBBACKEND: Lazy<DatabaseBackend> = Lazy::new(|| DBCONN.get_database_backend());
+static DBBACKEND: LazyStatic<DatabaseBackend> = LazyStatic::new(|| DBCONN.get_database_backend());
 
 pub async fn query<Q: QueryStatementWriter>(stmt: &mut Q) -> Result<Vec<QueryResult>, DbErr> {
     DBCONN

@@ -1,6 +1,6 @@
 use super::ModuleTrait;
 use crate::core::hook::add_action;
-use crate::{app, trace, Lazy};
+use crate::{app, trace, LazyStatic};
 
 #[cfg(any(feature = "mysql", feature = "postgres", feature = "sqlite"))]
 use crate::{db::*, run_now};
@@ -8,7 +8,9 @@ use crate::{db::*, run_now};
 use std::sync::RwLock;
 
 // Enabled modules.
-static ENABLED_MODULES: Lazy<RwLock<Vec<&dyn ModuleTrait>>> = Lazy::new(|| RwLock::new(Vec::new()));
+static ENABLED_MODULES: LazyStatic<RwLock<Vec<&dyn ModuleTrait>>> = LazyStatic::new(||
+    RwLock::new(Vec::new())
+);
 
 /* Disabled modules.
 static DISABLED_MODULES: Lazy<RwLock<Vec<&dyn ModuleTrait>>> = Lazy::new(|| {

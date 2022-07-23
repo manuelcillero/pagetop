@@ -1,12 +1,13 @@
 use super::{HookAction, ActionsHolder};
-use crate::Lazy;
+use crate::LazyStatic;
 
 use std::collections::HashMap;
 use std::sync::RwLock;
 
 // Registered actions.
-static ACTIONS: Lazy<RwLock<HashMap<&str, ActionsHolder>>> =
-    Lazy::new(|| RwLock::new(HashMap::new()));
+static ACTIONS: LazyStatic<RwLock<HashMap<&str, ActionsHolder>>> = LazyStatic::new(||
+    RwLock::new(HashMap::new())
+);
 
 pub fn add_action(action: HookAction) {
     let mut actions = ACTIONS.write().unwrap();

@@ -1,4 +1,4 @@
-use crate::Lazy;
+use crate::LazyStatic;
 
 use config_rs::{Config, File};
 use serde::Deserialize;
@@ -12,7 +12,7 @@ const CONFIG_DIR: &str = "config";
 /// los archivos de configuración. Con [`config_map`] se asignarán los ajustes
 /// globales ([`SETTINGS`]); y se podrán asignar los ajustes específicos de la
 /// aplicación, o también de un tema, módulo o componente.
-pub static CONFIG: Lazy<Config> = Lazy::new(|| {
+pub static CONFIG: LazyStatic<Config> = LazyStatic::new(|| {
     // Establece el modo de ejecución según el valor de la variable de entorno
     // PAGETOP_RUN_MODE. Asume "default" por defecto.
     let run_mode = env::var("PAGETOP_RUN_MODE").unwrap_or_else(|_| "default".into());
@@ -48,7 +48,7 @@ macro_rules! config_map {
         $crate::doc_comment! {
             concat!($doc),
 
-            pub static $SETTINGS: $crate::Lazy<$Type> = $crate::Lazy::new(|| {
+            pub static $SETTINGS: $crate::LazyStatic<$Type> = $crate::LazyStatic::new(|| {
                 let mut settings = $crate::config::CONFIG.clone();
                 $(
                     settings.set_default($key, $value).unwrap();

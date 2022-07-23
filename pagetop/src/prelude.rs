@@ -1,7 +1,7 @@
 //! Re-exporta recursos comunes.
 
 // Global macros and helpers.
-pub use crate::{args, concat_string, theme_static_files, util};
+pub use crate::{args, concat_string, theme_static_files, util, LazyStatic};
 
 pub use crate::config::SETTINGS;
 

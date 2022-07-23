@@ -1,9 +1,9 @@
 use crate::config::SETTINGS;
-use crate::Lazy;
+use crate::LazyStatic;
 
 use figlet_rs::FIGfont;
 
-pub static FIGFONT: Lazy<FIGfont> = Lazy::new(|| {
+pub static FIGFONT: LazyStatic<FIGfont> = LazyStatic::new(|| {
     let slant = include_str!("slant.flf");
     let small = include_str!("small.flf");
     let speed = include_str!("speed.flf");

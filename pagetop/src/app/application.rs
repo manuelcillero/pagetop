@@ -3,7 +3,7 @@ use crate::config::SETTINGS;
 use crate::core::{module, theme};
 use crate::html::Markup;
 use crate::response::page::ResultPage;
-use crate::{base, trace, Lazy};
+use crate::{base, trace, LazyStatic};
 
 use actix_web::dev::Server;
 use std::io::Error;
@@ -18,14 +18,14 @@ impl Application {
         super::banner::print_on_startup();
 
         // Inicia registro de trazas y eventos.
-        Lazy::force(&super::tracing::TRACING);
+        LazyStatic::force(&super::tracing::TRACING);
 
         // Valida el identificador de idioma.
-        Lazy::force(&super::locale::LANGID);
+        LazyStatic::force(&super::locale::LANGID);
 
         // Conecta con la base de datos (opcional).
         #[cfg(any(feature = "mysql", feature = "postgres", feature = "sqlite"))]
-        Lazy::force(&super::db::DBCONN);
+        LazyStatic::force(&super::db::DBCONN);
 
         // Habilita los módulos predeterminados.
         module::all::enable_modules(vec![&base::module::homepage::DefaultHomePage]);

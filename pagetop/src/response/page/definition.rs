@@ -4,11 +4,11 @@ use crate::config::SETTINGS;
 use crate::core::component::*;
 use crate::core::hook::{action_ref, run_actions};
 use crate::html::*;
-use crate::{trace, Lazy};
+use crate::{trace, LazyStatic};
 
 use std::collections::HashMap;
 
-static DEFAULT_LANGUAGE: Lazy<Option<String>> = Lazy::new(|| {
+static DEFAULT_LANGUAGE: LazyStatic<Option<String>> = LazyStatic::new(|| {
     let language = SETTINGS.app.language[..2].to_lowercase();
     if !language.is_empty() {
         Some(language)
@@ -17,7 +17,7 @@ static DEFAULT_LANGUAGE: Lazy<Option<String>> = Lazy::new(|| {
     }
 });
 
-static DEFAULT_DIRECTION: Lazy<Option<String>> = Lazy::new(|| {
+static DEFAULT_DIRECTION: LazyStatic<Option<String>> = LazyStatic::new(|| {
     let direction = SETTINGS.app.direction.to_lowercase();
     match direction.as_str() {
         "auto" => Some("auto".to_owned()),

@@ -2,13 +2,14 @@ use crate::config::SETTINGS;
 use crate::core::theme::all::theme_by_single_name;
 use crate::core::theme::ThemeTrait;
 use crate::html::*;
-use crate::{base, concat_string, util, Lazy};
+use crate::{base, concat_string, util, LazyStatic};
 
-static DEFAULT_THEME: Lazy<&dyn ThemeTrait> =
-    Lazy::new(|| match theme_by_single_name(&SETTINGS.app.theme) {
+static DEFAULT_THEME: LazyStatic<&dyn ThemeTrait> = LazyStatic::new(||
+    match theme_by_single_name(&SETTINGS.app.theme) {
         Some(theme) => theme,
         None => &base::theme::bootsier::Bootsier,
-    });
+    }
+);
 
 pub enum InContextOp {
     SetTheme(&'static str),

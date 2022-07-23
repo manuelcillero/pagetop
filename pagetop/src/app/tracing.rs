@@ -1,5 +1,5 @@
 use crate::config::SETTINGS;
-use crate::Lazy;
+use crate::LazyStatic;
 
 use tracing_appender::non_blocking::WorkerGuard;
 use tracing_subscriber::EnvFilter;
@@ -17,7 +17,7 @@ use tracing_subscriber::EnvFilter;
 /// `Lazy<WorkerGuard>` se garantiza que todos los registros almacenados se
 /// enviarán antes de terminar la ejecución.
 
-pub static TRACING: Lazy<WorkerGuard> = Lazy::new(|| {
+pub static TRACING: LazyStatic<WorkerGuard> = LazyStatic::new(|| {
     let env_filter = EnvFilter::try_new(&SETTINGS.log.tracing).unwrap_or_else(|_| EnvFilter::new("Info"));
 
     let rolling = SETTINGS.log.rolling.to_lowercase();
