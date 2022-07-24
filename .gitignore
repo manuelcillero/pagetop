@@ -4,6 +4,6 @@
 Cargo.lock
 
 website/website
-
+website/static/doc
 .sitecopy
 workdir
