@@ -37,6 +37,7 @@ async fn mdbook_page(request: app::HttpRequest) -> ResultPage<Markup, FatalError
         if let Ok(html) = std::str::from_utf8(content.data) {
             let mut page = Page::new().with_title("Documentación");
             page.context()
+                .alter(InContextOp::AddMetadata("theme-color", "#ffffff"))
                 .alter(InContextOp::StyleSheet(
                     AssetsOp::<StyleSheet>::Add(StyleSheet::located("/doc/css/variables.css"))
                 ))

@@ -500,7 +500,8 @@ function playground_text(playground) {
         html.classList.add('sidebar-resizing');
     }
     function resize(e) {
-        var pos = (e.clientX - sidebar.offsetLeft);
+        var viewportOffset = sidebar.getBoundingClientRect();
+        var pos = (e.clientX - sidebar.offsetLeft - viewportOffset.left);
         if (pos < 20) {
             hideSidebar();
         } else {
