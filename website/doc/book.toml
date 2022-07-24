@@ -3,7 +3,7 @@ authors = ["Manuel Cillero"]
 language = "en"
 multilingual = false
 src = "src"
-title = "PageTop Guide"
+title = "PageTop Guides"
 
 [build]
 build-dir = "../static/doc"

@@ -67,12 +67,12 @@ async fn mdbook_page(request: app::HttpRequest) -> ResultPage<Markup, FatalError
                     AssetsOp::<StyleSheet>::Add(StyleSheet::located("/doc/ayu-highlight.css"))
                 ));
             page.add_to(
-                    "region-content",
-                    Container::new()
-                        .with_id("mdbook")
-                        .with_component(Html::with(html! { (PreEscaped(html)) }))
-                )
-                .render()
+                "region-content",
+                Container::new()
+                    .with_id("mdbook")
+                    .with_component(Html::with(html! { (PreEscaped(html)) }))
+            )
+            .render()
         } else {
             Err(FatalError::NotFound)
         }
