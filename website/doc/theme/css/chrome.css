@@ -210,6 +210,7 @@
 
 #mdbook pre {
 	position: relative;
+	font-size: 0.875rem;
 }
 #mdbook pre > .buttons {
 	position: absolute;
@@ -260,6 +261,7 @@
 }
 #mdbook pre > code {
 	padding: 1rem;
+	font-size: 0.875rem;
 }
 
 /* FIXME: ACE editors overlap their buttons because ACE does absolute

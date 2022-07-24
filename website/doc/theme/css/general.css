@@ -141,7 +141,9 @@
 	border-top: .1em solid var(--quote-border);
 	border-bottom: .1em solid var(--quote-border);
 }
-
+#mdbook blockquote p {
+	margin-top: 1rem;
+}
 
 #mdbook :not(.footnote-definition) + .footnote-definition,
 #mdbook .footnote-definition + :not(.footnote-definition) {
