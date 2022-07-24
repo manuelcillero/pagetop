@@ -1,10 +1,13 @@
 use super::{AssetsTrait, SourceValue};
 use crate::html::{html, Markup};
 
+pub enum TargetMedia {Default, Print, Screen, Speech}
+
 pub struct StyleSheet {
     source : SourceValue,
     prefix : &'static str,
     version: &'static str,
+    media  : Option<&'static str>,
     weight : isize,
 }
 
@@ -21,7 +24,8 @@ impl AssetsTrait for StyleSheet {
         html! {
             link
                 rel="stylesheet"
-                href=(crate::concat_string!(self.source, self.prefix, self.version));
+                href=(crate::concat_string!(self.source, self.prefix, self.version))
+                media=[self.media];
         }
     }
 }
@@ -32,6 +36,7 @@ impl StyleSheet {
             source,
             prefix : "",
             version: "",
+            media  : None,
             weight : 0,
         }
     }
@@ -47,6 +52,16 @@ impl StyleSheet {
 
     pub fn with_weight(mut self, weight: isize) -> Self {
         self.weight = weight;
+        self
+    }
+
+    pub fn for_media(mut self, media: TargetMedia) -> Self {
+        self.media = match media {
+            TargetMedia::Print  => Some("print"),
+            TargetMedia::Screen => Some("screen"),
+            TargetMedia::Speech => Some("speech"),
+            _ => None,
+        };
         self
     }
 }

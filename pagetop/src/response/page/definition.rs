@@ -219,7 +219,11 @@ impl Page {
 
     pub fn render_region(&mut self, region: &str) -> Markup {
         match self.regions.get_mut(region) {
-            Some(components) => components.render(&mut self.context),
+            Some(components) => html! {
+                #(region) {
+                    (components.render(&mut self.context))
+                }
+            },
             None => html! {},
         }
     }

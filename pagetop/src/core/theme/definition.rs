@@ -63,16 +63,12 @@ pub trait ThemeTrait: BaseTheme + Send + Sync {
             body class=[page.body_classes().get()] {
                 @match page.template() {
                     "admin" => {
-                        @for region in &["top-menu", "side-menu", "content"] {
-                            #(region) {
-                                (page.render_region(region))
-                            }
-                        }
+                        (page.render_region("top-menu"))
+                        (page.render_region("side-menu"))
+                        (page.render_region("region-content"))
                     },
                     _ => {
-                        #content {
-                            (page.render_region("content"))
-                        }
+                        (page.render_region("region-content"))
                     }
                 }
             }

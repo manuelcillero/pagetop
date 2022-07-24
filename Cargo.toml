@@ -1,9 +1,0 @@
-[workspace]
-members = [
-    "drust",
-    "pagetop",
-    "pagetop-admin",
-    "pagetop-user",
-    "pagetop-node",
-    "website",
-]

@@ -17,7 +17,7 @@ pub use crate::{db, db::*, migration_item, pub_migration};
 pub use crate::app;
 pub use crate::app::application::Application;
 pub use crate::app::fatal_error::FatalError;
-pub use crate::app::AppTrait;
+pub use crate::app::{AppTrait, HttpMessage};
 
 pub use crate::core::{component::*, hook::*, module::*, theme::*};
 

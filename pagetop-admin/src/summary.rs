@@ -45,7 +45,7 @@ pub async fn summary() -> ResultPage<Markup, FatalError> {
         .with_title("Admin")
         .add_to("top-menu", top_menu)
         .add_to(
-            "content",
+            "region-content",
             grid::Row::new()
                 .with_column(grid::Column::new().with_component(side_menu))
                 .with_column(grid::Column::new().with_component(Html::with(html! {

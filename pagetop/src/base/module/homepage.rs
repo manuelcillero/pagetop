@@ -30,11 +30,11 @@ async fn demo() -> ResultPage<Markup, FatalError> {
         .with_context(InContextOp::StyleSheet(AssetsOp::Add(StyleSheet::located(
             "/theme/module/homepage/styles.css",
         ))))
-        .add_to("content", hello_world())
-        .add_to("content", welcome())
-        .add_to("content", about_pagetop())
-        .add_to("content", promo_pagetop())
-        .add_to("content", reporting_problems())
+        .add_to("region-content", hello_world())
+        .add_to("region-content", welcome())
+        .add_to("region-content", about_pagetop())
+        .add_to("region-content", promo_pagetop())
+        .add_to("region-content", reporting_problems())
         .render()
 }
 

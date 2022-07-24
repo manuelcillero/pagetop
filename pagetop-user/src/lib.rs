@@ -39,7 +39,7 @@ async fn login() -> ResultPage<Markup, FatalError> {
     Page::new()
         .with_title("Identificación del usuario")
         .add_to(
-            "content",
+            "region-content",
             Container::new()
                 .with_id("welcome")
                 .with_component(form_login()),
