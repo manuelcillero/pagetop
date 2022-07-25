@@ -217,14 +217,10 @@ impl Page {
         })
     }
 
-    pub fn render_region(&mut self, region: &str) -> Markup {
+    pub fn render_region(&mut self, region: &str) -> Option<Markup> {
         match self.regions.get_mut(region) {
-            Some(components) => html! {
-                #(region) {
-                    (components.render(&mut self.context))
-                }
-            },
-            None => html! {},
+            Some(components) => Some(components.render(&mut self.context)),
+            None => None,
         }
     }
 }
