@@ -1,7 +1,7 @@
 use crate::core::hook::HookAction;
 use crate::{app, util};
 
-#[cfg(any(feature = "mysql", feature = "postgres", feature = "sqlite"))]
+#[cfg(feature = "database")]
 use crate::db::MigrationItem;
 
 pub trait BaseModule {
@@ -31,7 +31,7 @@ pub trait ModuleTrait: BaseModule + Send + Sync {
         vec![]
     }
 
-    #[cfg(any(feature = "mysql", feature = "postgres", feature = "sqlite"))]
+    #[cfg(feature = "database")]
     #[allow(unused_variables)]
     fn migrations(&self) -> Vec<MigrationItem> {
         vec![]

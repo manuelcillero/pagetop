@@ -24,7 +24,7 @@ impl Application {
         LazyStatic::force(&super::locale::LANGID);
 
         // Conecta con la base de datos (opcional).
-        #[cfg(any(feature = "mysql", feature = "postgres", feature = "sqlite"))]
+        #[cfg(feature = "database")]
         LazyStatic::force(&super::db::DBCONN);
 
         // Habilita los módulos predeterminados.
@@ -46,7 +46,7 @@ impl Application {
         module::all::register_actions();
 
         // Ejecuta actualizaciones pendientes de la base de datos (opcional).
-        #[cfg(any(feature = "mysql", feature = "postgres", feature = "sqlite"))]
+        #[cfg(feature = "database")]
         module::all::run_migrations();
 
         // Ejecuta la función de inicio de la aplicación.

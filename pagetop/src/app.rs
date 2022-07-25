@@ -8,7 +8,7 @@ mod tracing;
 
 pub mod locale;
 
-#[cfg(any(feature = "mysql", feature = "postgres", feature = "sqlite"))]
+#[cfg(feature = "database")]
 pub mod db;
 
 mod definition;

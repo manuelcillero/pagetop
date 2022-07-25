@@ -8,13 +8,11 @@ edition = "2021"
 
 [dependencies.pagetop]
 path = "../pagetop"
-# Si se usa base de datos:
+# Si requiere base de datos (MySql, Postgres y/o SQLite):
 features = ["mysql"]
 # features = ["postgres"]
 # features = ["sqlite"]
-# Soporte alternativo a todas las bases de datos:
-# features = ["mysql", "postgres", "sqlite"]
-# En estos casos hay que deshabilitar las características predeterminadas:
+# En este caso hay que deshabilitar las características predeterminadas:
 default-features = false
 
 [dependencies]

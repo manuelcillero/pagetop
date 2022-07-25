@@ -13,5 +13,7 @@ homepage = "https://suitepro.cillero.es/projects/pagetop"
 repository = "https://gitlab.com/manuelcillero/pagetop"
 license = "Apache-2.0 or MIT"
 
-[dependencies]
-pagetop = { path = "../pagetop" }
+[dependencies.pagetop]
+path = "../pagetop"
+features = ["database"]
+default-features = false

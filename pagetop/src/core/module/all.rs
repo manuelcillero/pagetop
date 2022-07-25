@@ -2,7 +2,7 @@ use super::ModuleTrait;
 use crate::core::hook::add_action;
 use crate::{app, trace, LazyStatic};
 
-#[cfg(any(feature = "mysql", feature = "postgres", feature = "sqlite"))]
+#[cfg(feature = "database")]
 use crate::{db::*, run_now};
 
 use std::sync::RwLock;
@@ -66,7 +66,7 @@ pub fn register_actions() {
     }
 }
 
-#[cfg(any(feature = "mysql", feature = "postgres", feature = "sqlite"))]
+#[cfg(feature = "database")]
 pub fn run_migrations() {
     run_now({
         struct Migrator;

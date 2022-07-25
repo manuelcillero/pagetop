@@ -6,8 +6,14 @@ edition = "2021"
 # Ver más claves y sus definiciones en
 # https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[dependencies.pagetop]
+path = "../pagetop"
+# Para dar soporte a bases de datos:
+features = ["database"]
+# En este caso hay que deshabilitar las características predeterminadas:
+default-features = false
+
 [dependencies]
-pagetop = { path = "../pagetop" }
 # Si se usa la macro html!:
 maud = { git = "https://github.com/lambda-fairy/maud", rev = "e6787cd6" }
 # Si se requiere serialización de estructuras de datos:

@@ -21,7 +21,7 @@ pub mod locale;
 pub mod html;
 
 // Acceso a base de datos.
-#[cfg(any(feature = "mysql", feature = "postgres", feature = "sqlite"))]
+#[cfg(feature = "database")]
 pub mod db;
 
 // Prepare and run the application.

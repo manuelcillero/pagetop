@@ -11,7 +11,7 @@ pub use crate::localize;
 
 pub use crate::html::*;
 
-#[cfg(any(feature = "mysql", feature = "postgres", feature = "sqlite"))]
+#[cfg(feature = "database")]
 pub use crate::{db, db::*, migration_item, pub_migration};
 
 pub use crate::app;

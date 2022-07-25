@@ -64,9 +64,10 @@ optional = true
 
 [features]
 default  = []
-mysql    = ["sea-orm", "sea-orm-migration", "sea-orm/sqlx-mysql"]
-postgres = ["sea-orm", "sea-orm-migration", "sea-orm/sqlx-postgres"]
-sqlite   = ["sea-orm", "sea-orm-migration", "sea-orm/sqlx-sqlite"]
+database = ["sea-orm", "sea-orm-migration"]
+mysql    = ["database", "sea-orm/sqlx-mysql"]
+postgres = ["database", "sea-orm/sqlx-postgres"]
+sqlite   = ["database", "sea-orm/sqlx-sqlite"]
 
 [build-dependencies]
 static-files = "0.2.3"

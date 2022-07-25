@@ -13,6 +13,10 @@ homepage = "https://suitepro.cillero.es/projects/pagetop"
 repository = "https://gitlab.com/manuelcillero/pagetop"
 license = "Apache-2.0 or MIT"
 
+[dependencies.pagetop]
+path = "../pagetop"
+features = ["database"]
+default-features = false
+
 [dependencies]
-pagetop = { path = "../pagetop" }
 serde = { version = "1.0", features = ["derive"] }
