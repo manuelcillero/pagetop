@@ -548,7 +548,7 @@ function playground_text(playground) {
     var activeSection = document.getElementById("sidebar").querySelector(".active");
     if (activeSection) {
         // https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollIntoView
-        activeSection.scrollIntoView({ block: 'center' });
+        // activeSection.scrollIntoView({ block: 'center' });
     }
 })();
 
