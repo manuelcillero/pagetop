@@ -33,14 +33,6 @@ translates inputs to the correct `Preprocessor` method. For convenience, there
 is [an example no-op preprocessor] in the `examples/` directory which can easily
 be adapted for other preprocessors.
 
-<details>
-<summary>Example no-op preprocessor</summary>
-
-```rust
-// nop-preprocessors.rs
-
-{{#include ../../../examples/nop-preprocessor.rs}}
-```
 </details>
 
 ## Hints For Implementing A Preprocessor
