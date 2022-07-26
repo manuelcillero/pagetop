@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-pub const COMPONENT_PARAGRAPH: &str = "pagetop::component::paragraph";
+pub_const_handler!(COMPONENT_PARAGRAPH);
 
 pub enum ParagraphDisplay {
     XxLarge,
@@ -34,7 +34,7 @@ impl ComponentTrait for Paragraph {
         }
     }
 
-    fn handler(&self) -> &'static str {
+    fn handler(&self) -> Handler {
         COMPONENT_PARAGRAPH
     }
 

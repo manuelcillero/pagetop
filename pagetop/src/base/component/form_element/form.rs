@@ -1,11 +1,8 @@
 use crate::prelude::*;
 
-pub const COMPONENT_FORM: &str = "pagetop::component::form";
+pub_const_handler!(COMPONENT_FORM);
 
-hook_before_render_component!(
-    HOOK_BEFORE_RENDER_FORM = "pagetop::action::before_render_form",
-    Form
-);
+hook_before_render_component!(HOOK_BEFORE_RENDER_FORM, Form);
 
 pub enum FormMethod {
     Get,
@@ -39,7 +36,7 @@ impl ComponentTrait for Form {
         }
     }
 
-    fn handler(&self) -> &'static str {
+    fn handler(&self) -> Handler {
         COMPONENT_FORM
     }
 

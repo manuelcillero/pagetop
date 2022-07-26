@@ -1,11 +1,8 @@
 use crate::prelude::*;
 
-pub const COMPONENT_ROW: &str = "pagetop::component::grid::row";
+pub_const_handler!(COMPONENT_ROW);
 
-hook_before_render_component!(
-    HOOK_BEFORE_RENDER_ROW = "pagetop::action::before_render_row",
-    Row
-);
+hook_before_render_component!(HOOK_BEFORE_RENDER_ROW, Row);
 
 pub struct Row {
     weight    : isize,
@@ -28,7 +25,7 @@ impl ComponentTrait for Row {
         }
     }
 
-    fn handler(&self) -> &'static str {
+    fn handler(&self) -> Handler {
         COMPONENT_ROW
     }
 

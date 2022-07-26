@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-pub const COMPONENT_ANCHOR: &str = "pagetop::component::anchor";
+pub_const_handler!(COMPONENT_ANCHOR);
 
 pub enum AnchorType {
     Button,
@@ -49,7 +49,7 @@ impl ComponentTrait for Anchor {
         }
     }
 
-    fn handler(&self) -> &'static str {
+    fn handler(&self) -> Handler {
         COMPONENT_ANCHOR
     }
 

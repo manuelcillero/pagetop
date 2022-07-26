@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-pub const COMPONENT_HEADING: &str = "pagetop::component::heading";
+pub_const_handler!(COMPONENT_HEADING);
 
 pub enum HeadingType {
     H1,
@@ -46,7 +46,7 @@ impl ComponentTrait for Heading {
         }
     }
 
-    fn handler(&self) -> &'static str {
+    fn handler(&self) -> Handler {
         COMPONENT_HEADING
     }
 

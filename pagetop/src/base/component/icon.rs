@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-pub const COMPONENT_ICON: &str = "pagetop::component::icon";
+pub_const_handler!(COMPONENT_ICON);
 
 pub struct Icon {
     weight    : isize,
@@ -19,7 +19,7 @@ impl ComponentTrait for Icon {
         }
     }
 
-    fn handler(&self) -> &'static str {
+    fn handler(&self) -> Handler {
         COMPONENT_ICON
     }
 

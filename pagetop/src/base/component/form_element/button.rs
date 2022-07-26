@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-pub const COMPONENT_BUTTON: &str = "pagetop::component::form::button";
+pub_const_handler!(COMPONENT_BUTTON);
 
 pub enum ButtonType {
     Button,
@@ -36,7 +36,7 @@ impl ComponentTrait for Button {
         .with_classes(ClassesOp::AddFirst, "form-button")
     }
 
-    fn handler(&self) -> &'static str {
+    fn handler(&self) -> Handler {
         COMPONENT_BUTTON
     }
 

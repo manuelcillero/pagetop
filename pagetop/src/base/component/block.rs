@@ -1,11 +1,8 @@
 use crate::prelude::*;
 
-pub const COMPONENT_BLOCK: &str = "pagetop::component::block";
+pub_const_handler!(COMPONENT_BLOCK);
 
-hook_before_render_component!(
-    HOOK_BEFORE_RENDER_BLOCK = "pagetop::action::before_render_block",
-    Block
-);
+hook_before_render_component!(HOOK_BEFORE_RENDER_BLOCK, Block);
 
 pub struct Block {
     weight    : isize,
@@ -30,7 +27,7 @@ impl ComponentTrait for Block {
         }
     }
 
-    fn handler(&self) -> &'static str {
+    fn handler(&self) -> Handler {
         COMPONENT_BLOCK
     }
 

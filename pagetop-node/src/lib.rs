@@ -1,6 +1,6 @@
 use pagetop::prelude::*;
 
-pub const MODULE_NODE: &str = "pagetop-node::module::node";
+pub_const_handler!(MODULE_NODE);
 
 localize!("src/locales");
 
@@ -10,7 +10,7 @@ mod migration;
 pub struct Node;
 
 impl ModuleTrait for Node {
-    fn handler(&self) -> &'static str {
+    fn handler(&self) -> Handler {
         MODULE_NODE
     }
 

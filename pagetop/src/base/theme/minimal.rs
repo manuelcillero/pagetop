@@ -1,11 +1,11 @@
 use crate::prelude::*;
 
-pub const THEME_MINIMAL: &str = "pagetop::theme::minimal";
+pub_const_handler!(THEME_MINIMAL);
 
 pub struct Minimal;
 
 impl ThemeTrait for Minimal {
-    fn handler(&self) -> &'static str {
+    fn handler(&self) -> Handler {
         THEME_MINIMAL
     }
 }

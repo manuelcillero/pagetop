@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-pub const COMPONENT_DATE: &str = "pagetop::component::form::date";
+pub_const_handler!(COMPONENT_DATE);
 
 pub struct Date {
     weight      : isize,
@@ -40,7 +40,7 @@ impl ComponentTrait for Date {
         .with_classes(ClassesOp::AddFirst, "form-type-date")
     }
 
-    fn handler(&self) -> &'static str {
+    fn handler(&self) -> Handler {
         COMPONENT_DATE
     }
 

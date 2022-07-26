@@ -1,13 +1,13 @@
 use crate::prelude::*;
 
-pub const MODULE_DEFAULT_HOMEPAGE: &str = "pagetop::module::homepage::default";
+pub_const_handler!(MODULE_DEFAULT_HOMEPAGE);
 
 localize!("src/base/module/homepage/locales");
 
 pub struct DefaultHomePage;
 
 impl ModuleTrait for DefaultHomePage {
-    fn handler(&self) -> &'static str {
+    fn handler(&self) -> Handler {
         MODULE_DEFAULT_HOMEPAGE
     }
 

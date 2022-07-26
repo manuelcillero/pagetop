@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-pub const COMPONENT_HIDDEN: &str = "pagetop::component::form::hidden";
+pub_const_handler!(COMPONENT_HIDDEN);
 
 pub struct Hidden {
     weight: isize,
@@ -17,7 +17,7 @@ impl ComponentTrait for Hidden {
         }
     }
 
-    fn handler(&self) -> &'static str {
+    fn handler(&self) -> Handler {
         COMPONENT_HIDDEN
     }
 

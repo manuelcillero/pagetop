@@ -1,10 +1,11 @@
 use crate::app;
 use crate::base::component::{Container, Html};
+use crate::concat_string;
 use crate::config::SETTINGS;
 use crate::core::component::{ComponentTrait, InContext, InContextOp};
 use crate::html::{html, Favicon, Markup};
 use crate::response::page::Page;
-use crate::{concat_string, util};
+use crate::util::{single_type_name, Handler};
 
 pub trait BaseTheme {
     fn single_name(&self) -> &'static str;
@@ -12,7 +13,7 @@ pub trait BaseTheme {
 
 /// Los temas deben implementar este "trait".
 pub trait ThemeTrait: BaseTheme + Send + Sync {
-    fn handler(&self) -> &'static str;
+    fn handler(&self) -> Handler;
 
     fn name(&self) -> String {
         self.single_name().to_owned()
@@ -144,6 +145,6 @@ pub trait ThemeTrait: BaseTheme + Send + Sync {
 
 impl<T: ?Sized + ThemeTrait> BaseTheme for T {
     fn single_name(&self) -> &'static str {
-        util::single_type_name::<Self>()
+        single_type_name::<Self>()
     }
 }

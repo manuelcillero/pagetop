@@ -1,13 +1,13 @@
 use crate::prelude::*;
 
-pub const THEME_ALINER: &str = "pagetop::theme::aliner";
+pub_const_handler!(THEME_ALINER);
 
 include!(concat!(env!("OUT_DIR"), "/aliner.rs"));
 
 pub struct Aliner;
 
 impl ThemeTrait for Aliner {
-    fn handler(&self) -> &'static str {
+    fn handler(&self) -> Handler {
         THEME_ALINER
     }
 

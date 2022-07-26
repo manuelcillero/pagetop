@@ -1,7 +1,9 @@
 use super::Page;
 use crate::core::hook::{AnyHookAction, HookActionTrait};
+use crate::pub_const_handler;
+use crate::util::Handler;
 
-pub const HOOK_BEFORE_RENDER_PAGE: &str = "pagetop::hook::before_render_page";
+pub_const_handler!(HOOK_BEFORE_RENDER_PAGE);
 
 type Hook = fn(&mut Page);
 
@@ -18,7 +20,7 @@ impl HookActionTrait for BeforeRenderPageHook {
         }
     }
 
-    fn handler(&self) -> &'static str {
+    fn handler(&self) -> Handler {
         HOOK_BEFORE_RENDER_PAGE
     }
 

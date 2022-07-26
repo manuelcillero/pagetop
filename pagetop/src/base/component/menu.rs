@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-pub const COMPONENT_MENUITEM: &str = "pagetop::component::menu_item";
+pub_const_handler!(COMPONENT_MENUITEM);
 
 pub enum MenuItemType {
     Label(String),
@@ -29,7 +29,7 @@ impl ComponentTrait for MenuItem {
         }
     }
 
-    fn handler(&self) -> &'static str {
+    fn handler(&self) -> Handler {
         COMPONENT_MENUITEM
     }
 
@@ -163,12 +163,9 @@ impl MenuItem {
 
 // Menu.
 
-pub const COMPONENT_MENU: &str = "pagetop::component::menu";
+pub_const_handler!(COMPONENT_MENU);
 
-hook_before_render_component!(
-    HOOK_BEFORE_RENDER_MENU = "pagetop::action::before_render_menu",
-    Menu
-);
+hook_before_render_component!(HOOK_BEFORE_RENDER_MENU, Menu);
 
 pub struct Menu {
     weight    : isize,
@@ -191,7 +188,7 @@ impl ComponentTrait for Menu {
         }
     }
 
-    fn handler(&self) -> &'static str {
+    fn handler(&self) -> Handler {
         COMPONENT_MENU
     }
 

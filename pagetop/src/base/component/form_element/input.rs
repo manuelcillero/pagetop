@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-pub const COMPONENT_INPUT: &str = "pagetop::component::form::input";
+pub_const_handler!(COMPONENT_INPUT);
 
 pub enum InputType {
     Email,
@@ -57,7 +57,7 @@ impl ComponentTrait for Input {
         .with_classes(ClassesOp::AddFirst, "form-type-textfield")
     }
 
-    fn handler(&self) -> &'static str {
+    fn handler(&self) -> Handler {
         COMPONENT_INPUT
     }
 

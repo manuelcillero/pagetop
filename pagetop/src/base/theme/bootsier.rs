@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-pub const THEME_BOOTSIER: &str = "pagetop::theme::bootsier";
+pub_const_handler!(THEME_BOOTSIER);
 
 include!(concat!(env!("OUT_DIR"), "/bootsier.rs"));
 
@@ -9,7 +9,7 @@ localize!("src/base/theme/bootsier/locales");
 pub struct Bootsier;
 
 impl ThemeTrait for Bootsier {
-    fn handler(&self) -> &'static str {
+    fn handler(&self) -> Handler {
         THEME_BOOTSIER
     }
 

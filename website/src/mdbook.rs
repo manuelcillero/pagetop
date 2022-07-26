@@ -11,12 +11,12 @@ static MDBOOK: LazyStatic<HashMap<&'static str, Resource>> = LazyStatic::new(||
     generate()
 );
 
-pub const MODULE_MDBOOK: &str = "pagetop::website::module::mdbook";
+pub_const_handler!(MODULE_MDBOOK);
 
 pub struct MdBook;
 
 impl ModuleTrait for MdBook {
-    fn handler(&self) -> &'static str {
+    fn handler(&self) -> Handler {
         MODULE_MDBOOK
     }
 

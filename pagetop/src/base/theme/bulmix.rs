@@ -1,13 +1,13 @@
 use crate::prelude::*;
 
-pub const THEME_BULMIX: &str = "pagetop::theme::bulmix";
+pub_const_handler!(THEME_BULMIX);
 
 include!(concat!(env!("OUT_DIR"), "/bulmix.rs"));
 
 pub struct Bulmix;
 
 impl ThemeTrait for Bulmix {
-    fn handler(&self) -> &'static str {
+    fn handler(&self) -> Handler {
         THEME_BULMIX
     }
 

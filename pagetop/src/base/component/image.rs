@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-pub const COMPONENT_IMAGE: &str = "pagetop::component::image";
+pub_const_handler!(COMPONENT_IMAGE);
 
 pub struct Image {
     weight    : isize,
@@ -23,7 +23,7 @@ impl ComponentTrait for Image {
         }
     }
 
-    fn handler(&self) -> &'static str {
+    fn handler(&self) -> Handler {
         COMPONENT_IMAGE
     }
 

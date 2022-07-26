@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-pub const COMPONENT_HTML: &str = "pagetop::component::html";
+pub_const_handler!(COMPONENT_HTML);
 
 pub struct Html {
     weight    : isize,
@@ -19,7 +19,7 @@ impl ComponentTrait for Html {
         }
     }
 
-    fn handler(&self) -> &'static str {
+    fn handler(&self) -> Handler {
         COMPONENT_HTML
     }
 

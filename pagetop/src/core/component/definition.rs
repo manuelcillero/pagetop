@@ -1,6 +1,6 @@
 use super::InContext;
 use crate::html::{html, Markup};
-use crate::util;
+use crate::util::{single_type_name, Handler};
 
 pub use std::any::Any as AnyComponent;
 
@@ -13,10 +13,10 @@ pub trait ComponentTrait: AnyComponent + BaseComponent + Send + Sync {
     where
         Self: Sized;
 
-    fn handler(&self) -> &'static str;
+    fn handler(&self) -> Handler;
 
     fn name(&self) -> String {
-        util::single_type_name::<Self>().to_owned()
+        single_type_name::<Self>().to_owned()
     }
 
     fn description(&self) -> Option<String> {
@@ -73,9 +73,9 @@ pub fn component_mut<C: 'static>(component: &mut dyn ComponentTrait) -> &mut C {
 
 #[macro_export]
 macro_rules! hook_before_render_component {
-    ( $ACTION_HANDLER:ident = $handler:literal, $Component:ty ) => {
+    ( $ACTION_HANDLER:ident, $Component:ty ) => {
         paste::paste! {
-            const $ACTION_HANDLER: &str = $handler;
+            $crate::pub_const_handler!($ACTION_HANDLER);
 
             type Action = fn(&$Component, &mut InContext);
 
@@ -92,7 +92,7 @@ macro_rules! hook_before_render_component {
                     }
                 }
 
-                fn handler(&self) -> &'static str {
+                fn handler(&self) -> Handler {
                     $ACTION_HANDLER
                 }
 

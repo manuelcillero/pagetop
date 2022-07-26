@@ -1,11 +1,8 @@
 use crate::prelude::*;
 
-pub const COMPONENT_COLUMN: &str = "pagetop::component::grid::column";
+pub_const_handler!(COMPONENT_COLUMN);
 
-hook_before_render_component!(
-    HOOK_BEFORE_RENDER_COLUMN = "pagetop::action::before_render_column",
-    Column
-);
+hook_before_render_component!(HOOK_BEFORE_RENDER_COLUMN, Column);
 
 const SIZE_DEFAULT:  &str = "col-md";
 const SIZE_1_OF_12:  &str = "col-md-1";
@@ -59,7 +56,7 @@ impl ComponentTrait for Column {
         }
     }
 
-    fn handler(&self) -> &'static str {
+    fn handler(&self) -> Handler {
         COMPONENT_COLUMN
     }
 

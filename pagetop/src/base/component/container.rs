@@ -1,11 +1,8 @@
 use crate::prelude::*;
 
-pub const COMPONENT_CONTAINER: &str = "pagetop::component::container";
+pub_const_handler!(COMPONENT_CONTAINER);
 
-hook_before_render_component!(
-    HOOK_BEFORE_RENDER_CONTAINER = "pagetop::action::before_render_container",
-    Container
-);
+hook_before_render_component!(HOOK_BEFORE_RENDER_CONTAINER, Container);
 
 pub enum ContainerType {
     Header,
@@ -40,7 +37,7 @@ impl ComponentTrait for Container {
         }
     }
 
-    fn handler(&self) -> &'static str {
+    fn handler(&self) -> Handler {
         COMPONENT_CONTAINER
     }
 
