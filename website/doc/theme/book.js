@@ -544,11 +544,10 @@ function playground_text(playground) {
         }
     }, { passive: true });
 
-    // Scroll sidebar to current active section
-    var activeSection = document.getElementById("sidebar").querySelector(".active");
-    if (activeSection) {
-        // https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollIntoView
-        // activeSection.scrollIntoView({ block: 'center' });
+    // Try to show the full sidebar
+    if (html.classList.contains("sidebar-visible")) {
+        var realHeight = sidebar.querySelector(".sidebar-scrollbox").scrollHeight;
+        document.getElementById("page-wrapper").style.minHeight  = realHeight + 80 + "px";
     }
 })();
 

@@ -111,6 +111,16 @@
 .js #mdbook .menu-title {
 	cursor: pointer;
 }
+@media only screen and (max-width: 640px) {
+	#mdbook .menu-title {
+		font-size: 1.5rem;
+	}
+}
+@media only screen and (max-width: 420px) {
+	#mdbook .menu-title {
+		font-size: 1.2rem;
+	}
+}
 
 #mdbook .menu-bar,
 #mdbook .menu-bar:visited,
