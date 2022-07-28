@@ -35,45 +35,67 @@ async fn mdbook_page(request: app::HttpRequest) -> ResultPage<Markup, FatalError
 
     if let Some(content) = MDBOOK.get(path) {
         if let Ok(html) = std::str::from_utf8(content.data) {
-            let mut page = Page::new().with_title("Documentación");
-            page.context()
-                .alter(InContextOp::AddMetadata("theme-color", "#ffffff"))
-                .alter(InContextOp::StyleSheet(
+
+            let _lang = extract("Lang", html);
+            let title = match extract("Title", html) {
+                Some(title) => title,
+                _ => "Documentación",
+            };
+            let _print = match extract("Print", html) {
+                Some("enabled") => true,
+                _ => false,
+            };
+            let _mathjax = match extract("MathJax", html) {
+                Some("supported") => true,
+                _ => false,
+            };
+            let beginning = {
+                let separator = "<!-- mdBook -->";
+                match html.find(separator) {
+                    Some(pos) => pos + separator.len(),
+                    _ => 0,
+                }
+            };
+
+            Page::new()
+                .with_title(title)
+                .with_context(InContextOp::AddMetadata("theme-color", "#ffffff"))
+                .with_context(InContextOp::StyleSheet(
                     AssetsOp::<StyleSheet>::Add(StyleSheet::located("/doc/css/variables.css"))
                 ))
-                .alter(InContextOp::StyleSheet(
+                .with_context(InContextOp::StyleSheet(
                     AssetsOp::<StyleSheet>::Add(StyleSheet::located("/doc/css/general.css"))
                 ))
-                .alter(InContextOp::StyleSheet(
+                .with_context(InContextOp::StyleSheet(
                     AssetsOp::<StyleSheet>::Add(StyleSheet::located("/doc/css/chrome.css"))
                 ))
-                .alter(InContextOp::StyleSheet(
+                .with_context(InContextOp::StyleSheet(
                     AssetsOp::<StyleSheet>::Add(
                         StyleSheet::located("/doc/css/print.css").for_media(TargetMedia::Print)
                     )
                 ))
-                .alter(InContextOp::StyleSheet(
+                .with_context(InContextOp::StyleSheet(
                     AssetsOp::<StyleSheet>::Add(StyleSheet::located("/doc/FontAwesome/css/font-awesome.css"))
                 ))
-                .alter(InContextOp::StyleSheet(
+                .with_context(InContextOp::StyleSheet(
                     AssetsOp::<StyleSheet>::Add(StyleSheet::located("/doc/fonts/fonts.css"))
                 ))
-                .alter(InContextOp::StyleSheet(
+                .with_context(InContextOp::StyleSheet(
                     AssetsOp::<StyleSheet>::Add(StyleSheet::located("/doc/highlight.css"))
                 ))
-                .alter(InContextOp::StyleSheet(
+                .with_context(InContextOp::StyleSheet(
                     AssetsOp::<StyleSheet>::Add(StyleSheet::located("/doc/tomorrow-night.css"))
                 ))
-                .alter(InContextOp::StyleSheet(
+                .with_context(InContextOp::StyleSheet(
                     AssetsOp::<StyleSheet>::Add(StyleSheet::located("/doc/ayu-highlight.css"))
-                ));
-            page.add_to(
-                "region-content",
-                Container::new()
-                    .with_id("mdbook")
-                    .with_component(Html::with(html! { (PreEscaped(html)) }))
-            )
-            .render()
+                ))
+                .add_to(
+                    "region-content",
+                    Container::new()
+                        .with_id("mdbook")
+                        .with_component(Html::with(html! { (PreEscaped(&html[beginning..])) }))
+                )
+                .render()
         } else {
             Err(FatalError::NotFound)
         }
@@ -151,4 +173,16 @@ fn none_match(etag: Option<&app::http::header::EntityTag>, request: &app::HttpRe
         }
         None => true,
     }
+}
+
+fn extract(attr: &'static str, from: &'static str) -> Option<&'static str> {
+    let search = concat_string!("<!-- ", attr, ":");
+    if let Some(ini) = from.find(&search) {
+        let ini = ini + search.len() + 1;
+        if let Some(end) = from[ini..].find("-->").map(|i| i + ini) {
+            let end = end - 1;
+            return Some(&from[ini..end]);
+        }
+    }
+    None
 }
