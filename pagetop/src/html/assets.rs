@@ -3,19 +3,12 @@ pub mod stylesheet;
 
 use crate::html::{html, Markup};
 
-pub type SourceValue = &'static str;
-
 pub trait AssetsTrait {
-    fn source(&self) -> SourceValue;
+    fn source(&self) -> &'static str;
 
     fn weight(&self) -> isize;
 
     fn render(&self) -> Markup;
-}
-
-pub enum AssetsOp<T: AssetsTrait> {
-    Add(T),
-    Remove(SourceValue),
 }
 
 #[derive(Default)]
@@ -26,25 +19,23 @@ impl<T: AssetsTrait> Assets<T> {
         Assets::<T>(Vec::<T>::new())
     }
 
-    pub fn alter(&mut self, op: AssetsOp<T>) -> &mut Self {
-        match op {
-            AssetsOp::Add(asset) => {
-                match self.0.iter().position(|x| x.source() == asset.source()) {
-                    Some(index) => {
-                        if self.0[index].weight() > asset.weight() {
-                            self.0.remove(index);
-                            self.0.push(asset);
-                        }
-                    }
-                    _ => self.0.push(asset),
-                }
-            }
-            AssetsOp::Remove(source) => {
-                if let Some(index) = self.0.iter().position(|x| x.source() == source) {
+    pub fn add(&mut self, asset: T) -> &mut Self {
+        match self.0.iter().position(|x| x.source() == asset.source()) {
+            Some(index) => {
+                if self.0[index].weight() > asset.weight() {
                     self.0.remove(index);
+                    self.0.push(asset);
                 }
             }
-        }
+            _ => self.0.push(asset),
+        };
+        self
+    }
+
+    pub fn remove(&mut self, source: &'static str) -> &mut Self {
+        if let Some(index) = self.0.iter().position(|x| x.source() == source) {
+            self.0.remove(index);
+        };
         self
     }
 

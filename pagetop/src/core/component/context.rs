@@ -13,17 +13,26 @@ static DEFAULT_THEME: LazyStatic<&dyn ThemeTrait> = LazyStatic::new(||
 
 pub enum InContextOp {
     SetTheme(&'static str),
+
+    AddFavicon(Favicon),
+    RemoveFavicon,
+
     AddMetadata(&'static str, &'static str),
-    Favicon(Option<Favicon>),
-    StyleSheet(AssetsOp<StyleSheet>),
-    JavaScript(AssetsOp<JavaScript>),
+    AddProperty(&'static str, &'static str),
+
+    AddStyleSheet(StyleSheet),
+    RemoveStyleSheet(&'static str),
+
+    AddJavaScript(JavaScript),
+    RemoveJavaScript(&'static str),
     AddJQuery,
 }
 
 pub struct InContext {
     theme      : &'static dyn ThemeTrait,
     favicon    : Option<Favicon>,
-    metadata   : Vec<(String, String)>,
+    metadata   : Vec<(&'static str, &'static str)>,
+    properties : Vec<(&'static str, &'static str)>,
     stylesheets: Assets<StyleSheet>,
     javascripts: Assets<JavaScript>,
     with_jquery: bool,
@@ -36,6 +45,7 @@ impl InContext {
             theme      : *DEFAULT_THEME,
             favicon    : None,
             metadata   : Vec::new(),
+            properties : Vec::new(),
             stylesheets: Assets::<StyleSheet>::new(),
             javascripts: Assets::<JavaScript>::new(),
             with_jquery: false,
@@ -48,26 +58,42 @@ impl InContext {
             InContextOp::SetTheme(theme_name) => {
                 self.theme = theme_by_single_name(theme_name).unwrap_or(*DEFAULT_THEME);
             }
+
+            InContextOp::AddFavicon(favicon) => {
+                self.favicon = Some(favicon);
+            }
+            InContextOp::RemoveFavicon => {
+                self.favicon = None;
+            }
+
             InContextOp::AddMetadata(name, content) => {
-                self.metadata.push((name.to_owned(), content.to_owned()));
+                self.metadata.push((name, content));
             }
-            InContextOp::Favicon(favicon) => {
-                self.favicon = favicon;
+            InContextOp::AddProperty(property, content) => {
+                self.properties.push((property, content));
             }
-            InContextOp::StyleSheet(css) => {
-                self.stylesheets.alter(css);
+
+            InContextOp::AddStyleSheet(css) => {
+                self.stylesheets.add(css);
             }
-            InContextOp::JavaScript(js) => {
-                self.javascripts.alter(js);
+            InContextOp::RemoveStyleSheet(source) => {
+                self.stylesheets.remove(source);
+            }
+
+            InContextOp::AddJavaScript(js) => {
+                self.javascripts.add(js);
+            }
+            InContextOp::RemoveJavaScript(source) => {
+                self.javascripts.remove(source);
             }
             InContextOp::AddJQuery => {
                 if !self.with_jquery {
-                    self.javascripts.alter(AssetsOp::Add(
+                    self.javascripts.add(
                         JavaScript::located("/theme/js/jquery.min.js")
                             .with_version("3.6.0")
                             .with_weight(isize::MIN)
                             .with_mode(JSMode::Normal),
-                    ));
+                    );
                     self.with_jquery = true;
                 }
             }
@@ -91,6 +117,9 @@ impl InContext {
             }
             @for (name, content) in &self.metadata {
                 meta name=(name) content=(content) {}
+            }
+            @for (property, content) in &self.properties {
+                meta property=(property) content=(content) {}
             }
             (self.stylesheets.render())
             (self.javascripts.render())

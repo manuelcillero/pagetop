@@ -32,9 +32,9 @@ impl ComponentTrait for Icon {
     }
 
     fn before_render(&mut self, context: &mut InContext) {
-        context.alter(InContextOp::StyleSheet(AssetsOp::Add(
+        context.alter(InContextOp::AddStyleSheet(
             StyleSheet::located("/theme/icons/bootstrap-icons.css").with_version("1.8.2"),
-        )));
+        ));
     }
 
     fn default_render(&self, _: &mut InContext) -> Markup {

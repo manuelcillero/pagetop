@@ -28,9 +28,9 @@ pub trait ThemeTrait: BaseTheme + Send + Sync {
 
     #[allow(unused_variables)]
     fn before_render_page(&self, page: &mut Page) {
-        page.alter_context(InContextOp::Favicon(Some(
+        page.alter_context(InContextOp::AddFavicon(
             Favicon::new().with_icon("/theme/favicon.png"),
-        )));
+        ));
     }
 
     fn render_page_head(&self, page: &mut Page) -> Markup {

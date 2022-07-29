@@ -16,15 +16,16 @@ impl ThemeTrait for Bulmix {
     }
 
     fn before_render_page(&self, page: &mut Page) {
-        page.alter_context(InContextOp::Favicon(Some(
-            Favicon::new().with_icon("/theme/favicon.png"),
-        )))
-        .alter_context(InContextOp::StyleSheet(AssetsOp::Add(
-            StyleSheet::located("/bulmix/css/bulma.min.css")
-                .with_version("0.9.4")
-                .with_weight(-99),
-        )))
-        .alter_context(InContextOp::AddJQuery);
+        page
+            .alter_context(InContextOp::AddFavicon(
+                Favicon::new().with_icon("/theme/favicon.png"),
+            ))
+            .alter_context(InContextOp::AddStyleSheet(
+                StyleSheet::located("/bulmix/css/bulma.min.css")
+                    .with_version("0.9.4")
+                    .with_weight(-99),
+            ))
+            .alter_context(InContextOp::AddJQuery);
     }
 
     fn before_render_component(

@@ -1,10 +1,10 @@
-use super::{AssetsTrait, SourceValue};
+use super::AssetsTrait;
 use crate::html::{html, Markup};
 
 pub enum TargetMedia {Default, Print, Screen, Speech}
 
 pub struct StyleSheet {
-    source : SourceValue,
+    source : &'static str,
     prefix : &'static str,
     version: &'static str,
     media  : Option<&'static str>,
@@ -12,7 +12,7 @@ pub struct StyleSheet {
 }
 
 impl AssetsTrait for StyleSheet {
-    fn source(&self) -> SourceValue {
+    fn source(&self) -> &'static str {
         self.source
     }
 
@@ -31,7 +31,7 @@ impl AssetsTrait for StyleSheet {
 }
 
 impl StyleSheet {
-    pub fn located(source: SourceValue) -> Self {
+    pub fn located(source: &'static str) -> Self {
         StyleSheet {
             source,
             prefix : "",

@@ -1,4 +1,4 @@
-use super::{AssetsTrait, SourceValue};
+use super::AssetsTrait;
 use crate::html::{html, Markup};
 
 #[derive(PartialEq)]
@@ -9,7 +9,7 @@ pub enum JSMode {
 }
 
 pub struct JavaScript {
-    source : SourceValue,
+    source : &'static str,
     prefix : &'static str,
     version: &'static str,
     weight : isize,
@@ -17,7 +17,7 @@ pub struct JavaScript {
 }
 
 impl AssetsTrait for JavaScript {
-    fn source(&self) -> SourceValue {
+    fn source(&self) -> &'static str {
         self.source
     }
 
@@ -37,7 +37,7 @@ impl AssetsTrait for JavaScript {
 }
 
 impl JavaScript {
-    pub fn located(source: SourceValue) -> Self {
+    pub fn located(source: &'static str) -> Self {
         JavaScript {
             source,
             prefix : "",

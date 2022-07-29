@@ -206,15 +206,15 @@ impl ComponentTrait for Menu {
 
     fn default_render(&self, context: &mut InContext) -> Markup {
         context
-            .alter(InContextOp::StyleSheet(AssetsOp::Add(
+            .alter(InContextOp::AddStyleSheet(
                 StyleSheet::located("/theme/menu/css/menu.css").with_version("1.1.1"),
-            )))
-            .alter(InContextOp::StyleSheet(AssetsOp::Add(
+            ))
+            .alter(InContextOp::AddStyleSheet(
                 StyleSheet::located("/theme/menu/css/menu-clean.css").with_version("1.1.1"),
-            )))
-            .alter(InContextOp::JavaScript(AssetsOp::Add(
+            ))
+            .alter(InContextOp::AddJavaScript(
                 JavaScript::located("/theme/menu/js/menu.min.js").with_version("1.1.1"),
-            )))
+            ))
             .alter(InContextOp::AddJQuery);
 
         let id = context.required_id::<Menu>(self.id());
