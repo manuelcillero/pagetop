@@ -2,6 +2,7 @@ use crate::prelude::*;
 
 pub_const_handler!(COMPONENT_ICON);
 
+#[rustfmt::skip]
 pub struct Icon {
     weight    : isize,
     renderable: Renderable,
@@ -10,6 +11,7 @@ pub struct Icon {
 }
 
 impl ComponentTrait for Icon {
+    #[rustfmt::skip]
     fn new() -> Self {
         Icon {
             weight    : 0,

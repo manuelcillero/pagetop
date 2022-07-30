@@ -2,6 +2,7 @@ use crate::prelude::*;
 
 pub_const_handler!(COMPONENT_HIDDEN);
 
+#[rustfmt::skip]
 pub struct Hidden {
     weight: isize,
     name  : IdentifierValue,
@@ -9,6 +10,7 @@ pub struct Hidden {
 }
 
 impl ComponentTrait for Hidden {
+    #[rustfmt::skip]
     fn new() -> Self {
         Hidden {
             weight: 0,

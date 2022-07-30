@@ -29,10 +29,8 @@ impl Favicon {
     }
 
     pub fn with_theme_color(mut self, color: &str) -> Self {
-        self.0.push(format!(
-            "<meta name=\"theme-color\" content=\"{}\">",
-            color
-        ));
+        self.0
+            .push(format!("<meta name=\"theme-color\" content=\"{}\">", color));
         self
     }
 

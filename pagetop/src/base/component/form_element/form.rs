@@ -9,6 +9,7 @@ pub enum FormMethod {
     Post,
 }
 
+#[rustfmt::skip]
 pub struct Form {
     weight    : isize,
     renderable: Renderable,
@@ -22,6 +23,7 @@ pub struct Form {
 }
 
 impl ComponentTrait for Form {
+    #[rustfmt::skip]
     fn new() -> Self {
         Form {
             weight    : 0,

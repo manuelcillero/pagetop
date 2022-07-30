@@ -2,6 +2,7 @@ use crate::prelude::*;
 
 pub_const_handler!(COMPONENT_HTML);
 
+#[rustfmt::skip]
 pub struct Html {
     weight    : isize,
     renderable: Renderable,
@@ -10,6 +11,7 @@ pub struct Html {
 }
 
 impl ComponentTrait for Html {
+    #[rustfmt::skip]
     fn new() -> Self {
         Html {
             weight    : 0,

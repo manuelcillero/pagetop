@@ -27,8 +27,8 @@ impl ModuleTrait for DefaultHomePage {
 async fn demo() -> ResultPage<Markup, FatalError> {
     Page::new()
         .with_title(l("page_title").as_str())
-        .with_context(PageOp::AddStyleSheet(
-            StyleSheet::located("/theme/module/homepage/styles.css"
+        .with_context(PageOp::AddStyleSheet(StyleSheet::located(
+            "/theme/module/homepage/styles.css",
         )))
         .add_to("region-content", hello_world())
         .add_to("region-content", welcome())

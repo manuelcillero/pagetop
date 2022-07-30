@@ -17,8 +17,10 @@ use tracing_subscriber::EnvFilter;
 /// `Lazy<WorkerGuard>` se garantiza que todos los registros almacenados se
 /// enviarán antes de terminar la ejecución.
 
+#[rustfmt::skip]
 pub static TRACING: LazyStatic<WorkerGuard> = LazyStatic::new(|| {
-    let env_filter = EnvFilter::try_new(&SETTINGS.log.tracing).unwrap_or_else(|_| EnvFilter::new("Info"));
+    let env_filter =
+        EnvFilter::try_new(&SETTINGS.log.tracing).unwrap_or_else(|_| EnvFilter::new("Info"));
 
     let rolling = SETTINGS.log.rolling.to_lowercase();
     let (non_blocking, guard) = match rolling.as_str() {

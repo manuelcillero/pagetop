@@ -21,6 +21,7 @@ pub enum HeadingDisplay {
     Subtitle,
 }
 
+#[rustfmt::skip]
 pub struct Heading {
     weight      : isize,
     renderable  : Renderable,
@@ -33,6 +34,7 @@ pub struct Heading {
 }
 
 impl ComponentTrait for Heading {
+    #[rustfmt::skip]
     fn new() -> Self {
         Heading {
             weight      : 0,
@@ -191,6 +193,7 @@ impl Heading {
         self
     }
 
+    #[rustfmt::skip]
     pub fn alter_display(&mut self, display: HeadingDisplay) -> &mut Self {
         self.display = display;
         self.classes.alter(

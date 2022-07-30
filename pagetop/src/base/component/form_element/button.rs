@@ -8,6 +8,7 @@ pub enum ButtonType {
     Submit,
 }
 
+#[rustfmt::skip]
 pub struct Button {
     weight     : isize,
     renderable : Renderable,
@@ -21,6 +22,7 @@ pub struct Button {
 }
 
 impl ComponentTrait for Button {
+    #[rustfmt::skip]
     fn new() -> Self {
         Button {
             weight     : 0,
@@ -48,6 +50,7 @@ impl ComponentTrait for Button {
         (self.renderable)(context)
     }
 
+    #[rustfmt::skip]
     fn default_render(&self, _: &mut PageContext) -> Markup {
         let button_type = match self.button_type() {
             ButtonType::Button => "button",

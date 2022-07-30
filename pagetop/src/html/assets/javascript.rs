@@ -2,18 +2,19 @@ use super::AssetsTrait;
 use crate::html::{html, Markup};
 
 #[derive(PartialEq)]
-pub enum JSMode {
+pub enum ModeJS {
     Async,
     Defer,
     Normal,
 }
 
+#[rustfmt::skip]
 pub struct JavaScript {
     source : &'static str,
     prefix : &'static str,
     version: &'static str,
     weight : isize,
-    mode   : JSMode,
+    mode   : ModeJS,
 }
 
 impl AssetsTrait for JavaScript {
@@ -29,21 +30,22 @@ impl AssetsTrait for JavaScript {
         html! {
             script type="text/javascript"
                 src=(crate::concat_string!(self.source, self.prefix, self.version))
-                async[self.mode == JSMode::Async]
-                defer[self.mode == JSMode::Defer]
+                async[self.mode == ModeJS::Async]
+                defer[self.mode == ModeJS::Defer]
                 {};
         }
     }
 }
 
 impl JavaScript {
+    #[rustfmt::skip]
     pub fn located(source: &'static str) -> Self {
         JavaScript {
             source,
             prefix : "",
             version: "",
             weight : 0,
-            mode   : JSMode::Defer,
+            mode   : ModeJS::Defer,
         }
     }
 
@@ -61,7 +63,7 @@ impl JavaScript {
         self
     }
 
-    pub fn with_mode(mut self, mode: JSMode) -> Self {
+    pub fn with_mode(mut self, mode: ModeJS) -> Self {
         self.mode = mode;
         self
     }

@@ -1,8 +1,14 @@
 use super::AssetsTrait;
 use crate::html::{html, Markup};
 
-pub enum TargetMedia {Default, Print, Screen, Speech}
+pub enum TargetMedia {
+    Default,
+    Print,
+    Screen,
+    Speech,
+}
 
+#[rustfmt::skip]
 pub struct StyleSheet {
     source : &'static str,
     prefix : &'static str,
@@ -31,6 +37,7 @@ impl AssetsTrait for StyleSheet {
 }
 
 impl StyleSheet {
+    #[rustfmt::skip]
     pub fn located(source: &'static str) -> Self {
         StyleSheet {
             source,
@@ -55,6 +62,7 @@ impl StyleSheet {
         self
     }
 
+    #[rustfmt::skip]
     pub fn for_media(mut self, media: TargetMedia) -> Self {
         self.media = match media {
             TargetMedia::Print  => Some("print"),

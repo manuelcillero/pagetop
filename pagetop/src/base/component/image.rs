@@ -2,6 +2,7 @@ use crate::prelude::*;
 
 pub_const_handler!(COMPONENT_IMAGE);
 
+#[rustfmt::skip]
 pub struct Image {
     weight    : isize,
     renderable: Renderable,
@@ -12,6 +13,7 @@ pub struct Image {
 }
 
 impl ComponentTrait for Image {
+    #[rustfmt::skip]
     fn new() -> Self {
         Image {
             weight    : 0,

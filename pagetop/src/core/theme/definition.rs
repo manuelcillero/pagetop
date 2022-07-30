@@ -125,25 +125,19 @@ pub trait ThemeTrait: BaseTheme + Send + Sync {
     }
 
     fn error_404_not_found(&self) -> Container {
-        Container::new()
-            .with_component(
-                Html::with(html! {
-                    div {
-                        h1 { ("RESOURCE NOT FOUND") }
-                    }
-                })
-            )
+        Container::new().with_component(Html::with(html! {
+            div {
+                h1 { ("RESOURCE NOT FOUND") }
+            }
+        }))
     }
 
     fn error_403_access_denied(&self) -> Container {
-        Container::new()
-            .with_component(
-                Html::with(html! {
-                    div {
-                        h1 { ("FORBIDDEN ACCESS") }
-                    }
-                })
-            )
+        Container::new().with_component(Html::with(html! {
+            div {
+                h1 { ("FORBIDDEN ACCESS") }
+            }
+        }))
     }
 }
 

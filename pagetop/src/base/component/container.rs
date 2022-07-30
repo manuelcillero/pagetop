@@ -12,6 +12,7 @@ pub enum ContainerType {
     Wrapper,
 }
 
+#[rustfmt::skip]
 pub struct Container {
     weight        : isize,
     renderable    : Renderable,
@@ -24,6 +25,7 @@ pub struct Container {
 }
 
 impl ComponentTrait for Container {
+    #[rustfmt::skip]
     fn new() -> Self {
         Container {
             weight        : 0,

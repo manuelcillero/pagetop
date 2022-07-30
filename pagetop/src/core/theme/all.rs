@@ -6,9 +6,8 @@ use std::sync::RwLock;
 include!(concat!(env!("OUT_DIR"), "/theme.rs"));
 
 // Temas registrados.
-static THEMES: LazyStatic<RwLock<Vec<&dyn ThemeTrait>>> = LazyStatic::new(||
-    RwLock::new(Vec::new())
-);
+static THEMES: LazyStatic<RwLock<Vec<&dyn ThemeTrait>>> =
+    LazyStatic::new(|| RwLock::new(Vec::new()));
 
 pub fn register_themes(themes: Vec<&'static dyn ThemeTrait>) {
     for t in themes {

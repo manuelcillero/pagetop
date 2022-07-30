@@ -62,6 +62,7 @@ macro_rules! config_map {
     };
 }
 
+#[rustfmt::skip]
 #[derive(Debug, Deserialize)]
 pub struct App {
     pub name          : String,
@@ -73,6 +74,7 @@ pub struct App {
     pub run_mode      : String,
 }
 
+#[rustfmt::skip]
 #[derive(Debug, Deserialize)]
 pub struct Log {
     pub tracing       : String,
@@ -82,6 +84,7 @@ pub struct Log {
     pub format        : String,
 }
 
+#[rustfmt::skip]
 #[derive(Debug, Deserialize)]
 pub struct Database {
     pub db_type       : String,
@@ -93,17 +96,20 @@ pub struct Database {
     pub max_pool_size : u32,
 }
 
+#[rustfmt::skip]
 #[derive(Debug, Deserialize)]
 pub struct Webserver {
     pub bind_address  : String,
     pub bind_port     : u16,
 }
 
+#[rustfmt::skip]
 #[derive(Debug, Deserialize)]
 pub struct Dev {
     pub static_files  : String,
 }
 
+#[rustfmt::skip]
 #[derive(Debug, Deserialize)]
 pub struct Settings {
     pub app           : App,

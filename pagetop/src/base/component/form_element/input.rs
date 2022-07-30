@@ -11,6 +11,7 @@ pub enum InputType {
     Url,
 }
 
+#[rustfmt::skip]
 pub struct Input {
     weight      : isize,
     renderable  : Renderable,
@@ -33,6 +34,7 @@ pub struct Input {
 }
 
 impl ComponentTrait for Input {
+    #[rustfmt::skip]
     fn new() -> Self {
         Input {
             weight      : 0,
@@ -69,6 +71,7 @@ impl ComponentTrait for Input {
         (self.renderable)(context)
     }
 
+    #[rustfmt::skip]
     fn default_render(&self, _: &mut PageContext) -> Markup {
         let type_input = match self.input_type() {
             InputType::Email     => "email",
@@ -130,6 +133,7 @@ impl Input {
         Input::new()
     }
 
+    #[rustfmt::skip]
     pub fn password() -> Self {
         let mut input = Input::new().with_classes(
             ClassesOp::Replace("form-type-textfield"),
@@ -139,6 +143,7 @@ impl Input {
         input
     }
 
+    #[rustfmt::skip]
     pub fn search() -> Self {
         let mut input = Input::new().with_classes(
             ClassesOp::Replace("form-type-textfield"),
@@ -148,6 +153,7 @@ impl Input {
         input
     }
 
+    #[rustfmt::skip]
     pub fn email() -> Self {
         let mut input = Input::new().with_classes(
             ClassesOp::Replace("form-type-textfield"),
@@ -157,6 +163,7 @@ impl Input {
         input
     }
 
+    #[rustfmt::skip]
     pub fn telephone() -> Self {
         let mut input = Input::new().with_classes(
             ClassesOp::Replace("form-type-textfield"),
@@ -166,6 +173,7 @@ impl Input {
         input
     }
 
+    #[rustfmt::skip]
     pub fn url() -> Self {
         let mut input = Input::new().with_classes(
             ClassesOp::Replace("form-type-textfield"),

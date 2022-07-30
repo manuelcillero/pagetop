@@ -14,6 +14,7 @@ pub enum MenuItemType {
 
 // MenuItem.
 
+#[rustfmt::skip]
 pub struct MenuItem {
     weight    : isize,
     renderable: Renderable,
@@ -21,6 +22,7 @@ pub struct MenuItem {
 }
 
 impl ComponentTrait for MenuItem {
+    #[rustfmt::skip]
     fn new() -> Self {
         MenuItem {
             weight    : 0,
@@ -82,6 +84,7 @@ impl ComponentTrait for MenuItem {
 }
 
 impl MenuItem {
+    #[rustfmt::skip]
     pub fn label(label: &str) -> Self {
         MenuItem {
             weight    : 0,
@@ -90,6 +93,7 @@ impl MenuItem {
         }
     }
 
+    #[rustfmt::skip]
     pub fn link(label: &str, path: &str) -> Self {
         MenuItem {
             weight    : 0,
@@ -98,6 +102,7 @@ impl MenuItem {
         }
     }
 
+    #[rustfmt::skip]
     pub fn link_blank(label: &str, path: &str) -> Self {
         MenuItem {
             weight    : 0,
@@ -106,6 +111,7 @@ impl MenuItem {
         }
     }
 
+    #[rustfmt::skip]
     pub fn html(html: Markup) -> Self {
         MenuItem {
             weight    : 0,
@@ -114,6 +120,7 @@ impl MenuItem {
         }
     }
 
+    #[rustfmt::skip]
     pub fn separator() -> Self {
         MenuItem {
             weight    : 0,
@@ -122,6 +129,7 @@ impl MenuItem {
         }
     }
 
+    #[rustfmt::skip]
     pub fn submenu(label: &str, menu: Menu) -> Self {
         MenuItem {
             weight    : 0,
@@ -167,6 +175,7 @@ pub_const_handler!(COMPONENT_MENU);
 
 hook_before_render_component!(HOOK_BEFORE_RENDER_MENU, Menu);
 
+#[rustfmt::skip]
 pub struct Menu {
     weight    : isize,
     renderable: Renderable,
@@ -177,6 +186,7 @@ pub struct Menu {
 }
 
 impl ComponentTrait for Menu {
+    #[rustfmt::skip]
     fn new() -> Self {
         Menu {
             weight    : 0,

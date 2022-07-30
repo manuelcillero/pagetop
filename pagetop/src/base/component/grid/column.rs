@@ -4,16 +4,16 @@ pub_const_handler!(COMPONENT_COLUMN);
 
 hook_before_render_component!(HOOK_BEFORE_RENDER_COLUMN, Column);
 
-const SIZE_DEFAULT:  &str = "col-md";
-const SIZE_1_OF_12:  &str = "col-md-1";
-const SIZE_2_OF_12:  &str = "col-md-2";
-const SIZE_3_OF_12:  &str = "col-md-3";
-const SIZE_4_OF_12:  &str = "col-md-4";
-const SIZE_5_OF_12:  &str = "col-md-5";
-const SIZE_6_OF_12:  &str = "col-md-6";
-const SIZE_7_OF_12:  &str = "col-md-7";
-const SIZE_8_OF_12:  &str = "col-md-8";
-const SIZE_9_OF_12:  &str = "col-md-9";
+const SIZE__DEFAULT: &str = "col-md";
+const SIZE__1_OF_12: &str = "col-md-1";
+const SIZE__2_OF_12: &str = "col-md-2";
+const SIZE__3_OF_12: &str = "col-md-3";
+const SIZE__4_OF_12: &str = "col-md-4";
+const SIZE__5_OF_12: &str = "col-md-5";
+const SIZE__6_OF_12: &str = "col-md-6";
+const SIZE__7_OF_12: &str = "col-md-7";
+const SIZE__8_OF_12: &str = "col-md-8";
+const SIZE__9_OF_12: &str = "col-md-9";
 const SIZE_10_OF_12: &str = "col-md-10";
 const SIZE_11_OF_12: &str = "col-md-11";
 const SIZE_12_OF_12: &str = "col-md-12";
@@ -33,6 +33,8 @@ pub enum ColumnSize {
     Is11of12,
     IsFull,
 }
+
+#[rustfmt::skip]
 pub struct Column {
     weight    : isize,
     renderable: Renderable,
@@ -44,12 +46,13 @@ pub struct Column {
 }
 
 impl ComponentTrait for Column {
+    #[rustfmt::skip]
     fn new() -> Self {
         Column {
             weight    : 0,
             renderable: render_always,
             id        : IdentifierValue::new(),
-            classes   : Classes::new_with_default(SIZE_DEFAULT),
+            classes   : Classes::new_with_default(SIZE__DEFAULT),
             size      : ColumnSize::Default,
             components: ComponentsBundle::new(),
             template  : "default".to_owned(),
@@ -149,18 +152,19 @@ impl Column {
         self
     }
 
+    #[rustfmt::skip]
     pub fn alter_size(&mut self, size: ColumnSize) -> &mut Self {
         match size {
-            ColumnSize::Default  => self.alter_classes(ClassesOp::SetDefault, SIZE_DEFAULT),
-            ColumnSize::Is1of12  => self.alter_classes(ClassesOp::SetDefault, SIZE_1_OF_12),
-            ColumnSize::Is2of12  => self.alter_classes(ClassesOp::SetDefault, SIZE_2_OF_12),
-            ColumnSize::Is3of12  => self.alter_classes(ClassesOp::SetDefault, SIZE_3_OF_12),
-            ColumnSize::Is4of12  => self.alter_classes(ClassesOp::SetDefault, SIZE_4_OF_12),
-            ColumnSize::Is5of12  => self.alter_classes(ClassesOp::SetDefault, SIZE_5_OF_12),
-            ColumnSize::Is6of12  => self.alter_classes(ClassesOp::SetDefault, SIZE_6_OF_12),
-            ColumnSize::Is7of12  => self.alter_classes(ClassesOp::SetDefault, SIZE_7_OF_12),
-            ColumnSize::Is8of12  => self.alter_classes(ClassesOp::SetDefault, SIZE_8_OF_12),
-            ColumnSize::Is9of12  => self.alter_classes(ClassesOp::SetDefault, SIZE_9_OF_12),
+            ColumnSize::Default  => self.alter_classes(ClassesOp::SetDefault, SIZE__DEFAULT),
+            ColumnSize::Is1of12  => self.alter_classes(ClassesOp::SetDefault, SIZE__1_OF_12),
+            ColumnSize::Is2of12  => self.alter_classes(ClassesOp::SetDefault, SIZE__2_OF_12),
+            ColumnSize::Is3of12  => self.alter_classes(ClassesOp::SetDefault, SIZE__3_OF_12),
+            ColumnSize::Is4of12  => self.alter_classes(ClassesOp::SetDefault, SIZE__4_OF_12),
+            ColumnSize::Is5of12  => self.alter_classes(ClassesOp::SetDefault, SIZE__5_OF_12),
+            ColumnSize::Is6of12  => self.alter_classes(ClassesOp::SetDefault, SIZE__6_OF_12),
+            ColumnSize::Is7of12  => self.alter_classes(ClassesOp::SetDefault, SIZE__7_OF_12),
+            ColumnSize::Is8of12  => self.alter_classes(ClassesOp::SetDefault, SIZE__8_OF_12),
+            ColumnSize::Is9of12  => self.alter_classes(ClassesOp::SetDefault, SIZE__9_OF_12),
             ColumnSize::Is10of12 => self.alter_classes(ClassesOp::SetDefault, SIZE_10_OF_12),
             ColumnSize::Is11of12 => self.alter_classes(ClassesOp::SetDefault, SIZE_11_OF_12),
             ColumnSize::IsFull   => self.alter_classes(ClassesOp::SetDefault, SIZE_12_OF_12),

@@ -11,6 +11,7 @@ pub enum ParagraphDisplay {
     Normal,
 }
 
+#[rustfmt::skip]
 pub struct Paragraph {
     weight    : isize,
     renderable: Renderable,
@@ -22,6 +23,7 @@ pub struct Paragraph {
 }
 
 impl ComponentTrait for Paragraph {
+    #[rustfmt::skip]
     fn new() -> Self {
         Paragraph {
             weight    : 0,
@@ -130,6 +132,7 @@ impl Paragraph {
         self
     }
 
+    #[rustfmt::skip]
     pub fn alter_display(&mut self, display: ParagraphDisplay) -> &mut Self {
         self.display = display;
         self.classes.alter(

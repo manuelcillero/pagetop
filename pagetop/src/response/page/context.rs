@@ -2,16 +2,16 @@ use super::PageOp;
 use crate::config::SETTINGS;
 use crate::core::theme::all::theme_by_single_name;
 use crate::core::theme::ThemeTrait;
-use crate::html::{html, Assets, Favicon, StyleSheet, JavaScript, JSMode, Markup, IdentifierValue};
+use crate::html::{html, Assets, Favicon, IdentifierValue, JavaScript, Markup, ModeJS, StyleSheet};
 use crate::{base, concat_string, util, LazyStatic};
 
-static DEFAULT_THEME: LazyStatic<&dyn ThemeTrait> = LazyStatic::new(||
-    match theme_by_single_name(&SETTINGS.app.theme) {
+static DEFAULT_THEME: LazyStatic<&dyn ThemeTrait> =
+    LazyStatic::new(|| match theme_by_single_name(&SETTINGS.app.theme) {
         Some(theme) => theme,
         None => &base::theme::bootsier::Bootsier,
-    }
-);
+    });
 
+#[rustfmt::skip]
 pub struct PageContext {
     theme      : &'static dyn ThemeTrait,
     favicon    : Option<Favicon>,
@@ -24,6 +24,7 @@ pub struct PageContext {
 }
 
 impl PageContext {
+    #[rustfmt::skip]
     pub fn new() -> Self {
         PageContext {
             theme      : *DEFAULT_THEME,
@@ -76,7 +77,7 @@ impl PageContext {
                         JavaScript::located("/theme/js/jquery.min.js")
                             .with_version("3.6.0")
                             .with_weight(isize::MIN)
-                            .with_mode(JSMode::Normal),
+                            .with_mode(ModeJS::Normal),
                     );
                     self.with_jquery = true;
                 }

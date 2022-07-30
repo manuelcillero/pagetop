@@ -37,12 +37,8 @@ pub const fn handler(
 #[macro_export]
 macro_rules! pub_const_handler {
     ( $HANDLER:ident ) => {
-        pub const $HANDLER: $crate::util::Handler = $crate::util::handler(
-            module_path!(),
-            file!(),
-            line!(),
-            column!(),
-        );
+        pub const $HANDLER: $crate::util::Handler =
+            $crate::util::handler(module_path!(), file!(), line!(), column!());
     };
 }
 
@@ -89,10 +85,8 @@ macro_rules! theme_static_files {
             $cfg.service($crate::app::ResourceFiles::new($dir, generate()));
         } else {
             $cfg.service(
-                $crate::app::ActixFiles::new(
-                    $dir, $crate::concat_string!(static_files, $dir)
-                )
-                .show_files_listing(),
+                $crate::app::ActixFiles::new($dir, $crate::concat_string!(static_files, $dir))
+                    .show_files_listing(),
             );
         }
     }};

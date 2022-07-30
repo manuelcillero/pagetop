@@ -4,6 +4,7 @@ pub_const_handler!(COMPONENT_BLOCK);
 
 hook_before_render_component!(HOOK_BEFORE_RENDER_BLOCK, Block);
 
+#[rustfmt::skip]
 pub struct Block {
     weight    : isize,
     renderable: Renderable,
@@ -15,6 +16,7 @@ pub struct Block {
 }
 
 impl ComponentTrait for Block {
+    #[rustfmt::skip]
     fn new() -> Self {
         Block {
             weight    : 0,

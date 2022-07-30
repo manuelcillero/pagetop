@@ -1,10 +1,4 @@
-use super::{
-    BeforeRenderPageHook,
-    PageContext,
-    PageOp,
-    ResultPage,
-    HOOK_BEFORE_RENDER_PAGE,
-};
+use super::{BeforeRenderPageHook, PageContext, PageOp, ResultPage, HOOK_BEFORE_RENDER_PAGE};
 use crate::app::fatal_error::FatalError;
 use crate::config::SETTINGS;
 use crate::core::component::*;
@@ -47,6 +41,7 @@ pub enum TextDirection {
     RightToLeft,
 }
 
+#[rustfmt::skip]
 pub struct Page {
     context     : PageContext,
     language    : AttributeValue,
@@ -59,6 +54,7 @@ pub struct Page {
 }
 
 impl Page {
+    #[rustfmt::skip]
     pub fn new() -> Self {
         Page {
             context     : PageContext::new(),

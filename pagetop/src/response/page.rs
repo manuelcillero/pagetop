@@ -1,4 +1,4 @@
-use crate::html::{Favicon, StyleSheet, JavaScript};
+use crate::html::{Favicon, JavaScript, StyleSheet};
 
 pub use actix_web::Result as ResultPage;
 

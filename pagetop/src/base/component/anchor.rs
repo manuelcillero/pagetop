@@ -18,6 +18,7 @@ pub enum AnchorTarget {
 
 pub type AnchorIcon = ComponentsBundle;
 
+#[rustfmt::skip]
 pub struct Anchor {
     weight     : isize,
     renderable : Renderable,
@@ -33,6 +34,7 @@ pub struct Anchor {
 }
 
 impl ComponentTrait for Anchor {
+    #[rustfmt::skip]
     fn new() -> Self {
         Anchor {
             weight     : 0,
@@ -61,6 +63,7 @@ impl ComponentTrait for Anchor {
         (self.renderable)(context)
     }
 
+    #[rustfmt::skip]
     fn default_render(&self, context: &mut PageContext) -> Markup {
         let target = match &self.target() {
             AnchorTarget::Blank         => Some("_blank"),

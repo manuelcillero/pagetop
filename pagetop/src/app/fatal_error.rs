@@ -1,5 +1,5 @@
-use crate::app::HttpResponse;
 use crate::app::http::{header::ContentType, StatusCode};
+use crate::app::HttpResponse;
 use crate::response::{page::Page, ResponseError};
 
 use std::fmt;
@@ -36,7 +36,7 @@ impl fmt::Display for FatalError {
                 } else {
                     write!(f, "Access Denied")
                 }
-            },
+            }
             // Error 404.
             FatalError::NotFound => {
                 let mut error_page = Page::new();
@@ -51,7 +51,7 @@ impl fmt::Display for FatalError {
                 } else {
                     write!(f, "Not Found")
                 }
-            },
+            }
             // Error 412.
             FatalError::PreconditionFailed => write!(f, "Precondition Failed"),
             // Error 500.
@@ -69,6 +69,7 @@ impl ResponseError for FatalError {
             .body(self.to_string())
     }
 
+    #[rustfmt::skip]
     fn status_code(&self) -> StatusCode {
         match *self {
             FatalError::NotModified        => StatusCode::NOT_MODIFIED,

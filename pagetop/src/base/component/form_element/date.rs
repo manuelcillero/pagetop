@@ -2,6 +2,7 @@ use crate::prelude::*;
 
 pub_const_handler!(COMPONENT_DATE);
 
+#[rustfmt::skip]
 pub struct Date {
     weight      : isize,
     renderable  : Renderable,
@@ -20,6 +21,7 @@ pub struct Date {
 }
 
 impl ComponentTrait for Date {
+    #[rustfmt::skip]
     fn new() -> Self {
         Date {
             weight      : 0,

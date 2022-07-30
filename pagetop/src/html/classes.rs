@@ -14,6 +14,7 @@ pub enum ClassesOp {
     SetDefaultIfEmpty,
 }
 
+#[rustfmt::skip]
 #[derive(Default)]
 pub struct Classes {
     default: String,
@@ -21,6 +22,7 @@ pub struct Classes {
 }
 
 impl Classes {
+    #[rustfmt::skip]
     pub fn new() -> Self {
         Classes {
             default: "".to_owned(),

@@ -8,9 +8,8 @@ use crate::{db::*, run_now};
 use std::sync::RwLock;
 
 // Enabled modules.
-static ENABLED_MODULES: LazyStatic<RwLock<Vec<&dyn ModuleTrait>>> = LazyStatic::new(||
-    RwLock::new(Vec::new())
-);
+static ENABLED_MODULES: LazyStatic<RwLock<Vec<&dyn ModuleTrait>>> =
+    LazyStatic::new(|| RwLock::new(Vec::new()));
 
 /* Disabled modules.
 static DISABLED_MODULES: Lazy<RwLock<Vec<&dyn ModuleTrait>>> = Lazy::new(|| {
@@ -35,7 +34,8 @@ fn add_to(list: &mut Vec<&dyn ModuleTrait>, module: &'static dyn ModuleTrait) {
         .read()
         .unwrap()
         .iter()
-        .any(|m| m.handler() == module.handler()) && !list.iter().any(|m| m.handler() == module.handler())
+        .any(|m| m.handler() == module.handler())
+        && !list.iter().any(|m| m.handler() == module.handler())
     {
         trace::debug!("Enabling module \"{}\"", module.single_name());
         list.push(module);

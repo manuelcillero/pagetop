@@ -4,6 +4,7 @@ pub_const_handler!(COMPONENT_ROW);
 
 hook_before_render_component!(HOOK_BEFORE_RENDER_ROW, Row);
 
+#[rustfmt::skip]
 pub struct Row {
     weight    : isize,
     renderable: Renderable,
@@ -14,6 +15,7 @@ pub struct Row {
 }
 
 impl ComponentTrait for Row {
+    #[rustfmt::skip]
     fn new() -> Self {
         Row {
             weight    : 0,
