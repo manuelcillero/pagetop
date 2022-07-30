@@ -1,14 +1,16 @@
 use super::AssetsTrait;
 use crate::html::{html, Markup};
 
-#[derive(PartialEq)]
+#[derive(Default, PartialEq)]
 pub enum ModeJS {
     Async,
+    #[default]
     Defer,
     Normal,
 }
 
 #[rustfmt::skip]
+#[derive(Default)]
 pub struct JavaScript {
     source : &'static str,
     prefix : &'static str,
@@ -38,14 +40,10 @@ impl AssetsTrait for JavaScript {
 }
 
 impl JavaScript {
-    #[rustfmt::skip]
     pub fn located(source: &'static str) -> Self {
         JavaScript {
             source,
-            prefix : "",
-            version: "",
-            weight : 0,
-            mode   : ModeJS::Defer,
+            ..Default::default()
         }
     }
 

@@ -15,4 +15,4 @@ mod identifier;
 pub use identifier::IdentifierValue;
 
 mod classes;
-pub use classes::{ClassValue, Classes, ClassesOp};
+pub use classes::{Classes, ClassesOp};

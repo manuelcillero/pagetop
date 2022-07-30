@@ -3,6 +3,7 @@ use crate::prelude::*;
 pub_const_handler!(COMPONENT_DATE);
 
 #[rustfmt::skip]
+#[derive(Default)]
 pub struct Date {
     weight      : isize,
     renderable  : Renderable,
@@ -21,25 +22,10 @@ pub struct Date {
 }
 
 impl ComponentTrait for Date {
-    #[rustfmt::skip]
     fn new() -> Self {
-        Date {
-            weight      : 0,
-            renderable  : render_always,
-            classes     : Classes::new_with_default("form-item"),
-            name        : AttributeValue::new(),
-            value       : AttributeValue::new(),
-            label       : AttributeValue::new(),
-            placeholder : AttributeValue::new(),
-            autofocus   : AttributeValue::new(),
-            autocomplete: AttributeValue::new(),
-            disabled    : AttributeValue::new(),
-            readonly    : AttributeValue::new(),
-            required    : AttributeValue::new(),
-            help_text   : AttributeValue::new(),
-            template    : "default".to_owned(),
-        }
-        .with_classes(ClassesOp::AddFirst, "form-type-date")
+        Date::default()
+            .with_classes(ClassesOp::SetDefault,"form-item")
+            .with_classes(ClassesOp::AddFirst, "form-type-date")
     }
 
     fn handler(&self) -> Handler {
@@ -51,7 +37,7 @@ impl ComponentTrait for Date {
     }
 
     fn is_renderable(&self, context: &PageContext) -> bool {
-        (self.renderable)(context)
+        (self.renderable.check)(context)
     }
 
     fn default_render(&self, _: &mut PageContext) -> Markup {
@@ -107,8 +93,8 @@ impl Date {
         self
     }
 
-    pub fn with_renderable(mut self, renderable: Renderable) -> Self {
-        self.alter_renderable(renderable);
+    pub fn with_renderable(mut self, check: IsRenderable) -> Self {
+        self.alter_renderable(check);
         self
     }
 
@@ -179,38 +165,38 @@ impl Date {
         self
     }
 
-    pub fn alter_renderable(&mut self, renderable: Renderable) -> &mut Self {
-        self.renderable = renderable;
+    pub fn alter_renderable(&mut self, check: IsRenderable) -> &mut Self {
+        self.renderable.check = check;
         self
     }
 
     pub fn alter_classes(&mut self, op: ClassesOp, classes: &str) -> &mut Self {
-        self.classes.alter(op, classes);
+        self.classes.alter_value(op, classes);
         self
     }
 
     pub fn alter_name(&mut self, name: &str) -> &mut Self {
-        self.name.with_value(name);
+        self.name.alter_value(name);
         self
     }
 
     pub fn alter_value(&mut self, value: &str) -> &mut Self {
-        self.value.with_value(value);
+        self.value.alter_value(value);
         self
     }
 
     pub fn alter_label(&mut self, label: &str) -> &mut Self {
-        self.label.with_value(label);
+        self.label.alter_value(label);
         self
     }
 
     pub fn alter_placeholder(&mut self, placeholder: &str) -> &mut Self {
-        self.placeholder.with_value(placeholder);
+        self.placeholder.alter_value(placeholder);
         self
     }
 
     pub fn alter_autofocus(&mut self, toggle: bool) -> &mut Self {
-        self.autofocus.with_value(match toggle {
+        self.autofocus.alter_value(match toggle {
             true => "autofocus",
             false => "",
         });
@@ -218,7 +204,7 @@ impl Date {
     }
 
     pub fn alter_autocomplete(&mut self, toggle: bool) -> &mut Self {
-        self.autocomplete.with_value(match toggle {
+        self.autocomplete.alter_value(match toggle {
             true => "",
             false => "off",
         });
@@ -226,7 +212,7 @@ impl Date {
     }
 
     pub fn alter_disabled(&mut self, toggle: bool) -> &mut Self {
-        self.disabled.with_value(match toggle {
+        self.disabled.alter_value(match toggle {
             true => "disabled",
             false => "",
         });
@@ -234,7 +220,7 @@ impl Date {
     }
 
     pub fn alter_readonly(&mut self, toggle: bool) -> &mut Self {
-        self.readonly.with_value(match toggle {
+        self.readonly.alter_value(match toggle {
             true => "readonly",
             false => "",
         });
@@ -242,7 +228,7 @@ impl Date {
     }
 
     pub fn alter_required(&mut self, toggle: bool) -> &mut Self {
-        self.required.with_value(match toggle {
+        self.required.alter_value(match toggle {
             true => "required",
             false => "",
         });
@@ -250,7 +236,7 @@ impl Date {
     }
 
     pub fn alter_help_text(&mut self, help_text: &str) -> &mut Self {
-        self.help_text.with_value(help_text);
+        self.help_text.alter_value(help_text);
         self
     }
 

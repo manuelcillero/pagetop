@@ -3,6 +3,7 @@ use crate::prelude::*;
 pub_const_handler!(COMPONENT_IMAGE);
 
 #[rustfmt::skip]
+#[derive(Default)]
 pub struct Image {
     weight    : isize,
     renderable: Renderable,
@@ -13,16 +14,8 @@ pub struct Image {
 }
 
 impl ComponentTrait for Image {
-    #[rustfmt::skip]
     fn new() -> Self {
-        Image {
-            weight    : 0,
-            renderable: render_always,
-            id        : IdentifierValue::new(),
-            classes   : Classes::new_with_default("img-fluid"),
-            source    : AttributeValue::new(),
-            template  : "default".to_owned(),
-        }
+        Image::default().with_classes(ClassesOp::SetDefault, "img-fluid")
     }
 
     fn handler(&self) -> Handler {
@@ -34,7 +27,7 @@ impl ComponentTrait for Image {
     }
 
     fn is_renderable(&self, context: &PageContext) -> bool {
-        (self.renderable)(context)
+        (self.renderable.check)(context)
     }
 
     fn default_render(&self, _: &mut PageContext) -> Markup {
@@ -67,8 +60,8 @@ impl Image {
         self
     }
 
-    pub fn with_renderable(mut self, renderable: Renderable) -> Self {
-        self.alter_renderable(renderable);
+    pub fn with_renderable(mut self, check: IsRenderable) -> Self {
+        self.alter_renderable(check);
         self
     }
 
@@ -99,23 +92,23 @@ impl Image {
         self
     }
 
-    pub fn alter_renderable(&mut self, renderable: Renderable) -> &mut Self {
-        self.renderable = renderable;
+    pub fn alter_renderable(&mut self, check: IsRenderable) -> &mut Self {
+        self.renderable.check = check;
         self
     }
 
     pub fn alter_id(&mut self, id: &str) -> &mut Self {
-        self.id.with_value(id);
+        self.id.alter_value(id);
         self
     }
 
     pub fn alter_classes(&mut self, op: ClassesOp, classes: &str) -> &mut Self {
-        self.classes.alter(op, classes);
+        self.classes.alter_value(op, classes);
         self
     }
 
     pub fn alter_source(&mut self, source: &str) -> &mut Self {
-        self.source.with_value(source);
+        self.source.alter_value(source);
         self
     }
 

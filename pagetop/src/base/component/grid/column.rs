@@ -18,7 +18,9 @@ const SIZE_10_OF_12: &str = "col-md-10";
 const SIZE_11_OF_12: &str = "col-md-11";
 const SIZE_12_OF_12: &str = "col-md-12";
 
+#[derive(Default)]
 pub enum ColumnSize {
+    #[default]
     Default,
     Is1of12,
     Is2of12,
@@ -35,6 +37,7 @@ pub enum ColumnSize {
 }
 
 #[rustfmt::skip]
+#[derive(Default)]
 pub struct Column {
     weight    : isize,
     renderable: Renderable,
@@ -46,17 +49,8 @@ pub struct Column {
 }
 
 impl ComponentTrait for Column {
-    #[rustfmt::skip]
     fn new() -> Self {
-        Column {
-            weight    : 0,
-            renderable: render_always,
-            id        : IdentifierValue::new(),
-            classes   : Classes::new_with_default(SIZE__DEFAULT),
-            size      : ColumnSize::Default,
-            components: ComponentsBundle::new(),
-            template  : "default".to_owned(),
-        }
+        Column::default().with_classes(ClassesOp::SetDefault, SIZE__DEFAULT)
     }
 
     fn handler(&self) -> Handler {
@@ -68,7 +62,7 @@ impl ComponentTrait for Column {
     }
 
     fn is_renderable(&self, context: &PageContext) -> bool {
-        (self.renderable)(context)
+        (self.renderable.check)(context)
     }
 
     fn before_render(&mut self, context: &mut PageContext) {
@@ -100,8 +94,8 @@ impl Column {
         self
     }
 
-    pub fn with_renderable(mut self, renderable: Renderable) -> Self {
-        self.alter_renderable(renderable);
+    pub fn with_renderable(mut self, check: IsRenderable) -> Self {
+        self.alter_renderable(check);
         self
     }
 
@@ -137,18 +131,18 @@ impl Column {
         self
     }
 
-    pub fn alter_renderable(&mut self, renderable: Renderable) -> &mut Self {
-        self.renderable = renderable;
+    pub fn alter_renderable(&mut self, check: IsRenderable) -> &mut Self {
+        self.renderable.check = check;
         self
     }
 
     pub fn alter_id(&mut self, id: &str) -> &mut Self {
-        self.id.with_value(id);
+        self.id.alter_value(id);
         self
     }
 
     pub fn alter_classes(&mut self, op: ClassesOp, classes: &str) -> &mut Self {
-        self.classes.alter(op, classes);
+        self.classes.alter_value(op, classes);
         self
     }
 

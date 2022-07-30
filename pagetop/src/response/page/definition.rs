@@ -53,25 +53,31 @@ pub struct Page {
     template    : String,
 }
 
-impl Page {
+impl Default for Page {
     #[rustfmt::skip]
-    pub fn new() -> Self {
+    fn default() -> Self {
         Page {
             context     : PageContext::new(),
             language    : match &*DEFAULT_LANGUAGE {
-                Some(language) => AttributeValue::new_with_value(language),
+                Some(language) => AttributeValue::new().with_value(language),
                 _ => AttributeValue::new(),
             },
             direction   : match &*DEFAULT_DIRECTION {
-                Some(direction) => AttributeValue::new_with_value(direction),
+                Some(direction) => AttributeValue::new().with_value(direction),
                 _ => AttributeValue::new(),
             },
             title       : AttributeValue::new(),
             description : AttributeValue::new(),
-            body_classes: Classes::new_with_default("body"),
+            body_classes: Classes::new().with_value(ClassesOp::SetDefault, "body"),
             regions     : common_components(),
             template    : "default".to_owned(),
         }
+    }
+}
+
+impl Page {
+    pub fn new() -> Self {
+        Page::default()
     }
 
     // Page BUILDER.
@@ -129,12 +135,12 @@ impl Page {
     }
 
     pub fn alter_language(&mut self, language: &str) -> &mut Self {
-        self.language.with_value(language);
+        self.language.alter_value(language);
         self
     }
 
     pub fn alter_direction(&mut self, dir: TextDirection) -> &mut Self {
-        self.direction.with_value(match dir {
+        self.direction.alter_value(match dir {
             TextDirection::Auto => "auto",
             TextDirection::LeftToRight => "ltr",
             TextDirection::RightToLeft => "rtl",
@@ -143,17 +149,17 @@ impl Page {
     }
 
     pub fn alter_title(&mut self, title: &str) -> &mut Self {
-        self.title.with_value(title);
+        self.title.alter_value(title);
         self
     }
 
     pub fn alter_description(&mut self, description: &str) -> &mut Self {
-        self.description.with_value(description);
+        self.description.alter_value(description);
         self
     }
 
     pub fn alter_body_classes(&mut self, op: ClassesOp, classes: &str) -> &mut Self {
-        self.body_classes.alter(op, classes);
+        self.body_classes.alter_value(op, classes);
         self
     }
 

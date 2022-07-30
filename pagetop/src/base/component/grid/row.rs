@@ -5,6 +5,7 @@ pub_const_handler!(COMPONENT_ROW);
 hook_before_render_component!(HOOK_BEFORE_RENDER_ROW, Row);
 
 #[rustfmt::skip]
+#[derive(Default)]
 pub struct Row {
     weight    : isize,
     renderable: Renderable,
@@ -15,16 +16,8 @@ pub struct Row {
 }
 
 impl ComponentTrait for Row {
-    #[rustfmt::skip]
     fn new() -> Self {
-        Row {
-            weight    : 0,
-            renderable: render_always,
-            id        : IdentifierValue::new(),
-            classes   : Classes::new_with_default("row"),
-            columns   : ComponentsBundle::new(),
-            template  : "default".to_owned(),
-        }
+        Row::default().with_classes(ClassesOp::SetDefault, "row")
     }
 
     fn handler(&self) -> Handler {
@@ -36,7 +29,7 @@ impl ComponentTrait for Row {
     }
 
     fn is_renderable(&self, context: &PageContext) -> bool {
-        (self.renderable)(context)
+        (self.renderable.check)(context)
     }
 
     fn before_render(&mut self, context: &mut PageContext) {
@@ -68,8 +61,8 @@ impl Row {
         self
     }
 
-    pub fn with_renderable(mut self, renderable: Renderable) -> Self {
-        self.alter_renderable(renderable);
+    pub fn with_renderable(mut self, check: IsRenderable) -> Self {
+        self.alter_renderable(check);
         self
     }
 
@@ -100,18 +93,18 @@ impl Row {
         self
     }
 
-    pub fn alter_renderable(&mut self, renderable: Renderable) -> &mut Self {
-        self.renderable = renderable;
+    pub fn alter_renderable(&mut self, check: IsRenderable) -> &mut Self {
+        self.renderable.check = check;
         self
     }
 
     pub fn alter_id(&mut self, id: &str) -> &mut Self {
-        self.id.with_value(id);
+        self.id.alter_value(id);
         self
     }
 
     pub fn alter_classes(&mut self, op: ClassesOp, classes: &str) -> &mut Self {
-        self.classes.alter(op, classes);
+        self.classes.alter_value(op, classes);
         self
     }
 

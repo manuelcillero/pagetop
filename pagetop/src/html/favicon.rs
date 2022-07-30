@@ -5,8 +5,10 @@ pub struct Favicon(Vec<String>);
 
 impl Favicon {
     pub fn new() -> Self {
-        Favicon(Vec::new())
+        Favicon::default()
     }
+
+    // Favicon BUILDER.
 
     pub fn with_icon(self, image: &str) -> Self {
         self.add_item("icon", image, "", "")
@@ -71,6 +73,8 @@ impl Favicon {
         self.0.push(format!("{} href=\"{}\">", link, source));
         self
     }
+
+    // Favicon RENDER.
 
     pub(crate) fn render(&self) -> Markup {
         html! {

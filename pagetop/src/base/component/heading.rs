@@ -2,7 +2,9 @@ use crate::prelude::*;
 
 pub_const_handler!(COMPONENT_HEADING);
 
+#[derive(Default)]
 pub enum HeadingType {
+    #[default]
     H1,
     H2,
     H3,
@@ -11,41 +13,34 @@ pub enum HeadingType {
     H6,
 }
 
+#[derive(Default)]
 pub enum HeadingDisplay {
+    #[default]
+    Normal,
     XxLarge,
     Large,
     Medium,
     Small,
     XxSmall,
-    Normal,
     Subtitle,
 }
 
 #[rustfmt::skip]
+#[derive(Default)]
 pub struct Heading {
     weight      : isize,
     renderable  : Renderable,
     id          : IdentifierValue,
     classes     : Classes,
     heading_type: HeadingType,
-    html        : Markup,
+    html        : HtmlMarkup,
     display     : HeadingDisplay,
     template    : String,
 }
 
 impl ComponentTrait for Heading {
-    #[rustfmt::skip]
     fn new() -> Self {
-        Heading {
-            weight      : 0,
-            renderable  : render_always,
-            id          : IdentifierValue::new(),
-            classes     : Classes::new(),
-            heading_type: HeadingType::H1,
-            html        : html! {},
-            display     : HeadingDisplay::Normal,
-            template    : "default".to_owned(),
-        }
+        Heading::default()
     }
 
     fn handler(&self) -> Handler {
@@ -57,7 +52,7 @@ impl ComponentTrait for Heading {
     }
 
     fn is_renderable(&self, context: &PageContext) -> bool {
-        (self.renderable)(context)
+        (self.renderable.check)(context)
     }
 
     fn default_render(&self, _: &mut PageContext) -> Markup {
@@ -126,8 +121,8 @@ impl Heading {
         self
     }
 
-    pub fn with_renderable(mut self, renderable: Renderable) -> Self {
-        self.alter_renderable(renderable);
+    pub fn with_renderable(mut self, check: IsRenderable) -> Self {
+        self.alter_renderable(check);
         self
     }
 
@@ -168,18 +163,18 @@ impl Heading {
         self
     }
 
-    pub fn alter_renderable(&mut self, renderable: Renderable) -> &mut Self {
-        self.renderable = renderable;
+    pub fn alter_renderable(&mut self, check: IsRenderable) -> &mut Self {
+        self.renderable.check = check;
         self
     }
 
     pub fn alter_id(&mut self, id: &str) -> &mut Self {
-        self.id.with_value(id);
+        self.id.alter_value(id);
         self
     }
 
     pub fn alter_classes(&mut self, op: ClassesOp, classes: &str) -> &mut Self {
-        self.classes.alter(op, classes);
+        self.classes.alter_value(op, classes);
         self
     }
 
@@ -189,14 +184,14 @@ impl Heading {
     }
 
     pub fn alter_html(&mut self, html: Markup) -> &mut Self {
-        self.html = html;
+        self.html.markup = html;
         self
     }
 
     #[rustfmt::skip]
     pub fn alter_display(&mut self, display: HeadingDisplay) -> &mut Self {
         self.display = display;
-        self.classes.alter(
+        self.classes.alter_value(
             ClassesOp::SetDefault,
             match &self.display() {
                 HeadingDisplay::XxLarge  => "display-2",
@@ -231,7 +226,7 @@ impl Heading {
     }
 
     pub fn html(&self) -> &Markup {
-        &self.html
+        &self.html.markup
     }
 
     pub fn display(&self) -> &HeadingDisplay {

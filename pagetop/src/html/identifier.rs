@@ -3,19 +3,24 @@ pub struct IdentifierValue(String);
 
 impl IdentifierValue {
     pub fn new() -> Self {
-        IdentifierValue("".to_owned())
+        IdentifierValue::default()
     }
 
-    pub fn new_with_value(value: &str) -> Self {
-        let mut id = Self::new();
-        id.with_value(value);
-        id
+    // IdentifierValue BUILDER.
+
+    pub fn with_value(mut self, value: &str) -> Self {
+        self.alter_value(value);
+        self
     }
 
-    pub fn with_value(&mut self, value: &str) -> &Self {
+    // IdentifierValue ALTER.
+
+    pub fn alter_value(&mut self, value: &str) -> &mut Self {
         self.0 = value.trim().replace(' ', "_");
         self
     }
+
+    // IdentifierValue GETTERS.
 
     pub fn get(&self) -> Option<String> {
         if self.0.is_empty() {

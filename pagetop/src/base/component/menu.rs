@@ -2,19 +2,22 @@ use crate::prelude::*;
 
 pub_const_handler!(COMPONENT_MENUITEM);
 
+#[derive(Default)]
 pub enum MenuItemType {
+    #[default]
+    Void,
     Label(String),
     Link(String, String),
     LinkBlank(String, String),
     Html(Markup),
-    Separator,
     Submenu(String, Menu),
-    Void,
+    Separator,
 }
 
 // MenuItem.
 
 #[rustfmt::skip]
+#[derive(Default)]
 pub struct MenuItem {
     weight    : isize,
     renderable: Renderable,
@@ -22,13 +25,8 @@ pub struct MenuItem {
 }
 
 impl ComponentTrait for MenuItem {
-    #[rustfmt::skip]
     fn new() -> Self {
-        MenuItem {
-            weight    : 0,
-            renderable: render_always,
-            item_type : MenuItemType::Void,
-        }
+        MenuItem::default()
     }
 
     fn handler(&self) -> Handler {
@@ -40,11 +38,13 @@ impl ComponentTrait for MenuItem {
     }
 
     fn is_renderable(&self, context: &PageContext) -> bool {
-        (self.renderable)(context)
+        (self.renderable.check)(context)
     }
 
     fn default_render(&self, context: &mut PageContext) -> Markup {
         match self.item_type() {
+            MenuItemType::Void => html! {
+            },
             MenuItemType::Label(label) => html! {
                 li class="label" { a href="#" { (label) } }
             },
@@ -70,7 +70,6 @@ impl ComponentTrait for MenuItem {
             MenuItemType::Separator => html! {
                 li class="separator" { }
             },
-            MenuItemType::Void => html! {},
         }
     }
 
@@ -88,7 +87,7 @@ impl MenuItem {
     pub fn label(label: &str) -> Self {
         MenuItem {
             weight    : 0,
-            renderable: render_always,
+            renderable: Renderable::default(),
             item_type : MenuItemType::Label(label.to_owned()),
         }
     }
@@ -97,7 +96,7 @@ impl MenuItem {
     pub fn link(label: &str, path: &str) -> Self {
         MenuItem {
             weight    : 0,
-            renderable: render_always,
+            renderable: Renderable::default(),
             item_type : MenuItemType::Link(label.to_owned(), path.to_owned()),
         }
     }
@@ -106,7 +105,7 @@ impl MenuItem {
     pub fn link_blank(label: &str, path: &str) -> Self {
         MenuItem {
             weight    : 0,
-            renderable: render_always,
+            renderable: Renderable::default(),
             item_type : MenuItemType::LinkBlank(label.to_owned(), path.to_owned()),
         }
     }
@@ -115,17 +114,8 @@ impl MenuItem {
     pub fn html(html: Markup) -> Self {
         MenuItem {
             weight    : 0,
-            renderable: render_always,
+            renderable: Renderable::default(),
             item_type : MenuItemType::Html(html),
-        }
-    }
-
-    #[rustfmt::skip]
-    pub fn separator() -> Self {
-        MenuItem {
-            weight    : 0,
-            renderable: render_always,
-            item_type : MenuItemType::Separator,
         }
     }
 
@@ -133,8 +123,17 @@ impl MenuItem {
     pub fn submenu(label: &str, menu: Menu) -> Self {
         MenuItem {
             weight    : 0,
-            renderable: render_always,
+            renderable: Renderable::default(),
             item_type : MenuItemType::Submenu(label.to_owned(), menu),
+        }
+    }
+
+    #[rustfmt::skip]
+    pub fn separator() -> Self {
+        MenuItem {
+            weight    : 0,
+            renderable: Renderable::default(),
+            item_type : MenuItemType::Separator,
         }
     }
 
@@ -145,8 +144,8 @@ impl MenuItem {
         self
     }
 
-    pub fn with_renderable(mut self, renderable: Renderable) -> Self {
-        self.alter_renderable(renderable);
+    pub fn with_renderable(mut self, check: IsRenderable) -> Self {
+        self.alter_renderable(check);
         self
     }
 
@@ -157,8 +156,8 @@ impl MenuItem {
         self
     }
 
-    pub fn alter_renderable(&mut self, renderable: Renderable) -> &mut Self {
-        self.renderable = renderable;
+    pub fn alter_renderable(&mut self, check: IsRenderable) -> &mut Self {
+        self.renderable.check = check;
         self
     }
 
@@ -176,6 +175,7 @@ pub_const_handler!(COMPONENT_MENU);
 hook_before_render_component!(HOOK_BEFORE_RENDER_MENU, Menu);
 
 #[rustfmt::skip]
+#[derive(Default)]
 pub struct Menu {
     weight    : isize,
     renderable: Renderable,
@@ -186,16 +186,8 @@ pub struct Menu {
 }
 
 impl ComponentTrait for Menu {
-    #[rustfmt::skip]
     fn new() -> Self {
-        Menu {
-            weight    : 0,
-            renderable: render_always,
-            items     : ComponentsBundle::new(),
-            id        : IdentifierValue::new(),
-            classes   : Classes::new_with_default("sm sm-clean"),
-            template  : "default".to_owned(),
-        }
+        Menu::default().with_classes(ClassesOp::SetDefault, "sm sm-clean")
     }
 
     fn handler(&self) -> Handler {
@@ -207,7 +199,7 @@ impl ComponentTrait for Menu {
     }
 
     fn is_renderable(&self, context: &PageContext) -> bool {
-        (self.renderable)(context)
+        (self.renderable.check)(context)
     }
 
     fn before_render(&mut self, context: &mut PageContext) {
@@ -259,8 +251,8 @@ impl Menu {
         self
     }
 
-    pub fn with_renderable(mut self, renderable: Renderable) -> Self {
-        self.alter_renderable(renderable);
+    pub fn with_renderable(mut self, check: IsRenderable) -> Self {
+        self.alter_renderable(check);
         self
     }
 
@@ -291,18 +283,18 @@ impl Menu {
         self
     }
 
-    pub fn alter_renderable(&mut self, renderable: Renderable) -> &mut Self {
-        self.renderable = renderable;
+    pub fn alter_renderable(&mut self, check: IsRenderable) -> &mut Self {
+        self.renderable.check = check;
         self
     }
 
     pub fn alter_id(&mut self, id: &str) -> &mut Self {
-        self.id.with_value(id);
+        self.id.alter_value(id);
         self
     }
 
     pub fn alter_classes(&mut self, op: ClassesOp, classes: &str) -> &mut Self {
-        self.classes.alter(op, classes);
+        self.classes.alter_value(op, classes);
         self
     }
 

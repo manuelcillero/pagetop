@@ -3,6 +3,7 @@ use crate::prelude::*;
 pub_const_handler!(COMPONENT_HIDDEN);
 
 #[rustfmt::skip]
+#[derive(Default)]
 pub struct Hidden {
     weight: isize,
     name  : IdentifierValue,
@@ -10,13 +11,8 @@ pub struct Hidden {
 }
 
 impl ComponentTrait for Hidden {
-    #[rustfmt::skip]
     fn new() -> Self {
-        Hidden {
-            weight: 0,
-            name  : IdentifierValue::new(),
-            value : AttributeValue::new(),
-        }
+        Hidden::default()
     }
 
     fn handler(&self) -> Handler {
@@ -73,12 +69,12 @@ impl Hidden {
     }
 
     pub fn alter_name(&mut self, name: &str) -> &mut Self {
-        self.name.with_value(name);
+        self.name.alter_value(name);
         self
     }
 
     pub fn alter_value(&mut self, value: &str) -> &mut Self {
-        self.value.with_value(value);
+        self.value.alter_value(value);
         self
     }
 

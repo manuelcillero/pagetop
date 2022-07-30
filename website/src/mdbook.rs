@@ -7,7 +7,7 @@ use std::collections::HashMap;
 
 include!(concat!(env!("OUT_DIR"), "/mdbook.rs"));
 
-static MDBOOK: LazyStatic<HashMap<&'static str, Resource>> = LazyStatic::new(|| generate());
+static MDBOOK: LazyStatic<HashMap<&'static str, Resource>> = LazyStatic::new(generate);
 
 pub_const_handler!(MODULE_MDBOOK);
 
@@ -38,14 +38,8 @@ async fn mdbook_page(request: app::HttpRequest) -> ResultPage<Markup, FatalError
                 Some(title) => title,
                 _ => "Documentación",
             };
-            let _print = match extract("Print", html) {
-                Some("enabled") => true,
-                _ => false,
-            };
-            let _mathjax = match extract("MathJax", html) {
-                Some("supported") => true,
-                _ => false,
-            };
+            let _print = matches!(extract("Print", html), Some("enabled"));
+            let _mathjax = matches!(extract("MathJax", html), Some("supported"));
             let beginning = {
                 let separator = "<!-- mdBook -->";
                 match html.find(separator) {

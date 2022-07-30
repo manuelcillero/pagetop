@@ -9,6 +9,7 @@ pub enum TargetMedia {
 }
 
 #[rustfmt::skip]
+#[derive(Default)]
 pub struct StyleSheet {
     source : &'static str,
     prefix : &'static str,
@@ -37,14 +38,10 @@ impl AssetsTrait for StyleSheet {
 }
 
 impl StyleSheet {
-    #[rustfmt::skip]
     pub fn located(source: &'static str) -> Self {
         StyleSheet {
             source,
-            prefix : "",
-            version: "",
-            media  : None,
-            weight : 0,
+            ..Default::default()
         }
     }
 

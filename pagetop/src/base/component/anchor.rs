@@ -2,23 +2,28 @@ use crate::prelude::*;
 
 pub_const_handler!(COMPONENT_ANCHOR);
 
+#[derive(Default)]
 pub enum AnchorType {
-    Button,
+    #[default]
     Link,
+    Button,
     Location,
 }
 
+#[derive(Default)]
 pub enum AnchorTarget {
-    Blank,
-    Context(String),
+    #[default]
     Default,
+    Blank,
     Parent,
     Top,
+    Context(String),
 }
 
 pub type AnchorIcon = ComponentsBundle;
 
 #[rustfmt::skip]
+#[derive(Default)]
 pub struct Anchor {
     weight     : isize,
     renderable : Renderable,
@@ -26,7 +31,7 @@ pub struct Anchor {
     classes    : Classes,
     anchor_type: AnchorType,
     href       : AttributeValue,
-    html       : Markup,
+    html       : HtmlMarkup,
     left_icon  : AnchorIcon,
     right_icon : AnchorIcon,
     target     : AnchorTarget,
@@ -34,21 +39,8 @@ pub struct Anchor {
 }
 
 impl ComponentTrait for Anchor {
-    #[rustfmt::skip]
     fn new() -> Self {
-        Anchor {
-            weight     : 0,
-            renderable : render_always,
-            id         : IdentifierValue::new(),
-            classes    : Classes::new(),
-            anchor_type: AnchorType::Link,
-            href       : AttributeValue::new(),
-            html       : html! {},
-            left_icon  : AnchorIcon::new(),
-            right_icon : AnchorIcon::new(),
-            target     : AnchorTarget::Default,
-            template   : "default".to_owned(),
-        }
+        Anchor::default()
     }
 
     fn handler(&self) -> Handler {
@@ -60,16 +52,16 @@ impl ComponentTrait for Anchor {
     }
 
     fn is_renderable(&self, context: &PageContext) -> bool {
-        (self.renderable)(context)
+        (self.renderable.check)(context)
     }
 
     #[rustfmt::skip]
     fn default_render(&self, context: &mut PageContext) -> Markup {
         let target = match &self.target() {
             AnchorTarget::Blank         => Some("_blank"),
-            AnchorTarget::Context(name) => Some(name.as_str()),
             AnchorTarget::Parent        => Some("_parent"),
             AnchorTarget::Top           => Some("_top"),
+            AnchorTarget::Context(name) => Some(name.as_str()),
             _ => None,
         };
         html! {
@@ -118,8 +110,8 @@ impl Anchor {
         self
     }
 
-    pub fn with_renderable(mut self, renderable: Renderable) -> Self {
-        self.alter_renderable(renderable);
+    pub fn with_renderable(mut self, check: IsRenderable) -> Self {
+        self.alter_renderable(check);
         self
     }
 
@@ -175,24 +167,24 @@ impl Anchor {
         self
     }
 
-    pub fn alter_renderable(&mut self, renderable: Renderable) -> &mut Self {
-        self.renderable = renderable;
+    pub fn alter_renderable(&mut self, check: IsRenderable) -> &mut Self {
+        self.renderable.check = check;
         self
     }
 
     pub fn alter_id(&mut self, id: &str) -> &mut Self {
-        self.id.with_value(id);
+        self.id.alter_value(id);
         self
     }
 
     pub fn alter_classes(&mut self, op: ClassesOp, classes: &str) -> &mut Self {
-        self.classes.alter(op, classes);
+        self.classes.alter_value(op, classes);
         self
     }
 
     pub fn alter_type(&mut self, anchor_type: AnchorType) -> &mut Self {
         self.anchor_type = anchor_type;
-        self.classes.alter(
+        self.classes.alter_value(
             ClassesOp::SetDefault,
             match self.anchor_type {
                 AnchorType::Button => "btn btn-primary",
@@ -203,12 +195,12 @@ impl Anchor {
     }
 
     pub fn alter_href(&mut self, href: &str) -> &mut Self {
-        self.href.with_value(href);
+        self.href.alter_value(href);
         self
     }
 
     pub fn alter_html(&mut self, html: Markup) -> &mut Self {
-        self.html = html;
+        self.html.markup = html;
         self
     }
 
@@ -253,7 +245,7 @@ impl Anchor {
     }
 
     pub fn html(&self) -> &Markup {
-        &self.html
+        &self.html.markup
     }
 
     pub fn left_icon(&self) -> &AnchorIcon {

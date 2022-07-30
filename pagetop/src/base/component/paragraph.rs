@@ -2,38 +2,32 @@ use crate::prelude::*;
 
 pub_const_handler!(COMPONENT_PARAGRAPH);
 
+#[derive(Default)]
 pub enum ParagraphDisplay {
+    #[default]
+    Normal,
     XxLarge,
     Large,
     Medium,
     Small,
     XxSmall,
-    Normal,
 }
 
 #[rustfmt::skip]
+#[derive(Default)]
 pub struct Paragraph {
     weight    : isize,
     renderable: Renderable,
     id        : IdentifierValue,
     classes   : Classes,
-    html      : Markup,
+    html      : HtmlMarkup,
     display   : ParagraphDisplay,
     template  : String,
 }
 
 impl ComponentTrait for Paragraph {
-    #[rustfmt::skip]
     fn new() -> Self {
-        Paragraph {
-            weight    : 0,
-            renderable: render_always,
-            id        : IdentifierValue::new(),
-            classes   : Classes::new(),
-            html      : html! {},
-            display   : ParagraphDisplay::Normal,
-            template  : "default".to_owned(),
-        }
+        Paragraph::default()
     }
 
     fn handler(&self) -> Handler {
@@ -45,7 +39,7 @@ impl ComponentTrait for Paragraph {
     }
 
     fn is_renderable(&self, context: &PageContext) -> bool {
-        (self.renderable)(context)
+        (self.renderable.check)(context)
     }
 
     fn default_render(&self, _: &mut PageContext) -> Markup {
@@ -75,8 +69,8 @@ impl Paragraph {
         self
     }
 
-    pub fn with_renderable(mut self, renderable: Renderable) -> Self {
-        self.alter_renderable(renderable);
+    pub fn with_renderable(mut self, check: IsRenderable) -> Self {
+        self.alter_renderable(check);
         self
     }
 
@@ -112,30 +106,30 @@ impl Paragraph {
         self
     }
 
-    pub fn alter_renderable(&mut self, renderable: Renderable) -> &mut Self {
-        self.renderable = renderable;
+    pub fn alter_renderable(&mut self, check: IsRenderable) -> &mut Self {
+        self.renderable.check = check;
         self
     }
 
     pub fn alter_id(&mut self, id: &str) -> &mut Self {
-        self.id.with_value(id);
+        self.id.alter_value(id);
         self
     }
 
     pub fn alter_classes(&mut self, op: ClassesOp, classes: &str) -> &mut Self {
-        self.classes.alter(op, classes);
+        self.classes.alter_value(op, classes);
         self
     }
 
     pub fn alter_html(&mut self, html: Markup) -> &mut Self {
-        self.html = html;
+        self.html.markup = html;
         self
     }
 
     #[rustfmt::skip]
     pub fn alter_display(&mut self, display: ParagraphDisplay) -> &mut Self {
         self.display = display;
-        self.classes.alter(
+        self.classes.alter_value(
             ClassesOp::SetDefault,
             match &self.display() {
                 ParagraphDisplay::XxLarge => "fs-2",
@@ -165,7 +159,7 @@ impl Paragraph {
     }
 
     pub fn html(&self) -> &Markup {
-        &self.html
+        &self.html.markup
     }
 
     pub fn display(&self) -> &ParagraphDisplay {

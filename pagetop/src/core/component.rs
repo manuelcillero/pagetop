@@ -8,14 +8,8 @@ mod all;
 pub use all::add_component_to;
 pub(crate) use all::common_components;
 
-use crate::response::page::PageContext;
+mod renderable;
+pub use renderable::{IsRenderable, Renderable};
 
-pub type Renderable = fn(_: &PageContext) -> bool;
-
-pub fn render_always(_: &PageContext) -> bool {
-    true
-}
-
-pub fn render_never(_: &PageContext) -> bool {
-    false
-}
+mod html_markup;
+pub use html_markup::HtmlMarkup;

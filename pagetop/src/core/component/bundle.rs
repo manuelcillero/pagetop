@@ -9,7 +9,7 @@ pub struct ComponentsBundle(Vec<Arc<RwLock<dyn ComponentTrait>>>);
 
 impl ComponentsBundle {
     pub fn new() -> Self {
-        ComponentsBundle(Vec::new())
+        ComponentsBundle::default()
     }
 
     pub fn new_with(component: impl ComponentTrait) -> Self {

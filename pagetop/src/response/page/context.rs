@@ -23,9 +23,9 @@ pub struct PageContext {
     id_counter : usize,
 }
 
-impl PageContext {
+impl Default for PageContext {
     #[rustfmt::skip]
-    pub fn new() -> Self {
+    fn default() -> Self {
         PageContext {
             theme      : *DEFAULT_THEME,
             favicon    : None,
@@ -36,6 +36,12 @@ impl PageContext {
             with_jquery: false,
             id_counter : 0,
         }
+    }
+}
+
+impl PageContext {
+    pub fn new() -> Self {
+        PageContext::default()
     }
 
     pub fn alter(&mut self, op: PageOp) -> &mut Self {

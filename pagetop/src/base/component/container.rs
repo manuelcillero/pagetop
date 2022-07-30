@@ -4,15 +4,18 @@ pub_const_handler!(COMPONENT_CONTAINER);
 
 hook_before_render_component!(HOOK_BEFORE_RENDER_CONTAINER, Container);
 
+#[derive(Default)]
 pub enum ContainerType {
+    #[default]
+    Wrapper,
     Header,
     Footer,
     Main,
     Section,
-    Wrapper,
 }
 
 #[rustfmt::skip]
+#[derive(Default)]
 pub struct Container {
     weight        : isize,
     renderable    : Renderable,
@@ -25,18 +28,10 @@ pub struct Container {
 }
 
 impl ComponentTrait for Container {
-    #[rustfmt::skip]
     fn new() -> Self {
-        Container {
-            weight        : 0,
-            renderable    : render_always,
-            id            : IdentifierValue::new(),
-            classes       : Classes::new_with_default("container"),
-            inner_classes : Classes::new_with_default("container"),
-            container_type: ContainerType::Wrapper,
-            components    : ComponentsBundle::new(),
-            template      : "default".to_owned(),
-        }
+        Container::default()
+            .with_classes(ClassesOp::SetDefault, "container")
+            .with_inner_classes(ClassesOp::SetDefault, "container")
     }
 
     fn handler(&self) -> Handler {
@@ -48,7 +43,7 @@ impl ComponentTrait for Container {
     }
 
     fn is_renderable(&self, context: &PageContext) -> bool {
-        (self.renderable)(context)
+        (self.renderable.check)(context)
     }
 
     fn before_render(&mut self, context: &mut PageContext) {
@@ -134,8 +129,8 @@ impl Container {
         self
     }
 
-    pub fn with_renderable(mut self, renderable: Renderable) -> Self {
-        self.alter_renderable(renderable);
+    pub fn with_renderable(mut self, check: IsRenderable) -> Self {
+        self.alter_renderable(check);
         self
     }
 
@@ -171,23 +166,23 @@ impl Container {
         self
     }
 
-    pub fn alter_renderable(&mut self, renderable: Renderable) -> &mut Self {
-        self.renderable = renderable;
+    pub fn alter_renderable(&mut self, check: IsRenderable) -> &mut Self {
+        self.renderable.check = check;
         self
     }
 
     pub fn alter_id(&mut self, id: &str) -> &mut Self {
-        self.id.with_value(id);
+        self.id.alter_value(id);
         self
     }
 
     pub fn alter_classes(&mut self, op: ClassesOp, classes: &str) -> &mut Self {
-        self.classes.alter(op, classes);
+        self.classes.alter_value(op, classes);
         self
     }
 
     pub fn alter_inner_classes(&mut self, op: ClassesOp, classes: &str) -> &mut Self {
-        self.inner_classes.alter(op, classes);
+        self.inner_classes.alter_value(op, classes);
         self
     }
 

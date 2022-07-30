@@ -1,14 +1,12 @@
 use crate::concat_string;
 
-pub type ClassValue = &'static str;
-
 pub enum ClassesOp {
     Add,
-    AddAfter(ClassValue),
-    AddBefore(ClassValue),
+    AddAfter(&'static str),
+    AddBefore(&'static str),
     AddFirst,
     Remove,
-    Replace(ClassValue),
+    Replace(&'static str),
     Reset,
     SetDefault,
     SetDefaultIfEmpty,
@@ -22,21 +20,20 @@ pub struct Classes {
 }
 
 impl Classes {
-    #[rustfmt::skip]
     pub fn new() -> Self {
-        Classes {
-            default: "".to_owned(),
-            added  : "".to_owned(),
-        }
+        Classes::default()
     }
 
-    pub fn new_with_default(default: &str) -> Self {
-        let mut classes = Self::new();
-        classes.alter(ClassesOp::SetDefault, default);
-        classes
+    // Classes BUILDER.
+
+    pub fn with_value(mut self, op: ClassesOp, classes: &str) -> Self {
+        self.alter_value(op, classes);
+        self
     }
 
-    pub fn alter(&mut self, op: ClassesOp, classes: &str) -> &mut Self {
+    // Classes ALTER.
+
+    pub fn alter_value(&mut self, op: ClassesOp, classes: &str) -> &mut Self {
         let classes = classes.trim();
         match op {
             ClassesOp::Add => {
@@ -100,6 +97,8 @@ impl Classes {
         }
         self
     }
+
+    // Classes GETTERS.
 
     pub fn get(&self) -> Option<String> {
         if self.default.is_empty() && self.added.is_empty() {

@@ -3,22 +3,17 @@ use crate::prelude::*;
 pub_const_handler!(COMPONENT_HTML);
 
 #[rustfmt::skip]
+#[derive(Default)]
 pub struct Html {
     weight    : isize,
     renderable: Renderable,
-    html      : Markup,
+    html      : HtmlMarkup,
     template  : String,
 }
 
 impl ComponentTrait for Html {
-    #[rustfmt::skip]
     fn new() -> Self {
-        Html {
-            weight    : 0,
-            renderable: render_always,
-            html      : html! {},
-            template  : "default".to_owned(),
-        }
+        Html::default()
     }
 
     fn handler(&self) -> Handler {
@@ -30,7 +25,7 @@ impl ComponentTrait for Html {
     }
 
     fn is_renderable(&self, context: &PageContext) -> bool {
-        (self.renderable)(context)
+        (self.renderable.check)(context)
     }
 
     fn default_render(&self, _: &mut PageContext) -> Markup {
@@ -58,8 +53,8 @@ impl Html {
         self
     }
 
-    pub fn with_renderable(mut self, renderable: Renderable) -> Self {
-        self.alter_renderable(renderable);
+    pub fn with_renderable(mut self, check: IsRenderable) -> Self {
+        self.alter_renderable(check);
         self
     }
 
@@ -80,13 +75,13 @@ impl Html {
         self
     }
 
-    pub fn alter_renderable(&mut self, renderable: Renderable) -> &mut Self {
-        self.renderable = renderable;
+    pub fn alter_renderable(&mut self, check: IsRenderable) -> &mut Self {
+        self.renderable.check = check;
         self
     }
 
     pub fn alter_html(&mut self, html: Markup) -> &mut Self {
-        self.html = html;
+        self.html.markup = html;
         self
     }
 
@@ -98,7 +93,7 @@ impl Html {
     // Html GETTERS.
 
     pub fn html(&self) -> &Markup {
-        &self.html
+        &self.html.markup
     }
 
     pub fn template(&self) -> &str {

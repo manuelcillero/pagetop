@@ -2,13 +2,16 @@ use crate::prelude::*;
 
 pub_const_handler!(COMPONENT_BUTTON);
 
+#[derive(Default)]
 pub enum ButtonType {
+    #[default]
     Button,
-    Reset,
     Submit,
+    Reset,
 }
 
 #[rustfmt::skip]
+#[derive(Default)]
 pub struct Button {
     weight     : isize,
     renderable : Renderable,
@@ -22,20 +25,10 @@ pub struct Button {
 }
 
 impl ComponentTrait for Button {
-    #[rustfmt::skip]
     fn new() -> Self {
-        Button {
-            weight     : 0,
-            renderable : render_always,
-            classes    : Classes::new_with_default("btn btn-primary"),
-            button_type: ButtonType::Button,
-            name       : AttributeValue::new(),
-            value      : AttributeValue::new(),
-            autofocus  : AttributeValue::new(),
-            disabled   : AttributeValue::new(),
-            template   : "default".to_owned(),
-        }
-        .with_classes(ClassesOp::AddFirst, "form-button")
+        Button::default()
+            .with_classes(ClassesOp::SetDefault, "btn btn-primary")
+            .with_classes(ClassesOp::AddFirst, "form-button")
     }
 
     fn handler(&self) -> Handler {
@@ -47,15 +40,14 @@ impl ComponentTrait for Button {
     }
 
     fn is_renderable(&self, context: &PageContext) -> bool {
-        (self.renderable)(context)
+        (self.renderable.check)(context)
     }
 
-    #[rustfmt::skip]
     fn default_render(&self, _: &mut PageContext) -> Markup {
         let button_type = match self.button_type() {
             ButtonType::Button => "button",
-            ButtonType::Reset  => "reset",
             ButtonType::Submit => "submit",
+            ButtonType::Reset => "reset",
         };
         let id = self.name().get().map(|name| concat_string!("edit-", name));
         html! {
@@ -90,19 +82,19 @@ impl Button {
         Button::new().with_value(value)
     }
 
-    pub fn reset(value: &str) -> Self {
-        let mut button = Button::new()
-            .with_classes(ClassesOp::Replace("form-button"), "form-reset")
-            .with_value(value);
-        button.button_type = ButtonType::Reset;
-        button
-    }
-
     pub fn submit(value: &str) -> Self {
         let mut button = Button::new()
             .with_classes(ClassesOp::Replace("form-button"), "form-submit")
             .with_value(value);
         button.button_type = ButtonType::Submit;
+        button
+    }
+
+    pub fn reset(value: &str) -> Self {
+        let mut button = Button::new()
+            .with_classes(ClassesOp::Replace("form-button"), "form-reset")
+            .with_value(value);
+        button.button_type = ButtonType::Reset;
         button
     }
 
@@ -113,8 +105,8 @@ impl Button {
         self
     }
 
-    pub fn with_renderable(mut self, renderable: Renderable) -> Self {
-        self.alter_renderable(renderable);
+    pub fn with_renderable(mut self, check: IsRenderable) -> Self {
+        self.alter_renderable(check);
         self
     }
 
@@ -155,28 +147,28 @@ impl Button {
         self
     }
 
-    pub fn alter_renderable(&mut self, renderable: Renderable) -> &mut Self {
-        self.renderable = renderable;
+    pub fn alter_renderable(&mut self, check: IsRenderable) -> &mut Self {
+        self.renderable.check = check;
         self
     }
 
     pub fn alter_classes(&mut self, op: ClassesOp, classes: &str) -> &mut Self {
-        self.classes.alter(op, classes);
+        self.classes.alter_value(op, classes);
         self
     }
 
     pub fn alter_name(&mut self, name: &str) -> &mut Self {
-        self.name.with_value(name);
+        self.name.alter_value(name);
         self
     }
 
     pub fn alter_value(&mut self, value: &str) -> &mut Self {
-        self.value.with_value(value);
+        self.value.alter_value(value);
         self
     }
 
     pub fn alter_autofocus(&mut self, toggle: bool) -> &mut Self {
-        self.autofocus.with_value(match toggle {
+        self.autofocus.alter_value(match toggle {
             true => "autofocus",
             false => "",
         });
@@ -184,7 +176,7 @@ impl Button {
     }
 
     pub fn alter_disabled(&mut self, toggle: bool) -> &mut Self {
-        self.disabled.with_value(match toggle {
+        self.disabled.alter_value(match toggle {
             true => "disabled",
             false => "",
         });

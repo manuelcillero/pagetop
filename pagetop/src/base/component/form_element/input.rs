@@ -2,16 +2,19 @@ use crate::prelude::*;
 
 pub_const_handler!(COMPONENT_INPUT);
 
+#[derive(Default)]
 pub enum InputType {
-    Email,
+    #[default]
+    Textfield,
     Password,
     Search,
+    Email,
     Telephone,
-    Textfield,
     Url,
 }
 
 #[rustfmt::skip]
+#[derive(Default)]
 pub struct Input {
     weight      : isize,
     renderable  : Renderable,
@@ -34,29 +37,12 @@ pub struct Input {
 }
 
 impl ComponentTrait for Input {
-    #[rustfmt::skip]
     fn new() -> Self {
-        Input {
-            weight      : 0,
-            renderable  : render_always,
-            classes     : Classes::new_with_default("form-item"),
-            input_type  : InputType::Textfield,
-            name        : IdentifierValue::new(),
-            value       : AttributeValue::new(),
-            label       : AttributeValue::new(),
-            size        : Some(60),
-            minlength   : None,
-            maxlength   : Some(128),
-            placeholder : AttributeValue::new(),
-            autofocus   : AttributeValue::new(),
-            autocomplete: AttributeValue::new(),
-            disabled    : AttributeValue::new(),
-            readonly    : AttributeValue::new(),
-            required    : AttributeValue::new(),
-            help_text   : AttributeValue::new(),
-            template    : "default".to_owned(),
-        }
-        .with_classes(ClassesOp::AddFirst, "form-type-textfield")
+        Input::default()
+            .with_classes(ClassesOp::SetDefault, "form-item")
+            .with_classes(ClassesOp::AddFirst, "form-type-textfield")
+            .with_size(Some(60))
+            .with_maxlength(Some(128))
     }
 
     fn handler(&self) -> Handler {
@@ -68,17 +54,17 @@ impl ComponentTrait for Input {
     }
 
     fn is_renderable(&self, context: &PageContext) -> bool {
-        (self.renderable)(context)
+        (self.renderable.check)(context)
     }
 
     #[rustfmt::skip]
     fn default_render(&self, _: &mut PageContext) -> Markup {
         let type_input = match self.input_type() {
-            InputType::Email     => "email",
+            InputType::Textfield => "text",
             InputType::Password  => "password",
             InputType::Search    => "search",
+            InputType::Email     => "email",
             InputType::Telephone => "tel",
-            InputType::Textfield => "text",
             InputType::Url       => "url",
         };
         let id = self.name().get().map(|name| concat_string!("edit-", name));
@@ -190,8 +176,8 @@ impl Input {
         self
     }
 
-    pub fn with_renderable(mut self, renderable: Renderable) -> Self {
-        self.alter_renderable(renderable);
+    pub fn with_renderable(mut self, check: IsRenderable) -> Self {
+        self.alter_renderable(check);
         self
     }
 
@@ -277,18 +263,18 @@ impl Input {
         self
     }
 
-    pub fn alter_renderable(&mut self, renderable: Renderable) -> &mut Self {
-        self.renderable = renderable;
+    pub fn alter_renderable(&mut self, check: IsRenderable) -> &mut Self {
+        self.renderable.check = check;
         self
     }
 
     pub fn alter_classes(&mut self, op: ClassesOp, classes: &str) -> &mut Self {
-        self.classes.alter(op, classes);
+        self.classes.alter_value(op, classes);
         self
     }
 
     pub fn alter_name(&mut self, name: &str) -> &mut Self {
-        self.name.with_value(name);
+        self.name.alter_value(name);
         self.alter_classes(
             ClassesOp::SetDefault,
             concat_string!("form-item form-item-", name).as_str(),
@@ -297,12 +283,12 @@ impl Input {
     }
 
     pub fn alter_value(&mut self, value: &str) -> &mut Self {
-        self.value.with_value(value);
+        self.value.alter_value(value);
         self
     }
 
     pub fn alter_label(&mut self, label: &str) -> &mut Self {
-        self.label.with_value(label);
+        self.label.alter_value(label);
         self
     }
 
@@ -322,12 +308,12 @@ impl Input {
     }
 
     pub fn alter_placeholder(&mut self, placeholder: &str) -> &mut Self {
-        self.placeholder.with_value(placeholder);
+        self.placeholder.alter_value(placeholder);
         self
     }
 
     pub fn alter_autofocus(&mut self, toggle: bool) -> &mut Self {
-        self.autofocus.with_value(match toggle {
+        self.autofocus.alter_value(match toggle {
             true => "autofocus",
             false => "",
         });
@@ -335,7 +321,7 @@ impl Input {
     }
 
     pub fn alter_autocomplete(&mut self, toggle: bool) -> &mut Self {
-        self.autocomplete.with_value(match toggle {
+        self.autocomplete.alter_value(match toggle {
             true => "",
             false => "off",
         });
@@ -343,7 +329,7 @@ impl Input {
     }
 
     pub fn alter_disabled(&mut self, toggle: bool) -> &mut Self {
-        self.disabled.with_value(match toggle {
+        self.disabled.alter_value(match toggle {
             true => "disabled",
             false => "",
         });
@@ -351,7 +337,7 @@ impl Input {
     }
 
     pub fn alter_readonly(&mut self, toggle: bool) -> &mut Self {
-        self.readonly.with_value(match toggle {
+        self.readonly.alter_value(match toggle {
             true => "readonly",
             false => "",
         });
@@ -359,7 +345,7 @@ impl Input {
     }
 
     pub fn alter_required(&mut self, toggle: bool) -> &mut Self {
-        self.required.with_value(match toggle {
+        self.required.alter_value(match toggle {
             true => "required",
             false => "",
         });
@@ -367,7 +353,7 @@ impl Input {
     }
 
     pub fn alter_help_text(&mut self, help_text: &str) -> &mut Self {
-        self.help_text.with_value(help_text);
+        self.help_text.alter_value(help_text);
         self
     }
 

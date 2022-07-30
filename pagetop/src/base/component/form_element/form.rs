@@ -4,12 +4,15 @@ pub_const_handler!(COMPONENT_FORM);
 
 hook_before_render_component!(HOOK_BEFORE_RENDER_FORM, Form);
 
+#[derive(Default)]
 pub enum FormMethod {
-    Get,
+    #[default]
     Post,
+    Get,
 }
 
 #[rustfmt::skip]
+#[derive(Default)]
 pub struct Form {
     weight    : isize,
     renderable: Renderable,
@@ -23,19 +26,10 @@ pub struct Form {
 }
 
 impl ComponentTrait for Form {
-    #[rustfmt::skip]
     fn new() -> Self {
-        Form {
-            weight    : 0,
-            renderable: render_always,
-            id        : IdentifierValue::new(),
-            classes   : Classes::new_with_default("form"),
-            action    : AttributeValue::new(),
-            charset   : AttributeValue::new_with_value("UTF-8"),
-            method    : FormMethod::Post,
-            elements  : ComponentsBundle::new(),
-            template  : "default".to_owned(),
-        }
+        Form::default()
+            .with_classes(ClassesOp::SetDefault, "form")
+            .with_charset("UTF-8")
     }
 
     fn handler(&self) -> Handler {
@@ -47,7 +41,7 @@ impl ComponentTrait for Form {
     }
 
     fn is_renderable(&self, context: &PageContext) -> bool {
-        (self.renderable)(context)
+        (self.renderable.check)(context)
     }
 
     fn before_render(&mut self, context: &mut PageContext) {
@@ -56,8 +50,8 @@ impl ComponentTrait for Form {
 
     fn default_render(&self, context: &mut PageContext) -> Markup {
         let method = match self.method() {
-            FormMethod::Get => None,
             FormMethod::Post => Some("post".to_owned()),
+            FormMethod::Get => None,
         };
         html! {
             form
@@ -89,8 +83,8 @@ impl Form {
         self
     }
 
-    pub fn with_renderable(mut self, renderable: Renderable) -> Self {
-        self.alter_renderable(renderable);
+    pub fn with_renderable(mut self, check: IsRenderable) -> Self {
+        self.alter_renderable(check);
         self
     }
 
@@ -136,28 +130,28 @@ impl Form {
         self
     }
 
-    pub fn alter_renderable(&mut self, renderable: Renderable) -> &mut Self {
-        self.renderable = renderable;
+    pub fn alter_renderable(&mut self, check: IsRenderable) -> &mut Self {
+        self.renderable.check = check;
         self
     }
 
     pub fn alter_id(&mut self, id: &str) -> &mut Self {
-        self.id.with_value(id);
+        self.id.alter_value(id);
         self
     }
 
     pub fn alter_classes(&mut self, op: ClassesOp, classes: &str) -> &mut Self {
-        self.classes.alter(op, classes);
+        self.classes.alter_value(op, classes);
         self
     }
 
     pub fn alter_action(&mut self, action: &str) -> &mut Self {
-        self.action.with_value(action);
+        self.action.alter_value(action);
         self
     }
 
     pub fn alter_charset(&mut self, charset: &str) -> &mut Self {
-        self.charset.with_value(charset);
+        self.charset.alter_value(charset);
         self
     }
 

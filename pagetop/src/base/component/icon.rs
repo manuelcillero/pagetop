@@ -3,6 +3,7 @@ use crate::prelude::*;
 pub_const_handler!(COMPONENT_ICON);
 
 #[rustfmt::skip]
+#[derive(Default)]
 pub struct Icon {
     weight    : isize,
     renderable: Renderable,
@@ -11,14 +12,8 @@ pub struct Icon {
 }
 
 impl ComponentTrait for Icon {
-    #[rustfmt::skip]
     fn new() -> Self {
-        Icon {
-            weight    : 0,
-            renderable: render_always,
-            icon_name : "question-circle-fill".to_owned(),
-            classes   : Classes::new_with_default("bi-question-circle-fill"),
-        }
+        Icon::default().with_classes(ClassesOp::SetDefault, "bi-question-circle-fill")
     }
 
     fn handler(&self) -> Handler {
@@ -30,7 +25,7 @@ impl ComponentTrait for Icon {
     }
 
     fn is_renderable(&self, context: &PageContext) -> bool {
-        (self.renderable)(context)
+        (self.renderable.check)(context)
     }
 
     fn before_render(&mut self, context: &mut PageContext) {
@@ -64,8 +59,8 @@ impl Icon {
         self
     }
 
-    pub fn with_renderable(mut self, renderable: Renderable) -> Self {
-        self.alter_renderable(renderable);
+    pub fn with_renderable(mut self, check: IsRenderable) -> Self {
+        self.alter_renderable(check);
         self
     }
 
@@ -86,8 +81,8 @@ impl Icon {
         self
     }
 
-    pub fn alter_renderable(&mut self, renderable: Renderable) -> &mut Self {
-        self.renderable = renderable;
+    pub fn alter_renderable(&mut self, check: IsRenderable) -> &mut Self {
+        self.renderable.check = check;
         self
     }
 
@@ -101,7 +96,7 @@ impl Icon {
     }
 
     pub fn alter_classes(&mut self, op: ClassesOp, classes: &str) -> &mut Self {
-        self.classes.alter(op, classes);
+        self.classes.alter_value(op, classes);
         self
     }
 
