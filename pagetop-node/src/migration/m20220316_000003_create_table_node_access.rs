@@ -1,5 +1,6 @@
 use pagetop::prelude::*;
 
+#[rustfmt::skip]
 #[derive(Iden)]
 enum NodeAccess {
     Table,              // node_access: Identifies which realm/grant pairs a user must possess in

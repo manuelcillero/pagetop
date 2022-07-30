@@ -1,5 +1,6 @@
 use pagetop::prelude::*;
 
+#[rustfmt::skip]
 #[derive(Iden)]
 enum Node {
     Table,              // node: The base table for nodes.

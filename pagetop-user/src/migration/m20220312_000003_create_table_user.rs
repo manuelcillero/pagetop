@@ -1,5 +1,6 @@
 use pagetop::prelude::*;
 
+#[rustfmt::skip]
 #[derive(Iden)]
 enum User {
     Table,              // user: Stores user data.

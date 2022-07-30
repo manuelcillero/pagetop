@@ -1,5 +1,6 @@
 use pagetop::prelude::*;
 
+#[rustfmt::skip]
 #[derive(Iden)]
 enum NodeRevision {
     Table,              // node_revision: Stores information about each saved version of a Node.

@@ -1,5 +1,6 @@
 use pagetop::prelude::*;
 
+#[rustfmt::skip]
 #[derive(Iden)]
 enum NodeType {
     Table,              // node_type: Stores information about all defined Node types.

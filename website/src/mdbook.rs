@@ -7,9 +7,7 @@ use std::collections::HashMap;
 
 include!(concat!(env!("OUT_DIR"), "/mdbook.rs"));
 
-static MDBOOK: LazyStatic<HashMap<&'static str, Resource>> = LazyStatic::new(||
-    generate()
-);
+static MDBOOK: LazyStatic<HashMap<&'static str, Resource>> = LazyStatic::new(|| generate());
 
 pub_const_handler!(MODULE_MDBOOK);
 
@@ -24,7 +22,7 @@ impl ModuleTrait for MdBook {
         cfg.service(
             app::web::scope("/doc")
                 .route("{tail:.*html$}", app::web::get().to(mdbook_page))
-                .route("{tail:.*$}", app::web::get().to(mdbook_resource))
+                .route("{tail:.*$}", app::web::get().to(mdbook_resource)),
         );
     }
 }
@@ -35,7 +33,6 @@ async fn mdbook_page(request: app::HttpRequest) -> ResultPage<Markup, FatalError
 
     if let Some(content) = MDBOOK.get(path) {
         if let Ok(html) = std::str::from_utf8(content.data) {
-
             let _lang = extract("Lang", html);
             let title = match extract("Title", html) {
                 Some(title) => title,
@@ -60,38 +57,38 @@ async fn mdbook_page(request: app::HttpRequest) -> ResultPage<Markup, FatalError
             Page::new()
                 .with_title(title)
                 .with_context(PageOp::AddMetadata("theme-color", "#ffffff"))
+                .with_context(PageOp::AddStyleSheet(StyleSheet::located(
+                    "/doc/css/variables.css",
+                )))
+                .with_context(PageOp::AddStyleSheet(StyleSheet::located(
+                    "/doc/css/general.css",
+                )))
+                .with_context(PageOp::AddStyleSheet(StyleSheet::located(
+                    "/doc/css/chrome.css",
+                )))
                 .with_context(PageOp::AddStyleSheet(
-                    StyleSheet::located("/doc/css/variables.css")
+                    StyleSheet::located("/doc/css/print.css").for_media(TargetMedia::Print),
                 ))
-                .with_context(PageOp::AddStyleSheet(
-                    StyleSheet::located("/doc/css/general.css")
-                ))
-                .with_context(PageOp::AddStyleSheet(
-                    StyleSheet::located("/doc/css/chrome.css")
-                ))
-                .with_context(PageOp::AddStyleSheet(
-                    StyleSheet::located("/doc/css/print.css").for_media(TargetMedia::Print)
-                ))
-                .with_context(PageOp::AddStyleSheet(
-                    StyleSheet::located("/doc/FontAwesome/css/font-awesome.css")
-                ))
-                .with_context(PageOp::AddStyleSheet(
-                    StyleSheet::located("/doc/fonts/fonts.css")
-                ))
-                .with_context(PageOp::AddStyleSheet(
-                    StyleSheet::located("/doc/highlight.css")
-                ))
-                .with_context(PageOp::AddStyleSheet(
-                    StyleSheet::located("/doc/tomorrow-night.css")
-                ))
-                .with_context(PageOp::AddStyleSheet(
-                    StyleSheet::located("/doc/ayu-highlight.css")
-                ))
+                .with_context(PageOp::AddStyleSheet(StyleSheet::located(
+                    "/doc/FontAwesome/css/font-awesome.css",
+                )))
+                .with_context(PageOp::AddStyleSheet(StyleSheet::located(
+                    "/doc/fonts/fonts.css",
+                )))
+                .with_context(PageOp::AddStyleSheet(StyleSheet::located(
+                    "/doc/highlight.css",
+                )))
+                .with_context(PageOp::AddStyleSheet(StyleSheet::located(
+                    "/doc/tomorrow-night.css",
+                )))
+                .with_context(PageOp::AddStyleSheet(StyleSheet::located(
+                    "/doc/ayu-highlight.css",
+                )))
                 .add_to(
                     "region-content",
                     Container::new()
                         .with_id("mdbook")
-                        .with_component(Html::with(html! { (PreEscaped(&html[beginning..])) }))
+                        .with_component(Html::with(html! { (PreEscaped(&html[beginning..])) })),
                 )
                 .render()
         } else {

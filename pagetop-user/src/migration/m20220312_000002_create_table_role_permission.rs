@@ -1,5 +1,6 @@
 use pagetop::prelude::*;
 
+#[rustfmt::skip]
 #[derive(Iden)]
 enum RolePermission {
     Table,              // role_permission: Stores the permissions assigned to user roles.
