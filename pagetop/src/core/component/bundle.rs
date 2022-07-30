@@ -1,5 +1,6 @@
-use super::{ComponentTrait, InContext};
+use super::ComponentTrait;
 use crate::html::{html, Markup};
+use crate::response::page::PageContext;
 
 use std::sync::{Arc, RwLock};
 
@@ -25,7 +26,7 @@ impl ComponentsBundle {
         self.0.clear();
     }
 
-    pub fn render(&self, context: &mut InContext) -> Markup {
+    pub fn render(&self, context: &mut PageContext) -> Markup {
         let mut components = self.0.clone();
         components.sort_by_key(|c| c.read().unwrap().weight());
         html! {

@@ -1,7 +1,8 @@
+use super::PageOp;
 use crate::config::SETTINGS;
 use crate::core::theme::all::theme_by_single_name;
 use crate::core::theme::ThemeTrait;
-use crate::html::*;
+use crate::html::{html, Assets, Favicon, StyleSheet, JavaScript, JSMode, Markup, IdentifierValue};
 use crate::{base, concat_string, util, LazyStatic};
 
 static DEFAULT_THEME: LazyStatic<&dyn ThemeTrait> = LazyStatic::new(||
@@ -11,24 +12,7 @@ static DEFAULT_THEME: LazyStatic<&dyn ThemeTrait> = LazyStatic::new(||
     }
 );
 
-pub enum InContextOp {
-    SetTheme(&'static str),
-
-    AddFavicon(Favicon),
-    RemoveFavicon,
-
-    AddMetadata(&'static str, &'static str),
-    AddProperty(&'static str, &'static str),
-
-    AddStyleSheet(StyleSheet),
-    RemoveStyleSheet(&'static str),
-
-    AddJavaScript(JavaScript),
-    RemoveJavaScript(&'static str),
-    AddJQuery,
-}
-
-pub struct InContext {
+pub struct PageContext {
     theme      : &'static dyn ThemeTrait,
     favicon    : Option<Favicon>,
     metadata   : Vec<(&'static str, &'static str)>,
@@ -39,9 +23,9 @@ pub struct InContext {
     id_counter : usize,
 }
 
-impl InContext {
+impl PageContext {
     pub fn new() -> Self {
-        InContext {
+        PageContext {
             theme      : *DEFAULT_THEME,
             favicon    : None,
             metadata   : Vec::new(),
@@ -53,40 +37,40 @@ impl InContext {
         }
     }
 
-    pub fn alter(&mut self, op: InContextOp) -> &mut Self {
+    pub fn alter(&mut self, op: PageOp) -> &mut Self {
         match op {
-            InContextOp::SetTheme(theme_name) => {
+            PageOp::SetTheme(theme_name) => {
                 self.theme = theme_by_single_name(theme_name).unwrap_or(*DEFAULT_THEME);
             }
 
-            InContextOp::AddFavicon(favicon) => {
+            PageOp::AddFavicon(favicon) => {
                 self.favicon = Some(favicon);
             }
-            InContextOp::RemoveFavicon => {
+            PageOp::RemoveFavicon => {
                 self.favicon = None;
             }
 
-            InContextOp::AddMetadata(name, content) => {
+            PageOp::AddMetadata(name, content) => {
                 self.metadata.push((name, content));
             }
-            InContextOp::AddProperty(property, content) => {
+            PageOp::AddProperty(property, content) => {
                 self.properties.push((property, content));
             }
 
-            InContextOp::AddStyleSheet(css) => {
+            PageOp::AddStyleSheet(css) => {
                 self.stylesheets.add(css);
             }
-            InContextOp::RemoveStyleSheet(source) => {
+            PageOp::RemoveStyleSheet(source) => {
                 self.stylesheets.remove(source);
             }
 
-            InContextOp::AddJavaScript(js) => {
+            PageOp::AddJavaScript(js) => {
                 self.javascripts.add(js);
             }
-            InContextOp::RemoveJavaScript(source) => {
+            PageOp::RemoveJavaScript(source) => {
                 self.javascripts.remove(source);
             }
-            InContextOp::AddJQuery => {
+            PageOp::AddJQuery => {
                 if !self.with_jquery {
                     self.javascripts.add(
                         JavaScript::located("/theme/js/jquery.min.js")
@@ -101,13 +85,13 @@ impl InContext {
         self
     }
 
-    /// InContext GETTERS.
+    /// PageContext GETTERS.
 
     pub(crate) fn theme(&mut self) -> &'static dyn ThemeTrait {
         self.theme
     }
 
-    /// InContext RENDER.
+    /// PageContext RENDER.
 
     pub fn render(&mut self) -> Markup {
         html! {
@@ -126,7 +110,7 @@ impl InContext {
         }
     }
 
-    // InContext EXTRAS.
+    // PageContext EXTRAS.
 
     pub fn required_id<T>(&mut self, id: &IdentifierValue) -> String {
         match id.get() {

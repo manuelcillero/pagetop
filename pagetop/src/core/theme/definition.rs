@@ -2,9 +2,9 @@ use crate::app;
 use crate::base::component::{Container, Html};
 use crate::concat_string;
 use crate::config::SETTINGS;
-use crate::core::component::{ComponentTrait, InContext, InContextOp};
+use crate::core::component::ComponentTrait;
 use crate::html::{html, Favicon, Markup};
-use crate::response::page::Page;
+use crate::response::page::{Page, PageContext, PageOp};
 use crate::util::{single_type_name, Handler};
 
 pub trait BaseTheme {
@@ -28,7 +28,7 @@ pub trait ThemeTrait: BaseTheme + Send + Sync {
 
     #[allow(unused_variables)]
     fn before_render_page(&self, page: &mut Page) {
-        page.alter_context(InContextOp::AddFavicon(
+        page.alter_context(PageOp::AddFavicon(
             Favicon::new().with_icon("/theme/favicon.png"),
         ));
     }
@@ -83,7 +83,11 @@ pub trait ThemeTrait: BaseTheme + Send + Sync {
     }
 
     #[allow(unused_variables)]
-    fn before_render_component(&self, component: &mut dyn ComponentTrait, context: &mut InContext) {
+    fn before_render_component(
+        &self,
+        component: &mut dyn ComponentTrait,
+        context: &mut PageContext,
+    ) {
         /*
             Cómo usarlo:
 
@@ -101,7 +105,7 @@ pub trait ThemeTrait: BaseTheme + Send + Sync {
     fn render_component(
         &self,
         component: &dyn ComponentTrait,
-        context: &mut InContext,
+        context: &mut PageContext,
     ) -> Option<Markup> {
         None
         /*

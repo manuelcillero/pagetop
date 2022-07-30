@@ -25,7 +25,7 @@ impl ComponentTrait for Hidden {
         self.weight
     }
 
-    fn default_render(&self, _: &mut InContext) -> Markup {
+    fn default_render(&self, _: &mut PageContext) -> Markup {
         let id = self.name().get().map(|name| concat_string!("value-", name));
         html! {
             input type="hidden" id=[id] name=[self.name().get()] value=[self.value().get()];

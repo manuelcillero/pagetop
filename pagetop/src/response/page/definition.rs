@@ -1,9 +1,15 @@
-use super::{BeforeRenderPageHook, ResultPage, HOOK_BEFORE_RENDER_PAGE};
+use super::{
+    BeforeRenderPageHook,
+    PageContext,
+    PageOp,
+    ResultPage,
+    HOOK_BEFORE_RENDER_PAGE,
+};
 use crate::app::fatal_error::FatalError;
 use crate::config::SETTINGS;
 use crate::core::component::*;
 use crate::core::hook::{action_ref, run_actions};
-use crate::html::*;
+use crate::html::{html, AttributeValue, Classes, ClassesOp, Markup, DOCTYPE};
 use crate::{trace, LazyStatic};
 
 use std::collections::HashMap;
@@ -42,7 +48,7 @@ pub enum TextDirection {
 }
 
 pub struct Page {
-    context     : InContext,
+    context     : PageContext,
     language    : AttributeValue,
     direction   : AttributeValue,
     title       : AttributeValue,
@@ -55,7 +61,7 @@ pub struct Page {
 impl Page {
     pub fn new() -> Self {
         Page {
-            context     : InContext::new(),
+            context     : PageContext::new(),
             language    : match &*DEFAULT_LANGUAGE {
                 Some(language) => AttributeValue::new_with_value(language),
                 _ => AttributeValue::new(),
@@ -74,7 +80,7 @@ impl Page {
 
     // Page BUILDER.
 
-    pub fn with_context(mut self, op: InContextOp) -> Self {
+    pub fn with_context(mut self, op: PageOp) -> Self {
         self.alter_context(op);
         self
     }
@@ -121,7 +127,7 @@ impl Page {
 
     // Page ALTER.
 
-    pub fn alter_context(&mut self, op: InContextOp) -> &mut Self {
+    pub fn alter_context(&mut self, op: PageOp) -> &mut Self {
         self.context.alter(op);
         self
     }
@@ -162,7 +168,7 @@ impl Page {
 
     // Page GETTERS.
 
-    pub fn context(&mut self) -> &mut InContext {
+    pub fn context(&mut self) -> &mut PageContext {
         &mut self.context
     }
 

@@ -57,11 +57,11 @@ impl ComponentTrait for Anchor {
         self.weight
     }
 
-    fn is_renderable(&self, context: &InContext) -> bool {
+    fn is_renderable(&self, context: &PageContext) -> bool {
         (self.renderable)(context)
     }
 
-    fn default_render(&self, context: &mut InContext) -> Markup {
+    fn default_render(&self, context: &mut PageContext) -> Markup {
         let target = match &self.target() {
             AnchorTarget::Blank         => Some("_blank"),
             AnchorTarget::Context(name) => Some(name.as_str()),

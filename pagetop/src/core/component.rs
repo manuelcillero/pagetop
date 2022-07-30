@@ -1,6 +1,3 @@
-mod context;
-pub use context::{InContext, InContextOp};
-
 mod definition;
 pub use definition::{component_mut, component_ref, AnyComponent, BaseComponent, ComponentTrait};
 
@@ -11,12 +8,14 @@ mod all;
 pub use all::add_component_to;
 pub(crate) use all::common_components;
 
-pub type Renderable = fn(_: &InContext) -> bool;
+use crate::response::page::PageContext;
 
-pub fn render_always(_: &InContext) -> bool {
+pub type Renderable = fn(_: &PageContext) -> bool;
+
+pub fn render_always(_: &PageContext) -> bool {
     true
 }
 
-pub fn render_never(_: &InContext) -> bool {
+pub fn render_never(_: &PageContext) -> bool {
     false
 }

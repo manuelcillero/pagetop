@@ -54,11 +54,11 @@ impl ComponentTrait for Heading {
         self.weight
     }
 
-    fn is_renderable(&self, context: &InContext) -> bool {
+    fn is_renderable(&self, context: &PageContext) -> bool {
         (self.renderable)(context)
     }
 
-    fn default_render(&self, _: &mut InContext) -> Markup {
+    fn default_render(&self, _: &mut PageContext) -> Markup {
         let id = self.id().get();
         let classes = self.classes().get();
         html! { @match &self.heading_type() {

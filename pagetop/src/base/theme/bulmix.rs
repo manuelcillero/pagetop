@@ -17,21 +17,21 @@ impl ThemeTrait for Bulmix {
 
     fn before_render_page(&self, page: &mut Page) {
         page
-            .alter_context(InContextOp::AddFavicon(
+            .alter_context(PageOp::AddFavicon(
                 Favicon::new().with_icon("/theme/favicon.png"),
             ))
-            .alter_context(InContextOp::AddStyleSheet(
+            .alter_context(PageOp::AddStyleSheet(
                 StyleSheet::located("/bulmix/css/bulma.min.css")
                     .with_version("0.9.4")
                     .with_weight(-99),
             ))
-            .alter_context(InContextOp::AddJQuery);
+            .alter_context(PageOp::AddJQuery);
     }
 
     fn before_render_component(
         &self,
         component: &mut dyn ComponentTrait,
-        _context: &mut InContext,
+        _context: &mut PageContext,
     ) {
         match component.handler() {
             COMPONENT_ANCHOR => {
@@ -110,7 +110,7 @@ impl ThemeTrait for Bulmix {
     fn render_component(
         &self,
         component: &dyn ComponentTrait,
-        _context: &mut InContext,
+        _context: &mut PageContext,
     ) -> Option<Markup> {
         match component.handler() {
             COMPONENT_ICON => {

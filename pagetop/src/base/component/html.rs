@@ -27,11 +27,11 @@ impl ComponentTrait for Html {
         self.weight
     }
 
-    fn is_renderable(&self, context: &InContext) -> bool {
+    fn is_renderable(&self, context: &PageContext) -> bool {
         (self.renderable)(context)
     }
 
-    fn default_render(&self, _: &mut InContext) -> Markup {
+    fn default_render(&self, _: &mut PageContext) -> Markup {
         html! { (*self.html()) }
     }
 

@@ -65,11 +65,11 @@ impl ComponentTrait for Input {
         self.weight
     }
 
-    fn is_renderable(&self, context: &InContext) -> bool {
+    fn is_renderable(&self, context: &PageContext) -> bool {
         (self.renderable)(context)
     }
 
-    fn default_render(&self, _: &mut InContext) -> Markup {
+    fn default_render(&self, _: &mut PageContext) -> Markup {
         let type_input = match self.input_type() {
             InputType::Email     => "email",
             InputType::Password  => "password",

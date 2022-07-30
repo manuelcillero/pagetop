@@ -59,32 +59,32 @@ async fn mdbook_page(request: app::HttpRequest) -> ResultPage<Markup, FatalError
 
             Page::new()
                 .with_title(title)
-                .with_context(InContextOp::AddMetadata("theme-color", "#ffffff"))
-                .with_context(InContextOp::AddStyleSheet(
+                .with_context(PageOp::AddMetadata("theme-color", "#ffffff"))
+                .with_context(PageOp::AddStyleSheet(
                     StyleSheet::located("/doc/css/variables.css")
                 ))
-                .with_context(InContextOp::AddStyleSheet(
+                .with_context(PageOp::AddStyleSheet(
                     StyleSheet::located("/doc/css/general.css")
                 ))
-                .with_context(InContextOp::AddStyleSheet(
+                .with_context(PageOp::AddStyleSheet(
                     StyleSheet::located("/doc/css/chrome.css")
                 ))
-                .with_context(InContextOp::AddStyleSheet(
+                .with_context(PageOp::AddStyleSheet(
                     StyleSheet::located("/doc/css/print.css").for_media(TargetMedia::Print)
                 ))
-                .with_context(InContextOp::AddStyleSheet(
+                .with_context(PageOp::AddStyleSheet(
                     StyleSheet::located("/doc/FontAwesome/css/font-awesome.css")
                 ))
-                .with_context(InContextOp::AddStyleSheet(
+                .with_context(PageOp::AddStyleSheet(
                     StyleSheet::located("/doc/fonts/fonts.css")
                 ))
-                .with_context(InContextOp::AddStyleSheet(
+                .with_context(PageOp::AddStyleSheet(
                     StyleSheet::located("/doc/highlight.css")
                 ))
-                .with_context(InContextOp::AddStyleSheet(
+                .with_context(PageOp::AddStyleSheet(
                     StyleSheet::located("/doc/tomorrow-night.css")
                 ))
-                .with_context(InContextOp::AddStyleSheet(
+                .with_context(PageOp::AddStyleSheet(
                     StyleSheet::located("/doc/ayu-highlight.css")
                 ))
                 .add_to(

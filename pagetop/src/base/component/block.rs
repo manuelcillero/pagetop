@@ -35,15 +35,15 @@ impl ComponentTrait for Block {
         self.weight
     }
 
-    fn is_renderable(&self, context: &InContext) -> bool {
+    fn is_renderable(&self, context: &PageContext) -> bool {
         (self.renderable)(context)
     }
 
-    fn before_render(&mut self, context: &mut InContext) {
+    fn before_render(&mut self, context: &mut PageContext) {
         before_render_inline(self, context);
     }
 
-    fn default_render(&self, context: &mut InContext) -> Markup {
+    fn default_render(&self, context: &mut PageContext) -> Markup {
         let id = context.required_id::<Block>(self.id());
         html! {
             div id=(id) class=[self.classes().get()] {

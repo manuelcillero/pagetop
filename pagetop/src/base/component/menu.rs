@@ -37,11 +37,11 @@ impl ComponentTrait for MenuItem {
         self.weight
     }
 
-    fn is_renderable(&self, context: &InContext) -> bool {
+    fn is_renderable(&self, context: &PageContext) -> bool {
         (self.renderable)(context)
     }
 
-    fn default_render(&self, context: &mut InContext) -> Markup {
+    fn default_render(&self, context: &mut PageContext) -> Markup {
         match self.item_type() {
             MenuItemType::Label(label) => html! {
                 li class="label" { a href="#" { (label) } }
@@ -196,26 +196,26 @@ impl ComponentTrait for Menu {
         self.weight
     }
 
-    fn is_renderable(&self, context: &InContext) -> bool {
+    fn is_renderable(&self, context: &PageContext) -> bool {
         (self.renderable)(context)
     }
 
-    fn before_render(&mut self, context: &mut InContext) {
+    fn before_render(&mut self, context: &mut PageContext) {
         before_render_inline(self, context);
     }
 
-    fn default_render(&self, context: &mut InContext) -> Markup {
+    fn default_render(&self, context: &mut PageContext) -> Markup {
         context
-            .alter(InContextOp::AddStyleSheet(
+            .alter(PageOp::AddStyleSheet(
                 StyleSheet::located("/theme/menu/css/menu.css").with_version("1.1.1"),
             ))
-            .alter(InContextOp::AddStyleSheet(
+            .alter(PageOp::AddStyleSheet(
                 StyleSheet::located("/theme/menu/css/menu-clean.css").with_version("1.1.1"),
             ))
-            .alter(InContextOp::AddJavaScript(
+            .alter(PageOp::AddJavaScript(
                 JavaScript::located("/theme/menu/js/menu.min.js").with_version("1.1.1"),
             ))
-            .alter(InContextOp::AddJQuery);
+            .alter(PageOp::AddJQuery);
 
         let id = context.required_id::<Menu>(self.id());
 

@@ -1,11 +1,11 @@
-use super::InContext;
 use crate::html::{html, Markup};
+use crate::response::page::PageContext;
 use crate::util::{single_type_name, Handler};
 
 pub use std::any::Any as AnyComponent;
 
 pub trait BaseComponent {
-    fn render(&mut self, context: &mut InContext) -> Markup;
+    fn render(&mut self, context: &mut PageContext) -> Markup;
 }
 
 pub trait ComponentTrait: AnyComponent + BaseComponent + Send + Sync {
@@ -28,15 +28,15 @@ pub trait ComponentTrait: AnyComponent + BaseComponent + Send + Sync {
     }
 
     #[allow(unused_variables)]
-    fn is_renderable(&self, context: &InContext) -> bool {
+    fn is_renderable(&self, context: &PageContext) -> bool {
         true
     }
 
     #[allow(unused_variables)]
-    fn before_render(&mut self, context: &mut InContext) {}
+    fn before_render(&mut self, context: &mut PageContext) {}
 
     #[allow(unused_variables)]
-    fn default_render(&self, context: &mut InContext) -> Markup {
+    fn default_render(&self, context: &mut PageContext) -> Markup {
         html! {}
     }
 
@@ -46,7 +46,7 @@ pub trait ComponentTrait: AnyComponent + BaseComponent + Send + Sync {
 }
 
 impl<C: ComponentTrait> BaseComponent for C {
-    fn render(&mut self, context: &mut InContext) -> Markup {
+    fn render(&mut self, context: &mut PageContext) -> Markup {
         // Acciones del componente antes de renderizar.
         self.before_render(context);
 
@@ -77,7 +77,7 @@ macro_rules! hook_before_render_component {
         paste::paste! {
             $crate::pub_const_handler!($ACTION_HANDLER);
 
-            type Action = fn(&$Component, &mut InContext);
+            type Action = fn(&$Component, &mut PageContext);
 
             pub struct [< BeforeRender $Component >] {
                 action: Option<Action>,
@@ -118,7 +118,7 @@ macro_rules! hook_before_render_component {
                     self
                 }
 
-                pub fn run(&self, component: &mut $Component, context: &mut InContext) {
+                pub fn run(&self, component: &mut $Component, context: &mut PageContext) {
                     if let Some(action) = self.action {
                         action(component, context)
                     }
@@ -126,7 +126,7 @@ macro_rules! hook_before_render_component {
             }
 
             #[inline(always)]
-            fn before_render_inline(component: &mut $Component, context: &mut InContext) {
+            fn before_render_inline(component: &mut $Component, context: &mut PageContext) {
                 run_actions(
                     $ACTION_HANDLER,
                     |action| action_ref::<[< BeforeRender $Component >]>(&**action).run(component, context)

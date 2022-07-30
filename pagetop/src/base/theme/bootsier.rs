@@ -19,20 +19,20 @@ impl ThemeTrait for Bootsier {
 
     fn before_render_page(&self, page: &mut Page) {
         page
-            .alter_context(InContextOp::AddFavicon(
+            .alter_context(PageOp::AddFavicon(
                 Favicon::new().with_icon("/theme/favicon.png"),
             ))
-            .alter_context(InContextOp::AddStyleSheet(
+            .alter_context(PageOp::AddStyleSheet(
                 StyleSheet::located("/bootsier/css/bootstrap.min.css")
                     .with_version("5.1.3")
                     .with_weight(-99),
             ))
-            .alter_context(InContextOp::AddJavaScript(
+            .alter_context(PageOp::AddJavaScript(
                 JavaScript::located("/bootsier/js/bootstrap.bundle.min.js")
                     .with_version("5.1.3")
                     .with_weight(-99),
             ))
-            .alter_context(InContextOp::AddJQuery);
+            .alter_context(PageOp::AddJQuery);
     }
 
     fn error_404_not_found(&self) -> Container {
