@@ -43,8 +43,8 @@ impl ComponentTrait for MenuItem {
 
     fn default_render(&self, context: &mut PageContext) -> Markup {
         match self.item_type() {
-            MenuItemType::Void => html! {
-            },
+            MenuItemType::Void => html! {},
+
             MenuItemType::Label(label) => html! {
                 li class="label" { a href="#" { (label) } }
             },

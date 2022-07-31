@@ -1,18 +1,18 @@
-use crate::core::module::ModuleTrait;
-use crate::core::theme::ThemeTrait;
+use crate::core::module::ModuleStaticRef;
+use crate::core::theme::ThemeStaticRef;
 
 pub trait AppTrait: Send + Sync {
     fn bootstrap(&self) {}
 
-    fn enable_modules(&self) -> Vec<&'static dyn ModuleTrait> {
+    fn enable_modules(&self) -> Vec<ModuleStaticRef> {
         vec![]
     }
 
-    fn disable_modules(&self) -> Vec<&'static dyn ModuleTrait> {
+    fn disable_modules(&self) -> Vec<ModuleStaticRef> {
         vec![]
     }
 
-    fn themes(&self) -> Vec<&'static dyn ThemeTrait> {
+    fn themes(&self) -> Vec<ThemeStaticRef> {
         vec![]
     }
 }

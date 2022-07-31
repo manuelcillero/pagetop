@@ -5,7 +5,7 @@ mod mdbook;
 struct PageTopWebSite;
 
 impl AppTrait for PageTopWebSite {
-    fn enable_modules(&self) -> Vec<&'static dyn ModuleTrait> {
+    fn enable_modules(&self) -> Vec<ModuleStaticRef> {
         vec![&mdbook::MdBook]
     }
 }

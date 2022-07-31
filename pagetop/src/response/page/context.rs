@@ -1,11 +1,10 @@
 use super::PageOp;
 use crate::config::SETTINGS;
-use crate::core::theme::all::theme_by_single_name;
-use crate::core::theme::ThemeTrait;
+use crate::core::theme::{all::theme_by_single_name, ThemeStaticRef};
 use crate::html::{html, Assets, Favicon, IdentifierValue, JavaScript, Markup, ModeJS, StyleSheet};
 use crate::{base, concat_string, util, LazyStatic};
 
-static DEFAULT_THEME: LazyStatic<&dyn ThemeTrait> =
+static DEFAULT_THEME: LazyStatic<ThemeStaticRef> =
     LazyStatic::new(|| match theme_by_single_name(&SETTINGS.app.theme) {
         Some(theme) => theme,
         None => &base::theme::bootsier::Bootsier,
@@ -13,7 +12,7 @@ static DEFAULT_THEME: LazyStatic<&dyn ThemeTrait> =
 
 #[rustfmt::skip]
 pub struct PageContext {
-    theme      : &'static dyn ThemeTrait,
+    theme      : ThemeStaticRef,
     favicon    : Option<Favicon>,
     metadata   : Vec<(&'static str, &'static str)>,
     properties : Vec<(&'static str, &'static str)>,
@@ -94,7 +93,7 @@ impl PageContext {
 
     /// PageContext GETTERS.
 
-    pub(crate) fn theme(&mut self) -> &'static dyn ThemeTrait {
+    pub(crate) fn theme(&mut self) -> ThemeStaticRef {
         self.theme
     }
 

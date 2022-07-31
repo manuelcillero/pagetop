@@ -22,6 +22,7 @@ categories = [
 ]
 
 [dependencies]
+async-trait   = "0.1.56"
 concat-string = "1.0.1"
 doc-comment   = "0.3.3"
 figlet-rs     = "0.1.3"
@@ -57,14 +58,13 @@ version = "0.9.1"
 features = ["debug-print", "macros", "runtime-async-std-native-tls"]
 default-features = false
 optional = true
-
-[dependencies.sea-orm-migration]
-version = "0.9.1"
+[dependencies.sea-schema]
+version = "0.9.3"
 optional = true
 
 [features]
 default  = []
-database = ["sea-orm", "sea-orm-migration"]
+database = ["sea-orm", "sea-schema"]
 mysql    = ["database", "sea-orm/sqlx-mysql"]
 postgres = ["database", "sea-orm/sqlx-postgres"]
 sqlite   = ["database", "sea-orm/sqlx-sqlite"]

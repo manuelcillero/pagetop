@@ -5,6 +5,8 @@ use crate::util::{single_type_name, Handler};
 #[cfg(feature = "database")]
 use crate::db::MigrationItem;
 
+pub type ModuleStaticRef = &'static dyn ModuleTrait;
+
 pub trait BaseModule {
     fn single_name(&self) -> &'static str;
 }
@@ -21,7 +23,7 @@ pub trait ModuleTrait: BaseModule + Send + Sync {
         None
     }
 
-    fn dependencies(&self) -> Vec<&'static dyn ModuleTrait> {
+    fn dependencies(&self) -> Vec<ModuleStaticRef> {
         vec![]
     }
 

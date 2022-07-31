@@ -27,6 +27,8 @@ impl Application {
         #[cfg(feature = "database")]
         LazyStatic::force(&super::db::DBCONN);
 
+        // Deshabilita los módulos indicados por la aplicación.
+        module::all::disable_modules(app.disable_modules());
         // Habilita los módulos predeterminados.
         module::all::enable_modules(vec![&base::module::homepage::DefaultHomePage]);
         // Habilita los módulos de la aplicación.

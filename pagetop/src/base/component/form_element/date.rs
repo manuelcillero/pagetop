@@ -24,7 +24,7 @@ pub struct Date {
 impl ComponentTrait for Date {
     fn new() -> Self {
         Date::default()
-            .with_classes(ClassesOp::SetDefault,"form-item")
+            .with_classes(ClassesOp::SetDefault, "form-item")
             .with_classes(ClassesOp::AddFirst, "form-type-date")
     }
 

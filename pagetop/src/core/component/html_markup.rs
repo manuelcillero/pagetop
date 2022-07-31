@@ -6,8 +6,6 @@ pub struct HtmlMarkup {
 
 impl Default for HtmlMarkup {
     fn default() -> Self {
-        HtmlMarkup {
-            markup: html! {},
-        }
+        HtmlMarkup { markup: html! {} }
     }
 }

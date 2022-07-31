@@ -31,17 +31,23 @@ impl Favicon {
     }
 
     pub fn with_theme_color(mut self, color: &str) -> Self {
-        self.0.push(html! { meta name="theme-color" content=(color); });
+        self.0.push(html! {
+            meta name="theme-color" content=(color);
+        });
         self
     }
 
     pub fn with_ms_tile_color(mut self, color: &str) -> Self {
-        self.0.push(html! { meta name="msapplication-TileColor" content=(color); });
+        self.0.push(html! {
+            meta name="msapplication-TileColor" content=(color);
+        });
         self
     }
 
     pub fn with_ms_tile_image(mut self, image: &str) -> Self {
-        self.0.push(html! { meta name="msapplication-TileImage" content=(image); });
+        self.0.push(html! {
+            meta name="msapplication-TileImage" content=(image);
+        });
         self
     }
 

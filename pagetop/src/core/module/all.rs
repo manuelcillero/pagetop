@@ -1,4 +1,4 @@
-use super::ModuleTrait;
+use super::ModuleStaticRef;
 use crate::core::hook::add_action;
 use crate::{app, trace, LazyStatic};
 
@@ -7,29 +7,39 @@ use crate::{db::*, run_now};
 
 use std::sync::RwLock;
 
-// Enabled modules.
-static ENABLED_MODULES: LazyStatic<RwLock<Vec<&dyn ModuleTrait>>> =
+// DISABLED MODULES ********************************************************************************
+
+static DISABLED_MODULES: LazyStatic<RwLock<Vec<ModuleStaticRef>>> =
     LazyStatic::new(|| RwLock::new(Vec::new()));
 
-/* Disabled modules.
-static DISABLED_MODULES: Lazy<RwLock<Vec<&dyn ModuleTrait>>> = Lazy::new(|| {
-    RwLock::new(Vec::new())
-}); */
-
-pub fn enable_modules(modules: Vec<&'static dyn ModuleTrait>) {
-    for m in modules {
-        enable(m)
+pub fn disable_modules(modules: Vec<ModuleStaticRef>) {
+    let mut disabled_modules = DISABLED_MODULES.write().unwrap();
+    for module in modules {
+        if !disabled_modules
+            .iter()
+            .any(|m| m.handler() == module.handler())
+        {
+            trace::debug!("Disabling the \"{}\" module", module.single_name());
+            disabled_modules.push(module);
+        }
     }
 }
 
-fn enable(module: &'static dyn ModuleTrait) {
-    let mut list: Vec<&dyn ModuleTrait> = Vec::new();
-    add_to(&mut list, module);
-    list.reverse();
-    ENABLED_MODULES.write().unwrap().append(&mut list);
+// ENABLED MODULES *********************************************************************************
+
+static ENABLED_MODULES: LazyStatic<RwLock<Vec<ModuleStaticRef>>> =
+    LazyStatic::new(|| RwLock::new(Vec::new()));
+
+pub fn enable_modules(modules: Vec<ModuleStaticRef>) {
+    for module in modules {
+        let mut list: Vec<ModuleStaticRef> = Vec::new();
+        add_to_enabled(&mut list, module);
+        list.reverse();
+        ENABLED_MODULES.write().unwrap().append(&mut list);
+    }
 }
 
-fn add_to(list: &mut Vec<&dyn ModuleTrait>, module: &'static dyn ModuleTrait) {
+fn add_to_enabled(list: &mut Vec<ModuleStaticRef>, module: ModuleStaticRef) {
     if !ENABLED_MODULES
         .read()
         .unwrap()
@@ -37,21 +47,31 @@ fn add_to(list: &mut Vec<&dyn ModuleTrait>, module: &'static dyn ModuleTrait) {
         .any(|m| m.handler() == module.handler())
         && !list.iter().any(|m| m.handler() == module.handler())
     {
-        trace::debug!("Enabling module \"{}\"", module.single_name());
-        list.push(module);
+        if DISABLED_MODULES
+            .read()
+            .unwrap()
+            .iter()
+            .any(|m| m.handler() == module.handler())
+        {
+            panic!(
+                "Trying to enable \"{}\" module which is disabled",
+                module.single_name()
+            );
+        } else {
+            trace::debug!("Enabling the \"{}\" module", module.single_name());
+            list.push(module);
 
-        let mut dependencies = module.dependencies();
-        dependencies.reverse();
-        for d in dependencies.iter() {
-            add_to(list, *d);
+            let mut dependencies = module.dependencies();
+            dependencies.reverse();
+            for d in dependencies.iter() {
+                add_to_enabled(list, *d);
+            }
         }
     }
 }
-/*
-#[allow(unused_variables)]
-pub fn disable_module(module: &'static dyn ModuleTrait) {
-}
-*/
+
+// CONFIGURE MODULES *******************************************************************************
+
 pub fn modules(cfg: &mut app::web::ServiceConfig) {
     for m in ENABLED_MODULES.read().unwrap().iter() {
         m.configure_service(cfg);
@@ -68,6 +88,21 @@ pub fn register_actions() {
 
 #[cfg(feature = "database")]
 pub fn run_migrations() {
+    run_now({
+        struct Migrator;
+        impl MigratorTrait for Migrator {
+            fn migrations() -> Vec<MigrationItem> {
+                let mut migrations = vec![];
+                for m in DISABLED_MODULES.read().unwrap().iter() {
+                    migrations.append(&mut m.migrations());
+                }
+                migrations
+            }
+        }
+        Migrator::down(&app::db::DBCONN, None)
+    })
+    .unwrap();
+
     run_now({
         struct Migrator;
         impl MigratorTrait for Migrator {

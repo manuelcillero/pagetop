@@ -7,6 +7,8 @@ use crate::html::{html, Favicon, Markup};
 use crate::response::page::{Page, PageContext, PageOp};
 use crate::util::{single_type_name, Handler};
 
+pub type ThemeStaticRef = &'static dyn ThemeTrait;
+
 pub trait BaseTheme {
     fn single_name(&self) -> &'static str;
 }
