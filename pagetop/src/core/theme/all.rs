@@ -34,7 +34,7 @@ pub fn theme_by_single_name(single_name: &str) -> Option<ThemeStaticRef> {
     }
 }
 
-pub fn themes(cfg: &mut app::web::ServiceConfig) {
+pub fn configure_services(cfg: &mut app::web::ServiceConfig) {
     theme_static_files!(cfg, "/theme");
 
     for t in THEMES.read().unwrap().iter() {

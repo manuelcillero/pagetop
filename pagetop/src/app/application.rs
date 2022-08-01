@@ -51,6 +51,9 @@ impl Application {
         #[cfg(feature = "database")]
         module::all::run_migrations();
 
+        // Inicializa los módulos que lo requieran.
+        module::all::init_modules();
+
         // Ejecuta la función de inicio de la aplicación.
         trace::info!("Calling application bootstrap");
         app.bootstrap();
@@ -59,8 +62,8 @@ impl Application {
         let server = super::HttpServer::new(move || {
             super::App::new()
                 .wrap(tracing_actix_web::TracingLogger::default())
-                .configure(&module::all::modules)
-                .configure(&theme::all::themes)
+                .configure(&module::all::configure_services)
+                .configure(&theme::all::configure_services)
                 .default_service(super::web::route().to(service_not_found))
         })
         .bind(format!(

@@ -27,6 +27,8 @@ pub trait ModuleTrait: BaseModule + Send + Sync {
         vec![]
     }
 
+    fn init_module(&self) {}
+
     #[allow(unused_variables)]
     fn configure_service(&self, cfg: &mut app::web::ServiceConfig) {}
 

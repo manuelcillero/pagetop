@@ -72,7 +72,13 @@ fn add_to_enabled(list: &mut Vec<ModuleStaticRef>, module: ModuleStaticRef) {
 
 // CONFIGURE MODULES *******************************************************************************
 
-pub fn modules(cfg: &mut app::web::ServiceConfig) {
+pub fn init_modules() {
+    for m in ENABLED_MODULES.read().unwrap().iter() {
+        m.init_module();
+    }
+}
+
+pub fn configure_services(cfg: &mut app::web::ServiceConfig) {
     for m in ENABLED_MODULES.read().unwrap().iter() {
         m.configure_service(cfg);
     }
@@ -87,7 +93,7 @@ pub fn register_actions() {
 }
 
 #[cfg(feature = "database")]
-pub fn run_migrations() {
+pub(crate) fn run_migrations() {
     run_now({
         struct Migrator;
         impl MigratorTrait for Migrator {
