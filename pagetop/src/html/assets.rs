@@ -4,7 +4,7 @@ pub mod stylesheet;
 use crate::html::{html, Markup};
 
 pub trait AssetsTrait {
-    fn source(&self) -> &'static str;
+    fn source(&self) -> &str;
 
     fn weight(&self) -> isize;
 

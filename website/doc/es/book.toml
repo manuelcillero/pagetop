@@ -1,0 +1,8 @@
+[book]
+authors = ["Manuel Cillero"]
+language = "es"
+src = "src"
+title = "Guías de PageTop"
+
+[build]
+build-dir = "../../static/doc/es"

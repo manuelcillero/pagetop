@@ -63,33 +63,42 @@ async fn mdbook_page(
             Page::new()
                 .with_title(title)
                 .with_context(PageOp::AddMetadata("theme-color", "#ffffff"))
-                .with_context(PageOp::AddStyleSheet(StyleSheet::located(
-                    "/doc/css/variables.css",
-                )))
-                .with_context(PageOp::AddStyleSheet(StyleSheet::located(
-                    "/doc/css/general.css",
-                )))
-                .with_context(PageOp::AddStyleSheet(StyleSheet::located(
-                    "/doc/css/chrome.css",
-                )))
+                .with_context(PageOp::AddStyleSheet(StyleSheet::located(concat_string!(
+                    mdbook_path,
+                    "/css/variables.css"
+                ))))
+                .with_context(PageOp::AddStyleSheet(StyleSheet::located(concat_string!(
+                    mdbook_path,
+                    "/css/general.css"
+                ))))
+                .with_context(PageOp::AddStyleSheet(StyleSheet::located(concat_string!(
+                    mdbook_path,
+                    "/css/chrome.css"
+                ))))
                 .with_context(PageOp::AddStyleSheet(
-                    StyleSheet::located("/doc/css/print.css").for_media(TargetMedia::Print),
+                    StyleSheet::located(concat_string!(mdbook_path, "/css/print.css"))
+                        .for_media(TargetMedia::Print),
                 ))
-                .with_context(PageOp::AddStyleSheet(StyleSheet::located(
-                    "/doc/FontAwesome/css/font-awesome.css",
-                )))
-                .with_context(PageOp::AddStyleSheet(StyleSheet::located(
-                    "/doc/fonts/fonts.css",
-                )))
-                .with_context(PageOp::AddStyleSheet(StyleSheet::located(
-                    "/doc/highlight.css",
-                )))
-                .with_context(PageOp::AddStyleSheet(StyleSheet::located(
-                    "/doc/tomorrow-night.css",
-                )))
-                .with_context(PageOp::AddStyleSheet(StyleSheet::located(
-                    "/doc/ayu-highlight.css",
-                )))
+                .with_context(PageOp::AddStyleSheet(StyleSheet::located(concat_string!(
+                    mdbook_path,
+                    "/FontAwesome/css/font-awesome.css"
+                ))))
+                .with_context(PageOp::AddStyleSheet(StyleSheet::located(concat_string!(
+                    mdbook_path,
+                    "/fonts/fonts.css"
+                ))))
+                .with_context(PageOp::AddStyleSheet(StyleSheet::located(concat_string!(
+                    mdbook_path,
+                    "/highlight.css"
+                ))))
+                .with_context(PageOp::AddStyleSheet(StyleSheet::located(concat_string!(
+                    mdbook_path,
+                    "/tomorrow-night.css"
+                ))))
+                .with_context(PageOp::AddStyleSheet(StyleSheet::located(concat_string!(
+                    mdbook_path,
+                    "/ayu-highlight.css"
+                ))))
                 .add_to(
                     "region-content",
                     Container::new()

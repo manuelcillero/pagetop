@@ -12,7 +12,7 @@ pub enum ModeJS {
 #[rustfmt::skip]
 #[derive(Default)]
 pub struct JavaScript {
-    source : &'static str,
+    source : String,
     prefix : &'static str,
     version: &'static str,
     weight : isize,
@@ -20,8 +20,8 @@ pub struct JavaScript {
 }
 
 impl AssetsTrait for JavaScript {
-    fn source(&self) -> &'static str {
-        self.source
+    fn source(&self) -> &str {
+        self.source.as_str()
     }
 
     fn weight(&self) -> isize {
@@ -40,9 +40,12 @@ impl AssetsTrait for JavaScript {
 }
 
 impl JavaScript {
-    pub fn located(source: &'static str) -> Self {
+    pub fn located<S>(source: S) -> Self
+    where
+        S: Into<String>
+    {
         JavaScript {
-            source,
+            source: source.into(),
             ..Default::default()
         }
     }

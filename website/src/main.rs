@@ -1,8 +1,14 @@
 use pagetop::prelude::*;
+use pagetop_mdbook::BookMapResources;
+use pagetop_mdbook::MdBook;
 
 pub_const_handler!(APP_PAGETOP_WEBSITE);
 
-mod mdbook;
+include!(concat!(env!("OUT_DIR"), "/guides_en.rs"));
+static GUIDES_EN: LazyStatic<BookMapResources> = LazyStatic::new(guides_en);
+
+include!(concat!(env!("OUT_DIR"), "/guias_es.rs"));
+static GUIAS_ES: LazyStatic<BookMapResources> = LazyStatic::new(guias_es);
 
 struct PageTopWebSite;
 
@@ -12,10 +18,12 @@ impl ModuleTrait for PageTopWebSite {
     }
 
     fn dependencies(&self) -> Vec<ModuleStaticRef> {
-        vec![
-            &mdbook::MdBook,
-            &pagetop::base::module::homepage::DefaultHomePage,
-        ]
+        vec![&MdBook, &pagetop::base::module::homepage::DefaultHomePage]
+    }
+
+    fn configure_service(&self, cfg: &mut app::web::ServiceConfig) {
+        MdBook::configure_service_mdbook(cfg, "/doc/en", &GUIDES_EN);
+        MdBook::configure_service_mdbook(cfg, "/doc/es", &GUIAS_ES);
     }
 }
 
