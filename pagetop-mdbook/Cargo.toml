@@ -1,0 +1,19 @@
+[package]
+name = "pagetop-mdbook"
+version = "0.0.1"
+edition = "2021"
+
+authors = [
+    "Manuel Cillero <manuel@cillero.es>"
+]
+description = """\
+    ...\
+"""
+homepage = "https://suitepro.cillero.es/projects/pagetop"
+repository = "https://gitlab.com/manuelcillero/pagetop"
+license = "Apache-2.0 or MIT"
+
+[dependencies]
+pagetop = { path = "../pagetop" }
+static-files = "0.2.3"
+maud = { git = "https://github.com/lambda-fairy/maud", rev = "e6787cd6" }

@@ -19,6 +19,7 @@ path = "../pagetop"
 [dependencies]
 actix-web = "4.1.0"
 static-files = "0.2.3"
+#pagetop-mdbook = { path = "../pagetop-mdbook" }
 maud = { git = "https://github.com/lambda-fairy/maud", rev = "e6787cd6" }
 
 [build-dependencies]

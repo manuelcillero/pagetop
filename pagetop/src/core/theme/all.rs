@@ -1,13 +1,19 @@
 use super::ThemeStaticRef;
-use crate::{app, theme_static_files, trace, LazyStatic};
+use crate::{app, base, theme_static_files, trace, LazyStatic};
 
 use std::sync::RwLock;
 
 include!(concat!(env!("OUT_DIR"), "/theme.rs"));
 
 // Temas registrados.
-static THEMES: LazyStatic<RwLock<Vec<ThemeStaticRef>>> =
-    LazyStatic::new(|| RwLock::new(Vec::new()));
+static THEMES: LazyStatic<RwLock<Vec<ThemeStaticRef>>> = LazyStatic::new(|| {
+    RwLock::new(vec![
+        &base::theme::aliner::Aliner,
+        &base::theme::minimal::Minimal,
+        &base::theme::bootsier::Bootsier,
+        &base::theme::bulmix::Bulmix,
+    ])
+});
 
 pub fn register_themes(themes: Vec<ThemeStaticRef>) {
     let mut registered_themes = THEMES.write().unwrap();

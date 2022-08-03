@@ -1,15 +1,8 @@
-use actix_web::ResponseError;
 use pagetop::prelude::*;
 
-use static_files::Resource;
-
-use std::collections::HashMap;
+pub type BookMapResources = std::collections::HashMap<&'static str, static_files::Resource>;
 
 pub_const_handler!(MODULE_MDBOOK);
-
-include!(concat!(env!("OUT_DIR"), "/mdbook.rs"));
-
-static MDBOOK: LazyStatic<HashMap<&'static str, Resource>> = LazyStatic::new(generate);
 
 pub struct MdBook;
 
@@ -17,43 +10,40 @@ impl ModuleTrait for MdBook {
     fn handler(&self) -> Handler {
         MODULE_MDBOOK
     }
-
-    fn configure_service(&self, cfg: &mut app::web::ServiceConfig) {
-        configure_mdbook_service(cfg, "/doc/", &MDBOOK);
-    }
 }
 
-fn configure_mdbook_service(
-    cfg: &mut app::web::ServiceConfig,
-    url_root: &'static str,
-    book: &'static HashMap<&'static str, Resource>,
-) {
-    let url = url_root.trim_end_matches('/');
-    let url_len = url.len() + 1;
-    cfg.service(
-        app::web::scope(url)
-            .route(
-                "{tail:.*html$}",
-                app::web::get()
-                    .to(move |request: app::HttpRequest| mdbook_page(request, url_len, book)),
-            )
-            .route(
-                "{tail:.*$}",
-                app::web::get()
-                    .to(move |request: app::HttpRequest| mdbook_resource(request, url_len, book)),
-            ),
-    );
+impl MdBook {
+    pub fn configure_service_mdbook(
+        cfg: &mut app::web::ServiceConfig,
+        mdbook_path: &'static str,
+        mdbook_map: &'static BookMapResources,
+    ) {
+        let path = mdbook_path.trim_end_matches('/');
+        cfg.service(
+            app::web::scope(path)
+                .route(
+                    "{tail:.*html$}",
+                    app::web::get().to(move |request: app::HttpRequest| {
+                        mdbook_page(request, path, mdbook_map)
+                    }),
+                )
+                .route(
+                    "{tail:.*$}",
+                    app::web::get().to(move |request: app::HttpRequest| {
+                        mdbook_resource(request, path, mdbook_map)
+                    }),
+                ),
+        );
+    }
 }
 
 async fn mdbook_page(
     request: app::HttpRequest,
-    v: usize,
-    book: &HashMap<&'static str, Resource>,
+    mdbook_path: &'static str,
+    mdbook_map: &'static BookMapResources,
 ) -> ResultPage<Markup, FatalError> {
-    // Remove initial "/doc/" from path:
-    let path = &request.path()[v..];
-
-    if let Some(content) = book.get(path) {
+    let path_len = mdbook_path.len() + 1;
+    if let Some(content) = mdbook_map.get(&request.path()[path_len..]) {
         if let Ok(html) = std::str::from_utf8(content.data) {
             let _lang = extract("Lang", html);
             let title = match extract("Title", html) {
@@ -117,15 +107,13 @@ async fn mdbook_page(
 
 async fn mdbook_resource(
     request: app::HttpRequest,
-    v: usize,
-    book: &HashMap<&'static str, Resource>,
+    mdbook_path: &'static str,
+    mdbook_map: &'static BookMapResources,
 ) -> app::HttpResponse {
-    // Remove initial "/doc/" from path:
-    let path = &request.path()[v..];
-
+    let path_len = mdbook_path.len() + 1;
     // From https://github.com/kilork/actix-web-static-files/blob/master/src/resource_files.rs, see
     // functions respond_to(), any_match() and none_match().
-    if let Some(file) = &book.get(path) {
+    if let Some(file) = &mdbook_map.get(&request.path()[path_len..]) {
         let etag = Some(app::http::header::EntityTag::new_strong(format!(
             "{:x}:{:x}",
             file.data.len(),

@@ -1,5 +1,6 @@
 use crate::app;
 use crate::core::hook::HookAction;
+use crate::core::theme::ThemeStaticRef;
 use crate::util::{single_type_name, Handler};
 
 #[cfg(feature = "database")]
@@ -27,10 +28,13 @@ pub trait ModuleTrait: BaseModule + Send + Sync {
         vec![]
     }
 
-    fn init_module(&self) {}
+    fn uninstall_modules(&self) -> Vec<ModuleStaticRef> {
+        vec![]
+    }
 
-    #[allow(unused_variables)]
-    fn configure_service(&self, cfg: &mut app::web::ServiceConfig) {}
+    fn themes(&self) -> Vec<ThemeStaticRef> {
+        vec![]
+    }
 
     fn actions(&self) -> Vec<HookAction> {
         vec![]
@@ -41,6 +45,11 @@ pub trait ModuleTrait: BaseModule + Send + Sync {
     fn migrations(&self) -> Vec<MigrationItem> {
         vec![]
     }
+
+    fn init(&self) {}
+
+    #[allow(unused_variables)]
+    fn configure_service(&self, cfg: &mut app::web::ServiceConfig) {}
 }
 
 impl<M: ?Sized + ModuleTrait> BaseModule for M {

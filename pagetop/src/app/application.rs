@@ -1,11 +1,13 @@
-use super::{fatal_error::FatalError, AppTrait};
+use super::fatal_error::FatalError;
 use crate::config::SETTINGS;
+use crate::core::module::ModuleStaticRef;
 use crate::core::{module, theme};
 use crate::html::Markup;
 use crate::response::page::ResultPage;
-use crate::{base, trace, LazyStatic};
+use crate::LazyStatic;
 
 use actix_web::dev::Server;
+
 use std::io::Error;
 
 pub struct Application {
@@ -13,7 +15,7 @@ pub struct Application {
 }
 
 impl Application {
-    pub async fn prepare(app: impl AppTrait) -> Result<Self, Error> {
+    pub async fn prepare(app: ModuleStaticRef) -> Result<Self, Error> {
         // Rótulo de presentación.
         super::banner::print_on_startup();
 
@@ -23,40 +25,25 @@ impl Application {
         // Valida el identificador de idioma.
         LazyStatic::force(&super::locale::LANGID);
 
-        // Conecta con la base de datos (opcional).
         #[cfg(feature = "database")]
+        // Conecta con la base de datos.
         LazyStatic::force(&super::db::DBCONN);
 
-        // Deshabilita los módulos indicados por la aplicación.
-        module::all::disable_modules(app.disable_modules());
-        // Habilita los módulos predeterminados.
-        module::all::enable_modules(vec![&base::module::homepage::DefaultHomePage]);
-        // Habilita los módulos de la aplicación.
-        module::all::enable_modules(app.enable_modules());
+        // Registra los módulos de la aplicación.
+        module::all::register_modules(app);
 
-        // Registra los temas predeterminados.
-        theme::all::register_themes(vec![
-            &base::theme::aliner::Aliner,
-            &base::theme::minimal::Minimal,
-            &base::theme::bootsier::Bootsier,
-            &base::theme::bulmix::Bulmix,
-        ]);
-        // Registra los temas de la aplicación.
-        theme::all::register_themes(app.themes());
+        // Registra los temas de los módulos.
+        module::all::register_themes();
 
-        // Registra las acciones de todos los módulos.
+        // Registra acciones de los módulos.
         module::all::register_actions();
 
-        // Ejecuta actualizaciones pendientes de la base de datos (opcional).
-        #[cfg(feature = "database")]
-        module::all::run_migrations();
-
-        // Inicializa los módulos que lo requieran.
+        // Inicializa los módulos.
         module::all::init_modules();
 
-        // Ejecuta la función de inicio de la aplicación.
-        trace::info!("Calling application bootstrap");
-        app.bootstrap();
+        #[cfg(feature = "database")]
+        // Ejecuta actualizaciones pendientes de la base de datos.
+        module::all::run_migrations();
 
         // Prepara el servidor web.
         let server = super::HttpServer::new(move || {

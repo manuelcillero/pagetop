@@ -13,9 +13,6 @@ pub mod locale;
 #[cfg(feature = "database")]
 pub mod db;
 
-mod definition;
-pub use definition::AppTrait;
-
 pub mod application;
 
 pub mod fatal_error;
