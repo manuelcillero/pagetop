@@ -1,0 +1,65 @@
+#sidebar,
+#menu-bar,
+#mdbook .nav-chapters,
+#mdbook .mobile-nav-chapters {
+	display: none;
+}
+
+#mdbook,
+#page-wrapper {
+	margin: 0;
+	padding: 0;
+	max-width: none;
+	transform: none !important;
+	overflow-y: initial;
+}
+
+#content {
+	max-width: none;
+	margin: 0;
+	padding: 0;
+}
+
+#mdbook .page {
+	overflow-y: initial;
+}
+
+#mdbook code {
+	background-color: #eeeeee;
+	border-radius: 5px;
+
+	/* Force background to be printed in Chrome */
+	-webkit-print-color-adjust: exact;
+}
+
+#mdbook pre > .buttons {
+	z-index: 2;
+}
+
+#mdbook a,
+#mdbook a:visited,
+#mdbook a:active,
+#mdbook a:hover {
+	color: #4183c4;
+	text-decoration: none;
+}
+
+#mdbook h1,
+#mdbook h2,
+#mdbook h3,
+#mdbook h4,
+#mdbook h5,
+#mdbook h6 {
+	page-break-inside: avoid;
+	page-break-after: avoid;
+}
+
+#mdbook pre,
+#mdbook code {
+	page-break-inside: avoid;
+	white-space: pre-wrap;
+}
+
+#mdbook .fa {
+	display: none !important;
+}

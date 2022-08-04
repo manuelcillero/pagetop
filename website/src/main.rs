@@ -22,8 +22,9 @@ impl ModuleTrait for PageTopWebSite {
     }
 
     fn configure_service(&self, cfg: &mut app::web::ServiceConfig) {
-        MdBook::configure_service_mdbook(cfg, "/doc/en", &GUIDES_EN);
-        MdBook::configure_service_mdbook(cfg, "/doc/es", &GUIAS_ES);
+        MdBook::configure_mdbook_common(cfg);
+        MdBook::configure_mdbook_service(cfg, "/doc/en", &GUIDES_EN);
+        MdBook::configure_mdbook_service(cfg, "/doc/es", &GUIAS_ES);
     }
 }
 

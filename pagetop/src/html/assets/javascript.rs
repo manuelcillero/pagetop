@@ -42,7 +42,7 @@ impl AssetsTrait for JavaScript {
 impl JavaScript {
     pub fn located<S>(source: S) -> Self
     where
-        S: Into<String>
+        S: Into<String>,
     {
         JavaScript {
             source: source.into(),

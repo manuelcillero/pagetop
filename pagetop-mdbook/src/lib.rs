@@ -1,8 +1,10 @@
 use pagetop::prelude::*;
 
-pub type BookMapResources = std::collections::HashMap<&'static str, static_files::Resource>;
-
 pub_const_handler!(MODULE_MDBOOK);
+
+include!(concat!(env!("OUT_DIR"), "/mdbook.rs"));
+
+pub type BookMapResources = std::collections::HashMap<&'static str, static_files::Resource>;
 
 pub struct MdBook;
 
@@ -13,7 +15,11 @@ impl ModuleTrait for MdBook {
 }
 
 impl MdBook {
-    pub fn configure_service_mdbook(
+    pub fn configure_mdbook_common(cfg: &mut app::web::ServiceConfig) {
+        theme_static_files!(cfg, "/mdbook/static");
+    }
+
+    pub fn configure_mdbook_service(
         cfg: &mut app::web::ServiceConfig,
         mdbook_path: &'static str,
         mdbook_map: &'static BookMapResources,
@@ -63,42 +69,34 @@ async fn mdbook_page(
             Page::new()
                 .with_title(title)
                 .with_context(PageOp::AddMetadata("theme-color", "#ffffff"))
-                .with_context(PageOp::AddStyleSheet(StyleSheet::located(concat_string!(
-                    mdbook_path,
-                    "/css/variables.css"
-                ))))
-                .with_context(PageOp::AddStyleSheet(StyleSheet::located(concat_string!(
-                    mdbook_path,
-                    "/css/general.css"
-                ))))
-                .with_context(PageOp::AddStyleSheet(StyleSheet::located(concat_string!(
-                    mdbook_path,
-                    "/css/chrome.css"
-                ))))
+                .with_context(PageOp::AddStyleSheet(StyleSheet::located(
+                    "/mdbook/static/css/variables.css",
+                )))
+                .with_context(PageOp::AddStyleSheet(StyleSheet::located(
+                    "/mdbook/static/css/general.css",
+                )))
+                .with_context(PageOp::AddStyleSheet(StyleSheet::located(
+                    "/mdbook/static/css/chrome.css",
+                )))
                 .with_context(PageOp::AddStyleSheet(
-                    StyleSheet::located(concat_string!(mdbook_path, "/css/print.css"))
+                    StyleSheet::located("/mdbook/static/css/print.css")
                         .for_media(TargetMedia::Print),
                 ))
-                .with_context(PageOp::AddStyleSheet(StyleSheet::located(concat_string!(
-                    mdbook_path,
-                    "/FontAwesome/css/font-awesome.css"
-                ))))
-                .with_context(PageOp::AddStyleSheet(StyleSheet::located(concat_string!(
-                    mdbook_path,
-                    "/fonts/fonts.css"
-                ))))
-                .with_context(PageOp::AddStyleSheet(StyleSheet::located(concat_string!(
-                    mdbook_path,
-                    "/highlight.css"
-                ))))
-                .with_context(PageOp::AddStyleSheet(StyleSheet::located(concat_string!(
-                    mdbook_path,
-                    "/tomorrow-night.css"
-                ))))
-                .with_context(PageOp::AddStyleSheet(StyleSheet::located(concat_string!(
-                    mdbook_path,
-                    "/ayu-highlight.css"
-                ))))
+                .with_context(PageOp::AddStyleSheet(StyleSheet::located(
+                    "/mdbook/static/FontAwesome/css/font-awesome.css",
+                )))
+                .with_context(PageOp::AddStyleSheet(StyleSheet::located(
+                    "/mdbook/static/fonts/fonts.css",
+                )))
+                .with_context(PageOp::AddStyleSheet(StyleSheet::located(
+                    "/mdbook/static/highlight.css",
+                )))
+                .with_context(PageOp::AddStyleSheet(StyleSheet::located(
+                    "/mdbook/static/tomorrow-night.css",
+                )))
+                .with_context(PageOp::AddStyleSheet(StyleSheet::located(
+                    "/mdbook/static/ayu-highlight.css",
+                )))
                 .add_to(
                     "region-content",
                     Container::new()

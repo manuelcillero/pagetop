@@ -1,0 +1,8 @@
+[book]
+authors = ["Author Name"]
+language = "en"
+src = "src"
+title = "mdBook Title"
+
+[build]
+build-dir = "../static/doc"
