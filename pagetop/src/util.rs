@@ -1,3 +1,90 @@
+pub use static_files::Resource as StaticResource;
+
+use std::path::Path;
+
+pub type HashMapResources = std::collections::HashMap<&'static str, StaticResource>;
+
+/// This function uses the [static_files](https://docs.rs/static-files/latest/static_files/) library
+/// to embed at compile time a bundle of static files in your binary.
+///
+/// Just create the folder with static resources in your project (for example `static`):
+///
+/// ```bash
+/// cd project_dir
+/// mkdir static
+/// echo "Hello, world" > static/hello
+/// ```
+///
+/// Add to `Cargo.toml` the required dependencies:
+///
+/// ```toml
+/// [dependencies]
+/// pagetop = { ... }
+/// static-files = "0.2.3"
+///
+/// [build-dependencies]
+/// pagetop = { ... }
+/// ```
+///
+/// Add `build.rs` with call to bundle resources:
+///
+/// ```rust#ignore
+/// use pagetop::util::bundle_resources;
+///
+/// fn main() -> std::io::Result<()> {
+///     bundle_resources("./static", "guides", None)
+/// }
+/// ```
+///
+/// This will create the resources file "guides.rs" in the standard output directory from files
+/// located at "./static" folder.
+///
+/// Optionally, you can also pass a function to filter the files in the "./static" folder that
+/// should be included in the resources file:
+///
+/// ```rust#ignore
+/// use pagetop::util::bundle_resources;
+///
+/// fn main() -> std::io::Result<()> {
+///     bundle_resources("./static", "guides", Some(except_css_dir))
+/// }
+///
+/// fn except_css_dir(p: &Path) -> bool {
+///     if let Some(parent) = p.parent() {
+///         ! matches!(parent.to_str(), Some("/css"))
+///     }
+///     true
+/// }
+/// ```
+///
+/// Finally, a module called "resources_guides" will be compiled with your project. And the function
+/// to embed the generated HashMap resources collection in your code will be "bundle_guides":
+///
+/// ```rust#ignore
+/// use pagetop::prelude::*;
+///
+/// include!(concat!(env!("OUT_DIR"), "/guides.rs"));
+/// static GUIDES: LazyStatic<HashMapResources> = LazyStatic::new(bundle_guides);
+/// ```
+///
+/// You can build more than one resources file to compile with your project.
+pub fn bundle_resources(
+    from_dir: &str,
+    with_name: &str,
+    filtering: Option<fn(p: &Path) -> bool>,
+) -> std::io::Result<()> {
+    let mut r = static_files::resource_dir(from_dir);
+    r.with_generated_filename(
+        Path::new(std::env::var("OUT_DIR").unwrap().as_str()).join(format!("{}.rs", with_name)),
+    );
+    r.with_module_name(format!("resources_{}", with_name));
+    r.with_generated_fn(format!("bundle_{}", with_name));
+    if let Some(filter_files) = filtering {
+        r.with_filter(filter_files);
+    }
+    r.build()
+}
+
 pub type Handler = u64;
 
 // https://stackoverflow.com/a/71464396
@@ -60,7 +147,7 @@ pub fn single_type_name<T: ?Sized>() -> &'static str {
 #[macro_export]
 /// Macro para construir grupos de pares clave-valor.
 ///
-/// ```
+/// ```rust#ignore
 /// let args = args![
 ///     "userName" => "Roberto",
 ///     "photoCount" => 3,
@@ -78,11 +165,11 @@ macro_rules! args {
 }
 
 #[macro_export]
-macro_rules! theme_static_files {
-    ( $cfg:ident, $dir:expr ) => {{
+macro_rules! configure_service_for_static_files {
+    ( $cfg:ident, $dir:expr, $embed:ident ) => {{
         let static_files = &$crate::config::SETTINGS.dev.static_files;
         if static_files.is_empty() {
-            $cfg.service($crate::app::ResourceFiles::new($dir, generate()));
+            $cfg.service($crate::app::ResourceFiles::new($dir, $embed()));
         } else {
             $cfg.service(
                 $crate::app::ActixFiles::new($dir, $crate::concat_string!(static_files, $dir))

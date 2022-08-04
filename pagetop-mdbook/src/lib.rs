@@ -1,10 +1,10 @@
 use pagetop::prelude::*;
 
+pub mod util;
+
 pub_const_handler!(MODULE_MDBOOK);
 
 include!(concat!(env!("OUT_DIR"), "/mdbook.rs"));
-
-pub type BookMapResources = std::collections::HashMap<&'static str, static_files::Resource>;
 
 pub struct MdBook;
 
@@ -15,14 +15,14 @@ impl ModuleTrait for MdBook {
 }
 
 impl MdBook {
-    pub fn configure_mdbook_common(cfg: &mut app::web::ServiceConfig) {
-        theme_static_files!(cfg, "/mdbook/static");
+    pub fn configure_service_for_common_resources(cfg: &mut app::web::ServiceConfig) {
+        configure_service_for_static_files!(cfg, "/mdbook/static", bundle_mdbook);
     }
 
-    pub fn configure_mdbook_service(
+    pub fn configure_service_for_mdbook(
         cfg: &mut app::web::ServiceConfig,
         mdbook_path: &'static str,
-        mdbook_map: &'static BookMapResources,
+        mdbook_map: &'static HashMapResources,
     ) {
         let path = mdbook_path.trim_end_matches('/');
         cfg.service(
@@ -46,7 +46,7 @@ impl MdBook {
 async fn mdbook_page(
     request: app::HttpRequest,
     mdbook_path: &'static str,
-    mdbook_map: &'static BookMapResources,
+    mdbook_map: &'static HashMapResources,
 ) -> ResultPage<Markup, FatalError> {
     let path_len = mdbook_path.len() + 1;
     if let Some(content) = mdbook_map.get(&request.path()[path_len..]) {
@@ -115,7 +115,7 @@ async fn mdbook_page(
 async fn mdbook_resource(
     request: app::HttpRequest,
     mdbook_path: &'static str,
-    mdbook_map: &'static BookMapResources,
+    mdbook_map: &'static HashMapResources,
 ) -> app::HttpResponse {
     let path_len = mdbook_path.len() + 1;
     // From https://github.com/kilork/actix-web-static-files/blob/master/src/resource_files.rs, see

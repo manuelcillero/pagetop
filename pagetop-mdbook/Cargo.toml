@@ -19,4 +19,4 @@ static-files = "0.2.3"
 maud = { git = "https://github.com/lambda-fairy/maud", rev = "e6787cd6" }
 
 [build-dependencies]
-static-files = "0.2.3"
+pagetop = { path = "../pagetop" }

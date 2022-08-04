@@ -1,20 +1,19 @@
-use static_files::resource_dir;
-
-use std::env;
 use std::path::Path;
 
 fn main() -> std::io::Result<()> {
-    build_resource_dir("./static/theme", "theme")?;
-    build_resource_dir("./static/aliner", "aliner")?;
-    build_resource_dir("./static/bootsier", "bootsier")?;
-    build_resource_dir("./static/bulmix", "bulmix")
+    bundle_resources("./static/theme", "theme")?;
+    bundle_resources("./static/aliner", "aliner")?;
+    bundle_resources("./static/bootsier", "bootsier")?;
+    bundle_resources("./static/bulmix", "bulmix")
 }
 
-fn build_resource_dir(dir: &str, name: &str) -> std::io::Result<()> {
-    let mut resource = resource_dir(dir);
-    resource.with_generated_filename(
-        Path::new(env::var("OUT_DIR").unwrap().as_str()).join(format!("{}.rs", name)),
+/// This function is a simplified version of pagetop::util::bundle_resources().
+pub fn bundle_resources(from_dir: &str, with_name: &str) -> std::io::Result<()> {
+    let mut r = static_files::resource_dir(from_dir);
+    r.with_generated_filename(
+        Path::new(std::env::var("OUT_DIR").unwrap().as_str()).join(format!("{}.rs", with_name)),
     );
-    resource.with_module_name(format!("resources_{}", name));
-    resource.build()
+    r.with_module_name(format!("resources_{}", with_name));
+    r.with_generated_fn(format!("bundle_{}", with_name));
+    r.build()
 }
