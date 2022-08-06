@@ -26,7 +26,7 @@ pub type HashMapResources = std::collections::HashMap<&'static str, StaticResour
 /// pagetop = { ... }
 /// ```
 ///
-/// Add `build.rs` with call to bundle resources:
+/// Add `build.rs` with call to bundle resources (*guides* will be the magic word in this example):
 ///
 /// ```rust#ignore
 /// use pagetop::util::bundle_resources;
@@ -36,10 +36,7 @@ pub type HashMapResources = std::collections::HashMap<&'static str, StaticResour
 /// }
 /// ```
 ///
-/// This will create the resources file "guides.rs" in the standard output directory from files
-/// located at "./static" folder.
-///
-/// Optionally, you can also pass a function to filter the files in the "./static" folder that
+/// Optionally, you can pass a function to filter those files into the `./static` folder which
 /// should be included in the resources file:
 ///
 /// ```rust#ignore
@@ -51,20 +48,24 @@ pub type HashMapResources = std::collections::HashMap<&'static str, StaticResour
 ///
 /// fn except_css_dir(p: &Path) -> bool {
 ///     if let Some(parent) = p.parent() {
-///         ! matches!(parent.to_str(), Some("/css"))
+///         !matches!(parent.to_str(), Some("/css"))
 ///     }
 ///     true
 /// }
 /// ```
 ///
-/// Finally, a module called "resources_guides" will be compiled with your project. And the function
-/// to embed the generated HashMap resources collection in your code will be "bundle_guides":
+/// This will create a file called `guides.rs` where all output and intermediate artifacts are
+/// placed, see [OUT_DIR](https://doc.rust-lang.org/cargo/reference/environment-variables.html).
+///
+/// You don't need to access this file, just include it in your source code and a module called
+/// `resources_guides` will be added to your project. Use the function `bundle_guides` to embed the
+/// generated HashMap resources collection:
 ///
 /// ```rust#ignore
 /// use pagetop::prelude::*;
 ///
 /// include!(concat!(env!("OUT_DIR"), "/guides.rs"));
-/// static GUIDES: LazyStatic<HashMapResources> = LazyStatic::new(bundle_guides);
+/// static RESOURCES: LazyStatic<HashMapResources> = LazyStatic::new(bundle_guides);
 /// ```
 ///
 /// You can build more than one resources file to compile with your project.
@@ -73,16 +74,16 @@ pub fn bundle_resources(
     with_name: &str,
     filtering: Option<fn(p: &Path) -> bool>,
 ) -> std::io::Result<()> {
-    let mut r = static_files::resource_dir(from_dir);
-    r.with_generated_filename(
+    let mut bundle = static_files::resource_dir(from_dir);
+    bundle.with_generated_filename(
         Path::new(std::env::var("OUT_DIR").unwrap().as_str()).join(format!("{}.rs", with_name)),
     );
-    r.with_module_name(format!("resources_{}", with_name));
-    r.with_generated_fn(format!("bundle_{}", with_name));
+    bundle.with_module_name(format!("resources_{}", with_name));
+    bundle.with_generated_fn(format!("bundle_{}", with_name));
     if let Some(filter_files) = filtering {
-        r.with_filter(filter_files);
+        bundle.with_filter(filter_files);
     }
-    r.build()
+    bundle.build()
 }
 
 pub type Handler = u64;
