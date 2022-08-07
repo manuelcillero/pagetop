@@ -30,6 +30,7 @@ async fn demo() -> ResultPage<Markup, FatalError> {
         .with_context(PageOp::AddStyleSheet(StyleSheet::located(
             "/theme/module/homepage/styles.css",
         )))
+        .with_body_classes(ClassesOp::AddFirst, "default-homepage")
         .add_to("region-content", hello_world())
         .add_to("region-content", welcome())
         .add_to("region-content", about_pagetop())
@@ -54,34 +55,32 @@ fn hello_world() -> Container {
                     .with_component(
                         Paragraph::with(html! {
                             (e("hello_intro", &args![
-                                "app" => format!("<strong>{}</strong>", &SETTINGS.app.name)
+                                "app" => format!("<span class=\"app-name\">{}</span>", &SETTINGS.app.name)
                             ]))
                         })
                         .with_display(ParagraphDisplay::Small),
                     )
                     .with_component(Paragraph::with(html! {
-                        (e("hello_pagetop", &args![
-                            "pagetop" => "<a href=\"https://pagetop-rs\">PageTop</a>"
+                        (e("hello_powered", &args![
+                            "pagetop" => "<a href=\"https://pagetop.cillero.es\" target=\"_blank\">PageTop</a>"
                         ]))
                     }))
                     .with_component(
                         Anchor::button(
-                            "#",
-                            html! {
-                                ("Offered services")
-                            },
+                            "https://gitlab.com/manuelcillero/pagetop",
+                            html! { (l("hello_code")) },
                         )
-                        .with_left_icon(Icon::with("card-checklist"))
-                        .with_classes(ClassesOp::Add, "services-link"),
+                        .with_target(AnchorTarget::Blank)
+                        .with_left_icon(Icon::with("git"))
+                        .with_classes(ClassesOp::Add, "code-link"),
                     )
                     .with_component(
-                        Anchor::button(
-                            "#",
-                            html! {
-                                ("Get quote")
-                            },
+                        Anchor::link(
+                            "#welcome",
+                            html! { (l("hello_welcome")) },
                         )
-                        .with_left_icon(Icon::with("envelope-open-heart-fill")),
+                        .with_left_icon(Icon::with("arrow-down-circle-fill"))
+                        .with_classes(ClassesOp::Add, "welcome-link"),
                     ),
             )
             .with_column(
@@ -97,11 +96,13 @@ fn welcome() -> Container {
         .with_id("welcome")
         .with_classes(ClassesOp::Add, "welcome-col-text")
         .with_component(Heading::h2(html! {
-            (t("welcome_to", &args!["app" => SETTINGS.app.name.as_str()]))
+            (l("welcome_page"))
         }))
         .with_component(
             Heading::h3(html! {
-                (l("welcome_subtitle"))
+                (e("welcome_subtitle", &args![
+                    "app" => format!("<span class=\"app-name\">{}</span>", &SETTINGS.app.name)
+                ]))
             })
             .with_display(HeadingDisplay::Subtitle),
         )

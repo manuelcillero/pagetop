@@ -3,11 +3,13 @@ module_description = Muestra una página de demostración predeterminada cuando 
 
 page_title = ¡Hola mundo!
 
-hello_intro = Esta página se utiliza para probar el correcto funcionamiento de { $app } después de la instalación.
-hello_pagetop = Esta solución web funciona con { $pagetop }.
+hello_intro = Esta página se utiliza para comprobar el correcto funcionamiento de { $app } después de la instalación.
+hello_powered = Una solución web creada con { $pagetop }.
+hello_code = Código
+hello_welcome = Bienvenida
 
-welcome_to = Bienvenido a { $app }
-welcome_subtitle = ¿Eres usuario de este sitio web?
+welcome_page = Página de bienvenida
+welcome_subtitle = ¿Utilizas los servicios de { $app }?
 welcome_text1 = Si no sabes de qué trata esta página, probablemente significa que el sitio está experimentando problemas o está pasando por un mantenimiento de rutina.
 welcome_text2 = Si el problema persiste, póngase en contacto con el administrador del sistema.
 

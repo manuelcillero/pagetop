@@ -1,13 +1,24 @@
+body.default-homepage span.app-name {
+	font-weight: bold;
+	color: inherit;
+}
+
 #hello-world {
 	padding: 2em 5%;
 }
 #hello-world a {
 	margin: .25em;
 }
-#hello-world a.services-link {
-	padding-left: 1.5em;
-	padding-right: 1.5em;
+#hello-world a.code-link {
+	padding-left: 2em;
+	padding-right: 2em;
 	border-radius: 1.5em;
+	font-size: 112.5%;
+}
+#hello-world a.welcome-link {
+	text-decoration: none;
+	display: inline-block;
+	vertical-align: middle;
 }
 
 #welcome {

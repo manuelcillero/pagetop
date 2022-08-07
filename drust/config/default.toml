@@ -19,4 +19,4 @@ db_pass = "DrU__#3T"
 tracing = "Info,pagetop=Debug,sqlx::query=Warn"
 
 [dev]
-#static_files = "pagetop/static"
+#static_files = "../pagetop/static"

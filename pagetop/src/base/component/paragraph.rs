@@ -20,7 +20,7 @@ pub struct Paragraph {
     renderable: Renderable,
     id        : IdentifierValue,
     classes   : Classes,
-    html      : HtmlMarkup,
+    components: ComponentsBundle,
     display   : ParagraphDisplay,
     template  : String,
 }
@@ -42,9 +42,14 @@ impl ComponentTrait for Paragraph {
         (self.renderable.check)(context)
     }
 
-    fn default_render(&self, _: &mut PageContext) -> Markup {
+    fn default_render(&self, context: &mut PageContext) -> Markup {
         html! {
-            p id=[self.id().get()] class=[self.classes().get()] { (*self.html()) }
+            p
+                id=[self.id().get()]
+                class=[self.classes().get()]
+            {
+                (self.components().render(context))
+            }
         }
     }
 
@@ -59,7 +64,7 @@ impl ComponentTrait for Paragraph {
 
 impl Paragraph {
     pub fn with(html: Markup) -> Self {
-        Paragraph::new().with_html(html)
+        Paragraph::new().with_component(Html::with(html))
     }
 
     // Paragraph BUILDER.
@@ -84,8 +89,8 @@ impl Paragraph {
         self
     }
 
-    pub fn with_html(mut self, html: Markup) -> Self {
-        self.alter_html(html);
+    pub fn with_component(mut self, component: impl ComponentTrait) -> Self {
+        self.alter_component(component);
         self
     }
 
@@ -121,8 +126,8 @@ impl Paragraph {
         self
     }
 
-    pub fn alter_html(&mut self, html: Markup) -> &mut Self {
-        self.html.markup = html;
+    pub fn alter_component(&mut self, component: impl ComponentTrait) -> &mut Self {
+        self.components.add(component);
         self
     }
 
@@ -158,8 +163,8 @@ impl Paragraph {
         &self.classes
     }
 
-    pub fn html(&self) -> &Markup {
-        &self.html.markup
+    pub fn components(&self) -> &ComponentsBundle {
+        &self.components
     }
 
     pub fn display(&self) -> &ParagraphDisplay {

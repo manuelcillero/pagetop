@@ -7,7 +7,7 @@ pub type HashMapResources = std::collections::HashMap<&'static str, StaticResour
 /// This function uses the [static_files](https://docs.rs/static-files/latest/static_files/) library
 /// to embed at compile time a bundle of static files in your binary.
 ///
-/// Just create the folder with static resources in your project (for example `static`):
+/// Just create folder with static resources in your project (for example `static`):
 ///
 /// ```bash
 /// cd project_dir
@@ -54,12 +54,13 @@ pub type HashMapResources = std::collections::HashMap<&'static str, StaticResour
 /// }
 /// ```
 ///
-/// This will create a file called `guides.rs` where all output and intermediate artifacts are
-/// placed, see [OUT_DIR](https://doc.rust-lang.org/cargo/reference/environment-variables.html).
+/// This will create a file called `guides.rs` in the standard directory
+/// [OUT_DIR](https://doc.rust-lang.org/cargo/reference/environment-variables.html) where all
+/// intermediate and output artifacts are placed during compilation.
 ///
-/// You don't need to access this file, just include it in your source code and a module called
-/// `resources_guides` will be added to your project. Use the function `bundle_guides` to embed the
-/// generated HashMap resources collection:
+/// You don't need to access this file, just include it in your project source code and a module called
+/// `resources_guides` will be added. Then simply reference the `bundle_guides` function to embed
+/// the generated HashMap resources collection:
 ///
 /// ```rust#ignore
 /// use pagetop::prelude::*;

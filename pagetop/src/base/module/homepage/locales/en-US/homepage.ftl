@@ -4,10 +4,12 @@ module_description = Displays a demo homepage when none is configured.
 page_title = Hello world!
 
 hello_intro = This page is used to test the proper operation of { $app } after installation.
-hello_pagetop = This web solution is powered by { $pagetop }.
+hello_powered = This web solution is powered by { $pagetop }.
+hello_code = Code
+hello_welcome = Welcome
 
-welcome_to = Welcome to { $app }
-welcome_subtitle = Are you user of this website?
+welcome_page = Welcome Page
+welcome_subtitle = Are you user of { $app }?
 welcome_text1 = If you don't know what this page is about, this probably means that the site is either experiencing problems or is undergoing routine maintenance.
 welcome_text2 = If the problem persists, please contact your system administrator.
 
