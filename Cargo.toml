@@ -1,0 +1,11 @@
+[workspace]
+
+members = [
+    "pagetop",
+    "pagetop-admin",
+    "pagetop-user",
+    "pagetop-node",
+    "pagetop-mdbook",
+    "website",
+    "drust",
+]

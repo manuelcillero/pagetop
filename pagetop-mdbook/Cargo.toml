@@ -16,7 +16,7 @@ license = "Apache-2.0 or MIT"
 [dependencies]
 pagetop = { path = "../pagetop" }
 static-files = "0.2.3"
-maud = { git = "https://github.com/lambda-fairy/maud", rev = "e6787cd6" }
+maud = "0.24.0"
 
 [build-dependencies]
 pagetop = { path = "../pagetop" }

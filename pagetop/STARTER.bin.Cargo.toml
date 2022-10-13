@@ -12,12 +12,16 @@ path = "../pagetop"
 features = ["mysql"]
 # features = ["postgres"]
 # features = ["sqlite"]
-# En este caso hay que deshabilitar las características predeterminadas:
+# En cuyo caso habrá que deshabilitar las características predeterminadas:
 default-features = false
 
 [dependencies]
-actix-web = "4.1.0"
-# Si se usa la macro html!:
-maud = { git = "https://github.com/lambda-fairy/maud", rev = "e6787cd6" }
-# Si se requiere serialización de estructuras de datos:
+actix-web = "4.2.1"
+# Para usar la macro html! (opcional):
+maud = "0.24.0"
+# Para serializar estructuras de datos (opcional):
 serde = { version = "1.0", features = ["derive"] }
+
+[build-dependencies]
+# Para incluir archivos y recursos binarios en el ejecutable (opcional):
+pagetop = { path = "../pagetop" }

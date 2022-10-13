@@ -22,7 +22,7 @@ macro_rules! localize {
 
         #[allow(dead_code)]
         fn l(key: &str) -> String {
-            LOCALES.lookup(&LANGID, key)
+            LOCALES.lookup(&LANGID, key).unwrap_or(key.to_string())
         }
 
         #[allow(dead_code)]
@@ -30,7 +30,7 @@ macro_rules! localize {
             key: &str,
             args: &std::collections::HashMap<String, FluentValue>
         ) -> String {
-            LOCALES.lookup_with_args(&LANGID, key, args)
+            LOCALES.lookup_with_args(&LANGID, key, args).unwrap_or(key.to_string())
         }
 
         #[allow(dead_code)]
@@ -39,7 +39,7 @@ macro_rules! localize {
             args: &std::collections::HashMap<String, FluentValue>
         ) -> $crate::html::PreEscaped<String> {
             $crate::html::PreEscaped(
-                LOCALES.lookup_with_args(&LANGID, key, args)
+                LOCALES.lookup_with_args(&LANGID, key, args).unwrap_or(key.to_string())
             )
         }
     };

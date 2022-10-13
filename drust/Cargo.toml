@@ -19,7 +19,7 @@ features = ["mysql"]
 default-features = false
 
 [dependencies]
-actix-web = "4.1.0"
+actix-web = "4.2.1"
 pagetop-admin = { path = "../pagetop-admin" }
 pagetop-user = { path = "../pagetop-user" }
 pagetop-node = { path = "../pagetop-node" }

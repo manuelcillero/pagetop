@@ -8,13 +8,17 @@ edition = "2021"
 
 [dependencies.pagetop]
 path = "../pagetop"
-# Para dar soporte a bases de datos:
+# Si requiere base de datos:
 features = ["database"]
-# En este caso hay que deshabilitar las características predeterminadas:
+# En cuyo caso habrá que deshabilitar las características predeterminadas:
 default-features = false
 
 [dependencies]
-# Si se usa la macro html!:
-maud = { git = "https://github.com/lambda-fairy/maud", rev = "e6787cd6" }
-# Si se requiere serialización de estructuras de datos:
+# Para usar la macro html! (opcional):
+maud = "0.24.0"
+# Para serializar estructuras de datos (opcional):
 serde = { version = "1.0", features = ["derive"] }
+
+[build-dependencies]
+# Para incluir archivos y recursos binarios en la propia librería (opcional):
+pagetop = { path = "../pagetop" }

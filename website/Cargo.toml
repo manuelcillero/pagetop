@@ -17,10 +17,10 @@ license = "Apache-2.0 or MIT"
 path = "../pagetop"
 
 [dependencies]
-actix-web = "4.1.0"
+actix-web = "4.2.1"
 static-files = "0.2.3"
 pagetop-mdbook = { path = "../pagetop-mdbook" }
-maud = { git = "https://github.com/lambda-fairy/maud", rev = "e6787cd6" }
+maud = "0.24.0"
 
 [build-dependencies]
 pagetop = { path = "../pagetop" }
