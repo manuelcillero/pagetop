@@ -9,11 +9,9 @@ authors = [
 description = """\
     Allows content to be submitted to the site and displayed on pages.\
 """
-homepage = "https://suitepro.cillero.es/projects/pagetop"
-repository = "https://gitlab.com/manuelcillero/pagetop"
+homepage = "https://pagetop.cillero.es"
+repository = "https://github.com/manuelcillero/pagetop"
 license = "Apache-2.0 or MIT"
 
-[dependencies.pagetop]
-path = "../pagetop"
-features = ["database"]
-default-features = false
+[dependencies]
+pagetop = { path = "../pagetop", version = "0.0", features = ["database"], default-features = false }
