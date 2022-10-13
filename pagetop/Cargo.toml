@@ -12,7 +12,7 @@ description = """\
 """
 homepage = "https://pagetop.cillero.es"
 repository = "https://github.com/manuelcillero/pagetop"
-license = "Apache-2.0 or MIT"
+license = "Apache-2.0 OR MIT"
 
 keywords = [
     "web", "cms", "framework", "frontend", "ssr"
