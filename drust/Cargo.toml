@@ -9,17 +9,13 @@ authors = [
 description = """\
     A modern web Content Management System to share your world.\
 """
-homepage = "https://suitepro.cillero.es/projects/drust"
-repository = "https://gitlab.com/manuelcillero/drust"
+homepage = "https://pagetop.cillero.es"
+repository = "https://github.com/manuelcillero/pagetop"
 license = "Apache-2.0 or MIT"
-
-[dependencies.pagetop]
-path = "../pagetop"
-features = ["mysql"]
-default-features = false
 
 [dependencies]
 actix-web = "4.2.1"
-pagetop-admin = { path = "../pagetop-admin" }
-pagetop-user = { path = "../pagetop-user" }
-pagetop-node = { path = "../pagetop-node" }
+pagetop = { path = "../pagetop", version = "0.0", features = ["mysql"], default-features = false }
+pagetop-admin = { path = "../pagetop-admin", version = "0.0" }
+pagetop-user = { path = "../pagetop-user", version = "0.0" }
+pagetop-node = { path = "../pagetop-node", version = "0.0" }
