@@ -1,6 +1,6 @@
 [package]
 name = "pagetop"
-version = "0.0.26"
+version = "0.0.27"
 edition = "2021"
 
 authors = [
@@ -10,8 +10,8 @@ description = """\
     PageTop is an opinionated web development framework that uses the most stable and popular Rust \
     packages to build modular, extensible and configurable Server-side rendered solutions.\
 """
-homepage = "https://suitepro.cillero.es/projects/pagetop"
-repository = "https://gitlab.com/manuelcillero/pagetop"
+homepage = "https://pagetop.cillero.es"
+repository = "https://github.com/manuelcillero/pagetop"
 license = "Apache-2.0 or MIT"
 
 keywords = [
