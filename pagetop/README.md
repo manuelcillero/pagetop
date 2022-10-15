@@ -3,14 +3,14 @@ algunos de los crates más estables y populares para crear soluciones web modula
 configurables.
 
 
-# Advertencia
+# 🚧 Advertencia
 
-**PageTop** es un proyecto personal para aprender Rust y conocer su ecosistema. Ahora mismo sólo se
-liberan versiones de desarrollo. En este contexto la API no tiene ninguna estabilidad y los cambios
-son constantes. No puede considerarse listo para probar hasta que se libere la versión **0.1.0**.
+**PageTop** es un proyecto personal para aprender Rust y conocer su ecosistema. Sólo se liberan
+versiones de desarrollo. En este contexto la API no tiene ninguna estabilidad y los cambios son
+constantes. No puede considerarse listo para probar hasta que se libere la versión **0.1.0**.
 
 
-# Licencia
+# 📜 Licencia
 
 Este proyecto tiene licencia, de hecho tiene dos, puedes usarlo en tus propios proyectos si aplicas
 cualquiera de las siguientes a tu elección:
