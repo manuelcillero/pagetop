@@ -51,8 +51,8 @@ El repositorio se organiza en un *workspace* con los siguientes subproyectos:
 
 # 📜 Licencia
 
-Este proyecto tiene licencia, de hecho tiene dos, puedes usarlo en tus propios proyectos si aplicas
-cualquiera de las siguientes a tu elección:
+Este proyecto tiene licencia, de hecho tiene dos, puedes aplicar cualquiera de las siguientes a tu
+elección:
 
 * Licencia Apache versión 2.0
   ([LICENSE-APACHE](https://github.com/manuelcillero/pagetop/blob/main/LICENSE-APACHE) o
