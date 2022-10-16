@@ -43,14 +43,6 @@ El repositorio se organiza en un *workspace* con los siguientes subproyectos:
 * **[pagetop-node](https://github.com/manuelcillero/pagetop/tree/main/pagetop-node)**, módulo para
   crear, extender o personalizar los tipos de contenido que puede administrar un sitio web.
 
-* **[pagetop-mdbook](https://github.com/manuelcillero/pagetop/tree/main/pagetop-mdbook)**, módulo
-  que permite integrar los archivos generados por [mdBook](https://rust-lang.github.io/mdBook/) en
-  un proyecto web creado con PageTop.
-
-* **[website](https://github.com/manuelcillero/pagetop/tree/main/website)**, es una aplicación
-  creada con PageTop para presentar el entorno a la comunidad y publicar la documentación de usuario
-  ([pagetop.cillero.es](https://pagetop.cillero.es)).
-
 * **[drust](https://github.com/manuelcillero/pagetop/tree/main/drust)**, es una aplicación
   inspirada modestamente en [Drupal](https://www.drupal.org) que utiliza PageTop para crear un CMS
   (*Content Management System* o sistema de gestión de contenidos) para construir sitios web

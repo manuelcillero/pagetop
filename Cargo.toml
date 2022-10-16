@@ -5,10 +5,8 @@ members = [
     "pagetop-admin",
     "pagetop-user",
     "pagetop-node",
-    "pagetop-mdbook",
 ]
 
 exclude = [
-    "website",
     "drust",
 ]

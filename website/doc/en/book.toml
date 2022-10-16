@@ -1,8 +1,0 @@
-[book]
-authors = ["Manuel Cillero"]
-language = "en"
-src = "src"
-title = "PageTop Guides"
-
-[build]
-build-dir = "../../static/doc/en"
