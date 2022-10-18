@@ -20,8 +20,8 @@ mantener sitios web dinámicos, rápidos y seguros.
 # 🚧 Advertencia
 
 **PageTop** es un proyecto personal para aprender Rust y conocer su ecosistema. Sólo se liberan
-versiones de desarrollo. En este contexto la API no tiene ninguna estabilidad y los cambios son
-constantes. No puede considerarse listo para probar hasta que se libere la versión **0.1.0**.
+versiones de desarrollo. En este contexto la API no es estable y los cambios son constantes. No
+puede considerarse preparado hasta que se libere la versión **0.1.0**.
 
 
 # 📂 Estructura del código
