@@ -1,5 +1,4 @@
-use crate::config::SETTINGS;
-use crate::LazyStatic;
+use crate::{config, LazyStatic};
 
 use tracing_appender::non_blocking::WorkerGuard;
 use tracing_subscriber::EnvFilter;
@@ -20,14 +19,14 @@ use tracing_subscriber::EnvFilter;
 #[rustfmt::skip]
 pub static TRACING: LazyStatic<WorkerGuard> = LazyStatic::new(|| {
     let env_filter =
-        EnvFilter::try_new(&SETTINGS.log.tracing).unwrap_or_else(|_| EnvFilter::new("Info"));
+        EnvFilter::try_new(config::get("log.tracing")).unwrap_or_else(|_| EnvFilter::new("Info"));
 
-    let rolling = SETTINGS.log.rolling.to_lowercase();
+    let rolling = config::get("log.rolling").to_lowercase();
     let (non_blocking, guard) = match rolling.as_str() {
         "stdout" => tracing_appender::non_blocking(std::io::stdout()),
         _ => tracing_appender::non_blocking({
-            let path = &SETTINGS.log.path;
-            let prefix = &SETTINGS.log.prefix;
+            let path = config::get("log.path");
+            let prefix = config::get("log.prefix");
             match rolling.as_str() {
                 "daily"    => tracing_appender::rolling::daily(path, prefix),
                 "hourly"   => tracing_appender::rolling::hourly(path, prefix),
@@ -36,7 +35,7 @@ pub static TRACING: LazyStatic<WorkerGuard> = LazyStatic::new(|| {
                 _ => {
                     println!(
                         "Rolling value \"{}\" not valid. Using \"daily\". Check the settings file.",
-                        SETTINGS.log.rolling,
+                        config::get("log.rolling"),
                     );
                     tracing_appender::rolling::daily(path, prefix)
                 }
@@ -47,7 +46,7 @@ pub static TRACING: LazyStatic<WorkerGuard> = LazyStatic::new(|| {
         .with_env_filter(env_filter)
         .with_writer(non_blocking)
         .with_ansi(rolling.as_str() == "stdout");
-    match SETTINGS.log.format.to_lowercase().as_str() {
+    match config::get("log.format").to_lowercase().as_str() {
         "json"    => subscriber.json().init(),
         "full"    => subscriber.init(),
         "compact" => subscriber.compact().init(),
@@ -55,7 +54,7 @@ pub static TRACING: LazyStatic<WorkerGuard> = LazyStatic::new(|| {
         _ => {
             println!(
                 "Tracing format \"{}\" not valid. Using \"Full\". Check the settings file.",
-                SETTINGS.log.format,
+                config::get("log.format"),
             );
             subscriber.init();
         }

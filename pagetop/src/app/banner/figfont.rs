@@ -1,5 +1,4 @@
-use crate::config::SETTINGS;
-use crate::LazyStatic;
+use crate::{config, LazyStatic};
 
 use figlet_rs::FIGfont;
 
@@ -9,7 +8,7 @@ pub static FIGFONT: LazyStatic<FIGfont> = LazyStatic::new(|| {
     let speed = include_str!("speed.flf");
     let starwars = include_str!("starwars.flf");
 
-    FIGfont::from_content(match SETTINGS.app.startup_banner.to_lowercase().as_str() {
+    FIGfont::from_content(match config::get("app.startup_banner").to_lowercase().as_str() {
         "off" => slant,
         "slant" => slant,
         "small" => small,
@@ -18,7 +17,7 @@ pub static FIGFONT: LazyStatic<FIGfont> = LazyStatic::new(|| {
         _ => {
             println!(
                 "\n FIGfont \"{}\" not found for banner. Using \"Slant\". Check the settings file.",
-                SETTINGS.app.startup_banner,
+                config::get("app.startup_banner"),
             );
             slant
         }

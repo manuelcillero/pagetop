@@ -1,5 +1,4 @@
-use crate::config::SETTINGS;
-use crate::{trace, LazyStatic};
+use crate::{config, trace, LazyStatic};
 
 use unic_langid::LanguageIdentifier;
 
@@ -7,14 +6,14 @@ use unic_langid::LanguageIdentifier;
 /// (https://unicode.org/reports/tr35/tr35.html#Unicode_language_identifier)) de
 /// la aplicación, obtenido de `SETTINGS.app.language`.
 pub static LANGID: LazyStatic<LanguageIdentifier> =
-    LazyStatic::new(|| match SETTINGS.app.language.parse() {
+    LazyStatic::new(|| match config::get("app.language").parse() {
         Ok(language) => language,
         Err(_) => {
             trace::warn!(
                 "{}, {} \"{}\"! {}, {}",
                 "Failed to parse language",
                 "unrecognized Unicode Language Identifier",
-                SETTINGS.app.language,
+                config::get("app.language"),
                 "Using \"en-US\"",
                 "check the settings file",
             );
