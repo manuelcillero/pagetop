@@ -1,21 +1,28 @@
 //! Gestión de la configuración.
 //!
-//! Comprueba el modo de ejecución activo y carga la configuración asociada en forma de pares
-//! `clave = valor` incluidos en archivos [TOML](https://toml.io).
+//! Carga la configuración de la aplicación en forma de pares `clave = valor` incluidos en archivos
+//! [TOML](https://toml.io).
 //!
-//! PageTop aplica los principios de [The Twelve-Factor App](https://12factor.net/es/).
+//! La metodología [The Twelve-Factor App](https://12factor.net/es/) define **la configuración de
+//! una aplicación como todo lo que puede variar entre despliegues**, distinguiendo entornos de
+//! desarrollo, pre-producción, producción, etc.
+//!
+//! A veces las aplicaciones guardan configuraciones como constantes en el código, lo que supone una
+//! violación de esta metodología. Es necesaria una **estricta separación de configuración y
+//! código**. La configuración varía sustancialmente en cada despliegue, el código no.
+//!
+//! PageTop aplica estos principios cargando la configuración asociada al modo de ejecución activo.
 //!
 //! # ¿Cómo usar los archivos de configuración?
 //!
-//! Si tu aplicación requiere ajustes de configuración debes crear un directorio llamado *config*
-//! (ver [`CONFIG_DIR`]) al mismo nivel del archivo *Cargo.toml* de tu proyecto (o del ejecutable
-//! binario de la aplicación).
+//! Si tu aplicación requiere ajustes de configuración debes crear un directorio llamado *config* al
+//! mismo nivel del archivo *Cargo.toml* de tu proyecto (o del ejecutable binario de la aplicación).
 //!
-//! Guarda la configuración usando archivos TOML asumiendo el siguiente orden de lectura (todos los
-//! archivos son opcionales):
+//! Guarda la configuración usando archivos TOML asumiendo el siguiente orden de lectura secuencial
+//! (todos los archivos son opcionales):
 //!
-//! 1. *config/common.toml*, útil para asignar valores comunes para cualquier entorno. Estos valores
-//!    pueden ser modificados al fusionar los siguientes archivos de configuración.
+//! 1. *config/common.toml*, útil para asignar los valores comunes a cualquier entorno. Estos
+//!    valores pueden ser modificados al fusionar los archivos de configuración siguientes.
 //!
 //! 2. *config/{archivo}.toml*, donde *{archivo}* puede definirse mediante la variable de entorno
 //!    PAGETOP_RUN_MODE:
@@ -27,7 +34,25 @@
 //!       entornos de ejecución. Por ejemplo, para *devel.toml*, *staging.toml* o *production.toml*.
 //!       O también para *server1.toml* o *server2.toml*. Sólo uno será cargado.
 //!
+//!     * Normalmente estos archivos suelen ser idóneos para incluir contraseñas o configuración
+//!       sensible asociada al entorno correspondiente. Estos archivos no deberían ser publicados en
+//!       el repositorio Git por razones de seguridad.
+//!
 //! 3. *config/local.toml*, para añadir o sobrescribir ajustes.
+//!
+//! # ¿Cómo añadir valores de configuración predeterminados?
+//!
+//! ```
+//! use pagetop::{config, default_settings};
+//!
+//! // Una aplicación o un módulo podrá añadir nuevos valores de configuración predeterminados.
+//! config::add_defaults(default_settings![
+//!     // [my_app]
+//!     "my_app.test_1" => "Test 1",
+//!     "my_app.test_2" => "Test 2",
+//!     "my_app.passwd" => "Pass_1234",
+//! ]);
+//! ```
 //!
 //! # ¿Cómo leer los valores de configuración?
 //!
@@ -37,7 +62,7 @@
 //! // Obtiene el valor (String) de una clave.
 //! let app_name: String = config::get("app.name");
 //!
-//! // Obtiene el valor (del tipo indicado) de una clave.
+//! // Obtiene el valor (del tipo especificado) de una clave.
 //! let db_port: u16 = config::get_value::<u16>("database.db_port");
 //! ```
 
@@ -64,7 +89,7 @@ macro_rules! default_settings {
 }
 
 /// Directorio donde se encuentran los archivos de configuración.
-pub const CONFIG_DIR: &str = "config";
+const CONFIG_DIR: &str = "config";
 
 /// Carga los valores originales "clave = valor" de los archivos de configuración. Con
 /// [`config_map`] se asignarán los ajustes globales ([`SETTINGS`]); y se podrán asignar los ajustes
@@ -130,6 +155,7 @@ static DEFAULTS: LazyStatic<RwLock<HashMap<&str, &str>>> = LazyStatic::new(||
     ])
 );
 
+/// Una aplicación o un módulo podrá añadir nuevos valores de configuración predeterminados.
 pub fn add_defaults(defaults: HashMap<&'static str, &'static str>) {
     DEFAULTS.write().unwrap().extend(defaults);
 }
@@ -152,7 +178,7 @@ pub fn get(key: &str) -> String {
     }
 }
 
-/// Devuelve el valor (del tipo indicado) de una clave.
+/// Devuelve el valor (del tipo especificado) de una clave.
 pub fn get_value<T: FromStr + Default>(key: &str) -> T where <T as FromStr>::Err: Debug {
     match get(key).parse::<T>() {
         Ok(value) => value,
