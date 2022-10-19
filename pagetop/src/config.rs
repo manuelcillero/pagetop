@@ -1,39 +1,49 @@
 //! Gestión de la configuración.
 //!
-//! Comprueba el modo de ejecución actual y carga la configuración asociada.
+//! Comprueba el modo de ejecución activo y carga la configuración asociada en forma de pares
+//! `clave = valor` incluidos en archivos [TOML](https://toml.io).
 //!
-//! PageTop aplica los principios de [The Twelve-Factor App](https://12factor.net/es/) cargando
-//! archivos de configuración [TOML](https://toml.io) con pares `clave = valor` que pueden diferir
-//! según el modo de ejecución del entorno actual, o al migrar a otros entornos (*desarrollo*,
-//! *pre-producción*, *producción*, etc.).
+//! PageTop aplica los principios de [The Twelve-Factor App](https://12factor.net/es/).
 //!
-//! # ¿Cómo usar archivos de configuración?
+//! # ¿Cómo usar los archivos de configuración?
 //!
-//! Si tu aplicación requiere opciones de configuración, primero debes crear un directorio llamado
-//! *config* (ver [`CONFIG_DIR`]) al mismo nivel del archivo *Cargo.toml* de tu proyecto (o del
-//! archivo binario ejecutable de la aplicación).
+//! Si tu aplicación requiere ajustes de configuración debes crear un directorio llamado *config*
+//! (ver [`CONFIG_DIR`]) al mismo nivel del archivo *Cargo.toml* de tu proyecto (o del ejecutable
+//! binario de la aplicación).
 //!
-//! Luego guarda la configuración usando archivos TOML asumiendo el siguiente orden de lectura
-//! (todos los archivos son opcionales):
+//! Guarda la configuración usando archivos TOML asumiendo el siguiente orden de lectura (todos los
+//! archivos son opcionales):
 //!
-//! 1. *config/common.toml*, útil para asignar valores comunes a cualquier entorno. Estos valores
+//! 1. *config/common.toml*, útil para asignar valores comunes para cualquier entorno. Estos valores
 //!    pueden ser modificados al fusionar los siguientes archivos de configuración.
 //!
 //! 2. *config/{archivo}.toml*, donde *{archivo}* puede definirse mediante la variable de entorno
 //!    PAGETOP_RUN_MODE:
 //!
-//!     * Si no está definido, se asumirá *default* como nombre predeterminado y PageTop cargará el
+//!     * Si no está definida, se asumirá *default* como nombre predeterminado y PageTop cargará el
 //!       archivo de configuración *config/default.toml* si existe.
 //!
-//!     * De esta manera, se podrían tener diferentes opciones de configuración para diferentes
+//!     * De esta manera, se pueden tener diferentes ajustes de configuración para diferentes
 //!       entornos de ejecución. Por ejemplo, para *devel.toml*, *staging.toml* o *production.toml*.
 //!       O también para *server1.toml* o *server2.toml*. Sólo uno será cargado.
 //!
 //! 3. *config/local.toml*, para añadir o sobrescribir ajustes.
+//!
+//! # ¿Cómo leer los valores de configuración?
+//!
+//! ```
+//! use pagetop::config;
+//!
+//! // Obtiene el valor (String) de una clave.
+//! let app_name: String = config::get("app.name");
+//!
+//! // Obtiene el valor (del tipo indicado) de una clave.
+//! let db_port: u16 = config::get_value::<u16>("database.db_port");
+//! ```
 
-use crate::LazyStatic;
+use crate::{trace, LazyStatic};
 
-use config_rs::{Config, File};
+use config_rs::{Config, ConfigError, File};
 
 use std::collections::HashMap;
 use std::default::Default;
@@ -124,16 +134,31 @@ pub fn add_defaults(defaults: HashMap<&'static str, &'static str>) {
     DEFAULTS.write().unwrap().extend(defaults);
 }
 
+/// Devuelve el valor (String) de una clave.
 pub fn get(key: &str) -> String {
     match CONFIG.get_string(key) {
         Ok(value) => value,
-        _ => match DEFAULTS.read().unwrap().get(key) {
+        Err(ConfigError::NotFound(_)) => match DEFAULTS.read().unwrap().get(key) {
             Some(value) => String::from(*value),
-            _ => Default::default(),
+            _ => {
+                trace::debug!("Config value not found for key \"{}\"! Return empty string", key);
+                Default::default()
+            }
         },
+        _ => {
+            trace::warn!("Can't read config value for key \"{}\"! Return empty string", key);
+            Default::default()
+        }
     }
 }
 
+/// Devuelve el valor (del tipo indicado) de una clave.
 pub fn get_value<T: FromStr + Default>(key: &str) -> T where <T as FromStr>::Err: Debug {
-    get(key).parse::<T>().unwrap_or(Default::default())
+    match get(key).parse::<T>() {
+        Ok(value) => value,
+        _ => {
+            trace::warn!("Failed to parse value for key \"{}\"! Return default empty value", key);
+            Default::default()
+        }
+    }
 }
