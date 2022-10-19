@@ -1,4 +1,5 @@
 use super::ModuleStaticRef;
+use crate::config;
 use crate::core::hook::add_action;
 use crate::core::theme;
 use crate::{app, trace, LazyStatic};
@@ -85,6 +86,24 @@ pub fn register_actions() {
     }
 }
 
+// INIT SETTINGS ***********************************************************************************
+
+pub fn init_settings() {
+    trace::info!("initializing custom predefined settings");
+    for m in ENABLED_MODULES.read().unwrap().iter() {
+        config::add_predefined_settings(m.settings());
+    }
+}
+
+// INIT MODULES ************************************************************************************
+
+pub fn init_modules() {
+    trace::info!("Calling application bootstrap");
+    for m in ENABLED_MODULES.read().unwrap().iter() {
+        m.init();
+    }
+}
+
 // RUN MIGRATIONS **********************************************************************************
 
 #[cfg(feature = "database")]
@@ -118,15 +137,6 @@ pub fn run_migrations() {
         Migrator::down(&app::db::DBCONN, None)
     })
     .unwrap();
-}
-
-// INIT MODULES ************************************************************************************
-
-pub fn init_modules() {
-    trace::info!("Calling application bootstrap");
-    for m in ENABLED_MODULES.read().unwrap().iter() {
-        m.init();
-    }
 }
 
 // CONFIGURE SERVICES ******************************************************************************

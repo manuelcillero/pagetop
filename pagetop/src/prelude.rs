@@ -6,6 +6,7 @@ pub use crate::{
 };
 
 pub use crate::config;
+pub use crate::config::PredefinedSettings;
 
 pub use crate::trace;
 

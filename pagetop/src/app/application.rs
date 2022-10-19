@@ -38,6 +38,9 @@ impl Application {
         // Registra acciones de los módulos.
         module::all::register_actions();
 
+        // Inicializa valores predefinidos de configuración.
+        module::all::init_settings();
+
         // Inicializa los módulos.
         module::all::init_modules();
 

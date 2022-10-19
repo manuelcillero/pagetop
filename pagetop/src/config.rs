@@ -1,34 +1,32 @@
 //! Gestión de la configuración.
 //!
-//! Carga la configuración de la aplicación en forma de pares `clave = valor` incluidos en archivos
-//! [TOML](https://toml.io).
+//! Carga durante el arranque la configuración de la aplicación en forma de pares `clave = valor`
+//! recogidos en archivos [TOML](https://toml.io).
 //!
 //! La metodología [The Twelve-Factor App](https://12factor.net/es/) define **la configuración de
-//! una aplicación como todo lo que puede variar entre despliegues**, distinguiendo entornos de
-//! desarrollo, pre-producción, producción, etc.
+//! una aplicación como todo lo que puede variar entre despliegues**, diferenciando entre entornos
+//! de desarrollo, pre-producción, producción, etc.
 //!
 //! A veces las aplicaciones guardan configuraciones como constantes en el código, lo que supone una
-//! violación de esta metodología. Es necesaria una **estricta separación de configuración y
-//! código**. La configuración varía sustancialmente en cada despliegue, el código no.
+//! violación de esta metodología. Debe existir una **estricta separación entre la configuración y
+//! el código**. La configuración variará sustancialmente en cada despliegue, el código no.
 //!
-//! PageTop aplica estos principios cargando la configuración asociada al modo de ejecución activo.
+//! # Cómo usar archivos de configuración
 //!
-//! # ¿Cómo usar los archivos de configuración?
-//!
-//! Si tu aplicación requiere ajustes de configuración debes crear un directorio llamado *config* al
+//! Si tu aplicación requiere archivos de configuración debes crear un directorio llamado *config* al
 //! mismo nivel del archivo *Cargo.toml* de tu proyecto (o del ejecutable binario de la aplicación).
 //!
 //! Guarda la configuración usando archivos TOML asumiendo el siguiente orden de lectura secuencial
 //! (todos los archivos son opcionales):
 //!
-//! 1. *config/common.toml*, útil para asignar los valores comunes a cualquier entorno. Estos
-//!    valores pueden ser modificados al fusionar los archivos de configuración siguientes.
+//! 1. *config/common.toml*, útil para los ajustes comunes para cualquier entorno. Estos valores
+//!    podrán ser sobrescritos al fusionar los archivos de configuración siguientes.
 //!
 //! 2. *config/{archivo}.toml*, donde *{archivo}* puede definirse mediante la variable de entorno
 //!    PAGETOP_RUN_MODE:
 //!
-//!     * Si no está definida, se asumirá *default* como nombre predeterminado y PageTop cargará el
-//!       archivo de configuración *config/default.toml* si existe.
+//!     * Si no está definida, se asumirá *default* por defecto, y PageTop cargará el archivo de
+//!       configuración *config/default.toml* si existe.
 //!
 //!     * De esta manera, se pueden tener diferentes ajustes de configuración para diferentes
 //!       entornos de ejecución. Por ejemplo, para *devel.toml*, *staging.toml* o *production.toml*.
@@ -40,30 +38,53 @@
 //!
 //! 3. *config/local.toml*, para añadir o sobrescribir ajustes.
 //!
-//! # ¿Cómo añadir valores de configuración predeterminados?
+//! # Cómo añadir valores predefinidos de configuración
+//!
+//! Si nuestra **aplicación** o **módulo** requiere sus propios ajustes de configuración, es
+//! recomendable (aunque no imprescindible) inicializarlos antes de su uso.
+//!
+//! Sólo tienes que añadir el método [`settings()`](crate::core::module::ModuleTrait::settings) al
+//! implementar [`ModuleTrait`](crate::core::module::ModuleTrait) para tu módulo, devolviendo los
+//! nuevos valores predefinidos con la macro [`predefined_settings!`].
+//!
+//! Cuando se carga la configuración de la aplicación, estos valores podrán ser sobrescritos con los
+//! ajustes personalizados del entorno. Y sólo será realmente necesario incluir en los archivos de
+//! configuración los ajustes que difieran de los predefinidos.
 //!
 //! ```
-//! use pagetop::{config, default_settings};
+//! use pagetop::prelude::*;
 //!
-//! // Una aplicación o un módulo podrá añadir nuevos valores de configuración predeterminados.
-//! config::add_defaults(default_settings![
-//!     // [my_app]
-//!     "my_app.test_1" => "Test 1",
-//!     "my_app.test_2" => "Test 2",
-//!     "my_app.passwd" => "Pass_1234",
-//! ]);
+//! pub_const_handler!(MY_MODULE_HANDLER);
+//!
+//! pub struct MyModule;
+//!
+//! impl ModuleTrait for MyModule {
+//!     fn handler(&self) -> Handler {
+//!         MY_MODULE_HANDLER
+//!     }
+//!
+//!     fn settings(&self) -> PredefinedSettings {
+//!         predefined_settings![
+//!           // Valores predefinidos para "my_module".
+//!           "my_module.name" => "Name",
+//!           "my_module.desc" => "Description",
+//!           // Valores predefinidos para "my_module.database".
+//!           "my_module.database.db_port" => "3306"
+//!         ]
+//!     }
+//! }
 //! ```
 //!
-//! # ¿Cómo leer los valores de configuración?
+//! # Cómo obtener los valores de configuración
 //!
 //! ```
 //! use pagetop::config;
 //!
 //! // Obtiene el valor (String) de una clave.
-//! let app_name: String = config::get("app.name");
+//! let name: String = config::get("my_module.name");
 //!
 //! // Obtiene el valor (del tipo especificado) de una clave.
-//! let db_port: u16 = config::get_value::<u16>("database.db_port");
+//! let db_port: u16 = config::get_value::<u16>("my_module.database.db_port");
 //! ```
 
 use crate::{trace, LazyStatic};
@@ -77,9 +98,12 @@ use std::fmt::Debug;
 use std::str::FromStr;
 use std::sync::RwLock;
 
+pub type PredefinedSettings = HashMap<&'static str, &'static str>;
+
 #[macro_export]
-macro_rules! default_settings {
+macro_rules! predefined_settings {
     ( $($key:literal => $value:literal),* ) => {{
+        #[allow(unused_mut)]
         let mut a = std::collections::HashMap::new();
         $(
             a.insert($key, $value);
@@ -120,8 +144,8 @@ static CONFIG: LazyStatic<Config> = LazyStatic::new(|| {
         .unwrap()
 });
 
-static DEFAULTS: LazyStatic<RwLock<HashMap<&str, &str>>> = LazyStatic::new(||
-    RwLock::new(default_settings![
+static DEFAULTS: LazyStatic<RwLock<PredefinedSettings>> = LazyStatic::new(||
+    RwLock::new(predefined_settings![
         // [app]
         "app.name"               => "PageTop Application",
         "app.description"        => "Developed with the amazing PageTop framework.",
@@ -155,8 +179,8 @@ static DEFAULTS: LazyStatic<RwLock<HashMap<&str, &str>>> = LazyStatic::new(||
     ])
 );
 
-/// Una aplicación o un módulo podrá añadir nuevos valores de configuración predeterminados.
-pub fn add_defaults(defaults: HashMap<&'static str, &'static str>) {
+/// Una aplicación o módulo podrá añadir nuevos valores predefinidos de configuración.
+pub(crate) fn add_predefined_settings(defaults: PredefinedSettings) {
     DEFAULTS.write().unwrap().extend(defaults);
 }
 
