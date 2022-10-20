@@ -1,4 +1,4 @@
-use crate::config;
+use crate::config::SETTINGS;
 use crate::db::*;
 use crate::{run_now, trace, LazyStatic};
 
@@ -8,38 +8,39 @@ use tracing_unwrap::ResultExt;
 pub static DBCONN: LazyStatic<DbConn> = LazyStatic::new(|| {
     trace::info!(
         "Connecting to database \"{}\" using a pool of {} connections",
-        config::get("database.db_name"),
-        config::get("database.max_pool_size")
+        &SETTINGS.database.db_name,
+        &SETTINGS.database.max_pool_size
     );
 
-    let db_uri = match config::get("database.db_type").as_str() {
+    let db_uri = match SETTINGS.database.db_type.as_str() {
         "mysql" | "postgres" => {
             let mut tmp_uri = DbUri::parse(
                 format!(
                     "{}://{}/{}",
-                    config::get("database.db_type"),
-                    config::get("database.db_host"),
-                    config::get("database.db_name")
+                    &SETTINGS.database.db_type,
+                    &SETTINGS.database.db_host,
+                    &SETTINGS.database.db_name
                 )
                 .as_str(),
             )
             .unwrap();
             tmp_uri
-                .set_username(config::get("database.db_user").as_str())
+                .set_username(SETTINGS.database.db_user.as_str())
                 .unwrap();
             // https://github.com/launchbadge/sqlx/issues/1624
             tmp_uri
-                .set_password(Some(config::get("database.db_pass").as_str()))
+                .set_password(Some(SETTINGS.database.db_pass.as_str()))
                 .unwrap();
-            if config::get_value::<u16>("database.db_port") != 0 {
-                tmp_uri.set_port(Some(config::get_value::<u16>("database.db_port"))).unwrap();
+            if SETTINGS.database.db_port != 0 {
+                tmp_uri.set_port(Some(SETTINGS.database.db_port)).unwrap();
             }
             tmp_uri
         }
         "sqlite" => DbUri::parse(
             format!(
                 "{}://{}",
-                config::get("database.db_type"), &config::get("database.db_name")
+                &SETTINGS.database.db_type,
+                &SETTINGS.database.db_name
             )
             .as_str(),
         )
@@ -47,7 +48,7 @@ pub static DBCONN: LazyStatic<DbConn> = LazyStatic::new(|| {
         _ => {
             trace::error!(
                 "Unrecognized database type \"{}\"",
-                config::get("database.db_type")
+                &SETTINGS.database.db_type
             );
             DbUri::parse("").unwrap()
         }
@@ -55,7 +56,7 @@ pub static DBCONN: LazyStatic<DbConn> = LazyStatic::new(|| {
 
     run_now(Database::connect::<ConnectOptions>({
         let mut db_opt = ConnectOptions::new(db_uri.to_string());
-        db_opt.max_connections(config::get_value::<u32>("database.max_pool_size"));
+        db_opt.max_connections(SETTINGS.database.max_pool_size);
         db_opt
     }))
     .expect_or_log("Failed to connect to database")

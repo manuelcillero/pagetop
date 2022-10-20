@@ -1,6 +1,6 @@
 use crate::app;
-use crate::predefined_settings;
-use crate::config::PredefinedSettings;
+//use crate::predefined_settings;
+//use crate::settings::PredefinedSettings;
 use crate::core::hook::HookAction;
 use crate::core::theme::ThemeStaticRef;
 use crate::util::{single_type_name, Handler};
@@ -41,11 +41,11 @@ pub trait ModuleTrait: BaseModule + Send + Sync {
     fn actions(&self) -> Vec<HookAction> {
         vec![]
     }
-
+/*
     fn settings(&self) -> PredefinedSettings {
         predefined_settings![]
     }
-
+*/
     fn init(&self) {}
 
     #[cfg(feature = "database")]

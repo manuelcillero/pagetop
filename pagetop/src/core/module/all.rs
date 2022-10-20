@@ -1,5 +1,4 @@
 use super::ModuleStaticRef;
-use crate::config;
 use crate::core::hook::add_action;
 use crate::core::theme;
 use crate::{app, trace, LazyStatic};
@@ -87,14 +86,14 @@ pub fn register_actions() {
 }
 
 // INIT SETTINGS ***********************************************************************************
-
+/*
 pub fn init_settings() {
     trace::info!("initializing custom predefined settings");
     for m in ENABLED_MODULES.read().unwrap().iter() {
-        config::add_predefined_settings(m.settings());
+        settings::add_predefined_settings(m.settings());
     }
 }
-
+*/
 // INIT MODULES ************************************************************************************
 
 pub fn init_modules() {

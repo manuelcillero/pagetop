@@ -1,6 +1,6 @@
 use super::{BeforeRenderPageHook, PageContext, PageOp, ResultPage, HOOK_BEFORE_RENDER_PAGE};
 use crate::app::fatal_error::FatalError;
-use crate::config;
+use crate::config::SETTINGS;
 use crate::core::component::*;
 use crate::core::hook::{action_ref, run_actions};
 use crate::html::{html, AttributeValue, Classes, ClassesOp, Markup, DOCTYPE};
@@ -9,7 +9,7 @@ use crate::{trace, LazyStatic};
 use std::collections::HashMap;
 
 static DEFAULT_LANGUAGE: LazyStatic<Option<String>> = LazyStatic::new(|| {
-    let language = config::get("app.language")[..2].to_lowercase();
+    let language = SETTINGS.app.language[..2].to_lowercase();
     if !language.is_empty() {
         Some(language)
     } else {
@@ -18,7 +18,7 @@ static DEFAULT_LANGUAGE: LazyStatic<Option<String>> = LazyStatic::new(|| {
 });
 
 static DEFAULT_DIRECTION: LazyStatic<Option<String>> = LazyStatic::new(|| {
-    let direction = config::get("app.direction").to_lowercase();
+    let direction = SETTINGS.app.direction.to_lowercase();
     match direction.as_str() {
         "auto" => Some("auto".to_owned()),
         "ltr" => Some("ltr".to_owned()),
@@ -27,7 +27,7 @@ static DEFAULT_DIRECTION: LazyStatic<Option<String>> = LazyStatic::new(|| {
         _ => {
             trace::warn!(
                 "Text direction \"{}\" not valid, {}",
-                config::get("app.direction"),
+                SETTINGS.app.direction,
                 "check the settings file"
             );
             None

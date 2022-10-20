@@ -5,8 +5,7 @@ pub use crate::{
     args, concat_string, configure_service_for_static_files, pub_const_handler, LazyStatic,
 };
 
-pub use crate::config;
-pub use crate::config::PredefinedSettings;
+pub use crate::config::SETTINGS;
 
 pub use crate::trace;
 

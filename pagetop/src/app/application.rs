@@ -1,5 +1,5 @@
 use super::fatal_error::FatalError;
-use crate::config;
+use crate::config::SETTINGS;
 use crate::core::module::ModuleStaticRef;
 use crate::core::{module, theme};
 use crate::html::Markup;
@@ -39,7 +39,7 @@ impl Application {
         module::all::register_actions();
 
         // Inicializa valores predefinidos de configuración.
-        module::all::init_settings();
+        // module::all::init_settings();
 
         // Inicializa los módulos.
         module::all::init_modules();
@@ -58,8 +58,8 @@ impl Application {
         })
         .bind(format!(
             "{}:{}",
-            config::get("webserver.bind_address"),
-            config::get("webserver.bind_port")
+            &SETTINGS.webserver.bind_address,
+            &SETTINGS.webserver.bind_port
         ))?
         .run();
 
