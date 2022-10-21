@@ -16,7 +16,6 @@ where
     T: FileSource,
 {
     source: T,
-
     /// A required File will error if it cannot be found.
     required: bool,
 }
@@ -26,8 +25,8 @@ impl File<source::FileSourceFile> {
     /// registered format.
     pub fn with_name(name: &str) -> Self {
         File {
-            required: true,
             source: source::FileSourceFile::new(name.into()),
+            required: true,
         }
     }
 }
@@ -35,8 +34,8 @@ impl File<source::FileSourceFile> {
 impl<'a> From<&'a Path> for File<source::FileSourceFile> {
     fn from(path: &'a Path) -> Self {
         File {
-            required: true,
             source: source::FileSourceFile::new(path.to_path_buf()),
+            required: true,
         }
     }
 }
@@ -44,8 +43,8 @@ impl<'a> From<&'a Path> for File<source::FileSourceFile> {
 impl From<PathBuf> for File<source::FileSourceFile> {
     fn from(path: PathBuf) -> Self {
         File {
-            required: true,
             source: source::FileSourceFile::new(path),
+            required: true,
         }
     }
 }
