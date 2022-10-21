@@ -41,11 +41,7 @@ pub trait ModuleTrait: BaseModule + Send + Sync {
     fn actions(&self) -> Vec<HookAction> {
         vec![]
     }
-/*
-    fn settings(&self) -> PredefinedSettings {
-        predefined_settings![]
-    }
-*/
+
     fn init(&self) {}
 
     #[cfg(feature = "database")]

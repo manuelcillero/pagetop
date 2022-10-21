@@ -85,15 +85,6 @@ pub fn register_actions() {
     }
 }
 
-// INIT SETTINGS ***********************************************************************************
-/*
-pub fn init_settings() {
-    trace::info!("initializing custom predefined settings");
-    for m in ENABLED_MODULES.read().unwrap().iter() {
-        settings::add_predefined_settings(m.settings());
-    }
-}
-*/
 // INIT MODULES ************************************************************************************
 
 pub fn init_modules() {
