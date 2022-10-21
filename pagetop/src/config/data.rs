@@ -1,7 +1,7 @@
 use crate::config::error::*;
 use crate::config::path;
 use crate::config::source::Source;
-use crate::config::value::{Table, Value};
+use crate::config::value::Value;
 
 use serde::de::Deserialize;
 
@@ -38,14 +38,6 @@ pub struct ConfigData {
 }
 
 impl ConfigData {
-    pub fn new() -> Self {
-        Self {
-            kind: ConfigKind::default(),
-            // Config root should be instantiated as an empty table to avoid deserialization errors.
-            cache: Value::new(None, Table::new()),
-        }
-    }
-
     /// Merge in a configuration property source.
     pub fn merge<T>(&mut self, source: T) -> Result<&mut ConfigData>
     where
@@ -61,24 +53,6 @@ impl ConfigData {
         }
 
         self.refresh()
-    }
-
-    /// Merge in a configuration property source.
-    pub fn with_merged<T>(mut self, source: T) -> Result<Self>
-    where
-        T: 'static,
-        T: Source + Send + Sync,
-    {
-        match self.kind {
-            ConfigKind::Mutable {
-                ref mut sources, ..
-            } => {
-                sources.push(Box::new(source));
-            }
-        }
-
-        self.refresh()?;
-        Ok(self)
     }
 
     /// Refresh the configuration cache with fresh data from added sources.
@@ -143,59 +117,6 @@ impl ConfigData {
         };
 
         self.refresh()
-    }
-
-    pub fn set_once(&mut self, key: &str, value: Value) -> Result<()> {
-        let expr: path::Expression = key.parse()?;
-
-        // Traverse the cache using the path to (possibly) retrieve a value.
-        if let Some(ref mut val) = expr.get_mut(&mut self.cache) {
-            **val = value;
-        } else {
-            expr.set(&mut self.cache, value);
-        }
-        Ok(())
-    }
-
-    pub fn get<'de, T: Deserialize<'de>>(&self, key: &str) -> Result<T> {
-        // Parse the key into a path expression.
-        let expr: path::Expression = key.parse()?;
-
-        // Traverse the cache using the path to (possibly) retrieve a value.
-        let value = expr.get(&self.cache).cloned();
-
-        match value {
-            Some(value) => {
-                // Deserialize the received value into the requested type.
-                T::deserialize(value).map_err(|e| e.extend_with_key(key))
-            }
-
-            None => Err(ConfigError::NotFound(key.into())),
-        }
-    }
-
-    pub fn get_str(&self, key: &str) -> Result<String> {
-        self.get(key).and_then(Value::into_str)
-    }
-
-    pub fn get_int(&self, key: &str) -> Result<i64> {
-        self.get(key).and_then(Value::into_int)
-    }
-
-    pub fn get_float(&self, key: &str) -> Result<f64> {
-        self.get(key).and_then(Value::into_float)
-    }
-
-    pub fn get_bool(&self, key: &str) -> Result<bool> {
-        self.get(key).and_then(Value::into_bool)
-    }
-
-    pub fn get_table(&self, key: &str) -> Result<HashMap<String, Value>> {
-        self.get(key).and_then(Value::into_table)
-    }
-
-    pub fn get_array(&self, key: &str) -> Result<Vec<Value>> {
-        self.get(key).and_then(Value::into_array)
     }
 
     /// Attempt to deserialize the entire configuration into the requested type.
