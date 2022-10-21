@@ -136,9 +136,9 @@ use crate::LazyStatic;
 use crate::config::data::ConfigData;
 use crate::config::file::File;
 
+use std::collections::HashMap;
 use std::env;
 use std::fmt::Debug;
-use std::collections::HashMap;
 
 use serde::Deserialize;
 
@@ -181,15 +181,12 @@ static CONFIG_DATA: LazyStatic<ConfigData> = LazyStatic::new(|| {
         // Primero añade la configuración común a todos los entornos. Opcional.
         .merge(File::with_name(&format!("{}/{}.toml", CONFIG_DIR, "common")).required(false))
         .unwrap()
-
         // Combina la configuración específica del entorno. Por defecto 'default.toml'. Opcional.
         .merge(File::with_name(&format!("{}/{}.toml", CONFIG_DIR, run_mode)).required(false))
         .unwrap()
-
         // Combina la configuración local. Este archivo no debería incluirse en git. Opcional.
         .merge(File::with_name(&format!("{}/{}.toml", CONFIG_DIR, "local")).required(false))
         .unwrap()
-
         // Salvaguarda el modo de ejecución.
         .set("app.run_mode", run_mode)
         .unwrap();
@@ -202,7 +199,8 @@ static CONFIG_DATA: LazyStatic<ConfigData> = LazyStatic::new(|| {
 ///
 /// Ver [`Cómo añadir ajustes de configuración`](index.html#cómo-añadir-ajustes-de-configuración).
 pub fn init_settings<T>(values: PredefinedSettings) -> T
-where T: Deserialize<'static>
+where
+    T: Deserialize<'static>,
 {
     let mut settings = CONFIG_DATA.clone();
     for (key, value) in values.iter() {
@@ -280,7 +278,7 @@ pub struct Webserver {
 /// Sección *\[dev\]* de la configuración global.
 pub struct Dev {
     /// Valor predefinido: *""*
-    pub static_files  : String,
+    pub static_files: String,
 }
 
 #[derive(Debug, Deserialize)]

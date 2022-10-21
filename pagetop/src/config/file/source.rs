@@ -1,11 +1,10 @@
-use std::error::Error;
 use std::env;
+use std::error::Error;
 use std::fmt::Debug;
 use std::fs;
 use std::io::{self, Read};
 use std::iter::Iterator;
 use std::path::{Path, PathBuf};
-
 
 /// Describes where the file is sourced.
 pub trait FileSource: Debug + Clone {

@@ -39,8 +39,7 @@ pub static DBCONN: LazyStatic<DbConn> = LazyStatic::new(|| {
         "sqlite" => DbUri::parse(
             format!(
                 "{}://{}",
-                &SETTINGS.database.db_type,
-                &SETTINGS.database.db_name
+                &SETTINGS.database.db_type, &SETTINGS.database.db_name
             )
             .as_str(),
         )

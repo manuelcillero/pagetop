@@ -55,8 +55,7 @@ impl Application {
         })
         .bind(format!(
             "{}:{}",
-            &SETTINGS.webserver.bind_address,
-            &SETTINGS.webserver.bind_port
+            &SETTINGS.webserver.bind_address, &SETTINGS.webserver.bind_port
         ))?
         .run();
 
