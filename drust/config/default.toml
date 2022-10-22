@@ -1,22 +1,4 @@
-[app]
-name = "Drust"
-description = """\
-    A modern web Content Management System to share your world.\
-"""
-#theme = "Aliner"
-#theme = "Minimal"
-theme = "Bootsier"
-#theme = "Bulmix"
-language = "es-ES"
-
 [database]
-db_type = "mysql"
 db_name = "drust"
 db_user = "drust"
 db_pass = "DrU__#3T"
-
-[log]
-tracing = "Info,pagetop=Debug,sqlx::query=Warn"
-
-[dev]
-#static_files = "../pagetop/static"

@@ -1,0 +1,12 @@
+[app]
+#theme = "Aliner"
+#theme = "Minimal"
+theme = "Bootsier"
+#theme = "Bulmix"
+language = "es-ES"
+
+[log]
+tracing = "Info,pagetop=Debug,sqlx::query=Warn"
+
+[dev]
+#static_files = "../pagetop/static"

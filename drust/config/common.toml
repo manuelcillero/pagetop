@@ -1,0 +1,8 @@
+[app]
+name = "Drust"
+description = """\
+    A modern web Content Management System to share your world.\
+"""
+
+[database]
+db_type = "mysql"
