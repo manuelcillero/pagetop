@@ -12,98 +12,38 @@
 //! configuración**. La configuración variará en cada tipo de despliegue, y el código no.
 //!
 //!
-//! # Cómo usar archivos de configuración
+//! # Cómo cargar los ajustes de configuración
 //!
-//! Si tu aplicación requiere archivos de configuración debes crear un directorio llamado *config*
-//! al mismo nivel del archivo *Cargo.toml* de tu proyecto (o del ejecutable binario de la
-//! aplicación).
+//! Si tu aplicación requiere archivos de configuración debes crear un directorio *config* al mismo
+//! nivel del archivo *Cargo.toml* de tu proyecto (o del ejecutable binario de la aplicación).
 //!
-//! Guarda la configuración usando archivos TOML asumiendo el siguiente orden de lectura secuencial
-//! (todos los archivos son opcionales):
+//! PageTop se encargará de cargar todos los ajustes de configuración de tu aplicación leyendo los
+//! siguientes archivos TOML en este orden (todos los archivos son opcionales):
 //!
-//! 1. **config/common.toml**, útil para los ajustes comunes para cualquier entorno. Estos valores
-//!    podrán ser sobrescritos al fusionar los archivos de configuración siguientes.
+//! 1. **config/common.toml**, útil para los ajustes comunes a cualquier entorno. Estos valores
+//!    podrán ser sobrescritos al fusionar los archivos de configuración restantes.
 //!
-//! 2. **config/{archivo}.toml**, donde *{archivo}* puede definirse mediante la variable de entorno
-//!    PAGETOP_RUN_MODE:
+//! 2. **config/{file}.toml**, donde *{file}* se define con la variable de entorno PAGETOP_RUN_MODE:
 //!
-//!     * Si no lo está, se asumirá *default* por defecto, y PageTop cargará el archivo de
-//!       configuración *config/default.toml* si existe.
+//!     * Si no está definida se asumirá *default* por defecto y PageTop intentará cargar el archivo
+//!       *config/default.toml* si existe.
 //!
-//!     * De esta manera se pueden tener diferentes ajustes de configuración para diferentes
-//!       entornos de ejecución. Por ejemplo, para *devel.toml*, *staging.toml* o *production.toml*.
-//!       O también para *server1.toml* o *server2.toml*. Sólo uno será cargado.
+//!     * De esta manera podrás tener diferentes ajustes de configuración para diferentes entornos
+//!       de ejecución. Por ejemplo, para *devel.toml*, *staging.toml* o *production.toml*. O
+//!       también para *server1.toml* o *server2.toml*. Sólo uno será cargado.
 //!
 //!     * Normalmente estos archivos suelen ser idóneos para incluir contraseñas o configuración
 //!       sensible asociada al entorno correspondiente. Estos archivos no deberían ser publicados en
 //!       el repositorio Git por razones de seguridad.
 //!
-//! 3. **config/local.toml**, para añadir o sobrescribir ajustes previos.
-//!
-//! Los ajustes de configuración siempre son de sólo lectura.
+//! 3. **config/local.toml**, para añadir o sobrescribir ajustes de los archivos anteriores.
 //!
 //!
-//! # Cómo añadir ajustes de configuración
+//! # Cómo usar los ajustes globales de la configuración
 //!
-//! Puedes usar la sintaxis de TOML para crear nuevas secciones en los archivos de configuración,
-//! del mismo modo que *\[app\]* o *\[webserver\]* existen en la configuración predeterminada (ver
-//! [`SETTINGS`]).
-//!
-//! Para cargar y usar esta nueva configuración desde tu **aplicación** o **módulo** tienes que
-//! incluir [*serde*](https://docs.rs/serde) en las dependencias de tu archivo *Cargo.toml*:
-//!
-//! ```
-//! [dependencies]
-//! serde = { version = "1.0", features = ["derive"] }
-//! ```
-//!
-//! y añadir en tu código una declaración similar a la que utiliza [`SETTINGS`] para instanciar
-//! ([`LazyStatic`]) e inicializar ([`init_settings()`]) los nuevos ajustes con tipos seguros y
-//! valores predefinidos ([`predefined_settings!`](crate::predefined_settings)):
-//!
-//! ```
-//! use pagetop::prelude::*;
-//! use serde::Deserialize;
-//! use std::fmt::Debug;
-//!
-//! #[derive(Debug, Deserialize)]
-//! pub struct Id {
-//!     pub name: String,
-//!     pub desc: String,
-//! }
-//!
-//! #[derive(Debug, Deserialize)]
-//! pub struct Size {
-//!     pub width: u16,
-//!     pub height: u16,
-//! }
-//!
-//! #[derive(Debug, Deserialize)]
-//! pub struct MyApp {
-//!    pub id: Id,
-//!    pub size: Size,
-//! }
-//!
-//! pub static MY_APP: LazyStatic<MyApp> = LazyStatic::new(|| {
-//!     init_settings::<MyApp>(predefined_settings!(
-//!         // [id]
-//!         "id.name" => "Value Name",
-//!         "id.desc" => "Value Description",
-//!
-//!         // [size]
-//!         "size.width" => "900",
-//!         "size.height" => "320"
-//!     ))
-//! });
-//! ```
-//!
-//! Es importante inicializar todos los ajustes con valores predefinidos (aunque sea con valores
-//! vacíos como *""* o *"0"*, por ejemplo) para evitar *panic!*'s no deseados.
-//!
-//!
-//! # Cómo obtener los valores de configuración
-//!
-//! Basta con acceder directamente a la variable estática. Por ejemplo, con [`SETTINGS`]:
+//! PageTop incluye un conjunto de ajustes propios ([`Settings`]) accesibles vía [`SETTINGS`] para
+//! las secciones reservadas [`[app]`](App), [`[log]`](Log), [`[database]`](Database),
+//! [`[webserver]`](Webserver) y [`[dev]`](Dev) de la configuración:
 //!
 //! ```
 //! use pagetop::prelude::*;
@@ -114,12 +54,65 @@
 //!     println!("Value of PAGETOP_RUN_MODE: {}", &SETTINGS.app.run_mode);
 //! }
 //! ```
-//! O a valores específicos de la configuración de tu **aplicación** o **módulo**:
+//!
+//! Los ajustes de configuración siempre son de sólo lectura.
+//!
+//!
+//! # Cómo añadir ajustes de configuración
+//!
+//! Para proporcionar a tu **aplicación** o **módulo** sus propios ajustes de configuración, añade
+//! [*serde*](https://docs.rs/serde) en las dependencias de tu archivo *Cargo.toml*:
+//!
+//! ```toml
+//! [dependencies]
+//! serde = { version = "1.0", features = ["derive"] }
+//! ```
+//!
+//! Incluye en tu código una asignación similar a la que usa [`SETTINGS`] para declarar
+//! ([`LazyStatic`]) e inicializar tus nuevos ajustes ([`init_settings()`]) con tipos seguros y
+//! valores predefinidos ([`predefined_settings!`](crate::predefined_settings)):
+//!
+//! ```
+//! use pagetop::prelude::*;
+//! use serde::Deserialize;
+//! use std::fmt::Debug;
+//!
+//! #[derive(Debug, Deserialize)]
+//! pub struct MySettings {
+//!    pub myapp: MyApp,
+//! }
+//!
+//! #[derive(Debug, Deserialize)]
+//! pub struct MyApp {
+//!     pub name: String,
+//!     pub description: Option<String>,
+//!     pub width: u16,
+//!     pub height: u16,
+//! }
+//!
+//! pub static MY_SETTINGS: LazyStatic<MySettings> = LazyStatic::new(|| {
+//!     init_settings::<MySettings>(predefined_settings!(
+//!         // [myapp]
+//!         "myapp.name" => "Value Name",
+//!         "myapp.width" => "900",
+//!         "myapp.height" => "320"
+//!     ))
+//! });
+//! ```
+//!
+//! Y usa la sintaxis TOML para añadir tu nueva sección `[myapp]` en los archivos de configuración,
+//! del mismo modo que `[app]` o `[webserver]` hacen para los ajustes globales ([`Settings`]).
+//!
+//! Se recomienda inicializar todos los ajustes con valores predefinidos, o utilizar la notación
+//! `Option<T>` si van a ser tratados en el código como opcionales.
+//!
+//!
+//! # Cómo usar los nuevos ajustes de configuración
 //!
 //! ```
 //! fn demo() {
-//!     println!("{}", &MY_APP.id.name);
-//!     println!("{}", &MY_APP.size.width);
+//!     println!("{} - {:?}", &MY_SETTINGS.myapp.name, &MY_SETTINGS.myapp.description);
+//!     println!("{}", &MY_SETTINGS.myapp.width);
 //! }
 //! ```
 
@@ -150,7 +143,7 @@ pub type PredefinedSettings = HashMap<&'static str, &'static str>;
 
 #[macro_export]
 /// Macro para crear e inicializar un *HashMap* ([`PredefinedSettings`]) con una lista de literales
-/// `"clave" => "valor"` para asignar ajustes de configuración predefinidos.
+/// `"clave" => "valor"` para asignar los ajustes de configuración predefinidos.
 ///
 /// Ver [`cómo añadir ajustes de configuración`](config/index.html#cómo-añadir-ajustes-de-configuración).
 macro_rules! predefined_settings {
@@ -213,7 +206,20 @@ where
 }
 
 #[derive(Debug, Deserialize)]
-/// Sección *\[app\]* de la configuración global.
+/// Ajustes globales para las secciones [`[app]`](App), [`[log]`](Log), [`[database]`](Database),
+/// [`[webserver]`](Webserver) y [`[dev]`](Dev) reservadas para PageTop ([`SETTINGS`]).
+pub struct Settings {
+    pub app: App,
+    pub log: Log,
+    pub database: Database,
+    pub webserver: Webserver,
+    pub dev: Dev,
+}
+
+#[derive(Debug, Deserialize)]
+/// Sección `[app]` de los ajustes globales.
+///
+/// Ver [`Settings`].
 pub struct App {
     /// Valor predefinido: *"PageTop Application"*
     pub name: String,
@@ -232,7 +238,9 @@ pub struct App {
 }
 
 #[derive(Debug, Deserialize)]
-/// Sección *\[log\]* de la configuración global.
+/// Sección `[log]` de los ajustes globales.
+///
+/// Ver [`Settings`].
 pub struct Log {
     /// Valor predefinido: *"Info"*
     pub tracing: String,
@@ -247,7 +255,9 @@ pub struct Log {
 }
 
 #[derive(Debug, Deserialize)]
-/// Sección *\[database\]* de la configuración global.
+/// Sección `[database]` de los ajustes globales.
+///
+/// Ver [`Settings`].
 pub struct Database {
     /// Valor predefinido: *""*
     pub db_type: String,
@@ -266,7 +276,9 @@ pub struct Database {
 }
 
 #[derive(Debug, Deserialize)]
-/// Sección *\[webserver\]* de la configuración global.
+/// Sección `[webserver]` de los ajustes globales.
+///
+/// Ver [`Settings`].
 pub struct Webserver {
     /// Valor predefinido: *"localhost"*
     pub bind_address: String,
@@ -275,26 +287,17 @@ pub struct Webserver {
 }
 
 #[derive(Debug, Deserialize)]
-/// Sección *\[dev\]* de la configuración global.
+/// Sección `[dev]` de los ajustes globales.
+///
+/// Ver [`Settings`].
 pub struct Dev {
     /// Valor predefinido: *""*
     pub static_files: String,
 }
 
-#[derive(Debug, Deserialize)]
-/// Ajustes globales para las secciones *\[app\]*, *\[log\]*, *\[database\]*, *\[webserver\]* y
-/// *\[dev\]* requeridas por PageTop (ver [`SETTINGS`]).
-pub struct Settings {
-    pub app: App,
-    pub log: Log,
-    pub database: Database,
-    pub webserver: Webserver,
-    pub dev: Dev,
-}
-
-/// Instancia los ajustes globales para la estructura [`Settings`].
+/// Declara los ajustes globales para la estructura [`Settings`].
 ///
-/// Ver [`Cómo obtener los valores de configuración`](index.html#cómo-obtener-los-valores-de-configuración).
+/// Ver [`Cómo usar los ajustes globales de la configuración`](index.html#cómo-usar-los-ajustes-globales-de-la-configuración).
 pub static SETTINGS: LazyStatic<Settings> = LazyStatic::new(|| {
     init_settings::<Settings>(predefined_settings!(
         // [app]
