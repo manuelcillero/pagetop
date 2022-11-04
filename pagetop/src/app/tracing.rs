@@ -9,7 +9,7 @@ use tracing_subscriber::EnvFilter;
 /// Para aumentar el rendimiento, un subproceso dedicado utiliza un sistema de
 /// escritura sin bloqueo (*non-blocking writer*) que actúa periódicamente en
 /// vez de enviar cada traza o evento al instante. Si el programa termina
-/// abruptamente (por ejemplo, por un `panic!` o un `std::process::exit`), es
+/// abruptamente (por ejemplo, por un panic! o un std::process::exit), es
 /// posible que algunas trazas o eventos no se envíen.
 ///
 /// Puesto que las trazas o eventos registrados poco antes de la caída de una

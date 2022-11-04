@@ -68,13 +68,12 @@
 //!
 //! # Cómo aplicar la localización en tu código
 //!
-//! Una vez hayas creado tu directorio de recursos FTL, sólo tienes que usar la
-//! poderosa macro [`localize!`] para integrar fácilmente tus recursos de
-//! localización.
+//! Una vez hayas creado tu directorio de recursos FTL, sólo tienes que usar la poderosa macro
+//! [`localize!`](crate::localize) para integrar fácilmente tus recursos de localización.
 //!
-//! Esta macro crea dos funciones para el ámbito donde se ejecuta. Por un lado
-//! la función `l()` para traducciones directas de etiquetas. Y por otro la
-//! función `t()` para traducciones que requieren argumentos:
+//! Esta macro crea dos funciones para el ámbito donde se ejecuta. Por un lado la función `l()` para
+//! traducciones directas de etiquetas. Y por otro la función `t()` para traducciones que requieren
+//! argumentos:
 //!
 //! ```
 //! use pagetop::{args, localize};
