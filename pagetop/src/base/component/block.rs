@@ -41,9 +41,8 @@ impl ComponentTrait for Block {
         let id = context.required_id::<Block>(self.id());
         html! {
             div id=(id) class=[self.classes().get()] {
-                @match self.title().get() {
-                    Some(title) => h2 class="block-title" { (title) },
-                    None => {}
+                @if let Some(title) = self.title().get() {
+                    h2 class="block-title" { (title) }
                 }
                 div class="block-body" {
                     (self.components().render(context))

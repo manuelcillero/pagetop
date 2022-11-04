@@ -48,11 +48,9 @@ pub trait ThemeTrait: BaseTheme + Send + Sync {
                     None => title { (SETTINGS.app.name) }
                 }
 
-                @match page.description().get() {
-                    Some(d) => meta name="description" content=(d);,
-                    None => {}
+                @if let Some(d) = page.description().get() {
+                    meta name="description" content=(d);
                 }
-
                 meta http-equiv="X-UA-Compatible" content="IE=edge";
                 meta name="viewport" content=(viewport);
 

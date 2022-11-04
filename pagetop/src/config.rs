@@ -183,7 +183,7 @@ where
 {
     let mut settings = CONFIG_DATA.clone();
     for (key, value) in values.iter() {
-        settings.set_default(*key, *value).unwrap();
+        settings.set_default(key, *value).unwrap();
     }
     match settings.try_into() {
         Ok(c) => c,

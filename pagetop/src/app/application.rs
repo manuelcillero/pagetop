@@ -49,11 +49,14 @@ impl Application {
         let server = super::HttpServer::new(move || {
             super::App::new()
                 .wrap(tracing_actix_web::TracingLogger::default())
-                .configure(&module::all::configure_services)
-                .configure(&theme::all::configure_services)
+                .configure(module::all::configure_services)
+                .configure(theme::all::configure_services)
                 .default_service(super::web::route().to(service_not_found))
         })
-        .bind(format!("{}:{}", &SETTINGS.server.bind_address, &SETTINGS.server.bind_port))?
+        .bind(format!(
+            "{}:{}",
+            &SETTINGS.server.bind_address, &SETTINGS.server.bind_port
+        ))?
         .run();
 
         Ok(Self { server })

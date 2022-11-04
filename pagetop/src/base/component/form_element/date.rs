@@ -44,17 +44,15 @@ impl ComponentTrait for Date {
         let id = self.name().get().map(|name| concat_string!("edit-", name));
         html! {
             div class=[self.classes().get()] {
-                @match self.label().get() {
-                    Some(label) => label class="form-label" for=[&id] {
+                @if let Some(label) = self.label().get() {
+                    label class="form-label" for=[&id] {
                         (label) " "
-                        @match self.required().get() {
-                            Some(_) => span
+                        @if self.required().get().is_some() {
+                            span
                                 class="form-required"
-                                title="Este campo es obligatorio." { "*" } " ",
-                            None => {}
+                                title="Este campo es obligatorio." { "*" } " ";
                         }
-                    },
-                    None => {}
+                    }
                 }
                 input
                     type="date"
@@ -68,9 +66,8 @@ impl ComponentTrait for Date {
                     readonly=[self.readonly().get()]
                     required=[self.required().get()]
                     disabled=[self.disabled().get()];
-                @match self.help_text().get() {
-                    Some(help_text) => div class="form-text" { (help_text) },
-                    None => {}
+                @if let Some(help_text) = self.help_text().get() {
+                    div class="form-text" { (help_text) }
                 }
             }
         }

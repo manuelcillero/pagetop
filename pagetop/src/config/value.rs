@@ -221,7 +221,9 @@ impl Value {
                 }
             }
 
+            #[allow(clippy::bool_to_int_with_if)]
             ValueKind::Boolean(value) => Ok(if value { 1 } else { 0 }),
+
             ValueKind::Float(value) => Ok(value.round() as i64),
 
             // Unexpected type
@@ -230,11 +232,13 @@ impl Value {
                 Unexpected::Unit,
                 "an integer",
             )),
+
             ValueKind::Table(_) => Err(ConfigError::invalid_type(
                 self.origin,
                 Unexpected::Map,
                 "an integer",
             )),
+
             ValueKind::Array(_) => Err(ConfigError::invalid_type(
                 self.origin,
                 Unexpected::Seq,

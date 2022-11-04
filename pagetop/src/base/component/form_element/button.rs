@@ -60,10 +60,7 @@ impl ComponentTrait for Button {
                 autofocus=[self.autofocus().get()]
                 disabled=[self.disabled().get()]
             {
-                @match self.value().get() {
-                    Some(value) => { (value) },
-                    None => {},
-                }
+                @if let Some(value) = self.value().get() { (value) }
             }
         }
     }

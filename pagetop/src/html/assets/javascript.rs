@@ -1,7 +1,7 @@
 use super::AssetsTrait;
 use crate::html::{html, Markup};
 
-#[derive(Default, PartialEq)]
+#[derive(Default, Eq, PartialEq)]
 pub enum ModeJS {
     Async,
     #[default]

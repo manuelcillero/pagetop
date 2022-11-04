@@ -12,7 +12,7 @@ use sea_schema::{mysql::MySql, postgres::Postgres, probe::SchemaProbe, sqlite::S
 
 use super::{seaql_migrations, MigrationTrait, SchemaManager};
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Eq, PartialEq)]
 /// Status of migration
 pub enum MigrationStatus {
     /// Not yet applied

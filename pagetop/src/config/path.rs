@@ -25,7 +25,7 @@ fn sindex_to_uindex(index: isize, len: usize) -> usize {
     if index >= 0 {
         index as usize
     } else {
-        len - (index.abs() as usize)
+        len - (index.unsigned_abs())
     }
 }
 
@@ -107,7 +107,7 @@ impl Expression {
                 match value.kind {
                     ValueKind::Table(ref incoming_map) => {
                         // Pull out another table.
-                        let mut target = if let ValueKind::Table(ref mut map) = root.kind {
+                        let target = if let ValueKind::Table(ref mut map) = root.kind {
                             map.entry(id.clone())
                                 .or_insert_with(|| HashMap::<String, Value>::new().into())
                         } else {
@@ -116,7 +116,7 @@ impl Expression {
 
                         // Continue the deep merge.
                         for (key, val) in incoming_map {
-                            Expression::Identifier(key.clone()).set(&mut target, val.clone());
+                            Expression::Identifier(key.clone()).set(target, val.clone());
                         }
                     }
 
