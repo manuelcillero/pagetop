@@ -1,4 +1,4 @@
-use crate::config::SETTINGS;
+use super::SETTINGS;
 use crate::db::*;
 use crate::{run_now, trace, LazyStatic};
 

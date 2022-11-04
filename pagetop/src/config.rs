@@ -69,13 +69,12 @@
 //! ```
 //!
 //! Incluye en tu código una asignación similar a la que usa [`SETTINGS`] para declarar
-//! ([`LazyStatic`]) e inicializar tus nuevos ajustes ([`init_settings()`]) con tipos seguros y
+//! ([`LazyStatic`]) e inicializar tus nuevos ajustes ([`try_into()`]) con tipos seguros y
 //! valores predefinidos ([`predefined_settings!`](crate::predefined_settings)):
 //!
 //! ```
 //! use pagetop::prelude::*;
 //! use serde::Deserialize;
-//! use std::fmt::Debug;
 //!
 //! #[derive(Debug, Deserialize)]
 //! pub struct MySettings {
@@ -91,7 +90,7 @@
 //! }
 //!
 //! pub static MY_SETTINGS: LazyStatic<MySettings> = LazyStatic::new(|| {
-//!     init_settings::<MySettings>(predefined_settings!(
+//!     config::try_into::<MySettings>(predefined_settings!(
 //!         // [myapp]
 //!         "myapp.name" => "Value Name",
 //!         "myapp.width" => "900",
@@ -131,7 +130,6 @@ use crate::config::file::File;
 
 use std::collections::HashMap;
 use std::env;
-use std::fmt::Debug;
 
 use serde::Deserialize;
 
@@ -149,7 +147,7 @@ pub type PredefinedSettings = HashMap<&'static str, &'static str>;
 macro_rules! predefined_settings {
     ( $($key:literal => $value:literal),* ) => {{
         #[allow(unused_mut)]
-        let mut a = PredefinedSettings::new();
+        let mut a = $crate::config::PredefinedSettings::new();
         $(
             a.insert($key, $value);
         )*
@@ -191,7 +189,7 @@ static CONFIG_DATA: LazyStatic<ConfigData> = LazyStatic::new(|| {
 /// estructura similiar a [`SETTINGS`].
 ///
 /// Ver [`Cómo añadir ajustes de configuración`](index.html#cómo-añadir-ajustes-de-configuración).
-pub fn init_settings<T>(values: PredefinedSettings) -> T
+pub fn try_into<T>(values: PredefinedSettings) -> T
 where
     T: Deserialize<'static>,
 {
@@ -204,131 +202,3 @@ where
         Err(e) => panic!("Error parsing settings: {}", e),
     }
 }
-
-#[derive(Debug, Deserialize)]
-/// Ajustes globales para las secciones [`[app]`](App), [`[log]`](Log), [`[database]`](Database),
-/// [`[webserver]`](Webserver) y [`[dev]`](Dev) reservadas para PageTop ([`SETTINGS`]).
-pub struct Settings {
-    pub app: App,
-    pub log: Log,
-    pub database: Database,
-    pub webserver: Webserver,
-    pub dev: Dev,
-}
-
-#[derive(Debug, Deserialize)]
-/// Sección `[app]` de los ajustes globales.
-///
-/// Ver [`Settings`].
-pub struct App {
-    /// Valor predefinido: *"PageTop Application"*
-    pub name: String,
-    /// Valor predefinido: *"Developed with the amazing PageTop framework."*
-    pub description: String,
-    /// Valor predefinido: *"Bootsier"*
-    pub theme: String,
-    /// Valor predefinido: *"en-US"*
-    pub language: String,
-    /// Valor predefinido: *"ltr"*
-    pub direction: String,
-    /// Valor predefinido: *"Slant"*
-    pub startup_banner: String,
-    /// Valor predefinido: según variable de entorno PAGETOP_RUN_MODE, o *"default"* si no lo está
-    pub run_mode: String,
-}
-
-#[derive(Debug, Deserialize)]
-/// Sección `[log]` de los ajustes globales.
-///
-/// Ver [`Settings`].
-pub struct Log {
-    /// Valor predefinido: *"Info"*
-    pub tracing: String,
-    /// Valor predefinido: *"Stdout"*
-    pub rolling: String,
-    /// Valor predefinido: *"log"*
-    pub path: String,
-    /// Valor predefinido: *"tracing.log"*
-    pub prefix: String,
-    /// Valor predefinido: *"Full"*
-    pub format: String,
-}
-
-#[derive(Debug, Deserialize)]
-/// Sección `[database]` de los ajustes globales.
-///
-/// Ver [`Settings`].
-pub struct Database {
-    /// Valor predefinido: *""*
-    pub db_type: String,
-    /// Valor predefinido: *""*
-    pub db_name: String,
-    /// Valor predefinido: *""*
-    pub db_user: String,
-    /// Valor predefinido: *""*
-    pub db_pass: String,
-    /// Valor predefinido: *"localhost"*
-    pub db_host: String,
-    /// Valor predefinido: *"0"*
-    pub db_port: u16,
-    /// Valor predefinido: *"5"*
-    pub max_pool_size: u32,
-}
-
-#[derive(Debug, Deserialize)]
-/// Sección `[webserver]` de los ajustes globales.
-///
-/// Ver [`Settings`].
-pub struct Webserver {
-    /// Valor predefinido: *"localhost"*
-    pub bind_address: String,
-    /// Valor predefinido: *"8088"*
-    pub bind_port: u16,
-}
-
-#[derive(Debug, Deserialize)]
-/// Sección `[dev]` de los ajustes globales.
-///
-/// Ver [`Settings`].
-pub struct Dev {
-    /// Valor predefinido: *""*
-    pub static_files: String,
-}
-
-/// Declara los ajustes globales para la estructura [`Settings`].
-///
-/// Ver [`Cómo usar los ajustes globales de la configuración`](index.html#cómo-usar-los-ajustes-globales-de-la-configuración).
-pub static SETTINGS: LazyStatic<Settings> = LazyStatic::new(|| {
-    init_settings::<Settings>(predefined_settings!(
-        // [app]
-        "app.name"               => "PageTop Application",
-        "app.description"        => "Developed with the amazing PageTop framework.",
-        "app.theme"              => "Bootsier",
-        "app.language"           => "en-US",
-        "app.direction"          => "ltr",
-        "app.startup_banner"     => "Slant",
-
-        // [log]
-        "log.tracing"            => "Info",
-        "log.rolling"            => "Stdout",
-        "log.path"               => "log",
-        "log.prefix"             => "tracing.log",
-        "log.format"             => "Full",
-
-        // [database]
-        "database.db_type"       => "",
-        "database.db_name"       => "",
-        "database.db_user"       => "",
-        "database.db_pass"       => "",
-        "database.db_host"       => "localhost",
-        "database.db_port"       => "0",
-        "database.max_pool_size" => "5",
-
-        // [webserver]
-        "webserver.bind_address" => "localhost",
-        "webserver.bind_port"    => "8088",
-
-        // [dev]
-        "dev.static_files"       => ""
-    ))
-});

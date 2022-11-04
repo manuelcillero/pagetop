@@ -1,6 +1,6 @@
 use super::{BeforeRenderPageHook, PageContext, PageOp, ResultPage, HOOK_BEFORE_RENDER_PAGE};
 use crate::app::fatal_error::FatalError;
-use crate::config::SETTINGS;
+use crate::app::SETTINGS;
 use crate::core::component::*;
 use crate::core::hook::{action_ref, run_actions};
 use crate::html::{html, AttributeValue, Classes, ClassesOp, Markup, DOCTYPE};

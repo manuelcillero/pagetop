@@ -1,5 +1,5 @@
 use super::fatal_error::FatalError;
-use crate::config::SETTINGS;
+use super::SETTINGS;
 use crate::core::module::ModuleStaticRef;
 use crate::core::{module, theme};
 use crate::html::Markup;

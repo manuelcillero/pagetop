@@ -1,7 +1,7 @@
 use crate::app;
+use crate::app::SETTINGS;
 use crate::base::component::{Container, Html};
 use crate::concat_string;
-use crate::config::SETTINGS;
 use crate::core::component::ComponentTrait;
 use crate::html::{html, Favicon, Markup};
 use crate::response::page::{Page, PageContext, PageOp};

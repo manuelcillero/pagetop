@@ -1,4 +1,4 @@
-use crate::config::SETTINGS;
+use super::SETTINGS;
 use crate::LazyStatic;
 
 use tracing_appender::non_blocking::WorkerGuard;

@@ -1,6 +1,4 @@
 use crate::app;
-//use crate::predefined_settings;
-//use crate::settings::PredefinedSettings;
 use crate::core::hook::HookAction;
 use crate::core::theme::ThemeStaticRef;
 use crate::util::{single_type_name, Handler};

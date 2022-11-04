@@ -1,4 +1,4 @@
-use crate::config::SETTINGS;
+use crate::app::SETTINGS;
 use crate::LazyStatic;
 
 use figlet_rs::FIGfont;
@@ -17,7 +17,7 @@ pub static FIGFONT: LazyStatic<FIGfont> = LazyStatic::new(|| {
         "starwars" => starwars,
         _ => {
             println!(
-                "\n FIGfont \"{}\" not found for banner. Using \"Slant\". Check the settings file.",
+                "\n FIGfont \"{}\" not found for banner. Using \"Slant\". Check settings files.",
                 SETTINGS.app.startup_banner,
             );
             slant

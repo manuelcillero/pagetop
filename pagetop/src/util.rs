@@ -169,7 +169,7 @@ macro_rules! args {
 #[macro_export]
 macro_rules! configure_service_for_static_files {
     ( $cfg:ident, $dir:expr, $embed:ident ) => {{
-        let static_files = &$crate::config::SETTINGS.dev.static_files;
+        let static_files = &$crate::app::SETTINGS.dev.static_files;
         if static_files.is_empty() {
             $cfg.service($crate::app::ResourceFiles::new($dir, $embed()));
         } else {

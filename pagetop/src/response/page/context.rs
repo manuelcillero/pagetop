@@ -1,5 +1,5 @@
 use super::PageOp;
-use crate::config::SETTINGS;
+use crate::app::SETTINGS;
 use crate::core::theme::{all::theme_by_single_name, ThemeStaticRef};
 use crate::html::{html, Assets, Favicon, IdentifierValue, JavaScript, Markup, ModeJS, StyleSheet};
 use crate::{base, concat_string, util, LazyStatic};

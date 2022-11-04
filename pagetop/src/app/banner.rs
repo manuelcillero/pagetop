@@ -1,7 +1,7 @@
 mod figfont;
 use figfont::FIGFONT;
 
-use crate::config::SETTINGS;
+use super::SETTINGS;
 
 use substring::Substring;
 

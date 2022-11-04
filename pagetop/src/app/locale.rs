@@ -1,4 +1,4 @@
-use crate::config::SETTINGS;
+use super::SETTINGS;
 use crate::{trace, LazyStatic};
 
 use unic_langid::LanguageIdentifier;

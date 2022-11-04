@@ -1,11 +1,16 @@
-// Global macros and helpers.
+// Re-exports.
+pub use crate::{concat_string, LazyStatic};
+
+// Macros.
+pub use crate::{args, configure_service_for_static_files, predefined_settings, pub_const_handler};
+
+// Helpers.
 pub use crate::util;
 pub use crate::util::{Handler, HashMapResources};
-pub use crate::{
-    args, concat_string, configure_service_for_static_files, pub_const_handler, LazyStatic,
-};
 
-pub use crate::config::SETTINGS;
+// *************************************************************************************************
+
+pub use crate::config;
 
 pub use crate::trace;
 
@@ -20,6 +25,7 @@ pub use crate::app;
 pub use crate::app::application::Application;
 pub use crate::app::fatal_error::FatalError;
 pub use crate::app::HttpMessage;
+pub use crate::app::SETTINGS;
 
 pub use crate::core::{component::*, hook::*, module::*, theme::*};
 

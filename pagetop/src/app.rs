@@ -4,6 +4,9 @@ pub use actix_web::{
 pub use actix_web_files::Files as ActixFiles;
 pub use actix_web_static_files::ResourceFiles;
 
+mod config;
+pub use config::SETTINGS;
+
 mod banner;
 
 mod tracing;
