@@ -53,10 +53,7 @@ impl Application {
                 .configure(&theme::all::configure_services)
                 .default_service(super::web::route().to(service_not_found))
         })
-        .bind(format!(
-            "{}:{}",
-            &SETTINGS.webserver.bind_address, &SETTINGS.webserver.bind_port
-        ))?
+        .bind(format!("{}:{}", &SETTINGS.server.bind_address, &SETTINGS.server.bind_port))?
         .run();
 
         Ok(Self { server })

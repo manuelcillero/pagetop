@@ -39,25 +39,6 @@
 //! 3. **config/local.toml**, para añadir o sobrescribir ajustes de los archivos anteriores.
 //!
 //!
-//! # Cómo usar los ajustes globales de la configuración
-//!
-//! PageTop incluye un conjunto de ajustes propios ([`Settings`]) accesibles vía [`SETTINGS`] para
-//! las secciones reservadas [`[app]`](App), [`[log]`](Log), [`[database]`](Database),
-//! [`[webserver]`](Webserver) y [`[dev]`](Dev) de la configuración:
-//!
-//! ```
-//! use pagetop::prelude::*;
-//!
-//! fn demo() {
-//!     println!("App name: {}", &SETTINGS.app.name);
-//!     println!("App description: {}", &SETTINGS.app.description);
-//!     println!("Value of PAGETOP_RUN_MODE: {}", &SETTINGS.app.run_mode);
-//! }
-//! ```
-//!
-//! Los ajustes de configuración siempre son de sólo lectura.
-//!
-//!
 //! # Cómo añadir ajustes de configuración
 //!
 //! Para proporcionar a tu **aplicación** o **módulo** sus propios ajustes de configuración, añade
@@ -68,9 +49,9 @@
 //! serde = { version = "1.0", features = ["derive"] }
 //! ```
 //!
-//! Incluye en tu código una asignación similar a la que usa [`SETTINGS`] para declarar
-//! ([`LazyStatic`]) e inicializar tus nuevos ajustes ([`try_into()`]) con tipos seguros y
-//! valores predefinidos ([`predefined_settings!`](crate::predefined_settings)):
+//! Declara ([`LazyStatic`]) e inicializa tus nuevos ajustes con tipos seguros
+//! ([`config::try_into<S>()`](try_into)) y valores predefinidos
+//! ([`predefined_settings!`](crate::predefined_settings)):
 //!
 //! ```
 //! use pagetop::prelude::*;
@@ -99,14 +80,20 @@
 //! });
 //! ```
 //!
-//! Y usa la sintaxis TOML para añadir tu nueva sección `[myapp]` en los archivos de configuración,
-//! del mismo modo que `[app]` o `[webserver]` hacen para los ajustes globales ([`Settings`]).
+//! De hecho, así se declaran e inicializan los ajustes globales de la configuración
+//! ([`SETTINGS`](crate::app::config::SETTINGS)).
+//!
+//! Usa la sintaxis TOML para añadir tu nueva sección `[myapp]` en los archivos de configuración,
+//! del mismo modo que `[log]` o `[server]` hacen para los ajustes globales
+//! ([`Settings`](crate::app::config::Settings)).
 //!
 //! Se recomienda inicializar todos los ajustes con valores predefinidos, o utilizar la notación
 //! `Option<T>` si van a ser tratados en el código como opcionales.
 //!
+//! Los ajustes de configuración siempre son de sólo lectura.
 //!
-//! # Cómo usar los nuevos ajustes de configuración
+//!
+//! # Cómo usar tus nuevos ajustes de configuración
 //!
 //! ```
 //! fn demo() {
@@ -185,13 +172,14 @@ static CONFIG_DATA: LazyStatic<ConfigData> = LazyStatic::new(|| {
     settings
 });
 
-/// Carga ajustes con tipos seguros y valores predefinidos para tu aplicación o módulo en una
-/// estructura similiar a [`SETTINGS`].
+/// Carga ajustes con tipos seguros y valores predefinidos para tu aplicación o módulo.
+///
+/// Detiene la aplicación con un panic! si no pueden asignarse los ajustes de configuración.
 ///
 /// Ver [`Cómo añadir ajustes de configuración`](index.html#cómo-añadir-ajustes-de-configuración).
-pub fn try_into<T>(values: PredefinedSettings) -> T
+pub fn try_into<S>(values: PredefinedSettings) -> S
 where
-    T: Deserialize<'static>,
+    S: Deserialize<'static>,
 {
     let mut settings = CONFIG_DATA.clone();
     for (key, value) in values.iter() {

@@ -1,3 +1,5 @@
+//! Ajustes globales de la configuración.
+
 use crate::config;
 use crate::predefined_settings;
 use crate::LazyStatic;
@@ -5,14 +7,14 @@ use crate::LazyStatic;
 use serde::Deserialize;
 
 #[derive(Debug, Deserialize)]
-/// Ajustes globales para las secciones [`[app]`](App), [`[log]`](Log), [`[database]`](Database),
-/// [`[webserver]`](Webserver) y [`[dev]`](Dev) reservadas para PageTop ([`SETTINGS`]).
+/// Ajustes globales para las secciones reservadas [`[app]`](App), [`[database]`](Database),
+/// [`[dev]`](Dev), [`[log]`](Log) y [`[server]`](Server) (ver [`SETTINGS`]).
 pub struct Settings {
     pub app: App,
-    pub log: Log,
     pub database: Database,
-    pub webserver: Webserver,
     pub dev: Dev,
+    pub log: Log,
+    pub server: Server,
 }
 
 #[derive(Debug, Deserialize)]
@@ -37,23 +39,6 @@ pub struct App {
 }
 
 #[derive(Debug, Deserialize)]
-/// Sección `[log]` de los ajustes globales.
-///
-/// Ver [`Settings`].
-pub struct Log {
-    /// Valor predefinido: *"Info"*
-    pub tracing: String,
-    /// Valor predefinido: *"Stdout"*
-    pub rolling: String,
-    /// Valor predefinido: *"log"*
-    pub path: String,
-    /// Valor predefinido: *"tracing.log"*
-    pub prefix: String,
-    /// Valor predefinido: *"Full"*
-    pub format: String,
-}
-
-#[derive(Debug, Deserialize)]
 /// Sección `[database]` de los ajustes globales.
 ///
 /// Ver [`Settings`].
@@ -75,17 +60,6 @@ pub struct Database {
 }
 
 #[derive(Debug, Deserialize)]
-/// Sección `[webserver]` de los ajustes globales.
-///
-/// Ver [`Settings`].
-pub struct Webserver {
-    /// Valor predefinido: *"localhost"*
-    pub bind_address: String,
-    /// Valor predefinido: *"8088"*
-    pub bind_port: u16,
-}
-
-#[derive(Debug, Deserialize)]
 /// Sección `[dev]` de los ajustes globales.
 ///
 /// Ver [`Settings`].
@@ -94,9 +68,45 @@ pub struct Dev {
     pub static_files: String,
 }
 
-/// Declara los ajustes globales para la estructura [`Settings`].
+#[derive(Debug, Deserialize)]
+/// Sección `[log]` de los ajustes globales.
 ///
-/// Ver [`Cómo usar los ajustes globales de la configuración`](index.html#cómo-usar-los-ajustes-globales-de-la-configuración).
+/// Ver [`Settings`].
+pub struct Log {
+    /// Valor predefinido: *"Info"*
+    pub tracing: String,
+    /// Valor predefinido: *"Stdout"*
+    pub rolling: String,
+    /// Valor predefinido: *"log"*
+    pub path: String,
+    /// Valor predefinido: *"tracing.log"*
+    pub prefix: String,
+    /// Valor predefinido: *"Full"*
+    pub format: String,
+}
+
+#[derive(Debug, Deserialize)]
+/// Sección `[server]` de los ajustes globales.
+///
+/// Ver [`Settings`].
+pub struct Server {
+    /// Valor predefinido: *"localhost"*
+    pub bind_address: String,
+    /// Valor predefinido: *"8088"*
+    pub bind_port: u16,
+}
+
+/// Declara e inicializa los ajustes globales para la estructura [`Settings`].
+///
+/// ```
+/// use pagetop::prelude::*;
+///
+/// fn demo() {
+///     println!("App name: {}", &SETTINGS.app.name);
+///     println!("App description: {}", &SETTINGS.app.description);
+///     println!("Value of PAGETOP_RUN_MODE: {}", &SETTINGS.app.run_mode);
+/// }
+/// ```
 pub static SETTINGS: LazyStatic<Settings> = LazyStatic::new(|| {
     config::try_into::<Settings>(predefined_settings!(
         // [app]
@@ -107,13 +117,6 @@ pub static SETTINGS: LazyStatic<Settings> = LazyStatic::new(|| {
         "app.direction"          => "ltr",
         "app.startup_banner"     => "Slant",
 
-        // [log]
-        "log.tracing"            => "Info",
-        "log.rolling"            => "Stdout",
-        "log.path"               => "log",
-        "log.prefix"             => "tracing.log",
-        "log.format"             => "Full",
-
         // [database]
         "database.db_type"       => "",
         "database.db_name"       => "",
@@ -123,11 +126,18 @@ pub static SETTINGS: LazyStatic<Settings> = LazyStatic::new(|| {
         "database.db_port"       => "0",
         "database.max_pool_size" => "5",
 
-        // [webserver]
-        "webserver.bind_address" => "localhost",
-        "webserver.bind_port"    => "8088",
-
         // [dev]
-        "dev.static_files"       => ""
+        "dev.static_files"       => "",
+
+        // [log]
+        "log.tracing"            => "Info",
+        "log.rolling"            => "Stdout",
+        "log.path"               => "log",
+        "log.prefix"             => "tracing.log",
+        "log.format"             => "Full",
+
+        // [server]
+        "server.bind_address"    => "localhost",
+        "server.bind_port"       => "8088"
     ))
 });

@@ -10,19 +10,6 @@ direction = "ltr"
 # Rótulo al inicio: "Off", "Slant", "Small", "Speed" o "Starwars".
 startup_banner = "Slant"
 
-[log]
-# Traza de ejecución: "Error", "Warn", "Info", "Debug" o "Trace".
-# Ejemplos: "Error,actix_server::builder=Info,tracing_actix_web=Debug".
-tracing = "Info"
-# En terminal ("Stdout") o archivos "Daily", "Hourly", "Minutely" o "Endless".
-rolling = "Stdout"
-# Directorio para los archivos de traza (si rolling != "Stdout").
-path = "log"
-# Prefijo para los archivos de traza (si rolling != "Stdout").
-prefix = "tracing.log"
-# Presentación de las trazas: "Full", "Compact", "Pretty" o "Json".
-format = "Full"
-
 [database]
 # Conecta con una base de datos (opcional).
 # Tipo de base de datos (mysql, postgres ó sqlite).
@@ -39,11 +26,6 @@ db_port = 0
 # Número máximo de conexiones habilitadas.
 max_pool_size = 5
 
-[webserver]
-# Configuración del servidor web.
-bind_address = "localhost"
-bind_port = 8088
-
 [dev]
 # Los archivos estáticos requeridos por temas y componentes incluidos en PageTop
 # se integran de manera predeterminada en el binario ejecutable. Sin embargo, es
@@ -51,3 +33,21 @@ bind_port = 8088
 # que no requiere compilar cada vez que se modifican. En este caso, normalmente,
 # basta con indicar el directorio "pagetop/static".
 static_files = ""
+
+[log]
+# Traza de ejecución: "Error", "Warn", "Info", "Debug" o "Trace".
+# Ejemplos: "Error,actix_server::builder=Info,tracing_actix_web=Debug".
+tracing = "Info"
+# En terminal ("Stdout") o archivos "Daily", "Hourly", "Minutely" o "Endless".
+rolling = "Stdout"
+# Directorio para los archivos de traza (si rolling != "Stdout").
+path = "log"
+# Prefijo para los archivos de traza (si rolling != "Stdout").
+prefix = "tracing.log"
+# Presentación de las trazas: "Full", "Compact", "Pretty" o "Json".
+format = "Full"
+
+[server]
+# Configuración del servidor web.
+bind_address = "localhost"
+bind_port = 8088
