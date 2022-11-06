@@ -31,7 +31,7 @@ max_pool_size = 5
 # se integran de manera predeterminada en el binario ejecutable. Sin embargo, es
 # útil servir estos archivos desde su propio directorio durante el desarrollo ya
 # que no requiere compilar cada vez que se modifican. En este caso, normalmente,
-# basta con indicar el directorio "pagetop/static".
+# basta con indicar el directorio "../pagetop/static".
 static_files = ""
 
 [log]

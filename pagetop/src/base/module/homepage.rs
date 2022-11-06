@@ -45,7 +45,7 @@ fn hello_world() -> Container {
             .with_column(
                 grid::Column::new()
                     .with_classes(ClassesOp::Add, "hello-col-text")
-                    .with_size(grid::ColumnSize::Is4of12)
+                    .with_size(grid::ColumnSize::Is5of12)
                     .with_component(
                         Heading::h1(html! {
                             (l("page_title"))
@@ -55,19 +55,26 @@ fn hello_world() -> Container {
                     .with_component(
                         Paragraph::with(html! {
                             (e("hello_intro", &args![
-                                "app" => format!("<span class=\"app-name\">{}</span>", &SETTINGS.app.name)
+                                "app" => format!(
+                                    "<span class=\"app-name\">{}</span>",
+                                    &SETTINGS.app.name,
+                                )
                             ]))
                         })
                         .with_display(ParagraphDisplay::Small),
                     )
                     .with_component(Paragraph::with(html! {
                         (e("hello_powered", &args![
-                            "pagetop" => "<a href=\"https://pagetop.cillero.es\" target=\"_blank\">PageTop</a>"
+                            "pagetop" => format!(
+                                "<a href=\"{}\" target=\"_blank\">{}</a>",
+                                "https://pagetop.cillero.es",
+                                "PageTop",
+                            )
                         ]))
                     }))
                     .with_component(
                         Anchor::button(
-                            "https://gitlab.com/manuelcillero/pagetop",
+                            "https://github.com/manuelcillero/pagetop",
                             html! { (l("hello_code")) },
                         )
                         .with_target(AnchorTarget::Blank)
@@ -86,8 +93,8 @@ fn hello_world() -> Container {
             .with_column(
                 grid::Column::new()
                     .with_classes(ClassesOp::Add, "hello-col-image")
-                    .with_component(Image::new_with_source("/theme/images/demo-header.svg")),
-            ),
+                    .with_component(Image::new_with_source("/theme/images/homepage-header.svg")),
+            )
     )
 }
 
@@ -122,7 +129,7 @@ fn about_pagetop() -> Container {
                 grid::Column::new()
                     .with_classes(ClassesOp::Add, "pagetop-col-image")
                     .with_size(grid::ColumnSize::Is5of12)
-                    .with_component(Image::new_with_source("/theme/images/demo-about.svg")),
+                    .with_component(Image::new_with_source("/theme/images/homepage-about.svg")),
             )
             .with_column(
                 grid::Column::new()
@@ -140,21 +147,21 @@ fn about_pagetop() -> Container {
                         (l("pagetop_text2"))
                     }))
                     .with_component(Paragraph::with(html! {
-                        (l("pagetop_text3"))
+                        (e("pagetop_text3", &args![
+                            "pagetop_website" => format!(
+                                "<a href=\"{}\" target=\"_blank\">{}</a>",
+                                "https://docs.rs/pagetop/latest/pagetop",
+                                l("pagetop_website"),
+                            )
+                        ]))
                     })),
-            ),
+            )
     )
 }
 
 fn promo_pagetop() -> Container {
     Container::new().with_id("promo").with_component(
         grid::Row::new()
-            .with_column(
-                grid::Column::new()
-                    .with_classes(ClassesOp::Add, "promo-col-image")
-                    .with_size(grid::ColumnSize::Is5of12)
-                    .with_component(Image::new_with_source("/theme/images/demo-pagetop.svg")),
-            )
             .with_column(
                 grid::Column::new()
                     .with_classes(ClassesOp::Add, "promo-col-text")
@@ -164,12 +171,22 @@ fn promo_pagetop() -> Container {
                     .with_component(
                         Paragraph::with(html! {
                             (e("pagetop_promo_text1", &args![
-                                "pagetop" => "<a href=\"https://pagetop-rs\">PageTop</a>"
+                                "pagetop" => format!(
+                                    "<a href=\"{}\" target=\"_blank\">{}</a>",
+                                    "https://crates.io/crates/pagetop",
+                                    "PageTop",
+                                )
                             ]))
                         })
                         .with_display(ParagraphDisplay::Small),
                     ),
-            ),
+            )
+            .with_column(
+                grid::Column::new()
+                    .with_classes(ClassesOp::Add, "promo-col-image")
+                    .with_size(grid::ColumnSize::Is6of12)
+                    .with_component(Image::new_with_source("/theme/images/homepage-pagetop.png")),
+            )
     )
 }
 
@@ -178,8 +195,13 @@ fn reporting_problems() -> Container {
         grid::Row::new()
             .with_column(
                 grid::Column::new()
+                    .with_classes(ClassesOp::Add, "reporting-col-image")
+                    .with_component(Image::new_with_source("/theme/images/homepage-support.jpg")),
+            )
+            .with_column(
+                grid::Column::new()
                     .with_classes(ClassesOp::Add, "reporting-col-text")
-                    .with_size(grid::ColumnSize::Is7of12)
+                    .with_size(grid::ColumnSize::Is6of12)
                     .with_component(Heading::h2(html! {
                         (l("report_problems_title"))
                     }))
@@ -193,10 +215,5 @@ fn reporting_problems() -> Container {
                         (l("report_problems_text2"))
                     })),
             )
-            .with_column(
-                grid::Column::new()
-                    .with_classes(ClassesOp::Add, "reporting-col-image")
-                    .with_component(Image::new_with_source("/theme/images/demo-pagetop.svg")),
-            ),
     )
 }
