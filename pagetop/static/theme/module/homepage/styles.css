@@ -3,17 +3,30 @@ body.default-homepage span.app-name {
 	color: inherit;
 }
 
-#hello-world {
-	padding: 2em 5%;
+#hello-world,
+#welcome,
+#pagetop,
+#promo,
+#reporting {
+	padding: 2rem 5%;
 }
+
+body.default-homepage [class$="-col-text"] {
+	padding: 0 5%;
+	text-align: center;
+}
+body.default-homepage [class$="-col-image"] {
+	padding: 1rem 5%;
+}
+
 #hello-world a {
-	margin: .25em;
+	margin: .25rem;
 }
 #hello-world a.code-link {
-	padding-left: 2em;
-	padding-right: 2em;
-	border-radius: 1.5em;
-	font-size: 112.5%;
+	padding-left: 2rem;
+	padding-right: 2rem;
+	border-radius: 1.5rem;
+	font-size: 1.125rem;
 }
 #hello-world a.welcome-link {
 	text-decoration: none;
@@ -21,16 +34,12 @@ body.default-homepage span.app-name {
 	vertical-align: middle;
 }
 
-#welcome {
-	padding: 2em 10%;
-}
 #welcome > div.container {
-	padding: 3rem 8rem;
+	padding: 2rem 1rem;
 	border-radius: 28px;
-	background: url("/theme/images/demo-welcome.jpg") center center no-repeat;
+	background: url("/theme/images/homepage-welcome.jpg") center center no-repeat;
 	background-size: auto;
 	background-size: cover;
-	text-align: center;
 	color: #fff;
 }
 #welcome > div.container > h2 {
@@ -40,44 +49,55 @@ body.default-homepage span.app-name {
 	color: #ccc;
 }
 
-#pagetop {
-	padding: 2em 5%;
-}
-#pagetop .pagetop-col-text {
-	padding-top: 2em;
-	padding-left: 5%;
-}
-
-#promo {
-	padding: 4em 5% 2em;
-}
-#promo .promo-col-text {
-	padding-top: 2em;
-	padding-left: 5%;
-}
-
-#reporting {
-	padding: 4em 5%;
-}
-#reporting .reporting-col-text {
-	text-align: center;
+#reporting .reporting-col-image img {
+	border-radius: 40px;
 }
 
 /* Responsiveness */
-@media (min-width: 993px) {
-	#reporting .reporting-col-text {
-		padding-right: 3em;
-		text-align: right;
-	}
-}
-@media (max-width: 992px) {
-	[class$="-col-text"] {
-		text-align: center;
-	}
-	#hello-world .hello-col-image {
+@media (min-width: 768px) {
+	body.default-homepage [class$="-col-image"] {
 		padding-top: 5%;
 	}
+
+	#hello-world .hello-col-text {
+		padding-left: 1rem;
+		padding-right: 1rem;
+	}
+	#hello-world .hello-col-image {
+		padding-top: 3rem;
+	}
+}
+@media (min-width: 992px) {
+	body.default-homepage [class$="-col-image"] {
+		padding-top: 1rem;
+	}
+
+	#hello-world .hello-col-text {
+		padding-top: 2rem;
+		padding-left: 10%;
+		text-align: left;
+	}
+
+	#welcome {
+		padding-left: 10%;
+		padding-right: 10%;
+	}
 	#welcome > div.container {
-		padding: 3rem 1rem;
+		padding: 2rem 8rem;
+	}
+
+	#pagetop .pagetop-col-text {
+		padding-left: 2rem;
+		text-align: left;
+	}
+
+	#promo .promo-col-text {
+		padding-right: 0;
+		text-align: right;
+	}
+
+	#reporting .reporting-col-text {
+		padding-left: 1rem;
+		text-align: left;
 	}
 }
