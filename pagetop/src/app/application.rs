@@ -15,7 +15,7 @@ pub struct Application {
 }
 
 impl Application {
-    pub async fn prepare(app: ModuleStaticRef) -> Result<Self, Error> {
+    pub fn prepare(app: ModuleStaticRef) -> Result<Self, Error> {
         // Rótulo de presentación.
         super::banner::print_on_startup();
 

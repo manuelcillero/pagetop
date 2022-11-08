@@ -27,5 +27,5 @@ impl ModuleTrait for Drust {
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    Application::prepare(&Drust).await?.run()?.await
+    Application::prepare(&Drust).unwrap().run()?.await
 }
