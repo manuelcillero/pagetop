@@ -19,6 +19,9 @@ impl Application {
         // Rótulo de presentación.
         super::banner::print_on_startup();
 
+        // Inicializa la configuración global.
+        LazyStatic::force(&super::config::SETTINGS);
+
         // Inicia registro de trazas y eventos.
         LazyStatic::force(&super::tracing::TRACING);
 

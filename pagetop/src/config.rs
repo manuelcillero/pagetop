@@ -42,14 +42,15 @@
 //! # Cómo añadir ajustes de configuración
 //!
 //! Para proporcionar a tu **aplicación** o **módulo** sus propios ajustes de configuración, añade
-//! [*serde*](https://docs.rs/serde) en las dependencias de tu archivo *Cargo.toml*:
+//! [*serde*](https://docs.rs/serde) en las dependencias de tu archivo *Cargo.toml* habilitando la
+//! característica `derive`:
 //!
 //! ```toml
 //! [dependencies]
 //! serde = { version = "1.0", features = ["derive"] }
 //! ```
 //!
-//! Declara ([`LazyStatic`]) e inicializa tus nuevos ajustes con tipos seguros
+//! Y luego declara ([`LazyStatic`]) e inicializa tus ajustes con tipos seguros
 //! ([`config::try_into<S>()`](try_into)) y valores predefinidos
 //! ([`predefined_settings!`](crate::predefined_settings)):
 //!
@@ -80,15 +81,18 @@
 //! });
 //! ```
 //!
-//! De hecho, así se declaran e inicializan los ajustes globales de la configuración
-//! ([`SETTINGS`](crate::app::config::SETTINGS)).
+//! De hecho, esta es la forma en la que se declaran e inicializan los ajustes globales de la
+//! configuración ([`SETTINGS`](crate::app::config::SETTINGS)).
 //!
 //! Usa la sintaxis TOML para añadir tu nueva sección `[myapp]` en los archivos de configuración,
-//! del mismo modo que `[log]` o `[server]` hacen para los ajustes globales
+//! del mismo modo que se añaden `[log]` o `[server]` en los ajustes globales
 //! ([`Settings`](crate::app::config::Settings)).
 //!
 //! Se recomienda inicializar todos los ajustes con valores predefinidos, o utilizar la notación
 //! `Option<T>` si van a ser tratados en el código como opcionales.
+//!
+//! Si no pueden inicializarse correctamente los ajustes de configuración, entonces la aplicación
+//! ejecutará un panic! y detendrá la ejecución.
 //!
 //! Los ajustes de configuración siempre son de sólo lectura.
 //!
@@ -186,7 +190,7 @@ where
         settings.set_default(key, *value).unwrap();
     }
     match settings.try_into() {
-        Ok(c) => c,
+        Ok(s) => s,
         Err(e) => panic!("Error parsing settings: {}", e),
     }
 }
