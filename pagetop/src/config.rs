@@ -100,9 +100,9 @@
 //! use pagetop::prelude::*;
 //!
 //! fn global_settings() {
-//!     println!("App name: {}", &SETTINGS.app.name);
-//!     println!("App description: {}", &SETTINGS.app.description);
-//!     println!("Value of PAGETOP_RUN_MODE: {}", &SETTINGS.app.run_mode);
+//!     println!("App name: {}", &global::SETTINGS.app.name);
+//!     println!("App description: {}", &global::SETTINGS.app.description);
+//!     println!("Value of PAGETOP_RUN_MODE: {}", &global::SETTINGS.app.run_mode);
 //! }
 //!
 //! fn module_settings() {

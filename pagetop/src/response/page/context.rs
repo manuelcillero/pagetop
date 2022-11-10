@@ -1,11 +1,11 @@
 use super::PageOp;
-use crate::app::SETTINGS;
+
 use crate::core::theme::{all::theme_by_single_name, ThemeStaticRef};
 use crate::html::{html, Assets, Favicon, IdentifierValue, JavaScript, Markup, ModeJS, StyleSheet};
-use crate::{base, concat_string, util, LazyStatic};
+use crate::{base, concat_string, global, util, LazyStatic};
 
 static DEFAULT_THEME: LazyStatic<ThemeStaticRef> =
-    LazyStatic::new(|| match theme_by_single_name(&SETTINGS.app.theme) {
+    LazyStatic::new(|| match theme_by_single_name(&global::SETTINGS.app.theme) {
         Some(theme) => theme,
         None => &base::theme::bootsier::Bootsier,
     });

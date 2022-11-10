@@ -57,7 +57,7 @@ fn hello_world() -> Container {
                             (e("hello_intro", &args![
                                 "app" => format!(
                                     "<span class=\"app-name\">{}</span>",
-                                    &SETTINGS.app.name,
+                                    &global::SETTINGS.app.name,
                                 )
                             ]))
                         })
@@ -108,7 +108,10 @@ fn welcome() -> Container {
         .with_component(
             Heading::h3(html! {
                 (e("welcome_subtitle", &args![
-                    "app" => format!("<span class=\"app-name\">{}</span>", &SETTINGS.app.name)
+                    "app" => format!(
+                        "<span class=\"app-name\">{}</span>",
+                        &global::SETTINGS.app.name
+                    )
                 ]))
             })
             .with_display(HeadingDisplay::Subtitle),

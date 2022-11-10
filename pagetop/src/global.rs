@@ -1,5 +1,3 @@
-//! Ajustes globales de la configuración.
-
 use crate::pub_config;
 
 use serde::Deserialize;

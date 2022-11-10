@@ -1,10 +1,10 @@
 use super::fatal_error::FatalError;
-use super::SETTINGS;
+
 use crate::core::module::ModuleStaticRef;
 use crate::core::{module, theme};
 use crate::html::Markup;
 use crate::response::page::ResultPage;
-use crate::LazyStatic;
+use crate::{global, LazyStatic};
 
 use actix_web::dev::Server;
 
@@ -18,9 +18,6 @@ impl Application {
     pub fn prepare(app: ModuleStaticRef) -> Result<Self, Error> {
         // Rótulo de presentación.
         super::banner::print_on_startup();
-
-        // Inicializa la configuración global.
-        LazyStatic::force(&super::config::SETTINGS);
 
         // Inicia registro de trazas y eventos.
         LazyStatic::force(&super::tracing::TRACING);
@@ -58,7 +55,7 @@ impl Application {
         })
         .bind(format!(
             "{}:{}",
-            &SETTINGS.server.bind_address, &SETTINGS.server.bind_port
+            &global::SETTINGS.server.bind_address, &global::SETTINGS.server.bind_port
         ))?
         .run();
 

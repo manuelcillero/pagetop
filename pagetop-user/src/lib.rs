@@ -58,7 +58,7 @@ fn form_login() -> Form {
                     t(
                         "username_help",
                         &args![
-                            "app" => SETTINGS.app.name.to_owned()
+                            "app" => global::SETTINGS.app.name.to_owned()
                         ],
                     )
                     .as_str(),
