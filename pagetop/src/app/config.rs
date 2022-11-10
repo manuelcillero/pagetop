@@ -96,7 +96,8 @@ pub struct Server {
     pub bind_port: u16,
 }
 
-/// Declara e inicializa los ajustes globales para la estructura [`Settings`].
+/// Declara y asigna los valores predefinidos de los ajustes globales para la estructura
+/// [`Settings`].
 ///
 /// ```
 /// use pagetop::prelude::*;

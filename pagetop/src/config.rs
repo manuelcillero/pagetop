@@ -41,7 +41,7 @@
 //!
 //! # Cómo añadir ajustes de configuración
 //!
-//! Para proporcionar a tu **aplicación** o **módulo** sus propios ajustes de configuración, añade
+//! Para proporcionar a tu **módulo** sus propios ajustes de configuración, añade
 //! [*serde*](https://docs.rs/serde) en las dependencias de tu archivo *Cargo.toml* habilitando la
 //! característica `derive`:
 //!
@@ -50,9 +50,9 @@
 //! serde = { version = "1.0", features = ["derive"] }
 //! ```
 //!
-//! Y luego declara ([`LazyStatic`]) e inicializa tus ajustes con tipos seguros
-//! ([`config::try_into<S>()`](try_into)) y valores predefinidos
-//! ([`predefined_settings!`](crate::predefined_settings)):
+//! Y luego declara con [`LazyStatic`] tus ajustes, usando tipos seguros mediante
+//! [`config::try_into<S>()`](try_into) y asignando los valores predefinidos directamente con la
+//! macro [`predefined_settings!`](crate::predefined_settings) para la estructura asociada:
 //!
 //! ```
 //! use pagetop::prelude::*;
@@ -81,12 +81,12 @@
 //! });
 //! ```
 //!
-//! De hecho, esta es la forma en la que se declaran e inicializan los ajustes globales de la
-//! configuración ([`SETTINGS`](crate::app::config::SETTINGS)).
+//! De hecho, así se declaran los ajustes globales de la configuración (ver
+//! [`SETTINGS`](crate::app::config::SETTINGS)).
 //!
-//! Usa la sintaxis TOML para añadir tu nueva sección `[myapp]` en los archivos de configuración,
-//! del mismo modo que se añaden `[log]` o `[server]` en los ajustes globales
-//! ([`Settings`](crate::app::config::Settings)).
+//! Puedes usar la [sintaxis TOML](https://toml.io/en/v1.0.0#table) para añadir tu nueva sección
+//! `[myapp]` en los archivos de configuración, del mismo modo que se añaden `[log]` o `[server]` en
+//! los ajustes globales (ver [`Settings`](crate::app::config::Settings)).
 //!
 //! Se recomienda inicializar todos los ajustes con valores predefinidos, o utilizar la notación
 //! `Option<T>` si van a ser tratados en el código como opcionales.
@@ -94,7 +94,7 @@
 //! Si no pueden inicializarse correctamente los ajustes de configuración, entonces la aplicación
 //! ejecutará un panic! y detendrá la ejecución.
 //!
-//! Los ajustes de configuración siempre son de sólo lectura.
+//! Los ajustes de configuración siempre serán de sólo lectura.
 //!
 //!
 //! # Cómo usar tus nuevos ajustes de configuración
@@ -176,7 +176,8 @@ static CONFIG_DATA: LazyStatic<ConfigData> = LazyStatic::new(|| {
     settings
 });
 
-/// Carga ajustes con tipos seguros y valores predefinidos para tu aplicación o módulo.
+/// Asigna los ajustes de configuración de tu módulo usando tipos seguros y valores predefinidos
+/// para la estructura asociada S.
 ///
 /// Detiene la aplicación con un panic! si no pueden asignarse los ajustes de configuración.
 ///
