@@ -5,7 +5,6 @@ use crate::config;
 
 use substring::Substring;
 
-
 pub fn print_on_startup() {
     if config::SETTINGS.app.startup_banner.to_lowercase() != "off" {
         if let Some((term_width, _)) = term_size::dimensions() {

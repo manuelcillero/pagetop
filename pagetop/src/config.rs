@@ -78,12 +78,11 @@
 //! );
 //! ```
 //!
-//! De hecho, así se declaran los ajustes globales de la configuración (ver
-//! [`SETTINGS`](crate::global::SETTINGS)).
+//! De hecho, así se declaran los ajustes globales de la configuración (ver [`SETTINGS`]).
 //!
 //! Puedes usar la [sintaxis TOML](https://toml.io/en/v1.0.0#table) para añadir tu nueva sección
 //! `[myapp]` en los archivos de configuración, del mismo modo que se añaden `[log]` o `[server]` en
-//! los ajustes globales (ver [`Settings`](crate::global::Settings)).
+//! los ajustes globales (ver [`Settings`]).
 //!
 //! Se recomienda inicializar todos los ajustes con valores predefinidos, o utilizar la notación
 //! `Option<T>` si van a ser tratados en el código como opcionales.
@@ -100,9 +99,9 @@
 //! use pagetop::prelude::*;
 //!
 //! fn global_settings() {
-//!     println!("App name: {}", &global::SETTINGS.app.name);
-//!     println!("App description: {}", &global::SETTINGS.app.description);
-//!     println!("Value of PAGETOP_RUN_MODE: {}", &global::SETTINGS.app.run_mode);
+//!     println!("App name: {}", &config::SETTINGS.app.name);
+//!     println!("App description: {}", &config::SETTINGS.app.description);
+//!     println!("Value of PAGETOP_RUN_MODE: {}", &config::SETTINGS.app.run_mode);
 //! }
 //!
 //! fn module_settings() {
@@ -127,7 +126,6 @@ use crate::config::file::File;
 use serde::Deserialize;
 
 use std::env;
-
 
 /// Directorio donde se encuentran los archivos de configuración.
 const CONFIG_DIR: &str = "config";

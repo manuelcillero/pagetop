@@ -3,7 +3,6 @@ use crate::{config, LazyStatic};
 use tracing_appender::non_blocking::WorkerGuard;
 use tracing_subscriber::EnvFilter;
 
-
 /// Registro de trazas y eventos de la aplicación.
 ///
 /// Para aumentar el rendimiento, un subproceso dedicado utiliza un sistema de escritura sin bloqueo

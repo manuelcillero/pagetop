@@ -4,7 +4,6 @@ use crate::db::*;
 use sea_orm::{ConnectOptions, ConnectionTrait, Database, DatabaseBackend, Statement};
 use tracing_unwrap::ResultExt;
 
-
 pub static DBCONN: LazyStatic<DbConn> = LazyStatic::new(|| {
     trace::info!(
         "Connecting to database \"{}\" using a pool of {} connections",
@@ -60,7 +59,6 @@ pub static DBCONN: LazyStatic<DbConn> = LazyStatic::new(|| {
     }))
     .expect_or_log("Failed to connect to database")
 });
-
 
 static DBBACKEND: LazyStatic<DatabaseBackend> = LazyStatic::new(||
     DBCONN.get_database_backend()

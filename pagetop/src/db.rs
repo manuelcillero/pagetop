@@ -2,7 +2,6 @@ pub use url::Url as DbUri;
 
 pub use sea_orm::{DatabaseConnection as DbConn, ExecResult, QueryResult};
 
-
 // El siguiente módulo migration es una versión simplificada del módulo sea_orm_migration (v0.9.1)
 // https://github.com/SeaQL/sea-orm/tree/0.9.1/sea-orm-migration para evitar los errores generados
 // por el paradigma modular de PageTop. Se copian los siguientes archivos del original:
