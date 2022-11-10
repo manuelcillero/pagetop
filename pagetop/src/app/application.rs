@@ -27,7 +27,7 @@ impl Application {
 
         #[cfg(feature = "database")]
         // Conecta con la base de datos.
-        LazyStatic::force(&super::db::DBCONN);
+        LazyStatic::force(&crate::db::DBCONN);
 
         // Registra los módulos de la aplicación.
         module::all::register_modules(app);

@@ -51,7 +51,7 @@ impl MigrationTrait for Migration {
             .await?;
 
         // Built-in roles.
-        app::db::exec::<InsertStatement>(
+        db::exec::<InsertStatement>(
             Query::insert()
                 .into_table(Role::Table)
                 .columns(vec![Role::Name, Role::Weight])
