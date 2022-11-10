@@ -1,8 +1,6 @@
 //! Ajustes globales de la configuración.
 
-use crate::config;
-use crate::predefined_settings;
-use crate::LazyStatic;
+use crate::pub_config;
 
 use serde::Deserialize;
 
@@ -53,9 +51,9 @@ pub struct Database {
     pub db_pass: String,
     /// Valor predefinido: *"localhost"*
     pub db_host: String,
-    /// Valor predefinido: *"0"*
+    /// Valor predefinido: *0*
     pub db_port: u16,
-    /// Valor predefinido: *"5"*
+    /// Valor predefinido: *5*
     pub max_pool_size: u32,
 }
 
@@ -92,53 +90,39 @@ pub struct Log {
 pub struct Server {
     /// Valor predefinido: *"localhost"*
     pub bind_address: String,
-    /// Valor predefinido: *"8088"*
+    /// Valor predefinido: *8088*
     pub bind_port: u16,
 }
 
-/// Declara y asigna los valores predefinidos de los ajustes globales para la estructura
-/// [`Settings`].
-///
-/// ```
-/// use pagetop::prelude::*;
-///
-/// fn demo() {
-///     println!("App name: {}", &SETTINGS.app.name);
-///     println!("App description: {}", &SETTINGS.app.description);
-///     println!("Value of PAGETOP_RUN_MODE: {}", &SETTINGS.app.run_mode);
-/// }
-/// ```
-pub static SETTINGS: LazyStatic<Settings> = LazyStatic::new(|| {
-    config::try_into::<Settings>(predefined_settings!(
-        // [app]
-        "app.name"               => "PageTop Application",
-        "app.description"        => "Developed with the amazing PageTop framework.",
-        "app.theme"              => "Bootsier",
-        "app.language"           => "en-US",
-        "app.direction"          => "ltr",
-        "app.startup_banner"     => "Slant",
+pub_config!(SETTINGS: Settings,
+    // [app]
+    "app.name"               => "PageTop Application",
+    "app.description"        => "Developed with the amazing PageTop framework.",
+    "app.theme"              => "Bootsier",
+    "app.language"           => "en-US",
+    "app.direction"          => "ltr",
+    "app.startup_banner"     => "Slant",
 
-        // [database]
-        "database.db_type"       => "",
-        "database.db_name"       => "",
-        "database.db_user"       => "",
-        "database.db_pass"       => "",
-        "database.db_host"       => "localhost",
-        "database.db_port"       => "0",
-        "database.max_pool_size" => "5",
+    // [database]
+    "database.db_type"       => "",
+    "database.db_name"       => "",
+    "database.db_user"       => "",
+    "database.db_pass"       => "",
+    "database.db_host"       => "localhost",
+    "database.db_port"       => 0,
+    "database.max_pool_size" => 5,
 
-        // [dev]
-        "dev.static_files"       => "",
+    // [dev]
+    "dev.static_files"       => "",
 
-        // [log]
-        "log.tracing"            => "Info",
-        "log.rolling"            => "Stdout",
-        "log.path"               => "log",
-        "log.prefix"             => "tracing.log",
-        "log.format"             => "Full",
+    // [log]
+    "log.tracing"            => "Info",
+    "log.rolling"            => "Stdout",
+    "log.path"               => "log",
+    "log.prefix"             => "tracing.log",
+    "log.format"             => "Full",
 
-        // [server]
-        "server.bind_address"    => "localhost",
-        "server.bind_port"       => "8088"
-    ))
-});
+    // [server]
+    "server.bind_address"    => "localhost",
+    "server.bind_port"       => 8088,
+);

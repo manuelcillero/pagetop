@@ -50,9 +50,8 @@
 //! serde = { version = "1.0", features = ["derive"] }
 //! ```
 //!
-//! Y luego declara con [`LazyStatic`] tus ajustes, usando tipos seguros mediante
-//! [`config::try_into<S>()`](try_into) y asignando los valores predefinidos directamente con la
-//! macro [`predefined_settings!`](crate::predefined_settings) para la estructura asociada:
+//! Y luego declara con la macro [`pub_config!`](crate::pub_config) tus ajustes, usando tipos
+//! seguros y asignando los valores predefinidos para la estructura asociada:
 //!
 //! ```
 //! use pagetop::prelude::*;
@@ -71,14 +70,12 @@
 //!     pub height: u16,
 //! }
 //!
-//! pub static MY_SETTINGS: LazyStatic<MySettings> = LazyStatic::new(|| {
-//!     config::try_into::<MySettings>(predefined_settings!(
-//!         // [myapp]
-//!         "myapp.name" => "Value Name",
-//!         "myapp.width" => "900",
-//!         "myapp.height" => "320"
-//!     ))
-//! });
+//! pub_config!(MY_SETTINGS: MySettings,
+//!     // [myapp]
+//!     "myapp.name" => "Value Name",
+//!     "myapp.width" => 900,
+//!     "myapp.height" => 320,
+//! );
 //! ```
 //!
 //! De hecho, así se declaran los ajustes globales de la configuración (ver
@@ -100,7 +97,15 @@
 //! # Cómo usar tus nuevos ajustes de configuración
 //!
 //! ```
-//! fn demo() {
+//! use pagetop::prelude::*;
+//!
+//! fn global_settings() {
+//!     println!("App name: {}", &SETTINGS.app.name);
+//!     println!("App description: {}", &SETTINGS.app.description);
+//!     println!("Value of PAGETOP_RUN_MODE: {}", &SETTINGS.app.run_mode);
+//! }
+//!
+//! fn module_settings() {
 //!     println!("{} - {:?}", &MY_SETTINGS.myapp.name, &MY_SETTINGS.myapp.description);
 //!     println!("{}", &MY_SETTINGS.myapp.width);
 //! }
@@ -119,39 +124,14 @@ use crate::LazyStatic;
 use crate::config::data::ConfigData;
 use crate::config::file::File;
 
-use std::collections::HashMap;
 use std::env;
-
-use serde::Deserialize;
-
-/// Un *HashMap* con una lista de literales `"clave" => "valor"` para asignar ajustes de
-/// configuración predefinidos.
-///
-/// Ver [`cómo añadir ajustes de configuración`](index.html#cómo-añadir-ajustes-de-configuración).
-pub type PredefinedSettings = HashMap<&'static str, &'static str>;
-
-#[macro_export]
-/// Macro para crear e inicializar un *HashMap* ([`PredefinedSettings`]) con una lista de literales
-/// `"clave" => "valor"` para asignar los ajustes de configuración predefinidos.
-///
-/// Ver [`cómo añadir ajustes de configuración`](config/index.html#cómo-añadir-ajustes-de-configuración).
-macro_rules! predefined_settings {
-    ( $($key:literal => $value:literal),* ) => {{
-        #[allow(unused_mut)]
-        let mut a = $crate::config::PredefinedSettings::new();
-        $(
-            a.insert($key, $value);
-        )*
-        a
-    }};
-}
 
 /// Directorio donde se encuentran los archivos de configuración.
 const CONFIG_DIR: &str = "config";
 
 /// Todos los valores originales de la configuración en forma de pares `clave = valor` recogidos de
 /// los archivos de configuración.
-static CONFIG_DATA: LazyStatic<ConfigData> = LazyStatic::new(|| {
+pub static CONFIG: LazyStatic<ConfigData> = LazyStatic::new(|| {
     // Modo de ejecución según la variable de entorno PAGETOP_RUN_MODE. Por defecto 'default'.
     let run_mode = env::var("PAGETOP_RUN_MODE").unwrap_or_else(|_| "default".into());
 
@@ -176,22 +156,27 @@ static CONFIG_DATA: LazyStatic<ConfigData> = LazyStatic::new(|| {
     settings
 });
 
-/// Asigna los ajustes de configuración de tu módulo usando tipos seguros y valores predefinidos
-/// para la estructura asociada S.
+#[macro_export]
+/// Asigna los ajustes de configuración de tu módulo usando tipos seguros y valores predefinidos.
 ///
 /// Detiene la aplicación con un panic! si no pueden asignarse los ajustes de configuración.
 ///
-/// Ver [`Cómo añadir ajustes de configuración`](index.html#cómo-añadir-ajustes-de-configuración).
-pub fn try_into<S>(values: PredefinedSettings) -> S
-where
-    S: Deserialize<'static>,
-{
-    let mut settings = CONFIG_DATA.clone();
-    for (key, value) in values.iter() {
-        settings.set_default(key, *value).unwrap();
-    }
-    match settings.try_into() {
-        Ok(s) => s,
-        Err(e) => panic!("Error parsing settings: {}", e),
-    }
+/// Ver [`Cómo añadir ajustes de configuración`](config/index.html#cómo-añadir-ajustes-de-configuración).
+macro_rules! pub_config {
+    ( $S:ident: $t:ty $(, $k:literal => $v:literal)*$(,)* ) => { crate::doc_comment! {
+        concat!(
+            "Declara y asigna los valores predefinidos para los ajustes de configuración ",
+            "asociados a la estructura [`", stringify!($t), "`]."
+        ),
+        pub static $S: $crate::LazyStatic<$t> = $crate::LazyStatic::new(|| {
+            let mut settings = $crate::config::CONFIG.clone();
+            $(
+                settings.set_default($k, $v).unwrap();
+            )*
+            match settings.try_into() {
+                Ok(s) => s,
+                Err(e) => panic!("Error parsing settings: {}", e),
+            }
+        });
+    }};
 }

@@ -2,9 +2,7 @@
 pub use crate::{concat_string, LazyStatic};
 
 // Macros.
-pub use crate::{
-    args, configure_service_for_static_files, predefined_settings, pub_handle, pub_locale,
-};
+pub use crate::{args, configure_service_for_static_files, pub_config, pub_handle, pub_locale};
 
 // Helpers.
 pub use crate::util;

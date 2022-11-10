@@ -24,6 +24,7 @@ categories = [
 [dependencies]
 async-trait   = "0.1.58"
 concat-string = "1.0.1"
+doc-comment   = "0.3.3"
 figlet-rs     = "0.1.4"
 futures       = "0.3.25"
 nom           = "7.1.1"
