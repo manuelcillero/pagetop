@@ -20,7 +20,7 @@ impl Application {
         super::banner::print_on_startup();
 
         // Inicia registro de trazas y eventos.
-        LazyStatic::force(&super::tracing::TRACING);
+        LazyStatic::force(&global::TRACING);
 
         // Valida el identificador de idioma.
         LazyStatic::force(&super::locale::LANGID);

@@ -79,11 +79,11 @@
 //! ```
 //!
 //! De hecho, así se declaran los ajustes globales de la configuración (ver
-//! [`SETTINGS`](crate::app::config::SETTINGS)).
+//! [`SETTINGS`](crate::global::SETTINGS)).
 //!
 //! Puedes usar la [sintaxis TOML](https://toml.io/en/v1.0.0#table) para añadir tu nueva sección
 //! `[myapp]` en los archivos de configuración, del mismo modo que se añaden `[log]` o `[server]` en
-//! los ajustes globales (ver [`Settings`](crate::app::config::Settings)).
+//! los ajustes globales (ver [`Settings`](crate::global::Settings)).
 //!
 //! Se recomienda inicializar todos los ajustes con valores predefinidos, o utilizar la notación
 //! `Option<T>` si van a ser tratados en el código como opcionales.
