@@ -102,8 +102,8 @@ pub use fluent_templates::{static_loader as static_locale, Loader as Locale};
 /// Permite integrar fácilmente localización en temas, módulos y componentes.
 macro_rules! pub_locale {
     ( $dir_locales:literal $(, $core_locales:literal)? ) => {
+        use $crate::global;
         use $crate::locale::*;
-        use $crate::app::locale::LANGID;
 
         static_locale! {
             static LOCALES = {
@@ -118,7 +118,7 @@ macro_rules! pub_locale {
 
         #[allow(dead_code)]
         fn l(key: &str) -> String {
-            LOCALES.lookup(&LANGID, key).unwrap_or(key.to_string())
+            LOCALES.lookup(&global::LANGID, key).unwrap_or(key.to_string())
         }
 
         #[allow(dead_code)]
@@ -126,7 +126,7 @@ macro_rules! pub_locale {
             key: &str,
             args: &std::collections::HashMap<String, FluentValue>
         ) -> String {
-            LOCALES.lookup_with_args(&LANGID, key, args).unwrap_or(key.to_string())
+            LOCALES.lookup_with_args(&global::LANGID, key, args).unwrap_or(key.to_string())
         }
 
         #[allow(dead_code)]
@@ -135,7 +135,7 @@ macro_rules! pub_locale {
             args: &std::collections::HashMap<String, FluentValue>
         ) -> $crate::html::PreEscaped<String> {
             $crate::html::PreEscaped(
-                LOCALES.lookup_with_args(&LANGID, key, args).unwrap_or(key.to_string())
+                LOCALES.lookup_with_args(&global::LANGID, key, args).unwrap_or(key.to_string())
             )
         }
     };

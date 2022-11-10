@@ -1,9 +1,11 @@
-use crate::{pub_config, LazyStatic};
+use crate::{pub_config, trace, LazyStatic};
 
 use serde::Deserialize;
 
 use tracing_appender::non_blocking::WorkerGuard;
 use tracing_subscriber::EnvFilter;
+
+use unic_langid::LanguageIdentifier;
 
 // CONFIGURACIÓN ***********************************************************************************
 
@@ -189,3 +191,24 @@ pub(crate) static TRACING: LazyStatic<WorkerGuard> = LazyStatic::new(|| {
 
     guard
 });
+
+// LOCALIZACIÓN ************************************************************************************
+
+/// Almacena el Identificador de Idioma Unicode
+/// ([Unicode Language Identifier](https://unicode.org/reports/tr35/tr35.html#Unicode_language_identifier))
+/// de la aplicación, obtenido de `SETTINGS.app.language`.
+pub static LANGID: LazyStatic<LanguageIdentifier> =
+    LazyStatic::new(|| match SETTINGS.app.language.parse() {
+        Ok(language) => language,
+        Err(_) => {
+            trace::warn!(
+                "{}, {} \"{}\"! {}, {}",
+                "Failed to parse language",
+                "unrecognized Unicode Language Identifier",
+                SETTINGS.app.language,
+                "Using \"en-US\"",
+                "check the settings file",
+            );
+            "en-US".parse().unwrap()
+        }
+    });

@@ -6,8 +6,6 @@ pub use actix_web_static_files::ResourceFiles;
 
 mod banner;
 
-pub mod locale;
-
 #[cfg(feature = "database")]
 pub mod db;
 
