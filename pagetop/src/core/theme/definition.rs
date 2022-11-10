@@ -5,7 +5,7 @@ use crate::concat_string;
 use crate::core::component::ComponentTrait;
 use crate::html::{html, Favicon, Markup};
 use crate::response::page::{Page, PageContext, PageOp};
-use crate::util::{single_type_name, Handler};
+use crate::util::{single_type_name, Handle};
 
 pub type ThemeStaticRef = &'static dyn ThemeTrait;
 
@@ -15,7 +15,7 @@ pub trait BaseTheme {
 
 /// Los temas deben implementar este "trait".
 pub trait ThemeTrait: BaseTheme + Send + Sync {
-    fn handler(&self) -> Handler;
+    fn handle(&self) -> Handle;
 
     fn name(&self) -> String {
         self.single_name().to_owned()
@@ -91,7 +91,7 @@ pub trait ThemeTrait: BaseTheme + Send + Sync {
         /*
             Cómo usarlo:
 
-            match component.handler() {
+            match component.handle() {
                 BLOCK_COMPONENT => {
                     let block = component_mut::<Block>(component);
                     block.alter_title("New title");
@@ -111,7 +111,7 @@ pub trait ThemeTrait: BaseTheme + Send + Sync {
         /*
             Cómo usarlo:
 
-            match component.handler() {
+            match component.handle() {
                 BLOCK_COMPONENT => {
                     let block = component_ref::<Block>(component);
                     match block.template() {

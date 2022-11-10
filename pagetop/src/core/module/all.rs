@@ -31,7 +31,7 @@ pub fn register_modules(app: ModuleStaticRef) {
 
 fn add_to_discarded(list: &mut Vec<ModuleStaticRef>, module: ModuleStaticRef) {
     for u in module.uninstall_modules().iter() {
-        if !list.iter().any(|m| m.handler() == u.handler()) {
+        if !list.iter().any(|m| m.handle() == u.handle()) {
             list.push(*u);
             trace::debug!("Module \"{}\" discarded", u.single_name());
         }
@@ -42,12 +42,12 @@ fn add_to_discarded(list: &mut Vec<ModuleStaticRef>, module: ModuleStaticRef) {
 }
 
 fn add_to_enabled(list: &mut Vec<ModuleStaticRef>, module: ModuleStaticRef) {
-    if !list.iter().any(|m| m.handler() == module.handler()) {
+    if !list.iter().any(|m| m.handle() == module.handle()) {
         if DISCARDED_MODULES
             .read()
             .unwrap()
             .iter()
-            .any(|m| m.handler() == module.handler())
+            .any(|m| m.handle() == module.handle())
         {
             panic!(
                 "Trying to enable \"{}\" module which is disabled",

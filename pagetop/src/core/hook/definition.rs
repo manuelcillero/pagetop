@@ -1,4 +1,4 @@
-use crate::util::Handler;
+use crate::util::Handle;
 
 pub use std::any::Any as AnyHookAction;
 
@@ -7,7 +7,7 @@ pub trait HookActionTrait: AnyHookAction + Send + Sync {
     where
         Self: Sized;
 
-    fn handler(&self) -> Handler;
+    fn handle(&self) -> Handle;
 
     fn weight(&self) -> isize {
         0

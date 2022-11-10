@@ -1,15 +1,15 @@
 use pagetop::prelude::*;
 
-pub_const_handler!(MODULE_ADMIN);
+pub_handle!(MODULE_ADMIN);
 
-localize!("src/locales");
+pub_locale!("src/locales");
 
 mod summary;
 
 pub struct Admin;
 
 impl ModuleTrait for Admin {
-    fn handler(&self) -> Handler {
+    fn handle(&self) -> Handle {
         MODULE_ADMIN
     }
 

@@ -87,15 +87,15 @@ pub fn bundle_resources(
     bundle.build()
 }
 
-pub type Handler = u64;
+pub type Handle = u64;
 
 // https://stackoverflow.com/a/71464396
-pub const fn handler(
+pub const fn handle(
     module_path: &'static str,
     file: &'static str,
     line: u32,
     column: u32,
-) -> Handler {
+) -> Handle {
     let mut hash = 0xcbf29ce484222325;
     let prime = 0x00000100000001B3;
 
@@ -124,10 +124,10 @@ pub const fn handler(
 }
 
 #[macro_export]
-macro_rules! pub_const_handler {
-    ( $HANDLER:ident ) => {
-        pub const $HANDLER: $crate::util::Handler =
-            $crate::util::handler(module_path!(), file!(), line!(), column!());
+macro_rules! pub_handle {
+    ( $HANDLE:ident ) => {
+        pub const $HANDLE: $crate::util::Handle =
+            $crate::util::handle(module_path!(), file!(), line!(), column!());
     };
 }
 

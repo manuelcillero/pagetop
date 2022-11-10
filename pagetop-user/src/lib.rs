@@ -1,15 +1,15 @@
 use pagetop::prelude::*;
 
-pub_const_handler!(MODULE_USER);
+pub_handle!(MODULE_USER);
 
-localize!("src/locales");
+pub_locale!("src/locales");
 
 mod migration;
 
 pub struct User;
 
 impl ModuleTrait for User {
-    fn handler(&self) -> Handler {
+    fn handle(&self) -> Handle {
         MODULE_USER
     }
 

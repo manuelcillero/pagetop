@@ -1,7 +1,7 @@
 use crate::app;
 use crate::core::hook::HookAction;
 use crate::core::theme::ThemeStaticRef;
-use crate::util::{single_type_name, Handler};
+use crate::util::{single_type_name, Handle};
 
 #[cfg(feature = "database")]
 use crate::db::MigrationItem;
@@ -14,7 +14,7 @@ pub trait BaseModule {
 
 /// Los módulos deben implementar este *trait*.
 pub trait ModuleTrait: BaseModule + Send + Sync {
-    fn handler(&self) -> Handler;
+    fn handle(&self) -> Handle;
 
     fn name(&self) -> String {
         self.single_name().to_owned()

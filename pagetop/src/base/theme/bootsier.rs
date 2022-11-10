@@ -1,15 +1,15 @@
 use crate::prelude::*;
 
-pub_const_handler!(THEME_BOOTSIER);
+pub_handle!(THEME_BOOTSIER);
+
+pub_locale!("src/base/theme/bootsier/locales");
 
 include!(concat!(env!("OUT_DIR"), "/bootsier.rs"));
-
-localize!("src/base/theme/bootsier/locales");
 
 pub struct Bootsier;
 
 impl ThemeTrait for Bootsier {
-    fn handler(&self) -> Handler {
+    fn handle(&self) -> Handle {
         THEME_BOOTSIER
     }
 

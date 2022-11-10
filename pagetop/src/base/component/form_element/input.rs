@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-pub_const_handler!(COMPONENT_INPUT);
+pub_handle!(COMPONENT_INPUT);
 
 #[derive(Default)]
 pub enum InputType {
@@ -45,7 +45,7 @@ impl ComponentTrait for Input {
             .with_maxlength(Some(128))
     }
 
-    fn handler(&self) -> Handler {
+    fn handle(&self) -> Handle {
         COMPONENT_INPUT
     }
 

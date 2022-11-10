@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-pub_const_handler!(COMPONENT_ICON);
+pub_handle!(COMPONENT_ICON);
 
 #[rustfmt::skip]
 #[derive(Default)]
@@ -16,7 +16,7 @@ impl ComponentTrait for Icon {
         Icon::default().with_classes(ClassesOp::SetDefault, "bi-question-circle-fill")
     }
 
-    fn handler(&self) -> Handler {
+    fn handle(&self) -> Handle {
         COMPONENT_ICON
     }
 

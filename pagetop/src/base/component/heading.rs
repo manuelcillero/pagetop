@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-pub_const_handler!(COMPONENT_HEADING);
+pub_handle!(COMPONENT_HEADING);
 
 #[derive(Default)]
 pub enum HeadingType {
@@ -43,7 +43,7 @@ impl ComponentTrait for Heading {
         Heading::default()
     }
 
-    fn handler(&self) -> Handler {
+    fn handle(&self) -> Handle {
         COMPONENT_HEADING
     }
 

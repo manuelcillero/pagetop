@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-pub_const_handler!(COMPONENT_ROW);
+pub_handle!(COMPONENT_ROW);
 
 hook_before_render_component!(HOOK_BEFORE_RENDER_ROW, Row);
 
@@ -20,7 +20,7 @@ impl ComponentTrait for Row {
         Row::default().with_classes(ClassesOp::SetDefault, "row")
     }
 
-    fn handler(&self) -> Handler {
+    fn handle(&self) -> Handle {
         COMPONENT_ROW
     }
 

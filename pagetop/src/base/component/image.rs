@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-pub_const_handler!(COMPONENT_IMAGE);
+pub_handle!(COMPONENT_IMAGE);
 
 #[rustfmt::skip]
 #[derive(Default)]
@@ -18,7 +18,7 @@ impl ComponentTrait for Image {
         Image::default().with_classes(ClassesOp::SetDefault, "img-fluid")
     }
 
-    fn handler(&self) -> Handler {
+    fn handle(&self) -> Handle {
         COMPONENT_IMAGE
     }
 

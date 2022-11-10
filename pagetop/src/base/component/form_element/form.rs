@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-pub_const_handler!(COMPONENT_FORM);
+pub_handle!(COMPONENT_FORM);
 
 hook_before_render_component!(HOOK_BEFORE_RENDER_FORM, Form);
 
@@ -32,7 +32,7 @@ impl ComponentTrait for Form {
             .with_charset("UTF-8")
     }
 
-    fn handler(&self) -> Handler {
+    fn handle(&self) -> Handle {
         COMPONENT_FORM
     }
 

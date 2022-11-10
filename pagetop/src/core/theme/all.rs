@@ -20,7 +20,7 @@ pub fn register_themes(themes: Vec<ThemeStaticRef>) {
     for theme in themes {
         if !registered_themes
             .iter()
-            .any(|t| t.handler() == theme.handler())
+            .any(|t| t.handle() == theme.handle())
         {
             trace::debug!("Registering theme \"{}\"", theme.single_name());
             registered_themes.push(theme);

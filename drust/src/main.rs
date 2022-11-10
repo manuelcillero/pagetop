@@ -1,11 +1,11 @@
 use pagetop::prelude::*;
 
-pub_const_handler!(APP_DRUST);
+pub_handle!(APP_DRUST);
 
 struct Drust;
 
 impl ModuleTrait for Drust {
-    fn handler(&self) -> Handler {
+    fn handle(&self) -> Handle {
         APP_DRUST
     }
 

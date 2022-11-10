@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-pub_const_handler!(COMPONENT_MENUITEM);
+pub_handle!(COMPONENT_MENUITEM);
 
 #[derive(Default)]
 pub enum MenuItemType {
@@ -29,7 +29,7 @@ impl ComponentTrait for MenuItem {
         MenuItem::default()
     }
 
-    fn handler(&self) -> Handler {
+    fn handle(&self) -> Handle {
         COMPONENT_MENUITEM
     }
 
@@ -170,7 +170,7 @@ impl MenuItem {
 
 // Menu.
 
-pub_const_handler!(COMPONENT_MENU);
+pub_handle!(COMPONENT_MENU);
 
 hook_before_render_component!(HOOK_BEFORE_RENDER_MENU, Menu);
 
@@ -190,7 +190,7 @@ impl ComponentTrait for Menu {
         Menu::default().with_classes(ClassesOp::SetDefault, "sm sm-clean")
     }
 
-    fn handler(&self) -> Handler {
+    fn handle(&self) -> Handle {
         COMPONENT_MENU
     }
 

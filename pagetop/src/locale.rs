@@ -69,16 +69,16 @@
 //! # Cómo aplicar la localización en tu código
 //!
 //! Una vez hayas creado tu directorio de recursos FTL, sólo tienes que usar la poderosa macro
-//! [`localize!`](crate::localize) para integrar fácilmente tus recursos de localización.
+//! [`pub_locale!`](crate::pub_locale) para integrar fácilmente tus recursos de localización.
 //!
 //! Esta macro crea dos funciones para el ámbito donde se ejecuta. Por un lado la función `l()` para
 //! traducciones directas de etiquetas. Y por otro la función `t()` para traducciones que requieren
 //! argumentos:
 //!
 //! ```
-//! use pagetop::{args, localize};
+//! use pagetop::{args, pub_locale};
 //!
-//! localize!("en-US");
+//! pub_locale!("en-US");
 //!
 //! fn demo() {
 //!     println!("* {}", l("hello-world"));
@@ -100,7 +100,7 @@ pub use fluent_templates::{static_loader as static_locale, Loader as Locale};
 
 #[macro_export]
 /// Permite integrar fácilmente localización en temas, módulos y componentes.
-macro_rules! localize {
+macro_rules! pub_locale {
     ( $dir_locales:literal $(, $core_locales:literal)? ) => {
         use $crate::locale::*;
         use $crate::app::locale::LANGID;

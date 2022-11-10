@@ -1,9 +1,9 @@
 use super::Page;
 use crate::core::hook::{AnyHookAction, HookActionTrait};
-use crate::pub_const_handler;
-use crate::util::Handler;
+use crate::pub_handle;
+use crate::util::Handle;
 
-pub_const_handler!(HOOK_BEFORE_RENDER_PAGE);
+pub_handle!(HOOK_BEFORE_RENDER_PAGE);
 
 type Hook = fn(&mut Page);
 
@@ -20,7 +20,7 @@ impl HookActionTrait for BeforeRenderPageHook {
         }
     }
 
-    fn handler(&self) -> Handler {
+    fn handle(&self) -> Handle {
         HOOK_BEFORE_RENDER_PAGE
     }
 

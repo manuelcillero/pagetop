@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-pub_const_handler!(COMPONENT_DATE);
+pub_handle!(COMPONENT_DATE);
 
 #[rustfmt::skip]
 #[derive(Default)]
@@ -28,7 +28,7 @@ impl ComponentTrait for Date {
             .with_classes(ClassesOp::AddFirst, "form-type-date")
     }
 
-    fn handler(&self) -> Handler {
+    fn handle(&self) -> Handle {
         COMPONENT_DATE
     }
 

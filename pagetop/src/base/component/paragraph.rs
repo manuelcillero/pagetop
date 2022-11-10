@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-pub_const_handler!(COMPONENT_PARAGRAPH);
+pub_handle!(COMPONENT_PARAGRAPH);
 
 #[derive(Default)]
 pub enum ParagraphDisplay {
@@ -30,7 +30,7 @@ impl ComponentTrait for Paragraph {
         Paragraph::default()
     }
 
-    fn handler(&self) -> Handler {
+    fn handle(&self) -> Handle {
         COMPONENT_PARAGRAPH
     }
 

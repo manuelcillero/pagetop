@@ -1,13 +1,13 @@
 use crate::prelude::*;
 
-pub_const_handler!(THEME_ALINER);
+pub_handle!(THEME_ALINER);
 
 include!(concat!(env!("OUT_DIR"), "/aliner.rs"));
 
 pub struct Aliner;
 
 impl ThemeTrait for Aliner {
-    fn handler(&self) -> Handler {
+    fn handle(&self) -> Handle {
         THEME_ALINER
     }
 

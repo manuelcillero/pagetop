@@ -1,6 +1,6 @@
 use crate::html::{html, Markup};
 use crate::response::page::PageContext;
-use crate::util::{single_type_name, Handler};
+use crate::util::{single_type_name, Handle};
 
 pub use std::any::Any as AnyComponent;
 
@@ -13,7 +13,7 @@ pub trait ComponentTrait: AnyComponent + BaseComponent + Send + Sync {
     where
         Self: Sized;
 
-    fn handler(&self) -> Handler;
+    fn handle(&self) -> Handle;
 
     fn name(&self) -> String {
         single_type_name::<Self>().to_owned()
@@ -75,7 +75,7 @@ pub fn component_mut<C: 'static>(component: &mut dyn ComponentTrait) -> &mut C {
 macro_rules! hook_before_render_component {
     ( $ACTION_HANDLER:ident, $Component:ty ) => {
         paste::paste! {
-            $crate::pub_const_handler!($ACTION_HANDLER);
+            $crate::pub_handle!($ACTION_HANDLER);
 
             type Action = fn(&$Component, &mut PageContext);
 
@@ -92,7 +92,7 @@ macro_rules! hook_before_render_component {
                     }
                 }
 
-                fn handler(&self) -> Handler {
+                fn handle(&self) -> Handle {
                     $ACTION_HANDLER
                 }
 

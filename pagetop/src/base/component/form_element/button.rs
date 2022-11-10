@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-pub_const_handler!(COMPONENT_BUTTON);
+pub_handle!(COMPONENT_BUTTON);
 
 #[derive(Default)]
 pub enum ButtonType {
@@ -31,7 +31,7 @@ impl ComponentTrait for Button {
             .with_classes(ClassesOp::AddFirst, "form-button")
     }
 
-    fn handler(&self) -> Handler {
+    fn handle(&self) -> Handle {
         COMPONENT_BUTTON
     }
 

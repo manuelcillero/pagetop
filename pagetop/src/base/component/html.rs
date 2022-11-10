@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-pub_const_handler!(COMPONENT_HTML);
+pub_handle!(COMPONENT_HTML);
 
 #[rustfmt::skip]
 #[derive(Default)]
@@ -16,7 +16,7 @@ impl ComponentTrait for Html {
         Html::default()
     }
 
-    fn handler(&self) -> Handler {
+    fn handle(&self) -> Handle {
         COMPONENT_HTML
     }
 

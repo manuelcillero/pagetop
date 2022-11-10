@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-pub_const_handler!(COMPONENT_CONTAINER);
+pub_handle!(COMPONENT_CONTAINER);
 
 hook_before_render_component!(HOOK_BEFORE_RENDER_CONTAINER, Container);
 
@@ -34,7 +34,7 @@ impl ComponentTrait for Container {
             .with_inner_classes(ClassesOp::SetDefault, "container")
     }
 
-    fn handler(&self) -> Handler {
+    fn handle(&self) -> Handle {
         COMPONENT_CONTAINER
     }
 

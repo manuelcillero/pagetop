@@ -1,8 +1,8 @@
 use pagetop::prelude::*;
 
-pub_const_handler!(MODULE_NODE);
+pub_handle!(MODULE_NODE);
 
-localize!("src/locales");
+pub_locale!("src/locales");
 
 //mod entity;
 mod migration;
@@ -10,7 +10,7 @@ mod migration;
 pub struct Node;
 
 impl ModuleTrait for Node {
-    fn handler(&self) -> Handler {
+    fn handle(&self) -> Handle {
         MODULE_NODE
     }
 

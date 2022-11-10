@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-pub_const_handler!(COMPONENT_HIDDEN);
+pub_handle!(COMPONENT_HIDDEN);
 
 #[rustfmt::skip]
 #[derive(Default)]
@@ -15,7 +15,7 @@ impl ComponentTrait for Hidden {
         Hidden::default()
     }
 
-    fn handler(&self) -> Handler {
+    fn handle(&self) -> Handle {
         COMPONENT_HIDDEN
     }
 

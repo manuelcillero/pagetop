@@ -1,11 +1,11 @@
 use crate::prelude::*;
 
-pub_const_handler!(THEME_MINIMAL);
+pub_handle!(THEME_MINIMAL);
 
 pub struct Minimal;
 
 impl ThemeTrait for Minimal {
-    fn handler(&self) -> Handler {
+    fn handle(&self) -> Handle {
         THEME_MINIMAL
     }
 }

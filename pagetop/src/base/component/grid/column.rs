@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-pub_const_handler!(COMPONENT_COLUMN);
+pub_handle!(COMPONENT_COLUMN);
 
 hook_before_render_component!(HOOK_BEFORE_RENDER_COLUMN, Column);
 
@@ -53,7 +53,7 @@ impl ComponentTrait for Column {
         Column::default().with_classes(ClassesOp::SetDefault, SIZE__DEFAULT)
     }
 
-    fn handler(&self) -> Handler {
+    fn handle(&self) -> Handle {
         COMPONENT_COLUMN
     }
 

@@ -2,19 +2,19 @@
 pub use crate::{concat_string, LazyStatic};
 
 // Macros.
-pub use crate::{args, configure_service_for_static_files, predefined_settings, pub_const_handler};
+pub use crate::{
+    args, configure_service_for_static_files, predefined_settings, pub_handle, pub_locale,
+};
 
 // Helpers.
 pub use crate::util;
-pub use crate::util::{Handler, HashMapResources};
+pub use crate::util::{Handle, HashMapResources};
 
 // *************************************************************************************************
 
 pub use crate::config;
 
 pub use crate::trace;
-
-pub use crate::localize;
 
 pub use crate::html::*;
 

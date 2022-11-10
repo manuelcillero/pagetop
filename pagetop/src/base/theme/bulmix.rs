@@ -1,13 +1,13 @@
 use crate::prelude::*;
 
-pub_const_handler!(THEME_BULMIX);
+pub_handle!(THEME_BULMIX);
 
 include!(concat!(env!("OUT_DIR"), "/bulmix.rs"));
 
 pub struct Bulmix;
 
 impl ThemeTrait for Bulmix {
-    fn handler(&self) -> Handler {
+    fn handle(&self) -> Handle {
         THEME_BULMIX
     }
 
@@ -33,7 +33,7 @@ impl ThemeTrait for Bulmix {
         component: &mut dyn ComponentTrait,
         _context: &mut PageContext,
     ) {
-        match component.handler() {
+        match component.handle() {
             COMPONENT_ANCHOR => {
                 let a = component_mut::<Anchor>(component);
                 a.alter_classes(
@@ -112,7 +112,7 @@ impl ThemeTrait for Bulmix {
         component: &dyn ComponentTrait,
         _context: &mut PageContext,
     ) -> Option<Markup> {
-        match component.handler() {
+        match component.handle() {
             COMPONENT_ICON => {
                 let icon = component_ref::<Icon>(component);
                 Some(html! {

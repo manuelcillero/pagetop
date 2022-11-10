@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-pub_const_handler!(COMPONENT_BLOCK);
+pub_handle!(COMPONENT_BLOCK);
 
 hook_before_render_component!(HOOK_BEFORE_RENDER_BLOCK, Block);
 
@@ -21,7 +21,7 @@ impl ComponentTrait for Block {
         Block::default().with_classes(ClassesOp::SetDefault, "block")
     }
 
-    fn handler(&self) -> Handler {
+    fn handle(&self) -> Handle {
         COMPONENT_BLOCK
     }
 
