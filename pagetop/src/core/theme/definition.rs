@@ -1,9 +1,9 @@
-use crate::{app, concat_string, config};
 use crate::base::component::{Container, Html};
 use crate::core::component::ComponentTrait;
 use crate::html::{html, Favicon, Markup};
 use crate::response::page::{Page, PageContext, PageOp};
 use crate::util::{single_type_name, Handle};
+use crate::{app, concat_string, config};
 
 pub type ThemeStaticRef = &'static dyn ThemeTrait;
 

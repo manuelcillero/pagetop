@@ -164,7 +164,7 @@ pub static CONFIG: LazyStatic<ConfigData> = LazyStatic::new(|| {
 ///
 /// Ver [`Cómo añadir ajustes de configuración`](config/index.html#cómo-añadir-ajustes-de-configuración).
 macro_rules! pub_config {
-    ( $S:ident: $t:ty $(, $k:literal => $v:literal)*$(,)* ) => { crate::doc_comment! {
+    ( $S:ident: $t:ty $(, $k:literal => $v:literal)*$(,)* ) => { $crate::doc_comment! {
         concat!(
             "Declara y asigna los valores predefinidos para los ajustes de configuración ",
             "asociados a la estructura [`", stringify!($t), "`]."
@@ -181,7 +181,6 @@ macro_rules! pub_config {
         });
     }};
 }
-
 
 #[derive(Debug, Deserialize)]
 /// Ajustes globales para las secciones reservadas [`[app]`](App), [`[database]`](Database),

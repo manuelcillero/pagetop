@@ -55,7 +55,8 @@ impl Application {
         })
         .bind(format!(
             "{}:{}",
-            &config::SETTINGS.server.bind_address, &config::SETTINGS.server.bind_port
+            &config::SETTINGS.server.bind_address,
+            &config::SETTINGS.server.bind_port
         ))?
         .run();
 

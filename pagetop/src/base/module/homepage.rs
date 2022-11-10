@@ -82,19 +82,16 @@ fn hello_world() -> Container {
                         .with_classes(ClassesOp::Add, "code-link"),
                     )
                     .with_component(
-                        Anchor::link(
-                            "#welcome",
-                            html! { (l("hello_welcome")) },
-                        )
-                        .with_left_icon(Icon::with("arrow-down-circle-fill"))
-                        .with_classes(ClassesOp::Add, "welcome-link"),
+                        Anchor::link("#welcome", html! { (l("hello_welcome")) })
+                            .with_left_icon(Icon::with("arrow-down-circle-fill"))
+                            .with_classes(ClassesOp::Add, "welcome-link"),
                     ),
             )
             .with_column(
                 grid::Column::new()
                     .with_classes(ClassesOp::Add, "hello-col-image")
                     .with_component(Image::new_with_source("/theme/images/homepage-header.svg")),
-            )
+            ),
     )
 }
 
@@ -158,7 +155,7 @@ fn about_pagetop() -> Container {
                             )
                         ]))
                     })),
-            )
+            ),
     )
 }
 
@@ -189,7 +186,7 @@ fn promo_pagetop() -> Container {
                     .with_classes(ClassesOp::Add, "promo-col-image")
                     .with_size(grid::ColumnSize::Is6of12)
                     .with_component(Image::new_with_source("/theme/images/homepage-pagetop.png")),
-            )
+            ),
     )
 }
 
@@ -217,6 +214,6 @@ fn reporting_problems() -> Container {
                     .with_component(Paragraph::with(html! {
                         (l("report_problems_text2"))
                     })),
-            )
+            ),
     )
 }

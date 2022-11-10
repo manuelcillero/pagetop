@@ -1,5 +1,5 @@
-use crate::{config, run_now, trace, LazyStatic};
 use crate::db::*;
+use crate::{config, run_now, trace, LazyStatic};
 
 use sea_orm::{ConnectOptions, ConnectionTrait, Database, DatabaseBackend, Statement};
 use tracing_unwrap::ResultExt;
@@ -31,14 +31,17 @@ pub static DBCONN: LazyStatic<DbConn> = LazyStatic::new(|| {
                 .set_password(Some(config::SETTINGS.database.db_pass.as_str()))
                 .unwrap();
             if config::SETTINGS.database.db_port != 0 {
-                tmp_uri.set_port(Some(config::SETTINGS.database.db_port)).unwrap();
+                tmp_uri
+                    .set_port(Some(config::SETTINGS.database.db_port))
+                    .unwrap();
             }
             tmp_uri
         }
         "sqlite" => DbUri::parse(
             format!(
                 "{}://{}",
-                &config::SETTINGS.database.db_type, &config::SETTINGS.database.db_name
+                &config::SETTINGS.database.db_type,
+                &config::SETTINGS.database.db_name
             )
             .as_str(),
         )
@@ -60,9 +63,7 @@ pub static DBCONN: LazyStatic<DbConn> = LazyStatic::new(|| {
     .expect_or_log("Failed to connect to database")
 });
 
-static DBBACKEND: LazyStatic<DatabaseBackend> = LazyStatic::new(||
-    DBCONN.get_database_backend()
-);
+static DBBACKEND: LazyStatic<DatabaseBackend> = LazyStatic::new(|| DBCONN.get_database_backend());
 
 pub async fn query<Q: QueryStatementWriter>(stmt: &mut Q) -> Result<Vec<QueryResult>, DbErr> {
     DBCONN
