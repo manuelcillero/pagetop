@@ -4,12 +4,12 @@ use crate::app::fatal_error::FatalError;
 use crate::core::component::*;
 use crate::core::hook::{action_ref, run_actions};
 use crate::html::{html, AttributeValue, Classes, ClassesOp, Markup, DOCTYPE};
-use crate::{global, trace, LazyStatic};
+use crate::{config, trace, LazyStatic};
 
 use std::collections::HashMap;
 
 static DEFAULT_LANGUAGE: LazyStatic<Option<String>> = LazyStatic::new(|| {
-    let language = global::SETTINGS.app.language[..2].to_lowercase();
+    let language = config::SETTINGS.app.language[..2].to_lowercase();
     if !language.is_empty() {
         Some(language)
     } else {
@@ -18,7 +18,7 @@ static DEFAULT_LANGUAGE: LazyStatic<Option<String>> = LazyStatic::new(|| {
 });
 
 static DEFAULT_DIRECTION: LazyStatic<Option<String>> = LazyStatic::new(|| {
-    let direction = global::SETTINGS.app.direction.to_lowercase();
+    let direction = config::SETTINGS.app.direction.to_lowercase();
     match direction.as_str() {
         "auto" => Some("auto".to_owned()),
         "ltr" => Some("ltr".to_owned()),
@@ -27,7 +27,7 @@ static DEFAULT_DIRECTION: LazyStatic<Option<String>> = LazyStatic::new(|| {
         _ => {
             trace::warn!(
                 "Text direction \"{}\" not valid, {}",
-                global::SETTINGS.app.direction,
+                config::SETTINGS.app.direction,
                 "check the settings file"
             );
             None

@@ -62,9 +62,6 @@ pub mod html;
 #[cfg(feature = "database")]
 pub mod db;
 
-// Acceso a declaraciones globales.
-pub mod global;
-
 // Prepara y ejecuta la aplicación.
 pub mod app;
 

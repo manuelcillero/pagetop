@@ -110,7 +110,7 @@ pub fn run_migrations() {
                 migrations
             }
         }
-        Migrator::up(&DBCONN, None)
+        Migrator::up(&app::db::DBCONN, None)
     })
     .unwrap();
 
@@ -125,7 +125,7 @@ pub fn run_migrations() {
                 migrations
             }
         }
-        Migrator::down(&DBCONN, None)
+        Migrator::down(&app::db::DBCONN, None)
     })
     .unwrap();
 }

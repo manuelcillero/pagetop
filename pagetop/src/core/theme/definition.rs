@@ -1,4 +1,4 @@
-use crate::{app, concat_string, global};
+use crate::{app, concat_string, config};
 use crate::base::component::{Container, Html};
 use crate::core::component::ComponentTrait;
 use crate::html::{html, Favicon, Markup};
@@ -41,9 +41,9 @@ pub trait ThemeTrait: BaseTheme + Send + Sync {
 
                 @match page.title().get() {
                     Some(t) => title {
-                        (concat_string!(global::SETTINGS.app.name, " | ", t))
+                        (concat_string!(config::SETTINGS.app.name, " | ", t))
                     },
-                    None => title { (global::SETTINGS.app.name) }
+                    None => title { (config::SETTINGS.app.name) }
                 }
 
                 @if let Some(d) = page.description().get() {

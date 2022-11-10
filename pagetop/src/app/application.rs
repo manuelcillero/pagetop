@@ -4,7 +4,7 @@ use crate::core::module::ModuleStaticRef;
 use crate::core::{module, theme};
 use crate::html::Markup;
 use crate::response::page::ResultPage;
-use crate::{global, LazyStatic};
+use crate::{config, LazyStatic};
 
 use actix_web::dev::Server;
 
@@ -20,14 +20,14 @@ impl Application {
         super::banner::print_on_startup();
 
         // Inicia registro de trazas y eventos.
-        LazyStatic::force(&global::TRACING);
+        LazyStatic::force(&super::tracing::TRACING);
 
         // Valida el identificador de idioma.
-        LazyStatic::force(&global::LANGID);
+        LazyStatic::force(&super::locale::LANGID);
 
         #[cfg(feature = "database")]
         // Conecta con la base de datos.
-        LazyStatic::force(&crate::db::DBCONN);
+        LazyStatic::force(&super::db::DBCONN);
 
         // Registra los módulos de la aplicación.
         module::all::register_modules(app);
@@ -55,7 +55,7 @@ impl Application {
         })
         .bind(format!(
             "{}:{}",
-            &global::SETTINGS.server.bind_address, &global::SETTINGS.server.bind_port
+            &config::SETTINGS.server.bind_address, &config::SETTINGS.server.bind_port
         ))?
         .run();
 

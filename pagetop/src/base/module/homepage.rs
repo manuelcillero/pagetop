@@ -57,7 +57,7 @@ fn hello_world() -> Container {
                             (e("hello_intro", &args![
                                 "app" => format!(
                                     "<span class=\"app-name\">{}</span>",
-                                    &global::SETTINGS.app.name,
+                                    &config::SETTINGS.app.name,
                                 )
                             ]))
                         })
@@ -110,7 +110,7 @@ fn welcome() -> Container {
                 (e("welcome_subtitle", &args![
                     "app" => format!(
                         "<span class=\"app-name\">{}</span>",
-                        &global::SETTINGS.app.name
+                        &config::SETTINGS.app.name
                     )
                 ]))
             })
