@@ -45,6 +45,7 @@ pub use once_cell::sync::Lazy as LazyStatic;
 
 // LOCAL.
 
+#[allow(unused_imports)]
 pub(crate) use futures::executor::block_on as run_now;
 
 // APIs PÚBLICAS.
