@@ -4,7 +4,10 @@ use crate::core::{module, theme};
 use crate::html::Markup;
 use crate::response::page::ResultPage;
 use crate::response::FatalError;
-use crate::{config, db, locale, server, trace, LazyStatic};
+use crate::{config, locale, server, trace, LazyStatic};
+
+#[cfg(feature = "database")]
+use crate::db;
 
 use actix_web::dev::Server;
 

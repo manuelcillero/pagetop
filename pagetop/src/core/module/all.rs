@@ -2,7 +2,7 @@ use super::ModuleStaticRef;
 
 use crate::core::hook::add_action;
 use crate::core::theme;
-use crate::{db, server, trace, LazyStatic};
+use crate::{server, trace, LazyStatic};
 
 #[cfg(feature = "database")]
 use crate::{db::*, run_now};
@@ -110,7 +110,7 @@ pub fn run_migrations() {
                 migrations
             }
         }
-        Migrator::up(&db::DBCONN, None)
+        Migrator::up(&DBCONN, None)
     })
     .unwrap();
 
@@ -125,7 +125,7 @@ pub fn run_migrations() {
                 migrations
             }
         }
-        Migrator::down(&db::DBCONN, None)
+        Migrator::down(&DBCONN, None)
     })
     .unwrap();
 }
