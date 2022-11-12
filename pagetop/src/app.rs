@@ -10,9 +10,6 @@ mod tracing;
 
 pub mod locale;
 
-#[cfg(feature = "database")]
-pub mod db;
-
 pub mod application;
 
 pub mod fatal_error;

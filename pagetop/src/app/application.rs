@@ -4,7 +4,7 @@ use crate::core::module::ModuleStaticRef;
 use crate::core::{module, theme};
 use crate::html::Markup;
 use crate::response::page::ResultPage;
-use crate::{config, LazyStatic};
+use crate::{config, db, LazyStatic};
 
 use actix_web::dev::Server;
 
@@ -27,7 +27,7 @@ impl Application {
 
         #[cfg(feature = "database")]
         // Conecta con la base de datos.
-        LazyStatic::force(&super::db::DBCONN);
+        LazyStatic::force(&db::DBCONN);
 
         // Registra los módulos de la aplicación.
         module::all::register_modules(app);
