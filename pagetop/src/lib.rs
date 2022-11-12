@@ -63,11 +63,11 @@ pub mod html;
 #[cfg(feature = "database")]
 pub mod db;
 
-// Prepara y ejecuta la aplicación.
-pub mod app;
-
 // APIs esenciales para crear componentes, acciones, módulos y temas.
 pub mod core;
+
+// API del servidor web.
+pub mod server;
 
 // Tipos de respuestas a peticiones web.
 pub mod response;
@@ -75,6 +75,9 @@ pub mod response;
 pub mod base;
 // Macros y funciones útiles.
 pub mod util;
+
+// Prepara y ejecuta la aplicación.
+pub mod app;
 
 // RE-EXPORTA API ÚNICA.
 

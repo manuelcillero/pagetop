@@ -3,7 +3,7 @@ use crate::core::component::ComponentTrait;
 use crate::html::{html, Favicon, Markup};
 use crate::response::page::{Page, PageContext, PageOp};
 use crate::util::{single_type_name, Handle};
-use crate::{app, concat_string, config};
+use crate::{concat_string, config, server};
 
 pub type ThemeStaticRef = &'static dyn ThemeTrait;
 
@@ -24,7 +24,7 @@ pub trait ThemeTrait: BaseTheme + Send + Sync {
     }
 
     #[allow(unused_variables)]
-    fn configure_service(&self, cfg: &mut app::web::ServiceConfig) {}
+    fn configure_service(&self, cfg: &mut server::web::ServiceConfig) {}
 
     #[allow(unused_variables)]
     fn before_render_page(&self, page: &mut Page) {

@@ -1,5 +1,5 @@
 use super::ThemeStaticRef;
-use crate::{app, base, configure_service_for_static_files, trace, LazyStatic};
+use crate::{base, configure_service_for_static_files, server, trace, LazyStatic};
 
 use std::sync::RwLock;
 
@@ -40,7 +40,7 @@ pub fn theme_by_single_name(single_name: &str) -> Option<ThemeStaticRef> {
     }
 }
 
-pub fn configure_services(cfg: &mut app::web::ServiceConfig) {
+pub fn configure_services(cfg: &mut server::web::ServiceConfig) {
     configure_service_for_static_files!(cfg, "/theme", bundle_theme);
 
     for t in THEMES.read().unwrap().iter() {

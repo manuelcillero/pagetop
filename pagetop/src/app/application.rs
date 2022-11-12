@@ -1,10 +1,9 @@
-use super::fatal_error::FatalError;
-
 use crate::core::module::ModuleStaticRef;
 use crate::core::{module, theme};
 use crate::html::Markup;
+use crate::response::FatalError;
 use crate::response::page::ResultPage;
-use crate::{config, db, trace, LazyStatic};
+use crate::{config, db, locale, server, trace, LazyStatic};
 
 use actix_web::dev::Server;
 
@@ -23,7 +22,7 @@ impl Application {
         LazyStatic::force(&trace::TRACING);
 
         // Valida el identificador de idioma.
-        LazyStatic::force(&super::locale::LANGID);
+        LazyStatic::force(&locale::LANGID);
 
         #[cfg(feature = "database")]
         // Conecta con la base de datos.
@@ -46,12 +45,12 @@ impl Application {
         module::all::run_migrations();
 
         // Prepara el servidor web.
-        let server = super::HttpServer::new(move || {
-            super::App::new()
+        let server = server::HttpServer::new(move || {
+            server::App::new()
                 .wrap(tracing_actix_web::TracingLogger::default())
                 .configure(module::all::configure_services)
                 .configure(theme::all::configure_services)
-                .default_service(super::web::route().to(service_not_found))
+                .default_service(server::web::route().to(service_not_found))
         })
         .bind(format!(
             "{}:{}",

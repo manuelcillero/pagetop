@@ -21,8 +21,8 @@ impl ModuleTrait for User {
         Some(l("module_description"))
     }
 
-    fn configure_service(&self, cfg: &mut app::web::ServiceConfig) {
-        cfg.route("/user/login", app::web::get().to(login));
+    fn configure_service(&self, cfg: &mut server::web::ServiceConfig) {
+        cfg.route("/user/login", server::web::get().to(login));
     }
 
     fn migrations(&self) -> Vec<MigrationItem> {

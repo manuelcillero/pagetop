@@ -19,8 +19,8 @@ impl ModuleTrait for DefaultHomePage {
         Some(l("module_description"))
     }
 
-    fn configure_service(&self, cfg: &mut app::web::ServiceConfig) {
-        cfg.route("/", app::web::get().to(demo));
+    fn configure_service(&self, cfg: &mut server::web::ServiceConfig) {
+        cfg.route("/", server::web::get().to(demo));
     }
 }
 

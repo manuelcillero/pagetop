@@ -1,6 +1,6 @@
-use crate::app;
 use crate::core::hook::HookAction;
 use crate::core::theme::ThemeStaticRef;
+use crate::server;
 use crate::util::{single_type_name, Handle};
 
 #[cfg(feature = "database")]
@@ -49,7 +49,7 @@ pub trait ModuleTrait: BaseModule + Send + Sync {
     }
 
     #[allow(unused_variables)]
-    fn configure_service(&self, cfg: &mut app::web::ServiceConfig) {}
+    fn configure_service(&self, cfg: &mut server::web::ServiceConfig) {}
 }
 
 impl<M: ?Sized + ModuleTrait> BaseModule for M {

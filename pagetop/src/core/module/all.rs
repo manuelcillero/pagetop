@@ -2,7 +2,7 @@ use super::ModuleStaticRef;
 
 use crate::core::hook::add_action;
 use crate::core::theme;
-use crate::{app, db, trace, LazyStatic};
+use crate::{db, server, trace, LazyStatic};
 
 #[cfg(feature = "database")]
 use crate::{db::*, run_now};
@@ -132,7 +132,7 @@ pub fn run_migrations() {
 
 // CONFIGURE SERVICES ******************************************************************************
 
-pub fn configure_services(cfg: &mut app::web::ServiceConfig) {
+pub fn configure_services(cfg: &mut server::web::ServiceConfig) {
     for m in ENABLED_MODULES.read().unwrap().iter() {
         m.configure_service(cfg);
     }

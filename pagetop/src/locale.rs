@@ -94,15 +94,37 @@
 //! }
 //! ```
 
+use crate::{config, trace, LazyStatic};
+
+use unic_langid::LanguageIdentifier;
+
 pub use fluent_templates;
 pub use fluent_templates::fluent_bundle::FluentValue;
 pub use fluent_templates::{static_loader as static_locale, Loader as Locale};
+
+/// Almacena el Identificador de Idioma Unicode
+/// ([Unicode Language Identifier](https://unicode.org/reports/tr35/tr35.html#Unicode_language_identifier))
+/// para la aplicación, obtenido de `SETTINGS.app.language`.
+pub static LANGID: LazyStatic<LanguageIdentifier> =
+    LazyStatic::new(|| match config::SETTINGS.app.language.parse() {
+        Ok(language) => language,
+        Err(_) => {
+            trace::warn!(
+                "{}, {} \"{}\"! {}, {}",
+                "Failed to parse language",
+                "unrecognized Unicode Language Identifier",
+                config::SETTINGS.app.language,
+                "Using \"en-US\"",
+                "check the settings file",
+            );
+            "en-US".parse().unwrap()
+        }
+    });
 
 #[macro_export]
 /// Permite integrar fácilmente localización en temas, módulos y componentes.
 macro_rules! pub_locale {
     ( $dir_locales:literal $(, $core_locales:literal)? ) => {
-        use $crate::app;
         use $crate::locale::*;
 
         static_locale! {
@@ -118,7 +140,7 @@ macro_rules! pub_locale {
 
         #[allow(dead_code)]
         fn l(key: &str) -> String {
-            LOCALES.lookup(&app::locale::LANGID, key).unwrap_or(key.to_string())
+            LOCALES.lookup(&LANGID, key).unwrap_or(key.to_string())
         }
 
         #[allow(dead_code)]
@@ -126,7 +148,7 @@ macro_rules! pub_locale {
             key: &str,
             args: &std::collections::HashMap<String, FluentValue>
         ) -> String {
-            LOCALES.lookup_with_args(&app::locale::LANGID, key, args).unwrap_or(key.to_string())
+            LOCALES.lookup_with_args(&LANGID, key, args).unwrap_or(key.to_string())
         }
 
         #[allow(dead_code)]
@@ -135,7 +157,7 @@ macro_rules! pub_locale {
             args: &std::collections::HashMap<String, FluentValue>
         ) -> $crate::html::PreEscaped<String> {
             $crate::html::PreEscaped(
-                LOCALES.lookup_with_args(&app::locale::LANGID, key, args).unwrap_or(key.to_string())
+                LOCALES.lookup_with_args(&LANGID, key, args).unwrap_or(key.to_string())
             )
         }
     };

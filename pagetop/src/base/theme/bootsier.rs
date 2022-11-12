@@ -13,7 +13,7 @@ impl ThemeTrait for Bootsier {
         THEME_BOOTSIER
     }
 
-    fn configure_service(&self, cfg: &mut app::web::ServiceConfig) {
+    fn configure_service(&self, cfg: &mut server::web::ServiceConfig) {
         configure_service_for_static_files!(cfg, "/bootsier", bundle_bootsier);
     }
 

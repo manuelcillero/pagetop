@@ -22,8 +22,8 @@ impl ModuleTrait for Node {
         Some(l("module_description"))
     }
 
-    fn configure_service(&self, cfg: &mut app::web::ServiceConfig) {
-        cfg.route("/node", app::web::get().to(node));
+    fn configure_service(&self, cfg: &mut server::web::ServiceConfig) {
+        cfg.route("/node", server::web::get().to(node));
     }
 
     fn actions(&self) -> Vec<HookAction> {

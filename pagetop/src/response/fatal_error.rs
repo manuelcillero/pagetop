@@ -1,5 +1,5 @@
-use crate::app::http::{header::ContentType, StatusCode};
-use crate::app::HttpResponse;
+use crate::server::http::{header::ContentType, StatusCode};
+use crate::server::HttpResponse;
 use crate::response::{page::Page, ResponseError};
 
 use std::fmt;

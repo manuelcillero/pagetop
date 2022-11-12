@@ -1,9 +1,9 @@
 use super::{BeforeRenderPageHook, PageContext, PageOp, ResultPage, HOOK_BEFORE_RENDER_PAGE};
 
-use crate::app::fatal_error::FatalError;
 use crate::core::component::*;
 use crate::core::hook::{action_ref, run_actions};
 use crate::html::{html, AttributeValue, Classes, ClassesOp, Markup, DOCTYPE};
+use crate::response::FatalError;
 use crate::{config, trace, LazyStatic};
 
 use std::collections::HashMap;

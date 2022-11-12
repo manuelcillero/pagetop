@@ -171,10 +171,10 @@ macro_rules! configure_service_for_static_files {
     ( $cfg:ident, $dir:expr, $embed:ident ) => {{
         let static_files = &$crate::config::SETTINGS.dev.static_files;
         if static_files.is_empty() {
-            $cfg.service($crate::app::ResourceFiles::new($dir, $embed()));
+            $cfg.service($crate::server::ResourceFiles::new($dir, $embed()));
         } else {
             $cfg.service(
-                $crate::app::ActixFiles::new($dir, $crate::concat_string!(static_files, $dir))
+                $crate::server::ActixFiles::new($dir, $crate::concat_string!(static_files, $dir))
                     .show_files_listing(),
             );
         }
