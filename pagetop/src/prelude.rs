@@ -32,5 +32,4 @@ pub use crate::response::ResponseError;
 
 pub use crate::base::component::*;
 
-pub use crate::app;
-pub use crate::app::application::Application;
+pub use crate::app::Application;
