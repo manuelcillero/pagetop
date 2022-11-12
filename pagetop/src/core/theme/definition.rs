@@ -29,7 +29,7 @@ pub trait ThemeTrait: BaseTheme + Send + Sync {
     #[allow(unused_variables)]
     fn before_render_page(&self, page: &mut Page) {
         page.alter_context(PageOp::AddFavicon(
-            Favicon::new().with_icon("/theme/favicon.png"),
+            Favicon::new().with_icon("/theme/favicon.ico"),
         ));
     }
 
