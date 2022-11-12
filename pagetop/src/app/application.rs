@@ -4,7 +4,7 @@ use crate::core::module::ModuleStaticRef;
 use crate::core::{module, theme};
 use crate::html::Markup;
 use crate::response::page::ResultPage;
-use crate::{config, db, LazyStatic};
+use crate::{config, db, trace, LazyStatic};
 
 use actix_web::dev::Server;
 
@@ -20,7 +20,7 @@ impl Application {
         super::banner::print_on_startup();
 
         // Inicia registro de trazas y eventos.
-        LazyStatic::force(&super::tracing::TRACING);
+        LazyStatic::force(&trace::TRACING);
 
         // Valida el identificador de idioma.
         LazyStatic::force(&super::locale::LANGID);

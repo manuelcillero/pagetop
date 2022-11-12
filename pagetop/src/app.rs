@@ -6,8 +6,6 @@ pub use actix_web_static_files::ResourceFiles;
 
 mod banner;
 
-mod tracing;
-
 pub mod locale;
 
 pub mod application;
