@@ -22,7 +22,9 @@ impl ModuleTrait for Admin {
     }
 
     fn configure_service(&self, cfg: &mut server::web::ServiceConfig) {
-        cfg.service(server::web::scope("/admin").route("", server::web::get().to(summary::summary)));
+        cfg.service(
+            server::web::scope("/admin").route("", server::web::get().to(summary::summary)),
+        );
     }
 
     fn actions(&self) -> Vec<HookAction> {

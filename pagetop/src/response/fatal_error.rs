@@ -1,6 +1,6 @@
+use crate::response::{page::Page, ResponseError};
 use crate::server::http::{header::ContentType, StatusCode};
 use crate::server::HttpResponse;
-use crate::response::{page::Page, ResponseError};
 
 use std::fmt;
 

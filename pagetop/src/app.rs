@@ -2,8 +2,8 @@ use crate::base::banner;
 use crate::core::module::ModuleStaticRef;
 use crate::core::{module, theme};
 use crate::html::Markup;
-use crate::response::FatalError;
 use crate::response::page::ResultPage;
+use crate::response::FatalError;
 use crate::{config, db, locale, server, trace, LazyStatic};
 
 use actix_web::dev::Server;
