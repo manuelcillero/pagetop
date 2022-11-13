@@ -8,11 +8,14 @@ pub use assets::Assets;
 mod favicon;
 pub use favicon::Favicon;
 
-mod attribute;
-pub use attribute::AttributeValue;
-
 mod identifier;
 pub use identifier::IdentifierValue;
+
+mod name;
+pub use name::NameValue;
+
+mod attribute;
+pub use attribute::AttributeValue;
 
 mod classes;
 pub use classes::{Classes, ClassesOp};

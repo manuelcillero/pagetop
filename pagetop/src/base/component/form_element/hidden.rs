@@ -6,7 +6,7 @@ pub_handle!(COMPONENT_HIDDEN);
 #[derive(Default)]
 pub struct Hidden {
     weight: isize,
-    name  : IdentifierValue,
+    name  : NameValue,
     value : AttributeValue,
 }
 
@@ -80,7 +80,7 @@ impl Hidden {
 
     // Hidden GETTERS.
 
-    pub fn name(&self) -> &IdentifierValue {
+    pub fn name(&self) -> &NameValue {
         &self.name
     }
 

@@ -20,7 +20,7 @@ pub struct Input {
     renderable  : Renderable,
     classes     : Classes,
     input_type  : InputType,
-    name        : IdentifierValue,
+    name        : NameValue,
     value       : AttributeValue,
     label       : AttributeValue,
     size        : Option<u16>,
@@ -369,7 +369,7 @@ impl Input {
         &self.input_type
     }
 
-    pub fn name(&self) -> &IdentifierValue {
+    pub fn name(&self) -> &NameValue {
         &self.name
     }
 
