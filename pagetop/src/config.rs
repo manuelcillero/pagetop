@@ -164,22 +164,24 @@ pub static CONFIG: LazyStatic<ConfigData> = LazyStatic::new(|| {
 ///
 /// Ver [`Cómo añadir ajustes de configuración`](config/index.html#cómo-añadir-ajustes-de-configuración).
 macro_rules! pub_config {
-    ( $S:ident: $t:ty $(, $k:literal => $v:literal)*$(,)* ) => { $crate::doc_comment! {
-        concat!(
-            "Declara y asigna los valores predefinidos para los ajustes de configuración ",
-            "asociados a la estructura [`", stringify!($t), "`]."
-        ),
-        pub static $S: $crate::LazyStatic<$t> = $crate::LazyStatic::new(|| {
-            let mut settings = $crate::config::CONFIG.clone();
-            $(
-                settings.set_default($k, $v).unwrap();
-            )*
-            match settings.try_into() {
-                Ok(s) => s,
-                Err(e) => panic!("Error parsing settings: {}", e),
-            }
-        });
-    }};
+    ( $SETTINGS:ident: $Settings:ty $(, $key:literal => $value:literal)*$(,)* ) => {
+        $crate::doc_comment! {
+            concat!(
+                "Declara y asigna los valores predefinidos para los ajustes de configuración ",
+                "asociados a la estructura [`", stringify!($Settings), "`]."
+            ),
+            pub static $SETTINGS: $crate::LazyStatic<$Settings> = $crate::LazyStatic::new(|| {
+                let mut settings = $crate::config::CONFIG.clone();
+                $(
+                    settings.set_default($key, $value).unwrap();
+                )*
+                match settings.try_into() {
+                    Ok(s) => s,
+                    Err(e) => panic!("Error parsing settings: {}", e),
+                }
+            });
+        }
+    };
 }
 
 #[derive(Debug, Deserialize)]

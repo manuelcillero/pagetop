@@ -73,9 +73,9 @@ pub fn component_mut<C: 'static>(component: &mut dyn ComponentTrait) -> &mut C {
 
 #[macro_export]
 macro_rules! hook_before_render_component {
-    ( $ACTION_HANDLER:ident, $Component:ty ) => {
+    ( $ACTION_HANDLE:ident, $Component:ty ) => {
         paste::paste! {
-            $crate::pub_handle!($ACTION_HANDLER);
+            $crate::pub_handle!($ACTION_HANDLE);
 
             type Action = fn(&$Component, &mut PageContext);
 
@@ -93,7 +93,7 @@ macro_rules! hook_before_render_component {
                 }
 
                 fn handle(&self) -> Handle {
-                    $ACTION_HANDLER
+                    $ACTION_HANDLE
                 }
 
                 fn weight(&self) -> isize {
@@ -127,9 +127,9 @@ macro_rules! hook_before_render_component {
 
             #[inline(always)]
             fn before_render_inline(component: &mut $Component, context: &mut PageContext) {
-                run_actions(
-                    $ACTION_HANDLER,
-                    |action| action_ref::<[< BeforeRender $Component >]>(&**action).run(component, context)
+                run_actions($ACTION_HANDLE, |action|
+                    action_ref::<[< BeforeRender $Component >]>(&**action)
+                        .run(component, context)
                 );
             }
         }
