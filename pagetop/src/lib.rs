@@ -42,6 +42,7 @@
 pub use concat_string::concat_string;
 pub use doc_comment::doc_comment;
 pub use once_cell::sync::Lazy as LazyStatic;
+pub use tracing_unwrap::ResultExt;
 
 // LOCAL.
 
