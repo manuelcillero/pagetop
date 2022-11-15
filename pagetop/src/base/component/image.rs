@@ -49,7 +49,7 @@ impl ComponentTrait for Image {
 }
 
 impl Image {
-    pub fn new_with_source(source: &str) -> Self {
+    pub fn with(source: &str) -> Self {
         Image::new().with_source(source)
     }
 

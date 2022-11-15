@@ -35,7 +35,7 @@ async fn demo() -> ResultPage<Markup, FatalError> {
         .add_to("region-content", welcome())
         .add_to("region-content", about_pagetop())
         .add_to("region-content", promo_pagetop())
-        .add_to("region-content", reporting_problems())
+        .add_to("region-content", reporting_issues())
         .render()
 }
 
@@ -90,7 +90,7 @@ fn hello_world() -> Container {
             .with_column(
                 grid::Column::new()
                     .with_classes(ClassesOp::Add, "hello-col-image")
-                    .with_component(Image::new_with_source("/theme/images/homepage-header.svg")),
+                    .with_component(Image::with("/theme/images/homepage-header.svg")),
             ),
     )
 }
@@ -129,7 +129,7 @@ fn about_pagetop() -> Container {
                 grid::Column::new()
                     .with_classes(ClassesOp::Add, "pagetop-col-image")
                     .with_size(grid::ColumnSize::Is5of12)
-                    .with_component(Image::new_with_source("/theme/images/homepage-about.svg")),
+                    .with_component(Image::with("/theme/images/homepage-about.svg")),
             )
             .with_column(
                 grid::Column::new()
@@ -185,18 +185,18 @@ fn promo_pagetop() -> Container {
                 grid::Column::new()
                     .with_classes(ClassesOp::Add, "promo-col-image")
                     .with_size(grid::ColumnSize::Is6of12)
-                    .with_component(Image::new_with_source("/theme/images/homepage-pagetop.png")),
+                    .with_component(Image::with("/theme/images/homepage-pagetop.png")),
             ),
     )
 }
 
-fn reporting_problems() -> Container {
+fn reporting_issues() -> Container {
     Container::new().with_id("reporting").with_component(
         grid::Row::new()
             .with_column(
                 grid::Column::new()
                     .with_classes(ClassesOp::Add, "reporting-col-image")
-                    .with_component(Image::new_with_source("/theme/images/homepage-support.jpg")),
+                    .with_component(Image::with("/theme/images/homepage-support.jpg")),
             )
             .with_column(
                 grid::Column::new()

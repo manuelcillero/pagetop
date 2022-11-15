@@ -75,7 +75,7 @@ impl ComponentTrait for Button {
 }
 
 impl Button {
-    pub fn new_with_value(value: &str) -> Self {
+    pub fn with(value: &str) -> Self {
         Button::new().with_value(value)
     }
 

@@ -83,57 +83,45 @@ impl ComponentTrait for MenuItem {
 }
 
 impl MenuItem {
-    #[rustfmt::skip]
     pub fn label(label: &str) -> Self {
         MenuItem {
-            weight    : 0,
-            renderable: Renderable::default(),
-            item_type : MenuItemType::Label(label.to_owned()),
+            item_type: MenuItemType::Label(label.to_owned()),
+            ..Default::default()
         }
     }
 
-    #[rustfmt::skip]
     pub fn link(label: &str, path: &str) -> Self {
         MenuItem {
-            weight    : 0,
-            renderable: Renderable::default(),
-            item_type : MenuItemType::Link(label.to_owned(), path.to_owned()),
+            item_type: MenuItemType::Link(label.to_owned(), path.to_owned()),
+            ..Default::default()
         }
     }
 
-    #[rustfmt::skip]
     pub fn link_blank(label: &str, path: &str) -> Self {
         MenuItem {
-            weight    : 0,
-            renderable: Renderable::default(),
-            item_type : MenuItemType::LinkBlank(label.to_owned(), path.to_owned()),
+            item_type: MenuItemType::LinkBlank(label.to_owned(), path.to_owned()),
+            ..Default::default()
         }
     }
 
-    #[rustfmt::skip]
     pub fn html(html: Markup) -> Self {
         MenuItem {
-            weight    : 0,
-            renderable: Renderable::default(),
-            item_type : MenuItemType::Html(html),
+            item_type: MenuItemType::Html(html),
+            ..Default::default()
         }
     }
 
-    #[rustfmt::skip]
     pub fn submenu(label: &str, menu: Menu) -> Self {
         MenuItem {
-            weight    : 0,
-            renderable: Renderable::default(),
-            item_type : MenuItemType::Submenu(label.to_owned(), menu),
+            item_type: MenuItemType::Submenu(label.to_owned(), menu),
+            ..Default::default()
         }
     }
 
-    #[rustfmt::skip]
     pub fn separator() -> Self {
         MenuItem {
-            weight    : 0,
-            renderable: Renderable::default(),
-            item_type : MenuItemType::Separator,
+            item_type: MenuItemType::Separator,
+            ..Default::default()
         }
     }
 
