@@ -42,47 +42,47 @@ impl ComponentTrait for Container {
         self.weight
     }
 
-    fn is_renderable(&self, context: &PageContext) -> bool {
-        (self.renderable.check)(context)
+    fn is_renderable(&self, rsx: &RenderResources) -> bool {
+        (self.renderable.check)(rsx)
     }
 
-    fn before_render(&mut self, context: &mut PageContext) {
-        before_render_inline(self, context);
+    fn before_render(&mut self, rsx: &mut RenderResources) {
+        before_render_inline(self, rsx);
     }
 
-    fn default_render(&self, context: &mut PageContext) -> Markup {
+    fn default_render(&self, rsx: &mut RenderResources) -> Markup {
         match self.container_type() {
             ContainerType::Header => html! {
                 header id=[self.id().get()] class=[self.classes().get()] {
                     div class=[self.inner_classes().get()] {
-                        (self.components().render(context))
+                        (self.components().render(rsx))
                     }
                 }
             },
             ContainerType::Footer => html! {
                 footer id=[self.id().get()] class=[self.classes().get()] {
                     div class=[self.inner_classes().get()] {
-                        (self.components().render(context))
+                        (self.components().render(rsx))
                     }
                 }
             },
             ContainerType::Main => html! {
                 main id=[self.id().get()] class=[self.classes().get()] {
                     div class=[self.inner_classes().get()] {
-                        (self.components().render(context))
+                        (self.components().render(rsx))
                     }
                 }
             },
             ContainerType::Section => html! {
                 section id=[self.id().get()] class=[self.classes().get()] {
                     div class=[self.inner_classes().get()] {
-                        (self.components().render(context))
+                        (self.components().render(rsx))
                     }
                 }
             },
             _ => html! {
                 div id=[self.id().get()] class=[self.classes().get()] {
-                    (self.components().render(context))
+                    (self.components().render(rsx))
                 }
             },
         }

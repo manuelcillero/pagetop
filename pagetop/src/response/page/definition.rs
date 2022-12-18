@@ -1,8 +1,8 @@
-use super::{BeforeRenderPageHook, PageContext, PageOp, ResultPage, HOOK_BEFORE_RENDER_PAGE};
+use super::{BeforeRenderPageHook, ResultPage, HOOK_BEFORE_RENDER_PAGE};
 
 use crate::core::component::*;
 use crate::core::hook::{action_ref, run_actions};
-use crate::html::{html, AttributeValue, Classes, ClassesOp, Markup, DOCTYPE};
+use crate::html::{html, AttributeValue, Classes, ClassesOp, Favicon, Markup, DOCTYPE};
 use crate::response::FatalError;
 use crate::{config, trace, LazyStatic};
 
@@ -43,11 +43,14 @@ pub enum TextDirection {
 
 #[rustfmt::skip]
 pub struct Page {
-    context     : PageContext,
     language    : AttributeValue,
     direction   : AttributeValue,
     title       : AttributeValue,
     description : AttributeValue,
+    metadata    : Vec<(&'static str, &'static str)>,
+    properties  : Vec<(&'static str, &'static str)>,
+    favicon     : Option<Favicon>,
+    resources   : RenderResources,
     body_classes: Classes,
     regions     : HashMap<&'static str, ComponentsBundle>,
     template    : String,
@@ -57,7 +60,6 @@ impl Default for Page {
     #[rustfmt::skip]
     fn default() -> Self {
         Page {
-            context     : PageContext::new(),
             language    : match &*DEFAULT_LANGUAGE {
                 Some(language) => AttributeValue::new().with_value(language),
                 _ => AttributeValue::new(),
@@ -68,6 +70,10 @@ impl Default for Page {
             },
             title       : AttributeValue::new(),
             description : AttributeValue::new(),
+            metadata    : Vec::new(),
+            properties  : Vec::new(),
+            favicon     : None,
+            resources   : RenderResources::new(),
             body_classes: Classes::new().with_value(ClassesOp::SetDefault, "body"),
             regions     : common_components(),
             template    : "default".to_owned(),
@@ -81,11 +87,6 @@ impl Page {
     }
 
     // Page BUILDER.
-
-    pub fn with_context(mut self, op: PageOp) -> Self {
-        self.alter_context(op);
-        self
-    }
 
     pub fn with_language(mut self, language: &str) -> Self {
         self.alter_language(language);
@@ -104,6 +105,26 @@ impl Page {
 
     pub fn with_description(mut self, description: &str) -> Self {
         self.alter_description(description);
+        self
+    }
+
+    pub fn with_metadata(mut self, name: &'static str, content: &'static str) -> Self {
+        self.alter_metadata(name, content);
+        self
+    }
+
+    pub fn with_property(mut self, property: &'static str, content: &'static str) -> Self {
+        self.alter_property(property, content);
+        self
+    }
+
+    pub fn with_favicon(mut self, favicon: Option<Favicon>) -> Self {
+        self.alter_favicon(favicon);
+        self
+    }
+
+    pub fn with_resource(mut self, op: ResourceOp) -> Self {
+        self.alter_resource(op);
         self
     }
 
@@ -129,11 +150,6 @@ impl Page {
 
     // Page ALTER.
 
-    pub fn alter_context(&mut self, op: PageOp) -> &mut Self {
-        self.context.alter(op);
-        self
-    }
-
     pub fn alter_language(&mut self, language: &str) -> &mut Self {
         self.language.alter_value(language);
         self
@@ -158,6 +174,26 @@ impl Page {
         self
     }
 
+    pub fn alter_metadata(&mut self, name: &'static str, content: &'static str) -> &mut Self {
+        self.metadata.push((name, content));
+        self
+    }
+
+    pub fn alter_property(&mut self, property: &'static str, content: &'static str) -> &mut Self {
+        self.metadata.push((property, content));
+        self
+    }
+
+    pub fn alter_favicon(&mut self, favicon: Option<Favicon>) -> &mut Self {
+        self.favicon = favicon;
+        self
+    }
+
+    pub fn alter_resource(&mut self, op: ResourceOp) -> &mut Self {
+        self.resources.alter(op);
+        self
+    }
+
     pub fn alter_body_classes(&mut self, op: ClassesOp, classes: &str) -> &mut Self {
         self.body_classes.alter_value(op, classes);
         self
@@ -169,10 +205,6 @@ impl Page {
     }
 
     // Page GETTERS.
-
-    pub fn context(&mut self) -> &mut PageContext {
-        &mut self.context
-    }
 
     pub fn language(&self) -> &AttributeValue {
         &self.language
@@ -188,6 +220,22 @@ impl Page {
 
     pub fn description(&self) -> &AttributeValue {
         &self.description
+    }
+
+    pub fn metadata(&self) -> &Vec<(&str, &str)> {
+        &self.metadata
+    }
+
+    pub fn properties(&self) -> &Vec<(&str, &str)> {
+        &self.properties
+    }
+
+    pub fn favicon(&self) -> &Option<Favicon> {
+        &self.favicon
+    }
+
+    pub fn resources(&mut self) -> &mut RenderResources {
+        &mut self.resources
     }
 
     pub fn body_classes(&self) -> &Classes {
@@ -207,13 +255,13 @@ impl Page {
         });
 
         // Acciones del tema antes de renderizar la página.
-        self.context.theme().before_render_page(self);
+        self.resources.theme().before_render_page(self);
 
         // Primero, renderizar el cuerpo.
-        let body = self.context.theme().render_page_body(self);
+        let body = self.resources.theme().render_page_body(self);
 
         // Luego, renderizar la cabecera.
-        let head = self.context.theme().render_page_head(self);
+        let head = self.resources.theme().render_page_head(self);
 
         // Finalmente, renderizar la página.
         Ok(html! {
@@ -227,7 +275,7 @@ impl Page {
 
     pub fn render_region(&mut self, region: &str) -> Option<Markup> {
         match self.regions.get_mut(region) {
-            Some(components) => Some(components.render(&mut self.context)),
+            Some(components) => Some(components.render(&mut self.resources)),
             None => None,
         }
     }

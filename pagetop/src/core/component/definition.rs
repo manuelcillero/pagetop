@@ -1,11 +1,12 @@
+use super::RenderResources;
+
 use crate::html::{html, Markup};
-use crate::response::page::PageContext;
 use crate::util::{single_type_name, Handle};
 
 pub use std::any::Any as AnyComponent;
 
 pub trait BaseComponent {
-    fn render(&mut self, context: &mut PageContext) -> Markup;
+    fn render(&mut self, rsx: &mut RenderResources) -> Markup;
 }
 
 pub trait ComponentTrait: AnyComponent + BaseComponent + Send + Sync {
@@ -28,15 +29,15 @@ pub trait ComponentTrait: AnyComponent + BaseComponent + Send + Sync {
     }
 
     #[allow(unused_variables)]
-    fn is_renderable(&self, context: &PageContext) -> bool {
+    fn is_renderable(&self, rsx: &RenderResources) -> bool {
         true
     }
 
     #[allow(unused_variables)]
-    fn before_render(&mut self, context: &mut PageContext) {}
+    fn before_render(&mut self, rsx: &mut RenderResources) {}
 
     #[allow(unused_variables)]
-    fn default_render(&self, context: &mut PageContext) -> Markup {
+    fn default_render(&self, rsx: &mut RenderResources) -> Markup {
         html! {}
     }
 
@@ -46,17 +47,17 @@ pub trait ComponentTrait: AnyComponent + BaseComponent + Send + Sync {
 }
 
 impl<C: ComponentTrait> BaseComponent for C {
-    fn render(&mut self, context: &mut PageContext) -> Markup {
+    fn render(&mut self, rsx: &mut RenderResources) -> Markup {
         // Acciones del componente antes de renderizar.
-        self.before_render(context);
+        self.before_render(rsx);
 
         // Acciones del tema antes de renderizar el componente.
-        context.theme().before_render_component(self, context);
+        rsx.theme().before_render_component(self, rsx);
 
-        match self.is_renderable(context) {
-            true => match context.theme().render_component(self, context) {
+        match self.is_renderable(rsx) {
+            true => match rsx.theme().render_component(self, rsx) {
                 Some(html) => html,
-                None => self.default_render(context),
+                None => self.default_render(rsx),
             },
             false => html! {},
         }
@@ -77,7 +78,7 @@ macro_rules! hook_before_render_component {
         paste::paste! {
             $crate::pub_handle!($ACTION_HANDLE);
 
-            type Action = fn(&$Component, &mut PageContext);
+            type Action = fn(&$Component, &mut RenderResources);
 
             pub struct [< BeforeRender $Component >] {
                 action: Option<Action>,
@@ -118,18 +119,18 @@ macro_rules! hook_before_render_component {
                     self
                 }
 
-                pub fn run(&self, component: &mut $Component, context: &mut PageContext) {
+                pub fn run(&self, component: &mut $Component, rsx: &mut RenderResources) {
                     if let Some(action) = self.action {
-                        action(component, context)
+                        action(component, rsx)
                     }
                 }
             }
 
             #[inline(always)]
-            fn before_render_inline(component: &mut $Component, context: &mut PageContext) {
+            fn before_render_inline(component: &mut $Component, rsx: &mut RenderResources) {
                 run_actions($ACTION_HANDLE, |action|
                     action_ref::<[< BeforeRender $Component >]>(&**action)
-                        .run(component, context)
+                        .run(component, rsx)
                 );
             }
         }

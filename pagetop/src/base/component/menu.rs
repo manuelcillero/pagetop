@@ -37,11 +37,11 @@ impl ComponentTrait for MenuItem {
         self.weight
     }
 
-    fn is_renderable(&self, context: &PageContext) -> bool {
-        (self.renderable.check)(context)
+    fn is_renderable(&self, rsx: &RenderResources) -> bool {
+        (self.renderable.check)(rsx)
     }
 
-    fn default_render(&self, context: &mut PageContext) -> Markup {
+    fn default_render(&self, rsx: &mut RenderResources) -> Markup {
         match self.item_type() {
             MenuItemType::Void => html! {},
 
@@ -63,7 +63,7 @@ impl ComponentTrait for MenuItem {
                 li class="submenu" {
                     a href="#" { (label) }
                     ul {
-                        (menu.items().render(context))
+                        (menu.items().render(rsx))
                     }
                 }
             },
@@ -186,32 +186,31 @@ impl ComponentTrait for Menu {
         self.weight
     }
 
-    fn is_renderable(&self, context: &PageContext) -> bool {
-        (self.renderable.check)(context)
+    fn is_renderable(&self, rsx: &RenderResources) -> bool {
+        (self.renderable.check)(rsx)
     }
 
-    fn before_render(&mut self, context: &mut PageContext) {
-        before_render_inline(self, context);
+    fn before_render(&mut self, rsx: &mut RenderResources) {
+        before_render_inline(self, rsx);
     }
 
-    fn default_render(&self, context: &mut PageContext) -> Markup {
-        context
-            .alter(PageOp::AddStyleSheet(
-                StyleSheet::located("/theme/menu/css/menu.css").with_version("1.1.1"),
-            ))
-            .alter(PageOp::AddStyleSheet(
-                StyleSheet::located("/theme/menu/css/menu-clean.css").with_version("1.1.1"),
-            ))
-            .alter(PageOp::AddJavaScript(
-                JavaScript::located("/theme/menu/js/menu.min.js").with_version("1.1.1"),
-            ))
-            .alter(PageOp::AddJQuery);
+    fn default_render(&self, rsx: &mut RenderResources) -> Markup {
+        rsx.alter(ResourceOp::AddStyleSheet(
+            StyleSheet::located("/theme/menu/css/menu.css").with_version("1.1.1"),
+        ))
+        .alter(ResourceOp::AddStyleSheet(
+            StyleSheet::located("/theme/menu/css/menu-clean.css").with_version("1.1.1"),
+        ))
+        .alter(ResourceOp::AddJavaScript(
+            JavaScript::located("/theme/menu/js/menu.min.js").with_version("1.1.1"),
+        ))
+        .alter(ResourceOp::AddJQuery);
 
-        let id = context.required_id::<Menu>(self.id());
+        let id = rsx.required_id::<Menu>(self.id());
 
         html! {
             ul id=(id) class=[self.classes().get()] {
-                (self.items().render(context))
+                (self.items().render(rsx))
             }
             script type="text/javascript" defer {
                 "jQuery(function(){jQuery('#" (id) "').smartmenus({"

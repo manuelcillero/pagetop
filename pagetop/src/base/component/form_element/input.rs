@@ -53,12 +53,12 @@ impl ComponentTrait for Input {
         self.weight
     }
 
-    fn is_renderable(&self, context: &PageContext) -> bool {
-        (self.renderable.check)(context)
+    fn is_renderable(&self, rsx: &RenderResources) -> bool {
+        (self.renderable.check)(rsx)
     }
 
     #[rustfmt::skip]
-    fn default_render(&self, _: &mut PageContext) -> Markup {
+    fn default_render(&self, _: &mut RenderResources) -> Markup {
         let type_input = match self.input_type() {
             InputType::Textfield => "text",
             InputType::Password  => "password",

@@ -1,6 +1,6 @@
-use super::ComponentTrait;
+use super::{ComponentTrait, RenderResources};
+
 use crate::html::{html, Markup};
-use crate::response::page::PageContext;
 
 use std::sync::{Arc, RwLock};
 
@@ -26,12 +26,12 @@ impl ComponentsBundle {
         self.0.clear();
     }
 
-    pub fn render(&self, context: &mut PageContext) -> Markup {
+    pub fn render(&self, rsx: &mut RenderResources) -> Markup {
         let mut components = self.0.clone();
         components.sort_by_key(|c| c.read().unwrap().weight());
         html! {
             @for c in components.iter() {
-                (" ")(c.write().unwrap().render(context))(" ")
+                (" ")(c.write().unwrap().render(rsx))(" ")
             }
         }
     }

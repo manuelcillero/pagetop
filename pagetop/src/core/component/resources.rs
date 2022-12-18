@@ -1,7 +1,5 @@
-use super::PageOp;
-
 use crate::core::theme::{all::theme_by_single_name, ThemeStaticRef};
-use crate::html::{html, Assets, Favicon, IdentifierValue, JavaScript, Markup, ModeJS, StyleSheet};
+use crate::html::{html, Assets, IdentifierValue, JavaScript, Markup, ModeJS, StyleSheet};
 use crate::{base, concat_string, config, util, LazyStatic};
 
 static DEFAULT_THEME: LazyStatic<ThemeStaticRef> =
@@ -10,26 +8,29 @@ static DEFAULT_THEME: LazyStatic<ThemeStaticRef> =
         None => &base::theme::bootsier::Bootsier,
     });
 
+pub enum ResourceOp {
+    SetTheme(&'static str),
+    AddStyleSheet(StyleSheet),
+    RemoveStyleSheet(&'static str),
+    AddJavaScript(JavaScript),
+    RemoveJavaScript(&'static str),
+    AddJQuery,
+}
+
 #[rustfmt::skip]
-pub struct PageContext {
+pub struct RenderResources {
     theme      : ThemeStaticRef,
-    favicon    : Option<Favicon>,
-    metadata   : Vec<(&'static str, &'static str)>,
-    properties : Vec<(&'static str, &'static str)>,
     stylesheets: Assets<StyleSheet>,
     javascripts: Assets<JavaScript>,
     with_jquery: bool,
     id_counter : usize,
 }
 
-impl Default for PageContext {
+impl Default for RenderResources {
     #[rustfmt::skip]
     fn default() -> Self {
-        PageContext {
+        RenderResources {
             theme      : *DEFAULT_THEME,
-            favicon    : None,
-            metadata   : Vec::new(),
-            properties : Vec::new(),
             stylesheets: Assets::<StyleSheet>::new(),
             javascripts: Assets::<JavaScript>::new(),
             with_jquery: false,
@@ -38,45 +39,29 @@ impl Default for PageContext {
     }
 }
 
-impl PageContext {
+impl RenderResources {
     pub fn new() -> Self {
-        PageContext::default()
+        RenderResources::default()
     }
 
-    pub fn alter(&mut self, op: PageOp) -> &mut Self {
+    pub fn alter(&mut self, op: ResourceOp) -> &mut Self {
         match op {
-            PageOp::SetTheme(theme_name) => {
+            ResourceOp::SetTheme(theme_name) => {
                 self.theme = theme_by_single_name(theme_name).unwrap_or(*DEFAULT_THEME);
             }
-
-            PageOp::AddFavicon(favicon) => {
-                self.favicon = Some(favicon);
-            }
-            PageOp::RemoveFavicon => {
-                self.favicon = None;
-            }
-
-            PageOp::AddMetadata(name, content) => {
-                self.metadata.push((name, content));
-            }
-            PageOp::AddProperty(property, content) => {
-                self.properties.push((property, content));
-            }
-
-            PageOp::AddStyleSheet(css) => {
+            ResourceOp::AddStyleSheet(css) => {
                 self.stylesheets.add(css);
             }
-            PageOp::RemoveStyleSheet(source) => {
+            ResourceOp::RemoveStyleSheet(source) => {
                 self.stylesheets.remove(source);
             }
-
-            PageOp::AddJavaScript(js) => {
+            ResourceOp::AddJavaScript(js) => {
                 self.javascripts.add(js);
             }
-            PageOp::RemoveJavaScript(source) => {
+            ResourceOp::RemoveJavaScript(source) => {
                 self.javascripts.remove(source);
             }
-            PageOp::AddJQuery => {
+            ResourceOp::AddJQuery => {
                 if !self.with_jquery {
                     self.javascripts.add(
                         JavaScript::located("/theme/js/jquery.min.js")
@@ -91,32 +76,22 @@ impl PageContext {
         self
     }
 
-    /// PageContext GETTERS.
+    /// Resources GETTERS.
 
     pub(crate) fn theme(&mut self) -> ThemeStaticRef {
         self.theme
     }
 
-    /// PageContext RENDER.
+    /// Resources RENDER.
 
     pub fn render(&mut self) -> Markup {
         html! {
-            @match &self.favicon {
-                Some(favicon) => (favicon.render()),
-                None => "",
-            }
-            @for (name, content) in &self.metadata {
-                meta name=(name) content=(content) {}
-            }
-            @for (property, content) in &self.properties {
-                meta property=(property) content=(content) {}
-            }
             (self.stylesheets.render())
             (self.javascripts.render())
         }
     }
 
-    // PageContext EXTRAS.
+    // Resources EXTRAS.
 
     pub fn required_id<T>(&mut self, id: &IdentifierValue) -> String {
         match id.get() {

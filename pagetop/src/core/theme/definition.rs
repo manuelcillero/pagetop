@@ -1,7 +1,7 @@
 use crate::base::component::{Container, Html};
-use crate::core::component::ComponentTrait;
+use crate::core::component::{ComponentTrait, RenderResources};
 use crate::html::{html, Favicon, Markup};
-use crate::response::page::{Page, PageContext, PageOp};
+use crate::response::page::Page;
 use crate::util::{single_type_name, Handle};
 use crate::{concat_string, config, server};
 
@@ -28,9 +28,9 @@ pub trait ThemeTrait: BaseTheme + Send + Sync {
 
     #[allow(unused_variables)]
     fn before_render_page(&self, page: &mut Page) {
-        page.alter_context(PageOp::AddFavicon(
-            Favicon::new().with_icon("/theme/favicon.ico"),
-        ));
+        if page.favicon().is_none() {
+            page.alter_favicon(Some(Favicon::new().with_icon("/theme/favicon.ico")));
+        }
     }
 
     fn render_page_head(&self, page: &mut Page) -> Markup {
@@ -49,10 +49,22 @@ pub trait ThemeTrait: BaseTheme + Send + Sync {
                 @if let Some(d) = page.description().get() {
                     meta name="description" content=(d);
                 }
-                meta http-equiv="X-UA-Compatible" content="IE=edge";
-                meta name="viewport" content=(viewport);
 
-                (page.context().render())
+                meta name="viewport" content=(viewport);
+                @for (name, content) in page.metadata() {
+                    meta name=(name) content=(content) {}
+                }
+
+                meta http-equiv="X-UA-Compatible" content="IE=edge";
+                @for (property, content) in page.properties() {
+                    meta property=(property) content=(content) {}
+                }
+
+                @if let Some(f) = page.favicon() {
+                    (f.render())
+                }
+
+                (page.resources().render())
             }
         }
     }
@@ -84,7 +96,7 @@ pub trait ThemeTrait: BaseTheme + Send + Sync {
     fn before_render_component(
         &self,
         component: &mut dyn ComponentTrait,
-        context: &mut PageContext,
+        rsx: &mut RenderResources,
     ) {
         /*
             Cómo usarlo:
@@ -99,11 +111,12 @@ pub trait ThemeTrait: BaseTheme + Send + Sync {
         */
     }
 
+    #[rustfmt::skip]
     #[allow(unused_variables)]
     fn render_component(
         &self,
         component: &dyn ComponentTrait,
-        context: &mut PageContext,
+        rsx: &mut RenderResources,
     ) -> Option<Markup> {
         None
         /*

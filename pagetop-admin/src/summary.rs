@@ -41,7 +41,7 @@ pub async fn summary() -> ResultPage<Markup, FatalError> {
         .with_item(MenuItem::label("Opción 4"));
 
     Page::new()
-        .with_context(PageOp::SetTheme("Bootsier"))
+        .with_resource(ResourceOp::SetTheme("Bootsier"))
         .with_title("Admin")
         .add_to("top-menu", top_menu)
         .add_to(

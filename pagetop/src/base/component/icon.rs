@@ -24,17 +24,17 @@ impl ComponentTrait for Icon {
         self.weight
     }
 
-    fn is_renderable(&self, context: &PageContext) -> bool {
-        (self.renderable.check)(context)
+    fn is_renderable(&self, rsx: &RenderResources) -> bool {
+        (self.renderable.check)(rsx)
     }
 
-    fn before_render(&mut self, context: &mut PageContext) {
-        context.alter(PageOp::AddStyleSheet(
+    fn before_render(&mut self, rsx: &mut RenderResources) {
+        rsx.alter(ResourceOp::AddStyleSheet(
             StyleSheet::located("/theme/icons/bootstrap-icons.css").with_version("1.8.2"),
         ));
     }
 
-    fn default_render(&self, _: &mut PageContext) -> Markup {
+    fn default_render(&self, _: &mut RenderResources) -> Markup {
         html! { i class=[self.classes().get()] {}; }
     }
 
