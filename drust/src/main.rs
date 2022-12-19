@@ -14,7 +14,6 @@ impl ModuleTrait for Drust {
             &pagetop_admin::Admin,
             &pagetop_user::User,
             &pagetop_node::Node,
-            &pagetop::base::module::homepage::DefaultHomePage,
         ]
     }
 

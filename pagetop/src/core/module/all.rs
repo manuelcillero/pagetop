@@ -1,5 +1,6 @@
 use super::ModuleStaticRef;
 
+use crate::base::module;
 use crate::core::hook::add_action;
 use crate::core::theme;
 use crate::{server, trace, LazyStatic};
@@ -18,14 +19,20 @@ static DISCARDED_MODULES: LazyStatic<RwLock<Vec<ModuleStaticRef>>> =
     LazyStatic::new(|| RwLock::new(Vec::new()));
 
 pub fn register_modules(app: ModuleStaticRef) {
-    // Revisa los módulos a deshabilitar.
+    // List of modules to disable.
     let mut list: Vec<ModuleStaticRef> = Vec::new();
     add_to_discarded(&mut list, app);
     DISCARDED_MODULES.write().unwrap().append(&mut list);
 
-    // Habilita los módulos de la aplicación.
+    // List of modules to enable.
     let mut list: Vec<ModuleStaticRef> = Vec::new();
+
+    // Enable application modules.
     add_to_enabled(&mut list, app);
+
+    // Enable default homepage.
+    add_to_enabled(&mut list, &module::homepage::DefaultHomePage);
+
     list.reverse();
     ENABLED_MODULES.write().unwrap().append(&mut list);
 }
