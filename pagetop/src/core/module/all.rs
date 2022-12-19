@@ -27,6 +27,9 @@ pub fn register_modules(app: ModuleStaticRef) {
     // List of modules to enable.
     let mut list: Vec<ModuleStaticRef> = Vec::new();
 
+    // Enable base modules.
+    add_to_enabled(&mut list, &module::menu::Menu);
+
     // Enable application modules.
     add_to_enabled(&mut list, app);
 
