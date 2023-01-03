@@ -17,19 +17,19 @@ impl ThemeTrait for Bulmix {
 
     fn before_render_page(&self, page: &mut Page) {
         page.alter_favicon(Some(Favicon::new().with_icon("/theme/favicon.ico")))
-            .alter_resource(ResourceOp::AddStyleSheet(
+            .alter_context(ContextOp::AddStyleSheet(
                 StyleSheet::located("/bulmix/css/bulma.min.css")
                     .with_version("0.9.4")
                     .with_weight(-99),
             ))
-            .alter_resource(ResourceOp::AddJQuery);
+            .alter_context(ContextOp::AddJQuery);
     }
 
     #[rustfmt::skip]
     fn before_render_component(
         &self,
         component: &mut dyn ComponentTrait,
-        _rsx: &mut RenderResources,
+        _rcx: &mut RenderContext,
     ) {
         match component.handle() {
             COMPONENT_ANCHOR => {
@@ -108,7 +108,7 @@ impl ThemeTrait for Bulmix {
     fn render_component(
         &self,
         component: &dyn ComponentTrait,
-        _rsx: &mut RenderResources,
+        _rcx: &mut RenderContext,
     ) -> Option<Markup> {
         match component.handle() {
             COMPONENT_ICON => {

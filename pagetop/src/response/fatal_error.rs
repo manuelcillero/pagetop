@@ -25,7 +25,7 @@ impl fmt::Display for FatalError {
             // Error 403.
             FatalError::AccessDenied => {
                 let mut error_page = Page::new();
-                let error_content = error_page.resources().theme().error_403_access_denied();
+                let error_content = error_page.context().theme().error_403_access_denied();
                 if let Ok(page) = error_page
                     .with_title("Error FORBIDDEN")
                     .using_template("error")
@@ -40,7 +40,7 @@ impl fmt::Display for FatalError {
             // Error 404.
             FatalError::NotFound => {
                 let mut error_page = Page::new();
-                let error_content = error_page.resources().theme().error_404_not_found();
+                let error_content = error_page.context().theme().error_404_not_found();
                 if let Ok(page) = error_page
                     .with_title("Error RESOURCE NOT FOUND")
                     .using_template("error")

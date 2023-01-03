@@ -38,17 +38,17 @@ impl ComponentTrait for Paragraph {
         self.weight
     }
 
-    fn is_renderable(&self, rsx: &RenderResources) -> bool {
-        (self.renderable.check)(rsx)
+    fn is_renderable(&self, rcx: &RenderContext) -> bool {
+        (self.renderable.check)(rcx)
     }
 
-    fn default_render(&self, rsx: &mut RenderResources) -> Markup {
+    fn default_render(&self, rcx: &mut RenderContext) -> Markup {
         html! {
             p
                 id=[self.id().get()]
                 class=[self.classes().get()]
             {
-                (self.components().render(rsx))
+                (self.components().render(rcx))
             }
         }
     }

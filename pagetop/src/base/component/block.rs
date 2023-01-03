@@ -29,23 +29,23 @@ impl ComponentTrait for Block {
         self.weight
     }
 
-    fn is_renderable(&self, rsx: &RenderResources) -> bool {
-        (self.renderable.check)(rsx)
+    fn is_renderable(&self, rcx: &RenderContext) -> bool {
+        (self.renderable.check)(rcx)
     }
 
-    fn before_render(&mut self, rsx: &mut RenderResources) {
-        before_render_inline(self, rsx);
+    fn before_render(&mut self, rcx: &mut RenderContext) {
+        before_render_inline(self, rcx);
     }
 
-    fn default_render(&self, rsx: &mut RenderResources) -> Markup {
-        let id = rsx.required_id::<Block>(self.id());
+    fn default_render(&self, rcx: &mut RenderContext) -> Markup {
+        let id = rcx.required_id::<Block>(self.id());
         html! {
             div id=(id) class=[self.classes().get()] {
                 @if let Some(title) = self.title().get() {
                     h2 class="block-title" { (title) }
                 }
                 div class="block-body" {
-                    (self.components().render(rsx))
+                    (self.components().render(rcx))
                 }
             }
         }

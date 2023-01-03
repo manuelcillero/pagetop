@@ -24,11 +24,11 @@ impl ComponentTrait for Html {
         self.weight
     }
 
-    fn is_renderable(&self, rsx: &RenderResources) -> bool {
-        (self.renderable.check)(rsx)
+    fn is_renderable(&self, rcx: &RenderContext) -> bool {
+        (self.renderable.check)(rcx)
     }
 
-    fn default_render(&self, _: &mut RenderResources) -> Markup {
+    fn default_render(&self, _: &mut RenderContext) -> Markup {
         html! { (*self.html()) }
     }
 

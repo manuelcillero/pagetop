@@ -40,15 +40,15 @@ impl ComponentTrait for Form {
         self.weight
     }
 
-    fn is_renderable(&self, rsx: &RenderResources) -> bool {
-        (self.renderable.check)(rsx)
+    fn is_renderable(&self, rcx: &RenderContext) -> bool {
+        (self.renderable.check)(rcx)
     }
 
-    fn before_render(&mut self, rsx: &mut RenderResources) {
-        before_render_inline(self, rsx);
+    fn before_render(&mut self, rcx: &mut RenderContext) {
+        before_render_inline(self, rcx);
     }
 
-    fn default_render(&self, rsx: &mut RenderResources) -> Markup {
+    fn default_render(&self, rcx: &mut RenderContext) -> Markup {
         let method = match self.method() {
             FormMethod::Post => Some("post".to_owned()),
             FormMethod::Get => None,
@@ -61,7 +61,7 @@ impl ComponentTrait for Form {
                 method=[method]
                 accept-charset=[self.charset().get()]
             {
-                div { (self.elements().render(rsx)) }
+                div { (self.elements().render(rcx)) }
             }
         }
     }

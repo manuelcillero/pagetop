@@ -1,4 +1,4 @@
-use super::{ComponentTrait, RenderResources};
+use super::{ComponentTrait, RenderContext};
 
 use crate::html::{html, Markup};
 
@@ -26,12 +26,12 @@ impl ComponentsBundle {
         self.0.clear();
     }
 
-    pub fn render(&self, rsx: &mut RenderResources) -> Markup {
+    pub fn render(&self, rcx: &mut RenderContext) -> Markup {
         let mut components = self.0.clone();
         components.sort_by_key(|c| c.read().unwrap().weight());
         html! {
             @for c in components.iter() {
-                (" ")(c.write().unwrap().render(rsx))(" ")
+                (" ")(c.write().unwrap().render(rcx))(" ")
             }
         }
     }

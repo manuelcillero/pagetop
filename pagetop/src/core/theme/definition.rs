@@ -1,5 +1,5 @@
 use crate::base::component::{Container, Html};
-use crate::core::component::{ComponentTrait, RenderResources};
+use crate::core::component::{ComponentTrait, RenderContext};
 use crate::html::{html, Favicon, Markup};
 use crate::response::page::Page;
 use crate::util::{single_type_name, Handle};
@@ -64,7 +64,7 @@ pub trait ThemeTrait: BaseTheme + Send + Sync {
                     (f.render())
                 }
 
-                (page.resources().render())
+                (page.context().render())
             }
         }
     }
@@ -96,7 +96,7 @@ pub trait ThemeTrait: BaseTheme + Send + Sync {
     fn before_render_component(
         &self,
         component: &mut dyn ComponentTrait,
-        rsx: &mut RenderResources,
+        rcx: &mut RenderContext,
     ) {
         /*
             Cómo usarlo:
@@ -116,7 +116,7 @@ pub trait ThemeTrait: BaseTheme + Send + Sync {
     fn render_component(
         &self,
         component: &dyn ComponentTrait,
-        rsx: &mut RenderResources,
+        rcx: &mut RenderContext,
     ) -> Option<Markup> {
         None
         /*

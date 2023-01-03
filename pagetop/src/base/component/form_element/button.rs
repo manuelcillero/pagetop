@@ -39,11 +39,11 @@ impl ComponentTrait for Button {
         self.weight
     }
 
-    fn is_renderable(&self, rsx: &RenderResources) -> bool {
-        (self.renderable.check)(rsx)
+    fn is_renderable(&self, rcx: &RenderContext) -> bool {
+        (self.renderable.check)(rcx)
     }
 
-    fn default_render(&self, _: &mut RenderResources) -> Markup {
+    fn default_render(&self, _: &mut RenderContext) -> Markup {
         let button_type = match self.button_type() {
             ButtonType::Button => "button",
             ButtonType::Submit => "submit",

@@ -50,7 +50,7 @@ pub struct Page {
     metadata    : Vec<(&'static str, &'static str)>,
     properties  : Vec<(&'static str, &'static str)>,
     favicon     : Option<Favicon>,
-    resources   : RenderResources,
+    context     : RenderContext,
     body_classes: Classes,
     regions     : HashMap<&'static str, ComponentsBundle>,
     template    : String,
@@ -73,7 +73,7 @@ impl Default for Page {
             metadata    : Vec::new(),
             properties  : Vec::new(),
             favicon     : None,
-            resources   : RenderResources::new(),
+            context     : RenderContext::new(),
             body_classes: Classes::new().with_value(ClassesOp::SetDefault, "body"),
             regions     : common_components(),
             template    : "default".to_owned(),
@@ -123,8 +123,8 @@ impl Page {
         self
     }
 
-    pub fn with_resource(mut self, op: ResourceOp) -> Self {
-        self.alter_resource(op);
+    pub fn with_context(mut self, op: ContextOp) -> Self {
+        self.alter_context(op);
         self
     }
 
@@ -189,8 +189,8 @@ impl Page {
         self
     }
 
-    pub fn alter_resource(&mut self, op: ResourceOp) -> &mut Self {
-        self.resources.alter(op);
+    pub fn alter_context(&mut self, op: ContextOp) -> &mut Self {
+        self.context.alter(op);
         self
     }
 
@@ -234,8 +234,8 @@ impl Page {
         &self.favicon
     }
 
-    pub fn resources(&mut self) -> &mut RenderResources {
-        &mut self.resources
+    pub fn context(&mut self) -> &mut RenderContext {
+        &mut self.context
     }
 
     pub fn body_classes(&self) -> &Classes {
@@ -255,13 +255,13 @@ impl Page {
         });
 
         // Acciones del tema antes de renderizar la página.
-        self.resources.theme().before_render_page(self);
+        self.context.theme().before_render_page(self);
 
         // Primero, renderizar el cuerpo.
-        let body = self.resources.theme().render_page_body(self);
+        let body = self.context.theme().render_page_body(self);
 
         // Luego, renderizar la cabecera.
-        let head = self.resources.theme().render_page_head(self);
+        let head = self.context.theme().render_page_head(self);
 
         // Finalmente, renderizar la página.
         Ok(html! {
@@ -275,7 +275,7 @@ impl Page {
 
     pub fn render_region(&mut self, region: &str) -> Option<Markup> {
         match self.regions.get_mut(region) {
-            Some(components) => Some(components.render(&mut self.resources)),
+            Some(components) => Some(components.render(&mut self.context)),
             None => None,
         }
     }

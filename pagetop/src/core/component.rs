@@ -1,5 +1,5 @@
-mod resources;
-pub use resources::{RenderResources, ResourceOp};
+mod context;
+pub use context::{RenderContext, ContextOp};
 
 mod definition;
 pub use definition::{component_mut, component_ref, AnyComponent, BaseComponent, ComponentTrait};

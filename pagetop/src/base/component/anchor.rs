@@ -51,12 +51,12 @@ impl ComponentTrait for Anchor {
         self.weight
     }
 
-    fn is_renderable(&self, rsx: &RenderResources) -> bool {
-        (self.renderable.check)(rsx)
+    fn is_renderable(&self, rcx: &RenderContext) -> bool {
+        (self.renderable.check)(rcx)
     }
 
     #[rustfmt::skip]
-    fn default_render(&self, rsx: &mut RenderResources) -> Markup {
+    fn default_render(&self, rcx: &mut RenderContext) -> Markup {
         let target = match &self.target() {
             AnchorTarget::Blank         => Some("_blank"),
             AnchorTarget::Parent        => Some("_parent"),
@@ -71,9 +71,9 @@ impl ComponentTrait for Anchor {
                 href=[self.href().get()]
                 target=[target]
             {
-                (self.left_icon().render(rsx))
+                (self.left_icon().render(rcx))
                 span { (*self.html()) }
-                (self.right_icon().render(rsx))
+                (self.right_icon().render(rcx))
             }
         }
     }

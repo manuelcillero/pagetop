@@ -27,7 +27,7 @@ impl ModuleTrait for DefaultHomePage {
 async fn demo() -> ResultPage<Markup, FatalError> {
     Page::new()
         .with_title(l("page_title").as_str())
-        .with_resource(ResourceOp::AddStyleSheet(StyleSheet::located(
+        .with_context(ContextOp::AddStyleSheet(StyleSheet::located(
             "/theme/module/homepage/styles.css",
         )))
         .with_body_classes(ClassesOp::AddFirst, "default-homepage")

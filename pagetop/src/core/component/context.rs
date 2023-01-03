@@ -8,7 +8,7 @@ static DEFAULT_THEME: LazyStatic<ThemeStaticRef> =
         None => &base::theme::bootsier::Bootsier,
     });
 
-pub enum ResourceOp {
+pub enum ContextOp {
     SetTheme(&'static str),
     AddStyleSheet(StyleSheet),
     RemoveStyleSheet(&'static str),
@@ -18,7 +18,7 @@ pub enum ResourceOp {
 }
 
 #[rustfmt::skip]
-pub struct RenderResources {
+pub struct RenderContext {
     theme      : ThemeStaticRef,
     stylesheets: Assets<StyleSheet>,
     javascripts: Assets<JavaScript>,
@@ -26,10 +26,10 @@ pub struct RenderResources {
     id_counter : usize,
 }
 
-impl Default for RenderResources {
+impl Default for RenderContext {
     #[rustfmt::skip]
     fn default() -> Self {
-        RenderResources {
+        RenderContext {
             theme      : *DEFAULT_THEME,
             stylesheets: Assets::<StyleSheet>::new(),
             javascripts: Assets::<JavaScript>::new(),
@@ -39,29 +39,29 @@ impl Default for RenderResources {
     }
 }
 
-impl RenderResources {
+impl RenderContext {
     pub fn new() -> Self {
-        RenderResources::default()
+        RenderContext::default()
     }
 
-    pub fn alter(&mut self, op: ResourceOp) -> &mut Self {
+    pub fn alter(&mut self, op: ContextOp) -> &mut Self {
         match op {
-            ResourceOp::SetTheme(theme_name) => {
+            ContextOp::SetTheme(theme_name) => {
                 self.theme = theme_by_single_name(theme_name).unwrap_or(*DEFAULT_THEME);
             }
-            ResourceOp::AddStyleSheet(css) => {
+            ContextOp::AddStyleSheet(css) => {
                 self.stylesheets.add(css);
             }
-            ResourceOp::RemoveStyleSheet(source) => {
+            ContextOp::RemoveStyleSheet(source) => {
                 self.stylesheets.remove(source);
             }
-            ResourceOp::AddJavaScript(js) => {
+            ContextOp::AddJavaScript(js) => {
                 self.javascripts.add(js);
             }
-            ResourceOp::RemoveJavaScript(source) => {
+            ContextOp::RemoveJavaScript(source) => {
                 self.javascripts.remove(source);
             }
-            ResourceOp::AddJQuery => {
+            ContextOp::AddJQuery => {
                 if !self.with_jquery {
                     self.javascripts.add(
                         JavaScript::located("/theme/js/jquery.min.js")
@@ -76,13 +76,13 @@ impl RenderResources {
         self
     }
 
-    /// Resources GETTERS.
+    /// Context GETTERS.
 
     pub(crate) fn theme(&mut self) -> ThemeStaticRef {
         self.theme
     }
 
-    /// Resources RENDER.
+    /// Context RENDER.
 
     pub fn render(&mut self) -> Markup {
         html! {
@@ -91,7 +91,7 @@ impl RenderResources {
         }
     }
 
-    // Resources EXTRAS.
+    // Context EXTRAS.
 
     pub fn required_id<T>(&mut self, id: &IdentifierValue) -> String {
         match id.get() {
