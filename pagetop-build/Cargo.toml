@@ -1,0 +1,17 @@
+[package]
+name = "pagetop-build"
+version = "0.0.1"
+edition = "2021"
+
+authors = [
+    "Manuel Cillero <manuel@cillero.es>"
+]
+description = """\
+    Allows including resources in binaries when compiling applications built with PageTop.\
+"""
+homepage = "https://pagetop.cillero.es"
+repository = "https://github.com/manuelcillero/pagetop"
+license = "Apache-2.0 OR MIT"
+
+[dependencies]
+static-files = "0.2.3"
