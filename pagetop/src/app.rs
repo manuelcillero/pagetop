@@ -1,10 +1,9 @@
-use crate::base::banner;
 use crate::core::module::ModuleStaticRef;
 use crate::core::{module, theme};
 use crate::html::Markup;
 use crate::response::page::ResultPage;
 use crate::response::FatalError;
-use crate::{config, locale, server, trace, LazyStatic};
+use crate::{config, locale, server, trace, util, LazyStatic};
 
 #[cfg(feature = "database")]
 use crate::db;
@@ -20,7 +19,7 @@ pub struct Application {
 impl Application {
     pub fn prepare(app: ModuleStaticRef) -> Result<Self, Error> {
         // Rótulo de presentación.
-        banner::print_on_startup();
+        util::print_on_startup();
 
         // Inicia registro de trazas y eventos.
         LazyStatic::force(&trace::TRACING);
