@@ -70,7 +70,7 @@ postgres = ["database", "sea-orm/sqlx-postgres"]
 sqlite   = ["database", "sea-orm/sqlx-sqlite"]
 
 [build-dependencies]
-static-files = "0.2.3"
+pagetop-build = { path = "../pagetop-build", version = "0.0" }
 
 [dev-dependencies]
 tokio = { version = "1.21.2", features = ["macros", "rt-multi-thread"] }
