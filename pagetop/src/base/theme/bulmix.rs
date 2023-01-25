@@ -12,7 +12,7 @@ impl ThemeTrait for Bulmix {
     }
 
     fn configure_service(&self, cfg: &mut server::web::ServiceConfig) {
-        configure_service_for_static_files!(cfg, "/bulmix", bundle_bulmix);
+        serve_static_files!(cfg, "/bulmix", bundle_bulmix);
     }
 
     fn before_render_page(&self, page: &mut Page) {

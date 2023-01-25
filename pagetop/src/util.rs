@@ -115,7 +115,7 @@ macro_rules! args {
 }
 
 #[macro_export]
-macro_rules! configure_service_for_static_files {
+macro_rules! serve_static_files {
     ( $cfg:ident, $dir:expr, $embed:ident ) => {{
         let static_files = &$crate::config::SETTINGS.dev.static_files;
         if static_files.is_empty() {

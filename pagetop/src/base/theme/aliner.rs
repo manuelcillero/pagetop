@@ -12,7 +12,7 @@ impl ThemeTrait for Aliner {
     }
 
     fn configure_service(&self, cfg: &mut server::web::ServiceConfig) {
-        configure_service_for_static_files!(cfg, "/aliner", bundle_aliner);
+        serve_static_files!(cfg, "/aliner", bundle_aliner);
     }
 
     fn before_render_page(&self, page: &mut Page) {
