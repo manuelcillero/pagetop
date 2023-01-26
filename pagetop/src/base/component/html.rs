@@ -48,43 +48,25 @@ impl Html {
 
     // Html BUILDER.
 
-    pub fn with_weight(mut self, weight: isize) -> Self {
-        self.alter_weight(weight);
-        self
-    }
-
-    pub fn with_renderable(mut self, check: IsRenderable) -> Self {
-        self.alter_renderable(check);
-        self
-    }
-
-    pub fn with_html(mut self, html: Markup) -> Self {
-        self.alter_html(html);
-        self
-    }
-
-    pub fn using_template(mut self, template: &str) -> Self {
-        self.alter_template(template);
-        self
-    }
-
-    // Html ALTER.
-
+    #[fn_with]
     pub fn alter_weight(&mut self, weight: isize) -> &mut Self {
         self.weight = weight;
         self
     }
 
+    #[fn_with]
     pub fn alter_renderable(&mut self, check: IsRenderable) -> &mut Self {
         self.renderable.check = check;
         self
     }
 
+    #[fn_with]
     pub fn alter_html(&mut self, html: Markup) -> &mut Self {
         self.html.markup = html;
         self
     }
 
+    #[fn_with]
     pub fn alter_template(&mut self, template: &str) -> &mut Self {
         self.template = template.to_owned();
         self

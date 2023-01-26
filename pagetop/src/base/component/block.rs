@@ -63,73 +63,43 @@ impl ComponentTrait for Block {
 impl Block {
     // Block BUILDER.
 
-    pub fn with_weight(mut self, weight: isize) -> Self {
-        self.alter_weight(weight);
-        self
-    }
-
-    pub fn with_renderable(mut self, check: IsRenderable) -> Self {
-        self.alter_renderable(check);
-        self
-    }
-
-    pub fn with_id(mut self, id: &str) -> Self {
-        self.alter_id(id);
-        self
-    }
-
-    pub fn with_classes(mut self, op: ClassesOp, classes: &str) -> Self {
-        self.alter_classes(op, classes);
-        self
-    }
-
-    pub fn with_title(mut self, title: &str) -> Self {
-        self.alter_title(title);
-        self
-    }
-
-    pub fn with_component(mut self, component: impl ComponentTrait) -> Self {
-        self.alter_component(component);
-        self
-    }
-
-    pub fn using_template(mut self, template: &str) -> Self {
-        self.alter_template(template);
-        self
-    }
-
-    // Block ALTER.
-
+    #[fn_with]
     pub fn alter_weight(&mut self, weight: isize) -> &mut Self {
         self.weight = weight;
         self
     }
 
+    #[fn_with]
     pub fn alter_renderable(&mut self, check: IsRenderable) -> &mut Self {
         self.renderable.check = check;
         self
     }
 
+    #[fn_with]
     pub fn alter_id(&mut self, id: &str) -> &mut Self {
         self.id.alter_value(id);
         self
     }
 
+    #[fn_with]
     pub fn alter_classes(&mut self, op: ClassesOp, classes: &str) -> &mut Self {
         self.classes.alter_value(op, classes);
         self
     }
 
+    #[fn_with]
     pub fn alter_title(&mut self, title: &str) -> &mut Self {
         self.title.alter_value(title);
         self
     }
 
+    #[fn_with]
     pub fn alter_component(&mut self, component: impl ComponentTrait) -> &mut Self {
         self.components.add(component);
         self
     }
 
+    #[fn_with]
     pub fn alter_template(&mut self, template: &str) -> &mut Self {
         self.template = template.to_owned();
         self

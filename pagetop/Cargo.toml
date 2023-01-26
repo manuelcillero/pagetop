@@ -49,6 +49,8 @@ actix-web-files = { package = "actix-files", version = "0.6.2" }
 actix-web-static-files = "4.0.0"
 static-files = "0.2.3"
 
+pagetop-macros = { path = "../pagetop-macros", version = "0.0" }
+
 maud = { version = "0.24.0", features = ["actix-web"] }
 
 serde = { version = "1.0", features = ["derive"] }

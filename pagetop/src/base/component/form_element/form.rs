@@ -78,93 +78,55 @@ impl ComponentTrait for Form {
 impl Form {
     // Form BUILDER.
 
-    pub fn with_weight(mut self, weight: isize) -> Self {
-        self.alter_weight(weight);
-        self
-    }
-
-    pub fn with_renderable(mut self, check: IsRenderable) -> Self {
-        self.alter_renderable(check);
-        self
-    }
-
-    pub fn with_id(mut self, id: &str) -> Self {
-        self.alter_id(id);
-        self
-    }
-
-    pub fn with_classes(mut self, op: ClassesOp, classes: &str) -> Self {
-        self.alter_classes(op, classes);
-        self
-    }
-
-    pub fn with_action(mut self, action: &str) -> Self {
-        self.alter_action(action);
-        self
-    }
-
-    pub fn with_charset(mut self, charset: &str) -> Self {
-        self.alter_charset(charset);
-        self
-    }
-
-    pub fn with_method(mut self, method: FormMethod) -> Self {
-        self.alter_method(method);
-        self
-    }
-
-    pub fn with_element(mut self, element: impl ComponentTrait) -> Self {
-        self.alter_element(element);
-        self
-    }
-
-    pub fn using_template(mut self, template: &str) -> Self {
-        self.alter_template(template);
-        self
-    }
-
-    // Form ALTER.
-
+    #[fn_with]
     pub fn alter_weight(&mut self, weight: isize) -> &mut Self {
         self.weight = weight;
         self
     }
 
+    #[fn_with]
     pub fn alter_renderable(&mut self, check: IsRenderable) -> &mut Self {
         self.renderable.check = check;
         self
     }
 
+    #[fn_with]
     pub fn alter_id(&mut self, id: &str) -> &mut Self {
         self.id.alter_value(id);
         self
     }
 
+    #[fn_with]
     pub fn alter_classes(&mut self, op: ClassesOp, classes: &str) -> &mut Self {
         self.classes.alter_value(op, classes);
         self
     }
 
+    #[fn_with]
     pub fn alter_action(&mut self, action: &str) -> &mut Self {
         self.action.alter_value(action);
         self
     }
 
+    #[fn_with]
     pub fn alter_charset(&mut self, charset: &str) -> &mut Self {
         self.charset.alter_value(charset);
         self
     }
 
+    #[fn_with]
     pub fn alter_method(&mut self, method: FormMethod) -> &mut Self {
         self.method = method;
         self
     }
 
+    #[fn_with]
     pub fn alter_element(&mut self, element: impl ComponentTrait) -> &mut Self {
         self.elements.add(element);
         self
     }
 
+    #[fn_with]
     pub fn alter_template(&mut self, template: &str) -> &mut Self {
         self.template = template.to_owned();
         self

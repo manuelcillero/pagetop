@@ -116,79 +116,44 @@ impl Heading {
 
     // Heading BUILDER.
 
-    pub fn with_weight(mut self, weight: isize) -> Self {
-        self.alter_weight(weight);
-        self
-    }
-
-    pub fn with_renderable(mut self, check: IsRenderable) -> Self {
-        self.alter_renderable(check);
-        self
-    }
-
-    pub fn with_id(mut self, id: &str) -> Self {
-        self.alter_id(id);
-        self
-    }
-
-    pub fn with_classes(mut self, op: ClassesOp, classes: &str) -> Self {
-        self.alter_classes(op, classes);
-        self
-    }
-
-    pub fn with_heading_type(mut self, heading_type: HeadingType) -> Self {
-        self.alter_heading_type(heading_type);
-        self
-    }
-
-    pub fn with_html(mut self, html: Markup) -> Self {
-        self.alter_html(html);
-        self
-    }
-
-    pub fn with_display(mut self, display: HeadingDisplay) -> Self {
-        self.alter_display(display);
-        self
-    }
-
-    pub fn using_template(mut self, template: &str) -> Self {
-        self.alter_template(template);
-        self
-    }
-
-    // Heading ALTER.
-
+    #[fn_with]
     pub fn alter_weight(&mut self, weight: isize) -> &mut Self {
         self.weight = weight;
         self
     }
 
+    #[fn_with]
     pub fn alter_renderable(&mut self, check: IsRenderable) -> &mut Self {
         self.renderable.check = check;
         self
     }
 
+    #[fn_with]
     pub fn alter_id(&mut self, id: &str) -> &mut Self {
         self.id.alter_value(id);
         self
     }
 
+    #[fn_with]
     pub fn alter_classes(&mut self, op: ClassesOp, classes: &str) -> &mut Self {
         self.classes.alter_value(op, classes);
         self
     }
 
+    #[fn_with]
     pub fn alter_heading_type(&mut self, heading_type: HeadingType) -> &mut Self {
         self.heading_type = heading_type;
         self
     }
 
+    #[fn_with]
     pub fn alter_html(&mut self, html: Markup) -> &mut Self {
         self.html.markup = html;
         self
     }
 
     #[rustfmt::skip]
+    #[fn_with]
     pub fn alter_display(&mut self, display: HeadingDisplay) -> &mut Self {
         self.display = display;
         self.classes.alter_value(
@@ -206,6 +171,7 @@ impl Heading {
         self
     }
 
+    #[fn_with]
     pub fn alter_template(&mut self, template: &str) -> &mut Self {
         self.template = template.to_owned();
         self

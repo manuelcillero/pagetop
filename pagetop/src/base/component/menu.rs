@@ -127,23 +127,13 @@ impl MenuItem {
 
     // MenuItem BUILDER.
 
-    pub fn with_weight(mut self, weight: isize) -> Self {
-        self.alter_weight(weight);
-        self
-    }
-
-    pub fn with_renderable(mut self, check: IsRenderable) -> Self {
-        self.alter_renderable(check);
-        self
-    }
-
-    // MenuItem ALTER.
-
+    #[fn_with]
     pub fn alter_weight(&mut self, weight: isize) -> &mut Self {
         self.weight = weight;
         self
     }
 
+    #[fn_with]
     pub fn alter_renderable(&mut self, check: IsRenderable) -> &mut Self {
         self.renderable.check = check;
         self
@@ -233,63 +223,37 @@ impl ComponentTrait for Menu {
 impl Menu {
     // Menu BUILDER.
 
-    pub fn with_weight(mut self, weight: isize) -> Self {
-        self.alter_weight(weight);
-        self
-    }
-
-    pub fn with_renderable(mut self, check: IsRenderable) -> Self {
-        self.alter_renderable(check);
-        self
-    }
-
-    pub fn with_id(mut self, id: &str) -> Self {
-        self.alter_id(id);
-        self
-    }
-
-    pub fn with_classes(mut self, op: ClassesOp, classes: &str) -> Self {
-        self.alter_classes(op, classes);
-        self
-    }
-
-    pub fn with_item(mut self, item: MenuItem) -> Self {
-        self.alter_item(item);
-        self
-    }
-
-    pub fn using_template(mut self, template: &str) -> Self {
-        self.alter_template(template);
-        self
-    }
-
-    // Menu ALTER.
-
+    #[fn_with]
     pub fn alter_weight(&mut self, weight: isize) -> &mut Self {
         self.weight = weight;
         self
     }
 
+    #[fn_with]
     pub fn alter_renderable(&mut self, check: IsRenderable) -> &mut Self {
         self.renderable.check = check;
         self
     }
 
+    #[fn_with]
     pub fn alter_id(&mut self, id: &str) -> &mut Self {
         self.id.alter_value(id);
         self
     }
 
+    #[fn_with]
     pub fn alter_classes(&mut self, op: ClassesOp, classes: &str) -> &mut Self {
         self.classes.alter_value(op, classes);
         self
     }
 
+    #[fn_with]
     pub fn alter_item(&mut self, item: MenuItem) -> &mut Self {
         self.items.add(item);
         self
     }
 
+    #[fn_with]
     pub fn alter_template(&mut self, template: &str) -> &mut Self {
         self.template = template.to_owned();
         self

@@ -85,113 +85,49 @@ impl ComponentTrait for Date {
 impl Date {
     // Date BUILDER.
 
-    pub fn with_weight(mut self, weight: isize) -> Self {
-        self.alter_weight(weight);
-        self
-    }
-
-    pub fn with_renderable(mut self, check: IsRenderable) -> Self {
-        self.alter_renderable(check);
-        self
-    }
-
-    pub fn with_classes(mut self, op: ClassesOp, classes: &str) -> Self {
-        self.alter_classes(op, classes);
-        self
-    }
-
-    pub fn with_name(mut self, name: &str) -> Self {
-        self.alter_name(name);
-        self
-    }
-
-    pub fn with_value(mut self, value: &str) -> Self {
-        self.alter_value(value);
-        self
-    }
-
-    pub fn with_label(mut self, label: &str) -> Self {
-        self.alter_label(label);
-        self
-    }
-
-    pub fn with_placeholder(mut self, placeholder: &str) -> Self {
-        self.alter_placeholder(placeholder);
-        self
-    }
-
-    pub fn with_autofocus(mut self, toggle: bool) -> Self {
-        self.alter_autofocus(toggle);
-        self
-    }
-
-    pub fn with_autocomplete(mut self, toggle: bool) -> Self {
-        self.alter_autocomplete(toggle);
-        self
-    }
-
-    pub fn with_disabled(mut self, toggle: bool) -> Self {
-        self.alter_disabled(toggle);
-        self
-    }
-
-    pub fn with_readonly(mut self, toggle: bool) -> Self {
-        self.alter_readonly(toggle);
-        self
-    }
-
-    pub fn with_required(mut self, toggle: bool) -> Self {
-        self.alter_required(toggle);
-        self
-    }
-
-    pub fn with_help_text(mut self, help_text: &str) -> Self {
-        self.alter_help_text(help_text);
-        self
-    }
-
-    pub fn using_template(mut self, template: &str) -> Self {
-        self.alter_template(template);
-        self
-    }
-
-    // Date ALTER.
-
+    #[fn_with]
     pub fn alter_weight(&mut self, weight: isize) -> &mut Self {
         self.weight = weight;
         self
     }
 
+    #[fn_with]
     pub fn alter_renderable(&mut self, check: IsRenderable) -> &mut Self {
         self.renderable.check = check;
         self
     }
 
+    #[fn_with]
     pub fn alter_classes(&mut self, op: ClassesOp, classes: &str) -> &mut Self {
         self.classes.alter_value(op, classes);
         self
     }
 
+    #[fn_with]
     pub fn alter_name(&mut self, name: &str) -> &mut Self {
         self.name.alter_value(name);
         self
     }
 
+    #[fn_with]
     pub fn alter_value(&mut self, value: &str) -> &mut Self {
         self.value.alter_value(value);
         self
     }
 
+    #[fn_with]
     pub fn alter_label(&mut self, label: &str) -> &mut Self {
         self.label.alter_value(label);
         self
     }
 
+    #[fn_with]
     pub fn alter_placeholder(&mut self, placeholder: &str) -> &mut Self {
         self.placeholder.alter_value(placeholder);
         self
     }
 
+    #[fn_with]
     pub fn alter_autofocus(&mut self, toggle: bool) -> &mut Self {
         self.autofocus.alter_value(match toggle {
             true => "autofocus",
@@ -200,6 +136,7 @@ impl Date {
         self
     }
 
+    #[fn_with]
     pub fn alter_autocomplete(&mut self, toggle: bool) -> &mut Self {
         self.autocomplete.alter_value(match toggle {
             true => "",
@@ -208,6 +145,7 @@ impl Date {
         self
     }
 
+    #[fn_with]
     pub fn alter_disabled(&mut self, toggle: bool) -> &mut Self {
         self.disabled.alter_value(match toggle {
             true => "disabled",
@@ -216,6 +154,7 @@ impl Date {
         self
     }
 
+    #[fn_with]
     pub fn alter_readonly(&mut self, toggle: bool) -> &mut Self {
         self.readonly.alter_value(match toggle {
             true => "readonly",
@@ -224,6 +163,7 @@ impl Date {
         self
     }
 
+    #[fn_with]
     pub fn alter_required(&mut self, toggle: bool) -> &mut Self {
         self.required.alter_value(match toggle {
             true => "required",
@@ -232,11 +172,13 @@ impl Date {
         self
     }
 
+    #[fn_with]
     pub fn alter_help_text(&mut self, help_text: &str) -> &mut Self {
         self.help_text.alter_value(help_text);
         self
     }
 
+    #[fn_with]
     pub fn alter_template(&mut self, template: &str) -> &mut Self {
         self.template = template.to_owned();
         self

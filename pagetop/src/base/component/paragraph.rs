@@ -69,69 +69,38 @@ impl Paragraph {
 
     // Paragraph BUILDER.
 
-    pub fn with_weight(mut self, weight: isize) -> Self {
-        self.alter_weight(weight);
-        self
-    }
-
-    pub fn with_renderable(mut self, check: IsRenderable) -> Self {
-        self.alter_renderable(check);
-        self
-    }
-
-    pub fn with_id(mut self, id: &str) -> Self {
-        self.alter_id(id);
-        self
-    }
-
-    pub fn with_classes(mut self, op: ClassesOp, classes: &str) -> Self {
-        self.alter_classes(op, classes);
-        self
-    }
-
-    pub fn with_component(mut self, component: impl ComponentTrait) -> Self {
-        self.alter_component(component);
-        self
-    }
-
-    pub fn with_display(mut self, display: ParagraphDisplay) -> Self {
-        self.alter_display(display);
-        self
-    }
-
-    pub fn using_template(mut self, template: &str) -> Self {
-        self.alter_template(template);
-        self
-    }
-
-    // Paragraph ALTER.
-
+    #[fn_with]
     pub fn alter_weight(&mut self, weight: isize) -> &mut Self {
         self.weight = weight;
         self
     }
 
+    #[fn_with]
     pub fn alter_renderable(&mut self, check: IsRenderable) -> &mut Self {
         self.renderable.check = check;
         self
     }
 
+    #[fn_with]
     pub fn alter_id(&mut self, id: &str) -> &mut Self {
         self.id.alter_value(id);
         self
     }
 
+    #[fn_with]
     pub fn alter_classes(&mut self, op: ClassesOp, classes: &str) -> &mut Self {
         self.classes.alter_value(op, classes);
         self
     }
 
+    #[fn_with]
     pub fn alter_component(&mut self, component: impl ComponentTrait) -> &mut Self {
         self.components.add(component);
         self
     }
 
     #[rustfmt::skip]
+    #[fn_with]
     pub fn alter_display(&mut self, display: ParagraphDisplay) -> &mut Self {
         self.display = display;
         self.classes.alter_value(
@@ -148,6 +117,7 @@ impl Paragraph {
         self
     }
 
+    #[fn_with]
     pub fn alter_template(&mut self, template: &str) -> &mut Self {
         self.template = template.to_owned();
         self

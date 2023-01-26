@@ -2,6 +2,7 @@
 
 members = [
     "pagetop",
+    "pagetop-macros",
     "pagetop-build",
     # Modules.
     "pagetop-admin",
