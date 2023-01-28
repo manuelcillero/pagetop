@@ -54,19 +54,19 @@ impl Icon {
 
     // Icon BUILDER.
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_weight(&mut self, weight: isize) -> &mut Self {
         self.weight = weight;
         self
     }
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_renderable(&mut self, check: IsRenderable) -> &mut Self {
         self.renderable.check = check;
         self
     }
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_icon_name(&mut self, name: &str) -> &mut Self {
         self.icon_name = name.to_owned();
         self.alter_classes(
@@ -76,7 +76,7 @@ impl Icon {
         self
     }
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_classes(&mut self, op: ClassesOp, classes: &str) -> &mut Self {
         self.classes.alter_value(op, classes);
         self

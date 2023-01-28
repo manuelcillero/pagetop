@@ -78,55 +78,55 @@ impl ComponentTrait for Form {
 impl Form {
     // Form BUILDER.
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_weight(&mut self, weight: isize) -> &mut Self {
         self.weight = weight;
         self
     }
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_renderable(&mut self, check: IsRenderable) -> &mut Self {
         self.renderable.check = check;
         self
     }
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_id(&mut self, id: &str) -> &mut Self {
         self.id.alter_value(id);
         self
     }
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_classes(&mut self, op: ClassesOp, classes: &str) -> &mut Self {
         self.classes.alter_value(op, classes);
         self
     }
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_action(&mut self, action: &str) -> &mut Self {
         self.action.alter_value(action);
         self
     }
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_charset(&mut self, charset: &str) -> &mut Self {
         self.charset.alter_value(charset);
         self
     }
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_method(&mut self, method: FormMethod) -> &mut Self {
         self.method = method;
         self
     }
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_element(&mut self, element: impl ComponentTrait) -> &mut Self {
         self.elements.add(element);
         self
     }
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_template(&mut self, template: &str) -> &mut Self {
         self.template = template.to_owned();
         self

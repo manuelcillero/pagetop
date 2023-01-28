@@ -97,37 +97,37 @@ impl Button {
 
     // Button BUILDER.
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_weight(&mut self, weight: isize) -> &mut Self {
         self.weight = weight;
         self
     }
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_renderable(&mut self, check: IsRenderable) -> &mut Self {
         self.renderable.check = check;
         self
     }
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_classes(&mut self, op: ClassesOp, classes: &str) -> &mut Self {
         self.classes.alter_value(op, classes);
         self
     }
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_name(&mut self, name: &str) -> &mut Self {
         self.name.alter_value(name);
         self
     }
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_value(&mut self, value: &str) -> &mut Self {
         self.value.alter_value(value);
         self
     }
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_autofocus(&mut self, toggle: bool) -> &mut Self {
         self.autofocus.alter_value(match toggle {
             true => "autofocus",
@@ -136,7 +136,7 @@ impl Button {
         self
     }
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_disabled(&mut self, toggle: bool) -> &mut Self {
         self.disabled.alter_value(match toggle {
             true => "disabled",
@@ -145,7 +145,7 @@ impl Button {
         self
     }
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_template(&mut self, template: &str) -> &mut Self {
         self.template = template.to_owned();
         self

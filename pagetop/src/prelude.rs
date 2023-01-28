@@ -1,5 +1,5 @@
 // Re-exports.
-pub use crate::{concat_string, fn_with, LazyStatic, ResultExt};
+pub use crate::{concat_string, fn_builder, LazyStatic, ResultExt};
 
 // Macros.
 pub use crate::{args, pub_config, pub_handle, pub_locale, serve_static_files};

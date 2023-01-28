@@ -48,25 +48,25 @@ impl Html {
 
     // Html BUILDER.
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_weight(&mut self, weight: isize) -> &mut Self {
         self.weight = weight;
         self
     }
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_renderable(&mut self, check: IsRenderable) -> &mut Self {
         self.renderable.check = check;
         self
     }
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_html(&mut self, html: Markup) -> &mut Self {
         self.html.markup = html;
         self
     }
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_template(&mut self, template: &str) -> &mut Self {
         self.template = template.to_owned();
         self

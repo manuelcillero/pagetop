@@ -89,32 +89,32 @@ impl ComponentTrait for Column {
 impl Column {
     // Column BUILDER.
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_weight(&mut self, weight: isize) -> &mut Self {
         self.weight = weight;
         self
     }
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_renderable(&mut self, check: IsRenderable) -> &mut Self {
         self.renderable.check = check;
         self
     }
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_id(&mut self, id: &str) -> &mut Self {
         self.id.alter_value(id);
         self
     }
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_classes(&mut self, op: ClassesOp, classes: &str) -> &mut Self {
         self.classes.alter_value(op, classes);
         self
     }
 
     #[rustfmt::skip]
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_size(&mut self, size: ColumnSize) -> &mut Self {
         match size {
             ColumnSize::Default  => self.alter_classes(ClassesOp::SetDefault, SIZE__DEFAULT),
@@ -135,13 +135,13 @@ impl Column {
         self
     }
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_component(&mut self, component: impl ComponentTrait) -> &mut Self {
         self.components.add(component);
         self
     }
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_template(&mut self, template: &str) -> &mut Self {
         self.template = template.to_owned();
         self

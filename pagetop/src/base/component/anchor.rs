@@ -105,31 +105,31 @@ impl Anchor {
 
     // Anchor BUILDER.
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_weight(&mut self, weight: isize) -> &mut Self {
         self.weight = weight;
         self
     }
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_renderable(&mut self, check: IsRenderable) -> &mut Self {
         self.renderable.check = check;
         self
     }
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_id(&mut self, id: &str) -> &mut Self {
         self.id.alter_value(id);
         self
     }
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_classes(&mut self, op: ClassesOp, classes: &str) -> &mut Self {
         self.classes.alter_value(op, classes);
         self
     }
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_type(&mut self, anchor_type: AnchorType) -> &mut Self {
         self.anchor_type = anchor_type;
         self.classes.alter_value(
@@ -142,39 +142,39 @@ impl Anchor {
         self
     }
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_href(&mut self, href: &str) -> &mut Self {
         self.href.alter_value(href);
         self
     }
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_html(&mut self, html: Markup) -> &mut Self {
         self.html.markup = html;
         self
     }
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_left_icon(&mut self, icon: Icon) -> &mut Self {
         self.left_icon.clear();
         self.left_icon.add(icon);
         self
     }
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_right_icon(&mut self, icon: Icon) -> &mut Self {
         self.right_icon.clear();
         self.right_icon.add(icon);
         self
     }
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_target(&mut self, target: AnchorTarget) -> &mut Self {
         self.target = target;
         self
     }
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_template(&mut self, template: &str) -> &mut Self {
         self.template = template.to_owned();
         self

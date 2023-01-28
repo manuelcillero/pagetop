@@ -44,7 +44,7 @@ pub use doc_comment::doc_comment;
 pub use once_cell::sync::Lazy as LazyStatic;
 pub use tracing_unwrap::ResultExt;
 
-pub use pagetop_macros::fn_with;
+pub use pagetop_macros::fn_builder;
 
 // LOCAL.
 

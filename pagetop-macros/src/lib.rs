@@ -4,7 +4,7 @@ use quote::{quote, quote_spanned, ToTokens};
 use syn::{parse_macro_input, parse_str, ItemFn};
 
 #[proc_macro_attribute]
-pub fn fn_with(_attr: TokenStream, item: TokenStream) -> TokenStream {
+pub fn fn_builder(_attr: TokenStream, item: TokenStream) -> TokenStream {
     let fn_item = parse_macro_input!(item as ItemFn);
     let fn_name = fn_item.sig.ident.to_string();
 
@@ -30,18 +30,18 @@ pub fn fn_with(_attr: TokenStream, item: TokenStream) -> TokenStream {
         .collect();
 
     #[rustfmt::skip]
-    let fn_builder = parse_str::<ItemFn>(concat_string!("
+    let fn_with = parse_str::<ItemFn>(concat_string!("
         pub fn ", fn_name.replace("alter_", "with_"), "(mut self, ", args.join(", "), ") -> Self {
             self.", fn_name, "(", param.join(", "), ");
             self
         }
     ").as_str()).unwrap();
 
-    let fn_original = fn_item.into_token_stream();
+    let fn_alter = fn_item.into_token_stream();
 
     let expanded = quote! {
-        #fn_builder
-        #fn_original
+        #fn_with
+        #fn_alter
     };
     expanded.into()
 }
