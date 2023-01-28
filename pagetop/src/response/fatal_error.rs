@@ -28,8 +28,8 @@ impl fmt::Display for FatalError {
                 let error_content = error_page.context().theme().error_403_access_denied();
                 if let Ok(page) = error_page
                     .with_title("Error FORBIDDEN")
-                    .using_template("error")
-                    .add_to("region-content", error_content)
+                    .with_this_in("region-content", error_content)
+                    .with_template("error")
                     .render()
                 {
                     write!(f, "{}", page.into_string())
@@ -43,8 +43,8 @@ impl fmt::Display for FatalError {
                 let error_content = error_page.context().theme().error_404_not_found();
                 if let Ok(page) = error_page
                     .with_title("Error RESOURCE NOT FOUND")
-                    .using_template("error")
-                    .add_to("region-content", error_content)
+                    .with_this_in("region-content", error_content)
+                    .with_template("error")
                     .render()
                 {
                     write!(f, "{}", page.into_string())

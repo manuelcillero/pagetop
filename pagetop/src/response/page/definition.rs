@@ -4,7 +4,7 @@ use crate::core::component::*;
 use crate::core::hook::{action_ref, run_actions};
 use crate::html::{html, AttributeValue, Classes, ClassesOp, Favicon, Markup, DOCTYPE};
 use crate::response::FatalError;
-use crate::{config, trace, LazyStatic};
+use crate::{config, fn_builder, trace, LazyStatic};
 
 use std::collections::HashMap;
 
@@ -88,73 +88,13 @@ impl Page {
 
     // Page BUILDER.
 
-    pub fn with_language(mut self, language: &str) -> Self {
-        self.alter_language(language);
-        self
-    }
-
-    pub fn with_direction(mut self, dir: TextDirection) -> Self {
-        self.alter_direction(dir);
-        self
-    }
-
-    pub fn with_title(mut self, title: &str) -> Self {
-        self.alter_title(title);
-        self
-    }
-
-    pub fn with_description(mut self, description: &str) -> Self {
-        self.alter_description(description);
-        self
-    }
-
-    pub fn with_metadata(mut self, name: &'static str, content: &'static str) -> Self {
-        self.alter_metadata(name, content);
-        self
-    }
-
-    pub fn with_property(mut self, property: &'static str, content: &'static str) -> Self {
-        self.alter_property(property, content);
-        self
-    }
-
-    pub fn with_favicon(mut self, favicon: Option<Favicon>) -> Self {
-        self.alter_favicon(favicon);
-        self
-    }
-
-    pub fn with_context(mut self, op: ContextOp) -> Self {
-        self.alter_context(op);
-        self
-    }
-
-    pub fn with_body_classes(mut self, op: ClassesOp, classes: &str) -> Self {
-        self.alter_body_classes(op, classes);
-        self
-    }
-
-    pub fn add_to(mut self, region: &'static str, component: impl ComponentTrait) -> Self {
-        if let Some(regions) = self.regions.get_mut(region) {
-            regions.add(component);
-        } else {
-            self.regions
-                .insert(region, ComponentsBundle::new_with(component));
-        }
-        self
-    }
-
-    pub fn using_template(mut self, template: &str) -> Self {
-        self.alter_template(template);
-        self
-    }
-
-    // Page ALTER.
-
+    #[fn_builder]
     pub fn alter_language(&mut self, language: &str) -> &mut Self {
         self.language.alter_value(language);
         self
     }
 
+    #[fn_builder]
     pub fn alter_direction(&mut self, dir: TextDirection) -> &mut Self {
         self.direction.alter_value(match dir {
             TextDirection::Auto => "auto",
@@ -164,41 +104,63 @@ impl Page {
         self
     }
 
+    #[fn_builder]
     pub fn alter_title(&mut self, title: &str) -> &mut Self {
         self.title.alter_value(title);
         self
     }
 
+    #[fn_builder]
     pub fn alter_description(&mut self, description: &str) -> &mut Self {
         self.description.alter_value(description);
         self
     }
 
+    #[fn_builder]
     pub fn alter_metadata(&mut self, name: &'static str, content: &'static str) -> &mut Self {
         self.metadata.push((name, content));
         self
     }
 
+    #[fn_builder]
     pub fn alter_property(&mut self, property: &'static str, content: &'static str) -> &mut Self {
         self.metadata.push((property, content));
         self
     }
 
+    #[fn_builder]
     pub fn alter_favicon(&mut self, favicon: Option<Favicon>) -> &mut Self {
         self.favicon = favicon;
         self
     }
 
+    #[fn_builder]
     pub fn alter_context(&mut self, op: ContextOp) -> &mut Self {
         self.context.alter(op);
         self
     }
 
+    #[fn_builder]
     pub fn alter_body_classes(&mut self, op: ClassesOp, classes: &str) -> &mut Self {
         self.body_classes.alter_value(op, classes);
         self
     }
 
+    #[fn_builder]
+    pub fn alter_this_in(
+        &mut self,
+        region: &'static str,
+        component: impl ComponentTrait,
+    ) -> &mut Self {
+        if let Some(regions) = self.regions.get_mut(region) {
+            regions.add(component);
+        } else {
+            self.regions.insert(region, ComponentsBundle::new_with(component));
+        }
+        self
+    }
+
+    #[fn_builder]
     pub fn alter_template(&mut self, template: &str) -> &mut Self {
         self.template = template.to_owned();
         self

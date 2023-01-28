@@ -31,11 +31,11 @@ async fn demo() -> ResultPage<Markup, FatalError> {
             "/theme/module/homepage/styles.css",
         )))
         .with_body_classes(ClassesOp::AddFirst, "default-homepage")
-        .add_to("region-content", hello_world())
-        .add_to("region-content", welcome())
-        .add_to("region-content", about_pagetop())
-        .add_to("region-content", promo_pagetop())
-        .add_to("region-content", reporting_issues())
+        .with_this_in("region-content", hello_world())
+        .with_this_in("region-content", welcome())
+        .with_this_in("region-content", about_pagetop())
+        .with_this_in("region-content", promo_pagetop())
+        .with_this_in("region-content", reporting_issues())
         .render()
 }
 

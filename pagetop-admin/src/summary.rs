@@ -43,8 +43,8 @@ pub async fn summary() -> ResultPage<Markup, FatalError> {
     Page::new()
         .with_context(ContextOp::SetTheme("Bootsier"))
         .with_title("Admin")
-        .add_to("top-menu", top_menu)
-        .add_to(
+        .with_this_in("top-menu", top_menu)
+        .with_this_in(
             "region-content",
             grid::Row::new()
                 .with_column(grid::Column::new().with_component(side_menu))
@@ -52,6 +52,6 @@ pub async fn summary() -> ResultPage<Markup, FatalError> {
                     p { "Columna 2"}
                 }))),
         )
-        .using_template("admin")
+        .with_template("admin")
         .render()
 }
