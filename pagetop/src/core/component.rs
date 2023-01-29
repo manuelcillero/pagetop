@@ -1,5 +1,5 @@
 mod context;
-pub use context::{RenderContext, ContextOp};
+pub use context::{ContextOp, RenderContext};
 
 mod definition;
 pub use definition::{component_mut, component_ref, AnyComponent, BaseComponent, ComponentTrait};

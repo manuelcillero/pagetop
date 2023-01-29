@@ -157,7 +157,8 @@ impl Page {
         if let Some(regions) = self.regions.get_mut(region) {
             regions.add(component);
         } else {
-            self.regions.insert(region, ComponentsBundle::new_with(component));
+            self.regions
+                .insert(region, ComponentsBundle::new_with(component));
         }
         self
     }

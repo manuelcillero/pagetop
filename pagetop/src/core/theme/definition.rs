@@ -92,6 +92,7 @@ pub trait ThemeTrait: BaseTheme + Send + Sync {
         }
     }
 
+    #[rustfmt::skip]
     #[allow(unused_variables)]
     fn before_render_component(
         &self,
