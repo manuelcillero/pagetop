@@ -40,8 +40,8 @@ impl ModuleTrait for Node {
     }
 }
 
-async fn node() -> ResultPage<Markup, FatalError> {
-    Page::new().with_title("Nodo").render()
+async fn node(request: server::HttpRequest) -> ResultPage<Markup, FatalError> {
+    Page::new(request).with_title("Nodo").render()
 }
 
 fn before_render_page(page: &mut Page) {

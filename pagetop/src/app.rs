@@ -70,6 +70,6 @@ impl Application {
     }
 }
 
-async fn service_not_found() -> ResultPage<Markup, FatalError> {
-    Err(FatalError::NotFound)
+async fn service_not_found(request: server::HttpRequest) -> ResultPage<Markup, FatalError> {
+    Err(FatalError::NotFound(request))
 }

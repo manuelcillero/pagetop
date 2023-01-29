@@ -4,7 +4,7 @@ use crate::core::component::*;
 use crate::core::hook::{action_ref, run_actions};
 use crate::html::{html, AttributeValue, Classes, ClassesOp, Favicon, Markup, DOCTYPE};
 use crate::response::FatalError;
-use crate::{config, fn_builder, trace, LazyStatic};
+use crate::{config, fn_builder, server, trace, LazyStatic};
 
 use std::collections::HashMap;
 
@@ -82,8 +82,10 @@ impl Default for Page {
 }
 
 impl Page {
-    pub fn new() -> Self {
-        Page::default()
+    pub fn new(request: server::HttpRequest) -> Self {
+        let mut page = Page::default();
+        page.context.alter(ContextOp::Request(Some(request)));
+        page
     }
 
     // Page BUILDER.

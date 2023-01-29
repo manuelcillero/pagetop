@@ -1,5 +1,6 @@
 use crate::core::theme::{all::theme_by_single_name, ThemeStaticRef};
 use crate::html::{html, Assets, IdentifierValue, JavaScript, Markup, ModeJS, StyleSheet};
+use crate::server::HttpRequest;
 use crate::{base, concat_string, config, util, LazyStatic};
 
 static DEFAULT_THEME: LazyStatic<ThemeStaticRef> =
@@ -9,7 +10,8 @@ static DEFAULT_THEME: LazyStatic<ThemeStaticRef> =
     });
 
 pub enum ContextOp {
-    SetTheme(&'static str),
+    Theme(&'static str),
+    Request(Option<HttpRequest>),
     AddStyleSheet(StyleSheet),
     RemoveStyleSheet(&'static str),
     AddJavaScript(JavaScript),
@@ -20,6 +22,7 @@ pub enum ContextOp {
 #[rustfmt::skip]
 pub struct RenderContext {
     theme      : ThemeStaticRef,
+    request    : Option<HttpRequest>,
     stylesheets: Assets<StyleSheet>,
     javascripts: Assets<JavaScript>,
     with_jquery: bool,
@@ -31,6 +34,7 @@ impl Default for RenderContext {
     fn default() -> Self {
         RenderContext {
             theme      : *DEFAULT_THEME,
+            request    : None,
             stylesheets: Assets::<StyleSheet>::new(),
             javascripts: Assets::<JavaScript>::new(),
             with_jquery: false,
@@ -40,14 +44,17 @@ impl Default for RenderContext {
 }
 
 impl RenderContext {
-    pub fn new() -> Self {
+    pub(crate) fn new() -> Self {
         RenderContext::default()
     }
 
     pub fn alter(&mut self, op: ContextOp) -> &mut Self {
         match op {
-            ContextOp::SetTheme(theme_name) => {
+            ContextOp::Theme(theme_name) => {
                 self.theme = theme_by_single_name(theme_name).unwrap_or(*DEFAULT_THEME);
+            }
+            ContextOp::Request(request) => {
+                self.request = request;
             }
             ContextOp::AddStyleSheet(css) => {
                 self.stylesheets.add(css);
@@ -78,8 +85,12 @@ impl RenderContext {
 
     /// Context GETTERS.
 
-    pub(crate) fn theme(&mut self) -> ThemeStaticRef {
+    pub(crate) fn theme(&self) -> ThemeStaticRef {
         self.theme
+    }
+
+    pub fn request(&self) -> &Option<HttpRequest> {
+        &self.request
     }
 
     /// Context RENDER.

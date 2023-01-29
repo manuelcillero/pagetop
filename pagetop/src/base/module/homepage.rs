@@ -24,8 +24,8 @@ impl ModuleTrait for DefaultHomePage {
     }
 }
 
-async fn demo() -> ResultPage<Markup, FatalError> {
-    Page::new()
+async fn demo(request: server::HttpRequest) -> ResultPage<Markup, FatalError> {
+    Page::new(request)
         .with_title(l("page_title").as_str())
         .with_context(ContextOp::AddStyleSheet(StyleSheet::located(
             "/theme/module/homepage/styles.css",

@@ -1,30 +1,30 @@
 use crate::response::{page::Page, ResponseError};
 use crate::server::http::{header::ContentType, StatusCode};
-use crate::server::HttpResponse;
+use crate::server::{HttpRequest, HttpResponse};
 
 use std::fmt;
 
 #[derive(Debug)]
 pub enum FatalError {
-    NotModified,
-    BadRequest,
-    AccessDenied,
-    NotFound,
-    PreconditionFailed,
-    InternalError,
-    Timeout,
+    NotModified(HttpRequest),
+    BadRequest(HttpRequest),
+    AccessDenied(HttpRequest),
+    NotFound(HttpRequest),
+    PreconditionFailed(HttpRequest),
+    InternalError(HttpRequest),
+    Timeout(HttpRequest),
 }
 
 impl fmt::Display for FatalError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match *self {
+        match self {
             // Error 304.
-            FatalError::NotModified => write!(f, "Not Modified"),
+            FatalError::NotModified(_) => write!(f, "Not Modified"),
             // Error 400.
-            FatalError::BadRequest => write!(f, "Bad Client Data"),
+            FatalError::BadRequest(_) => write!(f, "Bad Client Data"),
             // Error 403.
-            FatalError::AccessDenied => {
-                let mut error_page = Page::new();
+            FatalError::AccessDenied(request) => {
+                let mut error_page = Page::new(request.clone());
                 let error_content = error_page.context().theme().error_403_access_denied();
                 if let Ok(page) = error_page
                     .with_title("Error FORBIDDEN")
@@ -38,8 +38,8 @@ impl fmt::Display for FatalError {
                 }
             }
             // Error 404.
-            FatalError::NotFound => {
-                let mut error_page = Page::new();
+            FatalError::NotFound(request) => {
+                let mut error_page = Page::new(request.clone());
                 let error_content = error_page.context().theme().error_404_not_found();
                 if let Ok(page) = error_page
                     .with_title("Error RESOURCE NOT FOUND")
@@ -53,11 +53,11 @@ impl fmt::Display for FatalError {
                 }
             }
             // Error 412.
-            FatalError::PreconditionFailed => write!(f, "Precondition Failed"),
+            FatalError::PreconditionFailed(_) => write!(f, "Precondition Failed"),
             // Error 500.
-            FatalError::InternalError => write!(f, "Internal Error"),
+            FatalError::InternalError(_) => write!(f, "Internal Error"),
             // Error 504.
-            FatalError::Timeout => write!(f, "Timeout"),
+            FatalError::Timeout(_) => write!(f, "Timeout"),
         }
     }
 }
@@ -71,14 +71,14 @@ impl ResponseError for FatalError {
 
     #[rustfmt::skip]
     fn status_code(&self) -> StatusCode {
-        match *self {
-            FatalError::NotModified        => StatusCode::NOT_MODIFIED,
-            FatalError::BadRequest         => StatusCode::BAD_REQUEST,
-            FatalError::AccessDenied       => StatusCode::FORBIDDEN,
-            FatalError::NotFound           => StatusCode::NOT_FOUND,
-            FatalError::PreconditionFailed => StatusCode::PRECONDITION_FAILED,
-            FatalError::InternalError      => StatusCode::INTERNAL_SERVER_ERROR,
-            FatalError::Timeout            => StatusCode::GATEWAY_TIMEOUT,
+        match self {
+            FatalError::NotModified(_)        => StatusCode::NOT_MODIFIED,
+            FatalError::BadRequest(_)         => StatusCode::BAD_REQUEST,
+            FatalError::AccessDenied(_)       => StatusCode::FORBIDDEN,
+            FatalError::NotFound(_)           => StatusCode::NOT_FOUND,
+            FatalError::PreconditionFailed(_) => StatusCode::PRECONDITION_FAILED,
+            FatalError::InternalError(_)      => StatusCode::INTERNAL_SERVER_ERROR,
+            FatalError::Timeout(_)            => StatusCode::GATEWAY_TIMEOUT,
         }
     }
 }

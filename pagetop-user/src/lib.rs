@@ -35,8 +35,8 @@ impl ModuleTrait for User {
     }
 }
 
-async fn login() -> ResultPage<Markup, FatalError> {
-    Page::new()
+async fn login(request: server::HttpRequest) -> ResultPage<Markup, FatalError> {
+    Page::new(request)
         .with_title("Identificación del usuario")
         .with_this_in(
             "region-content",
