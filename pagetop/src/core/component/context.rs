@@ -1,12 +1,15 @@
 use crate::core::theme::{all::theme_by_single_name, ThemeStaticRef};
-use crate::html::{html, Assets, IdentifierValue, JavaScript, Markup, ModeJS, StyleSheet};
+use crate::html::{html, Assets, IdentifierValue, JavaScript, Markup, StyleSheet};
 use crate::server::HttpRequest;
 use crate::{base, concat_string, config, util, LazyStatic};
+
+use std::collections::HashMap;
+use std::str::FromStr;
 
 static DEFAULT_THEME: LazyStatic<ThemeStaticRef> =
     LazyStatic::new(|| match theme_by_single_name(&config::SETTINGS.app.theme) {
         Some(theme) => theme,
-        None => &base::theme::bootsier::Bootsier,
+        None => &base::theme::Saturn,
     });
 
 pub enum ContextOp {
@@ -16,7 +19,6 @@ pub enum ContextOp {
     RemoveStyleSheet(&'static str),
     AddJavaScript(JavaScript),
     RemoveJavaScript(&'static str),
-    AddJQuery,
 }
 
 #[rustfmt::skip]
@@ -25,7 +27,7 @@ pub struct RenderContext {
     request    : Option<HttpRequest>,
     stylesheets: Assets<StyleSheet>,
     javascripts: Assets<JavaScript>,
-    with_jquery: bool,
+    params     : HashMap<&'static str, String>,
     id_counter : usize,
 }
 
@@ -37,7 +39,7 @@ impl Default for RenderContext {
             request    : None,
             stylesheets: Assets::<StyleSheet>::new(),
             javascripts: Assets::<JavaScript>::new(),
-            with_jquery: false,
+            params     : HashMap::<&str, String>::new(),
             id_counter : 0,
         }
     }
@@ -68,18 +70,12 @@ impl RenderContext {
             ContextOp::RemoveJavaScript(source) => {
                 self.javascripts.remove(source);
             }
-            ContextOp::AddJQuery => {
-                if !self.with_jquery {
-                    self.javascripts.add(
-                        JavaScript::located("/theme/js/jquery.min.js")
-                            .with_version("3.6.0")
-                            .with_weight(isize::MIN)
-                            .with_mode(ModeJS::Normal),
-                    );
-                    self.with_jquery = true;
-                }
-            }
         }
+        self
+    }
+
+    pub fn set_param<T: FromStr + ToString>(&mut self, key: &'static str, value: T) -> &mut Self {
+        self.params.insert(key, value.to_string());
         self
     }
 
@@ -93,6 +89,14 @@ impl RenderContext {
         &self.request
     }
 
+    pub fn get_param<T: FromStr + ToString>(&mut self, key: &'static str) -> Option<T> {
+        if let Some(value) = self.params.get(key) {
+            if let Ok(value) = T::from_str(value) {
+                return Some(value);
+            }
+        }
+        None
+    }
     /// Context RENDER.
 
     pub fn render(&mut self) -> Markup {

@@ -2,8 +2,8 @@ use crate::base::component::{Container, Html};
 use crate::core::component::{ComponentTrait, RenderContext};
 use crate::html::{html, Favicon, Markup};
 use crate::response::page::Page;
-use crate::util::{single_type_name, Handle};
-use crate::{concat_string, config, server};
+use crate::util::single_type_name;
+use crate::{concat_string, config};
 
 pub type ThemeStaticRef = &'static dyn ThemeTrait;
 
@@ -13,19 +13,6 @@ pub trait BaseTheme {
 
 /// Los temas deben implementar este "trait".
 pub trait ThemeTrait: BaseTheme + Send + Sync {
-    fn handle(&self) -> Handle;
-
-    fn name(&self) -> String {
-        self.single_name().to_owned()
-    }
-
-    fn description(&self) -> Option<String> {
-        None
-    }
-
-    #[allow(unused_variables)]
-    fn configure_service(&self, cfg: &mut server::web::ServiceConfig) {}
-
     #[allow(unused_variables)]
     fn before_render_page(&self, page: &mut Page) {
         if page.favicon().is_none() {

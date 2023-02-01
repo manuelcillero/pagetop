@@ -1,29 +1,19 @@
 use super::ThemeStaticRef;
-use crate::{base, serve_static_files, server, trace, LazyStatic};
+use crate::util::Handle;
+use crate::{trace, LazyStatic};
 
 use std::sync::RwLock;
 
-include!(concat!(env!("OUT_DIR"), "/theme.rs"));
-
 // Temas registrados.
-static THEMES: LazyStatic<RwLock<Vec<ThemeStaticRef>>> = LazyStatic::new(|| {
-    RwLock::new(vec![
-        &base::theme::aliner::Aliner,
-        &base::theme::minimal::Minimal,
-        &base::theme::bootsier::Bootsier,
-        &base::theme::bulmix::Bulmix,
-    ])
-});
+static THEMES: LazyStatic<RwLock<Vec<(Handle, ThemeStaticRef)>>> =
+    LazyStatic::new(|| RwLock::new(Vec::new()));
 
-pub fn register_themes(themes: Vec<ThemeStaticRef>) {
-    let mut registered_themes = THEMES.write().unwrap();
-    for theme in themes {
-        if !registered_themes
-            .iter()
-            .any(|t| t.handle() == theme.handle())
-        {
+pub fn register_theme(handle: Handle, theme: Option<ThemeStaticRef>) {
+    if let Some(theme) = theme {
+        let mut registered_themes = THEMES.write().unwrap();
+        if !registered_themes.iter().any(|t| t.0 == handle) {
             trace::debug!("Registering theme \"{}\"", theme.single_name());
-            registered_themes.push(theme);
+            registered_themes.push((handle, theme));
         }
     }
 }
@@ -33,17 +23,9 @@ pub fn theme_by_single_name(single_name: &str) -> Option<ThemeStaticRef> {
         .write()
         .unwrap()
         .iter()
-        .find(|t| t.single_name().to_lowercase() == single_name.to_lowercase())
+        .find(|t| t.1.single_name().to_lowercase() == single_name.to_lowercase())
     {
-        Some(theme) => Some(*theme),
+        Some((_, theme)) => Some(*theme),
         _ => None,
-    }
-}
-
-pub fn configure_services(cfg: &mut server::web::ServiceConfig) {
-    serve_static_files!(cfg, "/theme", bundle_theme);
-
-    for t in THEMES.read().unwrap().iter() {
-        t.configure_service(cfg);
     }
 }

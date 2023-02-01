@@ -35,6 +35,7 @@ pub fn register_modules(app: ModuleStaticRef) {
 
     // Enable default homepage.
     add_to_enabled(&mut list, &module::homepage::DefaultHomePage);
+    add_to_enabled(&mut list, &crate::base::theme::Saturn);
 
     list.reverse();
     ENABLED_MODULES.write().unwrap().append(&mut list);
@@ -82,7 +83,7 @@ fn add_to_enabled(list: &mut Vec<ModuleStaticRef>, module: ModuleStaticRef) {
 
 pub fn register_themes() {
     for m in ENABLED_MODULES.read().unwrap().iter() {
-        theme::all::register_themes(m.themes());
+        theme::all::register_theme(m.handle(), m.theme());
     }
 }
 

@@ -24,15 +24,15 @@ pub trait ModuleTrait: BaseModule + Send + Sync {
         None
     }
 
+    fn theme(&self) -> Option<ThemeStaticRef> {
+        None
+    }
+
     fn dependencies(&self) -> Vec<ModuleStaticRef> {
         vec![]
     }
 
     fn uninstall_modules(&self) -> Vec<ModuleStaticRef> {
-        vec![]
-    }
-
-    fn themes(&self) -> Vec<ThemeStaticRef> {
         vec![]
     }
 

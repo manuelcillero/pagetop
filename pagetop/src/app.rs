@@ -1,5 +1,4 @@
-use crate::core::module::ModuleStaticRef;
-use crate::core::{module, theme};
+use crate::core::{module, module::ModuleStaticRef};
 use crate::html::Markup;
 use crate::response::page::ResultPage;
 use crate::response::FatalError;
@@ -52,7 +51,6 @@ impl Application {
             server::App::new()
                 .wrap(tracing_actix_web::TracingLogger::default())
                 .configure(module::all::configure_services)
-                .configure(theme::all::configure_services)
                 .default_service(server::web::route().to(service_not_found))
         })
         .bind(format!(

@@ -2,12 +2,19 @@
 
 members = [
     "pagetop",
+    # Utilities.
     "pagetop-macros",
     "pagetop-build",
+    "pagetop-jquery",
     # Modules.
     "pagetop-admin",
     "pagetop-user",
     "pagetop-node",
+    # Themes.
+    "pagetop-minimal",
+    "pagetop-aliner",
+    "pagetop-bootsier",
+    "pagetop-bulmix",
 ]
 
 exclude = [

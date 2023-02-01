@@ -2,7 +2,7 @@
 name = "PageTop Application"
 description = "Developed with the amazing PageTop framework."
 # Tema predeterminado.
-theme = "Bootsier"
+theme = "Saturn"
 # Idioma (localización) predeterminado.
 language = "en-US"
 # Dirección predeterminada para el texto: "ltr", "rtl" o "auto".
