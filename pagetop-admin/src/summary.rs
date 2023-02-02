@@ -1,7 +1,8 @@
-use super::l;
+//use super::l;
 use pagetop::prelude::*;
 
 pub async fn summary(request: server::HttpRequest) -> ResultPage<Markup, FatalError> {
+    /*
     let top_menu = Menu::new()
         .with_item(MenuItem::label(l("module_name").as_str()))
         .with_item(MenuItem::link("Opción 2", "https://www.google.es"))
@@ -39,19 +40,21 @@ pub async fn summary(request: server::HttpRequest) -> ResultPage<Markup, FatalEr
                 .with_item(MenuItem::label("Opción 2")),
         ))
         .with_item(MenuItem::label("Opción 4"));
+    */
 
     Page::new(request)
         .with_context(ContextOp::Theme("Bootsier"))
         .with_title("Admin")
-        .with_this_in("top-menu", top_menu)
-        .with_this_in(
-            "region-content",
-            grid::Row::new()
-                .with_column(grid::Column::new().with_component(side_menu))
-                .with_column(grid::Column::new().with_component(Html::with(html! {
-                    p { "Columna 2"}
-                }))),
-        )
+        /*      .with_this_in("top-menu", top_menu)
+                .with_this_in(
+                    "region-content",
+                    grid::Row::new()
+                        .with_column(grid::Column::new().with_component(side_menu))
+                        .with_column(grid::Column::new().with_component(Html::with(html! {
+                            p { "Columna 2"}
+                        }))),
+                )
+        */
         .with_template("admin")
         .render()
 }
