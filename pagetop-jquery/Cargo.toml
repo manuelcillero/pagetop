@@ -1,0 +1,21 @@
+[package]
+name = "pagetop-jquery"
+version = "0.0.1"
+edition = "2021"
+
+authors = [
+    "Manuel Cillero <manuel@cillero.es>"
+]
+description = """\
+    Manages the user registration and login system.\
+"""
+homepage = "https://pagetop.cillero.es"
+repository = "https://github.com/manuelcillero/pagetop"
+license = "Apache-2.0 OR MIT"
+
+[dependencies]
+pagetop = { path = "../pagetop", version = "0.0", features = ["database"], default-features = false }
+static-files = "0.2.3"
+
+[build-dependencies]
+pagetop-build = { path = "../pagetop-build", version = "0.0" }
