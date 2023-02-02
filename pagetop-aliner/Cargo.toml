@@ -1,0 +1,23 @@
+[package]
+name = "pagetop-aliner"
+version = "0.0.1"
+edition = "2021"
+
+authors = [
+    "Manuel Cillero <manuel@cillero.es>"
+]
+description = """\
+    Theme for PageTop that uses minimal CSS with bounding boxes for page layout and component \
+    display.\
+"""
+homepage = "https://pagetop.cillero.es"
+repository = "https://github.com/manuelcillero/pagetop"
+license = "Apache-2.0 OR MIT"
+
+[dependencies]
+pagetop = { path = "../pagetop", version = "0.0" }
+static-files = "0.2.3"
+maud = "0.24.0"
+
+[build-dependencies]
+pagetop-build = { path = "../pagetop-build", version = "0.0" }
