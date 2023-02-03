@@ -186,14 +186,14 @@ impl ComponentTrait for MegaMenu {
 
     fn default_render(&self, rcx: &mut RenderContext) -> Markup {
         rcx.alter(ContextOp::AddStyleSheet(
-                StyleSheet::located("/megamenu/css/menu.css").with_version("1.1.1"),
-            ))
-            .alter(ContextOp::AddStyleSheet(
-                StyleSheet::located("/megamenu/css/menu-clean.css").with_version("1.1.1"),
-            ))
-            .alter(ContextOp::AddJavaScript(
-                JavaScript::located("/megamenu/js/menu.min.js").with_version("1.1.1"),
-            ));
+            StyleSheet::located("/megamenu/css/menu.css").with_version("1.1.1"),
+        ))
+        .alter(ContextOp::AddStyleSheet(
+            StyleSheet::located("/megamenu/css/menu-clean.css").with_version("1.1.1"),
+        ))
+        .alter(ContextOp::AddJavaScript(
+            JavaScript::located("/megamenu/js/menu.min.js").with_version("1.1.1"),
+        ));
         pagetop_jquery::JQuery::add_jquery(rcx);
 
         let id = rcx.required_id::<MegaMenu>(self.id());

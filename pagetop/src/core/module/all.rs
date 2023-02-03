@@ -95,7 +95,10 @@ fn add_to_enabled(list: &mut Vec<ModuleStaticRef>, module: ModuleStaticRef) {
 
             if let Some(theme) = module.theme() {
                 let mut registered_themes = THEMES.write().unwrap();
-                if !registered_themes.iter().any(|t| t.handle() == theme.handle()) {
+                if !registered_themes
+                    .iter()
+                    .any(|t| t.handle() == theme.handle())
+                {
                     registered_themes.push(theme);
                     trace::debug!("Enabling \"{}\" theme", theme.single_name());
                 }

@@ -6,7 +6,10 @@ pub async fn summary(request: server::HttpRequest) -> ResultPage<Markup, FatalEr
     let top_menu = MegaMenu::new()
         .with_item(MegaMenuItem::label(l("module_name").as_str()))
         .with_item(MegaMenuItem::link("Opción 2", "https://www.google.es"))
-        .with_item(MegaMenuItem::link_blank("Opción 3", "https://www.google.es"))
+        .with_item(MegaMenuItem::link_blank(
+            "Opción 3",
+            "https://www.google.es",
+        ))
         .with_item(MegaMenuItem::submenu(
             "Submenú 1",
             MegaMenu::new()
@@ -25,7 +28,10 @@ pub async fn summary(request: server::HttpRequest) -> ResultPage<Markup, FatalEr
     let side_menu = MegaMenu::new()
         .with_item(MegaMenuItem::label("Opción 1"))
         .with_item(MegaMenuItem::link("Opción 2", "https://www.google.es"))
-        .with_item(MegaMenuItem::link_blank("Opción 3", "https://www.google.es"))
+        .with_item(MegaMenuItem::link_blank(
+            "Opción 3",
+            "https://www.google.es",
+        ))
         .with_item(MegaMenuItem::submenu(
             "Submenú 1",
             MegaMenu::new()
