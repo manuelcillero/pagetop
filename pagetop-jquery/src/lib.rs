@@ -5,7 +5,7 @@ pub_handle!(MODULE_JQUERY);
 include!(concat!(env!("OUT_DIR"), "/jquery.rs"));
 
 const JQUERY_PARAM: &str = "jquery.add";
-const JQUERY_SOURCE: &str = "/jquery/js/jquery.min.js";
+const JQUERY_SOURCE: &str = "/jquery/3.6.0/jquery.min.js";
 
 pub struct JQuery;
 
@@ -26,7 +26,6 @@ impl JQuery {
             _ => {
                 rcx.alter(ContextOp::AddJavaScript(
                     JavaScript::located(JQUERY_SOURCE)
-                        .with_version("3.6.0")
                         .with_weight(isize::MIN)
                         .with_mode(ModeJS::Normal),
                 ));
