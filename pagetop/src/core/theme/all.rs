@@ -1,31 +1,32 @@
 use super::ThemeStaticRef;
-use crate::util::Handle;
 use crate::{trace, LazyStatic};
 
 use std::sync::RwLock;
 
 // Temas registrados.
-static THEMES: LazyStatic<RwLock<Vec<(Handle, ThemeStaticRef)>>> =
+static THEMES: LazyStatic<RwLock<Vec<ThemeStaticRef>>> =
     LazyStatic::new(|| RwLock::new(Vec::new()));
 
-pub fn register_theme(handle: Handle, theme: Option<ThemeStaticRef>) {
+pub fn register_theme(theme: Option<ThemeStaticRef>) {
     if let Some(theme) = theme {
+        let handle = theme.handle();
         let mut registered_themes = THEMES.write().unwrap();
-        if !registered_themes.iter().any(|t| t.0 == handle) {
+        if !registered_themes.iter().any(|t| t.handle() == handle) {
             trace::debug!("Registering theme \"{}\"", theme.single_name());
-            registered_themes.push((handle, theme));
+            registered_themes.push(theme);
         }
     }
 }
 
 pub fn theme_by_single_name(single_name: &str) -> Option<ThemeStaticRef> {
+    let single_name = single_name.to_lowercase();
     match THEMES
-        .write()
+        .read()
         .unwrap()
         .iter()
-        .find(|t| t.1.single_name().to_lowercase() == single_name.to_lowercase())
+        .find(|t| t.single_name().to_lowercase() == single_name)
     {
-        Some((_, theme)) => Some(*theme),
+        Some(theme) => Some(*theme),
         _ => None,
     }
 }

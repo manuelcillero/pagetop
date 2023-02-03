@@ -1,18 +1,14 @@
 use crate::base::component::{Container, Html};
 use crate::core::component::{ComponentTrait, RenderContext};
+use crate::core::module::ModuleTrait;
 use crate::html::{html, Favicon, Markup};
 use crate::response::page::Page;
-use crate::util::single_type_name;
 use crate::{concat_string, config};
 
 pub type ThemeStaticRef = &'static dyn ThemeTrait;
 
-pub trait BaseTheme {
-    fn single_name(&self) -> &'static str;
-}
-
 /// Los temas deben implementar este "trait".
-pub trait ThemeTrait: BaseTheme + Send + Sync {
+pub trait ThemeTrait: ModuleTrait + Send + Sync {
     #[allow(unused_variables)]
     fn before_render_page(&self, page: &mut Page) {
         if page.favicon().is_none() {
@@ -137,11 +133,5 @@ pub trait ThemeTrait: BaseTheme + Send + Sync {
                 h1 { ("FORBIDDEN ACCESS") }
             }
         }))
-    }
-}
-
-impl<T: ?Sized + ThemeTrait> BaseTheme for T {
-    fn single_name(&self) -> &'static str {
-        single_type_name::<Self>()
     }
 }

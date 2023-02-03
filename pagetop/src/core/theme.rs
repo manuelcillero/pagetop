@@ -1,4 +1,4 @@
 mod definition;
-pub use definition::{BaseTheme, ThemeStaticRef, ThemeTrait};
+pub use definition::{ThemeStaticRef, ThemeTrait};
 
 pub(crate) mod all;

@@ -83,7 +83,7 @@ fn add_to_enabled(list: &mut Vec<ModuleStaticRef>, module: ModuleStaticRef) {
 
 pub fn register_themes() {
     for m in ENABLED_MODULES.read().unwrap().iter() {
-        theme::all::register_theme(m.handle(), m.theme());
+        theme::all::register_theme(m.theme());
     }
 }
 
