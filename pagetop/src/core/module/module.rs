@@ -1,5 +1,6 @@
+use super::ThemeStaticRef;
+
 use crate::core::hook::HookAction;
-use crate::core::theme::ThemeStaticRef;
 use crate::server;
 use crate::util::{single_type_name, Handle};
 
@@ -32,7 +33,7 @@ pub trait ModuleTrait: BaseModule + Send + Sync {
         vec![]
     }
 
-    fn uninstall_modules(&self) -> Vec<ModuleStaticRef> {
+    fn drop_modules(&self) -> Vec<ModuleStaticRef> {
         vec![]
     }
 

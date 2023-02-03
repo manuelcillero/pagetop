@@ -23,7 +23,7 @@ impl ModuleTrait for Drust {
         ]
     }
 
-    fn uninstall_modules(&self) -> Vec<ModuleStaticRef> {
+    fn drop_modules(&self) -> Vec<ModuleStaticRef> {
         vec![
         //  &pagetop_node::Node
         ]

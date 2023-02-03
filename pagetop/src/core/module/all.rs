@@ -1,8 +1,7 @@
-use super::ModuleStaticRef;
+use super::{ModuleStaticRef, ThemeStaticRef};
 
 use crate::base;
 use crate::core::hook::add_action;
-use crate::core::theme;
 use crate::{server, trace, LazyStatic};
 
 #[cfg(feature = "database")]
@@ -10,26 +9,46 @@ use crate::{db::*, run_now};
 
 use std::sync::RwLock;
 
-// REGISTER MODULES ********************************************************************************
+// MODULES *****************************************************************************************
 
 static ENABLED_MODULES: LazyStatic<RwLock<Vec<ModuleStaticRef>>> =
     LazyStatic::new(|| RwLock::new(Vec::new()));
 
-static DISCARDED_MODULES: LazyStatic<RwLock<Vec<ModuleStaticRef>>> =
+static DROPPED_MODULES: LazyStatic<RwLock<Vec<ModuleStaticRef>>> =
     LazyStatic::new(|| RwLock::new(Vec::new()));
 
+// THEMES ******************************************************************************************
+
+static THEMES: LazyStatic<RwLock<Vec<ThemeStaticRef>>> =
+    LazyStatic::new(|| RwLock::new(Vec::new()));
+
+pub fn theme_by_single_name(single_name: &str) -> Option<ThemeStaticRef> {
+    let single_name = single_name.to_lowercase();
+    match THEMES
+        .read()
+        .unwrap()
+        .iter()
+        .find(|t| t.single_name().to_lowercase() == single_name)
+    {
+        Some(theme) => Some(*theme),
+        _ => None,
+    }
+}
+
+// REGISTER MODULES ********************************************************************************
+
 pub fn register_modules(app: ModuleStaticRef) {
-    // List of modules to disable.
+    // List of modules to drop.
     let mut list: Vec<ModuleStaticRef> = Vec::new();
-    add_to_discarded(&mut list, app);
-    DISCARDED_MODULES.write().unwrap().append(&mut list);
+    add_to_dropped(&mut list, app);
+    DROPPED_MODULES.write().unwrap().append(&mut list);
 
     // List of modules to enable.
     let mut list: Vec<ModuleStaticRef> = Vec::new();
 
     // 1 of 3. Enable base modules.
     add_to_enabled(&mut list, &base::module::menu::Menu);
-    add_to_enabled(&mut list, &base::theme::Saturn);
+    add_to_enabled(&mut list, &base::module::saturn::Saturn);
 
     // 2 of 3. Enable application modules.
     add_to_enabled(&mut list, app);
@@ -41,28 +60,28 @@ pub fn register_modules(app: ModuleStaticRef) {
     ENABLED_MODULES.write().unwrap().append(&mut list);
 }
 
-fn add_to_discarded(list: &mut Vec<ModuleStaticRef>, module: ModuleStaticRef) {
-    for u in module.uninstall_modules().iter() {
-        if !list.iter().any(|m| m.handle() == u.handle()) {
-            list.push(*u);
-            trace::debug!("Module \"{}\" discarded", u.single_name());
+fn add_to_dropped(list: &mut Vec<ModuleStaticRef>, module: ModuleStaticRef) {
+    for d in module.drop_modules().iter() {
+        if !list.iter().any(|m| m.handle() == d.handle()) {
+            list.push(*d);
+            trace::debug!("Module \"{}\" dropped", d.single_name());
         }
     }
     for d in module.dependencies().iter() {
-        add_to_discarded(list, *d);
+        add_to_dropped(list, *d);
     }
 }
 
 fn add_to_enabled(list: &mut Vec<ModuleStaticRef>, module: ModuleStaticRef) {
     if !list.iter().any(|m| m.handle() == module.handle()) {
-        if DISCARDED_MODULES
+        if DROPPED_MODULES
             .read()
             .unwrap()
             .iter()
             .any(|m| m.handle() == module.handle())
         {
             panic!(
-                "Trying to enable \"{}\" module which is disabled",
+                "Trying to enable \"{}\" module which is dropped",
                 module.single_name()
             );
         } else {
@@ -74,16 +93,16 @@ fn add_to_enabled(list: &mut Vec<ModuleStaticRef>, module: ModuleStaticRef) {
                 add_to_enabled(list, *d);
             }
 
-            trace::debug!("Enabling \"{}\" module", module.single_name());
+            if let Some(theme) = module.theme() {
+                let mut registered_themes = THEMES.write().unwrap();
+                if !registered_themes.iter().any(|t| t.handle() == theme.handle()) {
+                    registered_themes.push(theme);
+                    trace::debug!("Enabling \"{}\" theme", theme.single_name());
+                }
+            } else {
+                trace::debug!("Enabling \"{}\" module", module.single_name());
+            }
         }
-    }
-}
-
-// REGISTER THEMES *********************************************************************************
-
-pub fn register_themes() {
-    for m in ENABLED_MODULES.read().unwrap().iter() {
-        theme::all::register_theme(m.theme());
     }
 }
 
@@ -130,7 +149,7 @@ pub fn run_migrations() {
         impl MigratorTrait for Migrator {
             fn migrations() -> Vec<MigrationItem> {
                 let mut migrations = vec![];
-                for m in DISCARDED_MODULES.read().unwrap().iter() {
+                for m in DROPPED_MODULES.read().unwrap().iter() {
                     migrations.append(&mut m.migrations());
                 }
                 migrations

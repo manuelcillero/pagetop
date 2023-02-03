@@ -33,9 +33,6 @@ impl Application {
         // Registra los módulos de la aplicación.
         module::all::register_modules(app);
 
-        // Registra los temas de los módulos.
-        module::all::register_themes();
-
         // Registra acciones de los módulos.
         module::all::register_actions();
 
