@@ -21,15 +21,17 @@ pub struct Date {
     template    : String,
 }
 
+impl ModuleTrait for Date {
+    fn handle(&self) -> Handle {
+        COMPONENT_DATE
+    }
+}
+
 impl ComponentTrait for Date {
     fn new() -> Self {
         Date::default()
             .with_classes(ClassesOp::SetDefault, "form-item")
             .with_classes(ClassesOp::AddFirst, "form-type-date")
-    }
-
-    fn handle(&self) -> Handle {
-        COMPONENT_DATE
     }
 
     fn weight(&self) -> isize {

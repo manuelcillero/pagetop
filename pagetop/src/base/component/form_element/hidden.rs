@@ -10,13 +10,15 @@ pub struct Hidden {
     value : AttributeValue,
 }
 
+impl ModuleTrait for Hidden {
+    fn handle(&self) -> Handle {
+        COMPONENT_HIDDEN
+    }
+}
+
 impl ComponentTrait for Hidden {
     fn new() -> Self {
         Hidden::default()
-    }
-
-    fn handle(&self) -> Handle {
-        COMPONENT_HIDDEN
     }
 
     fn weight(&self) -> isize {

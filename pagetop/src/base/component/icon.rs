@@ -11,13 +11,15 @@ pub struct Icon {
     classes   : Classes,
 }
 
+impl ModuleTrait for Icon {
+    fn handle(&self) -> Handle {
+        COMPONENT_ICON
+    }
+}
+
 impl ComponentTrait for Icon {
     fn new() -> Self {
         Icon::default().with_classes(ClassesOp::SetDefault, "bi-question-circle-fill")
-    }
-
-    fn handle(&self) -> Handle {
-        COMPONENT_ICON
     }
 
     fn weight(&self) -> isize {

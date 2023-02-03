@@ -38,13 +38,15 @@ pub struct Heading {
     template    : String,
 }
 
+impl ModuleTrait for Heading {
+    fn handle(&self) -> Handle {
+        COMPONENT_HEADING
+    }
+}
+
 impl ComponentTrait for Heading {
     fn new() -> Self {
         Heading::default()
-    }
-
-    fn handle(&self) -> Handle {
-        COMPONENT_HEADING
     }
 
     fn weight(&self) -> isize {

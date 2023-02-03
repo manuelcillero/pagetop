@@ -27,15 +27,17 @@ pub struct Container {
     template      : String,
 }
 
+impl ModuleTrait for Container {
+    fn handle(&self) -> Handle {
+        COMPONENT_CONTAINER
+    }
+}
+
 impl ComponentTrait for Container {
     fn new() -> Self {
         Container::default()
             .with_classes(ClassesOp::SetDefault, "container")
             .with_inner_classes(ClassesOp::SetDefault, "container")
-    }
-
-    fn handle(&self) -> Handle {
-        COMPONENT_CONTAINER
     }
 
     fn weight(&self) -> isize {

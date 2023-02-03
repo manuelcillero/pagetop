@@ -38,13 +38,15 @@ pub struct Anchor {
     template   : String,
 }
 
+impl ModuleTrait for Anchor {
+    fn handle(&self) -> Handle {
+        COMPONENT_ANCHOR
+    }
+}
+
 impl ComponentTrait for Anchor {
     fn new() -> Self {
         Anchor::default()
-    }
-
-    fn handle(&self) -> Handle {
-        COMPONENT_ANCHOR
     }
 
     fn weight(&self) -> isize {

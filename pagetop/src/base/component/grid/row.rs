@@ -15,13 +15,15 @@ pub struct Row {
     template  : String,
 }
 
+impl ModuleTrait for Row {
+    fn handle(&self) -> Handle {
+        COMPONENT_ROW
+    }
+}
+
 impl ComponentTrait for Row {
     fn new() -> Self {
         Row::default().with_classes(ClassesOp::SetDefault, "row")
-    }
-
-    fn handle(&self) -> Handle {
-        COMPONENT_ROW
     }
 
     fn weight(&self) -> isize {

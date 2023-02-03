@@ -25,15 +25,17 @@ pub struct Form {
     template  : String,
 }
 
+impl ModuleTrait for Form {
+    fn handle(&self) -> Handle {
+        COMPONENT_FORM
+    }
+}
+
 impl ComponentTrait for Form {
     fn new() -> Self {
         Form::default()
             .with_classes(ClassesOp::SetDefault, "form")
             .with_charset("UTF-8")
-    }
-
-    fn handle(&self) -> Handle {
-        COMPONENT_FORM
     }
 
     fn weight(&self) -> isize {

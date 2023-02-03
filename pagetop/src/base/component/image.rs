@@ -13,13 +13,15 @@ pub struct Image {
     template  : String,
 }
 
+impl ModuleTrait for Image {
+    fn handle(&self) -> Handle {
+        COMPONENT_IMAGE
+    }
+}
+
 impl ComponentTrait for Image {
     fn new() -> Self {
         Image::default().with_classes(ClassesOp::SetDefault, "img-fluid")
-    }
-
-    fn handle(&self) -> Handle {
-        COMPONENT_IMAGE
     }
 
     fn weight(&self) -> isize {

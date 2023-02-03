@@ -25,13 +25,15 @@ pub struct Paragraph {
     template  : String,
 }
 
+impl ModuleTrait for Paragraph {
+    fn handle(&self) -> Handle {
+        COMPONENT_PARAGRAPH
+    }
+}
+
 impl ComponentTrait for Paragraph {
     fn new() -> Self {
         Paragraph::default()
-    }
-
-    fn handle(&self) -> Handle {
-        COMPONENT_PARAGRAPH
     }
 
     fn weight(&self) -> isize {

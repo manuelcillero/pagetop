@@ -1,7 +1,7 @@
 use super::RenderContext;
 
+use crate::core::module::ModuleTrait;
 use crate::html::{html, Markup};
-use crate::util::{single_type_name, Handle};
 
 pub use std::any::Any as AnyComponent;
 
@@ -9,20 +9,10 @@ pub trait BaseComponent {
     fn render(&mut self, rcx: &mut RenderContext) -> Markup;
 }
 
-pub trait ComponentTrait: AnyComponent + BaseComponent + Send + Sync {
+pub trait ComponentTrait: AnyComponent + BaseComponent + ModuleTrait + Send + Sync {
     fn new() -> Self
     where
         Self: Sized;
-
-    fn handle(&self) -> Handle;
-
-    fn name(&self) -> String {
-        single_type_name::<Self>().to_owned()
-    }
-
-    fn description(&self) -> Option<String> {
-        None
-    }
 
     fn weight(&self) -> isize {
         0

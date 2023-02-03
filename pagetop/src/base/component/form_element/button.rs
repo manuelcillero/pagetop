@@ -24,15 +24,17 @@ pub struct Button {
     template   : String,
 }
 
+impl ModuleTrait for Button {
+    fn handle(&self) -> Handle {
+        COMPONENT_BUTTON
+    }
+}
+
 impl ComponentTrait for Button {
     fn new() -> Self {
         Button::default()
             .with_classes(ClassesOp::SetDefault, "btn btn-primary")
             .with_classes(ClassesOp::AddFirst, "form-button")
-    }
-
-    fn handle(&self) -> Handle {
-        COMPONENT_BUTTON
     }
 
     fn weight(&self) -> isize {
