@@ -75,7 +75,7 @@ pub fn component_mut<C: 'static>(component: &mut dyn ComponentTrait) -> &mut C {
 #[macro_export]
 macro_rules! hook_before_render_component {
     ( $ACTION_HANDLE:ident, $Component:ty ) => {
-        paste::paste! {
+        $crate::paste! {
             $crate::pub_handle!($ACTION_HANDLE);
 
             type Action = fn(&$Component, &mut RenderContext);
@@ -127,7 +127,7 @@ macro_rules! hook_before_render_component {
             }
 
             #[inline(always)]
-            fn before_render_inline(component: &mut $Component, rcx: &mut RenderContext) {
+            pub fn before_render_inline(component: &mut $Component, rcx: &mut RenderContext) {
                 run_actions($ACTION_HANDLE, |action|
                     action_ref::<[< BeforeRender $Component >]>(&**action)
                         .run(component, rcx)

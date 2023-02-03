@@ -17,8 +17,6 @@ mod block;
 pub use block::{Block, COMPONENT_BLOCK};
 mod image;
 pub use image::{Image, COMPONENT_IMAGE};
-//mod menu;
-//pub use menu::{Menu, MenuItem, MenuItemType, COMPONENT_MENU, COMPONENT_MENUITEM};
 
 pub mod form_element;
 pub use form_element::{Form, FormMethod, COMPONENT_FORM};

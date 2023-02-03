@@ -21,14 +21,18 @@ impl ModuleTrait for Admin {
         Some(l("module_description"))
     }
 
-    fn configure_service(&self, cfg: &mut server::web::ServiceConfig) {
-        cfg.service(
-            server::web::scope("/admin").route("", server::web::get().to(summary::summary)),
-        );
+    fn dependencies(&self) -> Vec<ModuleStaticRef> {
+        vec![&pagetop_megamenu::MegaMenu]
     }
 
     fn actions(&self) -> Vec<HookAction> {
         vec![hook_action!(BeforeRenderPageHook => before_render_page)]
+    }
+
+    fn configure_service(&self, cfg: &mut server::web::ServiceConfig) {
+        cfg.service(
+            server::web::scope("/admin").route("", server::web::get().to(summary::summary)),
+        );
     }
 }
 

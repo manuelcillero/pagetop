@@ -1,36 +1,36 @@
-use crate::prelude::*;
+use pagetop::prelude::*;
 
-pub_handle!(COMPONENT_MENUITEM);
+pub_handle!(COMPONENT_MEGAMENUITEM);
 
 #[derive(Default)]
-pub enum MenuItemType {
+pub enum MegaMenuItemType {
     #[default]
     Void,
     Label(String),
     Link(String, String),
     LinkBlank(String, String),
     Html(Markup),
-    Submenu(String, Menu),
+    Submenu(String, MegaMenu),
     Separator,
 }
 
-// MenuItem.
+// MegaMenuItem.
 
 #[rustfmt::skip]
 #[derive(Default)]
-pub struct MenuItem {
+pub struct MegaMenuItem {
     weight    : isize,
     renderable: Renderable,
-    item_type : MenuItemType,
+    item_type : MegaMenuItemType,
 }
 
-impl ComponentTrait for MenuItem {
+impl ComponentTrait for MegaMenuItem {
     fn new() -> Self {
-        MenuItem::default()
+        MegaMenuItem::default()
     }
 
     fn handle(&self) -> Handle {
-        COMPONENT_MENUITEM
+        COMPONENT_MEGAMENUITEM
     }
 
     fn weight(&self) -> isize {
@@ -43,23 +43,23 @@ impl ComponentTrait for MenuItem {
 
     fn default_render(&self, rcx: &mut RenderContext) -> Markup {
         match self.item_type() {
-            MenuItemType::Void => html! {},
+            MegaMenuItemType::Void => html! {},
 
-            MenuItemType::Label(label) => html! {
+            MegaMenuItemType::Label(label) => html! {
                 li class="label" { a href="#" { (label) } }
             },
-            MenuItemType::Link(label, path) => html! {
+            MegaMenuItemType::Link(label, path) => html! {
                 li class="link" { a href=(path) { (label) } }
             },
-            MenuItemType::LinkBlank(label, path) => html! {
+            MegaMenuItemType::LinkBlank(label, path) => html! {
                 li class="link_blank" {
                     a href=(path) target="_blank" { (label) }
                 }
             },
-            MenuItemType::Html(html) => html! {
+            MegaMenuItemType::Html(html) => html! {
                 li class="html" { (*html) }
             },
-            MenuItemType::Submenu(label, menu) => html! {
+            MegaMenuItemType::Submenu(label, menu) => html! {
                 li class="submenu" {
                     a href="#" { (label) }
                     ul {
@@ -67,7 +67,7 @@ impl ComponentTrait for MenuItem {
                     }
                 }
             },
-            MenuItemType::Separator => html! {
+            MegaMenuItemType::Separator => html! {
                 li class="separator" { }
             },
         }
@@ -82,50 +82,50 @@ impl ComponentTrait for MenuItem {
     }
 }
 
-impl MenuItem {
+impl MegaMenuItem {
     pub fn label(label: &str) -> Self {
-        MenuItem {
-            item_type: MenuItemType::Label(label.to_owned()),
+        MegaMenuItem {
+            item_type: MegaMenuItemType::Label(label.to_owned()),
             ..Default::default()
         }
     }
 
     pub fn link(label: &str, path: &str) -> Self {
-        MenuItem {
-            item_type: MenuItemType::Link(label.to_owned(), path.to_owned()),
+        MegaMenuItem {
+            item_type: MegaMenuItemType::Link(label.to_owned(), path.to_owned()),
             ..Default::default()
         }
     }
 
     pub fn link_blank(label: &str, path: &str) -> Self {
-        MenuItem {
-            item_type: MenuItemType::LinkBlank(label.to_owned(), path.to_owned()),
+        MegaMenuItem {
+            item_type: MegaMenuItemType::LinkBlank(label.to_owned(), path.to_owned()),
             ..Default::default()
         }
     }
 
     pub fn html(html: Markup) -> Self {
-        MenuItem {
-            item_type: MenuItemType::Html(html),
+        MegaMenuItem {
+            item_type: MegaMenuItemType::Html(html),
             ..Default::default()
         }
     }
 
-    pub fn submenu(label: &str, menu: Menu) -> Self {
-        MenuItem {
-            item_type: MenuItemType::Submenu(label.to_owned(), menu),
+    pub fn submenu(label: &str, menu: MegaMenu) -> Self {
+        MegaMenuItem {
+            item_type: MegaMenuItemType::Submenu(label.to_owned(), menu),
             ..Default::default()
         }
     }
 
     pub fn separator() -> Self {
-        MenuItem {
-            item_type: MenuItemType::Separator,
+        MegaMenuItem {
+            item_type: MegaMenuItemType::Separator,
             ..Default::default()
         }
     }
 
-    // MenuItem BUILDER.
+    // MegaMenuItem BUILDER.
 
     #[fn_builder]
     pub fn alter_weight(&mut self, weight: isize) -> &mut Self {
@@ -139,22 +139,22 @@ impl MenuItem {
         self
     }
 
-    // MenuItem GETTERS.
+    // MegaMenuItem GETTERS.
 
-    pub fn item_type(&self) -> &MenuItemType {
+    pub fn item_type(&self) -> &MegaMenuItemType {
         &self.item_type
     }
 }
 
-// Menu.
+// MegaMenu.
 
-pub_handle!(COMPONENT_MENU);
+pub_handle!(COMPONENT_MEGAMENU);
 
-hook_before_render_component!(HOOK_BEFORE_RENDER_MENU, Menu);
+hook_before_render_component!(HOOK_BEFORE_RENDER_MENU, MegaMenu);
 
 #[rustfmt::skip]
 #[derive(Default)]
-pub struct Menu {
+pub struct MegaMenu {
     weight    : isize,
     renderable: Renderable,
     id        : IdentifierValue,
@@ -163,13 +163,13 @@ pub struct Menu {
     template  : String,
 }
 
-impl ComponentTrait for Menu {
+impl ComponentTrait for MegaMenu {
     fn new() -> Self {
-        Menu::default().with_classes(ClassesOp::SetDefault, "sm sm-clean")
+        MegaMenu::default().with_classes(ClassesOp::SetDefault, "sm sm-clean")
     }
 
     fn handle(&self) -> Handle {
-        COMPONENT_MENU
+        COMPONENT_MEGAMENU
     }
 
     fn weight(&self) -> isize {
@@ -186,17 +186,17 @@ impl ComponentTrait for Menu {
 
     fn default_render(&self, rcx: &mut RenderContext) -> Markup {
         rcx.alter(ContextOp::AddStyleSheet(
-            StyleSheet::located("/theme/menu/css/menu.css").with_version("1.1.1"),
-        ))
-        .alter(ContextOp::AddStyleSheet(
-            StyleSheet::located("/theme/menu/css/menu-clean.css").with_version("1.1.1"),
-        ))
-        .alter(ContextOp::AddJavaScript(
-            JavaScript::located("/theme/menu/js/menu.min.js").with_version("1.1.1"),
-        ))
-        .alter(ContextOp::AddJQuery);
+                StyleSheet::located("/megamenu/css/menu.css").with_version("1.1.1"),
+            ))
+            .alter(ContextOp::AddStyleSheet(
+                StyleSheet::located("/megamenu/css/menu-clean.css").with_version("1.1.1"),
+            ))
+            .alter(ContextOp::AddJavaScript(
+                JavaScript::located("/megamenu/js/menu.min.js").with_version("1.1.1"),
+            ));
+        pagetop_jquery::JQuery::add_jquery(rcx);
 
-        let id = rcx.required_id::<Menu>(self.id());
+        let id = rcx.required_id::<MegaMenu>(self.id());
 
         html! {
             ul id=(id) class=[self.classes().get()] {
@@ -220,8 +220,8 @@ impl ComponentTrait for Menu {
     }
 }
 
-impl Menu {
-    // Menu BUILDER.
+impl MegaMenu {
+    // MegaMenu BUILDER.
 
     #[fn_builder]
     pub fn alter_weight(&mut self, weight: isize) -> &mut Self {
@@ -248,7 +248,7 @@ impl Menu {
     }
 
     #[fn_builder]
-    pub fn alter_item(&mut self, item: MenuItem) -> &mut Self {
+    pub fn alter_item(&mut self, item: MegaMenuItem) -> &mut Self {
         self.items.add(item);
         self
     }
@@ -259,7 +259,7 @@ impl Menu {
         self
     }
 
-    // Menu GETTERS.
+    // MegaMenu GETTERS.
 
     pub fn id(&self) -> &IdentifierValue {
         &self.id
