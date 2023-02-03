@@ -1,6 +1,6 @@
 [package]
 name = "pagetop-admin"
-version = "0.0.4"
+version = "0.0.5"
 edition = "2021"
 
 authors = [
@@ -16,5 +16,4 @@ license = "Apache-2.0 OR MIT"
 [dependencies]
 pagetop = { path = "../pagetop", version = "0.0" }
 pagetop-megamenu = { path = "../pagetop-megamenu", version = "0.0" }
-
 maud = "0.24.0"
