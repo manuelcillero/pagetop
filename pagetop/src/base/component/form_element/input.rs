@@ -36,12 +36,6 @@ pub struct Input {
     template    : String,
 }
 
-impl ModuleTrait for Input {
-    fn handle(&self) -> Handle {
-        COMPONENT_INPUT
-    }
-}
-
 impl ComponentTrait for Input {
     fn new() -> Self {
         Input::default()
@@ -49,6 +43,10 @@ impl ComponentTrait for Input {
             .with_classes(ClassesOp::AddFirst, "form-type-textfield")
             .with_size(Some(60))
             .with_maxlength(Some(128))
+    }
+
+    fn handle(&self) -> Handle {
+        COMPONENT_INPUT
     }
 
     fn weight(&self) -> isize {

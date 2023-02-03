@@ -16,15 +16,13 @@ pub struct Block {
     template  : String,
 }
 
-impl ModuleTrait for Block {
-    fn handle(&self) -> Handle {
-        COMPONENT_BLOCK
-    }
-}
-
 impl ComponentTrait for Block {
     fn new() -> Self {
         Block::default().with_classes(ClassesOp::SetDefault, "block")
+    }
+
+    fn handle(&self) -> Handle {
+        COMPONENT_BLOCK
     }
 
     fn weight(&self) -> isize {

@@ -48,15 +48,13 @@ pub struct Column {
     template  : String,
 }
 
-impl ModuleTrait for Column {
-    fn handle(&self) -> Handle {
-        COMPONENT_COLUMN
-    }
-}
-
 impl ComponentTrait for Column {
     fn new() -> Self {
         Column::default().with_classes(ClassesOp::SetDefault, SIZE__DEFAULT)
+    }
+
+    fn handle(&self) -> Handle {
+        COMPONENT_COLUMN
     }
 
     fn weight(&self) -> isize {

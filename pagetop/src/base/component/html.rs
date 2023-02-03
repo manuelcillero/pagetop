@@ -11,15 +11,13 @@ pub struct Html {
     template  : String,
 }
 
-impl ModuleTrait for Html {
-    fn handle(&self) -> Handle {
-        COMPONENT_HTML
-    }
-}
-
 impl ComponentTrait for Html {
     fn new() -> Self {
         Html::default()
+    }
+
+    fn handle(&self) -> Handle {
+        COMPONENT_HTML
     }
 
     fn weight(&self) -> isize {
