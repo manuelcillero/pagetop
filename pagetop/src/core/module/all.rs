@@ -1,6 +1,6 @@
 use super::ModuleStaticRef;
 
-use crate::base::module;
+use crate::base;
 use crate::core::hook::add_action;
 use crate::core::theme;
 use crate::{server, trace, LazyStatic};
@@ -27,15 +27,15 @@ pub fn register_modules(app: ModuleStaticRef) {
     // List of modules to enable.
     let mut list: Vec<ModuleStaticRef> = Vec::new();
 
-    // Enable base modules.
-    add_to_enabled(&mut list, &module::menu::Menu);
+    // 1 of 3. Enable base modules.
+    add_to_enabled(&mut list, &base::module::menu::Menu);
+    add_to_enabled(&mut list, &base::theme::Saturn);
 
-    // Enable application modules.
+    // 2 of 3. Enable application modules.
     add_to_enabled(&mut list, app);
 
-    // Enable default homepage.
-    add_to_enabled(&mut list, &module::homepage::DefaultHomePage);
-    add_to_enabled(&mut list, &crate::base::theme::Saturn);
+    // 3 of 3. Enable default homepage.
+    add_to_enabled(&mut list, &base::module::homepage::DefaultHomePage);
 
     list.reverse();
     ENABLED_MODULES.write().unwrap().append(&mut list);
