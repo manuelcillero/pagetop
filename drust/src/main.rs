@@ -12,6 +12,7 @@ impl ModuleTrait for Drust {
     fn dependencies(&self) -> Vec<ModuleStaticRef> {
         vec![
             // Modules.
+            &pagetop_homedemo::HomeDemo,
             &pagetop_admin::Admin,
             &pagetop_user::User,
             &pagetop_node::Node,

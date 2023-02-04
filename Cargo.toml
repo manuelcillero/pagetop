@@ -6,6 +6,7 @@ members = [
     "pagetop-macros",
     "pagetop-build",
     "pagetop-jquery",
+    "pagetop-homedemo",
     "pagetop-megamenu",
     # Modules.
     "pagetop-admin",

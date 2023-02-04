@@ -17,6 +17,7 @@ license = "Apache-2.0 OR MIT"
 actix-web = "4.2.1"
 pagetop = { path = "../pagetop", version = "0.0", features = ["mysql"], default-features = false }
 # Modules.
+pagetop-homedemo = { path = "../pagetop-homedemo", version = "0.0" }
 pagetop-admin = { path = "../pagetop-admin", version = "0.0" }
 pagetop-user = { path = "../pagetop-user", version = "0.0" }
 pagetop-node = { path = "../pagetop-node", version = "0.0" }

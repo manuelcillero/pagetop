@@ -37,7 +37,7 @@ body.default-homepage [class$="-col-image"] {
 #welcome > div.container {
 	padding: 2rem 1rem;
 	border-radius: 28px;
-	background: url("/theme/images/homepage-welcome.jpg") center center no-repeat;
+	background: url("/homedemo/images/welcome.jpg") center center no-repeat;
 	background-size: auto;
 	background-size: cover;
 	color: #fff;

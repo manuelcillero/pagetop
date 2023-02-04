@@ -49,6 +49,9 @@ El repositorio se organiza en un *workspace* con los siguientes subproyectos:
 * **[pagetop-megamenu](https://github.com/manuelcillero/pagetop/tree/main/pagetop-megamenu)**,
   módulo que proporciona un nuevo componente para incluir menús avanzados en las soluciones web.
 
+* **[pagetop-homedemo](https://github.com/manuelcillero/pagetop/tree/main/pagetop-homedemo)**,
+  módulo que muestra una página de inicio de demostración para presentar **PageTop**.
+
 ## Módulos
 
 * **[pagetop-admin](https://github.com/manuelcillero/pagetop/tree/main/pagetop-admin)**, módulo que

@@ -1,14 +1,16 @@
-use crate::prelude::*;
+use pagetop::prelude::*;
 
-pub_handle!(MODULE_DEFAULT_HOMEPAGE);
+pub_handle!(MODULE_DEMOHOME);
 
-pub_locale!("src/base/module/homepage/locales");
+pub_locale!("src/locales");
 
-pub struct DefaultHomePage;
+include!(concat!(env!("OUT_DIR"), "/homedemo.rs"));
 
-impl ModuleTrait for DefaultHomePage {
+pub struct HomeDemo;
+
+impl ModuleTrait for HomeDemo {
     fn handle(&self) -> Handle {
-        MODULE_DEFAULT_HOMEPAGE
+        MODULE_DEMOHOME
     }
 
     fn name(&self) -> String {
@@ -20,6 +22,7 @@ impl ModuleTrait for DefaultHomePage {
     }
 
     fn configure_service(&self, cfg: &mut server::web::ServiceConfig) {
+        serve_static_files!(cfg, "/homedemo", bundle_homedemo);
         cfg.route("/", server::web::get().to(demo));
     }
 }
@@ -28,7 +31,7 @@ async fn demo(request: server::HttpRequest) -> ResultPage<Markup, FatalError> {
     Page::new(request)
         .with_title(l("page_title").as_str())
         .with_context(ContextOp::AddStyleSheet(StyleSheet::located(
-            "/theme/module/homepage/styles.css",
+            "/homedemo/css/styles.css",
         )))
         .with_body_classes(ClassesOp::AddFirst, "default-homepage")
         .with_this_in("region-content", hello_world())
@@ -90,7 +93,7 @@ fn hello_world() -> Container {
             .with_column(
                 grid::Column::new()
                     .with_classes(ClassesOp::Add, "hello-col-image")
-                    .with_component(Image::with("/theme/images/homepage-header.svg")),
+                    .with_component(Image::with("/homedemo/images/header.svg")),
             ),
     )
 }
@@ -129,7 +132,7 @@ fn about_pagetop() -> Container {
                 grid::Column::new()
                     .with_classes(ClassesOp::Add, "pagetop-col-image")
                     .with_size(grid::ColumnSize::Is5of12)
-                    .with_component(Image::with("/theme/images/homepage-about.svg")),
+                    .with_component(Image::with("/homedemo/images/about.svg")),
             )
             .with_column(
                 grid::Column::new()
@@ -185,7 +188,7 @@ fn promo_pagetop() -> Container {
                 grid::Column::new()
                     .with_classes(ClassesOp::Add, "promo-col-image")
                     .with_size(grid::ColumnSize::Is6of12)
-                    .with_component(Image::with("/theme/images/homepage-pagetop.png")),
+                    .with_component(Image::with("/homedemo/images/pagetop.png")),
             ),
     )
 }
@@ -196,7 +199,7 @@ fn reporting_issues() -> Container {
             .with_column(
                 grid::Column::new()
                     .with_classes(ClassesOp::Add, "reporting-col-image")
-                    .with_component(Image::with("/theme/images/homepage-support.jpg")),
+                    .with_component(Image::with("/homedemo/images/support.jpg")),
             )
             .with_column(
                 grid::Column::new()

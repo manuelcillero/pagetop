@@ -46,15 +46,12 @@ pub fn register_modules(app: ModuleStaticRef) {
     // List of modules to enable.
     let mut list: Vec<ModuleStaticRef> = Vec::new();
 
-    // 1 of 3. Enable base modules.
+    // Enable base modules.
     add_to_enabled(&mut list, &base::module::menu::Menu);
     add_to_enabled(&mut list, &base::module::saturn::Saturn);
 
-    // 2 of 3. Enable application modules.
+    // Enable application modules.
     add_to_enabled(&mut list, app);
-
-    // 3 of 3. Enable default homepage.
-    add_to_enabled(&mut list, &base::module::homepage::DefaultHomePage);
 
     list.reverse();
     ENABLED_MODULES.write().unwrap().append(&mut list);
