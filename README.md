@@ -33,6 +33,24 @@ El repositorio se organiza en un *workspace* con los siguientes subproyectos:
   patrones de desarrollo y buenas prácticas para la creación avanzada de soluciones web SSR
   (*Server-Side Rendering*).
 
+## Utilidades
+
+* **[pagetop-macros](https://github.com/manuelcillero/pagetop/tree/main/pagetop-macros)**, agrupa
+  las principales macros procedurales y declarativas para usar desde **PageTop**.
+
+* **[pagetop-build](https://github.com/manuelcillero/pagetop/tree/main/pagetop-build)**, utilidad
+  para incluir fácilmente recursos en los archivos binarios al compilar aplicaciones creadas con
+  **PageTop**.
+
+* **[pagetop-jquery](https://github.com/manuelcillero/pagetop/tree/main/pagetop-jquery)**, módulo
+  que permite añadir jQuery en las páginas que incluyen componentes o temas que usen esta librería
+  JavaScript para interactuar con el documento HTML.​
+
+* **[pagetop-megamenu](https://github.com/manuelcillero/pagetop/tree/main/pagetop-megamenu)**,
+  módulo que proporciona un nuevo componente para incluir menús avanzados en las soluciones web.
+
+## Módulos
+
 * **[pagetop-admin](https://github.com/manuelcillero/pagetop/tree/main/pagetop-admin)**, módulo que
   proporciona a otros módulos un lugar común donde presentar a los administradores sus opciones de
   configuración.
@@ -42,6 +60,25 @@ El repositorio se organiza en un *workspace* con los siguientes subproyectos:
 
 * **[pagetop-node](https://github.com/manuelcillero/pagetop/tree/main/pagetop-node)**, módulo para
   crear, extender o personalizar los tipos de contenido que puede administrar un sitio web.
+
+## Temas
+
+* **[pagetop-minimal](https://github.com/manuelcillero/pagetop/tree/main/pagetop-minimal)**, tema de
+  prueba con un conjunto mínimo de estilos para ver la composición básica de páginas y componentes.
+
+* **[pagetop-aliner](https://github.com/manuelcillero/pagetop/tree/main/pagetop-aliner)**, tema de
+  prueba con un conjunto básico de estilos que delimita con cajas los elementos HTML para visualizar
+  esquemáticamente la composición de páginas y componentes.
+
+* **[pagetop-bootsier](https://github.com/manuelcillero/pagetop/tree/main/pagetop-bootsier)**, tema
+  que utiliza el *framework* [Bootstrap](https://getbootstrap.com/) para la composición de páginas y
+  visualización de componentes.
+
+* **[pagetop-bulmix](https://github.com/manuelcillero/pagetop/tree/main/pagetop-bulmix)**, tema que
+  utiliza el *framework* [Bulma](https://bulma.io/) para la composición de páginas y visualización
+  de componentes.
+
+## Aplicación
 
 * **[drust](https://github.com/manuelcillero/pagetop/tree/main/drust)**, es una aplicación
   inspirada modestamente en [Drupal](https://www.drupal.org) que utiliza PageTop para crear un CMS

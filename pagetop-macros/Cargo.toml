@@ -1,13 +1,13 @@
 [package]
 name = "pagetop-macros"
-version = "0.0.1"
+version = "0.0.2"
 edition = "2021"
 
 authors = [
     "Manuel Cillero <manuel@cillero.es>"
 ]
 description = """\
-    Useful macros for creating web solutions using the PageTop framework.\
+    Group the main procedural and declarative macros for use from PageTop.\
 """
 homepage = "https://pagetop.cillero.es"
 repository = "https://github.com/manuelcillero/pagetop"

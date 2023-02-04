@@ -1,13 +1,14 @@
 [package]
 name = "pagetop-minimal"
-version = "0.0.1"
+version = "0.0.2"
 edition = "2021"
 
 authors = [
     "Manuel Cillero <manuel@cillero.es>"
 ]
 description = """\
-    Theme for PageTop that uses minimal CSS for page layout and component display.\
+    Theme for PageTop with a minimal set of styles to view the basic composition of pages and \
+    components.\
 """
 homepage = "https://pagetop.cillero.es"
 repository = "https://github.com/manuelcillero/pagetop"

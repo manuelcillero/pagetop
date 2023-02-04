@@ -1,13 +1,13 @@
 [package]
 name = "pagetop-megamenu"
-version = "0.0.1"
+version = "0.0.2"
 edition = "2021"
 
 authors = [
     "Manuel Cillero <manuel@cillero.es>"
 ]
 description = """\
-    Component MegaMenu for PageTop applications.\
+    Module for PageTop that provides a new component to include advanced menus in web solutions.\
 """
 homepage = "https://pagetop.cillero.es"
 repository = "https://github.com/manuelcillero/pagetop"

@@ -1,13 +1,14 @@
 [package]
 name = "pagetop-user"
-version = "0.0.5"
+version = "0.0.6"
 edition = "2021"
 
 authors = [
     "Manuel Cillero <manuel@cillero.es>"
 ]
 description = """\
-    Manages the user registration and login system.\
+    Module to add user management, roles, permissions and sessions in applications developed with \
+    PageTop.\
 """
 homepage = "https://pagetop.cillero.es"
 repository = "https://github.com/manuelcillero/pagetop"

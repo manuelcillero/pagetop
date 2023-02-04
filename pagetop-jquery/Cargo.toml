@@ -1,13 +1,14 @@
 [package]
 name = "pagetop-jquery"
-version = "0.0.1"
+version = "0.0.2"
 edition = "2021"
 
 authors = [
     "Manuel Cillero <manuel@cillero.es>"
 ]
 description = """\
-    Manages the user registration and login system.\
+    Module for PageTop that allows adding jQuery in pages that include components or themes that \
+    use this JavaScript library to interact with the HTML document.\
 """
 homepage = "https://pagetop.cillero.es"
 repository = "https://github.com/manuelcillero/pagetop"

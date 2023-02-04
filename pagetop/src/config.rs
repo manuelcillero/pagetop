@@ -204,7 +204,7 @@ pub struct App {
     pub name: String,
     /// Valor predefinido: *"Developed with the amazing PageTop framework."*
     pub description: String,
-    /// Valor predefinido: *"Bootsier"*
+    /// Valor predefinido: *"Saturn"*
     pub theme: String,
     /// Valor predefinido: *"en-US"*
     pub language: String,
@@ -278,7 +278,7 @@ pub_config!(SETTINGS: Settings,
     // [app]
     "app.name"               => "PageTop Application",
     "app.description"        => "Developed with the amazing PageTop framework.",
-    "app.theme"              => "Bootsier",
+    "app.theme"              => "Saturn",
     "app.language"           => "en-US",
     "app.direction"          => "ltr",
     "app.startup_banner"     => "Slant",

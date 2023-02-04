@@ -1,14 +1,14 @@
 [package]
 name = "pagetop-aliner"
-version = "0.0.1"
+version = "0.0.2"
 edition = "2021"
 
 authors = [
     "Manuel Cillero <manuel@cillero.es>"
 ]
 description = """\
-    Theme for PageTop that uses minimal CSS with bounding boxes for page layout and component \
-    display.\
+    Theme for PageTop with a basic set of styles that encloses HTML elements with boxes to show an \
+    outline of the page layout and components display.\
 """
 homepage = "https://pagetop.cillero.es"
 repository = "https://github.com/manuelcillero/pagetop"

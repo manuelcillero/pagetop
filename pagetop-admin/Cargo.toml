@@ -1,13 +1,14 @@
 [package]
 name = "pagetop-admin"
-version = "0.0.5"
+version = "0.0.6"
 edition = "2021"
 
 authors = [
     "Manuel Cillero <manuel@cillero.es>"
 ]
 description = """\
-    Handles general site configuration for administrators.\
+    Module for PageTop that provides a common place for other modules to handle general site \
+    settings for administrators.\
 """
 homepage = "https://pagetop.cillero.es"
 repository = "https://github.com/manuelcillero/pagetop"

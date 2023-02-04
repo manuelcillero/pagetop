@@ -1,4 +1,8 @@
-Módulo para añadir jQuery a las páginas generadas con **PageTop**.
+Módulo para **PageTop** que permite añadir jQuery en las páginas que incluyen componentes o temas
+que usen esta librería JavaScript para interactuar con el documento HTML.​
+
+Por defecto **PageTop** no requiere jQuery para el funcionamiento de sus componentes base y tema
+predefinido.
 
 [PageTop](https://github.com/manuelcillero/pagetop/tree/main/pagetop), es un entorno de desarrollo
 basado en algunos de los *crates* más estables y populares del ecosistema Rust para proporcionar
