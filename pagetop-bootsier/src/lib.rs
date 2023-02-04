@@ -2,7 +2,7 @@ use pagetop::prelude::*;
 
 pub_handle!(THEME_BOOTSIER);
 
-pub_locale!("locales");
+pub_locale!("src/locales");
 
 include!(concat!(env!("OUT_DIR"), "/bootsier.rs"));
 
