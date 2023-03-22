@@ -140,7 +140,7 @@ pub fn run_migrations() {
                 migrations
             }
         }
-        Migrator::up(&DBCONN, None)
+        Migrator::up(SchemaManagerConnection::Connection(&DBCONN), None)
     })
     .unwrap();
 
@@ -155,7 +155,7 @@ pub fn run_migrations() {
                 migrations
             }
         }
-        Migrator::down(&DBCONN, None)
+        Migrator::down(SchemaManagerConnection::Connection(&DBCONN), None)
     })
     .unwrap();
 }

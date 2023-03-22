@@ -1,4 +1,7 @@
 //pub use super::cli;
+
+pub use super::connection::IntoSchemaManagerConnection;
+pub use super::connection::SchemaManagerConnection;
 pub use super::manager::SchemaManager;
 pub use super::migrator::MigratorTrait;
 pub use super::{MigrationName, MigrationTrait};
