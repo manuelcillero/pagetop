@@ -14,7 +14,7 @@ repository = "https://github.com/manuelcillero/pagetop"
 license = "Apache-2.0 OR MIT"
 
 [dependencies]
-actix-web = "4.2.1"
+actix-web = "4.3.1"
 pagetop = { path = "../pagetop", version = "0.0", features = ["mysql"], default-features = false }
 # Modules.
 pagetop-homedemo = { path = "../pagetop-homedemo", version = "0.0" }
