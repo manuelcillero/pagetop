@@ -6,3 +6,6 @@ pub mod hook;
 
 // API to add new features with modules and themes.
 pub mod module;
+
+// Basic theme.
+mod basic;

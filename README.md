@@ -1,6 +1,6 @@
 <div align="center">
 
-  <img src="https://raw.githubusercontent.com/manuelcillero/pagetop/main/pagetop/static/pagetop-banner.png" />
+  <img src="https://raw.githubusercontent.com/manuelcillero/pagetop/main/banner/pagetop.png" />
 
   <h1>PageTop</h1>
 

@@ -2,7 +2,7 @@
 name = "PageTop Application"
 description = "Developed with the amazing PageTop framework."
 # Tema predeterminado.
-theme = "Saturn"
+theme = "Basic"
 # Idioma (localización) predeterminado.
 language = "en-US"
 # Dirección predeterminada para el texto: "ltr", "rtl" o "auto".
@@ -21,17 +21,17 @@ db_user = ""
 db_pass = ""
 # Servidor (para mysql/postgres).
 db_host = "localhost"
-# Puerto (para mysql/postgres), siendo 0 el puerto predeterminado (3306 ó 5432).
+# Puerto, normalmente 3306 (para mysql) ó 5432 (para postgres).
 db_port = 0
 # Número máximo de conexiones habilitadas.
 max_pool_size = 5
 
 [dev]
-# Los archivos estáticos requeridos por temas y componentes incluidos en PageTop
-# se integran de manera predeterminada en el binario ejecutable. Sin embargo, es
-# útil servir estos archivos desde su propio directorio durante el desarrollo ya
-# que no requiere compilar cada vez que se modifican. En este caso, normalmente,
-# basta con indicar el directorio "../pagetop/static".
+# Los archivos estáticos requeridos por la aplicación se integran de manera
+# predeterminada en el binario ejecutable. Sin embargo, durante el desarrollo
+# puede resultar útil servir estos archivos desde su propio directorio para
+# evitar compilar cada vez que se modifican. En este caso, normalmente, basta
+# con indicar la ruta "../ruta/static".
 static_files = ""
 
 [log]

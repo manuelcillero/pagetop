@@ -24,4 +24,4 @@ serde = { version = "1.0", features = ["derive"] }
 
 [build-dependencies]
 # Para incluir archivos y recursos binarios en el ejecutable (opcional):
-pagetop = { path = "../pagetop" }
+pagetop-build = { path = "../pagetop-build", version = "0.0" }

@@ -71,9 +71,6 @@ mysql    = ["database", "sea-orm/sqlx-mysql"]
 postgres = ["database", "sea-orm/sqlx-postgres"]
 sqlite   = ["database", "sea-orm/sqlx-sqlite"]
 
-[build-dependencies]
-pagetop-build = { path = "../pagetop-build", version = "0.0" }
-
 [dev-dependencies]
 tokio = { version = "1.28.1", features = ["macros", "rt-multi-thread"] }
 

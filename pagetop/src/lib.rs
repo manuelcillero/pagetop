@@ -75,8 +75,7 @@ pub mod server;
 
 // Tipos de respuestas a peticiones web.
 pub mod response;
-// Base de componentes, módulos y temas.
-pub mod base;
+
 // Macros y funciones útiles.
 pub mod util;
 

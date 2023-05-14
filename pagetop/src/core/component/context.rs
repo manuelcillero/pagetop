@@ -1,7 +1,7 @@
 use crate::core::module::{all::theme_by_single_name, ThemeStaticRef};
 use crate::html::{html, Assets, IdentifierValue, JavaScript, Markup, StyleSheet};
 use crate::server::HttpRequest;
-use crate::{base, concat_string, config, util, LazyStatic};
+use crate::{concat_string, config, util, LazyStatic};
 
 use std::collections::HashMap;
 use std::str::FromStr;
@@ -9,7 +9,7 @@ use std::str::FromStr;
 static DEFAULT_THEME: LazyStatic<ThemeStaticRef> =
     LazyStatic::new(|| match theme_by_single_name(&config::SETTINGS.app.theme) {
         Some(theme) => theme,
-        None => &base::module::saturn::Saturn,
+        None => &crate::core::basic::Basic,
     });
 
 pub enum ContextOp {

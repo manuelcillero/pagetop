@@ -1,7 +1,6 @@
 use super::ModuleTrait;
 
-use crate::base::component::{Container, Html};
-use crate::core::component::{ComponentTrait, RenderContext};
+use crate::core::component::{ComponentTrait, HtmlMarkup, RenderContext};
 use crate::html::{html, Favicon, Markup};
 use crate::response::page::Page;
 use crate::{concat_string, config};
@@ -120,19 +119,19 @@ pub trait ThemeTrait: ModuleTrait + Send + Sync {
         */
     }
 
-    fn error_404_not_found(&self) -> Container {
-        Container::new().with_component(Html::with(html! {
+    fn error_404_not_found(&self) -> HtmlMarkup {
+        HtmlMarkup::new().with(html! {
             div {
                 h1 { ("RESOURCE NOT FOUND") }
             }
-        }))
+        })
     }
 
-    fn error_403_access_denied(&self) -> Container {
-        Container::new().with_component(Html::with(html! {
+    fn error_403_access_denied(&self) -> HtmlMarkup {
+        HtmlMarkup::new().with(html! {
             div {
                 h1 { ("FORBIDDEN ACCESS") }
             }
-        }))
+        })
     }
 }
