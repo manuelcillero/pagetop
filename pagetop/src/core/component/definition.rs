@@ -1,7 +1,8 @@
 use super::RenderContext;
 
 use crate::html::{html, Markup};
-use crate::util::{single_type_name, Handle};
+use crate::util::single_type_name;
+use crate::Handle;
 
 pub use std::any::Any as AnyComponent;
 

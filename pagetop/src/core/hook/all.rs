@@ -1,6 +1,5 @@
 use super::{ActionsHolder, HookAction};
-use crate::util::Handle;
-use crate::LazyStatic;
+use crate::{Handle, LazyStatic};
 
 use std::collections::HashMap;
 use std::sync::RwLock;

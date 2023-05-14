@@ -1,4 +1,4 @@
-use crate::util::Handle;
+use crate::Handle;
 
 pub use std::any::Any as AnyHookAction;
 

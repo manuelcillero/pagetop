@@ -16,6 +16,7 @@ impl ModuleTrait for Bulmix {
         Some(&Bulmix)
     }
 
+    #[rustfmt::skip]
     fn dependencies(&self) -> Vec<ModuleStaticRef> {
         vec![
             &pagetop_jquery::JQuery,

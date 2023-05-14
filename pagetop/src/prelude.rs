@@ -1,12 +1,11 @@
 // Re-exports.
-pub use crate::{concat_string, fn_builder, LazyStatic, ResultExt};
+pub use crate::{concat_string, fn_builder, Handle, HashMapResources, LazyStatic, ResultExt};
 
-// Macros.
-pub use crate::{args, paste, define_config, define_handle, define_locale, serve_static_files};
+// Macros declarativas.
+pub use crate::{args, define_config, define_handle, define_locale, paste, serve_static_files};
 
-// Helpers.
+// Funciones útiles.
 pub use crate::util;
-pub use crate::util::{Handle, HashMapResources};
 
 // *************************************************************************************************
 

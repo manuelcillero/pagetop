@@ -1,7 +1,6 @@
 use super::Page;
 use crate::core::hook::{AnyHookAction, HookActionTrait};
-use crate::define_handle;
-use crate::util::Handle;
+use crate::{define_handle, Handle};
 
 define_handle!(HOOK_BEFORE_RENDER_PAGE);
 

@@ -1,7 +1,7 @@
 use super::l;
 use pagetop::prelude::*;
-use pagetop_minimal::component::*;
 use pagetop_megamenu::component::{MegaMenu, MegaMenuItem};
+use pagetop_minimal::component::*;
 
 pub async fn summary(request: server::HttpRequest) -> ResultPage<Markup, FatalError> {
     let top_menu = MegaMenu::new()
