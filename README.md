@@ -52,22 +52,12 @@ El repositorio se organiza en un *workspace* con los siguientes subproyectos:
 * **[pagetop-homedemo](https://github.com/manuelcillero/pagetop/tree/main/pagetop-homedemo)**,
   módulo que muestra una página de inicio de demostración para presentar **PageTop**.
 
-## Módulos
+## Componentes
 
-* **[pagetop-admin](https://github.com/manuelcillero/pagetop/tree/main/pagetop-admin)**, módulo que
-  proporciona a otros módulos un lugar común donde presentar a los administradores sus opciones de
-  configuración.
-
-* **[pagetop-user](https://github.com/manuelcillero/pagetop/tree/main/pagetop-user)**, módulo para
-  añadir gestión de usuarios, roles, permisos y sesiones en aplicaciones desarrolladas con PageTop.
-
-* **[pagetop-node](https://github.com/manuelcillero/pagetop/tree/main/pagetop-node)**, módulo para
-  crear, extender o personalizar los tipos de contenido que puede administrar un sitio web.
+* **[pagetop-minimal](https://github.com/manuelcillero/pagetop/tree/main/pagetop-minimal)**,
+  proporciona un conjunto básico de componentes para la composición de páginas.
 
 ## Temas
-
-* **[pagetop-minimal](https://github.com/manuelcillero/pagetop/tree/main/pagetop-minimal)**, tema de
-  prueba con un conjunto mínimo de estilos para ver la composición básica de páginas y componentes.
 
 * **[pagetop-aliner](https://github.com/manuelcillero/pagetop/tree/main/pagetop-aliner)**, tema de
   prueba con un conjunto básico de estilos que delimita con cajas los elementos HTML para visualizar
@@ -80,6 +70,18 @@ El repositorio se organiza en un *workspace* con los siguientes subproyectos:
 * **[pagetop-bulmix](https://github.com/manuelcillero/pagetop/tree/main/pagetop-bulmix)**, tema que
   utiliza el *framework* [Bulma](https://bulma.io/) para la composición de páginas y visualización
   de componentes.
+
+## Módulos
+
+* **[pagetop-admin](https://github.com/manuelcillero/pagetop/tree/main/pagetop-admin)**, módulo que
+  proporciona a otros módulos un lugar común donde presentar a los administradores sus opciones de
+  configuración.
+
+* **[pagetop-user](https://github.com/manuelcillero/pagetop/tree/main/pagetop-user)**, módulo para
+  añadir gestión de usuarios, roles, permisos y sesiones en aplicaciones desarrolladas con PageTop.
+
+* **[pagetop-node](https://github.com/manuelcillero/pagetop/tree/main/pagetop-node)**, módulo para
+  crear, extender o personalizar los tipos de contenido que puede administrar un sitio web.
 
 ## Aplicación
 

@@ -42,8 +42,8 @@ impl ThemeTrait for Bootsier {
         pagetop_jquery::JQuery::add_jquery(page.context());
     }
 
-    fn error_404_not_found(&self) -> Container {
-        Container::new().with_component(Html::with(html! {
+    fn error_404_not_found(&self) -> HtmlMarkup {
+        HtmlMarkup::new().with(html! {
             div class="jumbotron" {
                 div class="media" {
                     img
@@ -66,6 +66,6 @@ impl ThemeTrait for Bootsier {
                     }
                 }
             }
-        }))
+        })
     }
 }

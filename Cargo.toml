@@ -8,15 +8,16 @@ members = [
     "pagetop-jquery",
     "pagetop-homedemo",
     "pagetop-megamenu",
+    # Components.
+    "pagetop-minimal",
+    # Themes.
+    "pagetop-aliner",
+    "pagetop-bootsier",
+    "pagetop-bulmix",
     # Modules.
     "pagetop-admin",
     "pagetop-user",
     "pagetop-node",
-    # Themes.
-    "pagetop-minimal",
-    "pagetop-aliner",
-    "pagetop-bootsier",
-    "pagetop-bulmix",
 ]
 
 exclude = [

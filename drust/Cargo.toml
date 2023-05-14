@@ -14,15 +14,14 @@ repository = "https://github.com/manuelcillero/pagetop"
 license = "Apache-2.0 OR MIT"
 
 [dependencies]
-actix-web = "4.3.1"
-pagetop = { path = "../pagetop", version = "0.0", features = ["mysql"], default-features = false }
-# Modules.
-pagetop-homedemo = { path = "../pagetop-homedemo", version = "0.0" }
-pagetop-admin = { path = "../pagetop-admin", version = "0.0" }
-pagetop-user = { path = "../pagetop-user", version = "0.0" }
-pagetop-node = { path = "../pagetop-node", version = "0.0" }
+actix-web = "4"
+pagetop = { version = "0.0", path = "../pagetop", features = ["mysql"], default-features = false }
 # Themes.
-pagetop-minimal = { path = "../pagetop-minimal", version = "0.0" }
-pagetop-aliner = { path = "../pagetop-aliner", version = "0.0" }
-pagetop-bootsier = { path = "../pagetop-bootsier", version = "0.0" }
-pagetop-bulmix = { path = "../pagetop-bulmix", version = "0.0" }
+pagetop-aliner = { version = "0.0", path = "../pagetop-aliner" }
+pagetop-bootsier = { version = "0.0", path = "../pagetop-bootsier" }
+pagetop-bulmix = { version = "0.0", path = "../pagetop-bulmix" }
+# Modules.
+pagetop-homedemo = { version = "0.0", path = "../pagetop-homedemo" }
+pagetop-admin = { version = "0.0", path = "../pagetop-admin" }
+pagetop-user = { version = "0.0", path = "../pagetop-user" }
+pagetop-node = { version = "0.0", path = "../pagetop-node" }

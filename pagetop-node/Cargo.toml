@@ -15,4 +15,4 @@ repository = "https://github.com/manuelcillero/pagetop"
 license = "Apache-2.0 OR MIT"
 
 [dependencies]
-pagetop = { path = "../pagetop", version = "0.0", features = ["database"], default-features = false }
+pagetop = { version = "0.0", path = "../pagetop", features = ["database"], default-features = false }

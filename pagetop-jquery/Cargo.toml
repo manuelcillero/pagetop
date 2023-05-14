@@ -15,8 +15,8 @@ repository = "https://github.com/manuelcillero/pagetop"
 license = "Apache-2.0 OR MIT"
 
 [dependencies]
-pagetop = { path = "../pagetop", version = "0.0" }
+pagetop = { version = "0.0", path = "../pagetop" }
 static-files = "0.2.3"
 
 [build-dependencies]
-pagetop-build = { path = "../pagetop-build", version = "0.0" }
+pagetop-build = { version = "0.0", path = "../pagetop-build" }
