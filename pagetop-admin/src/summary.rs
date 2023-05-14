@@ -1,5 +1,6 @@
 use super::l;
 use pagetop::prelude::*;
+use pagetop_minimal::component::*;
 use pagetop_megamenu::component::{MegaMenu, MegaMenuItem};
 
 pub async fn summary(request: server::HttpRequest) -> ResultPage<Markup, FatalError> {

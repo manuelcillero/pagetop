@@ -1,4 +1,5 @@
 use pagetop::prelude::*;
+use pagetop_minimal::component::*;
 
 pub_handle!(MODULE_DEMOHOME);
 
@@ -19,6 +20,10 @@ impl ModuleTrait for HomeDemo {
 
     fn description(&self) -> Option<String> {
         Some(l("module_description"))
+    }
+
+    fn dependencies(&self) -> Vec<ModuleStaticRef> {
+        vec![&pagetop_minimal::Minimal]
     }
 
     fn configure_service(&self, cfg: &mut server::web::ServiceConfig) {

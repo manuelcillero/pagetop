@@ -22,7 +22,10 @@ impl ModuleTrait for Admin {
     }
 
     fn dependencies(&self) -> Vec<ModuleStaticRef> {
-        vec![&pagetop_megamenu::MegaMenu]
+        vec![
+            &pagetop_minimal::Minimal,
+            &pagetop_megamenu::MegaMenu
+        ]
     }
 
     fn actions(&self) -> Vec<HookAction> {
