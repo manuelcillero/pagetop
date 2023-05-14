@@ -36,10 +36,10 @@ El repositorio se organiza en un *workspace* con los siguientes subproyectos:
 ## Utilidades
 
 * **[pagetop-macros](https://github.com/manuelcillero/pagetop/tree/main/pagetop-macros)**, agrupa
-  las principales macros procedurales y declarativas para usar desde **PageTop**.
+  las principales macros procedurales para usar desde **PageTop**.
 
-* **[pagetop-build](https://github.com/manuelcillero/pagetop/tree/main/pagetop-build)**, utilidad
-  para incluir fácilmente recursos en los archivos binarios al compilar aplicaciones creadas con
+* **[pagetop-build](https://github.com/manuelcillero/pagetop/tree/main/pagetop-build)**, permite
+  incluir fácilmente recursos en los archivos binarios al compilar aplicaciones creadas con
   **PageTop**.
 
 * **[pagetop-jquery](https://github.com/manuelcillero/pagetop/tree/main/pagetop-jquery)**, módulo
@@ -59,9 +59,8 @@ El repositorio se organiza en un *workspace* con los siguientes subproyectos:
 
 ## Temas
 
-* **[pagetop-aliner](https://github.com/manuelcillero/pagetop/tree/main/pagetop-aliner)**, tema de
-  prueba con un conjunto básico de estilos que delimita con cajas los elementos HTML para visualizar
-  esquemáticamente la composición de páginas y componentes.
+* **[pagetop-aliner](https://github.com/manuelcillero/pagetop/tree/main/pagetop-aliner)**, tema que
+  delimita con cajas los elementos HTML para mostrar esquemáticamente la composición de las páginas.
 
 * **[pagetop-bootsier](https://github.com/manuelcillero/pagetop/tree/main/pagetop-bootsier)**, tema
   que utiliza el *framework* [Bootstrap](https://getbootstrap.com/) para la composición de páginas y

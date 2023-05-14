@@ -1,5 +1,5 @@
-Utilidad para incluir fácilmente recursos en los archivos binarios al compilar aplicaciones creadas
-con **PageTop**.
+Permite incluir fácilmente recursos en los archivos binarios al compilar aplicaciones creadas con
+**PageTop**.
 
 [PageTop](https://github.com/manuelcillero/pagetop/tree/main/pagetop), es un entorno de desarrollo
 basado en algunos de los *crates* más estables y populares del ecosistema Rust para proporcionar

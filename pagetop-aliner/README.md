@@ -1,5 +1,5 @@
-Tema de prueba para **PageTop** con un conjunto básico de estilos que delimita con cajas los
-elementos HTML para visualizar esquemáticamente la composición de páginas y componentes.
+Tema para **PageTop** que delimita con cajas los elementos HTML para mostrar esquemáticamente la
+composición de las páginas.
 
 [PageTop](https://github.com/manuelcillero/pagetop/tree/main/pagetop), es un entorno de desarrollo
 basado en algunos de los *crates* más estables y populares del ecosistema Rust para proporcionar

@@ -1,4 +1,4 @@
-Agrupa las principales macros procedurales y declarativas para usar desde **PageTop**.
+Agrupa las principales macros procedurales para usar desde **PageTop**.
 
 [PageTop](https://github.com/manuelcillero/pagetop/tree/main/pagetop), es un entorno de desarrollo
 basado en algunos de los *crates* más estables y populares del ecosistema Rust para proporcionar
