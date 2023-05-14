@@ -50,7 +50,7 @@
 //! serde = { version = "1.0", features = ["derive"] }
 //! ```
 //!
-//! Y luego declara con la macro [`pub_config!`](crate::pub_config) tus ajustes, usando tipos
+//! Y luego declara con la macro [`define_config!`](crate::define_config) tus ajustes, usando tipos
 //! seguros y asignando los valores predefinidos para la estructura asociada:
 //!
 //! ```
@@ -70,7 +70,7 @@
 //!     pub height: u16,
 //! }
 //!
-//! pub_config!(MY_SETTINGS: MySettings,
+//! define_config!(MY_SETTINGS: MySettings,
 //!     // [myapp]
 //!     "myapp.name" => "Value Name",
 //!     "myapp.width" => 900,
@@ -163,7 +163,7 @@ pub static CONFIG: LazyStatic<ConfigData> = LazyStatic::new(|| {
 /// Detiene la aplicación con un panic! si no pueden asignarse los ajustes de configuración.
 ///
 /// Ver [`Cómo añadir ajustes de configuración`](config/index.html#cómo-añadir-ajustes-de-configuración).
-macro_rules! pub_config {
+macro_rules! define_config {
     ( $SETTINGS:ident: $Settings:ty $(, $key:literal => $value:literal)*$(,)* ) => {
         $crate::doc_comment! {
             concat!(
@@ -274,7 +274,7 @@ pub struct Server {
     pub bind_port: u16,
 }
 
-pub_config!(SETTINGS: Settings,
+define_config!(SETTINGS: Settings,
     // [app]
     "app.name"               => "PageTop Application",
     "app.description"        => "Developed with the amazing PageTop framework.",
