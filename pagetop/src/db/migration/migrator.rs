@@ -222,6 +222,7 @@ pub trait MigratorTrait: Send {
     }
 }
 
+#[allow(clippy::extra_unused_type_parameters)]
 async fn exec_with_connection<'c, C, F, M>(db: C, f: F) -> Result<(), DbErr>
 where
     C: IntoSchemaManagerConnection<'c>,

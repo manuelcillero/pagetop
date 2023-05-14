@@ -7,8 +7,9 @@ use std::fmt;
 use std::fmt::Display;
 
 /// Underlying kind of the configuration value.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Clone, Debug, Default, PartialEq)]
 pub enum ValueKind {
+    #[default]
     Nil,
     Boolean(bool),
     Integer(i64),
@@ -20,12 +21,6 @@ pub enum ValueKind {
 
 pub type Array = Vec<Value>;
 pub type Table = HashMap<String, Value>;
-
-impl Default for ValueKind {
-    fn default() -> Self {
-        ValueKind::Nil
-    }
-}
 
 impl<T> From<Option<T>> for ValueKind
 where
