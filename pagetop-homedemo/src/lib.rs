@@ -3,7 +3,7 @@ use pagetop_minimal::component::*;
 
 define_handle!(MODULE_DEMOHOME);
 
-pub_locale!("src/locales");
+define_locale!("src/locales");
 
 include!(concat!(env!("OUT_DIR"), "/homedemo.rs"));
 

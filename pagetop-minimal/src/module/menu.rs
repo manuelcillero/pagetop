@@ -2,7 +2,7 @@ use pagetop::prelude::*;
 
 define_handle!(MODULE_MENU);
 
-pub_locale!("src/module/menu/locales");
+define_locale!("src/module/menu/locales");
 
 pub struct Menu;
 
