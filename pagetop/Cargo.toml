@@ -51,7 +51,7 @@ static-files = "0.2.3"
 
 pagetop-macros = { path = "../pagetop-macros", version = "0.0" }
 
-maud = { version = "0.24.0", features = ["actix-web"] }
+maud = { version = "0.25.0", features = ["actix-web"] }
 
 serde = { version = "1.0", features = ["derive"] }
 

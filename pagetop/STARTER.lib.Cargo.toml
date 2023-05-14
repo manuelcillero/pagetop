@@ -8,14 +8,14 @@ edition = "2021"
 
 [dependencies.pagetop]
 path = "../pagetop"
-# Si requiere base de datos:
+# Si requiere base de datos añadir:
 features = ["database"]
 # En cuyo caso habrá que deshabilitar las características predeterminadas:
 default-features = false
 
 [dependencies]
 # Para usar la macro html! (opcional):
-maud = "0.24.0"
+maud = "0.25.0"
 # Para serializar estructuras de datos (opcional):
 serde = { version = "1.0", features = ["derive"] }
 
