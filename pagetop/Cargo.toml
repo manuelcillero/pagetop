@@ -21,6 +21,16 @@ categories = [
     "web-programming", "development-tools", "gui"
 ]
 
+[lib]
+name = "pagetop"
+
+[features]
+default  = []
+database = ["sea-orm", "sea-schema"]
+mysql    = ["database", "sea-orm/sqlx-mysql"]
+postgres = ["database", "sea-orm/sqlx-postgres"]
+sqlite   = ["database", "sea-orm/sqlx-sqlite"]
+
 [dependencies]
 async-trait   = "0.1.68"
 concat-string = "1.0.1"
@@ -44,12 +54,12 @@ tracing-actix-web = "0.7.4"
 fluent-templates = "0.8.0"
 unic-langid = "0.9.1"
 
-actix-web = "4.3.1"
+actix-web = "4"
 actix-web-files = { package = "actix-files", version = "0.6.2" }
 actix-web-static-files = "4.0.1"
 static-files = "0.2.3"
 
-pagetop-macros = { path = "../pagetop-macros", version = "0.0" }
+pagetop-macros = { version = "0.0", path = "../pagetop-macros" }
 
 maud = { version = "0.25.0", features = ["actix-web"] }
 
@@ -60,19 +70,13 @@ version = "0.11.3"
 features = ["debug-print", "macros", "runtime-async-std-native-tls"]
 default-features = false
 optional = true
+
 [dependencies.sea-schema]
 version = "0.11.0"
 optional = true
 
-[features]
-default  = []
-database = ["sea-orm", "sea-schema"]
-mysql    = ["database", "sea-orm/sqlx-mysql"]
-postgres = ["database", "sea-orm/sqlx-postgres"]
-sqlite   = ["database", "sea-orm/sqlx-sqlite"]
-
 [dev-dependencies]
 tokio = { version = "1.28.1", features = ["macros", "rt-multi-thread"] }
 
-[lib]
-name = "pagetop"
+[build-dependencies]
+pagetop-build = { version = "0.0", path = "../pagetop-build" }

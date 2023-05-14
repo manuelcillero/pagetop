@@ -28,8 +28,6 @@
 //!
 //!  * Tipos de respuestas a peticiones web ([`response`])
 //!
-//!  * Base de componentes, módulos y temas ([`base`]).
-//!
 //!  * Utilidades de carácter global ([`util`]).
 //!
 //! # 🚧 Advertencia

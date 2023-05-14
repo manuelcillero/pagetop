@@ -6,22 +6,19 @@ edition = "2021"
 # Ver más claves y sus definiciones en
 # https://doc.rust-lang.org/cargo/reference/manifest.html
 
-[dependencies.pagetop]
-path = "../pagetop"
-# Si requiere base de datos (MySql, Postgres y/o SQLite) añadir:
-features = ["mysql"]
-# features = ["postgres"]
-# features = ["sqlite"]
-# En cuyo caso habrá que deshabilitar las características predeterminadas:
-default-features = false
-
 [dependencies]
-actix-web = "4.2.1"
-# Para usar la macro html! (opcional):
+actix-web = "4"
+# Si requiere acceso a base de datos (mysql, postgres y/o sqlite):
+pagetop = { version = "0.0", features = ["mysql"], default-features = false }
+# pagetop = "0.0" (en otro caso)
+
+# Opcional. Para usar archivos y recursos binarios contenidos en el ejecutable:
+static-files = "0.2.3"
+# Opcional. Para usar la macro html!:
 maud = "0.25.0"
-# Para serializar estructuras de datos (opcional):
+# Opcional. Para serializar estructuras de datos:
 serde = { version = "1.0", features = ["derive"] }
 
 [build-dependencies]
-# Para incluir archivos y recursos binarios en el ejecutable (opcional):
-pagetop-build = { path = "../pagetop-build", version = "0.0" }
+# Opcional. Para incluir archivos y recursos binarios en el ejecutable:
+pagetop-build = "0.0"
