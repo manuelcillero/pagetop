@@ -7,13 +7,16 @@ authors = [
     "Manuel Cillero <manuel@cillero.es>"
 ]
 description = """\
-    Theme for PageTop with a minimal set of styles to view the basic composition of pages and \
-    components.\
+    Module for PageTop with a minimal set of components for page composition.\
 """
 homepage = "https://pagetop.cillero.es"
 repository = "https://github.com/manuelcillero/pagetop"
 license = "Apache-2.0 OR MIT"
 
 [dependencies]
-pagetop = { path = "../pagetop", version = "0.0" }
+pagetop = { version = "0.0", path = "../pagetop" }
+static-files = "0.2.3"
 maud = "0.25.0"
+
+[build-dependencies]
+pagetop-build = { version = "0.0", path = "../pagetop-build" }

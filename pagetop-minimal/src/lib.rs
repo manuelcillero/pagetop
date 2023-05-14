@@ -1,17 +1,20 @@
 use pagetop::prelude::*;
 
-pub_handle!(THEME_MINIMAL);
+pub mod component;
+pub mod module;
+
+pub_handle!(MODULE_MINIMAL);
+
+include!(concat!(env!("OUT_DIR"), "/minimal.rs"));
 
 pub struct Minimal;
 
 impl ModuleTrait for Minimal {
     fn handle(&self) -> Handle {
-        THEME_MINIMAL
+        MODULE_MINIMAL
     }
 
-    fn theme(&self) -> Option<ThemeStaticRef> {
-        Some(&Minimal)
+    fn configure_service(&self, cfg: &mut server::web::ServiceConfig) {
+        serve_static_files!(cfg, "/minimal", bundle_minimal);
     }
 }
-
-impl ThemeTrait for Minimal {}

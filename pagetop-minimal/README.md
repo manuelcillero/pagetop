@@ -1,5 +1,4 @@
-Tema de prueba para **PageTop** con un conjunto mínimo de estilos para ver la composición básica de
-páginas y componentes.
+Proporciona un conjunto básico de componentes para la composición de páginas en **PageTop**.
 
 [PageTop](https://github.com/manuelcillero/pagetop/tree/main/pagetop), es un entorno de desarrollo
 basado en algunos de los *crates* más estables y populares del ecosistema Rust para proporcionar
