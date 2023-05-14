@@ -1,6 +1,6 @@
 use pagetop::prelude::*;
 
-pub_handle!(MODULE_JQUERY);
+define_handle!(MODULE_JQUERY);
 
 include!(concat!(env!("OUT_DIR"), "/jquery.rs"));
 

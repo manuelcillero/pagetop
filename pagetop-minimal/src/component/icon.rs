@@ -1,6 +1,6 @@
 use pagetop::prelude::*;
 
-pub_handle!(COMPONENT_ICON);
+define_handle!(COMPONENT_ICON);
 
 #[rustfmt::skip]
 #[derive(Default)]

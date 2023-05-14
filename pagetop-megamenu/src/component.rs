@@ -1,6 +1,6 @@
 use pagetop::prelude::*;
 
-pub_handle!(COMPONENT_MEGAMENUITEM);
+define_handle!(COMPONENT_MEGAMENUITEM);
 
 #[derive(Default)]
 pub enum MegaMenuItemType {
@@ -148,7 +148,7 @@ impl MegaMenuItem {
 
 // MegaMenu.
 
-pub_handle!(COMPONENT_MEGAMENU);
+define_handle!(COMPONENT_MEGAMENU);
 
 hook_before_render_component!(HOOK_BEFORE_RENDER_MENU, MegaMenu);
 

@@ -2,7 +2,7 @@ use pagetop::prelude::*;
 
 use crate::component::Html;
 
-pub_handle!(COMPONENT_PARAGRAPH);
+define_handle!(COMPONENT_PARAGRAPH);
 
 #[derive(Default)]
 pub enum ParagraphDisplay {

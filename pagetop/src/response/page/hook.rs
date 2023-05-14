@@ -1,9 +1,9 @@
 use super::Page;
 use crate::core::hook::{AnyHookAction, HookActionTrait};
-use crate::pub_handle;
+use crate::define_handle;
 use crate::util::Handle;
 
-pub_handle!(HOOK_BEFORE_RENDER_PAGE);
+define_handle!(HOOK_BEFORE_RENDER_PAGE);
 
 type Hook = fn(&mut Page);
 

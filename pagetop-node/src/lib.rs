@@ -1,6 +1,6 @@
 use pagetop::prelude::*;
 
-pub_handle!(MODULE_NODE);
+define_handle!(MODULE_NODE);
 
 pub_locale!("src/locales");
 

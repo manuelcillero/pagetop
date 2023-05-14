@@ -1,6 +1,6 @@
 use pagetop::prelude::*;
 
-pub_handle!(COMPONENT_FORM);
+define_handle!(COMPONENT_FORM);
 
 hook_before_render_component!(HOOK_BEFORE_RENDER_FORM, Form);
 

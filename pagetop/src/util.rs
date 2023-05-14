@@ -72,7 +72,7 @@ pub const fn handle(
 }
 
 #[macro_export]
-macro_rules! pub_handle {
+macro_rules! define_handle {
     ( $HANDLE:ident ) => {
         pub const $HANDLE: $crate::util::Handle =
             $crate::util::handle(module_path!(), file!(), line!(), column!());

@@ -1,6 +1,6 @@
 use pagetop::prelude::*;
 
-pub_handle!(COMPONENT_HTML);
+define_handle!(COMPONENT_HTML);
 
 #[rustfmt::skip]
 #[derive(Default)]

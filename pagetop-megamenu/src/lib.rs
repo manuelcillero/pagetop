@@ -2,7 +2,7 @@ use pagetop::prelude::*;
 
 pub mod component;
 
-pub_handle!(MODULE_MEGAMENU);
+define_handle!(MODULE_MEGAMENU);
 
 include!(concat!(env!("OUT_DIR"), "/megamenu.rs"));
 

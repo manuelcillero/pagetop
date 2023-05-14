@@ -3,7 +3,7 @@ use pagetop::prelude::*;
 pub mod component;
 pub mod module;
 
-pub_handle!(MODULE_MINIMAL);
+define_handle!(MODULE_MINIMAL);
 
 include!(concat!(env!("OUT_DIR"), "/minimal.rs"));
 

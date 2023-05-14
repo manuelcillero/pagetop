@@ -2,7 +2,7 @@ use pagetop::prelude::*;
 
 use crate::component::Icon;
 
-pub_handle!(COMPONENT_ANCHOR);
+define_handle!(COMPONENT_ANCHOR);
 
 #[derive(Default)]
 pub enum AnchorType {

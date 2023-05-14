@@ -76,7 +76,7 @@ pub fn component_mut<C: 'static>(component: &mut dyn ComponentTrait) -> &mut C {
 macro_rules! hook_before_render_component {
     ( $ACTION_HANDLE:ident, $Component:ty ) => {
         $crate::paste! {
-            $crate::pub_handle!($ACTION_HANDLE);
+            $crate::define_handle!($ACTION_HANDLE);
 
             type Action = fn(&$Component, &mut RenderContext);
 

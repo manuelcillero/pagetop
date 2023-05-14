@@ -1,6 +1,6 @@
 use pagetop::prelude::*;
 
-pub_handle!(COMPONENT_CONTAINER);
+define_handle!(COMPONENT_CONTAINER);
 
 hook_before_render_component!(HOOK_BEFORE_RENDER_CONTAINER, Container);
 

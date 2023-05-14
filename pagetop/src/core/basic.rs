@@ -3,9 +3,9 @@ use crate::html::Favicon;
 use crate::response::page::Page;
 use crate::server;
 use crate::util::Handle;
-use crate::{pub_handle, serve_static_files};
+use crate::{define_handle, serve_static_files};
 
-pub_handle!(THEME_BASIC);
+define_handle!(THEME_BASIC);
 
 include!(concat!(env!("OUT_DIR"), "/theme.rs"));
 

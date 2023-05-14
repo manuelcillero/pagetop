@@ -2,7 +2,7 @@ use pagetop::prelude::*;
 
 use crate::component::grid;
 
-pub_handle!(COMPONENT_ROW);
+define_handle!(COMPONENT_ROW);
 
 hook_before_render_component!(HOOK_BEFORE_RENDER_ROW, Row);
 

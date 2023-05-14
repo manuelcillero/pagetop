@@ -1,9 +1,9 @@
 use crate::core::component::{AnyComponent, ComponentTrait, RenderContext};
 use crate::html::{html, Markup};
-use crate::pub_handle;
+use crate::define_handle;
 use crate::util::Handle;
 
-pub_handle!(HTML_MARKUP);
+define_handle!(HTML_MARKUP);
 
 pub struct HtmlMarkup {
     pub markup: Markup,
