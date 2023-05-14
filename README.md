@@ -33,7 +33,7 @@ El repositorio se organiza en un *workspace* con los siguientes subproyectos:
   patrones de desarrollo y buenas prácticas para la creación avanzada de soluciones web SSR
   (*Server-Side Rendering*).
 
-## Utilidades
+## Extensiones
 
 * **[pagetop-macros](https://github.com/manuelcillero/pagetop/tree/main/pagetop-macros)**, agrupa
   las principales macros procedurales para usar desde **PageTop**.
@@ -42,20 +42,18 @@ El repositorio se organiza en un *workspace* con los siguientes subproyectos:
   incluir fácilmente recursos en los archivos binarios al compilar aplicaciones creadas con
   **PageTop**.
 
+## Componentes
+
+* **[pagetop-minimal](https://github.com/manuelcillero/pagetop/tree/main/pagetop-minimal)**, módulo
+  que proporciona un conjunto básico de componentes para la composición de páginas.
+
 * **[pagetop-jquery](https://github.com/manuelcillero/pagetop/tree/main/pagetop-jquery)**, módulo
   que permite añadir jQuery en las páginas que incluyen componentes o temas que usen esta librería
   JavaScript para interactuar con el documento HTML.​
 
 * **[pagetop-megamenu](https://github.com/manuelcillero/pagetop/tree/main/pagetop-megamenu)**,
-  módulo que proporciona un nuevo componente para incluir menús avanzados en las soluciones web.
-
-* **[pagetop-homedemo](https://github.com/manuelcillero/pagetop/tree/main/pagetop-homedemo)**,
-  módulo que muestra una página de inicio de demostración para presentar **PageTop**.
-
-## Componentes
-
-* **[pagetop-minimal](https://github.com/manuelcillero/pagetop/tree/main/pagetop-minimal)**,
-  proporciona un conjunto básico de componentes para la composición de páginas.
+  módulo que proporciona un nuevo componente para incluir menús avanzados en las aplicaciones web
+  creadas con **PageTop**.
 
 ## Temas
 
@@ -71,6 +69,9 @@ El repositorio se organiza en un *workspace* con los siguientes subproyectos:
   de componentes.
 
 ## Módulos
+
+* **[pagetop-homedemo](https://github.com/manuelcillero/pagetop/tree/main/pagetop-homedemo)**,
+  módulo que muestra una página de inicio de demostración para presentar **PageTop**.
 
 * **[pagetop-admin](https://github.com/manuelcillero/pagetop/tree/main/pagetop-admin)**, módulo que
   proporciona a otros módulos un lugar común donde presentar a los administradores sus opciones de

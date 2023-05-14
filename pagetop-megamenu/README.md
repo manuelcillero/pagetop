@@ -1,5 +1,5 @@
-Módulo para **PageTop** que proporciona un nuevo componente para incluir menús avanzados en las
-soluciones web.
+Módulo que proporciona un nuevo componente para incluir menús avanzados en las aplicaciones web
+creadas con **PageTop**.
 
 [PageTop](https://github.com/manuelcillero/pagetop/tree/main/pagetop), es un entorno de desarrollo
 basado en algunos de los *crates* más estables y populares del ecosistema Rust para proporcionar
