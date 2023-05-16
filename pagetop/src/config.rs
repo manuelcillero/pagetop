@@ -1,4 +1,4 @@
-//! Gestión de la configuración.
+//! Lectura y uso de ajustes de configuración.
 //!
 //! Carga la configuración de la aplicación en forma de pares `clave = valor` recogidos en archivos
 //! [TOML](https://toml.io).
@@ -158,13 +158,13 @@ pub static CONFIG: LazyStatic<ConfigData> = LazyStatic::new(|| {
 });
 
 #[macro_export]
-/// Asigna los ajustes de configuración de tu módulo usando tipos seguros y valores predefinidos.
+/// Define un conjunto de ajustes de configuración usando tipos seguros y valores predefinidos.
 ///
 /// Detiene la aplicación con un panic! si no pueden asignarse los ajustes de configuración.
 ///
 /// Ver [`Cómo añadir ajustes de configuración`](config/index.html#cómo-añadir-ajustes-de-configuración).
 macro_rules! define_config {
-    ( $SETTINGS:ident: $Settings:ty $(, $key:literal => $value:literal)*$(,)* ) => {
+    ( $SETTINGS:ident as $Settings:ty $(, $key:literal => $value:literal)*$(,)* ) => {
         $crate::doc_comment! {
             concat!(
                 "Declara y asigna los valores predefinidos para los ajustes de configuración ",
@@ -274,7 +274,7 @@ pub struct Server {
     pub bind_port: u16,
 }
 
-define_config!(SETTINGS: Settings,
+define_config!(SETTINGS as Settings,
     // [app]
     "app.name"               => "PageTop Application",
     "app.description"        => "Developed with the amazing PageTop framework.",

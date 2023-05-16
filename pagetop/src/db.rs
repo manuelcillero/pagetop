@@ -1,3 +1,5 @@
+//! Acceso unificado y normalizado a base de datos.
+
 use crate::{config, run_now, trace, LazyStatic, ResultExt};
 
 pub use url::Url as DbUri;

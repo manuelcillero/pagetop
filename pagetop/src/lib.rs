@@ -1,6 +1,6 @@
 //! <div align="center">
 //!
-//!   <img src="https://raw.githubusercontent.com/manuelcillero/pagetop/main/pagetop/static/pagetop-banner.png" />
+//!   <img src="https://raw.githubusercontent.com/manuelcillero/pagetop/main/banner/pagetop.png" />
 //!
 //!   <h1>PageTop</h1>
 //!
@@ -12,9 +12,9 @@
 //! **PageTop** es un entorno de desarrollo basado en Rust que reúne algunos de los crates más
 //! estables y populares para crear soluciones web modulares, extensibles y configurables.
 //!
-//! PageTop añade una capa de abstracción para definir una interfaz única que ofrezca de partida:
+//! PageTop define un interfaz único que ofrece:
 //!
-//!  * Gestión de la configuración ([`config`]).
+//!  * Lectura y uso de ajustes de configuración ([`config`]).
 //!
 //!  * Registro de trazas y eventos de la aplicación ([`trace`]).
 //!
@@ -22,9 +22,9 @@
 //!
 //!  * HTML en código ([`html`]).
 //!
-//!  * Acceso a base de datos ([`db`]).
+//!  * Acceso unificado y normalizado a base de datos ([`db`]).
 //!
-//!  * APIs esenciales para crear componentes, acciones, módulos y temas ([`core`]).
+//!  * Tipos y funciones esenciales para crear módulos, temas, componentes y acciones ([`core`]).
 //!
 //!  * Tipos de respuestas a peticiones web ([`response`])
 //!
@@ -76,7 +76,7 @@ pub mod html;
 #[cfg(feature = "database")]
 pub mod db;
 
-// APIs esenciales para crear componentes, acciones, módulos y temas.
+// APIs esenciales para crear módulos, temas, componentes y acciones.
 pub mod core;
 
 // API del servidor web.

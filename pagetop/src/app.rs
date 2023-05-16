@@ -1,3 +1,5 @@
+//! Instancia y ejecuta una aplicación creada con **PageTop**.
+
 mod figfont;
 
 use crate::core::{module, module::ModuleStaticRef};

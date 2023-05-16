@@ -1,3 +1,5 @@
+//! HTML en código.
+
 pub use maud::{html, Markup, PreEscaped, DOCTYPE};
 
 mod assets;

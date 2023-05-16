@@ -1,3 +1,6 @@
+//! Re-exporta los tipos y funciones más habituales para la creación de soluciones web con
+//! **PageTop**.
+
 // Re-exports.
 pub use crate::{concat_string, fn_builder, Handle, HashMapResources, LazyStatic, ResultExt};
 

@@ -122,7 +122,7 @@ pub static LANGID: LazyStatic<LanguageIdentifier> =
     });
 
 #[macro_export]
-/// Permite integrar fácilmente localización en temas, módulos y componentes.
+/// Define un conjunto de elementos de localización y funciones locales de traducción.
 macro_rules! define_locale {
     ( $dir_locales:literal $(, $core_locales:literal)? ) => {
         use $crate::locale::*;

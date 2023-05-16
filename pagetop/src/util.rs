@@ -1,3 +1,5 @@
+//! Funciones útiles.
+
 use crate::Handle;
 
 // https://stackoverflow.com/a/71464396
