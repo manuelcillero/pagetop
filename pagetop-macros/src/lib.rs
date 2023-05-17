@@ -1,7 +1,16 @@
+mod maud;
+
 use concat_string::concat_string;
 use proc_macro::TokenStream;
+use proc_macro_error::proc_macro_error;
 use quote::{quote, quote_spanned, ToTokens};
 use syn::{parse_macro_input, parse_str, ItemFn};
+
+#[proc_macro]
+#[proc_macro_error]
+pub fn html(input: TokenStream) -> TokenStream {
+    maud::expand(input.into()).into()
+}
 
 #[proc_macro_attribute]
 pub fn fn_builder(_attr: TokenStream, item: TokenStream) -> TokenStream {
