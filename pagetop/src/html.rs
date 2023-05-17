@@ -1,6 +1,7 @@
 //! HTML en código.
 
-pub use maud::{html, Markup, PreEscaped, DOCTYPE};
+mod maud;
+pub use maud::{html, html_private, Markup, PreEscaped, DOCTYPE};
 
 mod assets;
 pub use assets::javascript::{JavaScript, ModeJS};
