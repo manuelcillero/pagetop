@@ -18,4 +18,3 @@ license = "Apache-2.0 OR MIT"
 pagetop = { version = "0.0", path = "../pagetop" }
 pagetop-minimal = { version = "0.0", path = "../pagetop-minimal" }
 pagetop-megamenu = { version = "0.0", path = "../pagetop-megamenu" }
-maud = "0.25.0"
