@@ -16,9 +16,9 @@ constantes. No puede considerarse preparado hasta que se libere la versión **0.
 
 Incluye en código una versión adaptada del crate [maud-macros](https://crates.io/crates/maud_macros)
 de [Chris Wong](https://crates.io/users/lambda-fairy) (versión
-[0.25.0](https://github.com/lambda-fairy/maud/tree/v0.25.0/maud_macros)), para incorporar sus
-funcionalidades en **PageTop** sin requerir una entrada adicional en el archivo Cargo.toml de cada
-proyecto.
+[0.25.0](https://github.com/lambda-fairy/maud/tree/v0.25.0/maud_macros)), para añadir sus
+funcionalidades en **PageTop** sin requerir la referencia a `maud` en el archivo `Cargo.toml` de
+cada proyecto.
 
 
 # 📜 Licencia

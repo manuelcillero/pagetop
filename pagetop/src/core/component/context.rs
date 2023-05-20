@@ -97,6 +97,7 @@ impl RenderContext {
         }
         None
     }
+
     /// Context RENDER.
 
     pub fn render(&mut self) -> Markup {
