@@ -57,6 +57,8 @@ fluent-templates = "0.8.0"
 unic-langid = "0.9.1"
 
 actix-web = "4"
+actix-session = { version = "0.7.2", features = ["cookie-session"] }
+
 actix-web-files = { package = "actix-files", version = "0.6.2" }
 actix-web-static-files = "4.0.1"
 static-files = "0.2.3"

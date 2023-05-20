@@ -36,7 +36,7 @@ static_files = ""
 
 [log]
 # Traza de ejecución: "Error", "Warn", "Info", "Debug" o "Trace".
-# Ejemplos: "Error,actix_server::builder=Info,tracing_actix_web=Debug".
+# Por ejemplo: "Error,actix_server::builder=Info,tracing_actix_web=Debug".
 tracing = "Info"
 # En terminal ("Stdout") o archivos "Daily", "Hourly", "Minutely" o "Endless".
 rolling = "Stdout"
@@ -51,3 +51,7 @@ format = "Full"
 # Configuración del servidor web.
 bind_address = "localhost"
 bind_port = 8088
+# Duración de la cookie de sesión (en segundos), es decir, el tiempo desde que
+# se crea la sesión hasta que caduca la cookie. El valor 0 indica "hasta que se
+# cierre el navegador". Por defecto es una semana.
+session_lifetime = 604800

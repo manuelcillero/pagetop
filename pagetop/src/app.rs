@@ -11,6 +11,10 @@ use crate::{config, locale, server, trace, LazyStatic};
 #[cfg(feature = "database")]
 use crate::db;
 
+use actix_session::config::{BrowserSession, PersistentSession, SessionLifecycle};
+use actix_session::storage::CookieSessionStore;
+use actix_session::SessionMiddleware;
+use actix_web::cookie::{time::Duration, Key};
 use actix_web::dev::Server;
 
 use std::io::Error;
@@ -50,9 +54,22 @@ impl Application {
         module::all::run_migrations();
 
         // Prepara el servidor web.
+        let secret_key = get_secret_key();
         let server = server::HttpServer::new(move || {
             server::App::new()
                 .wrap(tracing_actix_web::TracingLogger::default())
+                .wrap(
+                    SessionMiddleware::builder(CookieSessionStore::default(), secret_key.clone())
+                        .session_lifecycle(match config::SETTINGS.server.session_lifetime {
+                            0 => SessionLifecycle::BrowserSession(BrowserSession::default()),
+                            _ => SessionLifecycle::PersistentSession(
+                                PersistentSession::default().session_ttl(Duration::seconds(
+                                    config::SETTINGS.server.session_lifetime,
+                                )),
+                            ),
+                        })
+                        .build(),
+                )
                 .configure(module::all::configure_services)
                 .default_service(server::web::route().to(service_not_found))
         })
@@ -96,6 +113,10 @@ fn print_on_startup() {
             env!("CARGO_PKG_VERSION")
         );
     }
+}
+
+fn get_secret_key() -> Key {
+    Key::generate()
 }
 
 async fn service_not_found(request: server::HttpRequest) -> ResultPage<Markup, FatalError> {

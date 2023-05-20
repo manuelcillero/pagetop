@@ -23,7 +23,8 @@
 //! 1. **config/common.toml**, útil para los ajustes comunes a cualquier entorno. Estos valores
 //!    podrán ser sobrescritos al fusionar los archivos de configuración restantes.
 //!
-//! 2. **config/{file}.toml**, donde *{file}* se define con la variable de entorno PAGETOP_RUN_MODE:
+//! 2. **config/{file}.toml**, donde *{file}* se define con la variable de entorno
+//!    `PAGETOP_RUN_MODE`:
 //!
 //!     * Si no está definida se asumirá *default* por defecto y PageTop intentará cargar el archivo
 //!       *config/default.toml* si existe.
@@ -130,8 +131,8 @@ use std::env;
 /// Directorio donde se encuentran los archivos de configuración.
 const CONFIG_DIR: &str = "config";
 
-/// Todos los valores originales de la configuración en forma de pares `clave = valor` recogidos de
-/// los archivos de configuración.
+/// Valores originales de la configuración en forma de pares `clave = valor` recogidos de los
+/// archivos de configuración.
 pub static CONFIG: LazyStatic<ConfigData> = LazyStatic::new(|| {
     // Modo de ejecución según la variable de entorno PAGETOP_RUN_MODE. Por defecto 'default'.
     let run_mode = env::var("PAGETOP_RUN_MODE").unwrap_or_else(|_| "default".into());
@@ -167,7 +168,7 @@ macro_rules! define_config {
     ( $SETTINGS:ident as $Settings:ty $(, $key:literal => $value:literal)*$(,)* ) => {
         $crate::doc_comment! {
             concat!(
-                "Declara y asigna los valores predefinidos para los ajustes de configuración ",
+                "Valores asignados o predefinidos para los ajustes de configuración globales ",
                 "asociados a la estructura [`", stringify!($Settings), "`]."
             ),
             pub static $SETTINGS: $crate::LazyStatic<$Settings> = $crate::LazyStatic::new(|| {
@@ -196,113 +197,145 @@ pub struct Settings {
 }
 
 #[derive(Debug, Deserialize)]
-/// Sección `[app]` de los ajustes globales.
+/// Sección `[app]` de los ajustes de configuración globales.
 ///
 /// Ver [`Settings`].
 pub struct App {
-    /// Valor predefinido: *"PageTop Application"*
+    /// El nombre de la aplicación.
+    /// Por defecto: *"PageTop Application"*.
     pub name: String,
-    /// Valor predefinido: *"Developed with the amazing PageTop framework."*
+    /// Una descripción breve de la aplicación.
+    /// Por defecto: *"Developed with the amazing PageTop framework."*.
     pub description: String,
-    /// Valor predefinido: *"Basic"*
+    /// Tema predeterminado.
+    /// Por defecto: *"Basic"*.
     pub theme: String,
-    /// Valor predefinido: *"en-US"*
+    /// Idioma (localización) predeterminado.
+    /// Por defecto: *"en-US"*.
     pub language: String,
-    /// Valor predefinido: *"ltr"*
+    /// Dirección predeterminada para el texto: *"ltr"* (de izquierda a derecha), *"rtl"* (de
+    /// derecha a izquierda) o *"auto"*.
+    /// Por defecto: *"ltr"*.
     pub direction: String,
-    /// Valor predefinido: *"Slant"*
+    /// Rótulo de texto ASCII al arrancar: *"Off"*, *"Slant"*, *"Small"*, *"Speed"* o *"Starwars"*.
+    /// Por defecto: *"Slant"*.
     pub startup_banner: String,
-    /// Valor predefinido: según variable de entorno PAGETOP_RUN_MODE, o *"default"* si no lo está
+    /// Por defecto: según variable de entorno `PAGETOP_RUN_MODE`, o *"default"* si no lo está.
     pub run_mode: String,
 }
 
 #[derive(Debug, Deserialize)]
-/// Sección `[database]` de los ajustes globales.
+/// Sección `[database]` de los ajustes de configuración globales.
 ///
 /// Ver [`Settings`].
 pub struct Database {
-    /// Valor predefinido: *""*
+    /// Tipo de base de datos: *"mysql"*, *"postgres"* ó *"sqlite"*.
+    /// Por defecto: *""*.
     pub db_type: String,
-    /// Valor predefinido: *""*
+    /// Nombre (para mysql/postgres) o referencia (para sqlite) de la base de datos.
+    /// Por defecto: *""*.
     pub db_name: String,
-    /// Valor predefinido: *""*
+    /// Usuario de conexión a la base de datos (para mysql/postgres).
+    /// Por defecto: *""*.
     pub db_user: String,
-    /// Valor predefinido: *""*
+    /// Contraseña para la conexión a la base de datos (para mysql/postgres).
+    /// Por defecto: *""*.
     pub db_pass: String,
-    /// Valor predefinido: *"localhost"*
+    /// Servidor de conexión a la base de datos (para mysql/postgres).
+    /// Por defecto: *"localhost"*.
     pub db_host: String,
-    /// Valor predefinido: *0*
+    /// Puerto de conexión a la base de datos, normalmente 3306 (para mysql) ó 5432 (para postgres).
+    /// Por defecto: *0*.
     pub db_port: u16,
-    /// Valor predefinido: *5*
+    /// Número máximo de conexiones habilitadas.
+    /// Por defecto: *5*.
     pub max_pool_size: u32,
 }
 
 #[derive(Debug, Deserialize)]
-/// Sección `[dev]` de los ajustes globales.
+/// Sección `[dev]` de los ajustes de configuración globales.
 ///
 /// Ver [`Settings`].
 pub struct Dev {
-    /// Valor predefinido: *""*
+    /// Los archivos estáticos requeridos por la aplicación se integran de manera predeterminada en
+    /// el binario ejecutable. Sin embargo, durante el desarrollo puede resultar útil servir estos
+    /// archivos desde su propio directorio para evitar compilar cada vez que se modifican. En este
+    /// caso, normalmente, basta con indicar la ruta "../ruta/static".
+    /// Por defecto: *""*.
     pub static_files: String,
 }
 
 #[derive(Debug, Deserialize)]
-/// Sección `[log]` de los ajustes globales.
+/// Sección `[log]` de los ajustes de configuración globales.
 ///
 /// Ver [`Settings`].
 pub struct Log {
-    /// Valor predefinido: *"Info"*
+    /// Filtro, o combinación de filtros separados por coma, para la traza de ejecución: *"Error"*,
+    /// *"Warn"*, *"Info"*, *"Debug"* o *"Trace"*.
+    /// Por ejemplo: "Error,actix_server::builder=Info,tracing_actix_web=Debug".
+    /// Por defecto: *"Info"*.
     pub tracing: String,
-    /// Valor predefinido: *"Stdout"*
+    /// Muestra la traza en el terminal (*"Stdout"*) o queda registrada en archivos con rotación
+    /// *"Daily"*, *"Hourly"*, *"Minutely"* o *"Endless"*.
+    /// Por defecto: *"Stdout"*.
     pub rolling: String,
-    /// Valor predefinido: *"log"*
+    /// Directorio para los archivos de traza (si `rolling` != *"Stdout"*).
+    /// Por defecto: *"log"*.
     pub path: String,
-    /// Valor predefinido: *"tracing.log"*
+    /// Prefijo para los archivos de traza (si `rolling` != *"Stdout"*).
+    /// Por defecto: *"tracing.log"*.
     pub prefix: String,
-    /// Valor predefinido: *"Full"*
+    /// Presentación de las trazas. Puede ser *"Full"*, *"Compact"*, *"Pretty"* o *"Json"*.
+    /// Por defecto: *"Full"*.
     pub format: String,
 }
 
 #[derive(Debug, Deserialize)]
-/// Sección `[server]` de los ajustes globales.
+/// Sección `[server]` de los ajustes de configuración globales.
 ///
 /// Ver [`Settings`].
 pub struct Server {
-    /// Valor predefinido: *"localhost"*
+    /// Dirección del servidor web.
+    /// Por defecto: *"localhost"*.
     pub bind_address: String,
-    /// Valor predefinido: *8088*
+    /// Puerto del servidor web.
+    /// Por defecto: *8088*.
     pub bind_port: u16,
+    /// Duración en segundos para la sesión (0 indica "hasta que se cierre el navegador").
+    /// Por defecto: *604800* (7 días).
+    pub session_lifetime: i64,
 }
 
 define_config!(SETTINGS as Settings,
     // [app]
-    "app.name"               => "PageTop Application",
-    "app.description"        => "Developed with the amazing PageTop framework.",
-    "app.theme"              => "Basic",
-    "app.language"           => "en-US",
-    "app.direction"          => "ltr",
-    "app.startup_banner"     => "Slant",
+    "app.name"                => "PageTop Application",
+    "app.description"         => "Developed with the amazing PageTop framework.",
+    "app.theme"               => "Basic",
+    "app.language"            => "en-US",
+    "app.direction"           => "ltr",
+    "app.startup_banner"      => "Slant",
 
     // [database]
-    "database.db_type"       => "",
-    "database.db_name"       => "",
-    "database.db_user"       => "",
-    "database.db_pass"       => "",
-    "database.db_host"       => "localhost",
-    "database.db_port"       => 0,
-    "database.max_pool_size" => 5,
+    "database.db_type"        => "",
+    "database.db_name"        => "",
+    "database.db_user"        => "",
+    "database.db_pass"        => "",
+    "database.db_host"        => "localhost",
+    "database.db_port"        => 0,
+    "database.max_pool_size"  => 5,
 
     // [dev]
-    "dev.static_files"       => "",
+    "dev.static_files"        => "",
 
     // [log]
-    "log.tracing"            => "Info",
-    "log.rolling"            => "Stdout",
-    "log.path"               => "log",
-    "log.prefix"             => "tracing.log",
-    "log.format"             => "Full",
+    "log.tracing"             => "Info",
+    "log.rolling"             => "Stdout",
+    "log.path"                => "log",
+    "log.prefix"              => "tracing.log",
+    "log.format"              => "Full",
 
     // [server]
-    "server.bind_address"    => "localhost",
-    "server.bind_port"       => 8088,
+    "server.bind_address"     => "localhost",
+    "server.bind_port"        => 8088,
+    "server.session_lifetime" => 604800,
 );
