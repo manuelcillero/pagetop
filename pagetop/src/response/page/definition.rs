@@ -4,18 +4,9 @@ use crate::core::component::*;
 use crate::core::hook::{action_ref, run_actions};
 use crate::html::{html, AttributeValue, Classes, ClassesOp, Favicon, Markup, DOCTYPE};
 use crate::response::FatalError;
-use crate::{config, fn_builder, server, trace, LazyStatic};
+use crate::{config, fn_builder, locale, server, trace, LazyStatic};
 
 use std::collections::HashMap;
-
-static DEFAULT_LANGUAGE: LazyStatic<Option<String>> = LazyStatic::new(|| {
-    let language = config::SETTINGS.app.language[..2].to_lowercase();
-    if !language.is_empty() {
-        Some(language)
-    } else {
-        None
-    }
-});
 
 static DEFAULT_DIRECTION: LazyStatic<Option<String>> = LazyStatic::new(|| {
     let direction = config::SETTINGS.app.direction.to_lowercase();
@@ -60,10 +51,7 @@ impl Default for Page {
     #[rustfmt::skip]
     fn default() -> Self {
         Page {
-            language    : match &*DEFAULT_LANGUAGE {
-                Some(language) => AttributeValue::new().with_value(language),
-                _ => AttributeValue::new(),
-            },
+            language    : AttributeValue::new().with_value(locale::LANGID.language.as_str()),
             direction   : match &*DEFAULT_DIRECTION {
                 Some(direction) => AttributeValue::new().with_value(direction),
                 _ => AttributeValue::new(),
