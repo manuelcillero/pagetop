@@ -8,8 +8,8 @@ mod escape;
 mod generate;
 mod parse;
 
-use proc_macro_crate::{crate_name, FoundCrate};
 use proc_macro2::{Ident, Span, TokenStream, TokenTree};
+use proc_macro_crate::{crate_name, FoundCrate};
 use quote::quote;
 
 pub fn expand(input: TokenStream) -> TokenStream {
@@ -27,7 +27,7 @@ pub fn expand(input: TokenStream) -> TokenStream {
         ),
         _ => quote!(
             pagetop::html::PreEscaped(#output_ident)
-        )
+        ),
     };
 
     quote!({

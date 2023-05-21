@@ -71,36 +71,36 @@
 //! Una vez hayas creado tu directorio de recursos FTL, sólo tienes que usar la poderosa macro
 //! [`define_locale!`](crate::define_locale) para integrar fácilmente tus recursos de localización.
 //!
-//! Esta macro crea dos funciones para el ámbito donde se ejecuta. Por un lado la función `l()` para
-//! traducciones directas de etiquetas. Y por otro la función `t()` para traducciones que requieren
-//! argumentos:
+//! Luego sólo tendrás que usar la función `t()` para realizar tus traducciones:
 //!
 //! ```
-//! use pagetop::{args, define_locale};
+//! use pagetop::{args, define_locale, t};
 //!
-//! define_locale!("en-US");
+//! define_locale!(LOCALE_SAMPLE, "src/locales");
 //!
 //! fn demo() {
-//!     println!("* {}", l("hello-world"));
-//!     println!("* {}", t("hello-world", &args![]));
-//!     println!("* {}", t("hello-user", &args!["userName" => "Julia"]));
+//!     println!("* {}", l("hello-world", Locale::From(&LOCALE_SAMPLE)));
+//!     println!("* {}", t("hello-user", Locale::With(&LOCALE_SAMPLE, &args!["userName" => "Julia"])));
 //!
 //!     let args = args![
 //!         "userName" => "Roberto",
 //!         "photoCount" => 3,
 //!         "userGender" => "male"
 //!     ];
-//!     println!("* {}\n", t("shared-photos", &args));
+//!     println!("* {}\n", t("shared-photos", Locale::With(&LOCALE_SAMPLE, &args)));
 //! }
 //! ```
 
+use crate::html::{Markup, PreEscaped};
 use crate::{config, trace, LazyStatic};
 
 use unic_langid::LanguageIdentifier;
 
 pub use fluent_templates;
 pub use fluent_templates::fluent_bundle::FluentValue;
-pub use fluent_templates::{static_loader as static_locale, Loader as Locale};
+pub use fluent_templates::{static_loader as static_locale, Loader, StaticLoader as Locales};
+
+use std::collections::HashMap;
 
 /// Almacena el Identificador de Idioma Unicode
 /// ([Unicode Language Identifier](https://unicode.org/reports/tr35/tr35.html#Unicode_language_identifier))
@@ -124,11 +124,11 @@ pub static LANGID: LazyStatic<LanguageIdentifier> =
 #[macro_export]
 /// Define un conjunto de elementos de localización y funciones locales de traducción.
 macro_rules! define_locale {
-    ( $dir_locales:literal $(, $core_locales:literal)? ) => {
+    ( $LOCALES:ident, $dir_locales:literal $(, $core_locales:literal)? ) => {
         use $crate::locale::*;
 
         static_locale! {
-            static LOCALES = {
+            static $LOCALES = {
                 locales: $dir_locales,
                 $( core_locales: $core_locales, )?
                 fallback_language: "en-US",
@@ -137,28 +137,33 @@ macro_rules! define_locale {
                 customise: |bundle| bundle.set_use_isolating(false),
             };
         }
-
-        #[allow(dead_code)]
-        fn l(key: &str) -> String {
-            LOCALES.lookup(&LANGID, key).unwrap_or(key.to_string())
-        }
-
-        #[allow(dead_code)]
-        fn t(
-            key: &str,
-            args: &std::collections::HashMap<String, FluentValue>
-        ) -> String {
-            LOCALES.lookup_with_args(&LANGID, key, args).unwrap_or(key.to_string())
-        }
-
-        #[allow(dead_code)]
-        fn e(
-            key: &str,
-            args: &std::collections::HashMap<String, FluentValue>
-        ) -> $crate::html::PreEscaped<String> {
-            $crate::html::PreEscaped(
-                LOCALES.lookup_with_args(&LANGID, key, args).unwrap_or(key.to_string())
-            )
-        }
     };
+}
+
+pub enum Locale<'a> {
+    From(&'a Locales),
+    With(&'a Locales, &'a HashMap<String, FluentValue<'a>>),
+    Lang(&'a Locales, &'a LanguageIdentifier),
+    Using(
+        &'a Locales,
+        &'a LanguageIdentifier,
+        &'a HashMap<String, FluentValue<'a>>,
+    ),
+}
+
+pub fn t(key: &str, locale: Locale) -> String {
+    match locale {
+        Locale::From(locales) => locales.lookup(&LANGID, key).unwrap_or(key.to_string()),
+        Locale::With(locales, args) => locales
+            .lookup_with_args(&LANGID, key, args)
+            .unwrap_or(key.to_string()),
+        Locale::Lang(locales, langid) => locales.lookup(langid, key).unwrap_or(key.to_string()),
+        Locale::Using(locales, langid, args) => locales
+            .lookup_with_args(langid, key, args)
+            .unwrap_or(key.to_string()),
+    }
+}
+
+pub fn e(key: &str, locale: Locale) -> Markup {
+    PreEscaped(t(key, locale))
 }

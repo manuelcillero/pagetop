@@ -2,7 +2,7 @@ use pagetop::prelude::*;
 
 define_handle!(MODULE_ADMIN);
 
-define_locale!("src/locales");
+define_locale!(LOCALE_ADMIN, "src/locales");
 
 mod summary;
 
@@ -14,11 +14,11 @@ impl ModuleTrait for Admin {
     }
 
     fn name(&self) -> String {
-        l("module_name")
+        t("module_name", Locale::From(&LOCALE_ADMIN))
     }
 
     fn description(&self) -> Option<String> {
-        Some(l("module_description"))
+        Some(t("module_description", Locale::From(&LOCALE_ADMIN)))
     }
 
     #[rustfmt::skip]

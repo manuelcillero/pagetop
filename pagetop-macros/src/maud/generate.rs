@@ -113,7 +113,7 @@ impl Generator {
             ),
             _ => quote!(
                 pagetop::html::html_private::render_to!(&#expr, &mut #output_ident);
-            )
+            ),
         });
     }
 

@@ -2,7 +2,7 @@ use pagetop::prelude::*;
 
 define_handle!(THEME_BOOTSIER);
 
-define_locale!("src/locales");
+define_locale!(LOCALE_BOOTSIER, "src/locales");
 
 include!(concat!(env!("OUT_DIR"), "/bootsier.rs"));
 
@@ -53,15 +53,15 @@ impl ThemeTrait for Bootsier {
                         alt="Caution!";
                     div class="media-body" {
                         h1 class="display-4" { ("RESOURCE NOT FOUND") }
-                        p class="lead" { (l("e404-description")) }
+                        p class="lead" { (t("e404-description", Locale::From(&LOCALE_BOOTSIER))) }
                         hr class="my-4";
-                        p { (l("e404-description")) }
+                        p { (t("e404-description", Locale::From(&LOCALE_BOOTSIER))) }
                         a
                             class="btn btn-primary btn-lg"
                             href="/"
                             role="button"
                         {
-                            (l("back-homepage"))
+                            (t("back-homepage", Locale::From(&LOCALE_BOOTSIER)))
                         }
                     }
                 }

@@ -2,7 +2,7 @@ use pagetop::prelude::*;
 
 define_handle!(MODULE_MENU);
 
-define_locale!("src/module/menu/locales");
+define_locale!(LOCALE_MENU, "src/module/menu/locales");
 
 pub struct Menu;
 
@@ -12,10 +12,10 @@ impl ModuleTrait for Menu {
     }
 
     fn name(&self) -> String {
-        l("module_name")
+        t("module_name", Locale::From(&LOCALE_MENU))
     }
 
     fn description(&self) -> Option<String> {
-        Some(l("module_description"))
+        Some(t("module_description", Locale::From(&LOCALE_MENU)))
     }
 }

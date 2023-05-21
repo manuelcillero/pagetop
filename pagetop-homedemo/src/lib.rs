@@ -3,7 +3,7 @@ use pagetop_minimal::component::*;
 
 define_handle!(MODULE_DEMOHOME);
 
-define_locale!("src/locales");
+define_locale!(LOCALE_DEMOHOME, "src/locales");
 
 include!(concat!(env!("OUT_DIR"), "/homedemo.rs"));
 
@@ -15,11 +15,11 @@ impl ModuleTrait for HomeDemo {
     }
 
     fn name(&self) -> String {
-        l("module_name")
+        t("module_name", Locale::From(&LOCALE_DEMOHOME))
     }
 
     fn description(&self) -> Option<String> {
-        Some(l("module_description"))
+        Some(t("module_description", Locale::From(&LOCALE_DEMOHOME)))
     }
 
     fn dependencies(&self) -> Vec<ModuleStaticRef> {
@@ -34,7 +34,7 @@ impl ModuleTrait for HomeDemo {
 
 async fn demo(request: server::HttpRequest) -> ResultPage<Markup, FatalError> {
     Page::new(request)
-        .with_title(l("page_title").as_str())
+        .with_title(t("page_title", Locale::From(&LOCALE_DEMOHOME)).as_str())
         .with_context(ContextOp::AddStyleSheet(StyleSheet::located(
             "/homedemo/css/styles.css",
         )))
@@ -56,43 +56,46 @@ fn hello_world() -> Container {
                     .with_size(grid::ColumnSize::Is5of12)
                     .with_component(
                         Heading::h1(html! {
-                            (l("page_title"))
+                            (t("page_title", Locale::From(&LOCALE_DEMOHOME)))
                         })
                         .with_display(HeadingDisplay::Medium),
                     )
                     .with_component(
                         Paragraph::with(html! {
-                            (e("hello_intro", &args![
+                            (e("hello_intro", Locale::With(&LOCALE_DEMOHOME, &args![
                                 "app" => format!(
                                     "<span class=\"app-name\">{}</span>",
                                     &config::SETTINGS.app.name,
                                 )
-                            ]))
+                            ])))
                         })
                         .with_display(ParagraphDisplay::Small),
                     )
                     .with_component(Paragraph::with(html! {
-                        (e("hello_powered", &args![
+                        (e("hello_powered", Locale::With(&LOCALE_DEMOHOME, &args![
                             "pagetop" => format!(
                                 "<a href=\"{}\" target=\"_blank\">{}</a>",
                                 "https://pagetop.cillero.es",
                                 "PageTop",
                             )
-                        ]))
+                        ])))
                     }))
                     .with_component(
                         Anchor::button(
                             "https://github.com/manuelcillero/pagetop",
-                            html! { (l("hello_code")) },
+                            html! { (t("hello_code", Locale::From(&LOCALE_DEMOHOME))) },
                         )
                         .with_target(AnchorTarget::Blank)
                         .with_left_icon(Icon::with("git"))
                         .with_classes(ClassesOp::Add, "code-link"),
                     )
                     .with_component(
-                        Anchor::link("#welcome", html! { (l("hello_welcome")) })
-                            .with_left_icon(Icon::with("arrow-down-circle-fill"))
-                            .with_classes(ClassesOp::Add, "welcome-link"),
+                        Anchor::link(
+                            "#welcome",
+                            html! { (t("hello_welcome", Locale::From(&LOCALE_DEMOHOME))) },
+                        )
+                        .with_left_icon(Icon::with("arrow-down-circle-fill"))
+                        .with_classes(ClassesOp::Add, "welcome-link"),
                     ),
             )
             .with_column(
@@ -108,26 +111,28 @@ fn welcome() -> Container {
         .with_id("welcome")
         .with_classes(ClassesOp::Add, "welcome-col-text")
         .with_component(Heading::h2(html! {
-            (l("welcome_page"))
+            (t("welcome_page", Locale::From(&LOCALE_DEMOHOME)))
         }))
         .with_component(
             Heading::h3(html! {
-                (e("welcome_subtitle", &args![
+                (e("welcome_subtitle", Locale::With(&LOCALE_DEMOHOME, &args![
                     "app" => format!(
                         "<span class=\"app-name\">{}</span>",
                         &config::SETTINGS.app.name
                     )
-                ]))
+                ])))
             })
             .with_display(HeadingDisplay::Subtitle),
         )
         .with_component(
             Paragraph::with(html! {
-                (l("welcome_text1"))
+                (t("welcome_text1", Locale::From(&LOCALE_DEMOHOME)))
             })
             .with_display(ParagraphDisplay::Small),
         )
-        .with_component(Paragraph::with(html! { (l("welcome_text2")) }))
+        .with_component(Paragraph::with(
+            html! { (t("welcome_text2", Locale::From(&LOCALE_DEMOHOME))) },
+        ))
 }
 
 fn about_pagetop() -> Container {
@@ -143,25 +148,25 @@ fn about_pagetop() -> Container {
                 grid::Column::new()
                     .with_classes(ClassesOp::Add, "pagetop-col-text")
                     .with_component(Heading::h2(html! {
-                        (l("pagetop_title"))
+                        (t("pagetop_title", Locale::From(&LOCALE_DEMOHOME)))
                     }))
                     .with_component(
                         Paragraph::with(html! {
-                            (l("pagetop_text1"))
+                            (t("pagetop_text1", Locale::From(&LOCALE_DEMOHOME)))
                         })
                         .with_display(ParagraphDisplay::Small),
                     )
                     .with_component(Paragraph::with(html! {
-                        (l("pagetop_text2"))
+                        (t("pagetop_text2", Locale::From(&LOCALE_DEMOHOME)))
                     }))
                     .with_component(Paragraph::with(html! {
-                        (e("pagetop_text3", &args![
+                        (e("pagetop_text3", Locale::With(&LOCALE_DEMOHOME, &args![
                             "pagetop_website" => format!(
                                 "<a href=\"{}\" target=\"_blank\">{}</a>",
                                 "https://docs.rs/pagetop/latest/pagetop",
-                                l("pagetop_website"),
+                                t("pagetop_website", Locale::From(&LOCALE_DEMOHOME)),
                             )
-                        ]))
+                        ])))
                     })),
             ),
     )
@@ -174,17 +179,17 @@ fn promo_pagetop() -> Container {
                 grid::Column::new()
                     .with_classes(ClassesOp::Add, "promo-col-text")
                     .with_component(Heading::h2(html! {
-                        (l("pagetop_promo_title"))
+                        (t("pagetop_promo_title", Locale::From(&LOCALE_DEMOHOME)))
                     }))
                     .with_component(
                         Paragraph::with(html! {
-                            (e("pagetop_promo_text1", &args![
+                            (e("pagetop_promo_text1", Locale::With(&LOCALE_DEMOHOME, &args![
                                 "pagetop" => format!(
                                     "<a href=\"{}\" target=\"_blank\">{}</a>",
                                     "https://crates.io/crates/pagetop",
                                     "PageTop",
                                 )
-                            ]))
+                            ])))
                         })
                         .with_display(ParagraphDisplay::Small),
                     ),
@@ -211,16 +216,16 @@ fn reporting_issues() -> Container {
                     .with_classes(ClassesOp::Add, "reporting-col-text")
                     .with_size(grid::ColumnSize::Is6of12)
                     .with_component(Heading::h2(html! {
-                        (l("report_problems_title"))
+                        (t("report_problems_title", Locale::From(&LOCALE_DEMOHOME)))
                     }))
                     .with_component(
                         Paragraph::with(html! {
-                            (l("report_problems_text1"))
+                            (t("report_problems_text1", Locale::From(&LOCALE_DEMOHOME)))
                         })
                         .with_display(ParagraphDisplay::Small),
                     )
                     .with_component(Paragraph::with(html! {
-                        (l("report_problems_text2"))
+                        (t("report_problems_text2", Locale::From(&LOCALE_DEMOHOME)))
                     })),
             ),
     )

@@ -3,7 +3,7 @@ use pagetop_minimal::component::*;
 
 define_handle!(MODULE_USER);
 
-define_locale!("src/locales");
+define_locale!(LOCALE_USER, "src/locales");
 
 mod migration;
 
@@ -15,11 +15,11 @@ impl ModuleTrait for User {
     }
 
     fn name(&self) -> String {
-        l("module_name")
+        t("module_name", Locale::From(&LOCALE_USER))
     }
 
     fn description(&self) -> Option<String> {
-        Some(l("module_description"))
+        Some(t("module_description", Locale::From(&LOCALE_USER)))
     }
 
     fn dependencies(&self) -> Vec<ModuleStaticRef> {
@@ -58,13 +58,14 @@ fn form_login() -> Form {
         .with_element(
             form_element::Input::textfield()
                 .with_name("name")
-                .with_label(l("username").as_str())
+                .with_label(t("username", Locale::From(&LOCALE_USER)).as_str())
                 .with_help_text(
                     t(
                         "username_help",
-                        &args![
-                            "app" => config::SETTINGS.app.name.to_owned()
-                        ],
+                        Locale::With(
+                            &LOCALE_USER,
+                            &args!["app" => config::SETTINGS.app.name.to_owned()],
+                        ),
                     )
                     .as_str(),
                 )
@@ -73,8 +74,10 @@ fn form_login() -> Form {
         .with_element(
             form_element::Input::password()
                 .with_name("pass")
-                .with_label(l("password").as_str())
-                .with_help_text(l("password_help").as_str()),
+                .with_label(t("password", Locale::From(&LOCALE_USER)).as_str())
+                .with_help_text(t("password_help", Locale::From(&LOCALE_USER)).as_str()),
         )
-        .with_element(form_element::Button::submit(l("login").as_str()))
+        .with_element(form_element::Button::submit(
+            t("login", Locale::From(&LOCALE_USER)).as_str(),
+        ))
 }

@@ -16,6 +16,8 @@ pub use crate::config;
 
 pub use crate::trace;
 
+pub use crate::locale::*;
+
 pub use crate::html::*;
 
 #[cfg(feature = "database")]

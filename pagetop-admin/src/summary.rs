@@ -1,11 +1,13 @@
-use super::l;
+use super::LOCALE_ADMIN;
 use pagetop::prelude::*;
 use pagetop_megamenu::component::{MegaMenu, MegaMenuItem};
 use pagetop_minimal::component::*;
 
 pub async fn summary(request: server::HttpRequest) -> ResultPage<Markup, FatalError> {
     let top_menu = MegaMenu::new()
-        .with_item(MegaMenuItem::label(l("module_name").as_str()))
+        .with_item(MegaMenuItem::label(
+            t("module_name", Locale::From(&LOCALE_ADMIN)).as_str(),
+        ))
         .with_item(MegaMenuItem::link("Opción 2", "https://www.google.es"))
         .with_item(MegaMenuItem::link_blank(
             "Opción 3",

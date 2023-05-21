@@ -2,7 +2,7 @@ use pagetop::prelude::*;
 
 define_handle!(MODULE_NODE);
 
-define_locale!("src/locales");
+define_locale!(LOCALE_NODE, "src/locales");
 
 //mod entity;
 mod migration;
@@ -15,11 +15,11 @@ impl ModuleTrait for Node {
     }
 
     fn name(&self) -> String {
-        l("module_name")
+        t("module_name", Locale::From(&LOCALE_NODE))
     }
 
     fn description(&self) -> Option<String> {
-        Some(l("module_description"))
+        Some(t("module_description", Locale::From(&LOCALE_NODE)))
     }
 
     fn configure_service(&self, cfg: &mut server::web::ServiceConfig) {
