@@ -1,6 +1,4 @@
-use super::RenderContext;
-
-use crate::html::{html, Markup};
+use crate::html::{html, Markup, RenderContext};
 use crate::util::single_type_name;
 use crate::Handle;
 

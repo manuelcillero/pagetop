@@ -1,7 +1,7 @@
 use super::ModuleTrait;
 
-use crate::core::component::{ComponentTrait, HtmlMarkup, RenderContext};
-use crate::html::{html, Favicon, Markup};
+use crate::core::component::{ComponentTrait, HtmlMarkup};
+use crate::html::{html, Favicon, Markup, RenderContext};
 use crate::response::page::Page;
 use crate::{concat_string, config};
 

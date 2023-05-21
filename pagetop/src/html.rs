@@ -8,6 +8,9 @@ pub use assets::javascript::{JavaScript, ModeJS};
 pub use assets::stylesheet::{StyleSheet, TargetMedia};
 pub use assets::Assets;
 
+mod context;
+pub use context::{ContextOp, RenderContext};
+
 mod favicon;
 pub use favicon::Favicon;
 

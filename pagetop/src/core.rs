@@ -10,4 +10,4 @@ pub mod component;
 pub mod hook;
 
 // Basic theme.
-mod basic;
+pub(crate) mod basic;

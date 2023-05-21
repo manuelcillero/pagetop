@@ -2,7 +2,9 @@ use super::{BeforeRenderPageHook, ResultPage, HOOK_BEFORE_RENDER_PAGE};
 
 use crate::core::component::*;
 use crate::core::hook::{action_ref, run_actions};
-use crate::html::{html, AttributeValue, Classes, ClassesOp, Favicon, Markup, DOCTYPE};
+use crate::html::{
+    html, AttributeValue, Classes, ClassesOp, ContextOp, Favicon, Markup, RenderContext, DOCTYPE,
+};
 use crate::response::FatalError;
 use crate::{config, fn_builder, locale, server, trace, LazyStatic};
 

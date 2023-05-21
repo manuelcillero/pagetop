@@ -1,6 +1,5 @@
-use super::{ComponentTrait, RenderContext};
-
-use crate::html::{html, Markup};
+use crate::core::component::ComponentTrait;
+use crate::html::{html, Markup, RenderContext};
 
 use std::sync::{Arc, RwLock};
 

@@ -1,5 +1,5 @@
-use crate::core::component::{AnyComponent, ComponentTrait, RenderContext};
-use crate::html::{html, Markup};
+use crate::core::component::{AnyComponent, ComponentTrait};
+use crate::html::{html, Markup, RenderContext};
 use crate::{define_handle, Handle};
 
 define_handle!(HTML_MARKUP);
