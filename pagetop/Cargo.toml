@@ -54,7 +54,7 @@ tracing-unwrap = { version = "0.10.0", default-features = false }
 tracing-actix-web = "0.7.4"
 
 fluent-templates = "0.8.0"
-unic-langid = "0.9.1"
+unic-langid = { version = "0.9.1", features = ["macros"] }
 
 actix-web = "4"
 actix-session = { version = "0.7.2", features = ["cookie-session"] }

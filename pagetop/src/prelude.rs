@@ -30,6 +30,7 @@ pub use crate::{hook_action, hook_before_render_component};
 pub use crate::server;
 pub use crate::server::HttpMessage;
 
-pub use crate::response::{page::*, FatalError, ResponseError};
+pub use crate::response::fatal_error::*;
+pub use crate::response::{page::*, ResponseError};
 
 pub use crate::app::Application;

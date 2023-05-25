@@ -6,7 +6,7 @@ use pagetop_minimal::component::*;
 pub async fn summary(request: server::HttpRequest) -> ResultPage<Markup, FatalError> {
     let top_menu = MegaMenu::new()
         .with_item(MegaMenuItem::label(
-            t("module_name", Locale::From(&LOCALE_ADMIN)).as_str(),
+            _t("module_name", Locale::From(&LOCALE_ADMIN)).as_str(),
         ))
         .with_item(MegaMenuItem::link("Opción 2", "https://www.google.es"))
         .with_item(MegaMenuItem::link_blank(

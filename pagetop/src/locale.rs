@@ -92,34 +92,49 @@
 //! ```
 
 use crate::html::{Markup, PreEscaped};
-use crate::{config, trace, LazyStatic};
+use crate::{args, config, trace, LazyStatic};
 
-use unic_langid::LanguageIdentifier;
+use unic_langid::langid;
 
 pub use fluent_templates;
 pub use fluent_templates::fluent_bundle::FluentValue;
 pub use fluent_templates::{static_loader as static_locale, Loader, StaticLoader as Locales};
 
+pub use unic_langid::LanguageIdentifier;
+
 use std::collections::HashMap;
+
+static LANGUAGES: LazyStatic<HashMap<String, (LanguageIdentifier, &str)>> = LazyStatic::new(|| {
+    args![
+        "en"    => (langid!("en-US"), "English"),
+        "en-US" => (langid!("en-US"), "English (...)"),
+        "es"    => (langid!("es-ES"), "Spanish"),
+        "es-ES" => (langid!("es-ES"), "Spanish (Spain)")
+    ]
+});
+
+static DEFAULT_LANGID: LazyStatic<LanguageIdentifier> = LazyStatic::new(|| langid!("en-US"));
 
 /// Almacena el Identificador de Idioma Unicode
 /// ([Unicode Language Identifier](https://unicode.org/reports/tr35/tr35.html#Unicode_language_identifier))
 /// para la aplicación, obtenido de `SETTINGS.app.language`.
-pub static LANGID: LazyStatic<LanguageIdentifier> =
-    LazyStatic::new(|| match config::SETTINGS.app.language.parse() {
-        Ok(language) => language,
-        Err(_) => {
-            trace::warn!(
-                "{}, {} \"{}\"! {}, {}",
-                "Failed to parse language",
-                "unrecognized Unicode Language Identifier",
-                config::SETTINGS.app.language,
-                "Using \"en-US\"",
-                "check the settings file",
-            );
-            "en-US".parse().unwrap()
-        }
-    });
+pub static LANGID: LazyStatic<&LanguageIdentifier> =
+    LazyStatic::new(
+        || match LANGUAGES.get(config::SETTINGS.app.language.as_str()) {
+            Some((langid, _)) => langid,
+            _ => {
+                trace::warn!(
+                    "{}, {} \"{}\"! {}, {}",
+                    "Failed to parse language",
+                    "unrecognized Unicode Language Identifier",
+                    config::SETTINGS.app.language,
+                    "Using \"en-US\"",
+                    "check the settings file",
+                );
+                &*DEFAULT_LANGID
+            }
+        },
+    );
 
 #[macro_export]
 /// Define un conjunto de elementos de localización y funciones locales de traducción.
@@ -128,7 +143,7 @@ macro_rules! define_locale {
         use $crate::locale::*;
 
         static_locale! {
-            static $LOCALES = {
+            pub static $LOCALES = {
                 locales: $dir_locales,
                 $( core_locales: $core_locales, )?
                 fallback_language: "en-US",
@@ -151,7 +166,7 @@ pub enum Locale<'a> {
     ),
 }
 
-pub fn t(key: &str, locale: Locale) -> String {
+pub fn _t(key: &str, locale: Locale) -> String {
     match locale {
         Locale::From(locales) => locales.lookup(&LANGID, key).unwrap_or(key.to_string()),
         Locale::With(locales, args) => locales
@@ -164,6 +179,6 @@ pub fn t(key: &str, locale: Locale) -> String {
     }
 }
 
-pub fn e(key: &str, locale: Locale) -> Markup {
-    PreEscaped(t(key, locale))
+pub fn _e(key: &str, locale: Locale) -> Markup {
+    PreEscaped(_t(key, locale))
 }

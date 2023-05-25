@@ -85,58 +85,11 @@ pub mod server;
 // Tipos de respuestas a peticiones web.
 pub mod response;
 
-// Funciones útiles.
+// Funciones útiles y macros declarativas.
 pub mod util;
 
 // Prepara y ejecuta la aplicación.
 pub mod app;
-
-// *************************************************************************************************
-// MACROS DECLARATIVAS.
-// *************************************************************************************************
-
-#[macro_export]
-/// Macro para construir grupos de pares clave-valor.
-///
-/// ```rust#ignore
-/// let args = args![
-///     "userName" => "Roberto",
-///     "photoCount" => 3,
-///     "userGender" => "male"
-/// ];
-/// ```
-macro_rules! args {
-    ( $($key:expr => $value:expr),* ) => {{
-        let mut a = std::collections::HashMap::new();
-        $(
-            a.insert(String::from($key), $value.into());
-        )*
-        a
-    }};
-}
-
-#[macro_export]
-macro_rules! define_handle {
-    ( $HANDLE:ident ) => {
-        pub const $HANDLE: $crate::Handle =
-            $crate::util::handle(module_path!(), file!(), line!(), column!());
-    };
-}
-
-#[macro_export]
-macro_rules! serve_static_files {
-    ( $cfg:ident, $dir:expr, $embed:ident ) => {{
-        let static_files = &$crate::config::SETTINGS.dev.static_files;
-        if static_files.is_empty() {
-            $cfg.service($crate::server::ResourceFiles::new($dir, $embed()));
-        } else {
-            $cfg.service(
-                $crate::server::ActixFiles::new($dir, $crate::concat_string!(static_files, $dir))
-                    .show_files_listing(),
-            );
-        }
-    }};
-}
 
 // *************************************************************************************************
 // RE-EXPORTA API ÚNICA.

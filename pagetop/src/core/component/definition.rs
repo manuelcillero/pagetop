@@ -1,8 +1,11 @@
-use crate::html::{html, Markup, RenderContext};
+use crate::core::component::RenderContext;
+use crate::html::{html, Markup};
 use crate::util::single_type_name;
-use crate::Handle;
+use crate::{define_handle, Handle};
 
 pub use std::any::Any as AnyComponent;
+
+define_handle!(COMPONENT_UNDEFINED);
 
 pub trait BaseComponent {
     fn render(&mut self, rcx: &mut RenderContext) -> Markup;
@@ -13,7 +16,9 @@ pub trait ComponentTrait: AnyComponent + BaseComponent + Send + Sync {
     where
         Self: Sized;
 
-    fn handle(&self) -> Handle;
+    fn handle(&self) -> Handle {
+        COMPONENT_UNDEFINED
+    }
 
     fn name(&self) -> String {
         single_type_name::<Self>().to_owned()

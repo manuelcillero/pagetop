@@ -1,4 +1,4 @@
-use crate::html::RenderContext;
+use crate::core::component::RenderContext;
 
 pub type IsRenderable = fn(&RenderContext) -> bool;
 

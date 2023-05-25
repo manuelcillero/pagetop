@@ -15,11 +15,11 @@ impl ModuleTrait for Node {
     }
 
     fn name(&self) -> String {
-        t("module_name", Locale::From(&LOCALE_NODE))
+        _t("module_name", Locale::From(&LOCALE_NODE))
     }
 
     fn description(&self) -> Option<String> {
-        Some(t("module_description", Locale::From(&LOCALE_NODE)))
+        Some(_t("module_description", Locale::From(&LOCALE_NODE)))
     }
 
     fn configure_service(&self, cfg: &mut server::web::ServiceConfig) {

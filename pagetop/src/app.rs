@@ -4,8 +4,8 @@ mod figfont;
 
 use crate::core::{module, module::ModuleStaticRef};
 use crate::html::Markup;
+use crate::response::fatal_error::FatalError;
 use crate::response::page::ResultPage;
-use crate::response::FatalError;
 use crate::{config, locale, server, trace, LazyStatic};
 
 #[cfg(feature = "database")]

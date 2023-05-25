@@ -15,11 +15,11 @@ impl ModuleTrait for User {
     }
 
     fn name(&self) -> String {
-        t("module_name", Locale::From(&LOCALE_USER))
+        _t("module_name", Locale::From(&LOCALE_USER))
     }
 
     fn description(&self) -> Option<String> {
-        Some(t("module_description", Locale::From(&LOCALE_USER)))
+        Some(_t("module_description", Locale::From(&LOCALE_USER)))
     }
 
     fn dependencies(&self) -> Vec<ModuleStaticRef> {
@@ -58,9 +58,9 @@ fn form_login() -> Form {
         .with_element(
             form_element::Input::textfield()
                 .with_name("name")
-                .with_label(t("username", Locale::From(&LOCALE_USER)).as_str())
+                .with_label(_t("username", Locale::From(&LOCALE_USER)).as_str())
                 .with_help_text(
-                    t(
+                    _t(
                         "username_help",
                         Locale::With(
                             &LOCALE_USER,
@@ -74,10 +74,10 @@ fn form_login() -> Form {
         .with_element(
             form_element::Input::password()
                 .with_name("pass")
-                .with_label(t("password", Locale::From(&LOCALE_USER)).as_str())
-                .with_help_text(t("password_help", Locale::From(&LOCALE_USER)).as_str()),
+                .with_label(_t("password", Locale::From(&LOCALE_USER)).as_str())
+                .with_help_text(_t("password_help", Locale::From(&LOCALE_USER)).as_str()),
         )
         .with_element(form_element::Button::submit(
-            t("login", Locale::From(&LOCALE_USER)).as_str(),
+            _t("login", Locale::From(&LOCALE_USER)).as_str(),
         ))
 }

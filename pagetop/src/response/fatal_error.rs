@@ -1,3 +1,8 @@
+mod error403;
+pub use error403::ERROR_403;
+mod error404;
+pub use error404::ERROR_404;
+
 use crate::response::{page::Page, ResponseError};
 use crate::server::http::{header::ContentType, StatusCode};
 use crate::server::{HttpRequest, HttpResponse};
@@ -24,11 +29,10 @@ impl fmt::Display for FatalError {
             FatalError::BadRequest(_) => write!(f, "Bad Client Data"),
             // Error 403.
             FatalError::AccessDenied(request) => {
-                let mut error_page = Page::new(request.clone());
-                let error_content = error_page.context().theme().error_403_access_denied();
+                let error_page = Page::new(request.clone());
                 if let Ok(page) = error_page
                     .with_title("Error FORBIDDEN")
-                    .with_this_in("region-content", error_content)
+                    .with_this_in("region-content", error403::Error403)
                     .with_template("error")
                     .render()
                 {
@@ -39,11 +43,10 @@ impl fmt::Display for FatalError {
             }
             // Error 404.
             FatalError::NotFound(request) => {
-                let mut error_page = Page::new(request.clone());
-                let error_content = error_page.context().theme().error_404_not_found();
+                let error_page = Page::new(request.clone());
                 if let Ok(page) = error_page
                     .with_title("Error RESOURCE NOT FOUND")
-                    .with_this_in("region-content", error_content)
+                    .with_this_in("region-content", error404::Error404)
                     .with_template("error")
                     .render()
                 {

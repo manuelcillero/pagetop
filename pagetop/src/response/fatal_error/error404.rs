@@ -2,30 +2,24 @@ use crate::core::component::{AnyComponent, ComponentTrait, RenderContext};
 use crate::html::{html, Markup};
 use crate::{define_handle, Handle};
 
-define_handle!(HTML_MARKUP);
+define_handle!(ERROR_404);
 
-pub struct HtmlMarkup {
-    pub markup: Markup,
-}
+pub struct Error404;
 
-impl Default for HtmlMarkup {
-    fn default() -> Self {
-        HtmlMarkup { markup: html! {} }
-    }
-}
-
-impl ComponentTrait for HtmlMarkup {
+impl ComponentTrait for Error404 {
     fn new() -> Self {
-        HtmlMarkup::default()
+        Self
     }
 
     fn handle(&self) -> Handle {
-        HTML_MARKUP
+        ERROR_404
     }
 
     fn default_render(&self, _rcx: &mut RenderContext) -> Markup {
         html! {
-            (self.markup)
+            div {
+                h1 { ("RESOURCE NOT FOUND") }
+            }
         }
     }
 
@@ -34,13 +28,6 @@ impl ComponentTrait for HtmlMarkup {
     }
 
     fn as_mut_any(&mut self) -> &mut dyn AnyComponent {
-        self
-    }
-}
-
-impl HtmlMarkup {
-    pub fn with(mut self, html: Markup) -> Self {
-        self.markup = html;
         self
     }
 }

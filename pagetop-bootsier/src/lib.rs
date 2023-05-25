@@ -42,30 +42,37 @@ impl ThemeTrait for Bootsier {
         pagetop_jquery::JQuery::add_jquery(page.context());
     }
 
-    fn error_404_not_found(&self) -> HtmlMarkup {
-        HtmlMarkup::new().with(html! {
-            div class="jumbotron" {
-                div class="media" {
-                    img
-                        src="/bootsier/images/caution.png"
-                        class="mr-4"
-                        style="width: 20%; max-width: 188px"
-                        alt="Caution!";
-                    div class="media-body" {
-                        h1 class="display-4" { ("RESOURCE NOT FOUND") }
-                        p class="lead" { (t("e404-description", Locale::From(&LOCALE_BOOTSIER))) }
-                        hr class="my-4";
-                        p { (t("e404-description", Locale::From(&LOCALE_BOOTSIER))) }
-                        a
-                            class="btn btn-primary btn-lg"
-                            href="/"
-                            role="button"
-                        {
-                            (t("back-homepage", Locale::From(&LOCALE_BOOTSIER)))
+    fn render_component(
+        &self,
+        component: &dyn ComponentTrait,
+        _rcx: &mut RenderContext,
+    ) -> Option<Markup> {
+        match component.handle() {
+            ERROR_404 => Some(html! {
+                div class="jumbotron" {
+                    div class="media" {
+                        img
+                            src="/bootsier/images/caution.png"
+                            class="mr-4"
+                            style="width: 20%; max-width: 188px"
+                            alt="Caution!";
+                        div class="media-body" {
+                            h1 class="display-4" { ("RESOURCE NOT FOUND") }
+                            p class="lead" { (_t("e404-description", Locale::From(&LOCALE_BOOTSIER))) }
+                            hr class="my-4";
+                            p { (_t("e404-description", Locale::From(&LOCALE_BOOTSIER))) }
+                            a
+                                class="btn btn-primary btn-lg"
+                                href="/"
+                                role="button"
+                            {
+                                (_t("back-homepage", Locale::From(&LOCALE_BOOTSIER)))
+                            }
                         }
                     }
                 }
-            }
-        })
+            }),
+            _ => None,
+        }
     }
 }

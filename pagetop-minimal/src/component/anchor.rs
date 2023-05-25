@@ -22,7 +22,7 @@ pub enum AnchorTarget {
     Context(String),
 }
 
-pub type AnchorIcon = ComponentsBundle;
+pub type AnchorIcon = ComponentArc;
 
 #[rustfmt::skip]
 #[derive(Default)]
@@ -74,7 +74,7 @@ impl ComponentTrait for Anchor {
                 target=[target]
             {
                 (self.left_icon().render(rcx))
-                span { (*self.html()) }
+                (" ") span { (*self.html()) } (" ")
                 (self.right_icon().render(rcx))
             }
         }
@@ -158,15 +158,13 @@ impl Anchor {
 
     #[fn_builder]
     pub fn alter_left_icon(&mut self, icon: Icon) -> &mut Self {
-        self.left_icon.clear();
-        self.left_icon.add(icon);
+        self.left_icon.replace(icon);
         self
     }
 
     #[fn_builder]
     pub fn alter_right_icon(&mut self, icon: Icon) -> &mut Self {
-        self.right_icon.clear();
-        self.right_icon.add(icon);
+        self.right_icon.replace(icon);
         self
     }
 
