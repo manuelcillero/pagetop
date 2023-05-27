@@ -136,49 +136,30 @@ pub static LANGID: LazyStatic<&LanguageIdentifier> =
         },
     );
 
-#[macro_export]
-/// Define un conjunto de elementos de localización y funciones locales de traducción.
-macro_rules! define_locale {
-    ( $LOCALES:ident, $dir_locales:literal $(, $core_locales:literal)? ) => {
-        use $crate::locale::*;
-
-        static_locale! {
-            pub static $LOCALES = {
-                locales: $dir_locales,
-                $( core_locales: $core_locales, )?
-                fallback_language: "en-US",
-
-                // Elimina las marcas Unicode que delimitan los argumentos.
-                customise: |bundle| bundle.set_use_isolating(false),
-            };
-        }
-    };
-}
-
 pub enum Locale<'a> {
     From(&'a Locales),
     With(&'a Locales, &'a HashMap<String, FluentValue<'a>>),
-    Lang(&'a Locales, &'a LanguageIdentifier),
     Using(
-        &'a Locales,
         &'a LanguageIdentifier,
+        &'a Locales,
         &'a HashMap<String, FluentValue<'a>>,
     ),
 }
 
-pub fn _t(key: &str, locale: Locale) -> String {
-    match locale {
-        Locale::From(locales) => locales.lookup(&LANGID, key).unwrap_or(key.to_string()),
-        Locale::With(locales, args) => locales
-            .lookup_with_args(&LANGID, key, args)
-            .unwrap_or(key.to_string()),
-        Locale::Lang(locales, langid) => locales.lookup(langid, key).unwrap_or(key.to_string()),
-        Locale::Using(locales, langid, args) => locales
-            .lookup_with_args(langid, key, args)
-            .unwrap_or(key.to_string()),
-    }
+pub fn t(key: &str, locale: Locale) -> String {
+    translate(key, locale)
 }
 
-pub fn _e(key: &str, locale: Locale) -> Markup {
-    PreEscaped(_t(key, locale))
+pub fn e(key: &str, locale: Locale) -> Markup {
+    PreEscaped(translate(key, locale))
+}
+
+#[inline]
+pub(crate) fn translate(key: &str, locale: Locale) -> String {
+    match locale {
+        Locale::From(locales) => locales.lookup(&LANGID, key),
+        Locale::With(locales, args) => locales.lookup_with_args(&LANGID, key, args),
+        Locale::Using(langid, locales, args) => locales.lookup_with_args(langid, key, args),
+    }
+    .unwrap_or(key.to_string())
 }

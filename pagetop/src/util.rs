@@ -88,6 +88,25 @@ macro_rules! define_handle {
 }
 
 #[macro_export]
+/// Define un conjunto de elementos de localización y funciones locales de traducción.
+macro_rules! define_locale {
+    ( $LOCALES:ident, $dir_locales:literal $(, $core_locales:literal)? ) => {
+        use $crate::locale::*;
+
+        static_locale! {
+            pub static $LOCALES = {
+                locales: $dir_locales,
+                $( core_locales: $core_locales, )?
+                fallback_language: "en-US",
+
+                // Elimina las marcas Unicode que delimitan los argumentos.
+                customise: |bundle| bundle.set_use_isolating(false),
+            };
+        }
+    };
+}
+
+#[macro_export]
 macro_rules! serve_static_files {
     ( $cfg:ident, $dir:expr, $embed:ident ) => {{
         let static_files = &$crate::config::SETTINGS.dev.static_files;

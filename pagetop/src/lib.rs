@@ -46,18 +46,14 @@ pub use paste::paste;
 pub use static_files::Resource as StaticResource;
 pub use tracing_unwrap::ResultExt;
 
+#[allow(unused_imports)]
+pub(crate) use futures::executor::block_on as run_now;
+
 pub use pagetop_macros::fn_builder;
 
 pub type HashMapResources = std::collections::HashMap<&'static str, StaticResource>;
 
 pub type Handle = u64;
-
-// *************************************************************************************************
-// LOCAL.
-// *************************************************************************************************
-
-#[allow(unused_imports)]
-pub(crate) use futures::executor::block_on as run_now;
 
 // *************************************************************************************************
 // APIs PÚBLICAS.
