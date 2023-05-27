@@ -6,11 +6,11 @@ define_handle!(COMPONENT_MEGAMENUITEM);
 pub enum MegaMenuItemType {
     #[default]
     Void,
-    Label(String),
-    Link(String, String),
-    LinkBlank(String, String),
+    Label(ComponentArc),
+    Link(ComponentArc, String),
+    LinkBlank(ComponentArc, String),
     Html(Markup),
-    Submenu(String, MegaMenu),
+    Submenu(ComponentArc, MegaMenu),
     Separator,
 }
 
@@ -46,14 +46,14 @@ impl ComponentTrait for MegaMenuItem {
             MegaMenuItemType::Void => html! {},
 
             MegaMenuItemType::Label(label) => html! {
-                li class="label" { a href="#" { (label) } }
+                li class="label" { a href="#" { (label.render(rcx)) } }
             },
             MegaMenuItemType::Link(label, path) => html! {
-                li class="link" { a href=(path) { (label) } }
+                li class="link" { a href=(path) { (label.render(rcx)) } }
             },
             MegaMenuItemType::LinkBlank(label, path) => html! {
                 li class="link_blank" {
-                    a href=(path) target="_blank" { (label) }
+                    a href=(path) target="_blank" { (label.render(rcx)) }
                 }
             },
             MegaMenuItemType::Html(html) => html! {
@@ -61,7 +61,7 @@ impl ComponentTrait for MegaMenuItem {
             },
             MegaMenuItemType::Submenu(label, menu) => html! {
                 li class="submenu" {
-                    a href="#" { (label) }
+                    a href="#" { (label.render(rcx)) }
                     ul {
                         (menu.items().render(rcx))
                     }
@@ -83,23 +83,23 @@ impl ComponentTrait for MegaMenuItem {
 }
 
 impl MegaMenuItem {
-    pub fn label(label: &str) -> Self {
+    pub fn label(label: L10n) -> Self {
         MegaMenuItem {
-            item_type: MegaMenuItemType::Label(label.to_owned()),
+            item_type: MegaMenuItemType::Label(ComponentArc::new_with(label)),
             ..Default::default()
         }
     }
 
-    pub fn link(label: &str, path: &str) -> Self {
+    pub fn link(label: L10n, path: &str) -> Self {
         MegaMenuItem {
-            item_type: MegaMenuItemType::Link(label.to_owned(), path.to_owned()),
+            item_type: MegaMenuItemType::Link(ComponentArc::new_with(label), path.to_owned()),
             ..Default::default()
         }
     }
 
-    pub fn link_blank(label: &str, path: &str) -> Self {
+    pub fn link_blank(label: L10n, path: &str) -> Self {
         MegaMenuItem {
-            item_type: MegaMenuItemType::LinkBlank(label.to_owned(), path.to_owned()),
+            item_type: MegaMenuItemType::LinkBlank(ComponentArc::new_with(label), path.to_owned()),
             ..Default::default()
         }
     }
@@ -111,9 +111,9 @@ impl MegaMenuItem {
         }
     }
 
-    pub fn submenu(label: &str, menu: MegaMenu) -> Self {
+    pub fn submenu(label: L10n, menu: MegaMenu) -> Self {
         MegaMenuItem {
-            item_type: MegaMenuItemType::Submenu(label.to_owned(), menu),
+            item_type: MegaMenuItemType::Submenu(ComponentArc::new_with(label), menu),
             ..Default::default()
         }
     }

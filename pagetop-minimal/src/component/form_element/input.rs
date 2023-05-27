@@ -13,6 +13,9 @@ pub enum InputType {
     Url,
 }
 
+pub type InputLabel = ComponentArc;
+pub type InputHelpText = ComponentArc;
+
 #[rustfmt::skip]
 #[derive(Default)]
 pub struct Input {
@@ -22,7 +25,7 @@ pub struct Input {
     input_type  : InputType,
     name        : NameValue,
     value       : AttributeValue,
-    label       : AttributeValue,
+    label       : InputLabel,
     size        : Option<u16>,
     minlength   : Option<u16>,
     maxlength   : Option<u16>,
@@ -32,7 +35,7 @@ pub struct Input {
     disabled    : AttributeValue,
     readonly    : AttributeValue,
     required    : AttributeValue,
-    help_text   : AttributeValue,
+    help_text   : InputHelpText,
     template    : String,
 }
 
@@ -58,7 +61,7 @@ impl ComponentTrait for Input {
     }
 
     #[rustfmt::skip]
-    fn default_render(&self, _: &mut RenderContext) -> Markup {
+    fn default_render(&self, rcx: &mut RenderContext) -> Markup {
         let type_input = match self.input_type() {
             InputType::Textfield => "text",
             InputType::Password  => "password",
@@ -70,7 +73,7 @@ impl ComponentTrait for Input {
         let id = self.name().get().map(|name| concat_string!("edit-", name));
         html! {
             div class=[self.classes().get()] {
-                @if let Some(label) = self.label().get() {
+                @if let Some(label) = self.label().optional_render(rcx) {
                     label class="form-label" for=[&id] {
                         (label) " "
                         @if self.required().get().is_some() {
@@ -95,8 +98,8 @@ impl ComponentTrait for Input {
                     readonly=[self.readonly().get()]
                     required=[self.required().get()]
                     disabled=[self.disabled().get()];
-                @if let Some(help_text) = self.help_text().get() {
-                    div class="form-text" { (help_text) }
+                @if let Some(description) = self.help_text().optional_render(rcx) {
+                    div class="form-text" { (description) }
                 }
             }
         }
@@ -203,8 +206,8 @@ impl Input {
     }
 
     #[fn_builder]
-    pub fn alter_label(&mut self, label: &str) -> &mut Self {
-        self.label.alter_value(label);
+    pub fn alter_label(&mut self, label: L10n) -> &mut Self {
+        self.label.set(label);
         self
     }
 
@@ -278,8 +281,8 @@ impl Input {
     }
 
     #[fn_builder]
-    pub fn alter_help_text(&mut self, help_text: &str) -> &mut Self {
-        self.help_text.alter_value(help_text);
+    pub fn alter_help_text(&mut self, help_text: L10n) -> &mut Self {
+        self.help_text.set(help_text);
         self
     }
 
@@ -307,7 +310,7 @@ impl Input {
         &self.value
     }
 
-    pub fn label(&self) -> &AttributeValue {
+    pub fn label(&self) -> &InputLabel {
         &self.label
     }
 
@@ -347,7 +350,7 @@ impl Input {
         &self.required
     }
 
-    pub fn help_text(&self) -> &AttributeValue {
+    pub fn help_text(&self) -> &InputHelpText {
         &self.help_text
     }
 

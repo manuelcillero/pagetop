@@ -16,7 +16,7 @@ impl ComponentsBundle {
     }
 
     pub fn add(&mut self, component: impl ComponentTrait) {
-        self.0.push(ComponentArc::new(component));
+        self.0.push(ComponentArc::new_with(component));
     }
 
     pub fn clear(&mut self) {

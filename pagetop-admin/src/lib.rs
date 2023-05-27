@@ -14,11 +14,11 @@ impl ModuleTrait for Admin {
     }
 
     fn name(&self) -> String {
-        _t("module_name", Locale::From(&LOCALE_ADMIN))
+        t("module_name", Locale::From(&LOCALE_ADMIN))
     }
 
     fn description(&self) -> Option<String> {
-        Some(_t("module_description", Locale::From(&LOCALE_ADMIN)))
+        Some(t("module_description", Locale::From(&LOCALE_ADMIN)))
     }
 
     #[rustfmt::skip]

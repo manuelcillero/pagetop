@@ -32,12 +32,15 @@ pub enum TextDirection {
     RightToLeft,
 }
 
+pub type PageTitle = ComponentArc;
+pub type PageDescription = ComponentArc;
+
 #[rustfmt::skip]
 pub struct Page {
     language    : AttributeValue,
     direction   : AttributeValue,
-    title       : AttributeValue,
-    description : AttributeValue,
+    title       : PageTitle,
+    description : PageDescription,
     metadata    : Vec<(&'static str, &'static str)>,
     properties  : Vec<(&'static str, &'static str)>,
     favicon     : Option<Favicon>,
@@ -56,8 +59,8 @@ impl Default for Page {
                 Some(direction) => AttributeValue::new().with_value(direction),
                 _ => AttributeValue::new(),
             },
-            title       : AttributeValue::new(),
-            description : AttributeValue::new(),
+            title       : PageTitle::new(),
+            description : PageDescription::new(),
             metadata    : Vec::new(),
             properties  : Vec::new(),
             favicon     : None,
@@ -95,14 +98,14 @@ impl Page {
     }
 
     #[fn_builder]
-    pub fn alter_title(&mut self, title: &str) -> &mut Self {
-        self.title.alter_value(title);
+    pub fn alter_title(&mut self, title: L10n) -> &mut Self {
+        self.title.set(title);
         self
     }
 
     #[fn_builder]
-    pub fn alter_description(&mut self, description: &str) -> &mut Self {
-        self.description.alter_value(description);
+    pub fn alter_description(&mut self, description: L10n) -> &mut Self {
+        self.description.set(description);
         self
     }
 
@@ -167,12 +170,12 @@ impl Page {
         &self.direction
     }
 
-    pub fn title(&self) -> &AttributeValue {
-        &self.title
+    pub fn title(&mut self) -> String {
+        self.title.render(&mut self.context).into_string()
     }
 
-    pub fn description(&self) -> &AttributeValue {
-        &self.description
+    pub fn description(&mut self) -> String {
+        self.description.render(&mut self.context).into_string()
     }
 
     pub fn metadata(&self) -> &Vec<(&str, &str)> {

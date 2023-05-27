@@ -23,6 +23,7 @@ pub enum AnchorTarget {
 }
 
 pub type AnchorIcon = ComponentArc;
+pub type AnchorHtml = ComponentArc;
 
 #[rustfmt::skip]
 #[derive(Default)]
@@ -33,7 +34,7 @@ pub struct Anchor {
     classes    : Classes,
     anchor_type: AnchorType,
     href       : AttributeValue,
-    html       : HtmlMarkup,
+    html10n    : AnchorHtml,
     left_icon  : AnchorIcon,
     right_icon : AnchorIcon,
     target     : AnchorTarget,
@@ -74,7 +75,7 @@ impl ComponentTrait for Anchor {
                 target=[target]
             {
                 (self.left_icon().render(rcx))
-                (" ") span { (*self.html()) } (" ")
+                (" ") span { (self.html().render(rcx)) } (" ")
                 (self.right_icon().render(rcx))
             }
         }
@@ -90,15 +91,15 @@ impl ComponentTrait for Anchor {
 }
 
 impl Anchor {
-    pub fn link(href: &str, html: Markup) -> Self {
-        Anchor::new().with_href(href).with_html(html)
+    pub fn link(href: &str, html10n: L10n) -> Self {
+        Anchor::new().with_href(href).with_html(html10n)
     }
 
-    pub fn button(href: &str, html: Markup) -> Self {
+    pub fn button(href: &str, html10n: L10n) -> Self {
         Anchor::new()
             .with_type(AnchorType::Button)
             .with_href(href)
-            .with_html(html)
+            .with_html(html10n)
     }
 
     pub fn location(id: &str) -> Self {
@@ -151,20 +152,20 @@ impl Anchor {
     }
 
     #[fn_builder]
-    pub fn alter_html(&mut self, html: Markup) -> &mut Self {
-        self.html.markup = html;
+    pub fn alter_html(&mut self, html10n: L10n) -> &mut Self {
+        self.html10n.set(html10n);
         self
     }
 
     #[fn_builder]
     pub fn alter_left_icon(&mut self, icon: Icon) -> &mut Self {
-        self.left_icon.replace(icon);
+        self.left_icon.set(icon);
         self
     }
 
     #[fn_builder]
     pub fn alter_right_icon(&mut self, icon: Icon) -> &mut Self {
-        self.right_icon.replace(icon);
+        self.right_icon.set(icon);
         self
     }
 
@@ -198,8 +199,8 @@ impl Anchor {
         &self.href
     }
 
-    pub fn html(&self) -> &Markup {
-        &self.html.markup
+    pub fn html(&self) -> &AnchorHtml {
+        &self.html10n
     }
 
     pub fn left_icon(&self) -> &AnchorIcon {

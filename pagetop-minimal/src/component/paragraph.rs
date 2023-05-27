@@ -1,7 +1,5 @@
 use pagetop::prelude::*;
 
-use crate::component::Html;
-
 define_handle!(COMPONENT_PARAGRAPH);
 
 #[derive(Default)]
@@ -65,8 +63,8 @@ impl ComponentTrait for Paragraph {
 }
 
 impl Paragraph {
-    pub fn with(html: Markup) -> Self {
-        Paragraph::new().with_component(Html::with(html))
+    pub fn with(component: impl ComponentTrait) -> Self {
+        Paragraph::new().with_component(component)
     }
 
     // Paragraph BUILDER.

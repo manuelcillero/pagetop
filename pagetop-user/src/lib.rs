@@ -15,11 +15,11 @@ impl ModuleTrait for User {
     }
 
     fn name(&self) -> String {
-        _t("module_name", Locale::From(&LOCALE_USER))
+        t("module_name", Locale::From(&LOCALE_USER))
     }
 
     fn description(&self) -> Option<String> {
-        Some(_t("module_description", Locale::From(&LOCALE_USER)))
+        Some(t("module_description", Locale::From(&LOCALE_USER)))
     }
 
     fn dependencies(&self) -> Vec<ModuleStaticRef> {
@@ -42,7 +42,7 @@ impl ModuleTrait for User {
 
 async fn login(request: server::HttpRequest) -> ResultPage<Markup, FatalError> {
     Page::new(request)
-        .with_title("Identificación del usuario")
+        .with_title(L10n::n("Identificación del usuario"))
         .with_this_in(
             "region-content",
             Container::new()
@@ -58,26 +58,18 @@ fn form_login() -> Form {
         .with_element(
             form_element::Input::textfield()
                 .with_name("name")
-                .with_label(_t("username", Locale::From(&LOCALE_USER)).as_str())
+                .with_label(L10n::t("username", &LOCALE_USER))
                 .with_help_text(
-                    _t(
-                        "username_help",
-                        Locale::With(
-                            &LOCALE_USER,
-                            &args!["app" => config::SETTINGS.app.name.to_owned()],
-                        ),
-                    )
-                    .as_str(),
+                    L10n::t("username_help", &LOCALE_USER)
+                        .with_arg("app", config::SETTINGS.app.name.to_owned()),
                 )
                 .with_autofocus(true),
         )
         .with_element(
             form_element::Input::password()
                 .with_name("pass")
-                .with_label(_t("password", Locale::From(&LOCALE_USER)).as_str())
-                .with_help_text(_t("password_help", Locale::From(&LOCALE_USER)).as_str()),
+                .with_label(L10n::t("password", &LOCALE_USER))
+                .with_help_text(L10n::t("password_help", &LOCALE_USER)),
         )
-        .with_element(form_element::Button::submit(
-            _t("login", Locale::From(&LOCALE_USER)).as_str(),
-        ))
+        .with_element(form_element::Button::submit(L10n::t("login", &LOCALE_USER)))
 }

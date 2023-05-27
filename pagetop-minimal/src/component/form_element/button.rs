@@ -10,6 +10,8 @@ pub enum ButtonType {
     Reset,
 }
 
+pub type ButtonValue = ComponentArc;
+
 #[rustfmt::skip]
 #[derive(Default)]
 pub struct Button {
@@ -18,7 +20,7 @@ pub struct Button {
     classes    : Classes,
     button_type: ButtonType,
     name       : AttributeValue,
-    value      : AttributeValue,
+    value      : ButtonValue,
     autofocus  : AttributeValue,
     disabled   : AttributeValue,
     template   : String,
@@ -43,7 +45,7 @@ impl ComponentTrait for Button {
         (self.renderable.check)(rcx)
     }
 
-    fn default_render(&self, _: &mut RenderContext) -> Markup {
+    fn default_render(&self, rcx: &mut RenderContext) -> Markup {
         let button_type = match self.button_type() {
             ButtonType::Button => "button",
             ButtonType::Submit => "submit",
@@ -56,11 +58,11 @@ impl ComponentTrait for Button {
                 id=[id]
                 class=[self.classes().get()]
                 name=[self.name().get()]
-                value=[self.value().get()]
+                value=(self.value().render(rcx))
                 autofocus=[self.autofocus().get()]
                 disabled=[self.disabled().get()]
             {
-                @if let Some(value) = self.value().get() { (value) }
+                (self.value().render(rcx))
             }
         }
     }
@@ -75,11 +77,11 @@ impl ComponentTrait for Button {
 }
 
 impl Button {
-    pub fn with(value: &str) -> Self {
+    pub fn with(value: L10n) -> Self {
         Button::new().with_value(value)
     }
 
-    pub fn submit(value: &str) -> Self {
+    pub fn submit(value: L10n) -> Self {
         let mut button = Button::new()
             .with_classes(ClassesOp::Replace("form-button"), "form-submit")
             .with_value(value);
@@ -87,7 +89,7 @@ impl Button {
         button
     }
 
-    pub fn reset(value: &str) -> Self {
+    pub fn reset(value: L10n) -> Self {
         let mut button = Button::new()
             .with_classes(ClassesOp::Replace("form-button"), "form-reset")
             .with_value(value);
@@ -122,8 +124,8 @@ impl Button {
     }
 
     #[fn_builder]
-    pub fn alter_value(&mut self, value: &str) -> &mut Self {
-        self.value.alter_value(value);
+    pub fn alter_value(&mut self, value: L10n) -> &mut Self {
+        self.value.set(value);
         self
     }
 
@@ -165,7 +167,7 @@ impl Button {
         &self.name
     }
 
-    pub fn value(&self) -> &AttributeValue {
+    pub fn value(&self) -> &ButtonValue {
         &self.value
     }
 

@@ -1,9 +1,9 @@
 use super::ModuleTrait;
 
+use crate::config;
 use crate::core::component::{ComponentTrait, RenderContext};
 use crate::html::{html, Favicon, Markup};
 use crate::response::page::Page;
-use crate::{concat_string, config};
 
 pub type ThemeStaticRef = &'static dyn ThemeTrait;
 
@@ -17,20 +17,21 @@ pub trait ThemeTrait: ModuleTrait + Send + Sync {
     }
 
     fn render_page_head(&self, page: &mut Page) -> Markup {
+        let title = page.title();
+        let description = page.description();
         let viewport = "width=device-width, initial-scale=1, shrink-to-fit=no";
         html! {
             head {
                 meta charset="utf-8";
 
-                @match page.title().get() {
-                    Some(t) => title {
-                        (concat_string!(config::SETTINGS.app.name, " | ", t))
-                    },
-                    None => title { (config::SETTINGS.app.name) }
+                @if !title.is_empty() {
+                    title { (config::SETTINGS.app.name) (" | ") (title) }
+                } @else {
+                    title { (config::SETTINGS.app.name) }
                 }
 
-                @if let Some(d) = page.description().get() {
-                    meta name="description" content=(d);
+                @if !description.is_empty() {
+                    meta name="description" content=(description);
                 }
 
                 meta name="viewport" content=(viewport);

@@ -15,11 +15,11 @@ impl ModuleTrait for Node {
     }
 
     fn name(&self) -> String {
-        _t("module_name", Locale::From(&LOCALE_NODE))
+        t("module_name", Locale::From(&LOCALE_NODE))
     }
 
     fn description(&self) -> Option<String> {
-        Some(_t("module_description", Locale::From(&LOCALE_NODE)))
+        Some(t("module_description", Locale::From(&LOCALE_NODE)))
     }
 
     fn configure_service(&self, cfg: &mut server::web::ServiceConfig) {
@@ -41,7 +41,7 @@ impl ModuleTrait for Node {
 }
 
 async fn node(request: server::HttpRequest) -> ResultPage<Markup, FatalError> {
-    Page::new(request).with_title("Nodo").render()
+    Page::new(request).with_title(L10n::n("Nodo")).render()
 }
 
 fn before_render_page(page: &mut Page) {

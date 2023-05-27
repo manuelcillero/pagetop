@@ -3,6 +3,7 @@ pub use error403::ERROR_403;
 mod error404;
 pub use error404::ERROR_404;
 
+use crate::core::component::L10n;
 use crate::response::{page::Page, ResponseError};
 use crate::server::http::{header::ContentType, StatusCode};
 use crate::server::{HttpRequest, HttpResponse};
@@ -31,7 +32,7 @@ impl fmt::Display for FatalError {
             FatalError::AccessDenied(request) => {
                 let error_page = Page::new(request.clone());
                 if let Ok(page) = error_page
-                    .with_title("Error FORBIDDEN")
+                    .with_title(L10n::n("Error FORBIDDEN"))
                     .with_this_in("region-content", error403::Error403)
                     .with_template("error")
                     .render()
@@ -45,7 +46,7 @@ impl fmt::Display for FatalError {
             FatalError::NotFound(request) => {
                 let error_page = Page::new(request.clone());
                 if let Ok(page) = error_page
-                    .with_title("Error RESOURCE NOT FOUND")
+                    .with_title(L10n::n("Error RESOURCE NOT FOUND"))
                     .with_this_in("region-content", error404::Error404)
                     .with_template("error")
                     .render()
