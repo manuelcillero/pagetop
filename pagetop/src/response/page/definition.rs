@@ -32,8 +32,8 @@ pub enum TextDirection {
     RightToLeft,
 }
 
-pub type PageTitle = ComponentArc;
-pub type PageDescription = ComponentArc;
+type PageTitle = OneComponent<L10n>;
+type PageDescription = OneComponent<L10n>;
 
 #[rustfmt::skip]
 pub struct Page {

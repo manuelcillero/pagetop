@@ -10,7 +10,7 @@ pub enum ButtonType {
     Reset,
 }
 
-pub type ButtonValue = ComponentArc;
+type ButtonValue = OneComponent<L10n>;
 
 #[rustfmt::skip]
 #[derive(Default)]

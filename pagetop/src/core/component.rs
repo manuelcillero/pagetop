@@ -4,11 +4,8 @@ pub use context::{ContextOp, RenderContext};
 mod definition;
 pub use definition::{component_mut, component_ref, AnyComponent, BaseComponent, ComponentTrait};
 
-mod default;
-pub(crate) use default::DefaultComponent;
-
-mod arc;
-pub use arc::ComponentArc;
+mod one;
+pub use one::OneComponent;
 
 mod bundle;
 pub use bundle::ComponentsBundle;

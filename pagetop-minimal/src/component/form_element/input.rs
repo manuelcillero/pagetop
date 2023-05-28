@@ -13,8 +13,8 @@ pub enum InputType {
     Url,
 }
 
-pub type InputLabel = ComponentArc;
-pub type InputHelpText = ComponentArc;
+type InputLabel = OneComponent<L10n>;
+type InputHelpText = OneComponent<L10n>;
 
 #[rustfmt::skip]
 #[derive(Default)]

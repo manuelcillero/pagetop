@@ -2,15 +2,17 @@ use pagetop::prelude::*;
 
 define_handle!(COMPONENT_MEGAMENUITEM);
 
+type Label = OneComponent<L10n>;
+
 #[derive(Default)]
 pub enum MegaMenuItemType {
     #[default]
     Void,
-    Label(ComponentArc),
-    Link(ComponentArc, String),
-    LinkBlank(ComponentArc, String),
+    Label(Label),
+    Link(Label, String),
+    LinkBlank(Label, String),
     Html(Markup),
-    Submenu(ComponentArc, MegaMenu),
+    Submenu(Label, MegaMenu),
     Separator,
 }
 
@@ -85,21 +87,21 @@ impl ComponentTrait for MegaMenuItem {
 impl MegaMenuItem {
     pub fn label(label: L10n) -> Self {
         MegaMenuItem {
-            item_type: MegaMenuItemType::Label(ComponentArc::new_with(label)),
+            item_type: MegaMenuItemType::Label(OneComponent::new_with(label)),
             ..Default::default()
         }
     }
 
     pub fn link(label: L10n, path: &str) -> Self {
         MegaMenuItem {
-            item_type: MegaMenuItemType::Link(ComponentArc::new_with(label), path.to_owned()),
+            item_type: MegaMenuItemType::Link(OneComponent::new_with(label), path.to_owned()),
             ..Default::default()
         }
     }
 
     pub fn link_blank(label: L10n, path: &str) -> Self {
         MegaMenuItem {
-            item_type: MegaMenuItemType::LinkBlank(ComponentArc::new_with(label), path.to_owned()),
+            item_type: MegaMenuItemType::LinkBlank(OneComponent::new_with(label), path.to_owned()),
             ..Default::default()
         }
     }
@@ -113,7 +115,7 @@ impl MegaMenuItem {
 
     pub fn submenu(label: L10n, menu: MegaMenu) -> Self {
         MegaMenuItem {
-            item_type: MegaMenuItemType::Submenu(ComponentArc::new_with(label), menu),
+            item_type: MegaMenuItemType::Submenu(OneComponent::new_with(label), menu),
             ..Default::default()
         }
     }
