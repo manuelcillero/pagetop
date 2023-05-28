@@ -58,15 +58,19 @@ impl ThemeTrait for Bootsier {
                             alt="Caution!";
                         div class="media-body" {
                             h1 class="display-4" { ("RESOURCE NOT FOUND") }
-                            p class="lead" { (t("e404-description", Locale::From(&LOCALE_BOOTSIER))) }
+                            p class="lead" {
+                                (_t("e404-description", Locale::From(&LOCALE_BOOTSIER)))
+                            }
                             hr class="my-4";
-                            p { (t("e404-description", Locale::From(&LOCALE_BOOTSIER))) }
+                            p {
+                                (_t("e404-description", Locale::From(&LOCALE_BOOTSIER)))
+                            }
                             a
                                 class="btn btn-primary btn-lg"
                                 href="/"
                                 role="button"
                             {
-                                (t("back-homepage", Locale::From(&LOCALE_BOOTSIER)))
+                                (_t("back-homepage", Locale::From(&LOCALE_BOOTSIER)))
                             }
                         }
                     }

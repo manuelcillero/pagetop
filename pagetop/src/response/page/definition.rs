@@ -3,9 +3,11 @@ use super::{BeforeRenderPageHook, ResultPage, HOOK_BEFORE_RENDER_PAGE};
 use crate::core::component::*;
 use crate::core::hook::{action_ref, run_actions};
 use crate::html::{html, Classes, ClassesOp, Favicon, Markup, DOCTYPE};
-use crate::locale::{langid_for, CharacterDirection, LanguageIdentifier};
+use crate::locale::{langid_for, LanguageIdentifier};
 use crate::response::fatal_error::FatalError;
 use crate::{fn_builder, server};
+
+use unic_langid::CharacterDirection;
 
 use std::collections::HashMap;
 
@@ -123,7 +125,7 @@ impl Page {
     // Page GETTERS.
 
     pub fn langid(&self) -> &LanguageIdentifier {
-        &self.context.langid()
+        self.context.langid()
     }
 
     pub fn title(&mut self) -> String {

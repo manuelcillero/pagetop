@@ -15,11 +15,11 @@ impl ModuleTrait for User {
     }
 
     fn name(&self) -> String {
-        t("module_name", Locale::From(&LOCALE_USER))
+        _t("module_name", Locale::From(&LOCALE_USER))
     }
 
     fn description(&self) -> Option<String> {
-        Some(t("module_description", Locale::From(&LOCALE_USER)))
+        Some(_t("module_description", Locale::From(&LOCALE_USER)))
     }
 
     fn dependencies(&self) -> Vec<ModuleStaticRef> {

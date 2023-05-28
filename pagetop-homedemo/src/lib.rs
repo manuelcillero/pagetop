@@ -15,11 +15,11 @@ impl ModuleTrait for HomeDemo {
     }
 
     fn name(&self) -> String {
-        t("module_name", Locale::From(&LOCALE_DEMOHOME))
+        _t("module_name", Locale::From(&LOCALE_DEMOHOME))
     }
 
     fn description(&self) -> Option<String> {
-        Some(t("module_description", Locale::From(&LOCALE_DEMOHOME)))
+        Some(_t("module_description", Locale::From(&LOCALE_DEMOHOME)))
     }
 
     fn dependencies(&self) -> Vec<ModuleStaticRef> {
@@ -146,7 +146,7 @@ fn about_pagetop() -> Container {
                             format!(
                                 "<a href=\"{}\" target=\"_blank\">{}</a>",
                                 "https://docs.rs/pagetop/latest/pagetop",
-                                t("pagetop_website", Locale::From(&LOCALE_DEMOHOME)),
+                                _t("pagetop_website", Locale::From(&LOCALE_DEMOHOME)),
                             ),
                         ),
                     )),

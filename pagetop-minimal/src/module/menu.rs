@@ -12,10 +12,10 @@ impl ModuleTrait for Menu {
     }
 
     fn name(&self) -> String {
-        t("module_name", Locale::From(&LOCALE_MENU))
+        _t("module_name", Locale::From(&LOCALE_MENU))
     }
 
     fn description(&self) -> Option<String> {
-        Some(t("module_description", Locale::From(&LOCALE_MENU)))
+        Some(_t("module_description", Locale::From(&LOCALE_MENU)))
     }
 }

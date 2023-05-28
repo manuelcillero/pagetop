@@ -1,4 +1,4 @@
-//! Localización (¿i18n ó l10n?).
+//! Localización (L10n).
 //!
 //! Proporciona soporte a [Fluent](https://www.projectfluent.org/), un conjunto de especificaciones
 //! para la localización de aplicaciones, así como implementaciones y buenas prácticas originalmente
@@ -16,25 +16,29 @@
 //! # Recursos Fluent
 //!
 //! PageTop utiliza [fluent-templates](https://docs.rs/fluent-templates/) para integrar durante la
-//! compilación los recursos de localización en el binario de la aplicación. Básicamente agrupa
-//! todos los archivos de los subdirectorios del directorio *src/locales* que tienen un
-//! [Identificador de Idioma Unicode](https://docs.rs/unic-langid/) válido y los asigna a su
+//! compilación los recursos de localización en el binario de la aplicación. En el siguiente ejemplo
+//! agruparía todos los archivos y subdirectorios de *static/locales* que tienen un
+//! [Identificador de Idioma Unicode](https://docs.rs/unic-langid/) válido y los asignaría a su
 //! identificador correspondiente:
 //!
 //! ```text
-//! resources/locales
-//!              ├── common.ftl
-//!              ├── en-US
-//!              │   └── main.ftl
-//!              ├── es-ES
-//!              │   └── main.ftl
-//!              ├── es-MX
-//!              │   └── main.ftl
-//!              └── fr
-//!                  └── main.ftl
+//! static/locales
+//!           ├── common.ftl
+//!           ├── en-US
+//!           │   ├── default.ftl
+//!           │   └── main.ftl
+//!           ├── es-ES
+//!           │   ├── default.ftl
+//!           │   └── main.ftl
+//!           ├── es-MX
+//!           │   ├── default.ftl
+//!           │   └── main.ftl
+//!           └── fr
+//!               ├── default.ftl
+//!               └── main.ftl
 //! ```
 //!
-//! Ejemplo de un archivo *src/locales/en-US/main.ftl*:
+//! Ejemplo de un archivo *static/locales/en-US/main.ftl*:
 //!
 //! ```text
 //! hello-world = Hello world!
@@ -50,7 +54,7 @@
 //!     }.
 //! ```
 //!
-//! Ejemplo de un archivo *src/locales/es-ES/main.ftl*:
+//! Ejemplo del archivo equivalente *static/locales/es-ES/main.ftl*:
 //!
 //! ```text
 //! hello-world = Hola mundo!
@@ -69,36 +73,41 @@
 //! # Cómo aplicar la localización en tu código
 //!
 //! Una vez hayas creado tu directorio de recursos FTL, sólo tienes que usar la poderosa macro
-//! [`define_locale!`](crate::define_locale) para integrar fácilmente tus recursos de localización.
+//! [`define_locale!`](crate::define_locale) para integrarlos en tu módulo o aplicación.
 //!
-//! Luego sólo tendrás que usar la función `t()` para realizar tus traducciones:
+//! Y podrás usar las funciones globales [`_t()`] o [`_e()`] para traducir tus textos:
 //!
 //! ```
-//! use pagetop::{args, define_locale, t};
+//! use pagetop::prelude::*;
 //!
-//! define_locale!(LOCALE_SAMPLE, "src/locales");
+//! define_locale!(LOCALE_SAMPLE, "static/locales");
 //!
 //! fn demo() {
-//!     println!("* {}", l("hello-world", Locale::From(&LOCALE_SAMPLE)));
-//!     println!("* {}", t("hello-user", Locale::With(&LOCALE_SAMPLE, &args!["userName" => "Julia"])));
+//!     println!("* {}", _t("hello-world", Locale::From(&LOCALE_SAMPLE)));
+//!     println!("* {}", _t("hello-user", Locale::With(&LOCALE_SAMPLE, &args!["userName" => "Julia"])));
 //!
 //!     let args = args![
 //!         "userName" => "Roberto",
 //!         "photoCount" => 3,
 //!         "userGender" => "male"
 //!     ];
-//!     println!("* {}\n", t("shared-photos", Locale::With(&LOCALE_SAMPLE, &args)));
+//!     println!("* {}\n", _t("shared-photos", Locale::With(&LOCALE_SAMPLE, &args)));
 //! }
 //! ```
+//! Aunque normalmente usarás el componente [L10n](crate::core::component::L10n) para añadir textos
+//! traducibles en las respuestas web según el contexto del renderizado.
 
 use crate::html::{Markup, PreEscaped};
 use crate::{args, config, trace, LazyStatic};
 
-pub use fluent_templates;
-pub use fluent_templates::fluent_bundle::FluentValue;
-pub use fluent_templates::{static_loader as static_locale, Loader, StaticLoader as Locales};
+pub(crate) use unic_langid::{langid, LanguageIdentifier};
 
-pub use unic_langid::{langid, CharacterDirection, LanguageIdentifier};
+pub use fluent_templates;
+
+pub(crate) use fluent_templates::StaticLoader as Locales;
+
+use fluent_templates::fluent_bundle::FluentValue;
+use fluent_templates::Loader;
 
 use std::collections::HashMap;
 
@@ -130,7 +139,7 @@ pub fn langid_for(language: &str) -> &LanguageIdentifier {
                 config::SETTINGS.app.language,
                 "is not accepted. Using \"en-US\", check the settings file",
             );
-            &*FALLBACK_LANGID
+            &FALLBACK_LANGID
         }
     }
 }
@@ -145,11 +154,11 @@ pub enum Locale<'a> {
     ),
 }
 
-pub fn t(key: &str, locale: Locale) -> String {
+pub fn _t(key: &str, locale: Locale) -> String {
     translate(key, locale)
 }
 
-pub fn e(key: &str, locale: Locale) -> Markup {
+pub fn _e(key: &str, locale: Locale) -> Markup {
     PreEscaped(translate(key, locale))
 }
 

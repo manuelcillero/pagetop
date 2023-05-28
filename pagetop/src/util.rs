@@ -93,7 +93,7 @@ macro_rules! define_locale {
     ( $LOCALES:ident, $dir_locales:literal $(, $core_locales:literal)? ) => {
         use $crate::locale::*;
 
-        static_locale! {
+        fluent_templates::static_loader! {
             pub static $LOCALES = {
                 locales: $dir_locales,
                 $( core_locales: $core_locales, )?
