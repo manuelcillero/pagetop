@@ -94,47 +94,46 @@
 use crate::html::{Markup, PreEscaped};
 use crate::{args, config, trace, LazyStatic};
 
-use unic_langid::langid;
-
 pub use fluent_templates;
 pub use fluent_templates::fluent_bundle::FluentValue;
 pub use fluent_templates::{static_loader as static_locale, Loader, StaticLoader as Locales};
 
-pub use unic_langid::LanguageIdentifier;
+pub use unic_langid::{langid, CharacterDirection, LanguageIdentifier};
 
 use std::collections::HashMap;
 
 static LANGUAGES: LazyStatic<HashMap<String, (LanguageIdentifier, &str)>> = LazyStatic::new(|| {
     args![
         "en"    => (langid!("en-US"), "English"),
-        "en-US" => (langid!("en-US"), "English (...)"),
+        "en-GB" => (langid!("en-GB"), "English (British)"),
+        "en-US" => (langid!("en-US"), "English (United States)"),
         "es"    => (langid!("es-ES"), "Spanish"),
         "es-ES" => (langid!("es-ES"), "Spanish (Spain)")
     ]
 });
 
-static DEFAULT_LANGID: LazyStatic<LanguageIdentifier> = LazyStatic::new(|| langid!("en-US"));
+static FALLBACK_LANGID: LazyStatic<LanguageIdentifier> = LazyStatic::new(|| langid!("en-US"));
 
 /// Almacena el Identificador de Idioma Unicode
 /// ([Unicode Language Identifier](https://unicode.org/reports/tr35/tr35.html#Unicode_language_identifier))
-/// para la aplicación, obtenido de `SETTINGS.app.language`.
-pub static LANGID: LazyStatic<&LanguageIdentifier> =
-    LazyStatic::new(
-        || match LANGUAGES.get(config::SETTINGS.app.language.as_str()) {
-            Some((langid, _)) => langid,
-            _ => {
-                trace::warn!(
-                    "{}, {} \"{}\"! {}, {}",
-                    "Failed to parse language",
-                    "unrecognized Unicode Language Identifier",
-                    config::SETTINGS.app.language,
-                    "Using \"en-US\"",
-                    "check the settings file",
-                );
-                &*DEFAULT_LANGID
-            }
-        },
-    );
+/// global para la aplicación a partir de `SETTINGS.app.language`.
+pub(crate) static DEFAULT_LANGID: LazyStatic<&LanguageIdentifier> =
+    LazyStatic::new(|| langid_for(config::SETTINGS.app.language.as_str()));
+
+pub fn langid_for(language: &str) -> &LanguageIdentifier {
+    match LANGUAGES.get(language) {
+        Some((langid, _)) => langid,
+        _ => {
+            trace::warn!(
+                "{} \"{}\"! {}",
+                "Failed to set language. Unicode Language Identifier",
+                config::SETTINGS.app.language,
+                "is not accepted. Using \"en-US\", check the settings file",
+            );
+            &*FALLBACK_LANGID
+        }
+    }
+}
 
 pub enum Locale<'a> {
     From(&'a Locales),
@@ -157,8 +156,8 @@ pub fn e(key: &str, locale: Locale) -> Markup {
 #[inline]
 pub(crate) fn translate(key: &str, locale: Locale) -> String {
     match locale {
-        Locale::From(locales) => locales.lookup(&LANGID, key),
-        Locale::With(locales, args) => locales.lookup_with_args(&LANGID, key, args),
+        Locale::From(locales) => locales.lookup(&DEFAULT_LANGID, key),
+        Locale::With(locales, args) => locales.lookup_with_args(&DEFAULT_LANGID, key, args),
         Locale::Using(langid, locales, args) => locales.lookup_with_args(langid, key, args),
     }
     .unwrap_or(key.to_string())

@@ -1,6 +1,6 @@
 use crate::core::module::{all::theme_by_single_name, ThemeStaticRef};
 use crate::html::{html, Assets, IdentifierValue, JavaScript, Markup, StyleSheet};
-use crate::locale::{LanguageIdentifier, LANGID};
+use crate::locale::{LanguageIdentifier, DEFAULT_LANGID};
 use crate::server::HttpRequest;
 use crate::{concat_string, config, util, LazyStatic};
 
@@ -14,6 +14,7 @@ static DEFAULT_THEME: LazyStatic<ThemeStaticRef> =
     });
 
 pub enum ContextOp {
+    LangId(&'static LanguageIdentifier),
     Theme(&'static str),
     Request(Option<HttpRequest>),
     AddStyleSheet(StyleSheet),
@@ -24,7 +25,7 @@ pub enum ContextOp {
 
 #[rustfmt::skip]
 pub struct RenderContext {
-    language   : &'static LanguageIdentifier,
+    langid     : &'static LanguageIdentifier,
     theme      : ThemeStaticRef,
     request    : Option<HttpRequest>,
     stylesheets: Assets<StyleSheet>,
@@ -37,7 +38,7 @@ impl Default for RenderContext {
     #[rustfmt::skip]
     fn default() -> Self {
         RenderContext {
-            language   : &LANGID,
+            langid     : &DEFAULT_LANGID,
             theme      : *DEFAULT_THEME,
             request    : None,
             stylesheets: Assets::<StyleSheet>::new(),
@@ -55,6 +56,9 @@ impl RenderContext {
 
     pub fn alter(&mut self, op: ContextOp) -> &mut Self {
         match op {
+            ContextOp::LangId(langid) => {
+                self.langid = langid;
+            }
             ContextOp::Theme(theme_name) => {
                 self.theme = theme_by_single_name(theme_name).unwrap_or(*DEFAULT_THEME);
             }
@@ -84,8 +88,8 @@ impl RenderContext {
 
     /// Context GETTERS.
 
-    pub(crate) fn language(&self) -> &LanguageIdentifier {
-        self.language
+    pub(crate) fn langid(&self) -> &LanguageIdentifier {
+        self.langid
     }
 
     pub(crate) fn theme(&self) -> ThemeStaticRef {

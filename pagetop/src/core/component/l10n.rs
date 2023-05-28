@@ -32,7 +32,7 @@ impl ComponentTrait for L10n {
                     (PreEscaped(translate(
                         self.key(),
                         Locale::Using(
-                            rcx.language(),
+                            rcx.langid(),
                             locales,
                             &self.args().iter().fold(HashMap::new(), |mut args, (key, value)| {
                                 args.insert(key.to_string(), value.to_owned().into());
@@ -44,7 +44,7 @@ impl ComponentTrait for L10n {
                     (translate(
                         self.key(),
                         Locale::Using(
-                            rcx.language(),
+                            rcx.langid(),
                             locales,
                             &self.args().iter().fold(HashMap::new(), |mut args, (key, value)| {
                                 args.insert(key.to_string(), value.to_owned().into());

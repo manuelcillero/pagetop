@@ -2,43 +2,18 @@ use super::{BeforeRenderPageHook, ResultPage, HOOK_BEFORE_RENDER_PAGE};
 
 use crate::core::component::*;
 use crate::core::hook::{action_ref, run_actions};
-use crate::html::{html, AttributeValue, Classes, ClassesOp, Favicon, Markup, DOCTYPE};
+use crate::html::{html, Classes, ClassesOp, Favicon, Markup, DOCTYPE};
+use crate::locale::{langid_for, CharacterDirection, LanguageIdentifier};
 use crate::response::fatal_error::FatalError;
-use crate::{config, fn_builder, locale, server, trace, LazyStatic};
+use crate::{fn_builder, server};
 
 use std::collections::HashMap;
-
-static DEFAULT_DIRECTION: LazyStatic<Option<String>> = LazyStatic::new(|| {
-    let direction = config::SETTINGS.app.direction.to_lowercase();
-    match direction.as_str() {
-        "auto" => Some("auto".to_owned()),
-        "ltr" => Some("ltr".to_owned()),
-        "rtl" => Some("rtl".to_owned()),
-        "" => None,
-        _ => {
-            trace::warn!(
-                "Text direction \"{}\" not valid, {}",
-                config::SETTINGS.app.direction,
-                "check the settings file"
-            );
-            None
-        }
-    }
-});
-
-pub enum TextDirection {
-    Auto,
-    LeftToRight,
-    RightToLeft,
-}
 
 type PageTitle = OneComponent<L10n>;
 type PageDescription = OneComponent<L10n>;
 
 #[rustfmt::skip]
 pub struct Page {
-    language    : AttributeValue,
-    direction   : AttributeValue,
     title       : PageTitle,
     description : PageDescription,
     metadata    : Vec<(&'static str, &'static str)>,
@@ -54,11 +29,6 @@ impl Default for Page {
     #[rustfmt::skip]
     fn default() -> Self {
         Page {
-            language    : AttributeValue::new().with_value(locale::LANGID.language.as_str()),
-            direction   : match &*DEFAULT_DIRECTION {
-                Some(direction) => AttributeValue::new().with_value(direction),
-                _ => AttributeValue::new(),
-            },
             title       : PageTitle::new(),
             description : PageDescription::new(),
             metadata    : Vec::new(),
@@ -82,18 +52,8 @@ impl Page {
     // Page BUILDER.
 
     #[fn_builder]
-    pub fn alter_language(&mut self, language: &str) -> &mut Self {
-        self.language.alter_value(language);
-        self
-    }
-
-    #[fn_builder]
-    pub fn alter_direction(&mut self, dir: TextDirection) -> &mut Self {
-        self.direction.alter_value(match dir {
-            TextDirection::Auto => "auto",
-            TextDirection::LeftToRight => "ltr",
-            TextDirection::RightToLeft => "rtl",
-        });
+    pub fn alter_language(&mut self, language: &'static str) -> &mut Self {
+        self.context.alter(ContextOp::LangId(langid_for(language)));
         self
     }
 
@@ -162,12 +122,8 @@ impl Page {
 
     // Page GETTERS.
 
-    pub fn language(&self) -> &AttributeValue {
-        &self.language
-    }
-
-    pub fn direction(&self) -> &AttributeValue {
-        &self.direction
+    pub fn langid(&self) -> &LanguageIdentifier {
+        &self.context.langid()
     }
 
     pub fn title(&mut self) -> String {
@@ -220,9 +176,14 @@ impl Page {
         let head = self.context.theme().render_page_head(self);
 
         // Finalmente, renderizar la página.
+        let lang = self.langid().language.as_str();
+        let dir = match self.langid().character_direction() {
+            CharacterDirection::LTR => "ltr",
+            CharacterDirection::RTL => "rtl",
+        };
         Ok(html! {
             (DOCTYPE)
-            html lang=[self.language().get()] dir=[self.direction().get()] {
+            html lang=(lang) dir=(dir) {
                 (head)
                 (body)
             }
