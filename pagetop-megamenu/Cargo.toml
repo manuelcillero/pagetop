@@ -16,6 +16,7 @@ license = "Apache-2.0 OR MIT"
 [dependencies]
 pagetop = { version = "0.0", path = "../pagetop" }
 pagetop-jquery = { version = "0.0", path = "../pagetop-jquery" }
+pagetop-minimal = { version = "0.0", path = "../pagetop-minimal" }
 static-files = "0.2.3"
 
 [build-dependencies]

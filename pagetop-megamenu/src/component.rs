@@ -2,7 +2,8 @@ use pagetop::prelude::*;
 
 define_handle!(COMPONENT_MEGAMENUITEM);
 
-type Label = OneComponent<L10n>;
+type Label = OneComponent<Text>;
+type Content = OneComponent<Html>;
 
 #[derive(Default)]
 pub enum MegaMenuItemType {
@@ -11,7 +12,7 @@ pub enum MegaMenuItemType {
     Label(Label),
     Link(Label, String),
     LinkBlank(Label, String),
-    Html(Markup),
+    Html(Content),
     Submenu(Label, MegaMenu),
     Separator,
 }
@@ -58,8 +59,8 @@ impl ComponentTrait for MegaMenuItem {
                     a href=(path) target="_blank" { (label.render(rcx)) }
                 }
             },
-            MegaMenuItemType::Html(html) => html! {
-                li class="html" { (*html) }
+            MegaMenuItemType::Html(content) => html! {
+                li class="html" { (content.render(rcx)) }
             },
             MegaMenuItemType::Submenu(label, menu) => html! {
                 li class="submenu" {
@@ -85,35 +86,35 @@ impl ComponentTrait for MegaMenuItem {
 }
 
 impl MegaMenuItem {
-    pub fn label(label: L10n) -> Self {
+    pub fn label(label: Text) -> Self {
         MegaMenuItem {
             item_type: MegaMenuItemType::Label(OneComponent::new_with(label)),
             ..Default::default()
         }
     }
 
-    pub fn link(label: L10n, path: &str) -> Self {
+    pub fn link(label: Text, path: &str) -> Self {
         MegaMenuItem {
             item_type: MegaMenuItemType::Link(OneComponent::new_with(label), path.to_owned()),
             ..Default::default()
         }
     }
 
-    pub fn link_blank(label: L10n, path: &str) -> Self {
+    pub fn link_blank(label: Text, path: &str) -> Self {
         MegaMenuItem {
             item_type: MegaMenuItemType::LinkBlank(OneComponent::new_with(label), path.to_owned()),
             ..Default::default()
         }
     }
 
-    pub fn html(html: Markup) -> Self {
+    pub fn html(content: Html) -> Self {
         MegaMenuItem {
-            item_type: MegaMenuItemType::Html(html),
+            item_type: MegaMenuItemType::Html(OneComponent::new_with(content)),
             ..Default::default()
         }
     }
 
-    pub fn submenu(label: L10n, menu: MegaMenu) -> Self {
+    pub fn submenu(label: Text, menu: MegaMenu) -> Self {
         MegaMenuItem {
             item_type: MegaMenuItemType::Submenu(OneComponent::new_with(label), menu),
             ..Default::default()

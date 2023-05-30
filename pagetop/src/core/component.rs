@@ -17,8 +17,6 @@ pub(crate) use all::common_components;
 mod renderable;
 pub use renderable::{IsRenderable, Renderable};
 
-mod html_markup;
-pub use html_markup::HtmlMarkup;
-
-mod l10n;
-pub use l10n::L10n;
+mod basic;
+pub use basic::{Html, COMPONENT_HTML};
+pub use basic::{Text, COMPONENT_TEXT};

@@ -41,7 +41,7 @@ impl ModuleTrait for Node {
 }
 
 async fn node(request: server::HttpRequest) -> ResultPage<Markup, FatalError> {
-    Page::new(request).with_title(L10n::n("Nodo")).render()
+    Page::new(request).with_title(Text::n("Nodo")).render()
 }
 
 fn before_render_page(page: &mut Page) {

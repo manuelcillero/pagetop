@@ -25,7 +25,7 @@ pub enum HeadingDisplay {
     Subtitle,
 }
 
-type HeadingText = OneComponent<L10n>;
+type HeadingText = OneComponent<Text>;
 
 #[rustfmt::skip]
 #[derive(Default)]
@@ -80,37 +80,37 @@ impl ComponentTrait for Heading {
 }
 
 impl Heading {
-    pub fn h1(text: L10n) -> Self {
+    pub fn h1(text: Text) -> Self {
         Heading::new()
             .with_heading_type(HeadingType::H1)
             .with_text(text)
     }
 
-    pub fn h2(text: L10n) -> Self {
+    pub fn h2(text: Text) -> Self {
         Heading::new()
             .with_heading_type(HeadingType::H2)
             .with_text(text)
     }
 
-    pub fn h3(text: L10n) -> Self {
+    pub fn h3(text: Text) -> Self {
         Heading::new()
             .with_heading_type(HeadingType::H3)
             .with_text(text)
     }
 
-    pub fn h4(text: L10n) -> Self {
+    pub fn h4(text: Text) -> Self {
         Heading::new()
             .with_heading_type(HeadingType::H4)
             .with_text(text)
     }
 
-    pub fn h5(text: L10n) -> Self {
+    pub fn h5(text: Text) -> Self {
         Heading::new()
             .with_heading_type(HeadingType::H5)
             .with_text(text)
     }
 
-    pub fn h6(text: L10n) -> Self {
+    pub fn h6(text: Text) -> Self {
         Heading::new()
             .with_heading_type(HeadingType::H6)
             .with_text(text)
@@ -149,7 +149,7 @@ impl Heading {
     }
 
     #[fn_builder]
-    pub fn alter_text(&mut self, text: L10n) -> &mut Self {
+    pub fn alter_text(&mut self, text: Text) -> &mut Self {
         self.text.set(text);
         self
     }

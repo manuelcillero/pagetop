@@ -10,7 +10,7 @@ pub enum ButtonType {
     Reset,
 }
 
-type ButtonValue = OneComponent<L10n>;
+type ButtonValue = OneComponent<Text>;
 
 #[rustfmt::skip]
 #[derive(Default)]
@@ -77,11 +77,11 @@ impl ComponentTrait for Button {
 }
 
 impl Button {
-    pub fn with(value: L10n) -> Self {
+    pub fn with(value: Text) -> Self {
         Button::new().with_value(value)
     }
 
-    pub fn submit(value: L10n) -> Self {
+    pub fn submit(value: Text) -> Self {
         let mut button = Button::new()
             .with_classes(ClassesOp::Replace("form-button"), "form-submit")
             .with_value(value);
@@ -89,7 +89,7 @@ impl Button {
         button
     }
 
-    pub fn reset(value: L10n) -> Self {
+    pub fn reset(value: Text) -> Self {
         let mut button = Button::new()
             .with_classes(ClassesOp::Replace("form-button"), "form-reset")
             .with_value(value);
@@ -124,7 +124,7 @@ impl Button {
     }
 
     #[fn_builder]
-    pub fn alter_value(&mut self, value: L10n) -> &mut Self {
+    pub fn alter_value(&mut self, value: Text) -> &mut Self {
         self.value.set(value);
         self
     }

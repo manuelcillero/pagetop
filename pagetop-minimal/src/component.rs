@@ -3,8 +3,6 @@ pub use container::{Container, ContainerType, COMPONENT_CONTAINER};
 
 pub mod grid;
 
-mod html;
-pub use html::{Html, COMPONENT_HTML};
 mod icon;
 pub use icon::{Icon, COMPONENT_ICON};
 mod heading;

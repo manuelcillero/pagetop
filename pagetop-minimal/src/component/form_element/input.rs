@@ -13,8 +13,8 @@ pub enum InputType {
     Url,
 }
 
-type InputLabel = OneComponent<L10n>;
-type InputHelpText = OneComponent<L10n>;
+type InputLabel = OneComponent<Text>;
+type InputHelpText = OneComponent<Text>;
 
 #[rustfmt::skip]
 #[derive(Default)]
@@ -206,7 +206,7 @@ impl Input {
     }
 
     #[fn_builder]
-    pub fn alter_label(&mut self, label: L10n) -> &mut Self {
+    pub fn alter_label(&mut self, label: Text) -> &mut Self {
         self.label.set(label);
         self
     }
@@ -281,7 +281,7 @@ impl Input {
     }
 
     #[fn_builder]
-    pub fn alter_help_text(&mut self, help_text: L10n) -> &mut Self {
+    pub fn alter_help_text(&mut self, help_text: Text) -> &mut Self {
         self.help_text.set(help_text);
         self
     }

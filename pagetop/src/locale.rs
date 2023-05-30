@@ -94,8 +94,9 @@
 //!     println!("* {}\n", _t("shared-photos", Locale::With(&LOCALE_SAMPLE, &args)));
 //! }
 //! ```
-//! Aunque normalmente usarás el componente [L10n](crate::core::component::L10n) para añadir textos
-//! traducibles en las respuestas web según el contexto del renderizado.
+//! Aunque preferirás usar normalmente los componentes básicos [Text](crate::core::component::Text)
+//! y [Html](crate::core::component::Html) para incluir, en respuestas a las peticiones web, textos
+//! y contenidos opcionalmente traducibles según el contexto de renderizado.
 
 use crate::html::{Markup, PreEscaped};
 use crate::{args, config, trace, LazyStatic};

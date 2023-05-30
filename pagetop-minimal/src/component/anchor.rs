@@ -23,7 +23,7 @@ pub enum AnchorTarget {
 }
 
 type AnchorIcon = OneComponent<Icon>;
-type AnchorHtml = OneComponent<L10n>;
+type AnchorHtml = OneComponent<Text>;
 
 #[rustfmt::skip]
 #[derive(Default)]
@@ -34,7 +34,7 @@ pub struct Anchor {
     classes    : Classes,
     anchor_type: AnchorType,
     href       : AttributeValue,
-    html10n    : AnchorHtml,
+    html       : AnchorHtml,
     left_icon  : AnchorIcon,
     right_icon : AnchorIcon,
     target     : AnchorTarget,
@@ -91,15 +91,15 @@ impl ComponentTrait for Anchor {
 }
 
 impl Anchor {
-    pub fn link(href: &str, html10n: L10n) -> Self {
-        Anchor::new().with_href(href).with_html(html10n)
+    pub fn link(href: &str, html: Text) -> Self {
+        Anchor::new().with_href(href).with_html(html)
     }
 
-    pub fn button(href: &str, html10n: L10n) -> Self {
+    pub fn button(href: &str, html: Text) -> Self {
         Anchor::new()
             .with_type(AnchorType::Button)
             .with_href(href)
-            .with_html(html10n)
+            .with_html(html)
     }
 
     pub fn location(id: &str) -> Self {
@@ -152,8 +152,8 @@ impl Anchor {
     }
 
     #[fn_builder]
-    pub fn alter_html(&mut self, html10n: L10n) -> &mut Self {
-        self.html10n.set(html10n);
+    pub fn alter_html(&mut self, html: Text) -> &mut Self {
+        self.html.set(html);
         self
     }
 
@@ -200,7 +200,7 @@ impl Anchor {
     }
 
     pub fn html(&self) -> &AnchorHtml {
-        &self.html10n
+        &self.html
     }
 
     pub fn left_icon(&self) -> &AnchorIcon {
