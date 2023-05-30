@@ -1,7 +1,7 @@
 use crate::core::component::{AnyComponent, ComponentTrait, RenderContext};
 use crate::html::{html, Markup, PreEscaped};
 use crate::locale::{translate, Locale, Locales};
-use crate::{define_handle, fn_builder, paste, Handle};
+use crate::{define_handle, paste, Handle};
 
 use std::collections::HashMap;
 
@@ -10,7 +10,7 @@ macro_rules! basic_components {
 
         define_handle!($COMPONENT_HANDLE);
 
-        pub enum [< $Component Op >] {
+        enum [< $Component Op >] {
             None,
             Value($TypeValue),
             Translated(&'static str, &'static Locales),
@@ -41,7 +41,7 @@ macro_rules! basic_components {
             }
 
             fn default_render(&self, rcx: &mut RenderContext) -> Markup {
-                match self.op() {
+                match &self.op {
                     [< $Component Op >]::None => html! {},
                     [< $Component Op >]::Value(value) => html! { (value) },
                     [< $Component Op >]::Translated(key, locales) => html! {
@@ -50,7 +50,7 @@ macro_rules! basic_components {
                             Locale::Using(
                                 rcx.langid(),
                                 locales,
-                                &self.args().iter().fold(HashMap::new(), |mut args, (key, value)| {
+                                &self.args.iter().fold(HashMap::new(), |mut args, (key, value)| {
                                     args.insert(key.to_string(), value.to_owned().into());
                                     args
                                 })
@@ -63,7 +63,7 @@ macro_rules! basic_components {
                             Locale::Using(
                                 rcx.langid(),
                                 locales,
-                                &self.args().iter().fold(HashMap::new(), |mut args, (key, value)| {
+                                &self.args.iter().fold(HashMap::new(), |mut args, (key, value)| {
                                     args.insert(key.to_string(), value.to_owned().into());
                                     args
                                 })
@@ -102,35 +102,6 @@ macro_rules! basic_components {
                     op: [< $Component Op >]::Escaped(key, locales),
                     ..Default::default()
                 }
-            }
-
-            // $Component BUILDER.
-
-            #[fn_builder]
-            pub fn alter_op(&mut self, op: [< $Component Op >]) -> &mut Self {
-                self.op = op;
-                self
-            }
-
-            #[fn_builder]
-            pub fn alter_arg(&mut self, arg: &'static str, value: String) -> &mut Self {
-                self.args.insert(arg, value);
-                self
-            }
-
-            pub fn clear_args(&mut self) -> &mut Self {
-                self.args.drain();
-                self
-            }
-
-            // $Component GETTERS.
-
-            pub fn op(&self) -> &[< $Component Op >] {
-                &self.op
-            }
-
-            pub fn args(&self) -> &HashMap<&str, String> {
-                &self.args
             }
         }
 
