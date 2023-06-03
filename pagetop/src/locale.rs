@@ -105,7 +105,7 @@ static FALLBACK_LANGID: LazyStatic<LanguageIdentifier> = LazyStatic::new(|| lang
 /// Almacena el Identificador de Idioma Unicode
 /// ([Unicode Language Identifier](https://unicode.org/reports/tr35/tr35.html#Unicode_language_identifier))
 /// global para la aplicación a partir de `SETTINGS.app.language`.
-pub(crate) static DEFAULT_LANGID: LazyStatic<&LanguageIdentifier> =
+pub(crate) static LANGID: LazyStatic<&LanguageIdentifier> =
     LazyStatic::new(|| langid_for(config::SETTINGS.app.language.as_str()));
 
 pub fn langid_for(language: &str) -> &LanguageIdentifier {

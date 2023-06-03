@@ -34,7 +34,7 @@ impl Application {
         LazyStatic::force(&trace::TRACING);
 
         // Valida el identificador global de idioma.
-        LazyStatic::force(&locale::DEFAULT_LANGID);
+        LazyStatic::force(&locale::LANGID);
 
         #[cfg(feature = "database")]
         // Conecta con la base de datos.

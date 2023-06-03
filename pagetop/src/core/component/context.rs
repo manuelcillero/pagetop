@@ -1,13 +1,13 @@
 use crate::core::module::{all::theme_by_single_name, ThemeStaticRef};
 use crate::html::{html, Assets, IdentifierValue, JavaScript, Markup, StyleSheet};
-use crate::locale::{LanguageIdentifier, DEFAULT_LANGID};
+use crate::locale::{LanguageIdentifier, LANGID};
 use crate::server::HttpRequest;
 use crate::{concat_string, config, util, LazyStatic};
 
 use std::collections::HashMap;
 use std::str::FromStr;
 
-static DEFAULT_THEME: LazyStatic<ThemeStaticRef> =
+static THEME: LazyStatic<ThemeStaticRef> =
     LazyStatic::new(|| match theme_by_single_name(&config::SETTINGS.app.theme) {
         Some(theme) => theme,
         None => &crate::core::basic::Basic,
@@ -38,8 +38,8 @@ impl Default for RenderContext {
     #[rustfmt::skip]
     fn default() -> Self {
         RenderContext {
-            langid     : &DEFAULT_LANGID,
-            theme      : *DEFAULT_THEME,
+            langid     : &LANGID,
+            theme      : *THEME,
             request    : None,
             stylesheets: Assets::<StyleSheet>::new(),
             javascripts: Assets::<JavaScript>::new(),
@@ -60,7 +60,7 @@ impl RenderContext {
                 self.langid = langid;
             }
             ContextOp::Theme(theme_name) => {
-                self.theme = theme_by_single_name(theme_name).unwrap_or(*DEFAULT_THEME);
+                self.theme = theme_by_single_name(theme_name).unwrap_or(*THEME);
             }
             ContextOp::Request(request) => {
                 self.request = request;
