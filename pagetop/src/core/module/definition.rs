@@ -1,5 +1,6 @@
 use super::ThemeStaticRef;
 
+use crate::core::component::L10n;
 use crate::core::hook::HookAction;
 use crate::util::single_type_name;
 use crate::{server, Handle};
@@ -17,12 +18,12 @@ pub trait BaseModule {
 pub trait ModuleTrait: BaseModule + Send + Sync {
     fn handle(&self) -> Handle;
 
-    fn name(&self) -> String {
-        self.single_name().to_owned()
+    fn name(&self) -> L10n {
+        L10n::text(self.single_name())
     }
 
-    fn description(&self) -> Option<String> {
-        None
+    fn description(&self) -> L10n {
+        L10n::default()
     }
 
     fn theme(&self) -> Option<ThemeStaticRef> {

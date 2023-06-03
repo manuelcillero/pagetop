@@ -2,8 +2,8 @@ use pagetop::prelude::*;
 
 define_handle!(COMPONENT_MEGAMENUITEM);
 
-type Label = OneComponent<Text>;
-type Content = OneComponent<Html>;
+type Label = OneComponent<L10n>;
+type Content = OneComponent<L10n>;
 
 #[derive(Default)]
 pub enum MegaMenuItemType {
@@ -86,35 +86,35 @@ impl ComponentTrait for MegaMenuItem {
 }
 
 impl MegaMenuItem {
-    pub fn label(label: Text) -> Self {
+    pub fn label(label: L10n) -> Self {
         MegaMenuItem {
             item_type: MegaMenuItemType::Label(OneComponent::new_with(label)),
             ..Default::default()
         }
     }
 
-    pub fn link(label: Text, path: &str) -> Self {
+    pub fn link(label: L10n, path: &str) -> Self {
         MegaMenuItem {
             item_type: MegaMenuItemType::Link(OneComponent::new_with(label), path.to_owned()),
             ..Default::default()
         }
     }
 
-    pub fn link_blank(label: Text, path: &str) -> Self {
+    pub fn link_blank(label: L10n, path: &str) -> Self {
         MegaMenuItem {
             item_type: MegaMenuItemType::LinkBlank(OneComponent::new_with(label), path.to_owned()),
             ..Default::default()
         }
     }
 
-    pub fn html(content: Html) -> Self {
+    pub fn html(content: L10n) -> Self {
         MegaMenuItem {
             item_type: MegaMenuItemType::Html(OneComponent::new_with(content)),
             ..Default::default()
         }
     }
 
-    pub fn submenu(label: Text, menu: MegaMenu) -> Self {
+    pub fn submenu(label: L10n, menu: MegaMenu) -> Self {
         MegaMenuItem {
             item_type: MegaMenuItemType::Submenu(OneComponent::new_with(label), menu),
             ..Default::default()

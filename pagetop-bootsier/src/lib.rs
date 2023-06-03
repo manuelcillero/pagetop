@@ -45,7 +45,7 @@ impl ThemeTrait for Bootsier {
     fn render_component(
         &self,
         component: &dyn ComponentTrait,
-        _rcx: &mut RenderContext,
+        rcx: &mut RenderContext,
     ) -> Option<Markup> {
         match component.handle() {
             ERROR_404 => Some(html! {
@@ -59,18 +59,18 @@ impl ThemeTrait for Bootsier {
                         div class="media-body" {
                             h1 class="display-4" { ("RESOURCE NOT FOUND") }
                             p class="lead" {
-                                (_t("e404-description", Locale::From(&LOCALE_BOOTSIER)))
+                                (L10n::t("e404-description", &LOCALE_BOOTSIER).render(rcx))
                             }
                             hr class="my-4";
                             p {
-                                (_t("e404-description", Locale::From(&LOCALE_BOOTSIER)))
+                                (L10n::t("e404-description", &LOCALE_BOOTSIER).render(rcx))
                             }
                             a
                                 class="btn btn-primary btn-lg"
                                 href="/"
                                 role="button"
                             {
-                                (_t("back-homepage", Locale::From(&LOCALE_BOOTSIER)))
+                                (L10n::t("back-homepage", &LOCALE_BOOTSIER).render(rcx))
                             }
                         }
                     }

@@ -16,8 +16,7 @@ welcome_text2 = Si el problema persiste, póngase en contacto con el administrad
 pagetop_title = Sobre PageTop
 pagetop_text1 = Si puedes leer esta página, significa que el servidor PageTop funciona correctamente, pero aún no se ha configurado.
 pagetop_text2 = PageTop define una interfaz para los paquetes Rust más estables y populares para crear soluciones web modulares, extensibles y configurables.
-pagetop_text3 = Para más información sobre PageTop, por favor visita la { $pagetop_website }.
-pagetop_website = documentación técnica
+pagetop_text3 = Para más información sobre PageTop, por favor visita la <a href="{ $href }" target="_blank">documentación técnica</a>.
 
 pagetop_promo_title = Promociona PageTop
 pagetop_promo_text1 = Eres libre de usar la siguiente imagen en aplicaciones desarrolladas con { $pagetop }. ¡Gracias por usar PageTop!

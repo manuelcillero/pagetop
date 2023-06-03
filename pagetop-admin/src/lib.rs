@@ -13,12 +13,12 @@ impl ModuleTrait for Admin {
         MODULE_ADMIN
     }
 
-    fn name(&self) -> String {
-        _t("module_name", Locale::From(&LOCALE_ADMIN))
+    fn name(&self) -> L10n {
+        L10n::t("module_name", &LOCALE_ADMIN)
     }
 
-    fn description(&self) -> Option<String> {
-        Some(_t("module_description", Locale::From(&LOCALE_ADMIN)))
+    fn description(&self) -> L10n {
+        L10n::t("module_description", &LOCALE_ADMIN)
     }
 
     #[rustfmt::skip]

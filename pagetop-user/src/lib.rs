@@ -14,12 +14,12 @@ impl ModuleTrait for User {
         MODULE_USER
     }
 
-    fn name(&self) -> String {
-        _t("module_name", Locale::From(&LOCALE_USER))
+    fn name(&self) -> L10n {
+        L10n::t("module_name", &LOCALE_USER)
     }
 
-    fn description(&self) -> Option<String> {
-        Some(_t("module_description", Locale::From(&LOCALE_USER)))
+    fn description(&self) -> L10n {
+        L10n::t("module_description", &LOCALE_USER)
     }
 
     fn dependencies(&self) -> Vec<ModuleStaticRef> {
@@ -42,7 +42,7 @@ impl ModuleTrait for User {
 
 async fn login(request: server::HttpRequest) -> ResultPage<Markup, FatalError> {
     Page::new(request)
-        .with_title(Text::n("Identificación del usuario"))
+        .with_title(L10n::text("Identificación del usuario"))
         .with_this_in(
             "region-content",
             Container::new()
@@ -58,9 +58,9 @@ fn form_login() -> Form {
         .with_element(
             form_element::Input::textfield()
                 .with_name("name")
-                .with_label(Text::t("username", &LOCALE_USER))
+                .with_label(L10n::t("username", &LOCALE_USER))
                 .with_help_text(
-                    Text::t("username_help", &LOCALE_USER)
+                    L10n::t("username_help", &LOCALE_USER)
                         .with_arg("app", config::SETTINGS.app.name.to_owned()),
                 )
                 .with_autofocus(true),
@@ -68,8 +68,8 @@ fn form_login() -> Form {
         .with_element(
             form_element::Input::password()
                 .with_name("pass")
-                .with_label(Text::t("password", &LOCALE_USER))
-                .with_help_text(Text::t("password_help", &LOCALE_USER)),
+                .with_label(L10n::t("password", &LOCALE_USER))
+                .with_help_text(L10n::t("password_help", &LOCALE_USER)),
         )
-        .with_element(form_element::Button::submit(Text::t("login", &LOCALE_USER)))
+        .with_element(form_element::Button::submit(L10n::t("login", &LOCALE_USER)))
 }

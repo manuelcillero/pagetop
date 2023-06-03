@@ -17,6 +17,5 @@ pub(crate) use all::common_components;
 mod renderable;
 pub use renderable::{IsRenderable, Renderable};
 
-mod basic;
-pub use basic::{Html, COMPONENT_HTML};
-pub use basic::{Text, COMPONENT_TEXT};
+mod l10n;
+pub use l10n::{L10n, COMPONENT_L10N};

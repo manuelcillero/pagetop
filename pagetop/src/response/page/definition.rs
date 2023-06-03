@@ -11,8 +11,8 @@ use unic_langid::CharacterDirection;
 
 use std::collections::HashMap;
 
-type PageTitle = OneComponent<Text>;
-type PageDescription = OneComponent<Text>;
+type PageTitle = OneComponent<L10n>;
+type PageDescription = OneComponent<L10n>;
 
 #[rustfmt::skip]
 pub struct Page {
@@ -60,13 +60,13 @@ impl Page {
     }
 
     #[fn_builder]
-    pub fn alter_title(&mut self, title: Text) -> &mut Self {
+    pub fn alter_title(&mut self, title: L10n) -> &mut Self {
         self.title.set(title);
         self
     }
 
     #[fn_builder]
-    pub fn alter_description(&mut self, description: Text) -> &mut Self {
+    pub fn alter_description(&mut self, description: L10n) -> &mut Self {
         self.description.set(description);
         self
     }

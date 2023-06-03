@@ -1,9 +1,7 @@
 //! Localización (L10n).
 //!
-//! Proporciona soporte a [Fluent](https://www.projectfluent.org/), un conjunto de especificaciones
-//! para la localización de aplicaciones, así como implementaciones y buenas prácticas originalmente
-//! desarrolladas por Mozilla.
-//!
+//! PageTop usa el conjunto de especificaciones [Fluent](https://www.projectfluent.org/) para la
+//! localización de aplicaciones.
 //!
 //! # Sintaxis Fluent (FTL)
 //!
@@ -72,43 +70,23 @@
 //!
 //! # Cómo aplicar la localización en tu código
 //!
-//! Una vez hayas creado tu directorio de recursos FTL, sólo tienes que usar la poderosa macro
+//! Una vez hayas creado tu directorio de recursos FTL usa la macro
 //! [`define_locale!`](crate::define_locale) para integrarlos en tu módulo o aplicación.
-//!
-//! Y podrás usar las funciones globales [`_t()`] o [`_e()`] para traducir tus textos:
 //!
 //! ```
 //! use pagetop::prelude::*;
 //!
 //! define_locale!(LOCALE_SAMPLE, "static/locales");
-//!
-//! fn demo() {
-//!     println!("* {}", _t("hello-world", Locale::From(&LOCALE_SAMPLE)));
-//!     println!("* {}", _t("hello-user", Locale::With(&LOCALE_SAMPLE, &args!["userName" => "Julia"])));
-//!
-//!     let args = args![
-//!         "userName" => "Roberto",
-//!         "photoCount" => 3,
-//!         "userGender" => "male"
-//!     ];
-//!     println!("* {}\n", _t("shared-photos", Locale::With(&LOCALE_SAMPLE, &args)));
-//! }
 //! ```
-//! Aunque preferirás usar normalmente los componentes básicos [Text](crate::core::component::Text)
-//! y [Html](crate::core::component::Html) para incluir, en respuestas a las peticiones web, textos
-//! y contenidos opcionalmente traducibles según el contexto de renderizado.
+//! Y utiliza el componente [L10n](crate::core::component::L10n) para incluir, en respuestas a las
+//! peticiones web, textos y contenidos opcionalmente traducibles según el contexto de renderizado.
 
-use crate::html::{Markup, PreEscaped};
 use crate::{args, config, trace, LazyStatic};
-
-pub(crate) use unic_langid::{langid, LanguageIdentifier};
 
 pub use fluent_templates;
 
 pub(crate) use fluent_templates::StaticLoader as Locales;
-
-use fluent_templates::fluent_bundle::FluentValue;
-use fluent_templates::Loader;
+pub(crate) use unic_langid::{langid, LanguageIdentifier};
 
 use std::collections::HashMap;
 
@@ -127,7 +105,7 @@ static FALLBACK_LANGID: LazyStatic<LanguageIdentifier> = LazyStatic::new(|| lang
 /// Almacena el Identificador de Idioma Unicode
 /// ([Unicode Language Identifier](https://unicode.org/reports/tr35/tr35.html#Unicode_language_identifier))
 /// global para la aplicación a partir de `SETTINGS.app.language`.
-pub static DEFAULT_LANGID: LazyStatic<&LanguageIdentifier> =
+pub(crate) static DEFAULT_LANGID: LazyStatic<&LanguageIdentifier> =
     LazyStatic::new(|| langid_for(config::SETTINGS.app.language.as_str()));
 
 pub fn langid_for(language: &str) -> &LanguageIdentifier {
@@ -143,32 +121,4 @@ pub fn langid_for(language: &str) -> &LanguageIdentifier {
             &FALLBACK_LANGID
         }
     }
-}
-
-pub enum Locale<'a> {
-    From(&'a Locales),
-    With(&'a Locales, &'a HashMap<String, FluentValue<'a>>),
-    Using(
-        &'a LanguageIdentifier,
-        &'a Locales,
-        &'a HashMap<String, FluentValue<'a>>,
-    ),
-}
-
-pub fn _t(key: &str, locale: Locale) -> String {
-    translate(key, locale)
-}
-
-pub fn _e(key: &str, locale: Locale) -> Markup {
-    PreEscaped(translate(key, locale))
-}
-
-#[inline]
-pub(crate) fn translate(key: &str, locale: Locale) -> String {
-    match locale {
-        Locale::From(locales) => locales.lookup(&DEFAULT_LANGID, key),
-        Locale::With(locales, args) => locales.lookup_with_args(&DEFAULT_LANGID, key, args),
-        Locale::Using(langid, locales, args) => locales.lookup_with_args(langid, key, args),
-    }
-    .unwrap_or(key.to_string())
 }

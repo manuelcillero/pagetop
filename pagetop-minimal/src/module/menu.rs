@@ -11,11 +11,11 @@ impl ModuleTrait for Menu {
         MODULE_MENU
     }
 
-    fn name(&self) -> String {
-        _t("module_name", Locale::From(&LOCALE_MENU))
+    fn name(&self) -> L10n {
+        L10n::t("module_name", &LOCALE_MENU)
     }
 
-    fn description(&self) -> Option<String> {
-        Some(_t("module_description", Locale::From(&LOCALE_MENU)))
+    fn description(&self) -> L10n {
+        L10n::t("module_description", &LOCALE_MENU)
     }
 }

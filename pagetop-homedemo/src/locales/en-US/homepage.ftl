@@ -16,8 +16,7 @@ welcome_text2 = If the problem persists, please contact your system administrato
 pagetop_title = About PageTop
 pagetop_text1 = If you can read this page, it means that the PageTop server is working properly, but has not yet been configured.
 pagetop_text2 = PageTop defines an interface for the most stable and popular Rust packages to build modular, extensible and configurable web solutions.
-pagetop_text3 = For more information on PageTop please visit the { $pagetop_website }.
-pagetop_website = technical documentation
+pagetop_text3 = For more information on PageTop please visit the <a href="{ $href }" target="_blank">technical documentation</a>.
 
 pagetop_promo_title = Promoting PageTop
 pagetop_promo_text1 = You are free to use the image below on applications powered by { $pagetop }. Thanks for using PageTop!
