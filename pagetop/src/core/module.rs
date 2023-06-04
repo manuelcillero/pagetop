@@ -1,5 +1,5 @@
 mod definition;
-pub use definition::{BaseModule, ModuleStaticRef, ModuleTrait};
+pub use definition::{BaseModule, ModuleStaticRef, ModuleTrait, MODULE_UNNAMED};
 
 mod theme;
 pub use theme::{ThemeStaticRef, ThemeTrait};

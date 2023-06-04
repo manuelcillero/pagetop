@@ -10,7 +10,7 @@ use crate::db::MigrationItem;
 
 pub type ModuleStaticRef = &'static dyn ModuleTrait;
 
-define_handle!(APP_UNNAMED);
+define_handle!(MODULE_UNNAMED);
 
 pub trait BaseModule {
     fn single_name(&self) -> &'static str;
@@ -19,7 +19,7 @@ pub trait BaseModule {
 /// Los módulos deben implementar este *trait*.
 pub trait ModuleTrait: BaseModule + Send + Sync {
     fn handle(&self) -> Handle {
-        APP_UNNAMED
+        MODULE_UNNAMED
     }
 
     fn name(&self) -> L10n {

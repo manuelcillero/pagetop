@@ -1,5 +1,5 @@
 mod definition;
-pub use definition::{action_ref, AnyHookAction, HookActionTrait};
+pub use definition::{action_ref, AnyHookAction, HookActionTrait, HOOK_UNNAMED};
 
 mod holder;
 use holder::ActionsHolder;
