@@ -14,9 +14,9 @@
 
 # 🗚 FIGfonts
 
-PageTop utiliza el paquete [figlet-rs](https://crates.io/crates/figlet-rs) de *yuanbohan*. Muestra
-en el terminal un rótulo de presentación con el nombre de la aplicación usando caracteres
-[FIGlet](http://www.figlet.org). Las fuentes incluidas en `src/app/banner` son:
+PageTop utiliza el paquete [figlet-rs](https://crates.io/crates/figlet-rs) de *yuanbohan* para
+mostrar en el terminal un rótulo de presentación con el nombre de la aplicación usando caracteres
+[FIGlet](http://www.figlet.org). Las fuentes incluidas en `src/app` son:
 
 * [slant.flf](http://www.figlet.org/fontdb_example.cgi?font=slant.flf) por *Glenn Chappell*.
 * [small.flf](http://www.figlet.org/fontdb_example.cgi?font=small.flf) por *Glenn Chappell*
