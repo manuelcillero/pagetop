@@ -1,13 +1,17 @@
-use crate::Handle;
+use crate::{define_handle, Handle};
 
 pub use std::any::Any as AnyHookAction;
+
+define_handle!(HOOK_UNNAMED);
 
 pub trait HookActionTrait: AnyHookAction + Send + Sync {
     fn new() -> Self
     where
         Self: Sized;
 
-    fn handle(&self) -> Handle;
+    fn handle(&self) -> Handle {
+        HOOK_UNNAMED
+    }
 
     fn weight(&self) -> isize {
         0

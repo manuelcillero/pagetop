@@ -5,7 +5,7 @@ use crate::{define_handle, Handle};
 
 pub use std::any::Any as AnyComponent;
 
-define_handle!(COMPONENT_UNDEFINED);
+define_handle!(COMPONENT_UNNAMED);
 
 pub trait BaseComponent {
     fn render(&mut self, rcx: &mut RenderContext) -> Markup;
@@ -17,7 +17,7 @@ pub trait ComponentTrait: AnyComponent + BaseComponent + Send + Sync {
         Self: Sized;
 
     fn handle(&self) -> Handle {
-        COMPONENT_UNDEFINED
+        COMPONENT_UNNAMED
     }
 
     fn name(&self) -> String {
