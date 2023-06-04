@@ -6,7 +6,7 @@ use crate::core::{module, module::ModuleStaticRef};
 use crate::html::Markup;
 use crate::response::fatal_error::FatalError;
 use crate::response::page::ResultPage;
-use crate::{config, locale, server, trace, LazyStatic};
+use crate::{config, define_locale, locale, server, trace, LazyStatic};
 
 #[cfg(feature = "database")]
 use crate::db;
@@ -20,6 +20,8 @@ use actix_web::dev::Server;
 use std::io::Error;
 
 use substring::Substring;
+
+define_locale!(LOCALE_PAGETOP, "static/locales");
 
 pub struct Application {
     server: Server,
