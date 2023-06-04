@@ -1,7 +1,8 @@
 use super::ModuleTrait;
 
+use crate::app::LOCALE_PAGETOP;
 use crate::config;
-use crate::core::component::{ComponentTrait, RenderContext};
+use crate::core::component::{ComponentTrait, L10n, RenderContext};
 use crate::html::{html, Favicon, Markup};
 use crate::response::page::Page;
 
@@ -9,6 +10,17 @@ pub type ThemeStaticRef = &'static dyn ThemeTrait;
 
 /// Los temas deben implementar este "trait".
 pub trait ThemeTrait: ModuleTrait + Send + Sync {
+    #[rustfmt::skip]
+    fn regions(&self) -> Vec<(&'static str, L10n)> {
+        vec![
+            ("header",  L10n::t("header",  &LOCALE_PAGETOP)),
+            ("pagetop", L10n::t("pagetop", &LOCALE_PAGETOP)),
+            ("content", L10n::t("content", &LOCALE_PAGETOP)),
+            ("sidebar", L10n::t("sidebar", &LOCALE_PAGETOP)),
+            ("footer",  L10n::t("footer",  &LOCALE_PAGETOP)),
+        ]
+    }
+
     #[allow(unused_variables)]
     fn before_render_page(&self, page: &mut Page) {
         if page.favicon().is_none() {
@@ -56,20 +68,9 @@ pub trait ThemeTrait: ModuleTrait + Send + Sync {
     fn render_page_body(&self, page: &mut Page) -> Markup {
         html! {
             body class=[page.body_classes().get()] {
-                @match page.template() {
-                    "admin" => {
-                        @for region in &["top-menu", "side-menu", "region-content"] {
-                            @if let Some(content) = page.render_region(region) {
-                                #(region) { (content) }
-                            }
-                        }
-                    },
-                    _ => {
-                        @for region in &["region-content"] {
-                            @if let Some(content) = page.render_region(region) {
-                                #(region) { (content) }
-                            }
-                        }
+                @for (region, _) in self.regions().iter() {
+                    @if let Some(content) = page.render_region(region) {
+                        #(region) { (content) }
                     }
                 }
             }

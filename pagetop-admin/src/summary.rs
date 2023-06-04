@@ -59,7 +59,7 @@ pub async fn summary(request: server::HttpRequest) -> ResultPage<Markup, FatalEr
         .with_title(L10n::text("Admin"))
         .with_this_in("top-menu", top_menu)
         .with_this_in(
-            "region-content",
+            "content",
             grid::Row::new()
                 .with_column(grid::Column::new().with_component(side_menu))
                 .with_column(grid::Column::new().with_component(L10n::html(html! {

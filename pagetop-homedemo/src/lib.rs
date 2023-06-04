@@ -39,11 +39,11 @@ async fn demo(request: server::HttpRequest) -> ResultPage<Markup, FatalError> {
             "/homedemo/css/styles.css",
         )))
         .with_body_classes(ClassesOp::AddFirst, "default-homepage")
-        .with_this_in("region-content", hello_world())
-        .with_this_in("region-content", welcome())
-        .with_this_in("region-content", about_pagetop())
-        .with_this_in("region-content", promo_pagetop())
-        .with_this_in("region-content", reporting_issues())
+        .with_this_in("content", hello_world())
+        .with_this_in("content", welcome())
+        .with_this_in("content", about_pagetop())
+        .with_this_in("content", promo_pagetop())
+        .with_this_in("content", reporting_issues())
         .render()
 }
 
