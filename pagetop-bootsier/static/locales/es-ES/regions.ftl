@@ -1,0 +1,13 @@
+header = Cabecera
+primary_menu = Menú principal
+secondary_menu = Menú secundario
+hero = Hero (ancho completo)
+highlighted = Destacado
+breadcrumb = Ruta de navegación
+social = Enlaces sociales
+content_above = Antes del contenido
+content = Contenido
+sidebar = Barra lateral
+content_below = Después del contenido
+footer_top = Pie de página (superior)
+footer_bottom = Pie de página (inferior)

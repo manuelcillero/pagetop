@@ -1,3 +1,3 @@
 fn main() -> std::io::Result<()> {
-    pagetop_build::bundle_resources("./static", "bootsier", None)
+    pagetop_build::bundle_resources("./static/theme", "bootsier", None)
 }
