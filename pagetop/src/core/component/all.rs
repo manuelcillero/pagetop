@@ -1,4 +1,4 @@
-use super::{ComponentTrait, ComponentsBundle};
+use crate::core::component::{ComponentTrait, ComponentsBundle};
 use crate::LazyStatic;
 
 use std::collections::HashMap;

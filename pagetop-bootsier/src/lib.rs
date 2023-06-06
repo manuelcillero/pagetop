@@ -73,15 +73,15 @@ impl ThemeTrait for Bootsier {
                 }
             },
             _ => {
-                let header         = page.render_region("header");
-                let nav_branding   = page.render_region("nav_branding");
-                let nav_main       = page.render_region("nav_main");
+                let header = page.render_region("header");
+                let nav_branding = page.render_region("nav_branding");
+                let nav_main = page.render_region("nav_main");
                 let nav_additional = page.render_region("nav_additional");
-                let breadcrumb     = page.render_region("breadcrumb");
-                let content        = page.render_region("content");
-                let sidebar_first  = page.render_region("sidebar_first");
+                let breadcrumb = page.render_region("breadcrumb");
+                let content = page.render_region("content");
+                let sidebar_first = page.render_region("sidebar_first");
                 let sidebar_second = page.render_region("sidebar_second");
-                let footer         = page.render_region("footer");
+                let footer = page.render_region("footer");
                 html! {
                     body class=[page.body_classes().get()] {
                         @if header.is_some() {

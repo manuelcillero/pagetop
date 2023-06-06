@@ -11,8 +11,6 @@ mod paragraph;
 pub use paragraph::{Paragraph, ParagraphDisplay, COMPONENT_PARAGRAPH};
 mod anchor;
 pub use anchor::{Anchor, AnchorTarget, AnchorType, COMPONENT_ANCHOR};
-mod block;
-pub use block::{Block, COMPONENT_BLOCK};
 mod image;
 pub use image::{Image, COMPONENT_IMAGE};
 

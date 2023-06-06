@@ -1,4 +1,4 @@
-use pagetop::prelude::*;
+use crate::prelude::*;
 
 define_handle!(COMPONENT_BLOCK);
 
