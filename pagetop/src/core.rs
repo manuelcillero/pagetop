@@ -11,6 +11,3 @@ pub mod module;
 
 // API to add new layouts with themes.
 pub mod theme;
-
-// Basic theme.
-pub(crate) mod basic;

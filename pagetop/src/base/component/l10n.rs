@@ -1,9 +1,4 @@
-use crate::core::component::{AnyComponent, ComponentTrait, RenderContext};
-use crate::html::{html, Markup, PreEscaped};
-use crate::locale::Locales;
-use crate::{define_handle, fn_builder, Handle};
-
-use fluent_templates::Loader;
+use crate::prelude::*;
 
 use std::collections::HashMap;
 

@@ -85,6 +85,7 @@ use crate::{args, config, trace, LazyStatic};
 
 pub use fluent_templates;
 
+pub(crate) use fluent_templates::Loader;
 pub(crate) use fluent_templates::StaticLoader as Locales;
 pub(crate) use unic_langid::{langid, LanguageIdentifier};
 

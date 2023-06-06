@@ -1,5 +1,8 @@
+use crate::base::component::L10n;
 use crate::core::action::{action_ref, run_actions};
-use crate::core::component::*;
+use crate::core::component::{
+    common_components, ComponentTrait, ComponentsBundle, ContextOp, OneComponent, RenderContext,
+};
 use crate::html::{html, Classes, ClassesOp, Favicon, Markup, DOCTYPE};
 use crate::locale::{langid_for, LanguageIdentifier};
 use crate::response::fatal_error::FatalError;

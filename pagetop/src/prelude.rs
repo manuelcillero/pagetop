@@ -27,6 +27,8 @@ pub use crate::core::{action::*, component::*, module::*, theme::*};
 
 pub use crate::{action, action_before_render_component};
 
+pub use crate::base::component::*;
+
 pub use crate::server;
 pub use crate::server::HttpMessage;
 

@@ -18,6 +18,3 @@ pub(crate) use all::common_components;
 
 mod renderable;
 pub use renderable::{IsRenderable, Renderable};
-
-mod l10n;
-pub use l10n::{L10n, COMPONENT_L10N};

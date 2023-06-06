@@ -10,7 +10,7 @@ use std::str::FromStr;
 static THEME: LazyStatic<ThemeStaticRef> =
     LazyStatic::new(|| match theme_by_single_name(&config::SETTINGS.app.theme) {
         Some(theme) => theme,
-        None => &crate::core::basic::Basic,
+        None => &crate::base::theme::Basic,
     });
 
 pub enum ContextOp {
