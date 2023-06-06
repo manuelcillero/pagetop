@@ -29,8 +29,8 @@ impl ModuleTrait for Admin {
         ]
     }
 
-    fn actions(&self) -> Vec<HookAction> {
-        vec![hook_action!(BeforeRenderPageHook => before_render_page)]
+    fn actions(&self) -> Vec<Action> {
+        vec![action!(ActionBeforeRenderPage => before_render_page)]
     }
 
     fn configure_service(&self, cfg: &mut server::web::ServiceConfig) {

@@ -1,7 +1,6 @@
-use super::ThemeStaticRef;
-
+use crate::core::action::Action;
 use crate::core::component::L10n;
-use crate::core::hook::HookAction;
+use crate::core::module::ThemeStaticRef;
 use crate::util::single_type_name;
 use crate::{define_handle, server, Handle};
 
@@ -42,7 +41,7 @@ pub trait ModuleTrait: BaseModule + Send + Sync {
         vec![]
     }
 
-    fn actions(&self) -> Vec<HookAction> {
+    fn actions(&self) -> Vec<Action> {
         vec![]
     }
 

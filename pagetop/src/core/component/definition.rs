@@ -77,7 +77,7 @@ pub fn component_mut<C: 'static>(component: &mut dyn ComponentTrait) -> &mut C {
 }
 
 #[macro_export]
-macro_rules! hook_before_render_component {
+macro_rules! action_before_render_component {
     ( $ACTION_HANDLE:ident, $Component:ty ) => {
         $crate::paste! {
             $crate::define_handle!($ACTION_HANDLE);
@@ -89,7 +89,7 @@ macro_rules! hook_before_render_component {
                 weight: isize,
             }
 
-            impl HookActionTrait for [< BeforeRender $Component >] {
+            impl ActionTrait for [< BeforeRender $Component >] {
                 fn new() -> Self {
                     [< BeforeRender $Component >] {
                         action: None,
@@ -105,14 +105,14 @@ macro_rules! hook_before_render_component {
                     self.weight
                 }
 
-                fn as_ref_any(&self) -> &dyn AnyHookAction {
+                fn as_ref_any(&self) -> &dyn AnyAction {
                     self
                 }
             }
 
             impl [< BeforeRender $Component >] {
                 #[allow(dead_code)]
-                pub fn with_hook(mut self, action: Action) -> Self {
+                pub fn with_action(mut self, action: Action) -> Self {
                     self.action = Some(action);
                     self
                 }

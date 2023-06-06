@@ -24,7 +24,7 @@
 //!
 //!  * Acceso unificado y normalizado a base de datos ([`db`]).
 //!
-//!  * Tipos y funciones esenciales para crear módulos, temas, componentes y acciones ([`core`]).
+//!  * Tipos y funciones esenciales para crear acciones, componentes, módulos y temas ([`core`]).
 //!
 //!  * Tipos de respuestas a peticiones web ([`response`])
 //!
@@ -72,7 +72,7 @@ pub mod html;
 #[cfg(feature = "database")]
 pub mod db;
 
-// APIs esenciales para crear módulos, temas, componentes y acciones.
+// APIs esenciales para crear acciones, componentes, módulos y temas.
 pub mod core;
 
 // API del servidor web.

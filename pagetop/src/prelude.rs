@@ -4,7 +4,7 @@
 // Re-exports.
 pub use crate::{concat_string, fn_builder, Handle, HashMapResources, LazyStatic, ResultExt};
 
-// Macros declarativas.
+// Macros declarativas globales.
 pub use crate::{args, define_config, define_handle, define_locale, paste, serve_static_files};
 
 // Funciones útiles.
@@ -23,9 +23,9 @@ pub use crate::html::*;
 #[cfg(feature = "database")]
 pub use crate::{db, db::*, migration_item, pub_migration};
 
-pub use crate::core::{component::*, hook::*, module::*};
+pub use crate::core::{action::*, component::*, module::*};
 
-pub use crate::{hook_action, hook_before_render_component};
+pub use crate::{action, action_before_render_component};
 
 pub use crate::server;
 pub use crate::server::HttpMessage;

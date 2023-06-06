@@ -2,7 +2,7 @@ use pagetop::prelude::*;
 
 define_handle!(COMPONENT_BLOCK);
 
-hook_before_render_component!(HOOK_BEFORE_RENDER_BLOCK, Block);
+action_before_render_component!(ACTION_BEFORE_RENDER_BLOCK, Block);
 
 #[rustfmt::skip]
 #[derive(Default)]

@@ -1,10 +1,10 @@
-use super::{BeforeRenderPageHook, ResultPage, HOOK_BEFORE_RENDER_PAGE};
-
+use crate::core::action::{action_ref, run_actions};
 use crate::core::component::*;
-use crate::core::hook::{action_ref, run_actions};
 use crate::html::{html, Classes, ClassesOp, Favicon, Markup, DOCTYPE};
 use crate::locale::{langid_for, LanguageIdentifier};
 use crate::response::fatal_error::FatalError;
+use crate::response::page::action::{ActionBeforeRenderPage, ACTION_BEFORE_RENDER_PAGE};
+use crate::response::page::ResultPage;
 use crate::{fn_builder, server};
 
 use unic_langid::CharacterDirection;
@@ -164,8 +164,8 @@ impl Page {
 
     pub fn render(&mut self) -> ResultPage<Markup, FatalError> {
         // Acciones de los módulos antes de renderizar la página.
-        run_actions(HOOK_BEFORE_RENDER_PAGE, |hook| {
-            action_ref::<BeforeRenderPageHook>(&**hook).run(self)
+        run_actions(ACTION_BEFORE_RENDER_PAGE, |action| {
+            action_ref::<ActionBeforeRenderPage>(&**action).run(self)
         });
 
         // Acciones del tema antes de renderizar la página.

@@ -4,7 +4,7 @@ use crate::component::grid;
 
 define_handle!(COMPONENT_ROW);
 
-hook_before_render_component!(HOOK_BEFORE_RENDER_ROW, Row);
+action_before_render_component!(ACTION_BEFORE_RENDER_ROW, Row);
 
 #[rustfmt::skip]
 #[derive(Default)]

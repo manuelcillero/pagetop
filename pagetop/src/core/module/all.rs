@@ -1,6 +1,5 @@
-use super::{ModuleStaticRef, ThemeStaticRef};
-
-use crate::core::hook::add_action;
+use crate::core::action::add_action;
+use crate::core::module::{ModuleStaticRef, ThemeStaticRef};
 use crate::{server, trace, LazyStatic};
 
 #[cfg(feature = "database")]
