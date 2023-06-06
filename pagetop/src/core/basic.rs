@@ -1,4 +1,5 @@
-use crate::core::module::{ModuleTrait, ThemeStaticRef, ThemeTrait};
+use crate::core::module::ModuleTrait;
+use crate::core::theme::{ThemeStaticRef, ThemeTrait};
 use crate::html::Favicon;
 use crate::response::page::Page;
 use crate::{define_handle, serve_static_files, server, Handle};

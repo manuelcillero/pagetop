@@ -6,8 +6,11 @@ pub mod action;
 // API to build new components.
 pub mod component;
 
-// API to add new features with modules and themes.
+// API to add new features with modules.
 pub mod module;
+
+// API to add new layouts with themes.
+pub mod theme;
 
 // Basic theme.
 pub(crate) mod basic;

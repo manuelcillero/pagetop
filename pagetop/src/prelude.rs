@@ -23,7 +23,7 @@ pub use crate::html::*;
 #[cfg(feature = "database")]
 pub use crate::{db, db::*, migration_item, pub_migration};
 
-pub use crate::core::{action::*, component::*, module::*};
+pub use crate::core::{action::*, component::*, module::*, theme::*};
 
 pub use crate::{action, action_before_render_component};
 

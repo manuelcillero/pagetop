@@ -1,6 +1,6 @@
 use crate::core::action::Action;
 use crate::core::component::L10n;
-use crate::core::module::ThemeStaticRef;
+use crate::core::theme::ThemeStaticRef;
 use crate::util::single_type_name;
 use crate::{define_handle, server, Handle};
 

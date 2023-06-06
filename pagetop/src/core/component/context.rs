@@ -1,4 +1,4 @@
-use crate::core::module::{all::theme_by_single_name, ThemeStaticRef};
+use crate::core::theme::{all::theme_by_single_name, ThemeStaticRef};
 use crate::html::{html, Assets, IdentifierValue, JavaScript, Markup, StyleSheet};
 use crate::locale::{LanguageIdentifier, LANGID};
 use crate::server::HttpRequest;

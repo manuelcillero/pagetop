@@ -1,5 +1,6 @@
 use crate::core::action::add_action;
-use crate::core::module::{ModuleStaticRef, ThemeStaticRef};
+use crate::core::module::ModuleStaticRef;
+use crate::core::theme::all::THEMES;
 use crate::{server, trace, LazyStatic};
 
 #[cfg(feature = "database")]
@@ -14,24 +15,6 @@ static ENABLED_MODULES: LazyStatic<RwLock<Vec<ModuleStaticRef>>> =
 
 static DROPPED_MODULES: LazyStatic<RwLock<Vec<ModuleStaticRef>>> =
     LazyStatic::new(|| RwLock::new(Vec::new()));
-
-// THEMES ******************************************************************************************
-
-static THEMES: LazyStatic<RwLock<Vec<ThemeStaticRef>>> =
-    LazyStatic::new(|| RwLock::new(Vec::new()));
-
-pub fn theme_by_single_name(single_name: &str) -> Option<ThemeStaticRef> {
-    let single_name = single_name.to_lowercase();
-    match THEMES
-        .read()
-        .unwrap()
-        .iter()
-        .find(|t| t.single_name().to_lowercase() == single_name)
-    {
-        Some(theme) => Some(*theme),
-        _ => None,
-    }
-}
 
 // REGISTER MODULES ********************************************************************************
 
