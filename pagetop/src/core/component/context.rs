@@ -1,5 +1,5 @@
 use crate::core::theme::{all::theme_by_single_name, ThemeStaticRef};
-use crate::html::{html, Assets, IdentifierValue, JavaScript, Markup, StyleSheet};
+use crate::html::{html, Assets, JavaScript, Markup, StyleSheet};
 use crate::locale::{LanguageIdentifier, LANGID};
 use crate::server::HttpRequest;
 use crate::{concat_string, config, util, LazyStatic};
@@ -120,8 +120,8 @@ impl RenderContext {
 
     // Context EXTRAS.
 
-    pub fn required_id<T>(&mut self, id: &IdentifierValue) -> String {
-        match id.get() {
+    pub fn required_id<T>(&mut self, id: Option<String>) -> String {
+        match id {
             Some(id) => id,
             None => {
                 let prefix = util::single_type_name::<T>()

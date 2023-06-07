@@ -6,14 +6,14 @@ macro_rules! action_before_render_component {
 
             type Action = fn(&$Component, &mut RenderContext);
 
-            pub struct [< BeforeRender $Component >] {
+            pub struct [<BeforeRender $Component>] {
                 action: Option<Action>,
                 weight: isize,
             }
 
-            impl ActionTrait for [< BeforeRender $Component >] {
+            impl ActionTrait for [<BeforeRender $Component>] {
                 fn new() -> Self {
-                    [< BeforeRender $Component >] {
+                    [<BeforeRender $Component>] {
                         action: None,
                         weight: 0,
                     }
@@ -32,7 +32,7 @@ macro_rules! action_before_render_component {
                 }
             }
 
-            impl [< BeforeRender $Component >] {
+            impl [<BeforeRender $Component>] {
                 #[allow(dead_code)]
                 pub fn with_action(mut self, action: Action) -> Self {
                     self.action = Some(action);
@@ -55,7 +55,7 @@ macro_rules! action_before_render_component {
             #[inline(always)]
             pub fn before_render_inline(component: &mut $Component, rcx: &mut RenderContext) {
                 run_actions($ACTION_HANDLE, |action|
-                    action_ref::<[< BeforeRender $Component >]>(&**action)
+                    action_ref::<[<BeforeRender $Component>]>(&**action)
                         .run(component, rcx)
                 );
             }

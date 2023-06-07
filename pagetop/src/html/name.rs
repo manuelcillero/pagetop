@@ -1,3 +1,5 @@
+use crate::fn_builder;
+
 #[derive(Default)]
 pub struct NameValue(String);
 
@@ -8,13 +10,7 @@ impl NameValue {
 
     // NameValue BUILDER.
 
-    pub fn with_value(mut self, value: &str) -> Self {
-        self.alter_value(value);
-        self
-    }
-
-    // NameValue ALTER.
-
+    #[fn_builder]
     pub fn alter_value(&mut self, value: &str) -> &mut Self {
         self.0 = value.trim().replace(' ', "_");
         self

@@ -36,6 +36,10 @@ impl ComponentTrait for Form {
         COMPONENT_FORM
     }
 
+    fn id(&self) -> Option<String> {
+        self.id.get()
+    }
+
     fn weight(&self) -> isize {
         self.weight
     }
@@ -55,7 +59,7 @@ impl ComponentTrait for Form {
         };
         html! {
             form
-                id=[self.id().get()]
+                id=[self.id()]
                 class=[self.classes().get()]
                 action=[self.action().get()]
                 method=[method]
@@ -133,10 +137,6 @@ impl Form {
     }
 
     // Form GETTERS.
-
-    pub fn id(&self) -> &IdentifierValue {
-        &self.id
-    }
 
     pub fn classes(&self) -> &Classes {
         &self.classes

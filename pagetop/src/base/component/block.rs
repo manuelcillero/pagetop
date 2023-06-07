@@ -25,6 +25,10 @@ impl ComponentTrait for Block {
         COMPONENT_BLOCK
     }
 
+    fn id(&self) -> Option<String> {
+        self.id.get()
+    }
+
     fn weight(&self) -> isize {
         self.weight
     }
@@ -106,10 +110,6 @@ impl Block {
     }
 
     // Block GETTERS.
-
-    pub fn id(&self) -> &IdentifierValue {
-        &self.id
-    }
 
     pub fn classes(&self) -> &Classes {
         &self.classes

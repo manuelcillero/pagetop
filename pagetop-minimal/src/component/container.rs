@@ -38,6 +38,10 @@ impl ComponentTrait for Container {
         COMPONENT_CONTAINER
     }
 
+    fn id(&self) -> Option<String> {
+        self.id.get()
+    }
+
     fn weight(&self) -> isize {
         self.weight
     }
@@ -53,35 +57,35 @@ impl ComponentTrait for Container {
     fn default_render(&self, rcx: &mut RenderContext) -> Markup {
         match self.container_type() {
             ContainerType::Header => html! {
-                header id=[self.id().get()] class=[self.classes().get()] {
+                header id=[self.id()] class=[self.classes().get()] {
                     div class=[self.inner_classes().get()] {
                         (self.components().render(rcx))
                     }
                 }
             },
             ContainerType::Footer => html! {
-                footer id=[self.id().get()] class=[self.classes().get()] {
+                footer id=[self.id()] class=[self.classes().get()] {
                     div class=[self.inner_classes().get()] {
                         (self.components().render(rcx))
                     }
                 }
             },
             ContainerType::Main => html! {
-                main id=[self.id().get()] class=[self.classes().get()] {
+                main id=[self.id()] class=[self.classes().get()] {
                     div class=[self.inner_classes().get()] {
                         (self.components().render(rcx))
                     }
                 }
             },
             ContainerType::Section => html! {
-                section id=[self.id().get()] class=[self.classes().get()] {
+                section id=[self.id()] class=[self.classes().get()] {
                     div class=[self.inner_classes().get()] {
                         (self.components().render(rcx))
                     }
                 }
             },
             _ => html! {
-                div id=[self.id().get()] class=[self.classes().get()] {
+                div id=[self.id()] class=[self.classes().get()] {
                     (self.components().render(rcx))
                 }
             },
@@ -167,10 +171,6 @@ impl Container {
     }
 
     // Container GETTERS.
-
-    pub fn id(&self) -> &IdentifierValue {
-        &self.id
-    }
 
     pub fn classes(&self) -> &Classes {
         &self.classes

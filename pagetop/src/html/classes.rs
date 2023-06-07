@@ -1,4 +1,4 @@
-use crate::concat_string;
+use crate::{concat_string, fn_builder};
 
 pub enum ClassesOp {
     Add,
@@ -26,13 +26,7 @@ impl Classes {
 
     // Classes BUILDER.
 
-    pub fn with_value(mut self, op: ClassesOp, classes: &str) -> Self {
-        self.alter_value(op, classes);
-        self
-    }
-
-    // Classes ALTER.
-
+    #[fn_builder]
     pub fn alter_value(&mut self, op: ClassesOp, classes: &str) -> &mut Self {
         let classes = classes.trim();
         match op {

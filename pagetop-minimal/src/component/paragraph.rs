@@ -34,6 +34,10 @@ impl ComponentTrait for Paragraph {
         COMPONENT_PARAGRAPH
     }
 
+    fn id(&self) -> Option<String> {
+        self.id.get()
+    }
+
     fn weight(&self) -> isize {
         self.weight
     }
@@ -45,7 +49,7 @@ impl ComponentTrait for Paragraph {
     fn default_render(&self, rcx: &mut RenderContext) -> Markup {
         html! {
             p
-                id=[self.id().get()]
+                id=[self.id()]
                 class=[self.classes().get()]
             {
                 (self.components().render(rcx))
@@ -124,10 +128,6 @@ impl Paragraph {
     }
 
     // Paragraph GETTERS.
-
-    pub fn id(&self) -> &IdentifierValue {
-        &self.id
-    }
 
     pub fn classes(&self) -> &Classes {
         &self.classes

@@ -1,4 +1,4 @@
-//! Funciones útiles y macros declarativas.
+//! Funciones útiles.
 
 use crate::Handle;
 
@@ -7,6 +7,7 @@ use crate::Handle;
 // *************************************************************************************************
 
 // https://stackoverflow.com/a/71464396
+#[doc(hidden)]
 pub const fn handle(
     module_path: &'static str,
     file: &'static str,

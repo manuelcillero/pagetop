@@ -50,6 +50,10 @@ impl ComponentTrait for Anchor {
         COMPONENT_ANCHOR
     }
 
+    fn id(&self) -> Option<String> {
+        self.id.get()
+    }
+
     fn weight(&self) -> isize {
         self.weight
     }
@@ -69,7 +73,7 @@ impl ComponentTrait for Anchor {
         };
         html! {
             a
-                id=[self.id().get()]
+                id=[self.id()]
                 class=[self.classes().get()]
                 href=[self.href().get()]
                 target=[target]
@@ -182,10 +186,6 @@ impl Anchor {
     }
 
     // Anchor GETTERS.
-
-    pub fn id(&self) -> &IdentifierValue {
-        &self.id
-    }
 
     pub fn classes(&self) -> &Classes {
         &self.classes

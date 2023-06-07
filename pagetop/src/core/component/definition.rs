@@ -27,6 +27,10 @@ pub trait ComponentTrait: AnyComponent + BaseComponent + Send + Sync {
         None
     }
 
+    fn id(&self) -> Option<String> {
+        None
+    }
+
     fn weight(&self) -> isize {
         0
     }

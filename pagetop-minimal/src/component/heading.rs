@@ -49,6 +49,10 @@ impl ComponentTrait for Heading {
         COMPONENT_HEADING
     }
 
+    fn id(&self) -> Option<String> {
+        self.id.get()
+    }
+
     fn weight(&self) -> isize {
         self.weight
     }
@@ -58,7 +62,7 @@ impl ComponentTrait for Heading {
     }
 
     fn default_render(&self, rcx: &mut RenderContext) -> Markup {
-        let id = self.id().get();
+        let id = self.id();
         let classes = self.classes().get();
         html! { @match &self.heading_type() {
             HeadingType::H1 => h1 id=[id] class=[classes] { (self.text().render(rcx)) },
@@ -180,10 +184,6 @@ impl Heading {
     }
 
     // Paragraph GETTERS.
-
-    pub fn id(&self) -> &IdentifierValue {
-        &self.id
-    }
 
     pub fn classes(&self) -> &Classes {
         &self.classes

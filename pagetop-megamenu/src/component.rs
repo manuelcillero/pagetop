@@ -175,6 +175,10 @@ impl ComponentTrait for MegaMenu {
         COMPONENT_MEGAMENU
     }
 
+    fn id(&self) -> Option<String> {
+        self.id.get()
+    }
+
     fn weight(&self) -> isize {
         self.weight
     }
@@ -263,10 +267,6 @@ impl MegaMenu {
     }
 
     // MegaMenu GETTERS.
-
-    pub fn id(&self) -> &IdentifierValue {
-        &self.id
-    }
 
     pub fn classes(&self) -> &Classes {
         &self.classes

@@ -22,6 +22,10 @@ impl ComponentTrait for Image {
         COMPONENT_IMAGE
     }
 
+    fn id(&self) -> Option<String> {
+        self.id.get()
+    }
+
     fn weight(&self) -> isize {
         self.weight
     }
@@ -34,7 +38,7 @@ impl ComponentTrait for Image {
         html! {
             img
                 src=[self.source().get()]
-                id=[self.id().get()]
+                id=[self.id()]
                 class=[self.classes().get()];
         }
     }
@@ -92,10 +96,6 @@ impl Image {
     }
 
     // Image GETTERS.
-
-    pub fn id(&self) -> &IdentifierValue {
-        &self.id
-    }
 
     pub fn classes(&self) -> &Classes {
         &self.classes

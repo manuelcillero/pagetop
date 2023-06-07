@@ -1,3 +1,5 @@
+use crate::fn_builder;
+
 #[derive(Default)]
 pub struct AttributeValue(String);
 
@@ -8,13 +10,7 @@ impl AttributeValue {
 
     // AttributeValue BUILDER.
 
-    pub fn with_value(mut self, value: &str) -> Self {
-        self.alter_value(value);
-        self
-    }
-
-    // AttributeValue ALTER.
-
+    #[fn_builder]
     pub fn alter_value(&mut self, value: &str) -> &mut Self {
         self.0 = value.trim().to_owned();
         self

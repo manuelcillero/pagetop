@@ -57,6 +57,10 @@ impl ComponentTrait for Column {
         COMPONENT_COLUMN
     }
 
+    fn id(&self) -> Option<String> {
+        self.id.get()
+    }
+
     fn weight(&self) -> isize {
         self.weight
     }
@@ -71,7 +75,7 @@ impl ComponentTrait for Column {
 
     fn default_render(&self, rcx: &mut RenderContext) -> Markup {
         html! {
-            div id=[self.id().get()] class=[self.classes().get()] {
+            div id=[self.id()] class=[self.classes().get()] {
                 (self.components().render(rcx))
             }
         }
@@ -148,10 +152,6 @@ impl Column {
     }
 
     // Column GETTERS.
-
-    pub fn id(&self) -> &IdentifierValue {
-        &self.id
-    }
 
     pub fn classes(&self) -> &Classes {
         &self.classes
