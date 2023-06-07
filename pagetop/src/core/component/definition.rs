@@ -1,7 +1,6 @@
 use crate::core::component::RenderContext;
 use crate::html::{html, Markup};
-use crate::util::single_type_name;
-use crate::{define_handle, Handle};
+use crate::{define_handle, util, Handle};
 
 pub use std::any::Any as AnyComponent;
 
@@ -21,7 +20,7 @@ pub trait ComponentTrait: AnyComponent + BaseComponent + Send + Sync {
     }
 
     fn name(&self) -> String {
-        single_type_name::<Self>().to_owned()
+        util::single_type_name::<Self>().to_owned()
     }
 
     fn description(&self) -> Option<String> {

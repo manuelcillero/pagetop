@@ -1,8 +1,7 @@
 use crate::base::component::L10n;
 use crate::core::action::Action;
 use crate::core::theme::ThemeStaticRef;
-use crate::util::single_type_name;
-use crate::{define_handle, server, Handle};
+use crate::{define_handle, server, util, Handle};
 
 #[cfg(feature = "database")]
 use crate::db::MigrationItem;
@@ -59,6 +58,6 @@ pub trait ModuleTrait: BaseModule + Send + Sync {
 
 impl<M: ?Sized + ModuleTrait> BaseModule for M {
     fn single_name(&self) -> &'static str {
-        single_type_name::<Self>()
+        util::single_type_name::<Self>()
     }
 }
