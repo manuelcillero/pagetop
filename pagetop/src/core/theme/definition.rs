@@ -1,10 +1,9 @@
-use crate::app::LOCALE_PAGETOP;
 use crate::base::component::L10n;
-use crate::config;
 use crate::core::component::{ComponentTrait, RenderContext};
 use crate::core::module::ModuleTrait;
 use crate::html::{html, Favicon, Markup};
 use crate::response::page::Page;
+use crate::{config, LOCALE_PAGETOP};
 
 pub type ThemeStaticRef = &'static dyn ThemeTrait;
 

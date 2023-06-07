@@ -55,6 +55,8 @@ pub type HashMapResources = std::collections::HashMap<&'static str, StaticResour
 
 pub type Handle = u64;
 
+define_locale!(LOCALE_PAGETOP, "static/locales");
+
 // *************************************************************************************************
 // APIs PÚBLICAS.
 // *************************************************************************************************

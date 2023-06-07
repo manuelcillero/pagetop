@@ -2,7 +2,9 @@
 //! **PageTop**.
 
 // Re-exports.
-pub use crate::{concat_string, fn_builder, paste, Handle, HashMapResources, LazyStatic, ResultExt};
+pub use crate::{
+    concat_string, fn_builder, paste, Handle, HashMapResources, LazyStatic, ResultExt,
+};
 
 // Macros declarativas globales.
 pub use crate::{args, define_config, define_handle, define_locale, serve_static_files};
