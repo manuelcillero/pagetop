@@ -228,6 +228,12 @@ impl<T: AsRef<str>> Render for PreEscaped<T> {
 /// The `html!` macro expands to an expression of this type.
 pub type Markup = PreEscaped<String>;
 
+impl Markup {
+    pub fn is_empty(&self) -> bool {
+        self.0.is_empty()
+    }
+}
+
 impl<T: AsRef<str> + Into<String>> PreEscaped<T> {
     /// Converts the inner value to a string.
     pub fn into_string(self) -> String {

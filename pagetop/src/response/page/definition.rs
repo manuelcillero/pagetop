@@ -1,8 +1,7 @@
 use crate::base::component::L10n;
 use crate::core::action::{action_ref, run_actions};
-use crate::core::component::{
-    common_components, ComponentTrait, ComponentsBundle, ContextOp, OneComponent, RenderContext,
-};
+use crate::core::component::{ComponentTrait, ContextOp, OneComponent, RenderContext};
+use crate::core::theme::ComponentsRegions;
 use crate::html::{html, Classes, ClassesOp, Favicon, Markup, DOCTYPE};
 use crate::locale::{langid_for, LanguageIdentifier};
 use crate::response::fatal_error::FatalError;
@@ -11,8 +10,6 @@ use crate::response::page::ResultPage;
 use crate::{fn_builder, server};
 
 use unic_langid::CharacterDirection;
-
-use std::collections::HashMap;
 
 type PageTitle = OneComponent<L10n>;
 type PageDescription = OneComponent<L10n>;
@@ -26,7 +23,7 @@ pub struct Page {
     favicon     : Option<Favicon>,
     context     : RenderContext,
     body_classes: Classes,
-    regions     : HashMap<&'static str, ComponentsBundle>,
+    regions     : ComponentsRegions,
     template    : String,
 }
 
@@ -41,7 +38,7 @@ impl Default for Page {
             favicon     : None,
             context     : RenderContext::new(),
             body_classes: Classes::new().with_value(ClassesOp::SetDefault, "body"),
-            regions     : common_components(),
+            regions     : ComponentsRegions::new(),
             template    : "default".to_owned(),
         }
     }
@@ -110,12 +107,7 @@ impl Page {
         region: &'static str,
         component: impl ComponentTrait,
     ) -> &mut Self {
-        if let Some(regions) = self.regions.get_mut(region) {
-            regions.add(component);
-        } else {
-            self.regions
-                .insert(region, ComponentsBundle::new_with(component));
-        }
+        self.regions.add_to(region, component);
         self
     }
 
@@ -196,9 +188,14 @@ impl Page {
     }
 
     pub fn render_region(&mut self, region: &str) -> Option<Markup> {
-        match self.regions.get_mut(region) {
-            Some(components) => Some(components.render(&mut self.context)),
-            None => None,
+        let render = self
+            .regions
+            .get_extended_bundle(self.context.theme().single_name(), region)
+            .render(self.context());
+        if render.is_empty() {
+            None
+        } else {
+            Some(render)
         }
     }
 }
