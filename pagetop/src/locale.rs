@@ -78,7 +78,7 @@
 //!
 //! define_locale!(LOCALE_SAMPLE, "static/locales");
 //! ```
-//! Y utiliza el componente [L10n](crate::core::component::L10n) para incluir, en respuestas a las
+//! Y utiliza el componente [L10n](crate::base::component::L10n) para incluir, en respuestas a las
 //! peticiones web, textos y contenidos opcionalmente traducibles según el contexto de renderizado.
 
 use crate::{args, config, trace, LazyStatic};

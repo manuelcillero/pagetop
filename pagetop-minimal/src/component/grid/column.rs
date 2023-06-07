@@ -2,7 +2,7 @@ use pagetop::prelude::*;
 
 define_handle!(COMPONENT_COLUMN);
 
-action_before_render_component!(ACTION_BEFORE_RENDER_COLUMN, Column);
+action_before_render_component!(ACTION_BEFORE_RENDER_COLUMN for Column);
 
 const SIZE__DEFAULT: &str = "col-md";
 const SIZE__1_OF_12: &str = "col-md-1";

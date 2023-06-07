@@ -2,7 +2,7 @@ use pagetop::prelude::*;
 
 define_handle!(COMPONENT_CONTAINER);
 
-action_before_render_component!(ACTION_BEFORE_RENDER_CONTAINER, Container);
+action_before_render_component!(ACTION_BEFORE_RENDER_CONTAINER for Container);
 
 #[derive(Default)]
 pub enum ContainerType {

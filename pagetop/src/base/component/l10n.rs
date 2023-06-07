@@ -11,18 +11,16 @@ pub enum L10nOp {
     Escaped(&'static str, &'static Locales),
 }
 
+impl Default for L10nOp {
+    fn default() -> Self {
+        L10nOp::None
+    }
+}
+
+#[derive(Default)]
 pub struct L10n {
     op: L10nOp,
     args: HashMap<&'static str, String>,
-}
-
-impl Default for L10n {
-    fn default() -> Self {
-        L10n {
-            op: L10nOp::None,
-            args: HashMap::new(),
-        }
-    }
 }
 
 impl ComponentTrait for L10n {

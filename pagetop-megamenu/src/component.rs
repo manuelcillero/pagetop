@@ -153,7 +153,7 @@ impl MegaMenuItem {
 
 define_handle!(COMPONENT_MEGAMENU);
 
-action_before_render_component!(ACTION_BEFORE_RENDER_MENU, MegaMenu);
+action_before_render_component!(ACTION_BEFORE_RENDER_MENU for MegaMenu);
 
 #[rustfmt::skip]
 #[derive(Default)]

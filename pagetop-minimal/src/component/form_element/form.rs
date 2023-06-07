@@ -2,7 +2,7 @@ use pagetop::prelude::*;
 
 define_handle!(COMPONENT_FORM);
 
-action_before_render_component!(ACTION_BEFORE_RENDER_FORM, Form);
+action_before_render_component!(ACTION_BEFORE_RENDER_FORM for Form);
 
 #[derive(Default)]
 pub enum FormMethod {
