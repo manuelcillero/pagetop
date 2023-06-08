@@ -86,6 +86,10 @@ impl Application {
     pub fn run(self) -> Result<Server, Error> {
         Ok(self.server)
     }
+
+    pub fn server(self) -> Server {
+        self.server
+    }
 }
 
 fn print_on_startup() {

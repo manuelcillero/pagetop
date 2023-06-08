@@ -1,12 +1,15 @@
+use pagetop::prelude::*;
+
+struct HealthCheck;
+
+impl ModuleTrait for HealthCheck {}
+
 async fn spawn_app() {
-    let server = pagetop::Application::prepare(None)
-        .await?
-        .run()?
-        .expect("Failed to prepare server");
-    let _ = tokio::spawn(server);
+    let server = Application::prepare(&HealthCheck).unwrap().server();
+    let _ = actix_web::rt::spawn(server);
 }
 
-#[tokio::test]
+#[actix_web::test]
 async fn health_check_works() {
     spawn_app();
 }
