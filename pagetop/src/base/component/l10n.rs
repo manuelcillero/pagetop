@@ -4,17 +4,13 @@ use std::collections::HashMap;
 
 define_handle!(COMPONENT_L10N);
 
+#[derive(Default)]
 pub enum L10nOp {
+    #[default]
     None,
     Value(Markup),
     Translated(&'static str, &'static Locales),
     Escaped(&'static str, &'static Locales),
-}
-
-impl Default for L10nOp {
-    fn default() -> Self {
-        L10nOp::None
-    }
 }
 
 #[derive(Default)]

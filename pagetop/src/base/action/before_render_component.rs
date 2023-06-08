@@ -53,7 +53,10 @@ macro_rules! action_before_render_component {
             }
 
             #[inline(always)]
-            pub fn before_render_inline(component: &mut $Component, rcx: &mut RenderContext) {
+            pub fn run_actions_before_render_component(
+                component: &mut $Component,
+                rcx: &mut RenderContext
+            ) {
                 run_actions($ACTION_HANDLE, |action|
                     action_ref::<[<BeforeRender $Component>]>(&**action)
                         .run(component, rcx)

@@ -70,7 +70,7 @@ impl ComponentTrait for Column {
     }
 
     fn before_render(&mut self, rcx: &mut RenderContext) {
-        before_render_inline(self, rcx);
+        run_actions_before_render_component(self, rcx);
     }
 
     fn default_render(&self, rcx: &mut RenderContext) -> Markup {
