@@ -26,8 +26,8 @@ impl ModuleTrait for User {
         vec![&pagetop_minimal::Minimal]
     }
 
-    fn configure_service(&self, cfg: &mut server::web::ServiceConfig) {
-        cfg.route("/user/login", server::web::get().to(login));
+    fn configure_service(&self, cfg: &mut service::web::ServiceConfig) {
+        cfg.route("/user/login", service::web::get().to(login));
     }
 
     fn migrations(&self) -> Vec<MigrationItem> {
@@ -40,7 +40,7 @@ impl ModuleTrait for User {
     }
 }
 
-async fn login(request: server::HttpRequest) -> ResultPage<Markup, FatalError> {
+async fn login(request: service::HttpRequest) -> ResultPage<Markup, FatalError> {
     Page::new(request)
         .with_title(L10n::n("Identificación del usuario"))
         .with_in(

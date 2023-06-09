@@ -14,7 +14,7 @@ impl ModuleTrait for JQuery {
         MODULE_JQUERY
     }
 
-    fn configure_service(&self, cfg: &mut server::web::ServiceConfig) {
+    fn configure_service(&self, cfg: &mut service::web::ServiceConfig) {
         serve_static_files!(cfg, "/jquery", bundle_jquery);
     }
 }

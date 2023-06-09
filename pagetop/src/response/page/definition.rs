@@ -7,7 +7,7 @@ use crate::locale::{langid_for, LanguageIdentifier};
 use crate::response::fatal_error::FatalError;
 use crate::response::page::action::{ActionBeforeRenderPage, ACTION_BEFORE_RENDER_PAGE};
 use crate::response::page::ResultPage;
-use crate::{fn_builder, server};
+use crate::{fn_builder, service};
 
 use unic_langid::CharacterDirection;
 
@@ -45,7 +45,7 @@ impl Default for Page {
 }
 
 impl Page {
-    pub fn new(request: server::HttpRequest) -> Self {
+    pub fn new(request: service::HttpRequest) -> Self {
         let mut page = Page::default();
         page.context.alter(ContextOp::Request(Some(request)));
         page

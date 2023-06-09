@@ -22,8 +22,8 @@ impl ModuleTrait for Node {
         L10n::t("module_description", &LOCALE_NODE)
     }
 
-    fn configure_service(&self, cfg: &mut server::web::ServiceConfig) {
-        cfg.route("/node", server::web::get().to(node));
+    fn configure_service(&self, cfg: &mut service::web::ServiceConfig) {
+        cfg.route("/node", service::web::get().to(node));
     }
 
     fn actions(&self) -> Vec<Action> {
@@ -40,7 +40,7 @@ impl ModuleTrait for Node {
     }
 }
 
-async fn node(request: server::HttpRequest) -> ResultPage<Markup, FatalError> {
+async fn node(request: service::HttpRequest) -> ResultPage<Markup, FatalError> {
     Page::new(request).with_title(L10n::n("Nodo")).render()
 }
 

@@ -4,7 +4,7 @@ use pagetop::prelude::*;
 use pagetop_megamenu::component::{MegaMenu, MegaMenuItem};
 use pagetop_minimal::component::*;
 
-pub async fn summary(request: server::HttpRequest) -> ResultPage<Markup, FatalError> {
+pub async fn summary(request: service::HttpRequest) -> ResultPage<Markup, FatalError> {
     let top_menu = MegaMenu::new()
         .with_item(MegaMenuItem::label(L10n::t("module_name", &LOCALE_ADMIN)))
         .with_item(MegaMenuItem::link(

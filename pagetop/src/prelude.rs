@@ -31,8 +31,8 @@ pub use crate::{action, action_before_render_component};
 
 pub use crate::base::component::*;
 
-pub use crate::server;
-pub use crate::server::HttpMessage;
+pub use crate::service;
+pub use crate::service::HttpMessage;
 
 pub use crate::response::fatal_error::*;
 pub use crate::response::{page::*, ResponseError};

@@ -17,7 +17,7 @@ impl ModuleTrait for MegaMenu {
         vec![&pagetop_jquery::JQuery, &pagetop_minimal::Minimal]
     }
 
-    fn configure_service(&self, cfg: &mut server::web::ServiceConfig) {
+    fn configure_service(&self, cfg: &mut service::web::ServiceConfig) {
         serve_static_files!(cfg, "/megamenu", bundle_megamenu);
     }
 }

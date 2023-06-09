@@ -1,7 +1,7 @@
 use crate::core::theme::{all::theme_by_single_name, ThemeStaticRef};
 use crate::html::{html, Assets, JavaScript, Markup, StyleSheet};
 use crate::locale::{LanguageIdentifier, LANGID};
-use crate::server::HttpRequest;
+use crate::service::HttpRequest;
 use crate::{concat_string, config, util, LazyStatic};
 
 use std::collections::HashMap;

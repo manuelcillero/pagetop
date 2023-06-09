@@ -2,7 +2,7 @@ use crate::core::module::ModuleTrait;
 use crate::core::theme::{ThemeStaticRef, ThemeTrait};
 use crate::html::Favicon;
 use crate::response::page::Page;
-use crate::{define_handle, serve_static_files, server, Handle};
+use crate::{define_handle, serve_static_files, service, Handle};
 
 define_handle!(THEME_BASIC);
 
@@ -19,7 +19,7 @@ impl ModuleTrait for Basic {
         Some(&Basic)
     }
 
-    fn configure_service(&self, cfg: &mut server::web::ServiceConfig) {
+    fn configure_service(&self, cfg: &mut service::web::ServiceConfig) {
         serve_static_files!(cfg, "/theme", bundle_theme);
     }
 }

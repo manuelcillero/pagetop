@@ -33,9 +33,9 @@ impl ModuleTrait for Admin {
         vec![action!(ActionBeforeRenderPage => before_render_page)]
     }
 
-    fn configure_service(&self, cfg: &mut server::web::ServiceConfig) {
+    fn configure_service(&self, cfg: &mut service::web::ServiceConfig) {
         cfg.service(
-            server::web::scope("/admin").route("", server::web::get().to(summary::summary)),
+            service::web::scope("/admin").route("", service::web::get().to(summary::summary)),
         );
     }
 }

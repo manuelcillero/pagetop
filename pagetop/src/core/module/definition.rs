@@ -1,7 +1,7 @@
 use crate::base::component::L10n;
 use crate::core::action::Action;
 use crate::core::theme::ThemeStaticRef;
-use crate::{server, util, Handle};
+use crate::{service, util, Handle};
 
 #[cfg(feature = "database")]
 use crate::db::MigrationItem;
@@ -49,7 +49,7 @@ pub trait ModuleTrait: BaseModule + Send + Sync {
     }
 
     #[allow(unused_variables)]
-    fn configure_service(&self, cfg: &mut server::web::ServiceConfig) {}
+    fn configure_service(&self, cfg: &mut service::web::ServiceConfig) {}
 }
 
 impl<M: ?Sized + ModuleTrait> BaseModule for M {

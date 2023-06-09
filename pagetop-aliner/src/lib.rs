@@ -15,7 +15,7 @@ impl ModuleTrait for Aliner {
         Some(&Aliner)
     }
 
-    fn configure_service(&self, cfg: &mut server::web::ServiceConfig) {
+    fn configure_service(&self, cfg: &mut service::web::ServiceConfig) {
         serve_static_files!(cfg, "/aliner", bundle_aliner);
     }
 }

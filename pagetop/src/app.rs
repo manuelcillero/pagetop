@@ -6,7 +6,7 @@ use crate::core::{module, module::ModuleStaticRef};
 use crate::html::Markup;
 use crate::response::fatal_error::FatalError;
 use crate::response::page::ResultPage;
-use crate::{config, locale, server, trace, LazyStatic};
+use crate::{config, locale, service, trace, LazyStatic};
 
 #[cfg(feature = "database")]
 use crate::db;
@@ -55,8 +55,8 @@ impl Application {
 
         // Prepara el servidor web.
         let secret_key = get_secret_key();
-        let server = server::HttpServer::new(move || {
-            server::App::new()
+        let server = service::HttpServer::new(move || {
+            service::App::new()
                 .wrap(tracing_actix_web::TracingLogger::default())
                 .wrap(
                     SessionMiddleware::builder(CookieSessionStore::default(), secret_key.clone())
@@ -71,7 +71,7 @@ impl Application {
                         .build(),
                 )
                 .configure(module::all::configure_services)
-                .default_service(server::web::route().to(service_not_found))
+                .default_service(service::web::route().to(service_not_found))
         })
         .bind(format!(
             "{}:{}",
@@ -123,6 +123,6 @@ fn get_secret_key() -> Key {
     Key::generate()
 }
 
-async fn service_not_found(request: server::HttpRequest) -> ResultPage<Markup, FatalError> {
+async fn service_not_found(request: service::HttpRequest) -> ResultPage<Markup, FatalError> {
     Err(FatalError::NotFound(request))
 }

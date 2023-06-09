@@ -5,8 +5,8 @@ pub use error404::ERROR_404;
 
 use crate::base::component::L10n;
 use crate::response::{page::Page, ResponseError};
-use crate::server::http::{header::ContentType, StatusCode};
-use crate::server::{HttpRequest, HttpResponse};
+use crate::service::http::{header::ContentType, StatusCode};
+use crate::service::{HttpRequest, HttpResponse};
 
 use std::fmt;
 

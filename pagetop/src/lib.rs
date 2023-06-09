@@ -80,8 +80,8 @@ pub mod core;
 // Acciones, componentes, módulos y temas integrados en PageTop.
 pub mod base;
 
-// API del servidor web.
-pub mod server;
+// API para operar con los servicios web.
+pub mod service;
 
 // Tipos de respuestas a peticiones web.
 pub mod response;

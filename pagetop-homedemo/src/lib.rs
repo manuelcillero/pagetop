@@ -26,13 +26,13 @@ impl ModuleTrait for HomeDemo {
         vec![&pagetop_minimal::Minimal]
     }
 
-    fn configure_service(&self, cfg: &mut server::web::ServiceConfig) {
+    fn configure_service(&self, cfg: &mut service::web::ServiceConfig) {
         serve_static_files!(cfg, "/homedemo", bundle_homedemo);
-        cfg.route("/", server::web::get().to(demo));
+        cfg.route("/", service::web::get().to(demo));
     }
 }
 
-async fn demo(request: server::HttpRequest) -> ResultPage<Markup, FatalError> {
+async fn demo(request: service::HttpRequest) -> ResultPage<Markup, FatalError> {
     Page::new(request)
         .with_title(L10n::t("page_title", &LOCALE_DEMOHOME))
         .with_context(ContextOp::AddStyleSheet(StyleSheet::located(

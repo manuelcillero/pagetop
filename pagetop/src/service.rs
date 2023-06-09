@@ -2,7 +2,7 @@
 
 pub use actix_session::Session;
 pub use actix_web::{
-    cookie, http, web, App, HttpMessage, HttpRequest, HttpResponse, HttpServer, Responder,
+    cookie, get, http, web, App, HttpMessage, HttpRequest, HttpResponse, HttpServer, Responder,
 };
 
 pub use actix_web_files::Files as ActixFiles;
