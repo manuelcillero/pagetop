@@ -1,0 +1,18 @@
+[package]
+name = "tests"
+version = "0.0.1"
+edition = "2021"
+
+authors = [
+    "Manuel Cillero <manuel@cillero.es>"
+]
+description = """\
+    Test for PageTop.\
+"""
+homepage = "https://pagetop.cillero.es"
+repository = "https://github.com/manuelcillero/pagetop"
+license = "Apache-2.0 OR MIT"
+
+[dependencies]
+actix-web = "4"
+pagetop = { version = "0.0", path = "../pagetop", features = ["mysql"], default-features = false }

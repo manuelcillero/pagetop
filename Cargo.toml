@@ -7,19 +7,21 @@ members = [
     "pagetop-build",
     "pagetop-jquery",
     "pagetop-homedemo",
-    "pagetop-megamenu",
     # Components.
     "pagetop-minimal",
-    # Themes.
-    "pagetop-aliner",
-    "pagetop-bootsier",
-    "pagetop-bulmix",
+    "pagetop-megamenu",
     # Modules.
     "pagetop-admin",
     "pagetop-user",
     "pagetop-node",
+    # Themes.
+    "pagetop-aliner",
+    "pagetop-bootsier",
+    "pagetop-bulmix",
 ]
 
 exclude = [
     "drust",
+    "examples",
+    "tests",
 ]

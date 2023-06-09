@@ -102,11 +102,7 @@ impl Page {
     }
 
     #[fn_builder]
-    pub fn alter_this_in(
-        &mut self,
-        region: &'static str,
-        component: impl ComponentTrait,
-    ) -> &mut Self {
+    pub fn alter_in(&mut self, region: &'static str, component: impl ComponentTrait) -> &mut Self {
         self.regions.add_to(region, component);
         self
     }

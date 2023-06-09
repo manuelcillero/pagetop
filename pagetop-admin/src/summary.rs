@@ -57,8 +57,8 @@ pub async fn summary(request: server::HttpRequest) -> ResultPage<Markup, FatalEr
     Page::new(request)
         .with_context(ContextOp::Theme("Bootsier"))
         .with_title(L10n::text("Admin"))
-        .with_this_in("top-menu", top_menu)
-        .with_this_in(
+        .with_in("top-menu", top_menu)
+        .with_in(
             "content",
             grid::Row::new()
                 .with_column(grid::Column::new().with_component(side_menu))
