@@ -17,7 +17,7 @@ pub trait ModuleTrait: BaseModule + Send + Sync {
     fn handle(&self) -> Handle;
 
     fn name(&self) -> L10n {
-        L10n::text(self.single_name())
+        L10n::n(self.single_name())
     }
 
     fn description(&self) -> L10n {

@@ -1,3 +1,6 @@
+mod html;
+pub use html::{Html, COMPONENT_HTML};
+
 mod l10n;
 pub use l10n::{L10n, COMPONENT_L10N};
 

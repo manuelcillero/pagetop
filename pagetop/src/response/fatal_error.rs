@@ -32,7 +32,7 @@ impl fmt::Display for FatalError {
             FatalError::AccessDenied(request) => {
                 let error_page = Page::new(request.clone());
                 if let Ok(page) = error_page
-                    .with_title(L10n::text("Error FORBIDDEN"))
+                    .with_title(L10n::n("Error FORBIDDEN"))
                     .with_in("content", error403::Error403)
                     .with_template("error")
                     .render()
@@ -46,7 +46,7 @@ impl fmt::Display for FatalError {
             FatalError::NotFound(request) => {
                 let error_page = Page::new(request.clone());
                 if let Ok(page) = error_page
-                    .with_title(L10n::text("Error RESOURCE NOT FOUND"))
+                    .with_title(L10n::n("Error RESOURCE NOT FOUND"))
                     .with_in("content", error404::Error404)
                     .with_template("error")
                     .render()

@@ -8,7 +8,7 @@ define_handle!(COMPONENT_L10N);
 pub enum L10nOp {
     #[default]
     None,
-    Value(Markup),
+    Text(&'static str),
     Translated(&'static str, &'static Locales),
     Escaped(&'static str, &'static Locales),
 }
@@ -31,7 +31,7 @@ impl ComponentTrait for L10n {
     fn default_render(&self, rcx: &mut RenderContext) -> Markup {
         match self.op() {
             L10nOp::None => html! {},
-            L10nOp::Value(value) => html! { (value) },
+            L10nOp::Text(text) => html! { (text) },
             L10nOp::Translated(key, locales) => html! {
                 (locales
                     .lookup_with_args(
@@ -71,16 +71,9 @@ impl ComponentTrait for L10n {
 }
 
 impl L10n {
-    pub fn text(text: &'static str) -> Self {
+    pub fn n(text: &'static str) -> Self {
         L10n {
-            op: L10nOp::Value(html! { (text) }),
-            ..Default::default()
-        }
-    }
-
-    pub fn html(html: Markup) -> Self {
-        L10n {
-            op: L10nOp::Value(html),
+            op: L10nOp::Text(text),
             ..Default::default()
         }
     }
