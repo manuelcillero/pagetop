@@ -12,7 +12,7 @@
 //! **PageTop** es un entorno de desarrollo basado en Rust que reúne algunos de los crates más
 //! estables y populares para crear soluciones web modulares, extensibles y configurables.
 //!
-//! PageTop define un interfaz único que ofrece:
+//! PageTop define un interfaz único para aplicaciones SSR (*Server-Side Rendering*) que ofrece:
 //!
 //!  * Lectura y uso de ajustes de configuración ([`config`]).
 //!
@@ -34,6 +34,43 @@
 //!
 //! **PageTop** sólo libera actualmente versiones de desarrollo. La API no es estable y los cambios
 //! son constantes. No puede considerarse preparado hasta que se libere la versión **0.1.0**.
+//!
+//! # 🏃‍♀️ Inicio rápido
+//!
+//! Puedes encontrar este código en el repositorio de ejemplos
+//! [básicos](https://github.com/manuelcillero/pagetop/tree/main/examples/basics) de PageTop:
+//! ```rust
+//! use pagetop::prelude::*;
+//!
+//! define_handle!(APP_HELLO_WORLD);
+//!
+//! struct HelloWorld;
+//!
+//! impl ModuleTrait for HelloWorld {
+//!     fn handle(&self) -> Handle {
+//!         APP_HELLO_WORLD
+//!     }
+//!
+//!     fn configure_service(&self, cfg: &mut service::web::ServiceConfig) {
+//!         cfg.service(hello_world);
+//!     }
+//! }
+//!
+//! #[service::get("/")]
+//! async fn hello_world(request: service::HttpRequest) -> ResultPage<Markup, FatalError> {
+//!     Page::new(request)
+//!         .with_in("content", Html::with(html! { h1 { "Hello World!" } }))
+//!         .render()
+//! }
+//!
+//! #[actix_web::main]
+//! async fn main() -> std::io::Result<()> {
+//!     Application::prepare(&HelloWorld).unwrap().run()?.await
+//! }
+//! ```
+//! Este programa crea un módulo llamado `HelloWorld` con un servicio que devuelve una página web
+//! saludando al mundo cada vez que se accede desde el navegador a `http://localhost:8088` (según
+//! los [ajustes de configuración](`config::Server`) predeterminados).
 
 // *************************************************************************************************
 // GLOBAL.

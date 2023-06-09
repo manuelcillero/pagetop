@@ -42,6 +42,19 @@ El repositorio se organiza en un *workspace* con los siguientes subproyectos:
   incluir fácilmente recursos en los archivos binarios al compilar aplicaciones creadas con
   **PageTop**.
 
+## Componentes
+
+* **[pagetop-minimal](https://github.com/manuelcillero/pagetop/tree/main/pagetop-minimal)**, módulo
+  que proporciona un conjunto básico de componentes para la composición de páginas.
+
+* **[pagetop-jquery](https://github.com/manuelcillero/pagetop/tree/main/pagetop-jquery)**, módulo
+  que permite añadir jQuery en las páginas que incluyen componentes o temas que usen esta librería
+  JavaScript para interactuar con el documento HTML.​
+
+* **[pagetop-megamenu](https://github.com/manuelcillero/pagetop/tree/main/pagetop-megamenu)**,
+  módulo que proporciona un nuevo componente para incluir menús avanzados en las aplicaciones web
+  creadas con **PageTop**.
+
 ## Módulos
 
 * **[pagetop-homedemo](https://github.com/manuelcillero/pagetop/tree/main/pagetop-homedemo)**,
@@ -69,19 +82,6 @@ El repositorio se organiza en un *workspace* con los siguientes subproyectos:
 * **[pagetop-bulmix](https://github.com/manuelcillero/pagetop/tree/main/pagetop-bulmix)**, tema que
   utiliza el *framework* [Bulma](https://bulma.io/) para la composición de páginas y visualización
   de componentes.
-
-## Componentes
-
-* **[pagetop-minimal](https://github.com/manuelcillero/pagetop/tree/main/pagetop-minimal)**, módulo
-  que proporciona un conjunto básico de componentes para la composición de páginas.
-
-* **[pagetop-jquery](https://github.com/manuelcillero/pagetop/tree/main/pagetop-jquery)**, módulo
-  que permite añadir jQuery en las páginas que incluyen componentes o temas que usen esta librería
-  JavaScript para interactuar con el documento HTML.​
-
-* **[pagetop-megamenu](https://github.com/manuelcillero/pagetop/tree/main/pagetop-megamenu)**,
-  módulo que proporciona un nuevo componente para incluir menús avanzados en las aplicaciones web
-  creadas con **PageTop**.
 
 ## Aplicación
 

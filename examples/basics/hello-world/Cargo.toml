@@ -1,9 +1,9 @@
 [package]
-name = "hello_name"
+name = "hello_world"
 version = "0.0.0"
 edition = "2021"
 publish = false
 
 [dependencies]
 actix-web = "4"
-pagetop = { version = "0.0", path = "../../pagetop" }
+pagetop = { version = "0.0", path = "../../../pagetop" }
