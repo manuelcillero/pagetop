@@ -9,14 +9,14 @@ impl ModuleTrait for HelloWorld {
         APP_HELLO_WORLD
     }
 
-    fn configure_service(&self, cfg: &mut server::web::ServiceConfig) {
-        cfg.route("/", server::web::get().to(hello_world));
+    fn configure_service(&self, cfg: &mut service::web::ServiceConfig) {
+        cfg.route("/", service::web::get().to(hello_world));
     }
 }
 
-async fn hello_world(request: server::HttpRequest) -> ResultPage<Markup, FatalError> {
+async fn hello_world(request: service::HttpRequest) -> ResultPage<Markup, FatalError> {
     Page::new(request)
-        .with_in("content", L10n::html(html! { h1 { "Hello World!" } }))
+        .with_in("content", Html::with(html! { h1 { "Hello World!" } }))
         .render()
 }
 
