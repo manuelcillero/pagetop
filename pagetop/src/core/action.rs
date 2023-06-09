@@ -1,5 +1,5 @@
 mod definition;
-pub use definition::{action_ref, ActionTrait, AnyAction, ACTION_UNNAMED};
+pub use definition::{action_ref, ActionTrait, AnyAction};
 
 mod bundle;
 pub use bundle::Action;

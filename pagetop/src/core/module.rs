@@ -1,4 +1,4 @@
 mod definition;
-pub use definition::{BaseModule, ModuleStaticRef, ModuleTrait, MODULE_UNNAMED};
+pub use definition::{BaseModule, ModuleStaticRef, ModuleTrait};
 
 pub(crate) mod all;

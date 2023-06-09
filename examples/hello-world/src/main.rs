@@ -1,8 +1,14 @@
 use pagetop::prelude::*;
 
+define_handle!(APP_HELLO_WORLD);
+
 struct HelloWorld;
 
 impl ModuleTrait for HelloWorld {
+    fn handle(&self) -> Handle {
+        APP_HELLO_WORLD
+    }
+
     fn configure_service(&self, cfg: &mut server::web::ServiceConfig) {
         cfg.route("/", server::web::get().to(hello_world));
     }
@@ -10,7 +16,7 @@ impl ModuleTrait for HelloWorld {
 
 async fn hello_world(request: server::HttpRequest) -> ResultPage<Markup, FatalError> {
     Page::new(request)
-        .with_in("content", L10n::html(html! {h1 { "Hello World!"}}))
+        .with_in("content", L10n::html(html! { h1 { "Hello World!" } }))
         .render()
 }
 

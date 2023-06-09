@@ -1,14 +1,12 @@
 use crate::base::component::L10n;
 use crate::core::action::Action;
 use crate::core::theme::ThemeStaticRef;
-use crate::{define_handle, server, util, Handle};
+use crate::{server, util, Handle};
 
 #[cfg(feature = "database")]
 use crate::db::MigrationItem;
 
 pub type ModuleStaticRef = &'static dyn ModuleTrait;
-
-define_handle!(MODULE_UNNAMED);
 
 pub trait BaseModule {
     fn single_name(&self) -> &'static str;
@@ -16,9 +14,7 @@ pub trait BaseModule {
 
 /// Los módulos deben implementar este *trait*.
 pub trait ModuleTrait: BaseModule + Send + Sync {
-    fn handle(&self) -> Handle {
-        MODULE_UNNAMED
-    }
+    fn handle(&self) -> Handle;
 
     fn name(&self) -> L10n {
         L10n::text(self.single_name())

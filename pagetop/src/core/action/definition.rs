@@ -1,17 +1,13 @@
-use crate::{define_handle, Handle};
+use crate::Handle;
 
 pub use std::any::Any as AnyAction;
-
-define_handle!(ACTION_UNNAMED);
 
 pub trait ActionTrait: AnyAction + Send + Sync {
     fn new() -> Self
     where
         Self: Sized;
 
-    fn handle(&self) -> Handle {
-        ACTION_UNNAMED
-    }
+    fn handle(&self) -> Handle;
 
     fn weight(&self) -> isize {
         0
