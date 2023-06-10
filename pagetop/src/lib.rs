@@ -71,6 +71,31 @@
 //! Este programa crea un módulo llamado `HelloWorld` con un servicio que devuelve una página web
 //! saludando al mundo cada vez que se accede desde el navegador a `http://localhost:8088` (según
 //! los [ajustes de configuración](`config::Server`) predeterminados).
+//!
+//! # 🧱 Extendiendo PageTop
+//!
+//! La API de PageTop no sólo sirve para crear aplicaciones, también permite extender sus
+//! funcionalidades con el desarrollo de acciones, componentes, módulos o nuevos temas:
+//!
+//! * Las **acciones** permiten alterar el comportamiento del propio funcionamiento interno de
+//!   PageTop. Las acciones se ofrecen al desarrollador para interactuar con la ejecución de
+//!   procesos que pueden ser modificados.
+//! * Los **componentes** incluyen código HTML, CSS y/o Javascript en unidades que tienen una
+//!   funcionalidad bien definida y configurable durante la creación de páginas web.
+//! * Los **módulos** añaden funcionalidades o modifican las ya existentes usando las APIs globales
+//!   o las de otros módulos de PageTop o de terceros.
+//! * Los **temas** son módulos que permiten cambiar la disposición y el aspecto de las páginas y
+//!   componentes sin necesidad de alterar su funcionamiento. Estructuran las páginas en regiones
+//!   donde disponer los diferentes componentes.
+//!
+//! # 🧩 Dependencias
+//!
+//! Las aplicaciones usarán `cargo` para resolver las dependencias entre PageTop y las extensiones
+//! de terceros que implementen acciones, componentes, módulos y/o temas; de la misma manera que se
+//! hace en cualquier otro proyecto.
+//!
+//! Pero también deberán declararse explícitamente estas dependencias en cada módulo para ayudar a
+//! PageTop a estructurar e inicializar modularmente la aplicación.
 
 // *************************************************************************************************
 // GLOBAL.
