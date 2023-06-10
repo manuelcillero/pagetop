@@ -101,15 +101,16 @@ pub async fn exec_raw(stmt: String) -> Result<ExecResult, DbErr> {
         .await
 }
 
-// El siguiente módulo migration es una versión simplificada del módulo sea_orm_migration (v0.9.1)
-// https://github.com/SeaQL/sea-orm/tree/0.9.1/sea-orm-migration para evitar los errores generados
-// por el paradigma modular de PageTop. Se copian los siguientes archivos del original:
+// El siguiente módulo migration es una versión simplificada del módulo sea_orm_migration (v0.11.3)
+// https://github.com/SeaQL/sea-orm/tree/0.11.3/sea-orm-migration para evitar los errores generados
+// por el paradigma modular de PageTop. Se integran los siguientes archivos del original:
 //
-//    lib.rs => db/migration.rs       (descartando el uso de algunos módulos y exportaciones)
-//    manager.rs => db/migration/manager.rs
-//    migrator.rs => db/migration/migrator.rs         (suprimiendo la gestión de los errores)
-//    prelude.rs =>  db/migration/prelude.rs                                   (evitando cli)
-//    seaql_migrations.rs =>  db/migration/seaql_migrations.rs
+//    lib.rs => db/migration.rs . . . . . . . . . .(descartando algunos módulos y exportaciones)
+//    connection.rs => db/migration/connection.rs . . . . . . . . . . . . . . . . . . (completo)
+//    manager.rs => db/migration/manager.rs . . . . . . . . . . . . . . . . . . . . . (completo)
+//    migrator.rs => db/migration/migrator.rs . . . . . .(suprimiendo la gestión de los errores)
+//    prelude.rs => db/migration/prelude.rs . . . . . . . . . . . . . . . . . . . (evitando cli)
+//    seaql_migrations.rs => db/migration/seaql_migrations.rs . . . . . . . . . . . . (completo)
 //
 mod migration;
 pub use migration::prelude::*;

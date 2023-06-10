@@ -6,10 +6,16 @@
   configuración y delegar su asignación a tipos seguros según los requerimientos de cada módulo,
   tema o aplicación.
 
-* PageTop incorpora una versión adaptada del excelente crate [maud](https://crates.io/crates/maud)
+* PageTop incorpora una versión adaptada del excelente *crate* [maud](https://crates.io/crates/maud)
   de [Chris Wong](https://crates.io/users/lambda-fairy) (versión
   [0.25.0](https://github.com/lambda-fairy/maud/tree/v0.25.0/maud)), para añadir sus funcionalidades
   sin requerir la referencia a `maud` en el archivo `Cargo.toml` de cada proyecto.
+
+* PageTop usa los reconocidos *crates* [SQLx](https://github.com/launchbadge/sqlx) y
+  [SeaQuery](https://github.com/SeaQL/sea-query) para interactuar con bases de datos. Sin embargo,
+  para restringir las migraciones a módulos, se ha integrado en el código una versión modificada de
+  [SeaORM Migration](https://github.com/SeaQL/sea-orm/tree/master/sea-orm-migration) (versión
+  [0.11.3](https://github.com/SeaQL/sea-orm/tree/0.11.3/sea-orm-migration/src)).
 
 
 # 🗚 FIGfonts
