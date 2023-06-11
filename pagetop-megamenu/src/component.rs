@@ -254,14 +254,12 @@ impl MegaMenu {
         self
     }
 
-    #[fn_builder]
-    pub fn alter_item(&mut self, item: MegaMenuItem) -> &mut Self {
-        self.items.add(item);
+    pub fn with_item(mut self, item: MegaMenuItem) -> Self {
+        self.items.alter_bundle(BundleOp::Add, item);
         self
     }
 
-    #[fn_builder]
-    pub fn alter_bundle(&mut self, op: BundleOp, item: MegaMenuItem) -> &mut Self {
+    pub fn alter_items(&mut self, op: BundleOp, item: MegaMenuItem) -> &mut Self {
         self.items.alter_bundle(op, item);
         self
     }

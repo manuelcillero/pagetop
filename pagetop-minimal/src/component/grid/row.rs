@@ -86,14 +86,12 @@ impl Row {
         self
     }
 
-    #[fn_builder]
-    pub fn alter_column(&mut self, column: grid::Column) -> &mut Self {
-        self.columns.add(column);
+    pub fn with_column(mut self, column: grid::Column) -> Self {
+        self.columns.alter_bundle(BundleOp::Add, column);
         self
     }
 
-    #[fn_builder]
-    pub fn alter_bundle(&mut self, op: BundleOp, column: grid::Column) -> &mut Self {
+    pub fn alter_columns(&mut self, op: BundleOp, column: grid::Column) -> &mut Self {
         self.columns.alter_bundle(op, column);
         self
     }

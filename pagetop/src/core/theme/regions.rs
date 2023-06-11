@@ -1,4 +1,4 @@
-use crate::core::component::{ComponentTrait, ComponentsBundle};
+use crate::core::component::{BundleOp, ComponentTrait, ComponentsBundle};
 use crate::LazyStatic;
 
 use std::collections::HashMap;
@@ -17,7 +17,7 @@ impl ComponentsRegions {
 
     pub fn add_to(&mut self, region: &'static str, component: impl ComponentTrait) {
         if let Some(region) = self.0.get_mut(region) {
-            region.add(component);
+            region.alter_bundle(BundleOp::Add, component);
         } else {
             self.0.insert(region, ComponentsBundle::new_with(component));
         }

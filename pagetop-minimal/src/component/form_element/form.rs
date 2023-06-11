@@ -124,14 +124,12 @@ impl Form {
         self
     }
 
-    #[fn_builder]
-    pub fn alter_element(&mut self, element: impl ComponentTrait) -> &mut Self {
-        self.elements.add(element);
+    pub fn with_element(mut self, element: impl ComponentTrait) -> Self {
+        self.elements.alter_bundle(BundleOp::Add, element);
         self
     }
 
-    #[fn_builder]
-    pub fn alter_bundle(&mut self, op: BundleOp, element: impl ComponentTrait) -> &mut Self {
+    pub fn alter_elements(&mut self, op: BundleOp, element: impl ComponentTrait) -> &mut Self {
         self.elements.alter_bundle(op, element);
         self
     }

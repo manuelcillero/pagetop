@@ -158,14 +158,12 @@ impl Container {
         self
     }
 
-    #[fn_builder]
-    pub fn alter_component(&mut self, component: impl ComponentTrait) -> &mut Self {
-        self.components.add(component);
+    pub fn with_component(mut self, component: impl ComponentTrait) -> Self {
+        self.components.alter_bundle(BundleOp::Add, component);
         self
     }
 
-    #[fn_builder]
-    pub fn alter_bundle(&mut self, op: BundleOp, component: impl ComponentTrait) -> &mut Self {
+    pub fn alter_components(&mut self, op: BundleOp, component: impl ComponentTrait) -> &mut Self {
         self.components.alter_bundle(op, component);
         self
     }

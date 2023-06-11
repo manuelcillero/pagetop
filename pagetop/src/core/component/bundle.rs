@@ -1,4 +1,5 @@
 use crate::core::component::{ComponentTrait, RenderContext};
+use crate::fn_builder;
 use crate::html::{html, Markup};
 
 use std::sync::{Arc, RwLock};
@@ -23,7 +24,7 @@ impl ComponentsBundle {
 
     pub fn new_with(component: impl ComponentTrait) -> Self {
         let mut bundle = ComponentsBundle::new();
-        bundle.add(component);
+        bundle.alter_bundle(BundleOp::Add, component);
         bundle
     }
 
@@ -43,10 +44,7 @@ impl ComponentsBundle {
 
     // ComponentsBundle BUILDER.
 
-    pub fn add(&mut self, component: impl ComponentTrait) -> &mut Self {
-        self.alter_bundle(BundleOp::Add, component)
-    }
-
+    #[fn_builder]
     pub fn alter_bundle(&mut self, op: BundleOp, component: impl ComponentTrait) -> &mut Self {
         let arc = Arc::new(RwLock::new(component));
         match op {
