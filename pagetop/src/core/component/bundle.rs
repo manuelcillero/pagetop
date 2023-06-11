@@ -44,8 +44,7 @@ impl ComponentsBundle {
     // ComponentsBundle BUILDER.
 
     pub fn add(&mut self, component: impl ComponentTrait) -> &mut Self {
-        self.0.push(Arc::new(RwLock::new(component)));
-        self
+        self.alter_bundle(BundleOp::Add, component)
     }
 
     pub fn alter_bundle(&mut self, op: BundleOp, component: impl ComponentTrait) -> &mut Self {
