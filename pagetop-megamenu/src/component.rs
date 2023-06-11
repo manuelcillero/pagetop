@@ -261,6 +261,12 @@ impl MegaMenu {
     }
 
     #[fn_builder]
+    pub fn alter_bundle(&mut self, op: BundleOp, item: MegaMenuItem) -> &mut Self {
+        self.items.alter_bundle(op, item);
+        self
+    }
+
+    #[fn_builder]
     pub fn alter_template(&mut self, template: &str) -> &mut Self {
         self.template = template.to_owned();
         self

@@ -93,6 +93,12 @@ impl Row {
     }
 
     #[fn_builder]
+    pub fn alter_bundle(&mut self, op: BundleOp, column: grid::Column) -> &mut Self {
+        self.columns.alter_bundle(op, column);
+        self
+    }
+
+    #[fn_builder]
     pub fn alter_template(&mut self, template: &str) -> &mut Self {
         self.template = template.to_owned();
         self

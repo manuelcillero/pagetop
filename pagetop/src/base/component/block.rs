@@ -68,6 +68,12 @@ impl Block {
     // Block BUILDER.
 
     #[fn_builder]
+    pub fn alter_id(&mut self, id: &str) -> &mut Self {
+        self.id.alter_value(id);
+        self
+    }
+
+    #[fn_builder]
     pub fn alter_weight(&mut self, weight: isize) -> &mut Self {
         self.weight = weight;
         self
@@ -76,12 +82,6 @@ impl Block {
     #[fn_builder]
     pub fn alter_renderable(&mut self, check: IsRenderable) -> &mut Self {
         self.renderable.check = check;
-        self
-    }
-
-    #[fn_builder]
-    pub fn alter_id(&mut self, id: &str) -> &mut Self {
-        self.id.alter_value(id);
         self
     }
 
@@ -100,6 +100,12 @@ impl Block {
     #[fn_builder]
     pub fn alter_component(&mut self, component: impl ComponentTrait) -> &mut Self {
         self.components.add(component);
+        self
+    }
+
+    #[fn_builder]
+    pub fn alter_bundle(&mut self, op: BundleOp, component: impl ComponentTrait) -> &mut Self {
+        self.components.alter_bundle(op, component);
         self
     }
 

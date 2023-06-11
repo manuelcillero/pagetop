@@ -131,6 +131,12 @@ impl Form {
     }
 
     #[fn_builder]
+    pub fn alter_bundle(&mut self, op: BundleOp, element: impl ComponentTrait) -> &mut Self {
+        self.elements.alter_bundle(op, element);
+        self
+    }
+
+    #[fn_builder]
     pub fn alter_template(&mut self, template: &str) -> &mut Self {
         self.template = template.to_owned();
         self

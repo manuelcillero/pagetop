@@ -165,6 +165,12 @@ impl Container {
     }
 
     #[fn_builder]
+    pub fn alter_bundle(&mut self, op: BundleOp, component: impl ComponentTrait) -> &mut Self {
+        self.components.alter_bundle(op, component);
+        self
+    }
+
+    #[fn_builder]
     pub fn alter_template(&mut self, template: &str) -> &mut Self {
         self.template = template.to_owned();
         self

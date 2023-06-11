@@ -3,6 +3,16 @@ use crate::html::{html, Markup};
 
 use std::sync::{Arc, RwLock};
 
+pub enum BundleOp {
+    Add,
+    AddAfterId(&'static str),
+    AddBeforeId(&'static str),
+    AddFirst,
+    RemoveById(&'static str),
+    ReplaceById(&'static str),
+    Reset,
+}
+
 #[derive(Clone, Default)]
 pub struct ComponentsBundle(Vec<Arc<RwLock<dyn ComponentTrait>>>);
 
@@ -31,13 +41,61 @@ impl ComponentsBundle {
         }
     }
 
-    pub fn add(&mut self, component: impl ComponentTrait) {
+    // ComponentsBundle BUILDER.
+
+    pub fn add(&mut self, component: impl ComponentTrait) -> &mut Self {
         self.0.push(Arc::new(RwLock::new(component)));
+        self
     }
 
-    pub fn clear(&mut self) {
-        self.0.clear();
+    pub fn alter_bundle(&mut self, op: BundleOp, component: impl ComponentTrait) -> &mut Self {
+        let arc = Arc::new(RwLock::new(component));
+        match op {
+            BundleOp::Add => self.0.push(arc),
+            BundleOp::AddAfterId(id) => {
+                match self
+                    .0
+                    .iter()
+                    .position(|c| c.read().unwrap().id().as_deref() == Some(id))
+                {
+                    Some(index) => self.0.insert(index + 1, arc),
+                    _ => self.0.push(arc),
+                }
+            }
+            BundleOp::AddBeforeId(id) => {
+                match self
+                    .0
+                    .iter()
+                    .position(|c| c.read().unwrap().id().as_deref() == Some(id))
+                {
+                    Some(index) => self.0.insert(index, arc),
+                    _ => self.0.insert(0, arc),
+                }
+            }
+            BundleOp::AddFirst => self.0.insert(0, arc),
+            BundleOp::RemoveById(id) => {
+                if let Some(index) = self
+                    .0
+                    .iter()
+                    .position(|c| c.read().unwrap().id().as_deref() == Some(id))
+                {
+                    self.0.remove(index);
+                }
+            }
+            BundleOp::ReplaceById(id) => {
+                for c in self.0.iter_mut() {
+                    if c.read().unwrap().id().as_deref() == Some(id) {
+                        *c = arc;
+                        break;
+                    }
+                }
+            }
+            BundleOp::Reset => self.0.clear(),
+        }
+        self
     }
+
+    // ComponentsBundle RENDER.
 
     pub fn render(&self, rcx: &mut RenderContext) -> Markup {
         let mut components = self.0.clone();

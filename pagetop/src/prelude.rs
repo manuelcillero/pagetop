@@ -9,6 +9,9 @@ pub use crate::{
 // Macros declarativas globales.
 pub use crate::{args, define_config, define_handle, define_locale, serve_static_files};
 
+// Traducciones globales.
+pub use crate::LOCALE_PAGETOP;
+
 // Funciones útiles.
 pub use crate::util;
 

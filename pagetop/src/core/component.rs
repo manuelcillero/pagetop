@@ -8,7 +8,7 @@ mod one;
 pub use one::OneComponent;
 
 mod bundle;
-pub use bundle::ComponentsBundle;
+pub use bundle::{BundleOp, ComponentsBundle};
 
 mod renderable;
 pub use renderable::{IsRenderable, Renderable};

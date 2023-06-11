@@ -103,6 +103,12 @@ impl Paragraph {
         self
     }
 
+    #[fn_builder]
+    pub fn alter_bundle(&mut self, op: BundleOp, component: impl ComponentTrait) -> &mut Self {
+        self.components.alter_bundle(op, component);
+        self
+    }
+
     #[rustfmt::skip]
     #[fn_builder]
     pub fn alter_display(&mut self, display: ParagraphDisplay) -> &mut Self {
