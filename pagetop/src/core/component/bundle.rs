@@ -1,6 +1,6 @@
 use crate::core::component::{ComponentTrait, RenderContext};
-use crate::fn_builder;
 use crate::html::{html, Markup};
+use crate::{fn_builder, Handle};
 
 use std::sync::{Arc, RwLock};
 
@@ -14,8 +14,10 @@ pub enum BundleOp {
     Reset,
 }
 
+pub type ArcLockComponent = Arc<RwLock<dyn ComponentTrait>>;
+
 #[derive(Clone, Default)]
-pub struct ComponentsBundle(Vec<Arc<RwLock<dyn ComponentTrait>>>);
+pub struct ComponentsBundle(Vec<ArcLockComponent>);
 
 impl ComponentsBundle {
     pub fn new() -> Self {
@@ -90,6 +92,26 @@ impl ComponentsBundle {
             BundleOp::Reset => self.0.clear(),
         }
         self
+    }
+
+    // ComponentsBundle GETTERS.
+
+    pub fn get_by_id(&self, id: &'static str) -> Option<&ArcLockComponent> {
+        self.0
+            .iter()
+            .find(|&c| c.read().unwrap().id().as_deref() == Some(id))
+    }
+
+    pub fn iter_by_id(&self, id: &'static str) -> impl Iterator<Item = &ArcLockComponent> {
+        self.0
+            .iter()
+            .filter(|&c| c.read().unwrap().id().as_deref() == Some(id))
+    }
+
+    pub fn iter_by_handle(&self, handle: Handle) -> impl Iterator<Item = &ArcLockComponent> {
+        self.0
+            .iter()
+            .filter(move |&c| c.read().unwrap().handle() == handle)
     }
 
     // ComponentsBundle RENDER.
