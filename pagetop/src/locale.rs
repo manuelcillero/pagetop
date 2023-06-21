@@ -13,30 +13,29 @@
 //!
 //! # Recursos Fluent
 //!
-//! PageTop utiliza [fluent-templates](https://docs.rs/fluent-templates/) para integrar durante la
-//! compilación los recursos de localización en el binario de la aplicación. En el siguiente ejemplo
-//! agruparía todos los archivos y subdirectorios de *static/locales* que tienen un
-//! [Identificador de Idioma Unicode](https://docs.rs/unic-langid/) válido y los asignaría a su
-//! identificador correspondiente:
+//! PageTop usa [fluent-templates](https://docs.rs/fluent-templates/) para integrar los recursos de
+//! localización en el binario de la aplicación. El siguiente ejemplo agrupa archivos y subcarpetas
+//! de *src/locale* que tienen un [Identificador de Idioma Unicode](https://docs.rs/unic-langid/)
+//! válido y los asigna a su identificador correspondiente:
 //!
 //! ```text
-//! static/locales
-//!           ├── common.ftl
-//!           ├── en-US
-//!           │   ├── default.ftl
-//!           │   └── main.ftl
-//!           ├── es-ES
-//!           │   ├── default.ftl
-//!           │   └── main.ftl
-//!           ├── es-MX
-//!           │   ├── default.ftl
-//!           │   └── main.ftl
-//!           └── fr
-//!               ├── default.ftl
-//!               └── main.ftl
+//! src/locale/
+//!      ├── common.ftl
+//!      ├── en-US/
+//!      │   ├── default.ftl
+//!      │   └── main.ftl
+//!      ├── es-ES/
+//!      │   ├── default.ftl
+//!      │   └── main.ftl
+//!      ├── es-MX/
+//!      │   ├── default.ftl
+//!      │   └── main.ftl
+//!      └── fr/
+//!          ├── default.ftl
+//!          └── main.ftl
 //! ```
 //!
-//! Ejemplo de un archivo *static/locales/en-US/main.ftl*:
+//! Ejemplo de un archivo *src/locale/en-US/main.ftl*:
 //!
 //! ```text
 //! hello-world = Hello world!
@@ -52,7 +51,7 @@
 //!     }.
 //! ```
 //!
-//! Ejemplo del archivo equivalente *static/locales/es-ES/main.ftl*:
+//! Ejemplo del archivo equivalente *src/locale/es-ES/main.ftl*:
 //!
 //! ```text
 //! hello-world = Hola mundo!
@@ -76,9 +75,9 @@
 //! ```
 //! use pagetop::prelude::*;
 //!
-//! define_locale!(LOCALE_SAMPLE, "static/locales");
+//! define_locale!(LOCALE_SAMPLE, "src/locale");
 //! ```
-//! Y utiliza el componente [L10n](crate::base::component::L10n) para incluir, en respuestas a las
+//! Y usa el componente [L10n](crate::base::component::L10n) para incluir en las respuestas a
 //! peticiones web, textos y contenidos opcionalmente traducibles según el contexto de renderizado.
 
 use crate::{args, config, trace, LazyStatic};

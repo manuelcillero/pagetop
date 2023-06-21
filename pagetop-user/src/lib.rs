@@ -3,7 +3,7 @@ use pagetop_minimal::component::*;
 
 define_handle!(MODULE_USER);
 
-define_locale!(LOCALE_USER, "src/locales");
+define_locale!(LOCALE_USER, "src/locale");
 
 mod migration;
 

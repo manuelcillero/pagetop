@@ -2,7 +2,7 @@ use pagetop::prelude::*;
 
 define_handle!(MODULE_ADMIN);
 
-define_locale!(LOCALE_ADMIN, "src/locales");
+define_locale!(LOCALE_ADMIN, "src/locale");
 
 mod summary;
 

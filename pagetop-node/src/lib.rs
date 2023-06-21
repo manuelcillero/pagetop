@@ -2,7 +2,7 @@ use pagetop::prelude::*;
 
 define_handle!(MODULE_NODE);
 
-define_locale!(LOCALE_NODE, "src/locales");
+define_locale!(LOCALE_NODE, "src/locale");
 
 //mod entity;
 mod migration;
