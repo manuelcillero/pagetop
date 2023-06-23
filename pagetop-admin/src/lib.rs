@@ -2,7 +2,7 @@ use pagetop::prelude::*;
 
 use_handle!(MODULE_ADMIN);
 
-use_locale!(LOCALE_ADMIN, "src/locale");
+use_locale!(LOCALE_ADMIN);
 
 mod summary;
 

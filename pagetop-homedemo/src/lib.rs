@@ -3,7 +3,7 @@ use pagetop_minimal::component::*;
 
 use_handle!(MODULE_DEMOHOME);
 
-use_locale!(LOCALE_DEMOHOME, "src/locale");
+use_locale!(LOCALE_DEMOHOME);
 
 use_static!(homedemo);
 

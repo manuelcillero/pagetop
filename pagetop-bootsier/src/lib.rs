@@ -2,7 +2,7 @@ use pagetop::prelude::*;
 
 use_handle!(THEME_BOOTSIER);
 
-use_locale!(LOCALE_BOOTSIER, "src/locale");
+use_locale!(LOCALE_BOOTSIER);
 
 use_static!(bootsier);
 

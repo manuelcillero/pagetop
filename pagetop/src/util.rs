@@ -91,7 +91,21 @@ macro_rules! use_handle {
 #[macro_export]
 /// Define un conjunto de elementos de localización y funciones locales de traducción.
 macro_rules! use_locale {
-    ( $LOCALES:ident, $dir_locales:literal $(, $core_locales:literal)? ) => {
+    ( $LOCALES:ident $(, $core_locales:literal)? ) => {
+        use $crate::locale::*;
+
+        fluent_templates::static_loader! {
+            pub static $LOCALES = {
+                locales: "src/locale",
+                $( core_locales: $core_locales, )?
+                fallback_language: "en-US",
+
+                // Elimina las marcas Unicode que delimitan los argumentos.
+                customise: |bundle| bundle.set_use_isolating(false),
+            };
+        }
+    };
+    ( $LOCALES:ident[$dir_locales:literal] $(, $core_locales:literal)? ) => {
         use $crate::locale::*;
 
         fluent_templates::static_loader! {

@@ -70,15 +70,25 @@
 //! # Cómo aplicar la localización en tu código
 //!
 //! Una vez hayas creado tu directorio de recursos FTL usa la macro
-//! [`use_locale!`](crate::use_locale) para integrarlos en tu módulo o aplicación.
+//! [`use_locale!`](crate::use_locale) para integrarlos en tu módulo o aplicación. Si tus recursos
+//! se encuentran en el directorio `"src/locale"` bastará con declarar:
 //!
 //! ```
 //! use pagetop::prelude::*;
 //!
-//! use_locale!(LOCALE_SAMPLE, "src/locale");
+//! use_locale!(LOCALE_SAMPLE);
 //! ```
-//! Y usa el componente [L10n](crate::base::component::L10n) para incluir en las respuestas a
-//! peticiones web, textos y contenidos opcionalmente traducibles según el contexto de renderizado.
+//!
+//! Y si están en otro directorio, entonces puedes usar:
+//!
+//! ```
+//! use pagetop::prelude::*;
+//!
+//! use_locale!(LOCALE_SAMPLE["path/to/locale"]);
+//! ```
+//!
+//! Usa el componente [L10n](crate::base::component::L10n) para incluir textos y contenidos
+//! opcionalmente traducibles según el contexto de renderizado.
 
 use crate::{args, config, trace, LazyStatic};
 
