@@ -27,7 +27,7 @@ impl ModuleTrait for Node {
     }
 
     fn actions(&self) -> Vec<Action> {
-        vec![action!(ActionBeforeRenderPage => before_render_page, -1)]
+        vec![action!(ActionBeforePreparePage => before_prepare_page, -1)]
     }
 
     fn migrations(&self) -> Vec<MigrationItem> {
@@ -44,6 +44,6 @@ async fn node(request: service::HttpRequest) -> ResultPage<Markup, FatalError> {
     Page::new(request).with_title(L10n::n("Nodo")).render()
 }
 
-fn before_render_page(page: &mut Page) {
+fn before_prepare_page(page: &mut Page) {
     page.alter_body_classes(ClassesOp::Add, "test-node");
 }

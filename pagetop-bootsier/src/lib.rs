@@ -42,7 +42,7 @@ impl ThemeTrait for Bootsier {
         ]
     }
 
-    fn before_render_page(&self, page: &mut Page) {
+    fn before_prepare_page(&self, page: &mut Page) {
         page.alter_favicon(Some(Favicon::new().with_icon("/theme/favicon.ico")))
             .alter_context(ContextOp::AddStyleSheet(
                 StyleSheet::located("/bootsier/css/bootstrap.min.css")
@@ -57,7 +57,7 @@ impl ThemeTrait for Bootsier {
         pagetop_jquery::JQuery::add_jquery(page.context());
     }
 
-    fn render_page_body(&self, page: &mut Page) -> Markup {
+    fn prepare_page_body(&self, page: &mut Page) -> Markup {
         match page.template() {
             "admin" => html! {
                 body class=[page.body_classes().get()] {
@@ -66,22 +66,22 @@ impl ThemeTrait for Bootsier {
                         "side-menu",
                         "content"
                     ] {
-                        @if let Some(content) = page.render_region(region) {
+                        @if let Some(content) = page.prepare_region(region) {
                             #(region) { (content) }
                         }
                     }
                 }
             },
             _ => {
-                let header = page.render_region("header");
-                let nav_branding = page.render_region("nav_branding");
-                let nav_main = page.render_region("nav_main");
-                let nav_additional = page.render_region("nav_additional");
-                let breadcrumb = page.render_region("breadcrumb");
-                let content = page.render_region("content");
-                let sidebar_first = page.render_region("sidebar_first");
-                let sidebar_second = page.render_region("sidebar_second");
-                let footer = page.render_region("footer");
+                let header = page.prepare_region("header");
+                let nav_branding = page.prepare_region("nav_branding");
+                let nav_main = page.prepare_region("nav_main");
+                let nav_additional = page.prepare_region("nav_additional");
+                let breadcrumb = page.prepare_region("breadcrumb");
+                let content = page.prepare_region("content");
+                let sidebar_first = page.prepare_region("sidebar_first");
+                let sidebar_second = page.prepare_region("sidebar_second");
+                let footer = page.prepare_region("footer");
                 html! {
                     body class=[page.body_classes().get()] {
                         @if header.is_some() {

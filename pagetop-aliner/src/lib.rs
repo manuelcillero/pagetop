@@ -21,7 +21,7 @@ impl ModuleTrait for Aliner {
 }
 
 impl ThemeTrait for Aliner {
-    fn before_render_page(&self, page: &mut Page) {
+    fn before_prepare_page(&self, page: &mut Page) {
         page.alter_favicon(Some(Favicon::new().with_icon("/theme/favicon.ico")))
             .alter_context(ContextOp::AddStyleSheet(
                 StyleSheet::located("/aliner/css/styles.css").with_weight(-99),

@@ -21,7 +21,7 @@ impl ModuleTrait for Basic {
 }
 
 impl ThemeTrait for Basic {
-    fn before_render_page(&self, page: &mut Page) {
+    fn before_prepare_page(&self, page: &mut Page) {
         page.alter_favicon(Some(Favicon::new().with_icon("/theme/favicon.ico")));
     }
 }

@@ -21,13 +21,9 @@ pub trait ThemeTrait: ModuleTrait + Send + Sync {
     }
 
     #[allow(unused_variables)]
-    fn before_render_page(&self, page: &mut Page) {
-        if page.favicon().is_none() {
-            page.alter_favicon(Some(Favicon::new().with_icon("/theme/favicon.ico")));
-        }
-    }
+    fn before_prepare_page(&self, page: &mut Page) {}
 
-    fn render_page_head(&self, page: &mut Page) -> Markup {
+    fn prepare_page_head(&self, page: &mut Page) -> Markup {
         let title = page.title();
         let description = page.description();
         let viewport = "width=device-width, initial-scale=1, shrink-to-fit=no";
@@ -64,15 +60,21 @@ pub trait ThemeTrait: ModuleTrait + Send + Sync {
         }
     }
 
-    fn render_page_body(&self, page: &mut Page) -> Markup {
+    fn prepare_page_body(&self, page: &mut Page) -> Markup {
         html! {
             body class=[page.body_classes().get()] {
                 @for (region, _) in self.regions().iter() {
-                    @if let Some(content) = page.render_region(region) {
+                    @if let Some(content) = page.prepare_region(region) {
                         #(region) { (content) }
                     }
                 }
             }
+        }
+    }
+
+    fn after_prepare_page(&self, page: &mut Page) {
+        if page.favicon().is_none() {
+            page.alter_favicon(Some(Favicon::new().with_icon("/theme/favicon.ico")));
         }
     }
 

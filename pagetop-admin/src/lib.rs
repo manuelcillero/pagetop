@@ -30,7 +30,7 @@ impl ModuleTrait for Admin {
     }
 
     fn actions(&self) -> Vec<Action> {
-        vec![action!(ActionBeforeRenderPage => before_render_page)]
+        vec![action!(ActionBeforePreparePage => before_prepare_page)]
     }
 
     fn configure_service(&self, cfg: &mut service::web::ServiceConfig) {
@@ -40,6 +40,6 @@ impl ModuleTrait for Admin {
     }
 }
 
-fn before_render_page(page: &mut Page) {
+fn before_prepare_page(page: &mut Page) {
     page.alter_body_classes(ClassesOp::Add, "test-admin");
 }

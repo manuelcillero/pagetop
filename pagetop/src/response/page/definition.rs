@@ -5,8 +5,9 @@ use crate::core::theme::ComponentsRegions;
 use crate::html::{html, Classes, ClassesOp, Favicon, Markup, DOCTYPE};
 use crate::locale::{langid_for, LanguageIdentifier};
 use crate::response::fatal_error::FatalError;
-use crate::response::page::action::{ActionBeforeRenderPage, ACTION_BEFORE_RENDER_PAGE};
 use crate::response::page::ResultPage;
+use crate::response::page::{ActionAfterPreparePage, ACTION_AFTER_PREPARE_PAGE};
+use crate::response::page::{ActionBeforePreparePage, ACTION_BEFORE_PREPARE_PAGE};
 use crate::{fn_builder, service};
 
 use unic_langid::CharacterDirection;
@@ -154,19 +155,27 @@ impl Page {
     // Page RENDER.
 
     pub fn render(&mut self) -> ResultPage<Markup, FatalError> {
-        // Acciones de los módulos antes de renderizar la página.
-        run_actions(ACTION_BEFORE_RENDER_PAGE, |action| {
-            action_ref::<ActionBeforeRenderPage>(&**action).run(self)
+        // Acciones de los módulos antes de preparar la página.
+        run_actions(ACTION_BEFORE_PREPARE_PAGE, |action| {
+            action_ref::<ActionBeforePreparePage>(&**action).run(self)
         });
 
-        // Acciones del tema antes de renderizar la página.
-        self.context.theme().before_render_page(self);
+        // Acciones del tema antes de preparar la página.
+        self.context.theme().before_prepare_page(self);
 
-        // Primero, renderizar el cuerpo.
-        let body = self.context.theme().render_page_body(self);
+        // Primero, preparar el cuerpo.
+        let body = self.context.theme().prepare_page_body(self);
 
-        // Luego, renderizar la cabecera.
-        let head = self.context.theme().render_page_head(self);
+        // Luego, preparar la cabecera.
+        let head = self.context.theme().prepare_page_head(self);
+
+        // Acciones de los módulos después de preparar la página.
+        run_actions(ACTION_AFTER_PREPARE_PAGE, |action| {
+            action_ref::<ActionAfterPreparePage>(&**action).run(self)
+        });
+
+        // Acciones del tema después de preparar la página.
+        self.context.theme().after_prepare_page(self);
 
         // Finalmente, renderizar la página.
         let lang = self.langid().language.as_str();
@@ -183,7 +192,7 @@ impl Page {
         })
     }
 
-    pub fn render_region(&mut self, region: &str) -> Option<Markup> {
+    pub fn prepare_region(&mut self, region: &str) -> Option<Markup> {
         let render = self
             .regions
             .get_extended_bundle(self.context.theme().single_name(), region)
