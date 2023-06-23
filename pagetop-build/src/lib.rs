@@ -6,7 +6,7 @@
 //! ```bash
 //! cd project_dir
 //! mkdir static
-//! echo "Hello, world" > static/hello
+//! echo "Hello, world!" > static/hello
 //! ```
 //!
 //! Add to `Cargo.toml` the required dependencies:
@@ -19,17 +19,26 @@
 //! Add `build.rs` with call to bundle resources (*guides* will be the magic word in this example):
 //!
 //! ```rust#ignore
+//! use pagetop_build::StaticFilesBundle;
+//!
 //! fn main() -> std::io::Result<()> {
-//!     pagetop_build::bundle_resources("./static", "guides", None)
+//!     StaticFilesBundle::from_dir("./static")
+//!         .with_name("guides")
+//!         .build()
 //! }
 //! ```
 //!
 //! Optionally, you can pass a function to filter those files into the `./static` folder which
-//! should be excluded in the resources file:
+//! should be excluded in the resources bundle:
 //!
 //! ```rust#ignore
+//! use pagetop_build::StaticFilesBundle;
+//!
 //! fn main() -> std::io::Result<()> {
-//!     pagetop_build::bundle_resources("./static", "guides", Some(except_css_dir))
+//!     StaticFilesBundle::from_dir("./static")
+//!         .with_name("guides")
+//!         .with_filter(except_css_dir)
+//!         .build()
 //! }
 //!
 //! fn except_css_dir(p: &Path) -> bool {
@@ -44,34 +53,49 @@
 //! [OUT_DIR](https://doc.rust-lang.org/cargo/reference/environment-variables.html) where all
 //! intermediate and output artifacts are placed during compilation.
 //!
-//! You don't need to access this file, just include it in your project source code and a module
-//! called `resources_guides` will be added. Then simply reference the `bundle_guides` function to
-//! embed the generated HashMap resources collection:
+//! You don't need to access this file, just include it in your project using the builder name as an
+//! identifier:
 //!
 //! ```rust#ignore
 //! use pagetop::prelude::*;
 //!
-//! include!(concat!(env!("OUT_DIR"), "/guides.rs"));
-//! static RESOURCES: LazyStatic<HashMapResources> = LazyStatic::new(bundle_guides);
+//! use_static!(guides);
+//! ```
+//!
+//! Also you can get the bundle as a static reference to the generated HashMap resources collection:
+//!
+//! ```rust#ignore
+//! use pagetop::prelude::*;
+//!
+//! use_static!(guides => BUNDLE_GUIDES);
 //! ```
 //!
 //! You can build more than one resources file to compile with your project.
 
 use std::path::Path;
 
-pub fn bundle_resources(
-    from_dir: &str,
-    with_name: &str,
-    filtering: Option<fn(p: &Path) -> bool>,
-) -> std::io::Result<()> {
-    let mut bundle = static_files::resource_dir(from_dir);
-    bundle.with_generated_filename(
-        Path::new(std::env::var("OUT_DIR").unwrap().as_str()).join(format!("{}.rs", with_name)),
-    );
-    bundle.with_module_name(format!("resources_{}", with_name));
-    bundle.with_generated_fn(format!("bundle_{}", with_name));
-    if let Some(filter_files) = filtering {
-        bundle.with_filter(filter_files);
+pub struct StaticFilesBundle(static_files::ResourceDir);
+
+impl StaticFilesBundle {
+    pub fn from_dir(dir: &'static str) -> Self {
+        StaticFilesBundle(static_files::resource_dir(dir))
     }
-    bundle.build()
+
+    pub fn with_name(mut self, name: &'static str) -> Self {
+        self.0.with_generated_filename(
+            Path::new(std::env::var("OUT_DIR").unwrap().as_str()).join(format!("{}.rs", name)),
+        );
+        self.0.with_module_name(format!("bundle_{}", name));
+        self.0.with_generated_fn(name);
+        self
+    }
+
+    pub fn with_filter(mut self, filter: fn(p: &Path) -> bool) -> Self {
+        self.0.with_filter(filter);
+        self
+    }
+
+    pub fn build(self) -> std::io::Result<()> {
+        self.0.build()
+    }
 }
