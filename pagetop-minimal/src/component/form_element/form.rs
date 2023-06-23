@@ -1,6 +1,6 @@
 use pagetop::prelude::*;
 
-define_handle!(COMPONENT_FORM);
+use_handle!(COMPONENT_FORM);
 
 action_before_render_component!(ACTION_BEFORE_RENDER_FORM for Form);
 

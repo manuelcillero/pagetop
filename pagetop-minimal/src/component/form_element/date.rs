@@ -1,6 +1,6 @@
 use pagetop::prelude::*;
 
-define_handle!(COMPONENT_DATE);
+use_handle!(COMPONENT_DATE);
 
 #[rustfmt::skip]
 #[derive(Default)]

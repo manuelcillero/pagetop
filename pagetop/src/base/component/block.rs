@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-define_handle!(COMPONENT_BLOCK);
+use_handle!(COMPONENT_BLOCK);
 
 action_before_render_component!(ACTION_BEFORE_RENDER_BLOCK for Block);
 

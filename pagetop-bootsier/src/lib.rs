@@ -1,6 +1,6 @@
 use pagetop::prelude::*;
 
-define_handle!(THEME_BOOTSIER);
+use_handle!(THEME_BOOTSIER);
 
 define_locale!(LOCALE_BOOTSIER, "src/locale");
 

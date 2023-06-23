@@ -1,8 +1,8 @@
 use crate::core::action::{ActionTrait, AnyAction};
 use crate::response::page::Page;
-use crate::{define_handle, Handle};
+use crate::{use_handle, Handle};
 
-define_handle!(ACTION_BEFORE_RENDER_PAGE);
+use_handle!(ACTION_BEFORE_RENDER_PAGE);
 
 type Action = fn(&mut Page);
 

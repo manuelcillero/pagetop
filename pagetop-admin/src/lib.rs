@@ -1,6 +1,6 @@
 use pagetop::prelude::*;
 
-define_handle!(MODULE_ADMIN);
+use_handle!(MODULE_ADMIN);
 
 define_locale!(LOCALE_ADMIN, "src/locale");
 

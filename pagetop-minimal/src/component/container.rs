@@ -1,6 +1,6 @@
 use pagetop::prelude::*;
 
-define_handle!(COMPONENT_CONTAINER);
+use_handle!(COMPONENT_CONTAINER);
 
 action_before_render_component!(ACTION_BEFORE_RENDER_CONTAINER for Container);
 

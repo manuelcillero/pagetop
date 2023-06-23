@@ -81,7 +81,7 @@ macro_rules! args {
 }
 
 #[macro_export]
-macro_rules! define_handle {
+macro_rules! use_handle {
     ( $HANDLE:ident ) => {
         pub const $HANDLE: $crate::Handle =
             $crate::util::handle(module_path!(), file!(), line!(), column!());

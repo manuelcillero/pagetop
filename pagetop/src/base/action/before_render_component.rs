@@ -2,7 +2,7 @@
 macro_rules! action_before_render_component {
     ( $ACTION_HANDLE:ident for $Component:ty ) => {
         $crate::paste! {
-            $crate::define_handle!($ACTION_HANDLE);
+            $crate::use_handle!($ACTION_HANDLE);
 
             type Action = fn(&$Component, &mut RenderContext);
 

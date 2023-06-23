@@ -1,6 +1,6 @@
 use pagetop::prelude::*;
 
-define_handle!(COMPONENT_INPUT);
+use_handle!(COMPONENT_INPUT);
 
 #[derive(Default)]
 pub enum InputType {

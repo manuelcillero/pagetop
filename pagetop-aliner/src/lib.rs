@@ -1,6 +1,6 @@
 use pagetop::prelude::*;
 
-define_handle!(THEME_ALINER);
+use_handle!(THEME_ALINER);
 
 include!(concat!(env!("OUT_DIR"), "/aliner.rs"));
 

@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-define_handle!(THEME_BASIC);
+use_handle!(THEME_BASIC);
 
 include!(concat!(env!("OUT_DIR"), "/theme.rs"));
 

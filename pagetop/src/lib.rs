@@ -42,7 +42,7 @@
 //! ```rust
 //! use pagetop::prelude::*;
 //!
-//! define_handle!(APP_HELLO_WORLD);
+//! use_handle!(APP_HELLO_WORLD);
 //!
 //! struct HelloWorld;
 //!

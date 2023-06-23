@@ -1,6 +1,6 @@
 use pagetop::prelude::*;
 
-define_handle!(COMPONENT_IMAGE);
+use_handle!(COMPONENT_IMAGE);
 
 #[rustfmt::skip]
 #[derive(Default)]

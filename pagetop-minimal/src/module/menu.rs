@@ -1,6 +1,6 @@
 use pagetop::prelude::*;
 
-define_handle!(MODULE_MENU);
+use_handle!(MODULE_MENU);
 
 define_locale!(LOCALE_MENU, "src/module/menu/locales");
 

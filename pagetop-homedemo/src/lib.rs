@@ -1,7 +1,7 @@
 use pagetop::prelude::*;
 use pagetop_minimal::component::*;
 
-define_handle!(MODULE_DEMOHOME);
+use_handle!(MODULE_DEMOHOME);
 
 define_locale!(LOCALE_DEMOHOME, "src/locale");
 

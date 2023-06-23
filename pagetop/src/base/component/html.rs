@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-define_handle!(COMPONENT_HTML);
+use_handle!(COMPONENT_HTML);
 
 #[derive(Default)]
 pub struct Html(Markup);

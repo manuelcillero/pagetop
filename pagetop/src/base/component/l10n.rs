@@ -2,7 +2,7 @@ use crate::prelude::*;
 
 use std::collections::HashMap;
 
-define_handle!(COMPONENT_L10N);
+use_handle!(COMPONENT_L10N);
 
 #[derive(Default)]
 pub enum L10nOp {

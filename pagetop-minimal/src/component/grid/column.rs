@@ -1,6 +1,6 @@
 use pagetop::prelude::*;
 
-define_handle!(COMPONENT_COLUMN);
+use_handle!(COMPONENT_COLUMN);
 
 action_before_render_component!(ACTION_BEFORE_RENDER_COLUMN for Column);
 

@@ -1,6 +1,6 @@
 use pagetop::prelude::*;
 
-define_handle!(COMPONENT_MEGAMENUITEM);
+use_handle!(COMPONENT_MEGAMENUITEM);
 
 type Label = OneComponent<L10n>;
 type Content = OneComponent<L10n>;
@@ -151,7 +151,7 @@ impl MegaMenuItem {
 
 // MegaMenu.
 
-define_handle!(COMPONENT_MEGAMENU);
+use_handle!(COMPONENT_MEGAMENU);
 
 action_before_render_component!(ACTION_BEFORE_RENDER_MENU for MegaMenu);
 

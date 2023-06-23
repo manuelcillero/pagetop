@@ -1,6 +1,6 @@
 use pagetop::prelude::*;
 
-define_handle!(COMPONENT_HIDDEN);
+use_handle!(COMPONENT_HIDDEN);
 
 #[rustfmt::skip]
 #[derive(Default)]

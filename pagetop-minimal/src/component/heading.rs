@@ -1,6 +1,6 @@
 use pagetop::prelude::*;
 
-define_handle!(COMPONENT_HEADING);
+use_handle!(COMPONENT_HEADING);
 
 #[derive(Default)]
 pub enum HeadingType {

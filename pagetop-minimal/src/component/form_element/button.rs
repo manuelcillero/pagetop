@@ -1,6 +1,6 @@
 use pagetop::prelude::*;
 
-define_handle!(COMPONENT_BUTTON);
+use_handle!(COMPONENT_BUTTON);
 
 #[derive(Default)]
 pub enum ButtonType {

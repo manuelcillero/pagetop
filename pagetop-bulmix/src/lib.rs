@@ -1,7 +1,7 @@
 use pagetop::prelude::*;
 use pagetop_minimal::component::*;
 
-define_handle!(THEME_BULMIX);
+use_handle!(THEME_BULMIX);
 
 include!(concat!(env!("OUT_DIR"), "/bulmix.rs"));
 
