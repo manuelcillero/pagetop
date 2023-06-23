@@ -90,7 +90,7 @@ macro_rules! use_handle {
 
 #[macro_export]
 /// Define un conjunto de elementos de localización y funciones locales de traducción.
-macro_rules! define_locale {
+macro_rules! use_locale {
     ( $LOCALES:ident, $dir_locales:literal $(, $core_locales:literal)? ) => {
         use $crate::locale::*;
 
