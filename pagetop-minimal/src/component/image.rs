@@ -34,13 +34,13 @@ impl ComponentTrait for Image {
         (self.renderable.check)(rcx)
     }
 
-    fn prepare_component(&self, _: &mut RenderContext) -> Markup {
-        html! {
+    fn prepare_component(&self, _: &mut RenderContext) -> PrepareMarkup {
+        PrepareMarkup::With(html! {
             img
                 src=[self.source().get()]
                 id=[self.id()]
                 class=[self.classes().get()];
-        }
+        })
     }
 
     fn as_ref_any(&self) -> &dyn AnyComponent {

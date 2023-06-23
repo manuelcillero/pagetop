@@ -73,12 +73,12 @@ impl ComponentTrait for Column {
         run_actions_before_prepare_component(self, rcx);
     }
 
-    fn prepare_component(&self, rcx: &mut RenderContext) -> Markup {
-        html! {
+    fn prepare_component(&self, rcx: &mut RenderContext) -> PrepareMarkup {
+        PrepareMarkup::With(html! {
             div id=[self.id()] class=[self.classes().get()] {
                 (self.components().prepare(rcx))
             }
-        }
+        })
     }
 
     fn as_ref_any(&self) -> &dyn AnyComponent {

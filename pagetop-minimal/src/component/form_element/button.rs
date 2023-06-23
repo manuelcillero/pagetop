@@ -45,7 +45,7 @@ impl ComponentTrait for Button {
         (self.renderable.check)(rcx)
     }
 
-    fn prepare_component(&self, rcx: &mut RenderContext) -> Markup {
+    fn prepare_component(&self, rcx: &mut RenderContext) -> PrepareMarkup {
         let button_type = match self.button_type() {
             ButtonType::Button => "button",
             ButtonType::Submit => "submit",
@@ -53,7 +53,7 @@ impl ComponentTrait for Button {
         };
         let id = self.name().get().map(|name| concat_string!("edit-", name));
         let value = self.value().prepare(rcx);
-        html! {
+        PrepareMarkup::With(html! {
             button
                 type=(button_type)
                 id=[id]
@@ -65,7 +65,7 @@ impl ComponentTrait for Button {
             {
                 (value)
             }
-        }
+        })
     }
 
     fn as_ref_any(&self) -> &dyn AnyComponent {

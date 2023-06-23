@@ -40,9 +40,9 @@ impl ComponentTrait for Date {
         (self.renderable.check)(rcx)
     }
 
-    fn prepare_component(&self, _: &mut RenderContext) -> Markup {
+    fn prepare_component(&self, _: &mut RenderContext) -> PrepareMarkup {
         let id = self.name().get().map(|name| concat_string!("edit-", name));
-        html! {
+        PrepareMarkup::With(html! {
             div class=[self.classes().get()] {
                 @if let Some(label) = self.label().get() {
                     label class="form-label" for=[&id] {
@@ -70,7 +70,7 @@ impl ComponentTrait for Date {
                     div class="form-text" { (help_text) }
                 }
             }
-        }
+        })
     }
 
     fn as_ref_any(&self) -> &dyn AnyComponent {

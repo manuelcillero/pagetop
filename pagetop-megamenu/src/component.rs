@@ -44,35 +44,35 @@ impl ComponentTrait for MegaMenuItem {
         (self.renderable.check)(rcx)
     }
 
-    fn prepare_component(&self, rcx: &mut RenderContext) -> Markup {
+    fn prepare_component(&self, rcx: &mut RenderContext) -> PrepareMarkup {
         match self.item_type() {
-            MegaMenuItemType::Void => html! {},
+            MegaMenuItemType::Void => PrepareMarkup::None,
 
-            MegaMenuItemType::Label(label) => html! {
+            MegaMenuItemType::Label(label) => PrepareMarkup::With(html! {
                 li class="label" { a href="#" { (label.prepare(rcx)) } }
-            },
-            MegaMenuItemType::Link(label, path) => html! {
+            }),
+            MegaMenuItemType::Link(label, path) => PrepareMarkup::With(html! {
                 li class="link" { a href=(path) { (label.prepare(rcx)) } }
-            },
-            MegaMenuItemType::LinkBlank(label, path) => html! {
+            }),
+            MegaMenuItemType::LinkBlank(label, path) => PrepareMarkup::With(html! {
                 li class="link_blank" {
                     a href=(path) target="_blank" { (label.prepare(rcx)) }
                 }
-            },
-            MegaMenuItemType::Html(content) => html! {
+            }),
+            MegaMenuItemType::Html(content) => PrepareMarkup::With(html! {
                 li class="html" { (content.prepare(rcx)) }
-            },
-            MegaMenuItemType::Submenu(label, menu) => html! {
+            }),
+            MegaMenuItemType::Submenu(label, menu) => PrepareMarkup::With(html! {
                 li class="submenu" {
                     a href="#" { (label.prepare(rcx)) }
                     ul {
                         (menu.items().prepare(rcx))
                     }
                 }
-            },
-            MegaMenuItemType::Separator => html! {
+            }),
+            MegaMenuItemType::Separator => PrepareMarkup::With(html! {
                 li class="separator" { }
-            },
+            }),
         }
     }
 
@@ -191,7 +191,7 @@ impl ComponentTrait for MegaMenu {
         run_actions_before_prepare_component(self, rcx);
     }
 
-    fn prepare_component(&self, rcx: &mut RenderContext) -> Markup {
+    fn prepare_component(&self, rcx: &mut RenderContext) -> PrepareMarkup {
         rcx.alter(ContextOp::AddStyleSheet(
             StyleSheet::located("/megamenu/css/menu.css").with_version("1.1.1"),
         ))
@@ -205,7 +205,7 @@ impl ComponentTrait for MegaMenu {
 
         let id = rcx.required_id::<MegaMenu>(self.id());
 
-        html! {
+        PrepareMarkup::With(html! {
             ul id=(id) class=[self.classes().get()] {
                 (self.items().prepare(rcx))
             }
@@ -215,7 +215,7 @@ impl ComponentTrait for MegaMenu {
                 "showTimeout: 80,"
                 "});});"
             }
-        }
+        })
     }
 
     fn as_ref_any(&self) -> &dyn AnyComponent {

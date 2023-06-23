@@ -46,15 +46,15 @@ impl ComponentTrait for Paragraph {
         (self.renderable.check)(rcx)
     }
 
-    fn prepare_component(&self, rcx: &mut RenderContext) -> Markup {
-        html! {
+    fn prepare_component(&self, rcx: &mut RenderContext) -> PrepareMarkup {
+        PrepareMarkup::With(html! {
             p
                 id=[self.id()]
                 class=[self.classes().get()]
             {
                 (self.components().prepare(rcx))
             }
-        }
+        })
     }
 
     fn as_ref_any(&self) -> &dyn AnyComponent {

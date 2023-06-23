@@ -23,11 +23,11 @@ impl ComponentTrait for Hidden {
         self.weight
     }
 
-    fn prepare_component(&self, _: &mut RenderContext) -> Markup {
+    fn prepare_component(&self, _: &mut RenderContext) -> PrepareMarkup {
         let id = self.name().get().map(|name| concat_string!("value-", name));
-        html! {
+        PrepareMarkup::With(html! {
             input type="hidden" id=[id] name=[self.name().get()] value=[self.value().get()];
-        }
+        })
     }
 
     fn as_ref_any(&self) -> &dyn AnyComponent {

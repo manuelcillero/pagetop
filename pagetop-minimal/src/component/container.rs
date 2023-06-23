@@ -54,41 +54,41 @@ impl ComponentTrait for Container {
         run_actions_before_prepare_component(self, rcx);
     }
 
-    fn prepare_component(&self, rcx: &mut RenderContext) -> Markup {
+    fn prepare_component(&self, rcx: &mut RenderContext) -> PrepareMarkup {
         match self.container_type() {
-            ContainerType::Header => html! {
+            ContainerType::Header => PrepareMarkup::With(html! {
                 header id=[self.id()] class=[self.classes().get()] {
                     div class=[self.inner_classes().get()] {
                         (self.components().prepare(rcx))
                     }
                 }
-            },
-            ContainerType::Footer => html! {
+            }),
+            ContainerType::Footer => PrepareMarkup::With(html! {
                 footer id=[self.id()] class=[self.classes().get()] {
                     div class=[self.inner_classes().get()] {
                         (self.components().prepare(rcx))
                     }
                 }
-            },
-            ContainerType::Main => html! {
+            }),
+            ContainerType::Main => PrepareMarkup::With(html! {
                 main id=[self.id()] class=[self.classes().get()] {
                     div class=[self.inner_classes().get()] {
                         (self.components().prepare(rcx))
                     }
                 }
-            },
-            ContainerType::Section => html! {
+            }),
+            ContainerType::Section => PrepareMarkup::With(html! {
                 section id=[self.id()] class=[self.classes().get()] {
                     div class=[self.inner_classes().get()] {
                         (self.components().prepare(rcx))
                     }
                 }
-            },
-            _ => html! {
+            }),
+            _ => PrepareMarkup::With(html! {
                 div id=[self.id()] class=[self.classes().get()] {
                     (self.components().prepare(rcx))
                 }
-            },
+            }),
         }
     }
 

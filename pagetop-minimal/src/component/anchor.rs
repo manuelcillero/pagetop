@@ -63,7 +63,7 @@ impl ComponentTrait for Anchor {
     }
 
     #[rustfmt::skip]
-    fn prepare_component(&self, rcx: &mut RenderContext) -> Markup {
+    fn prepare_component(&self, rcx: &mut RenderContext) -> PrepareMarkup {
         let target = match &self.target() {
             AnchorTarget::Blank         => Some("_blank"),
             AnchorTarget::Parent        => Some("_parent"),
@@ -71,7 +71,7 @@ impl ComponentTrait for Anchor {
             AnchorTarget::Context(name) => Some(name.as_str()),
             _ => None,
         };
-        html! {
+        PrepareMarkup::With(html! {
             a
                 id=[self.id()]
                 class=[self.classes().get()]
@@ -82,7 +82,7 @@ impl ComponentTrait for Anchor {
                 (" ") span { (self.html().prepare(rcx)) } (" ")
                 (self.right_icon().prepare(rcx))
             }
-        }
+        })
     }
 
     fn as_ref_any(&self) -> &dyn AnyComponent {

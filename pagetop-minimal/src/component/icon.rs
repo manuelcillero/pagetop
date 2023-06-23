@@ -34,8 +34,8 @@ impl ComponentTrait for Icon {
         ));
     }
 
-    fn prepare_component(&self, _: &mut RenderContext) -> Markup {
-        html! { i class=[self.classes().get()] {}; }
+    fn prepare_component(&self, _: &mut RenderContext) -> PrepareMarkup {
+        PrepareMarkup::With(html! { i class=[self.classes().get()] {}; })
     }
 
     fn as_ref_any(&self) -> &dyn AnyComponent {

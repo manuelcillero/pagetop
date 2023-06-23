@@ -61,7 +61,7 @@ impl ComponentTrait for Input {
     }
 
     #[rustfmt::skip]
-    fn prepare_component(&self, rcx: &mut RenderContext) -> Markup {
+    fn prepare_component(&self, rcx: &mut RenderContext) -> PrepareMarkup {
         let type_input = match self.input_type() {
             InputType::Textfield => "text",
             InputType::Password  => "password",
@@ -71,7 +71,7 @@ impl ComponentTrait for Input {
             InputType::Url       => "url",
         };
         let id = self.name().get().map(|name| concat_string!("edit-", name));
-        html! {
+        PrepareMarkup::With(html! {
             div class=[self.classes().get()] {
                 @if let Some(label) = self.label().prepare_optional(rcx) {
                     label class="form-label" for=[&id] {
@@ -102,7 +102,7 @@ impl ComponentTrait for Input {
                     div class="form-text" { (description) }
                 }
             }
-        }
+        })
     }
 
     fn as_ref_any(&self) -> &dyn AnyComponent {

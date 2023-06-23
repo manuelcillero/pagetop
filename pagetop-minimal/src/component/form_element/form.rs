@@ -52,12 +52,12 @@ impl ComponentTrait for Form {
         run_actions_before_prepare_component(self, rcx);
     }
 
-    fn prepare_component(&self, rcx: &mut RenderContext) -> Markup {
+    fn prepare_component(&self, rcx: &mut RenderContext) -> PrepareMarkup {
         let method = match self.method() {
             FormMethod::Post => Some("post".to_owned()),
             FormMethod::Get => None,
         };
-        html! {
+        PrepareMarkup::With(html! {
             form
                 id=[self.id()]
                 class=[self.classes().get()]
@@ -67,7 +67,7 @@ impl ComponentTrait for Form {
             {
                 div { (self.elements().prepare(rcx)) }
             }
-        }
+        })
     }
 
     fn as_ref_any(&self) -> &dyn AnyComponent {
