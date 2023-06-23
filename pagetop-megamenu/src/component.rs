@@ -44,29 +44,29 @@ impl ComponentTrait for MegaMenuItem {
         (self.renderable.check)(rcx)
     }
 
-    fn default_render(&self, rcx: &mut RenderContext) -> Markup {
+    fn prepare_component(&self, rcx: &mut RenderContext) -> Markup {
         match self.item_type() {
             MegaMenuItemType::Void => html! {},
 
             MegaMenuItemType::Label(label) => html! {
-                li class="label" { a href="#" { (label.render(rcx)) } }
+                li class="label" { a href="#" { (label.prepare(rcx)) } }
             },
             MegaMenuItemType::Link(label, path) => html! {
-                li class="link" { a href=(path) { (label.render(rcx)) } }
+                li class="link" { a href=(path) { (label.prepare(rcx)) } }
             },
             MegaMenuItemType::LinkBlank(label, path) => html! {
                 li class="link_blank" {
-                    a href=(path) target="_blank" { (label.render(rcx)) }
+                    a href=(path) target="_blank" { (label.prepare(rcx)) }
                 }
             },
             MegaMenuItemType::Html(content) => html! {
-                li class="html" { (content.render(rcx)) }
+                li class="html" { (content.prepare(rcx)) }
             },
             MegaMenuItemType::Submenu(label, menu) => html! {
                 li class="submenu" {
-                    a href="#" { (label.render(rcx)) }
+                    a href="#" { (label.prepare(rcx)) }
                     ul {
-                        (menu.items().render(rcx))
+                        (menu.items().prepare(rcx))
                     }
                 }
             },
@@ -153,7 +153,7 @@ impl MegaMenuItem {
 
 use_handle!(COMPONENT_MEGAMENU);
 
-action_before_render_component!(ACTION_BEFORE_RENDER_MENU for MegaMenu);
+action_before_prepare_component!(ACTION_BEFORE_PREPARE_MENU for MegaMenu);
 
 #[rustfmt::skip]
 #[derive(Default)]
@@ -187,11 +187,11 @@ impl ComponentTrait for MegaMenu {
         (self.renderable.check)(rcx)
     }
 
-    fn before_render(&mut self, rcx: &mut RenderContext) {
-        run_actions_before_render_component(self, rcx);
+    fn before_prepare(&mut self, rcx: &mut RenderContext) {
+        run_actions_before_prepare_component(self, rcx);
     }
 
-    fn default_render(&self, rcx: &mut RenderContext) -> Markup {
+    fn prepare_component(&self, rcx: &mut RenderContext) -> Markup {
         rcx.alter(ContextOp::AddStyleSheet(
             StyleSheet::located("/megamenu/css/menu.css").with_version("1.1.1"),
         ))
@@ -207,7 +207,7 @@ impl ComponentTrait for MegaMenu {
 
         html! {
             ul id=(id) class=[self.classes().get()] {
-                (self.items().render(rcx))
+                (self.items().prepare(rcx))
             }
             script type="text/javascript" defer {
                 "jQuery(function(){jQuery('#" (id) "').smartmenus({"

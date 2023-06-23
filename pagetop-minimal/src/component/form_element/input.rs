@@ -61,7 +61,7 @@ impl ComponentTrait for Input {
     }
 
     #[rustfmt::skip]
-    fn default_render(&self, rcx: &mut RenderContext) -> Markup {
+    fn prepare_component(&self, rcx: &mut RenderContext) -> Markup {
         let type_input = match self.input_type() {
             InputType::Textfield => "text",
             InputType::Password  => "password",
@@ -73,7 +73,7 @@ impl ComponentTrait for Input {
         let id = self.name().get().map(|name| concat_string!("edit-", name));
         html! {
             div class=[self.classes().get()] {
-                @if let Some(label) = self.label().optional_render(rcx) {
+                @if let Some(label) = self.label().prepare_optional(rcx) {
                     label class="form-label" for=[&id] {
                         (label) " "
                         @if self.required().get().is_some() {
@@ -98,7 +98,7 @@ impl ComponentTrait for Input {
                     readonly=[self.readonly().get()]
                     required=[self.required().get()]
                     disabled=[self.disabled().get()];
-                @if let Some(description) = self.help_text().optional_render(rcx) {
+                @if let Some(description) = self.help_text().prepare_optional(rcx) {
                     div class="form-text" { (description) }
                 }
             }

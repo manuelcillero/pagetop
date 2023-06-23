@@ -4,7 +4,7 @@ use crate::component::grid;
 
 use_handle!(COMPONENT_ROW);
 
-action_before_render_component!(ACTION_BEFORE_RENDER_ROW for Row);
+action_before_prepare_component!(ACTION_BEFORE_PREPARE_ROW for Row);
 
 #[rustfmt::skip]
 #[derive(Default)]
@@ -38,14 +38,14 @@ impl ComponentTrait for Row {
         (self.renderable.check)(rcx)
     }
 
-    fn before_render(&mut self, rcx: &mut RenderContext) {
-        run_actions_before_render_component(self, rcx);
+    fn before_prepare(&mut self, rcx: &mut RenderContext) {
+        run_actions_before_prepare_component(self, rcx);
     }
 
-    fn default_render(&self, rcx: &mut RenderContext) -> Markup {
+    fn prepare_component(&self, rcx: &mut RenderContext) -> Markup {
         html! {
             div id=[self.id()] class=[self.classes().get()] {
-                (self.columns().render(rcx))
+                (self.columns().prepare(rcx))
             }
         }
     }

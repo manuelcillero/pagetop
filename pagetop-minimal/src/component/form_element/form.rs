@@ -2,7 +2,7 @@ use pagetop::prelude::*;
 
 use_handle!(COMPONENT_FORM);
 
-action_before_render_component!(ACTION_BEFORE_RENDER_FORM for Form);
+action_before_prepare_component!(ACTION_BEFORE_PREPARE_FORM for Form);
 
 #[derive(Default)]
 pub enum FormMethod {
@@ -48,11 +48,11 @@ impl ComponentTrait for Form {
         (self.renderable.check)(rcx)
     }
 
-    fn before_render(&mut self, rcx: &mut RenderContext) {
-        run_actions_before_render_component(self, rcx);
+    fn before_prepare(&mut self, rcx: &mut RenderContext) {
+        run_actions_before_prepare_component(self, rcx);
     }
 
-    fn default_render(&self, rcx: &mut RenderContext) -> Markup {
+    fn prepare_component(&self, rcx: &mut RenderContext) -> Markup {
         let method = match self.method() {
             FormMethod::Post => Some("post".to_owned()),
             FormMethod::Get => None,
@@ -65,7 +65,7 @@ impl ComponentTrait for Form {
                 method=[method]
                 accept-charset=[self.charset().get()]
             {
-                div { (self.elements().render(rcx)) }
+                div { (self.elements().prepare(rcx)) }
             }
         }
     }

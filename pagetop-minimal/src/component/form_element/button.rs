@@ -45,24 +45,25 @@ impl ComponentTrait for Button {
         (self.renderable.check)(rcx)
     }
 
-    fn default_render(&self, rcx: &mut RenderContext) -> Markup {
+    fn prepare_component(&self, rcx: &mut RenderContext) -> Markup {
         let button_type = match self.button_type() {
             ButtonType::Button => "button",
             ButtonType::Submit => "submit",
             ButtonType::Reset => "reset",
         };
         let id = self.name().get().map(|name| concat_string!("edit-", name));
+        let value = self.value().prepare(rcx);
         html! {
             button
                 type=(button_type)
                 id=[id]
                 class=[self.classes().get()]
                 name=[self.name().get()]
-                value=(self.value().render(rcx))
+                value=(value)
                 autofocus=[self.autofocus().get()]
                 disabled=[self.disabled().get()]
             {
-                (self.value().render(rcx))
+                (value)
             }
         }
     }

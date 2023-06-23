@@ -63,7 +63,7 @@ impl ComponentTrait for Anchor {
     }
 
     #[rustfmt::skip]
-    fn default_render(&self, rcx: &mut RenderContext) -> Markup {
+    fn prepare_component(&self, rcx: &mut RenderContext) -> Markup {
         let target = match &self.target() {
             AnchorTarget::Blank         => Some("_blank"),
             AnchorTarget::Parent        => Some("_parent"),
@@ -78,9 +78,9 @@ impl ComponentTrait for Anchor {
                 href=[self.href().get()]
                 target=[target]
             {
-                (self.left_icon().render(rcx))
-                (" ") span { (self.html().render(rcx)) } (" ")
-                (self.right_icon().render(rcx))
+                (self.left_icon().prepare(rcx))
+                (" ") span { (self.html().prepare(rcx)) } (" ")
+                (self.right_icon().prepare(rcx))
             }
         }
     }

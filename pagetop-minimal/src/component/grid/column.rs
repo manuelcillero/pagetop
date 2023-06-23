@@ -2,7 +2,7 @@ use pagetop::prelude::*;
 
 use_handle!(COMPONENT_COLUMN);
 
-action_before_render_component!(ACTION_BEFORE_RENDER_COLUMN for Column);
+action_before_prepare_component!(ACTION_BEFORE_PREPARE_COLUMN for Column);
 
 const SIZE__DEFAULT: &str = "col-md";
 const SIZE__1_OF_12: &str = "col-md-1";
@@ -69,14 +69,14 @@ impl ComponentTrait for Column {
         (self.renderable.check)(rcx)
     }
 
-    fn before_render(&mut self, rcx: &mut RenderContext) {
-        run_actions_before_render_component(self, rcx);
+    fn before_prepare(&mut self, rcx: &mut RenderContext) {
+        run_actions_before_prepare_component(self, rcx);
     }
 
-    fn default_render(&self, rcx: &mut RenderContext) -> Markup {
+    fn prepare_component(&self, rcx: &mut RenderContext) -> Markup {
         html! {
             div id=[self.id()] class=[self.classes().get()] {
-                (self.components().render(rcx))
+                (self.components().prepare(rcx))
             }
         }
     }

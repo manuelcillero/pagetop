@@ -41,7 +41,7 @@ impl ThemeTrait for Bulmix {
     }
 
     #[rustfmt::skip]
-    fn before_render_component(
+    fn before_prepare_component(
         &self,
         component: &mut dyn ComponentTrait,
         _rcx: &mut RenderContext,

@@ -2,7 +2,7 @@ use pagetop::prelude::*;
 
 use_handle!(COMPONENT_CONTAINER);
 
-action_before_render_component!(ACTION_BEFORE_RENDER_CONTAINER for Container);
+action_before_prepare_component!(ACTION_BEFORE_PREPARE_CONTAINER for Container);
 
 #[derive(Default)]
 pub enum ContainerType {
@@ -50,43 +50,43 @@ impl ComponentTrait for Container {
         (self.renderable.check)(rcx)
     }
 
-    fn before_render(&mut self, rcx: &mut RenderContext) {
-        run_actions_before_render_component(self, rcx);
+    fn before_prepare(&mut self, rcx: &mut RenderContext) {
+        run_actions_before_prepare_component(self, rcx);
     }
 
-    fn default_render(&self, rcx: &mut RenderContext) -> Markup {
+    fn prepare_component(&self, rcx: &mut RenderContext) -> Markup {
         match self.container_type() {
             ContainerType::Header => html! {
                 header id=[self.id()] class=[self.classes().get()] {
                     div class=[self.inner_classes().get()] {
-                        (self.components().render(rcx))
+                        (self.components().prepare(rcx))
                     }
                 }
             },
             ContainerType::Footer => html! {
                 footer id=[self.id()] class=[self.classes().get()] {
                     div class=[self.inner_classes().get()] {
-                        (self.components().render(rcx))
+                        (self.components().prepare(rcx))
                     }
                 }
             },
             ContainerType::Main => html! {
                 main id=[self.id()] class=[self.classes().get()] {
                     div class=[self.inner_classes().get()] {
-                        (self.components().render(rcx))
+                        (self.components().prepare(rcx))
                     }
                 }
             },
             ContainerType::Section => html! {
                 section id=[self.id()] class=[self.classes().get()] {
                     div class=[self.inner_classes().get()] {
-                        (self.components().render(rcx))
+                        (self.components().prepare(rcx))
                     }
                 }
             },
             _ => html! {
                 div id=[self.id()] class=[self.classes().get()] {
-                    (self.components().render(rcx))
+                    (self.components().prepare(rcx))
                 }
             },
         }

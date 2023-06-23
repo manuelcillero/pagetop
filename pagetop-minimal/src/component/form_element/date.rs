@@ -40,7 +40,7 @@ impl ComponentTrait for Date {
         (self.renderable.check)(rcx)
     }
 
-    fn default_render(&self, _: &mut RenderContext) -> Markup {
+    fn prepare_component(&self, _: &mut RenderContext) -> Markup {
         let id = self.name().get().map(|name| concat_string!("edit-", name));
         html! {
             div class=[self.classes().get()] {

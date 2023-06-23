@@ -46,13 +46,13 @@ impl ComponentTrait for Paragraph {
         (self.renderable.check)(rcx)
     }
 
-    fn default_render(&self, rcx: &mut RenderContext) -> Markup {
+    fn prepare_component(&self, rcx: &mut RenderContext) -> Markup {
         html! {
             p
                 id=[self.id()]
                 class=[self.classes().get()]
             {
-                (self.components().render(rcx))
+                (self.components().prepare(rcx))
             }
         }
     }

@@ -134,18 +134,18 @@ impl ThemeTrait for Bootsier {
                         div class="media-body" {
                             h1 class="display-4" { ("RESOURCE NOT FOUND") }
                             p class="lead" {
-                                (L10n::t("e404-description", &LOCALE_BOOTSIER).render(rcx))
+                                (L10n::t("e404-description", &LOCALE_BOOTSIER).prepare(rcx))
                             }
                             hr class="my-4";
                             p {
-                                (L10n::t("e404-description", &LOCALE_BOOTSIER).render(rcx))
+                                (L10n::t("e404-description", &LOCALE_BOOTSIER).prepare(rcx))
                             }
                             a
                                 class="btn btn-primary btn-lg"
                                 href="/"
                                 role="button"
                             {
-                                (L10n::t("back-homepage", &LOCALE_BOOTSIER).render(rcx))
+                                (L10n::t("back-homepage", &LOCALE_BOOTSIER).prepare(rcx))
                             }
                         }
                     }

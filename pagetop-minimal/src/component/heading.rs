@@ -61,16 +61,16 @@ impl ComponentTrait for Heading {
         (self.renderable.check)(rcx)
     }
 
-    fn default_render(&self, rcx: &mut RenderContext) -> Markup {
+    fn prepare_component(&self, rcx: &mut RenderContext) -> Markup {
         let id = self.id();
         let classes = self.classes().get();
         html! { @match &self.heading_type() {
-            HeadingType::H1 => h1 id=[id] class=[classes] { (self.text().render(rcx)) },
-            HeadingType::H2 => h2 id=[id] class=[classes] { (self.text().render(rcx)) },
-            HeadingType::H3 => h3 id=[id] class=[classes] { (self.text().render(rcx)) },
-            HeadingType::H4 => h4 id=[id] class=[classes] { (self.text().render(rcx)) },
-            HeadingType::H5 => h5 id=[id] class=[classes] { (self.text().render(rcx)) },
-            HeadingType::H6 => h6 id=[id] class=[classes] { (self.text().render(rcx)) },
+            HeadingType::H1 => h1 id=[id] class=[classes] { (self.text().prepare(rcx)) },
+            HeadingType::H2 => h2 id=[id] class=[classes] { (self.text().prepare(rcx)) },
+            HeadingType::H3 => h3 id=[id] class=[classes] { (self.text().prepare(rcx)) },
+            HeadingType::H4 => h4 id=[id] class=[classes] { (self.text().prepare(rcx)) },
+            HeadingType::H5 => h5 id=[id] class=[classes] { (self.text().prepare(rcx)) },
+            HeadingType::H6 => h6 id=[id] class=[classes] { (self.text().prepare(rcx)) },
         }}
     }
 
