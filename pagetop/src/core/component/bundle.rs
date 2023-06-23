@@ -116,12 +116,12 @@ impl ComponentsBundle {
 
     // ComponentsBundle RENDER.
 
-    pub fn render(&self, rcx: &mut RenderContext) -> Markup {
+    pub fn prepare(&self, rcx: &mut RenderContext) -> Markup {
         let mut components = self.0.clone();
         components.sort_by_key(|c| c.read().unwrap().weight());
         html! {
             @for c in components.iter() {
-                (" ")(c.write().unwrap().render(rcx))(" ")
+                (" ")(c.write().unwrap().prepare(rcx))(" ")
             }
         }
     }

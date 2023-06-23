@@ -28,7 +28,7 @@ impl ComponentTrait for L10n {
         COMPONENT_L10N
     }
 
-    fn default_render(&self, rcx: &mut RenderContext) -> Markup {
+    fn prepare_component(&self, rcx: &mut RenderContext) -> Markup {
         match self.op() {
             L10nOp::None => html! {},
             L10nOp::Text(text) => html! { (text) },

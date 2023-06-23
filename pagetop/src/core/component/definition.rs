@@ -5,7 +5,7 @@ use crate::{util, Handle};
 pub use std::any::Any as AnyComponent;
 
 pub trait BaseComponent {
-    fn render(&mut self, rcx: &mut RenderContext) -> Markup;
+    fn prepare(&mut self, rcx: &mut RenderContext) -> Markup;
 }
 
 pub trait ComponentTrait: AnyComponent + BaseComponent + Send + Sync {
@@ -37,12 +37,15 @@ pub trait ComponentTrait: AnyComponent + BaseComponent + Send + Sync {
     }
 
     #[allow(unused_variables)]
-    fn before_render(&mut self, rcx: &mut RenderContext) {}
+    fn before_prepare(&mut self, rcx: &mut RenderContext) {}
 
     #[allow(unused_variables)]
-    fn default_render(&self, rcx: &mut RenderContext) -> Markup {
+    fn prepare_component(&self, rcx: &mut RenderContext) -> Markup {
         html! {}
     }
+
+    #[allow(unused_variables)]
+    fn after_prepare(&mut self, rcx: &mut RenderContext) {}
 
     fn as_ref_any(&self) -> &dyn AnyComponent;
 
@@ -50,19 +53,28 @@ pub trait ComponentTrait: AnyComponent + BaseComponent + Send + Sync {
 }
 
 impl<C: ComponentTrait> BaseComponent for C {
-    fn render(&mut self, rcx: &mut RenderContext) -> Markup {
-        // Acciones del componente antes de renderizar.
-        self.before_render(rcx);
+    fn prepare(&mut self, rcx: &mut RenderContext) -> Markup {
+        if self.is_renderable(rcx) {
+            // Acciones antes de preparar el componente.
+            self.before_prepare(rcx);
 
-        // Acciones del tema antes de renderizar el componente.
-        rcx.theme().before_render_component(self, rcx);
+            // Acciones del tema antes de preparar el componente.
+            rcx.theme().before_prepare_component(self, rcx);
 
-        match self.is_renderable(rcx) {
-            true => match rcx.theme().render_component(self, rcx) {
+            let markup = match rcx.theme().render_component(self, rcx) {
                 Some(html) => html,
-                None => self.default_render(rcx),
-            },
-            false => html! {},
+                None => self.prepare_component(rcx),
+            };
+
+            // Acciones después de preparar el componente.
+            self.after_prepare(rcx);
+
+            // Acciones del tema después de preparar el componente.
+            rcx.theme().after_prepare_component(self, rcx);
+
+            markup
+        } else {
+            html! {}
         }
     }
 }

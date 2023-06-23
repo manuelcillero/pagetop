@@ -30,7 +30,7 @@ pub use crate::{db, db::*, migration_item, pub_migration};
 
 pub use crate::core::{action::*, component::*, module::*, theme::*};
 
-pub use crate::{action, action_before_render_component};
+pub use crate::{action, action_after_prepare_component, action_before_prepare_component};
 
 pub use crate::base::component::*;
 

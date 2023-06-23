@@ -15,7 +15,7 @@ impl ComponentTrait for Error404 {
         ERROR_404
     }
 
-    fn default_render(&self, _rcx: &mut RenderContext) -> Markup {
+    fn prepare_component(&self, _rcx: &mut RenderContext) -> Markup {
         html! {
             div {
                 h1 { ("RESOURCE NOT FOUND") }

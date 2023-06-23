@@ -15,7 +15,7 @@ impl ComponentTrait for Error403 {
         ERROR_403
     }
 
-    fn default_render(&self, _rcx: &mut RenderContext) -> Markup {
+    fn prepare_component(&self, _rcx: &mut RenderContext) -> Markup {
         html! {
             div {
                 h1 { ("FORBIDDEN ACCESS") }

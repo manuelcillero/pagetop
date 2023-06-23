@@ -1,19 +1,19 @@
 #[macro_export]
-macro_rules! action_before_render_component {
+macro_rules! action_after_prepare_component {
     ( $ACTION_HANDLE:ident for $Component:ty ) => {
         $crate::paste! {
             $crate::use_handle!($ACTION_HANDLE);
 
             type Action = fn(&$Component, &mut RenderContext);
 
-            pub struct [<BeforeRender $Component>] {
+            pub struct [<AfterPrepare $Component>] {
                 action: Option<Action>,
                 weight: isize,
             }
 
-            impl ActionTrait for [<BeforeRender $Component>] {
+            impl ActionTrait for [<AfterPrepare $Component>] {
                 fn new() -> Self {
-                    [<BeforeRender $Component>] {
+                    [<AfterPrepare $Component>] {
                         action: None,
                         weight: 0,
                     }
@@ -32,7 +32,7 @@ macro_rules! action_before_render_component {
                 }
             }
 
-            impl [<BeforeRender $Component>] {
+            impl [<AfterPrepare $Component>] {
                 #[allow(dead_code)]
                 pub fn with_action(mut self, action: Action) -> Self {
                     self.action = Some(action);
@@ -53,12 +53,12 @@ macro_rules! action_before_render_component {
             }
 
             #[inline(always)]
-            pub fn run_actions_before_render_component(
+            pub fn run_actions_after_prepare_component(
                 component: &mut $Component,
                 rcx: &mut RenderContext
             ) {
                 run_actions($ACTION_HANDLE, |action|
-                    action_ref::<[<BeforeRender $Component>]>(&**action)
+                    action_ref::<[<AfterPrepare $Component>]>(&**action)
                         .run(component, rcx)
                 );
             }

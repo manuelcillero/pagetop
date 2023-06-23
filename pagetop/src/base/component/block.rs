@@ -2,7 +2,7 @@ use crate::prelude::*;
 
 use_handle!(COMPONENT_BLOCK);
 
-action_before_render_component!(ACTION_BEFORE_RENDER_BLOCK for Block);
+action_before_prepare_component!(ACTION_BEFORE_PREPARE_BLOCK for Block);
 
 #[rustfmt::skip]
 #[derive(Default)]
@@ -37,11 +37,11 @@ impl ComponentTrait for Block {
         (self.renderable.check)(rcx)
     }
 
-    fn before_render(&mut self, rcx: &mut RenderContext) {
-        run_actions_before_render_component(self, rcx);
+    fn before_prepare(&mut self, rcx: &mut RenderContext) {
+        run_actions_before_prepare_component(self, rcx);
     }
 
-    fn default_render(&self, rcx: &mut RenderContext) -> Markup {
+    fn prepare_component(&self, rcx: &mut RenderContext) -> Markup {
         let id = rcx.required_id::<Block>(self.id());
         html! {
             div id=(id) class=[self.classes().get()] {
@@ -49,7 +49,7 @@ impl ComponentTrait for Block {
                     h2 class="block-title" { (title) }
                 }
                 div class="block-body" {
-                    (self.components().render(rcx))
+                    (self.components().prepare(rcx))
                 }
             }
         }

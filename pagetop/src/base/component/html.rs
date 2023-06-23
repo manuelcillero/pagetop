@@ -14,7 +14,7 @@ impl ComponentTrait for Html {
         COMPONENT_HTML
     }
 
-    fn default_render(&self, _: &mut RenderContext) -> Markup {
+    fn prepare_component(&self, _: &mut RenderContext) -> Markup {
         html! { (self.html()) }
     }
 

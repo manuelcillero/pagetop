@@ -21,16 +21,16 @@ impl<T: ComponentTrait + Default> OneComponent<T> {
 
     // OneComponent RENDER.
 
-    pub fn render(&self, rcx: &mut RenderContext) -> Markup {
+    pub fn prepare(&self, rcx: &mut RenderContext) -> Markup {
         if let Some(component) = &self.0 {
-            return component.write().unwrap().render(rcx);
+            return component.write().unwrap().prepare(rcx);
         }
         html! {}
     }
 
-    pub fn optional_render(&self, rcx: &mut RenderContext) -> Option<Markup> {
+    pub fn prepare_optional(&self, rcx: &mut RenderContext) -> Option<Markup> {
         if let Some(component) = &self.0 {
-            let render = component.write().unwrap().render(rcx).into_string();
+            let render = component.write().unwrap().prepare(rcx).into_string();
             if !render.trim().is_empty() {
                 return Some(html! { (render) });
             }

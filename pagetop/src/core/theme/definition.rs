@@ -80,7 +80,27 @@ pub trait ThemeTrait: ModuleTrait + Send + Sync {
 
     #[rustfmt::skip]
     #[allow(unused_variables)]
-    fn before_render_component(
+    fn before_prepare_component(
+        &self,
+        component: &mut dyn ComponentTrait,
+        rcx: &mut RenderContext,
+    ) {
+        /*
+            Cómo usarlo:
+
+            match component.handle() {
+                BLOCK_COMPONENT => {
+                    let block = component_mut::<Block>(component);
+                    block.alter_title("New title");
+                },
+                _ => {},
+            }
+        */
+    }
+
+    #[rustfmt::skip]
+    #[allow(unused_variables)]
+    fn after_prepare_component(
         &self,
         component: &mut dyn ComponentTrait,
         rcx: &mut RenderContext,

@@ -121,11 +121,11 @@ impl Page {
     }
 
     pub fn title(&mut self) -> String {
-        self.title.render(&mut self.context).into_string()
+        self.title.prepare(&mut self.context).into_string()
     }
 
     pub fn description(&mut self) -> String {
-        self.description.render(&mut self.context).into_string()
+        self.description.prepare(&mut self.context).into_string()
     }
 
     pub fn metadata(&self) -> &Vec<(&str, &str)> {
@@ -196,7 +196,7 @@ impl Page {
         let render = self
             .regions
             .get_extended_bundle(self.context.theme().single_name(), region)
-            .render(self.context());
+            .prepare(self.context());
         if render.is_empty() {
             None
         } else {
