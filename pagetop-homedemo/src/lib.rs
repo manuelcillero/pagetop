@@ -5,7 +5,7 @@ use_handle!(MODULE_DEMOHOME);
 
 use_locale!(LOCALE_DEMOHOME, "src/locale");
 
-include!(concat!(env!("OUT_DIR"), "/homedemo.rs"));
+use_static!(homedemo);
 
 pub struct HomeDemo;
 
@@ -27,7 +27,7 @@ impl ModuleTrait for HomeDemo {
     }
 
     fn configure_service(&self, cfg: &mut service::web::ServiceConfig) {
-        serve_static_files!(cfg, "/homedemo", bundle_homedemo);
+        serve_static_files!(cfg, "/homedemo", homedemo);
         cfg.route("/", service::web::get().to(demo));
     }
 }

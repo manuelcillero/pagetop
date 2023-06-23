@@ -108,15 +108,29 @@ macro_rules! use_locale {
 }
 
 #[macro_export]
+macro_rules! use_static {
+    ( $bundle:ident ) => {
+        include!(concat!(env!("OUT_DIR"), "/", stringify!($bundle), ".rs"));
+    };
+    ( $bundle:ident => $STATIC:ident ) => {
+        include!(concat!(env!("OUT_DIR"), "/", stringify!($bundle), ".rs"));
+        static $STATIC: LazyStatic<HashMapResources> = LazyStatic::new($bundle);
+    };
+}
+
+#[macro_export]
 macro_rules! serve_static_files {
-    ( $cfg:ident, $dir:expr, $embed:ident ) => {{
+    ( $cfg:ident, $path:expr, $bundle:ident ) => {{
         let static_files = &$crate::config::SETTINGS.dev.static_files;
         if static_files.is_empty() {
-            $cfg.service($crate::service::ResourceFiles::new($dir, $embed()));
+            $cfg.service($crate::service::ResourceFiles::new($path, $bundle()));
         } else {
             $cfg.service(
-                $crate::service::ActixFiles::new($dir, $crate::concat_string!(static_files, $dir))
-                    .show_files_listing(),
+                $crate::service::ActixFiles::new(
+                    $path,
+                    $crate::concat_string!(static_files, $path),
+                )
+                .show_files_listing(),
             );
         }
     }};

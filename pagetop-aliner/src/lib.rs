@@ -2,7 +2,7 @@ use pagetop::prelude::*;
 
 use_handle!(THEME_ALINER);
 
-include!(concat!(env!("OUT_DIR"), "/aliner.rs"));
+use_static!(aliner);
 
 pub struct Aliner;
 
@@ -16,7 +16,7 @@ impl ModuleTrait for Aliner {
     }
 
     fn configure_service(&self, cfg: &mut service::web::ServiceConfig) {
-        serve_static_files!(cfg, "/aliner", bundle_aliner);
+        serve_static_files!(cfg, "/aliner", aliner);
     }
 }
 

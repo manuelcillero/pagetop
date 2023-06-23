@@ -5,7 +5,7 @@ pub mod module;
 
 use_handle!(MODULE_MINIMAL);
 
-include!(concat!(env!("OUT_DIR"), "/minimal.rs"));
+use_static!(minimal);
 
 pub struct Minimal;
 
@@ -15,6 +15,6 @@ impl ModuleTrait for Minimal {
     }
 
     fn configure_service(&self, cfg: &mut service::web::ServiceConfig) {
-        serve_static_files!(cfg, "/minimal", bundle_minimal);
+        serve_static_files!(cfg, "/minimal", minimal);
     }
 }

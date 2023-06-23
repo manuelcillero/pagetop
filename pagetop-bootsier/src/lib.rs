@@ -4,7 +4,7 @@ use_handle!(THEME_BOOTSIER);
 
 use_locale!(LOCALE_BOOTSIER, "src/locale");
 
-include!(concat!(env!("OUT_DIR"), "/bootsier.rs"));
+use_static!(bootsier);
 
 pub struct Bootsier;
 
@@ -22,7 +22,7 @@ impl ModuleTrait for Bootsier {
     }
 
     fn configure_service(&self, cfg: &mut service::web::ServiceConfig) {
-        serve_static_files!(cfg, "/bootsier", bundle_bootsier);
+        serve_static_files!(cfg, "/bootsier", bootsier);
     }
 }
 

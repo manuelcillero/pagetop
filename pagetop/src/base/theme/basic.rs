@@ -2,7 +2,7 @@ use crate::prelude::*;
 
 use_handle!(THEME_BASIC);
 
-include!(concat!(env!("OUT_DIR"), "/theme.rs"));
+use_static!(theme);
 
 pub struct Basic;
 
@@ -16,7 +16,7 @@ impl ModuleTrait for Basic {
     }
 
     fn configure_service(&self, cfg: &mut service::web::ServiceConfig) {
-        serve_static_files!(cfg, "/theme", bundle_theme);
+        serve_static_files!(cfg, "/theme", theme);
     }
 }
 

@@ -2,7 +2,7 @@ use pagetop::prelude::*;
 
 use_handle!(MODULE_JQUERY);
 
-include!(concat!(env!("OUT_DIR"), "/jquery.rs"));
+use_static!(jquery);
 
 const JQUERY_PARAM: &str = "jquery.add";
 const JQUERY_SOURCE: &str = "/jquery/3.6.0/jquery.min.js";
@@ -15,7 +15,7 @@ impl ModuleTrait for JQuery {
     }
 
     fn configure_service(&self, cfg: &mut service::web::ServiceConfig) {
-        serve_static_files!(cfg, "/jquery", bundle_jquery);
+        serve_static_files!(cfg, "/jquery", jquery);
     }
 }
 

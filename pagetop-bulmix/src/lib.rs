@@ -3,7 +3,7 @@ use pagetop_minimal::component::*;
 
 use_handle!(THEME_BULMIX);
 
-include!(concat!(env!("OUT_DIR"), "/bulmix.rs"));
+use_static!(bulmix);
 
 pub struct Bulmix;
 
@@ -25,7 +25,7 @@ impl ModuleTrait for Bulmix {
     }
 
     fn configure_service(&self, cfg: &mut service::web::ServiceConfig) {
-        serve_static_files!(cfg, "/bulmix", bundle_bulmix);
+        serve_static_files!(cfg, "/bulmix", bulmix);
     }
 }
 
