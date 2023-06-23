@@ -41,9 +41,9 @@ impl ComponentTrait for Block {
         run_actions_before_prepare_component(self, rcx);
     }
 
-    fn prepare_component(&self, rcx: &mut RenderContext) -> Markup {
+    fn prepare_component(&self, rcx: &mut RenderContext) -> PrepareMarkup {
         let id = rcx.required_id::<Block>(self.id());
-        html! {
+        PrepareMarkup::With(html! {
             div id=(id) class=[self.classes().get()] {
                 @if let Some(title) = self.title().get() {
                     h2 class="block-title" { (title) }
@@ -52,7 +52,7 @@ impl ComponentTrait for Block {
                     (self.components().prepare(rcx))
                 }
             }
-        }
+        })
     }
 
     fn as_ref_any(&self) -> &dyn AnyComponent {

@@ -1,5 +1,5 @@
 use crate::core::component::RenderContext;
-use crate::html::{html, Markup};
+use crate::html::{html, Markup, PrepareMarkup};
 use crate::{util, Handle};
 
 pub use std::any::Any as AnyComponent;
@@ -40,8 +40,8 @@ pub trait ComponentTrait: AnyComponent + BaseComponent + Send + Sync {
     fn before_prepare(&mut self, rcx: &mut RenderContext) {}
 
     #[allow(unused_variables)]
-    fn prepare_component(&self, rcx: &mut RenderContext) -> Markup {
-        html! {}
+    fn prepare_component(&self, rcx: &mut RenderContext) -> PrepareMarkup {
+        PrepareMarkup::None
     }
 
     #[allow(unused_variables)]
@@ -63,7 +63,7 @@ impl<C: ComponentTrait> BaseComponent for C {
 
             let markup = match rcx.theme().render_component(self, rcx) {
                 Some(html) => html,
-                None => self.prepare_component(rcx),
+                None => self.prepare_component(rcx).html(),
             };
 
             // Acciones después de preparar el componente.

@@ -14,8 +14,8 @@ impl ComponentTrait for Html {
         COMPONENT_HTML
     }
 
-    fn prepare_component(&self, _: &mut RenderContext) -> Markup {
-        html! { (self.html()) }
+    fn prepare_component(&self, _: &mut RenderContext) -> PrepareMarkup {
+        PrepareMarkup::With(html! { (self.html()) })
     }
 
     fn as_ref_any(&self) -> &dyn AnyComponent {

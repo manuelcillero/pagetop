@@ -22,3 +22,19 @@ pub use attribute::AttributeValue;
 
 mod classes;
 pub use classes::{Classes, ClassesOp};
+
+pub enum PrepareMarkup {
+    None,
+    Text(&'static str),
+    With(Markup),
+}
+
+impl PrepareMarkup {
+    pub fn html(self) -> Markup {
+        match self {
+            PrepareMarkup::None => html! {},
+            PrepareMarkup::Text(text) => html! { (text) },
+            PrepareMarkup::With(markup) => markup,
+        }
+    }
+}
