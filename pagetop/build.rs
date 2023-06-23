@@ -1,3 +1,7 @@
+use pagetop_build::StaticFilesBundle;
+
 fn main() -> std::io::Result<()> {
-    pagetop_build::bundle_resources("./static/theme", "theme", None)
+    StaticFilesBundle::from_dir("./static/theme")
+        .with_name("theme")
+        .build()
 }
