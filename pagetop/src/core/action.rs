@@ -1,9 +1,9 @@
 mod definition;
 pub use definition::{action_ref, ActionTrait, AnyAction};
 
-mod bundle;
-pub use bundle::Action;
-use bundle::ActionsBundle;
+mod list;
+pub use list::Action;
+use list::ActionsList;
 
 mod all;
 pub(crate) use all::add_action;

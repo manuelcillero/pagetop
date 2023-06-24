@@ -11,15 +11,15 @@ macro_rules! action {
     }};
 }
 
-pub struct ActionsBundle(Arc<RwLock<Vec<Action>>>);
+pub struct ActionsList(Arc<RwLock<Vec<Action>>>);
 
-impl ActionsBundle {
+impl ActionsList {
     pub fn new() -> Self {
-        ActionsBundle(Arc::new(RwLock::new(Vec::new())))
+        ActionsList(Arc::new(RwLock::new(Vec::new())))
     }
 
     pub fn new_with(action: Action) -> Self {
-        let mut bundle = ActionsBundle::new();
+        let mut bundle = ActionsList::new();
         bundle.add(action);
         bundle
     }

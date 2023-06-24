@@ -1,11 +1,11 @@
-use crate::core::action::{Action, ActionsBundle};
+use crate::core::action::{Action, ActionsList};
 use crate::{Handle, LazyStatic};
 
 use std::collections::HashMap;
 use std::sync::RwLock;
 
 // Registered actions.
-static ACTIONS: LazyStatic<RwLock<HashMap<Handle, ActionsBundle>>> =
+static ACTIONS: LazyStatic<RwLock<HashMap<Handle, ActionsList>>> =
     LazyStatic::new(|| RwLock::new(HashMap::new()));
 
 pub fn add_action(action: Action) {
@@ -14,7 +14,7 @@ pub fn add_action(action: Action) {
     if let Some(bundle) = actions.get_mut(&action_handle) {
         bundle.add(action);
     } else {
-        actions.insert(action_handle, ActionsBundle::new_with(action));
+        actions.insert(action_handle, ActionsList::new_with(action));
     }
 }
 
