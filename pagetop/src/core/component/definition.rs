@@ -37,7 +37,7 @@ pub trait ComponentTrait: AnyComponent + BaseComponent + Send + Sync {
     }
 
     #[allow(unused_variables)]
-    fn before_prepare(&mut self, rcx: &mut RenderContext) {}
+    fn before_prepare_component(&mut self, rcx: &mut RenderContext) {}
 
     #[allow(unused_variables)]
     fn prepare_component(&self, rcx: &mut RenderContext) -> PrepareMarkup {
@@ -45,7 +45,7 @@ pub trait ComponentTrait: AnyComponent + BaseComponent + Send + Sync {
     }
 
     #[allow(unused_variables)]
-    fn after_prepare(&mut self, rcx: &mut RenderContext) {}
+    fn after_prepare_component(&mut self, rcx: &mut RenderContext) {}
 
     fn as_ref_any(&self) -> &dyn AnyComponent;
 
@@ -56,7 +56,7 @@ impl<C: ComponentTrait> BaseComponent for C {
     fn prepare(&mut self, rcx: &mut RenderContext) -> Markup {
         if self.is_renderable(rcx) {
             // Acciones antes de preparar el componente.
-            self.before_prepare(rcx);
+            self.before_prepare_component(rcx);
 
             // Acciones del tema antes de preparar el componente.
             rcx.theme().before_prepare_component(self, rcx);
@@ -67,7 +67,7 @@ impl<C: ComponentTrait> BaseComponent for C {
             };
 
             // Acciones después de preparar el componente.
-            self.after_prepare(rcx);
+            self.after_prepare_component(rcx);
 
             // Acciones del tema después de preparar el componente.
             rcx.theme().after_prepare_component(self, rcx);
