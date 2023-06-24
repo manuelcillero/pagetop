@@ -187,7 +187,7 @@ impl ComponentTrait for MegaMenu {
         (self.renderable.check)(rcx)
     }
 
-    fn before_prepare(&mut self, rcx: &mut RenderContext) {
+    fn before_prepare_component(&mut self, rcx: &mut RenderContext) {
         run_actions_before_prepare_component(self, rcx);
     }
 
