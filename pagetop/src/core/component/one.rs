@@ -19,22 +19,12 @@ impl<T: ComponentTrait + Default> OneComponent<T> {
         self.0 = Some(Arc::new(RwLock::new(component)));
     }
 
-    // OneComponent RENDER.
+    // OneComponent PREPARE.
 
     pub fn prepare(&self, rcx: &mut RenderContext) -> Markup {
         if let Some(component) = &self.0 {
             return component.write().unwrap().prepare(rcx);
         }
         html! {}
-    }
-
-    pub fn prepare_optional(&self, rcx: &mut RenderContext) -> Option<Markup> {
-        if let Some(component) = &self.0 {
-            let render = component.write().unwrap().prepare(rcx).into_string();
-            if !render.trim().is_empty() {
-                return Some(html! { (render) });
-            }
-        }
-        None
     }
 }

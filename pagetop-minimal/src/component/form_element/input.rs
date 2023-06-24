@@ -71,9 +71,11 @@ impl ComponentTrait for Input {
             InputType::Url       => "url",
         };
         let id = self.name().get().map(|name| concat_string!("edit-", name));
+        let label = self.label().prepare(rcx);
+        let description = self.help_text().prepare(rcx);
         PrepareMarkup::With(html! {
             div class=[self.classes().get()] {
-                @if let Some(label) = self.label().prepare_optional(rcx) {
+                @if !label.is_empty() {
                     label class="form-label" for=[&id] {
                         (label) " "
                         @if self.required().get().is_some() {
@@ -98,7 +100,7 @@ impl ComponentTrait for Input {
                     readonly=[self.readonly().get()]
                     required=[self.required().get()]
                     disabled=[self.disabled().get()];
-                @if let Some(description) = self.help_text().prepare_optional(rcx) {
+                @if !description.is_empty() {
                     div class="form-text" { (description) }
                 }
             }
