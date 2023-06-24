@@ -114,7 +114,7 @@ impl ComponentsBundle {
             .filter(move |&c| c.read().unwrap().handle() == handle)
     }
 
-    // ComponentsBundle RENDER.
+    // ComponentsBundle PREPARE.
 
     pub fn prepare(&self, rcx: &mut RenderContext) -> Markup {
         let mut components = self.0.clone();

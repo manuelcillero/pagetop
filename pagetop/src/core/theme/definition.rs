@@ -51,11 +51,11 @@ pub trait ThemeTrait: ModuleTrait + Send + Sync {
                     meta property=(property) content=(content) {}
                 }
 
-                @if let Some(f) = page.favicon() {
-                    (f.render())
+                @if let Some(favicon) = page.favicon() {
+                    (favicon.prepare())
                 }
 
-                (page.context().render())
+                (page.context().prepare())
             }
         }
     }

@@ -109,12 +109,12 @@ impl RenderContext {
         None
     }
 
-    /// Context RENDER.
+    /// Context PREPARE.
 
-    pub fn render(&mut self) -> Markup {
+    pub fn prepare(&mut self) -> Markup {
         html! {
-            (self.stylesheets.render())
-            (self.javascripts.render())
+            (self.stylesheets.prepare())
+            (self.javascripts.prepare())
         }
     }
 

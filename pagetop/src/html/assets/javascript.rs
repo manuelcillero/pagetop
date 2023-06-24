@@ -28,7 +28,7 @@ impl AssetsTrait for JavaScript {
         self.weight
     }
 
-    fn render(&self) -> Markup {
+    fn prepare(&self) -> Markup {
         html! {
             script type="text/javascript"
                 src=(crate::concat_string!(self.source, self.prefix, self.version))

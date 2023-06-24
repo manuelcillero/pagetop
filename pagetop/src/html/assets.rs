@@ -8,7 +8,7 @@ pub trait AssetsTrait {
 
     fn weight(&self) -> isize;
 
-    fn render(&self) -> Markup;
+    fn prepare(&self) -> Markup;
 }
 
 #[derive(Default)]
@@ -39,12 +39,12 @@ impl<T: AssetsTrait> Assets<T> {
         self
     }
 
-    pub fn render(&mut self) -> Markup {
+    pub fn prepare(&mut self) -> Markup {
         let assets = &mut self.0;
         assets.sort_by_key(|a| a.weight());
         html! {
             @for a in assets {
-                (a.render())
+                (a.prepare())
             }
         }
     }

@@ -80,9 +80,9 @@ impl Favicon {
         self
     }
 
-    // Favicon RENDER.
+    // Favicon PREPARE.
 
-    pub(crate) fn render(&self) -> Markup {
+    pub(crate) fn prepare(&self) -> Markup {
         html! {
             @for item in &self.0 {
                 (item)

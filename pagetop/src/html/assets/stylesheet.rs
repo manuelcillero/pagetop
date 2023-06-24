@@ -27,7 +27,7 @@ impl AssetsTrait for StyleSheet {
         self.weight
     }
 
-    fn render(&self) -> Markup {
+    fn prepare(&self) -> Markup {
         html! {
             link
                 rel="stylesheet"
