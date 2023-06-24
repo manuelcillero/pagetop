@@ -7,8 +7,8 @@ pub use definition::{component_mut, component_ref, AnyComponent, BaseComponent, 
 mod one;
 pub use one::OneComponent;
 
-mod bundle;
-pub use bundle::{BundleOp, ComponentsBundle};
+mod pack;
+pub use pack::{PackComponents, PackOp};
 
 mod renderable;
 pub use renderable::{IsRenderable, Renderable};

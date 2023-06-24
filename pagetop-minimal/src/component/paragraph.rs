@@ -20,7 +20,7 @@ pub struct Paragraph {
     renderable: Renderable,
     id        : IdentifierValue,
     classes   : Classes,
-    components: ComponentsBundle,
+    components: PackComponents,
     display   : ParagraphDisplay,
     template  : String,
 }
@@ -98,12 +98,12 @@ impl Paragraph {
     }
 
     pub fn with_component(mut self, component: impl ComponentTrait) -> Self {
-        self.components.alter_bundle(BundleOp::Add, component);
+        self.components.alter_pack(PackOp::Add, component);
         self
     }
 
-    pub fn alter_components(&mut self, op: BundleOp, component: impl ComponentTrait) -> &mut Self {
-        self.components.alter_bundle(op, component);
+    pub fn alter_components(&mut self, op: PackOp, component: impl ComponentTrait) -> &mut Self {
+        self.components.alter_pack(op, component);
         self
     }
 
@@ -137,7 +137,7 @@ impl Paragraph {
         &self.classes
     }
 
-    pub fn components(&self) -> &ComponentsBundle {
+    pub fn components(&self) -> &PackComponents {
         &self.components
     }
 

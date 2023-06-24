@@ -177,7 +177,7 @@ impl Page {
         // Acciones del tema después de preparar la página.
         self.context.theme().after_prepare_page(self);
 
-        // Finalmente, renderizar la página.
+        // Finalmente, renderiza la página.
         let lang = self.langid().language.as_str();
         let dir = match self.langid().character_direction() {
             CharacterDirection::LTR => "ltr",
@@ -195,7 +195,7 @@ impl Page {
     pub fn prepare_region(&mut self, region: &str) -> Option<Markup> {
         let render = self
             .regions
-            .get_extended_bundle(self.context.theme().single_name(), region)
+            .get_extended_pack(self.context.theme().single_name(), region)
             .prepare(self.context());
         if render.is_empty() {
             None

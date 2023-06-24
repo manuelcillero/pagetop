@@ -4,7 +4,7 @@ use crate::{fn_builder, Handle};
 
 use std::sync::{Arc, RwLock};
 
-pub enum BundleOp {
+pub enum PackOp {
     Add,
     AddAfterId(&'static str),
     AddBeforeId(&'static str),
@@ -17,41 +17,41 @@ pub enum BundleOp {
 pub type ArcLockComponent = Arc<RwLock<dyn ComponentTrait>>;
 
 #[derive(Clone, Default)]
-pub struct ComponentsBundle(Vec<ArcLockComponent>);
+pub struct PackComponents(Vec<ArcLockComponent>);
 
-impl ComponentsBundle {
+impl PackComponents {
     pub fn new() -> Self {
-        ComponentsBundle::default()
+        PackComponents::default()
     }
 
     pub fn new_with(component: impl ComponentTrait) -> Self {
-        let mut bundle = ComponentsBundle::new();
-        bundle.alter_bundle(BundleOp::Add, component);
+        let mut bundle = PackComponents::new();
+        bundle.alter_pack(PackOp::Add, component);
         bundle
     }
 
-    pub(crate) fn merge(one: Option<&ComponentsBundle>, other: Option<&ComponentsBundle>) -> Self {
+    pub(crate) fn merge(one: Option<&PackComponents>, other: Option<&PackComponents>) -> Self {
         if let Some(one) = one {
             let mut components = one.0.clone();
             if let Some(other) = other {
                 components.append(&mut other.0.clone());
             }
-            ComponentsBundle(components)
+            PackComponents(components)
         } else if let Some(other) = other {
-            ComponentsBundle(other.0.clone())
+            PackComponents(other.0.clone())
         } else {
-            ComponentsBundle::default()
+            PackComponents::default()
         }
     }
 
-    // ComponentsBundle BUILDER.
+    // PackComponents BUILDER.
 
     #[fn_builder]
-    pub fn alter_bundle(&mut self, op: BundleOp, component: impl ComponentTrait) -> &mut Self {
+    pub fn alter_pack(&mut self, op: PackOp, component: impl ComponentTrait) -> &mut Self {
         let arc = Arc::new(RwLock::new(component));
         match op {
-            BundleOp::Add => self.0.push(arc),
-            BundleOp::AddAfterId(id) => {
+            PackOp::Add => self.0.push(arc),
+            PackOp::AddAfterId(id) => {
                 match self
                     .0
                     .iter()
@@ -61,7 +61,7 @@ impl ComponentsBundle {
                     _ => self.0.push(arc),
                 }
             }
-            BundleOp::AddBeforeId(id) => {
+            PackOp::AddBeforeId(id) => {
                 match self
                     .0
                     .iter()
@@ -71,8 +71,8 @@ impl ComponentsBundle {
                     _ => self.0.insert(0, arc),
                 }
             }
-            BundleOp::AddFirst => self.0.insert(0, arc),
-            BundleOp::RemoveById(id) => {
+            PackOp::AddFirst => self.0.insert(0, arc),
+            PackOp::RemoveById(id) => {
                 if let Some(index) = self
                     .0
                     .iter()
@@ -81,7 +81,7 @@ impl ComponentsBundle {
                     self.0.remove(index);
                 }
             }
-            BundleOp::ReplaceById(id) => {
+            PackOp::ReplaceById(id) => {
                 for c in self.0.iter_mut() {
                     if c.read().unwrap().id().as_deref() == Some(id) {
                         *c = arc;
@@ -89,12 +89,12 @@ impl ComponentsBundle {
                     }
                 }
             }
-            BundleOp::Reset => self.0.clear(),
+            PackOp::Reset => self.0.clear(),
         }
         self
     }
 
-    // ComponentsBundle GETTERS.
+    // PackComponents GETTERS.
 
     pub fn get_by_id(&self, id: &'static str) -> Option<&ArcLockComponent> {
         self.0
@@ -114,7 +114,7 @@ impl ComponentsBundle {
             .filter(move |&c| c.read().unwrap().handle() == handle)
     }
 
-    // ComponentsBundle PREPARE.
+    // PackComponents PREPARE.
 
     pub fn prepare(&self, rcx: &mut RenderContext) -> Markup {
         let mut components = self.0.clone();

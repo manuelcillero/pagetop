@@ -13,7 +13,7 @@ pub struct Row {
     renderable: Renderable,
     id        : IdentifierValue,
     classes   : Classes,
-    columns   : ComponentsBundle,
+    columns   : PackComponents,
     template  : String,
 }
 
@@ -87,12 +87,12 @@ impl Row {
     }
 
     pub fn with_column(mut self, column: grid::Column) -> Self {
-        self.columns.alter_bundle(BundleOp::Add, column);
+        self.columns.alter_pack(PackOp::Add, column);
         self
     }
 
-    pub fn alter_columns(&mut self, op: BundleOp, column: grid::Column) -> &mut Self {
-        self.columns.alter_bundle(op, column);
+    pub fn alter_columns(&mut self, op: PackOp, column: grid::Column) -> &mut Self {
+        self.columns.alter_pack(op, column);
         self
     }
 
@@ -108,7 +108,7 @@ impl Row {
         &self.classes
     }
 
-    pub fn columns(&self) -> &ComponentsBundle {
+    pub fn columns(&self) -> &PackComponents {
         &self.columns
     }
 

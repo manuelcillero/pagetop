@@ -1,4 +1,4 @@
-use crate::core::component::{BundleOp, ComponentTrait, ComponentsBundle};
+use crate::core::component::{ComponentTrait, PackComponents, PackOp};
 use crate::LazyStatic;
 
 use std::collections::HashMap;
@@ -8,7 +8,7 @@ static THEME_REGIONS: LazyStatic<RwLock<HashMap<&'static str, ComponentsRegions>
     LazyStatic::new(|| RwLock::new(HashMap::new()));
 
 #[derive(Default)]
-pub struct ComponentsRegions(HashMap<&'static str, ComponentsBundle>);
+pub struct ComponentsRegions(HashMap<&'static str, PackComponents>);
 
 impl ComponentsRegions {
     pub fn new() -> Self {
@@ -17,17 +17,17 @@ impl ComponentsRegions {
 
     pub fn add_to(&mut self, region: &'static str, component: impl ComponentTrait) {
         if let Some(region) = self.0.get_mut(region) {
-            region.alter_bundle(BundleOp::Add, component);
+            region.alter_pack(PackOp::Add, component);
         } else {
-            self.0.insert(region, ComponentsBundle::new_with(component));
+            self.0.insert(region, PackComponents::new_with(component));
         }
     }
 
-    pub fn get_extended_bundle(&self, theme: &str, region: &str) -> ComponentsBundle {
+    pub fn get_extended_pack(&self, theme: &str, region: &str) -> PackComponents {
         if let Some(hm_theme) = THEME_REGIONS.read().unwrap().get(theme) {
-            ComponentsBundle::merge(self.0.get(region), hm_theme.0.get(region))
+            PackComponents::merge(self.0.get(region), hm_theme.0.get(region))
         } else {
-            ComponentsBundle::merge(self.0.get(region), None)
+            PackComponents::merge(self.0.get(region), None)
         }
     }
 }

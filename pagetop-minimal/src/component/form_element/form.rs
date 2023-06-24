@@ -21,7 +21,7 @@ pub struct Form {
     action    : AttributeValue,
     charset   : AttributeValue,
     method    : FormMethod,
-    elements  : ComponentsBundle,
+    elements  : PackComponents,
     template  : String,
 }
 
@@ -125,12 +125,12 @@ impl Form {
     }
 
     pub fn with_element(mut self, element: impl ComponentTrait) -> Self {
-        self.elements.alter_bundle(BundleOp::Add, element);
+        self.elements.alter_pack(PackOp::Add, element);
         self
     }
 
-    pub fn alter_elements(&mut self, op: BundleOp, element: impl ComponentTrait) -> &mut Self {
-        self.elements.alter_bundle(op, element);
+    pub fn alter_elements(&mut self, op: PackOp, element: impl ComponentTrait) -> &mut Self {
+        self.elements.alter_pack(op, element);
         self
     }
 
@@ -158,7 +158,7 @@ impl Form {
         &self.method
     }
 
-    pub fn elements(&self) -> &ComponentsBundle {
+    pub fn elements(&self) -> &PackComponents {
         &self.elements
     }
 

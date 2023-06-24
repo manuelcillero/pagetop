@@ -162,7 +162,7 @@ pub struct MegaMenu {
     renderable: Renderable,
     id        : IdentifierValue,
     classes   : Classes,
-    items     : ComponentsBundle,
+    items     : PackComponents,
     template  : String,
 }
 
@@ -255,12 +255,12 @@ impl MegaMenu {
     }
 
     pub fn with_item(mut self, item: MegaMenuItem) -> Self {
-        self.items.alter_bundle(BundleOp::Add, item);
+        self.items.alter_pack(PackOp::Add, item);
         self
     }
 
-    pub fn alter_items(&mut self, op: BundleOp, item: MegaMenuItem) -> &mut Self {
-        self.items.alter_bundle(op, item);
+    pub fn alter_items(&mut self, op: PackOp, item: MegaMenuItem) -> &mut Self {
+        self.items.alter_pack(op, item);
         self
     }
 
@@ -276,7 +276,7 @@ impl MegaMenu {
         &self.classes
     }
 
-    pub fn items(&self) -> &ComponentsBundle {
+    pub fn items(&self) -> &PackComponents {
         &self.items
     }
 

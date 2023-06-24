@@ -44,7 +44,7 @@ pub struct Column {
     id        : IdentifierValue,
     classes   : Classes,
     size      : ColumnSize,
-    components: ComponentsBundle,
+    components: PackComponents,
     template  : String,
 }
 
@@ -140,12 +140,12 @@ impl Column {
     }
 
     pub fn with_component(mut self, component: impl ComponentTrait) -> Self {
-        self.components.alter_bundle(BundleOp::Add, component);
+        self.components.alter_pack(PackOp::Add, component);
         self
     }
 
-    pub fn alter_components(&mut self, op: BundleOp, component: impl ComponentTrait) -> &mut Self {
-        self.components.alter_bundle(op, component);
+    pub fn alter_components(&mut self, op: PackOp, component: impl ComponentTrait) -> &mut Self {
+        self.components.alter_pack(op, component);
         self
     }
 
@@ -165,7 +165,7 @@ impl Column {
         &self.size
     }
 
-    pub fn components(&self) -> &ComponentsBundle {
+    pub fn components(&self) -> &PackComponents {
         &self.components
     }
 
