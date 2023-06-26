@@ -12,8 +12,6 @@ pub enum TargetMedia {
 #[derive(Default)]
 pub struct StyleSheet {
     source : String,
-    prefix : &'static str,
-    version: &'static str,
     media  : Option<&'static str>,
     weight : isize,
 }
@@ -28,12 +26,7 @@ impl AssetsTrait for StyleSheet {
     }
 
     fn prepare(&self) -> Markup {
-        html! {
-            link
-                rel="stylesheet"
-                href=(crate::concat_string!(self.source, self.prefix, self.version))
-                media=[self.media];
-        }
+        html! { link rel="stylesheet" href=(self.source) media=[self.media]; }
     }
 }
 
@@ -46,15 +39,6 @@ impl StyleSheet {
             source: source.into(),
             ..Default::default()
         }
-    }
-
-    pub fn with_version(mut self, version: &'static str) -> Self {
-        (self.prefix, self.version) = if version.is_empty() {
-            ("", "")
-        } else {
-            ("?ver=", version)
-        };
-        self
     }
 
     pub fn with_weight(mut self, weight: isize) -> Self {
