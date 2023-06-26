@@ -29,9 +29,9 @@ impl ComponentTrait for Icon {
     }
 
     fn before_prepare_component(&mut self, rcx: &mut RenderContext) {
-        rcx.alter(ContextOp::AddStyleSheet(
-            StyleSheet::located("/minimal/icons/bootstrap-icons.css").with_version("1.8.2"),
-        ));
+        rcx.alter(ContextOp::AddStyleSheet(StyleSheet::located(
+            "/minimal/icons/bootstrap-icons.css?v=1.8.2",
+        )));
     }
 
     fn prepare_component(&self, _: &mut RenderContext) -> PrepareMarkup {
