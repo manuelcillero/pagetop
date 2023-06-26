@@ -15,16 +15,16 @@ impl ModuleTrait for JQuery {
         MODULE_JQUERY
     }
 
-    fn actions(&self) -> Vec<Action> {
-        vec![action!(ActionBeforeRenderPage => before_render_page)]
-    }
-
     fn name(&self) -> L10n {
         L10n::t("module_name", &LOCALE_JQUERY)
     }
 
     fn description(&self) -> L10n {
         L10n::t("module_description", &LOCALE_JQUERY)
+    }
+
+    fn actions(&self) -> Vec<Action> {
+        vec![action!(ActionBeforeRenderPage => before_render_page)]
     }
 
     fn configure_service(&self, cfg: &mut service::web::ServiceConfig) {
@@ -45,7 +45,7 @@ impl JQuery {
 fn before_render_page(page: &mut Page) {
     if let Some(true) = page.context().get_param::<bool>(JQUERY_PARAM) {
         page.context().alter(ContextOp::AddJavaScript(
-            JavaScript::located("/jquery/3.6.0/jquery.min.js")
+            JavaScript::located("/jquery/jquery.min.js?v=3.6.0")
                 .with_weight(isize::MIN)
                 .with_mode(ModeJS::Normal),
         ));
