@@ -2,25 +2,25 @@ use crate::core::action::{ActionTrait, AnyAction};
 use crate::response::page::Page;
 use crate::{use_handle, Handle};
 
-use_handle!(ACTION_AFTER_PREPARE_PAGE);
+use_handle!(ACTION_BEFORE_RENDER_PAGE);
 
 type Action = fn(&mut Page);
 
-pub struct ActionAfterPreparePage {
+pub struct ActionBeforeRenderPage {
     action: Option<Action>,
     weight: isize,
 }
 
-impl ActionTrait for ActionAfterPreparePage {
+impl ActionTrait for ActionBeforeRenderPage {
     fn new() -> Self {
-        ActionAfterPreparePage {
+        ActionBeforeRenderPage {
             action: None,
             weight: 0,
         }
     }
 
     fn handle(&self) -> Handle {
-        ACTION_AFTER_PREPARE_PAGE
+        ACTION_BEFORE_RENDER_PAGE
     }
 
     fn weight(&self) -> isize {
@@ -32,7 +32,7 @@ impl ActionTrait for ActionAfterPreparePage {
     }
 }
 
-impl ActionAfterPreparePage {
+impl ActionBeforeRenderPage {
     pub fn with_action(mut self, action: Action) -> Self {
         self.action = Some(action);
         self

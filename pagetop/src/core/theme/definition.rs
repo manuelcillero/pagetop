@@ -72,7 +72,7 @@ pub trait ThemeTrait: ModuleTrait + Send + Sync {
         }
     }
 
-    fn after_prepare_page(&self, page: &mut Page) {
+    fn before_render_page(&self, page: &mut Page) {
         if page.favicon().is_none() {
             page.alter_favicon(Some(Favicon::new().with_icon("/theme/favicon.ico")));
         }

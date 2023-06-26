@@ -3,11 +3,10 @@ use crate::core::action::{action_ref, run_actions};
 use crate::core::component::{ComponentTrait, ContextOp, OneComponent, RenderContext};
 use crate::core::theme::ComponentsRegions;
 use crate::html::{html, Classes, ClassesOp, Favicon, Markup, DOCTYPE};
-use crate::locale::{langid_for, LanguageIdentifier};
 use crate::response::fatal_error::FatalError;
 use crate::response::page::ResultPage;
-use crate::response::page::{ActionAfterPreparePage, ACTION_AFTER_PREPARE_PAGE};
 use crate::response::page::{ActionBeforePreparePage, ACTION_BEFORE_PREPARE_PAGE};
+use crate::response::page::{ActionBeforeRenderPage, ACTION_BEFORE_RENDER_PAGE};
 use crate::{fn_builder, service};
 
 use unic_langid::CharacterDirection;
@@ -53,12 +52,6 @@ impl Page {
     }
 
     // Page BUILDER.
-
-    #[fn_builder]
-    pub fn alter_language(&mut self, language: &'static str) -> &mut Self {
-        self.context.alter(ContextOp::LangId(langid_for(language)));
-        self
-    }
 
     #[fn_builder]
     pub fn alter_title(&mut self, title: L10n) -> &mut Self {
@@ -116,10 +109,6 @@ impl Page {
 
     // Page GETTERS.
 
-    pub fn langid(&self) -> &LanguageIdentifier {
-        self.context.langid()
-    }
-
     pub fn title(&mut self) -> String {
         self.title.prepare(&mut self.context).into_string()
     }
@@ -155,31 +144,31 @@ impl Page {
     // Page RENDER.
 
     pub fn render(&mut self) -> ResultPage<Markup, FatalError> {
-        // Acciones de los módulos antes de preparar la página.
+        // Module actions before preparing the page.
         run_actions(ACTION_BEFORE_PREPARE_PAGE, |action| {
             action_ref::<ActionBeforePreparePage>(&**action).run(self)
         });
 
-        // Acciones del tema antes de preparar la página.
+        // Theme actions before preparing the page.
         self.context.theme().before_prepare_page(self);
 
-        // Primero, preparar el cuerpo.
+        // Prepare page body.
         let body = self.context.theme().prepare_page_body(self);
 
-        // Luego, preparar la cabecera.
-        let head = self.context.theme().prepare_page_head(self);
-
-        // Acciones de los módulos después de preparar la página.
-        run_actions(ACTION_AFTER_PREPARE_PAGE, |action| {
-            action_ref::<ActionAfterPreparePage>(&**action).run(self)
+        // Module actions before rendering the page.
+        run_actions(ACTION_BEFORE_RENDER_PAGE, |action| {
+            action_ref::<ActionBeforeRenderPage>(&**action).run(self)
         });
 
-        // Acciones del tema después de preparar la página.
-        self.context.theme().after_prepare_page(self);
+        // Theme actions before rendering the page.
+        self.context.theme().before_render_page(self);
 
-        // Finalmente, renderiza la página.
-        let lang = self.langid().language.as_str();
-        let dir = match self.langid().character_direction() {
+        // Prepare page head.
+        let head = self.context.theme().prepare_page_head(self);
+
+        // Render the page.
+        let lang = self.context.langid().language.as_str();
+        let dir = match self.context.langid().character_direction() {
             CharacterDirection::LTR => "ltr",
             CharacterDirection::RTL => "rtl",
         };
