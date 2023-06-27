@@ -27,7 +27,7 @@ impl ModuleTrait for Node {
     }
 
     fn actions(&self) -> Vec<Action> {
-        vec![action!(ActionBeforePreparePage => before_prepare_page, -1)]
+        vec![action!(actions::page::ActionBeforePreparePage => before_prepare_page, -1)]
     }
 
     fn migrations(&self) -> Vec<MigrationItem> {

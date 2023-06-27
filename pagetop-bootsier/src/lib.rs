@@ -1,4 +1,5 @@
 use pagetop::prelude::*;
+use pagetop_jquery::JQuery;
 
 use_handle!(THEME_BOOTSIER);
 
@@ -51,7 +52,7 @@ impl ThemeTrait for Bootsier {
                 JavaScript::located("/bootsier/js/bootstrap.bundle.min.js?v=5.1.3")
                     .with_weight(-99),
             ));
-        pagetop_jquery::JQuery::add_jquery(page.context());
+        JQuery::add_in(page.context());
     }
 
     fn prepare_page_body(&self, page: &mut Page) -> Markup {

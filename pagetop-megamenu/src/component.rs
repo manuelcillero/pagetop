@@ -1,4 +1,5 @@
 use pagetop::prelude::*;
+use pagetop_jquery::JQuery;
 
 use_handle!(COMPONENT_MEGAMENUITEM);
 
@@ -201,7 +202,7 @@ impl ComponentTrait for MegaMenu {
         .alter(ContextOp::AddJavaScript(JavaScript::located(
             "/megamenu/js/menu.min.js?v=1.1.1",
         )));
-        pagetop_jquery::JQuery::add_jquery(rcx);
+        JQuery::add_in(rcx);
 
         let id = rcx.required_id::<MegaMenu>(self.id());
 

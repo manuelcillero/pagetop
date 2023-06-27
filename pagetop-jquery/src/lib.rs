@@ -24,7 +24,7 @@ impl ModuleTrait for JQuery {
     }
 
     fn actions(&self) -> Vec<Action> {
-        vec![action!(ActionBeforeRenderPage => before_render_page)]
+        vec![action!(actions::page::ActionBeforeRenderPage => before_render_page)]
     }
 
     fn configure_service(&self, cfg: &mut service::web::ServiceConfig) {
@@ -33,11 +33,11 @@ impl ModuleTrait for JQuery {
 }
 
 impl JQuery {
-    pub fn add_jquery(rcx: &mut RenderContext) {
+    pub fn add_in(rcx: &mut RenderContext) {
         rcx.set_param::<bool>(JQUERY_PARAM, true);
     }
 
-    pub fn remove_jquery(rcx: &mut RenderContext) {
+    pub fn remove_from(rcx: &mut RenderContext) {
         rcx.set_param::<bool>(JQUERY_PARAM, false);
     }
 }

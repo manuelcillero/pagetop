@@ -1,4 +1,5 @@
 use pagetop::prelude::*;
+use pagetop_jquery::JQuery;
 use pagetop_minimal::component::*;
 
 use_handle!(THEME_BULMIX);
@@ -35,7 +36,7 @@ impl ThemeTrait for Bulmix {
             .alter_context(ContextOp::AddStyleSheet(
                 StyleSheet::located("/bulmix/css/bulma.min.css?v=0.9.4").with_weight(-99),
             ));
-        pagetop_jquery::JQuery::add_jquery(page.context());
+        JQuery::add_in(page.context());
     }
 
     #[rustfmt::skip]
