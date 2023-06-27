@@ -2,8 +2,6 @@ use crate::prelude::*;
 
 use_handle!(COMPONENT_BLOCK);
 
-action_before_prepare_component!(ACTION_BEFORE_PREPARE_BLOCK for Block);
-
 #[rustfmt::skip]
 #[derive(Default)]
 pub struct Block {
@@ -38,7 +36,7 @@ impl ComponentTrait for Block {
     }
 
     fn before_prepare_component(&mut self, rcx: &mut RenderContext) {
-        run_actions_before_prepare_component(self, rcx);
+        actions::block::run_actions_before_prepare_component(self, rcx);
     }
 
     fn prepare_component(&self, rcx: &mut RenderContext) -> PrepareMarkup {
@@ -53,6 +51,10 @@ impl ComponentTrait for Block {
                 }
             }
         })
+    }
+
+    fn after_prepare_component(&mut self, rcx: &mut RenderContext) {
+        actions::block::run_actions_after_prepare_component(self, rcx);
     }
 
     fn as_ref_any(&self) -> &dyn AnyComponent {

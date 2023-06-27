@@ -32,7 +32,9 @@ pub use crate::core::{action::*, component::*, module::*, theme::*};
 
 pub use crate::{action, action_after_prepare_component, action_before_prepare_component};
 
-pub use crate::base::component::*;
+pub use crate::base::actions;
+pub use crate::base::components::*;
+pub use crate::base::themes;
 
 pub use crate::service;
 pub use crate::service::HttpMessage;

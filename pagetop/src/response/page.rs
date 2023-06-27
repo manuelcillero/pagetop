@@ -1,10 +1,190 @@
+use crate::base::actions;
+use crate::base::components::L10n;
+use crate::core::component::{ComponentTrait, ContextOp, OneComponent, RenderContext};
+use crate::core::theme::ComponentsRegions;
+use crate::html::{html, Classes, ClassesOp, Favicon, Markup, DOCTYPE};
+use crate::response::fatal_error::FatalError;
+use crate::{fn_builder, service};
+
+use unic_langid::CharacterDirection;
+
 pub use actix_web::Result as ResultPage;
 
-mod before_prepare_page;
-pub use before_prepare_page::{ActionBeforePreparePage, ACTION_BEFORE_PREPARE_PAGE};
+type PageTitle = OneComponent<L10n>;
+type PageDescription = OneComponent<L10n>;
 
-mod before_render_page;
-pub use before_render_page::{ActionBeforeRenderPage, ACTION_BEFORE_RENDER_PAGE};
+#[rustfmt::skip]
+pub struct Page {
+    title       : PageTitle,
+    description : PageDescription,
+    metadata    : Vec<(&'static str, &'static str)>,
+    properties  : Vec<(&'static str, &'static str)>,
+    favicon     : Option<Favicon>,
+    context     : RenderContext,
+    body_classes: Classes,
+    regions     : ComponentsRegions,
+    template    : String,
+}
 
-mod definition;
-pub use definition::Page;
+impl Default for Page {
+    #[rustfmt::skip]
+    fn default() -> Self {
+        Page {
+            title       : PageTitle::new(),
+            description : PageDescription::new(),
+            metadata    : Vec::new(),
+            properties  : Vec::new(),
+            favicon     : None,
+            context     : RenderContext::new(),
+            body_classes: Classes::new().with_value(ClassesOp::SetDefault, "body"),
+            regions     : ComponentsRegions::new(),
+            template    : "default".to_owned(),
+        }
+    }
+}
+
+impl Page {
+    pub fn new(request: service::HttpRequest) -> Self {
+        let mut page = Page::default();
+        page.context.alter(ContextOp::Request(Some(request)));
+        page
+    }
+
+    // Page BUILDER.
+
+    #[fn_builder]
+    pub fn alter_title(&mut self, title: L10n) -> &mut Self {
+        self.title.set(title);
+        self
+    }
+
+    #[fn_builder]
+    pub fn alter_description(&mut self, description: L10n) -> &mut Self {
+        self.description.set(description);
+        self
+    }
+
+    #[fn_builder]
+    pub fn alter_metadata(&mut self, name: &'static str, content: &'static str) -> &mut Self {
+        self.metadata.push((name, content));
+        self
+    }
+
+    #[fn_builder]
+    pub fn alter_property(&mut self, property: &'static str, content: &'static str) -> &mut Self {
+        self.metadata.push((property, content));
+        self
+    }
+
+    #[fn_builder]
+    pub fn alter_favicon(&mut self, favicon: Option<Favicon>) -> &mut Self {
+        self.favicon = favicon;
+        self
+    }
+
+    #[fn_builder]
+    pub fn alter_context(&mut self, op: ContextOp) -> &mut Self {
+        self.context.alter(op);
+        self
+    }
+
+    #[fn_builder]
+    pub fn alter_body_classes(&mut self, op: ClassesOp, classes: &str) -> &mut Self {
+        self.body_classes.alter_value(op, classes);
+        self
+    }
+
+    #[fn_builder]
+    pub fn alter_in(&mut self, region: &'static str, component: impl ComponentTrait) -> &mut Self {
+        self.regions.add_to(region, component);
+        self
+    }
+
+    #[fn_builder]
+    pub fn alter_template(&mut self, template: &str) -> &mut Self {
+        self.template = template.to_owned();
+        self
+    }
+
+    // Page GETTERS.
+
+    pub fn title(&mut self) -> String {
+        self.title.prepare(&mut self.context).into_string()
+    }
+
+    pub fn description(&mut self) -> String {
+        self.description.prepare(&mut self.context).into_string()
+    }
+
+    pub fn metadata(&self) -> &Vec<(&str, &str)> {
+        &self.metadata
+    }
+
+    pub fn properties(&self) -> &Vec<(&str, &str)> {
+        &self.properties
+    }
+
+    pub fn favicon(&self) -> &Option<Favicon> {
+        &self.favicon
+    }
+
+    pub fn context(&mut self) -> &mut RenderContext {
+        &mut self.context
+    }
+
+    pub fn body_classes(&self) -> &Classes {
+        &self.body_classes
+    }
+
+    pub fn template(&self) -> &str {
+        self.template.as_str()
+    }
+
+    // Page RENDER.
+
+    pub fn render(&mut self) -> ResultPage<Markup, FatalError> {
+        // Module actions before preparing the page.
+        actions::page::run_actions_before_prepare_page(self);
+
+        // Theme actions before preparing the page.
+        self.context.theme().before_prepare_page(self);
+
+        // Prepare page body.
+        let body = self.context.theme().prepare_page_body(self);
+
+        // Module actions before rendering the page.
+        actions::page::run_actions_before_render_page(self);
+
+        // Theme actions before rendering the page.
+        self.context.theme().before_render_page(self);
+
+        // Prepare page head.
+        let head = self.context.theme().prepare_page_head(self);
+
+        // Render the page.
+        let lang = self.context.langid().language.as_str();
+        let dir = match self.context.langid().character_direction() {
+            CharacterDirection::LTR => "ltr",
+            CharacterDirection::RTL => "rtl",
+        };
+        Ok(html! {
+            (DOCTYPE)
+            html lang=(lang) dir=(dir) {
+                (head)
+                (body)
+            }
+        })
+    }
+
+    pub fn prepare_region(&mut self, region: &str) -> Option<Markup> {
+        let render = self
+            .regions
+            .get_extended_pack(self.context.theme().single_name(), region)
+            .prepare(self.context());
+        if render.is_empty() {
+            None
+        } else {
+            Some(render)
+        }
+    }
+}

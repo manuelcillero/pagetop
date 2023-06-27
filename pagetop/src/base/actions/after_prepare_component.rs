@@ -4,10 +4,10 @@ macro_rules! action_after_prepare_component {
         $crate::paste! {
             $crate::use_handle!($ACTION_HANDLE);
 
-            type Action = fn(&$Component, &mut RenderContext);
+            pub type ActionAfter = fn(component: &$Component, rcx: &mut RenderContext);
 
             pub struct [<AfterPrepare $Component>] {
-                action: Option<Action>,
+                action: Option<ActionAfter>,
                 weight: isize,
             }
 
@@ -34,7 +34,7 @@ macro_rules! action_after_prepare_component {
 
             impl [<AfterPrepare $Component>] {
                 #[allow(dead_code)]
-                pub fn with_action(mut self, action: Action) -> Self {
+                pub fn with_action(mut self, action: ActionAfter) -> Self {
                     self.action = Some(action);
                     self
                 }

@@ -1,4 +1,4 @@
-use crate::base::component::L10n;
+use crate::base::components::L10n;
 use crate::core::action::Action;
 use crate::core::theme::ThemeStaticRef;
 use crate::{service, util, Handle};

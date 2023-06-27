@@ -1,5 +1,5 @@
-pub mod action;
+pub mod actions;
 
-pub mod component;
+pub mod components;
 
-pub mod theme;
+pub mod themes;

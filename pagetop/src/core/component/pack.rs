@@ -25,9 +25,9 @@ impl PackComponents {
     }
 
     pub fn new_with(component: impl ComponentTrait) -> Self {
-        let mut bundle = PackComponents::new();
-        bundle.alter_pack(PackOp::Add, component);
-        bundle
+        let mut pack = PackComponents::new();
+        pack.alter_pack(PackOp::Add, component);
+        pack
     }
 
     pub(crate) fn merge(one: Option<&PackComponents>, other: Option<&PackComponents>) -> Self {
