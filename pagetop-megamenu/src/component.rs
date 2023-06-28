@@ -41,33 +41,33 @@ impl ComponentTrait for MegaMenuItem {
         self.weight
     }
 
-    fn is_renderable(&self, rcx: &RenderContext) -> bool {
-        (self.renderable.check)(rcx)
+    fn is_renderable(&self, cx: &Context) -> bool {
+        (self.renderable.check)(cx)
     }
 
-    fn prepare_component(&self, rcx: &mut RenderContext) -> PrepareMarkup {
+    fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
         match self.item_type() {
             MegaMenuItemType::Void => PrepareMarkup::None,
 
             MegaMenuItemType::Label(label) => PrepareMarkup::With(html! {
-                li class="label" { a href="#" { (label.prepare(rcx)) } }
+                li class="label" { a href="#" { (label.prepare(cx)) } }
             }),
             MegaMenuItemType::Link(label, path) => PrepareMarkup::With(html! {
-                li class="link" { a href=(path) { (label.prepare(rcx)) } }
+                li class="link" { a href=(path) { (label.prepare(cx)) } }
             }),
             MegaMenuItemType::LinkBlank(label, path) => PrepareMarkup::With(html! {
                 li class="link_blank" {
-                    a href=(path) target="_blank" { (label.prepare(rcx)) }
+                    a href=(path) target="_blank" { (label.prepare(cx)) }
                 }
             }),
             MegaMenuItemType::Html(content) => PrepareMarkup::With(html! {
-                li class="html" { (content.prepare(rcx)) }
+                li class="html" { (content.prepare(cx)) }
             }),
             MegaMenuItemType::Submenu(label, menu) => PrepareMarkup::With(html! {
                 li class="submenu" {
-                    a href="#" { (label.prepare(rcx)) }
+                    a href="#" { (label.prepare(cx)) }
                     ul {
-                        (menu.items().prepare(rcx))
+                        (menu.items().prepare(cx))
                     }
                 }
             }),
@@ -184,16 +184,16 @@ impl ComponentTrait for MegaMenu {
         self.weight
     }
 
-    fn is_renderable(&self, rcx: &RenderContext) -> bool {
-        (self.renderable.check)(rcx)
+    fn is_renderable(&self, cx: &Context) -> bool {
+        (self.renderable.check)(cx)
     }
 
-    fn before_prepare_component(&mut self, rcx: &mut RenderContext) {
-        run_actions_before_prepare_component(self, rcx);
+    fn before_prepare_component(&mut self, cx: &mut Context) {
+        run_actions_before_prepare_component(self, cx);
     }
 
-    fn prepare_component(&self, rcx: &mut RenderContext) -> PrepareMarkup {
-        rcx.alter(ContextOp::AddStyleSheet(StyleSheet::located(
+    fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
+        cx.alter(ContextOp::AddStyleSheet(StyleSheet::located(
             "/megamenu/css/menu.css?v=1.1.1",
         )))
         .alter(ContextOp::AddStyleSheet(StyleSheet::located(
@@ -202,13 +202,13 @@ impl ComponentTrait for MegaMenu {
         .alter(ContextOp::AddJavaScript(JavaScript::located(
             "/megamenu/js/menu.min.js?v=1.1.1",
         )));
-        JQuery::add_in(rcx);
+        JQuery::add_in(cx);
 
-        let id = rcx.required_id::<MegaMenu>(self.id());
+        let id = cx.required_id::<MegaMenu>(self.id());
 
         PrepareMarkup::With(html! {
             ul id=(id) class=[self.classes().get()] {
-                (self.items().prepare(rcx))
+                (self.items().prepare(cx))
             }
             script type="text/javascript" defer {
                 "jQuery(function(){jQuery('#" (id) "').smartmenus({"

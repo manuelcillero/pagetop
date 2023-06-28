@@ -57,20 +57,20 @@ impl ComponentTrait for Heading {
         self.weight
     }
 
-    fn is_renderable(&self, rcx: &RenderContext) -> bool {
-        (self.renderable.check)(rcx)
+    fn is_renderable(&self, cx: &Context) -> bool {
+        (self.renderable.check)(cx)
     }
 
-    fn prepare_component(&self, rcx: &mut RenderContext) -> PrepareMarkup {
+    fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
         let id = self.id();
         let classes = self.classes().get();
         PrepareMarkup::With(html! { @match &self.heading_type() {
-            HeadingType::H1 => h1 id=[id] class=[classes] { (self.text().prepare(rcx)) },
-            HeadingType::H2 => h2 id=[id] class=[classes] { (self.text().prepare(rcx)) },
-            HeadingType::H3 => h3 id=[id] class=[classes] { (self.text().prepare(rcx)) },
-            HeadingType::H4 => h4 id=[id] class=[classes] { (self.text().prepare(rcx)) },
-            HeadingType::H5 => h5 id=[id] class=[classes] { (self.text().prepare(rcx)) },
-            HeadingType::H6 => h6 id=[id] class=[classes] { (self.text().prepare(rcx)) },
+            HeadingType::H1 => h1 id=[id] class=[classes] { (self.text().prepare(cx)) },
+            HeadingType::H2 => h2 id=[id] class=[classes] { (self.text().prepare(cx)) },
+            HeadingType::H3 => h3 id=[id] class=[classes] { (self.text().prepare(cx)) },
+            HeadingType::H4 => h4 id=[id] class=[classes] { (self.text().prepare(cx)) },
+            HeadingType::H5 => h5 id=[id] class=[classes] { (self.text().prepare(cx)) },
+            HeadingType::H6 => h6 id=[id] class=[classes] { (self.text().prepare(cx)) },
         }})
     }
 

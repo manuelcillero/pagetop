@@ -46,47 +46,47 @@ impl ComponentTrait for Container {
         self.weight
     }
 
-    fn is_renderable(&self, rcx: &RenderContext) -> bool {
-        (self.renderable.check)(rcx)
+    fn is_renderable(&self, cx: &Context) -> bool {
+        (self.renderable.check)(cx)
     }
 
-    fn before_prepare_component(&mut self, rcx: &mut RenderContext) {
-        run_actions_before_prepare_component(self, rcx);
+    fn before_prepare_component(&mut self, cx: &mut Context) {
+        run_actions_before_prepare_component(self, cx);
     }
 
-    fn prepare_component(&self, rcx: &mut RenderContext) -> PrepareMarkup {
+    fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
         match self.container_type() {
             ContainerType::Header => PrepareMarkup::With(html! {
                 header id=[self.id()] class=[self.classes().get()] {
                     div class=[self.inner_classes().get()] {
-                        (self.components().prepare(rcx))
+                        (self.components().prepare(cx))
                     }
                 }
             }),
             ContainerType::Footer => PrepareMarkup::With(html! {
                 footer id=[self.id()] class=[self.classes().get()] {
                     div class=[self.inner_classes().get()] {
-                        (self.components().prepare(rcx))
+                        (self.components().prepare(cx))
                     }
                 }
             }),
             ContainerType::Main => PrepareMarkup::With(html! {
                 main id=[self.id()] class=[self.classes().get()] {
                     div class=[self.inner_classes().get()] {
-                        (self.components().prepare(rcx))
+                        (self.components().prepare(cx))
                     }
                 }
             }),
             ContainerType::Section => PrepareMarkup::With(html! {
                 section id=[self.id()] class=[self.classes().get()] {
                     div class=[self.inner_classes().get()] {
-                        (self.components().prepare(rcx))
+                        (self.components().prepare(cx))
                     }
                 }
             }),
             _ => PrepareMarkup::With(html! {
                 div id=[self.id()] class=[self.classes().get()] {
-                    (self.components().prepare(rcx))
+                    (self.components().prepare(cx))
                 }
             }),
         }

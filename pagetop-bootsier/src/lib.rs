@@ -115,11 +115,7 @@ impl ThemeTrait for Bootsier {
         }
     }
 
-    fn render_component(
-        &self,
-        component: &dyn ComponentTrait,
-        rcx: &mut RenderContext,
-    ) -> Option<Markup> {
+    fn render_component(&self, component: &dyn ComponentTrait, cx: &mut Context) -> Option<Markup> {
         match component.handle() {
             ERROR_404 => Some(html! {
                 div class="jumbotron" {
@@ -132,18 +128,18 @@ impl ThemeTrait for Bootsier {
                         div class="media-body" {
                             h1 class="display-4" { ("RESOURCE NOT FOUND") }
                             p class="lead" {
-                                (L10n::t("e404-description", &LOCALE_BOOTSIER).prepare(rcx))
+                                (L10n::t("e404-description", &LOCALE_BOOTSIER).prepare(cx))
                             }
                             hr class="my-4";
                             p {
-                                (L10n::t("e404-description", &LOCALE_BOOTSIER).prepare(rcx))
+                                (L10n::t("e404-description", &LOCALE_BOOTSIER).prepare(cx))
                             }
                             a
                                 class="btn btn-primary btn-lg"
                                 href="/"
                                 role="button"
                             {
-                                (L10n::t("back-homepage", &LOCALE_BOOTSIER).prepare(rcx))
+                                (L10n::t("back-homepage", &LOCALE_BOOTSIER).prepare(cx))
                             }
                         }
                     }

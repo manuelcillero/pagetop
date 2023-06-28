@@ -34,18 +34,18 @@ impl ComponentTrait for Row {
         self.weight
     }
 
-    fn is_renderable(&self, rcx: &RenderContext) -> bool {
-        (self.renderable.check)(rcx)
+    fn is_renderable(&self, cx: &Context) -> bool {
+        (self.renderable.check)(cx)
     }
 
-    fn before_prepare_component(&mut self, rcx: &mut RenderContext) {
-        run_actions_before_prepare_component(self, rcx);
+    fn before_prepare_component(&mut self, cx: &mut Context) {
+        run_actions_before_prepare_component(self, cx);
     }
 
-    fn prepare_component(&self, rcx: &mut RenderContext) -> PrepareMarkup {
+    fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
         PrepareMarkup::With(html! {
             div id=[self.id()] class=[self.classes().get()] {
-                (self.columns().prepare(rcx))
+                (self.columns().prepare(cx))
             }
         })
     }

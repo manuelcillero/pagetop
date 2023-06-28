@@ -41,18 +41,18 @@ impl ComponentTrait for Button {
         self.weight
     }
 
-    fn is_renderable(&self, rcx: &RenderContext) -> bool {
-        (self.renderable.check)(rcx)
+    fn is_renderable(&self, cx: &Context) -> bool {
+        (self.renderable.check)(cx)
     }
 
-    fn prepare_component(&self, rcx: &mut RenderContext) -> PrepareMarkup {
+    fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
         let button_type = match self.button_type() {
             ButtonType::Button => "button",
             ButtonType::Submit => "submit",
             ButtonType::Reset => "reset",
         };
         let id = self.name().get().map(|name| concat_string!("edit-", name));
-        let value = self.value().prepare(rcx);
+        let value = self.value().prepare(cx);
         PrepareMarkup::With(html! {
             button
                 type=(button_type)

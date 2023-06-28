@@ -30,11 +30,11 @@ impl ComponentTrait for Image {
         self.weight
     }
 
-    fn is_renderable(&self, rcx: &RenderContext) -> bool {
-        (self.renderable.check)(rcx)
+    fn is_renderable(&self, cx: &Context) -> bool {
+        (self.renderable.check)(cx)
     }
 
-    fn prepare_component(&self, _: &mut RenderContext) -> PrepareMarkup {
+    fn prepare_component(&self, _: &mut Context) -> PrepareMarkup {
         PrepareMarkup::With(html! {
             img
                 src=[self.source().get()]

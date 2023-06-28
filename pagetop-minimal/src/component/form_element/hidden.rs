@@ -23,7 +23,7 @@ impl ComponentTrait for Hidden {
         self.weight
     }
 
-    fn prepare_component(&self, _: &mut RenderContext) -> PrepareMarkup {
+    fn prepare_component(&self, _: &mut Context) -> PrepareMarkup {
         let id = self.name().get().map(|name| concat_string!("value-", name));
         PrepareMarkup::With(html! {
             input type="hidden" id=[id] name=[self.name().get()] value=[self.value().get()];

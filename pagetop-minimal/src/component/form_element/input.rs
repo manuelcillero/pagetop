@@ -56,12 +56,12 @@ impl ComponentTrait for Input {
         self.weight
     }
 
-    fn is_renderable(&self, rcx: &RenderContext) -> bool {
-        (self.renderable.check)(rcx)
+    fn is_renderable(&self, cx: &Context) -> bool {
+        (self.renderable.check)(cx)
     }
 
     #[rustfmt::skip]
-    fn prepare_component(&self, rcx: &mut RenderContext) -> PrepareMarkup {
+    fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
         let type_input = match self.input_type() {
             InputType::Textfield => "text",
             InputType::Password  => "password",
@@ -71,8 +71,8 @@ impl ComponentTrait for Input {
             InputType::Url       => "url",
         };
         let id = self.name().get().map(|name| concat_string!("edit-", name));
-        let label = self.label().prepare(rcx);
-        let description = self.help_text().prepare(rcx);
+        let label = self.label().prepare(cx);
+        let description = self.help_text().prepare(cx);
         PrepareMarkup::With(html! {
             div class=[self.classes().get()] {
                 @if !label.is_empty() {

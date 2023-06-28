@@ -43,7 +43,7 @@ impl ThemeTrait for Bulmix {
     fn before_prepare_component(
         &self,
         component: &mut dyn ComponentTrait,
-        _rcx: &mut RenderContext,
+        _cx: &mut Context,
     ) {
         match component.handle() {
             COMPONENT_ANCHOR => {
@@ -122,7 +122,7 @@ impl ThemeTrait for Bulmix {
     fn render_component(
         &self,
         component: &dyn ComponentTrait,
-        _rcx: &mut RenderContext,
+        _cx: &mut Context,
     ) -> Option<Markup> {
         match component.handle() {
             COMPONENT_ICON => {

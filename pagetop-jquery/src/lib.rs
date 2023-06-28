@@ -33,12 +33,12 @@ impl ModuleTrait for JQuery {
 }
 
 impl JQuery {
-    pub fn add_in(rcx: &mut RenderContext) {
-        rcx.set_param::<bool>(JQUERY_PARAM, true);
+    pub fn add_in(cx: &mut Context) {
+        cx.set_param::<bool>(JQUERY_PARAM, true);
     }
 
-    pub fn remove_from(rcx: &mut RenderContext) {
-        rcx.set_param::<bool>(JQUERY_PARAM, false);
+    pub fn remove_from(cx: &mut Context) {
+        cx.set_param::<bool>(JQUERY_PARAM, false);
     }
 }
 

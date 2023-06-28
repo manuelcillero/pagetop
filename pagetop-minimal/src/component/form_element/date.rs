@@ -36,11 +36,11 @@ impl ComponentTrait for Date {
         self.weight
     }
 
-    fn is_renderable(&self, rcx: &RenderContext) -> bool {
-        (self.renderable.check)(rcx)
+    fn is_renderable(&self, cx: &Context) -> bool {
+        (self.renderable.check)(cx)
     }
 
-    fn prepare_component(&self, _: &mut RenderContext) -> PrepareMarkup {
+    fn prepare_component(&self, _: &mut Context) -> PrepareMarkup {
         let id = self.name().get().map(|name| concat_string!("edit-", name));
         PrepareMarkup::With(html! {
             div class=[self.classes().get()] {

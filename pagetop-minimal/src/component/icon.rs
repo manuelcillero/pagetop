@@ -24,17 +24,17 @@ impl ComponentTrait for Icon {
         self.weight
     }
 
-    fn is_renderable(&self, rcx: &RenderContext) -> bool {
-        (self.renderable.check)(rcx)
+    fn is_renderable(&self, cx: &Context) -> bool {
+        (self.renderable.check)(cx)
     }
 
-    fn before_prepare_component(&mut self, rcx: &mut RenderContext) {
-        rcx.alter(ContextOp::AddStyleSheet(StyleSheet::located(
+    fn before_prepare_component(&mut self, cx: &mut Context) {
+        cx.alter(ContextOp::AddStyleSheet(StyleSheet::located(
             "/minimal/icons/bootstrap-icons.css?v=1.8.2",
         )));
     }
 
-    fn prepare_component(&self, _: &mut RenderContext) -> PrepareMarkup {
+    fn prepare_component(&self, _: &mut Context) -> PrepareMarkup {
         PrepareMarkup::With(html! { i class=[self.classes().get()] {}; })
     }
 
