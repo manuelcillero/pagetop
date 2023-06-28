@@ -1,6 +1,6 @@
 use crate::base::actions;
 use crate::base::components::L10n;
-use crate::core::component::{ComponentTrait, ContextOp, OneComponent, RenderContext};
+use crate::core::component::{ComponentTrait, Context, ContextOp, OneComponent};
 use crate::core::theme::ComponentsRegions;
 use crate::html::{html, Classes, ClassesOp, Favicon, Markup, DOCTYPE};
 use crate::response::fatal_error::FatalError;
@@ -20,34 +20,26 @@ pub struct Page {
     metadata    : Vec<(&'static str, &'static str)>,
     properties  : Vec<(&'static str, &'static str)>,
     favicon     : Option<Favicon>,
-    context     : RenderContext,
+    context     : Context,
     body_classes: Classes,
     regions     : ComponentsRegions,
     template    : String,
 }
 
-impl Default for Page {
+impl Page {
     #[rustfmt::skip]
-    fn default() -> Self {
+    pub fn new(request: service::HttpRequest) -> Self {
         Page {
             title       : PageTitle::new(),
             description : PageDescription::new(),
             metadata    : Vec::new(),
             properties  : Vec::new(),
             favicon     : None,
-            context     : RenderContext::new(),
+            context     : Context::new(request),
             body_classes: Classes::new().with_value(ClassesOp::SetDefault, "body"),
             regions     : ComponentsRegions::new(),
             template    : "default".to_owned(),
         }
-    }
-}
-
-impl Page {
-    pub fn new(request: service::HttpRequest) -> Self {
-        let mut page = Page::default();
-        page.context.alter(ContextOp::Request(Some(request)));
-        page
     }
 
     // Page BUILDER.
@@ -128,7 +120,7 @@ impl Page {
         &self.favicon
     }
 
-    pub fn context(&mut self) -> &mut RenderContext {
+    pub fn context(&mut self) -> &mut Context {
         &mut self.context
     }
 

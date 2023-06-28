@@ -4,7 +4,7 @@ macro_rules! action_after_prepare_component {
         $crate::paste! {
             $crate::use_handle!($ACTION_HANDLE);
 
-            pub type ActionAfter = fn(component: &$Component, rcx: &mut RenderContext);
+            pub type ActionAfter = fn(component: &$Component, cx: &mut Context);
 
             pub struct [<AfterPrepare $Component>] {
                 action: Option<ActionAfter>,
@@ -45,9 +45,9 @@ macro_rules! action_after_prepare_component {
                     self
                 }
 
-                pub fn run(&self, component: &mut $Component, rcx: &mut RenderContext) {
+                pub fn run(&self, component: &mut $Component, cx: &mut Context) {
                     if let Some(action) = self.action {
-                        action(component, rcx)
+                        action(component, cx)
                     }
                 }
             }
@@ -55,11 +55,11 @@ macro_rules! action_after_prepare_component {
             #[inline(always)]
             pub fn run_actions_after_prepare_component(
                 component: &mut $Component,
-                rcx: &mut RenderContext
+                cx: &mut Context
             ) {
                 run_actions($ACTION_HANDLE, |action|
                     action_ref::<[<AfterPrepare $Component>]>(&**action)
-                        .run(component, rcx)
+                        .run(component, cx)
                 );
             }
         }

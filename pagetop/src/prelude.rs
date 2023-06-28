@@ -6,14 +6,13 @@ pub use crate::{
     concat_string, fn_builder, paste, Handle, HashMapResources, LazyStatic, ResultExt,
 };
 
-// Macros declarativas globales.
-pub use crate::{args, serve_static_files, use_config, use_handle, use_locale, use_static};
-
 // Traducciones globales.
 pub use crate::LOCALE_PAGETOP;
 
-// Funciones útiles.
+// Funciones y macros útiles.
 pub use crate::util;
+pub use crate::{action, action_after_prepare_component, action_before_prepare_component};
+pub use crate::{args, serve_static_files, use_config, use_handle, use_locale, use_static};
 
 // *************************************************************************************************
 
@@ -29,8 +28,6 @@ pub use crate::html::*;
 pub use crate::{db, db::*, migration_item, pub_migration};
 
 pub use crate::core::{action::*, component::*, module::*, theme::*};
-
-pub use crate::{action, action_after_prepare_component, action_before_prepare_component};
 
 pub use crate::base::actions;
 pub use crate::base::components::*;

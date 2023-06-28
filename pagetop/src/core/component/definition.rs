@@ -1,11 +1,11 @@
-use crate::core::component::RenderContext;
+use crate::core::component::Context;
 use crate::html::{html, Markup, PrepareMarkup};
 use crate::{util, Handle};
 
 pub use std::any::Any as AnyComponent;
 
 pub trait BaseComponent {
-    fn prepare(&mut self, rcx: &mut RenderContext) -> Markup;
+    fn prepare(&mut self, cx: &mut Context) -> Markup;
 }
 
 pub trait ComponentTrait: AnyComponent + BaseComponent + Send + Sync {
@@ -32,20 +32,20 @@ pub trait ComponentTrait: AnyComponent + BaseComponent + Send + Sync {
     }
 
     #[allow(unused_variables)]
-    fn is_renderable(&self, rcx: &RenderContext) -> bool {
+    fn is_renderable(&self, cx: &Context) -> bool {
         true
     }
 
     #[allow(unused_variables)]
-    fn before_prepare_component(&mut self, rcx: &mut RenderContext) {}
+    fn before_prepare_component(&mut self, cx: &mut Context) {}
 
     #[allow(unused_variables)]
-    fn prepare_component(&self, rcx: &mut RenderContext) -> PrepareMarkup {
+    fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
         PrepareMarkup::None
     }
 
     #[allow(unused_variables)]
-    fn after_prepare_component(&mut self, rcx: &mut RenderContext) {}
+    fn after_prepare_component(&mut self, cx: &mut Context) {}
 
     fn as_ref_any(&self) -> &dyn AnyComponent;
 
@@ -53,24 +53,24 @@ pub trait ComponentTrait: AnyComponent + BaseComponent + Send + Sync {
 }
 
 impl<C: ComponentTrait> BaseComponent for C {
-    fn prepare(&mut self, rcx: &mut RenderContext) -> Markup {
-        if self.is_renderable(rcx) {
+    fn prepare(&mut self, cx: &mut Context) -> Markup {
+        if self.is_renderable(cx) {
             // Acciones antes de preparar el componente.
-            self.before_prepare_component(rcx);
+            self.before_prepare_component(cx);
 
             // Acciones del tema antes de preparar el componente.
-            rcx.theme().before_prepare_component(self, rcx);
+            cx.theme().before_prepare_component(self, cx);
 
-            let markup = match rcx.theme().render_component(self, rcx) {
+            let markup = match cx.theme().render_component(self, cx) {
                 Some(html) => html,
-                None => self.prepare_component(rcx).html(),
+                None => self.prepare_component(cx).html(),
             };
 
             // Acciones después de preparar el componente.
-            self.after_prepare_component(rcx);
+            self.after_prepare_component(cx);
 
             // Acciones del tema después de preparar el componente.
-            rcx.theme().after_prepare_component(self, rcx);
+            cx.theme().after_prepare_component(self, cx);
 
             markup
         } else {

@@ -1,3 +1,4 @@
+use crate::config;
 use crate::core::theme::ThemeStaticRef;
 use crate::LazyStatic;
 
@@ -7,6 +8,14 @@ use std::sync::RwLock;
 
 pub static THEMES: LazyStatic<RwLock<Vec<ThemeStaticRef>>> =
     LazyStatic::new(|| RwLock::new(Vec::new()));
+
+// DEFAULT THEME ***********************************************************************************
+
+pub static THEME: LazyStatic<ThemeStaticRef> =
+    LazyStatic::new(|| match theme_by_single_name(&config::SETTINGS.app.theme) {
+        Some(theme) => theme,
+        None => &crate::base::themes::Basic,
+    });
 
 // THEME BY NAME ***********************************************************************************
 

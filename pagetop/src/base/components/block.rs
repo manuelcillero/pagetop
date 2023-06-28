@@ -31,30 +31,30 @@ impl ComponentTrait for Block {
         self.weight
     }
 
-    fn is_renderable(&self, rcx: &RenderContext) -> bool {
-        (self.renderable.check)(rcx)
+    fn is_renderable(&self, cx: &Context) -> bool {
+        (self.renderable.check)(cx)
     }
 
-    fn before_prepare_component(&mut self, rcx: &mut RenderContext) {
-        actions::block::run_actions_before_prepare_component(self, rcx);
+    fn before_prepare_component(&mut self, cx: &mut Context) {
+        actions::block::run_actions_before_prepare_component(self, cx);
     }
 
-    fn prepare_component(&self, rcx: &mut RenderContext) -> PrepareMarkup {
-        let id = rcx.required_id::<Block>(self.id());
+    fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
+        let id = cx.required_id::<Block>(self.id());
         PrepareMarkup::With(html! {
             div id=(id) class=[self.classes().get()] {
                 @if let Some(title) = self.title().get() {
                     h2 class="block-title" { (title) }
                 }
                 div class="block-body" {
-                    (self.components().prepare(rcx))
+                    (self.components().prepare(cx))
                 }
             }
         })
     }
 
-    fn after_prepare_component(&mut self, rcx: &mut RenderContext) {
-        actions::block::run_actions_after_prepare_component(self, rcx);
+    fn after_prepare_component(&mut self, cx: &mut Context) {
+        actions::block::run_actions_after_prepare_component(self, cx);
     }
 
     fn as_ref_any(&self) -> &dyn AnyComponent {

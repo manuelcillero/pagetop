@@ -1,5 +1,5 @@
 use crate::base::components::L10n;
-use crate::core::component::{ComponentTrait, RenderContext};
+use crate::core::component::{ComponentTrait, Context};
 use crate::core::module::ModuleTrait;
 use crate::html::{html, Favicon, Markup};
 use crate::response::page::Page;
@@ -83,7 +83,7 @@ pub trait ThemeTrait: ModuleTrait + Send + Sync {
     fn before_prepare_component(
         &self,
         component: &mut dyn ComponentTrait,
-        rcx: &mut RenderContext,
+        cx: &mut Context,
     ) {
         /*
             Cómo usarlo:
@@ -103,7 +103,7 @@ pub trait ThemeTrait: ModuleTrait + Send + Sync {
     fn after_prepare_component(
         &self,
         component: &mut dyn ComponentTrait,
-        rcx: &mut RenderContext,
+        cx: &mut Context,
     ) {
         /*
             Cómo usarlo:
@@ -123,7 +123,7 @@ pub trait ThemeTrait: ModuleTrait + Send + Sync {
     fn render_component(
         &self,
         component: &dyn ComponentTrait,
-        rcx: &mut RenderContext,
+        cx: &mut Context,
     ) -> Option<Markup> {
         None
         /*

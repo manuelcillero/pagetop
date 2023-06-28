@@ -1,22 +1,16 @@
-use crate::core::theme::{all::theme_by_single_name, ThemeStaticRef};
+use crate::core::theme::all::{theme_by_single_name, THEME};
+use crate::core::theme::ThemeStaticRef;
 use crate::html::{html, Assets, JavaScript, Markup, StyleSheet};
 use crate::locale::{LanguageIdentifier, LANGID};
 use crate::service::HttpRequest;
-use crate::{concat_string, config, util, LazyStatic};
+use crate::{concat_string, util};
 
 use std::collections::HashMap;
 use std::str::FromStr;
 
-static THEME: LazyStatic<ThemeStaticRef> =
-    LazyStatic::new(|| match theme_by_single_name(&config::SETTINGS.app.theme) {
-        Some(theme) => theme,
-        None => &crate::base::themes::Basic,
-    });
-
 pub enum ContextOp {
     LangId(&'static LanguageIdentifier),
     Theme(&'static str),
-    Request(Option<HttpRequest>),
     AddStyleSheet(StyleSheet),
     RemoveStyleSheet(&'static str),
     AddJavaScript(JavaScript),
@@ -24,34 +18,28 @@ pub enum ContextOp {
 }
 
 #[rustfmt::skip]
-pub struct RenderContext {
+pub struct Context {
+    request    : HttpRequest,
     langid     : &'static LanguageIdentifier,
     theme      : ThemeStaticRef,
-    request    : Option<HttpRequest>,
     stylesheets: Assets<StyleSheet>,
     javascripts: Assets<JavaScript>,
     params     : HashMap<&'static str, String>,
     id_counter : usize,
 }
 
-impl Default for RenderContext {
+impl Context {
     #[rustfmt::skip]
-    fn default() -> Self {
-        RenderContext {
+    pub(crate) fn new(request: HttpRequest) -> Self {
+        Context {
+            request,
             langid     : &LANGID,
             theme      : *THEME,
-            request    : None,
             stylesheets: Assets::<StyleSheet>::new(),
             javascripts: Assets::<JavaScript>::new(),
             params     : HashMap::<&str, String>::new(),
             id_counter : 0,
         }
-    }
-}
-
-impl RenderContext {
-    pub(crate) fn new() -> Self {
-        RenderContext::default()
     }
 
     pub fn alter(&mut self, op: ContextOp) -> &mut Self {
@@ -61,9 +49,6 @@ impl RenderContext {
             }
             ContextOp::Theme(theme_name) => {
                 self.theme = theme_by_single_name(theme_name).unwrap_or(*THEME);
-            }
-            ContextOp::Request(request) => {
-                self.request = request;
             }
             ContextOp::AddStyleSheet(css) => {
                 self.stylesheets.add(css);
@@ -88,16 +73,16 @@ impl RenderContext {
 
     /// Context GETTERS.
 
+    pub fn request(&self) -> &HttpRequest {
+        &self.request
+    }
+
     pub(crate) fn langid(&self) -> &LanguageIdentifier {
         self.langid
     }
 
     pub(crate) fn theme(&self) -> ThemeStaticRef {
         self.theme
-    }
-
-    pub fn request(&self) -> &Option<HttpRequest> {
-        &self.request
     }
 
     pub fn get_param<T: FromStr + ToString>(&mut self, key: &'static str) -> Option<T> {

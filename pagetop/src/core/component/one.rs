@@ -1,4 +1,4 @@
-use crate::core::component::{ComponentTrait, RenderContext};
+use crate::core::component::{ComponentTrait, Context};
 use crate::html::{html, Markup};
 
 use std::sync::{Arc, RwLock};
@@ -21,9 +21,9 @@ impl<T: ComponentTrait + Default> OneComponent<T> {
 
     // OneComponent PREPARE.
 
-    pub fn prepare(&self, rcx: &mut RenderContext) -> Markup {
+    pub fn prepare(&self, cx: &mut Context) -> Markup {
         if let Some(component) = &self.0 {
-            return component.write().unwrap().prepare(rcx);
+            return component.write().unwrap().prepare(cx);
         }
         html! {}
     }

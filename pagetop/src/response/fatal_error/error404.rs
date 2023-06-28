@@ -1,4 +1,4 @@
-use crate::core::component::{AnyComponent, ComponentTrait, RenderContext};
+use crate::core::component::{AnyComponent, ComponentTrait, Context};
 use crate::html::{html, PrepareMarkup};
 use crate::{use_handle, Handle};
 
@@ -15,7 +15,7 @@ impl ComponentTrait for Error404 {
         ERROR_404
     }
 
-    fn prepare_component(&self, _rcx: &mut RenderContext) -> PrepareMarkup {
+    fn prepare_component(&self, _cx: &mut Context) -> PrepareMarkup {
         PrepareMarkup::With(html! {
             div {
                 h1 { ("RESOURCE NOT FOUND") }

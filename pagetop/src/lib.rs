@@ -148,7 +148,7 @@ pub mod service;
 // Tipos de respuestas a peticiones web.
 pub mod response;
 
-// Funciones útiles y macros declarativas.
+// Funciones y macros útiles.
 pub mod util;
 
 // Prepara y ejecuta la aplicación.

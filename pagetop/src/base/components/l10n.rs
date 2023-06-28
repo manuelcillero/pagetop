@@ -28,14 +28,14 @@ impl ComponentTrait for L10n {
         COMPONENT_L10N
     }
 
-    fn prepare_component(&self, rcx: &mut RenderContext) -> PrepareMarkup {
+    fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
         match self.op() {
             L10nOp::None => PrepareMarkup::None,
             L10nOp::Text(text) => PrepareMarkup::Text(text),
             L10nOp::Translated(key, locales) => PrepareMarkup::With(html! {
                 (locales
                     .lookup_with_args(
-                        rcx.langid(),
+                        cx.langid(),
                         key,
                         &self.args().iter().fold(HashMap::new(), |mut args, (key, value)| {
                             args.insert(key.to_string(), value.to_owned().into());
@@ -48,7 +48,7 @@ impl ComponentTrait for L10n {
             L10nOp::Escaped(key, locales) => PrepareMarkup::With(html! {
                 (PreEscaped(locales
                     .lookup_with_args(
-                        rcx.langid(),
+                        cx.langid(),
                         key,
                         &self.args().iter().fold(HashMap::new(), |mut args, (key, value)| {
                             args.insert(key.to_string(), value.to_owned().into());

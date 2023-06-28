@@ -1,4 +1,4 @@
-use crate::core::component::{ComponentTrait, RenderContext};
+use crate::core::component::{ComponentTrait, Context};
 use crate::html::{html, Markup};
 use crate::{fn_builder, Handle};
 
@@ -116,12 +116,12 @@ impl PackComponents {
 
     // PackComponents PREPARE.
 
-    pub fn prepare(&self, rcx: &mut RenderContext) -> Markup {
+    pub fn prepare(&self, cx: &mut Context) -> Markup {
         let mut components = self.0.clone();
         components.sort_by_key(|c| c.read().unwrap().weight());
         html! {
             @for c in components.iter() {
-                (" ")(c.write().unwrap().prepare(rcx))(" ")
+                (" ")(c.write().unwrap().prepare(cx))(" ")
             }
         }
     }

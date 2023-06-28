@@ -1,6 +1,6 @@
-use crate::core::component::RenderContext;
+use crate::core::component::Context;
 
-pub type IsRenderable = fn(&RenderContext) -> bool;
+pub type IsRenderable = fn(cx: &Context) -> bool;
 
 pub struct Renderable {
     pub check: IsRenderable,
@@ -14,6 +14,6 @@ impl Default for Renderable {
     }
 }
 
-fn render_always(_: &RenderContext) -> bool {
+fn render_always(_: &Context) -> bool {
     true
 }
