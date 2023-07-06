@@ -1,6 +1,6 @@
 use crate::core::theme::all::{theme_by_single_name, THEME};
 use crate::core::theme::ThemeStaticRef;
-use crate::html::{html, Assets, JavaScript, Markup, StyleSheet};
+use crate::html::{html, Assets, HeadScript, HeadStyles, JavaScript, Markup, StyleSheet};
 use crate::locale::{LanguageIdentifier, LANGID};
 use crate::service::HttpRequest;
 use crate::{concat_string, util};
@@ -11,21 +11,31 @@ use std::str::FromStr;
 pub enum ContextOp {
     LangId(&'static LanguageIdentifier),
     Theme(&'static str),
+    // Stylesheets.
     AddStyleSheet(StyleSheet),
     RemoveStyleSheet(&'static str),
+    // Styles in head.
+    AddHeadStyles(HeadStyles),
+    RemoveHeadStyles(&'static str),
+    // JavaScripts.
     AddJavaScript(JavaScript),
     RemoveJavaScript(&'static str),
+    // Scripts in head.
+    AddHeadScript(HeadScript),
+    RemoveHeadScript(&'static str),
 }
 
 #[rustfmt::skip]
 pub struct Context {
-    request    : HttpRequest,
-    langid     : &'static LanguageIdentifier,
-    theme      : ThemeStaticRef,
-    stylesheets: Assets<StyleSheet>,
-    javascripts: Assets<JavaScript>,
-    params     : HashMap<&'static str, String>,
-    id_counter : usize,
+    request   : HttpRequest,
+    langid    : &'static LanguageIdentifier,
+    theme     : ThemeStaticRef,
+    stylesheet: Assets<StyleSheet>,                     // Stylesheets.
+    headstyles: Assets<HeadStyles>,                     // Styles in head.
+    javascript: Assets<JavaScript>,                     // JavaScripts.
+    headscript: Assets<HeadScript>,                     // Scripts in head.
+    params    : HashMap<&'static str, String>,
+    id_counter: usize,
 }
 
 impl Context {
@@ -33,15 +43,18 @@ impl Context {
     pub(crate) fn new(request: HttpRequest) -> Self {
         Context {
             request,
-            langid     : &LANGID,
-            theme      : *THEME,
-            stylesheets: Assets::<StyleSheet>::new(),
-            javascripts: Assets::<JavaScript>::new(),
-            params     : HashMap::<&str, String>::new(),
-            id_counter : 0,
+            langid    : &LANGID,
+            theme     : *THEME,
+            stylesheet: Assets::<StyleSheet>::new(),    // Stylesheets.
+            headstyles: Assets::<HeadStyles>::new(),    // Styles in head.
+            javascript: Assets::<JavaScript>::new(),    // JavaScripts.
+            headscript: Assets::<HeadScript>::new(),    // Scripts in head.
+            params    : HashMap::<&str, String>::new(),
+            id_counter: 0,
         }
     }
 
+    #[rustfmt::skip]
     pub fn alter(&mut self, op: ContextOp) -> &mut Self {
         match op {
             ContextOp::LangId(langid) => {
@@ -50,24 +63,29 @@ impl Context {
             ContextOp::Theme(theme_name) => {
                 self.theme = theme_by_single_name(theme_name).unwrap_or(*THEME);
             }
-            ContextOp::AddStyleSheet(css) => {
-                self.stylesheets.add(css);
-            }
-            ContextOp::RemoveStyleSheet(source) => {
-                self.stylesheets.remove(source);
-            }
-            ContextOp::AddJavaScript(js) => {
-                self.javascripts.add(js);
-            }
-            ContextOp::RemoveJavaScript(source) => {
-                self.javascripts.remove(source);
-            }
+            // Stylesheets.
+            ContextOp::AddStyleSheet(css)     => { self.stylesheet.add(css);     }
+            ContextOp::RemoveStyleSheet(path) => { self.stylesheet.remove(path); }
+            // Styles in head.
+            ContextOp::AddHeadStyles(styles)  => { self.headstyles.add(styles);  }
+            ContextOp::RemoveHeadStyles(path) => { self.headstyles.remove(path); }
+            // JavaScripts.
+            ContextOp::AddJavaScript(js)      => { self.javascript.add(js);      }
+            ContextOp::RemoveJavaScript(path) => { self.javascript.remove(path); }
+            // Scripts in head.
+            ContextOp::AddHeadScript(script)  => { self.headscript.add(script);  }
+            ContextOp::RemoveHeadScript(path) => { self.headscript.remove(path); }
         }
         self
     }
 
     pub fn set_param<T: FromStr + ToString>(&mut self, key: &'static str, value: T) -> &mut Self {
         self.params.insert(key, value.to_string());
+        self
+    }
+
+    pub fn remove_param(&mut self, key: &'static str) -> &mut Self {
+        self.params.remove(key);
         self
     }
 
@@ -98,8 +116,10 @@ impl Context {
 
     pub fn prepare(&mut self) -> Markup {
         html! {
-            (self.stylesheets.prepare())
-            (self.javascripts.prepare())
+            (self.stylesheet.prepare())                 // Stylesheets.
+            (self.headstyles.prepare())                 // Styles in head.
+            (self.javascript.prepare())                 // JavaScripts.
+            (self.headscript.prepare())                 // Scripts in head.
         }
     }
 

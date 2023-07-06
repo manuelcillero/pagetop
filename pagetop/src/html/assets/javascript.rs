@@ -12,14 +12,16 @@ pub enum ModeJS {
 #[rustfmt::skip]
 #[derive(Default)]
 pub struct JavaScript {
-    source : String,
+    path   : String,
+    prefix : &'static str,
+    version: &'static str,
     weight : isize,
     mode   : ModeJS,
 }
 
 impl AssetsTrait for JavaScript {
-    fn source(&self) -> &str {
-        self.source.as_str()
+    fn path(&self) -> &str {
+        self.path.as_str()
     }
 
     fn weight(&self) -> isize {
@@ -29,7 +31,7 @@ impl AssetsTrait for JavaScript {
     fn prepare(&self) -> Markup {
         html! {
             script type="text/javascript"
-                src=(self.source)
+                src=(crate::concat_string!(self.path, self.prefix, self.version))
                 async[self.mode == ModeJS::Async]
                 defer[self.mode == ModeJS::Defer]
                 {};
@@ -38,14 +40,23 @@ impl AssetsTrait for JavaScript {
 }
 
 impl JavaScript {
-    pub fn located<S>(source: S) -> Self
+    pub fn located<S>(path: S) -> Self
     where
         S: Into<String>,
     {
         JavaScript {
-            source: source.into(),
+            path: path.into(),
             ..Default::default()
         }
+    }
+
+    pub fn with_version(mut self, version: &'static str) -> Self {
+        (self.prefix, self.version) = if version.is_empty() {
+            ("", "")
+        } else {
+            ("?v=", version)
+        };
+        self
     }
 
     pub fn with_weight(mut self, weight: isize) -> Self {

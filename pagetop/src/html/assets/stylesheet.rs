@@ -11,14 +11,16 @@ pub enum TargetMedia {
 #[rustfmt::skip]
 #[derive(Default)]
 pub struct StyleSheet {
-    source : String,
+    path   : String,
+    prefix : &'static str,
+    version: &'static str,
     media  : Option<&'static str>,
     weight : isize,
 }
 
 impl AssetsTrait for StyleSheet {
-    fn source(&self) -> &str {
-        self.source.as_str()
+    fn path(&self) -> &str {
+        self.path.as_str()
     }
 
     fn weight(&self) -> isize {
@@ -26,19 +28,33 @@ impl AssetsTrait for StyleSheet {
     }
 
     fn prepare(&self) -> Markup {
-        html! { link rel="stylesheet" href=(self.source) media=[self.media]; }
+        html! {
+            link
+                rel="stylesheet"
+                href=(crate::concat_string!(self.path, self.prefix, self.version))
+                media=[self.media];
+        }
     }
 }
 
 impl StyleSheet {
-    pub fn located<S>(source: S) -> Self
+    pub fn located<S>(path: S) -> Self
     where
         S: Into<String>,
     {
         StyleSheet {
-            source: source.into(),
+            path: path.into(),
             ..Default::default()
         }
+    }
+
+    pub fn with_version(mut self, version: &'static str) -> Self {
+        (self.prefix, self.version) = if version.is_empty() {
+            ("", "")
+        } else {
+            ("?v=", version)
+        };
+        self
     }
 
     pub fn with_weight(mut self, weight: isize) -> Self {
