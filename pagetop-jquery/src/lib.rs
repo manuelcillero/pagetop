@@ -6,7 +6,7 @@ use_locale!(LOCALE_JQUERY);
 
 use_static!(jquery);
 
-const JQUERY_PARAM: &str = "jquery.add";
+const PARAM_JQUERY: &str = "jquery.js";
 
 pub struct JQuery;
 
@@ -33,19 +33,22 @@ impl ModuleTrait for JQuery {
 }
 
 impl JQuery {
-    pub fn add_in(cx: &mut Context) {
-        cx.set_param::<bool>(JQUERY_PARAM, true);
+    pub fn enable_jquery(&self, cx: &mut Context) -> &Self {
+        cx.set_param::<bool>(PARAM_JQUERY, true);
+        self
     }
 
-    pub fn remove_from(cx: &mut Context) {
-        cx.set_param::<bool>(JQUERY_PARAM, false);
+    pub fn disable_jquery(&self, cx: &mut Context) -> &Self {
+        cx.set_param::<bool>(PARAM_JQUERY, false);
+        self
     }
 }
 
 fn before_render_page(page: &mut Page) {
-    if let Some(true) = page.context().get_param::<bool>(JQUERY_PARAM) {
+    if let Some(true) = page.context().get_param::<bool>(PARAM_JQUERY) {
         page.context().alter(ContextOp::AddJavaScript(
-            JavaScript::located("/jquery/jquery.min.js?v=3.6.0")
+            JavaScript::located("/jquery/jquery.min.js")
+                .with_version("3.6.0")
                 .with_weight(isize::MIN)
                 .with_mode(ModeJS::Normal),
         ));
