@@ -95,7 +95,7 @@ macro_rules! use_locale {
         use $crate::locale::*;
 
         fluent_templates::static_loader! {
-            pub static $LOCALES = {
+            static $LOCALES = {
                 locales: "src/locale",
                 $( core_locales: $core_locales, )?
                 fallback_language: "en-US",
@@ -109,7 +109,7 @@ macro_rules! use_locale {
         use $crate::locale::*;
 
         fluent_templates::static_loader! {
-            pub static $LOCALES = {
+            static $LOCALES = {
                 locales: $dir_locales,
                 $( core_locales: $core_locales, )?
                 fallback_language: "en-US",
@@ -124,11 +124,15 @@ macro_rules! use_locale {
 #[macro_export]
 macro_rules! use_static {
     ( $bundle:ident ) => {
-        include!(concat!(env!("OUT_DIR"), "/", stringify!($bundle), ".rs"));
+        mod static_bundle {
+            include!(concat!(env!("OUT_DIR"), "/", stringify!($bundle), ".rs"));
+        }
     };
     ( $bundle:ident => $STATIC:ident ) => {
-        include!(concat!(env!("OUT_DIR"), "/", stringify!($bundle), ".rs"));
-        static $STATIC: LazyStatic<HashMapResources> = LazyStatic::new($bundle);
+        mod static_bundle {
+            include!(concat!(env!("OUT_DIR"), "/", stringify!($bundle), ".rs"));
+        }
+        static $STATIC: LazyStatic<HashMapResources> = LazyStatic::new(static_bundle::$bundle);
     };
 }
 
@@ -137,7 +141,10 @@ macro_rules! serve_static_files {
     ( $cfg:ident, $path:expr, $bundle:ident ) => {{
         let static_files = &$crate::config::SETTINGS.dev.static_files;
         if static_files.is_empty() {
-            $cfg.service($crate::service::ResourceFiles::new($path, $bundle()));
+            $cfg.service($crate::service::ResourceFiles::new(
+                $path,
+                static_bundle::$bundle(),
+            ));
         } else {
             $cfg.service(
                 $crate::service::ActixFiles::new(
