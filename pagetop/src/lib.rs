@@ -69,7 +69,7 @@
 //! }
 //! ```
 //! Este programa crea un módulo llamado `HelloWorld` con un servicio que devuelve una página web
-//! saludando al mundo cada vez que se accede desde el navegador a `http://localhost:8088` (según
+//! saludando al mundo cada vez que se accede desde el navegador a `http://localhost:8088` (para
 //! los [ajustes de configuración](`config::Server`) predeterminados).
 //!
 //! # 🧱 Extendiendo PageTop
@@ -102,7 +102,6 @@
 // *************************************************************************************************
 
 pub use concat_string::concat_string;
-pub use doc_comment::doc_comment;
 pub use once_cell::sync::Lazy as LazyStatic;
 pub use paste::paste;
 pub use static_files::Resource as StaticResource;

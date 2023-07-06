@@ -1,4 +1,4 @@
-//! Lectura y uso de ajustes de configuración.
+//! Read configuration files and use settings.
 //!
 //! Carga la configuración de la aplicación en forma de pares `clave = valor` recogidos en archivos
 //! [TOML](https://toml.io).
@@ -51,15 +51,15 @@
 //! serde = { version = "1.0", features = ["derive"] }
 //! ```
 //!
-//! Y luego declara con la macro [`use_config!`](crate::use_config) tus ajustes, usando tipos
-//! seguros y asignando los valores predefinidos para la estructura asociada:
+//! Y luego inicializa con la macro [`default_settings!`](crate::default_settings) tus ajustes,
+//! usando tipos seguros y asignando los valores predefinidos para la estructura asociada:
 //!
 //! ```
 //! use pagetop::prelude::*;
 //! use serde::Deserialize;
 //!
 //! #[derive(Debug, Deserialize)]
-//! pub struct MySettings {
+//! pub struct Settings {
 //!    pub myapp: MyApp,
 //! }
 //!
@@ -71,7 +71,7 @@
 //!     pub height: u16,
 //! }
 //!
-//! use_config!(MY_SETTINGS as MySettings,
+//! default_settings!(
 //!     // [myapp]
 //!     "myapp.name" => "Value Name",
 //!     "myapp.width" => 900,
@@ -106,8 +106,8 @@
 //! }
 //!
 //! fn module_settings() {
-//!     println!("{} - {:?}", &MY_SETTINGS.myapp.name, &MY_SETTINGS.myapp.description);
-//!     println!("{}", &MY_SETTINGS.myapp.width);
+//!     println!("{} - {:?}", &SETTINGS.myapp.name, &SETTINGS.myapp.description);
+//!     println!("{}", &SETTINGS.myapp.width);
 //! }
 //! ```
 
@@ -164,30 +164,28 @@ pub static CONFIG: LazyStatic<ConfigData> = LazyStatic::new(|| {
 /// Detiene la aplicación con un panic! si no pueden asignarse los ajustes de configuración.
 ///
 /// Ver [`Cómo añadir ajustes de configuración`](config/index.html#cómo-añadir-ajustes-de-configuración).
-macro_rules! use_config {
-    ( $SETTINGS:ident as $Settings:ty $(, $key:literal => $value:literal)*$(,)* ) => {
-        $crate::doc_comment! {
-            concat!(
-                "Valores asignados o predefinidos para los ajustes de configuración globales ",
-                "asociados a la estructura [`", stringify!($Settings), "`]."
-            ),
-            pub static $SETTINGS: $crate::LazyStatic<$Settings> = $crate::LazyStatic::new(|| {
-                let mut settings = $crate::config::CONFIG.clone();
-                $(
-                    settings.set_default($key, $value).unwrap();
-                )*
-                match settings.try_into() {
-                    Ok(s) => s,
-                    Err(e) => panic!("Error parsing settings: {}", e),
-                }
-            });
-        }
+macro_rules! default_settings {
+    ( $($key:literal => $value:literal),* $(,)? ) => {
+        #[doc = concat!(
+            "Assigned or predefined values for configuration settings associated with the ",
+            "[`Settings`] structure."
+        )]
+        pub static SETTINGS: $crate::LazyStatic<Settings> = $crate::LazyStatic::new(|| {
+            let mut settings = $crate::config::CONFIG.clone();
+            $(
+                settings.set_default($key, $value).unwrap();
+            )*
+            match settings.try_into() {
+                Ok(s) => s,
+                Err(e) => panic!("Error parsing settings: {}", e),
+            }
+        });
     };
 }
 
 #[derive(Debug, Deserialize)]
-/// Ajustes globales para las secciones reservadas [`[app]`](App), [`[database]`](Database),
-/// [`[dev]`](Dev), [`[log]`](Log) y [`[server]`](Server) (ver [`SETTINGS`]).
+/// Configuration settings for the [`[app]`](App), [`[database]`](Database), [`[dev]`](Dev),
+/// [`[log]`](Log), and [`[server]`](Server) sections (see [`SETTINGS`]).
 pub struct Settings {
     pub app: App,
     pub database: Database,
@@ -197,9 +195,9 @@ pub struct Settings {
 }
 
 #[derive(Debug, Deserialize)]
-/// Sección `[app]` de los ajustes de configuración globales.
+/// Section `[app]` of the configuration settings.
 ///
-/// Ver [`Settings`].
+/// See [`Settings`].
 pub struct App {
     /// El nombre de la aplicación.
     /// Por defecto: *"PageTop App"*.
@@ -225,9 +223,9 @@ pub struct App {
 }
 
 #[derive(Debug, Deserialize)]
-/// Sección `[database]` de los ajustes de configuración globales.
+/// Section `[database]` of the configuration settings.
 ///
-/// Ver [`Settings`].
+/// See [`Settings`].
 pub struct Database {
     /// Tipo de base de datos: *"mysql"*, *"postgres"* ó *"sqlite"*.
     /// Por defecto: *""*.
@@ -253,9 +251,9 @@ pub struct Database {
 }
 
 #[derive(Debug, Deserialize)]
-/// Sección `[dev]` de los ajustes de configuración globales.
+/// Section `[dev]` of the configuration settings.
 ///
-/// Ver [`Settings`].
+/// See [`Settings`].
 pub struct Dev {
     /// Los archivos estáticos requeridos por la aplicación se integran de manera predeterminada en
     /// el binario ejecutable. Sin embargo, durante el desarrollo puede resultar útil servir estos
@@ -266,9 +264,9 @@ pub struct Dev {
 }
 
 #[derive(Debug, Deserialize)]
-/// Sección `[log]` de los ajustes de configuración globales.
+/// Section `[log]` of the configuration settings.
 ///
-/// Ver [`Settings`].
+/// See [`Settings`].
 pub struct Log {
     /// Filtro, o combinación de filtros separados por coma, para la traza de ejecución: *"Error"*,
     /// *"Warn"*, *"Info"*, *"Debug"* o *"Trace"*.
@@ -291,9 +289,9 @@ pub struct Log {
 }
 
 #[derive(Debug, Deserialize)]
-/// Sección `[server]` de los ajustes de configuración globales.
+/// Section `[server]` of the configuration settings.
 ///
-/// Ver [`Settings`].
+/// See [`Settings`].
 pub struct Server {
     /// Dirección del servidor web.
     /// Por defecto: *"localhost"*.
@@ -306,7 +304,7 @@ pub struct Server {
     pub session_lifetime: i64,
 }
 
-use_config!(SETTINGS as Settings,
+default_settings!(
     // [app]
     "app.name"                => "PageTop App",
     "app.description"         => "Modular web solutions made simple with PageTop.",
