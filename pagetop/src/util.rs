@@ -64,17 +64,17 @@ pub fn single_type_name<T: ?Sized>() -> &'static str {
 /// Macro para construir grupos de pares clave-valor.
 ///
 /// ```rust#ignore
-/// let args = args![
+/// let args = kv![
 ///     "userName" => "Roberto",
 ///     "photoCount" => 3,
-///     "userGender" => "male"
+///     "userGender" => "male",
 /// ];
 /// ```
-macro_rules! args {
-    ( $($key:expr => $value:expr),* ) => {{
+macro_rules! kv {
+    ( $($key:expr => $value:expr),* $(,)? ) => {{
         let mut a = std::collections::HashMap::new();
         $(
-            a.insert(String::from($key), $value.into());
+            a.insert($key.into(), $value.into());
         )*
         a
     }};

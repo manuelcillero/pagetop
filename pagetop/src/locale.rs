@@ -90,7 +90,7 @@
 //! Usa el componente [L10n](crate::base::components::L10n) para incluir textos y contenidos
 //! opcionalmente traducibles según el contexto de renderizado.
 
-use crate::{args, config, trace, LazyStatic};
+use crate::{config, kv, trace, LazyStatic};
 
 pub use fluent_templates;
 
@@ -101,12 +101,12 @@ pub(crate) use unic_langid::{langid, LanguageIdentifier};
 use std::collections::HashMap;
 
 static LANGUAGES: LazyStatic<HashMap<String, (LanguageIdentifier, &str)>> = LazyStatic::new(|| {
-    args![
+    kv![
         "en"    => (langid!("en-US"), "English"),
         "en-GB" => (langid!("en-GB"), "English (British)"),
         "en-US" => (langid!("en-US"), "English (United States)"),
         "es"    => (langid!("es-ES"), "Spanish"),
-        "es-ES" => (langid!("es-ES"), "Spanish (Spain)")
+        "es-ES" => (langid!("es-ES"), "Spanish (Spain)"),
     ]
 });
 

@@ -1,18 +1,14 @@
-//! Re-exporta los tipos y funciones más habituales para la creación de soluciones web con
-//! **PageTop**.
+//! The PageTop Prelude.
 
 // Re-exports.
 pub use crate::{
     concat_string, fn_builder, paste, Handle, HashMapResources, LazyStatic, ResultExt,
 };
 
-// Traducciones globales.
-pub use crate::LOCALE_PAGETOP;
-
 // Funciones y macros útiles.
 pub use crate::util;
 pub use crate::{action, action_after_prepare_component, action_before_prepare_component};
-pub use crate::{args, serve_static_files, use_config, use_handle, use_locale, use_static};
+pub use crate::{default_settings, kv, serve_static_files, use_handle, use_locale, use_static};
 
 // *************************************************************************************************
 
