@@ -82,12 +82,15 @@ macro_rules! kv {
 
 #[macro_export]
 macro_rules! use_handle {
-    ( $($HANDLE:ident),* $(,)? ) => {
-        $(
-            /// Public constant handle to represent a unique PageTop building element.
-            pub const $HANDLE: $crate::Handle =
-                $crate::util::handle(module_path!(), file!(), line!(), column!());
-        )*
+    ( $HANDLE:ident ) => {
+        /// Public constant handle to represent a unique PageTop building element.
+        pub const $HANDLE: $crate::Handle =
+            $crate::util::handle(module_path!(), file!(), line!(), column!());
+    };
+    ( $HANDLE:ident for Action ) => {
+        /// Constant handle to represent a unique PageTop action.
+        pub(crate) const $HANDLE: $crate::Handle =
+            $crate::util::handle(module_path!(), file!(), line!(), column!());
     };
 }
 

@@ -2,7 +2,7 @@ use crate::prelude::*;
 
 use super::ActionPage;
 
-use_handle!(ACTION_BEFORE_PREPARE_PAGE);
+use_handle!(ACTION_BEFORE_PREPARE_PAGE for Action);
 
 pub struct ActionBeforePreparePage {
     action: Option<ActionPage>,
@@ -41,7 +41,7 @@ impl ActionBeforePreparePage {
         self
     }
 
-    pub fn run(&self, page: &mut Page) {
+    pub(crate) fn run(&self, page: &mut Page) {
         if let Some(action) = self.action {
             action(page)
         }
@@ -49,7 +49,7 @@ impl ActionBeforePreparePage {
 }
 
 #[inline(always)]
-pub fn run_actions_before_prepare_page(page: &mut Page) {
+pub(crate) fn run_actions_before_prepare_page(page: &mut Page) {
     run_actions(ACTION_BEFORE_PREPARE_PAGE, |action| {
         action_ref::<ActionBeforePreparePage>(&**action).run(page)
     });

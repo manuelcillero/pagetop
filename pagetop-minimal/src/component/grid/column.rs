@@ -2,7 +2,7 @@ use pagetop::prelude::*;
 
 use_handle!(COMPONENT_COLUMN);
 
-action_before_prepare_component!(ACTION_BEFORE_PREPARE_COLUMN for Column);
+actions_for_component!(Column);
 
 const SIZE__DEFAULT: &str = "col-md";
 const SIZE__1_OF_12: &str = "col-md-1";
@@ -70,7 +70,7 @@ impl ComponentTrait for Column {
     }
 
     fn before_prepare_component(&mut self, cx: &mut Context) {
-        run_actions_before_prepare_component(self, cx);
+        run_actions_before_prepare_column(self, cx);
     }
 
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
@@ -79,6 +79,10 @@ impl ComponentTrait for Column {
                 (self.components().prepare(cx))
             }
         })
+    }
+
+    fn after_prepare_component(&mut self, cx: &mut Context) {
+        run_actions_after_prepare_column(self, cx);
     }
 
     fn as_ref_any(&self) -> &dyn AnyComponent {

@@ -154,7 +154,7 @@ impl MegaMenuItem {
 
 use_handle!(COMPONENT_MEGAMENU);
 
-action_before_prepare_component!(ACTION_BEFORE_PREPARE_MENU for MegaMenu);
+actions_for_component!(MegaMenu);
 
 #[rustfmt::skip]
 #[derive(Default)]
@@ -189,7 +189,7 @@ impl ComponentTrait for MegaMenu {
     }
 
     fn before_prepare_component(&mut self, cx: &mut Context) {
-        run_actions_before_prepare_component(self, cx);
+        run_actions_before_prepare_megamenu(self, cx);
     }
 
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
@@ -217,6 +217,10 @@ impl ComponentTrait for MegaMenu {
                 "});});"
             }
         })
+    }
+
+    fn after_prepare_component(&mut self, cx: &mut Context) {
+        run_actions_after_prepare_megamenu(self, cx);
     }
 
     fn as_ref_any(&self) -> &dyn AnyComponent {

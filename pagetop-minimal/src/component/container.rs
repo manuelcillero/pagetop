@@ -2,7 +2,7 @@ use pagetop::prelude::*;
 
 use_handle!(COMPONENT_CONTAINER);
 
-action_before_prepare_component!(ACTION_BEFORE_PREPARE_CONTAINER for Container);
+actions_for_component!(Container);
 
 #[derive(Default)]
 pub enum ContainerType {
@@ -51,7 +51,7 @@ impl ComponentTrait for Container {
     }
 
     fn before_prepare_component(&mut self, cx: &mut Context) {
-        run_actions_before_prepare_component(self, cx);
+        run_actions_before_prepare_container(self, cx);
     }
 
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
@@ -90,6 +90,10 @@ impl ComponentTrait for Container {
                 }
             }),
         }
+    }
+
+    fn after_prepare_component(&mut self, cx: &mut Context) {
+        run_actions_after_prepare_container(self, cx);
     }
 
     fn as_ref_any(&self) -> &dyn AnyComponent {

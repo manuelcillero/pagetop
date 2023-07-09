@@ -36,7 +36,7 @@ impl ComponentTrait for Block {
     }
 
     fn before_prepare_component(&mut self, cx: &mut Context) {
-        actions::block::run_actions_before_prepare_component(self, cx);
+        actions::block::run_actions_before_prepare_block(self, cx);
     }
 
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
@@ -54,7 +54,7 @@ impl ComponentTrait for Block {
     }
 
     fn after_prepare_component(&mut self, cx: &mut Context) {
-        actions::block::run_actions_after_prepare_component(self, cx);
+        actions::block::run_actions_after_prepare_block(self, cx);
     }
 
     fn as_ref_any(&self) -> &dyn AnyComponent {

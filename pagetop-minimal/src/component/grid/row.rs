@@ -4,7 +4,7 @@ use crate::component::grid;
 
 use_handle!(COMPONENT_ROW);
 
-action_before_prepare_component!(ACTION_BEFORE_PREPARE_ROW for Row);
+actions_for_component!(Row);
 
 #[rustfmt::skip]
 #[derive(Default)]
@@ -39,7 +39,7 @@ impl ComponentTrait for Row {
     }
 
     fn before_prepare_component(&mut self, cx: &mut Context) {
-        run_actions_before_prepare_component(self, cx);
+        run_actions_before_prepare_row(self, cx);
     }
 
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
@@ -48,6 +48,10 @@ impl ComponentTrait for Row {
                 (self.columns().prepare(cx))
             }
         })
+    }
+
+    fn after_prepare_component(&mut self, cx: &mut Context) {
+        run_actions_after_prepare_row(self, cx);
     }
 
     fn as_ref_any(&self) -> &dyn AnyComponent {

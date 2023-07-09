@@ -7,7 +7,7 @@ pub use crate::{
 
 // Funciones y macros útiles.
 pub use crate::util;
-pub use crate::{action, action_after_prepare_component, action_before_prepare_component};
+pub use crate::{action, actions_for_component};
 pub use crate::{default_settings, kv, serve_static_files, use_handle, use_locale, use_static};
 
 // *************************************************************************************************

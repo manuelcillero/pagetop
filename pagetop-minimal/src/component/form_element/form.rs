@@ -2,7 +2,7 @@ use pagetop::prelude::*;
 
 use_handle!(COMPONENT_FORM);
 
-action_before_prepare_component!(ACTION_BEFORE_PREPARE_FORM for Form);
+actions_for_component!(Form);
 
 #[derive(Default)]
 pub enum FormMethod {
@@ -49,7 +49,7 @@ impl ComponentTrait for Form {
     }
 
     fn before_prepare_component(&mut self, cx: &mut Context) {
-        run_actions_before_prepare_component(self, cx);
+        run_actions_before_prepare_form(self, cx);
     }
 
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
@@ -68,6 +68,10 @@ impl ComponentTrait for Form {
                 div { (self.elements().prepare(cx)) }
             }
         })
+    }
+
+    fn after_prepare_component(&mut self, cx: &mut Context) {
+        run_actions_after_prepare_form(self, cx);
     }
 
     fn as_ref_any(&self) -> &dyn AnyComponent {
