@@ -87,7 +87,7 @@
 //! use_locale!(LOCALE_SAMPLE["path/to/locale"]);
 //! ```
 //!
-//! Usa el componente [L10n](crate::base::components::L10n) para incluir textos y contenidos
+//! Usa el componente [L10n](crate::base::component::L10n) para incluir textos y contenidos
 //! opcionalmente traducibles según el contexto de renderizado.
 
 use crate::{config, kv, trace, LazyStatic};

@@ -1,5 +1,5 @@
-use crate::base::actions;
-use crate::base::components::L10n;
+use crate::base::action;
+use crate::base::component::L10n;
 use crate::core::component::{ComponentTrait, Context, ContextOp, OneComponent};
 use crate::core::theme::ComponentsRegions;
 use crate::html::{html, Classes, ClassesOp, Favicon, Markup, DOCTYPE};
@@ -136,7 +136,7 @@ impl Page {
 
     pub fn render(&mut self) -> ResultPage<Markup, FatalError> {
         // Module actions before preparing the page.
-        actions::page::run_actions_before_prepare_page(self);
+        action::page::run_actions_before_prepare_page(self);
 
         // Theme actions before preparing the page.
         self.context.theme().before_prepare_page(self);
@@ -145,7 +145,7 @@ impl Page {
         let body = self.context.theme().prepare_page_body(self);
 
         // Module actions before rendering the page.
-        actions::page::run_actions_before_render_page(self);
+        action::page::run_actions_before_render_page(self);
 
         // Theme actions before rendering the page.
         self.context.theme().before_render_page(self);
