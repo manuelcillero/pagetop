@@ -22,6 +22,9 @@ impl ModuleTrait for Basic {
 
 impl ThemeTrait for Basic {
     fn before_prepare_page(&self, page: &mut Page) {
-        page.alter_favicon(Some(Favicon::new().with_icon("/theme/favicon.ico")));
+        page.alter_favicon(Some(Favicon::new().with_icon("/theme/favicon.ico")))
+            .alter_context(ContextOp::AddStyleSheet(
+                StyleSheet::located("/theme/css/normalize.min.css").with_version("8.0.1"),
+            ));
     }
 }
