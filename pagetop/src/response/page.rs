@@ -1,7 +1,7 @@
 mod action;
 pub use action::*;
 
-use crate::base::component::L10n;
+use crate::core::component::l10n::L10n;
 use crate::core::component::{ComponentTrait, Context, ContextOp, OneComponent};
 use crate::core::theme::ComponentsRegions;
 use crate::html::{html, Classes, ClassesOp, Favicon, Markup, DOCTYPE};

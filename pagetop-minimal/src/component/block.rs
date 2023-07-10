@@ -1,6 +1,8 @@
-use crate::prelude::*;
+use pagetop::prelude::*;
 
 use_handle!(COMPONENT_BLOCK);
+
+actions_for_component!(Block);
 
 #[rustfmt::skip]
 #[derive(Default)]
@@ -36,7 +38,7 @@ impl ComponentTrait for Block {
     }
 
     fn before_prepare_component(&mut self, cx: &mut Context) {
-        action::block::run_actions_before_prepare_block(self, cx);
+        run_actions_before_prepare_block(self, cx);
     }
 
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
@@ -54,7 +56,7 @@ impl ComponentTrait for Block {
     }
 
     fn after_prepare_component(&mut self, cx: &mut Context) {
-        action::block::run_actions_after_prepare_block(self, cx);
+        run_actions_after_prepare_block(self, cx);
     }
 
     fn as_ref_any(&self) -> &dyn AnyComponent {
