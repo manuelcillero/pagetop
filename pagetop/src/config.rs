@@ -119,6 +119,7 @@ mod path;
 mod source;
 mod value;
 
+use crate::default_settings;
 use crate::LazyStatic;
 
 use crate::config::data::ConfigData;
@@ -157,31 +158,6 @@ pub static CONFIG: LazyStatic<ConfigData> = LazyStatic::new(|| {
 
     settings
 });
-
-#[macro_export]
-/// Define un conjunto de ajustes de configuración usando tipos seguros y valores predefinidos.
-///
-/// Detiene la aplicación con un panic! si no pueden asignarse los ajustes de configuración.
-///
-/// Ver [`Cómo añadir ajustes de configuración`](config/index.html#cómo-añadir-ajustes-de-configuración).
-macro_rules! default_settings {
-    ( $($key:literal => $value:literal),* $(,)? ) => {
-        #[doc = concat!(
-            "Assigned or predefined values for configuration settings associated with the ",
-            "[`Settings`] structure."
-        )]
-        pub static SETTINGS: $crate::LazyStatic<Settings> = $crate::LazyStatic::new(|| {
-            let mut settings = $crate::config::CONFIG.clone();
-            $(
-                settings.set_default($key, $value).unwrap();
-            )*
-            match settings.try_into() {
-                Ok(s) => s,
-                Err(e) => panic!("Error parsing settings: {}", e),
-            }
-        });
-    };
-}
 
 #[derive(Debug, Deserialize)]
 /// Configuration settings for the [`[app]`](App), [`[database]`](Database), [`[dev]`](Dev),

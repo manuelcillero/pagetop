@@ -84,7 +84,7 @@
 //! ```
 //! use pagetop::prelude::*;
 //!
-//! use_locale!(LOCALE_SAMPLE["path/to/locale"]);
+//! use_locale!(LOCALE_SAMPLE in "path/to/locale");
 //! ```
 //!
 //! Usa el componente [L10n](crate::core::component::l10n::L10n) para incluir textos y contenidos
