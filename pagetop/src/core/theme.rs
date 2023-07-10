@@ -7,5 +7,4 @@ pub(crate) use regions::ComponentsRegions;
 
 pub(crate) mod all;
 
-mod basic;
-pub(crate) use basic::Basic;
+pub(crate) mod basic;

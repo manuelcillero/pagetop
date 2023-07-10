@@ -28,7 +28,7 @@ pub fn register_modules(app: ModuleStaticRef) {
     let mut list: Vec<ModuleStaticRef> = Vec::new();
 
     // Enable basic theme.
-    add_to_enabled(&mut list, &crate::core::theme::Basic);
+    add_to_enabled(&mut list, &crate::core::theme::basic::Basic);
 
     // Enable application modules.
     add_to_enabled(&mut list, app);

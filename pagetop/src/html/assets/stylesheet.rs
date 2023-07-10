@@ -1,4 +1,4 @@
-use super::AssetsTrait;
+use crate::html::assets::AssetsTrait;
 use crate::html::{html, Markup};
 
 pub enum TargetMedia {
