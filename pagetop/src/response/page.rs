@@ -1,4 +1,6 @@
-use crate::base::action;
+mod action;
+pub use action::*;
+
 use crate::base::component::L10n;
 use crate::core::component::{ComponentTrait, Context, ContextOp, OneComponent};
 use crate::core::theme::ComponentsRegions;
@@ -136,7 +138,7 @@ impl Page {
 
     pub fn render(&mut self) -> ResultPage<Markup, FatalError> {
         // Module actions before preparing the page.
-        action::page::run_actions_before_prepare_page(self);
+        run_actions_before_prepare_page(self);
 
         // Theme actions before preparing the page.
         self.context.theme().before_prepare_page(self);
@@ -145,7 +147,7 @@ impl Page {
         let body = self.context.theme().prepare_page_body(self);
 
         // Module actions before rendering the page.
-        action::page::run_actions_before_render_page(self);
+        run_actions_before_render_page(self);
 
         // Theme actions before rendering the page.
         self.context.theme().before_render_page(self);

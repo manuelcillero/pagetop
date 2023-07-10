@@ -1,5 +1,3 @@
-pub mod page;
-
 pub mod block {
     crate::actions_for_component!(Block);
 }

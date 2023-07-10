@@ -24,7 +24,7 @@ impl ModuleTrait for JQuery {
     }
 
     fn actions(&self) -> Vec<Action> {
-        vec![action!(action::page::ActionBeforeRenderPage => before_render_page)]
+        vec![action!(ActionBeforeRenderPage => before_render_page)]
     }
 
     fn configure_service(&self, cfg: &mut service::web::ServiceConfig) {

@@ -1,4 +1,4 @@
-use crate::response::page::Page;
+use super::Page;
 
 pub type ActionPage = fn(page: &mut Page);
 

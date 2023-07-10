@@ -1,24 +1,25 @@
-use crate::prelude::*;
-
 use super::ActionPage;
+use crate::core::action::{action_ref, run_actions, ActionTrait, AnyAction};
+use crate::response::page::Page;
+use crate::{use_handle, Handle};
 
-use_handle!(ACTION_BEFORE_PREPARE_PAGE for Action);
+use_handle!(ACTION_BEFORE_RENDER_PAGE for Action);
 
-pub struct ActionBeforePreparePage {
+pub struct ActionBeforeRenderPage {
     action: Option<ActionPage>,
     weight: isize,
 }
 
-impl ActionTrait for ActionBeforePreparePage {
+impl ActionTrait for ActionBeforeRenderPage {
     fn new() -> Self {
-        ActionBeforePreparePage {
+        ActionBeforeRenderPage {
             action: None,
             weight: 0,
         }
     }
 
     fn handle(&self) -> Handle {
-        ACTION_BEFORE_PREPARE_PAGE
+        ACTION_BEFORE_RENDER_PAGE
     }
 
     fn weight(&self) -> isize {
@@ -30,7 +31,7 @@ impl ActionTrait for ActionBeforePreparePage {
     }
 }
 
-impl ActionBeforePreparePage {
+impl ActionBeforeRenderPage {
     pub fn with_action(mut self, action: ActionPage) -> Self {
         self.action = Some(action);
         self
@@ -49,8 +50,8 @@ impl ActionBeforePreparePage {
 }
 
 #[inline(always)]
-pub(crate) fn run_actions_before_prepare_page(page: &mut Page) {
-    run_actions(ACTION_BEFORE_PREPARE_PAGE, |action| {
-        action_ref::<ActionBeforePreparePage>(&**action).run(page)
+pub(crate) fn run_actions_before_render_page(page: &mut Page) {
+    run_actions(ACTION_BEFORE_RENDER_PAGE, |action| {
+        action_ref::<ActionBeforeRenderPage>(&**action).run(page)
     });
 }
