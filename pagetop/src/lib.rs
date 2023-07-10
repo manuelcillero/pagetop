@@ -138,9 +138,6 @@ pub mod db;
 // APIs esenciales para crear acciones, componentes, módulos y temas.
 pub mod core;
 
-// Acciones, componentes, módulos y temas integrados en PageTop.
-pub mod base;
-
 // API para operar con los servicios web.
 pub mod service;
 

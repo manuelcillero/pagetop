@@ -1,4 +1,10 @@
-use crate::prelude::*;
+use crate::core::component::ContextOp;
+use crate::core::module::ModuleTrait;
+use crate::core::theme::{ThemeStaticRef, ThemeTrait};
+use crate::html::{Favicon, StyleSheet};
+use crate::response::page::Page;
+use crate::service;
+use crate::{serve_static_files, use_handle, use_static, Handle};
 
 use_handle!(THEME_BASIC);
 

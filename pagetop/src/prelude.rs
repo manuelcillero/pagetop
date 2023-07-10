@@ -30,8 +30,6 @@ pub use crate::core::component::*;
 pub use crate::core::module::*;
 pub use crate::core::theme::*;
 
-pub use crate::base::theme;
-
 pub use crate::service;
 pub use crate::service::HttpMessage;
 
