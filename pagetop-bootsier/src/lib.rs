@@ -44,7 +44,7 @@ impl ThemeTrait for Bootsier {
     }
 
     fn before_prepare_body(&self, page: &mut Page) {
-        page.alter_favicon(Some(Favicon::new().with_icon("/theme/favicon.ico")))
+        page.alter_favicon(Some(Favicon::new().with_icon("/monster/favicon.ico")))
             .alter_context(ContextOp::AddStyleSheet(
                 StyleSheet::at("/bootsier/css/bootstrap.min.css")
                     .with_version("5.1.3")

@@ -7,4 +7,4 @@ pub(crate) use regions::ComponentsRegions;
 
 pub(crate) mod all;
 
-pub(crate) mod basic;
+pub(crate) mod monster;
