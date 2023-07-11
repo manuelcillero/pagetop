@@ -47,7 +47,7 @@ impl JQuery {
 fn before_render_page(page: &mut Page) {
     if let Some(true) = page.context().get_param::<bool>(PARAM_JQUERY) {
         page.context().alter(ContextOp::AddJavaScript(
-            JavaScript::located("/jquery/jquery.min.js")
+            JavaScript::at("/jquery/jquery.min.js")
                 .with_version("3.6.0")
                 .with_weight(isize::MIN)
                 .with_mode(ModeJS::Normal),

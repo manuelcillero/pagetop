@@ -30,7 +30,7 @@ impl ComponentTrait for Icon {
 
     fn before_prepare_component(&mut self, cx: &mut Context) {
         cx.alter(ContextOp::AddStyleSheet(
-            StyleSheet::located("/minimal/icons/bootstrap-icons.css").with_version("1.8.2"),
+            StyleSheet::at("/minimal/icons/bootstrap-icons.css").with_version("1.8.2"),
         ));
     }
 

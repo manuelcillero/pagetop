@@ -35,7 +35,7 @@ impl ModuleTrait for HomeDemo {
 async fn demo(request: service::HttpRequest) -> ResultPage<Markup, FatalError> {
     Page::new(request)
         .with_title(L10n::t("page_title", &LOCALE_HOMEDEMO))
-        .with_context(ContextOp::AddStyleSheet(StyleSheet::located(
+        .with_context(ContextOp::AddStyleSheet(StyleSheet::at(
             "/homedemo/css/styles.css",
         )))
         .with_body_classes(ClassesOp::AddFirst, "default-homepage")

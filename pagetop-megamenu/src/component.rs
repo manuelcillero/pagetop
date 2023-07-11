@@ -194,13 +194,13 @@ impl ComponentTrait for MegaMenu {
 
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
         cx.alter(ContextOp::AddStyleSheet(
-            StyleSheet::located("/megamenu/css/menu.css").with_version("1.1.1"),
+            StyleSheet::at("/megamenu/css/menu.css").with_version("1.1.1"),
         ))
         .alter(ContextOp::AddStyleSheet(
-            StyleSheet::located("/megamenu/css/menu-clean.css").with_version("1.1.1"),
+            StyleSheet::at("/megamenu/css/menu-clean.css").with_version("1.1.1"),
         ))
         .alter(ContextOp::AddJavaScript(
-            JavaScript::located("/megamenu/js/menu.min.js").with_version("1.1.1"),
+            JavaScript::at("/megamenu/js/menu.min.js").with_version("1.1.1"),
         ));
         JQuery.enable_jquery(cx);
 

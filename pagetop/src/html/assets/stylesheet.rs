@@ -38,7 +38,7 @@ impl AssetsTrait for StyleSheet {
 }
 
 impl StyleSheet {
-    pub fn located<S>(path: S) -> Self
+    pub fn at<S>(path: S) -> Self
     where
         S: Into<String>,
     {

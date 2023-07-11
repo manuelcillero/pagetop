@@ -46,12 +46,12 @@ impl ThemeTrait for Bootsier {
     fn before_prepare_page(&self, page: &mut Page) {
         page.alter_favicon(Some(Favicon::new().with_icon("/theme/favicon.ico")))
             .alter_context(ContextOp::AddStyleSheet(
-                StyleSheet::located("/bootsier/css/bootstrap.min.css")
+                StyleSheet::at("/bootsier/css/bootstrap.min.css")
                     .with_version("5.1.3")
                     .with_weight(-99),
             ))
             .alter_context(ContextOp::AddJavaScript(
-                JavaScript::located("/bootsier/js/bootstrap.bundle.min.js")
+                JavaScript::at("/bootsier/js/bootstrap.bundle.min.js")
                     .with_version("5.1.3")
                     .with_weight(-99),
             ));

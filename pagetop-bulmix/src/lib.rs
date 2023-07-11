@@ -34,7 +34,7 @@ impl ThemeTrait for Bulmix {
     fn before_prepare_page(&self, page: &mut Page) {
         page.alter_favicon(Some(Favicon::new().with_icon("/theme/favicon.ico")))
             .alter_context(ContextOp::AddStyleSheet(
-                StyleSheet::located("/bulmix/css/bulma.min.css")
+                StyleSheet::at("/bulmix/css/bulma.min.css")
                     .with_version("0.9.4")
                     .with_weight(-99),
             ));
