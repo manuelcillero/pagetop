@@ -2,7 +2,7 @@ mod context;
 pub use context::{Context, ContextOp};
 
 mod definition;
-pub use definition::{component_mut, component_ref, AnyComponent, BaseComponent, ComponentTrait};
+pub use definition::{component_mut, component_ref, BaseComponent, ComponentTrait};
 
 mod one;
 pub use one::OneComponent;
@@ -49,10 +49,6 @@ macro_rules! actions_for_component {
 
                 fn weight(&self) -> isize {
                     self.weight
-                }
-
-                fn as_ref_any(&self) -> &dyn AnyAction {
-                    self
                 }
             }
 
@@ -112,10 +108,6 @@ macro_rules! actions_for_component {
 
                 fn weight(&self) -> isize {
                     self.weight
-                }
-
-                fn as_ref_any(&self) -> &dyn AnyAction {
-                    self
                 }
             }
 

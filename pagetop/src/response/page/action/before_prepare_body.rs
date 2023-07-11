@@ -1,4 +1,4 @@
-use crate::core::action::{action_ref, run_actions, ActionTrait, AnyAction};
+use crate::core::action::{action_ref, run_actions, ActionTrait};
 use crate::response::page::action::ActionPage;
 use crate::response::page::Page;
 use crate::{use_handle, Handle};
@@ -24,10 +24,6 @@ impl ActionTrait for ActionBeforePrepareBody {
 
     fn weight(&self) -> isize {
         self.weight
-    }
-
-    fn as_ref_any(&self) -> &dyn AnyAction {
-        self
     }
 }
 

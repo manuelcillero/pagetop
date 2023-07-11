@@ -29,14 +29,6 @@ impl ComponentTrait for Hidden {
             input type="hidden" id=[id] name=[self.name().get()] value=[self.value().get()];
         })
     }
-
-    fn as_ref_any(&self) -> &dyn AnyComponent {
-        self
-    }
-
-    fn as_mut_any(&mut self) -> &mut dyn AnyComponent {
-        self
-    }
 }
 
 impl Hidden {

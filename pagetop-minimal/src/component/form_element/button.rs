@@ -67,14 +67,6 @@ impl ComponentTrait for Button {
             }
         })
     }
-
-    fn as_ref_any(&self) -> &dyn AnyComponent {
-        self
-    }
-
-    fn as_mut_any(&mut self) -> &mut dyn AnyComponent {
-        self
-    }
 }
 
 impl Button {

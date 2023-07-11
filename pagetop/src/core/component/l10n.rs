@@ -1,4 +1,7 @@
-use crate::prelude::*;
+use crate::core::component::{ComponentTrait, Context};
+use crate::html::{html, PreEscaped, PrepareMarkup};
+use crate::locale::{Loader, Locales};
+use crate::{fn_builder, use_handle, Handle};
 
 use std::collections::HashMap;
 
@@ -59,14 +62,6 @@ impl ComponentTrait for L10n {
                 ))
             }),
         }
-    }
-
-    fn as_ref_any(&self) -> &dyn AnyComponent {
-        self
-    }
-
-    fn as_mut_any(&mut self) -> &mut dyn AnyComponent {
-        self
     }
 }
 

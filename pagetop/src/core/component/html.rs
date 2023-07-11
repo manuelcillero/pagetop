@@ -1,4 +1,6 @@
-use crate::prelude::*;
+use crate::core::component::{ComponentTrait, Context};
+use crate::html::{html, Markup, PrepareMarkup};
+use crate::{fn_builder, use_handle, Handle};
 
 use_handle!(COMPONENT_HTML);
 
@@ -16,14 +18,6 @@ impl ComponentTrait for Html {
 
     fn prepare_component(&self, _: &mut Context) -> PrepareMarkup {
         PrepareMarkup::With(html! { (self.html()) })
-    }
-
-    fn as_ref_any(&self) -> &dyn AnyComponent {
-        self
-    }
-
-    fn as_mut_any(&mut self) -> &mut dyn AnyComponent {
-        self
     }
 }
 

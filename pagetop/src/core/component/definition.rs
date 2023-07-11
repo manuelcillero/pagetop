@@ -2,13 +2,17 @@ use crate::core::component::Context;
 use crate::html::{html, Markup, PrepareMarkup};
 use crate::{util, Handle};
 
-pub use std::any::Any as AnyComponent;
+use std::any::Any;
 
-pub trait BaseComponent {
+pub trait BaseComponent: Any {
     fn prepare(&mut self, cx: &mut Context) -> Markup;
+
+    fn as_ref_any(&self) -> &dyn Any;
+
+    fn as_mut_any(&mut self) -> &mut dyn Any;
 }
 
-pub trait ComponentTrait: AnyComponent + BaseComponent + Send + Sync {
+pub trait ComponentTrait: BaseComponent + Send + Sync {
     fn new() -> Self
     where
         Self: Sized;
@@ -46,10 +50,6 @@ pub trait ComponentTrait: AnyComponent + BaseComponent + Send + Sync {
 
     #[allow(unused_variables)]
     fn after_prepare_component(&mut self, cx: &mut Context) {}
-
-    fn as_ref_any(&self) -> &dyn AnyComponent;
-
-    fn as_mut_any(&mut self) -> &mut dyn AnyComponent;
 }
 
 impl<C: ComponentTrait> BaseComponent for C {
@@ -77,12 +77,20 @@ impl<C: ComponentTrait> BaseComponent for C {
             html! {}
         }
     }
+
+    fn as_ref_any(&self) -> &dyn Any {
+        self
+    }
+
+    fn as_mut_any(&mut self) -> &mut dyn Any {
+        self
+    }
 }
 
-pub fn component_ref<C: 'static>(component: &dyn ComponentTrait) -> &C {
+pub fn component_ref<C: ComponentTrait>(component: &dyn ComponentTrait) -> &C {
     component.as_ref_any().downcast_ref::<C>().unwrap()
 }
 
-pub fn component_mut<C: 'static>(component: &mut dyn ComponentTrait) -> &mut C {
+pub fn component_mut<C: ComponentTrait>(component: &mut dyn ComponentTrait) -> &mut C {
     component.as_mut_any().downcast_mut::<C>().unwrap()
 }

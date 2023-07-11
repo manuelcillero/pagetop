@@ -1,5 +1,5 @@
 mod definition;
-pub use definition::{action_ref, ActionTrait, AnyAction};
+pub use definition::{action_ref, ActionTrait, BaseAction};
 
 mod list;
 pub use list::Action;
