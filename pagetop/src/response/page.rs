@@ -137,23 +137,23 @@ impl Page {
     // Page RENDER.
 
     pub fn render(&mut self) -> ResultPage<Markup, FatalError> {
-        // Module actions before preparing the page.
-        run_actions_before_prepare_page(self);
+        // Module actions before preparing the page body.
+        run_actions_before_prepare_body(self);
 
-        // Theme actions before preparing the page.
-        self.context.theme().before_prepare_page(self);
+        // Theme actions before preparing the page body.
+        self.context.theme().before_prepare_body(self);
 
         // Prepare page body.
-        let body = self.context.theme().prepare_page_body(self);
+        let body = self.context.theme().prepare_body(self);
 
-        // Module actions before rendering the page.
-        run_actions_before_render_page(self);
+        // Module actions after preparing the page body.
+        run_actions_after_prepare_body(self);
 
-        // Theme actions before rendering the page.
-        self.context.theme().before_render_page(self);
+        // Theme actions after preparing the page body.
+        self.context.theme().after_prepare_body(self);
 
         // Prepare page head.
-        let head = self.context.theme().prepare_page_head(self);
+        let head = self.context.theme().prepare_head(self);
 
         // Render the page.
         let lang = self.context.langid().language.as_str();

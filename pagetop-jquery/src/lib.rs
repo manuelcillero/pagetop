@@ -24,7 +24,7 @@ impl ModuleTrait for JQuery {
     }
 
     fn actions(&self) -> Vec<Action> {
-        vec![action!(ActionBeforeRenderPage => before_render_page)]
+        vec![action!(ActionAfterPrepareBody => after_prepare_body)]
     }
 
     fn configure_service(&self, cfg: &mut service::web::ServiceConfig) {
@@ -44,7 +44,7 @@ impl JQuery {
     }
 }
 
-fn before_render_page(page: &mut Page) {
+fn after_prepare_body(page: &mut Page) {
     if let Some(true) = page.context().get_param::<bool>(PARAM_JQUERY) {
         page.context().alter(ContextOp::AddJavaScript(
             JavaScript::at("/jquery/jquery.min.js")

@@ -3,23 +3,23 @@ use crate::response::page::action::ActionPage;
 use crate::response::page::Page;
 use crate::{use_handle, Handle};
 
-use_handle!(ACTION_BEFORE_RENDER_PAGE for Action);
+use_handle!(ACTION_AFTER_PREPARE_BODY for Action);
 
-pub struct ActionBeforeRenderPage {
+pub struct ActionAfterPrepareBody {
     action: Option<ActionPage>,
     weight: isize,
 }
 
-impl ActionTrait for ActionBeforeRenderPage {
+impl ActionTrait for ActionAfterPrepareBody {
     fn new() -> Self {
-        ActionBeforeRenderPage {
+        ActionAfterPrepareBody {
             action: None,
             weight: 0,
         }
     }
 
     fn handle(&self) -> Handle {
-        ACTION_BEFORE_RENDER_PAGE
+        ACTION_AFTER_PREPARE_BODY
     }
 
     fn weight(&self) -> isize {
@@ -31,7 +31,7 @@ impl ActionTrait for ActionBeforeRenderPage {
     }
 }
 
-impl ActionBeforeRenderPage {
+impl ActionAfterPrepareBody {
     pub fn with_action(mut self, action: ActionPage) -> Self {
         self.action = Some(action);
         self
@@ -50,8 +50,8 @@ impl ActionBeforeRenderPage {
 }
 
 #[inline(always)]
-pub(crate) fn run_actions_before_render_page(page: &mut Page) {
-    run_actions(ACTION_BEFORE_RENDER_PAGE, |action| {
-        action_ref::<ActionBeforeRenderPage>(&**action).run(page)
+pub(crate) fn run_actions_after_prepare_body(page: &mut Page) {
+    run_actions(ACTION_AFTER_PREPARE_BODY, |action| {
+        action_ref::<ActionAfterPrepareBody>(&**action).run(page)
     });
 }

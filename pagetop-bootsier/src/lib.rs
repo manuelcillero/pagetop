@@ -43,7 +43,7 @@ impl ThemeTrait for Bootsier {
         ]
     }
 
-    fn before_prepare_page(&self, page: &mut Page) {
+    fn before_prepare_body(&self, page: &mut Page) {
         page.alter_favicon(Some(Favicon::new().with_icon("/theme/favicon.ico")))
             .alter_context(ContextOp::AddStyleSheet(
                 StyleSheet::at("/bootsier/css/bootstrap.min.css")
@@ -58,7 +58,7 @@ impl ThemeTrait for Bootsier {
         JQuery.enable_jquery(page.context());
     }
 
-    fn prepare_page_body(&self, page: &mut Page) -> Markup {
+    fn prepare_body(&self, page: &mut Page) -> Markup {
         match page.template() {
             "admin" => html! {
                 body class=[page.body_classes().get()] {
