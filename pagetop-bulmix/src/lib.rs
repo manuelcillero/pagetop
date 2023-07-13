@@ -32,7 +32,7 @@ impl ModuleTrait for Bulmix {
 
 impl ThemeTrait for Bulmix {
     fn before_prepare_body(&self, page: &mut Page) {
-        page.alter_favicon(Some(Favicon::new().with_icon("/monster/favicon.ico")))
+        page.alter_favicon(Some(Favicon::new().with_icon("/theme/favicon.ico")))
             .alter_context(ContextOp::AddStyleSheet(
                 StyleSheet::at("/bulmix/css/bulma.min.css")
                     .with_version("0.9.4")

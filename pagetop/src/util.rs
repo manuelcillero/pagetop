@@ -155,35 +155,43 @@ macro_rules! use_locale {
 #[macro_export]
 macro_rules! use_static {
     ( $bundle:ident ) => {
-        mod static_bundle {
-            include!(concat!(env!("OUT_DIR"), "/", stringify!($bundle), ".rs"));
+        $crate::paste! {
+            mod [<static_bundle_ $bundle>] {
+                include!(concat!(env!("OUT_DIR"), "/", stringify!($bundle), ".rs"));
+            }
         }
     };
     ( $bundle:ident => $STATIC:ident ) => {
-        mod static_bundle {
-            include!(concat!(env!("OUT_DIR"), "/", stringify!($bundle), ".rs"));
+        $crate::paste! {
+            mod [<static_bundle_ $bundle>] {
+                include!(concat!(env!("OUT_DIR"), "/", stringify!($bundle), ".rs"));
+            }
+            static $STATIC: LazyStatic<HashMapResources> = LazyStatic::new([
+                <static_bundle_ $bundle>]::$bundle
+            );
         }
-        static $STATIC: LazyStatic<HashMapResources> = LazyStatic::new(static_bundle::$bundle);
     };
 }
 
 #[macro_export]
 macro_rules! serve_static_files {
     ( $cfg:ident, $path:expr, $bundle:ident ) => {{
-        let static_files = &$crate::config::SETTINGS.dev.static_files;
-        if static_files.is_empty() {
-            $cfg.service($crate::service::ResourceFiles::new(
-                $path,
-                static_bundle::$bundle(),
-            ));
-        } else {
-            $cfg.service(
-                $crate::service::ActixFiles::new(
+        $crate::paste! {
+            let static_files = &$crate::config::SETTINGS.dev.static_files;
+            if static_files.is_empty() {
+                $cfg.service($crate::service::ResourceFiles::new(
                     $path,
-                    $crate::concat_string!(static_files, $path),
-                )
-                .show_files_listing(),
-            );
+                    [<static_bundle_ $bundle>]::$bundle(),
+                ));
+            } else {
+                $cfg.service(
+                    $crate::service::ActixFiles::new(
+                        $path,
+                        $crate::concat_string!(static_files, $path),
+                    )
+                    .show_files_listing(),
+                );
+            }
         }
     }};
 }

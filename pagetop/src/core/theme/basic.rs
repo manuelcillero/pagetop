@@ -6,31 +6,31 @@ use crate::response::page::Page;
 use crate::service;
 use crate::{serve_static_files, use_handle, use_static, Handle};
 
-use_handle!(THEME_MONSTER);
+use_handle!(THEME_BASIC);
 
-use_static!(monster);
+use_static!(theme);
 
-pub struct Monster;
+pub struct Basic;
 
-impl ModuleTrait for Monster {
+impl ModuleTrait for Basic {
     fn handle(&self) -> Handle {
-        THEME_MONSTER
+        THEME_BASIC
     }
 
     fn theme(&self) -> Option<ThemeStaticRef> {
-        Some(&Monster)
+        Some(&Basic)
     }
 
     fn configure_service(&self, cfg: &mut service::web::ServiceConfig) {
-        serve_static_files!(cfg, "/monster", monster);
+        serve_static_files!(cfg, "/theme", theme);
     }
 }
 
-impl ThemeTrait for Monster {
+impl ThemeTrait for Basic {
     fn before_prepare_body(&self, page: &mut Page) {
-        page.alter_favicon(Some(Favicon::new().with_icon("/monster/favicon.ico")))
+        page.alter_favicon(Some(Favicon::new().with_icon("/theme/favicon.ico")))
             .alter_context(ContextOp::AddStyleSheet(
-                StyleSheet::at("/monster/css/normalize.min.css").with_version("8.0.1"),
+                StyleSheet::at("/theme/css/normalize.min.css").with_version("8.0.1"),
             ));
     }
 }
