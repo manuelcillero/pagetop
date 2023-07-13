@@ -1,23 +1,22 @@
-**PageTop** es un entorno de desarrollo basado en [Rust](https://www.rust-lang.org/es/) que reúne
-algunos de los crates más estables y populares para crear soluciones web modulares, extensibles y
-configurables.
+**PageTop** is an opinionated [Rust](https://www.rust-lang.org) web development framework to build
+secure, modular, and fast web Server-Side Rendering (SSR) solutions with ease.
+
+PageTop uses some of the most stable and popular Rust *crates* to provide modular, extensible, and
+configurable features.
 
 
-# 🚧 Advertencia
+# 🚧 Warning
 
-**PageTop** sólo libera actualmente versiones de desarrollo. La API no es estable y los cambios son
-constantes. No puede considerarse preparado hasta que se libere la versión **0.1.0**.
+**PageTop** framework is currently in active development. The API is unstable and subject to
+frequent changes. Production use is not recommended until version **0.1.0**.
 
 
-# 📜 Licencia
+# 📜 License
 
-Este proyecto tiene licencia, de hecho tiene dos, puedes aplicar cualquiera de las siguientes a tu
-elección:
+This project is licensed under either of the following licenses, at your option:
 
-* Licencia Apache versión 2.0
-  ([LICENSE-APACHE](https://github.com/manuelcillero/pagetop/blob/main/LICENSE-APACHE) o
-  [http://www.apache.org/licenses/LICENSE-2.0]).
+  * Apache License, Version 2.0,
+    ([LICENSE-APACHE](LICENSE-APACHE) or https://www.apache.org/licenses/LICENSE-2.0)
 
-* Licencia MIT
-  ([LICENSE-MIT](https://github.com/manuelcillero/pagetop/blob/main/LICENSE-MIT) o
-  [http://opensource.org/licenses/MIT]).
+  * MIT License
+    ([LICENSE-MIT](LICENSE-MIT) or https://opensource.org/licenses/MIT)
