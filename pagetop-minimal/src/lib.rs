@@ -3,9 +3,9 @@ use pagetop::prelude::*;
 pub mod component;
 pub mod module;
 
-use_handle!(MODULE_MINIMAL);
+create_handle!(MODULE_MINIMAL);
 
-use_static!(minimal);
+static_files!(minimal);
 
 pub struct Minimal;
 

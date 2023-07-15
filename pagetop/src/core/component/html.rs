@@ -1,8 +1,8 @@
 use crate::core::component::{ComponentTrait, Context};
 use crate::html::{html, Markup, PrepareMarkup};
-use crate::{fn_builder, use_handle, Handle};
+use crate::{create_handle, fn_builder, Handle};
 
-use_handle!(COMPONENT_HTML);
+create_handle!(COMPONENT_HTML);
 
 #[derive(Default)]
 pub struct Html(Markup);

@@ -1,9 +1,9 @@
 use pagetop::prelude::*;
 use pagetop_minimal::component::*;
 
-use_handle!(MODULE_USER);
+create_handle!(MODULE_USER);
 
-use_locale!(LOCALE_USER);
+static_locales!(LOCALES_USER);
 
 mod migration;
 
@@ -15,11 +15,11 @@ impl ModuleTrait for User {
     }
 
     fn name(&self) -> L10n {
-        L10n::t("module_name", &LOCALE_USER)
+        L10n::t("module_name", &LOCALES_USER)
     }
 
     fn description(&self) -> L10n {
-        L10n::t("module_description", &LOCALE_USER)
+        L10n::t("module_description", &LOCALES_USER)
     }
 
     fn dependencies(&self) -> Vec<ModuleStaticRef> {
@@ -58,9 +58,9 @@ fn form_login() -> Form {
         .with_element(
             form_element::Input::textfield()
                 .with_name("name")
-                .with_label(L10n::t("username", &LOCALE_USER))
+                .with_label(L10n::t("username", &LOCALES_USER))
                 .with_help_text(
-                    L10n::t("username_help", &LOCALE_USER)
+                    L10n::t("username_help", &LOCALES_USER)
                         .with_arg("app", config::SETTINGS.app.name.to_owned()),
                 )
                 .with_autofocus(true),
@@ -68,8 +68,11 @@ fn form_login() -> Form {
         .with_element(
             form_element::Input::password()
                 .with_name("pass")
-                .with_label(L10n::t("password", &LOCALE_USER))
-                .with_help_text(L10n::t("password_help", &LOCALE_USER)),
+                .with_label(L10n::t("password", &LOCALES_USER))
+                .with_help_text(L10n::t("password_help", &LOCALES_USER)),
         )
-        .with_element(form_element::Button::submit(L10n::t("login", &LOCALE_USER)))
+        .with_element(form_element::Button::submit(L10n::t(
+            "login",
+            &LOCALES_USER,
+        )))
 }

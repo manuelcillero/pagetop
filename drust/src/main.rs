@@ -1,6 +1,6 @@
 use pagetop::prelude::*;
 
-use_handle!(APP_DRUST);
+create_handle!(APP_DRUST);
 
 struct Drust;
 

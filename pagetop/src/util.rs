@@ -89,8 +89,8 @@ macro_rules! kv {
 macro_rules! default_settings {
     ( $($key:literal => $value:literal),* $(,)? ) => {
         #[doc = concat!(
-            "Assigned or predefined values for configuration settings associated with the ",
-            "[`Settings`] structure."
+            "Assigned or predefined values for configuration settings associated to the ",
+            "[`Settings`] type."
         )]
         pub static SETTINGS: $crate::LazyStatic<Settings> = $crate::LazyStatic::new(|| {
             let mut settings = $crate::config::CONFIG.clone();
@@ -106,7 +106,7 @@ macro_rules! default_settings {
 }
 
 #[macro_export]
-macro_rules! use_handle {
+macro_rules! create_handle {
     ( $HANDLE:ident ) => {
         /// Public constant handle to represent a unique PageTop building element.
         pub const $HANDLE: $crate::Handle =
@@ -121,7 +121,7 @@ macro_rules! use_handle {
 
 #[macro_export]
 /// Define un conjunto de elementos de localización y funciones locales de traducción.
-macro_rules! use_locale {
+macro_rules! static_locales {
     ( $LOCALES:ident $(, $core_locales:literal)? ) => {
         use $crate::locale::*;
 
@@ -153,21 +153,21 @@ macro_rules! use_locale {
 }
 
 #[macro_export]
-macro_rules! use_static {
+macro_rules! static_files {
     ( $bundle:ident ) => {
         $crate::paste! {
-            mod [<static_bundle_ $bundle>] {
+            mod [<static_files_ $bundle>] {
                 include!(concat!(env!("OUT_DIR"), "/", stringify!($bundle), ".rs"));
             }
         }
     };
     ( $bundle:ident => $STATIC:ident ) => {
         $crate::paste! {
-            mod [<static_bundle_ $bundle>] {
+            mod [<static_files_ $bundle>] {
                 include!(concat!(env!("OUT_DIR"), "/", stringify!($bundle), ".rs"));
             }
             static $STATIC: LazyStatic<HashMapResources> = LazyStatic::new([
-                <static_bundle_ $bundle>]::$bundle
+                <static_files_ $bundle>]::$bundle
             );
         }
     };
@@ -181,7 +181,7 @@ macro_rules! serve_static_files {
             if static_files.is_empty() {
                 $cfg.service($crate::service::ResourceFiles::new(
                     $path,
-                    [<static_bundle_ $bundle>]::$bundle(),
+                    [<static_files_ $bundle>]::$bundle(),
                 ));
             } else {
                 $cfg.service(

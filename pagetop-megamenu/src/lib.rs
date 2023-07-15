@@ -2,9 +2,9 @@ use pagetop::prelude::*;
 
 pub mod component;
 
-use_handle!(MODULE_MEGAMENU);
+create_handle!(MODULE_MEGAMENU);
 
-use_static!(megamenu);
+static_files!(megamenu);
 
 pub struct MegaMenu;
 

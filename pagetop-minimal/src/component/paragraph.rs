@@ -1,6 +1,6 @@
 use pagetop::prelude::*;
 
-use_handle!(COMPONENT_PARAGRAPH);
+create_handle!(COMPONENT_PARAGRAPH);
 
 #[derive(Default)]
 pub enum ParagraphDisplay {

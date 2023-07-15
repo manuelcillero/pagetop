@@ -1,9 +1,9 @@
 use crate::core::action::{action_ref, run_actions, ActionTrait};
 use crate::response::page::action::ActionPage;
 use crate::response::page::Page;
-use crate::{use_handle, Handle};
+use crate::{create_handle, Handle};
 
-use_handle!(ACTION_BEFORE_PREPARE_BODY for Action);
+create_handle!(ACTION_BEFORE_PREPARE_BODY for Action);
 
 pub struct ActionBeforePrepareBody {
     action: Option<ActionPage>,

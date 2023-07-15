@@ -1,8 +1,8 @@
 use pagetop::prelude::*;
 
-use_handle!(THEME_ALINER);
+create_handle!(THEME_ALINER);
 
-use_static!(aliner);
+static_files!(aliner);
 
 pub struct Aliner;
 

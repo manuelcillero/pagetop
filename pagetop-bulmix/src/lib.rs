@@ -2,9 +2,9 @@ use pagetop::prelude::*;
 use pagetop_jquery::JQuery;
 use pagetop_minimal::component::*;
 
-use_handle!(THEME_BULMIX);
+create_handle!(THEME_BULMIX);
 
-use_static!(bulmix);
+static_files!(bulmix);
 
 pub struct Bulmix;
 

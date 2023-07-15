@@ -3,7 +3,7 @@ use crate::core::component::{ComponentTrait, Context};
 use crate::core::module::ModuleTrait;
 use crate::html::{html, Favicon, Markup};
 use crate::response::page::Page;
-use crate::{config, LOCALE_PAGETOP};
+use crate::{config, LOCALES_PAGETOP};
 
 pub type ThemeStaticRef = &'static dyn ThemeTrait;
 
@@ -12,11 +12,11 @@ pub trait ThemeTrait: ModuleTrait + Send + Sync {
     #[rustfmt::skip]
     fn regions(&self) -> Vec<(&'static str, L10n)> {
         vec![
-            ("header",  L10n::t("header",  &LOCALE_PAGETOP)),
-            ("pagetop", L10n::t("pagetop", &LOCALE_PAGETOP)),
-            ("content", L10n::t("content", &LOCALE_PAGETOP)),
-            ("sidebar", L10n::t("sidebar", &LOCALE_PAGETOP)),
-            ("footer",  L10n::t("footer",  &LOCALE_PAGETOP)),
+            ("header",  L10n::t("header",  &LOCALES_PAGETOP)),
+            ("pagetop", L10n::t("pagetop", &LOCALES_PAGETOP)),
+            ("content", L10n::t("content", &LOCALES_PAGETOP)),
+            ("sidebar", L10n::t("sidebar", &LOCALES_PAGETOP)),
+            ("footer",  L10n::t("footer",  &LOCALES_PAGETOP)),
         ]
     }
 

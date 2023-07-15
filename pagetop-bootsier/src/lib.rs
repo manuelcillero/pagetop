@@ -1,11 +1,11 @@
 use pagetop::prelude::*;
 use pagetop_jquery::JQuery;
 
-use_handle!(THEME_BOOTSIER);
+create_handle!(THEME_BOOTSIER);
 
-use_locale!(LOCALE_BOOTSIER);
+static_locales!(LOCALES_BOOTSIER);
 
-use_static!(bootsier);
+static_files!(bootsier);
 
 pub struct Bootsier;
 
@@ -31,15 +31,15 @@ impl ThemeTrait for Bootsier {
     #[rustfmt::skip]
     fn regions(&self) -> Vec<(&'static str, L10n)> {
         vec![
-            ("header",         L10n::t("header",         &LOCALE_BOOTSIER)),
-            ("nav_branding",   L10n::t("nav_branding",   &LOCALE_BOOTSIER)),
-            ("nav_main",       L10n::t("nav_main",       &LOCALE_BOOTSIER)),
-            ("nav_additional", L10n::t("nav_additional", &LOCALE_BOOTSIER)),
-            ("breadcrumb",     L10n::t("breadcrumb",     &LOCALE_BOOTSIER)),
-            ("content",        L10n::t("breadcrumb",     &LOCALE_BOOTSIER)),
-            ("sidebar_first",  L10n::t("sidebar_first",  &LOCALE_BOOTSIER)),
-            ("sidebar_second", L10n::t("sidebar_second", &LOCALE_BOOTSIER)),
-            ("footer",         L10n::t("footer",         &LOCALE_BOOTSIER)),
+            ("header",         L10n::t("header",         &LOCALES_BOOTSIER)),
+            ("nav_branding",   L10n::t("nav_branding",   &LOCALES_BOOTSIER)),
+            ("nav_main",       L10n::t("nav_main",       &LOCALES_BOOTSIER)),
+            ("nav_additional", L10n::t("nav_additional", &LOCALES_BOOTSIER)),
+            ("breadcrumb",     L10n::t("breadcrumb",     &LOCALES_BOOTSIER)),
+            ("content",        L10n::t("breadcrumb",     &LOCALES_BOOTSIER)),
+            ("sidebar_first",  L10n::t("sidebar_first",  &LOCALES_BOOTSIER)),
+            ("sidebar_second", L10n::t("sidebar_second", &LOCALES_BOOTSIER)),
+            ("footer",         L10n::t("footer",         &LOCALES_BOOTSIER)),
         ]
     }
 
@@ -131,18 +131,18 @@ impl ThemeTrait for Bootsier {
                         div class="media-body" {
                             h1 class="display-4" { ("RESOURCE NOT FOUND") }
                             p class="lead" {
-                                (L10n::t("e404-description", &LOCALE_BOOTSIER).prepare(cx))
+                                (L10n::t("e404-description", &LOCALES_BOOTSIER).prepare(cx))
                             }
                             hr class="my-4";
                             p {
-                                (L10n::t("e404-description", &LOCALE_BOOTSIER).prepare(cx))
+                                (L10n::t("e404-description", &LOCALES_BOOTSIER).prepare(cx))
                             }
                             a
                                 class="btn btn-primary btn-lg"
                                 href="/"
                                 role="button"
                             {
-                                (L10n::t("back-homepage", &LOCALE_BOOTSIER).prepare(cx))
+                                (L10n::t("back-homepage", &LOCALES_BOOTSIER).prepare(cx))
                             }
                         }
                     }

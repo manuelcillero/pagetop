@@ -1,8 +1,8 @@
 use pagetop::prelude::*;
 
-use_handle!(MODULE_NODE);
+create_handle!(MODULE_NODE);
 
-use_locale!(LOCALE_NODE);
+static_locales!(LOCALES_NODE);
 
 //mod entity;
 mod migration;
@@ -15,11 +15,11 @@ impl ModuleTrait for Node {
     }
 
     fn name(&self) -> L10n {
-        L10n::t("module_name", &LOCALE_NODE)
+        L10n::t("module_name", &LOCALES_NODE)
     }
 
     fn description(&self) -> L10n {
-        L10n::t("module_description", &LOCALE_NODE)
+        L10n::t("module_description", &LOCALES_NODE)
     }
 
     fn configure_service(&self, cfg: &mut service::web::ServiceConfig) {

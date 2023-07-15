@@ -1,11 +1,11 @@
 use pagetop::prelude::*;
 use pagetop_minimal::component::*;
 
-use_handle!(MODULE_HOMEDEMO);
+create_handle!(MODULE_HOMEDEMO);
 
-use_locale!(LOCALE_HOMEDEMO);
+static_locales!(LOCALES_HOMEDEMO);
 
-use_static!(homedemo);
+static_files!(homedemo);
 
 pub struct HomeDemo;
 
@@ -15,11 +15,11 @@ impl ModuleTrait for HomeDemo {
     }
 
     fn name(&self) -> L10n {
-        L10n::t("module_name", &LOCALE_HOMEDEMO)
+        L10n::t("module_name", &LOCALES_HOMEDEMO)
     }
 
     fn description(&self) -> L10n {
-        L10n::t("module_description", &LOCALE_HOMEDEMO)
+        L10n::t("module_description", &LOCALES_HOMEDEMO)
     }
 
     fn dependencies(&self) -> Vec<ModuleStaticRef> {
@@ -34,7 +34,7 @@ impl ModuleTrait for HomeDemo {
 
 async fn demo(request: service::HttpRequest) -> ResultPage<Markup, FatalError> {
     Page::new(request)
-        .with_title(L10n::t("page_title", &LOCALE_HOMEDEMO))
+        .with_title(L10n::t("page_title", &LOCALES_HOMEDEMO))
         .with_context(ContextOp::AddStyleSheet(StyleSheet::at(
             "/homedemo/css/styles.css",
         )))
@@ -55,11 +55,11 @@ fn hello_world() -> Container {
                     .with_classes(ClassesOp::Add, "hello-col-text")
                     .with_size(grid::ColumnSize::Is5of12)
                     .with_component(
-                        Heading::h1(L10n::t("page_title", &LOCALE_HOMEDEMO))
+                        Heading::h1(L10n::t("page_title", &LOCALES_HOMEDEMO))
                             .with_display(HeadingDisplay::Medium),
                     )
                     .with_component(
-                        Paragraph::with(L10n::e("hello_intro", &LOCALE_HOMEDEMO).with_arg(
+                        Paragraph::with(L10n::e("hello_intro", &LOCALES_HOMEDEMO).with_arg(
                             "app",
                             format!(
                                 "<span class=\"app-name\">{}</span>",
@@ -69,7 +69,7 @@ fn hello_world() -> Container {
                         .with_display(ParagraphDisplay::Small),
                     )
                     .with_component(Paragraph::with(
-                        L10n::e("hello_powered", &LOCALE_HOMEDEMO).with_arg(
+                        L10n::e("hello_powered", &LOCALES_HOMEDEMO).with_arg(
                             "pagetop",
                             format!(
                                 "<a href=\"{}\" target=\"_blank\">{}</a>",
@@ -80,14 +80,14 @@ fn hello_world() -> Container {
                     .with_component(
                         Anchor::button(
                             "https://github.com/manuelcillero/pagetop",
-                            L10n::t("hello_code", &LOCALE_HOMEDEMO),
+                            L10n::t("hello_code", &LOCALES_HOMEDEMO),
                         )
                         .with_target(AnchorTarget::Blank)
                         .with_left_icon(Icon::with("git"))
                         .with_classes(ClassesOp::Add, "code-link"),
                     )
                     .with_component(
-                        Anchor::link("#welcome", L10n::t("hello_welcome", &LOCALE_HOMEDEMO))
+                        Anchor::link("#welcome", L10n::t("hello_welcome", &LOCALES_HOMEDEMO))
                             .with_left_icon(Icon::with("arrow-down-circle-fill"))
                             .with_classes(ClassesOp::Add, "welcome-link"),
                     ),
@@ -104,9 +104,9 @@ fn welcome() -> Container {
     Container::section()
         .with_id("welcome")
         .with_classes(ClassesOp::Add, "welcome-col-text")
-        .with_component(Heading::h2(L10n::t("welcome_page", &LOCALE_HOMEDEMO)))
+        .with_component(Heading::h2(L10n::t("welcome_page", &LOCALES_HOMEDEMO)))
         .with_component(
-            Heading::h3(L10n::e("welcome_subtitle", &LOCALE_HOMEDEMO).with_arg(
+            Heading::h3(L10n::e("welcome_subtitle", &LOCALES_HOMEDEMO).with_arg(
                 "app",
                 format!(
                     "<span class=\"app-name\">{}</span>",
@@ -116,10 +116,10 @@ fn welcome() -> Container {
             .with_display(HeadingDisplay::Subtitle),
         )
         .with_component(
-            Paragraph::with(L10n::t("welcome_text1", &LOCALE_HOMEDEMO))
+            Paragraph::with(L10n::t("welcome_text1", &LOCALES_HOMEDEMO))
                 .with_display(ParagraphDisplay::Small),
         )
-        .with_component(Paragraph::with(L10n::t("welcome_text2", &LOCALE_HOMEDEMO)))
+        .with_component(Paragraph::with(L10n::t("welcome_text2", &LOCALES_HOMEDEMO)))
 }
 
 fn about_pagetop() -> Container {
@@ -134,14 +134,14 @@ fn about_pagetop() -> Container {
             .with_column(
                 grid::Column::new()
                     .with_classes(ClassesOp::Add, "pagetop-col-text")
-                    .with_component(Heading::h2(L10n::t("pagetop_title", &LOCALE_HOMEDEMO)))
+                    .with_component(Heading::h2(L10n::t("pagetop_title", &LOCALES_HOMEDEMO)))
                     .with_component(
-                        Paragraph::with(L10n::t("pagetop_text1", &LOCALE_HOMEDEMO))
+                        Paragraph::with(L10n::t("pagetop_text1", &LOCALES_HOMEDEMO))
                             .with_display(ParagraphDisplay::Small),
                     )
-                    .with_component(Paragraph::with(L10n::t("pagetop_text2", &LOCALE_HOMEDEMO)))
+                    .with_component(Paragraph::with(L10n::t("pagetop_text2", &LOCALES_HOMEDEMO)))
                     .with_component(Paragraph::with(
-                        L10n::e("pagetop_text3", &LOCALE_HOMEDEMO)
+                        L10n::e("pagetop_text3", &LOCALES_HOMEDEMO)
                             .with_arg("href", "https://docs.rs/pagetop/latest/pagetop".to_string()),
                     )),
             ),
@@ -156,16 +156,18 @@ fn promo_pagetop() -> Container {
                     .with_classes(ClassesOp::Add, "promo-col-text")
                     .with_component(Heading::h2(L10n::t(
                         "pagetop_promo_title",
-                        &LOCALE_HOMEDEMO,
+                        &LOCALES_HOMEDEMO,
                     )))
                     .with_component(
-                        Paragraph::with(L10n::e("pagetop_promo_text1", &LOCALE_HOMEDEMO).with_arg(
-                            "pagetop",
-                            format!(
-                                "<a href=\"{}\" target=\"_blank\">{}</a>",
-                                "https://crates.io/crates/pagetop", "PageTop",
+                        Paragraph::with(
+                            L10n::e("pagetop_promo_text1", &LOCALES_HOMEDEMO).with_arg(
+                                "pagetop",
+                                format!(
+                                    "<a href=\"{}\" target=\"_blank\">{}</a>",
+                                    "https://crates.io/crates/pagetop", "PageTop",
+                                ),
                             ),
-                        ))
+                        )
                         .with_display(ParagraphDisplay::Small),
                     ),
             )
@@ -192,15 +194,15 @@ fn reporting_issues() -> Container {
                     .with_size(grid::ColumnSize::Is6of12)
                     .with_component(Heading::h2(L10n::t(
                         "report_problems_title",
-                        &LOCALE_HOMEDEMO,
+                        &LOCALES_HOMEDEMO,
                     )))
                     .with_component(
-                        Paragraph::with(L10n::t("report_problems_text1", &LOCALE_HOMEDEMO))
+                        Paragraph::with(L10n::t("report_problems_text1", &LOCALES_HOMEDEMO))
                             .with_display(ParagraphDisplay::Small),
                     )
                     .with_component(Paragraph::with(L10n::t(
                         "report_problems_text2",
-                        &LOCALE_HOMEDEMO,
+                        &LOCALES_HOMEDEMO,
                     ))),
             ),
     )

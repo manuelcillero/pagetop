@@ -1,7 +1,7 @@
 use pagetop::prelude::*;
 use pagetop_jquery::JQuery;
 
-use_handle!(COMPONENT_MEGAMENUITEM);
+create_handle!(COMPONENT_MEGAMENUITEM);
 
 type Label = OneComponent<L10n>;
 type Content = OneComponent<L10n>;
@@ -144,7 +144,7 @@ impl MegaMenuItem {
 
 // MegaMenu.
 
-use_handle!(COMPONENT_MEGAMENU);
+create_handle!(COMPONENT_MEGAMENU);
 
 actions_for_component!(MegaMenu);
 

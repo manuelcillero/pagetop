@@ -42,7 +42,7 @@
 //! ```rust
 //! use pagetop::prelude::*;
 //!
-//! use_handle!(APP_HELLO_WORLD);
+//! create_handle!(APP_HELLO_WORLD);
 //!
 //! struct HelloWorld;
 //!
@@ -116,7 +116,7 @@ pub type HashMapResources = std::collections::HashMap<&'static str, StaticResour
 
 pub type Handle = u64;
 
-use_locale!(LOCALE_PAGETOP);
+static_locales!(LOCALES_PAGETOP);
 
 // *************************************************************************************************
 // APIs PÚBLICAS.

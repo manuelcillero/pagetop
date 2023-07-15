@@ -1,8 +1,8 @@
 use pagetop::prelude::*;
 
-use_handle!(MODULE_ADMIN);
+create_handle!(MODULE_ADMIN);
 
-use_locale!(LOCALE_ADMIN);
+static_locales!(LOCALES_ADMIN);
 
 mod summary;
 
@@ -14,11 +14,11 @@ impl ModuleTrait for Admin {
     }
 
     fn name(&self) -> L10n {
-        L10n::t("module_name", &LOCALE_ADMIN)
+        L10n::t("module_name", &LOCALES_ADMIN)
     }
 
     fn description(&self) -> L10n {
-        L10n::t("module_description", &LOCALE_ADMIN)
+        L10n::t("module_description", &LOCALES_ADMIN)
     }
 
     #[rustfmt::skip]

@@ -1,6 +1,6 @@
 use pagetop::prelude::*;
 
-use_handle!(APP_HELLO_WORLD);
+create_handle!(APP_HELLO_WORLD);
 
 struct HelloWorld;
 

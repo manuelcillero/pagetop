@@ -1,8 +1,8 @@
 use crate::core::component::{ComponentTrait, Context};
 use crate::html::{html, PrepareMarkup};
-use crate::{use_handle, Handle};
+use crate::{create_handle, Handle};
 
-use_handle!(ERROR_404);
+create_handle!(ERROR_404);
 
 pub struct Error404;
 

@@ -1,10 +1,10 @@
 use pagetop::prelude::*;
 
-use_handle!(MODULE_JQUERY);
+create_handle!(MODULE_JQUERY);
 
-use_locale!(LOCALE_JQUERY);
+static_locales!(LOCALES_JQUERY);
 
-use_static!(jquery);
+static_files!(jquery);
 
 const PARAM_JQUERY: &str = "jquery.js";
 
@@ -16,11 +16,11 @@ impl ModuleTrait for JQuery {
     }
 
     fn name(&self) -> L10n {
-        L10n::t("module_name", &LOCALE_JQUERY)
+        L10n::t("module_name", &LOCALES_JQUERY)
     }
 
     fn description(&self) -> L10n {
-        L10n::t("module_description", &LOCALE_JQUERY)
+        L10n::t("module_description", &LOCALES_JQUERY)
     }
 
     fn actions(&self) -> Vec<Action> {

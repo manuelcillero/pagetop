@@ -4,11 +4,11 @@ use crate::core::theme::{ThemeStaticRef, ThemeTrait};
 use crate::html::{Favicon, StyleSheet};
 use crate::response::page::Page;
 use crate::service;
-use crate::{serve_static_files, use_handle, use_static, Handle};
+use crate::{create_handle, serve_static_files, static_files, Handle};
 
-use_handle!(THEME_BASIC);
+create_handle!(THEME_BASIC);
 
-use_static!(theme);
+static_files!(theme);
 
 pub struct Basic;
 
