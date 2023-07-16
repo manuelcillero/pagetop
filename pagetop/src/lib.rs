@@ -98,28 +98,32 @@
 //! PageTop a estructurar e inicializar modularmente la aplicación.
 
 // *************************************************************************************************
-// GLOBAL.
+// RE-EXPORTED MACROS.
 // *************************************************************************************************
 
 pub use concat_string::concat_string;
-pub use once_cell::sync::Lazy as LazyStatic;
-pub use paste::paste;
-pub use static_files::Resource as StaticResource;
-pub use tracing_unwrap::ResultExt;
 
-#[allow(unused_imports)]
-pub(crate) use futures::executor::block_on as run_now;
+/// Enables flexible identifier concatenation in macros, allowing new items with pasted identifiers.
+pub use paste::paste;
 
 pub use pagetop_macros::fn_builder;
 
-pub type HashMapResources = std::collections::HashMap<&'static str, StaticResource>;
+// *************************************************************************************************
+// GLOBAL.
+// *************************************************************************************************
+
+pub use once_cell::sync::Lazy as LazyStatic;
+pub use static_files::Resource as StaticResource;
+pub use tracing_unwrap::ResultExt;
 
 pub type Handle = u64;
+pub type Weight = i8;
+pub type HashMapResources = std::collections::HashMap<&'static str, StaticResource>;
 
 static_locales!(LOCALES_PAGETOP);
 
 // *************************************************************************************************
-// APIs PÚBLICAS.
+// PUBLIC API.
 // *************************************************************************************************
 
 // Gestión de la configuración.
@@ -151,7 +155,7 @@ pub mod util;
 pub mod app;
 
 // *************************************************************************************************
-// RE-EXPORTA API ÚNICA.
+// The PageTop Prelude.
 // *************************************************************************************************
 
 pub mod prelude;

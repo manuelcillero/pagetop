@@ -4,7 +4,7 @@ use crate::core::theme::all::THEMES;
 use crate::{service, trace, LazyStatic};
 
 #[cfg(feature = "database")]
-use crate::{db::*, run_now};
+use crate::{db::*};
 
 use std::sync::RwLock;
 

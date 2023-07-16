@@ -1,12 +1,14 @@
 //! Acceso unificado y normalizado a base de datos.
 
-use crate::{config, run_now, trace, LazyStatic, ResultExt};
+use crate::{config, trace, LazyStatic, ResultExt};
 
 pub use url::Url as DbUri;
 
 pub use sea_orm::{DatabaseConnection as DbConn, ExecResult, QueryResult};
 
 use sea_orm::{ConnectOptions, ConnectionTrait, Database, DatabaseBackend, Statement};
+
+pub(crate) use futures::executor::block_on as run_now;
 
 pub(crate) static DBCONN: LazyStatic<DbConn> = LazyStatic::new(|| {
     trace::info!(
