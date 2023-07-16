@@ -7,7 +7,7 @@ actions_for_component!(Block);
 #[rustfmt::skip]
 #[derive(Default)]
 pub struct Block {
-    weight    : isize,
+    weight    : Weight,
     renderable: Renderable,
     id        : IdentifierValue,
     classes   : Classes,
@@ -29,7 +29,7 @@ impl ComponentTrait for Block {
         self.id.get()
     }
 
-    fn weight(&self) -> isize {
+    fn weight(&self) -> Weight {
         self.weight
     }
 
@@ -70,8 +70,8 @@ impl Block {
     }
 
     #[fn_builder]
-    pub fn alter_weight(&mut self, weight: isize) -> &mut Self {
-        self.weight = weight;
+    pub fn alter_weight(&mut self, value: Weight) -> &mut Self {
+        self.weight = value;
         self
     }
 

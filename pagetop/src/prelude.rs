@@ -1,9 +1,10 @@
 //! The PageTop Prelude.
 
-// Re-exports.
-pub use crate::{
-    concat_string, fn_builder, paste, Handle, HashMapResources, LazyStatic, ResultExt,
-};
+// Re-exported macros.
+pub use crate::{concat_string, fn_builder, paste};
+
+// Global.
+pub use crate::{Handle, HashMapResources, LazyStatic, ResultExt, Weight};
 
 // Funciones y macros útiles.
 pub use crate::util;
@@ -11,7 +12,7 @@ pub use crate::{action, actions_for_component};
 pub use crate::{create_handle, default_settings, kv};
 pub use crate::{serve_static_files, static_files, static_locales};
 
-// *************************************************************************************************
+// API.
 
 pub use crate::config;
 

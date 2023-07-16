@@ -23,7 +23,7 @@ pub enum MegaMenuItemType {
 #[rustfmt::skip]
 #[derive(Default)]
 pub struct MegaMenuItem {
-    weight    : isize,
+    weight    : Weight,
     renderable: Renderable,
     item_type : MegaMenuItemType,
 }
@@ -37,7 +37,7 @@ impl ComponentTrait for MegaMenuItem {
         COMPONENT_MEGAMENUITEM
     }
 
-    fn weight(&self) -> isize {
+    fn weight(&self) -> Weight {
         self.weight
     }
 
@@ -124,8 +124,8 @@ impl MegaMenuItem {
     // MegaMenuItem BUILDER.
 
     #[fn_builder]
-    pub fn alter_weight(&mut self, weight: isize) -> &mut Self {
-        self.weight = weight;
+    pub fn alter_weight(&mut self, value: Weight) -> &mut Self {
+        self.weight = value;
         self
     }
 
@@ -151,7 +151,7 @@ actions_for_component!(MegaMenu);
 #[rustfmt::skip]
 #[derive(Default)]
 pub struct MegaMenu {
-    weight    : isize,
+    weight    : Weight,
     renderable: Renderable,
     id        : IdentifierValue,
     classes   : Classes,
@@ -172,7 +172,7 @@ impl ComponentTrait for MegaMenu {
         self.id.get()
     }
 
-    fn weight(&self) -> isize {
+    fn weight(&self) -> Weight {
         self.weight
     }
 
@@ -220,8 +220,8 @@ impl MegaMenu {
     // MegaMenu BUILDER.
 
     #[fn_builder]
-    pub fn alter_weight(&mut self, weight: isize) -> &mut Self {
-        self.weight = weight;
+    pub fn alter_weight(&mut self, value: Weight) -> &mut Self {
+        self.weight = value;
         self
     }
 

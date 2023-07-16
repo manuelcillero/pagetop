@@ -1,4 +1,4 @@
-use crate::Handle;
+use crate::{Handle, Weight};
 
 use std::any::Any;
 
@@ -13,7 +13,7 @@ pub trait ActionTrait: BaseAction + Send + Sync {
 
     fn handle(&self) -> Handle;
 
-    fn weight(&self) -> isize {
+    fn weight(&self) -> Weight {
         0
     }
 }

@@ -1,6 +1,6 @@
 use crate::core::component::Context;
 use crate::html::{html, Markup, PrepareMarkup};
-use crate::{util, Handle};
+use crate::{util, Handle, Weight};
 
 use std::any::Any;
 
@@ -31,7 +31,7 @@ pub trait ComponentTrait: BaseComponent + Send + Sync {
         None
     }
 
-    fn weight(&self) -> isize {
+    fn weight(&self) -> Weight {
         0
     }
 

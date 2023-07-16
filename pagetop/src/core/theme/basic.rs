@@ -30,7 +30,9 @@ impl ThemeTrait for Basic {
     fn before_prepare_body(&self, page: &mut Page) {
         page.alter_favicon(Some(Favicon::new().with_icon("/theme/favicon.ico")))
             .alter_context(ContextOp::AddStyleSheet(
-                StyleSheet::at("/theme/css/normalize.min.css").with_version("8.0.1"),
+                StyleSheet::at("/theme/css/normalize.min.css")
+                    .with_version("8.0.1")
+                    .with_weight(-99),
             ));
     }
 }

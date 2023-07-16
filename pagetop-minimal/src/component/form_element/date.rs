@@ -5,7 +5,7 @@ create_handle!(COMPONENT_DATE);
 #[rustfmt::skip]
 #[derive(Default)]
 pub struct Date {
-    weight      : isize,
+    weight      : Weight,
     renderable  : Renderable,
     classes     : Classes,
     name        : AttributeValue,
@@ -32,7 +32,7 @@ impl ComponentTrait for Date {
         COMPONENT_DATE
     }
 
-    fn weight(&self) -> isize {
+    fn weight(&self) -> Weight {
         self.weight
     }
 
@@ -78,8 +78,8 @@ impl Date {
     // Date BUILDER.
 
     #[fn_builder]
-    pub fn alter_weight(&mut self, weight: isize) -> &mut Self {
-        self.weight = weight;
+    pub fn alter_weight(&mut self, value: Weight) -> &mut Self {
+        self.weight = value;
         self
     }
 

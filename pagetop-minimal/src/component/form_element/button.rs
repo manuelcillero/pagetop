@@ -15,7 +15,7 @@ type ButtonValue = OneComponent<L10n>;
 #[rustfmt::skip]
 #[derive(Default)]
 pub struct Button {
-    weight     : isize,
+    weight     : Weight,
     renderable : Renderable,
     classes    : Classes,
     button_type: ButtonType,
@@ -37,7 +37,7 @@ impl ComponentTrait for Button {
         COMPONENT_BUTTON
     }
 
-    fn weight(&self) -> isize {
+    fn weight(&self) -> Weight {
         self.weight
     }
 
@@ -93,8 +93,8 @@ impl Button {
     // Button BUILDER.
 
     #[fn_builder]
-    pub fn alter_weight(&mut self, weight: isize) -> &mut Self {
-        self.weight = weight;
+    pub fn alter_weight(&mut self, value: Weight) -> &mut Self {
+        self.weight = value;
         self
     }
 

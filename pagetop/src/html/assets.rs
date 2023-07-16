@@ -4,11 +4,12 @@ pub mod javascript;
 pub mod stylesheet;
 
 use crate::html::{html, Markup};
+use crate::Weight;
 
 pub trait AssetsTrait {
     fn path(&self) -> &str;
 
-    fn weight(&self) -> isize;
+    fn weight(&self) -> Weight;
 
     fn prepare(&self) -> Markup;
 }

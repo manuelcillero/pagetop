@@ -19,7 +19,7 @@ type InputHelpText = OneComponent<L10n>;
 #[rustfmt::skip]
 #[derive(Default)]
 pub struct Input {
-    weight      : isize,
+    weight      : Weight,
     renderable  : Renderable,
     classes     : Classes,
     input_type  : InputType,
@@ -52,7 +52,7 @@ impl ComponentTrait for Input {
         COMPONENT_INPUT
     }
 
-    fn weight(&self) -> isize {
+    fn weight(&self) -> Weight {
         self.weight
     }
 
@@ -166,8 +166,8 @@ impl Input {
     // Input BUILDER.
 
     #[fn_builder]
-    pub fn alter_weight(&mut self, weight: isize) -> &mut Self {
-        self.weight = weight;
+    pub fn alter_weight(&mut self, value: Weight) -> &mut Self {
+        self.weight = value;
         self
     }
 

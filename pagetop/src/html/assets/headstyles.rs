@@ -1,12 +1,13 @@
 use crate::html::assets::AssetsTrait;
 use crate::html::{html, Markup};
+use crate::Weight;
 
 #[rustfmt::skip]
 #[derive(Default)]
 pub struct HeadStyles {
     path  : String,
     styles: String,
-    weight: isize,
+    weight: Weight,
 }
 
 impl AssetsTrait for HeadStyles {
@@ -14,7 +15,7 @@ impl AssetsTrait for HeadStyles {
         self.path.as_str()
     }
 
-    fn weight(&self) -> isize {
+    fn weight(&self) -> Weight {
         self.weight
     }
 
@@ -39,8 +40,8 @@ impl HeadStyles {
         self
     }
 
-    pub fn with_weight(mut self, weight: isize) -> Self {
-        self.weight = weight;
+    pub fn with_weight(mut self, value: Weight) -> Self {
+        self.weight = value;
         self
     }
 }

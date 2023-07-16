@@ -5,7 +5,7 @@ create_handle!(COMPONENT_HIDDEN);
 #[rustfmt::skip]
 #[derive(Default)]
 pub struct Hidden {
-    weight: isize,
+    weight: Weight,
     name  : NameValue,
     value : AttributeValue,
 }
@@ -19,7 +19,7 @@ impl ComponentTrait for Hidden {
         COMPONENT_HIDDEN
     }
 
-    fn weight(&self) -> isize {
+    fn weight(&self) -> Weight {
         self.weight
     }
 
@@ -39,8 +39,8 @@ impl Hidden {
     // Hidden BUILDER.
 
     #[fn_builder]
-    pub fn alter_weight(&mut self, weight: isize) -> &mut Self {
-        self.weight = weight;
+    pub fn alter_weight(&mut self, value: Weight) -> &mut Self {
+        self.weight = value;
         self
     }
 

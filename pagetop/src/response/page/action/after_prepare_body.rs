@@ -1,13 +1,13 @@
 use crate::core::action::{action_ref, run_actions, ActionTrait};
 use crate::response::page::action::ActionPage;
 use crate::response::page::Page;
-use crate::{create_handle, Handle};
+use crate::{create_handle, Handle, Weight};
 
 create_handle!(ACTION_AFTER_PREPARE_BODY for Action);
 
 pub struct ActionAfterPrepareBody {
     action: Option<ActionPage>,
-    weight: isize,
+    weight: Weight,
 }
 
 impl ActionTrait for ActionAfterPrepareBody {
@@ -22,7 +22,7 @@ impl ActionTrait for ActionAfterPrepareBody {
         ACTION_AFTER_PREPARE_BODY
     }
 
-    fn weight(&self) -> isize {
+    fn weight(&self) -> Weight {
         self.weight
     }
 }
@@ -33,8 +33,8 @@ impl ActionAfterPrepareBody {
         self
     }
 
-    pub fn with_weight(mut self, weight: isize) -> Self {
-        self.weight = weight;
+    pub fn with_weight(mut self, value: Weight) -> Self {
+        self.weight = value;
         self
     }
 

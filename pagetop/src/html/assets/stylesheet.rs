@@ -1,5 +1,6 @@
 use crate::html::assets::AssetsTrait;
 use crate::html::{html, Markup};
+use crate::Weight;
 
 pub enum TargetMedia {
     Default,
@@ -15,7 +16,7 @@ pub struct StyleSheet {
     prefix : &'static str,
     version: &'static str,
     media  : Option<&'static str>,
-    weight : isize,
+    weight : Weight,
 }
 
 impl AssetsTrait for StyleSheet {
@@ -23,7 +24,7 @@ impl AssetsTrait for StyleSheet {
         self.path.as_str()
     }
 
-    fn weight(&self) -> isize {
+    fn weight(&self) -> Weight {
         self.weight
     }
 
@@ -57,8 +58,8 @@ impl StyleSheet {
         self
     }
 
-    pub fn with_weight(mut self, weight: isize) -> Self {
-        self.weight = weight;
+    pub fn with_weight(mut self, value: Weight) -> Self {
+        self.weight = value;
         self
     }
 

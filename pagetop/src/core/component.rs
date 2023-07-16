@@ -32,7 +32,7 @@ macro_rules! actions_for_component {
 
             pub struct [<BeforePrepare $Component>] {
                 action: Option<[<Action $Component>]>,
-                weight: isize,
+                weight: Weight,
             }
 
             impl ActionTrait for [<BeforePrepare $Component>] {
@@ -47,7 +47,7 @@ macro_rules! actions_for_component {
                     [<ACTION_BEFORE_PREPARE_ $Component:upper>]
                 }
 
-                fn weight(&self) -> isize {
+                fn weight(&self) -> Weight {
                     self.weight
                 }
             }
@@ -60,8 +60,8 @@ macro_rules! actions_for_component {
                 }
 
                 #[allow(dead_code)]
-                pub fn with_weight(mut self, weight: isize) -> Self {
-                    self.weight = weight;
+                pub fn with_weight(mut self, value: Weight) -> Self {
+                    self.weight = value;
                     self
                 }
 
@@ -91,7 +91,7 @@ macro_rules! actions_for_component {
 
             pub struct [<AfterPrepare $Component>] {
                 action: Option<[<Action $Component>]>,
-                weight: isize,
+                weight: Weight,
             }
 
             impl ActionTrait for [<AfterPrepare $Component>] {
@@ -106,7 +106,7 @@ macro_rules! actions_for_component {
                     [<ACTION_AFTER_PREPARE_ $Component:upper>]
                 }
 
-                fn weight(&self) -> isize {
+                fn weight(&self) -> Weight {
                     self.weight
                 }
             }
@@ -119,8 +119,8 @@ macro_rules! actions_for_component {
                 }
 
                 #[allow(dead_code)]
-                pub fn with_weight(mut self, weight: isize) -> Self {
-                    self.weight = weight;
+                pub fn with_weight(mut self, value: Weight) -> Self {
+                    self.weight = value;
                     self
                 }
 

@@ -49,7 +49,7 @@ fn after_prepare_body(page: &mut Page) {
         page.context().alter(ContextOp::AddJavaScript(
             JavaScript::at("/jquery/jquery.min.js")
                 .with_version("3.6.0")
-                .with_weight(isize::MIN)
+                .with_weight(-99)
                 .with_mode(ModeJS::Normal),
         ));
     }
