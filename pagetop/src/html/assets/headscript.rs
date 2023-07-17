@@ -25,18 +25,15 @@ impl AssetsTrait for HeadScript {
 }
 
 impl HeadScript {
-    pub fn named<S>(path: S) -> Self
-    where
-        S: Into<String>,
-    {
+    pub fn named(path: impl Into<String>) -> Self {
         HeadScript {
             path: path.into(),
             ..Default::default()
         }
     }
 
-    pub fn with_code(mut self, code: &str) -> Self {
-        self.code = code.trim().to_owned();
+    pub fn with_code(mut self, code: impl Into<String>) -> Self {
+        self.code = code.into().trim().to_owned();
         self
     }
 

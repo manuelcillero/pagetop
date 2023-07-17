@@ -25,18 +25,15 @@ impl AssetsTrait for HeadStyles {
 }
 
 impl HeadStyles {
-    pub fn named<S>(path: S) -> Self
-    where
-        S: Into<String>,
-    {
+    pub fn named(path: impl Into<String>) -> Self {
         HeadStyles {
             path: path.into(),
             ..Default::default()
         }
     }
 
-    pub fn with_styles(mut self, styles: &str) -> Self {
-        self.styles = styles.trim().to_owned();
+    pub fn with_styles(mut self, styles: impl Into<String>) -> Self {
+        self.styles = styles.into().trim().to_owned();
         self
     }
 

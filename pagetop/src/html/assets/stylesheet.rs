@@ -39,10 +39,7 @@ impl AssetsTrait for StyleSheet {
 }
 
 impl StyleSheet {
-    pub fn at<S>(path: S) -> Self
-    where
-        S: Into<String>,
-    {
+    pub fn at(path: impl Into<String>) -> Self {
         StyleSheet {
             path: path.into(),
             ..Default::default()

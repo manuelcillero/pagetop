@@ -41,10 +41,7 @@ impl AssetsTrait for JavaScript {
 }
 
 impl JavaScript {
-    pub fn at<S>(path: S) -> Self
-    where
-        S: Into<String>,
-    {
+    pub fn at(path: impl Into<String>) -> Self {
         JavaScript {
             path: path.into(),
             ..Default::default()
