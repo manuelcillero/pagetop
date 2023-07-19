@@ -8,12 +8,12 @@ use crate::db::MigrationItem;
 
 pub type ModuleStaticRef = &'static dyn ModuleTrait;
 
-pub trait BaseModule {
+pub trait ModuleBase {
     fn single_name(&self) -> &'static str;
 }
 
 /// Los módulos deben implementar este *trait*.
-pub trait ModuleTrait: BaseModule + Send + Sync {
+pub trait ModuleTrait: ModuleBase + Send + Sync {
     fn handle(&self) -> Handle;
 
     fn name(&self) -> L10n {
@@ -52,7 +52,7 @@ pub trait ModuleTrait: BaseModule + Send + Sync {
     fn configure_service(&self, cfg: &mut service::web::ServiceConfig) {}
 }
 
-impl<M: ?Sized + ModuleTrait> BaseModule for M {
+impl<M: ?Sized + ModuleTrait> ModuleBase for M {
     fn single_name(&self) -> &'static str {
         util::single_type_name::<Self>()
     }

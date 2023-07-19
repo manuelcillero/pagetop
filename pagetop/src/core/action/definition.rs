@@ -2,11 +2,11 @@ use crate::{Handle, Weight};
 
 use std::any::Any;
 
-pub trait BaseAction: Any {
+pub trait ActionBase: Any {
     fn as_ref_any(&self) -> &dyn Any;
 }
 
-pub trait ActionTrait: BaseAction + Send + Sync {
+pub trait ActionTrait: ActionBase + Send + Sync {
     fn new() -> Self
     where
         Self: Sized;
@@ -18,7 +18,7 @@ pub trait ActionTrait: BaseAction + Send + Sync {
     }
 }
 
-impl<C: ActionTrait> BaseAction for C {
+impl<C: ActionTrait> ActionBase for C {
     fn as_ref_any(&self) -> &dyn Any {
         self
     }
