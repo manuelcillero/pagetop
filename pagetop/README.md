@@ -1,5 +1,5 @@
 **PageTop** is an opinionated [Rust](https://www.rust-lang.org) web development framework to build
-secure, modular, and fast web Server-Side Rendering (SSR) solutions with ease.
+secure and modular Server-Side Rendering (SSR) web solutions.
 
 PageTop uses some of the most stable and popular Rust *crates* to provide modular, extensible, and
 configurable features.

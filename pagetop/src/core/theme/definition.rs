@@ -50,7 +50,7 @@ pub trait ThemeTrait: ModuleTrait + Send + Sync {
                 meta charset="utf-8";
 
                 @if !title.is_empty() {
-                    title { (config::SETTINGS.app.name) (" | ") (title) }
+                    title { (config::SETTINGS.app.name) (" - ") (title) }
                 } @else {
                     title { (config::SETTINGS.app.name) }
                 }
