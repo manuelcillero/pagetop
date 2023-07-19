@@ -52,18 +52,17 @@
 //!     }
 //!
 //!     fn configure_service(&self, cfg: &mut service::web::ServiceConfig) {
-//!         cfg.service(hello_world);
+//!         cfg.route("/", service::web::get().to(hello_world));
 //!     }
 //! }
 //!
-//! #[service::get("/")]
 //! async fn hello_world(request: service::HttpRequest) -> ResultPage<Markup, FatalError> {
 //!     Page::new(request)
 //!         .with_in("content", Html::with(html! { h1 { "Hello World!" } }))
 //!         .render()
 //! }
 //!
-//! #[actix_web::main]
+//! #[pagetop::main]
 //! async fn main() -> std::io::Result<()> {
 //!     Application::prepare(&HelloWorld).unwrap().run()?.await
 //! }
@@ -106,7 +105,7 @@ pub use concat_string::concat_string;
 /// Enables flexible identifier concatenation in macros, allowing new items with pasted identifiers.
 pub use paste::paste;
 
-pub use pagetop_macros::fn_builder;
+pub use pagetop_macros::{fn_builder, main, test};
 
 // *************************************************************************************************
 // GLOBAL.

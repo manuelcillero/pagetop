@@ -54,3 +54,43 @@ pub fn fn_builder(_attr: TokenStream, item: TokenStream) -> TokenStream {
     };
     expanded.into()
 }
+
+/// Marks async main function as the PageTop entry-point.
+///
+/// # Examples
+/// ```
+/// #[pagetop::main]
+/// async fn main() {
+///     async { println!("Hello world"); }.await
+/// }
+/// ```
+#[proc_macro_attribute]
+pub fn main(_: TokenStream, item: TokenStream) -> TokenStream {
+    let mut output: TokenStream = (quote! {
+        #[::pagetop::service::rt::main(system = "::pagetop::service::rt::System")]
+    })
+    .into();
+
+    output.extend(item);
+    output
+}
+
+/// Marks async test functions to use the PageTop entry-point.
+///
+/// # Examples
+/// ```
+/// #[pagetop::test]
+/// async fn test() {
+///     assert_eq!(async { "Hello world" }.await, "Hello world");
+/// }
+/// ```
+#[proc_macro_attribute]
+pub fn test(_: TokenStream, item: TokenStream) -> TokenStream {
+    let mut output: TokenStream = (quote! {
+        #[::pagetop::service::rt::test(system = "::pagetop::service::rt::System")]
+    })
+    .into();
+
+    output.extend(item);
+    output
+}

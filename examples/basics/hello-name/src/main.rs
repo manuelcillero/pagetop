@@ -25,7 +25,7 @@ async fn hello_name(
         .render()
 }
 
-#[actix_web::main]
+#[pagetop::main]
 async fn main() -> std::io::Result<()> {
     Application::prepare(&HelloName).unwrap().run()?.await
 }

@@ -30,7 +30,7 @@ impl ModuleTrait for Drust {
     }
 }
 
-#[actix_web::main]
+#[pagetop::main]
 async fn main() -> std::io::Result<()> {
     Application::prepare(&Drust).unwrap().run()?.await
 }
