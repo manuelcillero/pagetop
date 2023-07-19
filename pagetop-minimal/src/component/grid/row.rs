@@ -83,12 +83,12 @@ impl Row {
     }
 
     pub fn with_column(mut self, column: grid::Column) -> Self {
-        self.columns.alter_pack(PackOp::Add, column);
+        self.columns.alter(PackOp::Add, ComponentRef::to(column));
         self
     }
 
     pub fn alter_columns(&mut self, op: PackOp, column: grid::Column) -> &mut Self {
-        self.columns.alter_pack(op, column);
+        self.columns.alter(op, ComponentRef::to(column));
         self
     }
 

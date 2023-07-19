@@ -2,13 +2,13 @@ mod context;
 pub use context::{Context, ContextOp};
 
 mod definition;
-pub use definition::{component_mut, component_ref, BaseComponent, ComponentTrait};
+pub use definition::{component_mut, component_ref, ComponentBase, ComponentTrait};
 
 mod one;
 pub use one::OneComponent;
 
 mod pack;
-pub use pack::{PackComponents, PackOp};
+pub use pack::{ComponentRef, PackComponents, PackOp};
 
 mod renderable;
 pub use renderable::{IsRenderable, Renderable};

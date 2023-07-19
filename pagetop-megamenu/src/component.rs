@@ -244,12 +244,12 @@ impl MegaMenu {
     }
 
     pub fn with_item(mut self, item: MegaMenuItem) -> Self {
-        self.items.alter_pack(PackOp::Add, item);
+        self.items.alter(PackOp::Add, ComponentRef::to(item));
         self
     }
 
     pub fn alter_items(&mut self, op: PackOp, item: MegaMenuItem) -> &mut Self {
-        self.items.alter_pack(op, item);
+        self.items.alter(op, ComponentRef::to(item));
         self
     }
 

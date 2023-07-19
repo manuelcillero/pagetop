@@ -12,7 +12,7 @@ pub struct Block {
     id        : IdentifierValue,
     classes   : Classes,
     title     : AttributeValue,
-    components: PackComponents,
+    content   : PackComponents,
     template  : String,
 }
 
@@ -94,12 +94,12 @@ impl Block {
     }
 
     pub fn with_component(mut self, component: impl ComponentTrait) -> Self {
-        self.components.alter_pack(PackOp::Add, component);
+        self.content.alter(PackOp::Add, ComponentRef::to(component));
         self
     }
 
     pub fn alter_components(&mut self, op: PackOp, component: impl ComponentTrait) -> &mut Self {
-        self.components.alter_pack(op, component);
+        self.content.alter(op, ComponentRef::to(component));
         self
     }
 
@@ -120,7 +120,7 @@ impl Block {
     }
 
     pub fn components(&self) -> &PackComponents {
-        &self.components
+        &self.content
     }
 
     pub fn template(&self) -> &str {

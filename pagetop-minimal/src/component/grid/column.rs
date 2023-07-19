@@ -4,16 +4,16 @@ create_handle!(COMPONENT_COLUMN);
 
 actions_for_component!(Column);
 
-const SIZE__DEFAULT: &str = "col-md";
-const SIZE__1_OF_12: &str = "col-md-1";
-const SIZE__2_OF_12: &str = "col-md-2";
-const SIZE__3_OF_12: &str = "col-md-3";
-const SIZE__4_OF_12: &str = "col-md-4";
-const SIZE__5_OF_12: &str = "col-md-5";
-const SIZE__6_OF_12: &str = "col-md-6";
-const SIZE__7_OF_12: &str = "col-md-7";
-const SIZE__8_OF_12: &str = "col-md-8";
-const SIZE__9_OF_12: &str = "col-md-9";
+const SIZE_DEFAULT: &str = "col-md";
+const SIZE_1_OF_12: &str = "col-md-1";
+const SIZE_2_OF_12: &str = "col-md-2";
+const SIZE_3_OF_12: &str = "col-md-3";
+const SIZE_4_OF_12: &str = "col-md-4";
+const SIZE_5_OF_12: &str = "col-md-5";
+const SIZE_6_OF_12: &str = "col-md-6";
+const SIZE_7_OF_12: &str = "col-md-7";
+const SIZE_8_OF_12: &str = "col-md-8";
+const SIZE_9_OF_12: &str = "col-md-9";
 const SIZE_10_OF_12: &str = "col-md-10";
 const SIZE_11_OF_12: &str = "col-md-11";
 const SIZE_12_OF_12: &str = "col-md-12";
@@ -44,13 +44,13 @@ pub struct Column {
     id        : IdentifierValue,
     classes   : Classes,
     size      : ColumnSize,
-    components: PackComponents,
+    content   : PackComponents,
     template  : String,
 }
 
 impl ComponentTrait for Column {
     fn new() -> Self {
-        Column::default().with_classes(ClassesOp::SetDefault, SIZE__DEFAULT)
+        Column::default().with_classes(ClassesOp::SetDefault, SIZE_DEFAULT)
     }
 
     fn handle(&self) -> Handle {
@@ -117,16 +117,16 @@ impl Column {
     #[fn_builder]
     pub fn alter_size(&mut self, size: ColumnSize) -> &mut Self {
         match size {
-            ColumnSize::Default  => self.alter_classes(ClassesOp::SetDefault, SIZE__DEFAULT),
-            ColumnSize::Is1of12  => self.alter_classes(ClassesOp::SetDefault, SIZE__1_OF_12),
-            ColumnSize::Is2of12  => self.alter_classes(ClassesOp::SetDefault, SIZE__2_OF_12),
-            ColumnSize::Is3of12  => self.alter_classes(ClassesOp::SetDefault, SIZE__3_OF_12),
-            ColumnSize::Is4of12  => self.alter_classes(ClassesOp::SetDefault, SIZE__4_OF_12),
-            ColumnSize::Is5of12  => self.alter_classes(ClassesOp::SetDefault, SIZE__5_OF_12),
-            ColumnSize::Is6of12  => self.alter_classes(ClassesOp::SetDefault, SIZE__6_OF_12),
-            ColumnSize::Is7of12  => self.alter_classes(ClassesOp::SetDefault, SIZE__7_OF_12),
-            ColumnSize::Is8of12  => self.alter_classes(ClassesOp::SetDefault, SIZE__8_OF_12),
-            ColumnSize::Is9of12  => self.alter_classes(ClassesOp::SetDefault, SIZE__9_OF_12),
+            ColumnSize::Default  => self.alter_classes(ClassesOp::SetDefault, SIZE_DEFAULT),
+            ColumnSize::Is1of12  => self.alter_classes(ClassesOp::SetDefault, SIZE_1_OF_12),
+            ColumnSize::Is2of12  => self.alter_classes(ClassesOp::SetDefault, SIZE_2_OF_12),
+            ColumnSize::Is3of12  => self.alter_classes(ClassesOp::SetDefault, SIZE_3_OF_12),
+            ColumnSize::Is4of12  => self.alter_classes(ClassesOp::SetDefault, SIZE_4_OF_12),
+            ColumnSize::Is5of12  => self.alter_classes(ClassesOp::SetDefault, SIZE_5_OF_12),
+            ColumnSize::Is6of12  => self.alter_classes(ClassesOp::SetDefault, SIZE_6_OF_12),
+            ColumnSize::Is7of12  => self.alter_classes(ClassesOp::SetDefault, SIZE_7_OF_12),
+            ColumnSize::Is8of12  => self.alter_classes(ClassesOp::SetDefault, SIZE_8_OF_12),
+            ColumnSize::Is9of12  => self.alter_classes(ClassesOp::SetDefault, SIZE_9_OF_12),
             ColumnSize::Is10of12 => self.alter_classes(ClassesOp::SetDefault, SIZE_10_OF_12),
             ColumnSize::Is11of12 => self.alter_classes(ClassesOp::SetDefault, SIZE_11_OF_12),
             ColumnSize::IsFull   => self.alter_classes(ClassesOp::SetDefault, SIZE_12_OF_12),
@@ -136,12 +136,12 @@ impl Column {
     }
 
     pub fn with_component(mut self, component: impl ComponentTrait) -> Self {
-        self.components.alter_pack(PackOp::Add, component);
+        self.content.alter(PackOp::Add, ComponentRef::to(component));
         self
     }
 
     pub fn alter_components(&mut self, op: PackOp, component: impl ComponentTrait) -> &mut Self {
-        self.components.alter_pack(op, component);
+        self.content.alter(op, ComponentRef::to(component));
         self
     }
 
@@ -162,7 +162,7 @@ impl Column {
     }
 
     pub fn components(&self) -> &PackComponents {
-        &self.components
+        &self.content
     }
 
     pub fn template(&self) -> &str {

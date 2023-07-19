@@ -4,7 +4,7 @@ use crate::{util, Handle, Weight};
 
 use std::any::Any;
 
-pub trait BaseComponent: Any {
+pub trait ComponentBase: Any {
     fn prepare(&mut self, cx: &mut Context) -> Markup;
 
     fn as_ref_any(&self) -> &dyn Any;
@@ -12,7 +12,7 @@ pub trait BaseComponent: Any {
     fn as_mut_any(&mut self) -> &mut dyn Any;
 }
 
-pub trait ComponentTrait: BaseComponent + Send + Sync {
+pub trait ComponentTrait: ComponentBase + Send + Sync {
     fn new() -> Self
     where
         Self: Sized;
@@ -52,7 +52,7 @@ pub trait ComponentTrait: BaseComponent + Send + Sync {
     fn after_prepare_component(&mut self, cx: &mut Context) {}
 }
 
-impl<C: ComponentTrait> BaseComponent for C {
+impl<C: ComponentTrait> ComponentBase for C {
     fn prepare(&mut self, cx: &mut Context) -> Markup {
         if self.is_renderable(cx) {
             // Acciones antes de preparar el componente.

@@ -121,12 +121,12 @@ impl Form {
     }
 
     pub fn with_element(mut self, element: impl ComponentTrait) -> Self {
-        self.elements.alter_pack(PackOp::Add, element);
+        self.elements.alter(PackOp::Add, ComponentRef::to(element));
         self
     }
 
     pub fn alter_elements(&mut self, op: PackOp, element: impl ComponentTrait) -> &mut Self {
-        self.elements.alter_pack(op, element);
+        self.elements.alter(op, ComponentRef::to(element));
         self
     }
 

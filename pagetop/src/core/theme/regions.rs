@@ -1,4 +1,4 @@
-use crate::core::component::{ComponentTrait, PackComponents, PackOp};
+use crate::core::component::{ComponentRef, PackComponents, PackOp};
 use crate::LazyStatic;
 
 use std::collections::HashMap;
@@ -15,11 +15,11 @@ impl ComponentsRegions {
         ComponentsRegions::default()
     }
 
-    pub fn add_to(&mut self, region: &'static str, component: impl ComponentTrait) {
+    pub fn add_to(&mut self, region: &'static str, cref: ComponentRef) {
         if let Some(region) = self.0.get_mut(region) {
-            region.alter_pack(PackOp::Add, component);
+            region.alter(PackOp::Add, cref);
         } else {
-            self.0.insert(region, PackComponents::new_with(component));
+            self.0.insert(region, PackComponents::new_with(cref));
         }
     }
 
@@ -32,14 +32,14 @@ impl ComponentsRegions {
     }
 }
 
-pub fn add_component_to(theme: &'static str, region: &'static str, component: impl ComponentTrait) {
+pub fn add_component_to(theme: &'static str, region: &'static str, cref: ComponentRef) {
     let mut hm = THEME_REGIONS.write().unwrap();
     if let Some(hm_theme) = hm.get_mut(theme) {
-        hm_theme.add_to(region, component);
+        hm_theme.add_to(region, cref);
     } else {
         hm.insert(theme, {
             let mut regions = ComponentsRegions::new();
-            regions.add_to(region, component);
+            regions.add_to(region, cref);
             regions
         });
     }
