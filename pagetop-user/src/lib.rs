@@ -22,7 +22,7 @@ impl ModuleTrait for User {
         L10n::t("module_description", &LOCALES_USER)
     }
 
-    fn dependencies(&self) -> Vec<ModuleStaticRef> {
+    fn dependencies(&self) -> Vec<ModuleRef> {
         vec![&pagetop_minimal::Minimal]
     }
 

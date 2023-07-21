@@ -1,6 +1,6 @@
 use crate::core::component::ContextOp;
 use crate::core::module::ModuleTrait;
-use crate::core::theme::{ThemeStaticRef, ThemeTrait};
+use crate::core::theme::{ThemeRef, ThemeTrait};
 use crate::html::{Favicon, StyleSheet};
 use crate::response::page::Page;
 use crate::service;
@@ -17,7 +17,7 @@ impl ModuleTrait for Basic {
         THEME_BASIC
     }
 
-    fn theme(&self) -> Option<ThemeStaticRef> {
+    fn theme(&self) -> Option<ThemeRef> {
         Some(&Basic)
     }
 

@@ -13,12 +13,12 @@ impl ModuleTrait for Bulmix {
         THEME_BULMIX
     }
 
-    fn theme(&self) -> Option<ThemeStaticRef> {
+    fn theme(&self) -> Option<ThemeRef> {
         Some(&Bulmix)
     }
 
     #[rustfmt::skip]
-    fn dependencies(&self) -> Vec<ModuleStaticRef> {
+    fn dependencies(&self) -> Vec<ModuleRef> {
         vec![
             &pagetop_jquery::JQuery,
             &pagetop_minimal::Minimal,

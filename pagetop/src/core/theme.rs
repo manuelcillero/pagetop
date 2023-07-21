@@ -1,5 +1,5 @@
 mod definition;
-pub use definition::{ThemeStaticRef, ThemeTrait};
+pub use definition::{ThemeRef, ThemeTrait};
 
 mod regions;
 pub use regions::add_component_to;

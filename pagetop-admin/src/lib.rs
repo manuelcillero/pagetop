@@ -22,7 +22,7 @@ impl ModuleTrait for Admin {
     }
 
     #[rustfmt::skip]
-    fn dependencies(&self) -> Vec<ModuleStaticRef> {
+    fn dependencies(&self) -> Vec<ModuleRef> {
         vec![
             &pagetop_minimal::Minimal,
             &pagetop_megamenu::MegaMenu,

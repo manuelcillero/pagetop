@@ -2,7 +2,7 @@
 
 mod figfont;
 
-use crate::core::{module, module::ModuleStaticRef};
+use crate::core::{module, module::ModuleRef};
 use crate::html::Markup;
 use crate::response::fatal_error::FatalError;
 use crate::response::page::ResultPage;
@@ -26,7 +26,7 @@ pub struct Application {
 }
 
 impl Application {
-    pub fn prepare(app: ModuleStaticRef) -> Result<Self, Error> {
+    pub fn prepare(app: ModuleRef) -> Result<Self, Error> {
         // Rótulo de presentación.
         print_on_startup();
 

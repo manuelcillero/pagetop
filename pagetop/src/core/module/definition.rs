@@ -1,12 +1,12 @@
 use crate::core::action::Action;
 use crate::core::component::l10n::L10n;
-use crate::core::theme::ThemeStaticRef;
+use crate::core::theme::ThemeRef;
 use crate::{service, util, Handle};
 
 #[cfg(feature = "database")]
 use crate::db::MigrationItem;
 
-pub type ModuleStaticRef = &'static dyn ModuleTrait;
+pub type ModuleRef = &'static dyn ModuleTrait;
 
 pub trait ModuleBase {
     fn single_name(&self) -> &'static str;
@@ -24,15 +24,15 @@ pub trait ModuleTrait: ModuleBase + Send + Sync {
         L10n::default()
     }
 
-    fn theme(&self) -> Option<ThemeStaticRef> {
+    fn theme(&self) -> Option<ThemeRef> {
         None
     }
 
-    fn dependencies(&self) -> Vec<ModuleStaticRef> {
+    fn dependencies(&self) -> Vec<ModuleRef> {
         vec![]
     }
 
-    fn drop_modules(&self) -> Vec<ModuleStaticRef> {
+    fn drop_modules(&self) -> Vec<ModuleRef> {
         vec![]
     }
 

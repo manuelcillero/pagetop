@@ -5,7 +5,7 @@ use crate::html::{html, Favicon, Markup};
 use crate::response::page::Page;
 use crate::{config, LOCALES_PAGETOP};
 
-pub type ThemeStaticRef = &'static dyn ThemeTrait;
+pub type ThemeRef = &'static dyn ThemeTrait;
 
 /// Los temas deben implementar este "trait".
 pub trait ThemeTrait: ModuleTrait + Send + Sync {

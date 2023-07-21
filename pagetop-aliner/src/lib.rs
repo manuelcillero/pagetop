@@ -11,7 +11,7 @@ impl ModuleTrait for Aliner {
         THEME_ALINER
     }
 
-    fn theme(&self) -> Option<ThemeStaticRef> {
+    fn theme(&self) -> Option<ThemeRef> {
         Some(&Aliner)
     }
 

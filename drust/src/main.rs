@@ -9,7 +9,7 @@ impl ModuleTrait for Drust {
         APP_DRUST
     }
 
-    fn dependencies(&self) -> Vec<ModuleStaticRef> {
+    fn dependencies(&self) -> Vec<ModuleRef> {
         vec![
             // Themes.
             &pagetop_aliner::Aliner,
@@ -23,7 +23,7 @@ impl ModuleTrait for Drust {
         ]
     }
 
-    fn drop_modules(&self) -> Vec<ModuleStaticRef> {
+    fn drop_modules(&self) -> Vec<ModuleRef> {
         vec![
         //  &pagetop_node::Node
         ]

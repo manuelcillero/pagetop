@@ -14,11 +14,11 @@ impl ModuleTrait for Bootsier {
         THEME_BOOTSIER
     }
 
-    fn theme(&self) -> Option<ThemeStaticRef> {
+    fn theme(&self) -> Option<ThemeRef> {
         Some(&Bootsier)
     }
 
-    fn dependencies(&self) -> Vec<ModuleStaticRef> {
+    fn dependencies(&self) -> Vec<ModuleRef> {
         vec![&pagetop_jquery::JQuery]
     }
 

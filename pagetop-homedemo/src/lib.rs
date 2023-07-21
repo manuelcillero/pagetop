@@ -22,7 +22,7 @@ impl ModuleTrait for HomeDemo {
         L10n::t("module_description", &LOCALES_HOMEDEMO)
     }
 
-    fn dependencies(&self) -> Vec<ModuleStaticRef> {
+    fn dependencies(&self) -> Vec<ModuleRef> {
         vec![&pagetop_minimal::Minimal]
     }
 

@@ -1,5 +1,5 @@
 use crate::core::theme::all::{theme_by_single_name, THEME};
-use crate::core::theme::ThemeStaticRef;
+use crate::core::theme::ThemeRef;
 use crate::html::{html, Assets, HeadScript, HeadStyles, JavaScript, Markup, StyleSheet};
 use crate::locale::{LanguageIdentifier, LANGID};
 use crate::service::HttpRequest;
@@ -29,7 +29,7 @@ pub enum ContextOp {
 pub struct Context {
     request   : HttpRequest,
     langid    : &'static LanguageIdentifier,
-    theme     : ThemeStaticRef,
+    theme     : ThemeRef,
     stylesheet: Assets<StyleSheet>,                     // Stylesheets.
     headstyles: Assets<HeadStyles>,                     // Styles in head.
     javascript: Assets<JavaScript>,                     // JavaScripts.
@@ -99,7 +99,7 @@ impl Context {
         self.langid
     }
 
-    pub(crate) fn theme(&self) -> ThemeStaticRef {
+    pub(crate) fn theme(&self) -> ThemeRef {
         self.theme
     }
 

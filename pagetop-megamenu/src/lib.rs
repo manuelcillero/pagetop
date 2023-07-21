@@ -13,7 +13,7 @@ impl ModuleTrait for MegaMenu {
         MODULE_MEGAMENU
     }
 
-    fn dependencies(&self) -> Vec<ModuleStaticRef> {
+    fn dependencies(&self) -> Vec<ModuleRef> {
         vec![&pagetop_jquery::JQuery, &pagetop_minimal::Minimal]
     }
 

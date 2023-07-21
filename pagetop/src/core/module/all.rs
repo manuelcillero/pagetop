@@ -1,5 +1,5 @@
 use crate::core::action::add_action;
-use crate::core::module::ModuleStaticRef;
+use crate::core::module::ModuleRef;
 use crate::core::theme::all::THEMES;
 use crate::{service, trace, LazyStatic};
 
@@ -10,22 +10,22 @@ use std::sync::RwLock;
 
 // MODULES *****************************************************************************************
 
-static ENABLED_MODULES: LazyStatic<RwLock<Vec<ModuleStaticRef>>> =
+static ENABLED_MODULES: LazyStatic<RwLock<Vec<ModuleRef>>> =
     LazyStatic::new(|| RwLock::new(Vec::new()));
 
-static DROPPED_MODULES: LazyStatic<RwLock<Vec<ModuleStaticRef>>> =
+static DROPPED_MODULES: LazyStatic<RwLock<Vec<ModuleRef>>> =
     LazyStatic::new(|| RwLock::new(Vec::new()));
 
 // REGISTER MODULES ********************************************************************************
 
-pub fn register_modules(app: ModuleStaticRef) {
+pub fn register_modules(app: ModuleRef) {
     // List of modules to drop.
-    let mut list: Vec<ModuleStaticRef> = Vec::new();
+    let mut list: Vec<ModuleRef> = Vec::new();
     add_to_dropped(&mut list, app);
     DROPPED_MODULES.write().unwrap().append(&mut list);
 
     // List of modules to enable.
-    let mut list: Vec<ModuleStaticRef> = Vec::new();
+    let mut list: Vec<ModuleRef> = Vec::new();
 
     // Enable basic theme.
     add_to_enabled(&mut list, &crate::core::theme::Basic);
@@ -37,7 +37,7 @@ pub fn register_modules(app: ModuleStaticRef) {
     ENABLED_MODULES.write().unwrap().append(&mut list);
 }
 
-fn add_to_dropped(list: &mut Vec<ModuleStaticRef>, module: ModuleStaticRef) {
+fn add_to_dropped(list: &mut Vec<ModuleRef>, module: ModuleRef) {
     for d in module.drop_modules().iter() {
         if !list.iter().any(|m| m.handle() == d.handle()) {
             list.push(*d);
@@ -49,7 +49,7 @@ fn add_to_dropped(list: &mut Vec<ModuleStaticRef>, module: ModuleStaticRef) {
     }
 }
 
-fn add_to_enabled(list: &mut Vec<ModuleStaticRef>, module: ModuleStaticRef) {
+fn add_to_enabled(list: &mut Vec<ModuleRef>, module: ModuleRef) {
     if !list.iter().any(|m| m.handle() == module.handle()) {
         if DROPPED_MODULES
             .read()
