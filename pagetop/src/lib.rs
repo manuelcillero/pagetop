@@ -96,6 +96,8 @@
 //! Pero también deberán declararse explícitamente estas dependencias en cada módulo para ayudar a
 //! PageTop a estructurar e inicializar modularmente la aplicación.
 
+#![cfg_attr(docsrs, feature(doc_cfg))]
+
 // *************************************************************************************************
 // RE-EXPORTED MACROS.
 // *************************************************************************************************
@@ -135,6 +137,7 @@ pub mod locale;
 pub mod html;
 
 // Acceso a base de datos.
+#[cfg_attr(docsrs, doc(cfg(feature = "database")))]
 #[cfg(feature = "database")]
 pub mod db;
 

@@ -83,3 +83,4 @@ pagetop-build = { version = "0.0", path = "../pagetop-build" }
 
 [package.metadata.docs.rs]
 all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
