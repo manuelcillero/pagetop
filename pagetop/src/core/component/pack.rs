@@ -53,18 +53,14 @@ impl PackComponents {
         pack
     }
 
-    pub(crate) fn merge(one: Option<&PackComponents>, other: Option<&PackComponents>) -> Self {
-        if let Some(one) = one {
-            let mut components = one.0.clone();
-            if let Some(other) = other {
-                components.append(&mut other.0.clone());
+    pub(crate) fn merge(packs: &[Option<&PackComponents>]) -> Self {
+        let mut pack = PackComponents::default();
+        for p in packs {
+            if let Some(p) = p {
+                pack.0.append(&mut p.0.clone());
             }
-            PackComponents(components)
-        } else if let Some(other) = other {
-            PackComponents(other.0.clone())
-        } else {
-            PackComponents::default()
         }
+        pack
     }
 
     // PackComponents BUILDER.

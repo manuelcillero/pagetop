@@ -2,10 +2,10 @@ mod definition;
 pub use definition::{ThemeRef, ThemeTrait};
 
 mod regions;
-pub use regions::add_component_to;
 pub(crate) use regions::ComponentsRegions;
+pub use regions::{add_component_in, Region};
 
-mod basic;
-pub(crate) use basic::Basic;
+mod default;
+pub use default::DefaultTheme;
 
 pub(crate) mod all;

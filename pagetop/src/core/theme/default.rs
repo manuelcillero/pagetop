@@ -6,19 +6,19 @@ use crate::response::page::Page;
 use crate::service;
 use crate::{create_handle, serve_static_files, static_files, Handle};
 
-create_handle!(THEME_BASIC);
+create_handle!(THEME_DEFAULT);
 
 static_files!(theme);
 
-pub struct Basic;
+pub struct DefaultTheme;
 
-impl ModuleTrait for Basic {
+impl ModuleTrait for DefaultTheme {
     fn handle(&self) -> Handle {
-        THEME_BASIC
+        THEME_DEFAULT
     }
 
     fn theme(&self) -> Option<ThemeRef> {
-        Some(&Basic)
+        Some(&DefaultTheme)
     }
 
     fn configure_service(&self, cfg: &mut service::web::ServiceConfig) {
@@ -26,7 +26,7 @@ impl ModuleTrait for Basic {
     }
 }
 
-impl ThemeTrait for Basic {
+impl ThemeTrait for DefaultTheme {
     fn before_prepare_body(&self, page: &mut Page) {
         page.alter_favicon(Some(Favicon::new().with_icon("/theme/favicon.ico")))
             .alter_context(ContextOp::AddStyleSheet(

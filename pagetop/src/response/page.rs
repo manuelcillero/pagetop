@@ -90,7 +90,7 @@ impl Page {
 
     #[fn_builder]
     pub fn alter_in(&mut self, region: &'static str, component: impl ComponentTrait) -> &mut Self {
-        self.regions.add_to(region, ComponentRef::to(component));
+        self.regions.add_in(region, ComponentRef::to(component));
         self
     }
 
@@ -173,7 +173,7 @@ impl Page {
     pub fn prepare_region(&mut self, region: &str) -> Option<Markup> {
         let render = self
             .regions
-            .get_extended_pack(self.context.theme().single_name(), region)
+            .get_pack(self.context.theme(), region)
             .prepare(self.context());
         if render.is_empty() {
             None

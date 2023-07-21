@@ -1,11 +1,15 @@
 use crate::core::component::{ComponentRef, PackComponents, PackOp};
-use crate::LazyStatic;
+use crate::core::theme::ThemeRef;
+use crate::{Handle, LazyStatic};
 
 use std::collections::HashMap;
 use std::sync::RwLock;
 
-static THEME_REGIONS: LazyStatic<RwLock<HashMap<&'static str, ComponentsRegions>>> =
+static THEME_REGIONS: LazyStatic<RwLock<HashMap<Handle, ComponentsRegions>>> =
     LazyStatic::new(|| RwLock::new(HashMap::new()));
+
+static COMMON_REGIONS: LazyStatic<RwLock<ComponentsRegions>> =
+    LazyStatic::new(|| RwLock::new(ComponentsRegions::new()));
 
 #[derive(Default)]
 pub struct ComponentsRegions(HashMap<&'static str, PackComponents>);
@@ -15,7 +19,13 @@ impl ComponentsRegions {
         ComponentsRegions::default()
     }
 
-    pub fn add_to(&mut self, region: &'static str, cref: ComponentRef) {
+    pub fn new_with(region: &'static str, cref: ComponentRef) -> Self {
+        let mut regions = ComponentsRegions::new();
+        regions.add_in(region, cref);
+        regions
+    }
+
+    pub fn add_in(&mut self, region: &'static str, cref: ComponentRef) {
         if let Some(region) = self.0.get_mut(region) {
             region.alter(PackOp::Add, cref);
         } else {
@@ -23,24 +33,33 @@ impl ComponentsRegions {
         }
     }
 
-    pub fn get_extended_pack(&self, theme: &str, region: &str) -> PackComponents {
-        if let Some(hm_theme) = THEME_REGIONS.read().unwrap().get(theme) {
-            PackComponents::merge(self.0.get(region), hm_theme.0.get(region))
+    pub fn get_pack(&self, theme: ThemeRef, region: &str) -> PackComponents {
+        let common = COMMON_REGIONS.read().unwrap();
+        if let Some(hm) = THEME_REGIONS.read().unwrap().get(&theme.handle()) {
+            PackComponents::merge(&[common.0.get(region), self.0.get(region), hm.0.get(region)])
         } else {
-            PackComponents::merge(self.0.get(region), None)
+            PackComponents::merge(&[common.0.get(region), self.0.get(region)])
         }
     }
 }
 
-pub fn add_component_to(theme: &'static str, region: &'static str, cref: ComponentRef) {
-    let mut hm = THEME_REGIONS.write().unwrap();
-    if let Some(hm_theme) = hm.get_mut(theme) {
-        hm_theme.add_to(region, cref);
-    } else {
-        hm.insert(theme, {
-            let mut regions = ComponentsRegions::new();
-            regions.add_to(region, cref);
-            regions
-        });
+pub enum Region {
+    Named(&'static str),
+    OfTheme(ThemeRef, &'static str),
+}
+
+pub fn add_component_in(region: Region, cref: ComponentRef) {
+    match region {
+        Region::Named(name) => {
+            COMMON_REGIONS.write().unwrap().add_in(name, cref);
+        }
+        Region::OfTheme(theme, region) => {
+            let mut regions = THEME_REGIONS.write().unwrap();
+            if let Some(hm) = regions.get_mut(&theme.handle()) {
+                hm.add_in(region, cref);
+            } else {
+                regions.insert(theme.handle(), ComponentsRegions::new_with(region, cref));
+            }
+        }
     }
 }
