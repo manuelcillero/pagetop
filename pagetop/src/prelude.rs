@@ -22,6 +22,8 @@ pub use crate::locale::*;
 
 pub use crate::html::*;
 
+pub use crate::datetime::*;
+
 #[cfg(feature = "database")]
 pub use crate::{db, db::*, migration_item, pub_migration};
 

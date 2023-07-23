@@ -22,6 +22,8 @@
 //!
 //!  * HTML en código ([`html`]).
 //!
+//!  * [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) date and time handling ([`datetime`]).
+//!
 //!  * Acceso unificado y normalizado a base de datos ([`db`]).
 //!
 //!  * Tipos y funciones esenciales para crear acciones, componentes, módulos y temas ([`core`]).
@@ -135,6 +137,8 @@ pub mod trace;
 pub mod locale;
 // HTML en código.
 pub mod html;
+// Date and time for PageTop.
+pub mod datetime;
 
 // Acceso a base de datos.
 #[cfg_attr(docsrs, doc(cfg(feature = "database")))]

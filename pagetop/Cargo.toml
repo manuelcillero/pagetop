@@ -33,6 +33,7 @@ sqlite   = ["database", "sea-orm/sqlx-sqlite"]
 
 [dependencies]
 async-trait   = "0.1.68"
+chrono        = "0.4.26"
 concat-string = "1.0.1"
 figlet-rs     = "0.1.5"
 itoa          = "1.0.6"
