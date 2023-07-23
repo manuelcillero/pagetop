@@ -1,4 +1,5 @@
 [app]
+#theme = "Default"
 #theme = "Aliner"
 theme = "Bootsier"
 #theme = "Bulmix"

@@ -1,4 +1,4 @@
-use crate::core::component::ContextOp;
+use crate::core::component::{l10n::L10n, ContextOp};
 use crate::core::module::ModuleTrait;
 use crate::core::theme::{ThemeRef, ThemeTrait};
 use crate::html::{Favicon, StyleSheet};
@@ -15,6 +15,10 @@ pub struct DefaultTheme;
 impl ModuleTrait for DefaultTheme {
     fn handle(&self) -> Handle {
         THEME_DEFAULT
+    }
+
+    fn name(&self) -> L10n {
+        L10n::n("Default")
     }
 
     fn theme(&self) -> Option<ThemeRef> {

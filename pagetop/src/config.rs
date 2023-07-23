@@ -182,7 +182,7 @@ pub struct App {
     /// Por defecto: *"Modular web solutions made simple with PageTop."*.
     pub description: String,
     /// Tema predeterminado.
-    /// Por defecto: *"Basic"*.
+    /// Por defecto: *"Default"*.
     pub theme: String,
     /// Idioma (localización) predeterminado.
     /// Por defecto: *"en-US"*.
@@ -284,7 +284,7 @@ default_settings!(
     // [app]
     "app.name"                => "PageTop App",
     "app.description"         => "Modular web solutions made simple with PageTop.",
-    "app.theme"               => "Basic",
+    "app.theme"               => "Default",
     "app.language"            => "en-US",
     "app.direction"           => "ltr",
     "app.startup_banner"      => "Slant",
