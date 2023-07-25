@@ -55,10 +55,8 @@ impl PackComponents {
 
     pub(crate) fn merge(packs: &[Option<&PackComponents>]) -> Self {
         let mut pack = PackComponents::default();
-        for p in packs {
-            if let Some(p) = p {
-                pack.0.append(&mut p.0.clone());
-            }
+        for p in packs.iter().flatten() {
+            pack.0.append(&mut p.0.clone());
         }
         pack
     }

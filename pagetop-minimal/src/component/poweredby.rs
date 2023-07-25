@@ -101,10 +101,7 @@ impl PoweredBy {
 
     #[fn_builder]
     pub fn alter_copyright(&mut self, copyright: Option<impl Into<String>>) -> &mut Self {
-        self.copyright = match copyright {
-            Some(c) => Some(c.into()),
-            _ => None,
-        };
+        self.copyright = copyright.map(|c| c.into());
         self
     }
 

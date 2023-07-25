@@ -48,8 +48,7 @@ impl Minimal {
 fn after_prepare_body(page: &mut Page) {
     if let Some(true) = page.context().get_param::<bool>(PARAM_MINIMAL_ASSETS) {
         page.context().alter(ContextOp::AddStyleSheet(
-            StyleSheet::at("/minimal/css/minimal.css")
-                .with_version(VERSION_MINIMAL)
+            StyleSheet::at("/minimal/css/minimal.css").with_version(VERSION_MINIMAL),
         ));
     }
 }
