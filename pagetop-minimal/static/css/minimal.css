@@ -1,0 +1,10 @@
+/* PoweredBy component */
+#poweredby {
+	text-align: center;
+}
+#poweredby .pagetop-logo img,
+#poweredby .pagetop-logo svg {
+	margin-left: .275em;
+	height: 1.275em;
+	vertical-align: middle;
+}

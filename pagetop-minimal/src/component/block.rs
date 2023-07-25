@@ -46,9 +46,9 @@ impl ComponentTrait for Block {
         PrepareMarkup::With(html! {
             div id=(id) class=[self.classes().get()] {
                 @if let Some(title) = self.title().get() {
-                    h2 class="block__title" { (title) }
+                    h2 class="block-title" { (title) }
                 }
-                div class="block__body" {
+                div class="block-body" {
                     (self.components().prepare(cx))
                 }
             }

@@ -15,6 +15,8 @@ mod image;
 pub use image::{Image, COMPONENT_IMAGE};
 mod block;
 pub use block::{Block, COMPONENT_BLOCK};
+mod poweredby;
+pub use poweredby::{PoweredBy, PoweredByLogo, COMPONENT_POWEREDBY};
 
 pub mod form_element;
 pub use form_element::{Form, FormMethod, COMPONENT_FORM};
