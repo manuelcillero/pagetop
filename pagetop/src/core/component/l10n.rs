@@ -96,8 +96,8 @@ impl L10n {
     }
 
     #[fn_builder]
-    pub fn alter_arg(&mut self, arg: &'static str, value: String) -> &mut Self {
-        self.args.insert(arg, value);
+    pub fn alter_arg(&mut self, arg: &'static str, value: impl Into<String>) -> &mut Self {
+        self.args.insert(arg, value.into());
         self
     }
 
@@ -114,5 +114,9 @@ impl L10n {
 
     pub fn args(&self) -> &HashMap<&str, String> {
         &self.args
+    }
+
+    pub fn into_string(&self, cx: &mut Context) -> Option<String> {
+        self.prepare_component(cx).into_string()
     }
 }

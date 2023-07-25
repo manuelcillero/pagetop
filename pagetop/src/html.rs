@@ -39,4 +39,12 @@ impl PrepareMarkup {
             PrepareMarkup::With(markup) => markup,
         }
     }
+
+    pub fn into_string(self) -> Option<String> {
+        match self {
+            PrepareMarkup::None => None,
+            PrepareMarkup::Text(text) => Some(text.to_string()),
+            PrepareMarkup::With(markup) => Some(markup.into_string()),
+        }
+    }
 }

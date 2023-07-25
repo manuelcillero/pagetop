@@ -142,7 +142,7 @@ fn about_pagetop() -> Container {
                     .with_component(Paragraph::with(L10n::t("pagetop_text2", &LOCALES_HOMEDEMO)))
                     .with_component(Paragraph::with(
                         L10n::e("pagetop_text3", &LOCALES_HOMEDEMO)
-                            .with_arg("href", "https://docs.rs/pagetop/latest/pagetop".to_string()),
+                            .with_arg("href", "https://docs.rs/pagetop/latest/pagetop"),
                     )),
             ),
     )
