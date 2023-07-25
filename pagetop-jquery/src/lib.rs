@@ -6,8 +6,13 @@ static_locales!(LOCALES_JQUERY);
 
 static_files!(jquery);
 
-const PARAM_JQUERY: &str = "jquery.js";
+// Library version.
+const VERSION_JQUERY: &str = "3.6.0";
 
+// Context parameter.
+const PARAM_JQUERY: &str = "jquery.lib";
+
+/// Implements [`ModuleTrait`](pagetop::core::module::ModuleTrait) and specific module API.
 pub struct JQuery;
 
 impl ModuleTrait for JQuery {
@@ -48,7 +53,7 @@ fn after_prepare_body(page: &mut Page) {
     if let Some(true) = page.context().get_param::<bool>(PARAM_JQUERY) {
         page.context().alter(ContextOp::AddJavaScript(
             JavaScript::at("/jquery/jquery.min.js")
-                .with_version("3.6.0")
+                .with_version(VERSION_JQUERY)
                 .with_weight(-99)
                 .with_mode(ModeJS::Normal),
         ));
