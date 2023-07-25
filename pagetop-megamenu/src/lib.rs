@@ -14,7 +14,7 @@ impl ModuleTrait for MegaMenu {
     }
 
     fn dependencies(&self) -> Vec<ModuleRef> {
-        vec![&pagetop_jquery::JQuery, &pagetop_minimal::Minimal]
+        vec![&pagetop_jquery::JQuery]
     }
 
     fn configure_service(&self, cfg: &mut service::web::ServiceConfig) {
