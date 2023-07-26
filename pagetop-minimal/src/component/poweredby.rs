@@ -11,7 +11,7 @@ pub enum PoweredByLogo {
     Color,
     LineDark,
     LineLight,
-    Line(u8, u8, u8),
+    LineRGB(u8, u8, u8),
 }
 
 #[rustfmt::skip]
@@ -49,14 +49,11 @@ impl ComponentTrait for PoweredBy {
         (self.renderable.check)(cx)
     }
 
-    fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
+    fn before_prepare_component(&mut self, cx: &mut Context) {
         Minimal.load_assets(cx);
+    }
 
-        let mut credits = L10n::e("poweredby_pagetop", &LOCALES_MINIMAL).with_arg(
-            "pagetop_link",
-            "<a href=\"https://crates.io/crates/pagetop\">PageTop</a>",
-        );
-
+    fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
         let logo = match self.logo() {
             PoweredByLogo::Color => {
                 let logo_txt = L10n::t("pagetop_logo", &LOCALES_MINIMAL);
@@ -69,9 +66,14 @@ impl ComponentTrait for PoweredBy {
             }
             PoweredByLogo::LineDark => self.logo_line(10, 11, 9, cx),
             PoweredByLogo::LineLight => self.logo_line(255, 255, 255, cx),
-            PoweredByLogo::Line(r, g, b) => self.logo_line(*r, *g, *b, cx),
+            PoweredByLogo::LineRGB(r, g, b) => self.logo_line(*r, *g, *b, cx),
             _ => html! {},
         };
+
+        let mut credits = L10n::e("poweredby_pagetop", &LOCALES_MINIMAL).with_arg(
+            "pagetop_link",
+            "<a href=\"https://crates.io/crates/pagetop\">PageTop</a>",
+        );
 
         PrepareMarkup::With(html! {
             div id=[self.id()] {
