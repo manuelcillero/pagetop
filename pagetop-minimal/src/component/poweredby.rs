@@ -2,7 +2,7 @@ use crate::{Minimal, LOCALES_MINIMAL};
 
 use pagetop::prelude::*;
 
-create_handle!(COMPONENT_POWEREDBY);
+new_handle!(COMPONENT_POWEREDBY);
 
 #[derive(Default, Eq, PartialEq)]
 pub enum PoweredByLogo {

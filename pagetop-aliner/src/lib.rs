@@ -1,6 +1,6 @@
 use pagetop::prelude::*;
 
-create_handle!(THEME_ALINER);
+new_handle!(THEME_ALINER);
 
 static_files!(aliner);
 

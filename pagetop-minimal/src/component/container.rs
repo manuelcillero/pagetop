@@ -1,6 +1,6 @@
 use pagetop::prelude::*;
 
-create_handle!(COMPONENT_CONTAINER);
+new_handle!(COMPONENT_CONTAINER);
 
 actions_for_component!(Container);
 

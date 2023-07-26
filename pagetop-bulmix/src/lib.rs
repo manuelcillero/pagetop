@@ -2,7 +2,7 @@ use pagetop::prelude::*;
 use pagetop_jquery::JQuery;
 use pagetop_minimal::component::*;
 
-create_handle!(THEME_BULMIX);
+new_handle!(THEME_BULMIX);
 
 static_files!(bulmix);
 

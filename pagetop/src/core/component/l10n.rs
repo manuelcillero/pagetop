@@ -1,11 +1,11 @@
 use crate::core::component::{ComponentTrait, Context};
 use crate::html::{html, PreEscaped, PrepareMarkup};
 use crate::locale::{Loader, Locales};
-use crate::{create_handle, fn_builder, Handle};
+use crate::{fn_builder, new_handle, Handle};
 
 use std::collections::HashMap;
 
-create_handle!(COMPONENT_L10N);
+new_handle!(COMPONENT_L10N);
 
 #[derive(Default)]
 pub enum L10nOp {

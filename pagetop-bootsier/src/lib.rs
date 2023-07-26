@@ -1,7 +1,7 @@
 use pagetop::prelude::*;
 use pagetop_jquery::JQuery;
 
-create_handle!(THEME_BOOTSIER);
+new_handle!(THEME_BOOTSIER);
 
 static_locales!(LOCALES_BOOTSIER);
 

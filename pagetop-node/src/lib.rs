@@ -1,6 +1,6 @@
 use pagetop::prelude::*;
 
-create_handle!(MODULE_NODE);
+new_handle!(MODULE_NODE);
 
 static_locales!(LOCALES_NODE);
 

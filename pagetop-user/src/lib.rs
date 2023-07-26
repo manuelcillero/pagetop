@@ -1,7 +1,7 @@
 use pagetop::prelude::*;
 use pagetop_minimal::component::*;
 
-create_handle!(MODULE_USER);
+new_handle!(MODULE_USER);
 
 static_locales!(LOCALES_USER);
 

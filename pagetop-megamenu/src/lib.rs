@@ -2,7 +2,7 @@ use pagetop::prelude::*;
 
 pub mod component;
 
-create_handle!(MODULE_MEGAMENU);
+new_handle!(MODULE_MEGAMENU);
 
 static_files!(megamenu);
 

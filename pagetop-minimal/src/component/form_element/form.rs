@@ -1,6 +1,6 @@
 use pagetop::prelude::*;
 
-create_handle!(COMPONENT_FORM);
+new_handle!(COMPONENT_FORM);
 
 actions_for_component!(Form);
 

@@ -2,7 +2,7 @@ use pagetop::prelude::*;
 
 use crate::component::grid;
 
-create_handle!(COMPONENT_ROW);
+new_handle!(COMPONENT_ROW);
 
 actions_for_component!(Row);
 

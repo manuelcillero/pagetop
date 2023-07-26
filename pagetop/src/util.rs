@@ -106,7 +106,7 @@ macro_rules! default_settings {
 }
 
 #[macro_export]
-macro_rules! create_handle {
+macro_rules! new_handle {
     ( $HANDLE:ident ) => {
         /// Public constant handle to represent a unique PageTop building element.
         pub const $HANDLE: $crate::Handle =

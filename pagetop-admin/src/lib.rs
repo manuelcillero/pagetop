@@ -1,6 +1,6 @@
 use pagetop::prelude::*;
 
-create_handle!(MODULE_ADMIN);
+new_handle!(MODULE_ADMIN);
 
 static_locales!(LOCALES_ADMIN);
 

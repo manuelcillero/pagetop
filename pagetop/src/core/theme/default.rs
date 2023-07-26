@@ -4,9 +4,9 @@ use crate::core::theme::{ThemeRef, ThemeTrait};
 use crate::html::{Favicon, StyleSheet};
 use crate::response::page::Page;
 use crate::service;
-use crate::{create_handle, serve_static_files, static_files, Handle};
+use crate::{new_handle, serve_static_files, static_files, Handle};
 
-create_handle!(THEME_DEFAULT);
+new_handle!(THEME_DEFAULT);
 
 static_files!(theme);
 

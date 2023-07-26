@@ -1,6 +1,6 @@
 use pagetop::prelude::*;
 
-create_handle!(COMPONENT_COLUMN);
+new_handle!(COMPONENT_COLUMN);
 
 actions_for_component!(Column);
 

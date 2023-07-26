@@ -1,6 +1,6 @@
 use pagetop::prelude::*;
 
-create_handle!(APP_HELLO_NAME);
+new_handle!(APP_HELLO_NAME);
 
 struct HelloName;
 

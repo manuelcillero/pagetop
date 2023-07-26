@@ -2,7 +2,7 @@ use pagetop::prelude::*;
 
 pub mod component;
 
-create_handle!(MODULE_MINIMAL);
+new_handle!(MODULE_MINIMAL);
 
 static_locales!(LOCALES_MINIMAL);
 

@@ -1,6 +1,6 @@
 use pagetop::prelude::*;
 
-create_handle!(MODULE_JQUERY);
+new_handle!(MODULE_JQUERY);
 
 static_locales!(LOCALES_JQUERY);
 

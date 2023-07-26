@@ -9,7 +9,7 @@ pub use crate::{Handle, HashMapResources, LazyStatic, ResultExt, Weight};
 // Funciones y macros útiles.
 pub use crate::util;
 pub use crate::{action, actions_for_component};
-pub use crate::{create_handle, default_settings, kv};
+pub use crate::{default_settings, kv, new_handle};
 pub use crate::{serve_static_files, static_files, static_locales};
 
 // API.

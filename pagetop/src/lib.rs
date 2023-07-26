@@ -44,7 +44,7 @@
 //! ```rust
 //! use pagetop::prelude::*;
 //!
-//! create_handle!(APP_HELLO_WORLD);
+//! new_handle!(APP_HELLO_WORLD);
 //!
 //! struct HelloWorld;
 //!
