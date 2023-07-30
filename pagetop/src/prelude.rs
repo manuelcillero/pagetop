@@ -38,6 +38,6 @@ pub use crate::service;
 pub use crate::service::HttpMessage;
 
 pub use crate::response::fatal_error::*;
-pub use crate::response::{page::*, ResponseError};
+pub use crate::response::{page::*, redirect::*, ResponseError};
 
 pub use crate::app::Application;
