@@ -1,0 +1,170 @@
+/* Mobile first layout SmartMenus Core CSS (it's not recommended editing these rules)
+   You need this once per page no matter how many menu trees or different themes you use.
+-------------------------------------------------------------------------------------------*/
+
+.megamenu {
+	background: #eee;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	-ms-border-radius: 5px;
+	-o-border-radius: 5px;
+	border-radius: 5px;
+}
+
+@media (min-width: 768px) {
+	.megamenu {
+		-webkit-border-radius: 50px;
+		-moz-border-radius: 50px;
+		-ms-border-radius: 50px;
+		-o-border-radius: 50px;
+		border-radius: 50px;
+	}
+}
+
+.megamenu:after {
+	clear: both;
+	content: "\00a0";
+	display: block;
+	height: 0;
+	font: 0px/0 serif;
+	overflow: hidden;
+}
+
+.nav-brand {
+	float: left;
+	margin: 0;
+}
+
+.nav-brand a {
+	display: block;
+	padding: 12px 12px 12px 20px;
+	color: #555;
+	font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+	font-size: 22px;
+	font-weight: normal;
+	line-height: 17px;
+	text-decoration: none;
+}
+
+.megamenu-menu {
+	clear: both;
+}
+
+@media (min-width: 768px) {
+	.megamenu-menu {
+		float: right;
+		clear: none;
+	}
+}
+
+/* Mobile menu toggle button */
+
+.megamenu-btn {
+	float: right;
+	margin: 6px 10px;
+	position: relative;
+	display: inline-block;
+	width: 29px;
+	height: 29px;
+	text-indent: 29px;
+	white-space: nowrap;
+	overflow: hidden;
+	cursor: pointer;
+	-webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+}
+
+/* Hamburger icon */
+
+.megamenu-btn-icon,
+.megamenu-btn-icon:before,
+.megamenu-btn-icon:after {
+	position: absolute;
+	top: 50%;
+	left: 2px;
+	height: 2px;
+	width: 24px;
+	background: #555;
+	-webkit-transition: all 0.25s;
+	transition: all 0.25s;
+}
+
+.megamenu-btn-icon:before {
+	content: '';
+	top: -7px;
+	left: 0;
+}
+
+.megamenu-btn-icon:after {
+	content: '';
+	top: 7px;
+	left: 0;
+}
+
+/* X icon */
+
+.megamenu-state:checked ~ .megamenu-btn .megamenu-btn-icon {
+	height: 0;
+	background: transparent;
+}
+
+.megamenu-state:checked ~ .megamenu-btn .megamenu-btn-icon:before {
+	top: 0;
+	-webkit-transform: rotate(-45deg);
+	transform: rotate(-45deg);
+}
+
+.megamenu-state:checked ~ .megamenu-btn .megamenu-btn-icon:after {
+	top: 0;
+	-webkit-transform: rotate(45deg);
+	transform: rotate(45deg);
+}
+
+/* Hide menu state checkbox (keep it visible to screen readers) */
+
+.megamenu-state {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	margin: -1px;
+	border: 0;
+	padding: 0;
+	overflow: hidden;
+	clip: rect(1px, 1px, 1px, 1px);
+}
+
+/* Hide the menu in mobile view */
+
+.megamenu-state:not(:checked) ~ .megamenu-menu {
+	display: none;
+}
+
+.megamenu-state:checked ~ .megamenu-menu {
+	display: block;
+}
+
+@media (min-width: 768px) {
+	/* Hide the button in desktop view */
+	.megamenu-btn {
+		position: absolute;
+		top: -99999px;
+	}
+	/* Always show the menu in desktop view */
+	.megamenu-state:not(:checked) ~ .megamenu-menu {
+		display: block;
+	}
+}
+
+
+
+
+
+.sm{box-sizing:border-box;position:relative;z-index:9999;-webkit-tap-highlight-color:rgba(0,0,0,0);}
+.sm,.sm ul,.sm li{display:block;list-style:none;margin:0;padding:0;line-height:normal;direction:ltr;text-align:left;}
+.sm-rtl,.sm-rtl ul,.sm-rtl li{direction:rtl;text-align:right;}
+.sm>li>h1,.sm>li>h2,.sm>li>h3,.sm>li>h4,.sm>li>h5,.sm>li>h6{margin:0;padding:0;}
+.sm ul{display:none;}
+.sm li,.sm a{position:relative;}
+.sm a{display:block;}
+.sm a.disabled{cursor:default;}
+.sm::after{content:"";display:block;height:0;font:0px/0 serif;clear:both;overflow:hidden;}
+.sm *,.sm *::before,.sm *::after{box-sizing:inherit;}
