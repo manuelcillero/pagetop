@@ -118,7 +118,7 @@ impl PackComponents {
         components.sort_by_key(|c| c.weight());
         html! {
             @for c in components.iter() {
-                (" ")(c.prepare(cx))(" ")
+                " " (c.prepare(cx)) " "
             }
         }
     }

@@ -79,7 +79,7 @@ impl ComponentTrait for Anchor {
                 target=[target]
             {
                 (self.left_icon().prepare(cx))
-                (" ") span { (self.html().prepare(cx)) } (" ")
+                " " span { (self.html().prepare(cx)) } " "
                 (self.right_icon().prepare(cx))
             }
         })
