@@ -53,8 +53,8 @@
 //!         APP_HELLO_WORLD
 //!     }
 //!
-//!     fn configure_service(&self, cfg: &mut service::web::ServiceConfig) {
-//!         cfg.route("/", service::web::get().to(hello_world));
+//!     fn configure_service(&self, scfg: &mut service::web::ServiceConfig) {
+//!         scfg.route("/", service::web::get().to(hello_world));
 //!     }
 //! }
 //!

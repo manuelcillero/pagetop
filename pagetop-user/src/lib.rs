@@ -26,8 +26,8 @@ impl ModuleTrait for User {
         vec![&pagetop_minimal::Minimal]
     }
 
-    fn configure_service(&self, cfg: &mut service::web::ServiceConfig) {
-        cfg.route("/user/login", service::web::get().to(login));
+    fn configure_service(&self, scfg: &mut service::web::ServiceConfig) {
+        scfg.route("/user/login", service::web::get().to(login));
     }
 
     fn migrations(&self) -> Vec<MigrationItem> {

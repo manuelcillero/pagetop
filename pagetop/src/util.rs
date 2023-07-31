@@ -175,16 +175,16 @@ macro_rules! static_files {
 
 #[macro_export]
 macro_rules! serve_static_files {
-    ( $cfg:ident, $path:expr, $bundle:ident ) => {{
+    ( $scfg:ident, $path:expr, $bundle:ident ) => {{
         $crate::paste! {
             let static_files = &$crate::config::SETTINGS.dev.static_files;
             if static_files.is_empty() {
-                $cfg.service($crate::service::ResourceFiles::new(
+                $scfg.service($crate::service::ResourceFiles::new(
                     $path,
                     [<static_files_ $bundle>]::$bundle(),
                 ));
             } else {
-                $cfg.service(
+                $scfg.service(
                     $crate::service::ActixFiles::new(
                         $path,
                         $crate::concat_string!(static_files, $path),

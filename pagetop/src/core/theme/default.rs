@@ -25,8 +25,8 @@ impl ModuleTrait for DefaultTheme {
         Some(&DefaultTheme)
     }
 
-    fn configure_service(&self, cfg: &mut service::web::ServiceConfig) {
-        serve_static_files!(cfg, "/theme", theme);
+    fn configure_service(&self, scfg: &mut service::web::ServiceConfig) {
+        serve_static_files!(scfg, "/theme", theme);
     }
 }
 

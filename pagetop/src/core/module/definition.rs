@@ -49,7 +49,7 @@ pub trait ModuleTrait: ModuleBase + Send + Sync {
     }
 
     #[allow(unused_variables)]
-    fn configure_service(&self, cfg: &mut service::web::ServiceConfig) {}
+    fn configure_service(&self, scfg: &mut service::web::ServiceConfig) {}
 }
 
 impl<M: ?Sized + ModuleTrait> ModuleBase for M {

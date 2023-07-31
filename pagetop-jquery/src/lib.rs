@@ -32,8 +32,8 @@ impl ModuleTrait for JQuery {
         vec![action!(ActionAfterPrepareBody => after_prepare_body)]
     }
 
-    fn configure_service(&self, cfg: &mut service::web::ServiceConfig) {
-        serve_static_files!(cfg, "/jquery", jquery);
+    fn configure_service(&self, scfg: &mut service::web::ServiceConfig) {
+        serve_static_files!(scfg, "/jquery", jquery);
     }
 }
 

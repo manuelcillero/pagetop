@@ -9,8 +9,8 @@ impl ModuleTrait for HelloName {
         APP_HELLO_NAME
     }
 
-    fn configure_service(&self, cfg: &mut service::web::ServiceConfig) {
-        cfg.service(hello_name);
+    fn configure_service(&self, scfg: &mut service::web::ServiceConfig) {
+        scfg.service(hello_name);
     }
 }
 

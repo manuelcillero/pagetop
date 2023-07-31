@@ -33,8 +33,8 @@ impl ModuleTrait for Minimal {
         vec![action!(ActionAfterPrepareBody => after_prepare_body, 99)]
     }
 
-    fn configure_service(&self, cfg: &mut service::web::ServiceConfig) {
-        serve_static_files!(cfg, "/minimal", minimal);
+    fn configure_service(&self, scfg: &mut service::web::ServiceConfig) {
+        serve_static_files!(scfg, "/minimal", minimal);
     }
 }
 

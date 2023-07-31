@@ -26,9 +26,9 @@ impl ModuleTrait for HomeDemo {
         vec![&pagetop_minimal::Minimal]
     }
 
-    fn configure_service(&self, cfg: &mut service::web::ServiceConfig) {
-        serve_static_files!(cfg, "/homedemo", homedemo);
-        cfg.route("/", service::web::get().to(demo));
+    fn configure_service(&self, scfg: &mut service::web::ServiceConfig) {
+        serve_static_files!(scfg, "/homedemo", homedemo);
+        scfg.route("/", service::web::get().to(demo));
     }
 }
 

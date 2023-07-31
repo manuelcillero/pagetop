@@ -142,8 +142,8 @@ pub fn run_migrations() {
 
 // CONFIGURE SERVICES ******************************************************************************
 
-pub fn configure_services(cfg: &mut service::web::ServiceConfig) {
+pub fn configure_services(scfg: &mut service::web::ServiceConfig) {
     for m in ENABLED_MODULES.read().unwrap().iter() {
-        m.configure_service(cfg);
+        m.configure_service(scfg);
     }
 }

@@ -33,8 +33,8 @@ impl ModuleTrait for Admin {
         vec![action!(ActionBeforePrepareBody => before_prepare_body)]
     }
 
-    fn configure_service(&self, cfg: &mut service::web::ServiceConfig) {
-        cfg.service(
+    fn configure_service(&self, scfg: &mut service::web::ServiceConfig) {
+        scfg.service(
             service::web::scope("/admin").route("", service::web::get().to(summary::summary)),
         );
     }

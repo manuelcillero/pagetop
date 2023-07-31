@@ -22,8 +22,8 @@ impl ModuleTrait for Bootsier {
         vec![&pagetop_jquery::JQuery]
     }
 
-    fn configure_service(&self, cfg: &mut service::web::ServiceConfig) {
-        serve_static_files!(cfg, "/bootsier", bootsier);
+    fn configure_service(&self, scfg: &mut service::web::ServiceConfig) {
+        serve_static_files!(scfg, "/bootsier", bootsier);
     }
 }
 

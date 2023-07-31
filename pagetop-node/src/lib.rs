@@ -22,8 +22,8 @@ impl ModuleTrait for Node {
         L10n::t("module_description", &LOCALES_NODE)
     }
 
-    fn configure_service(&self, cfg: &mut service::web::ServiceConfig) {
-        cfg.route("/node", service::web::get().to(node));
+    fn configure_service(&self, scfg: &mut service::web::ServiceConfig) {
+        scfg.route("/node", service::web::get().to(node));
     }
 
     fn actions(&self) -> Vec<Action> {
