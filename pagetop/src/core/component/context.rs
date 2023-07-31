@@ -95,11 +95,11 @@ impl Context {
         &self.request
     }
 
-    pub(crate) fn langid(&self) -> &LanguageIdentifier {
+    pub fn langid(&self) -> &LanguageIdentifier {
         self.langid
     }
 
-    pub(crate) fn theme(&self) -> ThemeRef {
+    pub fn theme(&self) -> ThemeRef {
         self.theme
     }
 
