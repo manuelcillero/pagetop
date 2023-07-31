@@ -1,59 +1,55 @@
 use crate::LOCALES_ADMIN;
 
 use pagetop::prelude::*;
-use pagetop_megamenu::component::{MegaMenu, MegaMenuItem};
+use pagetop_megamenu::component::{MegaItem, MegaMenu};
 use pagetop_minimal::component::*;
 
 pub async fn summary(request: service::HttpRequest) -> ResultPage<Markup, FatalError> {
     let top_menu = MegaMenu::new()
-        .with_item(MegaMenuItem::label(L10n::t("module_name", &LOCALES_ADMIN)))
-        .with_item(MegaMenuItem::link(
-            L10n::n("Opción 2"),
-            "https://www.google.es",
-        ))
-        .with_item(MegaMenuItem::link_blank(
-            L10n::n("Opción 3"),
-            "https://www.google.es",
-        ))
-        .with_item(MegaMenuItem::submenu(
+        .with_item(MegaItem::label(L10n::t("module_name", &LOCALES_ADMIN)))
+        .with_item(MegaItem::link(L10n::n("Opción 2"), |_| {
+            "https://www.google.es"
+        }))
+        .with_item(MegaItem::link_blank(L10n::n("Opción 3"), |_| {
+            "https://www.google.es"
+        }))
+        .with_item(MegaItem::submenu(
             L10n::n("Submenú 1"),
             MegaMenu::new()
-                .with_item(MegaMenuItem::label(L10n::n("Opción 1")))
-                .with_item(MegaMenuItem::label(L10n::n("Opción 2"))),
+                .with_item(MegaItem::label(L10n::n("Opción 1")))
+                .with_item(MegaItem::label(L10n::n("Opción 2"))),
         ))
-        .with_item(MegaMenuItem::separator())
-        .with_item(MegaMenuItem::submenu(
+        .with_item(MegaItem::separator())
+        .with_item(MegaItem::submenu(
             L10n::n("Submenú 2"),
             MegaMenu::new()
-                .with_item(MegaMenuItem::label(L10n::n("Opción 1")))
-                .with_item(MegaMenuItem::label(L10n::n("Opción 2"))),
+                .with_item(MegaItem::label(L10n::n("Opción 1")))
+                .with_item(MegaItem::label(L10n::n("Opción 2"))),
         ))
-        .with_item(MegaMenuItem::label(L10n::n("Opción 4")));
+        .with_item(MegaItem::label(L10n::n("Opción 4")));
 
     let side_menu = MegaMenu::new()
-        .with_item(MegaMenuItem::label(L10n::n("Opción 1")))
-        .with_item(MegaMenuItem::link(
-            L10n::n("Opción 2"),
-            "https://www.google.es",
-        ))
-        .with_item(MegaMenuItem::link_blank(
-            L10n::n("Opción 3"),
-            "https://www.google.es",
-        ))
-        .with_item(MegaMenuItem::submenu(
+        .with_item(MegaItem::label(L10n::n("Opción 1")))
+        .with_item(MegaItem::link(L10n::n("Opción 2"), |_| {
+            "https://www.google.es"
+        }))
+        .with_item(MegaItem::link_blank(L10n::n("Opción 3"), |_| {
+            "https://www.google.es"
+        }))
+        .with_item(MegaItem::submenu(
             L10n::n("Submenú 1"),
             MegaMenu::new()
-                .with_item(MegaMenuItem::label(L10n::n("Opción 1")))
-                .with_item(MegaMenuItem::label(L10n::n("Opción 2"))),
+                .with_item(MegaItem::label(L10n::n("Opción 1")))
+                .with_item(MegaItem::label(L10n::n("Opción 2"))),
         ))
-        .with_item(MegaMenuItem::separator())
-        .with_item(MegaMenuItem::submenu(
+        .with_item(MegaItem::separator())
+        .with_item(MegaItem::submenu(
             L10n::n("Submenú 2"),
             MegaMenu::new()
-                .with_item(MegaMenuItem::label(L10n::n("Opción 1")))
-                .with_item(MegaMenuItem::label(L10n::n("Opción 2"))),
+                .with_item(MegaItem::label(L10n::n("Opción 1")))
+                .with_item(MegaItem::label(L10n::n("Opción 2"))),
         ))
-        .with_item(MegaMenuItem::label(L10n::n("Opción 4")));
+        .with_item(MegaItem::label(L10n::n("Opción 4")));
 
     Page::new(request)
         .with_context(ContextOp::Theme("Bootsier"))
