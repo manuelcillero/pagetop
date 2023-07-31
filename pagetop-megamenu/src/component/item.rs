@@ -2,18 +2,20 @@ use pagetop::prelude::*;
 
 use crate::component::MegaMenu;
 
-new_handle!(COMPONENT_MEGAMENUITEM);
+new_handle!(COMPONENT_MEGAITEM);
 
 type Label = OneComponent<L10n>;
-type Content = OneComponent<L10n>;
+type Content = OneComponent<Html>;
+
+pub type MegaItemPath = fn(cx: &Context) -> &str;
 
 #[derive(Default)]
-pub enum MegaMenuItemType {
+pub enum MegaItemType {
     #[default]
     Void,
     Label(Label),
-    Link(Label, String),
-    LinkBlank(Label, String),
+    Link(Label, MegaItemPath),
+    LinkBlank(Label, MegaItemPath),
     Html(Content),
     Submenu(Label, MegaMenu),
     Separator,
@@ -23,19 +25,19 @@ pub enum MegaMenuItemType {
 
 #[rustfmt::skip]
 #[derive(Default)]
-pub struct MegaMenuItem {
+pub struct MegaItem {
     weight    : Weight,
     renderable: Renderable,
-    item_type : MegaMenuItemType,
+    item_type : MegaItemType,
 }
 
-impl ComponentTrait for MegaMenuItem {
+impl ComponentTrait for MegaItem {
     fn new() -> Self {
-        MegaMenuItem::default()
+        MegaItem::default()
     }
 
     fn handle(&self) -> Handle {
-        COMPONENT_MEGAMENUITEM
+        COMPONENT_MEGAITEM
     }
 
     fn weight(&self) -> Weight {
@@ -48,23 +50,20 @@ impl ComponentTrait for MegaMenuItem {
 
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
         match self.item_type() {
-            MegaMenuItemType::Void => PrepareMarkup::None,
-
-            MegaMenuItemType::Label(label) => PrepareMarkup::With(html! {
-                li class="label" { a href="#" { (label.prepare(cx)) } }
+            MegaItemType::Void => PrepareMarkup::None,
+            MegaItemType::Label(label) => PrepareMarkup::With(html! {
+                li class="link" { a href="#" { (label.prepare(cx)) } }
             }),
-            MegaMenuItemType::Link(label, path) => PrepareMarkup::With(html! {
-                li class="link" { a href=(path) { (label.prepare(cx)) } }
+            MegaItemType::Link(label, path) => PrepareMarkup::With(html! {
+                li class="link" { a href=(path(cx)) { (label.prepare(cx)) } }
             }),
-            MegaMenuItemType::LinkBlank(label, path) => PrepareMarkup::With(html! {
-                li class="link_blank" {
-                    a href=(path) target="_blank" { (label.prepare(cx)) }
-                }
+            MegaItemType::LinkBlank(label, path) => PrepareMarkup::With(html! {
+                li class="link" { a href=(path(cx)) target="_blank" { (label.prepare(cx)) } }
             }),
-            MegaMenuItemType::Html(content) => PrepareMarkup::With(html! {
+            MegaItemType::Html(content) => PrepareMarkup::With(html! {
                 li class="html" { (content.prepare(cx)) }
             }),
-            MegaMenuItemType::Submenu(label, menu) => PrepareMarkup::With(html! {
+            MegaItemType::Submenu(label, menu) => PrepareMarkup::With(html! {
                 li class="submenu" {
                     a href="#" { (label.prepare(cx)) }
                     ul {
@@ -72,57 +71,57 @@ impl ComponentTrait for MegaMenuItem {
                     }
                 }
             }),
-            MegaMenuItemType::Separator => PrepareMarkup::With(html! {
+            MegaItemType::Separator => PrepareMarkup::With(html! {
                 li class="separator" { }
             }),
         }
     }
 }
 
-impl MegaMenuItem {
+impl MegaItem {
     pub fn label(label: L10n) -> Self {
-        MegaMenuItem {
-            item_type: MegaMenuItemType::Label(OneComponent::new_with(label)),
+        MegaItem {
+            item_type: MegaItemType::Label(OneComponent::new_with(label)),
             ..Default::default()
         }
     }
 
-    pub fn link(label: L10n, path: &str) -> Self {
-        MegaMenuItem {
-            item_type: MegaMenuItemType::Link(OneComponent::new_with(label), path.to_owned()),
+    pub fn link(label: L10n, path: MegaItemPath) -> Self {
+        MegaItem {
+            item_type: MegaItemType::Link(OneComponent::new_with(label), path),
             ..Default::default()
         }
     }
 
-    pub fn link_blank(label: L10n, path: &str) -> Self {
-        MegaMenuItem {
-            item_type: MegaMenuItemType::LinkBlank(OneComponent::new_with(label), path.to_owned()),
+    pub fn link_blank(label: L10n, path: MegaItemPath) -> Self {
+        MegaItem {
+            item_type: MegaItemType::LinkBlank(OneComponent::new_with(label), path),
             ..Default::default()
         }
     }
 
-    pub fn html(content: L10n) -> Self {
-        MegaMenuItem {
-            item_type: MegaMenuItemType::Html(OneComponent::new_with(content)),
+    pub fn html(content: Html) -> Self {
+        MegaItem {
+            item_type: MegaItemType::Html(OneComponent::new_with(content)),
             ..Default::default()
         }
     }
 
     pub fn submenu(label: L10n, menu: MegaMenu) -> Self {
-        MegaMenuItem {
-            item_type: MegaMenuItemType::Submenu(OneComponent::new_with(label), menu),
+        MegaItem {
+            item_type: MegaItemType::Submenu(OneComponent::new_with(label), menu),
             ..Default::default()
         }
     }
 
     pub fn separator() -> Self {
-        MegaMenuItem {
-            item_type: MegaMenuItemType::Separator,
+        MegaItem {
+            item_type: MegaItemType::Separator,
             ..Default::default()
         }
     }
 
-    // MegaMenuItem BUILDER.
+    // MegaItem BUILDER.
 
     #[fn_builder]
     pub fn alter_weight(&mut self, value: Weight) -> &mut Self {
@@ -136,9 +135,9 @@ impl MegaMenuItem {
         self
     }
 
-    // MegaMenuItem GETTERS.
+    // MegaItem GETTERS.
 
-    pub fn item_type(&self) -> &MegaMenuItemType {
+    pub fn item_type(&self) -> &MegaItemType {
         &self.item_type
     }
 }

@@ -1,7 +1,7 @@
 use pagetop::prelude::*;
 use pagetop_jquery::JQuery;
 
-use crate::component::MegaMenuItem;
+use crate::component::MegaItem;
 use crate::LOCALES_MEGAMENU;
 
 new_handle!(COMPONENT_MEGAMENU);
@@ -138,12 +138,12 @@ impl MegaMenu {
         self
     }
 
-    pub fn with_item(mut self, item: MegaMenuItem) -> Self {
+    pub fn with_item(mut self, item: MegaItem) -> Self {
         self.items.alter(PackOp::Add, ComponentRef::to(item));
         self
     }
 
-    pub fn alter_items(&mut self, op: PackOp, item: MegaMenuItem) -> &mut Self {
+    pub fn alter_items(&mut self, op: PackOp, item: MegaItem) -> &mut Self {
         self.items.alter(op, ComponentRef::to(item));
         self
     }
