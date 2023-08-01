@@ -10,7 +10,6 @@ pub struct Image {
     id        : IdentifierValue,
     classes   : Classes,
     source    : AttributeValue,
-    template  : String,
 }
 
 impl ComponentTrait for Image {
@@ -49,6 +48,10 @@ impl Image {
         Image::new().with_source(source)
     }
 
+    pub fn pagetop() -> Self {
+        Image::new().with_source("/minimal/pagetop-logo.svg")
+    }
+
     // Image BUILDER.
 
     #[fn_builder]
@@ -81,12 +84,6 @@ impl Image {
         self
     }
 
-    #[fn_builder]
-    pub fn alter_template(&mut self, template: &str) -> &mut Self {
-        self.template = template.to_owned();
-        self
-    }
-
     // Image GETTERS.
 
     pub fn classes(&self) -> &Classes {
@@ -95,9 +92,5 @@ impl Image {
 
     pub fn source(&self) -> &AttributeValue {
         &self.source
-    }
-
-    pub fn template(&self) -> &str {
-        self.template.as_str()
     }
 }

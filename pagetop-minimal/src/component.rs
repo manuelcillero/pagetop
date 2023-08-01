@@ -15,6 +15,8 @@ mod image;
 pub use image::{Image, COMPONENT_IMAGE};
 mod block;
 pub use block::{Block, COMPONENT_BLOCK};
+mod site_branding;
+pub use site_branding::{SiteBranding, COMPONENT_BRANDING};
 mod poweredby;
 pub use poweredby::{PoweredBy, PoweredByLogo, COMPONENT_POWEREDBY};
 
