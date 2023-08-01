@@ -18,7 +18,7 @@ impl ActionsList {
         ActionsList(Arc::new(RwLock::new(Vec::new())))
     }
 
-    pub fn new_with(action: Action) -> Self {
+    pub fn with(action: Action) -> Self {
         let mut list = ActionsList::new();
         list.add(action);
         list

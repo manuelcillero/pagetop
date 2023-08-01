@@ -47,7 +47,7 @@ impl PackComponents {
         PackComponents::default()
     }
 
-    pub fn new_with(cref: ComponentRef) -> Self {
+    pub fn with(cref: ComponentRef) -> Self {
         let mut pack = PackComponents::new();
         pack.alter(PackOp::Add, cref);
         pack

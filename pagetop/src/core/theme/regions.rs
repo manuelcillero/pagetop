@@ -19,7 +19,7 @@ impl ComponentsRegions {
         ComponentsRegions::default()
     }
 
-    pub fn new_with(region: &'static str, cref: ComponentRef) -> Self {
+    pub fn with(region: &'static str, cref: ComponentRef) -> Self {
         let mut regions = ComponentsRegions::new();
         regions.add_in(region, cref);
         regions
@@ -29,7 +29,7 @@ impl ComponentsRegions {
         if let Some(region) = self.0.get_mut(region) {
             region.alter(PackOp::Add, cref);
         } else {
-            self.0.insert(region, PackComponents::new_with(cref));
+            self.0.insert(region, PackComponents::with(cref));
         }
     }
 
@@ -58,7 +58,7 @@ pub fn add_component_in(region: Region, cref: ComponentRef) {
             if let Some(hm) = regions.get_mut(&theme.handle()) {
                 hm.add_in(region, cref);
             } else {
-                regions.insert(theme.handle(), ComponentsRegions::new_with(region, cref));
+                regions.insert(theme.handle(), ComponentsRegions::with(region, cref));
             }
         }
     }

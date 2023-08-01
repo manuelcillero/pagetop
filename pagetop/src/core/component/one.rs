@@ -11,7 +11,7 @@ impl<T: ComponentTrait + Default> OneComponent<T> {
         OneComponent::<T>::default()
     }
 
-    pub fn new_with(component: T) -> Self {
+    pub fn with(component: T) -> Self {
         OneComponent(Some(Arc::new(RwLock::new(component))))
     }
 

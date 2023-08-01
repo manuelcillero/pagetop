@@ -14,7 +14,7 @@ pub fn add_action(action: Action) {
     if let Some(list) = actions.get_mut(&action_handle) {
         list.add(action);
     } else {
-        actions.insert(action_handle, ActionsList::new_with(action));
+        actions.insert(action_handle, ActionsList::with(action));
     }
 }
 

@@ -81,35 +81,35 @@ impl ComponentTrait for MegaItem {
 impl MegaItem {
     pub fn label(label: L10n) -> Self {
         MegaItem {
-            item_type: MegaItemType::Label(OneComponent::new_with(label)),
+            item_type: MegaItemType::Label(Label::with(label)),
             ..Default::default()
         }
     }
 
     pub fn link(label: L10n, path: MegaItemPath) -> Self {
         MegaItem {
-            item_type: MegaItemType::Link(OneComponent::new_with(label), path),
+            item_type: MegaItemType::Link(Label::with(label), path),
             ..Default::default()
         }
     }
 
     pub fn link_blank(label: L10n, path: MegaItemPath) -> Self {
         MegaItem {
-            item_type: MegaItemType::LinkBlank(OneComponent::new_with(label), path),
+            item_type: MegaItemType::LinkBlank(Label::with(label), path),
             ..Default::default()
         }
     }
 
     pub fn html(content: Html) -> Self {
         MegaItem {
-            item_type: MegaItemType::Html(OneComponent::new_with(content)),
+            item_type: MegaItemType::Html(Content::with(content)),
             ..Default::default()
         }
     }
 
     pub fn submenu(label: L10n, menu: MegaMenu) -> Self {
         MegaItem {
-            item_type: MegaItemType::Submenu(OneComponent::new_with(label), menu),
+            item_type: MegaItemType::Submenu(Label::with(label), menu),
             ..Default::default()
         }
     }
