@@ -1,6 +1,6 @@
 [app]
 name = "PageTop Application"
-description = "Developed with the amazing PageTop framework."
+description = "Developed with the awesome PageTop framework."
 # Tema predeterminado.
 theme = "Default"
 # Idioma (localización) predeterminado.

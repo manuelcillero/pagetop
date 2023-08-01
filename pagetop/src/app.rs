@@ -6,7 +6,7 @@ use crate::core::{module, module::ModuleRef};
 use crate::html::Markup;
 use crate::response::fatal_error::FatalError;
 use crate::response::page::ResultPage;
-use crate::{config, locale, service, trace, LazyStatic};
+use crate::{concat_string, config, locale, service, trace, LazyStatic};
 
 #[cfg(feature = "database")]
 use crate::db;
@@ -94,26 +94,29 @@ impl Application {
 
 fn print_on_startup() {
     if config::SETTINGS.app.startup_banner.to_lowercase() != "off" {
+        // Application name.
+        let mut app_name = config::SETTINGS.app.name.to_string();
         if let Some((term_width, _)) = term_size::dimensions() {
             if term_width >= 80 {
                 let maxlen = (term_width / 10) - 2;
-                let mut app = config::SETTINGS.app.name.substring(0, maxlen).to_owned();
-                if config::SETTINGS.app.name.len() > maxlen {
+                let mut app = app_name.substring(0, maxlen).to_owned();
+                if app_name.len() > maxlen {
                     app = format!("{}...", app);
                 }
-                println!(
-                    "\n{} {}\n\n Powered by PageTop {}\n",
-                    figfont::FIGFONT.convert(&app).unwrap(),
-                    &config::SETTINGS.app.description,
-                    env!("CARGO_PKG_VERSION")
-                );
-                return;
+                app_name = figfont::FIGFONT.convert(&app).unwrap().to_string();
             }
         }
+        // Application description.
+        let app_description = if !config::SETTINGS.app.description.is_empty() {
+            concat_string!("\n", config::SETTINGS.app.description)
+        } else {
+            "".to_string()
+        };
+        // Print banner.
         println!(
-            "\n{}\n{}\n\nPowered by PageTop {}\n",
-            &config::SETTINGS.app.name,
-            &config::SETTINGS.app.description,
+            "\n{}{}\n\nPowered by PageTop {}\n",
+            app_name,
+            app_description,
             env!("CARGO_PKG_VERSION")
         );
     }
