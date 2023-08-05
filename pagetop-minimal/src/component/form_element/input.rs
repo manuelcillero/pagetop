@@ -81,7 +81,7 @@ impl ComponentTrait for Input {
                         @if self.required().get().is_some() {
                             span
                                 class="form-required"
-                                title="Este campo es obligatorio." { "*" } " ";
+                                title="Este campo es obligatorio." { "*" } " "
                         }
                     }
                 }
@@ -99,7 +99,7 @@ impl ComponentTrait for Input {
                     autocomplete=[self.autocomplete().get()]
                     readonly=[self.readonly().get()]
                     required=[self.required().get()]
-                    disabled=[self.disabled().get()];
+                    disabled=[self.disabled().get()] {}
                 @if !description.is_empty() {
                     div class="form-text" { (description) }
                 }

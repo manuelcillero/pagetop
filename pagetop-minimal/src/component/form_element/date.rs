@@ -50,7 +50,7 @@ impl ComponentTrait for Date {
                         @if self.required().get().is_some() {
                             span
                                 class="form-required"
-                                title="Este campo es obligatorio." { "*" } " ";
+                                title="Este campo es obligatorio." { "*" } " "
                         }
                     }
                 }
@@ -65,7 +65,7 @@ impl ComponentTrait for Date {
                     autocomplete=[self.autocomplete().get()]
                     readonly=[self.readonly().get()]
                     required=[self.required().get()]
-                    disabled=[self.disabled().get()];
+                    disabled=[self.disabled().get()] {}
                 @if let Some(help_text) = self.help_text().get() {
                     div class="form-text" { (help_text) }
                 }
