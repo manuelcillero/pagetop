@@ -2,7 +2,7 @@ use pagetop::prelude::*;
 
 pub mod component {
     mod item;
-    pub use item::{MegaItem, MegaItemPath, MegaItemType, COMPONENT_MEGAITEM};
+    pub use item::{MegaItem, MegaItemType, COMPONENT_MEGAITEM};
     mod menu;
     pub use menu::{MegaMenu, COMPONENT_MEGAMENU};
 }

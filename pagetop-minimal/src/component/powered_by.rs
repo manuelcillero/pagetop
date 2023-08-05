@@ -38,7 +38,7 @@ impl ComponentTrait for PoweredBy {
     }
 
     fn id(&self) -> Option<String> {
-        Some("poweredby".to_owned())
+        Some("powered-by".to_owned())
     }
 
     fn weight(&self) -> Weight {

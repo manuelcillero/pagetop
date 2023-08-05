@@ -1,5 +1,6 @@
 mod context;
 pub use context::{Context, ContextOp};
+pub type ContextualPath = fn(cx: &Context) -> &str;
 
 mod definition;
 pub use definition::{component_mut, component_ref, ComponentBase, ComponentTrait};

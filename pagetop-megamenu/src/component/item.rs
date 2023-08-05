@@ -7,15 +7,13 @@ new_handle!(COMPONENT_MEGAITEM);
 type Label = OneComponent<L10n>;
 type Content = OneComponent<Html>;
 
-pub type MegaItemPath = fn(cx: &Context) -> &str;
-
 #[derive(Default)]
 pub enum MegaItemType {
     #[default]
     Void,
     Label(Label),
-    Link(Label, MegaItemPath),
-    LinkBlank(Label, MegaItemPath),
+    Link(Label, ContextualPath),
+    LinkBlank(Label, ContextualPath),
     Html(Content),
     Submenu(Label, MegaMenu),
     Separator,
@@ -86,14 +84,14 @@ impl MegaItem {
         }
     }
 
-    pub fn link(label: L10n, path: MegaItemPath) -> Self {
+    pub fn link(label: L10n, path: ContextualPath) -> Self {
         MegaItem {
             item_type: MegaItemType::Link(Label::with(label), path),
             ..Default::default()
         }
     }
 
-    pub fn link_blank(label: L10n, path: MegaItemPath) -> Self {
+    pub fn link_blank(label: L10n, path: ContextualPath) -> Self {
         MegaItem {
             item_type: MegaItemType::LinkBlank(Label::with(label), path),
             ..Default::default()

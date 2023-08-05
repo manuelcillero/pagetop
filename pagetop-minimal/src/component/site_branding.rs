@@ -10,21 +10,32 @@ type SiteSlogan = OneComponent<L10n>;
 type SiteLogo = OneComponent<Image>;
 
 #[rustfmt::skip]
-#[derive(Default)]
 pub struct SiteBranding {
     weight    : Weight,
     renderable: Renderable,
     name      : String,
     slogan    : SiteSlogan,
     logo      : SiteLogo,
+    frontpage : ContextualPath,
+}
+
+#[rustfmt::skip]
+impl Default for SiteBranding {
+    fn default() -> Self {
+        SiteBranding {
+            weight    : Weight::default(),
+            renderable: Renderable::default(),
+            name      : config::SETTINGS.app.name.to_owned(),
+            slogan    : SiteSlogan::default(),
+            logo      : SiteLogo::default(),
+            frontpage : |_| "/",
+        }
+    }
 }
 
 impl ComponentTrait for SiteBranding {
     fn new() -> Self {
-        SiteBranding {
-            name: config::SETTINGS.app.name.to_owned(),
-            ..Default::default()
-        }
+        SiteBranding::default()
     }
 
     fn handle(&self) -> Handle {
@@ -58,7 +69,7 @@ impl ComponentTrait for SiteBranding {
                     }
                     div class="site-branding-text" {
                         div class="site-branding-name" {
-                            a href="/" title=(title) rel="home" { (self.name()) }
+                            a href=(self.frontpage()(cx)) title=(title) rel="home" { (self.name()) }
                         }
                         @if !slogan.is_empty() {
                             div class="site-branding-slogan" {
@@ -105,6 +116,12 @@ impl SiteBranding {
         self
     }
 
+    #[fn_builder]
+    pub fn alter_frontpage(&mut self, frontpage: ContextualPath) -> &mut Self {
+        self.frontpage = frontpage;
+        self
+    }
+
     // SiteBranding GETTERS.
 
     pub fn name(&self) -> &String {
@@ -117,5 +134,9 @@ impl SiteBranding {
 
     pub fn logo(&self) -> &SiteLogo {
         &self.logo
+    }
+
+    pub fn frontpage(&self) -> &ContextualPath {
+        &self.frontpage
     }
 }

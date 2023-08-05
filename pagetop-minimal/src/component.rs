@@ -17,8 +17,8 @@ mod block;
 pub use block::{Block, COMPONENT_BLOCK};
 mod site_branding;
 pub use site_branding::{SiteBranding, COMPONENT_BRANDING};
-mod poweredby;
-pub use poweredby::{PoweredBy, PoweredByLogo, COMPONENT_POWEREDBY};
+mod powered_by;
+pub use powered_by::{PoweredBy, PoweredByLogo, COMPONENT_POWEREDBY};
 
 pub mod form_element;
 pub use form_element::{Form, FormMethod, COMPONENT_FORM};

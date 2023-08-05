@@ -1,9 +1,44 @@
+/* SiteBranding component */
+#site-branding {
+	float: left;
+}
+.site-branding-wrapper {
+	position: relative;
+}
+.site-branding-logo {
+	display: none;
+}
+.site-branding-text {
+	display: inline-block;
+	margin: 10px 0 0 10px;
+}
+.site-branding-slogan {
+	display: none;
+}
+@media (min-width: 768px) {
+	#site-branding {
+		display: inline-block;
+	}
+	.site-branding-logo {
+		display: inline-block;
+		margin: 10px 0 0 10px;
+	}
+	.site-branding-text {
+		position: absolute;
+		width: max-content;
+		bottom: 0;
+	}
+	.site-branding-slogan {
+		display: block;
+	}
+}
+
 /* PoweredBy component */
-#poweredby {
+#powered-by {
 	text-align: center;
 }
-#poweredby .pagetop-logo img,
-#poweredby .pagetop-logo svg {
+#powered-by .pagetop-logo img,
+#powered-by .pagetop-logo svg {
 	margin-left: .275em;
 	height: 1.275em;
 	vertical-align: middle;
