@@ -87,7 +87,7 @@ impl ThemeTrait for Bulmix {
                     },
                 );
             }
-            grid::COMPONENT_COLUMN => {
+            grid::COMPONENT_GRID_COLUMN => {
                 let col = component_mut::<grid::Column>(component);
                 col.alter_classes(
                     ClassesOp::SetDefault,
@@ -113,7 +113,7 @@ impl ThemeTrait for Bulmix {
                     .as_str(),
                 );
             }
-            grid::COMPONENT_ROW => {
+            grid::COMPONENT_GRID_ROW => {
                 let row = component_mut::<grid::Row>(component);
                 row.alter_classes(ClassesOp::SetDefault, "columns");
             }

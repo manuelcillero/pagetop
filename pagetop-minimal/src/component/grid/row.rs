@@ -2,7 +2,7 @@ use pagetop::prelude::*;
 
 use crate::component::grid;
 
-new_handle!(COMPONENT_ROW);
+new_handle!(COMPONENT_GRID_ROW);
 
 actions_for_component!(Row);
 
@@ -23,7 +23,7 @@ impl ComponentTrait for Row {
     }
 
     fn handle(&self) -> Handle {
-        COMPONENT_ROW
+        COMPONENT_GRID_ROW
     }
 
     fn id(&self) -> Option<String> {

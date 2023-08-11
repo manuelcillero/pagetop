@@ -1,10 +1,10 @@
 use pagetop::prelude::*;
 
-new_handle!(COMPONENT_COLUMN);
+new_handle!(COMPONENT_GRID_COLUMN);
 
 actions_for_component!(Column);
 
-const SIZE_DEFAULT: &str = "col-md";
+const SIZE_DEFAULT: &str = "col";
 const SIZE_1_OF_12: &str = "col-md-1";
 const SIZE_2_OF_12: &str = "col-md-2";
 const SIZE_3_OF_12: &str = "col-md-3";
@@ -54,7 +54,7 @@ impl ComponentTrait for Column {
     }
 
     fn handle(&self) -> Handle {
-        COMPONENT_COLUMN
+        COMPONENT_GRID_COLUMN
     }
 
     fn id(&self) -> Option<String> {
