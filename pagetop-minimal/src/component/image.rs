@@ -2,6 +2,15 @@ use pagetop::prelude::*;
 
 new_handle!(COMPONENT_IMAGE);
 
+#[derive(Default)]
+pub enum ImageSize {
+    #[default]
+    Auto,
+    Size(u16, u16),
+    Width(u16),
+    Height(u16),
+}
+
 #[rustfmt::skip]
 #[derive(Default)]
 pub struct Image {
@@ -10,6 +19,7 @@ pub struct Image {
     id        : IdentifierValue,
     classes   : Classes,
     source    : AttributeValue,
+    size      : ImageSize,
 }
 
 impl ComponentTrait for Image {
@@ -34,11 +44,19 @@ impl ComponentTrait for Image {
     }
 
     fn prepare_component(&self, _: &mut Context) -> PrepareMarkup {
+        let (width, height) = match self.size() {
+            ImageSize::Auto => (None, None),
+            ImageSize::Size(width, height) => (Some(width), Some(height)),
+            ImageSize::Width(width) => (Some(width), None),
+            ImageSize::Height(height) => (None, Some(height)),
+        };
         PrepareMarkup::With(html! {
             img
                 src=[self.source().get()]
                 id=[self.id()]
-                class=[self.classes().get()];
+                class=[self.classes().get()]
+                width=[width]
+                height=[height] {}
         })
     }
 }
@@ -49,7 +67,9 @@ impl Image {
     }
 
     pub fn pagetop() -> Self {
-        Image::new().with_source("/minimal/pagetop-logo.svg")
+        Image::new()
+            .with_source("/minimal/pagetop-logo.svg")
+            .with_size(ImageSize::Size(64, 64))
     }
 
     // Image BUILDER.
@@ -61,7 +81,7 @@ impl Image {
     }
 
     #[fn_builder]
-    pub fn alter_renderable(&mut self, check: IsRenderable) -> &mut Self {
+    pub fn alter_renderable(&mut self, check: FnIsRenderable) -> &mut Self {
         self.renderable.check = check;
         self
     }
@@ -84,6 +104,12 @@ impl Image {
         self
     }
 
+    #[fn_builder]
+    pub fn alter_size(&mut self, size: ImageSize) -> &mut Self {
+        self.size = size;
+        self
+    }
+
     // Image GETTERS.
 
     pub fn classes(&self) -> &Classes {
@@ -92,5 +118,9 @@ impl Image {
 
     pub fn source(&self) -> &AttributeValue {
         &self.source
+    }
+
+    pub fn size(&self) -> &ImageSize {
+        &self.size
     }
 }
