@@ -1,9 +1,9 @@
 use crate::core::component::Context;
 
-pub type IsRenderable = fn(cx: &Context) -> bool;
+pub type FnIsRenderable = fn(cx: &Context) -> bool;
 
 pub struct Renderable {
-    pub check: IsRenderable,
+    pub check: FnIsRenderable,
 }
 
 impl Default for Renderable {
