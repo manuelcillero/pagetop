@@ -1,6 +1,7 @@
 mod container;
 pub use container::{Container, ContainerType, COMPONENT_CONTAINER};
 
+pub mod flex;
 pub mod grid;
 
 mod icon;
@@ -12,7 +13,7 @@ pub use paragraph::{Paragraph, ParagraphDisplay, COMPONENT_PARAGRAPH};
 mod anchor;
 pub use anchor::{Anchor, AnchorTarget, AnchorType, COMPONENT_ANCHOR};
 mod image;
-pub use image::{Image, COMPONENT_IMAGE};
+pub use image::{Image, ImageSize, COMPONENT_IMAGE};
 mod block;
 pub use block::{Block, COMPONENT_BLOCK};
 mod site_branding;
