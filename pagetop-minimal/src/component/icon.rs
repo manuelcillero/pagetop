@@ -53,7 +53,7 @@ impl Icon {
     }
 
     #[fn_builder]
-    pub fn alter_renderable(&mut self, check: IsRenderable) -> &mut Self {
+    pub fn alter_renderable(&mut self, check: FnIsRenderable) -> &mut Self {
         self.renderable.check = check;
         self
     }

@@ -12,8 +12,8 @@ pub enum MegaItemType {
     #[default]
     Void,
     Label(Label),
-    Link(Label, ContextualPath),
-    LinkBlank(Label, ContextualPath),
+    Link(Label, FnContextualPath),
+    LinkBlank(Label, FnContextualPath),
     Html(Content),
     Submenu(Label, MegaMenu),
     Separator,
@@ -84,14 +84,14 @@ impl MegaItem {
         }
     }
 
-    pub fn link(label: L10n, path: ContextualPath) -> Self {
+    pub fn link(label: L10n, path: FnContextualPath) -> Self {
         MegaItem {
             item_type: MegaItemType::Link(Label::with(label), path),
             ..Default::default()
         }
     }
 
-    pub fn link_blank(label: L10n, path: ContextualPath) -> Self {
+    pub fn link_blank(label: L10n, path: FnContextualPath) -> Self {
         MegaItem {
             item_type: MegaItemType::LinkBlank(Label::with(label), path),
             ..Default::default()
@@ -128,7 +128,7 @@ impl MegaItem {
     }
 
     #[fn_builder]
-    pub fn alter_renderable(&mut self, check: IsRenderable) -> &mut Self {
+    pub fn alter_renderable(&mut self, check: FnIsRenderable) -> &mut Self {
         self.renderable.check = check;
         self
     }

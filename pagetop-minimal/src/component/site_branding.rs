@@ -16,7 +16,7 @@ pub struct SiteBranding {
     name      : String,
     slogan    : SiteSlogan,
     logo      : SiteLogo,
-    frontpage : ContextualPath,
+    frontpage : FnContextualPath,
 }
 
 #[rustfmt::skip]
@@ -93,7 +93,7 @@ impl SiteBranding {
     }
 
     #[fn_builder]
-    pub fn alter_renderable(&mut self, check: IsRenderable) -> &mut Self {
+    pub fn alter_renderable(&mut self, check: FnIsRenderable) -> &mut Self {
         self.renderable.check = check;
         self
     }
@@ -117,7 +117,7 @@ impl SiteBranding {
     }
 
     #[fn_builder]
-    pub fn alter_frontpage(&mut self, frontpage: ContextualPath) -> &mut Self {
+    pub fn alter_frontpage(&mut self, frontpage: FnContextualPath) -> &mut Self {
         self.frontpage = frontpage;
         self
     }
@@ -136,7 +136,7 @@ impl SiteBranding {
         &self.logo
     }
 
-    pub fn frontpage(&self) -> &ContextualPath {
+    pub fn frontpage(&self) -> &FnContextualPath {
         &self.frontpage
     }
 }
