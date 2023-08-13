@@ -1,4 +1,4 @@
-use crate::core::component::{ComponentRef, PackComponents, PackOp};
+use crate::core::component::{ComponentArc, PackComponents, PackOp};
 use crate::core::theme::ThemeRef;
 use crate::{Handle, LazyStatic};
 
@@ -19,17 +19,17 @@ impl ComponentsRegions {
         ComponentsRegions::default()
     }
 
-    pub fn with(region: &'static str, cref: ComponentRef) -> Self {
+    pub fn with(region: &'static str, arc: ComponentArc) -> Self {
         let mut regions = ComponentsRegions::new();
-        regions.add_in(region, cref);
+        regions.add_in(region, arc);
         regions
     }
 
-    pub fn add_in(&mut self, region: &'static str, cref: ComponentRef) {
+    pub fn add_in(&mut self, region: &'static str, arc: ComponentArc) {
         if let Some(region) = self.0.get_mut(region) {
-            region.alter(PackOp::Add, cref);
+            region.alter(PackOp::Add, arc);
         } else {
-            self.0.insert(region, PackComponents::with(cref));
+            self.0.insert(region, PackComponents::with(arc));
         }
     }
 
@@ -48,17 +48,17 @@ pub enum Region {
     OfTheme(ThemeRef, &'static str),
 }
 
-pub fn add_component_in(region: Region, cref: ComponentRef) {
+pub fn add_component_in(region: Region, arc: ComponentArc) {
     match region {
         Region::Named(name) => {
-            COMMON_REGIONS.write().unwrap().add_in(name, cref);
+            COMMON_REGIONS.write().unwrap().add_in(name, arc);
         }
         Region::OfTheme(theme, region) => {
             let mut regions = THEME_REGIONS.write().unwrap();
             if let Some(hm) = regions.get_mut(&theme.handle()) {
-                hm.add_in(region, cref);
+                hm.add_in(region, arc);
             } else {
-                regions.insert(theme.handle(), ComponentsRegions::with(region, cref));
+                regions.insert(theme.handle(), ComponentsRegions::with(region, arc));
             }
         }
     }

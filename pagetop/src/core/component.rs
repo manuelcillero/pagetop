@@ -1,18 +1,21 @@
 mod context;
 pub use context::{Context, ContextOp};
-pub type ContextualPath = fn(cx: &Context) -> &str;
+pub type FnContextualPath = fn(cx: &Context) -> &str;
 
 mod definition;
 pub use definition::{component_mut, component_ref, ComponentBase, ComponentTrait};
+
+mod arc;
+pub use arc::ComponentArc;
 
 mod one;
 pub use one::OneComponent;
 
 mod pack;
-pub use pack::{ComponentRef, PackComponents, PackOp};
+pub use pack::{PackComponents, PackOp};
 
 mod renderable;
-pub use renderable::{IsRenderable, Renderable};
+pub use renderable::{FnIsRenderable, Renderable};
 
 pub mod html;
 pub mod l10n;
@@ -23,7 +26,7 @@ macro_rules! actions_for_component {
         $crate::paste! {
             use $crate::prelude::*;
 
-            pub type [<Action $Component>] = fn(component: &$Component, cx: &mut Context);
+            pub type [<FnAction $Component>] = fn(component: &$Component, cx: &mut Context);
 
             // *************************************************************************************
             // ACTION BEFORE PREPARE COMPONENT
@@ -32,7 +35,7 @@ macro_rules! actions_for_component {
             $crate::new_handle!([<ACTION_BEFORE_PREPARE_ $Component:upper>] for Action);
 
             pub struct [<BeforePrepare $Component>] {
-                action: Option<[<Action $Component>]>,
+                action: Option<[<FnAction $Component>]>,
                 weight: Weight,
             }
 
@@ -55,7 +58,7 @@ macro_rules! actions_for_component {
 
             impl [<BeforePrepare $Component>] {
                 #[allow(dead_code)]
-                pub fn with_action(mut self, action: [<Action $Component>]) -> Self {
+                pub fn with_action(mut self, action: [<FnAction $Component>]) -> Self {
                     self.action = Some(action);
                     self
                 }
@@ -91,7 +94,7 @@ macro_rules! actions_for_component {
             $crate::new_handle!([<ACTION_AFTER_PREPARE_ $Component:upper>] for Action);
 
             pub struct [<AfterPrepare $Component>] {
-                action: Option<[<Action $Component>]>,
+                action: Option<[<FnAction $Component>]>,
                 weight: Weight,
             }
 
@@ -114,7 +117,7 @@ macro_rules! actions_for_component {
 
             impl [<AfterPrepare $Component>] {
                 #[allow(dead_code)]
-                pub fn with_action(mut self, action: [<Action $Component>]) -> Self {
+                pub fn with_action(mut self, action: [<FnAction $Component>]) -> Self {
                     self.action = Some(action);
                     self
                 }

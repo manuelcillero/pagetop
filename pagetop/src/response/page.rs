@@ -2,7 +2,7 @@ mod action;
 pub use action::*;
 
 use crate::core::component::l10n::L10n;
-use crate::core::component::{ComponentRef, ComponentTrait, Context, ContextOp, OneComponent};
+use crate::core::component::{ComponentArc, ComponentTrait, Context, ContextOp, OneComponent};
 use crate::core::theme::ComponentsRegions;
 use crate::html::{html, Classes, ClassesOp, Favicon, Markup, DOCTYPE};
 use crate::response::fatal_error::FatalError;
@@ -90,7 +90,7 @@ impl Page {
 
     #[fn_builder]
     pub fn alter_in(&mut self, region: &'static str, component: impl ComponentTrait) -> &mut Self {
-        self.regions.add_in(region, ComponentRef::to(component));
+        self.regions.add_in(region, ComponentArc::new(component));
         self
     }
 

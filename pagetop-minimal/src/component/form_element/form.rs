@@ -121,12 +121,17 @@ impl Form {
     }
 
     pub fn with_element(mut self, element: impl ComponentTrait) -> Self {
-        self.elements.alter(PackOp::Add, ComponentRef::to(element));
+        self.elements.alter(PackOp::Add, ComponentArc::new(element));
+        self
+    }
+
+    pub fn with_element_arc(mut self, arc: ComponentArc) -> Self {
+        self.elements.alter(PackOp::Add, arc);
         self
     }
 
     pub fn alter_elements(&mut self, op: PackOp, element: impl ComponentTrait) -> &mut Self {
-        self.elements.alter(op, ComponentRef::to(element));
+        self.elements.alter(op, ComponentArc::new(element));
         self
     }
 

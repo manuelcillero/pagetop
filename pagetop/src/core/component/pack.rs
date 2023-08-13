@@ -1,33 +1,6 @@
-use crate::core::component::{ComponentTrait, Context};
+use crate::core::component::{ComponentArc, Context};
 use crate::html::{html, Markup};
-use crate::{Handle, Weight};
-
-use std::sync::{Arc, RwLock};
-
-#[derive(Clone)]
-pub struct ComponentRef(Arc<RwLock<dyn ComponentTrait>>);
-
-impl ComponentRef {
-    pub fn to(component: impl ComponentTrait) -> Self {
-        ComponentRef(Arc::new(RwLock::new(component)))
-    }
-
-    fn handle(&self) -> Handle {
-        self.0.read().unwrap().handle()
-    }
-
-    fn id(&self) -> Option<String> {
-        self.0.read().unwrap().id()
-    }
-
-    fn weight(&self) -> Weight {
-        self.0.read().unwrap().weight()
-    }
-
-    fn prepare(&self, cx: &mut Context) -> Markup {
-        self.0.write().unwrap().prepare(cx)
-    }
-}
+use crate::Handle;
 
 pub enum PackOp {
     Add,
@@ -40,16 +13,16 @@ pub enum PackOp {
 }
 
 #[derive(Clone, Default)]
-pub struct PackComponents(Vec<ComponentRef>);
+pub struct PackComponents(Vec<ComponentArc>);
 
 impl PackComponents {
     pub fn new() -> Self {
         PackComponents::default()
     }
 
-    pub fn with(cref: ComponentRef) -> Self {
+    pub fn with(arc: ComponentArc) -> Self {
         let mut pack = PackComponents::new();
-        pack.alter(PackOp::Add, cref);
+        pack.alter(PackOp::Add, arc);
         pack
     }
 
@@ -63,22 +36,22 @@ impl PackComponents {
 
     // PackComponents BUILDER.
 
-    pub fn alter(&mut self, op: PackOp, cref: ComponentRef) -> &mut Self {
+    pub fn alter(&mut self, op: PackOp, arc: ComponentArc) -> &mut Self {
         match op {
-            PackOp::Add => self.0.push(cref),
+            PackOp::Add => self.0.push(arc),
             PackOp::AddAfterId(id) => {
                 match self.0.iter().position(|c| c.id().as_deref() == Some(id)) {
-                    Some(index) => self.0.insert(index + 1, cref),
-                    _ => self.0.push(cref),
+                    Some(index) => self.0.insert(index + 1, arc),
+                    _ => self.0.push(arc),
                 }
             }
             PackOp::AddBeforeId(id) => {
                 match self.0.iter().position(|c| c.id().as_deref() == Some(id)) {
-                    Some(index) => self.0.insert(index, cref),
-                    _ => self.0.insert(0, cref),
+                    Some(index) => self.0.insert(index, arc),
+                    _ => self.0.insert(0, arc),
                 }
             }
-            PackOp::AddFirst => self.0.insert(0, cref),
+            PackOp::AddFirst => self.0.insert(0, arc),
             PackOp::RemoveById(id) => {
                 if let Some(index) = self.0.iter().position(|c| c.id().as_deref() == Some(id)) {
                     self.0.remove(index);
@@ -87,7 +60,7 @@ impl PackComponents {
             PackOp::ReplaceById(id) => {
                 for c in self.0.iter_mut() {
                     if c.id().as_deref() == Some(id) {
-                        *c = cref;
+                        *c = arc;
                         break;
                     }
                 }
@@ -99,15 +72,15 @@ impl PackComponents {
 
     // PackComponents GETTERS.
 
-    pub fn get_by_id(&self, id: &'static str) -> Option<&ComponentRef> {
+    pub fn get_by_id(&self, id: &'static str) -> Option<&ComponentArc> {
         self.0.iter().find(|&c| c.id().as_deref() == Some(id))
     }
 
-    pub fn iter_by_id(&self, id: &'static str) -> impl Iterator<Item = &ComponentRef> {
+    pub fn iter_by_id(&self, id: &'static str) -> impl Iterator<Item = &ComponentArc> {
         self.0.iter().filter(|&c| c.id().as_deref() == Some(id))
     }
 
-    pub fn iter_by_handle(&self, handle: Handle) -> impl Iterator<Item = &ComponentRef> {
+    pub fn iter_by_handle(&self, handle: Handle) -> impl Iterator<Item = &ComponentArc> {
         self.0.iter().filter(move |&c| c.handle() == handle)
     }
 
