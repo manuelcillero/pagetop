@@ -11,19 +11,28 @@ actions_for_component!(MegaMenu);
 // SmartMenus library version.
 const VERSION_SMARTMENUS: &str = "1.2.1";
 
+#[derive(Default)]
+pub enum MegaMenuTheme {
+    Blue,
+    #[default]
+    Clean,
+    Mint,
+    Simple,
+}
+
 #[rustfmt::skip]
 #[derive(Default)]
 pub struct MegaMenu {
     weight    : Weight,
     renderable: Renderable,
     id        : IdentifierValue,
-    classes   : Classes,
     items     : PackComponents,
+    theme     : MegaMenuTheme,
 }
 
 impl ComponentTrait for MegaMenu {
     fn new() -> Self {
-        MegaMenu::default().with_classes(ClassesOp::SetDefault, "megamenu-menu sm sm-clean")
+        MegaMenu::default()
     }
 
     fn handle(&self) -> Handle {
@@ -45,11 +54,9 @@ impl ComponentTrait for MegaMenu {
     fn before_prepare_component(&mut self, cx: &mut Context) {
         cx.alter(ContextOp::AddStyleSheet(
             StyleSheet::at("/megamenu/css/smartmenus.css").with_version(VERSION_SMARTMENUS),
-        ))
-        .alter(ContextOp::AddStyleSheet(
-            StyleSheet::at("/megamenu/css/sm-clean.css").with_version(VERSION_SMARTMENUS),
-        ))
-        .alter(ContextOp::AddJavaScript(
+        ));
+
+        cx.alter(ContextOp::AddJavaScript(
             JavaScript::at("/megamenu/js/smartmenus.min.js").with_version(VERSION_SMARTMENUS),
         ));
         JQuery.enable_jquery(cx);
@@ -57,10 +64,23 @@ impl ComponentTrait for MegaMenu {
         run_actions_before_prepare_megamenu(self, cx);
     }
 
+    #[rustfmt::skip]
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
         let id_nav = cx.required_id::<MegaMenu>(self.id());
         let id_menu = concat_string!(id_nav, "-menu");
         let id_state = concat_string!(id_nav, "-state");
+
+        let theme = match self.theme() {
+            MegaMenuTheme::Blue   => "sm-blue",
+            MegaMenuTheme::Clean  => "sm-clean",
+            MegaMenuTheme::Mint   => "sm-mint",
+            MegaMenuTheme::Simple => "sm-simple",
+        };
+        cx.alter(ContextOp::AddStyleSheet(
+            StyleSheet::at(concat_string!("/megamenu/css/", theme, ".css"))
+                .with_version(VERSION_SMARTMENUS),
+        ));
+        let classes_menu = concat_string!("megamenu-menu sm ", theme);
 
         PrepareMarkup::With(html! {
             nav id=(id_nav) class="megamenu" role="navigation" {
@@ -69,7 +89,7 @@ impl ComponentTrait for MegaMenu {
                     span class="megamenu-btn-icon" {}
                     (L10n::t("toggle_menu", &LOCALES_MEGAMENU).prepare(cx))
                 }
-                ul id=(id_menu) class=[self.classes().get()] {
+                ul id=(id_menu) class=(classes_menu) {
                     (self.items().prepare(cx))
                 }
                 script type="text/javascript" defer {
@@ -121,7 +141,7 @@ impl MegaMenu {
     }
 
     #[fn_builder]
-    pub fn alter_renderable(&mut self, check: IsRenderable) -> &mut Self {
+    pub fn alter_renderable(&mut self, check: FnIsRenderable) -> &mut Self {
         self.renderable.check = check;
         self
     }
@@ -132,29 +152,29 @@ impl MegaMenu {
         self
     }
 
-    #[fn_builder]
-    pub fn alter_classes(&mut self, op: ClassesOp, classes: &str) -> &mut Self {
-        self.classes.alter_value(op, classes);
-        self
-    }
-
     pub fn with_item(mut self, item: MegaItem) -> Self {
-        self.items.alter(PackOp::Add, ComponentRef::to(item));
+        self.items.alter(PackOp::Add, ComponentArc::new(item));
         self
     }
 
     pub fn alter_items(&mut self, op: PackOp, item: MegaItem) -> &mut Self {
-        self.items.alter(op, ComponentRef::to(item));
+        self.items.alter(op, ComponentArc::new(item));
+        self
+    }
+
+    #[fn_builder]
+    pub fn alter_theme(&mut self, theme: MegaMenuTheme) -> &mut Self {
+        self.theme = theme;
         self
     }
 
     // MegaMenu GETTERS.
 
-    pub fn classes(&self) -> &Classes {
-        &self.classes
-    }
-
     pub fn items(&self) -> &PackComponents {
         &self.items
+    }
+
+    pub fn theme(&self) -> &MegaMenuTheme {
+        &self.theme
     }
 }
