@@ -87,10 +87,10 @@ impl<C: ComponentTrait> ComponentBase for C {
     }
 }
 
-pub fn component_ref<C: ComponentTrait>(component: &dyn ComponentTrait) -> &C {
+pub fn component_as_ref<C: ComponentTrait>(component: &dyn ComponentTrait) -> &C {
     component.as_ref_any().downcast_ref::<C>().unwrap()
 }
 
-pub fn component_mut<C: ComponentTrait>(component: &mut dyn ComponentTrait) -> &mut C {
+pub fn component_as_mut<C: ComponentTrait>(component: &mut dyn ComponentTrait) -> &mut C {
     component.as_mut_any().downcast_mut::<C>().unwrap()
 }

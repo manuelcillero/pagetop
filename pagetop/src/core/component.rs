@@ -3,7 +3,7 @@ pub use context::{Context, ContextOp};
 pub type FnContextualPath = fn(cx: &Context) -> &str;
 
 mod definition;
-pub use definition::{component_mut, component_ref, ComponentBase, ComponentTrait};
+pub use definition::{component_as_mut, component_as_ref, ComponentBase, ComponentTrait};
 
 mod arc;
 pub use arc::ComponentArc;

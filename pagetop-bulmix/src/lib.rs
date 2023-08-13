@@ -49,7 +49,7 @@ impl ThemeTrait for Bulmix {
     ) {
         match component.handle() {
             COMPONENT_ANCHOR => {
-                let a = component_mut::<Anchor>(component);
+                let a = component_as_mut::<Anchor>(component);
                 a.alter_classes(
                     ClassesOp::SetDefault,
                     match a.anchor_type() {
@@ -59,7 +59,7 @@ impl ThemeTrait for Bulmix {
                 );
             }
             COMPONENT_HEADING => {
-                let h = component_mut::<Heading>(component);
+                let h = component_as_mut::<Heading>(component);
                 h.alter_classes(
                     ClassesOp::SetDefault,
                     match h.display() {
@@ -74,7 +74,7 @@ impl ThemeTrait for Bulmix {
                 );
             }
             COMPONENT_PARAGRAPH => {
-                let p = component_mut::<Paragraph>(component);
+                let p = component_as_mut::<Paragraph>(component);
                 p.alter_classes(
                     ClassesOp::SetDefault,
                     match p.display() {
@@ -88,7 +88,7 @@ impl ThemeTrait for Bulmix {
                 );
             }
             grid::COMPONENT_GRID_COLUMN => {
-                let col = component_mut::<grid::Column>(component);
+                let col = component_as_mut::<grid::Column>(component);
                 col.alter_classes(
                     ClassesOp::SetDefault,
                     concat_string!(
@@ -114,7 +114,7 @@ impl ThemeTrait for Bulmix {
                 );
             }
             grid::COMPONENT_GRID_ROW => {
-                let row = component_mut::<grid::Row>(component);
+                let row = component_as_mut::<grid::Row>(component);
                 row.alter_classes(ClassesOp::SetDefault, "columns");
             }
             _ => {}
@@ -128,7 +128,7 @@ impl ThemeTrait for Bulmix {
     ) -> Option<Markup> {
         match component.handle() {
             COMPONENT_ICON => {
-                let icon = component_ref::<Icon>(component);
+                let icon = component_as_ref::<Icon>(component);
                 Some(html! {
                     span class="icon" {
                         i class=[icon.classes().get()] {};
