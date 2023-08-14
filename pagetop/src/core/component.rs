@@ -5,17 +5,20 @@ pub type FnContextualPath = fn(cx: &Context) -> &str;
 mod definition;
 pub use definition::{component_as_mut, component_as_ref, ComponentBase, ComponentTrait};
 
+mod renderable;
+pub use renderable::{FnIsRenderable, Renderable};
+
 mod arc;
 pub use arc::ComponentArc;
-
-mod one;
-pub use one::OneComponent;
 
 mod pack;
 pub use pack::{PackComponents, PackOp};
 
-mod renderable;
-pub use renderable::{FnIsRenderable, Renderable};
+mod one;
+pub use one::ComponentOne;
+
+mod veck;
+pub use veck::{VeckComponents, VeckOp};
 
 pub mod html;
 pub mod l10n;

@@ -136,17 +136,13 @@ impl Item {
     }
 
     pub fn with_component(mut self, component: impl ComponentTrait) -> Self {
-        self.stuff.alter(PackOp::Add, ComponentArc::new(component));
+        self.stuff.alter(PackOp::Add(ComponentArc::with(component)));
         self
     }
 
-    pub fn with_component_arc(mut self, arc: ComponentArc) -> Self {
-        self.stuff.alter(PackOp::Add, arc);
-        self
-    }
-
-    pub fn alter_components(&mut self, op: PackOp, component: impl ComponentTrait) -> &mut Self {
-        self.stuff.alter(op, ComponentArc::new(component));
+    #[fn_builder]
+    pub fn alter_components(&mut self, op: PackOp) -> &mut Self {
+        self.stuff.alter(op);
         self
     }
 

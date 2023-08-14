@@ -25,7 +25,7 @@ pub enum HeadingDisplay {
     Subtitle,
 }
 
-type HeadingText = OneComponent<L10n>;
+type HeadingText = ComponentOne<L10n>;
 
 #[rustfmt::skip]
 #[derive(Default)]

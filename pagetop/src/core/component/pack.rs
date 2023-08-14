@@ -3,12 +3,12 @@ use crate::html::{html, Markup};
 use crate::Handle;
 
 pub enum PackOp {
-    Add,
-    AddAfterId(&'static str),
-    AddBeforeId(&'static str),
-    AddFirst,
+    Add(ComponentArc),
+    AddAfterId(&'static str, ComponentArc),
+    AddBeforeId(&'static str, ComponentArc),
+    AddFirst(ComponentArc),
     RemoveById(&'static str),
-    ReplaceById(&'static str),
+    ReplaceById(&'static str, ComponentArc),
     Reset,
 }
 
@@ -22,7 +22,7 @@ impl PackComponents {
 
     pub fn with(arc: ComponentArc) -> Self {
         let mut pack = PackComponents::new();
-        pack.alter(PackOp::Add, arc);
+        pack.alter(PackOp::Add(arc));
         pack
     }
 
@@ -36,28 +36,28 @@ impl PackComponents {
 
     // PackComponents BUILDER.
 
-    pub fn alter(&mut self, op: PackOp, arc: ComponentArc) -> &mut Self {
+    pub fn alter(&mut self, op: PackOp) -> &mut Self {
         match op {
-            PackOp::Add => self.0.push(arc),
-            PackOp::AddAfterId(id) => {
+            PackOp::Add(arc) => self.0.push(arc),
+            PackOp::AddAfterId(id, arc) => {
                 match self.0.iter().position(|c| c.id().as_deref() == Some(id)) {
                     Some(index) => self.0.insert(index + 1, arc),
                     _ => self.0.push(arc),
                 }
             }
-            PackOp::AddBeforeId(id) => {
+            PackOp::AddBeforeId(id, arc) => {
                 match self.0.iter().position(|c| c.id().as_deref() == Some(id)) {
                     Some(index) => self.0.insert(index, arc),
                     _ => self.0.insert(0, arc),
                 }
             }
-            PackOp::AddFirst => self.0.insert(0, arc),
+            PackOp::AddFirst(arc) => self.0.insert(0, arc),
             PackOp::RemoveById(id) => {
                 if let Some(index) = self.0.iter().position(|c| c.id().as_deref() == Some(id)) {
                     self.0.remove(index);
                 }
             }
-            PackOp::ReplaceById(id) => {
+            PackOp::ReplaceById(id, arc) => {
                 for c in self.0.iter_mut() {
                     if c.id().as_deref() == Some(id) {
                         *c = arc;

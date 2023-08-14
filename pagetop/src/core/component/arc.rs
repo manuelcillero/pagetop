@@ -1,14 +1,39 @@
 use crate::core::component::{ComponentTrait, Context};
 use crate::html::Markup;
-use crate::{Handle, Weight};
+use crate::{new_handle, Handle, Weight};
 
 use std::sync::{Arc, RwLock};
+
+new_handle!(COMPONENT_NULL for Crate);
+
+#[derive(Default)]
+struct ComponentNull;
+
+impl ComponentTrait for ComponentNull {
+    fn new() -> Self {
+        ComponentNull::default()
+    }
+
+    fn handle(&self) -> Handle {
+        COMPONENT_NULL
+    }
+}
 
 #[derive(Clone)]
 pub struct ComponentArc(Arc<RwLock<dyn ComponentTrait>>);
 
+impl Default for ComponentArc {
+    fn default() -> Self {
+        ComponentArc(Arc::new(RwLock::new(ComponentNull)))
+    }
+}
+
 impl ComponentArc {
-    pub fn new(component: impl ComponentTrait) -> Self {
+    pub fn new() -> Self {
+        ComponentArc::default()
+    }
+
+    pub fn with(component: impl ComponentTrait) -> Self {
         ComponentArc(Arc::new(RwLock::new(component)))
     }
 
@@ -24,7 +49,9 @@ impl ComponentArc {
         self.0.read().unwrap().weight()
     }
 
-    pub(crate) fn prepare(&self, cx: &mut Context) -> Markup {
+    // ComponentArc PREPARE.
+
+    pub fn prepare(&self, cx: &mut Context) -> Markup {
         self.0.write().unwrap().prepare(cx)
     }
 }

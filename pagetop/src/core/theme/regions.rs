@@ -27,13 +27,13 @@ impl ComponentsRegions {
 
     pub fn add_in(&mut self, region: &'static str, arc: ComponentArc) {
         if let Some(region) = self.0.get_mut(region) {
-            region.alter(PackOp::Add, arc);
+            region.alter(PackOp::Add(arc));
         } else {
             self.0.insert(region, PackComponents::with(arc));
         }
     }
 
-    pub fn get_pack(&self, theme: ThemeRef, region: &str) -> PackComponents {
+    pub fn get_components(&self, theme: ThemeRef, region: &str) -> PackComponents {
         let common = COMMON_REGIONS.read().unwrap();
         if let Some(hm) = THEME_REGIONS.read().unwrap().get(&theme.handle()) {
             PackComponents::merge(&[common.0.get(region), self.0.get(region), hm.0.get(region)])

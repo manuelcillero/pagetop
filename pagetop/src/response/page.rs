@@ -2,7 +2,7 @@ mod action;
 pub use action::*;
 
 use crate::core::component::l10n::L10n;
-use crate::core::component::{ComponentArc, ComponentTrait, Context, ContextOp, OneComponent};
+use crate::core::component::{ComponentArc, ComponentOne, ComponentTrait, Context, ContextOp};
 use crate::core::theme::ComponentsRegions;
 use crate::html::{html, Classes, ClassesOp, Favicon, Markup, DOCTYPE};
 use crate::response::fatal_error::FatalError;
@@ -12,8 +12,8 @@ use unic_langid::CharacterDirection;
 
 pub use actix_web::Result as ResultPage;
 
-type PageTitle = OneComponent<L10n>;
-type PageDescription = OneComponent<L10n>;
+type PageTitle = ComponentOne<L10n>;
+type PageDescription = ComponentOne<L10n>;
 
 #[rustfmt::skip]
 pub struct Page {
@@ -90,7 +90,7 @@ impl Page {
 
     #[fn_builder]
     pub fn alter_in(&mut self, region: &'static str, component: impl ComponentTrait) -> &mut Self {
-        self.regions.add_in(region, ComponentArc::new(component));
+        self.regions.add_in(region, ComponentArc::with(component));
         self
     }
 
@@ -173,7 +173,7 @@ impl Page {
     pub fn prepare_region(&mut self, region: &str) -> Option<Markup> {
         let render = self
             .regions
-            .get_pack(self.context.theme(), region)
+            .get_components(self.context.theme(), region)
             .prepare(self.context());
         if render.is_empty() {
             None

@@ -4,8 +4,8 @@ use crate::component::MegaMenu;
 
 new_handle!(COMPONENT_MEGAITEM);
 
-type Label = OneComponent<L10n>;
-type Content = OneComponent<Html>;
+type Label = ComponentOne<L10n>;
+type Content = ComponentOne<Html>;
 
 #[derive(Default)]
 pub enum MegaItemType {

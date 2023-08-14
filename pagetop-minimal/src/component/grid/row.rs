@@ -13,7 +13,7 @@ pub struct Row {
     renderable: Renderable,
     id        : IdentifierValue,
     classes   : Classes,
-    columns   : PackComponents,
+    columns   : VeckComponents<grid::Column>,
     template  : String,
 }
 
@@ -83,12 +83,13 @@ impl Row {
     }
 
     pub fn with_column(mut self, column: grid::Column) -> Self {
-        self.columns.alter(PackOp::Add, ComponentArc::new(column));
+        self.columns.alter(VeckOp::Add(ComponentOne::with(column)));
         self
     }
 
-    pub fn alter_columns(&mut self, op: PackOp, column: grid::Column) -> &mut Self {
-        self.columns.alter(op, ComponentArc::new(column));
+    #[fn_builder]
+    pub fn alter_columns(&mut self, op: VeckOp<grid::Column>) -> &mut Self {
+        self.columns.alter(op);
         self
     }
 
@@ -104,7 +105,7 @@ impl Row {
         &self.classes
     }
 
-    pub fn columns(&self) -> &PackComponents {
+    pub fn columns(&self) -> &VeckComponents<grid::Column> {
         &self.columns
     }
 
