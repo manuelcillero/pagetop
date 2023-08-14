@@ -32,7 +32,7 @@ macro_rules! actions_for_component {
             // ACTION BEFORE PREPARE COMPONENT
             // *************************************************************************************
 
-            $crate::new_handle!([<ACTION_BEFORE_PREPARE_ $Component:upper>] for Action);
+            $crate::new_handle!([<ACTION_BEFORE_PREPARE_ $Component:upper>] for Crate);
 
             pub struct [<BeforePrepare $Component>] {
                 action: Option<[<FnAction $Component>]>,
@@ -91,7 +91,7 @@ macro_rules! actions_for_component {
             // ACTION AFTER PREPARE COMPONENT
             // *************************************************************************************
 
-            $crate::new_handle!([<ACTION_AFTER_PREPARE_ $Component:upper>] for Action);
+            $crate::new_handle!([<ACTION_AFTER_PREPARE_ $Component:upper>] for Crate);
 
             pub struct [<AfterPrepare $Component>] {
                 action: Option<[<FnAction $Component>]>,

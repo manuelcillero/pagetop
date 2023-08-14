@@ -3,7 +3,7 @@ use crate::response::page::action::FnActionPage;
 use crate::response::page::Page;
 use crate::{new_handle, Handle, Weight};
 
-new_handle!(ACTION_BEFORE_PREPARE_BODY for Action);
+new_handle!(ACTION_BEFORE_PREPARE_BODY for Crate);
 
 pub struct ActionBeforePrepareBody {
     action: Option<FnActionPage>,

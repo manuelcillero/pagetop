@@ -112,8 +112,8 @@ macro_rules! new_handle {
         pub const $HANDLE: $crate::Handle =
             $crate::util::handle(module_path!(), file!(), line!(), column!());
     };
-    ( $HANDLE:ident for Action ) => {
-        /// Constant handle to represent a unique PageTop action.
+    ( $HANDLE:ident for Crate ) => {
+        /// Local constant handle to represent a unique PageTop building element.
         pub(crate) const $HANDLE: $crate::Handle =
             $crate::util::handle(module_path!(), file!(), line!(), column!());
     };
