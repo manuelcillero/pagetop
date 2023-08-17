@@ -2,7 +2,7 @@ use crate::core::component::{ComponentArc, Context};
 use crate::html::{html, Markup};
 use crate::Handle;
 
-pub enum PackOp {
+pub enum MixOp {
     Add(ComponentArc),
     AddAfterId(&'static str, ComponentArc),
     AddBeforeId(&'static str, ComponentArc),
@@ -13,51 +13,51 @@ pub enum PackOp {
 }
 
 #[derive(Clone, Default)]
-pub struct PackComponents(Vec<ComponentArc>);
+pub struct MixComponents(Vec<ComponentArc>);
 
-impl PackComponents {
+impl MixComponents {
     pub fn new() -> Self {
-        PackComponents::default()
+        MixComponents::default()
     }
 
     pub fn with(arc: ComponentArc) -> Self {
-        let mut pack = PackComponents::new();
-        pack.alter(PackOp::Add(arc));
+        let mut pack = MixComponents::new();
+        pack.alter(MixOp::Add(arc));
         pack
     }
 
-    pub(crate) fn merge(packs: &[Option<&PackComponents>]) -> Self {
-        let mut pack = PackComponents::default();
+    pub(crate) fn merge(packs: &[Option<&MixComponents>]) -> Self {
+        let mut pack = MixComponents::default();
         for p in packs.iter().flatten() {
             pack.0.append(&mut p.0.clone());
         }
         pack
     }
 
-    // PackComponents BUILDER.
+    // MixComponents BUILDER.
 
-    pub fn alter(&mut self, op: PackOp) -> &mut Self {
+    pub fn alter(&mut self, op: MixOp) -> &mut Self {
         match op {
-            PackOp::Add(arc) => self.0.push(arc),
-            PackOp::AddAfterId(id, arc) => {
+            MixOp::Add(arc) => self.0.push(arc),
+            MixOp::AddAfterId(id, arc) => {
                 match self.0.iter().position(|c| c.id().as_deref() == Some(id)) {
                     Some(index) => self.0.insert(index + 1, arc),
                     _ => self.0.push(arc),
                 }
             }
-            PackOp::AddBeforeId(id, arc) => {
+            MixOp::AddBeforeId(id, arc) => {
                 match self.0.iter().position(|c| c.id().as_deref() == Some(id)) {
                     Some(index) => self.0.insert(index, arc),
                     _ => self.0.insert(0, arc),
                 }
             }
-            PackOp::AddFirst(arc) => self.0.insert(0, arc),
-            PackOp::RemoveById(id) => {
+            MixOp::AddFirst(arc) => self.0.insert(0, arc),
+            MixOp::RemoveById(id) => {
                 if let Some(index) = self.0.iter().position(|c| c.id().as_deref() == Some(id)) {
                     self.0.remove(index);
                 }
             }
-            PackOp::ReplaceById(id, arc) => {
+            MixOp::ReplaceById(id, arc) => {
                 for c in self.0.iter_mut() {
                     if c.id().as_deref() == Some(id) {
                         *c = arc;
@@ -65,12 +65,12 @@ impl PackComponents {
                     }
                 }
             }
-            PackOp::Reset => self.0.clear(),
+            MixOp::Reset => self.0.clear(),
         }
         self
     }
 
-    // PackComponents GETTERS.
+    // MixComponents GETTERS.
 
     pub fn get_by_id(&self, id: &'static str) -> Option<&ComponentArc> {
         self.0.iter().find(|&c| c.id().as_deref() == Some(id))
@@ -84,7 +84,7 @@ impl PackComponents {
         self.0.iter().filter(move |&c| c.handle() == handle)
     }
 
-    // PackComponents PREPARE.
+    // MixComponents PREPARE.
 
     pub fn prepare(&self, cx: &mut Context) -> Markup {
         let mut components = self.0.clone();

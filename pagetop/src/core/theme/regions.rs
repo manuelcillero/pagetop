@@ -1,4 +1,4 @@
-use crate::core::component::{ComponentArc, PackComponents, PackOp};
+use crate::core::component::{ComponentArc, MixComponents, MixOp};
 use crate::core::theme::ThemeRef;
 use crate::{Handle, LazyStatic};
 
@@ -12,7 +12,7 @@ static COMMON_REGIONS: LazyStatic<RwLock<ComponentsRegions>> =
     LazyStatic::new(|| RwLock::new(ComponentsRegions::new()));
 
 #[derive(Default)]
-pub struct ComponentsRegions(HashMap<&'static str, PackComponents>);
+pub struct ComponentsRegions(HashMap<&'static str, MixComponents>);
 
 impl ComponentsRegions {
     pub fn new() -> Self {
@@ -27,18 +27,18 @@ impl ComponentsRegions {
 
     pub fn add_in(&mut self, region: &'static str, arc: ComponentArc) {
         if let Some(region) = self.0.get_mut(region) {
-            region.alter(PackOp::Add(arc));
+            region.alter(MixOp::Add(arc));
         } else {
-            self.0.insert(region, PackComponents::with(arc));
+            self.0.insert(region, MixComponents::with(arc));
         }
     }
 
-    pub fn get_components(&self, theme: ThemeRef, region: &str) -> PackComponents {
+    pub fn get_components(&self, theme: ThemeRef, region: &str) -> MixComponents {
         let common = COMMON_REGIONS.read().unwrap();
         if let Some(hm) = THEME_REGIONS.read().unwrap().get(&theme.handle()) {
-            PackComponents::merge(&[common.0.get(region), self.0.get(region), hm.0.get(region)])
+            MixComponents::merge(&[common.0.get(region), self.0.get(region), hm.0.get(region)])
         } else {
-            PackComponents::merge(&[common.0.get(region), self.0.get(region)])
+            MixComponents::merge(&[common.0.get(region), self.0.get(region)])
         }
     }
 }

@@ -11,8 +11,8 @@ pub use renderable::{FnIsRenderable, Renderable};
 mod arc;
 pub use arc::ComponentArc;
 
-mod pack;
-pub use pack::{PackComponents, PackOp};
+mod mix;
+pub use mix::{MixComponents, MixOp};
 
 mod one;
 pub use one::ComponentOne;

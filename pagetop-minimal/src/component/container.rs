@@ -23,7 +23,7 @@ pub struct Container {
     classes       : Classes,
     inner_classes : Classes,
     container_type: ContainerType,
-    stuff         : PackComponents,
+    stuff         : MixComponents,
     template      : String,
 }
 
@@ -155,12 +155,12 @@ impl Container {
     }
 
     pub fn with_component(mut self, component: impl ComponentTrait) -> Self {
-        self.stuff.alter(PackOp::Add(ComponentArc::with(component)));
+        self.stuff.alter(MixOp::Add(ComponentArc::with(component)));
         self
     }
 
     #[fn_builder]
-    pub fn alter_components(&mut self, op: PackOp) -> &mut Self {
+    pub fn alter_components(&mut self, op: MixOp) -> &mut Self {
         self.stuff.alter(op);
         self
     }
@@ -185,7 +185,7 @@ impl Container {
         &self.container_type
     }
 
-    pub fn components(&self) -> &PackComponents {
+    pub fn components(&self) -> &MixComponents {
         &self.stuff
     }
 

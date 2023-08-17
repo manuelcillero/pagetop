@@ -20,7 +20,7 @@ pub struct Paragraph {
     renderable: Renderable,
     id        : IdentifierValue,
     classes   : Classes,
-    stuff     : PackComponents,
+    stuff     : MixComponents,
     display   : ParagraphDisplay,
     template  : String,
 }
@@ -90,12 +90,12 @@ impl Paragraph {
     }
 
     pub fn with_component(mut self, component: impl ComponentTrait) -> Self {
-        self.stuff.alter(PackOp::Add(ComponentArc::with(component)));
+        self.stuff.alter(MixOp::Add(ComponentArc::with(component)));
         self
     }
 
     #[fn_builder]
-    pub fn alter_components(&mut self, op: PackOp) -> &mut Self {
+    pub fn alter_components(&mut self, op: MixOp) -> &mut Self {
         self.stuff.alter(op);
         self
     }
@@ -130,7 +130,7 @@ impl Paragraph {
         &self.classes
     }
 
-    pub fn components(&self) -> &PackComponents {
+    pub fn components(&self) -> &MixComponents {
         &self.stuff
     }
 
