@@ -37,6 +37,10 @@ impl ComponentArc {
         ComponentArc(Arc::new(RwLock::new(component)))
     }
 
+    pub fn set(&mut self, component: impl ComponentTrait) {
+        self.0 = Arc::new(RwLock::new(component));
+    }
+
     pub(crate) fn handle(&self) -> Handle {
         self.0.read().unwrap().handle()
     }

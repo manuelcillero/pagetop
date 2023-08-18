@@ -2,11 +2,11 @@ mod context;
 pub use context::{Context, ContextOp};
 pub type FnContextualPath = fn(cx: &Context) -> &str;
 
-mod definition;
-pub use definition::{component_as_mut, component_as_ref, ComponentBase, ComponentTrait};
-
 mod renderable;
 pub use renderable::{FnIsRenderable, Renderable};
+
+mod definition;
+pub use definition::{component_as_mut, component_as_ref, ComponentBase, ComponentTrait};
 
 mod arc;
 pub use arc::ComponentArc;
@@ -17,8 +17,8 @@ pub use mix::{MixComponents, MixOp};
 mod one;
 pub use one::ComponentOne;
 
-mod veck;
-pub use veck::{VeckComponents, VeckOp};
+mod lis;
+pub use lis::{LisComponents, LisOp};
 
 pub mod html;
 pub mod l10n;

@@ -13,7 +13,7 @@ pub struct Container {
     renderable: Renderable,
     id        : IdentifierValue,
     classes   : Classes,
-    items     : VeckComponents<flex::Item>,
+    items     : LisComponents<flex::Item>,
     template  : String,
 }
 
@@ -83,12 +83,12 @@ impl Container {
     }
 
     pub fn with_item(mut self, item: flex::Item) -> Self {
-        self.items.alter(VeckOp::Add(ComponentOne::with(item)));
+        self.items.alter(LisOp::Add(ComponentOne::with(item)));
         self
     }
 
     #[fn_builder]
-    pub fn alter_items(&mut self, op: VeckOp<flex::Item>) -> &mut Self {
+    pub fn alter_items(&mut self, op: LisOp<flex::Item>) -> &mut Self {
         self.items.alter(op);
         self
     }
@@ -105,7 +105,7 @@ impl Container {
         &self.classes
     }
 
-    pub fn items(&self) -> &VeckComponents<flex::Item> {
+    pub fn items(&self) -> &LisComponents<flex::Item> {
         &self.items
     }
 

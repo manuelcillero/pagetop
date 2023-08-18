@@ -21,17 +21,17 @@ impl MixComponents {
     }
 
     pub fn with(arc: ComponentArc) -> Self {
-        let mut pack = MixComponents::new();
-        pack.alter(MixOp::Add(arc));
-        pack
+        let mut components = MixComponents::new();
+        components.alter(MixOp::Add(arc));
+        components
     }
 
-    pub(crate) fn merge(packs: &[Option<&MixComponents>]) -> Self {
-        let mut pack = MixComponents::default();
-        for p in packs.iter().flatten() {
-            pack.0.append(&mut p.0.clone());
+    pub(crate) fn merge(mixes: &[Option<&MixComponents>]) -> Self {
+        let mut components = MixComponents::default();
+        for m in mixes.iter().flatten() {
+            components.0.append(&mut m.0.clone());
         }
-        pack
+        components
     }
 
     // MixComponents BUILDER.

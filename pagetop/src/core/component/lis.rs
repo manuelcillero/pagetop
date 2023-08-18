@@ -2,7 +2,7 @@ use crate::core::component::{ComponentOne, ComponentTrait, Context};
 use crate::html::{html, Markup};
 use crate::Handle;
 
-pub enum VeckOp<T: ComponentTrait + Default> {
+pub enum LisOp<T: ComponentTrait + Default> {
     Add(ComponentOne<T>),
     AddAfterId(&'static str, ComponentOne<T>),
     AddBeforeId(&'static str, ComponentOne<T>),
@@ -13,43 +13,43 @@ pub enum VeckOp<T: ComponentTrait + Default> {
 }
 
 #[derive(Clone, Default)]
-pub struct VeckComponents<T: ComponentTrait + Default>(Vec<ComponentOne<T>>);
+pub struct LisComponents<T: ComponentTrait + Default>(Vec<ComponentOne<T>>);
 
-impl<T: ComponentTrait + Default> VeckComponents<T> {
+impl<T: ComponentTrait + Default> LisComponents<T> {
     pub fn new() -> Self {
-        VeckComponents::<T>::default()
+        LisComponents::<T>::default()
     }
 
     pub fn with(one: ComponentOne<T>) -> Self {
-        let mut veck = VeckComponents::new();
-        veck.alter(VeckOp::Add(one));
-        veck
+        let mut components = LisComponents::new();
+        components.alter(LisOp::Add(one));
+        components
     }
 
-    // VeckComponents BUILDER.
+    // LisComponents BUILDER.
 
-    pub fn alter(&mut self, op: VeckOp<T>) -> &mut Self {
+    pub fn alter(&mut self, op: LisOp<T>) -> &mut Self {
         match op {
-            VeckOp::Add(one) => self.0.push(one),
-            VeckOp::AddAfterId(id, one) => {
+            LisOp::Add(one) => self.0.push(one),
+            LisOp::AddAfterId(id, one) => {
                 match self.0.iter().position(|c| c.id().as_deref() == Some(id)) {
                     Some(index) => self.0.insert(index + 1, one),
                     _ => self.0.push(one),
                 }
             }
-            VeckOp::AddBeforeId(id, one) => {
+            LisOp::AddBeforeId(id, one) => {
                 match self.0.iter().position(|c| c.id().as_deref() == Some(id)) {
                     Some(index) => self.0.insert(index, one),
                     _ => self.0.insert(0, one),
                 }
             }
-            VeckOp::AddFirst(one) => self.0.insert(0, one),
-            VeckOp::RemoveById(id) => {
+            LisOp::AddFirst(one) => self.0.insert(0, one),
+            LisOp::RemoveById(id) => {
                 if let Some(index) = self.0.iter().position(|c| c.id().as_deref() == Some(id)) {
                     self.0.remove(index);
                 }
             }
-            VeckOp::ReplaceById(id, one) => {
+            LisOp::ReplaceById(id, one) => {
                 for c in self.0.iter_mut() {
                     if c.id().as_deref() == Some(id) {
                         *c = one;
@@ -57,12 +57,12 @@ impl<T: ComponentTrait + Default> VeckComponents<T> {
                     }
                 }
             }
-            VeckOp::Reset => self.0.clear(),
+            LisOp::Reset => self.0.clear(),
         }
         self
     }
 
-    // VeckComponents GETTERS.
+    // LisComponents GETTERS.
 
     pub fn get_by_id(&self, id: &'static str) -> Option<&ComponentOne<T>> {
         self.0.iter().find(|&c| c.id().as_deref() == Some(id))
@@ -76,7 +76,7 @@ impl<T: ComponentTrait + Default> VeckComponents<T> {
         self.0.iter().filter(move |&c| c.handle() == handle)
     }
 
-    // VeckComponents PREPARE.
+    // LisComponents PREPARE.
 
     pub fn prepare(&self, cx: &mut Context) -> Markup {
         let mut components = self.0.clone();

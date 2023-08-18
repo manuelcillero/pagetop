@@ -26,7 +26,7 @@ pub struct MegaMenu {
     weight    : Weight,
     renderable: Renderable,
     id        : IdentifierValue,
-    items     : VeckComponents<MegaItem>,
+    items     : LisComponents<MegaItem>,
     theme     : MegaMenuTheme,
 }
 
@@ -153,12 +153,12 @@ impl MegaMenu {
     }
 
     pub fn with_item(mut self, item: MegaItem) -> Self {
-        self.items.alter(VeckOp::Add(ComponentOne::with(item)));
+        self.items.alter(LisOp::Add(ComponentOne::with(item)));
         self
     }
 
     #[fn_builder]
-    pub fn alter_items(&mut self, op: VeckOp<MegaItem>) -> &mut Self {
+    pub fn alter_items(&mut self, op: LisOp<MegaItem>) -> &mut Self {
         self.items.alter(op);
         self
     }
@@ -171,7 +171,7 @@ impl MegaMenu {
 
     // MegaMenu GETTERS.
 
-    pub fn items(&self) -> &VeckComponents<MegaItem> {
+    pub fn items(&self) -> &LisComponents<MegaItem> {
         &self.items
     }
 
