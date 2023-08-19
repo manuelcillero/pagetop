@@ -21,7 +21,7 @@ pub struct Form {
     action    : AttributeValue,
     charset   : AttributeValue,
     method    : FormMethod,
-    stuff     : MixComponents,
+    stuff     : ArcComponents,
     template  : String,
 }
 
@@ -121,12 +121,12 @@ impl Form {
     }
 
     pub fn with_element(mut self, element: impl ComponentTrait) -> Self {
-        self.stuff.alter(MixOp::Add(ComponentArc::with(element)));
+        self.stuff.alter(ArcOp::Add(ArcComponent::with(element)));
         self
     }
 
     #[fn_builder]
-    pub fn alter_elements(&mut self, op: MixOp) -> &mut Self {
+    pub fn alter_elements(&mut self, op: ArcOp) -> &mut Self {
         self.stuff.alter(op);
         self
     }
@@ -155,7 +155,7 @@ impl Form {
         &self.method
     }
 
-    pub fn elements(&self) -> &MixComponents {
+    pub fn elements(&self) -> &ArcComponents {
         &self.stuff
     }
 

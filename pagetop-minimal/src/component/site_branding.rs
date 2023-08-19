@@ -6,8 +6,8 @@ use crate::LOCALES_MINIMAL;
 
 new_handle!(COMPONENT_BRANDING);
 
-type SiteSlogan = ComponentOne<L10n>;
-type SiteLogo = ComponentOne<Image>;
+type SiteSlogan = TypedComponent<L10n>;
+type SiteLogo = TypedComponent<Image>;
 
 #[rustfmt::skip]
 pub struct SiteBranding {

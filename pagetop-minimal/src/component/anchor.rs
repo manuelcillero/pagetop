@@ -22,8 +22,8 @@ pub enum AnchorTarget {
     Context(String),
 }
 
-type AnchorIcon = ComponentOne<Icon>;
-type AnchorHtml = ComponentOne<L10n>;
+type AnchorIcon = TypedComponent<Icon>;
+type AnchorHtml = TypedComponent<L10n>;
 
 #[rustfmt::skip]
 #[derive(Default)]

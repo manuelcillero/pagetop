@@ -10,7 +10,7 @@ pub enum ButtonType {
     Reset,
 }
 
-type ButtonValue = ComponentOne<L10n>;
+type ButtonValue = TypedComponent<L10n>;
 
 #[rustfmt::skip]
 #[derive(Default)]

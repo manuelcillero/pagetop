@@ -1,5 +1,5 @@
 use crate::core::component::{ComponentTrait, Context};
-use crate::html::Markup;
+use crate::html::{html, Markup};
 use crate::{new_handle, Handle, Weight};
 
 use std::sync::{Arc, RwLock};
@@ -20,21 +20,21 @@ impl ComponentTrait for ComponentNull {
 }
 
 #[derive(Clone)]
-pub struct ComponentArc(Arc<RwLock<dyn ComponentTrait>>);
+pub struct ArcComponent(Arc<RwLock<dyn ComponentTrait>>);
 
-impl Default for ComponentArc {
+impl Default for ArcComponent {
     fn default() -> Self {
-        ComponentArc(Arc::new(RwLock::new(ComponentNull)))
+        ArcComponent(Arc::new(RwLock::new(ComponentNull)))
     }
 }
 
-impl ComponentArc {
+impl ArcComponent {
     pub fn new() -> Self {
-        ComponentArc::default()
+        ArcComponent::default()
     }
 
     pub fn with(component: impl ComponentTrait) -> Self {
-        ComponentArc(Arc::new(RwLock::new(component)))
+        ArcComponent(Arc::new(RwLock::new(component)))
     }
 
     pub fn set(&mut self, component: impl ComponentTrait) {
@@ -53,9 +53,104 @@ impl ComponentArc {
         self.0.read().unwrap().weight()
     }
 
-    // ComponentArc PREPARE.
+    // ArcComponent PREPARE.
 
     pub fn prepare(&self, cx: &mut Context) -> Markup {
         self.0.write().unwrap().prepare(cx)
+    }
+}
+
+pub enum ArcOp {
+    Add(ArcComponent),
+    AddAfterId(&'static str, ArcComponent),
+    AddBeforeId(&'static str, ArcComponent),
+    AddFirst(ArcComponent),
+    RemoveById(&'static str),
+    ReplaceById(&'static str, ArcComponent),
+    Reset,
+}
+
+#[derive(Clone, Default)]
+pub struct ArcComponents(Vec<ArcComponent>);
+
+impl ArcComponents {
+    pub fn new() -> Self {
+        ArcComponents::default()
+    }
+
+    pub fn with(arc: ArcComponent) -> Self {
+        let mut components = ArcComponents::new();
+        components.alter(ArcOp::Add(arc));
+        components
+    }
+
+    pub(crate) fn merge(mixes: &[Option<&ArcComponents>]) -> Self {
+        let mut components = ArcComponents::default();
+        for m in mixes.iter().flatten() {
+            components.0.append(&mut m.0.clone());
+        }
+        components
+    }
+
+    // ArcComponents BUILDER.
+
+    pub fn alter(&mut self, op: ArcOp) -> &mut Self {
+        match op {
+            ArcOp::Add(arc) => self.0.push(arc),
+            ArcOp::AddAfterId(id, arc) => {
+                match self.0.iter().position(|c| c.id().as_deref() == Some(id)) {
+                    Some(index) => self.0.insert(index + 1, arc),
+                    _ => self.0.push(arc),
+                }
+            }
+            ArcOp::AddBeforeId(id, arc) => {
+                match self.0.iter().position(|c| c.id().as_deref() == Some(id)) {
+                    Some(index) => self.0.insert(index, arc),
+                    _ => self.0.insert(0, arc),
+                }
+            }
+            ArcOp::AddFirst(arc) => self.0.insert(0, arc),
+            ArcOp::RemoveById(id) => {
+                if let Some(index) = self.0.iter().position(|c| c.id().as_deref() == Some(id)) {
+                    self.0.remove(index);
+                }
+            }
+            ArcOp::ReplaceById(id, arc) => {
+                for c in self.0.iter_mut() {
+                    if c.id().as_deref() == Some(id) {
+                        *c = arc;
+                        break;
+                    }
+                }
+            }
+            ArcOp::Reset => self.0.clear(),
+        }
+        self
+    }
+
+    // ArcComponents GETTERS.
+
+    pub fn get_by_id(&self, id: &'static str) -> Option<&ArcComponent> {
+        self.0.iter().find(|&c| c.id().as_deref() == Some(id))
+    }
+
+    pub fn iter_by_id(&self, id: &'static str) -> impl Iterator<Item = &ArcComponent> {
+        self.0.iter().filter(|&c| c.id().as_deref() == Some(id))
+    }
+
+    pub fn iter_by_handle(&self, handle: Handle) -> impl Iterator<Item = &ArcComponent> {
+        self.0.iter().filter(move |&c| c.handle() == handle)
+    }
+
+    // ArcComponents PREPARE.
+
+    pub fn prepare(&self, cx: &mut Context) -> Markup {
+        let mut components = self.0.clone();
+        components.sort_by_key(|c| c.weight());
+        html! {
+            @for c in components.iter() {
+                " " (c.prepare(cx)) " "
+            }
+        }
     }
 }

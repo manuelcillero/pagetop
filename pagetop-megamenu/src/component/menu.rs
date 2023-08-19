@@ -26,7 +26,7 @@ pub struct MegaMenu {
     weight    : Weight,
     renderable: Renderable,
     id        : IdentifierValue,
-    items     : LisComponents<MegaItem>,
+    items     : TypedComponents<MegaItem>,
     theme     : MegaMenuTheme,
 }
 
@@ -153,12 +153,12 @@ impl MegaMenu {
     }
 
     pub fn with_item(mut self, item: MegaItem) -> Self {
-        self.items.alter(LisOp::Add(ComponentOne::with(item)));
+        self.items.alter(TypedOp::Add(TypedComponent::with(item)));
         self
     }
 
     #[fn_builder]
-    pub fn alter_items(&mut self, op: LisOp<MegaItem>) -> &mut Self {
+    pub fn alter_items(&mut self, op: TypedOp<MegaItem>) -> &mut Self {
         self.items.alter(op);
         self
     }
@@ -171,7 +171,7 @@ impl MegaMenu {
 
     // MegaMenu GETTERS.
 
-    pub fn items(&self) -> &LisComponents<MegaItem> {
+    pub fn items(&self) -> &TypedComponents<MegaItem> {
         &self.items
     }
 

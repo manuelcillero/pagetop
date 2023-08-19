@@ -44,7 +44,7 @@ pub struct Item {
     id        : IdentifierValue,
     classes   : Classes,
     size      : ItemSize,
-    stuff     : MixComponents,
+    stuff     : ArcComponents,
     template  : String,
 }
 
@@ -136,12 +136,12 @@ impl Item {
     }
 
     pub fn with_component(mut self, component: impl ComponentTrait) -> Self {
-        self.stuff.alter(MixOp::Add(ComponentArc::with(component)));
+        self.stuff.alter(ArcOp::Add(ArcComponent::with(component)));
         self
     }
 
     #[fn_builder]
-    pub fn alter_components(&mut self, op: MixOp) -> &mut Self {
+    pub fn alter_components(&mut self, op: ArcOp) -> &mut Self {
         self.stuff.alter(op);
         self
     }
@@ -162,7 +162,7 @@ impl Item {
         &self.size
     }
 
-    pub fn components(&self) -> &MixComponents {
+    pub fn components(&self) -> &ArcComponents {
         &self.stuff
     }
 

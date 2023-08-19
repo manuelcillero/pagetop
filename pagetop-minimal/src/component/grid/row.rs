@@ -13,7 +13,7 @@ pub struct Row {
     renderable: Renderable,
     id        : IdentifierValue,
     classes   : Classes,
-    columns   : LisComponents<grid::Column>,
+    cols      : TypedComponents<grid::Column>,
     template  : String,
 }
 
@@ -83,13 +83,13 @@ impl Row {
     }
 
     pub fn with_column(mut self, column: grid::Column) -> Self {
-        self.columns.alter(LisOp::Add(ComponentOne::with(column)));
+        self.cols.alter(TypedOp::Add(TypedComponent::with(column)));
         self
     }
 
     #[fn_builder]
-    pub fn alter_columns(&mut self, op: LisOp<grid::Column>) -> &mut Self {
-        self.columns.alter(op);
+    pub fn alter_columns(&mut self, op: TypedOp<grid::Column>) -> &mut Self {
+        self.cols.alter(op);
         self
     }
 
@@ -105,8 +105,8 @@ impl Row {
         &self.classes
     }
 
-    pub fn columns(&self) -> &LisComponents<grid::Column> {
-        &self.columns
+    pub fn columns(&self) -> &TypedComponents<grid::Column> {
+        &self.cols
     }
 
     pub fn template(&self) -> &str {

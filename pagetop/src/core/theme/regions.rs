@@ -1,4 +1,4 @@
-use crate::core::component::{ComponentArc, MixComponents, MixOp};
+use crate::core::component::{ArcComponent, ArcComponents, ArcOp};
 use crate::core::theme::ThemeRef;
 use crate::{Handle, LazyStatic};
 
@@ -12,33 +12,33 @@ static COMMON_REGIONS: LazyStatic<RwLock<ComponentsRegions>> =
     LazyStatic::new(|| RwLock::new(ComponentsRegions::new()));
 
 #[derive(Default)]
-pub struct ComponentsRegions(HashMap<&'static str, MixComponents>);
+pub struct ComponentsRegions(HashMap<&'static str, ArcComponents>);
 
 impl ComponentsRegions {
     pub fn new() -> Self {
         ComponentsRegions::default()
     }
 
-    pub fn with(region: &'static str, arc: ComponentArc) -> Self {
+    pub fn with(region: &'static str, arc: ArcComponent) -> Self {
         let mut regions = ComponentsRegions::new();
         regions.add_in(region, arc);
         regions
     }
 
-    pub fn add_in(&mut self, region: &'static str, arc: ComponentArc) {
+    pub fn add_in(&mut self, region: &'static str, arc: ArcComponent) {
         if let Some(region) = self.0.get_mut(region) {
-            region.alter(MixOp::Add(arc));
+            region.alter(ArcOp::Add(arc));
         } else {
-            self.0.insert(region, MixComponents::with(arc));
+            self.0.insert(region, ArcComponents::with(arc));
         }
     }
 
-    pub fn get_components(&self, theme: ThemeRef, region: &str) -> MixComponents {
+    pub fn get_components(&self, theme: ThemeRef, region: &str) -> ArcComponents {
         let common = COMMON_REGIONS.read().unwrap();
         if let Some(hm) = THEME_REGIONS.read().unwrap().get(&theme.handle()) {
-            MixComponents::merge(&[common.0.get(region), self.0.get(region), hm.0.get(region)])
+            ArcComponents::merge(&[common.0.get(region), self.0.get(region), hm.0.get(region)])
         } else {
-            MixComponents::merge(&[common.0.get(region), self.0.get(region)])
+            ArcComponents::merge(&[common.0.get(region), self.0.get(region)])
         }
     }
 }
@@ -48,7 +48,7 @@ pub enum Region {
     OfTheme(ThemeRef, &'static str),
 }
 
-pub fn add_component_in(region: Region, arc: ComponentArc) {
+pub fn add_component_in(region: Region, arc: ArcComponent) {
     match region {
         Region::Named(name) => {
             COMMON_REGIONS.write().unwrap().add_in(name, arc);

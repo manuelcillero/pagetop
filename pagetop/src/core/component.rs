@@ -9,16 +9,10 @@ mod definition;
 pub use definition::{component_as_mut, component_as_ref, ComponentBase, ComponentTrait};
 
 mod arc;
-pub use arc::ComponentArc;
+pub use arc::{ArcComponent, ArcComponents, ArcOp};
 
-mod mix;
-pub use mix::{MixComponents, MixOp};
-
-mod one;
-pub use one::ComponentOne;
-
-mod lis;
-pub use lis::{LisComponents, LisOp};
+mod typed;
+pub use typed::{TypedComponent, TypedComponents, TypedOp};
 
 pub mod html;
 pub mod l10n;
