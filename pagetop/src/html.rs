@@ -48,3 +48,13 @@ impl PrepareMarkup {
         }
     }
 }
+
+impl ToString for PrepareMarkup {
+    fn to_string(&self) -> String {
+        match self {
+            PrepareMarkup::None => "".to_owned(),
+            PrepareMarkup::Text(text) => text.to_string(),
+            PrepareMarkup::With(markup) => markup.to_owned().into_string(),
+        }
+    }
+}

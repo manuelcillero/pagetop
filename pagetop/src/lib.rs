@@ -18,9 +18,9 @@
 //!
 //!  * Registro de trazas y eventos de la aplicación ([`trace`]).
 //!
-//!  * Localización ([`locale`]).
-//!
 //!  * HTML en código ([`html`]).
+//!
+//!  * Localización ([`locale`]).
 //!
 //!  * [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) date and time handling ([`datetime`]).
 //!
@@ -136,10 +136,10 @@ pub mod util;
 pub mod config;
 // Registro de trazas y eventos de la aplicación.
 pub mod trace;
-// Localización.
-pub mod locale;
 // HTML en código.
 pub mod html;
+// Localización.
+pub mod locale;
 // Date and time for PageTop.
 pub mod datetime;
 

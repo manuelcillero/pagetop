@@ -1,4 +1,4 @@
-use crate::core::component::{l10n::L10n, ContextOp};
+use crate::core::component::{ContextOp, L10n};
 use crate::core::module::ModuleTrait;
 use crate::core::theme::{ThemeRef, ThemeTrait};
 use crate::html::{Favicon, StyleSheet};

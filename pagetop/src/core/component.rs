@@ -14,8 +14,11 @@ pub use arc::{ArcComponent, ArcComponents, ArcOp};
 mod typed;
 pub use typed::{TypedComponent, TypedComponents, TypedOp};
 
-pub mod html;
-pub mod l10n;
+mod html;
+pub use html::{Html, COMPONENT_HTML};
+
+mod l10n;
+pub use l10n::{L10n, COMPONENT_L10N};
 
 #[macro_export]
 macro_rules! actions_for_component {

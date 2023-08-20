@@ -29,9 +29,9 @@ pub use crate::config;
 
 pub use crate::trace;
 
-pub use crate::locale::*;
-
 pub use crate::html::*;
+
+pub use crate::locale::*;
 
 pub use crate::datetime::*;
 
@@ -42,8 +42,6 @@ pub use crate::service;
 pub use crate::service::HttpMessage;
 
 pub use crate::core::action::*;
-pub use crate::core::component::html::*;
-pub use crate::core::component::l10n::*;
 pub use crate::core::component::*;
 pub use crate::core::module::*;
 pub use crate::core::theme::*;
