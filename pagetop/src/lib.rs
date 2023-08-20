@@ -129,6 +129,9 @@ static_locales!(LOCALES_PAGETOP);
 // PUBLIC API.
 // *************************************************************************************************
 
+// Functions and macro helpers.
+pub mod util;
+
 // Gestión de la configuración.
 pub mod config;
 // Registro de trazas y eventos de la aplicación.
@@ -145,17 +148,14 @@ pub mod datetime;
 #[cfg(feature = "database")]
 pub mod db;
 
-// APIs esenciales para crear acciones, componentes, módulos y temas.
-pub mod core;
-
 // API para operar con los servicios web.
 pub mod service;
 
+// APIs esenciales para crear acciones, componentes, módulos y temas.
+pub mod core;
+
 // Tipos de respuestas a peticiones web.
 pub mod response;
-
-// Funciones y macros útiles.
-pub mod util;
 
 // Prepara y ejecuta la aplicación.
 pub mod app;

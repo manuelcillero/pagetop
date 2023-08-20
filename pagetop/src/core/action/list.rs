@@ -4,13 +4,6 @@ use std::sync::{Arc, RwLock};
 
 pub type Action = Box<dyn ActionTrait>;
 
-#[macro_export]
-macro_rules! action {
-    ( $action:ty => $f:ident $(, $weight:expr)? ) => {{
-        Box::new(<$action>::new().with_action($f)$(.with_weight($weight))?)
-    }};
-}
-
 pub struct ActionsList(Arc<RwLock<Vec<Action>>>);
 
 impl ActionsList {

@@ -23,7 +23,7 @@ impl ModuleTrait for Bootsier {
     }
 
     fn configure_service(&self, scfg: &mut service::web::ServiceConfig) {
-        serve_static_files!(scfg, "/bootsier", bootsier);
+        static_files_service!(scfg, "/bootsier", bootsier);
     }
 }
 

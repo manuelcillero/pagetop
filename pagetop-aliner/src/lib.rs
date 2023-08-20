@@ -16,7 +16,7 @@ impl ModuleTrait for Aliner {
     }
 
     fn configure_service(&self, scfg: &mut service::web::ServiceConfig) {
-        serve_static_files!(scfg, "/aliner", aliner);
+        static_files_service!(scfg, "/aliner", aliner);
     }
 }
 

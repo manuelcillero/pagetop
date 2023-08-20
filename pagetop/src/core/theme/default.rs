@@ -4,7 +4,7 @@ use crate::core::theme::{ThemeRef, ThemeTrait};
 use crate::html::{Favicon, StyleSheet};
 use crate::response::page::Page;
 use crate::service;
-use crate::{new_handle, serve_static_files, static_files, Handle};
+use crate::{new_handle, static_files, static_files_service, Handle};
 
 new_handle!(THEME_DEFAULT);
 
@@ -26,7 +26,7 @@ impl ModuleTrait for DefaultTheme {
     }
 
     fn configure_service(&self, scfg: &mut service::web::ServiceConfig) {
-        serve_static_files!(scfg, "/theme", theme);
+        static_files_service!(scfg, "/theme", theme);
     }
 }
 

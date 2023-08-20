@@ -34,7 +34,7 @@ impl ModuleTrait for Minimal {
     }
 
     fn configure_service(&self, scfg: &mut service::web::ServiceConfig) {
-        serve_static_files!(scfg, "/minimal", minimal);
+        static_files_service!(scfg, "/minimal", minimal);
     }
 }
 

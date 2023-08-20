@@ -27,7 +27,7 @@ impl ModuleTrait for HomeDemo {
     }
 
     fn configure_service(&self, scfg: &mut service::web::ServiceConfig) {
-        serve_static_files!(scfg, "/homedemo", homedemo);
+        static_files_service!(scfg, "/homedemo", homedemo);
         scfg.route("/", service::web::get().to(demo));
     }
 }

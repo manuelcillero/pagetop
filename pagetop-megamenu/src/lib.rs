@@ -33,6 +33,6 @@ impl ModuleTrait for MegaMenu {
     }
 
     fn configure_service(&self, scfg: &mut service::web::ServiceConfig) {
-        serve_static_files!(scfg, "/megamenu", megamenu);
+        static_files_service!(scfg, "/megamenu", megamenu);
     }
 }

@@ -33,7 +33,7 @@ impl ModuleTrait for JQuery {
     }
 
     fn configure_service(&self, scfg: &mut service::web::ServiceConfig) {
-        serve_static_files!(scfg, "/jquery", jquery);
+        static_files_service!(scfg, "/jquery", jquery);
     }
 }
 

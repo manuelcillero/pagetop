@@ -132,3 +132,53 @@ pub fn langid_for(language: &str) -> &LanguageIdentifier {
         }
     }
 }
+
+#[macro_export]
+/// Define un conjunto de elementos de localización y textos locales de traducción.
+macro_rules! static_locales {
+    ( $LOCALES:ident $(, $core_locales:literal)? ) => {
+        $crate::locale::fluent_templates::static_loader! {
+            static $LOCALES = {
+                locales: "src/locale",
+                $( core_locales: $core_locales, )?
+                fallback_language: "en-US",
+
+                // Elimina las marcas Unicode que delimitan los argumentos.
+                customise: |bundle| bundle.set_use_isolating(false),
+            };
+        }
+    };
+    ( $LOCALES:ident in $dir_locales:literal $(, $core_locales:literal)? ) => {
+        $crate::locale::fluent_templates::static_loader! {
+            static $LOCALES = {
+                locales: $dir_locales,
+                $( core_locales: $core_locales, )?
+                fallback_language: "en-US",
+
+                // Elimina las marcas Unicode que delimitan los argumentos.
+                customise: |bundle| bundle.set_use_isolating(false),
+            };
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! t {
+    ( $langid:expr, $locales:expr, $key:expr ) => {
+        $locales.lookup($langid, $key).unwrap_or($key.to_string())
+    };
+    ( $langid:expr, $locales:expr, $key:expr, $args:expr ) => {
+        $locales
+            .lookup_with_args(
+                $langid,
+                $key,
+                &$args
+                    .iter()
+                    .fold(std::collections::HashMap::new(), |mut a, (k, v)| {
+                        a.insert(k.to_string(), v.to_owned().into());
+                        a
+                    }),
+            )
+            .unwrap_or($key.to_string())
+    };
+}

@@ -26,7 +26,7 @@ impl ModuleTrait for Bulmix {
     }
 
     fn configure_service(&self, scfg: &mut service::web::ServiceConfig) {
-        serve_static_files!(scfg, "/bulmix", bulmix);
+        static_files_service!(scfg, "/bulmix", bulmix);
     }
 }
 
