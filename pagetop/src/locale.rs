@@ -161,24 +161,3 @@ macro_rules! static_locales {
         }
     };
 }
-
-#[macro_export]
-macro_rules! t {
-    ( $langid:expr, $locales:expr, $key:expr ) => {
-        $locales.lookup($langid, $key).unwrap_or($key.to_string())
-    };
-    ( $langid:expr, $locales:expr, $key:expr, $args:expr ) => {
-        $locales
-            .lookup_with_args(
-                $langid,
-                $key,
-                &$args
-                    .iter()
-                    .fold(std::collections::HashMap::new(), |mut a, (k, v)| {
-                        a.insert(k.to_string(), v.to_owned().into());
-                        a
-                    }),
-            )
-            .unwrap_or($key.to_string())
-    };
-}

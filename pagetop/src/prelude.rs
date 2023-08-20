@@ -15,7 +15,7 @@ pub use crate::{kv, new_handle};
 // crate::config
 pub use crate::default_settings;
 // crate::locale
-pub use crate::{static_locales, t};
+pub use crate::static_locales;
 // crate::service
 pub use crate::{static_files, static_files_service};
 // crate::core::action
