@@ -30,7 +30,7 @@ impl ModuleTrait for Minimal {
     }
 
     fn actions(&self) -> Vec<Action> {
-        vec![action!(ActionAfterPrepareBody => after_prepare_body, 99)]
+        actions![ActionAfterPrepareBody::with(after_prepare_body).with_weight(99)]
     }
 
     fn configure_service(&self, scfg: &mut service::web::ServiceConfig) {

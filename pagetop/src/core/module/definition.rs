@@ -1,7 +1,7 @@
 use crate::core::action::Action;
 use crate::core::component::L10n;
 use crate::core::theme::ThemeRef;
-use crate::{service, util, Handle};
+use crate::{actions, service, util, Handle};
 
 #[cfg(feature = "database")]
 use crate::{db::MigrationItem, migrations};
@@ -37,7 +37,7 @@ pub trait ModuleTrait: ModuleBase + Send + Sync {
     }
 
     fn actions(&self) -> Vec<Action> {
-        vec![]
+        actions![]
     }
 
     fn init(&self) {}

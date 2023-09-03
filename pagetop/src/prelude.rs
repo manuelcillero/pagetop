@@ -18,8 +18,8 @@ pub use crate::default_settings;
 pub use crate::static_locales;
 // crate::service
 pub use crate::{static_files, static_files_service};
-// crate::core::action
-pub use crate::action;
+// crate::core::actions
+pub use crate::actions;
 // crate::core::component
 pub use crate::actions_for_component;
 

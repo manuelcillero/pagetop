@@ -30,7 +30,7 @@ impl ModuleTrait for Admin {
     }
 
     fn actions(&self) -> Vec<Action> {
-        vec![action!(ActionBeforePrepareBody => before_prepare_body)]
+        actions![ActionBeforePrepareBody::with(before_prepare_body)]
     }
 
     fn configure_service(&self, scfg: &mut service::web::ServiceConfig) {

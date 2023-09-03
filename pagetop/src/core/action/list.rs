@@ -31,3 +31,17 @@ impl ActionsList {
         let _: Vec<_> = self.0.read().unwrap().iter().map(f).collect();
     }
 }
+
+#[macro_export]
+macro_rules! actions {
+    () => {
+        Vec::<Action>::new()
+    };
+    ( $($action:expr),+ $(,)? ) => {{
+        let mut v = Vec::<Action>::new();
+        $(
+            v.push(Box::new($action));
+        )*
+        v
+    }};
+}

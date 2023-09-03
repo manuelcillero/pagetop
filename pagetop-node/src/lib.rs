@@ -27,7 +27,7 @@ impl ModuleTrait for Node {
     }
 
     fn actions(&self) -> Vec<Action> {
-        vec![action!(ActionBeforePrepareBody => before_prepare_body, -1)]
+        actions![ActionBeforePrepareBody::with(before_prepare_body).with_weight(-1)]
     }
 
     fn migrations(&self) -> Vec<MigrationItem> {
