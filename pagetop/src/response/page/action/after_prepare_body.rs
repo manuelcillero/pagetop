@@ -28,9 +28,11 @@ impl ActionTrait for ActionAfterPrepareBody {
 }
 
 impl ActionAfterPrepareBody {
-    pub fn with_action(mut self, action: FnActionPage) -> Self {
-        self.action = Some(action);
-        self
+    pub fn with(action: FnActionPage) -> Self {
+        ActionAfterPrepareBody {
+            action: Some(action),
+            weight: 0,
+        }
     }
 
     pub fn with_weight(mut self, value: Weight) -> Self {

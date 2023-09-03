@@ -58,9 +58,11 @@ macro_rules! actions_for_component {
 
             impl [<BeforePrepare $Component>] {
                 #[allow(dead_code)]
-                pub fn with_action(mut self, action: [<FnAction $Component>]) -> Self {
-                    self.action = Some(action);
-                    self
+                pub fn with(action: [<FnAction $Component>]) -> Self {
+                    [<BeforePrepare $Component>] {
+                        action: Some(action),
+                        weight: 0,
+                    }
                 }
 
                 #[allow(dead_code)]
@@ -117,9 +119,11 @@ macro_rules! actions_for_component {
 
             impl [<AfterPrepare $Component>] {
                 #[allow(dead_code)]
-                pub fn with_action(mut self, action: [<FnAction $Component>]) -> Self {
-                    self.action = Some(action);
-                    self
+                pub fn with(action: [<FnAction $Component>]) -> Self {
+                    [<AfterPrepare $Component>] {
+                        action: Some(action),
+                        weight: 0,
+                    }
                 }
 
                 #[allow(dead_code)]
