@@ -31,11 +31,11 @@ impl ModuleTrait for User {
     }
 
     fn migrations(&self) -> Vec<MigrationItem> {
-        vec![
-            migration_item!(m20220312_000001_create_table_role),
-            migration_item!(m20220312_000002_create_table_role_permission),
-            migration_item!(m20220312_000003_create_table_user),
-            migration_item!(m20220312_000004_create_table_user_role),
+        migrations![
+            m20220312_000001_create_table_role,
+            m20220312_000002_create_table_role_permission,
+            m20220312_000003_create_table_user,
+            m20220312_000004_create_table_user_role,
         ]
     }
 }

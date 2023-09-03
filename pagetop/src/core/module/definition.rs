@@ -4,7 +4,7 @@ use crate::core::theme::ThemeRef;
 use crate::{service, util, Handle};
 
 #[cfg(feature = "database")]
-use crate::db::MigrationItem;
+use crate::{db::MigrationItem, migrations};
 
 pub type ModuleRef = &'static dyn ModuleTrait;
 
@@ -45,7 +45,7 @@ pub trait ModuleTrait: ModuleBase + Send + Sync {
     #[cfg(feature = "database")]
     #[allow(unused_variables)]
     fn migrations(&self) -> Vec<MigrationItem> {
-        vec![]
+        migrations![]
     }
 
     #[allow(unused_variables)]

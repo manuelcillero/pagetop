@@ -133,8 +133,15 @@ macro_rules! pub_migration {
 }
 
 #[macro_export]
-macro_rules! migration_item {
-    ( $migration_module:ident ) => {{
-        Box::new(migration::$migration_module::Migration)
+macro_rules! migrations {
+    () => {
+        Vec::<MigrationItem>::new()
+    };
+    ( $($migration_module:ident),+ $(,)? ) => {{
+        let mut m = Vec::<MigrationItem>::new();
+        $(
+            m.push(Box::new(migration::$migration_module::Migration));
+        )*
+        m
     }};
 }

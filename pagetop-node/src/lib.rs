@@ -31,11 +31,11 @@ impl ModuleTrait for Node {
     }
 
     fn migrations(&self) -> Vec<MigrationItem> {
-        vec![
-            migration_item!(m20220316_000001_create_table_node_type),
-            migration_item!(m20220316_000002_create_table_node),
-            migration_item!(m20220316_000003_create_table_node_access),
-            migration_item!(m20220316_000004_create_table_node_revision),
+        migrations![
+            m20220316_000001_create_table_node_type,
+            m20220316_000002_create_table_node,
+            m20220316_000003_create_table_node_access,
+            m20220316_000004_create_table_node_revision,
         ]
     }
 }
