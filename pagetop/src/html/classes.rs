@@ -1,23 +1,21 @@
-use crate::{concat_string, fn_builder};
+use crate::fn_builder;
 
 pub enum ClassesOp {
     Add,
-    AddAfter(&'static str),
-    AddBefore(&'static str),
-    AddFirst,
     Remove,
-    Replace(&'static str),
+    Replace(String),
     Reset,
     SetDefault,
-    SetDefaultIfEmpty,
 }
 
-#[rustfmt::skip]
-#[derive(Default)]
-pub struct Classes {
-    default: String,
-    added  : String,
+#[derive(Eq, PartialEq)]
+enum ClassType {
+    Default,
+    User,
 }
+
+#[derive(Default)]
+pub struct Classes(Vec<(String, ClassType)>);
 
 impl Classes {
     pub fn new() -> Self {
@@ -28,64 +26,49 @@ impl Classes {
 
     #[fn_builder]
     pub fn alter_value(&mut self, op: ClassesOp, classes: &str) -> &mut Self {
-        let classes = classes.trim();
+        let classes: Vec<String> = classes
+            .split_ascii_whitespace()
+            .map(|c| c.to_owned())
+            .collect();
+
         match op {
             ClassesOp::Add => {
-                self.added = concat_string!(self.added, " ", classes).trim().to_owned()
-            }
-
-            ClassesOp::AddAfter(class) => {
-                let mut v_added: Vec<&str> = self.added.split_ascii_whitespace().collect();
-                match v_added.iter().position(|c| c.eq(&class)) {
-                    Some(pos) => v_added.insert(pos + 1, classes),
-                    _ => v_added.push(classes),
+                for class in classes {
+                    if self.0.iter().position(|(c, _)| c.eq(&class)).is_none() {
+                        self.0.push((class, ClassType::User));
+                    }
                 }
-                self.added = v_added.join(" ");
-            }
-
-            ClassesOp::AddBefore(class) => {
-                let mut v_added: Vec<&str> = self.added.split_ascii_whitespace().collect();
-                match v_added.iter().position(|c| c.eq(&class)) {
-                    Some(pos) => v_added.insert(pos, classes),
-                    _ => v_added.insert(0, classes),
-                }
-                self.added = v_added.join(" ");
-            }
-
-            ClassesOp::AddFirst => {
-                self.added = concat_string!(classes, " ", self.added).trim().to_owned()
             }
 
             ClassesOp::Remove => {
-                let v_list: Vec<&str> = classes.split_ascii_whitespace().collect();
-                let mut v_added: Vec<&str> = self.added.split_ascii_whitespace().collect();
-                for class in v_list {
-                    if let Some(pos) = v_added.iter().position(|c| c.eq(&class)) {
-                        v_added.remove(pos);
-                    }
+                for class in classes {
+                    self.0
+                        .retain(|(c, t)| c.ne(&class) || t.ne(&ClassType::User));
                 }
-                self.added = v_added.join(" ");
             }
 
-            ClassesOp::Replace(class) => {
-                let mut v_added: Vec<&str> = self.added.split_ascii_whitespace().collect();
-                match v_added.iter().position(|c| c.eq(&class)) {
-                    Some(pos) => {
-                        v_added.remove(pos);
-                        v_added.insert(pos, classes);
+            ClassesOp::Replace(value) => {
+                for class in classes {
+                    match self.0.iter().position(|(c, _)| c.eq(&value)) {
+                        Some(pos) => {
+                            self.0.remove(pos);
+                            self.0.insert(pos, (class, ClassType::User));
+                        }
+                        _ => self.0.push((class, ClassType::User)),
                     }
-                    _ => v_added.push(classes),
                 }
-                self.added = v_added.join(" ");
             }
 
-            ClassesOp::Reset => self.added = classes.to_owned(),
+            ClassesOp::Reset => self.0.retain(|(_, t)| t.eq(&ClassType::Default)),
 
-            ClassesOp::SetDefault => self.default = classes.to_owned(),
-
-            ClassesOp::SetDefaultIfEmpty => {
-                if self.default.is_empty() {
-                    self.default = classes.to_owned()
+            ClassesOp::SetDefault => {
+                self.0.retain(|(_, t)| t.eq(&ClassType::User));
+                let mut pos = 0;
+                for class in classes {
+                    if self.0.iter().position(|(c, _)| c.eq(&class)).is_none() {
+                        self.0.insert(pos, (class, ClassType::Default));
+                        pos = pos + 1;
+                    }
                 }
             }
         }
@@ -95,13 +78,15 @@ impl Classes {
     // Classes GETTERS.
 
     pub fn get(&self) -> Option<String> {
-        if self.default.is_empty() && self.added.is_empty() {
+        if self.0.len() == 0 {
             None
         } else {
             Some(
-                concat_string!(self.default, " ", self.added)
-                    .trim()
-                    .to_owned(),
+                self.0
+                    .iter()
+                    .map(|(c, _)| c.to_owned())
+                    .collect::<Vec<String>>()
+                    .join(" "),
             )
         }
     }

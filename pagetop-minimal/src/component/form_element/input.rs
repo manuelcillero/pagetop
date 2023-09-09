@@ -43,7 +43,7 @@ impl ComponentTrait for Input {
     fn new() -> Self {
         Input::default()
             .with_classes(ClassesOp::SetDefault, "form-item")
-            .with_classes(ClassesOp::AddFirst, "form-type-textfield")
+            .with_classes(ClassesOp::Add, "form-type-textfield")
             .with_size(Some(60))
             .with_maxlength(Some(128))
     }
@@ -113,51 +113,46 @@ impl Input {
         Input::new()
     }
 
-    #[rustfmt::skip]
     pub fn password() -> Self {
         let mut input = Input::new().with_classes(
-            ClassesOp::Replace("form-type-textfield"),
+            ClassesOp::Replace("form-type-textfield".to_owned()),
             "form-type-password",
         );
         input.input_type = InputType::Password;
         input
     }
 
-    #[rustfmt::skip]
     pub fn search() -> Self {
         let mut input = Input::new().with_classes(
-            ClassesOp::Replace("form-type-textfield"),
+            ClassesOp::Replace("form-type-textfield".to_owned()),
             "form-type-search",
         );
         input.input_type = InputType::Search;
         input
     }
 
-    #[rustfmt::skip]
     pub fn email() -> Self {
         let mut input = Input::new().with_classes(
-            ClassesOp::Replace("form-type-textfield"),
-            "form-type-email"
+            ClassesOp::Replace("form-type-textfield".to_owned()),
+            "form-type-email",
         );
         input.input_type = InputType::Email;
         input
     }
 
-    #[rustfmt::skip]
     pub fn telephone() -> Self {
         let mut input = Input::new().with_classes(
-            ClassesOp::Replace("form-type-textfield"),
+            ClassesOp::Replace("form-type-textfield".to_owned()),
             "form-type-telephone",
         );
         input.input_type = InputType::Telephone;
         input
     }
 
-    #[rustfmt::skip]
     pub fn url() -> Self {
         let mut input = Input::new().with_classes(
-            ClassesOp::Replace("form-type-textfield"),
-            "form-type-url"
+            ClassesOp::Replace("form-type-textfield".to_owned()),
+            "form-type-url",
         );
         input.input_type = InputType::Url;
         input

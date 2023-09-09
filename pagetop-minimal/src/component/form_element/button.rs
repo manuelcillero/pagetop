@@ -30,7 +30,7 @@ impl ComponentTrait for Button {
     fn new() -> Self {
         Button::default()
             .with_classes(ClassesOp::SetDefault, "btn btn-primary")
-            .with_classes(ClassesOp::AddFirst, "form-button")
+            .with_classes(ClassesOp::Add, "form-button")
     }
 
     fn handle(&self) -> Handle {
@@ -76,7 +76,7 @@ impl Button {
 
     pub fn submit(value: L10n) -> Self {
         let mut button = Button::new()
-            .with_classes(ClassesOp::Replace("form-button"), "form-submit")
+            .with_classes(ClassesOp::Replace("form-button".to_owned()), "form-submit")
             .with_value(value);
         button.button_type = ButtonType::Submit;
         button
@@ -84,7 +84,7 @@ impl Button {
 
     pub fn reset(value: L10n) -> Self {
         let mut button = Button::new()
-            .with_classes(ClassesOp::Replace("form-button"), "form-reset")
+            .with_classes(ClassesOp::Replace("form-button".to_owned()), "form-reset")
             .with_value(value);
         button.button_type = ButtonType::Reset;
         button

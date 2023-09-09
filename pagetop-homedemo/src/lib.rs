@@ -38,7 +38,7 @@ async fn demo(request: service::HttpRequest) -> ResultPage<Markup, FatalError> {
         .with_context(ContextOp::AddStyleSheet(StyleSheet::at(
             "/homedemo/css/styles.css",
         )))
-        .with_body_classes(ClassesOp::AddFirst, "default-homepage")
+        .with_body_classes(ClassesOp::Add, "default-homepage")
         .with_in("content", hello_world())
         .with_in("content", welcome())
         .with_in("content", about_pagetop())

@@ -25,7 +25,7 @@ impl ComponentTrait for Date {
     fn new() -> Self {
         Date::default()
             .with_classes(ClassesOp::SetDefault, "form-item")
-            .with_classes(ClassesOp::AddFirst, "form-type-date")
+            .with_classes(ClassesOp::Add, "form-type-date")
     }
 
     fn handle(&self) -> Handle {
