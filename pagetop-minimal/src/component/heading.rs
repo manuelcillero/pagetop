@@ -156,7 +156,7 @@ impl Heading {
         self.display = display;
         self.classes.alter_value(
             ClassesOp::SetDefault,
-            match &self.display() {
+            match self.display {
                 HeadingDisplay::XxLarge  => "display-2",
                 HeadingDisplay::Large    => "display-3",
                 HeadingDisplay::Medium   => "display-4",

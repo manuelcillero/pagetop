@@ -43,7 +43,7 @@ impl ComponentTrait for Image {
         (self.renderable.check)(cx)
     }
 
-    fn prepare_component(&self, _: &mut Context) -> PrepareMarkup {
+    fn prepare_component(&self, _cx: &mut Context) -> PrepareMarkup {
         let (width, height) = match self.size() {
             ImageSize::Auto => (None, None),
             ImageSize::Size(width, height) => (Some(width), Some(height)),

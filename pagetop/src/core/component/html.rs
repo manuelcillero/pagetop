@@ -16,7 +16,7 @@ impl ComponentTrait for Html {
         COMPONENT_HTML
     }
 
-    fn prepare_component(&self, _: &mut Context) -> PrepareMarkup {
+    fn prepare_component(&self, _cx: &mut Context) -> PrepareMarkup {
         PrepareMarkup::With(html! { (self.html()) })
     }
 }

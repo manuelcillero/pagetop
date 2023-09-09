@@ -14,6 +14,6 @@ impl Default for Renderable {
     }
 }
 
-fn render_always(_: &Context) -> bool {
+fn render_always(_cx: &Context) -> bool {
     true
 }

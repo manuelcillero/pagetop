@@ -106,7 +106,7 @@ impl Paragraph {
         self.display = display;
         self.classes.alter_value(
             ClassesOp::SetDefault,
-            match &self.display() {
+            match self.display {
                 ParagraphDisplay::XxLarge => "fs-2",
                 ParagraphDisplay::Large   => "fs-3",
                 ParagraphDisplay::Medium  => "fs-4",
