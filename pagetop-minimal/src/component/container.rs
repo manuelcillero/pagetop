@@ -30,8 +30,8 @@ pub struct Container {
 impl ComponentTrait for Container {
     fn new() -> Self {
         Container::default()
-            .with_classes(ClassesOp::SetDefault, &["container"])
-            .with_inner_classes(ClassesOp::SetDefault, &["container"])
+            .with_classes(ClassesOp::SetDefault, "container")
+            .with_inner_classes(ClassesOp::SetDefault, "container")
     }
 
     fn handle(&self) -> Handle {
@@ -99,25 +99,25 @@ impl ComponentTrait for Container {
 
 impl Container {
     pub fn header() -> Self {
-        let mut c = Container::new().with_classes(ClassesOp::SetDefault, &["header"]);
+        let mut c = Container::new().with_classes(ClassesOp::SetDefault, "header");
         c.container_type = ContainerType::Header;
         c
     }
 
     pub fn footer() -> Self {
-        let mut c = Container::new().with_classes(ClassesOp::SetDefault, &["footer"]);
+        let mut c = Container::new().with_classes(ClassesOp::SetDefault, "footer");
         c.container_type = ContainerType::Footer;
         c
     }
 
     pub fn main() -> Self {
-        let mut c = Container::new().with_classes(ClassesOp::SetDefault, &["main"]);
+        let mut c = Container::new().with_classes(ClassesOp::SetDefault, "main");
         c.container_type = ContainerType::Main;
         c
     }
 
     pub fn section() -> Self {
-        let mut c = Container::new().with_classes(ClassesOp::SetDefault, &["section"]);
+        let mut c = Container::new().with_classes(ClassesOp::SetDefault, "section");
         c.container_type = ContainerType::Section;
         c
     }
@@ -143,13 +143,13 @@ impl Container {
     }
 
     #[fn_builder]
-    pub fn alter_classes(&mut self, op: ClassesOp, classes: &[impl ToString]) -> &mut Self {
+    pub fn alter_classes(&mut self, op: ClassesOp, classes: impl Into<String>) -> &mut Self {
         self.classes.alter_value(op, classes);
         self
     }
 
     #[fn_builder]
-    pub fn alter_inner_classes(&mut self, op: ClassesOp, classes: &[impl ToString]) -> &mut Self {
+    pub fn alter_inner_classes(&mut self, op: ClassesOp, classes: impl Into<String>) -> &mut Self {
         self.inner_classes.alter_value(op, classes);
         self
     }

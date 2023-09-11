@@ -45,5 +45,5 @@ async fn node(request: service::HttpRequest) -> ResultPage<Markup, FatalError> {
 }
 
 fn before_prepare_body(page: &mut Page) {
-    page.alter_body_classes(ClassesOp::Add, &["test-node"]);
+    page.alter_body_classes(ClassesOp::Add, "test-node");
 }

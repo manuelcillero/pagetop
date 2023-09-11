@@ -28,7 +28,7 @@ pub struct Form {
 impl ComponentTrait for Form {
     fn new() -> Self {
         Form::default()
-            .with_classes(ClassesOp::SetDefault, &["form"])
+            .with_classes(ClassesOp::SetDefault, "form")
             .with_charset("UTF-8")
     }
 
@@ -97,7 +97,7 @@ impl Form {
     }
 
     #[fn_builder]
-    pub fn alter_classes(&mut self, op: ClassesOp, classes: &[impl ToString]) -> &mut Self {
+    pub fn alter_classes(&mut self, op: ClassesOp, classes: impl Into<String>) -> &mut Self {
         self.classes.alter_value(op, classes);
         self
     }

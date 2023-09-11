@@ -24,7 +24,7 @@ pub struct Image {
 
 impl ComponentTrait for Image {
     fn new() -> Self {
-        Image::default().with_classes(ClassesOp::SetDefault, &["img-fluid"])
+        Image::default().with_classes(ClassesOp::SetDefault, "img-fluid")
     }
 
     fn handle(&self) -> Handle {
@@ -93,7 +93,7 @@ impl Image {
     }
 
     #[fn_builder]
-    pub fn alter_classes(&mut self, op: ClassesOp, classes: &[impl ToString]) -> &mut Self {
+    pub fn alter_classes(&mut self, op: ClassesOp, classes: impl Into<String>) -> &mut Self {
         self.classes.alter_value(op, classes);
         self
     }

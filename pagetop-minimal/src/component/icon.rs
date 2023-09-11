@@ -13,7 +13,7 @@ pub struct Icon {
 
 impl ComponentTrait for Icon {
     fn new() -> Self {
-        Icon::default().with_classes(ClassesOp::SetDefault, &["bi-question-circle-fill"])
+        Icon::default().with_classes(ClassesOp::SetDefault, "bi-question-circle-fill")
     }
 
     fn handle(&self) -> Handle {
@@ -60,16 +60,13 @@ impl Icon {
 
     #[fn_builder]
     pub fn alter_icon_name(&mut self, name: &str) -> &mut Self {
+        self.alter_classes(ClassesOp::SetDefault, concat_string!("bi-", name));
         self.icon_name = name.to_owned();
-        self.alter_classes(
-            ClassesOp::SetDefault,
-            &[concat_string!("bi-", self.icon_name)],
-        );
         self
     }
 
     #[fn_builder]
-    pub fn alter_classes(&mut self, op: ClassesOp, classes: &[impl ToString]) -> &mut Self {
+    pub fn alter_classes(&mut self, op: ClassesOp, classes: impl Into<String>) -> &mut Self {
         self.classes.alter_value(op, classes);
         self
     }

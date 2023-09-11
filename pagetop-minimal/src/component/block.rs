@@ -18,7 +18,7 @@ pub struct Block {
 
 impl ComponentTrait for Block {
     fn new() -> Self {
-        Block::default().with_classes(ClassesOp::SetDefault, &["block"])
+        Block::default().with_classes(ClassesOp::SetDefault, "block")
     }
 
     fn handle(&self) -> Handle {
@@ -82,7 +82,7 @@ impl Block {
     }
 
     #[fn_builder]
-    pub fn alter_classes(&mut self, op: ClassesOp, classes: &[impl ToString]) -> &mut Self {
+    pub fn alter_classes(&mut self, op: ClassesOp, classes: impl Into<String>) -> &mut Self {
         self.classes.alter_value(op, classes);
         self
     }

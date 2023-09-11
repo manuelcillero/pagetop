@@ -84,7 +84,7 @@ impl Paragraph {
     }
 
     #[fn_builder]
-    pub fn alter_classes(&mut self, op: ClassesOp, classes: &[impl ToString]) -> &mut Self {
+    pub fn alter_classes(&mut self, op: ClassesOp, classes: impl Into<String>) -> &mut Self {
         self.classes.alter_value(op, classes);
         self
     }
@@ -103,15 +103,15 @@ impl Paragraph {
     #[rustfmt::skip]
     #[fn_builder]
     pub fn alter_display(&mut self, display: ParagraphDisplay) -> &mut Self {
-        self.classes.alter_value(
+        self.alter_classes(
             ClassesOp::SetDefault,
             match display {
-                ParagraphDisplay::XxLarge => &["fs-2"],
-                ParagraphDisplay::Large   => &["fs-3"],
-                ParagraphDisplay::Medium  => &["fs-4"],
-                ParagraphDisplay::Small   => &["fs-5"],
-                ParagraphDisplay::XxSmall => &["fs-6"],
-                ParagraphDisplay::Normal  => &[],
+                ParagraphDisplay::XxLarge => "fs-2",
+                ParagraphDisplay::Large   => "fs-3",
+                ParagraphDisplay::Medium  => "fs-4",
+                ParagraphDisplay::Small   => "fs-5",
+                ParagraphDisplay::XxSmall => "fs-6",
+                ParagraphDisplay::Normal  => "",
             },
         );
         self.display = display;

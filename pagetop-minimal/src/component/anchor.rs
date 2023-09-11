@@ -123,21 +123,21 @@ impl Anchor {
     }
 
     #[fn_builder]
-    pub fn alter_classes(&mut self, op: ClassesOp, classes: &[impl ToString]) -> &mut Self {
+    pub fn alter_classes(&mut self, op: ClassesOp, classes: impl Into<String>) -> &mut Self {
         self.classes.alter_value(op, classes);
         self
     }
 
     #[fn_builder]
     pub fn alter_type(&mut self, anchor_type: AnchorType) -> &mut Self {
-        self.anchor_type = anchor_type;
-        self.classes.alter_value(
+        self.alter_classes(
             ClassesOp::SetDefault,
-            match self.anchor_type {
-                AnchorType::Button => &["btn", "btn-primary"],
-                _ => &[],
+            match anchor_type {
+                AnchorType::Button => "btn btn-primary",
+                _ => "",
             },
         );
+        self.anchor_type = anchor_type;
         self
     }
 

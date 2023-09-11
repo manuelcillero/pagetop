@@ -133,7 +133,7 @@ impl Heading {
     }
 
     #[fn_builder]
-    pub fn alter_classes(&mut self, op: ClassesOp, classes: &[impl ToString]) -> &mut Self {
+    pub fn alter_classes(&mut self, op: ClassesOp, classes: impl Into<String>) -> &mut Self {
         self.classes.alter_value(op, classes);
         self
     }
@@ -153,16 +153,16 @@ impl Heading {
     #[rustfmt::skip]
     #[fn_builder]
     pub fn alter_display(&mut self, display: HeadingDisplay) -> &mut Self {
-        self.classes.alter_value(
+        self.alter_classes(
             ClassesOp::SetDefault,
             match display {
-                HeadingDisplay::XxLarge  => &["display-2"],
-                HeadingDisplay::Large    => &["display-3"],
-                HeadingDisplay::Medium   => &["display-4"],
-                HeadingDisplay::Small    => &["display-5"],
-                HeadingDisplay::XxSmall  => &["display-6"],
-                HeadingDisplay::Normal   => &[],
-                HeadingDisplay::Subtitle => &[],
+                HeadingDisplay::XxLarge  => "display-2",
+                HeadingDisplay::Large    => "display-3",
+                HeadingDisplay::Medium   => "display-4",
+                HeadingDisplay::Small    => "display-5",
+                HeadingDisplay::XxSmall  => "display-6",
+                HeadingDisplay::Normal   => "",
+                HeadingDisplay::Subtitle => "",
             },
         );
         self.display = display;

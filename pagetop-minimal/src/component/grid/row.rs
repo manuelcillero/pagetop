@@ -19,7 +19,7 @@ pub struct Row {
 
 impl ComponentTrait for Row {
     fn new() -> Self {
-        Row::default().with_classes(ClassesOp::SetDefault, &["row"])
+        Row::default().with_classes(ClassesOp::SetDefault, "row")
     }
 
     fn handle(&self) -> Handle {
@@ -77,7 +77,7 @@ impl Row {
     }
 
     #[fn_builder]
-    pub fn alter_classes(&mut self, op: ClassesOp, classes: &[impl ToString]) -> &mut Self {
+    pub fn alter_classes(&mut self, op: ClassesOp, classes: impl Into<String>) -> &mut Self {
         self.classes.alter_value(op, classes);
         self
     }
