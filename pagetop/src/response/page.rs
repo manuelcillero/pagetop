@@ -38,7 +38,7 @@ impl Page {
             properties  : Vec::new(),
             favicon     : None,
             context     : Context::new(request),
-            body_classes: Classes::new().with_value(ClassesOp::SetDefault, "body"),
+            body_classes: Classes::new().with_value(ClassesOp::SetDefault, &["body"]),
             regions     : ComponentsRegions::new(),
             template    : "default".to_owned(),
         }
@@ -83,7 +83,7 @@ impl Page {
     }
 
     #[fn_builder]
-    pub fn alter_body_classes(&mut self, op: ClassesOp, classes: &str) -> &mut Self {
+    pub fn alter_body_classes(&mut self, op: ClassesOp, classes: &[impl ToString]) -> &mut Self {
         self.body_classes.alter_value(op, classes);
         self
     }

@@ -24,8 +24,8 @@ pub struct Date {
 impl ComponentTrait for Date {
     fn new() -> Self {
         Date::default()
-            .with_classes(ClassesOp::SetDefault, "form-item")
-            .with_classes(ClassesOp::Add, "form-type-date")
+            .with_classes(ClassesOp::SetDefault, &["form-item"])
+            .with_classes(ClassesOp::Add, &["form-type-date"])
     }
 
     fn handle(&self) -> Handle {
@@ -90,7 +90,7 @@ impl Date {
     }
 
     #[fn_builder]
-    pub fn alter_classes(&mut self, op: ClassesOp, classes: &str) -> &mut Self {
+    pub fn alter_classes(&mut self, op: ClassesOp, classes: &[impl ToString]) -> &mut Self {
         self.classes.alter_value(op, classes);
         self
     }

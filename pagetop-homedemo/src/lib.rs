@@ -38,7 +38,7 @@ async fn demo(request: service::HttpRequest) -> ResultPage<Markup, FatalError> {
         .with_context(ContextOp::AddStyleSheet(StyleSheet::at(
             "/homedemo/css/styles.css",
         )))
-        .with_body_classes(ClassesOp::Add, "default-homepage")
+        .with_body_classes(ClassesOp::Add, &["default-homepage"])
         .with_in("content", hello_world())
         .with_in("content", welcome())
         .with_in("content", about_pagetop())
@@ -52,7 +52,7 @@ fn hello_world() -> Container {
         grid::Row::new()
             .with_column(
                 grid::Column::new()
-                    .with_classes(ClassesOp::Add, "hello-col-text")
+                    .with_classes(ClassesOp::Add, &["hello-col-text"])
                     .with_size(grid::ColumnSize::Is5of12)
                     .with_component(
                         Heading::h1(L10n::t("page_title", &LOCALES_HOMEDEMO))
@@ -84,17 +84,17 @@ fn hello_world() -> Container {
                         )
                         .with_target(AnchorTarget::Blank)
                         .with_left_icon(Icon::with("git"))
-                        .with_classes(ClassesOp::Add, "code-link"),
+                        .with_classes(ClassesOp::Add, &["code-link"]),
                     )
                     .with_component(
                         Anchor::link("#welcome", L10n::t("hello_welcome", &LOCALES_HOMEDEMO))
                             .with_left_icon(Icon::with("arrow-down-circle-fill"))
-                            .with_classes(ClassesOp::Add, "welcome-link"),
+                            .with_classes(ClassesOp::Add, &["welcome-link"]),
                     ),
             )
             .with_column(
                 grid::Column::new()
-                    .with_classes(ClassesOp::Add, "hello-col-image")
+                    .with_classes(ClassesOp::Add, &["hello-col-image"])
                     .with_component(Image::with("/homedemo/images/header.svg")),
             ),
     )
@@ -103,7 +103,7 @@ fn hello_world() -> Container {
 fn welcome() -> Container {
     Container::section()
         .with_id("welcome")
-        .with_classes(ClassesOp::Add, "welcome-col-text")
+        .with_classes(ClassesOp::Add, &["welcome-col-text"])
         .with_component(Heading::h2(L10n::t("welcome_page", &LOCALES_HOMEDEMO)))
         .with_component(
             Heading::h3(L10n::e("welcome_subtitle", &LOCALES_HOMEDEMO).with_arg(
@@ -127,13 +127,13 @@ fn about_pagetop() -> Container {
         grid::Row::new()
             .with_column(
                 grid::Column::new()
-                    .with_classes(ClassesOp::Add, "pagetop-col-image")
+                    .with_classes(ClassesOp::Add, &["pagetop-col-image"])
                     .with_size(grid::ColumnSize::Is5of12)
                     .with_component(Image::with("/homedemo/images/about.svg")),
             )
             .with_column(
                 grid::Column::new()
-                    .with_classes(ClassesOp::Add, "pagetop-col-text")
+                    .with_classes(ClassesOp::Add, &["pagetop-col-text"])
                     .with_component(Heading::h2(L10n::t("pagetop_title", &LOCALES_HOMEDEMO)))
                     .with_component(
                         Paragraph::with(L10n::t("pagetop_text1", &LOCALES_HOMEDEMO))
@@ -153,7 +153,7 @@ fn promo_pagetop() -> Container {
         grid::Row::new()
             .with_column(
                 grid::Column::new()
-                    .with_classes(ClassesOp::Add, "promo-col-text")
+                    .with_classes(ClassesOp::Add, &["promo-col-text"])
                     .with_component(Heading::h2(L10n::t(
                         "pagetop_promo_title",
                         &LOCALES_HOMEDEMO,
@@ -173,7 +173,7 @@ fn promo_pagetop() -> Container {
             )
             .with_column(
                 grid::Column::new()
-                    .with_classes(ClassesOp::Add, "promo-col-image")
+                    .with_classes(ClassesOp::Add, &["promo-col-image"])
                     .with_size(grid::ColumnSize::Is6of12)
                     .with_component(Image::with("/homedemo/images/pagetop.png")),
             ),
@@ -185,12 +185,12 @@ fn reporting_issues() -> Container {
         grid::Row::new()
             .with_column(
                 grid::Column::new()
-                    .with_classes(ClassesOp::Add, "reporting-col-image")
+                    .with_classes(ClassesOp::Add, &["reporting-col-image"])
                     .with_component(Image::with("/homedemo/images/support.jpg")),
             )
             .with_column(
                 grid::Column::new()
-                    .with_classes(ClassesOp::Add, "reporting-col-text")
+                    .with_classes(ClassesOp::Add, &["reporting-col-text"])
                     .with_size(grid::ColumnSize::Is6of12)
                     .with_component(Heading::h2(L10n::t(
                         "report_problems_title",

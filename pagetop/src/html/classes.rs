@@ -1,14 +1,27 @@
+//! **Classes** implements a *helper* for dynamically adding class names to components.
+//!
+//! This *helper* differentiates between default classes (generally associated with styles provided
+//! by the theme) and user classes (for customizing components based on application styles).
+//!
+//! Default classes can be added using [SetDefault] and [AddDefault], while user classes can be
+//! added using [Add]. Operations to [Remove] or [Replace] any class, as well as to [Reset] user
+//! classes, are also provided.
+//!
+//! Although the order of the classes is irrelevant (<https://stackoverflow.com/a/1321712>), default
+//! classes will be presented before user classes and duplicate classes will not be allowed.
+
 use crate::fn_builder;
 
 pub enum ClassesOp {
+    SetDefault,
+    AddDefault,
     Add,
     Remove,
     Replace(String),
     Reset,
-    SetDefault,
 }
 
-#[derive(Eq, PartialEq)]
+#[derive(Clone, PartialEq)]
 enum ClassType {
     Default,
     User,
@@ -25,54 +38,49 @@ impl Classes {
     // Classes BUILDER.
 
     #[fn_builder]
-    pub fn alter_value(&mut self, op: ClassesOp, classes: &str) -> &mut Self {
-        let classes: Vec<String> = classes
-            .split_ascii_whitespace()
-            .map(|c| c.to_owned())
-            .collect();
-
+    pub fn alter_value(&mut self, op: ClassesOp, classes: &[impl ToString]) -> &mut Self {
         match op {
-            ClassesOp::Add => {
-                for class in classes {
-                    if self.0.iter().position(|(c, _)| c.eq(&class)).is_none() {
-                        self.0.push((class, ClassType::User));
-                    }
-                }
-            }
-
-            ClassesOp::Remove => {
-                for class in classes {
-                    self.0
-                        .retain(|(c, t)| c.ne(&class) || t.ne(&ClassType::User));
-                }
-            }
-
-            ClassesOp::Replace(value) => {
-                for class in classes {
-                    match self.0.iter().position(|(c, _)| c.eq(&value)) {
-                        Some(pos) => {
-                            self.0.remove(pos);
-                            self.0.insert(pos, (class, ClassType::User));
-                        }
-                        _ => self.0.push((class, ClassType::User)),
-                    }
-                }
-            }
-
-            ClassesOp::Reset => self.0.retain(|(_, t)| t.eq(&ClassType::Default)),
-
             ClassesOp::SetDefault => {
-                self.0.retain(|(_, t)| t.eq(&ClassType::User));
-                let mut pos = 0;
-                for class in classes {
-                    if self.0.iter().position(|(c, _)| c.eq(&class)).is_none() {
-                        self.0.insert(pos, (class, ClassType::Default));
-                        pos = pos + 1;
-                    }
+                self.0.retain(|(_, t)| t.ne(&ClassType::Default));
+                self.add(classes, 0, ClassType::Default);
+            }
+            ClassesOp::AddDefault => {
+                let pos = match self.0.iter().position(|(_, t)| t.eq(&ClassType::User)) {
+                    Some(pos) => pos,
+                    None => self.0.len(),
+                };
+                self.add(classes, pos, ClassType::Default);
+            }
+            ClassesOp::Add => {
+                self.add(classes, self.0.len(), ClassType::User);
+            }
+            ClassesOp::Remove => {
+                for name in classes {
+                    self.0.retain(|(c, _)| c.ne(&name.to_string()));
                 }
+            }
+            ClassesOp::Replace(class) => {
+                if let Some(pos) = self.0.iter().position(|(c, _)| c.eq(&class)) {
+                    let (_, class_type) = self.0.remove(pos);
+                    self.add(classes, pos, class_type);
+                }
+            }
+            ClassesOp::Reset => {
+                self.0.retain(|(_, t)| t.ne(&ClassType::User));
             }
         }
         self
+    }
+
+    #[inline]
+    fn add(&mut self, classes: &[impl ToString], mut pos: usize, class_type: ClassType) {
+        for class in classes {
+            let class: String = class.to_string();
+            if !class.is_empty() && self.0.iter().position(|(c, _)| c.eq(&class)).is_none() {
+                self.0.insert(pos, (class, class_type.clone()));
+                pos = pos + 1;
+            }
+        }
     }
 
     // Classes GETTERS.

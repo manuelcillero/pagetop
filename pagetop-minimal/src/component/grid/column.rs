@@ -50,7 +50,7 @@ pub struct Column {
 
 impl ComponentTrait for Column {
     fn new() -> Self {
-        Column::default().with_classes(ClassesOp::SetDefault, SIZE_DEFAULT)
+        Column::default().with_classes(ClassesOp::SetDefault, &[SIZE_DEFAULT])
     }
 
     fn handle(&self) -> Handle {
@@ -108,7 +108,7 @@ impl Column {
     }
 
     #[fn_builder]
-    pub fn alter_classes(&mut self, op: ClassesOp, classes: &str) -> &mut Self {
+    pub fn alter_classes(&mut self, op: ClassesOp, classes: &[impl ToString]) -> &mut Self {
         self.classes.alter_value(op, classes);
         self
     }
@@ -117,19 +117,19 @@ impl Column {
     #[fn_builder]
     pub fn alter_size(&mut self, size: ColumnSize) -> &mut Self {
         match size {
-            ColumnSize::Default  => self.alter_classes(ClassesOp::SetDefault, SIZE_DEFAULT),
-            ColumnSize::Is1of12  => self.alter_classes(ClassesOp::SetDefault, SIZE_1_OF_12),
-            ColumnSize::Is2of12  => self.alter_classes(ClassesOp::SetDefault, SIZE_2_OF_12),
-            ColumnSize::Is3of12  => self.alter_classes(ClassesOp::SetDefault, SIZE_3_OF_12),
-            ColumnSize::Is4of12  => self.alter_classes(ClassesOp::SetDefault, SIZE_4_OF_12),
-            ColumnSize::Is5of12  => self.alter_classes(ClassesOp::SetDefault, SIZE_5_OF_12),
-            ColumnSize::Is6of12  => self.alter_classes(ClassesOp::SetDefault, SIZE_6_OF_12),
-            ColumnSize::Is7of12  => self.alter_classes(ClassesOp::SetDefault, SIZE_7_OF_12),
-            ColumnSize::Is8of12  => self.alter_classes(ClassesOp::SetDefault, SIZE_8_OF_12),
-            ColumnSize::Is9of12  => self.alter_classes(ClassesOp::SetDefault, SIZE_9_OF_12),
-            ColumnSize::Is10of12 => self.alter_classes(ClassesOp::SetDefault, SIZE_10_OF_12),
-            ColumnSize::Is11of12 => self.alter_classes(ClassesOp::SetDefault, SIZE_11_OF_12),
-            ColumnSize::IsFull   => self.alter_classes(ClassesOp::SetDefault, SIZE_12_OF_12),
+            ColumnSize::Default  => self.alter_classes(ClassesOp::SetDefault, &[SIZE_DEFAULT]),
+            ColumnSize::Is1of12  => self.alter_classes(ClassesOp::SetDefault, &[SIZE_1_OF_12]),
+            ColumnSize::Is2of12  => self.alter_classes(ClassesOp::SetDefault, &[SIZE_2_OF_12]),
+            ColumnSize::Is3of12  => self.alter_classes(ClassesOp::SetDefault, &[SIZE_3_OF_12]),
+            ColumnSize::Is4of12  => self.alter_classes(ClassesOp::SetDefault, &[SIZE_4_OF_12]),
+            ColumnSize::Is5of12  => self.alter_classes(ClassesOp::SetDefault, &[SIZE_5_OF_12]),
+            ColumnSize::Is6of12  => self.alter_classes(ClassesOp::SetDefault, &[SIZE_6_OF_12]),
+            ColumnSize::Is7of12  => self.alter_classes(ClassesOp::SetDefault, &[SIZE_7_OF_12]),
+            ColumnSize::Is8of12  => self.alter_classes(ClassesOp::SetDefault, &[SIZE_8_OF_12]),
+            ColumnSize::Is9of12  => self.alter_classes(ClassesOp::SetDefault, &[SIZE_9_OF_12]),
+            ColumnSize::Is10of12 => self.alter_classes(ClassesOp::SetDefault, &[SIZE_10_OF_12]),
+            ColumnSize::Is11of12 => self.alter_classes(ClassesOp::SetDefault, &[SIZE_11_OF_12]),
+            ColumnSize::IsFull   => self.alter_classes(ClassesOp::SetDefault, &[SIZE_12_OF_12]),
         };
         self.size = size;
         self
