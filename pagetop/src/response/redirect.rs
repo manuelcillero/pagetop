@@ -57,8 +57,8 @@ impl Redirect {
     }
 
     /// Temporary redirection. Status Code **307**. Method and body not changed. The web page is
-    /// temporarily unavailable for unforeseen reasons. Better than [`found()`](found) when non-GET
-    /// operations are available on the site.
+    /// temporarily unavailable for unforeseen reasons. Better than [`found()`](Self::found) when
+    /// non-GET operations are available on the site.
     pub fn temporary(redirect_to_url: &str) -> HttpResponse {
         HttpResponse::TemporaryRedirect()
             .append_header(("Location", redirect_to_url))
