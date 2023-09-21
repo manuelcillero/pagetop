@@ -1,56 +1,32 @@
 use pagetop::prelude::*;
 
+use crate::component::flex;
+
 new_handle!(COMPONENT_FLEX_ITEM);
 
 actions_for_component!(Item);
 
-const SIZE_DEFAULT: &str = "col";
-const SIZE_1_OF_12: &str = "col-md-1";
-const SIZE_2_OF_12: &str = "col-md-2";
-const SIZE_3_OF_12: &str = "col-md-3";
-const SIZE_4_OF_12: &str = "col-md-4";
-const SIZE_5_OF_12: &str = "col-md-5";
-const SIZE_6_OF_12: &str = "col-md-6";
-const SIZE_7_OF_12: &str = "col-md-7";
-const SIZE_8_OF_12: &str = "col-md-8";
-const SIZE_9_OF_12: &str = "col-md-9";
-const SIZE_10_OF_12: &str = "col-md-10";
-const SIZE_11_OF_12: &str = "col-md-11";
-const SIZE_12_OF_12: &str = "col-md-12";
-
-#[derive(Default)]
-pub enum ItemSize {
-    #[default]
-    Default,
-    Is1of12,
-    Is2of12,
-    Is3of12,
-    Is4of12,
-    Is5of12,
-    Is6of12,
-    Is7of12,
-    Is8of12,
-    Is9of12,
-    Is10of12,
-    Is11of12,
-    IsFull,
-}
-
 #[rustfmt::skip]
 #[derive(Default)]
 pub struct Item {
-    weight    : Weight,
-    renderable: Renderable,
-    id        : IdentifierValue,
-    classes   : Classes,
-    size      : ItemSize,
-    stuff     : ArcComponents,
-    template  : String,
+    weight       : Weight,
+    renderable   : Renderable,
+    id           : IdentifierValue,
+    item_classes : Classes,
+    inner_classes: Classes,
+    item_grow    : flex::ItemGrow,
+    item_shrink  : flex::ItemShrink,
+    item_size    : flex::ItemSize,
+    item_offset  : flex::ItemOffset,
+    item_align   : flex::ItemAlign,
+    stuff        : ArcComponents,
 }
 
 impl ComponentTrait for Item {
     fn new() -> Self {
-        Item::default().with_classes(ClassesOp::SetDefault, SIZE_DEFAULT)
+        Item::default()
+            .with_item_classes(ClassesOp::SetDefault, "flex-item")
+            .with_inner_classes(ClassesOp::SetDefault, "flex-item-inner")
     }
 
     fn handle(&self) -> Handle {
@@ -74,9 +50,15 @@ impl ComponentTrait for Item {
     }
 
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
+        let order = match self.weight() {
+            0 => None,
+            _ => Some(concat_string!("order: ", self.weight().to_string(), ";")),
+        };
         PrepareMarkup::With(html! {
-            div id=[self.id()] class=[self.classes().get()] {
-                (self.components().prepare(cx))
+            div id=[self.id()] class=[self.item_classes().get()] style=[order] {
+                div class=[self.inner_classes().get()] {
+                    (self.components().prepare(cx))
+                }
             }
         })
     }
@@ -108,30 +90,64 @@ impl Item {
     }
 
     #[fn_builder]
-    pub fn alter_classes(&mut self, op: ClassesOp, classes: &str) -> &mut Self {
-        self.classes.alter_value(op, classes);
+    pub fn alter_item_classes(&mut self, op: ClassesOp, classes: impl Into<String>) -> &mut Self {
+        self.item_classes.alter_value(op, classes);
         self
     }
 
-    #[rustfmt::skip]
     #[fn_builder]
-    pub fn alter_size(&mut self, size: ItemSize) -> &mut Self {
-        match size {
-            ItemSize::Default  => self.alter_classes(ClassesOp::SetDefault, SIZE_DEFAULT),
-            ItemSize::Is1of12  => self.alter_classes(ClassesOp::SetDefault, SIZE_1_OF_12),
-            ItemSize::Is2of12  => self.alter_classes(ClassesOp::SetDefault, SIZE_2_OF_12),
-            ItemSize::Is3of12  => self.alter_classes(ClassesOp::SetDefault, SIZE_3_OF_12),
-            ItemSize::Is4of12  => self.alter_classes(ClassesOp::SetDefault, SIZE_4_OF_12),
-            ItemSize::Is5of12  => self.alter_classes(ClassesOp::SetDefault, SIZE_5_OF_12),
-            ItemSize::Is6of12  => self.alter_classes(ClassesOp::SetDefault, SIZE_6_OF_12),
-            ItemSize::Is7of12  => self.alter_classes(ClassesOp::SetDefault, SIZE_7_OF_12),
-            ItemSize::Is8of12  => self.alter_classes(ClassesOp::SetDefault, SIZE_8_OF_12),
-            ItemSize::Is9of12  => self.alter_classes(ClassesOp::SetDefault, SIZE_9_OF_12),
-            ItemSize::Is10of12 => self.alter_classes(ClassesOp::SetDefault, SIZE_10_OF_12),
-            ItemSize::Is11of12 => self.alter_classes(ClassesOp::SetDefault, SIZE_11_OF_12),
-            ItemSize::IsFull   => self.alter_classes(ClassesOp::SetDefault, SIZE_12_OF_12),
-        };
-        self.size = size;
+    pub fn alter_inner_classes(&mut self, op: ClassesOp, classes: impl Into<String>) -> &mut Self {
+        self.inner_classes.alter_value(op, classes);
+        self
+    }
+
+    #[fn_builder]
+    pub fn alter_grow(&mut self, grow: flex::ItemGrow) -> &mut Self {
+        self.item_classes.alter_value(
+            ClassesOp::Replace(self.item_grow.to_string()),
+            grow.to_string(),
+        );
+        self.item_grow = grow;
+        self
+    }
+
+    #[fn_builder]
+    pub fn alter_shrink(&mut self, shrink: flex::ItemShrink) -> &mut Self {
+        self.item_classes.alter_value(
+            ClassesOp::Replace(self.item_shrink.to_string()),
+            shrink.to_string(),
+        );
+        self.item_shrink = shrink;
+        self
+    }
+
+    #[fn_builder]
+    pub fn alter_size(&mut self, size: flex::ItemSize) -> &mut Self {
+        self.item_classes.alter_value(
+            ClassesOp::Replace(self.item_size.to_string()),
+            size.to_string(),
+        );
+        self.item_size = size;
+        self
+    }
+
+    #[fn_builder]
+    pub fn alter_offset(&mut self, offset: flex::ItemOffset) -> &mut Self {
+        self.item_classes.alter_value(
+            ClassesOp::Replace(self.item_offset.to_string()),
+            offset.to_string(),
+        );
+        self.item_offset = offset;
+        self
+    }
+
+    #[fn_builder]
+    pub fn alter_align(&mut self, align: flex::ItemAlign) -> &mut Self {
+        self.item_classes.alter_value(
+            ClassesOp::Replace(self.item_align.to_string()),
+            align.to_string(),
+        );
+        self.item_align = align;
         self
     }
 
@@ -146,27 +162,37 @@ impl Item {
         self
     }
 
-    #[fn_builder]
-    pub fn alter_template(&mut self, template: &str) -> &mut Self {
-        self.template = template.to_owned();
-        self
-    }
-
     // Item GETTERS.
 
-    pub fn classes(&self) -> &Classes {
-        &self.classes
+    pub fn item_classes(&self) -> &Classes {
+        &self.item_classes
     }
 
-    pub fn size(&self) -> &ItemSize {
-        &self.size
+    pub fn inner_classes(&self) -> &Classes {
+        &self.inner_classes
+    }
+
+    pub fn grow(&self) -> &flex::ItemGrow {
+        &self.item_grow
+    }
+
+    pub fn shrink(&self) -> &flex::ItemShrink {
+        &self.item_shrink
+    }
+
+    pub fn size(&self) -> &flex::ItemSize {
+        &self.item_size
+    }
+
+    pub fn offset(&self) -> &flex::ItemOffset {
+        &self.item_offset
+    }
+
+    pub fn align(&self) -> &flex::ItemAlign {
+        &self.item_align
     }
 
     pub fn components(&self) -> &ArcComponents {
         &self.stuff
-    }
-
-    pub fn template(&self) -> &str {
-        self.template.as_str()
     }
 }

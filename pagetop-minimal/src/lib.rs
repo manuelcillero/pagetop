@@ -12,7 +12,35 @@ static_files!(minimal);
 const VERSION_MINIMAL: &str = env!("CARGO_PKG_VERSION");
 
 // Context parameter.
-const PARAM_MINIMAL_ASSETS: &str = "minimal.assets";
+const PARAM_MINIMAL_FLEX: &str = "minimal.flex";
+
+#[rustfmt::skip]
+#[derive(Default)]
+pub enum BreakPoint {
+    #[default]
+    None,  /* Does not apply */
+    SM,    /* @media screen and (max-width: 35.5em) - Applies <= 568px  */
+    MD,    /* @media screen and (max-width: 48em)   - Applies <= 768px  */
+    LG,    /* @media screen and (max-width: 64em)   - Applies <= 1024px */
+    XL,    /* @media screen and (max-width: 80em)   - Applies <= 1280px */
+    X2L,   /* @media screen and (max-width: 120em)  - Applies <= 1920px */
+    X3L,   /* @media screen and (max-width: 160em)  - Applies <= 2560px */
+}
+
+#[rustfmt::skip]
+impl ToString for BreakPoint {
+    fn to_string(&self) -> String {
+        match self {
+            BreakPoint::None => "bp-no".to_string(),
+            BreakPoint::SM   => "bp-sm".to_string(),
+            BreakPoint::MD   => "bp-md".to_string(),
+            BreakPoint::LG   => "bp-lg".to_string(),
+            BreakPoint::XL   => "bp-xl".to_string(),
+            BreakPoint::X2L  => "bp-x2l".to_string(),
+            BreakPoint::X3L  => "bp-x3l".to_string(),
+        }
+    }
+}
 
 pub struct Minimal;
 

@@ -2,7 +2,6 @@ mod container;
 pub use container::{Container, ContainerType, COMPONENT_CONTAINER};
 
 pub mod flex;
-pub mod grid;
 
 mod icon;
 pub use icon::{Icon, COMPONENT_ICON};

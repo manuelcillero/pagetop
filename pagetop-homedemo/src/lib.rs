@@ -1,5 +1,7 @@
 use pagetop::prelude::*;
+
 use pagetop_minimal::component::*;
+use pagetop_minimal::BreakPoint;
 
 new_handle!(MODULE_HOMEDEMO);
 
@@ -49,11 +51,12 @@ async fn demo(request: service::HttpRequest) -> ResultPage<Markup, FatalError> {
 
 fn hello_world() -> Container {
     Container::header().with_id("hello-world").with_component(
-        grid::Row::new()
-            .with_column(
-                grid::Column::new()
-                    .with_classes(ClassesOp::Add, "hello-col-text")
-                    .with_size(grid::ColumnSize::Is5of12)
+        flex::Container::new()
+            .with_direction(flex::Direction::Column(BreakPoint::MD))
+            .with_item(
+                flex::Item::new()
+                    .with_inner_classes(ClassesOp::Add, "hello-col-text")
+                    .with_size(flex::ItemSize::Percent40)
                     .with_component(
                         Heading::h1(L10n::t("page_title", &LOCALES_HOMEDEMO))
                             .with_display(HeadingDisplay::Medium),
@@ -92,9 +95,10 @@ fn hello_world() -> Container {
                             .with_classes(ClassesOp::Add, "welcome-link"),
                     ),
             )
-            .with_column(
-                grid::Column::new()
-                    .with_classes(ClassesOp::Add, "hello-col-image")
+            .with_item(
+                flex::Item::new()
+                    .with_inner_classes(ClassesOp::Add, "hello-col-image")
+                    .with_size(flex::ItemSize::Percent60)
                     .with_component(Image::with("/homedemo/images/header.svg")),
             ),
     )
@@ -124,16 +128,17 @@ fn welcome() -> Container {
 
 fn about_pagetop() -> Container {
     Container::new().with_id("pagetop").with_component(
-        grid::Row::new()
-            .with_column(
-                grid::Column::new()
-                    .with_classes(ClassesOp::Add, "pagetop-col-image")
-                    .with_size(grid::ColumnSize::Is5of12)
+        flex::Container::new()
+            .with_direction(flex::Direction::Column(BreakPoint::SM))
+            .with_item(
+                flex::Item::new()
+                    .with_inner_classes(ClassesOp::Add, "pagetop-col-image")
+                    .with_size(flex::ItemSize::Percent40)
                     .with_component(Image::with("/homedemo/images/about.svg")),
             )
-            .with_column(
-                grid::Column::new()
-                    .with_classes(ClassesOp::Add, "pagetop-col-text")
+            .with_item(
+                flex::Item::new()
+                    .with_inner_classes(ClassesOp::Add, "pagetop-col-text")
                     .with_component(Heading::h2(L10n::t("pagetop_title", &LOCALES_HOMEDEMO)))
                     .with_component(
                         Paragraph::with(L10n::t("pagetop_text1", &LOCALES_HOMEDEMO))
@@ -150,10 +155,12 @@ fn about_pagetop() -> Container {
 
 fn promo_pagetop() -> Container {
     Container::new().with_id("promo").with_component(
-        grid::Row::new()
-            .with_column(
-                grid::Column::new()
-                    .with_classes(ClassesOp::Add, "promo-col-text")
+        flex::Container::new()
+            .with_direction(flex::Direction::Column(BreakPoint::MD))
+            .with_item(
+                flex::Item::new()
+                    .with_inner_classes(ClassesOp::Add, "promo-col-text")
+                    .with_size(flex::ItemSize::Percent60)
                     .with_component(Heading::h2(L10n::t(
                         "pagetop_promo_title",
                         &LOCALES_HOMEDEMO,
@@ -171,10 +178,10 @@ fn promo_pagetop() -> Container {
                         .with_display(ParagraphDisplay::Small),
                     ),
             )
-            .with_column(
-                grid::Column::new()
-                    .with_classes(ClassesOp::Add, "promo-col-image")
-                    .with_size(grid::ColumnSize::Is6of12)
+            .with_item(
+                flex::Item::new()
+                    .with_inner_classes(ClassesOp::Add, "promo-col-image")
+                    .with_size(flex::ItemSize::Percent40)
                     .with_component(Image::with("/homedemo/images/pagetop.png")),
             ),
     )
@@ -182,16 +189,17 @@ fn promo_pagetop() -> Container {
 
 fn reporting_issues() -> Container {
     Container::new().with_id("reporting").with_component(
-        grid::Row::new()
-            .with_column(
-                grid::Column::new()
-                    .with_classes(ClassesOp::Add, "reporting-col-image")
+        flex::Container::new()
+            .with_direction(flex::Direction::Column(BreakPoint::MD))
+            .with_item(
+                flex::Item::new()
+                    .with_inner_classes(ClassesOp::Add, "reporting-col-image")
                     .with_component(Image::with("/homedemo/images/support.jpg")),
             )
-            .with_column(
-                grid::Column::new()
-                    .with_classes(ClassesOp::Add, "reporting-col-text")
-                    .with_size(grid::ColumnSize::Is6of12)
+            .with_item(
+                flex::Item::new()
+                    .with_inner_classes(ClassesOp::Add, "reporting-col-text")
+                    .with_size(flex::ItemSize::Percent50)
                     .with_component(Heading::h2(L10n::t(
                         "report_problems_title",
                         &LOCALES_HOMEDEMO,

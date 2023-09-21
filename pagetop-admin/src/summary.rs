@@ -57,9 +57,9 @@ pub async fn summary(request: service::HttpRequest) -> ResultPage<Markup, FatalE
         .with_in("top-menu", top_menu)
         .with_in(
             "content",
-            grid::Row::new()
-                .with_column(grid::Column::new().with_component(side_menu))
-                .with_column(grid::Column::new().with_component(Html::with(html! {
+            flex::Container::new()
+                .with_item(flex::Item::new().with_component(side_menu))
+                .with_item(flex::Item::new().with_component(Html::with(html! {
                     p { "Columna 2"}
                 }))),
         )
