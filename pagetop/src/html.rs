@@ -25,6 +25,8 @@ pub use attribute::AttributeValue;
 mod classes;
 pub use classes::{Classes, ClassesOp};
 
+pub mod unit;
+
 pub enum PrepareMarkup {
     None,
     Text(&'static str),
