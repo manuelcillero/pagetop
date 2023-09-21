@@ -18,7 +18,6 @@ pub enum ClassesOp {
     Add,
     Remove,
     Replace(String),
-    ReplaceIfExists(String),
     Reset,
 }
 
@@ -63,20 +62,22 @@ impl Classes {
                     self.0.retain(|(c, _)| c.ne(&name.to_string()));
                 }
             }
-            ClassesOp::Replace(class) => {
-                match self.0.iter().position(|(c, _)| c.eq(&class)) {
-                    Some(pos) => {
-                        let (_, class_type) = self.0.remove(pos);
-                        self.add(&classes, pos, class_type);
+            ClassesOp::Replace(classes_to_replace) => {
+                let mut pos = self.0.len();
+                let mut class_type = ClassType::User;
+                let replace: Vec<&str> = classes_to_replace.split_ascii_whitespace().collect();
+                for class in replace {
+                    if let Some(replace_pos) = self.0.iter().position(|(c, _)| c.eq(class)) {
+                        let (_, replace_type) = self.0.remove(replace_pos);
+                        if pos > replace_pos {
+                            pos = replace_pos;
+                        }
+                        if replace_type.eq(&ClassType::Default) {
+                            class_type = replace_type;
+                        }
                     }
-                    None => self.add(&classes, self.0.len(), ClassType::User),
-                };
-            }
-            ClassesOp::ReplaceIfExists(class) => {
-                if let Some(pos) = self.0.iter().position(|(c, _)| c.eq(&class)) {
-                    let (_, class_type) = self.0.remove(pos);
-                    self.add(&classes, pos, class_type);
                 }
+                self.add(&classes, pos, class_type);
             }
             ClassesOp::Reset => {
                 self.0.retain(|(_, t)| t.ne(&ClassType::User));
@@ -88,17 +89,22 @@ impl Classes {
     #[inline]
     fn add(&mut self, classes: &Vec<&str>, mut pos: usize, class_type: ClassType) {
         for class in classes {
-            if !class.is_empty() && self.0.iter().position(|(c, _)| c.eq(class)).is_none() {
+            if !class.is_empty() && !self.0.iter().any(|(c, _)| c.eq(class)) {
                 self.0.insert(pos, (class.to_string(), class_type.clone()));
-                pos = pos + 1;
+                pos += 1;
             }
         }
     }
 
     // Classes GETTERS.
 
+    pub fn exists(&self, class: impl Into<String>) -> bool {
+        let class: String = class.into();
+        self.0.iter().any(|(c, _)| c.eq(&class))
+    }
+
     pub fn get(&self) -> Option<String> {
-        if self.0.len() == 0 {
+        if self.0.is_empty() {
             None
         } else {
             Some(
