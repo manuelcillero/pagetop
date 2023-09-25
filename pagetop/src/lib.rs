@@ -157,6 +157,9 @@ pub mod core;
 // Tipos de respuestas a peticiones web.
 pub mod response;
 
+// Base de acciones, componentes, módulos y temas.
+pub mod base;
+
 // Prepara y ejecuta la aplicación.
 pub mod app;
 

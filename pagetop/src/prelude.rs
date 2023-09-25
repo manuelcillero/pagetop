@@ -20,7 +20,7 @@ pub use crate::static_locales;
 pub use crate::{static_files, static_files_service};
 // crate::core::actions
 pub use crate::actions;
-// crate::core::component
+// crate::base::action::component
 pub use crate::actions_for_component;
 
 // API.
@@ -48,5 +48,9 @@ pub use crate::core::theme::*;
 
 pub use crate::response::fatal_error::*;
 pub use crate::response::{page::*, redirect::*, ResponseError};
+
+pub use crate::base::action;
+pub use crate::base::component::*;
+pub use crate::base::theme;
 
 pub use crate::app::Application;

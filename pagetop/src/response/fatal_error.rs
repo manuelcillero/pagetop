@@ -3,7 +3,7 @@ pub use error403::ERROR_403;
 mod error404;
 pub use error404::ERROR_404;
 
-use crate::core::component::L10n;
+use crate::base::component::L10n;
 use crate::response::{page::Page, ResponseError};
 use crate::service::http::{header::ContentType, StatusCode};
 use crate::service::{HttpRequest, HttpResponse};

@@ -42,8 +42,8 @@ async fn demo(request: service::HttpRequest) -> ResultPage<Markup, FatalError> {
         .render()
 }
 
-fn hello_world() -> Container {
-    Container::header().with_id("hello-world").with_component(
+fn hello_world() -> Wrapper {
+    Wrapper::header().with_id("hello-world").with_component(
         flex::Container::new()
             .with_direction(flex::Direction::Column(BreakPoint::MD))
             .with_item(
@@ -97,8 +97,8 @@ fn hello_world() -> Container {
     )
 }
 
-fn welcome() -> Container {
-    Container::section()
+fn welcome() -> Wrapper {
+    Wrapper::section()
         .with_id("welcome")
         .with_classes(ClassesOp::Add, "welcome-col-text")
         .with_component(Heading::h2(L10n::t("welcome_page", &LOCALES_HOMEDEMO)))
@@ -119,8 +119,8 @@ fn welcome() -> Container {
         .with_component(Paragraph::with(L10n::t("welcome_text2", &LOCALES_HOMEDEMO)))
 }
 
-fn about_pagetop() -> Container {
-    Container::new().with_id("pagetop").with_component(
+fn about_pagetop() -> Wrapper {
+    Wrapper::new().with_id("pagetop").with_component(
         flex::Container::new()
             .with_direction(flex::Direction::Column(BreakPoint::SM))
             .with_item(
@@ -146,8 +146,8 @@ fn about_pagetop() -> Container {
     )
 }
 
-fn promo_pagetop() -> Container {
-    Container::new().with_id("promo").with_component(
+fn promo_pagetop() -> Wrapper {
+    Wrapper::new().with_id("promo").with_component(
         flex::Container::new()
             .with_direction(flex::Direction::Column(BreakPoint::MD))
             .with_item(
@@ -180,8 +180,8 @@ fn promo_pagetop() -> Container {
     )
 }
 
-fn reporting_issues() -> Container {
-    Container::new().with_id("reporting").with_component(
+fn reporting_issues() -> Wrapper {
+    Wrapper::new().with_id("reporting").with_component(
         flex::Container::new()
             .with_direction(flex::Direction::Column(BreakPoint::MD))
             .with_item(

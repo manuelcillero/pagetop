@@ -29,7 +29,7 @@ impl ModuleTrait for JQuery {
     }
 
     fn actions(&self) -> Vec<Action> {
-        actions![ActionAfterPrepareBody::with(after_prepare_body)]
+        actions![action::page::AfterPrepareBody::with(after_prepare_body)]
     }
 
     fn configure_service(&self, scfg: &mut service::web::ServiceConfig) {

@@ -1,18 +1,17 @@
-use crate::core::action::{action_ref, run_actions, ActionTrait};
-use crate::response::page::action::FnActionPage;
-use crate::response::page::Page;
-use crate::{new_handle, Handle, Weight};
+use crate::prelude::*;
+
+use super::FnActionPage;
 
 new_handle!(ACTION_AFTER_PREPARE_BODY for Crate);
 
-pub struct ActionAfterPrepareBody {
+pub struct AfterPrepareBody {
     action: Option<FnActionPage>,
     weight: Weight,
 }
 
-impl ActionTrait for ActionAfterPrepareBody {
+impl ActionTrait for AfterPrepareBody {
     fn new() -> Self {
-        ActionAfterPrepareBody {
+        AfterPrepareBody {
             action: None,
             weight: 0,
         }
@@ -27,9 +26,9 @@ impl ActionTrait for ActionAfterPrepareBody {
     }
 }
 
-impl ActionAfterPrepareBody {
+impl AfterPrepareBody {
     pub fn with(action: FnActionPage) -> Self {
-        ActionAfterPrepareBody {
+        AfterPrepareBody {
             action: Some(action),
             weight: 0,
         }
@@ -50,6 +49,6 @@ impl ActionAfterPrepareBody {
 #[inline(always)]
 pub(crate) fn run_actions_after_prepare_body(page: &mut Page) {
     run_actions(ACTION_AFTER_PREPARE_BODY, |action| {
-        action_ref::<ActionAfterPrepareBody>(&**action).run(page)
+        action_ref::<AfterPrepareBody>(&**action).run(page)
     });
 }

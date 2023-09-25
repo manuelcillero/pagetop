@@ -1,8 +1,7 @@
-mod action;
-pub use action::*;
-
+use crate::base::action::page::{run_actions_after_prepare_body, run_actions_before_prepare_body};
+use crate::base::component::L10n;
 use crate::core::component::{ArcComponent, ComponentTrait, TypedComponent};
-use crate::core::component::{Context, ContextOp, L10n};
+use crate::core::component::{Context, ContextOp};
 use crate::core::theme::ComponentsRegions;
 use crate::html::{html, Classes, ClassesOp, Favicon, Markup, DOCTYPE};
 use crate::response::fatal_error::FatalError;

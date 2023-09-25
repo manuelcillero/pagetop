@@ -43,21 +43,6 @@ impl ThemeTrait for Bootsier {
         ]
     }
 
-    fn before_prepare_body(&self, page: &mut Page) {
-        page.alter_favicon(Some(Favicon::new().with_icon("/theme/favicon.ico")))
-            .alter_context(ContextOp::AddStyleSheet(
-                StyleSheet::at("/bootsier/css/bootstrap.min.css")
-                    .with_version("5.1.3")
-                    .with_weight(-99),
-            ))
-            .alter_context(ContextOp::AddJavaScript(
-                JavaScript::at("/bootsier/js/bootstrap.bundle.min.js")
-                    .with_version("5.1.3")
-                    .with_weight(-99),
-            ));
-        JQuery.enable_jquery(page.context());
-    }
-
     fn prepare_body(&self, page: &mut Page) -> Markup {
         match page.template() {
             "admin" => html! {
@@ -116,6 +101,33 @@ impl ThemeTrait for Bootsier {
                 }
             }
         }
+    }
+
+    fn after_prepare_body(&self, page: &mut Page) {
+        page.alter_favicon(Some(Favicon::new().with_icon("/theme/favicon.ico")))
+            .alter_context(ContextOp::AddStyleSheet(
+                StyleSheet::at("/bootsier/css/bootstrap.min.css")
+                    .with_version("5.1.3")
+                    .with_weight(-99),
+            ))
+            .alter_context(ContextOp::AddJavaScript(
+                JavaScript::at("/bootsier/js/bootstrap.bundle.min.js")
+                    .with_version("5.1.3")
+                    .with_weight(-99),
+            ));
+
+        if let Some(true) = page.context().get_param::<bool>(PARAM_INCLUDE_FLEX) {
+            page.alter_context(ContextOp::AddStyleSheet(
+                StyleSheet::at("/theme/css/flex.css").with_version("0.0.0"),
+            ));
+        }
+        if let Some(true) = page.context().get_param::<bool>(PARAM_INCLUDE_ICONS) {
+            page.alter_context(ContextOp::AddStyleSheet(
+                StyleSheet::at("/theme/icons/bootstrap-icons.css").with_version("1.8.2"),
+            ));
+        }
+
+        JQuery.enable_jquery(page.context());
     }
 
     fn render_component(&self, component: &dyn ComponentTrait, cx: &mut Context) -> Option<Markup> {

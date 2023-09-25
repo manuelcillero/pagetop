@@ -40,7 +40,7 @@ async fn login(request: service::HttpRequest) -> ResultPage<Markup, FatalError> 
         .with_title(L10n::n("Identificación del usuario"))
         .with_in(
             "content",
-            Container::new()
+            Wrapper::new()
                 .with_id("welcome")
                 .with_component(form_login()),
         )

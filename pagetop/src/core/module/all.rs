@@ -28,7 +28,7 @@ pub fn register_modules(app: ModuleRef) {
     let mut list: Vec<ModuleRef> = Vec::new();
 
     // Enable default theme.
-    add_to_enabled(&mut list, &crate::core::theme::DefaultTheme);
+    add_to_enabled(&mut list, &crate::base::theme::InceptionTheme);
 
     // Enable application modules.
     add_to_enabled(&mut list, app);

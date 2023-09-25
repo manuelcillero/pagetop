@@ -1,7 +1,4 @@
-use crate::core::component::{ComponentTrait, Context};
-use crate::html::{html, PreEscaped, PrepareMarkup};
-use crate::locale::{Loader, Locales};
-use crate::{fn_builder, new_handle, Handle};
+use crate::prelude::*;
 
 use std::collections::HashMap;
 

@@ -1,4 +1,5 @@
-use crate::core::component::{ComponentTrait, Context, L10n};
+use crate::base::component::L10n;
+use crate::core::component::{ComponentTrait, Context};
 use crate::core::module::ModuleTrait;
 use crate::html::{html, Favicon, Markup};
 use crate::response::page::Page;

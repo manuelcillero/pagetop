@@ -1,4 +1,4 @@
-use crate::response::page::Page;
+use crate::prelude::*;
 
 pub type FnActionPage = fn(page: &mut Page);
 

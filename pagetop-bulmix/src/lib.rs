@@ -29,13 +29,25 @@ impl ModuleTrait for Bulmix {
 }
 
 impl ThemeTrait for Bulmix {
-    fn before_prepare_body(&self, page: &mut Page) {
+    fn after_prepare_body(&self, page: &mut Page) {
         page.alter_favicon(Some(Favicon::new().with_icon("/theme/favicon.ico")))
             .alter_context(ContextOp::AddStyleSheet(
                 StyleSheet::at("/bulmix/css/bulma.min.css")
                     .with_version("0.9.4")
                     .with_weight(-99),
             ));
+
+        if let Some(true) = page.context().get_param::<bool>(PARAM_INCLUDE_FLEX) {
+            page.alter_context(ContextOp::AddStyleSheet(
+                StyleSheet::at("/theme/css/flex.css").with_version("0.0.0"),
+            ));
+        }
+        if let Some(true) = page.context().get_param::<bool>(PARAM_INCLUDE_ICONS) {
+            page.alter_context(ContextOp::AddStyleSheet(
+                StyleSheet::at("/theme/icons/bootstrap-icons.css").with_version("1.8.2"),
+            ));
+        }
+
         JQuery.enable_jquery(page.context());
     }
 

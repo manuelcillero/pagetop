@@ -1,0 +1,46 @@
+/* Image component */
+
+.img-fluid {
+	max-width: 100%;
+	height: auto;
+}
+
+/* SiteBranding component */
+
+.site-branding-wrapper {
+	display: flex;
+	align-items: flex-end;
+	column-gap: var(--sp0-75);
+}
+.site-branding-name {
+	letter-spacing: 0.02em;
+    font-size: var(--font-size-xxl);
+}
+.site-branding-slogan {
+    font-size: var(--font-size-xl);
+}
+
+/* SM - Applies <= 568px */
+@media (max-width: 35.5em) {
+	.site-branding-logo {
+		display: none;
+	}
+}
+/* LG - Applies <= 1024px */
+@media (max-width: 64em) {
+	.site-branding-slogan {
+		font-size: var(--font-size-l);
+	}
+}
+
+/* PoweredBy component */
+
+#powered-by {
+	text-align: center;
+}
+#powered-by .pagetop-logo img,
+#powered-by .pagetop-logo svg {
+	margin-left: .275em;
+	height: 1.275em;
+	vertical-align: middle;
+}

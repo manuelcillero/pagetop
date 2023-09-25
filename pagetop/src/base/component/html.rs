@@ -1,6 +1,4 @@
-use crate::core::component::{ComponentTrait, Context};
-use crate::html::{html, Markup, PrepareMarkup};
-use crate::{fn_builder, new_handle, Handle};
+use crate::prelude::*;
 
 new_handle!(COMPONENT_HTML);
 
