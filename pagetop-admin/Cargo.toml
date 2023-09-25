@@ -16,5 +16,4 @@ license = "Apache-2.0 OR MIT"
 
 [dependencies]
 pagetop = { version = "0.0", path = "../pagetop" }
-pagetop-minimal = { version = "0.0", path = "../pagetop-minimal" }
 pagetop-megamenu = { version = "0.0", path = "../pagetop-megamenu" }

@@ -2,7 +2,6 @@ use crate::LOCALES_ADMIN;
 
 use pagetop::prelude::*;
 use pagetop_megamenu::component::{MegaItem, MegaMenu};
-use pagetop_minimal::component::*;
 
 pub async fn summary(request: service::HttpRequest) -> ResultPage<Markup, FatalError> {
     let top_menu = MegaMenu::new()

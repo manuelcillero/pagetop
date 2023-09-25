@@ -8,7 +8,6 @@ members = [
     "pagetop-jquery",
     "pagetop-homedemo",
     # Components.
-    "pagetop-minimal",
     "pagetop-megamenu",
     # Modules.
     "pagetop-admin",

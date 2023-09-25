@@ -1,6 +1,5 @@
 use pagetop::prelude::*;
 use pagetop_jquery::JQuery;
-use pagetop_minimal::component::*;
 
 new_handle!(THEME_BULMIX);
 
@@ -21,7 +20,6 @@ impl ModuleTrait for Bulmix {
     fn dependencies(&self) -> Vec<ModuleRef> {
         vec![
             &pagetop_jquery::JQuery,
-            &pagetop_minimal::Minimal,
         ]
     }
 

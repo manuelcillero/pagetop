@@ -1,8 +1,5 @@
 use pagetop::prelude::*;
 
-use pagetop_minimal::component::*;
-use pagetop_minimal::BreakPoint;
-
 new_handle!(MODULE_HOMEDEMO);
 
 static_locales!(LOCALES_HOMEDEMO);
@@ -22,10 +19,6 @@ impl ModuleTrait for HomeDemo {
 
     fn description(&self) -> L10n {
         L10n::t("module_description", &LOCALES_HOMEDEMO)
-    }
-
-    fn dependencies(&self) -> Vec<ModuleRef> {
-        vec![&pagetop_minimal::Minimal]
     }
 
     fn configure_service(&self, scfg: &mut service::web::ServiceConfig) {

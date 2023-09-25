@@ -16,5 +16,4 @@ license = "Apache-2.0 OR MIT"
 
 [dependencies]
 pagetop = { version = "0.0", path = "../pagetop", features = ["database"], default-features = false }
-pagetop-minimal = { version = "0.0", path = "../pagetop-minimal" }
 serde = { version = "1.0", features = ["derive"] }

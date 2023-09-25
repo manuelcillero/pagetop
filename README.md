@@ -44,9 +44,6 @@ El repositorio se organiza en un *workspace* con los siguientes subproyectos:
 
 ## Componentes
 
-* **[pagetop-minimal](https://github.com/manuelcillero/pagetop/tree/main/pagetop-minimal)**, módulo
-  que proporciona un conjunto básico de componentes para la composición de páginas.
-
 * **[pagetop-jquery](https://github.com/manuelcillero/pagetop/tree/main/pagetop-jquery)**, módulo
   que permite añadir jQuery en las páginas que incluyen componentes o temas que usen esta librería
   JavaScript para interactuar con el documento HTML.​
