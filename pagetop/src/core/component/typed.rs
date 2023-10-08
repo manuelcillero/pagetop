@@ -2,7 +2,7 @@ use crate::core::component::{ComponentTrait, Context};
 use crate::html::{html, Markup};
 use crate::{Handle, Weight};
 
-use std::sync::{Arc, RwLock};
+use std::sync::{Arc, RwLock, RwLockReadGuard};
 
 #[derive(Default)]
 pub struct TypedComponent<T: ComponentTrait + Default>(Arc<RwLock<T>>);
@@ -22,8 +22,16 @@ impl<T: ComponentTrait + Default> TypedComponent<T> {
         TypedComponent(Arc::new(RwLock::new(component)))
     }
 
+    // TypedComponent BUILDER.
+
     pub fn set(&mut self, component: T) {
         self.0 = Arc::new(RwLock::new(component));
+    }
+
+    // TypedComponent GETTERS.
+
+    pub fn get(&self) -> RwLockReadGuard<'_, T> {
+        self.0.read().unwrap()
     }
 
     pub(crate) fn handle(&self) -> Handle {

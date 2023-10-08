@@ -2,7 +2,7 @@ use crate::core::component::{ComponentTrait, Context};
 use crate::html::{html, Markup};
 use crate::{new_handle, Handle, Weight};
 
-use std::sync::{Arc, RwLock};
+use std::sync::{Arc, RwLock, RwLockReadGuard};
 
 new_handle!(COMPONENT_NULL for Crate);
 
@@ -37,8 +37,16 @@ impl ArcComponent {
         ArcComponent(Arc::new(RwLock::new(component)))
     }
 
+    // ArcComponent BUILDER.
+
     pub fn set(&mut self, component: impl ComponentTrait) {
         self.0 = Arc::new(RwLock::new(component));
+    }
+
+    // ArcComponent GETTERS.
+
+    pub fn get(&self) -> RwLockReadGuard<'_, dyn ComponentTrait> {
+        self.0.read().unwrap()
     }
 
     pub(crate) fn handle(&self) -> Handle {
