@@ -3,7 +3,7 @@ use crate::base::component::L10n;
 use crate::core::component::{ArcComponent, ComponentTrait, TypedComponent};
 use crate::core::component::{Context, ContextOp};
 use crate::core::theme::ComponentsRegions;
-use crate::html::{html, Classes, ClassesOp, Favicon, Markup, DOCTYPE};
+use crate::html::{html, ClassesOp, Favicon, Markup, OptionClasses, DOCTYPE};
 use crate::response::fatal_error::FatalError;
 use crate::{fn_builder, service};
 
@@ -22,7 +22,7 @@ pub struct Page {
     properties  : Vec<(&'static str, &'static str)>,
     favicon     : Option<Favicon>,
     context     : Context,
-    body_classes: Classes,
+    body_classes: OptionClasses,
     regions     : ComponentsRegions,
     template    : String,
 }
@@ -37,7 +37,7 @@ impl Page {
             properties  : Vec::new(),
             favicon     : None,
             context     : Context::new(request),
-            body_classes: Classes::new().with_value(ClassesOp::SetDefault, "body"),
+            body_classes: OptionClasses::new().with_value(ClassesOp::SetDefault, "body"),
             regions     : ComponentsRegions::new(),
             template    : "default".to_owned(),
         }
@@ -125,7 +125,7 @@ impl Page {
         &mut self.context
     }
 
-    pub fn body_classes(&self) -> &Classes {
+    pub fn body_classes(&self) -> &OptionClasses {
         &self.body_classes
     }
 

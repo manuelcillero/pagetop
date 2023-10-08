@@ -19,9 +19,9 @@ pub enum WrapperType {
 pub struct Wrapper {
     weight       : Weight,
     renderable   : Renderable,
-    id           : IdentifierValue,
-    classes      : Classes,
-    inner_classes: Classes,
+    id           : OptionId,
+    classes      : OptionClasses,
+    inner_classes: OptionClasses,
     wrapper_type : WrapperType,
     stuff        : ArcComponents,
     template     : String,
@@ -137,7 +137,7 @@ impl Wrapper {
     }
 
     #[fn_builder]
-    pub fn alter_id(&mut self, id: &str) -> &mut Self {
+    pub fn alter_id(&mut self, id: impl Into<String>) -> &mut Self {
         self.id.alter_value(id);
         self
     }
@@ -173,11 +173,11 @@ impl Wrapper {
 
     // Wrapper GETTERS.
 
-    pub fn classes(&self) -> &Classes {
+    pub fn classes(&self) -> &OptionClasses {
         &self.classes
     }
 
-    pub fn inner_classes(&self) -> &Classes {
+    pub fn inner_classes(&self) -> &OptionClasses {
         &self.inner_classes
     }
 

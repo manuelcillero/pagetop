@@ -1,4 +1,4 @@
-//! **Classes** implements a *helper* for dynamically adding class names to components.
+//! **OptionClasses** implements a *helper* for dynamically adding class names to components.
 //!
 //! This *helper* differentiates between default classes (generally associated with styles provided
 //! by the theme) and user classes (for customizing components based on application styles).
@@ -18,7 +18,9 @@ pub enum ClassesOp {
     Add,
     Remove,
     Replace(String),
+    Toggle,
     Reset,
+    Clear,
 }
 
 #[derive(Clone, PartialEq)]
@@ -28,14 +30,14 @@ enum ClassType {
 }
 
 #[derive(Default)]
-pub struct Classes(Vec<(String, ClassType)>);
+pub struct OptionClasses(Vec<(String, ClassType)>);
 
-impl Classes {
+impl OptionClasses {
     pub fn new() -> Self {
-        Classes::default()
+        OptionClasses::default()
     }
 
-    // Classes BUILDER.
+    // OptionClasses BUILDER.
 
     #[fn_builder]
     pub fn alter_value(&mut self, op: ClassesOp, classes: impl Into<String>) -> &mut Self {
@@ -58,8 +60,8 @@ impl Classes {
                 self.add(&classes, self.0.len(), ClassType::User);
             }
             ClassesOp::Remove => {
-                for name in classes {
-                    self.0.retain(|(c, _)| c.ne(&name.to_string()));
+                for class in classes {
+                    self.0.retain(|(c, _)| c.ne(&class.to_string()));
                 }
             }
             ClassesOp::Replace(classes_to_replace) => {
@@ -79,8 +81,22 @@ impl Classes {
                 }
                 self.add(&classes, pos, class_type);
             }
+            ClassesOp::Toggle => {
+                for class in classes {
+                    if !class.is_empty() {
+                        if let Some(pos) = self.0.iter().position(|(c, _)| c.eq(class)) {
+                            self.0.remove(pos);
+                        } else {
+                            self.0.push((class.to_string(), ClassType::User));
+                        }
+                    }
+                }
+            }
             ClassesOp::Reset => {
                 self.0.retain(|(_, t)| t.ne(&ClassType::User));
+            }
+            ClassesOp::Clear => {
+                self.0.clear();
             }
         }
         self
@@ -96,7 +112,7 @@ impl Classes {
         }
     }
 
-    // Classes GETTERS.
+    // OptionClasses GETTERS.
 
     pub fn exists(&self, class: impl Into<String>) -> bool {
         let class: String = class.into();

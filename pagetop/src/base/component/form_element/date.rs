@@ -7,17 +7,17 @@ new_handle!(COMPONENT_DATE);
 pub struct Date {
     weight      : Weight,
     renderable  : Renderable,
-    classes     : Classes,
-    name        : AttributeValue,
-    value       : AttributeValue,
-    label       : AttributeValue,
-    placeholder : AttributeValue,
-    autofocus   : AttributeValue,
-    autocomplete: AttributeValue,
-    disabled    : AttributeValue,
-    readonly    : AttributeValue,
-    required    : AttributeValue,
-    help_text   : AttributeValue,
+    classes     : OptionClasses,
+    name        : OptionString,
+    value       : OptionString,
+    label       : OptionString,
+    placeholder : OptionString,
+    autofocus   : OptionString,
+    autocomplete: OptionString,
+    disabled    : OptionString,
+    readonly    : OptionString,
+    required    : OptionString,
+    help_text   : OptionString,
     template    : String,
 }
 
@@ -176,47 +176,47 @@ impl Date {
 
     // Date GETTERS.
 
-    pub fn classes(&self) -> &Classes {
+    pub fn classes(&self) -> &OptionClasses {
         &self.classes
     }
 
-    pub fn name(&self) -> &AttributeValue {
+    pub fn name(&self) -> &OptionString {
         &self.name
     }
 
-    pub fn value(&self) -> &AttributeValue {
+    pub fn value(&self) -> &OptionString {
         &self.value
     }
 
-    pub fn label(&self) -> &AttributeValue {
+    pub fn label(&self) -> &OptionString {
         &self.label
     }
 
-    pub fn placeholder(&self) -> &AttributeValue {
+    pub fn placeholder(&self) -> &OptionString {
         &self.placeholder
     }
 
-    pub fn autofocus(&self) -> &AttributeValue {
+    pub fn autofocus(&self) -> &OptionString {
         &self.autofocus
     }
 
-    pub fn autocomplete(&self) -> &AttributeValue {
+    pub fn autocomplete(&self) -> &OptionString {
         &self.autocomplete
     }
 
-    pub fn disabled(&self) -> &AttributeValue {
+    pub fn disabled(&self) -> &OptionString {
         &self.disabled
     }
 
-    pub fn readonly(&self) -> &AttributeValue {
+    pub fn readonly(&self) -> &OptionString {
         &self.readonly
     }
 
-    pub fn required(&self) -> &AttributeValue {
+    pub fn required(&self) -> &OptionString {
         &self.required
     }
 
-    pub fn help_text(&self) -> &AttributeValue {
+    pub fn help_text(&self) -> &OptionString {
         &self.help_text
     }
 

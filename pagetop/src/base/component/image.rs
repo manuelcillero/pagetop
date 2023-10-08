@@ -20,9 +20,9 @@ pub enum ImageSize {
 pub struct Image {
     weight    : Weight,
     renderable: Renderable,
-    id        : IdentifierValue,
-    classes   : Classes,
-    source    : AttributeValue,
+    id        : OptionId,
+    classes   : OptionClasses,
+    source    : OptionString,
     size      : ImageSize,
 }
 
@@ -101,7 +101,7 @@ impl Image {
     }
 
     #[fn_builder]
-    pub fn alter_id(&mut self, id: &str) -> &mut Self {
+    pub fn alter_id(&mut self, id: impl Into<String>) -> &mut Self {
         self.id.alter_value(id);
         self
     }
@@ -126,11 +126,11 @@ impl Image {
 
     // Image GETTERS.
 
-    pub fn classes(&self) -> &Classes {
+    pub fn classes(&self) -> &OptionClasses {
         &self.classes
     }
 
-    pub fn source(&self) -> &AttributeValue {
+    pub fn source(&self) -> &OptionString {
         &self.source
     }
 

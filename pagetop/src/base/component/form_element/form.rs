@@ -16,10 +16,10 @@ pub enum FormMethod {
 pub struct Form {
     weight    : Weight,
     renderable: Renderable,
-    id        : IdentifierValue,
-    classes   : Classes,
-    action    : AttributeValue,
-    charset   : AttributeValue,
+    id        : OptionId,
+    classes   : OptionClasses,
+    action    : OptionString,
+    charset   : OptionString,
     method    : FormMethod,
     stuff     : ArcComponents,
     template  : String,
@@ -91,7 +91,7 @@ impl Form {
     }
 
     #[fn_builder]
-    pub fn alter_id(&mut self, id: &str) -> &mut Self {
+    pub fn alter_id(&mut self, id: impl Into<String>) -> &mut Self {
         self.id.alter_value(id);
         self
     }
@@ -139,15 +139,15 @@ impl Form {
 
     // Form GETTERS.
 
-    pub fn classes(&self) -> &Classes {
+    pub fn classes(&self) -> &OptionClasses {
         &self.classes
     }
 
-    pub fn action(&self) -> &AttributeValue {
+    pub fn action(&self) -> &OptionString {
         &self.action
     }
 
-    pub fn charset(&self) -> &AttributeValue {
+    pub fn charset(&self) -> &OptionString {
         &self.charset
     }
 

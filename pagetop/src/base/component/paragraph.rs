@@ -18,8 +18,8 @@ pub enum ParagraphDisplay {
 pub struct Paragraph {
     weight    : Weight,
     renderable: Renderable,
-    id        : IdentifierValue,
-    classes   : Classes,
+    id        : OptionId,
+    classes   : OptionClasses,
     stuff     : ArcComponents,
     display   : ParagraphDisplay,
     template  : String,
@@ -78,7 +78,7 @@ impl Paragraph {
     }
 
     #[fn_builder]
-    pub fn alter_id(&mut self, id: &str) -> &mut Self {
+    pub fn alter_id(&mut self, id: impl Into<String>) -> &mut Self {
         self.id.alter_value(id);
         self
     }
@@ -126,7 +126,7 @@ impl Paragraph {
 
     // Paragraph GETTERS.
 
-    pub fn classes(&self) -> &Classes {
+    pub fn classes(&self) -> &OptionClasses {
         &self.classes
     }
 

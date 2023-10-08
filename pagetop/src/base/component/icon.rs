@@ -8,7 +8,7 @@ pub struct Icon {
     weight    : Weight,
     renderable: Renderable,
     icon_name : String,
-    classes   : Classes,
+    classes   : OptionClasses,
 }
 
 impl ComponentTrait for Icon {
@@ -73,7 +73,7 @@ impl Icon {
         self.icon_name.as_str()
     }
 
-    pub fn classes(&self) -> &Classes {
+    pub fn classes(&self) -> &OptionClasses {
         &self.classes
     }
 }

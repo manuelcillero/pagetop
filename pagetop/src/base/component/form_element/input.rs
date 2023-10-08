@@ -21,20 +21,20 @@ type InputHelpText = TypedComponent<L10n>;
 pub struct Input {
     weight      : Weight,
     renderable  : Renderable,
-    classes     : Classes,
+    classes     : OptionClasses,
     input_type  : InputType,
-    name        : NameValue,
-    value       : AttributeValue,
+    name        : OptionName,
+    value       : OptionString,
     label       : InputLabel,
     size        : Option<u16>,
     minlength   : Option<u16>,
     maxlength   : Option<u16>,
-    placeholder : AttributeValue,
-    autofocus   : AttributeValue,
-    autocomplete: AttributeValue,
-    disabled    : AttributeValue,
-    readonly    : AttributeValue,
-    required    : AttributeValue,
+    placeholder : OptionString,
+    autofocus   : OptionString,
+    autocomplete: OptionString,
+    disabled    : OptionString,
+    readonly    : OptionString,
+    required    : OptionString,
     help_text   : InputHelpText,
     template    : String,
 }
@@ -282,7 +282,7 @@ impl Input {
 
     // Input GETTERS.
 
-    pub fn classes(&self) -> &Classes {
+    pub fn classes(&self) -> &OptionClasses {
         &self.classes
     }
 
@@ -290,11 +290,11 @@ impl Input {
         &self.input_type
     }
 
-    pub fn name(&self) -> &NameValue {
+    pub fn name(&self) -> &OptionName {
         &self.name
     }
 
-    pub fn value(&self) -> &AttributeValue {
+    pub fn value(&self) -> &OptionString {
         &self.value
     }
 
@@ -314,27 +314,27 @@ impl Input {
         self.maxlength
     }
 
-    pub fn placeholder(&self) -> &AttributeValue {
+    pub fn placeholder(&self) -> &OptionString {
         &self.placeholder
     }
 
-    pub fn autofocus(&self) -> &AttributeValue {
+    pub fn autofocus(&self) -> &OptionString {
         &self.autofocus
     }
 
-    pub fn autocomplete(&self) -> &AttributeValue {
+    pub fn autocomplete(&self) -> &OptionString {
         &self.autocomplete
     }
 
-    pub fn disabled(&self) -> &AttributeValue {
+    pub fn disabled(&self) -> &OptionString {
         &self.disabled
     }
 
-    pub fn readonly(&self) -> &AttributeValue {
+    pub fn readonly(&self) -> &OptionString {
         &self.readonly
     }
 
-    pub fn required(&self) -> &AttributeValue {
+    pub fn required(&self) -> &OptionString {
         &self.required
     }
 

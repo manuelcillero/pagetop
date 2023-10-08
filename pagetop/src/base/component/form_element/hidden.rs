@@ -6,8 +6,8 @@ new_handle!(COMPONENT_HIDDEN);
 #[derive(Default)]
 pub struct Hidden {
     weight: Weight,
-    name  : NameValue,
-    value : AttributeValue,
+    name  : OptionName,
+    value : OptionString,
 }
 
 impl ComponentTrait for Hidden {
@@ -58,11 +58,11 @@ impl Hidden {
 
     // Hidden GETTERS.
 
-    pub fn name(&self) -> &NameValue {
+    pub fn name(&self) -> &OptionName {
         &self.name
     }
 
-    pub fn value(&self) -> &AttributeValue {
+    pub fn value(&self) -> &OptionString {
         &self.value
     }
 }

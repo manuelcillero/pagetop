@@ -17,12 +17,12 @@ type ButtonValue = TypedComponent<L10n>;
 pub struct Button {
     weight     : Weight,
     renderable : Renderable,
-    classes    : Classes,
+    classes    : OptionClasses,
     button_type: ButtonType,
-    name       : AttributeValue,
+    name       : OptionString,
     value      : ButtonValue,
-    autofocus  : AttributeValue,
-    disabled   : AttributeValue,
+    autofocus  : OptionString,
+    disabled   : OptionString,
     template   : String,
 }
 
@@ -146,7 +146,7 @@ impl Button {
 
     // Button GETTERS.
 
-    pub fn classes(&self) -> &Classes {
+    pub fn classes(&self) -> &OptionClasses {
         &self.classes
     }
 
@@ -154,7 +154,7 @@ impl Button {
         &self.button_type
     }
 
-    pub fn name(&self) -> &AttributeValue {
+    pub fn name(&self) -> &OptionString {
         &self.name
     }
 
@@ -162,11 +162,11 @@ impl Button {
         &self.value
     }
 
-    pub fn autofocus(&self) -> &AttributeValue {
+    pub fn autofocus(&self) -> &OptionString {
         &self.autofocus
     }
 
-    pub fn disabled(&self) -> &AttributeValue {
+    pub fn disabled(&self) -> &OptionString {
         &self.disabled
     }
 

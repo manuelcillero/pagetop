@@ -32,8 +32,8 @@ type HeadingText = TypedComponent<L10n>;
 pub struct Heading {
     weight      : Weight,
     renderable  : Renderable,
-    id          : IdentifierValue,
-    classes     : Classes,
+    id          : OptionId,
+    classes     : OptionClasses,
     heading_type: HeadingType,
     text        : HeadingText,
     display     : HeadingDisplay,
@@ -127,7 +127,7 @@ impl Heading {
     }
 
     #[fn_builder]
-    pub fn alter_id(&mut self, id: &str) -> &mut Self {
+    pub fn alter_id(&mut self, id: impl Into<String>) -> &mut Self {
         self.id.alter_value(id);
         self
     }
@@ -177,7 +177,7 @@ impl Heading {
 
     // Paragraph GETTERS.
 
-    pub fn classes(&self) -> &Classes {
+    pub fn classes(&self) -> &OptionClasses {
         &self.classes
     }
 

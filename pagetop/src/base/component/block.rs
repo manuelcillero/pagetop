@@ -4,14 +4,16 @@ new_handle!(COMPONENT_BLOCK);
 
 actions_for_component!(Block);
 
+type BlockTitle = TypedComponent<L10n>;
+
 #[rustfmt::skip]
 #[derive(Default)]
 pub struct Block {
     weight    : Weight,
     renderable: Renderable,
-    id        : IdentifierValue,
-    classes   : Classes,
-    title     : AttributeValue,
+    id        : OptionId,
+    classes   : OptionClasses,
+    title     : BlockTitle,
     stuff     : ArcComponents,
     template  : String,
 }
@@ -45,7 +47,7 @@ impl ComponentTrait for Block {
         let id = cx.required_id::<Block>(self.id());
         PrepareMarkup::With(html! {
             div id=(id) class=[self.classes().get()] {
-                @if let Some(title) = self.title().get() {
+                @if let Some(title) = self.title().get().into_string(cx) {
                     h2 class="block-title" { (title) }
                 }
                 div class="block-body" {
@@ -64,7 +66,7 @@ impl Block {
     // Block BUILDER.
 
     #[fn_builder]
-    pub fn alter_id(&mut self, id: &str) -> &mut Self {
+    pub fn alter_id(&mut self, id: impl Into<String>) -> &mut Self {
         self.id.alter_value(id);
         self
     }
@@ -88,8 +90,8 @@ impl Block {
     }
 
     #[fn_builder]
-    pub fn alter_title(&mut self, title: &str) -> &mut Self {
-        self.title.alter_value(title);
+    pub fn alter_title(&mut self, title: L10n) -> &mut Self {
+        self.title.set(title);
         self
     }
 
@@ -112,11 +114,11 @@ impl Block {
 
     // Block GETTERS.
 
-    pub fn classes(&self) -> &Classes {
+    pub fn classes(&self) -> &OptionClasses {
         &self.classes
     }
 
-    pub fn title(&self) -> &AttributeValue {
+    pub fn title(&self) -> &BlockTitle {
         &self.title
     }
 

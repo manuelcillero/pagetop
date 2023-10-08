@@ -13,17 +13,17 @@ pub use assets::Assets;
 mod favicon;
 pub use favicon::Favicon;
 
-mod identifier;
-pub use identifier::IdentifierValue;
+mod opt_id;
+pub use opt_id::OptionId;
 
-mod name;
-pub use name::NameValue;
+mod opt_name;
+pub use opt_name::OptionName;
 
-mod attribute;
-pub use attribute::AttributeValue;
+mod opt_string;
+pub use opt_string::OptionString;
 
-mod classes;
-pub use classes::{Classes, ClassesOp};
+mod opt_classes;
+pub use opt_classes::{ClassesOp, OptionClasses};
 
 pub mod unit;
 
@@ -45,7 +45,13 @@ impl PrepareMarkup {
     pub fn into_string(self) -> Option<String> {
         match self {
             PrepareMarkup::None => None,
-            PrepareMarkup::Text(text) => Some(text.to_string()),
+            PrepareMarkup::Text(text) => {
+                if text.is_empty() {
+                    None
+                } else {
+                    Some(text.to_string())
+                }
+            }
             PrepareMarkup::With(markup) => Some(markup.into_string()),
         }
     }

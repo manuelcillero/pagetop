@@ -1,22 +1,22 @@
 use crate::fn_builder;
 
 #[derive(Default)]
-pub struct AttributeValue(String);
+pub struct OptionString(String);
 
-impl AttributeValue {
+impl OptionString {
     pub fn new() -> Self {
-        AttributeValue::default()
+        OptionString::default()
     }
 
-    // AttributeValue BUILDER.
+    // OptionString BUILDER.
 
     #[fn_builder]
-    pub fn alter_value(&mut self, value: &str) -> &mut Self {
-        self.0 = value.trim().to_owned();
+    pub fn alter_value(&mut self, value: impl Into<String>) -> &mut Self {
+        self.0 = value.into().trim().to_owned();
         self
     }
 
-    // AttributeValue GETTERS.
+    // OptionString GETTERS.
 
     pub fn get(&self) -> Option<String> {
         if self.0.is_empty() {

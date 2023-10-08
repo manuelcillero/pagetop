@@ -28,10 +28,10 @@ type AnchorHtml = TypedComponent<L10n>;
 pub struct Anchor {
     weight     : Weight,
     renderable : Renderable,
-    id         : IdentifierValue,
-    classes    : Classes,
+    id         : OptionId,
+    classes    : OptionClasses,
     anchor_type: AnchorType,
-    href       : AttributeValue,
+    href       : OptionString,
     html       : AnchorHtml,
     left_icon  : AnchorIcon,
     right_icon : AnchorIcon,
@@ -85,18 +85,18 @@ impl ComponentTrait for Anchor {
 }
 
 impl Anchor {
-    pub fn link(href: &str, html: L10n) -> Self {
+    pub fn link(href: impl Into<String>, html: L10n) -> Self {
         Anchor::new().with_href(href).with_html(html)
     }
 
-    pub fn button(href: &str, html: L10n) -> Self {
+    pub fn button(href: impl Into<String>, html: L10n) -> Self {
         Anchor::new()
             .with_type(AnchorType::Button)
             .with_href(href)
             .with_html(html)
     }
 
-    pub fn location(id: &str) -> Self {
+    pub fn location(id: impl Into<String>) -> Self {
         Anchor::new().with_type(AnchorType::Location).with_id(id)
     }
 
@@ -115,7 +115,7 @@ impl Anchor {
     }
 
     #[fn_builder]
-    pub fn alter_id(&mut self, id: &str) -> &mut Self {
+    pub fn alter_id(&mut self, id: impl Into<String>) -> &mut Self {
         self.id.alter_value(id);
         self
     }
@@ -140,7 +140,7 @@ impl Anchor {
     }
 
     #[fn_builder]
-    pub fn alter_href(&mut self, href: &str) -> &mut Self {
+    pub fn alter_href(&mut self, href: impl Into<String>) -> &mut Self {
         self.href.alter_value(href);
         self
     }
@@ -177,7 +177,7 @@ impl Anchor {
 
     // Anchor GETTERS.
 
-    pub fn classes(&self) -> &Classes {
+    pub fn classes(&self) -> &OptionClasses {
         &self.classes
     }
 
@@ -185,7 +185,7 @@ impl Anchor {
         &self.anchor_type
     }
 
-    pub fn href(&self) -> &AttributeValue {
+    pub fn href(&self) -> &OptionString {
         &self.href
     }
 

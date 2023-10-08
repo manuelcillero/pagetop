@@ -1,22 +1,22 @@
 use crate::fn_builder;
 
 #[derive(Default)]
-pub struct NameValue(String);
+pub struct OptionId(String);
 
-impl NameValue {
+impl OptionId {
     pub fn new() -> Self {
-        NameValue::default()
+        OptionId::default()
     }
 
-    // NameValue BUILDER.
+    // OptionId BUILDER.
 
     #[fn_builder]
-    pub fn alter_value(&mut self, value: &str) -> &mut Self {
-        self.0 = value.trim().replace(' ', "_");
+    pub fn alter_value(&mut self, value: impl Into<String>) -> &mut Self {
+        self.0 = value.into().trim().replace(' ', "_");
         self
     }
 
-    // NameValue GETTERS.
+    // OptionId GETTERS.
 
     pub fn get(&self) -> Option<String> {
         if self.0.is_empty() {
