@@ -1,5 +1,5 @@
-mod form;
-pub use form::{Form, FormMethod, COMPONENT_FORM};
+mod form_main;
+pub use form_main::{Form, FormMethod, COMPONENT_FORM};
 
 mod input;
 pub use input::{Input, InputType, COMPONENT_INPUT};
