@@ -5,10 +5,7 @@ members = [
     # Utilities.
     "pagetop-macros",
     "pagetop-build",
-    "pagetop-jquery",
     "pagetop-homedemo",
-    # Components.
-    "pagetop-megamenu",
     # Modules.
     "pagetop-admin",
     "pagetop-user",

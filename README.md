@@ -42,16 +42,6 @@ El repositorio se organiza en un *workspace* con los siguientes subproyectos:
   incluir fácilmente recursos en los archivos binarios al compilar aplicaciones creadas con
   **PageTop**.
 
-## Componentes
-
-* **[pagetop-jquery](https://github.com/manuelcillero/pagetop/tree/main/pagetop-jquery)**, módulo
-  que permite añadir jQuery en las páginas que incluyen componentes o temas que usen esta librería
-  JavaScript para interactuar con el documento HTML.​
-
-* **[pagetop-megamenu](https://github.com/manuelcillero/pagetop/tree/main/pagetop-megamenu)**,
-  módulo que proporciona un nuevo componente para incluir menús avanzados en las aplicaciones web
-  creadas con **PageTop**.
-
 ## Módulos
 
 * **[pagetop-homedemo](https://github.com/manuelcillero/pagetop/tree/main/pagetop-homedemo)**,
