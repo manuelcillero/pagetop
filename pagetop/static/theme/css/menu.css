@@ -248,8 +248,9 @@
 		justify-content: space-between;
 		top: 0;
 		height: var(--menu--item-height);
-		z-index: 501;
 		border-bottom: 1px solid var(--menu--color-border);
+		background: var(--menu--color-background);
+		z-index: 501;
 	}
 	.menu-main .menu .menu-header .menu-title {
 		padding: var(--menu--line-padding);
