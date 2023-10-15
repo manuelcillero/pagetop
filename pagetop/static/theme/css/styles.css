@@ -1,3 +1,11 @@
+/* LAYOUT */
+
+.region {
+	position: relative;
+}
+
+/* COMPONENTS */
+
 /* Image component */
 
 .img-fluid {
@@ -26,8 +34,8 @@
 		display: none;
 	}
 }
-/* LG - Applies <= 1024px */
-@media (max-width: 64em) {
+/* LG - Applies <= 992px */
+@media (max-width: 62em) {
 	.site-branding-slogan {
 		font-size: var(--font-size-l);
 	}

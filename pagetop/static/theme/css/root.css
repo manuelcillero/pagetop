@@ -117,6 +117,20 @@
 	--color--green: #3fa21c;
 	--header-height-wide-when-fixed: calc(6 * var(--sp));
 	--mobile-nav-width: 31.25rem;
-	--border-radius: 0.1875rem;
 */
+	--border-radius: 0.1875rem;
+
+	--menu--color-background: #fafafa;
+	--menu--color-base: #121212;
+	--menu--color-highlight: #e91e63;
+	--menu--color-border: rgba(0, 0, 0, 0.1);
+	--menu--color-shadow: rgba(0, 0, 0, 0.06);
+	--menu--line-padding: 0.625rem;
+	--menu--line-height: 1.875rem;
+	--menu--item-height: calc(var(--menu--line-padding) + var(--menu--line-height));
+	--menu--item-width-min: 14rem;
+	--menu--item-width-max: 20rem;
+	--menu--item-gap: 1rem;
+	--menu--trigger-width: var(--menu--item-height);
+	--menu--side-width: 20rem;
 }
