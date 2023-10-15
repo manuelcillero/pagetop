@@ -21,13 +21,6 @@ impl ModuleTrait for Admin {
         L10n::t("module_description", &LOCALES_ADMIN)
     }
 
-    #[rustfmt::skip]
-    fn dependencies(&self) -> Vec<ModuleRef> {
-        vec![
-            &pagetop_megamenu::MegaMenu,
-        ]
-    }
-
     fn actions(&self) -> Vec<Action> {
         actions![action::page::BeforePrepareBody::with(before_prepare_body)]
     }

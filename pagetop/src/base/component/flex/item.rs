@@ -9,9 +9,9 @@ actions_for_component!(Item);
 pub struct Item {
     weight       : Weight,
     renderable   : Renderable,
-    id           : IdentifierValue,
-    item_classes : Classes,
-    inner_classes: Classes,
+    id           : OptionId,
+    item_classes : OptionClasses,
+    inner_classes: OptionClasses,
     item_grow    : flex::ItemGrow,
     item_shrink  : flex::ItemShrink,
     item_size    : flex::ItemSize,
@@ -82,7 +82,7 @@ impl Item {
     }
 
     #[fn_builder]
-    pub fn alter_id(&mut self, id: &str) -> &mut Self {
+    pub fn alter_id(&mut self, id: impl Into<String>) -> &mut Self {
         self.id.alter_value(id);
         self
     }
@@ -162,11 +162,11 @@ impl Item {
 
     // Item GETTERS.
 
-    pub fn item_classes(&self) -> &Classes {
+    pub fn item_classes(&self) -> &OptionClasses {
         &self.item_classes
     }
 
-    pub fn inner_classes(&self) -> &Classes {
+    pub fn inner_classes(&self) -> &OptionClasses {
         &self.inner_classes
     }
 

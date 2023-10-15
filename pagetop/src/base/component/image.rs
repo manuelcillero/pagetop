@@ -81,7 +81,7 @@ impl Image {
 
     pub fn pagetop() -> Self {
         Image::default()
-            .with_source("/theme/pagetop-logo.svg")
+            .with_source("/base/pagetop-logo.svg")
             .with_classes(ClassesOp::SetDefault, IMG_FIXED)
             .with_size(ImageSize::Size(64, 64))
     }

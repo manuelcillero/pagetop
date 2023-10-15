@@ -54,7 +54,7 @@ impl ComponentTrait for PoweredBy {
                 let logo_txt = L10n::t("pagetop_logo", &LOCALES_PAGETOP);
                 html! {
                     span class="pagetop-logo" aria-label=[logo_txt.into_string(cx)] {
-                        img src="/theme/pagetop-logo.svg" alt=[logo_txt.into_string(cx)] {}
+                        img src="/base/pagetop-logo.svg" alt=[logo_txt.into_string(cx)] {}
                     }
                 }
             }

@@ -1,6 +1,43 @@
+use crate::core::component::{Context, ContextOp};
+use crate::html::{JavaScript, StyleSheet};
+
 // Context parameters.
-pub const PARAM_INCLUDE_FLEX: &str = "theme.include.flex";
-pub const PARAM_INCLUDE_ICONS: &str = "theme.include.icons";
+pub const PARAM_INCLUDE_ICONS: &str = "base.include.icon";
+pub const PARAM_INCLUDE_FLEX_ASSETS: &str = "base.include.flex";
+pub const PARAM_INCLUDE_MENU_ASSETS: &str = "base.include.menu";
+
+pub(crate) fn add_assets_for_base(cx: &mut Context) {
+    cx.alter(ContextOp::AddStyleSheet(
+        StyleSheet::at("/base/css/root.css").with_version("0.0.1"),
+    ));
+
+    if let Some(true) = cx.get_param::<bool>(PARAM_INCLUDE_ICONS) {
+        cx.alter(ContextOp::AddStyleSheet(
+            StyleSheet::at("/base/css/icons.min.css").with_version("1.11.1"),
+        ));
+    }
+
+    if let Some(true) = cx.get_param::<bool>(PARAM_INCLUDE_FLEX_ASSETS) {
+        cx.alter(ContextOp::AddStyleSheet(
+            StyleSheet::at("/base/css/flex.css").with_version("0.0.1"),
+        ));
+    }
+
+    if let Some(true) = cx.get_param::<bool>(PARAM_INCLUDE_MENU_ASSETS) {
+        cx.alter(ContextOp::AddStyleSheet(
+            StyleSheet::at("/base/css/menu.css").with_version("0.0.1"),
+        ))
+        .alter(ContextOp::AddJavaScript(
+            JavaScript::at("/base/js/menu.js").with_version("0.0.1"),
+        ));
+    }
+
+    cx.alter(ContextOp::AddStyleSheet(
+        StyleSheet::at("/base/css/styles.css").with_version("0.0.1"),
+    ));
+}
+
+// By default, 1 pixel = 0.0625em.
 
 #[rustfmt::skip]
 #[derive(Default)]
@@ -9,7 +46,7 @@ pub enum BreakPoint {
     None,  /* Does not apply */
     SM,    /* @media screen and (max-width: 35.5em) - Applies <= 568px  */
     MD,    /* @media screen and (max-width: 48em)   - Applies <= 768px  */
-    LG,    /* @media screen and (max-width: 64em)   - Applies <= 1024px */
+    LG,    /* @media screen and (max-width: 62em)   - Applies <= 992px */
     XL,    /* @media screen and (max-width: 80em)   - Applies <= 1280px */
     X2L,   /* @media screen and (max-width: 120em)  - Applies <= 1920px */
     X3L,   /* @media screen and (max-width: 160em)  - Applies <= 2560px */
@@ -58,5 +95,8 @@ pub use site_branding::{SiteBranding, COMPONENT_BRANDING};
 mod powered_by;
 pub use powered_by::{PoweredBy, PoweredByLogo, COMPONENT_POWEREDBY};
 
-pub mod form_element;
-pub use form_element::{Form, FormMethod, COMPONENT_FORM};
+pub mod menu;
+pub use menu::{Menu, COMPONENT_MENU};
+
+pub mod form;
+pub use form::{Form, FormMethod, COMPONENT_FORM};

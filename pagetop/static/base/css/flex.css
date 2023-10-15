@@ -279,8 +279,8 @@
 		margin-left: 0;
 	}
 }
-/* LG - Applies <= 1024px */
-@media screen and (max-width: 64em) {
+/* LG - Applies <= 992px */
+@media screen and (max-width: 62em) {
 	.flex-row.bp-lg {
 		flex-direction: row;
 	}

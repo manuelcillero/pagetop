@@ -69,8 +69,8 @@ body.default-homepage [class$="-col-image"] {
 		text-align: left;
 	}
 }
-/* LG - Applies >= 1024px */
-@media screen and (min-width: 64em) {
+/* LG - Applies >= 992px */
+@media screen and (min-width: 62em) {
 	#hello-world .hello-col-text {
 		padding-top: 2rem;
 		padding-left: 10%;

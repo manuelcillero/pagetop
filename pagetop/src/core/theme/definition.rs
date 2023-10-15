@@ -28,7 +28,7 @@ pub trait ThemeTrait: ModuleTrait + Send + Sync {
             body class=[page.body_classes().get()] {
                 @for (region, _) in self.regions().iter() {
                     @if let Some(content) = page.prepare_region(region) {
-                        #(region) { (content) }
+                        #(region) class="region" { (content) }
                     }
                 }
             }
@@ -37,7 +37,7 @@ pub trait ThemeTrait: ModuleTrait + Send + Sync {
 
     fn after_prepare_body(&self, page: &mut Page) {
         if page.favicon().is_none() {
-            page.alter_favicon(Some(Favicon::new().with_icon("/theme/favicon.ico")));
+            page.alter_favicon(Some(Favicon::new().with_icon("/base/favicon.ico")));
         }
     }
 

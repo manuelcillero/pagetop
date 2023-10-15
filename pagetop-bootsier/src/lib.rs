@@ -1,5 +1,4 @@
 use pagetop::prelude::*;
-use pagetop_jquery::JQuery;
 
 new_handle!(THEME_BOOTSIER);
 
@@ -16,10 +15,6 @@ impl ModuleTrait for Bootsier {
 
     fn theme(&self) -> Option<ThemeRef> {
         Some(&Bootsier)
-    }
-
-    fn dependencies(&self) -> Vec<ModuleRef> {
-        vec![&pagetop_jquery::JQuery]
     }
 
     fn configure_service(&self, scfg: &mut service::web::ServiceConfig) {
@@ -53,7 +48,7 @@ impl ThemeTrait for Bootsier {
                         "content"
                     ] {
                         @if let Some(content) = page.prepare_region(region) {
-                            #(region) { (content) }
+                            #(region) class="region" { (content) }
                         }
                     }
                 }
@@ -71,31 +66,31 @@ impl ThemeTrait for Bootsier {
                 html! {
                     body class=[page.body_classes().get()] {
                         @if header.is_some() {
-                            #header { (header.unwrap()) }
+                            #header class="region" { (header.unwrap()) }
                         }
                         @if nav_branding.is_some() {
-                            #nav_branding { (nav_branding.unwrap()) }
+                            #nav_branding class="region" { (nav_branding.unwrap()) }
                         }
                         @if nav_main.is_some() {
-                            #nav_main { (nav_main.unwrap()) }
+                            #nav_main class="region" { (nav_main.unwrap()) }
                         }
                         @if nav_additional.is_some() {
-                            #nav_additional { (nav_additional.unwrap()) }
+                            #nav_additional class="region" { (nav_additional.unwrap()) }
                         }
                         @if breadcrumb.is_some() {
-                            #breadcrumb { (breadcrumb.unwrap()) }
+                            #breadcrumb class="region" { (breadcrumb.unwrap()) }
                         }
                         @if content.is_some() {
-                            #content { (content.unwrap()) }
+                            #content class="region" { (content.unwrap()) }
                         }
                         @if sidebar_first.is_some() {
-                            #sidebar_first { (sidebar_first.unwrap()) }
+                            #sidebar_first class="region" { (sidebar_first.unwrap()) }
                         }
                         @if sidebar_second.is_some() {
-                            #sidebar_second { (sidebar_second.unwrap()) }
+                            #sidebar_second class="region" { (sidebar_second.unwrap()) }
                         }
                         @if footer.is_some() {
-                            #footer { (footer.unwrap()) }
+                            #footer class="region" { (footer.unwrap()) }
                         }
                     }
                 }
@@ -104,7 +99,7 @@ impl ThemeTrait for Bootsier {
     }
 
     fn after_prepare_body(&self, page: &mut Page) {
-        page.alter_favicon(Some(Favicon::new().with_icon("/theme/favicon.ico")))
+        page.alter_favicon(Some(Favicon::new().with_icon("/base/favicon.ico")))
             .alter_context(ContextOp::AddStyleSheet(
                 StyleSheet::at("/bootsier/css/bootstrap.min.css")
                     .with_version("5.1.3")
@@ -114,20 +109,8 @@ impl ThemeTrait for Bootsier {
                 JavaScript::at("/bootsier/js/bootstrap.bundle.min.js")
                     .with_version("5.1.3")
                     .with_weight(-99),
-            ));
-
-        if let Some(true) = page.context().get_param::<bool>(PARAM_INCLUDE_FLEX) {
-            page.alter_context(ContextOp::AddStyleSheet(
-                StyleSheet::at("/theme/css/flex.css").with_version("0.0.0"),
-            ));
-        }
-        if let Some(true) = page.context().get_param::<bool>(PARAM_INCLUDE_ICONS) {
-            page.alter_context(ContextOp::AddStyleSheet(
-                StyleSheet::at("/theme/icons/bootstrap-icons.css").with_version("1.8.2"),
-            ));
-        }
-
-        JQuery.enable_jquery(page.context());
+            ))
+            .alter_context(ContextOp::AddAssetsForBase);
     }
 
     fn render_component(&self, component: &dyn ComponentTrait, cx: &mut Context) -> Option<Markup> {

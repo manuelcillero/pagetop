@@ -9,8 +9,8 @@ actions_for_component!(Container);
 pub struct Container {
     weight         : Weight,
     renderable     : Renderable,
-    id             : IdentifierValue,
-    classes        : Classes,
+    id             : OptionId,
+    classes        : OptionClasses,
     items          : TypedComponents<flex::Item>,
     direction      : flex::Direction,
     wrap_align     : flex::WrapAlign,
@@ -46,7 +46,7 @@ impl ComponentTrait for Container {
     }
 
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
-        cx.set_param::<bool>(PARAM_INCLUDE_FLEX, true);
+        cx.set_param::<bool>(PARAM_INCLUDE_FLEX_ASSETS, true);
 
         let gap = match self.gap() {
             flex::Gap::Default => None,
@@ -81,7 +81,7 @@ impl Container {
     }
 
     #[fn_builder]
-    pub fn alter_id(&mut self, id: &str) -> &mut Self {
+    pub fn alter_id(&mut self, id: impl Into<String>) -> &mut Self {
         self.id.alter_value(id);
         self
     }
@@ -151,7 +151,7 @@ impl Container {
 
     // Container GETTERS.
 
-    pub fn classes(&self) -> &Classes {
+    pub fn classes(&self) -> &OptionClasses {
         &self.classes
     }
 

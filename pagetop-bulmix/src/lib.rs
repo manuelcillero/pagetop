@@ -1,5 +1,4 @@
 use pagetop::prelude::*;
-use pagetop_jquery::JQuery;
 
 new_handle!(THEME_BULMIX);
 
@@ -16,13 +15,6 @@ impl ModuleTrait for Bulmix {
         Some(&Bulmix)
     }
 
-    #[rustfmt::skip]
-    fn dependencies(&self) -> Vec<ModuleRef> {
-        vec![
-            &pagetop_jquery::JQuery,
-        ]
-    }
-
     fn configure_service(&self, scfg: &mut service::web::ServiceConfig) {
         static_files_service!(scfg, "/bulmix", bulmix);
     }
@@ -30,25 +22,13 @@ impl ModuleTrait for Bulmix {
 
 impl ThemeTrait for Bulmix {
     fn after_prepare_body(&self, page: &mut Page) {
-        page.alter_favicon(Some(Favicon::new().with_icon("/theme/favicon.ico")))
+        page.alter_favicon(Some(Favicon::new().with_icon("/base/favicon.ico")))
             .alter_context(ContextOp::AddStyleSheet(
                 StyleSheet::at("/bulmix/css/bulma.min.css")
                     .with_version("0.9.4")
                     .with_weight(-99),
-            ));
-
-        if let Some(true) = page.context().get_param::<bool>(PARAM_INCLUDE_FLEX) {
-            page.alter_context(ContextOp::AddStyleSheet(
-                StyleSheet::at("/theme/css/flex.css").with_version("0.0.0"),
-            ));
-        }
-        if let Some(true) = page.context().get_param::<bool>(PARAM_INCLUDE_ICONS) {
-            page.alter_context(ContextOp::AddStyleSheet(
-                StyleSheet::at("/theme/icons/bootstrap-icons.css").with_version("1.8.2"),
-            ));
-        }
-
-        JQuery.enable_jquery(page.context());
+            ))
+            .alter_context(ContextOp::AddAssetsForBase);
     }
 
     #[rustfmt::skip]

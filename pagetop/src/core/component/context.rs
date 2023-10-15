@@ -1,3 +1,4 @@
+use crate::base::component::add_assets_for_base;
 use crate::core::theme::all::{theme_by_single_name, THEME};
 use crate::core::theme::ThemeRef;
 use crate::html::{html, Assets, HeadScript, HeadStyles, JavaScript, Markup, StyleSheet};
@@ -23,6 +24,8 @@ pub enum ContextOp {
     // Scripts in head.
     AddHeadScript(HeadScript),
     RemoveHeadScript(&'static str),
+    // Add assets to properly use the base components.
+    AddAssetsForBase,
 }
 
 #[rustfmt::skip]
@@ -63,6 +66,7 @@ impl Context {
             ContextOp::Theme(theme_name) => {
                 self.theme = theme_by_single_name(theme_name).unwrap_or(*THEME);
             }
+
             // Stylesheets.
             ContextOp::AddStyleSheet(css)     => { self.stylesheet.add(css);     }
             ContextOp::RemoveStyleSheet(path) => { self.stylesheet.remove(path); }
@@ -75,6 +79,9 @@ impl Context {
             // Scripts in head.
             ContextOp::AddHeadScript(script)  => { self.headscript.add(script);  }
             ContextOp::RemoveHeadScript(path) => { self.headscript.remove(path); }
+
+            // Add assets to properly use the base components.
+            ContextOp::AddAssetsForBase => { add_assets_for_base(self); }
         }
         self
     }
