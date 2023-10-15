@@ -13,6 +13,7 @@ function menuHideChildren(nav, children) {
 	submenu.style.animation = 'slideRight 0.5s ease forwards';
 	setTimeout(() => {
 		submenu.classList.remove('active');
+		submenu.style.removeProperty("animation");
 	}, 300);
 
 	children.shift();
@@ -28,6 +29,15 @@ function menuHideChildren(nav, children) {
 function menuToggle(nav, overlay) {
 	nav.classList.toggle('active');
 	overlay.classList.toggle('active');
+}
+
+function menuReset(menu, nav) {
+	nav.querySelector('.menu-header').classList.remove('active');
+	nav.querySelector('.menu-title').innerHTML = '';
+	menu.querySelectorAll('.menu-subs').forEach(submenu => {
+		submenu.classList.remove('active');
+		submenu.style.removeProperty("animation");
+	});
 }
 
 document.querySelectorAll('.menu-container').forEach(menu => {
@@ -46,20 +56,19 @@ document.querySelectorAll('.menu-container').forEach(menu => {
 			menuShowChildren(menuNav, menuChildren);
 		}
 	});
+
 	menu.querySelector('.menu-arrow').addEventListener('click', () => {
 		menuHideChildren(menuNav, menuChildren);
 	});
+
 	menu.querySelector('.menu-close').addEventListener('click', () => {
 		menuToggle(menuNav, menuOverlay);
+		menuReset(menu, menuNav);
 		setTimeout(() => {
-			menuNav.querySelector('.menu-header').classList.remove('active');
-			menuNav.querySelector('.menu-title').innerHTML = '';
-			menu.querySelectorAll('.menu-subs').forEach(close => {
-				close.classList.remove('active');
-			});
 			menuChildren = [];
 		}, 300);
 	});
+
 	menu.querySelector('.menu-trigger').addEventListener('click', () => {
 		menuToggle(menuNav, menuOverlay);
 	});
@@ -72,6 +81,10 @@ document.querySelectorAll('.menu-container').forEach(menu => {
 		if (this.innerWidth >= 992) {
 			if (menuNav.classList.contains('active')) {
 				menuToggle(menuNav, menuOverlay);
+				menuReset(menu, menuNav);
+				setTimeout(() => {
+					menuChildren = [];
+				}, 300);
 			}
 		}
 	};
