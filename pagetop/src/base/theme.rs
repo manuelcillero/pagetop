@@ -1,2 +1,2 @@
 mod inception;
-pub use inception::{InceptionTheme, THEME_INCEPTION};
+pub use inception::{Inception, THEME_INCEPTION};

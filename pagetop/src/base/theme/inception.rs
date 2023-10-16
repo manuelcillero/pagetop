@@ -4,9 +4,9 @@ new_handle!(THEME_INCEPTION);
 
 static_files!(base);
 
-pub struct InceptionTheme;
+pub struct Inception;
 
-impl ModuleTrait for InceptionTheme {
+impl ModuleTrait for Inception {
     fn handle(&self) -> Handle {
         THEME_INCEPTION
     }
@@ -16,7 +16,7 @@ impl ModuleTrait for InceptionTheme {
     }
 
     fn theme(&self) -> Option<ThemeRef> {
-        Some(&InceptionTheme)
+        Some(&Inception)
     }
 
     fn configure_service(&self, scfg: &mut service::web::ServiceConfig) {
@@ -24,7 +24,7 @@ impl ModuleTrait for InceptionTheme {
     }
 }
 
-impl ThemeTrait for InceptionTheme {
+impl ThemeTrait for Inception {
     fn after_prepare_body(&self, page: &mut Page) {
         page.alter_favicon(Some(Favicon::new().with_icon("/base/favicon.ico")))
             .alter_context(ContextOp::AddStyleSheet(
@@ -32,6 +32,9 @@ impl ThemeTrait for InceptionTheme {
                     .with_version("8.0.1")
                     .with_weight(-99),
             ))
-            .alter_context(ContextOp::AddAssetsForBase);
+            .alter_context(ContextOp::AddAssetsForBase)
+            .alter_context(ContextOp::AddStyleSheet(
+                StyleSheet::at("/base/css/styles.css").with_version("0.0.1"),
+            ));
     }
 }

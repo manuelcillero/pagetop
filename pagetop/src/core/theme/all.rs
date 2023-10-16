@@ -13,7 +13,7 @@ pub static THEMES: LazyStatic<RwLock<Vec<ThemeRef>>> = LazyStatic::new(|| RwLock
 pub static THEME: LazyStatic<ThemeRef> =
     LazyStatic::new(|| match theme_by_single_name(&config::SETTINGS.app.theme) {
         Some(theme) => theme,
-        None => &crate::base::theme::InceptionTheme,
+        None => &crate::base::theme::Inception,
     });
 
 // THEME BY NAME ***********************************************************************************

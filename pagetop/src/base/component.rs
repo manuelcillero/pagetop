@@ -31,10 +31,6 @@ pub(crate) fn add_assets_for_base(cx: &mut Context) {
             JavaScript::at("/base/js/menu.js").with_version("0.0.1"),
         ));
     }
-
-    cx.alter(ContextOp::AddStyleSheet(
-        StyleSheet::at("/base/css/styles.css").with_version("0.0.1"),
-    ));
 }
 
 // By default, 1 pixel = 0.0625em.
