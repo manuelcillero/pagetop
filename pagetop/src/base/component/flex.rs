@@ -22,19 +22,34 @@ impl ToString for Direction {
     fn to_string(&self) -> String {
         match self {
             Direction::Default => {
-                concat_string!("flex-container flex-row ", BreakPoint::default().to_string())
+                concat_string!(
+                    "pt-flex__container pt-flex__row ",
+                    BreakPoint::default().to_string()
+                )
             }
             Direction::Row(breakpoint) => {
-                concat_string!("flex-container flex-row ", breakpoint.to_string())
+                concat_string!(
+                    "pt-flex__container pt-flex__row ",
+                    breakpoint.to_string()
+                )
             }
             Direction::RowReverse(breakpoint) => {
-                concat_string!("flex-container flex-row flex-reverse ", breakpoint.to_string())
+                concat_string!(
+                    "pt-flex__container pt-flex__row pt-flex__reverse ",
+                    breakpoint.to_string()
+                )
             }
             Direction::Column(breakpoint) => {
-                concat_string!("flex-container flex-col ", breakpoint.to_string())
+                concat_string!(
+                    "pt-flex__container pt-flex__col ",
+                    breakpoint.to_string()
+                )
             }
             Direction::ColumnReverse(breakpoint) => {
-                concat_string!("flex-container flex-col flex-reverse ", breakpoint.to_string())
+                concat_string!(
+                    "pt-flex__container pt-flex__col pt-flex__reverse ",
+                    breakpoint.to_string()
+                )
             }
         }
     }
@@ -57,8 +72,8 @@ impl ToString for WrapAlign {
         match self {
             WrapAlign::Default        => "".to_string(),
             WrapAlign::NoWrap         => "flex-nowrap".to_string(),
-            WrapAlign::Wrap(a)        => concat_string!("flex-wrap ", a.to_string()),
-            WrapAlign::WrapReverse(a) => concat_string!("flex-wrap-reverse ", a.to_string()),
+            WrapAlign::Wrap(a)        => concat_string!("pt-flex__wrap ", a.to_string()),
+            WrapAlign::WrapReverse(a) => concat_string!("pt-flex__wrap-reverse ", a.to_string()),
         }
     }
 }
@@ -82,12 +97,12 @@ impl ToString for ContentAlign {
     fn to_string(&self) -> String {
         match self {
             ContentAlign::Default      => "".to_string(),
-            ContentAlign::Start        => "flex-align-start".to_string(),
-            ContentAlign::End          => "flex-align-end".to_string(),
-            ContentAlign::Center       => "flex-align-center".to_string(),
-            ContentAlign::Stretch      => "flex-align-stretch".to_string(),
-            ContentAlign::SpaceBetween => "flex-align-space-between".to_string(),
-            ContentAlign::SpaceAround  => "flex-align-space-around".to_string(),
+            ContentAlign::Start        => "pt-flex__align-start".to_string(),
+            ContentAlign::End          => "pt-flex__align-end".to_string(),
+            ContentAlign::Center       => "pt-flex__align-center".to_string(),
+            ContentAlign::Stretch      => "pt-flex__align-stretch".to_string(),
+            ContentAlign::SpaceBetween => "pt-flex__align-space-between".to_string(),
+            ContentAlign::SpaceAround  => "pt-flex__align-space-around".to_string(),
         }
     }
 }
@@ -111,12 +126,12 @@ impl ToString for ContentJustify {
     fn to_string(&self) -> String {
         match self {
             ContentJustify::Default      => "".to_string(),
-            ContentJustify::Start        => "flex-justify-start".to_string(),
-            ContentJustify::End          => "flex-justify-end".to_string(),
-            ContentJustify::Center       => "flex-justify-center".to_string(),
-            ContentJustify::SpaceBetween => "flex-justify-space-between".to_string(),
-            ContentJustify::SpaceAround  => "flex-justify-space-around".to_string(),
-            ContentJustify::SpaceEvenly  => "flex-justify-space-evenly".to_string(),
+            ContentJustify::Start        => "pt-flex__justify-start".to_string(),
+            ContentJustify::End          => "pt-flex__justify-end".to_string(),
+            ContentJustify::Center       => "pt-flex__justify-center".to_string(),
+            ContentJustify::SpaceBetween => "pt-flex__justify-space-between".to_string(),
+            ContentJustify::SpaceAround  => "pt-flex__justify-space-around".to_string(),
+            ContentJustify::SpaceEvenly  => "pt-flex__justify-space-evenly".to_string(),
         }
     }
 }
@@ -139,11 +154,11 @@ impl ToString for ItemAlign {
     fn to_string(&self) -> String {
         match self {
             ItemAlign::Default  => "".to_string(),
-            ItemAlign::Top      => "flex-item-top".to_string(),
-            ItemAlign::Bottom   => "flex-item-bottom".to_string(),
-            ItemAlign::Middle   => "flex-item-middle".to_string(),
-            ItemAlign::Stretch  => "flex-item-stretch".to_string(),
-            ItemAlign::Baseline => "flex-item-baseline".to_string(),
+            ItemAlign::Top      => "pt-flex__item-top".to_string(),
+            ItemAlign::Bottom   => "pt-flex__item-bottom".to_string(),
+            ItemAlign::Middle   => "pt-flex__item-middle".to_string(),
+            ItemAlign::Stretch  => "pt-flex__item-stretch".to_string(),
+            ItemAlign::Baseline => "pt-flex__item-baseline".to_string(),
         }
     }
 }
@@ -195,15 +210,15 @@ impl ToString for ItemGrow {
     fn to_string(&self) -> String {
         match self {
             ItemGrow::Default => "".to_string(),
-            ItemGrow::Is1 => "flex-grow-1".to_string(),
-            ItemGrow::Is2 => "flex-grow-2".to_string(),
-            ItemGrow::Is3 => "flex-grow-3".to_string(),
-            ItemGrow::Is4 => "flex-grow-4".to_string(),
-            ItemGrow::Is5 => "flex-grow-5".to_string(),
-            ItemGrow::Is6 => "flex-grow-6".to_string(),
-            ItemGrow::Is7 => "flex-grow-7".to_string(),
-            ItemGrow::Is8 => "flex-grow-8".to_string(),
-            ItemGrow::Is9 => "flex-grow-9".to_string(),
+            ItemGrow::Is1 => "pt-flex__grow-1".to_string(),
+            ItemGrow::Is2 => "pt-flex__grow-2".to_string(),
+            ItemGrow::Is3 => "pt-flex__grow-3".to_string(),
+            ItemGrow::Is4 => "pt-flex__grow-4".to_string(),
+            ItemGrow::Is5 => "pt-flex__grow-5".to_string(),
+            ItemGrow::Is6 => "pt-flex__grow-6".to_string(),
+            ItemGrow::Is7 => "pt-flex__grow-7".to_string(),
+            ItemGrow::Is8 => "pt-flex__grow-8".to_string(),
+            ItemGrow::Is9 => "pt-flex__grow-9".to_string(),
         }
     }
 }
@@ -230,15 +245,15 @@ impl ToString for ItemShrink {
     fn to_string(&self) -> String {
         match self {
             ItemShrink::Default => "".to_string(),
-            ItemShrink::Is1 => "flex-shrink-1".to_string(),
-            ItemShrink::Is2 => "flex-shrink-2".to_string(),
-            ItemShrink::Is3 => "flex-shrink-3".to_string(),
-            ItemShrink::Is4 => "flex-shrink-4".to_string(),
-            ItemShrink::Is5 => "flex-shrink-5".to_string(),
-            ItemShrink::Is6 => "flex-shrink-6".to_string(),
-            ItemShrink::Is7 => "flex-shrink-7".to_string(),
-            ItemShrink::Is8 => "flex-shrink-8".to_string(),
-            ItemShrink::Is9 => "flex-shrink-9".to_string(),
+            ItemShrink::Is1 => "pt-flex__shrink-1".to_string(),
+            ItemShrink::Is2 => "pt-flex__shrink-2".to_string(),
+            ItemShrink::Is3 => "pt-flex__shrink-3".to_string(),
+            ItemShrink::Is4 => "pt-flex__shrink-4".to_string(),
+            ItemShrink::Is5 => "pt-flex__shrink-5".to_string(),
+            ItemShrink::Is6 => "pt-flex__shrink-6".to_string(),
+            ItemShrink::Is7 => "pt-flex__shrink-7".to_string(),
+            ItemShrink::Is8 => "pt-flex__shrink-8".to_string(),
+            ItemShrink::Is9 => "pt-flex__shrink-9".to_string(),
         }
     }
 }
@@ -267,17 +282,17 @@ impl ToString for ItemSize {
     fn to_string(&self) -> String {
         match self {
             ItemSize::Default => "".to_string(),
-            ItemSize::Percent10 => "flex-width-10".to_string(),
-            ItemSize::Percent20 => "flex-width-20".to_string(),
-            ItemSize::Percent25 => "flex-width-25".to_string(),
-            ItemSize::Percent33 => "flex-width-33".to_string(),
-            ItemSize::Percent40 => "flex-width-40".to_string(),
-            ItemSize::Percent50 => "flex-width-50".to_string(),
-            ItemSize::Percent60 => "flex-width-60".to_string(),
-            ItemSize::Percent66 => "flex-width-66".to_string(),
-            ItemSize::Percent75 => "flex-width-75".to_string(),
-            ItemSize::Percent80 => "flex-width-80".to_string(),
-            ItemSize::Percent90 => "flex-width-90".to_string(),
+            ItemSize::Percent10 => "pt-flex__width-10".to_string(),
+            ItemSize::Percent20 => "pt-flex__width-20".to_string(),
+            ItemSize::Percent25 => "pt-flex__width-25".to_string(),
+            ItemSize::Percent33 => "pt-flex__width-33".to_string(),
+            ItemSize::Percent40 => "pt-flex__width-40".to_string(),
+            ItemSize::Percent50 => "pt-flex__width-50".to_string(),
+            ItemSize::Percent60 => "pt-flex__width-60".to_string(),
+            ItemSize::Percent66 => "pt-flex__width-66".to_string(),
+            ItemSize::Percent75 => "pt-flex__width-75".to_string(),
+            ItemSize::Percent80 => "pt-flex__width-80".to_string(),
+            ItemSize::Percent90 => "pt-flex__width-90".to_string(),
         }
     }
 }
@@ -306,17 +321,17 @@ impl ToString for ItemOffset {
     fn to_string(&self) -> String {
         match self {
             ItemOffset::Default => "".to_string(),
-            ItemOffset::Offset10 => "flex-offset-10".to_string(),
-            ItemOffset::Offset20 => "flex-offset-20".to_string(),
-            ItemOffset::Offset25 => "flex-offset-25".to_string(),
-            ItemOffset::Offset33 => "flex-offset-33".to_string(),
-            ItemOffset::Offset40 => "flex-offset-40".to_string(),
-            ItemOffset::Offset50 => "flex-offset-50".to_string(),
-            ItemOffset::Offset60 => "flex-offset-60".to_string(),
-            ItemOffset::Offset66 => "flex-offset-66".to_string(),
-            ItemOffset::Offset75 => "flex-offset-75".to_string(),
-            ItemOffset::Offset80 => "flex-offset-80".to_string(),
-            ItemOffset::Offset90 => "flex-offset-90".to_string(),
+            ItemOffset::Offset10 => "pt-flex__offset-10".to_string(),
+            ItemOffset::Offset20 => "pt-flex__offset-20".to_string(),
+            ItemOffset::Offset25 => "pt-flex__offset-25".to_string(),
+            ItemOffset::Offset33 => "pt-flex__offset-33".to_string(),
+            ItemOffset::Offset40 => "pt-flex__offset-40".to_string(),
+            ItemOffset::Offset50 => "pt-flex__offset-50".to_string(),
+            ItemOffset::Offset60 => "pt-flex__offset-60".to_string(),
+            ItemOffset::Offset66 => "pt-flex__offset-66".to_string(),
+            ItemOffset::Offset75 => "pt-flex__offset-75".to_string(),
+            ItemOffset::Offset80 => "pt-flex__offset-80".to_string(),
+            ItemOffset::Offset90 => "pt-flex__offset-90".to_string(),
         }
     }
 }
