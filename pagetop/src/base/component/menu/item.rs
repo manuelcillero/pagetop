@@ -55,47 +55,47 @@ impl ComponentTrait for Item {
         match self.item_type() {
             ItemType::Void => PrepareMarkup::None,
             ItemType::Label(label) => PrepareMarkup::With(html! {
-                li class="menu-label" {
+                li class="pt-menu__label" {
                     span title=[description] {
                         (label.prepare(cx))
                     }
                 }
             }),
             ItemType::Link(label, path) => PrepareMarkup::With(html! {
-                li class="menu-link" {
+                li class="pt-menu__link" {
                     a href=(path(cx)) title=[description] {
                         (label.prepare(cx))
                     }
                 }
             }),
             ItemType::LinkBlank(label, path) => PrepareMarkup::With(html! {
-                li class="menu-link" {
+                li class="pt-menu__link" {
                     a href=(path(cx)) title=[description] target="_blank" {
                         (label.prepare(cx))
                     }
                 }
             }),
             ItemType::Html(content) => PrepareMarkup::With(html! {
-                li class="html" {
+                li class="pt-menu__html" {
                     (content.prepare(cx))
                 }
             }),
             ItemType::Submenu(label, submenu) => PrepareMarkup::With(html! {
-                li class="menu-children" {
+                li class="pt-menu__children" {
                     a href="#" title=[description] {
-                        (label.prepare(cx)) i class="menu-icon bi-chevron-down" {}
+                        (label.prepare(cx)) i class="pt-menu__icon bi-chevron-down" {}
                     }
-                    div class="menu-subs" {
+                    div class="pt-menu__subs" {
                         (submenu.prepare(cx))
                     }
                 }
             }),
             ItemType::Megamenu(label, megamenu) => PrepareMarkup::With(html! {
-                li class="menu-children" {
+                li class="pt-menu__children" {
                     a href="#" title=[description] {
-                        (label.prepare(cx)) i class="menu-icon bi-chevron-down" {}
+                        (label.prepare(cx)) i class="pt-menu__icon bi-chevron-down" {}
                     }
-                    div class="menu-subs menu-mega" {
+                    div class="pt-menu__subs pt-menu__mega" {
                         (megamenu.prepare(cx))
                     }
                 }

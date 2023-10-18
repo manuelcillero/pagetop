@@ -1,15 +1,15 @@
-function menuShowChildren(nav, children) {
-	let submenu = children[0].querySelector('.menu-subs');
+function pt_menu__showChildren(nav, children) {
+	let submenu = children[0].querySelector('.pt-menu__subs');
 	submenu.classList.add('active');
 	submenu.style.animation = 'slideLeft 0.5s ease forwards';
 
 	let title = children[0].querySelector('i').parentNode.childNodes[0].textContent;
-	nav.querySelector('.menu-title').innerHTML = title;
-	nav.querySelector('.menu-header').classList.add('active');
+	nav.querySelector('.pt-menu__title').innerHTML = title;
+	nav.querySelector('.pt-menu__header').classList.add('active');
 }
 
-function menuHideChildren(nav, children) {
-	let submenu = children[0].querySelector('.menu-subs');
+function pt_menu__hideChildren(nav, children) {
+	let submenu = children[0].querySelector('.pt-menu__subs');
 	submenu.style.animation = 'slideRight 0.5s ease forwards';
 	setTimeout(() => {
 		submenu.classList.remove('active');
@@ -19,70 +19,70 @@ function menuHideChildren(nav, children) {
 	children.shift();
 	if (children.length > 0) {
 		let title = children[0].querySelector('i').parentNode.childNodes[0].textContent;
-		nav.querySelector('.menu-title').innerHTML = title;
+		nav.querySelector('.pt-menu__title').innerHTML = title;
 	} else {
-		nav.querySelector('.menu-header').classList.remove('active');
-		nav.querySelector('.menu-title').innerHTML = '';
+		nav.querySelector('.pt-menu__header').classList.remove('active');
+		nav.querySelector('.pt-menu__title').innerHTML = '';
 	}
 }
 
-function menuToggle(nav, overlay) {
+function pt_menu__toggle(nav, overlay) {
 	nav.classList.toggle('active');
 	overlay.classList.toggle('active');
 }
 
-function menuReset(menu, nav) {
-	nav.querySelector('.menu-header').classList.remove('active');
-	nav.querySelector('.menu-title').innerHTML = '';
-	menu.querySelectorAll('.menu-subs').forEach(submenu => {
+function pt_menu__reset(menu, nav) {
+	nav.querySelector('.pt-menu__header').classList.remove('active');
+	nav.querySelector('.pt-menu__title').innerHTML = '';
+	menu.querySelectorAll('.pt-menu__subs').forEach(submenu => {
 		submenu.classList.remove('active');
 		submenu.style.removeProperty("animation");
 	});
 }
 
-document.querySelectorAll('.menu-container').forEach(menu => {
+document.querySelectorAll('.pt-menu__container').forEach(menu => {
 
 	let menuChildren = [];
-	const menuNav = menu.querySelector('.menu');
-	const menuOverlay = menu.querySelector('.menu-overlay');
+	const menuNav = menu.querySelector('.pt-menu__nav');
+	const menuOverlay = menu.querySelector('.pt-menu__overlay');
 
-	menu.querySelector('.menu-section').addEventListener('click', (e) => {
+	menu.querySelector('.pt-menu__section').addEventListener('click', (e) => {
 		if (!menuNav.classList.contains('active')) {
 			return;
 		}
-		let target = e.target.closest('.menu-children');
+		let target = e.target.closest('.pt-menu__children');
 		if (target && target != menuChildren[0]) {
 			menuChildren.unshift(target);
-			menuShowChildren(menuNav, menuChildren);
+			pt_menu__showChildren(menuNav, menuChildren);
 		}
 	});
 
-	menu.querySelector('.menu-arrow').addEventListener('click', () => {
-		menuHideChildren(menuNav, menuChildren);
+	menu.querySelector('.pt-menu__arrow').addEventListener('click', () => {
+		pt_menu__hideChildren(menuNav, menuChildren);
 	});
 
-	menu.querySelector('.menu-close').addEventListener('click', () => {
-		menuToggle(menuNav, menuOverlay);
-		menuReset(menu, menuNav);
+	menu.querySelector('.pt-menu__close').addEventListener('click', () => {
+		pt_menu__toggle(menuNav, menuOverlay);
 		setTimeout(() => {
+			pt_menu__reset(menu, menuNav);
 			menuChildren = [];
 		}, 300);
 	});
 
-	menu.querySelector('.menu-trigger').addEventListener('click', () => {
-		menuToggle(menuNav, menuOverlay);
+	menu.querySelector('.pt-menu__trigger').addEventListener('click', () => {
+		pt_menu__toggle(menuNav, menuOverlay);
 	});
 
 	menuOverlay.addEventListener('click', () => {
-		menuToggle(menuNav, menuOverlay);
+		pt_menu__toggle(menuNav, menuOverlay);
 	});
 
 	window.onresize = function () {
 		if (this.innerWidth >= 992) {
 			if (menuNav.classList.contains('active')) {
-				menuToggle(menuNav, menuOverlay);
-				menuReset(menu, menuNav);
+				pt_menu__toggle(menuNav, menuOverlay);
 				setTimeout(() => {
+					pt_menu__reset(menu, menuNav);
 					menuChildren = [];
 				}, 300);
 			}

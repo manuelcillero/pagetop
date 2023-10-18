@@ -46,28 +46,28 @@ impl ComponentTrait for Menu {
         cx.set_param::<bool>(PARAM_INCLUDE_ICONS, true);
 
         PrepareMarkup::With(html! {
-            div id=[self.id()] class="menu-container" {
-                div class="menu-wrapper" {
-                    div class="menu-main" {
-                        div class="menu-overlay" {}
-                        nav class="menu" {
-                            div class="menu-header" {
-                                button type="button" class="menu-arrow" {
+            div id=[self.id()] class="pt-menu__container" {
+                div class="pt-menu__wrapper" {
+                    div class="pt-menu__main" {
+                        div class="pt-menu__overlay" {}
+                        nav class="pt-menu__nav" {
+                            div class="pt-menu__header" {
+                                button type="button" class="pt-menu__arrow" {
                                     i class="bi-chevron-left" {}
                                 }
-                                div class="menu-title" {}
-                                button type="button" class="menu-close" {
+                                div class="pt-menu__title" {}
+                                button type="button" class="pt-menu__close" {
                                     i class="bi-x" {}
                                 }
                             }
-                            ul class="menu-section" {
+                            ul class="pt-menu__section" {
                                 (self.items().prepare(cx))
                             }
                         }
                     }
                     button
                         type="button"
-                        class="menu-trigger"
+                        class="pt-menu__trigger"
                         title=[L10n::t("menu_toggle", &LOCALES_PAGETOP).into_string(cx)]
                     {
                         span {} span {} span {}
