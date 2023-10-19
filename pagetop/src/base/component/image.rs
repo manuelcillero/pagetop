@@ -2,8 +2,8 @@ use crate::prelude::*;
 
 new_handle!(COMPONENT_IMAGE);
 
-const IMG_FLUID: &str = "img-fluid";
-const IMG_FIXED: &str = "img-fixed";
+const IMG_FLUID: &str = "pt-img__fluid";
+const IMG_FIXED: &str = "pt-img__fixed";
 
 #[derive(Default)]
 pub enum ImageSize {

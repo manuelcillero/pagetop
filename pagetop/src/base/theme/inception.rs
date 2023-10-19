@@ -30,11 +30,13 @@ impl ThemeTrait for Inception {
             .alter_context(ContextOp::AddStyleSheet(
                 StyleSheet::at("/base/css/normalize.min.css")
                     .with_version("8.0.1")
-                    .with_weight(-99),
+                    .with_weight(-90),
             ))
             .alter_context(ContextOp::AddAssetsForBase)
             .alter_context(ContextOp::AddStyleSheet(
-                StyleSheet::at("/base/css/styles.css").with_version("0.0.1"),
+                StyleSheet::at("/base/css/styles.css")
+                    .with_version("0.0.1")
+                    .with_weight(-90),
             ));
     }
 }

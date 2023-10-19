@@ -46,7 +46,7 @@ impl ComponentTrait for Container {
     }
 
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
-        cx.set_param::<bool>(PARAM_INCLUDE_FLEX_ASSETS, true);
+        cx.set_param::<bool>(PARAM_BASE_INCLUDE_FLEX_ASSETS, true);
 
         let gap = match self.gap() {
             flex::Gap::Default => None,

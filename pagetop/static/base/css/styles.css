@@ -1,54 +1,11 @@
-/* LAYOUT */
-
-.region {
-	position: relative;
-}
-
-/* COMPONENTS */
-
-/* Image component */
-
-.img-fluid {
-	max-width: 100%;
-	height: auto;
-}
-
-/* SiteBranding component */
-
-.site-branding-wrapper {
-	display: flex;
-	align-items: flex-end;
-	column-gap: var(--pt-gap-0-75);
-}
-.site-branding-name {
-	letter-spacing: 0.02em;
-    font-size: var(--font-size-xxl);
-}
-.site-branding-slogan {
-    font-size: var(--font-size-xl);
-}
-
-/* SM - Applies <= 568px */
-@media (max-width: 35.5em) {
-	.site-branding-logo {
-		display: none;
-	}
-}
-/* LG - Applies <= 992px */
-@media (max-width: 62em) {
-	.site-branding-slogan {
-		font-size: var(--font-size-l);
-	}
-}
-
-/* PoweredBy component */
-
-#powered-by {
-	text-align: center;
-}
-#powered-by .pagetop-logo img,
-#powered-by .pagetop-logo svg {
-	margin-left: .275em;
-	height: 1.275em;
-	vertical-align: middle;
+body {
+	margin: 0;
+	font-family: var(--pt-font-family);
+	font-size: var(--pt-font-size-base);
+	font-weight: var(--pt-font-weight);
+	line-height: var(--pt-line-height-base);
+	color: var(--pt-color);
+	background-color: var(--pt-color-bg);
+	-webkit-text-size-adjust: 100%;
+	-webkit-tap-highlight-color: transparent;
 }

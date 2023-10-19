@@ -56,16 +56,16 @@ impl ComponentTrait for SiteBranding {
         let slogan = self.slogan().prepare(cx);
         PrepareMarkup::With(html! {
             div id=[self.id()] {
-                div class="site-branding-wrapper" {
-                    div class="site-branding-logo" {
+                div class="pt-branding__wrapper" {
+                    div class="pt-branding__logo" {
                         (self.logo().prepare(cx))
                     }
-                    div class="site-branding-text" {
-                        div class="site-branding-name" {
+                    div class="pt-branding__text" {
+                        div class="pt-branding__name" {
                             a href=(self.frontpage()(cx)) title=(title) rel="home" { (self.name()) }
                         }
                         @if !slogan.is_empty() {
-                            div class="site-branding-slogan" {
+                            div class="pt-branding__slogan" {
                                 (slogan)
                             }
                         }
