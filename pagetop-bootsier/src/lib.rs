@@ -110,7 +110,7 @@ impl ThemeTrait for Bootsier {
                     .with_version("5.1.3")
                     .with_weight(-99),
             ))
-            .alter_context(ContextOp::AddAssetsForBase);
+            .alter_context(ContextOp::AddBaseAssets);
     }
 
     fn render_component(&self, component: &dyn ComponentTrait, cx: &mut Context) -> Option<Markup> {

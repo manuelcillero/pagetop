@@ -1,4 +1,4 @@
-use crate::base::component::add_assets_for_base;
+use crate::base::component::add_base_assets;
 use crate::core::theme::all::{theme_by_single_name, THEME};
 use crate::core::theme::ThemeRef;
 use crate::html::{html, Assets, HeadScript, HeadStyles, JavaScript, Markup, StyleSheet};
@@ -24,8 +24,8 @@ pub enum ContextOp {
     // Scripts in head.
     AddHeadScript(HeadScript),
     RemoveHeadScript(&'static str),
-    // Add assets to properly use the base components.
-    AddAssetsForBase,
+    // Add assets to properly use base components.
+    AddBaseAssets,
 }
 
 #[rustfmt::skip]
@@ -80,8 +80,8 @@ impl Context {
             ContextOp::AddHeadScript(script)  => { self.headscript.add(script);  }
             ContextOp::RemoveHeadScript(path) => { self.headscript.remove(path); }
 
-            // Add assets to properly use the base components.
-            ContextOp::AddAssetsForBase => { add_assets_for_base(self); }
+            // Add assets to properly use base components.
+            ContextOp::AddBaseAssets => { add_base_assets(self); }
         }
         self
     }

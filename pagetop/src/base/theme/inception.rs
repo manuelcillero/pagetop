@@ -32,7 +32,7 @@ impl ThemeTrait for Inception {
                     .with_version("8.0.1")
                     .with_weight(-90),
             ))
-            .alter_context(ContextOp::AddAssetsForBase)
+            .alter_context(ContextOp::AddBaseAssets)
             .alter_context(ContextOp::AddStyleSheet(
                 StyleSheet::at("/base/css/styles.css")
                     .with_version("0.0.1")

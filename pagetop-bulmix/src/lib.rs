@@ -28,7 +28,7 @@ impl ThemeTrait for Bulmix {
                     .with_version("0.9.4")
                     .with_weight(-99),
             ))
-            .alter_context(ContextOp::AddAssetsForBase);
+            .alter_context(ContextOp::AddBaseAssets);
     }
 
     #[rustfmt::skip]
