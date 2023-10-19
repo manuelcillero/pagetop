@@ -37,6 +37,12 @@ impl OptionClasses {
         OptionClasses::default()
     }
 
+    pub fn with(op: ClassesOp, classes: impl Into<String>) -> Self {
+        let mut opt = OptionClasses::default();
+        opt.alter_value(op, classes);
+        opt
+    }
+
     // OptionClasses BUILDER.
 
     #[fn_builder]

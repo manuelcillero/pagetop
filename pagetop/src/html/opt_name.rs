@@ -8,6 +8,12 @@ impl OptionName {
         OptionName::default()
     }
 
+    pub fn with(value: impl Into<String>) -> Self {
+        let mut opt = OptionName::default();
+        opt.alter_value(value);
+        opt
+    }
+
     // OptionName BUILDER.
 
     #[fn_builder]
