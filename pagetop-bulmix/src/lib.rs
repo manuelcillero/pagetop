@@ -38,7 +38,7 @@ impl ThemeTrait for Bulmix {
         _cx: &mut Context,
     ) {
         match component.handle() {
-            COMPONENT_ANCHOR => {
+            COMPONENT_BASE_ANCHOR => {
                 let a = component_as_mut::<Anchor>(component);
                 a.alter_classes(
                     ClassesOp::SetDefault,
@@ -48,7 +48,7 @@ impl ThemeTrait for Bulmix {
                     },
                 );
             }
-            COMPONENT_HEADING => {
+            COMPONENT_BASE_HEADING => {
                 let h = component_as_mut::<Heading>(component);
                 h.alter_classes(
                     ClassesOp::SetDefault,
@@ -63,7 +63,7 @@ impl ThemeTrait for Bulmix {
                     },
                 );
             }
-            COMPONENT_PARAGRAPH => {
+            COMPONENT_BASE_PARAGRAPH => {
                 let p = component_as_mut::<Paragraph>(component);
                 p.alter_classes(
                     ClassesOp::SetDefault,
@@ -87,7 +87,7 @@ impl ThemeTrait for Bulmix {
         _cx: &mut Context,
     ) -> Option<Markup> {
         match component.handle() {
-            COMPONENT_ICON => {
+            COMPONENT_BASE_ICON => {
                 let icon = component_as_ref::<Icon>(component);
                 Some(html! {
                     span class="icon" {

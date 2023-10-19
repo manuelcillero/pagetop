@@ -14,6 +14,7 @@
 	--pt-line-height-base: 1.5;
 	--pt-color-bg: #fff;
 	--pt-color: #212529;
+	--pt-max-width: 80rem;
 /*
 	--pt-color-rgb: 33,37,41;
 	--pt-main--bg-rgb: 255,255,255;
@@ -21,7 +22,6 @@
 
 	--line-height-base: 1.6875rem;
 	--line-height-s: 1.125rem;
-	--max-width: 84.375rem;
 	--max-bg-color: 98.125rem;
 */
 	--pt-gap: 1.125rem;

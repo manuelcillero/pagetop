@@ -1,4 +1,4 @@
-# SiteBranding component.
+# Branding component.
 site_home = Home
 
 # PoweredBy component.

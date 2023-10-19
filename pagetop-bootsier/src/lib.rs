@@ -65,33 +65,15 @@ impl ThemeTrait for Bootsier {
                 let footer = page.prepare_region("footer");
                 html! {
                     body class=[page.body_classes().get()] {
-                        @if header.is_some() {
-                            #header class="region" { (header.unwrap()) }
-                        }
-                        @if nav_branding.is_some() {
-                            #nav_branding class="region" { (nav_branding.unwrap()) }
-                        }
-                        @if nav_main.is_some() {
-                            #nav_main class="region" { (nav_main.unwrap()) }
-                        }
-                        @if nav_additional.is_some() {
-                            #nav_additional class="region" { (nav_additional.unwrap()) }
-                        }
-                        @if breadcrumb.is_some() {
-                            #breadcrumb class="region" { (breadcrumb.unwrap()) }
-                        }
-                        @if content.is_some() {
-                            #content class="region" { (content.unwrap()) }
-                        }
-                        @if sidebar_first.is_some() {
-                            #sidebar_first class="region" { (sidebar_first.unwrap()) }
-                        }
-                        @if sidebar_second.is_some() {
-                            #sidebar_second class="region" { (sidebar_second.unwrap()) }
-                        }
-                        @if footer.is_some() {
-                            #footer class="region" { (footer.unwrap()) }
-                        }
+                        (header.unwrap_or_default())
+                        (nav_branding.unwrap_or_default())
+                        (nav_main.unwrap_or_default())
+                        (nav_additional.unwrap_or_default())
+                        (breadcrumb.unwrap_or_default())
+                        (content.unwrap_or_default())
+                        (sidebar_first.unwrap_or_default())
+                        (sidebar_second.unwrap_or_default())
+                        (footer.unwrap_or_default())
                     }
                 }
             }

@@ -9,3 +9,8 @@ body {
 	-webkit-text-size-adjust: 100%;
 	-webkit-tap-highlight-color: transparent;
 }
+
+.pt-body__wrapper {
+	max-width: var(--pt-max-width);
+	margin: 0 auto;
+}

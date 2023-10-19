@@ -3,7 +3,7 @@ use crate::base::component::L10n;
 use crate::core::component::{ArcComponent, ComponentTrait, TypedComponent};
 use crate::core::component::{Context, ContextOp};
 use crate::core::theme::ComponentsRegions;
-use crate::html::{html, ClassesOp, Favicon, Markup, OptionClasses, DOCTYPE};
+use crate::html::{html, ClassesOp, Favicon, Markup, OptionClasses, OptionId, DOCTYPE};
 use crate::response::fatal_error::FatalError;
 use crate::{fn_builder, service};
 
@@ -177,7 +177,11 @@ impl Page {
         if render.is_empty() {
             None
         } else {
-            Some(render)
+            Some(html! {
+                div id=[OptionId::with(region).get()] class="region" {
+                    (render)
+                }
+            })
         }
     }
 }

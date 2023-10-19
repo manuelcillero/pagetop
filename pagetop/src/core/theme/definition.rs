@@ -24,11 +24,20 @@ pub trait ThemeTrait: ModuleTrait + Send + Sync {
     fn before_prepare_body(&self, page: &mut Page) {}
 
     fn prepare_body(&self, page: &mut Page) -> Markup {
+        let header = page.prepare_region("header");
+        let pagetop = page.prepare_region("pagetop");
+        let content = page.prepare_region("content");
+        let sidebar = page.prepare_region("sidebar");
+        let footer = page.prepare_region("footer");
         html! {
             body class=[page.body_classes().get()] {
-                @for (region, _) in self.regions().iter() {
-                    @if let Some(content) = page.prepare_region(region) {
-                        #(region) class="region" { (content) }
+                div class="pt-body__wrapper" {
+                    div class="pt-body__regions" {
+                        (header.unwrap_or_default())
+                        (pagetop.unwrap_or_default())
+                        (content.unwrap_or_default())
+                        (sidebar.unwrap_or_default())
+                        (footer.unwrap_or_default())
                     }
                 }
             }
