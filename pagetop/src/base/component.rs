@@ -3,13 +3,13 @@ use crate::html::{JavaScript, StyleSheet};
 use crate::Weight;
 
 // Context parameters.
-pub const PARAM_BASE_ASSETS_WEIGHT: &str = "base.assets.weight";
+pub const PARAM_BASE_WEIGHT: &str = "base.weight";
 pub const PARAM_BASE_INCLUDE_ICONS: &str = "base.include.icon";
 pub const PARAM_BASE_INCLUDE_FLEX_ASSETS: &str = "base.include.flex";
 pub const PARAM_BASE_INCLUDE_MENU_ASSETS: &str = "base.include.menu";
 
-pub(crate) fn add_assets_for_base(cx: &mut Context) {
-    let weight = cx.get_param::<Weight>(PARAM_BASE_ASSETS_WEIGHT).unwrap_or(-90);
+pub(crate) fn add_base_assets(cx: &mut Context) {
+    let weight = cx.get_param::<Weight>(PARAM_BASE_WEIGHT).unwrap_or(-90);
 
     cx.alter(ContextOp::AddStyleSheet(
         StyleSheet::at("/base/css/root.css")
@@ -80,35 +80,35 @@ impl ToString for BreakPoint {
 }
 
 mod html;
-pub use html::{Html, COMPONENT_HTML};
+pub use html::{Html, COMPONENT_BASE_HTML};
 
 mod l10n;
-pub use l10n::{L10n, COMPONENT_L10N};
+pub use l10n::{L10n, COMPONENT_BASE_L10N};
 
 mod wrapper;
-pub use wrapper::{Wrapper, WrapperType, COMPONENT_WRAPPER};
+pub use wrapper::{Wrapper, WrapperType, COMPONENT_BASE_WRAPPER};
 
 pub mod flex;
 
 mod icon;
-pub use icon::{Icon, COMPONENT_ICON};
+pub use icon::{Icon, COMPONENT_BASE_ICON};
 mod heading;
-pub use heading::{Heading, HeadingDisplay, HeadingType, COMPONENT_HEADING};
+pub use heading::{Heading, HeadingDisplay, HeadingType, COMPONENT_BASE_HEADING};
 mod paragraph;
-pub use paragraph::{Paragraph, ParagraphDisplay, COMPONENT_PARAGRAPH};
+pub use paragraph::{Paragraph, ParagraphDisplay, COMPONENT_BASE_PARAGRAPH};
 mod anchor;
-pub use anchor::{Anchor, AnchorTarget, AnchorType, COMPONENT_ANCHOR};
+pub use anchor::{Anchor, AnchorTarget, AnchorType, COMPONENT_BASE_ANCHOR};
 mod image;
-pub use image::{Image, ImageSize, COMPONENT_IMAGE};
+pub use image::{Image, ImageSize, COMPONENT_BASE_IMAGE};
 mod block;
-pub use block::{Block, COMPONENT_BLOCK};
-mod site_branding;
-pub use site_branding::{SiteBranding, COMPONENT_BRANDING};
+pub use block::{Block, COMPONENT_BASE_BLOCK};
+mod branding;
+pub use branding::{Branding, COMPONENT_BASE_BRANDING};
 mod powered_by;
-pub use powered_by::{PoweredBy, PoweredByLogo, COMPONENT_POWEREDBY};
+pub use powered_by::{PoweredBy, PoweredByLogo, COMPONENT_BASE_POWEREDBY};
 
 pub mod menu;
-pub use menu::{Menu, COMPONENT_MENU};
+pub use menu::{Menu, COMPONENT_BASE_MENU};
 
 pub mod form;
-pub use form::{Form, FormMethod, COMPONENT_FORM};
+pub use form::{Form, FormMethod, COMPONENT_BASE_FORM};

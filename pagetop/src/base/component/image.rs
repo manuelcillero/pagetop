@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-new_handle!(COMPONENT_IMAGE);
+new_handle!(COMPONENT_BASE_IMAGE);
 
 const IMG_FLUID: &str = "pt-img__fluid";
 const IMG_FIXED: &str = "pt-img__fixed";
@@ -32,7 +32,7 @@ impl ComponentTrait for Image {
     }
 
     fn handle(&self) -> Handle {
-        COMPONENT_IMAGE
+        COMPONENT_BASE_IMAGE
     }
 
     fn id(&self) -> Option<String> {

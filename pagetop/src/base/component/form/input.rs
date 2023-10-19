@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-new_handle!(COMPONENT_INPUT);
+new_handle!(COMPONENT_BASE_INPUT);
 
 #[derive(Default)]
 pub enum InputType {
@@ -48,7 +48,7 @@ impl ComponentTrait for Input {
     }
 
     fn handle(&self) -> Handle {
-        COMPONENT_INPUT
+        COMPONENT_BASE_INPUT
     }
 
     fn weight(&self) -> Weight {

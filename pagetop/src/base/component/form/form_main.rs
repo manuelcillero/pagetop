@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-new_handle!(COMPONENT_FORM);
+new_handle!(COMPONENT_BASE_FORM);
 
 actions_for_component!(Form);
 
@@ -33,7 +33,7 @@ impl ComponentTrait for Form {
     }
 
     fn handle(&self) -> Handle {
-        COMPONENT_FORM
+        COMPONENT_BASE_FORM
     }
 
     fn id(&self) -> Option<String> {

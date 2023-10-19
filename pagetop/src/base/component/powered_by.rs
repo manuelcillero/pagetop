@@ -1,7 +1,7 @@
 use crate::prelude::*;
 use crate::LOCALES_PAGETOP;
 
-new_handle!(COMPONENT_POWEREDBY);
+new_handle!(COMPONENT_BASE_POWEREDBY);
 
 #[derive(Default, Eq, PartialEq)]
 pub enum PoweredByLogo {
@@ -33,7 +33,7 @@ impl ComponentTrait for PoweredBy {
     }
 
     fn handle(&self) -> Handle {
-        COMPONENT_POWEREDBY
+        COMPONENT_BASE_POWEREDBY
     }
 
     fn id(&self) -> Option<String> {

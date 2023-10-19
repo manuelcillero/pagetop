@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-new_handle!(COMPONENT_PARAGRAPH);
+new_handle!(COMPONENT_BASE_PARAGRAPH);
 
 #[derive(Default)]
 pub enum ParagraphDisplay {
@@ -31,7 +31,7 @@ impl ComponentTrait for Paragraph {
     }
 
     fn handle(&self) -> Handle {
-        COMPONENT_PARAGRAPH
+        COMPONENT_BASE_PARAGRAPH
     }
 
     fn id(&self) -> Option<String> {

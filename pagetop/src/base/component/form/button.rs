@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-new_handle!(COMPONENT_BUTTON);
+new_handle!(COMPONENT_BASE_BUTTON);
 
 #[derive(Default)]
 pub enum ButtonType {
@@ -32,7 +32,7 @@ impl ComponentTrait for Button {
     }
 
     fn handle(&self) -> Handle {
-        COMPONENT_BUTTON
+        COMPONENT_BASE_BUTTON
     }
 
     fn weight(&self) -> Weight {

@@ -2,7 +2,7 @@ use crate::prelude::*;
 
 use super::Group;
 
-new_handle!(COMPONENT_MENU_MEGAMENU);
+new_handle!(COMPONENT_BASE_MENU_MEGAMENU);
 
 type Groups = TypedComponents<Group>;
 
@@ -21,7 +21,7 @@ impl ComponentTrait for Megamenu {
     }
 
     fn handle(&self) -> Handle {
-        COMPONENT_MENU_MEGAMENU
+        COMPONENT_BASE_MENU_MEGAMENU
     }
 
     fn id(&self) -> Option<String> {

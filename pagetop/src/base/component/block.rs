@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-new_handle!(COMPONENT_BLOCK);
+new_handle!(COMPONENT_BASE_BLOCK);
 
 actions_for_component!(Block);
 
@@ -24,7 +24,7 @@ impl ComponentTrait for Block {
     }
 
     fn handle(&self) -> Handle {
-        COMPONENT_BLOCK
+        COMPONENT_BASE_BLOCK
     }
 
     fn id(&self) -> Option<String> {

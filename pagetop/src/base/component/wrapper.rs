@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-new_handle!(COMPONENT_WRAPPER);
+new_handle!(COMPONENT_BASE_WRAPPER);
 
 actions_for_component!(Wrapper);
 
@@ -35,7 +35,7 @@ impl ComponentTrait for Wrapper {
     }
 
     fn handle(&self) -> Handle {
-        COMPONENT_WRAPPER
+        COMPONENT_BASE_WRAPPER
     }
 
     fn id(&self) -> Option<String> {

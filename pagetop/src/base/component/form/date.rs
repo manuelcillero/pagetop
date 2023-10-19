@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-new_handle!(COMPONENT_DATE);
+new_handle!(COMPONENT_BASE_DATE);
 
 #[rustfmt::skip]
 #[derive(Default)]
@@ -27,7 +27,7 @@ impl ComponentTrait for Date {
     }
 
     fn handle(&self) -> Handle {
-        COMPONENT_DATE
+        COMPONENT_BASE_DATE
     }
 
     fn weight(&self) -> Weight {

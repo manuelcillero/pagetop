@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-new_handle!(COMPONENT_FLEX_ITEM);
+new_handle!(COMPONENT_BASE_FLEX_ITEM);
 
 actions_for_component!(Item);
 
@@ -28,7 +28,7 @@ impl ComponentTrait for Item {
     }
 
     fn handle(&self) -> Handle {
-        COMPONENT_FLEX_ITEM
+        COMPONENT_BASE_FLEX_ITEM
     }
 
     fn id(&self) -> Option<String> {

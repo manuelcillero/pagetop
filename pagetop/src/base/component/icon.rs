@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-new_handle!(COMPONENT_ICON);
+new_handle!(COMPONENT_BASE_ICON);
 
 #[rustfmt::skip]
 #[derive(Default)]
@@ -17,7 +17,7 @@ impl ComponentTrait for Icon {
     }
 
     fn handle(&self) -> Handle {
-        COMPONENT_ICON
+        COMPONENT_BASE_ICON
     }
 
     fn weight(&self) -> Weight {

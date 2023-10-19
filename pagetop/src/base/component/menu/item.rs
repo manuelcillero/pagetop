@@ -2,7 +2,7 @@ use crate::prelude::*;
 
 use super::{Megamenu, Submenu};
 
-new_handle!(COMPONENT_MENU_ITEM);
+new_handle!(COMPONENT_BASE_MENU_ITEM);
 
 type Label = TypedComponent<L10n>;
 type Content = TypedComponent<Html>;
@@ -39,7 +39,7 @@ impl ComponentTrait for Item {
     }
 
     fn handle(&self) -> Handle {
-        COMPONENT_MENU_ITEM
+        COMPONENT_BASE_MENU_ITEM
     }
 
     fn weight(&self) -> Weight {

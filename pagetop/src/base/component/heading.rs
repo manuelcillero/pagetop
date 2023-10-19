@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-new_handle!(COMPONENT_HEADING);
+new_handle!(COMPONENT_BASE_HEADING);
 
 #[derive(Default)]
 pub enum HeadingType {
@@ -46,7 +46,7 @@ impl ComponentTrait for Heading {
     }
 
     fn handle(&self) -> Handle {
-        COMPONENT_HEADING
+        COMPONENT_BASE_HEADING
     }
 
     fn id(&self) -> Option<String> {

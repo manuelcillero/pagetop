@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-new_handle!(COMPONENT_HIDDEN);
+new_handle!(COMPONENT_BASE_HIDDEN);
 
 #[rustfmt::skip]
 #[derive(Default)]
@@ -16,7 +16,7 @@ impl ComponentTrait for Hidden {
     }
 
     fn handle(&self) -> Handle {
-        COMPONENT_HIDDEN
+        COMPONENT_BASE_HIDDEN
     }
 
     fn weight(&self) -> Weight {

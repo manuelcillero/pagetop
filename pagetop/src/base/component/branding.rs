@@ -1,13 +1,13 @@
 use crate::prelude::*;
 use crate::LOCALES_PAGETOP;
 
-new_handle!(COMPONENT_BRANDING);
+new_handle!(COMPONENT_BASE_BRANDING);
 
 type SiteSlogan = TypedComponent<L10n>;
 type SiteLogo = TypedComponent<Image>;
 
 #[rustfmt::skip]
-pub struct SiteBranding {
+pub struct Branding {
     weight    : Weight,
     renderable: Renderable,
     name      : String,
@@ -17,9 +17,9 @@ pub struct SiteBranding {
 }
 
 #[rustfmt::skip]
-impl Default for SiteBranding {
+impl Default for Branding {
     fn default() -> Self {
-        SiteBranding {
+        Branding {
             weight    : Weight::default(),
             renderable: Renderable::default(),
             name      : config::SETTINGS.app.name.to_owned(),
@@ -30,17 +30,17 @@ impl Default for SiteBranding {
     }
 }
 
-impl ComponentTrait for SiteBranding {
+impl ComponentTrait for Branding {
     fn new() -> Self {
-        SiteBranding::default()
+        Branding::default()
     }
 
     fn handle(&self) -> Handle {
-        COMPONENT_BRANDING
+        COMPONENT_BASE_BRANDING
     }
 
     fn id(&self) -> Option<String> {
-        Some("site-branding".to_owned())
+        Some("pt-branding".to_owned())
     }
 
     fn weight(&self) -> Weight {
@@ -76,8 +76,8 @@ impl ComponentTrait for SiteBranding {
     }
 }
 
-impl SiteBranding {
-    // SiteBranding BUILDER.
+impl Branding {
+    // Branding BUILDER.
 
     #[fn_builder]
     pub fn alter_weight(&mut self, value: Weight) -> &mut Self {
@@ -115,7 +115,7 @@ impl SiteBranding {
         self
     }
 
-    // SiteBranding GETTERS.
+    // Branding GETTERS.
 
     pub fn name(&self) -> &String {
         &self.name

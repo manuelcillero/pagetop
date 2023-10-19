@@ -2,7 +2,7 @@ use crate::prelude::*;
 
 use std::collections::HashMap;
 
-new_handle!(COMPONENT_L10N);
+new_handle!(COMPONENT_BASE_L10N);
 
 #[derive(Default)]
 pub enum L10nOp {
@@ -25,7 +25,7 @@ impl ComponentTrait for L10n {
     }
 
     fn handle(&self) -> Handle {
-        COMPONENT_L10N
+        COMPONENT_BASE_L10N
     }
 
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {

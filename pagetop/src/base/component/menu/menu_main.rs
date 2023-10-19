@@ -3,7 +3,7 @@ use crate::LOCALES_PAGETOP;
 
 use super::Item;
 
-new_handle!(COMPONENT_MENU);
+new_handle!(COMPONENT_BASE_MENU);
 
 actions_for_component!(Menu);
 
@@ -22,7 +22,7 @@ impl ComponentTrait for Menu {
     }
 
     fn handle(&self) -> Handle {
-        COMPONENT_MENU
+        COMPONENT_BASE_MENU
     }
 
     fn id(&self) -> Option<String> {

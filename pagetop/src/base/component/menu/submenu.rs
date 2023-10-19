@@ -2,7 +2,7 @@ use crate::prelude::*;
 
 use super::Item;
 
-new_handle!(COMPONENT_MENU_SUBMENU);
+new_handle!(COMPONENT_BASE_MENU_SUBMENU);
 
 type TitleSubmenu = TypedComponent<L10n>;
 type Items = TypedComponents<Item>;
@@ -23,7 +23,7 @@ impl ComponentTrait for Submenu {
     }
 
     fn handle(&self) -> Handle {
-        COMPONENT_MENU_SUBMENU
+        COMPONENT_BASE_MENU_SUBMENU
     }
 
     fn id(&self) -> Option<String> {

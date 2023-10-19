@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-new_handle!(COMPONENT_ANCHOR);
+new_handle!(COMPONENT_BASE_ANCHOR);
 
 #[derive(Default)]
 pub enum AnchorType {
@@ -45,7 +45,7 @@ impl ComponentTrait for Anchor {
     }
 
     fn handle(&self) -> Handle {
-        COMPONENT_ANCHOR
+        COMPONENT_BASE_ANCHOR
     }
 
     fn id(&self) -> Option<String> {
