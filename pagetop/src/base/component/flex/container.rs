@@ -92,7 +92,7 @@ impl Container {
         self
     }
 
-    pub fn with_item(mut self, item: flex::Item) -> Self {
+    pub fn add_item(mut self, item: flex::Item) -> Self {
         self.items.alter(TypedOp::Add(TypedComponent::with(item)));
         self
     }

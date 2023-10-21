@@ -102,7 +102,7 @@ impl Menu {
         self
     }
 
-    pub fn with_item(mut self, item: Item) -> Self {
+    pub fn add_item(mut self, item: Item) -> Self {
         self.items.alter(TypedOp::Add(TypedComponent::with(item)));
         self
     }

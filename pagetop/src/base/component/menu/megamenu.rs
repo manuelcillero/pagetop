@@ -66,7 +66,7 @@ impl Megamenu {
         self
     }
 
-    pub fn with_group(mut self, group: Group) -> Self {
+    pub fn add_group(mut self, group: Group) -> Self {
         self.groups.alter(TypedOp::Add(TypedComponent::with(group)));
         self
     }

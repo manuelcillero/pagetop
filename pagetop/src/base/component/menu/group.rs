@@ -66,7 +66,7 @@ impl Group {
         self
     }
 
-    pub fn with_element(mut self, element: Element) -> Self {
+    pub fn add_element(mut self, element: Element) -> Self {
         self.elements
             .alter(TypedOp::Add(TypedComponent::with(element)));
         self

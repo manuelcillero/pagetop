@@ -154,7 +154,7 @@ impl Wrapper {
         self
     }
 
-    pub fn with_component(mut self, component: impl ComponentTrait) -> Self {
+    pub fn add_component(mut self, component: impl ComponentTrait) -> Self {
         self.stuff.alter(ArcOp::Add(ArcComponent::with(component)));
         self
     }
