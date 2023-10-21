@@ -86,11 +86,9 @@
 //!
 //! static_locales!(LOCALES_SAMPLE in "path/to/locale");
 //! ```
-//!
-//! Usa el componente [L10n](crate::core::component::L10n) para incluir textos y contenidos
-//! opcionalmente traducibles según el contexto de renderizado.
 
-use crate::{config, kv, trace, LazyStatic};
+use crate::html::{Markup, PreEscaped};
+use crate::{config, kv, trace, LazyStatic, LOCALES_PAGETOP};
 
 pub use fluent_templates;
 
@@ -160,4 +158,74 @@ macro_rules! static_locales {
             };
         }
     };
+}
+
+#[derive(Default)]
+enum L10nOp {
+    #[default]
+    None,
+    Text(String),
+    Translate(String),
+}
+
+#[derive(Default)]
+pub struct L10n {
+    op: L10nOp,
+    locales: Option<&'static Locales>,
+    args: HashMap<String, String>,
+}
+
+impl L10n {
+    pub fn n(text: impl Into<String>) -> Self {
+        L10n {
+            op: L10nOp::Text(text.into()),
+            ..Default::default()
+        }
+    }
+
+    pub fn l(key: impl Into<String>) -> Self {
+        L10n {
+            op: L10nOp::Translate(key.into()),
+            locales: Some(&LOCALES_PAGETOP),
+            ..Default::default()
+        }
+    }
+
+    pub fn t(key: impl Into<String>, locales: &'static Locales) -> Self {
+        L10n {
+            op: L10nOp::Translate(key.into()),
+            locales: Some(locales),
+            ..Default::default()
+        }
+    }
+
+    pub fn with_arg(mut self, arg: impl Into<String>, value: impl Into<String>) -> Self {
+        self.args.insert(arg.into(), value.into());
+        self
+    }
+
+    pub fn using(&self, langid: &LanguageIdentifier) -> Option<String> {
+        match &self.op {
+            L10nOp::None => None,
+            L10nOp::Text(text) => Some(text.to_owned()),
+            L10nOp::Translate(key) => match self.locales {
+                Some(locales) => locales.lookup_with_args(
+                    langid,
+                    key,
+                    &self
+                        .args
+                        .iter()
+                        .fold(HashMap::new(), |mut args, (key, value)| {
+                            args.insert(key.to_string(), value.to_owned().into());
+                            args
+                        }),
+                ),
+                None => None,
+            },
+        }
+    }
+
+    pub fn escaped(&self, langid: &LanguageIdentifier) -> Markup {
+        PreEscaped(self.using(langid).unwrap_or_default())
+    }
 }
