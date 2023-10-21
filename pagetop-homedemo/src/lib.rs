@@ -43,19 +43,19 @@ async fn demo(request: service::HttpRequest) -> ResultPage<Markup, FatalError> {
 }
 
 fn hello_world() -> Wrapper {
-    Wrapper::header().with_id("hello-world").with_component(
+    Wrapper::header().with_id("hello-world").add_component(
         flex::Container::new()
             .with_direction(flex::Direction::Column(BreakPoint::MD))
-            .with_item(
+            .add_item(
                 flex::Item::new()
                     .with_inner_classes(ClassesOp::Add, "hello-col-text")
                     .with_size(flex::ItemSize::Percent40)
-                    .with_component(
+                    .add_component(
                         Heading::h1(L10n::t("page_title", &LOCALES_HOMEDEMO))
                             .with_display(HeadingDisplay::Medium),
                     )
-                    .with_component(
-                        Paragraph::with(L10n::e("hello_intro", &LOCALES_HOMEDEMO).with_arg(
+                    .add_component(
+                        Paragraph::translated(L10n::t("hello_intro", &LOCALES_HOMEDEMO).with_arg(
                             "app",
                             format!(
                                 "<span class=\"app-name\">{}</span>",
@@ -64,8 +64,8 @@ fn hello_world() -> Wrapper {
                         ))
                         .with_display(ParagraphDisplay::Small),
                     )
-                    .with_component(Paragraph::with(
-                        L10n::e("hello_powered", &LOCALES_HOMEDEMO).with_arg(
+                    .add_component(Paragraph::translated(
+                        L10n::t("hello_powered", &LOCALES_HOMEDEMO).with_arg(
                             "pagetop",
                             format!(
                                 "<a href=\"{}\" target=\"_blank\">{}</a>",
@@ -73,7 +73,7 @@ fn hello_world() -> Wrapper {
                             ),
                         ),
                     ))
-                    .with_component(
+                    .add_component(
                         Anchor::button(
                             "https://github.com/manuelcillero/pagetop",
                             L10n::t("hello_code", &LOCALES_HOMEDEMO),
@@ -82,17 +82,17 @@ fn hello_world() -> Wrapper {
                         .with_left_icon(Icon::with("git"))
                         .with_classes(ClassesOp::Add, "code-link"),
                     )
-                    .with_component(
+                    .add_component(
                         Anchor::link("#welcome", L10n::t("hello_welcome", &LOCALES_HOMEDEMO))
                             .with_left_icon(Icon::with("arrow-down-circle-fill"))
                             .with_classes(ClassesOp::Add, "welcome-link"),
                     ),
             )
-            .with_item(
+            .add_item(
                 flex::Item::new()
                     .with_inner_classes(ClassesOp::Add, "hello-col-image")
                     .with_size(flex::ItemSize::Percent60)
-                    .with_component(Image::with("/homedemo/images/header.svg")),
+                    .add_component(Image::with("/homedemo/images/header.svg")),
             ),
     )
 }
@@ -101,9 +101,9 @@ fn welcome() -> Wrapper {
     Wrapper::section()
         .with_id("welcome")
         .with_classes(ClassesOp::Add, "welcome-col-text")
-        .with_component(Heading::h2(L10n::t("welcome_page", &LOCALES_HOMEDEMO)))
-        .with_component(
-            Heading::h3(L10n::e("welcome_subtitle", &LOCALES_HOMEDEMO).with_arg(
+        .add_component(Heading::h2(L10n::t("welcome_page", &LOCALES_HOMEDEMO)))
+        .add_component(
+            Heading::h3(L10n::t("welcome_subtitle", &LOCALES_HOMEDEMO).with_arg(
                 "app",
                 format!(
                     "<span class=\"app-name\">{}</span>",
@@ -112,34 +112,40 @@ fn welcome() -> Wrapper {
             ))
             .with_display(HeadingDisplay::Subtitle),
         )
-        .with_component(
-            Paragraph::with(L10n::t("welcome_text1", &LOCALES_HOMEDEMO))
+        .add_component(
+            Paragraph::translated(L10n::t("welcome_text1", &LOCALES_HOMEDEMO))
                 .with_display(ParagraphDisplay::Small),
         )
-        .with_component(Paragraph::with(L10n::t("welcome_text2", &LOCALES_HOMEDEMO)))
+        .add_component(Paragraph::translated(L10n::t(
+            "welcome_text2",
+            &LOCALES_HOMEDEMO,
+        )))
 }
 
 fn about_pagetop() -> Wrapper {
-    Wrapper::new().with_id("pagetop").with_component(
+    Wrapper::new().with_id("pagetop").add_component(
         flex::Container::new()
             .with_direction(flex::Direction::Column(BreakPoint::SM))
-            .with_item(
+            .add_item(
                 flex::Item::new()
                     .with_inner_classes(ClassesOp::Add, "pagetop-col-image")
                     .with_size(flex::ItemSize::Percent40)
-                    .with_component(Image::with("/homedemo/images/about.svg")),
+                    .add_component(Image::with("/homedemo/images/about.svg")),
             )
-            .with_item(
+            .add_item(
                 flex::Item::new()
                     .with_inner_classes(ClassesOp::Add, "pagetop-col-text")
-                    .with_component(Heading::h2(L10n::t("pagetop_title", &LOCALES_HOMEDEMO)))
-                    .with_component(
-                        Paragraph::with(L10n::t("pagetop_text1", &LOCALES_HOMEDEMO))
+                    .add_component(Heading::h2(L10n::t("pagetop_title", &LOCALES_HOMEDEMO)))
+                    .add_component(
+                        Paragraph::translated(L10n::t("pagetop_text1", &LOCALES_HOMEDEMO))
                             .with_display(ParagraphDisplay::Small),
                     )
-                    .with_component(Paragraph::with(L10n::t("pagetop_text2", &LOCALES_HOMEDEMO)))
-                    .with_component(Paragraph::with(
-                        L10n::e("pagetop_text3", &LOCALES_HOMEDEMO)
+                    .add_component(Paragraph::translated(L10n::t(
+                        "pagetop_text2",
+                        &LOCALES_HOMEDEMO,
+                    )))
+                    .add_component(Paragraph::translated(
+                        L10n::t("pagetop_text3", &LOCALES_HOMEDEMO)
                             .with_arg("href", "https://docs.rs/pagetop/latest/pagetop"),
                     )),
             ),
@@ -147,20 +153,20 @@ fn about_pagetop() -> Wrapper {
 }
 
 fn promo_pagetop() -> Wrapper {
-    Wrapper::new().with_id("promo").with_component(
+    Wrapper::new().with_id("promo").add_component(
         flex::Container::new()
             .with_direction(flex::Direction::Column(BreakPoint::MD))
-            .with_item(
+            .add_item(
                 flex::Item::new()
                     .with_inner_classes(ClassesOp::Add, "promo-col-text")
                     .with_size(flex::ItemSize::Percent60)
-                    .with_component(Heading::h2(L10n::t(
+                    .add_component(Heading::h2(L10n::t(
                         "pagetop_promo_title",
                         &LOCALES_HOMEDEMO,
                     )))
-                    .with_component(
-                        Paragraph::with(
-                            L10n::e("pagetop_promo_text1", &LOCALES_HOMEDEMO).with_arg(
+                    .add_component(
+                        Paragraph::translated(
+                            L10n::t("pagetop_promo_text1", &LOCALES_HOMEDEMO).with_arg(
                                 "pagetop",
                                 format!(
                                     "<a href=\"{}\" target=\"_blank\">{}</a>",
@@ -171,37 +177,37 @@ fn promo_pagetop() -> Wrapper {
                         .with_display(ParagraphDisplay::Small),
                     ),
             )
-            .with_item(
+            .add_item(
                 flex::Item::new()
                     .with_inner_classes(ClassesOp::Add, "promo-col-image")
                     .with_size(flex::ItemSize::Percent40)
-                    .with_component(Image::with("/homedemo/images/pagetop.png")),
+                    .add_component(Image::with("/homedemo/images/pagetop.png")),
             ),
     )
 }
 
 fn reporting_issues() -> Wrapper {
-    Wrapper::new().with_id("reporting").with_component(
+    Wrapper::new().with_id("reporting").add_component(
         flex::Container::new()
             .with_direction(flex::Direction::Column(BreakPoint::MD))
-            .with_item(
+            .add_item(
                 flex::Item::new()
                     .with_inner_classes(ClassesOp::Add, "reporting-col-image")
-                    .with_component(Image::with("/homedemo/images/support.jpg")),
+                    .add_component(Image::with("/homedemo/images/support.jpg")),
             )
-            .with_item(
+            .add_item(
                 flex::Item::new()
                     .with_inner_classes(ClassesOp::Add, "reporting-col-text")
                     .with_size(flex::ItemSize::Percent50)
-                    .with_component(Heading::h2(L10n::t(
+                    .add_component(Heading::h2(L10n::t(
                         "report_problems_title",
                         &LOCALES_HOMEDEMO,
                     )))
-                    .with_component(
-                        Paragraph::with(L10n::t("report_problems_text1", &LOCALES_HOMEDEMO))
+                    .add_component(
+                        Paragraph::translated(L10n::t("report_problems_text1", &LOCALES_HOMEDEMO))
                             .with_display(ParagraphDisplay::Small),
                     )
-                    .with_component(Paragraph::with(L10n::t(
+                    .add_component(Paragraph::translated(L10n::t(
                         "report_problems_text2",
                         &LOCALES_HOMEDEMO,
                     ))),

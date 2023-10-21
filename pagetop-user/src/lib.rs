@@ -42,7 +42,7 @@ async fn login(request: service::HttpRequest) -> ResultPage<Markup, FatalError> 
             "content",
             Wrapper::new()
                 .with_id("welcome")
-                .with_component(form_login()),
+                .add_component(form_login()),
         )
         .render()
 }
