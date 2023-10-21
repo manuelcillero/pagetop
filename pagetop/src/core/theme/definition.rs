@@ -1,4 +1,3 @@
-use crate::base::component::L10n;
 use crate::core::component::{ComponentTrait, Context};
 use crate::core::module::ModuleTrait;
 use crate::html::{html, Favicon, Markup};
@@ -51,20 +50,18 @@ pub trait ThemeTrait: ModuleTrait + Send + Sync {
     }
 
     fn prepare_head(&self, page: &mut Page) -> Markup {
-        let title = page.title();
-        let description = page.description();
         let viewport = "width=device-width, initial-scale=1, shrink-to-fit=no";
         html! {
             head {
                 meta charset="utf-8";
 
-                @if !title.is_empty() {
+                @if let Some(title) = page.title() {
                     title { (config::SETTINGS.app.name) (" - ") (title) }
                 } @else {
                     title { (config::SETTINGS.app.name) }
                 }
 
-                @if !description.is_empty() {
+                @if let Some(description) = page.description() {
                     meta name="description" content=(description);
                 }
 

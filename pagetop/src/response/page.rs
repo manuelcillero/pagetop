@@ -100,14 +100,12 @@ impl Page {
 
     // Page GETTERS.
 
-    pub fn title(&mut self) -> String {
-        self.title.using(self.context.langid()).unwrap_or_default()
+    pub fn title(&mut self) -> Option<String> {
+        self.title.using(self.context.langid())
     }
 
-    pub fn description(&mut self) -> String {
-        self.description
-            .using(self.context.langid())
-            .unwrap_or_default()
+    pub fn description(&mut self) -> Option<String> {
+        self.description.using(self.context.langid())
     }
 
     pub fn metadata(&self) -> &Vec<(&str, &str)> {
