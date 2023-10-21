@@ -13,9 +13,6 @@ pub enum InputType {
     Url,
 }
 
-type InputLabel = TypedComponent<L10n>;
-type InputHelpText = TypedComponent<L10n>;
-
 #[rustfmt::skip]
 #[derive(Default)]
 pub struct Input {
@@ -25,7 +22,7 @@ pub struct Input {
     input_type  : InputType,
     name        : OptionName,
     value       : OptionString,
-    label       : InputLabel,
+    label       : OptionTranslate,
     size        : Option<u16>,
     minlength   : Option<u16>,
     maxlength   : Option<u16>,
@@ -35,7 +32,7 @@ pub struct Input {
     disabled    : OptionString,
     readonly    : OptionString,
     required    : OptionString,
-    help_text   : InputHelpText,
+    help_text   : OptionTranslate,
     template    : String,
 }
 
@@ -70,8 +67,8 @@ impl ComponentTrait for Input {
             InputType::Url       => "url",
         };
         let id = self.name().get().map(|name| concat_string!("edit-", name));
-        let label = self.label().prepare(cx);
-        let description = self.help_text().prepare(cx);
+        let label = self.label().using(cx.langid()).unwrap_or_default();
+        let description = self.help_text().using(cx.langid()).unwrap_or_default();
         PrepareMarkup::With(html! {
             div class=[self.classes().get()] {
                 @if !label.is_empty() {
@@ -195,7 +192,7 @@ impl Input {
 
     #[fn_builder]
     pub fn alter_label(&mut self, label: L10n) -> &mut Self {
-        self.label.set(label);
+        self.label.alter_value(label);
         self
     }
 
@@ -270,7 +267,7 @@ impl Input {
 
     #[fn_builder]
     pub fn alter_help_text(&mut self, help_text: L10n) -> &mut Self {
-        self.help_text.set(help_text);
+        self.help_text.alter_value(help_text);
         self
     }
 
@@ -298,7 +295,7 @@ impl Input {
         &self.value
     }
 
-    pub fn label(&self) -> &InputLabel {
+    pub fn label(&self) -> &OptionTranslate {
         &self.label
     }
 
@@ -338,7 +335,7 @@ impl Input {
         &self.required
     }
 
-    pub fn help_text(&self) -> &InputHelpText {
+    pub fn help_text(&self) -> &OptionTranslate {
         &self.help_text
     }
 

@@ -10,8 +10,6 @@ pub enum ButtonType {
     Reset,
 }
 
-type ButtonValue = TypedComponent<L10n>;
-
 #[rustfmt::skip]
 #[derive(Default)]
 pub struct Button {
@@ -20,7 +18,7 @@ pub struct Button {
     classes    : OptionClasses,
     button_type: ButtonType,
     name       : OptionString,
-    value      : ButtonValue,
+    value      : OptionTranslate,
     autofocus  : OptionString,
     disabled   : OptionString,
     template   : String,
@@ -50,18 +48,17 @@ impl ComponentTrait for Button {
             ButtonType::Reset => "reset",
         };
         let id = self.name().get().map(|name| concat_string!("edit-", name));
-        let value = self.value().prepare(cx);
         PrepareMarkup::With(html! {
             button
                 type=(button_type)
                 id=[id]
                 class=[self.classes().get()]
                 name=[self.name().get()]
-                value=(value)
+                value=[self.value().using(cx.langid())]
                 autofocus=[self.autofocus().get()]
                 disabled=[self.disabled().get()]
             {
-                (value)
+                (self.value().escaped(cx.langid()))
             }
         })
     }
@@ -116,7 +113,7 @@ impl Button {
 
     #[fn_builder]
     pub fn alter_value(&mut self, value: L10n) -> &mut Self {
-        self.value.set(value);
+        self.value.alter_value(value);
         self
     }
 
@@ -158,7 +155,7 @@ impl Button {
         &self.name
     }
 
-    pub fn value(&self) -> &ButtonValue {
+    pub fn value(&self) -> &OptionTranslate {
         &self.value
     }
 

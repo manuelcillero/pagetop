@@ -21,7 +21,6 @@ pub enum AnchorTarget {
 }
 
 type AnchorIcon = TypedComponent<Icon>;
-type AnchorHtml = TypedComponent<L10n>;
 
 #[rustfmt::skip]
 #[derive(Default)]
@@ -32,7 +31,7 @@ pub struct Anchor {
     classes    : OptionClasses,
     anchor_type: AnchorType,
     href       : OptionString,
-    html       : AnchorHtml,
+    html       : OptionTranslate,
     left_icon  : AnchorIcon,
     right_icon : AnchorIcon,
     target     : AnchorTarget,
@@ -77,7 +76,7 @@ impl ComponentTrait for Anchor {
                 target=[target]
             {
                 (self.left_icon().prepare(cx))
-                " " span { (self.html().prepare(cx)) } " "
+                " " span { (self.html().escaped(cx.langid())) } " "
                 (self.right_icon().prepare(cx))
             }
         })
@@ -147,7 +146,7 @@ impl Anchor {
 
     #[fn_builder]
     pub fn alter_html(&mut self, html: L10n) -> &mut Self {
-        self.html.set(html);
+        self.html.alter_value(html);
         self
     }
 
@@ -189,7 +188,7 @@ impl Anchor {
         &self.href
     }
 
-    pub fn html(&self) -> &AnchorHtml {
+    pub fn html(&self) -> &OptionTranslate {
         &self.html
     }
 

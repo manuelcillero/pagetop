@@ -1,9 +1,11 @@
 use crate::base::action::page::{run_actions_after_prepare_body, run_actions_before_prepare_body};
-use crate::base::component::L10n;
-use crate::core::component::{ArcComponent, ComponentTrait, TypedComponent};
+use crate::core::component::{ArcComponent, ComponentTrait};
 use crate::core::component::{Context, ContextOp};
 use crate::core::theme::ComponentsRegions;
-use crate::html::{html, ClassesOp, Favicon, Markup, OptionClasses, OptionId, DOCTYPE};
+use crate::html::{
+    html, ClassesOp, Favicon, Markup, OptionClasses, OptionId, OptionTranslate, DOCTYPE,
+};
+use crate::locale::L10n;
 use crate::response::fatal_error::FatalError;
 use crate::{fn_builder, service};
 
@@ -11,13 +13,10 @@ use unic_langid::CharacterDirection;
 
 pub use actix_web::Result as ResultPage;
 
-type PageTitle = TypedComponent<L10n>;
-type PageDescription = TypedComponent<L10n>;
-
 #[rustfmt::skip]
 pub struct Page {
-    title       : PageTitle,
-    description : PageDescription,
+    title       : OptionTranslate,
+    description : OptionTranslate,
     metadata    : Vec<(&'static str, &'static str)>,
     properties  : Vec<(&'static str, &'static str)>,
     favicon     : Option<Favicon>,
@@ -31,8 +30,8 @@ impl Page {
     #[rustfmt::skip]
     pub fn new(request: service::HttpRequest) -> Self {
         Page {
-            title       : PageTitle::new(),
-            description : PageDescription::new(),
+            title       : OptionTranslate::new(),
+            description : OptionTranslate::new(),
             metadata    : Vec::new(),
             properties  : Vec::new(),
             favicon     : None,
@@ -47,13 +46,13 @@ impl Page {
 
     #[fn_builder]
     pub fn alter_title(&mut self, title: L10n) -> &mut Self {
-        self.title.set(title);
+        self.title.alter_value(title);
         self
     }
 
     #[fn_builder]
     pub fn alter_description(&mut self, description: L10n) -> &mut Self {
-        self.description.set(description);
+        self.description.alter_value(description);
         self
     }
 
@@ -102,11 +101,13 @@ impl Page {
     // Page GETTERS.
 
     pub fn title(&mut self) -> String {
-        self.title.prepare(&mut self.context).into_string()
+        self.title.using(self.context.langid()).unwrap_or_default()
     }
 
     pub fn description(&mut self) -> String {
-        self.description.prepare(&mut self.context).into_string()
+        self.description
+            .using(self.context.langid())
+            .unwrap_or_default()
     }
 
     pub fn metadata(&self) -> &Vec<(&str, &str)> {

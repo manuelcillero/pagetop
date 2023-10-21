@@ -60,7 +60,11 @@ impl ComponentTrait for Paragraph {
 
 impl Paragraph {
     pub fn with(component: impl ComponentTrait) -> Self {
-        Paragraph::new().with_component(component)
+        Paragraph::new().add_component(component)
+    }
+
+    pub fn translated(l10n: L10n) -> Self {
+        Paragraph::new().add_translated(l10n)
     }
 
     // Paragraph BUILDER.
@@ -89,8 +93,14 @@ impl Paragraph {
         self
     }
 
-    pub fn with_component(mut self, component: impl ComponentTrait) -> Self {
+    pub fn add_component(mut self, component: impl ComponentTrait) -> Self {
         self.stuff.alter(ArcOp::Add(ArcComponent::with(component)));
+        self
+    }
+
+    pub fn add_translated(mut self, l10n: L10n) -> Self {
+        self.stuff
+            .alter(ArcOp::Add(ArcComponent::with(Translate::with(l10n))));
         self
     }
 

@@ -4,7 +4,6 @@ use super::Item;
 
 new_handle!(COMPONENT_BASE_MENU_SUBMENU);
 
-type TitleSubmenu = TypedComponent<L10n>;
 type Items = TypedComponents<Item>;
 
 #[rustfmt::skip]
@@ -13,7 +12,7 @@ pub struct Submenu {
     weight    : Weight,
     renderable: Renderable,
     id        : OptionId,
-    title     : TitleSubmenu,
+    title     : OptionTranslate,
     items     : Items,
 }
 
@@ -41,7 +40,7 @@ impl ComponentTrait for Submenu {
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
         PrepareMarkup::With(html! {
             div id=[self.id()] class="pt-menu__items" {
-                @if let Some(title) = self.title().get().into_string(cx) {
+                @if let Some(title) = self.title().using(cx.langid()) {
                     h4 class="pt-menu__title" { (title) }
                 }
                 ul {
@@ -75,7 +74,7 @@ impl Submenu {
 
     #[fn_builder]
     pub fn alter_title(&mut self, title: L10n) -> &mut Self {
-        self.title.set(title);
+        self.title.alter_value(title);
         self
     }
 
@@ -92,7 +91,7 @@ impl Submenu {
 
     // Submenu GETTERS.
 
-    pub fn title(&self) -> &TitleSubmenu {
+    pub fn title(&self) -> &OptionTranslate {
         &self.title
     }
 

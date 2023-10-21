@@ -1,6 +1,6 @@
-use crate::base::component::L10n;
 use crate::core::action::Action;
 use crate::core::theme::ThemeRef;
+use crate::locale::L10n;
 use crate::{actions, service, util, Handle};
 
 #[cfg(feature = "database")]

@@ -1,17 +1,15 @@
 use crate::prelude::*;
-use crate::LOCALES_PAGETOP;
 
 new_handle!(COMPONENT_BASE_BRANDING);
 
-type SiteSlogan = TypedComponent<L10n>;
 type SiteLogo = TypedComponent<Image>;
 
 #[rustfmt::skip]
 pub struct Branding {
     weight    : Weight,
     renderable: Renderable,
-    name      : String,
-    slogan    : SiteSlogan,
+    app_name  : String,
+    slogan    : OptionTranslate,
     logo      : SiteLogo,
     frontpage : FnContextualPath,
 }
@@ -22,8 +20,8 @@ impl Default for Branding {
         Branding {
             weight    : Weight::default(),
             renderable: Renderable::default(),
-            name      : config::SETTINGS.app.name.to_owned(),
-            slogan    : SiteSlogan::default(),
+            app_name  : config::SETTINGS.app.name.to_owned(),
+            slogan    : OptionTranslate::default(),
             logo      : SiteLogo::default(),
             frontpage : |_| "/",
         }
@@ -52,8 +50,8 @@ impl ComponentTrait for Branding {
     }
 
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
-        let title = L10n::t("site_home", &LOCALES_PAGETOP).prepare(cx);
-        let slogan = self.slogan().prepare(cx);
+        let title = L10n::l("site_home").using(cx.langid());
+        let slogan = self.slogan().using(cx.langid()).unwrap_or_default();
         PrepareMarkup::With(html! {
             div id=[self.id()] {
                 div class="pt-branding__wrapper" {
@@ -62,7 +60,9 @@ impl ComponentTrait for Branding {
                     }
                     div class="pt-branding__text" {
                         div class="pt-branding__name" {
-                            a href=(self.frontpage()(cx)) title=(title) rel="home" { (self.name()) }
+                            a href=(self.frontpage()(cx)) title=[title] rel="home" {
+                                (self.app_name())
+                            }
                         }
                         @if !slogan.is_empty() {
                             div class="pt-branding__slogan" {
@@ -92,14 +92,14 @@ impl Branding {
     }
 
     #[fn_builder]
-    pub fn alter_name(&mut self, name: impl Into<String>) -> &mut Self {
-        self.name = name.into();
+    pub fn alter_app_name(&mut self, app_name: impl Into<String>) -> &mut Self {
+        self.app_name = app_name.into();
         self
     }
 
     #[fn_builder]
     pub fn alter_slogan(&mut self, slogan: L10n) -> &mut Self {
-        self.slogan = SiteSlogan::with(slogan);
+        self.slogan.alter_value(slogan);
         self
     }
 
@@ -117,11 +117,11 @@ impl Branding {
 
     // Branding GETTERS.
 
-    pub fn name(&self) -> &String {
-        &self.name
+    pub fn app_name(&self) -> &String {
+        &self.app_name
     }
 
-    pub fn slogan(&self) -> &SiteSlogan {
+    pub fn slogan(&self) -> &OptionTranslate {
         &self.slogan
     }
 

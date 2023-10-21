@@ -82,8 +82,8 @@ impl ToString for BreakPoint {
 mod html;
 pub use html::{Html, COMPONENT_BASE_HTML};
 
-mod l10n;
-pub use l10n::{L10n, COMPONENT_BASE_L10N};
+mod translate;
+pub use translate::{Translate, COMPONENT_BASE_TRANSLATE};
 
 mod wrapper;
 pub use wrapper::{Wrapper, WrapperType, COMPONENT_BASE_WRAPPER};

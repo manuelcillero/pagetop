@@ -4,8 +4,6 @@ new_handle!(COMPONENT_BASE_BLOCK);
 
 actions_for_component!(Block);
 
-type BlockTitle = TypedComponent<L10n>;
-
 #[rustfmt::skip]
 #[derive(Default)]
 pub struct Block {
@@ -13,7 +11,7 @@ pub struct Block {
     renderable: Renderable,
     id        : OptionId,
     classes   : OptionClasses,
-    title     : BlockTitle,
+    title     : OptionTranslate,
     stuff     : ArcComponents,
     template  : String,
 }
@@ -47,7 +45,7 @@ impl ComponentTrait for Block {
         let id = cx.required_id::<Block>(self.id());
         PrepareMarkup::With(html! {
             div id=(id) class=[self.classes().get()] {
-                @if let Some(title) = self.title().get().into_string(cx) {
+                @if let Some(title) = self.title().using(cx.langid()) {
                     h2 class="block-title" { (title) }
                 }
                 div class="block-body" {
@@ -91,7 +89,7 @@ impl Block {
 
     #[fn_builder]
     pub fn alter_title(&mut self, title: L10n) -> &mut Self {
-        self.title.set(title);
+        self.title.alter_value(title);
         self
     }
 
@@ -118,7 +116,7 @@ impl Block {
         &self.classes
     }
 
-    pub fn title(&self) -> &BlockTitle {
+    pub fn title(&self) -> &OptionTranslate {
         &self.title
     }
 

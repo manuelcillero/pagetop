@@ -1,5 +1,4 @@
 use crate::prelude::*;
-use crate::LOCALES_PAGETOP;
 
 use super::Item;
 
@@ -68,7 +67,7 @@ impl ComponentTrait for Menu {
                     button
                         type="button"
                         class="pt-menu__trigger"
-                        title=[L10n::t("menu_toggle", &LOCALES_PAGETOP).into_string(cx)]
+                        title=[L10n::l("menu_toggle").using(cx.langid())]
                     {
                         span {} span {} span {}
                     }

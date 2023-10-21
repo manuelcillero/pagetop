@@ -25,8 +25,6 @@ pub enum HeadingDisplay {
     Subtitle,
 }
 
-type HeadingText = TypedComponent<L10n>;
-
 #[rustfmt::skip]
 #[derive(Default)]
 pub struct Heading {
@@ -35,7 +33,7 @@ pub struct Heading {
     id          : OptionId,
     classes     : OptionClasses,
     heading_type: HeadingType,
-    text        : HeadingText,
+    text        : OptionTranslate,
     display     : HeadingDisplay,
     template    : String,
 }
@@ -65,12 +63,12 @@ impl ComponentTrait for Heading {
         let id = self.id();
         let classes = self.classes().get();
         PrepareMarkup::With(html! { @match &self.heading_type() {
-            HeadingType::H1 => h1 id=[id] class=[classes] { (self.text().prepare(cx)) },
-            HeadingType::H2 => h2 id=[id] class=[classes] { (self.text().prepare(cx)) },
-            HeadingType::H3 => h3 id=[id] class=[classes] { (self.text().prepare(cx)) },
-            HeadingType::H4 => h4 id=[id] class=[classes] { (self.text().prepare(cx)) },
-            HeadingType::H5 => h5 id=[id] class=[classes] { (self.text().prepare(cx)) },
-            HeadingType::H6 => h6 id=[id] class=[classes] { (self.text().prepare(cx)) },
+            HeadingType::H1 => h1 id=[id] class=[classes] { (self.text().escaped(cx.langid())) },
+            HeadingType::H2 => h2 id=[id] class=[classes] { (self.text().escaped(cx.langid())) },
+            HeadingType::H3 => h3 id=[id] class=[classes] { (self.text().escaped(cx.langid())) },
+            HeadingType::H4 => h4 id=[id] class=[classes] { (self.text().escaped(cx.langid())) },
+            HeadingType::H5 => h5 id=[id] class=[classes] { (self.text().escaped(cx.langid())) },
+            HeadingType::H6 => h6 id=[id] class=[classes] { (self.text().escaped(cx.langid())) },
         }})
     }
 }
@@ -146,7 +144,7 @@ impl Heading {
 
     #[fn_builder]
     pub fn alter_text(&mut self, text: L10n) -> &mut Self {
-        self.text.set(text);
+        self.text.alter_value(text);
         self
     }
 
@@ -185,7 +183,7 @@ impl Heading {
         &self.heading_type
     }
 
-    pub fn text(&self) -> &HeadingText {
+    pub fn text(&self) -> &OptionTranslate {
         &self.text
     }
 
