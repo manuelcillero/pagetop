@@ -67,7 +67,7 @@ pub enum BreakPoint {
 impl ToString for BreakPoint {
     fn to_string(&self) -> String {
         match self {
-            BreakPoint::None => "pt-bp__no".to_string(),
+            BreakPoint::None => "pt-bp__none".to_string(),
             BreakPoint::SM   => "pt-bp__sm".to_string(),
             BreakPoint::MD   => "pt-bp__md".to_string(),
             BreakPoint::LG   => "pt-bp__lg".to_string(),
