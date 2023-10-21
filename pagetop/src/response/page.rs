@@ -2,9 +2,8 @@ use crate::base::action::page::{run_actions_after_prepare_body, run_actions_befo
 use crate::core::component::{ArcComponent, ComponentTrait};
 use crate::core::component::{Context, ContextOp};
 use crate::core::theme::ComponentsRegions;
-use crate::html::{
-    html, ClassesOp, Favicon, Markup, OptionClasses, OptionId, OptionTranslate, DOCTYPE,
-};
+use crate::html::{html, Markup, DOCTYPE};
+use crate::html::{ClassesOp, Favicon, OptionClasses, OptionId, OptionTranslated};
 use crate::locale::L10n;
 use crate::response::fatal_error::FatalError;
 use crate::{fn_builder, service};
@@ -15,8 +14,8 @@ pub use actix_web::Result as ResultPage;
 
 #[rustfmt::skip]
 pub struct Page {
-    title       : OptionTranslate,
-    description : OptionTranslate,
+    title       : OptionTranslated,
+    description : OptionTranslated,
     metadata    : Vec<(&'static str, &'static str)>,
     properties  : Vec<(&'static str, &'static str)>,
     favicon     : Option<Favicon>,
@@ -30,8 +29,8 @@ impl Page {
     #[rustfmt::skip]
     pub fn new(request: service::HttpRequest) -> Self {
         Page {
-            title       : OptionTranslate::new(),
-            description : OptionTranslate::new(),
+            title       : OptionTranslated::new(),
+            description : OptionTranslated::new(),
             metadata    : Vec::new(),
             properties  : Vec::new(),
             favicon     : None,
