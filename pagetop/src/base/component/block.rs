@@ -11,7 +11,7 @@ pub struct Block {
     renderable: Renderable,
     id        : OptionId,
     classes   : OptionClasses,
-    title     : OptionTranslate,
+    title     : OptionTranslated,
     stuff     : ArcComponents,
     template  : String,
 }
@@ -116,7 +116,7 @@ impl Block {
         &self.classes
     }
 
-    pub fn title(&self) -> &OptionTranslate {
+    pub fn title(&self) -> &OptionTranslated {
         &self.title
     }
 

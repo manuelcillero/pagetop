@@ -3,18 +3,18 @@ use crate::html::{html, Markup};
 use crate::locale::{L10n, LanguageIdentifier};
 
 #[derive(Default)]
-pub struct OptionTranslate(Option<L10n>);
+pub struct OptionTranslated(Option<L10n>);
 
-impl OptionTranslate {
+impl OptionTranslated {
     pub fn new() -> Self {
-        OptionTranslate::default()
+        OptionTranslated::default()
     }
 
     pub fn with(value: L10n) -> Self {
-        OptionTranslate(Some(value))
+        OptionTranslated(Some(value))
     }
 
-    // OptionTranslate BUILDER.
+    // OptionTranslated BUILDER.
 
     #[fn_builder]
     pub fn alter_value(&mut self, value: L10n) -> &mut Self {
@@ -22,7 +22,7 @@ impl OptionTranslate {
         self
     }
 
-    // OptionTranslate GETTERS.
+    // OptionTranslated GETTERS.
 
     pub fn using(&self, langid: &LanguageIdentifier) -> Option<String> {
         if let Some(value) = &self.0 {

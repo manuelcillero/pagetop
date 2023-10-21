@@ -18,7 +18,7 @@ pub struct Button {
     classes    : OptionClasses,
     button_type: ButtonType,
     name       : OptionString,
-    value      : OptionTranslate,
+    value      : OptionTranslated,
     autofocus  : OptionString,
     disabled   : OptionString,
     template   : String,
@@ -155,7 +155,7 @@ impl Button {
         &self.name
     }
 
-    pub fn value(&self) -> &OptionTranslate {
+    pub fn value(&self) -> &OptionTranslated {
         &self.value
     }
 

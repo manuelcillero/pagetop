@@ -31,7 +31,7 @@ pub struct Anchor {
     classes    : OptionClasses,
     anchor_type: AnchorType,
     href       : OptionString,
-    html       : OptionTranslate,
+    html       : OptionTranslated,
     left_icon  : AnchorIcon,
     right_icon : AnchorIcon,
     target     : AnchorTarget,
@@ -188,7 +188,7 @@ impl Anchor {
         &self.href
     }
 
-    pub fn html(&self) -> &OptionTranslate {
+    pub fn html(&self) -> &OptionTranslated {
         &self.html
     }
 

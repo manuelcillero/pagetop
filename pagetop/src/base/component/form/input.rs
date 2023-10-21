@@ -22,7 +22,7 @@ pub struct Input {
     input_type  : InputType,
     name        : OptionName,
     value       : OptionString,
-    label       : OptionTranslate,
+    label       : OptionTranslated,
     size        : Option<u16>,
     minlength   : Option<u16>,
     maxlength   : Option<u16>,
@@ -32,7 +32,7 @@ pub struct Input {
     disabled    : OptionString,
     readonly    : OptionString,
     required    : OptionString,
-    help_text   : OptionTranslate,
+    help_text   : OptionTranslated,
     template    : String,
 }
 
@@ -293,7 +293,7 @@ impl Input {
         &self.value
     }
 
-    pub fn label(&self) -> &OptionTranslate {
+    pub fn label(&self) -> &OptionTranslated {
         &self.label
     }
 
@@ -333,7 +333,7 @@ impl Input {
         &self.required
     }
 
-    pub fn help_text(&self) -> &OptionTranslate {
+    pub fn help_text(&self) -> &OptionTranslated {
         &self.help_text
     }
 

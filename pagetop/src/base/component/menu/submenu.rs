@@ -12,7 +12,7 @@ pub struct Submenu {
     weight    : Weight,
     renderable: Renderable,
     id        : OptionId,
-    title     : OptionTranslate,
+    title     : OptionTranslated,
     items     : Items,
 }
 
@@ -91,7 +91,7 @@ impl Submenu {
 
     // Submenu GETTERS.
 
-    pub fn title(&self) -> &OptionTranslate {
+    pub fn title(&self) -> &OptionTranslated {
         &self.title
     }
 

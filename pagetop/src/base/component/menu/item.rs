@@ -29,7 +29,7 @@ pub struct Item {
     weight     : Weight,
     renderable : Renderable,
     item_type  : ItemType,
-    description: OptionTranslate,
+    description: OptionTranslated,
 }
 
 impl ComponentTrait for Item {
@@ -172,7 +172,7 @@ impl Item {
         &self.item_type
     }
 
-    pub fn description(&self) -> &OptionTranslate {
+    pub fn description(&self) -> &OptionTranslated {
         &self.description
     }
 }

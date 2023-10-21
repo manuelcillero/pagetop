@@ -33,7 +33,7 @@ pub struct Heading {
     id          : OptionId,
     classes     : OptionClasses,
     heading_type: HeadingType,
-    text        : OptionTranslate,
+    text        : OptionTranslated,
     display     : HeadingDisplay,
     template    : String,
 }
@@ -183,7 +183,7 @@ impl Heading {
         &self.heading_type
     }
 
-    pub fn text(&self) -> &OptionTranslate {
+    pub fn text(&self) -> &OptionTranslated {
         &self.text
     }
 

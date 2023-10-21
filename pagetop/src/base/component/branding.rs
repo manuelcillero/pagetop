@@ -9,7 +9,7 @@ pub struct Branding {
     weight    : Weight,
     renderable: Renderable,
     app_name  : String,
-    slogan    : OptionTranslate,
+    slogan    : OptionTranslated,
     logo      : SiteLogo,
     frontpage : FnContextualPath,
 }
@@ -21,7 +21,7 @@ impl Default for Branding {
             weight    : Weight::default(),
             renderable: Renderable::default(),
             app_name  : config::SETTINGS.app.name.to_owned(),
-            slogan    : OptionTranslate::default(),
+            slogan    : OptionTranslated::default(),
             logo      : SiteLogo::default(),
             frontpage : |_| "/",
         }
@@ -120,7 +120,7 @@ impl Branding {
         &self.app_name
     }
 
-    pub fn slogan(&self) -> &OptionTranslate {
+    pub fn slogan(&self) -> &OptionTranslated {
         &self.slogan
     }
 
