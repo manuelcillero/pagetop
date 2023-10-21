@@ -51,7 +51,6 @@ impl ComponentTrait for Branding {
 
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
         let title = L10n::l("site_home").using(cx.langid());
-        let slogan = self.slogan().using(cx.langid()).unwrap_or_default();
         PrepareMarkup::With(html! {
             div id=[self.id()] {
                 div class="pt-branding__wrapper" {
@@ -64,7 +63,7 @@ impl ComponentTrait for Branding {
                                 (self.app_name())
                             }
                         }
-                        @if !slogan.is_empty() {
+                        @if let Some(slogan) = self.slogan().using(cx.langid()) {
                             div class="pt-branding__slogan" {
                                 (slogan)
                             }

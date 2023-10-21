@@ -177,8 +177,13 @@ pub struct L10n {
 
 impl L10n {
     pub fn n(text: impl Into<String>) -> Self {
+        let text = text.into();
         L10n {
-            op: L10nOp::Text(text.into()),
+            op: if text.trim().is_empty() {
+                L10nOp::None
+            } else {
+                L10nOp::Text(text)
+            },
             ..Default::default()
         }
     }
