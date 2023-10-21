@@ -22,6 +22,9 @@ pub use opt_name::OptionName;
 mod opt_string;
 pub use opt_string::OptionString;
 
+mod opt_translate;
+pub use opt_translate::OptionTranslate;
+
 mod opt_classes;
 pub use opt_classes::{ClassesOp, OptionClasses};
 
