@@ -1,8 +1,9 @@
 use crate::core::component::{ComponentTrait, Context};
 use crate::core::module::ModuleTrait;
 use crate::html::{html, Favicon, Markup};
+use crate::locale::L10n;
 use crate::response::page::Page;
-use crate::{config, LOCALES_PAGETOP};
+use crate::{concat_string, config};
 
 pub type ThemeRef = &'static dyn ThemeTrait;
 
@@ -11,11 +12,11 @@ pub trait ThemeTrait: ModuleTrait + Send + Sync {
     #[rustfmt::skip]
     fn regions(&self) -> Vec<(&'static str, L10n)> {
         vec![
-            ("header",  L10n::t("header",  &LOCALES_PAGETOP)),
-            ("pagetop", L10n::t("pagetop", &LOCALES_PAGETOP)),
-            ("content", L10n::t("content", &LOCALES_PAGETOP)),
-            ("sidebar", L10n::t("sidebar", &LOCALES_PAGETOP)),
-            ("footer",  L10n::t("footer",  &LOCALES_PAGETOP)),
+            ("header",  L10n::l("header")),
+            ("pagetop", L10n::l("pagetop")),
+            ("content", L10n::l("content")),
+            ("sidebar", L10n::l("sidebar")),
+            ("footer",  L10n::l("footer")),
         ]
     }
 
@@ -28,8 +29,16 @@ pub trait ThemeTrait: ModuleTrait + Send + Sync {
         let content = page.prepare_region("content");
         let sidebar = page.prepare_region("sidebar");
         let footer = page.prepare_region("footer");
+
+        let skip_to = concat_string!("#", page.skip_to().get().unwrap_or("content".to_owned()));
+
         html! {
             body class=[page.body_classes().get()] {
+                @if let Some(skip) = L10n::l("skip_to_content").using(page.context().langid()) {
+                    div class="pt-body__skip" {
+                        a href=(skip_to) { (skip) }
+                    }
+                }
                 div class="pt-body__wrapper" {
                     div class="pt-body__regions" {
                         (header.unwrap_or_default())

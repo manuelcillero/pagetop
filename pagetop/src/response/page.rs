@@ -22,6 +22,7 @@ pub struct Page {
     context     : Context,
     body_classes: OptionClasses,
     regions     : ComponentsRegions,
+    skip_to     : OptionId,
     template    : String,
 }
 
@@ -35,8 +36,9 @@ impl Page {
             properties  : Vec::new(),
             favicon     : None,
             context     : Context::new(request),
-            body_classes: OptionClasses::new().with_value(ClassesOp::SetDefault, "body"),
+            body_classes: OptionClasses::new(),
             regions     : ComponentsRegions::new(),
+            skip_to     : OptionId::new(),
             template    : "default".to_owned(),
         }
     }
@@ -92,6 +94,12 @@ impl Page {
     }
 
     #[fn_builder]
+    pub fn alter_skip_to(&mut self, id: impl Into<String>) -> &mut Self {
+        self.skip_to.alter_value(id);
+        self
+    }
+
+    #[fn_builder]
     pub fn alter_template(&mut self, template: &str) -> &mut Self {
         self.template = template.to_owned();
         self
@@ -125,6 +133,10 @@ impl Page {
 
     pub fn body_classes(&self) -> &OptionClasses {
         &self.body_classes
+    }
+
+    pub fn skip_to(&self) -> &OptionId {
+        &self.skip_to
     }
 
     pub fn template(&self) -> &str {
