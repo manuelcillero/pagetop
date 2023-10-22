@@ -44,7 +44,8 @@
 	border: none;
 	transition: color 0.3s ease-in-out;
 }
-.pt-menu__nav li:hover > a {
+.pt-menu__nav li:hover > a,
+.pt-menu__nav li > a:focus {
 	color: var(--pt-menu--color-highlight);
 }
 .pt-menu__nav li > a > i.pt-menu__icon {
@@ -68,7 +69,9 @@
 	transition: all 0.5s ease-in-out;
 }
 
-.pt-menu__nav li.pt-menu__children:hover > .pt-menu__subs {
+.pt-menu__nav li.pt-menu__children:hover > .pt-menu__subs,
+.pt-menu__nav li.pt-menu__children > a:focus + .pt-menu__subs,
+.pt-menu__nav li.pt-menu__children .pt-menu__subs:focus-within {
 	margin-top: 0.4rem;
 	opacity: 1;
 	visibility: visible;
