@@ -88,15 +88,20 @@
 //! ```
 
 use crate::html::{Markup, PreEscaped};
-use crate::{config, kv, trace, LazyStatic, LOCALES_PAGETOP};
+use crate::result::{SafeResult, TraceErr};
+use crate::{config, kv, LazyStatic, LOCALES_PAGETOP};
 
 pub use fluent_templates;
+pub use unic_langid::LanguageIdentifier;
 
 pub(crate) use fluent_templates::Loader;
 pub(crate) use fluent_templates::StaticLoader as Locales;
-pub(crate) use unic_langid::{langid, LanguageIdentifier};
+
+use unic_langid::langid;
 
 use std::collections::HashMap;
+
+const LANGUAGE_SET_FAILURE: &str = "language_set_failure";
 
 static LANGUAGES: LazyStatic<HashMap<String, (LanguageIdentifier, &str)>> = LazyStatic::new(|| {
     kv![
@@ -114,19 +119,22 @@ static FALLBACK_LANGID: LazyStatic<LanguageIdentifier> = LazyStatic::new(|| lang
 /// ([Unicode Language Identifier](https://unicode.org/reports/tr35/tr35.html#Unicode_language_identifier))
 /// global para la aplicación a partir de `SETTINGS.app.language`.
 pub(crate) static LANGID: LazyStatic<&LanguageIdentifier> =
-    LazyStatic::new(|| langid_for(config::SETTINGS.app.language.as_str()));
+    LazyStatic::new(|| langid_for(config::SETTINGS.app.language.as_str()).unwrap_or_fallback());
 
-pub fn langid_for(language: &str) -> &LanguageIdentifier {
-    match LANGUAGES.get(language) {
-        Some((langid, _)) => langid,
-        _ => {
-            trace::warn!(
-                "{} \"{}\"! {}",
-                "Failed to set language. Unicode Language Identifier",
-                config::SETTINGS.app.language,
-                "is not accepted. Using \"en-US\", check the settings file",
-            );
-            &FALLBACK_LANGID
+pub fn langid_for(language: impl Into<String>) -> SafeResult<&'static LanguageIdentifier> {
+    let language = language.into();
+    match LANGUAGES.get(language.as_str()) {
+        Some((langid, _)) => SafeResult::Ok(langid),
+        None => {
+            if language.is_empty() {
+                SafeResult::Ok(&FALLBACK_LANGID)
+            } else {
+                SafeResult::Err(TraceErr::warn(
+                    L10n::l(LANGUAGE_SET_FAILURE)
+                        .with_arg("language", config::SETTINGS.app.language.as_str()),
+                    &FALLBACK_LANGID,
+                ))
+            }
         }
     }
 }
@@ -226,6 +234,32 @@ impl L10n {
                         }),
                 ),
                 None => None,
+            },
+        }
+    }
+
+    pub(crate) fn message(&self) -> String {
+        match &self.op {
+            L10nOp::None => "".to_owned(),
+            L10nOp::Text(text) => text.to_owned(),
+            L10nOp::Translate(key) => match self.locales {
+                Some(locales) => locales
+                    .lookup_with_args(
+                        match key.as_str() {
+                            LANGUAGE_SET_FAILURE => &FALLBACK_LANGID,
+                            _ => &LANGID,
+                        },
+                        key,
+                        &self
+                            .args
+                            .iter()
+                            .fold(HashMap::new(), |mut args, (key, value)| {
+                                args.insert(key.to_string(), value.to_owned().into());
+                                args
+                            }),
+                    )
+                    .unwrap_or(key.to_owned()),
+                None => key.to_owned(),
             },
         }
     }
