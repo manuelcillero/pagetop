@@ -5,4 +5,4 @@ language_set_failure = Fallo al asignar idioma. El Identificador de Lenguaje Uni
 
 db_connection_fail = Fallo al conectar con la base de datos
 db_connection_not_initialized = Conexión a la base de datos no inicializada
-db_migration_fail = Fallo en la actualización de la base de datos
+db_migration_fail = Fallo al actualizar base de datos (${dberr})

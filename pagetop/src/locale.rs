@@ -114,11 +114,15 @@ static LANGUAGES: LazyStatic<HashMap<String, (LanguageIdentifier, &str)>> = Lazy
 
 static FALLBACK_LANGID: LazyStatic<LanguageIdentifier> = LazyStatic::new(|| langid!("en-US"));
 
+pub fn langid_fallback() -> &'static LanguageIdentifier {
+    &FALLBACK_LANGID
+}
+
 /// Almacena el Identificador de Idioma Unicode
 /// ([Unicode Language Identifier](https://unicode.org/reports/tr35/tr35.html#Unicode_language_identifier))
 /// global para la aplicación a partir de `SETTINGS.app.language`.
 pub(crate) static LANGID: LazyStatic<&LanguageIdentifier> = LazyStatic::new(|| {
-    langid_for(config::SETTINGS.app.language.as_str()).unwrap_or(&FALLBACK_LANGID)
+    langid_for(config::SETTINGS.app.language.as_str()).unwrap_or(langid_fallback())
 });
 
 pub fn langid_for(language: impl Into<String>) -> Result<&'static LanguageIdentifier, String> {
@@ -131,7 +135,7 @@ pub fn langid_for(language: impl Into<String>) -> Result<&'static LanguageIdenti
             } else {
                 Err(L10n::l(LANGUAGE_SET_FAILURE)
                     .with_arg("language", config::SETTINGS.app.language.as_str())
-                    .warn())
+                    .debug())
             }
         }
     }

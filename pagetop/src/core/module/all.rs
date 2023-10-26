@@ -1,8 +1,7 @@
 use crate::core::action::add_action;
 use crate::core::module::ModuleRef;
 use crate::core::theme::all::THEMES;
-use crate::locale::L10n;
-use crate::{service, trace, LazyStatic, ResultExt};
+use crate::{service, trace, LazyStatic};
 
 #[cfg(feature = "database")]
 use crate::db::*;
@@ -111,7 +110,9 @@ pub fn init_modules() {
 #[cfg(feature = "database")]
 pub fn run_migrations() {
     if let Some(dbconn) = &*DBCONN {
-        run_now({
+        use crate::locale::L10n;
+
+        match run_now({
             struct Migrator;
             impl MigratorTrait for Migrator {
                 fn migrations() -> Vec<MigrationItem> {
@@ -123,10 +124,16 @@ pub fn run_migrations() {
                 }
             }
             Migrator::up(SchemaManagerConnection::Connection(dbconn), None)
-        })
-        .expect_or_log(L10n::l("db_migration_fail").error().as_str());
+        }) {
+            Err(e) => {
+                L10n::l("db_migration_fail")
+                    .with_arg("dberr", format!("{}", e))
+                    .error();
+            }
+            _ => {}
+        };
 
-        run_now({
+        match run_now({
             struct Migrator;
             impl MigratorTrait for Migrator {
                 fn migrations() -> Vec<MigrationItem> {
@@ -138,8 +145,14 @@ pub fn run_migrations() {
                 }
             }
             Migrator::down(SchemaManagerConnection::Connection(dbconn), None)
-        })
-        .expect_or_log(L10n::l("db_migration_fail").error().as_str());
+        }) {
+            Err(e) => {
+                L10n::l("db_migration_fail")
+                    .with_arg("dberr", format!("{}", e))
+                    .error();
+            }
+            _ => {}
+        };
     }
 }
 

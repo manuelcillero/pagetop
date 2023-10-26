@@ -48,7 +48,6 @@ url           = "2.4.0"
 tracing = "0.1.37"
 tracing-appender = "0.2.2"
 tracing-subscriber = { version = "0.3.17", features = ["json", "env-filter"] }
-tracing-unwrap = { version = "0.10.0", default-features = false }
 tracing-actix-web = "0.7.6"
 
 fluent-templates = "0.8.0"

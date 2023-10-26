@@ -1,7 +1,7 @@
 //! Acceso unificado y normalizado a base de datos.
 
 use crate::locale::L10n;
-use crate::{config, trace, LazyStatic, ResultExt};
+use crate::{config, trace, LazyStatic};
 
 pub use url::Url as DbUri;
 
@@ -70,7 +70,7 @@ pub(crate) static DBCONN: LazyStatic<Option<DbConn>> = LazyStatic::new(|| {
                 db_opt.max_connections(config::SETTINGS.database.max_pool_size);
                 db_opt
             }))
-            .expect_or_log(L10n::l("db_connection_fail").to_string().as_str()),
+            .expect(L10n::l("db_connection_fail").to_string().as_str()),
         )
     } else {
         None
@@ -93,7 +93,7 @@ pub async fn query<Q: QueryStatementWriter>(stmt: &mut Q) -> Result<Vec<QueryRes
                 .await
         }
         None => Err(DbErr::Conn(RuntimeErr::Internal(
-            L10n::l("db_connection_not_initialized").trace(),
+            L10n::l("db_connection_not_initialized").debug(),
         ))),
     }
 }
@@ -114,7 +114,7 @@ pub async fn exec<Q: QueryStatementWriter>(stmt: &mut Q) -> Result<Option<QueryR
                 .await
         }
         None => Err(DbErr::Conn(RuntimeErr::Internal(
-            L10n::l("db_connection_not_initialized").trace(),
+            L10n::l("db_connection_not_initialized").debug(),
         ))),
     }
 }
@@ -128,7 +128,7 @@ pub async fn exec_raw(stmt: String) -> Result<ExecResult, DbErr> {
                 .await
         }
         None => Err(DbErr::Conn(RuntimeErr::Internal(
-            L10n::l("db_connection_not_initialized").trace(),
+            L10n::l("db_connection_not_initialized").debug(),
         ))),
     }
 }

@@ -5,4 +5,4 @@ language_set_failure = Failed to set language. Unicode Language Identifier "{$la
 
 db_connection_fail = Failed to connect to database
 db_connection_not_initialized = Database connection not initialized
-db_migration_fail = Database update failed
+db_migration_fail = Database update failed (${dberr})

@@ -117,7 +117,6 @@ pub use pagetop_macros::{fn_builder, main, test};
 
 pub use once_cell::sync::Lazy as LazyStatic;
 pub use static_files::Resource as StaticResource;
-pub use tracing_unwrap::ResultExt;
 
 pub type Handle = u64;
 pub type Weight = i8;
