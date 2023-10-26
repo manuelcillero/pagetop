@@ -1,7 +1,8 @@
 use crate::core::action::add_action;
 use crate::core::module::ModuleRef;
 use crate::core::theme::all::THEMES;
-use crate::{service, trace, LazyStatic};
+use crate::locale::L10n;
+use crate::{service, trace, LazyStatic, ResultExt};
 
 #[cfg(feature = "database")]
 use crate::db::*;
@@ -109,35 +110,37 @@ pub fn init_modules() {
 
 #[cfg(feature = "database")]
 pub fn run_migrations() {
-    run_now({
-        struct Migrator;
-        impl MigratorTrait for Migrator {
-            fn migrations() -> Vec<MigrationItem> {
-                let mut migrations = vec![];
-                for m in ENABLED_MODULES.read().unwrap().iter() {
-                    migrations.append(&mut m.migrations());
+    if let Some(dbconn) = &*DBCONN {
+        run_now({
+            struct Migrator;
+            impl MigratorTrait for Migrator {
+                fn migrations() -> Vec<MigrationItem> {
+                    let mut migrations = vec![];
+                    for m in ENABLED_MODULES.read().unwrap().iter() {
+                        migrations.append(&mut m.migrations());
+                    }
+                    migrations
                 }
-                migrations
             }
-        }
-        Migrator::up(SchemaManagerConnection::Connection(&DBCONN), None)
-    })
-    .unwrap();
+            Migrator::up(SchemaManagerConnection::Connection(dbconn), None)
+        })
+        .expect_or_log(L10n::l("db_migration_fail").message().as_str());
 
-    run_now({
-        struct Migrator;
-        impl MigratorTrait for Migrator {
-            fn migrations() -> Vec<MigrationItem> {
-                let mut migrations = vec![];
-                for m in DROPPED_MODULES.read().unwrap().iter() {
-                    migrations.append(&mut m.migrations());
+        run_now({
+            struct Migrator;
+            impl MigratorTrait for Migrator {
+                fn migrations() -> Vec<MigrationItem> {
+                    let mut migrations = vec![];
+                    for m in DROPPED_MODULES.read().unwrap().iter() {
+                        migrations.append(&mut m.migrations());
+                    }
+                    migrations
                 }
-                migrations
             }
-        }
-        Migrator::down(SchemaManagerConnection::Connection(&DBCONN), None)
-    })
-    .unwrap();
+            Migrator::down(SchemaManagerConnection::Connection(dbconn), None)
+        })
+        .expect_or_log(L10n::l("db_migration_fail").message().as_str());
+    }
 }
 
 // CONFIGURE SERVICES ******************************************************************************

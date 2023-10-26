@@ -16,5 +16,5 @@ async fn health_check_works() {
     let req = service::test::TestRequest::get().uri("/").to_request();
     let _resp = service::test::call_service(&app, req).await;
 
-//  assert_eq!("OK", "OK");
+    //  assert_eq!("OK", "OK");
 }
