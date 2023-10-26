@@ -1,9 +1,13 @@
 //! Tipos y funciones para operar con el servidor web ([actix-web](https://docs.rs/actix-web)).
 
 pub use actix_session::Session;
-pub use actix_web::{
-    cookie, get, http, rt, web, App, HttpMessage, HttpRequest, HttpResponse, HttpServer, Responder,
-};
+pub use actix_web::body::BoxBody;
+pub use actix_web::dev::Server;
+pub use actix_web::dev::ServiceFactory as Factory;
+pub use actix_web::dev::ServiceRequest as Request;
+pub use actix_web::dev::ServiceResponse as Response;
+pub use actix_web::{cookie, get, http, rt, test, web};
+pub use actix_web::{App, Error, HttpMessage, HttpRequest, HttpResponse, HttpServer, Responder};
 
 pub use actix_web_files::Files as ActixFiles;
 pub use actix_web_static_files::ResourceFiles;

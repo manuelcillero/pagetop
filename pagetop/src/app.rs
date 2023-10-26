@@ -14,21 +14,17 @@ use crate::db;
 use actix_session::config::{BrowserSession, PersistentSession, SessionLifecycle};
 use actix_session::storage::CookieSessionStore;
 use actix_session::SessionMiddleware;
-use actix_web::cookie::{time::Duration, Key};
-use actix_web::dev::Server;
-
-use std::io::Error;
 
 use substring::Substring;
 
-pub struct Application {
-    server: Server,
-}
+use std::io::Error;
+
+pub struct Application;
 
 impl Application {
     pub fn prepare(app: ModuleRef) -> Result<Self, Error> {
-        // Rótulo de presentación.
-        print_on_startup();
+        // On startup.
+        show_banner();
 
         // Inicia registro de trazas y eventos.
         LazyStatic::force(&trace::TRACING);
@@ -53,46 +49,74 @@ impl Application {
         // Ejecuta actualizaciones pendientes de la base de datos.
         module::all::run_migrations();
 
+        Ok(Self)
+    }
+
+    pub fn run(self) -> Result<service::Server, Error> {
+        // Generate cookie key.
+        let secret_key = service::cookie::Key::generate();
+
         // Prepara el servidor web.
-        let secret_key = get_secret_key();
-        let server = service::HttpServer::new(move || {
-            service::App::new()
+        Ok(service::HttpServer::new(move || {
+            service_app()
                 .wrap(tracing_actix_web::TracingLogger::default())
                 .wrap(
                     SessionMiddleware::builder(CookieSessionStore::default(), secret_key.clone())
                         .session_lifecycle(match config::SETTINGS.server.session_lifetime {
                             0 => SessionLifecycle::BrowserSession(BrowserSession::default()),
                             _ => SessionLifecycle::PersistentSession(
-                                PersistentSession::default().session_ttl(Duration::seconds(
-                                    config::SETTINGS.server.session_lifetime,
-                                )),
+                                PersistentSession::default().session_ttl(
+                                    service::cookie::time::Duration::seconds(
+                                        config::SETTINGS.server.session_lifetime,
+                                    ),
+                                ),
                             ),
                         })
                         .build(),
                 )
-                .configure(module::all::configure_services)
-                .default_service(service::web::route().to(service_not_found))
         })
         .bind(format!(
             "{}:{}",
             &config::SETTINGS.server.bind_address,
             &config::SETTINGS.server.bind_port
         ))?
-        .run();
-
-        Ok(Self { server })
+        .run())
     }
 
-    pub fn run(self) -> Result<Server, Error> {
-        Ok(self.server)
-    }
-
-    pub fn server(self) -> Server {
-        self.server
+    pub fn test(
+        self,
+    ) -> service::App<
+        impl service::Factory<
+            service::Request,
+            Config = (),
+            Response = service::Response<service::BoxBody>,
+            Error = service::Error,
+            InitError = (),
+        >,
+    > {
+        service_app()
     }
 }
 
-fn print_on_startup() {
+fn service_app() -> service::App<
+    impl service::Factory<
+        service::Request,
+        Config = (),
+        Response = service::Response<service::BoxBody>,
+        Error = service::Error,
+        InitError = (),
+    >,
+> {
+    service::App::new()
+        .configure(module::all::configure_services)
+        .default_service(service::web::route().to(service_not_found))
+}
+
+async fn service_not_found(request: service::HttpRequest) -> ResultPage<Markup, FatalError> {
+    Err(FatalError::NotFound(request))
+}
+
+fn show_banner() {
     if config::SETTINGS.app.startup_banner.to_lowercase() != "off" {
         // Application name.
         let mut app_name = config::SETTINGS.app.name.to_string();
@@ -120,12 +144,4 @@ fn print_on_startup() {
             env!("CARGO_PKG_VERSION")
         );
     }
-}
-
-fn get_secret_key() -> Key {
-    Key::generate()
-}
-
-async fn service_not_found(request: service::HttpRequest) -> ResultPage<Markup, FatalError> {
-    Err(FatalError::NotFound(request))
 }
