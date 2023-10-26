@@ -70,7 +70,7 @@ pub(crate) static DBCONN: LazyStatic<Option<DbConn>> = LazyStatic::new(|| {
                 db_opt.max_connections(config::SETTINGS.database.max_pool_size);
                 db_opt
             }))
-            .expect(L10n::l("db_connection_fail").to_string().as_str()),
+            .unwrap_or_else(|_| panic!("{}", L10n::l("db_connection_fail").to_string())),
         )
     } else {
         None

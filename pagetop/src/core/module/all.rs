@@ -112,7 +112,7 @@ pub fn run_migrations() {
     if let Some(dbconn) = &*DBCONN {
         use crate::locale::L10n;
 
-        match run_now({
+        if let Err(e) = run_now({
             struct Migrator;
             impl MigratorTrait for Migrator {
                 fn migrations() -> Vec<MigrationItem> {
@@ -125,15 +125,12 @@ pub fn run_migrations() {
             }
             Migrator::up(SchemaManagerConnection::Connection(dbconn), None)
         }) {
-            Err(e) => {
-                L10n::l("db_migration_fail")
-                    .with_arg("dberr", format!("{}", e))
-                    .error();
-            }
-            _ => {}
+            L10n::l("db_migration_fail")
+                .with_arg("dberr", format!("{}", e))
+                .error();
         };
 
-        match run_now({
+        if let Err(e) = run_now({
             struct Migrator;
             impl MigratorTrait for Migrator {
                 fn migrations() -> Vec<MigrationItem> {
@@ -146,12 +143,9 @@ pub fn run_migrations() {
             }
             Migrator::down(SchemaManagerConnection::Connection(dbconn), None)
         }) {
-            Err(e) => {
-                L10n::l("db_migration_fail")
-                    .with_arg("dberr", format!("{}", e))
-                    .error();
-            }
-            _ => {}
+            L10n::l("db_migration_fail")
+                .with_arg("dberr", format!("{}", e))
+                .error();
         };
     }
 }
