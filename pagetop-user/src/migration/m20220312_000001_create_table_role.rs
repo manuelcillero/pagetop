@@ -60,7 +60,6 @@ impl MigrationTrait for Migration {
                 .values_panic(vec!["administrator".into(), "3".into()]),
         )
         .await
-        .unwrap_or_error(|e| DbErr::Custom(e.message()))
         .map(|_| ())
     }
 

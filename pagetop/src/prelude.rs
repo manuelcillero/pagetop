@@ -6,9 +6,6 @@ pub use crate::{concat_string, fn_builder, main, paste, test};
 // Global.
 pub use crate::{Handle, HashMapResources, LazyStatic, ResultExt, Weight};
 
-// Handling safe results.
-pub use crate::result::{SafeResult, TraceErr};
-
 // Functions and macro helpers.
 pub use crate::util;
 pub use crate::{kv, new_handle};

@@ -124,7 +124,7 @@ pub fn run_migrations() {
             }
             Migrator::up(SchemaManagerConnection::Connection(dbconn), None)
         })
-        .expect_or_log(L10n::l("db_migration_fail").message().as_str());
+        .expect_or_log(L10n::l("db_migration_fail").error().as_str());
 
         run_now({
             struct Migrator;
@@ -139,7 +139,7 @@ pub fn run_migrations() {
             }
             Migrator::down(SchemaManagerConnection::Connection(dbconn), None)
         })
-        .expect_or_log(L10n::l("db_migration_fail").message().as_str());
+        .expect_or_log(L10n::l("db_migration_fail").error().as_str());
     }
 }
 

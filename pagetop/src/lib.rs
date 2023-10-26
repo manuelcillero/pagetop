@@ -129,9 +129,6 @@ static_locales!(LOCALES_PAGETOP);
 // PUBLIC API.
 // *************************************************************************************************
 
-// Handling safe results.
-pub mod result;
-
 // Functions and macro helpers.
 pub mod util;
 

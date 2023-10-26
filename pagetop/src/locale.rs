@@ -88,8 +88,7 @@
 //! ```
 
 use crate::html::{Markup, PreEscaped};
-use crate::result::{SafeResult, TraceErr};
-use crate::{config, kv, LazyStatic, LOCALES_PAGETOP};
+use crate::{config, kv, trace, LazyStatic, LOCALES_PAGETOP};
 
 pub use fluent_templates;
 pub use unic_langid::LanguageIdentifier;
@@ -118,22 +117,21 @@ static FALLBACK_LANGID: LazyStatic<LanguageIdentifier> = LazyStatic::new(|| lang
 /// Almacena el Identificador de Idioma Unicode
 /// ([Unicode Language Identifier](https://unicode.org/reports/tr35/tr35.html#Unicode_language_identifier))
 /// global para la aplicación a partir de `SETTINGS.app.language`.
-pub(crate) static LANGID: LazyStatic<&LanguageIdentifier> =
-    LazyStatic::new(|| langid_for(config::SETTINGS.app.language.as_str()).unwrap_or_fallback());
+pub(crate) static LANGID: LazyStatic<&LanguageIdentifier> = LazyStatic::new(|| {
+    langid_for(config::SETTINGS.app.language.as_str()).unwrap_or(&FALLBACK_LANGID)
+});
 
-pub fn langid_for(language: impl Into<String>) -> SafeResult<&'static LanguageIdentifier> {
+pub fn langid_for(language: impl Into<String>) -> Result<&'static LanguageIdentifier, String> {
     let language = language.into();
     match LANGUAGES.get(language.as_str()) {
-        Some((langid, _)) => SafeResult::Ok(langid),
+        Some((langid, _)) => Ok(langid),
         None => {
             if language.is_empty() {
-                SafeResult::Ok(&FALLBACK_LANGID)
+                Ok(&FALLBACK_LANGID)
             } else {
-                SafeResult::Err(TraceErr::warn(
-                    L10n::l(LANGUAGE_SET_FAILURE)
-                        .with_arg("language", config::SETTINGS.app.language.as_str()),
-                    &FALLBACK_LANGID,
-                ))
+                Err(L10n::l(LANGUAGE_SET_FAILURE)
+                    .with_arg("language", config::SETTINGS.app.language.as_str())
+                    .warn())
             }
         }
     }
@@ -238,7 +236,43 @@ impl L10n {
         }
     }
 
-    pub(crate) fn message(&self) -> String {
+    pub fn escaped(&self, langid: &LanguageIdentifier) -> Markup {
+        PreEscaped(self.using(langid).unwrap_or_default())
+    }
+
+    pub fn trace(&self) -> String {
+        let message = self.to_string();
+        trace::trace!(message);
+        message
+    }
+
+    pub fn debug(&self) -> String {
+        let message = self.to_string();
+        trace::debug!(message);
+        message
+    }
+
+    pub fn info(&self) -> String {
+        let message = self.to_string();
+        trace::info!(message);
+        message
+    }
+
+    pub fn warn(&self) -> String {
+        let message = self.to_string();
+        trace::warn!(message);
+        message
+    }
+
+    pub fn error(&self) -> String {
+        let message = self.to_string();
+        trace::error!(message);
+        message
+    }
+}
+
+impl ToString for L10n {
+    fn to_string(&self) -> String {
         match &self.op {
             L10nOp::None => "".to_owned(),
             L10nOp::Text(text) => text.to_owned(),
@@ -262,9 +296,5 @@ impl L10n {
                 None => key.to_owned(),
             },
         }
-    }
-
-    pub fn escaped(&self, langid: &LanguageIdentifier) -> Markup {
-        PreEscaped(self.using(langid).unwrap_or_default())
     }
 }

@@ -1,11 +1,11 @@
 //! Acceso unificado y normalizado a base de datos.
 
 use crate::locale::L10n;
-use crate::result::{SafeResult, TraceErr};
 use crate::{config, trace, LazyStatic, ResultExt};
 
 pub use url::Url as DbUri;
 
+pub use sea_orm::error::{DbErr, RuntimeErr};
 pub use sea_orm::{DatabaseConnection as DbConn, ExecResult, QueryResult};
 
 use sea_orm::{ConnectOptions, ConnectionTrait, Database, DatabaseBackend, Statement};
@@ -70,18 +70,18 @@ pub(crate) static DBCONN: LazyStatic<Option<DbConn>> = LazyStatic::new(|| {
                 db_opt.max_connections(config::SETTINGS.database.max_pool_size);
                 db_opt
             }))
-            .expect_or_log(L10n::l("db_connection_fail").message().as_str()),
+            .expect_or_log(L10n::l("db_connection_fail").to_string().as_str()),
         )
     } else {
         None
     }
 });
 
-pub async fn query<Q: QueryStatementWriter>(stmt: &mut Q) -> SafeResult<Option<Vec<QueryResult>>> {
+pub async fn query<Q: QueryStatementWriter>(stmt: &mut Q) -> Result<Vec<QueryResult>, DbErr> {
     match &*DBCONN {
         Some(dbconn) => {
             let dbbackend = dbconn.get_database_backend();
-            match dbconn
+            dbconn
                 .query_all(Statement::from_string(
                     dbbackend,
                     match dbbackend {
@@ -91,23 +91,18 @@ pub async fn query<Q: QueryStatementWriter>(stmt: &mut Q) -> SafeResult<Option<V
                     },
                 ))
                 .await
-            {
-                Ok(result) => SafeResult::Ok(Some(result)),
-                Err(e) => SafeResult::Err(TraceErr::error(L10n::n(e.to_string()), None)),
-            }
         }
-        None => SafeResult::Err(TraceErr::trace(
-            L10n::l("db_connection_not_initialized"),
-            None,
-        )),
+        None => Err(DbErr::Conn(RuntimeErr::Internal(
+            L10n::l("db_connection_not_initialized").trace(),
+        ))),
     }
 }
 
-pub async fn exec<Q: QueryStatementWriter>(stmt: &mut Q) -> SafeResult<Option<QueryResult>> {
+pub async fn exec<Q: QueryStatementWriter>(stmt: &mut Q) -> Result<Option<QueryResult>, DbErr> {
     match &*DBCONN {
         Some(dbconn) => {
             let dbbackend = dbconn.get_database_backend();
-            match dbconn
+            dbconn
                 .query_one(Statement::from_string(
                     dbbackend,
                     match dbbackend {
@@ -117,34 +112,24 @@ pub async fn exec<Q: QueryStatementWriter>(stmt: &mut Q) -> SafeResult<Option<Qu
                     },
                 ))
                 .await
-            {
-                Ok(result) => SafeResult::Ok(result),
-                Err(e) => SafeResult::Err(TraceErr::error(L10n::n(e.to_string()), None)),
-            }
         }
-        None => SafeResult::Err(TraceErr::trace(
-            L10n::l("db_connection_not_initialized"),
-            None,
-        )),
+        None => Err(DbErr::Conn(RuntimeErr::Internal(
+            L10n::l("db_connection_not_initialized").trace(),
+        ))),
     }
 }
 
-pub async fn exec_raw(stmt: String) -> SafeResult<Option<ExecResult>> {
+pub async fn exec_raw(stmt: String) -> Result<ExecResult, DbErr> {
     match &*DBCONN {
         Some(dbconn) => {
             let dbbackend = dbconn.get_database_backend();
-            match dbconn
+            dbconn
                 .execute(Statement::from_string(dbbackend, stmt))
                 .await
-            {
-                Ok(result) => SafeResult::Ok(Some(result)),
-                Err(e) => SafeResult::Err(TraceErr::error(L10n::n(e.to_string()), None)),
-            }
         }
-        None => SafeResult::Err(TraceErr::trace(
-            L10n::l("db_connection_not_initialized"),
-            None,
-        )),
+        None => Err(DbErr::Conn(RuntimeErr::Internal(
+            L10n::l("db_connection_not_initialized").trace(),
+        ))),
     }
 }
 
