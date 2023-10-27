@@ -20,7 +20,7 @@ enum NodeType {
                         // different from the current type name if the locked field is 0.
 }
 
-pub_migration!(Migration);
+new_migration!(Migration);
 
 #[async_trait::async_trait]
 impl MigrationTrait for Migration {

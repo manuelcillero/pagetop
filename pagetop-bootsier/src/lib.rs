@@ -2,9 +2,9 @@ use pagetop::prelude::*;
 
 new_handle!(THEME_BOOTSIER);
 
-static_locales!(LOCALES_BOOTSIER);
+new_static_locales!(LOCALES_BOOTSIER);
 
-static_files!(bootsier);
+new_static_files!(bootsier);
 
 pub struct Bootsier;
 
@@ -18,7 +18,7 @@ impl ModuleTrait for Bootsier {
     }
 
     fn configure_service(&self, scfg: &mut service::web::ServiceConfig) {
-        static_files_service!(scfg, "/bootsier", bootsier);
+        service_for_static_files!(scfg, "/bootsier", bootsier);
     }
 }
 

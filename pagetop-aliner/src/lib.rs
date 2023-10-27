@@ -2,7 +2,7 @@ use pagetop::prelude::*;
 
 new_handle!(THEME_ALINER);
 
-static_files!(aliner);
+new_static_files!(aliner);
 
 pub struct Aliner;
 
@@ -16,7 +16,7 @@ impl ModuleTrait for Aliner {
     }
 
     fn configure_service(&self, scfg: &mut service::web::ServiceConfig) {
-        static_files_service!(scfg, "/aliner", aliner);
+        service_for_static_files!(scfg, "/aliner", aliner);
     }
 }
 

@@ -16,7 +16,7 @@ enum Role {
     /* ... */
 }
 
-pub_migration!(Migration);
+new_migration!(Migration);
 
 #[async_trait::async_trait]
 impl MigrationTrait for Migration {

@@ -2,7 +2,7 @@ use pagetop::prelude::*;
 
 new_handle!(MODULE_USER);
 
-static_locales!(LOCALES_USER);
+new_static_locales!(LOCALES_USER);
 
 mod migration;
 

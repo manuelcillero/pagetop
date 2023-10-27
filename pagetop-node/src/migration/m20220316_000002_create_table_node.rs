@@ -27,7 +27,7 @@ enum Node {
     Translate,          // A boolean indicating whether this translation page needs to be updated.
 }
 
-pub_migration!(Migration);
+new_migration!(Migration);
 
 #[async_trait::async_trait]
 impl MigrationTrait for Migration {

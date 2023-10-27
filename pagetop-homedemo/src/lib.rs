@@ -2,9 +2,9 @@ use pagetop::prelude::*;
 
 new_handle!(MODULE_HOMEDEMO);
 
-static_locales!(LOCALES_HOMEDEMO);
+new_static_locales!(LOCALES_HOMEDEMO);
 
-static_files!(homedemo);
+new_static_files!(homedemo);
 
 pub struct HomeDemo;
 
@@ -22,7 +22,7 @@ impl ModuleTrait for HomeDemo {
     }
 
     fn configure_service(&self, scfg: &mut service::web::ServiceConfig) {
-        static_files_service!(scfg, "/homedemo", homedemo);
+        service_for_static_files!(scfg, "/homedemo", homedemo);
         scfg.route("/", service::web::get().to(demo));
     }
 }

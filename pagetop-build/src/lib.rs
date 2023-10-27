@@ -59,7 +59,7 @@
 //! ```rust#ignore
 //! use pagetop::prelude::*;
 //!
-//! static_files!(guides);
+//! new_static_files!(guides);
 //! ```
 //!
 //! Also you can get the bundle as a static reference to the generated HashMap resources collection:
@@ -67,7 +67,7 @@
 //! ```rust#ignore
 //! use pagetop::prelude::*;
 //!
-//! static_files!(guides => BUNDLE_GUIDES);
+//! new_static_files!(guides => BUNDLE_GUIDES);
 //! ```
 //!
 //! You can build more than one resources file to compile with your project.

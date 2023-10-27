@@ -10,7 +10,7 @@ enum Role {
     Weight,             // The weight of this role in listings and the user interface.
 }
 
-pub_migration!(Migration);
+new_migration!(Migration);
 
 #[async_trait::async_trait]
 impl MigrationTrait for Migration {

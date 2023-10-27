@@ -2,7 +2,7 @@ use pagetop::prelude::*;
 
 new_handle!(THEME_BULMIX);
 
-static_files!(bulmix);
+new_static_files!(bulmix);
 
 pub struct Bulmix;
 
@@ -16,7 +16,7 @@ impl ModuleTrait for Bulmix {
     }
 
     fn configure_service(&self, scfg: &mut service::web::ServiceConfig) {
-        static_files_service!(scfg, "/bulmix", bulmix);
+        service_for_static_files!(scfg, "/bulmix", bulmix);
     }
 }
 
