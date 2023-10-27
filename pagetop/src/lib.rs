@@ -122,7 +122,7 @@ pub type Handle = u64;
 pub type Weight = i8;
 pub type HashMapResources = std::collections::HashMap<&'static str, StaticResource>;
 
-static_locales!(LOCALES_PAGETOP);
+new_static_locales!(LOCALES_PAGETOP);
 
 // *************************************************************************************************
 // PUBLIC API.

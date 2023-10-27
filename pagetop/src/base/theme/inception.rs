@@ -2,7 +2,7 @@ use crate::prelude::*;
 
 new_handle!(THEME_INCEPTION);
 
-static_files!(base);
+new_static_files!(base);
 
 pub struct Inception;
 
@@ -20,7 +20,7 @@ impl ModuleTrait for Inception {
     }
 
     fn configure_service(&self, scfg: &mut service::web::ServiceConfig) {
-        static_files_service!(scfg, "/base", base);
+        service_for_static_files!(scfg, "/base", base);
     }
 }
 

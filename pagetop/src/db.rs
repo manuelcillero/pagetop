@@ -150,7 +150,7 @@ pub use migration::prelude::*;
 pub type MigrationItem = Box<dyn MigrationTrait>;
 
 #[macro_export]
-macro_rules! pub_migration {
+macro_rules! new_migration {
     ( $migration:ident ) => {
         pub struct $migration;
 

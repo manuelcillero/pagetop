@@ -15,9 +15,9 @@ pub use crate::{kv, new_handle};
 // crate::config
 pub use crate::default_settings;
 // crate::locale
-pub use crate::static_locales;
+pub use crate::new_static_locales;
 // crate::service
-pub use crate::{static_files, static_files_service};
+pub use crate::{new_static_files, service_for_static_files};
 // crate::core::actions
 pub use crate::actions;
 // crate::base::action::component
@@ -36,7 +36,7 @@ pub use crate::locale::*;
 pub use crate::datetime::*;
 
 #[cfg(feature = "database")]
-pub use crate::{db, db::*, migrations, pub_migration};
+pub use crate::{db, db::*, migrations, new_migration};
 
 pub use crate::service;
 pub use crate::service::HttpMessage;
