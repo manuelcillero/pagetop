@@ -12,7 +12,6 @@ impl ModuleTrait for Drust {
     fn dependencies(&self) -> Vec<ModuleRef> {
         vec![
             // Themes.
-            &pagetop_aliner::Aliner,
             &pagetop_bootsier::Bootsier,
             &pagetop_bulmix::Bulmix,
             // Modules.

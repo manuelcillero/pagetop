@@ -16,7 +16,6 @@ license = "Apache-2.0 OR MIT"
 [dependencies]
 pagetop = { version = "0.0", path = "../pagetop", features = ["mysql"], default-features = false }
 # Themes.
-pagetop-aliner = { version = "0.0", path = "../pagetop-aliner" }
 pagetop-bootsier = { version = "0.0", path = "../pagetop-bootsier" }
 pagetop-bulmix = { version = "0.0", path = "../pagetop-bulmix" }
 # Modules.

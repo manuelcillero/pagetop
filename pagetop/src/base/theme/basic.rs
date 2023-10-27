@@ -1,24 +1,24 @@
 use crate::prelude::*;
 
-new_handle!(THEME_INCEPTION);
+new_handle!(THEME_BASIC);
 
-pub struct Inception;
+pub struct Basic;
 
-impl ModuleTrait for Inception {
+impl ModuleTrait for Basic {
     fn handle(&self) -> Handle {
-        THEME_INCEPTION
+        THEME_BASIC
     }
 
     fn name(&self) -> L10n {
-        L10n::n("Inception")
+        L10n::n("Basic")
     }
 
     fn theme(&self) -> Option<ThemeRef> {
-        Some(&Inception)
+        Some(&Basic)
     }
 }
 
-impl ThemeTrait for Inception {
+impl ThemeTrait for Basic {
     fn after_prepare_body(&self, page: &mut Page) {
         page.alter_favicon(Some(Favicon::new().with_icon("/base/favicon.ico")))
             .alter_context(ContextOp::AddStyleSheet(
@@ -28,7 +28,7 @@ impl ThemeTrait for Inception {
             ))
             .alter_context(ContextOp::AddBaseAssets)
             .alter_context(ContextOp::AddStyleSheet(
-                StyleSheet::at("/base/css/inception.css")
+                StyleSheet::at("/base/css/basic.css")
                     .with_version("0.0.1")
                     .with_weight(-90),
             ));

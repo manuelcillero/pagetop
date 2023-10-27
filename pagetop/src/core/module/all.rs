@@ -1,12 +1,14 @@
 use crate::core::action::add_action;
 use crate::core::module::ModuleRef;
 use crate::core::theme::all::THEMES;
-use crate::{service, trace, LazyStatic};
+use crate::{new_static_files, service, service_for_static_files, trace, LazyStatic};
 
 #[cfg(feature = "database")]
 use crate::db::*;
 
 use std::sync::RwLock;
+
+new_static_files!(base);
 
 // MODULES *****************************************************************************************
 
@@ -27,7 +29,9 @@ pub fn register_modules(app: ModuleRef) {
     // List of modules to enable.
     let mut list: Vec<ModuleRef> = Vec::new();
 
-    // Enable default theme.
+    // Enable default themes.
+    add_to_enabled(&mut list, &crate::base::theme::Basic);
+    add_to_enabled(&mut list, &crate::base::theme::Chassis);
     add_to_enabled(&mut list, &crate::base::theme::Inception);
 
     // Enable application modules.
@@ -153,6 +157,7 @@ pub fn run_migrations() {
 // CONFIGURE SERVICES ******************************************************************************
 
 pub fn configure_services(scfg: &mut service::web::ServiceConfig) {
+    service_for_static_files!(scfg, "/base", base);
     for m in ENABLED_MODULES.read().unwrap().iter() {
         m.configure_service(scfg);
     }

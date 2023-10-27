@@ -1,24 +1,24 @@
 use crate::prelude::*;
 
-new_handle!(THEME_INCEPTION);
+new_handle!(THEME_CHASSIS);
 
-pub struct Inception;
+pub struct Chassis;
 
-impl ModuleTrait for Inception {
+impl ModuleTrait for Chassis {
     fn handle(&self) -> Handle {
-        THEME_INCEPTION
+        THEME_CHASSIS
     }
 
     fn name(&self) -> L10n {
-        L10n::n("Inception")
+        L10n::n("Chassis")
     }
 
     fn theme(&self) -> Option<ThemeRef> {
-        Some(&Inception)
+        Some(&Chassis)
     }
 }
 
-impl ThemeTrait for Inception {
+impl ThemeTrait for Chassis {
     fn after_prepare_body(&self, page: &mut Page) {
         page.alter_favicon(Some(Favicon::new().with_icon("/base/favicon.ico")))
             .alter_context(ContextOp::AddStyleSheet(
@@ -28,7 +28,7 @@ impl ThemeTrait for Inception {
             ))
             .alter_context(ContextOp::AddBaseAssets)
             .alter_context(ContextOp::AddStyleSheet(
-                StyleSheet::at("/base/css/inception.css")
+                StyleSheet::at("/base/css/chassis.css")
                     .with_version("0.0.1")
                     .with_weight(-90),
             ));

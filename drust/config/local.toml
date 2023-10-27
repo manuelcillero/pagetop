@@ -1,7 +1,8 @@
 [app]
-#theme = "Default"
-#theme = "Aliner"
-theme = "Bootsier"
+#theme = "Basic"
+#theme = "Chassis"
+theme = "Inception"
+#theme = "Bootsier"
 #theme = "Bulmix"
 language = "es-ES"
 

@@ -59,9 +59,6 @@ El repositorio se organiza en un *workspace* con los siguientes subproyectos:
 
 ## Temas
 
-* **[pagetop-aliner](https://github.com/manuelcillero/pagetop/tree/main/pagetop-aliner)**, tema que
-  delimita con cajas los elementos HTML para mostrar esquemáticamente la composición de las páginas.
-
 * **[pagetop-bootsier](https://github.com/manuelcillero/pagetop/tree/main/pagetop-bootsier)**, tema
   que utiliza el *framework* [Bootstrap](https://getbootstrap.com/) para la composición de páginas y
   visualización de componentes.
