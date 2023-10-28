@@ -35,11 +35,11 @@
 
 /* PoweredBy component */
 
-#pt-powered-by {
+#pt-poweredby {
 	text-align: center;
 }
-#pt-powered-by .pt-pagetop__logo img,
-#pt-powered-by .pt-pagetop__logo svg {
+.pt-poweredby__logo img,
+.pt-poweredby__logo svg {
 	margin-left: .275em;
 	height: 1.275em;
 	vertical-align: middle;
