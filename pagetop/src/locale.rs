@@ -88,7 +88,7 @@
 //! ```
 
 use crate::html::{Markup, PreEscaped};
-use crate::{config, kv, trace, LazyStatic, LOCALES_PAGETOP};
+use crate::{config, kv, LazyStatic, LOCALES_PAGETOP};
 
 pub use fluent_templates;
 pub use unic_langid::LanguageIdentifier;
@@ -129,9 +129,12 @@ pub fn langid_for(language: impl Into<String>) -> Result<&'static LanguageIdenti
             if language.is_empty() {
                 Ok(&LANGID_FALLBACK)
             } else {
-                Err(L10n::l(LANGUAGE_SET_FAILURE)
-                    .with_arg("language", config::SETTINGS.app.language.as_str())
-                    .debug())
+                Err(format!(
+                    "{} Unicode Language Identifier \"{}\" is not accepted. {}",
+                    "Failed to set language.",
+                    config::SETTINGS.app.language,
+                    "Using \"en-US\", check the settings file"
+                ))
             }
         }
     }
@@ -238,36 +241,6 @@ impl L10n {
 
     pub fn escaped(&self, langid: &LanguageIdentifier) -> Markup {
         PreEscaped(self.using(langid).unwrap_or_default())
-    }
-
-    pub fn trace(&self) -> String {
-        let message = self.to_string();
-        trace::trace!(message);
-        message
-    }
-
-    pub fn debug(&self) -> String {
-        let message = self.to_string();
-        trace::debug!(message);
-        message
-    }
-
-    pub fn info(&self) -> String {
-        let message = self.to_string();
-        trace::info!(message);
-        message
-    }
-
-    pub fn warn(&self) -> String {
-        let message = self.to_string();
-        trace::warn!(message);
-        message
-    }
-
-    pub fn error(&self) -> String {
-        let message = self.to_string();
-        trace::error!(message);
-        message
     }
 }
 

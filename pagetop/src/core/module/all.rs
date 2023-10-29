@@ -114,8 +114,6 @@ pub fn init_modules() {
 #[cfg(feature = "database")]
 pub fn run_migrations() {
     if let Some(dbconn) = &*DBCONN {
-        use crate::locale::L10n;
-
         if let Err(e) = run_now({
             struct Migrator;
             impl MigratorTrait for Migrator {
@@ -129,9 +127,7 @@ pub fn run_migrations() {
             }
             Migrator::up(SchemaManagerConnection::Connection(dbconn), None)
         }) {
-            L10n::l("db_migration_fail")
-                .with_arg("dberr", format!("{}", e))
-                .error();
+            trace::error!("Database upgrade failed ({})", e);
         };
 
         if let Err(e) = run_now({
@@ -147,9 +143,7 @@ pub fn run_migrations() {
             }
             Migrator::down(SchemaManagerConnection::Connection(dbconn), None)
         }) {
-            L10n::l("db_migration_fail")
-                .with_arg("dberr", format!("{}", e))
-                .error();
+            trace::error!("Database downgrade failed ({})", e);
         };
     }
 }

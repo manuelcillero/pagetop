@@ -1,6 +1,5 @@
 //! Acceso unificado y normalizado a base de datos.
 
-use crate::locale::L10n;
 use crate::{config, trace, LazyStatic};
 
 pub use url::Url as DbUri;
@@ -11,6 +10,8 @@ pub use sea_orm::{DatabaseConnection as DbConn, ExecResult, QueryResult};
 use sea_orm::{ConnectOptions, ConnectionTrait, Database, DatabaseBackend, Statement};
 
 pub(crate) use futures::executor::block_on as run_now;
+
+const DBCONN_NOT_INITIALIZED: &str = "Database connection not initialized";
 
 pub(crate) static DBCONN: LazyStatic<Option<DbConn>> = LazyStatic::new(|| {
     if !config::SETTINGS.database.db_name.trim().is_empty() {
@@ -70,7 +71,7 @@ pub(crate) static DBCONN: LazyStatic<Option<DbConn>> = LazyStatic::new(|| {
                 db_opt.max_connections(config::SETTINGS.database.max_pool_size);
                 db_opt
             }))
-            .unwrap_or_else(|_| panic!("{}", L10n::l("db_connection_fail").to_string())),
+            .unwrap_or_else(|_| panic!("Failed to connect to database")),
         )
     } else {
         None
@@ -92,9 +93,7 @@ pub async fn query<Q: QueryStatementWriter>(stmt: &mut Q) -> Result<Vec<QueryRes
                 ))
                 .await
         }
-        None => Err(DbErr::Conn(RuntimeErr::Internal(
-            L10n::l("db_connection_not_initialized").debug(),
-        ))),
+        None => Err(DbErr::Conn(RuntimeErr::Internal(DBCONN_NOT_INITIALIZED.to_owned()))),
     }
 }
 
@@ -113,9 +112,7 @@ pub async fn exec<Q: QueryStatementWriter>(stmt: &mut Q) -> Result<Option<QueryR
                 ))
                 .await
         }
-        None => Err(DbErr::Conn(RuntimeErr::Internal(
-            L10n::l("db_connection_not_initialized").debug(),
-        ))),
+        None => Err(DbErr::Conn(RuntimeErr::Internal(DBCONN_NOT_INITIALIZED.to_owned()))),
     }
 }
 
@@ -127,9 +124,7 @@ pub async fn exec_raw(stmt: String) -> Result<ExecResult, DbErr> {
                 .execute(Statement::from_string(dbbackend, stmt))
                 .await
         }
-        None => Err(DbErr::Conn(RuntimeErr::Internal(
-            L10n::l("db_connection_not_initialized").debug(),
-        ))),
+        None => Err(DbErr::Conn(RuntimeErr::Internal(DBCONN_NOT_INITIALIZED.to_owned()))),
     }
 }
 
