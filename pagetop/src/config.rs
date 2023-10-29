@@ -155,7 +155,7 @@ pub static CONFIG: LazyStatic<ConfigData> = LazyStatic::new(|| {
         ).unwrap()
         // Añade la configuración local reservada del entorno. Por defecto 'default.local.toml'.
         .merge(
-            File::with_name(&concat_string!(CONFIG_DIR, "/", run_mode, ".local.toml"))
+            File::with_name(&concat_string!(CONFIG_DIR, "/local.", run_mode, ".toml"))
                 .required(false),
         ).unwrap()
         // Añade la configuración local reservada general. Por defecto 'local.toml'.
@@ -269,10 +269,10 @@ pub struct Database {
 pub struct Dev {
     /// Los archivos estáticos requeridos por la aplicación se integran de manera predeterminada en
     /// el binario ejecutable. Sin embargo, durante el desarrollo puede resultar útil servir estos
-    /// archivos desde su propio directorio para evitar compilar cada vez que se modifican. En este
-    /// caso, normalmente, basta con indicar la ruta "../ruta/static".
+    /// archivos desde su propio directorio para evitar recompilar cada vez que se modifican. En
+    /// este caso bastaría con indicar la ruta completa al directorio raíz del proyecto.
     /// Por defecto: *""*.
-    pub static_files: String,
+    pub pagetop_project_dir: String,
 }
 
 #[derive(Debug, Deserialize)]
@@ -335,7 +335,7 @@ default_settings!(
     "database.max_pool_size"  => 5,
 
     // [dev]
-    "dev.static_files"        => "",
+    "dev.pagetop_project_dir" => "",
 
     // [log]
     "log.tracing"             => "Info",

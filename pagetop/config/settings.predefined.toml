@@ -30,9 +30,9 @@ max_pool_size = 5
 # Los archivos estáticos requeridos por la aplicación se integran de manera
 # predeterminada en el binario ejecutable. Sin embargo, durante el desarrollo
 # puede resultar útil servir estos archivos desde su propio directorio para
-# evitar compilar cada vez que se modifican. En este caso, normalmente, basta
-# con indicar la ruta "../ruta/static".
-static_files = ""
+# evitar recompilar cada vez que se modifican. En este caso bastaría con
+# indicar la ruta completa al directorio raiz del proyecto.
+pagetop_project_dir = ""
 
 [log]
 # Traza de ejecución: "Error", "Warn", "Info", "Debug" o "Trace".

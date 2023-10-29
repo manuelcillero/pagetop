@@ -1,6 +1,9 @@
 //! Functions and macro helpers.
 
-use crate::Handle;
+use crate::{trace, Handle};
+
+use std::io;
+use std::path::PathBuf;
 
 // *************************************************************************************************
 // FUNCTIONS HELPERS.
@@ -54,6 +57,35 @@ pub fn partial_type_name(type_name: &'static str, last: usize) -> &'static str {
 
 pub fn single_type_name<T: ?Sized>() -> &'static str {
     partial_type_name(std::any::type_name::<T>(), 1)
+}
+
+pub fn absolute_dir(
+    root_path: impl Into<String>,
+    relative_path: impl Into<String>,
+) -> Result<String, io::Error> {
+    let root_path = PathBuf::from(root_path.into());
+    let full_path = root_path.join(relative_path.into());
+    let absolute_dir = full_path.to_string_lossy().into();
+
+    if !full_path.is_absolute() {
+        let message = format!("Path \"{}\" is not absolute", absolute_dir);
+        trace::warn!(message);
+        return Err(io::Error::new(io::ErrorKind::InvalidInput, message));
+    }
+
+    if !full_path.exists() {
+        let message = format!("Path \"{}\" does not exist", absolute_dir);
+        trace::warn!(message);
+        return Err(io::Error::new(io::ErrorKind::NotFound, message));
+    }
+
+    if !full_path.is_dir() {
+        let message = format!("Path \"{}\" is not a directory", absolute_dir);
+        trace::warn!(message);
+        return Err(io::Error::new(io::ErrorKind::InvalidInput, message));
+    }
+
+    Ok(absolute_dir)
 }
 
 // *************************************************************************************************

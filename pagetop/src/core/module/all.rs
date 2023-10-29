@@ -1,7 +1,7 @@
 use crate::core::action::add_action;
 use crate::core::module::ModuleRef;
 use crate::core::theme::all::THEMES;
-use crate::{new_static_files, service, service_for_static_files, trace, LazyStatic};
+use crate::{config, new_static_files, service, service_for_static_files, trace, LazyStatic};
 
 #[cfg(feature = "database")]
 use crate::db::*;
@@ -157,7 +157,11 @@ pub fn run_migrations() {
 // CONFIGURE SERVICES ******************************************************************************
 
 pub fn configure_services(scfg: &mut service::web::ServiceConfig) {
-    service_for_static_files!(scfg, "/base", base);
+    service_for_static_files!(
+        scfg,
+        base => "/base",
+        [&config::SETTINGS.dev.pagetop_project_dir, "pagetop/static/base"]
+    );
     for m in ENABLED_MODULES.read().unwrap().iter() {
         m.configure_service(scfg);
     }

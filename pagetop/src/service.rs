@@ -35,23 +35,29 @@ macro_rules! new_static_files {
 
 #[macro_export]
 macro_rules! service_for_static_files {
-    ( $scfg:ident, $path:expr, $bundle:ident ) => {{
+    ( $scfg:ident, $bundle:ident => $path:expr $(, [$root:expr, $relative:expr])? ) => {{
         $crate::paste! {
-            let static_files = &$crate::config::SETTINGS.dev.static_files;
-            if static_files.is_empty() {
-                $scfg.service($crate::service::ResourceFiles::new(
-                    $path,
-                    [<static_files_ $bundle>]::$bundle(),
-                ));
-            } else {
-                $scfg.service(
-                    $crate::service::ActixFiles::new(
+            let span = $crate::trace::debug_span!("Configuring static files ", path = $path);
+            let _ = span.in_scope(|| {
+                let mut serve_embedded:bool = true;
+                $(
+                    if !$root.is_empty() && !$relative.is_empty() {
+                        if let Ok(absolute) = $crate::util::absolute_dir($root, $relative) {
+                            $scfg.service($crate::service::ActixFiles::new(
+                                $path,
+                                absolute,
+                            ).show_files_listing());
+                            serve_embedded = false
+                        }
+                    }
+                )?
+                if serve_embedded {
+                    $scfg.service($crate::service::ResourceFiles::new(
                         $path,
-                        $crate::concat_string!(static_files, $path),
-                    )
-                    .show_files_listing(),
-                );
-            }
+                        [<static_files_ $bundle>]::$bundle(),
+                    ));
+                }
+            });
         }
     }};
 }
