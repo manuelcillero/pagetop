@@ -1,4 +1,10 @@
-[database]
-db_name = "drust"
-db_user = "drust"
-db_pass = "DrU__#3T"
+[app]
+#theme = "Basic"
+#theme = "Chassis"
+theme = "Inception"
+#theme = "Bootsier"
+#theme = "Bulmix"
+language = "es-ES"
+
+[log]
+tracing = "Info,pagetop=Debug,sqlx::query=Warn"

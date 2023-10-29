@@ -121,7 +121,7 @@ mod value;
 
 use crate::config::data::ConfigData;
 use crate::config::file::File;
-use crate::LazyStatic;
+use crate::{concat_string, LazyStatic};
 
 use serde::Deserialize;
 
@@ -132,6 +132,8 @@ const CONFIG_DIR: &str = "config";
 
 /// Valores originales de la configuración en forma de pares `clave = valor` recogidos de los
 /// archivos de configuración.
+
+#[rustfmt::skip]
 pub static CONFIG: LazyStatic<ConfigData> = LazyStatic::new(|| {
     // Modo de ejecución según la variable de entorno PAGETOP_RUN_MODE. Por defecto 'default'.
     let run_mode = env::var("PAGETOP_RUN_MODE").unwrap_or_else(|_| "default".into());
@@ -139,17 +141,28 @@ pub static CONFIG: LazyStatic<ConfigData> = LazyStatic::new(|| {
     // Inicializa los ajustes.
     let mut settings = ConfigData::default();
 
-    // Combina los archivos de configuración y asigna el modo de ejecución.
+    // Combina los archivos (opcionales) de configuración y asigna el modo de ejecución.
     settings
-        // Primero añade la configuración común a todos los entornos. Opcional.
-        .merge(File::with_name(&format!("{}/{}.toml", CONFIG_DIR, "common")).required(false))
-        .unwrap()
-        // Combina la configuración específica del entorno. Por defecto 'default.toml'. Opcional.
-        .merge(File::with_name(&format!("{}/{}.toml", CONFIG_DIR, run_mode)).required(false))
-        .unwrap()
-        // Combina la configuración local. Este archivo no debería incluirse en git. Opcional.
-        .merge(File::with_name(&format!("{}/{}.toml", CONFIG_DIR, "local")).required(false))
-        .unwrap()
+        // Primero añade la configuración común a todos los entornos. Por defecto 'common.toml'.
+        .merge(
+            File::with_name(&concat_string!(CONFIG_DIR, "/common.toml"))
+                .required(false)
+        ).unwrap()
+        // Añade la configuración específica del entorno. Por defecto 'default.toml'.
+        .merge(
+            File::with_name(&concat_string!(CONFIG_DIR, "/", run_mode, ".toml"))
+                .required(false)
+        ).unwrap()
+        // Añade la configuración local reservada del entorno. Por defecto 'default.local.toml'.
+        .merge(
+            File::with_name(&concat_string!(CONFIG_DIR, "/", run_mode, ".local.toml"))
+                .required(false),
+        ).unwrap()
+        // Añade la configuración local reservada general. Por defecto 'local.toml'.
+        .merge(
+            File::with_name(&concat_string!(CONFIG_DIR, "/local.toml"))
+                .required(false)
+        ).unwrap()
         // Salvaguarda el modo de ejecución.
         .set("app.run_mode", run_mode)
         .unwrap();
