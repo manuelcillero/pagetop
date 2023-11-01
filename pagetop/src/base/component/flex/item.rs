@@ -23,8 +23,8 @@ pub struct Item {
 impl ComponentTrait for Item {
     fn new() -> Self {
         Item::default()
-            .with_item_classes(ClassesOp::SetDefault, "pt-flex__item")
-            .with_inner_classes(ClassesOp::SetDefault, "pt-flex__item-inner")
+            .with_item_classes(ClassesOp::AddDefault, "pt-flex__item")
+            .with_inner_classes(ClassesOp::AddDefault, "pt-flex__item-inner")
     }
 
     fn handle(&self) -> Handle {

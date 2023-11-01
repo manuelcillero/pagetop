@@ -22,7 +22,7 @@ pub struct Container {
 impl ComponentTrait for Container {
     fn new() -> Self {
         Container::default()
-            .with_classes(ClassesOp::SetDefault, flex::Direction::Default.to_string())
+            .with_classes(ClassesOp::AddDefault, flex::Direction::Default.to_string())
     }
 
     fn handle(&self) -> Handle {

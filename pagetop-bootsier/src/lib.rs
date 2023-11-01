@@ -131,18 +131,24 @@ impl ThemeTrait for Bootsier {
             }
             COMPONENT_BASE_HEADING => {
                 let h = component_as_mut::<Heading>(component);
-                let original = h.display().to_string();
-                h.alter_classes(
-                    ClassesOp::SetDefault,
-                    match h.display() {
-                        HeadingDisplay::ExtraLarge => "display-1",
-                        HeadingDisplay::XxLarge => "display-2",
-                        HeadingDisplay::XLarge => "display-3",
-                        HeadingDisplay::Large => "display-4",
-                        HeadingDisplay::Medium => "display-5",
-                        _ => original.as_str(),
-                    },
-                );
+                match h.display() {
+                    HeadingDisplay::ExtraLarge => {
+                        h.alter_classes(ClassesOp::Replace(h.display().to_string()), "display-1");
+                    }
+                    HeadingDisplay::XxLarge => {
+                        h.alter_classes(ClassesOp::Replace(h.display().to_string()), "display-2");
+                    }
+                    HeadingDisplay::XLarge => {
+                        h.alter_classes(ClassesOp::Replace(h.display().to_string()), "display-3");
+                    }
+                    HeadingDisplay::Large => {
+                        h.alter_classes(ClassesOp::Replace(h.display().to_string()), "display-4");
+                    }
+                    HeadingDisplay::Medium => {
+                        h.alter_classes(ClassesOp::Replace(h.display().to_string()), "display-5");
+                    }
+                    _ => {}
+                };
             }
             COMPONENT_BASE_PARAGRAPH => {
                 let p = component_as_mut::<Paragraph>(component);

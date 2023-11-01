@@ -39,7 +39,7 @@ pub struct Input {
 impl ComponentTrait for Input {
     fn new() -> Self {
         Input::default()
-            .with_classes(ClassesOp::SetDefault, "form-item form-type-textfield")
+            .with_classes(ClassesOp::AddDefault, "form-item form-type-textfield")
             .with_size(Some(60))
             .with_maxlength(Some(128))
     }

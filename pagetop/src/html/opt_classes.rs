@@ -3,9 +3,9 @@
 //! This *helper* differentiates between default classes (generally associated with styles provided
 //! by the theme) and user classes (for customizing components based on application styles).
 //!
-//! Default classes can be added using [SetDefault] and [AddDefault], while user classes can be
-//! added using [Add]. Operations to [Remove], [Replace] or [ReplaceIfExists] a class, as well as
-//! to [Reset] user classes, are also provided.
+//! Default classes can be added using [AddDefault], while user classes can be added using [Add].
+//! Operations to [Remove], [Replace] or [ReplaceIfExists] a class, as well as to [Reset] user
+//! classes, are also provided.
 //!
 //! Although the order of the classes is irrelevant (<https://stackoverflow.com/a/1321712>), default
 //! classes will be presented before user classes and duplicate classes will not be allowed.
@@ -13,7 +13,6 @@
 use crate::fn_builder;
 
 pub enum ClassesOp {
-    SetDefault,
     AddDefault,
     Add,
     Remove,
@@ -51,10 +50,6 @@ impl OptionClasses {
         let classes: Vec<&str> = classes.split_ascii_whitespace().collect();
 
         match op {
-            ClassesOp::SetDefault => {
-                self.0.retain(|(_, t)| t.ne(&ClassType::Default));
-                self.add(&classes, 0, ClassType::Default);
-            }
             ClassesOp::AddDefault => {
                 let pos = match self.0.iter().position(|(_, t)| t.eq(&ClassType::User)) {
                     Some(pos) => pos,

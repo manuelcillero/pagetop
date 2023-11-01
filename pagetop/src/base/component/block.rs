@@ -18,7 +18,7 @@ pub struct Block {
 
 impl ComponentTrait for Block {
     fn new() -> Self {
-        Block::default().with_classes(ClassesOp::SetDefault, "block")
+        Block::default().with_classes(ClassesOp::AddDefault, "block")
     }
 
     fn handle(&self) -> Handle {
