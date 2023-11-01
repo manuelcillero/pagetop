@@ -26,7 +26,7 @@ pub struct Button {
 
 impl ComponentTrait for Button {
     fn new() -> Self {
-        Button::default().with_classes(ClassesOp::AddDefault, "btn btn-primary form-button")
+        Button::default().with_classes(ClassesOp::Add, "btn btn-primary form-button")
     }
 
     fn handle(&self) -> Handle {

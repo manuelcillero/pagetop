@@ -39,7 +39,7 @@ pub struct Input {
 impl ComponentTrait for Input {
     fn new() -> Self {
         Input::default()
-            .with_classes(ClassesOp::AddDefault, "form-item form-type-textfield")
+            .with_classes(ClassesOp::Add, "form-item form-type-textfield")
             .with_size(Some(60))
             .with_maxlength(Some(128))
     }
@@ -177,7 +177,7 @@ impl Input {
         if let Some(previous) = self.name.get() {
             self.alter_classes(ClassesOp::Remove, concat_string!("form-item-", previous));
         }
-        self.alter_classes(ClassesOp::AddDefault, concat_string!("form-item-", name));
+        self.alter_classes(ClassesOp::Add, concat_string!("form-item-", name));
         self.name.alter_value(name);
         self
     }

@@ -28,7 +28,7 @@ pub struct Image {
 
 impl ComponentTrait for Image {
     fn new() -> Self {
-        Image::default().with_classes(ClassesOp::AddDefault, IMG_FLUID)
+        Image::default().with_classes(ClassesOp::Add, IMG_FLUID)
     }
 
     fn handle(&self) -> Handle {
@@ -70,19 +70,19 @@ impl Image {
     pub fn with(source: &str) -> Self {
         Image::default()
             .with_source(source)
-            .with_classes(ClassesOp::AddDefault, IMG_FLUID)
+            .with_classes(ClassesOp::Add, IMG_FLUID)
     }
 
     pub fn fixed(source: &str) -> Self {
         Image::default()
             .with_source(source)
-            .with_classes(ClassesOp::AddDefault, IMG_FIXED)
+            .with_classes(ClassesOp::Add, IMG_FIXED)
     }
 
     pub fn pagetop() -> Self {
         Image::default()
             .with_source("/base/pagetop-logo.svg")
-            .with_classes(ClassesOp::AddDefault, IMG_FIXED)
+            .with_classes(ClassesOp::Add, IMG_FIXED)
             .with_size(ImageSize::Size(64, 64))
     }
 

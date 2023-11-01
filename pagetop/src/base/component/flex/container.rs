@@ -21,8 +21,7 @@ pub struct Container {
 
 impl ComponentTrait for Container {
     fn new() -> Self {
-        Container::default()
-            .with_classes(ClassesOp::AddDefault, flex::Direction::Default.to_string())
+        Container::default().with_classes(ClassesOp::Add, flex::Direction::Default.to_string())
     }
 
     fn handle(&self) -> Handle {

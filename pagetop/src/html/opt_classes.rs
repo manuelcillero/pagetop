@@ -3,33 +3,24 @@
 //! This *helper* differentiates between default classes (generally associated with styles provided
 //! by the theme) and user classes (for customizing components based on application styles).
 //!
-//! Default classes can be added using [AddDefault], while user classes can be added using [Add].
-//! Operations to [Remove], [Replace] or [ReplaceIfExists] a class, as well as to [Reset] user
-//! classes, are also provided.
+//! Classes can be added using [Add]. Operations to [Remove], [Replace] or [Toggle] a class, as well
+//! as [Clear] all classes, are also provided.
 //!
-//! Although the order of the classes is irrelevant (<https://stackoverflow.com/a/1321712>), default
-//! classes will be presented before user classes and duplicate classes will not be allowed.
+//! **OptionClasses** assumes that the order of the classes is irrelevant
+//! (<https://stackoverflow.com/a/1321712>), and duplicate classes will not be allowed.
 
 use crate::fn_builder;
 
 pub enum ClassesOp {
-    AddDefault,
     Add,
     Remove,
     Replace(String),
     Toggle,
-    Reset,
     Clear,
 }
 
-#[derive(Clone, PartialEq)]
-enum ClassType {
-    Default,
-    User,
-}
-
 #[derive(Default)]
-pub struct OptionClasses(Vec<(String, ClassType)>);
+pub struct OptionClasses(Vec<String>);
 
 impl OptionClasses {
     pub fn new() -> Self {
@@ -50,51 +41,37 @@ impl OptionClasses {
         let classes: Vec<&str> = classes.split_ascii_whitespace().collect();
 
         match op {
-            ClassesOp::AddDefault => {
-                let pos = match self.0.iter().position(|(_, t)| t.eq(&ClassType::User)) {
-                    Some(pos) => pos,
-                    None => self.0.len(),
-                };
-                self.add(&classes, pos, ClassType::Default);
-            }
             ClassesOp::Add => {
-                self.add(&classes, self.0.len(), ClassType::User);
+                self.add(&classes, self.0.len());
             }
             ClassesOp::Remove => {
                 for class in classes {
-                    self.0.retain(|(c, _)| c.ne(&class.to_string()));
+                    self.0.retain(|c| c.ne(&class.to_string()));
                 }
             }
             ClassesOp::Replace(classes_to_replace) => {
                 let mut pos = self.0.len();
-                let mut class_type = ClassType::Default;
                 let replace: Vec<&str> = classes_to_replace.split_ascii_whitespace().collect();
                 for class in replace {
-                    if let Some(replace_pos) = self.0.iter().position(|(c, _)| c.eq(class)) {
-                        let (_, replace_type) = self.0.remove(replace_pos);
+                    if let Some(replace_pos) = self.0.iter().position(|c| c.eq(class)) {
+                        self.0.remove(replace_pos);
                         if pos > replace_pos {
                             pos = replace_pos;
                         }
-                        if replace_type.eq(&ClassType::Default) {
-                            class_type = replace_type;
-                        }
                     }
                 }
-                self.add(&classes, pos, class_type);
+                self.add(&classes, pos);
             }
             ClassesOp::Toggle => {
                 for class in classes {
                     if !class.is_empty() {
-                        if let Some(pos) = self.0.iter().position(|(c, _)| c.eq(class)) {
+                        if let Some(pos) = self.0.iter().position(|c| c.eq(class)) {
                             self.0.remove(pos);
                         } else {
-                            self.0.push((class.to_string(), ClassType::User));
+                            self.0.push(class.to_string());
                         }
                     }
                 }
-            }
-            ClassesOp::Reset => {
-                self.0.retain(|(_, t)| t.ne(&ClassType::User));
             }
             ClassesOp::Clear => {
                 self.0.clear();
@@ -104,10 +81,10 @@ impl OptionClasses {
     }
 
     #[inline]
-    fn add(&mut self, classes: &Vec<&str>, mut pos: usize, class_type: ClassType) {
+    fn add(&mut self, classes: &Vec<&str>, mut pos: usize) {
         for class in classes {
-            if !class.is_empty() && !self.0.iter().any(|(c, _)| c.eq(class)) {
-                self.0.insert(pos, (class.to_string(), class_type.clone()));
+            if !class.is_empty() && !self.0.iter().any(|c| c.eq(class)) {
+                self.0.insert(pos, class.to_string());
                 pos += 1;
             }
         }
@@ -117,20 +94,14 @@ impl OptionClasses {
 
     pub fn exists(&self, class: impl Into<String>) -> bool {
         let class: String = class.into();
-        self.0.iter().any(|(c, _)| c.eq(&class))
+        self.0.iter().any(|c| c.eq(&class))
     }
 
     pub fn get(&self) -> Option<String> {
         if self.0.is_empty() {
             None
         } else {
-            Some(
-                self.0
-                    .iter()
-                    .map(|(c, _)| c.to_owned())
-                    .collect::<Vec<String>>()
-                    .join(" "),
-            )
+            Some(self.0.join(" "))
         }
     }
 }

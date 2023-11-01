@@ -74,14 +74,11 @@ impl ThemeTrait for Bulmix {
                     }
                     _ => {}
                 };
-                match a.anchor_type() {
-                    AnchorType::Button => {
-                        a.alter_classes(
-                            ClassesOp::Replace(a.anchor_type().to_string()),
-                            "button is-primary",
-                        );
-                    }
-                    _ => {}
+                if let AnchorType::Button = a.anchor_type() {
+                    a.alter_classes(
+                        ClassesOp::Replace(a.anchor_type().to_string()),
+                        "button is-primary",
+                    );
                 };
             }
             COMPONENT_BASE_HEADING => {
@@ -90,12 +87,12 @@ impl ThemeTrait for Bulmix {
                     HeadingDisplay::Subtitle => {
                         h.alter_classes(ClassesOp::Replace(h.display().to_string()), "subtitle")
                     }
-                    _ => h.alter_classes(ClassesOp::AddDefault, "title"),
+                    _ => h.alter_classes(ClassesOp::Add, "title"),
                 };
             }
             COMPONENT_BASE_PARAGRAPH => {
                 let p = component_as_mut::<Paragraph>(component);
-                p.alter_classes(ClassesOp::AddDefault, "block");
+                p.alter_classes(ClassesOp::Add, "block");
                 match p.font_size() {
                     FontSize::ExtraLarge => {
                         p.alter_classes(ClassesOp::Replace(p.font_size().to_string()), "is-size-1");

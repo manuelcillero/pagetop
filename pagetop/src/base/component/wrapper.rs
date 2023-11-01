@@ -30,8 +30,8 @@ pub struct Wrapper {
 impl ComponentTrait for Wrapper {
     fn new() -> Self {
         Wrapper::default()
-            .with_classes(ClassesOp::AddDefault, "container")
-            .with_inner_classes(ClassesOp::AddDefault, "container")
+            .with_classes(ClassesOp::Add, "container")
+            .with_inner_classes(ClassesOp::Add, "container")
     }
 
     fn handle(&self) -> Handle {
@@ -100,32 +100,32 @@ impl ComponentTrait for Wrapper {
 impl Wrapper {
     pub fn header() -> Self {
         let mut c = Wrapper::default()
-            .with_classes(ClassesOp::AddDefault, "header")
-            .with_inner_classes(ClassesOp::AddDefault, "container");
+            .with_classes(ClassesOp::Add, "header")
+            .with_inner_classes(ClassesOp::Add, "container");
         c.wrapper_type = WrapperType::Header;
         c
     }
 
     pub fn footer() -> Self {
         let mut c = Wrapper::default()
-            .with_classes(ClassesOp::AddDefault, "footer")
-            .with_inner_classes(ClassesOp::AddDefault, "container");
+            .with_classes(ClassesOp::Add, "footer")
+            .with_inner_classes(ClassesOp::Add, "container");
         c.wrapper_type = WrapperType::Footer;
         c
     }
 
     pub fn main() -> Self {
         let mut c = Wrapper::default()
-            .with_classes(ClassesOp::AddDefault, "main")
-            .with_inner_classes(ClassesOp::AddDefault, "container");
+            .with_classes(ClassesOp::Add, "main")
+            .with_inner_classes(ClassesOp::Add, "container");
         c.wrapper_type = WrapperType::Main;
         c
     }
 
     pub fn section() -> Self {
         let mut c = Wrapper::default()
-            .with_classes(ClassesOp::AddDefault, "section")
-            .with_inner_classes(ClassesOp::AddDefault, "container");
+            .with_classes(ClassesOp::Add, "section")
+            .with_inner_classes(ClassesOp::Add, "container");
         c.wrapper_type = WrapperType::Section;
         c
     }

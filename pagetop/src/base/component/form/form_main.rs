@@ -28,7 +28,7 @@ pub struct Form {
 impl ComponentTrait for Form {
     fn new() -> Self {
         Form::default()
-            .with_classes(ClassesOp::AddDefault, "form")
+            .with_classes(ClassesOp::Add, "form")
             .with_charset("UTF-8")
     }
 
