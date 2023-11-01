@@ -10,6 +10,16 @@ pub enum AnchorType {
     Location,
 }
 
+#[rustfmt::skip]
+impl ToString for AnchorType {
+    fn to_string(&self) -> String {
+        match self {
+            AnchorType::Button => "btn btn-primary".to_string(),
+            _ => "".to_string(),
+        }
+    }
+}
+
 #[derive(Default)]
 pub enum AnchorTarget {
     #[default]
@@ -29,13 +39,13 @@ pub struct Anchor {
     renderable : Renderable,
     id         : OptionId,
     classes    : OptionClasses,
+    font_size  : FontSize,
     anchor_type: AnchorType,
     href       : OptionString,
     html       : OptionTranslated,
     left_icon  : AnchorIcon,
     right_icon : AnchorIcon,
     target     : AnchorTarget,
-    template   : String,
 }
 
 impl ComponentTrait for Anchor {
@@ -126,13 +136,20 @@ impl Anchor {
     }
 
     #[fn_builder]
+    pub fn alter_font_size(&mut self, font_size: FontSize) -> &mut Self {
+        self.classes.alter_value(
+            ClassesOp::Replace(self.font_size.to_string()),
+            font_size.to_string(),
+        );
+        self.font_size = font_size;
+        self
+    }
+
+    #[fn_builder]
     pub fn alter_type(&mut self, anchor_type: AnchorType) -> &mut Self {
-        self.alter_classes(
-            ClassesOp::SetDefault,
-            match anchor_type {
-                AnchorType::Button => "btn btn-primary",
-                _ => "",
-            },
+        self.classes.alter_value(
+            ClassesOp::Replace(self.anchor_type.to_string()),
+            anchor_type.to_string(),
         );
         self.anchor_type = anchor_type;
         self
@@ -168,16 +185,14 @@ impl Anchor {
         self
     }
 
-    #[fn_builder]
-    pub fn alter_template(&mut self, template: &str) -> &mut Self {
-        self.template = template.to_owned();
-        self
-    }
-
     // Anchor GETTERS.
 
     pub fn classes(&self) -> &OptionClasses {
         &self.classes
+    }
+
+    pub fn font_size(&self) -> &FontSize {
+        &self.font_size
     }
 
     pub fn anchor_type(&self) -> &AnchorType {
@@ -202,9 +217,5 @@ impl Anchor {
 
     pub fn target(&self) -> &AnchorTarget {
         &self.target
-    }
-
-    pub fn template(&self) -> &str {
-        self.template.as_str()
     }
 }

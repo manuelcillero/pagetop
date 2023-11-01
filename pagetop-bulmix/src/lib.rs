@@ -31,64 +31,100 @@ impl ThemeTrait for Bulmix {
             .alter_context(ContextOp::AddBaseAssets);
     }
 
-    #[rustfmt::skip]
-    fn before_prepare_component(
-        &self,
-        component: &mut dyn ComponentTrait,
-        _cx: &mut Context,
-    ) {
+    fn before_prepare_component(&self, component: &mut dyn ComponentTrait, _cx: &mut Context) {
         match component.handle() {
+            COMPONENT_BASE_ICON => {
+                let i = component_as_mut::<Icon>(component);
+                match i.font_size() {
+                    FontSize::ExtraLarge => {
+                        i.alter_classes(ClassesOp::Replace(i.font_size().to_string()), "is-size-1");
+                    }
+                    FontSize::XxLarge => {
+                        i.alter_classes(ClassesOp::Replace(i.font_size().to_string()), "is-size-2");
+                    }
+                    FontSize::XLarge => {
+                        i.alter_classes(ClassesOp::Replace(i.font_size().to_string()), "is-size-3");
+                    }
+                    FontSize::Large => {
+                        i.alter_classes(ClassesOp::Replace(i.font_size().to_string()), "is-size-4");
+                    }
+                    FontSize::Medium => {
+                        i.alter_classes(ClassesOp::Replace(i.font_size().to_string()), "is-size-5");
+                    }
+                    _ => {}
+                };
+            }
             COMPONENT_BASE_ANCHOR => {
                 let a = component_as_mut::<Anchor>(component);
-                a.alter_classes(
-                    ClassesOp::SetDefault,
-                    match a.anchor_type() {
-                        AnchorType::Button => "button is-primary",
-                        _ => "",
-                    },
-                );
+                match a.font_size() {
+                    FontSize::ExtraLarge => {
+                        a.alter_classes(ClassesOp::Replace(a.font_size().to_string()), "is-size-1");
+                    }
+                    FontSize::XxLarge => {
+                        a.alter_classes(ClassesOp::Replace(a.font_size().to_string()), "is-size-2");
+                    }
+                    FontSize::XLarge => {
+                        a.alter_classes(ClassesOp::Replace(a.font_size().to_string()), "is-size-3");
+                    }
+                    FontSize::Large => {
+                        a.alter_classes(ClassesOp::Replace(a.font_size().to_string()), "is-size-4");
+                    }
+                    FontSize::Medium => {
+                        a.alter_classes(ClassesOp::Replace(a.font_size().to_string()), "is-size-5");
+                    }
+                    _ => {}
+                };
+                match a.anchor_type() {
+                    AnchorType::Button => {
+                        a.alter_classes(
+                            ClassesOp::Replace(a.anchor_type().to_string()),
+                            "button is-primary",
+                        );
+                    }
+                    _ => {}
+                };
             }
             COMPONENT_BASE_HEADING => {
                 let h = component_as_mut::<Heading>(component);
                 match h.display() {
-                    HeadingDisplay::Subtitle => h.alter_classes(
-                        ClassesOp::SetDefault, "subtitle"
-                    ),
-                    _ => h.alter_classes(
-                        ClassesOp::AddDefault, "title"
-                    ),
+                    HeadingDisplay::Subtitle => {
+                        h.alter_classes(ClassesOp::Replace(h.display().to_string()), "subtitle")
+                    }
+                    _ => h.alter_classes(ClassesOp::AddDefault, "title"),
                 };
             }
             COMPONENT_BASE_PARAGRAPH => {
                 let p = component_as_mut::<Paragraph>(component);
-                let original = concat_string!("block ", p.font_size().to_string());
-                p.alter_classes(
-                    ClassesOp::SetDefault,
-                    match p.font_size() {
-                        FontSize::ExtraLarge => "block is-size-1",
-                        FontSize::XxLarge    => "block is-size-2",
-                        FontSize::XLarge     => "block is-size-3",
-                        FontSize::Large      => "block is-size-4",
-                        FontSize::Medium     => "block is-size-5",
-                        _                    => original.as_str(),
-                    },
-                );
-
+                p.alter_classes(ClassesOp::AddDefault, "block");
+                match p.font_size() {
+                    FontSize::ExtraLarge => {
+                        p.alter_classes(ClassesOp::Replace(p.font_size().to_string()), "is-size-1");
+                    }
+                    FontSize::XxLarge => {
+                        p.alter_classes(ClassesOp::Replace(p.font_size().to_string()), "is-size-2");
+                    }
+                    FontSize::XLarge => {
+                        p.alter_classes(ClassesOp::Replace(p.font_size().to_string()), "is-size-3");
+                    }
+                    FontSize::Large => {
+                        p.alter_classes(ClassesOp::Replace(p.font_size().to_string()), "is-size-4");
+                    }
+                    FontSize::Medium => {
+                        p.alter_classes(ClassesOp::Replace(p.font_size().to_string()), "is-size-5");
+                    }
+                    _ => {}
+                };
             }
             _ => {}
         }
     }
 
-    fn render_component(
-        &self,
-        component: &dyn ComponentTrait,
-        cx: &mut Context,
-    ) -> Option<Markup> {
+    fn render_component(&self, component: &dyn ComponentTrait, cx: &mut Context) -> Option<Markup> {
         match component.handle() {
             COMPONENT_BASE_ICON => {
                 let icon = component_as_ref::<Icon>(component);
                 if icon.icon_name().is_empty() {
-                    return None
+                    return None;
                 };
                 cx.set_param::<bool>(PARAM_BASE_INCLUDE_ICONS, true);
                 Some(html! {

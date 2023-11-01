@@ -80,12 +80,14 @@ fn hello_world() -> Wrapper {
                         )
                         .with_target(AnchorTarget::Blank)
                         .with_left_icon(Icon::with("git"))
-                        .with_classes(ClassesOp::Add, "code-link"),
+                        .with_classes(ClassesOp::Add, "code-link")
+                        .with_font_size(FontSize::Large),
                     )
                     .add_component(
                         Anchor::link("#welcome", L10n::t("hello_welcome", &LOCALES_HOMEDEMO))
                             .with_left_icon(Icon::with("arrow-down-circle-fill"))
-                            .with_classes(ClassesOp::Add, "welcome-link"),
+                            .with_classes(ClassesOp::Add, "welcome-link")
+                            .with_font_size(FontSize::Large),
                     ),
             )
             .add_item(

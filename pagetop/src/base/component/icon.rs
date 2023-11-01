@@ -7,8 +7,9 @@ new_handle!(COMPONENT_BASE_ICON);
 pub struct Icon {
     weight    : Weight,
     renderable: Renderable,
-    icon_name : String,
     classes   : OptionClasses,
+    font_size : FontSize,
+    icon_name : String,
 }
 
 impl ComponentTrait for Icon {
@@ -30,7 +31,7 @@ impl ComponentTrait for Icon {
 
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
         if self.icon_name().is_empty() {
-            return PrepareMarkup::None
+            return PrepareMarkup::None;
         }
         cx.set_param::<bool>(PARAM_BASE_INCLUDE_ICONS, true);
         PrepareMarkup::With(html! { i class=[self.classes().get()] {} })
@@ -57,25 +58,39 @@ impl Icon {
     }
 
     #[fn_builder]
+    pub fn alter_classes(&mut self, op: ClassesOp, classes: impl Into<String>) -> &mut Self {
+        self.classes.alter_value(op, classes);
+        self
+    }
+
+    #[fn_builder]
+    pub fn alter_font_size(&mut self, font_size: FontSize) -> &mut Self {
+        self.classes.alter_value(
+            ClassesOp::Replace(self.font_size.to_string()),
+            font_size.to_string(),
+        );
+        self.font_size = font_size;
+        self
+    }
+
+    #[fn_builder]
     pub fn alter_icon_name(&mut self, name: &str) -> &mut Self {
         self.alter_classes(ClassesOp::SetDefault, concat_string!("bi-", name));
         self.icon_name = name.to_owned();
         self
     }
 
-    #[fn_builder]
-    pub fn alter_classes(&mut self, op: ClassesOp, classes: impl Into<String>) -> &mut Self {
-        self.classes.alter_value(op, classes);
-        self
-    }
-
     // Icon GETTERS.
-
-    pub fn icon_name(&self) -> &str {
-        self.icon_name.as_str()
-    }
 
     pub fn classes(&self) -> &OptionClasses {
         &self.classes
+    }
+
+    pub fn font_size(&self) -> &FontSize {
+        &self.font_size
+    }
+
+    pub fn icon_name(&self) -> &str {
+        self.icon_name.as_str()
     }
 }

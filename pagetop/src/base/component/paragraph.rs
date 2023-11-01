@@ -9,8 +9,8 @@ pub struct Paragraph {
     renderable: Renderable,
     id        : OptionId,
     classes   : OptionClasses,
-    stuff     : ArcComponents,
     font_size : FontSize,
+    stuff     : ArcComponents,
 }
 
 impl ComponentTrait for Paragraph {
@@ -81,6 +81,16 @@ impl Paragraph {
         self
     }
 
+    #[fn_builder]
+    pub fn alter_font_size(&mut self, font_size: FontSize) -> &mut Self {
+        self.classes.alter_value(
+            ClassesOp::Replace(self.font_size.to_string()),
+            font_size.to_string(),
+        );
+        self.font_size = font_size;
+        self
+    }
+
     pub fn add_component(mut self, component: impl ComponentTrait) -> Self {
         self.stuff.alter(ArcOp::Add(ArcComponent::with(component)));
         self
@@ -98,28 +108,17 @@ impl Paragraph {
         self
     }
 
-    #[rustfmt::skip]
-    #[fn_builder]
-    pub fn alter_font_size(&mut self, font_size: FontSize) -> &mut Self {
-        self.classes.alter_value(
-            ClassesOp::Replace(self.font_size.to_string()),
-            font_size.to_string(),
-        );
-        self.font_size = font_size;
-        self
-    }
-
     // Paragraph GETTERS.
 
     pub fn classes(&self) -> &OptionClasses {
         &self.classes
     }
 
-    pub fn components(&self) -> &ArcComponents {
-        &self.stuff
-    }
-
     pub fn font_size(&self) -> &FontSize {
         &self.font_size
+    }
+
+    pub fn components(&self) -> &ArcComponents {
+        &self.stuff
     }
 }

@@ -81,18 +81,54 @@ impl ThemeTrait for Bootsier {
             ))
             .alter_context(ContextOp::AddBaseAssets)
             .alter_context(ContextOp::AddStyleSheet(
-                StyleSheet::at("/bootsier/css/styles.css")
-                    .with_version("0.0.1"),
+                StyleSheet::at("/bootsier/css/styles.css").with_version("0.0.1"),
             ));
-}
+    }
 
-    #[rustfmt::skip]
-    fn before_prepare_component(
-        &self,
-        component: &mut dyn ComponentTrait,
-        _cx: &mut Context,
-    ) {
+    fn before_prepare_component(&self, component: &mut dyn ComponentTrait, _cx: &mut Context) {
         match component.handle() {
+            COMPONENT_BASE_ICON => {
+                let i = component_as_mut::<Icon>(component);
+                match i.font_size() {
+                    FontSize::ExtraLarge => {
+                        i.alter_classes(ClassesOp::Replace(i.font_size().to_string()), "fs-1");
+                    }
+                    FontSize::XxLarge => {
+                        i.alter_classes(ClassesOp::Replace(i.font_size().to_string()), "fs-2");
+                    }
+                    FontSize::XLarge => {
+                        i.alter_classes(ClassesOp::Replace(i.font_size().to_string()), "fs-3");
+                    }
+                    FontSize::Large => {
+                        i.alter_classes(ClassesOp::Replace(i.font_size().to_string()), "fs-4");
+                    }
+                    FontSize::Medium => {
+                        i.alter_classes(ClassesOp::Replace(i.font_size().to_string()), "fs-5");
+                    }
+                    _ => {}
+                };
+            }
+            COMPONENT_BASE_ANCHOR => {
+                let a = component_as_mut::<Anchor>(component);
+                match a.font_size() {
+                    FontSize::ExtraLarge => {
+                        a.alter_classes(ClassesOp::Replace(a.font_size().to_string()), "fs-1");
+                    }
+                    FontSize::XxLarge => {
+                        a.alter_classes(ClassesOp::Replace(a.font_size().to_string()), "fs-2");
+                    }
+                    FontSize::XLarge => {
+                        a.alter_classes(ClassesOp::Replace(a.font_size().to_string()), "fs-3");
+                    }
+                    FontSize::Large => {
+                        a.alter_classes(ClassesOp::Replace(a.font_size().to_string()), "fs-4");
+                    }
+                    FontSize::Medium => {
+                        a.alter_classes(ClassesOp::Replace(a.font_size().to_string()), "fs-5");
+                    }
+                    _ => {}
+                };
+            }
             COMPONENT_BASE_HEADING => {
                 let h = component_as_mut::<Heading>(component);
                 let original = h.display().to_string();
@@ -100,28 +136,34 @@ impl ThemeTrait for Bootsier {
                     ClassesOp::SetDefault,
                     match h.display() {
                         HeadingDisplay::ExtraLarge => "display-1",
-                        HeadingDisplay::XxLarge    => "display-2",
-                        HeadingDisplay::XLarge     => "display-3",
-                        HeadingDisplay::Large      => "display-4",
-                        HeadingDisplay::Medium     => "display-5",
-                        _                          => original.as_str(),
+                        HeadingDisplay::XxLarge => "display-2",
+                        HeadingDisplay::XLarge => "display-3",
+                        HeadingDisplay::Large => "display-4",
+                        HeadingDisplay::Medium => "display-5",
+                        _ => original.as_str(),
                     },
                 );
             }
             COMPONENT_BASE_PARAGRAPH => {
                 let p = component_as_mut::<Paragraph>(component);
-                let original = p.font_size().to_string();
-                p.alter_classes(
-                    ClassesOp::SetDefault,
-                    match p.font_size() {
-                        FontSize::ExtraLarge => "fs-1",
-                        FontSize::XxLarge    => "fs-2",
-                        FontSize::XLarge     => "fs-3",
-                        FontSize::Large      => "fs-4",
-                        FontSize::Medium     => "fs-5",
-                        _                    => original.as_str(),
-                    },
-                );
+                match p.font_size() {
+                    FontSize::ExtraLarge => {
+                        p.alter_classes(ClassesOp::Replace(p.font_size().to_string()), "fs-1");
+                    }
+                    FontSize::XxLarge => {
+                        p.alter_classes(ClassesOp::Replace(p.font_size().to_string()), "fs-2");
+                    }
+                    FontSize::XLarge => {
+                        p.alter_classes(ClassesOp::Replace(p.font_size().to_string()), "fs-3");
+                    }
+                    FontSize::Large => {
+                        p.alter_classes(ClassesOp::Replace(p.font_size().to_string()), "fs-4");
+                    }
+                    FontSize::Medium => {
+                        p.alter_classes(ClassesOp::Replace(p.font_size().to_string()), "fs-5");
+                    }
+                    _ => {}
+                };
             }
             _ => {}
         }
