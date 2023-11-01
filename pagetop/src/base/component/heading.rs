@@ -15,14 +15,29 @@ pub enum HeadingType {
 
 #[derive(Default)]
 pub enum HeadingDisplay {
-    #[default]
-    Normal,
+    ExtraLarge,
     XxLarge,
+    XLarge,
     Large,
     Medium,
-    Small,
-    XxSmall,
+    #[default]
+    Normal,
     Subtitle,
+}
+
+#[rustfmt::skip]
+impl ToString for HeadingDisplay {
+    fn to_string(&self) -> String {
+        match self {
+            HeadingDisplay::ExtraLarge => "pt-heading__title-x3l".to_string(),
+            HeadingDisplay::XxLarge    => "pt-heading__title-x2l".to_string(),
+            HeadingDisplay::XLarge     => "pt-heading__title-xl".to_string(),
+            HeadingDisplay::Large      => "pt-heading__title-l".to_string(),
+            HeadingDisplay::Medium     => "pt-heading__title-m".to_string(),
+            HeadingDisplay::Normal     => "".to_string(),
+            HeadingDisplay::Subtitle   => "pt-heading__subtitle".to_string(),
+        }
+    }
 }
 
 #[rustfmt::skip]
@@ -35,7 +50,6 @@ pub struct Heading {
     heading_type: HeadingType,
     text        : OptionTranslated,
     display     : HeadingDisplay,
-    template    : String,
 }
 
 impl ComponentTrait for Heading {
@@ -151,25 +165,11 @@ impl Heading {
     #[rustfmt::skip]
     #[fn_builder]
     pub fn alter_display(&mut self, display: HeadingDisplay) -> &mut Self {
-        self.alter_classes(
-            ClassesOp::SetDefault,
-            match display {
-                HeadingDisplay::XxLarge  => "display-2",
-                HeadingDisplay::Large    => "display-3",
-                HeadingDisplay::Medium   => "display-4",
-                HeadingDisplay::Small    => "display-5",
-                HeadingDisplay::XxSmall  => "display-6",
-                HeadingDisplay::Normal   => "",
-                HeadingDisplay::Subtitle => "",
-            },
+        self.classes.alter_value(
+            ClassesOp::Replace(self.display.to_string()),
+            display.to_string(),
         );
         self.display = display;
-        self
-    }
-
-    #[fn_builder]
-    pub fn alter_template(&mut self, template: &str) -> &mut Self {
-        self.template = template.to_owned();
         self
     }
 
@@ -189,9 +189,5 @@ impl Heading {
 
     pub fn display(&self) -> &HeadingDisplay {
         &self.display
-    }
-
-    pub fn template(&self) -> &str {
-        self.template.as_str()
     }
 }

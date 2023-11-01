@@ -2,17 +2,6 @@ use crate::prelude::*;
 
 new_handle!(COMPONENT_BASE_PARAGRAPH);
 
-#[derive(Default)]
-pub enum ParagraphDisplay {
-    #[default]
-    Normal,
-    XxLarge,
-    Large,
-    Medium,
-    Small,
-    XxSmall,
-}
-
 #[rustfmt::skip]
 #[derive(Default)]
 pub struct Paragraph {
@@ -21,8 +10,7 @@ pub struct Paragraph {
     id        : OptionId,
     classes   : OptionClasses,
     stuff     : ArcComponents,
-    display   : ParagraphDisplay,
-    template  : String,
+    font_size : FontSize,
 }
 
 impl ComponentTrait for Paragraph {
@@ -112,25 +100,12 @@ impl Paragraph {
 
     #[rustfmt::skip]
     #[fn_builder]
-    pub fn alter_display(&mut self, display: ParagraphDisplay) -> &mut Self {
-        self.alter_classes(
-            ClassesOp::SetDefault,
-            match display {
-                ParagraphDisplay::XxLarge => "fs-2",
-                ParagraphDisplay::Large   => "fs-3",
-                ParagraphDisplay::Medium  => "fs-4",
-                ParagraphDisplay::Small   => "fs-5",
-                ParagraphDisplay::XxSmall => "fs-6",
-                ParagraphDisplay::Normal  => "",
-            },
+    pub fn alter_font_size(&mut self, font_size: FontSize) -> &mut Self {
+        self.classes.alter_value(
+            ClassesOp::Replace(self.font_size.to_string()),
+            font_size.to_string(),
         );
-        self.display = display;
-        self
-    }
-
-    #[fn_builder]
-    pub fn alter_template(&mut self, template: &str) -> &mut Self {
-        self.template = template.to_owned();
+        self.font_size = font_size;
         self
     }
 
@@ -144,11 +119,7 @@ impl Paragraph {
         &self.stuff
     }
 
-    pub fn display(&self) -> &ParagraphDisplay {
-        &self.display
-    }
-
-    pub fn template(&self) -> &str {
-        self.template.as_str()
+    pub fn font_size(&self) -> &FontSize {
+        &self.font_size
     }
 }

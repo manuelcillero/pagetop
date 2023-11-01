@@ -16,7 +16,7 @@ impl ModuleTrait for Bulmix {
     }
 
     fn configure_service(&self, scfg: &mut service::web::ServiceConfig) {
-        service_for_static_files!(scfg, "/bulmix", bulmix);
+        service_for_static_files!(scfg, bulmix => "/bulmix");
     }
 }
 
@@ -50,32 +50,30 @@ impl ThemeTrait for Bulmix {
             }
             COMPONENT_BASE_HEADING => {
                 let h = component_as_mut::<Heading>(component);
-                h.alter_classes(
-                    ClassesOp::SetDefault,
-                    match h.display() {
-                        HeadingDisplay::XxLarge  => "title is-1",
-                        HeadingDisplay::Large    => "title is-2",
-                        HeadingDisplay::Medium   => "title is-3",
-                        HeadingDisplay::Small    => "title is-4",
-                        HeadingDisplay::XxSmall  => "title is-5",
-                        HeadingDisplay::Normal   => "title",
-                        HeadingDisplay::Subtitle => "subtitle",
-                    },
-                );
+                match h.display() {
+                    HeadingDisplay::Subtitle => h.alter_classes(
+                        ClassesOp::SetDefault, "subtitle"
+                    ),
+                    _ => h.alter_classes(
+                        ClassesOp::AddDefault, "title"
+                    ),
+                };
             }
             COMPONENT_BASE_PARAGRAPH => {
                 let p = component_as_mut::<Paragraph>(component);
+                let original = concat_string!("block ", p.font_size().to_string());
                 p.alter_classes(
                     ClassesOp::SetDefault,
-                    match p.display() {
-                        ParagraphDisplay::XxLarge => "is-size-2",
-                        ParagraphDisplay::Large   => "is-size-3",
-                        ParagraphDisplay::Medium  => "is-size-4",
-                        ParagraphDisplay::Small   => "is-size-5",
-                        ParagraphDisplay::XxSmall => "is-size-6",
-                        ParagraphDisplay::Normal  => "",
+                    match p.font_size() {
+                        FontSize::ExtraLarge => "block is-size-1",
+                        FontSize::XxLarge    => "block is-size-2",
+                        FontSize::XLarge     => "block is-size-3",
+                        FontSize::Large      => "block is-size-4",
+                        FontSize::Medium     => "block is-size-5",
+                        _                    => original.as_str(),
                     },
                 );
+
             }
             _ => {}
         }
@@ -84,14 +82,18 @@ impl ThemeTrait for Bulmix {
     fn render_component(
         &self,
         component: &dyn ComponentTrait,
-        _cx: &mut Context,
+        cx: &mut Context,
     ) -> Option<Markup> {
         match component.handle() {
             COMPONENT_BASE_ICON => {
                 let icon = component_as_ref::<Icon>(component);
+                if icon.icon_name().is_empty() {
+                    return None
+                };
+                cx.set_param::<bool>(PARAM_BASE_INCLUDE_ICONS, true);
                 Some(html! {
                     span class="icon" {
-                        i class=[icon.classes().get()] {};
+                        i class=[icon.classes().get()] {}
                     }
                 })
             }

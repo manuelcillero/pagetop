@@ -72,7 +72,7 @@ impl OptionClasses {
             }
             ClassesOp::Replace(classes_to_replace) => {
                 let mut pos = self.0.len();
-                let mut class_type = ClassType::User;
+                let mut class_type = ClassType::Default;
                 let replace: Vec<&str> = classes_to_replace.split_ascii_whitespace().collect();
                 for class in replace {
                     if let Some(replace_pos) = self.0.iter().position(|(c, _)| c.eq(class)) {

@@ -1,0 +1,7 @@
+/* OVERRIDE COMPONENT STYLES */
+
+/* Heading component */
+
+.pt-heading__subtitle {
+	margin-top: calc(-1 * var(--pt-gap-0-5));
+}

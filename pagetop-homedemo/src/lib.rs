@@ -22,7 +22,7 @@ impl ModuleTrait for HomeDemo {
     }
 
     fn configure_service(&self, scfg: &mut service::web::ServiceConfig) {
-        service_for_static_files!(scfg, "/homedemo", homedemo);
+        service_for_static_files!(scfg, homedemo => "/homedemo");
         scfg.route("/", service::web::get().to(demo));
     }
 }
@@ -62,7 +62,7 @@ fn hello_world() -> Wrapper {
                                 &config::SETTINGS.app.name,
                             ),
                         ))
-                        .with_display(ParagraphDisplay::Small),
+                        .with_font_size(FontSize::Medium),
                     )
                     .add_component(Paragraph::translated(
                         L10n::t("hello_powered", &LOCALES_HOMEDEMO).with_arg(
@@ -114,7 +114,7 @@ fn welcome() -> Wrapper {
         )
         .add_component(
             Paragraph::translated(L10n::t("welcome_text1", &LOCALES_HOMEDEMO))
-                .with_display(ParagraphDisplay::Small),
+                .with_font_size(FontSize::Medium),
         )
         .add_component(Paragraph::translated(L10n::t(
             "welcome_text2",
@@ -138,7 +138,7 @@ fn about_pagetop() -> Wrapper {
                     .add_component(Heading::h2(L10n::t("pagetop_title", &LOCALES_HOMEDEMO)))
                     .add_component(
                         Paragraph::translated(L10n::t("pagetop_text1", &LOCALES_HOMEDEMO))
-                            .with_display(ParagraphDisplay::Small),
+                            .with_font_size(FontSize::Medium),
                     )
                     .add_component(Paragraph::translated(L10n::t(
                         "pagetop_text2",
@@ -174,7 +174,7 @@ fn promo_pagetop() -> Wrapper {
                                 ),
                             ),
                         )
-                        .with_display(ParagraphDisplay::Small),
+                        .with_font_size(FontSize::Medium),
                     ),
             )
             .add_item(
@@ -205,7 +205,7 @@ fn reporting_issues() -> Wrapper {
                     )))
                     .add_component(
                         Paragraph::translated(L10n::t("report_problems_text1", &LOCALES_HOMEDEMO))
-                            .with_display(ParagraphDisplay::Small),
+                            .with_font_size(FontSize::Medium),
                     )
                     .add_component(Paragraph::translated(L10n::t(
                         "report_problems_text2",

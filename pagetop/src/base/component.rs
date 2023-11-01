@@ -49,6 +49,8 @@ pub(crate) fn add_base_assets(cx: &mut Context) {
     ));
 }
 
+// *************************************************************************************************
+
 #[rustfmt::skip]
 #[derive(Default)]
 pub enum BreakPoint {
@@ -79,6 +81,43 @@ impl ToString for BreakPoint {
     }
 }
 
+// *************************************************************************************************
+
+#[derive(Default)]
+pub enum FontSize {
+    ExtraLarge,
+    XxLarge,
+    XLarge,
+    Large,
+    Medium,
+    #[default]
+    Normal,
+    Small,
+    XSmall,
+    XxSmall,
+    ExtraSmall,
+}
+
+#[rustfmt::skip]
+impl ToString for FontSize {
+    fn to_string(&self) -> String {
+        match self {
+            FontSize::ExtraLarge => "pt-fs__x3l".to_string(),
+            FontSize::XxLarge    => "pt-fs__x2l".to_string(),
+            FontSize::XLarge     => "pt-fs__xl".to_string(),
+            FontSize::Large      => "pt-fs__l".to_string(),
+            FontSize::Medium     => "pt-fs__m".to_string(),
+            FontSize::Normal     => "".to_string(),
+            FontSize::Small      => "pt-fs__s".to_string(),
+            FontSize::XSmall     => "pt-fs__xs".to_string(),
+            FontSize::XxSmall    => "pt-fs__x2s".to_string(),
+            FontSize::ExtraSmall => "pt-fs__x3s".to_string(),
+        }
+    }
+}
+
+// *************************************************************************************************
+
 mod html;
 pub use html::{Html, COMPONENT_BASE_HTML};
 
@@ -95,7 +134,7 @@ pub use icon::{Icon, COMPONENT_BASE_ICON};
 mod heading;
 pub use heading::{Heading, HeadingDisplay, HeadingType, COMPONENT_BASE_HEADING};
 mod paragraph;
-pub use paragraph::{Paragraph, ParagraphDisplay, COMPONENT_BASE_PARAGRAPH};
+pub use paragraph::{Paragraph, COMPONENT_BASE_PARAGRAPH};
 mod anchor;
 pub use anchor::{Anchor, AnchorTarget, AnchorType, COMPONENT_BASE_ANCHOR};
 mod image;

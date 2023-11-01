@@ -1,5 +1,5 @@
 use crate::base::action::page::{run_actions_after_prepare_body, run_actions_before_prepare_body};
-use crate::core::component::{ArcComponent, ComponentTrait};
+use crate::core::component::{ArcComponent, ArcComponents as RegionComponents, ComponentTrait};
 use crate::core::component::{Context, ContextOp};
 use crate::core::theme::ComponentsRegions;
 use crate::html::{html, Markup, DOCTYPE};
@@ -21,8 +21,8 @@ pub struct Page {
     favicon     : Option<Favicon>,
     context     : Context,
     body_classes: OptionClasses,
-    regions     : ComponentsRegions,
     skip_to     : OptionId,
+    regions     : ComponentsRegions,
     template    : String,
 }
 
@@ -37,8 +37,8 @@ impl Page {
             favicon     : None,
             context     : Context::new(request),
             body_classes: OptionClasses::new(),
-            regions     : ComponentsRegions::new(),
             skip_to     : OptionId::new(),
+            regions     : ComponentsRegions::new(),
             template    : "default".to_owned(),
         }
     }
@@ -88,14 +88,14 @@ impl Page {
     }
 
     #[fn_builder]
-    pub fn alter_in(&mut self, region: &'static str, component: impl ComponentTrait) -> &mut Self {
-        self.regions.add_in(region, ArcComponent::with(component));
+    pub fn alter_skip_to(&mut self, id: impl Into<String>) -> &mut Self {
+        self.skip_to.alter_value(id);
         self
     }
 
     #[fn_builder]
-    pub fn alter_skip_to(&mut self, id: impl Into<String>) -> &mut Self {
-        self.skip_to.alter_value(id);
+    pub fn alter_in(&mut self, region: &'static str, component: impl ComponentTrait) -> &mut Self {
+        self.regions.add_in(region, ArcComponent::with(component));
         self
     }
 
@@ -139,6 +139,10 @@ impl Page {
         &self.skip_to
     }
 
+    pub fn components_in(&self, region: &str) -> RegionComponents {
+        self.regions.get_components(self.context.theme(), region)
+    }
+
     pub fn template(&self) -> &str {
         self.template.as_str()
     }
@@ -177,21 +181,5 @@ impl Page {
                 (body)
             }
         })
-    }
-
-    pub fn prepare_region(&mut self, region: &str) -> Option<Markup> {
-        let render = self
-            .regions
-            .get_components(self.context.theme(), region)
-            .prepare(self.context());
-        if render.is_empty() {
-            None
-        } else {
-            Some(html! {
-                div id=[OptionId::with(region).get()] class="region" {
-                    (render)
-                }
-            })
-        }
     }
 }

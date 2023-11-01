@@ -29,8 +29,10 @@ impl ComponentTrait for Icon {
     }
 
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
+        if self.icon_name().is_empty() {
+            return PrepareMarkup::None
+        }
         cx.set_param::<bool>(PARAM_BASE_INCLUDE_ICONS, true);
-
         PrepareMarkup::With(html! { i class=[self.classes().get()] {} })
     }
 }

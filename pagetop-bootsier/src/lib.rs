@@ -18,7 +18,7 @@ impl ModuleTrait for Bootsier {
     }
 
     fn configure_service(&self, scfg: &mut service::web::ServiceConfig) {
-        service_for_static_files!(scfg, "/bootsier", bootsier);
+        service_for_static_files!(scfg, bootsier => "/bootsier");
     }
 }
 
@@ -47,36 +47,23 @@ impl ThemeTrait for Bootsier {
                         "side-menu",
                         "content"
                     ] {
-                        @if let Some(content) = page.prepare_region(region) {
-                            #(region) class="region" { (content) }
-                        }
+                        (self.prepare_region(page, region))
                     }
                 }
             },
-            _ => {
-                let header = page.prepare_region("header");
-                let nav_branding = page.prepare_region("nav_branding");
-                let nav_main = page.prepare_region("nav_main");
-                let nav_additional = page.prepare_region("nav_additional");
-                let breadcrumb = page.prepare_region("breadcrumb");
-                let content = page.prepare_region("content");
-                let sidebar_first = page.prepare_region("sidebar_first");
-                let sidebar_second = page.prepare_region("sidebar_second");
-                let footer = page.prepare_region("footer");
-                html! {
-                    body class=[page.body_classes().get()] {
-                        (header.unwrap_or_default())
-                        (nav_branding.unwrap_or_default())
-                        (nav_main.unwrap_or_default())
-                        (nav_additional.unwrap_or_default())
-                        (breadcrumb.unwrap_or_default())
-                        (content.unwrap_or_default())
-                        (sidebar_first.unwrap_or_default())
-                        (sidebar_second.unwrap_or_default())
-                        (footer.unwrap_or_default())
-                    }
+            _ => html! {
+                body class=[page.body_classes().get()] {
+                    (self.prepare_region(page, "header"))
+                    (self.prepare_region(page, "nav_branding"))
+                    (self.prepare_region(page, "nav_main"))
+                    (self.prepare_region(page, "nav_additional"))
+                    (self.prepare_region(page, "breadcrumb"))
+                    (self.prepare_region(page, "content"))
+                    (self.prepare_region(page, "sidebar_first"))
+                    (self.prepare_region(page, "sidebar_second"))
+                    (self.prepare_region(page, "footer"))
                 }
-            }
+            },
         }
     }
 
@@ -92,7 +79,52 @@ impl ThemeTrait for Bootsier {
                     .with_version("5.1.3")
                     .with_weight(-99),
             ))
-            .alter_context(ContextOp::AddBaseAssets);
+            .alter_context(ContextOp::AddBaseAssets)
+            .alter_context(ContextOp::AddStyleSheet(
+                StyleSheet::at("/bootsier/css/styles.css")
+                    .with_version("0.0.1"),
+            ));
+}
+
+    #[rustfmt::skip]
+    fn before_prepare_component(
+        &self,
+        component: &mut dyn ComponentTrait,
+        _cx: &mut Context,
+    ) {
+        match component.handle() {
+            COMPONENT_BASE_HEADING => {
+                let h = component_as_mut::<Heading>(component);
+                let original = h.display().to_string();
+                h.alter_classes(
+                    ClassesOp::SetDefault,
+                    match h.display() {
+                        HeadingDisplay::ExtraLarge => "display-1",
+                        HeadingDisplay::XxLarge    => "display-2",
+                        HeadingDisplay::XLarge     => "display-3",
+                        HeadingDisplay::Large      => "display-4",
+                        HeadingDisplay::Medium     => "display-5",
+                        _                          => original.as_str(),
+                    },
+                );
+            }
+            COMPONENT_BASE_PARAGRAPH => {
+                let p = component_as_mut::<Paragraph>(component);
+                let original = p.font_size().to_string();
+                p.alter_classes(
+                    ClassesOp::SetDefault,
+                    match p.font_size() {
+                        FontSize::ExtraLarge => "fs-1",
+                        FontSize::XxLarge    => "fs-2",
+                        FontSize::XLarge     => "fs-3",
+                        FontSize::Large      => "fs-4",
+                        FontSize::Medium     => "fs-5",
+                        _                    => original.as_str(),
+                    },
+                );
+            }
+            _ => {}
+        }
     }
 
     fn render_component(&self, component: &dyn ComponentTrait, cx: &mut Context) -> Option<Markup> {

@@ -1,6 +1,6 @@
 use crate::core::component::{ComponentTrait, Context};
 use crate::core::module::ModuleTrait;
-use crate::html::{html, Favicon, Markup};
+use crate::html::{html, Favicon, Markup, OptionId};
 use crate::locale::L10n;
 use crate::response::page::Page;
 use crate::{concat_string, config};
@@ -20,16 +20,27 @@ pub trait ThemeTrait: ModuleTrait + Send + Sync {
         ]
     }
 
+    fn prepare_region(&self, page: &mut Page, region: &str) -> Markup {
+        let render_region = page.components_in(region).prepare(page.context());
+        if render_region.is_empty() {
+            html! {}
+        } else {
+            let id = OptionId::with(region).get().unwrap();
+            let id_inner = concat_string!(id, "__inner");
+            html! {
+                div id=(id) class="pt-region" {
+                    div id=(id_inner) class="pt-region__inner" {
+                        (render_region)
+                    }
+                }
+            }
+        }
+    }
+
     #[allow(unused_variables)]
     fn before_prepare_body(&self, page: &mut Page) {}
 
     fn prepare_body(&self, page: &mut Page) -> Markup {
-        let header = page.prepare_region("header");
-        let pagetop = page.prepare_region("pagetop");
-        let content = page.prepare_region("content");
-        let sidebar = page.prepare_region("sidebar");
-        let footer = page.prepare_region("footer");
-
         let skip_to = concat_string!("#", page.skip_to().get().unwrap_or("content".to_owned()));
 
         html! {
@@ -41,11 +52,15 @@ pub trait ThemeTrait: ModuleTrait + Send + Sync {
                 }
                 div class="pt-body__wrapper" {
                     div class="pt-body__regions" {
-                        (header.unwrap_or_default())
-                        (pagetop.unwrap_or_default())
-                        (content.unwrap_or_default())
-                        (sidebar.unwrap_or_default())
-                        (footer.unwrap_or_default())
+                        (self.prepare_region(page, "header"))
+                        (self.prepare_region(page, "pagetop"))
+                        div class="pt-content" {
+                            div class="pt-content__wrapper" {
+                                (self.prepare_region(page, "content"))
+                                (self.prepare_region(page, "sidebar"))
+                            }
+                        }
+                        (self.prepare_region(page, "footer"))
                     }
                 }
             }
