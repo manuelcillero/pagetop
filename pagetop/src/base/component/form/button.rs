@@ -66,11 +66,11 @@ impl ComponentTrait for Button {
 
 impl Button {
     pub fn with(value: L10n) -> Self {
-        Button::new().with_value(value)
+        Button::default().with_value(value)
     }
 
     pub fn submit(value: L10n) -> Self {
-        let mut button = Button::new()
+        let mut button = Button::default()
             .with_classes(ClassesOp::Replace("form-button".to_owned()), "form-submit")
             .with_value(value);
         button.button_type = ButtonType::Submit;
@@ -78,7 +78,7 @@ impl Button {
     }
 
     pub fn reset(value: L10n) -> Self {
-        let mut button = Button::new()
+        let mut button = Button::default()
             .with_classes(ClassesOp::Replace("form-button".to_owned()), "form-reset")
             .with_value(value);
         button.button_type = ButtonType::Reset;

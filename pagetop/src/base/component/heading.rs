@@ -89,37 +89,37 @@ impl ComponentTrait for Heading {
 
 impl Heading {
     pub fn h1(text: L10n) -> Self {
-        Heading::new()
+        Heading::default()
             .with_heading_type(HeadingType::H1)
             .with_text(text)
     }
 
     pub fn h2(text: L10n) -> Self {
-        Heading::new()
+        Heading::default()
             .with_heading_type(HeadingType::H2)
             .with_text(text)
     }
 
     pub fn h3(text: L10n) -> Self {
-        Heading::new()
+        Heading::default()
             .with_heading_type(HeadingType::H3)
             .with_text(text)
     }
 
     pub fn h4(text: L10n) -> Self {
-        Heading::new()
+        Heading::default()
             .with_heading_type(HeadingType::H4)
             .with_text(text)
     }
 
     pub fn h5(text: L10n) -> Self {
-        Heading::new()
+        Heading::default()
             .with_heading_type(HeadingType::H5)
             .with_text(text)
     }
 
     pub fn h6(text: L10n) -> Self {
-        Heading::new()
+        Heading::default()
             .with_heading_type(HeadingType::H6)
             .with_text(text)
     }

@@ -33,7 +33,7 @@ impl ComponentTrait for Hidden {
 
 impl Hidden {
     pub fn set(name: &str, value: &str) -> Self {
-        Hidden::new().with_name(name).with_value(value)
+        Hidden::default().with_name(name).with_value(value)
     }
 
     // Hidden BUILDER.

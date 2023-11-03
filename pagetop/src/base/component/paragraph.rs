@@ -48,11 +48,11 @@ impl ComponentTrait for Paragraph {
 
 impl Paragraph {
     pub fn with(component: impl ComponentTrait) -> Self {
-        Paragraph::new().add_component(component)
+        Paragraph::default().add_component(component)
     }
 
     pub fn translated(l10n: L10n) -> Self {
-        Paragraph::new().add_translated(l10n)
+        Paragraph::default().add_translated(l10n)
     }
 
     // Paragraph BUILDER.

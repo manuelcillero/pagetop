@@ -104,11 +104,11 @@ impl ComponentTrait for Input {
 
 impl Input {
     pub fn textfield() -> Self {
-        Input::new()
+        Input::default()
     }
 
     pub fn password() -> Self {
-        let mut input = Input::new().with_classes(
+        let mut input = Input::default().with_classes(
             ClassesOp::Replace("form-type-textfield".to_owned()),
             "form-type-password",
         );
@@ -117,7 +117,7 @@ impl Input {
     }
 
     pub fn search() -> Self {
-        let mut input = Input::new().with_classes(
+        let mut input = Input::default().with_classes(
             ClassesOp::Replace("form-type-textfield".to_owned()),
             "form-type-search",
         );
@@ -126,7 +126,7 @@ impl Input {
     }
 
     pub fn email() -> Self {
-        let mut input = Input::new().with_classes(
+        let mut input = Input::default().with_classes(
             ClassesOp::Replace("form-type-textfield".to_owned()),
             "form-type-email",
         );
@@ -135,7 +135,7 @@ impl Input {
     }
 
     pub fn telephone() -> Self {
-        let mut input = Input::new().with_classes(
+        let mut input = Input::default().with_classes(
             ClassesOp::Replace("form-type-textfield".to_owned()),
             "form-type-telephone",
         );
@@ -144,7 +144,7 @@ impl Input {
     }
 
     pub fn url() -> Self {
-        let mut input = Input::new().with_classes(
+        let mut input = Input::default().with_classes(
             ClassesOp::Replace("form-type-textfield".to_owned()),
             "form-type-url",
         );

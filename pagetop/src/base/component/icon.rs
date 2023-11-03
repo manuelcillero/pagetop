@@ -14,7 +14,7 @@ pub struct Icon {
 
 impl ComponentTrait for Icon {
     fn new() -> Self {
-        Icon::default().with_icon_name("question-circle-fill")
+        Icon::default()
     }
 
     fn handle(&self) -> Handle {
@@ -40,7 +40,7 @@ impl ComponentTrait for Icon {
 
 impl Icon {
     pub fn with(icon_name: &str) -> Self {
-        Icon::new().with_icon_name(icon_name)
+        Icon::default().with_icon_name(icon_name)
     }
 
     // Icon BUILDER.
