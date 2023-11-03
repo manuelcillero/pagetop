@@ -1,18 +1,14 @@
 use pagetop::prelude::*;
 
-new_handle!(MODULE_ADMIN);
-
 new_static_locales!(LOCALES_ADMIN);
 
 mod summary;
 
 pub struct Admin;
 
-impl ModuleTrait for Admin {
-    fn handle(&self) -> Handle {
-        MODULE_ADMIN
-    }
+impl_handle!(MODULE_ADMIN for Admin);
 
+impl ModuleTrait for Admin {
     fn name(&self) -> L10n {
         L10n::t("module_name", &LOCALES_ADMIN)
     }

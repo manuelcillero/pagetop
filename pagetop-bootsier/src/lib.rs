@@ -1,18 +1,14 @@
 use pagetop::prelude::*;
 
-new_handle!(THEME_BOOTSIER);
-
 new_static_locales!(LOCALES_BOOTSIER);
 
 new_static_files!(bootsier);
 
 pub struct Bootsier;
 
-impl ModuleTrait for Bootsier {
-    fn handle(&self) -> Handle {
-        THEME_BOOTSIER
-    }
+impl_handle!(THEME_BOOTSIER for Bootsier);
 
+impl ModuleTrait for Bootsier {
     fn theme(&self) -> Option<ThemeRef> {
         Some(&Bootsier)
     }
@@ -108,8 +104,8 @@ impl ThemeTrait for Bootsier {
                     _ => {}
                 };
             }
-            COMPONENT_BASE_ANCHOR => {
-                let a = component_as_mut::<Anchor>(component);
+            COMPONENT_BASE_BUTTON => {
+                let a = component_as_mut::<Button>(component);
                 match a.font_size() {
                     FontSize::ExtraLarge => {
                         a.alter_classes(ClassesOp::Replace(a.font_size().to_string()), "fs-1");
@@ -128,6 +124,20 @@ impl ThemeTrait for Bootsier {
                     }
                     _ => {}
                 };
+                match a.anchor_type() {
+                    ButtonType::Link => {
+                        a.alter_classes(
+                            ClassesOp::Replace(a.anchor_type().to_string()),
+                            "btn btn-link",
+                        );
+                    }
+                    ButtonType::Primary => {
+                        a.alter_classes(
+                            ClassesOp::Replace(a.anchor_type().to_string()),
+                            "btn btn-primary",
+                        );
+                    }
+                }
             }
             COMPONENT_BASE_HEADING => {
                 let h = component_as_mut::<Heading>(component);

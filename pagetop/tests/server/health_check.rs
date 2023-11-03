@@ -1,14 +1,10 @@
 use pagetop::prelude::*;
 
-new_handle!(MODULE_TEST_SERVER_HEALTH_CHECK);
-
 struct HealthCheck;
 
-impl ModuleTrait for HealthCheck {
-    fn handle(&self) -> Handle {
-        MODULE_TEST_SERVER_HEALTH_CHECK
-    }
-}
+impl_handle!(MODULE_TEST_SERVER_HEALTH_CHECK for HealthCheck);
+
+impl ModuleTrait for HealthCheck {}
 
 #[pagetop::test]
 async fn health_check_works() {

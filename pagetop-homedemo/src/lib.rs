@@ -1,18 +1,14 @@
 use pagetop::prelude::*;
 
-new_handle!(MODULE_HOMEDEMO);
-
 new_static_locales!(LOCALES_HOMEDEMO);
 
 new_static_files!(homedemo);
 
 pub struct HomeDemo;
 
-impl ModuleTrait for HomeDemo {
-    fn handle(&self) -> Handle {
-        MODULE_HOMEDEMO
-    }
+impl_handle!(MODULE_HOMEDEMO for HomeDemo);
 
+impl ModuleTrait for HomeDemo {
     fn name(&self) -> L10n {
         L10n::t("module_name", &LOCALES_HOMEDEMO)
     }

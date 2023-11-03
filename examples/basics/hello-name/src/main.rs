@@ -1,14 +1,10 @@
 use pagetop::prelude::*;
 
-new_handle!(APP_HELLO_NAME);
-
 struct HelloName;
 
-impl ModuleTrait for HelloName {
-    fn handle(&self) -> Handle {
-        APP_HELLO_NAME
-    }
+impl_handle!(APP_HELLO_NAME for HelloName);
 
+impl ModuleTrait for HelloName {
     fn configure_service(&self, scfg: &mut service::web::ServiceConfig) {
         scfg.service(hello_name);
     }

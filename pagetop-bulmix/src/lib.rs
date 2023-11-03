@@ -1,16 +1,12 @@
 use pagetop::prelude::*;
 
-new_handle!(THEME_BULMIX);
-
 new_static_files!(bulmix);
 
 pub struct Bulmix;
 
-impl ModuleTrait for Bulmix {
-    fn handle(&self) -> Handle {
-        THEME_BULMIX
-    }
+impl_handle!(THEME_BULMIX for Bulmix);
 
+impl ModuleTrait for Bulmix {
     fn theme(&self) -> Option<ThemeRef> {
         Some(&Bulmix)
     }

@@ -1,18 +1,14 @@
 use pagetop::prelude::*;
 
-new_handle!(MODULE_USER);
-
 new_static_locales!(LOCALES_USER);
 
 mod migration;
 
 pub struct User;
 
-impl ModuleTrait for User {
-    fn handle(&self) -> Handle {
-        MODULE_USER
-    }
+impl_handle!(MODULE_USER for User);
 
+impl ModuleTrait for User {
     fn name(&self) -> L10n {
         L10n::t("module_name", &LOCALES_USER)
     }

@@ -1,14 +1,10 @@
 use pagetop::prelude::*;
 
-new_handle!(APP_DRUST);
-
 struct Drust;
 
-impl ModuleTrait for Drust {
-    fn handle(&self) -> Handle {
-        APP_DRUST
-    }
+impl_handle!(APP_DRUST for Drust);
 
+impl ModuleTrait for Drust {
     fn dependencies(&self) -> Vec<ModuleRef> {
         vec![
             // Themes.

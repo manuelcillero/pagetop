@@ -1,7 +1,5 @@
 use pagetop::prelude::*;
 
-new_handle!(MODULE_NODE);
-
 new_static_locales!(LOCALES_NODE);
 
 //mod entity;
@@ -9,11 +7,9 @@ mod migration;
 
 pub struct Node;
 
-impl ModuleTrait for Node {
-    fn handle(&self) -> Handle {
-        MODULE_NODE
-    }
+impl_handle!(MODULE_NODE for Node);
 
+impl ModuleTrait for Node {
     fn name(&self) -> L10n {
         L10n::t("module_name", &LOCALES_NODE)
     }
