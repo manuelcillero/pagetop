@@ -129,6 +129,7 @@ pub trait HasHandle {
 }
 
 pub type Weight = i8;
+
 pub type HashMapResources = std::collections::HashMap<&'static str, StaticResource>;
 
 static_locales!(LOCALES_PAGETOP);
