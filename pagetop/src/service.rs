@@ -13,7 +13,7 @@ pub use actix_web_files::Files as ActixFiles;
 pub use actix_web_static_files::ResourceFiles;
 
 #[macro_export]
-macro_rules! new_static_files {
+macro_rules! static_files {
     ( $bundle:ident ) => {
         $crate::paste! {
             mod [<static_files_ $bundle>] {

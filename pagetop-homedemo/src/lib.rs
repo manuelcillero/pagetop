@@ -1,8 +1,8 @@
 use pagetop::prelude::*;
 
-new_static_locales!(LOCALES_HOMEDEMO);
+static_locales!(LOCALES_HOMEDEMO);
 
-new_static_files!(homedemo);
+static_files!(homedemo);
 
 pub struct HomeDemo;
 

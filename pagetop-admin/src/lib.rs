@@ -1,6 +1,6 @@
 use pagetop::prelude::*;
 
-new_static_locales!(LOCALES_ADMIN);
+static_locales!(LOCALES_ADMIN);
 
 mod summary;
 

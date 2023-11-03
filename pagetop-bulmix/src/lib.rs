@@ -1,6 +1,6 @@
 use pagetop::prelude::*;
 
-new_static_files!(bulmix);
+static_files!(bulmix);
 
 pub struct Bulmix;
 

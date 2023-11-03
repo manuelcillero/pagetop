@@ -70,13 +70,13 @@
 //! # Cómo aplicar la localización en tu código
 //!
 //! Una vez hayas creado tu directorio de recursos FTL usa la macro
-//! [`new_static_locales!`](crate::new_static_locales) para integrarlos en tu módulo o aplicación.
+//! [`static_locales!`](crate::static_locales) para integrarlos en tu módulo o aplicación.
 //! si tus recursos se encuentran en el directorio `"src/locale"` bastará con declarar:
 //!
 //! ```
 //! use pagetop::prelude::*;
 //!
-//! new_static_locales!(LOCALES_SAMPLE);
+//! static_locales!(LOCALES_SAMPLE);
 //! ```
 //!
 //! Y si están en otro directorio, entonces puedes usar:
@@ -84,7 +84,7 @@
 //! ```
 //! use pagetop::prelude::*;
 //!
-//! new_static_locales!(LOCALES_SAMPLE in "path/to/locale");
+//! static_locales!(LOCALES_SAMPLE in "path/to/locale");
 //! ```
 
 use crate::html::{Markup, PreEscaped};
@@ -142,7 +142,7 @@ pub fn langid_for(language: impl Into<String>) -> Result<&'static LanguageIdenti
 
 #[macro_export]
 /// Define un conjunto de elementos de localización y textos locales de traducción.
-macro_rules! new_static_locales {
+macro_rules! static_locales {
     ( $LOCALES:ident $(, $core_locales:literal)? ) => {
         $crate::locale::fluent_templates::static_loader! {
             static $LOCALES = {

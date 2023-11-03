@@ -1,6 +1,6 @@
 use pagetop::prelude::*;
 
-new_static_locales!(LOCALES_NODE);
+static_locales!(LOCALES_NODE);
 
 //mod entity;
 mod migration;

@@ -1,8 +1,8 @@
 use pagetop::prelude::*;
 
-new_static_locales!(LOCALES_BOOTSIER);
+static_locales!(LOCALES_BOOTSIER);
 
-new_static_files!(bootsier);
+static_files!(bootsier);
 
 pub struct Bootsier;
 

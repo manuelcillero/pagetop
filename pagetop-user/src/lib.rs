@@ -1,6 +1,6 @@
 use pagetop::prelude::*;
 
-new_static_locales!(LOCALES_USER);
+static_locales!(LOCALES_USER);
 
 mod migration;
 

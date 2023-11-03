@@ -1,14 +1,14 @@
 use crate::core::action::add_action;
 use crate::core::module::ModuleRef;
 use crate::core::theme::all::THEMES;
-use crate::{config, new_static_files, service, service_for_static_files, trace, LazyStatic};
+use crate::{config, service, service_for_static_files, static_files, trace, LazyStatic};
 
 #[cfg(feature = "database")]
 use crate::db::*;
 
 use std::sync::RwLock;
 
-new_static_files!(base);
+static_files!(base);
 
 // MODULES *****************************************************************************************
 
