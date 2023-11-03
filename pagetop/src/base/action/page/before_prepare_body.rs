@@ -2,12 +2,12 @@ use crate::prelude::*;
 
 use super::FnActionPage;
 
-new_handle!(ACTION_BEFORE_PREPARE_BODY for Crate);
-
 pub struct BeforePrepareBody {
     action: Option<FnActionPage>,
     weight: Weight,
 }
+
+impl_handle!(ACTION_BEFORE_PREPARE_BODY for BeforePrepareBody);
 
 impl ActionTrait for BeforePrepareBody {
     fn new() -> Self {
@@ -15,10 +15,6 @@ impl ActionTrait for BeforePrepareBody {
             action: None,
             weight: 0,
         }
-    }
-
-    fn handle(&self) -> Handle {
-        ACTION_BEFORE_PREPARE_BODY
     }
 
     fn weight(&self) -> Weight {
@@ -48,7 +44,7 @@ impl BeforePrepareBody {
 
 #[inline(always)]
 pub(crate) fn run_actions_before_prepare_body(page: &mut Page) {
-    run_actions(ACTION_BEFORE_PREPARE_BODY, |action| {
+    run_actions((ACTION_BEFORE_PREPARE_BODY, None), |action| {
         action_ref::<BeforePrepareBody>(&**action).run(page)
     });
 }

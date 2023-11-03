@@ -5,12 +5,12 @@ use std::collections::HashMap;
 use std::sync::RwLock;
 
 // Registered actions.
-static ACTIONS: LazyStatic<RwLock<HashMap<Handle, ActionsList>>> =
+static ACTIONS: LazyStatic<RwLock<HashMap<(Handle, Option<Handle>), ActionsList>>> =
     LazyStatic::new(|| RwLock::new(HashMap::new()));
 
 pub fn add_action(action: Action) {
     let mut actions = ACTIONS.write().unwrap();
-    let action_handle = action.handle();
+    let action_handle = (action.handle(), action.referer_handle());
     if let Some(list) = actions.get_mut(&action_handle) {
         list.add(action);
     } else {
@@ -18,7 +18,7 @@ pub fn add_action(action: Action) {
     }
 }
 
-pub fn run_actions<B, F>(action_handle: Handle, f: F)
+pub fn run_actions<B, F>(action_handle: (Handle, Option<Handle>), f: F)
 where
     F: FnMut(&Action) -> B,
 {
