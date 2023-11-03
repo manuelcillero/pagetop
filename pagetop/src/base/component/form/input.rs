@@ -1,7 +1,5 @@
 use crate::prelude::*;
 
-new_handle!(COMPONENT_BASE_INPUT);
-
 #[derive(Default)]
 pub enum InputType {
     #[default]
@@ -36,16 +34,14 @@ pub struct Input {
     template    : String,
 }
 
+impl_handle!(COMPONENT_BASE_INPUT for Input);
+
 impl ComponentTrait for Input {
     fn new() -> Self {
         Input::default()
             .with_classes(ClassesOp::Add, "form-item form-type-textfield")
             .with_size(Some(60))
             .with_maxlength(Some(128))
-    }
-
-    fn handle(&self) -> Handle {
-        COMPONENT_BASE_INPUT
     }
 
     fn weight(&self) -> Weight {

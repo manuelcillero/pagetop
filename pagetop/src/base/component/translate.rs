@@ -1,17 +1,13 @@
 use crate::prelude::*;
 
-new_handle!(COMPONENT_BASE_TRANSLATE);
-
 #[derive(Default)]
 pub struct Translate(L10n);
+
+impl_handle!(COMPONENT_BASE_TRANSLATE for Translate);
 
 impl ComponentTrait for Translate {
     fn new() -> Self {
         Translate::default()
-    }
-
-    fn handle(&self) -> Handle {
-        COMPONENT_BASE_TRANSLATE
     }
 
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {

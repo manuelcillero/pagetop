@@ -1,9 +1,5 @@
 use crate::prelude::*;
 
-new_handle!(COMPONENT_BASE_FLEX_ITEM);
-
-actions_for_component!(Item);
-
 #[rustfmt::skip]
 #[derive(Default)]
 pub struct Item {
@@ -20,15 +16,13 @@ pub struct Item {
     stuff        : ArcComponents,
 }
 
+impl_handle!(COMPONENT_BASE_FLEX_ITEM for Item);
+
 impl ComponentTrait for Item {
     fn new() -> Self {
         Item::default()
             .with_item_classes(ClassesOp::Add, "pt-flex__item")
             .with_inner_classes(ClassesOp::Add, "pt-flex__item-inner")
-    }
-
-    fn handle(&self) -> Handle {
-        COMPONENT_BASE_FLEX_ITEM
     }
 
     fn id(&self) -> Option<String> {
@@ -43,10 +37,6 @@ impl ComponentTrait for Item {
         (self.renderable.check)(cx)
     }
 
-    fn before_prepare_component(&mut self, cx: &mut Context) {
-        run_actions_before_prepare_item(self, cx);
-    }
-
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
         let order = match self.weight() {
             0 => None,
@@ -59,10 +49,6 @@ impl ComponentTrait for Item {
                 }
             }
         })
-    }
-
-    fn after_prepare_component(&mut self, cx: &mut Context) {
-        run_actions_after_prepare_item(self, cx);
     }
 }
 

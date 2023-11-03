@@ -1,7 +1,5 @@
 use crate::prelude::*;
 
-new_handle!(COMPONENT_BASE_BUTTON);
-
 #[derive(Default)]
 pub enum ButtonType {
     #[default]
@@ -24,13 +22,11 @@ pub struct Button {
     template   : String,
 }
 
+impl_handle!(COMPONENT_BASE_BUTTON for Button);
+
 impl ComponentTrait for Button {
     fn new() -> Self {
         Button::default().with_classes(ClassesOp::Add, "btn btn-primary form-button")
-    }
-
-    fn handle(&self) -> Handle {
-        COMPONENT_BASE_BUTTON
     }
 
     fn weight(&self) -> Weight {

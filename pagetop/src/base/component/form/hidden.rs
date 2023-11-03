@@ -1,7 +1,5 @@
 use crate::prelude::*;
 
-new_handle!(COMPONENT_BASE_HIDDEN);
-
 #[rustfmt::skip]
 #[derive(Default)]
 pub struct Hidden {
@@ -10,13 +8,11 @@ pub struct Hidden {
     value : OptionString,
 }
 
+impl_handle!(COMPONENT_BASE_HIDDEN for Hidden);
+
 impl ComponentTrait for Hidden {
     fn new() -> Self {
         Hidden::default()
-    }
-
-    fn handle(&self) -> Handle {
-        COMPONENT_BASE_HIDDEN
     }
 
     fn weight(&self) -> Weight {

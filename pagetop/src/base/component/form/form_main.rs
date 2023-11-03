@@ -1,9 +1,5 @@
 use crate::prelude::*;
 
-new_handle!(COMPONENT_BASE_FORM);
-
-actions_for_component!(Form);
-
 #[derive(Default)]
 pub enum FormMethod {
     #[default]
@@ -25,15 +21,13 @@ pub struct Form {
     template  : String,
 }
 
+impl_handle!(COMPONENT_BASE_FORM for Form);
+
 impl ComponentTrait for Form {
     fn new() -> Self {
         Form::default()
             .with_classes(ClassesOp::Add, "form")
             .with_charset("UTF-8")
-    }
-
-    fn handle(&self) -> Handle {
-        COMPONENT_BASE_FORM
     }
 
     fn id(&self) -> Option<String> {
@@ -46,10 +40,6 @@ impl ComponentTrait for Form {
 
     fn is_renderable(&self, cx: &Context) -> bool {
         (self.renderable.check)(cx)
-    }
-
-    fn before_prepare_component(&mut self, cx: &mut Context) {
-        run_actions_before_prepare_form(self, cx);
     }
 
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
@@ -68,10 +58,6 @@ impl ComponentTrait for Form {
                 div { (self.elements().render(cx)) }
             }
         })
-    }
-
-    fn after_prepare_component(&mut self, cx: &mut Context) {
-        run_actions_after_prepare_form(self, cx);
     }
 }
 

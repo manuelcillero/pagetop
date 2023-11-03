@@ -2,8 +2,6 @@ use crate::prelude::*;
 
 use super::Group;
 
-new_handle!(COMPONENT_BASE_MENU_MEGAMENU);
-
 type Groups = TypedComponents<Group>;
 
 #[rustfmt::skip]
@@ -15,13 +13,11 @@ pub struct Megamenu {
     groups    : Groups,
 }
 
+impl_handle!(COMPONENT_BASE_MENU_MEGAMENU for Megamenu);
+
 impl ComponentTrait for Megamenu {
     fn new() -> Self {
         Megamenu::default()
-    }
-
-    fn handle(&self) -> Handle {
-        COMPONENT_BASE_MENU_MEGAMENU
     }
 
     fn id(&self) -> Option<String> {

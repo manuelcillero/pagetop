@@ -8,7 +8,7 @@ pub use crate::{Handle, HashMapResources, LazyStatic, Weight};
 
 // Functions and macro helpers.
 pub use crate::util;
-pub use crate::{kv, new_handle};
+pub use crate::{impl_handle, kv};
 
 // MACROS.
 
@@ -20,8 +20,6 @@ pub use crate::new_static_locales;
 pub use crate::{new_static_files, service_for_static_files};
 // crate::core::actions
 pub use crate::actions;
-// crate::base::action::component
-pub use crate::actions_for_component;
 
 // API.
 

@@ -1,7 +1,5 @@
 use crate::prelude::*;
 
-new_handle!(COMPONENT_BASE_BRANDING);
-
 type SiteLogo = TypedComponent<Image>;
 
 #[rustfmt::skip]
@@ -28,13 +26,11 @@ impl Default for Branding {
     }
 }
 
+impl_handle!(COMPONENT_BASE_BRANDING for Branding);
+
 impl ComponentTrait for Branding {
     fn new() -> Self {
         Branding::default()
-    }
-
-    fn handle(&self) -> Handle {
-        COMPONENT_BASE_BRANDING
     }
 
     fn id(&self) -> Option<String> {

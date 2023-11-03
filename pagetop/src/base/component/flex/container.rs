@@ -1,9 +1,5 @@
 use crate::prelude::*;
 
-new_handle!(COMPONENT_BASE_FLEX_CONTAINER);
-
-actions_for_component!(Container);
-
 #[rustfmt::skip]
 #[derive(Default)]
 pub struct Container {
@@ -19,13 +15,11 @@ pub struct Container {
     gap            : flex::Gap,
 }
 
+impl_handle!(COMPONENT_BASE_FLEX_CONTAINER for Container);
+
 impl ComponentTrait for Container {
     fn new() -> Self {
         Container::default().with_classes(ClassesOp::Add, flex::Direction::Default.to_string())
-    }
-
-    fn handle(&self) -> Handle {
-        COMPONENT_BASE_FLEX_CONTAINER
     }
 
     fn id(&self) -> Option<String> {
@@ -38,10 +32,6 @@ impl ComponentTrait for Container {
 
     fn is_renderable(&self, cx: &Context) -> bool {
         (self.renderable.check)(cx)
-    }
-
-    fn before_prepare_component(&mut self, cx: &mut Context) {
-        run_actions_before_prepare_container(self, cx);
     }
 
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
@@ -57,10 +47,6 @@ impl ComponentTrait for Container {
                 (self.items().render(cx))
             }
         })
-    }
-
-    fn after_prepare_component(&mut self, cx: &mut Context) {
-        run_actions_after_prepare_container(self, cx);
     }
 }
 

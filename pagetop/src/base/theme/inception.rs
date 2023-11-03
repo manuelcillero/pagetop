@@ -1,14 +1,10 @@
 use crate::prelude::*;
 
-new_handle!(THEME_INCEPTION);
-
 pub struct Inception;
 
-impl ModuleTrait for Inception {
-    fn handle(&self) -> Handle {
-        THEME_INCEPTION
-    }
+impl_handle!(THEME_INCEPTION for Inception);
 
+impl ModuleTrait for Inception {
     fn name(&self) -> L10n {
         L10n::n("Inception")
     }

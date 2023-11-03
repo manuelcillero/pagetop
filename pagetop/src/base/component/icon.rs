@@ -1,7 +1,5 @@
 use crate::prelude::*;
 
-new_handle!(COMPONENT_BASE_ICON);
-
 #[rustfmt::skip]
 #[derive(Default)]
 pub struct Icon {
@@ -12,13 +10,11 @@ pub struct Icon {
     icon_name : String,
 }
 
+impl_handle!(COMPONENT_BASE_ICON for Icon);
+
 impl ComponentTrait for Icon {
     fn new() -> Self {
         Icon::default()
-    }
-
-    fn handle(&self) -> Handle {
-        COMPONENT_BASE_ICON
     }
 
     fn weight(&self) -> Weight {

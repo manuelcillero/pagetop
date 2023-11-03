@@ -1,9 +1,5 @@
 use crate::prelude::*;
 
-new_handle!(COMPONENT_BASE_WRAPPER);
-
-actions_for_component!(Wrapper);
-
 #[derive(Default)]
 pub enum WrapperType {
     #[default]
@@ -27,15 +23,13 @@ pub struct Wrapper {
     template     : String,
 }
 
+impl_handle!(COMPONENT_BASE_WRAPPER for Wrapper);
+
 impl ComponentTrait for Wrapper {
     fn new() -> Self {
         Wrapper::default()
             .with_classes(ClassesOp::Add, "container")
             .with_inner_classes(ClassesOp::Add, "container")
-    }
-
-    fn handle(&self) -> Handle {
-        COMPONENT_BASE_WRAPPER
     }
 
     fn id(&self) -> Option<String> {
@@ -48,10 +42,6 @@ impl ComponentTrait for Wrapper {
 
     fn is_renderable(&self, cx: &Context) -> bool {
         (self.renderable.check)(cx)
-    }
-
-    fn before_prepare_component(&mut self, cx: &mut Context) {
-        run_actions_before_prepare_wrapper(self, cx);
     }
 
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
@@ -90,10 +80,6 @@ impl ComponentTrait for Wrapper {
                 }
             }),
         }
-    }
-
-    fn after_prepare_component(&mut self, cx: &mut Context) {
-        run_actions_after_prepare_wrapper(self, cx);
     }
 }
 

@@ -2,8 +2,6 @@ use crate::prelude::*;
 
 use super::Element;
 
-new_handle!(COMPONENT_BASE_MENU_GROUP);
-
 type Elements = TypedComponents<Element>;
 
 #[rustfmt::skip]
@@ -15,13 +13,11 @@ pub struct Group {
     elements  : Elements,
 }
 
+impl_handle!(COMPONENT_BASE_MENU_GROUP for Group);
+
 impl ComponentTrait for Group {
     fn new() -> Self {
         Group::default()
-    }
-
-    fn handle(&self) -> Handle {
-        COMPONENT_BASE_MENU_GROUP
     }
 
     fn id(&self) -> Option<String> {

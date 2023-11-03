@@ -2,10 +2,6 @@ use crate::prelude::*;
 
 use super::Item;
 
-new_handle!(COMPONENT_BASE_MENU);
-
-actions_for_component!(Menu);
-
 #[rustfmt::skip]
 #[derive(Default)]
 pub struct Menu {
@@ -15,13 +11,11 @@ pub struct Menu {
     items     : TypedComponents<Item>,
 }
 
+impl_handle!(COMPONENT_BASE_MENU for Menu);
+
 impl ComponentTrait for Menu {
     fn new() -> Self {
         Menu::default()
-    }
-
-    fn handle(&self) -> Handle {
-        COMPONENT_BASE_MENU
     }
 
     fn id(&self) -> Option<String> {
@@ -34,10 +28,6 @@ impl ComponentTrait for Menu {
 
     fn is_renderable(&self, cx: &Context) -> bool {
         (self.renderable.check)(cx)
-    }
-
-    fn before_prepare_component(&mut self, cx: &mut Context) {
-        run_actions_before_prepare_menu(self, cx);
     }
 
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
@@ -74,10 +64,6 @@ impl ComponentTrait for Menu {
                 }
             }
         })
-    }
-
-    fn after_prepare_component(&mut self, cx: &mut Context) {
-        run_actions_after_prepare_menu(self, cx);
     }
 }
 

@@ -1,7 +1,5 @@
 use crate::prelude::*;
 
-new_handle!(COMPONENT_BASE_PARAGRAPH);
-
 #[rustfmt::skip]
 #[derive(Default)]
 pub struct Paragraph {
@@ -13,13 +11,11 @@ pub struct Paragraph {
     stuff     : ArcComponents,
 }
 
+impl_handle!(COMPONENT_BASE_PARAGRAPH for Paragraph);
+
 impl ComponentTrait for Paragraph {
     fn new() -> Self {
         Paragraph::default()
-    }
-
-    fn handle(&self) -> Handle {
-        COMPONENT_BASE_PARAGRAPH
     }
 
     fn id(&self) -> Option<String> {

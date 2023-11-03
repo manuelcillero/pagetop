@@ -2,8 +2,6 @@ use crate::prelude::*;
 
 use super::Submenu;
 
-new_handle!(COMPONENT_BASE_MENU_ELEMENT);
-
 type Content = TypedComponent<Html>;
 type SubmenuItems = TypedComponent<Submenu>;
 
@@ -25,13 +23,11 @@ pub struct Element {
     element_type: ElementType,
 }
 
+impl_handle!(COMPONENT_BASE_MENU_ELEMENT for Element);
+
 impl ComponentTrait for Element {
     fn new() -> Self {
         Element::default()
-    }
-
-    fn handle(&self) -> Handle {
-        COMPONENT_BASE_MENU_ELEMENT
     }
 
     fn weight(&self) -> Weight {

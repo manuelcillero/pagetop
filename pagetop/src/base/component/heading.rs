@@ -1,7 +1,5 @@
 use crate::prelude::*;
 
-new_handle!(COMPONENT_BASE_HEADING);
-
 #[derive(Default)]
 pub enum HeadingType {
     #[default]
@@ -52,13 +50,11 @@ pub struct Heading {
     display     : HeadingDisplay,
 }
 
+impl_handle!(COMPONENT_BASE_HEADING for Heading);
+
 impl ComponentTrait for Heading {
     fn new() -> Self {
         Heading::default()
-    }
-
-    fn handle(&self) -> Handle {
-        COMPONENT_BASE_HEADING
     }
 
     fn id(&self) -> Option<String> {

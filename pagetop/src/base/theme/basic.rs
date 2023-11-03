@@ -1,14 +1,10 @@
 use crate::prelude::*;
 
-new_handle!(THEME_BASIC);
-
 pub struct Basic;
 
-impl ModuleTrait for Basic {
-    fn handle(&self) -> Handle {
-        THEME_BASIC
-    }
+impl_handle!(THEME_BASIC for Basic);
 
+impl ModuleTrait for Basic {
     fn name(&self) -> L10n {
         L10n::n("Basic")
     }

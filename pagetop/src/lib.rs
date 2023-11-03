@@ -44,7 +44,7 @@
 //! ```rust
 //! use pagetop::prelude::*;
 //!
-//! new_handle!(APP_HELLO_WORLD);
+//! impl_handle!(APP_HELLO_WORLD for HelloWorld);
 //!
 //! struct HelloWorld;
 //!
@@ -119,6 +119,15 @@ pub use once_cell::sync::Lazy as LazyStatic;
 pub use static_files::Resource as StaticResource;
 
 pub type Handle = u64;
+
+pub trait HasHandle {
+    fn static_handle() -> Handle
+    where
+        Self: Sized;
+
+    fn handle(&self) -> Handle;
+}
+
 pub type Weight = i8;
 pub type HashMapResources = std::collections::HashMap<&'static str, StaticResource>;
 

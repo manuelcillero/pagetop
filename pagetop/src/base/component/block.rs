@@ -1,9 +1,5 @@
 use crate::prelude::*;
 
-new_handle!(COMPONENT_BASE_BLOCK);
-
-actions_for_component!(Block);
-
 #[rustfmt::skip]
 #[derive(Default)]
 pub struct Block {
@@ -16,13 +12,11 @@ pub struct Block {
     template  : String,
 }
 
+impl_handle!(COMPONENT_BASE_BLOCK for Block);
+
 impl ComponentTrait for Block {
     fn new() -> Self {
         Block::default().with_classes(ClassesOp::Add, "block")
-    }
-
-    fn handle(&self) -> Handle {
-        COMPONENT_BASE_BLOCK
     }
 
     fn id(&self) -> Option<String> {
@@ -37,10 +31,6 @@ impl ComponentTrait for Block {
         (self.renderable.check)(cx)
     }
 
-    fn before_prepare_component(&mut self, cx: &mut Context) {
-        run_actions_before_prepare_block(self, cx);
-    }
-
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
         let id = cx.required_id::<Block>(self.id());
         PrepareMarkup::With(html! {
@@ -53,10 +43,6 @@ impl ComponentTrait for Block {
                 }
             }
         })
-    }
-
-    fn after_prepare_component(&mut self, cx: &mut Context) {
-        run_actions_after_prepare_block(self, cx);
     }
 }
 

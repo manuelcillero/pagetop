@@ -1,17 +1,13 @@
 use crate::prelude::*;
 
-new_handle!(COMPONENT_BASE_HTML);
-
 #[derive(Default)]
 pub struct Html(Markup);
+
+impl_handle!(COMPONENT_BASE_HTML for Html);
 
 impl ComponentTrait for Html {
     fn new() -> Self {
         Html::default()
-    }
-
-    fn handle(&self) -> Handle {
-        COMPONENT_BASE_HTML
     }
 
     fn prepare_component(&self, _cx: &mut Context) -> PrepareMarkup {

@@ -1,6 +1,6 @@
 use crate::core::component::Context;
 use crate::html::{html, Markup, PrepareMarkup};
-use crate::{util, Handle, Weight};
+use crate::{util, HasHandle, Weight};
 
 use std::any::Any;
 
@@ -12,12 +12,10 @@ pub trait ComponentBase: Any {
     fn as_mut_any(&mut self) -> &mut dyn Any;
 }
 
-pub trait ComponentTrait: ComponentBase + Send + Sync {
+pub trait ComponentTrait: ComponentBase + HasHandle + Send + Sync {
     fn new() -> Self
     where
         Self: Sized;
-
-    fn handle(&self) -> Handle;
 
     fn name(&self) -> String {
         util::single_type_name::<Self>().to_owned()

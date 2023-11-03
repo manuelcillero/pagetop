@@ -1,7 +1,5 @@
 use crate::prelude::*;
 
-new_handle!(COMPONENT_BASE_POWEREDBY);
-
 #[derive(Default, Eq, PartialEq)]
 pub enum PoweredByLogo {
     #[default]
@@ -21,6 +19,8 @@ pub struct PoweredBy {
     logo      : PoweredByLogo,
 }
 
+impl_handle!(COMPONENT_BASE_POWEREDBY for PoweredBy);
+
 impl ComponentTrait for PoweredBy {
     fn new() -> Self {
         let year = Utc::now().format("%Y").to_string();
@@ -29,10 +29,6 @@ impl ComponentTrait for PoweredBy {
             copyright: Some(c),
             ..Default::default()
         }
-    }
-
-    fn handle(&self) -> Handle {
-        COMPONENT_BASE_POWEREDBY
     }
 
     fn id(&self) -> Option<String> {

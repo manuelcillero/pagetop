@@ -2,8 +2,6 @@ use crate::prelude::*;
 
 use super::{Megamenu, Submenu};
 
-new_handle!(COMPONENT_BASE_MENU_ITEM);
-
 type Label = L10n;
 type Content = TypedComponent<Html>;
 type SubmenuItems = TypedComponent<Submenu>;
@@ -32,13 +30,11 @@ pub struct Item {
     description: OptionTranslated,
 }
 
+impl_handle!(COMPONENT_BASE_MENU_ITEM for Item);
+
 impl ComponentTrait for Item {
     fn new() -> Self {
         Item::default()
-    }
-
-    fn handle(&self) -> Handle {
-        COMPONENT_BASE_MENU_ITEM
     }
 
     fn weight(&self) -> Weight {

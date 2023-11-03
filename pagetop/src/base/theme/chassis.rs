@@ -1,14 +1,10 @@
 use crate::prelude::*;
 
-new_handle!(THEME_CHASSIS);
-
 pub struct Chassis;
 
-impl ModuleTrait for Chassis {
-    fn handle(&self) -> Handle {
-        THEME_CHASSIS
-    }
+impl_handle!(THEME_CHASSIS for Chassis);
 
+impl ModuleTrait for Chassis {
     fn name(&self) -> L10n {
         L10n::n("Chassis")
     }

@@ -1,7 +1,5 @@
 use crate::prelude::*;
 
-new_handle!(COMPONENT_BASE_DATE);
-
 #[rustfmt::skip]
 #[derive(Default)]
 pub struct Date {
@@ -21,13 +19,11 @@ pub struct Date {
     template    : String,
 }
 
+impl_handle!(COMPONENT_BASE_DATE for Date);
+
 impl ComponentTrait for Date {
     fn new() -> Self {
         Date::default().with_classes(ClassesOp::Add, "form-item form-type-date")
-    }
-
-    fn handle(&self) -> Handle {
-        COMPONENT_BASE_DATE
     }
 
     fn weight(&self) -> Weight {

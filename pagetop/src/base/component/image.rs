@@ -1,7 +1,5 @@
 use crate::prelude::*;
 
-new_handle!(COMPONENT_BASE_IMAGE);
-
 const IMG_FLUID: &str = "pt-img__fluid";
 const IMG_FIXED: &str = "pt-img__fixed";
 
@@ -26,13 +24,11 @@ pub struct Image {
     size      : ImageSize,
 }
 
+impl_handle!(COMPONENT_BASE_IMAGE for Image);
+
 impl ComponentTrait for Image {
     fn new() -> Self {
         Image::default().with_classes(ClassesOp::Add, IMG_FLUID)
-    }
-
-    fn handle(&self) -> Handle {
-        COMPONENT_BASE_IMAGE
     }
 
     fn id(&self) -> Option<String> {

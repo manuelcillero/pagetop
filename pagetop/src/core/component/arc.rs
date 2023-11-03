@@ -1,21 +1,17 @@
 use crate::core::component::{ComponentTrait, Context};
 use crate::html::{html, Markup};
-use crate::{new_handle, Handle, Weight};
+use crate::{impl_handle, Handle, Weight};
 
 use std::sync::{Arc, RwLock, RwLockReadGuard};
-
-new_handle!(COMPONENT_NULL for Crate);
 
 #[derive(Default)]
 struct ComponentNull;
 
+impl_handle!(COMPONENT_NULL for ComponentNull);
+
 impl ComponentTrait for ComponentNull {
     fn new() -> Self {
         ComponentNull::default()
-    }
-
-    fn handle(&self) -> Handle {
-        COMPONENT_NULL
     }
 }
 

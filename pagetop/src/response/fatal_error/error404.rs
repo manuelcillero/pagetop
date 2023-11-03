@@ -1,18 +1,14 @@
 use crate::core::component::{ComponentTrait, Context};
 use crate::html::{html, PrepareMarkup};
-use crate::{new_handle, Handle};
-
-new_handle!(ERROR_404);
+use crate::impl_handle;
 
 pub struct Error404;
+
+impl_handle!(ERROR_404 for Error404);
 
 impl ComponentTrait for Error404 {
     fn new() -> Self {
         Self
-    }
-
-    fn handle(&self) -> Handle {
-        ERROR_404
     }
 
     fn prepare_component(&self, _cx: &mut Context) -> PrepareMarkup {

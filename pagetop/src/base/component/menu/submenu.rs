@@ -2,8 +2,6 @@ use crate::prelude::*;
 
 use super::Item;
 
-new_handle!(COMPONENT_BASE_MENU_SUBMENU);
-
 type Items = TypedComponents<Item>;
 
 #[rustfmt::skip]
@@ -16,13 +14,11 @@ pub struct Submenu {
     items     : Items,
 }
 
+impl_handle!(COMPONENT_BASE_MENU_SUBMENU for Submenu);
+
 impl ComponentTrait for Submenu {
     fn new() -> Self {
         Submenu::default()
-    }
-
-    fn handle(&self) -> Handle {
-        COMPONENT_BASE_MENU_SUBMENU
     }
 
     fn id(&self) -> Option<String> {
