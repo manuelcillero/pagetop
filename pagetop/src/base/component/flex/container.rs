@@ -54,7 +54,7 @@ impl ComponentTrait for Container {
 
         PrepareMarkup::With(html! {
             div id=[self.id()] class=[self.classes().get()] style=[gap] {
-                (self.items().prepare(cx))
+                (self.items().render(cx))
             }
         })
     }

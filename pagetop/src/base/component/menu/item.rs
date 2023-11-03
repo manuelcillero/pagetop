@@ -76,7 +76,7 @@ impl ComponentTrait for Item {
             }),
             ItemType::Html(content) => PrepareMarkup::With(html! {
                 li class="pt-menu__html" {
-                    (content.prepare(cx))
+                    (content.render(cx))
                 }
             }),
             ItemType::Submenu(label, submenu) => PrepareMarkup::With(html! {
@@ -85,7 +85,7 @@ impl ComponentTrait for Item {
                         (label.escaped(cx.langid())) i class="pt-menu__icon bi-chevron-down" {}
                     }
                     div class="pt-menu__subs" {
-                        (submenu.prepare(cx))
+                        (submenu.render(cx))
                     }
                 }
             }),
@@ -95,7 +95,7 @@ impl ComponentTrait for Item {
                         (label.escaped(cx.langid())) i class="pt-menu__icon bi-chevron-down" {}
                     }
                     div class="pt-menu__subs pt-menu__mega" {
-                        (megamenu.prepare(cx))
+                        (megamenu.render(cx))
                     }
                 }
             }),

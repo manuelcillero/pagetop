@@ -46,10 +46,10 @@ impl<T: ComponentTrait + Default> TypedComponent<T> {
         self.0.read().unwrap().weight()
     }
 
-    // TypedComponent PREPARE.
+    // TypedComponent RENDER.
 
-    pub fn prepare(&self, cx: &mut Context) -> Markup {
-        self.0.write().unwrap().prepare(cx)
+    pub fn render(&self, cx: &mut Context) -> Markup {
+        self.0.write().unwrap().render(cx)
     }
 }
 
@@ -127,14 +127,14 @@ impl<T: ComponentTrait + Default> TypedComponents<T> {
         self.0.iter().filter(move |&c| c.handle() == handle)
     }
 
-    // TypedComponents PREPARE.
+    // TypedComponents RENDER.
 
-    pub fn prepare(&self, cx: &mut Context) -> Markup {
+    pub fn render(&self, cx: &mut Context) -> Markup {
         let mut components = self.0.clone();
         components.sort_by_key(|c| c.weight());
         html! {
             @for c in components.iter() {
-                " " (c.prepare(cx)) " "
+                " " (c.render(cx)) " "
             }
         }
     }

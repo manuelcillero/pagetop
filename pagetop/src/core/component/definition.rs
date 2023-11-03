@@ -5,7 +5,7 @@ use crate::{util, Handle, Weight};
 use std::any::Any;
 
 pub trait ComponentBase: Any {
-    fn prepare(&mut self, cx: &mut Context) -> Markup;
+    fn render(&mut self, cx: &mut Context) -> Markup;
 
     fn as_ref_any(&self) -> &dyn Any;
 
@@ -53,7 +53,7 @@ pub trait ComponentTrait: ComponentBase + Send + Sync {
 }
 
 impl<C: ComponentTrait> ComponentBase for C {
-    fn prepare(&mut self, cx: &mut Context) -> Markup {
+    fn render(&mut self, cx: &mut Context) -> Markup {
         if self.is_renderable(cx) {
             // Acciones antes de preparar el componente.
             self.before_prepare_component(cx);
@@ -63,7 +63,11 @@ impl<C: ComponentTrait> ComponentBase for C {
 
             let markup = match cx.theme().render_component(self, cx) {
                 Some(html) => html,
-                None => self.prepare_component(cx).html(),
+                None => match self.prepare_component(cx) {
+                    PrepareMarkup::None => html! {},
+                    PrepareMarkup::Text(text) => html! { (text) },
+                    PrepareMarkup::With(html) => html,
+                },
             };
 
             // Acciones después de preparar el componente.

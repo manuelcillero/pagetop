@@ -40,7 +40,7 @@ impl ComponentTrait for Paragraph {
                 id=[self.id()]
                 class=[self.classes().get()]
             {
-                (self.components().prepare(cx))
+                (self.components().render(cx))
             }
         })
     }

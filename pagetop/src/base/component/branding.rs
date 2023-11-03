@@ -55,7 +55,7 @@ impl ComponentTrait for Branding {
             div id=[self.id()] {
                 div class="pt-branding__wrapper" {
                     div class="pt-branding__logo" {
-                        (self.logo().prepare(cx))
+                        (self.logo().render(cx))
                     }
                     div class="pt-branding__text" {
                         div class="pt-branding__name" {

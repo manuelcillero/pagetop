@@ -59,34 +59,34 @@ impl ComponentTrait for Wrapper {
             WrapperType::Header => PrepareMarkup::With(html! {
                 header id=[self.id()] class=[self.classes().get()] {
                     div class=[self.inner_classes().get()] {
-                        (self.components().prepare(cx))
+                        (self.components().render(cx))
                     }
                 }
             }),
             WrapperType::Footer => PrepareMarkup::With(html! {
                 footer id=[self.id()] class=[self.classes().get()] {
                     div class=[self.inner_classes().get()] {
-                        (self.components().prepare(cx))
+                        (self.components().render(cx))
                     }
                 }
             }),
             WrapperType::Main => PrepareMarkup::With(html! {
                 main id=[self.id()] class=[self.classes().get()] {
                     div class=[self.inner_classes().get()] {
-                        (self.components().prepare(cx))
+                        (self.components().render(cx))
                     }
                 }
             }),
             WrapperType::Section => PrepareMarkup::With(html! {
                 section id=[self.id()] class=[self.classes().get()] {
                     div class=[self.inner_classes().get()] {
-                        (self.components().prepare(cx))
+                        (self.components().render(cx))
                     }
                 }
             }),
             _ => PrepareMarkup::With(html! {
                 div id=[self.id()] class=[self.classes().get()] {
-                    (self.components().prepare(cx))
+                    (self.components().render(cx))
                 }
             }),
         }

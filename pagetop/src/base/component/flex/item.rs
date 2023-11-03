@@ -55,7 +55,7 @@ impl ComponentTrait for Item {
         PrepareMarkup::With(html! {
             div id=[self.id()] class=[self.item_classes().get()] style=[order] {
                 div class=[self.inner_classes().get()] {
-                    (self.components().prepare(cx))
+                    (self.components().render(cx))
                 }
             }
         })

@@ -44,7 +44,7 @@ impl ComponentTrait for Submenu {
                     h4 class="pt-menu__title" { (title) }
                 }
                 ul {
-                    (self.items().prepare(cx))
+                    (self.items().render(cx))
                 }
             }
         })

@@ -61,10 +61,10 @@ impl ArcComponent {
         self.0.read().unwrap().weight()
     }
 
-    // ArcComponent PREPARE.
+    // ArcComponent RENDER.
 
-    pub fn prepare(&self, cx: &mut Context) -> Markup {
-        self.0.write().unwrap().prepare(cx)
+    pub fn render(&self, cx: &mut Context) -> Markup {
+        self.0.write().unwrap().render(cx)
     }
 }
 
@@ -150,14 +150,14 @@ impl ArcComponents {
         self.0.iter().filter(move |&c| c.handle() == handle)
     }
 
-    // ArcComponents PREPARE.
+    // ArcComponents RENDER.
 
-    pub fn prepare(&self, cx: &mut Context) -> Markup {
+    pub fn render(&self, cx: &mut Context) -> Markup {
         let mut components = self.0.clone();
         components.sort_by_key(|c| c.weight());
         html! {
             @for c in components.iter() {
-                " " (c.prepare(cx)) " "
+                " " (c.render(cx)) " "
             }
         }
     }

@@ -35,37 +35,3 @@ pub enum PrepareMarkup {
     Text(&'static str),
     With(Markup),
 }
-
-impl PrepareMarkup {
-    pub fn html(self) -> Markup {
-        match self {
-            PrepareMarkup::None => html! {},
-            PrepareMarkup::Text(text) => html! { (text) },
-            PrepareMarkup::With(markup) => markup,
-        }
-    }
-
-    pub fn into_string(self) -> Option<String> {
-        match self {
-            PrepareMarkup::None => None,
-            PrepareMarkup::Text(text) => {
-                if text.is_empty() {
-                    None
-                } else {
-                    Some(text.to_string())
-                }
-            }
-            PrepareMarkup::With(markup) => Some(markup.into_string()),
-        }
-    }
-}
-
-impl ToString for PrepareMarkup {
-    fn to_string(&self) -> String {
-        match self {
-            PrepareMarkup::None => "".to_owned(),
-            PrepareMarkup::Text(text) => text.to_string(),
-            PrepareMarkup::With(markup) => markup.to_owned().into_string(),
-        }
-    }
-}

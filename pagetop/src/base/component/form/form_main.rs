@@ -65,7 +65,7 @@ impl ComponentTrait for Form {
                 method=[method]
                 accept-charset=[self.charset().get()]
             {
-                div { (self.elements().prepare(cx)) }
+                div { (self.elements().render(cx)) }
             }
         })
     }

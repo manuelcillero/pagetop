@@ -21,7 +21,7 @@ pub trait ThemeTrait: ModuleTrait + Send + Sync {
     }
 
     fn prepare_region(&self, page: &mut Page, region: &str) -> Markup {
-        let render_region = page.components_in(region).prepare(page.context());
+        let render_region = page.components_in(region).render(page.context());
         if render_region.is_empty() {
             html! {}
         } else {

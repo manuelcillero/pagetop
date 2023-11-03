@@ -60,7 +60,7 @@ impl ComponentTrait for Menu {
                                 }
                             }
                             ul class="pt-menu__section" {
-                                (self.items().prepare(cx))
+                                (self.items().render(cx))
                             }
                         }
                     }

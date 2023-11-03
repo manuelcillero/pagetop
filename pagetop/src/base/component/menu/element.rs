@@ -46,10 +46,10 @@ impl ComponentTrait for Element {
         match self.element_type() {
             ElementType::Void => PrepareMarkup::None,
             ElementType::Html(content) => PrepareMarkup::With(html! {
-                (content.prepare(cx))
+                (content.render(cx))
             }),
             ElementType::Submenu(submenu) => PrepareMarkup::With(html! {
-                (submenu.prepare(cx))
+                (submenu.render(cx))
             }),
         }
     }

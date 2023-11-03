@@ -39,7 +39,7 @@ impl ComponentTrait for Group {
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
         PrepareMarkup::With(html! {
             div id=[self.id()] class="menu-group" {
-                (self.elements().prepare(cx))
+                (self.elements().render(cx))
             }
         })
     }

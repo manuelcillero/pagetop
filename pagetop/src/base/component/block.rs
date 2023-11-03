@@ -49,7 +49,7 @@ impl ComponentTrait for Block {
                     h2 class="block-title" { (title) }
                 }
                 div class="block-body" {
-                    (self.components().prepare(cx))
+                    (self.components().render(cx))
                 }
             }
         })
