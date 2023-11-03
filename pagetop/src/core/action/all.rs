@@ -4,8 +4,10 @@ use crate::{Handle, LazyStatic};
 use std::collections::HashMap;
 use std::sync::RwLock;
 
+type KeyHandles = (Handle, Option<Handle>);
+
 // Registered actions.
-static ACTIONS: LazyStatic<RwLock<HashMap<(Handle, Option<Handle>), ActionsList>>> =
+static ACTIONS: LazyStatic<RwLock<HashMap<KeyHandles, ActionsList>>> =
     LazyStatic::new(|| RwLock::new(HashMap::new()));
 
 pub fn add_action(action: Action) {

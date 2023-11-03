@@ -93,7 +93,9 @@ pub async fn query<Q: QueryStatementWriter>(stmt: &mut Q) -> Result<Vec<QueryRes
                 ))
                 .await
         }
-        None => Err(DbErr::Conn(RuntimeErr::Internal(DBCONN_NOT_INITIALIZED.to_owned()))),
+        None => Err(DbErr::Conn(RuntimeErr::Internal(
+            DBCONN_NOT_INITIALIZED.to_owned(),
+        ))),
     }
 }
 
@@ -112,7 +114,9 @@ pub async fn exec<Q: QueryStatementWriter>(stmt: &mut Q) -> Result<Option<QueryR
                 ))
                 .await
         }
-        None => Err(DbErr::Conn(RuntimeErr::Internal(DBCONN_NOT_INITIALIZED.to_owned()))),
+        None => Err(DbErr::Conn(RuntimeErr::Internal(
+            DBCONN_NOT_INITIALIZED.to_owned(),
+        ))),
     }
 }
 
@@ -124,7 +128,9 @@ pub async fn exec_raw(stmt: String) -> Result<ExecResult, DbErr> {
                 .execute(Statement::from_string(dbbackend, stmt))
                 .await
         }
-        None => Err(DbErr::Conn(RuntimeErr::Internal(DBCONN_NOT_INITIALIZED.to_owned()))),
+        None => Err(DbErr::Conn(RuntimeErr::Internal(
+            DBCONN_NOT_INITIALIZED.to_owned(),
+        ))),
     }
 }
 
