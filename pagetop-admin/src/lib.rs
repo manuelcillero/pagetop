@@ -18,7 +18,11 @@ impl ModuleTrait for Admin {
     }
 
     fn actions(&self) -> Vec<Action> {
-        actions![action::page::BeforePrepareBody::with(before_prepare_body)]
+        actions![
+            action::page::BeforePrepareBody::with(before_prepare_body),
+            action::component::BeforePrepareComponent::<Menu>::with(before_prepare_menu)
+                .filtering_id("admin-menu-test"),
+        ]
     }
 
     fn configure_service(&self, scfg: &mut service::web::ServiceConfig) {
@@ -30,4 +34,8 @@ impl ModuleTrait for Admin {
 
 fn before_prepare_body(page: &mut Page) {
     page.alter_body_classes(ClassesOp::Add, "test-admin");
+}
+
+fn before_prepare_menu(component: &mut Menu, _cx: &mut Context) {
+    component.alter_id("admin-menu-test-altered");
 }
