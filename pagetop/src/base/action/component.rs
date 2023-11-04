@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-pub type FnAction<C> = fn(component: &C, cx: &mut Context);
+pub type FnAction<C> = fn(component: &mut C, cx: &mut Context);
 
 mod before_prepare_component;
 pub use before_prepare_component::*;

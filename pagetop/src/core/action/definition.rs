@@ -7,11 +7,11 @@ pub trait ActionBase: Any {
 }
 
 pub trait ActionTrait: ActionBase + HasHandle + Send + Sync {
-    fn new() -> Self
-    where
-        Self: Sized;
-
     fn referer_handle(&self) -> Option<Handle> {
+        None
+    }
+
+    fn referer_id(&self) -> Option<String> {
         None
     }
 

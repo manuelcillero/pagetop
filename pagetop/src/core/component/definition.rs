@@ -1,5 +1,4 @@
-use crate::base::action::component::run_actions_after_prepare_component;
-use crate::base::action::component::run_actions_before_prepare_component;
+use crate::base::action;
 use crate::core::component::Context;
 use crate::html::{html, Markup, PrepareMarkup};
 use crate::{util, HasHandle, Weight};
@@ -62,8 +61,12 @@ impl<C: ComponentTrait> ComponentBase for C {
             cx.theme().before_prepare_component(self, cx);
 
             // Acciones de los módulos antes de preparar el componente.
-            run_actions_before_prepare_component(self, cx);
+            action::component::BeforePrepareComponent::dispatch(self, cx, None);
+            if let Some(id) = self.id() {
+                action::component::BeforePrepareComponent::dispatch(self, cx, Some(id));
+            }
 
+            // Renderiza el componente.
             let markup = match cx.theme().render_component(self, cx) {
                 Some(html) => html,
                 None => match self.prepare_component(cx) {
@@ -80,7 +83,10 @@ impl<C: ComponentTrait> ComponentBase for C {
             cx.theme().after_prepare_component(self, cx);
 
             // Acciones de los módulos después de preparar el componente.
-            run_actions_after_prepare_component(self, cx);
+            action::component::AfterPrepareComponent::dispatch(self, cx, None);
+            if let Some(id) = self.id() {
+                action::component::AfterPrepareComponent::dispatch(self, cx, Some(id));
+            }
 
             markup
         } else {

@@ -1,4 +1,4 @@
-use crate::base::action::page::{run_actions_after_prepare_body, run_actions_before_prepare_body};
+use crate::base::action;
 use crate::core::component::{ArcComponent, ArcComponents as RegionComponents, ComponentTrait};
 use crate::core::component::{Context, ContextOp};
 use crate::core::theme::ComponentsRegions;
@@ -150,20 +150,20 @@ impl Page {
     // Page RENDER.
 
     pub fn render(&mut self) -> ResultPage<Markup, FatalError> {
-        // Module actions before preparing the page body.
-        run_actions_before_prepare_body(self);
-
         // Theme actions before preparing the page body.
         self.context.theme().before_prepare_body(self);
+
+        // Module actions before preparing the page body.
+        action::page::BeforePrepareBody::dispatch(self);
 
         // Prepare page body.
         let body = self.context.theme().prepare_body(self);
 
-        // Module actions after preparing the page body.
-        run_actions_after_prepare_body(self);
-
         // Theme actions after preparing the page body.
         self.context.theme().after_prepare_body(self);
+
+        // Module actions after preparing the page body.
+        action::page::AfterPrepareBody::dispatch(self);
 
         // Prepare page head.
         let head = self.context.theme().prepare_head(self);

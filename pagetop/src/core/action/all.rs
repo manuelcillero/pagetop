@@ -4,7 +4,7 @@ use crate::{Handle, LazyStatic};
 use std::collections::HashMap;
 use std::sync::RwLock;
 
-type KeyHandles = (Handle, Option<Handle>);
+type KeyHandles = (Handle, Option<Handle>, Option<String>);
 
 // Registered actions.
 static ACTIONS: LazyStatic<RwLock<HashMap<KeyHandles, ActionsList>>> =
@@ -12,7 +12,11 @@ static ACTIONS: LazyStatic<RwLock<HashMap<KeyHandles, ActionsList>>> =
 
 pub fn add_action(action: Action) {
     let mut actions = ACTIONS.write().unwrap();
-    let action_handle = (action.handle(), action.referer_handle());
+    let action_handle = (
+        action.handle(),
+        action.referer_handle(),
+        action.referer_id(),
+    );
     if let Some(list) = actions.get_mut(&action_handle) {
         list.add(action);
     } else {
@@ -20,7 +24,7 @@ pub fn add_action(action: Action) {
     }
 }
 
-pub fn run_actions<B, F>(action_handle: (Handle, Option<Handle>), f: F)
+pub fn dispatch_actions<B, F>(action_handle: (Handle, Option<Handle>, Option<String>), f: F)
 where
     F: FnMut(&Action) -> B,
 {
