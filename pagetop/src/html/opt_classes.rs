@@ -13,6 +13,7 @@ use crate::fn_builder;
 
 pub enum ClassesOp {
     Add,
+    AddFirst,
     Remove,
     Replace(String),
     Toggle,
@@ -43,6 +44,9 @@ impl OptionClasses {
         match op {
             ClassesOp::Add => {
                 self.add(&classes, self.0.len());
+            }
+            ClassesOp::AddFirst => {
+                self.add(&classes, 0);
             }
             ClassesOp::Remove => {
                 for class in classes {
