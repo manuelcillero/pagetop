@@ -4,7 +4,7 @@
 pub use crate::{concat_string, fn_builder, main, paste, test};
 
 // Global.
-pub use crate::{Handle, HashMapResources, LazyStatic, Weight};
+pub use crate::{Handle, HasHandle, HashMapResources, LazyStatic, Weight};
 
 // Functions and macro helpers.
 pub use crate::util;

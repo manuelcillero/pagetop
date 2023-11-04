@@ -3,7 +3,7 @@ use crate::prelude::*;
 use super::FnAction;
 
 pub struct BeforePrepareComponent<C: ComponentTrait> {
-    f: Option<FnAction<C>>,
+    f: FnAction<C>,
     referer_handle: Option<Handle>,
     referer_id: OptionId,
     weight: Weight,
@@ -28,14 +28,14 @@ impl<C: ComponentTrait> ActionTrait for BeforePrepareComponent<C> {
 impl<C: ComponentTrait> BeforePrepareComponent<C> {
     pub fn with(f: FnAction<C>) -> Self {
         BeforePrepareComponent {
-            f: Some(f),
+            f,
             referer_handle: Some(C::static_handle()),
             referer_id: OptionId::default(),
             weight: 0,
         }
     }
 
-    pub fn filtering_id(mut self, id: impl Into<String>) -> Self {
+    pub fn filter_by_referer_id(mut self, id: impl Into<String>) -> Self {
         self.referer_id.alter_value(id);
         self
     }
@@ -46,18 +46,10 @@ impl<C: ComponentTrait> BeforePrepareComponent<C> {
     }
 
     #[inline(always)]
-    pub(crate) fn dispatch(component: &mut C, cx: &mut Context, id: Option<String>) {
+    pub(crate) fn dispatch(component: &mut C, cx: &mut Context, referer_id: Option<String>) {
         dispatch_actions(
-            (
-                ACTION_BEFORE_PREPARE_COMPONENT,
-                Some(component.handle()),
-                id,
-            ),
-            |action| {
-                if let Some(f) = action_ref::<BeforePrepareComponent<C>>(&**action).f {
-                    f(component, cx)
-                }
-            },
+            (Self::static_handle(), Some(component.handle()), referer_id),
+            |action| (action_ref::<BeforePrepareComponent<C>>(&**action).f)(component, cx),
         );
     }
 }

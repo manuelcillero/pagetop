@@ -4,31 +4,31 @@ use crate::{Handle, LazyStatic};
 use std::collections::HashMap;
 use std::sync::RwLock;
 
-type KeyHandles = (Handle, Option<Handle>, Option<String>);
+pub type KeyAction = (Handle, Option<Handle>, Option<String>);
 
 // Registered actions.
-static ACTIONS: LazyStatic<RwLock<HashMap<KeyHandles, ActionsList>>> =
+static ACTIONS: LazyStatic<RwLock<HashMap<KeyAction, ActionsList>>> =
     LazyStatic::new(|| RwLock::new(HashMap::new()));
 
 pub fn add_action(action: Action) {
     let mut actions = ACTIONS.write().unwrap();
-    let action_handle = (
+    let key_action = (
         action.handle(),
         action.referer_handle(),
         action.referer_id(),
     );
-    if let Some(list) = actions.get_mut(&action_handle) {
+    if let Some(list) = actions.get_mut(&key_action) {
         list.add(action);
     } else {
-        actions.insert(action_handle, ActionsList::with(action));
+        actions.insert(key_action, ActionsList::with(action));
     }
 }
 
-pub fn dispatch_actions<B, F>(action_handle: (Handle, Option<Handle>, Option<String>), f: F)
+pub fn dispatch_actions<B, F>(key_action: KeyAction, f: F)
 where
     F: FnMut(&Action) -> B,
 {
-    if let Some(list) = ACTIONS.read().unwrap().get(&action_handle) {
+    if let Some(list) = ACTIONS.read().unwrap().get(&key_action) {
         list.iter_map(f)
     }
 }

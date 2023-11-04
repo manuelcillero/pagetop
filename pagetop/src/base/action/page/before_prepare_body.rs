@@ -3,7 +3,7 @@ use crate::prelude::*;
 use super::FnActionPage;
 
 pub struct BeforePrepareBody {
-    f: Option<FnActionPage>,
+    f: FnActionPage,
     weight: Weight,
 }
 
@@ -17,10 +17,7 @@ impl ActionTrait for BeforePrepareBody {
 
 impl BeforePrepareBody {
     pub fn with(f: FnActionPage) -> Self {
-        BeforePrepareBody {
-            f: Some(f),
-            weight: 0,
-        }
+        BeforePrepareBody { f, weight: 0 }
     }
 
     pub fn with_weight(mut self, value: Weight) -> Self {
@@ -30,10 +27,8 @@ impl BeforePrepareBody {
 
     #[inline(always)]
     pub(crate) fn dispatch(page: &mut Page) {
-        dispatch_actions((ACTION_BEFORE_PREPARE_BODY, None, None), |action| {
-            if let Some(f) = action_ref::<BeforePrepareBody>(&**action).f {
-                f(page)
-            }
+        dispatch_actions((Self::static_handle(), None, None), |action| {
+            (action_ref::<BeforePrepareBody>(&**action).f)(page)
         });
     }
 }

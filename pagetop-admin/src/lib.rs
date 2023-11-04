@@ -21,7 +21,7 @@ impl ModuleTrait for Admin {
         actions![
             action::page::BeforePrepareBody::with(before_prepare_body),
             action::component::BeforePrepareComponent::<Menu>::with(before_prepare_menu)
-                .filtering_id("admin-menu-test"),
+                .filter_by_referer_id("admin-menu-test"),
         ]
     }
 
