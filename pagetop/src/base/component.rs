@@ -2,6 +2,8 @@ use crate::core::component::{Context, ContextOp};
 use crate::html::{JavaScript, StyleSheet};
 use crate::Weight;
 
+use std::fmt;
+
 // Context parameters.
 pub const PARAM_BASE_WEIGHT: &str = "base.weight";
 pub const PARAM_BASE_INCLUDE_ICONS: &str = "base.include.icon";
@@ -66,18 +68,19 @@ pub enum BreakPoint {
 }
 
 #[rustfmt::skip]
-impl ToString for BreakPoint {
-    fn to_string(&self) -> String {
-        match self {
-            BreakPoint::None => "pt-bp__none".to_string(),
-            BreakPoint::SM   => "pt-bp__sm".to_string(),
-            BreakPoint::MD   => "pt-bp__md".to_string(),
-            BreakPoint::LG   => "pt-bp__lg".to_string(),
-            BreakPoint::XL   => "pt-bp__xl".to_string(),
-            BreakPoint::X2L  => "pt-bp__x2l".to_string(),
-            BreakPoint::X3L  => "pt-bp__x3l".to_string(),
-            BreakPoint::X2K  => "pt-bp__x2k".to_string(),
-        }
+impl fmt::Display for BreakPoint {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let breakpoint = match self {
+            BreakPoint::None => "pt-bp__none",
+            BreakPoint::SM   => "pt-bp__sm",
+            BreakPoint::MD   => "pt-bp__md",
+            BreakPoint::LG   => "pt-bp__lg",
+            BreakPoint::XL   => "pt-bp__xl",
+            BreakPoint::X2L  => "pt-bp__x2l",
+            BreakPoint::X3L  => "pt-bp__x3l",
+            BreakPoint::X2K  => "pt-bp__x2k",
+        };
+        write!(f, "{breakpoint}")
     }
 }
 
@@ -99,20 +102,21 @@ pub enum FontSize {
 }
 
 #[rustfmt::skip]
-impl ToString for FontSize {
-    fn to_string(&self) -> String {
-        match self {
-            FontSize::ExtraLarge => "pt-fs__x3l".to_string(),
-            FontSize::XxLarge    => "pt-fs__x2l".to_string(),
-            FontSize::XLarge     => "pt-fs__xl".to_string(),
-            FontSize::Large      => "pt-fs__l".to_string(),
-            FontSize::Medium     => "pt-fs__m".to_string(),
-            FontSize::Normal     => "".to_string(),
-            FontSize::Small      => "pt-fs__s".to_string(),
-            FontSize::XSmall     => "pt-fs__xs".to_string(),
-            FontSize::XxSmall    => "pt-fs__x2s".to_string(),
-            FontSize::ExtraSmall => "pt-fs__x3s".to_string(),
-        }
+impl fmt::Display for FontSize {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let font_size = match self {
+            FontSize::ExtraLarge => "pt-fs__x3l",
+            FontSize::XxLarge    => "pt-fs__x2l",
+            FontSize::XLarge     => "pt-fs__xl",
+            FontSize::Large      => "pt-fs__l",
+            FontSize::Medium     => "pt-fs__m",
+            FontSize::Normal     => "",
+            FontSize::Small      => "pt-fs__s",
+            FontSize::XSmall     => "pt-fs__xs",
+            FontSize::XxSmall    => "pt-fs__x2s",
+            FontSize::ExtraSmall => "pt-fs__x3s",
+        };
+        write!(f, "{font_size}")
     }
 }
 

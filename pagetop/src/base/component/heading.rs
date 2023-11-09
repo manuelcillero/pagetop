@@ -1,5 +1,7 @@
 use crate::prelude::*;
 
+use std::fmt;
+
 #[derive(Default)]
 pub enum HeadingType {
     #[default]
@@ -24,17 +26,18 @@ pub enum HeadingDisplay {
 }
 
 #[rustfmt::skip]
-impl ToString for HeadingDisplay {
-    fn to_string(&self) -> String {
-        match self {
-            HeadingDisplay::ExtraLarge => "pt-heading__title-x3l".to_string(),
-            HeadingDisplay::XxLarge    => "pt-heading__title-x2l".to_string(),
-            HeadingDisplay::XLarge     => "pt-heading__title-xl".to_string(),
-            HeadingDisplay::Large      => "pt-heading__title-l".to_string(),
-            HeadingDisplay::Medium     => "pt-heading__title-m".to_string(),
-            HeadingDisplay::Normal     => "".to_string(),
-            HeadingDisplay::Subtitle   => "pt-heading__subtitle".to_string(),
-        }
+impl fmt::Display for HeadingDisplay {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let heading_display = match self {
+            HeadingDisplay::ExtraLarge => "pt-heading__title-x3l",
+            HeadingDisplay::XxLarge    => "pt-heading__title-x2l",
+            HeadingDisplay::XLarge     => "pt-heading__title-xl",
+            HeadingDisplay::Large      => "pt-heading__title-l",
+            HeadingDisplay::Medium     => "pt-heading__title-m",
+            HeadingDisplay::Normal     => "",
+            HeadingDisplay::Subtitle   => "pt-heading__subtitle",
+        };
+        write!(f, "{heading_display}")
     }
 }
 

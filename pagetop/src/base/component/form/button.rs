@@ -1,11 +1,25 @@
 use crate::prelude::*;
 
+use std::fmt;
+
 #[derive(Default)]
 pub enum ButtonType {
     #[default]
     Button,
     Submit,
     Reset,
+}
+
+#[rustfmt::skip]
+impl fmt::Display for ButtonType {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let button_type = match self {
+            ButtonType::Button => "button",
+            ButtonType::Submit => "submit",
+            ButtonType::Reset  => "reset",
+        };
+        write!(f, "{button_type}")
+    }
 }
 
 #[rustfmt::skip]
