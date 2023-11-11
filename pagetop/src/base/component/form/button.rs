@@ -1,7 +1,5 @@
 use crate::prelude::*;
 
-use std::fmt;
-
 #[derive(Default)]
 pub enum ButtonType {
     #[default]
@@ -11,14 +9,13 @@ pub enum ButtonType {
 }
 
 #[rustfmt::skip]
-impl fmt::Display for ButtonType {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let button_type = match self {
+impl ToString for ButtonType {
+    fn to_string(&self) -> String {
+        String::from(match self {
             ButtonType::Button => "button",
             ButtonType::Submit => "submit",
             ButtonType::Reset  => "reset",
-        };
-        write!(f, "{button_type}")
+        })
     }
 }
 

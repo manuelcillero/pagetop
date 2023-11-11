@@ -99,7 +99,6 @@ pub(crate) use fluent_templates::StaticLoader as Locales;
 use unic_langid::langid;
 
 use std::collections::HashMap;
-use std::fmt;
 
 const LANGUAGE_SET_FAILURE: &str = "language_set_failure";
 
@@ -245,13 +244,12 @@ impl L10n {
     }
 }
 
-#[rustfmt::skip]
-impl fmt::Display for L10n {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+impl ToString for L10n {
+    fn to_string(&self) -> String {
         match &self.op {
-            L10nOp::None           => write!(f, ""),
-            L10nOp::Text(text)     => write!(f, "{text}"),
-            L10nOp::Translate(key) => write!(f, "{}", match self.locales {
+            L10nOp::None => "".to_owned(),
+            L10nOp::Text(text) => text.to_owned(),
+            L10nOp::Translate(key) => match self.locales {
                 Some(locales) => locales
                     .lookup_with_args(
                         match key.as_str() {
@@ -269,7 +267,7 @@ impl fmt::Display for L10n {
                     )
                     .unwrap_or(key.to_owned()),
                 None => key.to_owned(),
-            }),
+            },
         }
     }
 }

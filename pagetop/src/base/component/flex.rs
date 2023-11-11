@@ -5,8 +5,6 @@ pub use item::{Item, COMPONENT_BASE_FLEX_ITEM};
 
 use crate::prelude::*;
 
-use std::fmt;
-
 // *************************************************************************************************
 
 #[derive(Default)]
@@ -20,23 +18,23 @@ pub enum Direction {
 }
 
 #[rustfmt::skip]
-impl fmt::Display for Direction {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+impl ToString for Direction {
+    fn to_string(&self) -> String {
         match self {
-            Direction::Default => write!(
-                f, "pt-flex__container pt-flex__row {}", BreakPoint::default()
+            Direction::Default => concat_string!(
+                "pt-flex__container pt-flex__row ", BreakPoint::default().to_string()
             ),
-            Direction::Row(breakpoint) => write!(
-                f, "pt-flex__container pt-flex__row {breakpoint}"
+            Direction::Row(breakpoint) => concat_string!(
+                "pt-flex__container pt-flex__row ", breakpoint.to_string()
             ),
-            Direction::RowReverse(breakpoint) => write!(
-                f, "pt-flex__container pt-flex__row pt-flex__reverse {breakpoint}"
+            Direction::RowReverse(breakpoint) => concat_string!(
+                "pt-flex__container pt-flex__row pt-flex__reverse ", breakpoint.to_string()
             ),
-            Direction::Column(breakpoint) => write!(
-                f, "pt-flex__container pt-flex__col {breakpoint}"
+            Direction::Column(breakpoint) => concat_string!(
+                "pt-flex__container pt-flex__col ", breakpoint.to_string()
             ),
-            Direction::ColumnReverse(breakpoint) => write!(
-                f, "pt-flex__container pt-flex__col pt-flex__reverse {breakpoint}"
+            Direction::ColumnReverse(breakpoint) => concat_string!(
+                "pt-flex__container pt-flex__col pt-flex__reverse ", breakpoint.to_string()
             ),
         }
     }
@@ -54,13 +52,13 @@ pub enum WrapAlign {
 }
 
 #[rustfmt::skip]
-impl fmt::Display for WrapAlign {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+impl ToString for WrapAlign {
+    fn to_string(&self) -> String {
         match self {
-            WrapAlign::Default        => write!(f, ""),
-            WrapAlign::NoWrap         => write!(f, "flex-nowrap"),
-            WrapAlign::Wrap(a)        => write!(f, "pt-flex__wrap {a}"),
-            WrapAlign::WrapReverse(a) => write!(f, "pt-flex__wrap-reverse {a}"),
+            WrapAlign::Default        => "".to_owned(),
+            WrapAlign::NoWrap         => "flex-nowrap".to_owned(),
+            WrapAlign::Wrap(a)        => concat_string!("pt-flex__wrap ", a.to_string()),
+            WrapAlign::WrapReverse(a) => concat_string!("pt-flex__wrap-reverse ", a.to_string()),
         }
     }
 }
@@ -80,9 +78,9 @@ pub enum ContentAlign {
 }
 
 #[rustfmt::skip]
-impl fmt::Display for ContentAlign {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let content_align = match self {
+impl ToString for ContentAlign {
+    fn to_string(&self) -> String {
+        String::from(match self {
             ContentAlign::Default      => "",
             ContentAlign::Start        => "pt-flex__align-start",
             ContentAlign::End          => "pt-flex__align-end",
@@ -90,8 +88,7 @@ impl fmt::Display for ContentAlign {
             ContentAlign::Stretch      => "pt-flex__align-stretch",
             ContentAlign::SpaceBetween => "pt-flex__align-space-between",
             ContentAlign::SpaceAround  => "pt-flex__align-space-around",
-        };
-        write!(f, "{content_align}")
+        })
     }
 }
 
@@ -110,9 +107,9 @@ pub enum ContentJustify {
 }
 
 #[rustfmt::skip]
-impl fmt::Display for ContentJustify {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let content_justify = match self {
+impl ToString for ContentJustify {
+    fn to_string(&self) -> String {
+        String::from(match self {
             ContentJustify::Default      => "",
             ContentJustify::Start        => "pt-flex__justify-start",
             ContentJustify::End          => "pt-flex__justify-end",
@@ -120,8 +117,7 @@ impl fmt::Display for ContentJustify {
             ContentJustify::SpaceBetween => "pt-flex__justify-space-between",
             ContentJustify::SpaceAround  => "pt-flex__justify-space-around",
             ContentJustify::SpaceEvenly  => "pt-flex__justify-space-evenly",
-        };
-        write!(f, "{content_justify}")
+        })
     }
 }
 
@@ -139,17 +135,16 @@ pub enum ItemAlign {
 }
 
 #[rustfmt::skip]
-impl fmt::Display for ItemAlign {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let item_align = match self {
+impl ToString for ItemAlign {
+    fn to_string(&self) -> String {
+        String::from(match self {
             ItemAlign::Default  => "",
             ItemAlign::Top      => "pt-flex__item-top",
             ItemAlign::Bottom   => "pt-flex__item-bottom",
             ItemAlign::Middle   => "pt-flex__item-middle",
             ItemAlign::Stretch  => "pt-flex__item-stretch",
             ItemAlign::Baseline => "pt-flex__item-baseline",
-        };
-        write!(f, "{item_align}")
+        })
     }
 }
 
@@ -166,14 +161,14 @@ pub enum Gap {
 }
 
 #[rustfmt::skip]
-impl fmt::Display for Gap {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+impl ToString for Gap {
+    fn to_string(&self) -> String {
         match self {
-            Gap::Default        => write!(f, ""),
-            Gap::Row(r)         => write!(f, "row-gap: {r};"),
-            Gap::Column(c)      => write!(f, "column-gap: {c};"),
-            Gap::Distinct(r, c) => write!(f, "gap: {r} {c};"),
-            Gap::Both(v)        => write!(f, "gap: {v};"),
+            Gap::Default        => "".to_owned(),
+            Gap::Row(r)         => concat_string!("row-gap: ", r.to_string(), ";"),
+            Gap::Column(c)      => concat_string!("column-gap: ", c.to_string(), ";"),
+            Gap::Distinct(r, c) => concat_string!("gap: ", r.to_string(), " ", c.to_string(), ";"),
+            Gap::Both(v)        => concat_string!("gap: ", v.to_string(), ";"),
         }
     }
 }
@@ -196,9 +191,9 @@ pub enum ItemGrow {
 }
 
 #[rustfmt::skip]
-impl fmt::Display for ItemGrow {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let item_grow = match self {
+impl ToString for ItemGrow {
+    fn to_string(&self) -> String {
+        String::from(match self {
             ItemGrow::Default => "",
             ItemGrow::Is1 => "pt-flex__grow-1",
             ItemGrow::Is2 => "pt-flex__grow-2",
@@ -209,8 +204,7 @@ impl fmt::Display for ItemGrow {
             ItemGrow::Is7 => "pt-flex__grow-7",
             ItemGrow::Is8 => "pt-flex__grow-8",
             ItemGrow::Is9 => "pt-flex__grow-9",
-        };
-        write!(f, "{item_grow}")
+        })
     }
 }
 
@@ -232,9 +226,9 @@ pub enum ItemShrink {
 }
 
 #[rustfmt::skip]
-impl fmt::Display for ItemShrink {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let item_shrink = match self {
+impl ToString for ItemShrink {
+    fn to_string(&self) -> String {
+        String::from(match self {
             ItemShrink::Default => "",
             ItemShrink::Is1 => "pt-flex__shrink-1",
             ItemShrink::Is2 => "pt-flex__shrink-2",
@@ -245,8 +239,7 @@ impl fmt::Display for ItemShrink {
             ItemShrink::Is7 => "pt-flex__shrink-7",
             ItemShrink::Is8 => "pt-flex__shrink-8",
             ItemShrink::Is9 => "pt-flex__shrink-9",
-        };
-        write!(f, "{item_shrink}")
+        })
     }
 }
 
@@ -270,9 +263,9 @@ pub enum ItemSize {
 }
 
 #[rustfmt::skip]
-impl fmt::Display for ItemSize {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let item_size = match self {
+impl ToString for ItemSize {
+    fn to_string(&self) -> String {
+        String::from(match self {
             ItemSize::Default   => "",
             ItemSize::Percent10 => "pt-flex__width-10",
             ItemSize::Percent20 => "pt-flex__width-20",
@@ -285,8 +278,7 @@ impl fmt::Display for ItemSize {
             ItemSize::Percent75 => "pt-flex__width-75",
             ItemSize::Percent80 => "pt-flex__width-80",
             ItemSize::Percent90 => "pt-flex__width-90",
-        };
-        write!(f, "{item_size}")
+        })
     }
 }
 
@@ -310,9 +302,9 @@ pub enum ItemOffset {
 }
 
 #[rustfmt::skip]
-impl fmt::Display for ItemOffset {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let item_offset = match self {
+impl ToString for ItemOffset {
+    fn to_string(&self) -> String {
+        String::from(match self {
             ItemOffset::Default  => "",
             ItemOffset::Offset10 => "pt-flex__offset-10",
             ItemOffset::Offset20 => "pt-flex__offset-20",
@@ -325,7 +317,6 @@ impl fmt::Display for ItemOffset {
             ItemOffset::Offset75 => "pt-flex__offset-75",
             ItemOffset::Offset80 => "pt-flex__offset-80",
             ItemOffset::Offset90 => "pt-flex__offset-90",
-        };
-        write!(f, "{item_offset}")
+        })
     }
 }

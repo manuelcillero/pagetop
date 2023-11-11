@@ -1,4 +1,4 @@
-use std::fmt;
+use crate::concat_string;
 
 // About pixels: Pixels (px) are relative to the viewing device. For low-dpi devices, 1px is one
 // device pixel (dot) of the display. For printers and high resolution screens 1px implies multiple
@@ -31,24 +31,24 @@ pub enum Value {
 }
 
 #[rustfmt::skip]
-impl fmt::Display for Value {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+impl ToString for Value {
+    fn to_string(&self) -> String {
         match self {
-            Value::None       => write!(f, ""),
-            Value::Auto       => write!(f, "auto"),
+            Value::None       => "".to_owned(),
+            Value::Auto       => "auto".to_owned(),
             // Absolute value.
-            Value::Cm(av)     => write!(f, "{av}cm"),
-            Value::In(av)     => write!(f, "{av}in"),
-            Value::Mm(av)     => write!(f, "{av}mm"),
-            Value::Pc(av)     => write!(f, "{av}pc"),
-            Value::Pt(av)     => write!(f, "{av}pt"),
-            Value::Px(av)     => write!(f, "{av}px"),
+            Value::Cm(av)     => concat_string!(av.to_string(), "cm"),
+            Value::In(av)     => concat_string!(av.to_string(), "in"),
+            Value::Mm(av)     => concat_string!(av.to_string(), "mm"),
+            Value::Pc(av)     => concat_string!(av.to_string(), "pc"),
+            Value::Pt(av)     => concat_string!(av.to_string(), "pt"),
+            Value::Px(av)     => concat_string!(av.to_string(), "px"),
             // Relative value.
-            Value::RelEm(rv)  => write!(f, "{rv}em"),
-            Value::RelPct(rv) => write!(f, "{rv}%"),
-            Value::RelRem(rv) => write!(f, "{rv}rem"),
-            Value::RelVh(rv)  => write!(f, "{rv}vh"),
-            Value::RelVw(rv)  => write!(f, "{rv}vw"),
+            Value::RelEm(rv)  => concat_string!(rv.to_string(), "em"),
+            Value::RelPct(rv) => concat_string!(rv.to_string(), "%"),
+            Value::RelRem(rv) => concat_string!(rv.to_string(), "rem"),
+            Value::RelVh(rv)  => concat_string!(rv.to_string(), "vh"),
+            Value::RelVw(rv)  => concat_string!(rv.to_string(), "vw"),
         }
     }
 }

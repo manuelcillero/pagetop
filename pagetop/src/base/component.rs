@@ -2,8 +2,6 @@ use crate::core::component::{Context, ContextOp};
 use crate::html::{JavaScript, StyleSheet};
 use crate::Weight;
 
-use std::fmt;
-
 // Context parameters.
 pub const PARAM_BASE_WEIGHT: &str = "base.weight";
 pub const PARAM_BASE_INCLUDE_ICONS: &str = "base.include.icon";
@@ -68,9 +66,9 @@ pub enum BreakPoint {
 }
 
 #[rustfmt::skip]
-impl fmt::Display for BreakPoint {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let breakpoint = match self {
+impl ToString for BreakPoint {
+    fn to_string(&self) -> String {
+        String::from(match self {
             BreakPoint::None => "pt-bp__none",
             BreakPoint::SM   => "pt-bp__sm",
             BreakPoint::MD   => "pt-bp__md",
@@ -79,8 +77,7 @@ impl fmt::Display for BreakPoint {
             BreakPoint::X2L  => "pt-bp__x2l",
             BreakPoint::X3L  => "pt-bp__x3l",
             BreakPoint::X2K  => "pt-bp__x2k",
-        };
-        write!(f, "{breakpoint}")
+        })
     }
 }
 
@@ -102,9 +99,9 @@ pub enum FontSize {
 }
 
 #[rustfmt::skip]
-impl fmt::Display for FontSize {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let font_size = match self {
+impl ToString for FontSize {
+    fn to_string(&self) -> String {
+        String::from(match self {
             FontSize::ExtraLarge => "pt-fs__x3l",
             FontSize::XxLarge    => "pt-fs__x2l",
             FontSize::XLarge     => "pt-fs__xl",
@@ -115,8 +112,7 @@ impl fmt::Display for FontSize {
             FontSize::XSmall     => "pt-fs__xs",
             FontSize::XxSmall    => "pt-fs__x2s",
             FontSize::ExtraSmall => "pt-fs__x3s",
-        };
-        write!(f, "{font_size}")
+        })
     }
 }
 

@@ -134,7 +134,7 @@ fn show_banner() {
         let app_description = if !config::SETTINGS.app.description.is_empty() {
             concat_string!("\n", config::SETTINGS.app.description)
         } else {
-            "".to_string()
+            "".to_owned()
         };
         // Print banner.
         println!(
