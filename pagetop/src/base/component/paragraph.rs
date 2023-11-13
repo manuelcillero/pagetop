@@ -30,9 +30,9 @@ impl ComponentTrait for Paragraph {
         (self.renderable.check)(cx)
     }
 
+    #[rustfmt::skip]
     fn setup_before_prepare(&mut self, _cx: &mut Context) {
-        self.classes
-            .alter_value(ClassesOp::AddFirst, self.font_size.to_string());
+        self.classes.alter_value(ClassesOp::AddFirst, self.font_size.to_string());
     }
 
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {

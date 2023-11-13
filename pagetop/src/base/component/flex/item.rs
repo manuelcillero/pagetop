@@ -35,6 +35,7 @@ impl ComponentTrait for Item {
         (self.renderable.check)(cx)
     }
 
+    #[rustfmt::skip]
     fn setup_before_prepare(&mut self, _cx: &mut Context) {
         self.item_classes.alter_value(
             ClassesOp::AddFirst,
@@ -48,8 +49,7 @@ impl ComponentTrait for Item {
             ]
             .join(" "),
         );
-        self.inner_classes
-            .alter_value(ClassesOp::AddFirst, "pt-flex__item-inner");
+        self.inner_classes.alter_value(ClassesOp::AddFirst, "pt-flex__item-inner");
     }
 
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {

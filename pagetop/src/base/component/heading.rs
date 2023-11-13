@@ -69,6 +69,11 @@ impl ComponentTrait for Heading {
         (self.renderable.check)(cx)
     }
 
+    #[rustfmt::skip]
+    fn setup_before_prepare(&mut self, _cx: &mut Context) {
+        self.classes.alter_value(ClassesOp::Add, self.display().to_string());
+    }
+
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
         let id = self.id();
         let classes = self.classes().get();
@@ -159,13 +164,8 @@ impl Heading {
         self
     }
 
-    #[rustfmt::skip]
     #[fn_builder]
     pub fn alter_display(&mut self, display: HeadingDisplay) -> &mut Self {
-        self.classes.alter_value(
-            ClassesOp::Replace(self.display.to_string()),
-            display.to_string(),
-        );
         self.display = display;
         self
     }
