@@ -19,8 +19,8 @@ impl ModuleTrait for Admin {
 
     fn actions(&self) -> Vec<Action> {
         actions![
-            action::page::BeforePrepareBody::with(before_prepare_body),
-            action::component::BeforePrepareComponent::<Menu>::with(before_prepare_menu)
+            action::page::BeforePrepareBody::new(before_prepare_body),
+            action::component::BeforePrepareComponent::<Menu>::new(before_prepare_menu)
                 .filter_by_referer_id("admin-menu-test"),
         ]
     }

@@ -1,0 +1,11 @@
+html {
+    scroll-behavior: smooth;
+}
+
+/* OVERRIDE COMPONENT STYLES */
+
+/* Button component */
+
+.is-link {
+	text-decoration: none;
+}

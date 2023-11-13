@@ -40,6 +40,9 @@ pub trait ComponentTrait: ComponentBase + HasHandle + Send + Sync {
     }
 
     #[allow(unused_variables)]
+    fn setup_before_prepare(&mut self, cx: &mut Context) {}
+
+    #[allow(unused_variables)]
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
         PrepareMarkup::None
     }
@@ -48,6 +51,9 @@ pub trait ComponentTrait: ComponentBase + HasHandle + Send + Sync {
 impl<C: ComponentTrait> ComponentBase for C {
     fn render(&mut self, cx: &mut Context) -> Markup {
         if self.is_renderable(cx) {
+            // Comprueba el componente antes de prepararlo.
+            self.setup_before_prepare(cx);
+
             // Acciones del tema antes de preparar el componente.
             cx.theme().before_prepare_component(self, cx);
 

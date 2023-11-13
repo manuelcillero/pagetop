@@ -1,27 +1,24 @@
 use crate::prelude::*;
 
-new_handle!(COMPONENT_BASE_ANCHOR);
-
 #[derive(Default)]
-pub enum AnchorType {
+pub enum ButtonType {
     #[default]
     Link,
-    Button,
-    Location,
+    Primary,
 }
 
 #[rustfmt::skip]
-impl ToString for AnchorType {
+impl ToString for ButtonType {
     fn to_string(&self) -> String {
-        match self {
-            AnchorType::Button => "btn btn-primary".to_string(),
-            _ => "".to_string(),
-        }
+        String::from(match self {
+            ButtonType::Link    => "pt-button__link",
+            ButtonType::Primary => "pt-button__primary",
+        })
     }
 }
 
 #[derive(Default)]
-pub enum AnchorTarget {
+pub enum ButtonTarget {
     #[default]
     Default,
     Blank,
@@ -30,31 +27,29 @@ pub enum AnchorTarget {
     Context(String),
 }
 
-type AnchorIcon = TypedComponent<Icon>;
+type ButtonIcon = ArcTypedComponent<Icon>;
 
 #[rustfmt::skip]
 #[derive(Default)]
-pub struct Anchor {
+pub struct Button {
+    id         : OptionId,
     weight     : Weight,
     renderable : Renderable,
-    id         : OptionId,
     classes    : OptionClasses,
+    button_type: ButtonType,
     font_size  : FontSize,
-    anchor_type: AnchorType,
     href       : OptionString,
     html       : OptionTranslated,
-    left_icon  : AnchorIcon,
-    right_icon : AnchorIcon,
-    target     : AnchorTarget,
+    left_icon  : ButtonIcon,
+    right_icon : ButtonIcon,
+    target     : ButtonTarget,
 }
 
-impl ComponentTrait for Anchor {
-    fn new() -> Self {
-        Anchor::default()
-    }
+impl_handle!(COMPONENT_BASE_BUTTON for Button);
 
-    fn handle(&self) -> Handle {
-        COMPONENT_BASE_ANCHOR
+impl ComponentTrait for Button {
+    fn new() -> Self {
+        Button::default()
     }
 
     fn id(&self) -> Option<String> {
@@ -69,13 +64,20 @@ impl ComponentTrait for Anchor {
         (self.renderable.check)(cx)
     }
 
+    fn setup_before_prepare(&mut self, _cx: &mut Context) {
+        self.classes.alter_value(
+            ClassesOp::AddFirst,
+            [self.button_type.to_string(), self.font_size.to_string()].join(" "),
+        );
+    }
+
     #[rustfmt::skip]
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
         let target = match &self.target() {
-            AnchorTarget::Blank         => Some("_blank"),
-            AnchorTarget::Parent        => Some("_parent"),
-            AnchorTarget::Top           => Some("_top"),
-            AnchorTarget::Context(name) => Some(name.as_str()),
+            ButtonTarget::Blank  => Some("_blank"),
+            ButtonTarget::Parent => Some("_parent"),
+            ButtonTarget::Top    => Some("_top"),
+            ButtonTarget::Context(name) => Some(name.as_str()),
             _ => None,
         };
         PrepareMarkup::With(html! {
@@ -85,31 +87,36 @@ impl ComponentTrait for Anchor {
                 href=[self.href().get()]
                 target=[target]
             {
-                (self.left_icon().prepare(cx))
-                " " span { (self.html().escaped(cx.langid())) } " "
-                (self.right_icon().prepare(cx))
+                (self.left_icon().render(cx))
+                " " span { (self.html().escaped(cx.langid()).unwrap_or_default()) } " "
+                (self.right_icon().render(cx))
             }
         })
     }
 }
 
-impl Anchor {
+impl Button {
     pub fn link(href: impl Into<String>, html: L10n) -> Self {
-        Anchor::new().with_href(href).with_html(html)
-    }
-
-    pub fn button(href: impl Into<String>, html: L10n) -> Self {
-        Anchor::new()
-            .with_type(AnchorType::Button)
+        Button::default()
+            .with_type(ButtonType::Link)
             .with_href(href)
             .with_html(html)
     }
 
-    pub fn location(id: impl Into<String>) -> Self {
-        Anchor::new().with_type(AnchorType::Location).with_id(id)
+    pub fn primary(href: impl Into<String>, html: L10n) -> Self {
+        Button::default()
+            .with_type(ButtonType::Primary)
+            .with_href(href)
+            .with_html(html)
     }
 
-    // Anchor BUILDER.
+    // Button BUILDER.
+
+    #[fn_builder]
+    pub fn alter_id(&mut self, id: impl Into<String>) -> &mut Self {
+        self.id.alter_value(id);
+        self
+    }
 
     #[fn_builder]
     pub fn alter_weight(&mut self, value: Weight) -> &mut Self {
@@ -124,34 +131,20 @@ impl Anchor {
     }
 
     #[fn_builder]
-    pub fn alter_id(&mut self, id: impl Into<String>) -> &mut Self {
-        self.id.alter_value(id);
-        self
-    }
-
-    #[fn_builder]
     pub fn alter_classes(&mut self, op: ClassesOp, classes: impl Into<String>) -> &mut Self {
         self.classes.alter_value(op, classes);
         self
     }
 
     #[fn_builder]
-    pub fn alter_font_size(&mut self, font_size: FontSize) -> &mut Self {
-        self.classes.alter_value(
-            ClassesOp::Replace(self.font_size.to_string()),
-            font_size.to_string(),
-        );
-        self.font_size = font_size;
+    pub fn alter_type(&mut self, button_type: ButtonType) -> &mut Self {
+        self.button_type = button_type;
         self
     }
 
     #[fn_builder]
-    pub fn alter_type(&mut self, anchor_type: AnchorType) -> &mut Self {
-        self.classes.alter_value(
-            ClassesOp::Replace(self.anchor_type.to_string()),
-            anchor_type.to_string(),
-        );
-        self.anchor_type = anchor_type;
+    pub fn alter_font_size(&mut self, font_size: FontSize) -> &mut Self {
+        self.font_size = font_size;
         self
     }
 
@@ -180,23 +173,23 @@ impl Anchor {
     }
 
     #[fn_builder]
-    pub fn alter_target(&mut self, target: AnchorTarget) -> &mut Self {
+    pub fn alter_target(&mut self, target: ButtonTarget) -> &mut Self {
         self.target = target;
         self
     }
 
-    // Anchor GETTERS.
+    // Button GETTERS.
 
     pub fn classes(&self) -> &OptionClasses {
         &self.classes
     }
 
-    pub fn font_size(&self) -> &FontSize {
-        &self.font_size
+    pub fn button_type(&self) -> &ButtonType {
+        &self.button_type
     }
 
-    pub fn anchor_type(&self) -> &AnchorType {
-        &self.anchor_type
+    pub fn font_size(&self) -> &FontSize {
+        &self.font_size
     }
 
     pub fn href(&self) -> &OptionString {
@@ -207,15 +200,15 @@ impl Anchor {
         &self.html
     }
 
-    pub fn left_icon(&self) -> &AnchorIcon {
+    pub fn left_icon(&self) -> &ButtonIcon {
         &self.left_icon
     }
 
-    pub fn right_icon(&self) -> &AnchorIcon {
+    pub fn right_icon(&self) -> &ButtonIcon {
         &self.right_icon
     }
 
-    pub fn target(&self) -> &AnchorTarget {
+    pub fn target(&self) -> &ButtonTarget {
         &self.target
     }
 }

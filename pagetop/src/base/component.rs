@@ -46,6 +46,11 @@ pub(crate) fn add_base_assets(cx: &mut Context) {
         StyleSheet::at("/base/css/looks.css")
             .with_version("0.0.1")
             .with_weight(weight),
+    ))
+    .alter(ContextOp::AddStyleSheet(
+        StyleSheet::at("/base/css/buttons.css")
+            .with_version("0.0.1")
+            .with_weight(weight),
     ));
 }
 
@@ -135,8 +140,8 @@ mod heading;
 pub use heading::{Heading, HeadingDisplay, HeadingType, COMPONENT_BASE_HEADING};
 mod paragraph;
 pub use paragraph::{Paragraph, COMPONENT_BASE_PARAGRAPH};
-mod anchor;
-pub use anchor::{Anchor, AnchorTarget, AnchorType, COMPONENT_BASE_ANCHOR};
+mod button;
+pub use button::{Button, ButtonTarget, ButtonType, COMPONENT_BASE_BUTTON};
 mod image;
 pub use image::{Image, ImageSize, COMPONENT_BASE_IMAGE};
 mod block;

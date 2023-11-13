@@ -70,20 +70,20 @@ fn hello_world() -> Wrapper {
                         ),
                     ))
                     .add_component(
-                        Anchor::button(
+                        Button::primary(
                             "https://github.com/manuelcillero/pagetop",
                             L10n::t("hello_code", &LOCALES_HOMEDEMO),
                         )
-                        .with_target(AnchorTarget::Blank)
+                        .with_target(ButtonTarget::Blank)
                         .with_left_icon(Icon::with("git"))
                         .with_classes(ClassesOp::Add, "code-link")
-                        .with_font_size(FontSize::Large),
+                        .with_font_size(FontSize::Medium),
                     )
                     .add_component(
-                        Anchor::link("#welcome", L10n::t("hello_welcome", &LOCALES_HOMEDEMO))
+                        Button::link("#welcome", L10n::t("hello_welcome", &LOCALES_HOMEDEMO))
                             .with_left_icon(Icon::with("arrow-down-circle-fill"))
                             .with_classes(ClassesOp::Add, "welcome-link")
-                            .with_font_size(FontSize::Large),
+                            .with_font_size(FontSize::Medium),
                     ),
             )
             .add_item(

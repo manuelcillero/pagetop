@@ -13,13 +13,13 @@ pub enum WrapperType {
 #[rustfmt::skip]
 #[derive(Default)]
 pub struct Wrapper {
+    id           : OptionId,
     weight       : Weight,
     renderable   : Renderable,
-    id           : OptionId,
     classes      : OptionClasses,
     inner_classes: OptionClasses,
     wrapper_type : WrapperType,
-    stuff        : ArcComponents,
+    stuff        : AnyComponents,
     template     : String,
 }
 
@@ -119,6 +119,12 @@ impl Wrapper {
     // Wrapper BUILDER.
 
     #[fn_builder]
+    pub fn alter_id(&mut self, id: impl Into<String>) -> &mut Self {
+        self.id.alter_value(id);
+        self
+    }
+
+    #[fn_builder]
     pub fn alter_weight(&mut self, value: Weight) -> &mut Self {
         self.weight = value;
         self
@@ -127,12 +133,6 @@ impl Wrapper {
     #[fn_builder]
     pub fn alter_renderable(&mut self, check: FnIsRenderable) -> &mut Self {
         self.renderable.check = check;
-        self
-    }
-
-    #[fn_builder]
-    pub fn alter_id(&mut self, id: impl Into<String>) -> &mut Self {
-        self.id.alter_value(id);
         self
     }
 
@@ -148,14 +148,15 @@ impl Wrapper {
         self
     }
 
+    #[rustfmt::skip]
     pub fn add_component(mut self, component: impl ComponentTrait) -> Self {
-        self.stuff.alter(ArcOp::Add(ArcComponent::with(component)));
+        self.stuff.alter_value(ArcAnyOp::Add(ArcAnyComponent::new(component)));
         self
     }
 
     #[fn_builder]
-    pub fn alter_components(&mut self, op: ArcOp) -> &mut Self {
-        self.stuff.alter(op);
+    pub fn alter_components(&mut self, op: ArcAnyOp) -> &mut Self {
+        self.stuff.alter_value(op);
         self
     }
 
@@ -179,7 +180,7 @@ impl Wrapper {
         &self.wrapper_type
     }
 
-    pub fn components(&self) -> &ArcComponents {
+    pub fn components(&self) -> &AnyComponents {
         &self.stuff
     }
 

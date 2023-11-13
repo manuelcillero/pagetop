@@ -37,7 +37,7 @@ impl_handle!(COMPONENT_BASE_BUTTON for Button);
 
 impl ComponentTrait for Button {
     fn new() -> Self {
-        Button::default().with_classes(ClassesOp::Add, "btn btn-primary form-button")
+        Button::default()
     }
 
     fn weight(&self) -> Weight {
@@ -48,16 +48,18 @@ impl ComponentTrait for Button {
         (self.renderable.check)(cx)
     }
 
+    fn setup_before_prepare(&mut self, _cx: &mut Context) {
+        self.classes.alter_value(
+            ClassesOp::AddFirst,
+            concat_string!("btn btn-primary form-", self.button_type.to_string()),
+        );
+    }
+
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
-        let button_type = match self.button_type() {
-            ButtonType::Button => "button",
-            ButtonType::Submit => "submit",
-            ButtonType::Reset => "reset",
-        };
         let id = self.name().get().map(|name| concat_string!("edit-", name));
         PrepareMarkup::With(html! {
             button
-                type=(button_type)
+                type=(self.button_type().to_string())
                 id=[id]
                 class=[self.classes().get()]
                 name=[self.name().get()]
@@ -65,7 +67,7 @@ impl ComponentTrait for Button {
                 autofocus=[self.autofocus().get()]
                 disabled=[self.disabled().get()]
             {
-                (self.value().escaped(cx.langid()))
+                (self.value().escaped(cx.langid()).unwrap_or_default())
             }
         })
     }
@@ -77,17 +79,13 @@ impl Button {
     }
 
     pub fn submit(value: L10n) -> Self {
-        let mut button = Button::default()
-            .with_classes(ClassesOp::Replace("form-button".to_owned()), "form-submit")
-            .with_value(value);
+        let mut button = Button::default().with_value(value);
         button.button_type = ButtonType::Submit;
         button
     }
 
     pub fn reset(value: L10n) -> Self {
-        let mut button = Button::default()
-            .with_classes(ClassesOp::Replace("form-button".to_owned()), "form-reset")
-            .with_value(value);
+        let mut button = Button::default().with_value(value);
         button.button_type = ButtonType::Reset;
         button
     }

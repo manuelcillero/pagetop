@@ -3,5 +3,11 @@
 /* Heading component */
 
 .pt-heading__subtitle {
-	margin-top: calc(-1 * var(--pt-gap-0-5));
+	margin-top: calc(-1 * var(--pt-gap-0-35));
+}
+
+/* Button component */
+
+.btn-link {
+	text-decoration: none;
 }

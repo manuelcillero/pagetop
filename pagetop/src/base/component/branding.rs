@@ -1,14 +1,13 @@
 use crate::prelude::*;
 
-type SiteLogo = TypedComponent<Image>;
-
 #[rustfmt::skip]
 pub struct Branding {
+    id        : OptionId,
     weight    : Weight,
     renderable: Renderable,
     app_name  : String,
     slogan    : OptionTranslated,
-    logo      : SiteLogo,
+    logo      : ArcTypedComponent<Image>,
     frontpage : FnContextualPath,
 }
 
@@ -16,11 +15,12 @@ pub struct Branding {
 impl Default for Branding {
     fn default() -> Self {
         Branding {
+            id        : OptionId::default(),
             weight    : Weight::default(),
             renderable: Renderable::default(),
             app_name  : config::SETTINGS.app.name.to_owned(),
             slogan    : OptionTranslated::default(),
-            logo      : SiteLogo::default(),
+            logo      : ArcTypedComponent::<Image>::default(),
             frontpage : |_| "/",
         }
     }
@@ -34,7 +34,7 @@ impl ComponentTrait for Branding {
     }
 
     fn id(&self) -> Option<String> {
-        Some("pt-branding".to_owned())
+        self.id.get()
     }
 
     fn weight(&self) -> Weight {
@@ -48,7 +48,7 @@ impl ComponentTrait for Branding {
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
         let title = L10n::l("site_home").using(cx.langid());
         PrepareMarkup::With(html! {
-            div id=[self.id()] {
+            div id=[self.id()] class="pt-branding" {
                 div class="pt-branding__wrapper" {
                     div class="pt-branding__logo" {
                         (self.logo().render(cx))
@@ -73,6 +73,12 @@ impl ComponentTrait for Branding {
 
 impl Branding {
     // Branding BUILDER.
+
+    #[fn_builder]
+    pub fn alter_id(&mut self, id: impl Into<String>) -> &mut Self {
+        self.id.alter_value(id);
+        self
+    }
 
     #[fn_builder]
     pub fn alter_weight(&mut self, value: Weight) -> &mut Self {
@@ -120,7 +126,7 @@ impl Branding {
         &self.slogan
     }
 
-    pub fn logo(&self) -> &SiteLogo {
+    pub fn logo(&self) -> &ArcTypedComponent<Image> {
         &self.logo
     }
 

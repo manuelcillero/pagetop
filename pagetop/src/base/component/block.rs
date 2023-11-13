@@ -3,20 +3,19 @@ use crate::prelude::*;
 #[rustfmt::skip]
 #[derive(Default)]
 pub struct Block {
+    id        : OptionId,
     weight    : Weight,
     renderable: Renderable,
-    id        : OptionId,
     classes   : OptionClasses,
     title     : OptionTranslated,
-    stuff     : ArcComponents,
-    template  : String,
+    stuff     : AnyComponents,
 }
 
 impl_handle!(COMPONENT_BASE_BLOCK for Block);
 
 impl ComponentTrait for Block {
     fn new() -> Self {
-        Block::default().with_classes(ClassesOp::Add, "block")
+        Block::default()
     }
 
     fn id(&self) -> Option<String> {
@@ -31,7 +30,14 @@ impl ComponentTrait for Block {
         (self.renderable.check)(cx)
     }
 
+    fn setup_before_prepare(&mut self, _cx: &mut Context) {
+        self.classes.alter_value(ClassesOp::AddFirst, "block");
+    }
+
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
+        if self.components().is_empty() {
+            return PrepareMarkup::None;
+        }
         let id = cx.required_id::<Block>(self.id());
         PrepareMarkup::With(html! {
             div id=(id) class=[self.classes().get()] {
@@ -79,20 +85,15 @@ impl Block {
         self
     }
 
+    #[rustfmt::skip]
     pub fn add_component(mut self, component: impl ComponentTrait) -> Self {
-        self.stuff.alter(ArcOp::Add(ArcComponent::with(component)));
+        self.stuff.alter_value(ArcAnyOp::Add(ArcAnyComponent::new(component)));
         self
     }
 
     #[fn_builder]
-    pub fn alter_components(&mut self, op: ArcOp) -> &mut Self {
-        self.stuff.alter(op);
-        self
-    }
-
-    #[fn_builder]
-    pub fn alter_template(&mut self, template: &str) -> &mut Self {
-        self.template = template.to_owned();
+    pub fn alter_components(&mut self, op: ArcAnyOp) -> &mut Self {
+        self.stuff.alter_value(op);
         self
     }
 
@@ -106,11 +107,7 @@ impl Block {
         &self.title
     }
 
-    pub fn components(&self) -> &ArcComponents {
+    pub fn components(&self) -> &AnyComponents {
         &self.stuff
-    }
-
-    pub fn template(&self) -> &str {
-        self.template.as_str()
     }
 }

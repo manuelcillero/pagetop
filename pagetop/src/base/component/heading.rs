@@ -41,9 +41,9 @@ impl ToString for HeadingDisplay {
 #[rustfmt::skip]
 #[derive(Default)]
 pub struct Heading {
+    id          : OptionId,
     weight      : Weight,
     renderable  : Renderable,
-    id          : OptionId,
     classes     : OptionClasses,
     heading_type: HeadingType,
     text        : OptionTranslated,
@@ -72,13 +72,14 @@ impl ComponentTrait for Heading {
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
         let id = self.id();
         let classes = self.classes().get();
+        let text = self.text().escaped(cx.langid()).unwrap_or_default();
         PrepareMarkup::With(html! { @match &self.heading_type() {
-            HeadingType::H1 => h1 id=[id] class=[classes] { (self.text().escaped(cx.langid())) },
-            HeadingType::H2 => h2 id=[id] class=[classes] { (self.text().escaped(cx.langid())) },
-            HeadingType::H3 => h3 id=[id] class=[classes] { (self.text().escaped(cx.langid())) },
-            HeadingType::H4 => h4 id=[id] class=[classes] { (self.text().escaped(cx.langid())) },
-            HeadingType::H5 => h5 id=[id] class=[classes] { (self.text().escaped(cx.langid())) },
-            HeadingType::H6 => h6 id=[id] class=[classes] { (self.text().escaped(cx.langid())) },
+            HeadingType::H1 => h1 id=[id] class=[classes] { (text) },
+            HeadingType::H2 => h2 id=[id] class=[classes] { (text) },
+            HeadingType::H3 => h3 id=[id] class=[classes] { (text) },
+            HeadingType::H4 => h4 id=[id] class=[classes] { (text) },
+            HeadingType::H5 => h5 id=[id] class=[classes] { (text) },
+            HeadingType::H6 => h6 id=[id] class=[classes] { (text) },
         }})
     }
 }
@@ -123,6 +124,12 @@ impl Heading {
     // Heading BUILDER.
 
     #[fn_builder]
+    pub fn alter_id(&mut self, id: impl Into<String>) -> &mut Self {
+        self.id.alter_value(id);
+        self
+    }
+
+    #[fn_builder]
     pub fn alter_weight(&mut self, value: Weight) -> &mut Self {
         self.weight = value;
         self
@@ -131,12 +138,6 @@ impl Heading {
     #[fn_builder]
     pub fn alter_renderable(&mut self, check: FnIsRenderable) -> &mut Self {
         self.renderable.check = check;
-        self
-    }
-
-    #[fn_builder]
-    pub fn alter_id(&mut self, id: impl Into<String>) -> &mut Self {
-        self.id.alter_value(id);
         self
     }
 

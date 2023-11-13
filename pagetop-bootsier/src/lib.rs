@@ -124,16 +124,16 @@ impl ThemeTrait for Bootsier {
                     }
                     _ => {}
                 };
-                match a.anchor_type() {
+                match a.button_type() {
                     ButtonType::Link => {
                         a.alter_classes(
-                            ClassesOp::Replace(a.anchor_type().to_string()),
+                            ClassesOp::Replace(a.button_type().to_string()),
                             "btn btn-link",
                         );
                     }
                     ButtonType::Primary => {
                         a.alter_classes(
-                            ClassesOp::Replace(a.anchor_type().to_string()),
+                            ClassesOp::Replace(a.button_type().to_string()),
                             "btn btn-primary",
                         );
                     }

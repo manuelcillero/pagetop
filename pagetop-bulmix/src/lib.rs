@@ -24,7 +24,10 @@ impl ThemeTrait for Bulmix {
                     .with_version("0.9.4")
                     .with_weight(-99),
             ))
-            .alter_context(ContextOp::AddBaseAssets);
+            .alter_context(ContextOp::AddBaseAssets)
+            .alter_context(ContextOp::AddStyleSheet(
+                StyleSheet::at("/bulmix/css/styles.css").with_version("0.0.1"),
+            ));
     }
 
     fn before_prepare_component(&self, component: &mut dyn ComponentTrait, _cx: &mut Context) {
@@ -50,8 +53,8 @@ impl ThemeTrait for Bulmix {
                     _ => {}
                 };
             }
-            COMPONENT_BASE_ANCHOR => {
-                let a = component_as_mut::<Anchor>(component);
+            COMPONENT_BASE_BUTTON => {
+                let a = component_as_mut::<Button>(component);
                 match a.font_size() {
                     FontSize::ExtraLarge => {
                         a.alter_classes(ClassesOp::Replace(a.font_size().to_string()), "is-size-1");
@@ -70,12 +73,20 @@ impl ThemeTrait for Bulmix {
                     }
                     _ => {}
                 };
-                if let AnchorType::Button = a.anchor_type() {
-                    a.alter_classes(
-                        ClassesOp::Replace(a.anchor_type().to_string()),
-                        "button is-primary",
-                    );
-                };
+                match a.button_type() {
+                    ButtonType::Link => {
+                        a.alter_classes(
+                            ClassesOp::Replace(a.button_type().to_string()),
+                            "button is-text",
+                        );
+                    }
+                    ButtonType::Primary => {
+                        a.alter_classes(
+                            ClassesOp::Replace(a.button_type().to_string()),
+                            "button is-primary",
+                        );
+                    }
+                }
             }
             COMPONENT_BASE_HEADING => {
                 let h = component_as_mut::<Heading>(component);
@@ -112,19 +123,18 @@ impl ThemeTrait for Bulmix {
         }
     }
 
-    fn render_component(&self, component: &dyn ComponentTrait, cx: &mut Context) -> Option<Markup> {
+    fn render_component(
+        &self,
+        component: &dyn ComponentTrait,
+        _cx: &mut Context,
+    ) -> Option<Markup> {
         match component.handle() {
             COMPONENT_BASE_ICON => {
                 let icon = component_as_ref::<Icon>(component);
-                if icon.icon_name().is_empty() {
-                    return None;
-                };
-                cx.set_param::<bool>(PARAM_BASE_INCLUDE_ICONS, true);
-                Some(html! {
-                    span class="icon" {
-                        i class=[icon.classes().get()] {}
-                    }
-                })
+                match icon.icon_name().get() {
+                    None => None,
+                    _ => Some(html! { span class="icon" { i class=[icon.classes().get()] {} } }),
+                }
             }
             _ => None,
         }

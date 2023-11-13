@@ -16,9 +16,9 @@ pub enum ImageSize {
 #[rustfmt::skip]
 #[derive(Default)]
 pub struct Image {
+    id        : OptionId,
     weight    : Weight,
     renderable: Renderable,
-    id        : OptionId,
     classes   : OptionClasses,
     source    : OptionString,
     size      : ImageSize,
@@ -85,6 +85,12 @@ impl Image {
     // Image BUILDER.
 
     #[fn_builder]
+    pub fn alter_id(&mut self, id: impl Into<String>) -> &mut Self {
+        self.id.alter_value(id);
+        self
+    }
+
+    #[fn_builder]
     pub fn alter_weight(&mut self, value: Weight) -> &mut Self {
         self.weight = value;
         self
@@ -93,12 +99,6 @@ impl Image {
     #[fn_builder]
     pub fn alter_renderable(&mut self, check: FnIsRenderable) -> &mut Self {
         self.renderable.check = check;
-        self
-    }
-
-    #[fn_builder]
-    pub fn alter_id(&mut self, id: impl Into<String>) -> &mut Self {
-        self.id.alter_value(id);
         self
     }
 

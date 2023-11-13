@@ -18,7 +18,7 @@ body {
 
 h1, h2, h3, h4, h5, h6 {
 	margin-top: 0;
-	margin-bottom: var(--pt-gap-0-9);
+	margin-bottom: var(--pt-gap-0-35);
 	font-weight: var(--pt-fw--bold);
 	line-height: var(--pt-lh--header);
 }
@@ -58,7 +58,18 @@ h6 {
 
 p {
 	margin-top: 0;
-	margin-bottom: var(--pt-gap-0-9);
+	margin-bottom: var(--pt-gap-0-75);
+}
+
+a {
+	color: var(--pt-color--primary);
+	transition: color .15s ease-in-out;
+}
+a:hover {
+	color: var(--pt-color--primary-dark);
+}
+a:active {
+	color: var(--pt-color--primary-light);
 }
 
 /* LAYOUT */

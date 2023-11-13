@@ -18,7 +18,7 @@ body.default-homepage [class$="-col-text"] {
 body.default-homepage [class$="-col-image"] {
 	padding: 1rem 5%;
 }
-
+/*
 #hello-world a {
 	margin: .25rem;
 }
@@ -36,7 +36,7 @@ body.default-homepage [class$="-col-image"] {
 #hello-world .hello-col-image {
 	padding-top: 3em;
 }
-
+*/
 #welcome > div.container {
 	padding: 2rem 1rem;
 	border-radius: 28px;

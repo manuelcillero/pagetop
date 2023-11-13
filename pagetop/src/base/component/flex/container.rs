@@ -3,9 +3,9 @@ use crate::prelude::*;
 #[rustfmt::skip]
 #[derive(Default)]
 pub struct Container {
+    id             : OptionId,
     weight         : Weight,
     renderable     : Renderable,
-    id             : OptionId,
     classes        : OptionClasses,
     items          : TypedComponents<flex::Item>,
     direction      : flex::Direction,
@@ -19,7 +19,7 @@ impl_handle!(COMPONENT_BASE_FLEX_CONTAINER for Container);
 
 impl ComponentTrait for Container {
     fn new() -> Self {
-        Container::default().with_classes(ClassesOp::Add, flex::Direction::Default.to_string())
+        Container::default()
     }
 
     fn id(&self) -> Option<String> {
@@ -34,9 +34,22 @@ impl ComponentTrait for Container {
         (self.renderable.check)(cx)
     }
 
-    fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
-        cx.set_param::<bool>(PARAM_BASE_INCLUDE_FLEX_ASSETS, true);
+    fn setup_before_prepare(&mut self, cx: &mut Context) {
+        self.classes.alter_value(
+            ClassesOp::AddFirst,
+            [
+                self.direction.to_string(),
+                self.wrap_align.to_string(),
+                self.content_justify.to_string(),
+                self.items_align.to_string(),
+            ]
+            .join(" "),
+        );
 
+        cx.set_param::<bool>(PARAM_BASE_INCLUDE_FLEX_ASSETS, true);
+    }
+
+    fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
         let gap = match self.gap() {
             flex::Gap::Default => None,
             _ => Some(self.gap().to_string()),
@@ -54,6 +67,12 @@ impl Container {
     // Container BUILDER.
 
     #[fn_builder]
+    pub fn alter_id(&mut self, id: impl Into<String>) -> &mut Self {
+        self.id.alter_value(id);
+        self
+    }
+
+    #[fn_builder]
     pub fn alter_weight(&mut self, value: Weight) -> &mut Self {
         self.weight = value;
         self
@@ -66,64 +85,43 @@ impl Container {
     }
 
     #[fn_builder]
-    pub fn alter_id(&mut self, id: impl Into<String>) -> &mut Self {
-        self.id.alter_value(id);
-        self
-    }
-
-    #[fn_builder]
     pub fn alter_classes(&mut self, op: ClassesOp, classes: impl Into<String>) -> &mut Self {
         self.classes.alter_value(op, classes);
         self
     }
 
+    #[rustfmt::skip]
     pub fn add_item(mut self, item: flex::Item) -> Self {
-        self.items.alter(TypedOp::Add(TypedComponent::with(item)));
+        self.items.alter_value(ArcTypedOp::Add(ArcTypedComponent::new(item)));
         self
     }
 
     #[fn_builder]
-    pub fn alter_items(&mut self, op: TypedOp<flex::Item>) -> &mut Self {
-        self.items.alter(op);
+    pub fn alter_items(&mut self, op: ArcTypedOp<flex::Item>) -> &mut Self {
+        self.items.alter_value(op);
         self
     }
 
     #[fn_builder]
     pub fn alter_direction(&mut self, direction: flex::Direction) -> &mut Self {
-        self.classes.alter_value(
-            ClassesOp::Replace(self.direction.to_string()),
-            direction.to_string(),
-        );
         self.direction = direction;
         self
     }
 
     #[fn_builder]
     pub fn alter_wrap_align(&mut self, wrap: flex::WrapAlign) -> &mut Self {
-        self.classes.alter_value(
-            ClassesOp::Replace(self.wrap_align.to_string()),
-            wrap.to_string(),
-        );
         self.wrap_align = wrap;
         self
     }
 
     #[fn_builder]
     pub fn alter_content_justify(&mut self, justify: flex::ContentJustify) -> &mut Self {
-        self.classes.alter_value(
-            ClassesOp::Replace(self.content_justify.to_string()),
-            justify.to_string(),
-        );
         self.content_justify = justify;
         self
     }
 
     #[fn_builder]
     pub fn alter_items_align(&mut self, align: flex::ItemAlign) -> &mut Self {
-        self.classes.alter_value(
-            ClassesOp::Replace(self.items_align.to_string()),
-            align.to_string(),
-        );
         self.items_align = align;
         self
     }

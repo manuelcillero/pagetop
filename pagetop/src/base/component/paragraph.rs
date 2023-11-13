@@ -3,12 +3,12 @@ use crate::prelude::*;
 #[rustfmt::skip]
 #[derive(Default)]
 pub struct Paragraph {
+    id        : OptionId,
     weight    : Weight,
     renderable: Renderable,
-    id        : OptionId,
     classes   : OptionClasses,
     font_size : FontSize,
-    stuff     : ArcComponents,
+    stuff     : AnyComponents,
 }
 
 impl_handle!(COMPONENT_BASE_PARAGRAPH for Paragraph);
@@ -28,6 +28,11 @@ impl ComponentTrait for Paragraph {
 
     fn is_renderable(&self, cx: &Context) -> bool {
         (self.renderable.check)(cx)
+    }
+
+    fn setup_before_prepare(&mut self, _cx: &mut Context) {
+        self.classes
+            .alter_value(ClassesOp::AddFirst, self.font_size.to_string());
     }
 
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
@@ -54,6 +59,12 @@ impl Paragraph {
     // Paragraph BUILDER.
 
     #[fn_builder]
+    pub fn alter_id(&mut self, id: impl Into<String>) -> &mut Self {
+        self.id.alter_value(id);
+        self
+    }
+
+    #[fn_builder]
     pub fn alter_weight(&mut self, value: Weight) -> &mut Self {
         self.weight = value;
         self
@@ -66,12 +77,6 @@ impl Paragraph {
     }
 
     #[fn_builder]
-    pub fn alter_id(&mut self, id: impl Into<String>) -> &mut Self {
-        self.id.alter_value(id);
-        self
-    }
-
-    #[fn_builder]
     pub fn alter_classes(&mut self, op: ClassesOp, classes: impl Into<String>) -> &mut Self {
         self.classes.alter_value(op, classes);
         self
@@ -79,28 +84,25 @@ impl Paragraph {
 
     #[fn_builder]
     pub fn alter_font_size(&mut self, font_size: FontSize) -> &mut Self {
-        self.classes.alter_value(
-            ClassesOp::Replace(self.font_size.to_string()),
-            font_size.to_string(),
-        );
         self.font_size = font_size;
         self
     }
 
+    #[rustfmt::skip]
     pub fn add_component(mut self, component: impl ComponentTrait) -> Self {
-        self.stuff.alter(ArcOp::Add(ArcComponent::with(component)));
+        self.stuff.alter_value(ArcAnyOp::Add(ArcAnyComponent::new(component)));
         self
     }
 
+    #[rustfmt::skip]
     pub fn add_translated(mut self, l10n: L10n) -> Self {
-        self.stuff
-            .alter(ArcOp::Add(ArcComponent::with(Translate::with(l10n))));
+        self.stuff.alter_value(ArcAnyOp::Add(ArcAnyComponent::new(Translate::with(l10n))));
         self
     }
 
     #[fn_builder]
-    pub fn alter_components(&mut self, op: ArcOp) -> &mut Self {
-        self.stuff.alter(op);
+    pub fn alter_components(&mut self, op: ArcAnyOp) -> &mut Self {
+        self.stuff.alter_value(op);
         self
     }
 
@@ -114,7 +116,7 @@ impl Paragraph {
         &self.font_size
     }
 
-    pub fn components(&self) -> &ArcComponents {
+    pub fn components(&self) -> &AnyComponents {
         &self.stuff
     }
 }

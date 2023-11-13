@@ -6,8 +6,8 @@ pub struct Icon {
     weight    : Weight,
     renderable: Renderable,
     classes   : OptionClasses,
+    icon_name : OptionString,
     font_size : FontSize,
-    icon_name : String,
 }
 
 impl_handle!(COMPONENT_BASE_ICON for Icon);
@@ -25,17 +25,26 @@ impl ComponentTrait for Icon {
         (self.renderable.check)(cx)
     }
 
-    fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
-        if self.icon_name().is_empty() {
-            return PrepareMarkup::None;
+    fn setup_before_prepare(&mut self, cx: &mut Context) {
+        if let Some(icon_name) = self.icon_name.get() {
+            self.classes.alter_value(
+                ClassesOp::AddFirst,
+                concat_string!("bi-", icon_name, " ", self.font_size.to_string()),
+            );
+            cx.set_param::<bool>(PARAM_BASE_INCLUDE_ICONS, true);
         }
-        cx.set_param::<bool>(PARAM_BASE_INCLUDE_ICONS, true);
-        PrepareMarkup::With(html! { i class=[self.classes().get()] {} })
+    }
+
+    fn prepare_component(&self, _cx: &mut Context) -> PrepareMarkup {
+        match self.icon_name().get() {
+            None => PrepareMarkup::None,
+            _ => PrepareMarkup::With(html! { i class=[self.classes().get()] {} }),
+        }
     }
 }
 
 impl Icon {
-    pub fn with(icon_name: &str) -> Self {
+    pub fn with(icon_name: impl Into<String>) -> Self {
         Icon::default().with_icon_name(icon_name)
     }
 
@@ -60,22 +69,14 @@ impl Icon {
     }
 
     #[fn_builder]
-    pub fn alter_font_size(&mut self, font_size: FontSize) -> &mut Self {
-        self.classes.alter_value(
-            ClassesOp::Replace(self.font_size.to_string()),
-            font_size.to_string(),
-        );
-        self.font_size = font_size;
+    pub fn alter_icon_name(&mut self, name: impl Into<String>) -> &mut Self {
+        self.icon_name.alter_value(name);
         self
     }
 
     #[fn_builder]
-    pub fn alter_icon_name(&mut self, name: &str) -> &mut Self {
-        self.classes.alter_value(
-            ClassesOp::Replace(concat_string!("bi-", self.icon_name)),
-            concat_string!("bi-", name),
-        );
-        self.icon_name = name.to_owned();
+    pub fn alter_font_size(&mut self, font_size: FontSize) -> &mut Self {
+        self.font_size = font_size;
         self
     }
 
@@ -85,11 +86,11 @@ impl Icon {
         &self.classes
     }
 
-    pub fn font_size(&self) -> &FontSize {
-        &self.font_size
+    pub fn icon_name(&self) -> &OptionString {
+        &self.icon_name
     }
 
-    pub fn icon_name(&self) -> &str {
-        self.icon_name.as_str()
+    pub fn font_size(&self) -> &FontSize {
+        &self.font_size
     }
 }
