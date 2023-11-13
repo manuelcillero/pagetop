@@ -1,17 +1,13 @@
 use crate::fn_builder;
-use crate::html::{html, Markup};
+use crate::html::Markup;
 use crate::locale::{L10n, LanguageIdentifier};
 
 #[derive(Default)]
 pub struct OptionTranslated(Option<L10n>);
 
 impl OptionTranslated {
-    pub fn new() -> Self {
-        OptionTranslated::default()
-    }
-
-    pub fn with(value: L10n) -> Self {
-        OptionTranslated(Some(value))
+    pub fn new(value: L10n) -> Self {
+        OptionTranslated::default().with_value(value)
     }
 
     // OptionTranslated BUILDER.
@@ -31,10 +27,10 @@ impl OptionTranslated {
         None
     }
 
-    pub fn escaped(&self, langid: &LanguageIdentifier) -> Markup {
+    pub fn escaped(&self, langid: &LanguageIdentifier) -> Option<Markup> {
         if let Some(value) = &self.0 {
-            return value.escaped(langid);
+            return Some(value.escaped(langid));
         }
-        html! {}
+        None
     }
 }

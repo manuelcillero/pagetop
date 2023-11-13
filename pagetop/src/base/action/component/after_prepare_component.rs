@@ -26,7 +26,7 @@ impl<C: ComponentTrait> ActionTrait for AfterPrepareComponent<C> {
 }
 
 impl<C: ComponentTrait> AfterPrepareComponent<C> {
-    pub fn with(f: FnAction<C>) -> Self {
+    pub fn new(f: FnAction<C>) -> Self {
         AfterPrepareComponent {
             f,
             referer_handle: Some(C::static_handle()),

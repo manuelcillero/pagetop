@@ -26,7 +26,7 @@ impl<C: ComponentTrait> ActionTrait for BeforePrepareComponent<C> {
 }
 
 impl<C: ComponentTrait> BeforePrepareComponent<C> {
-    pub fn with(f: FnAction<C>) -> Self {
+    pub fn new(f: FnAction<C>) -> Self {
         BeforePrepareComponent {
             f,
             referer_handle: Some(C::static_handle()),

@@ -4,14 +4,8 @@ use crate::fn_builder;
 pub struct OptionName(Option<String>);
 
 impl OptionName {
-    pub fn new() -> Self {
-        OptionName::default()
-    }
-
-    pub fn with(value: impl Into<String>) -> Self {
-        let mut opt = OptionName::default();
-        opt.alter_value(value);
-        opt
+    pub fn new(value: impl Into<String>) -> Self {
+        OptionName::default().with_value(value)
     }
 
     // OptionName BUILDER.

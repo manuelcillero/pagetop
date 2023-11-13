@@ -4,15 +4,12 @@ use std::sync::{Arc, RwLock};
 
 pub type Action = Box<dyn ActionTrait>;
 
+#[derive(Default)]
 pub struct ActionsList(Arc<RwLock<Vec<Action>>>);
 
 impl ActionsList {
-    pub fn new() -> Self {
-        ActionsList(Arc::new(RwLock::new(Vec::new())))
-    }
-
-    pub fn with(action: Action) -> Self {
-        let mut list = ActionsList::new();
+    pub fn new(action: Action) -> Self {
+        let mut list = ActionsList::default();
         list.add(action);
         list
     }

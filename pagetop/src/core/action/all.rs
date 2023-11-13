@@ -20,7 +20,7 @@ pub fn add_action(action: Action) {
     if let Some(list) = actions.get_mut(&key_action) {
         list.add(action);
     } else {
-        actions.insert(key_action, ActionsList::with(action));
+        actions.insert(key_action, ActionsList::new(action));
     }
 }
 

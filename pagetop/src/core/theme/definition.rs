@@ -25,7 +25,7 @@ pub trait ThemeTrait: ModuleTrait + Send + Sync {
         if render_region.is_empty() {
             html! {}
         } else {
-            let id = OptionId::with(region).get().unwrap();
+            let id = OptionId::new(region).get().unwrap();
             let id_inner = concat_string!(id, "__inner");
             html! {
                 div id=(id) class="pt-region" {

@@ -16,7 +16,7 @@ impl ActionTrait for AfterPrepareBody {
 }
 
 impl AfterPrepareBody {
-    pub fn with(f: FnActionPage) -> Self {
+    pub fn new(f: FnActionPage) -> Self {
         AfterPrepareBody { f, weight: 0 }
     }
 

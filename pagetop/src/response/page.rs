@@ -30,15 +30,15 @@ impl Page {
     #[rustfmt::skip]
     pub fn new(request: service::HttpRequest) -> Self {
         Page {
-            title       : OptionTranslated::new(),
-            description : OptionTranslated::new(),
-            metadata    : Vec::new(),
-            properties  : Vec::new(),
+            title       : OptionTranslated::default(),
+            description : OptionTranslated::default(),
+            metadata    : Vec::default(),
+            properties  : Vec::default(),
             favicon     : None,
             context     : Context::new(request),
-            body_classes: OptionClasses::new(),
-            skip_to     : OptionId::new(),
-            regions     : ComponentsRegions::new(),
+            body_classes: OptionClasses::default(),
+            skip_to     : OptionId::default(),
+            regions     : ComponentsRegions::default(),
             template    : "default".to_owned(),
         }
     }

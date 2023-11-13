@@ -24,14 +24,8 @@ pub enum ClassesOp {
 pub struct OptionClasses(Vec<String>);
 
 impl OptionClasses {
-    pub fn new() -> Self {
-        OptionClasses::default()
-    }
-
-    pub fn with(op: ClassesOp, classes: impl Into<String>) -> Self {
-        let mut opt = OptionClasses::default();
-        opt.alter_value(op, classes);
-        opt
+    pub fn new(classes: impl Into<String>) -> Self {
+        OptionClasses::default().with_value(ClassesOp::AddFirst, classes)
     }
 
     // OptionClasses BUILDER.
@@ -96,16 +90,16 @@ impl OptionClasses {
 
     // OptionClasses GETTERS.
 
-    pub fn exists(&self, class: impl Into<String>) -> bool {
-        let class: String = class.into();
-        self.0.iter().any(|c| c.eq(&class))
-    }
-
     pub fn get(&self) -> Option<String> {
         if self.0.is_empty() {
             None
         } else {
             Some(self.0.join(" "))
         }
+    }
+
+    pub fn contains(&self, class: impl Into<String>) -> bool {
+        let class: String = class.into();
+        self.0.iter().any(|c| c.eq(&class))
     }
 }
