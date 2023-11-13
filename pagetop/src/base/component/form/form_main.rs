@@ -10,14 +10,14 @@ pub enum FormMethod {
 #[rustfmt::skip]
 #[derive(Default)]
 pub struct Form {
+    id        : OptionId,
     weight    : Weight,
     renderable: Renderable,
-    id        : OptionId,
     classes   : OptionClasses,
     action    : OptionString,
     charset   : OptionString,
     method    : FormMethod,
-    stuff     : ArcComponents,
+    stuff     : AnyComponents,
     template  : String,
 }
 
@@ -65,6 +65,12 @@ impl Form {
     // Form BUILDER.
 
     #[fn_builder]
+    pub fn alter_id(&mut self, id: impl Into<String>) -> &mut Self {
+        self.id.alter_value(id);
+        self
+    }
+
+    #[fn_builder]
     pub fn alter_weight(&mut self, value: Weight) -> &mut Self {
         self.weight = value;
         self
@@ -73,12 +79,6 @@ impl Form {
     #[fn_builder]
     pub fn alter_renderable(&mut self, check: FnIsRenderable) -> &mut Self {
         self.renderable.check = check;
-        self
-    }
-
-    #[fn_builder]
-    pub fn alter_id(&mut self, id: impl Into<String>) -> &mut Self {
-        self.id.alter_value(id);
         self
     }
 
@@ -106,14 +106,15 @@ impl Form {
         self
     }
 
+    #[rustfmt::skip]
     pub fn with_element(mut self, element: impl ComponentTrait) -> Self {
-        self.stuff.alter(ArcOp::Add(ArcComponent::with(element)));
+        self.stuff.alter_value(ArcAnyOp::Add(ArcAnyComponent::new(element)));
         self
     }
 
     #[fn_builder]
-    pub fn alter_elements(&mut self, op: ArcOp) -> &mut Self {
-        self.stuff.alter(op);
+    pub fn alter_elements(&mut self, op: ArcAnyOp) -> &mut Self {
+        self.stuff.alter_value(op);
         self
     }
 
@@ -141,7 +142,7 @@ impl Form {
         &self.method
     }
 
-    pub fn elements(&self) -> &ArcComponents {
+    pub fn elements(&self) -> &AnyComponents {
         &self.stuff
     }
 

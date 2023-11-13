@@ -2,15 +2,13 @@ use crate::prelude::*;
 
 use super::Group;
 
-type Groups = TypedComponents<Group>;
-
 #[rustfmt::skip]
 #[derive(Default)]
 pub struct Megamenu {
+    id        : OptionId,
     weight    : Weight,
     renderable: Renderable,
-    id        : OptionId,
-    groups    : Groups,
+    groups    : TypedComponents<Group>,
 }
 
 impl_handle!(COMPONENT_BASE_MENU_MEGAMENU for Megamenu);
@@ -45,6 +43,12 @@ impl Megamenu {
     // Megamenu BUILDER.
 
     #[fn_builder]
+    pub fn alter_id(&mut self, id: impl Into<String>) -> &mut Self {
+        self.id.alter_value(id);
+        self
+    }
+
+    #[fn_builder]
     pub fn alter_weight(&mut self, value: Weight) -> &mut Self {
         self.weight = value;
         self
@@ -56,26 +60,21 @@ impl Megamenu {
         self
     }
 
-    #[fn_builder]
-    pub fn alter_id(&mut self, id: impl Into<String>) -> &mut Self {
-        self.id.alter_value(id);
-        self
-    }
-
+    #[rustfmt::skip]
     pub fn add_group(mut self, group: Group) -> Self {
-        self.groups.alter(TypedOp::Add(TypedComponent::with(group)));
+        self.groups.alter_value(ArcTypedOp::Add(ArcTypedComponent::new(group)));
         self
     }
 
     #[fn_builder]
-    pub fn alter_groups(&mut self, op: TypedOp<Group>) -> &mut Self {
-        self.groups.alter(op);
+    pub fn alter_groups(&mut self, op: ArcTypedOp<Group>) -> &mut Self {
+        self.groups.alter_value(op);
         self
     }
 
     // Megamenu GETTERS.
 
-    pub fn groups(&self) -> &Groups {
+    pub fn groups(&self) -> &TypedComponents<Group> {
         &self.groups
     }
 }

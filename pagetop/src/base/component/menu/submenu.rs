@@ -2,16 +2,14 @@ use crate::prelude::*;
 
 use super::Item;
 
-type Items = TypedComponents<Item>;
-
 #[rustfmt::skip]
 #[derive(Default)]
 pub struct Submenu {
+    id        : OptionId,
     weight    : Weight,
     renderable: Renderable,
-    id        : OptionId,
     title     : OptionTranslated,
-    items     : Items,
+    items     : TypedComponents<Item>,
 }
 
 impl_handle!(COMPONENT_BASE_MENU_SUBMENU for Submenu);
@@ -51,6 +49,12 @@ impl Submenu {
     // Submenu BUILDER.
 
     #[fn_builder]
+    pub fn alter_id(&mut self, id: impl Into<String>) -> &mut Self {
+        self.id.alter_value(id);
+        self
+    }
+
+    #[fn_builder]
     pub fn alter_weight(&mut self, value: Weight) -> &mut Self {
         self.weight = value;
         self
@@ -63,25 +67,20 @@ impl Submenu {
     }
 
     #[fn_builder]
-    pub fn alter_id(&mut self, id: impl Into<String>) -> &mut Self {
-        self.id.alter_value(id);
-        self
-    }
-
-    #[fn_builder]
     pub fn alter_title(&mut self, title: L10n) -> &mut Self {
         self.title.alter_value(title);
         self
     }
 
+    #[rustfmt::skip]
     pub fn add_item(mut self, item: Item) -> Self {
-        self.items.alter(TypedOp::Add(TypedComponent::with(item)));
+        self.items.alter_value(ArcTypedOp::Add(ArcTypedComponent::new(item)));
         self
     }
 
     #[fn_builder]
-    pub fn alter_items(&mut self, op: TypedOp<Item>) -> &mut Self {
-        self.items.alter(op);
+    pub fn alter_items(&mut self, op: ArcTypedOp<Item>) -> &mut Self {
+        self.items.alter_value(op);
         self
     }
 
@@ -91,7 +90,7 @@ impl Submenu {
         &self.title
     }
 
-    pub fn items(&self) -> &Items {
+    pub fn items(&self) -> &TypedComponents<Item> {
         &self.items
     }
 }

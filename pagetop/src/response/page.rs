@@ -1,5 +1,5 @@
 use crate::base::action;
-use crate::core::component::{ArcComponent, ArcComponents as RegionComponents, ComponentTrait};
+use crate::core::component::{AnyComponents, ArcAnyComponent, ComponentTrait};
 use crate::core::component::{Context, ContextOp};
 use crate::core::theme::ComponentsRegions;
 use crate::html::{html, Markup, DOCTYPE};
@@ -95,7 +95,7 @@ impl Page {
 
     #[fn_builder]
     pub fn alter_in(&mut self, region: &'static str, component: impl ComponentTrait) -> &mut Self {
-        self.regions.add_in(region, ArcComponent::with(component));
+        self.regions.add_in(region, ArcAnyComponent::new(component));
         self
     }
 
@@ -139,7 +139,7 @@ impl Page {
         &self.skip_to
     }
 
-    pub fn components_in(&self, region: &str) -> RegionComponents {
+    pub fn components_in(&self, region: &str) -> AnyComponents {
         self.regions.get_components(self.context.theme(), region)
     }
 

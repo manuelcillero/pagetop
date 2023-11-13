@@ -5,9 +5,9 @@ use super::Item;
 #[rustfmt::skip]
 #[derive(Default)]
 pub struct Menu {
+    id        : OptionId,
     weight    : Weight,
     renderable: Renderable,
-    id        : OptionId,
     items     : TypedComponents<Item>,
 }
 
@@ -71,6 +71,12 @@ impl Menu {
     // Menu BUILDER.
 
     #[fn_builder]
+    pub fn alter_id(&mut self, id: impl Into<String>) -> &mut Self {
+        self.id.alter_value(id);
+        self
+    }
+
+    #[fn_builder]
     pub fn alter_weight(&mut self, value: Weight) -> &mut Self {
         self.weight = value;
         self
@@ -82,20 +88,15 @@ impl Menu {
         self
     }
 
-    #[fn_builder]
-    pub fn alter_id(&mut self, id: impl Into<String>) -> &mut Self {
-        self.id.alter_value(id);
-        self
-    }
-
+    #[rustfmt::skip]
     pub fn add_item(mut self, item: Item) -> Self {
-        self.items.alter(TypedOp::Add(TypedComponent::with(item)));
+        self.items.alter_value(ArcTypedOp::Add(ArcTypedComponent::new(item)));
         self
     }
 
     #[fn_builder]
-    pub fn alter_items(&mut self, op: TypedOp<Item>) -> &mut Self {
-        self.items.alter(op);
+    pub fn alter_items(&mut self, op: ArcTypedOp<Item>) -> &mut Self {
+        self.items.alter_value(op);
         self
     }
 

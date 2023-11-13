@@ -1,6 +1,6 @@
 use crate::core::component::{ComponentTrait, Context};
 use crate::html::{html, Markup};
-use crate::{impl_handle, Handle, Weight};
+use crate::{fn_builder, impl_handle, Handle, Weight};
 
 use std::sync::{Arc, RwLock, RwLockReadGuard};
 
@@ -16,30 +16,26 @@ impl ComponentTrait for ComponentNull {
 }
 
 #[derive(Clone)]
-pub struct ArcComponent(Arc<RwLock<dyn ComponentTrait>>);
+pub struct ArcAnyComponent(Arc<RwLock<dyn ComponentTrait>>);
 
-impl Default for ArcComponent {
+impl Default for ArcAnyComponent {
     fn default() -> Self {
-        ArcComponent(Arc::new(RwLock::new(ComponentNull)))
+        ArcAnyComponent(Arc::new(RwLock::new(ComponentNull)))
     }
 }
 
-impl ArcComponent {
-    pub fn new() -> Self {
-        ArcComponent::default()
+impl ArcAnyComponent {
+    pub fn new(component: impl ComponentTrait) -> Self {
+        ArcAnyComponent(Arc::new(RwLock::new(component)))
     }
 
-    pub fn with(component: impl ComponentTrait) -> Self {
-        ArcComponent(Arc::new(RwLock::new(component)))
-    }
-
-    // ArcComponent BUILDER.
+    // ArcAnyComponent BUILDER.
 
     pub fn set(&mut self, component: impl ComponentTrait) {
         self.0 = Arc::new(RwLock::new(component));
     }
 
-    // ArcComponent GETTERS.
+    // ArcAnyComponent GETTERS.
 
     pub fn get(&self) -> RwLockReadGuard<'_, dyn ComponentTrait> {
         self.0.read().unwrap()
@@ -57,69 +53,66 @@ impl ArcComponent {
         self.0.read().unwrap().weight()
     }
 
-    // ArcComponent RENDER.
+    // ArcAnyComponent RENDER.
 
     pub fn render(&self, cx: &mut Context) -> Markup {
         self.0.write().unwrap().render(cx)
     }
 }
 
-pub enum ArcOp {
-    Add(ArcComponent),
-    AddAfterId(&'static str, ArcComponent),
-    AddBeforeId(&'static str, ArcComponent),
-    AddFirst(ArcComponent),
+// *************************************************************************************************
+
+pub enum ArcAnyOp {
+    Add(ArcAnyComponent),
+    AddAfterId(&'static str, ArcAnyComponent),
+    AddBeforeId(&'static str, ArcAnyComponent),
+    AddFirst(ArcAnyComponent),
     RemoveById(&'static str),
-    ReplaceById(&'static str, ArcComponent),
+    ReplaceById(&'static str, ArcAnyComponent),
     Reset,
 }
 
 #[derive(Clone, Default)]
-pub struct ArcComponents(Vec<ArcComponent>);
+pub struct AnyComponents(Vec<ArcAnyComponent>);
 
-impl ArcComponents {
-    pub fn new() -> Self {
-        ArcComponents::default()
+impl AnyComponents {
+    pub fn new(arc: ArcAnyComponent) -> Self {
+        AnyComponents::default().with_value(ArcAnyOp::Add(arc))
     }
 
-    pub fn with(arc: ArcComponent) -> Self {
-        let mut components = ArcComponents::new();
-        components.alter(ArcOp::Add(arc));
-        components
-    }
-
-    pub(crate) fn merge(mixes: &[Option<&ArcComponents>]) -> Self {
-        let mut components = ArcComponents::default();
+    pub(crate) fn merge(mixes: &[Option<&AnyComponents>]) -> Self {
+        let mut opt = AnyComponents::default();
         for m in mixes.iter().flatten() {
-            components.0.append(&mut m.0.clone());
+            opt.0.append(&mut m.0.clone());
         }
-        components
+        opt
     }
 
-    // ArcComponents BUILDER.
+    // AnyComponents BUILDER.
 
-    pub fn alter(&mut self, op: ArcOp) -> &mut Self {
+    #[fn_builder]
+    pub fn alter_value(&mut self, op: ArcAnyOp) -> &mut Self {
         match op {
-            ArcOp::Add(arc) => self.0.push(arc),
-            ArcOp::AddAfterId(id, arc) => {
+            ArcAnyOp::Add(arc) => self.0.push(arc),
+            ArcAnyOp::AddAfterId(id, arc) => {
                 match self.0.iter().position(|c| c.id().as_deref() == Some(id)) {
                     Some(index) => self.0.insert(index + 1, arc),
                     _ => self.0.push(arc),
                 }
             }
-            ArcOp::AddBeforeId(id, arc) => {
+            ArcAnyOp::AddBeforeId(id, arc) => {
                 match self.0.iter().position(|c| c.id().as_deref() == Some(id)) {
                     Some(index) => self.0.insert(index, arc),
                     _ => self.0.insert(0, arc),
                 }
             }
-            ArcOp::AddFirst(arc) => self.0.insert(0, arc),
-            ArcOp::RemoveById(id) => {
+            ArcAnyOp::AddFirst(arc) => self.0.insert(0, arc),
+            ArcAnyOp::RemoveById(id) => {
                 if let Some(index) = self.0.iter().position(|c| c.id().as_deref() == Some(id)) {
                     self.0.remove(index);
                 }
             }
-            ArcOp::ReplaceById(id, arc) => {
+            ArcAnyOp::ReplaceById(id, arc) => {
                 for c in self.0.iter_mut() {
                     if c.id().as_deref() == Some(id) {
                         *c = arc;
@@ -127,26 +120,30 @@ impl ArcComponents {
                     }
                 }
             }
-            ArcOp::Reset => self.0.clear(),
+            ArcAnyOp::Reset => self.0.clear(),
         }
         self
     }
 
-    // ArcComponents GETTERS.
+    // AnyComponents GETTERS.
 
-    pub fn get_by_id(&self, id: &'static str) -> Option<&ArcComponent> {
+    pub fn is_empty(&self) -> bool {
+        self.0.is_empty()
+    }
+
+    pub fn get_by_id(&self, id: &'static str) -> Option<&ArcAnyComponent> {
         self.0.iter().find(|&c| c.id().as_deref() == Some(id))
     }
 
-    pub fn iter_by_id(&self, id: &'static str) -> impl Iterator<Item = &ArcComponent> {
+    pub fn iter_by_id(&self, id: &'static str) -> impl Iterator<Item = &ArcAnyComponent> {
         self.0.iter().filter(|&c| c.id().as_deref() == Some(id))
     }
 
-    pub fn iter_by_handle(&self, handle: Handle) -> impl Iterator<Item = &ArcComponent> {
+    pub fn iter_by_handle(&self, handle: Handle) -> impl Iterator<Item = &ArcAnyComponent> {
         self.0.iter().filter(move |&c| c.handle() == handle)
     }
 
-    // ArcComponents RENDER.
+    // AnyComponents RENDER.
 
     pub fn render(&self, cx: &mut Context) -> Markup {
         let mut components = self.0.clone();
