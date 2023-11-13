@@ -35,7 +35,13 @@ pub fn fn_builder(_attr: TokenStream, item: TokenStream) -> TokenStream {
 
     let param: Vec<String> = args
         .iter()
-        .map(|arg| arg.split_whitespace().next().unwrap().to_string())
+        .map(|arg| {
+            arg.split_whitespace()
+                .next()
+                .unwrap()
+                .trim_end_matches(":")
+                .to_string()
+        })
         .collect();
 
     #[rustfmt::skip]
