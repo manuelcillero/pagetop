@@ -19,7 +19,7 @@ pub trait ModuleTrait: HasHandle + ModuleBase + Send + Sync {
     }
 
     fn description(&self) -> L10n {
-        L10n::default()
+        L10n::none()
     }
 
     fn theme(&self) -> Option<ThemeRef> {
