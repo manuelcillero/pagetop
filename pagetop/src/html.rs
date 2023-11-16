@@ -28,6 +28,9 @@ pub use opt_translated::OptionTranslated;
 mod opt_classes;
 pub use opt_classes::{ClassesOp, OptionClasses};
 
+mod opt_component;
+pub use opt_component::OptionComponent;
+
 pub mod unit;
 
 pub enum PrepareMarkup {

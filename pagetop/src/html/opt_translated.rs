@@ -1,5 +1,5 @@
 use crate::fn_builder;
-use crate::html::Markup;
+use crate::html::{html, Markup};
 use crate::locale::{L10n, LanguageIdentifier};
 
 #[derive(Default)]
@@ -27,10 +27,10 @@ impl OptionTranslated {
         None
     }
 
-    pub fn escaped(&self, langid: &LanguageIdentifier) -> Option<Markup> {
-        if let Some(value) = &self.0 {
-            return Some(value.escaped(langid));
+    pub fn escaped(&self, langid: &LanguageIdentifier) -> Markup {
+        match &self.0 {
+            Some(value) => value.escaped(langid),
+            _ => html! {},
         }
-        None
     }
 }
