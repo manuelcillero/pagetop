@@ -31,24 +31,23 @@ impl ComponentTrait for Block {
     }
 
     fn setup_before_prepare(&mut self, _cx: &mut Context) {
-        self.classes.alter_value(ClassesOp::AddFirst, "block");
+        self.classes.alter_value(ClassesOp::AddFirst, "pt-block");
     }
 
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
-        if self.components().is_empty() {
-            return PrepareMarkup::None;
+        let block_body = self.components().render(cx);
+        if !block_body.is_empty() {
+            let id = cx.required_id::<Block>(self.id());
+            return PrepareMarkup::With(html! {
+                div id=(id) class=[self.classes().get()] {
+                    @if let Some(title) = self.title().using(cx.langid()) {
+                        h2 class="pt-block__title" { (title) }
+                    }
+                    div class="pt-block__body" { (block_body) }
+                }
+            });
         }
-        let id = cx.required_id::<Block>(self.id());
-        PrepareMarkup::With(html! {
-            div id=(id) class=[self.classes().get()] {
-                @if let Some(title) = self.title().using(cx.langid()) {
-                    h2 class="block-title" { (title) }
-                }
-                div class="block-body" {
-                    (self.components().render(cx))
-                }
-            }
-        })
+        PrepareMarkup::None
     }
 }
 
