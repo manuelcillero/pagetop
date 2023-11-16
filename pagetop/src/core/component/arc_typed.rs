@@ -2,44 +2,35 @@ use crate::core::component::{ComponentTrait, Context};
 use crate::html::{html, Markup};
 use crate::{fn_builder, Handle, Weight};
 
-use std::sync::{Arc, RwLock, RwLockReadGuard};
+use std::sync::{Arc, RwLock, RwLockReadGuard, RwLockWriteGuard};
 
-#[derive(Default)]
-pub struct ArcTypedComponent<T: ComponentTrait>(Arc<RwLock<T>>);
+pub struct ArcTypedComponent<C: ComponentTrait>(Arc<RwLock<C>>);
 
-impl<T: ComponentTrait> Clone for ArcTypedComponent<T> {
+impl<C: ComponentTrait> Clone for ArcTypedComponent<C> {
     fn clone(&self) -> Self {
         Self(self.0.clone())
     }
 }
 
-impl<T: ComponentTrait> ArcTypedComponent<T> {
-    pub fn new(component: T) -> Self {
+impl<C: ComponentTrait> ArcTypedComponent<C> {
+    pub fn new(component: C) -> Self {
         ArcTypedComponent(Arc::new(RwLock::new(component)))
     }
 
     // ArcTypedComponent BUILDER.
 
-    pub fn set(&mut self, component: T) {
+    pub fn set(&mut self, component: C) {
         self.0 = Arc::new(RwLock::new(component));
     }
 
     // ArcTypedComponent GETTERS.
 
-    pub fn get(&self) -> RwLockReadGuard<'_, T> {
+    pub fn get(&self) -> RwLockReadGuard<'_, C> {
         self.0.read().unwrap()
     }
 
-    pub(crate) fn handle(&self) -> Handle {
-        self.0.read().unwrap().handle()
-    }
-
-    pub(crate) fn id(&self) -> Option<String> {
-        self.0.read().unwrap().id()
-    }
-
-    pub(crate) fn weight(&self) -> Weight {
-        self.0.read().unwrap().weight()
+    pub fn get_mut(&self) -> RwLockWriteGuard<'_, C> {
+        self.0.write().unwrap()
     }
 
     // ArcTypedComponent RENDER.
@@ -47,55 +38,65 @@ impl<T: ComponentTrait> ArcTypedComponent<T> {
     pub fn render(&self, cx: &mut Context) -> Markup {
         self.0.write().unwrap().render(cx)
     }
+
+    // ArcTypedComponent HELPERS.
+
+    fn handle(&self) -> Handle {
+        self.0.read().unwrap().handle()
+    }
+
+    fn id(&self) -> String {
+        self.0.read().unwrap().id().unwrap_or_default()
+    }
+
+    fn weight(&self) -> Weight {
+        self.0.read().unwrap().weight()
+    }
 }
 
 // *************************************************************************************************
 
-pub enum ArcTypedOp<T: ComponentTrait + Default> {
-    Add(ArcTypedComponent<T>),
-    AddAfterId(&'static str, ArcTypedComponent<T>),
-    AddBeforeId(&'static str, ArcTypedComponent<T>),
-    AddFirst(ArcTypedComponent<T>),
+pub enum ArcTypedOp<C: ComponentTrait> {
+    Add(ArcTypedComponent<C>),
+    AddAfterId(&'static str, ArcTypedComponent<C>),
+    AddBeforeId(&'static str, ArcTypedComponent<C>),
+    AddFirst(ArcTypedComponent<C>),
     RemoveById(&'static str),
-    ReplaceById(&'static str, ArcTypedComponent<T>),
+    ReplaceById(&'static str, ArcTypedComponent<C>),
     Reset,
 }
 
 #[derive(Clone, Default)]
-pub struct TypedComponents<T: ComponentTrait + Default>(Vec<ArcTypedComponent<T>>);
+pub struct TypedComponents<C: ComponentTrait>(Vec<ArcTypedComponent<C>>);
 
-impl<T: ComponentTrait + Default> TypedComponents<T> {
-    pub fn new(arc: ArcTypedComponent<T>) -> Self {
+impl<C: ComponentTrait + Default> TypedComponents<C> {
+    pub fn new(arc: ArcTypedComponent<C>) -> Self {
         TypedComponents::default().with_value(ArcTypedOp::Add(arc))
     }
 
     // TypedComponents BUILDER.
 
     #[fn_builder]
-    pub fn alter_value(&mut self, op: ArcTypedOp<T>) -> &mut Self {
+    pub fn alter_value(&mut self, op: ArcTypedOp<C>) -> &mut Self {
         match op {
             ArcTypedOp::Add(one) => self.0.push(one),
-            ArcTypedOp::AddAfterId(id, one) => {
-                match self.0.iter().position(|c| c.id().as_deref() == Some(id)) {
-                    Some(index) => self.0.insert(index + 1, one),
-                    _ => self.0.push(one),
-                }
-            }
-            ArcTypedOp::AddBeforeId(id, one) => {
-                match self.0.iter().position(|c| c.id().as_deref() == Some(id)) {
-                    Some(index) => self.0.insert(index, one),
-                    _ => self.0.insert(0, one),
-                }
-            }
+            ArcTypedOp::AddAfterId(id, one) => match self.0.iter().position(|c| c.id() == id) {
+                Some(index) => self.0.insert(index + 1, one),
+                _ => self.0.push(one),
+            },
+            ArcTypedOp::AddBeforeId(id, one) => match self.0.iter().position(|c| c.id() == id) {
+                Some(index) => self.0.insert(index, one),
+                _ => self.0.insert(0, one),
+            },
             ArcTypedOp::AddFirst(one) => self.0.insert(0, one),
             ArcTypedOp::RemoveById(id) => {
-                if let Some(index) = self.0.iter().position(|c| c.id().as_deref() == Some(id)) {
+                if let Some(index) = self.0.iter().position(|c| c.id() == id) {
                     self.0.remove(index);
                 }
             }
             ArcTypedOp::ReplaceById(id, one) => {
                 for c in self.0.iter_mut() {
-                    if c.id().as_deref() == Some(id) {
+                    if c.id() == id {
                         *c = one;
                         break;
                     }
@@ -112,15 +113,17 @@ impl<T: ComponentTrait + Default> TypedComponents<T> {
         self.0.is_empty()
     }
 
-    pub fn get_by_id(&self, id: &'static str) -> Option<&ArcTypedComponent<T>> {
-        self.0.iter().find(|&c| c.id().as_deref() == Some(id))
+    pub fn get_by_id(&self, id: impl Into<String>) -> Option<&ArcTypedComponent<C>> {
+        let id = id.into();
+        self.0.iter().find(|&c| c.id() == id)
     }
 
-    pub fn iter_by_id(&self, id: &'static str) -> impl Iterator<Item = &ArcTypedComponent<T>> {
-        self.0.iter().filter(|&c| c.id().as_deref() == Some(id))
+    pub fn iter_by_id(&self, id: impl Into<String>) -> impl Iterator<Item = &ArcTypedComponent<C>> {
+        let id = id.into();
+        self.0.iter().filter(move |&c| c.id() == id)
     }
 
-    pub fn iter_by_handle(&self, handle: Handle) -> impl Iterator<Item = &ArcTypedComponent<T>> {
+    pub fn iter_by_handle(&self, handle: Handle) -> impl Iterator<Item = &ArcTypedComponent<C>> {
         self.0.iter().filter(move |&c| c.handle() == handle)
     }
 

@@ -1,28 +1,11 @@
 use crate::core::component::{ComponentTrait, Context};
 use crate::html::{html, Markup};
-use crate::{fn_builder, impl_handle, Handle, Weight};
+use crate::{fn_builder, Handle, Weight};
 
-use std::sync::{Arc, RwLock, RwLockReadGuard};
-
-#[derive(Default)]
-struct ComponentNull;
-
-impl_handle!(COMPONENT_NULL for ComponentNull);
-
-impl ComponentTrait for ComponentNull {
-    fn new() -> Self {
-        ComponentNull::default()
-    }
-}
+use std::sync::{Arc, RwLock, RwLockReadGuard, RwLockWriteGuard};
 
 #[derive(Clone)]
 pub struct ArcAnyComponent(Arc<RwLock<dyn ComponentTrait>>);
-
-impl Default for ArcAnyComponent {
-    fn default() -> Self {
-        ArcAnyComponent(Arc::new(RwLock::new(ComponentNull)))
-    }
-}
 
 impl ArcAnyComponent {
     pub fn new(component: impl ComponentTrait) -> Self {
@@ -41,22 +24,28 @@ impl ArcAnyComponent {
         self.0.read().unwrap()
     }
 
-    pub(crate) fn handle(&self) -> Handle {
-        self.0.read().unwrap().handle()
-    }
-
-    pub(crate) fn id(&self) -> Option<String> {
-        self.0.read().unwrap().id()
-    }
-
-    pub(crate) fn weight(&self) -> Weight {
-        self.0.read().unwrap().weight()
+    pub fn get_mut(&self) -> RwLockWriteGuard<'_, dyn ComponentTrait> {
+        self.0.write().unwrap()
     }
 
     // ArcAnyComponent RENDER.
 
     pub fn render(&self, cx: &mut Context) -> Markup {
         self.0.write().unwrap().render(cx)
+    }
+
+    // ArcAnyComponent HELPERS.
+
+    fn handle(&self) -> Handle {
+        self.0.read().unwrap().handle()
+    }
+
+    fn id(&self) -> String {
+        self.0.read().unwrap().id().unwrap_or_default()
+    }
+
+    fn weight(&self) -> Weight {
+        self.0.read().unwrap().weight()
     }
 }
 
@@ -94,27 +83,23 @@ impl AnyComponents {
     pub fn alter_value(&mut self, op: ArcAnyOp) -> &mut Self {
         match op {
             ArcAnyOp::Add(arc) => self.0.push(arc),
-            ArcAnyOp::AddAfterId(id, arc) => {
-                match self.0.iter().position(|c| c.id().as_deref() == Some(id)) {
-                    Some(index) => self.0.insert(index + 1, arc),
-                    _ => self.0.push(arc),
-                }
-            }
-            ArcAnyOp::AddBeforeId(id, arc) => {
-                match self.0.iter().position(|c| c.id().as_deref() == Some(id)) {
-                    Some(index) => self.0.insert(index, arc),
-                    _ => self.0.insert(0, arc),
-                }
-            }
+            ArcAnyOp::AddAfterId(id, arc) => match self.0.iter().position(|c| c.id() == id) {
+                Some(index) => self.0.insert(index + 1, arc),
+                _ => self.0.push(arc),
+            },
+            ArcAnyOp::AddBeforeId(id, arc) => match self.0.iter().position(|c| c.id() == id) {
+                Some(index) => self.0.insert(index, arc),
+                _ => self.0.insert(0, arc),
+            },
             ArcAnyOp::AddFirst(arc) => self.0.insert(0, arc),
             ArcAnyOp::RemoveById(id) => {
-                if let Some(index) = self.0.iter().position(|c| c.id().as_deref() == Some(id)) {
+                if let Some(index) = self.0.iter().position(|c| c.id() == id) {
                     self.0.remove(index);
                 }
             }
             ArcAnyOp::ReplaceById(id, arc) => {
                 for c in self.0.iter_mut() {
-                    if c.id().as_deref() == Some(id) {
+                    if c.id() == id {
                         *c = arc;
                         break;
                     }
@@ -131,12 +116,14 @@ impl AnyComponents {
         self.0.is_empty()
     }
 
-    pub fn get_by_id(&self, id: &'static str) -> Option<&ArcAnyComponent> {
-        self.0.iter().find(|&c| c.id().as_deref() == Some(id))
+    pub fn get_by_id(&self, id: impl Into<String>) -> Option<&ArcAnyComponent> {
+        let id = id.into();
+        self.0.iter().find(|c| c.id() == id)
     }
 
-    pub fn iter_by_id(&self, id: &'static str) -> impl Iterator<Item = &ArcAnyComponent> {
-        self.0.iter().filter(|&c| c.id().as_deref() == Some(id))
+    pub fn iter_by_id(&self, id: impl Into<String>) -> impl Iterator<Item = &ArcAnyComponent> {
+        let id = id.into();
+        self.0.iter().filter(move |&c| c.id() == id)
     }
 
     pub fn iter_by_handle(&self, handle: Handle) -> impl Iterator<Item = &ArcAnyComponent> {
