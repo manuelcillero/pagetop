@@ -88,7 +88,7 @@
 //! ```
 
 use crate::html::{Markup, PreEscaped};
-use crate::{config, kv, LazyStatic, LOCALES_PAGETOP};
+use crate::{config, kv, LazyStatic, SmartDefault, LOCALES_PAGETOP};
 
 pub use fluent_templates;
 pub use unic_langid::LanguageIdentifier;
@@ -169,7 +169,7 @@ macro_rules! static_locales {
     };
 }
 
-#[derive(Default)]
+#[derive(SmartDefault)]
 enum L10nOp {
     #[default]
     None,
@@ -177,7 +177,7 @@ enum L10nOp {
     Translate(String),
 }
 
-#[derive(Default)]
+#[derive(SmartDefault)]
 pub struct L10n {
     op: L10nOp,
     locales: Option<&'static Locales>,

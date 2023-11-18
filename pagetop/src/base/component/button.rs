@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-#[derive(Default)]
+#[derive(SmartDefault)]
 pub enum ButtonType {
     #[default]
     Link,
@@ -17,7 +17,7 @@ impl ToString for ButtonType {
     }
 }
 
-#[derive(Default)]
+#[derive(SmartDefault)]
 pub enum ButtonTarget {
     #[default]
     Default,
@@ -27,10 +27,8 @@ pub enum ButtonTarget {
     Context(String),
 }
 
-type ButtonIcon = ArcTypedComponent<Icon>;
-
 #[rustfmt::skip]
-#[derive(Default)]
+#[derive(SmartDefault)]
 pub struct Button {
     id         : OptionId,
     weight     : Weight,

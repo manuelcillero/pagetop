@@ -4,7 +4,7 @@ pub mod javascript;
 pub mod stylesheet;
 
 use crate::html::{html, Markup};
-use crate::Weight;
+use crate::{SmartDefault, Weight};
 
 pub trait AssetsTrait {
     fn path(&self) -> &str;
@@ -14,7 +14,7 @@ pub trait AssetsTrait {
     fn prepare(&self) -> Markup;
 }
 
-#[derive(Default)]
+#[derive(SmartDefault)]
 pub struct Assets<T>(Vec<T>);
 
 impl<T: AssetsTrait> Assets<T> {

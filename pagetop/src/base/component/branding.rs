@@ -1,29 +1,17 @@
 use crate::prelude::*;
 
 #[rustfmt::skip]
+#[derive(SmartDefault)]
 pub struct Branding {
     id        : OptionId,
     weight    : Weight,
     renderable: Renderable,
+    #[default(_code = "config::SETTINGS.app.name.to_owned()")]
     app_name  : String,
     slogan    : OptionTranslated,
-    logo      : ArcTypedComponent<Image>,
+    logo      : OptionComponent<Image>,
+    #[default(_code = "|_| \"/\"")]
     frontpage : FnContextualPath,
-}
-
-#[rustfmt::skip]
-impl Default for Branding {
-    fn default() -> Self {
-        Branding {
-            id        : OptionId::default(),
-            weight    : Weight::default(),
-            renderable: Renderable::default(),
-            app_name  : config::SETTINGS.app.name.to_owned(),
-            slogan    : OptionTranslated::default(),
-            logo      : ArcTypedComponent::<Image>::default(),
-            frontpage : |_| "/",
-        }
-    }
 }
 
 impl_handle!(COMPONENT_BASE_BRANDING for Branding);

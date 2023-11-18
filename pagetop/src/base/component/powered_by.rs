@@ -11,7 +11,7 @@ pub enum PoweredByLogo {
 }
 
 #[rustfmt::skip]
-#[derive(Default)]
+#[derive(SmartDefault)]
 pub struct PoweredBy {
     weight    : Weight,
     renderable: Renderable,

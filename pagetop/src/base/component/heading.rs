@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-#[derive(Default)]
+#[derive(SmartDefault)]
 pub enum HeadingType {
     #[default]
     H1,
@@ -11,7 +11,7 @@ pub enum HeadingType {
     H6,
 }
 
-#[derive(Default)]
+#[derive(SmartDefault)]
 pub enum HeadingDisplay {
     ExtraLarge,
     XxLarge,
@@ -39,7 +39,7 @@ impl ToString for HeadingDisplay {
 }
 
 #[rustfmt::skip]
-#[derive(Default)]
+#[derive(SmartDefault)]
 pub struct Heading {
     id          : OptionId,
     weight      : Weight,

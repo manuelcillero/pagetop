@@ -5,7 +5,7 @@ use super::Submenu;
 type Content = ArcTypedComponent<Html>;
 type SubmenuItems = ArcTypedComponent<Submenu>;
 
-#[derive(Default)]
+#[derive(SmartDefault)]
 pub enum ElementType {
     #[default]
     Void,
@@ -16,7 +16,7 @@ pub enum ElementType {
 // Element.
 
 #[rustfmt::skip]
-#[derive(Default)]
+#[derive(SmartDefault)]
 pub struct Element {
     weight      : Weight,
     renderable  : Renderable,

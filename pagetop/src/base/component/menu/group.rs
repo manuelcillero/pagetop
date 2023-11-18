@@ -3,7 +3,7 @@ use crate::prelude::*;
 use super::Element;
 
 #[rustfmt::skip]
-#[derive(Default)]
+#[derive(SmartDefault)]
 pub struct Group {
     id        : OptionId,
     weight    : Weight,

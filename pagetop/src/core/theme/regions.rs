@@ -1,6 +1,6 @@
 use crate::core::component::{AnyComponents, ArcAnyComponent, ArcAnyOp};
 use crate::core::theme::ThemeRef;
-use crate::{Handle, LazyStatic};
+use crate::{Handle, LazyStatic, SmartDefault};
 
 use std::collections::HashMap;
 use std::sync::RwLock;
@@ -11,7 +11,7 @@ static THEME_REGIONS: LazyStatic<RwLock<HashMap<Handle, ComponentsRegions>>> =
 static COMMON_REGIONS: LazyStatic<RwLock<ComponentsRegions>> =
     LazyStatic::new(|| RwLock::new(ComponentsRegions::default()));
 
-#[derive(Default)]
+#[derive(SmartDefault)]
 pub struct ComponentsRegions(HashMap<&'static str, AnyComponents>);
 
 impl ComponentsRegions {

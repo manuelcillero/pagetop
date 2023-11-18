@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-#[derive(Default)]
+#[derive(SmartDefault)]
 pub struct Html(Markup);
 
 impl_handle!(COMPONENT_BASE_HTML for Html);

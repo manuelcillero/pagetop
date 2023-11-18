@@ -1,7 +1,7 @@
 use crate::prelude::*;
 
 #[rustfmt::skip]
-#[derive(Default)]
+#[derive(SmartDefault)]
 pub struct Icon {
     weight    : Weight,
     renderable: Renderable,

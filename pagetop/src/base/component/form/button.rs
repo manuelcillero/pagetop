@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-#[derive(Default)]
+#[derive(SmartDefault)]
 pub enum ButtonType {
     #[default]
     Button,
@@ -20,7 +20,7 @@ impl ToString for ButtonType {
 }
 
 #[rustfmt::skip]
-#[derive(Default)]
+#[derive(SmartDefault)]
 pub struct Button {
     weight     : Weight,
     renderable : Renderable,

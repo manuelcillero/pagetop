@@ -1,17 +1,12 @@
 use crate::core::component::Context;
+use crate::SmartDefault;
 
 pub type FnIsRenderable = fn(cx: &Context) -> bool;
 
+#[derive(SmartDefault)]
 pub struct Renderable {
+    #[default(_code = "render_always")]
     pub check: FnIsRenderable,
-}
-
-impl Default for Renderable {
-    fn default() -> Self {
-        Renderable {
-            check: render_always,
-        }
-    }
 }
 
 fn render_always(_cx: &Context) -> bool {

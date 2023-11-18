@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-#[derive(Default)]
+#[derive(SmartDefault)]
 pub struct Translate(L10n);
 
 impl_handle!(COMPONENT_BASE_TRANSLATE for Translate);

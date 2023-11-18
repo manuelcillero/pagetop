@@ -1,7 +1,7 @@
 //! The PageTop Prelude.
 
-// Re-exported macros.
-pub use crate::{concat_string, fn_builder, main, paste, test};
+// Re-exported macros and derives.
+pub use crate::{concat_string, fn_builder, main, paste, test, SmartDefault};
 
 // Global.
 pub use crate::{Handle, HasHandle, HashMapResources, LazyStatic, Weight};

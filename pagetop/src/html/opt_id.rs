@@ -1,6 +1,6 @@
-use crate::fn_builder;
+use crate::{fn_builder, SmartDefault};
 
-#[derive(Default)]
+#[derive(SmartDefault)]
 pub struct OptionId(Option<String>);
 
 impl OptionId {

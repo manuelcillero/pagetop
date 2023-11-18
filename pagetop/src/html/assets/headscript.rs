@@ -1,9 +1,9 @@
 use crate::html::assets::AssetsTrait;
 use crate::html::{html, Markup};
-use crate::Weight;
+use crate::{SmartDefault, Weight};
 
 #[rustfmt::skip]
-#[derive(Default)]
+#[derive(SmartDefault)]
 pub struct HeadScript {
     path  : String,
     code  : String,

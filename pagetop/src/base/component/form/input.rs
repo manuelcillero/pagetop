@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-#[derive(Default)]
+#[derive(SmartDefault)]
 pub enum InputType {
     #[default]
     Textfield,
@@ -12,7 +12,7 @@ pub enum InputType {
 }
 
 #[rustfmt::skip]
-#[derive(Default)]
+#[derive(SmartDefault)]
 pub struct Input {
     weight      : Weight,
     renderable  : Renderable,
