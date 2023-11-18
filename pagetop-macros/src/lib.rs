@@ -39,7 +39,7 @@ pub fn fn_builder(_attr: TokenStream, item: TokenStream) -> TokenStream {
             arg.split_whitespace()
                 .next()
                 .unwrap()
-                .trim_end_matches(":")
+                .trim_end_matches(':')
                 .to_string()
         })
         .collect();
