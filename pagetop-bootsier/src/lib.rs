@@ -84,102 +84,166 @@ impl ThemeTrait for Bootsier {
     fn before_prepare_component(&self, component: &mut dyn ComponentTrait, _cx: &mut Context) {
         match component.handle() {
             COMPONENT_BASE_ICON => {
-                let i = component_as_mut::<Icon>(component);
-                match i.font_size() {
-                    FontSize::ExtraLarge => {
-                        i.alter_classes(ClassesOp::Replace(i.font_size().to_string()), "fs-1");
-                    }
-                    FontSize::XxLarge => {
-                        i.alter_classes(ClassesOp::Replace(i.font_size().to_string()), "fs-2");
-                    }
-                    FontSize::XLarge => {
-                        i.alter_classes(ClassesOp::Replace(i.font_size().to_string()), "fs-3");
-                    }
-                    FontSize::Large => {
-                        i.alter_classes(ClassesOp::Replace(i.font_size().to_string()), "fs-4");
-                    }
-                    FontSize::Medium => {
-                        i.alter_classes(ClassesOp::Replace(i.font_size().to_string()), "fs-5");
-                    }
-                    _ => {}
-                };
+                if let Some(icon) = component_as_mut::<Icon>(component) {
+                    match icon.font_size() {
+                        FontSize::ExtraLarge => {
+                            icon.alter_classes(
+                                ClassesOp::Replace(icon.font_size().to_string()),
+                                "fs-1",
+                            );
+                        }
+                        FontSize::XxLarge => {
+                            icon.alter_classes(
+                                ClassesOp::Replace(icon.font_size().to_string()),
+                                "fs-2",
+                            );
+                        }
+                        FontSize::XLarge => {
+                            icon.alter_classes(
+                                ClassesOp::Replace(icon.font_size().to_string()),
+                                "fs-3",
+                            );
+                        }
+                        FontSize::Large => {
+                            icon.alter_classes(
+                                ClassesOp::Replace(icon.font_size().to_string()),
+                                "fs-4",
+                            );
+                        }
+                        FontSize::Medium => {
+                            icon.alter_classes(
+                                ClassesOp::Replace(icon.font_size().to_string()),
+                                "fs-5",
+                            );
+                        }
+                        _ => {}
+                    };
+                }
             }
             COMPONENT_BASE_BUTTON => {
-                let a = component_as_mut::<Button>(component);
-                match a.font_size() {
-                    FontSize::ExtraLarge => {
-                        a.alter_classes(ClassesOp::Replace(a.font_size().to_string()), "fs-1");
-                    }
-                    FontSize::XxLarge => {
-                        a.alter_classes(ClassesOp::Replace(a.font_size().to_string()), "fs-2");
-                    }
-                    FontSize::XLarge => {
-                        a.alter_classes(ClassesOp::Replace(a.font_size().to_string()), "fs-3");
-                    }
-                    FontSize::Large => {
-                        a.alter_classes(ClassesOp::Replace(a.font_size().to_string()), "fs-4");
-                    }
-                    FontSize::Medium => {
-                        a.alter_classes(ClassesOp::Replace(a.font_size().to_string()), "fs-5");
-                    }
-                    _ => {}
-                };
-                match a.button_type() {
-                    ButtonType::Link => {
-                        a.alter_classes(
-                            ClassesOp::Replace(a.button_type().to_string()),
-                            "btn btn-link",
-                        );
-                    }
-                    ButtonType::Primary => {
-                        a.alter_classes(
-                            ClassesOp::Replace(a.button_type().to_string()),
-                            "btn btn-primary",
-                        );
-                    }
+                if let Some(button) = component_as_mut::<Button>(component) {
+                    match button.font_size() {
+                        FontSize::ExtraLarge => {
+                            button.alter_classes(
+                                ClassesOp::Replace(button.font_size().to_string()),
+                                "fs-1",
+                            );
+                        }
+                        FontSize::XxLarge => {
+                            button.alter_classes(
+                                ClassesOp::Replace(button.font_size().to_string()),
+                                "fs-2",
+                            );
+                        }
+                        FontSize::XLarge => {
+                            button.alter_classes(
+                                ClassesOp::Replace(button.font_size().to_string()),
+                                "fs-3",
+                            );
+                        }
+                        FontSize::Large => {
+                            button.alter_classes(
+                                ClassesOp::Replace(button.font_size().to_string()),
+                                "fs-4",
+                            );
+                        }
+                        FontSize::Medium => {
+                            button.alter_classes(
+                                ClassesOp::Replace(button.font_size().to_string()),
+                                "fs-5",
+                            );
+                        }
+                        _ => {}
+                    };
+                    match button.button_type() {
+                        ButtonType::Link => {
+                            button.alter_classes(
+                                ClassesOp::Replace(button.button_type().to_string()),
+                                "btn btn-link",
+                            );
+                        }
+                        ButtonType::Primary => {
+                            button.alter_classes(
+                                ClassesOp::Replace(button.button_type().to_string()),
+                                "btn btn-primary",
+                            );
+                        }
+                    };
                 }
             }
             COMPONENT_BASE_HEADING => {
-                let h = component_as_mut::<Heading>(component);
-                match h.display() {
-                    HeadingDisplay::ExtraLarge => {
-                        h.alter_classes(ClassesOp::Replace(h.display().to_string()), "display-1");
-                    }
-                    HeadingDisplay::XxLarge => {
-                        h.alter_classes(ClassesOp::Replace(h.display().to_string()), "display-2");
-                    }
-                    HeadingDisplay::XLarge => {
-                        h.alter_classes(ClassesOp::Replace(h.display().to_string()), "display-3");
-                    }
-                    HeadingDisplay::Large => {
-                        h.alter_classes(ClassesOp::Replace(h.display().to_string()), "display-4");
-                    }
-                    HeadingDisplay::Medium => {
-                        h.alter_classes(ClassesOp::Replace(h.display().to_string()), "display-5");
-                    }
-                    _ => {}
-                };
+                if let Some(heading) = component_as_mut::<Heading>(component) {
+                    match heading.display() {
+                        HeadingDisplay::ExtraLarge => {
+                            heading.alter_classes(
+                                ClassesOp::Replace(heading.display().to_string()),
+                                "display-1",
+                            );
+                        }
+                        HeadingDisplay::XxLarge => {
+                            heading.alter_classes(
+                                ClassesOp::Replace(heading.display().to_string()),
+                                "display-2",
+                            );
+                        }
+                        HeadingDisplay::XLarge => {
+                            heading.alter_classes(
+                                ClassesOp::Replace(heading.display().to_string()),
+                                "display-3",
+                            );
+                        }
+                        HeadingDisplay::Large => {
+                            heading.alter_classes(
+                                ClassesOp::Replace(heading.display().to_string()),
+                                "display-4",
+                            );
+                        }
+                        HeadingDisplay::Medium => {
+                            heading.alter_classes(
+                                ClassesOp::Replace(heading.display().to_string()),
+                                "display-5",
+                            );
+                        }
+                        _ => {}
+                    };
+                }
             }
             COMPONENT_BASE_PARAGRAPH => {
-                let p = component_as_mut::<Paragraph>(component);
-                match p.font_size() {
-                    FontSize::ExtraLarge => {
-                        p.alter_classes(ClassesOp::Replace(p.font_size().to_string()), "fs-1");
-                    }
-                    FontSize::XxLarge => {
-                        p.alter_classes(ClassesOp::Replace(p.font_size().to_string()), "fs-2");
-                    }
-                    FontSize::XLarge => {
-                        p.alter_classes(ClassesOp::Replace(p.font_size().to_string()), "fs-3");
-                    }
-                    FontSize::Large => {
-                        p.alter_classes(ClassesOp::Replace(p.font_size().to_string()), "fs-4");
-                    }
-                    FontSize::Medium => {
-                        p.alter_classes(ClassesOp::Replace(p.font_size().to_string()), "fs-5");
-                    }
-                    _ => {}
-                };
+                if let Some(paragraph) = component_as_mut::<Paragraph>(component) {
+                    match paragraph.font_size() {
+                        FontSize::ExtraLarge => {
+                            paragraph.alter_classes(
+                                ClassesOp::Replace(paragraph.font_size().to_string()),
+                                "fs-1",
+                            );
+                        }
+                        FontSize::XxLarge => {
+                            paragraph.alter_classes(
+                                ClassesOp::Replace(paragraph.font_size().to_string()),
+                                "fs-2",
+                            );
+                        }
+                        FontSize::XLarge => {
+                            paragraph.alter_classes(
+                                ClassesOp::Replace(paragraph.font_size().to_string()),
+                                "fs-3",
+                            );
+                        }
+                        FontSize::Large => {
+                            paragraph.alter_classes(
+                                ClassesOp::Replace(paragraph.font_size().to_string()),
+                                "fs-4",
+                            );
+                        }
+                        FontSize::Medium => {
+                            paragraph.alter_classes(
+                                ClassesOp::Replace(paragraph.font_size().to_string()),
+                                "fs-5",
+                            );
+                        }
+                        _ => {}
+                    };
+                }
             }
             _ => {}
         }
