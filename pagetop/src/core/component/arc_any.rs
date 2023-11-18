@@ -55,7 +55,7 @@ pub enum ArcAnyOp {
     Add(ArcAnyComponent),
     AddAfterId(&'static str, ArcAnyComponent),
     AddBeforeId(&'static str, ArcAnyComponent),
-    AddFirst(ArcAnyComponent),
+    Prepend(ArcAnyComponent),
     RemoveById(&'static str),
     ReplaceById(&'static str, ArcAnyComponent),
     Reset,
@@ -91,7 +91,7 @@ impl AnyComponents {
                 Some(index) => self.0.insert(index, arc),
                 _ => self.0.insert(0, arc),
             },
-            ArcAnyOp::AddFirst(arc) => self.0.insert(0, arc),
+            ArcAnyOp::Prepend(arc) => self.0.insert(0, arc),
             ArcAnyOp::RemoveById(id) => {
                 if let Some(index) = self.0.iter().position(|c| c.id() == id) {
                     self.0.remove(index);

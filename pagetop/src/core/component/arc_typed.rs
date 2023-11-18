@@ -60,7 +60,7 @@ pub enum ArcTypedOp<C: ComponentTrait> {
     Add(ArcTypedComponent<C>),
     AddAfterId(&'static str, ArcTypedComponent<C>),
     AddBeforeId(&'static str, ArcTypedComponent<C>),
-    AddFirst(ArcTypedComponent<C>),
+    Prepend(ArcTypedComponent<C>),
     RemoveById(&'static str),
     ReplaceById(&'static str, ArcTypedComponent<C>),
     Reset,
@@ -88,7 +88,7 @@ impl<C: ComponentTrait + Default> TypedComponents<C> {
                 Some(index) => self.0.insert(index, one),
                 _ => self.0.insert(0, one),
             },
-            ArcTypedOp::AddFirst(one) => self.0.insert(0, one),
+            ArcTypedOp::Prepend(one) => self.0.insert(0, one),
             ArcTypedOp::RemoveById(id) => {
                 if let Some(index) = self.0.iter().position(|c| c.id() == id) {
                     self.0.remove(index);
