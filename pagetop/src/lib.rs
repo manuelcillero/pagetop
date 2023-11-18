@@ -44,9 +44,9 @@
 //! ```rust
 //! use pagetop::prelude::*;
 //!
-//! impl_handle!(APP_HELLO_WORLD for HelloWorld);
-//!
 //! struct HelloWorld;
+//!
+//! impl_handle!(APP_HELLO_WORLD for HelloWorld);
 //!
 //! impl ModuleTrait for HelloWorld {
 //!     fn handle(&self) -> Handle {

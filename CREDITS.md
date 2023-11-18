@@ -40,7 +40,6 @@ mostrar en el terminal un rótulo de presentación con el nombre de la aplicaci�
 
 # 🎨 Icono
 
-El monstruo sonriente de Frankenstein es una divertida creación de
-[Webalys](https://www.iconfinder.com/webalys). Puede encontrarse en su colección
-[Nasty Icons](https://www.iconfinder.com/iconsets/nasty) disponible en
-[ICONFINDER](https://www.iconfinder.com).
+"La criatura" sonriente es una divertida creación de [Webalys](https://www.iconfinder.com/webalys).
+Puede encontrarse en su colección [Nasty Icons](https://www.iconfinder.com/iconsets/nasty)
+disponible en [ICONFINDER](https://www.iconfinder.com).
