@@ -77,7 +77,7 @@ impl ComponentTrait for Heading {
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
         let id = self.id();
         let classes = self.classes().get();
-        let text = self.text().escaped(cx.langid()).unwrap_or_default();
+        let text = self.text().escaped(cx.langid());
         PrepareMarkup::With(html! { @match &self.heading_type() {
             HeadingType::H1 => h1 id=[id] class=[classes] { (text) },
             HeadingType::H2 => h2 id=[id] class=[classes] { (text) },

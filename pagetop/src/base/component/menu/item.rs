@@ -28,6 +28,8 @@ pub struct Item {
     renderable : Renderable,
     item_type  : ItemType,
     description: OptionTranslated,
+    left_icon  : OptionComponent<Icon>,
+    right_icon : OptionComponent<Icon>,
 }
 
 impl_handle!(COMPONENT_BASE_MENU_ITEM for Item);
@@ -47,26 +49,36 @@ impl ComponentTrait for Item {
 
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
         let description = self.description.using(cx.langid());
+
+        let left_icon = self.left_icon().render(cx);
+        let right_icon = self.right_icon().render(cx);
+
         match self.item_type() {
             ItemType::Void => PrepareMarkup::None,
             ItemType::Label(label) => PrepareMarkup::With(html! {
                 li class="pt-menu__label" {
                     span title=[description] {
+                        (left_icon)
                         (label.escaped(cx.langid()))
+                        (right_icon)
                     }
                 }
             }),
             ItemType::Link(label, path) => PrepareMarkup::With(html! {
                 li class="pt-menu__link" {
                     a href=(path(cx)) title=[description] {
+                        (left_icon)
                         (label.escaped(cx.langid()))
+                        (right_icon)
                     }
                 }
             }),
             ItemType::LinkBlank(label, path) => PrepareMarkup::With(html! {
                 li class="pt-menu__link" {
                     a href=(path(cx)) title=[description] target="_blank" {
+                        (left_icon)
                         (label.escaped(cx.langid()))
+                        (right_icon)
                     }
                 }
             }),
@@ -78,6 +90,7 @@ impl ComponentTrait for Item {
             ItemType::Submenu(label, submenu) => PrepareMarkup::With(html! {
                 li class="pt-menu__children" {
                     a href="#" title=[description] {
+                        (left_icon)
                         (label.escaped(cx.langid())) i class="pt-menu__icon bi-chevron-down" {}
                     }
                     div class="pt-menu__subs" {
@@ -88,6 +101,7 @@ impl ComponentTrait for Item {
             ItemType::Megamenu(label, megamenu) => PrepareMarkup::With(html! {
                 li class="pt-menu__children" {
                     a href="#" title=[description] {
+                        (left_icon)
                         (label.escaped(cx.langid())) i class="pt-menu__icon bi-chevron-down" {}
                     }
                     div class="pt-menu__subs pt-menu__mega" {
@@ -162,6 +176,18 @@ impl Item {
         self
     }
 
+    #[fn_builder]
+    pub fn alter_left_icon(&mut self, icon: Option<Icon>) -> &mut Self {
+        self.left_icon.alter_value(icon);
+        self
+    }
+
+    #[fn_builder]
+    pub fn alter_right_icon(&mut self, icon: Option<Icon>) -> &mut Self {
+        self.right_icon.alter_value(icon);
+        self
+    }
+
     // Item GETTERS.
 
     pub fn item_type(&self) -> &ItemType {
@@ -170,5 +196,13 @@ impl Item {
 
     pub fn description(&self) -> &OptionTranslated {
         &self.description
+    }
+
+    pub fn left_icon(&self) -> &OptionComponent<Icon> {
+        &self.left_icon
+    }
+
+    pub fn right_icon(&self) -> &OptionComponent<Icon> {
+        &self.right_icon
     }
 }

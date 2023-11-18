@@ -38,8 +38,8 @@ pub struct Button {
     font_size  : FontSize,
     href       : OptionString,
     html       : OptionTranslated,
-    left_icon  : ButtonIcon,
-    right_icon : ButtonIcon,
+    left_icon  : OptionComponent<Icon>,
+    right_icon : OptionComponent<Icon>,
     target     : ButtonTarget,
 }
 
@@ -85,7 +85,7 @@ impl ComponentTrait for Button {
                 target=[target]
             {
                 (self.left_icon().render(cx))
-                " " span { (self.html().escaped(cx.langid()).unwrap_or_default()) } " "
+                " " span { (self.html().escaped(cx.langid())) } " "
                 (self.right_icon().render(cx))
             }
         })
@@ -163,14 +163,14 @@ impl Button {
     }
 
     #[fn_builder]
-    pub fn alter_left_icon(&mut self, icon: Icon) -> &mut Self {
-        self.left_icon.set(icon);
+    pub fn alter_left_icon(&mut self, icon: Option<Icon>) -> &mut Self {
+        self.left_icon.alter_value(icon);
         self
     }
 
     #[fn_builder]
-    pub fn alter_right_icon(&mut self, icon: Icon) -> &mut Self {
-        self.right_icon.set(icon);
+    pub fn alter_right_icon(&mut self, icon: Option<Icon>) -> &mut Self {
+        self.right_icon.alter_value(icon);
         self
     }
 
@@ -198,11 +198,11 @@ impl Button {
         &self.html
     }
 
-    pub fn left_icon(&self) -> &ButtonIcon {
+    pub fn left_icon(&self) -> &OptionComponent<Icon> {
         &self.left_icon
     }
 
-    pub fn right_icon(&self) -> &ButtonIcon {
+    pub fn right_icon(&self) -> &OptionComponent<Icon> {
         &self.right_icon
     }
 

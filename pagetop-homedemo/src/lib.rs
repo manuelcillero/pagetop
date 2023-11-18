@@ -75,13 +75,13 @@ fn hello_world() -> Wrapper {
                             L10n::t("hello_code", &LOCALES_HOMEDEMO),
                         )
                         .with_target(ButtonTarget::Blank)
-                        .with_left_icon(Icon::with("git"))
+                        .with_left_icon(Some(Icon::with("git")))
                         .with_classes(ClassesOp::Add, "code-link")
                         .with_font_size(FontSize::Medium),
                     )
                     .add_component(
                         Button::link("#welcome", L10n::t("hello_welcome", &LOCALES_HOMEDEMO))
-                            .with_left_icon(Icon::with("arrow-down-circle-fill"))
+                            .with_left_icon(Some(Icon::with("arrow-down-circle-fill")))
                             .with_classes(ClassesOp::Add, "welcome-link")
                             .with_font_size(FontSize::Medium),
                     ),

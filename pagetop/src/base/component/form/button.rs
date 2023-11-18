@@ -67,7 +67,7 @@ impl ComponentTrait for Button {
                 autofocus=[self.autofocus().get()]
                 disabled=[self.disabled().get()]
             {
-                (self.value().escaped(cx.langid()).unwrap_or_default())
+                (self.value().escaped(cx.langid()))
             }
         })
     }

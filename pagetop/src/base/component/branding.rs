@@ -34,12 +34,13 @@ impl ComponentTrait for Branding {
     }
 
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
+        let logo = self.logo().render(cx);
         let title = L10n::l("site_home").using(cx.langid());
         PrepareMarkup::With(html! {
             div id=[self.id()] class="pt-branding" {
                 div class="pt-branding__wrapper" {
-                    div class="pt-branding__logo" {
-                        (self.logo().render(cx))
+                    @if !logo.is_empty() {
+                        div class="pt-branding__logo" { (logo) }
                     }
                     div class="pt-branding__text" {
                         div class="pt-branding__name" {
@@ -93,8 +94,8 @@ impl Branding {
     }
 
     #[fn_builder]
-    pub fn alter_logo(&mut self, logo: Image) -> &mut Self {
-        self.logo.set(logo);
+    pub fn alter_logo(&mut self, logo: Option<Image>) -> &mut Self {
+        self.logo.alter_value(logo);
         self
     }
 
@@ -114,7 +115,7 @@ impl Branding {
         &self.slogan
     }
 
-    pub fn logo(&self) -> &ArcTypedComponent<Image> {
+    pub fn logo(&self) -> &OptionComponent<Image> {
         &self.logo
     }
 
