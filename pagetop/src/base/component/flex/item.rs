@@ -35,10 +35,8 @@ impl ComponentTrait for Item {
         (self.renderable.check)(cx)
     }
 
-    #[rustfmt::skip]
     fn setup_before_prepare(&mut self, _cx: &mut Context) {
-        self.item_classes.alter_value(
-            ClassesOp::AddFirst,
+        self.prepend_classes(
             [
                 "pt-flex__item".to_owned(),
                 self.item_grow.to_string(),
@@ -49,7 +47,8 @@ impl ComponentTrait for Item {
             ]
             .join(" "),
         );
-        self.inner_classes.alter_value(ClassesOp::AddFirst, "pt-flex__item-inner");
+        self.inner_classes
+            .alter_value(ClassesOp::Prepend, "pt-flex__item-inner");
     }
 
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
@@ -58,12 +57,23 @@ impl ComponentTrait for Item {
             _ => Some(concat_string!("order: ", self.weight().to_string(), ";")),
         };
         PrepareMarkup::With(html! {
-            div id=[self.id()] class=[self.item_classes().get()] style=[order] {
+            div id=[self.id()] class=[self.classes().get()] style=[order] {
                 div class=[self.inner_classes().get()] {
                     (self.components().render(cx))
                 }
             }
         })
+    }
+}
+
+impl ComponentClasses for Item {
+    fn alter_classes(&mut self, op: ClassesOp, classes: impl Into<String>) -> &mut Self {
+        self.item_classes.alter_value(op, classes);
+        self
+    }
+
+    fn classes(&self) -> &OptionClasses {
+        &self.item_classes
     }
 }
 
@@ -85,12 +95,6 @@ impl Item {
     #[fn_builder]
     pub fn alter_renderable(&mut self, check: FnIsRenderable) -> &mut Self {
         self.renderable.check = check;
-        self
-    }
-
-    #[fn_builder]
-    pub fn alter_item_classes(&mut self, op: ClassesOp, classes: impl Into<String>) -> &mut Self {
-        self.item_classes.alter_value(op, classes);
         self
     }
 
@@ -143,10 +147,6 @@ impl Item {
     }
 
     // Item GETTERS.
-
-    pub fn item_classes(&self) -> &OptionClasses {
-        &self.item_classes
-    }
 
     pub fn inner_classes(&self) -> &OptionClasses {
         &self.inner_classes

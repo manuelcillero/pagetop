@@ -98,6 +98,17 @@ impl ComponentTrait for Input {
     }
 }
 
+impl ComponentClasses for Input {
+    fn alter_classes(&mut self, op: ClassesOp, classes: impl Into<String>) -> &mut Self {
+        self.classes.alter_value(op, classes);
+        self
+    }
+
+    fn classes(&self) -> &OptionClasses {
+        &self.classes
+    }
+}
+
 impl Input {
     pub fn textfield() -> Self {
         Input::default()
@@ -163,17 +174,11 @@ impl Input {
     }
 
     #[fn_builder]
-    pub fn alter_classes(&mut self, op: ClassesOp, classes: impl Into<String>) -> &mut Self {
-        self.classes.alter_value(op, classes);
-        self
-    }
-
-    #[fn_builder]
     pub fn alter_name(&mut self, name: &str) -> &mut Self {
         if let Some(previous) = self.name.get() {
-            self.alter_classes(ClassesOp::Remove, concat_string!("form-item-", previous));
+            self.remove_classes(concat_string!("form-item-", previous));
         }
-        self.alter_classes(ClassesOp::Add, concat_string!("form-item-", name));
+        self.add_classes(concat_string!("form-item-", name));
         self.name.alter_value(name);
         self
     }
@@ -272,10 +277,6 @@ impl Input {
     }
 
     // Input GETTERS.
-
-    pub fn classes(&self) -> &OptionClasses {
-        &self.classes
-    }
 
     pub fn input_type(&self) -> &InputType {
         &self.input_type

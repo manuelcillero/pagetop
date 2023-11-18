@@ -13,11 +13,11 @@ use crate::{fn_builder, SmartDefault};
 
 pub enum ClassesOp {
     Add,
-    AddFirst,
+    Prepend,
     Remove,
     Replace(String),
     Toggle,
-    Clear,
+    Set,
 }
 
 #[derive(SmartDefault)]
@@ -25,7 +25,7 @@ pub struct OptionClasses(Vec<String>);
 
 impl OptionClasses {
     pub fn new(classes: impl Into<String>) -> Self {
-        OptionClasses::default().with_value(ClassesOp::AddFirst, classes)
+        OptionClasses::default().with_value(ClassesOp::Prepend, classes)
     }
 
     // OptionClasses BUILDER.
@@ -39,7 +39,7 @@ impl OptionClasses {
             ClassesOp::Add => {
                 self.add(&classes, self.0.len());
             }
-            ClassesOp::AddFirst => {
+            ClassesOp::Prepend => {
                 self.add(&classes, 0);
             }
             ClassesOp::Remove => {
@@ -71,8 +71,9 @@ impl OptionClasses {
                     }
                 }
             }
-            ClassesOp::Clear => {
+            ClassesOp::Set => {
                 self.0.clear();
+                self.add(&classes, 0);
             }
         }
         self

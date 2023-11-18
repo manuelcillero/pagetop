@@ -61,6 +61,17 @@ impl ComponentTrait for Form {
     }
 }
 
+impl ComponentClasses for Form {
+    fn alter_classes(&mut self, op: ClassesOp, classes: impl Into<String>) -> &mut Self {
+        self.classes.alter_value(op, classes);
+        self
+    }
+
+    fn classes(&self) -> &OptionClasses {
+        &self.classes
+    }
+}
+
 impl Form {
     // Form BUILDER.
 
@@ -79,12 +90,6 @@ impl Form {
     #[fn_builder]
     pub fn alter_renderable(&mut self, check: FnIsRenderable) -> &mut Self {
         self.renderable.check = check;
-        self
-    }
-
-    #[fn_builder]
-    pub fn alter_classes(&mut self, op: ClassesOp, classes: impl Into<String>) -> &mut Self {
-        self.classes.alter_value(op, classes);
         self
     }
 
@@ -125,10 +130,6 @@ impl Form {
     }
 
     // Form GETTERS.
-
-    pub fn classes(&self) -> &OptionClasses {
-        &self.classes
-    }
 
     pub fn action(&self) -> &OptionString {
         &self.action

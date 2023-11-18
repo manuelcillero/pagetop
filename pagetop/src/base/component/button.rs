@@ -63,9 +63,8 @@ impl ComponentTrait for Button {
     }
 
     fn setup_before_prepare(&mut self, _cx: &mut Context) {
-        self.classes.alter_value(
-            ClassesOp::AddFirst,
-            [self.button_type.to_string(), self.font_size.to_string()].join(" "),
+        self.prepend_classes(
+            [self.button_type().to_string(), self.font_size().to_string()].join(" "),
         );
     }
 
@@ -90,6 +89,17 @@ impl ComponentTrait for Button {
                 (self.right_icon().render(cx))
             }
         })
+    }
+}
+
+impl ComponentClasses for Button {
+    fn alter_classes(&mut self, op: ClassesOp, classes: impl Into<String>) -> &mut Self {
+        self.classes.alter_value(op, classes);
+        self
+    }
+
+    fn classes(&self) -> &OptionClasses {
+        &self.classes
     }
 }
 
@@ -125,12 +135,6 @@ impl Button {
     #[fn_builder]
     pub fn alter_renderable(&mut self, check: FnIsRenderable) -> &mut Self {
         self.renderable.check = check;
-        self
-    }
-
-    #[fn_builder]
-    pub fn alter_classes(&mut self, op: ClassesOp, classes: impl Into<String>) -> &mut Self {
-        self.classes.alter_value(op, classes);
         self
     }
 
@@ -177,10 +181,6 @@ impl Button {
     }
 
     // Button GETTERS.
-
-    pub fn classes(&self) -> &OptionClasses {
-        &self.classes
-    }
 
     pub fn button_type(&self) -> &ButtonType {
         &self.button_type

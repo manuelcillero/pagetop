@@ -33,137 +33,85 @@ impl ThemeTrait for Bulmix {
     fn before_prepare_component(&self, component: &mut dyn ComponentTrait, _cx: &mut Context) {
         match component.handle() {
             COMPONENT_BASE_ICON => {
-                if let Some(icon) = component_as_mut::<Icon>(component) {
-                    match icon.font_size() {
+                if let Some(i) = component_as_mut::<Icon>(component) {
+                    match i.font_size() {
                         FontSize::ExtraLarge => {
-                            icon.alter_classes(
-                                ClassesOp::Replace(icon.font_size().to_string()),
-                                "is-size-1",
-                            );
+                            i.replace_classes(i.font_size().to_string(), "is-size-1");
                         }
                         FontSize::XxLarge => {
-                            icon.alter_classes(
-                                ClassesOp::Replace(icon.font_size().to_string()),
-                                "is-size-2",
-                            );
+                            i.replace_classes(i.font_size().to_string(), "is-size-2");
                         }
                         FontSize::XLarge => {
-                            icon.alter_classes(
-                                ClassesOp::Replace(icon.font_size().to_string()),
-                                "is-size-3",
-                            );
+                            i.replace_classes(i.font_size().to_string(), "is-size-3");
                         }
                         FontSize::Large => {
-                            icon.alter_classes(
-                                ClassesOp::Replace(icon.font_size().to_string()),
-                                "is-size-4",
-                            );
+                            i.replace_classes(i.font_size().to_string(), "is-size-4");
                         }
                         FontSize::Medium => {
-                            icon.alter_classes(
-                                ClassesOp::Replace(icon.font_size().to_string()),
-                                "is-size-5",
-                            );
+                            i.replace_classes(i.font_size().to_string(), "is-size-5");
                         }
                         _ => {}
                     };
                 }
             }
             COMPONENT_BASE_BUTTON => {
-                if let Some(button) = component_as_mut::<Button>(component) {
-                    match button.font_size() {
+                if let Some(b) = component_as_mut::<Button>(component) {
+                    match b.font_size() {
                         FontSize::ExtraLarge => {
-                            button.alter_classes(
-                                ClassesOp::Replace(button.font_size().to_string()),
-                                "is-size-1",
-                            );
+                            b.replace_classes(b.font_size().to_string(), "is-size-1");
                         }
                         FontSize::XxLarge => {
-                            button.alter_classes(
-                                ClassesOp::Replace(button.font_size().to_string()),
-                                "is-size-2",
-                            );
+                            b.replace_classes(b.font_size().to_string(), "is-size-2");
                         }
                         FontSize::XLarge => {
-                            button.alter_classes(
-                                ClassesOp::Replace(button.font_size().to_string()),
-                                "is-size-3",
-                            );
+                            b.replace_classes(b.font_size().to_string(), "is-size-3");
                         }
                         FontSize::Large => {
-                            button.alter_classes(
-                                ClassesOp::Replace(button.font_size().to_string()),
-                                "is-size-4",
-                            );
+                            b.replace_classes(b.font_size().to_string(), "is-size-4");
                         }
                         FontSize::Medium => {
-                            button.alter_classes(
-                                ClassesOp::Replace(button.font_size().to_string()),
-                                "is-size-5",
-                            );
+                            b.replace_classes(b.font_size().to_string(), "is-size-5");
                         }
                         _ => {}
                     };
-                    match button.button_type() {
+                    match b.button_type() {
                         ButtonType::Link => {
-                            button.alter_classes(
-                                ClassesOp::Replace(button.button_type().to_string()),
-                                "button is-text",
-                            );
+                            b.replace_classes(b.button_type().to_string(), "button is-text");
                         }
                         ButtonType::Primary => {
-                            button.alter_classes(
-                                ClassesOp::Replace(button.button_type().to_string()),
-                                "button is-primary",
-                            );
+                            b.replace_classes(b.button_type().to_string(), "button is-primary");
                         }
                     };
                 }
             }
             COMPONENT_BASE_HEADING => {
-                if let Some(heading) = component_as_mut::<Heading>(component) {
-                    match heading.display() {
-                        HeadingDisplay::Subtitle => heading.alter_classes(
-                            ClassesOp::Replace(heading.display().to_string()),
-                            "subtitle",
-                        ),
-                        _ => heading.alter_classes(ClassesOp::Add, "title"),
+                if let Some(h) = component_as_mut::<Heading>(component) {
+                    match h.display() {
+                        HeadingDisplay::Subtitle => {
+                            h.replace_classes(h.display().to_string(), "subtitle")
+                        }
+                        _ => h.add_classes("title"),
                     };
                 }
             }
             COMPONENT_BASE_PARAGRAPH => {
-                if let Some(paragraph) = component_as_mut::<Paragraph>(component) {
-                    paragraph.alter_classes(ClassesOp::Add, "block");
-                    match paragraph.font_size() {
+                if let Some(p) = component_as_mut::<Paragraph>(component) {
+                    p.add_classes("block");
+                    match p.font_size() {
                         FontSize::ExtraLarge => {
-                            paragraph.alter_classes(
-                                ClassesOp::Replace(paragraph.font_size().to_string()),
-                                "is-size-1",
-                            );
+                            p.replace_classes(p.font_size().to_string(), "is-size-1");
                         }
                         FontSize::XxLarge => {
-                            paragraph.alter_classes(
-                                ClassesOp::Replace(paragraph.font_size().to_string()),
-                                "is-size-2",
-                            );
+                            p.replace_classes(p.font_size().to_string(), "is-size-2");
                         }
                         FontSize::XLarge => {
-                            paragraph.alter_classes(
-                                ClassesOp::Replace(paragraph.font_size().to_string()),
-                                "is-size-3",
-                            );
+                            p.replace_classes(p.font_size().to_string(), "is-size-3");
                         }
                         FontSize::Large => {
-                            paragraph.alter_classes(
-                                ClassesOp::Replace(paragraph.font_size().to_string()),
-                                "is-size-4",
-                            );
+                            p.replace_classes(p.font_size().to_string(), "is-size-4");
                         }
                         FontSize::Medium => {
-                            paragraph.alter_classes(
-                                ClassesOp::Replace(paragraph.font_size().to_string()),
-                                "is-size-5",
-                            );
+                            p.replace_classes(p.font_size().to_string(), "is-size-5");
                         }
                         _ => {}
                     };
@@ -180,12 +128,10 @@ impl ThemeTrait for Bulmix {
     ) -> Option<Markup> {
         match component.handle() {
             COMPONENT_BASE_ICON => {
-                if let Some(icon) = component_as_ref::<Icon>(component) {
-                    return match icon.icon_name().get() {
+                if let Some(i) = component_as_ref::<Icon>(component) {
+                    return match i.icon_name().get() {
                         None => None,
-                        _ => {
-                            Some(html! { span class="icon" { i class=[icon.classes().get()] {} } })
-                        }
+                        _ => Some(html! { span class="icon" { i class=[i.classes().get()] {} } }),
                     };
                 }
                 None

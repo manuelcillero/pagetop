@@ -8,6 +8,9 @@ pub use renderable::{FnIsRenderable, Renderable};
 mod definition;
 pub use definition::{component_as_mut, component_as_ref, ComponentBase, ComponentTrait};
 
+mod classes;
+pub use classes::{ComponentClasses, ComponentClassesOp};
+
 mod arc_any;
 pub use arc_any::AnyComponents;
 pub use arc_any::{ArcAnyComponent, ArcAnyOp};

@@ -25,11 +25,11 @@ impl ComponentTrait for Icon {
         (self.renderable.check)(cx)
     }
 
+    #[rustfmt::skip]
     fn setup_before_prepare(&mut self, cx: &mut Context) {
         if let Some(icon_name) = self.icon_name.get() {
-            self.classes.alter_value(
-                ClassesOp::AddFirst,
-                concat_string!("bi-", icon_name, " ", self.font_size.to_string()),
+            self.prepend_classes(
+                concat_string!("bi-", icon_name, " ", self.font_size().to_string()),
             );
             cx.set_param::<bool>(PARAM_BASE_INCLUDE_ICONS, true);
         }
@@ -40,6 +40,17 @@ impl ComponentTrait for Icon {
             None => PrepareMarkup::None,
             _ => PrepareMarkup::With(html! { i class=[self.classes().get()] {} }),
         }
+    }
+}
+
+impl ComponentClasses for Icon {
+    fn alter_classes(&mut self, op: ClassesOp, classes: impl Into<String>) -> &mut Self {
+        self.classes.alter_value(op, classes);
+        self
+    }
+
+    fn classes(&self) -> &OptionClasses {
+        &self.classes
     }
 }
 
@@ -63,12 +74,6 @@ impl Icon {
     }
 
     #[fn_builder]
-    pub fn alter_classes(&mut self, op: ClassesOp, classes: impl Into<String>) -> &mut Self {
-        self.classes.alter_value(op, classes);
-        self
-    }
-
-    #[fn_builder]
     pub fn alter_icon_name(&mut self, name: impl Into<String>) -> &mut Self {
         self.icon_name.alter_value(name);
         self
@@ -81,10 +86,6 @@ impl Icon {
     }
 
     // Icon GETTERS.
-
-    pub fn classes(&self) -> &OptionClasses {
-        &self.classes
-    }
 
     pub fn icon_name(&self) -> &OptionString {
         &self.icon_name

@@ -71,7 +71,7 @@ impl ComponentTrait for Heading {
 
     #[rustfmt::skip]
     fn setup_before_prepare(&mut self, _cx: &mut Context) {
-        self.classes.alter_value(ClassesOp::Add, self.display().to_string());
+        self.add_classes(self.display().to_string());
     }
 
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
@@ -86,6 +86,17 @@ impl ComponentTrait for Heading {
             HeadingType::H5 => h5 id=[id] class=[classes] { (text) },
             HeadingType::H6 => h6 id=[id] class=[classes] { (text) },
         }})
+    }
+}
+
+impl ComponentClasses for Heading {
+    fn alter_classes(&mut self, op: ClassesOp, classes: impl Into<String>) -> &mut Self {
+        self.classes.alter_value(op, classes);
+        self
+    }
+
+    fn classes(&self) -> &OptionClasses {
+        &self.classes
     }
 }
 
@@ -147,12 +158,6 @@ impl Heading {
     }
 
     #[fn_builder]
-    pub fn alter_classes(&mut self, op: ClassesOp, classes: impl Into<String>) -> &mut Self {
-        self.classes.alter_value(op, classes);
-        self
-    }
-
-    #[fn_builder]
     pub fn alter_heading_type(&mut self, heading_type: HeadingType) -> &mut Self {
         self.heading_type = heading_type;
         self
@@ -171,10 +176,6 @@ impl Heading {
     }
 
     // Paragraph GETTERS.
-
-    pub fn classes(&self) -> &OptionClasses {
-        &self.classes
-    }
 
     pub fn heading_type(&self) -> &HeadingType {
         &self.heading_type

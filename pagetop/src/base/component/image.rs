@@ -62,6 +62,17 @@ impl ComponentTrait for Image {
     }
 }
 
+impl ComponentClasses for Image {
+    fn alter_classes(&mut self, op: ClassesOp, classes: impl Into<String>) -> &mut Self {
+        self.classes.alter_value(op, classes);
+        self
+    }
+
+    fn classes(&self) -> &OptionClasses {
+        &self.classes
+    }
+}
+
 impl Image {
     pub fn with(source: &str) -> Self {
         Image::default()
@@ -103,12 +114,6 @@ impl Image {
     }
 
     #[fn_builder]
-    pub fn alter_classes(&mut self, op: ClassesOp, classes: impl Into<String>) -> &mut Self {
-        self.classes.alter_value(op, classes);
-        self
-    }
-
-    #[fn_builder]
     pub fn alter_source(&mut self, source: &str) -> &mut Self {
         self.source.alter_value(source);
         self
@@ -121,10 +126,6 @@ impl Image {
     }
 
     // Image GETTERS.
-
-    pub fn classes(&self) -> &OptionClasses {
-        &self.classes
-    }
 
     pub fn source(&self) -> &OptionString {
         &self.source

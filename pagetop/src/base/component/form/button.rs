@@ -48,9 +48,9 @@ impl ComponentTrait for Button {
         (self.renderable.check)(cx)
     }
 
+    #[rustfmt::skip]
     fn setup_before_prepare(&mut self, _cx: &mut Context) {
-        self.classes.alter_value(
-            ClassesOp::AddFirst,
+        self.prepend_classes(
             concat_string!("btn btn-primary form-", self.button_type.to_string()),
         );
     }
@@ -70,6 +70,17 @@ impl ComponentTrait for Button {
                 (self.value().escaped(cx.langid()).unwrap_or_default())
             }
         })
+    }
+}
+
+impl ComponentClasses for Button {
+    fn alter_classes(&mut self, op: ClassesOp, classes: impl Into<String>) -> &mut Self {
+        self.classes.alter_value(op, classes);
+        self
+    }
+
+    fn classes(&self) -> &OptionClasses {
+        &self.classes
     }
 }
 
@@ -101,12 +112,6 @@ impl Button {
     #[fn_builder]
     pub fn alter_renderable(&mut self, check: FnIsRenderable) -> &mut Self {
         self.renderable.check = check;
-        self
-    }
-
-    #[fn_builder]
-    pub fn alter_classes(&mut self, op: ClassesOp, classes: impl Into<String>) -> &mut Self {
-        self.classes.alter_value(op, classes);
         self
     }
 
@@ -147,10 +152,6 @@ impl Button {
     }
 
     // Button GETTERS.
-
-    pub fn classes(&self) -> &OptionClasses {
-        &self.classes
-    }
 
     pub fn button_type(&self) -> &ButtonType {
         &self.button_type

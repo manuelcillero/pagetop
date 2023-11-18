@@ -68,6 +68,17 @@ impl ComponentTrait for Date {
     }
 }
 
+impl ComponentClasses for Date {
+    fn alter_classes(&mut self, op: ClassesOp, classes: impl Into<String>) -> &mut Self {
+        self.classes.alter_value(op, classes);
+        self
+    }
+
+    fn classes(&self) -> &OptionClasses {
+        &self.classes
+    }
+}
+
 impl Date {
     // Date BUILDER.
 
@@ -80,12 +91,6 @@ impl Date {
     #[fn_builder]
     pub fn alter_renderable(&mut self, check: FnIsRenderable) -> &mut Self {
         self.renderable.check = check;
-        self
-    }
-
-    #[fn_builder]
-    pub fn alter_classes(&mut self, op: ClassesOp, classes: impl Into<String>) -> &mut Self {
-        self.classes.alter_value(op, classes);
         self
     }
 
@@ -171,10 +176,6 @@ impl Date {
     }
 
     // Date GETTERS.
-
-    pub fn classes(&self) -> &OptionClasses {
-        &self.classes
-    }
 
     pub fn name(&self) -> &OptionString {
         &self.name

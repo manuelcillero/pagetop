@@ -31,7 +31,7 @@ impl ComponentTrait for Block {
     }
 
     fn setup_before_prepare(&mut self, _cx: &mut Context) {
-        self.classes.alter_value(ClassesOp::AddFirst, "pt-block");
+        self.prepend_classes("pt-block");
     }
 
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
@@ -48,6 +48,17 @@ impl ComponentTrait for Block {
             });
         }
         PrepareMarkup::None
+    }
+}
+
+impl ComponentClasses for Block {
+    fn alter_classes(&mut self, op: ClassesOp, classes: impl Into<String>) -> &mut Self {
+        self.classes.alter_value(op, classes);
+        self
+    }
+
+    fn classes(&self) -> &OptionClasses {
+        &self.classes
     }
 }
 
@@ -73,12 +84,6 @@ impl Block {
     }
 
     #[fn_builder]
-    pub fn alter_classes(&mut self, op: ClassesOp, classes: impl Into<String>) -> &mut Self {
-        self.classes.alter_value(op, classes);
-        self
-    }
-
-    #[fn_builder]
     pub fn alter_title(&mut self, title: L10n) -> &mut Self {
         self.title.alter_value(title);
         self
@@ -97,10 +102,6 @@ impl Block {
     }
 
     // Block GETTERS.
-
-    pub fn classes(&self) -> &OptionClasses {
-        &self.classes
-    }
 
     pub fn title(&self) -> &OptionTranslated {
         &self.title

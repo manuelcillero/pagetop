@@ -83,6 +83,17 @@ impl ComponentTrait for Wrapper {
     }
 }
 
+impl ComponentClasses for Wrapper {
+    fn alter_classes(&mut self, op: ClassesOp, classes: impl Into<String>) -> &mut Self {
+        self.classes.alter_value(op, classes);
+        self
+    }
+
+    fn classes(&self) -> &OptionClasses {
+        &self.classes
+    }
+}
+
 impl Wrapper {
     pub fn header() -> Self {
         let mut c = Wrapper::default()
@@ -137,12 +148,6 @@ impl Wrapper {
     }
 
     #[fn_builder]
-    pub fn alter_classes(&mut self, op: ClassesOp, classes: impl Into<String>) -> &mut Self {
-        self.classes.alter_value(op, classes);
-        self
-    }
-
-    #[fn_builder]
     pub fn alter_inner_classes(&mut self, op: ClassesOp, classes: impl Into<String>) -> &mut Self {
         self.inner_classes.alter_value(op, classes);
         self
@@ -167,10 +172,6 @@ impl Wrapper {
     }
 
     // Wrapper GETTERS.
-
-    pub fn classes(&self) -> &OptionClasses {
-        &self.classes
-    }
 
     pub fn inner_classes(&self) -> &OptionClasses {
         &self.inner_classes
