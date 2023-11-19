@@ -1,7 +1,8 @@
 use crate::prelude::*;
+use crate::CrateHandle;
 
 #[rustfmt::skip]
-#[derive(SmartDefault)]
+#[derive(CrateHandle, SmartDefault)]
 pub struct Branding {
     id        : OptionId,
     weight    : Weight,
@@ -13,8 +14,6 @@ pub struct Branding {
     #[default(_code = "|_| \"/\"")]
     frontpage : FnContextualPath,
 }
-
-impl_handle!(COMPONENT_BASE_BRANDING for Branding);
 
 impl ComponentTrait for Branding {
     fn new() -> Self {

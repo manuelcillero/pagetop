@@ -1,7 +1,8 @@
 use crate::prelude::*;
+use crate::CrateHandle;
 
 #[rustfmt::skip]
-#[derive(SmartDefault)]
+#[derive(ComponentClasses, CrateHandle, SmartDefault)]
 pub struct Block {
     id        : OptionId,
     weight    : Weight,
@@ -10,8 +11,6 @@ pub struct Block {
     title     : OptionTranslated,
     stuff     : AnyComponents,
 }
-
-impl_handle!(COMPONENT_BASE_BLOCK for Block);
 
 impl ComponentTrait for Block {
     fn new() -> Self {
@@ -48,17 +47,6 @@ impl ComponentTrait for Block {
             });
         }
         PrepareMarkup::None
-    }
-}
-
-impl ComponentClasses for Block {
-    fn alter_classes(&mut self, op: ClassesOp, classes: impl Into<String>) -> &mut Self {
-        self.classes.alter_value(op, classes);
-        self
-    }
-
-    fn classes(&self) -> &OptionClasses {
-        &self.classes
     }
 }
 

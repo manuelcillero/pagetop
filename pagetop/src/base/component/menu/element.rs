@@ -1,4 +1,5 @@
 use crate::prelude::*;
+use crate::CrateHandle;
 
 use super::Submenu;
 
@@ -16,14 +17,12 @@ pub enum ElementType {
 // Element.
 
 #[rustfmt::skip]
-#[derive(SmartDefault)]
+#[derive(CrateHandle, SmartDefault)]
 pub struct Element {
     weight      : Weight,
     renderable  : Renderable,
     element_type: ElementType,
 }
-
-impl_handle!(COMPONENT_BASE_MENU_ELEMENT for Element);
 
 impl ComponentTrait for Element {
     fn new() -> Self {

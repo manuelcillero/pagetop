@@ -1,7 +1,8 @@
 use crate::prelude::*;
+use crate::CrateHandle;
 
 #[rustfmt::skip]
-#[derive(SmartDefault)]
+#[derive(ComponentClasses, CrateHandle, SmartDefault)]
 pub struct Container {
     id             : OptionId,
     weight         : Weight,
@@ -14,8 +15,6 @@ pub struct Container {
     items_align    : flex::ItemAlign,
     gap            : flex::Gap,
 }
-
-impl_handle!(COMPONENT_BASE_FLEX_CONTAINER for Container);
 
 impl ComponentTrait for Container {
     fn new() -> Self {
@@ -59,17 +58,6 @@ impl ComponentTrait for Container {
                 (self.items().render(cx))
             }
         })
-    }
-}
-
-impl ComponentClasses for Container {
-    fn alter_classes(&mut self, op: ClassesOp, classes: impl Into<String>) -> &mut Self {
-        self.classes.alter_value(op, classes);
-        self
-    }
-
-    fn classes(&self) -> &OptionClasses {
-        &self.classes
     }
 }
 

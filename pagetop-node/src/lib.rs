@@ -5,9 +5,8 @@ static_locales!(LOCALES_NODE);
 //mod entity;
 mod migration;
 
+#[derive(AssignHandle)]
 pub struct Node;
-
-impl_handle!(MODULE_NODE for Node);
 
 impl ModuleTrait for Node {
     fn name(&self) -> L10n {

@@ -1,13 +1,13 @@
 use crate::prelude::*;
+use crate::CrateHandle;
 
 use super::FnActionPage;
 
+#[derive(CrateHandle)]
 pub struct AfterPrepareBody {
     f: FnActionPage,
     weight: Weight,
 }
-
-impl_handle!(ACTION_AFTER_PREPARE_BODY for AfterPrepareBody);
 
 impl ActionTrait for AfterPrepareBody {
     fn weight(&self) -> Weight {

@@ -1,7 +1,8 @@
 use crate::prelude::*;
+use crate::CrateHandle;
 
 #[rustfmt::skip]
-#[derive(SmartDefault)]
+#[derive(ComponentClasses, CrateHandle, SmartDefault)]
 pub struct Icon {
     weight    : Weight,
     renderable: Renderable,
@@ -9,8 +10,6 @@ pub struct Icon {
     icon_name : OptionString,
     font_size : FontSize,
 }
-
-impl_handle!(COMPONENT_BASE_ICON for Icon);
 
 impl ComponentTrait for Icon {
     fn new() -> Self {
@@ -40,17 +39,6 @@ impl ComponentTrait for Icon {
             None => PrepareMarkup::None,
             _ => PrepareMarkup::With(html! { i class=[self.classes().get()] {} }),
         }
-    }
-}
-
-impl ComponentClasses for Icon {
-    fn alter_classes(&mut self, op: ClassesOp, classes: impl Into<String>) -> &mut Self {
-        self.classes.alter_value(op, classes);
-        self
-    }
-
-    fn classes(&self) -> &OptionClasses {
-        &self.classes
     }
 }
 

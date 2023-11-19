@@ -1,17 +1,16 @@
 use crate::prelude::*;
+use crate::CrateHandle;
 
 use super::Element;
 
 #[rustfmt::skip]
-#[derive(SmartDefault)]
+#[derive(CrateHandle, SmartDefault)]
 pub struct Group {
     id        : OptionId,
     weight    : Weight,
     renderable: Renderable,
     elements  : TypedComponents<Element>,
 }
-
-impl_handle!(COMPONENT_BASE_MENU_GROUP for Group);
 
 impl ComponentTrait for Group {
     fn new() -> Self {

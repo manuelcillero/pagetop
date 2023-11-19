@@ -1,7 +1,8 @@
 use crate::prelude::*;
+use crate::CrateHandle;
 
 #[rustfmt::skip]
-#[derive(SmartDefault)]
+#[derive(ComponentClasses, CrateHandle, SmartDefault)]
 pub struct Paragraph {
     id        : OptionId,
     weight    : Weight,
@@ -10,8 +11,6 @@ pub struct Paragraph {
     font_size : FontSize,
     stuff     : AnyComponents,
 }
-
-impl_handle!(COMPONENT_BASE_PARAGRAPH for Paragraph);
 
 impl ComponentTrait for Paragraph {
     fn new() -> Self {
@@ -43,17 +42,6 @@ impl ComponentTrait for Paragraph {
                 (self.components().render(cx))
             }
         })
-    }
-}
-
-impl ComponentClasses for Paragraph {
-    fn alter_classes(&mut self, op: ClassesOp, classes: impl Into<String>) -> &mut Self {
-        self.classes.alter_value(op, classes);
-        self
-    }
-
-    fn classes(&self) -> &OptionClasses {
-        &self.classes
     }
 }
 

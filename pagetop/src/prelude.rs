@@ -4,11 +4,11 @@
 pub use crate::{concat_string, fn_builder, main, paste, test, SmartDefault};
 
 // Global.
-pub use crate::{Handle, HasHandle, HashMapResources, LazyStatic, Weight};
+pub use crate::{Handle, HashMapResources, ImplementHandle, LazyStatic, Weight};
 
 // Functions and macro helpers.
 pub use crate::util;
-pub use crate::{impl_handle, kv};
+pub use crate::{kv, AssignHandle, ComponentClasses};
 
 // MACROS.
 

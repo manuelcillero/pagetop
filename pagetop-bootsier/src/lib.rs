@@ -4,9 +4,8 @@ static_locales!(LOCALES_BOOTSIER);
 
 static_files!(bootsier);
 
+#[derive(AssignHandle)]
 pub struct Bootsier;
-
-impl_handle!(THEME_BOOTSIER for Bootsier);
 
 impl ModuleTrait for Bootsier {
     fn theme(&self) -> Option<ThemeRef> {
@@ -83,7 +82,7 @@ impl ThemeTrait for Bootsier {
 
     fn before_prepare_component(&self, component: &mut dyn ComponentTrait, _cx: &mut Context) {
         match component.handle() {
-            COMPONENT_BASE_ICON => {
+            h if Icon::matches_handle(h) => {
                 if let Some(i) = component_as_mut::<Icon>(component) {
                     match i.font_size() {
                         FontSize::ExtraLarge => {
@@ -105,7 +104,7 @@ impl ThemeTrait for Bootsier {
                     };
                 }
             }
-            COMPONENT_BASE_BUTTON => {
+            h if Button::matches_handle(h) => {
                 if let Some(b) = component_as_mut::<Button>(component) {
                     match b.font_size() {
                         FontSize::ExtraLarge => {
@@ -135,7 +134,7 @@ impl ThemeTrait for Bootsier {
                     };
                 }
             }
-            COMPONENT_BASE_HEADING => {
+            h if Heading::matches_handle(h) => {
                 if let Some(h) = component_as_mut::<Heading>(component) {
                     match h.display() {
                         HeadingDisplay::ExtraLarge => {
@@ -157,7 +156,7 @@ impl ThemeTrait for Bootsier {
                     };
                 }
             }
-            COMPONENT_BASE_PARAGRAPH => {
+            h if Paragraph::matches_handle(h) => {
                 if let Some(p) = component_as_mut::<Paragraph>(component) {
                     match p.font_size() {
                         FontSize::ExtraLarge => {
@@ -185,7 +184,7 @@ impl ThemeTrait for Bootsier {
 
     fn render_component(&self, component: &dyn ComponentTrait, cx: &mut Context) -> Option<Markup> {
         match component.handle() {
-            ERROR_404 => Some(html! {
+            h if Error404::matches_handle(h) => Some(html! {
                 div class="jumbotron" {
                     div class="media" {
                         img

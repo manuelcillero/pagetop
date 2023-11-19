@@ -1,9 +1,8 @@
 use crate::prelude::*;
+use crate::CrateHandle;
 
-#[derive(SmartDefault)]
+#[derive(CrateHandle, SmartDefault)]
 pub struct Html(Markup);
-
-impl_handle!(COMPONENT_BASE_HTML for Html);
 
 impl ComponentTrait for Html {
     fn new() -> Self {

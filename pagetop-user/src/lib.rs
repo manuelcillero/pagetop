@@ -4,9 +4,8 @@ static_locales!(LOCALES_USER);
 
 mod migration;
 
+#[derive(AssignHandle)]
 pub struct User;
-
-impl_handle!(MODULE_USER for User);
 
 impl ModuleTrait for User {
     fn name(&self) -> L10n {

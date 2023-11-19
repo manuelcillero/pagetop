@@ -1,7 +1,7 @@
 mod container;
-pub use container::{Container, COMPONENT_BASE_FLEX_CONTAINER};
+pub use container::Container;
 mod item;
-pub use item::{Item, COMPONENT_BASE_FLEX_ITEM};
+pub use item::Item;
 
 use crate::prelude::*;
 

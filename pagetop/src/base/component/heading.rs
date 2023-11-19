@@ -1,4 +1,5 @@
 use crate::prelude::*;
+use crate::CrateHandle;
 
 #[derive(SmartDefault)]
 pub enum HeadingType {
@@ -39,7 +40,7 @@ impl ToString for HeadingDisplay {
 }
 
 #[rustfmt::skip]
-#[derive(SmartDefault)]
+#[derive(ComponentClasses, CrateHandle, SmartDefault)]
 pub struct Heading {
     id          : OptionId,
     weight      : Weight,
@@ -49,8 +50,6 @@ pub struct Heading {
     text        : OptionTranslated,
     display     : HeadingDisplay,
 }
-
-impl_handle!(COMPONENT_BASE_HEADING for Heading);
 
 impl ComponentTrait for Heading {
     fn new() -> Self {
@@ -86,17 +85,6 @@ impl ComponentTrait for Heading {
             HeadingType::H5 => h5 id=[id] class=[classes] { (text) },
             HeadingType::H6 => h6 id=[id] class=[classes] { (text) },
         }})
-    }
-}
-
-impl ComponentClasses for Heading {
-    fn alter_classes(&mut self, op: ClassesOp, classes: impl Into<String>) -> &mut Self {
-        self.classes.alter_value(op, classes);
-        self
-    }
-
-    fn classes(&self) -> &OptionClasses {
-        &self.classes
     }
 }
 

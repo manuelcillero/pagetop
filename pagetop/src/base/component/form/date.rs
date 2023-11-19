@@ -1,7 +1,8 @@
 use crate::prelude::*;
+use crate::CrateHandle;
 
 #[rustfmt::skip]
-#[derive(SmartDefault)]
+#[derive(ComponentClasses, CrateHandle, SmartDefault)]
 pub struct Date {
     weight      : Weight,
     renderable  : Renderable,
@@ -18,8 +19,6 @@ pub struct Date {
     help_text   : OptionString,
     template    : String,
 }
-
-impl_handle!(COMPONENT_BASE_DATE for Date);
 
 impl ComponentTrait for Date {
     fn new() -> Self {
@@ -65,17 +64,6 @@ impl ComponentTrait for Date {
                 }
             }
         })
-    }
-}
-
-impl ComponentClasses for Date {
-    fn alter_classes(&mut self, op: ClassesOp, classes: impl Into<String>) -> &mut Self {
-        self.classes.alter_value(op, classes);
-        self
-    }
-
-    fn classes(&self) -> &OptionClasses {
-        &self.classes
     }
 }
 

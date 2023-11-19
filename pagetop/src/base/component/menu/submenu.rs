@@ -1,9 +1,10 @@
 use crate::prelude::*;
+use crate::CrateHandle;
 
 use super::Item;
 
 #[rustfmt::skip]
-#[derive(SmartDefault)]
+#[derive(CrateHandle, SmartDefault)]
 pub struct Submenu {
     id        : OptionId,
     weight    : Weight,
@@ -11,8 +12,6 @@ pub struct Submenu {
     title     : OptionTranslated,
     items     : TypedComponents<Item>,
 }
-
-impl_handle!(COMPONENT_BASE_MENU_SUBMENU for Submenu);
 
 impl ComponentTrait for Submenu {
     fn new() -> Self {

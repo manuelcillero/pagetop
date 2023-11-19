@@ -1,8 +1,8 @@
 mod basic;
-pub use basic::{Basic, THEME_BASIC};
+pub use basic::Basic;
 
 mod chassis;
-pub use chassis::{Chassis, THEME_CHASSIS};
+pub use chassis::Chassis;
 
 mod inception;
-pub use inception::{Inception, THEME_INCEPTION};
+pub use inception::Inception;

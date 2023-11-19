@@ -1,4 +1,5 @@
 use crate::prelude::*;
+use crate::CrateHandle;
 
 #[derive(SmartDefault)]
 pub enum InputType {
@@ -12,7 +13,7 @@ pub enum InputType {
 }
 
 #[rustfmt::skip]
-#[derive(SmartDefault)]
+#[derive(ComponentClasses, CrateHandle, SmartDefault)]
 pub struct Input {
     weight      : Weight,
     renderable  : Renderable,
@@ -33,8 +34,6 @@ pub struct Input {
     help_text   : OptionTranslated,
     template    : String,
 }
-
-impl_handle!(COMPONENT_BASE_INPUT for Input);
 
 impl ComponentTrait for Input {
     fn new() -> Self {
@@ -95,17 +94,6 @@ impl ComponentTrait for Input {
                 }
             }
         })
-    }
-}
-
-impl ComponentClasses for Input {
-    fn alter_classes(&mut self, op: ClassesOp, classes: impl Into<String>) -> &mut Self {
-        self.classes.alter_value(op, classes);
-        self
-    }
-
-    fn classes(&self) -> &OptionClasses {
-        &self.classes
     }
 }
 

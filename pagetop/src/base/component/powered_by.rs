@@ -1,4 +1,5 @@
 use crate::prelude::*;
+use crate::CrateHandle;
 
 #[derive(Default, Eq, PartialEq)]
 pub enum PoweredByLogo {
@@ -11,15 +12,13 @@ pub enum PoweredByLogo {
 }
 
 #[rustfmt::skip]
-#[derive(SmartDefault)]
+#[derive(CrateHandle, SmartDefault)]
 pub struct PoweredBy {
     weight    : Weight,
     renderable: Renderable,
     copyright : Option<String>,
     logo      : PoweredByLogo,
 }
-
-impl_handle!(COMPONENT_BASE_POWEREDBY for PoweredBy);
 
 impl ComponentTrait for PoweredBy {
     fn new() -> Self {

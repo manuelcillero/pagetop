@@ -1,4 +1,5 @@
 use crate::prelude::*;
+use crate::CrateHandle;
 
 const IMG_FLUID: &str = "pt-img__fluid";
 const IMG_FIXED: &str = "pt-img__fixed";
@@ -14,7 +15,7 @@ pub enum ImageSize {
 }
 
 #[rustfmt::skip]
-#[derive(SmartDefault)]
+#[derive(ComponentClasses, CrateHandle, SmartDefault)]
 pub struct Image {
     id        : OptionId,
     weight    : Weight,
@@ -23,8 +24,6 @@ pub struct Image {
     source    : OptionString,
     size      : ImageSize,
 }
-
-impl_handle!(COMPONENT_BASE_IMAGE for Image);
 
 impl ComponentTrait for Image {
     fn new() -> Self {
@@ -59,17 +58,6 @@ impl ComponentTrait for Image {
                 width=[width]
                 height=[height] {}
         })
-    }
-}
-
-impl ComponentClasses for Image {
-    fn alter_classes(&mut self, op: ClassesOp, classes: impl Into<String>) -> &mut Self {
-        self.classes.alter_value(op, classes);
-        self
-    }
-
-    fn classes(&self) -> &OptionClasses {
-        &self.classes
     }
 }
 

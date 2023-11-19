@@ -1,8 +1,8 @@
 use crate::prelude::*;
+use crate::CrateHandle;
 
+#[derive(CrateHandle)]
 pub struct Basic;
-
-impl_handle!(THEME_BASIC for Basic);
 
 impl ModuleTrait for Basic {
     fn name(&self) -> L10n {

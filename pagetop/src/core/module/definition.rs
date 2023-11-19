@@ -1,7 +1,7 @@
 use crate::core::action::Action;
 use crate::core::theme::ThemeRef;
 use crate::locale::L10n;
-use crate::{actions, service, util, HasHandle};
+use crate::{actions, service, util, ImplementHandle};
 
 #[cfg(feature = "database")]
 use crate::{db::MigrationItem, migrations};
@@ -13,7 +13,7 @@ pub trait ModuleBase {
 }
 
 /// Los módulos deben implementar este *trait*.
-pub trait ModuleTrait: HasHandle + ModuleBase + Send + Sync {
+pub trait ModuleTrait: ImplementHandle + ModuleBase + Send + Sync {
     fn name(&self) -> L10n {
         L10n::n(self.single_name())
     }

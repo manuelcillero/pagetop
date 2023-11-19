@@ -1,17 +1,17 @@
 mod menu_main;
-pub use menu_main::{Menu, COMPONENT_BASE_MENU};
+pub use menu_main::Menu;
 
 mod item;
-pub use item::{Item, ItemType, COMPONENT_BASE_MENU_ITEM};
+pub use item::{Item, ItemType};
 
 mod submenu;
-pub use submenu::{Submenu, COMPONENT_BASE_MENU_SUBMENU};
+pub use submenu::Submenu;
 
 mod megamenu;
-pub use megamenu::{Megamenu, COMPONENT_BASE_MENU_MEGAMENU};
+pub use megamenu::Megamenu;
 
 mod group;
-pub use group::{Group, COMPONENT_BASE_MENU_GROUP};
+pub use group::Group;
 
 mod element;
-pub use element::{Element, ElementType, COMPONENT_BASE_MENU_ELEMENT};
+pub use element::{Element, ElementType};

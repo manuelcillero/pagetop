@@ -1,4 +1,5 @@
 use crate::prelude::*;
+use crate::CrateHandle;
 
 #[derive(SmartDefault)]
 pub enum ButtonType {
@@ -20,7 +21,7 @@ impl ToString for ButtonType {
 }
 
 #[rustfmt::skip]
-#[derive(SmartDefault)]
+#[derive(ComponentClasses, CrateHandle, SmartDefault)]
 pub struct Button {
     weight     : Weight,
     renderable : Renderable,
@@ -32,8 +33,6 @@ pub struct Button {
     disabled   : OptionString,
     template   : String,
 }
-
-impl_handle!(COMPONENT_BASE_BUTTON for Button);
 
 impl ComponentTrait for Button {
     fn new() -> Self {
@@ -70,17 +69,6 @@ impl ComponentTrait for Button {
                 (self.value().escaped(cx.langid()))
             }
         })
-    }
-}
-
-impl ComponentClasses for Button {
-    fn alter_classes(&mut self, op: ClassesOp, classes: impl Into<String>) -> &mut Self {
-        self.classes.alter_value(op, classes);
-        self
-    }
-
-    fn classes(&self) -> &OptionClasses {
-        &self.classes
     }
 }
 

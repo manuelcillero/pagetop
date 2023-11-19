@@ -1,15 +1,15 @@
 use crate::prelude::*;
+use crate::CrateHandle;
 
 use super::FnAction;
 
+#[derive(CrateHandle)]
 pub struct BeforePrepareComponent<C: ComponentTrait> {
     f: FnAction<C>,
     referer_handle: Option<Handle>,
     referer_id: OptionId,
     weight: Weight,
 }
-
-impl_handle!(ACTION_BEFORE_PREPARE_COMPONENT for BeforePrepareComponent<ComponentTrait>);
 
 impl<C: ComponentTrait> ActionTrait for BeforePrepareComponent<C> {
     fn referer_handle(&self) -> Option<Handle> {

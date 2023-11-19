@@ -1,4 +1,4 @@
-use crate::{Handle, HasHandle, Weight};
+use crate::{Handle, ImplementHandle, Weight};
 
 use std::any::Any;
 
@@ -6,7 +6,7 @@ pub trait ActionBase: Any {
     fn as_ref_any(&self) -> &dyn Any;
 }
 
-pub trait ActionTrait: ActionBase + HasHandle + Send + Sync {
+pub trait ActionTrait: ActionBase + ImplementHandle + Send + Sync {
     fn referer_handle(&self) -> Option<Handle> {
         None
     }

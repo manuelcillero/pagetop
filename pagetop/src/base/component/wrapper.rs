@@ -1,4 +1,5 @@
 use crate::prelude::*;
+use crate::CrateHandle;
 
 #[derive(SmartDefault)]
 pub enum WrapperType {
@@ -11,7 +12,7 @@ pub enum WrapperType {
 }
 
 #[rustfmt::skip]
-#[derive(SmartDefault)]
+#[derive(ComponentClasses, CrateHandle, SmartDefault)]
 pub struct Wrapper {
     id           : OptionId,
     weight       : Weight,
@@ -22,8 +23,6 @@ pub struct Wrapper {
     stuff        : AnyComponents,
     template     : String,
 }
-
-impl_handle!(COMPONENT_BASE_WRAPPER for Wrapper);
 
 impl ComponentTrait for Wrapper {
     fn new() -> Self {
@@ -80,17 +79,6 @@ impl ComponentTrait for Wrapper {
                 }
             }),
         }
-    }
-}
-
-impl ComponentClasses for Wrapper {
-    fn alter_classes(&mut self, op: ClassesOp, classes: impl Into<String>) -> &mut Self {
-        self.classes.alter_value(op, classes);
-        self
-    }
-
-    fn classes(&self) -> &OptionClasses {
-        &self.classes
     }
 }
 

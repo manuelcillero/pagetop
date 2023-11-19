@@ -1,8 +1,7 @@
 use pagetop::prelude::*;
 
+#[derive(AssignHandle)]
 struct HealthCheck;
-
-impl_handle!(MODULE_TEST_SERVER_HEALTH_CHECK for HealthCheck);
 
 impl ModuleTrait for HealthCheck {}
 

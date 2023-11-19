@@ -1,14 +1,13 @@
 use crate::prelude::*;
+use crate::CrateHandle;
 
 #[rustfmt::skip]
-#[derive(SmartDefault)]
+#[derive(CrateHandle, SmartDefault)]
 pub struct Hidden {
     weight: Weight,
     name  : OptionName,
     value : OptionString,
 }
-
-impl_handle!(COMPONENT_BASE_HIDDEN for Hidden);
 
 impl ComponentTrait for Hidden {
     fn new() -> Self {

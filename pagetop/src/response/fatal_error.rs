@@ -1,7 +1,7 @@
 mod error403;
-pub use error403::ERROR_403;
+pub use error403::Error403;
 mod error404;
-pub use error404::ERROR_404;
+pub use error404::Error404;
 
 use crate::locale::L10n;
 use crate::response::{page::Page, ResponseError};

@@ -44,15 +44,10 @@
 //! ```rust
 //! use pagetop::prelude::*;
 //!
+//! #[derive(AssignHandle)]
 //! struct HelloWorld;
 //!
-//! impl_handle!(APP_HELLO_WORLD for HelloWorld);
-//!
 //! impl ModuleTrait for HelloWorld {
-//!     fn handle(&self) -> Handle {
-//!         APP_HELLO_WORLD
-//!     }
-//!
 //!     fn configure_service(&self, scfg: &mut service::web::ServiceConfig) {
 //!         scfg.route("/", service::web::get().to(hello_world));
 //!     }
@@ -113,7 +108,9 @@ pub use paste::paste;
 /// customized default values.
 pub use smart_default::SmartDefault;
 
-pub use pagetop_macros::{fn_builder, main, test};
+pub use pagetop_macros::{fn_builder, main, test, AssignHandle, ComponentClasses};
+
+pub(crate) use pagetop_macros::CrateHandle;
 
 // *************************************************************************************************
 // GLOBAL.
@@ -124,8 +121,12 @@ pub use static_files::Resource as StaticResource;
 
 pub type Handle = u64;
 
-pub trait HasHandle {
+pub trait ImplementHandle {
     fn static_handle() -> Handle
+    where
+        Self: Sized;
+
+    fn matches_handle(is: Handle) -> bool
     where
         Self: Sized;
 

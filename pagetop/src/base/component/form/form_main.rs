@@ -1,4 +1,5 @@
 use crate::prelude::*;
+use crate::CrateHandle;
 
 #[derive(SmartDefault)]
 pub enum FormMethod {
@@ -8,7 +9,7 @@ pub enum FormMethod {
 }
 
 #[rustfmt::skip]
-#[derive(SmartDefault)]
+#[derive(ComponentClasses, CrateHandle, SmartDefault)]
 pub struct Form {
     id        : OptionId,
     weight    : Weight,
@@ -20,8 +21,6 @@ pub struct Form {
     stuff     : AnyComponents,
     template  : String,
 }
-
-impl_handle!(COMPONENT_BASE_FORM for Form);
 
 impl ComponentTrait for Form {
     fn new() -> Self {
@@ -58,17 +57,6 @@ impl ComponentTrait for Form {
                 div { (self.elements().render(cx)) }
             }
         })
-    }
-}
-
-impl ComponentClasses for Form {
-    fn alter_classes(&mut self, op: ClassesOp, classes: impl Into<String>) -> &mut Self {
-        self.classes.alter_value(op, classes);
-        self
-    }
-
-    fn classes(&self) -> &OptionClasses {
-        &self.classes
     }
 }
 

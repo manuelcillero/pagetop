@@ -124,35 +124,35 @@ impl ToString for FontSize {
 // *************************************************************************************************
 
 mod html;
-pub use html::{Html, COMPONENT_BASE_HTML};
+pub use html::Html;
 
 mod translate;
-pub use translate::{Translate, COMPONENT_BASE_TRANSLATE};
+pub use translate::Translate;
 
 mod wrapper;
-pub use wrapper::{Wrapper, WrapperType, COMPONENT_BASE_WRAPPER};
+pub use wrapper::{Wrapper, WrapperType};
 
 pub mod flex;
 
 mod icon;
-pub use icon::{Icon, COMPONENT_BASE_ICON};
+pub use icon::Icon;
 mod heading;
-pub use heading::{Heading, HeadingDisplay, HeadingType, COMPONENT_BASE_HEADING};
+pub use heading::{Heading, HeadingDisplay, HeadingType};
 mod paragraph;
-pub use paragraph::{Paragraph, COMPONENT_BASE_PARAGRAPH};
+pub use paragraph::Paragraph;
 mod button;
-pub use button::{Button, ButtonTarget, ButtonType, COMPONENT_BASE_BUTTON};
+pub use button::{Button, ButtonTarget, ButtonType};
 mod image;
-pub use image::{Image, ImageSize, COMPONENT_BASE_IMAGE};
+pub use image::{Image, ImageSize};
 mod block;
-pub use block::{Block, COMPONENT_BASE_BLOCK};
+pub use block::Block;
 mod branding;
-pub use branding::{Branding, COMPONENT_BASE_BRANDING};
+pub use branding::Branding;
 mod powered_by;
-pub use powered_by::{PoweredBy, PoweredByLogo, COMPONENT_BASE_POWEREDBY};
+pub use powered_by::{PoweredBy, PoweredByLogo};
 
 pub mod menu;
-pub use menu::{Menu, COMPONENT_BASE_MENU};
+pub use menu::Menu;
 
 pub mod form;
-pub use form::{Form, FormMethod, COMPONENT_BASE_FORM};
+pub use form::{Form, FormMethod};

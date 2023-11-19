@@ -1,17 +1,16 @@
 use crate::prelude::*;
+use crate::CrateHandle;
 
 use super::Item;
 
 #[rustfmt::skip]
-#[derive(SmartDefault)]
+#[derive(CrateHandle, SmartDefault)]
 pub struct Menu {
     id        : OptionId,
     weight    : Weight,
     renderable: Renderable,
     items     : TypedComponents<Item>,
 }
-
-impl_handle!(COMPONENT_BASE_MENU for Menu);
 
 impl ComponentTrait for Menu {
     fn new() -> Self {

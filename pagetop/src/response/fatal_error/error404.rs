@@ -1,10 +1,9 @@
 use crate::core::component::{ComponentTrait, Context};
 use crate::html::{html, PrepareMarkup};
-use crate::impl_handle;
+use crate::CrateHandle;
 
+#[derive(CrateHandle)]
 pub struct Error404;
-
-impl_handle!(ERROR_404 for Error404);
 
 impl ComponentTrait for Error404 {
     fn new() -> Self {

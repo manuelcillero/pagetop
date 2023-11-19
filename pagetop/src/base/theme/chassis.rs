@@ -1,8 +1,8 @@
 use crate::prelude::*;
+use crate::CrateHandle;
 
+#[derive(CrateHandle)]
 pub struct Chassis;
-
-impl_handle!(THEME_CHASSIS for Chassis);
 
 impl ModuleTrait for Chassis {
     fn name(&self) -> L10n {

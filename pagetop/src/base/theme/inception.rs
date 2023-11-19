@@ -1,8 +1,8 @@
 use crate::prelude::*;
+use crate::CrateHandle;
 
+#[derive(CrateHandle)]
 pub struct Inception;
-
-impl_handle!(THEME_INCEPTION for Inception);
 
 impl ModuleTrait for Inception {
     fn name(&self) -> L10n {

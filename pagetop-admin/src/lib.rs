@@ -4,9 +4,8 @@ static_locales!(LOCALES_ADMIN);
 
 mod summary;
 
+#[derive(AssignHandle)]
 pub struct Admin;
-
-impl_handle!(MODULE_ADMIN for Admin);
 
 impl ModuleTrait for Admin {
     fn name(&self) -> L10n {

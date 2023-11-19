@@ -1,4 +1,5 @@
 use crate::prelude::*;
+use crate::CrateHandle;
 
 use super::{Megamenu, Submenu};
 
@@ -22,7 +23,7 @@ pub enum ItemType {
 // Item.
 
 #[rustfmt::skip]
-#[derive(SmartDefault)]
+#[derive(CrateHandle, SmartDefault)]
 pub struct Item {
     weight     : Weight,
     renderable : Renderable,
@@ -31,8 +32,6 @@ pub struct Item {
     left_icon  : OptionComponent<Icon>,
     right_icon : OptionComponent<Icon>,
 }
-
-impl_handle!(COMPONENT_BASE_MENU_ITEM for Item);
 
 impl ComponentTrait for Item {
     fn new() -> Self {

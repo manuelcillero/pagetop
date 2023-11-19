@@ -1,8 +1,7 @@
 use pagetop::prelude::*;
 
+#[derive(AssignHandle)]
 struct HelloWorld;
-
-impl_handle!(APP_HELLO_WORLD for HelloWorld);
 
 impl ModuleTrait for HelloWorld {
     fn configure_service(&self, scfg: &mut service::web::ServiceConfig) {

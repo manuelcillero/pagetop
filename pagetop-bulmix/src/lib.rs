@@ -2,9 +2,8 @@ use pagetop::prelude::*;
 
 static_files!(bulmix);
 
+#[derive(AssignHandle)]
 pub struct Bulmix;
-
-impl_handle!(THEME_BULMIX for Bulmix);
 
 impl ModuleTrait for Bulmix {
     fn theme(&self) -> Option<ThemeRef> {
@@ -32,7 +31,7 @@ impl ThemeTrait for Bulmix {
 
     fn before_prepare_component(&self, component: &mut dyn ComponentTrait, _cx: &mut Context) {
         match component.handle() {
-            COMPONENT_BASE_ICON => {
+            h if Icon::matches_handle(h) => {
                 if let Some(i) = component_as_mut::<Icon>(component) {
                     match i.font_size() {
                         FontSize::ExtraLarge => {
@@ -54,7 +53,7 @@ impl ThemeTrait for Bulmix {
                     };
                 }
             }
-            COMPONENT_BASE_BUTTON => {
+            h if Button::matches_handle(h) => {
                 if let Some(b) = component_as_mut::<Button>(component) {
                     match b.font_size() {
                         FontSize::ExtraLarge => {
@@ -84,7 +83,7 @@ impl ThemeTrait for Bulmix {
                     };
                 }
             }
-            COMPONENT_BASE_HEADING => {
+            h if Heading::matches_handle(h) => {
                 if let Some(h) = component_as_mut::<Heading>(component) {
                     match h.display() {
                         HeadingDisplay::Subtitle => {
@@ -94,7 +93,7 @@ impl ThemeTrait for Bulmix {
                     };
                 }
             }
-            COMPONENT_BASE_PARAGRAPH => {
+            h if Paragraph::matches_handle(h) => {
                 if let Some(p) = component_as_mut::<Paragraph>(component) {
                     p.add_classes("block");
                     match p.font_size() {
@@ -127,7 +126,7 @@ impl ThemeTrait for Bulmix {
         _cx: &mut Context,
     ) -> Option<Markup> {
         match component.handle() {
-            COMPONENT_BASE_ICON => {
+            h if Icon::matches_handle(h) => {
                 if let Some(i) = component_as_ref::<Icon>(component) {
                     return match i.icon_name().get() {
                         None => None,

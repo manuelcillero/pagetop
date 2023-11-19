@@ -1,17 +1,16 @@
 use crate::prelude::*;
+use crate::CrateHandle;
 
 use super::Group;
 
 #[rustfmt::skip]
-#[derive(SmartDefault)]
+#[derive(CrateHandle, SmartDefault)]
 pub struct Megamenu {
     id        : OptionId,
     weight    : Weight,
     renderable: Renderable,
     groups    : TypedComponents<Group>,
 }
-
-impl_handle!(COMPONENT_BASE_MENU_MEGAMENU for Megamenu);
 
 impl ComponentTrait for Megamenu {
     fn new() -> Self {

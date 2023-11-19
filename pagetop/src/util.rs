@@ -93,44 +93,6 @@ pub fn absolute_dir(
 // *************************************************************************************************
 
 #[macro_export]
-macro_rules! impl_handle {
-    ( $HANDLE:ident for $Element:ident ) => {
-        /// Constant handle to represent a unique PageTop building element.
-        pub const $HANDLE: $crate::Handle =
-            $crate::util::handle(module_path!(), file!(), line!(), column!());
-
-        impl $crate::HasHandle for $Element {
-            #[inline]
-            fn static_handle() -> $crate::Handle {
-                $HANDLE
-            }
-
-            #[inline]
-            fn handle(&self) -> $crate::Handle {
-                $HANDLE
-            }
-        }
-    };
-    ( $HANDLE:ident for $Element:ident<$Implement:ident> ) => {
-        /// Constant handle to represent a unique PageTop building element.
-        pub const $HANDLE: $crate::Handle =
-            $crate::util::handle(module_path!(), file!(), line!(), column!());
-
-        impl<I: $Implement> $crate::HasHandle for $Element<I> {
-            #[inline]
-            fn static_handle() -> $crate::Handle {
-                $HANDLE
-            }
-
-            #[inline]
-            fn handle(&self) -> $crate::Handle {
-                $HANDLE
-            }
-        }
-    };
-}
-
-#[macro_export]
 /// Macro para construir grupos de pares clave-valor.
 ///
 /// ```rust#ignore

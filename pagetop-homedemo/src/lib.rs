@@ -4,9 +4,8 @@ static_locales!(LOCALES_HOMEDEMO);
 
 static_files!(homedemo);
 
+#[derive(AssignHandle)]
 pub struct HomeDemo;
-
-impl_handle!(MODULE_HOMEDEMO for HomeDemo);
 
 impl ModuleTrait for HomeDemo {
     fn name(&self) -> L10n {

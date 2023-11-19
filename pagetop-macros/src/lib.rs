@@ -2,9 +2,10 @@ mod maud;
 
 use concat_string::concat_string;
 use proc_macro::TokenStream;
+use proc_macro2::TokenStream as TokenStream2;
 use proc_macro_error::proc_macro_error;
-use quote::{quote, quote_spanned, ToTokens};
-use syn::{parse_macro_input, parse_str, ItemFn};
+use quote::{format_ident, quote, quote_spanned, ToTokens};
+use syn::{parse_macro_input, parse_str, DeriveInput, ItemFn};
 
 #[proc_macro]
 #[proc_macro_error]
@@ -99,4 +100,67 @@ pub fn test(_: TokenStream, item: TokenStream) -> TokenStream {
 
     output.extend(item);
     output
+}
+
+#[proc_macro_derive(ComponentClasses)]
+pub fn component_classes_derive(input: TokenStream) -> TokenStream {
+    let input = parse_macro_input!(input as DeriveInput);
+    let name = &input.ident;
+
+    let expanded = quote! {
+        impl ComponentClasses for #name {
+            fn alter_classes(&mut self, op: ClassesOp, classes: impl Into<String>) -> &mut Self {
+                self.classes.alter_value(op, classes);
+                self
+            }
+
+            fn classes(&self) -> &OptionClasses {
+                &self.classes
+            }
+        }
+    };
+
+    TokenStream::from(expanded)
+}
+
+#[proc_macro_derive(CrateHandle, attributes(handle))]
+pub fn crate_handle_derive(input: TokenStream) -> TokenStream {
+    impl_handle(input, quote! { crate })
+}
+
+#[proc_macro_derive(AssignHandle, attributes(handle))]
+pub fn assign_handle_derive(input: TokenStream) -> TokenStream {
+    impl_handle(input, quote! { pagetop })
+}
+
+fn impl_handle(input: TokenStream, crate_name: TokenStream2) -> TokenStream {
+    let input = parse_macro_input!(input as DeriveInput);
+    let (impl_generics, ty_generics, where_clause) = input.generics.split_for_impl();
+
+    let name = &input.ident;
+    let handle_name = format_ident!("HANDLE_{}", name.to_string().to_uppercase());
+
+    let expanded = quote! {
+        const #handle_name: #crate_name::Handle =
+            #crate_name::util::handle(module_path!(), file!(), line!(), column!());
+
+        impl #impl_generics #crate_name::ImplementHandle for #name #ty_generics #where_clause {
+            #[inline]
+            fn static_handle() -> #crate_name::Handle {
+                #handle_name
+            }
+
+            #[inline]
+            fn matches_handle(is: #crate_name::Handle) -> bool {
+                is == #handle_name
+            }
+
+            #[inline]
+            fn handle(&self) -> #crate_name::Handle {
+                #handle_name
+            }
+        }
+    };
+
+    TokenStream::from(expanded)
 }
