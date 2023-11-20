@@ -8,7 +8,7 @@ pub use crate::{Handle, HashMapResources, ImplementHandle, LazyStatic, Weight};
 
 // Functions and macro helpers.
 pub use crate::util;
-pub use crate::{kv, AssignHandle, ComponentClasses};
+pub use crate::{kv, BindHandle, ComponentClasses};
 
 // MACROS.
 

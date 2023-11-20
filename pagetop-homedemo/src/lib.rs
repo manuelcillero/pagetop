@@ -4,7 +4,7 @@ static_locales!(LOCALES_HOMEDEMO);
 
 static_files!(homedemo);
 
-#[derive(AssignHandle)]
+#[derive(BindHandle)]
 pub struct HomeDemo;
 
 impl ModuleTrait for HomeDemo {

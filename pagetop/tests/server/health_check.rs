@@ -1,6 +1,6 @@
 use pagetop::prelude::*;
 
-#[derive(AssignHandle)]
+#[derive(BindHandle)]
 struct HealthCheck;
 
 impl ModuleTrait for HealthCheck {}

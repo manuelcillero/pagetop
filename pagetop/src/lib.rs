@@ -44,7 +44,7 @@
 //! ```rust
 //! use pagetop::prelude::*;
 //!
-//! #[derive(AssignHandle)]
+//! #[derive(BindHandle)]
 //! struct HelloWorld;
 //!
 //! impl ModuleTrait for HelloWorld {
@@ -108,7 +108,7 @@ pub use paste::paste;
 /// customized default values.
 pub use smart_default::SmartDefault;
 
-pub use pagetop_macros::{fn_builder, main, test, AssignHandle, ComponentClasses};
+pub use pagetop_macros::{fn_builder, main, test, BindHandle, ComponentClasses};
 
 pub(crate) use pagetop_macros::BaseHandle;
 

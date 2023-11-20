@@ -128,8 +128,8 @@ pub fn base_handle_derive(input: TokenStream) -> TokenStream {
     impl_handle(input, quote! { crate })
 }
 
-#[proc_macro_derive(AssignHandle, attributes(handle))]
-pub fn assign_handle_derive(input: TokenStream) -> TokenStream {
+#[proc_macro_derive(BindHandle, attributes(handle))]
+pub fn bind_handle_derive(input: TokenStream) -> TokenStream {
     impl_handle(input, quote! { pagetop })
 }
 
