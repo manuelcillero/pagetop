@@ -1,10 +1,10 @@
 use crate::prelude::*;
-use crate::CrateHandle;
+use crate::BaseHandle;
 
 use super::Group;
 
 #[rustfmt::skip]
-#[derive(CrateHandle, SmartDefault)]
+#[derive(BaseHandle, SmartDefault)]
 pub struct Megamenu {
     id        : OptionId,
     weight    : Weight,

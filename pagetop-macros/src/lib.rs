@@ -123,8 +123,8 @@ pub fn component_classes_derive(input: TokenStream) -> TokenStream {
     TokenStream::from(expanded)
 }
 
-#[proc_macro_derive(CrateHandle, attributes(handle))]
-pub fn crate_handle_derive(input: TokenStream) -> TokenStream {
+#[proc_macro_derive(BaseHandle, attributes(handle))]
+pub fn base_handle_derive(input: TokenStream) -> TokenStream {
     impl_handle(input, quote! { crate })
 }
 

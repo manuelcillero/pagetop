@@ -1,5 +1,5 @@
 use crate::prelude::*;
-use crate::CrateHandle;
+use crate::BaseHandle;
 
 #[derive(SmartDefault)]
 pub enum HeadingType {
@@ -40,7 +40,7 @@ impl ToString for HeadingDisplay {
 }
 
 #[rustfmt::skip]
-#[derive(ComponentClasses, CrateHandle, SmartDefault)]
+#[derive(BaseHandle, ComponentClasses, SmartDefault)]
 pub struct Heading {
     id          : OptionId,
     weight      : Weight,

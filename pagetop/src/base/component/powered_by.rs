@@ -1,5 +1,5 @@
 use crate::prelude::*;
-use crate::CrateHandle;
+use crate::BaseHandle;
 
 #[derive(Default, Eq, PartialEq)]
 pub enum PoweredByLogo {
@@ -12,7 +12,7 @@ pub enum PoweredByLogo {
 }
 
 #[rustfmt::skip]
-#[derive(CrateHandle, SmartDefault)]
+#[derive(BaseHandle, SmartDefault)]
 pub struct PoweredBy {
     weight    : Weight,
     renderable: Renderable,

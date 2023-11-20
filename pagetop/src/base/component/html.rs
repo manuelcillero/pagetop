@@ -1,7 +1,7 @@
 use crate::prelude::*;
-use crate::CrateHandle;
+use crate::BaseHandle;
 
-#[derive(CrateHandle, SmartDefault)]
+#[derive(BaseHandle, SmartDefault)]
 pub struct Html(Markup);
 
 impl ComponentTrait for Html {

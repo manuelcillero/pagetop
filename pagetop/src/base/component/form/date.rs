@@ -1,8 +1,8 @@
 use crate::prelude::*;
-use crate::CrateHandle;
+use crate::BaseHandle;
 
 #[rustfmt::skip]
-#[derive(ComponentClasses, CrateHandle, SmartDefault)]
+#[derive(BaseHandle, ComponentClasses, SmartDefault)]
 pub struct Date {
     weight      : Weight,
     renderable  : Renderable,

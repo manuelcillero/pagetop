@@ -110,7 +110,7 @@ pub use smart_default::SmartDefault;
 
 pub use pagetop_macros::{fn_builder, main, test, AssignHandle, ComponentClasses};
 
-pub(crate) use pagetop_macros::CrateHandle;
+pub(crate) use pagetop_macros::BaseHandle;
 
 // *************************************************************************************************
 // GLOBAL.

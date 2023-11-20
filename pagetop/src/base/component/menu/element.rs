@@ -1,5 +1,5 @@
 use crate::prelude::*;
-use crate::CrateHandle;
+use crate::BaseHandle;
 
 use super::Submenu;
 
@@ -17,7 +17,7 @@ pub enum ElementType {
 // Element.
 
 #[rustfmt::skip]
-#[derive(CrateHandle, SmartDefault)]
+#[derive(BaseHandle, SmartDefault)]
 pub struct Element {
     weight      : Weight,
     renderable  : Renderable,

@@ -1,9 +1,9 @@
 use crate::prelude::*;
-use crate::CrateHandle;
+use crate::BaseHandle;
 
 use super::FnAction;
 
-#[derive(CrateHandle)]
+#[derive(BaseHandle)]
 pub struct AfterPrepareComponent<C: ComponentTrait> {
     f: FnAction<C>,
     referer_handle: Option<Handle>,

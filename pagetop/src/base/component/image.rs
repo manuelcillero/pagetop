@@ -1,5 +1,5 @@
 use crate::prelude::*;
-use crate::CrateHandle;
+use crate::BaseHandle;
 
 const IMG_FLUID: &str = "pt-img__fluid";
 const IMG_FIXED: &str = "pt-img__fixed";
@@ -15,7 +15,7 @@ pub enum ImageSize {
 }
 
 #[rustfmt::skip]
-#[derive(ComponentClasses, CrateHandle, SmartDefault)]
+#[derive(BaseHandle, ComponentClasses, SmartDefault)]
 pub struct Image {
     id        : OptionId,
     weight    : Weight,

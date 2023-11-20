@@ -1,10 +1,10 @@
 use crate::prelude::*;
-use crate::CrateHandle;
+use crate::BaseHandle;
 
 use super::Item;
 
 #[rustfmt::skip]
-#[derive(CrateHandle, SmartDefault)]
+#[derive(BaseHandle, SmartDefault)]
 pub struct Submenu {
     id        : OptionId,
     weight    : Weight,

@@ -1,9 +1,9 @@
 use crate::prelude::*;
-use crate::CrateHandle;
+use crate::BaseHandle;
 
 use super::FnActionPage;
 
-#[derive(CrateHandle)]
+#[derive(BaseHandle)]
 pub struct AfterPrepareBody {
     f: FnActionPage,
     weight: Weight,

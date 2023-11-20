@@ -1,7 +1,7 @@
 use crate::prelude::*;
-use crate::CrateHandle;
+use crate::BaseHandle;
 
-#[derive(CrateHandle)]
+#[derive(BaseHandle)]
 pub struct Inception;
 
 impl ModuleTrait for Inception {
