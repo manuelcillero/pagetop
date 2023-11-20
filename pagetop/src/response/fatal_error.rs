@@ -1,8 +1,4 @@
-mod error403;
-pub use error403::Error403;
-mod error404;
-pub use error404::Error404;
-
+use crate::base::component::{Error403, Error404};
 use crate::locale::L10n;
 use crate::response::{page::Page, ResponseError};
 use crate::service::http::{header::ContentType, StatusCode};
@@ -33,7 +29,7 @@ impl fmt::Display for FatalError {
                 let error_page = Page::new(request.clone());
                 if let Ok(page) = error_page
                     .with_title(L10n::n("Error FORBIDDEN"))
-                    .with_in("content", error403::Error403)
+                    .with_in("content", Error403)
                     .with_template("error")
                     .render()
                 {
@@ -47,7 +43,7 @@ impl fmt::Display for FatalError {
                 let error_page = Page::new(request.clone());
                 if let Ok(page) = error_page
                     .with_title(L10n::n("Error RESOURCE NOT FOUND"))
-                    .with_in("content", error404::Error404)
+                    .with_in("content", Error404)
                     .with_template("error")
                     .render()
                 {

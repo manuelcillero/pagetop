@@ -3,17 +3,17 @@ use crate::html::{html, PrepareMarkup};
 use crate::BaseHandle;
 
 #[derive(BaseHandle)]
-pub struct Error404;
+pub struct Error403;
 
-impl ComponentTrait for Error404 {
+impl ComponentTrait for Error403 {
     fn new() -> Self {
-        Self
+        Error403
     }
 
     fn prepare_component(&self, _cx: &mut Context) -> PrepareMarkup {
         PrepareMarkup::With(html! {
             div {
-                h1 { ("RESOURCE NOT FOUND") }
+                h1 { ("FORBIDDEN ACCESS") }
             }
         })
     }

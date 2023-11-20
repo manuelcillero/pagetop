@@ -136,20 +136,33 @@ pub mod flex;
 
 mod icon;
 pub use icon::Icon;
+
 mod heading;
 pub use heading::{Heading, HeadingDisplay, HeadingType};
+
 mod paragraph;
 pub use paragraph::Paragraph;
+
 mod button;
 pub use button::{Button, ButtonTarget, ButtonType};
+
 mod image;
 pub use image::{Image, ImageSize};
+
 mod block;
 pub use block::Block;
+
 mod branding;
 pub use branding::Branding;
+
 mod powered_by;
 pub use powered_by::{PoweredBy, PoweredByLogo};
+
+mod error403;
+pub use error403::Error403;
+
+mod error404;
+pub use error404::Error404;
 
 pub mod menu;
 pub use menu::Menu;
