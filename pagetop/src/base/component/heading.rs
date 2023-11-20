@@ -68,7 +68,6 @@ impl ComponentTrait for Heading {
         (self.renderable.check)(cx)
     }
 
-    #[rustfmt::skip]
     fn setup_before_prepare(&mut self, _cx: &mut Context) {
         self.add_classes(self.display().to_string());
     }
