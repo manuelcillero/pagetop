@@ -29,11 +29,11 @@ async fn demo(request: service::HttpRequest) -> ResultPage<Markup, FatalError> {
             "/homedemo/css/styles.css",
         )))
         .with_body_classes(ClassesOp::Add, "default-homepage")
-        .with_in("content", hello_world())
-        .with_in("content", welcome())
-        .with_in("content", about_pagetop())
-        .with_in("content", promo_pagetop())
-        .with_in("content", reporting_issues())
+        .with_component_in("content", hello_world())
+        .with_component_in("content", welcome())
+        .with_component_in("content", about_pagetop())
+        .with_component_in("content", promo_pagetop())
+        .with_component_in("content", reporting_issues())
         .render()
 }
 

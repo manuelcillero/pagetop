@@ -153,8 +153,8 @@ pub async fn summary(request: service::HttpRequest) -> ResultPage<Markup, FatalE
     Page::new(request)
         //.with_context(ContextOp::Theme("Bootsier"))
         .with_title(L10n::n("Admin"))
-        .with_in("top-menu", side_menu)
-        .with_in(
+        .with_component_in("top-menu", side_menu)
+        .with_component_in(
             "content",
             flex::Container::new()
                 .add_item(flex::Item::new().add_component(Html::with(html! {

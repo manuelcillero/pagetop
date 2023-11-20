@@ -33,7 +33,7 @@ impl ModuleTrait for User {
 async fn login(request: service::HttpRequest) -> ResultPage<Markup, FatalError> {
     Page::new(request)
         .with_title(L10n::n("Identificación del usuario"))
-        .with_in(
+        .with_component_in(
             "content",
             Wrapper::new()
                 .with_id("welcome")

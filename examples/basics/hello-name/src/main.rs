@@ -16,7 +16,7 @@ async fn hello_name(
 ) -> ResultPage<Markup, FatalError> {
     let name = path.into_inner();
     Page::new(request)
-        .with_in("content", Html::with(html! { h1 { "Hello " (name) "!" } }))
+        .with_component_in("content", Html::with(html! { h1 { "Hello " (name) "!" } }))
         .render()
 }
 

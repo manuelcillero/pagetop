@@ -17,11 +17,11 @@ pub struct ComponentsRegions(HashMap<&'static str, AnyComponents>);
 impl ComponentsRegions {
     pub fn new(region: &'static str, arc: ArcAnyComponent) -> Self {
         let mut regions = ComponentsRegions::default();
-        regions.add_in(region, arc);
+        regions.add_component_in(region, arc);
         regions
     }
 
-    pub fn add_in(&mut self, region: &'static str, arc: ArcAnyComponent) {
+    pub fn add_component_in(&mut self, region: &'static str, arc: ArcAnyComponent) {
         if let Some(region) = self.0.get_mut(region) {
             region.alter_value(ArcAnyOp::Add(arc));
         } else {
@@ -31,8 +31,8 @@ impl ComponentsRegions {
 
     pub fn get_components(&self, theme: ThemeRef, region: &str) -> AnyComponents {
         let common = COMMON_REGIONS.read().unwrap();
-        if let Some(hm) = THEME_REGIONS.read().unwrap().get(&theme.handle()) {
-            AnyComponents::merge(&[common.0.get(region), self.0.get(region), hm.0.get(region)])
+        if let Some(r) = THEME_REGIONS.read().unwrap().get(&theme.handle()) {
+            AnyComponents::merge(&[common.0.get(region), self.0.get(region), r.0.get(region)])
         } else {
             AnyComponents::merge(&[common.0.get(region), self.0.get(region)])
         }
@@ -47,12 +47,12 @@ pub enum Region {
 pub fn add_component_in(region: Region, arc: ArcAnyComponent) {
     match region {
         Region::Named(name) => {
-            COMMON_REGIONS.write().unwrap().add_in(name, arc);
+            COMMON_REGIONS.write().unwrap().add_component_in(name, arc);
         }
         Region::OfTheme(theme, region) => {
             let mut regions = THEME_REGIONS.write().unwrap();
-            if let Some(hm) = regions.get_mut(&theme.handle()) {
-                hm.add_in(region, arc);
+            if let Some(r) = regions.get_mut(&theme.handle()) {
+                r.add_component_in(region, arc);
             } else {
                 regions.insert(theme.handle(), ComponentsRegions::new(region, arc));
             }
