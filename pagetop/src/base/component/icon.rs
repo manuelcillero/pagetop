@@ -26,7 +26,7 @@ impl ComponentTrait for Icon {
 
     #[rustfmt::skip]
     fn setup_before_prepare(&mut self, cx: &mut Context) {
-        if let Some(icon_name) = self.icon_name.get() {
+        if let Some(icon_name) = self.icon_name().get() {
             self.prepend_classes(
                 concat_string!("bi-", icon_name, " ", self.font_size().to_string()),
             );

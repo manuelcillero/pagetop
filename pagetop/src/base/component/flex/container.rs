@@ -36,10 +36,10 @@ impl ComponentTrait for Container {
     fn setup_before_prepare(&mut self, cx: &mut Context) {
         self.prepend_classes(
             [
-                self.direction.to_string(),
-                self.wrap_align.to_string(),
-                self.content_justify.to_string(),
-                self.items_align.to_string(),
+                self.direction().to_string(),
+                self.wrap_align().to_string(),
+                self.content_justify().to_string(),
+                self.items_align().to_string(),
             ]
             .join(" "),
         );

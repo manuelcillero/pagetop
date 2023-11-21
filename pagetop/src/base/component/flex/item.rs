@@ -38,11 +38,11 @@ impl ComponentTrait for Item {
         self.prepend_classes(
             [
                 "pt-flex__item".to_owned(),
-                self.item_grow.to_string(),
-                self.item_shrink.to_string(),
-                self.item_size.to_string(),
-                self.item_offset.to_string(),
-                self.item_align.to_string(),
+                self.grow().to_string(),
+                self.shrink().to_string(),
+                self.size().to_string(),
+                self.offset().to_string(),
+                self.align().to_string(),
             ]
             .join(" "),
         );
