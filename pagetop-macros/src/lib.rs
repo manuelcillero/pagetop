@@ -57,6 +57,7 @@ pub fn fn_builder(_attr: TokenStream, item: TokenStream) -> TokenStream {
 
     let expanded = quote! {
         #fn_with
+        #[inline]
         #fn_alter
     };
     expanded.into()
