@@ -7,3 +7,7 @@ pagetop_logo = PageTop logo
 
 # Menu component.
 menu_toggle = Toggle menu visibility
+
+# Form components.
+button_submit = Submit
+button_reset = Reset

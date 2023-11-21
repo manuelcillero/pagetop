@@ -12,8 +12,8 @@ pub enum ButtonType {
 impl ToString for ButtonType {
     fn to_string(&self) -> String {
         String::from(match self {
-            ButtonType::Link    => "pt-button__link",
-            ButtonType::Primary => "pt-button__primary",
+            ButtonType::Link    => "link",
+            ButtonType::Primary => "primary",
         })
     }
 }
@@ -37,10 +37,10 @@ pub struct Button {
     classes    : OptionClasses,
     button_type: ButtonType,
     font_size  : FontSize,
-    href       : OptionString,
-    html       : OptionTranslated,
     left_icon  : OptionComponent<Icon>,
     right_icon : OptionComponent<Icon>,
+    href       : OptionString,
+    html       : OptionTranslated,
     target     : ButtonTarget,
 }
 
@@ -63,7 +63,11 @@ impl ComponentTrait for Button {
 
     fn setup_before_prepare(&mut self, _cx: &mut Context) {
         self.prepend_classes(
-            [self.button_type().to_string(), self.font_size().to_string()].join(" "),
+            [
+                concat_string!("pt-button__", self.button_type().to_string()),
+                self.font_size().to_string(),
+            ]
+            .join(" "),
         );
     }
 
@@ -139,18 +143,6 @@ impl Button {
     }
 
     #[fn_builder]
-    pub fn alter_href(&mut self, href: impl Into<String>) -> &mut Self {
-        self.href.alter_value(href);
-        self
-    }
-
-    #[fn_builder]
-    pub fn alter_html(&mut self, html: L10n) -> &mut Self {
-        self.html.alter_value(html);
-        self
-    }
-
-    #[fn_builder]
     pub fn alter_left_icon(&mut self, icon: Option<Icon>) -> &mut Self {
         self.left_icon.alter_value(icon);
         self
@@ -159,6 +151,18 @@ impl Button {
     #[fn_builder]
     pub fn alter_right_icon(&mut self, icon: Option<Icon>) -> &mut Self {
         self.right_icon.alter_value(icon);
+        self
+    }
+
+    #[fn_builder]
+    pub fn alter_href(&mut self, href: impl Into<String>) -> &mut Self {
+        self.href.alter_value(href);
+        self
+    }
+
+    #[fn_builder]
+    pub fn alter_html(&mut self, html: L10n) -> &mut Self {
+        self.html.alter_value(html);
         self
     }
 
@@ -178,20 +182,20 @@ impl Button {
         &self.font_size
     }
 
-    pub fn href(&self) -> &OptionString {
-        &self.href
-    }
-
-    pub fn html(&self) -> &OptionTranslated {
-        &self.html
-    }
-
     pub fn left_icon(&self) -> &OptionComponent<Icon> {
         &self.left_icon
     }
 
     pub fn right_icon(&self) -> &OptionComponent<Icon> {
         &self.right_icon
+    }
+
+    pub fn href(&self) -> &OptionString {
+        &self.href
+    }
+
+    pub fn html(&self) -> &OptionTranslated {
+        &self.html
     }
 
     pub fn target(&self) -> &ButtonTarget {

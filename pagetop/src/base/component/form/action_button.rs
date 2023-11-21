@@ -2,41 +2,41 @@ use crate::prelude::*;
 use crate::BaseHandle;
 
 #[derive(SmartDefault)]
-pub enum ButtonType {
+pub enum ActionButtonType {
     #[default]
-    Button,
     Submit,
     Reset,
 }
 
 #[rustfmt::skip]
-impl ToString for ButtonType {
+impl ToString for ActionButtonType {
     fn to_string(&self) -> String {
         String::from(match self {
-            ButtonType::Button => "button",
-            ButtonType::Submit => "submit",
-            ButtonType::Reset  => "reset",
+            ActionButtonType::Submit => "submit",
+            ActionButtonType::Reset  => "reset",
         })
     }
 }
 
 #[rustfmt::skip]
 #[derive(BaseHandle, ComponentClasses, SmartDefault)]
-pub struct Button {
+pub struct ActionButton {
     weight     : Weight,
     renderable : Renderable,
     classes    : OptionClasses,
-    button_type: ButtonType,
+    button_type: ActionButtonType,
+    font_size  : FontSize,
+    left_icon  : OptionComponent<Icon>,
+    right_icon : OptionComponent<Icon>,
     name       : OptionString,
     value      : OptionTranslated,
     autofocus  : OptionString,
     disabled   : OptionString,
-    template   : String,
 }
 
-impl ComponentTrait for Button {
+impl ComponentTrait for ActionButton {
     fn new() -> Self {
-        Button::default()
+        ActionButton::submit()
     }
 
     fn weight(&self) -> Weight {
@@ -47,10 +47,13 @@ impl ComponentTrait for Button {
         (self.renderable.check)(cx)
     }
 
-    #[rustfmt::skip]
     fn setup_before_prepare(&mut self, _cx: &mut Context) {
         self.prepend_classes(
-            concat_string!("btn btn-primary form-", self.button_type.to_string()),
+            [
+                concat_string!("pt-button__", self.button_type().to_string()),
+                self.font_size().to_string(),
+            ]
+            .join(" "),
         );
     }
 
@@ -66,27 +69,29 @@ impl ComponentTrait for Button {
                 autofocus=[self.autofocus().get()]
                 disabled=[self.disabled().get()]
             {
-                (self.value().escaped(cx.langid()))
+                (self.left_icon().render(cx))
+                " " (self.value().escaped(cx.langid())) " "
+                (self.right_icon().render(cx))
             }
         })
     }
 }
 
-impl Button {
-    pub fn with(value: L10n) -> Self {
-        Button::default().with_value(value)
+impl ActionButton {
+    pub fn submit() -> Self {
+        ActionButton {
+            button_type: ActionButtonType::Submit,
+            value: OptionTranslated::new(L10n::l("button_submit")),
+            ..Default::default()
+        }
     }
 
-    pub fn submit(value: L10n) -> Self {
-        let mut button = Button::default().with_value(value);
-        button.button_type = ButtonType::Submit;
-        button
-    }
-
-    pub fn reset(value: L10n) -> Self {
-        let mut button = Button::default().with_value(value);
-        button.button_type = ButtonType::Reset;
-        button
+    pub fn reset() -> Self {
+        ActionButton {
+            button_type: ActionButtonType::Reset,
+            value: OptionTranslated::new(L10n::l("button_reset")),
+            ..Default::default()
+        }
     }
 
     // Button BUILDER.
@@ -100,6 +105,24 @@ impl Button {
     #[fn_builder]
     pub fn alter_renderable(&mut self, check: FnIsRenderable) -> &mut Self {
         self.renderable.check = check;
+        self
+    }
+
+    #[fn_builder]
+    pub fn alter_font_size(&mut self, font_size: FontSize) -> &mut Self {
+        self.font_size = font_size;
+        self
+    }
+
+    #[fn_builder]
+    pub fn alter_left_icon(&mut self, icon: Option<Icon>) -> &mut Self {
+        self.left_icon.alter_value(icon);
+        self
+    }
+
+    #[fn_builder]
+    pub fn alter_right_icon(&mut self, icon: Option<Icon>) -> &mut Self {
+        self.right_icon.alter_value(icon);
         self
     }
 
@@ -133,16 +156,22 @@ impl Button {
         self
     }
 
-    #[fn_builder]
-    pub fn alter_template(&mut self, template: &str) -> &mut Self {
-        self.template = template.to_owned();
-        self
-    }
-
     // Button GETTERS.
 
-    pub fn button_type(&self) -> &ButtonType {
+    pub fn button_type(&self) -> &ActionButtonType {
         &self.button_type
+    }
+
+    pub fn font_size(&self) -> &FontSize {
+        &self.font_size
+    }
+
+    pub fn left_icon(&self) -> &OptionComponent<Icon> {
+        &self.left_icon
+    }
+
+    pub fn right_icon(&self) -> &OptionComponent<Icon> {
+        &self.right_icon
     }
 
     pub fn name(&self) -> &OptionString {
@@ -159,9 +188,5 @@ impl Button {
 
     pub fn disabled(&self) -> &OptionString {
         &self.disabled
-    }
-
-    pub fn template(&self) -> &str {
-        self.template.as_str()
     }
 }

@@ -61,5 +61,5 @@ fn form_login() -> Form {
                 .with_label(L10n::t("password", &LOCALES_USER))
                 .with_help_text(L10n::t("password_help", &LOCALES_USER)),
         )
-        .with_element(form::Button::submit(L10n::t("login", &LOCALES_USER)))
+        .with_element(form::ActionButton::submit().with_value(L10n::t("login", &LOCALES_USER)))
 }

@@ -20,13 +20,16 @@
 	color: var(--pt-color--primary);
 }
 
+.pt-button__submit,
 .pt-button__primary {
     background-color: var(--pt-color--primary);
 }
+.pt-button__submit:hover,
 .pt-button__primary:hover {
 	color: var(--pt-color--white);
     background-color: var(--pt-color--primary-dark);
 }
+.pt-button__submit:active,
 .pt-button__primary:active {
 	color: var(--pt-color--white);
     background-color: var(--pt-color--primary-light);
