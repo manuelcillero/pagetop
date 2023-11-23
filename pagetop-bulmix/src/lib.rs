@@ -85,9 +85,9 @@ impl ThemeTrait for Bulmix {
             }
             h if Heading::matches_handle(h) => {
                 if let Some(h) = component_as_mut::<Heading>(component) {
-                    match h.display() {
-                        HeadingDisplay::Subtitle => {
-                            h.replace_classes(h.display().to_string(), "subtitle")
+                    match h.size() {
+                        HeadingSize::Subtitle => {
+                            h.replace_classes(h.size().to_string(), "subtitle")
                         }
                         _ => h.add_classes("title"),
                     };

@@ -47,7 +47,7 @@ fn hello_world() -> Wrapper {
                     .with_size(flex::ItemSize::Percent40)
                     .add_component(
                         Heading::h1(L10n::t("page_title", &LOCALES_HOMEDEMO))
-                            .with_display(HeadingDisplay::Medium),
+                            .with_size(HeadingSize::Medium),
                     )
                     .add_component(
                         Paragraph::translated(L10n::t("hello_intro", &LOCALES_HOMEDEMO).with_arg(
@@ -107,7 +107,7 @@ fn welcome() -> Wrapper {
                     &config::SETTINGS.app.name
                 ),
             ))
-            .with_display(HeadingDisplay::Subtitle),
+            .with_size(HeadingSize::Subtitle),
         )
         .add_component(
             Paragraph::translated(L10n::t("welcome_text1", &LOCALES_HOMEDEMO))

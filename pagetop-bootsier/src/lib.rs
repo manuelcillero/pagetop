@@ -136,21 +136,21 @@ impl ThemeTrait for Bootsier {
             }
             h if Heading::matches_handle(h) => {
                 if let Some(h) = component_as_mut::<Heading>(component) {
-                    match h.display() {
-                        HeadingDisplay::ExtraLarge => {
-                            h.replace_classes(h.display().to_string(), "display-1");
+                    match h.size() {
+                        HeadingSize::ExtraLarge => {
+                            h.replace_classes(h.size().to_string(), "display-1");
                         }
-                        HeadingDisplay::XxLarge => {
-                            h.replace_classes(h.display().to_string(), "display-2");
+                        HeadingSize::XxLarge => {
+                            h.replace_classes(h.size().to_string(), "display-2");
                         }
-                        HeadingDisplay::XLarge => {
-                            h.replace_classes(h.display().to_string(), "display-3");
+                        HeadingSize::XLarge => {
+                            h.replace_classes(h.size().to_string(), "display-3");
                         }
-                        HeadingDisplay::Large => {
-                            h.replace_classes(h.display().to_string(), "display-4");
+                        HeadingSize::Large => {
+                            h.replace_classes(h.size().to_string(), "display-4");
                         }
-                        HeadingDisplay::Medium => {
-                            h.replace_classes(h.display().to_string(), "display-5");
+                        HeadingSize::Medium => {
+                            h.replace_classes(h.size().to_string(), "display-5");
                         }
                         _ => {}
                     };

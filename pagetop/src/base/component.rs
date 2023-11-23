@@ -138,7 +138,7 @@ mod icon;
 pub use icon::Icon;
 
 mod heading;
-pub use heading::{Heading, HeadingDisplay, HeadingType};
+pub use heading::{Heading, HeadingSize, HeadingType};
 
 mod paragraph;
 pub use paragraph::Paragraph;

@@ -13,7 +13,7 @@ pub enum HeadingType {
 }
 
 #[derive(SmartDefault)]
-pub enum HeadingDisplay {
+pub enum HeadingSize {
     ExtraLarge,
     XxLarge,
     XLarge,
@@ -25,16 +25,16 @@ pub enum HeadingDisplay {
 }
 
 #[rustfmt::skip]
-impl ToString for HeadingDisplay {
+impl ToString for HeadingSize {
     fn to_string(&self) -> String {
         String::from(match self {
-            HeadingDisplay::ExtraLarge => "pt-heading__title-x3l",
-            HeadingDisplay::XxLarge    => "pt-heading__title-x2l",
-            HeadingDisplay::XLarge     => "pt-heading__title-xl",
-            HeadingDisplay::Large      => "pt-heading__title-l",
-            HeadingDisplay::Medium     => "pt-heading__title-m",
-            HeadingDisplay::Normal     => "",
-            HeadingDisplay::Subtitle   => "pt-heading__subtitle",
+            HeadingSize::ExtraLarge => "pt-heading__title-x3l",
+            HeadingSize::XxLarge    => "pt-heading__title-x2l",
+            HeadingSize::XLarge     => "pt-heading__title-xl",
+            HeadingSize::Large      => "pt-heading__title-l",
+            HeadingSize::Medium     => "pt-heading__title-m",
+            HeadingSize::Normal     => "",
+            HeadingSize::Subtitle   => "pt-heading__subtitle",
         })
     }
 }
@@ -47,8 +47,8 @@ pub struct Heading {
     renderable  : Renderable,
     classes     : OptionClasses,
     heading_type: HeadingType,
+    size        : HeadingSize,
     text        : OptionTranslated,
-    display     : HeadingDisplay,
 }
 
 impl ComponentTrait for Heading {
@@ -69,7 +69,7 @@ impl ComponentTrait for Heading {
     }
 
     fn setup_before_prepare(&mut self, _cx: &mut Context) {
-        self.add_classes(self.display().to_string());
+        self.add_classes(self.size().to_string());
     }
 
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
@@ -151,14 +151,14 @@ impl Heading {
     }
 
     #[fn_builder]
-    pub fn alter_text(&mut self, text: L10n) -> &mut Self {
-        self.text.alter_value(text);
+    pub fn alter_size(&mut self, size: HeadingSize) -> &mut Self {
+        self.size = size;
         self
     }
 
     #[fn_builder]
-    pub fn alter_display(&mut self, display: HeadingDisplay) -> &mut Self {
-        self.display = display;
+    pub fn alter_text(&mut self, text: L10n) -> &mut Self {
+        self.text.alter_value(text);
         self
     }
 
@@ -168,11 +168,11 @@ impl Heading {
         &self.heading_type
     }
 
-    pub fn text(&self) -> &OptionTranslated {
-        &self.text
+    pub fn size(&self) -> &HeadingSize {
+        &self.size
     }
 
-    pub fn display(&self) -> &HeadingDisplay {
-        &self.display
+    pub fn text(&self) -> &OptionTranslated {
+        &self.text
     }
 }
