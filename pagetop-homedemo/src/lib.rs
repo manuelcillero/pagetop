@@ -69,7 +69,7 @@ fn hello_world() -> Wrapper {
                         ),
                     ))
                     .add_component(
-                        Button::primary(
+                        Button::anchor(
                             "https://github.com/manuelcillero/pagetop",
                             L10n::t("hello_code", &LOCALES_HOMEDEMO),
                         )
@@ -79,7 +79,8 @@ fn hello_world() -> Wrapper {
                         .with_font_size(FontSize::Medium),
                     )
                     .add_component(
-                        Button::link("#welcome", L10n::t("hello_welcome", &LOCALES_HOMEDEMO))
+                        Button::anchor("#welcome", L10n::t("hello_welcome", &LOCALES_HOMEDEMO))
+                            .with_style(ButtonStyle::Link)
                             .with_left_icon(Some(Icon::with("arrow-down-circle-fill")))
                             .with_classes(ClassesOp::Add, "welcome-link")
                             .with_font_size(FontSize::Medium),

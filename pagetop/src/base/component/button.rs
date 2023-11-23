@@ -2,23 +2,6 @@ use crate::prelude::*;
 use crate::BaseHandle;
 
 #[derive(SmartDefault)]
-pub enum ButtonType {
-    #[default]
-    Link,
-    Primary,
-}
-
-#[rustfmt::skip]
-impl ToString for ButtonType {
-    fn to_string(&self) -> String {
-        String::from(match self {
-            ButtonType::Link    => "link",
-            ButtonType::Primary => "primary",
-        })
-    }
-}
-
-#[derive(SmartDefault)]
 pub enum ButtonTarget {
     #[default]
     Default,
@@ -35,7 +18,7 @@ pub struct Button {
     weight     : Weight,
     renderable : Renderable,
     classes    : OptionClasses,
-    button_type: ButtonType,
+    style      : ButtonStyle,
     font_size  : FontSize,
     left_icon  : OptionComponent<Icon>,
     right_icon : OptionComponent<Icon>,
@@ -62,13 +45,7 @@ impl ComponentTrait for Button {
     }
 
     fn setup_before_prepare(&mut self, _cx: &mut Context) {
-        self.prepend_classes(
-            [
-                concat_string!("pt-button__", self.button_type().to_string()),
-                self.font_size().to_string(),
-            ]
-            .join(" "),
-        );
+        self.prepend_classes([self.style().to_string(), self.font_size().to_string()].join(" "));
     }
 
     #[rustfmt::skip]
@@ -96,18 +73,8 @@ impl ComponentTrait for Button {
 }
 
 impl Button {
-    pub fn link(href: impl Into<String>, html: L10n) -> Self {
-        Button::default()
-            .with_type(ButtonType::Link)
-            .with_href(href)
-            .with_html(html)
-    }
-
-    pub fn primary(href: impl Into<String>, html: L10n) -> Self {
-        Button::default()
-            .with_type(ButtonType::Primary)
-            .with_href(href)
-            .with_html(html)
+    pub fn anchor(href: impl Into<String>, html: L10n) -> Self {
+        Button::default().with_href(href).with_html(html)
     }
 
     // Button BUILDER.
@@ -131,8 +98,8 @@ impl Button {
     }
 
     #[fn_builder]
-    pub fn alter_type(&mut self, button_type: ButtonType) -> &mut Self {
-        self.button_type = button_type;
+    pub fn alter_style(&mut self, style: ButtonStyle) -> &mut Self {
+        self.style = style;
         self
     }
 
@@ -174,8 +141,8 @@ impl Button {
 
     // Button GETTERS.
 
-    pub fn button_type(&self) -> &ButtonType {
-        &self.button_type
+    pub fn style(&self) -> &ButtonStyle {
+        &self.style
     }
 
     pub fn font_size(&self) -> &FontSize {

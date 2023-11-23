@@ -106,6 +106,32 @@ impl ThemeTrait for Bootsier {
             }
             h if Button::matches_handle(h) => {
                 if let Some(b) = component_as_mut::<Button>(component) {
+                    match b.style() {
+                        ButtonStyle::Default => {
+                            b.replace_classes(b.style().to_string(), "btn btn-primary");
+                        }
+                        ButtonStyle::Info => {
+                            b.replace_classes(b.style().to_string(), "btn btn-info");
+                        }
+                        ButtonStyle::Success => {
+                            b.replace_classes(b.style().to_string(), "btn btn-success");
+                        }
+                        ButtonStyle::Warning => {
+                            b.replace_classes(b.style().to_string(), "btn btn-warning");
+                        }
+                        ButtonStyle::Danger => {
+                            b.replace_classes(b.style().to_string(), "btn btn-danger");
+                        }
+                        ButtonStyle::Light => {
+                            b.replace_classes(b.style().to_string(), "btn btn-light");
+                        }
+                        ButtonStyle::Dark => {
+                            b.replace_classes(b.style().to_string(), "btn btn-dark");
+                        }
+                        ButtonStyle::Link => {
+                            b.replace_classes(b.style().to_string(), "btn btn-link");
+                        }
+                    };
                     match b.font_size() {
                         FontSize::ExtraLarge => {
                             b.replace_classes(b.font_size().to_string(), "fs-1");
@@ -123,14 +149,6 @@ impl ThemeTrait for Bootsier {
                             b.replace_classes(b.font_size().to_string(), "fs-5");
                         }
                         _ => {}
-                    };
-                    match b.button_type() {
-                        ButtonType::Link => {
-                            b.replace_classes(b.button_type().to_string(), "btn btn-link");
-                        }
-                        ButtonType::Primary => {
-                            b.replace_classes(b.button_type().to_string(), "btn btn-primary");
-                        }
                     };
                 }
             }

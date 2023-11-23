@@ -55,6 +55,32 @@ impl ThemeTrait for Bulmix {
             }
             h if Button::matches_handle(h) => {
                 if let Some(b) = component_as_mut::<Button>(component) {
+                    match b.style() {
+                        ButtonStyle::Default => {
+                            b.replace_classes(b.style().to_string(), "button is-primary");
+                        }
+                        ButtonStyle::Info => {
+                            b.replace_classes(b.style().to_string(), "button is-info");
+                        }
+                        ButtonStyle::Success => {
+                            b.replace_classes(b.style().to_string(), "button is-success");
+                        }
+                        ButtonStyle::Warning => {
+                            b.replace_classes(b.style().to_string(), "button is-warning");
+                        }
+                        ButtonStyle::Danger => {
+                            b.replace_classes(b.style().to_string(), "button is-danger");
+                        }
+                        ButtonStyle::Light => {
+                            b.replace_classes(b.style().to_string(), "button is-light");
+                        }
+                        ButtonStyle::Dark => {
+                            b.replace_classes(b.style().to_string(), "button is-dark");
+                        }
+                        ButtonStyle::Link => {
+                            b.replace_classes(b.style().to_string(), "button is-text");
+                        }
+                    };
                     match b.font_size() {
                         FontSize::ExtraLarge => {
                             b.replace_classes(b.font_size().to_string(), "is-size-1");
@@ -72,14 +98,6 @@ impl ThemeTrait for Bulmix {
                             b.replace_classes(b.font_size().to_string(), "is-size-5");
                         }
                         _ => {}
-                    };
-                    match b.button_type() {
-                        ButtonType::Link => {
-                            b.replace_classes(b.button_type().to_string(), "button is-text");
-                        }
-                        ButtonType::Primary => {
-                            b.replace_classes(b.button_type().to_string(), "button is-primary");
-                        }
                     };
                 }
             }

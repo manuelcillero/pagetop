@@ -91,23 +91,51 @@
 	--pt-gap-0-75: calc(0.75 * var(--pt-gap));
 	--pt-gap-1-5: calc(1.5 * var(--pt-gap));
 	--pt-gap-2: calc(2 * var(--pt-gap));
-	--pt-gap-2-5: calc(2.5 * var(--pt-gap));
-	--pt-gap-3: calc(3 * var(--pt-gap));
-	--pt-gap-4: calc(4 * var(--pt-gap));
-	--pt-gap-5: calc(5 * var(--pt-gap));
-	--pt-gap-6: calc(6 * var(--pt-gap));
-	--pt-gap-7: calc(7 * var(--pt-gap));
-	--pt-gap-8: calc(8 * var(--pt-gap));
-	--pt-gap-9: calc(9 * var(--pt-gap));
-	--pt-gap-10: calc(10 * var(--pt-gap));
-	--pt-gap-11: calc(11 * var(--pt-gap));
-	--pt-gap-12: calc(12 * var(--pt-gap));
 
-	--pt-color--primary-hue: 216;
-	--pt-color--primary-sat: 98%;
-	--pt-color--primary-light: hsl(var(--pt-color--primary-hue), var(--pt-color--primary-sat), 60%);
-	--pt-color--primary-dark: hsl(var(--pt-color--primary-hue), var(--pt-color--primary-sat), 40%);
-	--pt-color--primary: hsl(var(--pt-color--primary-hue), var(--pt-color--primary-sat), 50%);
+	--pt-color--default-hue: 216;
+	--pt-color--default-sat: 60%;
+	--pt-color--default-light: hsl(var(--pt-color--default-hue), var(--pt-color--default-sat), 60%);
+	--pt-color--default-dark: hsl(var(--pt-color--default-hue), var(--pt-color--default-sat), 40%);
+	--pt-color--default: hsl(var(--pt-color--default-hue), var(--pt-color--default-sat), 50%);
+
+	--pt-color--info-hue: 190;
+	--pt-color--info-sat: 90%;
+	--pt-color--info-light: hsl(var(--pt-color--info-hue), var(--pt-color--info-sat), 60%);
+	--pt-color--info-dark: hsl(var(--pt-color--info-hue), var(--pt-color--info-sat), 40%);
+	--pt-color--info: hsl(var(--pt-color--info-hue), var(--pt-color--info-sat), 50%);
+
+	--pt-color--success-hue: 150;
+	--pt-color--success-sat: 50%;
+	--pt-color--success-light: hsl(var(--pt-color--success-hue), var(--pt-color--success-sat), 60%);
+	--pt-color--success-dark: hsl(var(--pt-color--success-hue), var(--pt-color--success-sat), 40%);
+	--pt-color--success: hsl(var(--pt-color--success-hue), var(--pt-color--success-sat), 50%);
+
+	--pt-color--warning-hue: 44;
+	--pt-color--warning-sat: 100%;
+	--pt-color--warning-light: hsl(var(--pt-color--warning-hue), var(--pt-color--warning-sat), 60%);
+	--pt-color--warning-dark: hsl(var(--pt-color--warning-hue), var(--pt-color--warning-sat), 48%);
+	--pt-color--warning: hsl(var(--pt-color--warning-hue), var(--pt-color--warning-sat), 50%);
+
+	--pt-color--danger-hue: 348;
+	--pt-color--danger-sat: 86%;
+	--pt-color--danger-light: hsl(var(--pt-color--danger-hue), var(--pt-color--danger-sat), 60%);
+	--pt-color--danger-dark: hsl(var(--pt-color--danger-hue), var(--pt-color--danger-sat), 40%);
+	--pt-color--danger: hsl(var(--pt-color--danger-hue), var(--pt-color--danger-sat), 50%);
+
+	--pt-color--light-hue: 0;
+	--pt-color--light-sat: 0%;
+	--pt-color--light-light: hsl(var(--pt-color--light-hue), var(--pt-color--light-sat), 98%);
+	--pt-color--light-dark: hsl(var(--pt-color--light-hue), var(--pt-color--light-sat), 92%);
+	--pt-color--light: hsl(var(--pt-color--light-hue), var(--pt-color--light-sat), 96%);
+
+	--pt-color--dark-hue: 0;
+	--pt-color--dark-sat: 0%;
+	--pt-color--dark-light: hsl(var(--pt-color--dark-hue), var(--pt-color--dark-sat), 40%);
+	--pt-color--dark-dark: hsl(var(--pt-color--dark-hue), var(--pt-color--dark-sat), 8%);
+	--pt-color--dark: hsl(var(--pt-color--dark-hue), var(--pt-color--dark-sat), 25%);
+
+
+
 
 	--pt-color--gray-hue: 201;
 	--pt-color--gray-sat: 15%;
@@ -122,9 +150,12 @@
 	--pt-color--gray-95: hsl(var(--pt-color--gray-hue), var(--pt-color--gray-sat), 93%);
 	--pt-color--gray-100: hsl(var(--pt-color--gray-hue), var(--pt-color--gray-sat), 97%);
 
-	--pt-color--white: #fff;
+
+
+
 	--pt-color--bg: #fafafa;
-	--pt-color: #212529;
+	--pt-color--text: #212529;
+	--pt-color--white: #fff;
 
 /*
 
@@ -132,8 +163,8 @@
 	--color-text-neutral-soft: var(--color--gray-45);
 	--color-text-neutral-medium: var(--color--gray-20);
 	--color-text-neutral-loud: var(--color--gray-5);
-	--color-text-primary-medium: var(--pt-color--primary-40);
-	--color-text-primary-loud: var(--pt-color--primary-30);
+	--color-text-primary-medium: var(--pt-color--default-40);
+	--color-text-primary-loud: var(--pt-color--default-30);
 	--color--black: #000;
 */
 /*
@@ -146,7 +177,7 @@
 	--pt-border-radius: 0.375rem;
 
 	/* Menu component */
-	--pt-menu--color-bg: var(--pt-color--gray-100);
+	--pt-menu--color-bg: var(--pt-color--bg);
 	--pt-menu--color-highlight: #e91e63;
 	--pt-menu--color-border: rgba(0, 0, 0, 0.1);
 	--pt-menu--color-shadow: rgba(0, 0, 0, 0.06);

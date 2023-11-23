@@ -25,6 +25,7 @@ pub struct ActionButton {
     renderable : Renderable,
     classes    : OptionClasses,
     button_type: ActionButtonType,
+    style      : ButtonStyle,
     font_size  : FontSize,
     left_icon  : OptionComponent<Icon>,
     right_icon : OptionComponent<Icon>,
@@ -48,13 +49,7 @@ impl ComponentTrait for ActionButton {
     }
 
     fn setup_before_prepare(&mut self, _cx: &mut Context) {
-        self.prepend_classes(
-            [
-                concat_string!("pt-button__", self.button_type().to_string()),
-                self.font_size().to_string(),
-            ]
-            .join(" "),
-        );
+        self.prepend_classes([self.style().to_string(), self.font_size().to_string()].join(" "));
     }
 
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
@@ -81,6 +76,7 @@ impl ActionButton {
     pub fn submit() -> Self {
         ActionButton {
             button_type: ActionButtonType::Submit,
+            style: ButtonStyle::Default,
             value: OptionTranslated::new(L10n::l("button_submit")),
             ..Default::default()
         }
@@ -89,6 +85,7 @@ impl ActionButton {
     pub fn reset() -> Self {
         ActionButton {
             button_type: ActionButtonType::Reset,
+            style: ButtonStyle::Info,
             value: OptionTranslated::new(L10n::l("button_reset")),
             ..Default::default()
         }
@@ -105,6 +102,12 @@ impl ActionButton {
     #[fn_builder]
     pub fn alter_renderable(&mut self, check: FnIsRenderable) -> &mut Self {
         self.renderable.check = check;
+        self
+    }
+
+    #[fn_builder]
+    pub fn alter_style(&mut self, style: ButtonStyle) -> &mut Self {
+        self.style = style;
         self
     }
 
@@ -160,6 +163,10 @@ impl ActionButton {
 
     pub fn button_type(&self) -> &ActionButtonType {
         &self.button_type
+    }
+
+    pub fn style(&self) -> &ButtonStyle {
+        &self.style
     }
 
     pub fn font_size(&self) -> &FontSize {

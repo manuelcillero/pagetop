@@ -37,7 +37,7 @@
 .pt-menu__nav li > a {
 	position: relative;
 	font-weight: 500;
-	color: var(--pt-color);
+	color: var(--pt-color--text);
 	text-rendering: optimizeLegibility;
 }
 .pt-menu__nav li > a {
@@ -135,7 +135,7 @@
 		height: 2px;
 		margin: 12.675% 0;
 		border-radius: var(--pt-border-radius);
-		background: var(--pt-color);
+		background: var(--pt-color--text);
 	}
 
 	.pt-menu__nav {
@@ -234,7 +234,7 @@
 		min-width: var(--pt-menu--item-height);
 		height: var(--pt-menu--item-height);
 		line-height: var(--pt-menu--item-height);
-		color: var(--pt-color);
+		color: var(--pt-color--text);
 		cursor: pointer;
 		display: flex;
 		align-items: center;

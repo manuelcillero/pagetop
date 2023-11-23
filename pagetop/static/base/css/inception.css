@@ -8,7 +8,7 @@ body {
 	font-size: var(--pt-fs--base);
 	font-weight: var(--pt-fw--base);
 	line-height: var(--pt-lh--base);
-	color: var(--pt-color);
+	color: var(--pt-color--text);
 	background-color: var(--pt-color--bg);
 	-webkit-text-size-adjust: 100%;
 	-webkit-tap-highlight-color: transparent;
@@ -62,14 +62,14 @@ p {
 }
 
 a {
-	color: var(--pt-color--primary);
+	color: var(--pt-color--default);
 	transition: color .15s ease-in-out;
 }
 a:hover {
-	color: var(--pt-color--primary-dark);
+	color: var(--pt-color--default-dark);
 }
 a:active {
-	color: var(--pt-color--primary-light);
+	color: var(--pt-color--default-light);
 }
 
 /* LAYOUT */
@@ -95,7 +95,7 @@ a:active {
 #footer__inner {
 	color: var(--pt-color--gray-65);
 	background: var(--pt-color--gray-20);
-	padding: var(--pt-gap-3) 0 var(--pt-gap-12);
+	padding: calc(3 * var(--pt-gap)) 0 calc(12 * var(--pt-gap));
 }
 #footer__inner a {
 	color: var(--pt-color--white);

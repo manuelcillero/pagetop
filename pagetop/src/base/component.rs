@@ -89,6 +89,37 @@ impl ToString for BreakPoint {
 // *************************************************************************************************
 
 #[derive(SmartDefault)]
+pub enum ButtonStyle {
+    #[default]
+    Default,
+    Info,
+    Success,
+    Warning,
+    Danger,
+    Light,
+    Dark,
+    Link,
+}
+
+#[rustfmt::skip]
+impl ToString for ButtonStyle {
+    fn to_string(&self) -> String {
+        String::from(match self {
+            ButtonStyle::Default   => "pt-button__default",
+            ButtonStyle::Info      => "pt-button__info",
+            ButtonStyle::Success   => "pt-button__success",
+            ButtonStyle::Warning   => "pt-button__warning",
+            ButtonStyle::Danger    => "pt-button__danger",
+            ButtonStyle::Light     => "pt-button__light",
+            ButtonStyle::Dark      => "pt-button__dark",
+            ButtonStyle::Link      => "pt-button__link",
+        })
+    }
+}
+
+// *************************************************************************************************
+
+#[derive(SmartDefault)]
 pub enum FontSize {
     ExtraLarge,
     XxLarge,
@@ -144,7 +175,7 @@ mod paragraph;
 pub use paragraph::Paragraph;
 
 mod button;
-pub use button::{Button, ButtonTarget, ButtonType};
+pub use button::{Button, ButtonTarget};
 
 mod image;
 pub use image::{Image, ImageSize};
