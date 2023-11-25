@@ -44,7 +44,6 @@ pub use crate::core::component::*;
 pub use crate::core::module::*;
 pub use crate::core::theme::*;
 
-pub use crate::response::fatal_error::*;
 pub use crate::response::{page::*, redirect::*, ResponseError};
 
 pub use crate::base::action;

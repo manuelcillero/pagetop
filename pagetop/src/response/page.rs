@@ -1,3 +1,8 @@
+mod error;
+pub use error::ErrorPage;
+
+pub use actix_web::Result as ResultPage;
+
 use crate::base::action;
 use crate::core::component::{AnyComponents, ArcAnyComponent, ComponentTrait};
 use crate::core::component::{Context, ContextOp};
@@ -5,12 +10,9 @@ use crate::core::theme::ComponentsRegions;
 use crate::html::{html, Markup, DOCTYPE};
 use crate::html::{ClassesOp, Favicon, OptionClasses, OptionId, OptionTranslated};
 use crate::locale::L10n;
-use crate::response::fatal_error::FatalError;
 use crate::{fn_builder, service};
 
 use unic_langid::CharacterDirection;
-
-pub use actix_web::Result as ResultPage;
 
 #[rustfmt::skip]
 pub struct Page {
@@ -154,7 +156,7 @@ impl Page {
 
     // Page RENDER.
 
-    pub fn render(&mut self) -> ResultPage<Markup, FatalError> {
+    pub fn render(&mut self) -> ResultPage<Markup, ErrorPage> {
         // Theme actions before preparing the page body.
         self.context.theme().before_prepare_body(self);
 

@@ -4,8 +4,7 @@ mod figfont;
 
 use crate::core::{module, module::ModuleRef};
 use crate::html::Markup;
-use crate::response::fatal_error::FatalError;
-use crate::response::page::ResultPage;
+use crate::response::page::{ErrorPage, ResultPage};
 use crate::{concat_string, config, locale, service, trace, LazyStatic};
 
 #[cfg(feature = "database")]
@@ -112,8 +111,8 @@ fn service_app() -> service::App<
         .default_service(service::web::route().to(service_not_found))
 }
 
-async fn service_not_found(request: service::HttpRequest) -> ResultPage<Markup, FatalError> {
-    Err(FatalError::NotFound(request))
+async fn service_not_found(request: service::HttpRequest) -> ResultPage<Markup, ErrorPage> {
+    Err(ErrorPage::NotFound(request))
 }
 
 fn show_banner() {

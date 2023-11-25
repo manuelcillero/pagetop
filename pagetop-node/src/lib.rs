@@ -35,7 +35,7 @@ impl ModuleTrait for Node {
     }
 }
 
-async fn node(request: service::HttpRequest) -> ResultPage<Markup, FatalError> {
+async fn node(request: service::HttpRequest) -> ResultPage<Markup, ErrorPage> {
     Page::new(request).with_title(L10n::n("Nodo")).render()
 }
 

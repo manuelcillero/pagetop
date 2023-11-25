@@ -13,7 +13,7 @@ impl ModuleTrait for HelloName {
 async fn hello_name(
     request: service::HttpRequest,
     path: service::web::Path<String>,
-) -> ResultPage<Markup, FatalError> {
+) -> ResultPage<Markup, ErrorPage> {
     let name = path.into_inner();
     Page::new(request)
         .with_component_in("content", Html::with(html! { h1 { "Hello " (name) "!" } }))

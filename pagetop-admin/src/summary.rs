@@ -2,7 +2,7 @@ use crate::LOCALES_ADMIN;
 
 use pagetop::prelude::*;
 
-pub async fn summary(request: service::HttpRequest) -> ResultPage<Markup, FatalError> {
+pub async fn summary(request: service::HttpRequest) -> ResultPage<Markup, ErrorPage> {
     let top_menu = Menu::new()
         .with_id("admin-menu-test")
         .add_item(menu::Item::label(L10n::t("module_name", &LOCALES_ADMIN)))

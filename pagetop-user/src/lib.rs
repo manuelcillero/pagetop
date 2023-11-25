@@ -30,7 +30,7 @@ impl ModuleTrait for User {
     }
 }
 
-async fn login(request: service::HttpRequest) -> ResultPage<Markup, FatalError> {
+async fn login(request: service::HttpRequest) -> ResultPage<Markup, ErrorPage> {
     Page::new(request)
         .with_title(L10n::n("Identificación del usuario"))
         .with_component_in(

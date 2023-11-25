@@ -9,7 +9,7 @@ impl ModuleTrait for HelloWorld {
     }
 }
 
-async fn hello_world(request: service::HttpRequest) -> ResultPage<Markup, FatalError> {
+async fn hello_world(request: service::HttpRequest) -> ResultPage<Markup, ErrorPage> {
     Page::new(request)
         .with_component_in("content", Html::with(html! { h1 { "Hello World!" } }))
         .render()

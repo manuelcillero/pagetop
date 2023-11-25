@@ -22,7 +22,7 @@ impl ModuleTrait for HomeDemo {
     }
 }
 
-async fn demo(request: service::HttpRequest) -> ResultPage<Markup, FatalError> {
+async fn demo(request: service::HttpRequest) -> ResultPage<Markup, ErrorPage> {
     Page::new(request)
         .with_title(L10n::t("page_title", &LOCALES_HOMEDEMO))
         .with_context(ContextOp::AddStyleSheet(StyleSheet::at(

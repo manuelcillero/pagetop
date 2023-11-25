@@ -5,5 +5,3 @@ pub use actix_web::ResponseError;
 pub mod page;
 
 pub mod redirect;
-
-pub mod fatal_error;
