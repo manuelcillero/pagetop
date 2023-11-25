@@ -32,7 +32,6 @@ pub struct Input {
     readonly    : OptionString,
     required    : OptionString,
     help_text   : OptionTranslated,
-    template    : String,
 }
 
 impl ComponentTrait for Input {
@@ -258,12 +257,6 @@ impl Input {
         self
     }
 
-    #[fn_with]
-    pub fn alter_template(&mut self, template: &str) -> &mut Self {
-        self.template = template.to_owned();
-        self
-    }
-
     // Input GETTERS.
 
     pub fn input_type(&self) -> &InputType {
@@ -320,9 +313,5 @@ impl Input {
 
     pub fn help_text(&self) -> &OptionTranslated {
         &self.help_text
-    }
-
-    pub fn template(&self) -> &str {
-        self.template.as_str()
     }
 }

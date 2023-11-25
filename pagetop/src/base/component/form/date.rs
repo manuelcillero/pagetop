@@ -17,7 +17,6 @@ pub struct Date {
     readonly    : OptionString,
     required    : OptionString,
     help_text   : OptionString,
-    template    : String,
 }
 
 impl ComponentTrait for Date {
@@ -157,12 +156,6 @@ impl Date {
         self
     }
 
-    #[fn_with]
-    pub fn alter_template(&mut self, template: &str) -> &mut Self {
-        self.template = template.to_owned();
-        self
-    }
-
     // Date GETTERS.
 
     pub fn name(&self) -> &OptionString {
@@ -203,9 +196,5 @@ impl Date {
 
     pub fn help_text(&self) -> &OptionString {
         &self.help_text
-    }
-
-    pub fn template(&self) -> &str {
-        self.template.as_str()
     }
 }

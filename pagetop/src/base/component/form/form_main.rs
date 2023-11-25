@@ -19,7 +19,6 @@ pub struct Form {
     charset   : OptionString,
     method    : FormMethod,
     stuff     : AnyComponents,
-    template  : String,
 }
 
 impl ComponentTrait for Form {
@@ -111,12 +110,6 @@ impl Form {
         self
     }
 
-    #[fn_with]
-    pub fn alter_template(&mut self, template: &str) -> &mut Self {
-        self.template = template.to_owned();
-        self
-    }
-
     // Form GETTERS.
 
     pub fn action(&self) -> &OptionString {
@@ -133,9 +126,5 @@ impl Form {
 
     pub fn elements(&self) -> &AnyComponents {
         &self.stuff
-    }
-
-    pub fn template(&self) -> &str {
-        self.template.as_str()
     }
 }

@@ -21,7 +21,6 @@ pub struct Wrapper {
     inner_classes: OptionClasses,
     wrapper_type : WrapperType,
     stuff        : AnyComponents,
-    template     : String,
 }
 
 impl ComponentTrait for Wrapper {
@@ -153,12 +152,6 @@ impl Wrapper {
         self
     }
 
-    #[fn_with]
-    pub fn alter_template(&mut self, template: &str) -> &mut Self {
-        self.template = template.to_owned();
-        self
-    }
-
     // Wrapper GETTERS.
 
     pub fn inner_classes(&self) -> &OptionClasses {
@@ -171,9 +164,5 @@ impl Wrapper {
 
     pub fn components(&self) -> &AnyComponents {
         &self.stuff
-    }
-
-    pub fn template(&self) -> &str {
-        self.template.as_str()
     }
 }
