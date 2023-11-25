@@ -5,18 +5,18 @@ use crate::{Handle, LazyStatic, SmartDefault};
 use std::collections::HashMap;
 use std::sync::RwLock;
 
-static THEME_REGIONS: LazyStatic<RwLock<HashMap<Handle, ComponentsRegions>>> =
+static THEME_REGIONS: LazyStatic<RwLock<HashMap<Handle, ComponentsInRegions>>> =
     LazyStatic::new(|| RwLock::new(HashMap::new()));
 
-static COMMON_REGIONS: LazyStatic<RwLock<ComponentsRegions>> =
-    LazyStatic::new(|| RwLock::new(ComponentsRegions::default()));
+static COMMON_REGIONS: LazyStatic<RwLock<ComponentsInRegions>> =
+    LazyStatic::new(|| RwLock::new(ComponentsInRegions::default()));
 
 #[derive(SmartDefault)]
-pub struct ComponentsRegions(HashMap<&'static str, AnyComponents>);
+pub struct ComponentsInRegions(HashMap<&'static str, AnyComponents>);
 
-impl ComponentsRegions {
+impl ComponentsInRegions {
     pub fn new(region: &'static str, arc: ArcAnyComponent) -> Self {
-        let mut regions = ComponentsRegions::default();
+        let mut regions = ComponentsInRegions::default();
         regions.add_component_in(region, arc);
         regions
     }
@@ -54,7 +54,7 @@ pub fn add_component_in(region: Region, arc: ArcAnyComponent) {
             if let Some(r) = regions.get_mut(&theme.handle()) {
                 r.add_component_in(region, arc);
             } else {
-                regions.insert(theme.handle(), ComponentsRegions::new(region, arc));
+                regions.insert(theme.handle(), ComponentsInRegions::new(region, arc));
             }
         }
     }

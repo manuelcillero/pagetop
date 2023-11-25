@@ -6,7 +6,7 @@ pub use actix_web::Result as ResultPage;
 use crate::base::action;
 use crate::core::component::{AnyComponents, ArcAnyComponent, ComponentTrait};
 use crate::core::component::{Context, ContextOp};
-use crate::core::theme::ComponentsRegions;
+use crate::core::theme::ComponentsInRegions;
 use crate::html::{html, Markup, DOCTYPE};
 use crate::html::{ClassesOp, Favicon, OptionClasses, OptionId, OptionTranslated};
 use crate::locale::L10n;
@@ -24,7 +24,7 @@ pub struct Page {
     context     : Context,
     body_classes: OptionClasses,
     skip_to     : OptionId,
-    regions     : ComponentsRegions,
+    regions     : ComponentsInRegions,
     template    : String,
 }
 
@@ -40,7 +40,7 @@ impl Page {
             context     : Context::new(request),
             body_classes: OptionClasses::default(),
             skip_to     : OptionId::default(),
-            regions     : ComponentsRegions::default(),
+            regions     : ComponentsInRegions::default(),
             template    : "default".to_owned(),
         }
     }
