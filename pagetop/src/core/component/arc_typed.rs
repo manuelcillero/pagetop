@@ -1,6 +1,6 @@
 use crate::core::component::{ComponentTrait, Context};
 use crate::html::{html, Markup};
-use crate::{fn_builder, Handle, Weight};
+use crate::{fn_with, Handle, Weight};
 
 use std::sync::{Arc, RwLock, RwLockReadGuard, RwLockWriteGuard};
 
@@ -76,7 +76,7 @@ impl<C: ComponentTrait + Default> TypedComponents<C> {
 
     // TypedComponents BUILDER.
 
-    #[fn_builder]
+    #[fn_with]
     pub fn alter_value(&mut self, op: ArcTypedOp<C>) -> &mut Self {
         match op {
             ArcTypedOp::Add(one) => self.0.push(one),

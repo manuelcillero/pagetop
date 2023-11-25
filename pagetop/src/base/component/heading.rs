@@ -126,37 +126,37 @@ impl Heading {
 
     // Heading BUILDER.
 
-    #[fn_builder]
+    #[fn_with]
     pub fn alter_id(&mut self, id: impl Into<String>) -> &mut Self {
         self.id.alter_value(id);
         self
     }
 
-    #[fn_builder]
+    #[fn_with]
     pub fn alter_weight(&mut self, value: Weight) -> &mut Self {
         self.weight = value;
         self
     }
 
-    #[fn_builder]
+    #[fn_with]
     pub fn alter_renderable(&mut self, check: FnIsRenderable) -> &mut Self {
         self.renderable.check = check;
         self
     }
 
-    #[fn_builder]
+    #[fn_with]
     pub fn alter_heading_type(&mut self, heading_type: HeadingType) -> &mut Self {
         self.heading_type = heading_type;
         self
     }
 
-    #[fn_builder]
+    #[fn_with]
     pub fn alter_size(&mut self, size: HeadingSize) -> &mut Self {
         self.size = size;
         self
     }
 
-    #[fn_builder]
+    #[fn_with]
     pub fn alter_text(&mut self, text: L10n) -> &mut Self {
         self.text.alter_value(text);
         self

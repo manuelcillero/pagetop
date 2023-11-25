@@ -93,55 +93,55 @@ impl ActionButton {
 
     // Button BUILDER.
 
-    #[fn_builder]
+    #[fn_with]
     pub fn alter_weight(&mut self, value: Weight) -> &mut Self {
         self.weight = value;
         self
     }
 
-    #[fn_builder]
+    #[fn_with]
     pub fn alter_renderable(&mut self, check: FnIsRenderable) -> &mut Self {
         self.renderable.check = check;
         self
     }
 
-    #[fn_builder]
+    #[fn_with]
     pub fn alter_style(&mut self, style: ButtonStyle) -> &mut Self {
         self.style = style;
         self
     }
 
-    #[fn_builder]
+    #[fn_with]
     pub fn alter_font_size(&mut self, font_size: FontSize) -> &mut Self {
         self.font_size = font_size;
         self
     }
 
-    #[fn_builder]
+    #[fn_with]
     pub fn alter_left_icon(&mut self, icon: Option<Icon>) -> &mut Self {
         self.left_icon.alter_value(icon);
         self
     }
 
-    #[fn_builder]
+    #[fn_with]
     pub fn alter_right_icon(&mut self, icon: Option<Icon>) -> &mut Self {
         self.right_icon.alter_value(icon);
         self
     }
 
-    #[fn_builder]
+    #[fn_with]
     pub fn alter_name(&mut self, name: &str) -> &mut Self {
         self.name.alter_value(name);
         self
     }
 
-    #[fn_builder]
+    #[fn_with]
     pub fn alter_value(&mut self, value: L10n) -> &mut Self {
         self.value.alter_value(value);
         self
     }
 
-    #[fn_builder]
+    #[fn_with]
     pub fn alter_autofocus(&mut self, toggle: bool) -> &mut Self {
         self.autofocus.alter_value(match toggle {
             true => "autofocus",
@@ -150,7 +150,7 @@ impl ActionButton {
         self
     }
 
-    #[fn_builder]
+    #[fn_with]
     pub fn alter_disabled(&mut self, toggle: bool) -> &mut Self {
         self.disabled.alter_value(match toggle {
             true => "disabled",

@@ -41,19 +41,19 @@ impl ComponentTrait for Group {
 impl Group {
     // Group BUILDER.
 
-    #[fn_builder]
+    #[fn_with]
     pub fn alter_id(&mut self, id: impl Into<String>) -> &mut Self {
         self.id.alter_value(id);
         self
     }
 
-    #[fn_builder]
+    #[fn_with]
     pub fn alter_weight(&mut self, value: Weight) -> &mut Self {
         self.weight = value;
         self
     }
 
-    #[fn_builder]
+    #[fn_with]
     pub fn alter_renderable(&mut self, check: FnIsRenderable) -> &mut Self {
         self.renderable.check = check;
         self
@@ -65,7 +65,7 @@ impl Group {
         self
     }
 
-    #[fn_builder]
+    #[fn_with]
     pub fn alter_elements(&mut self, op: ArcTypedOp<Element>) -> &mut Self {
         self.elements.alter_value(op);
         self

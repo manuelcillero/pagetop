@@ -1,6 +1,6 @@
 use crate::html::Markup;
 use crate::locale::{L10n, LanguageIdentifier};
-use crate::{fn_builder, SmartDefault};
+use crate::{fn_with, SmartDefault};
 
 #[derive(SmartDefault)]
 pub struct OptionTranslated(L10n);
@@ -12,7 +12,7 @@ impl OptionTranslated {
 
     // OptionTranslated BUILDER.
 
-    #[fn_builder]
+    #[fn_with]
     pub fn alter_value(&mut self, value: L10n) -> &mut Self {
         self.0 = value;
         self

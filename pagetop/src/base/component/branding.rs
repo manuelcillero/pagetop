@@ -62,43 +62,43 @@ impl ComponentTrait for Branding {
 impl Branding {
     // Branding BUILDER.
 
-    #[fn_builder]
+    #[fn_with]
     pub fn alter_id(&mut self, id: impl Into<String>) -> &mut Self {
         self.id.alter_value(id);
         self
     }
 
-    #[fn_builder]
+    #[fn_with]
     pub fn alter_weight(&mut self, value: Weight) -> &mut Self {
         self.weight = value;
         self
     }
 
-    #[fn_builder]
+    #[fn_with]
     pub fn alter_renderable(&mut self, check: FnIsRenderable) -> &mut Self {
         self.renderable.check = check;
         self
     }
 
-    #[fn_builder]
+    #[fn_with]
     pub fn alter_app_name(&mut self, app_name: impl Into<String>) -> &mut Self {
         self.app_name = app_name.into();
         self
     }
 
-    #[fn_builder]
+    #[fn_with]
     pub fn alter_slogan(&mut self, slogan: L10n) -> &mut Self {
         self.slogan.alter_value(slogan);
         self
     }
 
-    #[fn_builder]
+    #[fn_with]
     pub fn alter_logo(&mut self, logo: Option<Image>) -> &mut Self {
         self.logo.alter_value(logo);
         self
     }
 
-    #[fn_builder]
+    #[fn_with]
     pub fn alter_frontpage(&mut self, frontpage: FnContextualPath) -> &mut Self {
         self.frontpage = frontpage;
         self

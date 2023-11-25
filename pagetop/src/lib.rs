@@ -108,7 +108,7 @@ pub use paste::paste;
 /// customized default values.
 pub use smart_default::SmartDefault;
 
-pub use pagetop_macros::{fn_builder, main, test, BindHandle, ComponentClasses};
+pub use pagetop_macros::{fn_with, main, test, BindHandle, ComponentClasses};
 
 pub(crate) use pagetop_macros::BaseHandle;
 

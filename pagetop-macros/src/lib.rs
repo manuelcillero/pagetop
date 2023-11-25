@@ -14,7 +14,7 @@ pub fn html(input: TokenStream) -> TokenStream {
 }
 
 #[proc_macro_attribute]
-pub fn fn_builder(_attr: TokenStream, item: TokenStream) -> TokenStream {
+pub fn fn_with(_attr: TokenStream, item: TokenStream) -> TokenStream {
     let fn_item = parse_macro_input!(item as ItemFn);
     let fn_name = fn_item.sig.ident.to_string();
 

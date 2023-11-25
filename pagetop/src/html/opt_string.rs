@@ -1,4 +1,4 @@
-use crate::{fn_builder, SmartDefault};
+use crate::{fn_with, SmartDefault};
 
 #[derive(SmartDefault)]
 pub struct OptionString(Option<String>);
@@ -10,7 +10,7 @@ impl OptionString {
 
     // OptionString BUILDER.
 
-    #[fn_builder]
+    #[fn_with]
     pub fn alter_value(&mut self, value: impl Into<String>) -> &mut Self {
         self.0 = Some(value.into().trim().to_owned());
         self

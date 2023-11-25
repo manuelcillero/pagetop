@@ -70,43 +70,43 @@ impl ComponentTrait for Date {
 impl Date {
     // Date BUILDER.
 
-    #[fn_builder]
+    #[fn_with]
     pub fn alter_weight(&mut self, value: Weight) -> &mut Self {
         self.weight = value;
         self
     }
 
-    #[fn_builder]
+    #[fn_with]
     pub fn alter_renderable(&mut self, check: FnIsRenderable) -> &mut Self {
         self.renderable.check = check;
         self
     }
 
-    #[fn_builder]
+    #[fn_with]
     pub fn alter_name(&mut self, name: &str) -> &mut Self {
         self.name.alter_value(name);
         self
     }
 
-    #[fn_builder]
+    #[fn_with]
     pub fn alter_value(&mut self, value: &str) -> &mut Self {
         self.value.alter_value(value);
         self
     }
 
-    #[fn_builder]
+    #[fn_with]
     pub fn alter_label(&mut self, label: &str) -> &mut Self {
         self.label.alter_value(label);
         self
     }
 
-    #[fn_builder]
+    #[fn_with]
     pub fn alter_placeholder(&mut self, placeholder: &str) -> &mut Self {
         self.placeholder.alter_value(placeholder);
         self
     }
 
-    #[fn_builder]
+    #[fn_with]
     pub fn alter_autofocus(&mut self, toggle: bool) -> &mut Self {
         self.autofocus.alter_value(match toggle {
             true => "autofocus",
@@ -115,7 +115,7 @@ impl Date {
         self
     }
 
-    #[fn_builder]
+    #[fn_with]
     pub fn alter_autocomplete(&mut self, toggle: bool) -> &mut Self {
         self.autocomplete.alter_value(match toggle {
             true => "",
@@ -124,7 +124,7 @@ impl Date {
         self
     }
 
-    #[fn_builder]
+    #[fn_with]
     pub fn alter_disabled(&mut self, toggle: bool) -> &mut Self {
         self.disabled.alter_value(match toggle {
             true => "disabled",
@@ -133,7 +133,7 @@ impl Date {
         self
     }
 
-    #[fn_builder]
+    #[fn_with]
     pub fn alter_readonly(&mut self, toggle: bool) -> &mut Self {
         self.readonly.alter_value(match toggle {
             true => "readonly",
@@ -142,7 +142,7 @@ impl Date {
         self
     }
 
-    #[fn_builder]
+    #[fn_with]
     pub fn alter_required(&mut self, toggle: bool) -> &mut Self {
         self.required.alter_value(match toggle {
             true => "required",
@@ -151,13 +151,13 @@ impl Date {
         self
     }
 
-    #[fn_builder]
+    #[fn_with]
     pub fn alter_help_text(&mut self, help_text: &str) -> &mut Self {
         self.help_text.alter_value(help_text);
         self
     }
 
-    #[fn_builder]
+    #[fn_with]
     pub fn alter_template(&mut self, template: &str) -> &mut Self {
         self.template = template.to_owned();
         self

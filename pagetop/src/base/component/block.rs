@@ -53,25 +53,25 @@ impl ComponentTrait for Block {
 impl Block {
     // Block BUILDER.
 
-    #[fn_builder]
+    #[fn_with]
     pub fn alter_id(&mut self, id: impl Into<String>) -> &mut Self {
         self.id.alter_value(id);
         self
     }
 
-    #[fn_builder]
+    #[fn_with]
     pub fn alter_weight(&mut self, value: Weight) -> &mut Self {
         self.weight = value;
         self
     }
 
-    #[fn_builder]
+    #[fn_with]
     pub fn alter_renderable(&mut self, check: FnIsRenderable) -> &mut Self {
         self.renderable.check = check;
         self
     }
 
-    #[fn_builder]
+    #[fn_with]
     pub fn alter_title(&mut self, title: L10n) -> &mut Self {
         self.title.alter_value(title);
         self
@@ -83,7 +83,7 @@ impl Block {
         self
     }
 
-    #[fn_builder]
+    #[fn_with]
     pub fn alter_components(&mut self, op: ArcAnyOp) -> &mut Self {
         self.stuff.alter_value(op);
         self
