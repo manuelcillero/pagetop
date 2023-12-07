@@ -9,5 +9,7 @@ pub use async_trait;
 pub use sea_orm;
 pub use sea_orm::sea_query;
 pub use sea_orm::sea_query::*;
+pub use sea_orm::ConnectionTrait;
 pub use sea_orm::DbErr;
+pub use sea_orm::DeriveIden;
 pub use sea_orm::DeriveMigrationName;

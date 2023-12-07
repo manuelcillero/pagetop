@@ -15,7 +15,7 @@
   [SeaQuery](https://github.com/SeaQL/sea-query) para interactuar con bases de datos. Sin embargo,
   para restringir las migraciones a módulos, se ha integrado en el código una versión modificada de
   [SeaORM Migration](https://github.com/SeaQL/sea-orm/tree/master/sea-orm-migration) (versión
-  [0.11.3](https://github.com/SeaQL/sea-orm/tree/0.11.3/sea-orm-migration/src)).
+  [0.12.8](https://github.com/SeaQL/sea-orm/tree/0.12.8/sea-orm-migration/src)).
 
 
 # 🗚 FIGfonts
