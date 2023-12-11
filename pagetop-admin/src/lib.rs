@@ -4,7 +4,7 @@ static_locales!(LOCALES_ADMIN);
 
 mod summary;
 
-#[derive(BindHandle)]
+#[derive(AssignHandle)]
 pub struct Admin;
 
 impl ModuleTrait for Admin {

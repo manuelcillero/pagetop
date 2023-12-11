@@ -1,4 +1,4 @@
-//! Read configuration files and use settings.
+//! Retrieve and apply settings values from configuration files.
 //!
 //! Carga la configuración de la aplicación en forma de pares `clave = valor` recogidos en archivos
 //! [TOML](https://toml.io).

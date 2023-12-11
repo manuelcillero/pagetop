@@ -1,4 +1,4 @@
-//! Acceso unificado y normalizado a base de datos.
+//! Database access.
 
 use crate::{config, trace, LazyStatic};
 

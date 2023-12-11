@@ -9,42 +9,44 @@
 //!
 //! </div>
 //!
-//! **PageTop** es un entorno de desarrollo basado en Rust que reúne algunos de los crates más
-//! estables y populares para crear soluciones web modulares, extensibles y configurables.
+//! **PageTop** is an opinionated Rust web development framework to build secure, modular and
+//! configurable Server-Side Rendering (SSR) web solutions.
 //!
-//! PageTop define un interfaz único para aplicaciones SSR (*Server-Side Rendering*) que ofrece:
+//! PageTop brings together some of the most stable and popular Rust crates providing:
 //!
-//!  * Lectura y uso de ajustes de configuración ([`config`]).
+//! * Retrieve and apply settings values from configuration files ([`config`]).
 //!
-//!  * Registro de trazas y eventos de la aplicación ([`trace`]).
+//! * Application tracing and event logging ([`trace`]).
 //!
-//!  * HTML en código ([`html`]).
+//! * HTML in code ([`html`]).
 //!
-//!  * Localización ([`locale`]).
+//! * Localization ([`locale`]).
 //!
-//!  * [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) date and time handling ([`datetime`]).
+//! * [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) date and time handling ([`datetime`]).
 //!
-//!  * Acceso unificado y normalizado a base de datos ([`db`]).
+//! * Database access ([`db`]).
 //!
-//!  * Tipos y funciones esenciales para crear acciones, componentes, módulos y temas ([`core`]).
+//! * Essential web framework ([`service`]).
 //!
-//!  * Tipos de respuestas a peticiones web ([`response`])
+//! * Key types and functions for creating actions, components, modules, and themes ([`core`]).
 //!
-//!  * Funciones útiles ([`util`]).
+//! * Web request response variants ([`response`]).
 //!
-//! # 🚧 Advertencia
+//! * Base actions, components, modules, and themes ([`base`]).
 //!
-//! **PageTop** sólo libera actualmente versiones de desarrollo. La API no es estable y los cambios
-//! son constantes. No puede considerarse preparado hasta que se libere la versión **0.1.0**.
+//! * Utility functions ([`util`]).
 //!
-//! # ⚡️ Inicio rápido
+//! # 🚧 Warning
 //!
-//! Puedes encontrar este código en el repositorio de ejemplos
-//! [básicos](https://github.com/manuelcillero/pagetop/tree/main/examples/basics) de PageTop:
+//! **PageTop** framework is currently in active development. The API is unstable and subject to
+//! frequent changes. Production use is not recommended until version **0.1.0**.
+//!
+//! # ⚡️ Quick start
+//!
 //! ```rust
 //! use pagetop::prelude::*;
 //!
-//! #[derive(BindHandle)]
+//! #[derive(AssignHandle)]
 //! struct HelloWorld;
 //!
 //! impl ModuleTrait for HelloWorld {
@@ -64,34 +66,34 @@
 //!     Application::prepare(&HelloWorld).unwrap().run()?.await
 //! }
 //! ```
-//! Este programa crea un módulo llamado `HelloWorld` con un servicio que devuelve una página web
-//! saludando al mundo cada vez que se accede desde el navegador a `http://localhost:8088` (para
-//! los [ajustes de configuración](`config::Server`) predeterminados).
+//! This program implements a module named `HelloWorld` with one service that returns a web page
+//! that greets the world whenever it is accessed from the browser at `http://localhost:8088` (using
+//! the [default configuration settings](`config::Server`)). You can find this code in the PageTop
+//! [basic examples repository](https://github.com/manuelcillero/pagetop/tree/main/examples/basics).
 //!
-//! # 🧱 Extendiendo PageTop
+//! # 🧱 Extending PageTop
 //!
-//! La API de PageTop no sólo sirve para crear aplicaciones, también permite extender sus
-//! funcionalidades con el desarrollo de acciones, componentes, módulos o nuevos temas:
+//! The PageTop core API provides a comprehensive toolkit for extending its functionalities to
+//! specific requirements and application scenarios through actions, components, modules, and
+//! themes:
 //!
-//! * Las **acciones** permiten alterar el comportamiento del propio funcionamiento interno de
-//!   PageTop. Las acciones se ofrecen al desarrollador para interactuar con la ejecución de
-//!   procesos que pueden ser modificados.
-//! * Los **componentes** incluyen código HTML, CSS y/o Javascript en unidades que tienen una
-//!   funcionalidad bien definida y configurable durante la creación de páginas web.
-//! * Los **módulos** añaden funcionalidades o modifican las ya existentes usando las APIs globales
-//!   o las de otros módulos de PageTop o de terceros.
-//! * Los **temas** son módulos que permiten cambiar la disposición y el aspecto de las páginas y
-//!   componentes sin necesidad de alterar su funcionamiento. Estructuran las páginas en regiones
-//!   donde disponer los diferentes componentes.
+//! * **Actions** serve as a mechanism to customize PageTop's internal behavior by intercepting its
+//!   execution flow.
+//! * **Components** encapsulate HTML, CSS, and JavaScript into functional, configurable, and
+//!   well-defined units.
+//! * **Modules** extend or customize existing functionality by interacting with PageTop APIs or
+//!   third-party module APIs.
+//! * **Themes** enable developers to alter the appearance of pages and components without affecting
+//!   their functionality.
 //!
-//! # 🧩 Dependencias
+//! # 🧩 Dependency Management
 //!
-//! Las aplicaciones usarán `cargo` para resolver las dependencias entre PageTop y las extensiones
-//! de terceros que implementen acciones, componentes, módulos y/o temas; de la misma manera que se
-//! hace en cualquier otro proyecto.
+//! Projects leveraging PageTop will use `cargo` to resolve dependencies, similar to any other Rust
+//! project.
 //!
-//! Pero también deberán declararse explícitamente estas dependencias en cada módulo para ayudar a
-//! PageTop a estructurar e inicializar modularmente la aplicación.
+//! Nevertheless, it’s crucial that each module explicitly declares its
+//! [dependencies](core::module::ModuleTrait#method.dependencies), if any, to assist PageTop in
+//! structuring and initializing the application in a modular fashion.
 
 #![cfg_attr(docsrs, feature(doc_cfg))]
 
@@ -108,7 +110,7 @@ pub use paste::paste;
 /// customized default values.
 pub use smart_default::SmartDefault;
 
-pub use pagetop_macros::{fn_with, main, test, BindHandle, ComponentClasses};
+pub use pagetop_macros::{fn_with, main, test, AssignHandle, ComponentClasses};
 
 pub(crate) use pagetop_macros::BaseHandle;
 
@@ -146,35 +148,35 @@ static_locales!(LOCALES_PAGETOP);
 // Functions and macro helpers.
 pub mod util;
 
-// Gestión de la configuración.
+// Retrieve and apply settings values from configuration files.
 pub mod config;
-// Registro de trazas y eventos de la aplicación.
+// Application tracing and event logging.
 pub mod trace;
-// HTML en código.
+// HTML in code.
 pub mod html;
-// Localización.
+// Localization.
 pub mod locale;
-// Date and time for PageTop.
+// Date and time handling.
 pub mod datetime;
 
-// Acceso a base de datos.
+// Database access.
 #[cfg_attr(docsrs, doc(cfg(feature = "database")))]
 #[cfg(feature = "database")]
 pub mod db;
 
-// API para operar con los servicios web.
+// Essential web framework.
 pub mod service;
 
-// APIs esenciales para crear acciones, componentes, módulos y temas.
+// Key types and functions for creating actions, components, modules, and themes.
 pub mod core;
 
-// Tipos de respuestas a peticiones web.
+// Web request response variants.
 pub mod response;
 
-// Base de acciones, componentes, módulos y temas.
+// Base actions, components, modules, and themes.
 pub mod base;
 
-// Prepara y ejecuta la aplicación.
+// Prepare and run the application.
 pub mod app;
 
 // *************************************************************************************************

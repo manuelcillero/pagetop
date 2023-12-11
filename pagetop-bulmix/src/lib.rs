@@ -2,7 +2,7 @@ use pagetop::prelude::*;
 
 static_files!(bulmix);
 
-#[derive(BindHandle)]
+#[derive(AssignHandle)]
 pub struct Bulmix;
 
 impl ModuleTrait for Bulmix {

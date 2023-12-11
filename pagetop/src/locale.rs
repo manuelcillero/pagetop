@@ -1,4 +1,4 @@
-//! Localización (L10n).
+//! Localization (L10n).
 //!
 //! PageTop usa el conjunto de especificaciones [Fluent](https://www.projectfluent.org/) para la
 //! localización de aplicaciones.

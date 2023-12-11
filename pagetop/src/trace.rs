@@ -1,4 +1,4 @@
-//! Registro de trazas y eventos de la aplicación.
+//! Application tracing and event logging.
 //!
 //! PageTop recopila la información de diagnóstico de la aplicación de manera estructurada y basada
 //! en eventos.

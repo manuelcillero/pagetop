@@ -1,4 +1,4 @@
-//! Instancia y ejecuta una aplicación creada con **PageTop**.
+//! Prepare and run an application created with **Pagetop**.
 
 mod figfont;
 

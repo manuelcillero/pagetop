@@ -103,35 +103,14 @@ pub fn test(_: TokenStream, item: TokenStream) -> TokenStream {
     output
 }
 
-#[proc_macro_derive(ComponentClasses)]
-pub fn component_classes_derive(input: TokenStream) -> TokenStream {
-    let input = parse_macro_input!(input as DeriveInput);
-    let name = &input.ident;
-
-    let expanded = quote! {
-        impl ImplementClasses for #name {
-            fn alter_classes(&mut self, op: ClassesOp, classes: impl Into<String>) -> &mut Self {
-                self.classes.alter_value(op, classes);
-                self
-            }
-
-            fn classes(&self) -> &OptionClasses {
-                &self.classes
-            }
-        }
-    };
-
-    TokenStream::from(expanded)
+#[proc_macro_derive(AssignHandle, attributes(handle))]
+pub fn assign_handle_derive(input: TokenStream) -> TokenStream {
+    impl_handle(input, quote! { pagetop })
 }
 
 #[proc_macro_derive(BaseHandle, attributes(handle))]
 pub fn base_handle_derive(input: TokenStream) -> TokenStream {
     impl_handle(input, quote! { crate })
-}
-
-#[proc_macro_derive(BindHandle, attributes(handle))]
-pub fn bind_handle_derive(input: TokenStream) -> TokenStream {
-    impl_handle(input, quote! { pagetop })
 }
 
 fn impl_handle(input: TokenStream, crate_name: TokenStream2) -> TokenStream {
@@ -159,6 +138,27 @@ fn impl_handle(input: TokenStream, crate_name: TokenStream2) -> TokenStream {
             #[inline]
             fn handle(&self) -> #crate_name::Handle {
                 #handle_name
+            }
+        }
+    };
+
+    TokenStream::from(expanded)
+}
+
+#[proc_macro_derive(ComponentClasses)]
+pub fn component_classes_derive(input: TokenStream) -> TokenStream {
+    let input = parse_macro_input!(input as DeriveInput);
+    let name = &input.ident;
+
+    let expanded = quote! {
+        impl ImplementClasses for #name {
+            fn alter_classes(&mut self, op: ClassesOp, classes: impl Into<String>) -> &mut Self {
+                self.classes.alter_value(op, classes);
+                self
+            }
+
+            fn classes(&self) -> &OptionClasses {
+                &self.classes
             }
         }
     };

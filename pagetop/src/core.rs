@@ -1,4 +1,4 @@
-//! Tipos y funciones esenciales para crear acciones, componentes, módulos y temas.
+//! Key types and functions for creating actions, components, modules, and themes.
 
 // API to define functions that alter the behavior of PageTop core.
 pub mod action;

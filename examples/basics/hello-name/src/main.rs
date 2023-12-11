@@ -1,6 +1,6 @@
 use pagetop::prelude::*;
 
-#[derive(BindHandle)]
+#[derive(AssignHandle)]
 struct HelloName;
 
 impl ModuleTrait for HelloName {

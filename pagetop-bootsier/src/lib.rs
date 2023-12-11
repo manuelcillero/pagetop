@@ -4,7 +4,7 @@ static_locales!(LOCALES_BOOTSIER);
 
 static_files!(bootsier);
 
-#[derive(BindHandle)]
+#[derive(AssignHandle)]
 pub struct Bootsier;
 
 impl ModuleTrait for Bootsier {

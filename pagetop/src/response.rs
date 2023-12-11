@@ -1,4 +1,4 @@
-//! Types of web request responses.
+//! Web request response variants.
 
 pub use actix_web::ResponseError;
 

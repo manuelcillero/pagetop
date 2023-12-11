@@ -1,4 +1,4 @@
-//! PageTop uses the [Chrono](https://docs.rs/chrono) Rust library to add
-//! [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) date and time related data.
+//! [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) date and time handling
+//! ([chrono](https://docs.rs/chrono)).
 
 pub use chrono::prelude::*;
