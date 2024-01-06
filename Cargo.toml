@@ -5,14 +5,14 @@ members = [
     # Utilities.
     "pagetop-macros",
     "pagetop-build",
-    "pagetop-homedemo",
-    # Modules.
-    "pagetop-admin",
-    "pagetop-user",
-    "pagetop-node",
     # Themes.
     "pagetop-bootsier",
     "pagetop-bulmix",
+    # Packages.
+    "pagetop-homedemo",
+    "pagetop-admin",
+    "pagetop-user",
+    "pagetop-node",
 ]
 
 exclude = [
@@ -20,3 +20,5 @@ exclude = [
     "examples",
     "tests",
 ]
+
+resolver = "2"

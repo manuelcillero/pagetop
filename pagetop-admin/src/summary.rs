@@ -5,7 +5,7 @@ use pagetop::prelude::*;
 pub async fn summary(request: service::HttpRequest) -> ResultPage<Markup, ErrorPage> {
     let top_menu = Menu::new()
         .with_id("admin-menu-test")
-        .add_item(menu::Item::label(L10n::t("module_name", &LOCALES_ADMIN)))
+        .add_item(menu::Item::label(L10n::t("package_name", &LOCALES_ADMIN)))
         .add_item(menu::Item::label(L10n::n("Ejemplo \"Label\"")))
         .add_item(menu::Item::link(L10n::n("Ejemplo \"Link\""), |_| {
             "https://www.google.es"

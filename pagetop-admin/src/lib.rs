@@ -7,13 +7,13 @@ mod summary;
 #[derive(AssignHandle)]
 pub struct Admin;
 
-impl ModuleTrait for Admin {
+impl PackageTrait for Admin {
     fn name(&self) -> L10n {
-        L10n::t("module_name", &LOCALES_ADMIN)
+        L10n::t("package_name", &LOCALES_ADMIN)
     }
 
     fn description(&self) -> L10n {
-        L10n::t("module_description", &LOCALES_ADMIN)
+        L10n::t("package_description", &LOCALES_ADMIN)
     }
 
     fn actions(&self) -> Vec<Action> {

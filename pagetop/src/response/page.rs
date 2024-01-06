@@ -160,7 +160,7 @@ impl Page {
         // Theme actions before preparing the page body.
         self.context.theme().before_prepare_body(self);
 
-        // Module actions before preparing the page body.
+        // Packages actions before preparing the page body.
         action::page::BeforePrepareBody::dispatch(self);
 
         // Prepare page body.
@@ -169,7 +169,7 @@ impl Page {
         // Theme actions after preparing the page body.
         self.context.theme().after_prepare_body(self);
 
-        // Module actions after preparing the page body.
+        // Packages actions after preparing the page body.
         action::page::AfterPrepareBody::dispatch(self);
 
         // Prepare page head.

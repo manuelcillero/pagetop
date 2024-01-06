@@ -3,7 +3,7 @@ use pagetop::prelude::*;
 #[derive(AssignHandle)]
 struct HealthCheck;
 
-impl ModuleTrait for HealthCheck {}
+impl PackageTrait for HealthCheck {}
 
 #[pagetop::test]
 async fn health_check_works() {

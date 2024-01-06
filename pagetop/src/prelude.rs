@@ -41,7 +41,7 @@ pub use crate::service::HttpMessage;
 
 pub use crate::core::action::*;
 pub use crate::core::component::*;
-pub use crate::core::module::*;
+pub use crate::core::package::*;
 pub use crate::core::theme::*;
 
 pub use crate::response::{page::*, redirect::*, ResponseError};

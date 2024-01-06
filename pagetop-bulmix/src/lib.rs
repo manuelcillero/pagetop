@@ -5,7 +5,7 @@ static_files!(bulmix);
 #[derive(AssignHandle)]
 pub struct Bulmix;
 
-impl ModuleTrait for Bulmix {
+impl PackageTrait for Bulmix {
     fn theme(&self) -> Option<ThemeRef> {
         Some(&Bulmix)
     }

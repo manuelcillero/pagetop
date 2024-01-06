@@ -7,13 +7,13 @@ mod migration;
 #[derive(AssignHandle)]
 pub struct User;
 
-impl ModuleTrait for User {
+impl PackageTrait for User {
     fn name(&self) -> L10n {
-        L10n::t("module_name", &LOCALES_USER)
+        L10n::t("package_name", &LOCALES_USER)
     }
 
     fn description(&self) -> L10n {
-        L10n::t("module_description", &LOCALES_USER)
+        L10n::t("package_description", &LOCALES_USER)
     }
 
     fn configure_service(&self, scfg: &mut service::web::ServiceConfig) {

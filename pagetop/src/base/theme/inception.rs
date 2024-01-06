@@ -4,7 +4,7 @@ use crate::BaseHandle;
 #[derive(BaseHandle)]
 pub struct Inception;
 
-impl ModuleTrait for Inception {
+impl PackageTrait for Inception {
     fn name(&self) -> L10n {
         L10n::n("Inception")
     }

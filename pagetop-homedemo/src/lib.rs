@@ -7,13 +7,13 @@ static_files!(homedemo);
 #[derive(AssignHandle)]
 pub struct HomeDemo;
 
-impl ModuleTrait for HomeDemo {
+impl PackageTrait for HomeDemo {
     fn name(&self) -> L10n {
-        L10n::t("module_name", &LOCALES_HOMEDEMO)
+        L10n::t("package_name", &LOCALES_HOMEDEMO)
     }
 
     fn description(&self) -> L10n {
-        L10n::t("module_description", &LOCALES_HOMEDEMO)
+        L10n::t("package_description", &LOCALES_HOMEDEMO)
     }
 
     fn configure_service(&self, scfg: &mut service::web::ServiceConfig) {

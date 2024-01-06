@@ -1,5 +1,5 @@
 use crate::core::action::add_action;
-use crate::core::module::ModuleRef;
+use crate::core::package::PackageRef;
 use crate::core::theme::all::THEMES;
 use crate::{config, service, service_for_static_files, static_files, trace, LazyStatic};
 
@@ -10,71 +10,71 @@ use std::sync::RwLock;
 
 static_files!(base);
 
-// MODULES *****************************************************************************************
+// PACKAGES ****************************************************************************************
 
-static ENABLED_MODULES: LazyStatic<RwLock<Vec<ModuleRef>>> =
+static ENABLED_PACKAGES: LazyStatic<RwLock<Vec<PackageRef>>> =
     LazyStatic::new(|| RwLock::new(Vec::new()));
 
-static DROPPED_MODULES: LazyStatic<RwLock<Vec<ModuleRef>>> =
+static DROPPED_PACKAGES: LazyStatic<RwLock<Vec<PackageRef>>> =
     LazyStatic::new(|| RwLock::new(Vec::new()));
 
-// REGISTER MODULES ********************************************************************************
+// REGISTER PACKAGES *******************************************************************************
 
-pub fn register_modules(app: ModuleRef) {
-    // List of modules to drop.
-    let mut list: Vec<ModuleRef> = Vec::new();
+pub fn register_packages(app: PackageRef) {
+    // List of packages to drop.
+    let mut list: Vec<PackageRef> = Vec::new();
     add_to_dropped(&mut list, app);
-    DROPPED_MODULES.write().unwrap().append(&mut list);
+    DROPPED_PACKAGES.write().unwrap().append(&mut list);
 
-    // List of modules to enable.
-    let mut list: Vec<ModuleRef> = Vec::new();
+    // List of packages to enable.
+    let mut list: Vec<PackageRef> = Vec::new();
 
     // Enable default themes.
     add_to_enabled(&mut list, &crate::base::theme::Basic);
     add_to_enabled(&mut list, &crate::base::theme::Chassis);
     add_to_enabled(&mut list, &crate::base::theme::Inception);
 
-    // Enable application modules.
+    // Enable application packages.
     add_to_enabled(&mut list, app);
 
     list.reverse();
-    ENABLED_MODULES.write().unwrap().append(&mut list);
+    ENABLED_PACKAGES.write().unwrap().append(&mut list);
 }
 
-fn add_to_dropped(list: &mut Vec<ModuleRef>, module: ModuleRef) {
-    for d in module.drop_modules().iter() {
-        if !list.iter().any(|m| m.handle() == d.handle()) {
+fn add_to_dropped(list: &mut Vec<PackageRef>, package: PackageRef) {
+    for d in package.drop_packages().iter() {
+        if !list.iter().any(|p| p.handle() == d.handle()) {
             list.push(*d);
-            trace::debug!("Module \"{}\" dropped", d.single_name());
+            trace::debug!("Package \"{}\" dropped", d.single_name());
         }
     }
-    for d in module.dependencies().iter() {
+    for d in package.dependencies().iter() {
         add_to_dropped(list, *d);
     }
 }
 
-fn add_to_enabled(list: &mut Vec<ModuleRef>, module: ModuleRef) {
-    if !list.iter().any(|m| m.handle() == module.handle()) {
-        if DROPPED_MODULES
+fn add_to_enabled(list: &mut Vec<PackageRef>, package: PackageRef) {
+    if !list.iter().any(|p| p.handle() == package.handle()) {
+        if DROPPED_PACKAGES
             .read()
             .unwrap()
             .iter()
-            .any(|m| m.handle() == module.handle())
+            .any(|p| p.handle() == package.handle())
         {
             panic!(
-                "Trying to enable \"{}\" module which is dropped",
-                module.single_name()
+                "Trying to enable \"{}\" package which is dropped",
+                package.single_name()
             );
         } else {
-            list.push(module);
+            list.push(package);
 
-            let mut dependencies = module.dependencies();
+            let mut dependencies = package.dependencies();
             dependencies.reverse();
             for d in dependencies.iter() {
                 add_to_enabled(list, *d);
             }
 
-            if let Some(theme) = module.theme() {
+            if let Some(theme) = package.theme() {
                 let mut registered_themes = THEMES.write().unwrap();
                 if !registered_themes
                     .iter()
@@ -84,7 +84,7 @@ fn add_to_enabled(list: &mut Vec<ModuleRef>, module: ModuleRef) {
                     trace::debug!("Enabling \"{}\" theme", theme.single_name());
                 }
             } else {
-                trace::debug!("Enabling \"{}\" module", module.single_name());
+                trace::debug!("Enabling \"{}\" package", package.single_name());
             }
         }
     }
@@ -93,18 +93,18 @@ fn add_to_enabled(list: &mut Vec<ModuleRef>, module: ModuleRef) {
 // REGISTER ACTIONS ********************************************************************************
 
 pub fn register_actions() {
-    for m in ENABLED_MODULES.read().unwrap().iter() {
+    for m in ENABLED_PACKAGES.read().unwrap().iter() {
         for a in m.actions().into_iter() {
             add_action(a);
         }
     }
 }
 
-// INIT MODULES ************************************************************************************
+// INIT PACKAGES ***********************************************************************************
 
-pub fn init_modules() {
+pub fn init_packages() {
     trace::info!("Calling application bootstrap");
-    for m in ENABLED_MODULES.read().unwrap().iter() {
+    for m in ENABLED_PACKAGES.read().unwrap().iter() {
         m.init();
     }
 }
@@ -119,7 +119,7 @@ pub fn run_migrations() {
             impl MigratorTrait for Migrator {
                 fn migrations() -> Vec<MigrationItem> {
                     let mut migrations = vec![];
-                    for m in ENABLED_MODULES.read().unwrap().iter() {
+                    for m in ENABLED_PACKAGES.read().unwrap().iter() {
                         migrations.append(&mut m.migrations());
                     }
                     migrations
@@ -135,7 +135,7 @@ pub fn run_migrations() {
             impl MigratorTrait for Migrator {
                 fn migrations() -> Vec<MigrationItem> {
                     let mut migrations = vec![];
-                    for m in DROPPED_MODULES.read().unwrap().iter() {
+                    for m in DROPPED_PACKAGES.read().unwrap().iter() {
                         migrations.append(&mut m.migrations());
                     }
                     migrations
@@ -156,7 +156,7 @@ pub fn configure_services(scfg: &mut service::web::ServiceConfig) {
         base => "/base",
         [&config::SETTINGS.dev.pagetop_project_dir, "pagetop/static/base"]
     );
-    for m in ENABLED_MODULES.read().unwrap().iter() {
+    for m in ENABLED_PACKAGES.read().unwrap().iter() {
         m.configure_service(scfg);
     }
 }

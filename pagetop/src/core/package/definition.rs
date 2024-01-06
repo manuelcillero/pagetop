@@ -6,14 +6,14 @@ use crate::{actions, service, util, ImplementHandle};
 #[cfg(feature = "database")]
 use crate::{db::MigrationItem, migrations};
 
-pub type ModuleRef = &'static dyn ModuleTrait;
+pub type PackageRef = &'static dyn PackageTrait;
 
-pub trait ModuleBase {
+pub trait PackageBase {
     fn single_name(&self) -> &'static str;
 }
 
-/// Los módulos deben implementar este *trait*.
-pub trait ModuleTrait: ImplementHandle + ModuleBase + Send + Sync {
+/// Los paquetes deben implementar este *trait*.
+pub trait PackageTrait: ImplementHandle + PackageBase + Send + Sync {
     fn name(&self) -> L10n {
         L10n::n(self.single_name())
     }
@@ -26,11 +26,11 @@ pub trait ModuleTrait: ImplementHandle + ModuleBase + Send + Sync {
         None
     }
 
-    fn dependencies(&self) -> Vec<ModuleRef> {
+    fn dependencies(&self) -> Vec<PackageRef> {
         vec![]
     }
 
-    fn drop_modules(&self) -> Vec<ModuleRef> {
+    fn drop_packages(&self) -> Vec<PackageRef> {
         vec![]
     }
 
@@ -50,7 +50,7 @@ pub trait ModuleTrait: ImplementHandle + ModuleBase + Send + Sync {
     fn configure_service(&self, scfg: &mut service::web::ServiceConfig) {}
 }
 
-impl<M: ?Sized + ModuleTrait> ModuleBase for M {
+impl<M: ?Sized + PackageTrait> PackageBase for M {
     fn single_name(&self) -> &'static str {
         util::single_type_name::<Self>()
     }

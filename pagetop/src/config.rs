@@ -105,7 +105,7 @@
 //!     println!("Value of PAGETOP_RUN_MODE: {}", &config::SETTINGS.app.run_mode);
 //! }
 //!
-//! fn module_settings() {
+//! fn package_settings() {
 //!     println!("{} - {:?}", &SETTINGS.myapp.name, &SETTINGS.myapp.description);
 //!     println!("{}", &SETTINGS.myapp.width);
 //! }

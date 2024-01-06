@@ -8,13 +8,13 @@ mod migration;
 #[derive(AssignHandle)]
 pub struct Node;
 
-impl ModuleTrait for Node {
+impl PackageTrait for Node {
     fn name(&self) -> L10n {
-        L10n::t("module_name", &LOCALES_NODE)
+        L10n::t("package_name", &LOCALES_NODE)
     }
 
     fn description(&self) -> L10n {
-        L10n::t("module_description", &LOCALES_NODE)
+        L10n::t("package_description", &LOCALES_NODE)
     }
 
     fn configure_service(&self, scfg: &mut service::web::ServiceConfig) {

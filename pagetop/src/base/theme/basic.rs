@@ -4,7 +4,7 @@ use crate::BaseHandle;
 #[derive(BaseHandle)]
 pub struct Basic;
 
-impl ModuleTrait for Basic {
+impl PackageTrait for Basic {
     fn name(&self) -> L10n {
         L10n::n("Basic")
     }

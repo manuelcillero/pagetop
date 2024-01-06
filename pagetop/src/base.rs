@@ -1,4 +1,4 @@
-//! Base actions, components, modules, and themes.
+//! Base actions, components, packages, and themes.
 
 pub mod action;
 

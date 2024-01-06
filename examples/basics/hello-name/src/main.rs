@@ -3,7 +3,7 @@ use pagetop::prelude::*;
 #[derive(AssignHandle)]
 struct HelloName;
 
-impl ModuleTrait for HelloName {
+impl PackageTrait for HelloName {
     fn configure_service(&self, scfg: &mut service::web::ServiceConfig) {
         scfg.service(hello_name);
     }

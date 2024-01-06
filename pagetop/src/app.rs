@@ -2,7 +2,7 @@
 
 mod figfont;
 
-use crate::core::{module, module::ModuleRef};
+use crate::core::{package, package::PackageRef};
 use crate::html::Markup;
 use crate::response::page::{ErrorPage, ResultPage};
 use crate::{concat_string, config, locale, service, trace, LazyStatic};
@@ -21,7 +21,7 @@ use std::io::Error;
 pub struct Application;
 
 impl Application {
-    pub fn prepare(app: ModuleRef) -> Result<Self, Error> {
+    pub fn prepare(app: PackageRef) -> Result<Self, Error> {
         // On startup.
         show_banner();
 
@@ -35,18 +35,18 @@ impl Application {
         // Conecta con la base de datos.
         LazyStatic::force(&db::DBCONN);
 
-        // Registra los módulos de la aplicación.
-        module::all::register_modules(app);
+        // Registra los paquetes de la aplicación.
+        package::all::register_packages(app);
 
-        // Registra acciones de los módulos.
-        module::all::register_actions();
+        // Registra acciones de los paquetes.
+        package::all::register_actions();
 
-        // Inicializa los módulos.
-        module::all::init_modules();
+        // Inicializa los paquetes.
+        package::all::init_packages();
 
         #[cfg(feature = "database")]
         // Ejecuta actualizaciones pendientes de la base de datos.
-        module::all::run_migrations();
+        package::all::run_migrations();
 
         Ok(Self)
     }
@@ -107,7 +107,7 @@ fn service_app() -> service::App<
     >,
 > {
     service::App::new()
-        .configure(module::all::configure_services)
+        .configure(package::all::configure_services)
         .default_service(service::web::route().to(service_not_found))
 }
 

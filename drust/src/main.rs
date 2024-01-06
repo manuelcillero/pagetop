@@ -3,13 +3,13 @@ use pagetop::prelude::*;
 #[derive(AssignHandle)]
 struct Drust;
 
-impl ModuleTrait for Drust {
-    fn dependencies(&self) -> Vec<ModuleRef> {
+impl PackageTrait for Drust {
+    fn dependencies(&self) -> Vec<PackageRef> {
         vec![
             // Themes.
             &pagetop_bootsier::Bootsier,
             &pagetop_bulmix::Bulmix,
-            // Modules.
+            // Packages.
             &pagetop_homedemo::HomeDemo,
             &pagetop_admin::Admin,
             &pagetop_user::User,
@@ -17,7 +17,7 @@ impl ModuleTrait for Drust {
         ]
     }
 
-    fn drop_modules(&self) -> Vec<ModuleRef> {
+    fn drop_packages(&self) -> Vec<PackageRef> {
         vec![
         //  &pagetop_node::Node
         ]

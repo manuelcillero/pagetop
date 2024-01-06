@@ -1,2 +1,2 @@
-module_name = Admin module
-module_description = Módulo de administración.
+package_name = Admin module
+package_description = Módulo de administración.

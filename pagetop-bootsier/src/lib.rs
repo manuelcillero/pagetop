@@ -7,7 +7,7 @@ static_files!(bootsier);
 #[derive(AssignHandle)]
 pub struct Bootsier;
 
-impl ModuleTrait for Bootsier {
+impl PackageTrait for Bootsier {
     fn theme(&self) -> Option<ThemeRef> {
         Some(&Bootsier)
     }

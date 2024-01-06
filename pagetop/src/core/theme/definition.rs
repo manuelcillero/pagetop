@@ -1,5 +1,5 @@
 use crate::core::component::{ComponentTrait, Context};
-use crate::core::module::ModuleTrait;
+use crate::core::package::PackageTrait;
 use crate::html::{html, Favicon, Markup, OptionId};
 use crate::locale::L10n;
 use crate::response::page::Page;
@@ -8,7 +8,7 @@ use crate::{concat_string, config};
 pub type ThemeRef = &'static dyn ThemeTrait;
 
 /// Los temas deben implementar este "trait".
-pub trait ThemeTrait: ModuleTrait + Send + Sync {
+pub trait ThemeTrait: PackageTrait + Send + Sync {
     #[rustfmt::skip]
     fn regions(&self) -> Vec<(&'static str, L10n)> {
         vec![
