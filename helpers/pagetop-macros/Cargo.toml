@@ -1,0 +1,25 @@
+[package]
+name = "pagetop-macros"
+version = "0.0.7"
+edition = "2021"
+
+authors = [
+    "Manuel Cillero <manuel@cillero.es>"
+]
+description = """\
+    Group the main procedural and declarative macros for use from PageTop.\
+"""
+homepage = "https://pagetop.cillero.es"
+repository = "https://github.com/manuelcillero/pagetop"
+license = "MIT OR Apache-2.0"
+
+[lib]
+proc-macro = true
+
+[dependencies]
+concat-string = "1.0.1"
+proc-macro2 = "1.0"
+proc-macro-crate = "2.0.0"
+proc-macro-error = "1.0.4"
+quote = "1.0"
+syn = { version = "2.0", features = ["full"] }

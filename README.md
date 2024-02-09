@@ -1,89 +1,90 @@
 <div align="center">
 
-  <img src="https://raw.githubusercontent.com/manuelcillero/pagetop/main/banner-pagetop.png" />
+  <img src="https://raw.githubusercontent.com/manuelcillero/pagetop/main/static/banner.png" />
 
   <h1>PageTop</h1>
 
-  [![crate](https://img.shields.io/crates/v/pagetop.svg)](https://crates.io/crates/pagetop)
-  [![docs](https://docs.rs/pagetop/badge.svg)](https://docs.rs/pagetop)
+  [![License](https://img.shields.io/badge/license-MIT%2FApache-blue.svg?style=for-the-badge)](https://github.com/manuelcillero/pagetop#-license)
+  [![API Docs](https://img.shields.io/docsrs/pagetop?label=API%20Docs&style=for-the-badge&logo=Docs.rs)](https://docs.rs/pagetop)
+  [![Crates.io](https://img.shields.io/crates/v/pagetop.svg?style=for-the-badge&logo=ipfs)](https://crates.io/crates/pagetop)
+  [![Downloads](https://img.shields.io/crates/d/pagetop.svg?style=for-the-badge&logo=transmission)](https://crates.io/crates/pagetop)
 
 </div>
 
-**PageTop** es un entorno de desarrollo basado en [Rust](https://www.rust-lang.org/es/) que reúne
-algunos de los crates más estables y populares para crear soluciones web modulares, extensibles y
-configurables.
+**PageTop** is an opinionated [Rust](https://www.rust-lang.org) web development framework to build
+secure and modular Server-Side Rendering (SSR) web solutions.
 
-Incluye **Drust**, un sistema de gestión de contenidos basado en PageTop que permite crear, editar y
-mantener sitios web dinámicos, rápidos y seguros.
+PageTop stands on the shoulders of giants. It leverages some of the most stable and popular Rust
+crates to provide extensible and easily configurable features.
 
+# 🚧 Warning
 
-# 🚧 Advertencia
-
-**PageTop** es un proyecto personal para aprender Rust y conocer su ecosistema. Sólo se liberan
-versiones de desarrollo. En este contexto la API no es estable y los cambios son constantes. No
-puede considerarse preparado hasta que se libere la versión **0.1.0**.
+**PageTop** framework is currently in active development. The API is unstable and subject to
+frequent changes. Production use is not recommended until version **0.1.0**.
 
 
-# 📂 Estructura del código
+# 📂 Repository Structure
 
-El repositorio se organiza en un *workspace* con los siguientes subproyectos:
+This repository is organized into a workspace that includes several subprojects, each serving a
+distinct role within the PageTop ecosystem:
 
-* **[pagetop](https://github.com/manuelcillero/pagetop/tree/main/pagetop)**, es la librería esencial
-  construida con *crates* estables y muy conocidos del ecosistema Rust para proporcionar APIs,
-  patrones de desarrollo y buenas prácticas para la creación avanzada de soluciones web SSR
-  (*Server-Side Rendering*).
+## Application
 
-## Auxiliares
+* **[drust](https://github.com/manuelcillero/pagetop/tree/main/drust)**, a simple Content Management
+  System (CMS) built on PageTop, which enables the creation, editing, and maintenance of dynamic,
+  fast, and secure websites. It uses the following essential packages to provide standard CMS
+  functionalities.
 
-* **[pagetop-macros](https://github.com/manuelcillero/pagetop/tree/main/pagetop-macros)**, agrupa
-  las principales macros procedurales para usar desde **PageTop**.
+## Packages
 
-* **[pagetop-build](https://github.com/manuelcillero/pagetop/tree/main/pagetop-build)**, permite
-  incluir fácilmente recursos en los archivos binarios al compilar aplicaciones creadas con
-  **PageTop**.
+* **[pagetop-homedemo](https://github.com/manuelcillero/pagetop/tree/main/pagetop-homedemo)**:
+  Showcases a demo homepage, offering a glimpse into PageTop's capabilities.
 
-## Módulos
+* **[pagetop-admin](https://github.com/manuelcillero/pagetop/tree/main/pagetop-admin)**: Offers a
+  unified interface for administrators to configure and manage package settings.
 
-* **[pagetop-homedemo](https://github.com/manuelcillero/pagetop/tree/main/pagetop-homedemo)**,
-  módulo que muestra una página de inicio de demostración para presentar **PageTop**.
+* **[pagetop-user](https://github.com/manuelcillero/pagetop/tree/main/pagetop-user)**: Facilitates
+  user management, including roles, permissions, and session handling, for PageTop-based
+  applications.
 
-* **[pagetop-admin](https://github.com/manuelcillero/pagetop/tree/main/pagetop-admin)**, módulo que
-  proporciona a otros módulos un lugar común donde presentar a los administradores sus opciones de
-  configuración.
+* **[pagetop-node](https://github.com/manuelcillero/pagetop/tree/main/pagetop-node)**: Enables the
+  creation and customization of content types, enhancing website content management.
 
-* **[pagetop-user](https://github.com/manuelcillero/pagetop/tree/main/pagetop-user)**, módulo para
-  añadir gestión de usuarios, roles, permisos y sesiones en aplicaciones desarrolladas con PageTop.
+## Themes
 
-* **[pagetop-node](https://github.com/manuelcillero/pagetop/tree/main/pagetop-node)**, módulo para
-  crear, extender o personalizar los tipos de contenido que puede administrar un sitio web.
+* **[pagetop-bootsier](https://github.com/manuelcillero/pagetop/tree/main/pagetop-bootsier)**:
+  Utilizes the [Bootstrap](https://getbootstrap.com/) framework to offer versatile page layouts and
+  component stylings.
 
-## Temas
+* **[pagetop-bulmix](https://github.com/manuelcillero/pagetop/tree/main/pagetop-bulmix)**: Employs
+  the [Bulma](https://bulma.io/) framework for sleek, responsive design elements.
 
-* **[pagetop-bootsier](https://github.com/manuelcillero/pagetop/tree/main/pagetop-bootsier)**, tema
-  que utiliza el *framework* [Bootstrap](https://getbootstrap.com/) para la composición de páginas y
-  visualización de componentes.
+## Helpers
 
-* **[pagetop-bulmix](https://github.com/manuelcillero/pagetop/tree/main/pagetop-bulmix)**, tema que
-  utiliza el *framework* [Bulma](https://bulma.io/) para la composición de páginas y visualización
-  de componentes.
+* **[pagetop-macros](https://github.com/manuelcillero/pagetop/tree/main/pagetop-macros)**: A
+  collection of procedural macros that enhance the development experience within PageTop.
 
-## Aplicación
-
-* **[drust](https://github.com/manuelcillero/pagetop/tree/main/drust)**, es una aplicación
-  inspirada modestamente en [Drupal](https://www.drupal.org) que utiliza PageTop para crear un CMS
-  (*Content Management System* o sistema de gestión de contenidos) para construir sitios web
-  dinámicos, administrados y configurables.
+* **[pagetop-build](https://github.com/manuelcillero/pagetop/tree/main/pagetop-build)**: Simplifies
+  the process of embedding resources directly into binary files for PageTop applications.
 
 
-# 📜 Licencia
+# 📜 License
 
-Este proyecto tiene licencia, de hecho tiene dos, puedes aplicar cualquiera de las siguientes a tu
-elección:
+PageTop is free, open source and permissively licensed! Except where noted (below and/or in
+individual files), all code in this repository is dual-licensed under either:
 
-* Licencia Apache versión 2.0
-  ([LICENSE-APACHE](https://github.com/manuelcillero/pagetop/blob/main/LICENSE-APACHE) o
-  [http://www.apache.org/licenses/LICENSE-2.0]).
+  * MIT License
+    ([LICENSE-MIT](LICENSE-MIT) or https://opensource.org/licenses/MIT)
 
-* Licencia MIT
-  ([LICENSE-MIT](https://github.com/manuelcillero/pagetop/blob/main/LICENSE-MIT) o
-  [http://opensource.org/licenses/MIT]).
+  * Apache License, Version 2.0,
+    ([LICENSE-APACHE](LICENSE-APACHE) or https://www.apache.org/licenses/LICENSE-2.0)
+
+at your option. This means you can select the license you prefer! This dual-licensing approach is
+the de-facto standard in the Rust ecosystem.
+
+
+# ✨ Contributions
+
+Unless you explicitly state otherwise, any contribution intentionally submitted for inclusion in the
+work by you, as defined in the Apache-2.0 license, shall be dual licensed as above, without any
+additional terms or conditions.

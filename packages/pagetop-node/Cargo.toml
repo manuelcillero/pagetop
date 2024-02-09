@@ -1,0 +1,18 @@
+[package]
+name = "pagetop-node"
+version = "0.0.16"
+edition = "2021"
+
+authors = [
+    "Manuel Cillero <manuel@cillero.es>"
+]
+description = """\
+    Module for PageTop to create, extend or customize the types of content that a website can \
+    handle.\
+"""
+homepage = "https://pagetop.cillero.es"
+repository = "https://github.com/manuelcillero/pagetop"
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+pagetop = { version = "0.0", path = "../../", features = ["database"], default-features = false }
