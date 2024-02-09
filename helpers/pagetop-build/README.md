@@ -1,6 +1,9 @@
 Simplifies the process of embedding resources directly into binary files for **PageTop**
 applications.
 
+
+# 📦 About PageTop
+
 [PageTop](https://docs.rs/pagetop) is an opinionated [Rust](https://www.rust-lang.org) web
 development framework to build secure and modular Server-Side Rendering (SSR) web solutions.
 

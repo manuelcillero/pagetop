@@ -1,6 +1,9 @@
 **PageTop** package that enables the creation and customization of content types, enhancing website
 content management.
 
+
+# 📦 About PageTop
+
 [PageTop](https://docs.rs/pagetop) is an opinionated [Rust](https://www.rust-lang.org) web
 development framework to build secure and modular Server-Side Rendering (SSR) web solutions.
 

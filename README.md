@@ -4,7 +4,7 @@
 
   <h1>PageTop</h1>
 
-  [![License](https://img.shields.io/badge/license-MIT%2FApache-blue.svg?style=for-the-badge)](https://github.com/manuelcillero/pagetop#-license)
+  [![License](https://img.shields.io/badge/license-MIT%2FApache-blue.svg?style=for-the-badge)](#license)
   [![API Docs](https://img.shields.io/docsrs/pagetop?label=API%20Docs&style=for-the-badge&logo=Docs.rs)](https://docs.rs/pagetop)
   [![Crates.io](https://img.shields.io/crates/v/pagetop.svg?style=for-the-badge&logo=ipfs)](https://crates.io/crates/pagetop)
   [![Downloads](https://img.shields.io/crates/d/pagetop.svg?style=for-the-badge&logo=transmission)](https://crates.io/crates/pagetop)
@@ -71,7 +71,7 @@ distinct role within the PageTop ecosystem:
 # 📜 License
 
 PageTop is free, open source and permissively licensed! Except where noted (below and/or in
-individual files), all code in this repository is dual-licensed under either:
+individual files), all code in this project is dual-licensed under either:
 
   * MIT License
     ([LICENSE-MIT](LICENSE-MIT) or https://opensource.org/licenses/MIT)

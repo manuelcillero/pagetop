@@ -1,6 +1,9 @@
 **PageTop** theme that utilizes the [Bulma](https://bulma.io/) framework for sleek, responsive
 design elements.
 
+
+# 📦 About PageTop
+
 [PageTop](https://docs.rs/pagetop) is an opinionated [Rust](https://www.rust-lang.org) web
 development framework to build secure and modular Server-Side Rendering (SSR) web solutions.
 

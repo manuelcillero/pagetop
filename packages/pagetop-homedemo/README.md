@@ -1,5 +1,8 @@
 Showcases a demo homepage, offering a glimpse into **PageTop's** capabilities.
 
+
+# 📦 About PageTop
+
 [PageTop](https://docs.rs/pagetop) is an opinionated [Rust](https://www.rust-lang.org) web
 development framework to build secure and modular Server-Side Rendering (SSR) web solutions.
 
