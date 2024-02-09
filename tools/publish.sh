@@ -38,7 +38,7 @@ pushd helpers
 for crate in "${helpers[@]}"; do publish_crate; done
 popd
 
-echo "Publishing root crate"
+echo -e "\nPublishing root crate"
 cargo publish --allow-dirty
 
 pushd packages
