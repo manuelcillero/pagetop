@@ -21,7 +21,7 @@ keywords = [
     "web", "framework", "frontend", "ssr", "pagetop"
 ]
 exclude = [
-    "config/", "drust/", "examples/", "helpers/", "packages/", "tests/", "workdir/"
+    "drust/", "examples/", "helpers/", "packages/", "tests/", "workdir/"
 ]
 rust-version = "1.70.0"
 
