@@ -1,13 +1,14 @@
 [package]
 name = "pagetop-build"
-version = "0.0.7"
+version = "0.0.8"
 edition = "2021"
 
 authors = [
     "Manuel Cillero <manuel@cillero.es>"
 ]
 description = """\
-    Allows including resources in binaries when compiling applications built with PageTop.\
+    Simplifies the process of embedding resources directly into binary files for PageTop \
+    applications.\
 """
 homepage = "https://pagetop.cillero.es"
 repository = "https://github.com/manuelcillero/pagetop"
