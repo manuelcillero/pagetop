@@ -1,13 +1,13 @@
 [package]
 name = "pagetop-homedemo"
-version = "0.0.12"
+version = "0.0.13"
 edition = "2021"
 
 authors = [
     "Manuel Cillero <manuel@cillero.es>"
 ]
 description = """\
-    Module that shows a demo home page to present PageTop.\
+    Showcases a demo homepage, offering a glimpse into PageTop's capabilities.\
 """
 homepage = "https://pagetop.cillero.es"
 repository = "https://github.com/manuelcillero/pagetop"
