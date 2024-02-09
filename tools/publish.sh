@@ -15,7 +15,7 @@ function publish_crate() {
     pushd "$crate"
     git add LICENSE-MIT LICENSE-APACHE
 #   cargo publish --no-verify --allow-dirty
-    cargo publish
+    cargo publish --allow-dirty
     popd
     sleep 20
 }
@@ -39,8 +39,7 @@ for crate in "${helpers[@]}"; do publish_crate; done
 popd
 
 echo "Publishing root crate"
-#cargo publish --allow-dirty
-cargo publish
+cargo publish --allow-dirty
 
 pushd packages
 for crate in "${packages[@]}"; do publish_crate; done
