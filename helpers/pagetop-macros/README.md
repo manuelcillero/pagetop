@@ -1,35 +1,33 @@
-Agrupa las principales macros procedurales para usar desde **PageTop**.
+A collection of procedural macros that enhance the development experience within **PageTop**.
 
-[PageTop](https://github.com/manuelcillero/pagetop/tree/main/pagetop), es un entorno de desarrollo
-basado en algunos de los *crates* más estables y populares del ecosistema Rust para proporcionar
-APIs, patrones de desarrollo y buenas prácticas para la creación de soluciones web SSR (*Server-Side
-Rendering*).
+[PageTop](https://docs.rs/pagetop) is an opinionated [Rust](https://www.rust-lang.org) web
+development framework to build secure and modular Server-Side Rendering (SSR) web solutions.
 
 
-# 🚧 Advertencia
+# 🚧 Warning
 
-**PageTop** sólo libera actualmente versiones de desarrollo. La API no es estable y los cambios son
-constantes. No puede considerarse preparado hasta que se libere la versión **0.1.0**.
-
-
-# 🔖 Créditos
-
-Incluye en código una versión adaptada del crate [maud-macros](https://crates.io/crates/maud_macros)
-de [Chris Wong](https://crates.io/users/lambda-fairy) (versión
-[0.25.0](https://github.com/lambda-fairy/maud/tree/v0.25.0/maud_macros)), para añadir sus
-funcionalidades en **PageTop** sin requerir la referencia a `maud` en el archivo `Cargo.toml` de
-cada proyecto.
+**PageTop** framework is currently in active development. The API is unstable and subject to
+frequent changes. Production use is not recommended until version **0.1.0**.
 
 
-# 📜 Licencia
+# 🔖 Credits
 
-Este proyecto tiene licencia, de hecho tiene dos, puedes aplicar cualquiera de las siguientes a tu
-elección:
+This crate includes an adapted version of [maud-macros](https://crates.io/crates/maud_macros),
+version [0.25.0](https://github.com/lambda-fairy/maud/tree/v0.25.0/maud_macros), by
+[Chris Wong](https://crates.io/users/lambda-fairy). This adaptation integrates its functionalities
+into **PageTop**, eliminating the need for direct references to `maud` in the `Cargo.toml` file of
+each project.
 
-* Licencia Apache versión 2.0
-  ([LICENSE-APACHE](https://github.com/manuelcillero/pagetop/blob/main/LICENSE-APACHE) o
-  [http://www.apache.org/licenses/LICENSE-2.0]).
 
-* Licencia MIT
-  ([LICENSE-MIT](https://github.com/manuelcillero/pagetop/blob/main/LICENSE-MIT) o
-  [http://opensource.org/licenses/MIT]).
+# 📜 License
+
+All code in this crate is dual-licensed under either:
+
+  * MIT License
+    ([LICENSE-MIT](LICENSE-MIT) or https://opensource.org/licenses/MIT)
+
+  * Apache License, Version 2.0,
+    ([LICENSE-APACHE](LICENSE-APACHE) or https://www.apache.org/licenses/LICENSE-2.0)
+
+at your option. This means you can select the license you prefer! This dual-licensing approach is
+the de-facto standard in the Rust ecosystem.

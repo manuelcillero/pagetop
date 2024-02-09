@@ -1,13 +1,13 @@
 [package]
 name = "pagetop-macros"
-version = "0.0.7"
+version = "0.0.8"
 edition = "2021"
 
 authors = [
     "Manuel Cillero <manuel@cillero.es>"
 ]
 description = """\
-    Group the main procedural and declarative macros for use from PageTop.\
+    A collection of procedural macros that enhance the development experience within PageTop.\
 """
 homepage = "https://pagetop.cillero.es"
 repository = "https://github.com/manuelcillero/pagetop"
@@ -19,7 +19,7 @@ proc-macro = true
 [dependencies]
 concat-string = "1.0.1"
 proc-macro2 = "1.0"
-proc-macro-crate = "2.0.0"
+proc-macro-crate = "3.1.0"
 proc-macro-error = "1.0.4"
 quote = "1.0"
 syn = { version = "2.0", features = ["full"] }
