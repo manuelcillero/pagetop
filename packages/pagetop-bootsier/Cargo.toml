@@ -1,13 +1,14 @@
 [package]
 name = "pagetop-bootsier"
-version = "0.0.13"
+version = "0.0.14"
 edition = "2021"
 
 authors = [
     "Manuel Cillero <manuel@cillero.es>"
 ]
 description = """\
-    Theme for PageTop that uses the Bootstrap framework for page layout and components display.\
+    PageTop theme that utilizes the Bootstrap framework to offer versatile page layouts and \
+    component stylings.\
 """
 homepage = "https://pagetop.cillero.es"
 repository = "https://github.com/manuelcillero/pagetop"

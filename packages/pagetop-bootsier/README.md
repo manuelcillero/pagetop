@@ -1,27 +1,25 @@
-Tema para **PageTop** que utiliza el *framework* [Bootstrap](https://getbootstrap.com/) para la
-composición de páginas y visualización de componentes.
+**PageTop** theme that utilizes the [Bootstrap](https://getbootstrap.com/) framework to offer
+versatile page layouts and component stylings.
 
-[PageTop](https://github.com/manuelcillero/pagetop/tree/main/pagetop), es un entorno de desarrollo
-basado en algunos de los *crates* más estables y populares del ecosistema Rust para proporcionar
-APIs, patrones de desarrollo y buenas prácticas para la creación de soluciones web SSR (*Server-Side
-Rendering*).
+[PageTop](https://docs.rs/pagetop) is an opinionated [Rust](https://www.rust-lang.org) web
+development framework to build secure and modular Server-Side Rendering (SSR) web solutions.
 
 
-# 🚧 Advertencia
+# 🚧 Warning
 
-**PageTop** sólo libera actualmente versiones de desarrollo. La API no es estable y los cambios son
-constantes. No puede considerarse preparado hasta que se libere la versión **0.1.0**.
+**PageTop** framework is currently in active development. The API is unstable and subject to
+frequent changes. Production use is not recommended until version **0.1.0**.
 
 
-# 📜 Licencia
+# 📜 License
 
-Este proyecto tiene licencia, de hecho tiene dos, puedes aplicar cualquiera de las siguientes a tu
-elección:
+All code in this crate is dual-licensed under either:
 
-* Licencia Apache versión 2.0
-  ([LICENSE-APACHE](https://github.com/manuelcillero/pagetop/blob/main/LICENSE-APACHE) o
-  [http://www.apache.org/licenses/LICENSE-2.0]).
+  * MIT License
+    ([LICENSE-MIT](LICENSE-MIT) or https://opensource.org/licenses/MIT)
 
-* Licencia MIT
-  ([LICENSE-MIT](https://github.com/manuelcillero/pagetop/blob/main/LICENSE-MIT) o
-  [http://opensource.org/licenses/MIT]).
+  * Apache License, Version 2.0,
+    ([LICENSE-APACHE](LICENSE-APACHE) or https://www.apache.org/licenses/LICENSE-2.0)
+
+at your option. This means you can select the license you prefer! This dual-licensing approach is
+the de-facto standard in the Rust ecosystem.
