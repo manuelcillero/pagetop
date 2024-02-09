@@ -1,14 +1,14 @@
 [package]
 name = "pagetop-node"
-version = "0.0.16"
+version = "0.0.17"
 edition = "2021"
 
 authors = [
     "Manuel Cillero <manuel@cillero.es>"
 ]
 description = """\
-    Module for PageTop to create, extend or customize the types of content that a website can \
-    handle.\
+    PageTop package that enables the creation and customization of content types, enhancing \
+    website content management.\
 """
 homepage = "https://pagetop.cillero.es"
 repository = "https://github.com/manuelcillero/pagetop"
