@@ -40,12 +40,12 @@ distinct role within the PageTop ecosystem:
 * **[pagetop-homedemo](https://github.com/manuelcillero/pagetop/tree/main/pagetop-homedemo)**:
   Showcases a demo homepage, offering a glimpse into PageTop's capabilities.
 
-* **[pagetop-admin](https://github.com/manuelcillero/pagetop/tree/main/pagetop-admin)**: Offers a
-  unified interface for administrators to configure and manage package settings.
-
 * **[pagetop-user](https://github.com/manuelcillero/pagetop/tree/main/pagetop-user)**: Facilitates
-  user management, including roles, permissions, and session handling, for PageTop-based
-  applications.
+  user management, including roles, permissions, and session handling, for applications built on
+  PageTop.
+
+* **[pagetop-admin](https://github.com/manuelcillero/pagetop/tree/main/pagetop-admin)**: Provides a
+  unified interface for administrators to configure and manage package settings.
 
 * **[pagetop-node](https://github.com/manuelcillero/pagetop/tree/main/pagetop-node)**: Enables the
   creation and customization of content types, enhancing website content management.
@@ -56,7 +56,7 @@ distinct role within the PageTop ecosystem:
   Utilizes the [Bootstrap](https://getbootstrap.com/) framework to offer versatile page layouts and
   component stylings.
 
-* **[pagetop-bulmix](https://github.com/manuelcillero/pagetop/tree/main/pagetop-bulmix)**: Employs
+* **[pagetop-bulmix](https://github.com/manuelcillero/pagetop/tree/main/pagetop-bulmix)**: Utilizes
   the [Bulma](https://bulma.io/) framework for sleek, responsive design elements.
 
 ## Helpers

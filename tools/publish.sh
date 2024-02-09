@@ -26,12 +26,12 @@ helpers=(
     pagetop-build
 )
 packages=(
-    pagetop-bootsier
-    pagetop-bulmix
     pagetop-homedemo
     pagetop-user
     pagetop-admin
     pagetop-node
+    pagetop-bootsier
+    pagetop-bulmix
 )
 
 pushd helpers
