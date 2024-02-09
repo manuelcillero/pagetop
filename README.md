@@ -30,42 +30,42 @@ distinct role within the PageTop ecosystem:
 
 ## Application
 
-* **[drust](https://github.com/manuelcillero/pagetop/tree/main/drust)**, a simple Content Management
-  System (CMS) built on PageTop, which enables the creation, editing, and maintenance of dynamic,
-  fast, and secure websites. It uses the following essential packages to provide standard CMS
-  functionalities.
+* [drust](https://github.com/manuelcillero/pagetop/tree/main/drust):
+  A simple Content Management System (CMS) built on PageTop, which enables the creation, editing,
+  and maintenance of dynamic, fast, and secure websites. It uses the following essential packages to
+  provide standard CMS functionalities.
 
 ## Packages
 
-* **[pagetop-homedemo](https://github.com/manuelcillero/pagetop/tree/main/pagetop-homedemo)**:
+* [pagetop-homedemo](https://github.com/manuelcillero/pagetop/tree/main/packages/pagetop-homedemo):
   Showcases a demo homepage, offering a glimpse into PageTop's capabilities.
 
-* **[pagetop-user](https://github.com/manuelcillero/pagetop/tree/main/pagetop-user)**: Facilitates
-  user management, including roles, permissions, and session handling, for applications built on
-  PageTop.
+* [pagetop-user](https://github.com/manuelcillero/pagetop/tree/main/packages/pagetop-user):
+  Facilitates user management, including roles, permissions, and session handling, for applications
+  built on PageTop.
 
-* **[pagetop-admin](https://github.com/manuelcillero/pagetop/tree/main/pagetop-admin)**: Provides a
-  unified interface for administrators to configure and manage package settings.
+* [pagetop-admin](https://github.com/manuelcillero/pagetop/tree/main/packages/pagetop-admin):
+  Provides a unified interface for administrators to configure and manage package settings.
 
-* **[pagetop-node](https://github.com/manuelcillero/pagetop/tree/main/pagetop-node)**: Enables the
-  creation and customization of content types, enhancing website content management.
+* [pagetop-node](https://github.com/manuelcillero/pagetop/tree/main/packages/pagetop-node):
+  Enables the creation and customization of content types, enhancing website content management.
 
 ## Themes
 
-* **[pagetop-bootsier](https://github.com/manuelcillero/pagetop/tree/main/pagetop-bootsier)**:
-  Utilizes the [Bootstrap](https://getbootstrap.com/) framework to offer versatile page layouts and
-  component stylings.
+* [pagetop-bootsier](https://github.com/manuelcillero/pagetop/tree/main/packages/pagetop-bootsier):
+  Utilizes the *[Bootstrap](https://getbootstrap.com/)* framework to offer versatile page layouts
+  and component stylings.
 
-* **[pagetop-bulmix](https://github.com/manuelcillero/pagetop/tree/main/pagetop-bulmix)**: Utilizes
-  the [Bulma](https://bulma.io/) framework for sleek, responsive design elements.
+* [pagetop-bulmix](https://github.com/manuelcillero/pagetop/tree/main/packages/pagetop-bulmix):
+  Utilizes the *[Bulma](https://bulma.io/)* framework for sleek, responsive design elements.
 
 ## Helpers
 
-* **[pagetop-macros](https://github.com/manuelcillero/pagetop/tree/main/pagetop-macros)**: A
-  collection of procedural macros that enhance the development experience within PageTop.
+* [pagetop-macros](https://github.com/manuelcillero/pagetop/tree/main/helpers/pagetop-macros):
+  A collection of procedural macros that enhance the development experience within PageTop.
 
-* **[pagetop-build](https://github.com/manuelcillero/pagetop/tree/main/pagetop-build)**: Simplifies
-  the process of embedding resources directly into binary files for PageTop applications.
+* [pagetop-build](https://github.com/manuelcillero/pagetop/tree/main/helpers/pagetop-build):
+  Simplifies the process of embedding resources directly into binary files for PageTop applications.
 
 
 # 📜 License
