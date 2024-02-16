@@ -1,57 +1,56 @@
 [app]
 name = "PageTop Application"
-description = "Developed with the awesome PageTop framework."
-# Tema predeterminado.
+description = "Developed with the amazing PageTop framework."
+# Default theme.
 theme = "Default"
-# Idioma (localización) predeterminado.
+# Default language (localization).
 language = "en-US"
-# Dirección predeterminada para el texto: "ltr", "rtl" o "auto".
+# Default text direction: "ltr", "rtl", or "auto".
 direction = "ltr"
-# Rótulo al inicio: "Off", "Slant", "Small", "Speed" o "Starwars".
+# Startup banner: "Off", "Slant", "Small", "Speed", or "Starwars".
 startup_banner = "Slant"
 
 [database]
-# Conecta con una base de datos (opcional).
-# Tipo de base de datos (mysql, postgres ó sqlite).
+# Connect to a database (optional).
+# Database type (mysql, postgres, or sqlite).
 db_type = ""
-# Nombre (para mysql/postgres) o referencia (para sqlite) de la base de datos.
+# Database name (for mysql/postgres) or reference (for sqlite).
 db_name = ""
-# Usuario y contraseña (para mysql/postgres).
+# User and password (for mysql/postgres).
 db_user = ""
 db_pass = ""
-# Servidor (para mysql/postgres).
+# Database server (for mysql/postgres).
 db_host = "localhost"
-# Puerto, normalmente 3306 (para mysql) ó 5432 (para postgres).
+# Port, usually 3306 (for mysql) or 5432 (for postgres).
 db_port = 0
-# Número máximo de conexiones habilitadas.
+# Maximum number of enabled connections.
 max_pool_size = 5
 
 [dev]
-# Los archivos estáticos requeridos por la aplicación se integran de manera
-# predeterminada en el binario ejecutable. Sin embargo, durante el desarrollo
-# puede resultar útil servir estos archivos desde su propio directorio para
-# evitar recompilar cada vez que se modifican. En este caso bastaría con
-# indicar la ruta completa al directorio raiz del proyecto.
+# Static files required by the app are integrated by default into the executable
+# binary. However, during development, it can be useful to serve these files
+# from their own directory to avoid recompiling every time they are modified. In
+# this case, just indicate the full path to the project's root directory.
 pagetop_project_dir = ""
 
 [log]
-# Traza de ejecución: "Error", "Warn", "Info", "Debug" o "Trace".
-# Por ejemplo: "Error,actix_server::builder=Info,tracing_actix_web=Debug".
+# Execution trace: "Error", "Warn", "Info", "Debug", or "Trace".
+# For example: "Error,actix_server::builder=Info,tracing_actix_web=Debug".
 tracing = "Info"
-# En terminal ("Stdout") o archivos "Daily", "Hourly", "Minutely" o "Endless".
+# In terminal ("Stdout") or files "Daily", "Hourly", "Minutely", or "Endless".
 rolling = "Stdout"
-# Directorio para los archivos de traza (si rolling != "Stdout").
+# Directory for trace files (if rolling != "Stdout").
 path = "log"
-# Prefijo para los archivos de traza (si rolling != "Stdout").
+# Prefix for trace files (if rolling != "Stdout").
 prefix = "tracing.log"
-# Presentación de las trazas: "Full", "Compact", "Pretty" o "Json".
+# Traces format: "Full", "Compact", "Pretty", or "Json".
 format = "Full"
 
 [server]
-# Configuración del servidor web.
+# Web server config.
 bind_address = "localhost"
 bind_port = 8088
-# Duración de la cookie de sesión (en segundos), es decir, el tiempo desde que
-# se crea la sesión hasta que caduca la cookie. El valor 0 indica "hasta que se
-# cierre el navegador". Por defecto es una semana.
+# Session cookie duration (in seconds), i.e., the time from when the session is
+# created until the cookie expires. A value of 0 indicates "until the browser is
+# closed". By default, it is one week.
 session_lifetime = 604800
