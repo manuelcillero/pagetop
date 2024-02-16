@@ -118,10 +118,11 @@ pub trait ThemeTrait: PackageTrait + Send + Sync {
         /*
             Cómo usarlo:
 
-            match component.handle() {
-                BLOCK_COMPONENT => {
-                    let block = component_as_mut::<Block>(component);
-                    block.alter_title("New title");
+            match component.type_id() {
+                t if t == TypeId::of::<Block>() => {
+                    if let Some(b) = component_as_mut::<Block>(component) {
+                        b.alter_title("New title");
+                    }
                 },
                 _ => {},
             }
@@ -138,10 +139,11 @@ pub trait ThemeTrait: PackageTrait + Send + Sync {
         /*
             Cómo usarlo:
 
-            match component.handle() {
-                BLOCK_COMPONENT => {
-                    let block = component_as_mut::<Block>(component);
-                    block.alter_title("New title");
+            match component.type_id() {
+                t if t == TypeId::of::<Block>() => {
+                    if let Some(b) = component_as_mut::<Block>(component) {
+                        b.alter_title("New title");
+                    }
                 },
                 _ => {},
             }
@@ -159,13 +161,9 @@ pub trait ThemeTrait: PackageTrait + Send + Sync {
         /*
             Cómo usarlo:
 
-            match component.handle() {
-                BLOCK_COMPONENT => {
-                    let block = component_as_ref::<Block>(component);
-                    match block.template() {
-                        "default" => Some(block_default(block)),
-                        _ => None,
-                    }
+            match component.type_id() {
+                t if t == TypeId::of::<Block>() => {
+                    Some(block_default(block))
                 },
                 _ => None,
             }

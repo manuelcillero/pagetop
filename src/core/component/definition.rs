@@ -1,19 +1,14 @@
 use crate::base::action;
 use crate::core::component::Context;
+use crate::core::AnyBase;
 use crate::html::{html, Markup, PrepareMarkup};
-use crate::{util, ImplementHandle, Weight};
+use crate::{util, Weight};
 
-use std::any::Any;
-
-pub trait ComponentBase: Any {
+pub trait ComponentBase {
     fn render(&mut self, cx: &mut Context) -> Markup;
-
-    fn as_ref_any(&self) -> &dyn Any;
-
-    fn as_mut_any(&mut self) -> &mut dyn Any;
 }
 
-pub trait ComponentTrait: ComponentBase + ImplementHandle + Send + Sync {
+pub trait ComponentTrait: AnyBase + ComponentBase + Send + Sync {
     fn new() -> Self
     where
         Self: Sized;
@@ -87,20 +82,12 @@ impl<C: ComponentTrait> ComponentBase for C {
             html! {}
         }
     }
-
-    fn as_ref_any(&self) -> &dyn Any {
-        self
-    }
-
-    fn as_mut_any(&mut self) -> &mut dyn Any {
-        self
-    }
 }
 
 pub fn component_as_ref<C: ComponentTrait>(component: &dyn ComponentTrait) -> Option<&C> {
-    component.as_ref_any().downcast_ref::<C>()
+    component.as_any_ref().downcast_ref::<C>()
 }
 
 pub fn component_as_mut<C: ComponentTrait>(component: &mut dyn ComponentTrait) -> Option<&mut C> {
-    component.as_mut_any().downcast_mut::<C>()
+    component.as_any_mut().downcast_mut::<C>()
 }

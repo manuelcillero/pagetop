@@ -43,7 +43,7 @@ pub fn register_packages(app: PackageRef) {
 
 fn add_to_dropped(list: &mut Vec<PackageRef>, package: PackageRef) {
     for d in package.drop_packages().iter() {
-        if !list.iter().any(|p| p.handle() == d.handle()) {
+        if !list.iter().any(|p| p.type_id() == d.type_id()) {
             list.push(*d);
             trace::debug!("Package \"{}\" dropped", d.single_name());
         }
@@ -54,12 +54,12 @@ fn add_to_dropped(list: &mut Vec<PackageRef>, package: PackageRef) {
 }
 
 fn add_to_enabled(list: &mut Vec<PackageRef>, package: PackageRef) {
-    if !list.iter().any(|p| p.handle() == package.handle()) {
+    if !list.iter().any(|p| p.type_id() == package.type_id()) {
         if DROPPED_PACKAGES
             .read()
             .unwrap()
             .iter()
-            .any(|p| p.handle() == package.handle())
+            .any(|p| p.type_id() == package.type_id())
         {
             panic!(
                 "Trying to enable \"{}\" package which is dropped",
@@ -78,7 +78,7 @@ fn add_to_enabled(list: &mut Vec<PackageRef>, package: PackageRef) {
                 let mut registered_themes = THEMES.write().unwrap();
                 if !registered_themes
                     .iter()
-                    .any(|t| t.handle() == theme.handle())
+                    .any(|t| t.type_id() == theme.type_id())
                 {
                     registered_themes.push(theme);
                     trace::debug!("Enabling \"{}\" theme", theme.single_name());

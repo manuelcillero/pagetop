@@ -1,9 +1,7 @@
 use crate::prelude::*;
-use crate::BaseHandle;
 
 use super::FnActionPage;
 
-#[derive(BaseHandle)]
 pub struct BeforePrepareBody {
     f: FnActionPage,
     weight: Weight,
@@ -27,7 +25,7 @@ impl BeforePrepareBody {
 
     #[inline(always)]
     pub(crate) fn dispatch(page: &mut Page) {
-        dispatch_actions((Self::static_handle(), None, None), |action| {
+        dispatch_actions((TypeId::of::<Self>(), None, None), |action| {
             (action_ref::<BeforePrepareBody>(&**action).f)(page)
         });
     }

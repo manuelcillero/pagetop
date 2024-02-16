@@ -1,10 +1,10 @@
 use crate::core::action::{Action, ActionsList};
-use crate::{Handle, LazyStatic};
+use crate::{LazyStatic, TypeId};
 
 use std::collections::HashMap;
 use std::sync::RwLock;
 
-pub type KeyAction = (Handle, Option<Handle>, Option<String>);
+pub type KeyAction = (TypeId, Option<TypeId>, Option<String>);
 
 // Registered actions.
 static ACTIONS: LazyStatic<RwLock<HashMap<KeyAction, ActionsList>>> =
@@ -13,8 +13,8 @@ static ACTIONS: LazyStatic<RwLock<HashMap<KeyAction, ActionsList>>> =
 pub fn add_action(action: Action) {
     let mut actions = ACTIONS.write().unwrap();
     let key_action = (
-        action.handle(),
-        action.referer_handle(),
+        action.type_id(),
+        action.referer_type_id(),
         action.referer_id(),
     );
     if let Some(list) = actions.get_mut(&key_action) {

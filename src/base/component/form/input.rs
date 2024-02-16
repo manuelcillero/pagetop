@@ -1,5 +1,4 @@
 use crate::prelude::*;
-use crate::BaseHandle;
 
 #[derive(SmartDefault)]
 pub enum InputType {
@@ -13,7 +12,7 @@ pub enum InputType {
 }
 
 #[rustfmt::skip]
-#[derive(BaseHandle, ComponentClasses, SmartDefault)]
+#[derive(ComponentClasses, SmartDefault)]
 pub struct Input {
     weight      : Weight,
     renderable  : Renderable,

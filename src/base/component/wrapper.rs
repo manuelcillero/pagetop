@@ -1,5 +1,4 @@
 use crate::prelude::*;
-use crate::BaseHandle;
 
 #[derive(SmartDefault)]
 pub enum WrapperType {
@@ -12,7 +11,7 @@ pub enum WrapperType {
 }
 
 #[rustfmt::skip]
-#[derive(BaseHandle, ComponentClasses, SmartDefault)]
+#[derive(ComponentClasses, SmartDefault)]
 pub struct Wrapper {
     id           : OptionId,
     weight       : Weight,

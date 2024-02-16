@@ -2,7 +2,6 @@ use pagetop::prelude::*;
 
 static_files!(bulmix);
 
-#[derive(AssignHandle)]
 pub struct Bulmix;
 
 impl PackageTrait for Bulmix {
@@ -30,8 +29,8 @@ impl ThemeTrait for Bulmix {
     }
 
     fn before_prepare_component(&self, component: &mut dyn ComponentTrait, _cx: &mut Context) {
-        match component.handle() {
-            h if Icon::matches_handle(h) => {
+        match component.type_id() {
+            t if t == TypeId::of::<Icon>() => {
                 if let Some(i) = component_as_mut::<Icon>(component) {
                     match i.font_size() {
                         FontSize::ExtraLarge => {
@@ -53,7 +52,7 @@ impl ThemeTrait for Bulmix {
                     };
                 }
             }
-            h if Button::matches_handle(h) => {
+            t if t == TypeId::of::<Button>() => {
                 if let Some(b) = component_as_mut::<Button>(component) {
                     match b.style() {
                         ButtonStyle::Default => {
@@ -101,7 +100,7 @@ impl ThemeTrait for Bulmix {
                     };
                 }
             }
-            h if Heading::matches_handle(h) => {
+            t if t == TypeId::of::<Heading>() => {
                 if let Some(h) = component_as_mut::<Heading>(component) {
                     match h.size() {
                         HeadingSize::Subtitle => {
@@ -111,7 +110,7 @@ impl ThemeTrait for Bulmix {
                     };
                 }
             }
-            h if Paragraph::matches_handle(h) => {
+            t if t == TypeId::of::<Paragraph>() => {
                 if let Some(p) = component_as_mut::<Paragraph>(component) {
                     p.add_classes("block");
                     match p.font_size() {
@@ -143,8 +142,8 @@ impl ThemeTrait for Bulmix {
         component: &dyn ComponentTrait,
         _cx: &mut Context,
     ) -> Option<Markup> {
-        match component.handle() {
-            h if Icon::matches_handle(h) => {
+        match component.type_id() {
+            t if t == TypeId::of::<Icon>() => {
                 if let Some(i) = component_as_ref::<Icon>(component) {
                     return match i.icon_name().get() {
                         None => None,

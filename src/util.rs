@@ -1,6 +1,6 @@
 //! Functions and macro helpers.
 
-use crate::{trace, Handle};
+use crate::trace;
 
 use std::io;
 use std::path::PathBuf;
@@ -8,41 +8,6 @@ use std::path::PathBuf;
 // *************************************************************************************************
 // FUNCTIONS HELPERS.
 // *************************************************************************************************
-
-// https://stackoverflow.com/a/71464396
-#[doc(hidden)]
-pub const fn handle(
-    module_path: &'static str,
-    file: &'static str,
-    line: u32,
-    column: u32,
-) -> Handle {
-    let mut hash = 0xcbf29ce484222325;
-    let prime = 0x00000100000001B3;
-
-    let mut bytes = module_path.as_bytes();
-    let mut i = 0;
-
-    while i < bytes.len() {
-        hash ^= bytes[i] as u64;
-        hash = hash.wrapping_mul(prime);
-        i += 1;
-    }
-
-    bytes = file.as_bytes();
-    i = 0;
-    while i < bytes.len() {
-        hash ^= bytes[i] as u64;
-        hash = hash.wrapping_mul(prime);
-        i += 1;
-    }
-
-    hash ^= line as u64;
-    hash = hash.wrapping_mul(prime);
-    hash ^= column as u64;
-    hash = hash.wrapping_mul(prime);
-    hash
-}
 
 pub fn partial_type_name(type_name: &'static str, last: usize) -> &'static str {
     if last == 0 {

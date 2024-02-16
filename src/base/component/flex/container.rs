@@ -1,8 +1,7 @@
 use crate::prelude::*;
-use crate::BaseHandle;
 
 #[rustfmt::skip]
-#[derive(BaseHandle, ComponentClasses, SmartDefault)]
+#[derive(ComponentClasses, SmartDefault)]
 pub struct Container {
     id             : OptionId,
     weight         : Weight,

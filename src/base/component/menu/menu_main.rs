@@ -1,10 +1,9 @@
 use crate::prelude::*;
-use crate::BaseHandle;
 
 use super::Item;
 
 #[rustfmt::skip]
-#[derive(BaseHandle, SmartDefault)]
+#[derive(SmartDefault)]
 pub struct Menu {
     id        : OptionId,
     weight    : Weight,

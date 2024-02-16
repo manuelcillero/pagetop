@@ -5,7 +5,6 @@ static_locales!(LOCALES_NODE);
 //mod entity;
 mod migration;
 
-#[derive(AssignHandle)]
 pub struct Node;
 
 impl PackageTrait for Node {

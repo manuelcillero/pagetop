@@ -1,5 +1,4 @@
 use crate::prelude::*;
-use crate::BaseHandle;
 
 use super::{Megamenu, Submenu};
 
@@ -23,7 +22,7 @@ pub enum ItemType {
 // Item.
 
 #[rustfmt::skip]
-#[derive(BaseHandle, SmartDefault)]
+#[derive(SmartDefault)]
 pub struct Item {
     weight     : Weight,
     renderable : Renderable,

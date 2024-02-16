@@ -4,7 +4,6 @@ static_locales!(LOCALES_USER);
 
 mod migration;
 
-#[derive(AssignHandle)]
 pub struct User;
 
 impl PackageTrait for User {

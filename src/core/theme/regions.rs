@@ -1,11 +1,11 @@
 use crate::core::component::{AnyComponents, ArcAnyComponent, ArcAnyOp};
 use crate::core::theme::ThemeRef;
-use crate::{Handle, LazyStatic, SmartDefault};
+use crate::{LazyStatic, SmartDefault, TypeId};
 
 use std::collections::HashMap;
 use std::sync::RwLock;
 
-static THEME_REGIONS: LazyStatic<RwLock<HashMap<Handle, ComponentsInRegions>>> =
+static THEME_REGIONS: LazyStatic<RwLock<HashMap<TypeId, ComponentsInRegions>>> =
     LazyStatic::new(|| RwLock::new(HashMap::new()));
 
 static COMMON_REGIONS: LazyStatic<RwLock<ComponentsInRegions>> =
@@ -31,7 +31,7 @@ impl ComponentsInRegions {
 
     pub fn get_components(&self, theme: ThemeRef, region: &str) -> AnyComponents {
         let common = COMMON_REGIONS.read().unwrap();
-        if let Some(r) = THEME_REGIONS.read().unwrap().get(&theme.handle()) {
+        if let Some(r) = THEME_REGIONS.read().unwrap().get(&theme.type_id()) {
             AnyComponents::merge(&[common.0.get(region), self.0.get(region), r.0.get(region)])
         } else {
             AnyComponents::merge(&[common.0.get(region), self.0.get(region)])
@@ -51,10 +51,10 @@ pub fn add_component_in(region: Region, arc: ArcAnyComponent) {
         }
         Region::OfTheme(theme, region) => {
             let mut regions = THEME_REGIONS.write().unwrap();
-            if let Some(r) = regions.get_mut(&theme.handle()) {
+            if let Some(r) = regions.get_mut(&theme.type_id()) {
                 r.add_component_in(region, arc);
             } else {
-                regions.insert(theme.handle(), ComponentsInRegions::new(region, arc));
+                regions.insert(theme.type_id(), ComponentsInRegions::new(region, arc));
             }
         }
     }

@@ -1,8 +1,7 @@
 use crate::prelude::*;
-use crate::BaseHandle;
 
 #[rustfmt::skip]
-#[derive(BaseHandle, SmartDefault)]
+#[derive(SmartDefault)]
 pub struct Branding {
     id        : OptionId,
     weight    : Weight,

@@ -1,6 +1,6 @@
 use crate::core::component::{ComponentTrait, Context};
 use crate::html::{html, Markup};
-use crate::{fn_with, Handle, Weight};
+use crate::{fn_with, TypeId, Weight};
 
 use std::sync::{Arc, RwLock, RwLockReadGuard, RwLockWriteGuard};
 
@@ -41,8 +41,8 @@ impl<C: ComponentTrait> ArcTypedComponent<C> {
 
     // ArcTypedComponent HELPERS.
 
-    fn handle(&self) -> Handle {
-        self.0.read().unwrap().handle()
+    fn type_id(&self) -> TypeId {
+        self.0.read().unwrap().type_id()
     }
 
     fn id(&self) -> String {
@@ -123,8 +123,8 @@ impl<C: ComponentTrait + Default> TypedComponents<C> {
         self.0.iter().filter(move |&c| c.id() == id)
     }
 
-    pub fn iter_by_handle(&self, handle: Handle) -> impl Iterator<Item = &ArcTypedComponent<C>> {
-        self.0.iter().filter(move |&c| c.handle() == handle)
+    pub fn iter_by_type_id(&self, type_id: TypeId) -> impl Iterator<Item = &ArcTypedComponent<C>> {
+        self.0.iter().filter(move |&c| c.type_id() == type_id)
     }
 
     // TypedComponents RENDER.

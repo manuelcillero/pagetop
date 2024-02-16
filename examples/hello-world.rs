@@ -1,6 +1,5 @@
 use pagetop::prelude::*;
 
-#[derive(AssignHandle)]
 struct HelloWorld;
 
 impl PackageTrait for HelloWorld {

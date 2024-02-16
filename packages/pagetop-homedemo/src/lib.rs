@@ -4,7 +4,6 @@ static_locales!(LOCALES_HOMEDEMO);
 
 static_files!(homedemo);
 
-#[derive(AssignHandle)]
 pub struct HomeDemo;
 
 impl PackageTrait for HomeDemo {

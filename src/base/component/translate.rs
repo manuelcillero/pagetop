@@ -1,7 +1,6 @@
 use crate::prelude::*;
-use crate::BaseHandle;
 
-#[derive(BaseHandle, SmartDefault)]
+#[derive(SmartDefault)]
 pub struct Translate(L10n);
 
 impl ComponentTrait for Translate {

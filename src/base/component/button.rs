@@ -1,5 +1,4 @@
 use crate::prelude::*;
-use crate::BaseHandle;
 
 #[derive(SmartDefault)]
 pub enum ButtonTarget {
@@ -12,7 +11,7 @@ pub enum ButtonTarget {
 }
 
 #[rustfmt::skip]
-#[derive(BaseHandle, ComponentClasses, SmartDefault)]
+#[derive(ComponentClasses, SmartDefault)]
 pub struct Button {
     id         : OptionId,
     weight     : Weight,

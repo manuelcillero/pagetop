@@ -1,5 +1,4 @@
 use crate::prelude::*;
-use crate::BaseHandle;
 
 #[derive(SmartDefault)]
 pub enum ActionButtonType {
@@ -19,7 +18,7 @@ impl ToString for ActionButtonType {
 }
 
 #[rustfmt::skip]
-#[derive(BaseHandle, ComponentClasses, SmartDefault)]
+#[derive(ComponentClasses, SmartDefault)]
 pub struct ActionButton {
     weight     : Weight,
     renderable : Renderable,

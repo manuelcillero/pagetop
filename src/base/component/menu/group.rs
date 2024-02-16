@@ -1,10 +1,9 @@
 use crate::prelude::*;
-use crate::BaseHandle;
 
 use super::Element;
 
 #[rustfmt::skip]
-#[derive(BaseHandle, SmartDefault)]
+#[derive(SmartDefault)]
 pub struct Group {
     id        : OptionId,
     weight    : Weight,

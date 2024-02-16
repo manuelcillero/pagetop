@@ -1,13 +1,8 @@
-use crate::{Handle, ImplementHandle, Weight};
+use crate::core::AnyBase;
+use crate::{TypeId, Weight};
 
-use std::any::Any;
-
-pub trait ActionBase: Any {
-    fn as_ref_any(&self) -> &dyn Any;
-}
-
-pub trait ActionTrait: ActionBase + ImplementHandle + Send + Sync {
-    fn referer_handle(&self) -> Option<Handle> {
+pub trait ActionTrait: AnyBase + Send + Sync {
+    fn referer_type_id(&self) -> Option<TypeId> {
         None
     }
 
@@ -20,12 +15,6 @@ pub trait ActionTrait: ActionBase + ImplementHandle + Send + Sync {
     }
 }
 
-impl<C: ActionTrait> ActionBase for C {
-    fn as_ref_any(&self) -> &dyn Any {
-        self
-    }
-}
-
 pub fn action_ref<A: 'static>(action: &dyn ActionTrait) -> &A {
-    action.as_ref_any().downcast_ref::<A>().unwrap()
+    action.as_any_ref().downcast_ref::<A>().unwrap()
 }

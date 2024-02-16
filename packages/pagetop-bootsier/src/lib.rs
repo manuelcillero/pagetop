@@ -4,7 +4,6 @@ static_locales!(LOCALES_BOOTSIER);
 
 static_files!(bootsier);
 
-#[derive(AssignHandle)]
 pub struct Bootsier;
 
 impl PackageTrait for Bootsier {
@@ -81,8 +80,8 @@ impl ThemeTrait for Bootsier {
     }
 
     fn before_prepare_component(&self, component: &mut dyn ComponentTrait, _cx: &mut Context) {
-        match component.handle() {
-            h if Icon::matches_handle(h) => {
+        match component.type_id() {
+            t if t == TypeId::of::<Icon>() => {
                 if let Some(i) = component_as_mut::<Icon>(component) {
                     match i.font_size() {
                         FontSize::ExtraLarge => {
@@ -104,7 +103,7 @@ impl ThemeTrait for Bootsier {
                     };
                 }
             }
-            h if Button::matches_handle(h) => {
+            t if t == TypeId::of::<Button>() => {
                 if let Some(b) = component_as_mut::<Button>(component) {
                     match b.style() {
                         ButtonStyle::Default => {
@@ -152,7 +151,7 @@ impl ThemeTrait for Bootsier {
                     };
                 }
             }
-            h if Heading::matches_handle(h) => {
+            t if t == TypeId::of::<Heading>() => {
                 if let Some(h) = component_as_mut::<Heading>(component) {
                     match h.size() {
                         HeadingSize::ExtraLarge => {
@@ -174,7 +173,7 @@ impl ThemeTrait for Bootsier {
                     };
                 }
             }
-            h if Paragraph::matches_handle(h) => {
+            t if t == TypeId::of::<Paragraph>() => {
                 if let Some(p) = component_as_mut::<Paragraph>(component) {
                     match p.font_size() {
                         FontSize::ExtraLarge => {
@@ -201,8 +200,8 @@ impl ThemeTrait for Bootsier {
     }
 
     fn render_component(&self, component: &dyn ComponentTrait, cx: &mut Context) -> Option<Markup> {
-        match component.handle() {
-            h if Error404::matches_handle(h) => Some(html! {
+        match component.type_id() {
+            t if t == TypeId::of::<Error404>() => Some(html! {
                 div class="jumbotron" {
                     div class="media" {
                         img

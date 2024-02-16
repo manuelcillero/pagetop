@@ -4,11 +4,11 @@
 pub use crate::{concat_string, fn_with, html, main, paste, test, SmartDefault};
 
 // Global.
-pub use crate::{Handle, HashMapResources, ImplementHandle, LazyStatic, Weight};
+pub use crate::{HashMapResources, LazyStatic, TypeId, Weight};
 
 // Functions and macro helpers.
 pub use crate::util;
-pub use crate::{kv, AssignHandle, ComponentClasses};
+pub use crate::{kv, ComponentClasses};
 
 // MACROS.
 
@@ -38,6 +38,8 @@ pub use crate::{db, db::*, migrations, new_migration};
 
 pub use crate::service;
 pub use crate::service::HttpMessage;
+
+pub use crate::core::AnyBase;
 
 pub use crate::core::action::*;
 pub use crate::core::component::*;

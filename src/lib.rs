@@ -32,7 +32,6 @@
 //! ```rust
 //! use pagetop::prelude::*;
 //!
-//! #[derive(AssignHandle)]
 //! struct HelloWorld;
 //!
 //! impl PackageTrait for HelloWorld {
@@ -85,9 +84,7 @@ pub use paste::paste;
 /// Custom derive for automatically implementing the [Default] trait with customized default values.
 pub use smart_default::SmartDefault;
 
-pub use pagetop_macros::{fn_with, main, test, AssignHandle, ComponentClasses};
-
-pub(crate) use pagetop_macros::BaseHandle;
+pub use pagetop_macros::{fn_with, main, test, ComponentClasses};
 
 // *************************************************************************************************
 // GLOBAL.
@@ -96,19 +93,7 @@ pub(crate) use pagetop_macros::BaseHandle;
 pub use once_cell::sync::Lazy as LazyStatic;
 pub use static_files::Resource as StaticResource;
 
-pub type Handle = u64;
-
-pub trait ImplementHandle {
-    fn static_handle() -> Handle
-    where
-        Self: Sized;
-
-    fn matches_handle(is: Handle) -> bool
-    where
-        Self: Sized;
-
-    fn handle(&self) -> Handle;
-}
+pub use std::any::TypeId;
 
 pub type Weight = i8;
 

@@ -1,6 +1,5 @@
 use pagetop::prelude::*;
 
-#[derive(AssignHandle)]
 struct Drust;
 
 impl PackageTrait for Drust {
