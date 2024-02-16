@@ -1,13 +1,13 @@
 <div align="center">
 
-  <img src="https://raw.githubusercontent.com/manuelcillero/pagetop/main/static/banner.png" />
+<img src="https://raw.githubusercontent.com/manuelcillero/pagetop/main/static/banner.png" />
 
-  <h1>PageTop</h1>
+<h1>PageTop</h1>
 
-  [![License](https://img.shields.io/badge/license-MIT%2FApache-blue.svg?style=for-the-badge)](#license)
-  [![API Docs](https://img.shields.io/docsrs/pagetop?label=API%20Docs&style=for-the-badge&logo=Docs.rs)](https://docs.rs/pagetop)
-  [![Crates.io](https://img.shields.io/crates/v/pagetop.svg?style=for-the-badge&logo=ipfs)](https://crates.io/crates/pagetop)
-  [![Downloads](https://img.shields.io/crates/d/pagetop.svg?style=for-the-badge&logo=transmission)](https://crates.io/crates/pagetop)
+[![License](https://img.shields.io/badge/license-MIT%2FApache-blue.svg?style=for-the-badge)](#-license)
+[![API Docs](https://img.shields.io/docsrs/pagetop?label=API%20Docs&style=for-the-badge&logo=Docs.rs)](https://docs.rs/pagetop)
+[![Crates.io](https://img.shields.io/crates/v/pagetop.svg?style=for-the-badge&logo=ipfs)](https://crates.io/crates/pagetop)
+[![Downloads](https://img.shields.io/crates/d/pagetop.svg?style=for-the-badge&logo=transmission)](https://crates.io/crates/pagetop)
 
 </div>
 
