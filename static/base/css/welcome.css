@@ -1,0 +1,95 @@
+#welcome span.app-name {
+	font-weight: 500;
+	color: inherit;
+}
+
+#welcome .hello-world,
+#welcome .welcome,
+#welcome .pagetop,
+#welcome .issues {
+	padding: 1.6rem 5%;
+}
+#welcome .promo {
+	padding: 0 5% 2rem;
+}
+#welcome .issues {
+	padding-top: 0;
+}
+
+#welcome [class$="-col-text"] {
+	margin: 5% 5% 0;
+	text-align: center;
+}
+#welcome [class$="-col-image"] {
+	margin: 1rem 5%;
+}
+
+#welcome .welcome {
+	text-align: center;
+	margin: 0 5%;
+}
+#welcome .welcome > div.container {
+	padding: 2rem 1rem;
+	border-radius: 28px;
+	background: url("/base/images/welcome.jpg") center center no-repeat;
+	background-size: auto;
+	background-size: cover;
+	color: #fff;
+}
+#welcome .welcome > div.container > h2 {
+	color: #fff;
+}
+#welcome .welcome > div.container > h3 {
+	color: #ccc;
+}
+
+#welcome .promo-col-image {
+	padding: 0 5%;
+}
+
+#welcome .issues-col-image img {
+	border-radius: 40px;
+}
+
+/* BREAKPOINTS */
+
+/* MD - Applies >= 768px */
+@media screen and (min-width: 48em) {
+	#welcome .promo-col-image {
+		padding: 0;
+	}
+
+	#welcome .issues {
+		padding-top: 1.6rem;
+	}
+	#welcome .issues-col-text {
+		text-align: left;
+	}
+}
+/* LG - Applies >= 992px */
+@media screen and (min-width: 62em) {
+	#welcome .hello-col-text {
+		margin-top: 2rem;
+		text-align: left;
+	}
+
+	#welcome .promo {
+		padding: 0 15% 2rem;
+	}
+
+	#welcome .promo-col-text {
+		margin-right: 0;
+		text-align: right;
+	}
+}
+/* XL - Applies >= 1280px */
+@media screen and (min-width: 80em) {
+	#welcome .hello-col-text {
+		margin-top: 4rem;
+		margin-left: 20%;
+	}
+
+	#welcome .pagetop-col-text {
+		text-align: left;
+	}
+}

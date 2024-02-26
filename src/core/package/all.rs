@@ -37,6 +37,9 @@ pub fn register_packages(app: PackageRef) {
     // Enable application packages.
     add_to_enabled(&mut list, app);
 
+    // Enable default welcome page.
+    add_to_enabled(&mut list, &crate::base::package::Welcome);
+
     list.reverse();
     ENABLED_PACKAGES.write().unwrap().append(&mut list);
 }

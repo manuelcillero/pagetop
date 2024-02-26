@@ -26,7 +26,6 @@ helpers=(
     pagetop-build
 )
 packages=(
-    pagetop-homedemo
     pagetop-user
     pagetop-admin
     pagetop-node

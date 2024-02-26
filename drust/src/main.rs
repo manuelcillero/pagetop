@@ -5,14 +5,13 @@ struct Drust;
 impl PackageTrait for Drust {
     fn dependencies(&self) -> Vec<PackageRef> {
         vec![
-            // Themes.
-            &pagetop_bootsier::Bootsier,
-            &pagetop_bulmix::Bulmix,
             // Packages.
-            &pagetop_homedemo::HomeDemo,
             &pagetop_admin::Admin,
             &pagetop_user::User,
             &pagetop_node::Node,
+            // Themes.
+            &pagetop_bootsier::Bootsier,
+            &pagetop_bulmix::Bulmix,
         ]
     }
 

@@ -16,7 +16,6 @@ license = "MIT OR Apache-2.0"
 [dependencies]
 pagetop = { version = "0.0", path = "../", features = ["mysql"], default-features = false }
 # Packages.
-pagetop-homedemo = { version = "0.0", path = "../packages/pagetop-homedemo" }
 pagetop-admin = { version = "0.0", path = "../packages/pagetop-admin" }
 pagetop-user = { version = "0.0", path = "../packages/pagetop-user" }
 pagetop-node = { version = "0.0", path = "../packages/pagetop-node" }

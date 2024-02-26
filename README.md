@@ -37,9 +37,6 @@ distinct role within the PageTop ecosystem:
 
 ## Packages
 
-* [pagetop-homedemo](https://github.com/manuelcillero/pagetop/tree/main/packages/pagetop-homedemo):
-  Showcases a demo homepage, offering a glimpse into PageTop's capabilities.
-
 * [pagetop-user](https://github.com/manuelcillero/pagetop/tree/main/packages/pagetop-user):
   Facilitates user management, including roles, permissions, and session handling, for applications
   built on PageTop.
