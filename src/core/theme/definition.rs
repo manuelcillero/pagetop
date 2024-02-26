@@ -44,7 +44,7 @@ pub trait ThemeTrait: PackageTrait + Send + Sync {
         let skip_to = concat_string!("#", page.skip_to().get().unwrap_or("content".to_owned()));
 
         html! {
-            body class=[page.body_classes().get()] {
+            body id=[page.body_id().get()] class=[page.body_classes().get()] {
                 @if let Some(skip) = L10n::l("skip_to_content").using(page.context().langid()) {
                     div class="pt-body__skip" {
                         a href=(skip_to) { (skip) }

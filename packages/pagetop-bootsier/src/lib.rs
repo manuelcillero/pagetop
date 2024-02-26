@@ -35,7 +35,7 @@ impl ThemeTrait for Bootsier {
     fn prepare_body(&self, page: &mut Page) -> Markup {
         match page.template() {
             "admin" => html! {
-                body class=[page.body_classes().get()] {
+                body id=[page.body_id().get()] class=[page.body_classes().get()] {
                     @for region in &[
                         "top-menu",
                         "side-menu",
@@ -46,7 +46,7 @@ impl ThemeTrait for Bootsier {
                 }
             },
             _ => html! {
-                body class=[page.body_classes().get()] {
+                body id=[page.body_id().get()] class=[page.body_classes().get()] {
                     (self.prepare_region(page, "header"))
                     (self.prepare_region(page, "nav_branding"))
                     (self.prepare_region(page, "nav_main"))

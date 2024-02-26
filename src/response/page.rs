@@ -22,6 +22,7 @@ pub struct Page {
     properties  : Vec<(&'static str, &'static str)>,
     favicon     : Option<Favicon>,
     context     : Context,
+    body_id     : OptionId,
     body_classes: OptionClasses,
     skip_to     : OptionId,
     regions     : ComponentsInRegions,
@@ -38,6 +39,7 @@ impl Page {
             properties  : Vec::default(),
             favicon     : None,
             context     : Context::new(request),
+            body_id     : OptionId::default(),
             body_classes: OptionClasses::default(),
             skip_to     : OptionId::default(),
             regions     : ComponentsInRegions::default(),
@@ -80,6 +82,12 @@ impl Page {
     #[fn_with]
     pub fn alter_context(&mut self, op: ContextOp) -> &mut Self {
         self.context.alter(op);
+        self
+    }
+
+    #[fn_with]
+    pub fn alter_body_id(&mut self, id: impl Into<String>) -> &mut Self {
+        self.body_id.alter_value(id);
         self
     }
 
@@ -136,6 +144,10 @@ impl Page {
 
     pub fn context(&mut self) -> &mut Context {
         &mut self.context
+    }
+
+    pub fn body_id(&self) -> &OptionId {
+        &self.body_id
     }
 
     pub fn body_classes(&self) -> &OptionClasses {
