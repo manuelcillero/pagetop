@@ -25,5 +25,5 @@ impl PackageTrait for Drust {
 
 #[pagetop::main]
 async fn main() -> std::io::Result<()> {
-    Application::prepare(&Drust).unwrap().run()?.await
+    Application::prepare(&Drust).run()?.await
 }

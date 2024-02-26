@@ -21,5 +21,5 @@ async fn hello_name(
 
 #[pagetop::main]
 async fn main() -> std::io::Result<()> {
-    Application::prepare(&HelloName).unwrap().run()?.await
+    Application::prepare(&HelloName).run()?.await
 }

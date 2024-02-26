@@ -48,7 +48,7 @@
 //!
 //! #[pagetop::main]
 //! async fn main() -> std::io::Result<()> {
-//!     Application::prepare(&HelloWorld).unwrap().run()?.await
+//!     Application::prepare(&HelloWorld).run()?.await
 //! }
 //! ```
 //! This program implements a package named `HelloWorld` with one service that returns a web page

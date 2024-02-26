@@ -16,5 +16,5 @@ async fn hello_world(request: service::HttpRequest) -> ResultPage<Markup, ErrorP
 
 #[pagetop::main]
 async fn main() -> std::io::Result<()> {
-    Application::prepare(&HelloWorld).unwrap().run()?.await
+    Application::prepare(&HelloWorld).run()?.await
 }

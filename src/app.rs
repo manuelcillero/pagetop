@@ -21,43 +21,86 @@ use std::io::Error;
 pub struct Application;
 
 impl Application {
-    pub fn prepare(app: PackageRef) -> Result<Self, Error> {
-        // On startup.
-        show_banner();
+    /// Creates a new application instance without any package.
+    pub fn new() -> Self {
+        Self::internal_prepare(None)
+    }
 
-        // Inicia registro de trazas y eventos.
+    /// Prepares an application instance with a specific package.
+    pub fn prepare(app: PackageRef) -> Self {
+        Self::internal_prepare(Some(app))
+    }
+
+    // Internal method to prepare the application, optionally with a package.
+    fn internal_prepare(app: Option<PackageRef>) -> Self {
+        // On startup, show the application banner.
+        Self::show_banner();
+
+        // Starts logging and event tracing.
         LazyStatic::force(&trace::TRACING);
 
-        // Valida el identificador global de idioma.
+        // Validates the global language identifier.
         LazyStatic::force(&locale::LANGID);
 
         #[cfg(feature = "database")]
-        // Conecta con la base de datos.
+        // Connects to the database.
         LazyStatic::force(&db::DBCONN);
 
-        // Registra los paquetes de la aplicación.
-        package::all::register_packages(app);
+        // Registers the application's packages.
+        if let Some(app) = app {
+            package::all::register_packages(app);
+        }
 
-        // Registra acciones de los paquetes.
+        // Registers package actions.
         package::all::register_actions();
 
-        // Inicializa los paquetes.
+        // Initializes the packages.
         package::all::init_packages();
 
         #[cfg(feature = "database")]
-        // Ejecuta actualizaciones pendientes de la base de datos.
+        // Runs pending database migrations.
         package::all::run_migrations();
 
-        Ok(Self)
+        Self
     }
 
+    // Displays the application banner based on the configuration.
+    fn show_banner() {
+        if config::SETTINGS.app.startup_banner.to_lowercase() != "off" {
+            // Application name, formatted for the terminal width if necessary.
+            let mut app_name = config::SETTINGS.app.name.to_string();
+            if let Some((term_width, _)) = term_size::dimensions() {
+                if term_width >= 80 {
+                    let maxlen = (term_width / 10) - 2;
+                    let mut app = app_name.substring(0, maxlen).to_owned();
+                    if app_name.len() > maxlen {
+                        app = format!("{}...", app);
+                    }
+                    if let Some(ff) = figfont::FIGFONT.convert(&app) {
+                        app_name = ff.to_string();
+                    }
+                }
+            }
+            println!("\n{}", app_name);
+
+            // Application description.
+            if !config::SETTINGS.app.description.is_empty() {
+                println!("{}\n", config::SETTINGS.app.description);
+            };
+
+            // PageTop version.
+            println!("Powered by PageTop {}\n", env!("CARGO_PKG_VERSION"));
+        }
+    }
+
+    /// Starts the web server.
     pub fn run(self) -> Result<service::Server, Error> {
-        // Generate cookie key.
+        // Generate the cookie key.
         let secret_key = service::cookie::Key::generate();
 
-        // Prepara el servidor web.
+        // Prepares the web server.
         Ok(service::HttpServer::new(move || {
-            service_app()
+            Self::service_app()
                 .wrap(tracing_actix_web::TracingLogger::default())
                 .wrap(
                     SessionMiddleware::builder(CookieSessionStore::default(), secret_key.clone())
@@ -82,6 +125,7 @@ impl Application {
         .run())
     }
 
+    /// Method for testing, returns a service application instance.
     pub fn test(
         self,
     ) -> service::App<
@@ -93,50 +137,25 @@ impl Application {
             InitError = (),
         >,
     > {
-        service_app()
+        Self::service_app()
     }
-}
 
-fn service_app() -> service::App<
-    impl service::Factory<
-        service::Request,
-        Config = (),
-        Response = service::Response<service::BoxBody>,
-        Error = service::Error,
-        InitError = (),
-    >,
-> {
-    service::App::new()
-        .configure(package::all::configure_services)
-        .default_service(service::web::route().to(service_not_found))
+    // Configures the service application.
+    fn service_app() -> service::App<
+        impl service::Factory<
+            service::Request,
+            Config = (),
+            Response = service::Response<service::BoxBody>,
+            Error = service::Error,
+            InitError = (),
+        >,
+    > {
+        service::App::new()
+            .configure(package::all::configure_services)
+            .default_service(service::web::route().to(service_not_found))
+    }
 }
 
 async fn service_not_found(request: service::HttpRequest) -> ResultPage<Markup, ErrorPage> {
     Err(ErrorPage::NotFound(request))
-}
-
-fn show_banner() {
-    if config::SETTINGS.app.startup_banner.to_lowercase() != "off" {
-        // Application name.
-        let mut app_name = config::SETTINGS.app.name.to_string();
-        if let Some((term_width, _)) = term_size::dimensions() {
-            if term_width >= 80 {
-                let maxlen = (term_width / 10) - 2;
-                let mut app = app_name.substring(0, maxlen).to_owned();
-                if app_name.len() > maxlen {
-                    app = format!("{}...", app);
-                }
-                app_name = figfont::FIGFONT.convert(&app).unwrap().to_string();
-            }
-        }
-        println!("\n{}", app_name);
-
-        // Application description.
-        if !config::SETTINGS.app.description.is_empty() {
-            println!("{}\n", config::SETTINGS.app.description);
-        };
-
-        // PageTop version.
-        println!("Powered by PageTop {}\n", env!("CARGO_PKG_VERSION"));
-    }
 }
