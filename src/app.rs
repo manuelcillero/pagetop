@@ -20,6 +20,12 @@ use std::io::Error;
 
 pub struct Application;
 
+impl Default for Application {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Application {
     /// Creates a new application instance without any package.
     pub fn new() -> Self {

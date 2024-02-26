@@ -70,7 +70,7 @@ where
         let (uri, contents) = match self
             .source
             .resolve()
-            .map_err(|err| ConfigError::Foreign(err))
+            .map_err(ConfigError::Foreign)
         {
             Ok((uri, contents)) => (uri, contents),
 

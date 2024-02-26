@@ -27,7 +27,7 @@ impl FileSourceFile {
         // First check for an _exact_ match.
         let mut filename = env::current_dir()?.as_path().join(self.name.clone());
         if filename.is_file() {
-            if vec!["toml"].contains(
+            if ["toml"].contains(
                 &filename
                     .extension()
                     .unwrap_or_default()
@@ -108,8 +108,8 @@ fn path_relative_from(path: &Path, base: &Path) -> Option<PathBuf> {
                 }
                 (None, _) => comps.push(Component::ParentDir),
                 (Some(a), Some(b)) if comps.is_empty() && a == b => (),
-                (Some(a), Some(b)) if b == Component::CurDir => comps.push(a),
-                (Some(_), Some(b)) if b == Component::ParentDir => return None,
+                (Some(a), Some(Component::CurDir)) => comps.push(a),
+                (Some(_), Some(Component::ParentDir)) => return None,
                 (Some(a), Some(_)) => {
                     comps.push(Component::ParentDir);
                     for _ in itb {
