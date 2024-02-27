@@ -23,6 +23,35 @@ crates to provide extensible and easily configurable features.
 frequent changes. Production use is not recommended until version **0.1.0**.
 
 
+# ⚡️ Quick start
+
+```rust
+use pagetop::prelude::*;
+
+struct HelloWorld;
+
+impl PackageTrait for HelloWorld {
+    fn configure_service(&self, scfg: &mut service::web::ServiceConfig) {
+        scfg.route("/", service::web::get().to(hello_world));
+    }
+}
+
+async fn hello_world(request: service::HttpRequest) -> ResultPage<Markup, ErrorPage> {
+    Page::new(request)
+        .with_component(Html::with(html! { h1 { "Hello World!" } }))
+        .render()
+}
+
+#[pagetop::main]
+async fn main() -> std::io::Result<()> {
+    Application::prepare(&HelloWorld).run()?.await
+}
+```
+
+This program features a `HelloWorld` package, providing a service that serves a greeting web page
+accessible via `http://localhost:8088` under default settings.
+
+
 # 📂 Repository Structure
 
 This repository is organized into a workspace that includes several subprojects, each serving a
@@ -34,6 +63,14 @@ distinct role within the PageTop ecosystem:
   A simple Content Management System (CMS) built on PageTop, which enables the creation, editing,
   and maintenance of dynamic, fast, and secure websites. It uses the following essential packages to
   provide standard CMS functionalities.
+
+## Helpers
+
+* [pagetop-macros](https://github.com/manuelcillero/pagetop/tree/main/helpers/pagetop-macros):
+  A collection of procedural macros that enhance the development experience within PageTop.
+
+* [pagetop-build](https://github.com/manuelcillero/pagetop/tree/main/helpers/pagetop-build):
+  Simplifies the process of embedding resources directly into binary files for PageTop applications.
 
 ## Packages
 
@@ -55,14 +92,6 @@ distinct role within the PageTop ecosystem:
 
 * [pagetop-bulmix](https://github.com/manuelcillero/pagetop/tree/main/packages/pagetop-bulmix):
   Utilizes the *[Bulma](https://bulma.io/)* framework for sleek, responsive design elements.
-
-## Helpers
-
-* [pagetop-macros](https://github.com/manuelcillero/pagetop/tree/main/helpers/pagetop-macros):
-  A collection of procedural macros that enhance the development experience within PageTop.
-
-* [pagetop-build](https://github.com/manuelcillero/pagetop/tree/main/helpers/pagetop-build):
-  Simplifies the process of embedding resources directly into binary files for PageTop applications.
 
 
 # 📜 License

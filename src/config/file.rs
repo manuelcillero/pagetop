@@ -67,11 +67,7 @@ where
 
     fn collect(&self) -> Result<HashMap<String, Value>> {
         // Coerce the file contents to a string.
-        let (uri, contents) = match self
-            .source
-            .resolve()
-            .map_err(ConfigError::Foreign)
-        {
+        let (uri, contents) = match self.source.resolve().map_err(ConfigError::Foreign) {
             Ok((uri, contents)) => (uri, contents),
 
             Err(error) => {
