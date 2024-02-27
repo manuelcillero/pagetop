@@ -1,5 +1,5 @@
 use crate::base::component::add_base_assets;
-use crate::core::theme::all::{theme_by_single_name, THEME};
+use crate::core::theme::all::{theme_by_single_name, THEME_DEFAULT};
 use crate::core::theme::ThemeRef;
 use crate::html::{html, Assets, HeadScript, HeadStyles, JavaScript, Markup, StyleSheet};
 use crate::locale::{LanguageIdentifier, LANGID_DEFAULT};
@@ -47,7 +47,7 @@ impl Context {
         Context {
             request,
             langid    : &LANGID_DEFAULT,
-            theme     : *THEME,
+            theme     : *THEME_DEFAULT,
             stylesheet: Assets::<StyleSheet>::new(),    // Stylesheets.
             headstyles: Assets::<HeadStyles>::new(),    // Styles in head.
             javascript: Assets::<JavaScript>::new(),    // JavaScripts.
@@ -64,7 +64,7 @@ impl Context {
                 self.langid = langid;
             }
             ContextOp::Theme(theme_name) => {
-                self.theme = theme_by_single_name(theme_name).unwrap_or(*THEME);
+                self.theme = theme_by_single_name(theme_name).unwrap_or(*THEME_DEFAULT);
             }
 
             // Stylesheets.

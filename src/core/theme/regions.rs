@@ -39,23 +39,33 @@ impl ComponentsInRegions {
     }
 }
 
-pub enum Region {
+pub enum InRegion {
+    Content,
     Named(&'static str),
-    OfTheme(ThemeRef, &'static str),
+    OfTheme(&'static str, ThemeRef),
 }
 
-pub fn add_component_in(region: Region, arc: ArcAnyComponent) {
-    match region {
-        Region::Named(name) => {
-            COMMON_REGIONS.write().unwrap().add_component_in(name, arc);
-        }
-        Region::OfTheme(theme, region) => {
-            let mut regions = THEME_REGIONS.write().unwrap();
-            if let Some(r) = regions.get_mut(&theme.type_id()) {
-                r.add_component_in(region, arc);
-            } else {
-                regions.insert(theme.type_id(), ComponentsInRegions::new(region, arc));
+impl InRegion {
+    pub fn add_component(&self, arc: ArcAnyComponent) -> &Self {
+        match self {
+            InRegion::Content => {
+                COMMON_REGIONS
+                    .write()
+                    .unwrap()
+                    .add_component_in("content", arc);
+            }
+            InRegion::Named(name) => {
+                COMMON_REGIONS.write().unwrap().add_component_in(name, arc);
+            }
+            InRegion::OfTheme(region, theme) => {
+                let mut regions = THEME_REGIONS.write().unwrap();
+                if let Some(r) = regions.get_mut(&theme.type_id()) {
+                    r.add_component_in(region, arc);
+                } else {
+                    regions.insert(theme.type_id(), ComponentsInRegions::new(region, arc));
+                }
             }
         }
+        self
     }
 }
