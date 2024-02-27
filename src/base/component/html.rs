@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-#[derive(SmartDefault)]
+#[derive(AutoDefault)]
 pub struct Html(Markup);
 
 impl ComponentTrait for Html {

@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-#[derive(SmartDefault)]
+#[derive(AutoDefault)]
 pub struct Translate(L10n);
 
 impl ComponentTrait for Translate {

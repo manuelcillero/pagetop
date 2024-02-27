@@ -1,6 +1,6 @@
-use crate::{fn_with, SmartDefault};
+use crate::{fn_with, AutoDefault};
 
-#[derive(SmartDefault)]
+#[derive(AutoDefault)]
 pub struct OptionString(Option<String>);
 
 impl OptionString {

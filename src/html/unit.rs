@@ -1,4 +1,4 @@
-use crate::{concat_string, SmartDefault};
+use crate::{concat_string, AutoDefault};
 
 // About pixels: Pixels (px) are relative to the viewing device. For low-dpi devices, 1px is one
 // device pixel (dot) of the display. For printers and high resolution screens 1px implies multiple
@@ -10,7 +10,7 @@ use crate::{concat_string, SmartDefault};
 // About viewport: If the browser window size is 50cm wide, 1vw = 0.5cm.
 
 #[rustfmt::skip]
-#[derive(SmartDefault)]
+#[derive(AutoDefault)]
 pub enum Value {
     #[default]
     None,

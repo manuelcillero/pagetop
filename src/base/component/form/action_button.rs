@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-#[derive(SmartDefault)]
+#[derive(AutoDefault)]
 pub enum ActionButtonType {
     #[default]
     Submit,
@@ -18,7 +18,7 @@ impl ToString for ActionButtonType {
 }
 
 #[rustfmt::skip]
-#[derive(ComponentClasses, SmartDefault)]
+#[derive(AutoDefault, ComponentClasses)]
 pub struct ActionButton {
     weight     : Weight,
     renderable : Renderable,

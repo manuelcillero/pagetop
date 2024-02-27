@@ -1,4 +1,5 @@
 mod maud;
+mod smart_default;
 
 use concat_string::concat_string;
 use proc_macro::TokenStream;
@@ -102,8 +103,17 @@ pub fn test(_: TokenStream, item: TokenStream) -> TokenStream {
     output
 }
 
+#[proc_macro_derive(AutoDefault, attributes(default))]
+pub fn derive_auto_default(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
+    let input = parse_macro_input!(input as DeriveInput);
+    match smart_default::body_impl::impl_my_derive(&input) {
+        Ok(output) => output.into(),
+        Err(error) => error.to_compile_error().into(),
+    }
+}
+
 #[proc_macro_derive(ComponentClasses)]
-pub fn component_classes_derive(input: TokenStream) -> TokenStream {
+pub fn derive_component_classes(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
     let name = &input.ident;
 

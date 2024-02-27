@@ -1,7 +1,7 @@
 use crate::prelude::*;
 
 #[rustfmt::skip]
-#[derive(ComponentClasses, SmartDefault)]
+#[derive(AutoDefault, ComponentClasses)]
 pub struct Paragraph {
     id        : OptionId,
     weight    : Weight,

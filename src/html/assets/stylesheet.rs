@@ -1,6 +1,6 @@
 use crate::html::assets::AssetsTrait;
 use crate::html::{html, Markup};
-use crate::{SmartDefault, Weight};
+use crate::{AutoDefault, Weight};
 
 pub enum TargetMedia {
     Default,
@@ -10,7 +10,7 @@ pub enum TargetMedia {
 }
 
 #[rustfmt::skip]
-#[derive(SmartDefault)]
+#[derive(AutoDefault)]
 pub struct StyleSheet {
     path   : String,
     prefix : &'static str,

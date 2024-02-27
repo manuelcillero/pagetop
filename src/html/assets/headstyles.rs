@@ -1,9 +1,9 @@
 use crate::html::assets::AssetsTrait;
 use crate::html::{html, Markup};
-use crate::{SmartDefault, Weight};
+use crate::{AutoDefault, Weight};
 
 #[rustfmt::skip]
-#[derive(SmartDefault)]
+#[derive(AutoDefault)]
 pub struct HeadStyles {
     path  : String,
     styles: String,

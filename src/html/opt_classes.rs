@@ -9,7 +9,7 @@
 //! **OptionClasses** assumes that the order of the classes is irrelevant
 //! (<https://stackoverflow.com/a/1321712>), and duplicate classes will not be allowed.
 
-use crate::{fn_with, SmartDefault};
+use crate::{fn_with, AutoDefault};
 
 pub enum ClassesOp {
     Add,
@@ -20,7 +20,7 @@ pub enum ClassesOp {
     Set,
 }
 
-#[derive(SmartDefault)]
+#[derive(AutoDefault)]
 pub struct OptionClasses(Vec<String>);
 
 impl OptionClasses {

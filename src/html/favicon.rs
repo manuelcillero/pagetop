@@ -1,7 +1,7 @@
 use crate::html::{html, Markup};
-use crate::SmartDefault;
+use crate::AutoDefault;
 
-#[derive(SmartDefault)]
+#[derive(AutoDefault)]
 pub struct Favicon(Vec<Markup>);
 
 impl Favicon {

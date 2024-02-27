@@ -1,11 +1,11 @@
 use crate::core::action::ActionTrait;
-use crate::SmartDefault;
+use crate::AutoDefault;
 
 use std::sync::{Arc, RwLock};
 
 pub type Action = Box<dyn ActionTrait>;
 
-#[derive(SmartDefault)]
+#[derive(AutoDefault)]
 pub struct ActionsList(Arc<RwLock<Vec<Action>>>);
 
 impl ActionsList {

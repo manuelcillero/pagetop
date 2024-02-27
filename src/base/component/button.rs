@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-#[derive(SmartDefault)]
+#[derive(AutoDefault)]
 pub enum ButtonTarget {
     #[default]
     Default,
@@ -11,7 +11,7 @@ pub enum ButtonTarget {
 }
 
 #[rustfmt::skip]
-#[derive(ComponentClasses, SmartDefault)]
+#[derive(AutoDefault, ComponentClasses)]
 pub struct Button {
     id         : OptionId,
     weight     : Weight,

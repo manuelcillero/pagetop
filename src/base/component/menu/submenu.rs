@@ -3,7 +3,7 @@ use crate::prelude::*;
 use super::Item;
 
 #[rustfmt::skip]
-#[derive(SmartDefault)]
+#[derive(AutoDefault)]
 pub struct Submenu {
     id        : OptionId,
     weight    : Weight,

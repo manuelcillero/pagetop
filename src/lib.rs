@@ -81,10 +81,7 @@ pub use concat_string::concat_string;
 /// Enables flexible identifier concatenation in macros, allowing new items with pasted identifiers.
 pub use paste::paste;
 
-/// Custom derive for automatically implementing the [Default] trait with customized default values.
-pub use smart_default::SmartDefault;
-
-pub use pagetop_macros::{fn_with, main, test, ComponentClasses};
+pub use pagetop_macros::{fn_with, main, test, AutoDefault, ComponentClasses};
 
 // *************************************************************************************************
 // GLOBAL.

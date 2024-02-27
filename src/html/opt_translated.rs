@@ -1,8 +1,8 @@
 use crate::html::Markup;
 use crate::locale::{L10n, LanguageIdentifier};
-use crate::{fn_with, SmartDefault};
+use crate::{fn_with, AutoDefault};
 
-#[derive(SmartDefault)]
+#[derive(AutoDefault)]
 pub struct OptionTranslated(L10n);
 
 impl OptionTranslated {

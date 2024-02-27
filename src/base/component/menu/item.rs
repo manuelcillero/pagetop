@@ -7,7 +7,7 @@ type Content = ArcTypedComponent<Html>;
 type SubmenuItems = ArcTypedComponent<Submenu>;
 type MegamenuGroups = ArcTypedComponent<Megamenu>;
 
-#[derive(SmartDefault)]
+#[derive(AutoDefault)]
 pub enum ItemType {
     #[default]
     Void,
@@ -22,7 +22,7 @@ pub enum ItemType {
 // Item.
 
 #[rustfmt::skip]
-#[derive(SmartDefault)]
+#[derive(AutoDefault)]
 pub struct Item {
     weight     : Weight,
     renderable : Renderable,

@@ -16,23 +16,28 @@ the [Rust ecosystem](https://lib.rs), such as:
 
 # ⌨️ Code
 
-* PageTop includes code from version [0.11.0](https://github.com/mehcode/config-rs/tree/0.11.0) of
-  [config](https://crates.io/crates/config) by [Ryan Leckey](https://crates.io/users/mehcode). This
-  inclusion provides advantages over its more modern versions for reading configuration settings and
-  delegating their assignment to safe types according to the requirements of each package, theme, or
-  application.
+PageTop integrates code from various renowned crates to enhance functionality:
 
-* PageTop incorporates an adapted version of the excellent crate
-  [maud](https://crates.io/crates/maud) by [Chris Wong](https://crates.io/users/lambda-fairy)
-  (version [0.25.0](https://github.com/lambda-fairy/maud/tree/v0.25.0/maud)), to add its
-  functionalities without requiring a reference to `maud` in the `Cargo.toml` file of each project.
+* [**Config (v0.11.0)**](https://github.com/mehcode/config-rs/tree/0.11.0): Includes code from
+  [config-rs](https://crates.io/crates/config) by [Ryan Leckey](https://crates.io/users/mehcode),
+  chosen for its advantages in reading configuration settings and delegating assignment to safe
+  types, tailored to the specific needs of each package, theme, or application.
 
-* PageTop utilizes the renowned crates [SQLx](https://github.com/launchbadge/sqlx) and
-  [SeaQuery](https://github.com/SeaQL/sea-query) for database interactions. However, to restrict
-  migrations to packages, a modified version of
+* [**Maud (v0.25.0)**](https://github.com/lambda-fairy/maud/tree/v0.25.0/maud): An adapted version
+  of the excellent [maud](https://crates.io/crates/maud) crate by
+  [Chris Wong](https://crates.io/users/lambda-fairy) is incorporated to leverage its functionalities without requiring a reference to `maud` in the `Cargo.toml` files.
+
+* **SmartDefault (v0.7.1)**: Embedded [SmartDefault](https://crates.io/crates/smart_default) by
+  [Jane Doe](https://crates.io/users/jane-doe) as `AutoDefault`to simplify the documentation of
+  Default implementations and also removes the need to explicitly list `smart_default` in the
+  `Cargo.toml` files.
+
+* **Database Operations**: PageTop employs [SQLx](https://github.com/launchbadge/sqlx) and
+  [SeaQuery](https://github.com/SeaQL/sea-query), complemented by a custom version of
   [SeaORM Migration](https://github.com/SeaQL/sea-orm/tree/master/sea-orm-migration) (version
-  [0.12.8](https://github.com/SeaQL/sea-orm/tree/0.12.8/sea-orm-migration/src)) has been integrated
-  into the code.
+  [0.12.8](https://github.com/SeaQL/sea-orm/tree/0.12.8/sea-orm-migration/src)). This modification
+  ensures migration processes are confined to specific packages, enhancing modularity and
+  maintainability.
 
 
 # 🗚 FIGfonts

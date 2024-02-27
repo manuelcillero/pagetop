@@ -1,6 +1,6 @@
 use crate::html::assets::AssetsTrait;
 use crate::html::{html, Markup};
-use crate::{SmartDefault, Weight};
+use crate::{AutoDefault, Weight};
 
 #[derive(Default, Eq, PartialEq)]
 pub enum ModeJS {
@@ -11,7 +11,7 @@ pub enum ModeJS {
 }
 
 #[rustfmt::skip]
-#[derive(SmartDefault)]
+#[derive(AutoDefault)]
 pub struct JavaScript {
     path   : String,
     prefix : &'static str,

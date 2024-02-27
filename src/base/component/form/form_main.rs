@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-#[derive(SmartDefault)]
+#[derive(AutoDefault)]
 pub enum FormMethod {
     #[default]
     Post,
@@ -8,7 +8,7 @@ pub enum FormMethod {
 }
 
 #[rustfmt::skip]
-#[derive(ComponentClasses, SmartDefault)]
+#[derive(AutoDefault, ComponentClasses)]
 pub struct Form {
     id        : OptionId,
     weight    : Weight,

@@ -1,14 +1,13 @@
 //! The PageTop Prelude.
 
 // Re-exported macros and derives.
-pub use crate::{concat_string, fn_with, html, main, paste, test, SmartDefault};
+pub use crate::{concat_string, fn_with, html, main, paste, test, AutoDefault, ComponentClasses};
 
 // Global.
 pub use crate::{HashMapResources, LazyStatic, TypeId, Weight};
 
 // Functions and macro helpers.
 pub use crate::util;
-pub use crate::{kv, ComponentClasses};
 
 // MACROS.
 
@@ -20,6 +19,8 @@ pub use crate::static_locales;
 pub use crate::{service_for_static_files, static_files};
 // crate::core::actions
 pub use crate::actions;
+// crate::util
+pub use crate::kv;
 
 // API.
 

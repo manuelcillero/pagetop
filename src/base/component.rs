@@ -1,6 +1,6 @@
 use crate::core::component::{Context, ContextOp};
 use crate::html::{JavaScript, StyleSheet};
-use crate::{SmartDefault, Weight};
+use crate::{AutoDefault, Weight};
 
 // Context parameters.
 pub const PARAM_BASE_WEIGHT: &str = "base.weight";
@@ -57,7 +57,7 @@ pub(crate) fn add_base_assets(cx: &mut Context) {
 // *************************************************************************************************
 
 #[rustfmt::skip]
-#[derive(SmartDefault)]
+#[derive(AutoDefault)]
 pub enum BreakPoint {
     #[default]
     None,  /* Does not apply. Rest initially assume 1 pixel = 0.0625em */
@@ -88,7 +88,7 @@ impl ToString for BreakPoint {
 
 // *************************************************************************************************
 
-#[derive(SmartDefault)]
+#[derive(AutoDefault)]
 pub enum ButtonStyle {
     #[default]
     Default,
@@ -119,7 +119,7 @@ impl ToString for ButtonStyle {
 
 // *************************************************************************************************
 
-#[derive(SmartDefault)]
+#[derive(AutoDefault)]
 pub enum FontSize {
     ExtraLarge,
     XxLarge,

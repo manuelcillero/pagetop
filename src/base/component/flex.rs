@@ -7,7 +7,7 @@ use crate::prelude::*;
 
 // *************************************************************************************************
 
-#[derive(SmartDefault)]
+#[derive(AutoDefault)]
 pub enum Direction {
     #[default]
     Default,
@@ -42,7 +42,7 @@ impl ToString for Direction {
 
 // *************************************************************************************************
 
-#[derive(SmartDefault)]
+#[derive(AutoDefault)]
 pub enum WrapAlign {
     #[default]
     Default,
@@ -65,7 +65,7 @@ impl ToString for WrapAlign {
 
 // *************************************************************************************************
 
-#[derive(SmartDefault)]
+#[derive(AutoDefault)]
 pub enum ContentAlign {
     #[default]
     Default,
@@ -94,7 +94,7 @@ impl ToString for ContentAlign {
 
 // *************************************************************************************************
 
-#[derive(SmartDefault)]
+#[derive(AutoDefault)]
 pub enum ContentJustify {
     #[default]
     Default,
@@ -123,7 +123,7 @@ impl ToString for ContentJustify {
 
 // *************************************************************************************************
 
-#[derive(SmartDefault)]
+#[derive(AutoDefault)]
 pub enum ItemAlign {
     #[default]
     Default,
@@ -150,7 +150,7 @@ impl ToString for ItemAlign {
 
 // *************************************************************************************************
 
-#[derive(SmartDefault)]
+#[derive(AutoDefault)]
 pub enum Gap {
     #[default]
     Default,
@@ -175,7 +175,7 @@ impl ToString for Gap {
 
 // *************************************************************************************************
 
-#[derive(SmartDefault)]
+#[derive(AutoDefault)]
 pub enum ItemGrow {
     #[default]
     Default,
@@ -210,7 +210,7 @@ impl ToString for ItemGrow {
 
 // *************************************************************************************************
 
-#[derive(SmartDefault)]
+#[derive(AutoDefault)]
 pub enum ItemShrink {
     #[default]
     Default,
@@ -245,7 +245,7 @@ impl ToString for ItemShrink {
 
 // *************************************************************************************************
 
-#[derive(SmartDefault)]
+#[derive(AutoDefault)]
 pub enum ItemSize {
     #[default]
     Default,
@@ -284,7 +284,7 @@ impl ToString for ItemSize {
 
 // *************************************************************************************************
 
-#[derive(SmartDefault)]
+#[derive(AutoDefault)]
 pub enum ItemOffset {
     #[default]
     Default,
