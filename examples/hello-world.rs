@@ -10,7 +10,7 @@ impl PackageTrait for HelloWorld {
 
 async fn hello_world(request: service::HttpRequest) -> ResultPage<Markup, ErrorPage> {
     Page::new(request)
-        .with_component_in("content", Html::with(html! { h1 { "Hello World!" } }))
+        .with_component(Html::with(html! { h1 { "Hello World!" } }))
         .render()
 }
 

@@ -104,6 +104,13 @@ impl Page {
     }
 
     #[fn_with]
+    pub fn alter_component(&mut self, component: impl ComponentTrait) -> &mut Self {
+        self.regions
+            .add_component_in("content", ArcAnyComponent::new(component));
+        self
+    }
+
+    #[fn_with]
     pub fn alter_component_in(
         &mut self,
         region: &'static str,

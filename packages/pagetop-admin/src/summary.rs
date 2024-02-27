@@ -154,8 +154,7 @@ pub async fn summary(request: service::HttpRequest) -> ResultPage<Markup, ErrorP
         //.with_context(ContextOp::Theme("Bootsier"))
         .with_title(L10n::n("Admin"))
         .with_component_in("top-menu", side_menu)
-        .with_component_in(
-            "content",
+        .with_component(
             flex::Container::new()
                 .add_item(flex::Item::new().add_component(Html::with(html! {
                     p { "Columna 1"}

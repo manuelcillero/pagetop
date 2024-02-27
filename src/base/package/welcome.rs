@@ -23,11 +23,11 @@ async fn demo(request: service::HttpRequest) -> ResultPage<Markup, ErrorPage> {
             "/base/css/welcome.css",
         )))
         .with_body_id("welcome")
-        .with_component_in("content", hello_world())
-        .with_component_in("content", welcome())
-        .with_component_in("content", about_pagetop())
-        .with_component_in("content", promo_pagetop())
-        .with_component_in("content", reporting_issues())
+        .with_component(hello_world())
+        .with_component(welcome())
+        .with_component(about_pagetop())
+        .with_component(promo_pagetop())
+        .with_component(reporting_issues())
         .render()
 }
 
