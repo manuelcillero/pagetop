@@ -45,19 +45,32 @@ pub fn fn_with(_attr: TokenStream, item: TokenStream) -> TokenStream {
         })
         .collect();
 
+    let fn_with_name = fn_name.replace("alter_", "with_");
+
     #[rustfmt::skip]
     let fn_with = parse_str::<ItemFn>(concat_string!("
-        pub fn ", fn_name.replace("alter_", "with_"), "(mut self, ", args.join(", "), ") -> Self {
+        pub fn ", fn_with_name, "(mut self, ", args.join(", "), ") -> Self {
             self.", fn_name, "(", param.join(", "), ");
             self
         }
     ").as_str()).unwrap();
 
+    #[rustfmt::skip]
+    let fn_alter_doc = concat_string!(
+        "<p id=\"method.", fn_with_name, "\">",
+        "Use <code class=\"code-header\"> <a class=\"fn\" href=\"#method.", fn_with_name, "\">",
+        fn_with_name,
+        "</a>(self, …) -> Self </code> to apply the <a href=\"#method.new\">builder pattern</a>.",
+        "</p>"
+    );
+
     let fn_alter = fn_item.into_token_stream();
 
     let expanded = quote! {
+        #[doc(hidden)]
         #fn_with
         #[inline]
+        #[doc = #fn_alter_doc]
         #fn_alter
     };
     expanded.into()
