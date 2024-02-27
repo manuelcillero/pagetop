@@ -45,8 +45,8 @@ impl Application {
         // Starts logging and event tracing.
         LazyStatic::force(&trace::TRACING);
 
-        // Validates the global language identifier.
-        LazyStatic::force(&locale::LANGID);
+        // Validates the default language identifier.
+        LazyStatic::force(&locale::LANGID_DEFAULT);
 
         #[cfg(feature = "database")]
         // Connects to the database.

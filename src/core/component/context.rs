@@ -2,7 +2,7 @@ use crate::base::component::add_base_assets;
 use crate::core::theme::all::{theme_by_single_name, THEME};
 use crate::core::theme::ThemeRef;
 use crate::html::{html, Assets, HeadScript, HeadStyles, JavaScript, Markup, StyleSheet};
-use crate::locale::{LanguageIdentifier, LANGID};
+use crate::locale::{LanguageIdentifier, LANGID_DEFAULT};
 use crate::service::HttpRequest;
 use crate::{concat_string, util};
 
@@ -46,7 +46,7 @@ impl Context {
     pub(crate) fn new(request: HttpRequest) -> Self {
         Context {
             request,
-            langid    : &LANGID,
+            langid    : &LANGID_DEFAULT,
             theme     : *THEME,
             stylesheet: Assets::<StyleSheet>::new(),    // Stylesheets.
             headstyles: Assets::<HeadStyles>::new(),    // Styles in head.

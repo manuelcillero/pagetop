@@ -1,22 +1,21 @@
 //! Localization (L10n).
 //!
-//! PageTop usa el conjunto de especificaciones [Fluent](https://www.projectfluent.org/) para la
-//! localización de aplicaciones.
+//! PageTop uses the [Fluent](https://www.projectfluent.org/) set of specifications for application
+//! localization.
 //!
-//! # Sintaxis Fluent (FTL)
+//! # Fluent Syntax (FTL)
 //!
-//! El formato utilizado para describir los recursos de traducción utilizados por Fluent se llama
-//! [FTL](https://www.projectfluent.org/fluent/guide/). FTL está diseñado para ser fácil de leer,
-//! pero al mismo tiempo permite representar conceptos complejos del lenguaje natural para tratar
-//! género, plurales, conjugaciones, y otros.
+//! The format used to describe the translation resources used by Fluent is called
+//! [FTL](https://www.projectfluent.org/fluent/guide/). FTL is designed to be easy to read while
+//! simultaneously allowing the representation of complex natural language concepts to address
+//! gender, plurals, conjugations, and others.
 //!
+//! # Fluent Resources
 //!
-//! # Recursos Fluent
-//!
-//! PageTop usa [fluent-templates](https://docs.rs/fluent-templates/) para integrar los recursos de
-//! localización en el binario de la aplicación. El siguiente ejemplo agrupa archivos y subcarpetas
-//! de *src/locale* que tienen un [Identificador de Idioma Unicode](https://docs.rs/unic-langid/)
-//! válido y los asigna a su identificador correspondiente:
+//! PageTop utilizes [fluent-templates](https://docs.rs/fluent-templates/) to integrate localization
+//! resources into the application binary. The following example groups files and subfolders from
+//! *src/locale* that have a valid [Unicode Language Identifier](https://docs.rs/unic-langid/) and
+//! assigns them to their corresponding identifier:
 //!
 //! ```text
 //! src/locale/
@@ -35,7 +34,7 @@
 //!          └── main.ftl
 //! ```
 //!
-//! Ejemplo de un archivo *src/locale/en-US/main.ftl*:
+//! Example of a file *src/locale/en-US/main.ftl*:
 //!
 //! ```text
 //! hello-world = Hello world!
@@ -51,7 +50,7 @@
 //!     }.
 //! ```
 //!
-//! Ejemplo del archivo equivalente *src/locale/es-ES/main.ftl*:
+//! Example of the equivalent file *src/locale/es-ES/main.ftl*:
 //!
 //! ```text
 //! hello-world = Hola mundo!
@@ -67,11 +66,11 @@
 //!     }.
 //! ```
 //!
-//! # Cómo aplicar la localización en tu código
+//! # How to apply localization in your code
 //!
-//! Una vez hayas creado tu directorio de recursos FTL usa la macro
-//! [`static_locales!`](crate::static_locales) para integrarlos en tu módulo o aplicación.
-//! si tus recursos se encuentran en el directorio `"src/locale"` bastará con declarar:
+//! Once you have created your FTL resource directory, use the
+//! [`static_locales!`](crate::static_locales) macro to integrate them into your module or
+//! application. If your resources are located in the `"src/locale"` directory, simply declare:
 //!
 //! ```
 //! use pagetop::prelude::*;
@@ -79,7 +78,7 @@
 //! static_locales!(LOCALES_SAMPLE);
 //! ```
 //!
-//! Y si están en otro directorio, entonces puedes usar:
+//! But if they are in another directory, then you can use:
 //!
 //! ```
 //! use pagetop::prelude::*;
@@ -114,10 +113,10 @@ static LANGUAGES: LazyStatic<HashMap<String, (LanguageIdentifier, &str)>> = Lazy
 
 pub static LANGID_FALLBACK: LazyStatic<LanguageIdentifier> = LazyStatic::new(|| langid!("en-US"));
 
-/// Almacena el Identificador de Idioma Unicode
-/// ([Unicode Language Identifier](https://unicode.org/reports/tr35/tr35.html#Unicode_language_identifier))
-/// global para la aplicación a partir de `SETTINGS.app.language`.
-pub static LANGID: LazyStatic<&LanguageIdentifier> = LazyStatic::new(|| {
+/// Sets the application's default
+/// [Unicode Language Identifier](https://unicode.org/reports/tr35/tr35.html#Unicode_language_identifier)
+/// through `SETTINGS.app.language`.
+pub static LANGID_DEFAULT: LazyStatic<&LanguageIdentifier> = LazyStatic::new(|| {
     langid_for(config::SETTINGS.app.language.as_str()).unwrap_or(&LANGID_FALLBACK)
 });
 
@@ -130,10 +129,8 @@ pub fn langid_for(language: impl Into<String>) -> Result<&'static LanguageIdenti
                 Ok(&LANGID_FALLBACK)
             } else {
                 Err(format!(
-                    "{} Unicode Language Identifier \"{}\" is not accepted. {}",
-                    "Failed to set language.",
-                    config::SETTINGS.app.language,
-                    "Using \"en-US\", check the settings file"
+                    "Failed to get langid. Unicode Language Identifier \"{}\" is not accepted.",
+                    language,
                 ))
             }
         }
@@ -141,7 +138,7 @@ pub fn langid_for(language: impl Into<String>) -> Result<&'static LanguageIdenti
 }
 
 #[macro_export]
-/// Define un conjunto de elementos de localización y textos locales de traducción.
+/// Defines a set of localization elements and local translation texts.
 macro_rules! static_locales {
     ( $LOCALES:ident $(, $core_locales:literal)? ) => {
         $crate::locale::fluent_templates::static_loader! {
@@ -149,8 +146,7 @@ macro_rules! static_locales {
                 locales: "src/locale",
                 $( core_locales: $core_locales, )?
                 fallback_language: "en-US",
-
-                // Elimina las marcas Unicode que delimitan los argumentos.
+                // Removes unicode isolating marks around arguments.
                 customise: |bundle| bundle.set_use_isolating(false),
             };
         }
@@ -161,8 +157,7 @@ macro_rules! static_locales {
                 locales: $dir_locales,
                 $( core_locales: $core_locales, )?
                 fallback_language: "en-US",
-
-                // Elimina las marcas Unicode que delimitan los argumentos.
+                // Removes unicode isolating marks around arguments.
                 customise: |bundle| bundle.set_use_isolating(false),
             };
         }
@@ -253,7 +248,7 @@ impl ToString for L10n {
                     .lookup_with_args(
                         match key.as_str() {
                             LANGUAGE_SET_FAILURE => &LANGID_FALLBACK,
-                            _ => &LANGID,
+                            _ => &LANGID_DEFAULT,
                         },
                         key,
                         &self

@@ -12,13 +12,32 @@ impl PackageTrait for Welcome {
     }
 
     fn configure_service(&self, scfg: &mut service::web::ServiceConfig) {
-        scfg.route("/", service::web::get().to(demo));
+        scfg.route("/", service::web::get().to(home_page))
+            .route("/{lang}", service::web::get().to(home_lang));
     }
 }
 
-async fn demo(request: service::HttpRequest) -> ResultPage<Markup, ErrorPage> {
+async fn home_page(request: service::HttpRequest) -> ResultPage<Markup, ErrorPage> {
+    home(request, &LANGID_DEFAULT)
+}
+
+async fn home_lang(
+    request: service::HttpRequest,
+    path: service::web::Path<String>,
+) -> ResultPage<Markup, ErrorPage> {
+    match langid_for(path.into_inner()) {
+        Ok(lang) => home(request, lang),
+        _ => Err(ErrorPage::NotFound(request)),
+    }
+}
+
+fn home(
+    request: service::HttpRequest,
+    lang: &'static LanguageIdentifier,
+) -> ResultPage<Markup, ErrorPage> {
     Page::new(request)
         .with_title(L10n::l("welcome_title"))
+        .with_context(ContextOp::LangId(lang))
         .with_context(ContextOp::AddStyleSheet(StyleSheet::at(
             "/base/css/welcome.css",
         )))
