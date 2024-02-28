@@ -32,19 +32,19 @@ impl Hidden {
 
     // Hidden BUILDER.
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_weight(&mut self, value: Weight) -> &mut Self {
         self.weight = value;
         self
     }
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_name(&mut self, name: &str) -> &mut Self {
         self.name.alter_value(name);
         self
     }
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_value(&mut self, value: &str) -> &mut Self {
         self.value.alter_value(value);
         self

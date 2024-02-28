@@ -40,19 +40,19 @@ impl ComponentTrait for Megamenu {
 impl Megamenu {
     // Megamenu BUILDER.
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_id(&mut self, id: impl Into<String>) -> &mut Self {
         self.id.alter_value(id);
         self
     }
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_weight(&mut self, value: Weight) -> &mut Self {
         self.weight = value;
         self
     }
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_renderable(&mut self, check: FnIsRenderable) -> &mut Self {
         self.renderable.check = check;
         self
@@ -64,7 +64,7 @@ impl Megamenu {
         self
     }
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_groups(&mut self, op: ArcTypedOp<Group>) -> &mut Self {
         self.groups.alter_value(op);
         self

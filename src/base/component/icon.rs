@@ -48,25 +48,25 @@ impl Icon {
 
     // Icon BUILDER.
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_weight(&mut self, value: Weight) -> &mut Self {
         self.weight = value;
         self
     }
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_renderable(&mut self, check: FnIsRenderable) -> &mut Self {
         self.renderable.check = check;
         self
     }
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_icon_name(&mut self, name: impl Into<String>) -> &mut Self {
         self.icon_name.alter_value(name);
         self
     }
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_font_size(&mut self, font_size: FontSize) -> &mut Self {
         self.font_size = font_size;
         self

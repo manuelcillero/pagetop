@@ -68,19 +68,19 @@ impl ComponentTrait for Menu {
 impl Menu {
     // Menu BUILDER.
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_id(&mut self, id: impl Into<String>) -> &mut Self {
         self.id.alter_value(id);
         self
     }
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_weight(&mut self, value: Weight) -> &mut Self {
         self.weight = value;
         self
     }
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_renderable(&mut self, check: FnIsRenderable) -> &mut Self {
         self.renderable.check = check;
         self
@@ -92,7 +92,7 @@ impl Menu {
         self
     }
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_items(&mut self, op: ArcTypedOp<Item>) -> &mut Self {
         self.items.alter_value(op);
         self

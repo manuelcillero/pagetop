@@ -20,7 +20,7 @@ impl Html {
 
     // Html BUILDER.
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_html(&mut self, html: Markup) -> &mut Self {
         self.0 = html;
         self

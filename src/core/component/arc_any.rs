@@ -1,6 +1,6 @@
 use crate::core::component::{ComponentTrait, Context};
 use crate::html::{html, Markup};
-use crate::{fn_with, TypeId, Weight};
+use crate::{fn_builder, TypeId, Weight};
 
 use std::sync::{Arc, RwLock, RwLockReadGuard, RwLockWriteGuard};
 
@@ -79,7 +79,7 @@ impl AnyComponents {
 
     // AnyComponents BUILDER.
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_value(&mut self, op: ArcAnyOp) -> &mut Self {
         match op {
             ArcAnyOp::Add(arc) => self.0.push(arc),

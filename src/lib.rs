@@ -81,7 +81,7 @@ pub use concat_string::concat_string;
 /// Enables flexible identifier concatenation in macros, allowing new items with pasted identifiers.
 pub use paste::paste;
 
-pub use pagetop_macros::{fn_with, main, test, AutoDefault, ComponentClasses};
+pub use pagetop_macros::{fn_builder, main, test, AutoDefault, ComponentClasses};
 
 // *************************************************************************************************
 // GLOBAL.
@@ -90,11 +90,11 @@ pub use pagetop_macros::{fn_with, main, test, AutoDefault, ComponentClasses};
 pub use once_cell::sync::Lazy as LazyStatic;
 pub use static_files::Resource as StaticResource;
 
+pub type HashMapResources = std::collections::HashMap<&'static str, StaticResource>;
+
 pub use std::any::TypeId;
 
 pub type Weight = i8;
-
-pub type HashMapResources = std::collections::HashMap<&'static str, StaticResource>;
 
 static_locales!(LOCALES_PAGETOP);
 

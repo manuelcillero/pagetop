@@ -14,11 +14,11 @@ pub fn html(input: TokenStream) -> TokenStream {
 }
 
 #[proc_macro_attribute]
-pub fn fn_with(_attr: TokenStream, item: TokenStream) -> TokenStream {
+pub fn fn_builder(_: TokenStream, item: TokenStream) -> TokenStream {
     let fn_item = parse_macro_input!(item as ItemFn);
-    let fn_name = fn_item.sig.ident.to_string();
+    let fn_alter_name = fn_item.sig.ident.to_string();
 
-    if !fn_name.starts_with("alter_") {
+    if !fn_alter_name.starts_with("alter_") {
         let expanded = quote_spanned! {
             fn_item.sig.ident.span() =>
                 compile_error!("expected a \"pub fn alter_...() -> &mut Self\" method");
@@ -45,12 +45,12 @@ pub fn fn_with(_attr: TokenStream, item: TokenStream) -> TokenStream {
         })
         .collect();
 
-    let fn_with_name = fn_name.replace("alter_", "with_");
+    let fn_with_name = fn_alter_name.replace("alter_", "with_");
 
     #[rustfmt::skip]
     let fn_with = parse_str::<ItemFn>(concat_string!("
         pub fn ", fn_with_name, "(mut self, ", args.join(", "), ") -> Self {
-            self.", fn_name, "(", param.join(", "), ");
+            self.", fn_alter_name, "(", param.join(", "), ");
             self
         }
     ").as_str()).unwrap();
@@ -117,7 +117,7 @@ pub fn test(_: TokenStream, item: TokenStream) -> TokenStream {
 }
 
 #[proc_macro_derive(AutoDefault, attributes(default))]
-pub fn derive_auto_default(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
+pub fn derive_auto_default(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
     match smart_default::body_impl::impl_my_derive(&input) {
         Ok(output) => output.into(),

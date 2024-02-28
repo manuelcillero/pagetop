@@ -71,25 +71,25 @@ impl ComponentTrait for PoweredBy {
 impl PoweredBy {
     // PoweredBy BUILDER.
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_weight(&mut self, value: Weight) -> &mut Self {
         self.weight = value;
         self
     }
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_renderable(&mut self, check: FnIsRenderable) -> &mut Self {
         self.renderable.check = check;
         self
     }
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_copyright(&mut self, copyright: Option<impl Into<String>>) -> &mut Self {
         self.copyright = copyright.map(|c| c.into());
         self
     }
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_logo(&mut self, logo: PoweredByLogo) -> &mut Self {
         self.logo = logo;
         self

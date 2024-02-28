@@ -1,5 +1,5 @@
 use crate::core::component::{ArcTypedComponent, ComponentTrait, Context};
-use crate::fn_with;
+use crate::fn_builder;
 use crate::html::{html, Markup};
 
 pub struct OptionComponent<C: ComponentTrait>(Option<ArcTypedComponent<C>>);
@@ -17,7 +17,7 @@ impl<C: ComponentTrait> OptionComponent<C> {
 
     // OptionComponent BUILDER.
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_value(&mut self, component: Option<C>) -> &mut Self {
         if let Some(component) = component {
             self.0 = Some(ArcTypedComponent::new(component));

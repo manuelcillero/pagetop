@@ -9,7 +9,7 @@
 //! **OptionClasses** assumes that the order of the classes is irrelevant
 //! (<https://stackoverflow.com/a/1321712>), and duplicate classes will not be allowed.
 
-use crate::{fn_with, AutoDefault};
+use crate::{fn_builder, AutoDefault};
 
 pub enum ClassesOp {
     Add,
@@ -30,7 +30,7 @@ impl OptionClasses {
 
     // OptionClasses BUILDER.
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_value(&mut self, op: ClassesOp, classes: impl Into<String>) -> &mut Self {
         let classes: String = classes.into();
         let classes: Vec<&str> = classes.split_ascii_whitespace().collect();

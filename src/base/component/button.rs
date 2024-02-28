@@ -78,61 +78,61 @@ impl Button {
 
     // Button BUILDER.
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_id(&mut self, id: impl Into<String>) -> &mut Self {
         self.id.alter_value(id);
         self
     }
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_weight(&mut self, value: Weight) -> &mut Self {
         self.weight = value;
         self
     }
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_renderable(&mut self, check: FnIsRenderable) -> &mut Self {
         self.renderable.check = check;
         self
     }
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_style(&mut self, style: ButtonStyle) -> &mut Self {
         self.style = style;
         self
     }
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_font_size(&mut self, font_size: FontSize) -> &mut Self {
         self.font_size = font_size;
         self
     }
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_left_icon(&mut self, icon: Option<Icon>) -> &mut Self {
         self.left_icon.alter_value(icon);
         self
     }
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_right_icon(&mut self, icon: Option<Icon>) -> &mut Self {
         self.right_icon.alter_value(icon);
         self
     }
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_href(&mut self, href: impl Into<String>) -> &mut Self {
         self.href.alter_value(href);
         self
     }
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_html(&mut self, html: L10n) -> &mut Self {
         self.html.alter_value(html);
         self
     }
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_target(&mut self, target: ButtonTarget) -> &mut Self {
         self.target = target;
         self

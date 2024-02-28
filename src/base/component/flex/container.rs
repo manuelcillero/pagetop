@@ -63,19 +63,19 @@ impl ComponentTrait for Container {
 impl Container {
     // Container BUILDER.
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_id(&mut self, id: impl Into<String>) -> &mut Self {
         self.id.alter_value(id);
         self
     }
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_weight(&mut self, value: Weight) -> &mut Self {
         self.weight = value;
         self
     }
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_renderable(&mut self, check: FnIsRenderable) -> &mut Self {
         self.renderable.check = check;
         self
@@ -87,37 +87,37 @@ impl Container {
         self
     }
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_items(&mut self, op: ArcTypedOp<flex::Item>) -> &mut Self {
         self.items.alter_value(op);
         self
     }
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_direction(&mut self, direction: flex::Direction) -> &mut Self {
         self.direction = direction;
         self
     }
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_wrap_align(&mut self, wrap: flex::WrapAlign) -> &mut Self {
         self.wrap_align = wrap;
         self
     }
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_content_justify(&mut self, justify: flex::ContentJustify) -> &mut Self {
         self.content_justify = justify;
         self
     }
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_items_align(&mut self, align: flex::ItemAlign) -> &mut Self {
         self.items_align = align;
         self
     }
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_gap(&mut self, gap: flex::Gap) -> &mut Self {
         self.gap = gap;
         self

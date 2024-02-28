@@ -82,31 +82,31 @@ impl Image {
 
     // Image BUILDER.
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_id(&mut self, id: impl Into<String>) -> &mut Self {
         self.id.alter_value(id);
         self
     }
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_weight(&mut self, value: Weight) -> &mut Self {
         self.weight = value;
         self
     }
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_renderable(&mut self, check: FnIsRenderable) -> &mut Self {
         self.renderable.check = check;
         self
     }
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_source(&mut self, source: &str) -> &mut Self {
         self.source.alter_value(source);
         self
     }
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_size(&mut self, size: ImageSize) -> &mut Self {
         self.size = size;
         self

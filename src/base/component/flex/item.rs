@@ -67,55 +67,55 @@ impl ComponentTrait for Item {
 impl Item {
     // Item BUILDER.
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_id(&mut self, id: impl Into<String>) -> &mut Self {
         self.id.alter_value(id);
         self
     }
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_weight(&mut self, value: Weight) -> &mut Self {
         self.weight = value;
         self
     }
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_renderable(&mut self, check: FnIsRenderable) -> &mut Self {
         self.renderable.check = check;
         self
     }
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_inner_classes(&mut self, op: ClassesOp, classes: impl Into<String>) -> &mut Self {
         self.inner_classes.alter_value(op, classes);
         self
     }
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_grow(&mut self, grow: flex::ItemGrow) -> &mut Self {
         self.item_grow = grow;
         self
     }
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_shrink(&mut self, shrink: flex::ItemShrink) -> &mut Self {
         self.item_shrink = shrink;
         self
     }
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_size(&mut self, size: flex::ItemSize) -> &mut Self {
         self.item_size = size;
         self
     }
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_offset(&mut self, offset: flex::ItemOffset) -> &mut Self {
         self.item_offset = offset;
         self
     }
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_align(&mut self, align: flex::ItemAlign) -> &mut Self {
         self.item_align = align;
         self
@@ -127,7 +127,7 @@ impl Item {
         self
     }
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_components(&mut self, op: ArcAnyOp) -> &mut Self {
         self.stuff.alter_value(op);
         self

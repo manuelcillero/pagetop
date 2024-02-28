@@ -55,25 +55,25 @@ impl Paragraph {
 
     // Paragraph BUILDER.
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_id(&mut self, id: impl Into<String>) -> &mut Self {
         self.id.alter_value(id);
         self
     }
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_weight(&mut self, value: Weight) -> &mut Self {
         self.weight = value;
         self
     }
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_renderable(&mut self, check: FnIsRenderable) -> &mut Self {
         self.renderable.check = check;
         self
     }
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_font_size(&mut self, font_size: FontSize) -> &mut Self {
         self.font_size = font_size;
         self
@@ -91,7 +91,7 @@ impl Paragraph {
         self
     }
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_components(&mut self, op: ArcAnyOp) -> &mut Self {
         self.stuff.alter_value(op);
         self

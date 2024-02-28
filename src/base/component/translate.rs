@@ -20,7 +20,7 @@ impl Translate {
 
     // Translate BUILDER.
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_l10n(&mut self, l10n: L10n) -> &mut Self {
         self.0 = l10n;
         self

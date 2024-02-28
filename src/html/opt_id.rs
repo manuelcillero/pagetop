@@ -1,4 +1,4 @@
-use crate::{fn_with, AutoDefault};
+use crate::{fn_builder, AutoDefault};
 
 #[derive(AutoDefault)]
 pub struct OptionId(Option<String>);
@@ -10,7 +10,7 @@ impl OptionId {
 
     // OptionId BUILDER.
 
-    #[fn_with]
+    #[fn_builder]
     pub fn alter_value(&mut self, value: impl Into<String>) -> &mut Self {
         self.0 = Some(value.into().trim().replace(' ', "_"));
         self
