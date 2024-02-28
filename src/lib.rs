@@ -40,7 +40,7 @@
 //!     }
 //! }
 //!
-//! async fn hello_world(request: service::HttpRequest) -> ResultPage<Markup, ErrorPage> {
+//! async fn hello_world(request: HttpRequest) -> ResultPage<Markup, ErrorPage> {
 //!     Page::new(request)
 //!         .with_component(Html::with(html! { h1 { "Hello World!" } }))
 //!         .render()

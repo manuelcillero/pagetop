@@ -40,7 +40,7 @@ pub use crate::datetime::*;
 pub use crate::{db, db::*, migrations, new_migration};
 
 pub use crate::service;
-pub use crate::service::HttpMessage;
+pub use crate::service::{HttpMessage, HttpRequest};
 
 pub use crate::core::AnyBase;
 

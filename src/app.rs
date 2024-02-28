@@ -5,6 +5,7 @@ mod figfont;
 use crate::core::{package, package::PackageRef};
 use crate::html::Markup;
 use crate::response::page::{ErrorPage, ResultPage};
+use crate::service::HttpRequest;
 use crate::{config, locale, service, trace, LazyStatic};
 
 #[cfg(feature = "database")]
@@ -162,6 +163,6 @@ impl Application {
     }
 }
 
-async fn service_not_found(request: service::HttpRequest) -> ResultPage<Markup, ErrorPage> {
+async fn service_not_found(request: HttpRequest) -> ResultPage<Markup, ErrorPage> {
     Err(ErrorPage::NotFound(request))
 }

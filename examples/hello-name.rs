@@ -10,7 +10,7 @@ impl PackageTrait for HelloName {
 
 #[service::get("/hello/{name}")]
 async fn hello_name(
-    request: service::HttpRequest,
+    request: HttpRequest,
     path: service::web::Path<String>,
 ) -> ResultPage<Markup, ErrorPage> {
     let name = path.into_inner();

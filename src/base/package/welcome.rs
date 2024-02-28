@@ -17,12 +17,12 @@ impl PackageTrait for Welcome {
     }
 }
 
-async fn home_page(request: service::HttpRequest) -> ResultPage<Markup, ErrorPage> {
+async fn home_page(request: HttpRequest) -> ResultPage<Markup, ErrorPage> {
     home(request, &LANGID_DEFAULT)
 }
 
 async fn home_lang(
-    request: service::HttpRequest,
+    request: HttpRequest,
     path: service::web::Path<String>,
 ) -> ResultPage<Markup, ErrorPage> {
     match langid_for(path.into_inner()) {
@@ -31,10 +31,7 @@ async fn home_lang(
     }
 }
 
-fn home(
-    request: service::HttpRequest,
-    lang: &'static LanguageIdentifier,
-) -> ResultPage<Markup, ErrorPage> {
+fn home(request: HttpRequest, lang: &'static LanguageIdentifier) -> ResultPage<Markup, ErrorPage> {
     Page::new(request)
         .with_title(L10n::l("welcome_title"))
         .with_context(ContextOp::LangId(lang))

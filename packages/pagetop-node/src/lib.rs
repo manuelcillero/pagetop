@@ -34,7 +34,7 @@ impl PackageTrait for Node {
     }
 }
 
-async fn node(request: service::HttpRequest) -> ResultPage<Markup, ErrorPage> {
+async fn node(request: HttpRequest) -> ResultPage<Markup, ErrorPage> {
     Page::new(request).with_title(L10n::n("Nodo")).render()
 }
 

@@ -11,7 +11,7 @@ use crate::fn_builder;
 use crate::html::{html, Markup, DOCTYPE};
 use crate::html::{ClassesOp, Favicon, OptionClasses, OptionId, OptionTranslated};
 use crate::locale::L10n;
-use crate::{fn_with, service};
+use crate::service::HttpRequest;
 
 use unic_langid::CharacterDirection;
 
@@ -32,7 +32,7 @@ pub struct Page {
 
 impl Page {
     #[rustfmt::skip]
-    pub fn new(request: service::HttpRequest) -> Self {
+    pub fn new(request: HttpRequest) -> Self {
         Page {
             title       : OptionTranslated::default(),
             description : OptionTranslated::default(),

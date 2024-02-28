@@ -29,7 +29,7 @@ impl PackageTrait for User {
     }
 }
 
-async fn login(request: service::HttpRequest) -> ResultPage<Markup, ErrorPage> {
+async fn login(request: HttpRequest) -> ResultPage<Markup, ErrorPage> {
     Page::new(request)
         .with_title(L10n::n("Identificación del usuario"))
         .with_component(
