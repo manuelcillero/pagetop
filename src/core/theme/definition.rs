@@ -20,16 +20,14 @@ pub trait ThemeTrait: PackageTrait + Send + Sync {
         ]
     }
 
-    fn prepare_region(&self, page: &mut Page, region: &str) -> Markup {
-        let render_region = page.components_in(region).render(page.context());
+    fn prepare_region(&self, page: &mut Page, region_name: &str) -> Markup {
+        let render_region = page.components_in(region_name).render(page.context());
         if render_region.is_empty() {
             html! {}
         } else {
-            let id = OptionId::new(region).get().unwrap();
-            let id_inner = concat_string!(id, "__inner");
             html! {
-                div id=(id) class="pt-region" {
-                    div id=(id_inner) class="pt-region__inner" {
+                div id=[OptionId::new(region_name).get()] class="pt-region" {
+                    div class="pt-region__inner" {
                         (render_region)
                     }
                 }
@@ -55,7 +53,7 @@ pub trait ThemeTrait: PackageTrait + Send + Sync {
                         (self.prepare_region(page, "header"))
                         (self.prepare_region(page, "pagetop"))
                         div class="pt-content" {
-                            div class="pt-content__wrapper" {
+                            div class="pt-content__inner" {
                                 (self.prepare_region(page, "content"))
                                 (self.prepare_region(page, "sidebar"))
                             }

@@ -74,9 +74,9 @@ a:active {
 
 /* LAYOUT */
 
-#header__inner,
-.pt-content__wrapper,
-#footer__inner {
+#header > .pt-region__inner,
+.pt-content__inner,
+#footer > .pt-region__inner {
 	width: 100%;
 	max-width: var(--pt-max-width);
 	margin: 0 auto;
@@ -85,18 +85,17 @@ a:active {
 #header {
 	background: var(--pt-color--white);
 }
-.pt-content__wrapper {
+.pt-content__inner {
 	background: var(--pt-color--white);
 }
-
 #footer {
 	background: linear-gradient(180deg, var(--pt-color--gray-5) 0%, var(--pt-color--gray-10) 100%);
 }
-#footer__inner {
+#footer > .pt-region__inner {
 	color: var(--pt-color--gray-65);
 	background: var(--pt-color--gray-20);
 	padding: calc(3 * var(--pt-gap)) 0 calc(12 * var(--pt-gap));
 }
-#footer__inner a {
+#footer > .pt-region__inner a {
 	color: var(--pt-color--white);
 }
