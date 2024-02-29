@@ -98,7 +98,7 @@ impl Form {
     }
 
     #[rustfmt::skip]
-    pub fn with_element(mut self, element: impl ComponentTrait) -> Self {
+    pub fn add_element(mut self, element: impl ComponentTrait) -> Self {
         self.stuff.alter_value(ArcAnyOp::Add(ArcAnyComponent::new(element)));
         self
     }

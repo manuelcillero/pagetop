@@ -43,7 +43,7 @@ async fn login(request: HttpRequest) -> ResultPage<Markup, ErrorPage> {
 fn form_login() -> Form {
     Form::new()
         .with_id("user-login")
-        .with_element(
+        .add_element(
             form::Input::textfield()
                 .with_name("name")
                 .with_label(L10n::t("username", &LOCALES_USER))
@@ -53,11 +53,11 @@ fn form_login() -> Form {
                 )
                 .with_autofocus(true),
         )
-        .with_element(
+        .add_element(
             form::Input::password()
                 .with_name("pass")
                 .with_label(L10n::t("password", &LOCALES_USER))
                 .with_help_text(L10n::t("password_help", &LOCALES_USER)),
         )
-        .with_element(form::ActionButton::submit().with_value(L10n::t("login", &LOCALES_USER)))
+        .add_element(form::ActionButton::submit().with_value(L10n::t("login", &LOCALES_USER)))
 }
