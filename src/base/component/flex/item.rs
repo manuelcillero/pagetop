@@ -7,7 +7,6 @@ pub struct Item {
     weight       : Weight,
     renderable   : Renderable,
     classes      : OptionClasses,
-    inner_classes: OptionClasses,
     item_grow    : flex::ItemGrow,
     item_shrink  : flex::ItemShrink,
     item_size    : flex::ItemSize,
@@ -45,8 +44,6 @@ impl ComponentTrait for Item {
             ]
             .join(" "),
         );
-        self.inner_classes
-            .alter_value(ClassesOp::Prepend, "pt-flex__item-inner");
     }
 
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
@@ -56,7 +53,7 @@ impl ComponentTrait for Item {
         };
         PrepareMarkup::With(html! {
             div id=[self.id()] class=[self.classes().get()] style=[order] {
-                div class=[self.inner_classes().get()] {
+                div class="inner" {
                     (self.components().render(cx))
                 }
             }
@@ -82,12 +79,6 @@ impl Item {
     #[fn_builder]
     pub fn alter_renderable(&mut self, check: FnIsRenderable) -> &mut Self {
         self.renderable.check = check;
-        self
-    }
-
-    #[fn_builder]
-    pub fn alter_inner_classes(&mut self, op: ClassesOp, classes: impl Into<String>) -> &mut Self {
-        self.inner_classes.alter_value(op, classes);
         self
     }
 
@@ -134,10 +125,6 @@ impl Item {
     }
 
     // Item GETTERS.
-
-    pub fn inner_classes(&self) -> &OptionClasses {
-        &self.inner_classes
-    }
 
     pub fn grow(&self) -> &flex::ItemGrow {
         &self.item_grow

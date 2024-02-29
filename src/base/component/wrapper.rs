@@ -17,16 +17,13 @@ pub struct Wrapper {
     weight       : Weight,
     renderable   : Renderable,
     classes      : OptionClasses,
-    inner_classes: OptionClasses,
     wrapper_type : WrapperType,
     stuff        : AnyComponents,
 }
 
 impl ComponentTrait for Wrapper {
     fn new() -> Self {
-        Wrapper::default()
-            .with_classes(ClassesOp::Add, "container")
-            .with_inner_classes(ClassesOp::Add, "container")
+        Wrapper::default().with_classes(ClassesOp::Add, "pt-wrapper")
     }
 
     fn id(&self) -> Option<String> {
@@ -43,37 +40,39 @@ impl ComponentTrait for Wrapper {
 
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
         match self.wrapper_type() {
-            WrapperType::Header => PrepareMarkup::With(html! {
-                header id=[self.id()] class=[self.classes().get()] {
-                    div class=[self.inner_classes().get()] {
-                        (self.components().render(cx))
-                    }
-                }
-            }),
-            WrapperType::Footer => PrepareMarkup::With(html! {
-                footer id=[self.id()] class=[self.classes().get()] {
-                    div class=[self.inner_classes().get()] {
+            WrapperType::Container => PrepareMarkup::With(html! {
+                div id=[self.id()] class=[self.classes().get()] {
+                    div class="inner" {
                         (self.components().render(cx))
                     }
                 }
             }),
             WrapperType::Main => PrepareMarkup::With(html! {
                 main id=[self.id()] class=[self.classes().get()] {
-                    div class=[self.inner_classes().get()] {
+                    div class="inner" {
                         (self.components().render(cx))
                     }
                 }
             }),
             WrapperType::Section => PrepareMarkup::With(html! {
                 section id=[self.id()] class=[self.classes().get()] {
-                    div class=[self.inner_classes().get()] {
+                    div class="inner" {
                         (self.components().render(cx))
                     }
                 }
             }),
-            _ => PrepareMarkup::With(html! {
-                div id=[self.id()] class=[self.classes().get()] {
-                    (self.components().render(cx))
+            WrapperType::Header => PrepareMarkup::With(html! {
+                header id=[self.id()] class=[self.classes().get()] {
+                    div class="inner" {
+                        (self.components().render(cx))
+                    }
+                }
+            }),
+            WrapperType::Footer => PrepareMarkup::With(html! {
+                footer id=[self.id()] class=[self.classes().get()] {
+                    div class="inner" {
+                        (self.components().render(cx))
+                    }
                 }
             }),
         }
@@ -81,35 +80,27 @@ impl ComponentTrait for Wrapper {
 }
 
 impl Wrapper {
-    pub fn header() -> Self {
-        let mut c = Wrapper::default()
-            .with_classes(ClassesOp::Add, "header")
-            .with_inner_classes(ClassesOp::Add, "container");
-        c.wrapper_type = WrapperType::Header;
-        c
-    }
-
-    pub fn footer() -> Self {
-        let mut c = Wrapper::default()
-            .with_classes(ClassesOp::Add, "footer")
-            .with_inner_classes(ClassesOp::Add, "container");
-        c.wrapper_type = WrapperType::Footer;
-        c
-    }
-
     pub fn main() -> Self {
-        let mut c = Wrapper::default()
-            .with_classes(ClassesOp::Add, "main")
-            .with_inner_classes(ClassesOp::Add, "container");
+        let mut c = Wrapper::default().with_classes(ClassesOp::Add, "pt-main");
         c.wrapper_type = WrapperType::Main;
         c
     }
 
     pub fn section() -> Self {
-        let mut c = Wrapper::default()
-            .with_classes(ClassesOp::Add, "section")
-            .with_inner_classes(ClassesOp::Add, "container");
+        let mut c = Wrapper::default().with_classes(ClassesOp::Add, "pt-section");
         c.wrapper_type = WrapperType::Section;
+        c
+    }
+
+    pub fn header() -> Self {
+        let mut c = Wrapper::default().with_classes(ClassesOp::Add, "pt-header");
+        c.wrapper_type = WrapperType::Header;
+        c
+    }
+
+    pub fn footer() -> Self {
+        let mut c = Wrapper::default().with_classes(ClassesOp::Add, "pt-footer");
+        c.wrapper_type = WrapperType::Footer;
         c
     }
 
@@ -133,12 +124,6 @@ impl Wrapper {
         self
     }
 
-    #[fn_builder]
-    pub fn alter_inner_classes(&mut self, op: ClassesOp, classes: impl Into<String>) -> &mut Self {
-        self.inner_classes.alter_value(op, classes);
-        self
-    }
-
     #[rustfmt::skip]
     pub fn add_component(mut self, component: impl ComponentTrait) -> Self {
         self.stuff.alter_value(ArcAnyOp::Add(ArcAnyComponent::new(component)));
@@ -152,10 +137,6 @@ impl Wrapper {
     }
 
     // Wrapper GETTERS.
-
-    pub fn inner_classes(&self) -> &OptionClasses {
-        &self.inner_classes
-    }
 
     pub fn wrapper_type(&self) -> &WrapperType {
         &self.wrapper_type

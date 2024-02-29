@@ -9,7 +9,7 @@ mod definition;
 pub use definition::{component_as_mut, component_as_ref, ComponentBase, ComponentTrait};
 
 mod classes;
-pub use classes::{ImplementClasses, ImplementClassesOp};
+pub use classes::{ComponentClasses, ComponentClassesOp};
 
 mod arc_any;
 pub use arc_any::AnyComponents;

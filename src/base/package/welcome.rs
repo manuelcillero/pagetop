@@ -55,7 +55,7 @@ fn hello_world() -> Wrapper {
                 .with_direction(flex::Direction::Column(BreakPoint::MD))
                 .add_item(
                     flex::Item::new()
-                        .with_inner_classes(ClassesOp::Add, "hello-col-text")
+                        .with_classes(ClassesOp::Add, "hello-col-text")
                         .with_size(flex::ItemSize::Percent40)
                         .add_component(
                             Heading::h1(L10n::l("welcome_title")).with_size(HeadingSize::Medium),
@@ -97,7 +97,7 @@ fn hello_world() -> Wrapper {
                 )
                 .add_item(
                     flex::Item::new()
-                        .with_inner_classes(ClassesOp::Add, "hello-col-image")
+                        .with_classes(ClassesOp::Add, "hello-col-image")
                         .with_size(flex::ItemSize::Percent60)
                         .add_component(Image::with("/base/images/header.svg")),
                 ),
@@ -133,13 +133,13 @@ fn about_pagetop() -> Wrapper {
                 .with_direction(flex::Direction::Column(BreakPoint::SM))
                 .add_item(
                     flex::Item::new()
-                        .with_inner_classes(ClassesOp::Add, "pagetop-col-image")
+                        .with_classes(ClassesOp::Add, "pagetop-col-image")
                         .with_size(flex::ItemSize::Percent40)
                         .add_component(Image::with("/base/images/about.svg")),
                 )
                 .add_item(
                     flex::Item::new()
-                        .with_inner_classes(ClassesOp::Add, "pagetop-col-text")
+                        .with_classes(ClassesOp::Add, "pagetop-col-text")
                         .add_component(Heading::h2(L10n::l("welcome_pagetop_title")))
                         .add_component(
                             Paragraph::translated(L10n::l("welcome_pagetop_text1"))
@@ -159,7 +159,7 @@ fn promo_pagetop() -> Wrapper {
                 .with_direction(flex::Direction::Column(BreakPoint::MD))
                 .add_item(
                     flex::Item::new()
-                        .with_inner_classes(ClassesOp::Add, "promo-col-text")
+                        .with_classes(ClassesOp::Add, "promo-col-text")
                         .with_size(flex::ItemSize::Percent50)
                         .add_component(Heading::h2(L10n::l("welcome_promo_title")))
                         .add_component(
@@ -175,7 +175,7 @@ fn promo_pagetop() -> Wrapper {
                 )
                 .add_item(
                     flex::Item::new()
-                        .with_inner_classes(ClassesOp::Add, "promo-col-image")
+                        .with_classes(ClassesOp::Add, "promo-col-image")
                         .with_size(flex::ItemSize::Percent50)
                         .add_component(Image::with("/base/images/pagetop.png")),
                 ),
@@ -190,12 +190,12 @@ fn reporting_issues() -> Wrapper {
                 .with_direction(flex::Direction::Column(BreakPoint::MD))
                 .add_item(
                     flex::Item::new()
-                        .with_inner_classes(ClassesOp::Add, "issues-col-image")
+                        .with_classes(ClassesOp::Add, "issues-col-image")
                         .add_component(Image::with("/base/images/issues.jpg")),
                 )
                 .add_item(
                     flex::Item::new()
-                        .with_inner_classes(ClassesOp::Add, "issues-col-text")
+                        .with_classes(ClassesOp::Add, "issues-col-text")
                         .with_size(flex::ItemSize::Percent50)
                         .add_component(Heading::h2(L10n::l("welcome_issues_title")))
                         .add_component(

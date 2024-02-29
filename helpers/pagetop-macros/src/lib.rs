@@ -58,9 +58,9 @@ pub fn fn_builder(_: TokenStream, item: TokenStream) -> TokenStream {
     #[rustfmt::skip]
     let fn_alter_doc = concat_string!(
         "<p id=\"method.", fn_with_name, "\">",
-        "Use <code class=\"code-header\"> <a class=\"fn\" href=\"#method.", fn_with_name, "\">",
+        "Use <code class=\"code-header\"> <span class=\"fn\" href=\"#method.", fn_with_name, "\">",
         fn_with_name,
-        "</a>(self, …) -> Self </code> to apply the <a href=\"#method.new\">builder pattern</a>.",
+        "</span>(self, …) -> Self </code> to apply the <a href=\"#method.new\">builder pattern</a>.",
         "</p>"
     );
 
@@ -130,8 +130,18 @@ pub fn derive_component_classes(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
     let name = &input.ident;
 
+    let fn_alter_doc = concat_string!(
+        "<p id=\"method.with_classes\">",
+        "Use <code class=\"code-header\">",
+        " <span class=\"fn\" href=\"#method.with_classes\">with_classes</span>(self, …) -> Self ",
+        "</code> to apply the <a href=\"#method.new\">builder pattern</a>.",
+        "</p>"
+    );
+
     let expanded = quote! {
-        impl ImplementClasses for #name {
+        impl ComponentClasses for #name {
+            #[inline]
+            #[doc = #fn_alter_doc]
             fn alter_classes(&mut self, op: ClassesOp, classes: impl Into<String>) -> &mut Self {
                 self.classes.alter_value(op, classes);
                 self

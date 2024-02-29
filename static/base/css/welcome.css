@@ -16,11 +16,11 @@
 	padding-top: 0;
 }
 
-#welcome [class$="-col-text"] {
+#welcome [class$="-col-text"] > .inner {
 	margin: 5% 5% 0;
 	text-align: center;
 }
-#welcome [class$="-col-image"] {
+#welcome [class$="-col-image"] > .inner {
 	margin: 1rem 5%;
 }
 
@@ -28,7 +28,7 @@
 	text-align: center;
 	margin: 0 5%;
 }
-#welcome .welcome > div.container {
+#welcome .welcome > .inner {
 	padding: 2rem 1rem;
 	border-radius: 28px;
 	background: url("/base/images/welcome.jpg") center center no-repeat;
@@ -36,18 +36,18 @@
 	background-size: cover;
 	color: #fff;
 }
-#welcome .welcome > div.container > h2 {
+#welcome .welcome > .inner > h2 {
 	color: #fff;
 }
-#welcome .welcome > div.container > h3 {
+#welcome .welcome > .inner > h3 {
 	color: #ccc;
 }
 
-#welcome .promo-col-image {
+#welcome .promo-col-image > .inner {
 	padding: 0 5%;
 }
 
-#welcome .issues-col-image img {
+#welcome .issues-col-image > .inner img {
 	border-radius: 40px;
 }
 
@@ -55,20 +55,20 @@
 
 /* MD - Applies >= 768px */
 @media screen and (min-width: 48em) {
-	#welcome .promo-col-image {
+	#welcome .promo-col-image > .inner {
 		padding: 0;
 	}
 
 	#welcome .issues {
 		padding-top: 1.6rem;
 	}
-	#welcome .issues-col-text {
+	#welcome .issues-col-text > .inner {
 		text-align: left;
 	}
 }
 /* LG - Applies >= 992px */
 @media screen and (min-width: 62em) {
-	#welcome .hello-col-text {
+	#welcome .hello-col-text > .inner {
 		margin-top: 2rem;
 		text-align: left;
 	}
@@ -77,19 +77,19 @@
 		padding: 0 15% 2rem;
 	}
 
-	#welcome .promo-col-text {
+	#welcome .promo-col-text > .inner {
 		margin-right: 0;
 		text-align: right;
 	}
 }
 /* XL - Applies >= 1280px */
 @media screen and (min-width: 80em) {
-	#welcome .hello-col-text {
+	#welcome .hello-col-text > .inner {
 		margin-top: 4rem;
 		margin-left: 20%;
 	}
 
-	#welcome .pagetop-col-text {
+	#welcome .pagetop-col-text > .inner {
 		text-align: left;
 	}
 }

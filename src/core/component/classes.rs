@@ -1,6 +1,7 @@
+use crate::core::component::ComponentBase;
 use crate::html::{ClassesOp, OptionClasses};
 
-pub trait ImplementClassesOp {
+pub trait ComponentClassesOp {
     fn with_classes(self, op: ClassesOp, classes: impl Into<String>) -> Self;
 
     fn add_classes(&mut self, classes: impl Into<String>) -> &mut Self;
@@ -16,13 +17,14 @@ pub trait ImplementClassesOp {
     fn set_classes(&mut self, classes: impl Into<String>) -> &mut Self;
 }
 
-pub trait ImplementClasses: ImplementClassesOp {
+pub trait ComponentClasses: ComponentBase + ComponentClassesOp {
     fn alter_classes(&mut self, op: ClassesOp, classes: impl Into<String>) -> &mut Self;
 
     fn classes(&self) -> &OptionClasses;
 }
 
-impl<C: ImplementClasses> ImplementClassesOp for C {
+impl<C: ComponentBase + ComponentClasses> ComponentClassesOp for C {
+    #[doc(hidden)]
     fn with_classes(mut self, op: ClassesOp, classes: impl Into<String>) -> Self {
         self.alter_classes(op, classes);
         self
