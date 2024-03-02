@@ -35,7 +35,7 @@ impl ComponentTrait for Item {
     fn setup_before_prepare(&mut self, _cx: &mut Context) {
         self.prepend_classes(
             [
-                "pt-flex__item".to_owned(),
+                "flex-item__container".to_owned(),
                 self.grow().to_string(),
                 self.shrink().to_string(),
                 self.size().to_string(),
@@ -53,7 +53,7 @@ impl ComponentTrait for Item {
         };
         PrepareMarkup::With(html! {
             div id=[self.id()] class=[self.classes().get()] style=[order] {
-                div class="inner" {
+                div class="flex-item__inner" {
                     (self.components().render(cx))
                 }
             }

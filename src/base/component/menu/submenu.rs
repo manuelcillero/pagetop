@@ -31,9 +31,9 @@ impl ComponentTrait for Submenu {
 
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
         PrepareMarkup::With(html! {
-            div id=[self.id()] class="pt-menu__items" {
+            div id=[self.id()] class="menu__items" {
                 @if let Some(title) = self.title().using(cx.langid()) {
-                    h4 class="pt-menu__title" { (title) }
+                    h4 class="menu__title" { (title) }
                 }
                 ul {
                     (self.items().render(cx))

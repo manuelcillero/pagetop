@@ -33,28 +33,28 @@ impl ComponentTrait for Menu {
         cx.set_param::<bool>(PARAM_BASE_INCLUDE_ICONS, true);
 
         PrepareMarkup::With(html! {
-            div id=[self.id()] class="pt-menu__container" {
-                div class="pt-menu__wrapper" {
-                    div class="pt-menu__main" {
-                        div class="pt-menu__overlay" {}
-                        nav class="pt-menu__nav" {
-                            div class="pt-menu__header" {
-                                button type="button" class="pt-menu__arrow" {
+            div id=[self.id()] class="menu__container" {
+                div class="menu__inner" {
+                    div class="menu__main" {
+                        div class="menu__overlay" {}
+                        nav class="menu__nav" {
+                            div class="menu__header" {
+                                button type="button" class="menu__arrow" {
                                     i class="bi-chevron-left" {}
                                 }
-                                div class="pt-menu__title" {}
-                                button type="button" class="pt-menu__close" {
+                                div class="menu__title" {}
+                                button type="button" class="menu__close" {
                                     i class="bi-x" {}
                                 }
                             }
-                            ul class="pt-menu__section" {
+                            ul class="menu__section" {
                                 (self.items().render(cx))
                             }
                         }
                     }
                     button
                         type="button"
-                        class="pt-menu__trigger"
+                        class="menu__trigger"
                         title=[L10n::l("menu_toggle").using(cx.langid())]
                     {
                         span {} span {} span {}

@@ -27,13 +27,13 @@ pub enum HeadingSize {
 impl ToString for HeadingSize {
     fn to_string(&self) -> String {
         String::from(match self {
-            HeadingSize::ExtraLarge => "pt-heading__title-x3l",
-            HeadingSize::XxLarge    => "pt-heading__title-x2l",
-            HeadingSize::XLarge     => "pt-heading__title-xl",
-            HeadingSize::Large      => "pt-heading__title-l",
-            HeadingSize::Medium     => "pt-heading__title-m",
+            HeadingSize::ExtraLarge => "heading__title-x3l",
+            HeadingSize::XxLarge    => "heading__title-x2l",
+            HeadingSize::XLarge     => "heading__title-xl",
+            HeadingSize::Large      => "heading__title-l",
+            HeadingSize::Medium     => "heading__title-m",
             HeadingSize::Normal     => "",
-            HeadingSize::Subtitle   => "pt-heading__subtitle",
+            HeadingSize::Subtitle   => "heading__subtitle",
         })
     }
 }

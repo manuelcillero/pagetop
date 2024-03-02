@@ -30,7 +30,7 @@ impl ComponentTrait for Megamenu {
 
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
         PrepareMarkup::With(html! {
-            div id=[self.id()] class="pt-menu__groups" {
+            div id=[self.id()] class="menu__groups" {
                 (self.groups().render(cx))
             }
         })

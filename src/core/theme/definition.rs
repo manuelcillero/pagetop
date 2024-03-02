@@ -26,8 +26,8 @@ pub trait ThemeTrait: PackageTrait + Send + Sync {
             html! {}
         } else {
             html! {
-                div id=[OptionId::new(region_name).get()] class="pt-region" {
-                    div class="pt-region__inner" {
+                div id=[OptionId::new(region_name).get()] class="region__container" {
+                    div class="region__inner" {
                         (render_region)
                     }
                 }
@@ -44,16 +44,16 @@ pub trait ThemeTrait: PackageTrait + Send + Sync {
         html! {
             body id=[page.body_id().get()] class=[page.body_classes().get()] {
                 @if let Some(skip) = L10n::l("skip_to_content").using(page.context().langid()) {
-                    div class="pt-body__skip" {
+                    div class="skip__to_content" {
                         a href=(skip_to) { (skip) }
                     }
                 }
-                div class="pt-body__wrapper" {
-                    div class="pt-body__regions" {
+                div class="body__container" {
+                    div class="body__inner" {
                         (self.prepare_region(page, "header"))
                         (self.prepare_region(page, "pagetop"))
-                        div class="pt-content" {
-                            div class="pt-content__inner" {
+                        div class="content__container" {
+                            div class="content__inner" {
                                 (self.prepare_region(page, "content"))
                                 (self.prepare_region(page, "sidebar"))
                             }

@@ -29,7 +29,7 @@ impl ComponentTrait for Block {
     }
 
     fn setup_before_prepare(&mut self, _cx: &mut Context) {
-        self.prepend_classes("pt-block");
+        self.prepend_classes("block__container");
     }
 
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
@@ -39,9 +39,9 @@ impl ComponentTrait for Block {
             return PrepareMarkup::With(html! {
                 div id=(id) class=[self.classes().get()] {
                     @if let Some(title) = self.title().using(cx.langid()) {
-                        h2 class="pt-block__title" { (title) }
+                        h2 class="block__title" { (title) }
                     }
-                    div class="pt-block__body" { (block_body) }
+                    div class="block__body" { (block_body) }
                 }
             });
         }

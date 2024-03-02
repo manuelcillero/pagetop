@@ -54,7 +54,7 @@ impl ComponentTrait for Item {
         match self.item_type() {
             ItemType::Void => PrepareMarkup::None,
             ItemType::Label(label) => PrepareMarkup::With(html! {
-                li class="pt-menu__label" {
+                li class="menu__label" {
                     span title=[description] {
                         (left_icon)
                         (label.escaped(cx.langid()))
@@ -63,7 +63,7 @@ impl ComponentTrait for Item {
                 }
             }),
             ItemType::Link(label, path) => PrepareMarkup::With(html! {
-                li class="pt-menu__link" {
+                li class="menu__link" {
                     a href=(path(cx)) title=[description] {
                         (left_icon)
                         (label.escaped(cx.langid()))
@@ -72,7 +72,7 @@ impl ComponentTrait for Item {
                 }
             }),
             ItemType::LinkBlank(label, path) => PrepareMarkup::With(html! {
-                li class="pt-menu__link" {
+                li class="menu__link" {
                     a href=(path(cx)) title=[description] target="_blank" {
                         (left_icon)
                         (label.escaped(cx.langid()))
@@ -81,28 +81,28 @@ impl ComponentTrait for Item {
                 }
             }),
             ItemType::Html(content) => PrepareMarkup::With(html! {
-                li class="pt-menu__html" {
+                li class="menu__html" {
                     (content.render(cx))
                 }
             }),
             ItemType::Submenu(label, submenu) => PrepareMarkup::With(html! {
-                li class="pt-menu__children" {
+                li class="menu__children" {
                     a href="#" title=[description] {
                         (left_icon)
-                        (label.escaped(cx.langid())) i class="pt-menu__icon bi-chevron-down" {}
+                        (label.escaped(cx.langid())) i class="menu__icon bi-chevron-down" {}
                     }
-                    div class="pt-menu__subs" {
+                    div class="menu__subs" {
                         (submenu.render(cx))
                     }
                 }
             }),
             ItemType::Megamenu(label, megamenu) => PrepareMarkup::With(html! {
-                li class="pt-menu__children" {
+                li class="menu__children" {
                     a href="#" title=[description] {
                         (left_icon)
-                        (label.escaped(cx.langid())) i class="pt-menu__icon bi-chevron-down" {}
+                        (label.escaped(cx.langid())) i class="menu__icon bi-chevron-down" {}
                     }
-                    div class="pt-menu__subs pt-menu__mega" {
+                    div class="menu__subs menu__mega" {
                         (megamenu.render(cx))
                     }
                 }

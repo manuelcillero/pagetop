@@ -2,8 +2,8 @@
 
 /* Heading component */
 
-.pt-heading__subtitle {
-	margin-top: calc(-1 * var(--pt-gap-0-35));
+.heading__subtitle {
+	margin-top: calc(-1 * var(--val-gap-0-35));
 }
 
 /* Button component */

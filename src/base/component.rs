@@ -60,28 +60,28 @@ pub(crate) fn add_base_assets(cx: &mut Context) {
 #[derive(AutoDefault)]
 pub enum BreakPoint {
     #[default]
-    None,  /* Does not apply. Rest initially assume 1 pixel = 0.0625em */
-    SM,    /* PageTop default applies to <= 568px  - @media screen and (max-width: 35.5em) */
-    MD,    /* PageTop default applies to <= 768px  - @media screen and (max-width: 48em)   */
-    LG,    /* PageTop default applies to <= 992px  - @media screen and (max-width: 62em)   */
-    XL,    /* PageTop default applies to <= 1280px - @media screen and (max-width: 80em)   */
-    X2L,   /* PageTop default applies to <= 1440px - @media screen and (max-width: 90em)   */
-    X3L,   /* PageTop default applies to <= 1920px - @media screen and (max-width: 120em)  */
-    X2K,   /* PageTop default applies to <= 2560px - @media screen and (max-width: 160em)  */
+    None,  /* Does not apply. Rest initially assume 1 pixel = 0.0625rem */
+    SM,    /* PageTop default applies to <= 568px  - @media screen and (max-width: 35.5rem) */
+    MD,    /* PageTop default applies to <= 768px  - @media screen and (max-width: 48rem)   */
+    LG,    /* PageTop default applies to <= 992px  - @media screen and (max-width: 62rem)   */
+    XL,    /* PageTop default applies to <= 1280px - @media screen and (max-width: 80rem)   */
+    X2L,   /* PageTop default applies to <= 1440px - @media screen and (max-width: 90rem)   */
+    X3L,   /* PageTop default applies to <= 1920px - @media screen and (max-width: 120rem)  */
+    X2K,   /* PageTop default applies to <= 2560px - @media screen and (max-width: 160rem)  */
 }
 
 #[rustfmt::skip]
 impl ToString for BreakPoint {
     fn to_string(&self) -> String {
         String::from(match self {
-            BreakPoint::None => "pt-bp__none",
-            BreakPoint::SM   => "pt-bp__sm",
-            BreakPoint::MD   => "pt-bp__md",
-            BreakPoint::LG   => "pt-bp__lg",
-            BreakPoint::XL   => "pt-bp__xl",
-            BreakPoint::X2L  => "pt-bp__x2l",
-            BreakPoint::X3L  => "pt-bp__x3l",
-            BreakPoint::X2K  => "pt-bp__x2k",
+            BreakPoint::None => "bp__none",
+            BreakPoint::SM   => "bp__sm",
+            BreakPoint::MD   => "bp__md",
+            BreakPoint::LG   => "bp__lg",
+            BreakPoint::XL   => "bp__xl",
+            BreakPoint::X2L  => "bp__x2l",
+            BreakPoint::X3L  => "bp__x3l",
+            BreakPoint::X2K  => "bp__x2k",
         })
     }
 }
@@ -105,14 +105,14 @@ pub enum ButtonStyle {
 impl ToString for ButtonStyle {
     fn to_string(&self) -> String {
         String::from(match self {
-            ButtonStyle::Default   => "pt-button__default",
-            ButtonStyle::Info      => "pt-button__info",
-            ButtonStyle::Success   => "pt-button__success",
-            ButtonStyle::Warning   => "pt-button__warning",
-            ButtonStyle::Danger    => "pt-button__danger",
-            ButtonStyle::Light     => "pt-button__light",
-            ButtonStyle::Dark      => "pt-button__dark",
-            ButtonStyle::Link      => "pt-button__link",
+            ButtonStyle::Default   => "button__default",
+            ButtonStyle::Info      => "button__info",
+            ButtonStyle::Success   => "button__success",
+            ButtonStyle::Warning   => "button__warning",
+            ButtonStyle::Danger    => "button__danger",
+            ButtonStyle::Light     => "button__light",
+            ButtonStyle::Dark      => "button__dark",
+            ButtonStyle::Link      => "button__link",
         })
     }
 }
@@ -138,16 +138,16 @@ pub enum FontSize {
 impl ToString for FontSize {
     fn to_string(&self) -> String {
         String::from(match self {
-            FontSize::ExtraLarge => "pt-fs__x3l",
-            FontSize::XxLarge    => "pt-fs__x2l",
-            FontSize::XLarge     => "pt-fs__xl",
-            FontSize::Large      => "pt-fs__l",
-            FontSize::Medium     => "pt-fs__m",
+            FontSize::ExtraLarge => "fs__x3l",
+            FontSize::XxLarge    => "fs__x2l",
+            FontSize::XLarge     => "fs__xl",
+            FontSize::Large      => "fs__l",
+            FontSize::Medium     => "fs__m",
             FontSize::Normal     => "",
-            FontSize::Small      => "pt-fs__s",
-            FontSize::XSmall     => "pt-fs__xs",
-            FontSize::XxSmall    => "pt-fs__x2s",
-            FontSize::ExtraSmall => "pt-fs__x3s",
+            FontSize::Small      => "fs__s",
+            FontSize::XSmall     => "fs__xs",
+            FontSize::XxSmall    => "fs__x2s",
+            FontSize::ExtraSmall => "fs__x3s",
         })
     }
 }

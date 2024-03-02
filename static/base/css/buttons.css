@@ -1,115 +1,115 @@
-[class^="pt-button"] {
+[class^="button__"] {
 	cursor: pointer;
 	text-align: center;
 	display: inline-block;
-	color: var(--pt-color--white);
+	color: var(--val-color--white);
 	background-color: transparent;
 	text-decoration: none;
 	border: 1px solid transparent;
-	border-radius: var(--pt-border-radius);
-	padding: var(--pt-gap-0-35) var(--pt-gap-0-75);
+	border-radius: var(--val-border-radius);
+	padding: var(--val-gap-0-35) var(--val-gap-0-75);
 	transition: background-color .15s ease-in-out;
 	white-space: nowrap;
 	user-select: none;
 }
-[class^="pt-button"] > span {
-	margin: 0 var(--pt-gap-0-15);
+[class^="button__"] > span {
+	margin: 0 var(--val-gap-0-15);
 }
 
-.pt-button__default {
-	background-color: var(--pt-color--default);
+.button__default {
+	background-color: var(--val-color--default);
 }
-.pt-button__default:hover {
-	color: var(--pt-color--white);
-	background-color: var(--pt-color--default-dark);
+.button__default:hover {
+	color: var(--val-color--white);
+	background-color: var(--val-color--default-dark);
 }
-.pt-button__default:active,
-.pt-button__default:disabled {
-	color: var(--pt-color--white);
-	background-color: var(--pt-color--default-light);
-}
-
-.pt-button__info {
-	background-color: var(--pt-color--info);
-}
-.pt-button__info:hover {
-	color: var(--pt-color--white);
-	background-color: var(--pt-color--info-dark);
-}
-.pt-button__info:active,
-.pt-button__info:disabled {
-	color: var(--pt-color--white);
-	background-color: var(--pt-color--info-light);
+.button__default:active,
+.button__default:disabled {
+	color: var(--val-color--white);
+	background-color: var(--val-color--default-light);
 }
 
-.pt-button__success {
-	background-color: var(--pt-color--success);
+.button__info {
+	background-color: var(--val-color--info);
 }
-.pt-button__success:hover {
-	color: var(--pt-color--white);
-	background-color: var(--pt-color--success-dark);
+.button__info:hover {
+	color: var(--val-color--white);
+	background-color: var(--val-color--info-dark);
 }
-.pt-button__success:active,
-.pt-button__success:disabled {
-	color: var(--pt-color--white);
-	background-color: var(--pt-color--success-light);
-}
-
-.pt-button__warning {
-	background-color: var(--pt-color--warning);
-}
-.pt-button__warning:hover {
-	color: var(--pt-color--white);
-	background-color: var(--pt-color--warning-dark);
-}
-.pt-button__warning:active,
-.pt-button__warning:disabled {
-	color: var(--pt-color--white);
-	background-color: var(--pt-color--warning-light);
+.button__info:active,
+.button__info:disabled {
+	color: var(--val-color--white);
+	background-color: var(--val-color--info-light);
 }
 
-.pt-button__danger {
-	background-color: var(--pt-color--danger);
+.button__success {
+	background-color: var(--val-color--success);
 }
-.pt-button__danger:hover {
-	color: var(--pt-color--white);
-	background-color: var(--pt-color--danger-dark);
+.button__success:hover {
+	color: var(--val-color--white);
+	background-color: var(--val-color--success-dark);
 }
-.pt-button__danger:active,
-.pt-button__danger:disabled {
-	color: var(--pt-color--white);
-	background-color: var(--pt-color--danger-light);
-}
-
-.pt-button__light {
-	color: var(--pt-color--text);
-	background-color: var(--pt-color--light);
-}
-.pt-button__light:hover {
-	color: var(--pt-color--text);
-	background-color: var(--pt-color--light-dark);
-}
-.pt-button__light:active,
-.pt-button__light:disabled {
-	color: var(--pt-color--text);
-	background-color: var(--pt-color--light-light);
+.button__success:active,
+.button__success:disabled {
+	color: var(--val-color--white);
+	background-color: var(--val-color--success-light);
 }
 
-.pt-button__dark {
-	background-color: var(--pt-color--dark);
+.button__warning {
+	background-color: var(--val-color--warning);
 }
-.pt-button__dark:hover {
-	color: var(--pt-color--white);
-	background-color: var(--pt-color--dark-dark);
+.button__warning:hover {
+	color: var(--val-color--white);
+	background-color: var(--val-color--warning-dark);
 }
-.pt-button__dark:active,
-.pt-button__dark:disabled {
-	color: var(--pt-color--white);
-	background-color: var(--pt-color--dark-light);
+.button__warning:active,
+.button__warning:disabled {
+	color: var(--val-color--white);
+	background-color: var(--val-color--warning-light);
 }
 
-.pt-button__link {
-	color: var(--pt-color--default);
+.button__danger {
+	background-color: var(--val-color--danger);
+}
+.button__danger:hover {
+	color: var(--val-color--white);
+	background-color: var(--val-color--danger-dark);
+}
+.button__danger:active,
+.button__danger:disabled {
+	color: var(--val-color--white);
+	background-color: var(--val-color--danger-light);
+}
+
+.button__light {
+	color: var(--val-color--text);
+	background-color: var(--val-color--light);
+}
+.button__light:hover {
+	color: var(--val-color--text);
+	background-color: var(--val-color--light-dark);
+}
+.button__light:active,
+.button__light:disabled {
+	color: var(--val-color--text);
+	background-color: var(--val-color--light-light);
+}
+
+.button__dark {
+	background-color: var(--val-color--dark);
+}
+.button__dark:hover {
+	color: var(--val-color--white);
+	background-color: var(--val-color--dark-dark);
+}
+.button__dark:active,
+.button__dark:disabled {
+	color: var(--val-color--white);
+	background-color: var(--val-color--dark-light);
+}
+
+.button__link {
+	color: var(--val-color--default);
 }
 
 /*
@@ -600,93 +600,93 @@
 }
 */
 /*
-.pt-button__default[disabled],fieldset[disabled] .pt-button__default {
+.button__default[disabled],fieldset[disabled] .button__default {
 	background-color: #00d1b2;
 	border-color: #00d1b2;
 	box-shadow: none
 }
 
-.pt-button__default.is-inverted {
+.button__default.is-inverted {
 	background-color: #fff;
 	color: #00d1b2
 }
 
-.pt-button__default.is-inverted.is-hovered,.pt-button__default.is-inverted:hover {
+.button__default.is-inverted.is-hovered,.button__default.is-inverted:hover {
 	background-color: #f2f2f2
 }
 
-.pt-button__default.is-inverted[disabled],fieldset[disabled] .pt-button__default.is-inverted {
+.button__default.is-inverted[disabled],fieldset[disabled] .button__default.is-inverted {
 	background-color: #fff;
 	border-color: transparent;
 	box-shadow: none;
 	color: #00d1b2
 }
 
-.pt-button__default.is-loading::after {
+.button__default.is-loading::after {
 	border-color: transparent transparent #fff #fff!important
 }
 
-.pt-button__default.is-outlined {
+.button__default.is-outlined {
 	background-color: transparent;
 	border-color: #00d1b2;
 	color: #00d1b2
 }
 
-.pt-button__default.is-outlined.is-focused,.pt-button__default.is-outlined.is-hovered,.pt-button__default.is-outlined:focus,.pt-button__default.is-outlined:hover {
+.button__default.is-outlined.is-focused,.button__default.is-outlined.is-hovered,.button__default.is-outlined:focus,.button__default.is-outlined:hover {
 	background-color: #00d1b2;
 	border-color: #00d1b2;
 	color: #fff
 }
 
-.pt-button__default.is-outlined.is-loading::after {
+.button__default.is-outlined.is-loading::after {
 	border-color: transparent transparent #00d1b2 #00d1b2!important
 }
 
-.pt-button__default.is-outlined.is-loading.is-focused::after,.pt-button__default.is-outlined.is-loading.is-hovered::after,.pt-button__default.is-outlined.is-loading:focus::after,.pt-button__default.is-outlined.is-loading:hover::after {
+.button__default.is-outlined.is-loading.is-focused::after,.button__default.is-outlined.is-loading.is-hovered::after,.button__default.is-outlined.is-loading:focus::after,.button__default.is-outlined.is-loading:hover::after {
 	border-color: transparent transparent #fff #fff!important
 }
 
-.pt-button__default.is-outlined[disabled],fieldset[disabled] .pt-button__default.is-outlined {
+.button__default.is-outlined[disabled],fieldset[disabled] .button__default.is-outlined {
 	background-color: transparent;
 	border-color: #00d1b2;
 	box-shadow: none;
 	color: #00d1b2
 }
 
-.pt-button__default.is-inverted.is-outlined {
+.button__default.is-inverted.is-outlined {
 	background-color: transparent;
 	border-color: #fff;
 	color: #fff
 }
 
-.pt-button__default.is-inverted.is-outlined.is-focused,.pt-button__default.is-inverted.is-outlined.is-hovered,.pt-button__default.is-inverted.is-outlined:focus,.pt-button__default.is-inverted.is-outlined:hover {
+.button__default.is-inverted.is-outlined.is-focused,.button__default.is-inverted.is-outlined.is-hovered,.button__default.is-inverted.is-outlined:focus,.button__default.is-inverted.is-outlined:hover {
 	background-color: #fff;
 	color: #00d1b2
 }
 
-.pt-button__default.is-inverted.is-outlined.is-loading.is-focused::after,.pt-button__default.is-inverted.is-outlined.is-loading.is-hovered::after,.pt-button__default.is-inverted.is-outlined.is-loading:focus::after,.pt-button__default.is-inverted.is-outlined.is-loading:hover::after {
+.button__default.is-inverted.is-outlined.is-loading.is-focused::after,.button__default.is-inverted.is-outlined.is-loading.is-hovered::after,.button__default.is-inverted.is-outlined.is-loading:focus::after,.button__default.is-inverted.is-outlined.is-loading:hover::after {
 	border-color: transparent transparent #00d1b2 #00d1b2!important
 }
 
-.pt-button__default.is-inverted.is-outlined[disabled],fieldset[disabled] .pt-button__default.is-inverted.is-outlined {
+.button__default.is-inverted.is-outlined[disabled],fieldset[disabled] .button__default.is-inverted.is-outlined {
 	background-color: transparent;
 	border-color: #fff;
 	box-shadow: none;
 	color: #fff
 }
 
-.pt-button__default.is-light {
+.button__default.is-light {
 	background-color: #ebfffc;
 	color: #00947e
 }
 
-.pt-button__default.is-light.is-hovered,.pt-button__default.is-light:hover {
+.button__default.is-light.is-hovered,.button__default.is-light:hover {
 	background-color: #defffa;
 	border-color: transparent;
 	color: #00947e
 }
 
-.pt-button__default.is-light.is-active,.pt-button__default.is-light:active {
+.button__default.is-light.is-active,.button__default.is-light:active {
 	background-color: #d1fff8;
 	border-color: transparent;
 	color: #00947e
