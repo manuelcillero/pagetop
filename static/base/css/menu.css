@@ -186,8 +186,8 @@
 		min-width: auto;
 		width: 100%;
 		height: 100%;
-		margin: 0;
-		padding: 4rem 0 0;
+		margin: 0 !important;
+		padding: 0;
 		border-top: 0;
 		opacity: 1;
 		overflow-y: auto;
@@ -198,9 +198,8 @@
 	.menu__nav li .menu__subs.active {
 		display: block;
 	}
-
-	.menu__nav li.menu__children:hover > .menu__subs {
-		margin-top: 0;
+	.menu__nav li .menu__subs > :first-child {
+		margin-top: 4rem;
 	}
 
 	.menu__nav li .menu__items .menu__title {
