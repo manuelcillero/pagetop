@@ -13,7 +13,7 @@ function menu__hideChildren(nav, children) {
 	submenu.style.animation = 'slideRight 0.5s ease forwards';
 	setTimeout(() => {
 		submenu.classList.remove('active');
-		submenu.style.removeProperty("animation");
+		submenu.style.removeProperty('animation');
 	}, 300);
 
 	children.shift();
@@ -31,13 +31,17 @@ function menu__toggle(nav, overlay) {
 	overlay.classList.toggle('active');
 }
 
-function menu__reset(menu, nav) {
-	nav.querySelector('.menu__header').classList.remove('active');
-	nav.querySelector('.menu__title').innerHTML = '';
-	menu.querySelectorAll('.menu__subs').forEach(submenu => {
-		submenu.classList.remove('active');
-		submenu.style.removeProperty("animation");
-	});
+function menu__reset(menu, nav, overlay) {
+	menu__toggle(nav, overlay);
+	setTimeout(() => {
+		nav.querySelector('.menu__header').classList.remove('active');
+		nav.querySelector('.menu__title').innerHTML = '';
+		menu.querySelectorAll('.menu__subs').forEach(submenu => {
+			submenu.classList.remove('active');
+			submenu.style.removeProperty('animation');
+		});
+	}, 300);
+	return [];
 }
 
 document.querySelectorAll('.menu__container').forEach(menu => {
@@ -61,11 +65,14 @@ document.querySelectorAll('.menu__container').forEach(menu => {
 	});
 
 	menu.querySelector('.menu__close').addEventListener('click', () => {
-		menu__toggle(menuNav, menuOverlay);
-		setTimeout(() => {
-			menu__reset(menu, menuNav);
-			menuChildren = [];
-		}, 300);
+		menuChildren = menu__reset(menu, menuNav, menuOverlay);
+	});
+
+	menu.querySelectorAll('.menu__link > a[target="_blank"]').forEach(link => {
+		link.addEventListener('click', (e) => {
+			menuChildren = menu__reset(menu, menuNav, menuOverlay);
+			e.target.blur();
+		});
 	});
 
 	menu.querySelector('.menu__trigger').addEventListener('click', () => {
@@ -77,13 +84,10 @@ document.querySelectorAll('.menu__container').forEach(menu => {
 	});
 
 	window.onresize = function () {
-		if (this.innerWidth >= 992) {
-			if (menuNav.classList.contains('active')) {
-				menu__toggle(menuNav, menuOverlay);
-				setTimeout(() => {
-					menu__reset(menu, menuNav);
-					menuChildren = [];
-				}, 300);
+		if (menuNav.classList.contains('active')) {
+			var fontSizeRoot = parseFloat(getComputedStyle(document.documentElement).fontSize);
+			if (this.innerWidth >= 62 * fontSizeRoot) {
+				menuChildren = menu__reset(menu, menuNav, menuOverlay);
 			}
 		}
 	};
