@@ -33,7 +33,8 @@ impl ComponentTrait for Item {
     }
 
     fn setup_before_prepare(&mut self, _cx: &mut Context) {
-        self.prepend_classes(
+        self.alter_classes(
+            ClassesOp::Prepend,
             [
                 "flex-item__container".to_owned(),
                 self.grow().to_string(),

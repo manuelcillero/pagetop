@@ -68,7 +68,7 @@ impl ComponentTrait for Heading {
     }
 
     fn setup_before_prepare(&mut self, _cx: &mut Context) {
-        self.add_classes(self.size().to_string());
+        self.alter_classes(ClassesOp::Add, self.size().to_string());
     }
 
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {

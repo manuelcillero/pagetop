@@ -29,7 +29,7 @@ impl ComponentTrait for Block {
     }
 
     fn setup_before_prepare(&mut self, _cx: &mut Context) {
-        self.prepend_classes("block__container");
+        self.alter_classes(ClassesOp::Prepend, "block__container");
     }
 
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {

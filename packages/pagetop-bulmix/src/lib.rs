@@ -44,39 +44,51 @@ impl ThemeTrait for Bulmix {
         match component.type_id() {
             t if t == TypeId::of::<Icon>() => {
                 if let Some(i) = component_as_mut::<Icon>(component) {
-                    i.replace_classes(i.font_size().to_string(), with_font(i.font_size()));
+                    i.alter_classes(
+                        ClassesOp::Replace(i.font_size().to_string()),
+                        with_font(i.font_size()),
+                    );
                 }
             }
             t if t == TypeId::of::<Button>() => {
                 if let Some(b) = component_as_mut::<Button>(component) {
-                    b.replace_classes("button__tap", "button");
-                    b.replace_classes(b.style().to_string(), match b.style() {
-                        StyleBase::Default => "is-primary",
-                        StyleBase::Success => "is-success",
-                        StyleBase::Danger  => "is-danger",
-                        StyleBase::Warning => "is-warning",
-                        StyleBase::Info    => "is-info",
-                        StyleBase::Light   => "is-light",
-                        StyleBase::Dark    => "is-dark",
-                        StyleBase::Link    => "is-text",
-                    });
-                    b.replace_classes(b.font_size().to_string(), with_font(b.font_size()));
+                    b.alter_classes(ClassesOp::Replace("button__tap".to_owned()), "button");
+                    b.alter_classes(
+                        ClassesOp::Replace(b.style().to_string()),
+                        match b.style() {
+                            StyleBase::Default => "is-primary",
+                            StyleBase::Success => "is-success",
+                            StyleBase::Danger  => "is-danger",
+                            StyleBase::Warning => "is-warning",
+                            StyleBase::Info    => "is-info",
+                            StyleBase::Light   => "is-light",
+                            StyleBase::Dark    => "is-dark",
+                            StyleBase::Link    => "is-text",
+                        },
+                    );
+                    b.alter_classes(
+                        ClassesOp::Replace(b.font_size().to_string()),
+                        with_font(b.font_size()),
+                    );
                 }
             }
             t if t == TypeId::of::<Heading>() => {
                 if let Some(h) = component_as_mut::<Heading>(component) {
                     match h.size() {
                         HeadingSize::Subtitle => {
-                            h.replace_classes(h.size().to_string(), "subtitle")
+                            h.alter_classes(ClassesOp::Replace(h.size().to_string()), "subtitle")
                         }
-                        _ => h.add_classes("title"),
+                        _ => h.alter_classes(ClassesOp::Add, "title"),
                     };
                 }
             }
             t if t == TypeId::of::<Paragraph>() => {
                 if let Some(p) = component_as_mut::<Paragraph>(component) {
-                    p.add_classes("block");
-                    p.replace_classes(p.font_size().to_string(), with_font(p.font_size()));
+                    p.alter_classes(ClassesOp::Add, "block");
+                    p.alter_classes(
+                        ClassesOp::Replace(p.font_size().to_string()),
+                        with_font(p.font_size()),
+                    );
                 }
             }
             _ => {}

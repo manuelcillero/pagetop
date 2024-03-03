@@ -162,9 +162,9 @@ impl Input {
     #[fn_builder]
     pub fn alter_name(&mut self, name: &str) -> &mut Self {
         if let Some(previous) = self.name.get() {
-            self.remove_classes(concat_string!("form-item-", previous));
+            self.alter_classes(ClassesOp::Remove, concat_string!("form-item-", previous));
         }
-        self.add_classes(concat_string!("form-item-", name));
+        self.alter_classes(ClassesOp::Add, concat_string!("form-item-", name));
         self.name.alter_value(name);
         self
     }

@@ -33,7 +33,8 @@ impl ComponentTrait for Container {
     }
 
     fn setup_before_prepare(&mut self, cx: &mut Context) {
-        self.prepend_classes(
+        self.alter_classes(
+            ClassesOp::Prepend,
             [
                 self.direction().to_string(),
                 self.wrap_align().to_string(),

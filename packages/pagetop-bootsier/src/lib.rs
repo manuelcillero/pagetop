@@ -92,40 +92,55 @@ impl ThemeTrait for Bootsier {
         match component.type_id() {
             t if t == TypeId::of::<Icon>() => {
                 if let Some(i) = component_as_mut::<Icon>(component) {
-                    i.replace_classes(i.font_size().to_string(), with_font(i.font_size()));
+                    i.alter_classes(
+                        ClassesOp::Replace(i.font_size().to_string()),
+                        with_font(i.font_size()),
+                    );
                 }
             }
             t if t == TypeId::of::<Button>() => {
                 if let Some(b) = component_as_mut::<Button>(component) {
-                    b.replace_classes("button__tap", "btn");
-                    b.replace_classes(b.style().to_string(), match b.style() {
-                        StyleBase::Default => "btn-primary",
-                        StyleBase::Success => "btn-success",
-                        StyleBase::Danger  => "btn-danger",
-                        StyleBase::Warning => "btn-warning",
-                        StyleBase::Info    => "btn-info",
-                        StyleBase::Light   => "btn-light",
-                        StyleBase::Dark    => "btn-dark",
-                        StyleBase::Link    => "btn-link",
-                    });
-                    b.replace_classes(b.font_size().to_string(), with_font(b.font_size()));
+                    b.alter_classes(ClassesOp::Replace("button__tap".to_owned()), "btn");
+                    b.alter_classes(
+                        ClassesOp::Replace(b.style().to_string()),
+                        match b.style() {
+                            StyleBase::Default => "btn-primary",
+                            StyleBase::Success => "btn-success",
+                            StyleBase::Danger  => "btn-danger",
+                            StyleBase::Warning => "btn-warning",
+                            StyleBase::Info    => "btn-info",
+                            StyleBase::Light   => "btn-light",
+                            StyleBase::Dark    => "btn-dark",
+                            StyleBase::Link    => "btn-link",
+                        },
+                    );
+                    b.alter_classes(
+                        ClassesOp::Replace(b.font_size().to_string()),
+                        with_font(b.font_size()),
+                    );
                 }
-            },
+            }
             t if t == TypeId::of::<Heading>() => {
                 if let Some(h) = component_as_mut::<Heading>(component) {
-                    h.replace_classes(h.size().to_string(), match h.size() {
-                        HeadingSize::ExtraLarge => "display-1",
-                        HeadingSize::XxLarge    => "display-2",
-                        HeadingSize::XLarge     => "display-3",
-                        HeadingSize::Large      => "display-4",
-                        HeadingSize::Medium     => "display-5",
-                        _ => "",
-                    });
+                    h.alter_classes(
+                        ClassesOp::Replace(h.size().to_string()),
+                        match h.size() {
+                            HeadingSize::ExtraLarge => "display-1",
+                            HeadingSize::XxLarge    => "display-2",
+                            HeadingSize::XLarge     => "display-3",
+                            HeadingSize::Large      => "display-4",
+                            HeadingSize::Medium     => "display-5",
+                            _ => "",
+                        },
+                    );
                 }
-            },
+            }
             t if t == TypeId::of::<Paragraph>() => {
                 if let Some(p) = component_as_mut::<Paragraph>(component) {
-                    p.replace_classes(p.font_size().to_string(), with_font(p.font_size()));
+                    p.alter_classes(
+                        ClassesOp::Replace(p.font_size().to_string()),
+                        with_font(p.font_size()),
+                    );
                 }
             }
             _ => {}

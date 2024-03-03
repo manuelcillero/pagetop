@@ -48,7 +48,8 @@ impl ComponentTrait for ActionButton {
     }
 
     fn setup_before_prepare(&mut self, _cx: &mut Context) {
-        self.prepend_classes(
+        self.alter_classes(
+            ClassesOp::Prepend,
             [
                 "button__tap".to_string(),
                 self.style().to_string(),
