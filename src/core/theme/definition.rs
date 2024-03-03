@@ -7,6 +7,34 @@ use crate::{concat_string, config};
 
 pub type ThemeRef = &'static dyn ThemeTrait;
 
+/// Theme built-in classes used by the default page rendering process.
+///
+/// The [`ThemeTrait`](crate::core::theme::ThemeTrait) default implementation uses these CSS classes
+/// in the [`prepare_region()`](crate::core::theme::ThemeTrait::prepare_region) and
+/// [`prepare_body()`](crate::core::theme::ThemeTrait::prepare_body) methods to build the HTML code
+/// for regions and page body main containers.
+///
+/// Theme developers can customize the default implementation of
+/// [`builtin_classes()`](crate::core::theme::ThemeTrait::builtin_classes) method to return
+/// alternative class name or space-separated class names for each variant, without altering the
+/// default page rendering process.
+pub enum ThemeBuiltInClasses {
+    /// Main body container. Default is `body__container`.
+    BodyContainer,
+    /// Body inner container. Default is `body__inner`.
+    BodyInner,
+    /// A region container. Default is `region__container`.
+    RegionContainer,
+    /// A region inner container. Default is `region__inner`.
+    RegionInner,
+    /// Main content container. Default is `content__container`.
+    ContentContainer,
+    /// Content inner container. Default is `content__inner`.
+    ContentInner,
+    /// Skip to content link. Default is `skip__to_content`.
+    SkipToContent,
+}
+
 /// Los temas deben implementar este "trait".
 pub trait ThemeTrait: PackageTrait + Send + Sync {
     #[rustfmt::skip]
@@ -20,14 +48,36 @@ pub trait ThemeTrait: PackageTrait + Send + Sync {
         ]
     }
 
+    #[rustfmt::skip]
+    /// Return the name of the CSS class or space-separated class names associated with each variant
+    /// of [ThemeBuiltInClasses].
+    ///
+    /// Theme developers can customize the default implementation of this method to return
+    /// alternative class name or space-separated class names for each variant, without altering the
+    /// default page rendering process.
+    fn builtin_classes(&self, builtin: ThemeBuiltInClasses) -> Option<&str> {
+        match builtin {
+            ThemeBuiltInClasses::BodyContainer    => Some("body__container"),
+            ThemeBuiltInClasses::BodyInner        => Some("body__inner"),
+            ThemeBuiltInClasses::RegionContainer  => Some("region__container"),
+            ThemeBuiltInClasses::RegionInner      => Some("region__inner"),
+            ThemeBuiltInClasses::ContentContainer => Some("content__container"),
+            ThemeBuiltInClasses::ContentInner     => Some("content__inner"),
+            ThemeBuiltInClasses::SkipToContent    => Some("skip__to_content"),
+        }
+    }
+
     fn prepare_region(&self, page: &mut Page, region_name: &str) -> Markup {
         let render_region = page.components_in(region_name).render(page.context());
         if render_region.is_empty() {
             html! {}
         } else {
             html! {
-                div id=[OptionId::new(region_name).get()] class="region__container" {
-                    div class="region__inner" {
+                div
+                    id=[OptionId::new(region_name).get()]
+                    class=[self.builtin_classes(ThemeBuiltInClasses::RegionContainer)]
+                {
+                    div class=[self.builtin_classes(ThemeBuiltInClasses::RegionInner)] {
                         (render_region)
                     }
                 }
@@ -44,16 +94,16 @@ pub trait ThemeTrait: PackageTrait + Send + Sync {
         html! {
             body id=[page.body_id().get()] class=[page.body_classes().get()] {
                 @if let Some(skip) = L10n::l("skip_to_content").using(page.context().langid()) {
-                    div class="skip__to_content" {
+                    div class=[self.builtin_classes(ThemeBuiltInClasses::SkipToContent)] {
                         a href=(skip_to) { (skip) }
                     }
                 }
-                div class="body__container" {
-                    div class="body__inner" {
+                div class=[self.builtin_classes(ThemeBuiltInClasses::BodyContainer)] {
+                    div class=[self.builtin_classes(ThemeBuiltInClasses::BodyInner)] {
                         (self.prepare_region(page, "header"))
                         (self.prepare_region(page, "pagetop"))
-                        div class="content__container" {
-                            div class="content__inner" {
+                        div class=[self.builtin_classes(ThemeBuiltInClasses::ContentContainer)] {
+                            div class=[self.builtin_classes(ThemeBuiltInClasses::ContentInner)] {
                                 (self.prepare_region(page, "content"))
                                 (self.prepare_region(page, "sidebar"))
                             }
