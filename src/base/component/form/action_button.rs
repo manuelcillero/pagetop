@@ -24,7 +24,7 @@ pub struct ActionButton {
     renderable : Renderable,
     classes    : OptionClasses,
     button_type: ActionButtonType,
-    style      : ButtonStyle,
+    style      : StyleBase,
     font_size  : FontSize,
     left_icon  : OptionComponent<Icon>,
     right_icon : OptionComponent<Icon>,
@@ -48,7 +48,14 @@ impl ComponentTrait for ActionButton {
     }
 
     fn setup_before_prepare(&mut self, _cx: &mut Context) {
-        self.prepend_classes([self.style().to_string(), self.font_size().to_string()].join(" "));
+        self.prepend_classes(
+            [
+                "button__tap".to_string(),
+                self.style().to_string(),
+                self.font_size().to_string(),
+            ]
+            .join(" "),
+        );
     }
 
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
@@ -64,7 +71,7 @@ impl ComponentTrait for ActionButton {
                 disabled=[self.disabled().get()]
             {
                 (self.left_icon().render(cx))
-                " " (self.value().escaped(cx.langid())) " "
+                span { (self.value().escaped(cx.langid())) }
                 (self.right_icon().render(cx))
             }
         })
@@ -75,7 +82,7 @@ impl ActionButton {
     pub fn submit() -> Self {
         ActionButton {
             button_type: ActionButtonType::Submit,
-            style: ButtonStyle::Default,
+            style: StyleBase::Default,
             value: OptionTranslated::new(L10n::l("button_submit")),
             ..Default::default()
         }
@@ -84,7 +91,7 @@ impl ActionButton {
     pub fn reset() -> Self {
         ActionButton {
             button_type: ActionButtonType::Reset,
-            style: ButtonStyle::Info,
+            style: StyleBase::Info,
             value: OptionTranslated::new(L10n::l("button_reset")),
             ..Default::default()
         }
@@ -105,7 +112,7 @@ impl ActionButton {
     }
 
     #[fn_builder]
-    pub fn alter_style(&mut self, style: ButtonStyle) -> &mut Self {
+    pub fn alter_style(&mut self, style: StyleBase) -> &mut Self {
         self.style = style;
         self
     }
@@ -164,7 +171,7 @@ impl ActionButton {
         &self.button_type
     }
 
-    pub fn style(&self) -> &ButtonStyle {
+    pub fn style(&self) -> &StyleBase {
         &self.style
     }
 

@@ -89,7 +89,7 @@ fn hello_world() -> Wrapper {
                         )
                         .add_component(
                             Button::anchor("#welcome-page", L10n::l("welcome"))
-                                .with_style(ButtonStyle::Link)
+                                .with_style(StyleBase::Link)
                                 .with_left_icon(Some(Icon::with("arrow-down-circle-fill")))
                                 .with_classes(ClassesOp::Add, "welcome-link")
                                 .with_font_size(FontSize::Medium),

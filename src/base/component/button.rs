@@ -17,7 +17,7 @@ pub struct Button {
     weight     : Weight,
     renderable : Renderable,
     classes    : OptionClasses,
-    style      : ButtonStyle,
+    style      : StyleBase,
     font_size  : FontSize,
     left_icon  : OptionComponent<Icon>,
     right_icon : OptionComponent<Icon>,
@@ -44,7 +44,14 @@ impl ComponentTrait for Button {
     }
 
     fn setup_before_prepare(&mut self, _cx: &mut Context) {
-        self.prepend_classes([self.style().to_string(), self.font_size().to_string()].join(" "));
+        self.prepend_classes(
+            [
+                "button__tap".to_string(),
+                self.style().to_string(),
+                self.font_size().to_string(),
+            ]
+            .join(" "),
+        );
     }
 
     #[rustfmt::skip]
@@ -64,7 +71,7 @@ impl ComponentTrait for Button {
                 target=[target]
             {
                 (self.left_icon().render(cx))
-                " " span { (self.html().escaped(cx.langid())) } " "
+                span { (self.html().escaped(cx.langid())) }
                 (self.right_icon().render(cx))
             }
         })
@@ -97,7 +104,7 @@ impl Button {
     }
 
     #[fn_builder]
-    pub fn alter_style(&mut self, style: ButtonStyle) -> &mut Self {
+    pub fn alter_style(&mut self, style: StyleBase) -> &mut Self {
         self.style = style;
         self
     }
@@ -140,7 +147,7 @@ impl Button {
 
     // Button GETTERS.
 
-    pub fn style(&self) -> &ButtonStyle {
+    pub fn style(&self) -> &StyleBase {
         &self.style
     }
 

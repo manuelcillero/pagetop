@@ -49,7 +49,7 @@ pub(crate) fn add_base_assets(cx: &mut Context) {
     ))
     .alter(ContextOp::AddStyleSheet(
         StyleSheet::at("/base/css/buttons.css")
-            .with_version("0.0.1")
+            .with_version("0.0.2")
             .with_weight(weight),
     ));
 }
@@ -89,30 +89,30 @@ impl ToString for BreakPoint {
 // *************************************************************************************************
 
 #[derive(AutoDefault)]
-pub enum ButtonStyle {
+pub enum StyleBase {
     #[default]
     Default,
-    Info,
     Success,
-    Warning,
     Danger,
+    Warning,
+    Info,
     Light,
     Dark,
     Link,
 }
 
 #[rustfmt::skip]
-impl ToString for ButtonStyle {
+impl ToString for StyleBase {
     fn to_string(&self) -> String {
         String::from(match self {
-            ButtonStyle::Default   => "button__default",
-            ButtonStyle::Info      => "button__info",
-            ButtonStyle::Success   => "button__success",
-            ButtonStyle::Warning   => "button__warning",
-            ButtonStyle::Danger    => "button__danger",
-            ButtonStyle::Light     => "button__light",
-            ButtonStyle::Dark      => "button__dark",
-            ButtonStyle::Link      => "button__link",
+            StyleBase::Default => "style__default",
+            StyleBase::Success => "style__success",
+            StyleBase::Danger  => "style__danger",
+            StyleBase::Warning => "style__warning",
+            StyleBase::Info    => "style__info",
+            StyleBase::Light   => "style__light",
+            StyleBase::Dark    => "style__dark",
+            StyleBase::Link    => "style__link",
         })
     }
 }
