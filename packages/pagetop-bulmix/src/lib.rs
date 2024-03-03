@@ -15,6 +15,17 @@ impl PackageTrait for Bulmix {
 }
 
 impl ThemeTrait for Bulmix {
+    #[rustfmt::skip]
+    fn builtin_classes(&self, builtin: ThemeBuiltInClasses) -> Option<&str> {
+        match builtin {
+            ThemeBuiltInClasses::BodyContainer    => Some("container"),
+            ThemeBuiltInClasses::RegionContainer  => Some("container"),
+            ThemeBuiltInClasses::ContentContainer => Some("container"),
+            ThemeBuiltInClasses::SkipToContent    => Some("skip__to_content"),
+            _ => None,
+        }
+    }
+
     fn after_prepare_body(&self, page: &mut Page) {
         page.alter_favicon(Some(Favicon::new().with_icon("/base/favicon.ico")))
             .alter_context(ContextOp::AddStyleSheet(
@@ -28,76 +39,28 @@ impl ThemeTrait for Bulmix {
             ));
     }
 
+    #[rustfmt::skip]
     fn before_prepare_component(&self, component: &mut dyn ComponentTrait, _cx: &mut Context) {
         match component.type_id() {
             t if t == TypeId::of::<Icon>() => {
                 if let Some(i) = component_as_mut::<Icon>(component) {
-                    match i.font_size() {
-                        FontSize::ExtraLarge => {
-                            i.replace_classes(i.font_size().to_string(), "is-size-1");
-                        }
-                        FontSize::XxLarge => {
-                            i.replace_classes(i.font_size().to_string(), "is-size-2");
-                        }
-                        FontSize::XLarge => {
-                            i.replace_classes(i.font_size().to_string(), "is-size-3");
-                        }
-                        FontSize::Large => {
-                            i.replace_classes(i.font_size().to_string(), "is-size-4");
-                        }
-                        FontSize::Medium => {
-                            i.replace_classes(i.font_size().to_string(), "is-size-5");
-                        }
-                        _ => {}
-                    };
+                    i.replace_classes(i.font_size().to_string(), with_font(i.font_size()));
                 }
             }
             t if t == TypeId::of::<Button>() => {
                 if let Some(b) = component_as_mut::<Button>(component) {
-                    match b.style() {
-                        ButtonStyle::Default => {
-                            b.replace_classes(b.style().to_string(), "button is-primary");
-                        }
-                        ButtonStyle::Info => {
-                            b.replace_classes(b.style().to_string(), "button is-info");
-                        }
-                        ButtonStyle::Success => {
-                            b.replace_classes(b.style().to_string(), "button is-success");
-                        }
-                        ButtonStyle::Warning => {
-                            b.replace_classes(b.style().to_string(), "button is-warning");
-                        }
-                        ButtonStyle::Danger => {
-                            b.replace_classes(b.style().to_string(), "button is-danger");
-                        }
-                        ButtonStyle::Light => {
-                            b.replace_classes(b.style().to_string(), "button is-light");
-                        }
-                        ButtonStyle::Dark => {
-                            b.replace_classes(b.style().to_string(), "button is-dark");
-                        }
-                        ButtonStyle::Link => {
-                            b.replace_classes(b.style().to_string(), "button is-text");
-                        }
-                    };
-                    match b.font_size() {
-                        FontSize::ExtraLarge => {
-                            b.replace_classes(b.font_size().to_string(), "is-size-1");
-                        }
-                        FontSize::XxLarge => {
-                            b.replace_classes(b.font_size().to_string(), "is-size-2");
-                        }
-                        FontSize::XLarge => {
-                            b.replace_classes(b.font_size().to_string(), "is-size-3");
-                        }
-                        FontSize::Large => {
-                            b.replace_classes(b.font_size().to_string(), "is-size-4");
-                        }
-                        FontSize::Medium => {
-                            b.replace_classes(b.font_size().to_string(), "is-size-5");
-                        }
-                        _ => {}
-                    };
+                    b.replace_classes("button__tap", "button");
+                    b.replace_classes(b.style().to_string(), match b.style() {
+                        StyleBase::Default => "is-primary",
+                        StyleBase::Success => "is-success",
+                        StyleBase::Danger  => "is-danger",
+                        StyleBase::Warning => "is-warning",
+                        StyleBase::Info    => "is-info",
+                        StyleBase::Light   => "is-light",
+                        StyleBase::Dark    => "is-dark",
+                        StyleBase::Link    => "is-text",
+                    });
+                    b.replace_classes(b.font_size().to_string(), with_font(b.font_size()));
                 }
             }
             t if t == TypeId::of::<Heading>() => {
@@ -113,24 +76,7 @@ impl ThemeTrait for Bulmix {
             t if t == TypeId::of::<Paragraph>() => {
                 if let Some(p) = component_as_mut::<Paragraph>(component) {
                     p.add_classes("block");
-                    match p.font_size() {
-                        FontSize::ExtraLarge => {
-                            p.replace_classes(p.font_size().to_string(), "is-size-1");
-                        }
-                        FontSize::XxLarge => {
-                            p.replace_classes(p.font_size().to_string(), "is-size-2");
-                        }
-                        FontSize::XLarge => {
-                            p.replace_classes(p.font_size().to_string(), "is-size-3");
-                        }
-                        FontSize::Large => {
-                            p.replace_classes(p.font_size().to_string(), "is-size-4");
-                        }
-                        FontSize::Medium => {
-                            p.replace_classes(p.font_size().to_string(), "is-size-5");
-                        }
-                        _ => {}
-                    };
+                    p.replace_classes(p.font_size().to_string(), with_font(p.font_size()));
                 }
             }
             _ => {}
@@ -155,4 +101,16 @@ impl ThemeTrait for Bulmix {
             _ => None,
         }
     }
+}
+
+#[rustfmt::skip]
+fn with_font(font_size: &FontSize) -> String {
+    String::from(match font_size {
+        FontSize::ExtraLarge => "is-size-1",
+        FontSize::XxLarge    => "is-size-2",
+        FontSize::XLarge     => "is-size-3",
+        FontSize::Large      => "is-size-4",
+        FontSize::Medium     => "is-size-5",
+        _ => "",
+    })
 }

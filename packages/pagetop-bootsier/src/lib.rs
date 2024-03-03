@@ -32,6 +32,14 @@ impl ThemeTrait for Bootsier {
         ]
     }
 
+    #[rustfmt::skip]
+    fn builtin_classes(&self, builtin: ThemeBuiltInClasses) -> Option<&str> {
+        match builtin {
+            ThemeBuiltInClasses::RegionContainer => Some("container"),
+            _ => None,
+        }
+    }
+
     fn prepare_body(&self, page: &mut Page) -> Markup {
         match page.template() {
             "admin" => html! {
@@ -79,120 +87,45 @@ impl ThemeTrait for Bootsier {
             ));
     }
 
+    #[rustfmt::skip]
     fn before_prepare_component(&self, component: &mut dyn ComponentTrait, _cx: &mut Context) {
         match component.type_id() {
             t if t == TypeId::of::<Icon>() => {
                 if let Some(i) = component_as_mut::<Icon>(component) {
-                    match i.font_size() {
-                        FontSize::ExtraLarge => {
-                            i.replace_classes(i.font_size().to_string(), "fs-1");
-                        }
-                        FontSize::XxLarge => {
-                            i.replace_classes(i.font_size().to_string(), "fs-2");
-                        }
-                        FontSize::XLarge => {
-                            i.replace_classes(i.font_size().to_string(), "fs-3");
-                        }
-                        FontSize::Large => {
-                            i.replace_classes(i.font_size().to_string(), "fs-4");
-                        }
-                        FontSize::Medium => {
-                            i.replace_classes(i.font_size().to_string(), "fs-5");
-                        }
-                        _ => {}
-                    };
+                    i.replace_classes(i.font_size().to_string(), with_font(i.font_size()));
                 }
             }
             t if t == TypeId::of::<Button>() => {
                 if let Some(b) = component_as_mut::<Button>(component) {
-                    match b.style() {
-                        ButtonStyle::Default => {
-                            b.replace_classes(b.style().to_string(), "btn btn-primary");
-                        }
-                        ButtonStyle::Info => {
-                            b.replace_classes(b.style().to_string(), "btn btn-info");
-                        }
-                        ButtonStyle::Success => {
-                            b.replace_classes(b.style().to_string(), "btn btn-success");
-                        }
-                        ButtonStyle::Warning => {
-                            b.replace_classes(b.style().to_string(), "btn btn-warning");
-                        }
-                        ButtonStyle::Danger => {
-                            b.replace_classes(b.style().to_string(), "btn btn-danger");
-                        }
-                        ButtonStyle::Light => {
-                            b.replace_classes(b.style().to_string(), "btn btn-light");
-                        }
-                        ButtonStyle::Dark => {
-                            b.replace_classes(b.style().to_string(), "btn btn-dark");
-                        }
-                        ButtonStyle::Link => {
-                            b.replace_classes(b.style().to_string(), "btn btn-link");
-                        }
-                    };
-                    match b.font_size() {
-                        FontSize::ExtraLarge => {
-                            b.replace_classes(b.font_size().to_string(), "fs-1");
-                        }
-                        FontSize::XxLarge => {
-                            b.replace_classes(b.font_size().to_string(), "fs-2");
-                        }
-                        FontSize::XLarge => {
-                            b.replace_classes(b.font_size().to_string(), "fs-3");
-                        }
-                        FontSize::Large => {
-                            b.replace_classes(b.font_size().to_string(), "fs-4");
-                        }
-                        FontSize::Medium => {
-                            b.replace_classes(b.font_size().to_string(), "fs-5");
-                        }
-                        _ => {}
-                    };
+                    b.replace_classes("button__tap", "btn");
+                    b.replace_classes(b.style().to_string(), match b.style() {
+                        StyleBase::Default => "btn-primary",
+                        StyleBase::Success => "btn-success",
+                        StyleBase::Danger  => "btn-danger",
+                        StyleBase::Warning => "btn-warning",
+                        StyleBase::Info    => "btn-info",
+                        StyleBase::Light   => "btn-light",
+                        StyleBase::Dark    => "btn-dark",
+                        StyleBase::Link    => "btn-link",
+                    });
+                    b.replace_classes(b.font_size().to_string(), with_font(b.font_size()));
                 }
-            }
+            },
             t if t == TypeId::of::<Heading>() => {
                 if let Some(h) = component_as_mut::<Heading>(component) {
-                    match h.size() {
-                        HeadingSize::ExtraLarge => {
-                            h.replace_classes(h.size().to_string(), "display-1");
-                        }
-                        HeadingSize::XxLarge => {
-                            h.replace_classes(h.size().to_string(), "display-2");
-                        }
-                        HeadingSize::XLarge => {
-                            h.replace_classes(h.size().to_string(), "display-3");
-                        }
-                        HeadingSize::Large => {
-                            h.replace_classes(h.size().to_string(), "display-4");
-                        }
-                        HeadingSize::Medium => {
-                            h.replace_classes(h.size().to_string(), "display-5");
-                        }
-                        _ => {}
-                    };
+                    h.replace_classes(h.size().to_string(), match h.size() {
+                        HeadingSize::ExtraLarge => "display-1",
+                        HeadingSize::XxLarge    => "display-2",
+                        HeadingSize::XLarge     => "display-3",
+                        HeadingSize::Large      => "display-4",
+                        HeadingSize::Medium     => "display-5",
+                        _ => "",
+                    });
                 }
-            }
+            },
             t if t == TypeId::of::<Paragraph>() => {
                 if let Some(p) = component_as_mut::<Paragraph>(component) {
-                    match p.font_size() {
-                        FontSize::ExtraLarge => {
-                            p.replace_classes(p.font_size().to_string(), "fs-1");
-                        }
-                        FontSize::XxLarge => {
-                            p.replace_classes(p.font_size().to_string(), "fs-2");
-                        }
-                        FontSize::XLarge => {
-                            p.replace_classes(p.font_size().to_string(), "fs-3");
-                        }
-                        FontSize::Large => {
-                            p.replace_classes(p.font_size().to_string(), "fs-4");
-                        }
-                        FontSize::Medium => {
-                            p.replace_classes(p.font_size().to_string(), "fs-5");
-                        }
-                        _ => {}
-                    };
+                    p.replace_classes(p.font_size().to_string(), with_font(p.font_size()));
                 }
             }
             _ => {}
@@ -235,4 +168,16 @@ impl ThemeTrait for Bootsier {
             _ => None,
         }
     }
+}
+
+#[rustfmt::skip]
+fn with_font(font_size: &FontSize) -> String {
+    String::from(match font_size {
+        FontSize::ExtraLarge => "fs-1",
+        FontSize::XxLarge    => "fs-2",
+        FontSize::XLarge     => "fs-3",
+        FontSize::Large      => "fs-4",
+        FontSize::Medium     => "fs-5",
+        _ => "",
+    })
 }

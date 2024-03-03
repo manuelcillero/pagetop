@@ -8,6 +8,6 @@
 
 /* Button component */
 
-.btn-link {
-	text-decoration: none;
+.btn > span {
+	margin: 0 var(--val-gap-0-5);
 }
