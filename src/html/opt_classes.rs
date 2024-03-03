@@ -35,6 +35,10 @@ impl OptionClasses {
         let classes: String = classes.into();
         let classes: Vec<&str> = classes.split_ascii_whitespace().collect();
 
+        if classes.is_empty() {
+            return self;
+        }
+
         match op {
             ClassesOp::Add => {
                 self.add(&classes, self.0.len());
@@ -76,6 +80,7 @@ impl OptionClasses {
                 self.add(&classes, 0);
             }
         }
+
         self
     }
 
