@@ -8,7 +8,7 @@ pub struct Group {
     id        : OptionId,
     weight    : Weight,
     renderable: Renderable,
-    elements  : TypedComponents<Element>,
+    elements  : VectorComponents<Element>,
 }
 
 impl ComponentTrait for Group {
@@ -60,19 +60,19 @@ impl Group {
 
     #[rustfmt::skip]
     pub fn add_element(mut self, element: Element) -> Self {
-        self.elements.alter_value(ArcTypedOp::Add(ArcTypedComponent::new(element)));
+        self.elements.alter_value(TypedOp::Add(TypedComponent::with(element)));
         self
     }
 
     #[fn_builder]
-    pub fn alter_elements(&mut self, op: ArcTypedOp<Element>) -> &mut Self {
+    pub fn alter_elements(&mut self, op: TypedOp<Element>) -> &mut Self {
         self.elements.alter_value(op);
         self
     }
 
     // Group GETTERS.
 
-    pub fn elements(&self) -> &TypedComponents<Element> {
+    pub fn elements(&self) -> &VectorComponents<Element> {
         &self.elements
     }
 }

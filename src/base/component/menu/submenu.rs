@@ -9,7 +9,7 @@ pub struct Submenu {
     weight    : Weight,
     renderable: Renderable,
     title     : OptionTranslated,
-    items     : TypedComponents<Item>,
+    items     : VectorComponents<Item>,
 }
 
 impl ComponentTrait for Submenu {
@@ -72,12 +72,12 @@ impl Submenu {
 
     #[rustfmt::skip]
     pub fn add_item(mut self, item: Item) -> Self {
-        self.items.alter_value(ArcTypedOp::Add(ArcTypedComponent::new(item)));
+        self.items.alter_value(TypedOp::Add(TypedComponent::with(item)));
         self
     }
 
     #[fn_builder]
-    pub fn alter_items(&mut self, op: ArcTypedOp<Item>) -> &mut Self {
+    pub fn alter_items(&mut self, op: TypedOp<Item>) -> &mut Self {
         self.items.alter_value(op);
         self
     }
@@ -88,7 +88,7 @@ impl Submenu {
         &self.title
     }
 
-    pub fn items(&self) -> &TypedComponents<Item> {
+    pub fn items(&self) -> &VectorComponents<Item> {
         &self.items
     }
 }

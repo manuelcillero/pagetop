@@ -3,9 +3,9 @@ use crate::prelude::*;
 use super::{Megamenu, Submenu};
 
 type Label = L10n;
-type Content = ArcTypedComponent<Html>;
-type SubmenuItems = ArcTypedComponent<Submenu>;
-type MegamenuGroups = ArcTypedComponent<Megamenu>;
+type Content = TypedComponent<Html>;
+type SubmenuItems = TypedComponent<Submenu>;
+type MegamenuGroups = TypedComponent<Megamenu>;
 
 #[derive(AutoDefault)]
 pub enum ItemType {
@@ -135,21 +135,21 @@ impl Item {
 
     pub fn html(content: Html) -> Self {
         Item {
-            item_type: ItemType::Html(Content::new(content)),
+            item_type: ItemType::Html(Content::with(content)),
             ..Default::default()
         }
     }
 
     pub fn submenu(label: L10n, submenu: Submenu) -> Self {
         Item {
-            item_type: ItemType::Submenu(label, SubmenuItems::new(submenu)),
+            item_type: ItemType::Submenu(label, SubmenuItems::with(submenu)),
             ..Default::default()
         }
     }
 
     pub fn megamenu(label: L10n, megamenu: Megamenu) -> Self {
         Item {
-            item_type: ItemType::Megamenu(label, MegamenuGroups::new(megamenu)),
+            item_type: ItemType::Megamenu(label, MegamenuGroups::with(megamenu)),
             ..Default::default()
         }
     }

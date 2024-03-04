@@ -8,7 +8,7 @@ pub struct Paragraph {
     renderable: Renderable,
     classes   : OptionClasses,
     font_size : FontSize,
-    stuff     : AnyComponents,
+    stuff     : MixedComponents,
 }
 
 impl ComponentTrait for Paragraph {
@@ -81,18 +81,18 @@ impl Paragraph {
 
     #[rustfmt::skip]
     pub fn add_component(mut self, component: impl ComponentTrait) -> Self {
-        self.stuff.alter_value(ArcAnyOp::Add(ArcAnyComponent::new(component)));
+        self.stuff.alter_value(OneOp::Add(OneComponent::with(component)));
         self
     }
 
     #[rustfmt::skip]
     pub fn add_translated(mut self, l10n: L10n) -> Self {
-        self.stuff.alter_value(ArcAnyOp::Add(ArcAnyComponent::new(Translate::with(l10n))));
+        self.stuff.alter_value(OneOp::Add(OneComponent::with(Translate::with(l10n))));
         self
     }
 
     #[fn_builder]
-    pub fn alter_components(&mut self, op: ArcAnyOp) -> &mut Self {
+    pub fn alter_components(&mut self, op: OneOp) -> &mut Self {
         self.stuff.alter_value(op);
         self
     }
@@ -103,7 +103,7 @@ impl Paragraph {
         &self.font_size
     }
 
-    pub fn components(&self) -> &AnyComponents {
+    pub fn components(&self) -> &MixedComponents {
         &self.stuff
     }
 }

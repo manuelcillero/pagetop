@@ -8,7 +8,7 @@ pub struct Block {
     renderable: Renderable,
     classes   : OptionClasses,
     title     : OptionTranslated,
-    stuff     : AnyComponents,
+    stuff     : MixedComponents,
 }
 
 impl ComponentTrait for Block {
@@ -78,12 +78,12 @@ impl Block {
 
     #[rustfmt::skip]
     pub fn add_component(mut self, component: impl ComponentTrait) -> Self {
-        self.stuff.alter_value(ArcAnyOp::Add(ArcAnyComponent::new(component)));
+        self.stuff.alter_value(OneOp::Add(OneComponent::with(component)));
         self
     }
 
     #[fn_builder]
-    pub fn alter_components(&mut self, op: ArcAnyOp) -> &mut Self {
+    pub fn alter_components(&mut self, op: OneOp) -> &mut Self {
         self.stuff.alter_value(op);
         self
     }
@@ -94,7 +94,7 @@ impl Block {
         &self.title
     }
 
-    pub fn components(&self) -> &AnyComponents {
+    pub fn components(&self) -> &MixedComponents {
         &self.stuff
     }
 }

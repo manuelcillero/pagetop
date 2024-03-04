@@ -18,7 +18,7 @@ pub struct Wrapper {
     renderable   : Renderable,
     classes      : OptionClasses,
     wrapper_type : WrapperType,
-    stuff        : AnyComponents,
+    stuff        : MixedComponents,
 }
 
 impl ComponentTrait for Wrapper {
@@ -126,12 +126,12 @@ impl Wrapper {
 
     #[rustfmt::skip]
     pub fn add_component(mut self, component: impl ComponentTrait) -> Self {
-        self.stuff.alter_value(ArcAnyOp::Add(ArcAnyComponent::new(component)));
+        self.stuff.alter_value(OneOp::Add(OneComponent::with(component)));
         self
     }
 
     #[fn_builder]
-    pub fn alter_components(&mut self, op: ArcAnyOp) -> &mut Self {
+    pub fn alter_components(&mut self, op: OneOp) -> &mut Self {
         self.stuff.alter_value(op);
         self
     }
@@ -142,7 +142,7 @@ impl Wrapper {
         &self.wrapper_type
     }
 
-    pub fn components(&self) -> &AnyComponents {
+    pub fn components(&self) -> &MixedComponents {
         &self.stuff
     }
 }

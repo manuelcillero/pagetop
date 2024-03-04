@@ -7,7 +7,7 @@ pub struct Container {
     weight         : Weight,
     renderable     : Renderable,
     classes        : OptionClasses,
-    items          : TypedComponents<flex::Item>,
+    items          : VectorComponents<flex::Item>,
     direction      : flex::Direction,
     wrap_align     : flex::WrapAlign,
     content_justify: flex::ContentJustify,
@@ -84,12 +84,12 @@ impl Container {
 
     #[rustfmt::skip]
     pub fn add_item(mut self, item: flex::Item) -> Self {
-        self.items.alter_value(ArcTypedOp::Add(ArcTypedComponent::new(item)));
+        self.items.alter_value(TypedOp::Add(TypedComponent::with(item)));
         self
     }
 
     #[fn_builder]
-    pub fn alter_items(&mut self, op: ArcTypedOp<flex::Item>) -> &mut Self {
+    pub fn alter_items(&mut self, op: TypedOp<flex::Item>) -> &mut Self {
         self.items.alter_value(op);
         self
     }
@@ -126,7 +126,7 @@ impl Container {
 
     // Container GETTERS.
 
-    pub fn items(&self) -> &TypedComponents<flex::Item> {
+    pub fn items(&self) -> &VectorComponents<flex::Item> {
         &self.items
     }
 

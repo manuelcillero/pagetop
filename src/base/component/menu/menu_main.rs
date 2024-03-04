@@ -8,7 +8,7 @@ pub struct Menu {
     id        : OptionId,
     weight    : Weight,
     renderable: Renderable,
-    items     : TypedComponents<Item>,
+    items     : VectorComponents<Item>,
 }
 
 impl ComponentTrait for Menu {
@@ -88,19 +88,19 @@ impl Menu {
 
     #[rustfmt::skip]
     pub fn add_item(mut self, item: Item) -> Self {
-        self.items.alter_value(ArcTypedOp::Add(ArcTypedComponent::new(item)));
+        self.items.alter_value(TypedOp::Add(TypedComponent::with(item)));
         self
     }
 
     #[fn_builder]
-    pub fn alter_items(&mut self, op: ArcTypedOp<Item>) -> &mut Self {
+    pub fn alter_items(&mut self, op: TypedOp<Item>) -> &mut Self {
         self.items.alter_value(op);
         self
     }
 
     // Menu GETTERS.
 
-    pub fn items(&self) -> &TypedComponents<Item> {
+    pub fn items(&self) -> &VectorComponents<Item> {
         &self.items
     }
 }

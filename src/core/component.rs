@@ -11,10 +11,10 @@ pub use definition::{component_as_mut, component_as_ref, ComponentBase, Componen
 mod classes;
 pub use classes::{ComponentClasses, ComponentClassesOp};
 
-mod arc_any;
-pub use arc_any::AnyComponents;
-pub use arc_any::{ArcAnyComponent, ArcAnyOp};
+mod arc_one;
+pub use arc_one::MixedComponents;
+pub use arc_one::{OneComponent, OneOp};
 
 mod arc_typed;
-pub use arc_typed::TypedComponents;
-pub use arc_typed::{ArcTypedComponent, ArcTypedOp};
+pub use arc_typed::VectorComponents;
+pub use arc_typed::{TypedComponent, TypedOp};

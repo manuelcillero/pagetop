@@ -5,20 +5,20 @@ use crate::{fn_builder, TypeId, Weight};
 use std::sync::{Arc, RwLock, RwLockReadGuard, RwLockWriteGuard};
 
 #[derive(Clone)]
-pub struct ArcAnyComponent(Arc<RwLock<dyn ComponentTrait>>);
+pub struct OneComponent(Arc<RwLock<dyn ComponentTrait>>);
 
-impl ArcAnyComponent {
-    pub fn new(component: impl ComponentTrait) -> Self {
-        ArcAnyComponent(Arc::new(RwLock::new(component)))
+impl OneComponent {
+    pub fn with(component: impl ComponentTrait) -> Self {
+        OneComponent(Arc::new(RwLock::new(component)))
     }
 
-    // ArcAnyComponent BUILDER.
+    // OneComponent BUILDER.
 
     pub fn set(&mut self, component: impl ComponentTrait) {
         self.0 = Arc::new(RwLock::new(component));
     }
 
-    // ArcAnyComponent GETTERS.
+    // OneComponent GETTERS.
 
     pub fn get(&self) -> RwLockReadGuard<'_, dyn ComponentTrait> {
         self.0.read().unwrap()
@@ -28,13 +28,13 @@ impl ArcAnyComponent {
         self.0.write().unwrap()
     }
 
-    // ArcAnyComponent RENDER.
+    // OneComponent RENDER.
 
     pub fn render(&self, cx: &mut Context) -> Markup {
         self.0.write().unwrap().render(cx)
     }
 
-    // ArcAnyComponent HELPERS.
+    // OneComponent HELPERS.
 
     fn type_id(&self) -> TypeId {
         self.0.read().unwrap().type_id()
@@ -51,86 +51,86 @@ impl ArcAnyComponent {
 
 // *************************************************************************************************
 
-pub enum ArcAnyOp {
-    Add(ArcAnyComponent),
-    AddAfterId(&'static str, ArcAnyComponent),
-    AddBeforeId(&'static str, ArcAnyComponent),
-    Prepend(ArcAnyComponent),
+pub enum OneOp {
+    Add(OneComponent),
+    AddAfterId(&'static str, OneComponent),
+    AddBeforeId(&'static str, OneComponent),
+    Prepend(OneComponent),
     RemoveById(&'static str),
-    ReplaceById(&'static str, ArcAnyComponent),
+    ReplaceById(&'static str, OneComponent),
     Reset,
 }
 
 #[derive(Clone, Default)]
-pub struct AnyComponents(Vec<ArcAnyComponent>);
+pub struct MixedComponents(Vec<OneComponent>);
 
-impl AnyComponents {
-    pub fn new(arc: ArcAnyComponent) -> Self {
-        AnyComponents::default().with_value(ArcAnyOp::Add(arc))
+impl MixedComponents {
+    pub fn new(any: OneComponent) -> Self {
+        MixedComponents::default().with_value(OneOp::Add(any))
     }
 
-    pub(crate) fn merge(mixes: &[Option<&AnyComponents>]) -> Self {
-        let mut opt = AnyComponents::default();
+    pub(crate) fn merge(mixes: &[Option<&MixedComponents>]) -> Self {
+        let mut opt = MixedComponents::default();
         for m in mixes.iter().flatten() {
             opt.0.append(&mut m.0.clone());
         }
         opt
     }
 
-    // AnyComponents BUILDER.
+    // MixedComponents BUILDER.
 
     #[fn_builder]
-    pub fn alter_value(&mut self, op: ArcAnyOp) -> &mut Self {
+    pub fn alter_value(&mut self, op: OneOp) -> &mut Self {
         match op {
-            ArcAnyOp::Add(arc) => self.0.push(arc),
-            ArcAnyOp::AddAfterId(id, arc) => match self.0.iter().position(|c| c.id() == id) {
-                Some(index) => self.0.insert(index + 1, arc),
-                _ => self.0.push(arc),
+            OneOp::Add(any) => self.0.push(any),
+            OneOp::AddAfterId(id, any) => match self.0.iter().position(|c| c.id() == id) {
+                Some(index) => self.0.insert(index + 1, any),
+                _ => self.0.push(any),
             },
-            ArcAnyOp::AddBeforeId(id, arc) => match self.0.iter().position(|c| c.id() == id) {
-                Some(index) => self.0.insert(index, arc),
-                _ => self.0.insert(0, arc),
+            OneOp::AddBeforeId(id, any) => match self.0.iter().position(|c| c.id() == id) {
+                Some(index) => self.0.insert(index, any),
+                _ => self.0.insert(0, any),
             },
-            ArcAnyOp::Prepend(arc) => self.0.insert(0, arc),
-            ArcAnyOp::RemoveById(id) => {
+            OneOp::Prepend(any) => self.0.insert(0, any),
+            OneOp::RemoveById(id) => {
                 if let Some(index) = self.0.iter().position(|c| c.id() == id) {
                     self.0.remove(index);
                 }
             }
-            ArcAnyOp::ReplaceById(id, arc) => {
+            OneOp::ReplaceById(id, any) => {
                 for c in self.0.iter_mut() {
                     if c.id() == id {
-                        *c = arc;
+                        *c = any;
                         break;
                     }
                 }
             }
-            ArcAnyOp::Reset => self.0.clear(),
+            OneOp::Reset => self.0.clear(),
         }
         self
     }
 
-    // AnyComponents GETTERS.
+    // MixedComponents GETTERS.
 
     pub fn is_empty(&self) -> bool {
         self.0.is_empty()
     }
 
-    pub fn get_by_id(&self, id: impl Into<String>) -> Option<&ArcAnyComponent> {
+    pub fn get_by_id(&self, id: impl Into<String>) -> Option<&OneComponent> {
         let id = id.into();
         self.0.iter().find(|c| c.id() == id)
     }
 
-    pub fn iter_by_id(&self, id: impl Into<String>) -> impl Iterator<Item = &ArcAnyComponent> {
+    pub fn iter_by_id(&self, id: impl Into<String>) -> impl Iterator<Item = &OneComponent> {
         let id = id.into();
         self.0.iter().filter(move |&c| c.id() == id)
     }
 
-    pub fn iter_by_type_id(&self, type_id: TypeId) -> impl Iterator<Item = &ArcAnyComponent> {
+    pub fn iter_by_type_id(&self, type_id: TypeId) -> impl Iterator<Item = &OneComponent> {
         self.0.iter().filter(move |&c| c.type_id() == type_id)
     }
 
-    // AnyComponents RENDER.
+    // MixedComponents RENDER.
 
     pub fn render(&self, cx: &mut Context) -> Markup {
         let mut components = self.0.clone();

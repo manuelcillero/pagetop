@@ -17,7 +17,7 @@ pub struct Form {
     action    : OptionString,
     charset   : OptionString,
     method    : FormMethod,
-    stuff     : AnyComponents,
+    stuff     : MixedComponents,
 }
 
 impl ComponentTrait for Form {
@@ -99,12 +99,12 @@ impl Form {
 
     #[rustfmt::skip]
     pub fn add_element(mut self, element: impl ComponentTrait) -> Self {
-        self.stuff.alter_value(ArcAnyOp::Add(ArcAnyComponent::new(element)));
+        self.stuff.alter_value(OneOp::Add(OneComponent::with(element)));
         self
     }
 
     #[fn_builder]
-    pub fn alter_elements(&mut self, op: ArcAnyOp) -> &mut Self {
+    pub fn alter_elements(&mut self, op: OneOp) -> &mut Self {
         self.stuff.alter_value(op);
         self
     }
@@ -123,7 +123,7 @@ impl Form {
         &self.method
     }
 
-    pub fn elements(&self) -> &AnyComponents {
+    pub fn elements(&self) -> &MixedComponents {
         &self.stuff
     }
 }

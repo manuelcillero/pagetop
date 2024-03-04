@@ -2,8 +2,8 @@ use crate::prelude::*;
 
 use super::Submenu;
 
-type Content = ArcTypedComponent<Html>;
-type SubmenuItems = ArcTypedComponent<Submenu>;
+type Content = TypedComponent<Html>;
+type SubmenuItems = TypedComponent<Submenu>;
 
 #[derive(AutoDefault)]
 pub enum ElementType {
@@ -52,14 +52,14 @@ impl ComponentTrait for Element {
 impl Element {
     pub fn html(content: Html) -> Self {
         Element {
-            element_type: ElementType::Html(Content::new(content)),
+            element_type: ElementType::Html(Content::with(content)),
             ..Default::default()
         }
     }
 
     pub fn submenu(submenu: Submenu) -> Self {
         Element {
-            element_type: ElementType::Submenu(SubmenuItems::new(submenu)),
+            element_type: ElementType::Submenu(SubmenuItems::with(submenu)),
             ..Default::default()
         }
     }

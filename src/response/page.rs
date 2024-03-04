@@ -4,7 +4,7 @@ pub use error::ErrorPage;
 pub use actix_web::Result as ResultPage;
 
 use crate::base::action;
-use crate::core::component::{AnyComponents, ArcAnyComponent, ComponentTrait};
+use crate::core::component::{ComponentTrait, MixedComponents, OneComponent};
 use crate::core::component::{Context, ContextOp};
 use crate::core::theme::ComponentsInRegions;
 use crate::fn_builder;
@@ -107,7 +107,7 @@ impl Page {
     #[fn_builder]
     pub fn alter_component(&mut self, component: impl ComponentTrait) -> &mut Self {
         self.regions
-            .add_component_in("content", ArcAnyComponent::new(component));
+            .add_in("content", OneComponent::with(component));
         self
     }
 
@@ -117,8 +117,7 @@ impl Page {
         region: &'static str,
         component: impl ComponentTrait,
     ) -> &mut Self {
-        self.regions
-            .add_component_in(region, ArcAnyComponent::new(component));
+        self.regions.add_in(region, OneComponent::with(component));
         self
     }
 
@@ -166,7 +165,7 @@ impl Page {
         &self.skip_to
     }
 
-    pub fn components_in(&self, region: &str) -> AnyComponents {
+    pub fn components_in(&self, region: &str) -> MixedComponents {
         self.regions.get_components(self.context.theme(), region)
     }
 
