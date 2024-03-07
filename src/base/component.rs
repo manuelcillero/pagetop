@@ -157,8 +157,8 @@ impl ToString for FontSize {
 mod html;
 pub use html::Html;
 
-mod translate;
-pub use translate::Translate;
+mod fluent;
+pub use fluent::Fluent;
 
 mod wrapper;
 pub use wrapper::{Wrapper, WrapperType};
