@@ -17,7 +17,7 @@ pub struct Form {
     action    : OptionString,
     charset   : OptionString,
     method    : FormMethod,
-    stuff     : MixedComponents,
+    mixed     : MixedComponents,
 }
 
 impl ComponentTrait for Form {
@@ -99,13 +99,13 @@ impl Form {
 
     #[rustfmt::skip]
     pub fn add_element(mut self, element: impl ComponentTrait) -> Self {
-        self.stuff.alter_value(OneOp::Add(OneComponent::with(element)));
+        self.mixed.alter_value(MixedOp::Add(AnyComponent::with(element)));
         self
     }
 
     #[fn_builder]
-    pub fn alter_elements(&mut self, op: OneOp) -> &mut Self {
-        self.stuff.alter_value(op);
+    pub fn alter_elements(&mut self, op: MixedOp) -> &mut Self {
+        self.mixed.alter_value(op);
         self
     }
 
@@ -124,6 +124,6 @@ impl Form {
     }
 
     pub fn elements(&self) -> &MixedComponents {
-        &self.stuff
+        &self.mixed
     }
 }

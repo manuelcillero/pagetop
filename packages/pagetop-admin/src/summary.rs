@@ -156,13 +156,9 @@ pub async fn summary(request: HttpRequest) -> ResultPage<Markup, ErrorPage> {
         .with_component_in("top-menu", side_menu)
         .with_component(
             flex::Container::new()
-                .add_item(flex::Item::new().add_component(Html::with(html! {
-                    p { "Columna 1"}
-                })))
-                .add_item(flex::Item::new().add_component(top_menu))
-                .add_item(flex::Item::new().add_component(Html::with(html! {
-                    p { "Columna 3"}
-                }))),
+                .add_item(flex::Item::with(Html::with(html! { p { "Columna 1"} })))
+                .add_item(flex::Item::with(top_menu))
+                .add_item(flex::Item::with(Html::with(html! { p { "Columna 3"} }))),
         )
         .with_template("admin")
         .render()

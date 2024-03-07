@@ -13,12 +13,12 @@ pub enum WrapperType {
 #[rustfmt::skip]
 #[derive(AutoDefault, ComponentClasses)]
 pub struct Wrapper {
-    id           : OptionId,
-    weight       : Weight,
-    renderable   : Renderable,
-    classes      : OptionClasses,
-    wrapper_type : WrapperType,
-    stuff        : MixedComponents,
+    id          : OptionId,
+    weight      : Weight,
+    renderable  : Renderable,
+    classes     : OptionClasses,
+    wrapper_type: WrapperType,
+    mixed       : MixedComponents,
 }
 
 impl ComponentTrait for Wrapper {
@@ -126,13 +126,13 @@ impl Wrapper {
 
     #[rustfmt::skip]
     pub fn add_component(mut self, component: impl ComponentTrait) -> Self {
-        self.stuff.alter_value(OneOp::Add(OneComponent::with(component)));
+        self.mixed.alter_value(MixedOp::Add(AnyComponent::with(component)));
         self
     }
 
     #[fn_builder]
-    pub fn alter_components(&mut self, op: OneOp) -> &mut Self {
-        self.stuff.alter_value(op);
+    pub fn alter_components(&mut self, op: MixedOp) -> &mut Self {
+        self.mixed.alter_value(op);
         self
     }
 
@@ -143,6 +143,6 @@ impl Wrapper {
     }
 
     pub fn components(&self) -> &MixedComponents {
-        &self.stuff
+        &self.mixed
     }
 }

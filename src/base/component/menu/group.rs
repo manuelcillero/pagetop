@@ -8,7 +8,7 @@ pub struct Group {
     id        : OptionId,
     weight    : Weight,
     renderable: Renderable,
-    elements  : VectorComponents<Element>,
+    elements  : TypedComponents<Element>,
 }
 
 impl ComponentTrait for Group {
@@ -60,7 +60,7 @@ impl Group {
 
     #[rustfmt::skip]
     pub fn add_element(mut self, element: Element) -> Self {
-        self.elements.alter_value(TypedOp::Add(TypedComponent::with(element)));
+        self.elements.alter_value(TypedOp::Add(OneComponent::with(element)));
         self
     }
 
@@ -72,7 +72,7 @@ impl Group {
 
     // Group GETTERS.
 
-    pub fn elements(&self) -> &VectorComponents<Element> {
+    pub fn elements(&self) -> &TypedComponents<Element> {
         &self.elements
     }
 }

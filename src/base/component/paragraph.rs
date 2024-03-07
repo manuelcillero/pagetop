@@ -8,7 +8,7 @@ pub struct Paragraph {
     renderable: Renderable,
     classes   : OptionClasses,
     font_size : FontSize,
-    stuff     : MixedComponents,
+    mixed     : MixedComponents,
 }
 
 impl ComponentTrait for Paragraph {
@@ -49,8 +49,8 @@ impl Paragraph {
         Paragraph::default().add_component(component)
     }
 
-    pub fn translated(l10n: L10n) -> Self {
-        Paragraph::default().add_translated(l10n)
+    pub fn fluent(l10n: L10n) -> Self {
+        Paragraph::default().add_component(Fluent::with(l10n))
     }
 
     // Paragraph BUILDER.
@@ -81,19 +81,13 @@ impl Paragraph {
 
     #[rustfmt::skip]
     pub fn add_component(mut self, component: impl ComponentTrait) -> Self {
-        self.stuff.alter_value(OneOp::Add(OneComponent::with(component)));
-        self
-    }
-
-    #[rustfmt::skip]
-    pub fn add_translated(mut self, l10n: L10n) -> Self {
-        self.stuff.alter_value(OneOp::Add(OneComponent::with(Translate::with(l10n))));
+        self.mixed.alter_value(MixedOp::Add(AnyComponent::with(component)));
         self
     }
 
     #[fn_builder]
-    pub fn alter_components(&mut self, op: OneOp) -> &mut Self {
-        self.stuff.alter_value(op);
+    pub fn alter_components(&mut self, op: MixedOp) -> &mut Self {
+        self.mixed.alter_value(op);
         self
     }
 
@@ -104,6 +98,6 @@ impl Paragraph {
     }
 
     pub fn components(&self) -> &MixedComponents {
-        &self.stuff
+        &self.mixed
     }
 }

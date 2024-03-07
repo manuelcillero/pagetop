@@ -61,7 +61,7 @@ fn hello_world() -> Wrapper {
                             Heading::h1(L10n::l("welcome_title")).with_size(HeadingSize::Medium),
                         )
                         .add_component(
-                            Paragraph::translated(L10n::l("welcome_intro").with_arg(
+                            Paragraph::fluent(L10n::l("welcome_intro").with_arg(
                                 "app",
                                 format!(
                                     "<span class=\"app-name\">{}</span>",
@@ -70,7 +70,7 @@ fn hello_world() -> Wrapper {
                             ))
                             .with_font_size(FontSize::Medium),
                         )
-                        .add_component(Paragraph::translated(L10n::l("welcome_powered").with_arg(
+                        .add_component(Paragraph::fluent(L10n::l("welcome_powered").with_arg(
                             "pagetop",
                             format!(
                                 "<a href=\"{}\" target=\"_blank\">{}</a>",
@@ -119,10 +119,8 @@ fn welcome() -> Wrapper {
             ))
             .with_size(HeadingSize::Subtitle),
         )
-        .add_component(
-            Paragraph::translated(L10n::l("welcome_text1")).with_font_size(FontSize::Medium),
-        )
-        .add_component(Paragraph::translated(L10n::l("welcome_text2")))
+        .add_component(Paragraph::fluent(L10n::l("welcome_text1")).with_font_size(FontSize::Medium))
+        .add_component(Paragraph::fluent(L10n::l("welcome_text2")))
 }
 
 fn about_pagetop() -> Wrapper {
@@ -142,11 +140,11 @@ fn about_pagetop() -> Wrapper {
                         .with_classes(ClassesOp::Add, "pagetop-col-text")
                         .add_component(Heading::h2(L10n::l("welcome_pagetop_title")))
                         .add_component(
-                            Paragraph::translated(L10n::l("welcome_pagetop_text1"))
+                            Paragraph::fluent(L10n::l("welcome_pagetop_text1"))
                                 .with_font_size(FontSize::Medium),
                         )
-                        .add_component(Paragraph::translated(L10n::l("welcome_pagetop_text2")))
-                        .add_component(Paragraph::translated(L10n::l("welcome_pagetop_text3"))),
+                        .add_component(Paragraph::fluent(L10n::l("welcome_pagetop_text2")))
+                        .add_component(Paragraph::fluent(L10n::l("welcome_pagetop_text3"))),
                 ),
         )
 }
@@ -163,7 +161,7 @@ fn promo_pagetop() -> Wrapper {
                         .with_size(flex::ItemSize::Percent50)
                         .add_component(Heading::h2(L10n::l("welcome_promo_title")))
                         .add_component(
-                            Paragraph::translated(L10n::l("welcome_promo_text1").with_arg(
+                            Paragraph::fluent(L10n::l("welcome_promo_text1").with_arg(
                                 "pagetop",
                                 format!(
                                     "<a href=\"{}\" target=\"_blank\">{}</a>",
@@ -199,10 +197,10 @@ fn reporting_issues() -> Wrapper {
                         .with_size(flex::ItemSize::Percent50)
                         .add_component(Heading::h2(L10n::l("welcome_issues_title")))
                         .add_component(
-                            Paragraph::translated(L10n::l("welcome_issues_text1"))
+                            Paragraph::fluent(L10n::l("welcome_issues_text1"))
                                 .with_font_size(FontSize::Medium),
                         )
-                        .add_component(Paragraph::translated(
+                        .add_component(Paragraph::fluent(
                             L10n::l("welcome_issues_text2").with_arg(
                                 "app",
                                 format!(

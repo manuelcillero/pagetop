@@ -4,26 +4,26 @@ use crate::{fn_builder, TypeId, Weight};
 
 use std::sync::{Arc, RwLock, RwLockReadGuard, RwLockWriteGuard};
 
-pub struct TypedComponent<C: ComponentTrait>(Arc<RwLock<C>>);
+pub struct OneComponent<C: ComponentTrait>(Arc<RwLock<C>>);
 
-impl<C: ComponentTrait> Clone for TypedComponent<C> {
+impl<C: ComponentTrait> Clone for OneComponent<C> {
     fn clone(&self) -> Self {
         Self(self.0.clone())
     }
 }
 
-impl<C: ComponentTrait> TypedComponent<C> {
+impl<C: ComponentTrait> OneComponent<C> {
     pub fn with(component: C) -> Self {
-        TypedComponent(Arc::new(RwLock::new(component)))
+        OneComponent(Arc::new(RwLock::new(component)))
     }
 
-    // TypedComponent BUILDER.
+    // OneComponent BUILDER.
 
     pub fn set(&mut self, component: C) {
         self.0 = Arc::new(RwLock::new(component));
     }
 
-    // TypedComponent GETTERS.
+    // OneComponent GETTERS.
 
     pub fn get(&self) -> RwLockReadGuard<'_, C> {
         self.0.read().unwrap()
@@ -33,13 +33,13 @@ impl<C: ComponentTrait> TypedComponent<C> {
         self.0.write().unwrap()
     }
 
-    // TypedComponent RENDER.
+    // OneComponent RENDER.
 
     pub fn render(&self, cx: &mut Context) -> Markup {
         self.0.write().unwrap().render(cx)
     }
 
-    // TypedComponent HELPERS.
+    // OneComponent HELPERS.
 
     fn type_id(&self) -> TypeId {
         self.0.read().unwrap().type_id()
@@ -57,34 +57,34 @@ impl<C: ComponentTrait> TypedComponent<C> {
 // *************************************************************************************************
 
 pub enum TypedOp<C: ComponentTrait> {
-    Add(TypedComponent<C>),
-    AddAfterId(&'static str, TypedComponent<C>),
-    AddBeforeId(&'static str, TypedComponent<C>),
-    Prepend(TypedComponent<C>),
+    Add(OneComponent<C>),
+    InsertAfterId(&'static str, OneComponent<C>),
+    InsertBeforeId(&'static str, OneComponent<C>),
+    Prepend(OneComponent<C>),
     RemoveById(&'static str),
-    ReplaceById(&'static str, TypedComponent<C>),
+    ReplaceById(&'static str, OneComponent<C>),
     Reset,
 }
 
 #[derive(Clone, Default)]
-pub struct VectorComponents<C: ComponentTrait>(Vec<TypedComponent<C>>);
+pub struct TypedComponents<C: ComponentTrait>(Vec<OneComponent<C>>);
 
-impl<C: ComponentTrait + Default> VectorComponents<C> {
-    pub fn new(one: TypedComponent<C>) -> Self {
-        VectorComponents::default().with_value(TypedOp::Add(one))
+impl<C: ComponentTrait + Default> TypedComponents<C> {
+    pub fn new(one: OneComponent<C>) -> Self {
+        TypedComponents::default().with_value(TypedOp::Add(one))
     }
 
-    // VectorComponents BUILDER.
+    // TypedComponents BUILDER.
 
     #[fn_builder]
     pub fn alter_value(&mut self, op: TypedOp<C>) -> &mut Self {
         match op {
             TypedOp::Add(one) => self.0.push(one),
-            TypedOp::AddAfterId(id, one) => match self.0.iter().position(|c| c.id() == id) {
+            TypedOp::InsertAfterId(id, one) => match self.0.iter().position(|c| c.id() == id) {
                 Some(index) => self.0.insert(index + 1, one),
                 _ => self.0.push(one),
             },
-            TypedOp::AddBeforeId(id, one) => match self.0.iter().position(|c| c.id() == id) {
+            TypedOp::InsertBeforeId(id, one) => match self.0.iter().position(|c| c.id() == id) {
                 Some(index) => self.0.insert(index, one),
                 _ => self.0.insert(0, one),
             },
@@ -107,27 +107,27 @@ impl<C: ComponentTrait + Default> VectorComponents<C> {
         self
     }
 
-    // VectorComponents GETTERS.
+    // TypedComponents GETTERS.
 
     pub fn is_empty(&self) -> bool {
         self.0.is_empty()
     }
 
-    pub fn get_by_id(&self, id: impl Into<String>) -> Option<&TypedComponent<C>> {
+    pub fn get_by_id(&self, id: impl Into<String>) -> Option<&OneComponent<C>> {
         let id = id.into();
         self.0.iter().find(|&c| c.id() == id)
     }
 
-    pub fn iter_by_id(&self, id: impl Into<String>) -> impl Iterator<Item = &TypedComponent<C>> {
+    pub fn iter_by_id(&self, id: impl Into<String>) -> impl Iterator<Item = &OneComponent<C>> {
         let id = id.into();
         self.0.iter().filter(move |&c| c.id() == id)
     }
 
-    pub fn iter_by_type_id(&self, type_id: TypeId) -> impl Iterator<Item = &TypedComponent<C>> {
+    pub fn iter_by_type_id(&self, type_id: TypeId) -> impl Iterator<Item = &OneComponent<C>> {
         self.0.iter().filter(move |&c| c.type_id() == type_id)
     }
 
-    // VectorComponents RENDER.
+    // TypedComponents RENDER.
 
     pub fn render(&self, cx: &mut Context) -> Markup {
         let mut components = self.0.clone();

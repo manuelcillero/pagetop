@@ -12,7 +12,7 @@ pub struct Item {
     item_size    : flex::ItemSize,
     item_offset  : flex::ItemOffset,
     item_align   : flex::ItemAlign,
-    stuff        : MixedComponents,
+    mixed        : MixedComponents,
 }
 
 impl ComponentTrait for Item {
@@ -63,6 +63,10 @@ impl ComponentTrait for Item {
 }
 
 impl Item {
+    pub fn with(component: impl ComponentTrait) -> Self {
+        Item::default().add_component(component)
+    }
+
     // Item BUILDER.
 
     #[fn_builder]
@@ -115,13 +119,13 @@ impl Item {
 
     #[rustfmt::skip]
     pub fn add_component(mut self, component: impl ComponentTrait) -> Self {
-        self.stuff.alter_value(OneOp::Add(OneComponent::with(component)));
+        self.mixed.alter_value(MixedOp::Add(AnyComponent::with(component)));
         self
     }
 
     #[fn_builder]
-    pub fn alter_components(&mut self, op: OneOp) -> &mut Self {
-        self.stuff.alter_value(op);
+    pub fn alter_components(&mut self, op: MixedOp) -> &mut Self {
+        self.mixed.alter_value(op);
         self
     }
 
@@ -148,6 +152,6 @@ impl Item {
     }
 
     pub fn components(&self) -> &MixedComponents {
-        &self.stuff
+        &self.mixed
     }
 }

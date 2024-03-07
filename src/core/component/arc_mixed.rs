@@ -5,20 +5,20 @@ use crate::{fn_builder, TypeId, Weight};
 use std::sync::{Arc, RwLock, RwLockReadGuard, RwLockWriteGuard};
 
 #[derive(Clone)]
-pub struct OneComponent(Arc<RwLock<dyn ComponentTrait>>);
+pub struct AnyComponent(Arc<RwLock<dyn ComponentTrait>>);
 
-impl OneComponent {
+impl AnyComponent {
     pub fn with(component: impl ComponentTrait) -> Self {
-        OneComponent(Arc::new(RwLock::new(component)))
+        AnyComponent(Arc::new(RwLock::new(component)))
     }
 
-    // OneComponent BUILDER.
+    // AnyComponent BUILDER.
 
     pub fn set(&mut self, component: impl ComponentTrait) {
         self.0 = Arc::new(RwLock::new(component));
     }
 
-    // OneComponent GETTERS.
+    // AnyComponent GETTERS.
 
     pub fn get(&self) -> RwLockReadGuard<'_, dyn ComponentTrait> {
         self.0.read().unwrap()
@@ -28,13 +28,13 @@ impl OneComponent {
         self.0.write().unwrap()
     }
 
-    // OneComponent RENDER.
+    // AnyComponent RENDER.
 
     pub fn render(&self, cx: &mut Context) -> Markup {
         self.0.write().unwrap().render(cx)
     }
 
-    // OneComponent HELPERS.
+    // AnyComponent HELPERS.
 
     fn type_id(&self) -> TypeId {
         self.0.read().unwrap().type_id()
@@ -51,22 +51,22 @@ impl OneComponent {
 
 // *************************************************************************************************
 
-pub enum OneOp {
-    Add(OneComponent),
-    AddAfterId(&'static str, OneComponent),
-    AddBeforeId(&'static str, OneComponent),
-    Prepend(OneComponent),
+pub enum MixedOp {
+    Add(AnyComponent),
+    InsertAfterId(&'static str, AnyComponent),
+    InsertBeforeId(&'static str, AnyComponent),
+    Prepend(AnyComponent),
     RemoveById(&'static str),
-    ReplaceById(&'static str, OneComponent),
+    ReplaceById(&'static str, AnyComponent),
     Reset,
 }
 
 #[derive(Clone, Default)]
-pub struct MixedComponents(Vec<OneComponent>);
+pub struct MixedComponents(Vec<AnyComponent>);
 
 impl MixedComponents {
-    pub fn new(any: OneComponent) -> Self {
-        MixedComponents::default().with_value(OneOp::Add(any))
+    pub fn new(any: AnyComponent) -> Self {
+        MixedComponents::default().with_value(MixedOp::Add(any))
     }
 
     pub(crate) fn merge(mixes: &[Option<&MixedComponents>]) -> Self {
@@ -80,24 +80,24 @@ impl MixedComponents {
     // MixedComponents BUILDER.
 
     #[fn_builder]
-    pub fn alter_value(&mut self, op: OneOp) -> &mut Self {
+    pub fn alter_value(&mut self, op: MixedOp) -> &mut Self {
         match op {
-            OneOp::Add(any) => self.0.push(any),
-            OneOp::AddAfterId(id, any) => match self.0.iter().position(|c| c.id() == id) {
+            MixedOp::Add(any) => self.0.push(any),
+            MixedOp::InsertAfterId(id, any) => match self.0.iter().position(|c| c.id() == id) {
                 Some(index) => self.0.insert(index + 1, any),
                 _ => self.0.push(any),
             },
-            OneOp::AddBeforeId(id, any) => match self.0.iter().position(|c| c.id() == id) {
+            MixedOp::InsertBeforeId(id, any) => match self.0.iter().position(|c| c.id() == id) {
                 Some(index) => self.0.insert(index, any),
                 _ => self.0.insert(0, any),
             },
-            OneOp::Prepend(any) => self.0.insert(0, any),
-            OneOp::RemoveById(id) => {
+            MixedOp::Prepend(any) => self.0.insert(0, any),
+            MixedOp::RemoveById(id) => {
                 if let Some(index) = self.0.iter().position(|c| c.id() == id) {
                     self.0.remove(index);
                 }
             }
-            OneOp::ReplaceById(id, any) => {
+            MixedOp::ReplaceById(id, any) => {
                 for c in self.0.iter_mut() {
                     if c.id() == id {
                         *c = any;
@@ -105,7 +105,7 @@ impl MixedComponents {
                     }
                 }
             }
-            OneOp::Reset => self.0.clear(),
+            MixedOp::Reset => self.0.clear(),
         }
         self
     }
@@ -116,17 +116,17 @@ impl MixedComponents {
         self.0.is_empty()
     }
 
-    pub fn get_by_id(&self, id: impl Into<String>) -> Option<&OneComponent> {
+    pub fn get_by_id(&self, id: impl Into<String>) -> Option<&AnyComponent> {
         let id = id.into();
         self.0.iter().find(|c| c.id() == id)
     }
 
-    pub fn iter_by_id(&self, id: impl Into<String>) -> impl Iterator<Item = &OneComponent> {
+    pub fn iter_by_id(&self, id: impl Into<String>) -> impl Iterator<Item = &AnyComponent> {
         let id = id.into();
         self.0.iter().filter(move |&c| c.id() == id)
     }
 
-    pub fn iter_by_type_id(&self, type_id: TypeId) -> impl Iterator<Item = &OneComponent> {
+    pub fn iter_by_type_id(&self, type_id: TypeId) -> impl Iterator<Item = &AnyComponent> {
         self.0.iter().filter(move |&c| c.type_id() == type_id)
     }
 
