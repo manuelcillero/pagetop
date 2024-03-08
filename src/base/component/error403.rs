@@ -1,11 +1,10 @@
 use crate::prelude::*;
 
-#[derive(AutoDefault)]
 pub struct Error403;
 
 impl ComponentTrait for Error403 {
     fn new() -> Self {
-        Error403::default()
+        Error403
     }
 
     fn prepare_component(&self, _cx: &mut Context) -> PrepareMarkup {

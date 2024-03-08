@@ -217,17 +217,23 @@ impl L10n {
             L10nOp::None => None,
             L10nOp::Text(text) => Some(text.to_owned()),
             L10nOp::Translate(key) => match self.locales {
-                Some(locales) => locales.lookup_with_args(
-                    langid,
-                    key,
-                    &self
-                        .args
-                        .iter()
-                        .fold(HashMap::new(), |mut args, (key, value)| {
-                            args.insert(key.to_string(), value.to_owned().into());
-                            args
-                        }),
-                ),
+                Some(locales) => {
+                    if self.args.is_empty() {
+                        locales.try_lookup(langid, key)
+                    } else {
+                        locales.try_lookup_with_args(
+                            langid,
+                            key,
+                            &self
+                                .args
+                                .iter()
+                                .fold(HashMap::new(), |mut args, (key, value)| {
+                                    args.insert(key.to_string(), value.to_owned().into());
+                                    args
+                                }),
+                        )
+                    }
+                }
                 None => None,
             },
         }
@@ -244,23 +250,33 @@ impl ToString for L10n {
             L10nOp::None => "".to_owned(),
             L10nOp::Text(text) => text.to_owned(),
             L10nOp::Translate(key) => match self.locales {
-                Some(locales) => locales
-                    .lookup_with_args(
-                        match key.as_str() {
-                            LANGUAGE_SET_FAILURE => &LANGID_FALLBACK,
-                            _ => &LANGID_DEFAULT,
-                        },
-                        key,
-                        &self
-                            .args
-                            .iter()
-                            .fold(HashMap::new(), |mut args, (key, value)| {
-                                args.insert(key.to_string(), value.to_owned().into());
-                                args
-                            }),
-                    )
-                    .unwrap_or(key.to_owned()),
-                None => key.to_owned(),
+                Some(locales) => {
+                    if self.args.is_empty() {
+                        locales.lookup(
+                            match key.as_str() {
+                                LANGUAGE_SET_FAILURE => &LANGID_FALLBACK,
+                                _ => &LANGID_DEFAULT,
+                            },
+                            key,
+                        )
+                    } else {
+                        locales.lookup_with_args(
+                            match key.as_str() {
+                                LANGUAGE_SET_FAILURE => &LANGID_FALLBACK,
+                                _ => &LANGID_DEFAULT,
+                            },
+                            key,
+                            &self
+                                .args
+                                .iter()
+                                .fold(HashMap::new(), |mut args, (key, value)| {
+                                    args.insert(key.to_string(), value.to_owned().into());
+                                    args
+                                }),
+                        )
+                    }
+                }
+                None => format!("Unknown localization {}", key),
             },
         }
     }
