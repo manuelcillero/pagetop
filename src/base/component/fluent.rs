@@ -9,7 +9,7 @@ impl ComponentTrait for Fluent {
     }
 
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
-        PrepareMarkup::With(self.l10n().escaped(cx.langid()))
+        PrepareMarkup::With(self.0.escaped(cx.langid()))
     }
 }
 
@@ -18,17 +18,8 @@ impl Fluent {
         Fluent(l10n)
     }
 
-    // Fluent BUILDER.
-
-    #[fn_builder]
     pub fn alter_l10n(&mut self, l10n: L10n) -> &mut Self {
         self.0 = l10n;
         self
-    }
-
-    // Fluent GETTERS.
-
-    pub fn l10n(&self) -> &L10n {
-        &self.0
     }
 }

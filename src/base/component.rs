@@ -160,6 +160,12 @@ pub use html::Html;
 mod fluent;
 pub use fluent::Fluent;
 
+mod error403;
+pub use error403::Error403;
+
+mod error404;
+pub use error404::Error404;
+
 mod wrapper;
 pub use wrapper::{Wrapper, WrapperType};
 
@@ -188,12 +194,6 @@ pub use branding::Branding;
 
 mod powered_by;
 pub use powered_by::{PoweredBy, PoweredByLogo};
-
-mod error403;
-pub use error403::Error403;
-
-mod error404;
-pub use error404::Error404;
 
 pub mod menu;
 pub use menu::Menu;

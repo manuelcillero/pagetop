@@ -1,11 +1,11 @@
-use crate::core::component::{ComponentTrait, Context};
-use crate::html::{html, PrepareMarkup};
+use crate::prelude::*;
 
+#[derive(AutoDefault)]
 pub struct Error404;
 
 impl ComponentTrait for Error404 {
     fn new() -> Self {
-        Error404
+        Error404::default()
     }
 
     fn prepare_component(&self, _cx: &mut Context) -> PrepareMarkup {
