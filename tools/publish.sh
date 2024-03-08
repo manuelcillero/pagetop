@@ -39,6 +39,7 @@ popd
 
 echo -e "\nPublishing root crate"
 cargo publish --allow-dirty
+sleep 20
 
 pushd packages
 for crate in "${packages[@]}"; do publish_crate; done
