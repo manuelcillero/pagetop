@@ -31,8 +31,8 @@ impl fmt::Display for ErrorPage {
                 let error_page = Page::new(request.clone());
                 if let Ok(page) = error_page
                     .with_title(L10n::n("Error FORBIDDEN"))
-                    .with_component(Error403)
                     .with_template("error")
+                    .with_component(Error403)
                     .render()
                 {
                     write!(f, "{}", page.into_string())
@@ -45,8 +45,8 @@ impl fmt::Display for ErrorPage {
                 let error_page = Page::new(request.clone());
                 if let Ok(page) = error_page
                     .with_title(L10n::n("Error RESOURCE NOT FOUND"))
-                    .with_component(Error404)
                     .with_template("error")
+                    .with_component(Error404)
                     .render()
                 {
                     write!(f, "{}", page.into_string())

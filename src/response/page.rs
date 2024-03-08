@@ -4,7 +4,7 @@ pub use error::ErrorPage;
 pub use actix_web::Result as ResultPage;
 
 use crate::base::action;
-use crate::core::component::{AnyComponent, ComponentTrait, MixedComponents};
+use crate::core::component::{AnyComponent, ComponentTrait, MixedComponents, MixedOp};
 use crate::core::component::{Context, ContextOp};
 use crate::core::theme::ComponentsInRegions;
 use crate::fn_builder;
@@ -26,8 +26,8 @@ pub struct Page {
     body_id     : OptionId,
     body_classes: OptionClasses,
     skip_to     : OptionId,
-    regions     : ComponentsInRegions,
     template    : String,
+    regions     : ComponentsInRegions,
 }
 
 impl Page {
@@ -105,24 +105,30 @@ impl Page {
     }
 
     #[fn_builder]
-    pub fn alter_component(&mut self, component: impl ComponentTrait) -> &mut Self {
-        self.regions.add(AnyComponent::with(component));
-        self
-    }
-
-    #[fn_builder]
-    pub fn alter_component_in(
-        &mut self,
-        region: &'static str,
-        component: impl ComponentTrait,
-    ) -> &mut Self {
-        self.regions.add_in(region, AnyComponent::with(component));
-        self
-    }
-
-    #[fn_builder]
     pub fn alter_template(&mut self, template: &str) -> &mut Self {
         self.template = template.to_owned();
+        self
+    }
+
+    #[fn_builder]
+    pub fn alter_regions(&mut self, region: &'static str, op: MixedOp) -> &mut Self {
+        self.regions.alter_components(region, op);
+        self
+    }
+
+    pub fn with_component(mut self, component: impl ComponentTrait) -> Self {
+        self.regions
+            .alter_components("content", MixedOp::Add(AnyComponent::with(component)));
+        self
+    }
+
+    pub fn with_component_in(
+        mut self,
+        region: &'static str,
+        component: impl ComponentTrait,
+    ) -> Self {
+        self.regions
+            .alter_components(region, MixedOp::Add(AnyComponent::with(component)));
         self
     }
 
@@ -164,12 +170,12 @@ impl Page {
         &self.skip_to
     }
 
-    pub fn components_in(&self, region: &str) -> MixedComponents {
-        self.regions.get_components(self.context.theme(), region)
-    }
-
     pub fn template(&self) -> &str {
         self.template.as_str()
+    }
+
+    pub fn components_in(&self, region: &str) -> MixedComponents {
+        self.regions.all_components(self.context.theme(), region)
     }
 
     // Page RENDER.

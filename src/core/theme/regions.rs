@@ -1,6 +1,6 @@
 use crate::core::component::{AnyComponent, MixedComponents, MixedOp};
 use crate::core::theme::ThemeRef;
-use crate::{AutoDefault, LazyStatic, TypeId};
+use crate::{fn_builder, AutoDefault, LazyStatic, TypeId};
 
 use std::collections::HashMap;
 use std::sync::RwLock;
@@ -16,28 +16,20 @@ pub struct ComponentsInRegions(HashMap<&'static str, MixedComponents>);
 
 impl ComponentsInRegions {
     pub fn new(region: &'static str, any: AnyComponent) -> Self {
-        let mut regions = ComponentsInRegions::default();
-        regions.add_in(region, any);
-        regions
+        ComponentsInRegions::default().with_components(region, MixedOp::Add(any))
     }
 
-    pub fn add(&mut self, any: AnyComponent) {
-        if let Some(region) = self.0.get_mut("content") {
-            region.alter_value(MixedOp::Add(any));
-        } else {
-            self.0.insert("content", MixedComponents::new(any));
-        }
-    }
-
-    pub fn add_in(&mut self, region: &'static str, any: AnyComponent) {
+    #[fn_builder]
+    pub fn alter_components(&mut self, region: &'static str, op: MixedOp) -> &mut Self {
         if let Some(region) = self.0.get_mut(region) {
-            region.alter_value(MixedOp::Add(any));
+            region.alter_value(op);
         } else {
-            self.0.insert(region, MixedComponents::new(any));
+            self.0.insert(region, MixedComponents::new().with_value(op));
         }
+        self
     }
 
-    pub fn get_components(&self, theme: ThemeRef, region: &str) -> MixedComponents {
+    pub fn all_components(&self, theme: ThemeRef, region: &str) -> MixedComponents {
         let common = COMMON_REGIONS.read().unwrap();
         if let Some(r) = THEME_REGIONS.read().unwrap().get(&theme.type_id()) {
             MixedComponents::merge(&[common.0.get(region), self.0.get(region), r.0.get(region)])
@@ -57,15 +49,21 @@ impl InRegion {
     pub fn add(&self, any: AnyComponent) -> &Self {
         match self {
             InRegion::Content => {
-                COMMON_REGIONS.write().unwrap().add(any);
+                COMMON_REGIONS
+                    .write()
+                    .unwrap()
+                    .alter_components("content", MixedOp::Add(any));
             }
             InRegion::Named(name) => {
-                COMMON_REGIONS.write().unwrap().add_in(name, any);
+                COMMON_REGIONS
+                    .write()
+                    .unwrap()
+                    .alter_components(name, MixedOp::Add(any));
             }
             InRegion::OfTheme(region, theme) => {
                 let mut regions = THEME_REGIONS.write().unwrap();
                 if let Some(r) = regions.get_mut(&theme.type_id()) {
-                    r.add_in(region, any);
+                    r.alter_components(region, MixedOp::Add(any));
                 } else {
                     regions.insert(theme.type_id(), ComponentsInRegions::new(region, any));
                 }

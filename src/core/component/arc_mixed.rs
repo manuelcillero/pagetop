@@ -65,7 +65,11 @@ pub enum MixedOp {
 pub struct MixedComponents(Vec<AnyComponent>);
 
 impl MixedComponents {
-    pub fn new(any: AnyComponent) -> Self {
+    pub fn new() -> Self {
+        MixedComponents::default()
+    }
+
+    pub fn with(any: AnyComponent) -> Self {
         MixedComponents::default().with_value(MixedOp::Add(any))
     }
 

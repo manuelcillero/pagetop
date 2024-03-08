@@ -117,15 +117,15 @@ impl Item {
         self
     }
 
-    #[rustfmt::skip]
-    pub fn add_component(mut self, component: impl ComponentTrait) -> Self {
-        self.mixed.alter_value(MixedOp::Add(AnyComponent::with(component)));
-        self
-    }
-
     #[fn_builder]
     pub fn alter_components(&mut self, op: MixedOp) -> &mut Self {
         self.mixed.alter_value(op);
+        self
+    }
+
+    #[rustfmt::skip]
+    pub fn add_component(mut self, component: impl ComponentTrait) -> Self {
+        self.mixed.alter_value(MixedOp::Add(AnyComponent::with(component)));
         self
     }
 

@@ -153,6 +153,7 @@ pub async fn summary(request: HttpRequest) -> ResultPage<Markup, ErrorPage> {
     Page::new(request)
         //.with_context(ContextOp::Theme("Bootsier"))
         .with_title(L10n::n("Admin"))
+        .with_template("admin")
         .with_component_in("top-menu", side_menu)
         .with_component(
             flex::Container::new()
@@ -160,6 +161,5 @@ pub async fn summary(request: HttpRequest) -> ResultPage<Markup, ErrorPage> {
                 .add_item(flex::Item::with(top_menu))
                 .add_item(flex::Item::with(Html::with(html! { p { "Columna 3"} }))),
         )
-        .with_template("admin")
         .render()
 }
