@@ -7,6 +7,7 @@ pub struct Block {
     weight    : Weight,
     renderable: Renderable,
     classes   : OptionClasses,
+    style     : StyleBase,
     title     : OptionTranslated,
     mixed     : MixedComponents,
 }
@@ -29,23 +30,29 @@ impl ComponentTrait for Block {
     }
 
     fn setup_before_prepare(&mut self, _cx: &mut Context) {
-        self.alter_classes(ClassesOp::Prepend, "block__container");
+        self.alter_classes(
+            ClassesOp::Prepend,
+            [String::from("block__container"), self.style().to_string()].join(" "),
+        );
     }
 
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
         let block_body = self.components().render(cx);
-        if !block_body.is_empty() {
-            let id = cx.required_id::<Block>(self.id());
-            return PrepareMarkup::With(html! {
-                div id=(id) class=[self.classes().get()] {
-                    @if let Some(title) = self.title().using(cx.langid()) {
-                        h2 class="block__title" { (title) }
-                    }
-                    div class="block__body" { (block_body) }
-                }
-            });
+
+        if block_body.is_empty() {
+            return PrepareMarkup::None;
         }
-        PrepareMarkup::None
+
+        let id = cx.required_id::<Block>(self.id());
+
+        PrepareMarkup::With(html! {
+            div id=(id) class=[self.classes().get()] {
+                @if let Some(title) = self.title().using(cx.langid()) {
+                    h2 class="block__title" { (title) }
+                }
+                div class="block__content" { (block_body) }
+            }
+        })
     }
 }
 
@@ -71,6 +78,12 @@ impl Block {
     }
 
     #[fn_builder]
+    pub fn alter_style(&mut self, style: StyleBase) -> &mut Self {
+        self.style = style;
+        self
+    }
+
+    #[fn_builder]
     pub fn alter_title(&mut self, title: L10n) -> &mut Self {
         self.title.alter_value(title);
         self
@@ -89,6 +102,10 @@ impl Block {
     }
 
     // Block GETTERS.
+
+    pub fn style(&self) -> &StyleBase {
+        &self.style
+    }
 
     pub fn title(&self) -> &OptionTranslated {
         &self.title

@@ -105,10 +105,10 @@ impl ThemeTrait for Bootsier {
                         ClassesOp::Replace(b.style().to_string()),
                         match b.style() {
                             StyleBase::Default => "btn-primary",
-                            StyleBase::Success => "btn-success",
-                            StyleBase::Danger  => "btn-danger",
-                            StyleBase::Warning => "btn-warning",
                             StyleBase::Info    => "btn-info",
+                            StyleBase::Success => "btn-success",
+                            StyleBase::Warning => "btn-warning",
+                            StyleBase::Danger  => "btn-danger",
                             StyleBase::Light   => "btn-light",
                             StyleBase::Dark    => "btn-dark",
                             StyleBase::Link    => "btn-link",

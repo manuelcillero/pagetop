@@ -15,7 +15,17 @@ pub(crate) fn add_base_assets(cx: &mut Context) {
         StyleSheet::at("/base/css/root.css")
             .with_version("0.0.1")
             .with_weight(weight),
+    )).alter(ContextOp::AddStyleSheet(
+        StyleSheet::at("/base/css/looks.css")
+            .with_version("0.0.1")
+            .with_weight(weight),
+    ))
+    .alter(ContextOp::AddStyleSheet(
+        StyleSheet::at("/base/css/buttons.css")
+            .with_version("0.0.2")
+            .with_weight(weight),
     ));
+
     if let Some(true) = cx.get_param::<bool>(PARAM_BASE_INCLUDE_ICONS) {
         cx.alter(ContextOp::AddStyleSheet(
             StyleSheet::at("/base/css/icons.min.css")
@@ -23,6 +33,7 @@ pub(crate) fn add_base_assets(cx: &mut Context) {
                 .with_weight(weight),
         ));
     }
+
     if let Some(true) = cx.get_param::<bool>(PARAM_BASE_INCLUDE_FLEX_ASSETS) {
         cx.alter(ContextOp::AddStyleSheet(
             StyleSheet::at("/base/css/flex.css")
@@ -30,6 +41,7 @@ pub(crate) fn add_base_assets(cx: &mut Context) {
                 .with_weight(weight),
         ));
     }
+
     if let Some(true) = cx.get_param::<bool>(PARAM_BASE_INCLUDE_MENU_ASSETS) {
         cx.alter(ContextOp::AddStyleSheet(
             StyleSheet::at("/base/css/menu.css")
@@ -42,16 +54,6 @@ pub(crate) fn add_base_assets(cx: &mut Context) {
                 .with_weight(weight),
         ));
     }
-    cx.alter(ContextOp::AddStyleSheet(
-        StyleSheet::at("/base/css/looks.css")
-            .with_version("0.0.1")
-            .with_weight(weight),
-    ))
-    .alter(ContextOp::AddStyleSheet(
-        StyleSheet::at("/base/css/buttons.css")
-            .with_version("0.0.2")
-            .with_weight(weight),
-    ));
 }
 
 // *************************************************************************************************
@@ -92,10 +94,10 @@ impl ToString for BreakPoint {
 pub enum StyleBase {
     #[default]
     Default,
-    Success,
-    Danger,
-    Warning,
     Info,
+    Success,
+    Warning,
+    Danger,
     Light,
     Dark,
     Link,
@@ -106,10 +108,10 @@ impl ToString for StyleBase {
     fn to_string(&self) -> String {
         String::from(match self {
             StyleBase::Default => "style__default",
-            StyleBase::Success => "style__success",
-            StyleBase::Danger  => "style__danger",
-            StyleBase::Warning => "style__warning",
             StyleBase::Info    => "style__info",
+            StyleBase::Success => "style__success",
+            StyleBase::Warning => "style__warning",
+            StyleBase::Danger  => "style__danger",
             StyleBase::Light   => "style__light",
             StyleBase::Dark    => "style__dark",
             StyleBase::Link    => "style__link",

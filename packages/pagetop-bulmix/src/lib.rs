@@ -57,10 +57,10 @@ impl ThemeTrait for Bulmix {
                         ClassesOp::Replace(b.style().to_string()),
                         match b.style() {
                             StyleBase::Default => "is-primary",
-                            StyleBase::Success => "is-success",
-                            StyleBase::Danger  => "is-danger",
-                            StyleBase::Warning => "is-warning",
                             StyleBase::Info    => "is-info",
+                            StyleBase::Success => "is-success",
+                            StyleBase::Warning => "is-warning",
+                            StyleBase::Danger  => "is-danger",
                             StyleBase::Light   => "is-light",
                             StyleBase::Dark    => "is-dark",
                             StyleBase::Link    => "is-text",

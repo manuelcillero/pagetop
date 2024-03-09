@@ -2,8 +2,6 @@
 	cursor: pointer;
 	text-align: center;
 	display: inline-block;
-	color: var(--val-color--white);
-	background-color: transparent;
 	text-decoration: none;
 	border: 1px solid transparent;
 	border-radius: var(--val-border-radius);
@@ -17,60 +15,19 @@
 }
 
 .button__tap.style__default {
-	background-color: var(--val-color--default);
+	color: var(--val-color--white);
+	background-color: var(--val-color--primary);
 }
 .button__tap.style__default:hover {
 	color: var(--val-color--white);
-	background-color: var(--val-color--default-dark);
+	background-color: var(--val-color--primary-dark);
 }
 .button__tap.style__default:active,
 .button__tap.style__default:disabled {
 	color: var(--val-color--white);
-	background-color: var(--val-color--default-light);
+	background-color: var(--val-color--primary-light);
 }
 
-.button__tap.style__success {
-	background-color: var(--val-color--success);
-}
-.button__tap.style__success:hover {
-	color: var(--val-color--white);
-	background-color: var(--val-color--success-dark);
-}
-.button__tap.style__success:active,
-.button__tap.style__success:disabled {
-	color: var(--val-color--white);
-	background-color: var(--val-color--success-light);
-}
-
-.button__tap.style__danger {
-	background-color: var(--val-color--danger);
-}
-.button__tap.style__danger:hover {
-	color: var(--val-color--white);
-	background-color: var(--val-color--danger-dark);
-}
-.button__tap.style__danger:active,
-.button__tap.style__danger:disabled {
-	color: var(--val-color--white);
-	background-color: var(--val-color--danger-light);
-}
-
-.button__tap.style__warning {
-	background-color: var(--val-color--warning);
-}
-.button__tap.style__warning:hover {
-	color: var(--val-color--white);
-	background-color: var(--val-color--warning-dark);
-}
-.button__tap.style__warning:active,
-.button__tap.style__warning:disabled {
-	color: var(--val-color--white);
-	background-color: var(--val-color--warning-light);
-}
-
-.button__tap.style__info {
-	background-color: var(--val-color--info);
-}
 .button__tap.style__info:hover {
 	color: var(--val-color--white);
 	background-color: var(--val-color--info-dark);
@@ -81,10 +38,36 @@
 	background-color: var(--val-color--info-light);
 }
 
-.button__tap.style__light {
-	color: var(--val-color--text);
-	background-color: var(--val-color--light);
+.button__tap.style__success:hover {
+	color: var(--val-color--white);
+	background-color: var(--val-color--success-dark);
 }
+.button__tap.style__success:active,
+.button__tap.style__success:disabled {
+	color: var(--val-color--white);
+	background-color: var(--val-color--success-light);
+}
+
+.button__tap.style__warning:hover {
+	color: var(--val-color--white);
+	background-color: var(--val-color--warning-dark);
+}
+.button__tap.style__warning:active,
+.button__tap.style__warning:disabled {
+	color: var(--val-color--white);
+	background-color: var(--val-color--warning-light);
+}
+
+.button__tap.style__danger:hover {
+	color: var(--val-color--white);
+	background-color: var(--val-color--danger-dark);
+}
+.button__tap.style__danger:active,
+.button__tap.style__danger:disabled {
+	color: var(--val-color--white);
+	background-color: var(--val-color--danger-light);
+}
+
 .button__tap.style__light:hover {
 	color: var(--val-color--text);
 	background-color: var(--val-color--light-dark);
@@ -95,9 +78,6 @@
 	background-color: var(--val-color--light-light);
 }
 
-.button__tap.style__dark {
-	background-color: var(--val-color--dark);
-}
 .button__tap.style__dark:hover {
 	color: var(--val-color--white);
 	background-color: var(--val-color--dark-dark);
@@ -106,10 +86,6 @@
 .button__tap.style__dark:disabled {
 	color: var(--val-color--white);
 	background-color: var(--val-color--dark-light);
-}
-
-.button__tap.style__link {
-	color: var(--val-color--default);
 }
 
 /*

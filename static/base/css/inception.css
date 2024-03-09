@@ -57,19 +57,18 @@ h6 {
 }
 
 p {
-	margin-top: 0;
-	margin-bottom: var(--val-gap-0-75);
+	margin: var(--val-gap-0-75) 0;
 }
 
 a {
-	color: var(--val-color--default);
+	color: var(--val-color--primary-link);
 	transition: color .15s ease-in-out;
 }
 a:hover {
-	color: var(--val-color--default-dark);
+	color: var(--val-color--primary-link-hover);
 }
 a:active {
-	color: var(--val-color--default-light);
+	color: var(--val-color--primary-link-active);
 }
 
 /* LAYOUT */

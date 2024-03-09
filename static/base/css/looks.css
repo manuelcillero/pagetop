@@ -23,6 +23,93 @@
 	transform: translateY(0%);
 }
 
+/* STYLES BASE */
+
+.style__info {
+	color: var(--val-color--white);
+	background-color: var(--val-color--info);
+}
+.style__info a {
+	color: var(--val-color--info-link);
+	font-weight: 700;
+}
+.style__info a:hover {
+	color: var(--val-color--info-link-hover);
+}
+.style__info a:active {
+	color: var(--val-color--info-link-active);
+}
+
+.style__success {
+	color: var(--val-color--white);
+	background-color: var(--val-color--success);
+}
+.style__success a {
+	color: var(--val-color--success-link);
+	font-weight: 700;
+}
+.style__success a:hover {
+	color: var(--val-color--success-link-hover);
+}
+.style__success a:active {
+	color: var(--val-color--success-link-active);
+}
+
+.style__warning {
+	color: var(--val-color--white);
+	background-color: var(--val-color--warning);
+}
+.style__warning a {
+	color: var(--val-color--warning-link);
+	font-weight: 700;
+}
+.style__warning a:hover {
+	color: var(--val-color--warning-link-hover);
+}
+.style__warning a:active {
+	color: var(--val-color--warning-link-active);
+}
+
+.style__danger {
+	color: var(--val-color--white);
+	background-color: var(--val-color--danger);
+}
+.style__danger a {
+	color: var(--val-color--danger-link);
+	font-weight: 700;
+}
+.style__danger a:hover {
+	color: var(--val-color--danger-link-hover);
+}
+.style__danger a:active {
+	color: var(--val-color--danger-link-active);
+}
+
+.style__light {
+	color: var(--val-color--text);
+	background-color: var(--val-color--light);
+}
+
+.style__dark {
+	color: var(--val-color--white);
+	background-color: var(--val-color--dark);
+}
+.style__dark a {
+	color: var(--val-color--dark-link);
+	font-weight: 700;
+}
+.style__dark a:hover {
+	color: var(--val-color--dark-link-hover);
+}
+.style__dark a:active {
+	color: var(--val-color--dark-link-active);
+}
+
+.style__link {
+	color: var(--val-color--primary);
+	background-color: transparent;
+}
+
 /* TYPOGRAPHY */
 
 .fs__x3l {
@@ -122,6 +209,50 @@
 .img__fluid {
 	max-width: 100%;
 	height: auto;
+}
+
+/* Block component */
+
+.block__title {
+	font-size: var(--val-fs--m);
+	background-color: var(--val-color--gray-90);
+	padding: var(--val-gap-0-35) var(--val-gap);
+	margin: 0
+}
+.block__container.style__info .block__title {
+	background-color: var(--val-color--info-dark);
+}
+.block__container.style__success .block__title {
+	background-color: var(--val-color--success-dark);
+}
+.block__container.style__warning .block__title {
+	background-color: var(--val-color--warning-dark);
+}
+.block__container.style__danger .block__title {
+	background-color: var(--val-color--danger-dark);
+}
+.block__container.style__dark .block__title {
+	color: var(--val-color--dark-dark);
+}
+
+.block__content {
+	padding: var(--val-gap-0-35) var(--val-gap);
+}
+.block__container.style__info .block__content {
+	border-left: var(--val-gap-0-5) solid var(--val-color--info-dark);
+}
+.block__container.style__success .block__content {
+	border-left: var(--val-gap-0-5) solid var(--val-color--success-dark);
+}
+.block__container.style__warning .block__content {
+	border-left: var(--val-gap-0-5) solid var(--val-color--warning-dark);
+}
+.block__container.style__danger .block__content {
+	border-left: var(--val-gap-0-5) solid var(--val-color--danger-dark);
+}
+
+.block__container > .block__title + .block__content {
+	border-left: 0;
 }
 
 /* Branding component */

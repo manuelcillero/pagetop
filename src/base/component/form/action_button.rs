@@ -51,7 +51,7 @@ impl ComponentTrait for ActionButton {
         self.alter_classes(
             ClassesOp::Prepend,
             [
-                "button__tap".to_string(),
+                String::from("button__tap"),
                 self.style().to_string(),
                 self.font_size().to_string(),
             ]
