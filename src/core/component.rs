@@ -1,5 +1,5 @@
 mod context;
-pub use context::{Context, ContextOp};
+pub use context::{AssetsOp, Context};
 pub type FnContextualPath = fn(cx: &Context) -> &str;
 
 mod renderable;

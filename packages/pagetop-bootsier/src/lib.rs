@@ -70,18 +70,18 @@ impl ThemeTrait for Bootsier {
 
     fn after_prepare_body(&self, page: &mut Page) {
         page.alter_favicon(Some(Favicon::new().with_icon("/base/favicon.ico")))
-            .alter_context(ContextOp::AddStyleSheet(
+            .alter_assets(AssetsOp::AddStyleSheet(
                 StyleSheet::at("/bootsier/css/bootstrap.min.css")
                     .with_version("5.1.3")
                     .with_weight(-99),
             ))
-            .alter_context(ContextOp::AddJavaScript(
+            .alter_assets(AssetsOp::AddJavaScript(
                 JavaScript::at("/bootsier/js/bootstrap.bundle.min.js")
                     .with_version("5.1.3")
                     .with_weight(-99),
             ))
-            .alter_context(ContextOp::AddBaseAssets)
-            .alter_context(ContextOp::AddStyleSheet(
+            .alter_assets(AssetsOp::AddBaseAssets)
+            .alter_assets(AssetsOp::AddStyleSheet(
                 StyleSheet::at("/bootsier/css/styles.css").with_version("0.0.1"),
             ));
     }

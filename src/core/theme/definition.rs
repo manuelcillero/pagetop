@@ -148,7 +148,7 @@ pub trait ThemeTrait: PackageTrait + Send + Sync {
                     (favicon.prepare())
                 }
 
-                (page.context().prepare())
+                (page.context().prepare_assets())
             }
         }
     }

@@ -27,13 +27,13 @@ impl ThemeTrait for Bulmix {
 
     fn after_prepare_body(&self, page: &mut Page) {
         page.alter_favicon(Some(Favicon::new().with_icon("/base/favicon.ico")))
-            .alter_context(ContextOp::AddStyleSheet(
+            .alter_assets(AssetsOp::AddStyleSheet(
                 StyleSheet::at("/bulmix/css/bulma.min.css")
                     .with_version("0.9.4")
                     .with_weight(-99),
             ))
-            .alter_context(ContextOp::AddBaseAssets)
-            .alter_context(ContextOp::AddStyleSheet(
+            .alter_assets(AssetsOp::AddBaseAssets)
+            .alter_assets(AssetsOp::AddStyleSheet(
                 StyleSheet::at("/bulmix/css/styles.css").with_version("0.0.1"),
             ));
     }

@@ -34,8 +34,8 @@ async fn home_lang(
 fn home(request: HttpRequest, lang: &'static LanguageIdentifier) -> ResultPage<Markup, ErrorPage> {
     Page::new(request)
         .with_title(L10n::l("welcome_title"))
-        .with_context(ContextOp::LangId(lang))
-        .with_context(ContextOp::AddStyleSheet(StyleSheet::at(
+        .with_assets(AssetsOp::LangId(lang))
+        .with_assets(AssetsOp::AddStyleSheet(StyleSheet::at(
             "/base/css/welcome.css",
         )))
         .with_body_id("welcome")

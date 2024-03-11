@@ -1,6 +1,7 @@
 use crate::base::component::add_base_assets;
+use crate::core::component::MixedOp;
 use crate::core::theme::all::{theme_by_single_name, THEME_DEFAULT};
-use crate::core::theme::ThemeRef;
+use crate::core::theme::{ComponentsInRegions, ThemeRef};
 use crate::html::{html, Assets, HeadScript, HeadStyles, JavaScript, Markup, StyleSheet};
 use crate::locale::{LanguageIdentifier, LANGID_DEFAULT};
 use crate::service::HttpRequest;
@@ -9,7 +10,7 @@ use crate::{concat_string, util};
 use std::collections::HashMap;
 use std::str::FromStr;
 
-pub enum ContextOp {
+pub enum AssetsOp {
     LangId(&'static LanguageIdentifier),
     Theme(&'static str),
     // Stylesheets.
@@ -37,6 +38,7 @@ pub struct Context {
     headstyles: Assets<HeadStyles>,                     // Styles in head.
     javascript: Assets<JavaScript>,                     // JavaScripts.
     headscript: Assets<HeadScript>,                     // Scripts in head.
+    regions   : ComponentsInRegions,
     params    : HashMap<&'static str, String>,
     id_counter: usize,
 }
@@ -52,37 +54,43 @@ impl Context {
             headstyles: Assets::<HeadStyles>::new(),    // Styles in head.
             javascript: Assets::<JavaScript>::new(),    // JavaScripts.
             headscript: Assets::<HeadScript>::new(),    // Scripts in head.
+            regions   : ComponentsInRegions::default(),
             params    : HashMap::<&str, String>::new(),
             id_counter: 0,
         }
     }
 
     #[rustfmt::skip]
-    pub fn alter(&mut self, op: ContextOp) -> &mut Self {
+    pub fn alter_assets(&mut self, op: AssetsOp) -> &mut Self {
         match op {
-            ContextOp::LangId(langid) => {
+            AssetsOp::LangId(langid) => {
                 self.langid = langid;
             }
-            ContextOp::Theme(theme_name) => {
+            AssetsOp::Theme(theme_name) => {
                 self.theme = theme_by_single_name(theme_name).unwrap_or(*THEME_DEFAULT);
             }
 
             // Stylesheets.
-            ContextOp::AddStyleSheet(css)     => { self.stylesheet.add(css);     }
-            ContextOp::RemoveStyleSheet(path) => { self.stylesheet.remove(path); }
+            AssetsOp::AddStyleSheet(css)     => { self.stylesheet.add(css);     }
+            AssetsOp::RemoveStyleSheet(path) => { self.stylesheet.remove(path); }
             // Styles in head.
-            ContextOp::AddHeadStyles(styles)  => { self.headstyles.add(styles);  }
-            ContextOp::RemoveHeadStyles(path) => { self.headstyles.remove(path); }
+            AssetsOp::AddHeadStyles(styles)  => { self.headstyles.add(styles);  }
+            AssetsOp::RemoveHeadStyles(path) => { self.headstyles.remove(path); }
             // JavaScripts.
-            ContextOp::AddJavaScript(js)      => { self.javascript.add(js);      }
-            ContextOp::RemoveJavaScript(path) => { self.javascript.remove(path); }
+            AssetsOp::AddJavaScript(js)      => { self.javascript.add(js);      }
+            AssetsOp::RemoveJavaScript(path) => { self.javascript.remove(path); }
             // Scripts in head.
-            ContextOp::AddHeadScript(script)  => { self.headscript.add(script);  }
-            ContextOp::RemoveHeadScript(path) => { self.headscript.remove(path); }
+            AssetsOp::AddHeadScript(script)  => { self.headscript.add(script);  }
+            AssetsOp::RemoveHeadScript(path) => { self.headscript.remove(path); }
 
             // Add assets to properly use base components.
-            ContextOp::AddBaseAssets => { add_base_assets(self); }
+            AssetsOp::AddBaseAssets => { add_base_assets(self); }
         }
+        self
+    }
+
+    pub fn alter_regions(&mut self, region: &'static str, op: MixedOp) -> &mut Self {
+        self.regions.alter_components(region, op);
         self
     }
 
@@ -110,6 +118,10 @@ impl Context {
         self.theme
     }
 
+    pub fn regions(&self) -> &ComponentsInRegions {
+        &self.regions
+    }
+
     pub fn get_param<T: FromStr + ToString>(&mut self, key: &'static str) -> Option<T> {
         if let Some(value) = self.params.get(key) {
             if let Ok(value) = T::from_str(value) {
@@ -121,7 +133,7 @@ impl Context {
 
     /// Context PREPARE.
 
-    pub fn prepare(&mut self) -> Markup {
+    pub fn prepare_assets(&mut self) -> Markup {
         html! {
             (self.stylesheet.prepare())                 // Stylesheets.
             (self.headstyles.prepare())                 // Styles in head.

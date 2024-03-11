@@ -1,4 +1,4 @@
-use crate::core::component::{Context, ContextOp};
+use crate::core::component::{AssetsOp, Context};
 use crate::html::{JavaScript, StyleSheet};
 use crate::{AutoDefault, Weight};
 
@@ -11,23 +11,24 @@ pub const PARAM_BASE_INCLUDE_MENU_ASSETS: &str = "base.include.menu";
 pub(crate) fn add_base_assets(cx: &mut Context) {
     let weight = cx.get_param::<Weight>(PARAM_BASE_WEIGHT).unwrap_or(-90);
 
-    cx.alter(ContextOp::AddStyleSheet(
+    cx.alter_assets(AssetsOp::AddStyleSheet(
         StyleSheet::at("/base/css/root.css")
             .with_version("0.0.1")
             .with_weight(weight),
-    )).alter(ContextOp::AddStyleSheet(
+    ))
+    .alter_assets(AssetsOp::AddStyleSheet(
         StyleSheet::at("/base/css/looks.css")
             .with_version("0.0.1")
             .with_weight(weight),
     ))
-    .alter(ContextOp::AddStyleSheet(
+    .alter_assets(AssetsOp::AddStyleSheet(
         StyleSheet::at("/base/css/buttons.css")
             .with_version("0.0.2")
             .with_weight(weight),
     ));
 
     if let Some(true) = cx.get_param::<bool>(PARAM_BASE_INCLUDE_ICONS) {
-        cx.alter(ContextOp::AddStyleSheet(
+        cx.alter_assets(AssetsOp::AddStyleSheet(
             StyleSheet::at("/base/css/icons.min.css")
                 .with_version("1.11.1")
                 .with_weight(weight),
@@ -35,7 +36,7 @@ pub(crate) fn add_base_assets(cx: &mut Context) {
     }
 
     if let Some(true) = cx.get_param::<bool>(PARAM_BASE_INCLUDE_FLEX_ASSETS) {
-        cx.alter(ContextOp::AddStyleSheet(
+        cx.alter_assets(AssetsOp::AddStyleSheet(
             StyleSheet::at("/base/css/flex.css")
                 .with_version("0.0.1")
                 .with_weight(weight),
@@ -43,12 +44,12 @@ pub(crate) fn add_base_assets(cx: &mut Context) {
     }
 
     if let Some(true) = cx.get_param::<bool>(PARAM_BASE_INCLUDE_MENU_ASSETS) {
-        cx.alter(ContextOp::AddStyleSheet(
+        cx.alter_assets(AssetsOp::AddStyleSheet(
             StyleSheet::at("/base/css/menu.css")
                 .with_version("0.0.1")
                 .with_weight(weight),
         ))
-        .alter(ContextOp::AddJavaScript(
+        .alter_assets(AssetsOp::AddJavaScript(
             JavaScript::at("/base/js/menu.js")
                 .with_version("0.0.1")
                 .with_weight(weight),

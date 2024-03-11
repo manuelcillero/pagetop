@@ -5,8 +5,7 @@ pub use actix_web::Result as ResultPage;
 
 use crate::base::action;
 use crate::core::component::{AnyComponent, ComponentTrait, MixedComponents, MixedOp};
-use crate::core::component::{Context, ContextOp};
-use crate::core::theme::ComponentsInRegions;
+use crate::core::component::{AssetsOp, Context};
 use crate::fn_builder;
 use crate::html::{html, Markup, DOCTYPE};
 use crate::html::{ClassesOp, Favicon, OptionClasses, OptionId, OptionTranslated};
@@ -27,7 +26,6 @@ pub struct Page {
     body_classes: OptionClasses,
     skip_to     : OptionId,
     template    : String,
-    regions     : ComponentsInRegions,
 }
 
 impl Page {
@@ -43,7 +41,6 @@ impl Page {
             body_id     : OptionId::default(),
             body_classes: OptionClasses::default(),
             skip_to     : OptionId::default(),
-            regions     : ComponentsInRegions::default(),
             template    : "default".to_owned(),
         }
     }
@@ -81,8 +78,8 @@ impl Page {
     }
 
     #[fn_builder]
-    pub fn alter_context(&mut self, op: ContextOp) -> &mut Self {
-        self.context.alter(op);
+    pub fn alter_assets(&mut self, op: AssetsOp) -> &mut Self {
+        self.context.alter_assets(op);
         self
     }
 
@@ -112,13 +109,13 @@ impl Page {
 
     #[fn_builder]
     pub fn alter_regions(&mut self, region: &'static str, op: MixedOp) -> &mut Self {
-        self.regions.alter_components(region, op);
+        self.context.alter_regions(region, op);
         self
     }
 
     pub fn with_component(mut self, component: impl ComponentTrait) -> Self {
-        self.regions
-            .alter_components("content", MixedOp::Add(AnyComponent::with(component)));
+        self.context
+            .alter_regions("content", MixedOp::Add(AnyComponent::with(component)));
         self
     }
 
@@ -127,8 +124,8 @@ impl Page {
         region: &'static str,
         component: impl ComponentTrait,
     ) -> Self {
-        self.regions
-            .alter_components(region, MixedOp::Add(AnyComponent::with(component)));
+        self.context
+            .alter_regions(region, MixedOp::Add(AnyComponent::with(component)));
         self
     }
 
@@ -175,7 +172,9 @@ impl Page {
     }
 
     pub fn components_in(&self, region: &str) -> MixedComponents {
-        self.regions.all_components(self.context.theme(), region)
+        self.context
+            .regions()
+            .all_components(self.context.theme(), region)
     }
 
     // Page RENDER.

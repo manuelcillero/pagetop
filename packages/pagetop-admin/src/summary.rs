@@ -151,7 +151,6 @@ pub async fn summary(request: HttpRequest) -> ResultPage<Markup, ErrorPage> {
         .add_item(menu::Item::label(L10n::n("Opción 4")));
 
     Page::new(request)
-        //.with_context(ContextOp::Theme("Bootsier"))
         .with_title(L10n::n("Admin"))
         .with_template("admin")
         .with_component_in("top-menu", side_menu)
