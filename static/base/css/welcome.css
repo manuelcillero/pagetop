@@ -16,11 +16,11 @@
 	padding-top: 0;
 }
 
-#welcome [class$="-col-text"] > .flex-item__inner {
+#welcome [class$="-col-text"] > .flex-item__content {
 	margin: 5% 5% 0;
 	text-align: center;
 }
-#welcome [class$="-col-image"] > .flex-item__inner {
+#welcome [class$="-col-image"] > .flex-item__content {
 	margin: 1rem 5%;
 }
 
@@ -28,7 +28,7 @@
 	text-align: center;
 	margin: 0 5%;
 }
-#welcome .welcome > .wrapper__inner {
+#welcome .welcome > .wrapper__content {
 	padding: 2rem 1rem;
 	border-radius: 28px;
 	background: url("/base/images/welcome.jpg") center center no-repeat;
@@ -36,18 +36,18 @@
 	background-size: cover;
 	color: #fff;
 }
-#welcome .welcome > .wrapper__inner > h2 {
+#welcome .welcome > .wrapper__content > h2 {
 	color: #fff;
 }
-#welcome .welcome > .wrapper__inner > h3 {
+#welcome .welcome > .wrapper__content > h3 {
 	color: #ccc;
 }
 
-#welcome .promo-col-image > .flex-item__inner {
+#welcome .promo-col-image > .flex-item__content {
 	padding: 0 5%;
 }
 
-#welcome .issues-col-image > .flex-item__inner img {
+#welcome .issues-col-image > .flex-item__content img {
 	border-radius: 40px;
 }
 
@@ -55,20 +55,20 @@
 
 /* MD - Applies >= 768px */
 @media screen and (min-width: 48rem) {
-	#welcome .promo-col-image > .flex-item__inner {
+	#welcome .promo-col-image > .flex-item__content {
 		padding: 0;
 	}
 
 	#welcome .issues {
 		padding-top: 1.6rem;
 	}
-	#welcome .issues-col-text > .flex-item__inner {
+	#welcome .issues-col-text > .flex-item__content {
 		text-align: left;
 	}
 }
 /* LG - Applies >= 992px */
 @media screen and (min-width: 62rem) {
-	#welcome .hello-col-text > .flex-item__inner {
+	#welcome .hello-col-text > .flex-item__content {
 		margin-top: 2rem;
 		text-align: left;
 	}
@@ -77,19 +77,19 @@
 		padding: 0 15% 2rem;
 	}
 
-	#welcome .promo-col-text > .flex-item__inner {
+	#welcome .promo-col-text > .flex-item__content {
 		margin-right: 0;
 		text-align: right;
 	}
 }
 /* XL - Applies >= 1280px */
 @media screen and (min-width: 80rem) {
-	#welcome .hello-col-text > .flex-item__inner {
+	#welcome .hello-col-text > .flex-item__content {
 		margin-top: 4rem;
 		margin-left: 20%;
 	}
 
-	#welcome .pagetop-col-text > .flex-item__inner {
+	#welcome .pagetop-col-text > .flex-item__content {
 		text-align: left;
 	}
 }

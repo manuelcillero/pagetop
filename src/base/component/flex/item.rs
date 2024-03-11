@@ -54,7 +54,7 @@ impl ComponentTrait for Item {
         };
         PrepareMarkup::With(html! {
             div id=[self.id()] class=[self.classes().get()] style=[order] {
-                div class="flex-item__inner" {
+                div class="flex-item__content" {
                     (self.components().render(cx))
                 }
             }

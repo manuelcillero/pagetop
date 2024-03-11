@@ -257,7 +257,7 @@
 
 /* Branding component */
 
-.branding__inner {
+.branding__content {
 	display: flex;
 	align-items: flex-end;
 	column-gap: var(--val-gap-0-75);
@@ -265,6 +265,8 @@
 .branding__name {
 	letter-spacing: 0.02em;
     font-size: var(--val-fs--l);
+	font-weight: 700;
+	text-decoration: none;
 }
 .branding__slogan {
     font-size: var(--val-fs--m);

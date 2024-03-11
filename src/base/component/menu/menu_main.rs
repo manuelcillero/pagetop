@@ -34,7 +34,7 @@ impl ComponentTrait for Menu {
 
         PrepareMarkup::With(html! {
             div id=[self.id()] class="menu__container" {
-                div class="menu__inner" {
+                div class="menu__content" {
                     div class="menu__main" {
                         div class="menu__overlay" {}
                         nav class="menu__nav" {

@@ -19,32 +19,41 @@ pub type ThemeRef = &'static dyn ThemeTrait;
 /// alternative class name or space-separated class names for each variant, without altering the
 /// default page rendering process.
 pub enum ThemeBuiltInClasses {
-    /// Main body container. Default is `body__container`.
-    BodyContainer,
-    /// Body inner container. Default is `body__inner`.
-    BodyInner,
-    /// A region container. Default is `region__container`.
-    RegionContainer,
-    /// A region inner container. Default is `region__inner`.
-    RegionInner,
-    /// Main content container. Default is `content__container`.
-    ContentContainer,
-    /// Content inner container. Default is `content__inner`.
-    ContentInner,
     /// Skip to content link. Default is `skip__to_content`.
     SkipToContent,
+    /// Main body wrapper. Default is `body__wrapper`.
+    BodyWrapper,
+    /// Main content wrapper. Default is `content__wrapper`.
+    ContentWrapper,
+    /// A region container. Default is `region__container`.
+    RegionContainer,
+    /// The region inner content. Default is `region__content`.
+    RegionContent,
 }
 
+#[rustfmt::skip]
+impl ToString for ThemeBuiltInClasses {
+    fn to_string(&self) -> String {
+        match self {
+            ThemeBuiltInClasses::SkipToContent   => String::from("skip__to_content"),
+            ThemeBuiltInClasses::BodyWrapper     => String::from("body__wrapper"),
+            ThemeBuiltInClasses::ContentWrapper  => String::from("content__wrapper"),
+            ThemeBuiltInClasses::RegionContainer => String::from("region__container"),
+            ThemeBuiltInClasses::RegionContent   => String::from("region__content"),
+        }
+    }
+}
 /// Los temas deben implementar este "trait".
 pub trait ThemeTrait: PackageTrait + Send + Sync {
     #[rustfmt::skip]
     fn regions(&self) -> Vec<(&'static str, L10n)> {
         vec![
-            ("header",  L10n::l("header")),
-            ("pagetop", L10n::l("pagetop")),
-            ("content", L10n::l("content")),
-            ("sidebar", L10n::l("sidebar")),
-            ("footer",  L10n::l("footer")),
+            ("header",        L10n::l("header")),
+            ("pagetop",       L10n::l("pagetop")),
+            ("sidebar_left",  L10n::l("sidebar_left")),
+            ("content",       L10n::l("content")),
+            ("sidebar_right", L10n::l("sidebar_right")),
+            ("footer",        L10n::l("footer")),
         ]
     }
 
@@ -55,31 +64,22 @@ pub trait ThemeTrait: PackageTrait + Send + Sync {
     /// Theme developers can customize the default implementation of this method to return
     /// alternative class name or space-separated class names for each variant, without altering the
     /// default page rendering process.
-    fn builtin_classes(&self, builtin: ThemeBuiltInClasses) -> Option<&str> {
-        match builtin {
-            ThemeBuiltInClasses::BodyContainer    => Some("body__container"),
-            ThemeBuiltInClasses::BodyInner        => Some("body__inner"),
-            ThemeBuiltInClasses::RegionContainer  => Some("region__container"),
-            ThemeBuiltInClasses::RegionInner      => Some("region__inner"),
-            ThemeBuiltInClasses::ContentContainer => Some("content__container"),
-            ThemeBuiltInClasses::ContentInner     => Some("content__inner"),
-            ThemeBuiltInClasses::SkipToContent    => Some("skip__to_content"),
-        }
+    fn builtin_classes(&self, builtin: ThemeBuiltInClasses) -> Option<String> {
+        Some(builtin.to_string())
     }
 
     fn prepare_region(&self, page: &mut Page, region_name: &str) -> Markup {
         let render_region = page.components_in(region_name).render(page.context());
         if render_region.is_empty() {
-            html! {}
-        } else {
-            html! {
-                div
-                    id=[OptionId::new(region_name).get()]
-                    class=[self.builtin_classes(ThemeBuiltInClasses::RegionContainer)]
-                {
-                    div class=[self.builtin_classes(ThemeBuiltInClasses::RegionInner)] {
-                        (render_region)
-                    }
+            return html! {};
+        }
+        html! {
+            div
+                id=[OptionId::new(region_name).get()]
+                class=[self.builtin_classes(ThemeBuiltInClasses::RegionContainer)]
+            {
+                div class=[self.builtin_classes(ThemeBuiltInClasses::RegionContent)] {
+                    (render_region)
                 }
             }
         }
@@ -98,18 +98,15 @@ pub trait ThemeTrait: PackageTrait + Send + Sync {
                         a href=(skip_to) { (skip) }
                     }
                 }
-                div class=[self.builtin_classes(ThemeBuiltInClasses::BodyContainer)] {
-                    div class=[self.builtin_classes(ThemeBuiltInClasses::BodyInner)] {
-                        (self.prepare_region(page, "header"))
-                        (self.prepare_region(page, "pagetop"))
-                        div class=[self.builtin_classes(ThemeBuiltInClasses::ContentContainer)] {
-                            div class=[self.builtin_classes(ThemeBuiltInClasses::ContentInner)] {
-                                (self.prepare_region(page, "content"))
-                                (self.prepare_region(page, "sidebar"))
-                            }
-                        }
-                        (self.prepare_region(page, "footer"))
+                div class=[self.builtin_classes(ThemeBuiltInClasses::BodyWrapper)] {
+                    (self.prepare_region(page, "header"))
+                    (self.prepare_region(page, "pagetop"))
+                    div class=[self.builtin_classes(ThemeBuiltInClasses::ContentWrapper)] {
+                        (self.prepare_region(page, "sidebar_left"))
+                        (self.prepare_region(page, "content"))
+                        (self.prepare_region(page, "sidebar_right"))
                     }
+                    (self.prepare_region(page, "footer"))
                 }
             }
         }

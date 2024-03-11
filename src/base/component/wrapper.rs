@@ -42,35 +42,35 @@ impl ComponentTrait for Wrapper {
         match self.wrapper_type() {
             WrapperType::Container => PrepareMarkup::With(html! {
                 div id=[self.id()] class=[self.classes().get()] {
-                    div class="wrapper__inner" {
+                    div class="wrapper__content" {
                         (self.components().render(cx))
                     }
                 }
             }),
             WrapperType::Main => PrepareMarkup::With(html! {
                 main id=[self.id()] class=[self.classes().get()] {
-                    div class="wrapper__inner" {
+                    div class="wrapper__content" {
                         (self.components().render(cx))
                     }
                 }
             }),
             WrapperType::Section => PrepareMarkup::With(html! {
                 section id=[self.id()] class=[self.classes().get()] {
-                    div class="wrapper__inner" {
+                    div class="wrapper__content" {
                         (self.components().render(cx))
                     }
                 }
             }),
             WrapperType::Header => PrepareMarkup::With(html! {
                 header id=[self.id()] class=[self.classes().get()] {
-                    div class="wrapper__inner" {
+                    div class="wrapper__content" {
                         (self.components().render(cx))
                     }
                 }
             }),
             WrapperType::Footer => PrepareMarkup::With(html! {
                 footer id=[self.id()] class=[self.classes().get()] {
-                    div class="wrapper__inner" {
+                    div class="wrapper__content" {
                         (self.components().render(cx))
                     }
                 }

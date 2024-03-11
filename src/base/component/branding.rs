@@ -33,18 +33,19 @@ impl ComponentTrait for Branding {
 
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
         let logo = self.logo().render(cx);
-        let title = L10n::l("site_home").using(cx.langid());
+        let home = self.frontpage()(cx);
+        let title = &L10n::l("site_home").using(cx.langid());
         PrepareMarkup::With(html! {
             div id=[self.id()] class="branding__container" {
-                div class="branding__inner" {
+                div class="branding__content" {
                     @if !logo.is_empty() {
-                        div class="branding__logo" { (logo) }
+                        a class="branding__logo" href=(home) title=[title] rel="home" {
+                            (logo)
+                        }
                     }
                     div class="branding__text" {
-                        div class="branding__name" {
-                            a href=(self.frontpage()(cx)) title=[title] rel="home" {
-                                (self.app_name())
-                            }
+                        a class="branding__name" href=(home) title=[title] rel="home" {
+                            (self.app_name())
                         }
                         @if let Some(slogan) = self.slogan().using(cx.langid()) {
                             div class="branding__slogan" {
