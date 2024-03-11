@@ -16,13 +16,12 @@ impl PackageTrait for Bulmix {
 
 impl ThemeTrait for Bulmix {
     #[rustfmt::skip]
-    fn builtin_classes(&self, builtin: ThemeBuiltInClasses) -> Option<&str> {
+    fn builtin_classes(&self, builtin: ThemeBuiltInClasses) -> Option<String> {
         match builtin {
-            ThemeBuiltInClasses::BodyContainer    => Some("container"),
-            ThemeBuiltInClasses::RegionContainer  => Some("container"),
-            ThemeBuiltInClasses::ContentContainer => Some("container"),
-            ThemeBuiltInClasses::SkipToContent    => Some("skip__to_content"),
-            _ => None,
+            ThemeBuiltInClasses::BodyWrapper     => Some(String::from("container")),
+            ThemeBuiltInClasses::ContentWrapper  => Some(String::from("container")),
+            ThemeBuiltInClasses::RegionContainer => Some(String::from("container")),
+            _ => Some(builtin.to_string()),
         }
     }
 

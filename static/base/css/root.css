@@ -200,7 +200,7 @@
 	--val-menu--color-border: rgba(0, 0, 0, 0.1);
 	--val-menu--color-shadow: rgba(0, 0, 0, 0.06);
 	--val-menu--line-padding: 0.625rem;
-	--val-menu--line-height: 1.875rem;
+	--val-menu--line-height: calc(1.875rem + 1px);
 	--val-menu--item-height: calc(var(--val-menu--line-padding) + var(--val-menu--line-height));
 	--val-menu--item-width-min: 14rem;
 	--val-menu--item-width-max: 20rem;

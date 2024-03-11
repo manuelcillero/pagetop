@@ -32,11 +32,10 @@ impl ThemeTrait for Bootsier {
         ]
     }
 
-    #[rustfmt::skip]
-    fn builtin_classes(&self, builtin: ThemeBuiltInClasses) -> Option<&str> {
+    fn builtin_classes(&self, builtin: ThemeBuiltInClasses) -> Option<String> {
         match builtin {
-            ThemeBuiltInClasses::RegionContainer => Some("container"),
-            _ => None,
+            ThemeBuiltInClasses::RegionContainer => Some(String::from("container")),
+            _ => Some(builtin.to_string()),
         }
     }
 
