@@ -127,9 +127,9 @@ impl ToString for ContentJustify {
 pub enum ItemAlign {
     #[default]
     Default,
-    Top,
-    Bottom,
-    Middle,
+    Start,
+    End,
+    Center,
     Stretch,
     Baseline,
 }
@@ -139,9 +139,9 @@ impl ToString for ItemAlign {
     fn to_string(&self) -> String {
         String::from(match self {
             ItemAlign::Default  => "",
-            ItemAlign::Top      => "flex-item__top",
-            ItemAlign::Bottom   => "flex-item__bottom",
-            ItemAlign::Middle   => "flex-item__middle",
+            ItemAlign::Start    => "flex-item__start",
+            ItemAlign::End      => "flex-item__end",
+            ItemAlign::Center   => "flex-item__center",
             ItemAlign::Stretch  => "flex-item__stretch",
             ItemAlign::Baseline => "flex-item__baseline",
         })

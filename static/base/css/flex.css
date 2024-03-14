@@ -67,10 +67,10 @@
 	justify-content: space-evenly;
 }
 
-.flex__container.flex-item__bottom {
+.flex__container.flex-item__end {
 	align-items: flex-end;
 }
-.flex__container.flex-item__middle {
+.flex__container.flex-item__center {
 	align-items: center;
 }
 .flex__container.flex-item__stretch {
@@ -221,13 +221,13 @@
 	margin-left: 90%;
 }
 
-.flex-item__container.flex-item__top {
+.flex-item__container.flex-item__start {
 	align-self: flex-start;
 }
-.flex-item__container.flex-item__bottom {
+.flex-item__container.flex-item__end {
 	align-self: flex-end;
 }
-.flex-item__container.flex-item__middle {
+.flex-item__container.flex-item__center {
 	align-self: center;
 }
 .flex-item__container.flex-item__stretch {
