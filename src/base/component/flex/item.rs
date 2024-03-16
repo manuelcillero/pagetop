@@ -7,6 +7,7 @@ pub struct Item {
     weight       : Weight,
     renderable   : Renderable,
     classes      : OptionClasses,
+    item_wide    : flex::ItemWide,
     item_grow    : flex::ItemGrow,
     item_shrink  : flex::ItemShrink,
     item_size    : flex::ItemSize,
@@ -36,7 +37,8 @@ impl ComponentTrait for Item {
         self.alter_classes(
             ClassesOp::Prepend,
             [
-                "flex-item__container".to_owned(),
+                String::from("flex__item"),
+                self.wide().to_string(),
                 self.grow().to_string(),
                 self.shrink().to_string(),
                 self.size().to_string(),
@@ -48,23 +50,34 @@ impl ComponentTrait for Item {
     }
 
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
-        let order = match self.weight() {
-            0 => None,
-            _ => Some(concat_string!("order: ", self.weight().to_string(), ";")),
-        };
-        PrepareMarkup::With(html! {
-            div id=[self.id()] class=[self.classes().get()] style=[order] {
-                div class="flex-item__content" {
-                    (self.components().render(cx))
+        let output = self.components().render(cx);
+        if !output.is_empty() {
+            let order = match self.weight() {
+                0 => None,
+                _ => Some(concat_string!("order: ", self.weight().to_string(), ";")),
+            };
+            PrepareMarkup::With(html! {
+                div id=[self.id()] class=[self.classes().get()] style=[order] {
+                    div class="flex__content" {
+                        (output)
+                    }
                 }
-            }
-        })
+            })
+        } else {
+            PrepareMarkup::None
+        }
     }
 }
 
 impl Item {
     pub fn with(component: impl ComponentTrait) -> Self {
         Item::default().add_component(component)
+    }
+
+    pub fn full(component: impl ComponentTrait) -> Self {
+        Item::default()
+            .with_wide(flex::ItemWide::Full)
+            .add_component(component)
     }
 
     // Item BUILDER.
@@ -88,6 +101,12 @@ impl Item {
     }
 
     #[fn_builder]
+    pub fn alter_wide(&mut self, wide: flex::ItemWide) -> &mut Self {
+        self.item_wide = wide;
+        self
+    }
+
+    #[fn_builder]
     pub fn alter_grow(&mut self, grow: flex::ItemGrow) -> &mut Self {
         self.item_grow = grow;
         self
@@ -100,6 +119,8 @@ impl Item {
     }
 
     #[fn_builder]
+    // Ensures the item occupies the exact specified width, neither growing nor shrinking,
+    // regardless of the available space in the container or the size of other items.
     pub fn alter_size(&mut self, size: flex::ItemSize) -> &mut Self {
         self.item_size = size;
         self
@@ -130,6 +151,10 @@ impl Item {
     }
 
     // Item GETTERS.
+
+    pub fn wide(&self) -> &flex::ItemWide {
+        &self.item_wide
+    }
 
     pub fn grow(&self) -> &flex::ItemGrow {
         &self.item_grow

@@ -7,12 +7,12 @@ pub struct Container {
     weight         : Weight,
     renderable     : Renderable,
     classes        : OptionClasses,
-    items          : TypedComponents<flex::Item>,
     direction      : flex::Direction,
     wrap_align     : flex::WrapAlign,
     content_justify: flex::ContentJustify,
     items_align    : flex::ItemAlign,
     gap            : flex::Gap,
+    items          : TypedComponents<flex::Item>,
 }
 
 impl ComponentTrait for Container {
@@ -36,6 +36,7 @@ impl ComponentTrait for Container {
         self.alter_classes(
             ClassesOp::Prepend,
             [
+                String::from("flex__container"),
                 self.direction().to_string(),
                 self.wrap_align().to_string(),
                 self.content_justify().to_string(),
@@ -48,16 +49,20 @@ impl ComponentTrait for Container {
     }
 
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
-        let gap = match self.gap() {
-            flex::Gap::Default => None,
-            _ => Some(self.gap().to_string()),
-        };
-
-        PrepareMarkup::With(html! {
-            div id=[self.id()] class=[self.classes().get()] style=[gap] {
-                (self.items().render(cx))
-            }
-        })
+        let output = self.items().render(cx);
+        if !output.is_empty() {
+            let gap = match self.gap() {
+                flex::Gap::Default => None,
+                _ => Some(self.gap().to_string()),
+            };
+            PrepareMarkup::With(html! {
+                div id=[self.id()] class=[self.classes().get()] style=[gap] {
+                    (output)
+                }
+            })
+        } else {
+            PrepareMarkup::None
+        }
     }
 }
 
@@ -79,18 +84,6 @@ impl Container {
     #[fn_builder]
     pub fn alter_renderable(&mut self, check: FnIsRenderable) -> &mut Self {
         self.renderable.check = check;
-        self
-    }
-
-    #[rustfmt::skip]
-    pub fn add_item(mut self, item: flex::Item) -> Self {
-        self.items.alter_value(TypedOp::Add(OneComponent::with(item)));
-        self
-    }
-
-    #[fn_builder]
-    pub fn alter_items(&mut self, op: TypedOp<flex::Item>) -> &mut Self {
-        self.items.alter_value(op);
         self
     }
 
@@ -124,11 +117,19 @@ impl Container {
         self
     }
 
-    // Container GETTERS.
-
-    pub fn items(&self) -> &TypedComponents<flex::Item> {
-        &self.items
+    #[fn_builder]
+    pub fn alter_items(&mut self, op: TypedOp<flex::Item>) -> &mut Self {
+        self.items.alter_value(op);
+        self
     }
+
+    #[rustfmt::skip]
+    pub fn add_item(mut self, item: flex::Item) -> Self {
+        self.items.alter_value(TypedOp::Add(OneComponent::with(item)));
+        self
+    }
+
+    // Container GETTERS.
 
     pub fn direction(&self) -> &flex::Direction {
         &self.direction
@@ -148,5 +149,9 @@ impl Container {
 
     pub fn gap(&self) -> &flex::Gap {
         &self.gap
+    }
+
+    pub fn items(&self) -> &TypedComponents<flex::Item> {
+        &self.items
     }
 }

@@ -22,19 +22,19 @@ impl ToString for Direction {
     fn to_string(&self) -> String {
         match self {
             Direction::Default => concat_string!(
-                "flex__container flex__row ", BreakPoint::default().to_string()
+                "flex__row ", BreakPoint::default().to_string()
             ),
             Direction::Row(breakpoint) => concat_string!(
-                "flex__container flex__row ", breakpoint.to_string()
+                "flex__row ", breakpoint.to_string()
             ),
             Direction::RowReverse(breakpoint) => concat_string!(
-                "flex__container flex__row flex__reverse ", breakpoint.to_string()
+                "flex__row flex__reverse ", breakpoint.to_string()
             ),
             Direction::Column(breakpoint) => concat_string!(
-                "flex__container flex__col ", breakpoint.to_string()
+                "flex__col ", breakpoint.to_string()
             ),
             Direction::ColumnReverse(breakpoint) => concat_string!(
-                "flex__container flex__col flex__reverse ", breakpoint.to_string()
+                "flex__col flex__reverse ", breakpoint.to_string()
             ),
         }
     }
@@ -139,11 +139,11 @@ impl ToString for ItemAlign {
     fn to_string(&self) -> String {
         String::from(match self {
             ItemAlign::Default  => "",
-            ItemAlign::Start    => "flex-item__start",
-            ItemAlign::End      => "flex-item__end",
-            ItemAlign::Center   => "flex-item__center",
-            ItemAlign::Stretch  => "flex-item__stretch",
-            ItemAlign::Baseline => "flex-item__baseline",
+            ItemAlign::Start    => "flex__item-start",
+            ItemAlign::End      => "flex__item-end",
+            ItemAlign::Center   => "flex__item-center",
+            ItemAlign::Stretch  => "flex__item-stretch",
+            ItemAlign::Baseline => "flex__item-baseline",
         })
     }
 }
@@ -176,6 +176,24 @@ impl ToString for Gap {
 // *************************************************************************************************
 
 #[derive(AutoDefault)]
+pub enum ItemWide {
+    #[default]
+    Auto,
+    Full,
+}
+
+impl ToString for ItemWide {
+    fn to_string(&self) -> String {
+        String::from(match self {
+            ItemWide::Auto => "",
+            ItemWide::Full => "flex__full",
+        })
+    }
+}
+
+// *************************************************************************************************
+
+#[derive(AutoDefault)]
 pub enum ItemGrow {
     #[default]
     Default,
@@ -190,20 +208,19 @@ pub enum ItemGrow {
     Is9,
 }
 
-#[rustfmt::skip]
 impl ToString for ItemGrow {
     fn to_string(&self) -> String {
         String::from(match self {
             ItemGrow::Default => "",
-            ItemGrow::Is1 => "flex-item__grow-1",
-            ItemGrow::Is2 => "flex-item__grow-2",
-            ItemGrow::Is3 => "flex-item__grow-3",
-            ItemGrow::Is4 => "flex-item__grow-4",
-            ItemGrow::Is5 => "flex-item__grow-5",
-            ItemGrow::Is6 => "flex-item__grow-6",
-            ItemGrow::Is7 => "flex-item__grow-7",
-            ItemGrow::Is8 => "flex-item__grow-8",
-            ItemGrow::Is9 => "flex-item__grow-9",
+            ItemGrow::Is1 => "flex__item-grow-1",
+            ItemGrow::Is2 => "flex__item-grow-2",
+            ItemGrow::Is3 => "flex__item-grow-3",
+            ItemGrow::Is4 => "flex__item-grow-4",
+            ItemGrow::Is5 => "flex__item-grow-5",
+            ItemGrow::Is6 => "flex__item-grow-6",
+            ItemGrow::Is7 => "flex__item-grow-7",
+            ItemGrow::Is8 => "flex__item-grow-8",
+            ItemGrow::Is9 => "flex__item-grow-9",
         })
     }
 }
@@ -225,20 +242,19 @@ pub enum ItemShrink {
     Is9,
 }
 
-#[rustfmt::skip]
 impl ToString for ItemShrink {
     fn to_string(&self) -> String {
         String::from(match self {
             ItemShrink::Default => "",
-            ItemShrink::Is1 => "flex-item__shrink-1",
-            ItemShrink::Is2 => "flex-item__shrink-2",
-            ItemShrink::Is3 => "flex-item__shrink-3",
-            ItemShrink::Is4 => "flex-item__shrink-4",
-            ItemShrink::Is5 => "flex-item__shrink-5",
-            ItemShrink::Is6 => "flex-item__shrink-6",
-            ItemShrink::Is7 => "flex-item__shrink-7",
-            ItemShrink::Is8 => "flex-item__shrink-8",
-            ItemShrink::Is9 => "flex-item__shrink-9",
+            ItemShrink::Is1 => "flex__item-shrink-1",
+            ItemShrink::Is2 => "flex__item-shrink-2",
+            ItemShrink::Is3 => "flex__item-shrink-3",
+            ItemShrink::Is4 => "flex__item-shrink-4",
+            ItemShrink::Is5 => "flex__item-shrink-5",
+            ItemShrink::Is6 => "flex__item-shrink-6",
+            ItemShrink::Is7 => "flex__item-shrink-7",
+            ItemShrink::Is8 => "flex__item-shrink-8",
+            ItemShrink::Is9 => "flex__item-shrink-9",
         })
     }
 }
@@ -260,24 +276,25 @@ pub enum ItemSize {
     Percent75,
     Percent80,
     Percent90,
+    FullWidth,
 }
 
-#[rustfmt::skip]
 impl ToString for ItemSize {
     fn to_string(&self) -> String {
         String::from(match self {
-            ItemSize::Default   => "",
-            ItemSize::Percent10 => "flex-item__width-10",
-            ItemSize::Percent20 => "flex-item__width-20",
-            ItemSize::Percent25 => "flex-item__width-25",
-            ItemSize::Percent33 => "flex-item__width-33",
-            ItemSize::Percent40 => "flex-item__width-40",
-            ItemSize::Percent50 => "flex-item__width-50",
-            ItemSize::Percent60 => "flex-item__width-60",
-            ItemSize::Percent66 => "flex-item__width-66",
-            ItemSize::Percent75 => "flex-item__width-75",
-            ItemSize::Percent80 => "flex-item__width-80",
-            ItemSize::Percent90 => "flex-item__width-90",
+            ItemSize::Default => "",
+            ItemSize::Percent10 => "flex__item-width-10",
+            ItemSize::Percent20 => "flex__item-width-20",
+            ItemSize::Percent25 => "flex__item-width-25",
+            ItemSize::Percent33 => "flex__item-width-33",
+            ItemSize::Percent40 => "flex__item-width-40",
+            ItemSize::Percent50 => "flex__item-width-50",
+            ItemSize::Percent60 => "flex__item-width-60",
+            ItemSize::Percent66 => "flex__item-width-66",
+            ItemSize::Percent75 => "flex__item-width-75",
+            ItemSize::Percent80 => "flex__item-width-80",
+            ItemSize::Percent90 => "flex__item-width-90",
+            ItemSize::FullWidth => "flex__item-fullwidth",
         })
     }
 }
@@ -301,22 +318,21 @@ pub enum ItemOffset {
     Offset90,
 }
 
-#[rustfmt::skip]
 impl ToString for ItemOffset {
     fn to_string(&self) -> String {
         String::from(match self {
-            ItemOffset::Default  => "",
-            ItemOffset::Offset10 => "flex-item__offset-10",
-            ItemOffset::Offset20 => "flex-item__offset-20",
-            ItemOffset::Offset25 => "flex-item__offset-25",
-            ItemOffset::Offset33 => "flex-item__offset-33",
-            ItemOffset::Offset40 => "flex-item__offset-40",
-            ItemOffset::Offset50 => "flex-item__offset-50",
-            ItemOffset::Offset60 => "flex-item__offset-60",
-            ItemOffset::Offset66 => "flex-item__offset-66",
-            ItemOffset::Offset75 => "flex-item__offset-75",
-            ItemOffset::Offset80 => "flex-item__offset-80",
-            ItemOffset::Offset90 => "flex-item__offset-90",
+            ItemOffset::Default => "",
+            ItemOffset::Offset10 => "flex__item-offset-10",
+            ItemOffset::Offset20 => "flex__item-offset-20",
+            ItemOffset::Offset25 => "flex__item-offset-25",
+            ItemOffset::Offset33 => "flex__item-offset-33",
+            ItemOffset::Offset40 => "flex__item-offset-40",
+            ItemOffset::Offset50 => "flex__item-offset-50",
+            ItemOffset::Offset60 => "flex__item-offset-60",
+            ItemOffset::Offset66 => "flex__item-offset-66",
+            ItemOffset::Offset75 => "flex__item-offset-75",
+            ItemOffset::Offset80 => "flex__item-offset-80",
+            ItemOffset::Offset90 => "flex__item-offset-90",
         })
     }
 }
