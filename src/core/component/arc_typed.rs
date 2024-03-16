@@ -134,7 +134,7 @@ impl<C: ComponentTrait + Default> TypedComponents<C> {
         components.sort_by_key(|c| c.weight());
         html! {
             @for c in components.iter() {
-                " " (c.render(cx)) " "
+                (c.render(cx))
             }
         }
     }

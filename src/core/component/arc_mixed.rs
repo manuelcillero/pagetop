@@ -141,7 +141,7 @@ impl MixedComponents {
         components.sort_by_key(|c| c.weight());
         html! {
             @for c in components.iter() {
-                " " (c.render(cx)) " "
+                (c.render(cx))
             }
         }
     }
