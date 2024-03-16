@@ -15,18 +15,35 @@ pub fn html(input: TokenStream) -> TokenStream {
 
 #[proc_macro_attribute]
 pub fn fn_builder(_: TokenStream, item: TokenStream) -> TokenStream {
-    let fn_item = parse_macro_input!(item as ItemFn);
-    let fn_alter_name = fn_item.sig.ident.to_string();
+    let fn_alter = parse_macro_input!(item as ItemFn);
+    let fn_alter_name = fn_alter.sig.ident.to_string();
 
     if !fn_alter_name.starts_with("alter_") {
         let expanded = quote_spanned! {
-            fn_item.sig.ident.span() =>
+            fn_alter.sig.ident.span() =>
                 compile_error!("expected a \"pub fn alter_...() -> &mut Self\" method");
         };
         return expanded.into();
     }
 
-    let args: Vec<String> = fn_item
+    let fn_with_name = fn_alter_name.replace("alter_", "with_");
+    let fn_with_generics = if fn_alter.sig.generics.params.is_empty() {
+        fn_with_name.to_owned()
+    } else {
+        let g = &fn_alter.sig.generics;
+        concat_string!(fn_with_name, quote! { #g }.to_string())
+    };
+
+    let where_clause = fn_alter
+        .sig
+        .generics
+        .where_clause
+        .as_ref()
+        .map_or(String::new(), |where_clause| {
+            concat_string!(quote! { #where_clause }.to_string(), " ")
+        });
+
+    let args: Vec<String> = fn_alter
         .sig
         .inputs
         .iter()
@@ -34,7 +51,7 @@ pub fn fn_builder(_: TokenStream, item: TokenStream) -> TokenStream {
         .map(|arg| arg.to_token_stream().to_string())
         .collect();
 
-    let param: Vec<String> = args
+    let params: Vec<String> = args
         .iter()
         .map(|arg| {
             arg.split_whitespace()
@@ -45,12 +62,10 @@ pub fn fn_builder(_: TokenStream, item: TokenStream) -> TokenStream {
         })
         .collect();
 
-    let fn_with_name = fn_alter_name.replace("alter_", "with_");
-
     #[rustfmt::skip]
     let fn_with = parse_str::<ItemFn>(concat_string!("
-        pub fn ", fn_with_name, "(mut self, ", args.join(", "), ") -> Self {
-            self.", fn_alter_name, "(", param.join(", "), ");
+        pub fn ", fn_with_generics, "(mut self, ", args.join(", "), ") -> Self ", where_clause, "{
+            self.", fn_alter_name, "(", params.join(", "), ");
             self
         }
     ").as_str()).unwrap();
@@ -63,8 +78,6 @@ pub fn fn_builder(_: TokenStream, item: TokenStream) -> TokenStream {
         "</span>(self, …) -> Self </code> to apply the <a href=\"#method.new\">builder pattern</a>.",
         "</p>"
     );
-
-    let fn_alter = fn_item.into_token_stream();
 
     let expanded = quote! {
         #[doc(hidden)]
