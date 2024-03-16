@@ -132,61 +132,77 @@ impl MixedComponents {
     #[fn_builder]
     pub fn alter_value(&mut self, op: AnyOp) -> &mut Self {
         match op {
-            AnyOp::Add(any) => self.0.push(any),
-            AnyOp::InsertAfterId(id, any) => match self.0.iter().position(|c| c.id() == id) {
-                Some(index) => self.0.insert(index + 1, any),
-                _ => self.0.push(any),
-            },
-            AnyOp::InsertBeforeId(id, any) => match self.0.iter().position(|c| c.id() == id) {
-                Some(index) => self.0.insert(index, any),
-                _ => self.0.insert(0, any),
-            },
-            AnyOp::Prepend(any) => self.0.insert(0, any),
-            AnyOp::RemoveById(id) => {
-                if let Some(index) = self.0.iter().position(|c| c.id() == id) {
-                    self.0.remove(index);
-                }
-            }
-            AnyOp::ReplaceById(id, any) => {
-                for c in self.0.iter_mut() {
-                    if c.id() == id {
-                        *c = any;
-                        break;
-                    }
-                }
-            }
-            AnyOp::Reset => self.0.clear(),
-        }
+            AnyOp::Add(any) => self.add(any),
+            AnyOp::InsertAfterId(id, any) => self.insert_after_id(id, any),
+            AnyOp::InsertBeforeId(id, any) => self.insert_before_id(id, any),
+            AnyOp::Prepend(any) => self.prepend(any),
+            AnyOp::RemoveById(id) => self.remove_by_id(id),
+            AnyOp::ReplaceById(id, any) => self.replace_by_id(id, any),
+            AnyOp::Reset => self.reset(),
+        };
         self
     }
 
     #[fn_builder]
-    #[rustfmt::skip]
     pub fn alter_typed<C: ComponentTrait + Default>(&mut self, op: TypedOp<C>) -> &mut Self {
         match op {
-            TypedOp::Add(typed) => {
-                self.alter_value(AnyOp::Add(typed.to_any()))
-            }
-            TypedOp::InsertAfterId(id, typed) => {
-                self.alter_value(AnyOp::InsertAfterId(id, typed.to_any()))
-            }
-            TypedOp::InsertBeforeId(id, typed) => {
-                self.alter_value(AnyOp::InsertBeforeId(id, typed.to_any()))
-            }
-            TypedOp::Prepend(typed) => {
-                self.alter_value(AnyOp::Prepend(typed.to_any()))
-            }
-            TypedOp::RemoveById(id) => {
-                self.alter_value(AnyOp::RemoveById(id))
-            }
-            TypedOp::ReplaceById(id, typed) => {
-                self.alter_value(AnyOp::ReplaceById(id, typed.to_any()))
-            }
-            TypedOp::Reset => {
-                self.alter_value(AnyOp::Reset)
-            }
+            TypedOp::Add(typed) => self.add(typed.to_any()),
+            TypedOp::InsertAfterId(id, typed) => self.insert_after_id(id, typed.to_any()),
+            TypedOp::InsertBeforeId(id, typed) => self.insert_before_id(id, typed.to_any()),
+            TypedOp::Prepend(typed) => self.prepend(typed.to_any()),
+            TypedOp::RemoveById(id) => self.remove_by_id(id),
+            TypedOp::ReplaceById(id, typed) => self.replace_by_id(id, typed.to_any()),
+            TypedOp::Reset => self.reset(),
         };
         self
+    }
+
+    #[inline]
+    fn add(&mut self, any: AnyComponent) {
+        self.0.push(any);
+    }
+
+    #[inline]
+    fn insert_after_id(&mut self, id: &str, any: AnyComponent) {
+        match self.0.iter().position(|c| c.id() == id) {
+            Some(index) => self.0.insert(index + 1, any),
+            _ => self.0.push(any),
+        };
+    }
+
+    #[inline]
+    fn insert_before_id(&mut self, id: &str, any: AnyComponent) {
+        match self.0.iter().position(|c| c.id() == id) {
+            Some(index) => self.0.insert(index, any),
+            _ => self.0.insert(0, any),
+        };
+    }
+
+    #[inline]
+    fn prepend(&mut self, any: AnyComponent) {
+        self.0.insert(0, any);
+    }
+
+    #[inline]
+    fn remove_by_id(&mut self, id: &str) {
+        if let Some(index) = self.0.iter().position(|c| c.id() == id) {
+            self.0.remove(index);
+        }
+    }
+
+    #[inline]
+    fn replace_by_id(&mut self, id: &str, any: AnyComponent) {
+        for c in self.0.iter_mut() {
+            if c.id() == id {
+                *c = any;
+                break;
+            }
+        }
+    }
+
+    #[inline]
+    fn reset(&mut self) {
+        self.0.clear();
     }
 
     // MixedComponents GETTERS.
