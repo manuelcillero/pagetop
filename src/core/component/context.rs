@@ -13,6 +13,7 @@ use std::str::FromStr;
 pub enum AssetsOp {
     LangId(&'static LanguageIdentifier),
     Theme(&'static str),
+    Layout(&'static str),
     // Stylesheets.
     AddStyleSheet(StyleSheet),
     RemoveStyleSheet(&'static str),
@@ -34,6 +35,7 @@ pub struct Context {
     request   : HttpRequest,
     langid    : &'static LanguageIdentifier,
     theme     : ThemeRef,
+    layout    : &'static str,
     stylesheet: Assets<StyleSheet>,                     // Stylesheets.
     headstyles: Assets<HeadStyles>,                     // Styles in head.
     javascript: Assets<JavaScript>,                     // JavaScripts.
@@ -50,6 +52,7 @@ impl Context {
             request,
             langid    : &LANGID_DEFAULT,
             theme     : *THEME_DEFAULT,
+            layout    : "default",
             stylesheet: Assets::<StyleSheet>::new(),    // Stylesheets.
             headstyles: Assets::<HeadStyles>::new(),    // Styles in head.
             javascript: Assets::<JavaScript>::new(),    // JavaScripts.
@@ -68,6 +71,9 @@ impl Context {
             }
             AssetsOp::Theme(theme_name) => {
                 self.theme = theme_by_single_name(theme_name).unwrap_or(*THEME_DEFAULT);
+            }
+            AssetsOp::Layout(layout) => {
+                self.layout = layout;
             }
 
             // Stylesheets.
@@ -118,6 +124,10 @@ impl Context {
         self.theme
     }
 
+    pub fn layout(&self) -> &str {
+        self.layout
+    }
+
     pub fn regions(&self) -> &ComponentsInRegions {
         &self.regions
     }
@@ -140,6 +150,10 @@ impl Context {
             (self.javascript.prepare())                 // JavaScripts.
             (self.headscript.prepare())                 // Scripts in head.
         }
+    }
+
+    pub fn prepare_region(&mut self, region: &str) -> Markup {
+        self.regions.all_components(self.theme, region).render(self)
     }
 
     // Context EXTRAS.

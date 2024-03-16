@@ -4,7 +4,7 @@ pub use error::ErrorPage;
 pub use actix_web::Result as ResultPage;
 
 use crate::base::action;
-use crate::core::component::{AnyComponent, ComponentTrait, MixedComponents, MixedOp};
+use crate::core::component::{AnyComponent, ComponentTrait, MixedOp};
 use crate::core::component::{AssetsOp, Context};
 use crate::fn_builder;
 use crate::html::{html, Markup, DOCTYPE};
@@ -25,7 +25,6 @@ pub struct Page {
     body_id     : OptionId,
     body_classes: OptionClasses,
     skip_to     : OptionId,
-    template    : String,
 }
 
 impl Page {
@@ -41,7 +40,6 @@ impl Page {
             body_id     : OptionId::default(),
             body_classes: OptionClasses::default(),
             skip_to     : OptionId::default(),
-            template    : "default".to_owned(),
         }
     }
 
@@ -102,8 +100,8 @@ impl Page {
     }
 
     #[fn_builder]
-    pub fn alter_template(&mut self, template: &str) -> &mut Self {
-        self.template = template.to_owned();
+    pub fn alter_layout(&mut self, layout: &'static str) -> &mut Self {
+        self.context.alter_assets(AssetsOp::Layout(layout));
         self
     }
 
@@ -165,16 +163,6 @@ impl Page {
 
     pub fn skip_to(&self) -> &OptionId {
         &self.skip_to
-    }
-
-    pub fn template(&self) -> &str {
-        self.template.as_str()
-    }
-
-    pub fn components_in(&self, region: &str) -> MixedComponents {
-        self.context
-            .regions()
-            .all_components(self.context.theme(), region)
     }
 
     // Page RENDER.

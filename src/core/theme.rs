@@ -1,5 +1,5 @@
 mod definition;
-pub use definition::{ThemeBuiltInClasses, ThemeRef, ThemeTrait};
+pub use definition::{ThemeRef, ThemeTrait};
 
 mod regions;
 pub(crate) use regions::ComponentsInRegions;

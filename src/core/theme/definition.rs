@@ -1,48 +1,13 @@
-use crate::core::component::{ComponentTrait, Context};
+use crate::base::component::Layout;
+use crate::core::component::{ComponentBase, ComponentTrait, Context};
 use crate::core::package::PackageTrait;
-use crate::html::{html, Favicon, Markup, OptionId};
+use crate::html::{html, Favicon, Markup};
 use crate::locale::L10n;
 use crate::response::page::Page;
 use crate::{concat_string, config};
 
 pub type ThemeRef = &'static dyn ThemeTrait;
 
-/// Theme built-in classes used by the default page rendering process.
-///
-/// The [`ThemeTrait`](crate::core::theme::ThemeTrait) default implementation uses these CSS classes
-/// in the [`prepare_region()`](crate::core::theme::ThemeTrait::prepare_region) and
-/// [`prepare_body()`](crate::core::theme::ThemeTrait::prepare_body) methods to build the HTML code
-/// for regions and page body main containers.
-///
-/// Theme developers can customize the default implementation of
-/// [`builtin_classes()`](crate::core::theme::ThemeTrait::builtin_classes) method to return
-/// alternative class name or space-separated class names for each variant, without altering the
-/// default page rendering process.
-pub enum ThemeBuiltInClasses {
-    /// Skip to content link. Default is `skip__to_content`.
-    SkipToContent,
-    /// Main body wrapper. Default is `body__wrapper`.
-    BodyWrapper,
-    /// Main content wrapper. Default is `content__wrapper`.
-    ContentWrapper,
-    /// A region container. Default is `region__container`.
-    RegionContainer,
-    /// The region inner content. Default is `region__content`.
-    RegionContent,
-}
-
-#[rustfmt::skip]
-impl ToString for ThemeBuiltInClasses {
-    fn to_string(&self) -> String {
-        match self {
-            ThemeBuiltInClasses::SkipToContent   => String::from("skip__to_content"),
-            ThemeBuiltInClasses::BodyWrapper     => String::from("body__wrapper"),
-            ThemeBuiltInClasses::ContentWrapper  => String::from("content__wrapper"),
-            ThemeBuiltInClasses::RegionContainer => String::from("region__container"),
-            ThemeBuiltInClasses::RegionContent   => String::from("region__content"),
-        }
-    }
-}
 /// Los temas deben implementar este "trait".
 pub trait ThemeTrait: PackageTrait + Send + Sync {
     #[rustfmt::skip]
@@ -57,34 +22,6 @@ pub trait ThemeTrait: PackageTrait + Send + Sync {
         ]
     }
 
-    #[rustfmt::skip]
-    /// Return the name of the CSS class or space-separated class names associated with each variant
-    /// of [ThemeBuiltInClasses].
-    ///
-    /// Theme developers can customize the default implementation of this method to return
-    /// alternative class name or space-separated class names for each variant, without altering the
-    /// default page rendering process.
-    fn builtin_classes(&self, builtin: ThemeBuiltInClasses) -> Option<String> {
-        Some(builtin.to_string())
-    }
-
-    fn prepare_region(&self, page: &mut Page, region_name: &str) -> Markup {
-        let render_region = page.components_in(region_name).render(page.context());
-        if render_region.is_empty() {
-            return html! {};
-        }
-        html! {
-            div
-                id=[OptionId::new(region_name).get()]
-                class=[self.builtin_classes(ThemeBuiltInClasses::RegionContainer)]
-            {
-                div class=[self.builtin_classes(ThemeBuiltInClasses::RegionContent)] {
-                    (render_region)
-                }
-            }
-        }
-    }
-
     #[allow(unused_variables)]
     fn before_prepare_body(&self, page: &mut Page) {}
 
@@ -94,20 +31,11 @@ pub trait ThemeTrait: PackageTrait + Send + Sync {
         html! {
             body id=[page.body_id().get()] class=[page.body_classes().get()] {
                 @if let Some(skip) = L10n::l("skip_to_content").using(page.context().langid()) {
-                    div class=[self.builtin_classes(ThemeBuiltInClasses::SkipToContent)] {
+                    div class="skip__to_content" {
                         a href=(skip_to) { (skip) }
                     }
                 }
-                div class=[self.builtin_classes(ThemeBuiltInClasses::BodyWrapper)] {
-                    (self.prepare_region(page, "header"))
-                    (self.prepare_region(page, "pagetop"))
-                    div class=[self.builtin_classes(ThemeBuiltInClasses::ContentWrapper)] {
-                        (self.prepare_region(page, "sidebar_left"))
-                        (self.prepare_region(page, "content"))
-                        (self.prepare_region(page, "sidebar_right"))
-                    }
-                    (self.prepare_region(page, "footer"))
-                }
+                (Layout::new().render(page.context()))
             }
         }
     }

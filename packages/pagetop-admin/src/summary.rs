@@ -152,7 +152,6 @@ pub async fn summary(request: HttpRequest) -> ResultPage<Markup, ErrorPage> {
 
     Page::new(request)
         .with_title(L10n::n("Admin"))
-        .with_template("admin")
         .with_component_in("top-menu", side_menu)
         .with_component(
             flex::Container::new()

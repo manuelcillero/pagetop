@@ -157,6 +157,12 @@ impl ToString for FontSize {
 
 // *************************************************************************************************
 
+mod layout;
+pub use layout::Layout;
+
+mod region;
+pub use region::Region;
+
 mod html;
 pub use html::Html;
 
