@@ -3,9 +3,9 @@ use crate::prelude::*;
 use super::{Megamenu, Submenu};
 
 type Label = L10n;
-type Content = OneComponent<Html>;
-type SubmenuItems = OneComponent<Submenu>;
-type MegamenuGroups = OneComponent<Megamenu>;
+type Content = TypedComponent<Html>;
+type SubmenuItems = TypedComponent<Submenu>;
+type MegamenuGroups = TypedComponent<Megamenu>;
 
 #[derive(AutoDefault)]
 pub enum ItemType {

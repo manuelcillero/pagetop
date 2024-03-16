@@ -1,8 +1,8 @@
-use crate::core::component::{ComponentTrait, Context, OneComponent};
+use crate::core::component::{ComponentTrait, Context, TypedComponent};
 use crate::fn_builder;
 use crate::html::{html, Markup};
 
-pub struct OptionComponent<C: ComponentTrait>(Option<OneComponent<C>>);
+pub struct OptionComponent<C: ComponentTrait>(Option<TypedComponent<C>>);
 
 impl<C: ComponentTrait> Default for OptionComponent<C> {
     fn default() -> Self {
@@ -20,7 +20,7 @@ impl<C: ComponentTrait> OptionComponent<C> {
     #[fn_builder]
     pub fn alter_value(&mut self, component: Option<C>) -> &mut Self {
         if let Some(component) = component {
-            self.0 = Some(OneComponent::with(component));
+            self.0 = Some(TypedComponent::with(component));
         } else {
             self.0 = None;
         }
@@ -29,7 +29,7 @@ impl<C: ComponentTrait> OptionComponent<C> {
 
     // OptionComponent GETTERS.
 
-    pub fn get(&self) -> Option<OneComponent<C>> {
+    pub fn get(&self) -> Option<TypedComponent<C>> {
         if let Some(value) = &self.0 {
             return Some(value.clone());
         }

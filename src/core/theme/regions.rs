@@ -1,4 +1,4 @@
-use crate::core::component::{AnyComponent, MixedComponents, MixedOp};
+use crate::core::component::{AnyComponent, AnyOp, MixedComponents};
 use crate::core::theme::ThemeRef;
 use crate::{fn_builder, AutoDefault, LazyStatic, TypeId};
 
@@ -16,11 +16,11 @@ pub struct ComponentsInRegions(HashMap<&'static str, MixedComponents>);
 
 impl ComponentsInRegions {
     pub fn new(region: &'static str, any: AnyComponent) -> Self {
-        ComponentsInRegions::default().with_components(region, MixedOp::Add(any))
+        ComponentsInRegions::default().with_components(region, AnyOp::Add(any))
     }
 
     #[fn_builder]
-    pub fn alter_components(&mut self, region: &'static str, op: MixedOp) -> &mut Self {
+    pub fn alter_components(&mut self, region: &'static str, op: AnyOp) -> &mut Self {
         if let Some(region) = self.0.get_mut(region) {
             region.alter_value(op);
         } else {
@@ -52,18 +52,18 @@ impl InRegion {
                 COMMON_REGIONS
                     .write()
                     .unwrap()
-                    .alter_components("content", MixedOp::Add(any));
+                    .alter_components("content", AnyOp::Add(any));
             }
             InRegion::Named(name) => {
                 COMMON_REGIONS
                     .write()
                     .unwrap()
-                    .alter_components(name, MixedOp::Add(any));
+                    .alter_components(name, AnyOp::Add(any));
             }
             InRegion::OfTheme(region, theme) => {
                 let mut regions = THEME_REGIONS.write().unwrap();
                 if let Some(r) = regions.get_mut(&theme.type_id()) {
-                    r.alter_components(region, MixedOp::Add(any));
+                    r.alter_components(region, AnyOp::Add(any));
                 } else {
                     regions.insert(theme.type_id(), ComponentsInRegions::new(region, any));
                 }

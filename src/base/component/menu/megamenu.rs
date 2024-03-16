@@ -8,7 +8,7 @@ pub struct Megamenu {
     id        : OptionId,
     weight    : Weight,
     renderable: Renderable,
-    groups    : TypedComponents<Group>,
+    groups    : MixedComponents,
 }
 
 impl ComponentTrait for Megamenu {
@@ -58,21 +58,21 @@ impl Megamenu {
         self
     }
 
-    #[rustfmt::skip]
-    pub fn add_group(mut self, group: Group) -> Self {
-        self.groups.alter_value(TypedOp::Add(OneComponent::with(group)));
+    #[fn_builder]
+    pub fn alter_groups(&mut self, op: TypedOp<Group>) -> &mut Self {
+        self.groups.alter_typed(op);
         self
     }
 
-    #[fn_builder]
-    pub fn alter_groups(&mut self, op: TypedOp<Group>) -> &mut Self {
-        self.groups.alter_value(op);
+    #[rustfmt::skip]
+    pub fn add_group(mut self, group: Group) -> Self {
+        self.groups.alter_value(AnyOp::Add(AnyComponent::with(group)));
         self
     }
 
     // Megamenu GETTERS.
 
-    pub fn groups(&self) -> &TypedComponents<Group> {
+    pub fn groups(&self) -> &MixedComponents {
         &self.groups
     }
 }

@@ -8,7 +8,7 @@ pub struct Menu {
     id        : OptionId,
     weight    : Weight,
     renderable: Renderable,
-    items     : TypedComponents<Item>,
+    items     : MixedComponents,
 }
 
 impl ComponentTrait for Menu {
@@ -86,21 +86,21 @@ impl Menu {
         self
     }
 
-    #[rustfmt::skip]
-    pub fn add_item(mut self, item: Item) -> Self {
-        self.items.alter_value(TypedOp::Add(OneComponent::with(item)));
+    #[fn_builder]
+    pub fn alter_items(&mut self, op: TypedOp<Item>) -> &mut Self {
+        self.items.alter_typed(op);
         self
     }
 
-    #[fn_builder]
-    pub fn alter_items(&mut self, op: TypedOp<Item>) -> &mut Self {
-        self.items.alter_value(op);
+    #[rustfmt::skip]
+    pub fn add_item(mut self, item: Item) -> Self {
+        self.items.alter_value(AnyOp::Add(AnyComponent::with(item)));
         self
     }
 
     // Menu GETTERS.
 
-    pub fn items(&self) -> &TypedComponents<Item> {
+    pub fn items(&self) -> &MixedComponents {
         &self.items
     }
 }

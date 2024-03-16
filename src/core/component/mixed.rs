@@ -51,13 +51,59 @@ impl AnyComponent {
 
 // *************************************************************************************************
 
-pub enum MixedOp {
+pub struct TypedComponent<C: ComponentTrait>(Arc<RwLock<C>>);
+
+impl<C: ComponentTrait> Clone for TypedComponent<C> {
+    fn clone(&self) -> Self {
+        Self(self.0.clone())
+    }
+}
+
+impl<C: ComponentTrait> TypedComponent<C> {
+    pub fn with(component: C) -> Self {
+        TypedComponent(Arc::new(RwLock::new(component)))
+    }
+
+    // TypedComponent GETTERS.
+
+    pub fn get(&self) -> RwLockReadGuard<'_, C> {
+        self.0.read().unwrap()
+    }
+
+    pub fn get_mut(&self) -> RwLockWriteGuard<'_, C> {
+        self.0.write().unwrap()
+    }
+
+    fn to_any(&self) -> AnyComponent {
+        AnyComponent(self.0.clone())
+    }
+
+    // TypedComponent RENDER.
+
+    pub fn render(&self, cx: &mut Context) -> Markup {
+        self.0.write().unwrap().render(cx)
+    }
+}
+
+// *************************************************************************************************
+
+pub enum AnyOp {
     Add(AnyComponent),
     InsertAfterId(&'static str, AnyComponent),
     InsertBeforeId(&'static str, AnyComponent),
     Prepend(AnyComponent),
     RemoveById(&'static str),
     ReplaceById(&'static str, AnyComponent),
+    Reset,
+}
+
+pub enum TypedOp<C: ComponentTrait> {
+    Add(TypedComponent<C>),
+    InsertAfterId(&'static str, TypedComponent<C>),
+    InsertBeforeId(&'static str, TypedComponent<C>),
+    Prepend(TypedComponent<C>),
+    RemoveById(&'static str),
+    ReplaceById(&'static str, TypedComponent<C>),
     Reset,
 }
 
@@ -70,7 +116,7 @@ impl MixedComponents {
     }
 
     pub fn with(any: AnyComponent) -> Self {
-        MixedComponents::default().with_value(MixedOp::Add(any))
+        MixedComponents::default().with_value(AnyOp::Add(any))
     }
 
     pub(crate) fn merge(mixes: &[Option<&MixedComponents>]) -> Self {
@@ -84,24 +130,24 @@ impl MixedComponents {
     // MixedComponents BUILDER.
 
     #[fn_builder]
-    pub fn alter_value(&mut self, op: MixedOp) -> &mut Self {
+    pub fn alter_value(&mut self, op: AnyOp) -> &mut Self {
         match op {
-            MixedOp::Add(any) => self.0.push(any),
-            MixedOp::InsertAfterId(id, any) => match self.0.iter().position(|c| c.id() == id) {
+            AnyOp::Add(any) => self.0.push(any),
+            AnyOp::InsertAfterId(id, any) => match self.0.iter().position(|c| c.id() == id) {
                 Some(index) => self.0.insert(index + 1, any),
                 _ => self.0.push(any),
             },
-            MixedOp::InsertBeforeId(id, any) => match self.0.iter().position(|c| c.id() == id) {
+            AnyOp::InsertBeforeId(id, any) => match self.0.iter().position(|c| c.id() == id) {
                 Some(index) => self.0.insert(index, any),
                 _ => self.0.insert(0, any),
             },
-            MixedOp::Prepend(any) => self.0.insert(0, any),
-            MixedOp::RemoveById(id) => {
+            AnyOp::Prepend(any) => self.0.insert(0, any),
+            AnyOp::RemoveById(id) => {
                 if let Some(index) = self.0.iter().position(|c| c.id() == id) {
                     self.0.remove(index);
                 }
             }
-            MixedOp::ReplaceById(id, any) => {
+            AnyOp::ReplaceById(id, any) => {
                 for c in self.0.iter_mut() {
                     if c.id() == id {
                         *c = any;
@@ -109,8 +155,37 @@ impl MixedComponents {
                     }
                 }
             }
-            MixedOp::Reset => self.0.clear(),
+            AnyOp::Reset => self.0.clear(),
         }
+        self
+    }
+
+    #[fn_builder]
+    #[rustfmt::skip]
+    pub fn alter_typed<C: ComponentTrait + Default>(&mut self, op: TypedOp<C>) -> &mut Self {
+        match op {
+            TypedOp::Add(typed) => {
+                self.alter_value(AnyOp::Add(typed.to_any()))
+            }
+            TypedOp::InsertAfterId(id, typed) => {
+                self.alter_value(AnyOp::InsertAfterId(id, typed.to_any()))
+            }
+            TypedOp::InsertBeforeId(id, typed) => {
+                self.alter_value(AnyOp::InsertBeforeId(id, typed.to_any()))
+            }
+            TypedOp::Prepend(typed) => {
+                self.alter_value(AnyOp::Prepend(typed.to_any()))
+            }
+            TypedOp::RemoveById(id) => {
+                self.alter_value(AnyOp::RemoveById(id))
+            }
+            TypedOp::ReplaceById(id, typed) => {
+                self.alter_value(AnyOp::ReplaceById(id, typed.to_any()))
+            }
+            TypedOp::Reset => {
+                self.alter_value(AnyOp::Reset)
+            }
+        };
         self
     }
 

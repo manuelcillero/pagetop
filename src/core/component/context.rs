@@ -1,5 +1,5 @@
 use crate::base::component::add_base_assets;
-use crate::core::component::MixedOp;
+use crate::core::component::AnyOp;
 use crate::core::theme::all::{theme_by_single_name, THEME_DEFAULT};
 use crate::core::theme::{ComponentsInRegions, ThemeRef};
 use crate::html::{html, Assets, HeadScript, HeadStyles, JavaScript, Markup, StyleSheet};
@@ -95,7 +95,7 @@ impl Context {
         self
     }
 
-    pub fn alter_regions(&mut self, region: &'static str, op: MixedOp) -> &mut Self {
+    pub fn alter_regions(&mut self, region: &'static str, op: AnyOp) -> &mut Self {
         self.regions.alter_components(region, op);
         self
     }

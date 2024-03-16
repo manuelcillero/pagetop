@@ -2,8 +2,8 @@ use crate::prelude::*;
 
 use super::Submenu;
 
-type Content = OneComponent<Html>;
-type SubmenuItems = OneComponent<Submenu>;
+type Content = TypedComponent<Html>;
+type SubmenuItems = TypedComponent<Submenu>;
 
 #[derive(AutoDefault)]
 pub enum ElementType {

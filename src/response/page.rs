@@ -4,7 +4,7 @@ pub use error::ErrorPage;
 pub use actix_web::Result as ResultPage;
 
 use crate::base::action;
-use crate::core::component::{AnyComponent, ComponentTrait, MixedOp};
+use crate::core::component::{AnyComponent, AnyOp, ComponentTrait};
 use crate::core::component::{AssetsOp, Context};
 use crate::fn_builder;
 use crate::html::{html, Markup, DOCTYPE};
@@ -106,14 +106,14 @@ impl Page {
     }
 
     #[fn_builder]
-    pub fn alter_regions(&mut self, region: &'static str, op: MixedOp) -> &mut Self {
+    pub fn alter_regions(&mut self, region: &'static str, op: AnyOp) -> &mut Self {
         self.context.alter_regions(region, op);
         self
     }
 
     pub fn with_component(mut self, component: impl ComponentTrait) -> Self {
         self.context
-            .alter_regions("content", MixedOp::Add(AnyComponent::with(component)));
+            .alter_regions("content", AnyOp::Add(AnyComponent::with(component)));
         self
     }
 
@@ -123,7 +123,7 @@ impl Page {
         component: impl ComponentTrait,
     ) -> Self {
         self.context
-            .alter_regions(region, MixedOp::Add(AnyComponent::with(component)));
+            .alter_regions(region, AnyOp::Add(AnyComponent::with(component)));
         self
     }
 

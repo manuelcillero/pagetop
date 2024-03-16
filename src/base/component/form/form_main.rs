@@ -97,15 +97,15 @@ impl Form {
         self
     }
 
-    #[rustfmt::skip]
-    pub fn add_element(mut self, element: impl ComponentTrait) -> Self {
-        self.mixed.alter_value(MixedOp::Add(AnyComponent::with(element)));
+    #[fn_builder]
+    pub fn alter_elements(&mut self, op: AnyOp) -> &mut Self {
+        self.mixed.alter_value(op);
         self
     }
 
-    #[fn_builder]
-    pub fn alter_elements(&mut self, op: MixedOp) -> &mut Self {
-        self.mixed.alter_value(op);
+    #[rustfmt::skip]
+    pub fn add_element(mut self, element: impl ComponentTrait) -> Self {
+        self.mixed.alter_value(AnyOp::Add(AnyComponent::with(element)));
         self
     }
 
