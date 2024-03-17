@@ -14,17 +14,17 @@ pub enum ContainerType {
 #[rustfmt::skip]
 #[derive(AutoDefault, ComponentClasses)]
 pub struct Container {
-    id             : OptionId,
-    weight         : Weight,
-    renderable     : Renderable,
-    classes        : OptionClasses,
-    container_type : ContainerType,
-    direction      : flex::Direction,
-    wrap_align     : flex::WrapAlign,
-    content_justify: flex::ContentJustify,
-    items_align    : flex::ItemAlign,
-    gap            : flex::Gap,
-    items          : MixedComponents,
+    id            : OptionId,
+    weight        : Weight,
+    renderable    : Renderable,
+    classes       : OptionClasses,
+    container_type: ContainerType,
+    direction     : FlexDirection,
+    flex_wrap     : FlexWrap,
+    flex_justify  : FlexJustify,
+    flex_align    : FlexAlign,
+    flex_gap      : FlexGap,
+    items         : MixedComponents,
 }
 
 impl ComponentTrait for Container {
@@ -50,9 +50,9 @@ impl ComponentTrait for Container {
             [
                 String::from("flex__container"),
                 self.direction().to_string(),
-                self.wrap_align().to_string(),
-                self.content_justify().to_string(),
-                self.items_align().to_string(),
+                self.wrap().to_string(),
+                self.justify().to_string(),
+                self.align().to_string(),
             ]
             .join(" "),
         );
@@ -67,7 +67,7 @@ impl ComponentTrait for Container {
         }
 
         let gap = match self.gap() {
-            flex::Gap::Default => None,
+            FlexGap::Default => None,
             _ => Some(self.gap().to_string()),
         };
         match self.container_type() {
@@ -162,43 +162,43 @@ impl Container {
     }
 
     #[fn_builder]
-    pub fn alter_direction(&mut self, direction: flex::Direction) -> &mut Self {
+    pub fn alter_direction(&mut self, direction: FlexDirection) -> &mut Self {
         self.direction = direction;
         self
     }
 
     #[fn_builder]
-    pub fn alter_wrap_align(&mut self, wrap: flex::WrapAlign) -> &mut Self {
-        self.wrap_align = wrap;
+    pub fn alter_wrap(&mut self, wrap: FlexWrap) -> &mut Self {
+        self.flex_wrap = wrap;
         self
     }
 
     #[fn_builder]
-    pub fn alter_content_justify(&mut self, justify: flex::ContentJustify) -> &mut Self {
-        self.content_justify = justify;
+    pub fn alter_justify(&mut self, justify: FlexJustify) -> &mut Self {
+        self.flex_justify = justify;
         self
     }
 
     #[fn_builder]
-    pub fn alter_items_align(&mut self, align: flex::ItemAlign) -> &mut Self {
-        self.items_align = align;
+    pub fn alter_align(&mut self, align: FlexAlign) -> &mut Self {
+        self.flex_align = align;
         self
     }
 
     #[fn_builder]
-    pub fn alter_gap(&mut self, gap: flex::Gap) -> &mut Self {
-        self.gap = gap;
+    pub fn alter_gap(&mut self, gap: FlexGap) -> &mut Self {
+        self.flex_gap = gap;
         self
     }
 
     #[fn_builder]
-    pub fn alter_items(&mut self, op: TypedOp<flex::Item>) -> &mut Self {
+    pub fn alter_items(&mut self, op: TypedOp<Flex>) -> &mut Self {
         self.items.alter_typed(op);
         self
     }
 
     #[rustfmt::skip]
-    pub fn add_item(mut self, item: flex::Item) -> Self {
+    pub fn add_item(mut self, item: Flex) -> Self {
         self.items.alter_value(AnyOp::Add(AnyComponent::with(item)));
         self
     }
@@ -209,24 +209,24 @@ impl Container {
         &self.container_type
     }
 
-    pub fn direction(&self) -> &flex::Direction {
+    pub fn direction(&self) -> &FlexDirection {
         &self.direction
     }
 
-    pub fn wrap_align(&self) -> &flex::WrapAlign {
-        &self.wrap_align
+    pub fn wrap(&self) -> &FlexWrap {
+        &self.flex_wrap
     }
 
-    pub fn content_justify(&self) -> &flex::ContentJustify {
-        &self.content_justify
+    pub fn justify(&self) -> &FlexJustify {
+        &self.flex_justify
     }
 
-    pub fn items_align(&self) -> &flex::ItemAlign {
-        &self.items_align
+    pub fn align(&self) -> &FlexAlign {
+        &self.flex_align
     }
 
-    pub fn gap(&self) -> &flex::Gap {
-        &self.gap
+    pub fn gap(&self) -> &FlexGap {
+        &self.flex_gap
     }
 
     pub fn items(&self) -> &MixedComponents {

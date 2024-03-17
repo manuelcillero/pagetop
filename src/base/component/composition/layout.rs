@@ -19,35 +19,35 @@ impl ComponentTrait for Layout {
 
 impl Layout {
     fn default_layout(cx: &mut Context) -> Markup {
-        flex::Container::new()
+        Container::new()
             .with_id("body__wrapper")
-            .with_direction(flex::Direction::Column(BreakPoint::None))
-            .with_items_align(flex::ItemAlign::Center)
-            .add_item(flex::Item::with(Region::named("header")).with_id("header"))
-            .add_item(flex::Item::with(Region::named("pagetop")).with_id("pagetop"))
+            .with_direction(FlexDirection::Column(BreakPoint::None))
+            .with_align(FlexAlign::Center)
+            .add_item(Flex::with(Region::named("header")).with_id("header"))
+            .add_item(Flex::with(Region::named("pagetop")).with_id("pagetop"))
             .add_item(
-                flex::Item::with(
-                    flex::Container::new()
-                        .with_direction(flex::Direction::Row(BreakPoint::None))
+                Flex::with(
+                    Container::new()
+                        .with_direction(FlexDirection::Row(BreakPoint::None))
                         .add_item(
-                            flex::Item::with(Region::named("sidebar_left"))
+                            Flex::with(Region::named("sidebar_left"))
                                 .with_id("sidebar_left")
-                                .with_grow(flex::ItemGrow::Is1),
+                                .with_grow(FlexGrow::Is1),
                         )
                         .add_item(
-                            flex::Item::with(Region::named("content"))
+                            Flex::with(Region::named("content"))
                                 .with_id("content")
-                                .with_grow(flex::ItemGrow::Is3),
+                                .with_grow(FlexGrow::Is3),
                         )
                         .add_item(
-                            flex::Item::with(Region::named("sidebar_right"))
+                            Flex::with(Region::named("sidebar_right"))
                                 .with_id("sidebar_right")
-                                .with_grow(flex::ItemGrow::Is1),
+                                .with_grow(FlexGrow::Is1),
                         ),
                 )
-                .with_id("content__wrapper"),
+                .with_id("flex__wrapper"),
             )
-            .add_item(flex::Item::with(Region::named("footer")).with_id("footer"))
+            .add_item(Flex::with(Region::named("footer")).with_id("footer"))
             .render(cx)
     }
 

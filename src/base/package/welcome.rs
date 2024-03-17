@@ -47,78 +47,74 @@ fn home(request: HttpRequest, lang: &'static LanguageIdentifier) -> ResultPage<M
         .render()
 }
 
-fn hello_world() -> flex::Container {
-    flex::Container::header()
+fn hello_world() -> Container {
+    Container::header()
         .with_classes(ClassesOp::Add, "hello-world")
-        .with_content_justify(flex::ContentJustify::Center)
+        .with_justify(FlexJustify::Center)
         .add_item(
-            flex::Item::new()
-                .with_size(flex::ItemSize::Percent90)
-                .add_component(
-                    flex::Container::new()
-                        .with_direction(flex::Direction::Column(BreakPoint::MD))
-                        .add_item(
-                            flex::Item::new()
-                                .with_classes(ClassesOp::Add, "hello-col-text")
-                                .with_size(flex::ItemSize::Percent40)
-                                .add_component(
-                                    Heading::h1(L10n::l("welcome_title"))
-                                        .with_size(HeadingSize::Medium),
-                                )
-                                .add_component(
-                                    Paragraph::fluent(L10n::l("welcome_intro").with_arg(
-                                        "app",
-                                        format!(
-                                            "<span class=\"app-name\">{}</span>",
-                                            &config::SETTINGS.app.name,
-                                        ),
-                                    ))
-                                    .with_font_size(FontSize::Medium),
-                                )
-                                .add_component(Paragraph::fluent(
-                                    L10n::l("welcome_powered").with_arg(
-                                        "pagetop",
-                                        format!(
-                                            "<a href=\"{}\" target=\"_blank\">{}</a>",
-                                            "https://pagetop.cillero.es", "PageTop",
-                                        ),
+            Flex::new().with_size(FlexSize::Percent90).add_component(
+                Container::new()
+                    .with_direction(FlexDirection::Column(BreakPoint::MD))
+                    .add_item(
+                        Flex::new()
+                            .with_classes(ClassesOp::Add, "hello-col-text")
+                            .with_size(FlexSize::Percent40)
+                            .add_component(
+                                Heading::h1(L10n::l("welcome_title"))
+                                    .with_size(HeadingSize::Medium),
+                            )
+                            .add_component(
+                                Paragraph::fluent(L10n::l("welcome_intro").with_arg(
+                                    "app",
+                                    format!(
+                                        "<span class=\"app-name\">{}</span>",
+                                        &config::SETTINGS.app.name,
                                     ),
                                 ))
-                                .add_component(
-                                    Button::anchor(
-                                        "https://github.com/manuelcillero/pagetop",
-                                        L10n::l("welcome_code"),
-                                    )
-                                    .with_target(ButtonTarget::Blank)
-                                    .with_left_icon(Some(Icon::with("git")))
-                                    .with_classes(ClassesOp::Add, "code-link")
-                                    .with_font_size(FontSize::Medium),
-                                )
-                                .add_component(
-                                    Button::anchor("#welcome-page", L10n::l("welcome"))
-                                        .with_style(StyleBase::Link)
-                                        .with_left_icon(Some(Icon::with("arrow-down-circle-fill")))
-                                        .with_classes(ClassesOp::Add, "welcome-link")
-                                        .with_font_size(FontSize::Medium),
+                                .with_font_size(FontSize::Medium),
+                            )
+                            .add_component(Paragraph::fluent(L10n::l("welcome_powered").with_arg(
+                                "pagetop",
+                                format!(
+                                    "<a href=\"{}\" target=\"_blank\">{}</a>",
+                                    "https://pagetop.cillero.es", "PageTop",
                                 ),
-                        )
-                        .add_item(
-                            flex::Item::with(Image::with("/base/images/header.svg"))
-                                .with_classes(ClassesOp::Add, "hello-col-image")
-                                .with_size(flex::ItemSize::Percent60),
-                        ),
-                ),
+                            )))
+                            .add_component(
+                                Button::anchor(
+                                    "https://github.com/manuelcillero/pagetop",
+                                    L10n::l("welcome_code"),
+                                )
+                                .with_target(ButtonTarget::Blank)
+                                .with_left_icon(Some(Icon::with("git")))
+                                .with_classes(ClassesOp::Add, "code-link")
+                                .with_font_size(FontSize::Medium),
+                            )
+                            .add_component(
+                                Button::anchor("#welcome-page", L10n::l("welcome"))
+                                    .with_style(StyleBase::Link)
+                                    .with_left_icon(Some(Icon::with("arrow-down-circle-fill")))
+                                    .with_classes(ClassesOp::Add, "welcome-link")
+                                    .with_font_size(FontSize::Medium),
+                            ),
+                    )
+                    .add_item(
+                        Flex::with(Image::with("/base/images/header.svg"))
+                            .with_classes(ClassesOp::Add, "hello-col-image")
+                            .with_size(FlexSize::Percent60),
+                    ),
+            ),
         )
 }
 
-fn welcome() -> flex::Container {
-    flex::Container::section()
+fn welcome() -> Container {
+    Container::section()
         .with_id("welcome-page")
         .with_classes(ClassesOp::Add, "welcome")
-        .with_content_justify(flex::ContentJustify::Center)
+        .with_justify(FlexJustify::Center)
         .add_item(
-            flex::Item::new()
-                .with_size(flex::ItemSize::Percent80)
+            Flex::new()
+                .with_size(FlexSize::Percent80)
                 .add_component(Heading::h2(L10n::l("welcome_page")))
                 .add_component(
                     Heading::h3(L10n::l("welcome_subtitle").with_arg(
@@ -137,104 +133,98 @@ fn welcome() -> flex::Container {
         )
 }
 
-fn about_pagetop() -> flex::Container {
-    flex::Container::new()
+fn about_pagetop() -> Container {
+    Container::new()
         .with_classes(ClassesOp::Add, "pagetop")
-        .with_content_justify(flex::ContentJustify::Center)
+        .with_justify(FlexJustify::Center)
         .add_item(
-            flex::Item::new()
-                .with_size(flex::ItemSize::Percent90)
-                .add_component(
-                    flex::Container::new()
-                        .with_direction(flex::Direction::Column(BreakPoint::SM))
-                        .add_item(
-                            flex::Item::with(Image::with("/base/images/about.svg"))
-                                .with_classes(ClassesOp::Add, "pagetop-col-image")
-                                .with_size(flex::ItemSize::Percent40),
-                        )
-                        .add_item(
-                            flex::Item::new()
-                                .with_classes(ClassesOp::Add, "pagetop-col-text")
-                                .add_component(Heading::h2(L10n::l("welcome_pagetop_title")))
-                                .add_component(
-                                    Paragraph::fluent(L10n::l("welcome_pagetop_text1"))
-                                        .with_font_size(FontSize::Medium),
-                                )
-                                .add_component(Paragraph::fluent(L10n::l("welcome_pagetop_text2")))
-                                .add_component(Paragraph::fluent(L10n::l("welcome_pagetop_text3"))),
-                        ),
-                ),
-        )
-}
-
-fn promo_pagetop() -> flex::Container {
-    flex::Container::new()
-        .with_classes(ClassesOp::Add, "promo")
-        .with_content_justify(flex::ContentJustify::Center)
-        .add_item(
-            flex::Item::new()
-                .with_size(flex::ItemSize::Percent75)
-                .add_component(
-                    flex::Container::new()
-                        .with_direction(flex::Direction::Column(BreakPoint::MD))
-                        .add_item(
-                            flex::Item::new()
-                                .with_classes(ClassesOp::Add, "promo-col-text")
-                                .with_size(flex::ItemSize::Percent50)
-                                .add_component(Heading::h2(L10n::l("welcome_promo_title")))
-                                .add_component(
-                                    Paragraph::fluent(L10n::l("welcome_promo_text1").with_arg(
-                                        "pagetop",
-                                        format!(
-                                            "<a href=\"{}\" target=\"_blank\">{}</a>",
-                                            "https://crates.io/crates/pagetop", "PageTop",
-                                        ),
-                                    ))
+            Flex::new().with_size(FlexSize::Percent90).add_component(
+                Container::new()
+                    .with_direction(FlexDirection::Column(BreakPoint::SM))
+                    .add_item(
+                        Flex::with(Image::with("/base/images/about.svg"))
+                            .with_classes(ClassesOp::Add, "pagetop-col-image")
+                            .with_size(FlexSize::Percent40),
+                    )
+                    .add_item(
+                        Flex::new()
+                            .with_classes(ClassesOp::Add, "pagetop-col-text")
+                            .add_component(Heading::h2(L10n::l("welcome_pagetop_title")))
+                            .add_component(
+                                Paragraph::fluent(L10n::l("welcome_pagetop_text1"))
                                     .with_font_size(FontSize::Medium),
-                                ),
-                        )
-                        .add_item(
-                            flex::Item::with(Image::with("/base/images/pagetop.png"))
-                                .with_classes(ClassesOp::Add, "promo-col-image")
-                                .with_size(flex::ItemSize::Percent50),
-                        ),
-                ),
+                            )
+                            .add_component(Paragraph::fluent(L10n::l("welcome_pagetop_text2")))
+                            .add_component(Paragraph::fluent(L10n::l("welcome_pagetop_text3"))),
+                    ),
+            ),
         )
 }
 
-fn reporting_issues() -> flex::Container {
-    flex::Container::new()
-        .with_classes(ClassesOp::Add, "issues")
-        .with_content_justify(flex::ContentJustify::Center)
+fn promo_pagetop() -> Container {
+    Container::new()
+        .with_classes(ClassesOp::Add, "promo")
+        .with_justify(FlexJustify::Center)
         .add_item(
-            flex::Item::new()
-                .with_size(flex::ItemSize::Percent90)
-                .add_component(
-                    flex::Container::new()
-                        .with_direction(flex::Direction::Column(BreakPoint::MD))
-                        .add_item(
-                            flex::Item::with(Image::with("/base/images/issues.jpg"))
-                                .with_classes(ClassesOp::Add, "issues-col-image"),
-                        )
-                        .add_item(
-                            flex::Item::new()
-                                .with_classes(ClassesOp::Add, "issues-col-text")
-                                .with_size(flex::ItemSize::Percent50)
-                                .add_component(Heading::h2(L10n::l("welcome_issues_title")))
-                                .add_component(
-                                    Paragraph::fluent(L10n::l("welcome_issues_text1"))
-                                        .with_font_size(FontSize::Medium),
-                                )
-                                .add_component(Paragraph::fluent(
-                                    L10n::l("welcome_issues_text2").with_arg(
-                                        "app",
-                                        format!(
-                                            "<span class=\"app-name\">{}</span>",
-                                            &config::SETTINGS.app.name,
-                                        ),
+            Flex::new().with_size(FlexSize::Percent75).add_component(
+                Container::new()
+                    .with_direction(FlexDirection::Column(BreakPoint::MD))
+                    .add_item(
+                        Flex::new()
+                            .with_classes(ClassesOp::Add, "promo-col-text")
+                            .with_size(FlexSize::Percent50)
+                            .add_component(Heading::h2(L10n::l("welcome_promo_title")))
+                            .add_component(
+                                Paragraph::fluent(L10n::l("welcome_promo_text1").with_arg(
+                                    "pagetop",
+                                    format!(
+                                        "<a href=\"{}\" target=\"_blank\">{}</a>",
+                                        "https://crates.io/crates/pagetop", "PageTop",
                                     ),
-                                )),
-                        ),
-                ),
+                                ))
+                                .with_font_size(FontSize::Medium),
+                            ),
+                    )
+                    .add_item(
+                        Flex::with(Image::with("/base/images/pagetop.png"))
+                            .with_classes(ClassesOp::Add, "promo-col-image")
+                            .with_size(FlexSize::Percent50),
+                    ),
+            ),
+        )
+}
+
+fn reporting_issues() -> Container {
+    Container::new()
+        .with_classes(ClassesOp::Add, "issues")
+        .with_justify(FlexJustify::Center)
+        .add_item(
+            Flex::new().with_size(FlexSize::Percent90).add_component(
+                Container::new()
+                    .with_direction(FlexDirection::Column(BreakPoint::MD))
+                    .add_item(
+                        Flex::with(Image::with("/base/images/issues.jpg"))
+                            .with_classes(ClassesOp::Add, "issues-col-image"),
+                    )
+                    .add_item(
+                        Flex::new()
+                            .with_classes(ClassesOp::Add, "issues-col-text")
+                            .with_size(FlexSize::Percent50)
+                            .add_component(Heading::h2(L10n::l("welcome_issues_title")))
+                            .add_component(
+                                Paragraph::fluent(L10n::l("welcome_issues_text1"))
+                                    .with_font_size(FontSize::Medium),
+                            )
+                            .add_component(Paragraph::fluent(
+                                L10n::l("welcome_issues_text2").with_arg(
+                                    "app",
+                                    format!(
+                                        "<span class=\"app-name\">{}</span>",
+                                        &config::SETTINGS.app.name,
+                                    ),
+                                ),
+                            )),
+                    ),
+            ),
         )
 }

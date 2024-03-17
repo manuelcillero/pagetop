@@ -15,16 +15,17 @@ impl PackageTrait for Bulmix {
 }
 
 impl ThemeTrait for Bulmix {
-    #[rustfmt::skip]
-    fn builtin_classes(&self, builtin: ThemeBuiltInClasses) -> Option<String> {
-        match builtin {
-            ThemeBuiltInClasses::BodyWrapper     => Some(String::from("container")),
-            ThemeBuiltInClasses::ContentWrapper  => Some(String::from("container")),
-            ThemeBuiltInClasses::RegionContainer => Some(String::from("container")),
-            _ => Some(builtin.to_string()),
+    /*
+        #[rustfmt::skip]
+        fn builtin_classes(&self, builtin: ThemeBuiltInClasses) -> Option<String> {
+            match builtin {
+                ThemeBuiltInClasses::BodyWrapper     => Some(String::from("container")),
+                ThemeBuiltInClasses::FlexWrapper  => Some(String::from("container")),
+                ThemeBuiltInClasses::RegionContainer => Some(String::from("container")),
+                _ => Some(builtin.to_string()),
+            }
         }
-    }
-
+    */
     fn after_prepare_body(&self, page: &mut Page) {
         page.alter_favicon(Some(Favicon::new().with_icon("/base/favicon.ico")))
             .alter_assets(AssetsOp::AddStyleSheet(

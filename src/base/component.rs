@@ -157,34 +157,23 @@ impl ToString for FontSize {
 
 // *************************************************************************************************
 
-mod layout;
-pub use layout::Layout;
+mod basic;
+pub use basic::*;
 
-mod region;
-pub use region::Region;
+mod composition;
+pub use composition::*;
 
-mod html;
-pub use html::Html;
-
-mod fluent;
-pub use fluent::Fluent;
-
-mod error403;
-pub use error403::Error403;
-
-mod error404;
-pub use error404::Error404;
-
-pub mod flex;
-
-mod icon;
-pub use icon::Icon;
+mod error;
+pub use error::*;
 
 mod heading;
 pub use heading::{Heading, HeadingSize, HeadingType};
 
 mod paragraph;
 pub use paragraph::Paragraph;
+
+mod icon;
+pub use icon::Icon;
 
 mod button;
 pub use button::{Button, ButtonTarget};

@@ -2,22 +2,22 @@ use crate::prelude::*;
 
 #[rustfmt::skip]
 #[derive(AutoDefault, ComponentClasses)]
-pub struct Item {
+pub struct Flex {
     id           : OptionId,
     weight       : Weight,
     renderable   : Renderable,
     classes      : OptionClasses,
-    item_grow    : flex::ItemGrow,
-    item_shrink  : flex::ItemShrink,
-    item_size    : flex::ItemSize,
-    item_offset  : flex::ItemOffset,
-    item_align   : flex::ItemAlign,
+    flex_grow    : FlexGrow,
+    flex_shrink  : FlexShrink,
+    flex_size    : FlexSize,
+    flex_offset  : FlexOffset,
+    flex_align   : FlexAlign,
     mixed        : MixedComponents,
 }
 
-impl ComponentTrait for Item {
+impl ComponentTrait for Flex {
     fn new() -> Self {
-        Item::default()
+        Flex::default()
     }
 
     fn id(&self) -> Option<String> {
@@ -67,9 +67,9 @@ impl ComponentTrait for Item {
     }
 }
 
-impl Item {
+impl Flex {
     pub fn with(component: impl ComponentTrait) -> Self {
-        Item::default().add_component(component)
+        Flex::default().add_component(component)
     }
 
     // Item BUILDER.
@@ -93,34 +93,34 @@ impl Item {
     }
 
     #[fn_builder]
-    pub fn alter_grow(&mut self, grow: flex::ItemGrow) -> &mut Self {
-        self.item_grow = grow;
+    pub fn alter_grow(&mut self, grow: FlexGrow) -> &mut Self {
+        self.flex_grow = grow;
         self
     }
 
     #[fn_builder]
-    pub fn alter_shrink(&mut self, shrink: flex::ItemShrink) -> &mut Self {
-        self.item_shrink = shrink;
+    pub fn alter_shrink(&mut self, shrink: FlexShrink) -> &mut Self {
+        self.flex_shrink = shrink;
         self
     }
 
     #[fn_builder]
     // Ensures the item occupies the exact specified width, neither growing nor shrinking,
     // regardless of the available space in the container or the size of other items.
-    pub fn alter_size(&mut self, size: flex::ItemSize) -> &mut Self {
-        self.item_size = size;
+    pub fn alter_size(&mut self, size: FlexSize) -> &mut Self {
+        self.flex_size = size;
         self
     }
 
     #[fn_builder]
-    pub fn alter_offset(&mut self, offset: flex::ItemOffset) -> &mut Self {
-        self.item_offset = offset;
+    pub fn alter_offset(&mut self, offset: FlexOffset) -> &mut Self {
+        self.flex_offset = offset;
         self
     }
 
     #[fn_builder]
-    pub fn alter_align(&mut self, align: flex::ItemAlign) -> &mut Self {
-        self.item_align = align;
+    pub fn alter_align(&mut self, align: FlexAlign) -> &mut Self {
+        self.flex_align = align;
         self
     }
 
@@ -138,24 +138,24 @@ impl Item {
 
     // Item GETTERS.
 
-    pub fn grow(&self) -> &flex::ItemGrow {
-        &self.item_grow
+    pub fn grow(&self) -> &FlexGrow {
+        &self.flex_grow
     }
 
-    pub fn shrink(&self) -> &flex::ItemShrink {
-        &self.item_shrink
+    pub fn shrink(&self) -> &FlexShrink {
+        &self.flex_shrink
     }
 
-    pub fn size(&self) -> &flex::ItemSize {
-        &self.item_size
+    pub fn size(&self) -> &FlexSize {
+        &self.flex_size
     }
 
-    pub fn offset(&self) -> &flex::ItemOffset {
-        &self.item_offset
+    pub fn offset(&self) -> &FlexOffset {
+        &self.flex_offset
     }
 
-    pub fn align(&self) -> &flex::ItemAlign {
-        &self.item_align
+    pub fn align(&self) -> &FlexAlign {
+        &self.flex_align
     }
 
     pub fn components(&self) -> &MixedComponents {

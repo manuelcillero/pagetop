@@ -32,42 +32,6 @@ impl ThemeTrait for Bootsier {
         ]
     }
 
-    fn builtin_classes(&self, builtin: ThemeBuiltInClasses) -> Option<String> {
-        match builtin {
-            ThemeBuiltInClasses::RegionContainer => Some(String::from("container")),
-            _ => Some(builtin.to_string()),
-        }
-    }
-
-    fn prepare_body(&self, page: &mut Page) -> Markup {
-        match page.template() {
-            "admin" => html! {
-                body id=[page.body_id().get()] class=[page.body_classes().get()] {
-                    @for region in &[
-                        "top-menu",
-                        "side-menu",
-                        "content"
-                    ] {
-                        (self.prepare_region(page, region))
-                    }
-                }
-            },
-            _ => html! {
-                body id=[page.body_id().get()] class=[page.body_classes().get()] {
-                    (self.prepare_region(page, "header"))
-                    (self.prepare_region(page, "nav_branding"))
-                    (self.prepare_region(page, "nav_main"))
-                    (self.prepare_region(page, "nav_additional"))
-                    (self.prepare_region(page, "breadcrumb"))
-                    (self.prepare_region(page, "content"))
-                    (self.prepare_region(page, "sidebar_first"))
-                    (self.prepare_region(page, "sidebar_second"))
-                    (self.prepare_region(page, "footer"))
-                }
-            },
-        }
-    }
-
     fn after_prepare_body(&self, page: &mut Page) {
         page.alter_favicon(Some(Favicon::new().with_icon("/base/favicon.ico")))
             .alter_assets(AssetsOp::AddStyleSheet(
@@ -148,6 +112,29 @@ impl ThemeTrait for Bootsier {
 
     fn render_component(&self, component: &dyn ComponentTrait, cx: &mut Context) -> Option<Markup> {
         match component.type_id() {
+            t if t == TypeId::of::<Layout>() => Some(
+                match cx.layout() {
+                    "admin" => Container::new().add_item(
+                        Flex::new()
+                            .add_component(Region::named("top-menu"))
+                            .add_component(Region::named("side-menu"))
+                            .add_component(Region::named("content")),
+                    ),
+                    _ => Container::new().add_item(
+                        Flex::new()
+                            .add_component(Region::named("header"))
+                            .add_component(Region::named("nav_branding"))
+                            .add_component(Region::named("nav_main"))
+                            .add_component(Region::named("nav_additional"))
+                            .add_component(Region::named("breadcrumb"))
+                            .add_component(Region::named("content"))
+                            .add_component(Region::named("sidebar_first"))
+                            .add_component(Region::named("sidebar_second"))
+                            .add_component(Region::named("footer")),
+                    ),
+                }
+                .render(cx),
+            ),
             t if t == TypeId::of::<Error404>() => Some(html! {
                 div class="jumbotron" {
                     div class="media" {
