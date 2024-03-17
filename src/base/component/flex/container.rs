@@ -1,5 +1,16 @@
 use crate::prelude::*;
 
+#[derive(AutoDefault)]
+pub enum ContainerType {
+    #[default]
+    Default,
+    Header,
+    Main,
+    Section,
+    Article,
+    Footer,
+}
+
 #[rustfmt::skip]
 #[derive(AutoDefault, ComponentClasses)]
 pub struct Container {
@@ -7,12 +18,13 @@ pub struct Container {
     weight         : Weight,
     renderable     : Renderable,
     classes        : OptionClasses,
+    container_type : ContainerType,
     direction      : flex::Direction,
     wrap_align     : flex::WrapAlign,
     content_justify: flex::ContentJustify,
     items_align    : flex::ItemAlign,
     gap            : flex::Gap,
-    items          : TypedComponents<flex::Item>,
+    items          : MixedComponents,
 }
 
 impl ComponentTrait for Container {
@@ -50,23 +62,85 @@ impl ComponentTrait for Container {
 
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
         let output = self.items().render(cx);
-        if !output.is_empty() {
-            let gap = match self.gap() {
-                flex::Gap::Default => None,
-                _ => Some(self.gap().to_string()),
-            };
-            PrepareMarkup::With(html! {
+        if output.is_empty() {
+            return PrepareMarkup::None;
+        }
+
+        let gap = match self.gap() {
+            flex::Gap::Default => None,
+            _ => Some(self.gap().to_string()),
+        };
+        match self.container_type() {
+            ContainerType::Default => PrepareMarkup::With(html! {
                 div id=[self.id()] class=[self.classes().get()] style=[gap] {
                     (output)
                 }
-            })
-        } else {
-            PrepareMarkup::None
+            }),
+            ContainerType::Header => PrepareMarkup::With(html! {
+                header id=[self.id()] class=[self.classes().get()] style=[gap] {
+                    (output)
+                }
+            }),
+            ContainerType::Main => PrepareMarkup::With(html! {
+                main id=[self.id()] class=[self.classes().get()] style=[gap] {
+                    (output)
+                }
+            }),
+            ContainerType::Section => PrepareMarkup::With(html! {
+                section id=[self.id()] class=[self.classes().get()] style=[gap] {
+                    (output)
+                }
+            }),
+            ContainerType::Article => PrepareMarkup::With(html! {
+                article id=[self.id()] class=[self.classes().get()] style=[gap] {
+                    (output)
+                }
+            }),
+            ContainerType::Footer => PrepareMarkup::With(html! {
+                footer id=[self.id()] class=[self.classes().get()] style=[gap] {
+                    (output)
+                }
+            }),
         }
     }
 }
 
 impl Container {
+    pub fn header() -> Self {
+        Container {
+            container_type: ContainerType::Header,
+            ..Default::default()
+        }
+    }
+
+    pub fn main() -> Self {
+        Container {
+            container_type: ContainerType::Main,
+            ..Default::default()
+        }
+    }
+
+    pub fn section() -> Self {
+        Container {
+            container_type: ContainerType::Section,
+            ..Default::default()
+        }
+    }
+
+    pub fn article() -> Self {
+        Container {
+            container_type: ContainerType::Article,
+            ..Default::default()
+        }
+    }
+
+    pub fn footer() -> Self {
+        Container {
+            container_type: ContainerType::Footer,
+            ..Default::default()
+        }
+    }
+
     // Container BUILDER.
 
     #[fn_builder]
@@ -119,17 +193,21 @@ impl Container {
 
     #[fn_builder]
     pub fn alter_items(&mut self, op: TypedOp<flex::Item>) -> &mut Self {
-        self.items.alter_value(op);
+        self.items.alter_typed(op);
         self
     }
 
     #[rustfmt::skip]
     pub fn add_item(mut self, item: flex::Item) -> Self {
-        self.items.alter_value(TypedOp::Add(OneComponent::with(item)));
+        self.items.alter_value(AnyOp::Add(AnyComponent::with(item)));
         self
     }
 
     // Container GETTERS.
+
+    pub fn container_type(&self) -> &ContainerType {
+        &self.container_type
+    }
 
     pub fn direction(&self) -> &flex::Direction {
         &self.direction
@@ -151,7 +229,7 @@ impl Container {
         &self.gap
     }
 
-    pub fn items(&self) -> &TypedComponents<flex::Item> {
+    pub fn items(&self) -> &MixedComponents {
         &self.items
     }
 }

@@ -3,43 +3,37 @@
 	color: inherit;
 }
 
-#welcome .hello-world,
 #welcome .welcome,
 #welcome .pagetop,
 #welcome .issues {
-	padding: 1.6rem 5%;
-}
-#welcome .promo {
-	padding: 0 5% 2rem;
-}
-#welcome .issues {
-	padding-top: 0;
+	margin: 3.2rem auto;
 }
 
 #welcome [class$="-col-text"] > .flex__content {
-	margin: 5% 5% 0;
+	margin: 5%;
 	text-align: center;
 }
+
 #welcome [class$="-col-image"] > .flex__content {
 	margin: 1rem 5%;
 }
 
-#welcome .welcome {
-	text-align: center;
-	margin: 0 5%;
-}
-#welcome .welcome > .wrapper__content {
-	padding: 2rem 1rem;
+#welcome .welcome > .flex__item {
 	border-radius: 28px;
 	background: url("/base/images/welcome.jpg") center center no-repeat;
 	background-size: auto;
 	background-size: cover;
 	color: #fff;
 }
-#welcome .welcome > .wrapper__content > h2 {
+#welcome .welcome > .flex__item > .flex__content {
+	margin: 2rem 1rem;
+	text-align: center;
 	color: #fff;
 }
-#welcome .welcome > .wrapper__content > h3 {
+#welcome .welcome > .flex__item > .flex__content > h2 {
+	color: #fff;
+}
+#welcome .welcome > .flex__item > .flex__content > h3 {
 	color: #ccc;
 }
 
@@ -53,28 +47,24 @@
 
 /* BREAKPOINTS */
 
-/* MD - Applies >= 768px */
-@media screen and (min-width: 48rem) {
+/* MD - Applies > 768px */
+@media screen and (min-width: 48.0625rem) {
+	#welcome .hello-world {
+		margin-top: 2rem;
+	}
+
 	#welcome .promo-col-image > .flex__content {
 		padding: 0;
 	}
 
-	#welcome .issues {
-		padding-top: 1.6rem;
-	}
 	#welcome .issues-col-text > .flex__content {
 		text-align: left;
 	}
 }
-/* LG - Applies >= 992px */
-@media screen and (min-width: 62rem) {
+/* LG - Applies > 992px */
+@media screen and (min-width: 62.0625rem) {
 	#welcome .hello-col-text > .flex__content {
-		margin-top: 2rem;
 		text-align: left;
-	}
-
-	#welcome .promo {
-		padding: 0 15% 2rem;
 	}
 
 	#welcome .promo-col-text > .flex__content {
@@ -82,10 +72,9 @@
 		text-align: right;
 	}
 }
-/* XL - Applies >= 1280px */
-@media screen and (min-width: 80rem) {
+/* XL - Applies > 1280px */
+@media screen and (min-width: 80.0625rem) {
 	#welcome .hello-col-text > .flex__content {
-		margin-top: 4rem;
 		margin-left: 20%;
 	}
 

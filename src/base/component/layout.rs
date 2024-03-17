@@ -23,29 +23,31 @@ impl Layout {
             .with_id("body__wrapper")
             .with_direction(flex::Direction::Column(BreakPoint::None))
             .with_items_align(flex::ItemAlign::Center)
-            .add_item(flex::Item::full(Region::named("header")).with_id("header"))
-            .add_item(flex::Item::full(Region::named("pagetop")).with_id("pagetop"))
-            .add_item(flex::Item::full(
-                flex::Container::new()
-                    .with_id("content__wrapper")
-                    .with_direction(flex::Direction::Row(BreakPoint::None))
-                    .add_item(
-                        flex::Item::with(Region::named("sidebar_left"))
-                            .with_id("sidebar_left")
-                            .with_grow(flex::ItemGrow::Is1),
-                    )
-                    .add_item(
-                        flex::Item::with(Region::named("content"))
-                            .with_id("content")
-                            .with_grow(flex::ItemGrow::Is3),
-                    )
-                    .add_item(
-                        flex::Item::with(Region::named("sidebar_right"))
-                            .with_id("sidebar_right")
-                            .with_grow(flex::ItemGrow::Is1),
-                    ),
-            ))
-            .add_item(flex::Item::full(Region::named("footer")).with_id("footer"))
+            .add_item(flex::Item::with(Region::named("header")).with_id("header"))
+            .add_item(flex::Item::with(Region::named("pagetop")).with_id("pagetop"))
+            .add_item(
+                flex::Item::with(
+                    flex::Container::new()
+                        .with_direction(flex::Direction::Row(BreakPoint::None))
+                        .add_item(
+                            flex::Item::with(Region::named("sidebar_left"))
+                                .with_id("sidebar_left")
+                                .with_grow(flex::ItemGrow::Is1),
+                        )
+                        .add_item(
+                            flex::Item::with(Region::named("content"))
+                                .with_id("content")
+                                .with_grow(flex::ItemGrow::Is3),
+                        )
+                        .add_item(
+                            flex::Item::with(Region::named("sidebar_right"))
+                                .with_id("sidebar_right")
+                                .with_grow(flex::ItemGrow::Is1),
+                        ),
+                )
+                .with_id("content__wrapper"),
+            )
+            .add_item(flex::Item::with(Region::named("footer")).with_id("footer"))
             .render(cx)
     }
 

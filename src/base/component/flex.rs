@@ -176,24 +176,6 @@ impl ToString for Gap {
 // *************************************************************************************************
 
 #[derive(AutoDefault)]
-pub enum ItemWide {
-    #[default]
-    Auto,
-    Full,
-}
-
-impl ToString for ItemWide {
-    fn to_string(&self) -> String {
-        String::from(match self {
-            ItemWide::Auto => "",
-            ItemWide::Full => "flex__full",
-        })
-    }
-}
-
-// *************************************************************************************************
-
-#[derive(AutoDefault)]
 pub enum ItemGrow {
     #[default]
     Default,
@@ -276,25 +258,23 @@ pub enum ItemSize {
     Percent75,
     Percent80,
     Percent90,
-    FullWidth,
 }
 
 impl ToString for ItemSize {
     fn to_string(&self) -> String {
         String::from(match self {
             ItemSize::Default => "",
-            ItemSize::Percent10 => "flex__item-width-10",
-            ItemSize::Percent20 => "flex__item-width-20",
-            ItemSize::Percent25 => "flex__item-width-25",
-            ItemSize::Percent33 => "flex__item-width-33",
-            ItemSize::Percent40 => "flex__item-width-40",
-            ItemSize::Percent50 => "flex__item-width-50",
-            ItemSize::Percent60 => "flex__item-width-60",
-            ItemSize::Percent66 => "flex__item-width-66",
-            ItemSize::Percent75 => "flex__item-width-75",
-            ItemSize::Percent80 => "flex__item-width-80",
-            ItemSize::Percent90 => "flex__item-width-90",
-            ItemSize::FullWidth => "flex__item-fullwidth",
+            ItemSize::Percent10 => "flex__item-size-10",
+            ItemSize::Percent20 => "flex__item-size-20",
+            ItemSize::Percent25 => "flex__item-size-25",
+            ItemSize::Percent33 => "flex__item-size-33",
+            ItemSize::Percent40 => "flex__item-size-40",
+            ItemSize::Percent50 => "flex__item-size-50",
+            ItemSize::Percent60 => "flex__item-size-60",
+            ItemSize::Percent66 => "flex__item-size-66",
+            ItemSize::Percent75 => "flex__item-size-75",
+            ItemSize::Percent80 => "flex__item-size-80",
+            ItemSize::Percent90 => "flex__item-size-90",
         })
     }
 }

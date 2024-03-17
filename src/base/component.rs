@@ -63,14 +63,14 @@ pub(crate) fn add_base_assets(cx: &mut Context) {
 #[derive(AutoDefault)]
 pub enum BreakPoint {
     #[default]
-    None,  /* Does not apply. Rest initially assume 1 pixel = 0.0625rem */
-    SM,    /* PageTop default applies to <= 568px  - @media screen and (max-width: 35.5rem) */
-    MD,    /* PageTop default applies to <= 768px  - @media screen and (max-width: 48rem)   */
-    LG,    /* PageTop default applies to <= 992px  - @media screen and (max-width: 62rem)   */
-    XL,    /* PageTop default applies to <= 1280px - @media screen and (max-width: 80rem)   */
-    X2L,   /* PageTop default applies to <= 1440px - @media screen and (max-width: 90rem)   */
-    X3L,   /* PageTop default applies to <= 1920px - @media screen and (max-width: 120rem)  */
-    X2K,   /* PageTop default applies to <= 2560px - @media screen and (max-width: 160rem)  */
+    None,  // Does not apply. Rest initially assume 1 pixel = 0.0625rem
+    SM,    // @media screen and [ (max-width: 35.5rem) <=  568px < (min-width: 35.5625rem) ]
+    MD,    // @media screen and [ (max-width: 48rem)   <=  768px < (min-width: 48.0625rem)   ]
+    LG,    // @media screen and [ (max-width: 62rem)   <=  992px < (min-width: 62.0625rem)   ]
+    XL,    // @media screen and [ (max-width: 80rem)   <= 1280px < (min-width: 80.0625rem)   ]
+    X2L,   // @media screen and [ (max-width: 90rem)   <= 1440px < (min-width: 90.0625rem)   ]
+    X3L,   // @media screen and [ (max-width: 120rem)  <= 1920px < (min-width: 120.0625rem)  ]
+    X2K,   // @media screen and [ (max-width: 160rem)  <= 2560px < (min-width: 160.0625rem)  ]
 }
 
 #[rustfmt::skip]
@@ -174,9 +174,6 @@ pub use error403::Error403;
 
 mod error404;
 pub use error404::Error404;
-
-mod wrapper;
-pub use wrapper::{Wrapper, WrapperType};
 
 pub mod flex;
 

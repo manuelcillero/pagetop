@@ -7,7 +7,6 @@ pub struct Item {
     weight       : Weight,
     renderable   : Renderable,
     classes      : OptionClasses,
-    item_wide    : flex::ItemWide,
     item_grow    : flex::ItemGrow,
     item_shrink  : flex::ItemShrink,
     item_size    : flex::ItemSize,
@@ -38,7 +37,6 @@ impl ComponentTrait for Item {
             ClassesOp::Prepend,
             [
                 String::from("flex__item"),
-                self.wide().to_string(),
                 self.grow().to_string(),
                 self.shrink().to_string(),
                 self.size().to_string(),
@@ -74,12 +72,6 @@ impl Item {
         Item::default().add_component(component)
     }
 
-    pub fn full(component: impl ComponentTrait) -> Self {
-        Item::default()
-            .with_wide(flex::ItemWide::Full)
-            .add_component(component)
-    }
-
     // Item BUILDER.
 
     #[fn_builder]
@@ -97,12 +89,6 @@ impl Item {
     #[fn_builder]
     pub fn alter_renderable(&mut self, check: FnIsRenderable) -> &mut Self {
         self.renderable.check = check;
-        self
-    }
-
-    #[fn_builder]
-    pub fn alter_wide(&mut self, wide: flex::ItemWide) -> &mut Self {
-        self.item_wide = wide;
         self
     }
 
@@ -151,10 +137,6 @@ impl Item {
     }
 
     // Item GETTERS.
-
-    pub fn wide(&self) -> &flex::ItemWide {
-        &self.item_wide
-    }
 
     pub fn grow(&self) -> &flex::ItemGrow {
         &self.item_grow
