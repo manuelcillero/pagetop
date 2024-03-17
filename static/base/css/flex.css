@@ -85,6 +85,7 @@
 .flex__item {
 	padding: 0 !important;
 	width: 100%;
+	max-width: 100%;
 }
 [class*="flex__justify-"] .flex__item {
 	width: auto;
