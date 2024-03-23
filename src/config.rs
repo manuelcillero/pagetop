@@ -212,7 +212,7 @@ pub struct Settings {
 /// See [`Settings`].
 pub struct App {
     /// El nombre de la aplicación.
-    /// Por defecto: *"PageTop App"*.
+    /// Por defecto: *"My App"*.
     pub name: String,
     /// Una descripción breve de la aplicación.
     /// Por defecto: *"Developed with the amazing PageTop framework."*.
@@ -318,7 +318,7 @@ pub struct Server {
 
 default_settings!(
     // [app]
-    "app.name"                => "PageTop App",
+    "app.name"                => "My App",
     "app.description"         => "Developed with the amazing PageTop framework.",
     "app.theme"               => "Default",
     "app.language"            => "en-US",
