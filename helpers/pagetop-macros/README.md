@@ -1,5 +1,15 @@
-A collection of procedural macros that enhance the development experience within **PageTop**.
+<div align="center">
 
+<h1>PageTop Macros</h1>
+
+<p>A collection of procedural macros that boost PageTop development.</p>
+
+[![License](https://img.shields.io/badge/license-MIT%2FApache-blue.svg?style=for-the-badge)](#-license)
+[![API Docs](https://img.shields.io/docsrs/pagetop-macros?label=API%20Docs&style=for-the-badge&logo=Docs.rs)](https://docs.rs/pagetop-macros)
+[![Crates.io](https://img.shields.io/crates/v/pagetop-macros.svg?style=for-the-badge&logo=ipfs)](https://crates.io/crates/pagetop-macros)
+[![Downloads](https://img.shields.io/crates/d/pagetop-macros.svg?style=for-the-badge&logo=transmission)](https://crates.io/crates/pagetop-macros)
+
+</div>
 
 # 📦 About PageTop
 

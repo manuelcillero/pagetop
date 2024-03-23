@@ -3,15 +3,20 @@ name = "pagetop-bulmix"
 version = "0.0.16"
 edition = "2021"
 
-authors = [
-    "Manuel Cillero <manuel@cillero.es>"
-]
-description = """\
-    PageTop theme that utilizes the Bulma framework for sleek, responsive design elements.\
-"""
+description = "PageTop theme that uses the Bulma framework for sleek, responsive design elements."
 homepage = "https://pagetop.cillero.es"
 repository = "https://github.com/manuelcillero/pagetop"
 license = "MIT OR Apache-2.0"
+
+authors = [
+    "Manuel Cillero <manuel@cillero.es>"
+]
+categories = [
+    "web-programming", "gui"
+]
+keywords = [
+    "pagetop", "theme", "bulma", "css", "js"
+]
 
 [dependencies]
 pagetop = { version = "0.0", path = "../../" }

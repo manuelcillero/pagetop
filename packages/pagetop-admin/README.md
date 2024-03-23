@@ -1,6 +1,15 @@
-**PageTop** package that provides a unified interface for administrators to configure and manage
-package settings.
+<div align="center">
 
+<h1>PageTop Admin</h1>
+
+<p>PageTop package that provides a unified settings interface to other packages.</p>
+
+[![License](https://img.shields.io/badge/license-MIT%2FApache-blue.svg?style=for-the-badge)](#-license)
+[![API Docs](https://img.shields.io/docsrs/pagetop-admin?label=API%20Docs&style=for-the-badge&logo=Docs.rs)](https://docs.rs/pagetop-admin)
+[![Crates.io](https://img.shields.io/crates/v/pagetop-admin.svg?style=for-the-badge&logo=ipfs)](https://crates.io/crates/pagetop-admin)
+[![Downloads](https://img.shields.io/crates/d/pagetop-admin.svg?style=for-the-badge&logo=transmission)](https://crates.io/crates/pagetop-admin)
+
+</div>
 
 # 📦 About PageTop
 

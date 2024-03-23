@@ -1,6 +1,15 @@
-Facilitates user management, including roles, permissions, and session handling, for applications
-built on **PageTop**.
+<div align="center">
 
+<h1>PageTop User</h1>
+
+<p>PageTop package for user, roles, permissions, and session management.</p>
+
+[![License](https://img.shields.io/badge/license-MIT%2FApache-blue.svg?style=for-the-badge)](#-license)
+[![API Docs](https://img.shields.io/docsrs/pagetop-user?label=API%20Docs&style=for-the-badge&logo=Docs.rs)](https://docs.rs/pagetop-user)
+[![Crates.io](https://img.shields.io/crates/v/pagetop-user.svg?style=for-the-badge&logo=ipfs)](https://crates.io/crates/pagetop-user)
+[![Downloads](https://img.shields.io/crates/d/pagetop-user.svg?style=for-the-badge&logo=transmission)](https://crates.io/crates/pagetop-user)
+
+</div>
 
 # 📦 About PageTop
 

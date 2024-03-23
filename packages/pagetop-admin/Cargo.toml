@@ -3,16 +3,20 @@ name = "pagetop-admin"
 version = "0.0.20"
 edition = "2021"
 
-authors = [
-    "Manuel Cillero <manuel@cillero.es>"
-]
-description = """\
-    PageTop package that provides a unified interface for administrators to configure and manage \
-    package settings.\
-"""
+description = "PageTop package that provides a unified settings interface to other packages."
 homepage = "https://pagetop.cillero.es"
 repository = "https://github.com/manuelcillero/pagetop"
 license = "MIT OR Apache-2.0"
+
+authors = [
+    "Manuel Cillero <manuel@cillero.es>"
+]
+categories = [
+    "web-programming", "gui"
+]
+keywords = [
+    "pagetop", "admin", "config", "settings", "packages"
+]
 
 [dependencies]
 pagetop = { version = "0.0", path = "../../" }

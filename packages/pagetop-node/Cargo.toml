@@ -3,16 +3,20 @@ name = "pagetop-node"
 version = "0.0.19"
 edition = "2021"
 
-authors = [
-    "Manuel Cillero <manuel@cillero.es>"
-]
-description = """\
-    PageTop package that enables the creation and customization of content types, enhancing \
-    website content management.\
-"""
+description = "PageTop package for easy content type creation and customization."
 homepage = "https://pagetop.cillero.es"
 repository = "https://github.com/manuelcillero/pagetop"
 license = "MIT OR Apache-2.0"
+
+authors = [
+    "Manuel Cillero <manuel@cillero.es>"
+]
+categories = [
+    "web-programming", "gui"
+]
+keywords = [
+    "pagetop", "node", "cms", "content", "workflow"
+]
 
 [dependencies]
 pagetop = { version = "0.0", path = "../../", features = ["database"], default-features = false }

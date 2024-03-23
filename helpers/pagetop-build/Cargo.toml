@@ -3,16 +3,20 @@ name = "pagetop-build"
 version = "0.0.9"
 edition = "2021"
 
-authors = [
-    "Manuel Cillero <manuel@cillero.es>"
-]
-description = """\
-    Simplifies the process of embedding resources directly into binary files for PageTop \
-    applications.\
-"""
+description = "Simplifies the process of embedding resources in PageTop app binaries."
 homepage = "https://pagetop.cillero.es"
 repository = "https://github.com/manuelcillero/pagetop"
 license = "MIT OR Apache-2.0"
+
+authors = [
+    "Manuel Cillero <manuel@cillero.es>"
+]
+categories = [
+    "development-tools::build-utils", "web-programming"
+]
+keywords = [
+    "pagetop", "build", "assets", "resources", "static"
+]
 
 [dependencies]
 static-files = "0.2.3"

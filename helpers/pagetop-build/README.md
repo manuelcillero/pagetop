@@ -1,6 +1,15 @@
-Simplifies the process of embedding resources directly into binary files for **PageTop**
-applications.
+<div align="center">
 
+<h1>PageTop Build</h1>
+
+<p>Simplifies the process of embedding resources in PageTop app binaries.</p>
+
+[![License](https://img.shields.io/badge/license-MIT%2FApache-blue.svg?style=for-the-badge)](#-license)
+[![API Docs](https://img.shields.io/docsrs/pagetop-build?label=API%20Docs&style=for-the-badge&logo=Docs.rs)](https://docs.rs/pagetop-build)
+[![Crates.io](https://img.shields.io/crates/v/pagetop-build.svg?style=for-the-badge&logo=ipfs)](https://crates.io/crates/pagetop-build)
+[![Downloads](https://img.shields.io/crates/d/pagetop-build.svg?style=for-the-badge&logo=transmission)](https://crates.io/crates/pagetop-build)
+
+</div>
 
 # 📦 About PageTop
 

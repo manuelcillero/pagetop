@@ -1,6 +1,15 @@
-**PageTop** theme that utilizes the [Bulma](https://bulma.io/) framework for sleek, responsive
-design elements.
+<div align="center">
 
+<h1>PageTop Bulmix</h1>
+
+<p>PageTop theme that uses the Bulma framework for sleek, responsive design elements.</p>
+
+[![License](https://img.shields.io/badge/license-MIT%2FApache-blue.svg?style=for-the-badge)](#-license)
+[![API Docs](https://img.shields.io/docsrs/pagetop-bulmix?label=API%20Docs&style=for-the-badge&logo=Docs.rs)](https://docs.rs/pagetop-bulmix)
+[![Crates.io](https://img.shields.io/crates/v/pagetop-bulmix.svg?style=for-the-badge&logo=ipfs)](https://crates.io/crates/pagetop-bulmix)
+[![Downloads](https://img.shields.io/crates/d/pagetop-bulmix.svg?style=for-the-badge&logo=transmission)](https://crates.io/crates/pagetop-bulmix)
+
+</div>
 
 # 📦 About PageTop
 

@@ -18,14 +18,14 @@
 //! specific requirements and application scenarios through actions, components, packages, and
 //! themes:
 //!
-//! * **Actions** serve as a mechanism to customize PageTop's internal behavior by intercepting its
-//!   execution flow.
-//! * **Components** encapsulate HTML, CSS, and JavaScript into functional, configurable, and
-//!   well-defined units.
-//! * **Packages** extend or customize existing functionality by interacting with PageTop APIs or
-//!   third-party package APIs.
-//! * **Themes** enable developers to alter the appearance of pages and components without affecting
-//!   their functionality.
+//!   * **Actions** serve as a mechanism to customize PageTop's internal behavior by intercepting
+//!     its execution flow.
+//!   * **Components** encapsulate HTML, CSS, and JavaScript into functional, configurable, and
+//!     well-defined units.
+//!   * **Packages** extend or customize existing functionality by interacting with PageTop APIs or
+//!     third-party package APIs.
+//!   * **Themes** enable developers to alter the appearance of pages and components without
+//!     affecting their functionality.
 //!
 //! # ⚡️ Quick start
 //!
@@ -54,7 +54,7 @@
 //! This program implements a package named `HelloWorld` with one service that returns a web page
 //! that greets the world whenever it is accessed from the browser at `http://localhost:8088` (using
 //! the [default configuration settings](`config::Server`)). You can find this code in the PageTop
-//! [examples repository](https://github.com/manuelcillero/pagetop/tree/main/examples).
+//! [examples repository](https://github.com/manuelcillero/pagetop/tree/latest/examples).
 //!
 //! # 🧩 Dependency Management
 //!

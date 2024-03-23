@@ -3,16 +3,20 @@ name = "pagetop-user"
 version = "0.0.18"
 edition = "2021"
 
-authors = [
-    "Manuel Cillero <manuel@cillero.es>"
-]
-description = """\
-    Facilitates user management, including roles, permissions, and session handling, for \
-    applications built on PageTop.\
-"""
+description = "PageTop package for user, roles, permissions, and session management."
 homepage = "https://pagetop.cillero.es"
 repository = "https://github.com/manuelcillero/pagetop"
 license = "MIT OR Apache-2.0"
+
+authors = [
+    "Manuel Cillero <manuel@cillero.es>"
+]
+categories = [
+    "web-programming", "gui", "authentication"
+]
+keywords = [
+    "pagetop", "user", "login", "grants", "preferences"
+]
 
 [dependencies]
 pagetop = { version = "0.0", path = "../../", features = ["database"], default-features = false }

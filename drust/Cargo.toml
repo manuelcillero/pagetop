@@ -3,15 +3,14 @@ name = "drust"
 version = "0.0.3"
 edition = "2021"
 
-authors = [
-    "Manuel Cillero <manuel@cillero.es>"
-]
-description = """\
-    A modern web Content Management System to share your world.\
-"""
+description = "A modern web Content Management System to share your world."
 homepage = "https://pagetop.cillero.es"
 repository = "https://github.com/manuelcillero/pagetop"
 license = "MIT OR Apache-2.0"
+
+authors = [
+    "Manuel Cillero <manuel@cillero.es>"
+]
 
 [dependencies]
 pagetop = { version = "0.0", path = "../", features = ["mysql"], default-features = false }

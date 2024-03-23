@@ -3,24 +3,22 @@ name = "pagetop"
 version = "0.0.52"
 edition = "2021"
 
-authors = [
-    "Manuel Cillero <manuel@cillero.es>"
-]
-description = """\
-    An opinionated web framework to build modular Server-Side Rendering web solutions.
-"""
+description = "An opinionated web framework to build modular Server-Side Rendering web solutions."
 homepage = "https://pagetop.cillero.es"
 repository = "https://github.com/manuelcillero/pagetop"
 license = "MIT OR Apache-2.0"
 
+authors = [
+    "Manuel Cillero <manuel@cillero.es>"
+]
 categories = [
-    "web-programming", "development-tools", "gui"
+    "web-programming", "gui", "development-tools", "asynchronous"
 ]
 keywords = [
-    "web", "framework", "frontend", "ssr", "pagetop"
+    "pagetop", "web", "framework", "frontend", "ssr"
 ]
 exclude = [
-    "drust/", "examples/", "helpers/", "packages/", "tests/", "workdir/"
+    "drust/", "examples/", "helpers/", "packages/", "tests/"
 ]
 rust-version = "1.70.0"
 
