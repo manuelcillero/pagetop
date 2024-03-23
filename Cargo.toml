@@ -7,8 +7,7 @@ authors = [
     "Manuel Cillero <manuel@cillero.es>"
 ]
 description = """\
-    PageTop is an opinionated Rust web development framework to build secure and modular \
-    Server-Side Rendering (SSR) web solutions.
+    An opinionated web framework to build modular Server-Side Rendering web solutions.
 """
 homepage = "https://pagetop.cillero.es"
 repository = "https://github.com/manuelcillero/pagetop"

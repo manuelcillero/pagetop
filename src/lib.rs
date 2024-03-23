@@ -1,18 +1,18 @@
 //! <div align="center">
 //!
-//!   <img src="https://raw.githubusercontent.com/manuelcillero/pagetop/main/static/banner.png" />
+//! <img src="https://raw.githubusercontent.com/manuelcillero/pagetop/main/static/banner.png" />
 //!
-//!   <h1>PageTop</h1>
+//! <h1>PageTop</h1>
 //!
-//!   [![License](https://img.shields.io/badge/license-MIT%2FApache-blue.svg?style=for-the-badge)](https://github.com/manuelcillero/pagetop#-license)
-//!   [![API Docs](https://img.shields.io/docsrs/pagetop?label=API%20Docs&style=for-the-badge&logo=Docs.rs)](https://docs.rs/pagetop)
-//!   [![Crates.io](https://img.shields.io/crates/v/pagetop.svg?style=for-the-badge&logo=ipfs)](https://crates.io/crates/pagetop)
-//!   [![Downloads](https://img.shields.io/crates/d/pagetop.svg?style=for-the-badge&logo=transmission)](https://crates.io/crates/pagetop)
+//! <p>An opinionated web framework to build modular <em>Server-Side Rendering</em> web solutions.</p>
 //!
+//! [![License](https://img.shields.io/badge/license-MIT%2FApache-blue.svg?style=for-the-badge)](https://github.com/manuelcillero/pagetop#-license)
+//! [![API Docs](https://img.shields.io/docsrs/pagetop?label=API%20Docs&style=for-the-badge&logo=Docs.rs)](https://docs.rs/pagetop)
+//! [![Crates.io](https://img.shields.io/crates/v/pagetop.svg?style=for-the-badge&logo=ipfs)](https://crates.io/crates/pagetop)
+//! [![Downloads](https://img.shields.io/crates/d/pagetop.svg?style=for-the-badge&logo=transmission)](https://crates.io/crates/pagetop)
+//!
+//! <br>
 //! </div>
-//!
-//! **PageTop** is an opinionated Rust web development framework to build modular Server-Side
-//! Rendering (SSR) web solutions.
 //!
 //! The PageTop core API provides a comprehensive toolkit for extending its functionalities to
 //! specific requirements and application scenarios through actions, components, packages, and
@@ -54,7 +54,7 @@
 //! This program implements a package named `HelloWorld` with one service that returns a web page
 //! that greets the world whenever it is accessed from the browser at `http://localhost:8088` (using
 //! the [default configuration settings](`config::Server`)). You can find this code in the PageTop
-//! [basic examples repository](https://github.com/manuelcillero/pagetop/tree/main/examples/basics).
+//! [examples repository](https://github.com/manuelcillero/pagetop/tree/main/examples).
 //!
 //! # 🧩 Dependency Management
 //!

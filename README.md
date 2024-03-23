@@ -4,23 +4,27 @@
 
 <h1>PageTop</h1>
 
+<p>An opinionated web framework to build modular <em>Server-Side Rendering</em> web solutions.</p>
+
 [![License](https://img.shields.io/badge/license-MIT%2FApache-blue.svg?style=for-the-badge)](#-license)
 [![API Docs](https://img.shields.io/docsrs/pagetop?label=API%20Docs&style=for-the-badge&logo=Docs.rs)](https://docs.rs/pagetop)
 [![Crates.io](https://img.shields.io/crates/v/pagetop.svg?style=for-the-badge&logo=ipfs)](https://crates.io/crates/pagetop)
 [![Downloads](https://img.shields.io/crates/d/pagetop.svg?style=for-the-badge&logo=transmission)](https://crates.io/crates/pagetop)
 
+<br>
 </div>
 
-**PageTop** is an opinionated [Rust](https://www.rust-lang.org) web development framework to build
-secure and modular Server-Side Rendering (SSR) web solutions.
+The PageTop core API provides a comprehensive toolkit for extending its functionalities to specific
+requirements and application scenarios through actions, components, packages, and themes:
 
-PageTop stands on the shoulders of giants. It leverages some of the most stable and popular Rust
-crates to provide extensible and easily configurable features.
-
-# 🚧 Warning
-
-**PageTop** framework is currently in active development. The API is unstable and subject to
-frequent changes. Production use is not recommended until version **0.1.0**.
+* **Actions** serve as a mechanism to customize PageTop's internal behavior by intercepting its
+  execution flow.
+* **Components** encapsulate HTML, CSS, and JavaScript into functional, configurable, and
+  well-defined units.
+* **Packages** extend or customize existing functionality by interacting with PageTop APIs or
+  third-party package APIs.
+* **Themes** enable developers to alter the appearance of pages and components without affecting
+  their functionality.
 
 
 # ⚡️ Quick start
@@ -61,8 +65,8 @@ distinct role within the PageTop ecosystem:
 
 * [drust](https://github.com/manuelcillero/pagetop/tree/main/drust):
   A simple Content Management System (CMS) built on PageTop, which enables the creation, editing,
-  and maintenance of dynamic, fast, and secure websites. It uses the following essential packages to
-  provide standard CMS functionalities.
+  and maintenance of dynamic, fast, and modular websites. It uses the following essential packages
+  to provide standard CMS functionalities.
 
 ## Helpers
 
@@ -92,6 +96,12 @@ distinct role within the PageTop ecosystem:
 
 * [pagetop-bulmix](https://github.com/manuelcillero/pagetop/tree/main/packages/pagetop-bulmix):
   Utilizes the *[Bulma](https://bulma.io/)* framework for sleek, responsive design elements.
+
+
+# 🚧 Warning
+
+**PageTop** framework is currently in active development. The API is unstable and subject to
+frequent changes. Production use is not recommended until version **0.1.0**.
 
 
 # 📜 License
