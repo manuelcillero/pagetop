@@ -42,7 +42,7 @@ pub use crate::{db, db::*, migrations, new_migration};
 pub use crate::service;
 pub use crate::service::{HttpMessage, HttpRequest};
 
-pub use crate::core::AnyBase;
+pub use crate::core::{AnyBase, AnyTo};
 
 pub use crate::core::action::*;
 pub use crate::core::component::*;

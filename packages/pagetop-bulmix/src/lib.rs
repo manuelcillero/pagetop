@@ -41,57 +41,43 @@ impl ThemeTrait for Bulmix {
 
     #[rustfmt::skip]
     fn before_prepare_component(&self, component: &mut dyn ComponentTrait, _cx: &mut Context) {
-        match component.type_id() {
-            t if t == TypeId::of::<Icon>() => {
-                if let Some(i) = component_as_mut::<Icon>(component) {
-                    i.alter_classes(
-                        ClassesOp::Replace(i.font_size().to_string()),
-                        with_font(i.font_size()),
-                    );
+        if let Some(i) = component.downcast_mut::<Icon>() {
+            i.alter_classes(
+                ClassesOp::Replace(i.font_size().to_string()),
+                with_font(i.font_size()),
+            );
+        } else if let Some(b) = component.downcast_mut::<Button>() {
+            b.alter_classes(ClassesOp::Replace("button__tap".to_owned()), "button");
+            b.alter_classes(
+                ClassesOp::Replace(b.style().to_string()),
+                match b.style() {
+                    StyleBase::Default => "is-primary",
+                    StyleBase::Info    => "is-info",
+                    StyleBase::Success => "is-success",
+                    StyleBase::Warning => "is-warning",
+                    StyleBase::Danger  => "is-danger",
+                    StyleBase::Light   => "is-light",
+                    StyleBase::Dark    => "is-dark",
+                    StyleBase::Link    => "is-text",
+                },
+            );
+            b.alter_classes(
+                ClassesOp::Replace(b.font_size().to_string()),
+                with_font(b.font_size()),
+            );
+        } else if let Some(h) = component.downcast_mut::<Heading>() {
+            match h.size() {
+                HeadingSize::Subtitle => {
+                    h.alter_classes(ClassesOp::Replace(h.size().to_string()), "subtitle")
                 }
-            }
-            t if t == TypeId::of::<Button>() => {
-                if let Some(b) = component_as_mut::<Button>(component) {
-                    b.alter_classes(ClassesOp::Replace("button__tap".to_owned()), "button");
-                    b.alter_classes(
-                        ClassesOp::Replace(b.style().to_string()),
-                        match b.style() {
-                            StyleBase::Default => "is-primary",
-                            StyleBase::Info    => "is-info",
-                            StyleBase::Success => "is-success",
-                            StyleBase::Warning => "is-warning",
-                            StyleBase::Danger  => "is-danger",
-                            StyleBase::Light   => "is-light",
-                            StyleBase::Dark    => "is-dark",
-                            StyleBase::Link    => "is-text",
-                        },
-                    );
-                    b.alter_classes(
-                        ClassesOp::Replace(b.font_size().to_string()),
-                        with_font(b.font_size()),
-                    );
-                }
-            }
-            t if t == TypeId::of::<Heading>() => {
-                if let Some(h) = component_as_mut::<Heading>(component) {
-                    match h.size() {
-                        HeadingSize::Subtitle => {
-                            h.alter_classes(ClassesOp::Replace(h.size().to_string()), "subtitle")
-                        }
-                        _ => h.alter_classes(ClassesOp::Add, "title"),
-                    };
-                }
-            }
-            t if t == TypeId::of::<Paragraph>() => {
-                if let Some(p) = component_as_mut::<Paragraph>(component) {
-                    p.alter_classes(ClassesOp::Add, "block");
-                    p.alter_classes(
-                        ClassesOp::Replace(p.font_size().to_string()),
-                        with_font(p.font_size()),
-                    );
-                }
-            }
-            _ => {}
+                _ => h.alter_classes(ClassesOp::Add, "title"),
+            };
+        } else if let Some(p) = component.downcast_mut::<Paragraph>() {
+            p.alter_classes(ClassesOp::Add, "block");
+            p.alter_classes(
+                ClassesOp::Replace(p.font_size().to_string()),
+                with_font(p.font_size()),
+            );
         }
     }
 
@@ -100,17 +86,13 @@ impl ThemeTrait for Bulmix {
         component: &dyn ComponentTrait,
         _cx: &mut Context,
     ) -> Option<Markup> {
-        match component.type_id() {
-            t if t == TypeId::of::<Icon>() => {
-                if let Some(i) = component_as_ref::<Icon>(component) {
-                    return match i.icon_name().get() {
-                        None => None,
-                        _ => Some(html! { span class="icon" { i class=[i.classes().get()] {} } }),
-                    };
-                }
-                None
-            }
-            _ => None,
+        if let Some(i) = component.downcast_ref::<Icon>() {
+            return match i.icon_name().get() {
+                None => None,
+                _ => Some(html! { span class="icon" { i class=[i.classes().get()] {} } }),
+            };
+        } else {
+            None
         }
     }
 }

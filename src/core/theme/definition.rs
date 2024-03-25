@@ -93,7 +93,7 @@ pub trait ThemeTrait: PackageTrait + Send + Sync {
 
             match component.type_id() {
                 t if t == TypeId::of::<Block>() => {
-                    if let Some(b) = component_as_mut::<Block>(component) {
+                    if let Some(b) = component.downcast_mut::<Block>() {
                         b.alter_title("New title");
                     }
                 },
@@ -114,7 +114,7 @@ pub trait ThemeTrait: PackageTrait + Send + Sync {
 
             match component.type_id() {
                 t if t == TypeId::of::<Block>() => {
-                    if let Some(b) = component_as_mut::<Block>(component) {
+                    if let Some(b) = component.downcast_mut::<Block>() {
                         b.alter_title("New title");
                     }
                 },

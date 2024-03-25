@@ -52,67 +52,53 @@ impl ThemeTrait for Bootsier {
 
     #[rustfmt::skip]
     fn before_prepare_component(&self, component: &mut dyn ComponentTrait, _cx: &mut Context) {
-        match component.type_id() {
-            t if t == TypeId::of::<Icon>() => {
-                if let Some(i) = component_as_mut::<Icon>(component) {
-                    i.alter_classes(
-                        ClassesOp::Replace(i.font_size().to_string()),
-                        with_font(i.font_size()),
-                    );
-                }
-            }
-            t if t == TypeId::of::<Button>() => {
-                if let Some(b) = component_as_mut::<Button>(component) {
-                    b.alter_classes(ClassesOp::Replace("button__tap".to_owned()), "btn");
-                    b.alter_classes(
-                        ClassesOp::Replace(b.style().to_string()),
-                        match b.style() {
-                            StyleBase::Default => "btn-primary",
-                            StyleBase::Info    => "btn-info",
-                            StyleBase::Success => "btn-success",
-                            StyleBase::Warning => "btn-warning",
-                            StyleBase::Danger  => "btn-danger",
-                            StyleBase::Light   => "btn-light",
-                            StyleBase::Dark    => "btn-dark",
-                            StyleBase::Link    => "btn-link",
-                        },
-                    );
-                    b.alter_classes(
-                        ClassesOp::Replace(b.font_size().to_string()),
-                        with_font(b.font_size()),
-                    );
-                }
-            }
-            t if t == TypeId::of::<Heading>() => {
-                if let Some(h) = component_as_mut::<Heading>(component) {
-                    h.alter_classes(
-                        ClassesOp::Replace(h.size().to_string()),
-                        match h.size() {
-                            HeadingSize::ExtraLarge => "display-1",
-                            HeadingSize::XxLarge    => "display-2",
-                            HeadingSize::XLarge     => "display-3",
-                            HeadingSize::Large      => "display-4",
-                            HeadingSize::Medium     => "display-5",
-                            _ => "",
-                        },
-                    );
-                }
-            }
-            t if t == TypeId::of::<Paragraph>() => {
-                if let Some(p) = component_as_mut::<Paragraph>(component) {
-                    p.alter_classes(
-                        ClassesOp::Replace(p.font_size().to_string()),
-                        with_font(p.font_size()),
-                    );
-                }
-            }
-            _ => {}
+        if let Some(i) = component.downcast_mut::<Icon>() {
+            i.alter_classes(
+                ClassesOp::Replace(i.font_size().to_string()),
+                with_font(i.font_size()),
+            );
+        } else if let Some(b) = component.downcast_mut::<Button>() {
+            b.alter_classes(ClassesOp::Replace("button__tap".to_owned()), "btn");
+            b.alter_classes(
+                ClassesOp::Replace(b.style().to_string()),
+                match b.style() {
+                    StyleBase::Default => "btn-primary",
+                    StyleBase::Info    => "btn-info",
+                    StyleBase::Success => "btn-success",
+                    StyleBase::Warning => "btn-warning",
+                    StyleBase::Danger  => "btn-danger",
+                    StyleBase::Light   => "btn-light",
+                    StyleBase::Dark    => "btn-dark",
+                    StyleBase::Link    => "btn-link",
+                },
+            );
+            b.alter_classes(
+                ClassesOp::Replace(b.font_size().to_string()),
+                with_font(b.font_size()),
+            );
+        } else if let Some(h) = component.downcast_mut::<Heading>() {
+            h.alter_classes(
+                ClassesOp::Replace(h.size().to_string()),
+                match h.size() {
+                    HeadingSize::ExtraLarge => "display-1",
+                    HeadingSize::XxLarge    => "display-2",
+                    HeadingSize::XLarge     => "display-3",
+                    HeadingSize::Large      => "display-4",
+                    HeadingSize::Medium     => "display-5",
+                    _ => "",
+                },
+            );
+        } else if let Some(p) = component.downcast_mut::<Paragraph>() {
+            p.alter_classes(
+                ClassesOp::Replace(p.font_size().to_string()),
+                with_font(p.font_size()),
+            );
         }
     }
 
     fn render_component(&self, component: &dyn ComponentTrait, cx: &mut Context) -> Option<Markup> {
-        match component.type_id() {
-            t if t == TypeId::of::<Layout>() => Some(
+        if component.downcast_ref::<Layout>().is_some() {
+            Some(
                 match cx.layout() {
                     "admin" => Container::new().add_item(
                         Flex::new()
@@ -134,8 +120,9 @@ impl ThemeTrait for Bootsier {
                     ),
                 }
                 .render(cx),
-            ),
-            t if t == TypeId::of::<Error404>() => Some(html! {
+            )
+        } else if component.downcast_ref::<Error404>().is_some() {
+            Some(html! {
                 div class="jumbotron" {
                     div class="media" {
                         img
@@ -165,8 +152,9 @@ impl ThemeTrait for Bootsier {
                         }
                     }
                 }
-            }),
-            _ => None,
+            })
+        } else {
+            None
         }
     }
 }

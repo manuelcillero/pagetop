@@ -25,8 +25,8 @@ impl BeforePrepareBody {
 
     #[inline(always)]
     pub(crate) fn dispatch(page: &mut Page) {
-        dispatch_actions((TypeId::of::<Self>(), None, None), |action| {
-            (action_ref::<BeforePrepareBody>(&**action).f)(page)
+        dispatch_actions((TypeId::of::<Self>(), None, None), |action: &Self| {
+            (action.f)(page)
         });
     }
 }

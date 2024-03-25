@@ -1,4 +1,4 @@
-use crate::core::action::{Action, ActionsList};
+use crate::core::action::{Action, ActionTrait, ActionsList};
 use crate::{LazyStatic, TypeId};
 
 use std::collections::HashMap;
@@ -24,9 +24,10 @@ pub fn add_action(action: Action) {
     }
 }
 
-pub fn dispatch_actions<B, F>(key_action: KeyAction, f: F)
+pub fn dispatch_actions<A, B, F>(key_action: KeyAction, f: F)
 where
-    F: FnMut(&Action) -> B,
+    A: ActionTrait,
+    F: FnMut(&A) -> B,
 {
     if let Some(list) = ACTIONS.read().unwrap().get(&key_action) {
         list.iter_map(f)

@@ -47,7 +47,7 @@ impl<C: ComponentTrait> AfterPrepareComponent<C> {
     pub(crate) fn dispatch(component: &mut C, cx: &mut Context, referer_id: Option<String>) {
         dispatch_actions(
             (TypeId::of::<Self>(), Some(TypeId::of::<C>()), referer_id),
-            |action| (action_ref::<AfterPrepareComponent<C>>(&**action).f)(component, cx),
+            |action: &Self| (action.f)(component, cx),
         );
     }
 }

@@ -83,11 +83,3 @@ impl<C: ComponentTrait> ComponentBase for C {
         }
     }
 }
-
-pub fn component_as_ref<C: ComponentTrait>(component: &dyn ComponentTrait) -> Option<&C> {
-    component.as_any_ref().downcast_ref::<C>()
-}
-
-pub fn component_as_mut<C: ComponentTrait>(component: &mut dyn ComponentTrait) -> Option<&mut C> {
-    component.as_any_mut().downcast_mut::<C>()
-}

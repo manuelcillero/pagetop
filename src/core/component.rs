@@ -6,7 +6,7 @@ mod renderable;
 pub use renderable::{FnIsRenderable, Renderable};
 
 mod definition;
-pub use definition::{component_as_mut, component_as_ref, ComponentBase, ComponentTrait};
+pub use definition::{ComponentBase, ComponentTrait};
 
 mod classes;
 pub use classes::{ComponentClasses, ComponentClassesOp};

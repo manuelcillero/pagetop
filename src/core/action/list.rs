@@ -1,4 +1,6 @@
 use crate::core::action::ActionTrait;
+use crate::core::AnyTo;
+use crate::trace;
 use crate::AutoDefault;
 
 use std::sync::{Arc, RwLock};
@@ -21,12 +23,25 @@ impl ActionsList {
         list.sort_by_key(|a| a.weight());
     }
 
-    pub fn iter_map<B, F>(&self, f: F)
+    pub fn iter_map<A, B, F>(&self, mut f: F)
     where
         Self: Sized,
-        F: FnMut(&Action) -> B,
+        A: ActionTrait,
+        F: FnMut(&A) -> B,
     {
-        let _: Vec<_> = self.0.read().unwrap().iter().map(f).collect();
+        let _: Vec<_> = self
+            .0
+            .read()
+            .unwrap()
+            .iter()
+            .map(|a| {
+                if let Some(action) = (&**a).downcast_ref::<A>() {
+                    f(action);
+                } else {
+                    trace::error!("Failed to downcast action of type {}", (&**a).type_name());
+                }
+            })
+            .collect();
     }
 }
 

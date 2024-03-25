@@ -14,7 +14,3 @@ pub trait ActionTrait: AnyBase + Send + Sync {
         0
     }
 }
-
-pub fn action_ref<A: 'static>(action: &dyn ActionTrait) -> &A {
-    action.as_any_ref().downcast_ref::<A>().unwrap()
-}
