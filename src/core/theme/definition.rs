@@ -1,5 +1,5 @@
 use crate::base::component::Layout;
-use crate::core::component::{ComponentBase, ComponentTrait, Context};
+use crate::core::component::{ComponentBase, ComponentTrait};
 use crate::core::package::PackageTrait;
 use crate::html::{html, Favicon, Markup};
 use crate::locale::L10n;
@@ -26,13 +26,13 @@ pub trait ThemeTrait: PackageTrait + Send + Sync {
     fn before_prepare_body(&self, page: &mut Page) {}
 
     fn prepare_body(&self, page: &mut Page) -> Markup {
-        let skip_to = concat_string!("#", page.skip_to().get().unwrap_or("content".to_owned()));
+        let skip_to_id = concat_string!("#", page.skip_to().get().unwrap_or("content".to_owned()));
 
         html! {
             body id=[page.body_id().get()] class=[page.body_classes().get()] {
                 @if let Some(skip) = L10n::l("skip_to_content").using(page.context().langid()) {
                     div class="skip__to_content" {
-                        a href=(skip_to) { (skip) }
+                        a href=(skip_to_id) { (skip) }
                     }
                 }
                 (Layout::new().render(page.context()))
@@ -79,67 +79,5 @@ pub trait ThemeTrait: PackageTrait + Send + Sync {
                 (page.context().prepare_assets())
             }
         }
-    }
-
-    #[rustfmt::skip]
-    #[allow(unused_variables)]
-    fn before_prepare_component(
-        &self,
-        component: &mut dyn ComponentTrait,
-        cx: &mut Context,
-    ) {
-        /*
-            Cómo usarlo:
-
-            match component.type_id() {
-                t if t == TypeId::of::<Block>() => {
-                    if let Some(b) = component.downcast_mut::<Block>() {
-                        b.alter_title("New title");
-                    }
-                },
-                _ => {},
-            }
-        */
-    }
-
-    #[rustfmt::skip]
-    #[allow(unused_variables)]
-    fn after_prepare_component(
-        &self,
-        component: &mut dyn ComponentTrait,
-        cx: &mut Context,
-    ) {
-        /*
-            Cómo usarlo:
-
-            match component.type_id() {
-                t if t == TypeId::of::<Block>() => {
-                    if let Some(b) = component.downcast_mut::<Block>() {
-                        b.alter_title("New title");
-                    }
-                },
-                _ => {},
-            }
-        */
-    }
-
-    #[rustfmt::skip]
-    #[allow(unused_variables)]
-    fn render_component(
-        &self,
-        component: &dyn ComponentTrait,
-        cx: &mut Context,
-    ) -> Option<Markup> {
-        None
-        /*
-            Cómo usarlo:
-
-            match component.type_id() {
-                t if t == TypeId::of::<Block>() => {
-                    Some(block_default(block))
-                },
-                _ => None,
-            }
-        */
     }
 }

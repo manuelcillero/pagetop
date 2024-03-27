@@ -1,9 +1,9 @@
 use crate::prelude::*;
 
-use super::FnActionPage;
+pub type FnAfterPrepareBody = fn(page: &mut Page);
 
 pub struct AfterPrepareBody {
-    f: FnActionPage,
+    f: FnAfterPrepareBody,
     weight: Weight,
 }
 
@@ -14,7 +14,7 @@ impl ActionTrait for AfterPrepareBody {
 }
 
 impl AfterPrepareBody {
-    pub fn new(f: FnActionPage) -> Self {
+    pub fn new(f: FnAfterPrepareBody) -> Self {
         AfterPrepareBody { f, weight: 0 }
     }
 
@@ -25,8 +25,9 @@ impl AfterPrepareBody {
 
     #[inline(always)]
     pub(crate) fn dispatch(page: &mut Page) {
-        dispatch_actions((TypeId::of::<Self>(), None, None), |action: &Self| {
-            (action.f)(page)
-        });
+        dispatch_actions(
+            ActionKey::new(TypeId::of::<Self>(), None, None, None),
+            |action: &Self| (action.f)(page),
+        );
     }
 }

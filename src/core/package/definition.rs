@@ -1,4 +1,4 @@
-use crate::core::action::Action;
+use crate::core::action::ActionBox;
 use crate::core::theme::ThemeRef;
 use crate::core::AnyBase;
 use crate::locale::L10n;
@@ -31,7 +31,7 @@ pub trait PackageTrait: AnyBase + Send + Sync {
         vec![]
     }
 
-    fn actions(&self) -> Vec<Action> {
+    fn actions(&self) -> Vec<ActionBox> {
         actions![]
     }
 

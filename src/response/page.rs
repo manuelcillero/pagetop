@@ -168,7 +168,7 @@ impl Page {
     // Page RENDER.
 
     pub fn render(&mut self) -> ResultPage<Markup, ErrorPage> {
-        // Theme actions before preparing the page body.
+        // Theme operations before preparing the page body.
         self.context.theme().before_prepare_body(self);
 
         // Packages actions before preparing the page body.
@@ -177,7 +177,7 @@ impl Page {
         // Prepare page body.
         let body = self.context.theme().prepare_body(self);
 
-        // Theme actions after preparing the page body.
+        // Theme operations after preparing the page body.
         self.context.theme().after_prepare_body(self);
 
         // Packages actions after preparing the page body.

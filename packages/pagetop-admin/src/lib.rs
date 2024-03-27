@@ -15,10 +15,10 @@ impl PackageTrait for Admin {
         L10n::t("package_description", &LOCALES_ADMIN)
     }
 
-    fn actions(&self) -> Vec<Action> {
+    fn actions(&self) -> Vec<ActionBox> {
         actions![
             action::page::BeforePrepareBody::new(before_prepare_body),
-            action::component::BeforePrepareComponent::<Menu>::new(before_prepare_menu)
+            action::component::BeforePrepare::<Menu>::new(before_prepare_menu)
                 .filter_by_referer_id("admin-menu-test"),
         ]
     }

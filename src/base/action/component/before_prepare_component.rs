@@ -1,15 +1,15 @@
 use crate::prelude::*;
 
-use super::FnActionComponent;
+use crate::base::action::FnActionWithComponent;
 
-pub struct BeforePrepareComponent<C: ComponentTrait> {
-    f: FnActionComponent<C>,
+pub struct BeforePrepare<C: ComponentTrait> {
+    f: FnActionWithComponent<C>,
     referer_type_id: Option<TypeId>,
     referer_id: OptionId,
     weight: Weight,
 }
 
-impl<C: ComponentTrait> ActionTrait for BeforePrepareComponent<C> {
+impl<C: ComponentTrait> ActionTrait for BeforePrepare<C> {
     fn referer_type_id(&self) -> Option<TypeId> {
         self.referer_type_id
     }
@@ -23,9 +23,9 @@ impl<C: ComponentTrait> ActionTrait for BeforePrepareComponent<C> {
     }
 }
 
-impl<C: ComponentTrait> BeforePrepareComponent<C> {
-    pub fn new(f: FnActionComponent<C>) -> Self {
-        BeforePrepareComponent {
+impl<C: ComponentTrait> BeforePrepare<C> {
+    pub fn new(f: FnActionWithComponent<C>) -> Self {
+        BeforePrepare {
             f,
             referer_type_id: Some(TypeId::of::<C>()),
             referer_id: OptionId::default(),
@@ -44,10 +44,25 @@ impl<C: ComponentTrait> BeforePrepareComponent<C> {
     }
 
     #[inline(always)]
-    pub(crate) fn dispatch(component: &mut C, cx: &mut Context, referer_id: Option<String>) {
+    pub(crate) fn dispatch(component: &mut C, cx: &mut Context) {
         dispatch_actions(
-            (TypeId::of::<Self>(), Some(TypeId::of::<C>()), referer_id),
+            ActionKey::new(TypeId::of::<Self>(), None, Some(TypeId::of::<C>()), None),
             |action: &Self| (action.f)(component, cx),
         );
+    }
+
+    #[inline(always)]
+    pub(crate) fn dispatch_by_id(component: &mut C, cx: &mut Context) {
+        if component.id().is_some() {
+            dispatch_actions(
+                ActionKey::new(
+                    TypeId::of::<Self>(),
+                    None,
+                    Some(TypeId::of::<C>()),
+                    component.id(),
+                ),
+                |action: &Self| (action.f)(component, cx),
+            );
+        }
     }
 }

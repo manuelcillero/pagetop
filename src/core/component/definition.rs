@@ -50,16 +50,14 @@ impl<C: ComponentTrait> ComponentBase for C {
             self.setup_before_prepare(cx);
 
             // Acciones del tema antes de preparar el componente.
-            cx.theme().before_prepare_component(self, cx);
+            action::theme::BeforePrepare::dispatch(self, cx);
 
             // Acciones de los módulos antes de preparar el componente.
-            action::component::BeforePrepareComponent::dispatch(self, cx, None);
-            if let Some(id) = self.id() {
-                action::component::BeforePrepareComponent::dispatch(self, cx, Some(id));
-            }
+            action::component::BeforePrepare::dispatch(self, cx);
+            action::component::BeforePrepare::dispatch_by_id(self, cx);
 
             // Renderiza el componente.
-            let markup = match cx.theme().render_component(self, cx) {
+            let markup = match action::theme::RenderComponent::dispatch(self, cx) {
                 Some(html) => html,
                 None => match self.prepare_component(cx) {
                     PrepareMarkup::None => html! {},
@@ -69,13 +67,11 @@ impl<C: ComponentTrait> ComponentBase for C {
             };
 
             // Acciones del tema después de preparar el componente.
-            cx.theme().after_prepare_component(self, cx);
+            action::theme::AfterPrepare::dispatch(self, cx);
 
             // Acciones de los módulos después de preparar el componente.
-            action::component::AfterPrepareComponent::dispatch(self, cx, None);
-            if let Some(id) = self.id() {
-                action::component::AfterPrepareComponent::dispatch(self, cx, Some(id));
-            }
+            action::component::AfterPrepare::dispatch(self, cx);
+            action::component::AfterPrepare::dispatch_by_id(self, cx);
 
             markup
         } else {

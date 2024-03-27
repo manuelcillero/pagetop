@@ -1,35 +1,31 @@
-use crate::core::action::{Action, ActionTrait, ActionsList};
-use crate::{LazyStatic, TypeId};
+use crate::core::action::{ActionBox, ActionKey, ActionTrait, ActionsList};
+use crate::LazyStatic;
 
 use std::collections::HashMap;
 use std::sync::RwLock;
 
-pub type KeyAction = (TypeId, Option<TypeId>, Option<String>);
-
 // Registered actions.
-static ACTIONS: LazyStatic<RwLock<HashMap<KeyAction, ActionsList>>> =
+static ACTIONS: LazyStatic<RwLock<HashMap<ActionKey, ActionsList>>> =
     LazyStatic::new(|| RwLock::new(HashMap::new()));
 
-pub fn add_action(action: Action) {
+pub fn add_action(action: ActionBox) {
+    let key = action.key();
     let mut actions = ACTIONS.write().unwrap();
-    let key_action = (
-        action.type_id(),
-        action.referer_type_id(),
-        action.referer_id(),
-    );
-    if let Some(list) = actions.get_mut(&key_action) {
+    if let Some(list) = actions.get_mut(&key) {
         list.add(action);
     } else {
-        actions.insert(key_action, ActionsList::new(action));
+        let mut list = ActionsList::new();
+        list.add(action);
+        actions.insert(key, list);
     }
 }
 
-pub fn dispatch_actions<A, B, F>(key_action: KeyAction, f: F)
+pub fn dispatch_actions<A, B, F>(key: ActionKey, f: F)
 where
     A: ActionTrait,
     F: FnMut(&A) -> B,
 {
-    if let Some(list) = ACTIONS.read().unwrap().get(&key_action) {
+    if let Some(list) = ACTIONS.read().unwrap().get(&key) {
         list.iter_map(f)
     }
 }

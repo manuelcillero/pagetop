@@ -20,7 +20,7 @@ impl PackageTrait for Node {
         scfg.route("/node", service::web::get().to(node));
     }
 
-    fn actions(&self) -> Vec<Action> {
+    fn actions(&self) -> Vec<ActionBox> {
         actions![action::page::BeforePrepareBody::new(before_prepare_body).with_weight(-1)]
     }
 
