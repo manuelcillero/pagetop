@@ -1,6 +1,6 @@
 [package]
 name = "pagetop-build"
-version = "0.0.9"
+version = "0.0.10"
 edition = "2021"
 
 description = "Simplifies the process of embedding resources in PageTop app binaries."
