@@ -1,5 +1,13 @@
 use crate::prelude::*;
 
+#[derive(AutoDefault)]
+pub enum ItemType {
+    #[default]
+    Default,
+    Wrapper,
+    Bundle,
+}
+
 #[rustfmt::skip]
 #[derive(AutoDefault, ComponentClasses)]
 pub struct Flex {
@@ -7,6 +15,7 @@ pub struct Flex {
     weight       : Weight,
     renderable   : Renderable,
     classes      : OptionClasses,
+    item_type    : ItemType,
     flex_grow    : FlexGrow,
     flex_shrink  : FlexShrink,
     flex_size    : FlexSize,
@@ -54,13 +63,23 @@ impl ComponentTrait for Flex {
                 0 => None,
                 _ => Some(concat_string!("order: ", self.weight().to_string(), ";")),
             };
-            PrepareMarkup::With(html! {
-                div id=[self.id()] class=[self.classes().get()] style=[order] {
-                    div class="flex__content" {
+            match self.item_type() {
+                ItemType::Default => PrepareMarkup::With(html! {
+                    div id=[self.id()] class=[self.classes().get()] style=[order] {
+                        div class="flex__content" {
+                            (output)
+                        }
+                    }
+                }),
+                ItemType::Wrapper => PrepareMarkup::With(html! {
+                    div id=[self.id()] class=[self.classes().get()] style=[order] {
                         (output)
                     }
-                }
-            })
+                }),
+                ItemType::Bundle => PrepareMarkup::With(html! {
+                    (output)
+                }),
+            }
         } else {
             PrepareMarkup::None
         }
@@ -68,6 +87,20 @@ impl ComponentTrait for Flex {
 }
 
 impl Flex {
+    pub fn wrapper() -> Self {
+        Flex {
+            item_type: ItemType::Wrapper,
+            ..Default::default()
+        }
+    }
+
+    pub fn bundle() -> Self {
+        Flex {
+            item_type: ItemType::Bundle,
+            ..Default::default()
+        }
+    }
+
     pub fn with(component: impl ComponentTrait) -> Self {
         Flex::default().add_component(component)
     }
@@ -137,6 +170,10 @@ impl Flex {
     }
 
     // Item GETTERS.
+
+    pub fn item_type(&self) -> &ItemType {
+        &self.item_type
+    }
 
     pub fn grow(&self) -> &FlexGrow {
         &self.flex_grow

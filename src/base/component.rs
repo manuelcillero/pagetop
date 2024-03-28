@@ -160,8 +160,8 @@ impl ToString for FontSize {
 mod basic;
 pub use basic::*;
 
-mod composition;
-pub use composition::*;
+mod layout;
+pub use layout::*;
 
 mod error403;
 pub use error403::Error403;

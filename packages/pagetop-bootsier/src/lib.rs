@@ -17,7 +17,6 @@ impl PackageTrait for Bootsier {
             action::theme::BeforePrepare::<Button>::new(&Self, before_prepare_button),
             action::theme::BeforePrepare::<Heading>::new(&Self, before_prepare_heading),
             action::theme::BeforePrepare::<Paragraph>::new(&Self, before_prepare_paragraph),
-            action::theme::RenderComponent::<Layout>::new(&Self, render_layout),
             action::theme::RenderComponent::<Error404>::new(&Self, render_error404),
         ]
     }
@@ -41,6 +40,46 @@ impl ThemeTrait for Bootsier {
             ("sidebar_second", L10n::t("sidebar_second", &LOCALES_BOOTSIER)),
             ("footer",         L10n::t("footer",         &LOCALES_BOOTSIER)),
         ]
+    }
+
+    fn prepare_body(&self, page: &mut Page) -> Markup {
+        let skip_to_id = concat_string!("#", page.skip_to().get().unwrap_or("content".to_owned()));
+
+        Container::body()
+            .with_id(page.body_id().get().unwrap_or("".to_string()))
+            .with_classes(ClassesOp::Add, page.body_classes().get().unwrap_or("".to_string()))
+            .add_item(Flex::bundle()
+                .add_component(Html::with(html! {
+                    @if let Some(skip) = L10n::l("skip_to_content").using(page.context().langid()) {
+                        div class="skip__to_content" {
+                            a href=(skip_to_id) { (skip) }
+                        }
+                    }
+                }))
+                .add_component(
+                    match page.context().layout() {
+                        "admin" => Container::new().add_item(
+                            Flex::new()
+                                .add_component(Region::named("top-menu"))
+                                .add_component(Region::named("side-menu"))
+                                .add_component(Region::named("content")),
+                        ),
+                        _ => Container::new().add_item(
+                            Flex::new()
+                                .add_component(Region::named("header"))
+                                .add_component(Region::named("nav_branding"))
+                                .add_component(Region::named("nav_main"))
+                                .add_component(Region::named("nav_additional"))
+                                .add_component(Region::named("breadcrumb"))
+                                .add_component(Region::named("content"))
+                                .add_component(Region::named("sidebar_first"))
+                                .add_component(Region::named("sidebar_second"))
+                                .add_component(Region::named("footer")),
+                        ),
+                    }
+                )
+            )
+            .render(page.context())
     }
 
     fn after_prepare_body(&self, page: &mut Page) {
@@ -111,32 +150,6 @@ fn before_prepare_paragraph(p: &mut Paragraph, _cx: &mut Context) {
         ClassesOp::Replace(p.font_size().to_string()),
         with_font(p.font_size()),
     );
-}
-
-fn render_layout(_: &Layout, cx: &mut Context) -> Option<Markup> {
-    Some(
-        match cx.layout() {
-            "admin" => Container::new().add_item(
-                Flex::new()
-                    .add_component(Region::named("top-menu"))
-                    .add_component(Region::named("side-menu"))
-                    .add_component(Region::named("content")),
-            ),
-            _ => Container::new().add_item(
-                Flex::new()
-                    .add_component(Region::named("header"))
-                    .add_component(Region::named("nav_branding"))
-                    .add_component(Region::named("nav_main"))
-                    .add_component(Region::named("nav_additional"))
-                    .add_component(Region::named("breadcrumb"))
-                    .add_component(Region::named("content"))
-                    .add_component(Region::named("sidebar_first"))
-                    .add_component(Region::named("sidebar_second"))
-                    .add_component(Region::named("footer")),
-            ),
-        }
-        .render(cx),
-    )
 }
 
 fn render_error404(_: &Error404, cx: &mut Context) -> Option<Markup> {

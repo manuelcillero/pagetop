@@ -4,6 +4,7 @@ use crate::prelude::*;
 pub enum ContainerType {
     #[default]
     Default,
+    Body,
     Header,
     Main,
     Section,
@@ -76,6 +77,11 @@ impl ComponentTrait for Container {
                     (output)
                 }
             }),
+            ContainerType::Body => PrepareMarkup::With(html! {
+                body id=[self.id()] class=[self.classes().get()] style=[gap] {
+                    (output)
+                }
+            }),
             ContainerType::Header => PrepareMarkup::With(html! {
                 header id=[self.id()] class=[self.classes().get()] style=[gap] {
                     (output)
@@ -106,6 +112,13 @@ impl ComponentTrait for Container {
 }
 
 impl Container {
+    pub fn body() -> Self {
+        Container {
+            container_type: ContainerType::Body,
+            ..Default::default()
+        }
+    }
+
     pub fn header() -> Self {
         Container {
             container_type: ContainerType::Header,
