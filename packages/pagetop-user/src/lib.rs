@@ -33,9 +33,9 @@ async fn login(request: HttpRequest) -> ResultPage<Markup, ErrorPage> {
     Page::new(request)
         .with_title(L10n::n("Identificación del usuario"))
         .with_component(
-            Container::new()
+            flex::Container::new()
                 .with_id("welcome")
-                .add_item(Flex::with(form_login())),
+                .add_item(flex::Item::with(form_login())),
         )
         .render()
 }

@@ -154,10 +154,10 @@ pub async fn summary(request: HttpRequest) -> ResultPage<Markup, ErrorPage> {
         .with_title(L10n::n("Admin"))
         .with_component_in("top-menu", side_menu)
         .with_component(
-            Container::new()
-                .add_item(Flex::with(Html::with(html! { p { "Columna 1"} })))
-                .add_item(Flex::with(top_menu))
-                .add_item(Flex::with(Html::with(html! { p { "Columna 3"} }))),
+            flex::Container::new()
+                .add_item(flex::Item::with(Html::with(html! { p { "Columna 1"} })))
+                .add_item(flex::Item::with(top_menu))
+                .add_item(flex::Item::with(Html::with(html! { p { "Columna 3"} }))),
         )
         .render()
 }

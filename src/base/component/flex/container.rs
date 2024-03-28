@@ -20,11 +20,11 @@ pub struct Container {
     renderable    : Renderable,
     classes       : OptionClasses,
     container_type: ContainerType,
-    direction     : FlexDirection,
-    flex_wrap     : FlexWrap,
-    flex_justify  : FlexJustify,
-    flex_align    : FlexAlign,
-    flex_gap      : FlexGap,
+    direction     : flex::Direction,
+    flex_wrap     : flex::Wrap,
+    flex_justify  : flex::Justify,
+    flex_align    : flex::Align,
+    flex_gap      : flex::Gap,
     items         : MixedComponents,
 }
 
@@ -68,7 +68,7 @@ impl ComponentTrait for Container {
         }
 
         let gap = match self.gap() {
-            FlexGap::Default => None,
+            flex::Gap::Default => None,
             _ => Some(self.gap().to_string()),
         };
         match self.container_type() {
@@ -175,43 +175,43 @@ impl Container {
     }
 
     #[fn_builder]
-    pub fn alter_direction(&mut self, direction: FlexDirection) -> &mut Self {
+    pub fn alter_direction(&mut self, direction: flex::Direction) -> &mut Self {
         self.direction = direction;
         self
     }
 
     #[fn_builder]
-    pub fn alter_wrap(&mut self, wrap: FlexWrap) -> &mut Self {
+    pub fn alter_wrap(&mut self, wrap: flex::Wrap) -> &mut Self {
         self.flex_wrap = wrap;
         self
     }
 
     #[fn_builder]
-    pub fn alter_justify(&mut self, justify: FlexJustify) -> &mut Self {
+    pub fn alter_justify(&mut self, justify: flex::Justify) -> &mut Self {
         self.flex_justify = justify;
         self
     }
 
     #[fn_builder]
-    pub fn alter_align(&mut self, align: FlexAlign) -> &mut Self {
+    pub fn alter_align(&mut self, align: flex::Align) -> &mut Self {
         self.flex_align = align;
         self
     }
 
     #[fn_builder]
-    pub fn alter_gap(&mut self, gap: FlexGap) -> &mut Self {
+    pub fn alter_gap(&mut self, gap: flex::Gap) -> &mut Self {
         self.flex_gap = gap;
         self
     }
 
     #[fn_builder]
-    pub fn alter_items(&mut self, op: TypedOp<Flex>) -> &mut Self {
+    pub fn alter_items(&mut self, op: TypedOp<flex::Item>) -> &mut Self {
         self.items.alter_typed(op);
         self
     }
 
     #[rustfmt::skip]
-    pub fn add_item(mut self, item: Flex) -> Self {
+    pub fn add_item(mut self, item: flex::Item) -> Self {
         self.items.alter_value(AnyOp::Add(AnyComponent::with(item)));
         self
     }
@@ -222,23 +222,23 @@ impl Container {
         &self.container_type
     }
 
-    pub fn direction(&self) -> &FlexDirection {
+    pub fn direction(&self) -> &flex::Direction {
         &self.direction
     }
 
-    pub fn wrap(&self) -> &FlexWrap {
+    pub fn wrap(&self) -> &flex::Wrap {
         &self.flex_wrap
     }
 
-    pub fn justify(&self) -> &FlexJustify {
+    pub fn justify(&self) -> &flex::Justify {
         &self.flex_justify
     }
 
-    pub fn align(&self) -> &FlexAlign {
+    pub fn align(&self) -> &flex::Align {
         &self.flex_align
     }
 
-    pub fn gap(&self) -> &FlexGap {
+    pub fn gap(&self) -> &flex::Gap {
         &self.flex_gap
     }
 

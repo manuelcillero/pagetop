@@ -28,10 +28,10 @@ pub trait ThemeTrait: PackageTrait + Send + Sync {
     fn prepare_body(&self, page: &mut Page) -> Markup {
         let skip_to_id = concat_string!("#", page.skip_to().get().unwrap_or("content".to_owned()));
 
-        Container::body()
+        flex::Container::body()
             .with_id(page.body_id().get().unwrap_or_default())
             .with_classes(ClassesOp::Add, page.body_classes().get().unwrap_or_default())
-            .add_item(Flex::bundle()
+            .add_item(flex::Item::bundle()
                 .add_component(Html::with(html! {
                     @if let Some(skip) = L10n::l("skip_to_content").using(page.context().langid()) {
                         div class="skip__to_content" {
@@ -39,35 +39,35 @@ pub trait ThemeTrait: PackageTrait + Send + Sync {
                         }
                     }
                 }))
-                .add_component(Container::new()
+                .add_component(flex::Container::new()
                     .with_id("body__wrapper")
-                    .with_direction(FlexDirection::Column(BreakPoint::None))
-                    .with_align(FlexAlign::Center)
-                    .add_item(Flex::with(Region::named("header")).with_id("header"))
-                    .add_item(Flex::with(Region::named("pagetop")).with_id("pagetop"))
+                    .with_direction(flex::Direction::Column(BreakPoint::None))
+                    .with_align(flex::Align::Center)
+                    .add_item(flex::Item::with(flex::Region::named("header")).with_id("header"))
+                    .add_item(flex::Item::with(flex::Region::named("pagetop")).with_id("pagetop"))
                     .add_item(
-                        Flex::with(
-                            Container::new()
-                                .with_direction(FlexDirection::Row(BreakPoint::None))
+                        flex::Item::with(
+                            flex::Container::new()
+                                .with_direction(flex::Direction::Row(BreakPoint::None))
                                 .add_item(
-                                    Flex::with(Region::named("sidebar_left"))
+                                    flex::Item::with(flex::Region::named("sidebar_left"))
                                         .with_id("sidebar_left")
-                                        .with_grow(FlexGrow::Is1),
+                                        .with_grow(flex::Grow::Is1),
                                 )
                                 .add_item(
-                                    Flex::with(Region::named("content"))
+                                    flex::Item::with(flex::Region::named("content"))
                                         .with_id("content")
-                                        .with_grow(FlexGrow::Is3),
+                                        .with_grow(flex::Grow::Is3),
                                 )
                                 .add_item(
-                                    Flex::with(Region::named("sidebar_right"))
+                                    flex::Item::with(flex::Region::named("sidebar_right"))
                                         .with_id("sidebar_right")
-                                        .with_grow(FlexGrow::Is1),
+                                        .with_grow(flex::Grow::Is1),
                                 ),
                         )
                         .with_id("flex__wrapper"),
                     )
-                    .add_item(Flex::with(Region::named("footer")).with_id("footer")),
+                    .add_item(flex::Item::with(flex::Region::named("footer")).with_id("footer")),
                 )
             )
             .render(page.context())

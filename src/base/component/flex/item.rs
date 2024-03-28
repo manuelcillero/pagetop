@@ -10,23 +10,23 @@ pub enum ItemType {
 
 #[rustfmt::skip]
 #[derive(AutoDefault, ComponentClasses)]
-pub struct Flex {
-    id           : OptionId,
-    weight       : Weight,
-    renderable   : Renderable,
-    classes      : OptionClasses,
-    item_type    : ItemType,
-    flex_grow    : FlexGrow,
-    flex_shrink  : FlexShrink,
-    flex_size    : FlexSize,
-    flex_offset  : FlexOffset,
-    flex_align   : FlexAlign,
-    mixed        : MixedComponents,
+pub struct Item {
+    id         : OptionId,
+    weight     : Weight,
+    renderable : Renderable,
+    classes    : OptionClasses,
+    item_type  : ItemType,
+    flex_grow  : flex::Grow,
+    flex_shrink: flex::Shrink,
+    flex_size  : flex::Size,
+    flex_offset: flex::Offset,
+    flex_align : flex::Align,
+    mixed      : MixedComponents,
 }
 
-impl ComponentTrait for Flex {
+impl ComponentTrait for Item {
     fn new() -> Self {
-        Flex::default()
+        Item::default()
     }
 
     fn id(&self) -> Option<String> {
@@ -86,23 +86,23 @@ impl ComponentTrait for Flex {
     }
 }
 
-impl Flex {
+impl Item {
     pub fn wrapper() -> Self {
-        Flex {
+        Item {
             item_type: ItemType::Wrapper,
             ..Default::default()
         }
     }
 
     pub fn bundle() -> Self {
-        Flex {
+        Item {
             item_type: ItemType::Bundle,
             ..Default::default()
         }
     }
 
     pub fn with(component: impl ComponentTrait) -> Self {
-        Flex::default().add_component(component)
+        Item::default().add_component(component)
     }
 
     // Item BUILDER.
@@ -126,13 +126,13 @@ impl Flex {
     }
 
     #[fn_builder]
-    pub fn alter_grow(&mut self, grow: FlexGrow) -> &mut Self {
+    pub fn alter_grow(&mut self, grow: flex::Grow) -> &mut Self {
         self.flex_grow = grow;
         self
     }
 
     #[fn_builder]
-    pub fn alter_shrink(&mut self, shrink: FlexShrink) -> &mut Self {
+    pub fn alter_shrink(&mut self, shrink: flex::Shrink) -> &mut Self {
         self.flex_shrink = shrink;
         self
     }
@@ -140,19 +140,19 @@ impl Flex {
     #[fn_builder]
     // Ensures the item occupies the exact specified width, neither growing nor shrinking,
     // regardless of the available space in the container or the size of other items.
-    pub fn alter_size(&mut self, size: FlexSize) -> &mut Self {
+    pub fn alter_size(&mut self, size: flex::Size) -> &mut Self {
         self.flex_size = size;
         self
     }
 
     #[fn_builder]
-    pub fn alter_offset(&mut self, offset: FlexOffset) -> &mut Self {
+    pub fn alter_offset(&mut self, offset: flex::Offset) -> &mut Self {
         self.flex_offset = offset;
         self
     }
 
     #[fn_builder]
-    pub fn alter_align(&mut self, align: FlexAlign) -> &mut Self {
+    pub fn alter_align(&mut self, align: flex::Align) -> &mut Self {
         self.flex_align = align;
         self
     }
@@ -175,23 +175,23 @@ impl Flex {
         &self.item_type
     }
 
-    pub fn grow(&self) -> &FlexGrow {
+    pub fn grow(&self) -> &flex::Grow {
         &self.flex_grow
     }
 
-    pub fn shrink(&self) -> &FlexShrink {
+    pub fn shrink(&self) -> &flex::Shrink {
         &self.flex_shrink
     }
 
-    pub fn size(&self) -> &FlexSize {
+    pub fn size(&self) -> &flex::Size {
         &self.flex_size
     }
 
-    pub fn offset(&self) -> &FlexOffset {
+    pub fn offset(&self) -> &flex::Offset {
         &self.flex_offset
     }
 
-    pub fn align(&self) -> &FlexAlign {
+    pub fn align(&self) -> &flex::Align {
         &self.flex_align
     }
 
