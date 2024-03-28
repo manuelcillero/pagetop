@@ -1,6 +1,6 @@
 [package]
 name = "pagetop-node"
-version = "0.0.19"
+version = "0.0.20"
 edition = "2021"
 
 description = "PageTop package for easy content type creation and customization."
