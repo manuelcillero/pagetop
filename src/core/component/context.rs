@@ -2,7 +2,9 @@ use crate::base::component::add_base_assets;
 use crate::core::component::AnyOp;
 use crate::core::theme::all::{theme_by_single_name, THEME_DEFAULT};
 use crate::core::theme::{ComponentsInRegions, ThemeRef};
-use crate::html::{html, Assets, HeadScript, HeadStyles, JavaScript, Markup, StyleSheet};
+use crate::html::{html, Markup};
+use crate::html::{Assets, HeadScript, HeadStyles, JavaScript, StyleSheet};
+use crate::html::{ClassesOp, OptionClasses, OptionId};
 use crate::locale::{LanguageIdentifier, LANGID_DEFAULT};
 use crate::service::HttpRequest;
 use crate::{concat_string, util};
@@ -32,17 +34,20 @@ pub enum AssetsOp {
 
 #[rustfmt::skip]
 pub struct Context {
-    request   : HttpRequest,
-    langid    : &'static LanguageIdentifier,
-    theme     : ThemeRef,
-    layout    : &'static str,
-    stylesheet: Assets<StyleSheet>,                     // Stylesheets.
-    headstyles: Assets<HeadStyles>,                     // Styles in head.
-    javascript: Assets<JavaScript>,                     // JavaScripts.
-    headscript: Assets<HeadScript>,                     // Scripts in head.
-    regions   : ComponentsInRegions,
-    params    : HashMap<&'static str, String>,
-    id_counter: usize,
+    request     : HttpRequest,
+    langid      : &'static LanguageIdentifier,
+    theme       : ThemeRef,
+    layout      : &'static str,
+    stylesheet  : Assets<StyleSheet>,                     // Stylesheets.
+    headstyles  : Assets<HeadStyles>,                     // Styles in head.
+    javascript  : Assets<JavaScript>,                     // JavaScripts.
+    headscript  : Assets<HeadScript>,                     // Scripts in head.
+    body_id     : OptionId,
+    body_classes: OptionClasses,
+    body_skip_to: OptionId,
+    regions     : ComponentsInRegions,
+    params      : HashMap<&'static str, String>,
+    id_counter  : usize,
 }
 
 impl Context {
@@ -50,16 +55,19 @@ impl Context {
     pub(crate) fn new(request: HttpRequest) -> Self {
         Context {
             request,
-            langid    : &LANGID_DEFAULT,
-            theme     : *THEME_DEFAULT,
-            layout    : "default",
-            stylesheet: Assets::<StyleSheet>::new(),    // Stylesheets.
-            headstyles: Assets::<HeadStyles>::new(),    // Styles in head.
-            javascript: Assets::<JavaScript>::new(),    // JavaScripts.
-            headscript: Assets::<HeadScript>::new(),    // Scripts in head.
-            regions   : ComponentsInRegions::default(),
-            params    : HashMap::<&str, String>::new(),
-            id_counter: 0,
+            langid      : &LANGID_DEFAULT,
+            theme       : *THEME_DEFAULT,
+            layout      : "default",
+            stylesheet  : Assets::<StyleSheet>::new(),    // Stylesheets.
+            headstyles  : Assets::<HeadStyles>::new(),    // Styles in head.
+            javascript  : Assets::<JavaScript>::new(),    // JavaScripts.
+            headscript  : Assets::<HeadScript>::new(),    // Scripts in head.
+            body_id     : OptionId::default(),
+            body_classes: OptionClasses::default(),
+            body_skip_to: OptionId::default(),
+            regions     : ComponentsInRegions::default(),
+            params      : HashMap::<&str, String>::new(),
+            id_counter  : 0,
         }
     }
 
@@ -92,6 +100,21 @@ impl Context {
             // Add assets to properly use base components.
             AssetsOp::AddBaseAssets => { add_base_assets(self); }
         }
+        self
+    }
+
+    pub fn alter_body_id(&mut self, id: impl Into<String>) -> &mut Self {
+        self.body_id.alter_value(id);
+        self
+    }
+
+    pub fn alter_body_classes(&mut self, op: ClassesOp, classes: impl Into<String>) -> &mut Self {
+        self.body_classes.alter_value(op, classes);
+        self
+    }
+
+    pub fn alter_body_skip_to(&mut self, id: impl Into<String>) -> &mut Self {
+        self.body_skip_to.alter_value(id);
         self
     }
 
@@ -128,6 +151,18 @@ impl Context {
         self.layout
     }
 
+    pub fn body_id(&self) -> &OptionId {
+        &self.body_id
+    }
+
+    pub fn body_classes(&self) -> &OptionClasses {
+        &self.body_classes
+    }
+
+    pub fn body_skip_to(&self) -> &OptionId {
+        &self.body_skip_to
+    }
+
     pub fn regions(&self) -> &ComponentsInRegions {
         &self.regions
     }
@@ -143,7 +178,7 @@ impl Context {
 
     /// Context PREPARE.
 
-    pub fn prepare_assets(&mut self) -> Markup {
+    pub(crate) fn prepare_assets(&mut self) -> Markup {
         html! {
             (self.stylesheet.prepare())                 // Stylesheets.
             (self.headstyles.prepare())                 // Styles in head.
@@ -152,8 +187,10 @@ impl Context {
         }
     }
 
-    pub fn prepare_region(&mut self, region: &str) -> Markup {
-        self.regions.all_components(self.theme, region).render(self)
+    pub(crate) fn prepare_region(&mut self, region: impl Into<String>) -> Markup {
+        self.regions
+            .all_components(self.theme, region.into().as_str())
+            .render(self)
     }
 
     // Context EXTRAS.

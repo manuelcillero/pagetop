@@ -4,9 +4,6 @@ pub use container::Container;
 mod item;
 pub use item::Item;
 
-mod region;
-pub use region::Region;
-
 use crate::prelude::*;
 
 // *************************************************************************************************

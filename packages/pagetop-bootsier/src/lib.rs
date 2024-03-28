@@ -43,43 +43,23 @@ impl ThemeTrait for Bootsier {
     }
 
     fn prepare_body(&self, page: &mut Page) -> Markup {
-        let skip_to_id = concat_string!("#", page.skip_to().get().unwrap_or("content".to_owned()));
-
-        flex::Container::body()
-            .with_id(page.body_id().get().unwrap_or_default())
-            .with_classes(ClassesOp::Add, page.body_classes().get().unwrap_or_default())
-            .add_item(flex::Item::bundle()
-                .add_component(Html::with(html! {
-                    @if let Some(skip) = L10n::l("skip_to_content").using(page.context().langid()) {
-                        div class="skip__to_content" {
-                            a href=(skip_to_id) { (skip) }
-                        }
-                    }
-                }))
-                .add_component(
-                    match page.context().layout() {
-                        "admin" => flex::Container::new().add_item(
-                            flex::Item::new()
-                                .add_component(flex::Region::named("top-menu"))
-                                .add_component(flex::Region::named("side-menu"))
-                                .add_component(flex::Region::named("content")),
-                        ),
-                        _ => flex::Container::new().add_item(
-                            flex::Item::new()
-                                .add_component(flex::Region::named("header"))
-                                .add_component(flex::Region::named("nav_branding"))
-                                .add_component(flex::Region::named("nav_main"))
-                                .add_component(flex::Region::named("nav_additional"))
-                                .add_component(flex::Region::named("breadcrumb"))
-                                .add_component(flex::Region::named("content"))
-                                .add_component(flex::Region::named("sidebar_first"))
-                                .add_component(flex::Region::named("sidebar_second"))
-                                .add_component(flex::Region::named("footer")),
-                        ),
-                    }
-                )
-            )
-            .render(page.context())
+        Body::with(match page.context().layout() {
+            "admin" => flex::Container::new()
+                .add_item(flex::Item::region().with_id("top-menu"))
+                .add_item(flex::Item::region().with_id("side-menu"))
+                .add_item(flex::Item::region().with_id("content")),
+            _ => flex::Container::new()
+                .add_item(flex::Item::region().with_id("header"))
+                .add_item(flex::Item::region().with_id("nav_branding"))
+                .add_item(flex::Item::region().with_id("nav_main"))
+                .add_item(flex::Item::region().with_id("nav_additional"))
+                .add_item(flex::Item::region().with_id("breadcrumb"))
+                .add_item(flex::Item::region().with_id("content"))
+                .add_item(flex::Item::region().with_id("sidebar_first"))
+                .add_item(flex::Item::region().with_id("sidebar_second"))
+                .add_item(flex::Item::region().with_id("footer")),
+        })
+        .render(page.context())
     }
 
     fn after_prepare_body(&self, page: &mut Page) {

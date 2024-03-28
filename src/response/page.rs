@@ -7,8 +7,7 @@ use crate::base::action;
 use crate::core::component::{AnyComponent, AnyOp, ComponentTrait};
 use crate::core::component::{AssetsOp, Context};
 use crate::fn_builder;
-use crate::html::{html, Markup, DOCTYPE};
-use crate::html::{ClassesOp, Favicon, OptionClasses, OptionId, OptionTranslated};
+use crate::html::{html, ClassesOp, Favicon, Markup, OptionTranslated, DOCTYPE};
 use crate::locale::L10n;
 use crate::service::HttpRequest;
 
@@ -16,30 +15,24 @@ use unic_langid::CharacterDirection;
 
 #[rustfmt::skip]
 pub struct Page {
-    title       : OptionTranslated,
-    description : OptionTranslated,
-    metadata    : Vec<(&'static str, &'static str)>,
-    properties  : Vec<(&'static str, &'static str)>,
-    favicon     : Option<Favicon>,
-    context     : Context,
-    body_id     : OptionId,
-    body_classes: OptionClasses,
-    skip_to     : OptionId,
+    title      : OptionTranslated,
+    description: OptionTranslated,
+    metadata   : Vec<(&'static str, &'static str)>,
+    properties : Vec<(&'static str, &'static str)>,
+    favicon    : Option<Favicon>,
+    context    : Context,
 }
 
 impl Page {
     #[rustfmt::skip]
     pub fn new(request: HttpRequest) -> Self {
         Page {
-            title       : OptionTranslated::default(),
-            description : OptionTranslated::default(),
-            metadata    : Vec::default(),
-            properties  : Vec::default(),
-            favicon     : None,
-            context     : Context::new(request),
-            body_id     : OptionId::default(),
-            body_classes: OptionClasses::default(),
-            skip_to     : OptionId::default(),
+            title      : OptionTranslated::default(),
+            description: OptionTranslated::default(),
+            metadata   : Vec::default(),
+            properties : Vec::default(),
+            favicon    : None,
+            context    : Context::new(request),
         }
     }
 
@@ -83,19 +76,19 @@ impl Page {
 
     #[fn_builder]
     pub fn alter_body_id(&mut self, id: impl Into<String>) -> &mut Self {
-        self.body_id.alter_value(id);
+        self.context.alter_body_id(id);
         self
     }
 
     #[fn_builder]
     pub fn alter_body_classes(&mut self, op: ClassesOp, classes: impl Into<String>) -> &mut Self {
-        self.body_classes.alter_value(op, classes);
+        self.context.alter_body_classes(op, classes);
         self
     }
 
     #[fn_builder]
-    pub fn alter_skip_to(&mut self, id: impl Into<String>) -> &mut Self {
-        self.skip_to.alter_value(id);
+    pub fn alter_body_skip_to(&mut self, id: impl Into<String>) -> &mut Self {
+        self.context.alter_body_skip_to(id);
         self
     }
 
@@ -151,18 +144,6 @@ impl Page {
 
     pub fn context(&mut self) -> &mut Context {
         &mut self.context
-    }
-
-    pub fn body_id(&self) -> &OptionId {
-        &self.body_id
-    }
-
-    pub fn body_classes(&self) -> &OptionClasses {
-        &self.body_classes
-    }
-
-    pub fn skip_to(&self) -> &OptionId {
-        &self.skip_to
     }
 
     // Page RENDER.

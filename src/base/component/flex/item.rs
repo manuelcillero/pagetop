@@ -4,6 +4,7 @@ use crate::prelude::*;
 pub enum ItemType {
     #[default]
     Default,
+    Region,
     Wrapper,
     Bundle,
 }
@@ -57,36 +58,60 @@ impl ComponentTrait for Item {
     }
 
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
-        let output = self.components().render(cx);
-        if !output.is_empty() {
-            let order = match self.weight() {
-                0 => None,
-                _ => Some(concat_string!("order: ", self.weight().to_string(), ";")),
-            };
-            match self.item_type() {
-                ItemType::Default => PrepareMarkup::With(html! {
-                    div id=[self.id()] class=[self.classes().get()] style=[order] {
-                        div class="flex__content" {
-                            (output)
-                        }
-                    }
-                }),
-                ItemType::Wrapper => PrepareMarkup::With(html! {
-                    div id=[self.id()] class=[self.classes().get()] style=[order] {
+        let (output, region) = match self.item_type() {
+            ItemType::Region => (
+                self.components().render(cx),
+                if let Some(id) = self.id() {
+                    cx.prepare_region(id)
+                } else {
+                    Markup::default()
+                },
+            ),
+            _ => (self.components().render(cx), Markup::default()),
+        };
+        if output.is_empty() && region.is_empty() {
+            return PrepareMarkup::None;
+        }
+        let order = match self.weight() {
+            0 => None,
+            _ => Some(concat_string!("order: ", self.weight().to_string(), ";")),
+        };
+        match self.item_type() {
+            ItemType::Default => PrepareMarkup::With(html! {
+                div id=[self.id()] class=[self.classes().get()] style=[order] {
+                    div class="flex__content" {
                         (output)
                     }
-                }),
-                ItemType::Bundle => PrepareMarkup::With(html! {
+                }
+            }),
+            ItemType::Region => PrepareMarkup::With(html! {
+                div id=[self.id()] class=[self.classes().get()] style=[order] {
+                    div class="flex__content flex__region" {
+                        (region)
+                        (output)
+                    }
+                }
+            }),
+            ItemType::Wrapper => PrepareMarkup::With(html! {
+                div id=[self.id()] class=[self.classes().get()] style=[order] {
                     (output)
-                }),
-            }
-        } else {
-            PrepareMarkup::None
+                }
+            }),
+            ItemType::Bundle => PrepareMarkup::With(html! {
+                (output)
+            }),
         }
     }
 }
 
 impl Item {
+    pub fn region() -> Self {
+        Item {
+            item_type: ItemType::Region,
+            ..Default::default()
+        }
+    }
+
     pub fn wrapper() -> Self {
         Item {
             item_type: ItemType::Wrapper,
