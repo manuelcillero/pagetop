@@ -1,6 +1,6 @@
 [package]
 name = "pagetop-bootsier"
-version = "0.0.17"
+version = "0.0.18"
 edition = "2021"
 
 description = "PageTop theme that uses Bootstrap framework for versatile styles and components."
