@@ -34,12 +34,12 @@ impl Application {
     }
 
     /// Prepares an application instance with a specific package.
-    pub fn prepare(app: PackageRef) -> Self {
-        Self::internal_prepare(Some(app))
+    pub fn prepare(root_package: PackageRef) -> Self {
+        Self::internal_prepare(Some(root_package))
     }
 
     // Internal method to prepare the application, optionally with a package.
-    fn internal_prepare(app: Option<PackageRef>) -> Self {
+    fn internal_prepare(root_package: Option<PackageRef>) -> Self {
         // On startup, show the application banner.
         Self::show_banner();
 
@@ -54,9 +54,7 @@ impl Application {
         LazyStatic::force(&db::DBCONN);
 
         // Registers the application's packages.
-        if let Some(app) = app {
-            package::all::register_packages(app);
-        }
+        package::all::register_packages(root_package);
 
         // Registers package actions.
         package::all::register_actions();

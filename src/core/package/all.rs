@@ -20,28 +20,32 @@ static DROPPED_PACKAGES: LazyStatic<RwLock<Vec<PackageRef>>> =
 
 // REGISTER PACKAGES *******************************************************************************
 
-pub fn register_packages(app: PackageRef) {
+pub fn register_packages(root_package: Option<PackageRef>) {
     // List of packages to drop.
-    let mut list: Vec<PackageRef> = Vec::new();
-    add_to_dropped(&mut list, app);
-    DROPPED_PACKAGES.write().unwrap().append(&mut list);
+    let mut packages_to_drop: Vec<PackageRef> = Vec::new();
+    if let Some(package) = root_package {
+        add_to_dropped(&mut packages_to_drop, package);
+    }
+    DROPPED_PACKAGES.write().unwrap().append(&mut packages_to_drop);
 
     // List of packages to enable.
-    let mut list: Vec<PackageRef> = Vec::new();
+    let mut packages_to_enable: Vec<PackageRef> = Vec::new();
 
     // Enable default welcome page.
-    add_to_enabled(&mut list, &crate::base::package::Welcome);
+    add_to_enabled(&mut packages_to_enable, &crate::base::package::Welcome);
 
     // Enable default themes.
-    add_to_enabled(&mut list, &crate::base::theme::Basic);
-    add_to_enabled(&mut list, &crate::base::theme::Chassis);
-    add_to_enabled(&mut list, &crate::base::theme::Inception);
+    add_to_enabled(&mut packages_to_enable, &crate::base::theme::Basic);
+    add_to_enabled(&mut packages_to_enable, &crate::base::theme::Chassis);
+    add_to_enabled(&mut packages_to_enable, &crate::base::theme::Inception);
 
     // Enable application packages.
-    add_to_enabled(&mut list, app);
+    if let Some(package) = root_package {
+        add_to_enabled(&mut packages_to_enable, package);
+    }
 
-    list.reverse();
-    ENABLED_PACKAGES.write().unwrap().append(&mut list);
+    packages_to_enable.reverse();
+    ENABLED_PACKAGES.write().unwrap().append(&mut packages_to_enable);
 }
 
 fn add_to_dropped(list: &mut Vec<PackageRef>, package: PackageRef) {
