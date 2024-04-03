@@ -75,12 +75,12 @@ else
 
     # Execute commands for MySQL or PostgreSQL
     if [ "$DB_SYSTEM" == "mysql" ]; then
-        mysql -u "$DB_ROOT_USER" -p"$DB_ROOT_PASS" -h "$DB_HOST" <<EOF
-DROP DATABASE IF EXISTS $DB_NAME;
+        MYSQL_PWD="$DB_ROOT_PASS" mysql -u "$DB_ROOT_USER" -h "$DB_HOST" <<EOF
+            DROP DATABASE $DB_NAME;
 EOF
     elif [ "$DB_SYSTEM" == "postgresql" ]; then
         PGPASSWORD="$DB_ROOT_PASS" psql -U "$DB_ROOT_USER" -h "$DB_HOST" <<EOF
-DROP DATABASE IF EXISTS $DB_NAME;
+            DROP DATABASE $DB_NAME;
 EOF
     fi
     EXIT_CODE=$?

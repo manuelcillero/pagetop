@@ -83,24 +83,32 @@ else
 
     # Execute commands for MySQL or PostgreSQL
     if [ "$DB_SYSTEM" == "mysql" ]; then
-        mysql -u "$DB_ROOT_USER" -p"$DB_ROOT_PASS" -h "$DB_HOST" <<EOF
-CREATE DATABASE IF NOT EXISTS $DB_NAME;
-CREATE USER IF NOT EXISTS '$DB_USER'@'$DB_HOST' IDENTIFIED BY '$DB_PASS';
-GRANT ALL PRIVILEGES ON $DB_NAME.* TO '$DB_USER'@'$DB_HOST';
-FLUSH PRIVILEGES;
+        MYSQL_PWD="$DB_ROOT_PASS" mysql -u "$DB_ROOT_USER" -h "$DB_HOST" <<EOF
+            CREATE DATABASE IF NOT EXISTS $DB_NAME;
+            CREATE USER IF NOT EXISTS '$DB_USER'@'$DB_HOST' IDENTIFIED BY '$DB_PASS';
+            GRANT ALL PRIVILEGES ON $DB_NAME.* TO '$DB_USER'@'$DB_HOST';
+            FLUSH PRIVILEGES;
 EOF
     elif [ "$DB_SYSTEM" == "postgresql" ]; then
         PGPASSWORD="$DB_ROOT_PASS" psql -U "$DB_ROOT_USER" -h "$DB_HOST" <<EOF
-CREATE DATABASE $DB_NAME;
-CREATE USER $DB_USER WITH ENCRYPTED PASSWORD '$DB_PASS';
-GRANT ALL PRIVILEGES ON DATABASE $DB_NAME TO $DB_USER;
+            CREATE DATABASE IF NOT EXISTS $DB_NAME;
+            DO \$\$
+            BEGIN
+                IF NOT EXISTS (
+                    SELECT FROM pg_catalog.pg_user
+                    WHERE  usename = '$DB_USER') THEN
+                    CREATE USER $DB_USER WITH ENCRYPTED PASSWORD '$DB_PASS';
+                END IF;
+            END
+            \$\$;
+            GRANT ALL PRIVILEGES ON DATABASE $DB_NAME TO $DB_USER;
 EOF
     fi
     EXIT_CODE=$?
 fi
 
 if [ $EXIT_CODE -eq 0 ]; then
-    echo "Operation completed successfully."
+    echo "Operation completed."
 else
     echo "An error occurred. Exit code: $EXIT_CODE"
 fi
