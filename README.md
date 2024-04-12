@@ -57,46 +57,13 @@ This program features a `HelloWorld` package, providing a service that serves a 
 accessible via `http://localhost:8088` under default settings.
 
 
-# 📂 Repository Structure
-
-This repository is organized into a workspace that includes several subprojects, each serving a
-distinct role within the PageTop ecosystem:
-
-## Application
-
-* [drust](https://github.com/manuelcillero/pagetop/tree/latest/drust):
-  A simple Content Management System (CMS) built on PageTop, which enables the creation, editing,
-  and maintenance of dynamic, fast, and modular websites. It uses the following essential packages
-  to provide standard CMS functionalities.
-
-## Helpers
+# 📂 Helpers
 
 * [pagetop-macros](https://github.com/manuelcillero/pagetop/tree/latest/helpers/pagetop-macros):
   A collection of procedural macros that enhance the development experience within PageTop.
 
 * [pagetop-build](https://github.com/manuelcillero/pagetop/tree/latest/helpers/pagetop-build):
   Simplifies the process of embedding resources directly into binary files for PageTop applications.
-
-## Packages
-
-* [pagetop-user](https://github.com/manuelcillero/pagetop/tree/latest/packages/pagetop-user):
-  Facilitates user management, including roles, permissions, and session handling, for applications
-  built on PageTop.
-
-* [pagetop-admin](https://github.com/manuelcillero/pagetop/tree/latest/packages/pagetop-admin):
-  Provides a unified interface for administrators to configure and manage package settings.
-
-* [pagetop-node](https://github.com/manuelcillero/pagetop/tree/latest/packages/pagetop-node):
-  Enables the creation and customization of content types, enhancing website content management.
-
-## Themes
-
-* [pagetop-bootsier](https://github.com/manuelcillero/pagetop/tree/latest/packages/pagetop-bootsier):
-  Utilizes the *[Bootstrap](https://getbootstrap.com/)* framework to offer versatile page layouts
-  and component stylings.
-
-* [pagetop-bulmix](https://github.com/manuelcillero/pagetop/tree/latest/packages/pagetop-bulmix):
-  Utilizes the *[Bulma](https://bulma.io/)* framework for sleek, responsive design elements.
 
 
 # 🚧 Warning

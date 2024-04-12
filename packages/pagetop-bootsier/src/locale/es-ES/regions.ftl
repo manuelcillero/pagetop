@@ -1,9 +1,0 @@
-header = Cabecera
-nav_branding = Navegación y marca
-nav_main = Navegación principal
-nav_additional = Navegación adicional (p.e. formulario de búsqueda, iconos sociales, etc.)
-breadcrumb = Ruta de posicionamiento
-content = Contenido principal
-sidebar_first = Barra lateral primera
-sidebar_second = Barra lateral segunda
-footer = Pie

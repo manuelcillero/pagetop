@@ -18,12 +18,12 @@ keywords = [
     "pagetop", "web", "framework", "frontend", "ssr"
 ]
 exclude = [
-    "drust/", "examples/", "helpers/", "packages/", "tests/"
+    "examples/", "helpers/", "tests/"
 ]
 rust-version = "1.70.0"
 
 [workspace]
-members = ["drust", "helpers/*", "packages/*"]
+members = ["helpers/*"]
 
 [lib]
 name = "pagetop"
@@ -71,9 +71,6 @@ serde = { version = "1.0", features = ["derive"] }
 [dependencies.futures]
 version = "0.3.30"
 optional = true
-
-[dependencies.heck]
-version = "0.4.1"
 
 [dependencies.sea-orm]
 version = "0.12.15"

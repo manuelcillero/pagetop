@@ -55,13 +55,6 @@ HELPERS=(
     pagetop-macros
     pagetop-build
 )
-PACKAGES=(
-    pagetop-user
-    pagetop-admin
-    pagetop-node
-    pagetop-bootsier
-    pagetop-bulmix
-)
 
 # Publish all helper crates
 pushd helpers > /dev/null 2>&1
@@ -74,15 +67,6 @@ popd > /dev/null 2>&1
 
 # Publish the root crate
 CRATE=pagetop; publish_crate
-
-# Publish all main packages
-pushd packages > /dev/null 2>&1
-for CRATE in "${PACKAGES[@]}"; do
-    pushd "$CRATE" > /dev/null 2>&1
-    publish_crate
-    popd > /dev/null 2>&1
-done
-popd > /dev/null 2>&1
 
 # Reset local Git repository to clean licenses after publishing
 echo -e "\nCleaning local state"

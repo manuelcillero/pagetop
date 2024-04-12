@@ -1,4 +1,0 @@
-pub mod m20220316_000001_create_table_node_type;
-pub mod m20220316_000002_create_table_node;
-pub mod m20220316_000003_create_table_node_access;
-pub mod m20220316_000004_create_table_node_revision;
