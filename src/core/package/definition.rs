@@ -12,7 +12,7 @@ pub type PackageRef = &'static dyn PackageTrait;
 /// Los paquetes deben implementar este *trait*.
 pub trait PackageTrait: AnyBase + Send + Sync {
     fn name(&self) -> L10n {
-        L10n::n(self.single_name())
+        L10n::n(self.short_name())
     }
 
     fn description(&self) -> L10n {

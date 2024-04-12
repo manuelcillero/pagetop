@@ -1,13 +1,14 @@
 use crate::base::component::add_base_assets;
+use crate::concat_string;
 use crate::core::component::AnyOp;
-use crate::core::theme::all::{theme_by_single_name, THEME_DEFAULT};
+use crate::core::theme::all::{theme_by_short_name, THEME_DEFAULT};
 use crate::core::theme::{ComponentsInRegions, ThemeRef};
 use crate::html::{html, Markup};
 use crate::html::{Assets, HeadScript, HeadStyles, JavaScript, StyleSheet};
 use crate::html::{ClassesOp, OptionClasses, OptionId};
 use crate::locale::{LanguageIdentifier, LANGID_DEFAULT};
 use crate::service::HttpRequest;
-use crate::{concat_string, util};
+use crate::util::TypeInfo;
 
 use std::collections::HashMap;
 use std::str::FromStr;
@@ -78,7 +79,7 @@ impl Context {
                 self.langid = langid;
             }
             AssetsOp::Theme(theme_name) => {
-                self.theme = theme_by_single_name(theme_name).unwrap_or(*THEME_DEFAULT);
+                self.theme = theme_by_short_name(theme_name).unwrap_or(*THEME_DEFAULT);
             }
             AssetsOp::Layout(layout) => {
                 self.layout = layout;
@@ -199,7 +200,8 @@ impl Context {
         match id {
             Some(id) => id,
             None => {
-                let prefix = util::single_type_name::<T>()
+                let prefix = TypeInfo::ShortName
+                    .of::<T>()
                     .trim()
                     .replace(' ', "_")
                     .to_lowercase();

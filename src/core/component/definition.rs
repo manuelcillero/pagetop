@@ -2,7 +2,8 @@ use crate::base::action;
 use crate::core::component::Context;
 use crate::core::AnyBase;
 use crate::html::{html, Markup, PrepareMarkup};
-use crate::{util, Weight};
+use crate::util::TypeInfo;
+use crate::Weight;
 
 pub trait ComponentBase {
     fn render(&mut self, cx: &mut Context) -> Markup;
@@ -13,8 +14,8 @@ pub trait ComponentTrait: AnyBase + ComponentBase + Send + Sync {
     where
         Self: Sized;
 
-    fn name(&self) -> String {
-        util::single_type_name::<Self>().to_owned()
+    fn name(&self) -> &'static str {
+        TypeInfo::ShortName.of::<Self>()
     }
 
     fn description(&self) -> Option<String> {

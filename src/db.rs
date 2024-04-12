@@ -1,5 +1,6 @@
 //! Database access.
 
+use crate::util::TypeInfo;
 use crate::{config, trace, LazyStatic};
 
 pub use url::Url as DbUri;
@@ -148,20 +149,13 @@ pub async fn exec_raw(stmt: String) -> Result<ExecResult, DbErr> {
 mod migration;
 pub use migration::prelude::*;
 
-pub type MigrationItem = Box<dyn MigrationTrait>;
-
-#[macro_export]
-macro_rules! new_migration {
-    ( $migration:ident ) => {
-        pub struct $migration;
-
-        impl MigrationName for $migration {
-            fn name(&self) -> &str {
-                $crate::util::partial_type_name(module_path!(), 1)
-            }
-        }
-    };
+impl<M: MigrationTrait> MigrationName for M {
+    fn name(&self) -> &str {
+        TypeInfo::NameTo(-2).of::<M>()
+    }
 }
+
+pub type MigrationItem = Box<dyn MigrationTrait>;
 
 #[macro_export]
 macro_rules! migrations {

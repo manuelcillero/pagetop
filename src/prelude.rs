@@ -37,7 +37,7 @@ pub use crate::locale::*;
 pub use crate::datetime::*;
 
 #[cfg(feature = "database")]
-pub use crate::{db, db::*, migrations, new_migration};
+pub use crate::{db, db::*, migrations};
 
 pub use crate::service;
 pub use crate::service::{HttpMessage, HttpRequest};

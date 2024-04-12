@@ -11,20 +11,20 @@ pub static THEMES: LazyStatic<RwLock<Vec<ThemeRef>>> = LazyStatic::new(|| RwLock
 // DEFAULT THEME ***********************************************************************************
 
 pub static THEME_DEFAULT: LazyStatic<ThemeRef> =
-    LazyStatic::new(|| match theme_by_single_name(&config::SETTINGS.app.theme) {
+    LazyStatic::new(|| match theme_by_short_name(&config::SETTINGS.app.theme) {
         Some(theme) => theme,
         None => &crate::base::theme::Inception,
     });
 
 // THEME BY NAME ***********************************************************************************
 
-pub fn theme_by_single_name(single_name: &str) -> Option<ThemeRef> {
-    let single_name = single_name.to_lowercase();
+pub fn theme_by_short_name(short_name: &str) -> Option<ThemeRef> {
+    let short_name = short_name.to_lowercase();
     match THEMES
         .read()
         .unwrap()
         .iter()
-        .find(|t| t.single_name().to_lowercase() == single_name)
+        .find(|t| t.short_name().to_lowercase() == short_name)
     {
         Some(theme) => Some(*theme),
         _ => None,

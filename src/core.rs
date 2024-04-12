@@ -1,6 +1,6 @@
 //! Key types and functions for creating actions, components, packages, and themes.
 
-use crate::util;
+use crate::util::TypeInfo;
 
 use std::any::Any;
 
@@ -8,7 +8,7 @@ use std::any::Any;
 pub trait AnyBase: Any {
     fn type_name(&self) -> &'static str;
 
-    fn single_name(&self) -> &'static str;
+    fn short_name(&self) -> &'static str;
 
     fn as_any_ref(&self) -> &dyn Any;
 
@@ -18,12 +18,12 @@ pub trait AnyBase: Any {
 impl<T: Any> AnyBase for T {
     #[inline(always)]
     fn type_name(&self) -> &'static str {
-        std::any::type_name::<T>()
+        TypeInfo::FullName.of::<T>()
     }
 
     #[inline(always)]
-    fn single_name(&self) -> &'static str {
-        util::single_type_name::<T>()
+    fn short_name(&self) -> &'static str {
+        TypeInfo::ShortName.of::<T>()
     }
 
     #[inline(always)]
