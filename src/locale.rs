@@ -92,8 +92,8 @@ use crate::{config, kv, AutoDefault, LazyStatic, LOCALES_PAGETOP};
 pub use fluent_templates;
 pub use unic_langid::LanguageIdentifier;
 
-pub(crate) use fluent_templates::Loader;
-pub(crate) use fluent_templates::StaticLoader as Locales;
+use fluent_templates::Loader;
+use fluent_templates::StaticLoader as Locales;
 
 use unic_langid::langid;
 

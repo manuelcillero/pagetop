@@ -59,12 +59,12 @@ impl Application {
         // Registers package actions.
         package::all::register_actions();
 
-        // Initializes the packages.
-        package::all::init_packages();
-
         #[cfg(feature = "database")]
         // Runs pending database migrations.
         package::all::run_migrations();
+
+        // Initializes the packages.
+        package::all::init_packages();
 
         Self
     }

@@ -35,12 +35,12 @@ pub trait PackageTrait: AnyBase + Send + Sync {
         actions![]
     }
 
-    fn init(&self) {}
-
     #[cfg(feature = "database")]
     fn migrations(&self) -> Vec<MigrationItem> {
         migrations![]
     }
+
+    fn init(&self) {}
 
     #[allow(unused_variables)]
     fn configure_service(&self, scfg: &mut service::web::ServiceConfig) {}
