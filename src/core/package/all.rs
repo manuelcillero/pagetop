@@ -21,77 +21,91 @@ static DROPPED_PACKAGES: LazyStatic<RwLock<Vec<PackageRef>>> =
 // REGISTER PACKAGES *******************************************************************************
 
 pub fn register_packages(root_package: Option<PackageRef>) {
-    // List of packages to drop.
-    let mut packages_to_drop: Vec<PackageRef> = Vec::new();
+    // Initialize a list for packages to be enabled.
+    let mut enabled_list: Vec<PackageRef> = Vec::new();
+
+    // Add default welcome page package to the enabled list.
+    add_to_enabled(&mut enabled_list, &crate::base::package::Welcome);
+
+    // Add default theme packages to the enabled list.
+    add_to_enabled(&mut enabled_list, &crate::base::theme::Basic);
+    add_to_enabled(&mut enabled_list, &crate::base::theme::Chassis);
+    add_to_enabled(&mut enabled_list, &crate::base::theme::Inception);
+
+    // If a root package is provided, add it to the enabled list.
     if let Some(package) = root_package {
-        add_to_dropped(&mut packages_to_drop, package);
+        add_to_enabled(&mut enabled_list, package);
     }
-    DROPPED_PACKAGES.write().unwrap().append(&mut packages_to_drop);
+    // Reverse the order to ensure packages are sorted from none to most dependencies.
+    enabled_list.reverse();
+    // Save the final list of enabled packages.
+    ENABLED_PACKAGES.write().unwrap().append(&mut enabled_list);
 
-    // List of packages to enable.
-    let mut packages_to_enable: Vec<PackageRef> = Vec::new();
-
-    // Enable default welcome page.
-    add_to_enabled(&mut packages_to_enable, &crate::base::package::Welcome);
-
-    // Enable default themes.
-    add_to_enabled(&mut packages_to_enable, &crate::base::theme::Basic);
-    add_to_enabled(&mut packages_to_enable, &crate::base::theme::Chassis);
-    add_to_enabled(&mut packages_to_enable, &crate::base::theme::Inception);
-
-    // Enable application packages.
+    // Initialize a list for packages to be dropped.
+    let mut dropped_list: Vec<PackageRef> = Vec::new();
+    // If a root package is provided, analyze its dropped list.
     if let Some(package) = root_package {
-        add_to_enabled(&mut packages_to_enable, package);
+        add_to_dropped(&mut dropped_list, package);
     }
-
-    packages_to_enable.reverse();
-    ENABLED_PACKAGES.write().unwrap().append(&mut packages_to_enable);
-}
-
-fn add_to_dropped(list: &mut Vec<PackageRef>, package: PackageRef) {
-    for d in package.drop_packages().iter() {
-        if !list.iter().any(|p| p.type_id() == d.type_id()) {
-            list.push(*d);
-            trace::debug!("Package \"{}\" dropped", d.single_name());
-        }
-    }
-    for d in package.dependencies().iter() {
-        add_to_dropped(list, *d);
-    }
+    // Save the final list of dropped packages.
+    DROPPED_PACKAGES.write().unwrap().append(&mut dropped_list);
 }
 
 fn add_to_enabled(list: &mut Vec<PackageRef>, package: PackageRef) {
+    // Check if the package is not already in the enabled list to avoid duplicates.
     if !list.iter().any(|p| p.type_id() == package.type_id()) {
-        if DROPPED_PACKAGES
-            .read()
-            .unwrap()
-            .iter()
-            .any(|p| p.type_id() == package.type_id())
-        {
-            panic!(
-                "Trying to enable \"{}\" package which is dropped",
-                package.single_name()
-            );
-        } else {
-            list.push(package);
+        // Add the package to the enabled list.
+        list.push(package);
 
-            let mut dependencies = package.dependencies();
-            dependencies.reverse();
-            for d in dependencies.iter() {
-                add_to_enabled(list, *d);
+        // Reverse dependencies to add them in correct order (dependencies first).
+        let mut dependencies = package.dependencies();
+        dependencies.reverse();
+        for d in dependencies.iter() {
+            add_to_enabled(list, *d);
+        }
+
+        // Check if the package has an associated theme to register.
+        if let Some(theme) = package.theme() {
+            let mut registered_themes = THEMES.write().unwrap();
+            // Ensure the theme is not already registered to avoid duplicates.
+            if !registered_themes
+                .iter()
+                .any(|t| t.type_id() == theme.type_id())
+            {
+                registered_themes.push(theme);
+                trace::debug!("Enabling \"{}\" theme", theme.short_name());
             }
+        } else {
+            trace::debug!("Enabling \"{}\" package", package.short_name());
+        }
+    }
+}
 
-            if let Some(theme) = package.theme() {
-                let mut registered_themes = THEMES.write().unwrap();
-                if !registered_themes
-                    .iter()
-                    .any(|t| t.type_id() == theme.type_id())
-                {
-                    registered_themes.push(theme);
-                    trace::debug!("Enabling \"{}\" theme", theme.single_name());
-                }
+fn add_to_dropped(list: &mut Vec<PackageRef>, package: PackageRef) {
+    // Iterate through packages recommended to be dropped.
+    for d in package.drop_packages().iter() {
+        // Check if the package is not already in the dropped list.
+        if !list.iter().any(|p| p.type_id() == d.type_id()) {
+            // Check if the package is currently enabled. If so, log a warning.
+            if ENABLED_PACKAGES
+                .read()
+                .unwrap()
+                .iter()
+                .any(|p| p.type_id() == package.type_id())
+            {
+                trace::warn!(
+                    "Trying to drop \"{}\" package which is enabled",
+                    package.short_name()
+                );
             } else {
-                trace::debug!("Enabling \"{}\" package", package.single_name());
+                // If the package is not enabled, add it to the dropped list and log the action.
+                list.push(*d);
+                trace::debug!("Package \"{}\" dropped", d.short_name());
+                // Recursively add the dependencies of the dropped package to the dropped list.
+                // This ensures that all dependencies are also considered for dropping.
+                for dependency in package.dependencies().iter() {
+                    add_to_dropped(list, *dependency);
+                }
             }
         }
     }
