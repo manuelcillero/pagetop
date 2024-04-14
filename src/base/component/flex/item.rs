@@ -13,7 +13,6 @@ pub enum ItemType {
 #[derive(AutoDefault, ComponentClasses)]
 pub struct Item {
     id         : OptionId,
-    weight     : Weight,
     renderable : Renderable,
     classes    : OptionClasses,
     item_type  : ItemType,
@@ -32,10 +31,6 @@ impl ComponentTrait for Item {
 
     fn id(&self) -> Option<String> {
         self.id.get()
-    }
-
-    fn weight(&self) -> Weight {
-        self.weight
     }
 
     fn is_renderable(&self, cx: &Context) -> bool {
@@ -72,20 +67,16 @@ impl ComponentTrait for Item {
         if output.is_empty() && region.is_empty() {
             return PrepareMarkup::None;
         }
-        let order = match self.weight() {
-            0 => None,
-            _ => Some(concat_string!("order: ", self.weight().to_string(), ";")),
-        };
         match self.item_type() {
             ItemType::Default => PrepareMarkup::With(html! {
-                div id=[self.id()] class=[self.classes().get()] style=[order] {
+                div id=[self.id()] class=[self.classes().get()] {
                     div class="flex__content" {
                         (output)
                     }
                 }
             }),
             ItemType::Region => PrepareMarkup::With(html! {
-                div id=[self.id()] class=[self.classes().get()] style=[order] {
+                div id=[self.id()] class=[self.classes().get()] {
                     div class="flex__content flex__region" {
                         (region)
                         (output)
@@ -93,7 +84,7 @@ impl ComponentTrait for Item {
                 }
             }),
             ItemType::Wrapper => PrepareMarkup::With(html! {
-                div id=[self.id()] class=[self.classes().get()] style=[order] {
+                div id=[self.id()] class=[self.classes().get()] {
                     (output)
                 }
             }),
@@ -135,12 +126,6 @@ impl Item {
     #[fn_builder]
     pub fn alter_id(&mut self, id: impl Into<String>) -> &mut Self {
         self.id.alter_value(id);
-        self
-    }
-
-    #[fn_builder]
-    pub fn alter_weight(&mut self, value: Weight) -> &mut Self {
-        self.weight = value;
         self
     }
 

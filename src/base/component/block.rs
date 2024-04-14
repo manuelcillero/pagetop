@@ -4,7 +4,6 @@ use crate::prelude::*;
 #[derive(AutoDefault, ComponentClasses)]
 pub struct Block {
     id        : OptionId,
-    weight    : Weight,
     renderable: Renderable,
     classes   : OptionClasses,
     style     : StyleBase,
@@ -19,10 +18,6 @@ impl ComponentTrait for Block {
 
     fn id(&self) -> Option<String> {
         self.id.get()
-    }
-
-    fn weight(&self) -> Weight {
-        self.weight
     }
 
     fn is_renderable(&self, cx: &Context) -> bool {
@@ -62,12 +57,6 @@ impl Block {
     #[fn_builder]
     pub fn alter_id(&mut self, id: impl Into<String>) -> &mut Self {
         self.id.alter_value(id);
-        self
-    }
-
-    #[fn_builder]
-    pub fn alter_weight(&mut self, value: Weight) -> &mut Self {
-        self.weight = value;
         self
     }
 

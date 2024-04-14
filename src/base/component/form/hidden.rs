@@ -3,7 +3,6 @@ use crate::prelude::*;
 #[rustfmt::skip]
 #[derive(AutoDefault)]
 pub struct Hidden {
-    weight: Weight,
     name  : OptionName,
     value : OptionString,
 }
@@ -11,10 +10,6 @@ pub struct Hidden {
 impl ComponentTrait for Hidden {
     fn new() -> Self {
         Hidden::default()
-    }
-
-    fn weight(&self) -> Weight {
-        self.weight
     }
 
     fn prepare_component(&self, _cx: &mut Context) -> PrepareMarkup {
@@ -31,12 +26,6 @@ impl Hidden {
     }
 
     // Hidden BUILDER.
-
-    #[fn_builder]
-    pub fn alter_weight(&mut self, value: Weight) -> &mut Self {
-        self.weight = value;
-        self
-    }
 
     #[fn_builder]
     pub fn alter_name(&mut self, name: &str) -> &mut Self {

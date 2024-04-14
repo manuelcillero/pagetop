@@ -3,7 +3,6 @@ use crate::core::component::Context;
 use crate::core::AnyBase;
 use crate::html::{html, Markup, PrepareMarkup};
 use crate::util::TypeInfo;
-use crate::Weight;
 
 pub trait ComponentBase {
     fn render(&mut self, cx: &mut Context) -> Markup;
@@ -24,10 +23,6 @@ pub trait ComponentTrait: AnyBase + ComponentBase + Send + Sync {
 
     fn id(&self) -> Option<String> {
         None
-    }
-
-    fn weight(&self) -> Weight {
-        0
     }
 
     #[allow(unused_variables)]

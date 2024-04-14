@@ -17,7 +17,6 @@ pub enum ImageSize {
 #[derive(AutoDefault, ComponentClasses)]
 pub struct Image {
     id        : OptionId,
-    weight    : Weight,
     renderable: Renderable,
     classes   : OptionClasses,
     source    : OptionString,
@@ -31,10 +30,6 @@ impl ComponentTrait for Image {
 
     fn id(&self) -> Option<String> {
         self.id.get()
-    }
-
-    fn weight(&self) -> Weight {
-        self.weight
     }
 
     fn is_renderable(&self, cx: &Context) -> bool {
@@ -85,12 +80,6 @@ impl Image {
     #[fn_builder]
     pub fn alter_id(&mut self, id: impl Into<String>) -> &mut Self {
         self.id.alter_value(id);
-        self
-    }
-
-    #[fn_builder]
-    pub fn alter_weight(&mut self, value: Weight) -> &mut Self {
-        self.weight = value;
         self
     }
 

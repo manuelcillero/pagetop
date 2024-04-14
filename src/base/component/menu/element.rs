@@ -18,7 +18,6 @@ pub enum ElementType {
 #[rustfmt::skip]
 #[derive(AutoDefault)]
 pub struct Element {
-    weight      : Weight,
     renderable  : Renderable,
     element_type: ElementType,
 }
@@ -26,10 +25,6 @@ pub struct Element {
 impl ComponentTrait for Element {
     fn new() -> Self {
         Element::default()
-    }
-
-    fn weight(&self) -> Weight {
-        self.weight
     }
 
     fn is_renderable(&self, cx: &Context) -> bool {
@@ -65,12 +60,6 @@ impl Element {
     }
 
     // Element BUILDER.
-
-    #[fn_builder]
-    pub fn alter_weight(&mut self, value: Weight) -> &mut Self {
-        self.weight = value;
-        self
-    }
 
     #[fn_builder]
     pub fn alter_renderable(&mut self, check: FnIsRenderable) -> &mut Self {

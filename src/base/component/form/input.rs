@@ -14,7 +14,6 @@ pub enum InputType {
 #[rustfmt::skip]
 #[derive(AutoDefault, ComponentClasses)]
 pub struct Input {
-    weight      : Weight,
     renderable  : Renderable,
     classes     : OptionClasses,
     input_type  : InputType,
@@ -39,10 +38,6 @@ impl ComponentTrait for Input {
             .with_classes(ClassesOp::Add, "form-item form-type-textfield")
             .with_size(Some(60))
             .with_maxlength(Some(128))
-    }
-
-    fn weight(&self) -> Weight {
-        self.weight
     }
 
     fn is_renderable(&self, cx: &Context) -> bool {
@@ -146,12 +141,6 @@ impl Input {
     }
 
     // Input BUILDER.
-
-    #[fn_builder]
-    pub fn alter_weight(&mut self, value: Weight) -> &mut Self {
-        self.weight = value;
-        self
-    }
 
     #[fn_builder]
     pub fn alter_renderable(&mut self, check: FnIsRenderable) -> &mut Self {

@@ -20,7 +20,6 @@ impl ToString for ActionButtonType {
 #[rustfmt::skip]
 #[derive(AutoDefault, ComponentClasses)]
 pub struct ActionButton {
-    weight     : Weight,
     renderable : Renderable,
     classes    : OptionClasses,
     button_type: ActionButtonType,
@@ -37,10 +36,6 @@ pub struct ActionButton {
 impl ComponentTrait for ActionButton {
     fn new() -> Self {
         ActionButton::submit()
-    }
-
-    fn weight(&self) -> Weight {
-        self.weight
     }
 
     fn is_renderable(&self, cx: &Context) -> bool {
@@ -99,12 +94,6 @@ impl ActionButton {
     }
 
     // Button BUILDER.
-
-    #[fn_builder]
-    pub fn alter_weight(&mut self, value: Weight) -> &mut Self {
-        self.weight = value;
-        self
-    }
 
     #[fn_builder]
     pub fn alter_renderable(&mut self, check: FnIsRenderable) -> &mut Self {

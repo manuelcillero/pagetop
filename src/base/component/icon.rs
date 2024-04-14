@@ -3,7 +3,6 @@ use crate::prelude::*;
 #[rustfmt::skip]
 #[derive(AutoDefault, ComponentClasses)]
 pub struct Icon {
-    weight    : Weight,
     renderable: Renderable,
     classes   : OptionClasses,
     icon_name : OptionString,
@@ -13,10 +12,6 @@ pub struct Icon {
 impl ComponentTrait for Icon {
     fn new() -> Self {
         Icon::default()
-    }
-
-    fn weight(&self) -> Weight {
-        self.weight
     }
 
     fn is_renderable(&self, cx: &Context) -> bool {
@@ -47,12 +42,6 @@ impl Icon {
     }
 
     // Icon BUILDER.
-
-    #[fn_builder]
-    pub fn alter_weight(&mut self, value: Weight) -> &mut Self {
-        self.weight = value;
-        self
-    }
 
     #[fn_builder]
     pub fn alter_renderable(&mut self, check: FnIsRenderable) -> &mut Self {

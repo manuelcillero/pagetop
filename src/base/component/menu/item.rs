@@ -24,7 +24,6 @@ pub enum ItemType {
 #[rustfmt::skip]
 #[derive(AutoDefault)]
 pub struct Item {
-    weight     : Weight,
     renderable : Renderable,
     item_type  : ItemType,
     description: OptionTranslated,
@@ -35,10 +34,6 @@ pub struct Item {
 impl ComponentTrait for Item {
     fn new() -> Self {
         Item::default()
-    }
-
-    fn weight(&self) -> Weight {
-        self.weight
     }
 
     fn is_renderable(&self, cx: &Context) -> bool {
@@ -155,12 +150,6 @@ impl Item {
     }
 
     // Item BUILDER.
-
-    #[fn_builder]
-    pub fn alter_weight(&mut self, value: Weight) -> &mut Self {
-        self.weight = value;
-        self
-    }
 
     #[fn_builder]
     pub fn alter_renderable(&mut self, check: FnIsRenderable) -> &mut Self {

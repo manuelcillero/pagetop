@@ -5,83 +5,117 @@ use crate::{fn_builder, TypeId, Weight};
 use std::sync::{Arc, RwLock, RwLockReadGuard, RwLockWriteGuard};
 
 #[derive(Clone)]
-pub struct AnyComponent(Arc<RwLock<dyn ComponentTrait>>);
+pub struct AnyComponent {
+    weight: Weight,
+    component: Arc<RwLock<dyn ComponentTrait>>,
+}
 
 impl AnyComponent {
     pub fn with(component: impl ComponentTrait) -> Self {
-        AnyComponent(Arc::new(RwLock::new(component)))
+        AnyComponent {
+            weight: Weight::default(),
+            component: Arc::new(RwLock::new(component)),
+        }
     }
 
     // AnyComponent BUILDER.
 
-    pub fn set(&mut self, component: impl ComponentTrait) {
-        self.0 = Arc::new(RwLock::new(component));
+    #[fn_builder]
+    pub fn alter_weight(&mut self, value: Weight) -> &mut Self {
+        self.weight = value;
+        self
     }
 
     // AnyComponent GETTERS.
 
+    pub fn weight(&self) -> Weight {
+        self.weight
+    }
+
     pub fn get(&self) -> RwLockReadGuard<'_, dyn ComponentTrait> {
-        self.0.read().unwrap()
+        self.component.read().unwrap()
     }
 
     pub fn get_mut(&self) -> RwLockWriteGuard<'_, dyn ComponentTrait> {
-        self.0.write().unwrap()
+        self.component.write().unwrap()
     }
 
     // AnyComponent RENDER.
 
     pub fn render(&self, cx: &mut Context) -> Markup {
-        self.0.write().unwrap().render(cx)
+        self.component.write().unwrap().render(cx)
     }
 
     // AnyComponent HELPERS.
 
     fn type_id(&self) -> TypeId {
-        self.0.read().unwrap().type_id()
+        self.component.read().unwrap().type_id()
     }
 
     fn id(&self) -> String {
-        self.0.read().unwrap().id().unwrap_or_default()
-    }
-
-    fn weight(&self) -> Weight {
-        self.0.read().unwrap().weight()
+        self.component.read().unwrap().id().unwrap_or_default()
     }
 }
 
 // *************************************************************************************************
 
-pub struct TypedComponent<C: ComponentTrait>(Arc<RwLock<C>>);
+pub struct TypedComponent<C: ComponentTrait> {
+    weight: Weight,
+    component: Arc<RwLock<C>>,
+}
 
 impl<C: ComponentTrait> Clone for TypedComponent<C> {
     fn clone(&self) -> Self {
-        Self(self.0.clone())
+        Self {
+            weight: self.weight.clone(),
+            component: self.component.clone(),
+        }
     }
 }
 
 impl<C: ComponentTrait> TypedComponent<C> {
     pub fn with(component: C) -> Self {
-        TypedComponent(Arc::new(RwLock::new(component)))
+        TypedComponent {
+            weight: Weight::default(),
+            component: Arc::new(RwLock::new(component)),
+        }
+    }
+
+    // TypedComponent BUILDER.
+
+    #[fn_builder]
+    pub fn alter_weight(&mut self, value: Weight) -> &mut Self {
+        self.weight = value;
+        self
     }
 
     // TypedComponent GETTERS.
 
+    pub fn weight(&self) -> Weight {
+        self.weight
+    }
+
     pub fn get(&self) -> RwLockReadGuard<'_, C> {
-        self.0.read().unwrap()
+        self.component.read().unwrap()
     }
 
     pub fn get_mut(&self) -> RwLockWriteGuard<'_, C> {
-        self.0.write().unwrap()
-    }
-
-    fn to_any(&self) -> AnyComponent {
-        AnyComponent(self.0.clone())
+        self.component.write().unwrap()
     }
 
     // TypedComponent RENDER.
 
     pub fn render(&self, cx: &mut Context) -> Markup {
-        self.0.write().unwrap().render(cx)
+        self.component.write().unwrap().render(cx)
+    }
+
+    // TypedComponent HELPERS.
+
+    fn to_any(&self) -> AnyComponent {
+        AnyComponent {
+            weight: self.weight.clone(),
+            component: self.component.clone(),
+        }
     }
 }
 

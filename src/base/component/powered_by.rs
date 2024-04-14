@@ -13,7 +13,6 @@ pub enum PoweredByLogo {
 #[rustfmt::skip]
 #[derive(AutoDefault)]
 pub struct PoweredBy {
-    weight    : Weight,
     renderable: Renderable,
     copyright : Option<String>,
     logo      : PoweredByLogo,
@@ -27,10 +26,6 @@ impl ComponentTrait for PoweredBy {
             copyright: Some(c),
             ..Default::default()
         }
-    }
-
-    fn weight(&self) -> Weight {
-        self.weight
     }
 
     fn is_renderable(&self, cx: &Context) -> bool {
@@ -66,12 +61,6 @@ impl ComponentTrait for PoweredBy {
 
 impl PoweredBy {
     // PoweredBy BUILDER.
-
-    #[fn_builder]
-    pub fn alter_weight(&mut self, value: Weight) -> &mut Self {
-        self.weight = value;
-        self
-    }
 
     #[fn_builder]
     pub fn alter_renderable(&mut self, check: FnIsRenderable) -> &mut Self {

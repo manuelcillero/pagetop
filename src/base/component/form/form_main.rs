@@ -11,7 +11,6 @@ pub enum FormMethod {
 #[derive(AutoDefault, ComponentClasses)]
 pub struct Form {
     id        : OptionId,
-    weight    : Weight,
     renderable: Renderable,
     classes   : OptionClasses,
     action    : OptionString,
@@ -29,10 +28,6 @@ impl ComponentTrait for Form {
 
     fn id(&self) -> Option<String> {
         self.id.get()
-    }
-
-    fn weight(&self) -> Weight {
-        self.weight
     }
 
     fn is_renderable(&self, cx: &Context) -> bool {
@@ -64,12 +59,6 @@ impl Form {
     #[fn_builder]
     pub fn alter_id(&mut self, id: impl Into<String>) -> &mut Self {
         self.id.alter_value(id);
-        self
-    }
-
-    #[fn_builder]
-    pub fn alter_weight(&mut self, value: Weight) -> &mut Self {
-        self.weight = value;
         self
     }
 
