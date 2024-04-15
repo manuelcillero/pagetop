@@ -14,7 +14,6 @@ pub enum InputType {
 #[rustfmt::skip]
 #[derive(AutoDefault, ComponentClasses)]
 pub struct Input {
-    renderable  : Renderable,
     classes     : OptionClasses,
     input_type  : InputType,
     name        : OptionName,
@@ -38,10 +37,6 @@ impl ComponentTrait for Input {
             .with_classes(ClassesOp::Add, "form-item form-type-textfield")
             .with_size(Some(60))
             .with_maxlength(Some(128))
-    }
-
-    fn is_renderable(&self, cx: &Context) -> bool {
-        (self.renderable.check)(cx)
     }
 
     #[rustfmt::skip]
@@ -141,12 +136,6 @@ impl Input {
     }
 
     // Input BUILDER.
-
-    #[fn_builder]
-    pub fn alter_renderable(&mut self, check: FnIsRenderable) -> &mut Self {
-        self.renderable.check = check;
-        self
-    }
 
     #[fn_builder]
     pub fn alter_name(&mut self, name: &str) -> &mut Self {

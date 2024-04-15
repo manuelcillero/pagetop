@@ -13,16 +13,15 @@ pub enum ButtonTarget {
 #[rustfmt::skip]
 #[derive(AutoDefault, ComponentClasses)]
 pub struct Button {
-    id         : OptionId,
-    renderable : Renderable,
-    classes    : OptionClasses,
-    style      : StyleBase,
-    font_size  : FontSize,
-    left_icon  : OptionComponent<Icon>,
-    right_icon : OptionComponent<Icon>,
-    href       : OptionString,
-    html       : OptionTranslated,
-    target     : ButtonTarget,
+    id        : OptionId,
+    classes   : OptionClasses,
+    style     : StyleBase,
+    font_size : FontSize,
+    left_icon : OptionComponent<Icon>,
+    right_icon: OptionComponent<Icon>,
+    href      : OptionString,
+    html      : OptionTranslated,
+    target    : ButtonTarget,
 }
 
 impl ComponentTrait for Button {
@@ -32,10 +31,6 @@ impl ComponentTrait for Button {
 
     fn id(&self) -> Option<String> {
         self.id.get()
-    }
-
-    fn is_renderable(&self, cx: &Context) -> bool {
-        (self.renderable.check)(cx)
     }
 
     fn setup_before_prepare(&mut self, _cx: &mut Context) {
@@ -84,12 +79,6 @@ impl Button {
     #[fn_builder]
     pub fn alter_id(&mut self, id: impl Into<String>) -> &mut Self {
         self.id.alter_value(id);
-        self
-    }
-
-    #[fn_builder]
-    pub fn alter_renderable(&mut self, check: FnIsRenderable) -> &mut Self {
-        self.renderable.check = check;
         self
     }
 

@@ -26,11 +26,6 @@ pub trait ComponentTrait: AnyBase + ComponentBase + Send + Sync {
     }
 
     #[allow(unused_variables)]
-    fn is_renderable(&self, cx: &Context) -> bool {
-        true
-    }
-
-    #[allow(unused_variables)]
     fn setup_before_prepare(&mut self, cx: &mut Context) {}
 
     #[allow(unused_variables)]
@@ -41,7 +36,7 @@ pub trait ComponentTrait: AnyBase + ComponentBase + Send + Sync {
 
 impl<C: ComponentTrait> ComponentBase for C {
     fn render(&mut self, cx: &mut Context) -> Markup {
-        if self.is_renderable(cx) {
+        if action::component::IsRenderable::dispatch(self, cx) {
             // Comprueba el componente antes de prepararlo.
             self.setup_before_prepare(cx);
 
@@ -50,7 +45,6 @@ impl<C: ComponentTrait> ComponentBase for C {
 
             // Acciones de los módulos antes de preparar el componente.
             action::component::BeforePrepare::dispatch(self, cx);
-            action::component::BeforePrepare::dispatch_by_id(self, cx);
 
             // Renderiza el componente.
             let markup = match action::theme::RenderComponent::dispatch(self, cx) {
@@ -67,7 +61,6 @@ impl<C: ComponentTrait> ComponentBase for C {
 
             // Acciones de los módulos después de preparar el componente.
             action::component::AfterPrepare::dispatch(self, cx);
-            action::component::AfterPrepare::dispatch_by_id(self, cx);
 
             markup
         } else {

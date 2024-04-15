@@ -18,17 +18,12 @@ pub enum ElementType {
 #[rustfmt::skip]
 #[derive(AutoDefault)]
 pub struct Element {
-    renderable  : Renderable,
     element_type: ElementType,
 }
 
 impl ComponentTrait for Element {
     fn new() -> Self {
         Element::default()
-    }
-
-    fn is_renderable(&self, cx: &Context) -> bool {
-        (self.renderable.check)(cx)
     }
 
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
@@ -48,23 +43,13 @@ impl Element {
     pub fn html(content: Html) -> Self {
         Element {
             element_type: ElementType::Html(Content::with(content)),
-            ..Default::default()
         }
     }
 
     pub fn submenu(submenu: Submenu) -> Self {
         Element {
             element_type: ElementType::Submenu(SubmenuItems::with(submenu)),
-            ..Default::default()
         }
-    }
-
-    // Element BUILDER.
-
-    #[fn_builder]
-    pub fn alter_renderable(&mut self, check: FnIsRenderable) -> &mut Self {
-        self.renderable.check = check;
-        self
     }
 
     // Element GETTERS.

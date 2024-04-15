@@ -20,7 +20,6 @@ impl ToString for ActionButtonType {
 #[rustfmt::skip]
 #[derive(AutoDefault, ComponentClasses)]
 pub struct ActionButton {
-    renderable : Renderable,
     classes    : OptionClasses,
     button_type: ActionButtonType,
     style      : StyleBase,
@@ -36,10 +35,6 @@ pub struct ActionButton {
 impl ComponentTrait for ActionButton {
     fn new() -> Self {
         ActionButton::submit()
-    }
-
-    fn is_renderable(&self, cx: &Context) -> bool {
-        (self.renderable.check)(cx)
     }
 
     fn setup_before_prepare(&mut self, _cx: &mut Context) {
@@ -94,12 +89,6 @@ impl ActionButton {
     }
 
     // Button BUILDER.
-
-    #[fn_builder]
-    pub fn alter_renderable(&mut self, check: FnIsRenderable) -> &mut Self {
-        self.renderable.check = check;
-        self
-    }
 
     #[fn_builder]
     pub fn alter_style(&mut self, style: StyleBase) -> &mut Self {

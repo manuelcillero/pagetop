@@ -3,14 +3,13 @@ use crate::prelude::*;
 #[rustfmt::skip]
 #[derive(AutoDefault)]
 pub struct Branding {
-    id        : OptionId,
-    renderable: Renderable,
+    id       : OptionId,
     #[default(_code = "config::SETTINGS.app.name.to_owned()")]
-    app_name  : String,
-    slogan    : OptionTranslated,
-    logo      : OptionComponent<Image>,
+    app_name : String,
+    slogan   : OptionTranslated,
+    logo     : OptionComponent<Image>,
     #[default(_code = "|_| \"/\"")]
-    frontpage : FnContextualPath,
+    frontpage: FnContextualPath,
 }
 
 impl ComponentTrait for Branding {
@@ -20,10 +19,6 @@ impl ComponentTrait for Branding {
 
     fn id(&self) -> Option<String> {
         self.id.get()
-    }
-
-    fn is_renderable(&self, cx: &Context) -> bool {
-        (self.renderable.check)(cx)
     }
 
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
@@ -60,12 +55,6 @@ impl Branding {
     #[fn_builder]
     pub fn alter_id(&mut self, id: impl Into<String>) -> &mut Self {
         self.id.alter_value(id);
-        self
-    }
-
-    #[fn_builder]
-    pub fn alter_renderable(&mut self, check: FnIsRenderable) -> &mut Self {
-        self.renderable.check = check;
         self
     }
 

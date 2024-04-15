@@ -42,7 +42,6 @@ impl ToString for HeadingSize {
 #[derive(AutoDefault, ComponentClasses)]
 pub struct Heading {
     id          : OptionId,
-    renderable  : Renderable,
     classes     : OptionClasses,
     heading_type: HeadingType,
     size        : HeadingSize,
@@ -56,10 +55,6 @@ impl ComponentTrait for Heading {
 
     fn id(&self) -> Option<String> {
         self.id.get()
-    }
-
-    fn is_renderable(&self, cx: &Context) -> bool {
-        (self.renderable.check)(cx)
     }
 
     fn setup_before_prepare(&mut self, _cx: &mut Context) {
@@ -123,12 +118,6 @@ impl Heading {
     #[fn_builder]
     pub fn alter_id(&mut self, id: impl Into<String>) -> &mut Self {
         self.id.alter_value(id);
-        self
-    }
-
-    #[fn_builder]
-    pub fn alter_renderable(&mut self, check: FnIsRenderable) -> &mut Self {
-        self.renderable.check = check;
         self
     }
 

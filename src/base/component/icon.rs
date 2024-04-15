@@ -3,19 +3,14 @@ use crate::prelude::*;
 #[rustfmt::skip]
 #[derive(AutoDefault, ComponentClasses)]
 pub struct Icon {
-    renderable: Renderable,
-    classes   : OptionClasses,
-    icon_name : OptionString,
-    font_size : FontSize,
+    classes  : OptionClasses,
+    icon_name: OptionString,
+    font_size: FontSize,
 }
 
 impl ComponentTrait for Icon {
     fn new() -> Self {
         Icon::default()
-    }
-
-    fn is_renderable(&self, cx: &Context) -> bool {
-        (self.renderable.check)(cx)
     }
 
     #[rustfmt::skip]
@@ -42,12 +37,6 @@ impl Icon {
     }
 
     // Icon BUILDER.
-
-    #[fn_builder]
-    pub fn alter_renderable(&mut self, check: FnIsRenderable) -> &mut Self {
-        self.renderable.check = check;
-        self
-    }
 
     #[fn_builder]
     pub fn alter_icon_name(&mut self, name: impl Into<String>) -> &mut Self {

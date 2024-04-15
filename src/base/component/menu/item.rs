@@ -24,7 +24,6 @@ pub enum ItemType {
 #[rustfmt::skip]
 #[derive(AutoDefault)]
 pub struct Item {
-    renderable : Renderable,
     item_type  : ItemType,
     description: OptionTranslated,
     left_icon  : OptionComponent<Icon>,
@@ -34,10 +33,6 @@ pub struct Item {
 impl ComponentTrait for Item {
     fn new() -> Self {
         Item::default()
-    }
-
-    fn is_renderable(&self, cx: &Context) -> bool {
-        (self.renderable.check)(cx)
     }
 
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
@@ -150,12 +145,6 @@ impl Item {
     }
 
     // Item BUILDER.
-
-    #[fn_builder]
-    pub fn alter_renderable(&mut self, check: FnIsRenderable) -> &mut Self {
-        self.renderable.check = check;
-        self
-    }
 
     #[fn_builder]
     pub fn alter_description(&mut self, text: L10n) -> &mut Self {

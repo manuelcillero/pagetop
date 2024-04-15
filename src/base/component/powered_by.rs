@@ -13,9 +13,8 @@ pub enum PoweredByLogo {
 #[rustfmt::skip]
 #[derive(AutoDefault)]
 pub struct PoweredBy {
-    renderable: Renderable,
-    copyright : Option<String>,
-    logo      : PoweredByLogo,
+    copyright: Option<String>,
+    logo     : PoweredByLogo,
 }
 
 impl ComponentTrait for PoweredBy {
@@ -26,10 +25,6 @@ impl ComponentTrait for PoweredBy {
             copyright: Some(c),
             ..Default::default()
         }
-    }
-
-    fn is_renderable(&self, cx: &Context) -> bool {
-        (self.renderable.check)(cx)
     }
 
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
@@ -61,12 +56,6 @@ impl ComponentTrait for PoweredBy {
 
 impl PoweredBy {
     // PoweredBy BUILDER.
-
-    #[fn_builder]
-    pub fn alter_renderable(&mut self, check: FnIsRenderable) -> &mut Self {
-        self.renderable.check = check;
-        self
-    }
 
     #[fn_builder]
     pub fn alter_copyright(&mut self, copyright: Option<impl Into<String>>) -> &mut Self {

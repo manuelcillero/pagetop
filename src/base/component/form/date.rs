@@ -3,7 +3,6 @@ use crate::prelude::*;
 #[rustfmt::skip]
 #[derive(AutoDefault, ComponentClasses)]
 pub struct Date {
-    renderable  : Renderable,
     classes     : OptionClasses,
     name        : OptionString,
     value       : OptionString,
@@ -20,10 +19,6 @@ pub struct Date {
 impl ComponentTrait for Date {
     fn new() -> Self {
         Date::default().with_classes(ClassesOp::Add, "form-item form-type-date")
-    }
-
-    fn is_renderable(&self, cx: &Context) -> bool {
-        (self.renderable.check)(cx)
     }
 
     fn prepare_component(&self, _cx: &mut Context) -> PrepareMarkup {
@@ -62,12 +57,6 @@ impl ComponentTrait for Date {
 
 impl Date {
     // Date BUILDER.
-
-    #[fn_builder]
-    pub fn alter_renderable(&mut self, check: FnIsRenderable) -> &mut Self {
-        self.renderable.check = check;
-        self
-    }
 
     #[fn_builder]
     pub fn alter_name(&mut self, name: &str) -> &mut Self {

@@ -3,12 +3,11 @@ use crate::prelude::*;
 #[rustfmt::skip]
 #[derive(AutoDefault, ComponentClasses)]
 pub struct Block {
-    id        : OptionId,
-    renderable: Renderable,
-    classes   : OptionClasses,
-    style     : StyleBase,
-    title     : OptionTranslated,
-    mixed     : MixedComponents,
+    id     : OptionId,
+    classes: OptionClasses,
+    style  : StyleBase,
+    title  : OptionTranslated,
+    mixed  : MixedComponents,
 }
 
 impl ComponentTrait for Block {
@@ -18,10 +17,6 @@ impl ComponentTrait for Block {
 
     fn id(&self) -> Option<String> {
         self.id.get()
-    }
-
-    fn is_renderable(&self, cx: &Context) -> bool {
-        (self.renderable.check)(cx)
     }
 
     fn setup_before_prepare(&mut self, _cx: &mut Context) {
@@ -57,12 +52,6 @@ impl Block {
     #[fn_builder]
     pub fn alter_id(&mut self, id: impl Into<String>) -> &mut Self {
         self.id.alter_value(id);
-        self
-    }
-
-    #[fn_builder]
-    pub fn alter_renderable(&mut self, check: FnIsRenderable) -> &mut Self {
-        self.renderable.check = check;
         self
     }
 

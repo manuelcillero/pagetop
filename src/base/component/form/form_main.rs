@@ -10,13 +10,12 @@ pub enum FormMethod {
 #[rustfmt::skip]
 #[derive(AutoDefault, ComponentClasses)]
 pub struct Form {
-    id        : OptionId,
-    renderable: Renderable,
-    classes   : OptionClasses,
-    action    : OptionString,
-    charset   : OptionString,
-    method    : FormMethod,
-    mixed     : MixedComponents,
+    id     : OptionId,
+    classes: OptionClasses,
+    action : OptionString,
+    charset: OptionString,
+    method : FormMethod,
+    mixed  : MixedComponents,
 }
 
 impl ComponentTrait for Form {
@@ -28,10 +27,6 @@ impl ComponentTrait for Form {
 
     fn id(&self) -> Option<String> {
         self.id.get()
-    }
-
-    fn is_renderable(&self, cx: &Context) -> bool {
-        (self.renderable.check)(cx)
     }
 
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
@@ -59,12 +54,6 @@ impl Form {
     #[fn_builder]
     pub fn alter_id(&mut self, id: impl Into<String>) -> &mut Self {
         self.id.alter_value(id);
-        self
-    }
-
-    #[fn_builder]
-    pub fn alter_renderable(&mut self, check: FnIsRenderable) -> &mut Self {
-        self.renderable.check = check;
         self
     }
 

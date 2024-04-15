@@ -49,10 +49,6 @@ impl<C: ComponentTrait> BeforePrepare<C> {
             ActionKey::new(TypeId::of::<Self>(), None, Some(TypeId::of::<C>()), None),
             |action: &Self| (action.f)(component, cx),
         );
-    }
-
-    #[inline(always)]
-    pub(crate) fn dispatch_by_id(component: &mut C, cx: &mut Context) {
         if component.id().is_some() {
             dispatch_actions(
                 ActionKey::new(

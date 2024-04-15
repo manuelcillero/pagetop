@@ -13,7 +13,6 @@ pub enum ItemType {
 #[derive(AutoDefault, ComponentClasses)]
 pub struct Item {
     id         : OptionId,
-    renderable : Renderable,
     classes    : OptionClasses,
     item_type  : ItemType,
     flex_grow  : flex::Grow,
@@ -31,10 +30,6 @@ impl ComponentTrait for Item {
 
     fn id(&self) -> Option<String> {
         self.id.get()
-    }
-
-    fn is_renderable(&self, cx: &Context) -> bool {
-        (self.renderable.check)(cx)
     }
 
     fn setup_before_prepare(&mut self, _cx: &mut Context) {
@@ -126,12 +121,6 @@ impl Item {
     #[fn_builder]
     pub fn alter_id(&mut self, id: impl Into<String>) -> &mut Self {
         self.id.alter_value(id);
-        self
-    }
-
-    #[fn_builder]
-    pub fn alter_renderable(&mut self, check: FnIsRenderable) -> &mut Self {
-        self.renderable.check = check;
         self
     }
 

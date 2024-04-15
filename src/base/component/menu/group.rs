@@ -5,9 +5,8 @@ use super::Element;
 #[rustfmt::skip]
 #[derive(AutoDefault)]
 pub struct Group {
-    id        : OptionId,
-    renderable: Renderable,
-    elements  : MixedComponents,
+    id      : OptionId,
+    elements: MixedComponents,
 }
 
 impl ComponentTrait for Group {
@@ -17,10 +16,6 @@ impl ComponentTrait for Group {
 
     fn id(&self) -> Option<String> {
         self.id.get()
-    }
-
-    fn is_renderable(&self, cx: &Context) -> bool {
-        (self.renderable.check)(cx)
     }
 
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
@@ -38,12 +33,6 @@ impl Group {
     #[fn_builder]
     pub fn alter_id(&mut self, id: impl Into<String>) -> &mut Self {
         self.id.alter_value(id);
-        self
-    }
-
-    #[fn_builder]
-    pub fn alter_renderable(&mut self, check: FnIsRenderable) -> &mut Self {
-        self.renderable.check = check;
         self
     }
 

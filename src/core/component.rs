@@ -2,9 +2,6 @@ mod context;
 pub use context::{AssetsOp, Context};
 pub type FnContextualPath = fn(cx: &Context) -> &str;
 
-mod renderable;
-pub use renderable::{FnIsRenderable, Renderable};
-
 mod definition;
 pub use definition::{ComponentBase, ComponentTrait};
 

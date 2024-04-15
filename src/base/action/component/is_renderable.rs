@@ -1,15 +1,15 @@
 use crate::prelude::*;
 
-use crate::base::action::FnActionWithComponent;
+pub type FnIsRenderable<C> = fn(component: &C, cx: &mut Context) -> bool;
 
-pub struct AfterPrepare<C: ComponentTrait> {
-    f: FnActionWithComponent<C>,
+pub struct IsRenderable<C: ComponentTrait> {
+    f: FnIsRenderable<C>,
     referer_type_id: Option<TypeId>,
     referer_id: OptionId,
     weight: Weight,
 }
 
-impl<C: ComponentTrait> ActionTrait for AfterPrepare<C> {
+impl<C: ComponentTrait> ActionTrait for IsRenderable<C> {
     fn referer_type_id(&self) -> Option<TypeId> {
         self.referer_type_id
     }
@@ -23,9 +23,9 @@ impl<C: ComponentTrait> ActionTrait for AfterPrepare<C> {
     }
 }
 
-impl<C: ComponentTrait> AfterPrepare<C> {
-    pub fn new(f: FnActionWithComponent<C>) -> Self {
-        AfterPrepare {
+impl<C: ComponentTrait> IsRenderable<C> {
+    pub fn new(f: FnIsRenderable<C>) -> Self {
+        IsRenderable {
             f,
             referer_type_id: Some(TypeId::of::<C>()),
             referer_id: OptionId::default(),
@@ -44,12 +44,17 @@ impl<C: ComponentTrait> AfterPrepare<C> {
     }
 
     #[inline(always)]
-    pub(crate) fn dispatch(component: &mut C, cx: &mut Context) {
+    pub(crate) fn dispatch(component: &C, cx: &mut Context) -> bool {
+        let mut renderable = true;
         dispatch_actions(
             ActionKey::new(TypeId::of::<Self>(), None, Some(TypeId::of::<C>()), None),
-            |action: &Self| (action.f)(component, cx),
+            |action: &Self| {
+                if renderable && !(action.f)(component, cx) {
+                    renderable = false;
+                }
+            },
         );
-        if component.id().is_some() {
+        if renderable && component.id().is_some() {
             dispatch_actions(
                 ActionKey::new(
                     TypeId::of::<Self>(),
@@ -57,8 +62,13 @@ impl<C: ComponentTrait> AfterPrepare<C> {
                     Some(TypeId::of::<C>()),
                     component.id(),
                 ),
-                |action: &Self| (action.f)(component, cx),
+                |action: &Self| {
+                    if renderable && !(action.f)(component, cx) {
+                        renderable = false;
+                    }
+                },
             );
         }
+        renderable
     }
 }
