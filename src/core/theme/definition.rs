@@ -1,10 +1,10 @@
 use crate::base::component::*;
-use crate::config;
 use crate::core::component::{ComponentBase, ComponentTrait};
 use crate::core::package::PackageTrait;
 use crate::html::{html, Favicon, Markup};
 use crate::locale::L10n;
 use crate::response::page::Page;
+use crate::{concat_string, config};
 
 pub type ThemeRef = &'static dyn ThemeTrait;
 
@@ -26,38 +26,47 @@ pub trait ThemeTrait: PackageTrait + Send + Sync {
     fn before_prepare_body(&self, page: &mut Page) {}
 
     fn prepare_body(&self, page: &mut Page) -> Markup {
-        Body::with(
-            flex::Container::new()
-                .with_id("body__wrapper")
-                .with_direction(flex::Direction::Column(BreakPoint::None))
-                .with_align(flex::Align::Center)
-                .add_item(flex::Item::region().with_id("header"))
-                .add_item(flex::Item::region().with_id("pagetop"))
-                .add_item(
-                    flex::Item::with(
-                        flex::Container::new()
-                            .with_direction(flex::Direction::Row(BreakPoint::None))
-                            .add_item(
-                                flex::Item::region()
-                                    .with_id("sidebar_left")
-                                    .with_grow(flex::Grow::Is1),
-                            )
-                            .add_item(
-                                flex::Item::region()
-                                    .with_id("content")
-                                    .with_grow(flex::Grow::Is3),
-                            )
-                            .add_item(
-                                flex::Item::region()
-                                    .with_id("sidebar_right")
-                                    .with_grow(flex::Grow::Is1),
-                            ),
+        let skip_to_id = page.body_skip_to().get().unwrap_or("content".to_owned());
+
+        html! {
+            body id=[page.body_id().get()] class=[page.body_classes().get()] {
+                @if let Some(skip) = L10n::l("skip_to_content").using(page.context().langid()) {
+                    div class="skip__to_content" {
+                        a href=(concat_string!("#", skip_to_id)) { (skip) }
+                    }
+                }
+                (flex::Container::new()
+                    .with_id("body__wrapper")
+                    .with_direction(flex::Direction::Column(BreakPoint::None))
+                    .with_align(flex::Align::Center)
+                    .add_item(flex::Item::region().with_id("header"))
+                    .add_item(flex::Item::region().with_id("pagetop"))
+                    .add_item(
+                        flex::Item::with(
+                            flex::Container::new()
+                                .with_direction(flex::Direction::Row(BreakPoint::None))
+                                .add_item(
+                                    flex::Item::region()
+                                        .with_id("sidebar_left")
+                                        .with_grow(flex::Grow::Is1),
+                                )
+                                .add_item(
+                                    flex::Item::region()
+                                        .with_id("content")
+                                        .with_grow(flex::Grow::Is3),
+                                )
+                                .add_item(
+                                    flex::Item::region()
+                                        .with_id("sidebar_right")
+                                        .with_grow(flex::Grow::Is1),
+                                ),
+                        )
+                        .with_id("flex__wrapper"),
                     )
-                    .with_id("flex__wrapper"),
-                )
-                .add_item(flex::Item::region().with_id("footer")),
-        )
-        .render(page.context())
+                    .add_item(flex::Item::region().with_id("footer"))
+                    .render(page.context()))
+            }
+        }
     }
 
     fn after_prepare_body(&self, page: &mut Page) {
