@@ -38,3 +38,13 @@ pub enum PrepareMarkup {
     Text(&'static str),
     With(Markup),
 }
+
+impl PrepareMarkup {
+    pub fn render(&self) -> Markup {
+        match self {
+            PrepareMarkup::None => html! {},
+            PrepareMarkup::Text(text) => html! { (text) },
+            PrepareMarkup::With(markup) => html! { (markup) },
+        }
+    }
+}

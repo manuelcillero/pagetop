@@ -1,7 +1,7 @@
 use crate::base::component::*;
 use crate::core::component::{ComponentBase, ComponentTrait};
 use crate::core::package::PackageTrait;
-use crate::html::{html, Favicon, Markup};
+use crate::html::{html, Favicon, PrepareMarkup};
 use crate::locale::L10n;
 use crate::response::page::Page;
 use crate::{concat_string, config};
@@ -25,10 +25,10 @@ pub trait ThemeTrait: PackageTrait + Send + Sync {
     #[allow(unused_variables)]
     fn before_prepare_body(&self, page: &mut Page) {}
 
-    fn prepare_body(&self, page: &mut Page) -> Markup {
+    fn prepare_body(&self, page: &mut Page) -> PrepareMarkup {
         let skip_to_id = page.body_skip_to().get().unwrap_or("content".to_owned());
 
-        html! {
+        PrepareMarkup::With(html! {
             body id=[page.body_id().get()] class=[page.body_classes().get()] {
                 @if let Some(skip) = L10n::l("skip_to_content").using(page.context().langid()) {
                     div class="skip__to_content" {
@@ -66,7 +66,7 @@ pub trait ThemeTrait: PackageTrait + Send + Sync {
                     .add_item(flex::Item::region().with_id("footer"))
                     .render(page.context()))
             }
-        }
+        })
     }
 
     fn after_prepare_body(&self, page: &mut Page) {
@@ -75,9 +75,9 @@ pub trait ThemeTrait: PackageTrait + Send + Sync {
         }
     }
 
-    fn prepare_head(&self, page: &mut Page) -> Markup {
+    fn prepare_head(&self, page: &mut Page) -> PrepareMarkup {
         let viewport = "width=device-width, initial-scale=1, shrink-to-fit=no";
-        html! {
+        PrepareMarkup::With(html! {
             head {
                 meta charset="utf-8";
 
@@ -107,6 +107,6 @@ pub trait ThemeTrait: PackageTrait + Send + Sync {
 
                 (page.context().prepare_assets())
             }
-        }
+        })
     }
 }

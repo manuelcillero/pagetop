@@ -196,8 +196,8 @@ impl Page {
         Ok(html! {
             (DOCTYPE)
             html lang=(lang) dir=(dir) {
-                (head)
-                (body)
+                (head.render())
+                (body.render())
             }
         })
     }

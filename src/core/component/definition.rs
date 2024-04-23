@@ -49,11 +49,7 @@ impl<C: ComponentTrait> ComponentBase for C {
             // Renderiza el componente.
             let markup = match action::theme::RenderComponent::dispatch(self, cx) {
                 Some(html) => html,
-                None => match self.prepare_component(cx) {
-                    PrepareMarkup::None => html! {},
-                    PrepareMarkup::Text(text) => html! { (text) },
-                    PrepareMarkup::With(html) => html,
-                },
+                None => self.prepare_component(cx).render(),
             };
 
             // Acciones del tema después de preparar el componente.
