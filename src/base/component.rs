@@ -27,7 +27,7 @@ pub(crate) fn add_base_assets(cx: &mut Context) {
             .with_weight(weight),
     ));
 
-    if let Some(true) = cx.get_param::<bool>(PARAM_BASE_INCLUDE_ICONS) {
+    if let Ok(true) = cx.get_param::<bool>(PARAM_BASE_INCLUDE_ICONS) {
         cx.alter_assets(AssetsOp::AddStyleSheet(
             StyleSheet::at("/base/css/icons.min.css")
                 .with_version("1.11.1")
@@ -35,7 +35,7 @@ pub(crate) fn add_base_assets(cx: &mut Context) {
         ));
     }
 
-    if let Some(true) = cx.get_param::<bool>(PARAM_BASE_INCLUDE_FLEX_ASSETS) {
+    if let Ok(true) = cx.get_param::<bool>(PARAM_BASE_INCLUDE_FLEX_ASSETS) {
         cx.alter_assets(AssetsOp::AddStyleSheet(
             StyleSheet::at("/base/css/flex.css")
                 .with_version("0.0.1")
@@ -43,7 +43,7 @@ pub(crate) fn add_base_assets(cx: &mut Context) {
         ));
     }
 
-    if let Some(true) = cx.get_param::<bool>(PARAM_BASE_INCLUDE_MENU_ASSETS) {
+    if let Ok(true) = cx.get_param::<bool>(PARAM_BASE_INCLUDE_MENU_ASSETS) {
         cx.alter_assets(AssetsOp::AddStyleSheet(
             StyleSheet::at("/base/css/menu.css")
                 .with_version("0.0.1")

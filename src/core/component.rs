@@ -1,5 +1,5 @@
 mod context;
-pub use context::{AssetsOp, Context};
+pub use context::{AssetsOp, Context, ParamError};
 pub type FnContextualPath = fn(cx: &Context) -> &str;
 
 mod definition;

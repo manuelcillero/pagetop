@@ -10,6 +10,8 @@ use crate::service::HttpRequest;
 use crate::util::TypeInfo;
 
 use std::collections::HashMap;
+use std::error::Error;
+use std::fmt;
 use std::str::FromStr;
 
 pub enum AssetsOp {
@@ -31,6 +33,23 @@ pub enum AssetsOp {
     // Add assets to properly use base components.
     AddBaseAssets,
 }
+
+#[derive(Debug)]
+pub enum ParamError {
+    NotFound,
+    ParseError(String),
+}
+
+impl fmt::Display for ParamError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            ParamError::NotFound => write!(f, "Parameter not found"),
+            ParamError::ParseError(e) => write!(f, "Parse error: {}", e),
+        }
+    }
+}
+
+impl Error for ParamError {}
 
 #[rustfmt::skip]
 pub struct Context {
@@ -134,13 +153,11 @@ impl Context {
         &self.regions
     }
 
-    pub fn get_param<T: FromStr + ToString>(&mut self, key: &'static str) -> Option<T> {
-        if let Some(value) = self.params.get(key) {
-            if let Ok(value) = T::from_str(value) {
-                return Some(value);
-            }
+    pub fn get_param<T: FromStr + ToString>(&self, key: &'static str) -> Result<T, ParamError> {
+        match self.params.get(key) {
+            Some(value) => T::from_str(value).map_err(|_| ParamError::ParseError(value.clone())),
+            None => Err(ParamError::NotFound),
         }
-        None
     }
 
     /// Context PREPARE.
