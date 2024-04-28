@@ -30,6 +30,7 @@ impl ActionsList {
             .read()
             .unwrap()
             .iter()
+            .rev()
             .map(|a| {
                 if let Some(action) = (**a).downcast_ref::<A>() {
                     f(action);
