@@ -1,6 +1,6 @@
 [package]
 name = "pagetop"
-version = "0.0.53"
+version = "0.0.54"
 edition = "2021"
 
 description = "An opinionated web framework to build modular Server-Side Rendering web solutions."
@@ -36,8 +36,8 @@ postgres = ["database", "sea-orm/sqlx-postgres"]
 sqlite   = ["database", "sea-orm/sqlx-sqlite"]
 
 [dependencies]
-async-trait   = "0.1.79"
-chrono        = "0.4.37"
+async-trait   = "0.1.80"
+chrono        = "0.4.38"
 concat-string = "1.0.1"
 figlet-rs     = "0.1.5"
 itoa          = "1.0.11"
@@ -54,7 +54,7 @@ tracing-appender = "0.2.3"
 tracing-subscriber = { version = "0.3.18", features = ["json", "env-filter"] }
 tracing-actix-web = "0.7.10"
 
-fluent-templates = "0.9.1"
+fluent-templates = "0.9.4"
 unic-langid = { version = "0.9.4", features = ["macros"] }
 
 actix-web = "4"
