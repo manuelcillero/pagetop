@@ -38,7 +38,7 @@ impl ComponentTrait for Container {
         self.alter_classes(
             ClassesOp::Prepend,
             [
-                String::from("flex__container"),
+                "flex__container".to_string(),
                 self.direction().to_string(),
                 self.wrap().to_string(),
                 self.justify().to_string(),

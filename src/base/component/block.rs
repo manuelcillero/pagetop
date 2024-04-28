@@ -22,7 +22,7 @@ impl ComponentTrait for Block {
     fn setup_before_prepare(&mut self, _cx: &mut Context) {
         self.alter_classes(
             ClassesOp::Prepend,
-            [String::from("block__container"), self.style().to_string()].join(" "),
+            ["block__container".to_string(), self.style().to_string()].join(" "),
         );
     }
 

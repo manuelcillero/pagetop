@@ -59,7 +59,7 @@ impl TypeInfo {
             .get(if start >= 0 {
                 start as usize
             } else {
-                segments.len() - start.abs() as usize
+                segments.len() - start.unsigned_abs()
             })
             .map_or(0, |&(s, _)| s);
 
@@ -69,7 +69,7 @@ impl TypeInfo {
                 if end >= 0 {
                     end as usize
                 } else {
-                    segments.len() - end.abs() as usize
+                    segments.len() - end.unsigned_abs()
                 }
             } else {
                 segments.len() - 1

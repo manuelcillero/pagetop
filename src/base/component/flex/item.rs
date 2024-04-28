@@ -36,7 +36,7 @@ impl ComponentTrait for Item {
         self.alter_classes(
             ClassesOp::Prepend,
             [
-                String::from("flex__item"),
+                "flex__item".to_string(),
                 self.grow().to_string(),
                 self.shrink().to_string(),
                 self.size().to_string(),
