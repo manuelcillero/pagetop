@@ -1,12 +1,11 @@
 use crate::core::action::{ActionBox, ActionKey, ActionTrait, ActionsList};
-use crate::LazyStatic;
 
 use std::collections::HashMap;
-use std::sync::RwLock;
+use std::sync::{LazyLock, RwLock};
 
 // Registered actions.
-static ACTIONS: LazyStatic<RwLock<HashMap<ActionKey, ActionsList>>> =
-    LazyStatic::new(|| RwLock::new(HashMap::new()));
+static ACTIONS: LazyLock<RwLock<HashMap<ActionKey, ActionsList>>> =
+    LazyLock::new(|| RwLock::new(HashMap::new()));
 
 pub fn add_action(action: ActionBox) {
     let key = action.key();

@@ -98,10 +98,13 @@ use fluent_templates::StaticLoader as Locales;
 use unic_langid::langid;
 
 use std::collections::HashMap;
+use std::sync::LazyLock;
+
+use std::fmt;
 
 const LANGUAGE_SET_FAILURE: &str = "language_set_failure";
 
-static LANGUAGES: LazyStatic<HashMap<String, (LanguageIdentifier, &str)>> = LazyStatic::new(|| {
+static LANGUAGES: LazyLock<HashMap<String, (LanguageIdentifier, &str)>> = LazyLock::new(|| {
     kv![
         "en"    => (langid!("en-US"), "English"),
         "en-GB" => (langid!("en-GB"), "English (British)"),
@@ -111,12 +114,12 @@ static LANGUAGES: LazyStatic<HashMap<String, (LanguageIdentifier, &str)>> = Lazy
     ]
 });
 
-pub static LANGID_FALLBACK: LazyStatic<LanguageIdentifier> = LazyStatic::new(|| langid!("en-US"));
+pub static LANGID_FALLBACK: LazyLock<LanguageIdentifier> = LazyLock::new(|| langid!("en-US"));
 
 /// Sets the application's default
 /// [Unicode Language Identifier](https://unicode.org/reports/tr35/tr35.html#Unicode_language_identifier)
 /// through `SETTINGS.app.language`.
-pub static LANGID_DEFAULT: LazyStatic<&LanguageIdentifier> = LazyStatic::new(|| {
+pub static LANGID_DEFAULT: LazyLock<&LanguageIdentifier> = LazyLock::new(|| {
     langid_for(config::SETTINGS.app.language.as_str()).unwrap_or(&LANGID_FALLBACK)
 });
 

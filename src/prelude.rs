@@ -1,11 +1,11 @@
-//! The PageTop Prelude.
+//! The `PageTop` Prelude.
 
 // RE-EXPORTED MACROS AND DERIVES.
 pub use crate::{concat_string, fn_builder, main, paste, test};
 pub use crate::{AutoDefault, ComponentClasses};
 
 // GLOBAL.
-pub use crate::{HashMapResources, LazyStatic, TypeId, Weight};
+pub use crate::{HashMapResources, TypeId, Weight};
 
 // MACROS.
 

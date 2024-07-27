@@ -6,7 +6,7 @@ use crate::core::{package, package::PackageRef};
 use crate::html::Markup;
 use crate::response::page::{ErrorPage, ResultPage};
 use crate::service::HttpRequest;
-use crate::{config, locale, service, trace, LazyStatic};
+use crate::{config, locale, service, trace};
 
 #[cfg(feature = "database")]
 use crate::db;
@@ -18,6 +18,7 @@ use actix_session::SessionMiddleware;
 use substring::Substring;
 
 use std::io::Error;
+use std::sync::LazyLock;
 
 pub struct Application;
 
@@ -44,14 +45,14 @@ impl Application {
         Self::show_banner();
 
         // Starts logging and event tracing.
-        LazyStatic::force(&trace::TRACING);
+        LazyLock::force(&trace::TRACING);
 
         // Validates the default language identifier.
-        LazyStatic::force(&locale::LANGID_DEFAULT);
+        LazyLock::force(&locale::LANGID_DEFAULT);
 
         #[cfg(feature = "database")]
         // Connects to the database.
-        LazyStatic::force(&db::DBCONN);
+        LazyLock::force(&db::DBCONN);
 
         // Registers the application's packages.
         package::all::register_packages(root_package);

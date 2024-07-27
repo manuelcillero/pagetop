@@ -1,8 +1,10 @@
-use crate::{config, LazyStatic};
+use crate::config;
+
+use std::sync::LazyLock;
 
 use figlet_rs::FIGfont;
 
-pub static FIGFONT: LazyStatic<FIGfont> = LazyStatic::new(|| {
+pub static FIGFONT: LazyLock<FIGfont> = LazyLock::new(|| {
     let slant = include_str!("slant.flf");
     let small = include_str!("small.flf");
     let speed = include_str!("speed.flf");

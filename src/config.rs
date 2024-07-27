@@ -119,11 +119,13 @@ mod path;
 mod source;
 mod value;
 
+use crate::concat_string;
 use crate::config::data::ConfigData;
 use crate::config::file::File;
-use crate::{concat_string, LazyStatic};
 
 use serde::Deserialize;
+
+use std::sync::LazyLock;
 
 use std::env;
 
@@ -134,7 +136,7 @@ const CONFIG_DIR: &str = "config";
 /// archivos de configuración.
 
 #[rustfmt::skip]
-pub static CONFIG: LazyStatic<ConfigData> = LazyStatic::new(|| {
+pub static CONFIG: LazyLock<ConfigData> = LazyLock::new(|| {
     // Modo de ejecución según la variable de entorno PAGETOP_RUN_MODE. Por defecto 'default'.
     let run_mode = env::var("PAGETOP_RUN_MODE").unwrap_or_else(|_| "default".into());
 
@@ -182,7 +184,7 @@ macro_rules! default_settings {
             "Assigned or predefined values for configuration settings associated to the ",
             "[`Settings`] type."
         )]
-        pub static SETTINGS: $crate::LazyStatic<Settings> = $crate::LazyStatic::new(|| {
+        pub static SETTINGS: std::sync::LazyLock<Settings> = std::sync::LazyLock::new(|| {
             let mut settings = $crate::config::CONFIG.clone();
             $(
                 settings.set_default($key, $value).unwrap();

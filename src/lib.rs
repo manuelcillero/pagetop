@@ -87,7 +87,6 @@ pub use pagetop_macros::{fn_builder, main, test, AutoDefault, ComponentClasses};
 // GLOBAL.
 // *************************************************************************************************
 
-pub use once_cell::sync::Lazy as LazyStatic;
 pub use static_files::Resource as StaticResource;
 
 pub type HashMapResources = std::collections::HashMap<&'static str, StaticResource>;

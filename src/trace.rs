@@ -1,21 +1,18 @@
 //! Application tracing and event logging.
 //!
-//! PageTop recopila la información de diagnóstico de la aplicación de manera estructurada y basada
-//! en eventos.
+//! `PageTop` collects application diagnostic information in a structured and event-based manner.
 //!
-//! En sistemas asíncronos, interpretar los mensajes de registro tradicionales (*log*) a menudo
-//! resulta complicado. Las tareas individuales se multiplexan para el mismo subproceso y los
-//! eventos y mensajes de registro asociados se entremezclan, dificultando el seguimiento de la
-//! secuencia lógica.
+//! In asynchronous systems, interpreting traditional log messages often becomes complicated.
+//! Individual tasks are multiplexed to the same thread, and associated events and log messages get
+//! intermingled, making it difficult to follow the logical sequence.
 //!
-//! PageTop usa [`tracing`](https://docs.rs/tracing) para permitir a las **aplicaciones** y los
-//! **módulos** registrar eventos estructurados con información añadida sobre *temporalidad* y
-//! *causalidad*. A diferencia de un mensaje de registro, un intervalo (*span*) tiene una hora de
-//! inicio y de finalización, puede entrar y salir del flujo de la ejecución y puede existir dentro
-//! de un árbol anidado de intervalos similares. Además, estos intervalos están *estructurados*, con
-//! capacidad para grabar tipos de datos y mensajes de texto.
+//! `PageTop` uses [`tracing`](https://docs.rs/tracing) to allow **applications** and **modules** to
+//! log structured events with added information about *temporality* and *causality*. Unlike a log
+//! message, a span has a start and end time, can enter and exit the execution flow, and can exist
+//! within a nested tree of similar spans. Additionally, these spans are *structured*, with the
+//! ability to record data types and text messages.
 
-use crate::{config, LazyStatic};
+use crate::config;
 
 pub use tracing::{debug, error, info, trace, warn};
 pub use tracing::{debug_span, error_span, info_span, trace_span, warn_span};
@@ -23,19 +20,21 @@ pub use tracing::{debug_span, error_span, info_span, trace_span, warn_span};
 use tracing_appender::non_blocking::WorkerGuard;
 use tracing_subscriber::EnvFilter;
 
-/// Registro de trazas y eventos de la aplicación.
+use std::sync::LazyLock;
+
+/// Application tracing and event logging.
 ///
-/// Para aumentar el rendimiento, un subproceso dedicado utiliza un sistema de escritura sin bloqueo
-/// (*non-blocking writer*) que actúa periódicamente en vez de enviar cada traza o evento al
-/// instante. Si el programa termina abruptamente (por ejemplo, por un panic! o un
-/// std::process::exit), es posible que algunas trazas o eventos no se envíen.
+/// To increase performance, a dedicated thread uses a non-blocking writer system that acts
+/// periodically instead of sending each trace or event instantly. If the program terminates
+/// abruptly (e.g., due to a panic! or a `std::process::exit`), some traces or events might not be
+/// sent.
 ///
-/// Puesto que las trazas o eventos registrados poco antes de la caída de una aplicación suelen ser
-/// importantes para diagnosticar la causa del fallo, con `Lazy<WorkerGuard>` se garantiza que todos
-/// los registros almacenados se enviarán antes de terminar la ejecución.
+/// Since traces or events logged shortly before an application crash are often important for
+/// diagnosing the cause of the failure, `Lazy<WorkerGuard>` ensures that all stored logs are sent
+/// before terminating execution.
 
 #[rustfmt::skip]
-pub(crate) static TRACING: LazyStatic<WorkerGuard> = LazyStatic::new(|| {
+pub(crate) static TRACING: LazyLock<WorkerGuard> = LazyLock::new(|| {
     let env_filter = EnvFilter::try_new(&config::SETTINGS.log.tracing)
         .unwrap_or_else(|_| EnvFilter::new("Info"));
 

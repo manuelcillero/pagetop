@@ -1,7 +1,7 @@
 //! Database access.
 
 use crate::util::TypeInfo;
-use crate::{config, trace, LazyStatic};
+use crate::{config, trace};
 
 pub use url::Url as DbUri;
 
@@ -10,11 +10,13 @@ pub use sea_orm::{DatabaseConnection as DbConn, ExecResult, QueryResult};
 
 use sea_orm::{ConnectOptions, ConnectionTrait, Database, DatabaseBackend, Statement};
 
+use std::sync::LazyLock;
+
 pub(crate) use futures::executor::block_on as run_now;
 
 const DBCONN_NOT_INITIALIZED: &str = "Database connection not initialized";
 
-pub(crate) static DBCONN: LazyStatic<Option<DbConn>> = LazyStatic::new(|| {
+pub(crate) static DBCONN: LazyLock<Option<DbConn>> = LazyLock::new(|| {
     if !config::SETTINGS.database.db_name.trim().is_empty() {
         trace::info!(
             "Connecting to database \"{}\" using a pool of {} connections",

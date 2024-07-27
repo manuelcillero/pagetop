@@ -1,15 +1,15 @@
 use crate::core::component::{AnyComponent, AnyOp, MixedComponents};
 use crate::core::theme::ThemeRef;
-use crate::{fn_builder, AutoDefault, LazyStatic, TypeId};
+use crate::{fn_builder, AutoDefault, TypeId};
 
 use std::collections::HashMap;
-use std::sync::RwLock;
+use std::sync::{LazyLock, RwLock};
 
-static THEME_REGIONS: LazyStatic<RwLock<HashMap<TypeId, ComponentsInRegions>>> =
-    LazyStatic::new(|| RwLock::new(HashMap::new()));
+static THEME_REGIONS: LazyLock<RwLock<HashMap<TypeId, ComponentsInRegions>>> =
+    LazyLock::new(|| RwLock::new(HashMap::new()));
 
-static COMMON_REGIONS: LazyStatic<RwLock<ComponentsInRegions>> =
-    LazyStatic::new(|| RwLock::new(ComponentsInRegions::default()));
+static COMMON_REGIONS: LazyLock<RwLock<ComponentsInRegions>> =
+    LazyLock::new(|| RwLock::new(ComponentsInRegions::default()));
 
 #[derive(AutoDefault)]
 pub struct ComponentsInRegions(HashMap<&'static str, MixedComponents>);
