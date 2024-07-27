@@ -67,7 +67,6 @@ static-files = "0.2.4"
 pagetop-macros = { version = "0.0", path = "helpers/pagetop-macros" }
 
 serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
 
 [dependencies.futures]
 version = "0.3.30"

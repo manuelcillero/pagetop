@@ -1,4 +1,5 @@
 use crate::base::component::add_base_assets;
+use crate::concat_string;
 use crate::core::component::AnyOp;
 use crate::core::theme::all::{theme_by_short_name, THEME_DEFAULT};
 use crate::core::theme::{ComponentsInRegions, ThemeRef};
@@ -7,14 +8,10 @@ use crate::html::{Assets, HeadScript, HeadStyles, JavaScript, StyleSheet};
 use crate::locale::{LanguageIdentifier, LANGID_DEFAULT};
 use crate::service::HttpRequest;
 use crate::util::TypeInfo;
-use crate::{concat_string, trace};
-
-use serde::de::DeserializeOwned;
-use serde::Serialize;
-use serde_json as json;
 
 use std::collections::HashMap;
 use std::error::Error;
+use std::str::FromStr;
 
 use std::fmt;
 
@@ -41,7 +38,7 @@ pub enum AssetsOp {
 #[derive(Debug)]
 pub enum ParamError {
     NotFound,
-    ParseError(json::Error),
+    ParseError(String),
 }
 
 impl fmt::Display for ParamError {
@@ -66,7 +63,7 @@ pub struct Context {
     javascript: Assets<JavaScript>,                     // JavaScripts.
     headscript: Assets<HeadScript>,                     // Scripts in head.
     regions   : ComponentsInRegions,
-    params    : HashMap<&'static str, json::Value>,
+    params    : HashMap<&'static str, String>,
     id_counter: usize,
 }
 
@@ -83,7 +80,7 @@ impl Context {
             javascript: Assets::<JavaScript>::new(),    // JavaScripts.
             headscript: Assets::<HeadScript>::new(),    // Scripts in head.
             regions   : ComponentsInRegions::default(),
-            params    : HashMap::<&str, json::Value>::new(),
+            params    : HashMap::<&str, String>::new(),
             id_counter: 0,
         }
     }
@@ -125,13 +122,8 @@ impl Context {
         self
     }
 
-    pub fn set_param<T: Serialize>(&mut self, key: &'static str, value: &T) -> &mut Self {
-        json::to_value(value).map_or_else(
-            |e| trace::error!("Serialization failed for param {key}: {e}"),
-            |v| {
-                self.params.insert(key, v);
-            },
-        );
+    pub fn set_param<T: FromStr + ToString>(&mut self, key: &'static str, value: &T) -> &mut Self {
+        self.params.insert(key, value.to_string());
         self
     }
 
@@ -157,11 +149,11 @@ impl Context {
         &self.regions
     }
 
-    pub fn get_param<T: DeserializeOwned>(&self, key: &'static str) -> Result<T, ParamError> {
+    pub fn get_param<T: FromStr + ToString>(&self, key: &'static str) -> Result<T, ParamError> {
         self.params
             .get(key)
             .ok_or(ParamError::NotFound)
-            .and_then(|v| json::from_value(v.clone()).map_err(ParamError::ParseError))
+            .and_then(|v| T::from_str(v).map_err(|_| ParamError::ParseError(v.clone())))
     }
 
     // Context PREPARE.
