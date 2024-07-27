@@ -26,8 +26,8 @@ macro_rules! static_files {
             mod [<static_files_ $bundle>] {
                 include!(concat!(env!("OUT_DIR"), "/", stringify!($bundle), ".rs"));
             }
-            static $STATIC: LazyStatic<HashMapResources> = LazyStatic::new([
-                <static_files_ $bundle>]::$bundle
+            static $STATIC: std::sync::LazyLock<HashMapResources> = std::sync::LazyLock::new(
+                [<static_files_ $bundle>]::$bundle
             );
         }
     };
