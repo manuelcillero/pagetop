@@ -19,8 +19,8 @@ impl ComponentTrait for Menu {
     }
 
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
-        cx.set_param::<bool>(PARAM_BASE_INCLUDE_MENU_ASSETS, true);
-        cx.set_param::<bool>(PARAM_BASE_INCLUDE_ICONS, true);
+        cx.set_param::<bool>(PARAM_BASE_INCLUDE_MENU_ASSETS, &true);
+        cx.set_param::<bool>(PARAM_BASE_INCLUDE_ICONS, &true);
 
         PrepareMarkup::With(html! {
             div id=[self.id()] class="menu__container" {

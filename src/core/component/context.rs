@@ -1,5 +1,4 @@
 use crate::base::component::add_base_assets;
-use crate::concat_string;
 use crate::core::component::AnyOp;
 use crate::core::theme::all::{theme_by_short_name, THEME_DEFAULT};
 use crate::core::theme::{ComponentsInRegions, ThemeRef};
@@ -8,11 +7,16 @@ use crate::html::{Assets, HeadScript, HeadStyles, JavaScript, StyleSheet};
 use crate::locale::{LanguageIdentifier, LANGID_DEFAULT};
 use crate::service::HttpRequest;
 use crate::util::TypeInfo;
+use crate::{concat_string, trace};
+
+use serde::de::DeserializeOwned;
+use serde::Serialize;
+use serde_json as json;
 
 use std::collections::HashMap;
 use std::error::Error;
+
 use std::fmt;
-use std::str::FromStr;
 
 pub enum AssetsOp {
     LangId(&'static LanguageIdentifier),
@@ -37,7 +41,7 @@ pub enum AssetsOp {
 #[derive(Debug)]
 pub enum ParamError {
     NotFound,
-    ParseError(String),
+    ParseError(json::Error),
 }
 
 impl fmt::Display for ParamError {
@@ -53,17 +57,17 @@ impl Error for ParamError {}
 
 #[rustfmt::skip]
 pub struct Context {
-    request     : HttpRequest,
-    langid      : &'static LanguageIdentifier,
-    theme       : ThemeRef,
-    layout      : &'static str,
-    stylesheet  : Assets<StyleSheet>,                     // Stylesheets.
-    headstyles  : Assets<HeadStyles>,                     // Styles in head.
-    javascript  : Assets<JavaScript>,                     // JavaScripts.
-    headscript  : Assets<HeadScript>,                     // Scripts in head.
-    regions     : ComponentsInRegions,
-    params      : HashMap<&'static str, String>,
-    id_counter  : usize,
+    request   : HttpRequest,
+    langid    : &'static LanguageIdentifier,
+    theme     : ThemeRef,
+    layout    : &'static str,
+    stylesheet: Assets<StyleSheet>,                     // Stylesheets.
+    headstyles: Assets<HeadStyles>,                     // Styles in head.
+    javascript: Assets<JavaScript>,                     // JavaScripts.
+    headscript: Assets<HeadScript>,                     // Scripts in head.
+    regions   : ComponentsInRegions,
+    params    : HashMap<&'static str, json::Value>,
+    id_counter: usize,
 }
 
 impl Context {
@@ -71,16 +75,16 @@ impl Context {
     pub(crate) fn new(request: HttpRequest) -> Self {
         Context {
             request,
-            langid      : &LANGID_DEFAULT,
-            theme       : *THEME_DEFAULT,
-            layout      : "default",
-            stylesheet  : Assets::<StyleSheet>::new(),    // Stylesheets.
-            headstyles  : Assets::<HeadStyles>::new(),    // Styles in head.
-            javascript  : Assets::<JavaScript>::new(),    // JavaScripts.
-            headscript  : Assets::<HeadScript>::new(),    // Scripts in head.
-            regions     : ComponentsInRegions::default(),
-            params      : HashMap::<&str, String>::new(),
-            id_counter  : 0,
+            langid    : &LANGID_DEFAULT,
+            theme     : *THEME_DEFAULT,
+            layout    : "default",
+            stylesheet: Assets::<StyleSheet>::new(),    // Stylesheets.
+            headstyles: Assets::<HeadStyles>::new(),    // Styles in head.
+            javascript: Assets::<JavaScript>::new(),    // JavaScripts.
+            headscript: Assets::<HeadScript>::new(),    // Scripts in head.
+            regions   : ComponentsInRegions::default(),
+            params    : HashMap::<&str, json::Value>::new(),
+            id_counter: 0,
         }
     }
 
@@ -121,17 +125,17 @@ impl Context {
         self
     }
 
-    pub fn set_param<T: FromStr + ToString>(&mut self, key: &'static str, value: T) -> &mut Self {
-        self.params.insert(key, value.to_string());
+    pub fn set_param<T: Serialize>(&mut self, key: &'static str, value: &T) -> &mut Self {
+        json::to_value(value).map_or_else(
+            |e| trace::error!("Serialization failed for param {key}: {e}"),
+            |v| {
+                self.params.insert(key, v);
+            },
+        );
         self
     }
 
-    pub fn remove_param(&mut self, key: &'static str) -> &mut Self {
-        self.params.remove(key);
-        self
-    }
-
-    /// Context GETTERS.
+    // Context GETTERS.
 
     pub fn request(&self) -> &HttpRequest {
         &self.request
@@ -153,14 +157,14 @@ impl Context {
         &self.regions
     }
 
-    pub fn get_param<T: FromStr + ToString>(&self, key: &'static str) -> Result<T, ParamError> {
-        match self.params.get(key) {
-            Some(value) => T::from_str(value).map_err(|_| ParamError::ParseError(value.clone())),
-            None => Err(ParamError::NotFound),
-        }
+    pub fn get_param<T: DeserializeOwned>(&self, key: &'static str) -> Result<T, ParamError> {
+        self.params
+            .get(key)
+            .ok_or(ParamError::NotFound)
+            .and_then(|v| json::from_value(v.clone()).map_err(ParamError::ParseError))
     }
 
-    /// Context PREPARE.
+    // Context PREPARE.
 
     pub(crate) fn prepare_assets(&mut self) -> Markup {
         html! {
@@ -178,6 +182,10 @@ impl Context {
     }
 
     // Context EXTRAS.
+
+    pub fn remove_param(&mut self, key: &'static str) -> bool {
+        self.params.remove(key).is_some()
+    }
 
     pub fn required_id<T>(&mut self, id: Option<String>) -> String {
         if let Some(id) = id {

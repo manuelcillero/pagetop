@@ -47,7 +47,7 @@ impl ComponentTrait for Container {
             .join(" "),
         );
 
-        cx.set_param::<bool>(PARAM_BASE_INCLUDE_FLEX_ASSETS, true);
+        cx.set_param::<bool>(PARAM_BASE_INCLUDE_FLEX_ASSETS, &true);
     }
 
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
