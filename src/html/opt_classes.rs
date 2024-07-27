@@ -85,9 +85,9 @@ impl OptionClasses {
     }
 
     #[inline]
-    fn add(&mut self, classes: &Vec<&str>, mut pos: usize) {
-        for class in classes {
-            if !class.is_empty() && !self.0.iter().any(|c| c.eq(class)) {
+    fn add(&mut self, classes: &[&str], mut pos: usize) {
+        for &class in classes {
+            if !class.is_empty() && !self.0.iter().any(|c| c == class) {
                 self.0.insert(pos, class.to_string());
                 pos += 1;
             }
