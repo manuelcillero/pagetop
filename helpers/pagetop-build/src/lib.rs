@@ -62,7 +62,8 @@
 //! static_files!(guides);
 //! ```
 //!
-//! Also you can get the bundle as a static reference to the generated HashMap resources collection:
+//! Also you can get the bundle as a static reference to the generated `HashMap` resources
+//! collection:
 //!
 //! ```rust#ignore
 //! use pagetop::prelude::*;
@@ -81,11 +82,16 @@ impl StaticFilesBundle {
         StaticFilesBundle(static_files::resource_dir(dir))
     }
 
+    /// Configures the name for the bundle of static files.
+    ///
+    /// # Panics
+    ///
+    /// This function will panic if the standard `OUT_DIR` environment variable is not set.
     pub fn with_name(mut self, name: &'static str) -> Self {
         self.0.with_generated_filename(
-            Path::new(std::env::var("OUT_DIR").unwrap().as_str()).join(format!("{}.rs", name)),
+            Path::new(std::env::var("OUT_DIR").unwrap().as_str()).join(format!("{name}.rs")),
         );
-        self.0.with_module_name(format!("bundle_{}", name));
+        self.0.with_module_name(format!("bundle_{name}"));
         self.0.with_generated_fn(name);
         self
     }
@@ -95,6 +101,12 @@ impl StaticFilesBundle {
         self
     }
 
+    /// Builds the bundle.
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error if there is an issue with I/O operations, such as failing
+    /// to read or write to a file.
     pub fn build(self) -> std::io::Result<()> {
         self.0.build()
     }
