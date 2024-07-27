@@ -44,18 +44,19 @@ impl<C: ComponentTrait> BeforePrepare<C> {
     }
 
     #[inline(always)]
+    #[allow(clippy::inline_always)]
     pub(crate) fn dispatch(component: &mut C, cx: &mut Context) {
         dispatch_actions(
-            ActionKey::new(TypeId::of::<Self>(), None, Some(TypeId::of::<C>()), None),
+            &ActionKey::new(TypeId::of::<Self>(), None, Some(TypeId::of::<C>()), None),
             |action: &Self| (action.f)(component, cx),
         );
-        if component.id().is_some() {
+        if let Some(id) = component.id() {
             dispatch_actions(
-                ActionKey::new(
+                &ActionKey::new(
                     TypeId::of::<Self>(),
                     None,
                     Some(TypeId::of::<C>()),
-                    component.id(),
+                    Some(id),
                 ),
                 |action: &Self| (action.f)(component, cx),
             );

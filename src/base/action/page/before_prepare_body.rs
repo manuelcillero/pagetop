@@ -24,9 +24,10 @@ impl BeforePrepareBody {
     }
 
     #[inline(always)]
+    #[allow(clippy::inline_always)]
     pub(crate) fn dispatch(page: &mut Page) {
         dispatch_actions(
-            ActionKey::new(TypeId::of::<Self>(), None, None, None),
+            &ActionKey::new(TypeId::of::<Self>(), None, None, None),
             |action: &Self| (action.f)(page),
         );
     }

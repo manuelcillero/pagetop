@@ -19,12 +19,12 @@ pub fn add_action(action: ActionBox) {
     }
 }
 
-pub fn dispatch_actions<A, B, F>(key: ActionKey, f: F)
+pub fn dispatch_actions<A, B, F>(key: &ActionKey, f: F)
 where
     A: ActionTrait,
     F: FnMut(&A) -> B,
 {
-    if let Some(list) = ACTIONS.read().unwrap().get(&key) {
-        list.iter_map(f)
+    if let Some(list) = ACTIONS.read().unwrap().get(key) {
+        list.iter_map(f);
     }
 }

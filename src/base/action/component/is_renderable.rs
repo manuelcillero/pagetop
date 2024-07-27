@@ -44,30 +44,33 @@ impl<C: ComponentTrait> IsRenderable<C> {
     }
 
     #[inline(always)]
+    #[allow(clippy::inline_always)]
     pub(crate) fn dispatch(component: &C, cx: &mut Context) -> bool {
         let mut renderable = true;
         dispatch_actions(
-            ActionKey::new(TypeId::of::<Self>(), None, Some(TypeId::of::<C>()), None),
+            &ActionKey::new(TypeId::of::<Self>(), None, Some(TypeId::of::<C>()), None),
             |action: &Self| {
                 if renderable && !(action.f)(component, cx) {
                     renderable = false;
                 }
             },
         );
-        if renderable && component.id().is_some() {
-            dispatch_actions(
-                ActionKey::new(
-                    TypeId::of::<Self>(),
-                    None,
-                    Some(TypeId::of::<C>()),
-                    component.id(),
-                ),
-                |action: &Self| {
-                    if renderable && !(action.f)(component, cx) {
-                        renderable = false;
-                    }
-                },
-            );
+        if renderable {
+            if let Some(id) = component.id() {
+                dispatch_actions(
+                    &ActionKey::new(
+                        TypeId::of::<Self>(),
+                        None,
+                        Some(TypeId::of::<C>()),
+                        Some(id),
+                    ),
+                    |action: &Self| {
+                        if renderable && !(action.f)(component, cx) {
+                            renderable = false;
+                        }
+                    },
+                );
+            }
         }
         renderable
     }

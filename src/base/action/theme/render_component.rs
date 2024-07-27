@@ -28,10 +28,11 @@ impl<C: ComponentTrait> RenderComponent<C> {
     }
 
     #[inline(always)]
+    #[allow(clippy::inline_always)]
     pub(crate) fn dispatch(component: &C, cx: &mut Context) -> Option<Markup> {
         let mut render_component: Option<Markup> = None;
         dispatch_actions(
-            ActionKey::new(
+            &ActionKey::new(
                 TypeId::of::<Self>(),
                 Some(cx.theme().type_id()),
                 Some(TypeId::of::<C>()),

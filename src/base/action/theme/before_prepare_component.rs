@@ -28,9 +28,10 @@ impl<C: ComponentTrait> BeforePrepare<C> {
     }
 
     #[inline(always)]
+    #[allow(clippy::inline_always)]
     pub(crate) fn dispatch(component: &mut C, cx: &mut Context) {
         dispatch_actions(
-            ActionKey::new(
+            &ActionKey::new(
                 TypeId::of::<Self>(),
                 Some(cx.theme().type_id()),
                 Some(TypeId::of::<C>()),
