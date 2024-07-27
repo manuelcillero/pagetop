@@ -14,14 +14,14 @@ impl PackageTrait for Basic {
 
 impl ThemeTrait for Basic {
     fn after_prepare_body(&self, page: &mut Page) {
-        page.alter_favicon(Some(Favicon::new().with_icon("/base/favicon.ico")))
-            .alter_assets(AssetsOp::AddStyleSheet(
+        page.set_favicon(Some(Favicon::new().with_icon("/base/favicon.ico")))
+            .set_assets(AssetsOp::AddStyleSheet(
                 StyleSheet::at("/base/css/normalize.min.css")
                     .with_version("8.0.1")
                     .with_weight(-90),
             ))
-            .alter_assets(AssetsOp::AddBaseAssets)
-            .alter_assets(AssetsOp::AddStyleSheet(
+            .set_assets(AssetsOp::AddBaseAssets)
+            .set_assets(AssetsOp::AddStyleSheet(
                 StyleSheet::at("/base/css/basic.css")
                     .with_version("0.0.1")
                     .with_weight(-90),

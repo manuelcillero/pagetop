@@ -34,7 +34,7 @@ impl<C: ComponentTrait> BeforePrepare<C> {
     }
 
     pub fn filter_by_referer_id(mut self, id: impl Into<String>) -> Self {
-        self.referer_id.alter_value(id);
+        self.referer_id.set_value(id);
         self
     }
 

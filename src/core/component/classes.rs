@@ -6,14 +6,14 @@ pub trait ComponentClassesOp {
 }
 
 pub trait ComponentClasses: ComponentBase + ComponentClassesOp {
-    fn alter_classes(&mut self, op: ClassesOp, classes: impl Into<String>) -> &mut Self;
+    fn set_classes(&mut self, op: ClassesOp, classes: impl Into<String>) -> &mut Self;
 
     fn classes(&self) -> &OptionClasses;
 }
 
 impl<C: ComponentBase + ComponentClasses> ComponentClassesOp for C {
     fn with_classes(mut self, op: ClassesOp, classes: impl Into<String>) -> Self {
-        self.alter_classes(op, classes);
+        self.set_classes(op, classes);
         self
     }
 }

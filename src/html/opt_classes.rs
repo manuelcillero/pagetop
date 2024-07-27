@@ -31,7 +31,7 @@ impl OptionClasses {
     // OptionClasses BUILDER.
 
     #[fn_builder]
-    pub fn alter_value(&mut self, op: ClassesOp, classes: impl Into<String>) -> &mut Self {
+    pub fn set_value(&mut self, op: ClassesOp, classes: impl Into<String>) -> &mut Self {
         let classes: String = classes.into();
         let classes: Vec<&str> = classes.split_ascii_whitespace().collect();
 

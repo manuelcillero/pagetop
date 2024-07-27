@@ -71,7 +71,7 @@ pub trait ThemeTrait: PackageTrait + Send + Sync {
 
     fn after_prepare_body(&self, page: &mut Page) {
         if page.favicon().is_none() {
-            page.alter_favicon(Some(Favicon::new().with_icon("/base/favicon.ico")));
+            page.set_favicon(Some(Favicon::new().with_icon("/base/favicon.ico")));
         }
     }
 

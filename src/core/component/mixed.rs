@@ -102,7 +102,7 @@ impl MixedComponents {
     // MixedComponents BUILDER.
 
     #[fn_builder]
-    pub fn alter_value(&mut self, op: AnyOp) -> &mut Self {
+    pub fn set_value(&mut self, op: AnyOp) -> &mut Self {
         match op {
             AnyOp::Add(any) => self.add(any),
             AnyOp::InsertAfterId(id, any) => self.insert_after_id(id, any),
@@ -116,7 +116,7 @@ impl MixedComponents {
     }
 
     #[fn_builder]
-    pub fn alter_typed<C: ComponentTrait + Default>(&mut self, op: TypedOp<C>) -> &mut Self {
+    pub fn set_typed<C: ComponentTrait + Default>(&mut self, op: TypedOp<C>) -> &mut Self {
         match op {
             TypedOp::Add(typed) => self.add(typed.to_any()),
             TypedOp::InsertAfterId(id, typed) => self.insert_after_id(id, typed.to_any()),
@@ -164,7 +164,7 @@ impl MixedComponents {
 
     #[inline]
     fn replace_by_id(&mut self, id: &str, any: AnyComponent) {
-        for c in self.0.iter_mut() {
+        for c in &mut self.0 {
             if c.id() == id {
                 *c = any;
                 break;
@@ -205,7 +205,7 @@ impl MixedComponents {
 
     pub fn render(&self, cx: &mut Context) -> Markup {
         html! {
-            @for c in self.0.iter() {
+            @for c in &self.0 {
                 (c.render(cx))
             }
         }

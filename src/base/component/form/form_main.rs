@@ -52,38 +52,38 @@ impl Form {
     // Form BUILDER.
 
     #[fn_builder]
-    pub fn alter_id(&mut self, id: impl Into<String>) -> &mut Self {
-        self.id.alter_value(id);
+    pub fn set_id(&mut self, id: impl Into<String>) -> &mut Self {
+        self.id.set_value(id);
         self
     }
 
     #[fn_builder]
-    pub fn alter_action(&mut self, action: &str) -> &mut Self {
-        self.action.alter_value(action);
+    pub fn set_action(&mut self, action: &str) -> &mut Self {
+        self.action.set_value(action);
         self
     }
 
     #[fn_builder]
-    pub fn alter_charset(&mut self, charset: &str) -> &mut Self {
-        self.charset.alter_value(charset);
+    pub fn set_charset(&mut self, charset: &str) -> &mut Self {
+        self.charset.set_value(charset);
         self
     }
 
     #[fn_builder]
-    pub fn alter_method(&mut self, method: FormMethod) -> &mut Self {
+    pub fn set_method(&mut self, method: FormMethod) -> &mut Self {
         self.method = method;
         self
     }
 
     #[fn_builder]
-    pub fn alter_elements(&mut self, op: AnyOp) -> &mut Self {
-        self.mixed.alter_value(op);
+    pub fn set_elements(&mut self, op: AnyOp) -> &mut Self {
+        self.mixed.set_value(op);
         self
     }
 
     #[rustfmt::skip]
     pub fn add_element(mut self, element: impl ComponentTrait) -> Self {
-        self.mixed.alter_value(AnyOp::Add(AnyComponent::with(element)));
+        self.mixed.set_value(AnyOp::Add(AnyComponent::with(element)));
         self
     }
 

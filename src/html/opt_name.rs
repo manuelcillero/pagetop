@@ -11,7 +11,7 @@ impl OptionName {
     // OptionName BUILDER.
 
     #[fn_builder]
-    pub fn alter_value(&mut self, value: impl Into<String>) -> &mut Self {
+    pub fn set_value(&mut self, value: impl Into<String>) -> &mut Self {
         self.0 = Some(value.into().trim().replace(' ', "_"));
         self
     }

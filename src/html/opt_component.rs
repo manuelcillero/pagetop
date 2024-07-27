@@ -18,7 +18,7 @@ impl<C: ComponentTrait> OptionComponent<C> {
     // OptionComponent BUILDER.
 
     #[fn_builder]
-    pub fn alter_value(&mut self, component: Option<C>) -> &mut Self {
+    pub fn set_value(&mut self, component: Option<C>) -> &mut Self {
         if let Some(component) = component {
             self.0 = Some(TypedComponent::with(component));
         } else {

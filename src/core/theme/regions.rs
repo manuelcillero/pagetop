@@ -20,9 +20,9 @@ impl ComponentsInRegions {
     }
 
     #[fn_builder]
-    pub fn alter_components(&mut self, region: &'static str, op: AnyOp) -> &mut Self {
+    pub fn set_components(&mut self, region: &'static str, op: AnyOp) -> &mut Self {
         if let Some(region) = self.0.get_mut(region) {
-            region.alter_value(op);
+            region.set_value(op);
         } else {
             self.0.insert(region, MixedComponents::new().with_value(op));
         }
@@ -52,18 +52,18 @@ impl InRegion {
                 COMMON_REGIONS
                     .write()
                     .unwrap()
-                    .alter_components("content", AnyOp::Add(any));
+                    .set_components("content", AnyOp::Add(any));
             }
             InRegion::Named(name) => {
                 COMMON_REGIONS
                     .write()
                     .unwrap()
-                    .alter_components(name, AnyOp::Add(any));
+                    .set_components(name, AnyOp::Add(any));
             }
             InRegion::OfTheme(region, theme) => {
                 let mut regions = THEME_REGIONS.write().unwrap();
                 if let Some(r) = regions.get_mut(&theme.type_id()) {
-                    r.alter_components(region, AnyOp::Add(any));
+                    r.set_components(region, AnyOp::Add(any));
                 } else {
                     regions.insert(theme.type_id(), ComponentsInRegions::new(region, any));
                 }

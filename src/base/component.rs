@@ -11,24 +11,24 @@ pub const PARAM_BASE_INCLUDE_MENU_ASSETS: &str = "base.include.menu";
 pub(crate) fn add_base_assets(cx: &mut Context) {
     let weight = cx.get_param::<Weight>(PARAM_BASE_WEIGHT).unwrap_or(-90);
 
-    cx.alter_assets(AssetsOp::AddStyleSheet(
+    cx.set_assets(AssetsOp::AddStyleSheet(
         StyleSheet::at("/base/css/root.css")
             .with_version("0.0.1")
             .with_weight(weight),
     ))
-    .alter_assets(AssetsOp::AddStyleSheet(
+    .set_assets(AssetsOp::AddStyleSheet(
         StyleSheet::at("/base/css/looks.css")
             .with_version("0.0.1")
             .with_weight(weight),
     ))
-    .alter_assets(AssetsOp::AddStyleSheet(
+    .set_assets(AssetsOp::AddStyleSheet(
         StyleSheet::at("/base/css/buttons.css")
             .with_version("0.0.2")
             .with_weight(weight),
     ));
 
     if let Ok(true) = cx.get_param::<bool>(PARAM_BASE_INCLUDE_ICONS) {
-        cx.alter_assets(AssetsOp::AddStyleSheet(
+        cx.set_assets(AssetsOp::AddStyleSheet(
             StyleSheet::at("/base/css/icons.min.css")
                 .with_version("1.11.1")
                 .with_weight(weight),
@@ -36,7 +36,7 @@ pub(crate) fn add_base_assets(cx: &mut Context) {
     }
 
     if let Ok(true) = cx.get_param::<bool>(PARAM_BASE_INCLUDE_FLEX_ASSETS) {
-        cx.alter_assets(AssetsOp::AddStyleSheet(
+        cx.set_assets(AssetsOp::AddStyleSheet(
             StyleSheet::at("/base/css/flex.css")
                 .with_version("0.0.1")
                 .with_weight(weight),
@@ -44,12 +44,12 @@ pub(crate) fn add_base_assets(cx: &mut Context) {
     }
 
     if let Ok(true) = cx.get_param::<bool>(PARAM_BASE_INCLUDE_MENU_ASSETS) {
-        cx.alter_assets(AssetsOp::AddStyleSheet(
+        cx.set_assets(AssetsOp::AddStyleSheet(
             StyleSheet::at("/base/css/menu.css")
                 .with_version("0.0.1")
                 .with_weight(weight),
         ))
-        .alter_assets(AssetsOp::AddJavaScript(
+        .set_assets(AssetsOp::AddJavaScript(
             JavaScript::at("/base/js/menu.js")
                 .with_version("0.0.1")
                 .with_weight(weight),

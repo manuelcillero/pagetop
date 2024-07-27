@@ -147,20 +147,20 @@ impl Item {
     // Item BUILDER.
 
     #[fn_builder]
-    pub fn alter_description(&mut self, text: L10n) -> &mut Self {
-        self.description.alter_value(text);
+    pub fn set_description(&mut self, text: L10n) -> &mut Self {
+        self.description.set_value(text);
         self
     }
 
     #[fn_builder]
-    pub fn alter_left_icon(&mut self, icon: Option<Icon>) -> &mut Self {
-        self.left_icon.alter_value(icon);
+    pub fn set_left_icon(&mut self, icon: Option<Icon>) -> &mut Self {
+        self.left_icon.set_value(icon);
         self
     }
 
     #[fn_builder]
-    pub fn alter_right_icon(&mut self, icon: Option<Icon>) -> &mut Self {
-        self.right_icon.alter_value(icon);
+    pub fn set_right_icon(&mut self, icon: Option<Icon>) -> &mut Self {
+        self.right_icon.set_value(icon);
         self
     }
 

@@ -85,7 +85,7 @@ impl Context {
     }
 
     #[rustfmt::skip]
-    pub fn alter_assets(&mut self, op: AssetsOp) -> &mut Self {
+    pub fn set_assets(&mut self, op: AssetsOp) -> &mut Self {
         match op {
             AssetsOp::LangId(langid) => {
                 self.langid = langid;
@@ -116,8 +116,8 @@ impl Context {
         self
     }
 
-    pub fn alter_regions(&mut self, region: &'static str, op: AnyOp) -> &mut Self {
-        self.regions.alter_components(region, op);
+    pub fn set_regions(&mut self, region: &'static str, op: AnyOp) -> &mut Self {
+        self.regions.set_components(region, op);
         self
     }
 

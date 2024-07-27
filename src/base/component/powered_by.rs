@@ -1,5 +1,7 @@
 use crate::prelude::*;
 
+use std::convert::Into;
+
 #[derive(Default, Eq, PartialEq)]
 pub enum PoweredByLogo {
     #[default]
@@ -58,13 +60,13 @@ impl PoweredBy {
     // PoweredBy BUILDER.
 
     #[fn_builder]
-    pub fn alter_copyright(&mut self, copyright: Option<impl Into<String>>) -> &mut Self {
-        self.copyright = copyright.map(|c| c.into());
+    pub fn set_copyright(&mut self, copyright: Option<impl Into<String>>) -> &mut Self {
+        self.copyright = copyright.map(Into::into);
         self
     }
 
     #[fn_builder]
-    pub fn alter_logo(&mut self, logo: PoweredByLogo) -> &mut Self {
+    pub fn set_logo(&mut self, logo: PoweredByLogo) -> &mut Self {
         self.logo = logo;
         self
     }

@@ -13,28 +13,54 @@ pub fn html(input: TokenStream) -> TokenStream {
     maud::expand(input.into()).into()
 }
 
+/// Macro attribute to generate builder methods from `set_` methods.
+///
+/// This macro takes a method with the `set_` prefix and generates a corresponding method with the
+/// `with_` prefix to use in the builder pattern.
+///
+/// # Panics
+///
+/// This function will panic if a parameter identifier is not found in the argument list.
+///
+/// # Examples
+///
+/// ```
+/// #[fn_builder]
+/// pub fn set_example(&mut self) -> &mut Self {
+///     // implementation
+/// }
+/// ```
+///
+/// Will generate:
+///
+/// ```
+/// pub fn with_example(mut self) -> Self {
+///     self.set_example();
+///     self
+/// }
+/// ```
 #[proc_macro_attribute]
 pub fn fn_builder(_: TokenStream, item: TokenStream) -> TokenStream {
-    let fn_alter = parse_macro_input!(item as ItemFn);
-    let fn_alter_name = fn_alter.sig.ident.to_string();
+    let fn_set = parse_macro_input!(item as ItemFn);
+    let fn_set_name = fn_set.sig.ident.to_string();
 
-    if !fn_alter_name.starts_with("alter_") {
+    if !fn_set_name.starts_with("set_") {
         let expanded = quote_spanned! {
-            fn_alter.sig.ident.span() =>
-                compile_error!("expected a \"pub fn alter_...() -> &mut Self\" method");
+            fn_set.sig.ident.span() =>
+                compile_error!("expected a \"pub fn set_...() -> &mut Self\" method");
         };
         return expanded.into();
     }
 
-    let fn_with_name = fn_alter_name.replace("alter_", "with_");
-    let fn_with_generics = if fn_alter.sig.generics.params.is_empty() {
-        fn_with_name.to_owned()
+    let fn_with_name = fn_set_name.replace("set_", "with_");
+    let fn_with_generics = if fn_set.sig.generics.params.is_empty() {
+        fn_with_name.clone()
     } else {
-        let g = &fn_alter.sig.generics;
+        let g = &fn_set.sig.generics;
         concat_string!(fn_with_name, quote! { #g }.to_string())
     };
 
-    let where_clause = fn_alter
+    let where_clause = fn_set
         .sig
         .generics
         .where_clause
@@ -43,7 +69,7 @@ pub fn fn_builder(_: TokenStream, item: TokenStream) -> TokenStream {
             concat_string!(quote! { #where_clause }.to_string(), " ")
         });
 
-    let args: Vec<String> = fn_alter
+    let args: Vec<String> = fn_set
         .sig
         .inputs
         .iter()
@@ -65,17 +91,17 @@ pub fn fn_builder(_: TokenStream, item: TokenStream) -> TokenStream {
     #[rustfmt::skip]
     let fn_with = parse_str::<ItemFn>(concat_string!("
         pub fn ", fn_with_generics, "(mut self, ", args.join(", "), ") -> Self ", where_clause, "{
-            self.", fn_alter_name, "(", params.join(", "), ");
+            self.", fn_set_name, "(", params.join(", "), ");
             self
         }
     ").as_str()).unwrap();
 
     #[rustfmt::skip]
-    let fn_alter_doc = concat_string!(
-        "<p id=\"method.", fn_with_name, "\">",
-        "Use <code class=\"code-header\"> <span class=\"fn\" href=\"#method.", fn_with_name, "\">",
+    let fn_set_doc = concat_string!(
+        "<p id=\"method.", fn_with_name, "\" style=\"margin-bottom: 12px;\">Use ",
+        "<code class=\"code-header\">pub fn <span class=\"fn\" href=\"#method.", fn_with_name, "\">",
         fn_with_name,
-        "</span>(self, …) -> Self </code> to apply the <a href=\"#method.new\">builder pattern</a>.",
+        "</span>(self, …) -> Self</code> for the <a href=\"#method.new\">builder pattern</a>.",
         "</p>"
     );
 
@@ -83,13 +109,13 @@ pub fn fn_builder(_: TokenStream, item: TokenStream) -> TokenStream {
         #[doc(hidden)]
         #fn_with
         #[inline]
-        #[doc = #fn_alter_doc]
-        #fn_alter
+        #[doc = #fn_set_doc]
+        #fn_set
     };
     expanded.into()
 }
 
-/// Marks async main function as the PageTop entry-point.
+/// Marks async main function as the `PageTop` entry-point.
 ///
 /// # Examples
 /// ```
@@ -109,7 +135,7 @@ pub fn main(_: TokenStream, item: TokenStream) -> TokenStream {
     output
 }
 
-/// Marks async test functions to use the PageTop entry-point.
+/// Marks async test functions to use the `PageTop` entry-point.
 ///
 /// # Examples
 /// ```
@@ -143,7 +169,7 @@ pub fn derive_component_classes(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
     let name = &input.ident;
 
-    let fn_alter_doc = concat_string!(
+    let fn_set_doc = concat_string!(
         "<p id=\"method.with_classes\">",
         "Use <code class=\"code-header\">",
         " <span class=\"fn\" href=\"#method.with_classes\">with_classes</span>(self, …) -> Self ",
@@ -154,9 +180,9 @@ pub fn derive_component_classes(input: TokenStream) -> TokenStream {
     let expanded = quote! {
         impl ComponentClasses for #name {
             #[inline]
-            #[doc = #fn_alter_doc]
-            fn alter_classes(&mut self, op: ClassesOp, classes: impl Into<String>) -> &mut Self {
-                self.classes.alter_value(op, classes);
+            #[doc = #fn_set_doc]
+            fn set_classes(&mut self, op: ClassesOp, classes: impl Into<String>) -> &mut Self {
+                self.classes.set_value(op, classes);
                 self
             }
 

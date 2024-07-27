@@ -73,19 +73,19 @@ impl Image {
     // Image BUILDER.
 
     #[fn_builder]
-    pub fn alter_id(&mut self, id: impl Into<String>) -> &mut Self {
-        self.id.alter_value(id);
+    pub fn set_id(&mut self, id: impl Into<String>) -> &mut Self {
+        self.id.set_value(id);
         self
     }
 
     #[fn_builder]
-    pub fn alter_source(&mut self, source: &str) -> &mut Self {
-        self.source.alter_value(source);
+    pub fn set_source(&mut self, source: &str) -> &mut Self {
+        self.source.set_value(source);
         self
     }
 
     #[fn_builder]
-    pub fn alter_size(&mut self, size: ImageSize) -> &mut Self {
+    pub fn set_size(&mut self, size: ImageSize) -> &mut Self {
         self.size = size;
         self
     }

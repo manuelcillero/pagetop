@@ -16,10 +16,10 @@ impl ComponentTrait for Icon {
     #[rustfmt::skip]
     fn setup_before_prepare(&mut self, cx: &mut Context) {
         if let Some(icon_name) = self.icon_name().get() {
-            self.alter_classes(ClassesOp::Prepend,
+            self.set_classes(ClassesOp::Prepend,
                 concat_string!("bi-", icon_name, " ", self.font_size().to_string()),
             );
-            cx.set_param::<bool>(PARAM_BASE_INCLUDE_ICONS, true);
+            cx.set_param::<bool>(PARAM_BASE_INCLUDE_ICONS, &true);
         }
     }
 
@@ -39,13 +39,13 @@ impl Icon {
     // Icon BUILDER.
 
     #[fn_builder]
-    pub fn alter_icon_name(&mut self, name: impl Into<String>) -> &mut Self {
-        self.icon_name.alter_value(name);
+    pub fn set_icon_name(&mut self, name: impl Into<String>) -> &mut Self {
+        self.icon_name.set_value(name);
         self
     }
 
     #[fn_builder]
-    pub fn alter_font_size(&mut self, font_size: FontSize) -> &mut Self {
+    pub fn set_font_size(&mut self, font_size: FontSize) -> &mut Self {
         self.font_size = font_size;
         self
     }

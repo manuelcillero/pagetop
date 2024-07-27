@@ -138,99 +138,88 @@ impl Input {
     // Input BUILDER.
 
     #[fn_builder]
-    pub fn alter_name(&mut self, name: &str) -> &mut Self {
+    pub fn set_name(&mut self, name: &str) -> &mut Self {
         if let Some(previous) = self.name.get() {
-            self.alter_classes(ClassesOp::Remove, concat_string!("form-item-", previous));
+            self.set_classes(ClassesOp::Remove, concat_string!("form-item-", previous));
         }
-        self.alter_classes(ClassesOp::Add, concat_string!("form-item-", name));
-        self.name.alter_value(name);
+        self.set_classes(ClassesOp::Add, concat_string!("form-item-", name));
+        self.name.set_value(name);
         self
     }
 
     #[fn_builder]
-    pub fn alter_value(&mut self, value: &str) -> &mut Self {
-        self.value.alter_value(value);
+    pub fn set_value(&mut self, value: &str) -> &mut Self {
+        self.value.set_value(value);
         self
     }
 
     #[fn_builder]
-    pub fn alter_label(&mut self, label: L10n) -> &mut Self {
-        self.label.alter_value(label);
+    pub fn set_label(&mut self, label: L10n) -> &mut Self {
+        self.label.set_value(label);
         self
     }
 
     #[fn_builder]
-    pub fn alter_size(&mut self, size: Option<u16>) -> &mut Self {
+    pub fn set_size(&mut self, size: Option<u16>) -> &mut Self {
         self.size = size;
         self
     }
 
     #[fn_builder]
-    pub fn alter_minlength(&mut self, minlength: Option<u16>) -> &mut Self {
+    pub fn set_minlength(&mut self, minlength: Option<u16>) -> &mut Self {
         self.minlength = minlength;
         self
     }
 
     #[fn_builder]
-    pub fn alter_maxlength(&mut self, maxlength: Option<u16>) -> &mut Self {
+    pub fn set_maxlength(&mut self, maxlength: Option<u16>) -> &mut Self {
         self.maxlength = maxlength;
         self
     }
 
     #[fn_builder]
-    pub fn alter_placeholder(&mut self, placeholder: &str) -> &mut Self {
-        self.placeholder.alter_value(placeholder);
+    pub fn set_placeholder(&mut self, placeholder: &str) -> &mut Self {
+        self.placeholder.set_value(placeholder);
         self
     }
 
     #[fn_builder]
-    pub fn alter_autofocus(&mut self, toggle: bool) -> &mut Self {
-        self.autofocus.alter_value(match toggle {
-            true => "autofocus",
-            false => "",
-        });
+    pub fn set_autofocus(&mut self, toggle: bool) -> &mut Self {
+        self.autofocus
+            .set_value(if toggle { "autofocus" } else { "" });
         self
     }
 
     #[fn_builder]
-    pub fn alter_autocomplete(&mut self, toggle: bool) -> &mut Self {
-        self.autocomplete.alter_value(match toggle {
-            true => "",
-            false => "off",
-        });
+    pub fn set_autocomplete(&mut self, toggle: bool) -> &mut Self {
+        self.autocomplete.set_value(if toggle { "" } else { "off" });
         self
     }
 
     #[fn_builder]
-    pub fn alter_disabled(&mut self, toggle: bool) -> &mut Self {
-        self.disabled.alter_value(match toggle {
-            true => "disabled",
-            false => "",
-        });
+    pub fn set_disabled(&mut self, toggle: bool) -> &mut Self {
+        self.disabled
+            .set_value(if toggle { "disabled" } else { "" });
         self
     }
 
     #[fn_builder]
-    pub fn alter_readonly(&mut self, toggle: bool) -> &mut Self {
-        self.readonly.alter_value(match toggle {
-            true => "readonly",
-            false => "",
-        });
+    pub fn set_readonly(&mut self, toggle: bool) -> &mut Self {
+        self.readonly
+            .set_value(if toggle { "readonly" } else { "" });
         self
     }
 
     #[fn_builder]
-    pub fn alter_required(&mut self, toggle: bool) -> &mut Self {
-        self.required.alter_value(match toggle {
-            true => "required",
-            false => "",
-        });
+    pub fn set_required(&mut self, toggle: bool) -> &mut Self {
+        self.required
+            .set_value(if toggle { "required" } else { "" });
         self
     }
 
     #[fn_builder]
-    pub fn alter_help_text(&mut self, help_text: L10n) -> &mut Self {
-        self.help_text.alter_value(help_text);
+    pub fn set_help_text(&mut self, help_text: L10n) -> &mut Self {
+        self.help_text.set_value(help_text);
         self
     }
 

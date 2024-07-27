@@ -58,7 +58,7 @@ impl ComponentTrait for Heading {
     }
 
     fn setup_before_prepare(&mut self, _cx: &mut Context) {
-        self.alter_classes(ClassesOp::Add, self.size().to_string());
+        self.set_classes(ClassesOp::Add, self.size().to_string());
     }
 
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
@@ -116,26 +116,26 @@ impl Heading {
     // Heading BUILDER.
 
     #[fn_builder]
-    pub fn alter_id(&mut self, id: impl Into<String>) -> &mut Self {
-        self.id.alter_value(id);
+    pub fn set_id(&mut self, id: impl Into<String>) -> &mut Self {
+        self.id.set_value(id);
         self
     }
 
     #[fn_builder]
-    pub fn alter_heading_type(&mut self, heading_type: HeadingType) -> &mut Self {
+    pub fn set_heading_type(&mut self, heading_type: HeadingType) -> &mut Self {
         self.heading_type = heading_type;
         self
     }
 
     #[fn_builder]
-    pub fn alter_size(&mut self, size: HeadingSize) -> &mut Self {
+    pub fn set_size(&mut self, size: HeadingSize) -> &mut Self {
         self.size = size;
         self
     }
 
     #[fn_builder]
-    pub fn alter_text(&mut self, text: L10n) -> &mut Self {
-        self.text.alter_value(text);
+    pub fn set_text(&mut self, text: L10n) -> &mut Self {
+        self.text.set_value(text);
         self
     }
 

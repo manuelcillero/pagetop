@@ -31,20 +31,20 @@ impl Megamenu {
     // Megamenu BUILDER.
 
     #[fn_builder]
-    pub fn alter_id(&mut self, id: impl Into<String>) -> &mut Self {
-        self.id.alter_value(id);
+    pub fn set_id(&mut self, id: impl Into<String>) -> &mut Self {
+        self.id.set_value(id);
         self
     }
 
     #[fn_builder]
-    pub fn alter_groups(&mut self, op: TypedOp<Group>) -> &mut Self {
-        self.groups.alter_typed(op);
+    pub fn set_groups(&mut self, op: TypedOp<Group>) -> &mut Self {
+        self.groups.set_typed(op);
         self
     }
 
     #[rustfmt::skip]
     pub fn add_group(mut self, group: Group) -> Self {
-        self.groups.alter_value(AnyOp::Add(AnyComponent::with(group)));
+        self.groups.set_value(AnyOp::Add(AnyComponent::with(group)));
         self
     }
 

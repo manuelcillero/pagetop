@@ -35,7 +35,7 @@ impl ComponentTrait for Container {
     }
 
     fn setup_before_prepare(&mut self, cx: &mut Context) {
-        self.alter_classes(
+        self.set_classes(
             ClassesOp::Prepend,
             [
                 "flex__container".to_string(),
@@ -134,49 +134,49 @@ impl Container {
     // Container BUILDER.
 
     #[fn_builder]
-    pub fn alter_id(&mut self, id: impl Into<String>) -> &mut Self {
-        self.id.alter_value(id);
+    pub fn set_id(&mut self, id: impl Into<String>) -> &mut Self {
+        self.id.set_value(id);
         self
     }
 
     #[fn_builder]
-    pub fn alter_direction(&mut self, direction: flex::Direction) -> &mut Self {
+    pub fn set_direction(&mut self, direction: flex::Direction) -> &mut Self {
         self.direction = direction;
         self
     }
 
     #[fn_builder]
-    pub fn alter_wrap(&mut self, wrap: flex::Wrap) -> &mut Self {
+    pub fn set_wrap(&mut self, wrap: flex::Wrap) -> &mut Self {
         self.flex_wrap = wrap;
         self
     }
 
     #[fn_builder]
-    pub fn alter_justify(&mut self, justify: flex::Justify) -> &mut Self {
+    pub fn set_justify(&mut self, justify: flex::Justify) -> &mut Self {
         self.flex_justify = justify;
         self
     }
 
     #[fn_builder]
-    pub fn alter_align(&mut self, align: flex::Align) -> &mut Self {
+    pub fn set_align(&mut self, align: flex::Align) -> &mut Self {
         self.flex_align = align;
         self
     }
 
     #[fn_builder]
-    pub fn alter_gap(&mut self, gap: flex::Gap) -> &mut Self {
+    pub fn set_gap(&mut self, gap: flex::Gap) -> &mut Self {
         self.flex_gap = gap;
         self
     }
 
     #[fn_builder]
-    pub fn alter_items(&mut self, op: TypedOp<flex::Item>) -> &mut Self {
-        self.items.alter_typed(op);
+    pub fn set_items(&mut self, op: TypedOp<flex::Item>) -> &mut Self {
+        self.items.set_typed(op);
         self
     }
 
     pub fn add_item(mut self, item: flex::Item) -> Self {
-        self.items.alter_value(AnyOp::Add(AnyComponent::with(item)));
+        self.items.set_value(AnyOp::Add(AnyComponent::with(item)));
         self
     }
 

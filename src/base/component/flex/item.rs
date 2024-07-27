@@ -33,7 +33,7 @@ impl ComponentTrait for Item {
     }
 
     fn setup_before_prepare(&mut self, _cx: &mut Context) {
-        self.alter_classes(
+        self.set_classes(
             ClassesOp::Prepend,
             [
                 "flex__item".to_string(),
@@ -119,19 +119,19 @@ impl Item {
     // Item BUILDER.
 
     #[fn_builder]
-    pub fn alter_id(&mut self, id: impl Into<String>) -> &mut Self {
-        self.id.alter_value(id);
+    pub fn set_id(&mut self, id: impl Into<String>) -> &mut Self {
+        self.id.set_value(id);
         self
     }
 
     #[fn_builder]
-    pub fn alter_grow(&mut self, grow: flex::Grow) -> &mut Self {
+    pub fn set_grow(&mut self, grow: flex::Grow) -> &mut Self {
         self.flex_grow = grow;
         self
     }
 
     #[fn_builder]
-    pub fn alter_shrink(&mut self, shrink: flex::Shrink) -> &mut Self {
+    pub fn set_shrink(&mut self, shrink: flex::Shrink) -> &mut Self {
         self.flex_shrink = shrink;
         self
     }
@@ -139,32 +139,32 @@ impl Item {
     #[fn_builder]
     // Ensures the item occupies the exact specified width, neither growing nor shrinking,
     // regardless of the available space in the container or the size of other items.
-    pub fn alter_size(&mut self, size: flex::Size) -> &mut Self {
+    pub fn set_size(&mut self, size: flex::Size) -> &mut Self {
         self.flex_size = size;
         self
     }
 
     #[fn_builder]
-    pub fn alter_offset(&mut self, offset: flex::Offset) -> &mut Self {
+    pub fn set_offset(&mut self, offset: flex::Offset) -> &mut Self {
         self.flex_offset = offset;
         self
     }
 
     #[fn_builder]
-    pub fn alter_align(&mut self, align: flex::Align) -> &mut Self {
+    pub fn set_align(&mut self, align: flex::Align) -> &mut Self {
         self.flex_align = align;
         self
     }
 
     #[fn_builder]
-    pub fn alter_components(&mut self, op: AnyOp) -> &mut Self {
-        self.mixed.alter_value(op);
+    pub fn set_components(&mut self, op: AnyOp) -> &mut Self {
+        self.mixed.set_value(op);
         self
     }
 
     #[rustfmt::skip]
     pub fn add_component(mut self, component: impl ComponentTrait) -> Self {
-        self.mixed.alter_value(AnyOp::Add(AnyComponent::with(component)));
+        self.mixed.set_value(AnyOp::Add(AnyComponent::with(component)));
         self
     }
 

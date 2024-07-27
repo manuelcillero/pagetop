@@ -20,7 +20,7 @@ impl ComponentTrait for Block {
     }
 
     fn setup_before_prepare(&mut self, _cx: &mut Context) {
-        self.alter_classes(
+        self.set_classes(
             ClassesOp::Prepend,
             ["block__container".to_string(), self.style().to_string()].join(" "),
         );
@@ -50,32 +50,32 @@ impl Block {
     // Block BUILDER.
 
     #[fn_builder]
-    pub fn alter_id(&mut self, id: impl Into<String>) -> &mut Self {
-        self.id.alter_value(id);
+    pub fn set_id(&mut self, id: impl Into<String>) -> &mut Self {
+        self.id.set_value(id);
         self
     }
 
     #[fn_builder]
-    pub fn alter_style(&mut self, style: StyleBase) -> &mut Self {
+    pub fn set_style(&mut self, style: StyleBase) -> &mut Self {
         self.style = style;
         self
     }
 
     #[fn_builder]
-    pub fn alter_title(&mut self, title: L10n) -> &mut Self {
-        self.title.alter_value(title);
+    pub fn set_title(&mut self, title: L10n) -> &mut Self {
+        self.title.set_value(title);
         self
     }
 
     #[fn_builder]
-    pub fn alter_components(&mut self, op: AnyOp) -> &mut Self {
-        self.mixed.alter_value(op);
+    pub fn set_components(&mut self, op: AnyOp) -> &mut Self {
+        self.mixed.set_value(op);
         self
     }
 
     #[rustfmt::skip]
     pub fn add_component(mut self, component: impl ComponentTrait) -> Self {
-        self.mixed.alter_value(AnyOp::Add(AnyComponent::with(component)));
+        self.mixed.set_value(AnyOp::Add(AnyComponent::with(component)));
         self
     }
 

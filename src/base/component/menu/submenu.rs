@@ -37,26 +37,26 @@ impl Submenu {
     // Submenu BUILDER.
 
     #[fn_builder]
-    pub fn alter_id(&mut self, id: impl Into<String>) -> &mut Self {
-        self.id.alter_value(id);
+    pub fn set_id(&mut self, id: impl Into<String>) -> &mut Self {
+        self.id.set_value(id);
         self
     }
 
     #[fn_builder]
-    pub fn alter_title(&mut self, title: L10n) -> &mut Self {
-        self.title.alter_value(title);
+    pub fn set_title(&mut self, title: L10n) -> &mut Self {
+        self.title.set_value(title);
         self
     }
 
     #[fn_builder]
-    pub fn alter_items(&mut self, op: TypedOp<Item>) -> &mut Self {
-        self.items.alter_typed(op);
+    pub fn set_items(&mut self, op: TypedOp<Item>) -> &mut Self {
+        self.items.set_typed(op);
         self
     }
 
     #[rustfmt::skip]
     pub fn add_item(mut self, item: Item) -> Self {
-        self.items.alter_value(AnyOp::Add(AnyComponent::with(item)));
+        self.items.set_value(AnyOp::Add(AnyComponent::with(item)));
         self
     }
 

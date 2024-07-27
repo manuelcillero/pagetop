@@ -34,7 +34,7 @@ impl ComponentTrait for Button {
     }
 
     fn setup_before_prepare(&mut self, _cx: &mut Context) {
-        self.alter_classes(
+        self.set_classes(
             ClassesOp::Prepend,
             [
                 "button__tap".to_string(),
@@ -48,11 +48,11 @@ impl ComponentTrait for Button {
     #[rustfmt::skip]
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
         let target = match &self.target() {
-            ButtonTarget::Blank  => Some("_blank"),
-            ButtonTarget::Parent => Some("_parent"),
-            ButtonTarget::Top    => Some("_top"),
+            ButtonTarget::Default => None,
+            ButtonTarget::Blank   => Some("_blank"),
+            ButtonTarget::Parent  => Some("_parent"),
+            ButtonTarget::Top     => Some("_top"),
             ButtonTarget::Context(name) => Some(name.as_str()),
-            _ => None,
         };
         PrepareMarkup::With(html! {
             a
@@ -77,49 +77,49 @@ impl Button {
     // Button BUILDER.
 
     #[fn_builder]
-    pub fn alter_id(&mut self, id: impl Into<String>) -> &mut Self {
-        self.id.alter_value(id);
+    pub fn set_id(&mut self, id: impl Into<String>) -> &mut Self {
+        self.id.set_value(id);
         self
     }
 
     #[fn_builder]
-    pub fn alter_style(&mut self, style: StyleBase) -> &mut Self {
+    pub fn set_style(&mut self, style: StyleBase) -> &mut Self {
         self.style = style;
         self
     }
 
     #[fn_builder]
-    pub fn alter_font_size(&mut self, font_size: FontSize) -> &mut Self {
+    pub fn set_font_size(&mut self, font_size: FontSize) -> &mut Self {
         self.font_size = font_size;
         self
     }
 
     #[fn_builder]
-    pub fn alter_left_icon(&mut self, icon: Option<Icon>) -> &mut Self {
-        self.left_icon.alter_value(icon);
+    pub fn set_left_icon(&mut self, icon: Option<Icon>) -> &mut Self {
+        self.left_icon.set_value(icon);
         self
     }
 
     #[fn_builder]
-    pub fn alter_right_icon(&mut self, icon: Option<Icon>) -> &mut Self {
-        self.right_icon.alter_value(icon);
+    pub fn set_right_icon(&mut self, icon: Option<Icon>) -> &mut Self {
+        self.right_icon.set_value(icon);
         self
     }
 
     #[fn_builder]
-    pub fn alter_href(&mut self, href: impl Into<String>) -> &mut Self {
-        self.href.alter_value(href);
+    pub fn set_href(&mut self, href: impl Into<String>) -> &mut Self {
+        self.href.set_value(href);
         self
     }
 
     #[fn_builder]
-    pub fn alter_html(&mut self, html: L10n) -> &mut Self {
-        self.html.alter_value(html);
+    pub fn set_html(&mut self, html: L10n) -> &mut Self {
+        self.html.set_value(html);
         self
     }
 
     #[fn_builder]
-    pub fn alter_target(&mut self, target: ButtonTarget) -> &mut Self {
+    pub fn set_target(&mut self, target: ButtonTarget) -> &mut Self {
         self.target = target;
         self
     }

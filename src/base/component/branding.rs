@@ -53,31 +53,31 @@ impl Branding {
     // Branding BUILDER.
 
     #[fn_builder]
-    pub fn alter_id(&mut self, id: impl Into<String>) -> &mut Self {
-        self.id.alter_value(id);
+    pub fn set_id(&mut self, id: impl Into<String>) -> &mut Self {
+        self.id.set_value(id);
         self
     }
 
     #[fn_builder]
-    pub fn alter_app_name(&mut self, app_name: impl Into<String>) -> &mut Self {
+    pub fn set_app_name(&mut self, app_name: impl Into<String>) -> &mut Self {
         self.app_name = app_name.into();
         self
     }
 
     #[fn_builder]
-    pub fn alter_slogan(&mut self, slogan: L10n) -> &mut Self {
-        self.slogan.alter_value(slogan);
+    pub fn set_slogan(&mut self, slogan: L10n) -> &mut Self {
+        self.slogan.set_value(slogan);
         self
     }
 
     #[fn_builder]
-    pub fn alter_logo(&mut self, logo: Option<Image>) -> &mut Self {
-        self.logo.alter_value(logo);
+    pub fn set_logo(&mut self, logo: Option<Image>) -> &mut Self {
+        self.logo.set_value(logo);
         self
     }
 
     #[fn_builder]
-    pub fn alter_frontpage(&mut self, frontpage: FnContextualPath) -> &mut Self {
+    pub fn set_frontpage(&mut self, frontpage: FnContextualPath) -> &mut Self {
         self.frontpage = frontpage;
         self
     }

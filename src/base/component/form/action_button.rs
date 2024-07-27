@@ -38,7 +38,7 @@ impl ComponentTrait for ActionButton {
     }
 
     fn setup_before_prepare(&mut self, _cx: &mut Context) {
-        self.alter_classes(
+        self.set_classes(
             ClassesOp::Prepend,
             [
                 "button__tap".to_string(),
@@ -91,56 +91,52 @@ impl ActionButton {
     // Button BUILDER.
 
     #[fn_builder]
-    pub fn alter_style(&mut self, style: StyleBase) -> &mut Self {
+    pub fn set_style(&mut self, style: StyleBase) -> &mut Self {
         self.style = style;
         self
     }
 
     #[fn_builder]
-    pub fn alter_font_size(&mut self, font_size: FontSize) -> &mut Self {
+    pub fn set_font_size(&mut self, font_size: FontSize) -> &mut Self {
         self.font_size = font_size;
         self
     }
 
     #[fn_builder]
-    pub fn alter_left_icon(&mut self, icon: Option<Icon>) -> &mut Self {
-        self.left_icon.alter_value(icon);
+    pub fn set_left_icon(&mut self, icon: Option<Icon>) -> &mut Self {
+        self.left_icon.set_value(icon);
         self
     }
 
     #[fn_builder]
-    pub fn alter_right_icon(&mut self, icon: Option<Icon>) -> &mut Self {
-        self.right_icon.alter_value(icon);
+    pub fn set_right_icon(&mut self, icon: Option<Icon>) -> &mut Self {
+        self.right_icon.set_value(icon);
         self
     }
 
     #[fn_builder]
-    pub fn alter_name(&mut self, name: &str) -> &mut Self {
-        self.name.alter_value(name);
+    pub fn set_name(&mut self, name: &str) -> &mut Self {
+        self.name.set_value(name);
         self
     }
 
     #[fn_builder]
-    pub fn alter_value(&mut self, value: L10n) -> &mut Self {
-        self.value.alter_value(value);
+    pub fn set_value(&mut self, value: L10n) -> &mut Self {
+        self.value.set_value(value);
         self
     }
 
     #[fn_builder]
-    pub fn alter_autofocus(&mut self, toggle: bool) -> &mut Self {
-        self.autofocus.alter_value(match toggle {
-            true => "autofocus",
-            false => "",
-        });
+    pub fn set_autofocus(&mut self, toggle: bool) -> &mut Self {
+        self.autofocus
+            .set_value(if toggle { "autofocus" } else { "" });
         self
     }
 
     #[fn_builder]
-    pub fn alter_disabled(&mut self, toggle: bool) -> &mut Self {
-        self.disabled.alter_value(match toggle {
-            true => "disabled",
-            false => "",
-        });
+    pub fn set_disabled(&mut self, toggle: bool) -> &mut Self {
+        self.disabled
+            .set_value(if toggle { "disabled" } else { "" });
         self
     }
 

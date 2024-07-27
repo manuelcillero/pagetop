@@ -28,14 +28,14 @@ impl Hidden {
     // Hidden BUILDER.
 
     #[fn_builder]
-    pub fn alter_name(&mut self, name: &str) -> &mut Self {
-        self.name.alter_value(name);
+    pub fn set_name(&mut self, name: &str) -> &mut Self {
+        self.name.set_value(name);
         self
     }
 
     #[fn_builder]
-    pub fn alter_value(&mut self, value: &str) -> &mut Self {
-        self.value.alter_value(value);
+    pub fn set_value(&mut self, value: &str) -> &mut Self {
+        self.value.set_value(value);
         self
     }
 
