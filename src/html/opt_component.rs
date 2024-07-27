@@ -37,9 +37,10 @@ impl<C: ComponentTrait> OptionComponent<C> {
     }
 
     pub fn render(&self, cx: &mut Context) -> Markup {
-        match &self.0 {
-            Some(component) => component.render(cx),
-            _ => html! {},
+        if let Some(component) = &self.0 {
+            component.render(cx)
+        } else {
+            html! {}
         }
     }
 }

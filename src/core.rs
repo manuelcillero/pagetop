@@ -15,6 +15,7 @@ pub trait AnyBase: Any {
     fn as_any_mut(&mut self) -> &mut dyn Any;
 }
 
+#[allow(clippy::inline_always)]
 impl<T: Any> AnyBase for T {
     #[inline(always)]
     fn type_name(&self) -> &'static str {

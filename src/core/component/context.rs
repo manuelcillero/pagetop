@@ -44,7 +44,7 @@ impl fmt::Display for ParamError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             ParamError::NotFound => write!(f, "Parameter not found"),
-            ParamError::ParseError(e) => write!(f, "Parse error: {}", e),
+            ParamError::ParseError(e) => write!(f, "Parse error: {e}"),
         }
     }
 }
@@ -180,22 +180,21 @@ impl Context {
     // Context EXTRAS.
 
     pub fn required_id<T>(&mut self, id: Option<String>) -> String {
-        match id {
-            Some(id) => id,
-            None => {
-                let prefix = TypeInfo::ShortName
-                    .of::<T>()
-                    .trim()
-                    .replace(' ', "_")
-                    .to_lowercase();
-                let prefix = if prefix.is_empty() {
-                    "prefix".to_owned()
-                } else {
-                    prefix
-                };
-                self.id_counter += 1;
-                concat_string!(prefix, "-", self.id_counter.to_string())
-            }
+        if let Some(id) = id {
+            id
+        } else {
+            let prefix = TypeInfo::ShortName
+                .of::<T>()
+                .trim()
+                .replace(' ', "_")
+                .to_lowercase();
+            let prefix = if prefix.is_empty() {
+                "prefix".to_owned()
+            } else {
+                prefix
+            };
+            self.id_counter += 1;
+            concat_string!(prefix, "-", self.id_counter.to_string())
         }
     }
 }

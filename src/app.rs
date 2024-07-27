@@ -80,14 +80,14 @@ impl Application {
                     let maxlen = (term_width / 10) - 2;
                     let mut app = app_name.substring(0, maxlen).to_owned();
                     if app_name.len() > maxlen {
-                        app = format!("{}...", app);
+                        app = format!("{app}...");
                     }
                     if let Some(ff) = figfont::FIGFONT.convert(&app) {
                         app_name = ff.to_string();
                     }
                 }
             }
-            println!("\n{}", app_name);
+            println!("\n{app_name}");
 
             // Application description.
             if !config::SETTINGS.app.description.is_empty() {

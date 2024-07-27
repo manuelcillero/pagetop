@@ -61,12 +61,12 @@ impl StyleSheet {
     }
 
     #[rustfmt::skip]
-    pub fn for_media(mut self, media: TargetMedia) -> Self {
+    pub fn for_media(mut self, media: &TargetMedia) -> Self {
         self.media = match media {
-            TargetMedia::Print  => Some("print"),
-            TargetMedia::Screen => Some("screen"),
-            TargetMedia::Speech => Some("speech"),
-            _ => None,
+            TargetMedia::Default => None,
+            TargetMedia::Print   => Some("print"),
+            TargetMedia::Screen  => Some("screen"),
+            TargetMedia::Speech  => Some("speech"),
         };
         self
     }

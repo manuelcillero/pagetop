@@ -44,7 +44,7 @@ impl<T: AssetsTrait> Assets<T> {
 
     pub fn prepare(&mut self) -> Markup {
         let assets = &mut self.0;
-        assets.sort_by_key(|a| a.weight());
+        assets.sort_by_key(AssetsTrait::weight);
         html! {
             @for a in assets {
                 (a.prepare())

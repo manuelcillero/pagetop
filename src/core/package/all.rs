@@ -60,7 +60,7 @@ fn add_to_enabled(list: &mut Vec<PackageRef>, package: PackageRef) {
         // Reverse dependencies to add them in correct order (dependencies first).
         let mut dependencies = package.dependencies();
         dependencies.reverse();
-        for d in dependencies.iter() {
+        for d in &dependencies {
             add_to_enabled(list, *d);
         }
 
@@ -83,7 +83,7 @@ fn add_to_enabled(list: &mut Vec<PackageRef>, package: PackageRef) {
 
 fn add_to_dropped(list: &mut Vec<PackageRef>, package: PackageRef) {
     // Iterate through packages recommended to be dropped.
-    for d in package.drop_packages().iter() {
+    for d in &package.drop_packages() {
         // Check if the package is not already in the dropped list.
         if !list.iter().any(|p| p.type_id() == d.type_id()) {
             // Check if the package is currently enabled. If so, log a warning.
@@ -103,7 +103,7 @@ fn add_to_dropped(list: &mut Vec<PackageRef>, package: PackageRef) {
                 trace::debug!("Package \"{}\" dropped", d.short_name());
                 // Recursively add the dependencies of the dropped package to the dropped list.
                 // This ensures that all dependencies are also considered for dropping.
-                for dependency in package.dependencies().iter() {
+                for dependency in &package.dependencies() {
                     add_to_dropped(list, *dependency);
                 }
             }

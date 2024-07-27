@@ -87,7 +87,7 @@
 //! ```
 
 use crate::html::{Markup, PreEscaped};
-use crate::{config, kv, AutoDefault, LazyStatic, LOCALES_PAGETOP};
+use crate::{config, kv, AutoDefault, LOCALES_PAGETOP};
 
 pub use fluent_templates;
 pub use unic_langid::LanguageIdentifier;
@@ -132,8 +132,7 @@ pub fn langid_for(language: impl Into<String>) -> Result<&'static LanguageIdenti
                 Ok(&LANGID_FALLBACK)
             } else {
                 Err(format!(
-                    "Failed to get langid. Unicode Language Identifier \"{}\" is not accepted.",
-                    language,
+                    "No langid for Unicode Language Identifier \"{language}\".",
                 ))
             }
         }

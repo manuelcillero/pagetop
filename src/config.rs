@@ -8,7 +8,7 @@
 //! de desarrollo, pre-producción, producción, etc.
 //!
 //! A veces las aplicaciones guardan configuraciones como constantes en el código, lo que implica
-//! una violación de esta metodología. PageTop recomienda una **estricta separación entre código y
+//! una violación de esta metodología. `PageTop` recomienda una **estricta separación entre código y
 //! configuración**. La configuración variará en cada tipo de despliegue, y el código no.
 //!
 //!
@@ -17,7 +17,7 @@
 //! Si tu aplicación requiere archivos de configuración debes crear un directorio *config* al mismo
 //! nivel del archivo *Cargo.toml* de tu proyecto (o del ejecutable binario de la aplicación).
 //!
-//! PageTop se encargará de cargar todos los ajustes de configuración de tu aplicación leyendo los
+//! `PageTop` se encargará de cargar todos los ajustes de configuración de tu aplicación leyendo los
 //! siguientes archivos TOML en este orden (todos los archivos son opcionales):
 //!
 //! 1. **config/common.toml**, útil para los ajustes comunes a cualquier entorno. Estos valores
@@ -26,8 +26,8 @@
 //! 2. **config/{file}.toml**, donde *{file}* se define con la variable de entorno
 //!    `PAGETOP_RUN_MODE`:
 //!
-//!     * Si no está definida se asumirá *default* por defecto y PageTop intentará cargar el archivo
-//!       *config/default.toml* si existe.
+//!     * Si no está definida se asumirá *default* por defecto y `PageTop` intentará cargar el
+//!       archivo *config/default.toml* si existe.
 //!
 //!     * De esta manera podrás tener diferentes ajustes de configuración para diferentes entornos
 //!       de ejecución. Por ejemplo, para *devel.toml*, *staging.toml* o *production.toml*. O
@@ -155,7 +155,7 @@ pub static CONFIG: LazyLock<ConfigData> = LazyLock::new(|| {
             File::with_name(&concat_string!(CONFIG_DIR, "/", run_mode, ".toml"))
                 .required(false)
         ).unwrap()
-        // Añade la configuración local reservada del entorno. Por defecto 'default.local.toml'.
+        // Añade la configuración local reservada del entorno. Por defecto 'local.default.toml'.
         .merge(
             File::with_name(&concat_string!(CONFIG_DIR, "/local.", run_mode, ".toml"))
                 .required(false),
@@ -349,5 +349,5 @@ default_settings!(
     // [server]
     "server.bind_address"     => "localhost",
     "server.bind_port"        => 8088,
-    "server.session_lifetime" => 604800,
+    "server.session_lifetime" => 604_800,
 );

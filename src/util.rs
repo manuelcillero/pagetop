@@ -85,6 +85,32 @@ impl TypeInfo {
 // FUNCTIONS HELPERS.
 // *************************************************************************************************
 
+/// Calculates the absolute directory given a root path and a relative path.
+///
+/// # Arguments
+///
+/// * `root_path` - A string slice that holds the root path.
+/// * `relative_path` - A string slice that holds the relative path.
+///
+/// # Returns
+///
+/// * `Ok` - If the operation is successful, returns the absolute directory as a `String`.
+/// * `Err` - If an I/O error occurs, returns an `io::Error`.
+///
+/// # Errors
+///
+/// This function will return an error if:
+/// - The root path or relative path are invalid.
+/// - There is an issue with file system operations, such as reading the directory.
+///
+/// # Examples
+///
+/// ```
+/// let root = "/home/user";
+/// let relative = "documents";
+/// let abs_dir = absolute_dir(root, relative).unwrap();
+/// println!("{}", abs_dir);
+/// ```
 pub fn absolute_dir(
     root_path: impl Into<String>,
     relative_path: impl Into<String>,
@@ -94,19 +120,19 @@ pub fn absolute_dir(
     let absolute_dir = full_path.to_string_lossy().into();
 
     if !full_path.is_absolute() {
-        let message = format!("Path \"{}\" is not absolute", absolute_dir);
+        let message = format!("Path \"{absolute_dir}\" is not absolute");
         trace::warn!(message);
         return Err(io::Error::new(io::ErrorKind::InvalidInput, message));
     }
 
     if !full_path.exists() {
-        let message = format!("Path \"{}\" does not exist", absolute_dir);
+        let message = format!("Path \"{absolute_dir}\" does not exist");
         trace::warn!(message);
         return Err(io::Error::new(io::ErrorKind::NotFound, message));
     }
 
     if !full_path.is_dir() {
-        let message = format!("Path \"{}\" is not a directory", absolute_dir);
+        let message = format!("Path \"{absolute_dir}\" is not a directory");
         trace::warn!(message);
         return Err(io::Error::new(io::ErrorKind::InvalidInput, message));
     }

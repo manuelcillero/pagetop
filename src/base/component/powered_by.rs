@@ -94,7 +94,7 @@ impl PoweredBy {
 
     fn logo_line(&self, r: u8, g: u8, b: u8, cx: &mut Context) -> Markup {
         let logo_txt = L10n::l("pagetop_logo").using(cx.langid());
-        let logo_rgb = format!("rgb({},{},{})", r, g, b);
+        let logo_rgb = format!("rgb({r},{g},{b})");
         html! {
             span class="poweredby__logo" aria-label=[logo_txt] {
                 svg viewBox="0 0 1614 1614" xmlns="http://www.w3.org/2000/svg" role="img" {
