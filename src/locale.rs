@@ -246,40 +246,45 @@ impl L10n {
     }
 }
 
-impl ToString for L10n {
-    fn to_string(&self) -> String {
+impl fmt::Display for L10n {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match &self.op {
-            L10nOp::None => "".to_owned(),
-            L10nOp::Text(text) => text.to_owned(),
-            L10nOp::Translate(key) => match self.locales {
-                Some(locales) => {
-                    if self.args.is_empty() {
-                        locales.lookup(
-                            match key.as_str() {
-                                LANGUAGE_SET_FAILURE => &LANGID_FALLBACK,
-                                _ => &LANGID_DEFAULT,
-                            },
-                            key,
-                        )
-                    } else {
-                        locales.lookup_with_args(
-                            match key.as_str() {
-                                LANGUAGE_SET_FAILURE => &LANGID_FALLBACK,
-                                _ => &LANGID_DEFAULT,
-                            },
-                            key,
-                            &self
-                                .args
-                                .iter()
-                                .fold(HashMap::new(), |mut args, (key, value)| {
-                                    args.insert(key.to_string(), value.to_owned().into());
-                                    args
-                                }),
-                        )
-                    }
+            L10nOp::None => write!(f, ""),
+            L10nOp::Text(text) => write!(f, "{text}"),
+            L10nOp::Translate(key) => {
+                if let Some(locales) = self.locales {
+                    write!(
+                        f,
+                        "{}",
+                        if self.args.is_empty() {
+                            locales.lookup(
+                                match key.as_str() {
+                                    LANGUAGE_SET_FAILURE => &LANGID_FALLBACK,
+                                    _ => &LANGID_DEFAULT,
+                                },
+                                key,
+                            )
+                        } else {
+                            locales.lookup_with_args(
+                                match key.as_str() {
+                                    LANGUAGE_SET_FAILURE => &LANGID_FALLBACK,
+                                    _ => &LANGID_DEFAULT,
+                                },
+                                key,
+                                &self
+                                    .args
+                                    .iter()
+                                    .fold(HashMap::new(), |mut args, (key, value)| {
+                                        args.insert(key.to_string(), value.to_owned().into());
+                                        args
+                                    }),
+                            )
+                        }
+                    )
+                } else {
+                    write!(f, "Unknown localization {key}")
                 }
-                None => format!("Unknown localization {}", key),
-            },
+            }
         }
     }
 }

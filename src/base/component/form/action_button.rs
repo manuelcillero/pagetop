@@ -1,5 +1,7 @@
 use crate::prelude::*;
 
+use std::fmt;
+
 #[derive(AutoDefault)]
 pub enum ActionButtonType {
     #[default]
@@ -8,12 +10,12 @@ pub enum ActionButtonType {
 }
 
 #[rustfmt::skip]
-impl ToString for ActionButtonType {
-    fn to_string(&self) -> String {
-        String::from(match self {
-            ActionButtonType::Submit => "submit",
-            ActionButtonType::Reset  => "reset",
-        })
+impl fmt::Display for ActionButtonType {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            ActionButtonType::Submit => write!(f, "submit"),
+            ActionButtonType::Reset  => write!(f, "reset"),
+        }
     }
 }
 

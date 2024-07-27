@@ -2,6 +2,8 @@ use crate::core::component::{AssetsOp, Context};
 use crate::html::{JavaScript, StyleSheet};
 use crate::{AutoDefault, Weight};
 
+use std::fmt;
+
 // Context parameters.
 pub const PARAM_BASE_WEIGHT: &str = "base.weight";
 pub const PARAM_BASE_INCLUDE_ICONS: &str = "base.include.icon";
@@ -74,18 +76,18 @@ pub enum BreakPoint {
 }
 
 #[rustfmt::skip]
-impl ToString for BreakPoint {
-    fn to_string(&self) -> String {
-        String::from(match self {
-            BreakPoint::None => "bp__none",
-            BreakPoint::SM   => "bp__sm",
-            BreakPoint::MD   => "bp__md",
-            BreakPoint::LG   => "bp__lg",
-            BreakPoint::XL   => "bp__xl",
-            BreakPoint::X2L  => "bp__x2l",
-            BreakPoint::X3L  => "bp__x3l",
-            BreakPoint::X2K  => "bp__x2k",
-        })
+impl fmt::Display for BreakPoint {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            BreakPoint::None => write!(f, "bp__none"),
+            BreakPoint::SM   => write!(f, "bp__sm"),
+            BreakPoint::MD   => write!(f, "bp__md"),
+            BreakPoint::LG   => write!(f, "bp__lg"),
+            BreakPoint::XL   => write!(f, "bp__xl"),
+            BreakPoint::X2L  => write!(f, "bp__x2l"),
+            BreakPoint::X3L  => write!(f, "bp__x3l"),
+            BreakPoint::X2K  => write!(f, "bp__x2k"),
+        }
     }
 }
 
@@ -105,18 +107,18 @@ pub enum StyleBase {
 }
 
 #[rustfmt::skip]
-impl ToString for StyleBase {
-    fn to_string(&self) -> String {
-        String::from(match self {
-            StyleBase::Default => "style__default",
-            StyleBase::Info    => "style__info",
-            StyleBase::Success => "style__success",
-            StyleBase::Warning => "style__warning",
-            StyleBase::Danger  => "style__danger",
-            StyleBase::Light   => "style__light",
-            StyleBase::Dark    => "style__dark",
-            StyleBase::Link    => "style__link",
-        })
+impl fmt::Display for StyleBase {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            StyleBase::Default => write!(f, "style__default"),
+            StyleBase::Info    => write!(f, "style__info"),
+            StyleBase::Success => write!(f, "style__success"),
+            StyleBase::Warning => write!(f, "style__warning"),
+            StyleBase::Danger  => write!(f, "style__danger"),
+            StyleBase::Light   => write!(f, "style__light"),
+            StyleBase::Dark    => write!(f, "style__dark"),
+            StyleBase::Link    => write!(f, "style__link"),
+        }
     }
 }
 
@@ -138,20 +140,20 @@ pub enum FontSize {
 }
 
 #[rustfmt::skip]
-impl ToString for FontSize {
-    fn to_string(&self) -> String {
-        String::from(match self {
-            FontSize::ExtraLarge => "fs__x3l",
-            FontSize::XxLarge    => "fs__x2l",
-            FontSize::XLarge     => "fs__xl",
-            FontSize::Large      => "fs__l",
-            FontSize::Medium     => "fs__m",
-            FontSize::Normal     => "",
-            FontSize::Small      => "fs__s",
-            FontSize::XSmall     => "fs__xs",
-            FontSize::XxSmall    => "fs__x2s",
-            FontSize::ExtraSmall => "fs__x3s",
-        })
+impl fmt::Display for FontSize {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            FontSize::ExtraLarge => write!(f, "fs__x3l"),
+            FontSize::XxLarge    => write!(f, "fs__x2l"),
+            FontSize::XLarge     => write!(f, "fs__xl"),
+            FontSize::Large      => write!(f, "fs__l"),
+            FontSize::Medium     => write!(f, "fs__m"),
+            FontSize::Normal     => write!(f, ""),
+            FontSize::Small      => write!(f, "fs__s"),
+            FontSize::XSmall     => write!(f, "fs__xs"),
+            FontSize::XxSmall    => write!(f, "fs__x2s"),
+            FontSize::ExtraSmall => write!(f, "fs__x3s"),
+        }
     }
 }
 

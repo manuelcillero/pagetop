@@ -1,5 +1,7 @@
 use crate::prelude::*;
 
+use std::fmt;
+
 #[derive(AutoDefault)]
 pub enum HeadingType {
     #[default]
@@ -24,17 +26,17 @@ pub enum HeadingSize {
 }
 
 #[rustfmt::skip]
-impl ToString for HeadingSize {
-    fn to_string(&self) -> String {
-        String::from(match self {
-            HeadingSize::ExtraLarge => "heading__title-x3l",
-            HeadingSize::XxLarge    => "heading__title-x2l",
-            HeadingSize::XLarge     => "heading__title-xl",
-            HeadingSize::Large      => "heading__title-l",
-            HeadingSize::Medium     => "heading__title-m",
-            HeadingSize::Normal     => "",
-            HeadingSize::Subtitle   => "heading__subtitle",
-        })
+impl fmt::Display for HeadingSize {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            HeadingSize::ExtraLarge => write!(f, "heading__title-x3l"),
+            HeadingSize::XxLarge    => write!(f, "heading__title-x2l"),
+            HeadingSize::XLarge     => write!(f, "heading__title-xl"),
+            HeadingSize::Large      => write!(f, "heading__title-l"),
+            HeadingSize::Medium     => write!(f, "heading__title-m"),
+            HeadingSize::Normal     => write!(f, ""),
+            HeadingSize::Subtitle   => write!(f, "heading__subtitle"),
+        }
     }
 }
 
