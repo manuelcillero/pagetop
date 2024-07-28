@@ -3,9 +3,6 @@ use crate::core::package::PackageRef;
 use crate::core::theme::all::THEMES;
 use crate::{config, service, service_for_static_files, static_files, trace};
 
-#[cfg(feature = "database")]
-use crate::db::*;
-
 use std::sync::{LazyLock, RwLock};
 
 static_files!(base);
@@ -127,45 +124,6 @@ pub fn init_packages() {
     trace::info!("Calling application bootstrap");
     for m in ENABLED_PACKAGES.read().unwrap().iter() {
         m.init();
-    }
-}
-
-// RUN MIGRATIONS **********************************************************************************
-
-#[cfg(feature = "database")]
-pub fn run_migrations() {
-    if let Some(dbconn) = &*DBCONN {
-        if let Err(e) = run_now({
-            struct Migrator;
-            impl MigratorTrait for Migrator {
-                fn migrations() -> Vec<MigrationItem> {
-                    let mut migrations = vec![];
-                    for m in ENABLED_PACKAGES.read().unwrap().iter() {
-                        migrations.append(&mut m.migrations());
-                    }
-                    migrations
-                }
-            }
-            Migrator::up(SchemaManagerConnection::Connection(dbconn), None)
-        }) {
-            trace::error!("Database upgrade failed ({})", e);
-        };
-
-        if let Err(e) = run_now({
-            struct Migrator;
-            impl MigratorTrait for Migrator {
-                fn migrations() -> Vec<MigrationItem> {
-                    let mut migrations = vec![];
-                    for m in DROPPED_PACKAGES.read().unwrap().iter() {
-                        migrations.append(&mut m.migrations());
-                    }
-                    migrations
-                }
-            }
-            Migrator::down(SchemaManagerConnection::Connection(dbconn), None)
-        }) {
-            trace::error!("Database downgrade failed ({})", e);
-        };
     }
 }
 

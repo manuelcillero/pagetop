@@ -115,11 +115,6 @@ pub mod locale;
 // Date and time handling.
 pub mod datetime;
 
-// Database access.
-#[cfg_attr(docsrs, doc(cfg(feature = "database")))]
-#[cfg(feature = "database")]
-pub mod db;
-
 // Essential web framework.
 pub mod service;
 

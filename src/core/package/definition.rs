@@ -4,9 +4,6 @@ use crate::core::AnyBase;
 use crate::locale::L10n;
 use crate::{actions, service};
 
-#[cfg(feature = "database")]
-use crate::{db::MigrationItem, migrations};
-
 pub type PackageRef = &'static dyn PackageTrait;
 
 /// Los paquetes deben implementar este *trait*.
@@ -33,11 +30,6 @@ pub trait PackageTrait: AnyBase + Send + Sync {
 
     fn actions(&self) -> Vec<ActionBox> {
         actions![]
-    }
-
-    #[cfg(feature = "database")]
-    fn migrations(&self) -> Vec<MigrationItem> {
-        migrations![]
     }
 
     fn init(&self) {}

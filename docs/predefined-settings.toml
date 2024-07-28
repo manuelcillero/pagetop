@@ -10,22 +10,6 @@ direction = "ltr"
 # Startup banner: "Off", "Slant", "Small", "Speed", or "Starwars".
 startup_banner = "Slant"
 
-[database]
-# Connect to a database (optional).
-# Database type (mysql, postgres, or sqlite).
-db_type = ""
-# Database name (for mysql/postgres) or reference (for sqlite).
-db_name = ""
-# User and password (for mysql/postgres).
-db_user = ""
-db_pass = ""
-# Database server (for mysql/postgres).
-db_host = "localhost"
-# Port, usually 3306 (for mysql) or 5432 (for postgres).
-db_port = 0
-# Maximum number of enabled connections.
-max_pool_size = 5
-
 [dev]
 # Static files required by the app are integrated by default into the executable
 # binary. However, during development, it can be useful to serve these files

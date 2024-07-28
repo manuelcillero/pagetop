@@ -198,11 +198,10 @@ macro_rules! default_settings {
 }
 
 #[derive(Debug, Deserialize)]
-/// Configuration settings for the [`[app]`](App), [`[database]`](Database), [`[dev]`](Dev),
-/// [`[log]`](Log), and [`[server]`](Server) sections (see [`SETTINGS`]).
+/// Configuration settings for the [`[app]`](App), [`[dev]`](Dev), [`[log]`](Log), and
+/// [`[server]`](Server) sections (see [`SETTINGS`]).
 pub struct Settings {
     pub app: App,
-    pub database: Database,
     pub dev: Dev,
     pub log: Log,
     pub server: Server,
@@ -234,34 +233,6 @@ pub struct App {
     pub startup_banner: String,
     /// Por defecto: según variable de entorno `PAGETOP_RUN_MODE`, o *"default"* si no lo está.
     pub run_mode: String,
-}
-
-#[derive(Debug, Deserialize)]
-/// Section `[database]` of the configuration settings.
-///
-/// See [`Settings`].
-pub struct Database {
-    /// Tipo de base de datos: *"mysql"*, *"postgres"* ó *"sqlite"*.
-    /// Por defecto: *""*.
-    pub db_type: String,
-    /// Nombre (para mysql/postgres) o referencia (para sqlite) de la base de datos.
-    /// Por defecto: *""*.
-    pub db_name: String,
-    /// Usuario de conexión a la base de datos (para mysql/postgres).
-    /// Por defecto: *""*.
-    pub db_user: String,
-    /// Contraseña para la conexión a la base de datos (para mysql/postgres).
-    /// Por defecto: *""*.
-    pub db_pass: String,
-    /// Servidor de conexión a la base de datos (para mysql/postgres).
-    /// Por defecto: *"localhost"*.
-    pub db_host: String,
-    /// Puerto de conexión a la base de datos, normalmente 3306 (para mysql) ó 5432 (para postgres).
-    /// Por defecto: *0*.
-    pub db_port: u16,
-    /// Número máximo de conexiones habilitadas.
-    /// Por defecto: *5*.
-    pub max_pool_size: u32,
 }
 
 #[derive(Debug, Deserialize)]
@@ -326,15 +297,6 @@ default_settings!(
     "app.language"            => "en-US",
     "app.direction"           => "ltr",
     "app.startup_banner"      => "Slant",
-
-    // [database]
-    "database.db_type"        => "",
-    "database.db_name"        => "",
-    "database.db_user"        => "",
-    "database.db_pass"        => "",
-    "database.db_host"        => "localhost",
-    "database.db_port"        => 0,
-    "database.max_pool_size"  => 5,
 
     // [dev]
     "dev.pagetop_project_dir" => "",

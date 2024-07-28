@@ -8,8 +8,6 @@ the [Rust ecosystem](https://lib.rs), such as:
 * [Tracing](https://github.com/tokio-rs/tracing) for the diagnostic system and structured logging.
 * [Fluent templates](https://github.com/XAMPPRocky/fluent-templates) that incorporate
   [Fluent](https://projectfluent.org/) for project internationalization.
-* [SeaORM](https://www.sea-ql.org/SeaORM/) which employs [SQLx](https://docs.rs/sqlx/latest/sqlx/)
-  for database access and modeling.
 * Among others, which you can review in the PageTop
   [`Cargo.toml`](https://github.com/manuelcillero/pagetop/blob/main/Cargo.toml) file.
 
@@ -31,13 +29,6 @@ PageTop integrates code from various renowned crates to enhance functionality:
   [Jane Doe](https://crates.io/users/jane-doe) as `AutoDefault`to simplify the documentation of
   Default implementations and also removes the need to explicitly list `smart_default` in the
   `Cargo.toml` files.
-
-* **Database Operations**: PageTop employs [SQLx](https://github.com/launchbadge/sqlx) and
-  [SeaQuery](https://github.com/SeaQL/sea-query), complemented by a custom version of
-  [SeaORM Migration](https://github.com/SeaQL/sea-orm/tree/master/sea-orm-migration) (version
-  [0.12.8](https://github.com/SeaQL/sea-orm/tree/0.12.8/sea-orm-migration/src)). This modification
-  ensures migration processes are confined to specific packages, enhancing modularity and
-  maintainability.
 
 
 # 🗚 FIGfonts

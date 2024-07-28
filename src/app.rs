@@ -8,9 +8,6 @@ use crate::response::page::{ErrorPage, ResultPage};
 use crate::service::HttpRequest;
 use crate::{config, locale, service, trace};
 
-#[cfg(feature = "database")]
-use crate::db;
-
 use actix_session::config::{BrowserSession, PersistentSession, SessionLifecycle};
 use actix_session::storage::CookieSessionStore;
 use actix_session::SessionMiddleware;
@@ -50,19 +47,11 @@ impl Application {
         // Validates the default language identifier.
         LazyLock::force(&locale::LANGID_DEFAULT);
 
-        #[cfg(feature = "database")]
-        // Connects to the database.
-        LazyLock::force(&db::DBCONN);
-
         // Registers the application's packages.
         package::all::register_packages(root_package);
 
         // Registers package actions.
         package::all::register_actions();
-
-        #[cfg(feature = "database")]
-        // Runs pending database migrations.
-        package::all::run_migrations();
 
         // Initializes the packages.
         package::all::init_packages();
