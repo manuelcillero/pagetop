@@ -4,12 +4,10 @@ mod maud;
 pub use maud::{html, html_private, Markup, PreEscaped, DOCTYPE};
 
 mod assets;
+pub use assets::favicon::Favicon;
 pub use assets::javascript::JavaScript;
 pub use assets::stylesheet::{StyleSheet, TargetMedia};
 pub(crate) use assets::Assets;
-
-mod favicon;
-pub use favicon::Favicon;
 
 mod opt_id;
 pub use opt_id::OptionId;

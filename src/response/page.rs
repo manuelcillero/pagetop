@@ -7,7 +7,7 @@ use crate::base::action;
 use crate::core::component::{AnyComponent, AnyOp, ComponentTrait};
 use crate::core::component::{AssetsOp, Context};
 use crate::fn_builder;
-use crate::html::{html, Favicon, Markup, DOCTYPE};
+use crate::html::{html, Markup, DOCTYPE};
 use crate::html::{ClassesOp, OptionClasses, OptionId, OptionTranslated};
 use crate::locale::L10n;
 use crate::service::HttpRequest;
@@ -20,7 +20,6 @@ pub struct Page {
     description : OptionTranslated,
     metadata    : Vec<(&'static str, &'static str)>,
     properties  : Vec<(&'static str, &'static str)>,
-    favicon     : Option<Favicon>,
     context     : Context,
     body_id     : OptionId,
     body_classes: OptionClasses,
@@ -35,7 +34,6 @@ impl Page {
             description : OptionTranslated::default(),
             metadata    : Vec::default(),
             properties  : Vec::default(),
-            favicon     : None,
             context     : Context::new(request),
             body_id     : OptionId::default(),
             body_classes: OptionClasses::default(),
@@ -66,12 +64,6 @@ impl Page {
     #[fn_builder]
     pub fn set_property(&mut self, property: &'static str, content: &'static str) -> &mut Self {
         self.metadata.push((property, content));
-        self
-    }
-
-    #[fn_builder]
-    pub fn set_favicon(&mut self, favicon: Option<Favicon>) -> &mut Self {
-        self.favicon = favicon;
         self
     }
 
@@ -143,10 +135,6 @@ impl Page {
 
     pub fn properties(&self) -> &Vec<(&str, &str)> {
         &self.properties
-    }
-
-    pub fn favicon(&self) -> &Option<Favicon> {
-        &self.favicon
     }
 
     pub fn context(&mut self) -> &mut Context {

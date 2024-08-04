@@ -1,3 +1,4 @@
+pub mod favicon;
 pub mod javascript;
 pub mod stylesheet;
 

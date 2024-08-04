@@ -4,7 +4,7 @@ use crate::core::component::AnyOp;
 use crate::core::theme::all::{theme_by_short_name, THEME_DEFAULT};
 use crate::core::theme::{ComponentsInRegions, ThemeRef};
 use crate::html::{html, Markup};
-use crate::html::{Assets, JavaScript, StyleSheet};
+use crate::html::{Assets, Favicon, JavaScript, StyleSheet};
 use crate::locale::{LanguageIdentifier, LANGID_DEFAULT};
 use crate::service::HttpRequest;
 use crate::util::TypeInfo;
@@ -19,6 +19,9 @@ pub enum AssetsOp {
     LangId(&'static LanguageIdentifier),
     Theme(&'static str),
     Layout(&'static str),
+    // Favicon.
+    SetFavicon(Option<Favicon>),
+    SetFaviconIfNone(Favicon),
     // Stylesheets.
     AddStyleSheet(StyleSheet),
     RemoveStyleSheet(&'static str),
@@ -52,6 +55,7 @@ pub struct Context {
     langid    : &'static LanguageIdentifier,
     theme     : ThemeRef,
     layout    : &'static str,
+    favicon   : Option<Favicon>,
     stylesheet: Assets<StyleSheet>,
     javascript: Assets<JavaScript>,
     regions   : ComponentsInRegions,
@@ -67,6 +71,7 @@ impl Context {
             langid    : &LANGID_DEFAULT,
             theme     : *THEME_DEFAULT,
             layout    : "default",
+            favicon   : None,
             stylesheet: Assets::<StyleSheet>::new(),
             javascript: Assets::<JavaScript>::new(),
             regions   : ComponentsInRegions::default(),
@@ -75,7 +80,6 @@ impl Context {
         }
     }
 
-    #[rustfmt::skip]
     pub fn set_assets(&mut self, op: AssetsOp) -> &mut Self {
         match op {
             AssetsOp::LangId(langid) => {
@@ -87,16 +91,33 @@ impl Context {
             AssetsOp::Layout(layout) => {
                 self.layout = layout;
             }
-
+            // Favicon.
+            AssetsOp::SetFavicon(favicon) => {
+                self.favicon = favicon;
+            }
+            AssetsOp::SetFaviconIfNone(icon) => {
+                if self.favicon.is_none() {
+                    self.favicon = Some(icon);
+                }
+            }
             // Stylesheets.
-            AssetsOp::AddStyleSheet(css)     => { self.stylesheet.add(css);     }
-            AssetsOp::RemoveStyleSheet(path) => { self.stylesheet.remove(path); }
+            AssetsOp::AddStyleSheet(css) => {
+                self.stylesheet.add(css);
+            }
+            AssetsOp::RemoveStyleSheet(path) => {
+                self.stylesheet.remove(path);
+            }
             // JavaScripts.
-            AssetsOp::AddJavaScript(js)      => { self.javascript.add(js);      }
-            AssetsOp::RemoveJavaScript(path) => { self.javascript.remove(path); }
-
+            AssetsOp::AddJavaScript(js) => {
+                self.javascript.add(js);
+            }
+            AssetsOp::RemoveJavaScript(path) => {
+                self.javascript.remove(path);
+            }
             // Add assets to properly use base components.
-            AssetsOp::AddBaseAssets => { add_base_assets(self); }
+            AssetsOp::AddBaseAssets => {
+                add_base_assets(self);
+            }
         }
         self
     }
@@ -144,6 +165,9 @@ impl Context {
 
     pub(crate) fn prepare_assets(&mut self) -> Markup {
         html! {
+            @if let Some(favicon) = &self.favicon {
+                (favicon.prepare())
+            }
             (self.stylesheet.prepare())
             (self.javascript.prepare())
         }

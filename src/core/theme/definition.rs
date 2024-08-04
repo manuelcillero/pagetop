@@ -1,5 +1,5 @@
 use crate::base::component::*;
-use crate::core::component::{ComponentBase, ComponentTrait};
+use crate::core::component::{AssetsOp, ComponentBase, ComponentTrait};
 use crate::core::package::PackageTrait;
 use crate::html::{html, Favicon, PrepareMarkup};
 use crate::locale::L10n;
@@ -70,9 +70,9 @@ pub trait ThemeTrait: PackageTrait + Send + Sync {
     }
 
     fn after_prepare_body(&self, page: &mut Page) {
-        if page.favicon().is_none() {
-            page.set_favicon(Some(Favicon::new().with_icon("/base/favicon.ico")));
-        }
+        page.set_assets(AssetsOp::SetFaviconIfNone(
+            Favicon::new().with_icon("/base/favicon.ico"),
+        ));
     }
 
     fn prepare_head(&self, page: &mut Page) -> PrepareMarkup {
@@ -99,10 +99,6 @@ pub trait ThemeTrait: PackageTrait + Send + Sync {
                 meta http-equiv="X-UA-Compatible" content="IE=edge";
                 @for (property, content) in page.properties() {
                     meta property=(property) content=(content) {}
-                }
-
-                @if let Some(favicon) = page.favicon() {
-                    (favicon.prepare())
                 }
 
                 (page.context().prepare_assets())
