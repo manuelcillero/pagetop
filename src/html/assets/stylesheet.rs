@@ -1,6 +1,13 @@
 use crate::html::assets::AssetsTrait;
 use crate::html::{html, Markup};
-use crate::{AutoDefault, Weight};
+use crate::{concat_string, AutoDefault, Weight};
+
+#[derive(AutoDefault)]
+enum Source {
+    #[default]
+    From(String),
+    Inline(String, String),
+}
 
 pub enum TargetMedia {
     Default,
@@ -12,7 +19,7 @@ pub enum TargetMedia {
 #[rustfmt::skip]
 #[derive(AutoDefault)]
 pub struct StyleSheet {
-    path   : String,
+    source : Source,
     prefix : &'static str,
     version: &'static str,
     media  : Option<&'static str>,
@@ -20,8 +27,11 @@ pub struct StyleSheet {
 }
 
 impl AssetsTrait for StyleSheet {
-    fn path(&self) -> &str {
-        self.path.as_str()
+    fn name(&self) -> &String {
+        match &self.source {
+            Source::From(path) => path,
+            Source::Inline(name, _) => name,
+        }
     }
 
     fn weight(&self) -> Weight {
@@ -29,19 +39,31 @@ impl AssetsTrait for StyleSheet {
     }
 
     fn prepare(&self) -> Markup {
-        html! {
-            link
-                rel="stylesheet"
-                href=(crate::concat_string!(self.path, self.prefix, self.version))
-                media=[self.media];
+        match &self.source {
+            Source::From(path) => html! {
+                link
+                    rel="stylesheet"
+                    href=(concat_string!(path, self.prefix, self.version))
+                    media=[self.media];
+            },
+            Source::Inline(_, code) => html! {
+                styles { (code) };
+            },
         }
     }
 }
 
 impl StyleSheet {
-    pub fn at(path: impl Into<String>) -> Self {
+    pub fn from(path: impl Into<String>) -> Self {
         StyleSheet {
-            path: path.into(),
+            source: Source::From(path.into()),
+            ..Default::default()
+        }
+    }
+
+    pub fn inline(name: impl Into<String>, styles: impl Into<String>) -> Self {
+        StyleSheet {
+            source: Source::Inline(name.into(), styles.into()),
             ..Default::default()
         }
     }

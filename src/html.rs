@@ -4,11 +4,9 @@ mod maud;
 pub use maud::{html, html_private, Markup, PreEscaped, DOCTYPE};
 
 mod assets;
-pub use assets::headscript::HeadScript;
-pub use assets::headstyles::HeadStyles;
-pub use assets::javascript::{JavaScript, ModeJS};
+pub use assets::javascript::JavaScript;
 pub use assets::stylesheet::{StyleSheet, TargetMedia};
-pub use assets::Assets;
+pub(crate) use assets::Assets;
 
 mod favicon;
 pub use favicon::Favicon;

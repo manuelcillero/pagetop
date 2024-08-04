@@ -1,5 +1,3 @@
-pub mod headscript;
-pub mod headstyles;
 pub mod javascript;
 pub mod stylesheet;
 
@@ -7,7 +5,7 @@ use crate::html::{html, Markup};
 use crate::{AutoDefault, Weight};
 
 pub trait AssetsTrait {
-    fn path(&self) -> &str;
+    fn name(&self) -> &String;
 
     fn weight(&self) -> Weight;
 
@@ -15,7 +13,7 @@ pub trait AssetsTrait {
 }
 
 #[derive(AutoDefault)]
-pub struct Assets<T>(Vec<T>);
+pub(crate) struct Assets<T>(Vec<T>);
 
 impl<T: AssetsTrait> Assets<T> {
     pub fn new() -> Self {
@@ -23,7 +21,7 @@ impl<T: AssetsTrait> Assets<T> {
     }
 
     pub fn add(&mut self, asset: T) -> &mut Self {
-        match self.0.iter().position(|x| x.path() == asset.path()) {
+        match self.0.iter().position(|x| x.name() == asset.name()) {
             Some(index) => {
                 if self.0[index].weight() > asset.weight() {
                     self.0.remove(index);
@@ -35,8 +33,8 @@ impl<T: AssetsTrait> Assets<T> {
         self
     }
 
-    pub fn remove(&mut self, path: &'static str) -> &mut Self {
-        if let Some(index) = self.0.iter().position(|x| x.path() == path) {
+    pub fn remove(&mut self, name: &'static str) -> &mut Self {
+        if let Some(index) = self.0.iter().position(|x| x.name() == name) {
             self.0.remove(index);
         };
         self

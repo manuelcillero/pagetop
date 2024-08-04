@@ -35,7 +35,7 @@ fn home(request: HttpRequest, lang: &'static LanguageIdentifier) -> ResultPage<M
     Page::new(request)
         .with_title(L10n::l("welcome_title"))
         .with_assets(AssetsOp::LangId(lang))
-        .with_assets(AssetsOp::AddStyleSheet(StyleSheet::at(
+        .with_assets(AssetsOp::AddStyleSheet(StyleSheet::from(
             "/base/css/welcome.css",
         )))
         .with_body_id("welcome")

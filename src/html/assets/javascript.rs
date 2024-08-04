@@ -1,28 +1,35 @@
 use crate::html::assets::AssetsTrait;
 use crate::html::{html, Markup};
-use crate::{AutoDefault, Weight};
+use crate::{concat_string, AutoDefault, Weight};
 
-#[derive(Default, Eq, PartialEq)]
-pub enum ModeJS {
-    Async,
+#[derive(AutoDefault)]
+enum Source {
     #[default]
-    Defer,
-    Normal,
+    From(String),
+    Defer(String),
+    Async(String),
+    Inline(String, String),
+    OnLoad(String, String),
 }
 
 #[rustfmt::skip]
 #[derive(AutoDefault)]
 pub struct JavaScript {
-    path   : String,
+    source : Source,
     prefix : &'static str,
     version: &'static str,
     weight : Weight,
-    mode   : ModeJS,
 }
 
 impl AssetsTrait for JavaScript {
-    fn path(&self) -> &str {
-        self.path.as_str()
+    fn name(&self) -> &String {
+        match &self.source {
+            Source::From(path) => path,
+            Source::Defer(path) => path,
+            Source::Async(path) => path,
+            Source::Inline(name, _) => name,
+            Source::OnLoad(name, _) => name,
+        }
     }
 
     fn weight(&self) -> Weight {
@@ -30,20 +37,60 @@ impl AssetsTrait for JavaScript {
     }
 
     fn prepare(&self) -> Markup {
-        html! {
-            script type="text/javascript"
-                src=(crate::concat_string!(self.path, self.prefix, self.version))
-                async[self.mode == ModeJS::Async]
-                defer[self.mode == ModeJS::Defer]
-                {};
+        match &self.source {
+            Source::From(path) => html! {
+                script src=(concat_string!(path, self.prefix, self.version)) {};
+            },
+            Source::Defer(path) => html! {
+                script src=(concat_string!(path, self.prefix, self.version)) defer {};
+            },
+            Source::Async(path) => html! {
+                script src=(concat_string!(path, self.prefix, self.version)) async {};
+            },
+            Source::Inline(_, code) => html! {
+                script { (code) };
+            },
+            Source::OnLoad(_, code) => html! { (concat_string!(
+                "document.addEventListener('DOMContentLoaded',function(){",
+                code,
+                "});"
+            )) },
         }
     }
 }
 
 impl JavaScript {
-    pub fn at(path: impl Into<String>) -> Self {
+    pub fn from(path: impl Into<String>) -> Self {
         JavaScript {
-            path: path.into(),
+            source: Source::From(path.into()),
+            ..Default::default()
+        }
+    }
+
+    pub fn defer(path: impl Into<String>) -> Self {
+        JavaScript {
+            source: Source::Defer(path.into()),
+            ..Default::default()
+        }
+    }
+
+    pub fn asynchronous(path: impl Into<String>) -> Self {
+        JavaScript {
+            source: Source::Async(path.into()),
+            ..Default::default()
+        }
+    }
+
+    pub fn inline(name: impl Into<String>, script: impl Into<String>) -> Self {
+        JavaScript {
+            source: Source::Inline(name.into(), script.into()),
+            ..Default::default()
+        }
+    }
+
+    pub fn on_load(name: impl Into<String>, script: impl Into<String>) -> Self {
+        JavaScript {
+            source: Source::OnLoad(name.into(), script.into()),
             ..Default::default()
         }
     }
@@ -59,11 +106,6 @@ impl JavaScript {
 
     pub fn with_weight(mut self, value: Weight) -> Self {
         self.weight = value;
-        self
-    }
-
-    pub fn with_mode(mut self, mode: ModeJS) -> Self {
-        self.mode = mode;
         self
     }
 }

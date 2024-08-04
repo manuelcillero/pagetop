@@ -4,7 +4,7 @@ use crate::core::component::AnyOp;
 use crate::core::theme::all::{theme_by_short_name, THEME_DEFAULT};
 use crate::core::theme::{ComponentsInRegions, ThemeRef};
 use crate::html::{html, Markup};
-use crate::html::{Assets, HeadScript, HeadStyles, JavaScript, StyleSheet};
+use crate::html::{Assets, JavaScript, StyleSheet};
 use crate::locale::{LanguageIdentifier, LANGID_DEFAULT};
 use crate::service::HttpRequest;
 use crate::util::TypeInfo;
@@ -22,15 +22,9 @@ pub enum AssetsOp {
     // Stylesheets.
     AddStyleSheet(StyleSheet),
     RemoveStyleSheet(&'static str),
-    // Styles in head.
-    AddHeadStyles(HeadStyles),
-    RemoveHeadStyles(&'static str),
     // JavaScripts.
     AddJavaScript(JavaScript),
     RemoveJavaScript(&'static str),
-    // Scripts in head.
-    AddHeadScript(HeadScript),
-    RemoveHeadScript(&'static str),
     // Add assets to properly use base components.
     AddBaseAssets,
 }
@@ -58,10 +52,8 @@ pub struct Context {
     langid    : &'static LanguageIdentifier,
     theme     : ThemeRef,
     layout    : &'static str,
-    stylesheet: Assets<StyleSheet>,                     // Stylesheets.
-    headstyles: Assets<HeadStyles>,                     // Styles in head.
-    javascript: Assets<JavaScript>,                     // JavaScripts.
-    headscript: Assets<HeadScript>,                     // Scripts in head.
+    stylesheet: Assets<StyleSheet>,
+    javascript: Assets<JavaScript>,
     regions   : ComponentsInRegions,
     params    : HashMap<&'static str, String>,
     id_counter: usize,
@@ -75,10 +67,8 @@ impl Context {
             langid    : &LANGID_DEFAULT,
             theme     : *THEME_DEFAULT,
             layout    : "default",
-            stylesheet: Assets::<StyleSheet>::new(),    // Stylesheets.
-            headstyles: Assets::<HeadStyles>::new(),    // Styles in head.
-            javascript: Assets::<JavaScript>::new(),    // JavaScripts.
-            headscript: Assets::<HeadScript>::new(),    // Scripts in head.
+            stylesheet: Assets::<StyleSheet>::new(),
+            javascript: Assets::<JavaScript>::new(),
             regions   : ComponentsInRegions::default(),
             params    : HashMap::<&str, String>::new(),
             id_counter: 0,
@@ -101,15 +91,9 @@ impl Context {
             // Stylesheets.
             AssetsOp::AddStyleSheet(css)     => { self.stylesheet.add(css);     }
             AssetsOp::RemoveStyleSheet(path) => { self.stylesheet.remove(path); }
-            // Styles in head.
-            AssetsOp::AddHeadStyles(styles)  => { self.headstyles.add(styles);  }
-            AssetsOp::RemoveHeadStyles(path) => { self.headstyles.remove(path); }
             // JavaScripts.
             AssetsOp::AddJavaScript(js)      => { self.javascript.add(js);      }
             AssetsOp::RemoveJavaScript(path) => { self.javascript.remove(path); }
-            // Scripts in head.
-            AssetsOp::AddHeadScript(script)  => { self.headscript.add(script);  }
-            AssetsOp::RemoveHeadScript(path) => { self.headscript.remove(path); }
 
             // Add assets to properly use base components.
             AssetsOp::AddBaseAssets => { add_base_assets(self); }
@@ -160,10 +144,8 @@ impl Context {
 
     pub(crate) fn prepare_assets(&mut self) -> Markup {
         html! {
-            (self.stylesheet.prepare())                 // Stylesheets.
-            (self.headstyles.prepare())                 // Styles in head.
-            (self.javascript.prepare())                 // JavaScripts.
-            (self.headscript.prepare())                 // Scripts in head.
+            (self.stylesheet.prepare())
+            (self.javascript.prepare())
         }
     }
 
