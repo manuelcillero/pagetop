@@ -14,9 +14,9 @@ impl PackageTrait for Chassis {
 
 impl ThemeTrait for Chassis {
     fn after_prepare_body(&self, page: &mut Page) {
-        page.set_assets(AssetsOp::SetFavicon(
-            Some(Favicon::new().with_icon("/base/favicon.ico")),
-        ))
+        page.set_assets(AssetsOp::SetFavicon(Some(
+            Favicon::new().with_icon("/base/favicon.ico"),
+        )))
         .set_assets(AssetsOp::AddStyleSheet(
             StyleSheet::from("/base/css/normalize.min.css")
                 .with_version("8.0.1")

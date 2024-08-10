@@ -61,12 +61,14 @@ impl Application {
 
     // Displays the application banner based on the configuration.
     fn show_banner() {
+        use terminal_size::{terminal_size, Width};
+
         if config::SETTINGS.app.startup_banner.to_lowercase() != "off" {
             // Application name, formatted for the terminal width if necessary.
             let mut app_name = config::SETTINGS.app.name.to_string();
-            if let Some((term_width, _)) = term_size::dimensions() {
+            if let Some((Width(term_width), _)) = terminal_size() {
                 if term_width >= 80 {
-                    let maxlen = (term_width / 10) - 2;
+                    let maxlen: usize = ((term_width / 10) - 2).into();
                     let mut app = app_name.substring(0, maxlen).to_owned();
                     if app_name.len() > maxlen {
                         app = format!("{app}...");
