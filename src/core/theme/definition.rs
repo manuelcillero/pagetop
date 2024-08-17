@@ -4,7 +4,7 @@ use crate::core::package::PackageTrait;
 use crate::html::{html, Favicon, PrepareMarkup};
 use crate::locale::L10n;
 use crate::response::page::Page;
-use crate::{concat_string, config};
+use crate::{concat_string, global};
 
 pub type ThemeRef = &'static dyn ThemeTrait;
 
@@ -82,9 +82,9 @@ pub trait ThemeTrait: PackageTrait + Send + Sync {
                 meta charset="utf-8";
 
                 @if let Some(title) = page.title() {
-                    title { (config::SETTINGS.app.name) (" - ") (title) }
+                    title { (global::SETTINGS.app.name) (" - ") (title) }
                 } @else {
-                    title { (config::SETTINGS.app.name) }
+                    title { (global::SETTINGS.app.name) }
                 }
 
                 @if let Some(description) = page.description() {

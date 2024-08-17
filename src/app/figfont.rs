@@ -1,4 +1,4 @@
-use crate::config;
+use crate::global;
 
 use std::sync::LazyLock;
 
@@ -11,7 +11,7 @@ pub static FIGFONT: LazyLock<FIGfont> = LazyLock::new(|| {
     let starwars = include_str!("starwars.flf");
 
     FIGfont::from_content(
-        match config::SETTINGS.app.startup_banner.to_lowercase().as_str() {
+        match global::SETTINGS.app.startup_banner.to_lowercase().as_str() {
             "off" => slant,
             "slant" => slant,
             "small" => small,
@@ -20,7 +20,7 @@ pub static FIGFONT: LazyLock<FIGfont> = LazyLock::new(|| {
             _ => {
                 println!(
                     "\n FIGfont \"{}\" not found for banner. Using \"Slant\". Check settings files.",
-                    config::SETTINGS.app.startup_banner,
+                    global::SETTINGS.app.startup_banner,
                 );
                 slant
             }

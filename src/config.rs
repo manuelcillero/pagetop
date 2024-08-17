@@ -51,8 +51,8 @@
 //! serde = { version = "1.0", features = ["derive"] }
 //! ```
 //!
-//! Y luego inicializa con la macro [`default_settings!`](crate::default_settings) tus ajustes,
-//! usando tipos seguros y asignando los valores predefinidos para la estructura asociada:
+//! Y luego inicializa con la macro [`config_defaults!`](crate::config_defaults) tus ajustes, usando
+//! tipos seguros y asignando los valores predefinidos para la estructura asociada:
 //!
 //! ```
 //! use pagetop::prelude::*;
@@ -71,12 +71,12 @@
 //!     pub height: u16,
 //! }
 //!
-//! default_settings!(
+//! config_defaults!(SETTINGS: Settings => [
 //!     // [myapp]
 //!     "myapp.name" => "Value Name",
 //!     "myapp.width" => 900,
 //!     "myapp.height" => 320,
-//! );
+//! ]);
 //! ```
 //!
 //! De hecho, así se declaran los ajustes globales de la configuración (ver [`SETTINGS`]).
@@ -98,16 +98,17 @@
 //!
 //! ```
 //! use pagetop::prelude::*;
+//! use crate::config;
 //!
 //! fn global_settings() {
-//!     println!("App name: {}", &config::SETTINGS.app.name);
-//!     println!("App description: {}", &config::SETTINGS.app.description);
-//!     println!("Value of PAGETOP_RUN_MODE: {}", &config::SETTINGS.app.run_mode);
+//!     println!("App name: {}", &global::SETTINGS.app.name);
+//!     println!("App description: {}", &global::SETTINGS.app.description);
+//!     println!("Value of PAGETOP_RUN_MODE: {}", &global::SETTINGS.app.run_mode);
 //! }
 //!
 //! fn package_settings() {
-//!     println!("{} - {:?}", &SETTINGS.myapp.name, &SETTINGS.myapp.description);
-//!     println!("{}", &SETTINGS.myapp.width);
+//!     println!("{} - {:?}", &config::SETTINGS.myapp.name, &config::SETTINGS.myapp.description);
+//!     println!("{}", &config::SETTINGS.myapp.width);
 //! }
 //! ```
 
@@ -123,8 +124,6 @@ use crate::concat_string;
 use crate::config::data::ConfigData;
 use crate::config::file::File;
 
-use serde::Deserialize;
-
 use std::sync::LazyLock;
 
 use std::env;
@@ -136,7 +135,7 @@ const CONFIG_DIR: &str = "config";
 /// archivos de configuración.
 
 #[rustfmt::skip]
-pub static CONFIG: LazyLock<ConfigData> = LazyLock::new(|| {
+pub static CONFIG_DATA: LazyLock<ConfigData> = LazyLock::new(|| {
     // Modo de ejecución según la variable de entorno PAGETOP_RUN_MODE. Por defecto 'default'.
     let run_mode = env::var("PAGETOP_RUN_MODE").unwrap_or_else(|_| "default".into());
 
@@ -178,14 +177,14 @@ pub static CONFIG: LazyLock<ConfigData> = LazyLock::new(|| {
 /// Detiene la aplicación con un panic! si no pueden asignarse los ajustes de configuración.
 ///
 /// Ver [`Cómo añadir ajustes de configuración`](config/index.html#cómo-añadir-ajustes-de-configuración).
-macro_rules! default_settings {
-    ( $($key:literal => $value:literal),* $(,)? ) => {
+macro_rules! config_defaults {
+    ( $SETTINGS:ident: $Settings:ty => [ $($key:literal => $value:literal),* $(,)? ] ) => {
         #[doc = concat!(
             "Assigned or predefined values for configuration settings associated to the ",
-            "[`Settings`] type."
+            "[`", stringify!($Settings), "`] type."
         )]
-        pub static SETTINGS: std::sync::LazyLock<Settings> = std::sync::LazyLock::new(|| {
-            let mut settings = $crate::config::CONFIG.clone();
+        pub static $SETTINGS: std::sync::LazyLock<$Settings> = std::sync::LazyLock::new(|| {
+            let mut settings = $crate::config::CONFIG_DATA.clone();
             $(
                 settings.set_default($key, $value).unwrap();
             )*
@@ -196,120 +195,3 @@ macro_rules! default_settings {
         });
     };
 }
-
-#[derive(Debug, Deserialize)]
-/// Configuration settings for the [`[app]`](App), [`[dev]`](Dev), [`[log]`](Log), and
-/// [`[server]`](Server) sections (see [`SETTINGS`]).
-pub struct Settings {
-    pub app: App,
-    pub dev: Dev,
-    pub log: Log,
-    pub server: Server,
-}
-
-#[derive(Debug, Deserialize)]
-/// Section `[app]` of the configuration settings.
-///
-/// See [`Settings`].
-pub struct App {
-    /// El nombre de la aplicación.
-    /// Por defecto: *"My App"*.
-    pub name: String,
-    /// Una descripción breve de la aplicación.
-    /// Por defecto: *"Developed with the amazing PageTop framework."*.
-    pub description: String,
-    /// Tema predeterminado.
-    /// Por defecto: *"Default"*.
-    pub theme: String,
-    /// Idioma (localización) predeterminado.
-    /// Por defecto: *"en-US"*.
-    pub language: String,
-    /// Dirección predeterminada para el texto: *"ltr"* (de izquierda a derecha), *"rtl"* (de
-    /// derecha a izquierda) o *"auto"*.
-    /// Por defecto: *"ltr"*.
-    pub direction: String,
-    /// Rótulo de texto ASCII al arrancar: *"Off"*, *"Slant"*, *"Small"*, *"Speed"* o *"Starwars"*.
-    /// Por defecto: *"Slant"*.
-    pub startup_banner: String,
-    /// Por defecto: según variable de entorno `PAGETOP_RUN_MODE`, o *"default"* si no lo está.
-    pub run_mode: String,
-}
-
-#[derive(Debug, Deserialize)]
-/// Section `[dev]` of the configuration settings.
-///
-/// See [`Settings`].
-pub struct Dev {
-    /// Los archivos estáticos requeridos por la aplicación se integran de manera predeterminada en
-    /// el binario ejecutable. Sin embargo, durante el desarrollo puede resultar útil servir estos
-    /// archivos desde su propio directorio para evitar recompilar cada vez que se modifican. En
-    /// este caso bastaría con indicar la ruta completa al directorio raíz del proyecto.
-    /// Por defecto: *""*.
-    pub pagetop_project_dir: String,
-}
-
-#[derive(Debug, Deserialize)]
-/// Section `[log]` of the configuration settings.
-///
-/// See [`Settings`].
-pub struct Log {
-    /// Filtro, o combinación de filtros separados por coma, para la traza de ejecución: *"Error"*,
-    /// *"Warn"*, *"Info"*, *"Debug"* o *"Trace"*.
-    /// Por ejemplo: "Error,actix_server::builder=Info,tracing_actix_web=Debug".
-    /// Por defecto: *"Info"*.
-    pub tracing: String,
-    /// Muestra la traza en el terminal (*"Stdout"*) o queda registrada en archivos con rotación
-    /// *"Daily"*, *"Hourly"*, *"Minutely"* o *"Endless"*.
-    /// Por defecto: *"Stdout"*.
-    pub rolling: String,
-    /// Directorio para los archivos de traza (si `rolling` != *"Stdout"*).
-    /// Por defecto: *"log"*.
-    pub path: String,
-    /// Prefijo para los archivos de traza (si `rolling` != *"Stdout"*).
-    /// Por defecto: *"tracing.log"*.
-    pub prefix: String,
-    /// Presentación de las trazas. Puede ser *"Full"*, *"Compact"*, *"Pretty"* o *"Json"*.
-    /// Por defecto: *"Full"*.
-    pub format: String,
-}
-
-#[derive(Debug, Deserialize)]
-/// Section `[server]` of the configuration settings.
-///
-/// See [`Settings`].
-pub struct Server {
-    /// Dirección del servidor web.
-    /// Por defecto: *"localhost"*.
-    pub bind_address: String,
-    /// Puerto del servidor web.
-    /// Por defecto: *8088*.
-    pub bind_port: u16,
-    /// Duración en segundos para la sesión (0 indica "hasta que se cierre el navegador").
-    /// Por defecto: *604800* (7 días).
-    pub session_lifetime: i64,
-}
-
-default_settings!(
-    // [app]
-    "app.name"                => "My App",
-    "app.description"         => "Developed with the amazing PageTop framework.",
-    "app.theme"               => "Default",
-    "app.language"            => "en-US",
-    "app.direction"           => "ltr",
-    "app.startup_banner"      => "Slant",
-
-    // [dev]
-    "dev.pagetop_project_dir" => "",
-
-    // [log]
-    "log.tracing"             => "Info",
-    "log.rolling"             => "Stdout",
-    "log.path"                => "log",
-    "log.prefix"              => "tracing.log",
-    "log.format"              => "Full",
-
-    // [server]
-    "server.bind_address"     => "localhost",
-    "server.bind_port"        => 8088,
-    "server.session_lifetime" => 604_800,
-);

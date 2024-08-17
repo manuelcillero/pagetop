@@ -6,7 +6,7 @@ use crate::core::{package, package::PackageRef};
 use crate::html::Markup;
 use crate::response::page::{ErrorPage, ResultPage};
 use crate::service::HttpRequest;
-use crate::{config, locale, service, trace};
+use crate::{global, locale, service, trace};
 
 use actix_session::config::{BrowserSession, PersistentSession, SessionLifecycle};
 use actix_session::storage::CookieSessionStore;
@@ -63,9 +63,9 @@ impl Application {
     fn show_banner() {
         use terminal_size::{terminal_size, Width};
 
-        if config::SETTINGS.app.startup_banner.to_lowercase() != "off" {
+        if global::SETTINGS.app.startup_banner.to_lowercase() != "off" {
             // Application name, formatted for the terminal width if necessary.
-            let mut app_name = config::SETTINGS.app.name.to_string();
+            let mut app_name = global::SETTINGS.app.name.to_string();
             if let Some((Width(term_width), _)) = terminal_size() {
                 if term_width >= 80 {
                     let maxlen: usize = ((term_width / 10) - 2).into();
@@ -81,8 +81,8 @@ impl Application {
             println!("\n{app_name}");
 
             // Application description.
-            if !config::SETTINGS.app.description.is_empty() {
-                println!("{}\n", config::SETTINGS.app.description);
+            if !global::SETTINGS.app.description.is_empty() {
+                println!("{}\n", global::SETTINGS.app.description);
             };
 
             // PageTop version.
@@ -101,12 +101,12 @@ impl Application {
                 .wrap(tracing_actix_web::TracingLogger::default())
                 .wrap(
                     SessionMiddleware::builder(CookieSessionStore::default(), secret_key.clone())
-                        .session_lifecycle(match config::SETTINGS.server.session_lifetime {
+                        .session_lifecycle(match global::SETTINGS.server.session_lifetime {
                             0 => SessionLifecycle::BrowserSession(BrowserSession::default()),
                             _ => SessionLifecycle::PersistentSession(
                                 PersistentSession::default().session_ttl(
                                     service::cookie::time::Duration::seconds(
-                                        config::SETTINGS.server.session_lifetime,
+                                        global::SETTINGS.server.session_lifetime,
                                     ),
                                 ),
                             ),
@@ -116,8 +116,8 @@ impl Application {
         })
         .bind(format!(
             "{}:{}",
-            &config::SETTINGS.server.bind_address,
-            &config::SETTINGS.server.bind_port
+            &global::SETTINGS.server.bind_address,
+            &global::SETTINGS.server.bind_port
         ))?
         .run())
     }

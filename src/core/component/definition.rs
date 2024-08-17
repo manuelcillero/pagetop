@@ -1,8 +1,8 @@
 use crate::base::action;
 use crate::core::component::Context;
 use crate::core::AnyBase;
+use crate::global::TypeInfo;
 use crate::html::{html, Markup, PrepareMarkup};
-use crate::util::TypeInfo;
 
 pub trait ComponentBase {
     fn render(&mut self, cx: &mut Context) -> Markup;

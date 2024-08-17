@@ -22,7 +22,7 @@ pub struct PoweredBy {
 impl ComponentTrait for PoweredBy {
     fn new() -> Self {
         let year = Utc::now().format("%Y").to_string();
-        let c = concat_string!(year, " © ", config::SETTINGS.app.name);
+        let c = concat_string!(year, " © ", global::SETTINGS.app.name);
         PoweredBy {
             copyright: Some(c),
             ..Default::default()

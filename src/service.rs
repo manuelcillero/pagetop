@@ -34,7 +34,7 @@ macro_rules! static_files {
 }
 
 #[macro_export]
-macro_rules! service_for_static_files {
+macro_rules! static_files_service {
     ( $scfg:ident, $bundle:ident => $path:expr $(, [$root:expr, $relative:expr])? ) => {{
         $crate::paste! {
             let span = $crate::trace::debug_span!("Configuring static files ", path = $path);
@@ -42,7 +42,7 @@ macro_rules! service_for_static_files {
                 let mut serve_embedded:bool = true;
                 $(
                     if !$root.is_empty() && !$relative.is_empty() {
-                        if let Ok(absolute) = $crate::util::absolute_dir($root, $relative) {
+                        if let Ok(absolute) = $crate::global::absolute_dir($root, $relative) {
                             $scfg.service($crate::service::ActixFiles::new(
                                 $path,
                                 absolute,

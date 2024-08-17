@@ -1,5 +1,5 @@
-use crate::config;
 use crate::core::theme::ThemeRef;
+use crate::global;
 
 use std::sync::{LazyLock, RwLock};
 
@@ -10,7 +10,7 @@ pub static THEMES: LazyLock<RwLock<Vec<ThemeRef>>> = LazyLock::new(|| RwLock::ne
 // DEFAULT THEME ***********************************************************************************
 
 pub static THEME_DEFAULT: LazyLock<ThemeRef> =
-    LazyLock::new(|| match theme_by_short_name(&config::SETTINGS.app.theme) {
+    LazyLock::new(|| match theme_by_short_name(&global::SETTINGS.app.theme) {
         Some(theme) => theme,
         None => &crate::base::theme::Inception,
     });

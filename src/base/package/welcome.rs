@@ -70,7 +70,7 @@ fn hello_world() -> flex::Container {
                                         "app",
                                         format!(
                                             "<span class=\"app-name\">{}</span>",
-                                            &config::SETTINGS.app.name,
+                                            &global::SETTINGS.app.name,
                                         ),
                                     ))
                                     .with_font_size(FontSize::Medium),
@@ -125,7 +125,7 @@ fn welcome() -> flex::Container {
                         "app",
                         format!(
                             "<span class=\"app-name\">{}</span>",
-                            &config::SETTINGS.app.name
+                            &global::SETTINGS.app.name
                         ),
                     ))
                     .with_size(HeadingSize::Subtitle),
@@ -230,7 +230,7 @@ fn reporting_issues() -> flex::Container {
                                         "app",
                                         format!(
                                             "<span class=\"app-name\">{}</span>",
-                                            &config::SETTINGS.app.name,
+                                            &global::SETTINGS.app.name,
                                         ),
                                     ),
                                 )),

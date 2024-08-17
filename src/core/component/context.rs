@@ -3,11 +3,11 @@ use crate::concat_string;
 use crate::core::component::AnyOp;
 use crate::core::theme::all::{theme_by_short_name, THEME_DEFAULT};
 use crate::core::theme::{ComponentsInRegions, ThemeRef};
+use crate::global::TypeInfo;
 use crate::html::{html, Markup};
 use crate::html::{Assets, Favicon, JavaScript, StyleSheet};
 use crate::locale::{LanguageIdentifier, LANGID_DEFAULT};
 use crate::service::HttpRequest;
-use crate::util::TypeInfo;
 
 use std::collections::HashMap;
 use std::error::Error;

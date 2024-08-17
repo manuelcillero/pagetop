@@ -87,7 +87,7 @@
 //! ```
 
 use crate::html::{Markup, PreEscaped};
-use crate::{config, kv, AutoDefault, LOCALES_PAGETOP};
+use crate::{global, kv, AutoDefault, LOCALES_PAGETOP};
 
 pub use fluent_templates;
 pub use unic_langid::LanguageIdentifier;
@@ -120,7 +120,7 @@ pub static LANGID_FALLBACK: LazyLock<LanguageIdentifier> = LazyLock::new(|| lang
 /// [Unicode Language Identifier](https://unicode.org/reports/tr35/tr35.html#Unicode_language_identifier)
 /// through `SETTINGS.app.language`.
 pub static LANGID_DEFAULT: LazyLock<&LanguageIdentifier> = LazyLock::new(|| {
-    langid_for(config::SETTINGS.app.language.as_str()).unwrap_or(&LANGID_FALLBACK)
+    langid_for(global::SETTINGS.app.language.as_str()).unwrap_or(&LANGID_FALLBACK)
 });
 
 pub fn langid_for(language: impl Into<String>) -> Result<&'static LanguageIdentifier, String> {

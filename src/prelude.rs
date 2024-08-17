@@ -5,28 +5,24 @@ pub use crate::{concat_string, fn_builder, main, paste, test};
 pub use crate::{AutoDefault, ComponentClasses};
 
 // GLOBAL.
-pub use crate::{HashMapResources, TypeId, Weight};
+pub use crate::{global, HashMapResources, TypeId, Weight};
 
 // MACROS.
 
+// crate::global
+pub use crate::kv;
 // crate::config
-pub use crate::default_settings;
+pub use crate::config_defaults;
 // crate::html
 pub use crate::html;
 // crate::locale
 pub use crate::static_locales;
 // crate::service
-pub use crate::{service_for_static_files, static_files};
+pub use crate::{static_files, static_files_service};
 // crate::core::action
 pub use crate::actions;
-// crate::util
-pub use crate::kv;
 
 // API.
-
-pub use crate::util;
-
-pub use crate::config;
 
 pub use crate::trace;
 

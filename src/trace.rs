@@ -12,7 +12,7 @@
 //! within a nested tree of similar spans. Additionally, these spans are *structured*, with the
 //! ability to record data types and text messages.
 
-use crate::config;
+use crate::global;
 
 pub use tracing::{debug, error, info, trace, warn};
 pub use tracing::{debug_span, error_span, info_span, trace_span, warn_span};
@@ -35,16 +35,16 @@ use std::sync::LazyLock;
 
 #[rustfmt::skip]
 pub(crate) static TRACING: LazyLock<WorkerGuard> = LazyLock::new(|| {
-    let env_filter = EnvFilter::try_new(&config::SETTINGS.log.tracing)
+    let env_filter = EnvFilter::try_new(&global::SETTINGS.log.tracing)
         .unwrap_or_else(|_| EnvFilter::new("Info"));
 
-    let rolling = config::SETTINGS.log.rolling.to_lowercase();
+    let rolling = global::SETTINGS.log.rolling.to_lowercase();
 
     let (non_blocking, guard) = match rolling.as_str() {
         "stdout" => tracing_appender::non_blocking(std::io::stdout()),
         _ => tracing_appender::non_blocking({
-            let path = &config::SETTINGS.log.path;
-            let prefix = &config::SETTINGS.log.prefix;
+            let path = &global::SETTINGS.log.path;
+            let prefix = &global::SETTINGS.log.prefix;
             match rolling.as_str() {
                 "daily"    => tracing_appender::rolling::daily(path, prefix),
                 "hourly"   => tracing_appender::rolling::hourly(path, prefix),
@@ -53,7 +53,7 @@ pub(crate) static TRACING: LazyLock<WorkerGuard> = LazyLock::new(|| {
                 _ => {
                     println!(
                         "Rolling value \"{}\" not valid. Using \"daily\". Check the settings file.",
-                        config::SETTINGS.log.rolling,
+                        global::SETTINGS.log.rolling,
                     );
                     tracing_appender::rolling::daily(path, prefix)
                 }
@@ -66,7 +66,7 @@ pub(crate) static TRACING: LazyLock<WorkerGuard> = LazyLock::new(|| {
         .with_writer(non_blocking)
         .with_ansi(rolling.as_str() == "stdout");
 
-    match config::SETTINGS.log.format.to_lowercase().as_str() {
+    match global::SETTINGS.log.format.to_lowercase().as_str() {
         "json"    => subscriber.json().init(),
         "full"    => subscriber.init(),
         "compact" => subscriber.compact().init(),
@@ -74,7 +74,7 @@ pub(crate) static TRACING: LazyLock<WorkerGuard> = LazyLock::new(|| {
         _ => {
             println!(
                 "Tracing format \"{}\" not valid. Using \"Full\". Check the settings file.",
-                config::SETTINGS.log.format,
+                global::SETTINGS.log.format,
             );
             subscriber.init();
         }

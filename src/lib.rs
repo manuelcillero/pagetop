@@ -95,14 +95,14 @@ pub use std::any::TypeId;
 
 pub type Weight = i8;
 
+// Global settings, functions and macro helpers.
+pub mod global;
+
 static_locales!(LOCALES_PAGETOP);
 
 // *************************************************************************************************
 // PUBLIC API.
 // *************************************************************************************************
-
-// Functions and macro helpers.
-pub mod util;
 
 // Retrieve and apply settings values from configuration files.
 pub mod config;

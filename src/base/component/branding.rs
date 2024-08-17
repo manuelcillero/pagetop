@@ -4,7 +4,7 @@ use crate::prelude::*;
 #[derive(AutoDefault)]
 pub struct Branding {
     id       : OptionId,
-    #[default(_code = "config::SETTINGS.app.name.to_owned()")]
+    #[default(_code = "global::SETTINGS.app.name.to_owned()")]
     app_name : String,
     slogan   : OptionTranslated,
     logo     : OptionComponent<Image>,

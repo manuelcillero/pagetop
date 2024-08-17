@@ -1,9 +1,136 @@
-//! Functions and macro helpers.
+//! Global settings, functions and macro helpers.
 
-use crate::trace;
+use crate::{config_defaults, trace};
+
+use serde::Deserialize;
 
 use std::io;
 use std::path::PathBuf;
+
+// *************************************************************************************************
+// SETTINGS.
+// *************************************************************************************************
+
+#[derive(Debug, Deserialize)]
+/// Configuration settings for global [`[app]`](App), [`[dev]`](Dev), [`[log]`](Log), and
+/// [`[server]`](Server) sections (see [`SETTINGS`]).
+pub struct Settings {
+    pub app: App,
+    pub dev: Dev,
+    pub log: Log,
+    pub server: Server,
+}
+
+#[derive(Debug, Deserialize)]
+/// Section `[app]` of the configuration settings.
+///
+/// See [`Settings`].
+pub struct App {
+    /// El nombre de la aplicación.
+    /// Por defecto: *"My App"*.
+    pub name: String,
+    /// Una descripción breve de la aplicación.
+    /// Por defecto: *"Developed with the amazing PageTop framework."*.
+    pub description: String,
+    /// Tema predeterminado.
+    /// Por defecto: *"Default"*.
+    pub theme: String,
+    /// Idioma (localización) predeterminado.
+    /// Por defecto: *"en-US"*.
+    pub language: String,
+    /// Dirección predeterminada para el texto: *"ltr"* (de izquierda a derecha), *"rtl"* (de
+    /// derecha a izquierda) o *"auto"*.
+    /// Por defecto: *"ltr"*.
+    pub direction: String,
+    /// Rótulo de texto ASCII al arrancar: *"Off"*, *"Slant"*, *"Small"*, *"Speed"* o *"Starwars"*.
+    /// Por defecto: *"Slant"*.
+    pub startup_banner: String,
+    /// Por defecto: según variable de entorno `PAGETOP_RUN_MODE`, o *"default"* si no lo está.
+    pub run_mode: String,
+}
+
+#[derive(Debug, Deserialize)]
+/// Section `[dev]` of the configuration settings.
+///
+/// See [`Settings`].
+pub struct Dev {
+    /// Los archivos estáticos requeridos por la aplicación se integran de manera predeterminada en
+    /// el binario ejecutable. Sin embargo, durante el desarrollo puede resultar útil servir estos
+    /// archivos desde su propio directorio para evitar recompilar cada vez que se modifican. En
+    /// este caso bastaría con indicar la ruta completa al directorio raíz del proyecto.
+    /// Por defecto: *""*.
+    pub pagetop_project_dir: String,
+}
+
+#[derive(Debug, Deserialize)]
+/// Section `[log]` of the configuration settings.
+///
+/// See [`Settings`].
+pub struct Log {
+    /// Filtro, o combinación de filtros separados por coma, para la traza de ejecución: *"Error"*,
+    /// *"Warn"*, *"Info"*, *"Debug"* o *"Trace"*.
+    /// Por ejemplo: "Error,actix_server::builder=Info,tracing_actix_web=Debug".
+    /// Por defecto: *"Info"*.
+    pub tracing: String,
+    /// Muestra la traza en el terminal (*"Stdout"*) o queda registrada en archivos con rotación
+    /// *"Daily"*, *"Hourly"*, *"Minutely"* o *"Endless"*.
+    /// Por defecto: *"Stdout"*.
+    pub rolling: String,
+    /// Directorio para los archivos de traza (si `rolling` != *"Stdout"*).
+    /// Por defecto: *"log"*.
+    pub path: String,
+    /// Prefijo para los archivos de traza (si `rolling` != *"Stdout"*).
+    /// Por defecto: *"tracing.log"*.
+    pub prefix: String,
+    /// Presentación de las trazas. Puede ser *"Full"*, *"Compact"*, *"Pretty"* o *"Json"*.
+    /// Por defecto: *"Full"*.
+    pub format: String,
+}
+
+#[derive(Debug, Deserialize)]
+/// Section `[server]` of the configuration settings.
+///
+/// See [`Settings`].
+pub struct Server {
+    /// Dirección del servidor web.
+    /// Por defecto: *"localhost"*.
+    pub bind_address: String,
+    /// Puerto del servidor web.
+    /// Por defecto: *8088*.
+    pub bind_port: u16,
+    /// Duración en segundos para la sesión (0 indica "hasta que se cierre el navegador").
+    /// Por defecto: *604800* (7 días).
+    pub session_lifetime: i64,
+}
+
+config_defaults!(SETTINGS: Settings => [
+    // [app]
+    "app.name"                => "My App",
+    "app.description"         => "Developed with the amazing PageTop framework.",
+    "app.theme"               => "Default",
+    "app.language"            => "en-US",
+    "app.direction"           => "ltr",
+    "app.startup_banner"      => "Slant",
+
+    // [dev]
+    "dev.pagetop_project_dir" => "",
+
+    // [log]
+    "log.tracing"             => "Info",
+    "log.rolling"             => "Stdout",
+    "log.path"                => "log",
+    "log.prefix"              => "tracing.log",
+    "log.format"              => "Full",
+
+    // [server]
+    "server.bind_address"     => "localhost",
+    "server.bind_port"        => 8088,
+    "server.session_lifetime" => 604_800,
+]);
+
+// *************************************************************************************************
+// FUNCTIONS HELPERS.
+// *************************************************************************************************
 
 pub enum TypeInfo {
     FullName,
@@ -80,10 +207,6 @@ impl TypeInfo {
         &type_name[start_pos..end_pos]
     }
 }
-
-// *************************************************************************************************
-// FUNCTIONS HELPERS.
-// *************************************************************************************************
 
 /// Calculates the absolute directory given a root path and a relative path.
 ///

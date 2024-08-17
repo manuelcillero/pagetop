@@ -1,7 +1,7 @@
 use crate::core::action::add_action;
 use crate::core::package::PackageRef;
 use crate::core::theme::all::THEMES;
-use crate::{config, service, service_for_static_files, static_files, trace};
+use crate::{global, service, static_files, static_files_service, trace};
 
 use std::sync::{LazyLock, RwLock};
 
@@ -130,10 +130,10 @@ pub fn init_packages() {
 // CONFIGURE SERVICES ******************************************************************************
 
 pub fn configure_services(scfg: &mut service::web::ServiceConfig) {
-    service_for_static_files!(
+    static_files_service!(
         scfg,
         base => "/base",
-        [&config::SETTINGS.dev.pagetop_project_dir, "static/base"]
+        [&global::SETTINGS.dev.pagetop_project_dir, "static/base"]
     );
     for m in ENABLED_PACKAGES.read().unwrap().iter() {
         m.configure_service(scfg);
