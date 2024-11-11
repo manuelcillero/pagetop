@@ -1,2 +1,5 @@
 [app]
 name = "Samples"
+
+[log]
+tracing = "Debug"

@@ -3,6 +3,7 @@
 .skip__to_content {
 	display: flex;
 	justify-content: center;
+	margin-top: -1px;
 }
 .skip__to_content a {
 	display: block;

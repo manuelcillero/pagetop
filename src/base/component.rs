@@ -20,7 +20,7 @@ pub(crate) fn add_base_assets(cx: &mut Context) {
     ))
     .set_assets(AssetsOp::AddStyleSheet(
         StyleSheet::from("/base/css/looks.css")
-            .with_version("0.0.1")
+            .with_version("0.0.2")
             .with_weight(weight),
     ))
     .set_assets(AssetsOp::AddStyleSheet(
