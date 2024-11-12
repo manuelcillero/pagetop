@@ -60,7 +60,7 @@ accessible via `http://localhost:8088` under default settings.
 # 📂 Helpers
 
 * [pagetop-macros](https://github.com/manuelcillero/pagetop/tree/latest/helpers/pagetop-macros):
-  A collection of procedural macros that enhance the development experience within PageTop.
+  A collection of macros that enhance the development experience within PageTop.
 
 * [pagetop-build](https://github.com/manuelcillero/pagetop/tree/latest/helpers/pagetop-build):
   Simplifies the process of embedding resources directly into binary files for PageTop applications.

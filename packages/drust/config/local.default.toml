@@ -1,0 +1,7 @@
+[database]
+db_name = "drust"
+db_user = "drust"
+db_pass = "demo"
+
+[dev]
+pagetop_project_dir = "/home/manuelcillero/Proyectos/pagetop"

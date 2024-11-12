@@ -1,0 +1,47 @@
+[package]
+name = "pagetop"
+version = "0.0.56"
+edition = "2021"
+
+description = "An opinionated web framework to build modular Server-Side Rendering web solutions."
+
+categories  = ["web-programming", "gui", "development-tools", "asynchronous"]
+keywords    = ["pagetop", "web", "framework", "frontend", "ssr"]
+readme      = "../../README.md"
+
+homepage    = { workspace = true }
+repository  = { workspace = true }
+license     = { workspace = true }
+authors     = { workspace = true }
+
+[lib]
+name = "pagetop"
+
+[dependencies]
+concat-string = "1.0.1"
+figlet-rs     = "0.1.5"
+paste         = "1.0.15"
+terminal_size = "0.4.0"
+toml          = "0.8.19"
+
+serde.workspace = true
+static-files.workspace = true
+
+pagetop-macros.workspace = true
+
+
+
+
+
+actix-web.workspace = true
+actix-web-files.workspace = true
+actix-web-static-files.workspace = true
+actix-session.workspace = true
+fluent-templates.workspace = true
+nom.workspace = true
+tracing.workspace = true
+tracing-appender.workspace = true
+tracing-subscriber.workspace = true
+tracing-actix-web.workspace = true
+substring.workspace = true
+unic-langid.workspace = true

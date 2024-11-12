@@ -3,28 +3,20 @@ name = "pagetop-macros"
 version = "0.0.13"
 edition = "2021"
 
-description = "A collection of procedural macros that boost PageTop development."
-homepage = "https://pagetop.cillero.es"
-repository = "https://github.com/manuelcillero/pagetop"
-license = "MIT OR Apache-2.0"
+description = "A collection of macros that boost PageTop development."
 
-authors = [
-    "Manuel Cillero <manuel@cillero.es>"
-]
-categories = [
-    "development-tools::procedural-macro-helpers", "web-programming"
-]
-keywords = [
-    "pagetop", "macros", "proc-macros", "codegen"
-]
+categories  = ["development-tools::procedural-macro-helpers", "web-programming"]
+keywords    = ["pagetop", "macros", "proc-macros", "codegen"]
+
+homepage    = { workspace = true }
+repository  = { workspace = true }
+license     = { workspace = true }
+authors     = { workspace = true }
 
 [lib]
 proc-macro = true
 
 [dependencies]
-concat-string = "1.0.1"
-proc-macro2 = "1.0"
-proc-macro-crate = "3.1.0"
-proc-macro-error = "1.0.4"
-quote = "1.0"
-syn = { version = "2.0", features = ["full"] }
+proc-macro2 = "1.0.89"
+quote = "1.0.37"
+syn = { version = "2.0.87", features = ["full"] }

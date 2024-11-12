@@ -1,0 +1,39 @@
+[package]
+name = "drust"
+version = "0.0.3"
+edition = "2021"
+
+description = "A modern web Content Management System to share your world."
+
+homepage    = { workspace = true }
+repository  = { workspace = true }
+license     = { workspace = true }
+authors     = { workspace = true }
+
+[dependencies]
+pagetop.workspace = true
+
+
+
+# Packages.
+#pagetop-admin = { version = "0.0", path = "../pagetop-admin" }
+#pagetop-user = { version = "0.0", path = "../pagetop-user" }
+#pagetop-node = { version = "0.0", path = "../pagetop-node" }
+# Themes.
+#pagetop-bootsier = { version = "0.0", path = "../pagetop-bootsier" }
+#pagetop-bulmix = { version = "0.0", path = "../pagetop-bulmix" }
+
+#[features]
+#default = [ "mysql" ]
+#mysql = [
+#    "pagetop-user/mysql",
+#    "pagetop-node/mysql",
+#]
+#postgres = [
+#    "pagetop-user/postgres",
+#    "pagetop-node/postgres",
+#]
+#sqlite = [
+#    "pagetop-user/sqlite",
+#    "pagetop-node/sqlite",
+#]
