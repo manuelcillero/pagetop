@@ -1,7 +1,7 @@
-use crate::config::error::*;
-use crate::config::path;
-use crate::config::source::Source;
-use crate::config::value::Value;
+use crate::util::error::*;
+use crate::util::path;
+use crate::util::source::Source;
+use crate::util::value::Value;
 
 use serde::de::Deserialize;
 

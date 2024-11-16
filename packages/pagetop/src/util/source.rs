@@ -1,6 +1,6 @@
-use crate::config::error::*;
-use crate::config::path;
-use crate::config::value::{Value, ValueKind};
+use crate::util::error::*;
+use crate::util::path;
+use crate::util::value::{Value, ValueKind};
 
 use std::collections::HashMap;
 use std::fmt::Debug;

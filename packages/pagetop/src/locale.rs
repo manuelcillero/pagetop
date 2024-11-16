@@ -1,21 +1,19 @@
 //! Localization (L10n).
 //!
-//! PageTop uses the [Fluent](https://www.projectfluent.org/) set of specifications for application
-//! localization.
+//! PageTop uses the [Fluent](https://www.projectfluent.org/) specifications for application
+//! localization, leveraging the [fluent-templates](https://docs.rs/fluent-templates/) crate to
+//! integrate translation resources directly into the application binary.
 //!
 //! # Fluent Syntax (FTL)
 //!
 //! The format used to describe the translation resources used by Fluent is called
-//! [FTL](https://www.projectfluent.org/fluent/guide/). FTL is designed to be easy to read while
-//! simultaneously allowing the representation of complex natural language concepts to address
-//! gender, plurals, conjugations, and others.
+//! [FTL](https://www.projectfluent.org/fluent/guide/). FTL is designed to be both readable and
+//! expressive, enabling complex natural language constructs like gender, plurals, and conjugations.
 //!
 //! # Fluent Resources
 //!
-//! PageTop utilizes [fluent-templates](https://docs.rs/fluent-templates/) to integrate localization
-//! resources into the application binary. The following example groups files and subfolders from
-//! *src/locale* that have a valid [Unicode Language Identifier](https://docs.rs/unic-langid/) and
-//! assigns them to their corresponding identifier:
+//! Localization resources are organized in the *src/locale* directory, with subdirectories for
+//! each valid [Unicode Language Identifier](https://docs.rs/unic-langid/):
 //!
 //! ```text
 //! src/locale/
@@ -86,8 +84,9 @@
 //! static_locales!(LOCALES_SAMPLE in "path/to/locale");
 //! ```
 
-use crate::{global, kv, AutoDefault, LOCALES_PAGETOP};
+use crate::{global, kv, AutoDefault};
 
+pub use fluent_bundle::FluentValue;
 pub use fluent_templates;
 pub use unic_langid::LanguageIdentifier;
 
@@ -103,6 +102,8 @@ use std::fmt;
 
 const LANGUAGE_SET_FAILURE: &str = "language_set_failure";
 
+/// A mapping between language codes (e.g., "en-US") and their corresponding [`LanguageIdentifier`]
+/// and human-readable names.
 static LANGUAGES: LazyLock<HashMap<String, (LanguageIdentifier, &str)>> = LazyLock::new(|| {
     kv![
         "en"    => (langid!("en-US"), "English"),
@@ -118,28 +119,23 @@ pub static LANGID_FALLBACK: LazyLock<LanguageIdentifier> = LazyLock::new(|| lang
 /// Sets the application's default
 /// [Unicode Language Identifier](https://unicode.org/reports/tr35/tr35.html#Unicode_language_identifier)
 /// through `SETTINGS.app.language`.
-pub static LANGID_DEFAULT: LazyLock<&LanguageIdentifier> = LazyLock::new(|| {
-    langid_for(global::SETTINGS.app.language.as_str()).unwrap_or(&LANGID_FALLBACK)
-});
+pub static LANGID_DEFAULT: LazyLock<&LanguageIdentifier> =
+    LazyLock::new(|| langid_for(&global::SETTINGS.app.language).unwrap_or(&LANGID_FALLBACK));
 
 pub fn langid_for(language: impl Into<String>) -> Result<&'static LanguageIdentifier, String> {
     let language = language.into();
-    match LANGUAGES.get(language.as_str()) {
-        Some((langid, _)) => Ok(langid),
-        None => {
-            if language.is_empty() {
-                Ok(&LANGID_FALLBACK)
-            } else {
-                Err(format!(
-                    "No langid for Unicode Language Identifier \"{language}\".",
-                ))
-            }
-        }
+    if language.is_empty() {
+        return Ok(&LANGID_FALLBACK);
     }
+    LANGUAGES
+        .get(&language)
+        .map(|(langid, _)| langid)
+        .ok_or_else(|| format!("No langid for Unicode Language Identifier \"{language}\"."))
 }
 
 #[macro_export]
-/// Defines a set of localization elements and local translation texts.
+/// Defines a set of localization elements and local translation texts, removing Unicode isolating
+/// marks around arguments to improve readability and compatibility in certain rendering contexts.
 macro_rules! static_locales {
     ( $LOCALES:ident $(, $core_locales:literal)? ) => {
         $crate::locale::fluent_templates::static_loader! {
@@ -165,6 +161,8 @@ macro_rules! static_locales {
     };
 }
 
+static_locales!(LOCALES_PAGETOP);
+
 #[derive(AutoDefault)]
 enum L10nOp {
     #[default]
@@ -177,7 +175,7 @@ enum L10nOp {
 pub struct L10n {
     op: L10nOp,
     locales: Option<&'static Locales>,
-    args: HashMap<String, String>,
+    args: HashMap<String, FluentValue<'static>>,
 }
 
 impl L10n {
@@ -209,7 +207,8 @@ impl L10n {
     }
 
     pub fn with_arg(mut self, arg: impl Into<String>, value: impl Into<String>) -> Self {
-        self.args.insert(arg.into(), value.into());
+        self.args
+            .insert(arg.into(), FluentValue::from(value.into()));
         self
     }
 
@@ -222,17 +221,7 @@ impl L10n {
                     if self.args.is_empty() {
                         locales.try_lookup(langid, key)
                     } else {
-                        locales.try_lookup_with_args(
-                            langid,
-                            key,
-                            &self
-                                .args
-                                .iter()
-                                .fold(HashMap::new(), |mut args, (key, value)| {
-                                    args.insert(key.to_string(), value.to_owned().into());
-                                    args
-                                }),
-                        )
+                        locales.try_lookup_with_args(langid, key, &self.args)
                     }
                 }
                 None => None,
@@ -266,13 +255,7 @@ impl fmt::Display for L10n {
                                     _ => &LANGID_DEFAULT,
                                 },
                                 key,
-                                &self
-                                    .args
-                                    .iter()
-                                    .fold(HashMap::new(), |mut args, (key, value)| {
-                                        args.insert(key.to_string(), value.to_owned().into());
-                                        args
-                                    }),
+                                &self.args,
                             )
                         }
                     )

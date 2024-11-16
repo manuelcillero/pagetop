@@ -26,7 +26,7 @@ macro_rules! static_files {
             mod [<static_files_ $bundle>] {
                 include!(concat!(env!("OUT_DIR"), "/", stringify!($bundle), ".rs"));
             }
-            static $STATIC: std::sync::LazyLock<HashMapResources> = std::sync::LazyLock::new(
+            static $STATIC: std::sync::LazyLock<StaticResources> = std::sync::LazyLock::new(
                 [<static_files_ $bundle>]::$bundle
             );
         }
@@ -42,7 +42,7 @@ macro_rules! static_files_service {
                 let mut serve_embedded:bool = true;
                 $(
                     if !$root.is_empty() && !$relative.is_empty() {
-                        if let Ok(absolute) = $crate::global::absolute_dir($root, $relative) {
+                        if let Ok(absolute) = $crate::util::absolute_dir($root, $relative) {
                             $scfg.service($crate::service::ActixFiles::new(
                                 $path,
                                 absolute,

@@ -1,17 +1,15 @@
 //! The `PageTop` Prelude.
 
 // RE-EXPORTED.
-pub use crate::{join, main, paste, test, AutoDefault};
 
-// GLOBAL.
-pub use crate::{global, HashMapResources, TypeId, Weight};
+pub use crate::{join, main, paste, test};
+
+pub use crate::{AutoDefault, StaticResources, TypeId, Weight};
 
 // MACROS.
 
-// crate::global
-pub use crate::kv;
-// crate::config
-pub use crate::config_defaults;
+// crate::util
+pub use crate::{kv, static_config};
 // crate::locale
 pub use crate::static_locales;
 // crate::service
@@ -20,6 +18,8 @@ pub use crate::{static_files, static_files_service};
 pub use crate::actions;
 
 // API.
+
+pub use crate::util;
 
 pub use crate::trace;
 
@@ -34,5 +34,7 @@ pub use crate::core::action::*;
 pub use crate::core::package::*;
 
 pub use crate::response::{json::*, redirect::*, ResponseError};
+
+pub use crate::global;
 
 pub use crate::app::Application;

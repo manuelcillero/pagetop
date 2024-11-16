@@ -1,6 +1,6 @@
-use crate::config::data::ConfigData;
-use crate::config::error::*;
-use crate::config::value::{Table, Value, ValueKind};
+use crate::util::data::ConfigData;
+use crate::util::error::*;
+use crate::util::value::{Table, Value, ValueKind};
 
 use serde::de;
 use serde::forward_to_deserialize_any;

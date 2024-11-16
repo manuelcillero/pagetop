@@ -1,4 +1,4 @@
-use crate::config::error::*;
+use crate::util::error::*;
 
 use serde::de::{Deserialize, Deserializer, Visitor};
 

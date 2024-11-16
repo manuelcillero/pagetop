@@ -1,4 +1,5 @@
 use crate::core::action::ActionBox;
+use crate::core::theme::ThemeRef;
 use crate::core::AnyBase;
 use crate::locale::L10n;
 use crate::{actions, service};
@@ -13,6 +14,10 @@ pub trait PackageTrait: AnyBase + Send + Sync {
 
     fn description(&self) -> L10n {
         L10n::none()
+    }
+
+    fn theme(&self) -> Option<ThemeRef> {
+        None
     }
 
     fn dependencies(&self) -> Vec<PackageRef> {

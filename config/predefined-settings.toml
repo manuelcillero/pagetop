@@ -1,0 +1,37 @@
+[app]
+name = "My App"
+description = "Developed with the amazing PageTop framework."
+# Default theme.
+theme = ""
+# Default language (localization).
+language = "en-US"
+# Default text direction: "ltr", "rtl", or "auto".
+text_direction = "ltr"
+# Banner displayed at startup: "Off", "Slant", "Small", "Speed", or "Starwars".
+startup_banner = "Slant"
+
+[dev]
+# During development, serve static files from the project's root directory to
+# avoid recompilation.
+pagetop_project_dir = ""
+
+[log]
+# Execution trace level: "Error", "Warn", "Info", "Debug", or "Trace".
+# Example: tracing = "Error,actix_server::builder=Info,tracing_actix_web=Debug"
+tracing = "Info"
+# In terminal ("Stdout") or files "Daily", "Hourly", "Minutely", or "Endless".
+rolling = "Stdout"
+# Directory for trace files (if rolling != "Stdout").
+path = "log"
+# Prefix for trace files (if rolling != "Stdout").
+prefix = "tracing.log"
+# Traces format: "Full", "Compact", "Pretty", or "Json".
+format = "Full"
+
+[server]
+# Web server config.
+bind_address = "localhost"
+bind_port = 8088
+# If cookies are used, specify the session cookie duration (in seconds). A value
+# of 0 means "until the browser is closed". Default: one week.
+session_lifetime = 604800

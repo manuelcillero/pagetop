@@ -1,5 +1,6 @@
 use crate::core::action::add_action;
 use crate::core::package::PackageRef;
+use crate::core::theme::all::THEMES;
 use crate::{service, trace};
 
 use std::sync::{LazyLock, RwLock};
@@ -60,7 +61,7 @@ fn add_to_enabled(list: &mut Vec<PackageRef>, package: PackageRef) {
             add_to_enabled(list, *d);
         }
 
-        /* Check if the package has an associated theme to register.
+        // Check if the package has an associated theme to register.
         if let Some(theme) = package.theme() {
             let mut registered_themes = THEMES.write().unwrap();
             // Ensure the theme is not already registered to avoid duplicates.
@@ -73,7 +74,7 @@ fn add_to_enabled(list: &mut Vec<PackageRef>, package: PackageRef) {
             }
         } else {
             trace::debug!("Enabling \"{}\" package", package.short_name());
-        } */
+        }
     }
 }
 

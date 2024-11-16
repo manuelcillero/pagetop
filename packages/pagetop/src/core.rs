@@ -1,17 +1,22 @@
-//! Key types and functions for creating actions, components, packages, and themes.
+//! Key types and functions for creating actions, packages, and themes.
 
-use crate::global::TypeInfo;
+use crate::util::TypeInfo;
 
 use std::any::Any;
 
-// Common definitions for core types.
+/// A base trait that extends `Any` to provide metadata and dynamic type casting
+/// capabilities.
 pub trait AnyBase: Any {
+    /// Returns the full name of the type.
     fn type_name(&self) -> &'static str;
 
+    /// Returns a short name for the type.
     fn short_name(&self) -> &'static str;
 
+    /// Returns a reference to `dyn Any` for dynamic type casting.
     fn as_any_ref(&self) -> &dyn Any;
 
+    /// Returns a mutable reference to `dyn Any` for dynamic type casting.
     fn as_any_mut(&mut self) -> &mut dyn Any;
 }
 
@@ -38,7 +43,9 @@ impl<T: Any> AnyBase for T {
     }
 }
 
+/// A trait for advanced dynamic type manipulation and downcasting.
 pub trait AnyTo: AnyBase {
+    /// Checks if the type is of the specified type `T`.
     #[inline]
     fn is<T>(&self) -> bool
     where
@@ -47,6 +54,7 @@ pub trait AnyTo: AnyBase {
         self.as_any_ref().is::<T>()
     }
 
+    /// Attempts to downcast a reference to the specified type `T`.
     #[inline]
     fn downcast_ref<T>(&self) -> Option<&T>
     where
@@ -55,6 +63,7 @@ pub trait AnyTo: AnyBase {
         self.as_any_ref().downcast_ref()
     }
 
+    /// Attempts to downcast a mutable reference to the specified type `T`.
     #[inline]
     fn downcast_mut<T>(&mut self) -> Option<&mut T>
     where
@@ -66,8 +75,11 @@ pub trait AnyTo: AnyBase {
 
 impl<T: ?Sized + AnyBase> AnyTo for T {}
 
-// API to define functions that alter the behavior of PageTop core.
+// API to define functions that modify the predefined behavior of the code.
 pub mod action;
 
 // API to add new features with packages.
 pub mod package;
+
+// API to add new layouts with themes.
+pub mod theme;

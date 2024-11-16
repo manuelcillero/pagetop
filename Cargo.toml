@@ -42,6 +42,7 @@ actix-web-files = { package = "actix-files", version = "0.6" }
 actix-web-static-files = "4.0"
 actix-session = { version = "0.10", features = ["cookie-session"] }
 fluent-templates = "0.11"
+fluent-bundle = "0.15"
 nom = "7.1"
 substring = "1.4"
 tracing = "0.1"
