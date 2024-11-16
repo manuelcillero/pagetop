@@ -3,15 +3,17 @@ name = "pagetop-build"
 version = "0.0.11"
 edition = "2021"
 
-description = "Simplifies the process of embedding resources in PageTop app binaries."
-
+description = """\
+    Simplifies the process of embedding resources in PageTop app binaries.\
+"""
 categories  = ["development-tools::build-utils", "web-programming"]
 keywords    = ["pagetop", "build", "assets", "resources", "static"]
 
 homepage    = { workspace = true }
 repository  = { workspace = true }
-license     = { workspace = true }
 authors     = { workspace = true }
+license     = { workspace = true }
 
 [dependencies]
-static-files.workspace = true
+grass = "0.13.4"
+static-files = { workspace = true }

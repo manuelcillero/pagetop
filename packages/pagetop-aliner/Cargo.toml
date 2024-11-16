@@ -1,0 +1,22 @@
+[package]
+name = "pagetop-aliner"
+version = "0.0.1"
+edition = "2021"
+
+description = """\
+    PageTop default theme.\
+"""
+categories  = ["web-programming", "gui"]
+keywords    = ["pagetop", "theme", "css", "js"]
+
+homepage    = { workspace = true }
+repository  = { workspace = true }
+authors     = { workspace = true }
+license     = { workspace = true }
+
+[dependencies]
+pagetop = { workspace = true }
+static-files = { workspace = true }
+
+[build-dependencies]
+pagetop-build = { workspace = true }

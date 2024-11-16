@@ -1,57 +1,76 @@
-//! This function uses the [static_files](https://docs.rs/static-files/latest/static_files/) library
-//! to embed at compile time a bundle of static files in your binary.
+//! **`StaticFilesBundle`** uses [static_files](https://docs.rs/static-files/latest/static_files/)
+//! to provide an easy way to embed static files or compiled SCSS files into your binary at compile
+//! time.
 //!
-//! Just create folder with static resources in your project (for example `static`):
+//! ## Adding to your project
 //!
-//! ```bash
-//! cd project_dir
-//! mkdir static
-//! echo "Hello, world!" > static/hello
-//! ```
-//!
-//! Add to `Cargo.toml` the required dependencies:
+//! Add the following to your `Cargo.toml`:
 //!
 //! ```toml
 //! [build-dependencies]
 //! pagetop-build = { ... }
 //! ```
 //!
-//! Add `build.rs` with call to bundle resources (*guides* will be the magic word in this example):
+//! Next, create a `build.rs` file to configure how your static resources or SCSS files will be
+//! bundled in your PageTop application, package, or theme.
+//!
+//! ## Usage examples
+//!
+//! ### 1. Embedding static files from a directory
+//!
+//! Include all files from a directory:
 //!
 //! ```rust#ignore
 //! use pagetop_build::StaticFilesBundle;
 //!
 //! fn main() -> std::io::Result<()> {
-//!     StaticFilesBundle::from_dir("./static")
-//!         .with_name("guides")
-//!         .build()
+//!     StaticFilesBundle::from_dir("./static", None) // Include all files.
+//!         .with_name("guides")                      // Name the generated module.
+//!         .build()                                  // Build the bundle.
 //! }
 //! ```
 //!
-//! Optionally, you can pass a function to filter those files into the `./static` folder which
-//! should be excluded in the resources bundle:
+//! Apply a filter to include only specific files:
 //!
 //! ```rust#ignore
 //! use pagetop_build::StaticFilesBundle;
+//! use std::path::Path;
 //!
 //! fn main() -> std::io::Result<()> {
-//!     StaticFilesBundle::from_dir("./static")
-//!         .with_name("guides")
-//!         .with_filter(except_css_dir)
-//!         .build()
-//! }
-//!
-//! fn except_css_dir(p: &Path) -> bool {
-//!     if let Some(parent) = p.parent() {
-//!         !matches!(parent.to_str(), Some("/css"))
+//!     fn only_css_files(path: &Path) -> bool {
+//!         // Include only files with `.css` extension.
+//!         path.extension().map_or(false, |ext| ext == "css")
 //!     }
-//!     true
+//!
+//!     StaticFilesBundle::from_dir("./static", Some(only_css_files))
+//!         .with_name("guides")
+//!         .build()
 //! }
 //! ```
 //!
-//! This will create a file called `guides.rs` in the standard directory
+//! ### 2. Compiling SCSS files to CSS
+//!
+//! Compile a SCSS file into CSS and embed it:
+//!
+//! ```rust#ignore
+//! use pagetop_build::StaticFilesBundle;
+//!
+//! fn main() -> std::io::Result<()> {
+//!     StaticFilesBundle::from_scss("./styles/main.scss", "main.css")
+//!         .with_name("main_styles")
+//!         .build()
+//! }
+//! ```
+//!
+//! This compiles the `main.scss` file, including all imported SCSS files, into `main.css`. All
+//! imports are resolved automatically, and the result is accessible within the binary file.
+//!
+//! ## Generated module
+//!
+//! `StaticFilesBundle` generates a file in the standard directory
 //! [OUT_DIR](https://doc.rust-lang.org/cargo/reference/environment-variables.html) where all
-//! intermediate and output artifacts are placed during compilation.
+//! intermediate and output artifacts are placed during compilation. For example, if you use
+//! `with_name("guides")`, it generates a file named `guides.rs`:
 //!
 //! You don't need to access this file, just include it in your project using the builder name as an
 //! identifier:
@@ -62,8 +81,7 @@
 //! static_files!(guides);
 //! ```
 //!
-//! Also you can get the bundle as a static reference to the generated `HashMap` resources
-//! collection:
+//! Or, access the entire bundle as a static `HashMap`:
 //!
 //! ```rust#ignore
 //! use pagetop::prelude::*;
@@ -73,13 +91,103 @@
 //!
 //! You can build more than one resources file to compile with your project.
 
+use grass::{from_path, Options, OutputStyle};
+use static_files::{resource_dir, ResourceDir};
+
+use std::fs::{create_dir_all, remove_dir_all, File};
+use std::io::Write;
 use std::path::Path;
 
-pub struct StaticFilesBundle(static_files::ResourceDir);
+pub struct StaticFilesBundle {
+    resource_dir: ResourceDir,
+}
 
 impl StaticFilesBundle {
-    pub fn from_dir(dir: &'static str) -> Self {
-        StaticFilesBundle(static_files::resource_dir(dir))
+    /// Creates a bundle from a directory of static files, with an optional filter.
+    ///
+    /// # Arguments
+    ///
+    /// * `dir` - The directory containing the static files.
+    /// * `filter` - An optional function to filter files or directories to include.
+    pub fn from_dir(dir: &'static str, filter: Option<fn(p: &Path) -> bool>) -> Self {
+        let mut resource_dir = resource_dir(dir);
+
+        // Apply the filter if provided.
+        if let Some(f) = filter {
+            resource_dir.with_filter(f);
+        }
+
+        StaticFilesBundle { resource_dir }
+    }
+
+    /// Creates a bundle starting from a SCSS file.
+    ///
+    /// # Arguments
+    ///
+    /// * `path` - The SCSS file to compile.
+    /// * `target_name` - The name for the CSS file in the bundle.
+    ///
+    /// This function will panic:
+    ///
+    /// * If the environment variable `OUT_DIR` is not set.
+    /// * If it is unable to create a temporary directory in the `OUT_DIR`.
+    /// * If the SCSS file cannot be compiled due to syntax errors in the SCSS file or missing
+    ///   dependencies or import paths required for compilation.
+    /// * If it is unable to create the output CSS file in the temporary directory due to an invalid
+    ///   `target_name` or insufficient permissions to create files in the temporary directory.
+    /// * If the function fails to write the compiled CSS content to the file.
+    pub fn from_scss<P>(path: P, target_name: &str) -> Self
+    where
+        P: AsRef<Path>,
+    {
+        // Create a temporary directory for the CSS file.
+        let out_dir = std::env::var("OUT_DIR").unwrap();
+        let temp_dir = Path::new(&out_dir).join("from_scss_files");
+        // Clean up the temporary directory from previous runs, if it exists.
+        if temp_dir.exists() {
+            remove_dir_all(&temp_dir).unwrap_or_else(|e| {
+                panic!(
+                    "Failed to clean temporary directory `{}`: {e}",
+                    temp_dir.display()
+                );
+            });
+        }
+        create_dir_all(&temp_dir).unwrap_or_else(|e| {
+            panic!(
+                "Failed to create temporary directory `{}`: {e}",
+                temp_dir.display()
+            );
+        });
+
+        // Compile SCSS to CSS.
+        let css_content = from_path(
+            path.as_ref(),
+            &Options::default().style(OutputStyle::Compressed),
+        )
+        .unwrap_or_else(|e| {
+            panic!(
+                "Failed to compile SCSS file `{}`: {e}",
+                path.as_ref().display(),
+            )
+        });
+
+        // Write the compiled CSS to the temporary directory.
+        let css_path = temp_dir.join(target_name);
+        File::create(&css_path)
+            .expect(&format!(
+                "Failed to create CSS file `{}`",
+                css_path.display()
+            ))
+            .write_all(css_content.as_bytes())
+            .expect(&format!(
+                "Failed to write CSS content to `{}`",
+                css_path.display()
+            ));
+
+        // Initialize ResourceDir with the temporary directory.
+        StaticFilesBundle {
+            resource_dir: resource_dir(temp_dir.to_str().unwrap()),
+        }
     }
 
     /// Configures the name for the bundle of static files.
@@ -88,16 +196,11 @@ impl StaticFilesBundle {
     ///
     /// This function will panic if the standard `OUT_DIR` environment variable is not set.
     pub fn with_name(mut self, name: &'static str) -> Self {
-        self.0.with_generated_filename(
-            Path::new(std::env::var("OUT_DIR").unwrap().as_str()).join(format!("{name}.rs")),
-        );
-        self.0.with_module_name(format!("bundle_{name}"));
-        self.0.with_generated_fn(name);
-        self
-    }
-
-    pub fn with_filter(mut self, filter: fn(p: &Path) -> bool) -> Self {
-        self.0.with_filter(filter);
+        let out_dir = std::env::var("OUT_DIR").unwrap();
+        let filename = Path::new(&out_dir).join(format!("{name}.rs"));
+        self.resource_dir.with_generated_filename(filename);
+        self.resource_dir.with_module_name(format!("bundle_{name}"));
+        self.resource_dir.with_generated_fn(name);
         self
     }
 
@@ -108,6 +211,6 @@ impl StaticFilesBundle {
     /// This function will return an error if there is an issue with I/O operations, such as failing
     /// to read or write to a file.
     pub fn build(self) -> std::io::Result<()> {
-        self.0.build()
+        self.resource_dir.build()
     }
 }

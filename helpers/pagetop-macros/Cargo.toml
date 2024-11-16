@@ -3,15 +3,16 @@ name = "pagetop-macros"
 version = "0.0.13"
 edition = "2021"
 
-description = "A collection of macros that boost PageTop development."
-
+description = """\
+    A collection of macros that boost PageTop development.\
+"""
 categories  = ["development-tools::procedural-macro-helpers", "web-programming"]
 keywords    = ["pagetop", "macros", "proc-macros", "codegen"]
 
 homepage    = { workspace = true }
 repository  = { workspace = true }
-license     = { workspace = true }
 authors     = { workspace = true }
+license     = { workspace = true }
 
 [lib]
 proc-macro = true

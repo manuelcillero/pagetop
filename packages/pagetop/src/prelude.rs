@@ -32,6 +32,7 @@ pub use crate::core::{AnyBase, AnyTo};
 
 pub use crate::core::action::*;
 pub use crate::core::package::*;
+pub use crate::core::theme::*;
 
 pub use crate::response::{json::*, redirect::*, ResponseError};
 

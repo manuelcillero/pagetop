@@ -3,46 +3,44 @@ name = "pagetop"
 version = "0.0.56"
 edition = "2021"
 
-description = "An opinionated web framework to build modular Server-Side Rendering web solutions."
-
+description = """\
+    An opinionated web framework to build modular Server-Side Rendering web solutions.\
+"""
 categories  = ["web-programming", "gui", "development-tools", "asynchronous"]
 keywords    = ["pagetop", "web", "framework", "frontend", "ssr"]
 readme      = "../../README.md"
 
 homepage    = { workspace = true }
 repository  = { workspace = true }
-license     = { workspace = true }
 authors     = { workspace = true }
+license     = { workspace = true }
 
 [lib]
 name = "pagetop"
 
 [dependencies]
-colored       = "2.1.0"
-concat-string = "1.0.1"
-figlet-rs     = "0.1.5"
-paste         = "1.0.15"
-terminal_size = "0.4.0"
-toml          = "0.8.19"
+colored            = "2.1.0"
+concat-string      = "1.0.1"
+figlet-rs          = "0.1.5"
+fluent-bundle      = "0.15"
+fluent-templates   = "0.11"
+nom                = "7.1"
+paste              = "1.0.15"
+substring          = "1.4"
+terminal_size      = "0.4.0"
+toml               = "0.8.19"
+tracing            = "0.1"
+tracing-appender   = "0.2"
+tracing-subscriber = { version = "0.3", features = ["json", "env-filter"] }
+tracing-actix-web  = "0.7"
+unic-langid        = { version = "0.9", features = ["macros"] }
 
-serde.workspace = true
-static-files.workspace = true
+actix-web = "4"
+actix-web-files = { package = "actix-files", version = "0.6" }
+actix-web-static-files = "4.0"
+actix-session = { version = "0.10", features = ["cookie-session"] }
 
-pagetop-macros.workspace = true
+serde = { workspace = true }
+static-files = { workspace = true }
 
-
-
-
-
-actix-web.workspace = true
-actix-web-files.workspace = true
-actix-web-static-files.workspace = true
-actix-session.workspace = true
-fluent-templates.workspace = true
-nom.workspace = true
-tracing.workspace = true
-tracing-appender.workspace = true
-tracing-subscriber.workspace = true
-tracing-actix-web.workspace = true
-substring.workspace = true
-unic-langid.workspace = true
+pagetop-macros = { workspace = true }
