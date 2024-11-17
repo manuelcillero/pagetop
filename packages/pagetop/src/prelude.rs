@@ -2,7 +2,7 @@
 
 // RE-EXPORTED.
 
-pub use crate::{join, main, paste, test};
+pub use crate::{concat_string, main, paste, test};
 
 pub use crate::{AutoDefault, StaticResources, TypeId, Weight};
 

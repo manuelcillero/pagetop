@@ -74,7 +74,7 @@
 
 // RE-EXPORTED *************************************************************************************
 
-pub use concat_string::concat_string as join;
+pub use concat_string::concat_string;
 
 /// Enables flexible identifier concatenation in macros, allowing new items with pasted identifiers.
 pub use paste::paste;
