@@ -15,9 +15,10 @@ authors     = { workspace = true }
 license     = { workspace = true }
 
 [dependencies]
-pagetop = { workspace = true }
-pagetop-aliner = { workspace = true }
-static-files = { workspace = true }
+pagetop.workspace = true
+pagetop-aliner.workspace = true
+
+static-files.workspace = true
 
 [build-dependencies]
-pagetop-build = { workspace = true }
+pagetop-build.workspace = true

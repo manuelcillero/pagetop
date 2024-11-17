@@ -23,6 +23,8 @@ pub use crate::util;
 
 pub use crate::trace;
 
+pub use crate::html::*;
+
 pub use crate::locale::*;
 
 pub use crate::service;

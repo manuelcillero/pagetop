@@ -1,10 +1,10 @@
 [package]
 name = "pagetop-aliner"
-version = "0.0.1"
+version = "0.0.9"
 edition = "2021"
 
 description = """\
-    PageTop default theme.\
+    PageTop's default theme for schematic layouts, designed to be extended with subthemes.\
 """
 categories  = ["web-programming", "gui"]
 keywords    = ["pagetop", "theme", "css", "js"]
@@ -15,8 +15,12 @@ authors     = { workspace = true }
 license     = { workspace = true }
 
 [dependencies]
-pagetop = { workspace = true }
-static-files = { workspace = true }
+pagetop.workspace = true
+
+include_dir.workspace = true
+static-files.workspace = true
+
+tera = "1.20.0"
 
 [build-dependencies]
-pagetop-build = { workspace = true }
+pagetop-build.workspace = true

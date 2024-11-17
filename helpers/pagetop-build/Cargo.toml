@@ -16,4 +16,4 @@ license     = { workspace = true }
 
 [dependencies]
 grass = "0.13.4"
-static-files = { workspace = true }
+static-files.workspace = true

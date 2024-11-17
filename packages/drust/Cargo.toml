@@ -12,10 +12,10 @@ authors     = { workspace = true }
 license     = { workspace = true }
 
 [dependencies]
-pagetop = { workspace = true }
+pagetop.workspace = true
 
 # Packages.
-pagetop-bootsier = { workspace = true }
+pagetop-bootsier.workspace = true
 #pagetop-admin = { version = "0.0", path = "../pagetop-admin" }
 #pagetop-user = { version = "0.0", path = "../pagetop-user" }
 #pagetop-node = { version = "0.0", path = "../pagetop-node" }

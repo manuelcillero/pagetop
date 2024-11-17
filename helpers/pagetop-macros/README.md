@@ -25,10 +25,16 @@ frequent changes. Production use is not recommended until version **0.1.0**.
 
 # 🔖 Credits
 
-This crate includes an adapted version of [SmartDefault](https://crates.io/crates/smart_default)
-(version 0.7.1) by [Jane Doe](https://crates.io/users/jane-doe), named `AutoDefault`, to streamline
-Default implementations in **PageTop** projects and eliminate the need to explicitly add
-`smart_default` to `Cargo.toml` files.
+This crate includes an adapted version of [maud-macros](https://crates.io/crates/maud_macros),
+version [0.25.0](https://github.com/lambda-fairy/maud/tree/v0.25.0/maud_macros), by
+[Chris Wong](https://crates.io/users/lambda-fairy).
+
+It also includes an adapted version of [SmartDefault](https://crates.io/crates/smart_default)
+(version 0.7.1) by [Jane Doe](https://crates.io/users/jane-doe), renamed as `AutoDefault`, to
+streamline the implementation of `Default` in **PageTop** projects.
+
+Both adaptations eliminate the need to explicitly add `maud` or `smart_default` as dependencies in
+`Cargo.toml` files.
 
 
 # 📜 License

@@ -1,15 +1,17 @@
 <div align="center">
 
-<h1>PageTop Bootsier</h1>
+<h1>PageTop Aliner</h1>
 
-<p>PageTop theme that uses Bootstrap framework for versatile styles and components.</p>
+<p>PageTop's default theme for schematic layouts, designed to be extended with subthemes.</p>
 
 [![License](https://img.shields.io/badge/license-MIT%2FApache-blue.svg?style=for-the-badge)](#-license)
-[![API Docs](https://img.shields.io/docsrs/pagetop-bootsier?label=API%20Docs&style=for-the-badge&logo=Docs.rs)](https://docs.rs/pagetop-bootsier)
-[![Crates.io](https://img.shields.io/crates/v/pagetop-bootsier.svg?style=for-the-badge&logo=ipfs)](https://crates.io/crates/pagetop-bootsier)
-[![Downloads](https://img.shields.io/crates/d/pagetop-bootsier.svg?style=for-the-badge&logo=transmission)](https://crates.io/crates/pagetop-bootsier)
+[![API Docs](https://img.shields.io/docsrs/pagetop-aliner?label=API%20Docs&style=for-the-badge&logo=Docs.rs)](https://docs.rs/pagetop-aliner)
+[![Crates.io](https://img.shields.io/crates/v/pagetop-aliner.svg?style=for-the-badge&logo=ipfs)](https://crates.io/crates/pagetop-aliner)
+[![Downloads](https://img.shields.io/crates/d/pagetop-aliner.svg?style=for-the-badge&logo=transmission)](https://crates.io/crates/pagetop-aliner)
 
 </div>
+
+PageTop Aliner is the default theme designed to provide schematic layout for easily extending.
 
 # 📦 About PageTop
 
