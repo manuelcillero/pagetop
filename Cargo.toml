@@ -12,11 +12,6 @@ members = [
 
     # App
     "packages/drust",
-
-    # Examples
-#   "examples/app-basic",
-#   "examples/hello-world",
-#   "examples/hello-name",
 ]
 
 [workspace.package]

@@ -42,7 +42,7 @@ impl Application {
         LazyLock::force(&trace::TRACING);
 
         // Validates the default language identifier.
-        LazyLock::force(&locale::LANGID_DEFAULT);
+        LazyLock::force(&locale::DEFAULT_LANGID);
 
         // Registers the application's packages.
         package::all::register_packages(root_package);

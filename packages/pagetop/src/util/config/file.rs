@@ -1,9 +1,9 @@
 mod source;
 mod toml;
 
-use crate::util::error::*;
-use crate::util::source::Source;
-use crate::util::value::Value;
+use crate::util::config::error::*;
+use crate::util::config::source::Source;
+use crate::util::config::value::Value;
 
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};

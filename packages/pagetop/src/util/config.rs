@@ -1,8 +1,16 @@
 //! Retrieve settings values from configuration files.
 
+mod data;
+mod de;
+mod error;
+mod file;
+mod path;
+mod source;
+mod value;
+
 use crate::concat_string;
-use crate::util::data::ConfigData;
-use crate::util::file::File;
+use crate::util::config::data::ConfigData;
+use crate::util::config::file::File;
 
 use std::sync::LazyLock;
 

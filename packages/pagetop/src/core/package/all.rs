@@ -1,5 +1,5 @@
 use crate::core::action::add_action;
-use crate::core::package::PackageRef;
+use crate::core::package::{welcome, PackageRef};
 use crate::core::theme::all::THEMES;
 use crate::{service, trace};
 
@@ -123,4 +123,6 @@ pub fn configure_services(scfg: &mut service::web::ServiceConfig) {
     for m in ENABLED_PACKAGES.read().unwrap().iter() {
         m.configure_service(scfg);
     }
+    // Default welcome homepage.
+    scfg.route("/", service::web::get().to(welcome::homepage));
 }

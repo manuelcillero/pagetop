@@ -19,7 +19,6 @@ pagetop.workspace = true
 
 include_dir.workspace = true
 static-files.workspace = true
-
 tera = "1.20.0"
 
 [build-dependencies]

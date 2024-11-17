@@ -79,7 +79,7 @@ pub use concat_string::concat_string;
 /// Enables flexible identifier concatenation in macros, allowing new items with pasted identifiers.
 pub use paste::paste;
 
-pub use pagetop_macros::{main, test, AutoDefault};
+pub use pagetop_macros::{html, main, test, AutoDefault};
 
 pub type StaticResources = std::collections::HashMap<&'static str, static_files::Resource>;
 

@@ -1,4 +1,4 @@
-use crate::util::value::{Value, ValueKind};
+use crate::util::config::value::{Value, ValueKind};
 
 use toml;
 

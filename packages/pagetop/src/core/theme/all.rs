@@ -19,7 +19,7 @@ impl PackageTrait for NoTheme {
 impl ThemeTrait for NoTheme {
 }
 
-pub static THEME_DEFAULT: LazyLock<ThemeRef> =
+pub static DEFAULT_THEME: LazyLock<ThemeRef> =
     LazyLock::new(|| match theme_by_short_name(&global::SETTINGS.app.theme) {
         Some(theme) => theme,
         None => &NoTheme,

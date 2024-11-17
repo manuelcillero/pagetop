@@ -84,6 +84,7 @@
 //! static_locales!(LOCALES_SAMPLE in "path/to/locale");
 //! ```
 
+use crate::html::{Markup, PreEscaped};
 use crate::{global, kv, AutoDefault};
 
 pub use fluent_bundle::FluentValue;
@@ -119,7 +120,7 @@ pub static LANGID_FALLBACK: LazyLock<LanguageIdentifier> = LazyLock::new(|| lang
 /// Sets the application's default
 /// [Unicode Language Identifier](https://unicode.org/reports/tr35/tr35.html#Unicode_language_identifier)
 /// through `SETTINGS.app.language`.
-pub static LANGID_DEFAULT: LazyLock<&LanguageIdentifier> =
+pub static DEFAULT_LANGID: LazyLock<&LanguageIdentifier> =
     LazyLock::new(|| langid_for(&global::SETTINGS.app.language).unwrap_or(&LANGID_FALLBACK));
 
 pub fn langid_for(language: impl Into<String>) -> Result<&'static LanguageIdentifier, String> {
@@ -228,6 +229,18 @@ impl L10n {
             },
         }
     }
+
+    /// Escapes the content using the default language identifier.
+    pub fn markup(&self) -> Markup {
+        let content = self.using(&DEFAULT_LANGID).unwrap_or_default();
+        PreEscaped(content)
+    }
+
+    /// Escapes the content using the specified language identifier.
+    pub fn escaped(&self, langid: &LanguageIdentifier) -> Markup {
+        let content = self.using(langid).unwrap_or_default();
+        PreEscaped(content)
+    }
 }
 
 impl fmt::Display for L10n {
@@ -244,7 +257,7 @@ impl fmt::Display for L10n {
                             locales.lookup(
                                 match key.as_str() {
                                     LANGUAGE_SET_FAILURE => &LANGID_FALLBACK,
-                                    _ => &LANGID_DEFAULT,
+                                    _ => &DEFAULT_LANGID,
                                 },
                                 key,
                             )
@@ -252,7 +265,7 @@ impl fmt::Display for L10n {
                             locales.lookup_with_args(
                                 match key.as_str() {
                                     LANGUAGE_SET_FAILURE => &LANGID_FALLBACK,
-                                    _ => &LANGID_DEFAULT,
+                                    _ => &DEFAULT_LANGID,
                                 },
                                 key,
                                 &self.args,
