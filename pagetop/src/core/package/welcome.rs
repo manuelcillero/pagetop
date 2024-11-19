@@ -112,7 +112,7 @@ pub async fn homepage() -> Markup {
                         }
                     }
 
-                    footer { "[" (L10n::l("welcome_have_fun").markup()) "]" }
+                    footer { "[ " (L10n::l("welcome_have_fun").markup()) " ]" }
                 }
             }
         }

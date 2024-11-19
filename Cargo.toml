@@ -5,8 +5,10 @@ members = [
     "helpers/pagetop-build",
     "helpers/pagetop-macros",
 
+    # PageTop
+    "pagetop",
+
     # Packages
-    "packages/pagetop",
     "packages/pagetop-aliner",
     "packages/pagetop-bootsier",
 
@@ -29,7 +31,9 @@ static-files = "0.2.4"
 pagetop-build = { version = "0.0", path = "helpers/pagetop-build" }
 pagetop-macros = { version = "0.0", path = "helpers/pagetop-macros" }
 
+# PageTop
+pagetop = { version = "0.0", path = "pagetop" }
+
 # Packages
-pagetop = { version = "0.0", path = "packages/pagetop" }
 pagetop-aliner = { version = "0.0", path = "packages/pagetop-aliner" }
 pagetop-bootsier = { version = "0.0", path = "packages/pagetop-bootsier" }
