@@ -13,7 +13,7 @@ members = [
     "packages/pagetop-bootsier",
 
     # App
-    "packages/drust",
+    "drust",
 ]
 
 [workspace.package]
