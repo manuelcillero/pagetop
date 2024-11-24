@@ -1,4 +1,6 @@
-use crate::core::theme::ThemeRef;
+use crate::core::package::PackageTrait;
+use crate::core::theme::{ThemeRef, ThemeTrait};
+use crate::global;
 
 use std::sync::{LazyLock, RwLock};
 
@@ -6,7 +8,7 @@ use std::sync::{LazyLock, RwLock};
 
 pub static THEMES: LazyLock<RwLock<Vec<ThemeRef>>> = LazyLock::new(|| RwLock::new(Vec::new()));
 
-/* DEFAULT THEME ***********************************************************************************
+// DEFAULT THEME ***********************************************************************************
 
 pub struct NoTheme;
 
@@ -16,8 +18,7 @@ impl PackageTrait for NoTheme {
     }
 }
 
-impl ThemeTrait for NoTheme {
-}
+impl ThemeTrait for NoTheme {}
 
 pub static DEFAULT_THEME: LazyLock<ThemeRef> =
     LazyLock::new(|| match theme_by_short_name(&global::SETTINGS.app.theme) {
@@ -39,4 +40,3 @@ pub fn theme_by_short_name(short_name: &str) -> Option<ThemeRef> {
         _ => None,
     }
 }
-*/

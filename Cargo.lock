@@ -1659,6 +1659,7 @@ dependencies = [
  "fluent-templates",
  "itoa",
  "nom",
+ "pagetop-build",
  "pagetop-macros",
  "paste",
  "serde",

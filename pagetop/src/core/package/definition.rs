@@ -13,7 +13,7 @@ pub trait PackageTrait: AnyBase + Send + Sync {
     }
 
     fn description(&self) -> L10n {
-        L10n::none()
+        L10n::default()
     }
 
     fn theme(&self) -> Option<ThemeRef> {

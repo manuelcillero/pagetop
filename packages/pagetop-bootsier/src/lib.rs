@@ -1,8 +1,8 @@
 use pagetop::prelude::*;
 
-static_locales!(LOCALES_BOOTSIER);
+include_locales!(LOCALES_BOOTSIER);
 
-//static_files!(bootsier);
+//include_files!(bootsier);
 
 pub struct Bootsier;
 
@@ -26,7 +26,7 @@ impl PackageTrait for Bootsier {
     }
 
     fn configure_service(&self, scfg: &mut service::web::ServiceConfig) {
-        static_files_service!(scfg, bootsier => "/bootsier");
+        include_files_service!(scfg, bootsier => "/bootsier");
     } */
 }
 

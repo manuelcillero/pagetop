@@ -1,5 +1,4 @@
-//! **`StaticFilesBundle`** uses [static_files](https://docs.rs/static-files/latest/static_files/)
-//! to provide an easy way to embed static files or compiled SCSS files into your binary at compile
+//! Provide an easy way to embed static files or compiled SCSS files into your binary at compile
 //! time.
 //!
 //! ## Adding to your project
@@ -24,9 +23,9 @@
 //! use pagetop_build::StaticFilesBundle;
 //!
 //! fn main() -> std::io::Result<()> {
-//!     StaticFilesBundle::from_dir("./static", None) // Include all files.
-//!         .with_name("guides")                      // Name the generated module.
-//!         .build()                                  // Build the bundle.
+//!     StaticFilesBundle::from_dir("./static", None)
+//!         .with_name("guides")
+//!         .build()
 //! }
 //! ```
 //!
@@ -67,7 +66,7 @@
 //!
 //! ## Generated module
 //!
-//! `StaticFilesBundle` generates a file in the standard directory
+//! [`StaticFilesBundle`] generates a file in the standard directory
 //! [OUT_DIR](https://doc.rust-lang.org/cargo/reference/environment-variables.html) where all
 //! intermediate and output artifacts are placed during compilation. For example, if you use
 //! `with_name("guides")`, it generates a file named `guides.rs`:
@@ -78,15 +77,15 @@
 //! ```rust#ignore
 //! use pagetop::prelude::*;
 //!
-//! static_files!(guides);
+//! include_files!(guides);
 //! ```
 //!
-//! Or, access the entire bundle as a static `HashMap`:
+//! Or, access the entire bundle as a global static `HashMap`:
 //!
 //! ```rust#ignore
 //! use pagetop::prelude::*;
 //!
-//! static_files!(guides => BUNDLE_GUIDES);
+//! include_files!(guides => BUNDLE_GUIDES);
 //! ```
 //!
 //! You can build more than one resources file to compile with your project.
@@ -98,6 +97,8 @@ use std::fs::{create_dir_all, remove_dir_all, File};
 use std::io::Write;
 use std::path::Path;
 
+/// Generates the resources to embed at compile time using
+/// [static_files](https://docs.rs/static-files/latest/static_files/).
 pub struct StaticFilesBundle {
     resource_dir: ResourceDir,
 }

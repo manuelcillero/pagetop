@@ -1,10 +1,10 @@
 //! Global settings.
 
-use crate::static_config;
+use crate::include_config;
 
 use serde::Deserialize;
 
-static_config!(SETTINGS: Settings => [
+include_config!(SETTINGS: Settings => [
     // [app]
     "app.name"                => "My App",
     "app.description"         => "Developed with the amazing PageTop framework.",

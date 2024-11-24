@@ -67,13 +67,13 @@
 //! # How to apply localization in your code
 //!
 //! Once you have created your FTL resource directory, use the
-//! [`static_locales!`](crate::static_locales) macro to integrate them into your module or
+//! [`include_locales!`](crate::include_locales) macro to integrate them into your module or
 //! application. If your resources are located in the `"src/locale"` directory, simply declare:
 //!
 //! ```
 //! use pagetop::prelude::*;
 //!
-//! static_locales!(LOCALES_SAMPLE);
+//! include_locales!(LOCALES_SAMPLE);
 //! ```
 //!
 //! But if they are in another directory, then you can use:
@@ -81,7 +81,7 @@
 //! ```
 //! use pagetop::prelude::*;
 //!
-//! static_locales!(LOCALES_SAMPLE in "path/to/locale");
+//! include_locales!(LOCALES_SAMPLE from "path/to/locale");
 //! ```
 
 use crate::html::{Markup, PreEscaped};
@@ -89,55 +89,75 @@ use crate::{global, kv, AutoDefault};
 
 pub use fluent_bundle::FluentValue;
 pub use fluent_templates;
-pub use unic_langid::LanguageIdentifier;
+pub use unic_langid::{CharacterDirection, LanguageIdentifier};
 
 use fluent_templates::Loader;
 use fluent_templates::StaticLoader as Locales;
 
 use unic_langid::langid;
 
+use std::borrow::Cow;
 use std::collections::HashMap;
 use std::sync::LazyLock;
 
 use std::fmt;
 
-const LANGUAGE_SET_FAILURE: &str = "language_set_failure";
-
 /// A mapping between language codes (e.g., "en-US") and their corresponding [`LanguageIdentifier`]
-/// and human-readable names.
+/// and locale key names.
 static LANGUAGES: LazyLock<HashMap<String, (LanguageIdentifier, &str)>> = LazyLock::new(|| {
     kv![
-        "en"    => (langid!("en-US"), "English"),
-        "en-GB" => (langid!("en-GB"), "English (British)"),
-        "en-US" => (langid!("en-US"), "English (United States)"),
-        "es"    => (langid!("es-ES"), "Spanish"),
-        "es-ES" => (langid!("es-ES"), "Spanish (Spain)"),
+        "en"    => ( langid!("en-US"), "english" ),
+        "en-GB" => ( langid!("en-GB"), "english_british" ),
+        "en-US" => ( langid!("en-US"), "english_united_states" ),
+        "es"    => ( langid!("es-ES"), "spanish" ),
+        "es-ES" => ( langid!("es-ES"), "spanish_spain" ),
     ]
 });
 
-pub static LANGID_FALLBACK: LazyLock<LanguageIdentifier> = LazyLock::new(|| langid!("en-US"));
+static FALLBACK: LazyLock<LanguageIdentifier> = LazyLock::new(|| langid!("en-US"));
 
 /// Sets the application's default
 /// [Unicode Language Identifier](https://unicode.org/reports/tr35/tr35.html#Unicode_language_identifier)
 /// through `SETTINGS.app.language`.
 pub static DEFAULT_LANGID: LazyLock<&LanguageIdentifier> =
-    LazyLock::new(|| langid_for(&global::SETTINGS.app.language).unwrap_or(&LANGID_FALLBACK));
+    LazyLock::new(|| langid_for(&global::SETTINGS.app.language).unwrap_or(&FALLBACK));
 
-pub fn langid_for(language: impl Into<String>) -> Result<&'static LanguageIdentifier, String> {
+pub enum LangError {
+    EmptyLang,
+    UnknownLang(String),
+}
+
+impl fmt::Display for LangError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            LangError::EmptyLang => write!(f, "The language identifier is empty."),
+            LangError::UnknownLang(lang) => write!(f, "Unknown language identifier: {lang}"),
+        }
+    }
+}
+
+pub fn langid_for(language: impl Into<String>) -> Result<&'static LanguageIdentifier, LangError> {
     let language = language.into();
     if language.is_empty() {
-        return Ok(&LANGID_FALLBACK);
+        return Err(LangError::EmptyLang);
     }
-    LANGUAGES
-        .get(&language)
-        .map(|(langid, _)| langid)
-        .ok_or_else(|| format!("No langid for Unicode Language Identifier \"{language}\"."))
+    // Attempt to match the full language code (e.g., "es-MX").
+    if let Some(langid) = LANGUAGES.get(&language).map(|(langid, _)| langid) {
+        return Ok(langid);
+    }
+    // Fallback to the base language if no sublocale is found (e.g., "es").
+    if let Some((base_lang, _)) = language.split_once('-') {
+        if let Some(langid) = LANGUAGES.get(base_lang).map(|(langid, _)| langid) {
+            return Ok(langid);
+        }
+    }
+    Err(LangError::UnknownLang(language))
 }
 
 #[macro_export]
 /// Defines a set of localization elements and local translation texts, removing Unicode isolating
 /// marks around arguments to improve readability and compatibility in certain rendering contexts.
-macro_rules! static_locales {
+macro_rules! include_locales {
     ( $LOCALES:ident $(, $core_locales:literal)? ) => {
         $crate::locale::fluent_templates::static_loader! {
             static $LOCALES = {
@@ -149,7 +169,7 @@ macro_rules! static_locales {
             };
         }
     };
-    ( $LOCALES:ident in $dir_locales:literal $(, $core_locales:literal)? ) => {
+    ( $LOCALES:ident from $dir_locales:literal $(, $core_locales:literal)? ) => {
         $crate::locale::fluent_templates::static_loader! {
             static $LOCALES = {
                 locales: $dir_locales,
@@ -162,7 +182,7 @@ macro_rules! static_locales {
     };
 }
 
-static_locales!(LOCALES_PAGETOP);
+include_locales!(LOCALES_PAGETOP);
 
 #[derive(AutoDefault)]
 enum L10nOp {
@@ -180,13 +200,9 @@ pub struct L10n {
 }
 
 impl L10n {
-    pub fn none() -> Self {
-        L10n::default()
-    }
-
-    pub fn n(text: impl Into<String>) -> Self {
+    pub fn n<S: Into<Cow<'static, str>>>(text: S) -> Self {
         L10n {
-            op: L10nOp::Text(text.into()),
+            op: L10nOp::Text(text.into().to_string()),
             ..Default::default()
         }
     }
@@ -208,9 +224,30 @@ impl L10n {
     }
 
     pub fn with_arg(mut self, arg: impl Into<String>, value: impl Into<String>) -> Self {
-        self.args
-            .insert(arg.into(), FluentValue::from(value.into()));
+        let value = FluentValue::from(value.into());
+        self.args.insert(arg.into(), value);
         self
+    }
+
+    pub fn add_args(mut self, args: HashMap<String, String>) -> Self {
+        for (k, v) in args {
+            self.args.insert(k, FluentValue::from(v));
+        }
+        self
+    }
+
+    pub fn with_count(mut self, key: impl Into<String>, count: usize) -> Self {
+        self.args.insert(key.into(), FluentValue::from(count));
+        self
+    }
+
+    pub fn with_date(mut self, key: impl Into<String>, date: impl Into<String>) -> Self {
+        self.args.insert(key.into(), FluentValue::from(date.into()));
+        self
+    }
+
+    pub fn get(&self) -> Option<String> {
+        self.using(&DEFAULT_LANGID)
     }
 
     pub fn using(&self, langid: &LanguageIdentifier) -> Option<String> {
@@ -230,13 +267,13 @@ impl L10n {
         }
     }
 
-    /// Escapes the content using the default language identifier.
+    /// Escapes translated text using the default language identifier.
     pub fn markup(&self) -> Markup {
-        let content = self.using(&DEFAULT_LANGID).unwrap_or_default();
+        let content = self.get().unwrap_or_default();
         PreEscaped(content)
     }
 
-    /// Escapes the content using the specified language identifier.
+    /// Escapes translated text using the specified language identifier.
     pub fn escaped(&self, langid: &LanguageIdentifier) -> Markup {
         let content = self.using(langid).unwrap_or_default();
         PreEscaped(content)
@@ -245,37 +282,11 @@ impl L10n {
 
 impl fmt::Display for L10n {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match &self.op {
-            L10nOp::None => write!(f, ""),
-            L10nOp::Text(text) => write!(f, "{text}"),
-            L10nOp::Translate(key) => {
-                if let Some(locales) = self.locales {
-                    write!(
-                        f,
-                        "{}",
-                        if self.args.is_empty() {
-                            locales.lookup(
-                                match key.as_str() {
-                                    LANGUAGE_SET_FAILURE => &LANGID_FALLBACK,
-                                    _ => &DEFAULT_LANGID,
-                                },
-                                key,
-                            )
-                        } else {
-                            locales.lookup_with_args(
-                                match key.as_str() {
-                                    LANGUAGE_SET_FAILURE => &LANGID_FALLBACK,
-                                    _ => &DEFAULT_LANGID,
-                                },
-                                key,
-                                &self.args,
-                            )
-                        }
-                    )
-                } else {
-                    write!(f, "Unknown localization {key}")
-                }
-            }
-        }
+        let content = match &self.op {
+            L10nOp::None => "".to_string(),
+            L10nOp::Text(text) => text.clone(),
+            L10nOp::Translate(key) => self.get().unwrap_or_else(|| format!("No <{}>", key)),
+        };
+        write!(f, "{}", content)
     }
 }

@@ -1,67 +1,63 @@
-use crate::html::{html, Markup};
+use crate::html::{html, Markup, PrepareMarkup, StyleSheet};
 use crate::locale::L10n;
-use crate::{concat_string, global};
+use crate::response::page::{AssetsOp, ErrorPage, Page, ResultPage};
+use crate::{global, service};
 
-pub async fn homepage() -> Markup {
-    html! {
-        head {
-            meta charset="UTF-8" {}
-            meta name="viewport" content="width=device-width, initial-scale=1" {}
-            title { (concat_string!(
-                &global::SETTINGS.app.name, " | ", L10n::l("welcome_page").to_string()
-            )) }
-            style { r#"
-                body {
-                    background-color: #f3d060;
-                    font-size: 20px;
-                }
-                .wrapper {
-                    max-width: 1200px;
-                    width: 100%;
-                    margin: 0 auto;
-                    padding: 0;
-                }
-                .container {
-                    padding: 0 16px;
-                }
-                .title {
-                    font-size: clamp(3rem, 10vw, 10rem);
-                    letter-spacing: -0.05em;
-                    line-height: 1.2;
-                    margin: 0;
-                }
-                .subtitle {
-                    font-size: clamp(1.8rem, 2vw, 3rem);
-                    letter-spacing: -0.02em;
-                    line-height: 1.2;
-                    margin: 0;
-                }
-                .powered {
-                    margin: .5em 0 1em;
-                }
-                .box-container {
-                    display: flex;
-                    flex-wrap: wrap;
-                    justify-content: space-between;
-                    align-items: stretch;
-                    gap: 1.5em;
-                }
-                .box {
-                    flex: 1 1 280px;
-                    border: 3px solid #25282a;
-                    box-shadow: 5px 5px 0px #25282a;
-                    box-sizing: border-box;
-                    padding: 0 16px;
-                }
-                footer {
-                    margin-top: 5em;
-                    font-size: 14px;
-                    font-weight: 500;
-                    color: #a5282c;
-                }
-            "# }
-        }
-        body style="font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif;" {
+pub async fn homepage(request: service::HttpRequest) -> ResultPage<Markup, ErrorPage> {
+    Page::new(request)
+        .with_title(L10n::l("welcome_page"))
+        .with_assets(AssetsOp::AddStyleSheet(StyleSheet::inline("styles", r#"
+            body {
+                background-color: #f3d060;
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+                font-size: 20px;
+            }
+            .wrapper {
+                max-width: 1200px;
+                width: 100%;
+                margin: 0 auto;
+                padding: 0;
+            }
+            .container {
+                padding: 0 16px;
+            }
+            .title {
+                font-size: clamp(3rem, 10vw, 10rem);
+                letter-spacing: -0.05em;
+                line-height: 1.2;
+                margin: 0;
+            }
+            .subtitle {
+                font-size: clamp(1.8rem, 2vw, 3rem);
+                letter-spacing: -0.02em;
+                line-height: 1.2;
+                margin: 0;
+            }
+            .powered {
+                margin: .5em 0 1em;
+            }
+            .box-container {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: space-between;
+                align-items: stretch;
+                gap: 1.5em;
+            }
+            .box {
+                flex: 1 1 280px;
+                border: 3px solid #25282a;
+                box-shadow: 5px 5px 0px #25282a;
+                box-sizing: border-box;
+                padding: 0 16px;
+            }
+            footer {
+                margin-top: 5em;
+                font-size: 14px;
+                font-weight: 500;
+                color: #a5282c;
+            }
+        "#)))
+        .with_body(PrepareMarkup::With(html! {
             div class="wrapper" {
                 div class="container" {
                     h1 class="title" { (L10n::l("welcome_title").markup()) }
@@ -115,6 +111,6 @@ pub async fn homepage() -> Markup {
                     footer { "[ " (L10n::l("welcome_have_fun").markup()) " ]" }
                 }
             }
-        }
-    }
+        }))
+        .render()
 }

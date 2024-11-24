@@ -218,7 +218,7 @@ macro_rules! kv {
 /// serde = { version = "1.0", features = ["derive"] }
 /// ```
 ///
-/// Y luego inicializa con la macro [`static_config!`](crate::static_config) tus ajustes, usando
+/// Y luego inicializa con la macro [`include_config!`](crate::include_config) tus ajustes, usando
 /// tipos seguros y asignando los valores predefinidos para la estructura asociada:
 ///
 /// ```
@@ -238,7 +238,7 @@ macro_rules! kv {
 ///     pub height: u16,
 /// }
 ///
-/// static_config!(SETTINGS: Settings => [
+/// include_config!(SETTINGS: Settings from [
 ///     // [myapp]
 ///     "myapp.name" => "Value Name",
 ///     "myapp.width" => 900,
@@ -278,7 +278,7 @@ macro_rules! kv {
 ///     println!("{}", &config::SETTINGS.myapp.width);
 /// }
 /// ```
-macro_rules! static_config {
+macro_rules! include_config {
     ( $SETTINGS:ident: $Settings:ty => [ $($key:literal => $value:literal),* $(,)? ] ) => {
         #[doc = concat!(
             "Assigned or predefined values for configuration settings associated to the ",

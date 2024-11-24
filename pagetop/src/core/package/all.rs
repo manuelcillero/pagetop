@@ -1,7 +1,7 @@
 use crate::core::action::add_action;
 use crate::core::package::{welcome, PackageRef};
 use crate::core::theme::all::THEMES;
-use crate::{service, trace};
+use crate::{include_files, include_files_service, service, trace};
 
 use std::sync::{LazyLock, RwLock};
 
@@ -23,8 +23,6 @@ pub fn register_packages(root_package: Option<PackageRef>) {
     if let Some(package) = root_package {
         add_to_enabled(&mut enabled_list, package);
     }
-    // Reverse the order to ensure packages are sorted from none to most dependencies.
-    enabled_list.reverse();
     // Save the final list of enabled packages.
     ENABLED_PACKAGES.write().unwrap().append(&mut enabled_list);
 
@@ -41,15 +39,13 @@ pub fn register_packages(root_package: Option<PackageRef>) {
 fn add_to_enabled(list: &mut Vec<PackageRef>, package: PackageRef) {
     // Check if the package is not already in the enabled list to avoid duplicates.
     if !list.iter().any(|p| p.type_id() == package.type_id()) {
-        // Add the package to the enabled list.
-        list.push(package);
-
-        // Reverse dependencies to add them in correct order (dependencies first).
-        let mut dependencies = package.dependencies();
-        dependencies.reverse();
-        for d in &dependencies {
+        // Add the package dependencies in reverse order first.
+        for d in package.dependencies().iter().rev() {
             add_to_enabled(list, *d);
         }
+
+        // Add the package itself to the enabled list.
+        list.push(package);
 
         // Check if the package has an associated theme to register.
         if let Some(theme) = package.theme() {
@@ -119,10 +115,14 @@ pub fn init_packages() {
 
 // CONFIGURE SERVICES ******************************************************************************
 
+include_files!(assets);
+
 pub fn configure_services(scfg: &mut service::web::ServiceConfig) {
     for m in ENABLED_PACKAGES.read().unwrap().iter() {
         m.configure_service(scfg);
     }
     // Default welcome homepage.
     scfg.route("/", service::web::get().to(welcome::homepage));
+    // Default assets.
+    include_files_service!(scfg, assets => "/");
 }

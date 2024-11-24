@@ -2,18 +2,18 @@
 
 // RE-EXPORTED.
 
-pub use crate::{concat_string, html, main, paste, test};
+pub use crate::{concat_string, fn_builder, html, main, paste, test};
 
 pub use crate::{AutoDefault, StaticResources, TypeId, Weight};
 
 // MACROS.
 
 // crate::util
-pub use crate::{kv, static_config};
+pub use crate::{include_config, kv};
 // crate::locale
-pub use crate::static_locales;
+pub use crate::include_locales;
 // crate::service
-pub use crate::{static_files, static_files_service};
+pub use crate::{include_files, include_files_service};
 // crate::core::action
 pub use crate::actions;
 
@@ -36,7 +36,7 @@ pub use crate::core::action::*;
 pub use crate::core::package::*;
 pub use crate::core::theme::*;
 
-pub use crate::response::{json::*, redirect::*, ResponseError};
+pub use crate::response::{json::*, page::*, redirect::*, ResponseError};
 
 pub use crate::global;
 

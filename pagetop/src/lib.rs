@@ -42,7 +42,7 @@
 //!
 //! async fn hello_world(request: HttpRequest) -> ResultPage<Markup, ErrorPage> {
 //!     Page::new(request)
-//!         .with_component(Html::with(html! { h1 { "Hello World!" } }))
+//!         .with_body(PrepareMarkup::With(html! { h1 { "Hello World!" } }))
 //!         .render()
 //! }
 //!
@@ -79,7 +79,7 @@ pub use concat_string::concat_string;
 /// Enables flexible identifier concatenation in macros, allowing new items with pasted identifiers.
 pub use paste::paste;
 
-pub use pagetop_macros::{html, main, test, AutoDefault};
+pub use pagetop_macros::{fn_builder, html, main, test, AutoDefault};
 
 pub type StaticResources = std::collections::HashMap<&'static str, static_files::Resource>;
 

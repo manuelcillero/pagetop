@@ -5,9 +5,9 @@ use tera::Tera;
 
 use std::sync::LazyLock;
 
-static_locales!(LOCALES_ALINER);
+include_locales!(LOCALES_ALINER);
 
-static_files!(aliner);
+include_files!(aliner);
 
 // ALINER THEME ************************************************************************************
 
@@ -50,7 +50,7 @@ impl PackageTrait for Aliner {
     }
 
     fn configure_service(&self, scfg: &mut service::web::ServiceConfig) {
-        static_files_service!(scfg, aliner => "/aliner");
+        include_files_service!(scfg, aliner => "/aliner");
     }
 }
 
