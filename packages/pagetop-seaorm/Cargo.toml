@@ -1,0 +1,35 @@
+[package]
+name = "pagetop-seaorm"
+version = "0.0.1"
+edition = "2021"
+
+description = """\
+    Integrate SeaORM as the database framework for PageTop applications.\
+"""
+categories = ["web-programming", "database"]
+keywords = ["pagetop", "database", "sql", "orm"]
+
+homepage    = { workspace = true }
+repository  = { workspace = true }
+authors     = { workspace = true }
+license     = { workspace = true }
+
+[dependencies]
+pagetop.workspace = true
+
+async-trait = "0.1.83"
+futures = "0.3.31"
+serde.workspace = true
+static-files.workspace = true
+url = "2.5.4"
+
+[dependencies.sea-orm]
+version = "1.1.1"
+features = [
+    "debug-print", "macros", "runtime-async-std-native-tls",
+    "sqlx-mysql", "sqlx-postgres", "sqlx-sqlite",
+]
+default-features = false
+
+[dependencies.sea-schema]
+version = "0.16.0"

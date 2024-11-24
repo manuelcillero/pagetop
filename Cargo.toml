@@ -11,6 +11,7 @@ members = [
     # Packages
     "packages/pagetop-aliner",
     "packages/pagetop-bootsier",
+    "packages/pagetop-seaorm",
 
     # App
     "drust",
