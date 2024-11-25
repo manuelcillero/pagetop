@@ -53,7 +53,7 @@
 //! ```
 //! This program implements a package named `HelloWorld` with one service that returns a web page
 //! that greets the world whenever it is accessed from the browser at `http://localhost:8088` (using
-//! the [default configuration settings](`config::Server`)). You can find this code in the `PageTop`
+//! the [default configuration settings](`global::Server`)). You can find this code in the `PageTop`
 //! [examples repository](https://github.com/manuelcillero/pagetop/tree/latest/examples).
 //!
 //! # 🧩 Dependency Management
@@ -91,7 +91,7 @@ pub type Weight = i8;
 
 // Useful functions and macros.
 pub mod util;
-// Retrieve and apply settings values from configuration files.
+// Load configuration settings.
 pub mod config;
 // Application tracing and event logging.
 pub mod trace;

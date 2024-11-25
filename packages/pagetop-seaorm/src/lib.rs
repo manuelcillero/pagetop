@@ -13,7 +13,7 @@ pub mod prelude {
 
 include_locales!(LOCALES_SEAORM);
 
-/// Implements [`PackageTrait`](pagetop::core::package::PackageTrait) and specific package API.
+/// Implements [`PackageTrait`] and specific package API.
 pub struct SeaORM;
 
 impl PackageTrait for SeaORM {

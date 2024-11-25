@@ -1,4 +1,4 @@
-//! > Adapted from https://github.com/loco-rs/loco/blob/master/src/schema.rs
+//! > Adapted from <https://github.com/loco-rs/loco/blob/master/src/schema.rs>
 //!
 //! # Database Table Schema Helpers
 //!

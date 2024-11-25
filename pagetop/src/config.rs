@@ -1,66 +1,66 @@
-//! Retrieve settings values from configuration files.
+//! Load configuration settings.
 //!
-//! Define un conjunto de ajustes de configuración usando tipos seguros y valores predefinidos.
+//! These settings are loaded from [TOML](https://toml.io) files as `key = value` pairs and mapped
+//! into type-safe structures with predefined values.
 //!
-//! Detiene la aplicación con un panic! si no pueden asignarse los ajustes de configuración.
+//! The [Twelve-Factor App](https://12factor.net/config) methodology defines **application
+//! configuration as everything that varies across deployments**, such as development, staging,
+//! or production environments.
 //!
-//! Carga la configuración de la aplicación en forma de pares `clave = valor` recogidos en archivos
-//! [TOML](https://toml.io).
-//!
-//! La metodología [The Twelve-Factor App](https://12factor.net/es/) define **la configuración de
-//! una aplicación como todo lo que puede variar entre despliegues**, diferenciando entre entornos
-//! de desarrollo, pre-producción, producción, etc.
-//!
-//! A veces las aplicaciones guardan configuraciones como constantes en el código, lo que implica
-//! una violación de esta metodología. `PageTop` recomienda una **estricta separación entre código y
-//! configuración**. La configuración variará en cada tipo de despliegue, y el código no.
+//! Storing configuration values as code constants violates this methodology. `PageTop` advocates
+//! for a **strict separation between code and configuration**, ensuring configuration varies per
+//! deployment while the code remains constant.
 //!
 //!
-//! # Cómo cargar los ajustes de configuración
+//! # Loading configuration settings
 //!
-//! Si tu aplicación requiere archivos de configuración debes crear un directorio *config* al mismo
-//! nivel del archivo *Cargo.toml* de tu proyecto (o del ejecutable binario de la aplicación).
+//! If your application requires configuration files, create a `config` directory in the root of
+//! your project, at the same level as the *Cargo.toml* file or the application's binary.
 //!
-//! `PageTop` se encargará de cargar todos los ajustes de configuración de tu aplicación leyendo los
-//! siguientes archivos TOML en este orden (todos los archivos son opcionales):
+//! `PageTop` automatically loads configuration settings by reading the following TOML files in
+//! order (all files are optional):
 //!
-//! 1. **config/common.toml**, útil para los ajustes comunes a cualquier entorno. Estos valores
-//!    podrán ser sobrescritos al fusionar los archivos de configuración restantes.
+//! 1. **config/common.toml**: Contains settings shared across all environments. These values can be
+//!    overridden by the subsequent files.
 //!
-//! 2. **config/{file}.toml**, donde *{file}* se define con la variable de entorno
+//! 2. **config/{file}.toml**, where `{file}` corresponds to the environment variable
 //!    `PAGETOP_RUN_MODE`:
 //!
-//!     * Si no está definida se asumirá *default* por defecto y `PageTop` intentará cargar el
-//!       archivo *config/default.toml* si existe.
+//!     * If `PAGETOP_RUN_MODE` is not set, it defaults to `default`, and `PageTop` attempts to load
+//!       *config/default.toml* if available.
 //!
-//!     * De esta manera podrás tener diferentes ajustes de configuración para diferentes entornos
-//!       de ejecución. Por ejemplo, para *devel.toml*, *staging.toml* o *production.toml*. O
-//!       también para *server1.toml* o *server2.toml*. Sólo uno será cargado.
+//!     * This enables separate configurations for environments like *devel.toml*, *staging.toml*,
+//!       or *production.toml*, or setups such as *server1.toml*. Only one file will be loaded.
 //!
-//!     * Normalmente estos archivos suelen ser idóneos para incluir contraseñas o configuración
-//!       sensible asociada al entorno correspondiente. Estos archivos no deberían ser publicados en
-//!       el repositorio Git por razones de seguridad.
+//!     * These files are suitable for storing sensitive values like passwords. Avoid committing
+//!       them to Git for security reasons.
 //!
-//! 3. **config/local.toml**, para añadir o sobrescribir ajustes de los archivos anteriores.
+//! 3. **config/local.toml**: Used to add or override settings from the previous files.
 //!
 //!
-//! # Cómo añadir ajustes de configuración
+//! # Adding configuration settings
 //!
-//! Para proporcionar a tu **módulo** sus propios ajustes de configuración, añade
-//! [*serde*](https://docs.rs/serde) en las dependencias de tu archivo *Cargo.toml* habilitando la
-//! característica `derive`:
+//! To give your **module** its own configuration settings, add [*serde*](https://docs.rs/serde) as
+//! a dependency in your *Cargo.toml* file with the `derive` feature enabled:
 //!
 //! ```toml
 //! [dependencies]
 //! serde = { version = "1.0", features = ["derive"] }
 //! ```
 //!
-//! Y luego inicializa con la macro [`include_config!`](crate::include_config) tus ajustes, usando
-//! tipos seguros y asignando los valores predefinidos para la estructura asociada:
+//! Then, use the [`include_config!`](crate::include_config) macro to initialize your settings with
+//! type-safe structures and predefined values:
 //!
 //! ```
 //! use pagetop::prelude::*;
 //! use serde::Deserialize;
+//!
+//! include_config!(SETTINGS: Settings => [
+//!     // [myapp]
+//!     "myapp.name" => "Value Name",
+//!     "myapp.width" => 900,
+//!     "myapp.height" => 320,
+//! ]);
 //!
 //! #[derive(Debug, Deserialize)]
 //! pub struct Settings {
@@ -74,31 +74,26 @@
 //!     pub width: u16,
 //!     pub height: u16,
 //! }
-//!
-//! include_config!(SETTINGS: Settings from [
-//!     // [myapp]
-//!     "myapp.name" => "Value Name",
-//!     "myapp.width" => 900,
-//!     "myapp.height" => 320,
-//! ]);
 //! ```
 //!
-//! De hecho, así se declaran los ajustes globales de la configuración (ver [`SETTINGS`]).
+//! This is how global configuration settings are declared (see [`SETTINGS`](crate::global::SETTINGS)).
 //!
-//! Puedes usar la [sintaxis TOML](https://toml.io/en/v1.0.0#table) para añadir tu nueva sección
-//! `[myapp]` en los archivos de configuración, del mismo modo que se añaden `[log]` o `[server]` en
-//! los ajustes globales (ver [`Settings`]).
+//! You can add a new `[myapp]` section in the configuration files using the
+//! [TOML syntax](https://toml.io/en/v1.0.0#table), just like the `[log]` or `[server]` sections in
+//! the global settings (see [`Settings`](crate::global::Settings)).
 //!
-//! Se recomienda inicializar todos los ajustes con valores predefinidos, o utilizar la notación
-//! `Option<T>` si van a ser tratados en el código como opcionales.
+//! It is recommended to initialize all settings with predefined values or use `Option<T>` for
+//! optional settings handled within the code.
 //!
-//! Si no pueden inicializarse correctamente los ajustes de configuración, entonces la aplicación
-//! ejecutará un panic! y detendrá la ejecución.
+//! If configuration settings fail to initialize correctly, the application will panic and stop
+//! execution.
 //!
-//! Los ajustes de configuración siempre serán de sólo lectura.
+//! Configuration settings are always read-only.
 //!
 //!
-//! # Cómo usar tus nuevos ajustes de configuración
+//! # Using your new configuration settings
+//!
+//! Access the settings directly in your code:
 //!
 //! ```
 //! use pagetop::prelude::*;
