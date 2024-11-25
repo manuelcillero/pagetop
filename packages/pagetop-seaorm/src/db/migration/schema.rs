@@ -73,6 +73,11 @@ pub fn pk_auto<T: IntoIden>(name: T) -> ColumnDef {
     integer(name).auto_increment().primary_key().take()
 }
 
+/// Create a UUID primary key
+pub fn pk_uuid<T: IntoIden>(name: T) -> ColumnDef {
+    uuid(name).primary_key().take()
+}
+
 pub fn char_len<T: IntoIden>(col: T, length: u32) -> ColumnDef {
     ColumnDef::new(col).char_len(length).not_null().take()
 }
@@ -538,11 +543,11 @@ pub fn uuid_uniq<T: IntoIden>(col: T) -> ColumnDef {
     uuid(col).unique_key().take()
 }
 
-pub fn custom<T: IntoIden>(col: T, name: T) -> ColumnDef {
+pub fn custom<T: IntoIden, N: IntoIden>(col: T, name: N) -> ColumnDef {
     ColumnDef::new(col).custom(name).not_null().take()
 }
 
-pub fn custom_null<T: IntoIden>(col: T, name: T) -> ColumnDef {
+pub fn custom_null<T: IntoIden, N: IntoIden>(col: T, name: N) -> ColumnDef {
     ColumnDef::new(col).custom(name).null().take()
 }
 

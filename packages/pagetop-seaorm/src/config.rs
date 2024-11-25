@@ -1,4 +1,4 @@
-//! Configuration settings for SeaORM PageTop package.
+//! Configuration settings for the SeaORM PageTop package.
 //!
 //! Example:
 //!
@@ -20,8 +20,8 @@
 //!
 //! assert_eq!(config::SETTINGS.database.db_host, "localhost");
 //! ```
-//! See [`pagetop::config`](pagetop::config) to learn how **PageTop** read configuration files and
-//! use settings.
+//! See [`pagetop::include_config`] to learn how **PageTop** read configuration files and use
+//! settings.
 
 use pagetop::prelude::*;
 
@@ -39,32 +39,33 @@ include_config!(SETTINGS: Settings => [
 ]);
 
 #[derive(Debug, Deserialize)]
-/// Type for HighlightJS configuration settings, section [`[hljs]`](Hljs) (used by [`SETTINGS`]).
+/// Represents configuration settings, specifically the [`[database]`](Database) section (used by
+/// [`SETTINGS`]).
 pub struct Settings {
     pub database: Database,
 }
 #[derive(Debug, Deserialize)]
-/// Struct for section `[database]` of [`Settings`] type.
+/// Represents the `[database]` section in the [`Settings`] type.
 pub struct Database {
-    /// Tipo de base de datos: *"mysql"*, *"postgres"* ó *"sqlite"*.
-    /// Por defecto: *""*.
+    /// Type of database: *"mysql"*, *"postgres"*, or *"sqlite"*.
+    /// Default: *""*.
     pub db_type: String,
-    /// Nombre (para mysql/postgres) o referencia (para sqlite) de la base de datos.
-    /// Por defecto: *""*.
+    /// Name (for MySQL/Postgres) or reference (for SQLite) of the database.
+    /// Default: *""*.
     pub db_name: String,
-    /// Usuario de conexión a la base de datos (para mysql/postgres).
-    /// Por defecto: *""*.
+    /// Username for database connection (for MySQL/Postgres).
+    /// Default: *""*.
     pub db_user: String,
-    /// Contraseña para la conexión a la base de datos (para mysql/postgres).
-    /// Por defecto: *""*.
+    /// Password for database connection (for MySQL/Postgres).
+    /// Default: *""*.
     pub db_pass: String,
-    /// Servidor de conexión a la base de datos (para mysql/postgres).
-    /// Por defecto: *"localhost"*.
+    /// Hostname for database connection (for MySQL/Postgres).
+    /// Default: *"localhost"*.
     pub db_host: String,
-    /// Puerto de conexión a la base de datos, normalmente 3306 (para mysql) ó 5432 (para postgres).
-    /// Por defecto: *0*.
+    /// Port number for database connection, typically 3306 (MySQL) or 5432 (Postgres).
+    /// Default: *0*.
     pub db_port: u16,
-    /// Número máximo de conexiones habilitadas.
-    /// Por defecto: *5*.
+    /// Maximum number of allowed connections.
+    /// Default: *5*.
     pub max_pool_size: u32,
 }
