@@ -1,5 +1,5 @@
-use crate::util::config::error::*;
-use crate::util::config::value::{Value, ValueKind};
+use crate::config::error::*;
+use crate::config::value::{Value, ValueKind};
 
 use std::collections::HashMap;
 use std::str::FromStr;

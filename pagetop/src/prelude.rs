@@ -9,7 +9,9 @@ pub use crate::{AutoDefault, StaticResources, TypeId, Weight};
 // MACROS.
 
 // crate::util
-pub use crate::{include_config, kv};
+pub use crate::kv;
+// crate::config
+pub use crate::include_config;
 // crate::locale
 pub use crate::include_locales;
 // crate::service

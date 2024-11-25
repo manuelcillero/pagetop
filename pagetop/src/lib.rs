@@ -91,6 +91,8 @@ pub type Weight = i8;
 
 // Useful functions and macros.
 pub mod util;
+// Retrieve and apply settings values from configuration files.
+pub mod config;
 // Application tracing and event logging.
 pub mod trace;
 // HTML in code.
