@@ -3,13 +3,9 @@
 //! These settings are loaded from [TOML](https://toml.io) files as `key = value` pairs and mapped
 //! into type-safe structures with predefined values.
 //!
-//! The [Twelve-Factor App](https://12factor.net/config) methodology defines **application
-//! configuration as everything that varies across deployments**, such as development, staging,
-//! or production environments.
-//!
-//! Storing configuration values as code constants violates this methodology. `PageTop` advocates
-//! for a **strict separation between code and configuration**, ensuring configuration varies per
-//! deployment while the code remains constant.
+//! Following the [Twelve-Factor App](https://12factor.net/config) methodology, `PageTop` separates
+//! code from configuration. This approach allows configurations to vary across deployments, such as
+//! development, staging, or production, without changing the codebase.
 //!
 //!
 //! # Loading configuration settings
@@ -20,22 +16,32 @@
 //! `PageTop` automatically loads configuration settings by reading the following TOML files in
 //! order (all files are optional):
 //!
-//! 1. **config/common.toml**: Contains settings shared across all environments. These values can be
-//!    overridden by the subsequent files.
+//! 1. **config/common.toml**, for settings shared across all environments. This approach simplifies
+//!    maintenance by centralizing common configuration values.
 //!
-//! 2. **config/{file}.toml**, where `{file}` corresponds to the environment variable
+//! 2. **config/{rm}.toml**, where `{rm}` corresponds to the environment variable
 //!    `PAGETOP_RUN_MODE`:
 //!
 //!     * If `PAGETOP_RUN_MODE` is not set, it defaults to `default`, and `PageTop` attempts to load
 //!       *config/default.toml* if available.
 //!
-//!     * This enables separate configurations for environments like *devel.toml*, *staging.toml*,
-//!       or *production.toml*, or setups such as *server1.toml*. Only one file will be loaded.
+//!     * Useful for environment-specific configurations, ensuring that each environment
+//!       (e.g., development, staging, production) has its own settings without affecting others,
+//!       such as API keys, URLs, or performance-related adjustments.
 //!
-//!     * These files are suitable for storing sensitive values like passwords. Avoid committing
-//!       them to Git for security reasons.
+//! 3. **config/local.{rm}.toml**, useful for local machine-specific configurations:
 //!
-//! 3. **config/local.toml**: Used to add or override settings from the previous files.
+//!     * This file allows you to add or override settings specific to the environment. For example,
+//!       `local.devel.toml` for development or `local.production.toml` for production tweaks.
+//!
+//!     * It enables developers to tailor settings for their machines within a given environment and
+//!       is typically not shared or committed to version control systems.
+//!
+//! 4. **config/local.toml**, for general local settings across all environments, ideal for quick
+//!    adjustments or temporary values not tied to any specific environment.
+//!
+//! The configuration settings are merged in the order listed above, with later files overriding
+//! earlier ones if there are conflicts.
 //!
 //!
 //! # Adding configuration settings
@@ -128,8 +134,8 @@ use std::sync::LazyLock;
 use std::env;
 use std::path::Path;
 
-/// Original configuration values in `key = value` pairs gathered from configuration files.
-pub static CONFIG_DATA: LazyLock<ConfigData> = LazyLock::new(|| {
+/// Original values read from configuration files in `key = value` pairs.
+pub static CONFIG_VALUES: LazyLock<ConfigData> = LazyLock::new(|| {
     // Identify the configuration directory.
     let config_dir = env::var("CARGO_MANIFEST_DIR")
         .map(|manifest_dir| {
@@ -145,11 +151,11 @@ pub static CONFIG_DATA: LazyLock<ConfigData> = LazyLock::new(|| {
     // Execution mode based on the environment variable PAGETOP_RUN_MODE, defaults to 'default'.
     let rm = env::var("PAGETOP_RUN_MODE").unwrap_or_else(|_| "default".into());
 
-    // Initialize settings.
-    let mut settings = ConfigData::default();
+    // Initialize config values.
+    let mut values = ConfigData::default();
 
     // Merge (optional) configuration files and set the execution mode.
-    settings
+    values
         // First, add the common configuration for all environments. Defaults to 'common.toml'.
         .merge(File::with_name(&concat_string!(config_dir, "/common.toml")).required(false))
         .expect("Failed to merge common configuration (common.toml)")
@@ -159,14 +165,14 @@ pub static CONFIG_DATA: LazyLock<ConfigData> = LazyLock::new(|| {
         // Add reserved local configuration for the environment. Defaults to 'local.default.toml'.
         .merge(File::with_name(&concat_string!(config_dir, "/local.", rm, ".toml")).required(false))
         .expect("Failed to merge reserved local environment configuration")
-        // Add the general reserved local configuration. Defaults to 'local.toml'.
+        // Add common reserved local configuration. Defaults to 'local.toml'.
         .merge(File::with_name(&concat_string!(config_dir, "/local.toml")).required(false))
         .expect("Failed to merge general reserved local configuration")
         // Save the execution mode.
         .set("app.run_mode", rm)
         .expect("Failed to set application run mode");
 
-    settings
+    values
 });
 
 #[macro_export]
@@ -177,7 +183,7 @@ macro_rules! include_config {
             "[`", stringify!($Settings), "`] type."
         )]
         pub static $SETTINGS: std::sync::LazyLock<$Settings> = std::sync::LazyLock::new(|| {
-            let mut settings = $crate::config::CONFIG_DATA.clone();
+            let mut settings = $crate::config::CONFIG_VALUES.clone();
             $(
                 settings.set_default($key, $value).unwrap();
             )*

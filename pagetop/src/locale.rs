@@ -96,7 +96,6 @@ use fluent_templates::StaticLoader as Locales;
 
 use unic_langid::langid;
 
-use std::borrow::Cow;
 use std::collections::HashMap;
 use std::sync::LazyLock;
 
@@ -195,12 +194,13 @@ enum L10nOp {
 #[derive(AutoDefault)]
 pub struct L10n {
     op: L10nOp,
-    locales: Option<&'static Locales>,
+    #[default(&LOCALES_PAGETOP)]
+    locales: &'static Locales,
     args: HashMap<String, FluentValue<'static>>,
 }
 
 impl L10n {
-    pub fn n<S: Into<Cow<'static, str>>>(text: S) -> Self {
+    pub fn n(text: impl Into<String>) -> Self {
         L10n {
             op: L10nOp::Text(text.into().to_string()),
             ..Default::default()
@@ -210,7 +210,6 @@ impl L10n {
     pub fn l(key: impl Into<String>) -> Self {
         L10n {
             op: L10nOp::Translate(key.into()),
-            locales: Some(&LOCALES_PAGETOP),
             ..Default::default()
         }
     }
@@ -218,7 +217,7 @@ impl L10n {
     pub fn t(key: impl Into<String>, locales: &'static Locales) -> Self {
         L10n {
             op: L10nOp::Translate(key.into()),
-            locales: Some(locales),
+            locales,
             ..Default::default()
         }
     }
@@ -229,20 +228,10 @@ impl L10n {
         self
     }
 
-    pub fn add_args(mut self, args: HashMap<String, String>) -> Self {
+    pub fn with_args(mut self, args: HashMap<String, String>) -> Self {
         for (k, v) in args {
             self.args.insert(k, FluentValue::from(v));
         }
-        self
-    }
-
-    pub fn with_count(mut self, key: impl Into<String>, count: usize) -> Self {
-        self.args.insert(key.into(), FluentValue::from(count));
-        self
-    }
-
-    pub fn with_date(mut self, key: impl Into<String>, date: impl Into<String>) -> Self {
-        self.args.insert(key.into(), FluentValue::from(date.into()));
         self
     }
 
@@ -254,29 +243,24 @@ impl L10n {
         match &self.op {
             L10nOp::None => None,
             L10nOp::Text(text) => Some(text.to_owned()),
-            L10nOp::Translate(key) => match self.locales {
-                Some(locales) => {
-                    if self.args.is_empty() {
-                        locales.try_lookup(langid, key)
-                    } else {
-                        locales.try_lookup_with_args(langid, key, &self.args)
-                    }
+            L10nOp::Translate(key) => {
+                if self.args.is_empty() {
+                    self.locales.try_lookup(langid, key)
+                } else {
+                    self.locales.try_lookup_with_args(langid, key, &self.args)
                 }
-                None => None,
-            },
+            }
         }
     }
 
     /// Escapes translated text using the default language identifier.
     pub fn markup(&self) -> Markup {
-        let content = self.get().unwrap_or_default();
-        PreEscaped(content)
+        PreEscaped(self.get().unwrap_or_default())
     }
 
     /// Escapes translated text using the specified language identifier.
     pub fn escaped(&self, langid: &LanguageIdentifier) -> Markup {
-        let content = self.using(langid).unwrap_or_default();
-        PreEscaped(content)
+        PreEscaped(self.using(langid).unwrap_or_default())
     }
 }
 
@@ -287,6 +271,6 @@ impl fmt::Display for L10n {
             L10nOp::Text(text) => text.clone(),
             L10nOp::Translate(key) => self.get().unwrap_or_else(|| format!("No <{}>", key)),
         };
-        write!(f, "{}", content)
+        write!(f, "{content}")
     }
 }
