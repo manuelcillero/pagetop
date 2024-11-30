@@ -1,17 +1,10 @@
 mod maud;
 mod smart_default;
 
-use concat_string::concat_string;
 use proc_macro::TokenStream;
 use proc_macro_error::proc_macro_error;
 use quote::{quote, quote_spanned, ToTokens};
 use syn::{parse_macro_input, parse_str, DeriveInput, ItemFn};
-
-#[proc_macro]
-#[proc_macro_error]
-pub fn html(input: TokenStream) -> TokenStream {
-    maud::expand(input.into()).into()
-}
 
 /// Macro attribute to generate builder methods from `set_` methods.
 ///
@@ -57,7 +50,7 @@ pub fn fn_builder(_: TokenStream, item: TokenStream) -> TokenStream {
         fn_with_name.clone()
     } else {
         let g = &fn_set.sig.generics;
-        concat_string!(fn_with_name, quote! { #g }.to_string())
+        format!("{fn_with_name}{}", quote! { #g }.to_string())
     };
 
     let where_clause = fn_set
@@ -66,7 +59,7 @@ pub fn fn_builder(_: TokenStream, item: TokenStream) -> TokenStream {
         .where_clause
         .as_ref()
         .map_or(String::new(), |where_clause| {
-            concat_string!(quote! { #where_clause }.to_string(), " ")
+            format!("{} ", quote! { #where_clause }.to_string())
         });
 
     let args: Vec<String> = fn_set
@@ -89,21 +82,21 @@ pub fn fn_builder(_: TokenStream, item: TokenStream) -> TokenStream {
         .collect();
 
     #[rustfmt::skip]
-    let fn_with = parse_str::<ItemFn>(concat_string!("
-        pub fn ", fn_with_generics, "(mut self, ", args.join(", "), ") -> Self ", where_clause, "{
-            self.", fn_set_name, "(", params.join(", "), ");
+    let fn_with = parse_str::<ItemFn>(format!(r##"
+        pub fn {fn_with_generics}(mut self, {}) -> Self {where_clause} {{
+            self.{fn_set_name}({});
             self
-        }
-    ").as_str()).unwrap();
+        }}
+        "##, args.join(", "), params.join(", ")
+    ).as_str()).unwrap();
 
     #[rustfmt::skip]
-    let fn_set_doc = concat_string!(
-        "<p id=\"method.", fn_with_name, "\" style=\"margin-bottom: 12px;\">Use ",
-        "<code class=\"code-header\">pub fn <span class=\"fn\" href=\"#method.", fn_with_name, "\">",
-        fn_with_name,
-        "</span>(self, …) -> Self</code> for the <a href=\"#method.new\">builder pattern</a>.",
-        "</p>"
-    );
+    let fn_set_doc = format!(r##"
+        <p id="method.{fn_with_name}" style="margin-bottom: 12px;">Use
+        <code class="code-header">pub fn <span class="fn" href="#method.{fn_with_name}">{fn_with_name}</span>(self, …) -> Self</code>
+        for the <a href="#method.new">builder pattern</a>.
+        </p>
+    "##);
 
     let expanded = quote! {
         #[doc(hidden)]
@@ -113,6 +106,52 @@ pub fn fn_builder(_: TokenStream, item: TokenStream) -> TokenStream {
         #fn_set
     };
     expanded.into()
+}
+
+#[proc_macro]
+#[proc_macro_error]
+pub fn html(input: TokenStream) -> TokenStream {
+    maud::expand(input.into()).into()
+}
+
+#[proc_macro_derive(AutoDefault, attributes(default))]
+pub fn derive_auto_default(input: TokenStream) -> TokenStream {
+    let input = parse_macro_input!(input as DeriveInput);
+    match smart_default::body_impl::impl_my_derive(&input) {
+        Ok(output) => output.into(),
+        Err(error) => error.to_compile_error().into(),
+    }
+}
+
+#[proc_macro_derive(ComponentClasses)]
+pub fn derive_component_classes(input: TokenStream) -> TokenStream {
+    let input = parse_macro_input!(input as DeriveInput);
+    let name = &input.ident;
+
+    #[rustfmt::skip]
+    let fn_set_doc = format!(r##"
+        <p id="method.with_classes">Use
+        <code class="code-header"><span class="fn" href="#method.with_classes">with_classes</span>(self, …) -> Self</code>
+        to apply the <a href="#method.new">builder pattern</a>.
+        </p>
+    "##);
+
+    let expanded = quote! {
+        impl ComponentClasses for #name {
+            #[inline]
+            #[doc = #fn_set_doc]
+            fn set_classes(&mut self, op: ClassesOp, classes: impl Into<String>) -> &mut Self {
+                self.classes.set_value(op, classes);
+                self
+            }
+
+            fn classes(&self) -> &OptionClasses {
+                &self.classes
+            }
+        }
+    };
+
+    TokenStream::from(expanded)
 }
 
 /// Marks async main function as the `PageTop` entry-point.
@@ -153,44 +192,4 @@ pub fn test(_: TokenStream, item: TokenStream) -> TokenStream {
 
     output.extend(item);
     output
-}
-
-#[proc_macro_derive(AutoDefault, attributes(default))]
-pub fn derive_auto_default(input: TokenStream) -> TokenStream {
-    let input = parse_macro_input!(input as DeriveInput);
-    match smart_default::body_impl::impl_my_derive(&input) {
-        Ok(output) => output.into(),
-        Err(error) => error.to_compile_error().into(),
-    }
-}
-
-#[proc_macro_derive(ComponentClasses)]
-pub fn derive_component_classes(input: TokenStream) -> TokenStream {
-    let input = parse_macro_input!(input as DeriveInput);
-    let name = &input.ident;
-
-    let fn_set_doc = concat_string!(
-        "<p id=\"method.with_classes\">",
-        "Use <code class=\"code-header\">",
-        " <span class=\"fn\" href=\"#method.with_classes\">with_classes</span>(self, …) -> Self ",
-        "</code> to apply the <a href=\"#method.new\">builder pattern</a>.",
-        "</p>"
-    );
-
-    let expanded = quote! {
-        impl ComponentClasses for #name {
-            #[inline]
-            #[doc = #fn_set_doc]
-            fn set_classes(&mut self, op: ClassesOp, classes: impl Into<String>) -> &mut Self {
-                self.classes.set_value(op, classes);
-                self
-            }
-
-            fn classes(&self) -> &OptionClasses {
-                &self.classes
-            }
-        }
-    };
-
-    TokenStream::from(expanded)
 }

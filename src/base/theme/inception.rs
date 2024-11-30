@@ -14,10 +14,7 @@ impl PackageTrait for Inception {
 
 impl ThemeTrait for Inception {
     fn after_prepare_body(&self, page: &mut Page) {
-        page.set_assets(AssetsOp::SetFavicon(Some(
-            Favicon::new().with_icon("/base/favicon.ico"),
-        )))
-        .set_assets(AssetsOp::AddStyleSheet(
+        page.set_assets(AssetsOp::AddStyleSheet(
             StyleSheet::from("/base/css/normalize.min.css")
                 .with_version("8.0.1")
                 .with_weight(-90),

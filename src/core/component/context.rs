@@ -1,12 +1,12 @@
 use crate::base::component::add_base_assets;
 use crate::concat_string;
 use crate::core::component::AnyOp;
-use crate::core::theme::all::{theme_by_short_name, THEME_DEFAULT};
+use crate::core::theme::all::{theme_by_short_name, DEFAULT_THEME};
 use crate::core::theme::{ComponentsInRegions, ThemeRef};
 use crate::global::TypeInfo;
 use crate::html::{html, Markup};
 use crate::html::{Assets, Favicon, JavaScript, StyleSheet};
-use crate::locale::{LanguageIdentifier, LANGID_DEFAULT};
+use crate::locale::{LanguageIdentifier, DEFAULT_LANGID};
 use crate::service::HttpRequest;
 
 use std::collections::HashMap;
@@ -68,8 +68,8 @@ impl Context {
     pub(crate) fn new(request: HttpRequest) -> Self {
         Context {
             request,
-            langid    : &LANGID_DEFAULT,
-            theme     : *THEME_DEFAULT,
+            langid    : &DEFAULT_LANGID,
+            theme     : *DEFAULT_THEME,
             layout    : "default",
             favicon   : None,
             stylesheet: Assets::<StyleSheet>::new(),
@@ -86,7 +86,7 @@ impl Context {
                 self.langid = langid;
             }
             AssetsOp::Theme(theme_name) => {
-                self.theme = theme_by_short_name(theme_name).unwrap_or(*THEME_DEFAULT);
+                self.theme = theme_by_short_name(theme_name).unwrap_or(*DEFAULT_THEME);
             }
             AssetsOp::Layout(layout) => {
                 self.layout = layout;

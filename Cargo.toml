@@ -3,60 +3,55 @@ name = "pagetop"
 version = "0.0.56"
 edition = "2021"
 
-description = "An opinionated web framework to build modular Server-Side Rendering web solutions."
-homepage = "https://pagetop.cillero.es"
-repository = "https://github.com/manuelcillero/pagetop"
-license = "MIT OR Apache-2.0"
+description = """\
+    An opinionated web framework to build modular Server-Side Rendering web solutions.\
+"""
+categories = ["web-programming", "gui", "development-tools", "asynchronous"]
+keywords = ["pagetop", "web", "framework", "frontend", "ssr"]
 
-authors = [
-    "Manuel Cillero <manuel@cillero.es>"
-]
-categories = [
-    "web-programming", "gui", "development-tools", "asynchronous"
-]
-keywords = [
-    "pagetop", "web", "framework", "frontend", "ssr"
-]
-exclude = [
-    "examples/", "helpers/", "tests/"
-]
+repository = "https://github.com/manuelcillero/pagetop"
+homepage = "https://pagetop.cillero.es"
+license = "MIT OR Apache-2.0"
+authors = ["Manuel Cillero <manuel@cillero.es>"]
+
+exclude = ["examples/", "helpers/", "tests/"]
 rust-version = "1.80.0"
 
 [workspace]
+resolver = "2"
 members = ["helpers/*"]
 
 [lib]
 name = "pagetop"
 
 [dependencies]
-chrono        = "0.4.38"
+chrono = "0.4.38"
+colored = "2.1.0"
 concat-string = "1.0.1"
-figlet-rs     = "0.1.5"
-itoa          = "1.0.11"
-nom           = "7.1.3"
-paste         = "1.0.15"
-substring     = "1.4.5"
-terminal_size = "0.3.0"
-toml          = "0.8.19"
+figlet-rs = "0.1.5"
+itoa = "1.0.14"
+nom = "7.1.3"
+paste = "1.0.15"
+serde = { version = "1.0", features = ["derive"] }
+substring = "1.4.5"
+terminal_size = "0.4.1"
+toml = "0.8.19"
 
-tracing = "0.1.40"
+tracing = "0.1.41"
 tracing-appender = "0.2.3"
-tracing-subscriber = { version = "0.3.18", features = ["json", "env-filter"] }
-tracing-actix-web = "0.7.11"
+tracing-subscriber = { version = "0.3.19", features = ["json", "env-filter"] }
+tracing-actix-web = "0.7.15"
 
-fluent-templates = "0.9.4"
+fluent-templates = "0.11.0"
 unic-langid = { version = "0.9.5", features = ["macros"] }
 
-actix-web = "4"
-actix-session = { version = "0.10.0", features = ["cookie-session"] }
-
+actix-web = "4.9.0"
+actix-session = { version = "0.10.1", features = ["cookie-session"] }
 actix-web-files = { package = "actix-files", version = "0.6.6" }
 actix-web-static-files = "4.0.1"
 static-files = "0.2.4"
 
 pagetop-macros = { version = "0.0", path = "helpers/pagetop-macros" }
-
-serde = { version = "1.0", features = ["derive"] }
 
 [build-dependencies]
 pagetop-build = { version = "0.0", path = "helpers/pagetop-build" }

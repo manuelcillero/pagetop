@@ -16,7 +16,7 @@ pub use crate::config_defaults;
 // crate::html
 pub use crate::html;
 // crate::locale
-pub use crate::static_locales;
+pub use crate::include_locales;
 // crate::service
 pub use crate::{static_files, static_files_service};
 // crate::core::action

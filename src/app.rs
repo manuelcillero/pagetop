@@ -45,7 +45,7 @@ impl Application {
         LazyLock::force(&trace::TRACING);
 
         // Validates the default language identifier.
-        LazyLock::force(&locale::LANGID_DEFAULT);
+        LazyLock::force(&locale::DEFAULT_LANGID);
 
         // Registers the application's packages.
         package::all::register_packages(root_package);
@@ -61,11 +61,13 @@ impl Application {
 
     // Displays the application banner based on the configuration.
     fn show_banner() {
+        use colored::Colorize;
         use terminal_size::{terminal_size, Width};
 
         if global::SETTINGS.app.startup_banner.to_lowercase() != "off" {
             // Application name, formatted for the terminal width if necessary.
-            let mut app_name = global::SETTINGS.app.name.to_string();
+            let mut app_ff = "".to_string();
+            let app_name = &global::SETTINGS.app.name;
             if let Some((Width(term_width), _)) = terminal_size() {
                 if term_width >= 80 {
                     let maxlen: usize = ((term_width / 10) - 2).into();
@@ -74,19 +76,27 @@ impl Application {
                         app = format!("{app}...");
                     }
                     if let Some(ff) = figfont::FIGFONT.convert(&app) {
-                        app_name = ff.to_string();
+                        app_ff = ff.to_string();
                     }
                 }
             }
-            println!("\n{app_name}");
+            if app_ff.is_empty() {
+                println!("\n{app_name}");
+            } else {
+                print!("\n{app_ff}");
+            }
 
             // Application description.
             if !global::SETTINGS.app.description.is_empty() {
-                println!("{}\n", global::SETTINGS.app.description);
+                println!("{}", global::SETTINGS.app.description.cyan());
             };
 
             // PageTop version.
-            println!("Powered by PageTop {}\n", env!("CARGO_PKG_VERSION"));
+            println!(
+                "{} {}\n",
+                "Powered by PageTop".yellow(),
+                env!("CARGO_PKG_VERSION").yellow()
+            );
         }
     }
 

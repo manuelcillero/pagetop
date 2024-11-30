@@ -1,7 +1,7 @@
 use crate::base::component::*;
-use crate::core::component::{AssetsOp, ComponentBase, ComponentTrait};
+use crate::core::component::{ComponentBase, ComponentTrait};
 use crate::core::package::PackageTrait;
-use crate::html::{html, Favicon, PrepareMarkup};
+use crate::html::{html, PrepareMarkup};
 use crate::locale::L10n;
 use crate::response::page::Page;
 use crate::{concat_string, global};
@@ -69,11 +69,8 @@ pub trait ThemeTrait: PackageTrait + Send + Sync {
         })
     }
 
-    fn after_prepare_body(&self, page: &mut Page) {
-        page.set_assets(AssetsOp::SetFaviconIfNone(
-            Favicon::new().with_icon("/base/favicon.ico"),
-        ));
-    }
+    #[allow(unused_variables)]
+    fn after_prepare_body(&self, page: &mut Page) {}
 
     fn prepare_head(&self, page: &mut Page) -> PrepareMarkup {
         let viewport = "width=device-width, initial-scale=1, shrink-to-fit=no";

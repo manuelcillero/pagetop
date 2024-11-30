@@ -1,7 +1,7 @@
 use pagetop_build::StaticFilesBundle;
 
 fn main() -> std::io::Result<()> {
-    StaticFilesBundle::from_dir("./static/base")
-        .with_name("base")
+    StaticFilesBundle::from_dir("./static/assets", None)
+        .with_name("assets")
         .build()
 }

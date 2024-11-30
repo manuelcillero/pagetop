@@ -2,5 +2,3 @@
 **/log/*.log*
 **/local.*.toml
 **/local.toml
-Cargo.lock
-workdir

@@ -1,5 +1,5 @@
 use crate::html::assets::AssetsTrait;
-use crate::html::{html, Markup};
+use crate::html::{html, Markup, PreEscaped};
 use crate::{concat_string, AutoDefault, Weight};
 
 #[derive(AutoDefault)]
@@ -47,7 +47,7 @@ impl AssetsTrait for StyleSheet {
                     media=[self.media];
             },
             Source::Inline(_, code) => html! {
-                styles { (code) };
+                style { (PreEscaped(code)) };
             },
         }
     }

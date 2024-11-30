@@ -114,13 +114,13 @@ static LANGUAGES: LazyLock<HashMap<String, (LanguageIdentifier, &str)>> = LazyLo
     ]
 });
 
-pub static LANGID_FALLBACK: LazyLock<LanguageIdentifier> = LazyLock::new(|| langid!("en-US"));
+static FALLBACK_LANGID: LazyLock<LanguageIdentifier> = LazyLock::new(|| langid!("en-US"));
 
 /// Sets the application's default
 /// [Unicode Language Identifier](https://unicode.org/reports/tr35/tr35.html#Unicode_language_identifier)
 /// through `SETTINGS.app.language`.
-pub static LANGID_DEFAULT: LazyLock<&LanguageIdentifier> = LazyLock::new(|| {
-    langid_for(global::SETTINGS.app.language.as_str()).unwrap_or(&LANGID_FALLBACK)
+pub static DEFAULT_LANGID: LazyLock<&LanguageIdentifier> = LazyLock::new(|| {
+    langid_for(global::SETTINGS.app.language.as_str()).unwrap_or(&FALLBACK_LANGID)
 });
 
 pub fn langid_for(language: impl Into<String>) -> Result<&'static LanguageIdentifier, String> {
@@ -129,7 +129,7 @@ pub fn langid_for(language: impl Into<String>) -> Result<&'static LanguageIdenti
         Some((langid, _)) => Ok(langid),
         None => {
             if language.is_empty() {
-                Ok(&LANGID_FALLBACK)
+                Ok(&FALLBACK_LANGID)
             } else {
                 Err(format!(
                     "No langid for Unicode Language Identifier \"{language}\".",
@@ -141,7 +141,7 @@ pub fn langid_for(language: impl Into<String>) -> Result<&'static LanguageIdenti
 
 #[macro_export]
 /// Defines a set of localization elements and local translation texts.
-macro_rules! static_locales {
+macro_rules! include_locales {
     ( $LOCALES:ident $(, $core_locales:literal)? ) => {
         $crate::locale::fluent_templates::static_loader! {
             static $LOCALES = {
@@ -241,6 +241,10 @@ impl L10n {
         }
     }
 
+    pub fn markup(&self) -> Markup {
+        PreEscaped(self.using(&DEFAULT_LANGID).unwrap_or_default())
+    }
+
     pub fn escaped(&self, langid: &LanguageIdentifier) -> Markup {
         PreEscaped(self.using(langid).unwrap_or_default())
     }
@@ -259,16 +263,16 @@ impl fmt::Display for L10n {
                         if self.args.is_empty() {
                             locales.lookup(
                                 match key.as_str() {
-                                    LANGUAGE_SET_FAILURE => &LANGID_FALLBACK,
-                                    _ => &LANGID_DEFAULT,
+                                    LANGUAGE_SET_FAILURE => &FALLBACK_LANGID,
+                                    _ => &DEFAULT_LANGID,
                                 },
                                 key,
                             )
                         } else {
                             locales.lookup_with_args(
                                 match key.as_str() {
-                                    LANGUAGE_SET_FAILURE => &LANGID_FALLBACK,
-                                    _ => &LANGID_DEFAULT,
+                                    LANGUAGE_SET_FAILURE => &FALLBACK_LANGID,
+                                    _ => &DEFAULT_LANGID,
                                 },
                                 key,
                                 &self

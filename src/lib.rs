@@ -98,7 +98,7 @@ pub type Weight = i8;
 // Global settings, functions and macro helpers.
 pub mod global;
 
-static_locales!(LOCALES_PAGETOP);
+include_locales!(LOCALES_PAGETOP);
 
 // *************************************************************************************************
 // PUBLIC API.

@@ -5,7 +5,7 @@ use crate::{global, service, static_files, static_files_service, trace};
 
 use std::sync::{LazyLock, RwLock};
 
-static_files!(base);
+static_files!(assets);
 
 // PACKAGES ****************************************************************************************
 
@@ -21,13 +21,11 @@ pub fn register_packages(root_package: Option<PackageRef>) {
     // Initialize a list for packages to be enabled.
     let mut enabled_list: Vec<PackageRef> = Vec::new();
 
+    // Add default theme to the enabled list.
+    add_to_enabled(&mut enabled_list, &crate::base::theme::Basic);
+
     // Add default welcome page package to the enabled list.
     add_to_enabled(&mut enabled_list, &crate::base::package::Welcome);
-
-    // Add default theme packages to the enabled list.
-    add_to_enabled(&mut enabled_list, &crate::base::theme::Basic);
-    add_to_enabled(&mut enabled_list, &crate::base::theme::Chassis);
-    add_to_enabled(&mut enabled_list, &crate::base::theme::Inception);
 
     // If a root package is provided, add it to the enabled list.
     if let Some(package) = root_package {
@@ -130,12 +128,12 @@ pub fn init_packages() {
 // CONFIGURE SERVICES ******************************************************************************
 
 pub fn configure_services(scfg: &mut service::web::ServiceConfig) {
-    static_files_service!(
-        scfg,
-        base => "/base",
-        [&global::SETTINGS.dev.pagetop_project_dir, "static/base"]
-    );
     for m in ENABLED_PACKAGES.read().unwrap().iter() {
         m.configure_service(scfg);
     }
+    static_files_service!(
+        scfg,
+        assets => "/",
+        [&global::SETTINGS.dev.pagetop_project_dir, "static/assets"]
+    );
 }
