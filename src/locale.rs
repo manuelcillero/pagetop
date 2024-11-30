@@ -182,10 +182,6 @@ pub struct L10n {
 }
 
 impl L10n {
-    pub fn none() -> Self {
-        L10n::default()
-    }
-
     pub fn n(text: impl Into<String>) -> Self {
         L10n {
             op: L10nOp::Text(text.into()),

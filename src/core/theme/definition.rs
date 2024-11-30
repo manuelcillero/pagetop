@@ -79,7 +79,7 @@ pub trait ThemeTrait: PackageTrait + Send + Sync {
                 meta charset="utf-8";
 
                 @if let Some(title) = page.title() {
-                    title { (global::SETTINGS.app.name) (" - ") (title) }
+                    title { (global::SETTINGS.app.name) (" | ") (title) }
                 } @else {
                     title { (global::SETTINGS.app.name) }
                 }
@@ -102,4 +102,33 @@ pub trait ThemeTrait: PackageTrait + Send + Sync {
             }
         })
     }
+    /*
+    fn prepare_page_body(&self, page: &mut Page) -> PrepareMarkup {
+        PrepareMarkup::With(html! {
+            body id=[page.body_id().get()] class=[page.body_classes().get()] {
+                (page.body_content().render())
+            }
+        })
+    }
+
+    fn error_403(&self, request: service::HttpRequest) -> Page {
+        Page::new(request)
+            .with_title(L10n::n("Error FORBIDDEN"))
+            .with_body(PrepareMarkup::With(html! {
+                div {
+                    h1 { ("FORBIDDEN ACCESS") }
+                }
+            }))
+    }
+
+    fn error_404(&self, request: service::HttpRequest) -> Page {
+        Page::new(request)
+            .with_title(L10n::n("Error RESOURCE NOT FOUND"))
+            .with_body(PrepareMarkup::With(html! {
+                div {
+                    h1 { ("RESOURCE NOT FOUND") }
+                }
+            }))
+    }
+    */
 }
