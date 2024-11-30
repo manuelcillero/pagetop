@@ -13,7 +13,7 @@ pub use actix_web_files::Files as ActixFiles;
 pub use actix_web_static_files::ResourceFiles;
 
 #[macro_export]
-macro_rules! static_files {
+macro_rules! include_files {
     ( $bundle:ident ) => {
         $crate::paste! {
             mod [<static_files_ $bundle>] {
@@ -26,7 +26,7 @@ macro_rules! static_files {
             mod [<static_files_ $bundle>] {
                 include!(concat!(env!("OUT_DIR"), "/", stringify!($bundle), ".rs"));
             }
-            static $STATIC: std::sync::LazyLock<HashMapResources> = std::sync::LazyLock::new(
+            static $STATIC: std::sync::LazyLock<StaticResources> = std::sync::LazyLock::new(
                 [<static_files_ $bundle>]::$bundle
             );
         }
@@ -34,11 +34,12 @@ macro_rules! static_files {
 }
 
 #[macro_export]
-macro_rules! static_files_service {
+macro_rules! include_files_service {
     ( $scfg:ident, $bundle:ident => $path:expr $(, [$root:expr, $relative:expr])? ) => {{
         $crate::paste! {
             let span = $crate::trace::debug_span!("Configuring static files ", path = $path);
             let _ = span.in_scope(|| {
+                #[allow(unused_mut)]
                 let mut serve_embedded:bool = true;
                 $(
                     if !$root.is_empty() && !$relative.is_empty() {

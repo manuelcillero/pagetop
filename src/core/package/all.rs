@@ -1,11 +1,11 @@
 use crate::core::action::add_action;
 use crate::core::package::PackageRef;
 use crate::core::theme::all::THEMES;
-use crate::{global, service, static_files, static_files_service, trace};
+use crate::{global, include_files, include_files_service, service, trace};
 
 use std::sync::{LazyLock, RwLock};
 
-static_files!(assets);
+include_files!(assets);
 
 // PACKAGES ****************************************************************************************
 
@@ -131,7 +131,7 @@ pub fn configure_services(scfg: &mut service::web::ServiceConfig) {
     for m in ENABLED_PACKAGES.read().unwrap().iter() {
         m.configure_service(scfg);
     }
-    static_files_service!(
+    include_files_service!(
         scfg,
         assets => "/",
         [&global::SETTINGS.dev.pagetop_project_dir, "static/assets"]

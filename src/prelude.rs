@@ -1,24 +1,21 @@
 //! The `PageTop` Prelude.
 
-// RE-EXPORTED MACROS AND DERIVES.
-pub use crate::{concat_string, fn_builder, main, paste, test};
-pub use crate::{AutoDefault, ComponentClasses};
+// RE-EXPORTED.
 
-// GLOBAL.
-pub use crate::{HashMapResources, TypeId, Weight};
+pub use crate::{concat_string, fn_builder, html, main, paste, test};
+
+pub use crate::{AutoDefault, ComponentClasses, HashMapResources, TypeId, Weight};
 
 // MACROS.
 
-// crate::global
+// crate::util
 pub use crate::kv;
 // crate::config
 pub use crate::include_config;
-// crate::html
-pub use crate::html;
 // crate::locale
 pub use crate::include_locales;
 // crate::service
-pub use crate::{static_files, static_files_service};
+pub use crate::{include_files, include_files_service};
 // crate::core::action
 pub use crate::actions;
 

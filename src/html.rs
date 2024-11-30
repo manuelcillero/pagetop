@@ -29,9 +29,14 @@ pub use opt_component::OptionComponent;
 
 pub mod unit;
 
+use crate::AutoDefault;
+
+#[derive(AutoDefault)]
 pub enum PrepareMarkup {
+    #[default]
     None,
     Text(&'static str),
+    Escaped(String),
     With(Markup),
 }
 
@@ -40,6 +45,7 @@ impl PrepareMarkup {
         match self {
             PrepareMarkup::None => html! {},
             PrepareMarkup::Text(text) => html! { (text) },
+            PrepareMarkup::Escaped(string) => html! { (PreEscaped(string)) },
             PrepareMarkup::With(markup) => html! { (markup) },
         }
     }
