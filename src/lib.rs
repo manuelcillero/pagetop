@@ -81,19 +81,11 @@ pub use paste::paste;
 
 pub use pagetop_macros::{fn_builder, main, test, AutoDefault, ComponentClasses};
 
-// *************************************************************************************************
-// GLOBAL.
-// *************************************************************************************************
-
-pub use static_files::Resource as StaticResource;
-
-pub type HashMapResources = std::collections::HashMap<&'static str, StaticResource>;
+pub type HashMapResources = std::collections::HashMap<&'static str, static_files::Resource>;
 
 pub use std::any::TypeId;
 
 pub type Weight = i8;
-
-include_locales!(LOCALES_PAGETOP);
 
 // API *********************************************************************************************
 
