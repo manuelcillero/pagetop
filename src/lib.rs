@@ -53,7 +53,7 @@
 //! ```
 //! This program implements a package named `HelloWorld` with one service that returns a web page
 //! that greets the world whenever it is accessed from the browser at `http://localhost:8088` (using
-//! the [default configuration settings](`config::Server`)). You can find this code in the `PageTop`
+//! the [default configuration settings](`global::Server`)). You can find this code in the `PageTop`
 //! [examples repository](https://github.com/manuelcillero/pagetop/tree/latest/examples).
 //!
 //! # 🧩 Dependency Management
@@ -79,9 +79,9 @@ pub use concat_string::concat_string;
 /// Enables flexible identifier concatenation in macros, allowing new items with pasted identifiers.
 pub use paste::paste;
 
-pub use pagetop_macros::{fn_builder, main, test, AutoDefault, ComponentClasses};
+pub use pagetop_macros::{fn_builder, html, main, test, AutoDefault, ComponentClasses};
 
-pub type HashMapResources = std::collections::HashMap<&'static str, static_files::Resource>;
+pub type StaticResources = std::collections::HashMap<&'static str, static_files::Resource>;
 
 pub use std::any::TypeId;
 
