@@ -1,62 +1,72 @@
-//! Retrieve and apply settings values from configuration files.
+//! Load configuration settings.
 //!
-//! Carga la configuración de la aplicación en forma de pares `clave = valor` recogidos en archivos
-//! [TOML](https://toml.io).
+//! These settings are loaded from [TOML](https://toml.io) files as `key = value` pairs and mapped
+//! into type-safe structures with predefined values.
 //!
-//! La metodología [The Twelve-Factor App](https://12factor.net/es/) define **la configuración de
-//! una aplicación como todo lo que puede variar entre despliegues**, diferenciando entre entornos
-//! de desarrollo, pre-producción, producción, etc.
-//!
-//! A veces las aplicaciones guardan configuraciones como constantes en el código, lo que implica
-//! una violación de esta metodología. `PageTop` recomienda una **estricta separación entre código y
-//! configuración**. La configuración variará en cada tipo de despliegue, y el código no.
+//! Following the [Twelve-Factor App](https://12factor.net/config) methodology, `PageTop` separates
+//! code from configuration. This approach allows configurations to vary across deployments, such as
+//! development, staging, or production, without changing the codebase.
 //!
 //!
-//! # Cómo cargar los ajustes de configuración
+//! # Loading configuration settings
 //!
-//! Si tu aplicación requiere archivos de configuración debes crear un directorio *config* al mismo
-//! nivel del archivo *Cargo.toml* de tu proyecto (o del ejecutable binario de la aplicación).
+//! If your application requires configuration files, create a `config` directory in the root of
+//! your project, at the same level as the *Cargo.toml* file or the application's binary.
 //!
-//! `PageTop` se encargará de cargar todos los ajustes de configuración de tu aplicación leyendo los
-//! siguientes archivos TOML en este orden (todos los archivos son opcionales):
+//! `PageTop` automatically loads configuration settings by reading the following TOML files in
+//! order (all files are optional):
 //!
-//! 1. **config/common.toml**, útil para los ajustes comunes a cualquier entorno. Estos valores
-//!    podrán ser sobrescritos al fusionar los archivos de configuración restantes.
+//! 1. **config/common.toml**, for settings shared across all environments. This approach simplifies
+//!    maintenance by centralizing common configuration values.
 //!
-//! 2. **config/{file}.toml**, donde *{file}* se define con la variable de entorno
+//! 2. **config/{rm}.toml**, where `{rm}` corresponds to the environment variable
 //!    `PAGETOP_RUN_MODE`:
 //!
-//!     * Si no está definida se asumirá *default* por defecto y `PageTop` intentará cargar el
-//!       archivo *config/default.toml* si existe.
+//!     * If `PAGETOP_RUN_MODE` is not set, it defaults to `default`, and `PageTop` attempts to load
+//!       *config/default.toml* if available.
 //!
-//!     * De esta manera podrás tener diferentes ajustes de configuración para diferentes entornos
-//!       de ejecución. Por ejemplo, para *devel.toml*, *staging.toml* o *production.toml*. O
-//!       también para *server1.toml* o *server2.toml*. Sólo uno será cargado.
+//!     * Useful for environment-specific configurations, ensuring that each environment
+//!       (e.g., development, staging, production) has its own settings without affecting others,
+//!       such as API keys, URLs, or performance-related adjustments.
 //!
-//!     * Normalmente estos archivos suelen ser idóneos para incluir contraseñas o configuración
-//!       sensible asociada al entorno correspondiente. Estos archivos no deberían ser publicados en
-//!       el repositorio Git por razones de seguridad.
+//! 3. **config/local.{rm}.toml**, useful for local machine-specific configurations:
 //!
-//! 3. **config/local.toml**, para añadir o sobrescribir ajustes de los archivos anteriores.
+//!     * This file allows you to add or override settings specific to the environment. For example,
+//!       `local.devel.toml` for development or `local.production.toml` for production tweaks.
+//!
+//!     * It enables developers to tailor settings for their machines within a given environment and
+//!       is typically not shared or committed to version control systems.
+//!
+//! 4. **config/local.toml**, for general local settings across all environments, ideal for quick
+//!    adjustments or temporary values not tied to any specific environment.
+//!
+//! The configuration settings are merged in the order listed above, with later files overriding
+//! earlier ones if there are conflicts.
 //!
 //!
-//! # Cómo añadir ajustes de configuración
+//! # Adding configuration settings
 //!
-//! Para proporcionar a tu **módulo** sus propios ajustes de configuración, añade
-//! [*serde*](https://docs.rs/serde) en las dependencias de tu archivo *Cargo.toml* habilitando la
-//! característica `derive`:
+//! To give your **module** its own configuration settings, add [*serde*](https://docs.rs/serde) as
+//! a dependency in your *Cargo.toml* file with the `derive` feature enabled:
 //!
 //! ```toml
 //! [dependencies]
 //! serde = { version = "1.0", features = ["derive"] }
 //! ```
 //!
-//! Y luego inicializa con la macro [`config_defaults!`](crate::config_defaults) tus ajustes, usando
-//! tipos seguros y asignando los valores predefinidos para la estructura asociada:
+//! Then, use the [`include_config!`](crate::include_config) macro to initialize your settings with
+//! type-safe structures and predefined values:
 //!
 //! ```
 //! use pagetop::prelude::*;
 //! use serde::Deserialize;
+//!
+//! include_config!(SETTINGS: Settings => [
+//!     // [myapp]
+//!     "myapp.name" => "Value Name",
+//!     "myapp.width" => 900,
+//!     "myapp.height" => 320,
+//! ]);
 //!
 //! #[derive(Debug, Deserialize)]
 //! pub struct Settings {
@@ -70,31 +80,26 @@
 //!     pub width: u16,
 //!     pub height: u16,
 //! }
-//!
-//! config_defaults!(SETTINGS: Settings => [
-//!     // [myapp]
-//!     "myapp.name" => "Value Name",
-//!     "myapp.width" => 900,
-//!     "myapp.height" => 320,
-//! ]);
 //! ```
 //!
-//! De hecho, así se declaran los ajustes globales de la configuración (ver [`SETTINGS`]).
+//! This is how global configuration settings are declared (see [`SETTINGS`](crate::global::SETTINGS)).
 //!
-//! Puedes usar la [sintaxis TOML](https://toml.io/en/v1.0.0#table) para añadir tu nueva sección
-//! `[myapp]` en los archivos de configuración, del mismo modo que se añaden `[log]` o `[server]` en
-//! los ajustes globales (ver [`Settings`]).
+//! You can add a new `[myapp]` section in the configuration files using the
+//! [TOML syntax](https://toml.io/en/v1.0.0#table), just like the `[log]` or `[server]` sections in
+//! the global settings (see [`Settings`](crate::global::Settings)).
 //!
-//! Se recomienda inicializar todos los ajustes con valores predefinidos, o utilizar la notación
-//! `Option<T>` si van a ser tratados en el código como opcionales.
+//! It is recommended to initialize all settings with predefined values or use `Option<T>` for
+//! optional settings handled within the code.
 //!
-//! Si no pueden inicializarse correctamente los ajustes de configuración, entonces la aplicación
-//! ejecutará un panic! y detendrá la ejecución.
+//! If configuration settings fail to initialize correctly, the application will panic and stop
+//! execution.
 //!
-//! Los ajustes de configuración siempre serán de sólo lectura.
+//! Configuration settings are always read-only.
 //!
 //!
-//! # Cómo usar tus nuevos ajustes de configuración
+//! # Using your new configuration settings
+//!
+//! Access the settings directly in your code:
 //!
 //! ```
 //! use pagetop::prelude::*;
@@ -127,64 +132,58 @@ use crate::config::file::File;
 use std::sync::LazyLock;
 
 use std::env;
+use std::path::Path;
 
-/// Directorio donde se encuentran los archivos de configuración.
-const CONFIG_DIR: &str = "config";
+/// Original values read from configuration files in `key = value` pairs.
+pub static CONFIG_VALUES: LazyLock<ConfigData> = LazyLock::new(|| {
+    // Identify the configuration directory.
+    let config_dir = env::var("CARGO_MANIFEST_DIR")
+        .map(|manifest_dir| {
+            let manifest_config = Path::new(&manifest_dir).join("config");
+            if manifest_config.exists() {
+                manifest_config.to_string_lossy().to_string()
+            } else {
+                "config".to_string()
+            }
+        })
+        .unwrap_or_else(|_| "config".to_string());
 
-/// Valores originales de la configuración en forma de pares `clave = valor` recogidos de los
-/// archivos de configuración.
+    // Execution mode based on the environment variable PAGETOP_RUN_MODE, defaults to 'default'.
+    let rm = env::var("PAGETOP_RUN_MODE").unwrap_or_else(|_| "default".into());
 
-#[rustfmt::skip]
-pub static CONFIG_DATA: LazyLock<ConfigData> = LazyLock::new(|| {
-    // Modo de ejecución según la variable de entorno PAGETOP_RUN_MODE. Por defecto 'default'.
-    let run_mode = env::var("PAGETOP_RUN_MODE").unwrap_or_else(|_| "default".into());
+    // Initialize config values.
+    let mut values = ConfigData::default();
 
-    // Inicializa los ajustes.
-    let mut settings = ConfigData::default();
+    // Merge (optional) configuration files and set the execution mode.
+    values
+        // First, add the common configuration for all environments. Defaults to 'common.toml'.
+        .merge(File::with_name(&concat_string!(config_dir, "/common.toml")).required(false))
+        .expect("Failed to merge common configuration (common.toml)")
+        // Add the environment-specific configuration. Defaults to 'default.toml'.
+        .merge(File::with_name(&concat_string!(config_dir, "/", rm, ".toml")).required(false))
+        .expect(&format!("Failed to merge {rm}.toml configuration"))
+        // Add reserved local configuration for the environment. Defaults to 'local.default.toml'.
+        .merge(File::with_name(&concat_string!(config_dir, "/local.", rm, ".toml")).required(false))
+        .expect("Failed to merge reserved local environment configuration")
+        // Add common reserved local configuration. Defaults to 'local.toml'.
+        .merge(File::with_name(&concat_string!(config_dir, "/local.toml")).required(false))
+        .expect("Failed to merge general reserved local configuration")
+        // Save the execution mode.
+        .set("app.run_mode", rm)
+        .expect("Failed to set application run mode");
 
-    // Combina los archivos (opcionales) de configuración y asigna el modo de ejecución.
-    settings
-        // Primero añade la configuración común a todos los entornos. Por defecto 'common.toml'.
-        .merge(
-            File::with_name(&concat_string!(CONFIG_DIR, "/common.toml"))
-                .required(false)
-        ).unwrap()
-        // Añade la configuración específica del entorno. Por defecto 'default.toml'.
-        .merge(
-            File::with_name(&concat_string!(CONFIG_DIR, "/", run_mode, ".toml"))
-                .required(false)
-        ).unwrap()
-        // Añade la configuración local reservada del entorno. Por defecto 'local.default.toml'.
-        .merge(
-            File::with_name(&concat_string!(CONFIG_DIR, "/local.", run_mode, ".toml"))
-                .required(false),
-        ).unwrap()
-        // Añade la configuración local reservada general. Por defecto 'local.toml'.
-        .merge(
-            File::with_name(&concat_string!(CONFIG_DIR, "/local.toml"))
-                .required(false)
-        ).unwrap()
-        // Salvaguarda el modo de ejecución.
-        .set("app.run_mode", run_mode)
-        .unwrap();
-
-    settings
+    values
 });
 
 #[macro_export]
-/// Define un conjunto de ajustes de configuración usando tipos seguros y valores predefinidos.
-///
-/// Detiene la aplicación con un panic! si no pueden asignarse los ajustes de configuración.
-///
-/// Ver [`Cómo añadir ajustes de configuración`](config/index.html#cómo-añadir-ajustes-de-configuración).
-macro_rules! config_defaults {
+macro_rules! include_config {
     ( $SETTINGS:ident: $Settings:ty => [ $($key:literal => $value:literal),* $(,)? ] ) => {
         #[doc = concat!(
             "Assigned or predefined values for configuration settings associated to the ",
             "[`", stringify!($Settings), "`] type."
         )]
         pub static $SETTINGS: std::sync::LazyLock<$Settings> = std::sync::LazyLock::new(|| {
-            let mut settings = $crate::config::CONFIG_DATA.clone();
+            let mut settings = $crate::config::CONFIG_VALUES.clone();
             $(
                 settings.set_default($key, $value).unwrap();
             )*

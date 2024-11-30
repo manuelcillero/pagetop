@@ -72,9 +72,7 @@
 
 #![cfg_attr(docsrs, feature(doc_cfg))]
 
-// *************************************************************************************************
-// RE-EXPORTED MACROS AND DERIVES.
-// *************************************************************************************************
+// RE-EXPORTED *************************************************************************************
 
 pub use concat_string::concat_string;
 
@@ -95,17 +93,16 @@ pub use std::any::TypeId;
 
 pub type Weight = i8;
 
-// Global settings, functions and macro helpers.
-pub mod global;
-
 include_locales!(LOCALES_PAGETOP);
 
-// *************************************************************************************************
-// PUBLIC API.
-// *************************************************************************************************
+// API *********************************************************************************************
 
-// Retrieve and apply settings values from configuration files.
+// Useful functions and macros.
+pub mod util;
+// Load configuration settings.
 pub mod config;
+// Global settings.
+pub mod global;
 // Application tracing and event logging.
 pub mod trace;
 // HTML in code.
@@ -114,24 +111,17 @@ pub mod html;
 pub mod locale;
 // Date and time handling.
 pub mod datetime;
-
 // Essential web framework.
 pub mod service;
-
 // Key types and functions for creating actions, components, packages, and themes.
 pub mod core;
-
 // Web request response variants.
 pub mod response;
-
 // Base actions, components, packages, and themes.
 pub mod base;
-
 // Prepare and run the application.
 pub mod app;
 
-// *************************************************************************************************
-// The PageTop Prelude.
-// *************************************************************************************************
+// The PageTop Prelude *****************************************************************************
 
 pub mod prelude;

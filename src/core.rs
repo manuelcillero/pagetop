@@ -1,6 +1,6 @@
 //! Key types and functions for creating actions, components, packages, and themes.
 
-use crate::global::TypeInfo;
+use crate::util::TypeInfo;
 
 use std::any::Any;
 
