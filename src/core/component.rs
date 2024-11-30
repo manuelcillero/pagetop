@@ -8,7 +8,7 @@ pub use definition::{ComponentBase, ComponentTrait};
 mod classes;
 pub use classes::{ComponentClasses, ComponentClassesOp};
 
-mod mixed;
-pub use mixed::MixedComponents;
-pub use mixed::{AnyComponent, AnyOp};
-pub use mixed::{TypedComponent, TypedOp};
+mod children;
+pub use children::Children;
+pub use children::{AnyComponent, AnyOp};
+pub use children::{TypedComponent, TypedOp};

@@ -80,26 +80,26 @@ pub enum TypedOp<C: ComponentTrait> {
 }
 
 #[derive(Clone, Default)]
-pub struct MixedComponents(Vec<AnyComponent>);
+pub struct Children(Vec<AnyComponent>);
 
-impl MixedComponents {
+impl Children {
     pub fn new() -> Self {
-        MixedComponents::default()
+        Children::default()
     }
 
     pub fn with(any: AnyComponent) -> Self {
-        MixedComponents::default().with_value(AnyOp::Add(any))
+        Children::default().with_value(AnyOp::Add(any))
     }
 
-    pub(crate) fn merge(mixes: &[Option<&MixedComponents>]) -> Self {
-        let mut opt = MixedComponents::default();
+    pub(crate) fn merge(mixes: &[Option<&Children>]) -> Self {
+        let mut opt = Children::default();
         for m in mixes.iter().flatten() {
             opt.0.append(&mut m.0.clone());
         }
         opt
     }
 
-    // MixedComponents BUILDER.
+    // Children BUILDER.
 
     #[fn_builder]
     pub fn set_value(&mut self, op: AnyOp) -> &mut Self {
@@ -177,7 +177,7 @@ impl MixedComponents {
         self.0.clear();
     }
 
-    // MixedComponents GETTERS.
+    // Children GETTERS.
 
     pub fn len(&self) -> usize {
         self.0.len()
@@ -201,7 +201,7 @@ impl MixedComponents {
         self.0.iter().filter(move |&c| c.type_id() == type_id)
     }
 
-    // MixedComponents RENDER.
+    // Children RENDER.
 
     pub fn render(&self, cx: &mut Context) -> Markup {
         html! {

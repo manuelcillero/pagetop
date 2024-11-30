@@ -98,14 +98,14 @@ impl Page {
     }
 
     #[fn_builder]
-    pub fn set_regions(&mut self, region: &'static str, op: AnyOp) -> &mut Self {
-        self.context.set_regions(region, op);
+    pub fn set_in_region(&mut self, region: &'static str, op: AnyOp) -> &mut Self {
+        self.context.set_in_region(region, op);
         self
     }
 
     pub fn with_component(mut self, component: impl ComponentTrait) -> Self {
         self.context
-            .set_regions("content", AnyOp::Add(AnyComponent::with(component)));
+            .set_in_region("content", AnyOp::Add(AnyComponent::with(component)));
         self
     }
 
@@ -115,7 +115,7 @@ impl Page {
         component: impl ComponentTrait,
     ) -> Self {
         self.context
-            .set_regions(region, AnyOp::Add(AnyComponent::with(component)));
+            .set_in_region(region, AnyOp::Add(AnyComponent::with(component)));
         self
     }
 

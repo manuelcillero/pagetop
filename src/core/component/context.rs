@@ -1,8 +1,7 @@
-use crate::base::component::add_base_assets;
 use crate::concat_string;
 use crate::core::component::AnyOp;
 use crate::core::theme::all::{theme_by_short_name, DEFAULT_THEME};
-use crate::core::theme::{ComponentsInRegions, ThemeRef};
+use crate::core::theme::{ChildrenInRegions, ThemeRef};
 use crate::html::{html, Markup};
 use crate::html::{Assets, Favicon, JavaScript, StyleSheet};
 use crate::locale::{LanguageIdentifier, DEFAULT_LANGID};
@@ -28,8 +27,6 @@ pub enum AssetsOp {
     // JavaScripts.
     AddJavaScript(JavaScript),
     RemoveJavaScript(&'static str),
-    // Add assets to properly use base components.
-    AddBaseAssets,
 }
 
 #[derive(Debug)]
@@ -58,7 +55,7 @@ pub struct Context {
     favicon   : Option<Favicon>,
     stylesheet: Assets<StyleSheet>,
     javascript: Assets<JavaScript>,
-    regions   : ComponentsInRegions,
+    regions   : ChildrenInRegions,
     params    : HashMap<&'static str, String>,
     id_counter: usize,
 }
@@ -74,7 +71,7 @@ impl Context {
             favicon   : None,
             stylesheet: Assets::<StyleSheet>::new(),
             javascript: Assets::<JavaScript>::new(),
-            regions   : ComponentsInRegions::default(),
+            regions   : ChildrenInRegions::default(),
             params    : HashMap::<&str, String>::new(),
             id_counter: 0,
         }
@@ -114,16 +111,12 @@ impl Context {
             AssetsOp::RemoveJavaScript(path) => {
                 self.javascript.remove(path);
             }
-            // Add assets to properly use base components.
-            AssetsOp::AddBaseAssets => {
-                add_base_assets(self);
-            }
         }
         self
     }
 
-    pub fn set_regions(&mut self, region: &'static str, op: AnyOp) -> &mut Self {
-        self.regions.set_components(region, op);
+    pub fn set_in_region(&mut self, region: &'static str, op: AnyOp) -> &mut Self {
+        self.regions.set_in_region(region, op);
         self
     }
 
@@ -150,7 +143,7 @@ impl Context {
         self.layout
     }
 
-    pub fn regions(&self) -> &ComponentsInRegions {
+    pub fn regions(&self) -> &ChildrenInRegions {
         &self.regions
     }
 
@@ -163,7 +156,7 @@ impl Context {
 
     // Context PREPARE.
 
-    pub(crate) fn prepare_assets(&mut self) -> Markup {
+    pub fn prepare_assets(&mut self) -> Markup {
         html! {
             @if let Some(favicon) = &self.favicon {
                 (favicon.prepare())
@@ -173,7 +166,7 @@ impl Context {
         }
     }
 
-    pub(crate) fn prepare_region(&mut self, region: impl Into<String>) -> Markup {
+    pub fn prepare_region(&mut self, region: impl Into<String>) -> Markup {
         self.regions
             .all_components(self.theme, region.into().as_str())
             .render(self)

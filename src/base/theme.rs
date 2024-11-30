@@ -1,8 +1,11 @@
-mod basic;
-pub use basic::Basic;
+use crate::prelude::*;
 
-mod chassis;
-pub use chassis::Chassis;
+pub struct Basic;
 
-mod inception;
-pub use inception::Inception;
+impl PackageTrait for Basic {
+    fn theme(&self) -> Option<ThemeRef> {
+        Some(&Basic)
+    }
+}
+
+impl ThemeTrait for Basic {}
