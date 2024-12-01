@@ -38,7 +38,7 @@ impl AssetsTrait for StyleSheet {
         self.weight
     }
 
-    fn prepare(&self) -> Markup {
+    fn render(&self) -> Markup {
         match &self.source {
             Source::From(path) => html! {
                 link

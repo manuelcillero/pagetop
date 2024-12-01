@@ -36,7 +36,7 @@ impl AssetsTrait for JavaScript {
         self.weight
     }
 
-    fn prepare(&self) -> Markup {
+    fn render(&self) -> Markup {
         match &self.source {
             Source::From(path) => html! {
                 script src=(concat_string!(path, self.prefix, self.version)) {};

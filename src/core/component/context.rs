@@ -154,21 +154,21 @@ impl Context {
             .and_then(|v| T::from_str(v).map_err(|_| ErrorParam::ParseError(v.clone())))
     }
 
-    // Context PREPARE.
+    // Context RENDER.
 
-    pub fn prepare_assets(&mut self) -> Markup {
+    pub fn render_assets(&mut self) -> Markup {
         html! {
             @if let Some(favicon) = &self.favicon {
-                (favicon.prepare())
+                (favicon.render())
             }
-            (self.stylesheet.prepare())
-            (self.javascript.prepare())
+            (self.stylesheet.render())
+            (self.javascript.render())
         }
     }
 
-    pub fn prepare_region(&mut self, region: impl Into<String>) -> Markup {
+    pub fn render_region(&mut self, region: impl Into<String>) -> Markup {
         self.regions
-            .all_in_region(self.theme, region.into().as_str())
+            .all_in_region(self.theme, &region.into())
             .render(self)
     }
 

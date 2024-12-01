@@ -83,7 +83,7 @@ impl Favicon {
 
     // Favicon PREPARE.
 
-    pub(crate) fn prepare(&self) -> Markup {
+    pub(crate) fn render(&self) -> Markup {
         html! {
             @for item in &self.0 {
                 (item)

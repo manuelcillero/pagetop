@@ -1,21 +1,21 @@
 use crate::prelude::*;
 
-pub type FnBeforePrepareBody = fn(page: &mut Page);
+pub type FnBeforeRenderBody = fn(page: &mut Page);
 
-pub struct BeforePrepareBody {
-    f: FnBeforePrepareBody,
+pub struct BeforeRenderBody {
+    f: FnBeforeRenderBody,
     weight: Weight,
 }
 
-impl ActionTrait for BeforePrepareBody {
+impl ActionTrait for BeforeRenderBody {
     fn weight(&self) -> Weight {
         self.weight
     }
 }
 
-impl BeforePrepareBody {
-    pub fn new(f: FnBeforePrepareBody) -> Self {
-        BeforePrepareBody { f, weight: 0 }
+impl BeforeRenderBody {
+    pub fn new(f: FnBeforeRenderBody) -> Self {
+        BeforeRenderBody { f, weight: 0 }
     }
 
     pub fn with_weight(mut self, value: Weight) -> Self {

@@ -156,26 +156,26 @@ impl Page {
     // Page RENDER.
 
     pub fn render(&mut self) -> ResultPage<Markup, ErrorPage> {
-        // Theme operations before preparing the page body.
-        self.context.theme().before_prepare_body(self);
+        // Theme-specific operations before rendering the page body.
+        self.context.theme().before_render_body(self);
 
-        // Packages actions before preparing the page body.
-        action::page::BeforePrepareBody::dispatch(self);
+        // Execute package actions before rendering the page body.
+        action::page::BeforeRenderBody::dispatch(self);
 
-        // Prepare page body.
-        let body = self.context.theme().prepare_body(self);
+        // Render the page body.
+        let body = self.context.theme().render_body(self);
 
-        // Theme operations after preparing the page body.
-        self.context.theme().after_prepare_body(self);
+        // Theme-specific operations after rendering the page body.
+        self.context.theme().after_render_body(self);
 
-        // Packages actions after preparing the page body.
-        action::page::AfterPrepareBody::dispatch(self);
+        // Execute package actions after rendering the page body.
+        action::page::AfterRenderBody::dispatch(self);
 
-        // Prepare page head.
-        let head = self.context.theme().prepare_head(self);
+        // Render the page head.
+        let head = self.context.theme().render_head(self);
 
-        // Render the page.
-        let lang = self.context.langid().language.as_str();
+        // Render the full page with language and direction attributes.
+        let lang = &self.context.langid().language;
         let dir = match self.context.langid().character_direction() {
             CharacterDirection::LTR => "ltr",
             CharacterDirection::RTL => "rtl",
@@ -184,8 +184,8 @@ impl Page {
         Ok(html! {
             (DOCTYPE)
             html lang=(lang) dir=(dir) {
-                (head.render())
-                (body.render())
+                (head)
+                (body)
             }
         })
     }

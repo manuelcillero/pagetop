@@ -1,6 +1,6 @@
 use crate::core::package::PackageTrait;
 use crate::global;
-use crate::html::{html, PrepareMarkup};
+use crate::html::{html, Markup};
 use crate::locale::L10n;
 use crate::response::page::Page;
 
@@ -12,9 +12,9 @@ pub trait ThemeTrait: PackageTrait + Send + Sync {
         vec![("content", L10n::l("content"))]
     }
 
-    fn prepare_head(&self, page: &mut Page) -> PrepareMarkup {
+    fn render_head(&self, page: &mut Page) -> Markup {
         let viewport = "width=device-width, initial-scale=1, shrink-to-fit=no";
-        PrepareMarkup::With(html! {
+        html! {
             head {
                 meta charset="utf-8";
 
@@ -38,22 +38,22 @@ pub trait ThemeTrait: PackageTrait + Send + Sync {
                     meta property=(property) content=(content) {}
                 }
 
-                (page.context().prepare_assets())
+                (page.context().render_assets())
             }
-        })
+        }
     }
 
     #[allow(unused_variables)]
-    fn before_prepare_body(&self, page: &mut Page) {}
+    fn before_render_body(&self, page: &mut Page) {}
 
-    fn prepare_body(&self, page: &mut Page) -> PrepareMarkup {
-        PrepareMarkup::With(html! {
+    fn render_body(&self, page: &mut Page) -> Markup {
+        html! {
             body id=[page.body_id().get()] class=[page.body_classes().get()] {
-                (page.context().prepare_region("content"))
+                (page.context().render_region("content"))
             }
-        })
+        }
     }
 
     #[allow(unused_variables)]
-    fn after_prepare_body(&self, page: &mut Page) {}
+    fn after_render_body(&self, page: &mut Page) {}
 }
