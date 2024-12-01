@@ -30,21 +30,21 @@ pub enum AssetsOp {
 }
 
 #[derive(Debug)]
-pub enum ParamError {
+pub enum ErrorParam {
     NotFound,
     ParseError(String),
 }
 
-impl fmt::Display for ParamError {
+impl fmt::Display for ErrorParam {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            ParamError::NotFound => write!(f, "Parameter not found"),
-            ParamError::ParseError(e) => write!(f, "Parse error: {e}"),
+            ErrorParam::NotFound => write!(f, "Parameter not found"),
+            ErrorParam::ParseError(e) => write!(f, "Parse error: {e}"),
         }
     }
 }
 
-impl Error for ParamError {}
+impl Error for ErrorParam {}
 
 #[rustfmt::skip]
 pub struct Context {
@@ -147,11 +147,11 @@ impl Context {
         &self.regions
     }
 
-    pub fn get_param<T: FromStr + ToString>(&self, key: &'static str) -> Result<T, ParamError> {
+    pub fn get_param<T: FromStr + ToString>(&self, key: &'static str) -> Result<T, ErrorParam> {
         self.params
             .get(key)
-            .ok_or(ParamError::NotFound)
-            .and_then(|v| T::from_str(v).map_err(|_| ParamError::ParseError(v.clone())))
+            .ok_or(ErrorParam::NotFound)
+            .and_then(|v| T::from_str(v).map_err(|_| ErrorParam::ParseError(v.clone())))
     }
 
     // Context PREPARE.
