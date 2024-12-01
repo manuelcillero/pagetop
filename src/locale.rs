@@ -112,13 +112,13 @@ static LANGUAGES: LazyLock<HashMap<String, (LanguageIdentifier, &str)>> = LazyLo
     ]
 });
 
-static FALLBACK: LazyLock<LanguageIdentifier> = LazyLock::new(|| langid!("en-US"));
+pub static FALLBACK_LANGID: LazyLock<LanguageIdentifier> = LazyLock::new(|| langid!("en-US"));
 
 /// Sets the application's default
 /// [Unicode Language Identifier](https://unicode.org/reports/tr35/tr35.html#Unicode_language_identifier)
 /// through `SETTINGS.app.language`.
 pub static DEFAULT_LANGID: LazyLock<&LanguageIdentifier> =
-    LazyLock::new(|| langid_for(&global::SETTINGS.app.language).unwrap_or(&FALLBACK));
+    LazyLock::new(|| langid_for(&global::SETTINGS.app.language).unwrap_or(&FALLBACK_LANGID));
 
 pub enum LangError {
     EmptyLang,

@@ -129,8 +129,6 @@ pub fn configure_services(scfg: &mut service::web::ServiceConfig) {
         m.configure_service(scfg);
     }
     include_files_service!(
-        scfg,
-        assets => "/",
-        [&global::SETTINGS.dev.pagetop_project_dir, "static/assets"]
+        scfg, assets => "/", [&global::SETTINGS.dev.pagetop_project_dir, "static"]
     );
 }
