@@ -10,5 +10,5 @@ pub use classes::{ComponentClasses, ComponentClassesOp};
 
 mod children;
 pub use children::Children;
-pub use children::{AnyComponent, AnyOp};
+pub use children::{ChildComponent, ChildOp};
 pub use children::{TypedComponent, TypedOp};

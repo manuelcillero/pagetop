@@ -9,22 +9,8 @@ pub type ThemeRef = &'static dyn ThemeTrait;
 /// Los temas deben implementar este "trait".
 pub trait ThemeTrait: PackageTrait + Send + Sync {
     fn regions(&self) -> Vec<(&'static str, L10n)> {
-        vec![]
+        vec![("content", L10n::l("content"))]
     }
-
-    #[allow(unused_variables)]
-    fn before_prepare_body(&self, page: &mut Page) {}
-
-    fn prepare_body(&self, page: &mut Page) -> PrepareMarkup {
-        PrepareMarkup::With(html! {
-            body id=[page.body_id().get()] class=[page.body_classes().get()] {
-                (page.context().prepare_region("content"))
-            }
-        })
-    }
-
-    #[allow(unused_variables)]
-    fn after_prepare_body(&self, page: &mut Page) {}
 
     fn prepare_head(&self, page: &mut Page) -> PrepareMarkup {
         let viewport = "width=device-width, initial-scale=1, shrink-to-fit=no";
@@ -56,33 +42,18 @@ pub trait ThemeTrait: PackageTrait + Send + Sync {
             }
         })
     }
-    /*
-    fn prepare_page_body(&self, page: &mut Page) -> PrepareMarkup {
+
+    #[allow(unused_variables)]
+    fn before_prepare_body(&self, page: &mut Page) {}
+
+    fn prepare_body(&self, page: &mut Page) -> PrepareMarkup {
         PrepareMarkup::With(html! {
             body id=[page.body_id().get()] class=[page.body_classes().get()] {
-                (page.body_content().render())
+                (page.context().prepare_region("content"))
             }
         })
     }
 
-    fn error_403(&self, request: service::HttpRequest) -> Page {
-        Page::new(request)
-            .with_title(L10n::n("Error FORBIDDEN"))
-            .with_body(PrepareMarkup::With(html! {
-                div {
-                    h1 { ("FORBIDDEN ACCESS") }
-                }
-            }))
-    }
-
-    fn error_404(&self, request: service::HttpRequest) -> Page {
-        Page::new(request)
-            .with_title(L10n::n("Error RESOURCE NOT FOUND"))
-            .with_body(PrepareMarkup::With(html! {
-                div {
-                    h1 { ("RESOURCE NOT FOUND") }
-                }
-            }))
-    }
-    */
+    #[allow(unused_variables)]
+    fn after_prepare_body(&self, page: &mut Page) {}
 }

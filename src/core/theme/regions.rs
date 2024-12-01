@@ -1,4 +1,4 @@
-use crate::core::component::{AnyComponent, AnyOp, Children};
+use crate::core::component::{ChildComponent, ChildOp, Children};
 use crate::core::theme::ThemeRef;
 use crate::{fn_builder, AutoDefault, TypeId};
 
@@ -15,12 +15,16 @@ static COMMON_REGIONS: LazyLock<RwLock<ChildrenInRegions>> =
 pub struct ChildrenInRegions(HashMap<&'static str, Children>);
 
 impl ChildrenInRegions {
-    pub fn new(region: &'static str, any: AnyComponent) -> Self {
-        ChildrenInRegions::default().with_in_region(region, AnyOp::Add(any))
+    pub fn new() -> Self {
+        ChildrenInRegions::default()
+    }
+
+    pub fn with(region: &'static str, child: ChildComponent) -> Self {
+        ChildrenInRegions::default().with_in_region(region, ChildOp::Add(child))
     }
 
     #[fn_builder]
-    pub fn set_in_region(&mut self, region: &'static str, op: AnyOp) -> &mut Self {
+    pub fn set_in_region(&mut self, region: &'static str, op: ChildOp) -> &mut Self {
         if let Some(region) = self.0.get_mut(region) {
             region.set_value(op);
         } else {
@@ -29,7 +33,7 @@ impl ChildrenInRegions {
         self
     }
 
-    pub fn all_components(&self, theme: ThemeRef, region: &str) -> Children {
+    pub fn all_in_region(&self, theme: ThemeRef, region: &str) -> Children {
         let common = COMMON_REGIONS.read().unwrap();
         if let Some(r) = THEME_REGIONS.read().unwrap().get(&theme.type_id()) {
             Children::merge(&[common.0.get(region), self.0.get(region), r.0.get(region)])
@@ -46,26 +50,26 @@ pub enum InRegion {
 }
 
 impl InRegion {
-    pub fn add(&self, any: AnyComponent) -> &Self {
+    pub fn add(&self, child: ChildComponent) -> &Self {
         match self {
             InRegion::Content => {
                 COMMON_REGIONS
                     .write()
                     .unwrap()
-                    .set_in_region("content", AnyOp::Add(any));
+                    .set_in_region("content", ChildOp::Add(child));
             }
             InRegion::Named(name) => {
                 COMMON_REGIONS
                     .write()
                     .unwrap()
-                    .set_in_region(name, AnyOp::Add(any));
+                    .set_in_region(name, ChildOp::Add(child));
             }
             InRegion::OfTheme(region, theme) => {
                 let mut regions = THEME_REGIONS.write().unwrap();
                 if let Some(r) = regions.get_mut(&theme.type_id()) {
-                    r.set_in_region(region, AnyOp::Add(any));
+                    r.set_in_region(region, ChildOp::Add(child));
                 } else {
-                    regions.insert(theme.type_id(), ChildrenInRegions::new(region, any));
+                    regions.insert(theme.type_id(), ChildrenInRegions::with(region, child));
                 }
             }
         }

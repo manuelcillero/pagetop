@@ -5,20 +5,20 @@ use crate::{fn_builder, TypeId};
 use std::sync::{Arc, RwLock};
 
 #[derive(Clone)]
-pub struct AnyComponent(Arc<RwLock<dyn ComponentTrait>>);
+pub struct ChildComponent(Arc<RwLock<dyn ComponentTrait>>);
 
-impl AnyComponent {
+impl ChildComponent {
     pub fn with(component: impl ComponentTrait) -> Self {
-        AnyComponent(Arc::new(RwLock::new(component)))
+        ChildComponent(Arc::new(RwLock::new(component)))
     }
 
-    // AnyComponent RENDER.
+    // ChildComponent RENDER.
 
     pub fn render(&self, cx: &mut Context) -> Markup {
         self.0.write().unwrap().render(cx)
     }
 
-    // AnyComponent HELPERS.
+    // ChildComponent HELPERS.
 
     fn type_id(&self) -> TypeId {
         self.0.read().unwrap().type_id()
@@ -52,20 +52,20 @@ impl<C: ComponentTrait> TypedComponent<C> {
 
     // TypedComponent HELPERS.
 
-    fn to_any(&self) -> AnyComponent {
-        AnyComponent(self.0.clone())
+    fn to_child(&self) -> ChildComponent {
+        ChildComponent(self.0.clone())
     }
 }
 
 // *************************************************************************************************
 
-pub enum AnyOp {
-    Add(AnyComponent),
-    InsertAfterId(&'static str, AnyComponent),
-    InsertBeforeId(&'static str, AnyComponent),
-    Prepend(AnyComponent),
+pub enum ChildOp {
+    Add(ChildComponent),
+    InsertAfterId(&'static str, ChildComponent),
+    InsertBeforeId(&'static str, ChildComponent),
+    Prepend(ChildComponent),
     RemoveById(&'static str),
-    ReplaceById(&'static str, AnyComponent),
+    ReplaceById(&'static str, ChildComponent),
     Reset,
 }
 
@@ -80,15 +80,15 @@ pub enum TypedOp<C: ComponentTrait> {
 }
 
 #[derive(Clone, Default)]
-pub struct Children(Vec<AnyComponent>);
+pub struct Children(Vec<ChildComponent>);
 
 impl Children {
     pub fn new() -> Self {
         Children::default()
     }
 
-    pub fn with(any: AnyComponent) -> Self {
-        Children::default().with_value(AnyOp::Add(any))
+    pub fn with(child: ChildComponent) -> Self {
+        Children::default().with_value(ChildOp::Add(child))
     }
 
     pub(crate) fn merge(mixes: &[Option<&Children>]) -> Self {
@@ -102,15 +102,15 @@ impl Children {
     // Children BUILDER.
 
     #[fn_builder]
-    pub fn set_value(&mut self, op: AnyOp) -> &mut Self {
+    pub fn set_value(&mut self, op: ChildOp) -> &mut Self {
         match op {
-            AnyOp::Add(any) => self.add(any),
-            AnyOp::InsertAfterId(id, any) => self.insert_after_id(id, any),
-            AnyOp::InsertBeforeId(id, any) => self.insert_before_id(id, any),
-            AnyOp::Prepend(any) => self.prepend(any),
-            AnyOp::RemoveById(id) => self.remove_by_id(id),
-            AnyOp::ReplaceById(id, any) => self.replace_by_id(id, any),
-            AnyOp::Reset => self.reset(),
+            ChildOp::Add(any) => self.add(any),
+            ChildOp::InsertAfterId(id, any) => self.insert_after_id(id, any),
+            ChildOp::InsertBeforeId(id, any) => self.insert_before_id(id, any),
+            ChildOp::Prepend(any) => self.prepend(any),
+            ChildOp::RemoveById(id) => self.remove_by_id(id),
+            ChildOp::ReplaceById(id, any) => self.replace_by_id(id, any),
+            ChildOp::Reset => self.reset(),
         };
         self
     }
@@ -118,41 +118,41 @@ impl Children {
     #[fn_builder]
     pub fn set_typed<C: ComponentTrait + Default>(&mut self, op: TypedOp<C>) -> &mut Self {
         match op {
-            TypedOp::Add(typed) => self.add(typed.to_any()),
-            TypedOp::InsertAfterId(id, typed) => self.insert_after_id(id, typed.to_any()),
-            TypedOp::InsertBeforeId(id, typed) => self.insert_before_id(id, typed.to_any()),
-            TypedOp::Prepend(typed) => self.prepend(typed.to_any()),
+            TypedOp::Add(typed) => self.add(typed.to_child()),
+            TypedOp::InsertAfterId(id, typed) => self.insert_after_id(id, typed.to_child()),
+            TypedOp::InsertBeforeId(id, typed) => self.insert_before_id(id, typed.to_child()),
+            TypedOp::Prepend(typed) => self.prepend(typed.to_child()),
             TypedOp::RemoveById(id) => self.remove_by_id(id),
-            TypedOp::ReplaceById(id, typed) => self.replace_by_id(id, typed.to_any()),
+            TypedOp::ReplaceById(id, typed) => self.replace_by_id(id, typed.to_child()),
             TypedOp::Reset => self.reset(),
         };
         self
     }
 
     #[inline]
-    fn add(&mut self, any: AnyComponent) {
-        self.0.push(any);
+    fn add(&mut self, child: ChildComponent) {
+        self.0.push(child);
     }
 
     #[inline]
-    fn insert_after_id(&mut self, id: &str, any: AnyComponent) {
+    fn insert_after_id(&mut self, id: &str, child: ChildComponent) {
         match self.0.iter().position(|c| c.id() == id) {
-            Some(index) => self.0.insert(index + 1, any),
-            _ => self.0.push(any),
+            Some(index) => self.0.insert(index + 1, child),
+            _ => self.0.push(child),
         };
     }
 
     #[inline]
-    fn insert_before_id(&mut self, id: &str, any: AnyComponent) {
+    fn insert_before_id(&mut self, id: &str, child: ChildComponent) {
         match self.0.iter().position(|c| c.id() == id) {
-            Some(index) => self.0.insert(index, any),
-            _ => self.0.insert(0, any),
+            Some(index) => self.0.insert(index, child),
+            _ => self.0.insert(0, child),
         };
     }
 
     #[inline]
-    fn prepend(&mut self, any: AnyComponent) {
-        self.0.insert(0, any);
+    fn prepend(&mut self, child: ChildComponent) {
+        self.0.insert(0, child);
     }
 
     #[inline]
@@ -163,10 +163,10 @@ impl Children {
     }
 
     #[inline]
-    fn replace_by_id(&mut self, id: &str, any: AnyComponent) {
+    fn replace_by_id(&mut self, id: &str, child: ChildComponent) {
         for c in &mut self.0 {
             if c.id() == id {
-                *c = any;
+                *c = child;
                 break;
             }
         }
@@ -187,17 +187,17 @@ impl Children {
         self.0.is_empty()
     }
 
-    pub fn get_by_id(&self, id: impl Into<String>) -> Option<&AnyComponent> {
+    pub fn get_by_id(&self, id: impl Into<String>) -> Option<&ChildComponent> {
         let id = id.into();
         self.0.iter().find(|c| c.id() == id)
     }
 
-    pub fn iter_by_id(&self, id: impl Into<String>) -> impl Iterator<Item = &AnyComponent> {
+    pub fn iter_by_id(&self, id: impl Into<String>) -> impl Iterator<Item = &ChildComponent> {
         let id = id.into();
         self.0.iter().filter(move |&c| c.id() == id)
     }
 
-    pub fn iter_by_type_id(&self, type_id: TypeId) -> impl Iterator<Item = &AnyComponent> {
+    pub fn iter_by_type_id(&self, type_id: TypeId) -> impl Iterator<Item = &ChildComponent> {
         self.0.iter().filter(move |&c| c.type_id() == type_id)
     }
 

@@ -1,5 +1,5 @@
 use crate::concat_string;
-use crate::core::component::AnyOp;
+use crate::core::component::ChildOp;
 use crate::core::theme::all::{theme_by_short_name, DEFAULT_THEME};
 use crate::core::theme::{ChildrenInRegions, ThemeRef};
 use crate::html::{html, Markup};
@@ -115,7 +115,7 @@ impl Context {
         self
     }
 
-    pub fn set_in_region(&mut self, region: &'static str, op: AnyOp) -> &mut Self {
+    pub fn set_in_region(&mut self, region: &'static str, op: ChildOp) -> &mut Self {
         self.regions.set_in_region(region, op);
         self
     }
@@ -168,7 +168,7 @@ impl Context {
 
     pub fn prepare_region(&mut self, region: impl Into<String>) -> Markup {
         self.regions
-            .all_components(self.theme, region.into().as_str())
+            .all_in_region(self.theme, region.into().as_str())
             .render(self)
     }
 

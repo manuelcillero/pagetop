@@ -4,8 +4,8 @@ pub use error::ErrorPage;
 pub use actix_web::Result as ResultPage;
 
 use crate::base::action;
-use crate::core::component::{AnyComponent, AnyOp, ComponentTrait};
 use crate::core::component::{AssetsOp, Context};
+use crate::core::component::{ChildComponent, ChildOp, ComponentTrait};
 use crate::fn_builder;
 use crate::html::{html, Markup, DOCTYPE};
 use crate::html::{ClassesOp, OptionClasses, OptionId, OptionTranslated};
@@ -98,14 +98,14 @@ impl Page {
     }
 
     #[fn_builder]
-    pub fn set_in_region(&mut self, region: &'static str, op: AnyOp) -> &mut Self {
+    pub fn set_in_region(&mut self, region: &'static str, op: ChildOp) -> &mut Self {
         self.context.set_in_region(region, op);
         self
     }
 
     pub fn with_component(mut self, component: impl ComponentTrait) -> Self {
         self.context
-            .set_in_region("content", AnyOp::Add(AnyComponent::with(component)));
+            .set_in_region("content", ChildOp::Add(ChildComponent::with(component)));
         self
     }
 
@@ -115,7 +115,7 @@ impl Page {
         component: impl ComponentTrait,
     ) -> Self {
         self.context
-            .set_in_region(region, AnyOp::Add(AnyComponent::with(component)));
+            .set_in_region(region, ChildOp::Add(ChildComponent::with(component)));
         self
     }
 
