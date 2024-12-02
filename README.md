@@ -30,6 +30,20 @@ requirements and application scenarios through actions, components, packages, an
 
 # ⚡️ Quick start
 
+The simplest PageTop application looks like this:
+
+```rust
+use pagetop::prelude::*;
+
+#[pagetop::main]
+async fn main() -> std::io::Result<()> {
+    Application::new().run()?.await
+}
+```
+
+This provides a default homepage at `http://localhost:8088` using the default configuration. To
+customize the service, you can define a PageTop package like this:
+
 ```rust
 use pagetop::prelude::*;
 
@@ -53,8 +67,8 @@ async fn main() -> std::io::Result<()> {
 }
 ```
 
-This program features a `HelloWorld` package, providing a service that serves a greeting web page
-accessible via `http://localhost:8088` under default settings.
+This program defines a custom `HelloWorld` package to serve a page at the root path (`/`) displaying
+a "Hello World!" message inside an HTML `<h1>` element.
 
 
 # 📂 Helpers
