@@ -1,0 +1,4 @@
+**/target
+**/log/*.log*
+**/local.*.toml
+**/local.toml
