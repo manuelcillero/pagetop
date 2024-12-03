@@ -3,7 +3,7 @@ resolver = "2"
 members = [
     # Helpers
     "helpers/pagetop-build",
-#    "helpers/pagetop-macros",
+    "helpers/pagetop-macros",
 
     # PageTop
     #"pagetop",
@@ -30,7 +30,7 @@ static-files = "0.2.4"
 
 # Helpers
 pagetop-build = { version = "0.0", path = "helpers/pagetop-build" }
-#pagetop-macros = { version = "0.0", path = "helpers/pagetop-macros" }
+pagetop-macros = { version = "0.0", path = "helpers/pagetop-macros" }
 
 # PageTop
 #pagetop = { version = "0.0", path = "pagetop" }
