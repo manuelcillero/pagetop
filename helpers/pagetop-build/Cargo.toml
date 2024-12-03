@@ -1,0 +1,20 @@
+[package]
+name = "pagetop-build"
+version = "0.0.12"
+edition = "2021"
+
+description = """\
+    Facilita la integración de recursos directamente en los binarios de las aplicaciones \
+    desarrolladas con PageTop.\
+"""
+categories = ["development-tools::build-utils", "web-programming"]
+keywords = ["pagetop", "build", "assets", "resources", "static"]
+
+repository.workspace = true
+homepage.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[dependencies]
+grass = "0.13.4"
+static-files.workspace = true
