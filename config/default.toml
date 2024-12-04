@@ -1,0 +1,7 @@
+[app]
+#theme = "Aliner"
+#theme = "Bootsier"
+language = "es-ES"
+
+[log]
+tracing = "Info,pagetop=Debug,sqlx::query=Warn"

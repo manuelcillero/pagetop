@@ -1,0 +1,22 @@
+[package]
+name = "drust"
+version = "0.0.3"
+edition = "2021"
+
+description = """\
+    Un Sistema de Gestión de Contenidos (CMS) basado en PageTop para compartir tu mundo.\
+"""
+
+repository.workspace = true
+homepage.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[dependencies]
+pagetop.workspace = true
+
+# Packages.
+#pagetop-bootsier.workspace = true
+#pagetop-admin = { version = "0.0", path = "../pagetop-admin" }
+#pagetop-user = { version = "0.0", path = "../pagetop-user" }
+#pagetop-node = { version = "0.0", path = "../pagetop-node" }
