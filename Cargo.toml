@@ -6,7 +6,7 @@ members = [
     "helpers/pagetop-macros",
 
     # PageTop
-    #"pagetop",
+    "pagetop",
 
     # Packages
     #"packages/pagetop-aliner",
@@ -25,7 +25,7 @@ authors = ["Manuel Cillero <manuel@cillero.es>"]
 
 [workspace.dependencies]
 #include_dir = "0.7.4"
-#serde = { version = "1.0", features = ["derive"] }
+serde = { version = "1.0", features = ["derive"] }
 static-files = "0.2.4"
 
 # Helpers
@@ -33,7 +33,7 @@ pagetop-build = { version = "0.0", path = "helpers/pagetop-build" }
 pagetop-macros = { version = "0.0", path = "helpers/pagetop-macros" }
 
 # PageTop
-#pagetop = { version = "0.0", path = "pagetop" }
+pagetop = { version = "0.0", path = "pagetop" }
 
 # Packages
 #pagetop-aliner = { version = "0.0", path = "packages/pagetop-aliner" }

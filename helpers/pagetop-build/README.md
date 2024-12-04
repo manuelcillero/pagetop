@@ -14,7 +14,7 @@
 # 📦 Sobre PageTop
 
 [PageTop](https://docs.rs/pagetop) es un entorno de desarrollo con convenciones que reivindican la
-web clásica aplicando *renderizado en el servidor* (SSR), HTML, CSS y JS.
+sencillez de la web clásica aplicando *renderizado en el servidor* (SSR), HTML, CSS y JS.
 
 
 # 🚧 Advertencia

@@ -2,7 +2,7 @@
 
 <h1>PageTop Macros</h1>
 
-<p>Una colección de macros que impulsan el desarrollo con <strong>PageTop</strong>.</p>
+<p>Una colección de macros que mejoran la experiencia de desarrollo con <strong>PageTop</strong>.</p>
 
 [![Licencia](https://img.shields.io/badge/license-MIT%2FApache-blue.svg?label=Licencia&style=for-the-badge)](#-license)
 [![Doc API](https://img.shields.io/docsrs/pagetop-macros?label=Doc%20API&style=for-the-badge&logo=Docs.rs)](https://docs.rs/pagetop-macros)
@@ -14,7 +14,7 @@
 # 📦 Sobre PageTop
 
 [PageTop](https://docs.rs/pagetop) es un entorno de desarrollo con convenciones que reivindican la
-web clásica aplicando *renderizado en el servidor* (SSR), HTML, CSS y JS.
+sencillez de la web clásica aplicando *renderizado en el servidor* (SSR), HTML, CSS y JS.
 
 
 # 🚧 Advertencia
