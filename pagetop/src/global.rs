@@ -8,7 +8,7 @@ include_config!(SETTINGS: Settings => [
     // [app]
     "app.name"                => "My App",
     "app.description"         => "Developed with the amazing PageTop framework.",
-    "app.theme"               => "",
+    "app.layout"              => "",
     "app.language"            => "en-US",
     "app.text_direction"      => "ltr",
     "app.startup_banner"      => "Slant",
@@ -50,9 +50,9 @@ pub struct App {
     /// A brief description of the application.
     /// Default: *"Developed with the amazing PageTop framework."*.
     pub description: String,
-    /// Default theme.
+    /// Default layout.
     /// Default: *""*.
-    pub theme: String,
+    pub layout: String,
     /// Default language (localization).
     /// Default: *"en-US"*.
     pub language: String,

@@ -13,24 +13,22 @@
 
 </div>
 
-## Presentación
-
 **PageTop** reúne algunos de los *crates* más estables y populares del ecosistema Rust para
 proporcionar un conjunto completo de funcionalidades que pueden extenderse y adaptarse a las
 necesidades específicas de cada aplicación web.
 
 PageTop reivindica la sencillez de la web clásica aplicando *renderizado en el servidor* (SSR),
-HTML, CSS y JS, mediante acciones, componentes, paquetes y temas:
+HTML, CSS y JS, mediante acciones, componentes, diseños y paquetes:
 
-  * **Acciones**. Las funciones y procedimientos que incorporen *acciones* en su lógica de programa
+  * **Acciones** (*actions*). Las funcionalidades que incorporen acciones en su lógica de programa
     estarán proporcionando a los desarrolladores herramientas para alterar su comportamiento interno
     interceptando su flujo de ejecución.
-  * **Componentes**. Encapsulan HTML, CSS y JavaScript en unidades funcionales, configurables y bien
-    definidas.
-  * **Paquetes**. Extienden o personalizan funcionalidades existentes interactuando con las APIs de
-    PageTop o de paquetes de terceros.
-  * **Temas**. Permiten a los desarrolladores alterar la apariencia de las páginas y componentes sin
-    afectar su funcionalidad.
+  * **Componentes** (*components*). Encapsulan HTML, CSS y JavaScript en unidades funcionales,
+    configurables y bien definidas.
+  * **Diseños** (*layouts*). Permiten a los desarrolladores modificar la apariencia de páginas y
+    componentes sin afectar a su funcionalidad.
+  * **Paquetes** (*packages*). Extienden o personalizan funcionalidades existentes interactuando con
+    las APIs de PageTop o de paquetes de terceros.
 
 
 # ⚡️ Inicio rápido

@@ -1,8 +1,8 @@
 [app]
 name = "My App"
 description = "Developed with the amazing PageTop framework."
-# Default theme.
-theme = "Default"
+# Default layout.
+layout = "Default"
 # Default language (localization).
 language = "en-US"
 # Default text direction: "ltr", "rtl", or "auto".

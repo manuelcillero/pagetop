@@ -156,23 +156,23 @@ impl Page {
     // Page RENDER.
 
     pub fn render(&mut self) -> ResultPage<Markup, ErrorPage> {
-        // Theme-specific operations before rendering the page body.
-        self.context.theme().before_render_body(self);
+        // Layout-specific operations before rendering the page body.
+        self.context.layout().before_render_body(self);
 
         // Execute package actions before rendering the page body.
         action::page::BeforeRenderBody::dispatch(self);
 
         // Render the page body.
-        let body = self.context.theme().render_body(self);
+        let body = self.context.layout().render_body(self);
 
-        // Theme-specific operations after rendering the page body.
-        self.context.theme().after_render_body(self);
+        // Layout-specific operations after rendering the page body.
+        self.context.layout().after_render_body(self);
 
         // Execute package actions after rendering the page body.
         action::page::AfterRenderBody::dispatch(self);
 
         // Render the page head.
-        let head = self.context.theme().render_head(self);
+        let head = self.context.layout().render_head(self);
 
         // Render the full page with language and direction attributes.
         let lang = &self.context.langid().language;

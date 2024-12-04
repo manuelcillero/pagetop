@@ -11,7 +11,7 @@
 //! ```
 //!
 //! Crea luego un archivo `build.rs` para definir cómo se van a incluir los archivos estáticos o
-//! archivos SCSS en tu aplicación, paquete o tema de PageTop. Ejemplos de uso:
+//! archivos SCSS en tu aplicación, diseño o paquete de PageTop. Ejemplos de uso:
 //!
 //! ## 1. Incluir archivos estáticos desde un directorio
 //!
