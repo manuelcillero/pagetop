@@ -10,6 +10,12 @@
 
 </div>
 
+Modestamente inspirado en [Drupal](https://www.drupal.org), **Drust** exprime **PageTop** para
+desarrollar un *Sistema de Gestión de Contenidos* (CMS) básico, que permita construir sitios web
+dinámicos, manejables y personalizables; y facilite a los usuarios la gestión de una variedad de
+contenidos de manera sencilla.
+
+
 # 📦 Sobre PageTop
 
 [PageTop](https://docs.rs/pagetop) es un entorno de desarrollo con convenciones que reivindican la

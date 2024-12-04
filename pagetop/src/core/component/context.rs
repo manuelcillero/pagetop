@@ -1,7 +1,7 @@
 use crate::concat_string;
 use crate::core::component::ChildOp;
-use crate::core::theme::all::{theme_by_short_name, DEFAULT_THEME};
-use crate::core::theme::{ChildrenInRegions, ThemeRef};
+use crate::core::layout::all::{layout_by_short_name, DEFAULT_LAYOUT};
+use crate::core::layout::{ChildrenInRegions, LayoutRef};
 use crate::html::{html, Markup};
 use crate::html::{Assets, Favicon, JavaScript, StyleSheet};
 use crate::locale::{LanguageIdentifier, DEFAULT_LANGID};
@@ -16,7 +16,6 @@ use std::fmt;
 
 pub enum AssetsOp {
     LangId(&'static LanguageIdentifier),
-    Theme(&'static str),
     Layout(&'static str),
     // Favicon.
     SetFavicon(Option<Favicon>),
@@ -50,8 +49,7 @@ impl Error for ErrorParam {}
 pub struct Context {
     request   : HttpRequest,
     langid    : &'static LanguageIdentifier,
-    theme     : ThemeRef,
-    layout    : &'static str,
+    layout    : LayoutRef,
     favicon   : Option<Favicon>,
     stylesheet: Assets<StyleSheet>,
     javascript: Assets<JavaScript>,
@@ -66,8 +64,7 @@ impl Context {
         Context {
             request,
             langid    : &DEFAULT_LANGID,
-            theme     : *DEFAULT_THEME,
-            layout    : "default",
+            layout    : *DEFAULT_LAYOUT,
             favicon   : None,
             stylesheet: Assets::<StyleSheet>::new(),
             javascript: Assets::<JavaScript>::new(),
@@ -82,11 +79,8 @@ impl Context {
             AssetsOp::LangId(langid) => {
                 self.langid = langid;
             }
-            AssetsOp::Theme(theme_name) => {
-                self.theme = theme_by_short_name(theme_name).unwrap_or(*DEFAULT_THEME);
-            }
-            AssetsOp::Layout(layout) => {
-                self.layout = layout;
+            AssetsOp::Layout(layout_name) => {
+                self.layout = layout_by_short_name(layout_name).unwrap_or(*DEFAULT_LAYOUT);
             }
             // Favicon.
             AssetsOp::SetFavicon(favicon) => {
@@ -135,11 +129,7 @@ impl Context {
         self.langid
     }
 
-    pub fn theme(&self) -> ThemeRef {
-        self.theme
-    }
-
-    pub fn layout(&self) -> &str {
+    pub fn layout(&self) -> LayoutRef {
         self.layout
     }
 
@@ -168,7 +158,7 @@ impl Context {
 
     pub fn render_region(&mut self, region: impl Into<String>) -> Markup {
         self.regions
-            .all_in_region(self.theme, &region.into())
+            .all_in_region(self.layout, &region.into())
             .render(self)
     }
 

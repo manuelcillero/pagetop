@@ -40,20 +40,20 @@ impl<C: ComponentTrait> ComponentBase for C {
             // Comprueba el componente antes de prepararlo.
             self.setup_before_prepare(cx);
 
-            // Acciones del tema antes de preparar el componente.
-            action::theme::BeforePrepare::dispatch(self, cx);
+            // Acciones del diseño antes de preparar el componente.
+            action::layout::BeforePrepare::dispatch(self, cx);
 
             // Acciones de los módulos antes de preparar el componente.
             action::component::BeforePrepare::dispatch(self, cx);
 
             // Renderiza el componente.
-            let markup = match action::theme::RenderComponent::dispatch(self, cx) {
+            let markup = match action::layout::RenderComponent::dispatch(self, cx) {
                 Some(html) => html,
                 None => self.prepare_component(cx).render(),
             };
 
-            // Acciones del tema después de preparar el componente.
-            action::theme::AfterPrepare::dispatch(self, cx);
+            // Acciones del diseño después de preparar el componente.
+            action::layout::AfterPrepare::dispatch(self, cx);
 
             // Acciones de los módulos después de preparar el componente.
             action::component::AfterPrepare::dispatch(self, cx);

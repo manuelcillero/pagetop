@@ -15,17 +15,17 @@
 //! </div>
 //!
 //! The `PageTop` core API provides a comprehensive toolkit for extending its functionalities to
-//! specific requirements and application scenarios through actions, components, packages, and
-//! themes:
+//! specific requirements and application scenarios through actions, components, layouts, and
+//! packages:
 //!
 //!   * **Actions** serve as a mechanism to customize `PageTop`'s internal behavior by intercepting
 //!     its execution flow.
 //!   * **Components** encapsulate HTML, CSS, and JavaScript into functional, configurable, and
 //!     well-defined units.
+//!   * **Layouts** enable developers to alter the appearance of pages and components without
+//!     affecting their functionality.
 //!   * **Packages** extend or customize existing functionality by interacting with `PageTop` APIs
 //!     or third-party package APIs.
-//!   * **Themes** enable developers to alter the appearance of pages and components without
-//!     affecting their functionality.
 //!
 //! # ⚡️ Quick start
 //!
@@ -105,11 +105,11 @@ pub mod locale;
 pub mod datetime;
 // Essential web framework.
 pub mod service;
-// Key types and functions for creating actions, components, packages, and themes.
+// Key types and functions for creating actions, components, layouts, and packages.
 pub mod core;
 // Web request response variants.
 pub mod response;
-// Base actions, components, packages, and themes.
+// Base actions, components, layouts, and packages.
 pub mod base;
 // Prepare and run the application.
 pub mod app;

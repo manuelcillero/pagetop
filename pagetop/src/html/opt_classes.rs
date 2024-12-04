@@ -1,7 +1,7 @@
 //! **OptionClasses** implements a *helper* for dynamically adding class names to components.
 //!
 //! This *helper* differentiates between default classes (generally associated with styles provided
-//! by the theme) and user classes (for customizing components based on application styles).
+//! by the layout) and user classes (for customizing components based on application styles).
 //!
 //! Classes can be added using [Add]. Operations to [Remove], [Replace] or [Toggle] a class, as well
 //! as [Clear] all classes, are also provided.

@@ -2,15 +2,15 @@ use crate::prelude::*;
 
 use crate::base::action::FnActionWithComponent;
 
-pub struct BeforePrepare<C: ComponentTrait> {
+pub struct AfterPrepare<C: ComponentTrait> {
     f: FnActionWithComponent<C>,
-    theme_type_id: Option<TypeId>,
+    layout_type_id: Option<TypeId>,
     referer_type_id: Option<TypeId>,
 }
 
-impl<C: ComponentTrait> ActionTrait for BeforePrepare<C> {
-    fn theme_type_id(&self) -> Option<TypeId> {
-        self.theme_type_id
+impl<C: ComponentTrait> ActionTrait for AfterPrepare<C> {
+    fn layout_type_id(&self) -> Option<TypeId> {
+        self.layout_type_id
     }
 
     fn referer_type_id(&self) -> Option<TypeId> {
@@ -18,11 +18,11 @@ impl<C: ComponentTrait> ActionTrait for BeforePrepare<C> {
     }
 }
 
-impl<C: ComponentTrait> BeforePrepare<C> {
-    pub fn new(theme: ThemeRef, f: FnActionWithComponent<C>) -> Self {
-        BeforePrepare {
+impl<C: ComponentTrait> AfterPrepare<C> {
+    pub fn new(layout: LayoutRef, f: FnActionWithComponent<C>) -> Self {
+        AfterPrepare {
             f,
-            theme_type_id: Some(theme.type_id()),
+            layout_type_id: Some(layout.type_id()),
             referer_type_id: Some(TypeId::of::<C>()),
         }
     }
@@ -33,7 +33,7 @@ impl<C: ComponentTrait> BeforePrepare<C> {
         dispatch_actions(
             &ActionKey::new(
                 TypeId::of::<Self>(),
-                Some(cx.theme().type_id()),
+                Some(cx.layout().type_id()),
                 Some(TypeId::of::<C>()),
                 None,
             ),

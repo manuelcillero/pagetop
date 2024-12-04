@@ -1,9 +1,9 @@
-//! Base actions, components, packages, and themes.
+//! Base actions, components, layouts, and packages.
 
 pub mod action;
 
 pub mod component;
 
-pub mod package;
+pub mod layout;
 
-pub mod theme;
+pub mod package;

@@ -1,4 +1,4 @@
-//! Key types and functions for creating actions, components, packages, and themes.
+//! Key types and functions for creating actions, components, layouts, and packages.
 
 use crate::util::TypeInfo;
 
@@ -80,8 +80,8 @@ pub mod action;
 // API to build new components.
 pub mod component;
 
+// API to add new layouts.
+pub mod layout;
+
 // API to add new features with packages.
 pub mod package;
-
-// API to add new layouts with themes.
-pub mod theme;
