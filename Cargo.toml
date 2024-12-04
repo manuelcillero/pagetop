@@ -14,7 +14,7 @@ members = [
     #"packages/pagetop-seaorm",
 
     # App
-    #"drust",
+    "drust",
 ]
 
 [workspace.package]
