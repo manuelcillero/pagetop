@@ -2,14 +2,14 @@ use crate::prelude::*;
 
 use crate::base::action::FnActionWithComponent;
 
-pub struct BeforePrepare<C: ComponentTrait> {
+pub struct BeforeRender<C: ComponentTrait> {
     f: FnActionWithComponent<C>,
     referer_type_id: Option<TypeId>,
     referer_id: OptionId,
     weight: Weight,
 }
 
-impl<C: ComponentTrait> ActionTrait for BeforePrepare<C> {
+impl<C: ComponentTrait> ActionTrait for BeforeRender<C> {
     fn referer_type_id(&self) -> Option<TypeId> {
         self.referer_type_id
     }
@@ -23,9 +23,9 @@ impl<C: ComponentTrait> ActionTrait for BeforePrepare<C> {
     }
 }
 
-impl<C: ComponentTrait> BeforePrepare<C> {
+impl<C: ComponentTrait> BeforeRender<C> {
     pub fn new(f: FnActionWithComponent<C>) -> Self {
-        BeforePrepare {
+        BeforeRender {
             f,
             referer_type_id: Some(TypeId::of::<C>()),
             referer_id: OptionId::default(),

@@ -40,11 +40,11 @@ impl<C: ComponentTrait> ComponentBase for C {
             // Comprueba el componente antes de prepararlo.
             self.setup_before_prepare(cx);
 
-            // Acciones del diseño antes de preparar el componente.
-            action::layout::BeforePrepare::dispatch(self, cx);
+            // Acciones del diseño antes de renderizar el componente.
+            action::layout::BeforeRender::dispatch(self, cx);
 
-            // Acciones de los módulos antes de preparar el componente.
-            action::component::BeforePrepare::dispatch(self, cx);
+            // Acciones de los paquetes antes de renderizar el componente.
+            action::component::BeforeRender::dispatch(self, cx);
 
             // Renderiza el componente.
             let markup = match action::layout::RenderComponent::dispatch(self, cx) {
@@ -52,11 +52,11 @@ impl<C: ComponentTrait> ComponentBase for C {
                 None => self.prepare_component(cx).render(),
             };
 
-            // Acciones del diseño después de preparar el componente.
-            action::layout::AfterPrepare::dispatch(self, cx);
+            // Acciones del diseño después de renderizar el componente.
+            action::layout::AfterRender::dispatch(self, cx);
 
-            // Acciones de los módulos después de preparar el componente.
-            action::component::AfterPrepare::dispatch(self, cx);
+            // Acciones de los paquetes después de renderizar el componente.
+            action::component::AfterRender::dispatch(self, cx);
 
             markup
         } else {

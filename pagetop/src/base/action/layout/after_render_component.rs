@@ -2,13 +2,13 @@ use crate::prelude::*;
 
 use crate::base::action::FnActionWithComponent;
 
-pub struct BeforePrepare<C: ComponentTrait> {
+pub struct AfterRender<C: ComponentTrait> {
     f: FnActionWithComponent<C>,
     layout_type_id: Option<TypeId>,
     referer_type_id: Option<TypeId>,
 }
 
-impl<C: ComponentTrait> ActionTrait for BeforePrepare<C> {
+impl<C: ComponentTrait> ActionTrait for AfterRender<C> {
     fn layout_type_id(&self) -> Option<TypeId> {
         self.layout_type_id
     }
@@ -18,9 +18,9 @@ impl<C: ComponentTrait> ActionTrait for BeforePrepare<C> {
     }
 }
 
-impl<C: ComponentTrait> BeforePrepare<C> {
+impl<C: ComponentTrait> AfterRender<C> {
     pub fn new(layout: LayoutRef, f: FnActionWithComponent<C>) -> Self {
-        BeforePrepare {
+        AfterRender {
             f,
             layout_type_id: Some(layout.type_id()),
             referer_type_id: Some(TypeId::of::<C>()),
