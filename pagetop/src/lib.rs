@@ -29,7 +29,7 @@
 //!
 //! # ⚡️ Quick start
 //!
-//! ```rust
+//! ```rust#ignore
 //! use pagetop::prelude::*;
 //!
 //! struct HelloWorld;

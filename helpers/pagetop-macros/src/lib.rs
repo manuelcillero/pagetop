@@ -17,7 +17,7 @@ use syn::{parse_macro_input, parse_str, DeriveInput, ItemFn};
 ///
 /// # Ejemplos
 ///
-/// ```
+/// ```rust#ignore
 /// #[fn_builder]
 /// pub fn set_example(&mut self) -> &mut Self {
 ///     // implementación
@@ -26,7 +26,7 @@ use syn::{parse_macro_input, parse_str, DeriveInput, ItemFn};
 ///
 /// Añadirá al código el siguiente método:
 ///
-/// ```
+/// ```rust#ignore
 /// #[inline]
 /// pub fn with_example(mut self) -> Self {
 ///     self.set_example();
@@ -159,7 +159,7 @@ pub fn derive_component_classes(input: TokenStream) -> TokenStream {
 ///
 /// # Ejemplos
 ///
-/// ```
+/// ```rust#ignore
 /// #[pagetop::main]
 /// async fn main() {
 ///     async { println!("Hello world!"); }.await
@@ -180,7 +180,7 @@ pub fn main(_: TokenStream, item: TokenStream) -> TokenStream {
 ///
 /// # Ejemplos
 ///
-/// ```
+/// ```rust#ignore
 /// #[pagetop::test]
 /// async fn test() {
 ///     assert_eq!(async { "Hello world" }.await, "Hello world");

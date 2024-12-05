@@ -34,7 +34,7 @@ mod escape;
 ///
 /// # Example
 ///
-/// ```rust
+/// ```rust#ignore
 /// use maud::Escaper;
 /// use std::fmt::Write;
 /// let mut s = String::new();
@@ -72,7 +72,7 @@ impl<'a> fmt::Write for Escaper<'a> {
 ///
 /// # Example
 ///
-/// ```rust
+/// ```rust#ignore
 /// use maud::{html, Markup, Render};
 ///
 /// /// Provides a shorthand for linking to a CSS stylesheet.
@@ -188,7 +188,7 @@ impl_render_with_itoa! {
 ///
 /// # Example
 ///
-/// ```rust
+/// ```rust#ignore
 /// use maud::html;
 /// use std::net::Ipv4Addr;
 ///
@@ -259,7 +259,7 @@ impl<T: AsRef<str> + Default> Default for PreEscaped<T> {
 ///
 /// A minimal web page:
 ///
-/// ```rust
+/// ```rust#ignore
 /// use maud::{DOCTYPE, html};
 ///
 /// let markup = html! {

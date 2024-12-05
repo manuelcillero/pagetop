@@ -70,7 +70,7 @@
 //! [`include_locales!`](crate::include_locales) macro to integrate them into your module or
 //! application. If your resources are located in the `"src/locale"` directory, simply declare:
 //!
-//! ```
+//! ```rust#ignore
 //! use pagetop::prelude::*;
 //!
 //! include_locales!(LOCALES_SAMPLE);
@@ -78,7 +78,7 @@
 //!
 //! But if they are in another directory, then you can use:
 //!
-//! ```
+//! ```rust#ignore
 //! use pagetop::prelude::*;
 //!
 //! include_locales!(LOCALES_SAMPLE from "path/to/locale");

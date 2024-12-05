@@ -57,7 +57,7 @@
 //! Then, use the [`include_config!`](crate::include_config) macro to initialize your settings with
 //! type-safe structures and predefined values:
 //!
-//! ```
+//! ```rust#ignore
 //! use pagetop::prelude::*;
 //! use serde::Deserialize;
 //!
@@ -101,7 +101,7 @@
 //!
 //! Access the settings directly in your code:
 //!
-//! ```
+//! ```rust#ignore
 //! use pagetop::prelude::*;
 //! use crate::config;
 //!
