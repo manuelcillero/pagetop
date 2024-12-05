@@ -44,68 +44,68 @@ impl Page {
     // Page BUILDER.
 
     #[fn_builder]
-    pub fn set_title(&mut self, title: L10n) -> &mut Self {
-        self.title.set_value(title);
+    pub fn alter_title(&mut self, title: L10n) -> &mut Self {
+        self.title.alter_value(title);
         self
     }
 
     #[fn_builder]
-    pub fn set_description(&mut self, description: L10n) -> &mut Self {
-        self.description.set_value(description);
+    pub fn alter_description(&mut self, description: L10n) -> &mut Self {
+        self.description.alter_value(description);
         self
     }
 
     #[fn_builder]
-    pub fn set_metadata(&mut self, name: &'static str, content: &'static str) -> &mut Self {
+    pub fn alter_metadata(&mut self, name: &'static str, content: &'static str) -> &mut Self {
         self.metadata.push((name, content));
         self
     }
 
     #[fn_builder]
-    pub fn set_property(&mut self, property: &'static str, content: &'static str) -> &mut Self {
+    pub fn alter_property(&mut self, property: &'static str, content: &'static str) -> &mut Self {
         self.metadata.push((property, content));
         self
     }
 
     #[fn_builder]
-    pub fn set_assets(&mut self, op: AssetsOp) -> &mut Self {
-        self.context.set_assets(op);
+    pub fn alter_assets(&mut self, op: AssetsOp) -> &mut Self {
+        self.context.alter_assets(op);
         self
     }
 
     #[fn_builder]
-    pub fn set_body_id(&mut self, id: impl Into<String>) -> &mut Self {
-        self.body_id.set_value(id);
+    pub fn alter_body_id(&mut self, id: impl Into<String>) -> &mut Self {
+        self.body_id.alter_value(id);
         self
     }
 
     #[fn_builder]
-    pub fn set_body_classes(&mut self, op: ClassesOp, classes: impl Into<String>) -> &mut Self {
-        self.body_classes.set_value(op, classes);
+    pub fn alter_body_classes(&mut self, op: ClassesOp, classes: impl Into<String>) -> &mut Self {
+        self.body_classes.alter_value(op, classes);
         self
     }
 
     #[fn_builder]
-    pub fn set_body_skip_to(&mut self, id: impl Into<String>) -> &mut Self {
-        self.body_skip_to.set_value(id);
+    pub fn alter_body_skip_to(&mut self, id: impl Into<String>) -> &mut Self {
+        self.body_skip_to.alter_value(id);
         self
     }
 
     #[fn_builder]
-    pub fn set_layout(&mut self, layout: &'static str) -> &mut Self {
-        self.context.set_assets(AssetsOp::Layout(layout));
+    pub fn alter_layout(&mut self, layout: &'static str) -> &mut Self {
+        self.context.alter_assets(AssetsOp::Layout(layout));
         self
     }
 
     #[fn_builder]
-    pub fn set_in_region(&mut self, region: &'static str, op: ChildOp) -> &mut Self {
-        self.context.set_in_region(region, op);
+    pub fn alter_in_region(&mut self, region: &'static str, op: ChildOp) -> &mut Self {
+        self.context.alter_in_region(region, op);
         self
     }
 
     pub fn with_component(mut self, component: impl ComponentTrait) -> Self {
         self.context
-            .set_in_region("content", ChildOp::Add(ChildComponent::with(component)));
+            .alter_in_region("content", ChildOp::Add(ChildComponent::with(component)));
         self
     }
 
@@ -115,7 +115,7 @@ impl Page {
         component: impl ComponentTrait,
     ) -> Self {
         self.context
-            .set_in_region(region, ChildOp::Add(ChildComponent::with(component)));
+            .alter_in_region(region, ChildOp::Add(ChildComponent::with(component)));
         self
     }
 

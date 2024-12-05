@@ -24,9 +24,9 @@ impl ChildrenInRegions {
     }
 
     #[fn_builder]
-    pub fn set_in_region(&mut self, region: &'static str, op: ChildOp) -> &mut Self {
+    pub fn alter_in_region(&mut self, region: &'static str, op: ChildOp) -> &mut Self {
         if let Some(region) = self.0.get_mut(region) {
-            region.set_value(op);
+            region.alter_value(op);
         } else {
             self.0.insert(region, Children::new().with_value(op));
         }
@@ -56,18 +56,18 @@ impl InRegion {
                 COMMON_REGIONS
                     .write()
                     .unwrap()
-                    .set_in_region("content", ChildOp::Add(child));
+                    .alter_in_region("content", ChildOp::Add(child));
             }
             InRegion::Named(name) => {
                 COMMON_REGIONS
                     .write()
                     .unwrap()
-                    .set_in_region(name, ChildOp::Add(child));
+                    .alter_in_region(name, ChildOp::Add(child));
             }
             InRegion::OfLayout(region, layout) => {
                 let mut regions = LAYOUT_REGIONS.write().unwrap();
                 if let Some(r) = regions.get_mut(&layout.type_id()) {
-                    r.set_in_region(region, ChildOp::Add(child));
+                    r.alter_in_region(region, ChildOp::Add(child));
                 } else {
                     regions.insert(layout.type_id(), ChildrenInRegions::with(region, child));
                 }

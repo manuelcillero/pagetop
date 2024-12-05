@@ -74,7 +74,7 @@ impl Context {
         }
     }
 
-    pub fn set_assets(&mut self, op: AssetsOp) -> &mut Self {
+    pub fn alter_assets(&mut self, op: AssetsOp) -> &mut Self {
         match op {
             AssetsOp::LangId(langid) => {
                 self.langid = langid;
@@ -109,12 +109,16 @@ impl Context {
         self
     }
 
-    pub fn set_in_region(&mut self, region: &'static str, op: ChildOp) -> &mut Self {
-        self.regions.set_in_region(region, op);
+    pub fn alter_in_region(&mut self, region: &'static str, op: ChildOp) -> &mut Self {
+        self.regions.alter_in_region(region, op);
         self
     }
 
-    pub fn set_param<T: FromStr + ToString>(&mut self, key: &'static str, value: &T) -> &mut Self {
+    pub fn alter_param<T: FromStr + ToString>(
+        &mut self,
+        key: &'static str,
+        value: &T,
+    ) -> &mut Self {
         self.params.insert(key, value.to_string());
         self
     }
