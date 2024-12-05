@@ -43,9 +43,6 @@ pub trait LayoutTrait: PackageTrait + Send + Sync {
         }
     }
 
-    #[allow(unused_variables)]
-    fn before_render_body(&self, page: &mut Page) {}
-
     fn render_body(&self, page: &mut Page) -> Markup {
         html! {
             body id=[page.body_id().get()] class=[page.body_classes().get()] {
@@ -53,7 +50,4 @@ pub trait LayoutTrait: PackageTrait + Send + Sync {
             }
         }
     }
-
-    #[allow(unused_variables)]
-    fn after_render_body(&self, page: &mut Page) {}
 }

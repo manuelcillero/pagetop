@@ -156,25 +156,25 @@ impl Page {
     // Page RENDER.
 
     pub fn render(&mut self) -> ResultPage<Markup, ErrorPage> {
-        // Layout-specific operations before rendering the page body.
-        self.context.layout().before_render_body(self);
+        // Acciones específicas del diseño antes de renderizar el <body>.
+        action::layout::BeforeRenderBody::dispatch(self);
 
-        // Execute package actions before rendering the page body.
+        // Acciones de los paquetes antes de renderizar el <body>.
         action::page::BeforeRenderBody::dispatch(self);
 
-        // Render the page body.
+        // Renderiza el <body>.
         let body = self.context.layout().render_body(self);
 
-        // Layout-specific operations after rendering the page body.
-        self.context.layout().after_render_body(self);
+        // Acciones específicas del diseño después de renderizar el <body>.
+        action::layout::AfterRenderBody::dispatch(self);
 
-        // Execute package actions after rendering the page body.
+        // Acciones de los paquetes después de renderizar el <body>.
         action::page::AfterRenderBody::dispatch(self);
 
-        // Render the page head.
+        // Renderiza el <head>.
         let head = self.context.layout().render_head(self);
 
-        // Render the full page with language and direction attributes.
+        // Compone la página completa incluyendo los atributos de idioma y dirección del texto.
         let lang = &self.context.langid().language;
         let dir = match self.context.langid().character_direction() {
             CharacterDirection::LTR => "ltr",

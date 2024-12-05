@@ -1,9 +1,9 @@
 use crate::prelude::*;
 
-pub type FnBeforeRenderBody = fn(page: &mut Page);
+use crate::base::action::FnActionWithPage;
 
 pub struct BeforeRenderBody {
-    f: FnBeforeRenderBody,
+    f: FnActionWithPage,
     weight: Weight,
 }
 
@@ -14,7 +14,7 @@ impl ActionTrait for BeforeRenderBody {
 }
 
 impl BeforeRenderBody {
-    pub fn new(f: FnBeforeRenderBody) -> Self {
+    pub fn new(f: FnActionWithPage) -> Self {
         BeforeRenderBody { f, weight: 0 }
     }
 
