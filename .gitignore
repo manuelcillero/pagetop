@@ -2,3 +2,4 @@
 **/log/*.log*
 **/local.*.toml
 **/local.toml
+workdir
