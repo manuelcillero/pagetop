@@ -40,7 +40,7 @@ impl<C: ComponentTrait> ComponentBase for C {
             // Comprueba el componente antes de prepararlo.
             self.setup_before_prepare(cx);
 
-            // Acciones del diseño antes de renderizar el componente.
+            // Acciones específicas del diseño antes de renderizar el componente.
             action::layout::BeforeRender::dispatch(self, cx);
 
             // Acciones de los paquetes antes de renderizar el componente.
@@ -52,7 +52,7 @@ impl<C: ComponentTrait> ComponentBase for C {
                 None => self.prepare_component(cx).render(),
             };
 
-            // Acciones del diseño después de renderizar el componente.
+            // Acciones específicas del diseño después de renderizar el componente.
             action::layout::AfterRender::dispatch(self, cx);
 
             // Acciones de los paquetes después de renderizar el componente.
