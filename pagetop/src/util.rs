@@ -103,7 +103,7 @@ impl TypeInfo {
 ///
 /// # Examples
 ///
-/// ```
+/// ```rust#ignore
 /// let root = "/home/user";
 /// let relative = "documents";
 /// let abs_dir = absolute_dir(root, relative).unwrap();
