@@ -8,8 +8,8 @@ use proc_macro_error::proc_macro_error;
 use quote::{quote, quote_spanned, ToTokens};
 use syn::{parse_macro_input, parse_str, DeriveInput, ItemFn};
 
-/// Macro (*attribute*) que asocia a un método `set_` su correspondiente método `with_` para aplicar
-/// el patrón *builder*.
+/// Macro (*attribute*) que asocia a un método `alter_` su correspondiente método `with_` para
+/// aplicar el patrón *builder*.
 ///
 /// # Panics
 ///
@@ -19,7 +19,7 @@ use syn::{parse_macro_input, parse_str, DeriveInput, ItemFn};
 ///
 /// ```rust#ignore
 /// #[fn_builder]
-/// pub fn set_example(&mut self) -> &mut Self {
+/// pub fn alter_example(&mut self) -> &mut Self {
 ///     // implementación
 /// }
 /// ```
@@ -29,32 +29,32 @@ use syn::{parse_macro_input, parse_str, DeriveInput, ItemFn};
 /// ```rust#ignore
 /// #[inline]
 /// pub fn with_example(mut self) -> Self {
-///     self.set_example();
+///     self.alter_example();
 ///     self
 /// }
 /// ```
 #[proc_macro_attribute]
 pub fn fn_builder(_: TokenStream, item: TokenStream) -> TokenStream {
-    let fn_set = parse_macro_input!(item as ItemFn);
-    let fn_set_name = fn_set.sig.ident.to_string();
+    let fn_alter = parse_macro_input!(item as ItemFn);
+    let fn_alter_name = fn_alter.sig.ident.to_string();
 
-    if !fn_set_name.starts_with("set_") {
+    if !fn_alter_name.starts_with("alter_") {
         let expanded = quote_spanned! {
-            fn_set.sig.ident.span() =>
-                compile_error!("expected a \"pub fn set_...() -> &mut Self\" method");
+            fn_alter.sig.ident.span() =>
+                compile_error!("expected a \"pub fn alter_...() -> &mut Self\" method");
         };
         return expanded.into();
     }
 
-    let fn_with_name = fn_set_name.replace("set_", "with_");
-    let fn_with_generics = if fn_set.sig.generics.params.is_empty() {
+    let fn_with_name = fn_alter_name.replace("alter_", "with_");
+    let fn_with_generics = if fn_alter.sig.generics.params.is_empty() {
         fn_with_name.clone()
     } else {
-        let g = &fn_set.sig.generics;
+        let g = &fn_alter.sig.generics;
         format!("{fn_with_name}{}", quote! { #g }.to_string())
     };
 
-    let where_clause = fn_set
+    let where_clause = fn_alter
         .sig
         .generics
         .where_clause
@@ -63,7 +63,7 @@ pub fn fn_builder(_: TokenStream, item: TokenStream) -> TokenStream {
             format!("{} ", quote! { #where_clause }.to_string())
         });
 
-    let args: Vec<String> = fn_set
+    let args: Vec<String> = fn_alter
         .sig
         .inputs
         .iter()
@@ -85,14 +85,14 @@ pub fn fn_builder(_: TokenStream, item: TokenStream) -> TokenStream {
     #[rustfmt::skip]
     let fn_with = parse_str::<ItemFn>(format!(r##"
         pub fn {fn_with_generics}(mut self, {}) -> Self {where_clause} {{
-            self.{fn_set_name}({});
+            self.{fn_alter_name}({});
             self
         }}
         "##, args.join(", "), params.join(", ")
     ).as_str()).unwrap();
 
     #[rustfmt::skip]
-    let fn_set_doc = format!(r##"
+    let fn_alter_doc = format!(r##"
         <p id="method.{fn_with_name}" style="margin-bottom: 12px;">Use
         <code class="code-header">pub fn <span class="fn" href="#method.{fn_with_name}">{fn_with_name}</span>(self, …) -> Self</code>
         for the <a href="#method.new">builder pattern</a>.
@@ -103,8 +103,8 @@ pub fn fn_builder(_: TokenStream, item: TokenStream) -> TokenStream {
         #[doc(hidden)]
         #fn_with
         #[inline]
-        #[doc = #fn_set_doc]
-        #fn_set
+        #[doc = #fn_alter_doc]
+        #fn_alter
     };
     expanded.into()
 }
@@ -130,7 +130,7 @@ pub fn derive_component_classes(input: TokenStream) -> TokenStream {
     let name = &input.ident;
 
     #[rustfmt::skip]
-    let fn_set_doc = format!(r##"
+    let fn_alter_doc = format!(r##"
         <p id="method.with_classes">Use
         <code class="code-header"><span class="fn" href="#method.with_classes">with_classes</span>(self, …) -> Self</code>
         to apply the <a href="#method.new">builder pattern</a>.
@@ -140,9 +140,9 @@ pub fn derive_component_classes(input: TokenStream) -> TokenStream {
     let expanded = quote! {
         impl ComponentClasses for #name {
             #[inline]
-            #[doc = #fn_set_doc]
-            fn set_classes(&mut self, op: ClassesOp, classes: impl Into<String>) -> &mut Self {
-                self.classes.set_value(op, classes);
+            #[doc = #fn_alter_doc]
+            fn alter_classes(&mut self, op: ClassesOp, classes: impl Into<String>) -> &mut Self {
+                self.classes.alter_value(op, classes);
                 self
             }
 

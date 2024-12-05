@@ -18,7 +18,7 @@ impl Html {
         Html(html)
     }
 
-    pub fn set_html(&mut self, html: Markup) -> &mut Self {
+    pub fn alter_html(&mut self, html: Markup) -> &mut Self {
         self.0 = html;
         self
     }

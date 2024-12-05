@@ -18,7 +18,7 @@ impl Fluent {
         Fluent(l10n)
     }
 
-    pub fn set_l10n(&mut self, l10n: L10n) -> &mut Self {
+    pub fn alter_l10n(&mut self, l10n: L10n) -> &mut Self {
         self.0 = l10n;
         self
     }

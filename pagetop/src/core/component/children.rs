@@ -102,7 +102,7 @@ impl Children {
     // Children BUILDER.
 
     #[fn_builder]
-    pub fn set_value(&mut self, op: ChildOp) -> &mut Self {
+    pub fn alter_value(&mut self, op: ChildOp) -> &mut Self {
         match op {
             ChildOp::Add(any) => self.add(any),
             ChildOp::InsertAfterId(id, any) => self.insert_after_id(id, any),
@@ -116,7 +116,7 @@ impl Children {
     }
 
     #[fn_builder]
-    pub fn set_typed<C: ComponentTrait + Default>(&mut self, op: TypedOp<C>) -> &mut Self {
+    pub fn alter_typed<C: ComponentTrait + Default>(&mut self, op: TypedOp<C>) -> &mut Self {
         match op {
             TypedOp::Add(typed) => self.add(typed.to_child()),
             TypedOp::InsertAfterId(id, typed) => self.insert_after_id(id, typed.to_child()),

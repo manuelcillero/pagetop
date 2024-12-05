@@ -13,7 +13,7 @@ impl OptionTranslated {
     // OptionTranslated BUILDER.
 
     #[fn_builder]
-    pub fn set_value(&mut self, value: L10n) -> &mut Self {
+    pub fn alter_value(&mut self, value: L10n) -> &mut Self {
         self.0 = value;
         self
     }

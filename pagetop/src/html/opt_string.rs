@@ -11,7 +11,7 @@ impl OptionString {
     // OptionString BUILDER.
 
     #[fn_builder]
-    pub fn set_value(&mut self, value: impl Into<String>) -> &mut Self {
+    pub fn alter_value(&mut self, value: impl Into<String>) -> &mut Self {
         self.0 = Some(value.into().trim().to_owned());
         self
     }
