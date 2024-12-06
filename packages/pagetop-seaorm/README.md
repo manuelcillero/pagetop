@@ -11,8 +11,8 @@
 
 </div>
 
-PageTop SeaORM utiliza [SQLx](https://crates.io/crates/sqlx) y
-[SeaQuery](https://crates.io/crates/sea-query), además de integrar en código una versión adaptada de
+Utiliza [SQLx](https://crates.io/crates/sqlx) y [SeaQuery](https://crates.io/crates/sea-query) para
+exportar sus funcionalidades, y también integra en código una versión adaptada de
 [SeaORM Migration](https://github.com/SeaQL/sea-orm/tree/1.1.1/sea-orm-migration/src) (v1.1.1) para
 permitir migraciones independientes para cada paquete del proyecto.
 
@@ -25,7 +25,7 @@ sencillez de la web clásica aplicando *renderizado en el servidor* (SSR), HTML,
 
 # 🚧 Advertencia
 
-**PageTop** es un proyecto personal que hago por diversión para aprender cosas nuevas. Está en
+`PageTop` es un proyecto personal que hago por diversión para aprender cosas nuevas. Está en
 desarrollo activo, su API es inestable y está sujeta a cambios frecuentes. No recomiendo su uso en
 producción, al menos hasta liberar la versión **1.0.0**.
 

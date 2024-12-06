@@ -1,4 +1,4 @@
-//! Essential web framework ([actix-web](https://docs.rs/actix-web)).
+//! Gestión del servidor y servicios web ([actix-web](https://docs.rs/actix-web)).
 
 pub use actix_session::Session;
 pub use actix_web::body::BoxBody;

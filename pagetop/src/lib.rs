@@ -4,30 +4,45 @@
 //!
 //! <h1>PageTop</h1>
 //!
-//! <p>An opinionated web framework to build modular <em>Server-Side Rendering</em> web solutions.</p>
+//! <p>Entorno de desarrollo para crear soluciones web modulares, extensibles y configurables.</p>
 //!
-//! [![License](https://img.shields.io/badge/license-MIT%2FApache-blue.svg?style=for-the-badge)](https://github.com/manuelcillero/pagetop#-license)
-//! [![API Docs](https://img.shields.io/docsrs/pagetop?label=API%20Docs&style=for-the-badge&logo=Docs.rs)](https://docs.rs/pagetop)
+//! [![Licencia](https://img.shields.io/badge/license-MIT%2FApache-blue.svg?label=Licencia&style=for-the-badge)](#-license)
+//! [![Doc API](https://img.shields.io/docsrs/pagetop?label=Doc%20API&style=for-the-badge&logo=Docs.rs)](https://docs.rs/pagetop)
 //! [![Crates.io](https://img.shields.io/crates/v/pagetop.svg?style=for-the-badge&logo=ipfs)](https://crates.io/crates/pagetop)
-//! [![Downloads](https://img.shields.io/crates/d/pagetop.svg?style=for-the-badge&logo=transmission)](https://crates.io/crates/pagetop)
+//! [![Descargas](https://img.shields.io/crates/d/pagetop.svg?label=Descargas&style=for-the-badge&logo=transmission)](https://crates.io/crates/pagetop)
 //!
 //! <br>
 //! </div>
 //!
-//! The `PageTop` core API provides a comprehensive toolkit for extending its functionalities to
-//! specific requirements and application scenarios through actions, components, layouts, and
-//! packages:
+//! `PageTop` reivindica la sencillez de la web clásica utilizando SSR (*renderizado en el
+//! servidor*), HTML, CSS y JavaScript. Proporciona un conjunto completo de funcionalidades que
+//! pueden extenderse y adaptarse a las necesidades de cada solución web implementando:
 //!
-//!   * **Actions** serve as a mechanism to customize `PageTop`'s internal behavior by intercepting
-//!     its execution flow.
-//!   * **Components** encapsulate HTML, CSS, and JavaScript into functional, configurable, and
-//!     well-defined units.
-//!   * **Layouts** enable developers to alter the appearance of pages and components without
-//!     affecting their functionality.
-//!   * **Packages** extend or customize existing functionality by interacting with `PageTop` APIs
-//!     or third-party package APIs.
+//!   * **Acciones** (*actions*). Las funcionalidades que incorporen acciones en su lógica de
+//!     programa estarán proporcionando a los desarrolladores herramientas para alterar su
+//!     comportamiento interno interceptando su flujo de ejecución.
+//!   * **Componentes** (*components*). Para encapsular HTML, CSS y JavaScript en unidades
+//!     funcionales, configurables y bien definidas.
+//!   * **Diseños** (*layouts*). Permiten a los desarrolladores modificar la apariencia de páginas y
+//!     componentes sin afectar a su funcionalidad.
+//!   * **Paquetes** (*packages*). Extienden o personalizan funcionalidades existentes interactuando
+//!     con las APIs de `PageTop` o de paquetes de terceros.
 //!
-//! # ⚡️ Quick start
+//! # ⚡️ Inicio rápido
+//!
+//! La aplicación más sencilla de `PageTop` se ve así:
+//!
+//! ```rust#ignore
+//! use pagetop::prelude::*;
+//!
+//! #[pagetop::main]
+//! async fn main() -> std::io::Result<()> {
+//!     Application::new().run()?.await
+//! }
+//! ```
+//!
+//! Proporciona una página de bienvenida en `http://localhost:8088` según la configuración
+//! predefinida. Para personalizar el servicio puedes crear un paquete de `PageTop`:
 //!
 //! ```rust#ignore
 //! use pagetop::prelude::*;
@@ -42,7 +57,7 @@
 //!
 //! async fn hello_world(request: HttpRequest) -> ResultPage<Markup, ErrorPage> {
 //!     Page::new(request)
-//!         .with_component(Html::with(html! { h1 { "Hello World!" } }))
+//!         .with_component(Html::with(html! { h1 { "Hello world!" } }))
 //!         .render()
 //! }
 //!
@@ -51,24 +66,18 @@
 //!     Application::prepare(&HelloWorld).run()?.await
 //! }
 //! ```
-//! This program implements a package named `HelloWorld` with one service that returns a web page
-//! that greets the world whenever it is accessed from the browser at `http://localhost:8088` (using
-//! the [default configuration settings](`global::Server`)). You can find this code in the `PageTop`
-//! [examples repository](https://github.com/manuelcillero/pagetop/tree/latest/examples).
 //!
-//! # 🧩 Dependency Management
+//! Este programa prepara un paquete personalizado llamado `HelloWorld` que sirve una página web en
+//! la ruta raíz (`/`) mostrando el mensaje "Hello world!" en un elemento HTML `<h1>`.
 //!
-//! Projects leveraging `PageTop` will use `cargo` to resolve dependencies, similar to any other
-//! Rust project.
+//! # 🧩 Gestión de Dependencias
 //!
-//! Nevertheless, it’s crucial that each package explicitly declares its
-//! [dependencies](core::package::PackageTrait#method.dependencies), if any, to assist `PageTop` in
-//! structuring and initializing the application in a modular fashion.
+//! Los proyectos que utilizan `PageTop` gestionan las dependencias con `cargo`, como cualquier otro
+//! proyecto en Rust.
 //!
-//! # 🚧 Warning
-//!
-//! **`PageTop`** framework is currently in active development. The API is unstable and subject to
-//! frequent changes. Production use is not recommended until version **0.1.0**.
+//! Sin embargo, es fundamental que cada paquete declare explícitamente sus
+//! [dependencias](core::package::PackageTrait#method.dependencies), si las tiene, para que
+//! `PageTop` pueda estructurar e inicializar la aplicación de forma modular.
 
 #![cfg_attr(docsrs, feature(doc_cfg))]
 
@@ -76,44 +85,46 @@
 
 pub use concat_string::concat_string;
 
-/// Enables flexible identifier concatenation in macros, allowing new items with pasted identifiers.
+/// Habilita la concatenación flexible de identificadores en macros, permitiendo crear nuevos
+/// elementos con identificadores combinados.
 pub use paste::paste;
 
 pub use pagetop_macros::{fn_builder, html, main, test, AutoDefault, ComponentClasses};
 
 pub type StaticResources = std::collections::HashMap<&'static str, static_files::Resource>;
 
+// Un `TypeId` representa un identificador único global para un tipo.
 pub use std::any::TypeId;
 
 pub type Weight = i8;
 
 // API *********************************************************************************************
 
-// Useful functions and macros.
+// Funciones y macros útiles.
 pub mod util;
-// Load configuration settings.
+// Carga los ajustes de configuración.
 pub mod config;
-// Global settings.
+// Ajustes globales.
 pub mod global;
-// Application tracing and event logging.
+// Gestión de trazas y registro de eventos de la aplicación.
 pub mod trace;
-// HTML in code.
+// HTML en código.
 pub mod html;
-// Localization.
+// Localización.
 pub mod locale;
-// Date and time handling.
+// Soporte a fechas y horas.
 pub mod datetime;
-// Essential web framework.
+// Gestión del servidor y servicios web.
 pub mod service;
-// Key types and functions for creating actions, components, layouts, and packages.
+// Tipos y funciones esenciales para crear acciones, componentes, diseños y paquetes.
 pub mod core;
-// Web request response variants.
+// Respuestas a peticiones web en sus diferentes variantes.
 pub mod response;
-// Base actions, components, layouts, and packages.
+// Acciones, componentes, diseños y paquetes base.
 pub mod base;
-// Prepare and run the application.
+// Prepara y ejecuta la aplicación.
 pub mod app;
 
-// The PageTop Prelude *****************************************************************************
+// Prelude de PageTop ******************************************************************************
 
 pub mod prelude;

@@ -10,7 +10,7 @@
 
 </div>
 
-Modestamente inspirado en [Drupal](https://www.drupal.org), **Drust** exprime **PageTop** para
+Modestamente inspirado en [Drupal](https://www.drupal.org), `Drust` exprime `PageTop` para
 desarrollar un *Sistema de Gestión de Contenidos* (CMS) básico, que permita construir sitios web
 dinámicos, manejables y personalizables; y facilite a los usuarios la gestión de una variedad de
 contenidos de manera sencilla.
@@ -24,7 +24,7 @@ sencillez de la web clásica aplicando *renderizado en el servidor* (SSR), HTML,
 
 # 🚧 Advertencia
 
-**PageTop** es un proyecto personal que hago por diversión para aprender cosas nuevas. Su API es
+`PageTop` es un proyecto personal que hago por diversión para aprender cosas nuevas. Su API es
 inestable y está sujeta a cambios frecuentes. No recomiendo su uso en producción, al menos mientras
 no se libere una versión **1.0.0**.
 

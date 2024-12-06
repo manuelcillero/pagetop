@@ -1,4 +1,4 @@
-//! Global settings.
+//! Ajustes globales de `PageTop`.
 
 use crate::include_config;
 

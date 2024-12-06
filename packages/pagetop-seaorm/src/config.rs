@@ -20,7 +20,7 @@
 //!
 //! assert_eq!(config::SETTINGS.database.db_host, "localhost");
 //! ```
-//! See [`pagetop::include_config`] to learn how **PageTop** read configuration files and use
+//! See [`pagetop::include_config`] to learn how `PageTop` read configuration files and use
 //! settings.
 
 use pagetop::prelude::*;

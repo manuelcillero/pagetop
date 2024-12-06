@@ -1,4 +1,4 @@
-//! Key types and functions for creating actions, components, layouts, and packages.
+//! Tipos y funciones esenciales para crear acciones, componentes, diseños y paquetes.
 
 use crate::util::TypeInfo;
 

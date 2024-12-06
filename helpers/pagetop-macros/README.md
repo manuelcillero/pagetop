@@ -17,7 +17,7 @@ Entre sus macros se incluye una adaptación de [maud-macros](https://crates.io/c
 [SmartDefault](https://crates.io/crates/smart_default) (0.7.1) de
 [Jane Doe](https://crates.io/users/jane-doe), llamada `AutoDefault`. Estas macros eliminan la
 necesidad de referenciar `maud` o `smart_default` en las dependencias del archivo `Cargo.toml` de
-cada proyecto **PageTop**.
+cada proyecto `PageTop`.
 
 
 # 📦 Sobre PageTop
@@ -28,7 +28,7 @@ sencillez de la web clásica aplicando *renderizado en el servidor* (SSR), HTML,
 
 # 🚧 Advertencia
 
-**PageTop** es un proyecto personal que hago por diversión para aprender cosas nuevas. Su API es
+`PageTop` es un proyecto personal que hago por diversión para aprender cosas nuevas. Su API es
 inestable y está sujeta a cambios frecuentes. No recomiendo su uso en producción, al menos mientras
 no se libere una versión **1.0.0**.
 
