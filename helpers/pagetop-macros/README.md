@@ -11,6 +11,15 @@
 
 </div>
 
+Entre sus macros se incluye una adaptación de [maud-macros](https://crates.io/crates/maud_macros)
+([0.25.0](https://github.com/lambda-fairy/maud/tree/v0.25.0/maud_macros)) de
+[Chris Wong](https://crates.io/users/lambda-fairy) y una versión renombrada de
+[SmartDefault](https://crates.io/crates/smart_default) (0.7.1) de
+[Jane Doe](https://crates.io/users/jane-doe), llamada `AutoDefault`. Estas macros eliminan la
+necesidad de referenciar `maud` o `smart_default` en las dependencias del archivo `Cargo.toml` de
+cada proyecto **PageTop**.
+
+
 # 📦 Sobre PageTop
 
 [PageTop](https://docs.rs/pagetop) es un entorno de desarrollo con convenciones que reivindican la
@@ -19,21 +28,9 @@ sencillez de la web clásica aplicando *renderizado en el servidor* (SSR), HTML,
 
 # 🚧 Advertencia
 
-**PageTop** es un proyecto personal que se encuentra en desarrollo activo. Actualmente su API es
-inestable y está sujeta a cambios frecuentes. No se recomienda su uso en producción, al menos hasta
-que alcance la versión **0.1.0**.
-
-
-# 🔖 Créditos
-
-Este *crate* incluye una versión adaptada de [maud-macros](https://crates.io/crates/maud_macros)
-(versión [0.25.0](https://github.com/lambda-fairy/maud/tree/v0.25.0/maud_macros)) creada por
-[Chris Wong](https://crates.io/users/lambda-fairy). También se ha integrado el *crate*
-[SmartDefault](https://crates.io/crates/smart_default) (versión 0.7.1), desarrollado por
-[Jane Doe](https://crates.io/users/jane-doe), como `AutoDefault` para ampliar el uso de `Default`.
-
-Ambos eliminan la necesidad de referenciar explícitamente `maud` o `smart_default` en el archivo
-`Cargo.toml` de cada proyecto.
+**PageTop** es un proyecto personal que hago por diversión para aprender cosas nuevas. Su API es
+inestable y está sujeta a cambios frecuentes. No recomiendo su uso en producción, al menos mientras
+no se libere una versión **1.0.0**.
 
 
 # 📜 Licencia
@@ -41,10 +38,10 @@ Ambos eliminan la necesidad de referenciar explícitamente `maud` o `smart_defau
 El código está disponible bajo una doble licencia:
 
   * **Licencia MIT**
-    ([LICENSE-MIT](LICENSE-MIT) or https://opensource.org/licenses/MIT)
+    ([LICENSE-MIT](LICENSE-MIT) o también https://opensource.org/licenses/MIT)
 
   * **Licencia Apache, Versión 2.0**
-    ([LICENSE-APACHE](LICENSE-APACHE) or https://www.apache.org/licenses/LICENSE-2.0)
+    ([LICENSE-APACHE](LICENSE-APACHE) o también https://www.apache.org/licenses/LICENSE-2.0)
 
 Puedes elegir la licencia que prefieras. Este enfoque de doble licencia es el estándar de facto en
 el ecosistema Rust.
