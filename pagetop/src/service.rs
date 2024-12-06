@@ -15,14 +15,14 @@ pub use actix_web_static_files::ResourceFiles;
 #[macro_export]
 macro_rules! include_files {
     ( $bundle:ident ) => {
-        $crate::paste! {
+        $crate::util::paste! {
             mod [<static_files_ $bundle>] {
                 include!(concat!(env!("OUT_DIR"), "/", stringify!($bundle), ".rs"));
             }
         }
     };
     ( $STATIC:ident => $bundle:ident ) => {
-        $crate::paste! {
+        $crate::util::paste! {
             mod [<static_files_ $bundle>] {
                 include!(concat!(env!("OUT_DIR"), "/", stringify!($bundle), ".rs"));
             }
@@ -36,7 +36,7 @@ macro_rules! include_files {
 #[macro_export]
 macro_rules! include_files_service {
     ( $scfg:ident, $bundle:ident => $path:expr $(, [$root:expr, $relative:expr])? ) => {{
-        $crate::paste! {
+        $crate::util::paste! {
             let span = $crate::trace::debug_span!("Configuring static files ", path = $path);
             let _ = span.in_scope(|| {
                 #[allow(unused_mut)]

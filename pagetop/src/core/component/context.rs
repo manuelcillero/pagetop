@@ -1,4 +1,3 @@
-use crate::concat_string;
 use crate::core::component::ChildOp;
 use crate::core::layout::all::{layout_by_short_name, DEFAULT_LAYOUT};
 use crate::core::layout::{ChildrenInRegions, LayoutRef};
@@ -7,6 +6,8 @@ use crate::html::{Assets, Favicon, JavaScript, StyleSheet};
 use crate::locale::{LanguageIdentifier, DEFAULT_LANGID};
 use crate::service::HttpRequest;
 use crate::util::TypeInfo;
+
+use concat_string::concat_string;
 
 use std::collections::HashMap;
 use std::error::Error;

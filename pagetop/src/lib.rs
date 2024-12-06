@@ -83,12 +83,6 @@
 
 // RE-EXPORTED *************************************************************************************
 
-// Concatena una serie de fragmentos de cadena en una cadena propia.
-pub use concat_string::concat_string;
-
-/// Concatenación flexible de identificadores en macros.
-pub use paste::paste;
-
 pub use pagetop_macros::{fn_builder, html, main, test, AutoDefault, ComponentClasses};
 
 pub type StaticResources = std::collections::HashMap<&'static str, static_files::Resource>;

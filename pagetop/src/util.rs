@@ -140,6 +140,9 @@ pub fn absolute_dir(
 
 // USEFUL MACROS ***********************************************************************************
 
+/// Flexible concatenation of identifiers in macros.
+pub use paste::paste;
+
 #[macro_export]
 /// Macro para construir grupos de pares clave-valor.
 ///

@@ -1,6 +1,8 @@
 use crate::html::assets::AssetsTrait;
 use crate::html::{html, Markup, PreEscaped};
-use crate::{concat_string, AutoDefault, Weight};
+use crate::{AutoDefault, Weight};
+
+use concat_string::concat_string;
 
 #[derive(AutoDefault)]
 enum Source {
