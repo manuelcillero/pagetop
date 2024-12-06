@@ -86,9 +86,9 @@ ruta raíz (`/`) mostrando el mensaje "Hello world!" en un elemento HTML `<h1>`.
 
 # 🚧 Advertencia
 
-**PageTop** es un proyecto personal que se encuentra en desarrollo activo. Actualmente su API es
-inestable y está sujeta a cambios frecuentes. No se recomienda su uso en producción, al menos hasta
-que alcance la versión **0.1.0**.
+**PageTop** es un proyecto personal que hago por diversión para aprender cosas nuevas. Su API es
+inestable y está sujeta a cambios frecuentes. No recomiendo su uso en producción, al menos mientras
+no se libere una versión **1.0.0**.
 
 
 # 📜 Licencia
@@ -96,10 +96,10 @@ que alcance la versión **0.1.0**.
 El código está disponible bajo una doble licencia:
 
   * **Licencia MIT**
-    ([LICENSE-MIT](LICENSE-MIT) or https://opensource.org/licenses/MIT)
+    ([LICENSE-MIT](LICENSE-MIT) o también https://opensource.org/licenses/MIT)
 
   * **Licencia Apache, Versión 2.0**
-    ([LICENSE-APACHE](LICENSE-APACHE) or https://www.apache.org/licenses/LICENSE-2.0)
+    ([LICENSE-APACHE](LICENSE-APACHE) o también https://www.apache.org/licenses/LICENSE-2.0)
 
 Puedes elegir la licencia que prefieras. Este enfoque de doble licencia es el estándar de facto en
 el ecosistema Rust.
