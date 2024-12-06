@@ -83,18 +83,18 @@
 
 // RE-EXPORTED *************************************************************************************
 
+// Concatena una serie de fragmentos de cadena en una cadena propia.
 pub use concat_string::concat_string;
 
-/// Habilita la concatenación flexible de identificadores en macros, permitiendo crear nuevos
-/// elementos con identificadores combinados.
+/// Concatenación flexible de identificadores en macros.
 pub use paste::paste;
 
 pub use pagetop_macros::{fn_builder, html, main, test, AutoDefault, ComponentClasses};
 
 pub type StaticResources = std::collections::HashMap<&'static str, static_files::Resource>;
 
-// Un `TypeId` representa un identificador único global para un tipo.
-pub use std::any::TypeId;
+/// Un `UniqueId` representa un identificador único global para un tipo.
+pub type UniqueId = std::any::TypeId;
 
 pub type Weight = i8;
 

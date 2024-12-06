@@ -4,13 +4,13 @@ pub type FnIsRenderable<C> = fn(component: &C, cx: &mut Context) -> bool;
 
 pub struct IsRenderable<C: ComponentTrait> {
     f: FnIsRenderable<C>,
-    referer_type_id: Option<TypeId>,
+    referer_type_id: Option<UniqueId>,
     referer_id: OptionId,
     weight: Weight,
 }
 
 impl<C: ComponentTrait> ActionTrait for IsRenderable<C> {
-    fn referer_type_id(&self) -> Option<TypeId> {
+    fn referer_type_id(&self) -> Option<UniqueId> {
         self.referer_type_id
     }
 
@@ -27,7 +27,7 @@ impl<C: ComponentTrait> IsRenderable<C> {
     pub fn new(f: FnIsRenderable<C>) -> Self {
         IsRenderable {
             f,
-            referer_type_id: Some(TypeId::of::<C>()),
+            referer_type_id: Some(UniqueId::of::<C>()),
             referer_id: OptionId::default(),
             weight: 0,
         }
@@ -48,7 +48,12 @@ impl<C: ComponentTrait> IsRenderable<C> {
     pub(crate) fn dispatch(component: &C, cx: &mut Context) -> bool {
         let mut renderable = true;
         dispatch_actions(
-            &ActionKey::new(TypeId::of::<Self>(), None, Some(TypeId::of::<C>()), None),
+            &ActionKey::new(
+                UniqueId::of::<Self>(),
+                None,
+                Some(UniqueId::of::<C>()),
+                None,
+            ),
             |action: &Self| {
                 if renderable && !(action.f)(component, cx) {
                     renderable = false;
@@ -59,9 +64,9 @@ impl<C: ComponentTrait> IsRenderable<C> {
             if let Some(id) = component.id() {
                 dispatch_actions(
                     &ActionKey::new(
-                        TypeId::of::<Self>(),
+                        UniqueId::of::<Self>(),
                         None,
-                        Some(TypeId::of::<C>()),
+                        Some(UniqueId::of::<C>()),
                         Some(id),
                     ),
                     |action: &Self| {

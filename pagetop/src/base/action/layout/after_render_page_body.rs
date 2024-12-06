@@ -4,11 +4,11 @@ use crate::base::action::FnActionWithPage;
 
 pub struct AfterRenderBody {
     f: FnActionWithPage,
-    layout_type_id: Option<TypeId>,
+    layout_type_id: Option<UniqueId>,
 }
 
 impl ActionTrait for AfterRenderBody {
-    fn layout_type_id(&self) -> Option<TypeId> {
+    fn layout_type_id(&self) -> Option<UniqueId> {
         self.layout_type_id
     }
 }
@@ -26,7 +26,7 @@ impl AfterRenderBody {
     pub(crate) fn dispatch(page: &mut Page) {
         dispatch_actions(
             &ActionKey::new(
-                TypeId::of::<Self>(),
+                UniqueId::of::<Self>(),
                 Some(page.context().layout().type_id()),
                 None,
                 None,

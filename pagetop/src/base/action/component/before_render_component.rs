@@ -4,13 +4,13 @@ use crate::base::action::FnActionWithComponent;
 
 pub struct BeforeRender<C: ComponentTrait> {
     f: FnActionWithComponent<C>,
-    referer_type_id: Option<TypeId>,
+    referer_type_id: Option<UniqueId>,
     referer_id: OptionId,
     weight: Weight,
 }
 
 impl<C: ComponentTrait> ActionTrait for BeforeRender<C> {
-    fn referer_type_id(&self) -> Option<TypeId> {
+    fn referer_type_id(&self) -> Option<UniqueId> {
         self.referer_type_id
     }
 
@@ -27,7 +27,7 @@ impl<C: ComponentTrait> BeforeRender<C> {
     pub fn new(f: FnActionWithComponent<C>) -> Self {
         BeforeRender {
             f,
-            referer_type_id: Some(TypeId::of::<C>()),
+            referer_type_id: Some(UniqueId::of::<C>()),
             referer_id: OptionId::default(),
             weight: 0,
         }
@@ -47,15 +47,20 @@ impl<C: ComponentTrait> BeforeRender<C> {
     #[allow(clippy::inline_always)]
     pub(crate) fn dispatch(component: &mut C, cx: &mut Context) {
         dispatch_actions(
-            &ActionKey::new(TypeId::of::<Self>(), None, Some(TypeId::of::<C>()), None),
+            &ActionKey::new(
+                UniqueId::of::<Self>(),
+                None,
+                Some(UniqueId::of::<C>()),
+                None,
+            ),
             |action: &Self| (action.f)(component, cx),
         );
         if let Some(id) = component.id() {
             dispatch_actions(
                 &ActionKey::new(
-                    TypeId::of::<Self>(),
+                    UniqueId::of::<Self>(),
                     None,
-                    Some(TypeId::of::<C>()),
+                    Some(UniqueId::of::<C>()),
                     Some(id),
                 ),
                 |action: &Self| (action.f)(component, cx),

@@ -4,7 +4,7 @@
 
 pub use crate::{concat_string, fn_builder, html, main, paste, test};
 
-pub use crate::{AutoDefault, ComponentClasses, StaticResources, TypeId, Weight};
+pub use crate::{AutoDefault, ComponentClasses, StaticResources, UniqueId, Weight};
 
 // MACROS.
 
