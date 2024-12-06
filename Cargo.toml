@@ -13,7 +13,7 @@ members = [
     #"layouts/pagetop-bootsier",
 
     # Packages
-    #"packages/pagetop-seaorm",
+    "packages/pagetop-seaorm",
 
     # App
     "drust",
@@ -42,4 +42,4 @@ pagetop = { version = "0.0", path = "pagetop" }
 #pagetop-bootsier = { version = "0.0", path = "layouts/pagetop-bootsier" }
 
 # Packages
-#pagetop-seaorm = { version = "0.0", path = "packages/pagetop-seaorm" }
+pagetop-seaorm = { version = "0.0", path = "packages/pagetop-seaorm" }
