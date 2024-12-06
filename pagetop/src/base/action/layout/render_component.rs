@@ -4,16 +4,16 @@ pub type FnRenderComponent<C> = fn(component: &C, cx: &mut Context) -> Option<Ma
 
 pub struct RenderComponent<C: ComponentTrait> {
     f: FnRenderComponent<C>,
-    layout_type_id: Option<TypeId>,
-    referer_type_id: Option<TypeId>,
+    layout_type_id: Option<UniqueId>,
+    referer_type_id: Option<UniqueId>,
 }
 
 impl<C: ComponentTrait> ActionTrait for RenderComponent<C> {
-    fn layout_type_id(&self) -> Option<TypeId> {
+    fn layout_type_id(&self) -> Option<UniqueId> {
         self.layout_type_id
     }
 
-    fn referer_type_id(&self) -> Option<TypeId> {
+    fn referer_type_id(&self) -> Option<UniqueId> {
         self.referer_type_id
     }
 }
@@ -23,7 +23,7 @@ impl<C: ComponentTrait> RenderComponent<C> {
         RenderComponent {
             f,
             layout_type_id: Some(layout.type_id()),
-            referer_type_id: Some(TypeId::of::<C>()),
+            referer_type_id: Some(UniqueId::of::<C>()),
         }
     }
 
@@ -33,9 +33,9 @@ impl<C: ComponentTrait> RenderComponent<C> {
         let mut render_component: Option<Markup> = None;
         dispatch_actions(
             &ActionKey::new(
-                TypeId::of::<Self>(),
+                UniqueId::of::<Self>(),
                 Some(cx.layout().type_id()),
-                Some(TypeId::of::<C>()),
+                Some(UniqueId::of::<C>()),
                 None,
             ),
             |action: &Self| {

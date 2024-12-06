@@ -1,6 +1,6 @@
 use crate::core::component::{ComponentTrait, Context};
 use crate::html::{html, Markup};
-use crate::{fn_builder, TypeId};
+use crate::{fn_builder, UniqueId};
 
 use std::sync::{Arc, RwLock};
 
@@ -20,7 +20,7 @@ impl ChildComponent {
 
     // ChildComponent HELPERS.
 
-    fn type_id(&self) -> TypeId {
+    fn type_id(&self) -> UniqueId {
         self.0.read().unwrap().type_id()
     }
 
@@ -197,7 +197,7 @@ impl Children {
         self.0.iter().filter(move |&c| c.id() == id)
     }
 
-    pub fn iter_by_type_id(&self, type_id: TypeId) -> impl Iterator<Item = &ChildComponent> {
+    pub fn iter_by_type_id(&self, type_id: UniqueId) -> impl Iterator<Item = &ChildComponent> {
         self.0.iter().filter(move |&c| c.type_id() == type_id)
     }
 

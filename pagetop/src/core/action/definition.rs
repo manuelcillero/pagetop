@@ -1,21 +1,21 @@
 use crate::core::AnyBase;
-use crate::{TypeId, Weight};
+use crate::{UniqueId, Weight};
 
 pub type ActionBox = Box<dyn ActionTrait>;
 
 #[derive(Eq, PartialEq, Hash)]
 pub struct ActionKey {
-    action_type_id: TypeId,
-    layout_type_id: Option<TypeId>,
-    referer_type_id: Option<TypeId>,
+    action_type_id: UniqueId,
+    layout_type_id: Option<UniqueId>,
+    referer_type_id: Option<UniqueId>,
     referer_id: Option<String>,
 }
 
 impl ActionKey {
     pub fn new(
-        action_type_id: TypeId,
-        layout_type_id: Option<TypeId>,
-        referer_type_id: Option<TypeId>,
+        action_type_id: UniqueId,
+        layout_type_id: Option<UniqueId>,
+        referer_type_id: Option<UniqueId>,
         referer_id: Option<String>,
     ) -> Self {
         ActionKey {
@@ -32,11 +32,11 @@ pub trait ActionBase {
 }
 
 pub trait ActionTrait: ActionBase + AnyBase + Send + Sync {
-    fn layout_type_id(&self) -> Option<TypeId> {
+    fn layout_type_id(&self) -> Option<UniqueId> {
         None
     }
 
-    fn referer_type_id(&self) -> Option<TypeId> {
+    fn referer_type_id(&self) -> Option<UniqueId> {
         None
     }
 

@@ -27,7 +27,7 @@ impl AfterRenderBody {
     #[allow(clippy::inline_always)]
     pub(crate) fn dispatch(page: &mut Page) {
         dispatch_actions(
-            &ActionKey::new(TypeId::of::<Self>(), None, None, None),
+            &ActionKey::new(UniqueId::of::<Self>(), None, None, None),
             |action: &Self| (action.f)(page),
         );
     }

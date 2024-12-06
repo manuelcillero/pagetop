@@ -1,11 +1,11 @@
 use crate::core::component::{ChildComponent, ChildOp, Children};
 use crate::core::layout::LayoutRef;
-use crate::{fn_builder, AutoDefault, TypeId};
+use crate::{fn_builder, AutoDefault, UniqueId};
 
 use std::collections::HashMap;
 use std::sync::{LazyLock, RwLock};
 
-static LAYOUT_REGIONS: LazyLock<RwLock<HashMap<TypeId, ChildrenInRegions>>> =
+static LAYOUT_REGIONS: LazyLock<RwLock<HashMap<UniqueId, ChildrenInRegions>>> =
     LazyLock::new(|| RwLock::new(HashMap::new()));
 
 static COMMON_REGIONS: LazyLock<RwLock<ChildrenInRegions>> =
