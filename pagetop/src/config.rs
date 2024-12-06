@@ -125,9 +125,10 @@ mod path;
 mod source;
 mod value;
 
-use crate::concat_string;
 use crate::config::data::ConfigData;
 use crate::config::file::File;
+
+use concat_string::concat_string;
 
 use std::sync::LazyLock;
 
