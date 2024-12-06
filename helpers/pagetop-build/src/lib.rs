@@ -1,4 +1,4 @@
-//! Incluye fácilmente archivos estáticos o archivos SCSS compilados, directamente en el binario de
+//! Incluye fácilmente archivos estáticos o archivos SCSS compilados directamente en el binario de
 //! tus aplicaciones **PageTop**.
 //!
 //! # Añadir al proyecto

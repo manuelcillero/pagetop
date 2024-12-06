@@ -2,7 +2,7 @@
 
 <h1>PageTop Build</h1>
 
-<p>Incluye fácilmente archivos estáticos o archivos SCSS compilados, directamente en el binario de tus aplicaciones <strong>PageTop</strong>.</p>
+<p>Incluye fácilmente archivos estáticos o archivos SCSS compilados directamente en el binario de tus aplicaciones <strong>PageTop</strong>.</p>
 
 [![Licencia](https://img.shields.io/badge/license-MIT%2FApache-blue.svg?label=Licencia&style=for-the-badge)](#-license)
 [![Doc API](https://img.shields.io/docsrs/pagetop-build?label=Doc%20API&style=for-the-badge&logo=Docs.rs)](https://docs.rs/pagetop-build)
