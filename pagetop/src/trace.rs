@@ -1,4 +1,4 @@
-//! Application tracing and event logging.
+//! Gestión de trazas y registro de eventos de la aplicación.
 //!
 //! `PageTop` collects application diagnostic information in a structured and event-based manner.
 //!

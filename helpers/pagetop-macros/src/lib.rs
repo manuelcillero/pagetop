@@ -1,4 +1,4 @@
-//! Una colección de macros que impulsan el desarrollo con **PageTop**.
+//! Una colección de macros que impulsan el desarrollo con `PageTop`.
 
 mod maud;
 mod smart_default;

@@ -1,6 +1,6 @@
-//! Localization (L10n).
+//! Localización (L10n).
 //!
-//! PageTop uses the [Fluent](https://www.projectfluent.org/) specifications for application
+//! `PageTop` uses the [Fluent](https://www.projectfluent.org/) specifications for application
 //! localization, leveraging the [fluent-templates](https://docs.rs/fluent-templates/) crate to
 //! integrate translation resources directly into the application binary.
 //!
@@ -153,16 +153,17 @@ pub fn langid_for(language: impl Into<String>) -> Result<&'static LanguageIdenti
 }
 
 #[macro_export]
-/// Defines a set of localization elements and local translation texts, removing Unicode isolating
-/// marks around arguments to improve readability and compatibility in certain rendering contexts.
+/// Define un conjunto de elementos de localización y textos de traducción local.
 macro_rules! include_locales {
+    // Se eliminan las marcas de aislamiento Unicode en los argumentos para mejorar la legibilidad y
+    // la compatibilidad en ciertos contextos de renderizado.
     ( $LOCALES:ident $(, $core_locales:literal)? ) => {
         $crate::locale::fluent_templates::static_loader! {
             static $LOCALES = {
                 locales: "src/locale",
                 $( core_locales: $core_locales, )?
                 fallback_language: "en-US",
-                // Removes unicode isolating marks around arguments.
+                // Elimina marcas de aislamiento Unicode en los argumentos.
                 customise: |bundle| bundle.set_use_isolating(false),
             };
         }
@@ -173,7 +174,7 @@ macro_rules! include_locales {
                 locales: $dir_locales,
                 $( core_locales: $core_locales, )?
                 fallback_language: "en-US",
-                // Removes unicode isolating marks around arguments.
+                // Elimina marcas de aislamiento Unicode en los argumentos.
                 customise: |bundle| bundle.set_use_isolating(false),
             };
         }

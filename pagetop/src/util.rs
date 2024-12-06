@@ -1,4 +1,4 @@
-//! Useful functions and macros.
+//! Funciones y macros útiles.
 
 use crate::trace;
 

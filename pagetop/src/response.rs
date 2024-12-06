@@ -1,4 +1,4 @@
-//! Web request response variants.
+//! Respuestas a las peticiones web en sus diferentes variantes.
 
 pub use actix_web::ResponseError;
 

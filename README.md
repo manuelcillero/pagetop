@@ -13,7 +13,7 @@
 
 </div>
 
-**PageTop** reivindica la sencillez de la web clásica utilizando SSR (*renderizado en el servidor*),
+`PageTop` reivindica la sencillez de la web clásica utilizando SSR (*renderizado en el servidor*),
 HTML, CSS y JavaScript. Proporciona un conjunto completo de funcionalidades que pueden extenderse y
 adaptarse a las necesidades de cada solución web implementando:
 
@@ -25,14 +25,14 @@ adaptarse a las necesidades de cada solución web implementando:
   * **Diseños** (*layouts*). Permiten a los desarrolladores modificar la apariencia de páginas y
     componentes sin afectar a su funcionalidad.
   * **Paquetes** (*packages*). Extienden o personalizan funcionalidades existentes interactuando con
-    las APIs de PageTop o de paquetes de terceros.
+    las APIs de `PageTop` o de paquetes de terceros.
 
 
 # ⚡️ Inicio rápido
 
-La aplicación más sencilla de PageTop se ve así:
+La aplicación más sencilla de `PageTop` se ve así:
 
-```rust
+```rust#ignore
 use pagetop::prelude::*;
 
 #[pagetop::main]
@@ -42,9 +42,9 @@ async fn main() -> std::io::Result<()> {
 ```
 
 Proporciona una página de bienvenida en `http://localhost:8088` según la configuración predefinida.
-Para personalizar el servicio puedes crear un paquete de PageTop:
+Para personalizar el servicio puedes crear un paquete de `PageTop`:
 
-```rust
+```rust#ignore
 use pagetop::prelude::*;
 
 struct HelloWorld;
@@ -84,27 +84,27 @@ El repositorio se organiza en un *workspace* con los siguientes subproyectos:
 
   * **[pagetop-build](https://github.com/manuelcillero/pagetop/tree/latest/helpers/pagetop-build)**,
     permite incluir fácilmente archivos estáticos o archivos SCSS compilados directamente en el
-    binario de las aplicaciones **PageTop**.
+    binario de las aplicaciones `PageTop`.
 
   * **[pagetop-macros](https://github.com/manuelcillero/pagetop/tree/latest/helpers/pagetop-macros)**,
-    proporciona una colección de macros que mejoran la experiencia de desarrollo con **PageTop**.
+    proporciona una colección de macros que mejoran la experiencia de desarrollo con `PageTop`.
 
 ## Paquetes
 
   * **[pagetop-seaorm](https://github.com/manuelcillero/pagetop/tree/latest/packages/pagetop-seaorm)**,
     integra [SeaORM](https://www.sea-ql.org/SeaORM) para trabajar con bases de datos en aplicaciones
-    **PageTop**.
+    `PageTop`.
 
 ## Aplicación
 
   * **[drust](https://github.com/manuelcillero/pagetop/tree/latest/drust)**, es una aplicación que
-    utiliza **PageTop** para crear un Sistema de Gestión de Contenidos (CMS) que permita construir
+    utiliza `PageTop` para crear un Sistema de Gestión de Contenidos (CMS) que permita construir
     sitios web dinámicos, administrados y configurables.
 
 
 # 🚧 Advertencia
 
-**PageTop** es un proyecto personal que hago por diversión para aprender cosas nuevas. Su API es
+`PageTop` es un proyecto personal que hago por diversión para aprender cosas nuevas. Su API es
 inestable y está sujeta a cambios frecuentes. No recomiendo su uso en producción, al menos mientras
 no se libere una versión **1.0.0**.
 

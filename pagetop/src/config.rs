@@ -1,4 +1,4 @@
-//! Load configuration settings.
+//! Carga los ajustes de configuración.
 //!
 //! These settings are loaded from [TOML](https://toml.io) files as `key = value` pairs and mapped
 //! into type-safe structures with predefined values.

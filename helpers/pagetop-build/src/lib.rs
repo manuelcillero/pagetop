@@ -1,5 +1,5 @@
 //! Incluye fácilmente archivos estáticos o archivos SCSS compilados directamente en el binario de
-//! tus aplicaciones **PageTop**.
+//! tus aplicaciones `PageTop``.
 //!
 //! # Añadir al proyecto
 //!
@@ -11,7 +11,7 @@
 //! ```
 //!
 //! Crea luego un archivo `build.rs` para definir cómo se van a incluir los archivos estáticos o
-//! archivos SCSS en tu aplicación, diseño o paquete de PageTop. Ejemplos de uso:
+//! archivos SCSS en tu aplicación, diseño o paquete de `PageTop`. Ejemplos de uso:
 //!
 //! ## 1. Incluir archivos estáticos desde un directorio
 //!

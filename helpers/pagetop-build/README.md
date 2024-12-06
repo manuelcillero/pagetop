@@ -19,7 +19,7 @@ sencillez de la web clásica aplicando *renderizado en el servidor* (SSR), HTML,
 
 # 🚧 Advertencia
 
-**PageTop** es un proyecto personal que hago por diversión para aprender cosas nuevas. Su API es
+`PageTop` es un proyecto personal que hago por diversión para aprender cosas nuevas. Su API es
 inestable y está sujeta a cambios frecuentes. No recomiendo su uso en producción, al menos mientras
 no se libere una versión **1.0.0**.
 
