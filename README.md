@@ -13,17 +13,14 @@
 
 </div>
 
-**PageTop** reúne algunos de los *crates* más estables y populares del ecosistema Rust para
-proporcionar un conjunto completo de funcionalidades que pueden extenderse y adaptarse a las
-necesidades específicas de cada aplicación web.
-
-PageTop reivindica la sencillez de la web clásica aplicando *renderizado en el servidor* (SSR),
-HTML, CSS y JS, mediante acciones, componentes, diseños y paquetes:
+**PageTop** reivindica la sencillez de la web clásica utilizando SSR (*renderizado en el servidor*),
+HTML, CSS y JavaScript. Proporciona un conjunto completo de funcionalidades que pueden extenderse y
+adaptarse a las necesidades de cada solución web implementando:
 
   * **Acciones** (*actions*). Las funcionalidades que incorporen acciones en su lógica de programa
     estarán proporcionando a los desarrolladores herramientas para alterar su comportamiento interno
     interceptando su flujo de ejecución.
-  * **Componentes** (*components*). Encapsulan HTML, CSS y JavaScript en unidades funcionales,
+  * **Componentes** (*components*). Para encapsular HTML, CSS y JavaScript en unidades funcionales,
     configurables y bien definidas.
   * **Diseños** (*layouts*). Permiten a los desarrolladores modificar la apariencia de páginas y
     componentes sin afectar a su funcionalidad.
@@ -74,14 +71,35 @@ Este programa prepara un paquete personalizado llamado `HelloWorld` que sirve un
 ruta raíz (`/`) mostrando el mensaje "Hello world!" en un elemento HTML `<h1>`.
 
 
-# 📂 Crates de ayuda
+# 📂 Estructura del código
 
-  * [pagetop-macros](https://github.com/manuelcillero/pagetop/tree/latest/helpers/pagetop-macros):
-    Proporciona una colección de macros que mejoran la experiencia de desarrollo con PageTop.
+El repositorio se organiza en un *workspace* con los siguientes subproyectos:
 
-  * [pagetop-build](https://github.com/manuelcillero/pagetop/tree/latest/helpers/pagetop-build):
-    Permite incluir fácilmente archivos estáticos o archivos SCSS compilados, directamente en el
-    binario de las aplicaciones PageTop.
+  * **[pagetop](https://github.com/manuelcillero/pagetop/tree/latest/pagetop)**, es la librería
+    principal. Reúne algunos de los *crates* más estables y populares del ecosistema Rust para
+    proporcionar APIs, patrones de desarrollo y buenas prácticas para la creación avanzada de
+    soluciones web SSR (*Server-Side Rendering*).
+
+## Auxiliares
+
+  * **[pagetop-build](https://github.com/manuelcillero/pagetop/tree/latest/helpers/pagetop-build)**,
+    permite incluir fácilmente archivos estáticos o archivos SCSS compilados directamente en el
+    binario de las aplicaciones **PageTop**.
+
+  * **[pagetop-macros](https://github.com/manuelcillero/pagetop/tree/latest/helpers/pagetop-macros)**,
+    proporciona una colección de macros que mejoran la experiencia de desarrollo con **PageTop**.
+
+## Paquetes
+
+  * **[pagetop-seaorm](https://github.com/manuelcillero/pagetop/tree/latest/packages/pagetop-seaorm)**,
+    integra [SeaORM](https://www.sea-ql.org/SeaORM) para trabajar con bases de datos en aplicaciones
+    **PageTop**.
+
+## Aplicación
+
+  * **[drust](https://github.com/manuelcillero/pagetop/tree/latest/drust)**, es una aplicación que
+    utiliza **PageTop** para crear un Sistema de Gestión de Contenidos (CMS) que permita construir
+    sitios web dinámicos, administrados y configurables.
 
 
 # 🚧 Advertencia
