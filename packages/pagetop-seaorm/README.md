@@ -5,7 +5,7 @@
 <p>Integra SeaORM para trabajar con bases de datos en aplicaciones <strong>PageTop</strong>.</p>
 
 [![Licencia](https://img.shields.io/badge/license-MIT%2FApache-blue.svg?label=Licencia&style=for-the-badge)](#-license)
-[![Doc API](https://img.shields.io/docsrs/pagetop-seaorm?label=Doc%20API&label=API%20Docs&style=for-the-badge&logo=Docs.rs)](https://docs.rs/pagetop-seaorm)
+[![Doc API](https://img.shields.io/docsrs/pagetop-seaorm?label=Doc%20API&style=for-the-badge&logo=Docs.rs)](https://docs.rs/pagetop-seaorm)
 [![Crates.io](https://img.shields.io/crates/v/pagetop-seaorm.svg?style=for-the-badge&logo=ipfs)](https://crates.io/crates/pagetop-seaorm)
 [![Descargas](https://img.shields.io/crates/d/pagetop-seaorm.svg?label=Descargas&style=for-the-badge&logo=transmission)](https://crates.io/crates/pagetop-seaorm)
 
@@ -17,10 +17,11 @@ exportar sus funcionalidades, y también integra en código una versión adaptad
 permitir migraciones independientes para cada paquete del proyecto.
 
 
-# 📦 Sobre PageTop
+# 📌 Sobre PageTop
 
-[PageTop](https://docs.rs/pagetop) es un entorno de desarrollo con convenciones que reivindican la
-sencillez de la web clásica aplicando *renderizado en el servidor* (SSR), HTML, CSS y JS.
+[PageTop](https://docs.rs/pagetop) es un entorno de desarrollo que reivindica la sencillez de la web
+clásica combinando SSR (*renderizado en el servidor*), HTML, CSS y JS, para crear soluciones web
+modulares, extensibles y configurables.
 
 
 # 🚧 Advertencia

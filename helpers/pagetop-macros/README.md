@@ -20,10 +20,11 @@ necesidad de referenciar `maud` o `smart_default` en las dependencias del archiv
 cada proyecto `PageTop`.
 
 
-# 📦 Sobre PageTop
+# 📌 Sobre PageTop
 
-[PageTop](https://docs.rs/pagetop) es un entorno de desarrollo con convenciones que reivindican la
-sencillez de la web clásica aplicando *renderizado en el servidor* (SSR), HTML, CSS y JS.
+[PageTop](https://docs.rs/pagetop) es un entorno de desarrollo que reivindica la sencillez de la web
+clásica combinando SSR (*renderizado en el servidor*), HTML, CSS y JS, para crear soluciones web
+modulares, extensibles y configurables.
 
 
 # 🚧 Advertencia
