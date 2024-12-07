@@ -52,7 +52,7 @@
 //! }
 //! ```
 
-use crate::prelude::db::Iden;
+use crate::db::Iden;
 use sea_orm::sea_query::{
     self, Alias, ColumnDef, ColumnType, Expr, IntoIden, PgInterval, Table, TableCreateStatement,
 };

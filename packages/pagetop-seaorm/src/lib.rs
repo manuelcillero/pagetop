@@ -24,12 +24,6 @@ use std::sync::LazyLock;
 pub mod config;
 pub mod db;
 
-/// *Prelude* del paquete.
-pub mod prelude {
-    pub use crate::db;
-    pub use crate::install_migrations;
-}
-
 include_locales!(LOCALES_SEAORM);
 
 /// Implementa [`PackageTrait`] y API específica.
