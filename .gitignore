@@ -1,5 +1,13 @@
+# Ignora directorios de compilación
 **/target
+
+# Archivos de log
 **/log/*.log*
+
+# Archivos de configuración locales
 **/local.*.toml
 **/local.toml
+.env
+
+# Directorio de trabajo
 workdir

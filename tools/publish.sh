@@ -10,7 +10,7 @@ command -v git > /dev/null || { echo "Error: Git is not installed"; exit 1; }
 command -v cargo > /dev/null || { echo "Error: Cargo is not installed"; exit 1; }
 
 # Cambia al directorio raíz del espacio de trabajo
-cd "$(dirname "$0")"
+cd "$(dirname "$0")" || exit 1
 cd ..
 
 # Verifica si el repositorio del proyecto tiene cambios locales sin preparar
@@ -32,7 +32,7 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
 else
     read -p "Are you sure you don't want to update the 'latest' branch? (y/n) " -n 1 -r
     echo
-    if [[ $REPLY =~ ^[Nn]$ ]]; then
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
         echo "Exiting without completing the process"
         exit 1
     fi

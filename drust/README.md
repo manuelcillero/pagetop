@@ -10,8 +10,8 @@
 
 </div>
 
-Modestamente inspirado en [Drupal](https://www.drupal.org), `Drust` exprime `PageTop` para
-desarrollar un *Sistema de Gestión de Contenidos* (CMS) básico, que permita construir sitios web
+`Drust` exprime `PageTop` para desarrollar un *Sistema de Gestión de Contenidos* (CMS) básico,
+modestamente inspirado en [Drupal](https://www.drupal.org), que permita construir sitios web
 dinámicos, manejables y personalizables; y facilite a los usuarios la gestión de una variedad de
 contenidos de manera sencilla.
 
@@ -21,6 +21,73 @@ contenidos de manera sencilla.
 [PageTop](https://docs.rs/pagetop) es un entorno de desarrollo que reivindica la sencillez de la web
 clásica combinando SSR (*renderizado en el servidor*), HTML, CSS y JS, para crear soluciones web
 modulares, extensibles y configurables.
+
+
+# ⚡️ Guía rápida
+
+`Drust` requiere una base de datos para funcionar. La aplicación se encarga de ejecutar las
+migraciones y cargar los datos mínimos necesarios, pero para crear o borrar la base de datos puedes
+usar los scripts `db-create.sh` y `db-delete.sh` que se encuentran en el directorio `tools` del
+*workspace*.
+
+## Configuración de `.env`
+
+Para simplificar la configuración, en el directorio `tools` puedes crear un archivo `.env` para
+definir las variables de entorno que requieren los scripts para gestionar la base de datos, aunque
+su presencia es **opcional**. Si no se encuentra `.env` o carece de ciertos valores, los scripts
+solicitarán las variables necesarias para su ejecución.
+
+> **Nota**: Evita usar caracteres especiales como `@`, `#`, `?`, `:` en `DB_PASS` para prevenir
+> posibles problemas de interpretación de `DATABASE_URL` en el código.
+
+### Ejemplo de `.env`
+
+```bash
+# Sistema de base de datos
+DB_SYSTEM="psql"
+
+# Nombre del host
+DB_HOST="localhost"
+
+# Puerto de conexión
+DB_PORT="5432"
+
+# Nombre de la base de datos
+DB_NAME="drust"
+
+# Usuario de la base de datos
+DB_USER="drust"
+
+# Contraseña para el usuario de la base de datos
+# Evita usar caracteres especiales como '@', '#', '?', ':', ';' o espacios
+DB_PASS="password"
+
+# Usuario administrador
+DB_ADMIN="postgres"
+
+# Contraseña del usuario administrador
+DB_ADMIN_PASS="adminpassword"
+```
+
+## Ejecución de los scripts
+
+Asegúrate de que los scripts tienen permisos de ejecución:
+
+```bash
+chmod +x db-create.sh db-delete.sh
+```
+
+Y ejecuta el script deseado:
+
+```bash
+./db-create.sh
+```
+
+o
+
+```bash
+./db-delete.sh
+```
 
 
 # 🚧 Advertencia
