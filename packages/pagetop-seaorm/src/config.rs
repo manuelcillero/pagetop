@@ -1,4 +1,4 @@
-//! Configuration settings for the SeaORM PageTop package.
+//! Opciones de configuración del paquete.
 //!
 //! Example:
 //!

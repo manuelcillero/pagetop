@@ -13,7 +13,7 @@
 
 </div>
 
-`PageTop` reivindica la sencillez de la web clásica utilizando SSR (*renderizado en el servidor*),
+`PageTop` reivindica la sencillez de la web clásica combinando SSR (*renderizado en el servidor*),
 HTML, CSS y JavaScript. Proporciona un conjunto completo de funcionalidades que pueden extenderse y
 adaptarse a las necesidades de cada solución web implementando:
 
@@ -77,8 +77,7 @@ El repositorio se organiza en un *workspace* con los siguientes subproyectos:
 
   * **[pagetop](https://github.com/manuelcillero/pagetop/tree/latest/pagetop)**, es la librería
     principal. Reúne algunos de los *crates* más estables y populares del ecosistema Rust para
-    proporcionar APIs, patrones de desarrollo y buenas prácticas para la creación avanzada de
-    soluciones web SSR (*Server-Side Rendering*).
+    proporcionar APIs y recursos para la creación avanzada de soluciones web.
 
 ## Auxiliares
 

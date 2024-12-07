@@ -1,3 +1,22 @@
+//! <div align="center">
+//!
+//! <h1>PageTop SeaORM</h1>
+//!
+//! <p>Integra SeaORM para trabajar con bases de datos en aplicaciones <strong>PageTop</strong>.</p>
+//!
+//! [![Licencia](https://img.shields.io/badge/license-MIT%2FApache-blue.svg?label=Licencia&style=for-the-badge)](#-license)
+//! [![Doc API](https://img.shields.io/docsrs/pagetop-seaorm?label=Doc%20API&style=for-the-badge&logo=Docs.rs)](https://docs.rs/pagetop-seaorm)
+//! [![Crates.io](https://img.shields.io/crates/v/pagetop-seaorm.svg?style=for-the-badge&logo=ipfs)](https://crates.io/crates/pagetop-seaorm)
+//! [![Descargas](https://img.shields.io/crates/d/pagetop-seaorm.svg?label=Descargas&style=for-the-badge&logo=transmission)](https://crates.io/crates/pagetop-seaorm)
+//!
+//! </div>
+//!
+//! # 📌 Sobre PageTop
+//!
+//! [`PageTop`](https://docs.rs/pagetop) es un entorno de desarrollo que reivindica la sencillez de
+//! la web clásica combinando SSR (*renderizado en el servidor*), HTML, CSS y JS, para crear
+//! soluciones web modulares, extensibles y configurables.
+
 use pagetop::prelude::*;
 
 use std::sync::LazyLock;
@@ -5,7 +24,7 @@ use std::sync::LazyLock;
 pub mod config;
 pub mod db;
 
-/// The package Prelude.
+/// *Prelude* del paquete.
 pub mod prelude {
     pub use crate::db;
     pub use crate::install_migrations;
@@ -13,7 +32,7 @@ pub mod prelude {
 
 include_locales!(LOCALES_SEAORM);
 
-/// Implements [`PackageTrait`] and specific package API.
+/// Implementa [`PackageTrait`] y API específica.
 pub struct SeaORM;
 
 impl PackageTrait for SeaORM {

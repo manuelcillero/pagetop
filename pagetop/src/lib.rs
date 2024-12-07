@@ -14,7 +14,7 @@
 //! <br>
 //! </div>
 //!
-//! `PageTop` reivindica la sencillez de la web clásica utilizando SSR (*renderizado en el
+//! `PageTop` reivindica la sencillez de la web clásica combinando SSR (*renderizado en el
 //! servidor*), HTML, CSS y JavaScript. Proporciona un conjunto completo de funcionalidades que
 //! pueden extenderse y adaptarse a las necesidades de cada solución web implementando:
 //!
@@ -28,7 +28,7 @@
 //!   * **Paquetes** (*packages*). Extienden o personalizan funcionalidades existentes interactuando
 //!     con las APIs de `PageTop` o de paquetes de terceros.
 //!
-//! # ⚡️ Inicio rápido
+//! # ⚡️ Guía rápida
 //!
 //! La aplicación más sencilla de `PageTop` se ve así:
 //!
@@ -96,9 +96,9 @@ pub type Weight = i8;
 
 // Funciones y macros útiles.
 pub mod util;
-// Carga los ajustes de configuración.
+// Carga las opciones de configuración.
 pub mod config;
-// Ajustes globales.
+// Opciones de configuración globales.
 pub mod global;
 // Gestión de trazas y registro de eventos de la aplicación.
 pub mod trace;

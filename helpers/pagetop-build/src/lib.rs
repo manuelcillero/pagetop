@@ -1,7 +1,23 @@
-//! Incluye fácilmente archivos estáticos o archivos SCSS compilados directamente en el binario de
-//! tus aplicaciones `PageTop``.
+//! <div align="center">
 //!
-//! # Añadir al proyecto
+//! <h1>PageTop Build</h1>
+//!
+//! <p>Incluye fácilmente archivos estáticos o archivos SCSS compilados directamente en el binario de tus aplicaciones <strong>PageTop</strong>.</p>
+//!
+//! [![Licencia](https://img.shields.io/badge/license-MIT%2FApache-blue.svg?label=Licencia&style=for-the-badge)](#-license)
+//! [![Doc API](https://img.shields.io/docsrs/pagetop-build?label=Doc%20API&style=for-the-badge&logo=Docs.rs)](https://docs.rs/pagetop-build)
+//! [![Crates.io](https://img.shields.io/crates/v/pagetop-build.svg?style=for-the-badge&logo=ipfs)](https://crates.io/crates/pagetop-build)
+//! [![Descargas](https://img.shields.io/crates/d/pagetop-build.svg?label=Descargas&style=for-the-badge&logo=transmission)](https://crates.io/crates/pagetop-build)
+//!
+//! </div>
+//!
+//! # 📌 Sobre PageTop
+//!
+//! [`PageTop`](https://docs.rs/pagetop) es un entorno de desarrollo que reivindica la sencillez de
+//! la web clásica combinando SSR (*renderizado en el servidor*), HTML, CSS y JS, para crear
+//! soluciones web modulares, extensibles y configurables.
+//!
+//! # ⚡️ Guía rápida
 //!
 //! Añade en el archivo `Cargo.toml` de tu aplicación:
 //!
@@ -10,12 +26,14 @@
 //! pagetop-build = { ... }
 //! ```
 //!
-//! Crea luego un archivo `build.rs` para definir cómo se van a incluir los archivos estáticos o
-//! archivos SCSS en tu aplicación, diseño o paquete de `PageTop`. Ejemplos de uso:
+//! Luego crea un archivo `build.rs` para definir cómo se van a incluir los archivos estáticos o
+//! archivos SCSS en tu aplicación. Casos de uso:
 //!
-//! ## 1. Incluir archivos estáticos desde un directorio
+//! ## Incluir archivos estáticos desde un directorio
 //!
-//! Prepara un conjunto de recursos con todos los archivos de un directorio:
+//! Prepara una carpeta en tu proyecto con todos los archivos que deseas incluir, por ejemplo
+//! `static`, y añade el siguiente código a tu archivo `build.rs` para crear tu conjunto de
+//! recursos:
 //!
 //! ```rust#ignore
 //! use pagetop_build::StaticFilesBundle;
@@ -27,54 +45,55 @@
 //! }
 //! ```
 //!
-//! O aplica un filtro para incluir únicamente archivos específicos:
+//! Si es necesario, puedes añadir un filtro para seleccionar archivos específicos de la carpeta:
 //!
 //! ```rust#ignore
 //! use pagetop_build::StaticFilesBundle;
 //! use std::path::Path;
 //!
 //! fn main() -> std::io::Result<()> {
-//!     fn solo_archivos_css(path: &Path) -> bool {
-//!         // Incluye solo archivos con la extensión `.css`.
-//!         path.extension().map_or(false, |ext| ext == "css")
+//!     fn only_pdf_files(path: &Path) -> bool {
+//!         // Include only files with the `.pdf` extension.
+//!         path.extension().map_or(false, |ext| ext == "pdf")
 //!     }
 //!
-//!     StaticFilesBundle::from_dir("./static", Some(solo_archivos_css))
+//!     StaticFilesBundle::from_dir("./static", Some(only_pdf_files))
 //!         .with_name("guides")
 //!         .build()
 //! }
 //! ```
 //!
-//! ## 2. Compilar archivos SCSS a CSS
+//! ## Compilar archivos SCSS a CSS
 //!
-//! Crea un archivo CSS compilando un archivo SCSS, que puede importar otros a su vez, para preparar
-//! el conjunto de recursos:
+//! Puedes compilar un archivo SCSS, que podría importar otros a su vez, para preparar un conjunto
+//! de recursos con el archivo CSS obtenido. Por ejemplo:
 //!
 //! ```rust#ignore
 //! use pagetop_build::StaticFilesBundle;
 //!
 //! fn main() -> std::io::Result<()> {
-//!     StaticFilesBundle::from_scss("./styles/main.scss", "main.css")
+//!     StaticFilesBundle::from_scss("./styles/main.scss", "styles.css")
 //!         .with_name("main_styles")
 //!         .build()
 //! }
 //! ```
 //!
-//! Este código compila el archivo `main.scss`, incluyendo los archivos SCSS que importe, en un
-//! archivo `main.css` que definirá el conjunto de recursos `main_styles`.
+//! Este código compila el archivo `main.scss` de la carpeta `static` del proyecto, en un archivo
+//! `styles.css` que se preparará como un conjunto de recursos llamado `main_styles`.
 //!
 //!
-//! # Módulos generados
+//! # 📦 Módulos generados
 //!
-//! Cada [`StaticFilesBundle`] genera un archivo en el directorio estándar
-//! [OUT_DIR](https://doc.rust-lang.org/cargo/reference/environment-variables.html) donde se
-//! incluyen los recursos requeridos para compilar. Por ejemplo, si usas `with_name("guides")` se
-//! generará un archivo llamado `guides.rs`.
+//! Cada conjunto de recursos [`StaticFilesBundle`] genera un archivo en el directorio estándar
+//! [OUT_DIR](https://doc.rust-lang.org/cargo/reference/environment-variables.html#environment-variables-cargo-sets-for-build-scripts)
+//! donde se incluyen los recursos necesarios para la compilación. Por ejemplo, para
+//! `with_name("guides")` se crea un archivo llamado `guides.rs`.
 //!
 //! Ten en cuenta que puedes generar más de un conjunto de recursos para usar en tu proyecto.
 //!
-//! Normalmente no necesitarás acceder directamente a este archivo; simplemente inclúyelo en tu
-//! proyecto con `include_files!`, y luego configura un servicio web usando `include_files_service!`
+//! Normalmente no necesitarás acceder directamente a este archivo; sólo inclúyelo en tu proyecto
+//! con [`include_files!`](https://docs.rs/pagetop/latest/pagetop/macro.include_files.html), y luego
+//! configura un servicio web usando [`include_files_service!`](https://docs.rs/pagetop/latest/pagetop/macro.include_files_service.html)
 //! para servir tu conjunto de recursos desde la ruta indicada:
 //!
 //! ```rust#ignore
@@ -92,7 +111,7 @@
 //! }
 //! ```
 //!
-//! También puedes incluir el conjunto de recursos declarando un `HashMap` estático global:
+//! También podrías acceder a tu conjunto de recursos declarando un `HashMap` estático global:
 //!
 //! ```rust#ignore
 //! use pagetop::prelude::*;

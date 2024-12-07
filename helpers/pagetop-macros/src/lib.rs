@@ -1,4 +1,21 @@
-//! Una colección de macros que impulsan el desarrollo con `PageTop`.
+//! <div align="center">
+//!
+//! <h1>PageTop Macros</h1>
+//!
+//! <p>Una colección de macros que mejoran la experiencia de desarrollo con <strong>PageTop</strong>.</p>
+//!
+//! [![Licencia](https://img.shields.io/badge/license-MIT%2FApache-blue.svg?label=Licencia&style=for-the-badge)](#-license)
+//! [![Doc API](https://img.shields.io/docsrs/pagetop-macros?label=Doc%20API&style=for-the-badge&logo=Docs.rs)](https://docs.rs/pagetop-macros)
+//! [![Crates.io](https://img.shields.io/crates/v/pagetop-macros.svg?style=for-the-badge&logo=ipfs)](https://crates.io/crates/pagetop-macros)
+//! [![Descargas](https://img.shields.io/crates/d/pagetop-macros.svg?label=Descargas&style=for-the-badge&logo=transmission)](https://crates.io/crates/pagetop-macros)
+//!
+//! </div>
+//!
+//! # 📌 Sobre PageTop
+//!
+//! [`PageTop`](https://docs.rs/pagetop) es un entorno de desarrollo que reivindica la sencillez de
+//! la web clásica combinando SSR (*renderizado en el servidor*), HTML, CSS y JS, para crear
+//! soluciones web modulares, extensibles y configurables.
 
 mod maud;
 mod smart_default;
