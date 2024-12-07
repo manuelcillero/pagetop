@@ -62,7 +62,7 @@ function publish_crate() {
     else
         echo "Publishing version $CURRENT_VERSION..."
         if [ "$CRATE" = "pagetop" ]; then
-            cargo publish || { echo "Error publishing $CRATE"; exit 1; }
+            cargo publish -p || { echo "Error publishing $CRATE"; exit 1; }
         else
             cp "../../LICENSE-MIT" .
             cp "../../LICENSE-APACHE" .
