@@ -1,4 +1,4 @@
-//! Opciones de configuración del paquete.
+//! Opciones de configuración.
 //!
 //! Example:
 //!
