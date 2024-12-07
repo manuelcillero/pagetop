@@ -1106,7 +1106,7 @@ checksum = "1aaf95b3e5c8f23aa320147307562d361db0ae0d51242340f558153b4eb2439b"
 
 [[package]]
 name = "drust"
-version = "0.0.3"
+version = "0.0.4"
 dependencies = [
  "pagetop",
 ]
@@ -2356,7 +2356,7 @@ checksum = "b15813163c1d831bf4a13c3610c05c0d03b39feb07f7e09fa234dac9b15aaf39"
 
 [[package]]
 name = "pagetop"
-version = "0.0.57"
+version = "0.0.58"
 dependencies = [
  "actix-files",
  "actix-session",
@@ -2386,7 +2386,7 @@ dependencies = [
 
 [[package]]
 name = "pagetop-build"
-version = "0.0.12"
+version = "0.0.13"
 dependencies = [
  "grass",
  "static-files",
@@ -2394,7 +2394,7 @@ dependencies = [
 
 [[package]]
 name = "pagetop-macros"
-version = "0.0.14"
+version = "0.0.15"
 dependencies = [
  "proc-macro-crate",
  "proc-macro-error",
