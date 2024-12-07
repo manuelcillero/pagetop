@@ -62,7 +62,7 @@ function publish_crate() {
     else
         echo "Publishing version $CURRENT_VERSION..."
         if [ "$CRATE" = "pagetop" ]; then
-            cargo publish -p || { echo "Error publishing $CRATE"; exit 1; }
+            cargo publish || { echo "Error publishing $CRATE"; exit 1; }
         else
             cp "../../LICENSE-MIT" .
             cp "../../LICENSE-APACHE" .
@@ -92,7 +92,9 @@ done
 popd > /dev/null 2>&1
 
 # Publica la librería principal
+pushd pagetop > /dev/null 2>&1
 CRATE=pagetop; publish_crate
+popd > /dev/null 2>&1
 
 # Publica los paquetes del proyecto
 pushd packages > /dev/null 2>&1
