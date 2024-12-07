@@ -28,7 +28,7 @@ adaptarse a las necesidades de cada solución web implementando:
     las APIs de `PageTop` o de paquetes de terceros.
 
 
-# ⚡️ Inicio rápido
+# ⚡️ Guía rápida
 
 La aplicación más sencilla de `PageTop` se ve así:
 
