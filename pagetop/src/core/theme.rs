@@ -1,5 +1,5 @@
 mod definition;
-pub use definition::{LayoutRef, LayoutTrait};
+pub use definition::{ThemeRef, ThemeTrait};
 
 mod regions;
 pub(crate) use regions::ChildrenInRegions;

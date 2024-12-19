@@ -4,10 +4,10 @@ use crate::html::{html, Markup};
 use crate::locale::L10n;
 use crate::response::page::Page;
 
-pub type LayoutRef = &'static dyn LayoutTrait;
+pub type ThemeRef = &'static dyn ThemeTrait;
 
 /// Los diseños deben implementar este "trait".
-pub trait LayoutTrait: PackageTrait + Send + Sync {
+pub trait ThemeTrait: PackageTrait + Send + Sync {
     fn regions(&self) -> Vec<(&'static str, L10n)> {
         vec![("content", L10n::l("content"))]
     }

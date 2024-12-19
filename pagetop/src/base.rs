@@ -4,6 +4,6 @@ pub mod action;
 
 pub mod component;
 
-pub mod layout;
-
 pub mod package;
+
+pub mod theme;

@@ -1,11 +1,11 @@
 use crate::core::component::{ChildComponent, ChildOp, Children};
-use crate::core::layout::LayoutRef;
+use crate::core::theme::ThemeRef;
 use crate::{fn_builder, AutoDefault, UniqueId};
 
 use std::collections::HashMap;
 use std::sync::{LazyLock, RwLock};
 
-static LAYOUT_REGIONS: LazyLock<RwLock<HashMap<UniqueId, ChildrenInRegions>>> =
+static THEME_REGIONS: LazyLock<RwLock<HashMap<UniqueId, ChildrenInRegions>>> =
     LazyLock::new(|| RwLock::new(HashMap::new()));
 
 static COMMON_REGIONS: LazyLock<RwLock<ChildrenInRegions>> =
@@ -33,9 +33,9 @@ impl ChildrenInRegions {
         self
     }
 
-    pub fn all_in_region(&self, layout: LayoutRef, region: &str) -> Children {
+    pub fn all_in_region(&self, theme: ThemeRef, region: &str) -> Children {
         let common = COMMON_REGIONS.read().unwrap();
-        if let Some(r) = LAYOUT_REGIONS.read().unwrap().get(&layout.type_id()) {
+        if let Some(r) = THEME_REGIONS.read().unwrap().get(&theme.type_id()) {
             Children::merge(&[common.0.get(region), self.0.get(region), r.0.get(region)])
         } else {
             Children::merge(&[common.0.get(region), self.0.get(region)])
@@ -46,7 +46,7 @@ impl ChildrenInRegions {
 pub enum InRegion {
     Content,
     Named(&'static str),
-    OfLayout(&'static str, LayoutRef),
+    OfTheme(&'static str, ThemeRef),
 }
 
 impl InRegion {
@@ -64,12 +64,12 @@ impl InRegion {
                     .unwrap()
                     .alter_in_region(name, ChildOp::Add(child));
             }
-            InRegion::OfLayout(region, layout) => {
-                let mut regions = LAYOUT_REGIONS.write().unwrap();
-                if let Some(r) = regions.get_mut(&layout.type_id()) {
+            InRegion::OfTheme(region, theme) => {
+                let mut regions = THEME_REGIONS.write().unwrap();
+                if let Some(r) = regions.get_mut(&theme.type_id()) {
                     r.alter_in_region(region, ChildOp::Add(child));
                 } else {
-                    regions.insert(layout.type_id(), ChildrenInRegions::with(region, child));
+                    regions.insert(theme.type_id(), ChildrenInRegions::with(region, child));
                 }
             }
         }

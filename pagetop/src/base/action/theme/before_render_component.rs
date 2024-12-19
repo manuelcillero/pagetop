@@ -4,13 +4,13 @@ use crate::base::action::FnActionWithComponent;
 
 pub struct BeforeRender<C: ComponentTrait> {
     f: FnActionWithComponent<C>,
-    layout_type_id: Option<UniqueId>,
+    theme_type_id: Option<UniqueId>,
     referer_type_id: Option<UniqueId>,
 }
 
 impl<C: ComponentTrait> ActionTrait for BeforeRender<C> {
-    fn layout_type_id(&self) -> Option<UniqueId> {
-        self.layout_type_id
+    fn theme_type_id(&self) -> Option<UniqueId> {
+        self.theme_type_id
     }
 
     fn referer_type_id(&self) -> Option<UniqueId> {
@@ -19,10 +19,10 @@ impl<C: ComponentTrait> ActionTrait for BeforeRender<C> {
 }
 
 impl<C: ComponentTrait> BeforeRender<C> {
-    pub fn new(layout: LayoutRef, f: FnActionWithComponent<C>) -> Self {
+    pub fn new(theme: ThemeRef, f: FnActionWithComponent<C>) -> Self {
         BeforeRender {
             f,
-            layout_type_id: Some(layout.type_id()),
+            theme_type_id: Some(theme.type_id()),
             referer_type_id: Some(UniqueId::of::<C>()),
         }
     }
@@ -33,7 +33,7 @@ impl<C: ComponentTrait> BeforeRender<C> {
         dispatch_actions(
             &ActionKey::new(
                 UniqueId::of::<Self>(),
-                Some(cx.layout().type_id()),
+                Some(cx.theme().type_id()),
                 Some(UniqueId::of::<C>()),
                 None,
             ),

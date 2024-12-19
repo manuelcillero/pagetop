@@ -41,19 +41,19 @@ impl<C: ComponentTrait> ComponentBase for C {
             self.setup_before_prepare(cx);
 
             // Acciones específicas del diseño antes de renderizar el componente.
-            action::layout::BeforeRender::dispatch(self, cx);
+            action::theme::BeforeRender::dispatch(self, cx);
 
             // Acciones de los paquetes antes de renderizar el componente.
             action::component::BeforeRender::dispatch(self, cx);
 
             // Renderiza el componente.
-            let markup = match action::layout::RenderComponent::dispatch(self, cx) {
+            let markup = match action::theme::RenderComponent::dispatch(self, cx) {
                 Some(html) => html,
                 None => self.prepare_component(cx).render(),
             };
 
             // Acciones específicas del diseño después de renderizar el componente.
-            action::layout::AfterRender::dispatch(self, cx);
+            action::theme::AfterRender::dispatch(self, cx);
 
             // Acciones de los paquetes después de renderizar el componente.
             action::component::AfterRender::dispatch(self, cx);
