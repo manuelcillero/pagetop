@@ -19,7 +19,7 @@ impl PackageTrait for Welcome {
 async fn homepage(request: HttpRequest) -> ResultPage<Markup, ErrorPage> {
     Page::new(request)
         .with_title(L10n::l("welcome_page"))
-        .with_assets(AssetsOp::Layout("Basic"))
+        .with_assets(AssetsOp::Theme("Basic"))
         .with_assets(AssetsOp::AddStyleSheet(StyleSheet::inline("styles", r##"
             body {
                 background-color: #f3d060;

@@ -1,6 +1,6 @@
 [app]
-#layout = "Aliner"
-#layout = "Bootsier"
+#theme = "Aliner"
+#theme = "Bootsier"
 language = "es-ES"
 
 [log]

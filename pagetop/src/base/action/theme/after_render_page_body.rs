@@ -4,20 +4,20 @@ use crate::base::action::FnActionWithPage;
 
 pub struct AfterRenderBody {
     f: FnActionWithPage,
-    layout_type_id: Option<UniqueId>,
+    theme_type_id: Option<UniqueId>,
 }
 
 impl ActionTrait for AfterRenderBody {
-    fn layout_type_id(&self) -> Option<UniqueId> {
-        self.layout_type_id
+    fn theme_type_id(&self) -> Option<UniqueId> {
+        self.theme_type_id
     }
 }
 
 impl AfterRenderBody {
-    pub fn new(layout: LayoutRef, f: FnActionWithPage) -> Self {
+    pub fn new(theme: ThemeRef, f: FnActionWithPage) -> Self {
         AfterRenderBody {
             f,
-            layout_type_id: Some(layout.type_id()),
+            theme_type_id: Some(theme.type_id()),
         }
     }
 
@@ -27,7 +27,7 @@ impl AfterRenderBody {
         dispatch_actions(
             &ActionKey::new(
                 UniqueId::of::<Self>(),
-                Some(page.context().layout().type_id()),
+                Some(page.context().theme().type_id()),
                 None,
                 None,
             ),

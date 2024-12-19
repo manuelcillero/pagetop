@@ -92,6 +92,12 @@ impl Page {
     }
 
     #[fn_builder]
+    pub fn alter_theme(&mut self, theme: &'static str) -> &mut Self {
+        self.context.alter_assets(AssetsOp::Theme(theme));
+        self
+    }
+
+    #[fn_builder]
     pub fn alter_layout(&mut self, layout: &'static str) -> &mut Self {
         self.context.alter_assets(AssetsOp::Layout(layout));
         self
@@ -157,22 +163,22 @@ impl Page {
 
     pub fn render(&mut self) -> ResultPage<Markup, ErrorPage> {
         // Acciones específicas del diseño antes de renderizar el <body>.
-        action::layout::BeforeRenderBody::dispatch(self);
+        action::theme::BeforeRenderBody::dispatch(self);
 
         // Acciones de los paquetes antes de renderizar el <body>.
         action::page::BeforeRenderBody::dispatch(self);
 
         // Renderiza el <body>.
-        let body = self.context.layout().render_body(self);
+        let body = self.context.theme().render_body(self);
 
         // Acciones específicas del diseño después de renderizar el <body>.
-        action::layout::AfterRenderBody::dispatch(self);
+        action::theme::AfterRenderBody::dispatch(self);
 
         // Acciones de los paquetes después de renderizar el <body>.
         action::page::AfterRenderBody::dispatch(self);
 
         // Renderiza el <head>.
-        let head = self.context.layout().render_head(self);
+        let head = self.context.theme().render_head(self);
 
         // Compone la página completa incluyendo los atributos de idioma y dirección del texto.
         let lang = &self.context.langid().language;

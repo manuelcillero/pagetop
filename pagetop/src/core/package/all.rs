@@ -1,6 +1,6 @@
 use crate::core::action::add_action;
-use crate::core::layout::all::LAYOUTS;
 use crate::core::package::PackageRef;
+use crate::core::theme::all::THEMES;
 use crate::{global, include_files, include_files_service, service, trace};
 
 use std::sync::{LazyLock, RwLock};
@@ -19,8 +19,8 @@ pub fn register_packages(root_package: Option<PackageRef>) {
     // Initialize a list for packages to be enabled.
     let mut enabled_list: Vec<PackageRef> = Vec::new();
 
-    // Add default layout to the enabled list.
-    add_to_enabled(&mut enabled_list, &crate::base::layout::Basic);
+    // Add default theme to the enabled list.
+    add_to_enabled(&mut enabled_list, &crate::base::theme::Basic);
 
     // If a root package is provided, add it to the enabled list.
     if let Some(package) = root_package {
@@ -54,16 +54,16 @@ fn add_to_enabled(list: &mut Vec<PackageRef>, package: PackageRef) {
         // Add the package itself to the enabled list.
         list.push(package);
 
-        // Check if the package has an associated layout to register.
-        if let Some(layout) = package.layout() {
-            let mut registered_layouts = LAYOUTS.write().unwrap();
-            // Ensure the layout is not already registered to avoid duplicates.
-            if !registered_layouts
+        // Check if the package has an associated theme to register.
+        if let Some(theme) = package.theme() {
+            let mut registered_themes = THEMES.write().unwrap();
+            // Ensure the theme is not already registered to avoid duplicates.
+            if !registered_themes
                 .iter()
-                .any(|t| t.type_id() == layout.type_id())
+                .any(|t| t.type_id() == theme.type_id())
             {
-                registered_layouts.push(layout);
-                trace::debug!("Enabling \"{}\" layout", layout.short_name());
+                registered_themes.push(theme);
+                trace::debug!("Enabling \"{}\" theme", theme.short_name());
             }
         } else {
             trace::debug!("Enabling \"{}\" package", package.short_name());

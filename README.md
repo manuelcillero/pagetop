@@ -22,10 +22,10 @@ pueden implementar, extender o adaptar a las necesidades de cada solución web, 
     interceptando su flujo de ejecución.
   * **Componentes** (*components*). Para encapsular HTML, CSS y JavaScript en unidades funcionales,
     configurables y bien definidas.
-  * **Diseños** (*layouts*). Permiten a los desarrolladores modificar la apariencia de páginas y
-    componentes sin afectar a su funcionalidad.
   * **Paquetes** (*packages*). Extienden o personalizan funcionalidades existentes interactuando con
     las APIs de `PageTop` o de paquetes de terceros.
+  * **Temas** (*themes*). Permiten a los desarrolladores modificar la apariencia de páginas y
+    componentes sin afectar a su funcionalidad.
 
 
 # ⚡️ Guía rápida

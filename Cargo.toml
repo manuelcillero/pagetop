@@ -8,12 +8,12 @@ members = [
     # PageTop
     "pagetop",
 
-    # Layouts
-    #"layouts/pagetop-aliner",
-    #"layouts/pagetop-bootsier",
-
     # Packages
     "packages/pagetop-seaorm",
+
+    # Themes
+    #"packages/pagetop-aliner",
+    #"packages/pagetop-bootsier",
 
     # App
     "drust",
@@ -37,9 +37,9 @@ pagetop-macros = { version = "0.0", path = "helpers/pagetop-macros" }
 # PageTop
 pagetop = { version = "0.0", path = "pagetop" }
 
-# Layouts
-#pagetop-aliner = { version = "0.0", path = "layouts/pagetop-aliner" }
-#pagetop-bootsier = { version = "0.0", path = "layouts/pagetop-bootsier" }
-
 # Packages
 pagetop-seaorm = { version = "0.0", path = "packages/pagetop-seaorm" }
+
+# Themes
+#pagetop-aliner = { version = "0.0", path = "packages/pagetop-aliner" }
+#pagetop-bootsier = { version = "0.0", path = "packages/pagetop-bootsier" }

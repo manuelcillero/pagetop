@@ -40,13 +40,13 @@ pub use crate::core::{AnyBase, AnyTo};
 
 pub use crate::core::action::*;
 pub use crate::core::component::*;
-pub use crate::core::layout::*;
 pub use crate::core::package::*;
+pub use crate::core::theme::*;
 
 pub use crate::response::{json::*, page::*, redirect::*, ResponseError};
 
 pub use crate::base::action;
 pub use crate::base::component::*;
-pub use crate::base::layout;
+pub use crate::base::theme;
 
 pub use crate::app::Application;

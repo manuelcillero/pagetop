@@ -23,13 +23,13 @@ struct Drust;
 impl PackageTrait for Drust {
     fn dependencies(&self) -> Vec<PackageRef> {
         vec![
-            // Layouts.
-            //&pagetop_bootsier::Bootsier,
-
             // Packages.
             //&pagetop_admin::Admin,
             //&pagetop_user::User,
             //&pagetop_node::Node,
+
+            // Themes.
+            //&pagetop_bootsier::Bootsier,
         ]
     }
 }
