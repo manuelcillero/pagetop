@@ -13,9 +13,9 @@
 //!
 //! # 📌 Sobre PageTop
 //!
-//! [`PageTop`](https://docs.rs/pagetop) es un entorno de desarrollo que reivindica la sencillez de
-//! la web clásica combinando SSR (*renderizado en el servidor*), HTML, CSS y JS, para crear
-//! soluciones web modulares, extensibles y configurables.
+//! [`PageTop`](https://docs.rs/pagetop) es un entorno de desarrollo que reivindica la esencia de la
+//! web clásica combinando SSR (*renderizado en el servidor*), HTML, CSS y JS, para crear soluciones
+//! web modulares, extensibles y configurables.
 //!
 //! # ⚡️ Guía rápida
 //!

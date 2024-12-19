@@ -14,9 +14,9 @@
 //! <br>
 //! </div>
 //!
-//! `PageTop` reivindica la sencillez de la web clásica combinando SSR (*renderizado en el
-//! servidor*), HTML, CSS y JavaScript. Proporciona un conjunto completo de funcionalidades que
-//! pueden extenderse y adaptarse a las necesidades de cada solución web implementando:
+//! `PageTop` reivindica la esencia de la web clásica combinando SSR (*renderizado en el servidor*),
+//! HTML, CSS y JavaScript. Facilita un conjunto completo de funcionalidades que los desarrolladores
+//! pueden implementar, extender o adaptar a las necesidades de cada solución web, incluyendo:
 //!
 //!   * **Acciones** (*actions*). Las funcionalidades que incorporen acciones en su lógica de
 //!     programa estarán proporcionando a los desarrolladores herramientas para alterar su

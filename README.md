@@ -13,9 +13,9 @@
 
 </div>
 
-`PageTop` reivindica la sencillez de la web clásica combinando SSR (*renderizado en el servidor*),
-HTML, CSS y JavaScript. Proporciona un conjunto completo de funcionalidades que pueden extenderse y
-adaptarse a las necesidades de cada solución web implementando:
+`PageTop` reivindica la esencia de la web clásica combinando SSR (*renderizado en el servidor*),
+HTML, CSS y JavaScript. Facilita un conjunto completo de funcionalidades que los desarrolladores
+pueden implementar, extender o adaptar a las necesidades de cada solución web, incluyendo:
 
   * **Acciones** (*actions*). Las funcionalidades que incorporen acciones en su lógica de programa
     estarán proporcionando a los desarrolladores herramientas para alterar su comportamiento interno
@@ -71,9 +71,9 @@ Este programa prepara un paquete personalizado llamado `HelloWorld` que sirve un
 ruta raíz (`/`) mostrando el mensaje "Hello world!" en un elemento HTML `<h1>`.
 
 
-# 📂 Estructura del código
+# 📂 Repositorio
 
-El repositorio se organiza en un *workspace* con los siguientes subproyectos:
+El código se organiza en un *workspace* con los siguientes subproyectos:
 
   * **[pagetop](https://github.com/manuelcillero/pagetop/tree/latest/pagetop)**, es la librería
     principal. Reúne algunos de los *crates* más estables y populares del ecosistema Rust para
