@@ -4,7 +4,7 @@ version = "0.0.58"
 edition = "2021"
 
 description = """\
-    Entorno de desarrollo para crear soluciones web modulares, extensibles y configurables.\
+    Un entorno de desarrollo para crear soluciones web modulares, extensibles y configurables.\
 """
 categories = ["web-programming", "gui", "development-tools", "asynchronous"]
 keywords = ["pagetop", "web", "framework", "frontend", "ssr"]
