@@ -20,14 +20,11 @@ async fn homepage(request: HttpRequest) -> ResultPage<Markup, ErrorPage> {
     Page::new(request)
         .with_title(L10n::l("welcome_page"))
         .with_assets(AssetsOp::Theme("Basic"))
-        .with_assets(AssetsOp::AddStyleSheet(StyleSheet::inline("styles", r##"
+        .with_assets(AssetsOp::AddStyleSheet(StyleSheet::inline("welcome_styles", r##"
             body {
                 background-color: #f3d060;
                 font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
                 font-size: 20px;
-            }
-            .skip__to_content {
-                display: none;
             }
             .wrapper {
                 max-width: 1200px;
