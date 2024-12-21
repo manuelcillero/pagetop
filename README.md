@@ -4,7 +4,7 @@
 
 <h1>PageTop</h1>
 
-<p>Entorno de desarrollo para crear soluciones web modulares, extensibles y configurables.</p>
+<p>Un entorno de desarrollo para crear soluciones web modulares, extensibles y configurables.</p>
 
 [![Licencia](https://img.shields.io/badge/license-MIT%2FApache-blue.svg?label=Licencia&style=for-the-badge)](#-license)
 [![Doc API](https://img.shields.io/docsrs/pagetop?label=Doc%20API&style=for-the-badge&logo=Docs.rs)](https://docs.rs/pagetop)
@@ -13,19 +13,19 @@
 
 </div>
 
-`PageTop` reivindica la esencia de la web clásica combinando SSR (*renderizado en el servidor*),
-HTML, CSS y JavaScript. Facilita un conjunto completo de funcionalidades que los desarrolladores
-pueden implementar, extender o adaptar a las necesidades de cada solución web, incluyendo:
+`PageTop` reivindica la esencia de la web clásica usando [Rust](https://www.rust-lang.org/es) para
+la creación de soluciones web SSR (*renderizadas en el servidor*) basadas en HTML, CSS y JavaScript.
+Ofrece un conjunto de herramientas que los desarrolladores pueden implementar, extender o adaptar
+según las necesidades de cada proyecto, incluyendo:
 
-  * **Acciones** (*actions*). Las funcionalidades que incorporen acciones en su lógica de programa
-    estarán proporcionando a los desarrolladores herramientas para alterar su comportamiento interno
-    interceptando su flujo de ejecución.
-  * **Componentes** (*components*). Para encapsular HTML, CSS y JavaScript en unidades funcionales,
-    configurables y bien definidas.
-  * **Paquetes** (*packages*). Extienden o personalizan funcionalidades existentes interactuando con
-    las APIs de `PageTop` o de paquetes de terceros.
-  * **Temas** (*themes*). Permiten a los desarrolladores modificar la apariencia de páginas y
-    componentes sin afectar a su funcionalidad.
+  * **Acciones** (*actions*): alteran la lógica interna de una funcionalidad interceptando su flujo
+    de ejecución.
+  * **Componentes** (*components*): encapsulan HTML, CSS y JavaScript en unidades funcionales,
+    configurables y reutilizables.
+  * **Paquetes** (*packages*): añaden, extienden o personalizan funcionalidades usando las APIs de
+    `PageTop` o de terceros.
+  * **Temas** (*themes*): permiten modificar la apariencia de páginas y componentes sin comprometer
+    su funcionalidad.
 
 
 # ⚡️ Guía rápida
@@ -41,8 +41,10 @@ async fn main() -> std::io::Result<()> {
 }
 ```
 
-Proporciona una página de bienvenida en `http://localhost:8088` según la configuración predefinida.
-Para personalizar el servicio puedes crear un paquete de `PageTop`:
+Por defecto, este código sirve una página web de bienvenida accesible desde un navegador en la
+dirección `http://localhost:8088`, siguiendo la configuración predeterminada.
+
+Para personalizar el servicio, puedes crear un paquete de `PageTop` de la siguiente manera:
 
 ```rust#ignore
 use pagetop::prelude::*;
@@ -67,8 +69,8 @@ async fn main() -> std::io::Result<()> {
 }
 ```
 
-Este programa prepara un paquete personalizado llamado `HelloWorld` que sirve una página web en la
-ruta raíz (`/`) mostrando el mensaje "Hello world!" en un elemento HTML `<h1>`.
+Este programa implementa un paquete llamado `HelloWorld` que sirve una página web en la ruta raíz
+(`/`) mostrando el texto "Hello world!" dentro de un elemento HTML `<h1>`.
 
 
 # 📂 Repositorio
