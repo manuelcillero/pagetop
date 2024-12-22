@@ -21,8 +21,16 @@ use pagetop::prelude::*;
 
 use std::sync::LazyLock;
 
+// API *********************************************************************************************
+
 pub mod config;
 pub mod db;
+
+// PRELUDE *****************************************************************************************
+
+pub mod prelude {
+    pub use crate::db;
+}
 
 include_locales!(LOCALES_SEAORM);
 
