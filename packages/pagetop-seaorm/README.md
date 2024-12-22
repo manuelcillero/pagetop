@@ -2,7 +2,7 @@
 
 <h1>PageTop SeaORM</h1>
 
-<p>Integra SeaORM para trabajar con base de datos en aplicaciones <strong>PageTop</strong>.</p>
+<p>Integra SeaORM para operar con base de datos en aplicaciones <strong>PageTop</strong>.</p>
 
 [![Licencia](https://img.shields.io/badge/license-MIT%2FApache-blue.svg?label=Licencia&style=for-the-badge)](#-license)
 [![Doc API](https://img.shields.io/docsrs/pagetop-seaorm?label=Doc%20API&style=for-the-badge&logo=Docs.rs)](https://docs.rs/pagetop-seaorm)

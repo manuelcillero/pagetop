@@ -4,7 +4,7 @@ version = "0.0.1"
 edition = "2021"
 
 description = """\
-    Integra SeaORM para trabajar con bases de datos en aplicaciones PageTop.\
+    Integra SeaORM para operar con base de datos en aplicaciones PageTop.\
 """
 categories = ["web-programming", "database"]
 keywords = ["pagetop", "database", "sql", "orm"]
