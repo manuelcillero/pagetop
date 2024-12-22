@@ -155,7 +155,7 @@ pub use concat_string::concat_string;
 #[macro_export]
 macro_rules! join_string {
     ($($arg:tt)*) => {
-        crate::util::concat_string!($($arg)*)
+        $crate::util::concat_string!($($arg)*)
     };
 }
 
