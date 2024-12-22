@@ -1,6 +1,6 @@
 //! <div align="center">
 //!
-//! <img src="https://raw.githubusercontent.com/manuelcillero/pagetop/main/tools/banner.png" />
+//! <img src="https://raw.githubusercontent.com/manuelcillero/pagetop/main/static/banner.png" />
 //!
 //! <h1>PageTop</h1>
 //!
