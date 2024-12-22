@@ -3,11 +3,10 @@ use crate::core::theme::all::{theme_by_short_name, DEFAULT_THEME};
 use crate::core::theme::{ChildrenInRegions, ThemeRef};
 use crate::html::{html, Markup};
 use crate::html::{Assets, Favicon, JavaScript, StyleSheet};
+use crate::join_string;
 use crate::locale::{LanguageIdentifier, DEFAULT_LANGID};
 use crate::service::HttpRequest;
 use crate::util::TypeInfo;
-
-use concat_string::concat_string;
 
 use std::collections::HashMap;
 use std::error::Error;
@@ -198,7 +197,7 @@ impl Context {
                 prefix
             };
             self.id_counter += 1;
-            concat_string!(prefix, "-", self.id_counter.to_string())
+            join_string!(prefix, "-", self.id_counter.to_string())
         }
     }
 }

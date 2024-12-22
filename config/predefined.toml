@@ -1,5 +1,5 @@
 [app]
-name = "My App"
+name = "Sample"
 description = "Developed with the amazing PageTop framework."
 # Default theme.
 theme = "Default"

@@ -1,6 +1,0 @@
-[app]
-name = "Samples"
-#language = "es-ES"
-
-[log]
-tracing = "Debug"

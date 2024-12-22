@@ -6,7 +6,7 @@ use serde::Deserialize;
 
 include_config!(SETTINGS: Settings => [
     // [app]
-    "app.name"                => "My App",
+    "app.name"                => "Sample",
     "app.description"         => "Developed with the amazing PageTop framework.",
     "app.theme"               => "",
     "app.language"            => "en-US",
@@ -45,7 +45,7 @@ pub struct Settings {
 /// See [`Settings`].
 pub struct App {
     /// The name of the application.
-    /// Default: *"My App"*.
+    /// Default: *"Sample"*.
     pub name: String,
     /// A brief description of the application.
     /// Default: *"Developed with the amazing PageTop framework."*.

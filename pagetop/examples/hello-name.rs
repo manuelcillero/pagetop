@@ -4,11 +4,10 @@ struct HelloName;
 
 impl PackageTrait for HelloName {
     fn configure_service(&self, scfg: &mut service::web::ServiceConfig) {
-        scfg.service(hello_name);
+        scfg.route("/hello/{name}", service::web::get().to(hello_name));
     }
 }
 
-#[service::get("/hello/{name}")]
 async fn hello_name(
     request: HttpRequest,
     path: service::web::Path<String>,
