@@ -80,6 +80,7 @@ HELPERS=(
 )
 PACKAGES=(
     pagetop-seaorm
+    pagetop-hljs
 )
 
 # Publica los 'crates' auxiliares

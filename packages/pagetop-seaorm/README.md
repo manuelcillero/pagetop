@@ -2,7 +2,7 @@
 
 <h1>PageTop SeaORM</h1>
 
-<p>Integra SeaORM para trabajar con bases de datos en aplicaciones <strong>PageTop</strong>.</p>
+<p>Integra SeaORM para trabajar con base de datos en aplicaciones <strong>PageTop</strong>.</p>
 
 [![Licencia](https://img.shields.io/badge/license-MIT%2FApache-blue.svg?label=Licencia&style=for-the-badge)](#-license)
 [![Doc API](https://img.shields.io/docsrs/pagetop-seaorm?label=Doc%20API&style=for-the-badge&logo=Docs.rs)](https://docs.rs/pagetop-seaorm)
@@ -10,6 +10,8 @@
 [![Descargas](https://img.shields.io/crates/d/pagetop-seaorm.svg?label=Descargas&style=for-the-badge&logo=transmission)](https://crates.io/crates/pagetop-seaorm)
 
 </div>
+
+## Descripción general
 
 Utiliza [SQLx](https://crates.io/crates/sqlx) y [SeaQuery](https://crates.io/crates/sea-query) para
 exportar sus funcionalidades, y también integra en código una versión adaptada de
