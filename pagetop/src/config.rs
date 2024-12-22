@@ -127,8 +127,7 @@ mod value;
 
 use crate::config::data::ConfigData;
 use crate::config::file::File;
-
-use concat_string::concat_string;
+use crate::join_string;
 
 use std::sync::LazyLock;
 
@@ -158,16 +157,16 @@ pub static CONFIG_VALUES: LazyLock<ConfigData> = LazyLock::new(|| {
     // Merge (optional) configuration files and set the execution mode.
     values
         // First, add the common configuration for all environments. Defaults to 'common.toml'.
-        .merge(File::with_name(&concat_string!(config_dir, "/common.toml")).required(false))
+        .merge(File::with_name(&join_string!(config_dir, "/common.toml")).required(false))
         .expect("Failed to merge common configuration (common.toml)")
         // Add the environment-specific configuration. Defaults to 'default.toml'.
-        .merge(File::with_name(&concat_string!(config_dir, "/", rm, ".toml")).required(false))
+        .merge(File::with_name(&join_string!(config_dir, "/", rm, ".toml")).required(false))
         .expect(&format!("Failed to merge {rm}.toml configuration"))
         // Add reserved local configuration for the environment. Defaults to 'local.default.toml'.
-        .merge(File::with_name(&concat_string!(config_dir, "/local.", rm, ".toml")).required(false))
+        .merge(File::with_name(&join_string!(config_dir, "/local.", rm, ".toml")).required(false))
         .expect("Failed to merge reserved local environment configuration")
         // Add common reserved local configuration. Defaults to 'local.toml'.
-        .merge(File::with_name(&concat_string!(config_dir, "/local.toml")).required(false))
+        .merge(File::with_name(&join_string!(config_dir, "/local.toml")).required(false))
         .expect("Failed to merge general reserved local configuration")
         // Save the execution mode.
         .set("app.run_mode", rm)

@@ -1,8 +1,6 @@
 use crate::html::assets::AssetsTrait;
 use crate::html::{html, Markup, PreEscaped};
-use crate::{AutoDefault, Weight};
-
-use concat_string::concat_string;
+use crate::{join_string, AutoDefault, Weight};
 
 #[derive(AutoDefault)]
 enum Source {
@@ -45,7 +43,7 @@ impl AssetsTrait for StyleSheet {
             Source::From(path) => html! {
                 link
                     rel="stylesheet"
-                    href=(concat_string!(path, self.prefix, self.version))
+                    href=(join_string!(path, self.prefix, self.version))
                     media=[self.media];
             },
             Source::Inline(_, code) => html! {

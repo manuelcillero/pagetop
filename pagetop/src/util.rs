@@ -5,7 +5,7 @@ use crate::trace;
 use std::io;
 use std::path::PathBuf;
 
-// USEFUL FUNCTIONS ********************************************************************************
+// FUNCIONES ÚTILES ********************************************************************************
 
 pub enum TypeInfo {
     FullName,
@@ -30,18 +30,18 @@ impl TypeInfo {
     fn partial(type_name: &'static str, start: isize, end: Option<isize>) -> &'static str {
         let maxlen = type_name.len();
         let mut segments = Vec::new();
-        let mut segment_start = 0; // Start position of the current segment.
-        let mut angle_brackets = 0; // Counter for tracking '<' and '>'.
-        let mut previous_char = '\0'; // Initializes to a null character, no previous character.
+        let mut segment_start = 0; // Posición de inicial del segmento actual.
+        let mut angle_brackets = 0; // Contador para seguimiento de '<' y '>'.
+        let mut previous_char = '\0'; // Se inicializa a carácter nulo, no hay aún carácter previo.
 
         for (idx, c) in type_name.char_indices() {
             match c {
                 ':' if angle_brackets == 0 => {
                     if previous_char == ':' {
                         if segment_start < idx - 1 {
-                            segments.push((segment_start, idx - 1)); // Do not include last '::'.
+                            segments.push((segment_start, idx - 1)); // No incluye último '::'.
                         }
-                        segment_start = idx + 1; // Next segment starts after '::'.
+                        segment_start = idx + 1; // El siguiente segmento comienza después de '::'.
                     }
                 }
                 '<' => angle_brackets += 1,
@@ -51,12 +51,12 @@ impl TypeInfo {
             previous_char = c;
         }
 
-        // Include the last segment if there's any.
+        // Incluye el último segmento si lo hubiese.
         if segment_start < maxlen {
             segments.push((segment_start, maxlen));
         }
 
-        // Calculates the start position.
+        // Calcula la posición inicial.
         let start_pos = segments
             .get(if start >= 0 {
                 start as usize
@@ -65,7 +65,7 @@ impl TypeInfo {
             })
             .map_or(0, |&(s, _)| s);
 
-        // Calculates the end position.
+        // Calcula la posición final.
         let end_pos = segments
             .get(if let Some(end) = end {
                 if end >= 0 {
@@ -78,30 +78,30 @@ impl TypeInfo {
             })
             .map_or(maxlen, |&(_, e)| e);
 
-        // Returns the partial string based on the calculated positions.
+        // Devuelve la cadena parcial basada en las posiciones calculadas.
         &type_name[start_pos..end_pos]
     }
 }
 
-/// Calculates the absolute directory given a root path and a relative path.
+/// Calcula el directorio absoluto dado un directorio raíz y una ruta relativa.
 ///
-/// # Arguments
+/// # Argumentos
 ///
-/// * `root_path` - A string slice that holds the root path.
-/// * `relative_path` - A string slice that holds the relative path.
+/// * `root_path` - Contiene el directorio raíz.
+/// * `relative_path` - Contiene la ruta relativa.
 ///
-/// # Returns
+/// # Devuelve
 ///
-/// * `Ok` - If the operation is successful, returns the absolute directory as a `String`.
-/// * `Err` - If an I/O error occurs, returns an `io::Error`.
+/// * `Ok` - Si la operación es correcta devuelve el directorio absoluto como un `String`.
+/// * `Err` - Si ocurre un error de E/S, devuelve un `io::Error`.
 ///
-/// # Errors
+/// # Errores
 ///
-/// This function will return an error if:
-/// - The root path or relative path are invalid.
-/// - There is an issue with file system operations, such as reading the directory.
+/// Esta función devolverá un error si:
+/// - El directorio raíz o la ruta relativa son inválidos.
+/// - Hay un problema con las operaciones sobre el sistema de archivos, como leer el directorio.
 ///
-/// # Examples
+/// # Ejemplos
 ///
 /// ```rust#ignore
 /// let root = "/home/user";
@@ -138,10 +138,26 @@ pub fn absolute_dir(
     Ok(absolute_dir)
 }
 
-// USEFUL MACROS ***********************************************************************************
+// MACROS ÚTILES ***********************************************************************************
 
-/// Flexible concatenation of identifiers in macros.
+#[doc(hidden)]
 pub use paste::paste;
+
+#[doc(hidden)]
+pub use concat_string::concat_string;
+
+/// Concatena varios fragmentos de cadenas en una cadena *String*.
+///
+/// Exporta la macro [`concat_string!`](https://docs.rs/concat-string), que permite concatenar de
+/// forma eficiente fragmentos de cadenas (*string slices*) en una cadena *String*. Acepta cualquier
+/// número de argumentos que implementen `AsRef<str>` y crea una cadena `String` con el tamaño
+/// adecuado, sin requerir cadenas de formato que puedan sobrecargar el rendimiento.
+#[macro_export]
+macro_rules! join_string {
+    ($($arg:tt)*) => {
+        crate::util::concat_string!($($arg)*)
+    };
+}
 
 #[macro_export]
 /// Macro para construir grupos de pares clave-valor.

@@ -1,8 +1,6 @@
 use crate::html::assets::AssetsTrait;
 use crate::html::{html, Markup};
-use crate::{AutoDefault, Weight};
-
-use concat_string::concat_string;
+use crate::{join_string, AutoDefault, Weight};
 
 #[derive(AutoDefault)]
 enum Source {
@@ -41,18 +39,18 @@ impl AssetsTrait for JavaScript {
     fn render(&self) -> Markup {
         match &self.source {
             Source::From(path) => html! {
-                script src=(concat_string!(path, self.prefix, self.version)) {};
+                script src=(join_string!(path, self.prefix, self.version)) {};
             },
             Source::Defer(path) => html! {
-                script src=(concat_string!(path, self.prefix, self.version)) defer {};
+                script src=(join_string!(path, self.prefix, self.version)) defer {};
             },
             Source::Async(path) => html! {
-                script src=(concat_string!(path, self.prefix, self.version)) async {};
+                script src=(join_string!(path, self.prefix, self.version)) async {};
             },
             Source::Inline(_, code) => html! {
                 script { (code) };
             },
-            Source::OnLoad(_, code) => html! { (concat_string!(
+            Source::OnLoad(_, code) => html! { (join_string!(
                 "document.addEventListener('DOMContentLoaded',function(){",
                 code,
                 "});"
