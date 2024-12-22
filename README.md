@@ -96,6 +96,10 @@ El código se organiza en un *workspace* con los siguientes subproyectos:
     integra [SeaORM](https://www.sea-ql.org/SeaORM) para trabajar con bases de datos en aplicaciones
     `PageTop`.
 
+  * **[pagetop-hljs](https://github.com/manuelcillero/pagetop/tree/latest/packages/pagetop-hljs)**,
+    integra [highlight.js](https://highlightjs.org) para mostrar fragmentos de código con resaltado
+    de sintaxis con `PageTop`.
+
 ## Aplicación
 
   * **[drust](https://github.com/manuelcillero/pagetop/tree/latest/drust)**, es una aplicación que
