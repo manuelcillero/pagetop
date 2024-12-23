@@ -11,11 +11,12 @@
 //!
 //! </div>
 //!
-//! # 📌 Sobre PageTop
+//! ## Sobre PageTop
 //!
 //! [PageTop](https://docs.rs/pagetop) es un entorno de desarrollo que reivindica la esencia de la
 //! web clásica para crear soluciones web SSR (*renderizadas en el servidor*) modulares, extensibles
 //! y configurables, basadas en HTML, CSS y JavaScript.
+//!
 //!
 //! # ⚡️ Guía rápida
 //!

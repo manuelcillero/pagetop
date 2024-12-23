@@ -4,7 +4,7 @@ version = "0.0.15"
 edition = "2021"
 
 description = """\
-    Integra HighlightJS para mostrar fragmentos de código con resaltado de sintaxis con PageTop.\
+    Utiliza HighlightJS para mostrar fragmentos de código con resaltado de sintaxis con PageTop.\
 """
 categories = ["web-programming", "gui"]
 keywords = ["pagetop", "highlight", "parse", "parsing", "component"]

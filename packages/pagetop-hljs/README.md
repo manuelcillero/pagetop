@@ -2,7 +2,7 @@
 
 <h1>PageTop HighlightJS</h1>
 
-<p>Integra HighlightJS para mostrar fragmentos de código con resaltado de sintaxis con <strong>PageTop</strong>.</p>
+<p>Utiliza HighlightJS para mostrar fragmentos de código con resaltado de sintaxis con <strong>PageTop</strong>.</p>
 
 [![Licencia](https://img.shields.io/badge/license-MIT%2FApache-blue.svg?label=Licencia&style=for-the-badge)](#-license)
 [![Doc API](https://img.shields.io/docsrs/pagetop-hljs?label=Doc%20API&style=for-the-badge&logo=Docs.rs)](https://docs.rs/pagetop-hljs)
@@ -13,7 +13,7 @@
 
 ## Descripción general
 
-  * Utiliza la versátil librería JavaScript [highlight.js](https://highlightjs.org/).
+  * Usa la versátil librería JavaScript [highlight.js](https://highlightjs.org/).
   * Soporta **más de 90** lenguajes de programación.
   * Ofrece **más de 95** temas disponibles para elegir.
   * Proporciona un componente para mostrar fragmentos de código fácilmente.
@@ -22,7 +22,14 @@
   * Permite personalizar la inicialización de *highlight.js*.
   * Carga inteligente de recursos CSS y JS.
 
-## Uso
+## Sobre PageTop
+
+[PageTop](https://docs.rs/pagetop) es un entorno de desarrollo que reivindica la esencia de la web
+clásica para crear soluciones web SSR (*renderizadas en el servidor*) modulares, extensibles y
+configurables, basadas en HTML, CSS y JavaScript.
+
+
+# ⚡️ Guía rápida
 
 Añade `pagetop-hljs` a tu archivo `Cargo.toml`:
 
@@ -73,13 +80,6 @@ fn main() {
         .render()
 }
 ```
-
-
-# 📌 Sobre PageTop
-
-[PageTop](https://docs.rs/pagetop) es un entorno de desarrollo que reivindica la esencia de la web
-clásica para crear soluciones web SSR (*renderizadas en el servidor*) modulares, extensibles y
-configurables, basadas en HTML, CSS y JavaScript.
 
 
 # 🚧 Advertencia

@@ -18,8 +18,7 @@ exportar sus funcionalidades, y también integra en código una versión adaptad
 [SeaORM Migration](https://github.com/SeaQL/sea-orm/tree/1.1.1/sea-orm-migration/src) (v1.1.1) para
 permitir migraciones independientes para cada paquete del proyecto.
 
-
-# 📌 Sobre PageTop
+## Sobre PageTop
 
 [PageTop](https://docs.rs/pagetop) es un entorno de desarrollo que reivindica la esencia de la web
 clásica para crear soluciones web SSR (*renderizadas en el servidor*) modulares, extensibles y
