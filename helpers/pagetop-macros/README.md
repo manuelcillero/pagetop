@@ -11,6 +11,8 @@
 
 </div>
 
+## Descripción general
+
 Entre sus macros se incluye una adaptación de [maud-macros](https://crates.io/crates/maud_macros)
 ([0.25.0](https://github.com/lambda-fairy/maud/tree/v0.25.0/maud_macros)) de
 [Chris Wong](https://crates.io/users/lambda-fairy) y una versión renombrada de
@@ -19,8 +21,7 @@ Entre sus macros se incluye una adaptación de [maud-macros](https://crates.io/c
 necesidad de referenciar `maud` o `smart_default` en las dependencias del archivo `Cargo.toml` de
 cada proyecto `PageTop`.
 
-
-# 📌 Sobre PageTop
+## Sobre PageTop
 
 [PageTop](https://docs.rs/pagetop) es un entorno de desarrollo que reivindica la esencia de la web
 clásica para crear soluciones web SSR (*renderizadas en el servidor*) modulares, extensibles y
