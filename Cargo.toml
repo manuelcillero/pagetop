@@ -10,6 +10,7 @@ members = [
 
     # Packages
     "packages/pagetop-seaorm",
+    "packages/pagetop-mdbook",
     "packages/pagetop-hljs",
 
     # Themes
@@ -40,6 +41,7 @@ pagetop = { version = "0.0", path = "pagetop" }
 
 # Packages
 pagetop-seaorm = { version = "0.0", path = "packages/pagetop-seaorm" }
+pagetop-mdbook = { version = "0.0", path = "packages/pagetop-mdbook" }
 pagetop-hljs = { version = "0.0", path = "packages/pagetop-hljs" }
 
 # Themes

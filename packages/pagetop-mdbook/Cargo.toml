@@ -1,0 +1,24 @@
+[package]
+name = "pagetop-mdbook"
+version = "0.0.19"
+edition = "2021"
+
+description = """\
+    Incluye contenido generado por mdBook en aplicaciones PageTop.\
+"""
+categories = ["web-programming", "gui"]
+keywords = ["pagetop", "mdbook", "book", "markdown", "component"]
+exclude = ["/template"]
+
+repository.workspace = true
+homepage.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[dependencies]
+pagetop.workspace = true
+
+static-files.workspace = true
+
+[build-dependencies]
+pagetop-build.workspace = true

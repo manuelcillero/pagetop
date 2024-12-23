@@ -1,0 +1,6 @@
+# packages/pagetop-hljs
+packages/pagetop-hljs/static/**     linguist-vendored
+
+# packages/pagetop-mdbook
+packages/pagetop-mdbook/static/**   linguist-vendored
+packages/pagetop-mdbook/template/** linguist-vendored

@@ -2414,6 +2414,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "pagetop-mdbook"
+version = "0.0.19"
+dependencies = [
+ "pagetop",
+ "pagetop-build",
+ "static-files",
+]
+
+[[package]]
 name = "pagetop-seaorm"
 version = "0.0.2"
 dependencies = [
