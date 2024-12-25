@@ -14,7 +14,7 @@
 ## Descripción general
 
 Integra los archivos generados por [mdBook](https://rust-lang.github.io/mdBook/) en aplicaciones
-construidas con `PageTop` para crear documentación web de productos o APIs, tutoriales, material
+desarrolladas con `PageTop` para crear documentación web de productos o APIs, tutoriales, material
 para cursos o cualquier contenido que requiera una presentación navegable.
 
 ## Sobre PageTop

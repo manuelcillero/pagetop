@@ -18,6 +18,7 @@ members = [
     #"packages/pagetop-bootsier",
 
     # App
+    "website",
     "drust",
 ]
 
@@ -28,7 +29,6 @@ license = "MIT OR Apache-2.0"
 authors = ["Manuel Cillero <manuel@cillero.es>"]
 
 [workspace.dependencies]
-#include_dir = "0.7.4"
 serde = { version = "1.0", features = ["derive"] }
 static-files = "0.2.4"
 

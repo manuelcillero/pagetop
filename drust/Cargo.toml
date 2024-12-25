@@ -6,6 +6,7 @@ edition = "2021"
 description = """\
     Un Sistema de Gestión de Contenidos (CMS) basado en PageTop para compartir tu mundo.\
 """
+default-run = "drust"
 
 repository.workspace = true
 homepage.workspace = true
