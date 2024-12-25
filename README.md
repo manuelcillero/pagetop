@@ -96,15 +96,23 @@ El código se organiza en un *workspace* con los siguientes subproyectos:
     integra [SeaORM](https://www.sea-ql.org/SeaORM) para trabajar con bases de datos en aplicaciones
     `PageTop`.
 
+  * **[pagetop-mdbook](https://github.com/manuelcillero/pagetop/tree/latest/packages/pagetop-mdbook)**,
+    incluye contenido generado por [mdBook](https://rust-lang.github.io/mdBook/) en aplicaciones
+    desarrolladas con `PageTop`.
+
   * **[pagetop-hljs](https://github.com/manuelcillero/pagetop/tree/latest/packages/pagetop-hljs)**,
-    integra [highlight.js](https://highlightjs.org) para mostrar fragmentos de código con resaltado
+    utiliza [HighlightJS](https://highlightjs.org) para mostrar fragmentos de código con resaltado
     de sintaxis con `PageTop`.
 
-## Aplicación
+## Aplicaciones
 
   * **[drust](https://github.com/manuelcillero/pagetop/tree/latest/drust)**, es una aplicación que
     utiliza `PageTop` para crear un Sistema de Gestión de Contenidos (CMS) que permita construir
     sitios web dinámicos, administrados y configurables.
+
+  * **[website](https://github.com/manuelcillero/pagetop/tree/latest/website)**, es la aplicación
+    web creada con el propio entorno `PageTop` para descubrir a la comunidad su ecosistema en
+    [pagetop.cillero.es](https://pagetop.cillero.es).
 
 
 # 🚧 Advertencia

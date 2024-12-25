@@ -1,0 +1,25 @@
+[package]
+name = "pagetop-website"
+version = "0.0.11"
+edition = "2021"
+
+description = """
+    Introduce el entorno de desarrollo PageTop a la comunidad.\
+"""
+
+repository.workspace = true
+homepage.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[dependencies]
+pagetop.workspace = true
+pagetop-mdbook.workspace = true
+#pagetop-bootsier.workspace = true
+
+serde.workspace = true
+static-files.workspace = true
+
+[build-dependencies]
+pagetop-build.workspace = true
+pagetop-mdbook.workspace = true
