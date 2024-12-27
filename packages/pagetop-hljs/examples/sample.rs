@@ -24,7 +24,7 @@ impl PackageTrait for HljsSample {
 
 async fn hljs_sample(request: HttpRequest) -> ResultPage<Markup, ErrorPage> {
     Page::new(request)
-        .with_component(Snippet::with(
+        .with_component(HljsSnippet::with(
             HljsLang::Rust,
             r###"
 use pagetop::prelude::*;

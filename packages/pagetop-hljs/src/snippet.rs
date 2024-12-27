@@ -2,19 +2,19 @@
 
 use pagetop::prelude::*;
 
-use crate::hljs_context::HljsContext;
-use crate::hljs_lang::HljsLang;
+use crate::context::HljsContext;
+use crate::lang::HljsLang;
 
 #[derive(AutoDefault)]
 /// Component to put code snippets on web pages.
-pub struct Snippet {
+pub struct HljsSnippet {
     language: HljsLang,
     snippet: String,
 }
 
-impl ComponentTrait for Snippet {
+impl ComponentTrait for HljsSnippet {
     fn new() -> Self {
-        Snippet::default()
+        HljsSnippet::default()
     }
 
     fn setup_before_prepare(&mut self, cx: &mut Context) {
@@ -32,9 +32,11 @@ impl ComponentTrait for Snippet {
     }
 }
 
-impl Snippet {
+impl HljsSnippet {
     pub fn with(language: HljsLang, code: impl Into<String>) -> Self {
-        Snippet::new().with_language(language).with_snippet(code)
+        HljsSnippet::new()
+            .with_language(language)
+            .with_snippet(code)
     }
 
     // Hljs BUILDER.

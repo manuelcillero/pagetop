@@ -72,29 +72,33 @@
 
 use pagetop::prelude::*;
 
-// API *********************************************************************************************
-
-pub mod config;
-
-pub mod hljs_context;
-pub mod hljs_lang;
-pub mod hljs_mode;
-pub mod hljs_theme;
-pub mod snippet;
-
-// PRELUDE *****************************************************************************************
-
-pub mod prelude {
-    pub use crate::hljs_context::HljsContext;
-    pub use crate::hljs_lang::HljsLang;
-    pub use crate::hljs_mode::HljsMode;
-    pub use crate::hljs_theme::HljsTheme;
-    pub use crate::snippet::Snippet;
-}
+// GLOBAL ******************************************************************************************
 
 include_files!(hljs);
 
 include_locales!(LOCALES_HLJS);
+
+const HLJS_VERSION: &str = "11.7.0"; // Versión de la librería Highlight.js.
+
+// API *********************************************************************************************
+
+pub mod config;
+
+pub mod context;
+pub mod lang;
+pub mod mode;
+pub mod theme;
+
+pub mod snippet;
+
+pub mod prelude {
+    pub use crate::context::HljsContext;
+    pub use crate::lang::HljsLang;
+    pub use crate::mode::HljsMode;
+    pub use crate::theme::HljsTheme;
+
+    pub use crate::snippet::HljsSnippet;
+}
 
 /// Implementa [`PackageTrait`].
 pub struct HighlightJS;
@@ -113,15 +117,12 @@ impl PackageTrait for HighlightJS {
     }
 }
 
-// Versión de la librería Highlight.js.
-const HLJS_VERSION: &str = "11.7.0";
-
 // Define los recursos para la página según se use highlight.js en su versión "core" o "common".
 fn after_render_body(page: &mut Page) {
-    use hljs_context::HljsContext;
-    use hljs_lang::HljsLang;
-    use hljs_mode::HljsMode;
-    use hljs_theme::HljsTheme;
+    use context::HljsContext;
+    use lang::HljsLang;
+    use mode::HljsMode;
+    use theme::HljsTheme;
 
     let cx = page.context();
 
