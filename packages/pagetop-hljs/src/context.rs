@@ -1,9 +1,9 @@
 use pagetop::prelude::*;
 
 use crate::config;
-use crate::hljs_lang::HljsLang;
-use crate::hljs_mode::HljsMode;
-use crate::hljs_theme::HljsTheme;
+use crate::lang::HljsLang;
+use crate::mode::HljsMode;
+use crate::theme::HljsTheme;
 
 use std::collections::HashSet;
 

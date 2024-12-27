@@ -17,7 +17,7 @@ fn main() -> io::Result<()> {
     // Crea la colección de archivos estáticos.
     StaticFilesBundle::from_dir(
         "./static/doc",
-        Some(pagetop_mdbook::except_common_resources),
+        Some(pagetop_mdbook::build::except_common_resources),
     )
     .with_name("doc")
     .build()

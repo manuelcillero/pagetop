@@ -19,20 +19,15 @@
 
 use pagetop::prelude::*;
 
-use std::sync::LazyLock;
+// GLOBAL ******************************************************************************************
+
+include_locales!(LOCALES_SEAORM);
 
 // API *********************************************************************************************
 
 pub mod config;
+
 pub mod db;
-
-// PRELUDE *****************************************************************************************
-
-pub mod prelude {
-    pub use crate::db;
-}
-
-include_locales!(LOCALES_SEAORM);
 
 /// Implementa [`PackageTrait`] y API específica.
 pub struct SeaORM;
@@ -47,6 +42,6 @@ impl PackageTrait for SeaORM {
     }
 
     fn init(&self) {
-        LazyLock::force(&db::DBCONN);
+        std::sync::LazyLock::force(&db::DBCONN);
     }
 }

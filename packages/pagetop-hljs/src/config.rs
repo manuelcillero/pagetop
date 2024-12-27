@@ -20,8 +20,8 @@
 
 use pagetop::prelude::*;
 
-use crate::hljs_mode::HljsMode;
-use crate::hljs_theme::HljsTheme;
+use crate::mode::HljsMode;
+use crate::theme::HljsTheme;
 
 use serde::Deserialize;
 
