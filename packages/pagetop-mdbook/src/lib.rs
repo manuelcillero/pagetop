@@ -96,7 +96,6 @@ async fn mdbook_page(
                 .with_assets(AssetsOp::AddJavaScript(JavaScript::from(
                     "/mdbook/navigators.js",
                 )))
-                .with_body_skip_to("mdbook")
                 .with_component(Html::with(html! {
                     div id="mdbook" {
                         (PreEscaped(&html[beginning..]))
