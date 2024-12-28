@@ -10,7 +10,7 @@ impl PackageTrait for HljsSample {
 
     fn actions(&self) -> Vec<ActionBox> {
         actions![
-            // Switch the HighlightJS theme once the body page is ready.
+            // Cambia el tema de HighlightJS una vez que la página está lista.
             action::page::AfterRenderBody::new(|page: &mut Page| page
                 .context()
                 .set_hljs_theme(&HljsTheme::Sunburst))

@@ -1,4 +1,4 @@
-//! Acciones, componentes, diseños y paquetes base de `PageTop`.
+//! Acciones, componentes, paquetes y temas base de `PageTop`.
 
 pub mod action;
 
