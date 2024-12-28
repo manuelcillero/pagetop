@@ -23,7 +23,6 @@ pub struct Page {
     context     : Context,
     body_id     : OptionId,
     body_classes: OptionClasses,
-    body_skip_to: OptionId,
 }
 
 impl Page {
@@ -37,7 +36,6 @@ impl Page {
             context     : Context::new(request),
             body_id     : OptionId::default(),
             body_classes: OptionClasses::default(),
-            body_skip_to: OptionId::default(),
         }
     }
 
@@ -82,12 +80,6 @@ impl Page {
     #[fn_builder]
     pub fn alter_body_classes(&mut self, op: ClassesOp, classes: impl Into<String>) -> &mut Self {
         self.body_classes.alter_value(op, classes);
-        self
-    }
-
-    #[fn_builder]
-    pub fn alter_body_skip_to(&mut self, id: impl Into<String>) -> &mut Self {
-        self.body_skip_to.alter_value(id);
         self
     }
 
@@ -155,32 +147,28 @@ impl Page {
         &self.body_classes
     }
 
-    pub fn body_skip_to(&self) -> &OptionId {
-        &self.body_skip_to
-    }
-
     // Page RENDER.
 
     pub fn render(&mut self) -> ResultPage<Markup, ErrorPage> {
-        // Acciones específicas del diseño antes de renderizar el <body>.
-        action::theme::BeforeRenderBody::dispatch(self);
+        // Acciones específicas del tema antes de renderizar el <body>.
+        self.context.theme().before_render_page_body(self);
 
         // Acciones de los paquetes antes de renderizar el <body>.
         action::page::BeforeRenderBody::dispatch(self);
 
         // Renderiza el <body>.
-        let body = self.context.theme().render_body(self);
+        let body = self.context.theme().render_page_body(self);
 
-        // Acciones específicas del diseño después de renderizar el <body>.
-        action::theme::AfterRenderBody::dispatch(self);
+        // Acciones específicas del tema después de renderizar el <body>.
+        self.context.theme().after_render_page_body(self);
 
         // Acciones de los paquetes después de renderizar el <body>.
         action::page::AfterRenderBody::dispatch(self);
 
         // Renderiza el <head>.
-        let head = self.context.theme().render_head(self);
+        let head = self.context.theme().render_page_head(self);
 
-        // Compone la página completa incluyendo los atributos de idioma y dirección del texto.
+        // Compone la página incluyendo los atributos de idioma y dirección del texto.
         let lang = &self.context.langid().language;
         let dir = match self.context.langid().character_direction() {
             CharacterDirection::LTR => "ltr",

@@ -12,7 +12,21 @@ pub trait ThemeTrait: PackageTrait + Send + Sync {
         vec![("content", L10n::l("content"))]
     }
 
-    fn render_head(&self, page: &mut Page) -> Markup {
+    #[allow(unused_variables)]
+    fn before_render_page_body(&self, page: &mut Page) {}
+
+    fn render_page_body(&self, page: &mut Page) -> Markup {
+        html! {
+            body id=[page.body_id().get()] class=[page.body_classes().get()] {
+                (page.context().render_region("content"))
+            }
+        }
+    }
+
+    #[allow(unused_variables)]
+    fn after_render_page_body(&self, page: &mut Page) {}
+
+    fn render_page_head(&self, page: &mut Page) -> Markup {
         let viewport = "width=device-width, initial-scale=1, shrink-to-fit=no";
         html! {
             head {
@@ -39,14 +53,6 @@ pub trait ThemeTrait: PackageTrait + Send + Sync {
                 }
 
                 (page.context().render_assets())
-            }
-        }
-    }
-
-    fn render_body(&self, page: &mut Page) -> Markup {
-        html! {
-            body id=[page.body_id().get()] class=[page.body_classes().get()] {
-                (page.context().render_region("content"))
             }
         }
     }
