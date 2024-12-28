@@ -17,7 +17,7 @@ members = [
     #"packages/pagetop-aliner",
     #"packages/pagetop-bootsier",
 
-    # App
+    # Apps
     "website",
     "drust",
 ]

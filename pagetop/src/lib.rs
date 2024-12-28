@@ -112,11 +112,11 @@ pub mod locale;
 pub mod datetime;
 // Gestión del servidor y servicios web.
 pub mod service;
-// Tipos y funciones esenciales para crear acciones, componentes, diseños y paquetes.
+// Tipos y funciones esenciales para crear acciones, componentes, paquetes y temas.
 pub mod core;
 // Respuestas a peticiones web en sus diferentes variantes.
 pub mod response;
-// Acciones, componentes, diseños y paquetes base.
+// Acciones, componentes, paquetes y temas base.
 pub mod base;
 // Prepara y ejecuta la aplicación.
 pub mod app;

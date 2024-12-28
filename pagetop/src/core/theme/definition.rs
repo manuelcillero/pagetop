@@ -6,7 +6,7 @@ use crate::response::page::Page;
 
 pub type ThemeRef = &'static dyn ThemeTrait;
 
-/// Los diseños deben implementar este "trait".
+/// Los temas deben implementar este "trait".
 pub trait ThemeTrait: PackageTrait + Send + Sync {
     fn regions(&self) -> Vec<(&'static str, L10n)> {
         vec![("content", L10n::l("content"))]

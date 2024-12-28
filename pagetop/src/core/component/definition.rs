@@ -37,10 +37,10 @@ pub trait ComponentTrait: AnyBase + ComponentBase + Send + Sync {
 impl<C: ComponentTrait> ComponentBase for C {
     fn render(&mut self, cx: &mut Context) -> Markup {
         if action::component::IsRenderable::dispatch(self, cx) {
-            // Comprueba el componente antes de prepararlo.
+            // Configura el componente antes de preparar.
             self.setup_before_prepare(cx);
 
-            // Acciones específicas del diseño antes de renderizar el componente.
+            // Acciones específicas del tema antes de renderizar el componente.
             action::theme::BeforeRender::dispatch(self, cx);
 
             // Acciones de los paquetes antes de renderizar el componente.
@@ -52,7 +52,7 @@ impl<C: ComponentTrait> ComponentBase for C {
                 None => self.prepare_component(cx).render(),
             };
 
-            // Acciones específicas del diseño después de renderizar el componente.
+            // Acciones específicas del tema después de renderizar el componente.
             action::theme::AfterRender::dispatch(self, cx);
 
             // Acciones de los paquetes después de renderizar el componente.
