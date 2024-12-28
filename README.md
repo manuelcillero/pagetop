@@ -104,6 +104,12 @@ El código se organiza en un *workspace* con los siguientes subproyectos:
     utiliza [HighlightJS](https://highlightjs.org) para mostrar fragmentos de código con resaltado
     de sintaxis con `PageTop`.
 
+## Temas
+
+  * **[pagetop-bootsier](https://github.com/manuelcillero/pagetop/tree/latest/packages/pagetop-bootsier)**,
+    tema para `PageTop` que usa [Bootstrap](https://getbootstrap.com) para dar vida a tus diseños
+    web.
+
 ## Aplicaciones
 
   * **[drust](https://github.com/manuelcillero/pagetop/tree/latest/drust)**, es una aplicación que

@@ -15,7 +15,7 @@ members = [
 
     # Themes
     #"packages/pagetop-aliner",
-    #"packages/pagetop-bootsier",
+    "packages/pagetop-bootsier",
 
     # Apps
     "website",
@@ -46,4 +46,4 @@ pagetop-hljs = { version = "0.0", path = "packages/pagetop-hljs" }
 
 # Themes
 #pagetop-aliner = { version = "0.0", path = "packages/pagetop-aliner" }
-#pagetop-bootsier = { version = "0.0", path = "packages/pagetop-bootsier" }
+pagetop-bootsier = { version = "0.0", path = "packages/pagetop-bootsier" }

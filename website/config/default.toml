@@ -1,10 +1,7 @@
 [app]
 name = "PageTop"
 description = "An opinionated web framework to build modular Server-Side Rendering web solutions."
-#theme = "Basic"
-#theme = "Chassis"
-#theme = "Inception"
-#theme = "Bootsier"
+theme = "Bootsier"
 
 [log]
 rolling = "Daily"
