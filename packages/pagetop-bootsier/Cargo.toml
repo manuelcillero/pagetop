@@ -1,0 +1,23 @@
+[package]
+name = "pagetop-bootsier"
+version = "0.0.18"
+edition = "2021"
+
+description = """\
+    Tema para PageTop que usa Bootstrap para dar vida a tus diseños web.\
+"""
+categories  = ["web-programming", "gui"]
+keywords    = ["pagetop", "theme", "bootstrap", "css", "js"]
+
+homepage    = { workspace = true }
+repository  = { workspace = true }
+authors     = { workspace = true }
+license     = { workspace = true }
+
+[dependencies]
+pagetop.workspace = true
+
+static-files.workspace = true
+
+[build-dependencies]
+pagetop-build.workspace = true

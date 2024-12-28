@@ -17,10 +17,10 @@ impl PackageTrait for PageTopWebSite {
 
     fn dependencies(&self) -> Vec<PackageRef> {
         vec![
-            // Packages.
+            // Paquetes.
             &pagetop_mdbook::MdBook,
-            // Theme.
-            //&pagetop_bootsier::Bootsier,
+            // Temas.
+            &pagetop_bootsier::Bootsier,
         ]
     }
 
