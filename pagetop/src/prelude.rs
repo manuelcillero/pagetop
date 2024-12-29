@@ -9,7 +9,7 @@ pub use crate::{AutoDefault, ComponentClasses, StaticResources, UniqueId, Weight
 // MACROS.
 
 // crate::util
-pub use crate::{join_string, kv};
+pub use crate::{hm, join_string, option_string, trio_string};
 // crate::config
 pub use crate::include_config;
 // crate::locale
