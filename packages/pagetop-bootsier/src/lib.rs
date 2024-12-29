@@ -37,21 +37,35 @@ impl PackageTrait for Bootsier {
 }
 
 impl ThemeTrait for Bootsier {
+    #[rustfmt::skip]
+    fn regions(&self) -> Vec<(&'static str, L10n)> {
+        vec![
+            ("header",         L10n::t("header",         &LOCALES_BOOTSIER)),
+            ("nav_branding",   L10n::t("nav_branding",   &LOCALES_BOOTSIER)),
+            ("nav_main",       L10n::t("nav_main",       &LOCALES_BOOTSIER)),
+            ("nav_additional", L10n::t("nav_additional", &LOCALES_BOOTSIER)),
+            ("breadcrumb",     L10n::t("breadcrumb",     &LOCALES_BOOTSIER)),
+            ("content",        L10n::t("content",        &LOCALES_BOOTSIER)),
+            ("sidebar_first",  L10n::t("sidebar_first",  &LOCALES_BOOTSIER)),
+            ("sidebar_second", L10n::t("sidebar_second", &LOCALES_BOOTSIER)),
+            ("footer",         L10n::t("footer",         &LOCALES_BOOTSIER)),
+        ]
+    }
+
+    fn after_render_page_body(&self, page: &mut Page) {
+        page.alter_assets(AssetsOp::AddStyleSheet(
+            StyleSheet::from("/bootsier/bs/bootstrap.min.css")
+                .with_version(BOOTSTRAP_VERSION)
+                .with_weight(-99),
+        ))
+        .alter_assets(AssetsOp::AddJavaScript(
+            JavaScript::defer("/bootsier/js/bootstrap.min.js")
+                .with_version(BOOTSTRAP_VERSION)
+                .with_weight(-99),
+        ));
+    }
+
     /*
-            #[rustfmt::skip]
-            fn regions(&self) -> Vec<(&'static str, L10n)> {
-                vec![
-                    ("header",         L10n::t("header",         &LOCALES_BOOTSIER)),
-                    ("nav_branding",   L10n::t("nav_branding",   &LOCALES_BOOTSIER)),
-                    ("nav_main",       L10n::t("nav_main",       &LOCALES_BOOTSIER)),
-                    ("nav_additional", L10n::t("nav_additional", &LOCALES_BOOTSIER)),
-                    ("breadcrumb",     L10n::t("breadcrumb",     &LOCALES_BOOTSIER)),
-                    ("content",        L10n::t("breadcrumb",     &LOCALES_BOOTSIER)),
-                    ("sidebar_first",  L10n::t("sidebar_first",  &LOCALES_BOOTSIER)),
-                    ("sidebar_second", L10n::t("sidebar_second", &LOCALES_BOOTSIER)),
-                    ("footer",         L10n::t("footer",         &LOCALES_BOOTSIER)),
-                ]
-            }
 
             fn prepare_body(&self, page: &mut Page) -> PrepareMarkup {
                 let skip_to_id = page.body_skip_to().get().unwrap_or("content".to_owned());
@@ -83,21 +97,6 @@ impl ThemeTrait for Bootsier {
                 })
             }
     */
-    fn after_render_page_body(&self, page: &mut Page) {
-        page.alter_assets(AssetsOp::AddStyleSheet(
-            StyleSheet::from("/bootsier/bs/bootstrap.min.css")
-                .with_version(BOOTSTRAP_VERSION)
-                .with_weight(-99),
-        ))
-        .alter_assets(AssetsOp::AddJavaScript(
-            JavaScript::defer("/bootsier/js/bootstrap.min.js")
-                .with_version(BOOTSTRAP_VERSION)
-                .with_weight(-99),
-        ));
-        //      .alter_assets(AssetsOp::AddStyleSheet(
-        //          StyleSheet::from("/bootsier/css/styles.css").with_version("0.0.1"),
-        //      ));
-    }
 
     /*
     }
