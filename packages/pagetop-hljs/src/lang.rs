@@ -122,7 +122,7 @@ pub enum HljsLang {
 
 static HLJS_LANGS: LazyLock<HashMap<HljsLang, &'static str>> = LazyLock::new(|| {
     use HljsLang::*;
-    kv![
+    hm![
         // Common languages.
         Bash           => "bash",
         C              => "c",

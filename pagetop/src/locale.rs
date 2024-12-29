@@ -85,7 +85,7 @@
 //! ```
 
 use crate::html::{Markup, PreEscaped};
-use crate::{global, kv, AutoDefault};
+use crate::{global, hm, AutoDefault};
 
 pub use fluent_templates;
 pub use unic_langid::{CharacterDirection, LanguageIdentifier};
@@ -103,7 +103,7 @@ use std::fmt;
 /// A mapping between language codes (e.g., "en-US") and their corresponding [`LanguageIdentifier`]
 /// and locale key names.
 static LANGUAGES: LazyLock<HashMap<String, (LanguageIdentifier, &str)>> = LazyLock::new(|| {
-    kv![
+    hm![
         "en"    => ( langid!("en-US"), "english" ),
         "en-GB" => ( langid!("en-GB"), "english_british" ),
         "en-US" => ( langid!("en-US"), "english_united_states" ),

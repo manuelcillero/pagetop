@@ -121,7 +121,7 @@ pub enum HljsTheme {
 
 static HLJS_THEMES: LazyLock<HashMap<HljsTheme, &'static str>> = LazyLock::new(|| {
     use HljsTheme::*;
-    kv![
+    hm![
         A11yDark                => "a11y-dark",
         A11yLight               => "a11y-light",
         Agate                   => "agate",
