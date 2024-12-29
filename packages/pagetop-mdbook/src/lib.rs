@@ -93,7 +93,7 @@ async fn mdbook_page(
                 .with_assets(AssetsOp::AddStyleSheet(StyleSheet::from(
                     "/mdbook/ayu-highlight.css",
                 )))
-                .with_assets(AssetsOp::AddJavaScript(JavaScript::from(
+                .with_assets(AssetsOp::AddJavaScript(JavaScript::defer(
                     "/mdbook/navigators.js",
                 )))
                 .with_component(Html::with(html! {
