@@ -42,61 +42,61 @@ impl Page {
     // Page BUILDER.
 
     #[fn_builder]
-    pub fn alter_title(&mut self, title: L10n) -> &mut Self {
+    pub fn with_title(mut self, title: L10n) -> Self {
         self.title.alter_value(title);
         self
     }
 
     #[fn_builder]
-    pub fn alter_description(&mut self, description: L10n) -> &mut Self {
+    pub fn with_description(mut self, description: L10n) -> Self {
         self.description.alter_value(description);
         self
     }
 
     #[fn_builder]
-    pub fn alter_metadata(&mut self, name: &'static str, content: &'static str) -> &mut Self {
+    pub fn with_metadata(mut self, name: &'static str, content: &'static str) -> Self {
         self.metadata.push((name, content));
         self
     }
 
     #[fn_builder]
-    pub fn alter_property(&mut self, property: &'static str, content: &'static str) -> &mut Self {
+    pub fn with_property(mut self, property: &'static str, content: &'static str) -> Self {
         self.metadata.push((property, content));
         self
     }
 
     #[fn_builder]
-    pub fn alter_assets(&mut self, op: AssetsOp) -> &mut Self {
+    pub fn with_assets(mut self, op: AssetsOp) -> Self {
         self.context.alter_assets(op);
         self
     }
 
     #[fn_builder]
-    pub fn alter_body_id(&mut self, id: impl Into<String>) -> &mut Self {
+    pub fn with_body_id(mut self, id: impl Into<String>) -> Self {
         self.body_id.alter_value(id);
         self
     }
 
     #[fn_builder]
-    pub fn alter_body_classes(&mut self, op: ClassesOp, classes: impl Into<String>) -> &mut Self {
+    pub fn with_body_classes(mut self, op: ClassesOp, classes: impl Into<String>) -> Self {
         self.body_classes.alter_value(op, classes);
         self
     }
 
     #[fn_builder]
-    pub fn alter_theme(&mut self, theme: &'static str) -> &mut Self {
+    pub fn with_theme(mut self, theme: &'static str) -> Self {
         self.context.alter_assets(AssetsOp::Theme(theme));
         self
     }
 
     #[fn_builder]
-    pub fn alter_layout(&mut self, layout: &'static str) -> &mut Self {
+    pub fn with_layout(mut self, layout: &'static str) -> Self {
         self.context.alter_assets(AssetsOp::Layout(layout));
         self
     }
 
     #[fn_builder]
-    pub fn alter_in_region(&mut self, region: &'static str, op: ChildOp) -> &mut Self {
+    pub fn with_in_region(mut self, region: &'static str, op: ChildOp) -> Self {
         self.context.alter_in_region(region, op);
         self
     }

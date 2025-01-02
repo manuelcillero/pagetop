@@ -88,7 +88,7 @@ impl Children {
     }
 
     pub fn with(child: ChildComponent) -> Self {
-        Children::default().with_value(ChildOp::Add(child))
+        Children::default().with_child(ChildOp::Add(child))
     }
 
     pub(crate) fn merge(mixes: &[Option<&Children>]) -> Self {
@@ -102,7 +102,7 @@ impl Children {
     // Children BUILDER.
 
     #[fn_builder]
-    pub fn alter_value(&mut self, op: ChildOp) -> &mut Self {
+    pub fn with_child(mut self, op: ChildOp) -> Self {
         match op {
             ChildOp::Add(any) => self.add(any),
             ChildOp::InsertAfterId(id, any) => self.insert_after_id(id, any),
@@ -111,12 +111,11 @@ impl Children {
             ChildOp::RemoveById(id) => self.remove_by_id(id),
             ChildOp::ReplaceById(id, any) => self.replace_by_id(id, any),
             ChildOp::Reset => self.reset(),
-        };
-        self
+        }
     }
 
     #[fn_builder]
-    pub fn alter_typed<C: ComponentTrait + Default>(&mut self, op: TypedOp<C>) -> &mut Self {
+    pub fn with_typed<C: ComponentTrait + Default>(mut self, op: TypedOp<C>) -> Self {
         match op {
             TypedOp::Add(typed) => self.add(typed.to_child()),
             TypedOp::InsertAfterId(id, typed) => self.insert_after_id(id, typed.to_child()),
@@ -125,56 +124,62 @@ impl Children {
             TypedOp::RemoveById(id) => self.remove_by_id(id),
             TypedOp::ReplaceById(id, typed) => self.replace_by_id(id, typed.to_child()),
             TypedOp::Reset => self.reset(),
+        }
+    }
+
+    #[inline]
+    pub fn add(&mut self, child: ChildComponent) -> &mut Self {
+        self.0.push(child);
+        self
+    }
+
+    #[inline]
+    fn insert_after_id(&mut self, id: &str, child: ChildComponent) -> &mut Self {
+        match self.0.iter().position(|c| c.id() == id) {
+            Some(index) => self.0.insert(index + 1, child),
+            _ => self.0.push(child),
         };
         self
     }
 
     #[inline]
-    fn add(&mut self, child: ChildComponent) {
-        self.0.push(child);
-    }
-
-    #[inline]
-    fn insert_after_id(&mut self, id: &str, child: ChildComponent) {
-        match self.0.iter().position(|c| c.id() == id) {
-            Some(index) => self.0.insert(index + 1, child),
-            _ => self.0.push(child),
-        };
-    }
-
-    #[inline]
-    fn insert_before_id(&mut self, id: &str, child: ChildComponent) {
+    fn insert_before_id(&mut self, id: &str, child: ChildComponent) -> &mut Self {
         match self.0.iter().position(|c| c.id() == id) {
             Some(index) => self.0.insert(index, child),
             _ => self.0.insert(0, child),
         };
+        self
     }
 
     #[inline]
-    fn prepend(&mut self, child: ChildComponent) {
+    fn prepend(&mut self, child: ChildComponent) -> &mut Self {
         self.0.insert(0, child);
+        self
     }
 
     #[inline]
-    fn remove_by_id(&mut self, id: &str) {
+    fn remove_by_id(&mut self, id: &str) -> &mut Self {
         if let Some(index) = self.0.iter().position(|c| c.id() == id) {
             self.0.remove(index);
         }
+        self
     }
 
     #[inline]
-    fn replace_by_id(&mut self, id: &str, child: ChildComponent) {
+    fn replace_by_id(&mut self, id: &str, child: ChildComponent) -> &mut Self {
         for c in &mut self.0 {
             if c.id() == id {
                 *c = child;
                 break;
             }
         }
+        self
     }
 
     #[inline]
-    fn reset(&mut self) {
+    fn reset(&mut self) -> &mut Self {
         self.0.clear();
+        self
     }
 
     // Children GETTERS.

@@ -1,6 +1,6 @@
-//! Configuration settings for package.
+//! Opciones de configuración.
 //!
-//! Example:
+//! Ejemplo:
 //!
 //! ```toml
 //! [hljs]
@@ -9,14 +9,16 @@
 //! tabsize = 8
 //! ```
 //!
-//! Usage:
+//! Uso:
 //!
 //! ```rust
 //! use pagetop_hljs::config;
 //!
 //! assert_eq!(config::SETTINGS.hljs.theme, "zenburn");
 //! ```
-//! See [`pagetop::config`] to learn how PageTop reads configuration files and uses settings.
+//!
+//! Consulta [`pagetop::config`] para aprender cómo `PageTop` lee los archivos de opciones y aplica
+//! los valores de configuración.
 
 use pagetop::prelude::*;
 
@@ -33,26 +35,27 @@ include_config!(SETTINGS: Settings => [
 ]);
 
 #[derive(Debug, Deserialize)]
-/// Configuration settings for the [`[hljs]`](Hljs) section (see [`SETTINGS`] package).
+/// Opciones de configuración para la sección [`[hljs]`](Hljs) (ver [`SETTINGS`]).
 pub struct Settings {
     pub hljs: Hljs,
 }
 #[derive(Debug, Deserialize)]
-/// Section `[hljs]` of the configuration settings.
+/// Sección `[hljs]` de la configuración.
 ///
-/// See [`Settings`].
+/// Ver [`Settings`].
 pub struct Hljs {
-    /// Use ***core*** to import a minimal library and load only the languages added via
-    /// [`add_hljs_language()`](crate::hljs_context::HljsContext::add_hljs_language). Alternatively,
-    /// ***common*** imports an extended library containing around 40 popular languages (see
-    /// [`HljsLang`](crate::hljs_lang::HljsLang)). Note that using the *common* library restricts
-    /// you to the languages that are preloaded.
-    /// Default value: *"core"*
+    /// Usa ***core*** para importar una librería mínima y cargar solo los lenguajes añadidos vía
+    /// [`add_hljs_language()`](crate::context::HljsContext::add_hljs_language). Por otro lado, usa
+    /// ***common*** para importar una librería extendida con los 40 lenguajes más habituales según
+    /// [`HljsLang`](crate::lang::HljsLang). Ten en cuenta que al usar la librería *common* te
+    /// limitas a los lenguajes que vienen precargados.
+    /// Valor por defecto: *"core"*
     pub mode: HljsMode,
-    /// Default theme in kebab-case used to display code snippets on web pages (see [`HljsTheme`]).
-    /// Default value: *"default"*
+    /// Tema por defecto en formato *kebab-case* para mostrar los fragmentos de código en las
+    /// páginas web (ver [`HljsTheme`]).
+    /// Valor por defecto: *"default"*
     pub theme: HljsTheme,
-    /// Number of spaces for *tab* character.
-    /// Default value: *4*
+    /// Número de espacios para el carácter tabulador.
+    /// Valor por defecto: *4*
     pub tabsize: usize,
 }
