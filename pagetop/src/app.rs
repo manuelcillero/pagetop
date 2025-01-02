@@ -66,7 +66,7 @@ impl Application {
 
         if global::SETTINGS.app.startup_banner.to_lowercase() != "off" {
             // Application name, formatted for the terminal width if necessary.
-            let mut app_ff = "".to_string();
+            let mut app_ff = String::new();
             let app_name = &global::SETTINGS.app.name;
             if let Some((Width(term_width), _)) = terminal_size() {
                 if term_width >= 80 {
