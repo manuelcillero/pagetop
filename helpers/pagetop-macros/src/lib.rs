@@ -22,105 +22,135 @@ mod smart_default;
 
 use proc_macro::TokenStream;
 use proc_macro_error::proc_macro_error;
-use quote::{quote, quote_spanned, ToTokens};
-use syn::{parse_macro_input, parse_str, DeriveInput, ItemFn};
+use quote::{quote, quote_spanned};
+use syn::{parse_macro_input, spanned::Spanned, DeriveInput, ItemFn};
 
-/// Macro (*attribute*) que asocia a un método `alter_` su correspondiente método `with_` para
-/// aplicar el patrón *builder*.
+/// Macro (*attribute*) que asocia un método *builder* `with_` con un método `alter_` equivalente
+/// que modifica la instancia actual usando una única implementación.
+///
+/// La macro genera automáticamente un método `alter_`, que modifica la instancia actual usando
+/// `&mut self`, y redefine el método `with_` para delegar la lógica en el nuevo método `alter_`.
 ///
 /// # Panics
 ///
-/// Esta función provocará un *panic* si no encuentra identificadores en la lista de argumentos.
+/// Esta macro provocará un *panic* en tiempo de compilación si la función anotada no cumple con la
+/// declaración `pub fn with_...(mut self, ...) -> Self`.
 ///
 /// # Ejemplos
 ///
+/// Si defines un método `with_` como este:
+///
 /// ```rust#ignore
 /// #[fn_builder]
-/// pub fn alter_example(&mut self) -> &mut Self {
-///     // implementación
-/// }
-/// ```
-///
-/// Añadirá al código el siguiente método:
-///
-/// ```rust#ignore
-/// #[inline]
-/// pub fn with_example(mut self) -> Self {
-///     self.alter_example();
+/// pub fn with_example(mut self, value: impl Into<String>) -> Self {
+///     self.value = Some(value.into());
 ///     self
 /// }
 /// ```
+///
+/// La macro generará automáticamente el siguiente método `alter_`:
+///
+/// ```rust#ignore
+/// pub fn alter_example(&mut self, value: impl Into<String>) -> &mut Self {
+///     self.value = Some(value.into());
+///     self
+/// }
+/// ```
+///
+/// Y redefinirá el método `with_` para que delegue en el método `alter_`:
+///
+/// ```rust#ignore
+/// pub fn with_example(mut self, value: impl Into<String>) -> Self {
+///     self.alter_example(value);
+///     self
+/// }
+/// ```
+///
+/// Así, cada método *builder* `with_...()` generará automáticamente su correspondiente método
+/// asociado `alter_...()`, permitiendo aplicar modificaciones en instancias existentes.
 #[proc_macro_attribute]
 pub fn fn_builder(_: TokenStream, item: TokenStream) -> TokenStream {
-    let fn_alter = parse_macro_input!(item as ItemFn);
-    let fn_alter_name = fn_alter.sig.ident.to_string();
+    let fn_with = parse_macro_input!(item as ItemFn);
+    let fn_with_name = fn_with.sig.ident.clone();
+    let fn_with_name_str = fn_with.sig.ident.to_string();
 
-    if !fn_alter_name.starts_with("alter_") {
+    // Valida el nombre del método.
+    if !fn_with_name_str.starts_with("with_") {
         let expanded = quote_spanned! {
-            fn_alter.sig.ident.span() =>
-                compile_error!("expected a \"pub fn alter_...() -> &mut Self\" method");
+            fn_with.sig.ident.span() =>
+                compile_error!("expected a \"pub fn with_...(mut self, ...) -> Self\" method");
         };
         return expanded.into();
     }
 
-    let fn_with_name = fn_alter_name.replace("alter_", "with_");
-    let fn_with_generics = if fn_alter.sig.generics.params.is_empty() {
-        fn_with_name.clone()
+    // Valida que el primer argumento sea `mut self`.
+    if let Some(syn::FnArg::Receiver(receiver)) = fn_with.sig.inputs.first() {
+        if !receiver.mutability.is_some() {
+            return quote_spanned! {
+                receiver.span() => compile_error!("expected `mut self` as the first argument");
+            }
+            .into();
+        }
     } else {
-        let g = &fn_alter.sig.generics;
-        format!("{fn_with_name}{}", quote! { #g }.to_string())
-    };
+        return quote_spanned! {
+            fn_with.sig.ident.span() => compile_error!("expected `mut self` as the first argument");
+        }
+        .into();
+    }
 
-    let where_clause = fn_alter
-        .sig
-        .generics
-        .where_clause
-        .as_ref()
-        .map_or(String::new(), |where_clause| {
-            format!("{} ", quote! { #where_clause }.to_string())
-        });
+    // Genera el nombre del método alter_...().
+    let fn_alter_name_str = fn_with_name_str.replace("with_", "alter_");
+    let fn_alter_name = syn::Ident::new(&fn_alter_name_str, fn_with.sig.ident.span());
 
-    let args: Vec<String> = fn_alter
+    // Extrae genéricos y cláusulas where.
+    let fn_generics = &fn_with.sig.generics;
+    let where_clause = &fn_with.sig.generics.where_clause;
+
+    // Extrae argumentos y parámetros de llamada.
+    let args: Vec<_> = fn_with.sig.inputs.iter().skip(1).collect();
+    let params: Vec<_> = fn_with
         .sig
         .inputs
         .iter()
         .skip(1)
-        .map(|arg| arg.to_token_stream().to_string())
-        .collect();
-
-    let params: Vec<String> = args
-        .iter()
-        .map(|arg| {
-            arg.split_whitespace()
-                .next()
-                .unwrap()
-                .trim_end_matches(':')
-                .to_string()
+        .map(|arg| match arg {
+            syn::FnArg::Typed(pat) => &pat.pat,
+            _ => panic!("unexpected argument type"),
         })
         .collect();
 
-    #[rustfmt::skip]
-    let fn_with = parse_str::<ItemFn>(format!(r##"
-        pub fn {fn_with_generics}(mut self, {}) -> Self {where_clause} {{
-            self.{fn_alter_name}({});
+    // Extrae bloque del método.
+    let fn_with_block = &fn_with.block;
+
+    // Extrae documentación y otros atributos del método.
+    let fn_with_attrs = &fn_with.attrs;
+
+    // Genera el método alter_...() con el código del método with_...().
+    let fn_alter_doc = format!(
+        "Permite modificar la instancia actual en los mismos términos que el método \
+        <em>builder</em> `{}()` al que está asociado.",
+        fn_with_name_str,
+    );
+    let fn_alter = quote! {
+        #[doc = #fn_alter_doc]
+        pub fn #fn_alter_name #fn_generics(&mut self, #(#args),*) -> &mut Self #where_clause {
+            #fn_with_block
+        }
+    };
+
+    // Redefine el método with_...() para que llame a alter_...().
+    let fn_with = quote! {
+        #(#fn_with_attrs)*
+        pub fn #fn_with_name #fn_generics(mut self, #(#args),*) -> Self #where_clause {
+            self.#fn_alter_name(#(#params),*);
             self
-        }}
-        "##, args.join(", "), params.join(", ")
-    ).as_str()).unwrap();
+        }
+    };
 
-    #[rustfmt::skip]
-    let fn_alter_doc = format!(r##"
-        <p id="method.{fn_with_name}" style="margin-bottom: 12px;">Use
-        <code class="code-header">pub fn <span class="fn" href="#method.{fn_with_name}">{fn_with_name}</span>(self, …) -> Self</code>
-        for the <a href="#method.new">builder pattern</a>.
-        </p>
-    "##);
-
+    // Genera el código final.
     let expanded = quote! {
-        #[doc(hidden)]
         #fn_with
         #[inline]
-        #[doc = #fn_alter_doc]
         #fn_alter
     };
     expanded.into()

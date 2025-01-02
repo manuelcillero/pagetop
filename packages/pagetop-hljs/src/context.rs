@@ -7,32 +7,33 @@ use crate::theme::HljsTheme;
 
 use std::collections::HashSet;
 
-// Context parameters.
+// Parámetros para el contexto.
 const PARAM_HLJS_ENABLED: &str = "hljs.enabled";
 const PARAM_HLJS_MODE: &str = "hljs.mode";
 const PARAM_HLJS_LANGS: &str = "hljs.langs";
 const PARAM_HLJS_THEME: &str = "hljs.theme";
 
-/// Extend Context with HighlightJS features.
+/// Extiende el contexto de renderizado con funcionalidades de HighlightJS.
 pub trait HljsContext {
-    /// Enable syntax highlighting in current context.
+    /// Habilita el resaltado de sintaxis en el contexto actual.
     fn enable_hljs(&mut self);
 
-    /// Preventing syntax highlighting in current context.
+    /// Deshabilita el resaltado de sintaxis en el contexto actual.
     fn disable_hljs(&mut self);
 
-    /// Force the use of the *highlight.js* ***core*** or ***common*** mode in current context,
-    /// ignoring the [`config::SETTINGS.hljs.mode`](crate::config::Hljs#structfield.mode)
-    /// configuration setting.
+    /// Fuerza el uso del modo ***core*** o ***common*** de *highlight.js* en el contexto actual,
+    /// ignorando [`config::SETTINGS.hljs.mode`](crate::config::Hljs#structfield.mode) de las
+    /// opciones de configuración.
     fn force_hljs_mode(&mut self, mode: &HljsMode);
 
-    /// Add a new language to the context for processing code snippets. It is necessary to add at
-    /// least one language to load the *highlight.js* library. Each
-    /// [`Snippet`](crate::snippet::Snippet) component automatically adds its required language.
+    /// Añade un nuevo lenguaje al contexto actual para el resaltado de fragmentos de código. Se
+    /// requiere al menos un lenguaje para cargar la librería *highlight.js*. Recuerda que cada
+    /// componente [`Snippet`](crate::snippet::HljsSnippet) añade automáticamente el lenguaje que
+    /// necesita. Solo aplica cuando el contexto está configurado en el modo ***core***.
     fn add_hljs_language(&mut self, language: &HljsLang);
 
-    /// Change the theme in current context for displaying code snippets. The same theme is used for
-    /// all snippets in the given context.
+    /// Cambia el tema del contexto actual para mostrar los fragmentos de código. Ten en cuenta que
+    /// *highlight.js* utilizará el mismo tema para todos los framentos en este contexto.
     fn set_hljs_theme(&mut self, theme: &HljsTheme);
 
     fn is_hljs_enabled(&self) -> bool;

@@ -42,13 +42,13 @@ impl HljsSnippet {
     // Hljs BUILDER.
 
     #[fn_builder]
-    pub fn alter_language(&mut self, language: HljsLang) -> &mut Self {
+    pub fn with_language(mut self, language: HljsLang) -> Self {
         self.language = language;
         self
     }
 
     #[fn_builder]
-    pub fn alter_snippet(&mut self, snippet: impl Into<String>) -> &mut Self {
+    pub fn with_snippet(mut self, snippet: impl Into<String>) -> Self {
         self.snippet = snippet.into().trim().to_string();
         self
     }

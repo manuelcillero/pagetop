@@ -24,11 +24,11 @@ impl ChildrenInRegions {
     }
 
     #[fn_builder]
-    pub fn alter_in_region(&mut self, region: &'static str, op: ChildOp) -> &mut Self {
+    pub fn with_in_region(mut self, region: &'static str, op: ChildOp) -> Self {
         if let Some(region) = self.0.get_mut(region) {
-            region.alter_value(op);
+            region.alter_child(op);
         } else {
-            self.0.insert(region, Children::new().with_value(op));
+            self.0.insert(region, Children::new().with_child(op));
         }
         self
     }
