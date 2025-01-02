@@ -18,7 +18,9 @@ pub trait ThemeTrait: PackageTrait + Send + Sync {
     fn render_page_body(&self, page: &mut Page) -> Markup {
         html! {
             body id=[page.body_id().get()] class=[page.body_classes().get()] {
-                (page.context().render_region("content"))
+                @for (region_name, _) in self.regions() {
+                    (page.context().render_region(region_name))
+                }
             }
         }
     }
