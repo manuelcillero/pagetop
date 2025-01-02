@@ -4,7 +4,7 @@
 
 pub use crate::{fn_builder, html, main, test};
 
-pub use crate::{AutoDefault, ComponentClasses, StaticResources, UniqueId, Weight};
+pub use crate::{AutoDefault, StaticResources, UniqueId, Weight};
 
 // MACROS.
 

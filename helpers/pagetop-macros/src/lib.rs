@@ -127,8 +127,8 @@ pub fn fn_builder(_: TokenStream, item: TokenStream) -> TokenStream {
 
     // Genera el método alter_...() con el código del método with_...().
     let fn_alter_doc = format!(
-        "Permite modificar la instancia actual en los mismos términos que el método \
-        <em>builder</em> `{}()` al que está asociado.",
+        "Modifica la instancia en los mismos términos que para el patrón <em>builder</em> hace el \
+        método asociado `{}()`.",
         fn_with_name_str,
     );
     let fn_alter = quote! {
@@ -169,37 +169,6 @@ pub fn derive_auto_default(input: TokenStream) -> TokenStream {
         Ok(output) => output.into(),
         Err(error) => error.to_compile_error().into(),
     }
-}
-
-#[proc_macro_derive(ComponentClasses)]
-pub fn derive_component_classes(input: TokenStream) -> TokenStream {
-    let input = parse_macro_input!(input as DeriveInput);
-    let name = &input.ident;
-
-    #[rustfmt::skip]
-    let fn_alter_doc = format!(r##"
-        <p id="method.with_classes">Use
-        <code class="code-header"><span class="fn" href="#method.with_classes">with_classes</span>(self, …) -> Self</code>
-        to apply the <a href="#method.new">builder pattern</a>.
-        </p>
-    "##);
-
-    let expanded = quote! {
-        impl ComponentClasses for #name {
-            #[inline]
-            #[doc = #fn_alter_doc]
-            fn alter_classes(&mut self, op: ClassesOp, classes: impl Into<String>) -> &mut Self {
-                self.classes.alter_value(op, classes);
-                self
-            }
-
-            fn classes(&self) -> &OptionClasses {
-                &self.classes
-            }
-        }
-    };
-
-    TokenStream::from(expanded)
 }
 
 /// Define una función `main` asíncrona como punto de entrada de `PageTop`.
