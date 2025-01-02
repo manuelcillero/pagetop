@@ -273,7 +273,7 @@ impl L10n {
 impl fmt::Display for L10n {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let content = match &self.op {
-            L10nOp::None => "".to_string(),
+            L10nOp::None => String::new(),
             L10nOp::Text(text) => text.clone(),
             L10nOp::Translate(key) => self.get().unwrap_or_else(|| format!("No <{}>", key)),
         };
