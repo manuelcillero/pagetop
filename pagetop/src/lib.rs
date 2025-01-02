@@ -85,7 +85,7 @@
 
 // RE-EXPORTED *************************************************************************************
 
-pub use pagetop_macros::{fn_builder, html, main, test, AutoDefault, ComponentClasses};
+pub use pagetop_macros::{fn_builder, html, main, test, AutoDefault};
 
 pub type StaticResources = std::collections::HashMap<&'static str, static_files::Resource>;
 
