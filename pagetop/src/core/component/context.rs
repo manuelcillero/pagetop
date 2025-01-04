@@ -115,8 +115,8 @@ impl Context {
         self
     }
 
-    pub fn alter_in_region(&mut self, region: &'static str, op: ChildOp) -> &mut Self {
-        self.regions.alter_in_region(region, op);
+    pub fn alter_in_region(&mut self, region_id: &'static str, op: ChildOp) -> &mut Self {
+        self.regions.alter_in_region(region_id, op);
         self
     }
 
@@ -170,9 +170,9 @@ impl Context {
         }
     }
 
-    pub fn render_region(&mut self, region: impl Into<String>) -> Markup {
+    pub fn render_region(&mut self, region_id: impl Into<String>) -> Markup {
         self.regions
-            .all_in_region(self.theme, &region.into())
+            .all_in_region(self.theme, &region_id.into())
             .render(self)
     }
 

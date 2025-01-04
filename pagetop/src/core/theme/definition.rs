@@ -1,3 +1,5 @@
+use crate::base::component::Region;
+use crate::core::component::ComponentBase;
 use crate::core::package::PackageTrait;
 use crate::global;
 use crate::html::{html, Markup};
@@ -9,7 +11,7 @@ pub type ThemeRef = &'static dyn ThemeTrait;
 /// Los temas deben implementar este "trait".
 pub trait ThemeTrait: PackageTrait + Send + Sync {
     fn regions(&self) -> Vec<(&'static str, L10n)> {
-        vec![("content", L10n::l("content"))]
+        vec![("region-content", L10n::l("content"))]
     }
 
     #[allow(unused_variables)]
@@ -18,8 +20,8 @@ pub trait ThemeTrait: PackageTrait + Send + Sync {
     fn render_page_body(&self, page: &mut Page) -> Markup {
         html! {
             body id=[page.body_id().get()] class=[page.body_classes().get()] {
-                @for (region_name, _) in self.regions() {
-                    (page.context().render_region(region_name))
+                @for (region_id, _) in self.regions() {
+                    (Region::of(region_id).render(page.context()))
                 }
             }
         }

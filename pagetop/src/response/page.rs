@@ -96,14 +96,16 @@ impl Page {
     }
 
     #[fn_builder]
-    pub fn with_in_region(mut self, region: &'static str, op: ChildOp) -> Self {
-        self.context.alter_in_region(region, op);
+    pub fn with_in_region(mut self, region_id: &'static str, op: ChildOp) -> Self {
+        self.context.alter_in_region(region_id, op);
         self
     }
 
     pub fn with_component(mut self, component: impl ComponentTrait) -> Self {
-        self.context
-            .alter_in_region("content", ChildOp::Add(ChildComponent::with(component)));
+        self.context.alter_in_region(
+            "region-content",
+            ChildOp::Add(ChildComponent::with(component)),
+        );
         self
     }
 
