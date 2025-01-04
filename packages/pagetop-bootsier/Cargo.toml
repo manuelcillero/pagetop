@@ -17,6 +17,7 @@ license     = { workspace = true }
 [dependencies]
 pagetop.workspace = true
 
+serde.workspace = true
 static-files.workspace = true
 
 [build-dependencies]

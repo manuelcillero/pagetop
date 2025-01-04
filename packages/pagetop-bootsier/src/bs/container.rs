@@ -45,34 +45,39 @@ impl ComponentTrait for Container {
         if output.is_empty() {
             return PrepareMarkup::None;
         }
+        let style = if let BreakPoint::FluidMax(max_width) = self.breakpoint() {
+            Some(join_string!("max-width: ", max_width.to_string(), ";"))
+        } else {
+            None
+        };
         match self.container_type() {
             ContainerType::Default => PrepareMarkup::With(html! {
-                div id=[self.id()] class=[self.classes().get()] {
+                div id=[self.id()] class=[self.classes().get()] style=[style] {
                     (output)
                 }
             }),
             ContainerType::Main => PrepareMarkup::With(html! {
-                main id=[self.id()] class=[self.classes().get()] {
+                main id=[self.id()] class=[self.classes().get()] style=[style] {
                     (output)
                 }
             }),
             ContainerType::Header => PrepareMarkup::With(html! {
-                header id=[self.id()] class=[self.classes().get()] {
+                header id=[self.id()] class=[self.classes().get()] style=[style] {
                     (output)
                 }
             }),
             ContainerType::Footer => PrepareMarkup::With(html! {
-                footer id=[self.id()] class=[self.classes().get()] {
+                footer id=[self.id()] class=[self.classes().get()] style=[style] {
                     (output)
                 }
             }),
             ContainerType::Section => PrepareMarkup::With(html! {
-                section id=[self.id()] class=[self.classes().get()] {
+                section id=[self.id()] class=[self.classes().get()] style=[style] {
                     (output)
                 }
             }),
             ContainerType::Article => PrepareMarkup::With(html! {
-                article id=[self.id()] class=[self.classes().get()] {
+                article id=[self.id()] class=[self.classes().get()] style=[style] {
                     (output)
                 }
             }),
