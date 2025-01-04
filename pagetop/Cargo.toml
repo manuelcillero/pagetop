@@ -16,8 +16,8 @@ license.workspace = true
 authors.workspace = true
 
 [dependencies]
-chrono = "0.4.38"
-colored = "2.1.0"
+chrono = "0.4.39"
+colored = "2.2.0"
 concat-string = "1.0.1"
 figlet-rs = "0.1.5"
 itoa = "1.0.14"
