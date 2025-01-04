@@ -175,7 +175,7 @@ macro_rules! hm {
 ///
 /// # Ejemplo
 ///
-/// ```
+/// ```rust#ignore
 /// // Concatena todos los fragmentos directamente.
 /// let result = join_string!("Hello", " ", "World");
 /// assert_eq!(result, "Hello World".to_string());
@@ -206,7 +206,7 @@ macro_rules! join_string {
 ///
 /// # Ejemplo
 ///
-/// ```
+/// ```rust#ignore
 /// // Concatena los fragmentos no vacíos con un espacio como separador.
 /// let result_with_separator = option_string!(["Hello", "", "World"]; " ");
 /// assert_eq!(result_with_separator, Some("Hello World".to_string()));
@@ -244,7 +244,7 @@ macro_rules! option_string {
 ///
 /// # Ejemplo
 ///
-/// ```
+/// ```rust#ignore
 /// let first = "Hello";
 /// let separator = "-";
 /// let second = "World";

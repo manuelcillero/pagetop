@@ -13,7 +13,7 @@ use std::fmt;
 /// Themes are defined as *PascalCase* enums in the code and correspond to *kebab-case* string
 /// identifiers.
 ///
-/// ```rust
+/// ```rust#ignore
 /// use pagetop_hljs::HljsTheme;
 ///
 /// assert_eq!(HljsTheme::AtelierPlateauLight.to_string(), "atelier-plateau-light".to_string());

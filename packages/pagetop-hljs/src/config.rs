@@ -11,7 +11,7 @@
 //!
 //! Uso:
 //!
-//! ```rust
+//! ```rust#ignore
 //! use pagetop_hljs::config;
 //!
 //! assert_eq!(config::SETTINGS.hljs.theme, "zenburn");

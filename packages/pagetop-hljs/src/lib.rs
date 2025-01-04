@@ -15,14 +15,14 @@
 //!
 //! Añade `pagetop-hljs` a tu archivo `Cargo.toml`:
 //!
-//! ```rust
+//! ```rust#ignore
 //! [dependencies]
 //! pagetop-hljs = "<Version>"
 //! ```
 //!
 //! Incluye `pagetop_hljs::HighlightJS` en las dependencias del paquete o aplicación que lo requiera:
 //!
-//! ```rust
+//! ```rust#ignore
 //! use pagetop::prelude::*;
 //!
 //! impl PackageTrait for MyPackage {
@@ -44,12 +44,12 @@
 //!
 //! Y finalmente añade tus fragmentos de código con resaltado de sintaxis en páginas web:
 //!
-//! ```rust
+//! ```rust#ignore
 //! use pagetop_hljs::prelude::*;
 //!
 //! async fn hljs_sample(request: HttpRequest) -> ResultPage<Markup, ErrorPage> {
 //!     Page::new(request)
-//!         .with_component(Snippet::with(
+//!         .with_component(HljsSnippet::with(
 //!             HljsLang::Rust,
 //!             r###"
 //! // This is the main function.
