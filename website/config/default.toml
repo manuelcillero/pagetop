@@ -3,5 +3,8 @@ name = "PageTop"
 description = "An opinionated web framework to build modular Server-Side Rendering web solutions."
 theme = "Bootsier"
 
+[bootsier]
+max_width = "1600px"
+
 [log]
 rolling = "Daily"

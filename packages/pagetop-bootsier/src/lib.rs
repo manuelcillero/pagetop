@@ -11,6 +11,8 @@ const BOOTSTRAP_VERSION: &str = "5.3.3"; // Versión de la librería Bootstrap.
 
 // API *********************************************************************************************
 
+pub mod config;
+
 pub mod bs;
 
 pub struct Bootsier;
@@ -22,12 +24,12 @@ impl PackageTrait for Bootsier {
 
     fn actions(&self) -> Vec<ActionBox> {
         actions![
-        //          action::theme::BeforePrepare::<Icon>::new(&Self, before_prepare_icon),
-        //          action::theme::BeforePrepare::<Button>::new(&Self, before_prepare_button),
-        //          action::theme::BeforePrepare::<Heading>::new(&Self, before_prepare_heading),
-        //          action::theme::BeforePrepare::<Paragraph>::new(&Self, before_prepare_paragraph),
-        //          action::theme::RenderComponent::<Error404>::new(&Self, render_error404),
-                ]
+            //action::theme::BeforeRender::<Region>::new(&Self, before_render_region),
+            //action::theme::BeforePrepare::<Button>::new(&Self, before_prepare_button),
+            //action::theme::BeforePrepare::<Heading>::new(&Self, before_prepare_heading),
+            //action::theme::BeforePrepare::<Paragraph>::new(&Self, before_prepare_paragraph),
+            //action::theme::RenderComponent::<Error404>::new(&Self, render_error404),
+        ]
     }
 
     fn configure_service(&self, scfg: &mut service::web::ServiceConfig) {
@@ -40,16 +42,33 @@ impl ThemeTrait for Bootsier {
     #[rustfmt::skip]
     fn regions(&self) -> Vec<(&'static str, L10n)> {
         vec![
-            ("header",         L10n::t("header",         &LOCALES_BOOTSIER)),
-            ("nav_branding",   L10n::t("nav_branding",   &LOCALES_BOOTSIER)),
-            ("nav_main",       L10n::t("nav_main",       &LOCALES_BOOTSIER)),
-            ("nav_additional", L10n::t("nav_additional", &LOCALES_BOOTSIER)),
-            ("breadcrumb",     L10n::t("breadcrumb",     &LOCALES_BOOTSIER)),
-            ("content",        L10n::t("content",        &LOCALES_BOOTSIER)),
-            ("sidebar_first",  L10n::t("sidebar_first",  &LOCALES_BOOTSIER)),
-            ("sidebar_second", L10n::t("sidebar_second", &LOCALES_BOOTSIER)),
-            ("footer",         L10n::t("footer",         &LOCALES_BOOTSIER)),
+            ("region-header",         L10n::t("header",         &LOCALES_BOOTSIER)),
+            ("region-nav_branding",   L10n::t("nav_branding",   &LOCALES_BOOTSIER)),
+            ("region-nav_main",       L10n::t("nav_main",       &LOCALES_BOOTSIER)),
+            ("region-nav_additional", L10n::t("nav_additional", &LOCALES_BOOTSIER)),
+            ("region-breadcrumb",     L10n::t("breadcrumb",     &LOCALES_BOOTSIER)),
+            ("region-content",        L10n::t("content",        &LOCALES_BOOTSIER)),
+            ("region-sidebar_first",  L10n::t("sidebar_first",  &LOCALES_BOOTSIER)),
+            ("region-sidebar_second", L10n::t("sidebar_second", &LOCALES_BOOTSIER)),
+            ("region-footer",         L10n::t("footer",         &LOCALES_BOOTSIER)),
         ]
+    }
+
+    fn render_page_body(&self, page: &mut Page) -> Markup {
+        html! {
+            body id=[page.body_id().get()] class=[page.body_classes().get()] {
+                //@if let Some(skip) = L10n::l("skip_to_content").using(page.context().langid()) {
+                //    div class="skip__to_content" {
+                //        a href=(concat_string!("#", skip_to_id)) { (skip) }
+                //    }
+                //}
+                (bs::Container::new()
+                    .with_id("container-wrapper")
+                    .with_breakpoint(bs::BreakPoint::FluidMax(config::SETTINGS.bootsier.max_width))
+                    .add_child(Region::of("region-content"))
+                    .render(page.context()))
+            }
+        }
     }
 
     fn after_render_page_body(&self, page: &mut Page) {
@@ -186,6 +205,7 @@ impl ThemeTrait for Bootsier {
         })
     */
 }
+
 /*
 #[rustfmt::skip]
 fn with_font(font_size: &FontSize) -> String {
