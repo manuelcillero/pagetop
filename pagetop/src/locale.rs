@@ -242,20 +242,14 @@ impl L10n {
         match &self.op {
             L10nOp::None => None,
             L10nOp::Text(text) => Some(text.to_owned()),
-            L10nOp::Translate(key) => {
-                if self.args.is_empty() {
-                    self.locales.try_lookup(langid, key)
-                } else {
-                    self.locales.try_lookup_with_args(
-                        langid,
-                        key,
-                        &self.args.iter().fold(HashMap::new(), |mut args, (k, v)| {
-                            args.insert(k.to_string(), v.to_owned().into());
-                            args
-                        }),
-                    )
-                }
-            }
+            L10nOp::Translate(key) => self.locales.try_lookup_with_args(
+                langid,
+                key,
+                &self.args.iter().fold(HashMap::new(), |mut arg, (k, v)| {
+                    arg.insert(k.to_string().into(), v.to_owned().into());
+                    arg
+                }),
+            ),
         }
     }
 

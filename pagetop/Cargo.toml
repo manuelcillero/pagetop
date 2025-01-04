@@ -34,7 +34,7 @@ tracing-appender = "0.2.3"
 tracing-subscriber = { version = "0.3.19", features = ["json", "env-filter"] }
 tracing-actix-web = "0.7.15"
 
-fluent-templates = "0.11.0"
+fluent-templates = "0.12.0"
 unic-langid = { version = "0.9.5", features = ["macros"] }
 
 actix-web = "4.9.0"
