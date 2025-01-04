@@ -19,26 +19,30 @@ impl ChildrenInRegions {
         ChildrenInRegions::default()
     }
 
-    pub fn with(region: &'static str, child: ChildComponent) -> Self {
-        ChildrenInRegions::default().with_in_region(region, ChildOp::Add(child))
+    pub fn with(region_id: &'static str, child: ChildComponent) -> Self {
+        ChildrenInRegions::default().with_in_region(region_id, ChildOp::Add(child))
     }
 
     #[fn_builder]
-    pub fn with_in_region(mut self, region: &'static str, op: ChildOp) -> Self {
-        if let Some(region) = self.0.get_mut(region) {
+    pub fn with_in_region(mut self, region_id: &'static str, op: ChildOp) -> Self {
+        if let Some(region) = self.0.get_mut(region_id) {
             region.alter_child(op);
         } else {
-            self.0.insert(region, Children::new().with_child(op));
+            self.0.insert(region_id, Children::new().with_child(op));
         }
         self
     }
 
-    pub fn all_in_region(&self, theme: ThemeRef, region: &str) -> Children {
+    pub fn all_in_region(&self, theme: ThemeRef, region_id: &str) -> Children {
         let common = COMMON_REGIONS.read().unwrap();
         if let Some(r) = THEME_REGIONS.read().unwrap().get(&theme.type_id()) {
-            Children::merge(&[common.0.get(region), self.0.get(region), r.0.get(region)])
+            Children::merge(&[
+                common.0.get(region_id),
+                self.0.get(region_id),
+                r.0.get(region_id),
+            ])
         } else {
-            Children::merge(&[common.0.get(region), self.0.get(region)])
+            Children::merge(&[common.0.get(region_id), self.0.get(region_id)])
         }
     }
 }
@@ -56,7 +60,7 @@ impl InRegion {
                 COMMON_REGIONS
                     .write()
                     .unwrap()
-                    .alter_in_region("content", ChildOp::Add(child));
+                    .alter_in_region("region-content", ChildOp::Add(child));
             }
             InRegion::Named(name) => {
                 COMMON_REGIONS
