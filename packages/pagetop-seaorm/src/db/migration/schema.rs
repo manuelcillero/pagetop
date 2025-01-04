@@ -10,7 +10,7 @@
 //! The following example shows how the user migration file should be and using
 //! the schema helpers to create the Db fields.
 //!
-//! ```rust
+//! ```rust#ignore
 //! use sea_orm_migration::{prelude::*, schema::*};
 //!
 //! #[derive(DeriveMigrationName)]

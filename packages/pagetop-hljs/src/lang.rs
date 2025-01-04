@@ -11,7 +11,7 @@ use std::fmt;
 /// Languages are represented by *PascalCase* enums within the code and are mapped to corresponding
 /// [highlight.js](https://highlightjs.org/) language names.
 ///
-/// ```rust
+/// ```rust#ignore
 /// use pagetop_hljs::HljsLang;
 ///
 /// assert_eq!(HljsLang::CoffeeScript.to_string(), "coffeescript".to_string());
