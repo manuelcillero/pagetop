@@ -1,5 +1,7 @@
 use pagetop::prelude::*;
 
+use pagetop_bootsier::bs::*;
+
 include_files!(BUNDLE_DOC => doc);
 
 include_locales!(LOCALES_WEBSITE);
@@ -25,6 +27,34 @@ impl PackageTrait for PageTopWebSite {
     }
 
     fn init(&self) {
+        let nav = Navbar::new().with_nav(TypedOp::Add(TypedComponent::with(
+            navbar::Nav::new()
+                .with_item(navbar::Item::link(
+                    L10n::t("menu_home", &LOCALES_WEBSITE),
+                    |cx| match cx.langid().language.as_str() {
+                        "es" => "/es",
+                        _ => "/",
+                    },
+                ))
+                .with_item(navbar::Item::link(
+                    L10n::t("menu_documentation", &LOCALES_WEBSITE),
+                    |cx| match cx.langid().language.as_str() {
+                        "es" => "/doc/latest/es",
+                        _ => "/doc/latest/en",
+                    },
+                ))
+                .with_item(navbar::Item::link_blank(
+                    L10n::t("menu_api", &LOCALES_WEBSITE),
+                    |_| "https://docs.rs/pagetop",
+                ))
+                .with_item(navbar::Item::link_blank(
+                    L10n::t("menu_code", &LOCALES_WEBSITE),
+                    |_| "https://github.com/manuelcillero/pagetop",
+                )),
+        )));
+
+        InRegion::Content.add(ChildComponent::with(nav));
+
         /*
                 let branding = Branding::new()
                     .with_logo(Some(Image::pagetop()))

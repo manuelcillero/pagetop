@@ -4,7 +4,7 @@ description = "An opinionated web framework to build modular Server-Side Renderi
 theme = "Bootsier"
 
 [bootsier]
-max_width = "1600px"
+max_width = "1520px"
 
 [log]
 rolling = "Daily"

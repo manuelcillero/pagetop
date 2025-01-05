@@ -4,8 +4,8 @@ use crate::bs::BreakPoint;
 
 use std::fmt;
 
-mod cssgrid;
-pub use cssgrid::Grid;
+mod component;
+pub use component::Grid;
 
 mod item;
 pub use item::Item;
