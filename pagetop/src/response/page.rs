@@ -5,7 +5,7 @@ pub use actix_web::Result as ResultPage;
 
 use crate::base::action;
 use crate::core::component::{AssetsOp, Context};
-use crate::core::component::{ChildComponent, ChildOp, ComponentTrait};
+use crate::core::component::{Child, ChildOp, ComponentTrait};
 use crate::fn_builder;
 use crate::html::{html, Markup, DOCTYPE};
 use crate::html::{ClassesOp, OptionClasses, OptionId, OptionTranslated};
@@ -102,10 +102,8 @@ impl Page {
     }
 
     pub fn with_component(mut self, component: impl ComponentTrait) -> Self {
-        self.context.alter_in_region(
-            "region-content",
-            ChildOp::Add(ChildComponent::with(component)),
-        );
+        self.context
+            .alter_in_region("region-content", ChildOp::Add(Child::with(component)));
         self
     }
 
@@ -115,7 +113,7 @@ impl Page {
         component: impl ComponentTrait,
     ) -> Self {
         self.context
-            .alter_in_region(region, ChildOp::Add(ChildComponent::with(component)));
+            .alter_in_region(region, ChildOp::Add(Child::with(component)));
         self
     }
 

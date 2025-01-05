@@ -27,7 +27,7 @@ impl PackageTrait for PageTopWebSite {
     }
 
     fn init(&self) {
-        let nav = Navbar::new().with_nav(TypedOp::Add(TypedComponent::with(
+        let nav = Navbar::new().with_nav(TypedOp::Add(Typed::with(
             navbar::Nav::new()
                 .with_item(navbar::Item::link(
                     L10n::t("menu_home", &LOCALES_WEBSITE),
@@ -53,7 +53,7 @@ impl PackageTrait for PageTopWebSite {
                 )),
         )));
 
-        InRegion::Content.add(ChildComponent::with(nav));
+        InRegion::Content.add(Child::with(nav));
 
         /*
                 let branding = Branding::new()

@@ -1,4 +1,4 @@
-use crate::core::component::{ChildComponent, ChildOp, Children};
+use crate::core::component::{Child, ChildOp, Children};
 use crate::core::theme::ThemeRef;
 use crate::{fn_builder, AutoDefault, UniqueId};
 
@@ -19,7 +19,7 @@ impl ChildrenInRegions {
         ChildrenInRegions::default()
     }
 
-    pub fn with(region_id: &'static str, child: ChildComponent) -> Self {
+    pub fn with(region_id: &'static str, child: Child) -> Self {
         ChildrenInRegions::default().with_in_region(region_id, ChildOp::Add(child))
     }
 
@@ -54,7 +54,7 @@ pub enum InRegion {
 }
 
 impl InRegion {
-    pub fn add(&self, child: ChildComponent) -> &Self {
+    pub fn add(&self, child: Child) -> &Self {
         match self {
             InRegion::Content => {
                 COMMON_REGIONS
