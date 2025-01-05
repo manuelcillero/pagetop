@@ -239,8 +239,8 @@ macro_rules! option_string {
 /// Concatena dos fragmentos de cadenas (*string slices*) en una cadena *String* con un separador.
 ///
 /// Concatena los dos fragmentos que implementen `AsRef<str>` usando el separador proporcionado,
-/// pero devuelve directamente el primer fragmento si el segundo está vacío, o el segundo fragmento
-/// si el primero está vacío.
+/// pero devuelve sólo el primer fragmento si el segundo está vacío, o sólo el segundo fragmento si
+/// el primero está vacío.
 ///
 /// # Ejemplo
 ///
