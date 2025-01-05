@@ -1,8 +1,7 @@
 use pagetop::prelude::*;
 
-use crate::bs::{
-    BreakPoint, OffcanvasBackdrop, OffcanvasBodyScroll, OffcanvasPlacement, OffcanvasVisibility,
-};
+use crate::bs::BreakPoint;
+use crate::bs::{OffcanvasBackdrop, OffcanvasBodyScroll, OffcanvasPlacement, OffcanvasVisibility};
 use crate::LOCALES_BOOTSIER;
 
 #[rustfmt::skip]
@@ -32,7 +31,7 @@ impl ComponentTrait for Offcanvas {
         self.alter_classes(
             ClassesOp::Prepend,
             [
-                self.breakpoint().breakpoint_class("offcanvas"),
+                self.breakpoint().to_class("offcanvas"),
                 self.placement().to_string(),
                 self.visibility().to_string(),
             ]

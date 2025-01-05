@@ -1,8 +1,5 @@
 mod component;
-pub use component::{Navbar, NavbarType};
-
-mod element;
-pub use element::{Element, ElementType};
+pub use component::{Navbar, NavbarContent, NavbarToggler};
 
 mod nav;
 pub use nav::Nav;
