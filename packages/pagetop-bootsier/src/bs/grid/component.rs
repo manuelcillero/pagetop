@@ -73,7 +73,7 @@ impl Grid {
     }
 
     pub fn with_item(mut self, item: grid::Item) -> Self {
-        self.items.add(ChildComponent::with(item));
+        self.items.add(Child::with(item));
         self
     }
 

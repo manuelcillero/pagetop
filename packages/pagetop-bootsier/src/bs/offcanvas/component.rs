@@ -142,7 +142,7 @@ impl Offcanvas {
     }
 
     pub fn with_child(mut self, child: impl ComponentTrait) -> Self {
-        self.children.add(ChildComponent::with(child));
+        self.children.add(Child::with(child));
         self
     }
 

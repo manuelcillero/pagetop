@@ -53,7 +53,7 @@ impl Nav {
     }
 
     pub fn with_item(mut self, item: navbar::Item) -> Self {
-        self.items.add(ChildComponent::with(item));
+        self.items.add(Child::with(item));
         self
     }
 

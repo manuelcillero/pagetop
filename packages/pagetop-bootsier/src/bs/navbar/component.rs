@@ -9,7 +9,7 @@ pub enum NavbarType {
     #[default]
     Default,
     Basic,
-    Offcanvas(TypedComponent<Offcanvas>),
+    Offcanvas(Typed<Offcanvas>),
 }
 
 #[rustfmt::skip]
@@ -52,7 +52,7 @@ impl ComponentTrait for Navbar {
         let (output, id_content) = if let NavbarType::Offcanvas(oc) = self.navbar_type() {
             (
                 oc.writable()
-                    .alter_children(ChildOp::Prepend(ChildComponent::with(Html::with(elements))))
+                    .alter_children(ChildOp::Prepend(Child::with(Html::with(elements))))
                     .render(cx),
                 cx.required_id::<Offcanvas>(oc.id()),
             )
