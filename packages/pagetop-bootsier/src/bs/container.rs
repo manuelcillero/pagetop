@@ -141,7 +141,7 @@ impl Container {
         self
     }
 
-    pub fn add_child(mut self, child: impl ComponentTrait) -> Self {
+    pub fn with_child(mut self, child: impl ComponentTrait) -> Self {
         self.children.add(ChildComponent::with(child));
         self
     }
@@ -154,7 +154,7 @@ impl Container {
 
     // Container GETTERS.
 
-    fn classes(&self) -> &OptionClasses {
+    pub fn classes(&self) -> &OptionClasses {
         &self.classes
     }
 

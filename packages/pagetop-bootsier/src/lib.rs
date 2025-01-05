@@ -65,7 +65,7 @@ impl ThemeTrait for Bootsier {
                 (bs::Container::new()
                     .with_id("container-wrapper")
                     .with_breakpoint(bs::BreakPoint::FluidMax(config::SETTINGS.bootsier.max_width))
-                    .add_child(Region::of("region-content"))
+                    .with_child(Region::of("region-content"))
                     .render(page.context()))
             }
         }

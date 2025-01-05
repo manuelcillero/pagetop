@@ -49,7 +49,7 @@ impl ComponentTrait for Item {
 
 impl Item {
     pub fn with(child: impl ComponentTrait) -> Self {
-        Item::default().add_child(child)
+        Item::default().with_child(child)
     }
 
     // Item BUILDER.
@@ -84,7 +84,7 @@ impl Item {
         self
     }
 
-    pub fn add_child(mut self, child: impl ComponentTrait) -> Self {
+    pub fn with_child(mut self, child: impl ComponentTrait) -> Self {
         self.children.add(ChildComponent::with(child));
         self
     }
@@ -97,7 +97,7 @@ impl Item {
 
     // Item GETTERS.
 
-    fn classes(&self) -> &OptionClasses {
+    pub fn classes(&self) -> &OptionClasses {
         &self.classes
     }
 

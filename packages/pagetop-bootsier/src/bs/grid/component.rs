@@ -43,7 +43,7 @@ impl ComponentTrait for Grid {
 
 impl Grid {
     pub fn with(item: grid::Item) -> Self {
-        Grid::default().add_item(item)
+        Grid::default().with_item(item)
     }
 
     // Grid BUILDER.
@@ -72,7 +72,7 @@ impl Grid {
         self
     }
 
-    pub fn add_item(mut self, item: grid::Item) -> Self {
+    pub fn with_item(mut self, item: grid::Item) -> Self {
         self.items.add(ChildComponent::with(item));
         self
     }
@@ -85,7 +85,7 @@ impl Grid {
 
     // Grid GETTERS.
 
-    fn classes(&self) -> &OptionClasses {
+    pub fn classes(&self) -> &OptionClasses {
         &self.classes
     }
 
