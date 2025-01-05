@@ -2,7 +2,7 @@ use crate::core::component::{ComponentTrait, Context};
 use crate::html::{html, Markup};
 use crate::{fn_builder, UniqueId};
 
-use std::sync::{Arc, RwLock};
+use std::sync::{Arc, RwLock, RwLockWriteGuard};
 
 #[derive(Clone)]
 pub struct ChildComponent(Arc<RwLock<dyn ComponentTrait>>);
@@ -10,6 +10,16 @@ pub struct ChildComponent(Arc<RwLock<dyn ComponentTrait>>);
 impl ChildComponent {
     pub fn with(component: impl ComponentTrait) -> Self {
         ChildComponent(Arc::new(RwLock::new(component)))
+    }
+
+    // ChildComponent GETTERS.
+
+    pub fn id(&self) -> Option<String> {
+        self.0.read().unwrap().id()
+    }
+
+    pub fn writable(&self) -> RwLockWriteGuard<'_, dyn ComponentTrait> {
+        self.0.write().unwrap()
     }
 
     // ChildComponent RENDER.
@@ -24,7 +34,7 @@ impl ChildComponent {
         self.0.read().unwrap().type_id()
     }
 
-    fn id(&self) -> String {
+    fn child_id(&self) -> String {
         self.0.read().unwrap().id().unwrap_or_default()
     }
 }
@@ -42,6 +52,16 @@ impl<C: ComponentTrait> Clone for TypedComponent<C> {
 impl<C: ComponentTrait> TypedComponent<C> {
     pub fn with(component: C) -> Self {
         TypedComponent(Arc::new(RwLock::new(component)))
+    }
+
+    // TypedComponent GETTERS.
+
+    pub fn id(&self) -> Option<String> {
+        self.0.read().unwrap().id()
+    }
+
+    pub fn writable(&self) -> RwLockWriteGuard<'_, C> {
+        self.0.write().unwrap()
     }
 
     // TypedComponent RENDER.
@@ -135,7 +155,7 @@ impl Children {
 
     #[inline]
     fn insert_after_id(&mut self, id: &str, child: ChildComponent) -> &mut Self {
-        match self.0.iter().position(|c| c.id() == id) {
+        match self.0.iter().position(|c| c.child_id() == id) {
             Some(index) => self.0.insert(index + 1, child),
             _ => self.0.push(child),
         };
@@ -144,7 +164,7 @@ impl Children {
 
     #[inline]
     fn insert_before_id(&mut self, id: &str, child: ChildComponent) -> &mut Self {
-        match self.0.iter().position(|c| c.id() == id) {
+        match self.0.iter().position(|c| c.child_id() == id) {
             Some(index) => self.0.insert(index, child),
             _ => self.0.insert(0, child),
         };
@@ -159,7 +179,7 @@ impl Children {
 
     #[inline]
     fn remove_by_id(&mut self, id: &str) -> &mut Self {
-        if let Some(index) = self.0.iter().position(|c| c.id() == id) {
+        if let Some(index) = self.0.iter().position(|c| c.child_id() == id) {
             self.0.remove(index);
         }
         self
@@ -168,7 +188,7 @@ impl Children {
     #[inline]
     fn replace_by_id(&mut self, id: &str, child: ChildComponent) -> &mut Self {
         for c in &mut self.0 {
-            if c.id() == id {
+            if c.child_id() == id {
                 *c = child;
                 break;
             }
@@ -194,12 +214,12 @@ impl Children {
 
     pub fn get_by_id(&self, id: impl Into<String>) -> Option<&ChildComponent> {
         let id = id.into();
-        self.0.iter().find(|c| c.id() == id)
+        self.0.iter().find(|c| c.child_id() == id)
     }
 
     pub fn iter_by_id(&self, id: impl Into<String>) -> impl Iterator<Item = &ChildComponent> {
         let id = id.into();
-        self.0.iter().filter(move |&c| c.id() == id)
+        self.0.iter().filter(move |&c| c.child_id() == id)
     }
 
     pub fn iter_by_type_id(&self, type_id: UniqueId) -> impl Iterator<Item = &ChildComponent> {
