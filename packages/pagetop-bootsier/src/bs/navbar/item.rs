@@ -27,6 +27,9 @@ impl ComponentTrait for Item {
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
         let description: Option<String> = None;
 
+        // Obtiene la URL actual desde `cx.request`.
+        let current_path = cx.request().path();
+
         match self.item_type() {
             ItemType::Void => PrepareMarkup::None,
             ItemType::Label(label) => PrepareMarkup::With(html! {
@@ -38,24 +41,40 @@ impl ComponentTrait for Item {
                     }
                 }
             }),
-            ItemType::Link(label, path) => PrepareMarkup::With(html! {
-                li class="nav-item" {
-                    a class="nav-link" href=(path(cx)) title=[description] {
-                        //(left_icon)
-                        (label.escaped(cx.langid()))
-                        //(right_icon)
+            ItemType::Link(label, path) => {
+                let item_path = path(cx);
+                let (class, aria) = if item_path == current_path {
+                    ("nav-item active", Some("page"))
+                } else {
+                    ("nav-item", None)
+                };
+                PrepareMarkup::With(html! {
+                    li class=(class) aria-current=[aria] {
+                        a class="nav-link" href=(item_path) title=[description] {
+                            //(left_icon)
+                            (label.escaped(cx.langid()))
+                            //(right_icon)
+                        }
                     }
-                }
-            }),
-            ItemType::LinkBlank(label, path) => PrepareMarkup::With(html! {
-                li class="nav-item" {
-                    a class="nav-link" href=(path(cx)) title=[description] target="_blank" {
-                        //(left_icon)
-                        (label.escaped(cx.langid()))
-                        //(right_icon)
+                })
+            }
+            ItemType::LinkBlank(label, path) => {
+                let item_path = path(cx);
+                let (class, aria) = if item_path == current_path {
+                    ("nav-item active", Some("page"))
+                } else {
+                    ("nav-item", None)
+                };
+                PrepareMarkup::With(html! {
+                    li class=(class) aria-current=[aria] {
+                        a class="nav-link" href=(item_path) title=[description] target="_blank" {
+                            //(left_icon)
+                            (label.escaped(cx.langid()))
+                            //(right_icon)
+                        }
                     }
-                }
-            }),
+                })
+            }
         }
     }
 }

@@ -4,22 +4,33 @@ use crate::bs::navbar;
 use crate::bs::{BreakPoint, Offcanvas};
 use crate::LOCALES_BOOTSIER;
 
+const TOGGLE_COLLAPSE: &str = "collapse";
+const TOGGLE_OFFCANVAS: &str = "offcanvas";
+
 #[derive(AutoDefault)]
-pub enum NavbarType {
+pub enum NavbarToggler {
     #[default]
-    Default,
-    Basic,
+    Enabled,
+    Disabled,
+}
+
+#[derive(AutoDefault)]
+pub enum NavbarContent {
+    #[default]
+    None,
+    Nav(Typed<navbar::Nav>),
     Offcanvas(Typed<Offcanvas>),
+    Text(L10n),
 }
 
 #[rustfmt::skip]
 #[derive(AutoDefault)]
 pub struct Navbar {
-    id         : OptionId,
-    classes    : OptionClasses,
-    navbar_type: NavbarType,
-    expand     : BreakPoint,
-    elements   : Children,
+    id     : OptionId,
+    classes: OptionClasses,
+    expand : BreakPoint,
+    toggler: NavbarToggler,
+    content: NavbarContent,
 }
 
 impl ComponentTrait for Navbar {
@@ -36,75 +47,58 @@ impl ComponentTrait for Navbar {
             ClassesOp::Prepend,
             [
                 "navbar".to_string(),
-                self.expand().breakpoint_class("navbar-expand"),
+                self.expand().try_class("navbar-expand").unwrap_or_default(),
             ]
             .join(" "),
         );
     }
 
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
-        let elements = self.elements().render(cx);
-        if elements.is_empty() {
-            return PrepareMarkup::None;
-        }
-
         let id = cx.required_id::<Self>(self.id());
-        let (output, id_content) = if let NavbarType::Offcanvas(oc) = self.navbar_type() {
-            (
-                oc.writable()
-                    .alter_children(ChildOp::Prepend(Child::with(Html::with(elements))))
-                    .render(cx),
-                cx.required_id::<Offcanvas>(oc.id()),
-            )
-        } else {
-            (elements, join_string!(id, "-content"))
-        };
-        let id_content_target = join_string!("#", id_content);
 
-        PrepareMarkup::With(html! {
-            nav id=(id) class=[self.classes().get()] {
-                div class="container-fluid" {
-                    @match self.navbar_type() {
-                        NavbarType::Default => {
-                            button
-                                type="button"
-                                class="navbar-toggler"
-                                data-bs-toggle="collapse"
-                                data-bs-target=(id_content_target)
-                                aria-controls=(id_content)
-                                aria-expanded="false"
-                                aria-label=[L10n::t("toggle", &LOCALES_BOOTSIER).using(cx.langid())]
-                            {
-                                span class="navbar-toggler-icon" {}
-                            }
-                            div id=(id_content) class="collapse navbar-collapse" {
-                                (output)
-                            }
-                        },
-                        NavbarType::Basic => {
-                            (output)
-                        },
-                        NavbarType::Offcanvas(_) => {
-                            button
-                                type="button"
-                                class="navbar-toggler"
-                                data-bs-toggle="offcanvas"
-                                data-bs-target=(id_content_target)
-                                aria-controls=(id_content)
-                                aria-label=[L10n::t("toggle", &LOCALES_BOOTSIER).using(cx.langid())]
-                            {
-                                span class="navbar-toggler-icon" {}
-                            }
-                            (output)
-                        },
-                    }
+        let content = match self.content() {
+            NavbarContent::None => return PrepareMarkup::None,
+            NavbarContent::Nav(nav) => {
+                let id_content = join_string!(id, "-content");
+                match self.toggler() {
+                    NavbarToggler::Enabled => self.toggler_wrapper(
+                        TOGGLE_COLLAPSE,
+                        L10n::t("toggle", &LOCALES_BOOTSIER).using(cx.langid()),
+                        id_content,
+                        nav.render(cx),
+                    ),
+                    NavbarToggler::Disabled => nav.render(cx),
                 }
             }
-        })
+            NavbarContent::Offcanvas(oc) => {
+                let id_content = oc.id().unwrap_or_default();
+                self.toggler_wrapper(
+                    TOGGLE_OFFCANVAS,
+                    L10n::t("toggle", &LOCALES_BOOTSIER).using(cx.langid()),
+                    id_content,
+                    oc.render(cx),
+                )
+            }
+            NavbarContent::Text(text) => html! {
+                span class="navbar-text" {
+                    (text.escaped(cx.langid()))
+                }
+            },
+        };
+
+        self.nav_wrapper(id, content)
     }
 }
 
 impl Navbar {
+    pub fn with_nav(nav: navbar::Nav) -> Self {
+        Navbar::default().with_content(NavbarContent::Nav(Typed::with(nav)))
+    }
+
+    pub fn with_offcanvas(offcanvas: Offcanvas) -> Self {
+        Navbar::default().with_content(NavbarContent::Offcanvas(Typed::with(offcanvas)))
+    }
+
     // Navbar BUILDER.
 
     #[fn_builder]
@@ -120,20 +114,20 @@ impl Navbar {
     }
 
     #[fn_builder]
-    pub fn with_type(mut self, navbar_type: NavbarType) -> Self {
-        self.navbar_type = navbar_type;
-        self
-    }
-
-    #[fn_builder]
     pub fn with_expand(mut self, bp: BreakPoint) -> Self {
         self.expand = bp;
         self
     }
 
     #[fn_builder]
-    pub fn with_nav(mut self, op: TypedOp<navbar::Nav>) -> Self {
-        self.elements.alter_typed(op);
+    pub fn with_toggler(mut self, toggler: NavbarToggler) -> Self {
+        self.toggler = toggler;
+        self
+    }
+
+    #[fn_builder]
+    pub fn with_content(mut self, content: NavbarContent) -> Self {
+        self.content = content;
         self
     }
 
@@ -143,15 +137,66 @@ impl Navbar {
         &self.classes
     }
 
-    pub fn navbar_type(&self) -> &NavbarType {
-        &self.navbar_type
-    }
-
     pub fn expand(&self) -> &BreakPoint {
         &self.expand
     }
 
-    pub fn elements(&self) -> &Children {
-        &self.elements
+    pub fn toggler(&self) -> &NavbarToggler {
+        &self.toggler
+    }
+
+    pub fn content(&self) -> &NavbarContent {
+        &self.content
+    }
+
+    // Navbar HELPERS.
+
+    fn nav_wrapper(&self, id: String, content: Markup) -> PrepareMarkup {
+        if content.is_empty() {
+            PrepareMarkup::None
+        } else {
+            PrepareMarkup::With(html! {
+                nav id=(id) class=[self.classes().get()] {
+                    div class="container-fluid" {
+                        (content)
+                    }
+                }
+            })
+        }
+    }
+
+    fn toggler_wrapper(
+        &self,
+        data_bs_toggle: &str,
+        aria_label: Option<String>,
+        id_content: String,
+        content: Markup,
+    ) -> Markup {
+        if content.is_empty() {
+            html! {}
+        } else {
+            let id_content_target = join_string!("#", id_content);
+            let aria_expanded = if data_bs_toggle == TOGGLE_COLLAPSE {
+                Some("false")
+            } else {
+                None
+            };
+            html! {
+                button
+                    type="button"
+                    class="navbar-toggler"
+                    data-bs-toggle=(data_bs_toggle)
+                    data-bs-target=(id_content_target)
+                    aria-controls=(id_content)
+                    aria-expanded=[aria_expanded]
+                    aria-label=[aria_label]
+                {
+                    span class="navbar-toggler-icon" {}
+                }
+                div id=(id_content) class="collapse navbar-collapse" {
+                    (content)
+                }
+            }
+        }
     }
 }

@@ -18,7 +18,7 @@ pub use offcanvas::{
 
 // Navbar.
 pub mod navbar;
-pub use navbar::{Navbar, NavbarType};
+pub use navbar::{Navbar, NavbarContent, NavbarToggler};
 
 /// Define los puntos de interrupción (*breakpoints*) usados por Bootstrap para diseño responsivo.
 #[rustfmt::skip]
@@ -37,10 +37,9 @@ pub enum BreakPoint {
 }
 
 impl BreakPoint {
-    /// Indica si el punto de interrupción es efectivo en Bootstrap.
+    /// Verifica si es un punto de interrupción efectivo en Bootstrap.
     ///
-    /// Devuelve `true` si el valor es `SM`, `MD`, `LG`, `XL` o `XXL`.
-    /// Devuelve `false` si es `None`, `Fluid` o `FluidMax`.
+    /// Devuelve `true` si el valor es `SM`, `MD`, `LG`, `XL` o `XXL`. Y `false` en otro caso.
     pub fn is_breakpoint(&self) -> bool {
         !matches!(
             self,
@@ -50,8 +49,8 @@ impl BreakPoint {
 
     /// Genera un nombre de clase CSS basado en el punto de interrupción.
     ///
-    /// Si es un punto de interrupción efectivo (ver [`is_breakpoint()`] se concatenan el prefijo
-    /// proporcionado, un guion (`-`) y el texto asociado al punto de interrupción. En otro caso, se
+    /// Si es un punto de interrupción efectivo (ver [`is_breakpoint()`] se concatena el prefijo
+    /// proporcionado, un guion (`-`) y el texto asociado al punto de interrupción. En otro caso
     /// devuelve únicamente el prefijo.
     ///
     /// # Parámetros
@@ -62,19 +61,54 @@ impl BreakPoint {
     ///
     /// ```rust#ignore
     /// let breakpoint = BreakPoint::MD;
-    /// let class = breakpoint.breakpoint_class("col");
+    /// let class = breakpoint.to_class("col");
     /// assert_eq!(class, "col-md".to_string());
     ///
     /// let breakpoint = BreakPoint::Fluid;
-    /// let class = breakpoint.breakpoint_class("offcanvas");
+    /// let class = breakpoint.to_class("offcanvas");
     /// assert_eq!(class, "offcanvas".to_string());
     /// ```
-    pub fn breakpoint_class(&self, prefix: impl Into<String>) -> String {
+    pub fn to_class(&self, prefix: impl Into<String>) -> String {
         let prefix: String = prefix.into();
         if self.is_breakpoint() {
             join_string!(prefix, "-", self.to_string())
         } else {
             prefix
+        }
+    }
+
+    /// Intenta generar un nombre de clase CSS basado en el punto de interrupción.
+    ///
+    /// Si es un punto de interrupción efectivo (ver [`is_breakpoint()`] se concatena el prefijo
+    /// proporcionado, un guion (`-`) y el texto asociado al punto de interrupción. En otro caso,
+    /// devuelve `None`.
+    ///
+    /// # Parámetros
+    ///
+    /// - `prefix`: Prefijo a concatenar con el punto de interrupción.
+    ///
+    /// # Retorno
+    ///
+    /// - `Some(String)`: Si es un punto de interrupción efectivo.
+    /// - `None`: En otro caso.
+    ///
+    /// # Ejemplo
+    ///
+    /// ```rust#ignore
+    /// let breakpoint = BreakPoint::MD;
+    /// let class = breakpoint.try_class("col");
+    /// assert_eq!(class, Some("col-md".to_string()));
+    ///
+    /// let breakpoint = BreakPoint::Fluid;
+    /// let class = breakpoint.try_class("navbar-expanded");
+    /// assert_eq!(class, None);
+    /// ```
+    pub fn try_class(&self, prefix: impl Into<String>) -> Option<String> {
+        let prefix: String = prefix.into();
+        if self.is_breakpoint() {
+            Some(join_string!(prefix, "-", self.to_string()))
+        } else {
+            None
         }
     }
 }
