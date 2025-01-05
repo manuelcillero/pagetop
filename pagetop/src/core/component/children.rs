@@ -2,7 +2,7 @@ use crate::core::component::{ComponentTrait, Context};
 use crate::html::{html, Markup};
 use crate::{fn_builder, UniqueId};
 
-use std::sync::{Arc, RwLock, RwLockWriteGuard};
+use std::sync::{Arc, RwLock};
 
 #[derive(Clone)]
 pub struct Child(Arc<RwLock<dyn ComponentTrait>>);
@@ -17,10 +17,10 @@ impl Child {
     pub fn id(&self) -> Option<String> {
         self.0.read().unwrap().id()
     }
-
+    /*
     pub fn writable(&self) -> RwLockWriteGuard<'_, dyn ComponentTrait> {
         self.0.write().unwrap()
-    }
+    } */
 
     // Child RENDER.
 
@@ -59,10 +59,10 @@ impl<C: ComponentTrait> Typed<C> {
     pub fn id(&self) -> Option<String> {
         self.0.read().unwrap().id()
     }
-
+    /*
     pub fn writable(&self) -> RwLockWriteGuard<'_, C> {
         self.0.write().unwrap()
-    }
+    } */
 
     // Typed RENDER.
 
