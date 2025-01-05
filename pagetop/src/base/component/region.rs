@@ -58,7 +58,7 @@ impl Region {
 
     // Region GETTERS.
 
-    fn classes(&self) -> &OptionClasses {
+    pub fn classes(&self) -> &OptionClasses {
         &self.classes
     }
 }
