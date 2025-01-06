@@ -75,12 +75,14 @@ function publish_crate() {
 
 # Si el 'crate' A depende del 'crate' B, entonces B debe aparecer antes que A en estas listas
 HELPERS=(
-    pagetop-macros
     pagetop-build
+    pagetop-macros
 )
 PACKAGES=(
     pagetop-seaorm
+    pagetop-mdbook
     pagetop-hljs
+    pagetop-bootsier
 )
 
 # Publica los 'crates' auxiliares
