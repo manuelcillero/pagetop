@@ -20,6 +20,10 @@ pub use offcanvas::{
 pub mod navbar;
 pub use navbar::{Navbar, NavbarContent, NavbarToggler};
 
+// Dropdown.
+pub mod dropdown;
+pub use dropdown::Dropdown;
+
 /// Define los puntos de interrupción (*breakpoints*) usados por Bootstrap para diseño responsivo.
 #[rustfmt::skip]
 #[derive(AutoDefault)]

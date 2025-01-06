@@ -1,7 +1,5 @@
 use pagetop::prelude::*;
 
-use crate::bs::Dropdown;
-
 type Label = L10n;
 
 #[derive(AutoDefault)]
@@ -11,7 +9,6 @@ pub enum ItemType {
     Label(Label),
     Link(Label, FnContextualPath),
     LinkBlank(Label, FnContextualPath),
-    Dropdown(Typed<Dropdown>),
 }
 
 // Item.
@@ -36,7 +33,7 @@ impl ComponentTrait for Item {
         match self.item_type() {
             ItemType::Void => PrepareMarkup::None,
             ItemType::Label(label) => PrepareMarkup::With(html! {
-                li class="nav-item" {
+                li class="dropdown-item" {
                     span title=[description] {
                         //(left_icon)
                         (label.escaped(cx.langid()))
@@ -47,9 +44,9 @@ impl ComponentTrait for Item {
             ItemType::Link(label, path) => {
                 let item_path = path(cx);
                 let (class, aria) = if item_path == current_path {
-                    ("nav-item active", Some("page"))
+                    ("dropdown-item active", Some("page"))
                 } else {
-                    ("nav-item", None)
+                    ("dropdown-item", None)
                 };
                 PrepareMarkup::With(html! {
                     li class=(class) aria-current=[aria] {
@@ -64,9 +61,9 @@ impl ComponentTrait for Item {
             ItemType::LinkBlank(label, path) => {
                 let item_path = path(cx);
                 let (class, aria) = if item_path == current_path {
-                    ("nav-item active", Some("page"))
+                    ("dropdown-item active", Some("page"))
                 } else {
-                    ("nav-item", None)
+                    ("dropdown-item", None)
                 };
                 PrepareMarkup::With(html! {
                     li class=(class) aria-current=[aria] {
@@ -78,7 +75,6 @@ impl ComponentTrait for Item {
                     }
                 })
             }
-            ItemType::Dropdown(menu) => PrepareMarkup::With(html! { (menu.render(cx)) }),
         }
     }
 }
