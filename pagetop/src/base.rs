@@ -1,9 +1,9 @@
-//! Acciones, componentes, paquetes y temas base de `PageTop`.
+//! Acciones, componentes, extensiones y temas base de `PageTop`.
 
 pub mod action;
 
 pub mod component;
 
-pub mod package;
+pub mod extension;
 
 pub mod theme;

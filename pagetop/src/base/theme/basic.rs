@@ -2,7 +2,7 @@ use crate::prelude::*;
 
 pub struct Basic;
 
-impl PackageTrait for Basic {
+impl ExtensionTrait for Basic {
     fn theme(&self) -> Option<ThemeRef> {
         Some(&Basic)
     }

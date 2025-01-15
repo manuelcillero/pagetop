@@ -30,10 +30,10 @@ Sin embargo, aún no hemos indicado a nuestra aplicación qué hacer.
 
 La [API de PageTop](https://docs.rs/pagetop) ofrece cuatro instrumentos esenciales para construir una aplicación:
 
-  - [**Paquetes**](packages.md), que añaden, amplían o personalizan funcionalidades interactuando con la API de PageTop o las APIs de paquetes de terceros.
+  - [**Extensiones**](extensions.md), que añaden, amplían o personalizan funcionalidades interactuando con la API de PageTop o las APIs de extensiones de terceros.
   - [**Componentes**](components.md), para encapsular HTML, CSS y JavaScript en unidades funcionales, configurables y bien definidas.
   - [**Acciones**](actions.md), alteran el comportamiento interno de otros elementos de PageTop interceptando su flujo de ejecución.
-  - [**Temas**](themes.md), son *paquetes* que permiten a los desarrolladores cambiar la apariencia de páginas y componentes sin afectar su funcionalidad.
+  - [**Temas**](themes.md), son *extensiones* que permiten a los desarrolladores cambiar la apariencia de páginas y componentes sin afectar su funcionalidad.
 
 Si quieres saber más sobre el funcionamiento interno de las aplicaciones, continúa leyendo. Si no, puedes saltar a la siguiente página y empezar a añadir lógica a nuestra primera aplicación.
 
@@ -48,14 +48,14 @@ Como hemos visto arriba, primero se instancia la [Aplicación](https://docs.rs/p
 
   3. Conecta con la base de datos.
 
-  4. Registra los paquetes de la aplicación según sus dependencias internas.
+  4. Registra las extensiones de la aplicación según sus dependencias internas.
 
-  5. Registra las acciones de los paquetes.
+  5. Registra las acciones de las extensiones.
 
-  6. Inicializa los paquetes.
+  6. Inicializa las extensiones.
 
   7. Ejecuta las actualizaciones pendientes de la base de datos.
 
 Pero no ejecuta la aplicación. Para eso se usa el método [`run()`](https://docs.rs/pagetop/latest/pagetop/app/struct.Application.html#method.run), que arranca el servidor web para empezar a responder las peticiones desde cualquier navegador.
 
-Hablaremos más de todos estos subsistemas en próximas páginas. Mientras tanto, ¡vamos a añadir algo de lógica a nuestra aplicación creando un paquete con un nuevo servicio web!
+Hablaremos más de todos estos subsistemas en próximas páginas. Mientras tanto, ¡vamos a añadir algo de lógica a nuestra aplicación creando una extensión con un nuevo servicio web!

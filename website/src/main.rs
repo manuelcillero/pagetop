@@ -8,7 +8,7 @@ include_locales!(LOCALES_WEBSITE);
 
 struct PageTopWebSite;
 
-impl PackageTrait for PageTopWebSite {
+impl ExtensionTrait for PageTopWebSite {
     fn name(&self) -> L10n {
         L10n::t("app_name", &LOCALES_WEBSITE)
     }
@@ -17,9 +17,9 @@ impl PackageTrait for PageTopWebSite {
         L10n::t("app_description", &LOCALES_WEBSITE)
     }
 
-    fn dependencies(&self) -> Vec<PackageRef> {
+    fn dependencies(&self) -> Vec<ExtensionRef> {
         vec![
-            // Paquetes.
+            // Extensiones.
             &pagetop_mdbook::MdBook,
             // Temas.
             &pagetop_bootsier::Bootsier,

@@ -7,7 +7,7 @@ Si quieres aprender a construir soluciones web que rescaten la esencia de los or
 
 **PageTop** es un marco de desarrollo web que proporciona herramientas y patrones de diseño predefinidos para el desarrollo de soluciones web seguras, modulares y personalizables con *Renderizado desde el Servidor* ([SSR](#ssr)).
 
-PageTop está desarrollado en el [lenguaje de programación Rust](https://www.rust-lang.org/) y se apoya sobre los hombros de auténticos gigantes, porque utiliza algunas de las librerías (*crates*) más estables y reconocidas del [ecosistema Rust](https://lib.rs) como:
+PageTop está desarrollado en el [lenguaje de programación Rust](https://www.rust-lang.org/) y se apoya sobre los hombros de auténticos gigantes, porque utiliza algunas de las librerías más estables y reconocidas del [ecosistema Rust](https://lib.rs) como:
 
   - [Actix Web](https://github.com/actix/actix-web), para la gestión de los servicios y del servidor web.
   - [Tracing](https://github.com/tokio-rs/tracing), para el sistema de diagnóstico y mensajes de registro estructurados.
@@ -28,7 +28,7 @@ PageTop usa SSR como una solución robusta para la creación de soluciones web c
 
 # Contribuciones
 
-PageTop [empezó como un proyecto personal](https://manuel.cillero.es/blog/aprendiendo-rust-presentando-pagetop/) para aprender a programar con Rust. Es [libre y de código abierto](https://github.com/manuelcillero/pagetop#-license), para siempre. Y puedes contribuir aumentando su versatilidad, documentando, traduciendo o corrigiendo errores. Pero también puedes crear tus propios paquetes o temas que otros desarrolladores podrán utilizar en sus proyectos.
+PageTop [empezó como un proyecto personal](https://manuel.cillero.es/blog/aprendiendo-rust-presentando-pagetop/) para aprender a programar con Rust. Es [libre y de código abierto](https://github.com/manuelcillero/pagetop#-license), para siempre. Y puedes contribuir aumentando su versatilidad, documentando, traduciendo o corrigiendo errores. Pero también puedes crear tus propias extensiones o temas que otros desarrolladores podrán utilizar en sus proyectos.
 
 
 # Advertencia

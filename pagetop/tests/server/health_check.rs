@@ -2,7 +2,7 @@ use pagetop::prelude::*;
 
 struct HealthCheck;
 
-impl PackageTrait for HealthCheck {}
+impl ExtensionTrait for HealthCheck {}
 
 #[pagetop::test]
 async fn health_check_works() {

@@ -2,7 +2,7 @@
 
 mod figfont;
 
-use crate::core::{package, package::PackageRef};
+use crate::core::{extension, extension::ExtensionRef};
 use crate::html::Markup;
 use crate::response::page::{ErrorPage, ResultPage};
 use crate::service::HttpRequest;
@@ -26,18 +26,18 @@ impl Default for Application {
 }
 
 impl Application {
-    /// Creates a new application instance without any package.
+    /// Creates a new application instance without any extension.
     pub fn new() -> Self {
         Self::internal_prepare(None)
     }
 
-    /// Prepares an application instance with a specific package.
-    pub fn prepare(root_package: PackageRef) -> Self {
-        Self::internal_prepare(Some(root_package))
+    /// Prepares an application instance with a specific extension.
+    pub fn prepare(root_extension: ExtensionRef) -> Self {
+        Self::internal_prepare(Some(root_extension))
     }
 
-    // Internal method to prepare the application, optionally with a package.
-    fn internal_prepare(root_package: Option<PackageRef>) -> Self {
+    // Internal method to prepare the application, optionally with a extension.
+    fn internal_prepare(root_extension: Option<ExtensionRef>) -> Self {
         // On startup, show the application banner.
         Self::show_banner();
 
@@ -47,14 +47,14 @@ impl Application {
         // Validates the default language identifier.
         LazyLock::force(&locale::DEFAULT_LANGID);
 
-        // Registers the application's packages.
-        package::all::register_packages(root_package);
+        // Registers the application's extensions.
+        extension::all::register_extensions(root_extension);
 
-        // Registers package actions.
-        package::all::register_actions();
+        // Registers extension actions.
+        extension::all::register_actions();
 
-        // Initializes the packages.
-        package::all::init_packages();
+        // Initializes the extensions.
+        extension::all::init_extensions();
 
         Self
     }
@@ -158,7 +158,7 @@ impl Application {
         >,
     > {
         service::App::new()
-            .configure(package::all::configure_services)
+            .configure(extension::all::configure_services)
             .default_service(service::web::route().to(service_not_found))
     }
 }

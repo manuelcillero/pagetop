@@ -1,4 +1,4 @@
-//! Tipos y funciones esenciales para crear acciones, componentes, paquetes y temas.
+//! Tipos y funciones esenciales para crear acciones, componentes, extensiones y temas.
 
 use crate::util::TypeInfo;
 
@@ -80,8 +80,8 @@ pub mod action;
 // API to build new components.
 pub mod component;
 
-// API to add new features with packages.
-pub mod package;
+// API to add new features with extensions.
+pub mod extension;
 
 // API to add new themes.
 pub mod theme;

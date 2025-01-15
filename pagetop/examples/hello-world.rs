@@ -2,7 +2,7 @@ use pagetop::prelude::*;
 
 struct HelloWorld;
 
-impl PackageTrait for HelloWorld {
+impl ExtensionTrait for HelloWorld {
     fn configure_service(&self, scfg: &mut service::web::ServiceConfig) {
         scfg.route("/", service::web::get().to(hello_world));
     }

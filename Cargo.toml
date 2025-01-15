@@ -8,14 +8,14 @@ members = [
     # PageTop
     "pagetop",
 
-    # Packages
-    "packages/pagetop-seaorm",
-    "packages/pagetop-mdbook",
-    "packages/pagetop-hljs",
+    # Extensions
+    "extensions/pagetop-seaorm",
+    "extensions/pagetop-mdbook",
+    "extensions/pagetop-hljs",
 
     # Themes
-    #"packages/pagetop-aliner",
-    "packages/pagetop-bootsier",
+    #"extensions/pagetop-aliner",
+    "extensions/pagetop-bootsier",
 
     # Apps
     "website",
@@ -40,11 +40,11 @@ pagetop-macros = { version = "0.0", path = "helpers/pagetop-macros" }
 # PageTop
 pagetop = { version = "0.0", path = "pagetop" }
 
-# Packages
-pagetop-seaorm = { version = "0.0", path = "packages/pagetop-seaorm" }
-pagetop-mdbook = { version = "0.0", path = "packages/pagetop-mdbook" }
-pagetop-hljs = { version = "0.0", path = "packages/pagetop-hljs" }
+# Extensions
+pagetop-seaorm = { version = "0.0", path = "extensions/pagetop-seaorm" }
+pagetop-mdbook = { version = "0.0", path = "extensions/pagetop-mdbook" }
+pagetop-hljs = { version = "0.0", path = "extensions/pagetop-hljs" }
 
 # Themes
-#pagetop-aliner = { version = "0.0", path = "packages/pagetop-aliner" }
-pagetop-bootsier = { version = "0.0", path = "packages/pagetop-bootsier" }
+#pagetop-aliner = { version = "0.0", path = "extensions/pagetop-aliner" }
+pagetop-bootsier = { version = "0.0", path = "extensions/pagetop-bootsier" }

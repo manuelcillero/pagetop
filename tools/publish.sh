@@ -78,7 +78,7 @@ HELPERS=(
     pagetop-build
     pagetop-macros
 )
-PACKAGES=(
+EXTENSIONS=(
     pagetop-seaorm
     pagetop-mdbook
     pagetop-hljs
@@ -99,9 +99,9 @@ pushd pagetop > /dev/null 2>&1
 CRATE=pagetop; publish_crate
 popd > /dev/null 2>&1
 
-# Publica los paquetes del proyecto
-pushd packages > /dev/null 2>&1
-for CRATE in "${PACKAGES[@]}"; do
+# Publica las extensiones del proyecto
+pushd extensions > /dev/null 2>&1
+for CRATE in "${EXTENSIONS[@]}"; do
     pushd "$CRATE" > /dev/null 2>&1
     publish_crate
     popd > /dev/null 2>&1

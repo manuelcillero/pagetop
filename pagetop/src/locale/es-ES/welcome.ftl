@@ -1,5 +1,5 @@
-welcome_package_name = Página de inicio predeterminada
-welcome_package_description = Muestra una página de inicio predeterminada cuando no hay ninguna configurada.
+welcome_extension_name = Página de inicio predeterminada
+welcome_extension_description = Muestra una página de inicio predeterminada cuando no hay ninguna configurada.
 
 welcome_title = ¡Hola mundo!
 
