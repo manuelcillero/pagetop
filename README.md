@@ -22,10 +22,10 @@ según las necesidades de cada proyecto, incluyendo:
     de ejecución.
   * **Componentes** (*components*): encapsulan HTML, CSS y JavaScript en unidades funcionales,
     configurables y reutilizables.
-  * **Paquetes** (*packages*): añaden, extienden o personalizan funcionalidades usando las APIs de
-    `PageTop` o de terceros.
-  * **Temas** (*themes*): permiten modificar la apariencia de páginas y componentes sin comprometer
-    su funcionalidad.
+  * **Extensiones** (*extensions*): añaden, extienden o personalizan funcionalidades usando las APIs
+    de `PageTop` o de terceros.
+  * **Temas** (*themes*): son extensiones que permiten modificar la apariencia de páginas y
+    componentes sin comprometer su funcionalidad.
 
 
 # ⚡️ Guía rápida
@@ -44,14 +44,14 @@ async fn main() -> std::io::Result<()> {
 Por defecto, este código sirve una página web de bienvenida accesible desde un navegador en la
 dirección `http://localhost:8088`, siguiendo la configuración predeterminada.
 
-Para personalizar el servicio, puedes crear un paquete de `PageTop` de la siguiente manera:
+Para personalizar el servicio, puedes crear una extensión de `PageTop` de la siguiente manera:
 
 ```rust#ignore
 use pagetop::prelude::*;
 
 struct HelloWorld;
 
-impl PackageTrait for HelloWorld {
+impl ExtensionTrait for HelloWorld {
     fn configure_service(&self, scfg: &mut service::web::ServiceConfig) {
         scfg.route("/", service::web::get().to(hello_world));
     }
@@ -69,7 +69,7 @@ async fn main() -> std::io::Result<()> {
 }
 ```
 
-Este programa implementa un paquete llamado `HelloWorld` que sirve una página web en la ruta raíz
+Este programa implementa una extensión llamada `HelloWorld` que sirve una página web en la ruta raíz
 (`/`) mostrando el texto "Hello world!" dentro de un elemento HTML `<h1>`.
 
 
@@ -90,23 +90,23 @@ El código se organiza en un *workspace* con los siguientes subproyectos:
   * **[pagetop-macros](https://github.com/manuelcillero/pagetop/tree/latest/helpers/pagetop-macros)**,
     proporciona una colección de macros que mejoran la experiencia de desarrollo con `PageTop`.
 
-## Paquetes
+## Extensiones
 
-  * **[pagetop-seaorm](https://github.com/manuelcillero/pagetop/tree/latest/packages/pagetop-seaorm)**,
+  * **[pagetop-seaorm](https://github.com/manuelcillero/pagetop/tree/latest/extensions/pagetop-seaorm)**,
     integra [SeaORM](https://www.sea-ql.org/SeaORM) para trabajar con bases de datos en aplicaciones
     `PageTop`.
 
-  * **[pagetop-mdbook](https://github.com/manuelcillero/pagetop/tree/latest/packages/pagetop-mdbook)**,
+  * **[pagetop-mdbook](https://github.com/manuelcillero/pagetop/tree/latest/extensions/pagetop-mdbook)**,
     incluye contenido generado por [mdBook](https://rust-lang.github.io/mdBook/) en aplicaciones
     desarrolladas con `PageTop`.
 
-  * **[pagetop-hljs](https://github.com/manuelcillero/pagetop/tree/latest/packages/pagetop-hljs)**,
+  * **[pagetop-hljs](https://github.com/manuelcillero/pagetop/tree/latest/extensions/pagetop-hljs)**,
     utiliza [HighlightJS](https://highlightjs.org) para mostrar fragmentos de código con resaltado
     de sintaxis con `PageTop`.
 
 ## Temas
 
-  * **[pagetop-bootsier](https://github.com/manuelcillero/pagetop/tree/latest/packages/pagetop-bootsier)**,
+  * **[pagetop-bootsier](https://github.com/manuelcillero/pagetop/tree/latest/extensions/pagetop-bootsier)**,
     tema para `PageTop` que usa [Bootstrap](https://getbootstrap.com) para dar vida a tus diseños
     web.
 

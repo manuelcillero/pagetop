@@ -1,6 +1,6 @@
 use crate::base::component::Region;
 use crate::core::component::ComponentBase;
-use crate::core::package::PackageTrait;
+use crate::core::extension::ExtensionTrait;
 use crate::global;
 use crate::html::{html, Markup};
 use crate::locale::L10n;
@@ -9,7 +9,7 @@ use crate::response::page::Page;
 pub type ThemeRef = &'static dyn ThemeTrait;
 
 /// Los temas deben implementar este "trait".
-pub trait ThemeTrait: PackageTrait + Send + Sync {
+pub trait ThemeTrait: ExtensionTrait + Send + Sync {
     fn regions(&self) -> Vec<(&'static str, L10n)> {
         vec![("region-content", L10n::l("content"))]
     }

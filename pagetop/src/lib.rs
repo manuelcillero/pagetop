@@ -23,8 +23,8 @@
 //!     flujo de ejecución.
 //!   * **Componentes** (*components*): encapsulan HTML, CSS y JavaScript en unidades funcionales,
 //!     configurables y reutilizables.
-//!   * **Paquetes** (*packages*): añaden, extienden o personalizan funcionalidades usando las APIs
-//!     de `PageTop` o de terceros.
+//!   * **Extensiones** (*extensions*): añaden, extienden o personalizan funcionalidades usando las
+//!     APIs de `PageTop` o de terceros.
 //!   * **Temas** (*themes*): permiten modificar la apariencia de páginas y componentes sin
 //!     comprometer su funcionalidad.
 //!
@@ -44,14 +44,14 @@
 //! Por defecto, este código sirve una página web de bienvenida accesible desde un navegador en la
 //! dirección `http://localhost:8088`, siguiendo la configuración predeterminada.
 //!
-//! Para personalizar el servicio, puedes crear un paquete de `PageTop` de la siguiente manera:
+//! Para personalizar el servicio, puedes crear una extensión de `PageTop` de la siguiente manera:
 //!
 //! ```rust#ignore
 //! use pagetop::prelude::*;
 //!
 //! struct HelloWorld;
 //!
-//! impl PackageTrait for HelloWorld {
+//! impl ExtensionTrait for HelloWorld {
 //!     fn configure_service(&self, scfg: &mut service::web::ServiceConfig) {
 //!         scfg.route("/", service::web::get().to(hello_world));
 //!     }
@@ -69,7 +69,7 @@
 //! }
 //! ```
 //!
-//! Este programa implementa un paquete llamado `HelloWorld` que sirve una página web en la ruta
+//! Este programa implementa una extensión llamada `HelloWorld` que sirve una página web en la ruta
 //! raíz (`/`) mostrando el texto "Hello world!" dentro de un elemento HTML `<h1>`.
 //!
 //! # 🧩 Gestión de Dependencias
@@ -77,8 +77,8 @@
 //! Los proyectos que utilizan `PageTop` gestionan las dependencias con `cargo`, como cualquier otro
 //! proyecto en Rust.
 //!
-//! Sin embargo, es fundamental que cada paquete declare explícitamente sus
-//! [dependencias](core::package::PackageTrait#method.dependencies), si las tiene, para que
+//! Sin embargo, es fundamental que cada extensión declare explícitamente sus
+//! [dependencias](core::extension::ExtensionTrait#method.dependencies), si las tiene, para que
 //! `PageTop` pueda estructurar e inicializar la aplicación de forma modular.
 
 #![cfg_attr(docsrs, feature(doc_cfg))]
@@ -112,11 +112,11 @@ pub mod locale;
 pub mod datetime;
 // Gestión del servidor y servicios web.
 pub mod service;
-// Tipos y funciones esenciales para crear acciones, componentes, paquetes y temas.
+// Tipos y funciones esenciales para crear acciones, componentes, extensiones y temas.
 pub mod core;
 // Respuestas a peticiones web en sus diferentes variantes.
 pub mod response;
-// Acciones, componentes, paquetes y temas base.
+// Acciones, componentes, extensiones y temas base.
 pub mod base;
 // Prepara y ejecuta la aplicación.
 pub mod app;

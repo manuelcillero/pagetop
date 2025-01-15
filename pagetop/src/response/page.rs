@@ -153,7 +153,7 @@ impl Page {
         // Acciones específicas del tema antes de renderizar el <body>.
         self.context.theme().before_render_page_body(self);
 
-        // Acciones de los paquetes antes de renderizar el <body>.
+        // Acciones de las extensiones antes de renderizar el <body>.
         action::page::BeforeRenderBody::dispatch(self);
 
         // Renderiza el <body>.
@@ -162,7 +162,7 @@ impl Page {
         // Acciones específicas del tema después de renderizar el <body>.
         self.context.theme().after_render_page_body(self);
 
-        // Acciones de los paquetes después de renderizar el <body>.
+        // Acciones de las extensiones después de renderizar el <body>.
         action::page::AfterRenderBody::dispatch(self);
 
         // Renderiza el <head>.

@@ -166,10 +166,10 @@ macro_rules! hm {
     }};
 }
 
-/// Concatena varios fragmentos de cadenas (*string slices*) en una cadena *String*.
+/// Concatena varios fragmentos de cadenas (*string slices*) en una cadena `String`.
 ///
 /// Exporta la macro [`concat_string!`](https://docs.rs/concat-string), que permite concatenar de
-/// forma eficiente fragmentos de cadenas en una cadena *String*. Acepta cualquier número de
+/// forma eficiente fragmentos de cadenas en una cadena `String`. Acepta cualquier número de
 /// argumentos que implementen `AsRef<str>` y crea una cadena `String` con el tamaño adecuado, sin
 /// requerir cadenas de formato que puedan sobrecargar el rendimiento.
 ///
@@ -195,7 +195,7 @@ macro_rules! join_string {
     };
 }
 
-/// Concatena varios fragmentos de cadenas (*string slices*) en una cadena *String* utilizando
+/// Concatena varios fragmentos de cadenas (*string slices*) en una cadena `String` utilizando
 /// opcionalmente un separador.
 ///
 /// Crea una cadena que contiene los fragmentos no vacíos concatenados. La macro puede utilizar un
@@ -236,7 +236,49 @@ macro_rules! option_string {
     }};
 }
 
-/// Concatena dos fragmentos de cadenas (*string slices*) en una cadena *String* con un separador.
+/// Concatena varios fragmentos de cadenas (*string slices*) en una cadena `String` únicamente si
+/// ninguna es vacía.
+///
+/// Si alguna de las cadenas es vacía, devuelve `None`. Si todas tienen contenido, devuelve una
+/// cadena `String` que las concatena. También se puede especificar un separador para concatenar las
+/// cadenas.
+///
+/// # Ejemplo
+///
+/// ```rust#ignore
+/// // Concatena los fragmentos.
+/// let result = strict_string!(["Hello", "World"]);
+/// assert_eq!(result, Some("HelloWorld".to_string()));
+///
+/// // Concatena los fragmentos con un separador.
+/// let result_with_separator = strict_string!(["Hello", "World"]; " ");
+/// assert_eq!(result_with_separator, Some("Hello World".to_string()));
+///
+/// // Devuelve `None` si alguna de las cadenas es vacía.
+/// let result_with_empty = strict_string!(["Hello", "", "World"]);
+/// assert_eq!(result_with_empty, None);
+/// ```
+#[macro_export]
+macro_rules! strict_string {
+    ([$($arg:expr),* $(,)?]) => {{
+        let fragments = [$($arg),*];
+        if fragments.iter().any(|&item| item.is_empty()) {
+            None
+        } else {
+            Some(fragments.concat())
+        }
+    }};
+    ([$($arg:expr),* $(,)?]; $separator:expr) => {{
+        let fragments = [$($arg),*];
+        if fragments.iter().any(|&item| item.is_empty()) {
+            None
+        } else {
+            Some(fragments.join($separator))
+        }
+    }};
+}
+
+/// Concatena dos fragmentos de cadenas (*string slices*) en una cadena `String` con un separador.
 ///
 /// Concatena los dos fragmentos que implementen `AsRef<str>` usando el separador proporcionado,
 /// pero devuelve sólo el primer fragmento si el segundo está vacío, o sólo el segundo fragmento si

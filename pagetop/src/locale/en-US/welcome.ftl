@@ -1,5 +1,5 @@
-welcome_package_name = Default homepage
-welcome_package_description = Displays a landing page when none is configured.
+welcome_extension_name = Default homepage
+welcome_extension_description = Displays a landing page when none is configured.
 
 welcome_title = Hello world!
 

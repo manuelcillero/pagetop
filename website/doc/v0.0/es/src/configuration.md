@@ -8,7 +8,7 @@ PageTop depende en gran medida de las mejoras que se aplican en el lenguaje y el
 
 Puedes instalar Rust siguiendo la [Guía de Inicio Rápido de Rust](https://www.rust-lang.org/learn/get-started).
 
-Una vez completada la instalación, tendrás disponibles en tu sistema el compilador `rustc` y `cargo` para la construcción y gestión de paquetes (*crates*) de Rust.
+Una vez completada la instalación, tendrás disponibles en tu sistema el compilador `rustc` y `cargo` para la construcción y gestión de *crates* de Rust.
 
 ## Recursos para aprender Rust
 
@@ -59,7 +59,7 @@ edition = "2021"
 
 ## Añade PageTop como dependencia
 
-PageTop está disponible como [biblioteca en crates.io](https://crates.io/crates/pagetop), el repositorio oficial de paquetes (*crates*) Rust.
+PageTop está disponible como [biblioteca en crates.io](https://crates.io/crates/pagetop), el repositorio oficial de *crates* Rust.
 
 La forma más fácil de incorporarlo en tu proyecto es usar `cargo add`:
 

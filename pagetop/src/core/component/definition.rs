@@ -43,7 +43,7 @@ impl<C: ComponentTrait> ComponentBase for C {
             // Acciones específicas del tema antes de renderizar el componente.
             action::theme::BeforeRender::dispatch(self, cx);
 
-            // Acciones de los paquetes antes de renderizar el componente.
+            // Acciones de las extensiones antes de renderizar el componente.
             action::component::BeforeRender::dispatch(self, cx);
 
             // Renderiza el componente.
@@ -55,7 +55,7 @@ impl<C: ComponentTrait> ComponentBase for C {
             // Acciones específicas del tema después de renderizar el componente.
             action::theme::AfterRender::dispatch(self, cx);
 
-            // Acciones de los paquetes después de renderizar el componente.
+            // Acciones de las extensiones después de renderizar el componente.
             action::component::AfterRender::dispatch(self, cx);
 
             markup

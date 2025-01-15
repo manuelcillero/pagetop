@@ -20,10 +20,10 @@ use pagetop::prelude::*;
 
 struct Drust;
 
-impl PackageTrait for Drust {
-    fn dependencies(&self) -> Vec<PackageRef> {
+impl ExtensionTrait for Drust {
+    fn dependencies(&self) -> Vec<ExtensionRef> {
         vec![
-            // Paquetes.
+            // Extensiones.
             //&pagetop_admin::Admin,
             //&pagetop_user::User,
             //&pagetop_node::Node,

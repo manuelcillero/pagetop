@@ -102,9 +102,9 @@
 //!
 //! include_files!(guides);
 //!
-//! pub struct MyPackage;
+//! pub struct MyExtension;
 //!
-//! impl PackageTrait for MyPackage {
+//! impl ExtensionTrait for MyExtension {
 //!     // Configures a web service to expose the `guides` resources at `/route/to/guides`.
 //!     fn configure_service(&self, scfg: &mut service::web::ServiceConfig) {
 //!         include_files_service!(scfg, guides => "/route/to/guides");
