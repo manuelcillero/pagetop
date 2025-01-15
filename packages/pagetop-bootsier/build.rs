@@ -4,7 +4,7 @@ use std::env;
 use std::path::Path;
 
 fn main() -> std::io::Result<()> {
-    StaticFilesBundle::from_scss("./static/scss/bootstrap.scss", "bootstrap.min.css")
+    StaticFilesBundle::from_scss("./static/scss/bootsier.scss", "bootstrap.min.css")
         .with_name("bootsier_bs")
         .build()?;
     StaticFilesBundle::from_dir("./static/js", Some(bootstrap_js_files))
