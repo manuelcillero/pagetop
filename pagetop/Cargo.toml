@@ -1,6 +1,6 @@
 [package]
 name = "pagetop"
-version = "0.0.60"
+version = "0.0.61"
 edition = "2021"
 
 description = """\
@@ -17,7 +17,7 @@ authors.workspace = true
 
 [dependencies]
 chrono = "0.4.39"
-colored = "2.2.0"
+colored = "3.0.0"
 concat-string = "1.0.1"
 figlet-rs = "0.1.5"
 itoa = "1.0.14"
@@ -34,7 +34,7 @@ tracing-appender = "0.2.3"
 tracing-subscriber = { version = "0.3.19", features = ["json", "env-filter"] }
 tracing-actix-web = "0.7.15"
 
-fluent-templates = "0.12.0"
+fluent-templates = "0.13.0"
 unic-langid = { version = "0.9.5", features = ["macros"] }
 
 actix-web = "4.9.0"
