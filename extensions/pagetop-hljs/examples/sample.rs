@@ -18,7 +18,7 @@ impl ExtensionTrait for HljsSample {
     }
 
     fn configure_service(&self, scfg: &mut service::web::ServiceConfig) {
-        scfg.route("/snippet", service::web::get().to(hljs_sample));
+        scfg.route("/", service::web::get().to(hljs_sample));
     }
 }
 
