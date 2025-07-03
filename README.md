@@ -12,6 +12,20 @@
 la creación de soluciones web SSR (*renderizadas en el servidor*) basadas en HTML, CSS y JavaScript.
 
 
+# ⚡️ Guía rápida
+
+La aplicación más sencilla de `PageTop` se ve así:
+
+```rust#ignore
+use pagetop::prelude::*;
+
+#[pagetop::main]
+async fn main() -> std::io::Result<()> {
+    Application::new().run()?.await
+}
+```
+
+
 # 📜 Licencia
 
 El código está disponible bajo una doble licencia:
@@ -26,7 +40,7 @@ Puedes elegir la licencia que prefieras. Este enfoque de doble licencia es el es
 el ecosistema Rust.
 
 
-# ✨ Contribuciones
+# ✨ Contribuir
 
 Cualquier contribución para añadir al proyecto se considerará automáticamente bajo la doble licencia
 indicada arriba (MIT o Apache v2.0), sin términos o condiciones adicionales, tal y como permite la

@@ -1,0 +1,38 @@
+[package]
+name = "pagetop"
+version = "0.0.1"
+edition = "2021"
+
+description = """\
+    Un entorno de desarrollo para crear soluciones web modulares, extensibles y configurables.\
+"""
+categories = ["web-programming", "gui", "development-tools", "asynchronous"]
+keywords = ["pagetop", "web", "framework", "frontend", "ssr"]
+
+repository.workspace = true
+homepage.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[dependencies]
+actix-web = "4.11.0"
+
+pagetop-macros.workspace = true
+
+
+
+[workspace]
+resolver = "2"
+members = [
+    "helpers/pagetop-macros",
+]
+
+[workspace.package]
+repository = "https://git.cillero.es/manuelcillero/pagetop"
+homepage = "https://pagetop.cillero.es"
+license = "MIT OR Apache-2.0"
+authors = ["Manuel Cillero <manuel@cillero.es>"]
+
+[workspace.dependencies]
+# Helpers
+pagetop-macros = { version = "0.0", path = "helpers/pagetop-macros" }
