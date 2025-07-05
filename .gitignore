@@ -1,2 +1,7 @@
 # Ignora directorios de compilación
 **/target
+
+# Archivos de configuración locales
+**/local.*.toml
+**/local.toml
+.env

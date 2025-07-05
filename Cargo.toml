@@ -1,6 +1,6 @@
 [package]
 name = "pagetop"
-version = "0.0.1"
+version = "0.0.2"
 edition = "2021"
 
 description = """\
@@ -15,6 +15,13 @@ license.workspace = true
 authors.workspace = true
 
 [dependencies]
+colored = "3.0.0"
+config = { version = "0.15.11", default-features = false, features = ["toml"] }
+figlet-rs = "0.1.5"
+serde.workspace = true
+substring = "1.4.5"
+terminal_size = "0.4.2"
+
 actix-web = "4.11.0"
 
 pagetop-macros.workspace = true
@@ -34,5 +41,7 @@ license = "MIT OR Apache-2.0"
 authors = ["Manuel Cillero <manuel@cillero.es>"]
 
 [workspace.dependencies]
+serde = { version = "1.0", features = ["derive"] }
+
 # Helpers
 pagetop-macros = { version = "0.0", path = "helpers/pagetop-macros" }

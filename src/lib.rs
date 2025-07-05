@@ -36,6 +36,10 @@ pub use pagetop_macros::{main, test};
 
 // API *********************************************************************************************
 
+// Carga las opciones de configuración.
+pub mod config;
+// Opciones de configuración globales.
+pub mod global;
 // Gestión del servidor y servicios web.
 pub mod service;
 // Prepara y ejecuta la aplicación.
