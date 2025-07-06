@@ -1,6 +1,6 @@
 [package]
 name = "pagetop"
-version = "0.0.2"
+version = "0.0.3"
 edition = "2021"
 
 description = """\
@@ -21,6 +21,11 @@ figlet-rs = "0.1.5"
 serde.workspace = true
 substring = "1.4.5"
 terminal_size = "0.4.2"
+
+tracing = "0.1.41"
+tracing-appender = "0.2.3"
+tracing-subscriber = { version = "0.3.19", features = ["json", "env-filter"] }
+tracing-actix-web = "0.7.18"
 
 actix-web = "4.11.0"
 
