@@ -55,7 +55,7 @@
 //! Y usa la macro [`include_config!`](crate::include_config) para inicializar tus ajustes en una
 //! estructura con tipos seguros. Por ejemplo:
 //!
-//! ```rust#ignore
+//! ```rust,no_run
 //! use pagetop::prelude::*;
 //! use serde::Deserialize;
 //!
@@ -94,7 +94,7 @@
 //!
 //! # Usando tus opciones de configuración
 //!
-//! ```rust#ignore
+//! ```rust,ignore
 //! use pagetop::prelude::*;
 //! use crate::config;
 //!
@@ -160,20 +160,109 @@ pub static CONFIG_VALUES: LazyLock<ConfigBuilder<DefaultState>> = LazyLock::new(
         .expect("Failed to set application run mode")
 });
 
+/// Incluye los ajustes necesarios de la configuración anticipando valores por defecto.
+///
+/// ### Sintaxis
+///
+/// Hay que añadir en nuestra librería el siguiente código:
+///
+/// ```rust,ignore
+/// include_config!(SETTINGS: Settings => [
+///     "ruta.clave" => valor,
+///     // …
+/// ]);
+/// ```
+///
+/// donde:
+///
+/// * **`SETTINGS_NAME`** es el nombre de la variable global que se usará para referenciar los
+///   ajustes. Se recomienda usar `SETTINGS`, aunque no es obligatorio.
+/// * **`Settings_Type`** es la referencia a la estructura que define los tipos para deserializar la
+///   configuración. Debe implementar `Deserialize` (derivable con `#[derive(Deserialize)]`).
+/// * **Lista de pares** con las claves TOML que requieran valores por defecto. Siguen la notación
+///   `"seccion.subclave"` para coincidir con el árbol TOML.
+///
+/// ### Ejemplo básico
+///
+/// ```rust,no_run
+/// use pagetop::prelude::*;
+/// use serde::Deserialize;
+///
+/// include_config!(SETTINGS: BlogSettings => [
+///     // [blog]
+///     "blog.title" => "Mi Blog",
+///     "blog.port"  => 8080,
+/// ]);
+///
+/// #[derive(Debug, Deserialize)]
+/// pub struct BlogSettings {
+///     pub blog: Blog,
+/// }
+///
+/// #[derive(Debug, Deserialize)]
+/// pub struct Blog {
+///     pub title: String,
+///     pub description: Option<String>,
+///     pub port:  u16,
+/// }
+///
+/// fn print_title() {
+///     // Lectura en tiempo de ejecución.
+///     println!("Título: {}", SETTINGS.blog.title);
+/// }
+/// ```
+///
+/// ### Buenas prácticas
+///
+/// * **Valores por defecto**. Declara un valor por defecto para cada clave obligatoria. Las claves
+///   opcionales pueden ser `Option<T>`.
+///
+/// * **Secciones únicas**. Agrupa tus claves dentro de una sección exclusiva (p.e. `[blog]`) para
+///   evitar colisiones con otras librerías.
+///
+/// * **Solo lectura**. La variable generada es inmutable durante toda la vida del programa. Para
+///   configurar distintos entornos (*dev*, *staging*, *prod*) usa los archivos TOML descritos en la
+///   documentación de [`config`](crate::config).
+///
+/// * **Errores explícitos**. Si la deserialización falla, la macro lanzará un `panic!` con un
+///   mensaje que indica la estructura problemática, facilitando la depuración.
+///
+/// ### Requisitos
+///
+/// * Dependencia `serde` con la *feature* `derive`.
+/// * Las claves deben coincidir con los campos (*snake case*) de tu estructura `Settings_Type`.
+///
+/// ```toml
+/// [dependencies]
+/// serde = { version = "1.0", features = ["derive"] }
+/// ```
+
 #[macro_export]
 macro_rules! include_config {
-    ( $SETTINGS:ident : $Settings:ty => [ $( $key:expr => $value:expr ),* $(,)? ] ) => {
-        /// Valores asignados o predefinidos para la configuración de [`$Settings`].
-        pub static $SETTINGS: std::sync::LazyLock<$Settings> = std::sync::LazyLock::new(|| {
-            let mut settings = $crate::config::CONFIG_VALUES.clone();
-            $(
-                settings = settings.set_default($key, $value).unwrap();
-            )*
-            settings
-                .build()
-                .expect(concat!("Failed to build config for ", stringify!($Settings)))
-                .try_deserialize::<$Settings>()
-                .expect(concat!("Error parsing settings for ", stringify!($Settings)))
-        });
+    ( $SETTINGS_NAME:ident : $Settings_Type:ty => [ $( $k:literal => $v:expr ),* $(,)? ] ) => {
+        #[doc = concat!(
+            "Referencia a los ajustes de configuración deserializados de [`",
+            stringify!($Settings_Type),
+            "`]."
+        )]
+        #[doc = ""]
+        #[doc = "Valores por defecto:"]
+        #[doc = "```text"]
+        $(
+            #[doc = concat!($k, " = ", stringify!($v))]
+        )*
+        #[doc = "```"]
+        pub static $SETTINGS_NAME: std::sync::LazyLock<$Settings_Type> =
+            std::sync::LazyLock::new(|| {
+                let mut settings = $crate::config::CONFIG_VALUES.clone();
+                $(
+                    settings = settings.set_default($k, $v).unwrap();
+                )*
+                settings
+                    .build()
+                    .expect(concat!("Failed to build config for ", stringify!($Settings_Type)))
+                    .try_deserialize::<$Settings_Type>()
+                    .expect(concat!("Error parsing settings for ", stringify!($Settings_Type)))
+            });
     };
 }

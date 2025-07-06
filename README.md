@@ -16,7 +16,7 @@ la creación de soluciones web SSR (*renderizadas en el servidor*) basadas en HT
 
 La aplicación más sencilla de `PageTop` se ve así:
 
-```rust#ignore
+```rust
 use pagetop::prelude::*;
 
 #[pagetop::main]
