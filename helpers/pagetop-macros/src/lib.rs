@@ -21,7 +21,7 @@ use quote::quote;
 ///
 /// # Ejemplos
 ///
-/// ```rust#ignore
+/// ```rust,ignore
 /// #[pagetop::main]
 /// async fn main() {
 ///     async { println!("Hello world!"); }.await
@@ -42,7 +42,7 @@ pub fn main(_: TokenStream, item: TokenStream) -> TokenStream {
 ///
 /// # Ejemplos
 ///
-/// ```rust#ignore
+/// ```rust,ignore
 /// #[pagetop::test]
 /// async fn test() {
 ///     assert_eq!(async { "Hello world" }.await, "Hello world");

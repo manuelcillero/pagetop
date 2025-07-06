@@ -19,7 +19,7 @@
 //!
 //! La aplicación más sencilla de `PageTop` se ve así:
 //!
-//! ```rust#ignore
+//! ```rust,no_run
 //! use pagetop::prelude::*;
 //!
 //! #[pagetop::main]
