@@ -13,6 +13,8 @@ pub use crate::include_config;
 
 pub use crate::global;
 
+pub use crate::trace;
+
 pub use crate::service;
 
 pub use crate::app::Application;

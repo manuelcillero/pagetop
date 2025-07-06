@@ -2,11 +2,12 @@
 
 mod figfont;
 
-use crate::{global, service};
+use crate::{global, service, trace};
 
 use substring::Substring;
 
 use std::io::Error;
+use std::sync::LazyLock;
 
 pub struct Application;
 
@@ -15,6 +16,10 @@ impl Application {
     pub fn new() -> Self {
         // Al arrancar muestra una cabecera para la aplicación.
         Self::show_banner();
+
+        // Inicia gestión de trazas y registro de eventos (logging).
+        LazyLock::force(&trace::TRACING);
+
         Self
     }
 
@@ -62,13 +67,15 @@ impl Application {
     /// Ejecuta el servidor web de la aplicación.
     pub fn run(self) -> Result<service::Server, Error> {
         // Prepara el servidor web.
-        Ok(service::HttpServer::new(move || Self::service_app())
-            .bind(format!(
-                "{}:{}",
-                &global::SETTINGS.server.bind_address,
-                &global::SETTINGS.server.bind_port
-            ))?
-            .run())
+        Ok(service::HttpServer::new(move || {
+            Self::service_app().wrap(tracing_actix_web::TracingLogger::default())
+        })
+        .bind(format!(
+            "{}:{}",
+            &global::SETTINGS.server.bind_address,
+            &global::SETTINGS.server.bind_port
+        ))?
+        .run())
     }
 
     /// Prepara el servidor web de la aplicación para pruebas.

@@ -40,6 +40,8 @@ pub use pagetop_macros::{main, test};
 pub mod config;
 // Opciones de configuración globales.
 pub mod global;
+// Gestión de trazas y registro de eventos de la aplicación.
+pub mod trace;
 // Gestión del servidor y servicios web.
 pub mod service;
 // Prepara y ejecuta la aplicación.
