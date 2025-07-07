@@ -17,11 +17,10 @@
 mod maud;
 
 use proc_macro::TokenStream;
-use proc_macro_error::proc_macro_error;
 use quote::quote;
 
+/// Macro para escribir plantillas HTML ([Maud](https://docs.rs/maud)).
 #[proc_macro]
-#[proc_macro_error]
 pub fn html(input: TokenStream) -> TokenStream {
     maud::expand(input.into()).into()
 }
