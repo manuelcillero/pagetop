@@ -4,6 +4,8 @@
 
 pub use crate::{html, main, test};
 
+pub use crate::AutoDefault;
+
 // MACROS.
 
 // crate::config
