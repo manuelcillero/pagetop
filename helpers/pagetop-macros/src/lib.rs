@@ -14,8 +14,17 @@
 //! web clásica para crear soluciones web SSR (*renderizadas en el servidor*) modulares, extensibles
 //! y configurables, basadas en HTML, CSS y JavaScript.
 
+mod maud;
+
 use proc_macro::TokenStream;
+use proc_macro_error::proc_macro_error;
 use quote::quote;
+
+#[proc_macro]
+#[proc_macro_error]
+pub fn html(input: TokenStream) -> TokenStream {
+    maud::expand(input.into()).into()
+}
 
 /// Define una función `main` asíncrona como punto de entrada de `PageTop`.
 ///
