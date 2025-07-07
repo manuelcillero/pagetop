@@ -1,4 +1,4 @@
-//#![no_std]
+// #![no_std]
 
 //! A macro for writing HTML templates.
 //!
@@ -7,11 +7,11 @@
 //!
 //! [book]: https://maud.lambda.xyz/
 
-//#![doc(html_root_url = "https://docs.rs/maud/0.25.0")]
+// #![doc(html_root_url = "https://docs.rs/maud/0.27.0")]
 
 extern crate alloc;
 
-use alloc::{borrow::Cow, boxed::Box, string::String};
+use alloc::{borrow::Cow, boxed::Box, string::String, sync::Arc};
 use core::fmt::{self, Arguments, Display, Write};
 
 pub use pagetop_macros::html;
@@ -34,8 +34,8 @@ mod escape;
 ///
 /// # Example
 ///
-/// ```rust#ignore
-/// use maud::Escaper;
+/// ```rust
+/// use pagetop::html::Escaper;
 /// use std::fmt::Write;
 /// let mut s = String::new();
 /// write!(Escaper::new(&mut s), "<script>launchMissiles()</script>").unwrap();
@@ -50,7 +50,7 @@ impl<'a> Escaper<'a> {
     }
 }
 
-impl<'a> fmt::Write for Escaper<'a> {
+impl fmt::Write for Escaper<'_> {
     fn write_str(&mut self, s: &str) -> fmt::Result {
         escape::escape_to_string(s, self.0);
         Ok(())
@@ -72,8 +72,8 @@ impl<'a> fmt::Write for Escaper<'a> {
 ///
 /// # Example
 ///
-/// ```rust#ignore
-/// use maud::{html, Markup, Render};
+/// ```rust
+/// use pagetop::html::{html, Markup, Render};
 ///
 /// /// Provides a shorthand for linking to a CSS stylesheet.
 /// pub struct Stylesheet(&'static str);
@@ -120,31 +120,37 @@ impl Render for String {
     }
 }
 
-impl<'a> Render for Cow<'a, str> {
+impl Render for Cow<'_, str> {
     fn render_to(&self, w: &mut String) {
         str::render_to(self, w);
     }
 }
 
-impl<'a> Render for Arguments<'a> {
+impl Render for Arguments<'_> {
     fn render_to(&self, w: &mut String) {
         let _ = Escaper::new(w).write_fmt(*self);
     }
 }
 
-impl<'a, T: Render + ?Sized> Render for &'a T {
+impl<T: Render + ?Sized> Render for &T {
     fn render_to(&self, w: &mut String) {
         T::render_to(self, w);
     }
 }
 
-impl<'a, T: Render + ?Sized> Render for &'a mut T {
+impl<T: Render + ?Sized> Render for &mut T {
     fn render_to(&self, w: &mut String) {
         T::render_to(self, w);
     }
 }
 
 impl<T: Render + ?Sized> Render for Box<T> {
+    fn render_to(&self, w: &mut String) {
+        T::render_to(self, w);
+    }
+}
+
+impl<T: Render + ?Sized> Render for Arc<T> {
     fn render_to(&self, w: &mut String) {
         T::render_to(self, w);
     }
@@ -188,15 +194,15 @@ impl_render_with_itoa! {
 ///
 /// # Example
 ///
-/// ```rust#ignore
-/// use maud::html;
+/// ```rust
+/// use pagetop::html::{display, html};
 /// use std::net::Ipv4Addr;
 ///
 /// let ip_address = Ipv4Addr::new(127, 0, 0, 1);
 ///
 /// let markup = html! {
 ///     "My IP address is: "
-///     (maud::display(ip_address))
+///     (display(ip_address))
 /// };
 ///
 /// assert_eq!(markup.into_string(), "My IP address is: 127.0.0.1");
@@ -215,7 +221,7 @@ pub fn display(value: impl Display) -> impl Render {
 
 /// A wrapper that renders the inner value without escaping.
 #[derive(Debug, Clone, Copy)]
-pub struct PreEscaped<T: AsRef<str>>(pub T);
+pub struct PreEscaped<T>(pub T);
 
 impl<T: AsRef<str>> Render for PreEscaped<T> {
     fn render_to(&self, w: &mut String) {
@@ -234,20 +240,20 @@ impl Markup {
     }
 }
 
-impl<T: AsRef<str> + Into<String>> PreEscaped<T> {
+impl<T: Into<String>> PreEscaped<T> {
     /// Converts the inner value to a string.
     pub fn into_string(self) -> String {
         self.0.into()
     }
 }
 
-impl<T: AsRef<str> + Into<String>> From<PreEscaped<T>> for String {
+impl<T: Into<String>> From<PreEscaped<T>> for String {
     fn from(value: PreEscaped<T>) -> String {
         value.into_string()
     }
 }
 
-impl<T: AsRef<str> + Default> Default for PreEscaped<T> {
+impl<T: Default> Default for PreEscaped<T> {
     fn default() -> Self {
         Self(Default::default())
     }
@@ -259,8 +265,8 @@ impl<T: AsRef<str> + Default> Default for PreEscaped<T> {
 ///
 /// A minimal web page:
 ///
-/// ```rust#ignore
-/// use maud::{DOCTYPE, html};
+/// ```rust
+/// use pagetop::html::{DOCTYPE, html};
 ///
 /// let markup = html! {
 ///     (DOCTYPE)
@@ -280,9 +286,34 @@ pub const DOCTYPE: PreEscaped<&'static str> = PreEscaped("<!DOCTYPE html>");
 mod actix_support {
     extern crate alloc;
 
+    use core::{
+        pin::Pin,
+        task::{Context, Poll},
+    };
+
     use crate::html::PreEscaped;
-    use actix_web::{http::header, HttpRequest, HttpResponse, Responder};
+    use actix_web::{
+        body::{BodySize, MessageBody},
+        http::header,
+        web::Bytes,
+        HttpRequest, HttpResponse, Responder,
+    };
     use alloc::string::String;
+
+    impl MessageBody for PreEscaped<String> {
+        type Error = <String as MessageBody>::Error;
+
+        fn size(&self) -> BodySize {
+            self.0.size()
+        }
+
+        fn poll_next(
+            mut self: Pin<&mut Self>,
+            cx: &mut Context<'_>,
+        ) -> Poll<Option<Result<Bytes, Self::Error>>> {
+            Pin::new(&mut self.0).poll_next(cx)
+        }
+    }
 
     impl Responder for PreEscaped<String> {
         type Body = String;

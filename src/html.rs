@@ -1,4 +1,4 @@
 //! HTML en código.
 
 mod maud;
-pub use maud::{html, html_private, Markup, PreEscaped, DOCTYPE};
+pub use maud::{display, html, html_private, Escaper, Markup, PreEscaped, Render, DOCTYPE};

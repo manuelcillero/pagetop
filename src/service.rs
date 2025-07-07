@@ -1,4 +1,4 @@
-//! Gestión del servidor y servicios web ([actix-web](https://docs.rs/actix-web)).
+//! Gestión del servidor y servicios web ([Actix Web](https://docs.rs/actix-web)).
 
 pub use actix_web::body::BoxBody;
 pub use actix_web::dev::Server;
