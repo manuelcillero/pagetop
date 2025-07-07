@@ -11,9 +11,12 @@
 ## Descripción general
 
 Entre sus macros se incluye una adaptación de [maud-macros](https://crates.io/crates/maud_macros)
-([0.25.0](https://github.com/lambda-fairy/maud/tree/v0.25.0/maud_macros)) de
-[Chris Wong](https://crates.io/users/lambda-fairy) para no tener que referenciar `maud` en las
-dependencias del archivo `Cargo.toml` de cada proyecto `PageTop`.
+([0.27.0](https://github.com/lambda-fairy/maud/tree/v0.27.0/maud_macros)) de
+[Chris Wong](https://crates.io/users/lambda-fairy) y una versión renombrada de
+[SmartDefault](https://crates.io/crates/smart_default) (0.7.1) de
+[Jane Doe](https://crates.io/users/jane-doe), llamada `AutoDefault`. Estas macros eliminan la
+necesidad de referenciar `maud` o `smart_default` en las dependencias del archivo `Cargo.toml` de
+cada proyecto `PageTop`.
 
 ## Sobre PageTop
 
