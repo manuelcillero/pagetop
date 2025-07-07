@@ -2,7 +2,7 @@
 
 // RE-EXPORTED.
 
-pub use crate::{main, test};
+pub use crate::{html, main, test};
 
 // MACROS.
 
@@ -14,6 +14,8 @@ pub use crate::include_config;
 pub use crate::global;
 
 pub use crate::trace;
+
+pub use crate::html::*;
 
 pub use crate::service;
 

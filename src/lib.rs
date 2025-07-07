@@ -32,7 +32,7 @@
 
 // RE-EXPORTED *************************************************************************************
 
-pub use pagetop_macros::{main, test};
+pub use pagetop_macros::{html, main, test};
 
 // API *********************************************************************************************
 
@@ -42,6 +42,8 @@ pub mod config;
 pub mod global;
 // Gestión de trazas y registro de eventos de la aplicación.
 pub mod trace;
+// HTML en código.
+pub mod html;
 // Gestión del servidor y servicios web.
 pub mod service;
 // Prepara y ejecuta la aplicación.
