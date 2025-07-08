@@ -33,7 +33,6 @@ use std::sync::LazyLock;
 /// Dado que las trazas o eventos registrados poco antes de un fallo suelen ser cruciales para
 /// diagnosticar la causa, `Lazy<WorkerGuard>` garantiza que todos los registros almacenados se
 /// envíen antes de finalizar la ejecución.
-
 #[rustfmt::skip]
 pub(crate) static TRACING: LazyLock<WorkerGuard> = LazyLock::new(|| {
     let env_filter = EnvFilter::try_new(&global::SETTINGS.log.tracing)
