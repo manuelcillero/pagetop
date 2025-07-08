@@ -23,7 +23,7 @@
 //!    * Si `PAGETOP_RUN_MODE` no está definida, se asume el valor `default`, y `PageTop` intentará
 //!      cargar *config/default.toml* si el archivo existe.
 //!
-//!    * Útil para definir configuraciones específicas por entorno, garantizando que cada uno (p.e.
+//!    * Útil para definir configuraciones específicas por entorno, garantizando que cada uno (p.ej.
 //!      *dev*, *staging* o *production*) disponga de sus propias opciones, como claves de API,
 //!      URLs o ajustes de rendimiento, sin afectar a los demás.
 //!
@@ -126,7 +126,7 @@ const DEFAULT_RUN_MODE: &str = "default";
 /// Valores originales cargados desde los archivos de configuración como pares `clave = valor`.
 pub static CONFIG_VALUES: LazyLock<ConfigBuilder<DefaultState>> = LazyLock::new(|| {
     // Determina el directorio de configuración:
-    // - Usa CONFIG_DIR si está definido en el entorno (p.e.: CONFIG_DIR=/etc/myapp ./myapp).
+    // - Usa CONFIG_DIR si está definido en el entorno (p.ej.: CONFIG_DIR=/etc/myapp ./myapp).
     // - Si no, intenta DEFAULT_CONFIG_DIR dentro del proyecto (en CARGO_MANIFEST_DIR).
     // - Si nada de esto aplica, entonces usa DEFAULT_CONFIG_DIR relativo al ejecutable.
     let config_dir: PathBuf = if let Ok(env_dir) = env::var("CONFIG_DIR") {
@@ -143,15 +143,15 @@ pub static CONFIG_VALUES: LazyLock<ConfigBuilder<DefaultState>> = LazyLock::new(
     };
 
     // Determina el modo de ejecución según la variable de entorno PAGETOP_RUN_MODE. Por defecto usa
-    // DEFAULT_RUN_MODE si no está definida (p.e.: PAGETOP_RUN_MODE=production ./myapp).
+    // DEFAULT_RUN_MODE si no está definida (p.ej.: PAGETOP_RUN_MODE=production ./myapp).
     let rm = env::var("PAGETOP_RUN_MODE").unwrap_or_else(|_| DEFAULT_RUN_MODE.into());
 
     Config::builder()
         // 1. Configuración común para todos los entornos (common.toml).
         .add_source(File::from(config_dir.join("common.toml")).required(false))
-        // 2. Configuración específica del entorno (p.e.: default.toml, production.toml).
+        // 2. Configuración específica del entorno (p.ej.: default.toml, production.toml).
         .add_source(File::from(config_dir.join(format!("{rm}.toml"))).required(false))
-        // 3. Configuración local reservada para cada entorno (p.e.: local.default.toml).
+        // 3. Configuración local reservada para cada entorno (p.ej.: local.default.toml).
         .add_source(File::from(config_dir.join(format!("local.{rm}.toml"))).required(false))
         // 4. Configuración local común (local.toml).
         .add_source(File::from(config_dir.join("local.toml")).required(false))
@@ -217,7 +217,7 @@ pub static CONFIG_VALUES: LazyLock<ConfigBuilder<DefaultState>> = LazyLock::new(
 /// * **Valores por defecto**. Declara un valor por defecto para cada clave obligatoria. Las claves
 ///   opcionales pueden ser `Option<T>`.
 ///
-/// * **Secciones únicas**. Agrupa tus claves dentro de una sección exclusiva (p.e. `[blog]`) para
+/// * **Secciones únicas**. Agrupa tus claves dentro de una sección exclusiva (p.ej. `[blog]`) para
 ///   evitar colisiones con otras librerías.
 ///
 /// * **Solo lectura**. La variable generada es inmutable durante toda la vida del programa. Para
@@ -236,7 +236,6 @@ pub static CONFIG_VALUES: LazyLock<ConfigBuilder<DefaultState>> = LazyLock::new(
 /// [dependencies]
 /// serde = { version = "1.0", features = ["derive"] }
 /// ```
-
 #[macro_export]
 macro_rules! include_config {
     ( $SETTINGS_NAME:ident : $Settings_Type:ty => [ $( $k:literal => $v:expr ),* $(,)? ] ) => {

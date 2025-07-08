@@ -11,6 +11,12 @@ use std::sync::LazyLock;
 
 pub struct Application;
 
+impl Default for Application {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Application {
     /// Crea una instancia de la aplicación.
     pub fn new() -> Self {
