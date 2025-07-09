@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="https://git.cillero.es/manuelcillero/pagetop/raw/branch/main/static/banner.png" />
+
 <h1>PageTop</h1>
 
 <p>Un entorno para el desarrollo de soluciones web modulares, extensibles y configurables.</p>
@@ -24,6 +26,13 @@ async fn main() -> std::io::Result<()> {
     Application::new().run()?.await
 }
 ```
+
+
+# 🚧 Advertencia
+
+`PageTop` es un proyecto personal para aprender [Rust](https://www.rust-lang.org/es) y conocer su
+ecosistema. Su API está sujeta a cambios frecuentes. No se recomienda su uso en producción, al menos
+hasta que se libere la versión **1.0.0**.
 
 
 # 📜 Licencia
