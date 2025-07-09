@@ -27,6 +27,8 @@ pub use crate::html::*;
 
 pub use crate::locale::*;
 
+pub use crate::datetime::*;
+
 pub use crate::service;
 
 pub use crate::app::Application;
