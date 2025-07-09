@@ -2,7 +2,7 @@
 
 mod figfont;
 
-use crate::{global, service, trace};
+use crate::{global, locale, service, trace};
 
 use substring::Substring;
 
@@ -25,6 +25,9 @@ impl Application {
 
         // Inicia gestión de trazas y registro de eventos (logging).
         LazyLock::force(&trace::TRACING);
+
+        // Valida el identificador de idioma por defecto.
+        LazyLock::force(&locale::DEFAULT_LANGID);
 
         Self
     }

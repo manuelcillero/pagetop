@@ -36,6 +36,8 @@ pub use pagetop_macros::{html, main, test, AutoDefault};
 
 // API *********************************************************************************************
 
+// Funciones y macros útiles.
+pub mod util;
 // Carga las opciones de configuración.
 pub mod config;
 // Opciones de configuración globales.
@@ -44,6 +46,8 @@ pub mod global;
 pub mod trace;
 // HTML en código.
 pub mod html;
+// Localización.
+pub mod locale;
 // Gestión del servidor y servicios web.
 pub mod service;
 // Prepara y ejecuta la aplicación.
