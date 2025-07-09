@@ -1,6 +1,6 @@
 [package]
 name = "pagetop"
-version = "0.0.4"
+version = "0.0.5"
 edition = "2021"
 
 description = """\
@@ -27,6 +27,9 @@ tracing = "0.1.41"
 tracing-appender = "0.2.3"
 tracing-subscriber = { version = "0.3.19", features = ["json", "env-filter"] }
 tracing-actix-web = "0.7.18"
+
+fluent-templates = "0.13.0"
+unic-langid = { version = "0.9.6", features = ["macros"] }
 
 actix-web = "4.11.0"
 
