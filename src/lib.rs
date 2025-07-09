@@ -48,6 +48,8 @@ pub mod trace;
 pub mod html;
 // Localización.
 pub mod locale;
+// Soporte a fechas y horas.
+pub mod datetime;
 // Gestión del servidor y servicios web.
 pub mod service;
 // Prepara y ejecuta la aplicación.
