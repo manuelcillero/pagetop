@@ -1,6 +1,6 @@
 [package]
 name = "pagetop"
-version = "0.0.6"
+version = "0.0.7"
 edition = "2021"
 
 description = """\
@@ -20,7 +20,7 @@ colored = "3.0.0"
 config = { version = "0.15.13", default-features = false, features = ["toml"] }
 figlet-rs = "0.1.5"
 itoa = "1.0.15"
-serde.workspace = true
+paste = { package = "pastey", version = "0.1.0" }
 substring = "1.4.5"
 terminal_size = "0.4.2"
 
@@ -33,14 +33,18 @@ fluent-templates = "0.13.0"
 unic-langid = { version = "0.9.6", features = ["macros"] }
 
 actix-web = "4.11.0"
+static-files.workspace = true
 
-pagetop-macros.workspace = true
+serde = { version = "1.0", features = ["derive"] }
+
+pagetop-macros = { version = "0.0", path = "helpers/pagetop-macros" }
 
 
 
 [workspace]
 resolver = "2"
 members = [
+    "helpers/pagetop-build",
     "helpers/pagetop-macros",
 ]
 
@@ -51,7 +55,4 @@ license = "MIT OR Apache-2.0"
 authors = ["Manuel Cillero <manuel@cillero.es>"]
 
 [workspace.dependencies]
-serde = { version = "1.0", features = ["derive"] }
-
-# Helpers
-pagetop-macros = { version = "0.0", path = "helpers/pagetop-macros" }
+static-files = "0.2.5"
