@@ -35,6 +35,14 @@ use std::sync::LazyLock;
 /// envíen antes de finalizar la ejecución.
 #[rustfmt::skip]
 pub(crate) static TRACING: LazyLock<WorkerGuard> = LazyLock::new(|| {
+    if !global::SETTINGS.log.enabled || cfg!(test) || cfg!(feature = "testing") {
+        // Tracing desactivado, se instala un subscriber nulo.
+        tracing::subscriber::set_global_default(tracing::subscriber::NoSubscriber::default())
+            .expect("Failed to install global NoSubscriber (tracing disabled)");
+        let (_, guard) = tracing_appender::non_blocking(std::io::sink());
+        return guard;
+    }
+
     let env_filter = EnvFilter::try_new(&global::SETTINGS.log.tracing)
         .unwrap_or_else(|_| EnvFilter::new("Info"));
 

@@ -45,7 +45,7 @@ pub fn derive_auto_default(input: TokenStream) -> TokenStream {
 
 /// Define una función `main` asíncrona como punto de entrada de `PageTop`.
 ///
-/// # Ejemplos
+/// # Ejemplo
 ///
 /// ```rust,ignore
 /// #[pagetop::main]
@@ -66,7 +66,7 @@ pub fn main(_: TokenStream, item: TokenStream) -> TokenStream {
 
 /// Define funciones de prueba asíncronas para usar con `PageTop`.
 ///
-/// # Ejemplos
+/// # Ejemplo
 ///
 /// ```rust,ignore
 /// #[pagetop::test]

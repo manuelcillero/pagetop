@@ -12,6 +12,7 @@ include_config!(SETTINGS: Settings => [
     "app.startup_banner"  => "Slant",
 
     // [log]
+    "log.enabled"         => true,
     "log.tracing"         => "Info",
     "log.rolling"         => "Stdout",
     "log.path"            => "log",
@@ -52,6 +53,8 @@ pub struct App {
 #[derive(Debug, Deserialize)]
 /// Sección `[log]` de la configuración. Forma parte de [`Settings`].
 pub struct Log {
+    /// Gestión de trazas y registro de eventos activado (`true`) o desactivado (`false`).
+    pub enabled: bool,
     /// Opciones, o combinación de opciones separadas por comas, para filtrar las trazas: *"Error"*,
     /// *"Warn"*, *"Info"*, *"Debug"* o *"Trace"*.
     /// Ejemplo: "Error,actix_server::builder=Info,tracing_actix_web=Debug".
