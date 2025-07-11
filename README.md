@@ -28,6 +28,22 @@ async fn main() -> std::io::Result<()> {
 ```
 
 
+# 🧪 Pruebas
+
+Para simplificar el flujo de trabajo, el repositorio incluye varios **alias de Cargo** declarados en
+`.cargo/config.toml`. Basta con ejecutarlos desde la raíz del proyecto:
+
+| Comando | Descripción |
+| ------- | ----------- |
+| `cargo ts` | Ejecuta los tests de `pagetop` (*unit + integration*) con la *feature* `testing`. |
+| `cargo ts --test util` | Lanza sólo las pruebas de integración del módulo `util`. |
+| `cargo tw` | Ejecuta los tests de **todos los paquetes** del *workspace*. |
+
+> **Nota**
+> Estos alias ya compilan con la configuración adecuada. No requieren `--no-default-features`.
+> Si quieres **activar** las trazas del registro de eventos entonces usa simplemente `cargo test`.
+
+
 # 🚧 Advertencia
 
 `PageTop` es un proyecto personal para aprender [Rust](https://www.rust-lang.org/es) y conocer su
