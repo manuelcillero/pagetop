@@ -2,7 +2,7 @@
 
 // RE-EXPORTED.
 
-pub use crate::{html, main, test};
+pub use crate::{builder_fn, html, main, test};
 
 pub use crate::{AutoDefault, StaticResources};
 
