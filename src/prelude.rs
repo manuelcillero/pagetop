@@ -4,7 +4,7 @@
 
 pub use crate::{html, main, test};
 
-pub use crate::AutoDefault;
+pub use crate::{AutoDefault, StaticResources};
 
 // MACROS.
 
@@ -14,6 +14,8 @@ pub use crate::hm;
 pub use crate::include_config;
 // crate::locale
 pub use crate::include_locales;
+// crate::service
+pub use crate::{include_files, include_files_service};
 
 // API.
 
