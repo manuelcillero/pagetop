@@ -34,6 +34,9 @@
 
 pub use pagetop_macros::{html, main, test, AutoDefault};
 
+/// Representa un conjunto de recursos asociados a `$STATIC` en [`include_files!`].
+pub type StaticResources = std::collections::HashMap<&'static str, static_files::Resource>;
+
 // API *********************************************************************************************
 
 // Funciones y macros útiles.
