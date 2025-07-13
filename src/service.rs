@@ -15,18 +15,18 @@ pub use actix_web::test;
 ///
 /// # Formas de uso
 ///
-/// * `include_files!(media)` - Incluye el conjunto de recursos llamado `media`. Normalmente se
+/// * `include_files!(media)` - Para incluir un conjunto de recursos llamado `media`. Normalmente se
 ///   usará esta forma.
 ///
-/// * `include_files!(BLOG_HM => blog)` - Asigna a la variable estática `BLOG_HM` un conjunto de
-///   recursos llamado `blog`.
+/// * `include_files!(BLOG => media)` - También se puede asignar el conjunto de recursos a una
+///   variable global; p.ej. `BLOG`.
 ///
 /// # Argumentos
 ///
 /// * `$bundle` – Nombre del conjunto de recursos generado por `build.rs` (consultar
 ///   [`pagetop_build`](https://docs.rs/pagetop-build)).
-/// * `$STATIC` – Identificador para la variable estática de tipo
-///   [`StaticResources`](`crate::StaticResources`).
+/// * `$STATIC` – Asigna el conjunto de recursos a una variable global de tipo
+///   [`StaticResources`](crate::StaticResources).
 ///
 /// # Ejemplos
 ///
@@ -51,9 +51,10 @@ macro_rules! include_files {
             mod [<static_files_ $bundle>] {
                 include!(concat!(env!("OUT_DIR"), "/", stringify!($bundle), ".rs"));
             }
-            pub static $STATIC: std::sync::LazyLock<StaticResources> = std::sync::LazyLock::new(
-                [<static_files_ $bundle>]::$bundle
-            );
+            pub static $STATIC: std::sync::LazyLock<$crate::StaticResources> =
+                std::sync::LazyLock::new(
+                    $crate::StaticResources::new([<static_files_ $bundle>]::$bundle)
+                );
         }
     };
 }

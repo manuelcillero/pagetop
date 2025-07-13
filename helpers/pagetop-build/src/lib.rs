@@ -109,10 +109,10 @@
 //! }
 //! ```
 //!
-//! También se puede acceder al conjunto de recursos declarando un `HashMap` estático global:
+//! También se puede asignar el conjunto de recursos a una variable global; p.ej. `GUIDES`:
 //!
 //! ```rust,ignore
-//! include_files!(HM_GUIDES => guides);
+//! include_files!(GUIDES => guides);
 //! ```
 
 use grass::{from_path, Options, OutputStyle};
