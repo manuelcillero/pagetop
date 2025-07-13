@@ -30,12 +30,33 @@
 
 #![cfg_attr(docsrs, feature(doc_cfg))]
 
+use std::collections::HashMap;
+use std::ops::Deref;
+
 // RE-EXPORTED *************************************************************************************
 
 pub use pagetop_macros::{builder_fn, html, main, test, AutoDefault};
 
-/// Representa un conjunto de recursos asociados a `$STATIC` en [`include_files!`].
-pub type StaticResources = std::collections::HashMap<&'static str, static_files::Resource>;
+/// Conjunto de recursos asociados a `$STATIC` en [`include_files!`](crate::include_files).
+pub struct StaticResources {
+    bundle: HashMap<&'static str, static_files::Resource>,
+}
+
+impl StaticResources {
+    /// Crea un contenedor para un conjunto de recursos generado por `build.rs` (consultar
+    /// [`pagetop_build`](https://docs.rs/pagetop-build)).
+    pub fn new(bundle: HashMap<&'static str, static_files::Resource>) -> Self {
+        Self { bundle }
+    }
+}
+
+impl Deref for StaticResources {
+    type Target = HashMap<&'static str, static_files::Resource>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.bundle
+    }
+}
 
 // API *********************************************************************************************
 
