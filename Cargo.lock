@@ -526,6 +526,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "concat-string"
+version = "1.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7439becb5fafc780b6f4de382b1a7a3e70234afe783854a4702ee8adbb838609"
+
+[[package]]
 name = "config"
 version = "0.15.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1407,13 +1413,14 @@ checksum = "b15813163c1d831bf4a13c3610c05c0d03b39feb07f7e09fa234dac9b15aaf39"
 
 [[package]]
 name = "pagetop"
-version = "0.0.10"
+version = "0.0.11"
 dependencies = [
  "actix-files",
  "actix-web",
  "actix-web-static-files",
  "chrono",
  "colored",
+ "concat-string",
  "config",
  "figlet-rs",
  "fluent-templates",

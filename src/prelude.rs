@@ -9,7 +9,7 @@ pub use crate::{AutoDefault, StaticResources};
 // MACROS.
 
 // crate::util
-pub use crate::hm;
+pub use crate::{hm, join, join_opt, join_pair, join_strict};
 // crate::config
 pub use crate::include_config;
 // crate::locale

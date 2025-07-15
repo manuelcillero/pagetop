@@ -1,6 +1,6 @@
 [package]
 name = "pagetop"
-version = "0.0.10"
+version = "0.0.11"
 edition = "2021"
 
 description = """\
@@ -17,6 +17,7 @@ authors.workspace = true
 [dependencies]
 chrono = "0.4.41"
 colored = "3.0.0"
+concat-string = "1.0.1"
 config = { version = "0.15.13", default-features = false, features = ["toml"] }
 figlet-rs = "0.1.5"
 itoa = "1.0.15"
