@@ -33,4 +33,8 @@ pub use crate::datetime::*;
 
 pub use crate::service;
 
+pub use crate::core::{AnyCast, AnyInfo, TypeInfo};
+
+pub use crate::core::extension::*;
+
 pub use crate::app::Application;
