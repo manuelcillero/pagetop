@@ -5,6 +5,7 @@ use crate::trace;
 use std::io;
 use std::path::{Path, PathBuf};
 
+// FUNCIONES ÚTILES ********************************************************************************
 
 /// Devuelve la ruta absoluta a un directorio existente.
 ///
@@ -51,6 +52,9 @@ where
 #[doc(hidden)]
 pub use paste::paste;
 
+#[doc(hidden)]
+pub use concat_string::concat_string;
+
 #[macro_export]
 /// Macro para construir una colección de pares clave-valor.
 ///
@@ -71,5 +75,162 @@ macro_rules! hm {
             a.insert($key.into(), $value.into());
         )*
         a
+    }};
+}
+
+/// Concatena eficientemente varios fragmentos en un [`String`].
+///
+/// Esta macro exporta [`concat_string!`](https://docs.rs/concat-string). Acepta cualquier número de
+/// fragmentos que implementen [`AsRef<str>`] y construye un [`String`] con el tamaño óptimo, de
+/// forma eficiente y evitando el uso de cadenas de formato que penalicen el rendimiento.
+///
+/// # Ejemplo
+///
+/// ```rust
+/// use pagetop::prelude::*;
+///
+/// // Concatena todos los fragmentos directamente.
+/// let result = join!("Hello", " ", "World");
+/// assert_eq!(result, String::from("Hello World"));
+///
+/// // También funciona con valores vacíos.
+/// let result_with_empty = join!("Hello", "", "World");
+/// assert_eq!(result_with_empty, String::from("HelloWorld"));
+///
+/// // Un único fragmento devuelve el mismo valor.
+/// let single_result = join!("Hello");
+/// assert_eq!(single_result, String::from("Hello"));
+/// ```
+#[macro_export]
+macro_rules! join {
+    ($($arg:tt)*) => {
+        $crate::util::concat_string!($($arg)*)
+    };
+}
+
+/// Concatena los fragmentos no vacíos en un [`Option<String>`] con un separador opcional.
+///
+/// Esta macro acepta cualquier número de fragmentos que implementen [`AsRef<str>`] para concatenar
+/// todos los fragmentos no vacíos usando opcionalmente un separador.
+///
+/// Si todos los fragmentos están vacíos, devuelve [`None`].
+///
+/// # Ejemplo
+///
+/// ```rust
+/// use pagetop::prelude::*;
+///
+/// // Concatena los fragmentos no vacíos con un espacio como separador.
+/// let result_with_separator = join_opt!(["Hello", "", "World"]; " ");
+/// assert_eq!(result_with_separator, Some(String::from("Hello World")));
+///
+/// // Concatena los fragmentos no vacíos sin un separador.
+/// let result_without_separator = join_opt!(["Hello", "", "World"]);
+/// assert_eq!(result_without_separator, Some(String::from("HelloWorld")));
+///
+/// // Devuelve `None` si todos los fragmentos están vacíos.
+/// let result_empty = join_opt!(["", "", ""]);
+/// assert_eq!(result_empty, None);
+/// ```
+#[macro_export]
+macro_rules! join_opt {
+    ([$($arg:expr),* $(,)?]) => {{
+        let s = $crate::util::concat_string!($($arg),*);
+        (!s.is_empty()).then_some(s)
+    }};
+    ([$($arg:expr),* $(,)?]; $separator:expr) => {{
+        let s = [$($arg),*]
+            .iter()
+            .filter(|&item| !item.is_empty())
+            .cloned()
+            .collect::<Vec<_>>()
+            .join($separator);
+        (!s.is_empty()).then_some(s)
+    }};
+}
+
+/// Concatena dos fragmentos en un [`String`] usando un separador.
+///
+/// Une los dos fragmentos, que deben implementar [`AsRef<str>`], usando el separador proporcionado.
+/// Si uno de ellos está vacío, devuelve directamente el otro; y si ambos están vacíos devuelve un
+/// [`String`] vacío.
+///
+/// # Ejemplo
+///
+/// ```rust
+/// use pagetop::prelude::*;
+///
+/// let first = "Hello";
+/// let separator = "-";
+/// let second = "World";
+///
+/// // Concatena los dos fragmentos cuando ambos no están vacíos.
+/// let result = join_pair!(first, separator, second);
+/// assert_eq!(result, String::from("Hello-World"));
+///
+/// // Si el primer fragmento está vacío, devuelve el segundo.
+/// let result_empty_first = join_pair!("", separator, second);
+/// assert_eq!(result_empty_first, String::from("World"));
+///
+/// // Si el segundo fragmento está vacío, devuelve el primero.
+/// let result_empty_second = join_pair!(first, separator, "");
+/// assert_eq!(result_empty_second, String::from("Hello"));
+///
+/// // Si ambos fragmentos están vacíos, devuelve una cadena vacía.
+/// let result_both_empty = join_pair!("", separator, "");
+/// assert_eq!(result_both_empty, String::from(""));
+/// ```
+#[macro_export]
+macro_rules! join_pair {
+    ($first:expr, $separator:expr, $second:expr) => {{
+        if $first.is_empty() {
+            String::from($second)
+        } else if $second.is_empty() {
+            String::from($first)
+        } else {
+            $crate::util::concat_string!($first, $separator, $second)
+        }
+    }};
+}
+
+/// Concatena varios fragmentos en un [`Option<String>`] si ninguno está vacío.
+///
+/// Si alguno de los fragmentos, que deben implementar [`AsRef<str>`], está vacío, devuelve
+/// [`None`]. Opcionalmente se puede indicar un separador entre los fragmentos concatenados.
+///
+/// # Ejemplo
+///
+/// ```rust
+/// use pagetop::prelude::*;
+///
+/// // Concatena los fragmentos.
+/// let result = join_strict!(["Hello", "World"]);
+/// assert_eq!(result, Some(String::from("HelloWorld")));
+///
+/// // Concatena los fragmentos con un separador.
+/// let result_with_separator = join_strict!(["Hello", "World"]; " ");
+/// assert_eq!(result_with_separator, Some(String::from("Hello World")));
+///
+/// // Devuelve `None` si alguno de los fragmentos está vacío.
+/// let result_with_empty = join_strict!(["Hello", "", "World"]);
+/// assert_eq!(result_with_empty, None);
+/// ```
+#[macro_export]
+macro_rules! join_strict {
+    ([$($arg:expr),* $(,)?]) => {{
+        let fragments = [$($arg),*];
+        if fragments.iter().any(|&item| item.is_empty()) {
+            None
+        } else {
+            Some(fragments.concat())
+        }
+    }};
+    ([$($arg:expr),* $(,)?]; $separator:expr) => {{
+        let fragments = [$($arg),*];
+        if fragments.iter().any(|&item| item.is_empty()) {
+            None
+        } else {
+            Some(fragments.join($separator))
+        }
     }};
 }
