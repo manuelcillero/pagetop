@@ -14,6 +14,10 @@
 //! web clásica para crear soluciones web SSR (*renderizadas en el servidor*) modulares, extensibles
 //! y configurables, basadas en HTML, CSS y JavaScript.
 
+#![doc(
+    html_favicon_url = "https://git.cillero.es/manuelcillero/pagetop/raw/branch/main/static/favicon.ico"
+)]
+
 mod maud;
 mod smart_default;
 
