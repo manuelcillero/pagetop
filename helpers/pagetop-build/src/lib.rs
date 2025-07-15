@@ -115,6 +115,10 @@
 //! include_files!(GUIDES => guides);
 //! ```
 
+#![doc(
+    html_favicon_url = "https://git.cillero.es/manuelcillero/pagetop/raw/branch/main/static/favicon.ico"
+)]
+
 use grass::{from_path, Options, OutputStyle};
 use static_files::{resource_dir, ResourceDir};
 
