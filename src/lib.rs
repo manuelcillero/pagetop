@@ -74,6 +74,8 @@ pub mod html;
 pub mod locale;
 // Soporte a fechas y horas.
 pub mod datetime;
+// Tipos y funciones esenciales para crear extensiones.
+pub mod core;
 // Gestión del servidor y servicios web.
 pub mod service;
 // Prepara y ejecuta la aplicación.

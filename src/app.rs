@@ -2,6 +2,7 @@
 
 mod figfont;
 
+use crate::core::{extension, extension::ExtensionRef};
 use crate::{global, locale, service, trace};
 
 use substring::Substring;
@@ -9,6 +10,12 @@ use substring::Substring;
 use std::io::Error;
 use std::sync::LazyLock;
 
+/// Punto de entrada de una aplicación `PageTop`.
+///
+/// No almacena datos, pero **encapsula** el ciclo completo de configuración y puesta en marcha.
+/// Para instanciarla se puede usar [`new`](Application::new) o [`prepare`](Application::prepare).
+/// Después sólo hay que llamar a [`run`](Application::run) (o a [`test`](Application::test) si se
+/// está preparando un entorno de pruebas).
 pub struct Application;
 
 impl Default for Application {
@@ -20,6 +27,23 @@ impl Default for Application {
 impl Application {
     /// Crea una instancia de la aplicación.
     pub fn new() -> Self {
+        Self::internal_prepare(None)
+    }
+
+    /// Prepara una instancia de la aplicación a partir de una extensión raíz.
+    ///
+    /// Esa extensión suele declarar:
+    ///
+    /// - Sus propias dependencias (que se habilitarán automáticamente).
+    /// - Una lista de extensiones que deben deshabilitarse si estuvieran activadas.
+    ///
+    /// Esto simplifica el arranque en escenarios complejos.
+    pub fn prepare(root_extension: ExtensionRef) -> Self {
+        Self::internal_prepare(Some(root_extension))
+    }
+
+    // Método interno para preparar la aplicación, opcionalmente con una extensión.
+    fn internal_prepare(root_extension: Option<ExtensionRef>) -> Self {
         // Al arrancar muestra una cabecera para la aplicación.
         Self::show_banner();
 
@@ -28,6 +52,12 @@ impl Application {
 
         // Valida el identificador de idioma por defecto.
         LazyLock::force(&locale::DEFAULT_LANGID);
+
+        // Registra las extensiones de la aplicación.
+        extension::all::register_extensions(root_extension);
+
+        // Inicializa las extensiones.
+        extension::all::initialize_extensions();
 
         Self
     }
@@ -73,7 +103,10 @@ impl Application {
         }
     }
 
-    /// Ejecuta el servidor web de la aplicación.
+    /// Arranca el servidor web de la aplicación.
+    ///
+    /// Devuelve [`std::io::Error`] si el *socket* no puede enlazarse (por puerto en uso, permisos,
+    /// etc.).
     pub fn run(self) -> Result<service::Server, Error> {
         // Prepara el servidor web.
         Ok(service::HttpServer::new(move || {
@@ -112,6 +145,6 @@ impl Application {
             InitError = (),
         >,
     > {
-        service::App::new()
+        service::App::new().configure(extension::all::configure_services)
     }
 }
