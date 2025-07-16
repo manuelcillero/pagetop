@@ -10,7 +10,6 @@ mod generate;
 use ast::DiagnosticParse;
 use proc_macro2::{Ident, Span, TokenStream};
 use proc_macro2_diagnostics::Diagnostic;
-use proc_macro_crate::{crate_name, FoundCrate};
 use quote::quote;
 use syn::parse::{ParseStream, Parser};
 
@@ -41,20 +40,11 @@ pub fn expand(input: TokenStream) -> TokenStream {
     let output_ident = Ident::new("__maud_output", Span::mixed_site());
     let stmts = generate::generate(markups, output_ident.clone());
 
-    let found_crate = crate_name("pagetop").expect("pagetop must be in Cargo.toml");
-    let crate_ident = match found_crate {
-        FoundCrate::Itself => Ident::new("pagetop", Span::call_site()),
-        FoundCrate::Name(ref name) => Ident::new(name, Span::call_site()),
-    };
-    let pre_escaped = quote! {
-        #crate_ident::html::PreEscaped(#output_ident)
-    };
-
     quote! {{
         extern crate alloc;
         let mut #output_ident = alloc::string::String::with_capacity(#size_hint);
         #stmts
         #(#diag_tokens)*
-        #pre_escaped
+        pagetop::html::PreEscaped(#output_ident)
     }}
 }

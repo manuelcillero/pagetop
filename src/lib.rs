@@ -34,6 +34,10 @@
     html_favicon_url = "https://git.cillero.es/manuelcillero/pagetop/raw/branch/main/static/favicon.ico"
 )]
 
+// Alias para que las rutas absolutas `::pagetop::…` generadas por las macros funcionen en el propio
+// *crate*, en *crates* externos y en *doctests*.
+extern crate self as pagetop;
+
 use std::collections::HashMap;
 use std::ops::Deref;
 

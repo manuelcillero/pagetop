@@ -73,7 +73,7 @@ impl fmt::Write for Escaper<'_> {
 /// # Example
 ///
 /// ```rust
-/// use pagetop::html::{html, Markup, Render};
+/// use pagetop::prelude::*;
 ///
 /// /// Provides a shorthand for linking to a CSS stylesheet.
 /// pub struct Stylesheet(&'static str);
@@ -195,7 +195,7 @@ impl_render_with_itoa! {
 /// # Example
 ///
 /// ```rust
-/// use pagetop::html::{display, html};
+/// use pagetop::prelude::*;
 /// use std::net::Ipv4Addr;
 ///
 /// let ip_address = Ipv4Addr::new(127, 0, 0, 1);
@@ -266,7 +266,7 @@ impl<T: Default> Default for PreEscaped<T> {
 /// A minimal web page:
 ///
 /// ```rust
-/// use pagetop::html::{DOCTYPE, html};
+/// use pagetop::prelude::*;
 ///
 /// let markup = html! {
 ///     (DOCTYPE)
