@@ -4,8 +4,6 @@ use syn::{parse_quote, token::Brace, Expr, Local};
 
 use crate::maud::{ast::*, escape};
 
-use proc_macro_crate::{crate_name, FoundCrate};
-
 pub fn generate(markups: Markups<Element>, output_ident: Ident) -> TokenStream {
     let mut build = Builder::new(output_ident.clone());
     Generator::new(output_ident).markups(markups, &mut build);
@@ -68,15 +66,9 @@ impl Generator {
 
     fn splice(&self, expr: Expr, build: &mut Builder) {
         let output_ident = &self.output_ident;
-
-        let found_crate = crate_name("pagetop").expect("pagetop debe existir en Cargo.toml");
-        let crate_ident = match found_crate {
-            FoundCrate::Itself => Ident::new("pagetop", Span::call_site()),
-            FoundCrate::Name(name) => Ident::new(&name, Span::call_site()),
-        };
-        build.push_tokens(quote! {
-            #crate_ident::html::html_private::render_to!(&(#expr), &mut #output_ident);
-        });
+        build.push_tokens(
+            quote!(pagetop::html::html_private::render_to!(&(#expr), &mut #output_ident);),
+        );
     }
 
     fn element(&self, element: Element, build: &mut Builder) {
