@@ -13,9 +13,9 @@
 //!
 //! # Recursos Fluent
 //!
-//! Por defecto, las traducciones se organizan en el directorio *src/locale*, con subdirectorios
-//! para cada [Identificador de Idioma Unicode](https://docs.rs/unic-langid/) válido. Podríamos
-//! tener una estructura como esta:
+//! Por defecto las traducciones están en el directorio `src/locale`, con subdirectorios para cada
+//! [Identificador de Idioma Unicode](https://unicode.org/reports/tr35/tr35.html#Unicode_language_identifier)
+//! válido. Podríamos tener una estructura como esta:
 //!
 //! ```text
 //! src/locale/
@@ -29,12 +29,12 @@
 //!      ├── es-MX/
 //!      │   ├── default.ftl
 //!      │   └── main.ftl
-//!      └── fr/
+//!      └── fr-FR/
 //!          ├── default.ftl
 //!          └── main.ftl
 //! ```
 //!
-//! Ejemplo de un archivo *src/locale/en-US/main.ftl*:
+//! Ejemplo de un archivo en `src/locale/en-US/main.ftl`
 //!
 //! ```text
 //! hello-world = Hello world!
@@ -50,7 +50,7 @@
 //!     }.
 //! ```
 //!
-//! Y su archivo equivalente para español *src/locale/es-ES/main.ftl*:
+//! Y su archivo equivalente para español en `src/locale/es-ES/main.ftl`:
 //!
 //! ```text
 //! hello-world = Hola mundo!
@@ -69,10 +69,11 @@
 //!
 //! # Cómo aplicar la localización en tu código
 //!
-//! Una vez creado el directorio con los recursos FTL, basta con utilizar la macro
+//! Una vez creado el directorio con los recursos FTL, basta con usar la macro
 //! [`include_locales!`](crate::include_locales) para integrarlos en la aplicación.
 //!
-//! Si los recursos se encuentran en el directorio `"src/locale"`, sólo hay que declarar:
+//! Si los recursos se encuentran en el directorio por defecto `src/locale` del *crate*, sólo hay
+//! que declarar:
 //!
 //! ```rust
 //! use pagetop::prelude::*;
@@ -80,11 +81,14 @@
 //! include_locales!(LOCALES_SAMPLE);
 //! ```
 //!
-//! Pero si están ubicados en otro directorio, entonces se pueden incluir usando:
+//! Si están ubicados en otro directorio se puede usar la forma:
 //!
 //! ```rust,ignore
 //! include_locales!(LOCALES_SAMPLE from "ruta/a/las/traducciones");
 //! ```
+//!
+//! Y *voilà*, sólo queda operar con los idiomas soportados por `PageTop` usando [`LangMatch`] y
+//! traducir textos con [`L10n`].
 
 use crate::html::{Markup, PreEscaped};
 use crate::{global, hm, AutoDefault};
@@ -128,28 +132,69 @@ static FALLBACK_LANGID: LazyLock<LanguageIdentifier> = LazyLock::new(|| langid!(
 pub(crate) static DEFAULT_LANGID: LazyLock<&LanguageIdentifier> =
     LazyLock::new(|| LangMatch::langid_or_fallback(&global::SETTINGS.app.language));
 
-/// Comprueba si el idioma está soportado por `PageTop`.
+/// Operaciones con los idiomas soportados por `PageTop`.
 ///
-/// Útil para transformar un código de idioma en un [`LanguageIdentifier`] válido para `PageTop`.
+/// Utiliza [`LangMatch`] para transformar un código de idioma en un [`LanguageIdentifier`]
+/// soportado por `PageTop`.
+///
+/// # Ejemplos
+///
+/// ```rust
+/// use pagetop::prelude::*;
+///
+/// // Coincidencia exacta.
+/// let lang = LangMatch::resolve("es-ES");
+/// assert_eq!(lang.as_langid().to_string(), "es-ES");
+///
+/// // Coincidencia parcial (con el idioma base).
+/// let lang = LangMatch::resolve("es-EC");
+/// assert_eq!(lang.as_langid().to_string(), "es-ES"); // Porque "es-EC" no está soportado.
+///
+/// // Idioma no especificado.
+/// let lang = LangMatch::resolve("");
+/// assert_eq!(lang, LangMatch::Unspecified);
+///
+/// // Idioma no soportado.
+/// let lang = LangMatch::resolve("ja-JP");
+/// assert_eq!(lang, LangMatch::Unsupported("ja-JP".to_string()));
+/// ```
+///
+/// Las siguientes instrucciones devuelven siempre un [`LanguageIdentifier`] válido, ya sea porque
+/// resuelven un idioma soportado o porque aplican el idioma por defecto o de respaldo:
+///
+/// ```rust
+/// use pagetop::prelude::*;
+///
+/// // Idioma por defecto si no resuelve.
+/// let lang = LangMatch::resolve("it-IT");
+/// let langid = lang.as_langid();
+///
+/// // Idioma por defecto si no se encuentra.
+/// let langid = LangMatch::langid_or_default("es-MX");
+///
+/// // Idioma de respaldo ("en-US") si no se encuentra.
+/// let langid = LangMatch::langid_or_fallback("es-MX");
+/// ```
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum LangMatch {
     /// Cuando el código del idioma es una cadena vacía.
-    Empty,
-    /// Si encuentra un [`LanguageIdentifier`] que coincide exactamente o retrocediendo al idioma
-    /// base.
+    Unspecified,
+    /// Si encuentra un [`LanguageIdentifier`] en la lista de idiomas soportados por `PageTop` que
+    /// coincide exactamente con el código del idioma (p.ej. "es-ES"), o con el código del idioma
+    /// base (p.ej. "es").
     Found(&'static LanguageIdentifier),
     /// Si el código del idioma no está entre los soportados por `PageTop`.
-    Unknown(String),
+    Unsupported(String),
 }
 
 impl LangMatch {
-    /// Resuelve `language` y devuelve el [`LangMatch`] apropiado.
+    /// Resuelve `language` y devuelve la variante [`LangMatch`] apropiada.
     pub fn resolve(language: impl AsRef<str>) -> Self {
         let language = language.as_ref().trim();
 
         // Rechaza cadenas vacías.
         if language.is_empty() {
-            return Self::Empty;
+            return Self::Unspecified;
         }
 
         // Intenta aplicar coincidencia exacta con el código completo (p.ej. "es-MX").
@@ -164,28 +209,40 @@ impl LangMatch {
             }
         }
 
-        // Devuelve desconocido si el idioma no está soportado.
-        Self::Unknown(language.to_string())
+        // En otro caso indica que el idioma no está soportado.
+        Self::Unsupported(language.to_string())
     }
 
-    /// Devuelve siempre un [`LanguageIdentifier`] válido.
+    /// Devuelve el idioma de la variante de la instancia, o el idioma por defecto si no está
+    /// soportado.
     ///
-    /// Si `language` está vacío o es desconocido, devuelve el idioma de respaldo ("en-US").
-    #[inline]
-    pub fn langid_or_fallback(language: impl AsRef<str>) -> &'static LanguageIdentifier {
-        match Self::resolve(language) {
-            Self::Found(l) => l,
-            _ => &FALLBACK_LANGID,
-        }
-    }
-
-    /// Devuelve un [`LanguageIdentifier`] válido para la instancia.
-    ///
-    /// Si `language` está vacío o es desconocido, devuelve el idioma de respaldo ("en-US").
+    /// Siempre devuelve un [`LanguageIdentifier`] válido.
     #[inline]
     pub fn as_langid(&self) -> &'static LanguageIdentifier {
         match self {
             LangMatch::Found(l) => l,
+            _ => &DEFAULT_LANGID,
+        }
+    }
+
+    /// Si `language` está vacío o no está soportado, devuelve el idioma por defecto.
+    ///
+    /// Siempre devuelve un [`LanguageIdentifier`] válido.
+    #[inline]
+    pub fn langid_or_default(language: impl AsRef<str>) -> &'static LanguageIdentifier {
+        match Self::resolve(language) {
+            Self::Found(l) => l,
+            _ => &DEFAULT_LANGID,
+        }
+    }
+
+    /// Si `language` está vacío o no está soportado, devuelve el idioma de respaldo ("en-US").
+    ///
+    /// Siempre devuelve un [`LanguageIdentifier`] válido.
+    #[inline]
+    pub fn langid_or_fallback(language: impl AsRef<str>) -> &'static LanguageIdentifier {
+        match Self::resolve(language) {
+            Self::Found(l) => l,
             _ => &FALLBACK_LANGID,
         }
     }
@@ -243,7 +300,9 @@ enum L10nOp {
 /// - Una clave para traducir un texto de las traducciones por defecto de `PageTop` (`l()`).
 /// - Una clave para traducir de un conjunto concreto de traducciones (`t()`).
 ///
-/// Los argumentos dinámicos se añaden mediante `with_arg()` o `with_args()`.
+/// # Ejemplo
+///
+/// Los argumentos dinámicos se añaden usando `with_arg()` o `with_args()`.
 ///
 /// ```rust
 /// use pagetop::prelude::*;
@@ -261,7 +320,7 @@ enum L10nOp {
 ///
 /// ```rust,ignore
 /// // Traducción con clave, conjunto de traducciones y código de idioma a usar.
-/// let bye = L10n::t("goodbye", &LOCALES_CUSTOM).using(LangMatch::langid_or_fallback("it"));
+/// let bye = L10n::t("goodbye", &LOCALES_CUSTOM).using(LangMatch::langid_or_default("it"));
 /// ```
 #[derive(AutoDefault)]
 pub struct L10n {
