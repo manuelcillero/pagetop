@@ -66,6 +66,12 @@ impl Deref for StaticResources {
     }
 }
 
+/// Representa el peso lógico de una instancia en una colección ordenada por pesos.
+///
+/// Las instancias con pesos **más bajos**, incluyendo valores negativos (`-128..127`), se situarán
+/// antes en la ordenación.
+pub type Weight = i8;
+
 // API *********************************************************************************************
 
 // Funciones y macros útiles.
