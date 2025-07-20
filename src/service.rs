@@ -6,7 +6,7 @@ pub use actix_web::dev::ServiceFactory as Factory;
 pub use actix_web::dev::ServiceRequest as Request;
 pub use actix_web::dev::ServiceResponse as Response;
 pub use actix_web::{http, rt, web};
-pub use actix_web::{App, Error, HttpServer};
+pub use actix_web::{App, Error, HttpRequest, HttpServer};
 
 #[doc(hidden)]
 pub use actix_web::test;

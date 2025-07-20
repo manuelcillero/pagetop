@@ -18,7 +18,7 @@ pub use pagetop_macros::html;
 
 mod escape;
 
-/// An adapter that escapes HTML special characters.
+/// Adaptador que escapa los caracteres especiales de HTML.
 ///
 /// The following characters are escaped:
 ///
@@ -57,7 +57,7 @@ impl fmt::Write for Escaper<'_> {
     }
 }
 
-/// Represents a type that can be rendered as HTML.
+/// Representa un tipo que puede renderizarse como HTML.
 ///
 /// To implement this for your own type, override either the `.render()`
 /// or `.render_to()` methods; since each is defined in terms of the
@@ -190,7 +190,7 @@ impl_render_with_itoa! {
     u8 u16 u32 u64 u128 usize
 }
 
-/// Renders a value using its [`Display`] impl.
+/// Renderiza un valor usando su implementación de [`Display`].
 ///
 /// # Example
 ///
@@ -219,7 +219,7 @@ pub fn display(value: impl Display) -> impl Render {
     DisplayWrapper(value)
 }
 
-/// A wrapper that renders the inner value without escaping.
+/// Contenedor que renderiza el valor interno sin escapar.
 #[derive(Debug, Clone, Copy)]
 pub struct PreEscaped<T>(pub T);
 
@@ -229,7 +229,7 @@ impl<T: AsRef<str>> Render for PreEscaped<T> {
     }
 }
 
-/// A block of markup is a string that does not need to be escaped.
+/// Un bloque de marcado es una cadena que no necesita ser escapada.
 ///
 /// The `html!` macro expands to an expression of this type.
 pub type Markup = PreEscaped<String>;
@@ -259,7 +259,7 @@ impl<T: Default> Default for PreEscaped<T> {
     }
 }
 
-/// The literal string `<!DOCTYPE html>`.
+/// La cadena literal `<!DOCTYPE html>`.
 ///
 /// # Example
 ///
