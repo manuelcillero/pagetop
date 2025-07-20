@@ -1,3 +1,4 @@
+use crate::core::theme::ThemeRef;
 use crate::core::AnyInfo;
 use crate::locale::L10n;
 use crate::service;
@@ -34,6 +35,31 @@ pub trait ExtensionTrait: AnyInfo + Send + Sync {
     /// Descripción corta para paneles, listados, etc.
     fn description(&self) -> L10n {
         L10n::default()
+    }
+
+    /// Los temas son extensiones que implementan [`ExtensionTrait`] y también
+    /// [`ThemeTrait`](crate::core::theme::ThemeTrait).
+    ///
+    /// Si la extensión no es un tema, este método devuelve `None` por defecto.
+    ///
+    /// En caso contrario, este método debe implementarse para devolver una referencia de sí mismo
+    /// como tema. Por ejemplo:
+    ///
+    /// ```rust
+    /// use pagetop::prelude::*;
+    ///
+    /// pub struct MyTheme;
+    ///
+    /// impl ExtensionTrait for MyTheme {
+    ///     fn theme(&self) -> Option<ThemeRef> {
+    ///         Some(&Self)
+    ///     }
+    /// }
+    ///
+    /// impl ThemeTrait for MyTheme {}
+    /// ```
+    fn theme(&self) -> Option<ThemeRef> {
+        None
     }
 
     /// Otras extensiones que deben habilitarse **antes** de esta.

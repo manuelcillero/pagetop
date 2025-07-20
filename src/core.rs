@@ -1,4 +1,4 @@
-//! Tipos y funciones esenciales para crear extensiones.
+//! Tipos y funciones esenciales para crear extensiones y temas.
 
 use std::any::Any;
 
@@ -203,3 +203,6 @@ impl<T: ?Sized + AnyInfo> AnyCast for T {}
 
 // API para añadir nuevas funcionalidades usando extensiones.
 pub mod extension;
+
+// API para añadir y gestionar nuevos temas.
+pub mod theme;

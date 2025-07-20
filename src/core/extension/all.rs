@@ -1,4 +1,5 @@
 use crate::core::extension::ExtensionRef;
+use crate::core::theme::all::THEMES;
 use crate::{service, trace};
 
 use std::sync::{LazyLock, RwLock};
@@ -16,6 +17,9 @@ static DROPPED_EXTENSIONS: LazyLock<RwLock<Vec<ExtensionRef>>> =
 pub fn register_extensions(root_extension: Option<ExtensionRef>) {
     // Prepara la lista de extensiones habilitadas.
     let mut enabled_list: Vec<ExtensionRef> = Vec::new();
+
+    // Primero añade el tema básico a la lista de extensiones habilitadas.
+    add_to_enabled(&mut enabled_list, &crate::base::theme::Basic);
 
     // Si se proporciona una extensión raíz inicial, se añade a la lista de extensiones habilitadas.
     if let Some(extension) = root_extension {
@@ -53,6 +57,21 @@ fn add_to_enabled(list: &mut Vec<ExtensionRef>, extension: ExtensionRef) {
 
         // Añade la propia extensión a la lista.
         list.push(extension);
+
+        // Comprueba si la extensión tiene un tema asociado que deba registrarse.
+        if let Some(theme) = extension.theme() {
+            let mut registered_themes = THEMES.write().unwrap();
+            // Asegura que el tema no esté ya registrado para evitar duplicados.
+            if !registered_themes
+                .iter()
+                .any(|t| t.type_id() == theme.type_id())
+            {
+                registered_themes.push(theme);
+                trace::debug!("Enabling \"{}\" theme", theme.short_name());
+            }
+        } else {
+            trace::debug!("Enabling \"{}\" extension", extension.short_name());
+        }
     }
 }
 
