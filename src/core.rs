@@ -201,5 +201,5 @@ pub trait AnyCast: AnyInfo {
 /// Implementación automática para cualquier tipo que ya cumpla [`AnyInfo`].
 impl<T: ?Sized + AnyInfo> AnyCast for T {}
 
-// Infraestructura para ampliar funcionalidades mediante extensiones.
+// API para añadir nuevas funcionalidades usando extensiones.
 pub mod extension;
