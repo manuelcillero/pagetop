@@ -1,0 +1,2 @@
+[log]
+tracing = "Info,pagetop=Debug"
