@@ -160,8 +160,8 @@ impl StaticFilesBundle {
     ///         .build()
     /// }
     /// ```
-    pub fn from_dir(dir: &'static str, filter: Option<fn(p: &Path) -> bool>) -> Self {
-        let mut resource_dir = resource_dir(dir);
+    pub fn from_dir(dir: impl AsRef<str>, filter: Option<fn(p: &Path) -> bool>) -> Self {
+        let mut resource_dir = resource_dir(dir.as_ref());
 
         // Aplica el filtro si está definido.
         if let Some(f) = filter {
@@ -247,7 +247,8 @@ impl StaticFilesBundle {
     }
 
     /// Asigna un nombre al conjunto de recursos.
-    pub fn with_name(mut self, name: &'static str) -> Self {
+    pub fn with_name(mut self, name: impl AsRef<str>) -> Self {
+        let name = name.as_ref();
         let out_dir = std::env::var("OUT_DIR").unwrap();
         let filename = Path::new(&out_dir).join(format!("{name}.rs"));
         self.resource_dir.with_generated_filename(filename);
