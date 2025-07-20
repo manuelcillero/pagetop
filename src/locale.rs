@@ -107,8 +107,8 @@ use std::sync::LazyLock;
 
 use std::fmt;
 
-// Asocia cada código de idioma (como "en-US") con su respectivo [`LanguageIdentifier`] y la clave
-// en *locale/.../languages.ftl* para obtener el nombre del idioma según la localización.
+// Asocia cada identificador de idioma (como "en-US") con su respectivo [`LanguageIdentifier`] y la
+// clave en *locale/.../languages.ftl* para obtener el nombre del idioma según la localización.
 static LANGUAGES: LazyLock<HashMap<&str, (LanguageIdentifier, &str)>> = LazyLock::new(|| {
     hm![
         "en"    => ( langid!("en-US"), "english" ),
@@ -121,20 +121,20 @@ static LANGUAGES: LazyLock<HashMap<&str, (LanguageIdentifier, &str)>> = LazyLock
 
 // Identificador del idioma de **respaldo** (predefinido a `en-US`).
 //
-// Se usa cuando el valor del código de idioma en las traducciones no corresponde con ningún idioma
-// soportado por la aplicación.
+// Se usa cuando el valor del identificador de idioma en las traducciones no corresponde con ningún
+// idioma soportado por la aplicación.
 static FALLBACK_LANGID: LazyLock<LanguageIdentifier> = LazyLock::new(|| langid!("en-US"));
 
 // Identificador del idioma **por defecto** para la aplicación.
 //
-// Se resuelve a partir de [`global::SETTINGS.app.language`](global::SETTINGS). Si el código de
-// idioma configurado no es válido o no está disponible entonces resuelve como [`FALLBACK_LANGID`].
+// Se resuelve a partir de [`global::SETTINGS.app.language`](global::SETTINGS). Si el identificador
+// de idioma no es válido o no está disponible entonces resuelve como [`FALLBACK_LANGID`].
 pub(crate) static DEFAULT_LANGID: LazyLock<&LanguageIdentifier> =
     LazyLock::new(|| LangMatch::langid_or_fallback(&global::SETTINGS.app.language));
 
 /// Operaciones con los idiomas soportados por `PageTop`.
 ///
-/// Utiliza [`LangMatch`] para transformar un código de idioma en un [`LanguageIdentifier`]
+/// Utiliza [`LangMatch`] para transformar un identificador de idioma en un [`LanguageIdentifier`]
 /// soportado por `PageTop`.
 ///
 /// # Ejemplos
@@ -156,10 +156,10 @@ pub(crate) static DEFAULT_LANGID: LazyLock<&LanguageIdentifier> =
 ///
 /// // Idioma no soportado.
 /// let lang = LangMatch::resolve("ja-JP");
-/// assert_eq!(lang, LangMatch::Unsupported("ja-JP".to_string()));
+/// assert_eq!(lang, LangMatch::Unsupported(String::from("ja-JP")));
 /// ```
 ///
-/// Las siguientes instrucciones devuelven siempre un [`LanguageIdentifier`] válido, ya sea porque
+/// Las siguientes líneas devuelven siempre un [`LanguageIdentifier`] válido, ya sea porque
 /// resuelven un idioma soportado o porque aplican el idioma por defecto o de respaldo:
 ///
 /// ```rust
@@ -177,13 +177,13 @@ pub(crate) static DEFAULT_LANGID: LazyLock<&LanguageIdentifier> =
 /// ```
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum LangMatch {
-    /// Cuando el código del idioma es una cadena vacía.
+    /// Cuando el identificador del idioma es una cadena vacía.
     Unspecified,
     /// Si encuentra un [`LanguageIdentifier`] en la lista de idiomas soportados por `PageTop` que
-    /// coincide exactamente con el código del idioma (p.ej. "es-ES"), o con el código del idioma
-    /// base (p.ej. "es").
+    /// coincide exactamente con el identificador del idioma (p.ej. "es-ES"), o con el identificador
+    /// del idioma base (p.ej. "es").
     Found(&'static LanguageIdentifier),
-    /// Si el código del idioma no está entre los soportados por `PageTop`.
+    /// Si el identificador del idioma no está entre los soportados por `PageTop`.
     Unsupported(String),
 }
 
@@ -210,7 +210,7 @@ impl LangMatch {
         }
 
         // En otro caso indica que el idioma no está soportado.
-        Self::Unsupported(language.to_string())
+        Self::Unsupported(String::from(language))
     }
 
     /// Devuelve el idioma de la variante de la instancia, o el idioma por defecto si no está
@@ -319,7 +319,7 @@ enum L10nOp {
 /// También para traducciones a idiomas concretos.
 ///
 /// ```rust,ignore
-/// // Traducción con clave, conjunto de traducciones y código de idioma a usar.
+/// // Traducción con clave, conjunto de traducciones e identificador de idioma a usar.
 /// let bye = L10n::t("goodbye", &LOCALES_CUSTOM).using(LangMatch::langid_or_default("it"));
 /// ```
 #[derive(AutoDefault)]

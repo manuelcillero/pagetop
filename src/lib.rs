@@ -29,7 +29,6 @@
 //! ```
 
 #![cfg_attr(docsrs, feature(doc_cfg))]
-
 #![doc(
     html_favicon_url = "https://git.cillero.es/manuelcillero/pagetop/raw/branch/main/static/favicon.ico"
 )]

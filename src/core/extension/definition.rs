@@ -10,8 +10,8 @@ pub type ExtensionRef = &'static dyn ExtensionTrait;
 
 /// Interfaz común que debe implementar cualquier extensión de `PageTop`.
 ///
-/// Este *trait* es fácil de implementar, basta con declarar la estructura de la extensión y
-/// sobreescribir los métodos que sea necesario.
+/// Este *trait* es fácil de implementar, basta con declarar una estructura de tamaño cero para la
+/// extensión y sobreescribir los métodos que sea necesario.
 ///
 /// ```rust
 /// use pagetop::prelude::*;
