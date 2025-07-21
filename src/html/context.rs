@@ -1,3 +1,5 @@
+use crate::core::theme::all::{theme_by_short_name, DEFAULT_THEME};
+use crate::core::theme::ThemeRef;
 use crate::core::TypeInfo;
 use crate::html::{html, Markup, Render};
 use crate::html::{Assets, Favicon, JavaScript, StyleSheet};
@@ -34,9 +36,9 @@ impl Error for ErrorParam {}
 /// Representa el contexto asociado a un documento HTML.
 ///
 /// Esta estructura se crea internamente para recoger información relativa al documento asociado,
-/// como la solicitud HTTP de origen, el idioma y los recursos *favicon* ([`Favicon`]), las hojas de
-/// estilo [`StyleSheet`], los *scripts* [`JavaScript`], o parámetros de contexto definidos en
-/// tiempo de ejecución.
+/// como la solicitud HTTP de origen, el idioma, el tema para renderizar ([`ThemeRef`]), y los
+/// recursos *favicon* ([`Favicon`]), las hojas de estilo ([`StyleSheet`]) y los *scripts*
+/// ([`JavaScript`]). También admite parámetros de contexto definidos en tiempo de ejecución.
 ///
 /// # Ejemplo
 ///
@@ -46,6 +48,9 @@ impl Error for ErrorParam {}
 /// fn configure_context(mut ctx: Context) {
 ///     // Establece el idioma del documento a español.
 ///     ctx.set_langid(LangMatch::langid_or_default("es-ES"));
+///
+///     // Selecciona un tema (por su nombre corto).
+///     ctx.set_theme("aliner");
 ///
 ///     // Asigna un favicon.
 ///     ctx.set_favicon(Some(Favicon::new().with_icon("/icons/favicon.ico")));
@@ -63,6 +68,10 @@ impl Error for ErrorParam {}
 ///     let id: i32 = ctx.get_param("usuario_id").unwrap();
 ///     assert_eq!(id, 42);
 ///
+///     // Recupera el tema seleccionado.
+///     let active_theme = ctx.theme();
+///     assert_eq!(active_theme.short_name(), "aliner");
+///
 ///     // Genera un identificador único para un componente de tipo `Menu`.
 ///     struct Menu;
 ///     let unique_id = ctx.required_id::<Menu>(None);
@@ -73,6 +82,7 @@ impl Error for ErrorParam {}
 pub struct Context {
     request    : HttpRequest,                 // Solicitud HTTP de origen.
     langid     : &'static LanguageIdentifier, // Identificador del idioma.
+    theme      : ThemeRef,                    // Referencia al tema para renderizar.
     favicon    : Option<Favicon>,             // Favicon, si se ha definido.
     stylesheets: Assets<StyleSheet>,          // Hojas de estilo CSS.
     javascripts: Assets<JavaScript>,          // Scripts JavaScript.
@@ -89,6 +99,7 @@ impl Context {
         Context {
             request,
             langid     : &DEFAULT_LANGID,
+            theme      : *DEFAULT_THEME,
             favicon    : None,
             stylesheets: Assets::<StyleSheet>::new(),
             javascripts: Assets::<JavaScript>::new(),
@@ -100,6 +111,15 @@ impl Context {
     /// Modifica el identificador de idioma del documento.
     pub fn set_langid(&mut self, langid: &'static LanguageIdentifier) -> &mut Self {
         self.langid = langid;
+        self
+    }
+
+    /// Establece el tema que se usará para renderizar el documento.
+    ///
+    /// Localiza el tema por su [`short_name`](crate::core::AnyInfo::short_name), y si no aplica
+    /// ninguno entonces usará el tema por defecto.
+    pub fn set_theme(&mut self, short_name: impl AsRef<str>) -> &mut Self {
+        self.theme = theme_by_short_name(short_name).unwrap_or(*DEFAULT_THEME);
         self
     }
 
@@ -158,6 +178,11 @@ impl Context {
     /// Devuelve el identificador del idioma asociado al documento.
     pub fn langid(&self) -> &LanguageIdentifier {
         self.langid
+    }
+
+    /// Devuelve el tema que se usará para renderizar el documento.
+    pub fn theme(&self) -> ThemeRef {
+        self.theme
     }
 
     /// Recupera un parámetro del contexto convertido al tipo especificado.
