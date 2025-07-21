@@ -12,6 +12,21 @@ pub(crate) use assets::Assets;
 mod context;
 pub use context::{Context, ErrorParam};
 
+mod opt_id;
+pub use opt_id::OptionId;
+
+mod opt_name;
+pub use opt_name::OptionName;
+
+mod opt_string;
+pub use opt_string::OptionString;
+
+mod opt_translated;
+pub use opt_translated::OptionTranslated;
+
+mod opt_classes;
+pub use opt_classes::{ClassesOp, OptionClasses};
+
 use crate::AutoDefault;
 
 /// Prepara contenido HTML para su conversión a [`Markup`].
