@@ -284,7 +284,7 @@ include_locales!(LOCALES_PAGETOP);
 // * `None` - No se aplica ninguna localización.
 // * `Text` - Con una cadena literal que se devolverá tal cual.
 // * `Translate` - Con la clave a resolver en el `Locales` indicado.
-#[derive(AutoDefault)]
+#[derive(AutoDefault, Clone, Debug)]
 enum L10nOp {
     #[default]
     None,
@@ -322,7 +322,7 @@ enum L10nOp {
 /// // Traducción con clave, conjunto de traducciones e identificador de idioma a usar.
 /// let bye = L10n::t("goodbye", &LOCALES_CUSTOM).using(LangMatch::langid_or_default("it"));
 /// ```
-#[derive(AutoDefault)]
+#[derive(AutoDefault, Clone)]
 pub struct L10n {
     op: L10nOp,
     #[default(&LOCALES_PAGETOP)]
@@ -408,6 +408,17 @@ impl L10n {
     /// Traduce y escapa con el [`LanguageIdentifier`] indicado, devolviendo [`Markup`].
     pub fn escaped(&self, langid: &LanguageIdentifier) -> Markup {
         PreEscaped(self.using(langid).unwrap_or_default())
+    }
+}
+
+impl fmt::Debug for L10n {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("L10n")
+            .field("op", &self.op)
+            .field("args", &self.args)
+            // No se puede mostrar `locales`. Se representa con un texto fijo.
+            .field("locales", &"<StaticLoader>")
+            .finish()
     }
 }
 
