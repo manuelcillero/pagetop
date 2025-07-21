@@ -56,6 +56,9 @@ impl Application {
         // Registra las extensiones de la aplicación.
         extension::all::register_extensions(root_extension);
 
+        // Registra las acciones de las extensiones.
+        extension::all::register_actions();
+
         // Inicializa las extensiones.
         extension::all::initialize_extensions();
 

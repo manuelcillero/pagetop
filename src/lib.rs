@@ -65,6 +65,11 @@ impl Deref for StaticResources {
     }
 }
 
+/// Identificador único de un tipo estático durante la ejecución de la aplicación.
+///
+/// **Nota:** El valor es único sólo dentro del proceso actual y cambia en cada compilación.
+pub type UniqueId = std::any::TypeId;
+
 /// Representa el peso lógico de una instancia en una colección ordenada por pesos.
 ///
 /// Las instancias con pesos **más bajos**, incluyendo valores negativos (`-128..127`), se situarán
@@ -87,7 +92,7 @@ pub mod html;
 pub mod locale;
 // Soporte a fechas y horas.
 pub mod datetime;
-// Tipos y funciones esenciales para crear extensiones y temas.
+// Tipos y funciones esenciales para crear acciones, extensiones y temas.
 pub mod core;
 // Gestión del servidor y servicios web.
 pub mod service;
