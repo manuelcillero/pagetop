@@ -1,3 +1,4 @@
+use crate::core::action::add_action;
 use crate::core::extension::ExtensionRef;
 use crate::core::theme::all::THEMES;
 use crate::{service, trace};
@@ -101,6 +102,16 @@ fn add_to_dropped(list: &mut Vec<ExtensionRef>, extension: ExtensionRef) {
                     add_to_dropped(list, *dependency);
                 }
             }
+        }
+    }
+}
+
+// REGISTRO DE LAS ACCIONES ************************************************************************
+
+pub fn register_actions() {
+    for extension in ENABLED_EXTENSIONS.read().unwrap().iter() {
+        for a in extension.actions().into_iter() {
+            add_action(a);
         }
     }
 }

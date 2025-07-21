@@ -1,4 +1,4 @@
-//! Tipos y funciones esenciales para crear extensiones y temas.
+//! Tipos y funciones esenciales para crear acciones, extensiones y temas.
 
 use std::any::Any;
 
@@ -200,6 +200,9 @@ pub trait AnyCast: AnyInfo {
 
 /// Implementación automática para cualquier tipo que ya cumpla [`AnyInfo`].
 impl<T: ?Sized + AnyInfo> AnyCast for T {}
+
+// API para definir acciones que alteran el comportamiento predeterminado del código.
+pub mod action;
 
 // API para añadir nuevas funcionalidades usando extensiones.
 pub mod extension;

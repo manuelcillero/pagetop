@@ -4,7 +4,7 @@
 
 pub use crate::{builder_fn, html, main, test};
 
-pub use crate::{AutoDefault, StaticResources, Weight};
+pub use crate::{AutoDefault, StaticResources, UniqueId, Weight};
 
 // MACROS.
 
@@ -16,6 +16,8 @@ pub use crate::include_config;
 pub use crate::include_locales;
 // crate::service
 pub use crate::{include_files, include_files_service};
+// crate::core::action
+pub use crate::inject_actions;
 
 // API.
 
@@ -35,6 +37,7 @@ pub use crate::service;
 
 pub use crate::core::{AnyCast, AnyInfo, TypeInfo};
 
+pub use crate::core::action::*;
 pub use crate::core::extension::*;
 pub use crate::core::theme::*;
 
