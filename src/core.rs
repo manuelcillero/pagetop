@@ -1,4 +1,4 @@
-//! Tipos y funciones esenciales para crear acciones, extensiones y temas.
+//! Tipos y funciones esenciales para crear acciones, componentes, extensiones y temas.
 
 use std::any::Any;
 
@@ -203,6 +203,9 @@ impl<T: ?Sized + AnyInfo> AnyCast for T {}
 
 // API para definir acciones que alteran el comportamiento predeterminado del código.
 pub mod action;
+
+// API para construir nuevos componentes.
+pub mod component;
 
 // API para añadir nuevas funcionalidades usando extensiones.
 pub mod extension;

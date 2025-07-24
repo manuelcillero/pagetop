@@ -1,7 +1,9 @@
 use crate::core::theme::ThemeRef;
 use crate::global;
 
-use std::sync::{LazyLock, RwLock};
+use parking_lot::RwLock;
+
+use std::sync::LazyLock;
 
 // TEMAS *******************************************************************************************
 
@@ -17,11 +19,11 @@ pub static DEFAULT_THEME: LazyLock<ThemeRef> =
 
 // TEMA POR NOMBRE *********************************************************************************
 
+/// Devuelve el tema identificado por su [`short_name`](AnyInfo::short_name).
 pub fn theme_by_short_name(short_name: impl AsRef<str>) -> Option<ThemeRef> {
     let short_name = short_name.as_ref().to_lowercase();
     match THEMES
         .read()
-        .unwrap()
         .iter()
         .find(|t| t.short_name().to_lowercase() == short_name)
     {

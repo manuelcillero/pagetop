@@ -2,7 +2,7 @@ use crate::core::action::ActionBox;
 use crate::core::theme::ThemeRef;
 use crate::core::AnyInfo;
 use crate::locale::L10n;
-use crate::{inject_actions, service};
+use crate::{actions_boxed, service};
 
 /// Representa una referencia a una extensión.
 ///
@@ -77,7 +77,7 @@ pub trait ExtensionTrait: AnyInfo + Send + Sync {
     /// [peso](crate::Weight), permitiendo personalizar el comportamiento de la aplicación en puntos
     /// específicos.
     fn actions(&self) -> Vec<ActionBox> {
-        inject_actions![]
+        actions_boxed![]
     }
 
     /// Inicializa la extensión durante la lógica de arranque de la aplicación.
