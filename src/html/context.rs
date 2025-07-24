@@ -13,6 +13,37 @@ use std::str::FromStr;
 
 use std::fmt;
 
+/// Operaciones para modificar el contexto ([`Context`]) del documento.
+pub enum ContextOp {
+    /// Modifica el identificador de idioma del documento.
+    LangId(&'static LanguageIdentifier),
+    /// Establece el tema que se usará para renderizar el documento.
+    ///
+    /// Localiza el tema por su [`short_name`](crate::core::AnyInfo::short_name), y si no aplica
+    /// ninguno entonces usará el tema por defecto.
+    Theme(&'static str),
+    /// Define el tipo de composición usado para renderizar el documento.
+    Layout(&'static str),
+
+    // Favicon.
+    /// Define el *favicon* del documento. Sobrescribe cualquier valor anterior.
+    SetFavicon(Option<Favicon>),
+    /// Define el *favicon* solo si no se ha establecido previamente.
+    SetFaviconIfNone(Favicon),
+
+    // Stylesheets.
+    /// Añade una hoja de estilos CSS al documento.
+    AddStyleSheet(StyleSheet),
+    /// Elimina una hoja de estilos por su ruta o identificador.
+    RemoveStyleSheet(&'static str),
+
+    // JavaScripts.
+    /// Añade un *script* JavaScript al documento.
+    AddJavaScript(JavaScript),
+    /// Elimina un *script* por su ruta o identificador.
+    RemoveJavaScript(&'static str),
+}
+
 /// Errores de lectura o conversión de parámetros almacenados en el contexto.
 #[derive(Debug)]
 pub enum ErrorParam {
@@ -33,48 +64,52 @@ impl fmt::Display for ErrorParam {
 
 impl Error for ErrorParam {}
 
-/// Representa el contexto asociado a un documento HTML.
+/// Representa el contexto de un documento HTML.
 ///
-/// Esta estructura se crea internamente para recoger información relativa al documento asociado,
-/// como la solicitud HTTP de origen, el idioma, el tema para renderizar ([`ThemeRef`]), y los
-/// recursos *favicon* ([`Favicon`]), las hojas de estilo ([`StyleSheet`]) y los *scripts*
-/// ([`JavaScript`]). También admite parámetros de contexto definidos en tiempo de ejecución.
+/// Se crea internamente para manejar información relevante del documento, como la solicitud HTTP de
+/// origen, el idioma, tema y composición para el renderizado, los recursos *favicon* ([`Favicon`]),
+/// hojas de estilo ([`StyleSheet`]) y *scripts* ([`JavaScript`]), así como parámetros de contexto
+/// definidos en tiempo de ejecución.
 ///
 /// # Ejemplo
 ///
 /// ```rust
 /// use pagetop::prelude::*;
 ///
-/// fn configure_context(mut ctx: Context) {
+/// fn configure_context(mut cx: Context) {
 ///     // Establece el idioma del documento a español.
-///     ctx.set_langid(LangMatch::langid_or_default("es-ES"));
-///
+///     cx.alter_assets(ContextOp::LangId(
+///         LangMatch::langid_or_default("es-ES")
+///     ))
 ///     // Selecciona un tema (por su nombre corto).
-///     ctx.set_theme("aliner");
-///
+///     .alter_assets(ContextOp::Theme("aliner"))
 ///     // Asigna un favicon.
-///     ctx.set_favicon(Some(Favicon::new().with_icon("/icons/favicon.ico")));
-///
+///     .alter_assets(ContextOp::SetFavicon(Some(
+///         Favicon::new().with_icon("/icons/favicon.ico")
+///     )))
 ///     // Añade una hoja de estilo externa.
-///     ctx.add_stylesheet(StyleSheet::from("/css/style.css"));
-///
+///     .alter_assets(ContextOp::AddStyleSheet(
+///         StyleSheet::from("/css/style.css")
+///     ))
 ///     // Añade un script JavaScript.
-///     ctx.add_javascript(JavaScript::defer("/js/main.js"));
+///     .alter_assets(ContextOp::AddJavaScript(
+///         JavaScript::defer("/js/main.js")
+///     ));
 ///
 ///     // Añade un parámetro dinámico al contexto.
-///     ctx.set_param("usuario_id", 42);
+///     cx.set_param("usuario_id", 42);
 ///
 ///     // Recupera el parámetro y lo convierte a su tipo original.
-///     let id: i32 = ctx.get_param("usuario_id").unwrap();
+///     let id: i32 = cx.get_param("usuario_id").unwrap();
 ///     assert_eq!(id, 42);
 ///
 ///     // Recupera el tema seleccionado.
-///     let active_theme = ctx.theme();
+///     let active_theme = cx.theme();
 ///     assert_eq!(active_theme.short_name(), "aliner");
 ///
 ///     // Genera un identificador único para un componente de tipo `Menu`.
 ///     struct Menu;
-///     let unique_id = ctx.required_id::<Menu>(None);
+///     let unique_id = cx.required_id::<Menu>(None);
 ///     assert_eq!(unique_id, "menu-1"); // Si es el primero generado.
 /// }
 /// ```
@@ -83,6 +118,7 @@ pub struct Context {
     request    : HttpRequest,                 // Solicitud HTTP de origen.
     langid     : &'static LanguageIdentifier, // Identificador del idioma.
     theme      : ThemeRef,                    // Referencia al tema para renderizar.
+    layout     : &'static str,                // Composición del documento para renderizar.
     favicon    : Option<Favicon>,             // Favicon, si se ha definido.
     stylesheets: Assets<StyleSheet>,          // Hojas de estilo CSS.
     javascripts: Assets<JavaScript>,          // Scripts JavaScript.
@@ -100,6 +136,7 @@ impl Context {
             request,
             langid     : &DEFAULT_LANGID,
             theme      : *DEFAULT_THEME,
+            layout     : "default",
             favicon    : None,
             stylesheets: Assets::<StyleSheet>::new(),
             javascripts: Assets::<JavaScript>::new(),
@@ -108,56 +145,42 @@ impl Context {
         }
     }
 
-    /// Modifica el identificador de idioma del documento.
-    pub fn set_langid(&mut self, langid: &'static LanguageIdentifier) -> &mut Self {
-        self.langid = langid;
-        self
-    }
-
-    /// Establece el tema que se usará para renderizar el documento.
-    ///
-    /// Localiza el tema por su [`short_name`](crate::core::AnyInfo::short_name), y si no aplica
-    /// ninguno entonces usará el tema por defecto.
-    pub fn set_theme(&mut self, short_name: impl AsRef<str>) -> &mut Self {
-        self.theme = theme_by_short_name(short_name).unwrap_or(*DEFAULT_THEME);
-        self
-    }
-
-    /// Define el *favicon* del documento. Sobrescribe cualquier valor anterior.
-    pub fn set_favicon(&mut self, favicon: Option<Favicon>) -> &mut Self {
-        self.favicon = favicon;
-        self
-    }
-
-    /// Define el *favicon* solo si no se ha establecido previamente.
-    pub fn set_favicon_if_none(&mut self, favicon: Favicon) -> &mut Self {
-        if self.favicon.is_none() {
-            self.favicon = Some(favicon);
+    /// Modifica información o recursos del contexto usando [`ContextOp`].
+    pub fn alter_assets(&mut self, op: ContextOp) -> &mut Self {
+        match op {
+            ContextOp::LangId(langid) => {
+                self.langid = langid;
+            }
+            ContextOp::Theme(theme_name) => {
+                self.theme = theme_by_short_name(theme_name).unwrap_or(*DEFAULT_THEME);
+            }
+            ContextOp::Layout(layout) => {
+                self.layout = layout;
+            }
+            // Favicon.
+            ContextOp::SetFavicon(favicon) => {
+                self.favicon = favicon;
+            }
+            ContextOp::SetFaviconIfNone(icon) => {
+                if self.favicon.is_none() {
+                    self.favicon = Some(icon);
+                }
+            }
+            // Stylesheets.
+            ContextOp::AddStyleSheet(css) => {
+                self.stylesheets.add(css);
+            }
+            ContextOp::RemoveStyleSheet(path) => {
+                self.stylesheets.remove(path);
+            }
+            // JavaScripts.
+            ContextOp::AddJavaScript(js) => {
+                self.javascripts.add(js);
+            }
+            ContextOp::RemoveJavaScript(path) => {
+                self.javascripts.remove(path);
+            }
         }
-        self
-    }
-
-    /// Añade una hoja de estilos CSS al documento.
-    pub fn add_stylesheet(&mut self, css: StyleSheet) -> &mut Self {
-        self.stylesheets.add(css);
-        self
-    }
-
-    /// Elimina una hoja de estilos por su ruta o identificador.
-    pub fn remove_stylesheet(&mut self, name: impl AsRef<str>) -> &mut Self {
-        self.stylesheets.remove(name);
-        self
-    }
-
-    /// Añade un *script* JavaScript al documento.
-    pub fn add_javascript(&mut self, js: JavaScript) -> &mut Self {
-        self.javascripts.add(js);
-        self
-    }
-
-    /// Elimina un *script* por su ruta o identificador.
-    pub fn remove_javascript(&mut self, name: impl AsRef<str>) -> &mut Self {
-        self.javascripts.remove(name);
         self
     }
 
@@ -183,6 +206,12 @@ impl Context {
     /// Devuelve el tema que se usará para renderizar el documento.
     pub fn theme(&self) -> ThemeRef {
         self.theme
+    }
+
+    /// Devuelve el tipo de composición usado para renderizar el documento. El valor predeterminado
+    /// es `"default"`.
+    pub fn layout(&self) -> &str {
+        self.layout
     }
 
     /// Recupera un parámetro del contexto convertido al tipo especificado.
