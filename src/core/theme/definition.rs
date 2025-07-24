@@ -1,4 +1,5 @@
 use crate::core::extension::ExtensionTrait;
+use crate::locale::L10n;
 
 /// Representa una referencia a un tema.
 ///
@@ -27,4 +28,8 @@ pub type ThemeRef = &'static dyn ThemeTrait;
 ///
 /// impl ThemeTrait for MyTheme {}
 /// ```
-pub trait ThemeTrait: ExtensionTrait + Send + Sync {}
+pub trait ThemeTrait: ExtensionTrait + Send + Sync {
+    fn regions(&self) -> Vec<(&'static str, L10n)> {
+        vec![("content", L10n::l("content"))]
+    }
+}
