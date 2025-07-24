@@ -43,6 +43,7 @@ pub use crate::core::extension::*;
 pub use crate::core::theme::*;
 
 pub use crate::base::action;
+pub use crate::base::component::*;
 pub use crate::base::theme;
 
 pub use crate::app::Application;
