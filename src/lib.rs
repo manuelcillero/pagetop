@@ -96,7 +96,7 @@ pub mod datetime;
 pub mod core;
 // Gestión del servidor y servicios web.
 pub mod service;
-// Reúne acciones y temas listos para usar.
+// Reúne acciones, componentes y temas listos para usar.
 pub mod base;
 // Prepara y ejecuta la aplicación.
 pub mod app;

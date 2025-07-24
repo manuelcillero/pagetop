@@ -14,12 +14,10 @@ pub trait ComponentRender {
 /// Interfaz común que debe implementar un componente renderizable en `PageTop`.
 ///
 /// Se recomienda que los componentes deriven [`AutoDefault`](crate::AutoDefault). También deben
-/// implementar el método [`new`](Self::new) y pueden sobrescribir los otros métodos para
-/// personalizar su comportamiento.
+/// implementar explícitamente el método [`new`](Self::new) y pueden sobrescribir los otros métodos
+/// para personalizar su comportamiento.
 pub trait ComponentTrait: AnyInfo + ComponentRender + Send + Sync {
     /// Crea una nueva instancia del componente.
-    ///
-    /// Este método debe implementarse explícitamente.
     fn new() -> Self
     where
         Self: Sized;
@@ -53,7 +51,7 @@ pub trait ComponentTrait: AnyInfo + ComponentRender + Send + Sync {
     #[allow(unused_variables)]
     fn setup_before_prepare(&mut self, cx: &mut Context) {}
 
-    /// Devuelve la representación estructurada del componente lista para renderizar.
+    /// Devuelve una representación estructurada del componente lista para renderizar.
     ///
     /// Puede sobrescribirse para generar dinámicamente el contenido HTML. Por defecto, devuelve
     /// [`PrepareMarkup::None`].
