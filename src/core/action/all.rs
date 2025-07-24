@@ -1,7 +1,9 @@
-use crate::core::action::{ActionBox, ActionKey, ActionTrait, ActionsList};
+use crate::core::action::{ActionBox, ActionDispatcher, ActionKey, ActionsList};
+
+use parking_lot::RwLock;
 
 use std::collections::HashMap;
-use std::sync::{LazyLock, RwLock};
+use std::sync::LazyLock;
 
 // ACCIONES ****************************************************************************************
 
@@ -12,20 +14,19 @@ static ACTIONS: LazyLock<RwLock<HashMap<ActionKey, ActionsList>>> =
 
 // Registra una nueva acción en el sistema.
 //
-// Si ya existen acciones con la misma `ActionKey`, la acción se añade a la lista existente. Si no,
-// se crea una nueva lista.
-//
-// # Uso típico
+// Si ya existen acciones con la misma `ActionKey`, la acción se añade a la misma lista. Si no, se
+// crea una nueva lista.
 //
 // Las extensiones llamarán a esta función durante su inicialización para instalar acciones
-// personalizadas que modifiquen el comportamiento del núcleo o de otros componentes.
-//
-// ```rust,ignore
-// add_action(Box::new(MyCustomAction::new()));
-// ```
+// personalizadas que modifiquen el comportamiento del *core* o de otros componentes.
 pub fn add_action(action: ActionBox) {
-    let key = action.key();
-    let mut actions = ACTIONS.write().unwrap();
+    let key = ActionKey::new(
+        action.type_id(),
+        action.theme_type_id(),
+        action.referer_type_id(),
+        action.referer_id(),
+    );
+    let mut actions = ACTIONS.write();
     if let Some(list) = actions.get_mut(&key) {
         list.add(action);
     } else {
@@ -37,30 +38,35 @@ pub fn add_action(action: ActionBox) {
 
 // DESPLEGAR ACCIONES ******************************************************************************
 
-/// Despacha las funciones asociadas a un [`ActionKey`] y las ejecuta.
+/// Despacha y ejecuta las funciones asociadas a una [`ActionKey`].
 ///
 /// Permite recorrer de forma segura y ordenada (por peso) la lista de funciones asociadas a una
 /// acción específica.
 ///
 /// # Parámetros genéricos
-/// - `A`: Tipo de acción que esperamos procesar. Debe implementar [`ActionTrait`].
-/// - `F`: Función o cierre que recibe cada acción y devuelve un valor de tipo `B`.
+/// - `A`: Tipo de acción que esperamos procesar. Debe implementar [`ActionDispatcher`].
+/// - `F`: Función asociada a cada acción, devuelve un valor de tipo `B`.
 ///
 /// # Ejemplo de uso
 /// ```rust,ignore
-/// dispatch_actions::<MyCustomAction, _>(&some_key, |action| {
-///     action.do_something();
-/// });
+/// pub(crate) fn dispatch(component: &mut C, cx: &mut Context) {
+///     dispatch_actions(
+///         &ActionKey::new(
+///             UniqueId::of::<Self>(),
+///             Some(cx.theme().type_id()),
+///             Some(UniqueId::of::<C>()),
+///             None,
+///         ),
+///         |action: &Self| (action.f)(component, cx),
+///     );
+/// }
 /// ```
-///
-/// Esto permite a PageTop o a otros módulos aplicar lógica específica a las acciones de un contexto
-/// determinado, manteniendo la flexibilidad del sistema.
 pub fn dispatch_actions<A, B, F>(key: &ActionKey, f: F)
 where
-    A: ActionTrait,
+    A: ActionDispatcher,
     F: FnMut(&A) -> B,
 {
-    if let Some(list) = ACTIONS.read().unwrap().get(key) {
+    if let Some(list) = ACTIONS.read().get(key) {
         list.iter_map(f);
     }
 }

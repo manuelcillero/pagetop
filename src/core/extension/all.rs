@@ -1,9 +1,11 @@
 use crate::core::action::add_action;
 use crate::core::extension::ExtensionRef;
 use crate::core::theme::all::THEMES;
-use crate::{service, trace};
+use crate::{/*global, include_files, include_files_service, */ service, trace};
 
-use std::sync::{LazyLock, RwLock};
+use parking_lot::RwLock;
+
+use std::sync::LazyLock;
 
 // EXTENSIONES *************************************************************************************
 
@@ -27,11 +29,11 @@ pub fn register_extensions(root_extension: Option<ExtensionRef>) {
         add_to_enabled(&mut enabled_list, extension);
     }
 
+    /* Añade la página de bienvenida por defecto a la lista de extensiones habilitadas.
+    add_to_enabled(&mut enabled_list, &crate::base::extension::Welcome); */
+
     // Guarda la lista final de extensiones habilitadas.
-    ENABLED_EXTENSIONS
-        .write()
-        .unwrap()
-        .append(&mut enabled_list);
+    ENABLED_EXTENSIONS.write().append(&mut enabled_list);
 
     // Prepara una lista de extensiones deshabilitadas.
     let mut dropped_list: Vec<ExtensionRef> = Vec::new();
@@ -42,10 +44,7 @@ pub fn register_extensions(root_extension: Option<ExtensionRef>) {
     }
 
     // Guarda la lista final de extensiones deshabilitadas.
-    DROPPED_EXTENSIONS
-        .write()
-        .unwrap()
-        .append(&mut dropped_list);
+    DROPPED_EXTENSIONS.write().append(&mut dropped_list);
 }
 
 fn add_to_enabled(list: &mut Vec<ExtensionRef>, extension: ExtensionRef) {
@@ -61,7 +60,7 @@ fn add_to_enabled(list: &mut Vec<ExtensionRef>, extension: ExtensionRef) {
 
         // Comprueba si la extensión tiene un tema asociado que deba registrarse.
         if let Some(theme) = extension.theme() {
-            let mut registered_themes = THEMES.write().unwrap();
+            let mut registered_themes = THEMES.write();
             // Asegura que el tema no esté ya registrado para evitar duplicados.
             if !registered_themes
                 .iter()
@@ -84,7 +83,6 @@ fn add_to_dropped(list: &mut Vec<ExtensionRef>, extension: ExtensionRef) {
             // Comprueba si la extensión está habilitada. Si es así, registra una advertencia.
             if ENABLED_EXTENSIONS
                 .read()
-                .unwrap()
                 .iter()
                 .any(|e| e.type_id() == extension.type_id())
             {
@@ -109,7 +107,7 @@ fn add_to_dropped(list: &mut Vec<ExtensionRef>, extension: ExtensionRef) {
 // REGISTRO DE LAS ACCIONES ************************************************************************
 
 pub fn register_actions() {
-    for extension in ENABLED_EXTENSIONS.read().unwrap().iter() {
+    for extension in ENABLED_EXTENSIONS.read().iter() {
         for a in extension.actions().into_iter() {
             add_action(a);
         }
@@ -120,15 +118,20 @@ pub fn register_actions() {
 
 pub fn initialize_extensions() {
     trace::info!("Calling application bootstrap");
-    for extension in ENABLED_EXTENSIONS.read().unwrap().iter() {
+    for extension in ENABLED_EXTENSIONS.read().iter() {
         extension.initialize();
     }
 }
 
 // CONFIGURA LOS SERVICIOS *************************************************************************
 
+//include_files!(assets);
+
 pub fn configure_services(scfg: &mut service::web::ServiceConfig) {
-    for extension in ENABLED_EXTENSIONS.read().unwrap().iter() {
+    for extension in ENABLED_EXTENSIONS.read().iter() {
         extension.configure_service(scfg);
     }
+    /*include_files_service!(
+        scfg, assets => "/", [&global::SETTINGS.dev.pagetop_project_dir, "static"]
+    );*/
 }

@@ -27,6 +27,9 @@ pub use opt_translated::OptionTranslated;
 mod opt_classes;
 pub use opt_classes::{ClassesOp, OptionClasses};
 
+mod opt_component;
+pub use opt_component::OptionComponent;
+
 use crate::AutoDefault;
 
 /// Prepara contenido HTML para su conversión a [`Markup`].

@@ -1,6 +1,6 @@
 [package]
 name = "pagetop"
-version = "0.0.11"
+version = "0.0.12"
 edition = "2021"
 
 description = """\
@@ -21,6 +21,7 @@ concat-string = "1.0.1"
 config = { version = "0.15.13", default-features = false, features = ["toml"] }
 figlet-rs = "0.1.5"
 itoa = "1.0.15"
+parking_lot = "0.12.4"
 paste = { package = "pastey", version = "0.1.0" }
 substring = "1.4.5"
 terminal_size = "0.4.2"
@@ -28,7 +29,7 @@ terminal_size = "0.4.2"
 tracing = "0.1.41"
 tracing-appender = "0.2.3"
 tracing-subscriber = { version = "0.3.19", features = ["json", "env-filter"] }
-tracing-actix-web = "0.7.18"
+tracing-actix-web = "0.7.19"
 
 fluent-templates = "0.13.0"
 unic-langid = { version = "0.9.6", features = ["macros"] }

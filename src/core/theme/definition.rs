@@ -9,7 +9,7 @@ pub type ThemeRef = &'static dyn ThemeTrait;
 /// Interfaz común que debe implementar cualquier tema de `PageTop`.
 ///
 /// Un tema implementará [`ThemeTrait`] y los métodos que sean necesarios de [`ExtensionTrait`],
-/// aunque el único obligatorio es [`theme()`](crate::core::extension::ExtensionTrait#method.theme).
+/// aunque el único obligatorio es [`theme()`](ExtensionTrait::theme).
 ///
 /// ```rust
 /// use pagetop::prelude::*;

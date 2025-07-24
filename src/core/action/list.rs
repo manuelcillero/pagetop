@@ -1,9 +1,9 @@
-use crate::core::action::{ActionBox, ActionTrait};
+use crate::core::action::{ActionBox, ActionDispatcher};
 use crate::core::AnyCast;
 use crate::trace;
 use crate::AutoDefault;
 
-use std::sync::RwLock;
+use parking_lot::RwLock;
 
 #[derive(AutoDefault)]
 pub struct ActionsList(RwLock<Vec<ActionBox>>);
@@ -14,7 +14,7 @@ impl ActionsList {
     }
 
     pub fn add(&mut self, action: ActionBox) {
-        let mut list = self.0.write().unwrap();
+        let mut list = self.0.write();
         list.push(action);
         list.sort_by_key(|a| a.weight());
     }
@@ -22,13 +22,12 @@ impl ActionsList {
     pub fn iter_map<A, B, F>(&self, mut f: F)
     where
         Self: Sized,
-        A: ActionTrait,
+        A: ActionDispatcher,
         F: FnMut(&A) -> B,
     {
         let _: Vec<_> = self
             .0
             .read()
-            .unwrap()
             .iter()
             .rev()
             .map(|a| {
