@@ -44,10 +44,12 @@ pub fn add_action(action: ActionBox) {
 /// acción específica.
 ///
 /// # Parámetros genéricos
+///
 /// - `A`: Tipo de acción que esperamos procesar. Debe implementar [`ActionDispatcher`].
 /// - `F`: Función asociada a cada acción, devuelve un valor de tipo `B`.
 ///
 /// # Ejemplo de uso
+///
 /// ```rust,ignore
 /// pub(crate) fn dispatch(component: &mut C, cx: &mut Context) {
 ///     dispatch_actions(

@@ -162,7 +162,7 @@ pub static CONFIG_VALUES: LazyLock<ConfigBuilder<DefaultState>> = LazyLock::new(
 
 /// Incluye los ajustes necesarios de la configuración anticipando valores por defecto.
 ///
-/// ### Sintaxis
+/// # Sintaxis
 ///
 /// Hay que añadir en nuestra librería el siguiente código:
 ///
@@ -182,7 +182,7 @@ pub static CONFIG_VALUES: LazyLock<ConfigBuilder<DefaultState>> = LazyLock::new(
 /// * **Lista de pares** con las claves TOML que requieran valores por defecto. Siguen la notación
 ///   `"seccion.subclave"` para coincidir con el árbol TOML.
 ///
-/// ### Ejemplo básico
+/// # Ejemplo básico
 ///
 /// ```rust,no_run
 /// use pagetop::prelude::*;
@@ -212,7 +212,7 @@ pub static CONFIG_VALUES: LazyLock<ConfigBuilder<DefaultState>> = LazyLock::new(
 /// }
 /// ```
 ///
-/// ### Buenas prácticas
+/// # Buenas prácticas
 ///
 /// * **Valores por defecto**. Declara un valor por defecto para cada clave obligatoria. Las claves
 ///   opcionales pueden ser `Option<T>`.
@@ -227,7 +227,7 @@ pub static CONFIG_VALUES: LazyLock<ConfigBuilder<DefaultState>> = LazyLock::new(
 /// * **Errores explícitos**. Si la deserialización falla, la macro lanzará un `panic!` con un
 ///   mensaje que indica la estructura problemática, facilitando la depuración.
 ///
-/// ### Requisitos
+/// # Requisitos
 ///
 /// * Dependencia `serde` con la *feature* `derive`.
 /// * Las claves deben coincidir con los campos (*snake case*) de tu estructura `Settings_Type`.

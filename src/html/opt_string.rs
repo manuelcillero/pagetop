@@ -5,6 +5,7 @@ use crate::{builder_fn, AutoDefault};
 /// Este tipo encapsula `Option<String>` garantizando un valor normalizado para su uso.
 ///
 /// # Normalización
+///
 /// - Se eliminan los espacios al principio y al final.
 /// - Si el resultado es una cadena vacía, se guarda `None`.
 ///
