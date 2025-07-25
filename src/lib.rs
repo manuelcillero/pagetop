@@ -94,6 +94,8 @@ pub mod locale;
 pub mod datetime;
 // Tipos y funciones esenciales para crear acciones, componentes, extensiones y temas.
 pub mod core;
+// Respuestas a peticiones web en sus diferentes formatos.
+pub mod response;
 // Gestión del servidor y servicios web.
 pub mod service;
 // Reúne acciones, componentes y temas listos para usar.
