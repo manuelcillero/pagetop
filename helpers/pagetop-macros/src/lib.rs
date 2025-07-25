@@ -170,8 +170,7 @@ pub fn builder_fn(_: TokenStream, item: TokenStream) -> TokenStream {
 
     // Genera el método alter_...() con el código del método with_...().
     let fn_alter_doc = format!(
-        "Modifica la instancia en los mismos términos que para el patrón <em>builder</em> hace el \
-        método asociado `{}()`.",
+        "Equivale a invocar el método `{}()` cuando se aplica el patrón builder.",
         fn_with_name_str,
     );
     let fn_alter = quote! {
