@@ -34,6 +34,7 @@ pub use crate::locale::*;
 pub use crate::datetime::*;
 
 pub use crate::service;
+pub use crate::service::HttpRequest;
 
 pub use crate::core::{AnyCast, AnyInfo, TypeInfo};
 
@@ -41,6 +42,8 @@ pub use crate::core::action::*;
 pub use crate::core::component::*;
 pub use crate::core::extension::*;
 pub use crate::core::theme::*;
+
+pub use crate::response::{redirect::*, ResponseError};
 
 pub use crate::base::action;
 pub use crate::base::component::*;
