@@ -21,12 +21,14 @@ pub enum ClassesOp {
 /// Permite construir y modificar dinámicamente con [`ClassesOp`] una lista de clases CSS
 /// normalizadas.
 ///
-/// ### Normalización
+/// # Normalización
+///
 /// - El [orden de las clases no es relevante](https://stackoverflow.com/a/1321712) en CSS.
 /// - No se permiten clases duplicadas.
 /// - Las clases vacías se ignoran.
 ///
 /// # Ejemplo
+///
 /// ```rust
 /// use pagetop::prelude::*;
 ///

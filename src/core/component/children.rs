@@ -278,7 +278,8 @@ impl IntoIterator for Children {
 
     /// Consume la estructura `Children`, devolviendo un iterador que consume los elementos.
     ///
-    /// ### Ejemplo de uso:
+    /// # Ejemplo de uso:
+    ///
     /// ```rust#ignore
     /// let children = Children::new().with(child1).with(child2);
     /// for child in children {
@@ -296,7 +297,8 @@ impl<'a> IntoIterator for &'a Children {
 
     /// Itera sobre una referencia inmutable de `Children`, devolviendo un iterador de referencia.
     ///
-    /// ### Ejemplo de uso:
+    /// # Ejemplo de uso:
+    ///
     /// ```rust#ignore
     /// let children = Children::new().with(child1).with(child2);
     /// for child in &children {
@@ -314,7 +316,8 @@ impl<'a> IntoIterator for &'a mut Children {
 
     /// Itera sobre una referencia mutable de `Children`, devolviendo un iterador mutable.
     ///
-    /// ### Ejemplo de uso:
+    /// # Ejemplo de uso:
+    ///
     /// ```rust#ignore
     /// let mut children = Children::new().with(child1).with(child2);
     /// for child in &mut children {
