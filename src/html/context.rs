@@ -136,7 +136,7 @@ impl Context {
 
     /// Modifica el identificador de idioma del documento.
     #[builder_fn]
-    pub fn with_langid(&mut self, langid: &'static LanguageIdentifier) -> &mut Self {
+    pub fn with_langid(mut self, langid: &'static LanguageIdentifier) -> Self {
         self.langid = langid;
         self
     }
@@ -146,21 +146,21 @@ impl Context {
     /// Localiza el tema por su [`short_name`](crate::core::AnyInfo::short_name), y si no aplica
     /// ninguno entonces usará el tema por defecto.
     #[builder_fn]
-    pub fn with_theme(&mut self, theme_name: impl AsRef<str>) -> &mut Self {
+    pub fn with_theme(mut self, theme_name: impl AsRef<str>) -> Self {
         self.theme = theme_by_short_name(theme_name).unwrap_or(*DEFAULT_THEME);
         self
     }
 
     /// Define el tipo de composición usado para renderizar el documento.
     #[builder_fn]
-    pub fn with_layout(&mut self, layout_name: &'static str) -> &mut Self {
+    pub fn with_layout(mut self, layout_name: &'static str) -> Self {
         self.layout = layout_name;
         self
     }
 
     /// Añade o modifica un parámetro del contexto almacenando el valor como [`String`].
     #[builder_fn]
-    pub fn with_param<T: ToString>(&mut self, key: impl AsRef<str>, value: T) -> &mut Self {
+    pub fn with_param<T: ToString>(mut self, key: impl AsRef<str>, value: T) -> Self {
         self.params
             .insert(key.as_ref().to_string(), value.to_string());
         self
@@ -173,7 +173,7 @@ impl Context {
 
     /// Modifica información o recursos del contexto usando [`AssetsOp`].
     #[builder_fn]
-    pub fn with_assets(&mut self, op: AssetsOp) -> &mut Self {
+    pub fn with_assets(mut self, op: AssetsOp) -> Self {
         match op {
             // Favicon.
             AssetsOp::SetFavicon(favicon) => {
