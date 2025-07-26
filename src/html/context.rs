@@ -1,11 +1,11 @@
 use crate::core::theme::all::{theme_by_short_name, DEFAULT_THEME};
 use crate::core::theme::ThemeRef;
 use crate::core::TypeInfo;
-use crate::html::{html, Markup, Render};
+use crate::html::{html, Markup};
 use crate::html::{Assets, Favicon, JavaScript, StyleSheet};
-use crate::join;
 use crate::locale::{LanguageIdentifier, DEFAULT_LANGID};
 use crate::service::HttpRequest;
+use crate::{builder_fn, join};
 
 use std::collections::HashMap;
 use std::error::Error;
@@ -14,17 +14,7 @@ use std::str::FromStr;
 use std::fmt;
 
 /// Operaciones para modificar el contexto ([`Context`]) del documento.
-pub enum ContextOp {
-    /// Modifica el identificador de idioma del documento.
-    LangId(&'static LanguageIdentifier),
-    /// Establece el tema que se usará para renderizar el documento.
-    ///
-    /// Localiza el tema por su [`short_name`](crate::core::AnyInfo::short_name), y si no aplica
-    /// ninguno entonces usará el tema por defecto.
-    Theme(&'static str),
-    /// Define el tipo de composición usado para renderizar el documento.
-    Layout(&'static str),
-
+pub enum AssetsOp {
     // Favicon.
     /// Define el *favicon* del documento. Sobrescribe cualquier valor anterior.
     SetFavicon(Option<Favicon>),
@@ -76,38 +66,35 @@ impl Error for ErrorParam {}
 /// ```rust
 /// use pagetop::prelude::*;
 ///
-/// fn configure_context(mut cx: Context) {
+/// fn configure_context(cx: &mut Context) {
 ///     // Establece el idioma del documento a español.
-///     cx.alter_assets(ContextOp::LangId(
-///         LangMatch::langid_or_default("es-ES")
-///     ))
+///     cx.alter_langid(LangMatch::langid_or_default("es-ES"))
 ///     // Selecciona un tema (por su nombre corto).
-///     .alter_assets(ContextOp::Theme("aliner"))
+///     .alter_theme("aliner")
+///     // Añade un parámetro dinámico al contexto.
+///     .alter_param("usuario_id", 42)
 ///     // Asigna un favicon.
-///     .alter_assets(ContextOp::SetFavicon(Some(
+///     .alter_assets(AssetsOp::SetFavicon(Some(
 ///         Favicon::new().with_icon("/icons/favicon.ico")
 ///     )))
 ///     // Añade una hoja de estilo externa.
-///     .alter_assets(ContextOp::AddStyleSheet(
+///     .alter_assets(AssetsOp::AddStyleSheet(
 ///         StyleSheet::from("/css/style.css")
 ///     ))
 ///     // Añade un script JavaScript.
-///     .alter_assets(ContextOp::AddJavaScript(
+///     .alter_assets(AssetsOp::AddJavaScript(
 ///         JavaScript::defer("/js/main.js")
 ///     ));
-///
-///     // Añade un parámetro dinámico al contexto.
-///     cx.set_param("usuario_id", 42);
-///
-///     // Recupera el parámetro y lo convierte a su tipo original.
-///     let id: i32 = cx.get_param("usuario_id").unwrap();
-///     assert_eq!(id, 42);
 ///
 ///     // Recupera el tema seleccionado.
 ///     let active_theme = cx.theme();
 ///     assert_eq!(active_theme.short_name(), "aliner");
 ///
-///     // Genera un identificador único para un componente de tipo `Menu`.
+///     // Recupera el parámetro a su tipo original.
+///     let id: i32 = cx.param("usuario_id").unwrap();
+///     assert_eq!(id, 42);
+///
+///     // Genera un identificador para un componente de tipo `Menu`.
 ///     struct Menu;
 ///     let unique_id = cx.required_id::<Menu>(None);
 ///     assert_eq!(unique_id, "menu-1"); // Si es el primero generado.
@@ -119,10 +106,10 @@ pub struct Context {
     langid     : &'static LanguageIdentifier, // Identificador del idioma.
     theme      : ThemeRef,                    // Referencia al tema para renderizar.
     layout     : &'static str,                // Composición del documento para renderizar.
+    params     : HashMap<String, String>,     // Parámetros definidos en tiempo de ejecución.
     favicon    : Option<Favicon>,             // Favicon, si se ha definido.
     stylesheets: Assets<StyleSheet>,          // Hojas de estilo CSS.
     javascripts: Assets<JavaScript>,          // Scripts JavaScript.
-    params     : HashMap<String, String>,     // Parámetros definidos en tiempo de ejecución.
     id_counter : usize,                       // Contador para generar identificadores únicos.
 }
 
@@ -137,57 +124,81 @@ impl Context {
             langid     : &DEFAULT_LANGID,
             theme      : *DEFAULT_THEME,
             layout     : "default",
+            params     : HashMap::<String, String>::new(),
             favicon    : None,
             stylesheets: Assets::<StyleSheet>::new(),
             javascripts: Assets::<JavaScript>::new(),
-            params     : HashMap::<String, String>::new(),
             id_counter : 0,
         }
     }
 
-    /// Modifica información o recursos del contexto usando [`ContextOp`].
-    pub fn alter_assets(&mut self, op: ContextOp) -> &mut Self {
+    // Context BUILDER *****************************************************************************
+
+    /// Modifica el identificador de idioma del documento.
+    #[builder_fn]
+    pub fn with_langid(&mut self, langid: &'static LanguageIdentifier) -> &mut Self {
+        self.langid = langid;
+        self
+    }
+
+    /// Establece el tema que se usará para renderizar el documento.
+    ///
+    /// Localiza el tema por su [`short_name`](crate::core::AnyInfo::short_name), y si no aplica
+    /// ninguno entonces usará el tema por defecto.
+    #[builder_fn]
+    pub fn with_theme(&mut self, theme_name: impl AsRef<str>) -> &mut Self {
+        self.theme = theme_by_short_name(theme_name).unwrap_or(*DEFAULT_THEME);
+        self
+    }
+
+    /// Define el tipo de composición usado para renderizar el documento.
+    #[builder_fn]
+    pub fn with_layout(&mut self, layout_name: &'static str) -> &mut Self {
+        self.layout = layout_name;
+        self
+    }
+
+    /// Añade o modifica un parámetro del contexto almacenando el valor como [`String`].
+    #[builder_fn]
+    pub fn with_param<T: ToString>(&mut self, key: impl AsRef<str>, value: T) -> &mut Self {
+        self.params
+            .insert(key.as_ref().to_string(), value.to_string());
+        self
+    }
+
+    /// Elimina un parámetro del contexto. Devuelve `true` si existía y se eliminó.
+    pub fn remove_param(&mut self, key: impl AsRef<str>) -> bool {
+        self.params.remove(key.as_ref()).is_some()
+    }
+
+    /// Modifica información o recursos del contexto usando [`AssetsOp`].
+    #[builder_fn]
+    pub fn with_assets(&mut self, op: AssetsOp) -> &mut Self {
         match op {
-            ContextOp::LangId(langid) => {
-                self.langid = langid;
-            }
-            ContextOp::Theme(theme_name) => {
-                self.theme = theme_by_short_name(theme_name).unwrap_or(*DEFAULT_THEME);
-            }
-            ContextOp::Layout(layout) => {
-                self.layout = layout;
-            }
             // Favicon.
-            ContextOp::SetFavicon(favicon) => {
+            AssetsOp::SetFavicon(favicon) => {
                 self.favicon = favicon;
             }
-            ContextOp::SetFaviconIfNone(icon) => {
+            AssetsOp::SetFaviconIfNone(icon) => {
                 if self.favicon.is_none() {
                     self.favicon = Some(icon);
                 }
             }
             // Stylesheets.
-            ContextOp::AddStyleSheet(css) => {
+            AssetsOp::AddStyleSheet(css) => {
                 self.stylesheets.add(css);
             }
-            ContextOp::RemoveStyleSheet(path) => {
+            AssetsOp::RemoveStyleSheet(path) => {
                 self.stylesheets.remove(path);
             }
             // JavaScripts.
-            ContextOp::AddJavaScript(js) => {
+            AssetsOp::AddJavaScript(js) => {
                 self.javascripts.add(js);
             }
-            ContextOp::RemoveJavaScript(path) => {
+            AssetsOp::RemoveJavaScript(path) => {
                 self.javascripts.remove(path);
             }
         }
-        self
-    }
-
-    /// Añade o modifica un parámetro del contexto almacenando el valor como [`String`].
-    pub fn set_param<T: ToString>(&mut self, key: impl AsRef<str>, value: T) -> &mut Self {
-        self.params
-            .insert(key.as_ref().to_string(), value.to_string());
         self
     }
 
@@ -218,19 +229,27 @@ impl Context {
     ///
     /// Devuelve un error si el parámetro no existe ([`ErrorParam::NotFound`]) o la conversión falla
     /// ([`ErrorParam::ParseError`]).
-    pub fn get_param<T: FromStr>(&self, key: impl AsRef<str>) -> Result<T, ErrorParam> {
+    pub fn param<T: FromStr>(&self, key: impl AsRef<str>) -> Result<T, ErrorParam> {
         self.params
             .get(key.as_ref())
             .ok_or(ErrorParam::NotFound)
             .and_then(|v| T::from_str(v).map_err(|_| ErrorParam::ParseError(v.clone())))
     }
 
-    // Context EXTRAS ******************************************************************************
+    // Context RENDER ******************************************************************************
 
-    /// Elimina un parámetro del contexto. Devuelve `true` si existía y se eliminó.
-    pub fn remove_param(&mut self, key: impl AsRef<str>) -> bool {
-        self.params.remove(key.as_ref()).is_some()
+    /// Renderiza los recursos del contexto.
+    pub fn render_assets(&self) -> Markup {
+        html! {
+            @if let Some(favicon) = &self.favicon {
+                (favicon)
+            }
+            (self.stylesheets)
+            (self.javascripts)
+        }
     }
+
+    // Context EXTRAS ******************************************************************************
 
     /// Genera un identificador único si no se proporciona uno explícito.
     ///
@@ -253,18 +272,6 @@ impl Context {
             };
             self.id_counter += 1;
             join!(prefix, "-", self.id_counter.to_string())
-        }
-    }
-}
-
-impl Render for Context {
-    fn render(&self) -> Markup {
-        html! {
-            @if let Some(favicon) = &self.favicon {
-                (favicon)
-            }
-            (self.stylesheets)
-            (self.javascripts)
         }
     }
 }
