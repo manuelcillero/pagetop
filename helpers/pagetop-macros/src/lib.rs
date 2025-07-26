@@ -103,32 +103,16 @@ pub fn builder_fn(_: TokenStream, item: TokenStream) -> TokenStream {
         };
         return expanded.into();
     }
-    // Valida que el método sea público.
+    // Valida que el método es público.
     if !matches!(fn_with.vis, syn::Visibility::Public(_)) {
         return quote_spanned! {
             fn_with.sig.ident.span() => compile_error!("expected method to be `pub`");
         }
         .into();
     }
-    // Valida que el método devuelva el tipo `Self`.
-    if let syn::ReturnType::Type(_, ty) = &fn_with.sig.output {
-        if let syn::Type::Path(type_path) = &**ty {
-            let ident = &type_path.path.segments.last().unwrap().ident;
-            if ident != "Self" {
-                return quote_spanned! {
-                fn_with.sig.output.span() => compile_error!("expected return type to be `Self`");
-            }.into();
-            }
-        }
-    } else {
-        return quote_spanned! {
-            fn_with.sig.output.span() => compile_error!("expected method to return `Self`");
-        }
-        .into();
-    }
-    // Valida que el primer argumento sea `mut self`.
+    // Valida que el primer argumento es exactamente `mut self`.
     if let Some(syn::FnArg::Receiver(receiver)) = fn_with.sig.inputs.first() {
-        if receiver.mutability.is_none() {
+        if receiver.mutability.is_none() || receiver.reference.is_some() {
             return quote_spanned! {
                 receiver.span() => compile_error!("expected `mut self` as the first argument");
             }
@@ -137,6 +121,27 @@ pub fn builder_fn(_: TokenStream, item: TokenStream) -> TokenStream {
     } else {
         return quote_spanned! {
             fn_with.sig.ident.span() => compile_error!("expected `mut self` as the first argument");
+        }
+        .into();
+    }
+    // Valida que el método devuelve exactamente `Self`.
+    if let syn::ReturnType::Type(_, ty) = &fn_with.sig.output {
+        if let syn::Type::Path(type_path) = ty.as_ref() {
+            if type_path.qself.is_some() || !type_path.path.is_ident("Self") {
+                return quote_spanned! { ty.span() =>
+                    compile_error!("expected return type to be exactly `Self`");
+                }
+                .into();
+            }
+        } else {
+            return quote_spanned! { ty.span() =>
+                compile_error!("expected return type to be exactly `Self`");
+            }
+            .into();
+        }
+    } else {
+        return quote_spanned! {
+            fn_with.sig.output.span() => compile_error!("expected method to return `Self`");
         }
         .into();
     }
