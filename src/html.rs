@@ -10,7 +10,7 @@ pub use assets::stylesheet::{StyleSheet, TargetMedia};
 pub(crate) use assets::Assets;
 
 mod context;
-pub use context::{Context, ContextOp, ErrorParam};
+pub use context::{AssetsOp, Context, ErrorParam};
 
 mod opt_id;
 pub use opt_id::OptionId;
