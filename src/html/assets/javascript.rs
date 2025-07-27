@@ -97,7 +97,7 @@ impl JavaScript {
 
     /// Crea un **script embebido** directamente en el documento HTML.
     ///
-    /// Equivale a `<script>…</script>`. El parámetro `name` se usa como identificador interno del
+    /// Equivale a `<script>...</script>`. El parámetro `name` se usa como identificador interno del
     /// *script*.
     pub fn inline(name: impl Into<String>, script: impl Into<String>) -> Self {
         JavaScript {

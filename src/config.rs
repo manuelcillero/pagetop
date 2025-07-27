@@ -169,7 +169,7 @@ pub static CONFIG_VALUES: LazyLock<ConfigBuilder<DefaultState>> = LazyLock::new(
 /// ```rust,ignore
 /// include_config!(SETTINGS: Settings => [
 ///     "ruta.clave" => valor,
-///     // …
+///     // ...
 /// ]);
 /// ```
 ///

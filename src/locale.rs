@@ -119,13 +119,13 @@ static LANGUAGES: LazyLock<HashMap<&str, (LanguageIdentifier, &str)>> = LazyLock
     ]
 });
 
-// Identificador del idioma de **respaldo** (predefinido a `en-US`).
+// Identificador de idioma de **respaldo** (predefinido a `en-US`).
 //
 // Se usa cuando el valor del identificador de idioma en las traducciones no corresponde con ningún
 // idioma soportado por la aplicación.
 static FALLBACK_LANGID: LazyLock<LanguageIdentifier> = LazyLock::new(|| langid!("en-US"));
 
-// Identificador del idioma **por defecto** para la aplicación.
+// Identificador de idioma **por defecto** para la aplicación.
 //
 // Se resuelve a partir de [`global::SETTINGS.app.language`](global::SETTINGS). Si el identificador
 // de idioma no es válido o no está disponible entonces resuelve como [`FALLBACK_LANGID`].
@@ -177,13 +177,13 @@ pub(crate) static DEFAULT_LANGID: LazyLock<&LanguageIdentifier> =
 /// ```
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum LangMatch {
-    /// Cuando el identificador del idioma es una cadena vacía.
+    /// Cuando el identificador de idioma es una cadena vacía.
     Unspecified,
     /// Si encuentra un [`LanguageIdentifier`] en la lista de idiomas soportados por `PageTop` que
-    /// coincide exactamente con el identificador del idioma (p.ej. "es-ES"), o con el identificador
+    /// coincide exactamente con el identificador de idioma (p.ej. "es-ES"), o con el identificador
     /// del idioma base (p.ej. "es").
     Found(&'static LanguageIdentifier),
-    /// Si el identificador del idioma no está entre los soportados por `PageTop`.
+    /// Si el identificador de idioma no está entre los soportados por `PageTop`.
     Unsupported(String),
 }
 

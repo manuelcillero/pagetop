@@ -44,7 +44,7 @@ mod windows {
     async fn ok_absolute_dir() -> io::Result<()> {
         let _app = service::test::init_service(Application::new().test()).await;
 
-        // C:\Users\…\Temp\…
+        // C:\Users\...\Temp\...
         let td = TempDir::new()?;
         let root = td.path();
         let sub = root.join("sub");
