@@ -1,12 +1,13 @@
 //! Gestión del servidor y servicios web (con [Actix Web](https://docs.rs/actix-web)).
 
+pub use actix_session::Session;
 pub use actix_web::body::BoxBody;
 pub use actix_web::dev::Server;
 pub use actix_web::dev::ServiceFactory as Factory;
 pub use actix_web::dev::ServiceRequest as Request;
 pub use actix_web::dev::ServiceResponse as Response;
-pub use actix_web::{http, rt, web};
-pub use actix_web::{App, Error, HttpRequest, HttpResponse, HttpServer};
+pub use actix_web::{cookie, http, rt, web};
+pub use actix_web::{App, Error, HttpMessage, HttpRequest, HttpResponse, HttpServer};
 
 #[doc(hidden)]
 pub use actix_web::test;

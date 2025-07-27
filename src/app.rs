@@ -5,6 +5,10 @@ mod figfont;
 use crate::core::{extension, extension::ExtensionRef};
 use crate::{global, locale, service, trace};
 
+use actix_session::config::{BrowserSession, PersistentSession, SessionLifecycle};
+use actix_session::storage::CookieSessionStore;
+use actix_session::SessionMiddleware;
+
 use substring::Substring;
 
 use std::io::Error;
@@ -111,9 +115,27 @@ impl Application {
     /// Devuelve [`std::io::Error`] si el *socket* no puede enlazarse (por puerto en uso, permisos,
     /// etc.).
     pub fn run(self) -> Result<service::Server, Error> {
+        // Genera clave secreta para firmar y verificar cookies.
+        let secret_key = service::cookie::Key::generate();
+
         // Prepara el servidor web.
         Ok(service::HttpServer::new(move || {
-            Self::service_app().wrap(tracing_actix_web::TracingLogger::default())
+            Self::service_app()
+                .wrap(tracing_actix_web::TracingLogger::default())
+                .wrap(
+                    SessionMiddleware::builder(CookieSessionStore::default(), secret_key.clone())
+                        .session_lifecycle(match global::SETTINGS.server.session_lifetime {
+                            0 => SessionLifecycle::BrowserSession(BrowserSession::default()),
+                            _ => SessionLifecycle::PersistentSession(
+                                PersistentSession::default().session_ttl(
+                                    service::cookie::time::Duration::seconds(
+                                        global::SETTINGS.server.session_lifetime,
+                                    ),
+                                ),
+                            ),
+                        })
+                        .build(),
+                )
         })
         .bind(format!(
             "{}:{}",
