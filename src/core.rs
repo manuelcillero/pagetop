@@ -55,10 +55,10 @@ impl TypeInfo {
     fn partial(type_name: &'static str, start: isize, end: Option<isize>) -> &'static str {
         let maxlen = type_name.len();
 
-        // Localiza los límites de cada segmento a nivel 0 de `<…>`.
+        // Localiza los límites de cada segmento a nivel 0 de `<...>`.
         let mut segments = Vec::new();
         let mut segment_start = 0; // Posición inicial del segmento actual.
-        let mut angle_brackets = 0; // Profundidad dentro de '<…>'.
+        let mut angle_brackets = 0; // Profundidad dentro de '<...>'.
         let mut previous_char = '\0'; // Se inicializa a carácter nulo, no hay aún carácter previo.
 
         for (idx, c) in type_name.char_indices() {

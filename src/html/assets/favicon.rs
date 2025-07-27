@@ -3,7 +3,7 @@ use crate::AutoDefault;
 
 /// Un **Favicon** es un recurso gráfico que usa el navegador como icono asociado al sitio.
 ///
-/// Es universalmente aceptado para mostrar el icono del sitio (`.ico`, `.png`, `.svg`, …) en
+/// Es universalmente aceptado para mostrar el icono del sitio (`.ico`, `.png`, `.svg`, ...) en
 /// pestañas, marcadores o accesos directos.
 ///
 /// Este tipo permite construir de forma fluida las distintas variantes de un *favicon*, ya sea un

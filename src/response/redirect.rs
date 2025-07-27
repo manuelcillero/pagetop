@@ -43,7 +43,7 @@ impl Redirect {
     /// Redirección **permanente**. Código de estado **308**. Mantiene método y cuerpo sin cambios.
     ///
     /// Indicada para reorganizaciones de un sitio o aplicación web en las que también existen
-    /// métodos distintos de GET (POST, PUT, …) que no deben degradarse a GET.
+    /// métodos distintos de GET (POST, PUT, ...) que no deben degradarse a GET.
     #[must_use]
     pub fn permanent(redirect_to_url: &str) -> HttpResponse {
         HttpResponse::PermanentRedirect()
@@ -55,7 +55,7 @@ impl Redirect {
     /// mantiene tal cual. Otros métodos pueden degradarse a GET.
     ///
     /// Útil cuando un recurso está fuera de servicio de forma imprevista (mantenimiento breve,
-    /// sobrecarga, …).
+    /// sobrecarga, ...).
     #[must_use]
     pub fn found(redirect_to_url: &str) -> HttpResponse {
         HttpResponse::Found()

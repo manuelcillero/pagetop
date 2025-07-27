@@ -85,7 +85,7 @@ impl<C: ComponentTrait> Typed<C> {
 
 // *************************************************************************************************
 
-/// Operaciones con un componente [`Child`] en una lista [`Children`].
+/// Operaciones con un componente hijo [`Child`] en una lista [`Children`].
 pub enum ChildOp {
     Add(Child),
     InsertAfterId(&'static str, Child),
@@ -96,7 +96,7 @@ pub enum ChildOp {
     Reset,
 }
 
-/// Operaciones con un componente tipado [`Typed<C>`] en una lista [`Children`].
+/// Operaciones con un componente hijo tipado [`Typed<C>`] en una lista [`Children`].
 pub enum TypedOp<C: ComponentTrait> {
     Add(Typed<C>),
     InsertAfterId(&'static str, Typed<C>),
@@ -107,9 +107,9 @@ pub enum TypedOp<C: ComponentTrait> {
     Reset,
 }
 
-/// Lista ordenada de los componentes hijo ([`Child`]) asociados a un componente padre.
+/// Lista ordenada de componentes hijo ([`Child`]) mantenida por un componente padre.
 ///
-/// Esta colección permite añadir, modificar, renderizar y consultar componentes hijos en orden de
+/// Esta lista permite añadir, modificar, renderizar y consultar componentes hijo en orden de
 /// inserción, soportando operaciones avanzadas como inserción relativa o reemplazo por
 /// identificador.
 #[derive(Clone, Default)]
@@ -121,7 +121,7 @@ impl Children {
         Children::default()
     }
 
-    /// Crea una lista con un único hijo inicial.
+    /// Crea una lista con un componente hijo inicial.
     pub fn with(child: Child) -> Self {
         Children::default().with_child(ChildOp::Add(child))
     }
@@ -165,7 +165,9 @@ impl Children {
         }
     }
 
-    /// Añade un hijo al final de la lista.
+    /// Añade un componente hijo al final de la lista.
+    ///
+    /// Es un atajo para `children.alter_child(ChildOp::Add(child))`.
     #[inline]
     pub fn add(&mut self, child: Child) -> &mut Self {
         self.0.push(child);

@@ -82,7 +82,7 @@ impl TargetMedia {
 pub struct StyleSheet {
     source : Source,      // Fuente y modo de inclusión del CSS.
     version: String,      // Versión del recurso para la caché del navegador.
-    media  : TargetMedia, // Medio objetivo para los estilos (`print`, `screen`, …).
+    media  : TargetMedia, // Medio objetivo para los estilos (`print`, `screen`, ...).
     weight : Weight,      // Peso que determina el orden.
 }
 
@@ -99,7 +99,7 @@ impl StyleSheet {
 
     /// Crea una hoja de estilos embebida directamente en el documento HTML.
     ///
-    /// Equivale a `<style>…</style>`. El parámetro `name` se usa como identificador interno del
+    /// Equivale a `<style>...</style>`. El parámetro `name` se usa como identificador interno del
     /// recurso.
     pub fn inline(name: impl Into<String>, styles: impl Into<String>) -> Self {
         StyleSheet {
