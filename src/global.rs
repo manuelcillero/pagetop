@@ -6,23 +6,24 @@ use serde::Deserialize;
 
 include_config!(SETTINGS: Settings => [
     // [app]
-    "app.name"            => "Sample",
-    "app.description"     => "Developed with the amazing PageTop framework.",
-    "app.theme"           => "Basic",
-    "app.language"        => "en-US",
-    "app.startup_banner"  => "Slant",
+    "app.name"                => "Sample",
+    "app.description"         => "Developed with the amazing PageTop framework.",
+    "app.theme"               => "Basic",
+    "app.language"            => "en-US",
+    "app.startup_banner"      => "Slant",
 
     // [log]
-    "log.enabled"         => true,
-    "log.tracing"         => "Info",
-    "log.rolling"         => "Stdout",
-    "log.path"            => "log",
-    "log.prefix"          => "tracing.log",
-    "log.format"          => "Full",
+    "log.enabled"             => true,
+    "log.tracing"             => "Info",
+    "log.rolling"             => "Stdout",
+    "log.path"                => "log",
+    "log.prefix"              => "tracing.log",
+    "log.format"              => "Full",
 
     // [server]
-    "server.bind_address" => "localhost",
-    "server.bind_port"    => 8080,
+    "server.bind_address"     => "localhost",
+    "server.bind_port"        => 8080,
+    "server.session_lifetime" => 604_800,
 ]);
 
 #[derive(Debug, Deserialize)]
@@ -80,4 +81,8 @@ pub struct Server {
     pub bind_address: String,
     /// Puerto de escucha del servidor web.
     pub bind_port: u16,
+    /// Duración de la cookie de sesión en segundos (p.ej. `604_800` para una semana).
+    ///
+    /// El valor `0` indica que la cookie permanecerá activa hasta que se cierre el navegador.
+    pub session_lifetime: i64,
 }

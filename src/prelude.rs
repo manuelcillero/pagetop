@@ -34,7 +34,7 @@ pub use crate::locale::*;
 pub use crate::datetime::*;
 
 pub use crate::service;
-pub use crate::service::{HttpRequest, HttpResponse};
+pub use crate::service::{HttpMessage, HttpRequest, HttpResponse};
 
 pub use crate::core::{AnyCast, AnyInfo, TypeInfo};
 
