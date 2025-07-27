@@ -61,37 +61,42 @@ impl Error for ErrorParam {}
 /// hojas de estilo ([`StyleSheet`]) y *scripts* ([`JavaScript`]), así como parámetros de contexto
 /// definidos en tiempo de ejecución.
 ///
-/// # Ejemplo
+/// # Ejemplos
+///
+/// Crea un nuevo contexto asociado a una solicitud HTTP:
 ///
 /// ```rust
 /// use pagetop::prelude::*;
 ///
-/// fn configure_context(cx: &mut Context) {
-///     // Establece el idioma del documento a español.
-///     cx.alter_langid(LangMatch::langid_or_default("es-ES"))
-///     // Selecciona un tema (por su nombre corto).
-///     .alter_theme("aliner")
-///     // Añade un parámetro dinámico al contexto.
-///     .alter_param("usuario_id", 42)
-///     // Asigna un favicon.
-///     .alter_assets(AssetsOp::SetFavicon(Some(
-///         Favicon::new().with_icon("/icons/favicon.ico")
-///     )))
-///     // Añade una hoja de estilo externa.
-///     .alter_assets(AssetsOp::AddStyleSheet(
-///         StyleSheet::from("/css/style.css")
-///     ))
-///     // Añade un script JavaScript.
-///     .alter_assets(AssetsOp::AddJavaScript(
-///         JavaScript::defer("/js/main.js")
-///     ));
+/// fn new_context(request: HttpRequest) -> Context {
+///     Context::new(request)
+///         // Establece el idioma del documento a español.
+///         .with_langid(LangMatch::langid_or_default("es-ES"))
+///         // Selecciona un tema (por su nombre corto).
+///         .with_theme("aliner")
+///         // Asigna un favicon.
+///         .with_assets(AssetsOp::SetFavicon(Some(Favicon::new().with_icon("/favicon.ico"))))
+///         // Añade una hoja de estilo externa.
+///         .with_assets(AssetsOp::AddStyleSheet(StyleSheet::from("/css/style.css")))
+///         // Añade un script JavaScript.
+///         .with_assets(AssetsOp::AddJavaScript(JavaScript::defer("/js/main.js")))
+///         // Añade un parámetro dinámico al contexto.
+///         .with_param("usuario_id", 42)
+/// }
+/// ```
 ///
+/// Y hace operaciones con un contexto dado:
+///
+/// ```rust
+/// use pagetop::prelude::*;
+///
+/// fn use_context(cx: &mut Context) {
 ///     // Recupera el tema seleccionado.
 ///     let active_theme = cx.theme();
 ///     assert_eq!(active_theme.short_name(), "aliner");
 ///
 ///     // Recupera el parámetro a su tipo original.
-///     let id: i32 = cx.param("usuario_id").unwrap();
+///     let id: i32 = cx.get_param("usuario_id").unwrap();
 ///     assert_eq!(id, 42);
 ///
 ///     // Genera un identificador para un componente de tipo `Menu`.
@@ -102,32 +107,33 @@ impl Error for ErrorParam {}
 /// ```
 #[rustfmt::skip]
 pub struct Context {
-    request    : HttpRequest,                 // Solicitud HTTP de origen.
-    langid     : &'static LanguageIdentifier, // Identificador del idioma.
-    theme      : ThemeRef,                    // Referencia al tema para renderizar.
-    layout     : &'static str,                // Composición del documento para renderizar.
-    params     : HashMap<String, String>,     // Parámetros definidos en tiempo de ejecución.
-    favicon    : Option<Favicon>,             // Favicon, si se ha definido.
-    stylesheets: Assets<StyleSheet>,          // Hojas de estilo CSS.
-    javascripts: Assets<JavaScript>,          // Scripts JavaScript.
-    id_counter : usize,                       // Contador para generar identificadores únicos.
+    request    : HttpRequest,                   // Solicitud HTTP de origen.
+    langid     : &'static LanguageIdentifier,   // Identificador de idioma.
+    theme      : ThemeRef,                      // Referencia al tema para renderizar.
+    layout     : &'static str,                  // Composición del documento para renderizar.
+    favicon    : Option<Favicon>,               // Favicon, si se ha definido.
+    stylesheets: Assets<StyleSheet>,            // Hojas de estilo CSS.
+    javascripts: Assets<JavaScript>,            // Scripts JavaScript.
+    params     : HashMap<&'static str, String>, // Parámetros definidos en tiempo de ejecución.
+    id_counter : usize,                         // Contador para generar identificadores únicos.
 }
 
 impl Context {
-    // Crea un nuevo contexto asociado a una solicitud HTTP.
-    //
-    // El contexto inicializa el idioma por defecto, sin favicon ni recursos cargados.
+    /// Crea un nuevo contexto asociado a una solicitud HTTP.
+    ///
+    /// El contexto inicializa el idioma, tema y composición por defecto, sin favicon ni recursos
+    /// cargados.
     #[rustfmt::skip]
-    pub(crate) fn new(request: HttpRequest) -> Self {
+    pub fn new(request: HttpRequest) -> Self {
         Context {
             request,
             langid     : &DEFAULT_LANGID,
             theme      : *DEFAULT_THEME,
             layout     : "default",
-            params     : HashMap::<String, String>::new(),
             favicon    : None,
             stylesheets: Assets::<StyleSheet>::new(),
             javascripts: Assets::<JavaScript>::new(),
+            params     : HashMap::<&str, String>::new(),
             id_counter : 0,
         }
     }
@@ -141,37 +147,24 @@ impl Context {
         self
     }
 
-    /// Establece el tema que se usará para renderizar el documento.
+    /// Modifica el tema que se usará para renderizar el documento.
     ///
     /// Localiza el tema por su [`short_name`](crate::core::AnyInfo::short_name), y si no aplica
     /// ninguno entonces usará el tema por defecto.
     #[builder_fn]
-    pub fn with_theme(mut self, theme_name: impl AsRef<str>) -> Self {
+    pub fn with_theme(mut self, theme_name: &'static str) -> Self {
         self.theme = theme_by_short_name(theme_name).unwrap_or(*DEFAULT_THEME);
         self
     }
 
-    /// Define el tipo de composición usado para renderizar el documento.
+    /// Modifica la composición para renderizar el documento.
     #[builder_fn]
     pub fn with_layout(mut self, layout_name: &'static str) -> Self {
         self.layout = layout_name;
         self
     }
 
-    /// Añade o modifica un parámetro del contexto almacenando el valor como [`String`].
-    #[builder_fn]
-    pub fn with_param<T: ToString>(mut self, key: impl AsRef<str>, value: T) -> Self {
-        self.params
-            .insert(key.as_ref().to_string(), value.to_string());
-        self
-    }
-
-    /// Elimina un parámetro del contexto. Devuelve `true` si existía y se eliminó.
-    pub fn remove_param(&mut self, key: impl AsRef<str>) -> bool {
-        self.params.remove(key.as_ref()).is_some()
-    }
-
-    /// Modifica información o recursos del contexto usando [`AssetsOp`].
+    /// Define los recursos del contexto usando [`AssetsOp`].
     #[builder_fn]
     pub fn with_assets(mut self, op: AssetsOp) -> Self {
         match op {
@@ -209,7 +202,7 @@ impl Context {
         &self.request
     }
 
-    /// Devuelve el identificador del idioma asociado al documento.
+    /// Devuelve el identificador de idioma asociado al documento.
     pub fn langid(&self) -> &LanguageIdentifier {
         self.langid
     }
@@ -219,21 +212,9 @@ impl Context {
         self.theme
     }
 
-    /// Devuelve el tipo de composición usado para renderizar el documento. El valor predeterminado
-    /// es `"default"`.
+    /// Devuelve la composición para renderizar el documento. Por defecto es `"default"`.
     pub fn layout(&self) -> &str {
         self.layout
-    }
-
-    /// Recupera un parámetro del contexto convertido al tipo especificado.
-    ///
-    /// Devuelve un error si el parámetro no existe ([`ErrorParam::NotFound`]) o la conversión falla
-    /// ([`ErrorParam::ParseError`]).
-    pub fn param<T: FromStr>(&self, key: impl AsRef<str>) -> Result<T, ErrorParam> {
-        self.params
-            .get(key.as_ref())
-            .ok_or(ErrorParam::NotFound)
-            .and_then(|v| T::from_str(v).map_err(|_| ErrorParam::ParseError(v.clone())))
     }
 
     // Context RENDER ******************************************************************************
@@ -247,6 +228,31 @@ impl Context {
             (self.stylesheets)
             (self.javascripts)
         }
+    }
+
+    // Context PARAMS ******************************************************************************
+
+    /// Añade o modifica un parámetro del contexto almacenando el valor como [`String`].
+    #[builder_fn]
+    pub fn with_param<T: ToString>(mut self, key: &'static str, value: T) -> Self {
+        self.params.insert(key, value.to_string());
+        self
+    }
+
+    /// Recupera un parámetro del contexto convertido al tipo especificado.
+    ///
+    /// Devuelve un error si el parámetro no existe ([`ErrorParam::NotFound`]) o la conversión falla
+    /// ([`ErrorParam::ParseError`]).
+    pub fn get_param<T: FromStr>(&self, key: &'static str) -> Result<T, ErrorParam> {
+        self.params
+            .get(key)
+            .ok_or(ErrorParam::NotFound)
+            .and_then(|v| T::from_str(v).map_err(|_| ErrorParam::ParseError(v.clone())))
+    }
+
+    /// Elimina un parámetro del contexto. Devuelve `true` si existía y se eliminó.
+    pub fn remove_param(&mut self, key: &'static str) -> bool {
+        self.params.remove(key).is_some()
     }
 
     // Context EXTRAS ******************************************************************************

@@ -27,7 +27,7 @@ impl<C: ComponentTrait> ActionDispatcher for IsRenderable<C> {
         self.referer_id.get()
     }
 
-    /// Devuelve el peso para definir el orden de aplicación.
+    /// Devuelve el peso para definir el orden de ejecución.
     fn weight(&self) -> Weight {
         self.weight
     }

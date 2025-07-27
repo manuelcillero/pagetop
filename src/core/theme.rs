@@ -22,3 +22,6 @@ pub(crate) use regions::ChildrenInRegions;
 pub use regions::InRegion;
 
 pub(crate) mod all;
+
+/// Nombre de la región por defecto: `content`.
+pub const CONTENT_REGION_NAME: &str = "content";

@@ -43,7 +43,7 @@ pub use crate::core::component::*;
 pub use crate::core::extension::*;
 pub use crate::core::theme::*;
 
-pub use crate::response::{json::*, redirect::*, ResponseError};
+pub use crate::response::{json::*, page::*, redirect::*, ResponseError};
 
 pub use crate::base::action;
 pub use crate::base::component::*;

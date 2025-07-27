@@ -77,8 +77,8 @@ impl<C: ComponentTrait> Typed<C> {
 
     // Typed HELPERS *******************************************************************************
 
-    /// Convierte el componente tipado en un [`Child`].
-    fn to_child(&self) -> Child {
+    // Convierte el componente tipado en un [`Child`].
+    fn into_child(self) -> Child {
         Child(self.0.clone())
     }
 }
@@ -155,12 +155,12 @@ impl Children {
     #[builder_fn]
     pub fn with_typed<C: ComponentTrait + Default>(mut self, op: TypedOp<C>) -> Self {
         match op {
-            TypedOp::Add(typed) => self.add(typed.to_child()),
-            TypedOp::InsertAfterId(id, typed) => self.insert_after_id(id, typed.to_child()),
-            TypedOp::InsertBeforeId(id, typed) => self.insert_before_id(id, typed.to_child()),
-            TypedOp::Prepend(typed) => self.prepend(typed.to_child()),
+            TypedOp::Add(typed) => self.add(typed.into_child()),
+            TypedOp::InsertAfterId(id, typed) => self.insert_after_id(id, typed.into_child()),
+            TypedOp::InsertBeforeId(id, typed) => self.insert_before_id(id, typed.into_child()),
+            TypedOp::Prepend(typed) => self.prepend(typed.into_child()),
             TypedOp::RemoveById(id) => self.remove_by_id(id),
-            TypedOp::ReplaceById(id, typed) => self.replace_by_id(id, typed.to_child()),
+            TypedOp::ReplaceById(id, typed) => self.replace_by_id(id, typed.into_child()),
             TypedOp::Reset => self.reset(),
         }
     }
@@ -173,6 +173,48 @@ impl Children {
         self.0.push(child);
         self
     }
+
+    // Children GETTERS ****************************************************************************
+
+    /// Devuelve el número de componentes hijo de la lista.
+    pub fn len(&self) -> usize {
+        self.0.len()
+    }
+
+    /// Indica si la lista está vacía.
+    pub fn is_empty(&self) -> bool {
+        self.0.is_empty()
+    }
+
+    /// Devuelve el primer componente hijo con el identificador indicado, si existe.
+    pub fn get_by_id(&self, id: impl AsRef<str>) -> Option<&Child> {
+        let id = Some(id.as_ref());
+        self.0.iter().find(|c| c.id().as_deref() == id)
+    }
+
+    /// Devuelve un iterador sobre los componentes hijo con el identificador indicado.
+    pub fn iter_by_id<'a>(&'a self, id: &'a str) -> impl Iterator<Item = &'a Child> + 'a {
+        self.0.iter().filter(move |c| c.id().as_deref() == Some(id))
+    }
+
+    /// Devuelve un iterador sobre los componentes hijo con el identificador de tipo ([`UniqueId`])
+    /// indicado.
+    pub fn iter_by_type_id(&self, type_id: UniqueId) -> impl Iterator<Item = &Child> {
+        self.0.iter().filter(move |&c| c.type_id() == type_id)
+    }
+
+    // Children RENDER *****************************************************************************
+
+    /// Renderiza todos los componentes hijo, en orden.
+    pub fn render(&self, cx: &mut Context) -> Markup {
+        html! {
+            @for c in &self.0 {
+                (c.render(cx))
+            }
+        }
+    }
+
+    // Children HELPERS ****************************************************************************
 
     // Inserta un hijo después del componente con el `id` dado, o al final si no se encuentra.
     #[inline]
@@ -231,46 +273,6 @@ impl Children {
     fn reset(&mut self) -> &mut Self {
         self.0.clear();
         self
-    }
-
-    // Children GETTERS ****************************************************************************
-
-    /// Devuelve el número de componentes hijo de la lista.
-    pub fn len(&self) -> usize {
-        self.0.len()
-    }
-
-    /// Indica si la lista está vacía.
-    pub fn is_empty(&self) -> bool {
-        self.0.is_empty()
-    }
-
-    /// Devuelve el primer componente hijo con el identificador indicado, si existe.
-    pub fn get_by_id(&self, id: impl AsRef<str>) -> Option<&Child> {
-        let id = Some(id.as_ref());
-        self.0.iter().find(|c| c.id().as_deref() == id)
-    }
-
-    /// Devuelve un iterador sobre los componentes hijo con el identificador indicado.
-    pub fn iter_by_id<'a>(&'a self, id: &'a str) -> impl Iterator<Item = &'a Child> + 'a {
-        self.0.iter().filter(move |c| c.id().as_deref() == Some(id))
-    }
-
-    /// Devuelve un iterador sobre los componentes hijo con el identificador tipo ([`UniqueId`])
-    /// indicado.
-    pub fn iter_by_type_id(&self, type_id: UniqueId) -> impl Iterator<Item = &Child> {
-        self.0.iter().filter(move |&c| c.type_id() == type_id)
-    }
-
-    // Children RENDER *****************************************************************************
-
-    /// Renderiza todos los componentes hijo, en orden.
-    pub fn render(&self, cx: &mut Context) -> Markup {
-        html! {
-            @for c in &self.0 {
-                (c.render(cx))
-            }
-        }
     }
 }
 
