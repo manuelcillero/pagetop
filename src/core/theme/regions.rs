@@ -1,5 +1,5 @@
 use crate::core::component::{Child, ChildOp, Children};
-use crate::core::theme::ThemeRef;
+use crate::core::theme::{ThemeRef, CONTENT_REGION_NAME};
 use crate::{builder_fn, AutoDefault, UniqueId};
 
 use parking_lot::RwLock;
@@ -7,45 +7,43 @@ use parking_lot::RwLock;
 use std::collections::HashMap;
 use std::sync::LazyLock;
 
+// Regiones globales con componentes para un tema dado.
 static THEME_REGIONS: LazyLock<RwLock<HashMap<UniqueId, ChildrenInRegions>>> =
     LazyLock::new(|| RwLock::new(HashMap::new()));
 
+// Regiones globales con componentes para cualquier tema.
 static COMMON_REGIONS: LazyLock<RwLock<ChildrenInRegions>> =
     LazyLock::new(|| RwLock::new(ChildrenInRegions::default()));
 
-// Estructura interna para mantener los componentes de cada región dada.
+// Estructura interna para mantener los componentes de una región.
 #[derive(AutoDefault)]
 pub struct ChildrenInRegions(HashMap<&'static str, Children>);
 
 impl ChildrenInRegions {
-    pub fn new() -> Self {
-        ChildrenInRegions::default()
-    }
-
-    pub fn with(region_id: &'static str, child: Child) -> Self {
-        ChildrenInRegions::default().with_in_region(region_id, ChildOp::Add(child))
+    pub fn with(region_name: &'static str, child: Child) -> Self {
+        ChildrenInRegions::default().with_child_in_region(region_name, ChildOp::Add(child))
     }
 
     #[builder_fn]
-    pub fn with_in_region(mut self, region_id: &'static str, op: ChildOp) -> Self {
-        if let Some(region) = self.0.get_mut(region_id) {
+    pub fn with_child_in_region(mut self, region_name: &'static str, op: ChildOp) -> Self {
+        if let Some(region) = self.0.get_mut(region_name) {
             region.alter_child(op);
         } else {
-            self.0.insert(region_id, Children::new().with_child(op));
+            self.0.insert(region_name, Children::new().with_child(op));
         }
         self
     }
 
-    pub fn all_in_region(&self, theme: ThemeRef, region_id: &str) -> Children {
+    pub fn merge_all_components(&self, theme_ref: ThemeRef, region_name: &'static str) -> Children {
         let common = COMMON_REGIONS.read();
-        if let Some(r) = THEME_REGIONS.read().get(&theme.type_id()) {
+        if let Some(r) = THEME_REGIONS.read().get(&theme_ref.type_id()) {
             Children::merge(&[
-                common.0.get(region_id),
-                self.0.get(region_id),
-                r.0.get(region_id),
+                common.0.get(region_name),
+                self.0.get(region_name),
+                r.0.get(region_name),
             ])
         } else {
-            Children::merge(&[common.0.get(region_id), self.0.get(region_id)])
+            Children::merge(&[common.0.get(region_name), self.0.get(region_name)])
         }
     }
 }
@@ -90,19 +88,22 @@ impl InRegion {
             InRegion::Content => {
                 COMMON_REGIONS
                     .write()
-                    .alter_in_region("region-content", ChildOp::Add(child));
+                    .alter_child_in_region(CONTENT_REGION_NAME, ChildOp::Add(child));
             }
             InRegion::Named(name) => {
                 COMMON_REGIONS
                     .write()
-                    .alter_in_region(name, ChildOp::Add(child));
+                    .alter_child_in_region(name, ChildOp::Add(child));
             }
-            InRegion::OfTheme(region, theme) => {
+            InRegion::OfTheme(region_name, theme_ref) => {
                 let mut regions = THEME_REGIONS.write();
-                if let Some(r) = regions.get_mut(&theme.type_id()) {
-                    r.alter_in_region(region, ChildOp::Add(child));
+                if let Some(r) = regions.get_mut(&theme_ref.type_id()) {
+                    r.alter_child_in_region(region_name, ChildOp::Add(child));
                 } else {
-                    regions.insert(theme.type_id(), ChildrenInRegions::with(region, child));
+                    regions.insert(
+                        theme_ref.type_id(),
+                        ChildrenInRegions::with(region_name, child),
+                    );
                 }
             }
         }
