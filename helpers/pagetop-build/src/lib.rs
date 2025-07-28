@@ -230,15 +230,9 @@ impl StaticFilesBundle {
         // Guarda el archivo CSS compilado en el directorio temporal.
         let css_path = temp_dir.join(target_name);
         File::create(&css_path)
-            .expect(&format!(
-                "Failed to create CSS file `{}`",
-                css_path.display()
-            ))
+            .unwrap_or_else(|_| panic!("Failed to create CSS file `{}`", css_path.display()))
             .write_all(css_content.as_bytes())
-            .expect(&format!(
-                "Failed to write CSS content to `{}`",
-                css_path.display()
-            ));
+            .unwrap_or_else(|_| panic!("Failed to write CSS content to `{}`", css_path.display()));
 
         // Identifica el directorio temporal de recursos.
         StaticFilesBundle {
