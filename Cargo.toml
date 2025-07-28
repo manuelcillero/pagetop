@@ -1,6 +1,6 @@
 [package]
 name = "pagetop"
-version = "0.0.13"
+version = "0.0.14"
 edition = "2021"
 
 description = """\
@@ -42,7 +42,7 @@ static-files.workspace = true
 
 serde = { version = "1.0", features = ["derive"] }
 
-pagetop-macros = { version = "0.0", path = "helpers/pagetop-macros" }
+pagetop-macros.workspace = true
 
 [features]
 default = []
@@ -51,6 +51,8 @@ testing = []
 [dev-dependencies]
 tempfile = "3.20.0"
 
+[build-dependencies]
+pagetop-build.workspace = true
 
 
 [workspace]
@@ -68,3 +70,6 @@ authors = ["Manuel Cillero <manuel@cillero.es>"]
 
 [workspace.dependencies]
 static-files = "0.2.5"
+
+pagetop-build = { version = "0.0", path = "helpers/pagetop-build" }
+pagetop-macros = { version = "0.0", path = "helpers/pagetop-macros" }

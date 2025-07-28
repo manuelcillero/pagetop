@@ -9,6 +9,9 @@ pub use actix_web::dev::ServiceResponse as Response;
 pub use actix_web::{cookie, http, rt, web};
 pub use actix_web::{App, Error, HttpMessage, HttpRequest, HttpResponse, HttpServer};
 
+pub use actix_web_files::Files as ActixFiles;
+pub use actix_web_static_files::ResourceFiles;
+
 #[doc(hidden)]
 pub use actix_web::test;
 

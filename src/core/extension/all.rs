@@ -1,7 +1,7 @@
 use crate::core::action::add_action;
 use crate::core::extension::ExtensionRef;
 use crate::core::theme::all::THEMES;
-use crate::{/*global, include_files, include_files_service, */ service, trace};
+use crate::{global, include_files, include_files_service, service, trace};
 
 use parking_lot::RwLock;
 
@@ -125,13 +125,13 @@ pub fn initialize_extensions() {
 
 // CONFIGURA LOS SERVICIOS *************************************************************************
 
-//include_files!(assets);
+include_files!(assets);
 
 pub fn configure_services(scfg: &mut service::web::ServiceConfig) {
     for extension in ENABLED_EXTENSIONS.read().iter() {
         extension.configure_service(scfg);
     }
-    /*include_files_service!(
+    include_files_service!(
         scfg, assets => "/", [&global::SETTINGS.dev.pagetop_project_dir, "static"]
-    );*/
+    );
 }

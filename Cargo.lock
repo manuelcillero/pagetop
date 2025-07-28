@@ -1569,7 +1569,7 @@ checksum = "b15813163c1d831bf4a13c3610c05c0d03b39feb07f7e09fa234dac9b15aaf39"
 
 [[package]]
 name = "pagetop"
-version = "0.0.13"
+version = "0.0.14"
 dependencies = [
  "actix-files",
  "actix-session",
@@ -1582,6 +1582,7 @@ dependencies = [
  "figlet-rs",
  "fluent-templates",
  "itoa",
+ "pagetop-build",
  "pagetop-macros",
  "parking_lot",
  "pastey",
