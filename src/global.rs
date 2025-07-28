@@ -12,6 +12,9 @@ include_config!(SETTINGS: Settings => [
     "app.language"            => "en-US",
     "app.startup_banner"      => "Slant",
 
+    // [dev]
+    "dev.pagetop_project_dir" => "",
+
     // [log]
     "log.enabled"             => true,
     "log.tracing"             => "Info",
@@ -27,10 +30,11 @@ include_config!(SETTINGS: Settings => [
 ]);
 
 #[derive(Debug, Deserialize)]
-/// Ajustes para las secciones globales [`[app]`](App), [`[log]`](Log) y [`[server]`](Server) de
-/// [`SETTINGS`].
+/// Ajustes para las secciones globales [`[app]`](App), [`[dev]`](Dev), [`[log]`](Log) y
+/// [`[server]`](Server) de [`SETTINGS`].
 pub struct Settings {
     pub app: App,
+    pub dev: Dev,
     pub log: Log,
     pub server: Server,
 }
@@ -52,6 +56,16 @@ pub struct App {
     /// Modo de ejecución, dado por la variable de entorno `PAGETOP_RUN_MODE`, o *"default"* si no
     /// está definido.
     pub run_mode: String,
+}
+
+#[derive(Debug, Deserialize)]
+/// Sección `[Dev]` de la configuración. Forma parte de [`Settings`].
+pub struct Dev {
+    /// Los archivos estáticos requeridos por `PageTop` se integran por defecto en el binario
+    /// ejecutable. Sin embargo, durante el desarrollo puede resultar útil servirlos desde su propio
+    /// directorio para evitar recompilar cada vez que se modifican. En ese caso, este ajuste debe
+    /// indicar la ruta absoluta al directorio raíz del proyecto.
+    pub pagetop_project_dir: String,
 }
 
 #[derive(Debug, Deserialize)]
