@@ -24,11 +24,11 @@ impl ExtensionTrait for Welcome {
 async fn homepage(request: HttpRequest) -> ResultPage<Markup, ErrorPage> {
     let app = &global::SETTINGS.app.name;
 
-    Page::new(request)
+    Page::new(Some(request))
         .with_title(L10n::l("welcome_page"))
         .with_theme("Basic")
         .with_assets(AssetsOp::AddStyleSheet(StyleSheet::from("/css/welcome.css")))
-        .with_component(Html::with(html! {
+        .with_component(Html::with(move |_| html! {
             div id="main-header" {
                 header {
                     h1 id="header-title" aria-label=(L10n::l("welcome_aria").with_arg("app", app)) {

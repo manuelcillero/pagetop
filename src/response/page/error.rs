@@ -28,12 +28,12 @@ impl fmt::Display for ErrorPage {
             ErrorPage::BadRequest(_) => write!(f, "Bad Client Data"),
             // Error 403.
             ErrorPage::AccessDenied(request) => {
-                let mut error_page = Page::new(request.clone());
+                let mut error_page = Page::new(Some(request.clone()));
                 let error403 = error_page.theme().error403(&mut error_page);
                 if let Ok(page) = error_page
                     .with_title(L10n::n("Error FORBIDDEN"))
                     .with_layout("error")
-                    .with_component(Html::with(error403))
+                    .with_component(Html::with(move |_| error403.clone()))
                     .render()
                 {
                     write!(f, "{}", page.into_string())
@@ -43,12 +43,12 @@ impl fmt::Display for ErrorPage {
             }
             // Error 404.
             ErrorPage::NotFound(request) => {
-                let mut error_page = Page::new(request.clone());
+                let mut error_page = Page::new(Some(request.clone()));
                 let error404 = error_page.theme().error404(&mut error_page);
                 if let Ok(page) = error_page
                     .with_title(L10n::n("Error RESOURCE NOT FOUND"))
                     .with_layout("error")
-                    .with_component(Html::with(error404))
+                    .with_component(Html::with(move |_| error404.clone()))
                     .render()
                 {
                     write!(f, "{}", page.into_string())
