@@ -98,7 +98,7 @@ pub mod core;
 pub mod response;
 // Gestión del servidor y servicios web.
 pub mod service;
-// Reúne acciones, componentes y temas listos para usar.
+// Reúne acciones, componentes, extensiones y temas predefinidos.
 pub mod base;
 // Prepara y ejecuta la aplicación.
 pub mod app;

@@ -29,8 +29,8 @@ pub fn register_extensions(root_extension: Option<ExtensionRef>) {
         add_to_enabled(&mut enabled_list, extension);
     }
 
-    /* Añade la página de bienvenida por defecto a la lista de extensiones habilitadas.
-    add_to_enabled(&mut enabled_list, &crate::base::extension::Welcome); */
+    // Añade la página de bienvenida por defecto a la lista de extensiones habilitadas.
+    add_to_enabled(&mut enabled_list, &crate::base::extension::Welcome);
 
     // Guarda la lista final de extensiones habilitadas.
     ENABLED_EXTENSIONS.write().append(&mut enabled_list);
@@ -128,9 +128,18 @@ pub fn initialize_extensions() {
 include_files!(assets);
 
 pub fn configure_services(scfg: &mut service::web::ServiceConfig) {
+    // Sólo compila durante el desarrollo, para evitar errores 400 en la traza de eventos.
+    #[cfg(debug_assertions)]
+    scfg.route(
+        // Ruta automática lanzada por Chrome DevTools.
+        "/.well-known/appspecific/com.chrome.devtools.json",
+        service::web::get().to(|| async { service::HttpResponse::NotFound().finish() }),
+    );
+
     for extension in ENABLED_EXTENSIONS.read().iter() {
         extension.configure_service(scfg);
     }
+
     include_files_service!(
         scfg, assets => "/", [&global::SETTINGS.dev.pagetop_project_dir, "static"]
     );

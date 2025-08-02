@@ -11,4 +11,12 @@ impl ExtensionTrait for Basic {
     }
 }
 
-impl ThemeTrait for Basic {}
+impl ThemeTrait for Basic {
+    fn after_render_page_body(&self, page: &mut Page) {
+        page.alter_assets(AssetsOp::AddStyleSheet(
+            StyleSheet::from("/css/normalize.css")
+                .with_version("8.0.1")
+                .with_weight(-99),
+        ));
+    }
+}

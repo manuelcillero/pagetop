@@ -8,8 +8,5 @@ async fn homepage_returns_404() {
     let resp = service::test::call_service(&app, req).await;
 
     // Comprueba el acceso a la ruta de inicio.
-    // assert_eq!(resp.status(), service::http::StatusCode::OK);
-
-    // Sin ruta de inicio se obtiene error 404, pero el test funciona.
-    assert_eq!(resp.status(), service::http::StatusCode::NOT_FOUND);
+    assert_eq!(resp.status(), service::http::StatusCode::OK);
 }
