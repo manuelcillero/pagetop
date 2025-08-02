@@ -30,9 +30,12 @@ pub struct Page {
 }
 
 impl Page {
-    /// Crea una nueva instancia de página con contexto basado en la petición HTTP.
+    /// Crea una nueva instancia de página.
+    ///
+    /// Si se proporciona la solicitud HTTP, se guardará en el contexto de renderizado de la página
+    /// para poder ser recuperada por los componentes si es necesario.
     #[rustfmt::skip]
-    pub fn new(request: HttpRequest) -> Self {
+    pub fn new(request: Option<HttpRequest>) -> Self {
         Page {
             title       : OptionTranslated::default(),
             description : OptionTranslated::default(),
@@ -165,7 +168,7 @@ impl Page {
     }
 
     /// Devuelve la solicitud HTTP asociada.
-    pub fn request(&self) -> &HttpRequest {
+    pub fn request(&self) -> Option<&HttpRequest> {
         self.context.request()
     }
 

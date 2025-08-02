@@ -53,8 +53,11 @@ pub trait ComponentTrait: AnyInfo + ComponentRender + Send + Sync {
 
     /// Devuelve una representación estructurada del componente lista para renderizar.
     ///
-    /// Puede sobrescribirse para generar dinámicamente el contenido HTML. Por defecto, devuelve
-    /// [`PrepareMarkup::None`].
+    /// Este método forma parte del ciclo de vida de los componentes y se invoca automáticamente
+    /// durante el proceso de construcción del documento. Puede sobrescribirse para generar
+    /// dinámicamente el contenido HTML con acceso al contexto de renderizado.
+    ///
+    /// Por defecto, devuelve [`PrepareMarkup::None`].
     #[allow(unused_variables)]
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
         PrepareMarkup::None

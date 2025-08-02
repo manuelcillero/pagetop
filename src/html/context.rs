@@ -107,7 +107,7 @@ impl Error for ErrorParam {}
 /// ```
 #[rustfmt::skip]
 pub struct Context {
-    request    : HttpRequest,                   // Solicitud HTTP de origen.
+    request    : Option<HttpRequest>,           // Solicitud HTTP de origen.
     langid     : &'static LanguageIdentifier,   // Identificador de idioma.
     theme      : ThemeRef,                      // Referencia al tema para renderizar.
     layout     : &'static str,                  // Composición del documento para renderizar.
@@ -124,7 +124,7 @@ impl Context {
     /// El contexto inicializa el idioma, tema y composición por defecto, sin favicon ni recursos
     /// cargados.
     #[rustfmt::skip]
-    pub fn new(request: HttpRequest) -> Self {
+    pub fn new(request: Option<HttpRequest>) -> Self {
         Context {
             request,
             langid     : &DEFAULT_LANGID,
@@ -197,9 +197,9 @@ impl Context {
 
     // Context GETTERS *****************************************************************************
 
-    /// Devuelve la solicitud HTTP asociada al documento.
-    pub fn request(&self) -> &HttpRequest {
-        &self.request
+    /// Devuelve una referencia a la solicitud HTTP asociada, si existe.
+    pub fn request(&self) -> Option<&HttpRequest> {
+        self.request.as_ref()
     }
 
     /// Devuelve el identificador de idioma asociado al documento.
