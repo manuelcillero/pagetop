@@ -6,7 +6,7 @@ use serde::Deserialize;
 
 include_config!(SETTINGS: Settings => [
     // [app]
-    "app.name"                => "Sample",
+    "app.name"                => "PageTop App",
     "app.description"         => "Developed with the amazing PageTop framework.",
     "app.theme"               => "Basic",
     "app.language"            => "en-US",

@@ -90,7 +90,7 @@
 //! Y *voilà*, sólo queda operar con los idiomas soportados por `PageTop` usando [`LangMatch`] y
 //! traducir textos con [`L10n`].
 
-use crate::html::{Markup, PreEscaped};
+use crate::html::{Markup, PreEscaped, Render};
 use crate::{global, hm, AutoDefault};
 
 pub use fluent_templates;
@@ -313,7 +313,7 @@ enum L10nOp {
 /// // Traducción simple con clave y argumentos.
 /// let hello = L10n::l("greeting")
 ///     .with_arg("name", "Manuel")
-///     .markup();
+///     .get();
 /// ```
 ///
 /// También para traducciones a idiomas concretos.
@@ -400,14 +400,16 @@ impl L10n {
         }
     }
 
-    /// Traduce y escapa con el idioma por defecto, devolviendo [`Markup`].
-    pub fn markup(&self) -> Markup {
-        PreEscaped(self.get().unwrap_or_default())
-    }
-
     /// Traduce y escapa con el [`LanguageIdentifier`] indicado, devolviendo [`Markup`].
     pub fn escaped(&self, langid: &LanguageIdentifier) -> Markup {
         PreEscaped(self.using(langid).unwrap_or_default())
+    }
+}
+
+impl Render for L10n {
+    /// Traduce y escapa con el idioma por defecto, devolviendo [`Markup`].
+    fn render(&self) -> Markup {
+        PreEscaped(self.get().unwrap_or_default())
     }
 }
 
