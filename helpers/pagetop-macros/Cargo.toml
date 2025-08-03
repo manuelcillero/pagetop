@@ -1,10 +1,10 @@
 [package]
 name = "pagetop-macros"
-version = "0.0.5"
+version = "0.0.18"
 edition = "2021"
 
-description = """\
-    Una colección de macros que mejoran la experiencia de desarrollo con PageTop.\
+description = """
+    Una colección de macros que mejoran la experiencia de desarrollo con PageTop.
 """
 categories = ["development-tools::procedural-macro-helpers", "web-programming"]
 keywords = ["pagetop", "macros", "proc-macros", "codegen"]
