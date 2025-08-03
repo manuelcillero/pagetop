@@ -1,11 +1,11 @@
 [package]
 name = "pagetop-build"
-version = "0.0.1"
+version = "0.0.16"
 edition = "2021"
 
-description = """\
-    Prepara un conjunto de archivos estáticos o archivos SCSS compilados para ser incluidos en el \
-    binario de un proyecto PageTop.\
+description = """
+    Prepara un conjunto de archivos estáticos o archivos SCSS compilados para ser incluidos en el
+    binario de un proyecto PageTop.
 """
 categories = ["development-tools::build-utils", "web-programming"]
 keywords = ["pagetop", "build", "assets", "resources", "static"]

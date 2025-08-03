@@ -3,8 +3,8 @@ name = "pagetop"
 version = "0.0.61"
 edition = "2021"
 
-description = """\
-    Un entorno de desarrollo para crear soluciones web modulares, extensibles y configurables.\
+description = """
+    Un entorno de desarrollo para crear soluciones web modulares, extensibles y configurables.
 """
 categories = ["web-programming", "gui", "development-tools", "asynchronous"]
 keywords = ["pagetop", "web", "framework", "frontend", "ssr"]
