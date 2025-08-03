@@ -7,11 +7,25 @@
 <p>Un entorno para el desarrollo de soluciones web modulares, extensibles y configurables.</p>
 
 [![Licencia](https://img.shields.io/badge/license-MIT%2FApache-blue.svg?label=Licencia&style=for-the-badge)](#-license)
+[![Doc API](https://img.shields.io/docsrs/pagetop?label=Doc%20API&style=for-the-badge&logo=Docs.rs)](https://docs.rs/pagetop)
+[![Crates.io](https://img.shields.io/crates/v/pagetop.svg?style=for-the-badge&logo=ipfs)](https://crates.io/crates/pagetop)
+[![Descargas](https://img.shields.io/crates/d/pagetop.svg?label=Descargas&style=for-the-badge&logo=transmission)](https://crates.io/crates/pagetop)
 
 </div>
 
 `PageTop` reivindica la esencia de la web clásica usando [Rust](https://www.rust-lang.org/es) para
 la creación de soluciones web SSR (*renderizadas en el servidor*) basadas en HTML, CSS y JavaScript.
+Ofrece un conjunto de herramientas que los desarrolladores pueden implementar, extender o adaptar
+según las necesidades de cada proyecto, incluyendo:
+
+  * **Acciones** (*actions*): alteran la lógica interna de una funcionalidad interceptando su flujo
+    de ejecución.
+  * **Componentes** (*components*): encapsulan HTML, CSS y JavaScript en unidades funcionales,
+    configurables y reutilizables.
+  * **Extensiones** (*extensions*): añaden, extienden o personalizan funcionalidades usando las APIs
+    de `PageTop` o de terceros.
+  * **Temas** (*themes*): son extensiones que permiten modificar la apariencia de páginas y
+    componentes sin comprometer su funcionalidad.
 
 
 # ⚡️ Guía rápida
@@ -27,6 +41,55 @@ async fn main() -> std::io::Result<()> {
 }
 ```
 
+Sólo con esto, este código sirve por defecto una página web de bienvenida accesible desde un
+navegador en la dirección `http://localhost:8080` con la configuración predeterminada.
+
+Para personalizar el servicio, se puede crear una extensión de `PageTop` de la siguiente manera:
+
+```rust
+use pagetop::prelude::*;
+
+struct HelloWorld;
+
+impl Extension for HelloWorld {
+    fn configure_service(&self, scfg: &mut service::web::ServiceConfig) {
+        scfg.route("/", service::web::get().to(hello_world));
+    }
+}
+
+async fn hello_world(request: HttpRequest) -> ResultPage<Markup, ErrorPage> {
+    Page::new(Some(request))
+        .with_component(Html::with(move |_| html! { h1 { "Hello World!" } }))
+        .render()
+}
+
+#[pagetop::main]
+async fn main() -> std::io::Result<()> {
+    Application::prepare(&HelloWorld).run()?.await
+}
+```
+
+Este programa implementa una extensión llamada `HelloWorld` que sirve una página web en la ruta raíz
+(`/`) mostrando el texto "Hello world!" dentro de un elemento HTML `<h1>`.
+
+
+# 📂 Repositorio
+
+El código se organiza en un *workspace* donde actualmente se incluyen los siguientes subproyectos:
+
+  * **[pagetop](https://git.cillero.es/manuelcillero/pagetop/src/branch/main/src)**, con el código
+    fuente de la librería principal. Reúne algunos de los *crates* más estables y populares del
+    ecosistema Rust para proporcionar APIs y recursos para la creación avanzada de soluciones web.
+
+## Auxiliares
+
+  * **[pagetop-build](https://git.cillero.es/manuelcillero/pagetop/src/branch/main/helpers/pagetop-build)**,
+    permite incluir fácilmente archivos estáticos o archivos SCSS compilados directamente en el
+    binario de las aplicaciones `PageTop`.
+
+  * **[pagetop-macros](https://git.cillero.es/manuelcillero/pagetop/src/branch/main/helpers/pagetop-macros)**,
+    proporciona una colección de macros que mejoran la experiencia de desarrollo con `PageTop`.
+
 
 # 🧪 Pruebas
 
@@ -37,6 +100,7 @@ Para simplificar el flujo de trabajo, el repositorio incluye varios **alias de C
 | ------- | ----------- |
 | `cargo ts` | Ejecuta los tests de `pagetop` (*unit + integration*) con la *feature* `testing`. |
 | `cargo ts --test util` | Lanza sólo las pruebas de integración del módulo `util`. |
+| `cargo ts --doc locale` | Lanza las pruebas de la documentación del módulo `locale`. |
 | `cargo tw` | Ejecuta los tests de **todos los paquetes** del *workspace*. |
 
 > **Nota**
