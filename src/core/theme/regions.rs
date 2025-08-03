@@ -74,12 +74,12 @@ impl InRegion {
     /// use pagetop::prelude::*;
     ///
     /// // Banner global, en la región por defecto de cualquier página.
-    /// InRegion::Content.add(Child::with(Html::with(
+    /// InRegion::Content.add(Child::with(Html::with(|_|
     ///     html! { ("🎉 ¡Bienvenido!") }
     /// )));
     ///
     /// // Texto en la región "sidebar".
-    /// InRegion::Named("sidebar").add(Child::with(Html::with(
+    /// InRegion::Named("sidebar").add(Child::with(Html::with(|_|
     ///     html! { ("Publicidad") }
     /// )));
     /// ```
