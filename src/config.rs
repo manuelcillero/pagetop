@@ -240,7 +240,7 @@ pub static CONFIG_VALUES: LazyLock<ConfigBuilder<DefaultState>> = LazyLock::new(
 macro_rules! include_config {
     ( $SETTINGS_NAME:ident : $Settings_Type:ty => [ $( $k:literal => $v:expr ),* $(,)? ] ) => {
         #[doc = concat!(
-            "Referencia a los ajustes de configuración deserializados de [`",
+            "Referencia y valores por defecto de los ajustes de configuración para [`",
             stringify!($Settings_Type),
             "`]."
         )]
