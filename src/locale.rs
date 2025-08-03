@@ -259,8 +259,8 @@ impl LangMatch {
 /// devuelve el idioma por defecto de la aplicación y, si tampoco está disponible, el idioma de
 /// respaldo ("en-US").
 ///
-/// Resulta útil para usar un valor de [`LangMatch`] como fuente de traducción en [`L10n::using`] o
-/// [`L10n::to_markup`].
+/// Resulta útil para usar un valor de [`LangMatch`] como fuente de traducción en [`L10n::using()`]
+/// o [`L10n::to_markup()`].
 impl LangId for LangMatch {
     fn langid(&self) -> &'static LanguageIdentifier {
         match self {

@@ -77,7 +77,8 @@ macro_rules! include_files {
 /// * `$route` – Ruta URL de origen desde la que se servirán los archivos.
 /// * `[ $root, $relative ]` *(opcional)* – Directorio raíz y ruta relativa para construir la ruta
 ///   absoluta donde buscar los archivos en el sistema de ficheros (ver
-///   [`absolute_dir`](crate::util::absolute_dir)). Si no existe, se usarán los recursos embebidos.
+///   [`absolute_dir()`](crate::util::absolute_dir)). Si no existe, se usarán los recursos
+///   embebidos.
 ///
 /// # Ejemplos
 ///

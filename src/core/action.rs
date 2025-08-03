@@ -14,8 +14,7 @@ mod all;
 pub(crate) use all::add_action;
 pub use all::dispatch_actions;
 
-/// Facilita la implementación del método
-/// [`actions()`](crate::core::extension::ExtensionTrait::actions).
+/// Facilita la implementación del método [`actions()`](crate::core::extension::Extension::actions).
 ///
 /// Evita escribir repetidamente `Box::new(...)` para cada acción de la lista, manteniendo el código
 /// más limpio.

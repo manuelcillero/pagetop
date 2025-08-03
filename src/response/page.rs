@@ -78,21 +78,21 @@ impl Page {
         self
     }
 
-    /// Modifica la fuente de idioma de la página ([`Context::with_langid`]).
+    /// Modifica la fuente de idioma de la página ([`Context::with_langid()`]).
     #[builder_fn]
     pub fn with_langid(mut self, language: &impl LangId) -> Self {
         self.context.alter_langid(language);
         self
     }
 
-    /// Modifica el tema que se usará para renderizar la página ([`Context::with_theme`]).
+    /// Modifica el tema que se usará para renderizar la página ([`Context::with_theme()`]).
     #[builder_fn]
     pub fn with_theme(mut self, theme_name: &'static str) -> Self {
         self.context.alter_theme(theme_name);
         self
     }
 
-    /// Modifica la composición para renderizar la página ([`Context::with_layout`]).
+    /// Modifica la composición para renderizar la página ([`Context::with_layout()`]).
     #[builder_fn]
     pub fn with_layout(mut self, layout_name: &'static str) -> Self {
         self.context.alter_layout(layout_name);

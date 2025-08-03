@@ -163,7 +163,7 @@ impl Context {
 
     /// Modifica el tema que se usará para renderizar el documento.
     ///
-    /// Localiza el tema por su [`short_name`](crate::core::AnyInfo::short_name), y si no aplica
+    /// Localiza el tema por su [`short_name()`](crate::core::AnyInfo::short_name), y si no aplica
     /// ninguno entonces usará el tema por defecto.
     #[builder_fn]
     pub fn with_theme(mut self, theme_name: &'static str) -> Self {
@@ -301,8 +301,8 @@ impl Context {
 /// 4. Y si ninguna de las opciones anteriores aplica, se usa el idioma de respaldo (`"en-US"`).
 ///
 /// Resulta útil para usar un contexto ([`Context`]) como fuente de traducción en
-/// [`L10n::using`](crate::locale::L10n::using) o
-/// [`L10n::to_markup`](crate::locale::L10n::to_markup).
+/// [`L10n::using()`](crate::locale::L10n::using) o
+/// [`L10n::to_markup()`](crate::locale::L10n::to_markup).
 impl LangId for Context {
     fn langid(&self) -> &'static LanguageIdentifier {
         self.langid

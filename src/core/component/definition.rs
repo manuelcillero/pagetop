@@ -14,9 +14,9 @@ pub trait ComponentRender {
 /// Interfaz común que debe implementar un componente renderizable en `PageTop`.
 ///
 /// Se recomienda que los componentes deriven [`AutoDefault`](crate::AutoDefault). También deben
-/// implementar explícitamente el método [`new`](Self::new) y pueden sobrescribir los otros métodos
-/// para personalizar su comportamiento.
-pub trait ComponentTrait: AnyInfo + ComponentRender + Send + Sync {
+/// implementar explícitamente el método [`new()`](Self::new) y pueden sobrescribir los otros
+/// métodos para personalizar su comportamiento.
+pub trait Component: AnyInfo + ComponentRender + Send + Sync {
     /// Crea una nueva instancia del componente.
     fn new() -> Self
     where
@@ -70,8 +70,8 @@ pub trait ComponentTrait: AnyInfo + ComponentRender + Send + Sync {
 ///
 /// 1. Despacha [`action::component::IsRenderable`](crate::base::action::component::IsRenderable)
 ///    para ver si se puede renderizar. Si no es así, devuelve un [`Markup`] vacío.
-/// 2. Ejecuta [`setup_before_prepare()`](ComponentTrait::setup_before_prepare) para que el
-///    componente pueda ajustar su estructura interna o modificar el contexto.
+/// 2. Ejecuta [`setup_before_prepare()`](Component::setup_before_prepare) para que el componente
+///    pueda ajustar su estructura interna o modificar el contexto.
 /// 3. Despacha [`action::theme::BeforeRender<C>`](crate::base::action::theme::BeforeRender) para
 ///    que el tema pueda hacer ajustes en el componente o el contexto.
 /// 4. Despacha [`action::component::BeforeRender<C>`](crate::base::action::component::BeforeRender)
@@ -79,8 +79,8 @@ pub trait ComponentTrait: AnyInfo + ComponentRender + Send + Sync {
 /// 5. **Prepara el renderizado del componente**:
 ///    - Despacha [`action::theme::PrepareRender<C>`](crate::base::action::theme::PrepareRender)
 ///      para permitir al tema preparar un renderizado diferente al predefinido.
-///    - Si no es así, ejecuta [`prepare_component()`](ComponentTrait::prepare_component) para
-///      preparar el renderizado predefinido del componente.
+///    - Si no es así, ejecuta [`prepare_component()`](Component::prepare_component) para preparar
+///      el renderizado predefinido del componente.
 /// 6. Despacha [`action::theme::AfterRender<C>`](crate::base::action::theme::AfterRender) para
 ///    que el tema pueda hacer sus últimos ajustes.
 /// 7. Despacha [`action::component::AfterRender<C>`](crate::base::action::component::AfterRender)

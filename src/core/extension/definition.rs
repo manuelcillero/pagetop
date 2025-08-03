@@ -28,7 +28,8 @@ pub type ExtensionRef = &'static dyn Extension;
 pub trait Extension: AnyInfo + Send + Sync {
     /// Nombre legible para el usuario.
     ///
-    /// Predeterminado por el [`short_name`](AnyInfo::short_name) del tipo asociado a la extensión.
+    /// Predeterminado por el [`short_name()`](AnyInfo::short_name) del tipo asociado a la
+    /// extensión.
     fn name(&self) -> L10n {
         L10n::n(self.short_name())
     }
