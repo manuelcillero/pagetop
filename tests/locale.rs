@@ -13,7 +13,7 @@ async fn translation_without_args() {
     let _app = service::test::init_service(Application::new().test()).await;
 
     let l10n = L10n::l("test-hello-world");
-    let translation = l10n.using(LangMatch::langid_or_default("es-ES"));
+    let translation = l10n.using(&LangMatch::resolve("es-ES"));
     assert_eq!(translation, Some("¡Hola mundo!".to_string()));
 }
 
@@ -22,7 +22,7 @@ async fn translation_with_args() {
     let _app = service::test::init_service(Application::new().test()).await;
 
     let l10n = L10n::l("test-hello-user").with_arg("userName", "Manuel");
-    let translation = l10n.using(LangMatch::langid_or_default("es-ES"));
+    let translation = l10n.using(&LangMatch::resolve("es-ES"));
     assert_eq!(translation, Some("¡Hola, Manuel!".to_string()));
 }
 
@@ -35,7 +35,7 @@ async fn translation_with_plural_and_select() {
         ("photoCount", "3"),
         ("userGender", "male"),
     ]);
-    let translation = l10n.using(LangMatch::langid_or_default("es-ES")).unwrap();
+    let translation = l10n.using(&LangMatch::resolve("es-ES")).unwrap();
     assert!(translation.contains("añadido 3 nuevas fotos de él"));
 }
 
@@ -44,7 +44,7 @@ async fn check_fallback_language() {
     let _app = service::test::init_service(Application::new().test()).await;
 
     let l10n = L10n::l("test-hello-world");
-    let translation = l10n.using(LangMatch::langid_or_fallback("xx-YY")); // Retrocede a "en-US".
+    let translation = l10n.using(&LangMatch::resolve("xx-YY")); // Retrocede a "en-US".
     assert_eq!(translation, Some("Hello world!".to_string()));
 }
 
@@ -53,6 +53,6 @@ async fn check_unknown_key() {
     let _app = service::test::init_service(Application::new().test()).await;
 
     let l10n = L10n::l("non-existent-key");
-    let translation = l10n.using(LangMatch::langid_or_default("en-US"));
+    let translation = l10n.using(&LangMatch::resolve("en-US"));
     assert_eq!(translation, None);
 }

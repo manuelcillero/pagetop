@@ -9,7 +9,7 @@ use crate::core::component::{Child, ChildOp, ComponentTrait};
 use crate::core::theme::{ChildrenInRegions, ThemeRef, CONTENT_REGION_NAME};
 use crate::html::{html, AssetsOp, Context, Markup, DOCTYPE};
 use crate::html::{ClassesOp, OptionClasses, OptionId, OptionTranslated};
-use crate::locale::{CharacterDirection, L10n, LanguageIdentifier};
+use crate::locale::{CharacterDirection, L10n, LangId, LanguageIdentifier};
 use crate::service::HttpRequest;
 
 /// Representa una página HTML completa lista para renderizar.
@@ -78,10 +78,10 @@ impl Page {
         self
     }
 
-    /// Modifica el identificador de idioma de la página ([`Context::with_langid`]).
+    /// Modifica la fuente de idioma de la página ([`Context::with_langid`]).
     #[builder_fn]
-    pub fn with_langid(mut self, langid: &'static LanguageIdentifier) -> Self {
-        self.context.alter_langid(langid);
+    pub fn with_langid(mut self, language: &impl LangId) -> Self {
+        self.context.alter_langid(language);
         self
     }
 
@@ -147,14 +147,14 @@ impl Page {
 
     // Page GETTERS ********************************************************************************
 
-    /// Devuelve el título traducido para el idioma activo, si existe.
+    /// Devuelve el título traducido para el idioma de la página, si existe.
     pub fn title(&mut self) -> Option<String> {
-        self.title.using(self.context.langid())
+        self.title.using(&self.context)
     }
 
-    /// Devuelve la descripción traducida para el idioma activo, si existe.
+    /// Devuelve la descripción traducida para el idioma de la página, si existe.
     pub fn description(&mut self) -> Option<String> {
-        self.description.using(self.context.langid())
+        self.description.using(&self.context)
     }
 
     /// Devuelve la lista de metadatos `<meta name=...>`.

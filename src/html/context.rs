@@ -3,7 +3,7 @@ use crate::core::theme::ThemeRef;
 use crate::core::TypeInfo;
 use crate::html::{html, Markup};
 use crate::html::{Assets, Favicon, JavaScript, StyleSheet};
-use crate::locale::{LanguageIdentifier, DEFAULT_LANGID};
+use crate::locale::{LangId, LangMatch, LanguageIdentifier, DEFAULT_LANGID, FALLBACK_LANGID};
 use crate::service::HttpRequest;
 use crate::{builder_fn, join};
 
@@ -69,9 +69,9 @@ impl Error for ErrorParam {}
 /// use pagetop::prelude::*;
 ///
 /// fn new_context(request: HttpRequest) -> Context {
-///     Context::new(request)
+///     Context::new(Some(request))
 ///         // Establece el idioma del documento a español.
-///         .with_langid(LangMatch::langid_or_default("es-ES"))
+///         .with_langid(&LangMatch::resolve("es-ES"))
 ///         // Selecciona un tema (por su nombre corto).
 ///         .with_theme("aliner")
 ///         // Asigna un favicon.
@@ -125,9 +125,23 @@ impl Context {
     /// cargados.
     #[rustfmt::skip]
     pub fn new(request: Option<HttpRequest>) -> Self {
+        // Se intenta DEFAULT_LANGID.
+        let langid = DEFAULT_LANGID
+            // Si es None evalúa la cadena de extracción desde la cabecera HTTP.
+            .or_else(|| {
+                request
+                    // Se usa `as_ref()` sobre `Option<HttpRequest>` para no mover el valor.
+                    .as_ref()
+                    .and_then(|req| req.headers().get("Accept-Language"))
+                    .and_then(|value| value.to_str().ok())
+                    .and_then(|language| LangMatch::resolve(language).as_option())
+            })
+            // Si todo falla, se recurre a &FALLBACK_LANGID.
+            .unwrap_or(&FALLBACK_LANGID);
+
         Context {
             request,
-            langid     : &DEFAULT_LANGID,
+            langid,
             theme      : *DEFAULT_THEME,
             layout     : "default",
             favicon    : None,
@@ -140,10 +154,10 @@ impl Context {
 
     // Context BUILDER *****************************************************************************
 
-    /// Modifica el identificador de idioma del documento.
+    /// Modifica la fuente de idioma del documento.
     #[builder_fn]
-    pub fn with_langid(mut self, langid: &'static LanguageIdentifier) -> Self {
-        self.langid = langid;
+    pub fn with_langid(mut self, language: &impl LangId) -> Self {
+        self.langid = language.langid();
         self
     }
 
@@ -200,11 +214,6 @@ impl Context {
     /// Devuelve una referencia a la solicitud HTTP asociada, si existe.
     pub fn request(&self) -> Option<&HttpRequest> {
         self.request.as_ref()
-    }
-
-    /// Devuelve el identificador de idioma asociado al documento.
-    pub fn langid(&self) -> &LanguageIdentifier {
-        self.langid
     }
 
     /// Devuelve el tema que se usará para renderizar el documento.
@@ -279,5 +288,23 @@ impl Context {
             self.id_counter += 1;
             join!(prefix, "-", self.id_counter.to_string())
         }
+    }
+}
+
+/// Permite a [`Context`](crate::html::Context) actuar como proveedor de idioma.
+///
+/// Devuelve un [`LanguageIdentifier`] siguiendo este orden de prioridad:
+///
+/// 1. Un idioma válido establecido explícitamente con [`Context::with_langid`].
+/// 2. El idioma por defecto configurado para la aplicación.
+/// 3. Un idioma válido extraído de la cabecera `Accept-Language` del navegador.
+/// 4. Y si ninguna de las opciones anteriores aplica, se usa el idioma de respaldo (`"en-US"`).
+///
+/// Resulta útil para usar un contexto ([`Context`]) como fuente de traducción en
+/// [`L10n::using`](crate::locale::L10n::using) o
+/// [`L10n::to_markup`](crate::locale::L10n::to_markup).
+impl LangId for Context {
+    fn langid(&self) -> &'static LanguageIdentifier {
+        self.langid
     }
 }

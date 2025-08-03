@@ -28,12 +28,15 @@ async fn homepage(request: HttpRequest) -> ResultPage<Markup, ErrorPage> {
         .with_title(L10n::l("welcome_page"))
         .with_theme("Basic")
         .with_assets(AssetsOp::AddStyleSheet(StyleSheet::from("/css/welcome.css")))
-        .with_component(Html::with(move |_| html! {
+        .with_component(Html::with(move |cx| html! {
             div id="main-header" {
                 header {
-                    h1 id="header-title" aria-label=(L10n::l("welcome_aria").with_arg("app", app)) {
-                        span { (L10n::l("welcome_title")) }
-                        (L10n::l("welcome_intro").with_arg("app", app))
+                    h1
+                        id="header-title"
+                        aria-label=(L10n::l("welcome_aria").with_arg("app", app).to_markup(cx))
+                    {
+                        span { (L10n::l("welcome_title").to_markup(cx)) }
+                        (L10n::l("welcome_intro").with_arg("app", app).to_markup(cx))
                     }
                 }
                 aside id="header-image" aria-hidden="true" {
@@ -59,20 +62,25 @@ async fn homepage(request: HttpRequest) -> ResultPage<Markup, ErrorPage> {
             main id="main-content" {
                 section class="content-body" {
                     div id="poweredby-button" {
-                        a id="poweredby-link" href="https://pagetop.cillero.es" target="_blank" rel="noreferrer" {
+                        a
+                            id="poweredby-link"
+                            href="https://pagetop.cillero.es"
+                            target="_blank"
+                            rel="noreferrer"
+                        {
                             span {} span {} span {}
-                            div id="poweredby-text" { (L10n::l("welcome_powered")) }
+                            div id="poweredby-text" { (L10n::l("welcome_powered").to_markup(cx)) }
                         }
                     }
                     div class="content-text" {
-                        p { (L10n::l("welcome_text1")) }
-                        p { (L10n::l("welcome_text2")) }
+                        p { (L10n::l("welcome_text1").to_markup(cx)) }
+                        p { (L10n::l("welcome_text2").to_markup(cx)) }
 
                         div class="subcontent" {
-                            h1 { span { (L10n::l("welcome_about")) } }
-                            p { (L10n::l("welcome_pagetop")) }
-                            p { (L10n::l("welcome_issues1")) }
-                            p { (L10n::l("welcome_issues2").with_arg("app", app)) }
+                            h1 { span { (L10n::l("welcome_about").to_markup(cx)) } }
+                            p { (L10n::l("welcome_pagetop").to_markup(cx)) }
+                            p { (L10n::l("welcome_issues1").to_markup(cx)) }
+                            p { (L10n::l("welcome_issues2").with_arg("app", app).to_markup(cx)) }
                         }
                     }
                 }
@@ -85,7 +93,7 @@ async fn homepage(request: HttpRequest) -> ResultPage<Markup, ErrorPage> {
                             viewBox="0 0 1614 1614"
                             xmlns="http://www.w3.org/2000/svg"
                             role="img"
-                            aria-label=(L10n::l("pagetop_logo"))
+                            aria-label=[L10n::l("pagetop_logo").using(cx)]
                             preserveAspectRatio="xMidYMid slice"
                             focusable="false"
                         {
@@ -97,8 +105,8 @@ async fn homepage(request: HttpRequest) -> ResultPage<Markup, ErrorPage> {
                     div class="footer-links" {
                         a href="https://crates.io/crates/pagetop" target="_blank" rel="noreferrer" { ("Crates.io") }
                         a href="https://docs.rs/pagetop" target="_blank" rel="noreferrer" { ("Docs.rs") }
-                        a href="https://git.cillero.es/manuelcillero/pagetop" target="_blank" rel="noreferrer" { (L10n::l("welcome_code")) }
-                        em { (L10n::l("welcome_have_fun")) }
+                        a href="https://git.cillero.es/manuelcillero/pagetop" target="_blank" rel="noreferrer" { (L10n::l("welcome_code").to_markup(cx)) }
+                        em { (L10n::l("welcome_have_fun").to_markup(cx)) }
                     }
                 }
             }
