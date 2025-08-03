@@ -38,7 +38,7 @@ impl Default for Html {
         Html::with(|_| html! {})
     }
 }
-impl ComponentTrait for Html {
+impl Component for Html {
     fn new() -> Self {
         Html::default()
     }

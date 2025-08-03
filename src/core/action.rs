@@ -25,7 +25,7 @@ pub use all::dispatch_actions;
 /// ```rust,ignore
 /// use pagetop::prelude::*;
 ///
-/// impl ExtensionTrait for MyTheme {
+/// impl Extension for MyTheme {
 ///     fn actions(&self) -> Vec<ActionBox> {
 ///         actions_boxed![
 ///             action::theme::BeforeRender::<Button>::new(&Self, before_render_button),
@@ -34,7 +34,7 @@ pub use all::dispatch_actions;
 ///     }
 /// }
 ///
-/// impl ThemeTrait for MyTheme {}
+/// impl Theme for MyTheme {}
 ///
 /// fn before_render_button(c: &mut Button, cx: &mut Context) { todo!() }
 /// fn render_error404(c: &Error404, cx: &mut Context) -> PrepareMarkup { todo!() }

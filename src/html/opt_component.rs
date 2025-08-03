@@ -1,5 +1,5 @@
 use crate::builder_fn;
-use crate::core::component::{ComponentTrait, Typed};
+use crate::core::component::{Component, Typed};
 use crate::html::{html, Context, Markup};
 
 /// Contenedor de componente para incluir en otros componentes.
@@ -16,15 +16,15 @@ use crate::html::{html, Context, Markup};
 /// let opt = OptionComponent::new(comp);
 /// assert!(opt.get().is_some());
 /// ```
-pub struct OptionComponent<C: ComponentTrait>(Option<Typed<C>>);
+pub struct OptionComponent<C: Component>(Option<Typed<C>>);
 
-impl<C: ComponentTrait> Default for OptionComponent<C> {
+impl<C: Component> Default for OptionComponent<C> {
     fn default() -> Self {
         OptionComponent(None)
     }
 }
 
-impl<C: ComponentTrait> OptionComponent<C> {
+impl<C: Component> OptionComponent<C> {
     /// Crea un nuevo [`OptionComponent`].
     ///
     /// El componente se envuelve automáticamente en un [`Typed`] y se almacena.

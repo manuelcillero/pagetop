@@ -1,4 +1,4 @@
-use crate::core::extension::ExtensionTrait;
+use crate::core::extension::Extension;
 use crate::core::theme::CONTENT_REGION_NAME;
 use crate::global;
 use crate::html::{html, Markup};
@@ -8,20 +8,20 @@ use crate::response::page::Page;
 /// Representa una referencia a un tema.
 ///
 /// Los temas son también extensiones. Por tanto se deben definir igual, es decir, como instancias
-/// estáticas globales que implementan [`ThemeTrait`], pero también [`ExtensionTrait`].
-pub type ThemeRef = &'static dyn ThemeTrait;
+/// estáticas globales que implementan [`Theme`], pero también [`Extension`].
+pub type ThemeRef = &'static dyn Theme;
 
 /// Interfaz común que debe implementar cualquier tema de `PageTop`.
 ///
-/// Un tema implementará [`ThemeTrait`] y los métodos que sean necesarios de [`ExtensionTrait`],
-/// aunque el único obligatorio es [`theme()`](ExtensionTrait::theme).
+/// Un tema implementará [`Theme`] y los métodos que sean necesarios de [`Extension`], aunque el
+/// único obligatorio es [`theme()`](Extension::theme).
 ///
 /// ```rust
 /// use pagetop::prelude::*;
 ///
 /// pub struct MyTheme;
 ///
-/// impl ExtensionTrait for MyTheme {
+/// impl Extension for MyTheme {
 ///     fn name(&self) -> L10n { L10n::n("My theme") }
 ///     fn description(&self) -> L10n { L10n::n("Un tema personal") }
 ///
@@ -30,9 +30,9 @@ pub type ThemeRef = &'static dyn ThemeTrait;
 ///     }
 /// }
 ///
-/// impl ThemeTrait for MyTheme {}
+/// impl Theme for MyTheme {}
 /// ```
-pub trait ThemeTrait: ExtensionTrait + Send + Sync {
+pub trait Theme: Extension + Send + Sync {
     fn regions(&self) -> Vec<(&'static str, L10n)> {
         vec![(CONTENT_REGION_NAME, L10n::l("content"))]
     }

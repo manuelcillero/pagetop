@@ -5,7 +5,7 @@ use crate::html::{html, Context, Markup, PrepareMarkup, Render};
 /// Define la función de renderizado para todos los componentes.
 ///
 /// Este *trait* se implementa automáticamente en cualquier tipo (componente) que implemente
-/// [`ComponentTrait`], por lo que no requiere ninguna codificación manual.
+/// [`Component`], por lo que no requiere ninguna codificación manual.
 pub trait ComponentRender {
     /// Renderiza el componente usando el contexto proporcionado.
     fn render(&mut self, cx: &mut Context) -> Markup;
@@ -86,7 +86,7 @@ pub trait ComponentTrait: AnyInfo + ComponentRender + Send + Sync {
 /// 7. Despacha [`action::component::AfterRender<C>`](crate::base::action::component::AfterRender)
 ///    para que otras extensiones puedan hacer sus últimos ajustes.
 /// 8. Finalmente devuelve un [`Markup`] del renderizado preparado en el paso 5.
-impl<C: ComponentTrait> ComponentRender for C {
+impl<C: Component> ComponentRender for C {
     fn render(&mut self, cx: &mut Context) -> Markup {
         // Si no es renderizable, devuelve un bloque HTML vacío.
         if !action::component::IsRenderable::dispatch(self, cx) {

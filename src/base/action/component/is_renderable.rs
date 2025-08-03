@@ -8,7 +8,7 @@ use crate::prelude::*;
 pub type FnIsRenderable<C> = fn(component: &C, cx: &Context) -> bool;
 
 /// Con la función [`FnIsRenderable`] se puede decidir si se renderiza o no un componente.
-pub struct IsRenderable<C: ComponentTrait> {
+pub struct IsRenderable<C: Component> {
     f: FnIsRenderable<C>,
     referer_type_id: Option<UniqueId>,
     referer_id: OptionId,
@@ -16,7 +16,7 @@ pub struct IsRenderable<C: ComponentTrait> {
 }
 
 /// Filtro para despachar [`FnIsRenderable`] para decidir si se renderiza o no un componente `C`.
-impl<C: ComponentTrait> ActionDispatcher for IsRenderable<C> {
+impl<C: Component> ActionDispatcher for IsRenderable<C> {
     /// Devuelve el identificador de tipo ([`UniqueId`]) del componente `C`.
     fn referer_type_id(&self) -> Option<UniqueId> {
         self.referer_type_id
@@ -33,8 +33,8 @@ impl<C: ComponentTrait> ActionDispatcher for IsRenderable<C> {
     }
 }
 
-impl<C: ComponentTrait> IsRenderable<C> {
-    /// Permite [registrar](ExtensionTrait::actions) una nueva acción [`FnIsRenderable`].
+impl<C: Component> IsRenderable<C> {
+    /// Permite [registrar](Extension::actions) una nueva acción [`FnIsRenderable`].
     pub fn new(f: FnIsRenderable<C>) -> Self {
         IsRenderable {
             f,

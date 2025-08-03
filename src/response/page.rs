@@ -5,7 +5,7 @@ pub use actix_web::Result as ResultPage;
 
 use crate::base::action;
 use crate::builder_fn;
-use crate::core::component::{Child, ChildOp, ComponentTrait};
+use crate::core::component::{Child, ChildOp, Component};
 use crate::core::theme::{ChildrenInRegions, ThemeRef, CONTENT_REGION_NAME};
 use crate::html::{html, AssetsOp, Context, Markup, DOCTYPE};
 use crate::html::{ClassesOp, OptionClasses, OptionId, OptionTranslated};
@@ -121,7 +121,7 @@ impl Page {
     }
 
     /// Añade un componente a la región de contenido por defecto.
-    pub fn with_component(mut self, component: impl ComponentTrait) -> Self {
+    pub fn with_component(mut self, component: impl Component) -> Self {
         self.regions
             .alter_child_in_region(CONTENT_REGION_NAME, ChildOp::Add(Child::with(component)));
         self
@@ -131,7 +131,7 @@ impl Page {
     pub fn with_component_in(
         mut self,
         region_name: &'static str,
-        component: impl ComponentTrait,
+        component: impl Component,
     ) -> Self {
         self.regions
             .alter_child_in_region(region_name, ChildOp::Add(Child::with(component)));
