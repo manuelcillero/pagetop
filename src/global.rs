@@ -9,7 +9,7 @@ include_config!(SETTINGS: Settings => [
     "app.name"                => "PageTop App",
     "app.description"         => "Developed with the amazing PageTop framework.",
     "app.theme"               => "Basic",
-    "app.language"            => "en-US",
+    "app.language"            => "",
     "app.startup_banner"      => "Slant",
 
     // [dev]
@@ -48,7 +48,14 @@ pub struct App {
     pub description: String,
     /// Tema predeterminado.
     pub theme: String,
-    /// Idioma predeterminado (localización).
+    /// Idioma por defecto para la aplicación.
+    ///
+    /// Si no se especifica un valor válido, normalmente se usará el idioma devuelto por la
+    /// implementación de [`LangId`](crate::locale::LangId) para [`Context`](crate::html::Context),
+    /// en el siguiente orden: primero, el idioma establecido explícitamente con
+    /// [`Context::with_langid`](crate::html::Context::with_langid); si no se ha definido, se usará
+    /// el indicado en la cabecera `Accept-Language` del navegador; y, si ninguno aplica, se
+    /// empleará el idioma de respaldo ("en-US").
     pub language: String,
     /// Banner ASCII mostrado al inicio: *"Off"* (desactivado), *"Slant"*, *"Small"*, *"Speed"* o
     /// *"Starwars"*.
