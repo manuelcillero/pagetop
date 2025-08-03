@@ -16,10 +16,10 @@ use std::sync::LazyLock;
 
 /// Punto de entrada de una aplicación `PageTop`.
 ///
-/// No almacena datos, pero **encapsula** el ciclo completo de configuración y puesta en marcha.
-/// Para instanciarla se puede usar [`new`](Application::new) o [`prepare`](Application::prepare).
-/// Después sólo hay que llamar a [`run`](Application::run) (o a [`test`](Application::test) si se
-/// está preparando un entorno de pruebas).
+/// No almacena datos, **encapsula** el inicio completo de configuración y puesta en marcha. Para
+/// instanciarla se puede usar [`new()`](Application::new) o [`prepare()`](Application::prepare).
+/// Después sólo hay que llamar a [`run()`](Application::run) para ejecutar la aplicación (o a
+/// [`test()`](Application::test) si se está preparando un entorno de pruebas).
 pub struct Application;
 
 impl Default for Application {

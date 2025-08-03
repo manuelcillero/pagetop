@@ -55,8 +55,8 @@ impl TargetMedia {
 ///
 /// > **Nota**
 /// > Las hojas de estilo CSS deben estar disponibles en el servidor web de la aplicación. Pueden
-/// > incluirse en el proyecto utilizando [`include_files`](crate::include_files) y servirse con
-/// > [`include_files_service`](crate::include_files_service).
+/// > incluirse en el proyecto utilizando [`include_files!`](crate::include_files) y servirse con
+/// > [`include_files_service!`](crate::include_files_service).
 ///
 /// # Ejemplo
 ///

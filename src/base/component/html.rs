@@ -51,9 +51,9 @@ impl Component for Html {
 impl Html {
     /// Crea una instancia que generará el `Markup`, con acceso opcional al contexto.
     ///
-    /// El método [`prepare_component`](crate::core::component::ComponentTrait::prepare_component)
-    /// delega el renderizado en la función proporcionada, que recibe una referencia mutable
-    /// al contexto de renderizado ([`Context`]).
+    /// El método [`prepare_component()`](crate::core::component::Component::prepare_component)
+    /// delega el renderizado en la función proporcionada, que recibe una referencia mutable al
+    /// contexto de renderizado ([`Context`]).
     pub fn with<F>(f: F) -> Self
     where
         F: Fn(&mut Context) -> Markup + Send + Sync + 'static,
@@ -64,8 +64,8 @@ impl Html {
     /// Sustituye la función que genera el `Markup`.
     ///
     /// Permite a otras extensiones modificar la función de renderizado que se ejecutará cuando
-    /// [`prepare_component`](crate::core::component::ComponentTrait::prepare_component) invoque
-    /// esta instancia. La nueva función también recibe una referencia al contexto ([`Context`]).
+    /// [`prepare_component()`](crate::core::component::Component::prepare_component) invoque esta
+    /// instancia. La nueva función también recibe una referencia al contexto ([`Context`]).
     pub fn alter_html<F>(&mut self, f: F) -> &mut Self
     where
         F: Fn(&mut Context) -> Markup + Send + Sync + 'static,
