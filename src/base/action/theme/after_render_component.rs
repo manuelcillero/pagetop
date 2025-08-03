@@ -3,7 +3,7 @@ use crate::prelude::*;
 use crate::base::action::FnActionWithComponent;
 
 /// Ejecuta [`FnActionWithComponent`] después de que un tema renderice el componente.
-pub struct AfterRender<C: ComponentTrait> {
+pub struct AfterRender<C: Component> {
     f: FnActionWithComponent<C>,
     theme_type_id: Option<UniqueId>,
     referer_type_id: Option<UniqueId>,
@@ -11,7 +11,7 @@ pub struct AfterRender<C: ComponentTrait> {
 
 /// Filtro para despachar [`FnActionWithComponent`] después de que un tema renderice el componente
 /// `C`.
-impl<C: ComponentTrait> ActionDispatcher for AfterRender<C> {
+impl<C: Component> ActionDispatcher for AfterRender<C> {
     /// Devuelve el identificador de tipo ([`UniqueId`]) del tema.
     fn theme_type_id(&self) -> Option<UniqueId> {
         self.theme_type_id
@@ -23,9 +23,9 @@ impl<C: ComponentTrait> ActionDispatcher for AfterRender<C> {
     }
 }
 
-impl<C: ComponentTrait> AfterRender<C> {
-    /// Permite [registrar](ExtensionTrait::actions) una nueva acción [`FnActionWithComponent`] para
-    /// un tema dado.
+impl<C: Component> AfterRender<C> {
+    /// Permite [registrar](Extension::actions) una nueva acción [`FnActionWithComponent`] para un
+    /// tema dado.
     pub fn new(theme: ThemeRef, f: FnActionWithComponent<C>) -> Self {
         AfterRender {
             f,

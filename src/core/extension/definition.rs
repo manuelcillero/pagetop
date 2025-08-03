@@ -8,7 +8,7 @@ use crate::{actions_boxed, service};
 ///
 /// Las extensiones se definen como instancias estáticas globales para poder acceder a ellas desde
 /// cualquier hilo de la ejecución sin necesidad de sincronización adicional.
-pub type ExtensionRef = &'static dyn ExtensionTrait;
+pub type ExtensionRef = &'static dyn Extension;
 
 /// Interfaz común que debe implementar cualquier extensión de `PageTop`.
 ///
@@ -20,12 +20,12 @@ pub type ExtensionRef = &'static dyn ExtensionTrait;
 ///
 /// pub struct Blog;
 ///
-/// impl ExtensionTrait for Blog {
+/// impl Extension for Blog {
 ///     fn name(&self) -> L10n { L10n::n("Blog") }
 ///     fn description(&self) -> L10n { L10n::n("Sistema de blogs") }
 /// }
 /// ```
-pub trait ExtensionTrait: AnyInfo + Send + Sync {
+pub trait Extension: AnyInfo + Send + Sync {
     /// Nombre legible para el usuario.
     ///
     /// Predeterminado por el [`short_name`](AnyInfo::short_name) del tipo asociado a la extensión.
@@ -38,8 +38,8 @@ pub trait ExtensionTrait: AnyInfo + Send + Sync {
         L10n::default()
     }
 
-    /// Los temas son extensiones que implementan [`ExtensionTrait`] y también
-    /// [`ThemeTrait`](crate::core::theme::ThemeTrait).
+    /// Los temas son extensiones que implementan [`Extension`] y también
+    /// [`Theme`](crate::core::theme::Theme).
     ///
     /// Si la extensión no es un tema, este método devuelve `None` por defecto.
     ///
@@ -51,13 +51,13 @@ pub trait ExtensionTrait: AnyInfo + Send + Sync {
     ///
     /// pub struct MyTheme;
     ///
-    /// impl ExtensionTrait for MyTheme {
+    /// impl Extension for MyTheme {
     ///     fn theme(&self) -> Option<ThemeRef> {
     ///         Some(&Self)
     ///     }
     /// }
     ///
-    /// impl ThemeTrait for MyTheme {}
+    /// impl Theme for MyTheme {}
     /// ```
     fn theme(&self) -> Option<ThemeRef> {
         None
@@ -94,7 +94,7 @@ pub trait ExtensionTrait: AnyInfo + Send + Sync {
     ///
     /// pub struct ExtensionSample;
     ///
-    /// impl ExtensionTrait for ExtensionSample {
+    /// impl Extension for ExtensionSample {
     ///     fn configure_service(&self, scfg: &mut service::web::ServiceConfig) {
     ///         scfg.route("/sample", web::get().to(route_sample));
     ///     }

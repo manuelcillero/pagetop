@@ -1,7 +1,7 @@
 //! API para construir nuevos componentes.
 
 mod definition;
-pub use definition::{ComponentRender, ComponentTrait};
+pub use definition::{Component, ComponentRender};
 
 mod children;
 pub use children::Children;

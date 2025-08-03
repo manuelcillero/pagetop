@@ -9,13 +9,12 @@
 //! tipografías, espaciados y cualquier otro detalle visual o de comportamiento (como animaciones,
 //! *scripts* de interfaz, etc.).
 //!
-//! Es una extensión más (implementando [`ExtensionTrait`](crate::core::extension::ExtensionTrait)).
-//! Se instala, activa y declara dependencias igual que el resto de extensiones; y se señala a sí
-//! misma como tema (implementando [`theme()`](crate::core::extension::ExtensionTrait::theme)
-//! y [`ThemeTrait`]).
+//! Es una extensión más (implementando [`Extension`](crate::core::extension::Extension)). Se
+//! instala, activa y declara dependencias igual que el resto de extensiones; y se señala a sí misma
+//! como tema (implementando [`theme()`](crate::core::extension::Extension::theme) y [`Theme`]).
 
 mod definition;
-pub use definition::{ThemeRef, ThemeTrait};
+pub use definition::{Theme, ThemeRef};
 
 mod regions;
 pub(crate) use regions::ChildrenInRegions;

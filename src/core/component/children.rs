@@ -1,4 +1,4 @@
-use crate::core::component::ComponentTrait;
+use crate::core::component::Component;
 use crate::html::{html, Context, Markup};
 use crate::{builder_fn, UniqueId};
 
@@ -9,14 +9,14 @@ use std::vec::IntoIter;
 
 /// Representa un componente encapsulado de forma segura y compartida.
 ///
-/// Esta estructura permite manipular y renderizar cualquier tipo que implemente [`ComponentTrait`],
+/// Esta estructura permite manipular y renderizar cualquier tipo que implemente [`Component`],
 /// garantizando acceso concurrente a través de [`Arc<RwLock<_>>`].
 #[derive(Clone)]
-pub struct Child(Arc<RwLock<dyn ComponentTrait>>);
+pub struct Child(Arc<RwLock<dyn Component>>);
 
 impl Child {
     /// Crea un nuevo [`Child`] a partir de un componente.
-    pub fn with(component: impl ComponentTrait) -> Self {
+    pub fn with(component: impl Component) -> Self {
         Child(Arc::new(RwLock::new(component)))
     }
 
@@ -47,15 +47,15 @@ impl Child {
 /// Variante tipada de [`Child`] para evitar conversiones durante el uso.
 ///
 /// Facilita el acceso a componentes del mismo tipo sin necesidad de hacer `downcast`.
-pub struct Typed<C: ComponentTrait>(Arc<RwLock<C>>);
+pub struct Typed<C: Component>(Arc<RwLock<C>>);
 
-impl<C: ComponentTrait> Clone for Typed<C> {
+impl<C: Component> Clone for Typed<C> {
     fn clone(&self) -> Self {
         Self(self.0.clone())
     }
 }
 
-impl<C: ComponentTrait> Typed<C> {
+impl<C: Component> Typed<C> {
     /// Crea un nuevo [`Typed`] a partir de un componente.
     pub fn with(component: C) -> Self {
         Typed(Arc::new(RwLock::new(component)))
@@ -97,7 +97,7 @@ pub enum ChildOp {
 }
 
 /// Operaciones con un componente hijo tipado [`Typed<C>`] en una lista [`Children`].
-pub enum TypedOp<C: ComponentTrait> {
+pub enum TypedOp<C: Component> {
     Add(Typed<C>),
     InsertAfterId(&'static str, Typed<C>),
     InsertBeforeId(&'static str, Typed<C>),
@@ -153,7 +153,7 @@ impl Children {
 
     /// Ejecuta una operación con [`TypedOp`] en la lista.
     #[builder_fn]
-    pub fn with_typed<C: ComponentTrait + Default>(mut self, op: TypedOp<C>) -> Self {
+    pub fn with_typed<C: Component + Default>(mut self, op: TypedOp<C>) -> Self {
         match op {
             TypedOp::Add(typed) => self.add(typed.into_child()),
             TypedOp::InsertAfterId(id, typed) => self.insert_after_id(id, typed.into_child()),

@@ -11,14 +11,14 @@ pub type FnPrepareRender<C> = fn(component: &C, cx: &mut Context) -> PrepareMark
 /// Ejecuta [`FnPrepareRender`] para preparar el renderizado de un componente.
 ///
 /// Permite a un tema hacer una implementación nueva del renderizado de un componente.
-pub struct PrepareRender<C: ComponentTrait> {
+pub struct PrepareRender<C: Component> {
     f: FnPrepareRender<C>,
     theme_type_id: Option<UniqueId>,
     referer_type_id: Option<UniqueId>,
 }
 
 /// Filtro para despachar [`FnPrepareRender`] que modifica el renderizado de un componente `C`.
-impl<C: ComponentTrait> ActionDispatcher for PrepareRender<C> {
+impl<C: Component> ActionDispatcher for PrepareRender<C> {
     /// Devuelve el identificador de tipo ([`UniqueId`]) del tema.
     fn theme_type_id(&self) -> Option<UniqueId> {
         self.theme_type_id
@@ -30,9 +30,9 @@ impl<C: ComponentTrait> ActionDispatcher for PrepareRender<C> {
     }
 }
 
-impl<C: ComponentTrait> PrepareRender<C> {
-    /// Permite [registrar](ExtensionTrait::actions) una nueva acción [`FnPrepareRender`] para un
-    /// tema dado.
+impl<C: Component> PrepareRender<C> {
+    /// Permite [registrar](Extension::actions) una nueva acción [`FnPrepareRender`] para un tema
+    /// dado.
     pub fn new(theme: ThemeRef, f: FnPrepareRender<C>) -> Self {
         PrepareRender {
             f,

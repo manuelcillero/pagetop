@@ -88,7 +88,7 @@ macro_rules! include_files {
 ///
 /// pub struct MyExtension;
 ///
-/// impl ExtensionTrait for MyExtension {
+/// impl Extension for MyExtension {
 ///     fn configure_service(&self, scfg: &mut service::web::ServiceConfig) {
 ///         include_files_service!(scfg, assets => "/public");
 ///     }

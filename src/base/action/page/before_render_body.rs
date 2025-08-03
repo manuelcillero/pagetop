@@ -22,7 +22,7 @@ impl ActionDispatcher for BeforeRenderBody {
 }
 
 impl BeforeRenderBody {
-    /// Permite [registrar](ExtensionTrait::actions) una nueva acción
+    /// Permite [registrar](Extension::actions) una nueva acción
     /// [`FnActionWithPage`](crate::base::action::page::FnActionWithPage).
     pub fn new(f: FnActionWithPage) -> Self {
         BeforeRenderBody { f, weight: 0 }

@@ -3,7 +3,7 @@ use crate::prelude::*;
 use crate::base::action::FnActionWithComponent;
 
 /// Ejecuta [`FnActionWithComponent`] después de renderizar un componente.
-pub struct AfterRender<C: ComponentTrait> {
+pub struct AfterRender<C: Component> {
     f: FnActionWithComponent<C>,
     referer_type_id: Option<UniqueId>,
     referer_id: OptionId,
@@ -11,7 +11,7 @@ pub struct AfterRender<C: ComponentTrait> {
 }
 
 /// Filtro para despachar [`FnActionWithComponent`] después de renderizar un componente `C`.
-impl<C: ComponentTrait> ActionDispatcher for AfterRender<C> {
+impl<C: Component> ActionDispatcher for AfterRender<C> {
     /// Devuelve el identificador de tipo ([`UniqueId`]) del componente `C`.
     fn referer_type_id(&self) -> Option<UniqueId> {
         self.referer_type_id
@@ -28,8 +28,8 @@ impl<C: ComponentTrait> ActionDispatcher for AfterRender<C> {
     }
 }
 
-impl<C: ComponentTrait> AfterRender<C> {
-    /// Permite [registrar](ExtensionTrait::actions) una nueva acción [`FnActionWithComponent`].
+impl<C: Component> AfterRender<C> {
+    /// Permite [registrar](Extension::actions) una nueva acción [`FnActionWithComponent`].
     pub fn new(f: FnActionWithComponent<C>) -> Self {
         AfterRender {
             f,

@@ -7,7 +7,7 @@ use crate::prelude::*;
 /// funcionando correctamente.
 pub struct Welcome;
 
-impl ExtensionTrait for Welcome {
+impl Extension for Welcome {
     fn name(&self) -> L10n {
         L10n::l("welcome_extension_name")
     }

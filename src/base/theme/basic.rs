@@ -5,13 +5,13 @@ use crate::prelude::*;
 /// Tema básico por defecto.
 pub struct Basic;
 
-impl ExtensionTrait for Basic {
+impl Extension for Basic {
     fn theme(&self) -> Option<ThemeRef> {
         Some(&Self)
     }
 }
 
-impl ThemeTrait for Basic {
+impl Theme for Basic {
     fn after_render_page_body(&self, page: &mut Page) {
         page.alter_assets(AssetsOp::AddStyleSheet(
             StyleSheet::from("/css/normalize.css")
