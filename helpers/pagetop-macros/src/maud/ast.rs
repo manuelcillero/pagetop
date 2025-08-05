@@ -44,6 +44,7 @@ impl<E: ToTokens> ToTokens for Markups<E> {
 }
 
 #[derive(Debug, Clone)]
+#[allow(clippy::large_enum_variant)]
 pub enum Markup<E> {
     Block(Block<E>),
     Lit(HtmlLit),
@@ -429,6 +430,7 @@ impl ToTokens for Attribute {
 }
 
 #[derive(Debug, Clone)]
+#[allow(clippy::large_enum_variant)]
 pub enum HtmlNameOrMarkup {
     HtmlName(HtmlName),
     Markup(Markup<NoElement>),
@@ -472,6 +474,7 @@ impl Display for HtmlNameOrMarkup {
 }
 
 #[derive(Debug, Clone)]
+#[allow(clippy::large_enum_variant)]
 pub enum AttributeType {
     Normal {
         eq_token: Eq,

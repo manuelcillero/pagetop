@@ -19,7 +19,7 @@ pub fn impl_my_derive(input: &DeriveInput) -> Result<TokenStream, Error> {
                 quote! {
                     #name #body_assignment
                 },
-                format!("Returns a `{}` default.", name),
+                format!("Returns a `{name}` default."),
             )
         }
         syn::Data::Enum(ref body) => {
@@ -44,7 +44,7 @@ pub fn impl_my_derive(input: &DeriveInput) -> Result<TokenStream, Error> {
                 quote! {
                     #name :: #default_variant_name #body_assignment
                 },
-                format!("Returns a `{}::{}` default.", name, default_variant_name),
+                format!("Returns a `{name}::{default_variant_name}` default."),
             )
         }
         syn::Data::Union(_) => {
@@ -109,7 +109,7 @@ fn default_body_tt(body: &syn::Fields) -> Result<(TokenStream, String), Error> {
                     .iter()
                     .map(|field| {
                         let (default_value, default_doc) = field_default_expr_and_doc(field)?;
-                        write!(&mut doc, "{}, ", default_doc).unwrap();
+                        write!(&mut doc, "{default_doc}, ").unwrap();
                         Ok(default_value)
                     })
                     .collect::<Result<Vec<TokenStream>, Error>>()?;
@@ -145,7 +145,7 @@ fn field_default_expr_and_doc(field: &syn::Field) -> Result<(TokenStream, String
             ConversionStrategy::Into => quote!((#field_value).into()),
         };
 
-        let field_doc = format!("{}", field_value);
+        let field_doc = format!("{field_value}");
         Ok((field_value, field_doc))
     } else {
         Ok((
