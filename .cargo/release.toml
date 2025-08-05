@@ -13,33 +13,13 @@ push = true
 # Publica en crates.io (puedes desactivarlo para pruebas)
 publish = true
 
-# Actualiza todos los dependientes internos
-update-dependencies = true
-
 # Solo permite publicar estos crates (los que forman parte del workspace)
 allow-branch = ["main"]
 consolidate-commits = false
-consolidate-pushes = true
 
 # Mensaje personalizado para el commit de versión
 pre-release-commit-message = "🔖 Prepara publicación de {{crate_name}} {{version}}"
 
-[workspace]
-# Lista de crates que se pueden publicar dentro del workspace
-# Puedes añadir extensiones más adelante
-allow-publish = [
-    "pagetop",
-    "pagetop-build",
-    "pagetop-macros"
-]
-
-# Opcional: ordena la publicación de dependencias internas
-publish-order = [
-    "pagetop-build",
-    "pagetop-macros",
-    "pagetop"
-]
-
 pre-release-hook = [
-    "./tools/changelog.sh", "{{crate_name}}", "{{version}}", "--stage"
+    "sh", "-c", "ROOT=$(git rev-parse --show-toplevel) && \"$ROOT/tools/changelog.sh\" {{crate_name}} {{version}} --stage"
 ]

@@ -35,20 +35,20 @@ cd "$(dirname "$0")/.." || exit 1
 # Determina ruta del archivo y ámbito de los archivos afectados para el crate
 # ------------------------------------------------------------------------------
 case "$CRATE" in
-    pagetop)
-        CHANGELOG_FILE="CHANGELOG.md"
-        PATH_FLAGS=(
-            --exclude-path "helpers/pagetop-macros/**/*"
-            --exclude-path "helpers/pagetop-build/**/*"
-        )
+    pagetop-build)
+        CHANGELOG_FILE="helpers/pagetop-build/CHANGELOG.md"
+        PATH_FLAGS=(--include-path "helpers/pagetop-build/**/*")
         ;;
     pagetop-macros)
         CHANGELOG_FILE="helpers/pagetop-macros/CHANGELOG.md"
         PATH_FLAGS=(--include-path "helpers/pagetop-macros/**/*")
         ;;
-    pagetop-build)
-        CHANGELOG_FILE="helpers/pagetop-build/CHANGELOG.md"
-        PATH_FLAGS=(--include-path "helpers/pagetop-build/**/*")
+    pagetop)
+        CHANGELOG_FILE="CHANGELOG.md"
+        PATH_FLAGS=(
+            --exclude-path "helpers/pagetop-build/**/*"
+            --exclude-path "helpers/pagetop-macros/**/*"
+        )
         ;;
     *)
         echo "Error: unsupported crate '$CRATE'" >&2
@@ -57,22 +57,23 @@ case "$CRATE" in
 esac
 
 # ------------------------------------------------------------------------------
-# Obtiene la última etiqueta del crate
-# ------------------------------------------------------------------------------
-LAST_TAG="$(git tag --list "${CRATE}-v*" --sort=-v:refname | head -n 1)"
-
-if [[ -n "$LAST_TAG" ]]; then
-    echo "Generating CHANGELOG for '$CRATE' from last tag '$LAST_TAG'"
-    CLIFF_ARGS=(--unreleased --tag "$VERSION")
-else
-    echo "Generating initial CHANGELOG for '$CRATE'"
-    CLIFF_ARGS=(--tag "$VERSION")
-fi
-
-# ------------------------------------------------------------------------------
 # Genera el CHANGELOG para el crate correspondiente
 # ------------------------------------------------------------------------------
-git-cliff --config "$CLIFF_CONFIG" "${PATH_FLAGS[@]}" "${CLIFF_ARGS[@]}" -o "$CHANGELOG_FILE" -u
+COMMON_ARGS=(
+    --config "$CLIFF_CONFIG"
+    "${PATH_FLAGS[@]}"
+    --tag-pattern "^${CRATE}-v"
+    --tag "$VERSION"
+    -o "$CHANGELOG_FILE"
+)
+LAST_TAG="$(git tag --list "${CRATE}-v*" --sort=-v:refname | head -n 1)"
+if [[ -n "$LAST_TAG" ]]; then
+    echo "Generating CHANGELOG for '$CRATE' from tag '$LAST_TAG'"
+    git-cliff --unreleased "${COMMON_ARGS[@]}"
+else
+    echo "Generating initial CHANGELOG for '$CRATE'"
+    git-cliff "${COMMON_ARGS[@]}"
+fi
 echo "CHANGELOG generated at '$CHANGELOG_FILE'"
 
 # Pregunta por la revisión del archivo de cambios generado

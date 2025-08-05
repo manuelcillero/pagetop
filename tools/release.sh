@@ -40,9 +40,9 @@ cd "$(dirname "$0")/.." || exit 1
 # ------------------------------------------------------------------------------
 if [[ "$EXECUTE" != "--execute" ]]; then
     echo "Running dry-run (default mode). Add --execute to publish"
-    CARGO_RELEASE_CONFIG="$CONFIG" cargo release --package "$CRATE" "$LEVEL"
+    cargo release --config "$CONFIG" --package "$CRATE" "$LEVEL"
 else
     echo "Releasing $CRATE ($LEVEL)…"
-    CARGO_RELEASE_CONFIG="$CONFIG" cargo release --package "$CRATE" "$LEVEL" --execute
+    cargo release --config "$CONFIG" --package "$CRATE" "$LEVEL" --execute
     echo "Release completed."
 fi
