@@ -71,5 +71,5 @@ authors = ["Manuel Cillero <manuel@cillero.es>"]
 [workspace.dependencies]
 static-files = "0.2.5"
 
-pagetop-build = { version = "0.0", path = "helpers/pagetop-build" }
+pagetop-build = { version = "0.1", path = "helpers/pagetop-build" }
 pagetop-macros = { version = "0.0", path = "helpers/pagetop-macros" }
