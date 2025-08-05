@@ -1,0 +1,101 @@
+#!/bin/bash
+set -euo pipefail
+
+# ------------------------------------------------------------------------------
+# Script para generar el archivo de cambios del crate indicado.
+# Uso:
+#   ./tools/changelog.sh <crate> <version> [--stage]
+# Ejemplo:
+#   ./tools/changelog.sh pagetop-macros 0.1.0     # Sólo genera archivo
+#   ./tools/changelog.sh pagetop 0.1.0 --stage    # Prepara archivo para commit
+# ------------------------------------------------------------------------------
+
+# Configuración
+CRATE="${1:-}"
+VERSION="${2:-}"
+STAGE="${3:-}"
+CLIFF_CONFIG=".cargo/cliff.toml"
+
+# Comprobaciones
+if [[ -z "$CRATE" || -z "$VERSION" ]]; then
+    echo "Usage: $0 <crate> <version> [--stage]" >&2
+    exit 1
+fi
+
+# Dependencias
+command -v git-cliff >/dev/null || {
+    echo "Error: git-cliff is not installed. Use: cargo install git-cliff"
+    exit 1
+}
+
+# Cambia al directorio del espacio
+cd "$(dirname "$0")/.." || exit 1
+
+# ------------------------------------------------------------------------------
+# Determina ruta del archivo y ámbito de los archivos afectados para el crate
+# ------------------------------------------------------------------------------
+case "$CRATE" in
+    pagetop)
+        CHANGELOG_FILE="CHANGELOG.md"
+        PATH_FLAGS=(
+            --exclude-path "helpers/pagetop-macros/**/*"
+            --exclude-path "helpers/pagetop-build/**/*"
+        )
+        ;;
+    pagetop-macros)
+        CHANGELOG_FILE="helpers/pagetop-macros/CHANGELOG.md"
+        PATH_FLAGS=(--include-path "helpers/pagetop-macros/**/*")
+        ;;
+    pagetop-build)
+        CHANGELOG_FILE="helpers/pagetop-build/CHANGELOG.md"
+        PATH_FLAGS=(--include-path "helpers/pagetop-build/**/*")
+        ;;
+    *)
+        echo "Error: unsupported crate '$CRATE'" >&2
+        exit 1
+        ;;
+esac
+
+# ------------------------------------------------------------------------------
+# Obtiene la última etiqueta del crate
+# ------------------------------------------------------------------------------
+LAST_TAG="$(git tag --list "${CRATE}-v*" --sort=-v:refname | head -n 1)"
+
+if [[ -n "$LAST_TAG" ]]; then
+    echo "Generating CHANGELOG for '$CRATE' from last tag '$LAST_TAG'"
+    CLIFF_ARGS=(--unreleased --tag "$VERSION")
+else
+    echo "Generating initial CHANGELOG for '$CRATE'"
+    CLIFF_ARGS=(--tag "$VERSION")
+fi
+
+# ------------------------------------------------------------------------------
+# Genera el CHANGELOG para el crate correspondiente
+# ------------------------------------------------------------------------------
+git-cliff --config "$CLIFF_CONFIG" "${PATH_FLAGS[@]}" "${CLIFF_ARGS[@]}" -o "$CHANGELOG_FILE" -u
+echo "CHANGELOG generated at '$CHANGELOG_FILE'"
+
+# Pregunta por la revisión del archivo de cambios generado
+read -p "Do you want to review the changelog before continuing? (y/n) " -n 1 -r || exit 1
+echo
+if [[ "$REPLY" =~ ^[Yy]$ ]]; then
+    ${EDITOR:-nano} "$CHANGELOG_FILE"
+fi
+read -p "Do you want to proceed with the release of $CRATE? (y/n) " -n 1 -r || exit 1
+echo
+if [[ ! "$REPLY" =~ ^[Yy]$ ]]; then
+    echo "Aborting release process." >&2
+    exit 1
+fi
+
+# Si hay cambios y procede, añade al stage (cargo-release hará el commit)
+if ! git diff --quiet -- "$CHANGELOG_FILE"; then
+    if [[ "$STAGE" == "--stage" ]]; then
+        git add "$CHANGELOG_FILE"
+        echo "Staged $CHANGELOG_FILE for commit"
+    else
+        echo "Changes detected in '$CHANGELOG_FILE', but not staged (no --stage flag)"
+    fi
+else
+    echo "No changes in '$CHANGELOG_FILE', skipping staging"
+fi
