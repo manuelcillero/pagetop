@@ -41,8 +41,8 @@ async fn main() -> std::io::Result<()> {
 }
 ```
 
-Este código arranca el servidor de `PageTop` que, con la configuración por defecto, muestra una
-página de bienvenida accesible desde un navegador local en `http://localhost:8080`.
+Este código arranca el servidor de `PageTop`. Con la configuración por defecto, muestra una página
+de bienvenida accesible desde un navegador local en la dirección `http://localhost:8080`.
 
 Para personalizar el servicio, se puede crear una extensión de `PageTop` de la siguiente manera:
 
