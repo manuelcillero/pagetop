@@ -10,7 +10,7 @@ como son:
     de la aplicación.
   * [Fluent templates](https://github.com/XAMPPRocky/fluent-templates), que integra
     [Fluent](https://projectfluent.org/) para internacionalizar las aplicaciones.
-  * Además de otros crates adicionales que se pueden explorar en los archivos `Cargo.toml` de
+  * Además de otros *crates* adicionales que se pueden explorar en los archivos `Cargo.toml` de
     `PageTop` y sus extensiones.
 
 
