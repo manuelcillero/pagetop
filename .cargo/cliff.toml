@@ -1,0 +1,67 @@
+# cliff.toml
+
+[changelog]
+header = """
+# CHANGELOG
+
+Este archivo documenta los cambios más relevantes realizados en cada versión. El formato está basado
+en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/), y las versiones se numeran siguiendo
+las reglas del [Versionado Semántico](https://semver.org/lang/es/).
+
+Resume la evolución del proyecto para usuarios y colaboradores, destacando nuevas funcionalidades,
+correcciones, mejoras durante el desarrollo o cambios en la documentación. Cambios menores o
+internos pueden omitirse si no afectan al uso del proyecto.
+"""
+trim = true
+render_always = true
+
+body = """
+{% if version %}
+## {{ version | trim_start_matches(pat="v") }} ({{ timestamp | date(format="%Y-%m-%d") }})
+{% else %}
+## Pendiente de publicación
+{% endif %}\
+{% set base = "https://git.cillero.es/manuelcillero/pagetop" %}\
+{% for group, commits in commits | group_by(attribute="group") %}
+### {{ group | upper_first }}
+{% for commit in commits %}
+{%- set msg = commit.message
+    | split(pat="\n")
+    | first
+    | replace(from="✨ ", to="")
+    | replace(from="🐛 ", to="")
+    | replace(from="⬆️ ", to="")
+    | replace(from="🚧 ", to="")
+    | replace(from="♻️ ", to="")
+    | replace(from="✏️ ", to="")
+    | replace(from="🏷️ ", to="")
+    | replace(from="🧑‍💻 ", to="")
+    | replace(from="🍱 ", to="")
+    | replace(from="📝 ", to="")
+    | replace(from="💡 ", to="")
+-%}
+{% set sha7 = commit.id | truncate(length=7, end="") %}
+- {{ msg | trim }} ([{{ sha7 }}]({{ base }}/commit/{{ commit.id }}){% if commit.author.name != "Manuel Cillero" %} - {{ commit.author.name }}{% endif %})
+{% endfor %}{% endfor %}
+"""
+
+[git]
+conventional_commits = false
+filter_unconventional = false
+topo_order_commits = true
+sort_commits = "oldest"
+
+commit_parsers = [
+    { message = "^✨", group = "Añadido" },
+    { message = "^🐛", group = "Corregido" },
+    { message = "^🚧", group = "Cambiado" },
+    { message = "^♻️", group = "Cambiado" },
+    { message = "^✏️", group = "Cambiado" },
+    { message = "^🏷️", group = "Cambiado" },
+    { message = "^🧑‍💻", group = "Cambiado" },
+    { message = "^🍱", group = "Cambiado" },
+    { message = "^⬆️", group = "Dependencias" },
+    { message = "^📝", group = "Documentado" },
+    { message = "^💡", group = "Documentado" },
+    { message = "^.*", group = "Otros cambios" },
+]
