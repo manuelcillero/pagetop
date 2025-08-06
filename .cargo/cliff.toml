@@ -30,6 +30,7 @@ body = """
     | first
     | replace(from="✨ ", to="")
     | replace(from="🐛 ", to="")
+    | replace(from="🚑 ", to="")
     | replace(from="⬆️ ", to="")
     | replace(from="🚧 ", to="")
     | replace(from="♻️ ", to="")
@@ -54,6 +55,7 @@ sort_commits = "oldest"
 commit_parsers = [
     { message = "^✨", group = "Añadido" },
     { message = "^🐛", group = "Corregido" },
+    { message = "^🚑", group = "Corregido" },
     { message = "^🚧", group = "Cambiado" },
     { message = "^♻️", group = "Cambiado" },
     { message = "^✏️", group = "Cambiado" },
