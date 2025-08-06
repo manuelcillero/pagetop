@@ -7,7 +7,7 @@ description = """
     Prepara un conjunto de archivos estáticos o archivos SCSS compilados para ser incluidos en el
     binario de un proyecto PageTop.
 """
-categories = ["development-tools::build-utils", "web-programming"]
+categories = ["development-tools::build-utils"]
 keywords = ["pagetop", "build", "assets", "resources", "static"]
 
 repository.workspace = true
