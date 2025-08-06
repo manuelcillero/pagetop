@@ -90,7 +90,7 @@ if [[ ! "$REPLY" =~ ^[Yy]$ ]]; then
 fi
 
 # Si hay cambios y procede, añade al stage (cargo-release hará el commit)
-if git status --porcelain -- "$CHANGELOG_FILE" | grep -qE '^( M|A |??)'; then
+if [[ -n $(git status --porcelain -- "$CHANGELOG_FILE") ]]; then
     if [[ "$STAGE" == "--stage" ]]; then
         git add "$CHANGELOG_FILE"
         echo "Staged $CHANGELOG_FILE for commit"
