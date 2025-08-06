@@ -1,7 +1,7 @@
 # release.toml
 
 # Etiqueta por crate: `pagetop-macros-v0.2.0`
-tag-prefix = "{{crate_name}}-v"
+tag-prefix = "{{crate_name}}-"
 
 # Confirmaciones firmadas (no requeridas)
 sign-commit = false

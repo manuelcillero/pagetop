@@ -59,21 +59,27 @@ esac
 # ------------------------------------------------------------------------------
 # Genera el CHANGELOG para el crate correspondiente
 # ------------------------------------------------------------------------------
+if [[ -f "$CHANGELOG_FILE" ]]; then
+    # Archivo existe: inserta la nueva sección arriba
+    OUTPUT_FLAG=(--prepend "$CHANGELOG_FILE")
+else
+    # Primera vez: crea el fichero desde cero
+    OUTPUT_FLAG=(-o "$CHANGELOG_FILE")
+fi
 COMMON_ARGS=(
     --config "$CLIFF_CONFIG"
     "${PATH_FLAGS[@]}"
     --tag-pattern "^${CRATE}-v"
     --tag "$VERSION"
-    -o "$CHANGELOG_FILE"
+    "${OUTPUT_FLAG[@]}"
 )
 LAST_TAG="$(git tag --list "${CRATE}-v*" --sort=-v:refname | head -n 1)"
 if [[ -n "$LAST_TAG" ]]; then
     echo "Generating CHANGELOG for '$CRATE' from tag '$LAST_TAG'"
-    git-cliff --unreleased "${COMMON_ARGS[@]}"
 else
     echo "Generating initial CHANGELOG for '$CRATE'"
-    git-cliff "${COMMON_ARGS[@]}"
 fi
+git-cliff --unreleased "${COMMON_ARGS[@]}"
 echo "CHANGELOG generated at '$CHANGELOG_FILE'"
 
 # Pregunta por la revisión del archivo de cambios generado
