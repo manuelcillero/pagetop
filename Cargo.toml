@@ -72,4 +72,4 @@ authors = ["Manuel Cillero <manuel@cillero.es>"]
 static-files = "0.2.5"
 
 pagetop-build = { version = "0.1", path = "helpers/pagetop-build" }
-pagetop-macros = { version = "0.0", path = "helpers/pagetop-macros" }
+pagetop-macros = { version = "0.1", path = "helpers/pagetop-macros" }
