@@ -6,7 +6,7 @@ edition = "2021"
 description = """
     Un entorno de desarrollo para crear soluciones web modulares, extensibles y configurables.
 """
-categories = ["web-programming", "gui", "development-tools", "asynchronous"]
+categories = ["web-programming::http-server"]
 keywords = ["pagetop", "web", "framework", "frontend", "ssr"]
 
 repository.workspace = true

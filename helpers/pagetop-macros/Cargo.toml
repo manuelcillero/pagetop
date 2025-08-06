@@ -6,7 +6,7 @@ edition = "2021"
 description = """
     Una colección de macros que mejoran la experiencia de desarrollo con PageTop.
 """
-categories = ["development-tools::procedural-macro-helpers", "web-programming"]
+categories = ["development-tools::procedural-macro-helpers"]
 keywords = ["pagetop", "macros", "proc-macros", "codegen"]
 
 repository.workspace = true
