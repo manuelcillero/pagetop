@@ -1,0 +1,50 @@
+<div align="center">
+
+<h1>PageTop Statics</h1>
+
+<p>Librería para automatizar la recopilación de recursos estáticos en <strong>PageTop</strong>.</p>
+
+[![Licencia](https://img.shields.io/badge/license-MIT%2FApache-blue.svg?label=Licencia&style=for-the-badge)](#-licencia)
+
+</div>
+
+## Descripción general
+
+Permite a `PageTop` incluir archivos estáticos en el ejecutable de la aplicación para servirlos de
+forma eficiente vía web, con detección de cambios que optimiza el tiempo de compilación.
+
+Para ello, reúne el código de los *crates* [static-files](https://crates.io/crates/static_files)
+(versión [0.2.5](https://github.com/static-files-rs/static-files/tree/v0.2.5)) y
+[actix-web-static-files](https://crates.io/crates/actix_web_static_files) (versión
+[4.0.1](https://github.com/kilork/actix-web-static-files/tree/v4.0.1)), desarrollados ambos por
+[Alexander Korolev](https://crates.io/users/kilork).
+
+Estas implementaciones se integran en `PageTop` para evitar que cada proyecto tenga que declarar
+`static-files` manualmente como dependencia en su `Cargo.toml`.
+
+## Sobre PageTop
+
+[PageTop](https://docs.rs/pagetop) es un entorno de desarrollo que reivindica la esencia de la web
+clásica para crear soluciones web SSR (*renderizadas en el servidor*) modulares, extensibles y
+configurables, basadas en HTML, CSS y JavaScript.
+
+
+# 🚧 Advertencia
+
+`PageTop` es un proyecto personal para aprender [Rust](https://www.rust-lang.org/es) y conocer su
+ecosistema. Su API está sujeta a cambios frecuentes. No se recomienda su uso en producción, al menos
+hasta que se libere la versión **1.0.0**.
+
+
+# 📜 Licencia
+
+El código está disponible bajo una doble licencia:
+
+  * **Licencia MIT**
+    ([LICENSE-MIT](LICENSE-MIT) o también https://opensource.org/licenses/MIT)
+
+  * **Licencia Apache, Versión 2.0**
+    ([LICENSE-APACHE](LICENSE-APACHE) o también https://www.apache.org/licenses/LICENSE-2.0)
+
+Puedes elegir la licencia que prefieras. Este enfoque de doble licencia es el estándar de facto en
+el ecosistema Rust.

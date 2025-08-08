@@ -123,7 +123,7 @@
 )]
 
 use grass::{from_path, Options, OutputStyle};
-use static_files::{resource_dir, ResourceDir};
+use pagetop_statics::{resource_dir, ResourceDir};
 
 use std::fs::{create_dir_all, remove_dir_all, File};
 use std::io::Write;

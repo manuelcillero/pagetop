@@ -34,15 +34,14 @@ tracing-actix-web = "0.7.19"
 fluent-templates = "0.13.0"
 unic-langid = { version = "0.9.6", features = ["macros"] }
 
-actix-web = "4.11.0"
+actix-web = { workspace = true, default-features = true }
 actix-session = { version = "0.10.1", features = ["cookie-session"] }
 actix-web-files = { package = "actix-files", version = "0.6.6" }
-actix-web-static-files = "4.0.1"
-static-files.workspace = true
 
 serde = { version = "1.0", features = ["derive"] }
 
 pagetop-macros.workspace = true
+pagetop-statics.workspace = true
 
 [features]
 default = []
@@ -60,6 +59,7 @@ resolver = "2"
 members = [
     "helpers/pagetop-build",
     "helpers/pagetop-macros",
+    "helpers/pagetop-statics",
 ]
 
 [workspace.package]
@@ -69,7 +69,8 @@ license = "MIT OR Apache-2.0"
 authors = ["Manuel Cillero <manuel@cillero.es>"]
 
 [workspace.dependencies]
-static-files = "0.2.5"
+actix-web = { version = "4.11.0", default-features = false }
 
 pagetop-build = { version = "0.1", path = "helpers/pagetop-build" }
 pagetop-macros = { version = "0.1", path = "helpers/pagetop-macros" }
+pagetop-statics = { version = "0.0", path = "helpers/pagetop-statics" }

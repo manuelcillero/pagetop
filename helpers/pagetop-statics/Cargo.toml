@@ -1,0 +1,33 @@
+[package]
+name = "pagetop-statics"
+version = "0.0.1"
+edition = "2021"
+
+description = """
+    Librería para automatizar la recopilación de recursos estáticos en PageTop.
+"""
+categories = ["development-tools::build-utils"]
+keywords = ["pagetop", "build", "static", "resources", "file"]
+
+repository.workspace = true
+homepage.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[features]
+default = ["change-detection"]
+sort = []
+
+[dependencies]
+change-detection = { version = "1.2", optional = true }
+mime_guess = "2.0"
+path-slash = "0.1"
+
+actix-web.workspace = true
+derive_more = "0.99.17"
+futures-util = { version = "0.3", default-features = false, features = ["std"] }
+
+[build-dependencies]
+change-detection = { version = "1.2", optional = true }
+mime_guess = "2.0"
+path-slash = "0.1"

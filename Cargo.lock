@@ -226,18 +226,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "actix-web-static-files"
-version = "4.0.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "adf6d1ef6d7a60e084f9e0595e2a5234abda14e76c105ecf8e2d0e8800c41a1f"
-dependencies = [
- "actix-web",
- "derive_more 0.99.20",
- "futures-util",
- "static-files",
-]
-
-[[package]]
 name = "addr2line"
 version = "0.24.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -658,9 +646,9 @@ dependencies = [
 
 [[package]]
 name = "crc32fast"
-version = "1.4.2"
+version = "1.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a97769d94ddab943e4510d138150169a2758b5ef3eb191a9ee688de3e23ef7b3"
+checksum = "9481c1c90cbf2ac953f07c8d4a58aa3945c425b7185c9154d67a65e4230da511"
 dependencies = [
  "cfg-if",
 ]
@@ -1076,9 +1064,9 @@ dependencies = [
 
 [[package]]
 name = "h2"
-version = "0.3.26"
+version = "0.3.27"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "81fe527a889e1532da5c525686d96d4c2e74cdd345badf8dfef9f6b39dd5f5e8"
+checksum = "0beca50380b1fc32983fc1cb4587bfa4bb9e78fc259aad4a0032d2080309222d"
 dependencies = [
  "bytes",
  "fnv",
@@ -1574,7 +1562,6 @@ dependencies = [
  "actix-files",
  "actix-session",
  "actix-web",
- "actix-web-static-files",
  "chrono",
  "colored",
  "concat-string",
@@ -1584,10 +1571,10 @@ dependencies = [
  "itoa",
  "pagetop-build",
  "pagetop-macros",
+ "pagetop-statics",
  "parking_lot",
  "pastey",
  "serde",
- "static-files",
  "substring",
  "tempfile",
  "terminal_size",
@@ -1603,7 +1590,7 @@ name = "pagetop-build"
 version = "0.1.1"
 dependencies = [
  "grass",
- "static-files",
+ "pagetop-statics",
 ]
 
 [[package]]
@@ -1614,6 +1601,18 @@ dependencies = [
  "proc-macro2-diagnostics",
  "quote",
  "syn",
+]
+
+[[package]]
+name = "pagetop-statics"
+version = "0.0.1"
+dependencies = [
+ "actix-web",
+ "change-detection",
+ "derive_more 0.99.20",
+ "futures-util",
+ "mime_guess",
+ "path-slash",
 ]
 
 [[package]]
@@ -2177,17 +2176,6 @@ name = "stable_deref_trait"
 version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a8f112729512f8e442d81f95a8a7ddf2b7c6b8a1a6f509a95864142b30cab2d3"
-
-[[package]]
-name = "static-files"
-version = "0.2.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f9c425c07353535ef55b45420f5a8b0a397cd9bc3d7e5236497ca0d90604aa9b"
-dependencies = [
- "change-detection",
- "mime_guess",
- "path-slash",
-]
 
 [[package]]
 name = "strsim"
