@@ -98,21 +98,23 @@ use std::ops::Deref;
 
 pub use pagetop_macros::{builder_fn, html, main, test, AutoDefault};
 
+pub use pagetop_statics::{resource, StaticResource};
+
 /// Conjunto de recursos asociados a `$STATIC` en [`include_files!`](crate::include_files).
 pub struct StaticResources {
-    bundle: HashMap<&'static str, static_files::Resource>,
+    bundle: HashMap<&'static str, StaticResource>,
 }
 
 impl StaticResources {
     /// Crea un contenedor para un conjunto de recursos generado por `build.rs` (consultar
     /// [`pagetop_build`](https://docs.rs/pagetop-build)).
-    pub fn new(bundle: HashMap<&'static str, static_files::Resource>) -> Self {
+    pub fn new(bundle: HashMap<&'static str, StaticResource>) -> Self {
         Self { bundle }
     }
 }
 
 impl Deref for StaticResources {
-    type Target = HashMap<&'static str, static_files::Resource>;
+    type Target = HashMap<&'static str, StaticResource>;
 
     fn deref(&self) -> &Self::Target {
         &self.bundle

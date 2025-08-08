@@ -17,4 +17,4 @@ authors.workspace = true
 
 [dependencies]
 grass = "0.13.4"
-static-files.workspace = true
+pagetop-statics.workspace = true
