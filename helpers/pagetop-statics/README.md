@@ -8,12 +8,21 @@
 
 </div>
 
+## Sobre PageTop
+
+[PageTop](https://docs.rs/pagetop) es un entorno de desarrollo que reivindica la esencia de la web
+clásica para crear soluciones web SSR (*renderizadas en el servidor*) modulares, extensibles y
+configurables, basadas en HTML, CSS y JavaScript.
+
 ## Descripción general
 
-Permite a `PageTop` incluir archivos estáticos en el ejecutable de la aplicación para servirlos de
-forma eficiente vía web, con detección de cambios que optimiza el tiempo de compilación.
+Esta librería permite incluir archivos estáticos en el ejecutable de las aplicaciones `PageTop` para
+servirlos de forma eficiente vía web, con detección de cambios que optimizan el tiempo de
+compilación.
 
-Para ello, reúne el código de los *crates* [static-files](https://crates.io/crates/static_files)
+## Créditos
+
+Para ello, adapta el código de los *crates* [static-files](https://crates.io/crates/static_files)
 (versión [0.2.5](https://github.com/static-files-rs/static-files/tree/v0.2.5)) y
 [actix-web-static-files](https://crates.io/crates/actix_web_static_files) (versión
 [4.0.1](https://github.com/kilork/actix-web-static-files/tree/v4.0.1)), desarrollados ambos por
@@ -21,12 +30,6 @@ Para ello, reúne el código de los *crates* [static-files](https://crates.io/cr
 
 Estas implementaciones se integran en `PageTop` para evitar que cada proyecto tenga que declarar
 `static-files` manualmente como dependencia en su `Cargo.toml`.
-
-## Sobre PageTop
-
-[PageTop](https://docs.rs/pagetop) es un entorno de desarrollo que reivindica la esencia de la web
-clásica para crear soluciones web SSR (*renderizadas en el servidor*) modulares, extensibles y
-configurables, basadas en HTML, CSS y JavaScript.
 
 
 # 🚧 Advertencia
