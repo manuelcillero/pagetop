@@ -129,8 +129,7 @@ use std::fs::{create_dir_all, remove_dir_all, File};
 use std::io::Write;
 use std::path::Path;
 
-/// Prepara un conjunto de recursos para ser incluidos en el binario del proyecto utilizando
-/// [static_files](https://docs.rs/static-files/).
+/// Prepara un conjunto de recursos para ser incluidos en el binario del proyecto.
 pub struct StaticFilesBundle {
     resource_dir: ResourceDir,
 }
@@ -163,8 +162,19 @@ impl StaticFilesBundle {
     ///         .build()
     /// }
     /// ```
-    pub fn from_dir(dir: impl AsRef<str>, filter: Option<fn(p: &Path) -> bool>) -> Self {
-        let mut resource_dir = resource_dir(dir.as_ref());
+    pub fn from_dir<P>(dir: P, filter: Option<fn(&Path) -> bool>) -> Self
+    where
+        P: AsRef<Path>,
+    {
+        let dir_path = dir.as_ref();
+        let dir_str = dir_path.to_str().unwrap_or_else(|| {
+            panic!(
+                "Resource directory path is not valid UTF-8: {}",
+                dir_path.display()
+            );
+        });
+
+        let mut resource_dir = resource_dir(dir_str);
 
         // Aplica el filtro si está definido.
         if let Some(f) = filter {
