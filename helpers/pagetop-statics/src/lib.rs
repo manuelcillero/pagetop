@@ -1,18 +1,37 @@
-//! <div align="center">
-//!
-//! <h1>PageTop Statics</h1>
-//!
-//! <p>Librería para automatizar la recopilación de recursos estáticos en <strong>PageTop</strong>.</p>
-//!
-//! [![Licencia](https://img.shields.io/badge/license-MIT%2FApache-blue.svg?label=Licencia&style=for-the-badge)](#-licencia)
-//!
-//! </div>
-//!
-//! ## Sobre PageTop
-//!
-//! [PageTop](https://docs.rs/pagetop) es un entorno de desarrollo que reivindica la esencia de la
-//! web clásica para crear soluciones web SSR (*renderizadas en el servidor*) modulares, extensibles
-//! y configurables, basadas en HTML, CSS y JavaScript.
+/*!
+<div align="center">
+
+<h1>PageTop Statics</h1>
+
+<p>Librería para automatizar la recopilación de recursos estáticos en <strong>PageTop</strong>.</p>
+
+[![Licencia](https://img.shields.io/badge/license-MIT%2FApache-blue.svg?label=Licencia&style=for-the-badge)](#-licencia)
+
+</div>
+
+## Sobre PageTop
+
+[PageTop](https://docs.rs/pagetop) es un entorno de desarrollo que reivindica la esencia de la web
+clásica para crear soluciones web SSR (*renderizadas en el servidor*) modulares, extensibles y
+configurables, basadas en HTML, CSS y JavaScript.
+
+## Descripción general
+
+Esta librería permite incluir archivos estáticos en el ejecutable de las aplicaciones `PageTop` para
+servirlos de forma eficiente vía web, con detección de cambios que optimizan el tiempo de
+compilación.
+
+## Créditos
+
+Para ello, adapta el código de los *crates* [static-files](https://crates.io/crates/static_files)
+(versión [0.2.5](https://github.com/static-files-rs/static-files/tree/v0.2.5)) y
+[actix-web-static-files](https://crates.io/crates/actix_web_static_files) (versión
+[4.0.1](https://github.com/kilork/actix-web-static-files/tree/v4.0.1)), desarrollados ambos por
+[Alexander Korolev](https://crates.io/users/kilork).
+
+Estas implementaciones se integran en `PageTop` para evitar que cada proyecto tenga que declarar
+`static-files` manualmente como dependencia en su `Cargo.toml`.
+*/
 
 #![doc(test(no_crate_inject))]
 #![doc(

@@ -11,6 +11,7 @@
 [![Crates.io](https://img.shields.io/crates/v/pagetop.svg?style=for-the-badge&logo=ipfs)](https://crates.io/crates/pagetop)
 [![Descargas](https://img.shields.io/crates/d/pagetop.svg?label=Descargas&style=for-the-badge&logo=transmission)](https://crates.io/crates/pagetop)
 
+<br>
 </div>
 
 `PageTop` reivindica la esencia de la web clásica usando [Rust](https://www.rust-lang.org/es) para
@@ -32,7 +33,7 @@ según las necesidades de cada proyecto, incluyendo:
 
 La aplicación más sencilla de `PageTop` se ve así:
 
-```rust
+```rust,no_run
 use pagetop::prelude::*;
 
 #[pagetop::main]
@@ -46,7 +47,7 @@ de bienvenida accesible desde un navegador local en la dirección `http://localh
 
 Para personalizar el servicio, se puede crear una extensión de `PageTop` de la siguiente manera:
 
-```rust
+```rust,no_run
 use pagetop::prelude::*;
 
 struct HelloWorld;
@@ -83,9 +84,14 @@ El código se organiza en un *workspace* donde actualmente se incluyen los sigui
 
 ## Auxiliares
 
+  * **[pagetop-statics](https://git.cillero.es/manuelcillero/pagetop/src/branch/main/helpers/pagetop-statics)**,
+    es la librería que permite incluir archivos estáticos en el ejecutable de las aplicaciones
+    `PageTop` para servirlos de forma eficiente, con detección de cambios que optimizan el tiempo
+    de compilación.
+
   * **[pagetop-build](https://git.cillero.es/manuelcillero/pagetop/src/branch/main/helpers/pagetop-build)**,
-    permite incluir fácilmente archivos estáticos o archivos SCSS compilados directamente en el
-    binario de las aplicaciones `PageTop`.
+    prepara los archivos estáticos o archivos SCSS compilados para incluirlos en el binario de las
+    aplicaciones `PageTop` durante la compilación de los ejecutables.
 
   * **[pagetop-macros](https://git.cillero.es/manuelcillero/pagetop/src/branch/main/helpers/pagetop-macros)**,
     proporciona una colección de macros que mejoran la experiencia de desarrollo con `PageTop`.

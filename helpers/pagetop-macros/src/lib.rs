@@ -1,21 +1,34 @@
-//! <div align="center">
-//!
-//! <h1>PageTop Macros</h1>
-//!
-//! <p>Una colección de macros que mejoran la experiencia de desarrollo con <strong>PageTop</strong>.</p>
-//!
-//! [![Licencia](https://img.shields.io/badge/license-MIT%2FApache-blue.svg?label=Licencia&style=for-the-badge)](#-licencia)
-//! [![Doc API](https://img.shields.io/docsrs/pagetop-macros?label=Doc%20API&style=for-the-badge&logo=Docs.rs)](https://docs.rs/pagetop-macros)
-//! [![Crates.io](https://img.shields.io/crates/v/pagetop-macros.svg?style=for-the-badge&logo=ipfs)](https://crates.io/crates/pagetop-macros)
-//! [![Descargas](https://img.shields.io/crates/d/pagetop-macros.svg?label=Descargas&style=for-the-badge&logo=transmission)](https://crates.io/crates/pagetop-macros)
-//!
-//! </div>
-//!
-//! ## Sobre PageTop
-//!
-//! [PageTop](https://docs.rs/pagetop) es un entorno de desarrollo que reivindica la esencia de la
-//! web clásica para crear soluciones web SSR (*renderizadas en el servidor*) modulares, extensibles
-//! y configurables, basadas en HTML, CSS y JavaScript.
+/*!
+<div align="center">
+
+<h1>PageTop Macros</h1>
+
+<p>Una colección de macros que mejoran la experiencia de desarrollo con <strong>PageTop</strong>.</p>
+
+[![Licencia](https://img.shields.io/badge/license-MIT%2FApache-blue.svg?label=Licencia&style=for-the-badge)](#-licencia)
+[![Doc API](https://img.shields.io/docsrs/pagetop-macros?label=Doc%20API&style=for-the-badge&logo=Docs.rs)](https://docs.rs/pagetop-macros)
+[![Crates.io](https://img.shields.io/crates/v/pagetop-macros.svg?style=for-the-badge&logo=ipfs)](https://crates.io/crates/pagetop-macros)
+[![Descargas](https://img.shields.io/crates/d/pagetop-macros.svg?label=Descargas&style=for-the-badge&logo=transmission)](https://crates.io/crates/pagetop-macros)
+
+</div>
+
+## Sobre PageTop
+
+[PageTop](https://docs.rs/pagetop) es un entorno de desarrollo que reivindica la esencia de la web
+clásica para crear soluciones web SSR (*renderizadas en el servidor*) modulares, extensibles y
+configurables, basadas en HTML, CSS y JavaScript.
+
+## Créditos
+
+Esta librería incluye entre sus macros una adaptación de
+[maud-macros](https://crates.io/crates/maud_macros)
+([0.27.0](https://github.com/lambda-fairy/maud/tree/v0.27.0/maud_macros)) de
+[Chris Wong](https://crates.io/users/lambda-fairy) y una versión renombrada de
+[SmartDefault](https://crates.io/crates/smart_default) (0.7.1) de
+[Jane Doe](https://crates.io/users/jane-doe), llamada `AutoDefault`. Estas macros eliminan la
+necesidad de referenciar `maud` o `smart_default` en las dependencias del archivo `Cargo.toml` de
+cada proyecto `PageTop`.
+*/
 
 #![doc(
     html_favicon_url = "https://git.cillero.es/manuelcillero/pagetop/raw/branch/main/static/favicon.ico"
