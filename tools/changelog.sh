@@ -35,6 +35,10 @@ cd "$(dirname "$0")/.." || exit 1
 # Determina ruta del archivo y ámbito de los archivos afectados para el crate
 # ------------------------------------------------------------------------------
 case "$CRATE" in
+    pagetop-statics)
+        CHANGELOG_FILE="helpers/pagetop-statics/CHANGELOG.md"
+        PATH_FLAGS=(--include-path "helpers/pagetop-statics/**/*")
+        ;;
     pagetop-build)
         CHANGELOG_FILE="helpers/pagetop-build/CHANGELOG.md"
         PATH_FLAGS=(--include-path "helpers/pagetop-build/**/*")
@@ -46,6 +50,7 @@ case "$CRATE" in
     pagetop)
         CHANGELOG_FILE="CHANGELOG.md"
         PATH_FLAGS=(
+            --exclude-path "helpers/pagetop-statics/**/*"
             --exclude-path "helpers/pagetop-build/**/*"
             --exclude-path "helpers/pagetop-macros/**/*"
         )
