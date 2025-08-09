@@ -21,9 +21,9 @@ body = """
 {% else %}
 ## Pendiente de publicación
 {% endif %}\
-{% set base = "https://git.cillero.es/manuelcillero/pagetop" %}\
 {% for group, commits in commits | group_by(attribute="group") %}
 ### {{ group | upper_first }}
+
 {% for commit in commits %}
 {%- set msg = commit.message
     | split(pat="\n")
@@ -41,8 +41,8 @@ body = """
     | replace(from="📝 ", to="")
     | replace(from="💡 ", to="")
 -%}
-{% set sha7 = commit.id | truncate(length=7, end="") %}
-- {{ msg | trim }} ([{{ sha7 }}]({{ base }}/commit/{{ commit.id }}){% if commit.author.name != "Manuel Cillero" %} - {{ commit.author.name }}{% endif %})
+
+- {{ msg | trim }} {% if commit.author.name != "Manuel Cillero" %} - {{ commit.author.name }}{% endif %}
 {% endfor %}{% endfor %}
 """
 
