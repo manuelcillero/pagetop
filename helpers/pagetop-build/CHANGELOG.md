@@ -8,6 +8,17 @@ Resume la evolución del proyecto para usuarios y colaboradores, destacando nuev
 correcciones, mejoras durante el desarrollo o cambios en la documentación. Cambios menores o
 internos pueden omitirse si no afectan al uso del proyecto.
 
+## 0.2.0 (2025-08-09)
+
+### Añadido
+
+- Añade librería propia para gestionar recursos estáticos (#1)
+
+### Otros cambios
+
+- 🩹 Corrige enlace del botón de licencia en la documentación
+- 🚩 Afina Cargo.toml para buscar la mejor categoría
+
 ## 0.1.1 (2025-08-05)
 
 - Depura la edición de CHANGELOGs y publicación de nuevas versiones

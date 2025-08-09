@@ -71,6 +71,6 @@ authors = ["Manuel Cillero <manuel@cillero.es>"]
 [workspace.dependencies]
 actix-web = { version = "4.11.0", default-features = false }
 
-pagetop-build = { version = "0.1", path = "helpers/pagetop-build" }
+pagetop-build = { version = "0.2", path = "helpers/pagetop-build" }
 pagetop-macros = { version = "0.1", path = "helpers/pagetop-macros" }
 pagetop-statics = { version = "0.1", path = "helpers/pagetop-statics" }
