@@ -8,6 +8,12 @@ Resume la evolución del proyecto para usuarios y colaboradores, destacando nuev
 correcciones, mejoras durante el desarrollo o cambios en la documentación. Cambios menores o
 internos pueden omitirse si no afectan al uso del proyecto.
 
+## 0.1.1 (2025-08-16)
+
+### Documentado
+
+- Cambia el formato para la documentación (#4) 
+
 ## 0.1.0 (2025-08-09)
 
 ### Añadido
