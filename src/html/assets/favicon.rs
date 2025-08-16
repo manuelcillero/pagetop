@@ -12,8 +12,7 @@ use crate::AutoDefault;
 ///
 /// > **Nota**
 /// > Los archivos de los iconos deben estar disponibles en el servidor web de la aplicación. Pueden
-/// > incluirse en el proyecto utilizando [`include_files!`](crate::include_files) y servirse con
-/// > [`include_files_service!`](crate::include_files_service).
+/// > servirse usando [`static_files_service!`](crate::static_files_service).
 ///
 /// # Ejemplo
 ///

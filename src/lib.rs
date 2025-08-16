@@ -103,7 +103,8 @@ pub use pagetop_macros::{builder_fn, html, main, test, AutoDefault};
 
 pub use pagetop_statics::{resource, StaticResource};
 
-/// Conjunto de recursos asociados a `$STATIC` en [`include_files!`](crate::include_files).
+/// Contenedor para un conjunto de recursos embebidos.
+#[derive(AutoDefault)]
 pub struct StaticResources {
     bundle: HashMap<&'static str, StaticResource>,
 }

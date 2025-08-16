@@ -30,8 +30,7 @@ enum Source {
 ///
 /// > **Nota**
 /// > Los archivos de los *scripts* deben estar disponibles en el servidor web de la aplicación.
-/// > Pueden incluirse en el proyecto utilizando [`include_files!`](crate::include_files) y servirse
-/// > con [`include_files_service!`](crate::include_files_service).
+/// > Pueden servirse usando [`static_files_service!`](crate::static_files_service).
 ///
 /// # Ejemplo
 ///

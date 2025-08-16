@@ -15,7 +15,8 @@ pub use crate::include_config;
 // crate::locale
 pub use crate::include_locales;
 // crate::service
-pub use crate::{include_files, include_files_service};
+#[allow(deprecated)]
+pub use crate::{include_files, include_files_service, static_files_service};
 // crate::core::action
 pub use crate::actions_boxed;
 

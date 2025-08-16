@@ -13,7 +13,7 @@ include_config!(SETTINGS: Settings => [
     "app.startup_banner"      => "Slant",
 
     // [dev]
-    "dev.pagetop_project_dir" => "",
+    "dev.pagetop_static_dir"  => "",
 
     // [log]
     "log.enabled"             => true,
@@ -68,11 +68,15 @@ pub struct App {
 #[derive(Debug, Deserialize)]
 /// Sección `[Dev]` de la configuración. Forma parte de [`Settings`].
 pub struct Dev {
-    /// Los archivos estáticos requeridos por `PageTop` se integran por defecto en el binario
-    /// ejecutable. Sin embargo, durante el desarrollo puede resultar útil servirlos desde su propio
-    /// directorio para evitar recompilar cada vez que se modifican. En ese caso, este ajuste debe
-    /// indicar la ruta absoluta al directorio raíz del proyecto.
-    pub pagetop_project_dir: String,
+    /// Directorio desde el que servir los archivos estáticos de `PageTop`.
+    ///
+    /// Por defecto, los archivos se integran en el binario de la aplicación. Si aquí se indica una
+    /// ruta válida, ya sea absoluta o relativa al directorio del proyecto o del binario en
+    /// ejecución, se servirán desde el sistema de ficheros en su lugar. Esto es especialmente útil
+    /// en desarrollo, ya que evita recompilar el proyecto por cambios en estos archivos.
+    ///
+    /// Si la cadena está vacía, se ignora este ajuste.
+    pub pagetop_static_dir: String,
 }
 
 #[derive(Debug, Deserialize)]
