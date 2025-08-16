@@ -2,35 +2,44 @@
 
 use crate::trace;
 
+use std::env;
 use std::io;
 use std::path::{Path, PathBuf};
 
 // FUNCIONES ÚTILES ********************************************************************************
 
-/// Devuelve la ruta absoluta a un directorio existente.
+/// Resuelve y valida la ruta de un directorio existente, devolviendo una ruta absoluta.
 ///
-/// * Si `relative_path` es una ruta absoluta, entonces se ignora `root_path`.
-/// * Si la ruta final es relativa, se convierte en absoluta respecto al directorio actual.
-/// * Devuelve error si la ruta no existe o no es un directorio.
+/// - Si la ruta es relativa, se resuelve respecto al directorio del proyecto según la variable de
+///   entorno `CARGO_MANIFEST_DIR` (si existe) o, en su defecto, respecto al directorio actual de
+///   trabajo.
+/// - Normaliza y valida la ruta final (resuelve `.`/`..` y enlaces simbólicos).
+/// - Devuelve error si la ruta no existe o no es un directorio.
 ///
-/// # Ejemplo
+/// # Ejemplos
 ///
 /// ```rust,no_run
 /// use pagetop::prelude::*;
 ///
-/// let root = "/home/user";
-/// let rel  = "documents";
-/// println!("{:#?}", util::absolute_dir(root, rel));
+/// // Ruta relativa, se resuelve respecto a CARGO_MANIFEST_DIR o al directorio actual (`cwd`).
+/// println!("{:#?}", util::resolve_absolute_dir("documents"));
+///
+/// // Ruta absoluta, se normaliza y valida tal cual.
+/// println!("{:#?}", util::resolve_absolute_dir("/var/www"));
 /// ```
-pub fn absolute_dir<P, Q>(root_path: P, relative_path: Q) -> io::Result<PathBuf>
-where
-    P: AsRef<Path>,
-    Q: AsRef<Path>,
-{
-    // Une ambas rutas:
-    // - Si `relative_path` es absoluta, el `join` la devuelve tal cual, descartando `root_path`.
-    // - Si el resultado es aún relativo, lo será respecto al directorio actual.
-    let candidate = root_path.as_ref().join(relative_path.as_ref());
+pub fn resolve_absolute_dir<P: AsRef<Path>>(path: P) -> io::Result<PathBuf> {
+    let path = path.as_ref();
+
+    let candidate = if path.is_absolute() {
+        path.to_path_buf()
+    } else {
+        // Directorio base CARGO_MANIFEST_DIR si está disponible; o current_dir() en su defecto.
+        env::var_os("CARGO_MANIFEST_DIR")
+            .map(PathBuf::from)
+            .or_else(|| env::current_dir().ok())
+            .unwrap_or_else(|| PathBuf::from("."))
+            .join(path)
+    };
 
     // Resuelve `.`/`..`, enlaces simbólicos y obtiene la ruta absoluta en un único paso.
     let absolute_dir = candidate.canonicalize()?;
@@ -45,6 +54,16 @@ where
             io::Error::new(io::ErrorKind::InvalidInput, msg)
         })
     }
+}
+
+/// Devuelve la ruta absoluta a un directorio existente.
+#[deprecated(since = "0.3.0", note = "Use [`resolve_absolute_dir`] instead")]
+pub fn absolute_dir<P, Q>(root_path: P, relative_path: Q) -> io::Result<PathBuf>
+where
+    P: AsRef<Path>,
+    Q: AsRef<Path>,
+{
+    resolve_absolute_dir(root_path.as_ref().join(relative_path.as_ref()))
 }
 
 // MACROS ÚTILES ***********************************************************************************
