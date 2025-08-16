@@ -83,39 +83,31 @@ Este código compila el archivo `main.scss` de la carpeta `static` del proyecto,
 llamado `main_styles` que contiene el archivo `styles.min.css` obtenido.
 
 
-# 📦 Módulos generados
+# 📦 Archivos generados
 
 Cada conjunto de recursos [`StaticFilesBundle`] genera un archivo en el directorio estándar
 [OUT_DIR](https://doc.rust-lang.org/cargo/reference/environment-variables.html#environment-variables-cargo-sets-for-build-scripts)
-donde se incluyen los recursos necesarios para compilar el proyecto. Por ejemplo, para
-`with_name("guides")` se crea un archivo llamado `guides.rs`.
+donde se incluye el código necesario para compilar el proyecto. Por ejemplo, para
+`with_name("guides")` se genera un archivo llamado `guides.rs`.
 
-No hay ningún problema en generar más de un conjunto de recursos para cada proyecto.
+No hay ningún problema en generar más de un conjunto de recursos para cada proyecto siempre que se
+usen nombres diferentes.
 
-Normalmente no habrá que acceder a estos módulos; bastará con incluirlos en el proyecto con
-[`include_files!`](https://docs.rs/pagetop/latest/pagetop/macro.include_files.html), y luego con
-[`include_files_service!`](https://docs.rs/pagetop/latest/pagetop/macro.include_files_service.html)
-configurar un servicio web para servir los recursos desde la ruta indicada:
+Normalmente no habrá que acceder a estos módulos; sólo declarar el nombre del conjunto de recursos
+en [`static_files_service!`](https://docs.rs/pagetop/latest/pagetop/macro.static_files_service.html)
+para configurar un servicio web que sirva los archivos desde la ruta indicada. Por ejemplo:
 
 ```rust,ignore
 use pagetop::prelude::*;
-
-include_files!(guides);
 
 pub struct MyExtension;
 
 impl Extension for MyExtension {
     // Servicio web que publica los recursos de `guides` en `/ruta/a/guides`.
     fn configure_service(&self, scfg: &mut service::web::ServiceConfig) {
-        include_files_service!(scfg, guides => "/ruta/a/guides");
+        static_files_service!(scfg, guides => "/ruta/a/guides");
     }
 }
-```
-
-También se puede asignar el conjunto de recursos a una variable global; p.ej. `GUIDES`:
-
-```rust,ignore
-include_files!(GUIDES => guides);
 ```
 
 
