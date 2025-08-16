@@ -110,11 +110,13 @@
 //! }
 //! ```
 
+use crate::util;
+
 use config::builder::DefaultState;
 use config::{Config, ConfigBuilder, File};
 
 use std::env;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use std::sync::LazyLock;
 
 // Nombre del directorio de configuración por defecto.
@@ -125,25 +127,12 @@ const DEFAULT_RUN_MODE: &str = "default";
 
 /// Valores originales cargados desde los archivos de configuración como pares `clave = valor`.
 pub static CONFIG_VALUES: LazyLock<ConfigBuilder<DefaultState>> = LazyLock::new(|| {
-    // Determina el directorio de configuración:
-    // - Usa CONFIG_DIR si está definido en el entorno (p.ej.: CONFIG_DIR=/etc/myapp ./myapp).
-    // - Si no, intenta DEFAULT_CONFIG_DIR dentro del proyecto (en CARGO_MANIFEST_DIR).
-    // - Si nada de esto aplica, entonces usa DEFAULT_CONFIG_DIR relativo al ejecutable.
-    let config_dir: PathBuf = if let Ok(env_dir) = env::var("CONFIG_DIR") {
-        env_dir.into()
-    } else if let Ok(manifest_dir) = env::var("CARGO_MANIFEST_DIR") {
-        let manifest_config = Path::new(&manifest_dir).join(DEFAULT_CONFIG_DIR);
-        if manifest_config.exists() {
-            manifest_config
-        } else {
-            DEFAULT_CONFIG_DIR.into()
-        }
-    } else {
-        DEFAULT_CONFIG_DIR.into()
-    };
+    // CONFIG_DIR (si existe) o DEFAULT_CONFIG_DIR. Si no se puede resolver, se usa tal cual.
+    let dir = env::var_os("CONFIG_DIR").unwrap_or_else(|| DEFAULT_CONFIG_DIR.into());
+    let config_dir = util::resolve_absolute_dir(&dir).unwrap_or_else(|_| PathBuf::from(&dir));
 
-    // Determina el modo de ejecución según la variable de entorno PAGETOP_RUN_MODE. Por defecto usa
-    // DEFAULT_RUN_MODE si no está definida (p.ej.: PAGETOP_RUN_MODE=production ./myapp).
+    // Modo de ejecución según la variable de entorno PAGETOP_RUN_MODE. Si no está definida, se usa
+    // por defecto, DEFAULT_RUN_MODE (p.ej.: PAGETOP_RUN_MODE=production).
     let rm = env::var("PAGETOP_RUN_MODE").unwrap_or_else(|_| DEFAULT_RUN_MODE.into());
 
     Config::builder()
