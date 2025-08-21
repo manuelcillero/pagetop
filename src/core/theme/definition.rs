@@ -14,7 +14,7 @@ pub type ThemeRef = &'static dyn Theme;
 /// Interfaz común que debe implementar cualquier tema de `PageTop`.
 ///
 /// Un tema implementará [`Theme`] y los métodos que sean necesarios de [`Extension`], aunque el
-/// único obligatorio es [`theme()`](Extension::theme).
+/// único obligatorio será [`theme()`](Extension::theme).
 ///
 /// ```rust
 /// use pagetop::prelude::*;
@@ -22,8 +22,13 @@ pub type ThemeRef = &'static dyn Theme;
 /// pub struct MyTheme;
 ///
 /// impl Extension for MyTheme {
-///     fn name(&self) -> L10n { L10n::n("My theme") }
-///     fn description(&self) -> L10n { L10n::n("Un tema personal") }
+///     fn name(&self) -> L10n {
+///         L10n::n("My theme")
+///     }
+///
+///     fn description(&self) -> L10n {
+///         L10n::n("A personal theme")
+///     }
 ///
 ///     fn theme(&self) -> Option<ThemeRef> {
 ///         Some(&Self)

@@ -56,8 +56,10 @@ pub fn resolve_absolute_dir<P: AsRef<Path>>(path: P) -> io::Result<PathBuf> {
     }
 }
 
+/// **Obsoleto desde la versión 0.3.0**: usar [`resolve_absolute_dir()`] en su lugar.
+///
 /// Devuelve la ruta absoluta a un directorio existente.
-#[deprecated(since = "0.3.0", note = "Use [`resolve_absolute_dir`] instead")]
+#[deprecated(since = "0.3.0", note = "Use `resolve_absolute_dir()` instead")]
 pub fn absolute_dir<P, Q>(root_path: P, relative_path: Q) -> io::Result<PathBuf>
 where
     P: AsRef<Path>,
