@@ -25,6 +25,7 @@ pub enum ClassesOp {
 ///
 /// - El [orden de las clases no es relevante](https://stackoverflow.com/a/1321712) en CSS.
 /// - No se permiten clases duplicadas.
+/// - Las clases se convierten a minúsculas.
 /// - Las clases vacías se ignoran.
 ///
 /// # Ejemplo
@@ -32,8 +33,8 @@ pub enum ClassesOp {
 /// ```rust
 /// use pagetop::prelude::*;
 ///
-/// let classes = OptionClasses::new("btn btn-primary")
-///     .with_value(ClassesOp::Add, "active")
+/// let classes = OptionClasses::new("Btn btn-primary")
+///     .with_value(ClassesOp::Add, "Active")
 ///     .with_value(ClassesOp::Remove, "btn-primary");
 ///
 /// assert_eq!(classes.get(), Some(String::from("btn active")));
@@ -51,7 +52,7 @@ impl OptionClasses {
 
     #[builder_fn]
     pub fn with_value(mut self, op: ClassesOp, classes: impl AsRef<str>) -> Self {
-        let classes: &str = classes.as_ref();
+        let classes = classes.as_ref().to_ascii_lowercase();
         let classes: Vec<&str> = classes.split_ascii_whitespace().collect();
 
         if classes.is_empty() {

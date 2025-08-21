@@ -7,6 +7,7 @@ use crate::{builder_fn, AutoDefault};
 /// # Normalización
 ///
 /// - Se eliminan los espacios al principio y al final.
+/// - Se convierte a minúsculas.
 /// - Se sustituyen los espacios intermedios por guiones bajos (`_`).
 /// - Si el resultado es una cadena vacía, se guarda `None`.
 ///
@@ -15,7 +16,7 @@ use crate::{builder_fn, AutoDefault};
 /// ```rust
 /// use pagetop::prelude::*;
 ///
-/// let name = OptionName::new("  display name ");
+/// let name = OptionName::new("  DISplay name ");
 /// assert_eq!(name.get(), Some(String::from("display_name")));
 ///
 /// let empty = OptionName::default();
@@ -39,7 +40,7 @@ impl OptionName {
     /// El valor se normaliza automáticamente.
     #[builder_fn]
     pub fn with_value(mut self, value: impl AsRef<str>) -> Self {
-        let value = value.as_ref().trim().replace(' ', "_");
+        let value = value.as_ref().trim().to_ascii_lowercase().replace(' ', "_");
         self.0 = (!value.is_empty()).then_some(value);
         self
     }
