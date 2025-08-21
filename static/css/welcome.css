@@ -295,11 +295,6 @@ a:hover:visited {
 		transform: translateX(-100%);
 	}
 }
-#poweredby-link:hover {
-	transition: all .5s;
-	transform: rotate(-3deg) scale(1.1);
-	box-shadow: 0px 3px 5px rgba(0,0,0,.4);
-}
 #poweredby-link:hover span {
 	animation-play-state: paused;
 }
@@ -322,6 +317,11 @@ a:hover:visited {
 		transform: translate(-50%, -50%);
 		max-width: 29.375rem;
 		margin-bottom: 0;
+	}
+	#poweredby-link:hover {
+		transition: all .5s;
+		transform: rotate(-3deg) scale(1.1);
+		box-shadow: 0px 3px 5px rgba(0,0,0,.4);
 	}
 }
 
