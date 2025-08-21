@@ -9,9 +9,8 @@ use crate::{builder_fn, join};
 
 use std::collections::HashMap;
 use std::error::Error;
+use std::fmt::{self, Display};
 use std::str::FromStr;
-
-use std::fmt;
 
 /// Operaciones para modificar el contexto ([`Context`]) del documento.
 pub enum AssetsOp {
@@ -43,7 +42,7 @@ pub enum ErrorParam {
     ParseError(String),
 }
 
-impl fmt::Display for ErrorParam {
+impl Display for ErrorParam {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             ErrorParam::NotFound => write!(f, "Parameter not found"),

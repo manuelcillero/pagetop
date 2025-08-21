@@ -6,7 +6,7 @@ use crate::service::{HttpRequest, HttpResponse};
 
 use super::Page;
 
-use std::fmt;
+use std::fmt::{self, Display};
 
 #[derive(Debug)]
 pub enum ErrorPage {
@@ -19,7 +19,7 @@ pub enum ErrorPage {
     Timeout(HttpRequest),
 }
 
-impl fmt::Display for ErrorPage {
+impl Display for ErrorPage {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             // Error 304.
