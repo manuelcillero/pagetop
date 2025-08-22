@@ -3,6 +3,9 @@
 mod figfont;
 
 use crate::core::{extension, extension::ExtensionRef};
+use crate::html::Markup;
+use crate::response::page::{ErrorPage, ResultPage};
+use crate::service::HttpRequest;
 use crate::{global, locale, service, trace};
 
 use actix_session::config::{BrowserSession, PersistentSession, SessionLifecycle};
@@ -170,6 +173,12 @@ impl Application {
             InitError = (),
         >,
     > {
-        service::App::new().configure(extension::all::configure_services)
+        service::App::new()
+            .configure(extension::all::configure_services)
+            .default_service(service::web::route().to(service_not_found))
     }
+}
+
+async fn service_not_found(request: HttpRequest) -> ResultPage<Markup, ErrorPage> {
+    Err(ErrorPage::NotFound(request))
 }
