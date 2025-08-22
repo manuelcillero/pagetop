@@ -6,7 +6,7 @@ pub use actix_web::Result as ResultPage;
 use crate::base::action;
 use crate::builder_fn;
 use crate::core::component::{Child, ChildOp, Component};
-use crate::core::theme::{ChildrenInRegions, ThemeRef, CONTENT_REGION_NAME};
+use crate::core::theme::{ChildrenInRegions, ThemeRef, REGION_CONTENT};
 use crate::html::{html, AssetsOp, Context, Markup, DOCTYPE};
 use crate::html::{ClassesOp, OptionClasses, OptionId, OptionTranslated};
 use crate::locale::{CharacterDirection, L10n, LangId, LanguageIdentifier};
@@ -123,7 +123,7 @@ impl Page {
     /// Añade un componente a la región de contenido por defecto.
     pub fn with_component(mut self, component: impl Component) -> Self {
         self.regions
-            .alter_child_in_region(CONTENT_REGION_NAME, ChildOp::Add(Child::with(component)));
+            .alter_child_in_region(REGION_CONTENT, ChildOp::Add(Child::with(component)));
         self
     }
 
@@ -170,11 +170,6 @@ impl Page {
     /// Devuelve la solicitud HTTP asociada.
     pub fn request(&self) -> Option<&HttpRequest> {
         self.context.request()
-    }
-
-    /// Devuelve el identificador de idioma asociado.
-    pub fn langid(&self) -> &LanguageIdentifier {
-        self.context.langid()
     }
 
     /// Devuelve el tema que se usará para renderizar la página.
@@ -248,5 +243,11 @@ impl Page {
                 (body)
             }
         })
+    }
+}
+
+impl LangId for Page {
+    fn langid(&self) -> &'static LanguageIdentifier {
+        self.context.langid()
     }
 }

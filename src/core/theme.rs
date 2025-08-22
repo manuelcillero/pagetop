@@ -19,9 +19,6 @@ pub use definition::{Theme, ThemeRef};
 
 mod regions;
 pub(crate) use regions::ChildrenInRegions;
-pub use regions::InRegion;
+pub use regions::{InRegion, Region, REGION_CONTENT};
 
 pub(crate) mod all;
-
-/// Nombre de la región por defecto: `content`.
-pub const CONTENT_REGION_NAME: &str = "content";
