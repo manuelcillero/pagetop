@@ -26,7 +26,7 @@ pub type ExtensionRef = &'static dyn Extension;
 /// }
 /// ```
 pub trait Extension: AnyInfo + Send + Sync {
-    /// Nombre legible para el usuario.
+    /// Nombre localizado de la extensión legible para el usuario.
     ///
     /// Predeterminado por el [`short_name()`](AnyInfo::short_name) del tipo asociado a la
     /// extensión.
@@ -34,18 +34,15 @@ pub trait Extension: AnyInfo + Send + Sync {
         L10n::n(self.short_name())
     }
 
-    /// Descripción corta para paneles, listados, etc.
+    /// Descripción corta localizada de la extensión para paneles, listados, etc.
     fn description(&self) -> L10n {
         L10n::default()
     }
 
-    /// Los temas son extensiones que implementan [`Extension`] y también
-    /// [`Theme`](crate::core::theme::Theme).
+    /// Devuelve una referencia a esta misma extensión cuando se trata de un tema.
     ///
-    /// Si la extensión no es un tema, este método devuelve `None` por defecto.
-    ///
-    /// En caso contrario, este método debe implementarse para devolver una referencia de sí mismo
-    /// como tema. Por ejemplo:
+    /// Para ello, debe implementar [`Extension`] y también [`Theme`](crate::core::theme::Theme). Si
+    /// la extensión no es un tema, este método devuelve `None` por defecto.
     ///
     /// ```rust
     /// use pagetop::prelude::*;
@@ -81,7 +78,7 @@ pub trait Extension: AnyInfo + Send + Sync {
         actions_boxed![]
     }
 
-    /// Inicializa la extensión durante la lógica de arranque de la aplicación.
+    /// Inicializa la extensión durante la fase de arranque de la aplicación.
     ///
     /// Se llama una sola vez, después de que todas las dependencias se han inicializado y antes de
     /// aceptar cualquier petición HTTP.
@@ -104,8 +101,8 @@ pub trait Extension: AnyInfo + Send + Sync {
     #[allow(unused_variables)]
     fn configure_service(&self, scfg: &mut service::web::ServiceConfig) {}
 
-    /// Permite crear extensiones para deshabilitar y desinstalar los recursos de otras extensiones
-    /// utilizadas en versiones anteriores de la aplicación.
+    /// Permite crear extensiones para deshabilitar y desinstalar recursos de otras de versiones
+    /// anteriores de la aplicación.
     ///
     /// Actualmente no se usa, pero se deja como *placeholder* para futuras implementaciones.
     fn drop_extensions(&self) -> Vec<ExtensionRef> {
