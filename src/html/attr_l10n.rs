@@ -2,7 +2,7 @@ use crate::html::Markup;
 use crate::locale::{L10n, LangId};
 use crate::{builder_fn, AutoDefault};
 
-/// Cadena para traducir al renderizar ([`locale`](crate::locale)).
+/// Texto para [traducir](crate::locale) en atributos HTML.
 ///
 /// Encapsula un tipo [`L10n`] para manejar traducciones de forma segura.
 ///
@@ -12,7 +12,7 @@ use crate::{builder_fn, AutoDefault};
 /// use pagetop::prelude::*;
 ///
 /// // Traducción por clave en las locales por defecto de PageTop.
-/// let hello = OptionTranslated::new(L10n::l("test-hello-world"));
+/// let hello = AttrL10n::new(L10n::l("test-hello-world"));
 ///
 /// // Español disponible.
 /// assert_eq!(
@@ -31,15 +31,15 @@ use crate::{builder_fn, AutoDefault};
 /// assert_eq!(markup.into_string(), "¡Hola mundo!");
 /// ```
 #[derive(AutoDefault, Clone, Debug)]
-pub struct OptionTranslated(L10n);
+pub struct AttrL10n(L10n);
 
-impl OptionTranslated {
-    /// Crea una nueva instancia [`OptionTranslated`].
+impl AttrL10n {
+    /// Crea una nueva instancia `AttrL10n`.
     pub fn new(value: L10n) -> Self {
-        OptionTranslated(value)
+        AttrL10n(value)
     }
 
-    // OptionTranslated BUILDER ********************************************************************
+    // AttrL10n BUILDER ****************************************************************************
 
     /// Establece una traducción nueva.
     #[builder_fn]
@@ -48,7 +48,7 @@ impl OptionTranslated {
         self
     }
 
-    // OptionTranslated GETTERS ********************************************************************
+    // AttrL10n GETTERS ****************************************************************************
 
     /// Devuelve la traducción para `language`, si existe.
     pub fn using(&self, language: &impl LangId) -> Option<String> {

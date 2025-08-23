@@ -9,13 +9,13 @@ use std::vec::IntoIter;
 
 /// Representa un componente encapsulado de forma segura y compartida.
 ///
-/// Esta estructura permite manipular y renderizar cualquier tipo que implemente [`Component`],
-/// garantizando acceso concurrente a través de [`Arc<RwLock<_>>`].
+/// Esta estructura permite manipular y renderizar un componente que implemente [`Component`], y
+/// habilita acceso concurrente mediante [`Arc<RwLock<_>>`].
 #[derive(Clone)]
 pub struct Child(Arc<RwLock<dyn Component>>);
 
 impl Child {
-    /// Crea un nuevo [`Child`] a partir de un componente.
+    /// Crea un nuevo `Child` a partir de un componente.
     pub fn with(component: impl Component) -> Self {
         Child(Arc::new(RwLock::new(component)))
     }
@@ -46,7 +46,8 @@ impl Child {
 
 /// Variante tipada de [`Child`] para evitar conversiones durante el uso.
 ///
-/// Facilita el acceso a componentes del mismo tipo sin necesidad de hacer `downcast`.
+/// Esta estructura permite manipular y renderizar un componente concreto que implemente
+/// [`Component`], y habilita acceso concurrente mediante [`Arc<RwLock<_>>`].
 pub struct Typed<C: Component>(Arc<RwLock<C>>);
 
 impl<C: Component> Clone for Typed<C> {
@@ -56,7 +57,7 @@ impl<C: Component> Clone for Typed<C> {
 }
 
 impl<C: Component> Typed<C> {
-    /// Crea un nuevo [`Typed`] a partir de un componente.
+    /// Crea un nuevo `Typed` a partir de un componente.
     pub fn with(component: C) -> Self {
         Typed(Arc::new(RwLock::new(component)))
     }
@@ -284,7 +285,7 @@ impl IntoIterator for Children {
     ///
     /// # Ejemplo de uso:
     ///
-    /// ```rust#ignore
+    /// ```rust,ignore
     /// let children = Children::new().with(child1).with(child2);
     /// for child in children {
     ///     println!("{:?}", child.id());
@@ -303,7 +304,7 @@ impl<'a> IntoIterator for &'a Children {
     ///
     /// # Ejemplo de uso:
     ///
-    /// ```rust#ignore
+    /// ```rust,ignore
     /// let children = Children::new().with(child1).with(child2);
     /// for child in &children {
     ///     println!("{:?}", child.id());
@@ -322,7 +323,7 @@ impl<'a> IntoIterator for &'a mut Children {
     ///
     /// # Ejemplo de uso:
     ///
-    /// ```rust#ignore
+    /// ```rust,ignore
     /// let mut children = Children::new().with(child1).with(child2);
     /// for child in &mut children {
     ///     child.render(&mut context);

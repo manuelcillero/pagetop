@@ -1,6 +1,6 @@
 use crate::{builder_fn, AutoDefault};
 
-/// Operaciones disponibles sobre la lista de clases en [`OptionClasses`].
+/// Operaciones disponibles sobre la lista de clases en [`AttrClasses`].
 pub enum ClassesOp {
     /// Añade al final (si no existe).
     Add,
@@ -33,7 +33,7 @@ pub enum ClassesOp {
 /// ```rust
 /// use pagetop::prelude::*;
 ///
-/// let classes = OptionClasses::new("Btn btn-primary")
+/// let classes = AttrClasses::new("Btn btn-primary")
 ///     .with_value(ClassesOp::Add, "Active")
 ///     .with_value(ClassesOp::Remove, "btn-primary");
 ///
@@ -41,14 +41,14 @@ pub enum ClassesOp {
 /// assert!(classes.contains("active"));
 /// ```
 #[derive(AutoDefault, Clone, Debug)]
-pub struct OptionClasses(Vec<String>);
+pub struct AttrClasses(Vec<String>);
 
-impl OptionClasses {
+impl AttrClasses {
     pub fn new(classes: impl AsRef<str>) -> Self {
-        OptionClasses::default().with_value(ClassesOp::Prepend, classes)
+        AttrClasses::default().with_value(ClassesOp::Prepend, classes)
     }
 
-    // OptionClasses BUILDER ***********************************************************************
+    // AttrClasses BUILDER *************************************************************************
 
     #[builder_fn]
     pub fn with_value(mut self, op: ClassesOp, classes: impl AsRef<str>) -> Self {
@@ -114,7 +114,7 @@ impl OptionClasses {
         }
     }
 
-    // OptionClasses GETTERS ***********************************************************************
+    // AttrClasses GETTERS *************************************************************************
 
     /// Devuele la cadena de clases, si existe.
     pub fn get(&self) -> Option<String> {

@@ -7,8 +7,10 @@ use crate::base::action;
 use crate::builder_fn;
 use crate::core::component::{Child, ChildOp, Component};
 use crate::core::theme::{ChildrenInRegions, ThemeRef, REGION_CONTENT};
-use crate::html::{html, AssetsOp, Context, Markup, DOCTYPE};
-use crate::html::{ClassesOp, OptionClasses, OptionId, OptionTranslated};
+use crate::html::{html, Markup, DOCTYPE};
+use crate::html::{AssetsOp, Context};
+use crate::html::{AttrClasses, ClassesOp};
+use crate::html::{AttrId, AttrL10n};
 use crate::locale::{CharacterDirection, L10n, LangId, LanguageIdentifier};
 use crate::service::HttpRequest;
 
@@ -19,13 +21,13 @@ use crate::service::HttpRequest;
 /// renderizado.
 #[rustfmt::skip]
 pub struct Page {
-    title       : OptionTranslated,
-    description : OptionTranslated,
+    title       : AttrL10n,
+    description : AttrL10n,
     metadata    : Vec<(&'static str, &'static str)>,
     properties  : Vec<(&'static str, &'static str)>,
     context     : Context,
-    body_id     : OptionId,
-    body_classes: OptionClasses,
+    body_id     : AttrId,
+    body_classes: AttrClasses,
     regions     : ChildrenInRegions,
 }
 
@@ -37,13 +39,13 @@ impl Page {
     #[rustfmt::skip]
     pub fn new(request: Option<HttpRequest>) -> Self {
         Page {
-            title       : OptionTranslated::default(),
-            description : OptionTranslated::default(),
+            title       : AttrL10n::default(),
+            description : AttrL10n::default(),
             metadata    : Vec::default(),
             properties  : Vec::default(),
             context     : Context::new(request),
-            body_id     : OptionId::default(),
-            body_classes: OptionClasses::default(),
+            body_id     : AttrId::default(),
+            body_classes: AttrClasses::default(),
             regions     : ChildrenInRegions::default(),
         }
     }
@@ -113,7 +115,7 @@ impl Page {
         self
     }
 
-    /// Modifica las clases CSS del elemento `<body>` con una operación sobre [`OptionClasses`].
+    /// Modifica las clases CSS del elemento `<body>` con una operación sobre [`AttrClasses`].
     #[builder_fn]
     pub fn with_body_classes(mut self, op: ClassesOp, classes: impl AsRef<str>) -> Self {
         self.body_classes.alter_value(op, classes);
@@ -183,12 +185,12 @@ impl Page {
     }
 
     /// Devuelve el identificador del elemento `<body>`.
-    pub fn body_id(&self) -> &OptionId {
+    pub fn body_id(&self) -> &AttrId {
         &self.body_id
     }
 
     /// Devuelve las clases CSS del elemento `<body>`.
-    pub fn body_classes(&self) -> &OptionClasses {
+    pub fn body_classes(&self) -> &AttrClasses {
         &self.body_classes
     }
 

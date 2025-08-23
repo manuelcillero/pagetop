@@ -11,7 +11,7 @@ pub type FnIsRenderable<C> = fn(component: &C, cx: &Context) -> bool;
 pub struct IsRenderable<C: Component> {
     f: FnIsRenderable<C>,
     referer_type_id: Option<UniqueId>,
-    referer_id: OptionId,
+    referer_id: AttrId,
     weight: Weight,
 }
 
@@ -39,7 +39,7 @@ impl<C: Component> IsRenderable<C> {
         IsRenderable {
             f,
             referer_type_id: Some(UniqueId::of::<C>()),
-            referer_id: OptionId::default(),
+            referer_id: AttrId::default(),
             weight: 0,
         }
     }
