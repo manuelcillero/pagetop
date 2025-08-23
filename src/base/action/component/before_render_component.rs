@@ -6,7 +6,7 @@ use crate::base::action::FnActionWithComponent;
 pub struct BeforeRender<C: Component> {
     f: FnActionWithComponent<C>,
     referer_type_id: Option<UniqueId>,
-    referer_id: OptionId,
+    referer_id: AttrId,
     weight: Weight,
 }
 
@@ -34,7 +34,7 @@ impl<C: Component> BeforeRender<C> {
         BeforeRender {
             f,
             referer_type_id: Some(UniqueId::of::<C>()),
-            referer_id: OptionId::default(),
+            referer_id: AttrId::default(),
             weight: 0,
         }
     }
