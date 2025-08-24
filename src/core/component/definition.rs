@@ -51,11 +51,16 @@ pub trait Component: AnyInfo + ComponentRender + Send + Sync {
     #[allow(unused_variables)]
     fn setup_before_prepare(&mut self, cx: &mut Context) {}
 
-    /// Devuelve una representación estructurada del componente lista para renderizar.
+    /// Devuelve una representación estructurada del componente preparada para el renderizado.
     ///
     /// Este método forma parte del ciclo de vida de los componentes y se invoca automáticamente
     /// durante el proceso de construcción del documento. Puede sobrescribirse para generar
     /// dinámicamente el contenido HTML con acceso al contexto de renderizado.
+    ///
+    /// Este método debe ser capaz de preparar el renderizado del componente con los métodos del
+    /// propio componente y el contexto proporcionado, no debería hacerlo accediendo directamente a
+    /// los campos de la estructura del componente. Es una forma de garantizar que los programadores
+    /// podrán sobrescribir este método sin preocuparse por los detalles internos del componente.
     ///
     /// Por defecto, devuelve [`PrepareMarkup::None`].
     #[allow(unused_variables)]
