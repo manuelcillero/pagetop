@@ -117,6 +117,12 @@ pub struct Context {
     id_counter : usize,                         // Contador para generar identificadores únicos.
 }
 
+impl Default for Context {
+    fn default() -> Self {
+        Context::new(None)
+    }
+}
+
 impl Context {
     /// Crea un nuevo contexto asociado a una solicitud HTTP.
     ///
