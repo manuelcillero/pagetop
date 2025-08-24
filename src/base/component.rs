@@ -2,3 +2,6 @@
 
 mod html;
 pub use html::Html;
+
+mod poweredby;
+pub use poweredby::PoweredBy;

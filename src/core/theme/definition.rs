@@ -94,13 +94,11 @@ pub trait Theme: Extension + Send + Sync {
                         @let region_name = region.name();
                         div
                             id=(region_name)
-                            class="region"
+                            class={ "region region--" (region_name) }
                             role="region"
                             aria-label=[region_label.using(page)]
                         {
-                            div class={ "region__" (region_name) } {
-                                (output)
-                            }
+                            (output)
                         }
                     }
                 }
