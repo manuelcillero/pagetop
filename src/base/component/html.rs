@@ -44,11 +44,13 @@ impl Component for Html {
     }
 
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
-        PrepareMarkup::With((self.0)(cx))
+        PrepareMarkup::With(self.html(cx))
     }
 }
 
 impl Html {
+    // Html BUILDER ********************************************************************************
+
     /// Crea una instancia que generará el `Markup`, con acceso opcional al contexto.
     ///
     /// El método [`prepare_component()`](crate::core::component::Component::prepare_component)
@@ -66,11 +68,24 @@ impl Html {
     /// Permite a otras extensiones modificar la función de renderizado que se ejecutará cuando
     /// [`prepare_component()`](crate::core::component::Component::prepare_component) invoque esta
     /// instancia. La nueva función también recibe una referencia al contexto ([`Context`]).
-    pub fn alter_html<F>(&mut self, f: F) -> &mut Self
+    #[builder_fn]
+    pub fn with_fn<F>(mut self, f: F) -> Self
     where
         F: Fn(&mut Context) -> Markup + Send + Sync + 'static,
     {
         self.0 = Box::new(f);
         self
+    }
+
+    // Html GETTERS ********************************************************************************
+
+    /// Aplica la función interna de renderizado con el [`Context`] proporcionado.
+    ///
+    /// Normalmente no se invoca manualmente, ya que el proceso de renderizado de los componentes lo
+    /// invoca automáticamente durante la construcción de la página. Puede usarse, no obstante, para
+    /// sobrescribir [`prepare_component()`](crate::core::component::Component::prepare_component)
+    /// y alterar el comportamiento del componente.
+    pub fn html(&self, cx: &mut Context) -> Markup {
+        (self.0)(cx)
     }
 }
