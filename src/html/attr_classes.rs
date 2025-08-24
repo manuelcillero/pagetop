@@ -116,7 +116,7 @@ impl AttrClasses {
 
     // AttrClasses GETTERS *************************************************************************
 
-    /// Devuele la cadena de clases, si existe.
+    /// Devuelve la cadena de clases, si existe.
     pub fn get(&self) -> Option<String> {
         if self.0.is_empty() {
             None
