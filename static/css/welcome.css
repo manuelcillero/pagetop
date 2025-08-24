@@ -410,51 +410,61 @@ a:hover:visited {
 	transform: rotate(2deg);
 }
 
-#footer {
-	width: 100%;
+/*
+ * Region footer
+ */
+
+.region--footer {
 	background-color: black;
 	color: var(--color-gray);
+}
+
+.welcome-footer {
 	font-size: 1.15rem;
 	font-weight: 300;
 	line-height: 100%;
-	display: flex;
 	justify-content: center;
+	display: flex;
+	flex-direction: column;
+	max-width: 80rem;
+	padding: 0 10.625rem 2rem;
+/*
 	z-index: 10;
+*/
 }
-#footer a:visited {
+.welcome-footer a:visited {
 	color: var(--color-gray);
 }
-.footer-logo {
-	max-height: 12.625rem;
-}
-.footer-logo svg {
-	width: 100%;
-}
-.footer-logo,
-.footer-links,
-.footer-inner {
+.welcome-footer__logo,
+.welcome-footer__links {
 	display: flex;
 	justify-content: center;
 	width: 100%;
 }
-.footer-links {
+.welcome-footer__logo {
+	max-height: 12.625rem;
+}
+.welcome-footer__logo svg {
+	width: 100%;
+}
+.welcome-footer__links {
 	gap: 1.875rem;
 	flex-wrap: wrap;
 	margin-top: 2rem;
 }
-.footer-inner {
-	max-width: 80rem;
-	display: flex;
-	flex-direction: column;
-	padding: 0 10.625rem 2rem;
-}
 @media (max-width: 48rem) {
-	.footer-logo {
+	.welcome-footer__logo {
 		display: none;
 	}
 }
 @media (max-width: 64rem) {
-	.footer-inner {
+	.welcome-footer {
 		padding: 0 1rem 2rem;
 	}
+}
+
+/* PoweredBy component */
+
+.poweredby a:visited {
+	color: var(--color-gray);
 }

@@ -17,6 +17,11 @@ impl Theme for Basic {
             StyleSheet::from("/css/normalize.css")
                 .with_version("8.0.1")
                 .with_weight(-99),
+        ))
+        .alter_assets(AssetsOp::AddStyleSheet(
+            StyleSheet::from("/css/basic.css")
+                .with_version(env!("CARGO_PKG_VERSION"))
+                .with_weight(-99),
         ));
     }
 }
