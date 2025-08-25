@@ -35,7 +35,7 @@ async fn component_html_renders_using_context_param() {
 async fn component_html_allows_replacing_render_function() {
     let mut component = Html::with(|_| html! { div { "Original" } });
 
-    component.alter_html(|_| html! { div { "Modified" } });
+    component.alter_fn(|_| html! { div { "Modified" } });
 
     let markup = component
         .prepare_component(&mut Context::new(None))
