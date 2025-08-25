@@ -29,19 +29,19 @@ async fn homepage(request: HttpRequest) -> ResultPage<Markup, ErrorPage> {
         .with_theme("Basic")
         .with_assets(AssetsOp::AddStyleSheet(StyleSheet::from("/css/welcome.css")))
         .with_body_classes(ClassesOp::Add, "welcome")
-        .with_component(Html::with(move |cx| html! {
-            div id="main-header" {
-                header {
+        .with_component_in("header", Html::with(move |cx| html! {
+            div class="welcome-header" {
+                header class="welcome-header__body" {
                     h1
-                        id="header-title"
+                        class="welcome-header__title"
                         aria-label=(L10n::l("welcome_aria").with_arg("app", app).to_markup(cx))
                     {
                         span { (L10n::l("welcome_title").to_markup(cx)) }
                         (L10n::l("welcome_intro").with_arg("app", app).to_markup(cx))
                     }
                 }
-                aside id="header-image" aria-hidden="true" {
-                    div id="monster" {
+                aside class="welcome-header__image" aria-hidden="true" {
+                    div class="welcome-header__monster" {
                         picture {
                             source
                                 type="image/avif"
@@ -61,25 +61,27 @@ async fn homepage(request: HttpRequest) -> ResultPage<Markup, ErrorPage> {
             }
         }))
         .with_component(Html::with(move |cx| html! {
-            main id="main-content" {
-                section class="content-body" {
-                    div id="poweredby-button" {
+            main class="welcome-content" {
+                section class="welcome-content__body" {
+                    div class="welcome-poweredby" {
                         a
-                            id="poweredby-link"
+                            class="welcome-poweredby__link"
                             href="https://pagetop.cillero.es"
                             target="_blank"
                             rel="noreferrer"
                         {
                             span {} span {} span {}
-                            div id="poweredby-text" { (L10n::l("welcome_powered").to_markup(cx)) }
+                            div class="welcome-poweredby__text" {
+                                (L10n::l("welcome_powered").to_markup(cx))
+                            }
                         }
                     }
-                    div class="content-text" {
+                    div class="welcome-text" {
                         p { (L10n::l("welcome_text1").to_markup(cx)) }
                         p { (L10n::l("welcome_text2").to_markup(cx)) }
 
-                        div class="subcontent" {
-                            h1 { span { (L10n::l("welcome_about").to_markup(cx)) } }
+                        div class="welcome-text__block" {
+                            h2 { span { (L10n::l("welcome_about").to_markup(cx)) } }
                             p { (L10n::l("welcome_pagetop").to_markup(cx)) }
                             p { (L10n::l("welcome_issues1").to_markup(cx)) }
                             p { (L10n::l("welcome_issues2").with_arg("app", app).to_markup(cx)) }
