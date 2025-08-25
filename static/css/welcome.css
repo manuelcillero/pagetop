@@ -420,17 +420,15 @@ a:hover:visited {
 }
 
 .welcome-footer {
+	display: flex;
+	justify-content: center;
+	flex-direction: column;
+	margin: 0 auto;
+	padding: 0 10.625rem 2rem;
+	max-width: 80rem;
 	font-size: 1.15rem;
 	font-weight: 300;
 	line-height: 100%;
-	justify-content: center;
-	display: flex;
-	flex-direction: column;
-	max-width: 80rem;
-	padding: 0 10.625rem 2rem;
-/*
-	z-index: 10;
-*/
 }
 .welcome-footer a:visited {
 	color: var(--color-gray);
