@@ -1,10 +1,13 @@
 use crate::prelude::*;
 
-/// Muestra un texto con información de copyright, típica en un pie de página.
+// Enlace a la página oficial de PageTop.
+const LINK: &str = "<a href=\"https://pagetop.cillero.es\" rel=\"noreferrer\">PageTop</a>";
+
+/// Componente que renderiza la sección 'Powered by' (*Funciona con*) típica del pie de página.
 ///
-/// Por defecto, usando [`default()`](Self::default) sólo se muestra un
-/// reconocimiento a PageTop. Sin embargo, se puede usar [`new()`](Self::new)
-/// para crear una instancia con un texto de copyright predeterminado.
+/// Por defecto, usando [`default()`](Self::default) sólo se muestra un reconocimiento a PageTop.
+/// Sin embargo, se puede usar [`new()`](Self::new) para crear una instancia con un texto de
+/// copyright predeterminado.
 #[derive(AutoDefault)]
 pub struct PoweredBy {
     copyright: Option<String>,
@@ -13,8 +16,8 @@ pub struct PoweredBy {
 impl Component for PoweredBy {
     /// Crea una nueva instancia de `PoweredBy`.
     ///
-    /// El copyright se genera automáticamente con el año actual y el nombre de
-    /// la aplicación configurada en [`global::SETTINGS`].
+    /// El copyright se genera automáticamente con el año actual y el nombre de la aplicación
+    /// configurada en [`global::SETTINGS`].
     fn new() -> Self {
         let year = Utc::now().format("%Y").to_string();
         let c = join!(year, " © ", global::SETTINGS.app.name);
@@ -22,19 +25,14 @@ impl Component for PoweredBy {
     }
 
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
-        let poweredby_pagetop = L10n::l("poweredby_pagetop")
-            .with_arg(
-                "pagetop_link",
-                "<a href=\"https://crates.io/crates/pagetop\">PageTop</a>",
-            )
-            .to_markup(cx);
-
         PrepareMarkup::With(html! {
             div id=[self.id()] class="poweredby" {
                 @if let Some(c) = self.copyright() {
                     span class="poweredby__copyright" { (c) "." } " "
                 }
-                span class="poweredby__pagetop" { (poweredby_pagetop) }
+                span class="poweredby__pagetop" {
+                    (L10n::l("poweredby_pagetop").with_arg("pagetop_link", LINK).to_markup(cx))
+                }
             }
         })
     }
