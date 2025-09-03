@@ -31,7 +31,7 @@ impl Component for PoweredBy {
                     span class="poweredby__copyright" { (c) "." } " "
                 }
                 span class="poweredby__pagetop" {
-                    (L10n::l("poweredby_pagetop").with_arg("pagetop_link", LINK).to_markup(cx))
+                    (L10n::l("poweredby_pagetop").with_arg("pagetop_link", LINK).using(cx))
                 }
             }
         })
