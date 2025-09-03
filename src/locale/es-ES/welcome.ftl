@@ -3,7 +3,6 @@ welcome_extension_description = Muestra una página de inicio predeterminada cua
 
 welcome_page = Página de Bienvenida
 welcome_title = ¡Hola mundo!
-welcome_aria = Saluda a tu instalación { $app }
 
 welcome_intro = Descubre⚡{ $app }
 welcome_powered = Una solución web creada con <strong>PageTop!</strong>

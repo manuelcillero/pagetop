@@ -25,7 +25,7 @@ pub const REGION_CONTENT: &str = "content";
 /// (p.ej., clases `region__{name}`).
 ///
 /// Se utiliza para declarar las regiones que componen una página en un tema (ver
-/// [`declared_regions()`](crate::core::theme::Theme::declared_regions)).
+/// [`page_regions()`](crate::core::theme::Theme::page_regions)).
 pub struct Region {
     key: &'static str,
     name: String,
