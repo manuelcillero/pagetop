@@ -151,12 +151,12 @@ impl Page {
 
     /// Devuelve el título traducido para el idioma de la página, si existe.
     pub fn title(&mut self) -> Option<String> {
-        self.title.using(&self.context)
+        self.title.lookup(&self.context)
     }
 
     /// Devuelve la descripción traducida para el idioma de la página, si existe.
     pub fn description(&mut self) -> Option<String> {
-        self.description.using(&self.context)
+        self.description.lookup(&self.context)
     }
 
     /// Devuelve la lista de metadatos `<meta name=...>`.

@@ -306,8 +306,7 @@ impl Context {
 /// 4. Y si ninguna de las opciones anteriores aplica, se usa el idioma de respaldo (`"en-US"`).
 ///
 /// Resulta útil para usar un contexto ([`Context`]) como fuente de traducción en
-/// [`L10n::using()`](crate::locale::L10n::using) o
-/// [`L10n::to_markup()`](crate::locale::L10n::to_markup).
+/// [`L10n::lookup()`](crate::locale::L10n::lookup) o [`L10n::using()`](crate::locale::L10n::using).
 impl LangId for Context {
     fn langid(&self) -> &'static LanguageIdentifier {
         self.langid

@@ -13,7 +13,7 @@
 //!
 //! # Recursos Fluent
 //!
-//! Por defecto las traducciones están en el directorio `src/locale`, con subdirectorios para cada
+//! Por defecto, las traducciones están en el directorio `src/locale`, con subdirectorios para cada
 //! [Identificador de Idioma Unicode](https://unicode.org/reports/tr35/tr35.html#Unicode_language_identifier)
 //! válido. Podríamos tener una estructura como esta:
 //!
@@ -34,7 +34,7 @@
 //!          └── main.ftl
 //! ```
 //!
-//! Ejemplo de un archivo en `src/locale/en-US/main.ftl`
+//! Ejemplo de un archivo en `src/locale/en-US/main.ftl`:
 //!
 //! ```text
 //! hello-world = Hello world!
@@ -53,7 +53,7 @@
 //! Y su archivo equivalente para español en `src/locale/es-ES/main.ftl`:
 //!
 //! ```text
-//! hello-world = Hola mundo!
+//! hello-world = ¡Hola, mundo!
 //! hello-user = ¡Hola, {$userName}!
 //! shared-photos =
 //!     {$userName} {$photoCount ->
@@ -81,7 +81,7 @@
 //! include_locales!(LOCALES_SAMPLE);
 //! ```
 //!
-//! Si están ubicados en otro directorio se puede usar la forma:
+//! Si están ubicados en otro directorio, se puede usar la forma:
 //!
 //! ```rust,ignore
 //! include_locales!(LOCALES_SAMPLE from "ruta/a/las/traducciones");
@@ -129,7 +129,7 @@ pub(crate) static FALLBACK_LANGID: LazyLock<LanguageIdentifier> =
 // Identificador de idioma **por defecto** para la aplicación.
 //
 // Se resuelve a partir de [`global::SETTINGS.app.language`](global::SETTINGS). Si el identificador
-// de idioma no es válido o no está disponible entonces resuelve como [`FALLBACK_LANGID`].
+// de idioma no es válido o no está disponible, se usa [`FALLBACK_LANGID`].
 pub(crate) static DEFAULT_LANGID: LazyLock<Option<&LanguageIdentifier>> =
     LazyLock::new(|| LangMatch::resolve(&global::SETTINGS.app.language).as_option());
 
@@ -155,7 +155,7 @@ pub trait LangId {
 /// let lang = LangMatch::resolve("es-ES");
 /// assert_eq!(lang.langid().to_string(), "es-ES");
 ///
-/// // Coincidencia parcial (con el idioma base).
+/// // Coincidencia parcial (retrocede al idioma base si no hay variante regional).
 /// let lang = LangMatch::resolve("es-EC");
 /// assert_eq!(lang.langid().to_string(), "es-ES"); // Porque "es-EC" no está soportado.
 ///
@@ -221,7 +221,7 @@ impl LangMatch {
             }
         }
 
-        // En otro caso indica que el idioma no está soportado.
+        // En caso contrario, indica que el idioma no está soportado.
         Self::Unsupported(String::from(language))
     }
 
@@ -241,7 +241,7 @@ impl LangMatch {
     /// let lang = LangMatch::resolve("es-ES").as_option();
     /// assert_eq!(lang.unwrap().to_string(), "es-ES");
     ///
-    /// let lang = LangMatch::resolve("jp-JP").as_option();
+    /// let lang = LangMatch::resolve("ja-JP").as_option();
     /// assert!(lang.is_none());
     /// ```
     #[inline]
@@ -259,8 +259,8 @@ impl LangMatch {
 /// devuelve el idioma por defecto de la aplicación y, si tampoco está disponible, el idioma de
 /// respaldo ("en-US").
 ///
-/// Resulta útil para usar un valor de [`LangMatch`] como fuente de traducción en [`L10n::using()`]
-/// o [`L10n::to_markup()`].
+/// Resulta útil para usar un valor de [`LangMatch`] como fuente de traducción en [`L10n::lookup()`]
+/// o [`L10n::using()`].
 impl LangId for LangMatch {
     fn langid(&self) -> &'static LanguageIdentifier {
         match self {
@@ -271,10 +271,10 @@ impl LangId for LangMatch {
 }
 
 #[macro_export]
-/// Define un conjunto de elementos de localización y textos de traducción local.
+/// Incluye un conjunto de recursos **Fluent** y textos de traducción propios.
 macro_rules! include_locales {
-    // Se eliminan las marcas de aislamiento Unicode en los argumentos para mejorar la legibilidad y
-    // la compatibilidad en ciertos contextos de renderizado.
+    // Se desactiva la inserción de marcas de aislamiento Unicode (FSI/PDI) en los argumentos para
+    // mejorar la legibilidad y la compatibilidad en ciertos contextos de renderizado.
     ( $LOCALES:ident $(, $core_locales:literal)? ) => {
         $crate::locale::fluent_templates::static_loader! {
             static $LOCALES = {
@@ -310,8 +310,8 @@ include_locales!(LOCALES_PAGETOP);
 enum L10nOp {
     #[default]
     None,
-    Text(String),
-    Translate(String),
+    Text(Cow<'static, str>),
+    Translate(Cow<'static, str>),
 }
 
 /// Crea instancias para traducir textos localizados.
@@ -324,7 +324,7 @@ enum L10nOp {
 ///
 /// # Ejemplo
 ///
-/// Los argumentos dinámicos se añaden usando `with_arg()` o `with_args()`.
+/// Los argumentos dinámicos se añaden con `with_arg()` o `with_args()`.
 ///
 /// ```rust
 /// use pagetop::prelude::*;
@@ -338,11 +338,11 @@ enum L10nOp {
 ///     .get();
 /// ```
 ///
-/// También para traducciones a idiomas concretos.
+/// También sirve para traducciones contra un conjunto de recursos concreto.
 ///
 /// ```rust,ignore
 /// // Traducción con clave, conjunto de traducciones y fuente de idioma.
-/// let bye = L10n::t("goodbye", &LOCALES_CUSTOM).using(&LangMatch::resolve("it"));
+/// let bye = L10n::t("goodbye", &LOCALES_CUSTOM).lookup(&LangMatch::resolve("it"));
 /// ```
 #[derive(AutoDefault, Clone)]
 pub struct L10n {
@@ -354,7 +354,7 @@ pub struct L10n {
 
 impl L10n {
     /// **n** = *“native”*. Crea una instancia con una cadena literal sin traducción.
-    pub fn n(text: impl Into<String>) -> Self {
+    pub fn n(text: impl Into<Cow<'static, str>>) -> Self {
         L10n {
             op: L10nOp::Text(text.into()),
             ..Default::default()
@@ -363,7 +363,7 @@ impl L10n {
 
     /// **l** = *“lookup”*. Crea una instancia para traducir usando una clave del conjunto de
     /// traducciones predefinidas.
-    pub fn l(key: impl Into<String>) -> Self {
+    pub fn l(key: impl Into<Cow<'static, str>>) -> Self {
         L10n {
             op: L10nOp::Translate(key.into()),
             ..Default::default()
@@ -372,7 +372,7 @@ impl L10n {
 
     /// **t** = *“translate”*. Crea una instancia para traducir usando una clave de un conjunto de
     /// traducciones específico.
-    pub fn t(key: impl Into<String>, locales: &'static Locales) -> Self {
+    pub fn t(key: impl Into<Cow<'static, str>>, locales: &'static Locales) -> Self {
         L10n {
             op: L10nOp::Translate(key.into()),
             locales,
@@ -399,7 +399,8 @@ impl L10n {
         self
     }
 
-    /// Resuelve la traducción usando el idioma por defecto o de respaldo de la aplicación.
+    /// Resuelve la traducción usando el idioma por defecto o, si no procede, el de respaldo de la
+    /// aplicación.
     ///
     /// Devuelve `None` si no aplica o no encuentra una traducción válida.
     ///
@@ -411,7 +412,7 @@ impl L10n {
     /// let text = L10n::l("greeting").with_arg("name", "Manuel").get();
     /// ```
     pub fn get(&self) -> Option<String> {
-        self.using(&LangMatch::default())
+        self.lookup(&LangMatch::default())
     }
 
     /// Resuelve la traducción usando la fuente de idioma proporcionada.
@@ -432,20 +433,27 @@ impl L10n {
     /// }
     ///
     /// let r = ResourceLang;
-    /// let text = L10n::l("greeting").with_arg("name", "Usuario").using(&r);
+    /// let text = L10n::l("greeting").with_arg("name", "Usuario").lookup(&r);
     /// ```
-    pub fn using(&self, language: &impl LangId) -> Option<String> {
+    pub fn lookup(&self, language: &impl LangId) -> Option<String> {
         match &self.op {
             L10nOp::None => None,
-            L10nOp::Text(text) => Some(text.to_owned()),
-            L10nOp::Translate(key) => self.locales.try_lookup_with_args(
-                language.langid(),
-                key,
-                &self.args.iter().fold(HashMap::new(), |mut arg, (k, v)| {
-                    arg.insert(Cow::Owned(k.clone()), v.to_owned().into());
-                    arg
-                }),
-            ),
+            L10nOp::Text(text) => Some(text.clone().into_owned()),
+            L10nOp::Translate(key) => {
+                if self.args.is_empty() {
+                    self.locales.try_lookup(language.langid(), key.as_ref())
+                } else {
+                    self.locales.try_lookup_with_args(
+                        language.langid(),
+                        key.as_ref(),
+                        &self
+                            .args
+                            .iter()
+                            .map(|(k, v)| (Cow::Owned(k.clone()), v.clone().into()))
+                            .collect::<HashMap<_, _>>(),
+                    )
+                }
+            }
         }
     }
 
@@ -458,10 +466,16 @@ impl L10n {
     /// ```rust
     /// use pagetop::prelude::*;
     ///
-    /// let html = L10n::l("welcome.message").to_markup(&LangMatch::resolve("es"));
+    /// let html = L10n::l("welcome.message").using(&LangMatch::resolve("es"));
     /// ```
+    pub fn using(&self, language: &impl LangId) -> Markup {
+        PreEscaped(self.lookup(language).unwrap_or_default())
+    }
+
+    /// **Obsoleto desde la versión 0.4.0**: usar [`using()`](Self::using) en su lugar.
+    #[deprecated(since = "0.4.0", note = "Use `using()` instead")]
     pub fn to_markup(&self, language: &impl LangId) -> Markup {
-        PreEscaped(self.using(language).unwrap_or_default())
+        self.using(language)
     }
 }
 

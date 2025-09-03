@@ -4,7 +4,7 @@ use crate::{builder_fn, AutoDefault};
 
 /// Texto para [traducir](crate::locale) en atributos HTML.
 ///
-/// Encapsula un tipo [`L10n`] para manejar traducciones de forma segura.
+/// Encapsula un [`L10n`] para manejar traducciones de forma segura en atributos.
 ///
 /// # Ejemplo
 ///
@@ -16,19 +16,19 @@ use crate::{builder_fn, AutoDefault};
 ///
 /// // Español disponible.
 /// assert_eq!(
-///     hello.using(&LangMatch::resolve("es-ES")),
+///     hello.lookup(&LangMatch::resolve("es-ES")),
 ///     Some(String::from("¡Hola mundo!"))
 /// );
 ///
 /// // Japonés no disponible, traduce al idioma de respaldo ("en-US").
 /// assert_eq!(
-///     hello.using(&LangMatch::resolve("ja-JP")),
+///     hello.lookup(&LangMatch::resolve("ja-JP")),
 ///     Some(String::from("Hello world!"))
 /// );
 ///
-/// // Para incrustar en HTML escapado:
-/// let markup = hello.to_markup(&LangMatch::resolve("es-ES"));
-/// assert_eq!(markup.into_string(), "¡Hola mundo!");
+/// // Uso típico en un atributo:
+/// let title = hello.value(&LangMatch::resolve("es-ES"));
+/// // Ejemplo: html! { a title=(title) { "Link" } }
 /// ```
 #[derive(AutoDefault, Clone, Debug)]
 pub struct AttrL10n(L10n);
@@ -51,15 +51,18 @@ impl AttrL10n {
     // AttrL10n GETTERS ****************************************************************************
 
     /// Devuelve la traducción para `language`, si existe.
-    pub fn using(&self, language: &impl LangId) -> Option<String> {
-        self.0.using(language)
+    pub fn lookup(&self, language: &impl LangId) -> Option<String> {
+        self.0.lookup(language)
     }
 
-    /// Devuelve la traducción *escapada* como [`Markup`] para `language`, si existe.
-    ///
-    /// Útil para incrustar el texto directamente en plantillas HTML sin riesgo de inyección de
-    /// contenido.
+    /// Devuelve la traducción para `language` o una cadena vacía si no existe.
+    pub fn value(&self, language: &impl LangId) -> String {
+        self.0.lookup(language).unwrap_or_default()
+    }
+
+    /// **Obsoleto desde la versión 0.4.0**: no recomendado para atributos HTML.
+    #[deprecated(since = "0.4.0", note = "For attributes use `lookup()` or `value()`")]
     pub fn to_markup(&self, language: &impl LangId) -> Markup {
-        self.0.to_markup(language)
+        self.0.using(language)
     }
 }
