@@ -14,8 +14,8 @@
 <br>
 </div>
 
-`PageTop` reivindica la esencia de la web clásica usando [Rust](https://www.rust-lang.org/es) para
-la creación de soluciones web SSR (*renderizadas en el servidor*) basadas en HTML, CSS y JavaScript.
+PageTop reivindica la esencia de la web clásica usando [Rust](https://www.rust-lang.org/es) para la
+creación de soluciones web SSR (*renderizadas en el servidor*) basadas en HTML, CSS y JavaScript.
 Ofrece un conjunto de herramientas que los desarrolladores pueden implementar, extender o adaptar
 según las necesidades de cada proyecto, incluyendo:
 
@@ -24,14 +24,14 @@ según las necesidades de cada proyecto, incluyendo:
   * **Componentes** (*components*): encapsulan HTML, CSS y JavaScript en unidades funcionales,
     configurables y reutilizables.
   * **Extensiones** (*extensions*): añaden, extienden o personalizan funcionalidades usando las APIs
-    de `PageTop` o de terceros.
+    de PageTop o de terceros.
   * **Temas** (*themes*): son extensiones que permiten modificar la apariencia de páginas y
     componentes sin comprometer su funcionalidad.
 
 
 # ⚡️ Guía rápida
 
-La aplicación más sencilla de `PageTop` se ve así:
+La aplicación más sencilla de PageTop se ve así:
 
 ```rust,no_run
 use pagetop::prelude::*;
@@ -42,10 +42,10 @@ async fn main() -> std::io::Result<()> {
 }
 ```
 
-Este código arranca el servidor de `PageTop`. Con la configuración por defecto, muestra una página
-de bienvenida accesible desde un navegador local en la dirección `http://localhost:8080`.
+Este código arranca el servidor de PageTop. Con la configuración por defecto, muestra una página de
+bienvenida accesible desde un navegador local en la dirección `http://localhost:8080`.
 
-Para personalizar el servicio, se puede crear una extensión de `PageTop` de la siguiente manera:
+Para personalizar el servicio, se puede crear una extensión de PageTop de la siguiente manera:
 
 ```rust,no_run
 use pagetop::prelude::*;
@@ -86,15 +86,15 @@ El código se organiza en un *workspace* donde actualmente se incluyen los sigui
 
   * **[pagetop-statics](https://git.cillero.es/manuelcillero/pagetop/src/branch/main/helpers/pagetop-statics)**,
     es la librería que permite incluir archivos estáticos en el ejecutable de las aplicaciones
-    `PageTop` para servirlos de forma eficiente, con detección de cambios que optimizan el tiempo
-    de compilación.
+    PageTop para servirlos de forma eficiente, con detección de cambios que optimizan el tiempo de
+    compilación.
 
   * **[pagetop-build](https://git.cillero.es/manuelcillero/pagetop/src/branch/main/helpers/pagetop-build)**,
     prepara los archivos estáticos o archivos SCSS compilados para incluirlos en el binario de las
-    aplicaciones `PageTop` durante la compilación de los ejecutables.
+    aplicaciones PageTop durante la compilación de los ejecutables.
 
   * **[pagetop-macros](https://git.cillero.es/manuelcillero/pagetop/src/branch/main/helpers/pagetop-macros)**,
-    proporciona una colección de macros que mejoran la experiencia de desarrollo con `PageTop`.
+    proporciona una colección de macros que mejoran la experiencia de desarrollo con PageTop.
 
 
 # 🧪 Pruebas
@@ -116,7 +116,7 @@ Para simplificar el flujo de trabajo, el repositorio incluye varios **alias de C
 
 # 🚧 Advertencia
 
-`PageTop` es un proyecto personal para aprender [Rust](https://www.rust-lang.org/es) y conocer su
+**PageTop** es un proyecto personal para aprender [Rust](https://www.rust-lang.org/es) y conocer su
 ecosistema. Su API está sujeta a cambios frecuentes. No se recomienda su uso en producción, al menos
 hasta que se libere la versión **1.0.0**.
 

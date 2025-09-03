@@ -68,7 +68,7 @@ pub struct App {
 #[derive(Debug, Deserialize)]
 /// Sección `[Dev]` de la configuración. Forma parte de [`Settings`].
 pub struct Dev {
-    /// Directorio desde el que servir los archivos estáticos de `PageTop`.
+    /// Directorio desde el que servir los archivos estáticos de PageTop.
     ///
     /// Por defecto, los archivos se integran en el binario de la aplicación. Si aquí se indica una
     /// ruta válida, ya sea absoluta o relativa al directorio del proyecto o del binario en

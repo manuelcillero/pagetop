@@ -27,7 +27,7 @@ Esta librería incluye entre sus macros una adaptación de
 [SmartDefault](https://crates.io/crates/smart_default) (0.7.1) de
 [Jane Doe](https://crates.io/users/jane-doe), llamada `AutoDefault`. Estas macros eliminan la
 necesidad de referenciar `maud` o `smart_default` en las dependencias del archivo `Cargo.toml` de
-cada proyecto `PageTop`.
+cada proyecto PageTop.
 */
 
 #![doc(
@@ -219,7 +219,7 @@ pub fn builder_fn(_: TokenStream, item: TokenStream) -> TokenStream {
     expanded.into()
 }
 
-/// Define una función `main` asíncrona como punto de entrada de `PageTop`.
+/// Define una función `main` asíncrona como punto de entrada de PageTop.
 ///
 /// # Ejemplo
 ///
@@ -240,7 +240,7 @@ pub fn main(_: TokenStream, item: TokenStream) -> TokenStream {
     output
 }
 
-/// Define funciones de prueba asíncronas para usar con `PageTop`.
+/// Define funciones de prueba asíncronas para usar con PageTop.
 ///
 /// # Ejemplo
 ///

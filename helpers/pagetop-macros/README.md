@@ -26,12 +26,12 @@ Esta librería incluye entre sus macros una adaptación de
 [SmartDefault](https://crates.io/crates/smart_default) (0.7.1) de
 [Jane Doe](https://crates.io/users/jane-doe), llamada `AutoDefault`. Estas macros eliminan la
 necesidad de referenciar `maud` o `smart_default` en las dependencias del archivo `Cargo.toml` de
-cada proyecto `PageTop`.
+cada proyecto PageTop.
 
 
 # 🚧 Advertencia
 
-`PageTop` es un proyecto personal para aprender [Rust](https://www.rust-lang.org/es) y conocer su
+**PageTop** es un proyecto personal para aprender [Rust](https://www.rust-lang.org/es) y conocer su
 ecosistema. Su API está sujeta a cambios frecuentes. No se recomienda su uso en producción, al menos
 hasta que se libere la versión **1.0.0**.
 

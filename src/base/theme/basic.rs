@@ -1,4 +1,4 @@
-//! Es el tema básico que incluye `PageTop` por defecto.
+//! Es el tema básico que incluye PageTop por defecto.
 
 use crate::prelude::*;
 

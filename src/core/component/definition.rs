@@ -11,7 +11,7 @@ pub trait ComponentRender {
     fn render(&mut self, cx: &mut Context) -> Markup;
 }
 
-/// Interfaz común que debe implementar un componente renderizable en `PageTop`.
+/// Interfaz común que debe implementar un componente renderizable en PageTop.
 ///
 /// Se recomienda que los componentes deriven [`AutoDefault`](crate::AutoDefault). También deben
 /// implementar explícitamente el método [`new()`](Self::new) y pueden sobrescribir los otros

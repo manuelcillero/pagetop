@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-/// Página de bienvenida predeterminada de `PageTop`.
+/// Página de bienvenida predeterminada de PageTop.
 ///
 /// Esta extensión se instala por defecto y muestra una página en la ruta raíz (`/`) cuando no se ha
 /// configurado ninguna página de inicio personalizada. Permite confirmar que el servidor está

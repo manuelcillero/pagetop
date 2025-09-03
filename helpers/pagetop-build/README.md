@@ -113,7 +113,7 @@ impl Extension for MyExtension {
 
 # 🚧 Advertencia
 
-`PageTop` es un proyecto personal para aprender [Rust](https://www.rust-lang.org/es) y conocer su
+**PageTop** es un proyecto personal para aprender [Rust](https://www.rust-lang.org/es) y conocer su
 ecosistema. Su API está sujeta a cambios frecuentes. No se recomienda su uso en producción, al menos
 hasta que se libere la versión **1.0.0**.
 

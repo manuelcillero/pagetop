@@ -1,4 +1,4 @@
-//! Acciones predefinidas para alterar el funcionamiento interno de `PageTop`.
+//! Acciones predefinidas para alterar el funcionamiento interno de PageTop.
 
 use crate::prelude::*;
 
