@@ -3,7 +3,6 @@ welcome_extension_description = Displays a landing page when none is configured.
 
 welcome_page = Welcome Page
 welcome_title = Hello world!
-welcome_aria = Say hello to your { $app } installation
 
 welcome_intro = Discover⚡{ $app }
 welcome_powered = A web solution powered by <strong>PageTop!</strong>

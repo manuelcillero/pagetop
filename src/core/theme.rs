@@ -15,10 +15,10 @@
 //! [`Theme`].
 
 mod definition;
-pub use definition::{Theme, ThemeRef};
+pub use definition::{Theme, ThemePage, ThemeRef};
 
 mod regions;
-pub(crate) use regions::ChildrenInRegions;
-pub use regions::{InRegion, Region, REGION_CONTENT};
+pub(crate) use regions::{ChildrenInRegions, REGION_CONTENT};
+pub use regions::{InRegion, Region};
 
 pub(crate) mod all;

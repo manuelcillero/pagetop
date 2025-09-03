@@ -29,14 +29,14 @@ pub trait Component: AnyInfo + ComponentRender + Send + Sync {
         TypeInfo::ShortName.of::<Self>()
     }
 
-    /// Devuelve una descripción opcional del componente.
+    /// Devuelve una descripción del componente, si existe.
     ///
     /// Por defecto, no se proporciona ninguna descripción (`None`).
     fn description(&self) -> Option<String> {
         None
     }
 
-    /// Devuelve un identificador opcional para el componente.
+    /// Devuelve el identificador del componente, si existe.
     ///
     /// Este identificador puede usarse para referenciar el componente en el HTML. Por defecto, no
     /// tiene ningún identificador (`None`).
@@ -51,7 +51,7 @@ pub trait Component: AnyInfo + ComponentRender + Send + Sync {
     #[allow(unused_variables)]
     fn setup_before_prepare(&mut self, cx: &mut Context) {}
 
-    /// Devuelve una representación estructurada del componente preparada para el renderizado.
+    /// Devuelve una representación renderizada del componente.
     ///
     /// Este método forma parte del ciclo de vida de los componentes y se invoca automáticamente
     /// durante el proceso de construcción del documento. Puede sobrescribirse para generar
