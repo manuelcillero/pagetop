@@ -77,11 +77,11 @@ pub struct ChildrenInRegions(HashMap<&'static str, Children>);
 
 impl ChildrenInRegions {
     pub fn with(region_name: &'static str, child: Child) -> Self {
-        ChildrenInRegions::default().with_child_in_region(region_name, ChildOp::Add(child))
+        ChildrenInRegions::default().with_child_in(region_name, ChildOp::Add(child))
     }
 
     #[builder_fn]
-    pub fn with_child_in_region(mut self, region_name: &'static str, op: ChildOp) -> Self {
+    pub fn with_child_in(mut self, region_name: &'static str, op: ChildOp) -> Self {
         if let Some(region) = self.0.get_mut(region_name) {
             region.alter_child(op);
         } else {
@@ -143,17 +143,17 @@ impl InRegion {
             InRegion::Content => {
                 COMMON_REGIONS
                     .write()
-                    .alter_child_in_region(REGION_CONTENT, ChildOp::Add(child));
+                    .alter_child_in(REGION_CONTENT, ChildOp::Add(child));
             }
-            InRegion::Named(name) => {
+            InRegion::Named(region_name) => {
                 COMMON_REGIONS
                     .write()
-                    .alter_child_in_region(name, ChildOp::Add(child));
+                    .alter_child_in(region_name, ChildOp::Add(child));
             }
             InRegion::OfTheme(region_name, theme_ref) => {
                 let mut regions = THEME_REGIONS.write();
                 if let Some(r) = regions.get_mut(&theme_ref.type_id()) {
-                    r.alter_child_in_region(region_name, ChildOp::Add(child));
+                    r.alter_child_in(region_name, ChildOp::Add(child));
                 } else {
                     regions.insert(
                         theme_ref.type_id(),

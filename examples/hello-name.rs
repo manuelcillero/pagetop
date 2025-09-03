@@ -14,7 +14,7 @@ async fn hello_name(
 ) -> ResultPage<Markup, ErrorPage> {
     let name = path.into_inner();
     Page::new(Some(request))
-        .with_component(Html::with(move |_| html! { h1 { "Hello " (name) "!" } }))
+        .add_component(Html::with(move |_| html! { h1 { "Hello " (name) "!" } }))
         .render()
 }
 
