@@ -17,31 +17,6 @@ pub use actix_web::test;
 
 /// **Obsoleto desde la versión 0.3.0**: usar [`static_files_service!`](crate::static_files_service)
 /// en su lugar.
-///
-/// Incluye en código un conjunto de recursos previamente preparado con `build.rs`.
-///
-/// # Formas de uso
-///
-/// * `include_files!(media)` - Para incluir un conjunto de recursos llamado `media`. Normalmente se
-///   usará esta forma.
-///
-/// * `include_files!(BLOG => media)` - También se puede asignar el conjunto de recursos a una
-///   variable global; p.ej. `BLOG`.
-///
-/// # Argumentos
-///
-/// * `$bundle` – Nombre del conjunto de recursos generado por `build.rs` (consultar
-///   [`pagetop_build`](https://docs.rs/pagetop-build)).
-/// * `$STATIC` – Asigna el conjunto de recursos a una variable global de tipo
-///   [`StaticResources`](crate::StaticResources).
-///
-/// # Ejemplos
-///
-/// ```rust,ignore
-/// include_files!(assets); // Uso habitual.
-///
-/// include_files!(STATIC_ASSETS => assets);
-/// ```
 #[deprecated(since = "0.3.0", note = "Use `static_files_service!` instead")]
 #[macro_export]
 macro_rules! include_files {
@@ -69,48 +44,6 @@ macro_rules! include_files {
 
 /// **Obsoleto desde la versión 0.3.0**: usar [`static_files_service!`](crate::static_files_service)
 /// en su lugar.
-///
-/// Configura un servicio web para publicar los recursos embebidos con [`include_files!`].
-///
-/// El código expandido de la macro decide durante el arranque de la aplicación si debe servir los
-/// archivos de los recursos embebidos o directamente desde el sistema de ficheros, si se ha
-/// indicado una ruta válida a un directorio de recursos.
-///
-/// # Argumentos
-///
-/// * `$scfg` – Instancia de [`ServiceConfig`](crate::service::web::ServiceConfig) donde aplicar la
-///   configuración del servicio web.
-/// * `$bundle` – Nombre del conjunto de recursos incluido con [`include_files!`].
-/// * `$route` – Ruta URL de origen desde la que se servirán los archivos.
-/// * `[ $root, $relative ]` *(opcional)* – Directorio raíz y ruta relativa para construir la ruta
-///   absoluta donde buscar los archivos en el sistema de ficheros (ver
-///   [`absolute_dir()`](crate::util::absolute_dir)). Si no existe, se usarán los recursos
-///   embebidos.
-///
-/// # Ejemplos
-///
-/// ```rust,ignore
-/// use pagetop::prelude::*;
-///
-/// include_files!(assets);
-///
-/// pub struct MyExtension;
-///
-/// impl Extension for MyExtension {
-///     fn configure_service(&self, scfg: &mut service::web::ServiceConfig) {
-///         include_files_service!(scfg, assets => "/public");
-///     }
-/// }
-/// ```
-///
-/// Y para buscar los recursos en el sistema de ficheros (si existe la ruta absoluta):
-///
-/// ```rust,ignore
-/// include_files_service!(cfg, assets => "/public", ["/var/www", "assets"]);
-///
-/// // También desde el directorio actual de ejecución.
-/// include_files_service!(cfg, assets => "/public", ["", "static"]);
-/// ```
 #[deprecated(since = "0.3.0", note = "Use `static_files_service!` instead")]
 #[macro_export]
 macro_rules! include_files_service {
