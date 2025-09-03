@@ -67,8 +67,8 @@ async fn poweredby_link_points_to_crates_io() {
     let html = render_component(&p);
 
     assert!(
-        html.contains("https://crates.io/crates/pagetop"),
-        "Link should point to crates.io/pagetop"
+        html.contains("https://pagetop.cillero.es"),
+        "Link should point to pagetop.cillero.es"
     );
 }
 

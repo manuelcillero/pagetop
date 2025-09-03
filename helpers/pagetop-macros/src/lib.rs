@@ -191,7 +191,7 @@ pub fn builder_fn(_: TokenStream, item: TokenStream) -> TokenStream {
 
     // Genera el método alter_...() con el código del método with_...().
     let fn_alter_doc =
-        format!("Igual que [`Self::{fn_with_name_str}()`], pero sin usar el patrón *builder*.");
+        format!("Equivalente a [`Self::{fn_with_name_str}()`], pero sin usar el patrón *builder*.");
 
     let fn_alter = quote! {
         #[doc = #fn_alter_doc]
