@@ -122,28 +122,58 @@ impl Page {
         self
     }
 
+    /// **Obsoleto desde la versión 0.4.0**: usar [`add_component()`](Self::add_component) en su
+    /// lugar.
+    #[deprecated(since = "0.4.0", note = "Use `add_component()` instead")]
+    pub fn with_component(self, component: impl Component) -> Self {
+        self.add_component(component)
+    }
+
+    /// **Obsoleto desde la versión 0.4.0**: usar [`add_component_in()`](Self::add_component_in) en
+    /// su lugar.
+    #[deprecated(since = "0.4.0", note = "Use `add_component_in()` instead")]
+    pub fn with_component_in(self, region_name: &'static str, component: impl Component) -> Self {
+        self.add_component_in(region_name, component)
+    }
+
     /// Añade un componente a la región de contenido por defecto.
-    pub fn with_component(mut self, component: impl Component) -> Self {
+    pub fn add_component(mut self, component: impl Component) -> Self {
         self.regions
-            .alter_child_in_region(REGION_CONTENT, ChildOp::Add(Child::with(component)));
+            .alter_child_in(REGION_CONTENT, ChildOp::Add(Child::with(component)));
         self
     }
 
     /// Añade un componente en una región (`region_name`) de la página.
-    pub fn with_component_in(
+    pub fn add_component_in(
         mut self,
         region_name: &'static str,
         component: impl Component,
     ) -> Self {
         self.regions
-            .alter_child_in_region(region_name, ChildOp::Add(Child::with(component)));
+            .alter_child_in(region_name, ChildOp::Add(Child::with(component)));
+        self
+    }
+
+    /// **Obsoleto desde la versión 0.4.0**: usar [`with_child_in()`](Self::with_child_in) en su
+    /// lugar.
+    #[deprecated(since = "0.4.0", note = "Use `with_child_in()` instead")]
+    pub fn with_child_in_region(mut self, region_name: &'static str, op: ChildOp) -> Self {
+        self.alter_child_in(region_name, op);
+        self
+    }
+
+    /// **Obsoleto desde la versión 0.4.0**: usar [`alter_child_in()`](Self::alter_child_in) en su
+    /// lugar.
+    #[deprecated(since = "0.4.0", note = "Use `alter_child_in()` instead")]
+    pub fn alter_child_in_region(&mut self, region_name: &'static str, op: ChildOp) -> &mut Self {
+        self.alter_child_in(region_name, op);
         self
     }
 
     /// Opera con [`ChildOp`] en una región (`region_name`) de la página.
     #[builder_fn]
-    pub fn with_child_in_region(mut self, region_name: &'static str, op: ChildOp) -> Self {
-        self.regions.alter_child_in_region(region_name, op);
+    pub fn with_child_in(mut self, region_name: &'static str, op: ChildOp) -> Self {
+        self.regions.alter_child_in(region_name, op);
         self
     }
 

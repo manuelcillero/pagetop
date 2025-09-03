@@ -10,7 +10,7 @@ impl Extension for HelloWorld {
 
 async fn hello_world(request: HttpRequest) -> ResultPage<Markup, ErrorPage> {
     Page::new(Some(request))
-        .with_component(Html::with(move |_| html! { h1 { "Hello World!" } }))
+        .add_component(Html::with(move |_| html! { h1 { "Hello World!" } }))
         .render()
 }
 

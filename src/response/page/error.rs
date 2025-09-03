@@ -33,7 +33,7 @@ impl Display for ErrorPage {
                 if let Ok(page) = error_page
                     .with_title(L10n::n("Error FORBIDDEN"))
                     .with_layout("error")
-                    .with_component(Html::with(move |_| error403.clone()))
+                    .add_component(Html::with(move |_| error403.clone()))
                     .render()
                 {
                     write!(f, "{}", page.into_string())
@@ -48,7 +48,7 @@ impl Display for ErrorPage {
                 if let Ok(page) = error_page
                     .with_title(L10n::n("Error RESOURCE NOT FOUND"))
                     .with_layout("error")
-                    .with_component(Html::with(move |_| error404.clone()))
+                    .add_component(Html::with(move |_| error404.clone()))
                     .render()
                 {
                     write!(f, "{}", page.into_string())
