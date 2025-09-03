@@ -15,8 +15,8 @@
 <br>
 </div>
 
-`PageTop` reivindica la esencia de la web clásica usando [Rust](https://www.rust-lang.org/es) para
-la creación de soluciones web SSR (*renderizadas en el servidor*) basadas en HTML, CSS y JavaScript.
+PageTop reivindica la esencia de la web clásica usando [Rust](https://www.rust-lang.org/es) para la
+creación de soluciones web SSR (*renderizadas en el servidor*) basadas en HTML, CSS y JavaScript.
 Ofrece un conjunto de herramientas que los desarrolladores pueden implementar, extender o adaptar
 según las necesidades de cada proyecto, incluyendo:
 
@@ -25,14 +25,14 @@ según las necesidades de cada proyecto, incluyendo:
   * **Componentes** (*components*): encapsulan HTML, CSS y JavaScript en unidades funcionales,
     configurables y reutilizables.
   * **Extensiones** (*extensions*): añaden, extienden o personalizan funcionalidades usando las APIs
-    de `PageTop` o de terceros.
+    de PageTop o de terceros.
   * **Temas** (*themes*): son extensiones que permiten modificar la apariencia de páginas y
     componentes sin comprometer su funcionalidad.
 
 
 # ⚡️ Guía rápida
 
-La aplicación más sencilla de `PageTop` se ve así:
+La aplicación más sencilla de PageTop se ve así:
 
 ```rust,no_run
 use pagetop::prelude::*;
@@ -43,10 +43,10 @@ async fn main() -> std::io::Result<()> {
 }
 ```
 
-Este código arranca el servidor de `PageTop`. Con la configuración por defecto, muestra una página
-de bienvenida accesible desde un navegador local en la dirección `http://localhost:8080`.
+Este código arranca el servidor de PageTop. Con la configuración por defecto, muestra una página de
+bienvenida accesible desde un navegador local en la dirección `http://localhost:8080`.
 
-Para personalizar el servicio, se puede crear una extensión de `PageTop` de la siguiente manera:
+Para personalizar el servicio, se puede crear una extensión de PageTop de la siguiente manera:
 
 ```rust,no_run
 use pagetop::prelude::*;
@@ -77,11 +77,11 @@ Este programa implementa una extensión llamada `HelloWorld` que sirve una pági
 
 # 🧩 Gestión de Dependencias
 
-Los proyectos que utilizan `PageTop` gestionan las dependencias con `cargo`, como cualquier otro
+Los proyectos que utilizan PageTop gestionan las dependencias con `cargo`, como cualquier otro
 proyecto en Rust.
 
 Sin embargo, es fundamental que cada extensión declare explícitamente sus
-[dependencias](core::extension::Extension::dependencies), si las tiene, para que `PageTop` pueda
+[dependencias](core::extension::Extension::dependencies), si las tiene, para que PageTop pueda
 estructurar e inicializar la aplicación de forma modular.
 */
 

@@ -1,4 +1,4 @@
-//! Temas básicos soportados por `PageTop`.
+//! Temas básicos soportados por PageTop.
 
 mod basic;
 pub use basic::Basic;

@@ -10,7 +10,7 @@ use crate::{actions_boxed, service};
 /// cualquier hilo de la ejecución sin necesidad de sincronización adicional.
 pub type ExtensionRef = &'static dyn Extension;
 
-/// Interfaz común que debe implementar cualquier extensión de `PageTop`.
+/// Interfaz común que debe implementar cualquier extensión de PageTop.
 ///
 /// Este *trait* es fácil de implementar, basta con declarar una estructura de tamaño cero para la
 /// extensión y sobreescribir los métodos que sea necesario.
@@ -63,7 +63,7 @@ pub trait Extension: AnyInfo + Send + Sync {
 
     /// Otras extensiones que deben habilitarse **antes** de esta.
     ///
-    /// `PageTop` las resolverá automáticamente respetando el orden durante el arranque de la
+    /// PageTop las resolverá automáticamente respetando el orden durante el arranque de la
     /// aplicación.
     fn dependencies(&self) -> Vec<ExtensionRef> {
         vec![]

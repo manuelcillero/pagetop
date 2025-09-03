@@ -3,7 +3,7 @@
 //! Estos ajustes se obtienen de archivos [TOML](https://toml.io) como pares `clave = valor` que se
 //! mapean a estructuras **fuertemente tipadas** y valores predefinidos.
 //!
-//! Siguiendo la metodología [Twelve-Factor App](https://12factor.net/config), `PageTop` separa el
+//! Siguiendo la metodología [Twelve-Factor App](https://12factor.net/config), PageTop separa el
 //! **código** de la **configuración**, lo que permite tener configuraciones diferentes para cada
 //! despliegue, como *dev*, *staging* o *production*, sin modificar el código fuente.
 //!
@@ -13,14 +13,14 @@
 //! Si tu aplicación necesita archivos de configuración, crea un directorio `config` en la raíz del
 //! proyecto, al mismo nivel que el archivo *Cargo.toml* o que el binario de la aplicación.
 //!
-//! `PageTop` carga en este orden, y siempre de forma opcional, los siguientes archivos TOML:
+//! PageTop carga en este orden, y siempre de forma opcional, los siguientes archivos TOML:
 //!
 //! 1. **config/common.toml**, para ajustes comunes a todos los entornos. Este enfoque simplifica el
 //!    mantenimiento al centralizar los valores de configuración comunes.
 //!
 //! 2. **config/{rm}.toml**, donde `{rm}` es el valor de la variable de entorno `PAGETOP_RUN_MODE`:
 //!
-//!    * Si `PAGETOP_RUN_MODE` no está definida, se asume el valor `default`, y `PageTop` intentará
+//!    * Si `PAGETOP_RUN_MODE` no está definida, se asume el valor `default`, y PageTop intentará
 //!      cargar *config/default.toml* si el archivo existe.
 //!
 //!    * Útil para definir configuraciones específicas por entorno, garantizando que cada uno (p.ej.

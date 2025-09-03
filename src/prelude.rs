@@ -1,4 +1,4 @@
-//! *Prelude* de `PageTop`.
+//! *Prelude* de PageTop.
 
 // RE-EXPORTED.
 

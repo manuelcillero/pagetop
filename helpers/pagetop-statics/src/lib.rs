@@ -17,7 +17,7 @@ configurables, basadas en HTML, CSS y JavaScript.
 
 ## Descripción general
 
-Esta librería permite incluir archivos estáticos en el ejecutable de las aplicaciones `PageTop` para
+Esta librería permite incluir archivos estáticos en el ejecutable de las aplicaciones PageTop para
 servirlos de forma eficiente vía web, con detección de cambios que optimizan el tiempo de
 compilación.
 
@@ -29,7 +29,7 @@ Para ello, adapta el código de los *crates* [static-files](https://crates.io/cr
 [4.0.1](https://github.com/kilork/actix-web-static-files/tree/v4.0.1)), desarrollados ambos por
 [Alexander Korolev](https://crates.io/users/kilork).
 
-Estas implementaciones se integran en `PageTop` para evitar que cada proyecto tenga que declarar
+Estas implementaciones se integran en PageTop para evitar que cada proyecto tenga que declarar
 `static-files` manualmente como dependencia en su `Cargo.toml`.
 */
 

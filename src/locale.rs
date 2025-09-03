@@ -1,6 +1,6 @@
 //! Localización (L10n).
 //!
-//! `PageTop` utiliza las especificaciones de [Fluent](https://www.projectfluent.org/) para la
+//! PageTop utiliza las especificaciones de [Fluent](https://www.projectfluent.org/) para la
 //! localización de aplicaciones, y aprovecha [fluent-templates](https://docs.rs/fluent-templates/)
 //! para integrar los recursos de traducción directamente en el binario de la aplicación.
 //!
@@ -87,7 +87,7 @@
 //! include_locales!(LOCALES_SAMPLE from "ruta/a/las/traducciones");
 //! ```
 //!
-//! Y *voilà*, sólo queda operar con los idiomas soportados por `PageTop` usando [`LangMatch`] y
+//! Y *voilà*, sólo queda operar con los idiomas soportados por PageTop usando [`LangMatch`] y
 //! traducir textos con [`L10n`].
 
 use crate::html::{Markup, PreEscaped};
@@ -141,10 +141,10 @@ pub trait LangId {
     fn langid(&self) -> &'static LanguageIdentifier;
 }
 
-/// Operaciones con los idiomas soportados por `PageTop`.
+/// Operaciones con los idiomas soportados por PageTop.
 ///
 /// Utiliza [`LangMatch`] para transformar un identificador de idioma en un [`LanguageIdentifier`]
-/// soportado por `PageTop`.
+/// soportado por PageTop.
 ///
 /// # Ejemplos
 ///
@@ -183,11 +183,11 @@ pub trait LangId {
 pub enum LangMatch {
     /// Cuando el identificador de idioma es una cadena vacía.
     Unspecified,
-    /// Si encuentra un [`LanguageIdentifier`] en la lista de idiomas soportados por `PageTop` que
+    /// Si encuentra un [`LanguageIdentifier`] en la lista de idiomas soportados por PageTop que
     /// coincide exactamente con el identificador de idioma (p.ej. "es-ES"), o con el identificador
     /// del idioma base (p.ej. "es").
     Found(&'static LanguageIdentifier),
-    /// Si el identificador de idioma no está entre los soportados por `PageTop`.
+    /// Si el identificador de idioma no está entre los soportados por PageTop.
     Unsupported(String),
 }
 
@@ -319,7 +319,7 @@ enum L10nOp {
 /// Cada instancia puede representar:
 ///
 /// - Un texto puro (`n()`) que no requiere traducción.
-/// - Una clave para traducir un texto de las traducciones predefinidas de `PageTop` (`l()`).
+/// - Una clave para traducir un texto de las traducciones predefinidas de PageTop (`l()`).
 /// - Una clave para traducir de un conjunto concreto de traducciones (`t()`).
 ///
 /// # Ejemplo

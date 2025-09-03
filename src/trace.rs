@@ -1,13 +1,13 @@
 //! Gestión de trazas y registro de eventos de la aplicación.
 //!
-//! `PageTop` recopila información de diagnóstico de la aplicación de forma estructurada y basada en
+//! PageTop recopila información de diagnóstico de la aplicación de forma estructurada y basada en
 //! eventos.
 //!
 //! En los sistemas asíncronos, interpretar los mensajes de log tradicionales suele volverse
 //! complicado. Las tareas individuales se multiplexan en el mismo hilo y los eventos y registros
 //! asociados se entremezclan, lo que dificulta seguir la secuencia lógica.
 //!
-//! `PageTop` usa [`tracing`](https://docs.rs/tracing) para registrar eventos estructurados y con
+//! PageTop usa [`tracing`](https://docs.rs/tracing) para registrar eventos estructurados y con
 //! información adicional sobre la *temporalidad* y la *causalidad*. A diferencia de un mensaje de
 //! log, un *span* (intervalo) tiene un momento de inicio y de fin, puede entrar y salir del flujo
 //! de ejecución y puede existir dentro de un árbol anidado de *spans* similares. Además, estos

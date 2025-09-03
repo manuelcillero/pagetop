@@ -1,4 +1,4 @@
-//! Prepara y ejecuta una aplicación creada con `Pagetop`.
+//! Prepara y ejecuta una aplicación creada con PageTop.
 
 mod figfont;
 
@@ -17,7 +17,7 @@ use substring::Substring;
 use std::io::Error;
 use std::sync::LazyLock;
 
-/// Punto de entrada de una aplicación `PageTop`.
+/// Punto de entrada de una aplicación PageTop.
 ///
 /// No almacena datos, **encapsula** el inicio completo de configuración y puesta en marcha. Para
 /// instanciarla se puede usar [`new()`](Application::new) o [`prepare()`](Application::prepare).

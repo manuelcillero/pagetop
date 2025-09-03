@@ -1,6 +1,6 @@
 //! API para añadir y gestionar nuevos temas.
 //!
-//! En `PageTop` un tema es la *piel* de la aplicación, decide cómo se muestra cada documento HTML,
+//! En PageTop un tema es la *piel* de la aplicación, decide cómo se muestra cada documento HTML,
 //! especialmente las páginas de contenido ([`Page`](crate::response::page::Page)), sin alterar la
 //! lógica interna de sus componentes.
 //!
