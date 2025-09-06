@@ -108,6 +108,12 @@ impl Page {
         self
     }
 
+    #[builder_fn]
+    pub fn with_param<T: 'static>(mut self, key: &'static str, value: T) -> Self {
+        self.context.alter_param(key, value);
+        self
+    }
+
     /// Establece el atributo `id` del elemento `<body>`.
     #[builder_fn]
     pub fn with_body_id(mut self, id: impl AsRef<str>) -> Self {
@@ -214,6 +220,10 @@ impl Page {
         self.context.layout()
     }
 
+    pub fn param<T: 'static>(&self, key: &'static str) -> Option<&T> {
+        self.context.param(key)
+    }
+
     /// Devuelve el identificador del elemento `<body>`.
     pub fn body_id(&self) -> &AttrId {
         &self.body_id
@@ -223,7 +233,16 @@ impl Page {
     pub fn body_classes(&self) -> &AttrClasses {
         &self.body_classes
     }
-
+    /*
+        /// Devuelve una referencia mutable al [`Context`] de la página.
+        ///
+        /// El [`Context`] actúa como intermediario para muchos métodos de `Page` (idioma, tema,
+        /// *layout*, recursos, solicitud HTTP, etc.). Resulta especialmente útil cuando un componente
+        /// o un tema necesita recibir el contexto como parámetro.
+        pub fn context(&mut self) -> &mut Context {
+            &mut self.context
+        }
+    */
     // Page RENDER *********************************************************************************
 
     /// Renderiza los componentes de una región (`regiona_name`) de la página.

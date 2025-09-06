@@ -7,10 +7,8 @@ use crate::locale::{LangId, LangMatch, LanguageIdentifier, DEFAULT_LANGID, FALLB
 use crate::service::HttpRequest;
 use crate::{builder_fn, join};
 
+use std::any::Any;
 use std::collections::HashMap;
-use std::error::Error;
-use std::fmt::{self, Display};
-use std::str::FromStr;
 
 /// Operaciones para modificar el contexto ([`Context`]) del documento.
 pub enum AssetsOp {
@@ -33,32 +31,28 @@ pub enum AssetsOp {
     RemoveJavaScript(&'static str),
 }
 
-/// Errores de lectura o conversión de parámetros almacenados en el contexto.
+/// Errores de acceso a parámetros dinámicos del contexto.
+///
+/// - [`ErrorParam::NotFound`]: la clave no existe.
+/// - [`ErrorParam::TypeMismatch`]: la clave existe, pero el valor guardado no coincide con el tipo
+///   solicitado. Incluye nombre de la clave (`key`), tipo esperado (`expected`) y tipo realmente
+///   guardado (`saved`) para facilitar el diagnóstico.
 #[derive(Debug)]
 pub enum ErrorParam {
-    /// El parámetro solicitado no existe.
     NotFound,
-    /// El valor del parámetro no pudo convertirse al tipo requerido.
-    ParseError(String),
+    TypeMismatch {
+        key: &'static str,
+        expected: &'static str,
+        saved: &'static str,
+    },
 }
-
-impl Display for ErrorParam {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            ErrorParam::NotFound => write!(f, "Parameter not found"),
-            ErrorParam::ParseError(e) => write!(f, "Parse error: {e}"),
-        }
-    }
-}
-
-impl Error for ErrorParam {}
 
 /// Representa el contexto de un documento HTML.
 ///
 /// Se crea internamente para manejar información relevante del documento, como la solicitud HTTP de
 /// origen, el idioma, tema y composición para el renderizado, los recursos *favicon* ([`Favicon`]),
-/// hojas de estilo ([`StyleSheet`]) y *scripts* ([`JavaScript`]), así como parámetros de contexto
-/// definidos en tiempo de ejecución.
+/// hojas de estilo ([`StyleSheet`]) y *scripts* ([`JavaScript`]), así como *parámetros dinámicos
+/// heterogéneos* de contexto definidos en tiempo de ejecución.
 ///
 /// # Ejemplos
 ///
@@ -95,7 +89,7 @@ impl Error for ErrorParam {}
 ///     assert_eq!(active_theme.short_name(), "aliner");
 ///
 ///     // Recupera el parámetro a su tipo original.
-///     let id: i32 = cx.get_param("usuario_id").unwrap();
+///     let id: i32 = *cx.get_param::<i32>("usuario_id").unwrap();
 ///     assert_eq!(id, 42);
 ///
 ///     // Genera un identificador para un componente de tipo `Menu`.
@@ -113,7 +107,7 @@ pub struct Context {
     favicon    : Option<Favicon>,               // Favicon, si se ha definido.
     stylesheets: Assets<StyleSheet>,            // Hojas de estilo CSS.
     javascripts: Assets<JavaScript>,            // Scripts JavaScript.
-    params     : HashMap<&'static str, String>, // Parámetros definidos en tiempo de ejecución.
+    params     : HashMap<&'static str, (Box<dyn Any>, &'static str)>, // Parámetros definidos en tiempo de ejecución.
     id_counter : usize,                         // Contador para generar identificadores únicos.
 }
 
@@ -152,7 +146,7 @@ impl Context {
             favicon    : None,
             stylesheets: Assets::<StyleSheet>::new(),
             javascripts: Assets::<JavaScript>::new(),
-            params     : HashMap::<&str, String>::new(),
+            params     : HashMap::default(),
             id_counter : 0,
         }
     }
@@ -246,27 +240,144 @@ impl Context {
 
     // Context PARAMS ******************************************************************************
 
-    /// Añade o modifica un parámetro del contexto almacenando el valor como [`String`].
+    /// Añade o modifica un parámetro dinámico del contexto.
+    ///
+    /// El valor se guarda conservando el *nombre del tipo* real para mejorar los mensajes de error
+    /// posteriores.
+    ///
+    /// # Ejemplos
+    ///
+    /// ```rust
+    /// use pagetop::prelude::*;
+    ///
+    /// let cx = Context::new(None)
+    ///     .with_param("usuario_id", 42_i32)
+    ///     .with_param("titulo", String::from("Hola"))
+    ///     .with_param("flags", vec!["a", "b"]);
+    /// ```
     #[builder_fn]
-    pub fn with_param<T: ToString>(mut self, key: &'static str, value: T) -> Self {
-        self.params.insert(key, value.to_string());
+    pub fn with_param<T: 'static>(mut self, key: &'static str, value: T) -> Self {
+        let type_name = TypeInfo::FullName.of::<T>();
+        self.params.insert(key, (Box::new(value), type_name));
         self
     }
 
-    /// Recupera un parámetro del contexto convertido al tipo especificado.
+    /// Recupera un parámetro como [`Option`], simplificando el acceso.
     ///
-    /// Devuelve un error si el parámetro no existe ([`ErrorParam::NotFound`]) o la conversión falla
-    /// ([`ErrorParam::ParseError`]).
-    pub fn get_param<T: FromStr>(&self, key: &'static str) -> Result<T, ErrorParam> {
-        self.params
-            .get(key)
-            .ok_or(ErrorParam::NotFound)
-            .and_then(|v| T::from_str(v).map_err(|_| ErrorParam::ParseError(v.clone())))
+    /// A diferencia de [`get_param`](Self::get_param), que devuelve un [`Result`] con información
+    /// detallada de error, este método devuelve `None` tanto si la clave no existe como si el valor
+    /// guardado no coincide con el tipo solicitado.
+    ///
+    /// Resulta útil en escenarios donde sólo interesa saber si el valor existe y es del tipo
+    /// correcto, sin necesidad de diferenciar entre error de ausencia o de tipo.
+    ///
+    /// # Ejemplo
+    ///
+    /// ```rust
+    /// use pagetop::prelude::*;
+    ///
+    /// let cx = Context::new(None).with_param("username", String::from("Alice"));
+    ///
+    /// // Devuelve Some(&String) si existe y coincide el tipo.
+    /// assert_eq!(cx.param::<String>("username").map(|s| s.as_str()), Some("Alice"));
+    ///
+    /// // Devuelve None si no existe o si el tipo no coincide.
+    /// assert!(cx.param::<i32>("username").is_none());
+    /// assert!(cx.param::<String>("missing").is_none());
+    ///
+    /// // Acceso con valor por defecto.
+    /// let user = cx.param::<String>("missing")
+    ///     .cloned()
+    ///     .unwrap_or_else(|| "visitor".to_string());
+    /// assert_eq!(user, "visitor");
+    /// ```
+    pub fn param<T: 'static>(&self, key: &'static str) -> Option<&T> {
+        self.get_param::<T>(key).ok()
     }
 
-    /// Elimina un parámetro del contexto. Devuelve `true` si existía y se eliminó.
+    /// Recupera una *referencia tipada* al parámetro solicitado.
+    ///
+    /// Devuelve:
+    ///
+    /// - `Ok(&T)` si la clave existe y el tipo coincide.
+    /// - `Err(ErrorParam::NotFound)` si la clave no existe.
+    /// - `Err(ErrorParam::TypeMismatch)` si la clave existe pero el tipo no coincide.
+    ///
+    /// # Ejemplos
+    ///
+    /// ```rust
+    /// use pagetop::prelude::*;
+    ///
+    /// let cx = Context::new(None)
+    ///     .with_param("usuario_id", 42_i32)
+    ///     .with_param("titulo", String::from("Hola"));
+    ///
+    /// let id: &i32 = cx.get_param("usuario_id").unwrap();
+    /// let titulo: &String = cx.get_param("titulo").unwrap();
+    ///
+    /// // Error de tipo:
+    /// assert!(cx.get_param::<String>("usuario_id").is_err());
+    /// ```
+    pub fn get_param<T: 'static>(&self, key: &'static str) -> Result<&T, ErrorParam> {
+        let (any, type_name) = self.params.get(key).ok_or(ErrorParam::NotFound)?;
+        any.downcast_ref::<T>()
+            .ok_or_else(|| ErrorParam::TypeMismatch {
+                key,
+                expected: TypeInfo::FullName.of::<T>(),
+                saved: *type_name,
+            })
+    }
+
+    /// Elimina un parámetro del contexto. Devuelve `true` si la clave existía y se eliminó.
+    ///
+    /// Devuelve `false` en caso contrario. Usar cuando solo interesa borrar la entrada.
+    ///
+    /// # Ejemplos
+    ///
+    /// ```rust
+    /// use pagetop::prelude::*;
+    ///
+    /// let mut cx = Context::new(None).with_param("temp", 1u8);
+    /// assert!(cx.remove_param("temp"));
+    /// assert!(!cx.remove_param("temp")); // ya no existe
+    /// ```
     pub fn remove_param(&mut self, key: &'static str) -> bool {
         self.params.remove(key).is_some()
+    }
+
+    /// Recupera el parámetro solicitado y lo elimina del contexto.
+    ///
+    /// Devuelve:
+    ///
+    /// - `Ok(T)` si la clave existía y el tipo coincide.
+    /// - `Err(ErrorParam::NotFound)` si la clave no existe.
+    /// - `Err(ErrorParam::TypeMismatch)` si el tipo no coincide.
+    ///
+    /// # Ejemplos
+    ///
+    /// ```rust
+    /// use pagetop::prelude::*;
+    ///
+    /// let mut cx = Context::new(None)
+    ///     .with_param("contador", 7_i32)
+    ///     .with_param("titulo", String::from("Hola"));
+    ///
+    /// let n: i32 = cx.take_param("contador").unwrap();
+    /// assert!(cx.get_param::<i32>("contador").is_err()); // ya no está
+    ///
+    /// // Error de tipo:
+    /// assert!(cx.take_param::<i32>("titulo").is_err());
+    /// ```
+    pub fn take_param<T: 'static>(&mut self, key: &'static str) -> Result<T, ErrorParam> {
+        let (boxed, saved) = self.params.remove(key).ok_or(ErrorParam::NotFound)?;
+        boxed
+            .downcast::<T>()
+            .map(|b| *b)
+            .map_err(|_| ErrorParam::TypeMismatch {
+                key,
+                expected: TypeInfo::FullName.of::<T>(),
+                saved,
+            })
     }
 
     // Context EXTRAS ******************************************************************************
