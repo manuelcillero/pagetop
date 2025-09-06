@@ -20,7 +20,7 @@ async fn component_html_renders_using_context_param() {
     let mut cx = Context::new(None).with_param("username", String::from("Alice"));
 
     let component = Html::with(|cx| {
-        let name = cx.get_param::<String>("username").unwrap_or_default();
+        let name = cx.param::<String>("username").cloned().unwrap_or_default();
         html! {
             span { (name) }
         }
