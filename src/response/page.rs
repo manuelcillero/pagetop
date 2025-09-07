@@ -8,7 +8,8 @@ use crate::builder_fn;
 use crate::core::component::{Child, ChildOp, Component};
 use crate::core::theme::{ChildrenInRegions, ThemeRef, REGION_CONTENT};
 use crate::html::{html, Markup, DOCTYPE};
-use crate::html::{AssetsOp, Context};
+use crate::html::{Assets, Favicon, JavaScript, StyleSheet};
+use crate::html::{AssetsOp, Context, Contextual};
 use crate::html::{AttrClasses, ClassesOp};
 use crate::html::{AttrId, AttrL10n};
 use crate::locale::{CharacterDirection, L10n, LangId, LanguageIdentifier};
@@ -25,9 +26,9 @@ pub struct Page {
     description : AttrL10n,
     metadata    : Vec<(&'static str, &'static str)>,
     properties  : Vec<(&'static str, &'static str)>,
-    context     : Context,
     body_id     : AttrId,
     body_classes: AttrClasses,
+    context     : Context,
     regions     : ChildrenInRegions,
 }
 
@@ -43,9 +44,9 @@ impl Page {
             description : AttrL10n::default(),
             metadata    : Vec::default(),
             properties  : Vec::default(),
-            context     : Context::new(request),
             body_id     : AttrId::default(),
             body_classes: AttrClasses::default(),
+            context     : Context::new(request),
             regions     : ChildrenInRegions::default(),
         }
     }
@@ -77,40 +78,6 @@ impl Page {
     #[builder_fn]
     pub fn with_property(mut self, property: &'static str, content: &'static str) -> Self {
         self.metadata.push((property, content));
-        self
-    }
-
-    /// Modifica la fuente de idioma de la página ([`Context::with_langid()`]).
-    #[builder_fn]
-    pub fn with_langid(mut self, language: &impl LangId) -> Self {
-        self.context.alter_langid(language);
-        self
-    }
-
-    /// Modifica el tema que se usará para renderizar la página ([`Context::with_theme()`]).
-    #[builder_fn]
-    pub fn with_theme(mut self, theme_name: &'static str) -> Self {
-        self.context.alter_theme(theme_name);
-        self
-    }
-
-    /// Modifica la composición para renderizar la página ([`Context::with_layout()`]).
-    #[builder_fn]
-    pub fn with_layout(mut self, layout_name: &'static str) -> Self {
-        self.context.alter_layout(layout_name);
-        self
-    }
-
-    /// Define los recursos de la página usando [`AssetsOp`].
-    #[builder_fn]
-    pub fn with_assets(mut self, op: AssetsOp) -> Self {
-        self.context.alter_assets(op);
-        self
-    }
-
-    #[builder_fn]
-    pub fn with_param<T: 'static>(mut self, key: &'static str, value: T) -> Self {
-        self.context.alter_param(key, value);
         self
     }
 
@@ -205,25 +172,6 @@ impl Page {
         &self.properties
     }
 
-    /// Devuelve la solicitud HTTP asociada.
-    pub fn request(&self) -> Option<&HttpRequest> {
-        self.context.request()
-    }
-
-    /// Devuelve el tema que se usará para renderizar la página.
-    pub fn theme(&self) -> ThemeRef {
-        self.context.theme()
-    }
-
-    /// Devuelve la composición para renderizar la página. Por defecto es `"default"`.
-    pub fn layout(&self) -> &str {
-        self.context.layout()
-    }
-
-    pub fn param<T: 'static>(&self, key: &'static str) -> Option<&T> {
-        self.context.param(key)
-    }
-
     /// Devuelve el identificador del elemento `<body>`.
     pub fn body_id(&self) -> &AttrId {
         &self.body_id
@@ -233,19 +181,19 @@ impl Page {
     pub fn body_classes(&self) -> &AttrClasses {
         &self.body_classes
     }
-    /*
-        /// Devuelve una referencia mutable al [`Context`] de la página.
-        ///
-        /// El [`Context`] actúa como intermediario para muchos métodos de `Page` (idioma, tema,
-        /// *layout*, recursos, solicitud HTTP, etc.). Resulta especialmente útil cuando un componente
-        /// o un tema necesita recibir el contexto como parámetro.
-        pub fn context(&mut self) -> &mut Context {
-            &mut self.context
-        }
-    */
+
+    /// Devuelve una referencia mutable al [`Context`] de la página.
+    ///
+    /// El [`Context`] actúa como intermediario para muchos métodos de `Page` (idioma, tema,
+    /// *layout*, recursos, solicitud HTTP, etc.). Resulta especialmente útil cuando un componente
+    /// o un tema necesita recibir el contexto como parámetro.
+    pub fn context(&mut self) -> &mut Context {
+        &mut self.context
+    }
+
     // Page RENDER *********************************************************************************
 
-    /// Renderiza los componentes de una región (`regiona_name`) de la página.
+    /// Renderiza los componentes de una región (`region_name`) de la página.
     pub fn render_region(&mut self, region_name: &'static str) -> Markup {
         self.regions
             .merge_all_components(self.context.theme(), region_name)
@@ -300,5 +248,81 @@ impl Page {
 impl LangId for Page {
     fn langid(&self) -> &'static LanguageIdentifier {
         self.context.langid()
+    }
+}
+
+impl Contextual for Page {
+    // Contextual BUILDER **************************************************************************
+
+    #[builder_fn]
+    fn with_request(mut self, request: Option<HttpRequest>) -> Self {
+        self.context.alter_request(request);
+        self
+    }
+
+    #[builder_fn]
+    fn with_langid(mut self, language: &impl LangId) -> Self {
+        self.context.alter_langid(language);
+        self
+    }
+
+    #[builder_fn]
+    fn with_theme(mut self, theme_name: &'static str) -> Self {
+        self.context.alter_theme(theme_name);
+        self
+    }
+
+    #[builder_fn]
+    fn with_layout(mut self, layout_name: &'static str) -> Self {
+        self.context.alter_layout(layout_name);
+        self
+    }
+
+    #[builder_fn]
+    fn with_param<T: 'static>(mut self, key: &'static str, value: T) -> Self {
+        self.context.alter_param(key, value);
+        self
+    }
+
+    #[builder_fn]
+    fn with_assets(mut self, op: AssetsOp) -> Self {
+        self.context.alter_assets(op);
+        self
+    }
+
+    // Contextual GETTERS **************************************************************************
+
+    fn request(&self) -> Option<&HttpRequest> {
+        self.context.request()
+    }
+
+    fn theme(&self) -> ThemeRef {
+        self.context.theme()
+    }
+
+    fn layout(&self) -> &str {
+        self.context.layout()
+    }
+
+    fn param<T: 'static>(&self, key: &'static str) -> Option<&T> {
+        self.context.param(key)
+    }
+
+    fn favicon(&self) -> Option<&Favicon> {
+        self.context.favicon()
+    }
+
+    fn stylesheets(&self) -> &Assets<StyleSheet> {
+        self.context.stylesheets()
+    }
+
+    fn javascripts(&self) -> &Assets<JavaScript> {
+        self.context.javascripts()
+    }
+
+    // Contextual HELPERS **************************************************************************
+
+    fn required_id<T>(&mut self, id: Option<String>) -> String {
+        self.context.required_id::<T>(id)
     }
 }

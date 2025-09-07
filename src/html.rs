@@ -9,12 +9,12 @@ mod assets;
 pub use assets::favicon::Favicon;
 pub use assets::javascript::JavaScript;
 pub use assets::stylesheet::{StyleSheet, TargetMedia};
-pub(crate) use assets::Assets;
+pub use assets::{Asset, Assets};
 
 // HTML DOCUMENT CONTEXT ***************************************************************************
 
 mod context;
-pub use context::{AssetsOp, Context, ErrorParam};
+pub use context::{AssetsOp, Context, Contextual, ErrorParam};
 
 // HTML ATTRIBUTES *********************************************************************************
 

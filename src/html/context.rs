@@ -10,7 +10,7 @@ use crate::{builder_fn, join};
 use std::any::Any;
 use std::collections::HashMap;
 
-/// Operaciones para modificar el contexto ([`Context`]) del documento.
+/// Operaciones para modificar el contexto ([`Context`]) de un documento.
 pub enum AssetsOp {
     // Favicon.
     /// Define el *favicon* del documento. Sobrescribe cualquier valor anterior.
@@ -47,7 +47,64 @@ pub enum ErrorParam {
     },
 }
 
-/// Representa el contexto de un documento HTML.
+pub trait Contextual: LangId {
+    // Contextual BUILDER **************************************************************************
+
+    /// Asigna la fuente de idioma del documento.
+    #[builder_fn]
+    fn with_langid(self, language: &impl LangId) -> Self;
+
+    /// Asigna la solicitud HTTP al contexto.
+    #[builder_fn]
+    fn with_request(self, request: Option<HttpRequest>) -> Self;
+
+    /// Asigna el tema para renderizar el documento.
+    #[builder_fn]
+    fn with_theme(self, theme_name: &'static str) -> Self;
+
+    /// Asigna la composición para renderizar el documento.
+    #[builder_fn]
+    fn with_layout(self, layout_name: &'static str) -> Self;
+
+    /// Añade o modifica un parámetro dinámico del contexto.
+    #[builder_fn]
+    fn with_param<T: 'static>(self, key: &'static str, value: T) -> Self;
+
+    /// Define los recursos del contexto usando [`AssetsOp`].
+    #[builder_fn]
+    fn with_assets(self, op: AssetsOp) -> Self;
+
+    // Contextual GETTERS **************************************************************************
+
+    /// Devuelve una referencia a la solicitud HTTP asociada, si existe.
+    fn request(&self) -> Option<&HttpRequest>;
+
+    /// Devuelve el tema que se usará para renderizar el documento.
+    fn theme(&self) -> ThemeRef;
+
+    /// Devuelve la composición para renderizar el documento. Por defecto es `"default"`.
+    fn layout(&self) -> &str;
+
+    /// Recupera un parámetro como [`Option`], simplificando el acceso.
+    fn param<T: 'static>(&self, key: &'static str) -> Option<&T>;
+
+    /// Devuelve el Favicon de los recursos del contexto.
+    fn favicon(&self) -> Option<&Favicon>;
+
+    /// Devuelve las hojas de estilo de los recursos del contexto.
+    fn stylesheets(&self) -> &Assets<StyleSheet>;
+
+    /// Devuelve los scripts JavaScript de los recursos del contexto.
+    fn javascripts(&self) -> &Assets<JavaScript>;
+
+    // Contextual HELPERS **************************************************************************
+
+    /// Devuelve un identificador único dentro del contexto para el tipo `T`, si no se proporciona
+    /// un `id` explícito.
+    fn required_id<T>(&mut self, id: Option<String>) -> String;
+}
+
+/// Implementa el contexto de un documento HTML.
 ///
 /// Se crea internamente para manejar información relevante del documento, como la solicitud HTTP de
 /// origen, el idioma, tema y composición para el renderizado, los recursos *favicon* ([`Favicon`]),
@@ -107,7 +164,7 @@ pub struct Context {
     favicon    : Option<Favicon>,               // Favicon, si se ha definido.
     stylesheets: Assets<StyleSheet>,            // Hojas de estilo CSS.
     javascripts: Assets<JavaScript>,            // Scripts JavaScript.
-    params     : HashMap<&'static str, (Box<dyn Any>, &'static str)>, // Parámetros definidos en tiempo de ejecución.
+    params     : HashMap<&'static str, (Box<dyn Any>, &'static str)>, // Parámetros en ejecución.
     id_counter : usize,                         // Contador para generar identificadores únicos.
 }
 
@@ -151,80 +208,6 @@ impl Context {
         }
     }
 
-    // Context BUILDER *****************************************************************************
-
-    /// Modifica la fuente de idioma del documento.
-    #[builder_fn]
-    pub fn with_langid(mut self, language: &impl LangId) -> Self {
-        self.langid = language.langid();
-        self
-    }
-
-    /// Modifica el tema que se usará para renderizar el documento.
-    ///
-    /// Localiza el tema por su [`short_name()`](crate::core::AnyInfo::short_name), y si no aplica
-    /// ninguno entonces usará el tema por defecto.
-    #[builder_fn]
-    pub fn with_theme(mut self, theme_name: &'static str) -> Self {
-        self.theme = theme_by_short_name(theme_name).unwrap_or(*DEFAULT_THEME);
-        self
-    }
-
-    /// Modifica la composición para renderizar el documento.
-    #[builder_fn]
-    pub fn with_layout(mut self, layout_name: &'static str) -> Self {
-        self.layout = layout_name;
-        self
-    }
-
-    /// Define los recursos del contexto usando [`AssetsOp`].
-    #[builder_fn]
-    pub fn with_assets(mut self, op: AssetsOp) -> Self {
-        match op {
-            // Favicon.
-            AssetsOp::SetFavicon(favicon) => {
-                self.favicon = favicon;
-            }
-            AssetsOp::SetFaviconIfNone(icon) => {
-                if self.favicon.is_none() {
-                    self.favicon = Some(icon);
-                }
-            }
-            // Stylesheets.
-            AssetsOp::AddStyleSheet(css) => {
-                self.stylesheets.add(css);
-            }
-            AssetsOp::RemoveStyleSheet(path) => {
-                self.stylesheets.remove(path);
-            }
-            // JavaScripts.
-            AssetsOp::AddJavaScript(js) => {
-                self.javascripts.add(js);
-            }
-            AssetsOp::RemoveJavaScript(path) => {
-                self.javascripts.remove(path);
-            }
-        }
-        self
-    }
-
-    // Context GETTERS *****************************************************************************
-
-    /// Devuelve una referencia a la solicitud HTTP asociada, si existe.
-    pub fn request(&self) -> Option<&HttpRequest> {
-        self.request.as_ref()
-    }
-
-    /// Devuelve el tema que se usará para renderizar el documento.
-    pub fn theme(&self) -> ThemeRef {
-        self.theme
-    }
-
-    /// Devuelve la composición para renderizar el documento. Por defecto es `"default"`.
-    pub fn layout(&self) -> &str {
-        self.layout
-    }
-
     // Context RENDER ******************************************************************************
 
     /// Renderiza los recursos del contexto.
@@ -239,61 +222,6 @@ impl Context {
     }
 
     // Context PARAMS ******************************************************************************
-
-    /// Añade o modifica un parámetro dinámico del contexto.
-    ///
-    /// El valor se guarda conservando el *nombre del tipo* real para mejorar los mensajes de error
-    /// posteriores.
-    ///
-    /// # Ejemplos
-    ///
-    /// ```rust
-    /// use pagetop::prelude::*;
-    ///
-    /// let cx = Context::new(None)
-    ///     .with_param("usuario_id", 42_i32)
-    ///     .with_param("titulo", String::from("Hola"))
-    ///     .with_param("flags", vec!["a", "b"]);
-    /// ```
-    #[builder_fn]
-    pub fn with_param<T: 'static>(mut self, key: &'static str, value: T) -> Self {
-        let type_name = TypeInfo::FullName.of::<T>();
-        self.params.insert(key, (Box::new(value), type_name));
-        self
-    }
-
-    /// Recupera un parámetro como [`Option`], simplificando el acceso.
-    ///
-    /// A diferencia de [`get_param`](Self::get_param), que devuelve un [`Result`] con información
-    /// detallada de error, este método devuelve `None` tanto si la clave no existe como si el valor
-    /// guardado no coincide con el tipo solicitado.
-    ///
-    /// Resulta útil en escenarios donde sólo interesa saber si el valor existe y es del tipo
-    /// correcto, sin necesidad de diferenciar entre error de ausencia o de tipo.
-    ///
-    /// # Ejemplo
-    ///
-    /// ```rust
-    /// use pagetop::prelude::*;
-    ///
-    /// let cx = Context::new(None).with_param("username", String::from("Alice"));
-    ///
-    /// // Devuelve Some(&String) si existe y coincide el tipo.
-    /// assert_eq!(cx.param::<String>("username").map(|s| s.as_str()), Some("Alice"));
-    ///
-    /// // Devuelve None si no existe o si el tipo no coincide.
-    /// assert!(cx.param::<i32>("username").is_none());
-    /// assert!(cx.param::<String>("missing").is_none());
-    ///
-    /// // Acceso con valor por defecto.
-    /// let user = cx.param::<String>("missing")
-    ///     .cloned()
-    ///     .unwrap_or_else(|| "visitor".to_string());
-    /// assert_eq!(user, "visitor");
-    /// ```
-    pub fn param<T: 'static>(&self, key: &'static str) -> Option<&T> {
-        self.get_param::<T>(key).ok()
-    }
 
     /// Recupera una *referencia tipada* al parámetro solicitado.
     ///
@@ -326,23 +254,6 @@ impl Context {
                 expected: TypeInfo::FullName.of::<T>(),
                 saved: *type_name,
             })
-    }
-
-    /// Elimina un parámetro del contexto. Devuelve `true` si la clave existía y se eliminó.
-    ///
-    /// Devuelve `false` en caso contrario. Usar cuando solo interesa borrar la entrada.
-    ///
-    /// # Ejemplos
-    ///
-    /// ```rust
-    /// use pagetop::prelude::*;
-    ///
-    /// let mut cx = Context::new(None).with_param("temp", 1u8);
-    /// assert!(cx.remove_param("temp"));
-    /// assert!(!cx.remove_param("temp")); // ya no existe
-    /// ```
-    pub fn remove_param(&mut self, key: &'static str) -> bool {
-        self.params.remove(key).is_some()
     }
 
     /// Recupera el parámetro solicitado y lo elimina del contexto.
@@ -380,30 +291,21 @@ impl Context {
             })
     }
 
-    // Context EXTRAS ******************************************************************************
-
-    /// Genera un identificador único si no se proporciona uno explícito.
+    /// Elimina un parámetro del contexto. Devuelve `true` si la clave existía y se eliminó.
     ///
-    /// Si no se proporciona un `id`, se genera un identificador único en la forma `<tipo>-<número>`
-    /// donde `<tipo>` es el nombre corto del tipo en minúsculas (sin espacios) y `<número>` es un
-    /// contador interno incremental.
-    pub fn required_id<T>(&mut self, id: Option<String>) -> String {
-        if let Some(id) = id {
-            id
-        } else {
-            let prefix = TypeInfo::ShortName
-                .of::<T>()
-                .trim()
-                .replace(' ', "_")
-                .to_lowercase();
-            let prefix = if prefix.is_empty() {
-                "prefix".to_owned()
-            } else {
-                prefix
-            };
-            self.id_counter += 1;
-            join!(prefix, "-", self.id_counter.to_string())
-        }
+    /// Devuelve `false` en caso contrario. Usar cuando solo interesa borrar la entrada.
+    ///
+    /// # Ejemplos
+    ///
+    /// ```rust
+    /// use pagetop::prelude::*;
+    ///
+    /// let mut cx = Context::new(None).with_param("temp", 1u8);
+    /// assert!(cx.remove_param("temp"));
+    /// assert!(!cx.remove_param("temp")); // ya no existe
+    /// ```
+    pub fn remove_param(&mut self, key: &'static str) -> bool {
+        self.params.remove(key).is_some()
     }
 }
 
@@ -421,5 +323,175 @@ impl Context {
 impl LangId for Context {
     fn langid(&self) -> &'static LanguageIdentifier {
         self.langid
+    }
+}
+
+impl Contextual for Context {
+    // Contextual BUILDER **************************************************************************
+
+    #[builder_fn]
+    fn with_request(mut self, request: Option<HttpRequest>) -> Self {
+        self.request = request;
+        self
+    }
+
+    #[builder_fn]
+    fn with_langid(mut self, language: &impl LangId) -> Self {
+        self.langid = language.langid();
+        self
+    }
+
+    /// Asigna el tema para renderizar el documento.
+    ///
+    /// Localiza el tema por su [`short_name()`](crate::core::AnyInfo::short_name), y si no aplica
+    /// ninguno entonces usará el tema por defecto.
+    #[builder_fn]
+    fn with_theme(mut self, theme_name: &'static str) -> Self {
+        self.theme = theme_by_short_name(theme_name).unwrap_or(*DEFAULT_THEME);
+        self
+    }
+
+    #[builder_fn]
+    fn with_layout(mut self, layout_name: &'static str) -> Self {
+        self.layout = layout_name;
+        self
+    }
+
+    /// Añade o modifica un parámetro dinámico del contexto.
+    ///
+    /// El valor se guarda conservando el *nombre del tipo* real para mejorar los mensajes de error
+    /// posteriores.
+    ///
+    /// # Ejemplos
+    ///
+    /// ```rust
+    /// use pagetop::prelude::*;
+    ///
+    /// let cx = Context::new(None)
+    ///     .with_param("usuario_id", 42_i32)
+    ///     .with_param("titulo", String::from("Hola"))
+    ///     .with_param("flags", vec!["a", "b"]);
+    /// ```
+    #[builder_fn]
+    fn with_param<T: 'static>(mut self, key: &'static str, value: T) -> Self {
+        let type_name = TypeInfo::FullName.of::<T>();
+        self.params.insert(key, (Box::new(value), type_name));
+        self
+    }
+
+    #[builder_fn]
+    fn with_assets(mut self, op: AssetsOp) -> Self {
+        match op {
+            // Favicon.
+            AssetsOp::SetFavicon(favicon) => {
+                self.favicon = favicon;
+            }
+            AssetsOp::SetFaviconIfNone(icon) => {
+                if self.favicon.is_none() {
+                    self.favicon = Some(icon);
+                }
+            }
+            // Stylesheets.
+            AssetsOp::AddStyleSheet(css) => {
+                self.stylesheets.add(css);
+            }
+            AssetsOp::RemoveStyleSheet(path) => {
+                self.stylesheets.remove(path);
+            }
+            // JavaScripts.
+            AssetsOp::AddJavaScript(js) => {
+                self.javascripts.add(js);
+            }
+            AssetsOp::RemoveJavaScript(path) => {
+                self.javascripts.remove(path);
+            }
+        }
+        self
+    }
+
+    // Contextual GETTERS **************************************************************************
+
+    fn request(&self) -> Option<&HttpRequest> {
+        self.request.as_ref()
+    }
+
+    fn theme(&self) -> ThemeRef {
+        self.theme
+    }
+
+    fn layout(&self) -> &str {
+        self.layout
+    }
+
+    /// Recupera un parámetro como [`Option`], simplificando el acceso.
+    ///
+    /// A diferencia de [`get_param`](Self::get_param), que devuelve un [`Result`] con información
+    /// detallada de error, este método devuelve `None` tanto si la clave no existe como si el valor
+    /// guardado no coincide con el tipo solicitado.
+    ///
+    /// Resulta útil en escenarios donde sólo interesa saber si el valor existe y es del tipo
+    /// correcto, sin necesidad de diferenciar entre error de ausencia o de tipo.
+    ///
+    /// # Ejemplo
+    ///
+    /// ```rust
+    /// use pagetop::prelude::*;
+    ///
+    /// let cx = Context::new(None).with_param("username", String::from("Alice"));
+    ///
+    /// // Devuelve Some(&String) si existe y coincide el tipo.
+    /// assert_eq!(cx.param::<String>("username").map(|s| s.as_str()), Some("Alice"));
+    ///
+    /// // Devuelve None si no existe o si el tipo no coincide.
+    /// assert!(cx.param::<i32>("username").is_none());
+    /// assert!(cx.param::<String>("missing").is_none());
+    ///
+    /// // Acceso con valor por defecto.
+    /// let user = cx.param::<String>("missing")
+    ///     .cloned()
+    ///     .unwrap_or_else(|| "visitor".to_string());
+    /// assert_eq!(user, "visitor");
+    /// ```
+    fn param<T: 'static>(&self, key: &'static str) -> Option<&T> {
+        self.get_param::<T>(key).ok()
+    }
+
+    fn favicon(&self) -> Option<&Favicon> {
+        self.favicon.as_ref()
+    }
+
+    fn stylesheets(&self) -> &Assets<StyleSheet> {
+        &self.stylesheets
+    }
+
+    fn javascripts(&self) -> &Assets<JavaScript> {
+        &self.javascripts
+    }
+
+    // Contextual HELPERS **************************************************************************
+
+    /// Devuelve un identificador único dentro del contexto para el tipo `T`, si no se proporciona
+    /// un `id` explícito.
+    ///
+    /// Si no se proporciona un `id`, se genera un identificador único en la forma `<tipo>-<número>`
+    /// donde `<tipo>` es el nombre corto del tipo en minúsculas (sin espacios) y `<número>` es un
+    /// contador interno incremental.
+    fn required_id<T>(&mut self, id: Option<String>) -> String {
+        if let Some(id) = id {
+            id
+        } else {
+            let prefix = TypeInfo::ShortName
+                .of::<T>()
+                .trim()
+                .replace(' ', "_")
+                .to_lowercase();
+            let prefix = if prefix.is_empty() {
+                "prefix".to_owned()
+            } else {
+                prefix
+            };
+            self.id_counter += 1;
+            join!(prefix, "-", self.id_counter.to_string())
+        }
     }
 }

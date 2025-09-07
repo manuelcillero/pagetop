@@ -1,4 +1,4 @@
-use crate::html::assets::AssetsTrait;
+use crate::html::assets::Asset;
 use crate::html::{html, Markup, Render};
 use crate::{join, join_pair, AutoDefault, Weight};
 
@@ -137,7 +137,7 @@ impl JavaScript {
     }
 }
 
-impl AssetsTrait for JavaScript {
+impl Asset for JavaScript {
     // Para *scripts* externos es la ruta; para *scripts* embebidos, un identificador.
     fn name(&self) -> &str {
         match &self.source {

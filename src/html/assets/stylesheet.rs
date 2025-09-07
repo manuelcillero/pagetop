@@ -1,4 +1,4 @@
-use crate::html::assets::AssetsTrait;
+use crate::html::assets::Asset;
 use crate::html::{html, Markup, PreEscaped, Render};
 use crate::{join_pair, AutoDefault, Weight};
 
@@ -142,7 +142,7 @@ impl StyleSheet {
     }
 }
 
-impl AssetsTrait for StyleSheet {
+impl Asset for StyleSheet {
     // Para hojas de estilos externas es la ruta; para las embebidas, un identificador.
     fn name(&self) -> &str {
         match &self.source {

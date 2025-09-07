@@ -5,20 +5,20 @@ pub mod stylesheet;
 use crate::html::{html, Markup, Render};
 use crate::{AutoDefault, Weight};
 
-pub trait AssetsTrait: Render {
-    // Devuelve el nombre del recurso, utilizado como clave única.
+pub trait Asset: Render {
+    /// Devuelve el nombre del recurso, utilizado como clave única.
     fn name(&self) -> &str;
 
-    // Devuelve el peso del recurso, durante el renderizado se procesan de menor a mayor peso.
+    /// Devuelve el peso del recurso, durante el renderizado se procesan de menor a mayor peso.
     fn weight(&self) -> Weight;
 }
 
 #[derive(AutoDefault)]
-pub(crate) struct Assets<T>(Vec<T>);
+pub struct Assets<T>(Vec<T>);
 
-impl<T: AssetsTrait> Assets<T> {
+impl<T: Asset> Assets<T> {
     pub fn new() -> Self {
-        Assets::<T>(Vec::<T>::new())
+        Self(Vec::new())
     }
 
     pub fn add(&mut self, asset: T) -> bool {
@@ -49,14 +49,14 @@ impl<T: AssetsTrait> Assets<T> {
     }
 }
 
-impl<T: AssetsTrait> Render for Assets<T> {
+impl<T: Asset> Render for Assets<T> {
     fn render(&self) -> Markup {
         let mut assets = self.0.iter().collect::<Vec<_>>();
         assets.sort_by_key(|a| a.weight());
 
         html! {
             @for a in assets {
-                (a.render())
+                (a)
             }
         }
     }
