@@ -39,7 +39,7 @@ mod smart_default;
 
 use proc_macro::TokenStream;
 use quote::{quote, quote_spanned};
-use syn::{parse_macro_input, spanned::Spanned, DeriveInput, ItemFn};
+use syn::{parse_macro_input, spanned::Spanned, DeriveInput};
 
 /// Macro para escribir plantillas HTML (basada en [Maud](https://docs.rs/maud)).
 #[proc_macro]
@@ -107,114 +107,216 @@ pub fn derive_auto_default(input: TokenStream) -> TokenStream {
 /// `alter_...()`, que permitirá más adelante modificar instancias existentes.
 #[proc_macro_attribute]
 pub fn builder_fn(_: TokenStream, item: TokenStream) -> TokenStream {
-    let fn_with = parse_macro_input!(item as ItemFn);
-    let fn_with_name = fn_with.sig.ident.clone();
-    let fn_with_name_str = fn_with.sig.ident.to_string();
+    use syn::{parse2, FnArg, Ident, ImplItemFn, Pat, ReturnType, TraitItemFn, Type};
+
+    let ts: proc_macro2::TokenStream = item.clone().into();
+
+    enum Kind {
+        Impl(ImplItemFn),
+        Trait(TraitItemFn),
+    }
+
+    // Detecta si estamos en `impl` o `trait`.
+    let kind = if let Ok(it) = parse2::<ImplItemFn>(ts.clone()) {
+        Kind::Impl(it)
+    } else if let Ok(tt) = parse2::<TraitItemFn>(ts.clone()) {
+        Kind::Trait(tt)
+    } else {
+        return quote! {
+            compile_error!("#[builder_fn] only supports methods in `impl` blocks or `trait` items");
+        }
+        .into();
+    };
+
+    // Extrae piezas comunes (sig, attrs, vis, bloque?, es_trait?).
+    let (sig, attrs, vis, body_opt, is_trait) = match &kind {
+        Kind::Impl(m) => (&m.sig, &m.attrs, Some(&m.vis), Some(&m.block), false),
+        Kind::Trait(t) => (&t.sig, &t.attrs, None, t.default.as_ref(), true),
+    };
+
+    let with_name = sig.ident.clone();
+    let with_name_str = sig.ident.to_string();
 
     // Valida el nombre del método.
-    if !fn_with_name_str.starts_with("with_") {
-        let expanded = quote_spanned! {
-            fn_with.sig.ident.span() =>
-                compile_error!("expected a \"pub fn with_...(mut self, ...) -> Self\" method");
-        };
-        return expanded.into();
-    }
-    // Valida que el método es público.
-    if !matches!(fn_with.vis, syn::Visibility::Public(_)) {
+    if !with_name_str.starts_with("with_") {
         return quote_spanned! {
-            fn_with.sig.ident.span() => compile_error!("expected method to be `pub`");
+            sig.ident.span() => compile_error!("expected a named `with_...()` method");
         }
         .into();
     }
-    // Valida que el primer argumento es exactamente `mut self`.
-    if let Some(syn::FnArg::Receiver(receiver)) = fn_with.sig.inputs.first() {
-        if receiver.mutability.is_none() || receiver.reference.is_some() {
-            return quote_spanned! {
-                receiver.span() => compile_error!("expected `mut self` as the first argument");
+
+    // Sólo se exige `pub` en `impl` (en `trait` no aplica).
+    let vis_pub = match (is_trait, vis) {
+        (false, Some(v)) => quote! { #v },
+        _ => quote! {},
+    };
+
+    // Validaciones comunes.
+    if sig.asyncness.is_some() {
+        return quote_spanned! {
+            sig.asyncness.span() => compile_error!("`with_...()` cannot be `async`");
+        }
+        .into();
+    }
+    if sig.constness.is_some() {
+        return quote_spanned! {
+            sig.constness.span() => compile_error!("`with_...()` cannot be `const`");
+        }
+        .into();
+    }
+    if sig.abi.is_some() {
+        return quote_spanned! {
+            sig.abi.span() => compile_error!("`with_...()` cannot be `extern`");
+        }
+        .into();
+    }
+    if sig.unsafety.is_some() {
+        return quote_spanned! {
+            sig.unsafety.span() => compile_error!("`with_...()` cannot be `unsafe`");
+        }
+        .into();
+    }
+
+    // En `impl` se exige exactamente `mut self`; y en `trait` se exige `self` (sin &).
+    let receiver_ok = match sig.inputs.first() {
+        Some(FnArg::Receiver(r)) => {
+            // Rechaza `self: SomeType`.
+            if r.colon_token.is_some() {
+                false
+            } else if is_trait {
+                // Exactamente `self` (sin &, sin mut).
+                r.reference.is_none() && r.mutability.is_none()
+            } else {
+                // Exactamente `mut self`.
+                r.reference.is_none() && r.mutability.is_some()
             }
-            .into();
         }
-    } else {
+        _ => false,
+    };
+    if !receiver_ok {
+        let msg = if is_trait {
+            "expected `self` (not `mut self`, `&self` or `&mut self`) in trait method"
+        } else {
+            "expected first argument to be exactly `mut self`"
+        };
+        let err = sig
+            .inputs
+            .first()
+            .map(|a| a.span())
+            .unwrap_or(sig.ident.span());
         return quote_spanned! {
-            fn_with.sig.ident.span() => compile_error!("expected `mut self` as the first argument");
+            err => compile_error!(#msg);
         }
         .into();
     }
+
     // Valida que el método devuelve exactamente `Self`.
-    if let syn::ReturnType::Type(_, ty) = &fn_with.sig.output {
-        if let syn::Type::Path(type_path) = ty.as_ref() {
-            if type_path.qself.is_some() || !type_path.path.is_ident("Self") {
-                return quote_spanned! { ty.span() =>
-                    compile_error!("expected return type to be exactly `Self`");
+    match &sig.output {
+        ReturnType::Type(_, ty) => match ty.as_ref() {
+            Type::Path(p) if p.qself.is_none() && p.path.is_ident("Self") => {}
+            _ => {
+                return quote_spanned! {
+                    ty.span() => compile_error!("expected return type to be exactly `Self`");
                 }
                 .into();
             }
-        } else {
-            return quote_spanned! { ty.span() =>
-                compile_error!("expected return type to be exactly `Self`");
+        },
+        _ => {
+            return quote_spanned! {
+                sig.output.span() => compile_error!("expected return type to be exactly `Self`");
             }
             .into();
         }
-    } else {
-        return quote_spanned! {
-            fn_with.sig.output.span() => compile_error!("expected method to return `Self`");
-        }
-        .into();
     }
 
     // Genera el nombre del método alter_...().
-    let fn_alter_name_str = fn_with_name_str.replace("with_", "alter_");
-    let fn_alter_name = syn::Ident::new(&fn_alter_name_str, fn_with.sig.ident.span());
+    let stem = with_name_str.strip_prefix("with_").expect("validated");
+    let alter_ident = Ident::new(&format!("alter_{stem}"), with_name.span());
 
     // Extrae genéricos y cláusulas where.
-    let fn_generics = &fn_with.sig.generics;
-    let where_clause = &fn_with.sig.generics.where_clause;
+    let generics = &sig.generics;
+    let where_clause = &sig.generics.where_clause;
 
-    // Extrae argumentos y parámetros de llamada.
-    let args: Vec<_> = fn_with.sig.inputs.iter().skip(1).collect();
-    let params: Vec<_> = fn_with
-        .sig
-        .inputs
+    // Extrae identificadores de los argumentos para la llamada (sin `mut` ni patrones complejos).
+    let args: Vec<_> = sig.inputs.iter().skip(1).collect();
+    let call_idents: Vec<Ident> = {
+        let mut v = Vec::new();
+        for arg in sig.inputs.iter().skip(1) {
+            match arg {
+                FnArg::Typed(pat) => {
+                    if let Pat::Ident(pat_ident) = pat.pat.as_ref() {
+                        v.push(pat_ident.ident.clone());
+                    } else {
+                        return quote_spanned! {
+                            pat.pat.span() => compile_error!(
+                                "each parameter must be a simple identifier, e.g. `value: T`"
+                            );
+                        }
+                        .into();
+                    }
+                }
+                _ => {
+                    return quote_spanned! {
+                        arg.span() => compile_error!("unexpected receiver in parameter list");
+                    }
+                    .into();
+                }
+            }
+        }
+        v
+    };
+
+    // Extrae atributos descartando la documentación para incluir en `alter_...()`.
+    let non_doc_attrs: Vec<_> = attrs
         .iter()
-        .skip(1)
-        .map(|arg| match arg {
-            syn::FnArg::Typed(pat) => &pat.pat,
-            _ => panic!("unexpected argument type"),
-        })
+        .cloned()
+        .filter(|a| !a.path().is_ident("doc"))
         .collect();
 
-    // Extrae bloque del método.
-    let fn_with_block = &fn_with.block;
-
-    // Extrae documentación y otros atributos del método.
-    let fn_with_attrs = &fn_with.attrs;
-
-    // Genera el método alter_...() con el código del método with_...().
-    let fn_alter_doc =
-        format!("Equivalente a [`Self::{fn_with_name_str}()`], pero sin usar el patrón *builder*.");
-
-    let fn_alter = quote! {
-        #[doc = #fn_alter_doc]
-        pub fn #fn_alter_name #fn_generics(&mut self, #(#args),*) -> &mut Self #where_clause {
-            #fn_with_block
-        }
-    };
-
-    // Redefine el método with_...() para que llame a alter_...().
-    let fn_with = quote! {
-        #(#fn_with_attrs)*
-        #[inline]
-        pub fn #fn_with_name #fn_generics(mut self, #(#args),*) -> Self #where_clause {
-            self.#fn_alter_name(#(#params),*);
-            self
-        }
-    };
+    // Documentación del método alter_...().
+    let alter_doc =
+        format!("Equivalente a [`Self::{with_name_str}()`], pero fuera del patrón *builder*.");
 
     // Genera el código final.
-    let expanded = quote! {
-        #fn_with
-        #[inline]
-        #fn_alter
+    let expanded = match body_opt {
+        None => {
+            quote! {
+                #(#attrs)*
+                fn #with_name #generics (self, #(#args),*) -> Self #where_clause;
+
+                #(#non_doc_attrs)*
+                #[doc = #alter_doc]
+                fn #alter_ident #generics (&mut self, #(#args),*) -> &mut Self #where_clause;
+            }
+        }
+        Some(body) => {
+            let with_fn = if is_trait {
+                quote! {
+                    #vis_pub fn #with_name #generics (self, #(#args),*) -> Self #where_clause {
+                        let mut s = self;
+                        s.#alter_ident(#(#call_idents),*);
+                        s
+                    }
+                }
+            } else {
+                quote! {
+                    #vis_pub fn #with_name #generics (mut self, #(#args),*) -> Self #where_clause {
+                        self.#alter_ident(#(#call_idents),*);
+                        self
+                    }
+                }
+            };
+            quote! {
+                #(#attrs)*
+                #with_fn
+
+                #(#non_doc_attrs)*
+                #[doc = #alter_doc]
+                #vis_pub fn #alter_ident #generics (&mut self, #(#args),*) -> &mut Self #where_clause {
+                    #body
+                }
+            }
+        }
     };
     expanded.into()
 }
