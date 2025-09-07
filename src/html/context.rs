@@ -47,22 +47,52 @@ pub enum ErrorParam {
     },
 }
 
+/// Interfaz para gestionar el **contexto de renderizado** de un documento HTML.
+///
+/// `Contextual` extiende [`LangId`] y define los métodos para:
+///
+/// - Establecer el **idioma** del documento.
+/// - Almacenar la **solicitud HTTP** de origen.
+/// - Seleccionar **tema** y **composición** (*layout*) de renderizado.
+/// - Administrar **recursos** del documento como el icono [`Favicon`], las hojas de estilo
+///   [`StyleSheet`] o los *scripts* [`JavaScript`] mediante [`AssetsOp`].
+/// - Leer y mantener **parámetros dinámicos tipados** de contexto.
+/// - Generar **identificadores únicos** por tipo de componente.
+///
+/// Lo implementan, típicamente, estructuras que representan el contexto de renderizado, como
+/// [`Context`](crate::html::Context) o [`Page`](crate::response::page::Page).
+///
+/// # Ejemplo
+///
+/// ```rust
+/// use pagetop::prelude::*;
+///
+/// fn prepare_context<C: Contextual>(cx: C) -> C {
+///     cx.with_langid(&LangMatch::resolve("es-ES"))
+///       .with_theme("aliner")
+///       .with_layout("default")
+///       .with_assets(AssetsOp::SetFavicon(Some(Favicon::new().with_icon("/favicon.ico"))))
+///       .with_assets(AssetsOp::AddStyleSheet(StyleSheet::from("/css/app.css")))
+///       .with_assets(AssetsOp::AddJavaScript(JavaScript::defer("/js/app.js")))
+///       .with_param("usuario_id", 42_i32)
+/// }
+/// ```
 pub trait Contextual: LangId {
     // Contextual BUILDER **************************************************************************
 
-    /// Asigna la fuente de idioma del documento.
+    /// Establece el idioma del documento.
     #[builder_fn]
     fn with_langid(self, language: &impl LangId) -> Self;
 
-    /// Asigna la solicitud HTTP al contexto.
+    /// Almacena la solicitud HTTP de origen en el contexto.
     #[builder_fn]
     fn with_request(self, request: Option<HttpRequest>) -> Self;
 
-    /// Asigna el tema para renderizar el documento.
+    /// Especifica el tema para renderizar el documento.
     #[builder_fn]
     fn with_theme(self, theme_name: &'static str) -> Self;
 
-    /// Asigna la composición para renderizar el documento.
+    /// Especifica la composición para renderizar el documento.
     #[builder_fn]
     fn with_layout(self, layout_name: &'static str) -> Self;
 
@@ -85,7 +115,7 @@ pub trait Contextual: LangId {
     /// Devuelve la composición para renderizar el documento. Por defecto es `"default"`.
     fn layout(&self) -> &str;
 
-    /// Recupera un parámetro como [`Option`], simplificando el acceso.
+    /// Recupera un parámetro como [`Option`].
     fn param<T: 'static>(&self, key: &'static str) -> Option<&T>;
 
     /// Devuelve el Favicon de los recursos del contexto.
@@ -94,22 +124,24 @@ pub trait Contextual: LangId {
     /// Devuelve las hojas de estilo de los recursos del contexto.
     fn stylesheets(&self) -> &Assets<StyleSheet>;
 
-    /// Devuelve los scripts JavaScript de los recursos del contexto.
+    /// Devuelve los *scripts* JavaScript de los recursos del contexto.
     fn javascripts(&self) -> &Assets<JavaScript>;
 
     // Contextual HELPERS **************************************************************************
 
-    /// Devuelve un identificador único dentro del contexto para el tipo `T`, si no se proporciona
-    /// un `id` explícito.
+    /// Genera un identificador único por tipo (`<tipo>-<n>`) cuando no se aporta uno explícito.
+    ///
+    /// Es útil para componentes u otros elementos HTML que necesitan un identificador predecible si
+    /// no se proporciona ninguno.
     fn required_id<T>(&mut self, id: Option<String>) -> String;
 }
 
-/// Implementa el contexto de un documento HTML.
+/// Implementa un **contexto de renderizado** para un documento HTML.
 ///
-/// Se crea internamente para manejar información relevante del documento, como la solicitud HTTP de
-/// origen, el idioma, tema y composición para el renderizado, los recursos *favicon* ([`Favicon`]),
-/// hojas de estilo ([`StyleSheet`]) y *scripts* ([`JavaScript`]), así como *parámetros dinámicos
-/// heterogéneos* de contexto definidos en tiempo de ejecución.
+/// Extiende [`Contextual`] con métodos para **instanciar** y configurar un nuevo contexto,
+/// **renderizar los recursos** del documento (incluyendo el [`Favicon`], las hojas de estilo
+/// [`StyleSheet`] y los *scripts* [`JavaScript`]), o extender el uso de **parámetros dinámicos
+/// tipados** con nuevos métodos.
 ///
 /// # Ejemplos
 ///

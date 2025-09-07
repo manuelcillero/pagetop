@@ -138,7 +138,9 @@ impl JavaScript {
 }
 
 impl Asset for JavaScript {
-    // Para *scripts* externos es la ruta; para *scripts* embebidos, un identificador.
+    /// Devuelve el nombre del recurso, utilizado como clave única.
+    ///
+    /// Para *scripts* externos es la ruta del recurso; para *scripts* embebidos, un identificador.
     fn name(&self) -> &str {
         match &self.source {
             Source::From(path) => path,
