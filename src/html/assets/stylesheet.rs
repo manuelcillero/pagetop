@@ -143,7 +143,9 @@ impl StyleSheet {
 }
 
 impl Asset for StyleSheet {
-    // Para hojas de estilos externas es la ruta; para las embebidas, un identificador.
+    /// Devuelve el nombre del recurso, utilizado como clave única.
+    ///
+    /// Para hojas de estilos externas es la ruta del recurso; para las embebidas, un identificador.
     fn name(&self) -> &str {
         match &self.source {
             Source::From(path) => path,
