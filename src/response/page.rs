@@ -4,7 +4,6 @@ pub use error::ErrorPage;
 pub use actix_web::Result as ResultPage;
 
 use crate::base::action;
-use crate::builder_fn;
 use crate::core::component::{Child, ChildOp, Component};
 use crate::core::theme::{ChildrenInRegions, ThemeRef, REGION_CONTENT};
 use crate::html::{html, Markup, DOCTYPE};
@@ -14,6 +13,7 @@ use crate::html::{AttrClasses, ClassesOp};
 use crate::html::{AttrId, AttrL10n};
 use crate::locale::{CharacterDirection, L10n, LangId, LanguageIdentifier};
 use crate::service::HttpRequest;
+use crate::{builder_fn, AutoDefault};
 
 /// Representa una página HTML completa lista para renderizar.
 ///
@@ -21,6 +21,7 @@ use crate::service::HttpRequest;
 /// regiones donde disponer los componentes, atributos de `<body>` y otros aspectos del contexto de
 /// renderizado.
 #[rustfmt::skip]
+#[derive(AutoDefault)]
 pub struct Page {
     title       : AttrL10n,
     description : AttrL10n,
@@ -35,10 +36,10 @@ pub struct Page {
 impl Page {
     /// Crea una nueva instancia de página.
     ///
-    /// Si se proporciona la solicitud HTTP, se guardará en el contexto de renderizado de la página
-    /// para poder ser recuperada por los componentes si es necesario.
+    /// La solicitud HTTP se guardará en el contexto de renderizado de la página para poder ser
+    /// recuperada por los componentes si es necesario.
     #[rustfmt::skip]
-    pub fn new(request: Option<HttpRequest>) -> Self {
+    pub fn new(request: HttpRequest) -> Self {
         Page {
             title       : AttrL10n::default(),
             description : AttrL10n::default(),
@@ -46,7 +47,7 @@ impl Page {
             properties  : Vec::default(),
             body_id     : AttrId::default(),
             body_classes: AttrClasses::default(),
-            context     : Context::new(request),
+            context     : Context::new(Some(request)),
             regions     : ChildrenInRegions::default(),
         }
     }

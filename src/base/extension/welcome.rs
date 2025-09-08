@@ -24,11 +24,13 @@ impl Extension for Welcome {
 async fn homepage(request: HttpRequest) -> ResultPage<Markup, ErrorPage> {
     let app = &global::SETTINGS.app.name;
 
-    Page::new(Some(request))
+    Page::new(request)
         .with_theme("basic")
         .with_layout("intro")
         .with_title(L10n::l("welcome_title"))
         .with_description(L10n::l("welcome_intro").with_arg("app", app))
+        .with_param("intro_button_text", L10n::l("welcome_powered"))
+        .with_param("intro_button_link", "https://pagetop.cillero.es".to_owned())
         .add_component(Html::with(|cx| {
             html! {
                 p { (L10n::l("welcome_text1").using(cx)) }

@@ -5,9 +5,13 @@
 	--bg-img-sm-set: image-set(url('/img/intro-header-sm.avif') type('image/avif'), url('/img/intro-header-sm.webp') type('image/webp'), var(--bg-img-sm) type('image/jpeg'));
 	--bg-color: #8c5919;
 	--color: #1a202c;
-	--color-red: #fecaca;
 	--color-gray: #e4e4e7;
 	--color-link: #1e4eae;
+	--color-block-1: #fecaca;
+	--color-block-2: #e6a9e2;
+	--color-block-3: #b689ff;
+	--color-block-4: #ffedca;
+	--color-block-5: #ffffff;
 	--focus-outline: 2px solid var(--color-link);
 	--focus-outline-offset: 2px;
 	--shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
@@ -413,8 +417,23 @@ a:hover:visited {
 	left: -15%;
 	width: 130%;
 	z-index: -10;
-	background: var(--color-red);
+	background: var(--color-block-1);
 	transform: rotate(2deg);
+}
+.intro-text .block:nth-of-type(5n+1) .block__title:after {
+	background: var(--color-block-1);
+}
+.intro-text .block:nth-of-type(5n+2) .block__title:after {
+	background: var(--color-block-2);
+}
+.intro-text .block:nth-of-type(5n+3) .block__title:after {
+	background: var(--color-block-3);
+}
+.intro-text .block:nth-of-type(5n+4) .block__title:after {
+	background: var(--color-block-4);
+}
+.intro-text .block:nth-of-type(5n+5) .block__title:after {
+	background: var(--color-block-5);
 }
 
 /*
