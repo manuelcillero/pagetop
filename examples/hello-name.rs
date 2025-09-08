@@ -13,7 +13,7 @@ async fn hello_name(
     path: service::web::Path<String>,
 ) -> ResultPage<Markup, ErrorPage> {
     let name = path.into_inner();
-    Page::new(Some(request))
+    Page::new(request)
         .add_component(Html::with(move |_| html! { h1 { "Hello " (name) "!" } }))
         .render()
 }
