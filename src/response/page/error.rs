@@ -29,7 +29,7 @@ impl Display for ErrorPage {
             ErrorPage::BadRequest(_) => write!(f, "Bad Client Data"),
             // Error 403.
             ErrorPage::AccessDenied(request) => {
-                let mut error_page = Page::new(Some(request.clone()));
+                let mut error_page = Page::new(request.clone());
                 let error403 = error_page.theme().error403(&mut error_page);
                 if let Ok(page) = error_page
                     .with_title(L10n::n("Error FORBIDDEN"))
@@ -44,7 +44,7 @@ impl Display for ErrorPage {
             }
             // Error 404.
             ErrorPage::NotFound(request) => {
-                let mut error_page = Page::new(Some(request.clone()));
+                let mut error_page = Page::new(request.clone());
                 let error404 = error_page.theme().error404(&mut error_page);
                 if let Ok(page) = error_page
                     .with_title(L10n::n("Error RESOURCE NOT FOUND"))

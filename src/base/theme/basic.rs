@@ -41,6 +41,9 @@ fn render_intro(page: &mut Page) -> Markup {
     let title = page.title().unwrap_or_default();
     let intro = page.description().unwrap_or_default();
 
+    let intro_button_text: L10n = page.param_or_default("intro_button_text");
+    let intro_button_link: Option<&String> = page.param("intro_button_link");
+
     html! {
         body id=[page.body_id().get()] class=[page.body_classes().get()] {
             header class="intro-header" {
@@ -71,16 +74,18 @@ fn render_intro(page: &mut Page) -> Markup {
             }
             main class="intro-content" {
                 section class="intro-content__body" {
-                    div class="intro-button" {
-                        a
-                            class="intro-button__link"
-                            href="https://pagetop.cillero.es"
-                            target="_blank"
-                            rel="noreferrer"
-                        {
-                            span {} span {} span {}
-                            div class="intro-button__text" {
-                                (L10n::l("welcome_powered").using(page))
+                    @if intro_button_link.is_some() {
+                        div class="intro-button" {
+                            a
+                                class="intro-button__link"
+                                href=[intro_button_link]
+                                target="_blank"
+                                rel="noreferrer"
+                            {
+                                span {} span {} span {}
+                                div class="intro-button__text" {
+                                    (intro_button_text.using(page))
+                                }
                             }
                         }
                     }
