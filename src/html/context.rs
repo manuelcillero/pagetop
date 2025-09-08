@@ -118,6 +118,21 @@ pub trait Contextual: LangId {
     /// Recupera un parámetro como [`Option`].
     fn param<T: 'static>(&self, key: &'static str) -> Option<&T>;
 
+    /// Devuelve el parámetro clonado o el **valor por defecto del tipo** (`T::default()`).
+    fn param_or_default<T: Default + Clone + 'static>(&self, key: &'static str) -> T {
+        self.param::<T>(key).cloned().unwrap_or_default()
+    }
+
+    /// Devuelve el parámetro clonado o un **valor por defecto** si no existe.
+    fn param_or<T: Clone + 'static>(&self, key: &'static str, default: T) -> T {
+        self.param::<T>(key).cloned().unwrap_or(default)
+    }
+
+    /// Devuelve el parámetro clonado o el **valor evaluado** por la función `f` si no existe.
+    fn param_or_else<T: Clone + 'static, F: FnOnce() -> T>(&self, key: &'static str, f: F) -> T {
+        self.param::<T>(key).cloned().unwrap_or_else(f)
+    }
+
     /// Devuelve el Favicon de los recursos del contexto.
     fn favicon(&self) -> Option<&Favicon>;
 
