@@ -165,7 +165,7 @@ pub trait LangId {
 ///
 /// // Idioma no soportado.
 /// let lang = LangMatch::resolve("ja-JP");
-/// assert_eq!(lang, LangMatch::Unsupported(String::from("ja-JP")));
+/// assert_eq!(lang, LangMatch::Unsupported("ja-JP".to_string()));
 /// ```
 ///
 /// Con la siguiente instrucción siempre se obtiene un [`LanguageIdentifier`] válido, ya sea porque
@@ -222,7 +222,7 @@ impl LangMatch {
         }
 
         // En caso contrario, indica que el idioma no está soportado.
-        Self::Unsupported(String::from(language))
+        Self::Unsupported(language.to_string())
     }
 
     /// Devuelve el [`LanguageIdentifier`] si el idioma fue reconocido.

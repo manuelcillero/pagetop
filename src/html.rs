@@ -71,11 +71,11 @@ pub type OptionComponent<C: core::component::Component> = core::component::Typed
 /// use pagetop::prelude::*;
 ///
 /// // Texto normal, se escapa automáticamente para evitar inyección de HTML.
-/// let fragment = PrepareMarkup::Escaped(String::from("Hola <b>mundo</b>"));
+/// let fragment = PrepareMarkup::Escaped("Hola <b>mundo</b>".to_string());
 /// assert_eq!(fragment.render().into_string(), "Hola &lt;b&gt;mundo&lt;/b&gt;");
 ///
 /// // HTML literal, se inserta directamente, sin escapado adicional.
-/// let raw_html = PrepareMarkup::Raw(String::from("<b>negrita</b>"));
+/// let raw_html = PrepareMarkup::Raw("<b>negrita</b>".to_string());
 /// assert_eq!(raw_html.render().into_string(), "<b>negrita</b>");
 ///
 /// // Fragmento ya preparado con la macro `html!`.

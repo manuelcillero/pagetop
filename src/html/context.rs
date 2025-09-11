@@ -285,7 +285,7 @@ impl Context {
     ///
     /// let cx = Context::new(None)
     ///     .with_param("usuario_id", 42_i32)
-    ///     .with_param("titulo", String::from("Hola"));
+    ///     .with_param("titulo", "Hola".to_string());
     ///
     /// let id: &i32 = cx.get_param("usuario_id").unwrap();
     /// let titulo: &String = cx.get_param("titulo").unwrap();
@@ -318,7 +318,7 @@ impl Context {
     ///
     /// let mut cx = Context::new(None)
     ///     .with_param("contador", 7_i32)
-    ///     .with_param("titulo", String::from("Hola"));
+    ///     .with_param("titulo", "Hola".to_string());
     ///
     /// let n: i32 = cx.take_param("contador").unwrap();
     /// assert!(cx.get_param::<i32>("contador").is_err()); // ya no está
@@ -416,7 +416,7 @@ impl Contextual for Context {
     ///
     /// let cx = Context::new(None)
     ///     .with_param("usuario_id", 42_i32)
-    ///     .with_param("titulo", String::from("Hola"))
+    ///     .with_param("titulo", "Hola".to_string())
     ///     .with_param("flags", vec!["a", "b"]);
     /// ```
     #[builder_fn]
@@ -484,7 +484,7 @@ impl Contextual for Context {
     /// ```rust
     /// use pagetop::prelude::*;
     ///
-    /// let cx = Context::new(None).with_param("username", String::from("Alice"));
+    /// let cx = Context::new(None).with_param("username", "Alice".to_string());
     ///
     /// // Devuelve Some(&String) si existe y coincide el tipo.
     /// assert_eq!(cx.param::<String>("username").map(|s| s.as_str()), Some("Alice"));
@@ -533,7 +533,7 @@ impl Contextual for Context {
                 .replace(' ', "_")
                 .to_lowercase();
             let prefix = if prefix.is_empty() {
-                "prefix".to_owned()
+                "prefix".to_string()
             } else {
                 prefix
             };

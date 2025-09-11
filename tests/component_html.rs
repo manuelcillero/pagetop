@@ -17,7 +17,7 @@ async fn component_html_renders_static_markup() {
 
 #[pagetop::test]
 async fn component_html_renders_using_context_param() {
-    let mut cx = Context::new(None).with_param("username", String::from("Alice"));
+    let mut cx = Context::new(None).with_param("username", "Alice".to_string());
 
     let component = Html::with(|cx| {
         let name = cx.param::<String>("username").cloned().unwrap_or_default();
