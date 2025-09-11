@@ -1,7 +1,7 @@
 //! HTML en código.
 
 mod maud;
-pub use maud::{display, html, html_private, Escaper, Markup, PreEscaped, Render, DOCTYPE};
+pub use maud::{display, html, html_private, Escaper, Markup, PreEscaped, DOCTYPE};
 
 // HTML DOCUMENT ASSETS ****************************************************************************
 
@@ -119,11 +119,9 @@ impl PrepareMarkup {
             PrepareMarkup::With(markup) => markup.is_empty(),
         }
     }
-}
 
-impl Render for PrepareMarkup {
     /// Integra el renderizado fácilmente en la macro [`html!`].
-    fn render(&self) -> Markup {
+    pub fn render(&self) -> Markup {
         match self {
             PrepareMarkup::None => html! {},
             PrepareMarkup::Escaped(text) => html! { (text) },

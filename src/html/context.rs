@@ -25,9 +25,9 @@ pub enum AssetsOp {
     RemoveStyleSheet(&'static str),
 
     // JavaScripts.
-    /// Añade un *script* JavaScript al documento.
+    /// Añade un script JavaScript al documento.
     AddJavaScript(JavaScript),
-    /// Elimina un *script* por su ruta o identificador.
+    /// Elimina un script por su ruta o identificador.
     RemoveJavaScript(&'static str),
 }
 
@@ -55,7 +55,7 @@ pub enum ErrorParam {
 /// - Almacenar la **solicitud HTTP** de origen.
 /// - Seleccionar **tema** y **composición** (*layout*) de renderizado.
 /// - Administrar **recursos** del documento como el icono [`Favicon`], las hojas de estilo
-///   [`StyleSheet`] o los *scripts* [`JavaScript`] mediante [`AssetsOp`].
+///   [`StyleSheet`] o los scripts [`JavaScript`] mediante [`AssetsOp`].
 /// - Leer y mantener **parámetros dinámicos tipados** de contexto.
 /// - Generar **identificadores únicos** por tipo de componente.
 ///
@@ -139,7 +139,7 @@ pub trait Contextual: LangId {
     /// Devuelve las hojas de estilo de los recursos del contexto.
     fn stylesheets(&self) -> &Assets<StyleSheet>;
 
-    /// Devuelve los *scripts* JavaScript de los recursos del contexto.
+    /// Devuelve los scripts JavaScript de los recursos del contexto.
     fn javascripts(&self) -> &Assets<JavaScript>;
 
     // Contextual HELPERS **************************************************************************
@@ -155,7 +155,7 @@ pub trait Contextual: LangId {
 ///
 /// Extiende [`Contextual`] con métodos para **instanciar** y configurar un nuevo contexto,
 /// **renderizar los recursos** del documento (incluyendo el [`Favicon`], las hojas de estilo
-/// [`StyleSheet`] y los *scripts* [`JavaScript`]), o extender el uso de **parámetros dinámicos
+/// [`StyleSheet`] y los scripts [`JavaScript`]), o extender el uso de **parámetros dinámicos
 /// tipados** con nuevos métodos.
 ///
 /// # Ejemplos
@@ -258,14 +258,29 @@ impl Context {
     // Context RENDER ******************************************************************************
 
     /// Renderiza los recursos del contexto.
-    pub fn render_assets(&self) -> Markup {
-        html! {
-            @if let Some(favicon) = &self.favicon {
-                (favicon)
+    pub fn render_assets(&mut self) -> Markup {
+        use std::mem::take as mem_take;
+
+        // Extrae temporalmente los recursos.
+        let favicon = mem_take(&mut self.favicon); // Deja valor por defecto (None) en self.
+        let stylesheets = mem_take(&mut self.stylesheets); // Assets<StyleSheet>::default() en self.
+        let javascripts = mem_take(&mut self.javascripts); // Assets<JavaScript>::default() en self.
+
+        // Renderiza con `&mut self` como contexto.
+        let markup = html! {
+            @if let Some(fi) = &favicon {
+                (fi.render(self))
             }
-            (self.stylesheets)
-            (self.javascripts)
-        }
+            (stylesheets.render(self))
+            (javascripts.render(self))
+        };
+
+        // Restaura los campos tal y como estaban.
+        self.favicon = favicon;
+        self.stylesheets = stylesheets;
+        self.javascripts = javascripts;
+
+        markup
     }
 
     // Context PARAMS ******************************************************************************

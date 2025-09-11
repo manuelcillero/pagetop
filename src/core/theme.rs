@@ -7,7 +7,7 @@
 //! Un tema **declara las regiones** (*cabecera*, *barra lateral*, *pie*, etc.) que estarán
 //! disponibles para colocar contenido. Los temas son responsables últimos de los estilos,
 //! tipografías, espaciados y cualquier otro detalle visual o de comportamiento (como animaciones,
-//! *scripts* de interfaz, etc.).
+//! scripts de interfaz, etc.).
 //!
 //! Los temas son extensiones que implementan [`Extension`](crate::core::extension::Extension); por
 //! lo que se instancian, declaran sus dependencias y se inician igual que el resto de extensiones;

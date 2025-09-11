@@ -69,23 +69,6 @@ impl fmt::Write for Escaper<'_> {
 /// `.render()` or `.render_to()`. Since the default definitions of
 /// these methods call each other, not doing this will result in
 /// infinite recursion.
-///
-/// # Example
-///
-/// ```rust
-/// use pagetop::prelude::*;
-///
-/// /// Provides a shorthand for linking to a CSS stylesheet.
-/// pub struct Stylesheet(&'static str);
-///
-/// impl Render for Stylesheet {
-///     fn render(&self) -> Markup {
-///         html! {
-///             link rel="stylesheet" type="text/css" href=(self.0);
-///         }
-///     }
-/// }
-/// ```
 pub trait Render {
     /// Renders `self` as a block of `Markup`.
     fn render(&self) -> Markup {
@@ -237,6 +220,10 @@ pub type Markup = PreEscaped<String>;
 impl Markup {
     pub fn is_empty(&self) -> bool {
         self.0.is_empty()
+    }
+
+    pub fn as_str(&self) -> &str {
+        self.0.as_str()
     }
 }
 
