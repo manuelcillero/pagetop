@@ -2,10 +2,10 @@ pub mod favicon;
 pub mod javascript;
 pub mod stylesheet;
 
-use crate::html::{html, Markup, Render};
+use crate::html::{html, Context, Markup};
 use crate::{AutoDefault, Weight};
 
-/// Representación genérica de un *script* [`JavaScript`](crate::html::JavaScript) o una hoja de
+/// Representación genérica de un script [`JavaScript`](crate::html::JavaScript) o una hoja de
 /// estilos [`StyleSheet`](crate::html::StyleSheet).
 ///
 /// Estos recursos se incluyen en los conjuntos de recursos ([`Assets`]) que suelen renderizarse en
@@ -13,12 +13,15 @@ use crate::{AutoDefault, Weight};
 ///
 /// Cada recurso se identifica por un **nombre único** ([`Asset::name()`]), usado como clave; y un
 /// **peso** ([`Asset::weight()`]), que determina su orden relativo de renderizado.
-pub trait Asset: Render {
+pub trait Asset {
     /// Devuelve el nombre del recurso, utilizado como clave única.
     fn name(&self) -> &str;
 
     /// Devuelve el peso del recurso, usado para ordenar el renderizado de menor a mayor peso.
     fn weight(&self) -> Weight;
+
+    /// Renderiza el recurso en el contexto proporcionado.
+    fn render(&self, cx: &mut Context) -> Markup;
 }
 
 /// Gestión común para conjuntos de recursos como [`JavaScript`](crate::html::JavaScript) y
@@ -77,16 +80,13 @@ impl<T: Asset> Assets<T> {
             false
         }
     }
-}
 
-impl<T: Asset> Render for Assets<T> {
-    fn render(&self) -> Markup {
+    pub fn render(&self, cx: &mut Context) -> Markup {
         let mut assets = self.0.iter().collect::<Vec<_>>();
         assets.sort_by_key(|a| a.weight());
-
         html! {
             @for a in assets {
-                (a)
+                (a.render(cx))
             }
         }
     }

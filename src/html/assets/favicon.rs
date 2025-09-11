@@ -1,4 +1,4 @@
-use crate::html::{html, Markup, Render};
+use crate::html::{html, Context, Markup};
 use crate::AutoDefault;
 
 /// Un **Favicon** es un recurso gráfico que usa el navegador como icono asociado al sitio.
@@ -151,10 +151,12 @@ impl Favicon {
         });
         self
     }
-}
 
-impl Render for Favicon {
-    fn render(&self) -> Markup {
+    /// Renderiza el **Favicon** completo con todas las etiquetas declaradas.
+    ///
+    /// El parámetro `Context` se acepta por coherencia con el resto de *assets*, aunque en este
+    /// caso es ignorado.
+    pub fn render(&self, _cx: &mut Context) -> Markup {
         html! {
             @for item in &self.0 {
                 (item)

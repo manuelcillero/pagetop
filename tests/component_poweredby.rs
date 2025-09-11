@@ -8,10 +8,10 @@ async fn poweredby_default_shows_only_pagetop_recognition() {
     let html = render_component(&p);
 
     // Debe mostrar el bloque de reconocimiento a PageTop.
-    assert!(html.contains("poweredby__pagetop"));
+    assert!(html.as_str().contains("poweredby__pagetop"));
 
     // Y NO debe mostrar el bloque de copyright.
-    assert!(!html.contains("poweredby__copyright"));
+    assert!(!html.as_str().contains("poweredby__copyright"));
 }
 
 #[pagetop::test]
@@ -22,17 +22,20 @@ async fn poweredby_new_includes_current_year_and_app_name() {
     let html = render_component(&p);
 
     let year = Utc::now().format("%Y").to_string();
-    assert!(html.contains(&year), "HTML should include the current year");
+    assert!(
+        html.as_str().contains(&year),
+        "HTML should include the current year"
+    );
 
     // El nombre de la app proviene de `global::SETTINGS.app.name`.
     let app_name = &global::SETTINGS.app.name;
     assert!(
-        html.contains(app_name),
+        html.as_str().contains(app_name),
         "HTML should include the application name"
     );
 
     // Debe existir el span de copyright.
-    assert!(html.contains("poweredby__copyright"));
+    assert!(html.as_str().contains("poweredby__copyright"));
 }
 
 #[pagetop::test]
@@ -43,8 +46,8 @@ async fn poweredby_with_copyright_overrides_text() {
     let p = PoweredBy::default().with_copyright(Some(custom));
     let html = render_component(&p);
 
-    assert!(html.contains(custom));
-    assert!(html.contains("poweredby__copyright"));
+    assert!(html.as_str().contains(custom));
+    assert!(html.as_str().contains("poweredby__copyright"));
 }
 
 #[pagetop::test]
@@ -54,9 +57,9 @@ async fn poweredby_with_copyright_none_hides_text() {
     let p = PoweredBy::new().with_copyright(None::<String>);
     let html = render_component(&p);
 
-    assert!(!html.contains("poweredby__copyright"));
+    assert!(!html.as_str().contains("poweredby__copyright"));
     // El reconocimiento a PageTop siempre debe aparecer.
-    assert!(html.contains("poweredby__pagetop"));
+    assert!(html.as_str().contains("poweredby__pagetop"));
 }
 
 #[pagetop::test]
@@ -67,7 +70,7 @@ async fn poweredby_link_points_to_crates_io() {
     let html = render_component(&p);
 
     assert!(
-        html.contains("https://pagetop.cillero.es"),
+        html.as_str().contains("https://pagetop.cillero.es"),
         "Link should point to pagetop.cillero.es"
     );
 }
@@ -89,12 +92,8 @@ async fn poweredby_getter_reflects_internal_state() {
 
 // HELPERS *****************************************************************************************
 
-fn render(x: &impl Render) -> String {
-    x.render().into_string()
-}
-
-fn render_component<C: Component>(c: &C) -> String {
+fn render_component<C: Component>(c: &C) -> Markup {
     let mut cx = Context::default();
     let pm = c.prepare_component(&mut cx);
-    render(&pm)
+    pm.render()
 }

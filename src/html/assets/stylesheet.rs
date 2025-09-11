@@ -1,5 +1,5 @@
 use crate::html::assets::Asset;
-use crate::html::{html, Markup, PreEscaped, Render};
+use crate::html::{html, Context, Markup, PreEscaped};
 use crate::{join_pair, AutoDefault, Weight};
 
 // Define el origen del recurso CSS y cómo se incluye en el documento.
@@ -14,7 +14,8 @@ use crate::{join_pair, AutoDefault, Weight};
 enum Source {
     #[default]
     From(String),
-    Inline(String, String),
+    // `name`, `closure(Context) -> String`.
+    Inline(String, Box<dyn Fn(&mut Context) -> String + Send + Sync>),
 }
 
 /// Define el medio objetivo para la hoja de estilos.
@@ -34,7 +35,7 @@ pub enum TargetMedia {
     Speech,
 }
 
-/// Devuelve el texto asociado al punto de interrupción usado por Bootstrap.
+/// Devuelve el valor para el atributo `media` (`Some(...)`) o `None` para `Default`.
 #[rustfmt::skip]
 impl TargetMedia {
     fn as_str_opt(&self) -> Option<&str> {
@@ -69,12 +70,12 @@ impl TargetMedia {
 ///     .with_weight(-10);
 ///
 /// // Crea una hoja de estilos embebida en el documento HTML.
-/// let embedded = StyleSheet::inline("custom_theme", r#"
+/// let embedded = StyleSheet::inline("custom_theme", |_| r#"
 ///     body {
 ///         background-color: #f5f5f5;
 ///         font-family: 'Segoe UI', sans-serif;
 ///     }
-/// "#);
+/// "#.to_string());
 /// ```
 #[rustfmt::skip]
 #[derive(AutoDefault)]
@@ -100,9 +101,14 @@ impl StyleSheet {
     ///
     /// Equivale a `<style>...</style>`. El parámetro `name` se usa como identificador interno del
     /// recurso.
-    pub fn inline(name: impl Into<String>, styles: impl Into<String>) -> Self {
+    ///
+    /// La función *closure* recibirá el [`Context`] por si se necesita durante el renderizado.
+    pub fn inline<F>(name: impl Into<String>, f: F) -> Self
+    where
+        F: Fn(&mut Context) -> String + Send + Sync + 'static,
+    {
         StyleSheet {
-            source: Source::Inline(name.into(), styles.into()),
+            source: Source::Inline(name.into(), Box::new(f)),
             ..Default::default()
         }
     }
@@ -133,9 +139,9 @@ impl StyleSheet {
     /// Según el argumento `media`:
     ///
     /// - `TargetMedia::Default` - Se aplica en todos los casos (medio por defecto).
-    /// - `TargetMedia::Print`   - Se aplican cuando el documento se imprime.
-    /// - `TargetMedia::Screen`  - Se aplican en pantallas.
-    /// - `TargetMedia::Speech`  - Se aplican en dispositivos que convierten el texto a voz.
+    /// - `TargetMedia::Print`   - Se aplica cuando el documento se imprime.
+    /// - `TargetMedia::Screen`  - Se aplica en pantallas.
+    /// - `TargetMedia::Speech`  - Se aplica en dispositivos que convierten el texto a voz.
     pub fn for_media(mut self, media: TargetMedia) -> Self {
         self.media = media;
         self
@@ -156,10 +162,8 @@ impl Asset for StyleSheet {
     fn weight(&self) -> Weight {
         self.weight
     }
-}
 
-impl Render for StyleSheet {
-    fn render(&self) -> Markup {
+    fn render(&self, cx: &mut Context) -> Markup {
         match &self.source {
             Source::From(path) => html! {
                 link
@@ -167,8 +171,8 @@ impl Render for StyleSheet {
                     href=(join_pair!(path, "?v=", self.version.as_str()))
                     media=[self.media.as_str_opt()];
             },
-            Source::Inline(_, code) => html! {
-                style { (PreEscaped(code)) };
+            Source::Inline(_, f) => html! {
+                style { (PreEscaped((f)(cx))) };
             },
         }
     }

@@ -1,35 +1,45 @@
 use crate::html::assets::Asset;
-use crate::html::{html, Markup, Render};
+use crate::html::{html, Context, Markup, PreEscaped};
 use crate::{join, join_pair, AutoDefault, Weight};
 
 // Define el origen del recurso JavaScript y cómo debe cargarse en el navegador.
 //
 // Los distintos modos de carga permiten optimizar el rendimiento y controlar el comportamiento del
-// script.
+// script en relación con el análisis del documento HTML y la ejecución del resto de scripts.
 //
-// - [`From`]   – Carga el script de forma estándar con la etiqueta `<script src="...">`.
-// - [`Defer`]  – Igual que [`From`], pero con el atributo `defer`.
-// - [`Async`]  – Igual que [`From`], pero con el atributo `async`.
-// - [`Inline`] – Inserta el código directamente en la etiqueta `<script>`.
-// - [`OnLoad`] – Inserta el código JavaScript y lo ejecuta tras el evento `DOMContentLoaded`.
+// - [`From`]        – Carga estándar con la etiqueta `<script src="...">`.
+// - [`Defer`]       – Igual que [`From`], pero con el atributo `defer`, descarga en paralelo y se
+//                     ejecuta tras el análisis del documento HTML, respetando el orden de
+//                     aparición.
+// - [`Async`]       – Igual que [`From`], pero con el atributo `async`, descarga en paralelo y se
+//                     ejecuta en cuanto esté listo, **sin garantizar** el orden relativo respecto a
+//                     otros scripts.
+// - [`Inline`]      – Inserta el código directamente en la etiqueta `<script>`.
+// - [`OnLoad`]      – Inserta el código JavaScript y lo ejecuta tras el evento `DOMContentLoaded`.
+// - [`OnLoadAsync`] – Igual que [`OnLoad`], pero con manejador asíncrono (`async`), útil si dentro
+//                     del código JavaScript se utiliza `await`.
 #[derive(AutoDefault)]
 enum Source {
     #[default]
     From(String),
     Defer(String),
     Async(String),
-    Inline(String, String),
-    OnLoad(String, String),
+    // `name`, `closure(Context) -> String`.
+    Inline(String, Box<dyn Fn(&mut Context) -> String + Send + Sync>),
+    // `name`, `closure(Context) -> String` (se ejecuta tras `DOMContentLoaded`).
+    OnLoad(String, Box<dyn Fn(&mut Context) -> String + Send + Sync>),
+    // `name`, `closure(Context) -> String` (manejador `async` tras `DOMContentLoaded`).
+    OnLoadAsync(String, Box<dyn Fn(&mut Context) -> String + Send + Sync>),
 }
 
 /// Define un recurso **JavaScript** para incluir en un documento HTML.
 ///
-/// Este tipo permite añadir *scripts* externos o embebidos con distintas estrategias de carga
+/// Este tipo permite añadir scripts externos o embebidos con distintas estrategias de carga
 /// (`defer`, `async`, *inline*, etc.) y [pesos](crate::Weight) para controlar el orden de inserción
 /// en el documento.
 ///
 /// > **Nota**
-/// > Los archivos de los *scripts* deben estar disponibles en el servidor web de la aplicación.
+/// > Los archivos de los scripts deben estar disponibles en el servidor web de la aplicación.
 /// > Pueden servirse usando [`static_files_service!`](crate::static_files_service).
 ///
 /// # Ejemplo
@@ -37,23 +47,37 @@ enum Source {
 /// ```rust
 /// use pagetop::prelude::*;
 ///
-/// // Script externo con carga diferida, versión para control de caché y prioriza el renderizado.
+/// // Script externo con carga diferida, versión de caché y prioridad en el renderizado.
 /// let script = JavaScript::defer("/assets/js/app.js")
 ///     .with_version("1.2.3")
 ///     .with_weight(-10);
 ///
 /// // Script embebido que se ejecuta tras la carga del documento.
-/// let script = JavaScript::on_load("init_tooltips", r#"
+/// let script = JavaScript::on_load("init_tooltips", |_| r#"
 ///     const tooltips = document.querySelectorAll('[data-tooltip]');
 ///     for (const el of tooltips) {
 ///         el.addEventListener('mouseenter', showTooltip);
 ///     }
-/// "#);
+/// "#.to_string());
+///
+/// // Script embebido con manejador asíncrono (`async`) que puede usar `await`.
+/// let mut cx = Context::new(None).with_param("user_id", 7u32);
+///
+/// let js = JavaScript::on_load_async("hydrate", |cx| {
+///     // Ejemplo: lectura de un parámetro del contexto para inyectarlo en el código.
+///     let uid: u32 = cx.param_or_default("user_id");
+///     format!(r#"
+///         const USER_ID = {};
+///         await Promise.resolve(USER_ID);
+///         // Aquí se podría hidratar la interfaz o cargar módulos dinámicos:
+///         // await import('/assets/js/hydrate.js');
+///     "#, uid)
+/// });
 /// ```
 #[rustfmt::skip]
 #[derive(AutoDefault)]
 pub struct JavaScript {
-    source : Source, // Fuente y modo de carga del script.
+    source : Source, // Fuente y estrategia de carga del script.
     version: String, // Versión del recurso para la caché del navegador.
     weight : Weight, // Peso que determina el orden.
 }
@@ -70,11 +94,11 @@ impl JavaScript {
         }
     }
 
-    /// Crea un **script externo** con el atributo `defer`, que se carga en segundo plano y se
-    /// ejecuta tras analizar completamente el documento HTML.
+    /// Crea un **script externo** con el atributo `defer`, que se descarga en paralelo y se ejecuta
+    /// tras analizar completamente el documento HTML, **respetando el orden** de inserción.
     ///
-    /// Equivale a `<script src="..." defer>`. Útil para mantener el orden de ejecución y evitar
-    /// bloquear el análisis del documento HTML.
+    /// Equivale a `<script src="..." defer>`. Suele ser la opción recomendada para scripts no
+    /// críticos.
     pub fn defer(path: impl Into<String>) -> Self {
         JavaScript {
             source: Source::Defer(path.into()),
@@ -82,11 +106,10 @@ impl JavaScript {
         }
     }
 
-    /// Crea un **script externo** con el atributo `async`, que se carga y ejecuta de forma
-    /// asíncrona tan pronto como esté disponible.
+    /// Crea un **script externo** con el atributo `async`, que se descarga en paralelo y se ejecuta
+    /// tan pronto como esté disponible.
     ///
-    /// Equivale a `<script src="..." async>`. La ejecución puede producirse fuera de orden respecto
-    /// a otros *scripts*.
+    /// Equivale a `<script src="..." async>`. **No garantiza** el orden relativo con otros scripts.
     pub fn asynchronous(path: impl Into<String>) -> Self {
         JavaScript {
             source: Source::Async(path.into()),
@@ -97,37 +120,68 @@ impl JavaScript {
     /// Crea un **script embebido** directamente en el documento HTML.
     ///
     /// Equivale a `<script>...</script>`. El parámetro `name` se usa como identificador interno del
-    /// *script*.
-    pub fn inline(name: impl Into<String>, script: impl Into<String>) -> Self {
+    /// script.
+    ///
+    /// La función *closure* recibirá el [`Context`] por si se necesita durante el renderizado.
+    pub fn inline<F>(name: impl Into<String>, f: F) -> Self
+    where
+        F: Fn(&mut Context) -> String + Send + Sync + 'static,
+    {
         JavaScript {
-            source: Source::Inline(name.into(), script.into()),
+            source: Source::Inline(name.into(), Box::new(f)),
             ..Default::default()
         }
     }
 
-    /// Crea un **script embebido** que se ejecuta automáticamente al terminar de cargarse el
-    /// documento HTML.
+    /// Crea un **script embebido** que se ejecuta cuando **el DOM está listo**.
     ///
-    /// El código se envuelve automáticamente en un `addEventListener('DOMContentLoaded', ...)`. El
-    /// parámetro `name` se usa como identificador interno del *script*.
-    pub fn on_load(name: impl Into<String>, script: impl Into<String>) -> Self {
+    /// El código se envuelve en un `addEventListener('DOMContentLoaded',function(){...})` que lo
+    /// ejecuta tras analizar el documento HTML, **no** espera imágenes ni otros recursos externos.
+    /// Útil para inicializaciones que no dependen de `await`. El parámetro `name` se usa como
+    /// identificador interno del script.
+    ///
+    /// Los scripts con `defer` se ejecutan antes de `DOMContentLoaded`.
+    ///
+    /// La función *closure* recibirá el [`Context`] por si se necesita durante el renderizado.
+    pub fn on_load<F>(name: impl Into<String>, f: F) -> Self
+    where
+        F: Fn(&mut Context) -> String + Send + Sync + 'static,
+    {
         JavaScript {
-            source: Source::OnLoad(name.into(), script.into()),
+            source: Source::OnLoad(name.into(), Box::new(f)),
+            ..Default::default()
+        }
+    }
+
+    /// Crea un **script embebido** con un **manejador asíncrono**.
+    ///
+    /// El código se envuelve en un `addEventListener('DOMContentLoaded',async()=>{...})`, que
+    /// emplea una función `async` para que el cuerpo devuelto por la función *closure* pueda usar
+    /// `await`. Ideal para hidratar la interfaz, cargar módulos dinámicos o realizar lecturas
+    /// iniciales.
+    ///
+    /// La función *closure* recibirá el [`Context`] por si se necesita durante el renderizado.
+    pub fn on_load_async<F>(name: impl Into<String>, f: F) -> Self
+    where
+        F: Fn(&mut Context) -> String + Send + Sync + 'static,
+    {
+        JavaScript {
+            source: Source::OnLoadAsync(name.into(), Box::new(f)),
             ..Default::default()
         }
     }
 
     // JavaScript BUILDER **************************************************************************
 
-    /// Asocia una versión al recurso (usada para control de la caché del navegador).
+    /// Asocia una **versión** al recurso (usada para control de la caché del navegador).
     ///
-    /// Si `version` está vacío, no se añade ningún parámetro a la URL.
+    /// Si `version` está vacío, **no** se añade ningún parámetro a la URL.
     pub fn with_version(mut self, version: impl Into<String>) -> Self {
         self.version = version.into();
         self
     }
 
-    /// Modifica el peso del recurso.
+    /// Modifica el **peso** del recurso.
     ///
     /// Los recursos se renderizan de menor a mayor peso. Por defecto es `0`, que respeta el orden
     /// de creación.
@@ -140,7 +194,7 @@ impl JavaScript {
 impl Asset for JavaScript {
     /// Devuelve el nombre del recurso, utilizado como clave única.
     ///
-    /// Para *scripts* externos es la ruta del recurso; para *scripts* embebidos, un identificador.
+    /// Para scripts externos es la ruta del recurso; para scripts embebidos, un identificador.
     fn name(&self) -> &str {
         match &self.source {
             Source::From(path) => path,
@@ -148,16 +202,15 @@ impl Asset for JavaScript {
             Source::Async(path) => path,
             Source::Inline(name, _) => name,
             Source::OnLoad(name, _) => name,
+            Source::OnLoadAsync(name, _) => name,
         }
     }
 
     fn weight(&self) -> Weight {
         self.weight
     }
-}
 
-impl Render for JavaScript {
-    fn render(&self) -> Markup {
+    fn render(&self, cx: &mut Context) -> Markup {
         match &self.source {
             Source::From(path) => html! {
                 script src=(join_pair!(path, "?v=", self.version.as_str())) {};
@@ -168,12 +221,15 @@ impl Render for JavaScript {
             Source::Async(path) => html! {
                 script src=(join_pair!(path, "?v=", self.version.as_str())) async {};
             },
-            Source::Inline(_, code) => html! {
-                script { (code) };
+            Source::Inline(_, f) => html! {
+                script { (PreEscaped((f)(cx))) };
             },
-            Source::OnLoad(_, code) => html! { (join!(
-                "document.addEventListener('DOMContentLoaded',function(){", code, "});"
-            )) },
+            Source::OnLoad(_, f) => html! { script { (PreEscaped(join!(
+                "document.addEventListener(\"DOMContentLoaded\",function(){", (f)(cx), "});"
+            ))) } },
+            Source::OnLoadAsync(_, f) => html! { script { (PreEscaped(join!(
+                "document.addEventListener(\"DOMContentLoaded\",async()=>{", (f)(cx), "});"
+            ))) } },
         }
     }
 }

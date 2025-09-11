@@ -202,7 +202,7 @@ impl Page {
     }
 
     /// Renderiza los recursos de la página.
-    pub fn render_assets(&self) -> Markup {
+    pub fn render_assets(&mut self) -> Markup {
         self.context.render_assets()
     }
 
