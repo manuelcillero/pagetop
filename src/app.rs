@@ -84,7 +84,7 @@ impl Application {
             if let Some((Width(term_width), _)) = terminal_size() {
                 if term_width >= 80 {
                     let maxlen: usize = ((term_width / 10) - 2).into();
-                    let mut app = app_name.substring(0, maxlen).to_owned();
+                    let mut app = app_name.substring(0, maxlen).to_string();
                     if app_name.len() > maxlen {
                         app = format!("{app}...");
                     }

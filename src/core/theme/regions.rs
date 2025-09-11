@@ -36,7 +36,7 @@ impl Default for Region {
     fn default() -> Self {
         Self {
             key: REGION_CONTENT,
-            name: String::from(REGION_CONTENT),
+            name: REGION_CONTENT.to_string(),
         }
     }
 }

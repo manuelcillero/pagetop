@@ -36,7 +36,7 @@ impl AttrValue {
         self.0 = if value.is_empty() {
             None
         } else {
-            Some(value.to_owned())
+            Some(value.to_string())
         };
         self
     }

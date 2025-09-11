@@ -129,7 +129,7 @@ impl Favicon {
         icon_color: Option<String>,
     ) -> Self {
         let icon_type = match icon_source.rfind('.') {
-            Some(i) => match icon_source[i..].to_owned().to_lowercase().as_str() {
+            Some(i) => match icon_source[i..].to_string().to_lowercase().as_str() {
                 ".avif" => Some("image/avif"),
                 ".gif" => Some("image/gif"),
                 ".ico" => Some("image/x-icon"),

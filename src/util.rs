@@ -110,15 +110,15 @@ macro_rules! hm {
 ///
 /// // Concatena todos los fragmentos directamente.
 /// let result = join!("Hello", " ", "World");
-/// assert_eq!(result, String::from("Hello World"));
+/// assert_eq!(result, "Hello World".to_string());
 ///
 /// // También funciona con valores vacíos.
 /// let result_with_empty = join!("Hello", "", "World");
-/// assert_eq!(result_with_empty, String::from("HelloWorld"));
+/// assert_eq!(result_with_empty, "HelloWorld".to_string());
 ///
 /// // Un único fragmento devuelve el mismo valor.
 /// let single_result = join!("Hello");
-/// assert_eq!(single_result, String::from("Hello"));
+/// assert_eq!(single_result, "Hello".to_string());
 /// ```
 #[macro_export]
 macro_rules! join {
@@ -141,11 +141,11 @@ macro_rules! join {
 ///
 /// // Concatena los fragmentos no vacíos con un espacio como separador.
 /// let result_with_separator = join_opt!(["Hello", "", "World"]; " ");
-/// assert_eq!(result_with_separator, Some(String::from("Hello World")));
+/// assert_eq!(result_with_separator, Some("Hello World".to_string()));
 ///
 /// // Concatena los fragmentos no vacíos sin un separador.
 /// let result_without_separator = join_opt!(["Hello", "", "World"]);
-/// assert_eq!(result_without_separator, Some(String::from("HelloWorld")));
+/// assert_eq!(result_without_separator, Some("HelloWorld".to_string()));
 ///
 /// // Devuelve `None` si todos los fragmentos están vacíos.
 /// let result_empty = join_opt!(["", "", ""]);
@@ -185,19 +185,19 @@ macro_rules! join_opt {
 ///
 /// // Concatena los dos fragmentos cuando ambos no están vacíos.
 /// let result = join_pair!(first, separator, second);
-/// assert_eq!(result, String::from("Hello-World"));
+/// assert_eq!(result, "Hello-World".to_string());
 ///
 /// // Si el primer fragmento está vacío, devuelve el segundo.
 /// let result_empty_first = join_pair!("", separator, second);
-/// assert_eq!(result_empty_first, String::from("World"));
+/// assert_eq!(result_empty_first, "World".to_string());
 ///
 /// // Si el segundo fragmento está vacío, devuelve el primero.
 /// let result_empty_second = join_pair!(first, separator, "");
-/// assert_eq!(result_empty_second, String::from("Hello"));
+/// assert_eq!(result_empty_second, "Hello".to_string());
 ///
 /// // Si ambos fragmentos están vacíos, devuelve una cadena vacía.
 /// let result_both_empty = join_pair!("", separator, "");
-/// assert_eq!(result_both_empty, String::from(""));
+/// assert_eq!(result_both_empty, "".to_string());
 /// ```
 #[macro_export]
 macro_rules! join_pair {
@@ -224,11 +224,11 @@ macro_rules! join_pair {
 ///
 /// // Concatena los fragmentos.
 /// let result = join_strict!(["Hello", "World"]);
-/// assert_eq!(result, Some(String::from("HelloWorld")));
+/// assert_eq!(result, Some("HelloWorld".to_string()));
 ///
 /// // Concatena los fragmentos con un separador.
 /// let result_with_separator = join_strict!(["Hello", "World"]; " ");
-/// assert_eq!(result_with_separator, Some(String::from("Hello World")));
+/// assert_eq!(result_with_separator, Some("Hello World".to_string()));
 ///
 /// // Devuelve `None` si alguno de los fragmentos está vacío.
 /// let result_with_empty = join_strict!(["Hello", "", "World"]);

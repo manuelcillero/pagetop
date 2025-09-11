@@ -37,7 +37,7 @@ pub enum ClassesOp {
 ///     .with_value(ClassesOp::Add, "Active")
 ///     .with_value(ClassesOp::Remove, "btn-primary");
 ///
-/// assert_eq!(classes.get(), Some(String::from("btn active")));
+/// assert_eq!(classes.get(), Some("btn active".to_string()));
 /// assert!(classes.contains("active"));
 /// ```
 #[derive(AutoDefault, Clone, Debug)]

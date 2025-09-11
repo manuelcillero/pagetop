@@ -25,7 +25,7 @@ use crate::prelude::*;
 /// use pagetop::prelude::*;
 ///
 /// let component = Html::with(|cx| {
-///     let user = cx.param::<String>("username").cloned().unwrap_or(String::from("visitor"));
+///     let user = cx.param::<String>("username").cloned().unwrap_or("visitor".to_string());
 ///     html! {
 ///         h1 { "Hello, " (user) }
 ///     }

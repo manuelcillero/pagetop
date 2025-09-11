@@ -17,13 +17,13 @@ use crate::{builder_fn, AutoDefault};
 /// // Español disponible.
 /// assert_eq!(
 ///     hello.lookup(&LangMatch::resolve("es-ES")),
-///     Some(String::from("¡Hola mundo!"))
+///     Some("¡Hola mundo!".to_string())
 /// );
 ///
 /// // Japonés no disponible, traduce al idioma de respaldo ("en-US").
 /// assert_eq!(
 ///     hello.lookup(&LangMatch::resolve("ja-JP")),
-///     Some(String::from("Hello world!"))
+///     Some("Hello world!".to_string())
 /// );
 ///
 /// // Uso típico en un atributo:
