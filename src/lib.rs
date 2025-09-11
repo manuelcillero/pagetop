@@ -138,7 +138,7 @@ pub type Weight = i8;
 
 // API *********************************************************************************************
 
-// Funciones y macros útiles.
+// Macros y funciones útiles.
 pub mod util;
 // Carga las opciones de configuración.
 pub mod config;
