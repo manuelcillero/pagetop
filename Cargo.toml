@@ -20,6 +20,7 @@ colored = "3.0.0"
 concat-string = "1.0.1"
 config = { version = "0.15.13", default-features = false, features = ["toml"] }
 figlet-rs = "0.1.5"
+indoc = "2.0.6"
 itoa = "1.0.15"
 parking_lot = "0.12.4"
 paste = { package = "pastey", version = "0.1.0" }
