@@ -7,9 +7,9 @@
 	--color: #1a202c;
 	--color-gray: #e4e4e7;
 	--color-link: #1e4eae;
-	--color-block-1: #fecaca;
-	--color-block-2: #e6a9e2;
-	--color-block-3: #b689ff;
+	--color-block-1: #b689ff;
+	--color-block-2: #fecaca;
+	--color-block-3: #e6a9e2;
 	--color-block-4: #ffedca;
 	--color-block-5: #ffffff;
 	--focus-outline: 2px solid var(--color-link);

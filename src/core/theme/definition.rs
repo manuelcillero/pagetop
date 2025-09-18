@@ -125,18 +125,18 @@ pub trait Theme: Extension + ThemePage + Send + Sync {
 
     /// Declaración ordenada de las regiones disponibles en la página.
     ///
-    /// Devuelve una **lista estática** de pares `(Region, L10n)` que se usará para renderizar en el
-    /// orden indicado todas las regiones que componen una página.
+    /// Devuelve una **lista estática** de pares `(Region, L10n)` que se usará para renderizar todas
+    /// las regiones que componen una página en el orden indicado .
     ///
-    /// Requisitos y recomendaciones:
+    /// Si un tema necesita un conjunto distinto de regiones, se puede **sobrescribir** este método
+    /// con los siguientes requisitos y recomendaciones:
     ///
     /// - Los identificadores deben ser **estables** (p. ej. `"sidebar-left"`, `"content"`).
     /// - La región `"content"` es **obligatoria**. Se puede usar [`Region::default()`] para
     ///   declararla.
     /// - La etiqueta `L10n` se evalúa con el idioma activo de la página.
     ///
-    /// Si tu tema define un conjunto distinto, se puede **sobrescribir** este método. Por defecto
-    /// devuelve:
+    /// Por defecto devuelve:
     ///
     /// - `"header"`: cabecera.
     /// - `"content"`: contenido principal (**obligatoria**).
