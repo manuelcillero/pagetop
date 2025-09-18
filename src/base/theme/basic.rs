@@ -111,8 +111,8 @@ fn render_intro(page: &mut Page) -> Markup {
                     div class="intro-footer__links" {
                         a href="https://crates.io/crates/pagetop" target="_blank" rel="noreferrer" { ("Crates.io") }
                         a href="https://docs.rs/pagetop" target="_blank" rel="noreferrer" { ("Docs.rs") }
-                        a href="https://git.cillero.es/manuelcillero/pagetop" target="_blank" rel="noreferrer" { (L10n::l("welcome_code").using(page)) }
-                        em { (L10n::l("welcome_have_fun").using(page)) }
+                        a href="https://git.cillero.es/manuelcillero/pagetop" target="_blank" rel="noreferrer" { (L10n::l("intro_code").using(page)) }
+                        em { (L10n::l("intro_have_fun").using(page)) }
                     }
                 }
             }
