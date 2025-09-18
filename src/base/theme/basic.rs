@@ -1,8 +1,33 @@
-//! Es el tema básico que incluye PageTop por defecto.
-
+/// Es el tema básico que incluye PageTop por defecto.
 use crate::prelude::*;
 
 /// Tema básico por defecto.
+///
+/// Ofrece las siguientes composiciones (*layouts*):
+///
+/// - **Composición predeterminada**
+///   - Renderizado genérico con
+///     [`ThemePage::render_body()`](crate::core::theme::ThemePage::render_body) usando las regiones
+///     predefinidas en [`page_regions()`](crate::core::theme::Theme::page_regions).
+///
+/// - **`Intro`**
+///   - Página de entrada con cabecera visual, título y descripción y un botón opcional de llamada a
+///     la acción. Ideal para una página de inicio o bienvenida en el contexto de PageTop.
+///   - **Regiones:** `content` (se renderiza dentro de `.intro-content__body`).
+///   - **Parámetros:**
+///     - `intro_button_txt` (`L10n`) – Texto del botón.
+///     - `intro_button_lnk` (`Option<String>`) – URL del botón; si no se indica, el botón no se
+///       muestra.
+///
+/// - **`PageTopIntro`**
+///   - Variante de `Intro` con textos predefinidos sobre PageTop al inicio del contenido. Añade una
+///     banda de *badges* con la versión de [PageTop en crates.io](https://crates.io/crates/pagetop)
+///     más la fecha de la última versión publicada y la licencia de uso.
+///   - **Regiones:** `content` (igual que `Intro`).
+///   - **Parámetros:** los mismos que `Intro`.
+///
+/// **Nota:** si no se especifica `layout` o el valor no coincide con ninguno de los anteriores, se
+/// aplica la composición predeterminada.
 pub struct Basic;
 
 impl Extension for Basic {
@@ -14,14 +39,16 @@ impl Extension for Basic {
 impl Theme for Basic {
     fn render_page_body(&self, page: &mut Page) -> Markup {
         match page.layout() {
-            "intro" => render_intro(page),
+            "Intro" => render_intro(page),
+            "PageTopIntro" => render_pagetop_intro(page),
             _ => <Self as ThemePage>::render_body(self, page, self.page_regions()),
         }
     }
 
     fn after_render_page_body(&self, page: &mut Page) {
         let styles = match page.layout() {
-            "intro" => "/css/intro.css",
+            "Intro" => "/css/intro.css",
+            "PageTopIntro" => "/css/intro.css",
             _ => "/css/basic.css",
         };
         page.alter_assets(AssetsOp::AddStyleSheet(
@@ -41,8 +68,8 @@ fn render_intro(page: &mut Page) -> Markup {
     let title = page.title().unwrap_or_default();
     let intro = page.description().unwrap_or_default();
 
-    let intro_button_text: L10n = page.param_or_default("intro_button_text");
-    let intro_button_link: Option<&String> = page.param("intro_button_link");
+    let intro_button_txt: L10n = page.param_or_default("intro_button_txt");
+    let intro_button_lnk: Option<&String> = page.param("intro_button_lnk");
 
     html! {
         body id=[page.body_id().get()] class=[page.body_classes().get()] {
@@ -74,17 +101,17 @@ fn render_intro(page: &mut Page) -> Markup {
             }
             main class="intro-content" {
                 section class="intro-content__body" {
-                    @if intro_button_link.is_some() {
+                    @if intro_button_lnk.is_some() {
                         div class="intro-button" {
                             a
                                 class="intro-button__link"
-                                href=[intro_button_link]
+                                href=[intro_button_lnk]
                                 target="_blank"
                                 rel="noreferrer"
                             {
                                 span {} span {} span {}
                                 div class="intro-button__text" {
-                                    (intro_button_text.using(page))
+                                    (intro_button_txt.using(page))
                                 }
                             }
                         }
@@ -118,4 +145,44 @@ fn render_intro(page: &mut Page) -> Markup {
             }
         }
     }
+}
+
+fn render_pagetop_intro(page: &mut Page) -> Markup {
+    page.alter_assets(AssetsOp::AddJavaScript(JavaScript::on_load_async("intro-js", |cx|
+        util::indoc!(r#"
+        try {
+            const resp = await fetch("https://crates.io/api/v1/crates/pagetop");
+            const data = await resp.json();
+            const date = new Date(data.versions[0].created_at);
+            const formatted = date.toLocaleDateString("LANGID", { year: "numeric", month: "2-digit", day: "2-digit" });
+            document.getElementById("intro-release").src = `https://img.shields.io/badge/Release%20date-${encodeURIComponent(formatted)}-blue?label=LABEL&style=for-the-badge`;
+            document.getElementById("intro-badges").style.display = "block";
+        } catch (e) {
+            console.error("Failed to fetch release date from crates.io:", e);
+        }
+        "#)
+        .replace("LANGID", cx.langid().to_string().as_str())
+        .replace("LABEL", L10n::l("intro_release_label").using(cx).as_str())
+        .to_string(),
+    )))
+    .alter_child_in("content", ChildOp::Prepend(Child::with(Html::with(|cx| html! {
+        p { (L10n::l("intro_text1").using(cx)) }
+        div id="intro-badges" style="display: none; margin-bottom: 1.1rem;" {
+            img
+                src="https://img.shields.io/crates/v/pagetop.svg?label=PageTop&style=for-the-badge"
+                alt=[L10n::l("intro_pagetop_label").lookup(cx)] {} (" ")
+            img
+                id="intro-release"
+                alt=[L10n::l("intro_release_label").lookup(cx)] {} (" ")
+            img
+                src=(format!(
+                    "https://img.shields.io/badge/license-MIT%2FApache-blue.svg?label={}&style=for-the-badge",
+                    L10n::l("intro_license_label").lookup(cx).unwrap_or_default()
+                ))
+                alt=[L10n::l("intro_license_label").lookup(cx)] {}
+        }
+        p { (L10n::l("intro_text2").using(cx)) }
+    }))));
+
+    render_intro(page)
 }
