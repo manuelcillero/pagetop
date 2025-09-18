@@ -314,7 +314,7 @@ impl Context {
             .ok_or_else(|| ErrorParam::TypeMismatch {
                 key,
                 expected: TypeInfo::FullName.of::<T>(),
-                saved: *type_name,
+                saved: type_name,
             })
     }
 

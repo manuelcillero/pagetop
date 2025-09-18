@@ -269,8 +269,8 @@ pub fn builder_fn(_: TokenStream, item: TokenStream) -> TokenStream {
     // Extrae atributos descartando la documentación para incluir en `alter_...()`.
     let non_doc_attrs: Vec<_> = attrs
         .iter()
+        .filter(|&a| !a.path().is_ident("doc"))
         .cloned()
-        .filter(|a| !a.path().is_ident("doc"))
         .collect();
 
     // Documentación del método alter_...().
