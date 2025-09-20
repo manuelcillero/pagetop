@@ -16,5 +16,5 @@ license.workspace = true
 authors.workspace = true
 
 [dependencies]
-grass = "0.13.4"
+grass = "0.13"
 pagetop-statics.workspace = true

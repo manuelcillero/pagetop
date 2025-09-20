@@ -15,29 +15,29 @@ license.workspace = true
 authors.workspace = true
 
 [dependencies]
-chrono = "0.4.41"
-colored = "3.0.0"
-concat-string = "1.0.1"
-config = { version = "0.15.13", default-features = false, features = ["toml"] }
-figlet-rs = "0.1.5"
-indoc = "2.0.6"
-itoa = "1.0.15"
-parking_lot = "0.12.4"
-paste = { package = "pastey", version = "0.1.0" }
-substring = "1.4.5"
-terminal_size = "0.4.2"
+chrono = "0.4"
+colored = "3.0"
+concat-string = "1.0"
+config = { version = "0.15", default-features = false, features = ["toml"] }
+figlet-rs = "0.1"
+indoc = "2.0"
+itoa = "1.0"
+parking_lot = "0.12"
+paste = { package = "pastey", version = "0.1" }
+substring = "1.4"
+terminal_size = "0.4"
 
-tracing = "0.1.41"
-tracing-appender = "0.2.3"
-tracing-subscriber = { version = "0.3.19", features = ["json", "env-filter"] }
-tracing-actix-web = "0.7.19"
+tracing = "0.1"
+tracing-appender = "0.2"
+tracing-subscriber = { version = "0.3", features = ["json", "env-filter"] }
+tracing-actix-web = "0.7"
 
-fluent-templates = "0.13.0"
-unic-langid = { version = "0.9.6", features = ["macros"] }
+fluent-templates = "0.13"
+unic-langid = { version = "0.9", features = ["macros"] }
 
 actix-web = { workspace = true, default-features = true }
-actix-session = { version = "0.10.1", features = ["cookie-session"] }
-actix-web-files = { package = "actix-files", version = "0.6.6" }
+actix-session = { version = "0.11", features = ["cookie-session"] }
+actix-web-files = { package = "actix-files", version = "0.6" }
 
 serde = { version = "1.0", features = ["derive"] }
 
@@ -49,7 +49,7 @@ default = []
 testing = []
 
 [dev-dependencies]
-tempfile = "3.20.0"
+tempfile = "3.22"
 
 [build-dependencies]
 pagetop-build.workspace = true
