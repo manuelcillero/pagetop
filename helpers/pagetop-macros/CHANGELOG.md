@@ -8,6 +8,25 @@ Resume la evolución del proyecto para usuarios y colaboradores, destacando nuev
 correcciones, mejoras durante el desarrollo o cambios en la documentación. Cambios menores o
 internos pueden omitirse si no afectan al uso del proyecto.
 
+## 0.2.0 (2025-09-20)
+
+### Cambiado
+
+- Retoques en el código
+- Majora la validación de `builder_fn`
+
+### Dependencias
+
+- Actualiza dependencias para 0.4.0
+
+### Documentado
+
+- Normaliza referencias al nombre PageTop
+
+### Otros cambios
+
+- 🚨 Ajustes menores sugeridos por clippy
+
 ## 0.1.1 (2025-08-16)
 
 ### Documentado
