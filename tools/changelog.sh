@@ -88,12 +88,13 @@ git-cliff --unreleased "${COMMON_ARGS[@]}"
 echo "CHANGELOG generated at '$CHANGELOG_FILE'"
 
 # Pregunta por la revisión del archivo de cambios generado
-read -p "Do you want to review the changelog before continuing? (y/n) " -r || exit 1
-echo
+echo "Do you want to review the changelog before continuing? [y/N]"
+read -r REPLY
 if [[ "$REPLY" =~ ^[Yy]$ ]]; then
     ${EDITOR:-nano} "$CHANGELOG_FILE"
 fi
-read -p "Do you want to proceed with the release of $CRATE? (y/n) " -r || exit 1
+echo "Do you want to proceed with the release of $CRATE? [y/N]"
+read -r REPLY
 echo
 if [[ ! "$REPLY" =~ ^[Yy]$ ]]; then
     echo "Aborting release process." >&2
