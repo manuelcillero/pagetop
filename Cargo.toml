@@ -70,7 +70,7 @@ license = "MIT OR Apache-2.0"
 authors = ["Manuel Cillero <manuel@cillero.es>"]
 
 [workspace.dependencies]
-actix-web = { version = "4.11.0", default-features = false }
+actix-web = { version = "4.11", default-features = false }
 
 pagetop-build = { version = "0.3", path = "helpers/pagetop-build" }
 pagetop-macros = { version = "0.1", path = "helpers/pagetop-macros" }
