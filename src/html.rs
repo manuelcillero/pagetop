@@ -50,14 +50,13 @@ pub type OptionClasses = AttrClasses;
 
 use crate::{core, AutoDefault};
 
-/// **Obsoleto desde la versión 0.4.0**: usar [`TypedOpt`](crate::core::component::TypedOpt) en su
-/// lugar.
+/// **Obsoleto desde la versión 0.4.0**: usar [`Typed`](crate::core::component::Typed) en su lugar.
 #[deprecated(
     since = "0.4.0",
-    note = "Use `pagetop::core::component::TypedOpt` instead"
+    note = "Use `pagetop::core::component::Typed` instead"
 )]
 #[allow(type_alias_bounds)]
-pub type OptionComponent<C: core::component::Component> = core::component::TypedOpt<C>;
+pub type OptionComponent<C: core::component::Component> = core::component::Typed<C>;
 
 /// Prepara contenido HTML para su conversión a [`Markup`].
 ///

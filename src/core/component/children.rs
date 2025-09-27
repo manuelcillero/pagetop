@@ -1,6 +1,6 @@
 use crate::core::component::Component;
 use crate::html::{html, Context, Markup};
-use crate::{builder_fn, UniqueId};
+use crate::{builder_fn, AutoDefault, UniqueId};
 
 use parking_lot::RwLock;
 
@@ -11,76 +11,105 @@ use std::vec::IntoIter;
 ///
 /// Esta estructura permite manipular y renderizar un componente que implemente [`Component`], y
 /// habilita acceso concurrente mediante [`Arc<RwLock<_>>`].
-#[derive(Clone)]
-pub struct Child(Arc<RwLock<dyn Component>>);
+#[derive(AutoDefault, Clone)]
+pub struct Child(Option<Arc<RwLock<dyn Component>>>);
 
 impl Child {
     /// Crea un nuevo `Child` a partir de un componente.
     pub fn with(component: impl Component) -> Self {
-        Child(Arc::new(RwLock::new(component)))
+        Child(Some(Arc::new(RwLock::new(component))))
+    }
+
+    // Child BUILDER *******************************************************************************
+
+    /// Establece un componente nuevo, o lo vacía.
+    ///
+    /// Si se proporciona `Some(component)`, se encapsula como [`Child`]; y si es `None`, se limpia.
+    #[builder_fn]
+    pub fn with_component<C: Component>(mut self, component: Option<C>) -> Self {
+        if let Some(c) = component {
+            self.0 = Some(Arc::new(RwLock::new(c)));
+        } else {
+            self.0 = None;
+        }
+        self
     }
 
     // Child GETTERS *******************************************************************************
 
-    /// Devuelve el identificador del componente, si está definido.
+    /// Devuelve el identificador del componente, si existe y está definido.
+    #[inline]
     pub fn id(&self) -> Option<String> {
-        self.0.read().id()
+        self.0.as_ref().and_then(|c| c.read().id())
     }
 
     // Child RENDER ********************************************************************************
 
     /// Renderiza el componente con el contexto proporcionado.
     pub fn render(&self, cx: &mut Context) -> Markup {
-        self.0.write().render(cx)
+        self.0.as_ref().map_or(html! {}, |c| c.write().render(cx))
     }
 
     // Child HELPERS *******************************************************************************
 
-    // Devuelve el [`UniqueId`] del tipo del componente.
-    fn type_id(&self) -> UniqueId {
-        self.0.read().type_id()
+    // Devuelve el [`UniqueId`] del tipo del componente, si existe.
+    #[inline]
+    fn type_id(&self) -> Option<UniqueId> {
+        self.0.as_ref().map(|c| c.read().type_id())
     }
 }
 
 // *************************************************************************************************
 
-/// Variante tipada de [`Child`] para evitar conversiones durante el uso.
+/// Variante tipada de [`Child`] para evitar conversiones de tipo durante el uso.
 ///
 /// Esta estructura permite manipular y renderizar un componente concreto que implemente
 /// [`Component`], y habilita acceso concurrente mediante [`Arc<RwLock<_>>`].
-pub struct Typed<C: Component>(Arc<RwLock<C>>);
-
-impl<C: Component> Clone for Typed<C> {
-    fn clone(&self) -> Self {
-        Self(self.0.clone())
-    }
-}
+#[derive(AutoDefault, Clone)]
+pub struct Typed<C: Component>(Option<Arc<RwLock<C>>>);
 
 impl<C: Component> Typed<C> {
     /// Crea un nuevo `Typed` a partir de un componente.
     pub fn with(component: C) -> Self {
-        Typed(Arc::new(RwLock::new(component)))
+        Typed(Some(Arc::new(RwLock::new(component))))
+    }
+
+    // Typed BUILDER *******************************************************************************
+
+    /// Establece un componente nuevo, o lo vacía.
+    ///
+    /// Si se proporciona `Some(component)`, se encapsula como [`Typed`]; y si es `None`, se limpia.
+    #[builder_fn]
+    pub fn with_component(mut self, component: Option<C>) -> Self {
+        self.0 = component.map(|c| Arc::new(RwLock::new(c)));
+        self
     }
 
     // Typed GETTERS *******************************************************************************
 
-    /// Devuelve el identificador del componente, si está definido.
+    /// Devuelve el identificador del componente, si existe y está definido.
+    #[inline]
     pub fn id(&self) -> Option<String> {
-        self.0.read().id()
+        self.0.as_ref().and_then(|c| c.read().id())
     }
 
     // Typed RENDER ********************************************************************************
 
     /// Renderiza el componente con el contexto proporcionado.
     pub fn render(&self, cx: &mut Context) -> Markup {
-        self.0.write().render(cx)
+        self.0.as_ref().map_or(html! {}, |c| c.write().render(cx))
     }
 
     // Typed HELPERS *******************************************************************************
 
     // Convierte el componente tipado en un [`Child`].
+    #[inline]
     fn into_child(self) -> Child {
-        Child(self.0.clone())
+        if let Some(c) = &self.0 {
+            Child(Some(c.clone()))
+        } else {
+            Child(None)
+        }
     }
 }
 
@@ -201,7 +230,7 @@ impl Children {
     /// Devuelve un iterador sobre los componentes hijo con el identificador de tipo ([`UniqueId`])
     /// indicado.
     pub fn iter_by_type_id(&self, type_id: UniqueId) -> impl Iterator<Item = &Child> {
-        self.0.iter().filter(move |&c| c.type_id() == type_id)
+        self.0.iter().filter(move |&c| c.type_id() == Some(type_id))
     }
 
     // Children RENDER *****************************************************************************
