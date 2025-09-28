@@ -90,7 +90,7 @@ async fn poweredby_getter_reflects_internal_state() {
     assert!(c1.contains(&global::SETTINGS.app.name));
 }
 
-// HELPERS *****************************************************************************************
+// **< HELPERS >************************************************************************************
 
 fn render_component<C: Component>(c: &C) -> Markup {
     let mut cx = Context::default();

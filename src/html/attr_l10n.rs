@@ -39,7 +39,7 @@ impl AttrL10n {
         AttrL10n(value)
     }
 
-    // AttrL10n BUILDER ****************************************************************************
+    // **< AttrL10n BUILDER >***********************************************************************
 
     /// Establece una traducción nueva.
     #[builder_fn]
@@ -48,7 +48,7 @@ impl AttrL10n {
         self
     }
 
-    // AttrL10n GETTERS ****************************************************************************
+    // **< AttrL10n GETTERS >***********************************************************************
 
     /// Devuelve la traducción para `language`, si existe.
     pub fn lookup(&self, language: &impl LangId) -> Option<String> {

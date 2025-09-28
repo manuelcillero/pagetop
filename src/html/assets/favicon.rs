@@ -52,7 +52,7 @@ impl Favicon {
         Favicon::default()
     }
 
-    // Favicon BUILDER *****************************************************************************
+    // **< Favicon BUILDER >************************************************************************
 
     /// Le añade un icono genérico apuntando a `image`. El tipo MIME se infiere automáticamente a
     /// partir de la extensión.
@@ -151,6 +151,8 @@ impl Favicon {
         });
         self
     }
+
+    // **< Favicon RENDER >*************************************************************************
 
     /// Renderiza el **Favicon** completo con todas las etiquetas declaradas.
     ///

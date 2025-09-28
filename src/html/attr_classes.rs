@@ -48,7 +48,7 @@ impl AttrClasses {
         AttrClasses::default().with_value(ClassesOp::Prepend, classes)
     }
 
-    // AttrClasses BUILDER *************************************************************************
+    // **< AttrClasses BUILDER >********************************************************************
 
     #[builder_fn]
     pub fn with_value(mut self, op: ClassesOp, classes: impl AsRef<str>) -> Self {
@@ -114,7 +114,7 @@ impl AttrClasses {
         }
     }
 
-    // AttrClasses GETTERS *************************************************************************
+    // **< AttrClasses GETTERS >********************************************************************
 
     /// Devuelve la cadena de clases, si existe.
     pub fn get(&self) -> Option<String> {

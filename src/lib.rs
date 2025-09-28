@@ -97,7 +97,7 @@ extern crate self as pagetop;
 use std::collections::HashMap;
 use std::ops::Deref;
 
-// RE-EXPORTED *************************************************************************************
+// **< RE-EXPORTED >********************************************************************************
 
 pub use pagetop_macros::{builder_fn, html, main, test, AutoDefault};
 
@@ -136,7 +136,7 @@ pub type UniqueId = std::any::TypeId;
 /// antes en la ordenación.
 pub type Weight = i8;
 
-// API *********************************************************************************************
+// **< API >****************************************************************************************
 
 // Macros y funciones útiles.
 pub mod util;
@@ -163,6 +163,6 @@ pub mod base;
 // Prepara y ejecuta la aplicación.
 pub mod app;
 
-// PRELUDE *****************************************************************************************
+// **< PRELUDE >************************************************************************************
 
 pub mod prelude;

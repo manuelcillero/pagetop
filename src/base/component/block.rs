@@ -47,7 +47,7 @@ impl Component for Block {
 }
 
 impl Block {
-    // Block BUILDER *******************************************************************************
+    // **< Block BUILDER >**************************************************************************
 
     /// Establece el identificador único (`id`) del bloque.
     #[builder_fn]
@@ -77,14 +77,14 @@ impl Block {
         self
     }
 
-    /// Modifica la lista de hijos (`children`) aplicando una operación.
+    /// Modifica la lista de hijos (`children`) aplicando una operación [`ChildOp`].
     #[builder_fn]
     pub fn with_child(mut self, op: ChildOp) -> Self {
         self.children.alter_child(op);
         self
     }
 
-    // Block GETTERS *******************************************************************************
+    // **< Block GETTERS >**************************************************************************
 
     /// Devuelve las clases CSS asociadas al bloque.
     pub fn classes(&self) -> &AttrClasses {

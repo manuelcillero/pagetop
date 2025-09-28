@@ -7,7 +7,7 @@ use parking_lot::RwLock;
 
 use std::sync::LazyLock;
 
-// EXTENSIONES *************************************************************************************
+// **< EXTENSIONES >********************************************************************************
 
 static ENABLED_EXTENSIONS: LazyLock<RwLock<Vec<ExtensionRef>>> =
     LazyLock::new(|| RwLock::new(Vec::new()));
@@ -15,7 +15,7 @@ static ENABLED_EXTENSIONS: LazyLock<RwLock<Vec<ExtensionRef>>> =
 static DROPPED_EXTENSIONS: LazyLock<RwLock<Vec<ExtensionRef>>> =
     LazyLock::new(|| RwLock::new(Vec::new()));
 
-// REGISTRO DE LAS EXTENSIONES *********************************************************************
+// **< REGISTRO DE LAS EXTENSIONES >****************************************************************
 
 pub fn register_extensions(root_extension: Option<ExtensionRef>) {
     // Prepara la lista de extensiones habilitadas.
@@ -104,7 +104,7 @@ fn add_to_dropped(list: &mut Vec<ExtensionRef>, extension: ExtensionRef) {
     }
 }
 
-// REGISTRO DE LAS ACCIONES ************************************************************************
+// **< REGISTRO DE LAS ACCIONES >*******************************************************************
 
 pub fn register_actions() {
     for extension in ENABLED_EXTENSIONS.read().iter() {
@@ -114,7 +114,7 @@ pub fn register_actions() {
     }
 }
 
-// INICIALIZA LAS EXTENSIONES **********************************************************************
+// **< INICIALIZA LAS EXTENSIONES >*****************************************************************
 
 pub fn initialize_extensions() {
     trace::info!("Calling application bootstrap");
@@ -123,7 +123,7 @@ pub fn initialize_extensions() {
     }
 }
 
-// CONFIGURA LOS SERVICIOS *************************************************************************
+// **< CONFIGURA LOS SERVICIOS >********************************************************************
 
 pub fn configure_services(scfg: &mut service::web::ServiceConfig) {
     // Sólo compila durante el desarrollo, para evitar errores 400 en la traza de eventos.

@@ -52,7 +52,7 @@ impl Page {
         }
     }
 
-    // Page BUILDER ********************************************************************************
+    // **< Page BUILDER >***************************************************************************
 
     /// Establece el título de la página como un valor traducible.
     #[builder_fn]
@@ -151,7 +151,7 @@ impl Page {
         self
     }
 
-    // Page GETTERS ********************************************************************************
+    // **< Page GETTERS >***************************************************************************
 
     /// Devuelve el título traducido para el idioma de la página, si existe.
     pub fn title(&mut self) -> Option<String> {
@@ -192,7 +192,7 @@ impl Page {
         &mut self.context
     }
 
-    // Page RENDER *********************************************************************************
+    // **< Page RENDER >****************************************************************************
 
     /// Renderiza los componentes de una región (`region_name`) de la página.
     pub fn render_region(&mut self, region_name: &'static str) -> Markup {
@@ -253,7 +253,7 @@ impl LangId for Page {
 }
 
 impl Contextual for Page {
-    // Contextual BUILDER **************************************************************************
+    // **< Contextual BUILDER >*********************************************************************
 
     #[builder_fn]
     fn with_request(mut self, request: Option<HttpRequest>) -> Self {
@@ -291,7 +291,7 @@ impl Contextual for Page {
         self
     }
 
-    // Contextual GETTERS **************************************************************************
+    // **< Contextual GETTERS >*********************************************************************
 
     fn request(&self) -> Option<&HttpRequest> {
         self.context.request()
@@ -321,7 +321,7 @@ impl Contextual for Page {
         self.context.javascripts()
     }
 
-    // Contextual HELPERS **************************************************************************
+    // **< Contextual HELPERS >*********************************************************************
 
     fn required_id<T>(&mut self, id: Option<String>) -> String {
         self.context.required_id::<T>(id)

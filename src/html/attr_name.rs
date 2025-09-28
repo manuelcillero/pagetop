@@ -29,7 +29,7 @@ impl AttrName {
         AttrName::default().with_value(value)
     }
 
-    // AttrName BUILDER ****************************************************************************
+    // **< AttrName BUILDER >***********************************************************************
 
     /// Establece un nombre nuevo normalizando el valor.
     #[builder_fn]
@@ -39,7 +39,7 @@ impl AttrName {
         self
     }
 
-    // AttrName GETTERS ****************************************************************************
+    // **< AttrName GETTERS >***********************************************************************
 
     /// Devuelve el nombre normalizado, si existe.
     pub fn get(&self) -> Option<String> {

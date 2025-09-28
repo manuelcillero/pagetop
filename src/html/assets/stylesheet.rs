@@ -113,7 +113,7 @@ impl StyleSheet {
         }
     }
 
-    // StyleSheet BUILDER **************************************************************************
+    // **< StyleSheet BUILDER >*********************************************************************
 
     /// Asocia una versión al recurso (usada para control de la caché del navegador).
     ///
@@ -132,7 +132,7 @@ impl StyleSheet {
         self
     }
 
-    // StyleSheet EXTRAS ***************************************************************************
+    // **< StyleSheet HELPERS >*********************************************************************
 
     /// Especifica el medio donde se aplican los estilos.
     ///
@@ -162,6 +162,8 @@ impl Asset for StyleSheet {
     fn weight(&self) -> Weight {
         self.weight
     }
+
+    // **< StyleSheet RENDER >**********************************************************************
 
     fn render(&self, cx: &mut Context) -> Markup {
         match &self.source {

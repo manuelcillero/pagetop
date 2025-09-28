@@ -3,7 +3,7 @@
 mod maud;
 pub use maud::{display, html, html_private, Escaper, Markup, PreEscaped, DOCTYPE};
 
-// HTML DOCUMENT ASSETS ****************************************************************************
+// **< HTML DOCUMENT ASSETS >***********************************************************************
 
 mod assets;
 pub use assets::favicon::Favicon;
@@ -11,12 +11,12 @@ pub use assets::javascript::JavaScript;
 pub use assets::stylesheet::{StyleSheet, TargetMedia};
 pub use assets::{Asset, Assets};
 
-// HTML DOCUMENT CONTEXT ***************************************************************************
+// **< HTML DOCUMENT CONTEXT >**********************************************************************
 
 mod context;
 pub use context::{AssetsOp, Context, Contextual, ErrorParam};
 
-// HTML ATTRIBUTES *********************************************************************************
+// **< HTML ATTRIBUTES >****************************************************************************
 
 mod attr_id;
 pub use attr_id::AttrId;

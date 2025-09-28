@@ -39,7 +39,7 @@ impl Component for PoweredBy {
 }
 
 impl PoweredBy {
-    // PoweredBy BUILDER ***************************************************************************
+    // **< PoweredBy BUILDER >**********************************************************************
 
     /// Establece el texto de copyright que mostrará el componente.
     ///
@@ -58,7 +58,7 @@ impl PoweredBy {
         self
     }
 
-    // PoweredBy GETTERS ***************************************************************************
+    // **< PoweredBy GETTERS >**********************************************************************
 
     /// Devuelve el texto de copyright actual, si existe.
     pub fn copyright(&self) -> Option<&str> {

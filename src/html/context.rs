@@ -78,7 +78,7 @@ pub enum ErrorParam {
 /// }
 /// ```
 pub trait Contextual: LangId {
-    // Contextual BUILDER **************************************************************************
+    // **< Contextual BUILDER >*********************************************************************
 
     /// Establece el idioma del documento.
     #[builder_fn]
@@ -104,7 +104,7 @@ pub trait Contextual: LangId {
     #[builder_fn]
     fn with_assets(self, op: AssetsOp) -> Self;
 
-    // Contextual GETTERS **************************************************************************
+    // **< Contextual GETTERS >*********************************************************************
 
     /// Devuelve una referencia a la solicitud HTTP asociada, si existe.
     fn request(&self) -> Option<&HttpRequest>;
@@ -142,7 +142,7 @@ pub trait Contextual: LangId {
     /// Devuelve los scripts JavaScript de los recursos del contexto.
     fn javascripts(&self) -> &Assets<JavaScript>;
 
-    // Contextual HELPERS **************************************************************************
+    // **< Contextual HELPERS >*********************************************************************
 
     /// Genera un identificador único por tipo (`<tipo>-<n>`) cuando no se aporta uno explícito.
     ///
@@ -255,7 +255,7 @@ impl Context {
         }
     }
 
-    // Context RENDER ******************************************************************************
+    // **< Context RENDER >*************************************************************************
 
     /// Renderiza los recursos del contexto.
     pub fn render_assets(&mut self) -> Markup {
@@ -283,7 +283,7 @@ impl Context {
         markup
     }
 
-    // Context PARAMS ******************************************************************************
+    // **< Context PARAMS >*************************************************************************
 
     /// Recupera una *referencia tipada* al parámetro solicitado.
     ///
@@ -389,7 +389,7 @@ impl LangId for Context {
 }
 
 impl Contextual for Context {
-    // Contextual BUILDER **************************************************************************
+    // **< Contextual BUILDER >*********************************************************************
 
     #[builder_fn]
     fn with_request(mut self, request: Option<HttpRequest>) -> Self {
@@ -471,7 +471,7 @@ impl Contextual for Context {
         self
     }
 
-    // Contextual GETTERS **************************************************************************
+    // **< Contextual GETTERS >*********************************************************************
 
     fn request(&self) -> Option<&HttpRequest> {
         self.request.as_ref()
@@ -530,7 +530,7 @@ impl Contextual for Context {
         &self.javascripts
     }
 
-    // Contextual HELPERS **************************************************************************
+    // **< Contextual HELPERS >*********************************************************************
 
     /// Devuelve un identificador único dentro del contexto para el tipo `T`, si no se proporciona
     /// un `id` explícito.

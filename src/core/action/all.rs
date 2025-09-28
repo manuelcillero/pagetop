@@ -5,12 +5,12 @@ use parking_lot::RwLock;
 use std::collections::HashMap;
 use std::sync::LazyLock;
 
-// ACCIONES ****************************************************************************************
+// **< ACCIONES >***********************************************************************************
 
 static ACTIONS: LazyLock<RwLock<HashMap<ActionKey, ActionsList>>> =
     LazyLock::new(|| RwLock::new(HashMap::new()));
 
-// AÑADIR ACCIONES *********************************************************************************
+// **< AÑADIR ACCIONES >****************************************************************************
 
 // Registra una nueva acción en el sistema.
 //
@@ -36,7 +36,7 @@ pub fn add_action(action: ActionBox) {
     }
 }
 
-// DESPLEGAR ACCIONES ******************************************************************************
+// **< DESPLEGAR ACCIONES >*************************************************************************
 
 /// Despacha y ejecuta las funciones asociadas a una [`ActionKey`].
 ///

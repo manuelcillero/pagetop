@@ -49,7 +49,7 @@ impl Component for Html {
 }
 
 impl Html {
-    // Html BUILDER ********************************************************************************
+    // **< Html BUILDER >***************************************************************************
 
     /// Crea una instancia que generará el `Markup`, con acceso opcional al contexto.
     ///
@@ -77,7 +77,7 @@ impl Html {
         self
     }
 
-    // Html GETTERS ********************************************************************************
+    // **< Html GETTERS >***************************************************************************
 
     /// Aplica la función interna de renderizado con el [`Context`] proporcionado.
     ///

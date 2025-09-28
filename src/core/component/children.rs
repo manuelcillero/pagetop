@@ -20,7 +20,7 @@ impl Child {
         Child(Some(Arc::new(RwLock::new(component))))
     }
 
-    // Child BUILDER *******************************************************************************
+    // **< Child BUILDER >**************************************************************************
 
     /// Establece un componente nuevo, o lo vacía.
     ///
@@ -35,7 +35,7 @@ impl Child {
         self
     }
 
-    // Child GETTERS *******************************************************************************
+    // **< Child GETTERS >**************************************************************************
 
     /// Devuelve el identificador del componente, si existe y está definido.
     #[inline]
@@ -43,14 +43,14 @@ impl Child {
         self.0.as_ref().and_then(|c| c.read().id())
     }
 
-    // Child RENDER ********************************************************************************
+    // **< Child RENDER >***************************************************************************
 
     /// Renderiza el componente con el contexto proporcionado.
     pub fn render(&self, cx: &mut Context) -> Markup {
         self.0.as_ref().map_or(html! {}, |c| c.write().render(cx))
     }
 
-    // Child HELPERS *******************************************************************************
+    // **< Child HELPERS >**************************************************************************
 
     // Devuelve el [`UniqueId`] del tipo del componente, si existe.
     #[inline]
@@ -74,7 +74,7 @@ impl<C: Component> Typed<C> {
         Typed(Some(Arc::new(RwLock::new(component))))
     }
 
-    // Typed BUILDER *******************************************************************************
+    // **< Typed BUILDER >**************************************************************************
 
     /// Establece un componente nuevo, o lo vacía.
     ///
@@ -85,7 +85,7 @@ impl<C: Component> Typed<C> {
         self
     }
 
-    // Typed GETTERS *******************************************************************************
+    // **< Typed GETTERS >**************************************************************************
 
     /// Devuelve el identificador del componente, si existe y está definido.
     #[inline]
@@ -93,14 +93,14 @@ impl<C: Component> Typed<C> {
         self.0.as_ref().and_then(|c| c.read().id())
     }
 
-    // Typed RENDER ********************************************************************************
+    // **< Typed RENDER >***************************************************************************
 
     /// Renderiza el componente con el contexto proporcionado.
     pub fn render(&self, cx: &mut Context) -> Markup {
         self.0.as_ref().map_or(html! {}, |c| c.write().render(cx))
     }
 
-    // Typed HELPERS *******************************************************************************
+    // **< Typed HELPERS >**************************************************************************
 
     // Convierte el componente tipado en un [`Child`].
     #[inline]
@@ -165,7 +165,7 @@ impl Children {
         opt
     }
 
-    // Children BUILDER ****************************************************************************
+    // **< Children BUILDER >***********************************************************************
 
     /// Ejecuta una operación con [`ChildOp`] en la lista.
     #[builder_fn]
@@ -204,7 +204,7 @@ impl Children {
         self
     }
 
-    // Children GETTERS ****************************************************************************
+    // **< Children GETTERS >***********************************************************************
 
     /// Devuelve el número de componentes hijo de la lista.
     pub fn len(&self) -> usize {
@@ -233,7 +233,7 @@ impl Children {
         self.0.iter().filter(move |&c| c.type_id() == Some(type_id))
     }
 
-    // Children RENDER *****************************************************************************
+    // **< Children RENDER >************************************************************************
 
     /// Renderiza todos los componentes hijo, en orden.
     pub fn render(&self, cx: &mut Context) -> Markup {
@@ -244,7 +244,7 @@ impl Children {
         }
     }
 
-    // Children HELPERS ****************************************************************************
+    // **< Children HELPERS >***********************************************************************
 
     // Inserta un hijo después del componente con el `id` dado, o al final si no se encuentra.
     #[inline]

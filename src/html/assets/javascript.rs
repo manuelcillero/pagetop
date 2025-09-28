@@ -171,7 +171,7 @@ impl JavaScript {
         }
     }
 
-    // JavaScript BUILDER **************************************************************************
+    // **< JavaScript BUILDER >*********************************************************************
 
     /// Asocia una **versión** al recurso (usada para control de la caché del navegador).
     ///
@@ -209,6 +209,8 @@ impl Asset for JavaScript {
     fn weight(&self) -> Weight {
         self.weight
     }
+
+    // **< JavaScript RENDER >**********************************************************************
 
     fn render(&self, cx: &mut Context) -> Markup {
         match &self.source {

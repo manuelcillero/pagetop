@@ -27,7 +27,7 @@ impl AttrValue {
         AttrValue::default().with_value(value)
     }
 
-    // AttrValue BUILDER ***************************************************************************
+    // **< AttrValue BUILDER >**********************************************************************
 
     /// Establece una cadena nueva normalizando el valor.
     #[builder_fn]
@@ -41,7 +41,7 @@ impl AttrValue {
         self
     }
 
-    // AttrValue GETTERS ***************************************************************************
+    // **< AttrValue GETTERS >**********************************************************************
 
     /// Devuelve la cadena normalizada, si existe.
     pub fn get(&self) -> Option<String> {

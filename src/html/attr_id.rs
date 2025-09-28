@@ -29,7 +29,7 @@ impl AttrId {
         AttrId::default().with_value(value)
     }
 
-    // AttrId BUILDER ******************************************************************************
+    // **< AttrId BUILDER >*************************************************************************
 
     /// Establece un identificador nuevo normalizando el valor.
     #[builder_fn]
@@ -39,7 +39,7 @@ impl AttrId {
         self
     }
 
-    // AttrId GETTERS ******************************************************************************
+    // **< AttrId GETTERS >*************************************************************************
 
     /// Devuelve el identificador normalizado, si existe.
     pub fn get(&self) -> Option<String> {

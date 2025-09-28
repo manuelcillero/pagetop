@@ -6,7 +6,7 @@ use std::env;
 use std::io;
 use std::path::{Path, PathBuf};
 
-// MACROS INTEGRADAS *******************************************************************************
+// **< MACROS INTEGRADAS >**************************************************************************
 
 #[doc(hidden)]
 pub use paste::paste;
@@ -16,7 +16,7 @@ pub use concat_string::concat_string;
 
 pub use indoc::{concatdoc, formatdoc, indoc};
 
-// MACROS ÚTILES ***********************************************************************************
+// **< MACROS ÚTILES >******************************************************************************
 
 #[macro_export]
 /// Macro para construir una colección de pares clave-valor.
@@ -198,7 +198,7 @@ macro_rules! join_strict {
     }};
 }
 
-// FUNCIONES ÚTILES ********************************************************************************
+// **< FUNCIONES ÚTILES >***************************************************************************
 
 /// Resuelve y valida la ruta de un directorio existente, devolviendo una ruta absoluta.
 ///
