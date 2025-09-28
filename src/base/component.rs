@@ -8,3 +8,6 @@ pub use block::Block;
 
 mod poweredby;
 pub use poweredby::PoweredBy;
+
+mod icon;
+pub use icon::{Icon, IconKind};
