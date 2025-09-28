@@ -1,0 +1,12 @@
+/* Icon component */
+
+.icon {
+	width: 1rem;
+	height: 1rem;
+}
+
+/* PoweredBy component */
+
+.poweredby {
+	text-align: center;
+}

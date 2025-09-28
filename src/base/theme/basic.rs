@@ -51,14 +51,35 @@ impl Theme for Basic {
             "PageTopIntro" => "/css/intro.css",
             _ => "/css/basic.css",
         };
+        let pkg_version = env!("CARGO_PKG_VERSION");
         page.alter_assets(AssetsOp::AddStyleSheet(
             StyleSheet::from("/css/normalize.css")
                 .with_version("8.0.1")
                 .with_weight(-99),
         ))
         .alter_assets(AssetsOp::AddStyleSheet(
+            StyleSheet::from("/css/root.css")
+                .with_version(pkg_version)
+                .with_weight(-99),
+        ))
+        .alter_assets(AssetsOp::AddStyleSheet(
+            StyleSheet::from("/css/components.css")
+                .with_version(pkg_version)
+                .with_weight(-99),
+        ))
+        .alter_assets(AssetsOp::AddStyleSheet(
+            StyleSheet::from("/css/menu.css")
+                .with_version(pkg_version)
+                .with_weight(-99),
+        ))
+        .alter_assets(AssetsOp::AddStyleSheet(
             StyleSheet::from(styles)
-                .with_version(env!("CARGO_PKG_VERSION"))
+                .with_version(pkg_version)
+                .with_weight(-99),
+        ))
+        .alter_assets(AssetsOp::AddJavaScript(
+            JavaScript::defer("/js/menu.js")
+                .with_version(pkg_version)
                 .with_weight(-99),
         ));
     }

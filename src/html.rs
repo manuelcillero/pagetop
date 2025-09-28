@@ -15,6 +15,7 @@ pub use assets::{Asset, Assets};
 
 mod context;
 pub use context::{AssetsOp, Context, Contextual, ErrorParam};
+pub type FnPathByContext = fn(cx: &Context) -> &str;
 
 // **< HTML ATTRIBUTES >****************************************************************************
 
