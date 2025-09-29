@@ -19,9 +19,9 @@ impl Component for Submenu {
 
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
         PrepareMarkup::With(html! {
-            div id=[self.id()] class="menu__items" {
+            div id=[self.id()] class="menu__submenu" {
                 @if let Some(title) = self.title().lookup(cx) {
-                    h4 class="menu__title" { (title) }
+                    h4 class="menu__submenu-title" { (title) }
                 }
                 ul {
                     (self.items().render(cx))

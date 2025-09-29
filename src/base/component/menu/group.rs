@@ -18,7 +18,7 @@ impl Component for Group {
 
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
         PrepareMarkup::With(html! {
-            div id=[self.id()] class="menu-group" {
+            div id=[self.id()] class="menu__group" {
                 (self.elements().render(cx))
             }
         })

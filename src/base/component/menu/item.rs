@@ -1,11 +1,9 @@
 use crate::prelude::*;
 
-//use super::{Megamenu, Submenu};
-
 type Label = L10n;
 type Content = Typed<Html>;
 type SubmenuItems = Typed<menu::Submenu>;
-//type MegamenuGroups = Typed<Megamenu>;
+type MegamenuGroups = Typed<menu::Megamenu>;
 
 #[derive(AutoDefault)]
 pub enum ItemKind {
@@ -16,7 +14,7 @@ pub enum ItemKind {
     LinkBlank(Label, FnPathByContext),
     Html(Content),
     Submenu(Label, SubmenuItems),
-    // Megamenu(Label, MegamenuGroups),
+    Megamenu(Label, MegamenuGroups),
 }
 
 #[rustfmt::skip]
@@ -41,61 +39,65 @@ impl Component for Item {
         match self.item_kind() {
             ItemKind::Void => PrepareMarkup::None,
             ItemKind::Label(label) => PrepareMarkup::With(html! {
-                li class="menu__label" {
+                li class="menu__item menu__item--label" {
                     span title=[description] {
                         (left_icon)
-                        (label.using(cx))
+                        span class="menu__label" { (label.using(cx)) }
                         (right_icon)
                     }
                 }
             }),
             ItemKind::Link(label, path) => PrepareMarkup::With(html! {
-                li class="menu__link" {
+                li class="menu__item menu__item--link" {
                     a href=(path(cx)) title=[description] {
                         (left_icon)
-                        (label.using(cx))
+                        span class="menu__label" { (label.using(cx)) }
                         (right_icon)
                     }
                 }
             }),
             ItemKind::LinkBlank(label, path) => PrepareMarkup::With(html! {
-                li class="menu__link" {
+                li class="menu__item menu__item--link" {
                     a href=(path(cx)) title=[description] target="_blank" {
                         (left_icon)
-                        (label.using(cx))
+                        span class="menu__label" { (label.using(cx)) }
                         (right_icon)
                     }
                 }
             }),
             ItemKind::Html(content) => PrepareMarkup::With(html! {
-                li class="menu__html" {
+                li class="menu__item menu__item--html" {
                     (content.render(cx))
                 }
             }),
             ItemKind::Submenu(label, submenu) => PrepareMarkup::With(html! {
-                li class="menu__children" {
+                li class="menu__item menu__item--children" {
                     a href="#" title=[description] {
                         (left_icon)
-                        (label.using(cx)) i class="menu__icon bi-chevron-down" {}
+                        span class="menu__label" { (label.using(cx)) }
+                        (Icon::svg(html! {
+                            path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708" {}
+                        }).render(cx))
                     }
-                    div class="menu__subs" {
+                    div class="menu__children menu__children--submenu" {
                         (submenu.render(cx))
                     }
                 }
             }),
-            /*
             ItemKind::Megamenu(label, megamenu) => PrepareMarkup::With(html! {
-                li class="menu__children" {
+                li class="menu__item menu__item--children" {
                     a href="#" title=[description] {
                         (left_icon)
-                        (label.escaped(cx.langid())) i class="menu__icon bi-chevron-down" {}
+                        span class="menu__label" { (label.using(cx)) }
+                        (Icon::svg(html! {
+                            path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708" {}
+                        }).render(cx))
                     }
-                    div class="menu__subs menu__mega" {
+                    div class="menu__children menu__children--mega" {
                         (megamenu.render(cx))
                     }
                 }
             }),
-            */
         }
     }
 }

@@ -191,6 +191,8 @@
 	--color--green: #3fa21c;
 	--header-height-wide-when-fixed: calc(6 * var(--val-gap));
 	--mobile-nav-width: 31.25rem;
+
+	--val-menu--border-radius: 0.625rem;
 */
 	--val-border-radius: 0.375rem;
 
@@ -205,7 +207,6 @@
 	--val-menu--item-width-min: 14rem;
 	--val-menu--item-width-max: 20rem;
 	--val-menu--item-gap: 1rem;
-	--val-menu--border-radius: 0.625rem;
-	--val-menu--trigger-width: var(--val-menu--item-height);
+	--val-menu--trigger-width: 2.675rem;
 	--val-menu--side-width: 20rem;
 }

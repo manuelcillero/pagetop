@@ -54,7 +54,9 @@ impl Component for Menu {
                         class="menu__trigger"
                         title=[L10n::l("menu_toggle").lookup(cx)]
                     {
-                        span {} span {} span {}
+                        (Icon::svg(html! {
+                            path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5" {}
+                        }).render(cx))
                     }
                 }
             }
