@@ -33,14 +33,14 @@ pub enum ContextOp {
 
 /// Errores de acceso a parámetros dinámicos del contexto.
 ///
-/// - [`ErrorParam::NotFound`]: la clave no existe.
-/// - [`ErrorParam::TypeMismatch`]: la clave existe, pero el valor guardado no coincide con el tipo
-///   solicitado. Incluye nombre de la clave (`key`), tipo esperado (`expected`) y tipo realmente
-///   guardado (`saved`) para facilitar el diagnóstico.
+/// - [`ContextError::ParamNotFound`]: la clave no existe.
+/// - [`ContextError::ParamTypeMismatch`]: la clave existe, pero el valor guardado no coincide con
+///   el tipo solicitado. Incluye nombre de la clave (`key`), tipo esperado (`expected`) y tipo
+///   realmente guardado (`saved`) para facilitar el diagnóstico.
 #[derive(Debug)]
-pub enum ErrorParam {
-    NotFound,
-    TypeMismatch {
+pub enum ContextError {
+    ParamNotFound,
+    ParamTypeMismatch {
         key: &'static str,
         expected: &'static str,
         saved: &'static str,
@@ -290,8 +290,8 @@ impl Context {
     /// Devuelve:
     ///
     /// - `Ok(&T)` si la clave existe y el tipo coincide.
-    /// - `Err(ErrorParam::NotFound)` si la clave no existe.
-    /// - `Err(ErrorParam::TypeMismatch)` si la clave existe pero el tipo no coincide.
+    /// - `Err(ContextError::ParamNotFound)` si la clave no existe.
+    /// - `Err(ContextError::ParamTypeMismatch)` si la clave existe pero el tipo no coincide.
     ///
     /// # Ejemplos
     ///
@@ -308,10 +308,10 @@ impl Context {
     /// // Error de tipo:
     /// assert!(cx.get_param::<String>("usuario_id").is_err());
     /// ```
-    pub fn get_param<T: 'static>(&self, key: &'static str) -> Result<&T, ErrorParam> {
-        let (any, type_name) = self.params.get(key).ok_or(ErrorParam::NotFound)?;
+    pub fn get_param<T: 'static>(&self, key: &'static str) -> Result<&T, ContextError> {
+        let (any, type_name) = self.params.get(key).ok_or(ContextError::ParamNotFound)?;
         any.downcast_ref::<T>()
-            .ok_or_else(|| ErrorParam::TypeMismatch {
+            .ok_or_else(|| ContextError::ParamTypeMismatch {
                 key,
                 expected: TypeInfo::FullName.of::<T>(),
                 saved: type_name,
@@ -323,8 +323,8 @@ impl Context {
     /// Devuelve:
     ///
     /// - `Ok(T)` si la clave existía y el tipo coincide.
-    /// - `Err(ErrorParam::NotFound)` si la clave no existe.
-    /// - `Err(ErrorParam::TypeMismatch)` si el tipo no coincide.
+    /// - `Err(ContextError::ParamNotFound)` si la clave no existe.
+    /// - `Err(ContextError::ParamTypeMismatch)` si el tipo no coincide.
     ///
     /// # Ejemplos
     ///
@@ -341,12 +341,12 @@ impl Context {
     /// // Error de tipo:
     /// assert!(cx.take_param::<i32>("titulo").is_err());
     /// ```
-    pub fn take_param<T: 'static>(&mut self, key: &'static str) -> Result<T, ErrorParam> {
-        let (boxed, saved) = self.params.remove(key).ok_or(ErrorParam::NotFound)?;
+    pub fn take_param<T: 'static>(&mut self, key: &'static str) -> Result<T, ContextError> {
+        let (boxed, saved) = self.params.remove(key).ok_or(ContextError::ParamNotFound)?;
         boxed
             .downcast::<T>()
             .map(|b| *b)
-            .map_err(|_| ErrorParam::TypeMismatch {
+            .map_err(|_| ContextError::ParamTypeMismatch {
                 key,
                 expected: TypeInfo::FullName.of::<T>(),
                 saved,

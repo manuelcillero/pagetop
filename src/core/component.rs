@@ -8,8 +8,6 @@ pub use children::Children;
 pub use children::{Child, ChildOp};
 pub use children::{Typed, TypedOp};
 
-// **< HTML DOCUMENT CONTEXT >**********************************************************************
-
 mod context;
-pub use context::{Context, ContextOp, Contextual, ErrorParam};
+pub use context::{Context, ContextError, ContextOp, Contextual};
 pub type FnPathByContext = fn(cx: &Context) -> &str;

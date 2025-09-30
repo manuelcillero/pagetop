@@ -31,12 +31,12 @@ pub type ContextOp = crate::core::component::ContextOp;
 )]
 pub trait Contextual: crate::core::component::Contextual {}
 
-/// **Obsoleto desde la versión 0.5.0**: usar [`core::component::ErrorParam`] en su lugar.
+/// **Obsoleto desde la versión 0.5.0**: usar [`core::component::ContextError`] en su lugar.
 #[deprecated(
     since = "0.5.0",
-    note = "Moved to `pagetop::core::component::ErrorParam`"
+    note = "Moved to `pagetop::core::component::ContextError`"
 )]
-pub type ErrorParam = crate::core::component::ErrorParam;
+pub type ContextError = crate::core::component::ContextError;
 
 /// **Obsoleto desde la versión 0.5.0**: usar [`ContextOp`] en su lugar.
 #[deprecated(since = "0.5.0", note = "Use `ContextOp` instead")]
