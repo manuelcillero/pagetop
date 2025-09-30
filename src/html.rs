@@ -14,7 +14,8 @@ pub use assets::{Asset, Assets};
 // **< HTML DOCUMENT CONTEXT >**********************************************************************
 
 mod context;
-pub use context::{AssetsOp, Context, Contextual, ErrorParam};
+#[allow(deprecated)]
+pub use context::{AssetsOp, Context, ContextOp, Contextual, ErrorParam};
 pub type FnPathByContext = fn(cx: &Context) -> &str;
 
 // **< HTML ATTRIBUTES >****************************************************************************

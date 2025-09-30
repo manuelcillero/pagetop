@@ -52,32 +52,32 @@ impl Theme for Basic {
             _ => "/css/basic.css",
         };
         let pkg_version = env!("CARGO_PKG_VERSION");
-        page.alter_assets(AssetsOp::AddStyleSheet(
+        page.alter_assets(ContextOp::AddStyleSheet(
             StyleSheet::from("/css/normalize.css")
                 .with_version("8.0.1")
                 .with_weight(-99),
         ))
-        .alter_assets(AssetsOp::AddStyleSheet(
+        .alter_assets(ContextOp::AddStyleSheet(
             StyleSheet::from("/css/root.css")
                 .with_version(pkg_version)
                 .with_weight(-99),
         ))
-        .alter_assets(AssetsOp::AddStyleSheet(
+        .alter_assets(ContextOp::AddStyleSheet(
             StyleSheet::from("/css/components.css")
                 .with_version(pkg_version)
                 .with_weight(-99),
         ))
-        .alter_assets(AssetsOp::AddStyleSheet(
+        .alter_assets(ContextOp::AddStyleSheet(
             StyleSheet::from("/css/menu.css")
                 .with_version(pkg_version)
                 .with_weight(-99),
         ))
-        .alter_assets(AssetsOp::AddStyleSheet(
+        .alter_assets(ContextOp::AddStyleSheet(
             StyleSheet::from(styles)
                 .with_version(pkg_version)
                 .with_weight(-99),
         ))
-        .alter_assets(AssetsOp::AddJavaScript(
+        .alter_assets(ContextOp::AddJavaScript(
             JavaScript::defer("/js/menu.js")
                 .with_version(pkg_version)
                 .with_weight(-99),
@@ -169,7 +169,7 @@ fn render_intro(page: &mut Page) -> Markup {
 }
 
 fn render_pagetop_intro(page: &mut Page) -> Markup {
-    page.alter_assets(AssetsOp::AddJavaScript(JavaScript::on_load_async("intro-js", |cx|
+    page.alter_assets(ContextOp::AddJavaScript(JavaScript::on_load_async("intro-js", |cx|
         util::indoc!(r#"
         try {
             const resp = await fetch("https://crates.io/api/v1/crates/pagetop");

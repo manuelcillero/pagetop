@@ -10,8 +10,12 @@ use crate::{builder_fn, join};
 use std::any::Any;
 use std::collections::HashMap;
 
-/// Operaciones para modificar el contexto ([`Context`]) de un documento.
-pub enum AssetsOp {
+/// **Obsoleto desde la versión 0.4.0**: usar [`ContextOp`] en su lugar.
+#[deprecated(since = "0.5.0", note = "Use `ContextOp` instead")]
+pub type AssetsOp = ContextOp;
+
+/// Operaciones para modificar los recursos asociados al contexto ([`Context`]) de un documento.
+pub enum ContextOp {
     // Favicon.
     /// Define el *favicon* del documento. Sobrescribe cualquier valor anterior.
     SetFavicon(Option<Favicon>),
@@ -55,7 +59,7 @@ pub enum ErrorParam {
 /// - Almacenar la **solicitud HTTP** de origen.
 /// - Seleccionar **tema** y **composición** (*layout*) de renderizado.
 /// - Administrar **recursos** del documento como el icono [`Favicon`], las hojas de estilo
-///   [`StyleSheet`] o los scripts [`JavaScript`] mediante [`AssetsOp`].
+///   [`StyleSheet`] o los scripts [`JavaScript`] mediante [`ContextOp`].
 /// - Leer y mantener **parámetros dinámicos tipados** de contexto.
 /// - Generar **identificadores únicos** por tipo de componente.
 ///
@@ -71,9 +75,9 @@ pub enum ErrorParam {
 ///     cx.with_langid(&LangMatch::resolve("es-ES"))
 ///       .with_theme("aliner")
 ///       .with_layout("default")
-///       .with_assets(AssetsOp::SetFavicon(Some(Favicon::new().with_icon("/favicon.ico"))))
-///       .with_assets(AssetsOp::AddStyleSheet(StyleSheet::from("/css/app.css")))
-///       .with_assets(AssetsOp::AddJavaScript(JavaScript::defer("/js/app.js")))
+///       .with_assets(ContextOp::SetFavicon(Some(Favicon::new().with_icon("/favicon.ico"))))
+///       .with_assets(ContextOp::AddStyleSheet(StyleSheet::from("/css/app.css")))
+///       .with_assets(ContextOp::AddJavaScript(JavaScript::defer("/js/app.js")))
 ///       .with_param("usuario_id", 42_i32)
 /// }
 /// ```
@@ -100,9 +104,9 @@ pub trait Contextual: LangId {
     #[builder_fn]
     fn with_param<T: 'static>(self, key: &'static str, value: T) -> Self;
 
-    /// Define los recursos del contexto usando [`AssetsOp`].
+    /// Define los recursos del contexto usando [`ContextOp`].
     #[builder_fn]
-    fn with_assets(self, op: AssetsOp) -> Self;
+    fn with_assets(self, op: ContextOp) -> Self;
 
     // **< Contextual GETTERS >*********************************************************************
 
@@ -172,11 +176,11 @@ pub trait Contextual: LangId {
 ///         // Selecciona un tema (por su nombre corto).
 ///         .with_theme("aliner")
 ///         // Asigna un favicon.
-///         .with_assets(AssetsOp::SetFavicon(Some(Favicon::new().with_icon("/favicon.ico"))))
+///         .with_assets(ContextOp::SetFavicon(Some(Favicon::new().with_icon("/favicon.ico"))))
 ///         // Añade una hoja de estilo externa.
-///         .with_assets(AssetsOp::AddStyleSheet(StyleSheet::from("/css/style.css")))
+///         .with_assets(ContextOp::AddStyleSheet(StyleSheet::from("/css/style.css")))
 ///         // Añade un script JavaScript.
-///         .with_assets(AssetsOp::AddJavaScript(JavaScript::defer("/js/main.js")))
+///         .with_assets(ContextOp::AddJavaScript(JavaScript::defer("/js/main.js")))
 ///         // Añade un parámetro dinámico al contexto.
 ///         .with_param("usuario_id", 42)
 /// }
@@ -442,29 +446,29 @@ impl Contextual for Context {
     }
 
     #[builder_fn]
-    fn with_assets(mut self, op: AssetsOp) -> Self {
+    fn with_assets(mut self, op: ContextOp) -> Self {
         match op {
             // Favicon.
-            AssetsOp::SetFavicon(favicon) => {
+            ContextOp::SetFavicon(favicon) => {
                 self.favicon = favicon;
             }
-            AssetsOp::SetFaviconIfNone(icon) => {
+            ContextOp::SetFaviconIfNone(icon) => {
                 if self.favicon.is_none() {
                     self.favicon = Some(icon);
                 }
             }
             // Stylesheets.
-            AssetsOp::AddStyleSheet(css) => {
+            ContextOp::AddStyleSheet(css) => {
                 self.stylesheets.add(css);
             }
-            AssetsOp::RemoveStyleSheet(path) => {
+            ContextOp::RemoveStyleSheet(path) => {
                 self.stylesheets.remove(path);
             }
             // JavaScripts.
-            AssetsOp::AddJavaScript(js) => {
+            ContextOp::AddJavaScript(js) => {
                 self.javascripts.add(js);
             }
-            AssetsOp::RemoveJavaScript(path) => {
+            ContextOp::RemoveJavaScript(path) => {
                 self.javascripts.remove(path);
             }
         }
