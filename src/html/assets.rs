@@ -2,7 +2,8 @@ pub mod favicon;
 pub mod javascript;
 pub mod stylesheet;
 
-use crate::html::{html, Context, Markup};
+use crate::core::component::Context;
+use crate::html::{html, Markup};
 use crate::{AutoDefault, Weight};
 
 /// Representación genérica de un script [`JavaScript`](crate::html::JavaScript) o una hoja de

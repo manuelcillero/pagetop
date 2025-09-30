@@ -1,5 +1,6 @@
+use crate::core::component::Context;
 use crate::html::assets::Asset;
-use crate::html::{html, Context, Markup, PreEscaped};
+use crate::html::{html, Markup, PreEscaped};
 use crate::{join_pair, AutoDefault, Weight};
 
 // Define el origen del recurso CSS y cómo se incluye en el documento.

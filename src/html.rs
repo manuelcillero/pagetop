@@ -13,10 +13,34 @@ pub use assets::{Asset, Assets};
 
 // **< HTML DOCUMENT CONTEXT >**********************************************************************
 
-mod context;
-#[allow(deprecated)]
-pub use context::{AssetsOp, Context, ContextOp, Contextual, ErrorParam};
-pub type FnPathByContext = fn(cx: &Context) -> &str;
+/// **Obsoleto desde la versión 0.5.0**: usar [`core::component::Context`] en su lugar.
+#[deprecated(since = "0.5.0", note = "Moved to `pagetop::core::component::Context`")]
+pub type Context = crate::core::component::Context;
+
+/// **Obsoleto desde la versión 0.5.0**: usar [`core::component::ContextOp`] en su lugar.
+#[deprecated(
+    since = "0.5.0",
+    note = "Moved to `pagetop::core::component::ContextOp`"
+)]
+pub type ContextOp = crate::core::component::ContextOp;
+
+/// **Obsoleto desde la versión 0.5.0**: usar [`core::component::Contextual`] en su lugar.
+#[deprecated(
+    since = "0.5.0",
+    note = "Moved to `pagetop::core::component::Contextual`"
+)]
+pub trait Contextual: crate::core::component::Contextual {}
+
+/// **Obsoleto desde la versión 0.5.0**: usar [`core::component::ErrorParam`] en su lugar.
+#[deprecated(
+    since = "0.5.0",
+    note = "Moved to `pagetop::core::component::ErrorParam`"
+)]
+pub type ErrorParam = crate::core::component::ErrorParam;
+
+/// **Obsoleto desde la versión 0.5.0**: usar [`ContextOp`] en su lugar.
+#[deprecated(since = "0.5.0", note = "Use `ContextOp` instead")]
+pub type AssetsOp = crate::core::component::ContextOp;
 
 // **< HTML ATTRIBUTES >****************************************************************************
 

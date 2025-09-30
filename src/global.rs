@@ -50,11 +50,11 @@ pub struct App {
     pub theme: String,
     /// Idioma por defecto para la aplicación.
     ///
-    /// Si no está definido o no es válido, el idioma efectivo para el renderizado se resolverá
-    /// según la implementación de [`LangId`](crate::locale::LangId) en este orden: primero intenta
-    /// con el establecido en [`Contextual::with_langid()`](crate::html::Contextual::with_langid);
-    /// pero si no se ha definido explícitamente, usará el indicado en la cabecera `Accept-Language`
-    /// del navegador; y, si ninguno aplica, se empleará el idioma de respaldo ("en-US").
+    /// Si no está definido o no es válido, [`LangId`](crate::locale::LangId) determinará el idioma
+    /// efectivo para el renderizado en este orden: primero intentará usar el establecido mediante
+    /// [`Contextual::with_langid()`](crate::core::component::Contextual::with_langid); si no se ha
+    /// definido explícitamente, probará el indicado en la cabecera `Accept-Language` del navegador;
+    /// y, si ninguno aplica, se empleará el idioma de respaldo ("en-US").
     pub language: String,
     /// Banner ASCII mostrado al inicio: *"Off"* (desactivado), *"Slant"*, *"Small"*, *"Speed"* o
     /// *"Starwars"*.

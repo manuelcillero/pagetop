@@ -1,5 +1,5 @@
-use crate::core::component::Component;
-use crate::html::{html, Context, Markup};
+use crate::core::component::{Component, Context};
+use crate::html::{html, Markup};
 use crate::{builder_fn, AutoDefault, UniqueId};
 
 use parking_lot::RwLock;

@@ -4,13 +4,12 @@ pub use error::ErrorPage;
 pub use actix_web::Result as ResultPage;
 
 use crate::base::action;
-use crate::core::component::{Child, ChildOp, Component};
+use crate::core::component::{Child, ChildOp, Component, Context, ContextOp, Contextual};
 use crate::core::theme::{ChildrenInRegions, ThemeRef, REGION_CONTENT};
 use crate::html::{html, Markup, DOCTYPE};
 use crate::html::{Assets, Favicon, JavaScript, StyleSheet};
 use crate::html::{AttrClasses, ClassesOp};
 use crate::html::{AttrId, AttrL10n};
-use crate::html::{Context, ContextOp, Contextual};
 use crate::locale::{CharacterDirection, L10n, LangId, LanguageIdentifier};
 use crate::service::HttpRequest;
 use crate::{builder_fn, AutoDefault};

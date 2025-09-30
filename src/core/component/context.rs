@@ -10,11 +10,7 @@ use crate::{builder_fn, join};
 use std::any::Any;
 use std::collections::HashMap;
 
-/// **Obsoleto desde la versión 0.4.0**: usar [`ContextOp`] en su lugar.
-#[deprecated(since = "0.5.0", note = "Use `ContextOp` instead")]
-pub type AssetsOp = ContextOp;
-
-/// Operaciones para modificar los recursos asociados al contexto ([`Context`]) de un documento.
+/// Operaciones para modificar recursos asociados al contexto ([`Context`]) de un documento.
 pub enum ContextOp {
     // Favicon.
     /// Define el *favicon* del documento. Sobrescribe cualquier valor anterior.
@@ -64,7 +60,7 @@ pub enum ErrorParam {
 /// - Generar **identificadores únicos** por tipo de componente.
 ///
 /// Lo implementan, típicamente, estructuras que representan el contexto de renderizado, como
-/// [`Context`](crate::html::Context) o [`Page`](crate::response::page::Page).
+/// [`Context`](crate::core::component::Context) o [`Page`](crate::response::page::Page).
 ///
 /// # Ejemplo
 ///
@@ -375,7 +371,7 @@ impl Context {
     }
 }
 
-/// Permite a [`Context`](crate::html::Context) actuar como proveedor de idioma.
+/// Permite a [`Context`](crate::core::component::Context) actuar como proveedor de idioma.
 ///
 /// Devuelve un [`LanguageIdentifier`] siguiendo este orden de prioridad:
 ///

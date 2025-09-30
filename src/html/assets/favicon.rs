@@ -1,4 +1,5 @@
-use crate::html::{html, Context, Markup};
+use crate::core::component::Context;
+use crate::html::{html, Markup};
 use crate::AutoDefault;
 
 /// Un **Favicon** es un recurso gráfico que usa el navegador como icono asociado al sitio.

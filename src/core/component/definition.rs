@@ -1,6 +1,7 @@
 use crate::base::action;
+use crate::core::component::Context;
 use crate::core::{AnyInfo, TypeInfo};
-use crate::html::{html, Context, Markup, PrepareMarkup};
+use crate::html::{html, Markup, PrepareMarkup};
 
 /// Define la función de renderizado para todos los componentes.
 ///

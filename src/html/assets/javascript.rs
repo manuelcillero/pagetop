@@ -1,5 +1,6 @@
+use crate::core::component::Context;
 use crate::html::assets::Asset;
-use crate::html::{html, Context, Markup, PreEscaped};
+use crate::html::{html, Markup, PreEscaped};
 use crate::{join, join_pair, AutoDefault, Weight};
 
 // Define el origen del recurso JavaScript y cómo debe cargarse en el navegador.

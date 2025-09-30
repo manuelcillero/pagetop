@@ -1,5 +1,5 @@
 use crate::base::component::Html;
-use crate::html::Contextual;
+use crate::core::component::Contextual;
 use crate::locale::L10n;
 use crate::response::ResponseError;
 use crate::service::http::{header::ContentType, StatusCode};
