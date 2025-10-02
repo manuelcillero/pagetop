@@ -266,10 +266,13 @@ pub fn builder_fn(_: TokenStream, item: TokenStream) -> TokenStream {
         v
     };
 
-    // Extrae atributos descartando la documentación para incluir en `alter_...()`.
-    let non_doc_attrs: Vec<_> = attrs
+    // Filtra los atributos descartando `#[doc]` y `#[inline]` para el método `alter_...()`.
+    let non_doc_or_inline_attrs: Vec<_> = attrs
         .iter()
-        .filter(|&a| !a.path().is_ident("doc"))
+        .filter(|a| {
+            let p = a.path();
+            !p.is_ident("doc") && !p.is_ident("inline")
+        })
         .cloned()
         .collect();
 
@@ -284,14 +287,21 @@ pub fn builder_fn(_: TokenStream, item: TokenStream) -> TokenStream {
                 #(#attrs)*
                 fn #with_name #generics (self, #(#args),*) -> Self #where_clause;
 
-                #(#non_doc_attrs)*
+                #(#non_doc_or_inline_attrs)*
                 #[doc = #alter_doc]
                 fn #alter_ident #generics (&mut self, #(#args),*) -> &mut Self #where_clause;
             }
         }
         Some(body) => {
+            // Si no se indicó ninguna forma de `inline`, fuerza `#[inline]` para `with_...()`.
+            let force_inline = if attrs.iter().any(|a| a.path().is_ident("inline")) {
+                quote! {}
+            } else {
+                quote! { #[inline] }
+            };
             let with_fn = if is_trait {
                 quote! {
+                    #force_inline
                     #vis_pub fn #with_name #generics (self, #(#args),*) -> Self #where_clause {
                         let mut s = self;
                         s.#alter_ident(#(#call_idents),*);
@@ -300,6 +310,7 @@ pub fn builder_fn(_: TokenStream, item: TokenStream) -> TokenStream {
                 }
             } else {
                 quote! {
+                    #force_inline
                     #vis_pub fn #with_name #generics (mut self, #(#args),*) -> Self #where_clause {
                         self.#alter_ident(#(#call_idents),*);
                         self
@@ -310,7 +321,7 @@ pub fn builder_fn(_: TokenStream, item: TokenStream) -> TokenStream {
                 #(#attrs)*
                 #with_fn
 
-                #(#non_doc_attrs)*
+                #(#non_doc_or_inline_attrs)*
                 #[doc = #alter_doc]
                 #vis_pub fn #alter_ident #generics (&mut self, #(#args),*) -> &mut Self #where_clause {
                     #body
