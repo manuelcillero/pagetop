@@ -64,7 +64,7 @@ impl Region {
         self.key
     }
 
-    /// Devuelve el nombre normalizado de la región (para atributos y búsquedas).
+    /// Devuelve el nombre normalizado de la región (para identificadores y atributos HTML).
     #[inline]
     pub fn name(&self) -> &str {
         &self.name

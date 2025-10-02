@@ -5,7 +5,7 @@ pub use actix_web::Result as ResultPage;
 
 use crate::base::action;
 use crate::core::component::{Child, ChildOp, Component, Context, ContextOp, Contextual};
-use crate::core::theme::{ChildrenInRegions, ThemeRef, REGION_CONTENT};
+use crate::core::theme::{ThemeRef, REGION_CONTENT};
 use crate::html::{html, Markup, DOCTYPE};
 use crate::html::{Assets, Favicon, JavaScript, StyleSheet};
 use crate::html::{AttrClasses, ClassesOp};
@@ -29,7 +29,6 @@ pub struct Page {
     body_id     : AttrId,
     body_classes: AttrClasses,
     context     : Context,
-    regions     : ChildrenInRegions,
 }
 
 impl Page {
@@ -47,7 +46,6 @@ impl Page {
             body_id     : AttrId::default(),
             body_classes: AttrClasses::default(),
             context     : Context::new(Some(request)),
-            regions     : ChildrenInRegions::default(),
         }
     }
 
@@ -111,7 +109,7 @@ impl Page {
 
     /// Añade un componente a la región de contenido por defecto.
     pub fn add_component(mut self, component: impl Component) -> Self {
-        self.regions
+        self.context
             .alter_child_in(REGION_CONTENT, ChildOp::Add(Child::with(component)));
         self
     }
@@ -122,7 +120,7 @@ impl Page {
         region_name: &'static str,
         component: impl Component,
     ) -> Self {
-        self.regions
+        self.context
             .alter_child_in(region_name, ChildOp::Add(Child::with(component)));
         self
     }
@@ -140,13 +138,6 @@ impl Page {
     #[deprecated(since = "0.4.0", note = "Use `alter_child_in()` instead")]
     pub fn alter_child_in_region(&mut self, region_name: &'static str, op: ChildOp) -> &mut Self {
         self.alter_child_in(region_name, op);
-        self
-    }
-
-    /// Opera con [`ChildOp`] en una región (`region_name`) de la página.
-    #[builder_fn]
-    pub fn with_child_in(mut self, region_name: &'static str, op: ChildOp) -> Self {
-        self.regions.alter_child_in(region_name, op);
         self
     }
 
@@ -194,13 +185,13 @@ impl Page {
     // **< Page RENDER >****************************************************************************
 
     /// Renderiza los componentes de una región (`region_name`) de la página.
+    #[inline]
     pub fn render_region(&mut self, region_name: &'static str) -> Markup {
-        self.regions
-            .merge_all_components(self.context.theme(), region_name)
-            .render(&mut self.context)
+        self.context.render_region(region_name)
     }
 
     /// Renderiza los recursos de la página.
+    #[inline]
     pub fn render_assets(&mut self) -> Markup {
         self.context.render_assets()
     }
@@ -238,8 +229,14 @@ impl Page {
         Ok(html! {
             (DOCTYPE)
             html lang=(lang) dir=(dir) {
-                (head)
-                (body)
+                head {
+                    (head)
+                }
+                body id=[self.body_id().get()] class=[self.body_classes().get()] {
+                    (self.render_region("page-top"))
+                    (body)
+                    (self.render_region("page-bottom"))
+                }
             }
         })
     }
@@ -287,6 +284,12 @@ impl Contextual for Page {
     #[builder_fn]
     fn with_assets(mut self, op: ContextOp) -> Self {
         self.context.alter_assets(op);
+        self
+    }
+
+    #[builder_fn]
+    fn with_child_in(mut self, region_name: &'static str, op: ChildOp) -> Self {
+        self.context.alter_child_in(region_name, op);
         self
     }
 

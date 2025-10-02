@@ -1,5 +1,6 @@
+use crate::core::component::ChildOp;
 use crate::core::theme::all::{theme_by_short_name, DEFAULT_THEME};
-use crate::core::theme::ThemeRef;
+use crate::core::theme::{ChildrenInRegions, ThemeRef};
 use crate::core::TypeInfo;
 use crate::html::{html, Markup};
 use crate::html::{Assets, Favicon, JavaScript, StyleSheet};
@@ -103,6 +104,10 @@ pub trait Contextual: LangId {
     /// Define los recursos del contexto usando [`ContextOp`].
     #[builder_fn]
     fn with_assets(self, op: ContextOp) -> Self;
+
+    /// Opera con [`ChildOp`] en una región (`region_name`) de la página.
+    #[builder_fn]
+    fn with_child_in(self, region_name: &'static str, op: ChildOp) -> Self;
 
     // **< Contextual GETTERS >*********************************************************************
 
@@ -211,6 +216,7 @@ pub struct Context {
     favicon    : Option<Favicon>,               // Favicon, si se ha definido.
     stylesheets: Assets<StyleSheet>,            // Hojas de estilo CSS.
     javascripts: Assets<JavaScript>,            // Scripts JavaScript.
+    regions    : ChildrenInRegions,             // Regiones de componentes para renderizar.
     params     : HashMap<&'static str, (Box<dyn Any>, &'static str)>, // Parámetros en ejecución.
     id_counter : usize,                         // Contador para generar identificadores únicos.
 }
@@ -250,6 +256,7 @@ impl Context {
             favicon    : None,
             stylesheets: Assets::<StyleSheet>::new(),
             javascripts: Assets::<JavaScript>::new(),
+            regions    : ChildrenInRegions::default(),
             params     : HashMap::default(),
             id_counter : 0,
         }
@@ -281,6 +288,13 @@ impl Context {
         self.javascripts = javascripts;
 
         markup
+    }
+
+    /// Renderiza los componentes de una región (`region_name`).
+    pub fn render_region(&mut self, region_name: &'static str) -> Markup {
+        self.regions
+            .merge_all_components(self.theme, region_name)
+            .render(self)
     }
 
     // **< Context PARAMS >*************************************************************************
@@ -468,6 +482,12 @@ impl Contextual for Context {
                 self.javascripts.remove(path);
             }
         }
+        self
+    }
+
+    #[builder_fn]
+    fn with_child_in(mut self, region_name: &'static str, op: ChildOp) -> Self {
+        self.regions.alter_child_in(region_name, op);
         self
     }
 

@@ -26,65 +26,65 @@ pub type ThemeRef = &'static dyn Theme;
 /// - `<Self as ThemePage>::render_body(self, page, self.page_regions())`
 /// - `<Self as ThemePage>::render_head(self, page)`
 pub trait ThemePage {
-    /// Renderiza el contenido del `<body>` de la página.
+    /// Renderiza el **contenido interior** del `<body>` de la página.
     ///
     /// Recorre `regions` en el **orden declarado** y, para cada región con contenido, genera un
-    /// contenedor con `role="region"` y un `aria-label` localizado. Se asume que cada identificador
-    /// de región es **único** dentro de la página.
+    /// contenedor con `role="region"` y un `aria-label` localizado.
+    /// Se asume que cada identificador de región es **único** dentro de la página.
+    ///
+    /// La etiqueta `<body>` no se incluye aquí; únicamente renderiza su contenido.
     fn render_body(&self, page: &mut Page, regions: &[(Region, L10n)]) -> Markup {
         html! {
-            body id=[page.body_id().get()] class=[page.body_classes().get()] {
-                @for (region, region_label) in regions {
-                    @let output = page.render_region(region.key());
-                    @if !output.is_empty() {
-                        @let region_name = region.name();
-                        div
-                            id=(region_name)
-                            class={ "region region--" (region_name) }
-                            role="region"
-                            aria-label=[region_label.lookup(page)]
-                        {
-                            (output)
-                        }
+            @for (region, region_label) in regions {
+                @let output = page.render_region(region.key());
+                @if !output.is_empty() {
+                    @let region_name = region.name();
+                    div
+                        id=(region_name)
+                        class={ "region region--" (region_name) }
+                        role="region"
+                        aria-label=[region_label.lookup(page)]
+                    {
+                        (output)
                     }
                 }
             }
         }
     }
 
-    /// Renderiza el contenido del `<head>` de la página.
+    /// Renderiza el **contenido interior** del `<head>` de la página.
     ///
-    /// Por defecto incluye las etiquetas básicas (`charset`, `title`, `description`, `viewport`,
-    /// `X-UA-Compatible`), los metadatos (`name/content`) y propiedades (`property/content`),
-    /// además de los recursos CSS/JS de la página.
+    /// Recorre y genera por defecto las etiquetas básicas (`charset`, `title`, `description`,
+    /// `viewport`, `X-UA-Compatible`), los metadatos (`name/content`) y propiedades
+    /// (`property/content`), además de los recursos CSS/JS de la página.
+    ///
+    /// La etiqueta `<head>` no se incluye aquí; únicamente renderiza su contenido.
     fn render_head(&self, page: &mut Page) -> Markup {
         let viewport = "width=device-width, initial-scale=1, shrink-to-fit=no";
         html! {
-            head {
-                meta charset="utf-8";
+            meta charset="utf-8";
 
-                @if let Some(title) = page.title() {
-                    title { (global::SETTINGS.app.name) (" | ") (title) }
-                } @else {
-                    title { (global::SETTINGS.app.name) }
-                }
-
-                @if let Some(description) = page.description() {
-                    meta name="description" content=(description);
-                }
-
-                meta name="viewport" content=(viewport);
-                @for (name, content) in page.metadata() {
-                    meta name=(name) content=(content) {}
-                }
-
-                meta http-equiv="X-UA-Compatible" content="IE=edge";
-                @for (property, content) in page.properties() {
-                    meta property=(property) content=(content) {}
-                }
-
-                (page.render_assets())
+            @if let Some(title) = page.title() {
+                title { (global::SETTINGS.app.name) (" | ") (title) }
+            } @else {
+                title { (global::SETTINGS.app.name) }
             }
+
+            @if let Some(description) = page.description() {
+                meta name="description" content=(description);
+            }
+
+            meta name="viewport" content=(viewport);
+            @for (name, content) in page.metadata() {
+                meta name=(name) content=(content) {}
+            }
+
+            meta http-equiv="X-UA-Compatible" content="IE=edge";
+            @for (property, content) in page.properties() {
+                meta property=(property) content=(content) {}
+            }
+
+            (page.render_assets())
         }
     }
 }
