@@ -76,30 +76,30 @@ impl Region {
 pub struct ChildrenInRegions(HashMap<&'static str, Children>);
 
 impl ChildrenInRegions {
-    pub fn with(region_name: &'static str, child: Child) -> Self {
-        ChildrenInRegions::default().with_child_in(region_name, ChildOp::Add(child))
+    pub fn with(region_key: &'static str, child: Child) -> Self {
+        ChildrenInRegions::default().with_child_in(region_key, ChildOp::Add(child))
     }
 
     #[builder_fn]
-    pub fn with_child_in(mut self, region_name: &'static str, op: ChildOp) -> Self {
-        if let Some(region) = self.0.get_mut(region_name) {
+    pub fn with_child_in(mut self, region_key: &'static str, op: ChildOp) -> Self {
+        if let Some(region) = self.0.get_mut(region_key) {
             region.alter_child(op);
         } else {
-            self.0.insert(region_name, Children::new().with_child(op));
+            self.0.insert(region_key, Children::new().with_child(op));
         }
         self
     }
 
-    pub fn merge_all_components(&self, theme_ref: ThemeRef, region_name: &'static str) -> Children {
+    pub fn merge_all_components(&self, theme_ref: ThemeRef, region_key: &'static str) -> Children {
         let common = COMMON_REGIONS.read();
         if let Some(r) = THEME_REGIONS.read().get(&theme_ref.type_id()) {
             Children::merge(&[
-                common.0.get(region_name),
-                self.0.get(region_name),
-                r.0.get(region_name),
+                common.0.get(region_key),
+                self.0.get(region_key),
+                r.0.get(region_key),
             ])
         } else {
-            Children::merge(&[common.0.get(region_name), self.0.get(region_name)])
+            Children::merge(&[common.0.get(region_key), self.0.get(region_key)])
         }
     }
 }
@@ -114,9 +114,9 @@ impl ChildrenInRegions {
 pub enum InRegion {
     /// Región de contenido por defecto.
     Content,
-    /// Región identificada por el nombre proporcionado.
-    Named(&'static str),
-    /// Región identificada por un nombre y asociada a un tema concreto.
+    /// Región identificada por la clave proporcionado.
+    Key(&'static str),
+    /// Región identificada por una clave para un tema concreto.
     OfTheme(&'static str, ThemeRef),
 }
 
@@ -134,7 +134,7 @@ impl InRegion {
     /// )));
     ///
     /// // Texto en la región "sidebar".
-    /// InRegion::Named("sidebar").add(Child::with(Html::with(|_|
+    /// InRegion::Key("sidebar").add(Child::with(Html::with(|_|
     ///     html! { ("Publicidad") }
     /// )));
     /// ```
@@ -145,19 +145,19 @@ impl InRegion {
                     .write()
                     .alter_child_in(REGION_CONTENT, ChildOp::Add(child));
             }
-            InRegion::Named(region_name) => {
+            InRegion::Key(region_key) => {
                 COMMON_REGIONS
                     .write()
-                    .alter_child_in(region_name, ChildOp::Add(child));
+                    .alter_child_in(region_key, ChildOp::Add(child));
             }
-            InRegion::OfTheme(region_name, theme_ref) => {
+            InRegion::OfTheme(region_key, theme_ref) => {
                 let mut regions = THEME_REGIONS.write();
                 if let Some(r) = regions.get_mut(&theme_ref.type_id()) {
-                    r.alter_child_in(region_name, ChildOp::Add(child));
+                    r.alter_child_in(region_key, ChildOp::Add(child));
                 } else {
                     regions.insert(
                         theme_ref.type_id(),
-                        ChildrenInRegions::with(region_name, child),
+                        ChildrenInRegions::with(region_key, child),
                     );
                 }
             }

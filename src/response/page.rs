@@ -103,8 +103,8 @@ impl Page {
     /// **Obsoleto desde la versión 0.4.0**: usar [`add_component_in()`](Self::add_component_in) en
     /// su lugar.
     #[deprecated(since = "0.4.0", note = "Use `add_component_in()` instead")]
-    pub fn with_component_in(self, region_name: &'static str, component: impl Component) -> Self {
-        self.add_component_in(region_name, component)
+    pub fn with_component_in(self, region_key: &'static str, component: impl Component) -> Self {
+        self.add_component_in(region_key, component)
     }
 
     /// Añade un componente a la región de contenido por defecto.
@@ -114,30 +114,26 @@ impl Page {
         self
     }
 
-    /// Añade un componente en una región (`region_name`) de la página.
-    pub fn add_component_in(
-        mut self,
-        region_name: &'static str,
-        component: impl Component,
-    ) -> Self {
+    /// Añade un componente en una región (`region_key`) de la página.
+    pub fn add_component_in(mut self, region_key: &'static str, component: impl Component) -> Self {
         self.context
-            .alter_child_in(region_name, ChildOp::Add(Child::with(component)));
+            .alter_child_in(region_key, ChildOp::Add(Child::with(component)));
         self
     }
 
     /// **Obsoleto desde la versión 0.4.0**: usar [`with_child_in()`](Self::with_child_in) en su
     /// lugar.
     #[deprecated(since = "0.4.0", note = "Use `with_child_in()` instead")]
-    pub fn with_child_in_region(mut self, region_name: &'static str, op: ChildOp) -> Self {
-        self.alter_child_in(region_name, op);
+    pub fn with_child_in_region(mut self, region_key: &'static str, op: ChildOp) -> Self {
+        self.alter_child_in(region_key, op);
         self
     }
 
     /// **Obsoleto desde la versión 0.4.0**: usar [`alter_child_in()`](Self::alter_child_in) en su
     /// lugar.
     #[deprecated(since = "0.4.0", note = "Use `alter_child_in()` instead")]
-    pub fn alter_child_in_region(&mut self, region_name: &'static str, op: ChildOp) -> &mut Self {
-        self.alter_child_in(region_name, op);
+    pub fn alter_child_in_region(&mut self, region_key: &'static str, op: ChildOp) -> &mut Self {
+        self.alter_child_in(region_key, op);
         self
     }
 
@@ -184,18 +180,6 @@ impl Page {
 
     // **< Page RENDER >****************************************************************************
 
-    /// Renderiza los componentes de una región (`region_name`) de la página.
-    #[inline]
-    pub fn render_region(&mut self, region_name: &'static str) -> Markup {
-        self.context.render_region(region_name)
-    }
-
-    /// Renderiza los recursos de la página.
-    #[inline]
-    pub fn render_assets(&mut self) -> Markup {
-        self.context.render_assets()
-    }
-
     /// Renderiza la página completa en formato HTML.
     ///
     /// Ejecuta las acciones correspondientes antes y después de renderizar el `<body>`,
@@ -233,9 +217,9 @@ impl Page {
                     (head)
                 }
                 body id=[self.body_id().get()] class=[self.body_classes().get()] {
-                    (self.render_region("page-top"))
+                    (self.context.render_components_of("page-top"))
                     (body)
-                    (self.render_region("page-bottom"))
+                    (self.context.render_components_of("page-bottom"))
                 }
             }
         })
@@ -288,8 +272,8 @@ impl Contextual for Page {
     }
 
     #[builder_fn]
-    fn with_child_in(mut self, region_name: &'static str, op: ChildOp) -> Self {
-        self.context.alter_child_in(region_name, op);
+    fn with_child_in(mut self, region_key: &'static str, op: ChildOp) -> Self {
+        self.context.alter_child_in(region_key, op);
         self
     }
 

@@ -36,7 +36,7 @@ pub trait ThemePage {
     fn render_body(&self, page: &mut Page, regions: &[(Region, L10n)]) -> Markup {
         html! {
             @for (region, region_label) in regions {
-                @let output = page.render_region(region.key());
+                @let output = page.context().render_components_of(region.key());
                 @if !output.is_empty() {
                     @let region_name = region.name();
                     div
@@ -84,7 +84,7 @@ pub trait ThemePage {
                 meta property=(property) content=(content) {}
             }
 
-            (page.render_assets())
+            (page.context().render_assets())
         }
     }
 }

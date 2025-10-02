@@ -105,9 +105,9 @@ pub trait Contextual: LangId {
     #[builder_fn]
     fn with_assets(self, op: ContextOp) -> Self;
 
-    /// Opera con [`ChildOp`] en una región (`region_name`) de la página.
+    /// Opera con [`ChildOp`] en una región (`region_key`) de la página.
     #[builder_fn]
-    fn with_child_in(self, region_name: &'static str, op: ChildOp) -> Self;
+    fn with_child_in(self, region_key: &'static str, op: ChildOp) -> Self;
 
     // **< Contextual GETTERS >*********************************************************************
 
@@ -290,10 +290,10 @@ impl Context {
         markup
     }
 
-    /// Renderiza los componentes de una región (`region_name`).
-    pub fn render_region(&mut self, region_name: &'static str) -> Markup {
+    /// Renderiza los componentes de una región (`region_key`).
+    pub fn render_components_of(&mut self, region_key: &'static str) -> Markup {
         self.regions
-            .merge_all_components(self.theme, region_name)
+            .merge_all_components(self.theme, region_key)
             .render(self)
     }
 
@@ -486,8 +486,8 @@ impl Contextual for Context {
     }
 
     #[builder_fn]
-    fn with_child_in(mut self, region_name: &'static str, op: ChildOp) -> Self {
-        self.regions.alter_child_in(region_name, op);
+    fn with_child_in(mut self, region_key: &'static str, op: ChildOp) -> Self {
+        self.regions.alter_child_in(region_key, op);
         self
     }
 

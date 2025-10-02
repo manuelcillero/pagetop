@@ -136,7 +136,9 @@ fn render_intro(page: &mut Page) -> Markup {
                         }
                     }
                 }
-                div class="intro-text" { (page.render_region("content")) }
+                div class="intro-text" {
+                    (page.context().render_components_of("content"))
+                }
             }
         }
         footer class="intro-footer" {
