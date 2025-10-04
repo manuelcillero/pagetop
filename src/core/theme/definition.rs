@@ -28,14 +28,14 @@ pub type ThemeRef = &'static dyn Theme;
 pub trait ThemePage {
     /// Renderiza el **contenido interior** del `<body>` de la página.
     ///
-    /// Recorre `regions` en el **orden declarado** y, para cada región con contenido, genera un
-    /// contenedor con `role="region"` y un `aria-label` localizado.
+    /// Esta implementación recorre `regions` en el **orden declarado** y, para cada región con
+    /// contenido, genera un contenedor con `role="region"` y un `aria-label` localizado.
     /// Se asume que cada identificador de región es **único** dentro de la página.
     ///
     /// La etiqueta `<body>` no se incluye aquí; únicamente renderiza su contenido.
-    fn render_body(&self, page: &mut Page, regions: &[(Region, L10n)]) -> Markup {
+    fn render_body(&self, page: &mut Page, regions: &[Region]) -> Markup {
         html! {
-            @for (region, region_label) in regions {
+            @for region in regions {
                 @let output = page.context().render_components_of(region.key());
                 @if !output.is_empty() {
                     @let region_name = region.name();
@@ -43,7 +43,7 @@ pub trait ThemePage {
                         id=(region_name)
                         class={ "region region--" (region_name) }
                         role="region"
-                        aria-label=[region_label.lookup(page)]
+                        aria-label=[region.label().lookup(page)]
                     {
                         (output)
                     }
@@ -125,31 +125,31 @@ pub trait Theme: Extension + ThemePage + Send + Sync {
 
     /// Declaración ordenada de las regiones disponibles en la página.
     ///
-    /// Devuelve una **lista estática** de pares `(Region, L10n)` que se usará para renderizar todas
-    /// las regiones que componen una página en el orden indicado .
+    /// Devuelve una **lista estática** de regiones ([`Region`](crate::core::theme::Region)) con la
+    /// información necesaria para renderizar el contenedor de cada región.
     ///
     /// Si un tema necesita un conjunto distinto de regiones, se puede **sobrescribir** este método
     /// con los siguientes requisitos y recomendaciones:
     ///
     /// - Los identificadores deben ser **estables** (p. ej. `"sidebar-left"`, `"content"`).
-    /// - La región `"content"` es **obligatoria**. Se puede usar [`Region::default()`] para
-    ///   declararla.
-    /// - La etiqueta `L10n` se evalúa con el idioma activo de la página.
+    /// - La región `"content"` es **obligatoria** porque se usa por defecto para añadir componentes
+    ///   para renderizar. Se puede utilizar [`Region::default()`] para declararla.
+    /// - La etiqueta `L10n` se evaluará con el idioma activo de la página.
     ///
     /// Por defecto devuelve:
     ///
     /// - `"header"`: cabecera.
     /// - `"content"`: contenido principal (**obligatoria**).
     /// - `"footer"`: pie.
-    fn page_regions(&self) -> &'static [(Region, L10n)] {
-        static REGIONS: LazyLock<[(Region, L10n); 3]> = LazyLock::new(|| {
+    fn page_regions(&self) -> &'static [Region] {
+        static REGIONS: LazyLock<[Region; 3]> = LazyLock::new(|| {
             [
-                (Region::declare("header"), L10n::l("region_header")),
-                (Region::default(), L10n::l("region_content")),
-                (Region::declare("footer"), L10n::l("region_footer")),
+                Region::declare("header", L10n::l("region_header")),
+                Region::default(),
+                Region::declare("footer", L10n::l("region_footer")),
             ]
         });
-        &REGIONS[..]
+        &*REGIONS
     }
 
     /// Acciones específicas del tema antes de renderizar el `<body>` de la página.

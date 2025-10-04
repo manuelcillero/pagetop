@@ -1,5 +1,6 @@
 use crate::core::component::{Child, ChildOp, Children};
 use crate::core::theme::ThemeRef;
+use crate::locale::L10n;
 use crate::{builder_fn, AutoDefault, UniqueId};
 
 use parking_lot::RwLock;
@@ -29,6 +30,7 @@ pub const REGION_CONTENT: &str = "content";
 pub struct Region {
     key: &'static str,
     name: String,
+    label: L10n,
 }
 
 impl Default for Region {
@@ -37,6 +39,7 @@ impl Default for Region {
         Self {
             key: REGION_CONTENT,
             name: REGION_CONTENT.to_string(),
+            label: L10n::l("region_content"),
         }
     }
 }
@@ -51,10 +54,11 @@ impl Region {
     /// sencillos, limitando los caracteres a `[a-z0-9-]` (p.ej., `"sidebar"` o `"main-menu"`), cuyo
     /// nombre normalizado coincidirá con la clave.
     #[inline]
-    pub fn declare(key: &'static str) -> Self {
+    pub fn declare(key: &'static str, label: L10n) -> Self {
         Self {
             key,
             name: key.trim().to_ascii_lowercase().replace(' ', "-"),
+            label,
         }
     }
 
@@ -68,6 +72,12 @@ impl Region {
     #[inline]
     pub fn name(&self) -> &str {
         &self.name
+    }
+
+    /// Devuelve la etiqueta localizada asociada a la región.
+    #[inline]
+    pub fn label(&self) -> &L10n {
+        &self.label
     }
 }
 
