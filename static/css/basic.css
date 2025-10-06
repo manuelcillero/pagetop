@@ -1,3 +1,19 @@
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+	margin: 0;
+	font-family: var(--val-font-family);
+	font-size: var(--val-fs--base);
+	font-weight: var(--val-fw--base);
+	line-height: var(--val-lh--base);
+	color: var(--val-color--text);
+	background-color: var(--val-color--bg);
+	-webkit-text-size-adjust: 100%;
+	-webkit-tap-highlight-color: transparent;
+}
+
 /* Page layout */
 
 .region--footer {

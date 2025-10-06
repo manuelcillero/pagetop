@@ -15,50 +15,70 @@ pub type ThemeRef = &'static dyn Theme;
 
 /// Métodos predefinidos de renderizado para las páginas de un tema.
 ///
-/// Contiene las implementaciones base de las **secciones** `<head>` y `<body>`. Se implementa
-/// automáticamente para cualquier tipo que implemente [`Theme`], por lo que normalmente no requiere
-/// implementación explícita.
+/// Contiene las implementaciones base para renderizar las **secciones** `<head>` y `<body>`. Se
+/// implementa automáticamente para cualquier tipo que implemente [`Theme`], por lo que normalmente
+/// no requiere implementación explícita.
 ///
-/// Si un tema **sobrescribe** [`render_page_head()`](Theme::render_page_head) o
-/// [`render_page_body()`](Theme::render_page_body), se puede volver al comportamiento por defecto
-/// cuando se necesite usando FQS (*Fully Qualified Syntax*):
+/// Si un tema **sobrescribe** uno o más de estos métodos de [`Theme`]:
+///
+/// - [`render_page_region()`](Theme::render_page_region),
+/// - [`render_page_head()`](Theme::render_page_head), o
+/// - [`render_page_body()`](Theme::render_page_body);
+///
+/// es posible volver al comportamiento por defecto usando FQS (*Fully Qualified Syntax*):
 ///
 /// - `<Self as ThemePage>::render_body(self, page, self.page_regions())`
 /// - `<Self as ThemePage>::render_head(self, page)`
 pub trait ThemePage {
+    /// Renderiza el **contenedor** de una región concreta del `<body>` de la página.
+    ///
+    /// Obtiene los componentes asociados a `region.key()` desde el contexto de la página y, si hay
+    /// salida, envuelve el contenido en un contenedor `<div>` predefinido.
+    ///
+    /// Si la región **no produce contenido**, devuelve un `Markup` vacío.
+    #[inline]
+    fn render_region(&self, page: &mut Page, region: &Region) -> Markup {
+        html! {
+            @let output = page.context().render_components_of(region.key());
+            @if !output.is_empty() {
+                @let region_name = region.name();
+                div
+                    id=(region_name)
+                    class={ "region region--" (region_name) }
+                    role="region"
+                    aria-label=[region.label().lookup(page)]
+                {
+                    (output)
+                }
+            }
+        }
+    }
+
     /// Renderiza el **contenido interior** del `<body>` de la página.
     ///
-    /// Esta implementación recorre `regions` en el **orden declarado** y, para cada región con
-    /// contenido, genera un contenedor con `role="region"` y un `aria-label` localizado.
-    /// Se asume que cada identificador de región es **único** dentro de la página.
+    /// Recorre `regions` en el **orden declarado** y, para cada región con contenido, delega en
+    /// [`render_region()`](Self::render_region) la generación del contenedor. Las regiones sin
+    /// contenido **no** producen salida. Se asume que cada identificador de región es **único**
+    /// dentro de la página.
     ///
     /// La etiqueta `<body>` no se incluye aquí; únicamente renderiza su contenido.
+    #[inline]
     fn render_body(&self, page: &mut Page, regions: &[Region]) -> Markup {
         html! {
             @for region in regions {
-                @let output = page.context().render_components_of(region.key());
-                @if !output.is_empty() {
-                    @let region_name = region.name();
-                    div
-                        id=(region_name)
-                        class={ "region region--" (region_name) }
-                        role="region"
-                        aria-label=[region.label().lookup(page)]
-                    {
-                        (output)
-                    }
-                }
+                (self.render_region(page, region))
             }
         }
     }
 
     /// Renderiza el **contenido interior** del `<head>` de la página.
     ///
-    /// Recorre y genera por defecto las etiquetas básicas (`charset`, `title`, `description`,
-    /// `viewport`, `X-UA-Compatible`), los metadatos (`name/content`) y propiedades
-    /// (`property/content`), además de los recursos CSS/JS de la página.
+    /// Incluye por defecto las etiquetas básicas (`charset`, `title`, `description`, `viewport`,
+    /// `X-UA-Compatible`), los metadatos (`name/content`) y propiedades (`property/content`),
+    /// además de los recursos CSS/JS de la página.
     ///
-    /// La etiqueta `<head>` no se incluye aquí; únicamente renderiza su contenido.
+    /// La etiqueta `<head>` no se incluye aquí; únicamente se renderiza su contenido.
+    #[inline]
     fn render_head(&self, page: &mut Page) -> Markup {
         let viewport = "width=device-width, initial-scale=1, shrink-to-fit=no";
         html! {
@@ -150,6 +170,19 @@ pub trait Theme: Extension + ThemePage + Send + Sync {
             ]
         });
         &*REGIONS
+    }
+
+    /// Renderiza una región de la página **por clave**.
+    ///
+    /// Busca en [`page_regions()`](Self::page_regions) la región asociada a una clave y, si existe,
+    /// delega en [`ThemePage::render_region()`] su renderizado. Si no se encuentra la clave o la
+    /// región no produce contenido, devuelve un `Markup` vacío.
+    fn render_page_region(&self, page: &mut Page, key: &str) -> Markup {
+        html! {
+            @if let Some(region) = self.page_regions().iter().find(|r| r.key() == key) {
+                (self.render_region(page, region))
+            }
+        }
     }
 
     /// Acciones específicas del tema antes de renderizar el `<body>` de la página.

@@ -1,4 +1,23 @@
 :root {
+	--intro-bg-img: url('/img/intro-header.jpg');
+	--intro-bg-img-set: image-set(url('/img/intro-header.avif') type('image/avif'), url('/img/intro-header.webp') type('image/webp'), var(--intro-bg-img) type('image/jpeg'));
+	--intro-bg-img-sm: url('/img/intro-header-sm.jpg');
+	--intro-bg-img-sm-set: image-set(url('/img/intro-header-sm.avif') type('image/avif'), url('/img/intro-header-sm.webp') type('image/webp'), var(--intro-bg-img-sm) type('image/jpeg'));
+	--intro-bg-color: #8c5919;
+	--intro-bg-block-1: #b689ff;
+	--intro-bg-block-2: #fecaca;
+	--intro-bg-block-3: #e6a9e2;
+	--intro-bg-block-4: #ffedca;
+	--intro-bg-block-5: #ffffff;
+	--intro-color: #1a202c;
+	--intro-color-gray: #e4e4e7;
+	--intro-color-link: #1e4eae;
+	--intro-focus-outline: 2px solid var(--intro-color-link);
+	--intro-focus-outline-offset: 2px;
+	--intro-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+}
+
+:root {
 	--val-font-sans: system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans","Liberation Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
 	--val-font-serif: "Lora","georgia",serif;
 	--val-font-monospace: SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;

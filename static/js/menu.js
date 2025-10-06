@@ -48,7 +48,6 @@ function menu__reset(menu, nav, overlay) {
 }
 
 document.querySelectorAll('.menu').forEach(menu => {
-
 	let menuChildren = [];
 	const menuNav = menu.querySelector('.menu__nav');
 	const menuOverlay = menu.querySelector('.menu__overlay');

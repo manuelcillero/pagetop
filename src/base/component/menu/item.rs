@@ -49,7 +49,7 @@ impl Component for Item {
             }),
             ItemKind::Link(label, path) => PrepareMarkup::With(html! {
                 li class="menu__item menu__item--link" {
-                    a href=(path(cx)) title=[description] {
+                    a class="menu__link" href=(path(cx)) title=[description] {
                         (left_icon)
                         span class="menu__label" { (label.using(cx)) }
                         (right_icon)
@@ -58,7 +58,7 @@ impl Component for Item {
             }),
             ItemKind::LinkBlank(label, path) => PrepareMarkup::With(html! {
                 li class="menu__item menu__item--link" {
-                    a href=(path(cx)) title=[description] target="_blank" {
+                    a class="menu__link" href=(path(cx)) title=[description] target="_blank" {
                         (left_icon)
                         span class="menu__label" { (label.using(cx)) }
                         (right_icon)
@@ -72,7 +72,7 @@ impl Component for Item {
             }),
             ItemKind::Submenu(label, submenu) => PrepareMarkup::With(html! {
                 li class="menu__item menu__item--children" {
-                    a href="#" title=[description] {
+                    button type="button" class="menu__link" title=[description] {
                         (left_icon)
                         span class="menu__label" { (label.using(cx)) }
                         (Icon::svg(html! {
@@ -86,7 +86,7 @@ impl Component for Item {
             }),
             ItemKind::Megamenu(label, megamenu) => PrepareMarkup::With(html! {
                 li class="menu__item menu__item--children" {
-                    a href="#" title=[description] {
+                    button type="button" class="menu__link" title=[description] {
                         (left_icon)
                         span class="menu__label" { (label.using(cx)) }
                         (Icon::svg(html! {

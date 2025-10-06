@@ -46,12 +46,8 @@ impl Theme for Basic {
     }
 
     fn after_render_page_body(&self, page: &mut Page) {
-        let styles = match page.layout() {
-            "Intro" => "/css/intro.css",
-            "PageTopIntro" => "/css/intro.css",
-            _ => "/css/basic.css",
-        };
         let pkg_version = env!("CARGO_PKG_VERSION");
+
         page.alter_assets(ContextOp::AddStyleSheet(
             StyleSheet::from("/css/normalize.css")
                 .with_version("8.0.1")
@@ -59,6 +55,11 @@ impl Theme for Basic {
         ))
         .alter_assets(ContextOp::AddStyleSheet(
             StyleSheet::from("/css/root.css")
+                .with_version(pkg_version)
+                .with_weight(-99),
+        ))
+        .alter_assets(ContextOp::AddStyleSheet(
+            StyleSheet::from("/css/basic.css")
                 .with_version(pkg_version)
                 .with_weight(-99),
         ))
@@ -72,11 +73,6 @@ impl Theme for Basic {
                 .with_version(pkg_version)
                 .with_weight(-99),
         ))
-        .alter_assets(ContextOp::AddStyleSheet(
-            StyleSheet::from(styles)
-                .with_version(pkg_version)
-                .with_weight(-99),
-        ))
         .alter_assets(ContextOp::AddJavaScript(
             JavaScript::defer("/js/menu.js")
                 .with_version(pkg_version)
@@ -86,8 +82,17 @@ impl Theme for Basic {
 }
 
 fn render_intro(page: &mut Page) -> Markup {
+    page.alter_assets(ContextOp::AddStyleSheet(
+        StyleSheet::from("/css/intro.css").with_version(env!("CARGO_PKG_VERSION")),
+    ));
+
     let title = page.title().unwrap_or_default();
     let intro = page.description().unwrap_or_default();
+
+    let theme = page.context().theme();
+    let h = theme.render_page_region(page, "header");
+    let c = theme.render_page_region(page, "content");
+    let f = theme.render_page_region(page, "footer");
 
     let intro_button_txt: L10n = page.param_or_default("intro_button_txt");
     let intro_button_lnk: Option<&String> = page.param("intro_button_lnk");
@@ -118,26 +123,27 @@ fn render_intro(page: &mut Page) -> Markup {
                     }
                 }
             }
+            (h)
         }
         main class="intro-content" {
             section class="intro-content__body" {
-                @if intro_button_lnk.is_some() {
-                    div class="intro-button" {
-                        a
-                            class="intro-button__link"
-                            href=[intro_button_lnk]
-                            target="_blank"
-                            rel="noreferrer"
-                        {
-                            span {} span {} span {}
-                            div class="intro-button__text" {
-                                (intro_button_txt.using(page))
+                div class="intro-text" {
+                    @if intro_button_lnk.is_some() {
+                        div class="intro-button" {
+                            a
+                                class="intro-button__link"
+                                href=[intro_button_lnk]
+                                target="_blank"
+                                rel="noreferrer"
+                            {
+                                span {} span {} span {}
+                                div class="intro-button__text" {
+                                    (intro_button_txt.using(page))
+                                }
                             }
                         }
                     }
-                }
-                div class="intro-text" {
-                    (page.context().render_components_of("content"))
+                    (c)
                 }
             }
         }
@@ -164,6 +170,7 @@ fn render_intro(page: &mut Page) -> Markup {
                     em { (L10n::l("intro_have_fun").using(page)) }
                 }
             }
+            (f)
         }
     }
 }
