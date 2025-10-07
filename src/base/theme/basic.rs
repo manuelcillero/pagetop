@@ -1,6 +1,9 @@
 /// Es el tema básico que incluye PageTop por defecto.
 use crate::prelude::*;
 
+/// El tema básico usa las mismas regiones predefinidas por [`ThemeRegion`].
+pub type BasicRegion = ThemeRegion;
+
 /// Tema básico por defecto.
 ///
 /// Ofrece las siguientes composiciones (*layouts*):
@@ -90,9 +93,9 @@ fn render_intro(page: &mut Page) -> Markup {
     let intro = page.description().unwrap_or_default();
 
     let theme = page.context().theme();
-    let h = theme.render_page_region(page, "header");
-    let c = theme.render_page_region(page, "content");
-    let f = theme.render_page_region(page, "footer");
+    let h = theme.render_page_region(page, &BasicRegion::Header);
+    let c = theme.render_page_region(page, &BasicRegion::Content);
+    let f = theme.render_page_region(page, &BasicRegion::Footer);
 
     let intro_button_txt: L10n = page.param_or_default("intro_button_txt");
     let intro_button_lnk: Option<&String> = page.param("intro_button_lnk");

@@ -19,67 +19,65 @@ static COMMON_REGIONS: LazyLock<RwLock<ChildrenInRegions>> =
 /// Nombre de la región de contenido por defecto (`"content"`).
 pub const REGION_CONTENT: &str = "content";
 
-/// Identificador de una región de página.
+/// Define la interfaz mínima que describe una **región de renderizado** dentro de una página.
 ///
-/// Incluye una **clave estática** ([`key()`](Self::key)) que identifica la región en el tema, y un
-/// **nombre normalizado** ([`name()`](Self::name)) en minúsculas para su uso en atributos HTML
-/// (p.ej., clases `region__{name}`).
+/// Una *región* representa una zona del documento HTML (por ejemplo: `"header"`, `"content"` o
+/// `"sidebar-left"`), en la que se pueden incluir y renderizar componentes dinámicamente.
 ///
-/// Se utiliza para declarar las regiones que componen una página en un tema (ver
-/// [`page_regions()`](crate::core::theme::Theme::page_regions)).
-pub struct Region {
-    key: &'static str,
-    name: String,
-    label: L10n,
-}
-
-impl Default for Region {
-    #[inline]
-    fn default() -> Self {
-        Self {
-            key: REGION_CONTENT,
-            name: REGION_CONTENT.to_string(),
-            label: L10n::l("region_content"),
-        }
-    }
-}
-
-impl Region {
-    /// Declara una región a partir de su clave estática.
+/// Este `trait` abstrae los metadatos básicos de cada región, esencialmente:
+///
+/// - su **clave interna** (`key()`), que la identifica de forma única dentro de la página, y
+/// - su **etiqueta localizada** (`label()`), que se usa como texto accesible (por ejemplo en
+///   `aria-label` o en descripciones semánticas del contenedor).
+///
+/// Las implementaciones típicas son *enumeraciones estáticas* declaradas por cada tema (ver como
+/// ejemplo [`ThemeRegion`](crate::core::theme::ThemeRegion)), de modo que las claves y etiquetas
+/// permanecen inmutables y fácilmente referenciables.
+///
+/// # Ejemplo
+///
+/// ```rust
+/// use pagetop::prelude::*;
+///
+/// pub enum MyThemeRegion {
+///     Header,
+///     Content,
+///     Footer,
+/// }
+///
+/// impl Region for MyThemeRegion {
+///     fn key(&self) -> &str {
+///         match self {
+///             MyThemeRegion::Header => "header",
+///             MyThemeRegion::Content => "content",
+///             MyThemeRegion::Footer => "footer",
+///         }
+///     }
+///
+///     fn label(&self) -> L10n {
+///         L10n::l(join!("region__", self.key()))
+///     }
+/// }
+/// ```
+pub trait Region: Send + Sync {
+    /// Devuelve la **clave interna** que identifica de forma única una región.
     ///
-    /// Genera además un nombre normalizado de la clave, eliminando espacios iniciales y finales,
-    /// convirtiendo a minúsculas y sustituyendo los espacios intermedios por guiones (`-`).
+    /// La clave se utiliza para asociar los componentes de la región con su contenedor HTML
+    /// correspondiente. Por convención, se emplean nombres en minúsculas y con guiones (`"header"`,
+    /// `"main"`, `"sidebar-right"`, etc.), y la región `"content"` es **obligatoria** en todos los
+    /// temas.
+    fn key(&self) -> &str;
+
+    /// Devuelve la **etiqueta localizada** (`L10n`) asociada a la región.
     ///
-    /// Esta clave se usará para añadir componentes a la región; por ello se recomiendan nombres
-    /// sencillos, limitando los caracteres a `[a-z0-9-]` (p.ej., `"sidebar"` o `"main-menu"`), cuyo
-    /// nombre normalizado coincidirá con la clave.
-    #[inline]
-    pub fn declare(key: &'static str, label: L10n) -> Self {
-        Self {
-            key,
-            name: key.trim().to_ascii_lowercase().replace(' ', "-"),
-            label,
-        }
-    }
-
-    /// Devuelve la clave estática asignada a la región.
-    #[inline]
-    pub fn key(&self) -> &'static str {
-        self.key
-    }
-
-    /// Devuelve el nombre normalizado de la región (para identificadores y atributos HTML).
-    #[inline]
-    pub fn name(&self) -> &str {
-        &self.name
-    }
-
-    /// Devuelve la etiqueta localizada asociada a la región.
-    #[inline]
-    pub fn label(&self) -> &L10n {
-        &self.label
-    }
+    /// Esta etiqueta se evalúa en el idioma activo de la página y se utiliza principalmente para
+    /// accesibilidad, como el valor de `aria-label` en el contenedor generado por
+    /// [`ThemePage::render_region()`](crate::core::theme::ThemePage::render_region).
+    fn label(&self) -> L10n;
 }
+
+/// Referencia estática a una región.
+pub type RegionRef = &'static dyn Region;
 
 // Contenedor interno de componentes agrupados por región.
 #[derive(AutoDefault)]

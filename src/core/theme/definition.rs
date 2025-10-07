@@ -1,9 +1,9 @@
 use crate::core::extension::Extension;
-use crate::core::theme::Region;
-use crate::global;
+use crate::core::theme::{Region, RegionRef, REGION_CONTENT};
 use crate::html::{html, Markup};
 use crate::locale::L10n;
 use crate::response::page::Page;
+use crate::{global, join};
 
 use std::sync::LazyLock;
 
@@ -12,6 +12,46 @@ use std::sync::LazyLock;
 /// Los temas son también extensiones. Por tanto, deben declararse como **instancias estáticas** que
 /// implementen [`Theme`] y, a su vez, [`Extension`].
 pub type ThemeRef = &'static dyn Theme;
+
+/// Conjunto de regiones que los temas pueden exponer para el renderizado.
+///
+/// `ThemeRegion` define un conjunto de regiones predefinidas para estructurar un documento HTML.
+/// Proporciona **identificadores estables** (vía [`Region::key()`]) y **etiquetas localizables**
+/// (vía [`Region::label()`]) a las regiones donde se añadirán los componentes.
+///
+/// Se usa por defecto en [`Theme::page_regions()`](crate::core::theme::Theme::page_regions) y sus
+/// variantes representan el conjunto mínimo recomendado para cualquier tema. Sin embargo, cada tema
+/// podría exponer su propio conjunto de regiones.
+pub enum ThemeRegion {
+    /// Cabecera de la página.
+    ///
+    /// Clave: `"header"`. Suele contener *branding*, navegación principal o avisos globales.
+    Header,
+
+    /// Contenido principal de la página (**obligatoria**).
+    ///
+    /// Clave: `"content"`. Es el destino por defecto para insertar componentes a nivel de página.
+    Content,
+
+    /// Pie de página.
+    ///
+    /// Clave: `"footer"`. Suele contener enlaces legales, créditos o navegación secundaria.
+    Footer,
+}
+
+impl Region for ThemeRegion {
+    fn key(&self) -> &str {
+        match self {
+            ThemeRegion::Header => "header",
+            ThemeRegion::Content => REGION_CONTENT,
+            ThemeRegion::Footer => "footer",
+        }
+    }
+
+    fn label(&self) -> L10n {
+        L10n::l(join!("region_", self.key()))
+    }
+}
 
 /// Métodos predefinidos de renderizado para las páginas de un tema.
 ///
@@ -37,14 +77,14 @@ pub trait ThemePage {
     ///
     /// Si la región **no produce contenido**, devuelve un `Markup` vacío.
     #[inline]
-    fn render_region(&self, page: &mut Page, region: &Region) -> Markup {
+    fn render_region(&self, page: &mut Page, region: RegionRef) -> Markup {
         html! {
-            @let output = page.context().render_components_of(region.key());
+            @let key = region.key();
+            @let output = page.context().render_components_of(key);
             @if !output.is_empty() {
-                @let region_name = region.name();
                 div
-                    id=(region_name)
-                    class={ "region region--" (region_name) }
+                    id=(key)
+                    class={ "region region--" (key) }
                     role="region"
                     aria-label=[region.label().lookup(page)]
                 {
@@ -63,10 +103,10 @@ pub trait ThemePage {
     ///
     /// La etiqueta `<body>` no se incluye aquí; únicamente renderiza su contenido.
     #[inline]
-    fn render_body(&self, page: &mut Page, regions: &[Region]) -> Markup {
+    fn render_body(&self, page: &mut Page, regions: &[RegionRef]) -> Markup {
         html! {
             @for region in regions {
-                (self.render_region(page, region))
+                (self.render_region(page, *region))
             }
         }
     }
@@ -145,44 +185,53 @@ pub trait Theme: Extension + ThemePage + Send + Sync {
 
     /// Declaración ordenada de las regiones disponibles en la página.
     ///
-    /// Devuelve una **lista estática** de regiones ([`Region`](crate::core::theme::Region)) con la
-    /// información necesaria para renderizar el contenedor de cada región.
+    /// Retorna una **lista estática** de referencias ([`RegionRef`](crate::core::theme::RegionRef))
+    /// que representan las regiones que el tema admite dentro del `<body>`.
     ///
-    /// Si un tema necesita un conjunto distinto de regiones, se puede **sobrescribir** este método
-    /// con los siguientes requisitos y recomendaciones:
+    /// Cada referencia apunta a una instancia que implementa [`Region`](crate::core::theme::Region)
+    /// para definir cada región de forma segura y estable. Y si un tema necesita un conjunto
+    /// distinto de regiones, puede **sobrescribir** este método siguiendo estas recomendaciones:
     ///
-    /// - Los identificadores deben ser **estables** (p. ej. `"sidebar-left"`, `"content"`).
-    /// - La región `"content"` es **obligatoria** porque se usa por defecto para añadir componentes
-    ///   para renderizar. Se puede utilizar [`Region::default()`] para declararla.
-    /// - La etiqueta `L10n` se evaluará con el idioma activo de la página.
+    /// - Los identificadores devueltos por [`Region::key()`](crate::core::theme::Region::key)
+    ///   deben ser **estables** (p. ej. `"sidebar-left"`, `"content"`).
+    /// - La región `"content"` es **obligatoria**, ya que se usa como destino por defecto para
+    ///   insertar componentes y renderizarlos.
+    /// - El orden de la lista podría tener relevancia como **orden de renderizado** dentro del
+    ///   `<body>` segun la implementación de [`render_page_body()`](Self::render_page_body).
+    /// - Las etiquetas (`L10n`) de cada región se evaluarán con el idioma activo de la página.
     ///
-    /// Por defecto devuelve:
+    /// # Ejemplo
     ///
-    /// - `"header"`: cabecera.
-    /// - `"content"`: contenido principal (**obligatoria**).
-    /// - `"footer"`: pie.
-    fn page_regions(&self) -> &'static [Region] {
-        static REGIONS: LazyLock<[Region; 3]> = LazyLock::new(|| {
+    /// ```rust,ignore
+    /// fn page_regions(&self) -> &'static [RegionRef] {
+    ///     static REGIONS: LazyLock<[RegionRef; 4]> = LazyLock::new(|| {
+    ///         [
+    ///             &ThemeRegion::Header,
+    ///             &ThemeRegion::Content,
+    ///             &ThemeRegion::Footer,
+    ///         ]
+    ///     });
+    ///     &*REGIONS
+    /// }
+    /// ```
+    fn page_regions(&self) -> &'static [RegionRef] {
+        static REGIONS: LazyLock<[RegionRef; 3]> = LazyLock::new(|| {
             [
-                Region::declare("header", L10n::l("region_header")),
-                Region::default(),
-                Region::declare("footer", L10n::l("region_footer")),
+                &ThemeRegion::Header,
+                &ThemeRegion::Content,
+                &ThemeRegion::Footer,
             ]
         });
         &*REGIONS
     }
 
-    /// Renderiza una región de la página **por clave**.
+    /// Renderiza una región de la página.
     ///
-    /// Busca en [`page_regions()`](Self::page_regions) la región asociada a una clave y, si existe,
-    /// delega en [`ThemePage::render_region()`] su renderizado. Si no se encuentra la clave o la
-    /// región no produce contenido, devuelve un `Markup` vacío.
-    fn render_page_region(&self, page: &mut Page, key: &str) -> Markup {
-        html! {
-            @if let Some(region) = self.page_regions().iter().find(|r| r.key() == key) {
-                (self.render_region(page, region))
-            }
-        }
+    /// Si se sobrescribe este método, se puede volver al comportamiento base con:
+    /// `<Self as ThemePage>::render_region(self, page, region)`.
+    #[inline]
+    fn render_page_region(&self, page: &mut Page, region: RegionRef) -> Markup {
+        <Self as ThemePage>::render_region(self, page, region)
     }
 
     /// Acciones específicas del tema antes de renderizar el `<body>` de la página.
