@@ -137,14 +137,14 @@ impl Item {
             ..Default::default()
         }
     }
-    /*
-    pub fn megamenu(label: L10n, megamenu: Megamenu) -> Self {
+
+    pub fn megamenu(label: L10n, megamenu: menu::Megamenu) -> Self {
         Item {
             item_kind: ItemKind::Megamenu(label, MegamenuGroups::with(megamenu)),
             ..Default::default()
         }
     }
-    */
+
     // **< Item BUILDER >***************************************************************************
 
     #[builder_fn]

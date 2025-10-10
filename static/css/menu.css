@@ -342,6 +342,11 @@
 		opacity: 1;
 		visibility: visible;
 	}
+	.menu.menu--closing .menu__children {
+		margin-top: 0 !important;
+		opacity: 0 !important;
+		visibility: hidden !important;
+	}
 }
 
 @media (prefers-reduced-motion: reduce) {

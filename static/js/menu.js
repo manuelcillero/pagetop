@@ -1,12 +1,12 @@
+const getTitle = (li) => li.querySelector('.menu__label')?.textContent.trim() ?? '';
+
 function menu__showChildren(nav, children) {
 	const li = children[0];
 	const submenu = li.querySelector('.menu__children');
 	submenu.classList.add('active');
 	submenu.style.animation = 'slideLeft 0.5s ease forwards';
 
-	const labelEl = li.querySelector('.menu__label');
-	const title = labelEl ? labelEl.textContent.trim() : (li.querySelector('a')?.textContent?.trim() ?? '');
-	nav.querySelector('.menu__title').innerHTML = title;
+	nav.querySelector('.menu__title').textContent = getTitle(li);;
 	nav.querySelector('.menu__header').classList.add('active');
 }
 
@@ -20,9 +20,7 @@ function menu__hideChildren(nav, children) {
 
 	children.shift();
 	if (children.length > 0) {
-		const a = children[0].querySelector('a');
-		const title = (a && a.textContent ? a.textContent.trim() : '');
-		nav.querySelector('.menu__title').textContent = title;
+		nav.querySelector('.menu__title').textContent = getTitle(children[0]);
 	} else {
 		nav.querySelector('.menu__header').classList.remove('active');
 		nav.querySelector('.menu__title').textContent = '';
@@ -38,7 +36,7 @@ function menu__reset(menu, nav, overlay) {
 	menu__toggle(nav, overlay);
 	setTimeout(() => {
 		nav.querySelector('.menu__header').classList.remove('active');
-		nav.querySelector('.menu__title').innerHTML = '';
+		nav.querySelector('.menu__title').textContent = '';
 		menu.querySelectorAll('.menu__children').forEach(submenu => {
 			submenu.classList.remove('active');
 			submenu.style.removeProperty('animation');
@@ -85,12 +83,13 @@ document.querySelectorAll('.menu').forEach(menu => {
 		menu__toggle(menuNav, menuOverlay);
 	});
 
-	window.onresize = function () {
+	let resizeTimeout;
+	window.addEventListener('resize', () => {
 		if (menuNav.classList.contains('active')) {
-			var fontSizeRoot = parseFloat(getComputedStyle(document.documentElement).fontSize);
-			if (this.innerWidth >= 62 * fontSizeRoot) {
+			clearTimeout(resizeTimeout);
+			resizeTimeout = setTimeout(() => {
 				menuChildren = menu__reset(menu, menuNav, menuOverlay);
-			}
+			}, 150);
 		}
-	};
+	});
 });
