@@ -1,0 +1,21 @@
+[package]
+name = "pagetop-aliner"
+version = "0.0.9"
+edition = "2021"
+
+description = """
+    Tema para PageTop que muestra esquemáticamente la composición de las páginas HTML
+"""
+categories = ["web-programming", "gui"]
+keywords = ["pagetop", "theme", "css"]
+
+repository.workspace = true
+homepage.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[dependencies]
+pagetop.workspace = true
+
+[build-dependencies]
+pagetop-build.workspace = true
