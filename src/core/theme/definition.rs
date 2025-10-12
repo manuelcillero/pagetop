@@ -1,6 +1,7 @@
+use crate::core::component::{ContextOp, Contextual};
 use crate::core::extension::Extension;
 use crate::core::theme::{Region, RegionRef, REGION_CONTENT};
-use crate::html::{html, Markup};
+use crate::html::{html, Markup, StyleSheet};
 use crate::locale::L10n;
 use crate::response::page::Page;
 use crate::{global, join};
@@ -241,7 +242,7 @@ pub trait Theme: Extension + ThemePage + Send + Sync {
 
     /// Renderiza el contenido del `<body>` de la página.
     ///
-    /// Si se sobrescribe este método, se puede volver al comportamiento base con:
+    /// Si se sobrescribe este método, se puede volver al renderizado base con:
     /// `<Self as ThemePage>::render_body(self, page, self.page_regions())`.
     #[inline]
     fn render_page_body(&self, page: &mut Page) -> Markup {
@@ -256,10 +257,29 @@ pub trait Theme: Extension + ThemePage + Send + Sync {
 
     /// Renderiza el contenido del `<head>` de la página.
     ///
-    /// Si se sobrescribe este método, se puede volver al comportamiento base con:
+    /// Si se sobrescribe este método, se puede volver al renderizado base con:
     /// `<Self as ThemePage>::render_head(self, page)`.
     #[inline]
     fn render_page_head(&self, page: &mut Page) -> Markup {
+        if page.param_or("include_basic_assets", false) {
+            let pkg_version = env!("CARGO_PKG_VERSION");
+
+            page.alter_assets(ContextOp::AddStyleSheet(
+                StyleSheet::from("/css/normalize.css")
+                    .with_version("8.0.1")
+                    .with_weight(-99),
+            ))
+            .alter_assets(ContextOp::AddStyleSheet(
+                StyleSheet::from("/css/root.css")
+                    .with_version(pkg_version)
+                    .with_weight(-99),
+            ))
+            .alter_assets(ContextOp::AddStyleSheet(
+                StyleSheet::from("/css/basic.css")
+                    .with_version(pkg_version)
+                    .with_weight(-99),
+            ));
+        }
         <Self as ThemePage>::render_head(self, page)
     }
 

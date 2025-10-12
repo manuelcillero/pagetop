@@ -1,4 +1,8 @@
-# Basic theme, intro layout.
+# Intro component.
+intro_default_title = Hello, world!
+intro_default_slogan = Discover⚡{ $app }
+intro_default_button = A web solution powered by <strong>PageTop</strong>
+
 intro_pagetop_label = PageTop version on Crates.io
 intro_release_label = Release date
 intro_license_label = License

@@ -26,30 +26,29 @@ async fn homepage(request: HttpRequest) -> ResultPage<Markup, ErrorPage> {
 
     Page::new(request)
         .with_theme("Basic")
-        .with_layout("PageTopIntro")
         .with_title(L10n::l("welcome_title"))
-        .with_description(L10n::l("welcome_intro").with_arg("app", app))
-        .with_param("intro_button_txt", L10n::l("welcome_powered"))
-        .with_param("intro_button_lnk", "https://pagetop.cillero.es".to_string())
         .add_component(
-            Block::new()
-                .with_title(L10n::l("welcome_status_title"))
-                .add_component(Html::with(move |cx| {
-                    html! {
-                        p { (L10n::l("welcome_status_1").using(cx)) }
-                        p { (L10n::l("welcome_status_2").using(cx)) }
-                    }
-                })),
-        )
-        .add_component(
-            Block::new()
-                .with_title(L10n::l("welcome_support_title"))
-                .add_component(Html::with(move |cx| {
-                    html! {
-                        p { (L10n::l("welcome_support_1").using(cx)) }
-                        p { (L10n::l("welcome_support_2").with_arg("app", app).using(cx)) }
-                    }
-                })),
+            Intro::new()
+                .add_component(
+                    Block::new()
+                        .with_title(L10n::l("welcome_status_title"))
+                        .add_component(Html::with(move |cx| {
+                            html! {
+                                p { (L10n::l("welcome_status_1").using(cx)) }
+                                p { (L10n::l("welcome_status_2").using(cx)) }
+                            }
+                        })),
+                )
+                .add_component(
+                    Block::new()
+                        .with_title(L10n::l("welcome_support_title"))
+                        .add_component(Html::with(move |cx| {
+                            html! {
+                                p { (L10n::l("welcome_support_1").using(cx)) }
+                                p { (L10n::l("welcome_support_2").with_arg("app", app).using(cx)) }
+                            }
+                        })),
+                ),
         )
         .render()
 }

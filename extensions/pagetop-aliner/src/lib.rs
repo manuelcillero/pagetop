@@ -108,7 +108,7 @@ impl Extension for Aliner {
 
 impl Theme for Aliner {
     fn before_render_page_body(&self, page: &mut Page) {
-        page.alter_param("include_basic_css", true)
+        page.alter_param("include_basic_assets", true)
             .alter_assets(ContextOp::AddStyleSheet(
                 StyleSheet::from("/aliner/css/styles.css")
                     .with_version(env!("CARGO_PKG_VERSION"))
