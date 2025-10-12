@@ -100,7 +100,7 @@ impl Extension for Bootsier {
     }
 
     fn configure_service(&self, scfg: &mut service::web::ServiceConfig) {
-        static_files_service!(scfg, [bootsier] => "/bootsier/css");
+        static_files_service!(scfg, [bootsier_bs] => "/bootsier/bs");
         static_files_service!(scfg, [bootsier_js] => "/bootsier/js");
     }
 }
@@ -108,7 +108,7 @@ impl Extension for Bootsier {
 impl Theme for Bootsier {
     fn after_render_page_body(&self, page: &mut Page) {
         page.alter_assets(ContextOp::AddStyleSheet(
-            StyleSheet::from("/bootsier/css/bootstrap.min.css")
+            StyleSheet::from("/bootsier/bs/bootstrap.min.css")
                 .with_version(BOOTSTRAP_VERSION)
                 .with_weight(-90),
         ))

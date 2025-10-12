@@ -1,0 +1,108 @@
+// Enable CSS Grid
+$enable-grid-classes: false;
+$enable-cssgrid: true;
+
+// Opacity
+.bg-opacity-0 {
+  --bs-bg-opacity: 0;
+}
+
+.border-opacity-0 {
+  --bs-border-opacity: 0;
+}
+
+.text-opacity-0 {
+  --bs-text-opacity: 0;
+}
+.text-opacity-10 {
+  --bs-text-opacity: 0.1;
+}
+
+// Extending utilities
+$utilities: map-merge(
+  $utilities,
+  (
+    // Individual border widths
+    "border-top": (
+      property: border-top-width,
+      class: border-top,
+      values: $border-widths
+    ),
+    "border-end": (
+      property: border-right-width,
+      class: border-end,
+      values: $border-widths
+    ),
+    "border-bottom": (
+      property: border-bottom-width,
+      class: border-bottom,
+      values: $border-widths
+    ),
+    "border-start": (
+      property: border-left-width,
+      class: border-start,
+      values: $border-widths
+    ),
+    // Individual rounded values
+    "rounded-top-start": (
+      property: border-top-left-radius,
+      class: rounded-top-start,
+      values: (
+        null: var(--#{$prefix}border-radius),
+        0: 0,
+        1: var(--#{$prefix}border-radius-sm),
+        2: var(--#{$prefix}border-radius),
+        3: var(--#{$prefix}border-radius-lg),
+        4: var(--#{$prefix}border-radius-xl),
+        5: var(--#{$prefix}border-radius-xxl),
+        circle: 50%,
+        pill: var(--#{$prefix}border-radius-pill)
+      )
+    ),
+    "rounded-top-end": (
+      property: border-top-right-radius,
+      class: rounded-top-end,
+      values: (
+        null: var(--#{$prefix}border-radius),
+        0: 0,
+        1: var(--#{$prefix}border-radius-sm),
+        2: var(--#{$prefix}border-radius),
+        3: var(--#{$prefix}border-radius-lg),
+        4: var(--#{$prefix}border-radius-xl),
+        5: var(--#{$prefix}border-radius-xxl),
+        circle: 50%,
+        pill: var(--#{$prefix}border-radius-pill)
+      )
+    ),
+    "rounded-bottom-start": (
+      property: border-bottom-left-radius,
+      class: rounded-bottom-start,
+      values: (
+        null: var(--#{$prefix}border-radius),
+        0: 0,
+        1: var(--#{$prefix}border-radius-sm),
+        2: var(--#{$prefix}border-radius),
+        3: var(--#{$prefix}border-radius-lg),
+        4: var(--#{$prefix}border-radius-xl),
+        5: var(--#{$prefix}border-radius-xxl),
+        circle: 50%,
+        pill: var(--#{$prefix}border-radius-pill)
+      )
+    ),
+    "rounded-bottom-end": (
+      property: border-bottom-right-radius,
+      class: rounded-bottom-end,
+      values: (
+        null: var(--#{$prefix}border-radius),
+        0: 0,
+        1: var(--#{$prefix}border-radius-sm),
+        2: var(--#{$prefix}border-radius),
+        3: var(--#{$prefix}border-radius-lg),
+        4: var(--#{$prefix}border-radius-xl),
+        5: var(--#{$prefix}border-radius-xxl),
+        circle: 50%,
+        pill: var(--#{$prefix}border-radius-pill)
+      )
+    ),
+  )
+);

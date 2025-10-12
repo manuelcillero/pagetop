@@ -2,7 +2,7 @@
 
 <h1>PageTop Bootsier</h1>
 
-<p>Tema de <strong>PageTop</strong> basado en Bootstrap para ofrecer su catálogo de estilos y componentes flexibles.</p>
+<p>Tema de <strong>PageTop</strong> basado en Bootstrap para dar vida a tus diseños web.</p>
 
 [![Doc API](https://img.shields.io/docsrs/pagetop-bootsier?label=Doc%20API&style=for-the-badge&logo=Docs.rs)](https://docs.rs/pagetop-bootsier)
 [![Crates.io](https://img.shields.io/crates/v/pagetop-bootsier.svg?style=for-the-badge&logo=ipfs)](https://crates.io/crates/pagetop-bootsier)

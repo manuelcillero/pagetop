@@ -4,8 +4,8 @@ use std::env;
 use std::path::Path;
 
 fn main() -> std::io::Result<()> {
-    StaticFilesBundle::from_scss("./static/bootstrap/bootstrap.scss", "bootstrap.min.css")
-        .with_name("bootsier")
+    StaticFilesBundle::from_scss("./static/scss/bootsier.scss", "bootstrap.min.css")
+        .with_name("bootsier_bs")
         .build()?;
     StaticFilesBundle::from_dir("./static/js", Some(bootstrap_js_files))
         .with_name("bootsier_js")
@@ -13,7 +13,7 @@ fn main() -> std::io::Result<()> {
 }
 
 fn bootstrap_js_files(path: &Path) -> bool {
-    // No filtering during development, only on "release" compilation.
+    // No filtra durante el desarrollo, solo en la compilación "release".
     env::var("PROFILE").unwrap_or_else(|_| "release".to_string()) != "release"
         || path.file_name().map_or(false, |n| n == "bootstrap.min.js")
 }
