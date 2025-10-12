@@ -8,16 +8,16 @@ use crate::{join, join_pair, AutoDefault, Weight};
 // Los distintos modos de carga permiten optimizar el rendimiento y controlar el comportamiento del
 // script en relación con el análisis del documento HTML y la ejecución del resto de scripts.
 //
-// - [`From`]        – Carga estándar con la etiqueta `<script src="...">`.
-// - [`Defer`]       – Igual que [`From`], pero con el atributo `defer`, descarga en paralelo y se
+// - [`From`]        - Carga estándar con la etiqueta `<script src="...">`.
+// - [`Defer`]       - Igual que [`From`], pero con el atributo `defer`, descarga en paralelo y se
 //                     ejecuta tras el análisis del documento HTML, respetando el orden de
 //                     aparición.
-// - [`Async`]       – Igual que [`From`], pero con el atributo `async`, descarga en paralelo y se
+// - [`Async`]       - Igual que [`From`], pero con el atributo `async`, descarga en paralelo y se
 //                     ejecuta en cuanto esté listo, **sin garantizar** el orden relativo respecto a
 //                     otros scripts.
-// - [`Inline`]      – Inserta el código directamente en la etiqueta `<script>`.
-// - [`OnLoad`]      – Inserta el código JavaScript y lo ejecuta tras el evento `DOMContentLoaded`.
-// - [`OnLoadAsync`] – Igual que [`OnLoad`], pero con manejador asíncrono (`async`), útil si dentro
+// - [`Inline`]      - Inserta el código directamente en la etiqueta `<script>`.
+// - [`OnLoad`]      - Inserta el código JavaScript y lo ejecuta tras el evento `DOMContentLoaded`.
+// - [`OnLoadAsync`] - Igual que [`OnLoad`], pero con manejador asíncrono (`async`), útil si dentro
 //                     del código JavaScript se utiliza `await`.
 #[derive(AutoDefault)]
 enum Source {

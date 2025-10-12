@@ -283,14 +283,14 @@ pub trait Theme: Extension + ThemePage + Send + Sync {
         <Self as ThemePage>::render_head(self, page)
     }
 
-    /// Contenido predeterminado para la página de error "*403 – Forbidden*".
+    /// Contenido predeterminado para la página de error "*403 - Forbidden*".
     ///
     /// Se puede sobrescribir este método para personalizar y adaptar este contenido al tema.
     fn error403(&self, page: &mut Page) -> Markup {
         html! { div { h1 { (L10n::l("error403_notice").using(page)) } } }
     }
 
-    /// Contenido predeterminado para la página de error "*404 – Not Found*".
+    /// Contenido predeterminado para la página de error "*404 - Not Found*".
     ///
     /// Se puede sobrescribir este método para personalizar y adaptar este contenido al tema.
     fn error404(&self, page: &mut Page) -> Markup {

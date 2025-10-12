@@ -101,6 +101,10 @@ El código se organiza en un *workspace* donde actualmente se incluyen los sigui
   * **[pagetop-aliner](https://git.cillero.es/manuelcillero/pagetop/src/branch/main/extensions/pagetop-aliner)**,
     es un tema para demos y pruebas que muestra esquemáticamente la composición de las páginas HTML.
 
+  * **[pagetop-bootsier](https://git.cillero.es/manuelcillero/pagetop/src/branch/main/extensions/pagetop-bootsier)**,
+    tema basado en [Bootstrap](https://getbootstrap.com) para ofrecer su catálogo de estilos y
+    componentes flexibles.
+
 
 # 🧪 Pruebas
 

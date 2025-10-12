@@ -93,11 +93,11 @@ macro_rules! include_files_service {
 ///
 /// # Argumentos
 ///
-/// * `$scfg` – Instancia de [`ServiceConfig`](crate::service::web::ServiceConfig) donde aplicar la
+/// * `$scfg` - Instancia de [`ServiceConfig`](crate::service::web::ServiceConfig) donde aplicar la
 ///   configuración.
-/// * `$path` – Ruta al directorio local con los archivos estáticos.
-/// * `$bundle` – Nombre del conjunto de recursos que esta macro integra en el binario.
-/// * `$route` – Ruta URL base desde la que se servirán los archivos.
+/// * `$path` - Ruta al directorio local con los archivos estáticos.
+/// * `$bundle` - Nombre del conjunto de recursos que esta macro integra en el binario.
+/// * `$route` - Ruta URL base desde la que se servirán los archivos.
 ///
 /// # Ejemplos
 ///

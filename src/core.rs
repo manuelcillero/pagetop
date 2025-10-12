@@ -7,7 +7,7 @@ use std::any::Any;
 pub enum TypeInfo {
     /// Ruta completa tal y como la devuelve [`core::any::type_name`].
     FullName,
-    /// Último segmento de la ruta – por ejemplo `Vec<i32>` en lugar de `alloc::vec::Vec<i32>`.
+    /// Último segmento de la ruta, por ejemplo `Vec<i32>` en lugar de `alloc::vec::Vec<i32>`.
     ShortName,
     /// Conserva todo **desde** `start` inclusive hasta el final.
     NameFrom(isize),

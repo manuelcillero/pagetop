@@ -8,9 +8,9 @@ use crate::{join_pair, AutoDefault, Weight};
 // Los estilos pueden cargarse desde un archivo externo o estar embebidos directamente en una
 // etiqueta `<style>`.
 //
-// - [`From`]   – Carga la hoja de estilos desde un archivo externo, insertándola mediante una
+// - [`From`]   - Carga la hoja de estilos desde un archivo externo, insertándola mediante una
 //                etiqueta `<link>` con `rel="stylesheet"`.
-// - [`Inline`] – Inserta directamente el contenido CSS dentro de una etiqueta `<style>`.
+// - [`Inline`] - Inserta directamente el contenido CSS dentro de una etiqueta `<style>`.
 #[derive(AutoDefault)]
 enum Source {
     #[default]
