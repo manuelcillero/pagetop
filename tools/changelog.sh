@@ -55,6 +55,10 @@ case "$CRATE" in
             --exclude-path "helpers/pagetop-macros/**/*"
         )
         ;;
+    pagetop-aliner)
+        CHANGELOG_FILE="extensions/pagetop-aliner/CHANGELOG.md"
+        PATH_FLAGS=(--include-path "extensions/pagetop-aliner/**/*")
+        ;;
     *)
         echo "Error: unsupported crate '$CRATE'" >&2
         exit 1

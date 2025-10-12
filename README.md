@@ -96,6 +96,11 @@ El código se organiza en un *workspace* donde actualmente se incluyen los sigui
   * **[pagetop-macros](https://git.cillero.es/manuelcillero/pagetop/src/branch/main/helpers/pagetop-macros)**,
     proporciona una colección de macros que mejoran la experiencia de desarrollo con PageTop.
 
+## Extensiones
+
+  * **[pagetop-aliner](https://git.cillero.es/manuelcillero/pagetop/src/branch/main/extensions/pagetop-aliner)**,
+    es un tema para demos y pruebas que muestra esquemáticamente la composición de las páginas HTML.
+
 
 # 🧪 Pruebas
 
