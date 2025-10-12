@@ -86,7 +86,7 @@ use pagetop::prelude::*;
 pub type BootsierRegion = ThemeRegion;
 
 // Versión de la librería Bootstrap.
-const BOOTSTRAP_VERSION: &str = "5.3.3";
+const BOOTSTRAP_VERSION: &str = "5.3.8";
 
 /// Tema basado en [Bootstrap](https://getbootstrap.com/) para los componentes base de PageTop.
 ///
