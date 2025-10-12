@@ -5,10 +5,10 @@
 
 <p>Tema para <strong>PageTop</strong> que muestra esquemáticamente la composición de las páginas HTML.</p>
 
-[![Licencia](https://img.shields.io/badge/license-MIT%2FApache-blue.svg?label=Licencia&style=for-the-badge)](#-licencia)
 [![Doc API](https://img.shields.io/docsrs/pagetop-aliner?label=Doc%20API&style=for-the-badge&logo=Docs.rs)](https://docs.rs/pagetop-aliner)
 [![Crates.io](https://img.shields.io/crates/v/pagetop-aliner.svg?style=for-the-badge&logo=ipfs)](https://crates.io/crates/pagetop-aliner)
 [![Descargas](https://img.shields.io/crates/d/pagetop-aliner.svg?label=Descargas&style=for-the-badge&logo=transmission)](https://crates.io/crates/pagetop-aliner)
+ ![Licencia](https://img.shields.io/badge/license-MIT%2FApache-blue.svg?label=Licencia&style=for-the-badge)
 
 <br>
 </div>

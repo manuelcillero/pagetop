@@ -4,7 +4,10 @@
 
 <p>Librería para automatizar la recopilación de recursos estáticos en <strong>PageTop</strong>.</p>
 
-[![Licencia](https://img.shields.io/badge/license-MIT%2FApache-blue.svg?label=Licencia&style=for-the-badge)](#-licencia)
+[![Doc API](https://img.shields.io/docsrs/pagetop-statics?label=Doc%20API&style=for-the-badge&logo=Docs.rs)](https://docs.rs/pagetop-statics)
+[![Crates.io](https://img.shields.io/crates/v/pagetop-statics.svg?style=for-the-badge&logo=ipfs)](https://crates.io/crates/pagetop-statics)
+[![Descargas](https://img.shields.io/crates/d/pagetop-statics.svg?label=Descargas&style=for-the-badge&logo=transmission)](https://crates.io/crates/pagetop-statics)
+ ![Licencia](https://img.shields.io/badge/license-MIT%2FApache-blue.svg?label=Licencia&style=for-the-badge)
 
 </div>
 
