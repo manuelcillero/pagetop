@@ -37,8 +37,7 @@ pub const REGION_CONTENT: &str = "content";
 /// # Ejemplo
 ///
 /// ```rust
-/// use pagetop::prelude::*;
-///
+/// # use pagetop::prelude::*;
 /// pub enum MyThemeRegion {
 ///     Header,
 ///     Content,
@@ -134,8 +133,7 @@ impl InRegion {
     /// # Ejemplo
     ///
     /// ```rust
-    /// use pagetop::prelude::*;
-    ///
+    /// # use pagetop::prelude::*;
     /// // Banner global, en la región por defecto de cualquier página.
     /// InRegion::Content.add(Child::with(Html::with(|_|
     ///     html! { ("🎉 ¡Bienvenido!") }

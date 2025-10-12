@@ -76,8 +76,7 @@
 //! que declarar:
 //!
 //! ```rust
-//! use pagetop::prelude::*;
-//!
+//! # use pagetop::prelude::*;
 //! include_locales!(LOCALES_SAMPLE);
 //! ```
 //!
@@ -149,8 +148,7 @@ pub trait LangId {
 /// # Ejemplos
 ///
 /// ```rust
-/// use pagetop::prelude::*;
-///
+/// # use pagetop::prelude::*;
 /// // Coincidencia exacta.
 /// let lang = LangMatch::resolve("es-ES");
 /// assert_eq!(lang.langid().to_string(), "es-ES");
@@ -173,8 +171,7 @@ pub trait LangId {
 /// respaldo ("en-US"):
 ///
 /// ```rust
-/// use pagetop::prelude::*;
-///
+/// # use pagetop::prelude::*;
 /// // Idioma por defecto o de respaldo si no resuelve.
 /// let lang = LangMatch::resolve("it-IT");
 /// let langid = lang.langid();
@@ -236,8 +233,7 @@ impl LangMatch {
     /// # Ejemplo
     ///
     /// ```rust
-    /// use pagetop::prelude::*;
-    ///
+    /// # use pagetop::prelude::*;
     /// let lang = LangMatch::resolve("es-ES").as_option();
     /// assert_eq!(lang.unwrap().to_string(), "es-ES");
     ///
@@ -327,8 +323,7 @@ enum L10nOp {
 /// Los argumentos dinámicos se añaden con `with_arg()` o `with_args()`.
 ///
 /// ```rust
-/// use pagetop::prelude::*;
-///
+/// # use pagetop::prelude::*;
 /// // Texto literal sin traducción.
 /// let raw = L10n::n("© 2025 PageTop").get();
 ///
@@ -407,8 +402,7 @@ impl L10n {
     /// # Ejemplo
     ///
     /// ```rust
-    /// use pagetop::prelude::*;
-    ///
+    /// # use pagetop::prelude::*;
     /// let text = L10n::l("greeting").with_arg("name", "Manuel").get();
     /// ```
     pub fn get(&self) -> Option<String> {
@@ -422,8 +416,7 @@ impl L10n {
     /// # Ejemplo
     ///
     /// ```rust
-    /// use pagetop::prelude::*;
-    ///
+    /// # use pagetop::prelude::*;
     /// struct ResourceLang;
     ///
     /// impl LangId for ResourceLang {
@@ -464,8 +457,7 @@ impl L10n {
     /// # Ejemplo
     ///
     /// ```rust
-    /// use pagetop::prelude::*;
-    ///
+    /// # use pagetop::prelude::*;
     /// let html = L10n::l("welcome.message").using(&LangMatch::resolve("es"));
     /// ```
     pub fn using(&self, language: &impl LangId) -> Markup {

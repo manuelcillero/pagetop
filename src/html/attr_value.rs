@@ -10,8 +10,7 @@ use crate::{builder_fn, AutoDefault};
 /// # Ejemplo
 ///
 /// ```rust
-/// use pagetop::prelude::*;
-///
+/// # use pagetop::prelude::*;
 /// let s = AttrValue::new("  a new string   ");
 /// assert_eq!(s.as_str(), Some("a new string"));
 ///

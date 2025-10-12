@@ -12,8 +12,7 @@ use crate::{builder_fn, AutoDefault};
 /// # Ejemplo
 ///
 /// ```rust
-/// use pagetop::prelude::*;
-///
+/// # use pagetop::prelude::*;
 /// let id = AttrId::new("  main Section ");
 /// assert_eq!(id.as_str(), Some("main_section"));
 ///

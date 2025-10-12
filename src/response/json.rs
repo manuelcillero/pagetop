@@ -6,8 +6,7 @@
 //! tipo Rust fuertemente tipado, validando el formato y deserializando con *serde*.
 //!
 //! ```rust
-//! use pagetop::prelude::*;
-//!
+//! # use pagetop::prelude::*;
 //! #[derive(serde::Deserialize)]
 //! struct NuevoUsuario { nombre: String, email: String }
 //!
@@ -25,8 +24,7 @@
 //! `application/json; charset=utf-8`, todo con una llamada compacta.
 //!
 //! ```rust
-//! use pagetop::prelude::*;
-//!
+//! # use pagetop::prelude::*;
 //! #[derive(serde::Serialize)]
 //! struct Usuario { id: u32, nombre: String }
 //!

@@ -18,8 +18,7 @@ use crate::AutoDefault;
 /// # Ejemplo
 ///
 /// ```rust
-/// use pagetop::prelude::*;
-///
+/// # use pagetop::prelude::*;
 /// let favicon = Favicon::new()
 ///     // Estándar de facto admitido por todos los navegadores.
 ///     .with_icon("/icons/favicon.ico")

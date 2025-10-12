@@ -102,8 +102,7 @@ macro_rules! include_files_service {
 /// # Ejemplos
 ///
 /// ```rust,ignore
-/// use pagetop::prelude::*;
-///
+/// # use pagetop::prelude::*;
 /// pub struct MyExtension;
 ///
 /// impl Extension for MyExtension {

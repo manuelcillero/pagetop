@@ -93,8 +93,7 @@ pub type OptionComponent<C: core::component::Component> = core::component::Typed
 /// # Ejemplo
 ///
 /// ```rust
-/// use pagetop::prelude::*;
-///
+/// # use pagetop::prelude::*;
 /// // Texto normal, se escapa automáticamente para evitar inyección de HTML.
 /// let fragment = PrepareMarkup::Escaped("Hola <b>mundo</b>".to_string());
 /// assert_eq!(fragment.render().into_string(), "Hola &lt;b&gt;mundo&lt;/b&gt;");

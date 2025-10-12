@@ -47,8 +47,7 @@ impl PoweredBy {
     /// eliminará, pero en este caso es necesario especificar el tipo explícitamente:
     ///
     /// ```rust
-    /// use pagetop::prelude::*;
-    ///
+    /// # use pagetop::prelude::*;
     /// let p1 = PoweredBy::default().with_copyright(Some("2001 © Foo Inc."));
     /// let p2 = PoweredBy::new().with_copyright(None::<String>);
     /// ```

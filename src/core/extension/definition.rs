@@ -16,8 +16,7 @@ pub type ExtensionRef = &'static dyn Extension;
 /// extensión y sobreescribir los métodos que sea necesario.
 ///
 /// ```rust
-/// use pagetop::prelude::*;
-///
+/// # use pagetop::prelude::*;
 /// pub struct Blog;
 ///
 /// impl Extension for Blog {
@@ -45,8 +44,7 @@ pub trait Extension: AnyInfo + Send + Sync {
     /// la extensión no es un tema, este método devuelve `None` por defecto.
     ///
     /// ```rust
-    /// use pagetop::prelude::*;
-    ///
+    /// # use pagetop::prelude::*;
     /// pub struct MyTheme;
     ///
     /// impl Extension for MyTheme {
@@ -88,8 +86,7 @@ pub trait Extension: AnyInfo + Send + Sync {
     /// estáticos, etc., usando [`ServiceConfig`](crate::service::web::ServiceConfig).
     ///
     /// ```rust,ignore
-    /// use pagetop::prelude::*;
-    ///
+    /// # use pagetop::prelude::*;
     /// pub struct ExtensionSample;
     ///
     /// impl Extension for ExtensionSample {

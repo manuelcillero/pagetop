@@ -122,8 +122,7 @@ impl TypeInfo {
 /// # Ejemplo
 ///
 /// ```rust
-/// use pagetop::prelude::*;
-///
+/// # use pagetop::prelude::*;
 /// let n = 3u32;
 /// assert_eq!(n.type_name(), "u32");
 /// ```

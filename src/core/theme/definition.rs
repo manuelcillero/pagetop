@@ -155,8 +155,7 @@ pub trait ThemePage {
 /// **obligatorio** de `Extension` para un tema es [`theme()`](Extension::theme).
 ///
 /// ```rust
-/// use pagetop::prelude::*;
-///
+/// # use pagetop::prelude::*;
 /// pub struct MyTheme;
 ///
 /// impl Extension for MyTheme {

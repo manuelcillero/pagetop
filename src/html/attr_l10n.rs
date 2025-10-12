@@ -9,8 +9,7 @@ use crate::{builder_fn, AutoDefault};
 /// # Ejemplo
 ///
 /// ```rust
-/// use pagetop::prelude::*;
-///
+/// # use pagetop::prelude::*;
 /// // Traducción por clave en las locales por defecto de PageTop.
 /// let hello = AttrL10n::new(L10n::l("test-hello-world"));
 ///

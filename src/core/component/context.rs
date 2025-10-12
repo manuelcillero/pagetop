@@ -66,8 +66,7 @@ pub enum ContextError {
 /// # Ejemplo
 ///
 /// ```rust
-/// use pagetop::prelude::*;
-///
+/// # use pagetop::prelude::*;
 /// fn prepare_context<C: Contextual>(cx: C) -> C {
 ///     cx.with_langid(&LangMatch::resolve("es-ES"))
 ///       .with_theme("aliner")
@@ -168,8 +167,7 @@ pub trait Contextual: LangId {
 /// Crea un nuevo contexto asociado a una solicitud HTTP:
 ///
 /// ```rust
-/// use pagetop::prelude::*;
-///
+/// # use pagetop::prelude::*;
 /// fn new_context(request: HttpRequest) -> Context {
 ///     Context::new(Some(request))
 ///         // Establece el idioma del documento a español.
@@ -190,8 +188,7 @@ pub trait Contextual: LangId {
 /// Y hace operaciones con un contexto dado:
 ///
 /// ```rust
-/// use pagetop::prelude::*;
-///
+/// # use pagetop::prelude::*;
 /// fn use_context(cx: &mut Context) {
 ///     // Recupera el tema seleccionado.
 ///     let active_theme = cx.theme();
@@ -310,8 +307,7 @@ impl Context {
     /// # Ejemplos
     ///
     /// ```rust
-    /// use pagetop::prelude::*;
-    ///
+    /// # use pagetop::prelude::*;
     /// let cx = Context::new(None)
     ///     .with_param("usuario_id", 42_i32)
     ///     .with_param("titulo", "Hola".to_string());
@@ -343,8 +339,7 @@ impl Context {
     /// # Ejemplos
     ///
     /// ```rust
-    /// use pagetop::prelude::*;
-    ///
+    /// # use pagetop::prelude::*;
     /// let mut cx = Context::new(None)
     ///     .with_param("contador", 7_i32)
     ///     .with_param("titulo", "Hola".to_string());
@@ -374,8 +369,7 @@ impl Context {
     /// # Ejemplos
     ///
     /// ```rust
-    /// use pagetop::prelude::*;
-    ///
+    /// # use pagetop::prelude::*;
     /// let mut cx = Context::new(None).with_param("temp", 1u8);
     /// assert!(cx.remove_param("temp"));
     /// assert!(!cx.remove_param("temp")); // ya no existe
@@ -441,8 +435,7 @@ impl Contextual for Context {
     /// # Ejemplos
     ///
     /// ```rust
-    /// use pagetop::prelude::*;
-    ///
+    /// # use pagetop::prelude::*;
     /// let cx = Context::new(None)
     ///     .with_param("usuario_id", 42_i32)
     ///     .with_param("titulo", "Hola".to_string())
@@ -517,8 +510,7 @@ impl Contextual for Context {
     /// # Ejemplo
     ///
     /// ```rust
-    /// use pagetop::prelude::*;
-    ///
+    /// # use pagetop::prelude::*;
     /// let cx = Context::new(None).with_param("username", "Alice".to_string());
     ///
     /// // Devuelve Some(&String) si existe y coincide el tipo.

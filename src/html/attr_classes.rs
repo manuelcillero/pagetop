@@ -31,8 +31,7 @@ pub enum ClassesOp {
 /// # Ejemplo
 ///
 /// ```rust
-/// use pagetop::prelude::*;
-///
+/// # use pagetop::prelude::*;
 /// let classes = AttrClasses::new("Btn btn-primary")
 ///     .with_value(ClassesOp::Add, "Active")
 ///     .with_value(ClassesOp::Remove, "btn-primary");

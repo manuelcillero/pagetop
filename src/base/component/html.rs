@@ -8,8 +8,7 @@ use crate::prelude::*;
 /// # Ejemplo
 ///
 /// ```rust
-/// use pagetop::prelude::*;
-///
+/// # use pagetop::prelude::*;
 /// let component = Html::with(|_| {
 ///     html! {
 ///         div class="example" {
@@ -22,8 +21,7 @@ use crate::prelude::*;
 /// Para renderizar contenido que dependa del contexto, se puede acceder a él dentro del *closure*:
 ///
 /// ```rust
-/// use pagetop::prelude::*;
-///
+/// # use pagetop::prelude::*;
 /// let component = Html::with(|cx| {
 ///     let user = cx.param::<String>("username").cloned().unwrap_or("visitor".to_string());
 ///     html! {

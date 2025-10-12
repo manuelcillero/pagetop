@@ -12,8 +12,7 @@ use crate::{builder_fn, AutoDefault};
 /// # Ejemplo
 ///
 /// ```rust
-/// use pagetop::prelude::*;
-///
+/// # use pagetop::prelude::*;
 /// let name = AttrName::new("  DISplay name ");
 /// assert_eq!(name.as_str(), Some("display_name"));
 ///

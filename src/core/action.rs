@@ -22,8 +22,7 @@ pub use all::dispatch_actions;
 /// # Ejemplo
 ///
 /// ```rust,ignore
-/// use pagetop::prelude::*;
-///
+/// # use pagetop::prelude::*;
 /// impl Extension for MyTheme {
 ///     fn actions(&self) -> Vec<ActionBox> {
 ///         actions_boxed![

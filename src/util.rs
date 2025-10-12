@@ -50,8 +50,7 @@ macro_rules! hm {
 /// # Ejemplo
 ///
 /// ```rust
-/// use pagetop::prelude::*;
-///
+/// # use pagetop::prelude::*;
 /// // Concatena todos los fragmentos directamente.
 /// let result = join!("Hello", " ", "World");
 /// assert_eq!(result, "Hello World".to_string());
@@ -81,8 +80,7 @@ macro_rules! join {
 /// # Ejemplo
 ///
 /// ```rust
-/// use pagetop::prelude::*;
-///
+/// # use pagetop::prelude::*;
 /// // Concatena los fragmentos no vacíos con un espacio como separador.
 /// let result_with_separator = join_opt!(["Hello", "", "World"]; " ");
 /// assert_eq!(result_with_separator, Some("Hello World".to_string()));
@@ -121,8 +119,7 @@ macro_rules! join_opt {
 /// # Ejemplo
 ///
 /// ```rust
-/// use pagetop::prelude::*;
-///
+/// # use pagetop::prelude::*;
 /// let first = "Hello";
 /// let separator = "-";
 /// let second = "World";
@@ -164,8 +161,7 @@ macro_rules! join_pair {
 /// # Ejemplo
 ///
 /// ```rust
-/// use pagetop::prelude::*;
-///
+/// # use pagetop::prelude::*;
 /// // Concatena los fragmentos.
 /// let result = join_strict!(["Hello", "World"]);
 /// assert_eq!(result, Some("HelloWorld".to_string()));
@@ -211,8 +207,7 @@ macro_rules! join_strict {
 /// # Ejemplos
 ///
 /// ```rust,no_run
-/// use pagetop::prelude::*;
-///
+/// # use pagetop::prelude::*;
 /// // Ruta relativa, se resuelve respecto a CARGO_MANIFEST_DIR o al directorio actual (`cwd`).
 /// println!("{:#?}", util::resolve_absolute_dir("documents"));
 ///
