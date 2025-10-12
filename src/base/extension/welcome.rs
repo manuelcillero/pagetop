@@ -25,7 +25,6 @@ async fn homepage(request: HttpRequest) -> ResultPage<Markup, ErrorPage> {
     let app = &global::SETTINGS.app.name;
 
     Page::new(request)
-        .with_theme("Basic")
         .with_title(L10n::l("welcome_title"))
         .add_component(
             Intro::new()

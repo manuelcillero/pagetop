@@ -1561,6 +1561,7 @@ dependencies = [
  "indoc",
  "itoa",
  "pagetop-aliner",
+ "pagetop-bootsier",
  "pagetop-build",
  "pagetop-macros",
  "pagetop-statics",
@@ -1580,6 +1581,14 @@ dependencies = [
 [[package]]
 name = "pagetop-aliner"
 version = "0.0.9"
+dependencies = [
+ "pagetop",
+ "pagetop-build",
+]
+
+[[package]]
+name = "pagetop-bootsier"
+version = "0.0.18"
 dependencies = [
  "pagetop",
  "pagetop-build",

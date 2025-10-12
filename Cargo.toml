@@ -51,6 +51,7 @@ testing = []
 [dev-dependencies]
 tempfile = "3.23"
 pagetop-aliner.workspace = true
+pagetop-bootsier.workspace = true
 
 [build-dependencies]
 pagetop-build.workspace = true
@@ -65,6 +66,7 @@ members = [
     "helpers/pagetop-statics",
     # Extensions
     "extensions/pagetop-aliner",
+    "extensions/pagetop-bootsier",
 ]
 
 [workspace.package]
@@ -81,5 +83,6 @@ pagetop-macros = { version = "0.2", path = "helpers/pagetop-macros" }
 pagetop-statics = { version = "0.1", path = "helpers/pagetop-statics" }
 # Extensions
 pagetop-aliner = { version = "0.0", path = "extensions/pagetop-aliner" }
+pagetop-bootsier = { version = "0.0", path = "extensions/pagetop-bootsier" }
 # PageTop
 pagetop = { version = "0.4", path = "." }

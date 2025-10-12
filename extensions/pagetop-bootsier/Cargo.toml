@@ -1,13 +1,13 @@
 [package]
-name = "pagetop-aliner"
-version = "0.0.9"
+name = "pagetop-bootsier"
+version = "0.0.18"
 edition = "2021"
 
 description = """
-    Tema de PageTop que muestra esquemáticamente la composición de las páginas HTML
+    Tema de PageTop basado en Bootstrap para ofrecer su catálogo de estilos y componentes flexibles.
 """
 categories = ["web-programming", "gui"]
-keywords = ["pagetop", "theme", "css"]
+keywords = ["pagetop", "theme", "bootstrap", "css", "js"]
 
 repository.workspace = true
 homepage.workspace = true
