@@ -106,6 +106,31 @@ pub enum UnitValue {
     RelVw(f32),
 }
 
+impl UnitValue {
+    /// Indica si el valor es **numérico**.
+    ///
+    /// Devuelve `true` para `Zero` y las unidades absolutas/relativas, y `false` para
+    /// [`UnitValue::None`] y [`UnitValue::Auto`].
+    ///
+    /// # Ejemplos
+    ///
+    /// ```rust
+    /// # use pagetop::prelude::*;
+    /// // Numéricos (incluido el cero sin unidad).
+    /// assert!(UnitValue::Zero.is_numeric());
+    /// assert!(UnitValue::Px(0).is_numeric());
+    /// assert!(UnitValue::Px(10).is_numeric());
+    /// assert!(UnitValue::RelPct(33.0).is_numeric());
+    /// // No numéricos.
+    /// assert!(!UnitValue::None.is_numeric());
+    /// assert!(!UnitValue::Auto.is_numeric());
+    /// ```
+    #[inline]
+    pub const fn is_numeric(&self) -> bool {
+        !matches!(self, UnitValue::None | UnitValue::Auto)
+    }
+}
+
 /// Formatea la unidad como cadena CSS.
 ///
 /// Reglas:
