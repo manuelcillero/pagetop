@@ -34,7 +34,7 @@ pub use crate::trace;
 pub use crate::html::{
     display, html_private, Asset, Assets, AttrClasses, AttrId, AttrL10n, AttrName, AttrValue,
     ClassesOp, Escaper, Favicon, JavaScript, Markup, PreEscaped, PrepareMarkup, StyleSheet,
-    TargetMedia, DOCTYPE,
+    TargetMedia, UnitValue, DOCTYPE,
 };
 
 pub use crate::locale::*;

@@ -50,6 +50,7 @@ testing = []
 
 [dev-dependencies]
 tempfile = "3.23"
+serde_json = "1.0"
 pagetop-aliner.workspace = true
 pagetop-bootsier.workspace = true
 

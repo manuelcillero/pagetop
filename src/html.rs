@@ -84,6 +84,11 @@ use crate::{core, AutoDefault};
 #[allow(type_alias_bounds)]
 pub type OptionComponent<C: core::component::Component> = core::component::Typed<C>;
 
+mod unit;
+pub use unit::UnitValue;
+
+// **< HTML PrepareMarkup >*************************************************************************
+
 /// Prepara contenido HTML para su conversión a [`Markup`].
 ///
 /// Este tipo encapsula distintos orígenes de contenido HTML (texto plano, HTML sin escapar o
