@@ -1,6 +1,6 @@
 //! Componentes nativos proporcionados por PageTop.
 
-use crate::AutoDefault;
+use crate::prelude::*;
 
 use std::fmt;
 

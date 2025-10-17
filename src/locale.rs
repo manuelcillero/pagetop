@@ -181,8 +181,8 @@ pub enum LangMatch {
     /// Cuando el identificador de idioma es una cadena vacía.
     Unspecified,
     /// Si encuentra un [`LanguageIdentifier`] en la lista de idiomas soportados por PageTop que
-    /// coincide exactamente con el identificador de idioma (p.ej. "es-ES"), o con el identificador
-    /// del idioma base (p.ej. "es").
+    /// coincide exactamente con el identificador de idioma (p. ej. "es-ES"), o con el identificador
+    /// del idioma base (p. ej. "es").
     Found(&'static LanguageIdentifier),
     /// Si el identificador de idioma no está entre los soportados por PageTop.
     Unsupported(String),
@@ -205,13 +205,13 @@ impl LangMatch {
             return Self::Unspecified;
         }
 
-        // Intenta aplicar coincidencia exacta con el código completo (p.ej. "es-MX").
+        // Intenta aplicar coincidencia exacta con el código completo (p. ej. "es-MX").
         let lang = language.to_ascii_lowercase();
         if let Some(langid) = LANGUAGES.get(lang.as_str()).map(|(langid, _)| langid) {
             return Self::Found(langid);
         }
 
-        // Si la variante regional no existe, retrocede al idioma base (p.ej. "es").
+        // Si la variante regional no existe, retrocede al idioma base (p. ej. "es").
         if let Some((base_lang, _)) = lang.split_once('-') {
             if let Some(langid) = LANGUAGES.get(base_lang).map(|(langid, _)| langid) {
                 return Self::Found(langid);
@@ -375,13 +375,13 @@ impl L10n {
         }
     }
 
-    /// Añade un argumento `{$arg}` → `value` a la traducción.
+    /// Añade un argumento `{$arg}` => `value` a la traducción.
     pub fn with_arg(mut self, arg: impl Into<String>, value: impl Into<String>) -> Self {
         self.args.insert(arg.into(), value.into());
         self
     }
 
-    /// Añade varios argumentos a la traducción de una sola vez (p.ej. usando la macro [`hm!`],
+    /// Añade varios argumentos a la traducción de una sola vez (p. ej. usando la macro [`hm!`],
     /// también vec![("k", "v")], incluso un array de duplas u otras colecciones).
     pub fn with_args<I, K, V>(mut self, args: I) -> Self
     where

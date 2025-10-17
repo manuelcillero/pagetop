@@ -30,7 +30,7 @@ include_config!(SETTINGS: Settings => [
 ]);
 
 #[derive(Debug, Deserialize)]
-/// Ajustes para las secciones globales [`[app]`](App), [`[dev]`](Dev), [`[log]`](Log) y
+/// Tipos para las secciones globales [`[app]`](App), [`[dev]`](Dev), [`[log]`](Log) y
 /// [`[server]`](Server) de [`SETTINGS`].
 pub struct Settings {
     pub app: App,
@@ -105,7 +105,7 @@ pub struct Server {
     pub bind_address: String,
     /// Puerto de escucha del servidor web.
     pub bind_port: u16,
-    /// Duración de la cookie de sesión en segundos (p.ej. `604_800` para una semana).
+    /// Duración de la cookie de sesión en segundos (p. ej., `604_800` para una semana).
     ///
     /// El valor `0` indica que la cookie permanecerá activa hasta que se cierre el navegador.
     pub session_lifetime: i64,

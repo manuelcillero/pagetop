@@ -215,9 +215,9 @@ async fn unit_value_display_keeps_minus_zero_for_relatives() {
 
 #[pagetop::test]
 async fn unit_value_rejects_non_decimal_notations() {
-    // Octal, los ceros a la izquierda (p.ej. `"020px"`) se interpretan en **base 10** (`20px`).
+    // Octal, los ceros a la izquierda (p. ej. `"020px"`) se interpretan en **base 10** (`20px`).
     assert_eq!(UnitValue::from_str("020px").unwrap(), UnitValue::Px(20));
-    // Notación científica y bases no decimales (p.ej. `"1e3vw"`, `"0x10px"`) no están soportadas.
+    // Notación científica y bases no decimales (p. ej., `"1e3vw"`, `"0x10px"`) no están soportadas.
     assert!(UnitValue::from_str("1e3vw").is_err());
     assert!(UnitValue::from_str("0x10px").is_err());
 }

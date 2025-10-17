@@ -24,7 +24,8 @@ impl ActionKey {
     /// - `action_type_id`: Tipo de la acción.
     /// - `theme_type_id`: Opcional, identificador de tipo ([`UniqueId`]) del tema asociado.
     /// - `referer_type_id`: Opcional, identificador de tipo ([`UniqueId`]) del componente referido.
-    /// - `referer_id`: Opcional, identificador de la instancia (p.ej. para un formulario concreto).
+    /// - `referer_id`: Opcional, identificador de la instancia (p. ej. para asociar la acción a un
+    ///   componente concreto).
     ///
     /// Esta clave permitirá seleccionar las funciones a ejecutar para ese tipo de acción, con
     /// filtros opcionales por tema, componente, o una instancia concreta según su identificador.

@@ -63,7 +63,7 @@ impl Favicon {
     /// Le añade un icono genérico con atributo `sizes`, útil para indicar resoluciones específicas.
     ///
     /// El atributo `sizes` informa al navegador de las dimensiones de la imagen para que seleccione
-    /// el recurso más adecuado. Puede enumerar varias dimensiones separadas por espacios, p.ej.
+    /// el recurso más adecuado. Puede enumerar varias dimensiones separadas por espacios, p. ej.
     /// `"16x16 32x32 48x48"` o usar `any` para iconos escalables (SVG).
     ///
     /// No es imprescindible, pero puede mejorar la selección del icono más adecuado.
@@ -73,7 +73,7 @@ impl Favicon {
 
     /// Le añade un *Apple Touch Icon*, usado por dispositivos iOS para las pantallas de inicio.
     ///
-    /// Se recomienda indicar también el tamaño, p.ej. `"256x256"`.
+    /// Se recomienda indicar también el tamaño, p. ej. `"256x256"`.
     pub fn with_apple_touch_icon(self, image: impl Into<String>, sizes: impl Into<String>) -> Self {
         self.add_icon_item("apple-touch-icon", image.into(), Some(sizes.into()), None)
     }

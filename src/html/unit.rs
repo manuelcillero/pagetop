@@ -34,8 +34,8 @@ use std::str::FromStr;
 ///
 /// - Soporta unidades **absolutas** (`cm`, `in`, `mm`, `pc`, `pt`, `px`) y **relativas** (`em`,
 ///   `rem`, `%`, `vh`, `vw`).
-/// - `FromStr` para convertir desde texto (p.ej. `"12px"`, `"1.25rem"`, `"auto"`).
-/// - `Display` para formatear a cadena (p.ej. `UnitValue::Px(12)` genera `"12px"`).
+/// - `FromStr` para convertir desde texto (p. ej., `"12px"`, `"1.25rem"`, `"auto"`).
+/// - `Display` para formatear a cadena (p. ej., `UnitValue::Px(12)` genera `"12px"`).
 /// - `Deserialize` delega en `FromStr`, garantizando una gramática única.
 ///
 /// ## Ejemplos
@@ -54,8 +54,8 @@ use std::str::FromStr;
 ///
 /// ## Notas
 ///
-/// - Las absolutas **no aceptan** decimales (p.ej., `"1.5px"` sería erróneo).
-/// - Se aceptan signos `+`/`-` en todas las unidades (p.ej., `"-12px"`, `"+0.5em"`).
+/// - Las absolutas **no aceptan** decimales (p. ej., `"1.5px"` sería erróneo).
+/// - Se aceptan signos `+`/`-` en todas las unidades (p. ej., `"-12px"`, `"+0.5em"`).
 /// - La comparación de unidad es *case-insensitive* al interpretar el texto (`"PX"`, `"Px"`, …).
 /// - **Sobre píxeles**: Los píxeles (px) son relativos al dispositivo de visualización. En
 ///   dispositivos con baja densidad de píxeles (dpi), 1px equivale a un píxel (punto) del
@@ -69,7 +69,7 @@ use std::str::FromStr;
 ///   - Ejemplo: si `:root { font-size: 16px }` y un contenedor tiene `font-size: 20px`, entonces
 ///     dentro del contenedor `1em == 20px` pero `1rem == 16px`.
 ///   - Uso típico: `rem` para tipografía y espaciados globales (consistencia al cambiar la base del
-///     sitio); `em` para tamaños que deban escalar **con el propio componente** (p.ej.,
+///     sitio); `em` para tamaños que deban escalar **con el propio componente** (p. ej.,
 ///     `padding: 0.5em` que crece si el componente aumenta su `font-size`).
 /// - **Sobre el viewport**: Si el ancho de la ventana del navegador es de 50cm, 1vw equivale a
 ///   0.5cm (1vw siempre es 1% del ancho del viewport, independientemente del zoom del navegador o
@@ -107,26 +107,25 @@ pub enum UnitValue {
 }
 
 impl UnitValue {
-    /// Indica si el valor es **numérico**.
+    /// Indica si el valor es **medible**, incluyendo `Zero` sin unidad.
     ///
-    /// Devuelve `true` para `Zero` y las unidades absolutas/relativas, y `false` para
-    /// [`UnitValue::None`] y [`UnitValue::Auto`].
+    /// Devuelve `false` para [`UnitValue::None`] y [`UnitValue::Auto`].
     ///
     /// # Ejemplos
     ///
     /// ```rust
     /// # use pagetop::prelude::*;
     /// // Numéricos (incluido el cero sin unidad).
-    /// assert!(UnitValue::Zero.is_numeric());
-    /// assert!(UnitValue::Px(0).is_numeric());
-    /// assert!(UnitValue::Px(10).is_numeric());
-    /// assert!(UnitValue::RelPct(33.0).is_numeric());
+    /// assert!(UnitValue::Zero.is_measurable());
+    /// assert!(UnitValue::Px(0).is_measurable());
+    /// assert!(UnitValue::Px(10).is_measurable());
+    /// assert!(UnitValue::RelPct(33.0).is_measurable());
     /// // No numéricos.
-    /// assert!(!UnitValue::None.is_numeric());
-    /// assert!(!UnitValue::Auto.is_numeric());
+    /// assert!(!UnitValue::None.is_measurable());
+    /// assert!(!UnitValue::Auto.is_measurable());
     /// ```
     #[inline]
-    pub const fn is_numeric(&self) -> bool {
+    pub const fn is_measurable(&self) -> bool {
         !matches!(self, UnitValue::None | UnitValue::Auto)
     }
 }
@@ -173,9 +172,9 @@ impl fmt::Display for UnitValue {
 /// - `""` para `UnitValue::None`
 /// - `"auto"`
 /// - **Cero sin unidad**: `"0"`, `"+0"`, `"-0"`, `"0.0"`, `"0."`, `".0"` para `UnitValue::Zero`
-/// - Porcentaje: `"<n>%"` (p.ej. `"33%"`, `"33 %"`)
-/// - Absolutas enteras: `"<entero><unidad>"`, p.ej. `"12px"`, `"-5pt"`
-/// - Relativas decimales: `"<float><unidad>"`, p.ej. `"1.25rem"`, `"-0.5vh"`, `".5em"`, `"1.rem"`
+/// - Porcentaje: `"<n>%"` (p. ej., `"33%"`, `"33 %"`)
+/// - Absolutas enteras: `"<entero><unidad>"`, p. ej., `"12px"`, `"-5pt"`
+/// - Relativas decimales: `"<float><unidad>"`, p. ej., `"1.25rem"`, `"-0.5vh"`, `".5em"`, `"1.rem"`
 ///
 /// (Se toleran espacios entre número y unidad: `"12 px"`, `"1.5  rem"`).
 ///
@@ -191,9 +190,9 @@ impl fmt::Display for UnitValue {
 ///
 /// ## Errores de interpretación
 ///
-/// - Falta la unidad cuando es necesaria (p.ej. `"12"`, excepto para el valor cero).
-/// - Decimales en valores que deben ser absolutos (p.ej. `"1.5px"`).
-/// - Unidades desconocidas (p.ej. `"10ch"`, no soportada aún).
+/// - Falta la unidad cuando es necesaria (p. ej., `"12"`, excepto para el valor cero).
+/// - Decimales en valores que deben ser absolutos (p. ej. `"1.5px"`).
+/// - Unidades desconocidas (p. ej., `"10ch"`, no soportada aún).
 /// - Notación científica o bases no decimales: `"1e3vw"`, `"0x10px"` (no soportadas). Los ceros a
 ///   la izquierda (p. ej. `"020px"`) se interpretan en **base 10** (`20px`).
 ///
