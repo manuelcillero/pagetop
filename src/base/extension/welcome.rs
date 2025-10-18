@@ -26,22 +26,22 @@ async fn homepage(request: HttpRequest) -> ResultPage<Markup, ErrorPage> {
 
     Page::new(request)
         .with_title(L10n::l("welcome_title"))
-        .add_component(
+        .add_child(
             Intro::new()
-                .add_component(
+                .add_child(
                     Block::new()
                         .with_title(L10n::l("welcome_status_title"))
-                        .add_component(Html::with(move |cx| {
+                        .add_child(Html::with(move |cx| {
                             html! {
                                 p { (L10n::l("welcome_status_1").using(cx)) }
                                 p { (L10n::l("welcome_status_2").using(cx)) }
                             }
                         })),
                 )
-                .add_component(
+                .add_child(
                     Block::new()
                         .with_title(L10n::l("welcome_support_title"))
-                        .add_component(Html::with(move |cx| {
+                        .add_child(Html::with(move |cx| {
                             html! {
                                 p { (L10n::l("welcome_support_1").using(cx)) }
                                 p { (L10n::l("welcome_support_2").with_arg("app", app).using(cx)) }

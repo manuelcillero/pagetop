@@ -71,7 +71,7 @@ impl Block {
     }
 
     /// Añade un nuevo componente hijo al bloque.
-    pub fn add_component(mut self, component: impl Component) -> Self {
+    pub fn add_child(mut self, component: impl Component) -> Self {
         self.children
             .alter_child(ChildOp::Add(Child::with(component)));
         self

@@ -65,10 +65,10 @@ pub enum IntroOpening {
 /// ```rust
 /// # use pagetop::prelude::*;
 /// let intro = Intro::default()
-///     .add_component(
+///     .add_child(
 ///         Block::new()
 ///             .with_title(L10n::l("intro_custom_block_title"))
-///             .add_component(Html::with(move |cx| {
+///             .add_child(Html::with(move |cx| {
 ///                 html! {
 ///                     p { (L10n::l("intro_custom_paragraph_1").using(cx)) }
 ///                     p { (L10n::l("intro_custom_paragraph_2").using(cx)) }
@@ -301,7 +301,7 @@ impl Intro {
     /// Añade un nuevo componente hijo a la intro.
     ///
     /// Si es un bloque ([`Block`]) aplica estilos específicos para destacarlo.
-    pub fn add_component(mut self, component: impl Component) -> Self {
+    pub fn add_child(mut self, component: impl Component) -> Self {
         self.children
             .alter_child(ChildOp::Add(Child::with(component)));
         self

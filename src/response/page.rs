@@ -93,29 +93,28 @@ impl Page {
         self
     }
 
-    /// **Obsoleto desde la versión 0.4.0**: usar [`add_component()`](Self::add_component) en su
-    /// lugar.
-    #[deprecated(since = "0.4.0", note = "Use `add_component()` instead")]
+    /// **Obsoleto desde la versión 0.4.0**: usar [`add_child()`](Self::add_child) en su lugar.
+    #[deprecated(since = "0.4.0", note = "Use `add_child()` instead")]
     pub fn with_component(self, component: impl Component) -> Self {
-        self.add_component(component)
+        self.add_child(component)
     }
 
-    /// **Obsoleto desde la versión 0.4.0**: usar [`add_component_in()`](Self::add_component_in) en
-    /// su lugar.
-    #[deprecated(since = "0.4.0", note = "Use `add_component_in()` instead")]
+    /// **Obsoleto desde la versión 0.4.0**: usar [`add_child_in()`](Self::add_child_in) en su
+    /// lugar.
+    #[deprecated(since = "0.4.0", note = "Use `add_child_in()` instead")]
     pub fn with_component_in(self, region_key: &'static str, component: impl Component) -> Self {
-        self.add_component_in(region_key, component)
+        self.add_child_in(region_key, component)
     }
 
-    /// Añade un componente a la región de contenido por defecto.
-    pub fn add_component(mut self, component: impl Component) -> Self {
+    /// Añade un componente hijo a la región de contenido por defecto.
+    pub fn add_child(mut self, component: impl Component) -> Self {
         self.context
             .alter_child_in(REGION_CONTENT, ChildOp::Add(Child::with(component)));
         self
     }
 
-    /// Añade un componente en una región (`region_key`) de la página.
-    pub fn add_component_in(mut self, region_key: &'static str, component: impl Component) -> Self {
+    /// Añade un componente hijo en una región (`region_key`) de la página.
+    pub fn add_child_in(mut self, region_key: &'static str, component: impl Component) -> Self {
         self.context
             .alter_child_in(region_key, ChildOp::Add(Child::with(component)));
         self

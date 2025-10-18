@@ -68,10 +68,10 @@ use pagetop::prelude::*;
 async fn homepage(request: HttpRequest) -> ResultPage<Markup, ErrorPage> {
     Page::new(request)
         .with_theme("Aliner")
-        .add_component(
+        .add_child(
             Block::new()
                 .with_title(L10n::l("sample_title"))
-                .add_component(Html::with(|cx| html! {
+                .add_child(Html::with(|cx| html! {
                     p { (L10n::l("sample_content").using(cx)) }
                 })),
         )

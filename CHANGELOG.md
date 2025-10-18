@@ -25,7 +25,7 @@ internos pueden omitirse si no afectan al uso del proyecto.
 - [context] Generaliza los parámetros de contexto
 - [context] Define un `trait` común de contexto
 - Modifica tipos para atributos HTML a minúsculas
-- Renombra `with_component` por `add_component`
+- Renombra `with_component` por `add_child`
 
 ### Corregido
 
