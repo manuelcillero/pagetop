@@ -70,14 +70,12 @@ macro_rules! join {
     };
 }
 
-/// Concatena los fragmentos no vacíos en un [`Option<String>`] con un separador opcional.
+/// Concatena los fragmentos **no vacíos** en un [`Option<String>`] con un separador opcional.
 ///
-/// Esta macro acepta cualquier número de fragmentos que implementen [`AsRef<str>`] para concatenar
-/// todos los fragmentos no vacíos usando opcionalmente un separador.
+/// Acepta cualquier número de fragmentos que implementen [`AsRef<str>`]. Si todos los fragmentos
+/// están vacíos, devuelve `None`.
 ///
-/// Si todos los fragmentos están vacíos, devuelve [`None`].
-///
-/// # Ejemplo
+/// # Ejemplos
 ///
 /// ```rust
 /// # use pagetop::prelude::*;
@@ -90,7 +88,7 @@ macro_rules! join {
 /// assert_eq!(result_without_separator, Some("HelloWorld".to_string()));
 ///
 /// // Devuelve `None` si todos los fragmentos están vacíos.
-/// let result_empty = join_opt!(["", "", ""]);
+/// let result_empty = join_opt!(["", "", ""]; ",");
 /// assert_eq!(result_empty, None);
 /// ```
 #[macro_export]
@@ -100,12 +98,16 @@ macro_rules! join_opt {
         (!s.is_empty()).then_some(s)
     }};
     ([$($arg:expr),* $(,)?]; $separator:expr) => {{
-        let s = [$($arg),*]
-            .iter()
-            .filter(|&item| !item.is_empty())
-            .cloned()
-            .collect::<Vec<_>>()
-            .join($separator);
+        let sep = ($separator).as_ref();
+        let mut s = String::new();
+        for part in [ $( ($arg).as_ref() ),* ] {
+            if !(part as &str).is_empty() {
+                if !s.is_empty() {
+                    s.push_str(sep);
+                }
+                s.push_str(part);
+            }
+        }
         (!s.is_empty()).then_some(s)
     }};
 }
@@ -153,7 +155,7 @@ macro_rules! join_pair {
     }};
 }
 
-/// Concatena varios fragmentos en un [`Option<String>`] si ninguno está vacío.
+/// Concatena varios fragmentos en un [`Option<String>`] **si ninguno está vacío**.
 ///
 /// Si alguno de los fragmentos, que deben implementar [`AsRef<str>`], está vacío, devuelve
 /// [`None`]. Opcionalmente se puede indicar un separador entre los fragmentos concatenados.
