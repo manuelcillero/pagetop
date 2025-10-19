@@ -145,9 +145,9 @@ impl UnitValue {
 impl fmt::Display for UnitValue {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            UnitValue::None       => write!(f, ""),
-            UnitValue::Auto       => write!(f, "auto"),
-            UnitValue::Zero       => write!(f, "0"),
+            UnitValue::None       => Ok(()),
+            UnitValue::Auto       => f.write_str("auto"),
+            UnitValue::Zero       => f.write_str("0"),
             // Valor absoluto.
             UnitValue::Cm(av)     => write!(f, "{av}cm"),
             UnitValue::In(av)     => write!(f, "{av}in"),

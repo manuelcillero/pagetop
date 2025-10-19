@@ -24,9 +24,9 @@ impl Display for ErrorPage {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             // Error 304.
-            ErrorPage::NotModified(_) => write!(f, "Not Modified"),
+            ErrorPage::NotModified(_) => f.write_str("Not Modified"),
             // Error 400.
-            ErrorPage::BadRequest(_) => write!(f, "Bad Client Data"),
+            ErrorPage::BadRequest(_) => f.write_str("Bad Client Data"),
             // Error 403.
             ErrorPage::AccessDenied(request) => {
                 let mut error_page = Page::new(request.clone());
@@ -39,7 +39,7 @@ impl Display for ErrorPage {
                 {
                     write!(f, "{}", page.into_string())
                 } else {
-                    write!(f, "Access Denied")
+                    f.write_str("Access Denied")
                 }
             }
             // Error 404.
@@ -54,15 +54,15 @@ impl Display for ErrorPage {
                 {
                     write!(f, "{}", page.into_string())
                 } else {
-                    write!(f, "Not Found")
+                    f.write_str("Not Found")
                 }
             }
             // Error 412.
-            ErrorPage::PreconditionFailed(_) => write!(f, "Precondition Failed"),
+            ErrorPage::PreconditionFailed(_) => f.write_str("Precondition Failed"),
             // Error 500.
-            ErrorPage::InternalError(_) => write!(f, "Internal Error"),
+            ErrorPage::InternalError(_) => f.write_str("Internal Error"),
             // Error 504.
-            ErrorPage::Timeout(_) => write!(f, "Timeout"),
+            ErrorPage::Timeout(_) => f.write_str("Timeout"),
         }
     }
 }
