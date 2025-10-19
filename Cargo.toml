@@ -39,7 +39,7 @@ actix-web = { workspace = true, default-features = true }
 actix-session = { version = "0.11", features = ["cookie-session"] }
 actix-web-files = { package = "actix-files", version = "0.6" }
 
-serde = { version = "1.0", features = ["derive"] }
+serde.workspace = true
 
 pagetop-macros.workspace = true
 pagetop-statics.workspace = true
@@ -78,6 +78,7 @@ authors = ["Manuel Cillero <manuel@cillero.es>"]
 
 [workspace.dependencies]
 actix-web = { version = "4.11", default-features = false }
+serde = { version = "1.0", features = ["derive"] }
 # Helpers
 pagetop-build = { version = "0.3", path = "helpers/pagetop-build" }
 pagetop-macros = { version = "0.2", path = "helpers/pagetop-macros" }

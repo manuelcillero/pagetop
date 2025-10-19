@@ -2,7 +2,7 @@
 
 <h1>PageTop Bootsier</h1>
 
-<p>Tema de <strong>PageTop</strong> basado en Bootstrap para dar vida a tus diseños web.</p>
+<p>Tema de <strong>PageTop</strong> basado en Bootstrap para aplicar su catálogo de estilos y componentes flexibles.</p>
 
 [![Doc API](https://img.shields.io/docsrs/pagetop-bootsier?label=Doc%20API&style=for-the-badge&logo=Docs.rs)](https://docs.rs/pagetop-bootsier)
 [![Crates.io](https://img.shields.io/crates/v/pagetop-bootsier.svg?style=for-the-badge&logo=ipfs)](https://crates.io/crates/pagetop-bootsier)
@@ -67,10 +67,10 @@ use pagetop::prelude::*;
 async fn homepage(request: HttpRequest) -> ResultPage<Markup, ErrorPage> {
     Page::new(request)
         .with_theme("Bootsier")
-        .add_component(
+        .add_child(
             Block::new()
                 .with_title(L10n::l("sample_title"))
-                .add_component(Html::with(|cx| html! {
+                .add_child(Html::with(|cx| html! {
                     p { (L10n::l("sample_content").using(cx)) }
                 })),
         )

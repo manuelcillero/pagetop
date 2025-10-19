@@ -4,7 +4,7 @@ version = "0.0.18"
 edition = "2021"
 
 description = """
-    Tema de PageTop basado en Bootstrap para dar vida a tus diseños web.
+    Tema de PageTop basado en Bootstrap para aplicar su catálogo de estilos y componentes flexibles.
 """
 categories = ["web-programming", "gui"]
 keywords = ["pagetop", "theme", "bootstrap", "css", "js"]
@@ -16,6 +16,7 @@ authors.workspace = true
 
 [dependencies]
 pagetop.workspace = true
+serde.workspace = true
 
 [build-dependencies]
 pagetop-build.workspace = true

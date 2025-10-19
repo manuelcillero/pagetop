@@ -1593,6 +1593,7 @@ version = "0.0.18"
 dependencies = [
  "pagetop",
  "pagetop-build",
+ "serde",
 ]
 
 [[package]]
