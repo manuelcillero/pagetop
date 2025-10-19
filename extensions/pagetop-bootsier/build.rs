@@ -15,5 +15,5 @@ fn main() -> std::io::Result<()> {
 fn bootstrap_js_files(path: &Path) -> bool {
     // No filtra durante el desarrollo, solo en la compilación "release".
     env::var("PROFILE").unwrap_or_else(|_| "release".to_string()) != "release"
-        || path.file_name().map_or(false, |n| n == "bootstrap.min.js")
+        || path.file_name().is_some_and(|n| n == "bootstrap.min.js")
 }

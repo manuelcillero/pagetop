@@ -68,10 +68,10 @@ use pagetop::prelude::*;
 async fn homepage(request: HttpRequest) -> ResultPage<Markup, ErrorPage> {
     Page::new(request)
         .with_theme("Bootsier")
-        .add_component(
+        .add_child(
             Block::new()
                 .with_title(L10n::l("sample_title"))
-                .add_component(Html::with(|cx| html! {
+                .add_child(Html::with(|cx| html! {
                     p { (L10n::l("sample_content").using(cx)) }
                 })),
         )
@@ -80,18 +80,32 @@ async fn homepage(request: HttpRequest) -> ResultPage<Markup, ErrorPage> {
 ```
 */
 
+#![doc(
+    html_favicon_url = "https://git.cillero.es/manuelcillero/pagetop/raw/branch/main/static/favicon.ico"
+)]
+
 use pagetop::prelude::*;
 
-/// El tema usa las mismas regiones predefinidas por [`ThemeRegion`].
-pub type BootsierRegion = ThemeRegion;
+include_locales!(LOCALES_BOOTSIER);
 
 // Versión de la librería Bootstrap.
 const BOOTSTRAP_VERSION: &str = "5.3.8";
 
-/// Tema basado en [Bootstrap](https://getbootstrap.com/) para los componentes base de PageTop.
-///
-/// Ofrece composición de páginas *responsive*, utilidades y componentes listos para usar, con
-/// estilos coherentes y enfoque en accesibilidad.
+pub mod config;
+
+pub mod theme;
+
+/// *Prelude* del tema.
+pub mod prelude {
+    pub use crate::config::*;
+    pub use crate::theme::aux::*;
+    pub use crate::theme::*;
+}
+
+/// El tema usa las mismas regiones predefinidas por [`ThemeRegion`].
+pub type BootsierRegion = ThemeRegion;
+
+/// Implementa el tema.
 pub struct Bootsier;
 
 impl Extension for Bootsier {
