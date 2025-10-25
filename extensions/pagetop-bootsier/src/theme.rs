@@ -4,7 +4,7 @@ pub mod aux;
 
 // Container.
 mod container;
-pub use container::{Container, ContainerType};
+pub use container::{Container, ContainerType, ContainerWidth};
 
 // Dropdown.
 pub mod dropdown;

@@ -2,11 +2,12 @@ use pagetop::prelude::*;
 
 use crate::prelude::*;
 
+// **< ContainerType >******************************************************************************
+
 /// Tipo de contenedor ([`Container`]).
 ///
 /// Permite aplicar la etiqueta HTML apropiada (`<main>`, `<header>`, etc.) manteniendo una API
 /// común a todos los contenedores.
-#[rustfmt::skip]
 #[derive(AutoDefault)]
 pub enum ContainerType {
     /// Contenedor genérico (`<div>`).
@@ -24,22 +25,42 @@ pub enum ContainerType {
     Article,
 }
 
-/// Componente genérico para crear un contenedor de componentes.
+// **< ContainerWidth >*****************************************************************************
+
+/// Define el comportamiento para ajustar el ancho de un contenedor ([`Container`]).
+#[derive(AutoDefault)]
+pub enum ContainerWidth {
+    /// Comportamiento por defecto, aplica los anchos máximos predefinidos para cada punto de
+    /// ruptura. Por debajo del menor punto de ruptura ocupa el 100% del ancho disponible.
+    #[default]
+    Default,
+    /// Aplica los anchos máximos predefinidos a partir del punto de ruptura indicado. Por debajo de
+    /// ese punto de ruptura ocupa el 100% del ancho disponible.
+    From(BreakPoint),
+    /// Ocupa el 100% del ancho disponible siempre.
+    Fluid,
+    /// Ocupa el 100% del ancho disponible hasta un ancho máximo explícito.
+    FluidMax(UnitValue),
+}
+
+// **< Container >**********************************************************************************
+
+/// Componente para crear un **contenedor de componentes**.
 ///
 /// Envuelve el contenido con la etiqueta HTML indicada por [`ContainerType`]. Sólo se renderiza si
 /// existen componentes hijos (*children*).
 #[rustfmt::skip]
 #[derive(AutoDefault)]
 pub struct Container {
-    id            : AttrId,
-    classes       : AttrClasses,
-    container_type: ContainerType,
-    breakpoint    : BreakPoint,
-    children      : Children,
-    bg_color      : BgColor,
-    text_color    : TextColor,
-    border        : Border,
-    rounded       : Rounded,
+    id             : AttrId,
+    classes        : AttrClasses,
+    container_type : ContainerType,
+    container_width: ContainerWidth,
+    bg_color       : BgColor,
+    text_color     : TextColor,
+    border         : Border,
+    rounded        : Rounded,
+    children       : Children,
 }
 
 impl Component for Container {
@@ -55,7 +76,16 @@ impl Component for Container {
         self.alter_classes(
             ClassesOp::Prepend,
             [
-                join_pair!("container", "-", self.breakpoint().to_string()),
+                join_pair!(
+                    "container",
+                    "-",
+                    match self.width() {
+                        ContainerWidth::Default => String::new(),
+                        ContainerWidth::From(bp) => bp.to_string(),
+                        ContainerWidth::Fluid => "fluid".to_string(),
+                        ContainerWidth::FluidMax(_) => "fluid".to_string(),
+                    }
+                ),
                 self.bg_color().to_string(),
                 self.text_color().to_string(),
                 self.border().to_string(),
@@ -70,8 +100,8 @@ impl Component for Container {
         if output.is_empty() {
             return PrepareMarkup::None;
         }
-        let style = match self.breakpoint() {
-            BreakPoint::FluidMax(w) if w.is_measurable() => {
+        let style = match self.width() {
+            ContainerWidth::FluidMax(w) if w.is_measurable() => {
                 Some(join!("max-width: ", w.to_string(), ";"))
             }
             _ => None,
@@ -168,24 +198,10 @@ impl Container {
         self
     }
 
-    /// Establece el *punto de ruptura* del contenedor.
+    /// Establece el comportamiento del ancho para el contenedor.
     #[builder_fn]
-    pub fn with_breakpoint(mut self, bp: BreakPoint) -> Self {
-        self.breakpoint = bp;
-        self
-    }
-
-    /// Añade un nuevo componente hijo al contenedor.
-    pub fn add_child(mut self, component: impl Component) -> Self {
-        self.children
-            .alter_child(ChildOp::Add(Child::with(component)));
-        self
-    }
-
-    /// Modifica la lista de hijos (`children`) aplicando una operación [`ChildOp`].
-    #[builder_fn]
-    pub fn with_child(mut self, op: ChildOp) -> Self {
-        self.children.alter_child(op);
+    pub fn with_width(mut self, width: ContainerWidth) -> Self {
+        self.container_width = width;
         self
     }
 
@@ -225,6 +241,20 @@ impl Container {
         self
     }
 
+    /// Añade un nuevo componente hijo al contenedor.
+    #[inline]
+    pub fn add_child(mut self, component: impl Component) -> Self {
+        self.children.add(Child::with(component));
+        self
+    }
+
+    /// Modifica la lista de componentes (`children`) aplicando una operación [`ChildOp`].
+    #[builder_fn]
+    pub fn with_child(mut self, op: ChildOp) -> Self {
+        self.children.alter_child(op);
+        self
+    }
+
     // **< Container GETTERS >**********************************************************************
 
     /// Devuelve las clases CSS asociadas al contenedor.
@@ -237,14 +267,9 @@ impl Container {
         &self.container_type
     }
 
-    /// Devuelve el *punto de ruptura* actualmente configurado.
-    pub fn breakpoint(&self) -> &BreakPoint {
-        &self.breakpoint
-    }
-
-    /// Devuelve la lista de hijos (`children`) del contenedor.
-    pub fn children(&self) -> &Children {
-        &self.children
+    /// Devuelve el comportamiento para el ancho del contenedor.
+    pub fn width(&self) -> &ContainerWidth {
+        &self.container_width
     }
 
     /// Devuelve el color de fondo del contenedor.
@@ -265,5 +290,10 @@ impl Container {
     /// Devuelve las esquinas redondeadas del contenedor.
     pub fn rounded(&self) -> &Rounded {
         &self.rounded
+    }
+
+    /// Devuelve la lista de componentes (`children`) del contenedor.
+    pub fn children(&self) -> &Children {
+        &self.children
     }
 }

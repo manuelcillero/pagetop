@@ -7,10 +7,6 @@ use std::fmt;
 /// - `"sm"`, `"md"`, `"lg"`, `"xl"` o `"xxl"` para los puntos de ruptura `SM`, `MD`, `LG`, `XL` o
 ///   `XXL`, respectivamente.
 /// - `""` (cadena vacía) para `None`.
-/// - `"fluid"` para las variantes `Fluid` y `FluidMax(_)`, útil para modelar `container-fluid` en
-///   [`Container`](crate::theme::Container). Se debe tener en cuenta que `"fluid"` **no** es un
-///   sufijo de *breakpoint*. Para construir clases válidas con prefijo (p. ej., `"col-md"`), se
-///   recomienda usar `to_class()` (Self::to_class) o `try_class()` (Self::try_class).
 ///
 /// # Ejemplos
 ///
@@ -18,13 +14,14 @@ use std::fmt;
 /// # use pagetop_bootsier::prelude::*;
 /// assert_eq!(BreakPoint::MD.to_string(), "md");
 /// assert_eq!(BreakPoint::None.to_string(), "");
-/// assert_eq!(BreakPoint::Fluid.to_string(), "fluid");
 ///
 /// // Forma correcta para clases con prefijo:
-/// //assert_eq!(BreakPoint::MD.to_class("col"), "col-md");
-/// //assert_eq!(BreakPoint::Fluid.to_class("offcanvas"), "offcanvas");
+/// assert_eq!(BreakPoint::MD.to_class("col"), "col-md");
+/// assert_eq!(BreakPoint::None.to_class("offcanvas"), "offcanvas");
+///
+/// assert_eq!(BreakPoint::XXL.try_class("col"), Some("col-xxl".to_string()));
+/// assert_eq!(BreakPoint::None.try_class("offcanvas"), None);
 /// ```
-#[rustfmt::skip]
 #[derive(AutoDefault)]
 pub enum BreakPoint {
     /// **Menos de 576px**. Dispositivos muy pequeños: teléfonos en modo vertical.
@@ -40,11 +37,6 @@ pub enum BreakPoint {
     XL,
     /// **1400px o más** - Dispositivos extragrandes: puestos de escritorio más grandes.
     XXL,
-    /// Para [`Container`](crate::theme::Container), ocupa el 100% del ancho del dispositivo.
-    Fluid,
-    /// Para [`Container`](crate::theme::Container), ocupa el 100% del ancho del dispositivo hasta
-    /// un ancho máximo indicado.
-    FluidMax(UnitValue)
 }
 
 impl BreakPoint {
@@ -53,7 +45,7 @@ impl BreakPoint {
     /// Devuelve `true` si el valor es `SM`, `MD`, `LG`, `XL` o `XXL`; y `false` en otro caso.
     #[inline]
     pub const fn is_breakpoint(&self) -> bool {
-        matches!(self, Self::SM | Self::MD | Self::LG | Self::XL | Self::XXL)
+        !matches!(self, Self::None)
     }
 
     /// Genera un nombre de clase CSS basado en el punto de ruptura.
@@ -65,11 +57,12 @@ impl BreakPoint {
     /// # Ejemplo
     ///
     /// ```rust
+    /// # use pagetop_bootsier::prelude::*;
     /// let breakpoint = BreakPoint::MD;
     /// let class = breakpoint.to_class("col");
     /// assert_eq!(class, "col-md".to_string());
     ///
-    /// let breakpoint = BreakPoint::Fluid;
+    /// let breakpoint = BreakPoint::None;
     /// let class = breakpoint.to_class("offcanvas");
     /// assert_eq!(class, "offcanvas".to_string());
     /// ```
@@ -91,12 +84,13 @@ impl BreakPoint {
     /// # Ejemplo
     ///
     /// ```rust
+    /// # use pagetop_bootsier::prelude::*;
     /// let breakpoint = BreakPoint::MD;
     /// let class = breakpoint.try_class("col");
     /// assert_eq!(class, Some("col-md".to_string()));
     ///
-    /// let breakpoint = BreakPoint::Fluid;
-    /// let class = breakpoint.try_class("navbar-expanded");
+    /// let breakpoint = BreakPoint::None;
+    /// let class = breakpoint.try_class("navbar-expand");
     /// assert_eq!(class, None);
     /// ```
     #[inline]
@@ -113,15 +107,12 @@ impl BreakPoint {
 impl fmt::Display for BreakPoint {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Self::None        => Ok(()),
-            Self::SM          => f.write_str("sm"),
-            Self::MD          => f.write_str("md"),
-            Self::LG          => f.write_str("lg"),
-            Self::XL          => f.write_str("xl"),
-            Self::XXL         => f.write_str("xxl"),
-            // Devuelven "fluid" (para modelar `container-fluid`).
-            Self::Fluid       => f.write_str("fluid"),
-            Self::FluidMax(_) => f.write_str("fluid"),
+            Self::None => Ok(()),
+            Self::SM   => f.write_str("sm"),
+            Self::MD   => f.write_str("md"),
+            Self::LG   => f.write_str("lg"),
+            Self::XL   => f.write_str("xl"),
+            Self::XXL  => f.write_str("xxl"),
         }
     }
 }
