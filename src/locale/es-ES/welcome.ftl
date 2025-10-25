@@ -8,5 +8,5 @@ welcome_status_1 = Si puedes ver esta página, es porque el servidor de <strong>
 welcome_status_2 = Si el problema persiste, por favor, <strong>contacta con el administrador del sistema</strong>.
 
 welcome_support_title = Soporte
-welcome_support_1 = Para comunicar incidencias del propio entorno <strong>PageTop</strong>, utiliza <a href="https://github.com/manuelcillero/pagetop/issues" target="_blank" rel="noreferrer">GitHub</a>. Recuerda, antes de abrir una nueva incidencia, revisa las existentes para evitar duplicados.
+welcome_support_1 = Para comunicar incidencias del propio entorno <strong>PageTop</strong>, utiliza <a href="https://github.com/manuelcillero/pagetop/issues" target="_blank" rel="noopener noreferrer">GitHub</a>. Recuerda, antes de abrir una nueva incidencia, revisa las existentes para evitar duplicados.
 welcome_support_2 = Para fallos específicos de la aplicación (<strong>{ $app }</strong>), utiliza su repositorio oficial o su canal de soporte.

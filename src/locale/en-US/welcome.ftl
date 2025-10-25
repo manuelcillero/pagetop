@@ -8,5 +8,5 @@ welcome_status_1 = If you can see this page, it means the <strong>PageTop</stron
 welcome_status_2 = If the issue persists, please <strong>contact the system administrator</strong>.
 
 welcome_support_title = Support
-welcome_support_1 = To report issues with the <strong>PageTop</strong> framework, use <a href="https://github.com/manuelcillero/pagetop/issues" target="_blank" rel="noreferrer">GitHub</a>. Remember, before opening a new issue, review the existing ones to avoid duplicates.
+welcome_support_1 = To report issues with the <strong>PageTop</strong> framework, use <a href="https://github.com/manuelcillero/pagetop/issues" target="_blank" rel="noopener noreferrer">GitHub</a>. Remember, before opening a new issue, review the existing ones to avoid duplicates.
 welcome_support_2 = For issues specific to the application (<strong>{ $app }</strong>), please use its official repository or support channel.

@@ -1,7 +1,7 @@
 use crate::prelude::*;
 
 // Enlace a la página oficial de PageTop.
-const LINK: &str = "<a href=\"https://pagetop.cillero.es\" rel=\"noreferrer\">PageTop</a>";
+const LINK: &str = "<a href=\"https://pagetop.cillero.es\" rel=\"noopener noreferrer\">PageTop</a>";
 
 /// Componente que renderiza la sección 'Powered by' (*Funciona con*) típica del pie de página.
 ///

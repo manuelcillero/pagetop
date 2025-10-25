@@ -166,7 +166,7 @@ impl Component for Intro {
                                         class="intro-button__link"
                                         href=((lnk)(cx))
                                         target="_blank"
-                                        rel="noreferrer"
+                                        rel="noopener noreferrer"
                                     {
                                         span {} span {} span {}
                                         div class="intro-button__text" {
@@ -216,9 +216,9 @@ impl Component for Intro {
                             }
                         }
                         div class="intro-footer__links" {
-                            a href="https://crates.io/crates/pagetop" target="_blank" rel="noreferrer" { ("Crates.io") }
-                            a href="https://docs.rs/pagetop" target="_blank" rel="noreferrer" { ("Docs.rs") }
-                            a href="https://git.cillero.es/manuelcillero/pagetop" target="_blank" rel="noreferrer" { (L10n::l("intro_code").using(cx)) }
+                            a href="https://crates.io/crates/pagetop" target="_blank" rel="noopener noreferrer" { ("Crates.io") }
+                            a href="https://docs.rs/pagetop" target="_blank" rel="noopener noreferrer" { ("Docs.rs") }
+                            a href="https://git.cillero.es/manuelcillero/pagetop" target="_blank" rel="noopener noreferrer" { (L10n::l("intro_code").using(cx)) }
                             em { (L10n::l("intro_have_fun").using(cx)) }
                         }
                     }
