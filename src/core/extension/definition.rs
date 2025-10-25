@@ -21,7 +21,7 @@ pub type ExtensionRef = &'static dyn Extension;
 ///
 /// impl Extension for Blog {
 ///     fn name(&self) -> L10n { L10n::n("Blog") }
-///     fn description(&self) -> L10n { L10n::n("Sistema de blogs") }
+///     fn description(&self) -> L10n { L10n::n("Blog system") }
 /// }
 /// ```
 pub trait Extension: AnyInfo + Send + Sync {

@@ -277,8 +277,7 @@ pub fn builder_fn(_: TokenStream, item: TokenStream) -> TokenStream {
         .collect();
 
     // Documentación del método alter_...().
-    let alter_doc =
-        format!("Equivalente a [`Self::{with_name_str}()`], pero fuera del patrón *builder*.");
+    let doc = format!("Equivale a [`Self::{with_name_str}()`], pero fuera del patrón *builder*.");
 
     // Genera el código final.
     let expanded = match body_opt {
@@ -288,7 +287,7 @@ pub fn builder_fn(_: TokenStream, item: TokenStream) -> TokenStream {
                 fn #with_name #generics (self, #(#args),*) -> Self #where_clause;
 
                 #(#non_doc_or_inline_attrs)*
-                #[doc = #alter_doc]
+                #[doc = #doc]
                 fn #alter_ident #generics (&mut self, #(#args),*) -> &mut Self #where_clause;
             }
         }
@@ -322,7 +321,7 @@ pub fn builder_fn(_: TokenStream, item: TokenStream) -> TokenStream {
                 #with_fn
 
                 #(#non_doc_or_inline_attrs)*
-                #[doc = #alter_doc]
+                #[doc = #doc]
                 #vis_pub fn #alter_ident #generics (&mut self, #(#args),*) -> &mut Self #where_clause {
                     #body
                 }

@@ -91,7 +91,7 @@ impl Block {
         &self.classes
     }
 
-    /// Devuelve el título del bloque como [`L10n`].
+    /// Devuelve el título del bloque.
     pub fn title(&self) -> &L10n {
         &self.title
     }

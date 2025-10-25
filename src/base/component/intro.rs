@@ -237,7 +237,7 @@ impl Intro {
     ///
     /// ```rust
     /// # use pagetop::prelude::*;
-    /// let intro = Intro::default().with_title(L10n::n("Título de entrada"));
+    /// let intro = Intro::default().with_title(L10n::n("Intro title"));
     /// ```
     #[builder_fn]
     pub fn with_title(mut self, title: L10n) -> Self {
@@ -251,7 +251,7 @@ impl Intro {
     ///
     /// ```rust
     /// # use pagetop::prelude::*;
-    /// let intro = Intro::default().with_slogan(L10n::n("Un eslogan para la entrada"));
+    /// let intro = Intro::default().with_slogan(L10n::n("A short slogan"));
     /// ```
     #[builder_fn]
     pub fn with_slogan(mut self, slogan: L10n) -> Self {
@@ -270,7 +270,7 @@ impl Intro {
     /// ```rust
     /// # use pagetop::prelude::*;
     /// // Define un botón con texto y una URL fija.
-    /// let intro = Intro::default().with_button(Some((L10n::n("Pulsa este botón"), |_| "/start")));
+    /// let intro = Intro::default().with_button(Some((L10n::n("Learn more"), |_| "/start")));
     /// // Descarta el botón de la intro.
     /// let intro_no_button = Intro::default().with_button(None);
     /// ```
