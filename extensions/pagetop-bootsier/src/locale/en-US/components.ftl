@@ -2,7 +2,7 @@
 dropdown_toggle = Toggle Dropdown
 
 # Offcanvas
-close = Close
+offcanvas_close = Close
 
 # Navbar
 toggle = Toggle navigation

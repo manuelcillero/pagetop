@@ -21,7 +21,6 @@ pub mod navbar;
 pub use navbar::{Navbar, NavbarToggler};
 
 // Offcanvas.
-mod offcanvas;
-pub use offcanvas::{
-    Offcanvas, OffcanvasBackdrop, OffcanvasBodyScroll, OffcanvasPlacement, OffcanvasVisibility,
-};
+pub mod offcanvas;
+#[doc(inline)]
+pub use offcanvas::Offcanvas;

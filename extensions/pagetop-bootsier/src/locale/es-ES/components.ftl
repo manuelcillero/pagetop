@@ -2,7 +2,7 @@
 dropdown_toggle = Mostrar/ocultar menú
 
 # Offcanvas
-close = Cerrar
+offcanvas_close = Cerrar
 
 # Navbar
 toggle = Mostrar/ocultar navegación
