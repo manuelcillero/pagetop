@@ -10,9 +10,11 @@
 //! Su propósito es ofrecer una base uniforme sobre la que construir menús consistentes, adaptados
 //! al contexto de cada aplicación.
 
+mod props;
+pub use props::{AutoClose, Direction, MenuAlign, MenuPosition};
+
 mod component;
 pub use component::Dropdown;
-pub use component::{AutoClose, Direction, MenuAlign, MenuPosition};
 
 mod item;
 pub use item::{Item, ItemKind};
