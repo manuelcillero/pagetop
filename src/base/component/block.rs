@@ -71,13 +71,13 @@ impl Block {
     }
 
     /// Añade un nuevo componente hijo al bloque.
+    #[inline]
     pub fn add_child(mut self, component: impl Component) -> Self {
-        self.children
-            .alter_child(ChildOp::Add(Child::with(component)));
+        self.children.add(Child::with(component));
         self
     }
 
-    /// Modifica la lista de hijos (`children`) aplicando una operación [`ChildOp`].
+    /// Modifica la lista de componentes (`children`) aplicando una operación [`ChildOp`].
     #[builder_fn]
     pub fn with_child(mut self, op: ChildOp) -> Self {
         self.children.alter_child(op);
@@ -96,7 +96,7 @@ impl Block {
         &self.title
     }
 
-    /// Devuelve la lista de hijos (`children`) del bloque.
+    /// Devuelve la lista de componentes (`children`) del bloque.
     pub fn children(&self) -> &Children {
         &self.children
     }

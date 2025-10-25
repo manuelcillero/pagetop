@@ -301,13 +301,13 @@ impl Intro {
     /// Añade un nuevo componente hijo a la intro.
     ///
     /// Si es un bloque ([`Block`]) aplica estilos específicos para destacarlo.
+    #[inline]
     pub fn add_child(mut self, component: impl Component) -> Self {
-        self.children
-            .alter_child(ChildOp::Add(Child::with(component)));
+        self.children.add(Child::with(component));
         self
     }
 
-    /// Modifica la lista de hijos (`children`) aplicando una operación [`ChildOp`].
+    /// Modifica la lista de componentes (`children`) aplicando una operación [`ChildOp`].
     #[builder_fn]
     pub fn with_child(mut self, op: ChildOp) -> Self {
         self.children.alter_child(op);
@@ -336,7 +336,7 @@ impl Intro {
         self.opening
     }
 
-    /// Devuelve la lista de hijos (`children`) de la intro.
+    /// Devuelve la lista de componentes (`children`) de la intro.
     pub fn children(&self) -> &Children {
         &self.children
     }
