@@ -1,3 +1,6 @@
+# Dropdown
+dropdown_toggle = Mostrar/ocultar menú
+
 # Offcanvas
 close = Cerrar
 

@@ -1,3 +1,6 @@
+# Dropdown
+dropdown_toggle = Toggle Dropdown
+
 # Offcanvas
 close = Close
 

@@ -1,11 +1,11 @@
-//! Coleción de elementos auxiliares de Bootstrap para Bootsier.
+//! Colección de elementos auxiliares de Bootstrap para Bootsier.
 
 mod breakpoint;
 pub use breakpoint::BreakPoint;
 
 mod color;
 pub use color::Color;
-pub use color::{BgColor, BorderColor, TextColor};
+pub use color::{BgColor, BorderColor, ButtonColor, TextColor};
 
 mod opacity;
 pub use opacity::Opacity;
@@ -16,3 +16,6 @@ pub use border::{Border, BorderSize};
 
 mod rounded;
 pub use rounded::{Rounded, RoundedRadius};
+
+mod size;
+pub use size::ButtonSize;

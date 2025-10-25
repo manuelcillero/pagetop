@@ -110,6 +110,35 @@ impl fmt::Display for BorderColor {
     }
 }
 
+// **< ButtonColor >********************************************************************************
+
+/// Variantes de color (`btn-*`) para **botones**.
+///
+/// - `Default` no añade clase (devuelve `""` para facilitar la composición de clases).
+/// - `Background(Color)` genera `btn-{color}` (botón relleno).
+/// - `Outline(Color)` genera `btn-outline-{color}` (contorno: texto y borde, fondo transparente).
+/// - `Link` aplica estilo de enlace (`btn-link`), sin caja ni fondo, heredando el color de texto.
+#[derive(AutoDefault)]
+pub enum ButtonColor {
+    #[default]
+    Default,
+    Background(Color),
+    Outline(Color),
+    Link,
+}
+
+#[rustfmt::skip]
+impl fmt::Display for ButtonColor {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::Default       => Ok(()),
+            Self::Background(c) => write!(f, "btn-{c}"),
+            Self::Outline(c)    => write!(f, "btn-outline-{c}"),
+            Self::Link          => f.write_str("btn-link"),
+        }
+    }
+}
+
 // **< TextColor >**********************************************************************************
 
 /// Colores de texto y fondos de texto (`text-*`).
