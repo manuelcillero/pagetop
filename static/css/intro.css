@@ -103,9 +103,10 @@
 	width: 100%;
 }
 .intro-header__monster {
-	margin-right: 12rem;
-	margin-top: 1rem;
+	margin: 2rem;
 	flex-shrink: 1;
+	width: 280px;
+	height: 280px;
 }
 @media (min-width: 64rem) {
 	.intro-header {
@@ -117,6 +118,9 @@
 	}
 	.intro-header__image {
 		justify-content: flex-end;
+	}
+	.intro-header__monster {
+		margin-right: 12rem;
 	}
 }
 

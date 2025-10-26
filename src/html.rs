@@ -11,6 +11,9 @@ pub use assets::javascript::JavaScript;
 pub use assets::stylesheet::{StyleSheet, TargetMedia};
 pub use assets::{Asset, Assets};
 
+mod logo;
+pub use logo::PageTopSvg;
+
 // **< HTML DOCUMENT CONTEXT >**********************************************************************
 
 /// **Obsoleto desde la versión 0.5.0**: usar [`core::component::Context`] en su lugar.
