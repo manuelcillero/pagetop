@@ -12,8 +12,9 @@ pub mod dropdown;
 pub use dropdown::Dropdown;
 
 // Image.
-mod image;
-pub use image::{Image, ImageSize};
+pub mod image;
+#[doc(inline)]
+pub use image::Image;
 
 // Navbar.
 pub mod navbar;

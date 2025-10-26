@@ -234,7 +234,7 @@ impl Container {
         self
     }
 
-    /// Establece esquinas redondeadas para el contenedor.
+    /// Establece esquinas redondeadas para el contenedor ([`Rounded`]).
     #[builder_fn]
     pub fn with_rounded(mut self, rounded: Rounded) -> Self {
         self.rounded = rounded;
@@ -282,12 +282,12 @@ impl Container {
         &self.text_color
     }
 
-    /// Devuelve el borde del contenedor.
+    /// Devuelve el borde configurado del contenedor.
     pub fn border(&self) -> &Border {
         &self.border
     }
 
-    /// Devuelve las esquinas redondeadas del contenedor.
+    /// Devuelve las esquinas redondeadas configuradas para el contenedor.
     pub fn rounded(&self) -> &Rounded {
         &self.rounded
     }
