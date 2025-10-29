@@ -4,6 +4,9 @@ use crate::{builder_fn, AutoDefault, UniqueId};
 
 use parking_lot::RwLock;
 
+pub use parking_lot::RwLockReadGuard as ComponentReadGuard;
+pub use parking_lot::RwLockWriteGuard as ComponentWriteGuard;
+
 use std::sync::Arc;
 use std::vec::IntoIter;
 
@@ -93,6 +96,57 @@ impl<C: Component> Typed<C> {
         self.0.as_ref().and_then(|c| c.read().id())
     }
 
+    /// Devuelve una **referencia inmutable** al componente interno.
+    ///
+    /// - Devuelve `Some(ComponentReadGuard<C>)` si existe el componente, o `None` si está vacío.
+    /// - Permite realizar **múltiples lecturas concurrentes**.
+    /// - Mientras el *guard* esté activo, no se pueden realizar escrituras concurrentes (ver
+    ///   [`borrow_mut`](Self::borrow_mut)).
+    /// - Se recomienda mantener el *guard* **el menor tiempo posible** para evitar bloqueos
+    ///   innecesarios.
+    ///
+    /// # Ejemplo
+    ///
+    /// Lectura del nombre del componente:
+    ///
+    /// ```rust
+    /// # use pagetop::prelude::*;
+    /// let typed = Typed::with(Html::with(|_| html! { "Prueba" }));
+    /// {
+    ///     if let Some(component) = typed.borrow() {
+    ///         assert_eq!(component.name(), "Html");
+    ///     }
+    /// }; // El *guard* se libera aquí, antes del *drop* de `typed`.
+    /// ```
+    pub fn borrow(&self) -> Option<ComponentReadGuard<'_, C>> {
+        self.0.as_ref().map(|a| a.read())
+    }
+
+    /// Obtiene una **referencia mutable exclusiva** al componente interno.
+    ///
+    /// - Devuelve `Some(ComponentWriteGuard<C>)` si existe el componente, o `None` si está vacío.
+    /// - **Exclusivo**: mientras el *guard* esté activo, no habrá otros lectores ni escritores.
+    /// - Usar sólo para operaciones que **modifican** el estado interno.
+    /// - Igual que con [`borrow`](Self::borrow), se recomienda mantener el *guard* en un **ámbito
+    ///   reducido**.
+    ///
+    /// # Ejemplo
+    ///
+    /// Acceso mutable (ámbito corto):
+    ///
+    /// ```rust
+    /// # use pagetop::prelude::*;
+    /// let typed = Typed::with(Block::new().with_title(L10n::n("Título")));
+    /// {
+    ///     if let Some(mut component) = typed.borrow_mut() {
+    ///         component.alter_title(L10n::n("Nuevo título"));
+    ///     }
+    /// }; // El *guard* se libera aquí, antes del *drop* de `typed`.
+    /// ```
+    pub fn borrow_mut(&self) -> Option<ComponentWriteGuard<'_, C>> {
+        self.0.as_ref().map(|a| a.write())
+    }
+
     // **< Typed RENDER >***************************************************************************
 
     /// Renderiza el componente con el contexto proporcionado.
@@ -102,9 +156,9 @@ impl<C: Component> Typed<C> {
 
     // **< Typed HELPERS >**************************************************************************
 
-    // Convierte el componente tipado en un [`Child`].
+    // Método interno para convertir un componente tipado en un [`Child`].
     #[inline]
-    fn into_child(self) -> Child {
+    fn into(self) -> Child {
         if let Some(c) = &self.0 {
             Child(Some(c.clone()))
         } else {
@@ -115,12 +169,14 @@ impl<C: Component> Typed<C> {
 
 // *************************************************************************************************
 
-/// Operaciones con un componente hijo [`Child`] en una lista [`Children`].
+/// Operaciones para componentes hijo [`Child`] en una lista [`Children`].
 pub enum ChildOp {
     Add(Child),
+    AddMany(Vec<Child>),
     InsertAfterId(&'static str, Child),
     InsertBeforeId(&'static str, Child),
     Prepend(Child),
+    PrependMany(Vec<Child>),
     RemoveById(&'static str),
     ReplaceById(&'static str, Child),
     Reset,
@@ -129,9 +185,11 @@ pub enum ChildOp {
 /// Operaciones con un componente hijo tipado [`Typed<C>`] en una lista [`Children`].
 pub enum TypedOp<C: Component> {
     Add(Typed<C>),
+    AddMany(Vec<Typed<C>>),
     InsertAfterId(&'static str, Typed<C>),
     InsertBeforeId(&'static str, Typed<C>),
     Prepend(Typed<C>),
+    PrependMany(Vec<Typed<C>>),
     RemoveById(&'static str),
     ReplaceById(&'static str, Typed<C>),
     Reset,
@@ -172,9 +230,11 @@ impl Children {
     pub fn with_child(mut self, op: ChildOp) -> Self {
         match op {
             ChildOp::Add(any) => self.add(any),
+            ChildOp::AddMany(many) => self.add_many(many),
             ChildOp::InsertAfterId(id, any) => self.insert_after_id(id, any),
             ChildOp::InsertBeforeId(id, any) => self.insert_before_id(id, any),
             ChildOp::Prepend(any) => self.prepend(any),
+            ChildOp::PrependMany(many) => self.prepend_many(many),
             ChildOp::RemoveById(id) => self.remove_by_id(id),
             ChildOp::ReplaceById(id, any) => self.replace_by_id(id, any),
             ChildOp::Reset => self.reset(),
@@ -183,14 +243,16 @@ impl Children {
 
     /// Ejecuta una operación con [`TypedOp`] en la lista.
     #[builder_fn]
-    pub fn with_typed<C: Component + Default>(mut self, op: TypedOp<C>) -> Self {
+    pub fn with_typed<C: Component>(mut self, op: TypedOp<C>) -> Self {
         match op {
-            TypedOp::Add(typed) => self.add(typed.into_child()),
-            TypedOp::InsertAfterId(id, typed) => self.insert_after_id(id, typed.into_child()),
-            TypedOp::InsertBeforeId(id, typed) => self.insert_before_id(id, typed.into_child()),
-            TypedOp::Prepend(typed) => self.prepend(typed.into_child()),
+            TypedOp::Add(typed) => self.add(typed.into()),
+            TypedOp::AddMany(many) => self.add_many(many.into_iter().map(Typed::<C>::into)),
+            TypedOp::InsertAfterId(id, typed) => self.insert_after_id(id, typed.into()),
+            TypedOp::InsertBeforeId(id, typed) => self.insert_before_id(id, typed.into()),
+            TypedOp::Prepend(typed) => self.prepend(typed.into()),
+            TypedOp::PrependMany(many) => self.prepend_many(many.into_iter().map(Typed::<C>::into)),
             TypedOp::RemoveById(id) => self.remove_by_id(id),
-            TypedOp::ReplaceById(id, typed) => self.replace_by_id(id, typed.into_child()),
+            TypedOp::ReplaceById(id, typed) => self.replace_by_id(id, typed.into()),
             TypedOp::Reset => self.reset(),
         }
     }
@@ -230,7 +292,7 @@ impl Children {
     /// Devuelve un iterador sobre los componentes hijo con el identificador de tipo ([`UniqueId`])
     /// indicado.
     pub fn iter_by_type_id(&self, type_id: UniqueId) -> impl Iterator<Item = &Child> {
-        self.0.iter().filter(move |&c| c.type_id() == Some(type_id))
+        self.0.iter().filter(move |c| c.type_id() == Some(type_id))
     }
 
     // **< Children RENDER >************************************************************************
@@ -245,6 +307,16 @@ impl Children {
     }
 
     // **< Children HELPERS >***********************************************************************
+
+    // Añade más de un componente hijo al final de la lista (en el orden recibido).
+    #[inline]
+    fn add_many<I>(&mut self, iter: I) -> &mut Self
+    where
+        I: IntoIterator<Item = Child>,
+    {
+        self.0.extend(iter);
+        self
+    }
 
     // Inserta un hijo después del componente con el `id` dado, o al final si no se encuentra.
     #[inline]
@@ -272,6 +344,17 @@ impl Children {
     #[inline]
     fn prepend(&mut self, child: Child) -> &mut Self {
         self.0.insert(0, child);
+        self
+    }
+
+    // Inserta más de un componente hijo al principio de la lista (manteniendo el orden recibido).
+    #[inline]
+    fn prepend_many<I>(&mut self, iter: I) -> &mut Self
+    where
+        I: IntoIterator<Item = Child>,
+    {
+        let buf: Vec<Child> = iter.into_iter().collect();
+        self.0.splice(0..0, buf);
         self
     }
 

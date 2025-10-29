@@ -16,6 +16,11 @@ pub mod image;
 #[doc(inline)]
 pub use image::Image;
 
+// Nav.
+pub mod nav;
+#[doc(inline)]
+pub use nav::Nav;
+
 // Navbar.
 pub mod navbar;
 #[doc(inline)]

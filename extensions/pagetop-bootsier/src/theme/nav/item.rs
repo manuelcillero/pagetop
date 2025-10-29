@@ -1,9 +1,12 @@
 use pagetop::prelude::*;
 
+use crate::prelude::*;
+use crate::LOCALES_BOOTSIER;
+
 // **< ItemKind >***********************************************************************************
 
-/// Tipos de [`dropdown::Item`](crate::theme::dropdown::Item) disponibles en un menú desplegable
-/// [`Dropdown`](crate::theme::Dropdown).
+/// Tipos de [`nav::Item`](crate::theme::nav::Item) disponibles en un menú
+/// [`Nav`](crate::theme::Nav).
 ///
 /// Define internamente la naturaleza del elemento y su comportamiento al mostrarse o interactuar
 /// con él.
@@ -22,23 +25,16 @@ pub enum ItemKind {
         blank: bool,
         disabled: bool,
     },
-    /// Acción ejecutable en la propia página, sin navegación asociada. Inicialmente puede estar
-    /// deshabilitado.
-    Button { label: L10n, disabled: bool },
-    /// Título o encabezado que separa grupos de opciones.
-    Header(L10n),
-    /// Separador visual entre bloques de elementos.
-    Divider,
+    /// Elemento que despliega un menú [`Dropdown`].
+    Dropdown(Typed<Dropdown>),
 }
 
 // **< Item >***************************************************************************************
 
-/// Representa un **elemento individual** de un menú desplegable
-/// [`Dropdown`](crate::theme::Dropdown).
+/// Representa un **elemento individual** de un menú [`Nav`](crate::theme::Nav).
 ///
-/// Cada instancia de [`dropdown::Item`](crate::theme::dropdown::Item) se traduce en un componente
-/// visible que puede comportarse como texto, enlace, botón, encabezado o separador, según su
-/// [`ItemKind`].
+/// Cada instancia de [`nav::Item`](crate::theme::nav::Item) se traduce en un componente visible que
+/// puede comportarse como texto, enlace, botón o menú desplegable según su [`ItemKind`].
 ///
 /// Permite definir identificador, clases de estilo adicionales o tipo de interacción asociada,
 /// manteniendo una interfaz común para renderizar todos los elementos del menú.
@@ -59,13 +55,24 @@ impl Component for Item {
         self.id.get()
     }
 
+    fn setup_before_prepare(&mut self, _cx: &mut Context) {
+        self.alter_classes(
+            ClassesOp::Prepend,
+            if matches!(self.item_kind(), ItemKind::Dropdown(_)) {
+                "nav-item dropdown"
+            } else {
+                "nav-item"
+            },
+        );
+    }
+
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
         match self.item_kind() {
             ItemKind::Void => PrepareMarkup::None,
 
             ItemKind::Label(label) => PrepareMarkup::With(html! {
                 li id=[self.id()] class=[self.classes().get()] {
-                    span class="dropdown-item-text" {
+                    span {
                         (label.using(cx))
                     }
                 }
@@ -81,7 +88,7 @@ impl Component for Item {
                 let current_path = cx.request().map(|request| request.path());
                 let is_current = !*disabled && current_path.map_or(false, |p| p == path);
 
-                let mut classes = "dropdown-item".to_string();
+                let mut classes = "nav-link".to_string();
                 if is_current {
                     classes.push_str(" active");
                 }
@@ -95,7 +102,6 @@ impl Component for Item {
 
                 let aria_current = (href.is_some() && is_current).then_some("page");
                 let aria_disabled = disabled.then_some("true");
-                let tabindex = disabled.then_some("-1");
 
                 PrepareMarkup::With(html! {
                     li id=[self.id()] class=[self.classes().get()] {
@@ -106,7 +112,6 @@ impl Component for Item {
                             rel=[rel]
                             aria-current=[aria_current]
                             aria-disabled=[aria_disabled]
-                            tabindex=[tabindex]
                         {
                             (label.using(cx))
                         }
@@ -114,40 +119,37 @@ impl Component for Item {
                 })
             }
 
-            ItemKind::Button { label, disabled } => {
-                let mut classes = "dropdown-item".to_owned();
-                if *disabled {
-                    classes.push_str(" disabled");
-                }
-
-                let aria_disabled = disabled.then_some("true");
-                let disabled_attr = disabled.then_some("disabled");
-
-                PrepareMarkup::With(html! {
-                    li id=[self.id()] class=[self.classes().get()] {
-                        button
-                            class=(classes)
-                            type="button"
-                            aria-disabled=[aria_disabled]
-                            disabled=[disabled_attr]
-                        {
-                            (label.using(cx))
+            ItemKind::Dropdown(menu) => {
+                if let Some(dd) = menu.borrow() {
+                    let items = dd.items().render(cx);
+                    if items.is_empty() {
+                        return PrepareMarkup::None;
+                    }
+                    let title = dd.title().lookup(cx).unwrap_or_else(|| {
+                        L10n::t("dropdown", &LOCALES_BOOTSIER)
+                            .lookup(cx)
+                            .unwrap_or_else(|| "Dropdown".to_string())
+                    });
+                    PrepareMarkup::With(html! {
+                        li id=[self.id()] class=[self.classes().get()] {
+                            a
+                                class="nav-link dropdown-toggle"
+                                data-bs-toggle="dropdown"
+                                href="#"
+                                role="button"
+                                aria-expanded="false"
+                            {
+                                (title)
+                            }
+                            ul class="dropdown-menu" {
+                                (items)
+                            }
                         }
-                    }
-                })
-            }
-
-            ItemKind::Header(label) => PrepareMarkup::With(html! {
-                li id=[self.id()] class=[self.classes().get()] {
-                    h6 class="dropdown-header" {
-                        (label.using(cx))
-                    }
+                    })
+                } else {
+                    PrepareMarkup::None
                 }
-            }),
-
-            ItemKind::Divider => PrepareMarkup::With(html! {
-                li id=[self.id()] class=[self.classes().get()] { hr class="dropdown-divider" {} }
-            }),
+            }
         }
     }
 }
@@ -213,40 +215,14 @@ impl Item {
         }
     }
 
-    /// Crea un botón de acción local, sin navegación asociada.
-    pub fn button(label: L10n) -> Self {
+    /// Crea un elemento de navegación que contiene un menú desplegable [`Dropdown`].
+    ///
+    /// Sólo se tienen en cuenta **el título** (si no existe le asigna uno por defecto) y **la lista
+    /// de elementos** del [`Dropdown`]; el resto de propiedades del componente no afectarán a su
+    /// representación en [`Nav`].
+    pub fn dropdown(menu: Dropdown) -> Self {
         Item {
-            item_kind: ItemKind::Button {
-                label,
-                disabled: false,
-            },
-            ..Default::default()
-        }
-    }
-
-    /// Crea un botón deshabilitado.
-    pub fn button_disabled(label: L10n) -> Self {
-        Item {
-            item_kind: ItemKind::Button {
-                label,
-                disabled: true,
-            },
-            ..Default::default()
-        }
-    }
-
-    /// Crea un encabezado para un grupo de elementos dentro del menú.
-    pub fn header(label: L10n) -> Self {
-        Item {
-            item_kind: ItemKind::Header(label),
-            ..Default::default()
-        }
-    }
-
-    /// Crea un separador visual entre bloques de elementos.
-    pub fn divider() -> Self {
-        Item {
-            item_kind: ItemKind::Divider,
+            item_kind: ItemKind::Dropdown(Typed::with(menu)),
             ..Default::default()
         }
     }

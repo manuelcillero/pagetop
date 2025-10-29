@@ -10,8 +10,12 @@ use crate::LOCALES_BOOTSIER;
 /// interacción del usuario. Admite variaciones de tamaño/color del botón, también dirección de
 /// apertura, alineación o política de cierre.
 ///
-/// Sin título para el botón (ver [`with_button_title()`](Self::with_button_title)) se muestra
-/// únicamente la lista de elementos sin ningún botón para interactuar.
+/// Si no tiene título (ver [`with_title()`](Self::with_title)) se muestra únicamente la lista de
+/// elementos sin ningún botón para interactuar.
+///
+/// Si este componente se usa en un menú [`Nav`] (ver [`nav::Item::dropdown()`]) sólo se tendrán en
+/// cuenta **el título** (si no existe le asigna uno por defecto) y **la lista de elementos**; el
+/// resto de propiedades no afectarán a su representación en [`Nav`].
 ///
 /// # Ejemplo
 ///
@@ -19,7 +23,7 @@ use crate::LOCALES_BOOTSIER;
 /// # use pagetop::prelude::*;
 /// # use pagetop_bootsier::prelude::*;
 /// let dd = Dropdown::new()
-///     .with_button_title(L10n::n("Menu"))
+///     .with_title(L10n::n("Menu"))
 ///     .with_button_color(ButtonColor::Background(Color::Secondary))
 ///     .with_auto_close(dropdown::AutoClose::ClickableInside)
 ///     .with_direction(dropdown::Direction::Dropend)
@@ -34,7 +38,7 @@ use crate::LOCALES_BOOTSIER;
 pub struct Dropdown {
     id            : AttrId,
     classes       : AttrClasses,
-    button_title  : L10n,
+    title         : L10n,
     button_size   : ButtonSize,
     button_color  : ButtonColor,
     button_split  : bool,
@@ -80,11 +84,11 @@ impl Component for Dropdown {
         }
 
         // Título opcional para el menú desplegable.
-        let button_title = self.button_title().using(cx);
+        let title = self.title().using(cx);
 
         PrepareMarkup::With(html! {
             div id=[self.id()] class=[self.classes().get()] {
-                @if !button_title.is_empty() {
+                @if !title.is_empty() {
                     @let mut btn_classes = AttrClasses::new([
                         "btn",
                         &self.button_size().to_string(),
@@ -129,7 +133,7 @@ impl Component for Dropdown {
                                 type="button"
                                 class=[btn_classes.get()]
                             {
-                                (button_title)
+                                (title)
                             }
                         };
                         // Botón *toggle* que abre/cierra el menú asociado.
@@ -176,7 +180,7 @@ impl Component for Dropdown {
                             data-bs-auto-close=[auto_close]
                             aria-expanded="false"
                         {
-                            (button_title)
+                            (title)
                         }
                         ul class=[menu_classes.get()] { (items) }
                     }
@@ -206,10 +210,10 @@ impl Dropdown {
         self
     }
 
-    /// Establece el título del botón.
+    /// Establece el título del menú desplegable.
     #[builder_fn]
-    pub fn with_button_title(mut self, title: L10n) -> Self {
-        self.button_title = title;
+    pub fn with_title(mut self, title: L10n) -> Self {
+        self.title = title;
         self
     }
 
@@ -290,9 +294,9 @@ impl Dropdown {
         &self.classes
     }
 
-    /// Devuelve el título del botón.
-    pub fn button_title(&self) -> &L10n {
-        &self.button_title
+    /// Devuelve el título del menú desplegable.
+    pub fn title(&self) -> &L10n {
+        &self.title
     }
 
     /// Devuelve el tamaño configurado del botón.
