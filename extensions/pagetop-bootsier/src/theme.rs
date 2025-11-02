@@ -24,7 +24,7 @@ pub use nav::Nav;
 // Navbar.
 pub mod navbar;
 #[doc(inline)]
-pub use navbar::{Navbar, NavbarToggler};
+pub use navbar::Navbar;
 
 // Offcanvas.
 pub mod offcanvas;

@@ -127,7 +127,7 @@ impl Theme for Bootsier {
                 .with_weight(-90),
         ))
         .alter_assets(ContextOp::AddJavaScript(
-            JavaScript::defer("/bootsier/js/bootstrap.min.js")
+            JavaScript::defer("/bootsier/js/bootstrap.bundle.min.js")
                 .with_version(BOOTSTRAP_VERSION)
                 .with_weight(-90),
         ));

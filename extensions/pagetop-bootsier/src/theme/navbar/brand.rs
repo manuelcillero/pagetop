@@ -2,16 +2,25 @@ use pagetop::prelude::*;
 
 use crate::prelude::*;
 
+/// Marca de identidad para mostrar en una barra de navegación [`Navbar`].
+///
+/// Representa la identidad del sitio con una imagen, título y eslogan:
+///
+/// - Si hay URL ([`with_path()`](Self::with_path)), el bloque completo actúa como enlace. Por
+///   defecto enlaza a la raíz del sitio (`/`).
+/// - Si no hay imagen ([`with_image()`](Self::with_image)) ni título
+///   ([`with_title()`](Self::with_title)), la marca de identidad no se renderiza.
+/// - El eslogan ([`with_slogan()`](Self::with_slogan)) es opcional; por defecto no tiene contenido.
 #[rustfmt::skip]
 #[derive(AutoDefault)]
 pub struct Brand {
-    id       : AttrId,
-    #[default(_code = "global::SETTINGS.app.name.to_owned()")]
-    app_name : String,
-    slogan   : AttrL10n,
-    logo     : Typed<Image>,
-    #[default(_code = "|_| \"/\"")]
-    home     : FnPathByContext,
+    id    : AttrId,
+    image : Typed<Image>,
+    #[default(_code = "L10n::n(&global::SETTINGS.app.name)")]
+    title : L10n,
+    slogan: L10n,
+    #[default(_code = "Some(|_| \"/\")")]
+    path  : Option<FnPathByContext>,
 }
 
 impl Component for Brand {
@@ -24,81 +33,79 @@ impl Component for Brand {
     }
 
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
-        let logo = self.logo().render(cx);
-        let home = self.home()(cx);
-        let title = &L10n::l("site_home").lookup(cx);
+        let image = self.image().render(cx);
+        let title = self.title().using(cx);
+        if title.is_empty() && image.is_empty() {
+            return PrepareMarkup::None;
+        }
+        let slogan = self.slogan().using(cx);
         PrepareMarkup::With(html! {
-            div id=[self.id()] class="branding__container" {
-                div class="branding__content" {
-                    @if !logo.is_empty() {
-                        a class="branding__logo" href=(home) title=[title] rel="home" {
-                            (logo)
-                        }
-                    }
-                    div class="branding__text" {
-                        a class="branding__name" href=(home) title=[title] rel="home" {
-                            (self.app_name())
-                        }
-                        @if let Some(slogan) = self.slogan().lookup(cx) {
-                            div class="branding__slogan" {
-                                (slogan)
-                            }
-                        }
-                    }
-                }
+            @if let Some(path) = self.path() {
+                a class="navbar-brand" href=(path(cx)) { (image) (title) (slogan) }
+            } @else {
+                span class="navbar-brand" { (image) (title) (slogan) }
             }
         })
     }
 }
 
 impl Brand {
-    // Brand BUILDER.
+    // **< Brand BUILDER >**************************************************************************
 
+    /// Establece el identificador único (`id`) de la marca.
     #[builder_fn]
     pub fn with_id(mut self, id: impl AsRef<str>) -> Self {
         self.id.alter_value(id);
         self
     }
 
+    /// Asigna o quita la imagen de marca. Si se pasa `None`, no se mostrará.
     #[builder_fn]
-    pub fn with_app_name(mut self, app_name: impl Into<String>) -> Self {
-        self.app_name = app_name.into();
+    pub fn with_image(mut self, image: Option<Image>) -> Self {
+        self.image.alter_component(image);
         self
     }
 
+    /// Establece el título de la identidad de marca.
+    #[builder_fn]
+    pub fn with_title(mut self, title: L10n) -> Self {
+        self.title = title;
+        self
+    }
+
+    /// Define el eslogan de la marca.
     #[builder_fn]
     pub fn with_slogan(mut self, slogan: L10n) -> Self {
-        self.slogan.alter_value(slogan);
+        self.slogan = slogan;
         self
     }
 
+    /// Define la URL de destino. Si es `None`, la marca no será un enlace.
     #[builder_fn]
-    pub fn with_logo(mut self, logo: Option<Image>) -> Self {
-        self.logo.alter_component(logo);
+    pub fn with_path(mut self, path: Option<FnPathByContext>) -> Self {
+        self.path = path;
         self
     }
 
-    #[builder_fn]
-    pub fn with_home(mut self, home: FnPathByContext) -> Self {
-        self.home = home;
-        self
+    // **< Brand GETTERS >**************************************************************************
+
+    /// Devuelve la imagen de marca (si la hay).
+    pub fn image(&self) -> &Typed<Image> {
+        &self.image
     }
 
-    // Brand GETTERS.
-
-    pub fn app_name(&self) -> &String {
-        &self.app_name
+    /// Devuelve el título de la identidad de marca.
+    pub fn title(&self) -> &L10n {
+        &self.title
     }
 
-    pub fn slogan(&self) -> &AttrL10n {
+    /// Devuelve el eslogan de la marca.
+    pub fn slogan(&self) -> &L10n {
         &self.slogan
     }
 
-    pub fn logo(&self) -> &Typed<Image> {
-        &self.logo
-    }
-
-    pub fn home(&self) -> &FnPathByContext {
-        &self.home
+    /// Devuelve la función que resuelve la URL asociada a la marca (si existe).
+    pub fn path(&self) -> &Option<FnPathByContext> {
+        &self.path
     }
 }
