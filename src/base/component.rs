@@ -62,5 +62,3 @@ pub use poweredby::PoweredBy;
 
 mod icon;
 pub use icon::{Icon, IconKind};
-
-pub mod menu;
