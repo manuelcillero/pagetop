@@ -13,7 +13,7 @@
 //!     .with_body_scroll(offcanvas::BodyScroll::Enabled)
 //!     .with_visibility(offcanvas::Visibility::Default)
 //!     .add_child(Dropdown::new()
-//!         .with_button_title(L10n::n("Menu"))
+//!         .with_title(L10n::n("Menu"))
 //!         .add_item(dropdown::Item::label(L10n::n("Label")))
 //!         .add_item(dropdown::Item::link_blank(L10n::n("Google"), |_| "https://www.google.es"))
 //!         .add_item(dropdown::Item::link(L10n::n("Sign out"), |_| "/signout"))
