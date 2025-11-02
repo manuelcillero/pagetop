@@ -1,0 +1,101 @@
+use pagetop::prelude::*;
+
+use pagetop_bootsier::prelude::*;
+
+struct SuperMenu;
+
+impl Extension for SuperMenu {
+    fn dependencies(&self) -> Vec<ExtensionRef> {
+        vec![&pagetop_aliner::Aliner, &pagetop_bootsier::Bootsier]
+    }
+
+    fn initialize(&self) {
+        let home_path = |cx: &Context| match cx.langid().language.as_str() {
+            "en" => "/en",
+            _ => "/",
+        };
+
+        let navbar_menu = Navbar::brand_left(navbar::Brand::new().with_path(Some(home_path)))
+            .with_expand(BreakPoint::LG)
+            .add_item(navbar::Item::nav(
+                Nav::new()
+                    .add_item(nav::Item::link(
+                        L10n::l("sample_menus_item_link"),
+                        home_path,
+                    ))
+                    .add_item(nav::Item::link_blank(
+                        L10n::l("sample_menus_item_blank"),
+                        |_| "https://docs.rs/pagetop",
+                    ))
+                    .add_item(nav::Item::dropdown(
+                        Dropdown::new()
+                            .with_title(L10n::l("sample_menus_test_title"))
+                            .add_item(dropdown::Item::header(L10n::l("sample_menus_dev_header")))
+                            .add_item(dropdown::Item::link(
+                                L10n::l("sample_menus_dev_getting_started"),
+                                |_| "/dev/getting-started",
+                            ))
+                            .add_item(dropdown::Item::link(
+                                L10n::l("sample_menus_dev_guides"),
+                                |_| "/dev/guides",
+                            ))
+                            .add_item(dropdown::Item::link_blank(
+                                L10n::l("sample_menus_dev_forum"),
+                                |_| "https://forum.example.dev",
+                            ))
+                            .add_item(dropdown::Item::divider())
+                            .add_item(dropdown::Item::header(L10n::l("sample_menus_sdk_header")))
+                            .add_item(dropdown::Item::link(
+                                L10n::l("sample_menus_sdk_rust"),
+                                |_| "/dev/sdks/rust",
+                            ))
+                            .add_item(dropdown::Item::link(L10n::l("sample_menus_sdk_js"), |_| {
+                                "/dev/sdks/js"
+                            }))
+                            .add_item(dropdown::Item::link(
+                                L10n::l("sample_menus_sdk_python"),
+                                |_| "/dev/sdks/python",
+                            ))
+                            .add_item(dropdown::Item::divider())
+                            .add_item(dropdown::Item::header(L10n::l(
+                                "sample_menus_plugin_header",
+                            )))
+                            .add_item(dropdown::Item::link(
+                                L10n::l("sample_menus_plugin_auth"),
+                                |_| "/dev/sdks/rust/plugins/auth",
+                            ))
+                            .add_item(dropdown::Item::link(
+                                L10n::l("sample_menus_plugin_cache"),
+                                |_| "/dev/sdks/rust/plugins/cache",
+                            ))
+                            .add_item(dropdown::Item::divider())
+                            .add_item(dropdown::Item::label(L10n::l("sample_menus_item_label")))
+                            .add_item(dropdown::Item::link_disabled(
+                                L10n::l("sample_menus_item_disabled"),
+                                |_| "#",
+                            )),
+                    ))
+                    .add_item(nav::Item::link_disabled(
+                        L10n::l("sample_menus_item_disabled"),
+                        |_| "#",
+                    )),
+            ))
+            .add_item(navbar::Item::nav(
+                Nav::new()
+                    .add_item(nav::Item::link(
+                        L10n::l("sample_menus_item_sign_up"),
+                        |_| "/auth/sign-up",
+                    ))
+                    .add_item(nav::Item::link(L10n::l("sample_menus_item_login"), |_| {
+                        "/auth/login"
+                    })),
+            ));
+
+        InRegion::Key("header").add(Child::with(navbar_menu));
+    }
+}
+
+#[pagetop::main]
+async fn main() -> std::io::Result<()> {
+    Application::prepare(&SuperMenu).run()?.await
+}
