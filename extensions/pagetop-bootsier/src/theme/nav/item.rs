@@ -72,7 +72,7 @@ impl Component for Item {
 
             ItemKind::Label(label) => PrepareMarkup::With(html! {
                 li id=[self.id()] class=[self.classes().get()] {
-                    span {
+                    span class="nav-link disabled" aria-disabled="true" {
                         (label.using(cx))
                     }
                 }
@@ -86,7 +86,7 @@ impl Component for Item {
             } => {
                 let path = path(cx);
                 let current_path = cx.request().map(|request| request.path());
-                let is_current = !*disabled && current_path.map_or(false, |p| p == path);
+                let is_current = !*disabled && (current_path == Some(path));
 
                 let mut classes = "nav-link".to_string();
                 if is_current {
@@ -250,7 +250,7 @@ impl Item {
         &self.classes
     }
 
-    /// Devuelve el tipo de elemento representado por este elemento.
+    /// Devuelve el tipo de elemento representado.
     pub fn item_kind(&self) -> &ItemKind {
         &self.item_kind
     }

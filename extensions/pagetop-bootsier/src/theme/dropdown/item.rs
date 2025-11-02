@@ -79,7 +79,7 @@ impl Component for Item {
             } => {
                 let path = path(cx);
                 let current_path = cx.request().map(|request| request.path());
-                let is_current = !*disabled && current_path.map_or(false, |p| p == path);
+                let is_current = !*disabled && (current_path == Some(path));
 
                 let mut classes = "dropdown-item".to_string();
                 if is_current {
@@ -274,7 +274,7 @@ impl Item {
         &self.classes
     }
 
-    /// Devuelve el tipo de elemento representado por este elemento.
+    /// Devuelve el tipo de elemento representado.
     pub fn item_kind(&self) -> &ItemKind {
         &self.item_kind
     }

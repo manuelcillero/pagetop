@@ -8,25 +8,8 @@ use crate::prelude::*;
 /// como *pestañas* (`Tabs`), *botones* (`Pills`) o *subrayado* (`Underline`). También permite
 /// controlar su distribución y orientación ([`nav::Layout`](crate::theme::nav::Layout)).
 ///
-/// # Ejemplo
-///
-/// ```rust
-/// # use pagetop::prelude::*;
-/// # use pagetop_bootsier::prelude::*;
-/// let nav = Nav::tabs()
-///     .with_layout(nav::Layout::End)
-///     .add_item(nav::Item::link(L10n::n("Home"), |_| "/"))
-///     .add_item(nav::Item::link_blank(L10n::n("External"), |_| "https://www.google.es"))
-///     .add_item(nav::Item::dropdown(
-///         Dropdown::new()
-///             .with_title(L10n::n("Options"))
-///             .with_items(TypedOp::AddMany(vec![
-///                 Typed::with(dropdown::Item::link(L10n::n("Action"), |_| "/action")),
-///                 Typed::with(dropdown::Item::link(L10n::n("Another action"), |_| "/another")),
-///             ])),
-///     ))
-///     .add_item(nav::Item::link_disabled(L10n::n("Disabled"), |_| "#"));
-/// ```
+/// Ver ejemplo en el módulo [`nav`].
+/// Si no contiene elementos, el componente **no se renderiza**.
 #[rustfmt::skip]
 #[derive(AutoDefault)]
 pub struct Nav {

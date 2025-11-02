@@ -18,27 +18,9 @@ use crate::LOCALES_BOOTSIER;
 ///   ([`with_breakpoint()`](Self::with_breakpoint)).
 /// - Asocia título y controles de accesibilidad a un identificador único y expone atributos
 ///   adecuados para lectores de pantalla y navegación por teclado.
-/// - **No se renderiza** si no tiene contenido.
 ///
-/// # Ejemplo
-///
-/// ```rust
-/// # use pagetop::prelude::*;
-/// # use pagetop_bootsier::prelude::*;
-/// let panel = Offcanvas::new()
-///     .with_id("offcanvas_example")
-///     .with_title(L10n::n("Offcanvas title"))
-///     .with_placement(offcanvas::Placement::End)
-///     .with_backdrop(offcanvas::Backdrop::Enabled)
-///     .with_body_scroll(offcanvas::BodyScroll::Enabled)
-///     .with_visibility(offcanvas::Visibility::Default)
-///     .add_child(Dropdown::new()
-///         .with_button_title(L10n::n("Menu"))
-///         .add_item(dropdown::Item::label(L10n::n("Label")))
-///         .add_item(dropdown::Item::link_blank(L10n::n("Google"), |_| "https://www.google.es"))
-///         .add_item(dropdown::Item::link(L10n::n("Sign out"), |_| "/signout"))
-///     );
-/// ```
+/// Ver ejemplo en el módulo [`offcanvas`].
+/// Si no contiene elementos, el componente **no se renderiza**.
 #[rustfmt::skip]
 #[derive(AutoDefault)]
 pub struct Offcanvas {
@@ -84,54 +66,7 @@ impl Component for Offcanvas {
     }
 
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
-        let body = self.children().render(cx);
-        if body.is_empty() {
-            return PrepareMarkup::None;
-        }
-
-        let id = cx.required_id::<Self>(self.id());
-        let id_label = join!(id, "-label");
-        let id_target = join!("#", id);
-
-        let body_scroll = match self.body_scroll() {
-            offcanvas::BodyScroll::Disabled => None,
-            offcanvas::BodyScroll::Enabled => Some("true"),
-        };
-
-        let backdrop = match self.backdrop() {
-            offcanvas::Backdrop::Disabled => Some("false"),
-            offcanvas::Backdrop::Enabled => None,
-            offcanvas::Backdrop::Static => Some("static"),
-        };
-
-        let title = self.title().using(cx);
-
-        PrepareMarkup::With(html! {
-            div
-                id=(id)
-                class=[self.classes().get()]
-                tabindex="-1"
-                data-bs-scroll=[body_scroll]
-                data-bs-backdrop=[backdrop]
-                aria-labelledby=(id_label)
-            {
-                div class="offcanvas-header" {
-                    @if !title.is_empty() {
-                        h5 class="offcanvas-title" id=(id_label) { (title) }
-                    }
-                    button
-                        type="button"
-                        class="btn-close"
-                        data-bs-dismiss="offcanvas"
-                        data-bs-target=(id_target)
-                        aria-label=[L10n::t("offcanvas_close", &LOCALES_BOOTSIER).lookup(cx)]
-                    {}
-                }
-                div class="offcanvas-body" {
-                    (body)
-                }
-            }
-        })
+        PrepareMarkup::With(self.render_offcanvas(cx, None))
     }
 }
 
@@ -257,5 +192,60 @@ impl Offcanvas {
     /// Devuelve la lista de componentes (`children`) del panel.
     pub fn children(&self) -> &Children {
         &self.children
+    }
+
+    // **< Offcanvas HELPERS >**********************************************************************
+
+    pub(crate) fn render_offcanvas(&self, cx: &mut Context, extra: Option<&Children>) -> Markup {
+        let body = self.children().render(cx);
+        let body_extra = extra.map(|c| c.render(cx)).unwrap_or_else(|| html! {});
+        if body.is_empty() && body_extra.is_empty() {
+            return html! {};
+        }
+
+        let id = cx.required_id::<Self>(self.id());
+        let id_label = join!(id, "-label");
+        let id_target = join!("#", id);
+
+        let body_scroll = match self.body_scroll() {
+            offcanvas::BodyScroll::Disabled => None,
+            offcanvas::BodyScroll::Enabled => Some("true"),
+        };
+
+        let backdrop = match self.backdrop() {
+            offcanvas::Backdrop::Disabled => Some("false"),
+            offcanvas::Backdrop::Enabled => None,
+            offcanvas::Backdrop::Static => Some("static"),
+        };
+
+        let title = self.title().using(cx);
+
+        html! {
+            div
+                id=(id)
+                class=[self.classes().get()]
+                tabindex="-1"
+                data-bs-scroll=[body_scroll]
+                data-bs-backdrop=[backdrop]
+                aria-labelledby=(id_label)
+            {
+                div class="offcanvas-header" {
+                    @if !title.is_empty() {
+                        h5 class="offcanvas-title" id=(id_label) { (title) }
+                    }
+                    button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="offcanvas"
+                        data-bs-target=(id_target)
+                        aria-label=[L10n::t("offcanvas_close", &LOCALES_BOOTSIER).lookup(cx)]
+                    {}
+                }
+                div class="offcanvas-body" {
+                    (body)
+                    (body_extra)
+                }
+            }
+        }
     }
 }
