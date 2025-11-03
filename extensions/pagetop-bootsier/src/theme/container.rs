@@ -56,8 +56,8 @@ pub struct Container {
     classes        : AttrClasses,
     container_type : ContainerType,
     container_width: ContainerWidth,
-    bg_color       : BgColor,
-    text_color     : TextColor,
+    style_bg       : StyleBg,
+    style_text     : StyleText,
     border         : Border,
     rounded        : Rounded,
     children       : Children,
@@ -86,8 +86,8 @@ impl Component for Container {
                         ContainerWidth::FluidMax(_) => "fluid".to_string(),
                     }
                 ),
-                self.bg_color().to_string(),
-                self.text_color().to_string(),
+                self.style_bg().to_string(),
+                self.style_text().to_string(),
                 self.border().to_string(),
                 self.rounded().to_string(),
             ]
@@ -205,25 +205,25 @@ impl Container {
         self
     }
 
-    /// Establece el color de fondo ([`BgColor`]).
+    /// Establece el estilo del fondo ([`StyleBg`]).
     #[builder_fn]
-    pub fn with_bg_color(mut self, color: BgColor) -> Self {
-        self.bg_color = color;
+    pub fn with_style_bg(mut self, style: StyleBg) -> Self {
+        self.style_bg = style;
         self
     }
 
-    /// Establece el color del texto ([`TextColor`]).
+    /// Establece el estilo del texto ([`StyleText`]).
     #[builder_fn]
-    pub fn with_text_color(mut self, color: TextColor) -> Self {
-        self.text_color = color;
+    pub fn with_style_text(mut self, style: StyleText) -> Self {
+        self.style_text = style;
         self
     }
 
-    /// Atajo para definir los colores de fondo y texto a la vez.
+    /// Atajo para definir los estilos de fondo y texto a la vez.
     #[builder_fn]
-    pub fn with_colors(mut self, bg_color: BgColor, text_color: TextColor) -> Self {
-        self.bg_color = bg_color;
-        self.text_color = text_color;
+    pub fn with_styles(mut self, style_bg: StyleBg, style_text: StyleText) -> Self {
+        self.style_bg = style_bg;
+        self.style_text = style_text;
         self
     }
 
@@ -272,14 +272,14 @@ impl Container {
         &self.container_width
     }
 
-    /// Devuelve el color de fondo del contenedor.
-    pub fn bg_color(&self) -> &BgColor {
-        &self.bg_color
+    /// Devuelve el estilo del fondo del contenedor.
+    pub fn style_bg(&self) -> &StyleBg {
+        &self.style_bg
     }
 
-    /// Devuelve el color del texto del contenedor.
-    pub fn text_color(&self) -> &TextColor {
-        &self.text_color
+    /// Devuelve el estilo del texto del contenedor.
+    pub fn style_text(&self) -> &StyleText {
+        &self.style_text
     }
 
     /// Devuelve el borde configurado del contenedor.

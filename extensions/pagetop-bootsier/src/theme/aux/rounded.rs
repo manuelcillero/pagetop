@@ -4,7 +4,7 @@ use std::fmt;
 
 // **< RoundedRadius >******************************************************************************
 
-/// Radio (**redondeo**) para las esquinas ([`Rounded`]).
+/// Radio para el redondeo de esquinas ([`Rounded`]).
 ///
 /// Mapea a `rounded`, `rounded-0`, `rounded-{1..5}`, `rounded-circle` y `rounded-pill`.
 ///

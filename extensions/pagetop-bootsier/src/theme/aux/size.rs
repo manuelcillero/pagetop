@@ -5,17 +5,14 @@ use std::fmt;
 // **< ButtonSize >*********************************************************************************
 
 /// Tamaño visual de un botón.
-///
-/// Controla la escala del botón según el diseño del tema:
-///
-/// - `Default`, tamaño por defecto del tema (no añade clase).
-/// - `Small`, botón compacto.
-/// - `Large`, botón destacado/grande.
 #[derive(AutoDefault)]
 pub enum ButtonSize {
+    /// Tamaño por defecto del tema (no añade clase).
     #[default]
     Default,
+    /// Botón compacto.
     Small,
+    /// Botón destacado/grande.
     Large,
 }
 

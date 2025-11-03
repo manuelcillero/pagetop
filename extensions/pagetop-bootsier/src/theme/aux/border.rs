@@ -6,7 +6,7 @@ use std::fmt;
 
 // **< BorderSize >*********************************************************************************
 
-/// Tamaño (**ancho**) para los bordes ([`Border`]).
+/// Tamaño para el ancho de los bordes ([`Border`]).
 ///
 /// Mapea a `border`, `border-0` y `border-{1..5}`:
 ///
@@ -58,7 +58,7 @@ impl fmt::Display for BorderSize {
 /// - Definir un tamaño **global** para todo el borde (`size`).
 /// - Ajustar el tamaño de cada **lado lógico** (`top`, `end`, `bottom`, `start`, **en este orden**,
 ///   respetando LTR/RTL).
-/// - Aplicar un **color** al borde (`BorderColor`).
+/// - Aplicar un **color** al borde (`ColorBorder`).
 /// - Aplicar un nivel de **opacidad** (`BorderOpacity`).
 ///
 /// # Comportamiento aditivo / sustractivo
@@ -107,21 +107,19 @@ impl fmt::Display for BorderSize {
 /// let b = Border::with(BorderSize::Default)   // Borde global por defecto.
 ///     .with_top(BorderSize::Zero)             // Quita borde superior.
 ///     .with_end(BorderSize::Scale3)           // Ancho 3 para el lado lógico final.
-///     .with_color(BorderColor::Theme(Color::Primary))
-///     .with_opacity(BorderOpacity::Theme(Opacity::Half));
+///     .with_style(StyleBorder::Both(ColorBorder::Theme(Color::Primary), Opacity::Half));
 ///
 /// assert_eq!(b.to_string(), "border border-top-0 border-end-3 border-primary border-opacity-50");
 /// ```
 #[rustfmt::skip]
 #[derive(AutoDefault)]
 pub struct Border {
-    size   : BorderSize,
-    top    : BorderSize,
-    end    : BorderSize,
-    bottom : BorderSize,
-    start  : BorderSize,
-    color  : BorderColor,
-    opacity: BorderOpacity,
+    size  : BorderSize,
+    top   : BorderSize,
+    end   : BorderSize,
+    bottom: BorderSize,
+    start : BorderSize,
+    style : StyleBorder,
 }
 
 impl Border {
@@ -167,22 +165,16 @@ impl Border {
         self
     }
 
-    /// Establece el **color** del borde.
-    pub fn with_color(mut self, color: BorderColor) -> Self {
-        self.color = color;
-        self
-    }
-
-    /// Establece la **opacidad** del borde.
-    pub fn with_opacity(mut self, opacity: BorderOpacity) -> Self {
-        self.opacity = opacity;
+    /// Establece el estilo de color/opacidad del borde.
+    pub fn with_style(mut self, style: StyleBorder) -> Self {
+        self.style = style;
         self
     }
 }
 
 impl fmt::Display for Border {
-    /// Concatena cada definición en el orden: *global*, `top`, `end`, `bottom`, `start`, *color* y
-    /// *opacidad*; respetando LTR/RTL y omitiendo las definiciones vacías.
+    /// Concatena cada definición en el orden: *global*, `top`, `end`, `bottom`, `start` y
+    /// *color*/*opacidad*; respetando LTR/RTL y omitiendo las definiciones vacías.
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(
             f,
@@ -193,8 +185,7 @@ impl fmt::Display for Border {
                 self.end.to_class("border-end"),
                 self.bottom.to_class("border-bottom"),
                 self.start.to_class("border-start"),
-                self.color.to_string(),
-                self.opacity.to_string(),
+                self.style.to_string(),
             ]; " ")
             .unwrap_or_default()
         )

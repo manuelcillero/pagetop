@@ -26,7 +26,7 @@ pub struct Dropdown {
     classes       : AttrClasses,
     title         : L10n,
     button_size   : ButtonSize,
-    button_color  : ButtonColor,
+    button_color  : ColorButton,
     button_split  : bool,
     button_grouped: bool,
     auto_close    : dropdown::AutoClose,
@@ -212,7 +212,7 @@ impl Dropdown {
 
     /// Define el color/estilo del botón.
     #[builder_fn]
-    pub fn with_button_color(mut self, color: ButtonColor) -> Self {
+    pub fn with_button_color(mut self, color: ColorButton) -> Self {
         self.button_color = color;
         self
     }
@@ -291,7 +291,7 @@ impl Dropdown {
     }
 
     /// Devuelve el color/estilo configurado del botón.
-    pub fn button_color(&self) -> &ButtonColor {
+    pub fn button_color(&self) -> &ColorButton {
         &self.button_color
     }
 

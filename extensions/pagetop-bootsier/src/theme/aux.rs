@@ -4,12 +4,9 @@ mod breakpoint;
 pub use breakpoint::BreakPoint;
 
 mod color;
-pub use color::Color;
-pub use color::{BgColor, BorderColor, ButtonColor, TextColor};
-
-mod opacity;
-pub use opacity::Opacity;
-pub use opacity::{BgOpacity, BorderOpacity, TextOpacity};
+pub use color::{Color, Opacity};
+pub use color::{ColorBg, ColorBorder, ColorButton, ColorText};
+pub use color::{StyleBg, StyleBorder, StyleText};
 
 mod border;
 pub use border::{Border, BorderSize};
