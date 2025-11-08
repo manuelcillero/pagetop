@@ -170,7 +170,7 @@ impl Asset for StyleSheet {
             Source::From(path) => html! {
                 link
                     rel="stylesheet"
-                    href=(join_pair!(path, "?v=", self.version.as_str()))
+                    href=(join_pair!(path, "?v=", &self.version))
                     media=[self.media.as_str_opt()];
             },
             Source::Inline(_, f) => html! {

@@ -215,13 +215,13 @@ impl Asset for JavaScript {
     fn render(&self, cx: &mut Context) -> Markup {
         match &self.source {
             Source::From(path) => html! {
-                script src=(join_pair!(path, "?v=", self.version.as_str())) {};
+                script src=(join_pair!(path, "?v=", &self.version)) {};
             },
             Source::Defer(path) => html! {
-                script src=(join_pair!(path, "?v=", self.version.as_str())) defer {};
+                script src=(join_pair!(path, "?v=", &self.version)) defer {};
             },
             Source::Async(path) => html! {
-                script src=(join_pair!(path, "?v=", self.version.as_str())) async {};
+                script src=(join_pair!(path, "?v=", &self.version)) async {};
             },
             Source::Inline(_, f) => html! {
                 script { (PreEscaped((f)(cx))) };

@@ -65,51 +65,9 @@ macro_rules! hm {
 /// ```
 #[macro_export]
 macro_rules! join {
-    ($($arg:tt)*) => {
-        $crate::util::concat_string!($($arg)*)
+    ($($arg:expr),+) => {
+        $crate::util::concat_string!($($arg),+)
     };
-}
-
-/// Concatena los fragmentos **no vacíos** en un [`Option<String>`] con un separador opcional.
-///
-/// Acepta cualquier número de fragmentos que implementen [`AsRef<str>`]. Si todos los fragmentos
-/// están vacíos, devuelve `None`.
-///
-/// # Ejemplos
-///
-/// ```rust
-/// # use pagetop::prelude::*;
-/// // Concatena los fragmentos no vacíos con un espacio como separador.
-/// let result_with_separator = join_opt!(["Hello", "", "World"]; " ");
-/// assert_eq!(result_with_separator, Some("Hello World".to_string()));
-///
-/// // Concatena los fragmentos no vacíos sin un separador.
-/// let result_without_separator = join_opt!(["Hello", "", "World"]);
-/// assert_eq!(result_without_separator, Some("HelloWorld".to_string()));
-///
-/// // Devuelve `None` si todos los fragmentos están vacíos.
-/// let result_empty = join_opt!(["", "", ""]; ",");
-/// assert_eq!(result_empty, None);
-/// ```
-#[macro_export]
-macro_rules! join_opt {
-    ([$($arg:expr),* $(,)?]) => {{
-        let s = $crate::util::concat_string!($($arg),*);
-        (!s.is_empty()).then_some(s)
-    }};
-    ([$($arg:expr),* $(,)?]; $separator:expr) => {{
-        let sep = ($separator).as_ref();
-        let mut s = String::new();
-        for part in [ $( ($arg).as_ref() ),* ] {
-            if !(part as &str).is_empty() {
-                if !s.is_empty() {
-                    s.push_str(sep);
-                }
-                s.push_str(part);
-            }
-        }
-        (!s.is_empty()).then_some(s)
-    }};
 }
 
 /// Concatena dos fragmentos en un [`String`] usando un separador.
@@ -145,54 +103,19 @@ macro_rules! join_opt {
 #[macro_export]
 macro_rules! join_pair {
     ($first:expr, $separator:expr, $second:expr) => {{
-        if $first.is_empty() {
-            String::from($second)
-        } else if $second.is_empty() {
-            String::from($first)
-        } else {
-            $crate::util::concat_string!($first, $separator, $second)
-        }
-    }};
-}
+        let first_val = $first;
+        let second_val = $second;
+        let separator_val = $separator;
 
-/// Concatena varios fragmentos en un [`Option<String>`] **si ninguno está vacío**.
-///
-/// Si alguno de los fragmentos, que deben implementar [`AsRef<str>`], está vacío, devuelve
-/// [`None`]. Opcionalmente se puede indicar un separador entre los fragmentos concatenados.
-///
-/// # Ejemplo
-///
-/// ```rust
-/// # use pagetop::prelude::*;
-/// // Concatena los fragmentos.
-/// let result = join_strict!(["Hello", "World"]);
-/// assert_eq!(result, Some("HelloWorld".to_string()));
-///
-/// // Concatena los fragmentos con un separador.
-/// let result_with_separator = join_strict!(["Hello", "World"]; " ");
-/// assert_eq!(result_with_separator, Some("Hello World".to_string()));
-///
-/// // Devuelve `None` si alguno de los fragmentos está vacío.
-/// let result_with_empty = join_strict!(["Hello", "", "World"]);
-/// assert_eq!(result_with_empty, None);
-/// ```
-#[macro_export]
-macro_rules! join_strict {
-    ([$($arg:expr),* $(,)?]) => {{
-        let fragments = [$($arg),*];
-        if fragments.iter().any(|&item| item.is_empty()) {
-            None
+        let first = AsRef::<str>::as_ref(&first_val);
+        let second = AsRef::<str>::as_ref(&second_val);
+        let separator = if first.is_empty() || second.is_empty() {
+            ""
         } else {
-            Some(fragments.concat())
-        }
-    }};
-    ([$($arg:expr),* $(,)?]; $separator:expr) => {{
-        let fragments = [$($arg),*];
-        if fragments.iter().any(|&item| item.is_empty()) {
-            None
-        } else {
-            Some(fragments.join($separator))
-        }
+            AsRef::<str>::as_ref(&separator_val)
+        };
+
+        $crate::util::concat_string!(first, separator, second)
     }};
 }
 
