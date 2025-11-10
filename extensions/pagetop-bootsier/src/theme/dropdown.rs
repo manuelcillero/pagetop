@@ -14,7 +14,7 @@
 //! # use pagetop_bootsier::prelude::*;
 //! let dd = Dropdown::new()
 //!     .with_title(L10n::n("Menu"))
-//!     .with_button_color(ColorButton::Background(Color::Secondary))
+//!     .with_button_color(ButtonColor::Background(Color::Secondary))
 //!     .with_auto_close(dropdown::AutoClose::ClickableInside)
 //!     .with_direction(dropdown::Direction::Dropend)
 //!     .add_item(dropdown::Item::link(L10n::n("Home"), |_| "/"))

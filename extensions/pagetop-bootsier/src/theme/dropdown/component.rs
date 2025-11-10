@@ -26,7 +26,7 @@ pub struct Dropdown {
     classes       : AttrClasses,
     title         : L10n,
     button_size   : ButtonSize,
-    button_color  : ColorButton,
+    button_color  : ButtonColor,
     button_split  : bool,
     button_grouped: bool,
     auto_close    : dropdown::AutoClose,
@@ -59,7 +59,7 @@ impl Component for Dropdown {
                 dropdown::Direction::Dropend        => "dropend",
                 dropdown::Direction::Dropstart      => "dropstart",
             }
-        ].join(" "));
+        ].join_classes());
     }
 
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
@@ -79,7 +79,7 @@ impl Component for Dropdown {
                         "btn",
                         &self.button_size().to_string(),
                         &self.button_color().to_string(),
-                    ].join(" "));
+                    ].join_classes());
                     @let (offset, reference) = match self.menu_position() {
                         dropdown::MenuPosition::Default => (None, None),
                         dropdown::MenuPosition::Offset(x, y) => (Some(format!("{x},{y}")), None),
@@ -212,7 +212,7 @@ impl Dropdown {
 
     /// Define el color/estilo del botón.
     #[builder_fn]
-    pub fn with_button_color(mut self, color: ColorButton) -> Self {
+    pub fn with_button_color(mut self, color: ButtonColor) -> Self {
         self.button_color = color;
         self
     }
@@ -291,7 +291,7 @@ impl Dropdown {
     }
 
     /// Devuelve el color/estilo configurado del botón.
-    pub fn button_color(&self) -> &ColorButton {
+    pub fn button_color(&self) -> &ButtonColor {
         &self.button_color
     }
 

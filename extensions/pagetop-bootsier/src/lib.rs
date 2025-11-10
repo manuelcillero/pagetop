@@ -98,7 +98,6 @@ pub mod theme;
 /// *Prelude* del tema.
 pub mod prelude {
     pub use crate::config::*;
-    pub use crate::theme::aux::*;
     pub use crate::theme::*;
 }
 

@@ -17,14 +17,12 @@ const TOGGLE_OFFCANVAS: &str = "offcanvas";
 #[rustfmt::skip]
 #[derive(AutoDefault)]
 pub struct Navbar {
-    id        : AttrId,
-    classes   : AttrClasses,
-    expand    : BreakPoint,
-    layout    : navbar::Layout,
-    position  : navbar::Position,
-    style_bg  : StyleBg,
-    style_text: StyleText,
-    items     : Children,
+    id          : AttrId,
+    classes     : AttrClasses,
+    expand      : BreakPoint,
+    layout      : navbar::Layout,
+    position    : navbar::Position,
+    items       : Children,
 }
 
 impl Component for Navbar {
@@ -50,10 +48,8 @@ impl Component for Navbar {
                     navbar::Position::StickyBottom => "sticky-bottom",
                 }
                 .to_string(),
-                self.style_bg().to_string(),
-                self.style_text().to_string(),
             ]
-            .join(" "),
+            .join_classes(),
         );
     }
 
@@ -232,6 +228,11 @@ impl Navbar {
     }
 
     /// Modifica la lista de clases CSS aplicadas a la barra de navegación.
+    ///
+    /// También acepta clases predefinidas para:
+    ///
+    /// - Modificar el color de fondo ([`classes::Background`]).
+    /// - Definir la apariencia del texto ([`classes::Text`]).
     #[builder_fn]
     pub fn with_classes(mut self, op: ClassesOp, classes: impl AsRef<str>) -> Self {
         self.classes.alter_value(op, classes);
@@ -256,28 +257,6 @@ impl Navbar {
     #[builder_fn]
     pub fn with_position(mut self, position: navbar::Position) -> Self {
         self.position = position;
-        self
-    }
-
-    /// Establece el estilo del fondo ([`StyleBg`]).
-    #[builder_fn]
-    pub fn with_style_bg(mut self, style: StyleBg) -> Self {
-        self.style_bg = style;
-        self
-    }
-
-    /// Establece el estilo del texto ([`StyleText`]).
-    #[builder_fn]
-    pub fn with_style_text(mut self, style: StyleText) -> Self {
-        self.style_text = style;
-        self
-    }
-
-    /// Atajo para definir los estilos de fondo y texto a la vez.
-    #[builder_fn]
-    pub fn with_styles(mut self, style_bg: StyleBg, style_text: StyleText) -> Self {
-        self.style_bg = style_bg;
-        self.style_text = style_text;
         self
     }
 
@@ -315,16 +294,6 @@ impl Navbar {
     /// Devuelve la posición configurada para la barra de navegación.
     pub fn position(&self) -> &navbar::Position {
         &self.position
-    }
-
-    /// Devuelve el estilo del fondo del contenedor.
-    pub fn style_bg(&self) -> &StyleBg {
-        &self.style_bg
-    }
-
-    /// Devuelve el estilo del texto del contenedor.
-    pub fn style_text(&self) -> &StyleText {
-        &self.style_text
     }
 
     /// Devuelve la lista de contenidos (`children`).

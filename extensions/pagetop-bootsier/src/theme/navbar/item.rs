@@ -67,7 +67,7 @@ impl Component for Item {
                                 nav::Layout::Justified => "nav-justified",
                             },
                         ]
-                        .join(" "),
+                        .join_classes(),
                     );
                     PrepareMarkup::With(html! {
                         ul id=[nav.id()] class=[classes.get()] {

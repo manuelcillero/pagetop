@@ -50,7 +50,7 @@ impl Component for Nav {
                     nav::Layout::Justified => "nav-justified",
                 },
             ]
-            .join(" "),
+            .join_classes(),
         );
     }
 

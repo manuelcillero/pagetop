@@ -1,10 +1,18 @@
 //! Definiciones y componentes del tema.
+//!
+//! En esta página, el apartado **Modules** incluye las definiciones necesarias para los componentes
+//! que se muestran en el apartado **Structs**, mientras que en **Enums** se listan los elementos
+//! auxiliares del tema utilizados en clases y componentes.
 
-pub mod aux;
+mod aux;
+pub use aux::*;
+
+pub mod classes;
 
 // Container.
-mod container;
-pub use container::{Container, ContainerType, ContainerWidth};
+pub mod container;
+#[doc(inline)]
+pub use container::Container;
 
 // Dropdown.
 pub mod dropdown;

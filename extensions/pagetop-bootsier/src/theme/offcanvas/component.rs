@@ -61,7 +61,7 @@ impl Component for Offcanvas {
                     offcanvas::Visibility::Show    => "show",
                 }.to_string(),
             ]
-            .join(" "),
+            .join_classes(),
         );
     }
 

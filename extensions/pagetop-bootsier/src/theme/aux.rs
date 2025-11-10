@@ -5,14 +5,13 @@ pub use breakpoint::BreakPoint;
 
 mod color;
 pub use color::{Color, Opacity};
-pub use color::{ColorBg, ColorBorder, ColorButton, ColorText};
-pub use color::{StyleBg, StyleBorder, StyleText};
+pub use color::{ColorBg, ColorText};
 
 mod border;
-pub use border::{Border, BorderSize};
+pub use border::{BorderColor, BorderSize};
 
 mod rounded;
-pub use rounded::{Rounded, RoundedRadius};
+pub use rounded::RoundedRadius;
 
-mod size;
-pub use size::ButtonSize;
+mod button;
+pub use button::{ButtonColor, ButtonSize};

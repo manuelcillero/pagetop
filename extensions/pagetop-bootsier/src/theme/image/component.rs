@@ -6,8 +6,8 @@ use crate::prelude::*;
 ///
 /// - Ajusta su disposición según el origen definido en [`image::Source`].
 /// - Permite configurar **dimensiones** ([`with_size()`](Self::with_size)), **borde**
-///   ([`with_border()`](Self::with_border)) y **redondeo de esquinas**
-///   ([`with_rounded()`](Self::with_rounded)).
+///   ([`classes::Border`](crate::theme::classes::Border)) y **redondeo de esquinas**
+///   ([`classes::Rounded`](crate::theme::classes::Rounded)).
 /// - Resuelve el texto alternativo `alt` con **localización** mediante [`L10n`].
 #[rustfmt::skip]
 #[derive(AutoDefault)]
@@ -17,8 +17,6 @@ pub struct Image {
     size   : image::Size,
     source : image::Source,
     alt    : AttrL10n,
-    border : Border,
-    rounded: Rounded,
 }
 
 impl Component for Image {
@@ -33,17 +31,12 @@ impl Component for Image {
     fn setup_before_prepare(&mut self, _cx: &mut Context) {
         self.alter_classes(
             ClassesOp::Prepend,
-            [
-                String::from(match self.source() {
-                    image::Source::Logo(_) => "img-fluid",
-                    image::Source::Responsive(_) => "img-fluid",
-                    image::Source::Thumbnail(_) => "img-thumbnail",
-                    image::Source::Plain(_) => "",
-                }),
-                self.border().to_string(),
-                self.rounded().to_string(),
-            ]
-            .join(" "),
+            match self.source() {
+                image::Source::Logo(_) => "img-fluid",
+                image::Source::Responsive(_) => "img-fluid",
+                image::Source::Thumbnail(_) => "img-thumbnail",
+                image::Source::Plain(_) => "",
+            },
         );
     }
 
@@ -116,6 +109,11 @@ impl Image {
     }
 
     /// Modifica la lista de clases CSS aplicadas a la imagen.
+    ///
+    /// También acepta clases predefinidas para:
+    ///
+    /// - Establecer bordes ([`classes::Border`]).
+    /// - Redondear las esquinas ([`classes::Rounded`]).
     #[builder_fn]
     pub fn with_classes(mut self, op: ClassesOp, classes: impl AsRef<str>) -> Self {
         self.classes.alter_value(op, classes);
@@ -146,20 +144,6 @@ impl Image {
         self
     }
 
-    /// Establece el borde de la imagen ([`Border`]).
-    #[builder_fn]
-    pub fn with_border(mut self, border: Border) -> Self {
-        self.border = border;
-        self
-    }
-
-    /// Establece esquinas redondeadas para la imagen ([`Rounded`]).
-    #[builder_fn]
-    pub fn with_rounded(mut self, rounded: Rounded) -> Self {
-        self.rounded = rounded;
-        self
-    }
-
     // **< Image GETTERS >**************************************************************************
 
     /// Devuelve las clases CSS asociadas a la imagen.
@@ -180,15 +164,5 @@ impl Image {
     /// Devuelve el texto alternativo localizado.
     pub fn alternative(&self) -> &AttrL10n {
         &self.alt
-    }
-
-    /// Devuelve el borde configurado de la imagen.
-    pub fn border(&self) -> &Border {
-        &self.border
-    }
-
-    /// Devuelve las esquinas redondeadas configuradas para la imagen.
-    pub fn rounded(&self) -> &Rounded {
-        &self.rounded
     }
 }

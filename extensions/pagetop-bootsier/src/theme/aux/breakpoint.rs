@@ -3,25 +3,6 @@ use pagetop::prelude::*;
 use std::fmt;
 
 /// Define los puntos de ruptura (*breakpoints*) para aplicar diseño *responsive*.
-///
-/// - `"sm"`, `"md"`, `"lg"`, `"xl"` o `"xxl"` para los puntos de ruptura `SM`, `MD`, `LG`, `XL` o
-///   `XXL`, respectivamente.
-/// - `""` (cadena vacía) para `None`.
-///
-/// # Ejemplos
-///
-/// ```rust
-/// # use pagetop_bootsier::prelude::*;
-/// assert_eq!(BreakPoint::MD.to_string(), "md");
-/// assert_eq!(BreakPoint::None.to_string(), "");
-///
-/// // Forma correcta para clases con prefijo:
-/// assert_eq!(BreakPoint::MD.to_class("col"), "col-md");
-/// assert_eq!(BreakPoint::None.to_class("offcanvas"), "offcanvas");
-///
-/// assert_eq!(BreakPoint::XXL.try_class("col"), Some("col-xxl".to_string()));
-/// assert_eq!(BreakPoint::None.try_class("offcanvas"), None);
-/// ```
 #[derive(AutoDefault)]
 pub enum BreakPoint {
     /// **Menos de 576px**. Dispositivos muy pequeños: teléfonos en modo vertical.
@@ -40,46 +21,43 @@ pub enum BreakPoint {
 }
 
 impl BreakPoint {
-    /// Comprueba si es un punto de ruptura efectivo.
-    ///
-    /// Devuelve `true` si el valor es `SM`, `MD`, `LG`, `XL` o `XXL`; y `false` en otro caso.
+    #[rustfmt::skip]
     #[inline]
-    pub const fn is_breakpoint(&self) -> bool {
-        !matches!(self, Self::None)
+    const fn suffix(&self) -> Option<&'static str> {
+        match self {
+            Self::None => None,
+            Self::SM   => Some("sm"),
+            Self::MD   => Some("md"),
+            Self::LG   => Some("lg"),
+            Self::XL   => Some("xl"),
+            Self::XXL  => Some("xxl"),
+        }
     }
 
     /// Genera un nombre de clase CSS basado en el punto de ruptura.
     ///
-    /// Si es un punto de ruptura efectivo (ver [`is_breakpoint()`](Self::is_breakpoint), concatena
-    /// el prefijo, un guion (`-`) y el sufijo asociado. En otro caso devuelve únicamente el
-    /// prefijo.
+    /// Si es un punto de ruptura efectivo concatena el prefijo, un guion (`-`) y el sufijo
+    /// asociado. Para `None` devuelve sólo el prefijo.
     ///
     /// # Ejemplo
     ///
     /// ```rust
     /// # use pagetop_bootsier::prelude::*;
     /// let breakpoint = BreakPoint::MD;
-    /// let class = breakpoint.to_class("col");
-    /// assert_eq!(class, "col-md".to_string());
+    /// assert_eq!(breakpoint.to_class("col"), "col-md");
     ///
     /// let breakpoint = BreakPoint::None;
-    /// let class = breakpoint.to_class("offcanvas");
-    /// assert_eq!(class, "offcanvas".to_string());
+    /// assert_eq!(breakpoint.to_class("offcanvas"), "offcanvas");
     /// ```
     #[inline]
     pub fn to_class(&self, prefix: impl AsRef<str>) -> String {
-        if self.is_breakpoint() {
-            join!(prefix, "-", self.to_string())
-        } else {
-            String::from(prefix.as_ref())
-        }
+        join_pair!(prefix, "-", self.suffix().unwrap_or_default())
     }
 
     /// Intenta generar un nombre de clase CSS basado en el punto de ruptura.
     ///
-    /// Si es un punto de ruptura efectivo (ver [`is_breakpoint()`](Self::is_breakpoint), devuelve
-    /// `Some(String)` concatenando el prefijo, un guion (`-`) y el sufijo asociado. En otro caso
-    /// devuelve `None`.
+    /// Si es un punto de ruptura efectivo devuelve `Some(String)` concatenando el prefijo, un guion
+    /// (`-`) y el sufijo asociado. En otro caso devuelve `None`.
     ///
     /// # Ejemplo
     ///
@@ -95,24 +73,19 @@ impl BreakPoint {
     /// ```
     #[inline]
     pub fn try_class(&self, prefix: impl AsRef<str>) -> Option<String> {
-        if self.is_breakpoint() {
-            Some(join!(prefix, "-", self.to_string()))
-        } else {
-            None
-        }
+        self.suffix().map(|suffix| join_pair!(prefix, "-", suffix))
     }
 }
 
-#[rustfmt::skip]
 impl fmt::Display for BreakPoint {
+    /// Implementa [`Display`](std::fmt::Display) para asociar `"sm"`, `"md"`, `"lg"`, `"xl"` o
+    /// `"xxl"` a los puntos de ruptura `BreakPoint::SM`, `MD`, `LG`, `XL` o `XXL`, respectivamente.
+    /// Y `""` (cadena vacía) a `BreakPoint::None`.
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            Self::None => Ok(()),
-            Self::SM   => f.write_str("sm"),
-            Self::MD   => f.write_str("md"),
-            Self::LG   => f.write_str("lg"),
-            Self::XL   => f.write_str("xl"),
-            Self::XXL  => f.write_str("xxl"),
+        if let Some(suffix) = self.suffix() {
+            f.write_str(suffix)
+        } else {
+            Ok(())
         }
     }
 }
