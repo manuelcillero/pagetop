@@ -23,7 +23,7 @@ enum Source {
 ///
 /// Permite especificar en qué contexto se aplica el CSS, adaptándose a diferentes dispositivos o
 /// situaciones de impresión.
-#[derive(AutoDefault)]
+#[derive(AutoDefault, Clone, Copy, Debug, PartialEq)]
 pub enum TargetMedia {
     /// Se aplica en todos los casos (el atributo `media` se omite).
     #[default]
@@ -39,7 +39,7 @@ pub enum TargetMedia {
 /// Devuelve el valor para el atributo `media` (`Some(...)`) o `None` para `Default`.
 #[rustfmt::skip]
 impl TargetMedia {
-    fn as_str_opt(&self) -> Option<&str> {
+    const fn as_str(self) -> Option<&'static str> {
         match self {
             TargetMedia::Default => None,
             TargetMedia::Print   => Some("print"),
@@ -171,7 +171,7 @@ impl Asset for StyleSheet {
                 link
                     rel="stylesheet"
                     href=(join_pair!(path, "?v=", &self.version))
-                    media=[self.media.as_str_opt()];
+                    media=[self.media.as_str()];
             },
             Source::Inline(_, f) => html! {
                 style { (PreEscaped((f)(cx))) };

@@ -45,21 +45,11 @@ impl Component for Dropdown {
         self.id.get()
     }
 
-    #[rustfmt::skip]
     fn setup_before_prepare(&mut self, _cx: &mut Context) {
-        let g = self.button_grouped();
-        self.alter_classes(ClassesOp::Prepend, [
-            if g { "btn-group" } else { "" },
-            match self.direction() {
-                dropdown::Direction::Default if g   => "",
-                dropdown::Direction::Default        => "dropdown",
-                dropdown::Direction::Centered       => "dropdown-center",
-                dropdown::Direction::Dropup         => "dropup",
-                dropdown::Direction::DropupCentered => "dropup-center",
-                dropdown::Direction::Dropend        => "dropend",
-                dropdown::Direction::Dropstart      => "dropstart",
-            }
-        ].join_classes());
+        self.alter_classes(
+            ClassesOp::Prepend,
+            self.direction().class_with(self.button_grouped()),
+        );
     }
 
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
@@ -75,41 +65,21 @@ impl Component for Dropdown {
         PrepareMarkup::With(html! {
             div id=[self.id()] class=[self.classes().get()] {
                 @if !title.is_empty() {
-                    @let mut btn_classes = AttrClasses::new([
-                        "btn",
-                        &self.button_size().to_string(),
-                        &self.button_color().to_string(),
-                    ].join_classes());
-                    @let (offset, reference) = match self.menu_position() {
-                        dropdown::MenuPosition::Default => (None, None),
-                        dropdown::MenuPosition::Offset(x, y) => (Some(format!("{x},{y}")), None),
-                        dropdown::MenuPosition::Parent => (None, Some("parent")),
-                    };
-                    @let auto_close = match self.auto_close {
-                        dropdown::AutoClose::Default => None,
-                        dropdown::AutoClose::ClickableInside => Some("inside"),
-                        dropdown::AutoClose::ClickableOutside => Some("outside"),
-                        dropdown::AutoClose::ManualClose => Some("false"),
-                    };
-                    @let menu_classes = AttrClasses::new("dropdown-menu")
-                        .with_value(ClassesOp::Add, match self.menu_align() {
-                            dropdown::MenuAlign::Start => String::new(),
-                            dropdown::MenuAlign::StartAt(bp) => bp.try_class("dropdown-menu")
-                                .map_or(String::new(), |class| join!(class, "-start")),
-                            dropdown::MenuAlign::StartAndEnd(bp) => bp.try_class("dropdown-menu")
-                                .map_or(
-                                    "dropdown-menu-start".into(),
-                                    |class| join!("dropdown-menu-start ", class, "-end")
-                                ),
-                            dropdown::MenuAlign::End => "dropdown-menu-end".into(),
-                            dropdown::MenuAlign::EndAt(bp) => bp.try_class("dropdown-menu")
-                                .map_or(String::new(), |class| join!(class, "-end")),
-                            dropdown::MenuAlign::EndAndStart(bp) => bp.try_class("dropdown-menu")
-                                .map_or(
-                                    "dropdown-menu-end".into(),
-                                    |class| join!("dropdown-menu-end ", class, "-start")
-                                ),
-                        });
+                    @let mut btn_classes = AttrClasses::new({
+                        let mut classes = "btn".to_string();
+                        self.button_size().push_class(&mut classes);
+                        self.button_color().push_class(&mut classes);
+                        classes
+                    });
+                    @let pos = self.menu_position();
+                    @let offset = pos.data_offset();
+                    @let reference = pos.data_reference();
+                    @let auto_close = self.auto_close.as_str();
+                    @let menu_classes = AttrClasses::new({
+                        let mut classes = "dropdown-menu".to_string();
+                        self.menu_align().push_class(&mut classes);
+                        classes
+                    });
 
                     // Renderizado en modo split (dos botones) o simple (un botón).
                     @if self.button_split() {

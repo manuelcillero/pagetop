@@ -2,8 +2,6 @@ use pagetop::prelude::*;
 
 use crate::theme::aux::RoundedRadius;
 
-use std::fmt;
-
 /// Clases para definir **esquinas redondeadas**.
 ///
 /// Permite:
@@ -20,28 +18,28 @@ use std::fmt;
 /// ```rust
 /// # use pagetop_bootsier::prelude::*;
 /// let r = classes::Rounded::with(RoundedRadius::Default);
-/// assert_eq!(r.to_string(), "rounded");
+/// assert_eq!(r.to_class(), "rounded");
 /// ```
 ///
 /// **Sin redondeo:**
 /// ```rust
 /// # use pagetop_bootsier::prelude::*;
 /// let r = classes::Rounded::new();
-/// assert_eq!(r.to_string(), "");
+/// assert_eq!(r.to_class(), "");
 /// ```
 ///
 /// **Radio en las esquinas de un lado lógico:**
 /// ```rust
 /// # use pagetop_bootsier::prelude::*;
 /// let r = classes::Rounded::new().with_end(RoundedRadius::Scale2);
-/// assert_eq!(r.to_string(), "rounded-end-2");
+/// assert_eq!(r.to_class(), "rounded-end-2");
 /// ```
 ///
 /// **Radio en una esquina concreta:**
 /// ```rust
 /// # use pagetop_bootsier::prelude::*;
 /// let r = classes::Rounded::new().with_top_start(RoundedRadius::Scale3);
-/// assert_eq!(r.to_string(), "rounded-top-start-3");
+/// assert_eq!(r.to_class(), "rounded-top-start-3");
 /// ```
 ///
 /// **Combinado (ejemplo completo):**
@@ -52,10 +50,10 @@ use std::fmt;
 ///     .with_bottom_start(RoundedRadius::Scale4)   // Añade una esquina redondeada concreta.
 ///     .with_bottom_end(RoundedRadius::Circle);    // Añade redondeo extremo en otra esquina.
 ///
-/// assert_eq!(r.to_string(), "rounded-top rounded-bottom-start-4 rounded-bottom-end-circle");
+/// assert_eq!(r.to_class(), "rounded-top rounded-bottom-start-4 rounded-bottom-end-circle");
 /// ```
 #[rustfmt::skip]
-#[derive(AutoDefault)]
+#[derive(AutoDefault, Clone, Copy, Debug, PartialEq)]
 pub struct Rounded {
     radius      : RoundedRadius,
     top         : RoundedRadius,
@@ -136,28 +134,36 @@ impl Rounded {
         self.bottom_end = radius;
         self
     }
-}
 
-impl fmt::Display for Rounded {
+    // **< Rounded HELPERS >************************************************************************
+
+    /// Añade las clases de redondeo a la cadena de clases.
+    ///
     /// Concatena, en este orden, las clases para *global*, `top`, `end`, `bottom`, `start`,
     /// `top-start`, `top-end`, `bottom-start` y `bottom-end`; respetando LTR/RTL y omitiendo las
     /// definiciones vacías.
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(
-            f,
-            "{}",
-            [
-                self.radius.to_string(),
-                self.top.to_class("rounded-top"),
-                self.end.to_class("rounded-end"),
-                self.bottom.to_class("rounded-bottom"),
-                self.start.to_class("rounded-start"),
-                self.top_start.to_class("rounded-top-start"),
-                self.top_end.to_class("rounded-top-end"),
-                self.bottom_start.to_class("rounded-bottom-start"),
-                self.bottom_end.to_class("rounded-bottom-end"),
-            ]
-            .join_classes()
-        )
+    #[rustfmt::skip]
+    #[inline]
+    pub(crate) fn push_class(self, classes: &mut String) {
+        self.radius      .push_class(classes, "");
+        self.top         .push_class(classes, "rounded-top");
+        self.end         .push_class(classes, "rounded-end");
+        self.bottom      .push_class(classes, "rounded-bottom");
+        self.start       .push_class(classes, "rounded-start");
+        self.top_start   .push_class(classes, "rounded-top-start");
+        self.top_end     .push_class(classes, "rounded-top-end");
+        self.bottom_start.push_class(classes, "rounded-bottom-start");
+        self.bottom_end  .push_class(classes, "rounded-bottom-end");
+    }
+
+    /// Devuelve las clases de redondeo como cadena (`"rounded"`,
+    /// `"rounded-top rounded-bottom-start-4 rounded-bottom-end-circle"`, etc.).
+    ///
+    /// Si no se define ningún radio, devuelve `""`.
+    #[inline]
+    pub fn to_class(self) -> String {
+        let mut classes = String::new();
+        self.push_class(&mut classes);
+        classes
     }
 }

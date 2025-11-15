@@ -27,7 +27,7 @@ use crate::AutoDefault;
 /// };
 /// ```
 
-#[derive(AutoDefault)]
+#[derive(AutoDefault, Clone, Copy, Debug, PartialEq)]
 pub enum PageTopSvg {
     /// Versión por defecto con el logotipo a color.
     #[default]

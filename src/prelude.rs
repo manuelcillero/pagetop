@@ -33,8 +33,8 @@ pub use crate::trace;
 // alias obsoletos se volverá a declarar como `pub use crate::html::*;`.
 pub use crate::html::{
     display, html_private, Asset, Assets, AttrClasses, AttrId, AttrL10n, AttrName, AttrValue,
-    ClassesOp, Escaper, Favicon, JavaScript, JoinClasses, Markup, PageTopSvg, PreEscaped,
-    PrepareMarkup, StyleSheet, TargetMedia, UnitValue, DOCTYPE,
+    ClassesOp, Escaper, Favicon, JavaScript, Markup, PageTopSvg, PreEscaped, PrepareMarkup,
+    StyleSheet, TargetMedia, UnitValue, DOCTYPE,
 };
 
 pub use crate::locale::*;

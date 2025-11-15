@@ -115,7 +115,7 @@ impl Component for Item {
             }
 
             ItemKind::Button { label, disabled } => {
-                let mut classes = "dropdown-item".to_owned();
+                let mut classes = "dropdown-item".to_string();
                 if *disabled {
                     classes.push_str(" disabled");
                 }

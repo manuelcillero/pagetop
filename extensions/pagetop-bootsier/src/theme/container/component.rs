@@ -26,20 +26,7 @@ impl Component for Container {
     }
 
     fn setup_before_prepare(&mut self, _cx: &mut Context) {
-        self.alter_classes(
-            ClassesOp::Prepend,
-            [join_pair!(
-                "container",
-                "-",
-                match self.width() {
-                    container::Width::Default => String::new(),
-                    container::Width::From(bp) => bp.to_string(),
-                    container::Width::Fluid => "fluid".to_string(),
-                    container::Width::FluidMax(_) => "fluid".to_string(),
-                }
-            )]
-            .join_classes(),
-        );
+        self.alter_classes(ClassesOp::Prepend, self.width().to_class());
     }
 
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {

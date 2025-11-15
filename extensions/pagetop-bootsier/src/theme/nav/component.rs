@@ -30,28 +30,12 @@ impl Component for Nav {
     }
 
     fn setup_before_prepare(&mut self, _cx: &mut Context) {
-        self.alter_classes(
-            ClassesOp::Prepend,
-            [
-                "nav",
-                match self.nav_kind() {
-                    nav::Kind::Default => "",
-                    nav::Kind::Tabs => "nav-tabs",
-                    nav::Kind::Pills => "nav-pills",
-                    nav::Kind::Underline => "nav-underline",
-                },
-                match self.nav_layout() {
-                    nav::Layout::Default => "",
-                    nav::Layout::Start => "justify-content-start",
-                    nav::Layout::Center => "justify-content-center",
-                    nav::Layout::End => "justify-content-end",
-                    nav::Layout::Vertical => "flex-column",
-                    nav::Layout::Fill => "nav-fill",
-                    nav::Layout::Justified => "nav-justified",
-                },
-            ]
-            .join_classes(),
-        );
+        self.alter_classes(ClassesOp::Prepend, {
+            let mut classes = "nav".to_string();
+            self.nav_kind().push_class(&mut classes);
+            self.nav_layout().push_class(&mut classes);
+            classes
+        });
     }
 
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {

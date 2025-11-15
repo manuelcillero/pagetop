@@ -7,8 +7,11 @@ mod color;
 pub use color::{Color, Opacity};
 pub use color::{ColorBg, ColorText};
 
+mod layout;
+pub use layout::{ScaleSize, Side};
+
 mod border;
-pub use border::{BorderColor, BorderSize};
+pub use border::BorderColor;
 
 mod rounded;
 pub use rounded::RoundedRadius;

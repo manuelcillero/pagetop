@@ -38,6 +38,14 @@ impl Component for Item {
         }
     }
 
+    fn setup_before_prepare(&mut self, _cx: &mut Context) {
+        if let Self::Nav(nav) = self {
+            if let Some(mut nav) = nav.borrow_mut() {
+                nav.alter_classes(ClassesOp::Prepend, "navbar-nav");
+            }
+        }
+    }
+
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
         match self {
             Self::Void => PrepareMarkup::None,
@@ -48,29 +56,8 @@ impl Component for Item {
                     if items.is_empty() {
                         return PrepareMarkup::None;
                     }
-                    let classes = AttrClasses::new(
-                        [
-                            "navbar-nav",
-                            match nav.nav_kind() {
-                                nav::Kind::Default => "",
-                                nav::Kind::Tabs => "nav-tabs",
-                                nav::Kind::Pills => "nav-pills",
-                                nav::Kind::Underline => "nav-underline",
-                            },
-                            match nav.nav_layout() {
-                                nav::Layout::Default => "",
-                                nav::Layout::Start => "justify-content-start",
-                                nav::Layout::Center => "justify-content-center",
-                                nav::Layout::End => "justify-content-end",
-                                nav::Layout::Vertical => "flex-column",
-                                nav::Layout::Fill => "nav-fill",
-                                nav::Layout::Justified => "nav-justified",
-                            },
-                        ]
-                        .join_classes(),
-                    );
                     PrepareMarkup::With(html! {
-                        ul id=[nav.id()] class=[classes.get()] {
+                        ul id=[nav.id()] class=[nav.classes().get()] {
                             (items)
                         }
                     })

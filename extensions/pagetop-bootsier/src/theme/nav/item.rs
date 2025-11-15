@@ -29,6 +29,40 @@ pub enum ItemKind {
     Dropdown(Typed<Dropdown>),
 }
 
+impl ItemKind {
+    const ITEM: &str = "nav-item";
+    const DROPDOWN: &str = "nav-item dropdown";
+
+    // Devuelve las clases base asociadas al tipo de elemento.
+    #[inline]
+    const fn as_str(&self) -> &'static str {
+        match self {
+            Self::Void => "",
+            Self::Dropdown(_) => Self::DROPDOWN,
+            _ => Self::ITEM,
+        }
+    }
+
+    /* Añade las clases asociadas al tipo de elemento a la cadena de clases (reservado).
+    #[inline]
+    pub(crate) fn push_class(&self, classes: &mut String) {
+        let class = self.as_str();
+        if class.is_empty() {
+            return;
+        }
+        if !classes.is_empty() {
+            classes.push(' ');
+        }
+        classes.push_str(class);
+    } */
+
+    // Devuelve las clases asociadas al tipo de elemento.
+    #[inline]
+    pub(crate) fn to_class(&self) -> String {
+        self.as_str().to_owned()
+    }
+}
+
 // **< Item >***************************************************************************************
 
 /// Representa un **elemento individual** de un menú [`Nav`](crate::theme::Nav).
@@ -56,14 +90,7 @@ impl Component for Item {
     }
 
     fn setup_before_prepare(&mut self, _cx: &mut Context) {
-        self.alter_classes(
-            ClassesOp::Prepend,
-            if matches!(self.item_kind(), ItemKind::Dropdown(_)) {
-                "nav-item dropdown"
-            } else {
-                "nav-item"
-            },
-        );
+        self.alter_classes(ClassesOp::Prepend, self.item_kind().to_class());
     }
 
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
@@ -96,12 +123,12 @@ impl Component for Item {
                     classes.push_str(" disabled");
                 }
 
-                let href = (!disabled).then_some(path);
-                let target = (!disabled && *blank).then_some("_blank");
-                let rel = (!disabled && *blank).then_some("noopener noreferrer");
+                let href = (!*disabled).then_some(path);
+                let target = (!*disabled && *blank).then_some("_blank");
+                let rel = (!*disabled && *blank).then_some("noopener noreferrer");
 
                 let aria_current = (href.is_some() && is_current).then_some("page");
-                let aria_disabled = disabled.then_some("true");
+                let aria_disabled = (*disabled).then_some("true");
 
                 PrepareMarkup::With(html! {
                     li id=[self.id()] class=[self.classes().get()] {

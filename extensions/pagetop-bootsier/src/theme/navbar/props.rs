@@ -42,7 +42,7 @@ pub enum Layout {
 // **< Position >***********************************************************************************
 
 /// Posición global de una barra de navegación [`Navbar`] en el documento.
-#[derive(AutoDefault)]
+#[derive(AutoDefault, Clone, Copy, Debug, PartialEq)]
 pub enum Position {
     /// Barra normal, fluye con el documento.
     #[default]
@@ -61,4 +61,38 @@ pub enum Position {
     StickyTop,
     /// La barra de navegación se fija en la parte inferior al hacer *scroll*.
     StickyBottom,
+}
+
+impl Position {
+    // Devuelve la clase base asociada a la posición de la barra de navegación.
+    #[inline]
+    const fn as_str(self) -> &'static str {
+        match self {
+            Self::Static => "",
+            Self::FixedTop => "fixed-top",
+            Self::FixedBottom => "fixed-bottom",
+            Self::StickyTop => "sticky-top",
+            Self::StickyBottom => "sticky-bottom",
+        }
+    }
+
+    // Añade la clase asociada a la posición de la barra de navegación a la cadena de clases.
+    #[inline]
+    pub(crate) fn push_class(self, classes: &mut String) {
+        let class = self.as_str();
+        if class.is_empty() {
+            return;
+        }
+        if !classes.is_empty() {
+            classes.push(' ');
+        }
+        classes.push_str(class);
+    }
+
+    /* Devuelve la clase asociada a la posición de la barra de navegación, o cadena vacía si no
+    // aplica (reservado).
+    #[inline]
+    pub(crate) fn to_class(self) -> String {
+        self.as_str().to_string()
+    } */
 }

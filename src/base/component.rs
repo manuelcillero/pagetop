@@ -2,11 +2,9 @@
 
 use crate::prelude::*;
 
-use std::fmt;
-
 // **< FontSize >***********************************************************************************
 
-#[derive(AutoDefault)]
+#[derive(AutoDefault, Clone, Copy, Debug, PartialEq)]
 pub enum FontSize {
     ExtraLarge,
     XxLarge,
@@ -24,7 +22,7 @@ pub enum FontSize {
 #[rustfmt::skip]
 impl FontSize {
     #[inline]
-    pub const fn as_str(&self) -> &'static str {
+    pub const fn as_str(self) -> &'static str {
         match self {
             FontSize::ExtraLarge => "fs__x3l",
             FontSize::XxLarge    => "fs__x2l",
@@ -37,12 +35,6 @@ impl FontSize {
             FontSize::XxSmall    => "fs__x2s",
             FontSize::ExtraSmall => "fs__x3s",
         }
-    }
-}
-
-impl fmt::Display for FontSize {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.write_str(self.as_str())
     }
 }
 

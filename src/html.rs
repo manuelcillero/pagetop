@@ -87,9 +87,6 @@ use crate::{core, AutoDefault};
 #[allow(type_alias_bounds)]
 pub type OptionComponent<C: core::component::Component> = core::component::Typed<C>;
 
-mod join_classes;
-pub use join_classes::JoinClasses;
-
 mod unit;
 pub use unit::UnitValue;
 

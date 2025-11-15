@@ -35,22 +35,12 @@ impl Component for Navbar {
     }
 
     fn setup_before_prepare(&mut self, _cx: &mut Context) {
-        self.alter_classes(
-            ClassesOp::Prepend,
-            [
-                "navbar".to_string(),
-                self.expand().try_class("navbar-expand").unwrap_or_default(),
-                match self.position() {
-                    navbar::Position::Static => "",
-                    navbar::Position::FixedTop => "fixed-top",
-                    navbar::Position::FixedBottom => "fixed-bottom",
-                    navbar::Position::StickyTop => "sticky-top",
-                    navbar::Position::StickyBottom => "sticky-bottom",
-                }
-                .to_string(),
-            ]
-            .join_classes(),
-        );
+        self.alter_classes(ClassesOp::Prepend, {
+            let mut classes = "navbar".to_string();
+            self.expand().push_class(&mut classes, "navbar-expand", "");
+            self.position().push_class(&mut classes);
+            classes
+        });
     }
 
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {

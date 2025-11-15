@@ -29,38 +29,11 @@ impl Component for Image {
     }
 
     fn setup_before_prepare(&mut self, _cx: &mut Context) {
-        self.alter_classes(
-            ClassesOp::Prepend,
-            match self.source() {
-                image::Source::Logo(_) => "img-fluid",
-                image::Source::Responsive(_) => "img-fluid",
-                image::Source::Thumbnail(_) => "img-thumbnail",
-                image::Source::Plain(_) => "",
-            },
-        );
+        self.alter_classes(ClassesOp::Prepend, self.source().to_class());
     }
 
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
-        let dimensions = match self.size() {
-            image::Size::Auto => None,
-            image::Size::Dimensions(w, h) => {
-                let w = w.to_string();
-                let h = h.to_string();
-                Some(join!("width: ", w, "; height: ", h, ";"))
-            }
-            image::Size::Width(w) => {
-                let w = w.to_string();
-                Some(join!("width: ", w, ";"))
-            }
-            image::Size::Height(h) => {
-                let h = h.to_string();
-                Some(join!("height: ", h, ";"))
-            }
-            image::Size::Both(v) => {
-                let v = v.to_string();
-                Some(join!("width: ", v, "; height: ", v, ";"))
-            }
-        };
+        let dimensions = self.size().to_style();
         let alt_text = self.alternative().lookup(cx).unwrap_or_default();
         let is_decorative = alt_text.is_empty();
         let source = match self.source() {

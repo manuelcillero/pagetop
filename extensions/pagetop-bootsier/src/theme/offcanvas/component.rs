@@ -44,25 +44,14 @@ impl Component for Offcanvas {
         self.id.get()
     }
 
-    #[rustfmt::skip]
     fn setup_before_prepare(&mut self, _cx: &mut Context) {
-        self.alter_classes(
-            ClassesOp::Prepend,
-            [
-                self.breakpoint().to_class("offcanvas"),
-                match self.placement() {
-                    offcanvas::Placement::Start  => "offcanvas-start",
-                    offcanvas::Placement::End    => "offcanvas-end",
-                    offcanvas::Placement::Top    => "offcanvas-top",
-                    offcanvas::Placement::Bottom => "offcanvas-bottom",
-                }.to_string(),
-                match self.visibility() {
-                    offcanvas::Visibility::Default => "",
-                    offcanvas::Visibility::Show    => "show",
-                }.to_string(),
-            ]
-            .join_classes(),
-        );
+        self.alter_classes(ClassesOp::Prepend, {
+            let mut classes = "offcanvas".to_string();
+            self.breakpoint().push_class(&mut classes, "offcanvas", "");
+            self.placement().push_class(&mut classes);
+            self.visibility().push_class(&mut classes);
+            classes
+        });
     }
 
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
