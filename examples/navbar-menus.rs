@@ -82,6 +82,10 @@ impl Extension for SuperMenu {
             ))
             .add_item(navbar::Item::nav(
                 Nav::new()
+                    .with_classes(
+                        ClassesOp::Add,
+                        classes::Margin::with(Side::Start, ScaleSize::Auto).to_class(),
+                    )
                     .add_item(nav::Item::link(
                         L10n::l("sample_menus_item_sign_up"),
                         |_| "/auth/sign-up",
@@ -91,7 +95,11 @@ impl Extension for SuperMenu {
                     })),
             ));
 
-        InRegion::Key("header").add(Child::with(navbar_menu));
+        InRegion::Key("header").add(Child::with(
+            Container::new()
+                .with_width(container::Width::FluidMax(UnitValue::RelRem(75.0)))
+                .add_child(navbar_menu),
+        ));
     }
 }
 
