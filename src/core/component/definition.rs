@@ -45,6 +45,20 @@ pub trait Component: AnyInfo + ComponentRender + Send + Sync {
         None
     }
 
+    /// Indica si el componente es renderizable.
+    ///
+    /// Por defecto, todos los componentes son renderizables (`true`). Sin embargo, este método
+    /// puede sobrescribirse para decidir dinámicamente si los componentes de este tipo se
+    /// renderizan o no en función del contexto de renderizado.
+    ///
+    /// También puede usarse junto con un alias de función como
+    /// ([`FnIsRenderable`](crate::core::component::FnIsRenderable)) para permitir que instancias
+    /// concretas del componente decidan si se renderizan o no.
+    #[allow(unused_variables)]
+    fn is_renderable(&self, cx: &mut Context) -> bool {
+        true
+    }
+
     /// Configura el componente justo antes de preparar el renderizado.
     ///
     /// Este método puede sobrescribirse para modificar la estructura interna del componente o el
@@ -72,30 +86,30 @@ pub trait Component: AnyInfo + ComponentRender + Send + Sync {
 
 /// Implementa [`render()`](ComponentRender::render) para todos los componentes.
 ///
-/// Y para cada componente ejecuta la siguiente secuencia:
+/// El proceso de renderizado de cada componente sigue esta secuencia:
 ///
-/// 1. Despacha [`action::component::IsRenderable`](crate::base::action::component::IsRenderable)
-///    para ver si se puede renderizar. Si no es así, devuelve un [`Markup`] vacío.
+/// 1. Ejecuta [`is_renderable()`](Component::is_renderable) para ver si puede renderizarse en el
+///    contexto actual. Si no es así, devuelve un [`Markup`] vacío.
 /// 2. Ejecuta [`setup_before_prepare()`](Component::setup_before_prepare) para que el componente
 ///    pueda ajustar su estructura interna o modificar el contexto.
 /// 3. Despacha [`action::theme::BeforeRender<C>`](crate::base::action::theme::BeforeRender) para
-///    que el tema pueda hacer ajustes en el componente o el contexto.
+///    permitir que el tema realice ajustes previos.
 /// 4. Despacha [`action::component::BeforeRender<C>`](crate::base::action::component::BeforeRender)
-///    para que otras extensiones puedan hacer ajustes.
+///    para que otras extensiones puedan también hacer ajustes previos.
 /// 5. **Prepara el renderizado del componente**:
 ///    - Despacha [`action::theme::PrepareRender<C>`](crate::base::action::theme::PrepareRender)
-///      para permitir al tema preparar un renderizado diferente al predefinido.
-///    - Si no es así, ejecuta [`prepare_component()`](Component::prepare_component) para preparar
-///      el renderizado predefinido del componente.
+///      para permitir al tema generar un renderizado alternativo.
+///    - Si el tema no lo modifica, llama a [`prepare_component()`](Component::prepare_component)
+///      para obtener el renderizado por defecto del componente.
 /// 6. Despacha [`action::theme::AfterRender<C>`](crate::base::action::theme::AfterRender) para
-///    que el tema pueda hacer sus últimos ajustes.
+///    que el tema pueda aplicar ajustes finales.
 /// 7. Despacha [`action::component::AfterRender<C>`](crate::base::action::component::AfterRender)
 ///    para que otras extensiones puedan hacer sus últimos ajustes.
-/// 8. Finalmente devuelve un [`Markup`] del renderizado preparado en el paso 5.
+/// 8. Devuelve el [`Markup`] generado en el paso 5.
 impl<C: Component> ComponentRender for C {
     fn render(&mut self, cx: &mut Context) -> Markup {
         // Si no es renderizable, devuelve un bloque HTML vacío.
-        if !action::component::IsRenderable::dispatch(self, cx) {
+        if !self.is_renderable(cx) {
             return html! {};
         }
 
