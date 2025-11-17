@@ -101,8 +101,8 @@ pub mod prelude {
     pub use crate::theme::*;
 }
 
-/// El tema usa las mismas regiones predefinidas por [`ThemeRegion`].
-pub type BootsierRegion = ThemeRegion;
+/// El tema usa las mismas regiones predefinidas por [`DefaultRegions`].
+pub type BootsierRegions = DefaultRegions;
 
 /// Implementa el tema.
 pub struct Bootsier;

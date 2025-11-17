@@ -82,13 +82,13 @@ async fn homepage(request: HttpRequest) -> ResultPage<Markup, ErrorPage> {
 
 use pagetop::prelude::*;
 
-/// El tema usa las mismas regiones predefinidas por [`ThemeRegion`].
-pub type AlinerRegion = ThemeRegion;
+/// El tema usa las mismas regiones predefinidas por [`DefaultRegions`].
+pub type AlinerRegions = DefaultRegions;
 
 /// Implementa el tema para usar en pruebas que muestran el esquema de páginas HTML.
 ///
 /// Tema mínimo ideal para **pruebas y demos** que renderiza el **esqueleto HTML** con las mismas
-/// regiones básicas definidas por [`ThemeRegion`]. No pretende ser un tema para producción, está
+/// regiones básicas definidas por [`DefaultRegions`]. No pretende ser un tema para producción, está
 /// pensado para:
 ///
 /// - Verificar integración de componentes y composiciones (*layouts*) sin estilos complejos.

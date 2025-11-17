@@ -9,13 +9,14 @@
 //! tipografías, espaciados y cualquier otro detalle visual o de comportamiento (como animaciones,
 //! scripts de interfaz, etc.).
 //!
-//! Los temas son extensiones que implementan [`Extension`](crate::core::extension::Extension); por
-//! lo que se instancian, declaran sus dependencias y se inician igual que el resto de extensiones;
-//! pero serán temas si además implementan [`theme()`](crate::core::extension::Extension::theme) y
-//! [`Theme`].
+//! Los temas son extensiones que implementan [`Extension`](crate::core::extension::Extension), por
+//! lo que se instancian, declaran dependencias y se inician igual que cualquier otra extensión.
+//! También deben implementar [`Theme`] y sobrescribir el método
+//! [`Extension::theme()`](crate::core::extension::Extension::theme) para que PageTop pueda
+//! registrarlos como temas
 
 mod definition;
-pub use definition::{Theme, ThemePage, ThemeRef, ThemeRegion};
+pub use definition::{Theme, ThemePage, ThemeRef, DefaultRegions};
 
 mod regions;
 pub(crate) use regions::{ChildrenInRegions, REGION_CONTENT};

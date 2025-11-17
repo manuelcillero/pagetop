@@ -4,7 +4,7 @@ use crate::core::theme::{Region, RegionRef, REGION_CONTENT};
 use crate::html::{html, Markup, StyleSheet};
 use crate::locale::L10n;
 use crate::response::page::Page;
-use crate::{global, join};
+use crate::{global, join, AutoDefault};
 
 use std::sync::LazyLock;
 
@@ -14,16 +14,17 @@ use std::sync::LazyLock;
 /// implementen [`Theme`] y, a su vez, [`Extension`].
 pub type ThemeRef = &'static dyn Theme;
 
-/// Conjunto de regiones que los temas pueden exponer para el renderizado.
+/// Conjunto de regiones predefinidas que los temas pueden exponer para el renderizado.
 ///
-/// `ThemeRegion` define un conjunto de regiones predefinidas para estructurar un documento HTML.
+/// `DefaultRegions` define un conjunto de regiones predefinidas para estructurar un documento HTML.
 /// Proporciona **identificadores estables** (vía [`Region::key()`]) y **etiquetas localizables**
 /// (vía [`Region::label()`]) a las regiones donde se añadirán los componentes.
 ///
 /// Se usa por defecto en [`Theme::page_regions()`](crate::core::theme::Theme::page_regions) y sus
 /// variantes representan el conjunto mínimo recomendado para cualquier tema. Sin embargo, cada tema
 /// podría exponer su propio conjunto de regiones.
-pub enum ThemeRegion {
+#[derive(AutoDefault)]
+pub enum DefaultRegions {
     /// Cabecera de la página.
     ///
     /// Clave: `"header"`. Suele contener *branding*, navegación principal o avisos globales.
@@ -32,6 +33,7 @@ pub enum ThemeRegion {
     /// Contenido principal de la página (**obligatoria**).
     ///
     /// Clave: `"content"`. Es el destino por defecto para insertar componentes a nivel de página.
+    #[default]
     Content,
 
     /// Pie de página.
@@ -40,12 +42,12 @@ pub enum ThemeRegion {
     Footer,
 }
 
-impl Region for ThemeRegion {
+impl Region for DefaultRegions {
     fn key(&self) -> &str {
         match self {
-            ThemeRegion::Header => "header",
-            ThemeRegion::Content => REGION_CONTENT,
-            ThemeRegion::Footer => "footer",
+            Self::Header => "header",
+            Self::Content => REGION_CONTENT,
+            Self::Footer => "footer",
         }
     }
 
@@ -60,16 +62,17 @@ impl Region for ThemeRegion {
 /// implementa automáticamente para cualquier tipo que implemente [`Theme`], por lo que normalmente
 /// no requiere implementación explícita.
 ///
-/// Si un tema **sobrescribe** uno o más de estos métodos de [`Theme`]:
+/// Si un tema **sobrescribe** uno o más de los siguientes métodos de [`Theme`]:
 ///
 /// - [`render_page_region()`](Theme::render_page_region),
 /// - [`render_page_head()`](Theme::render_page_head), o
 /// - [`render_page_body()`](Theme::render_page_body);
 ///
-/// es posible volver al comportamiento por defecto usando FQS (*Fully Qualified Syntax*):
+/// puede volver al comportamiento por defecto con una llamada FQS (*Fully Qualified Syntax*) a:
 ///
-/// - `<Self as ThemePage>::render_body(self, page, self.page_regions())`
-/// - `<Self as ThemePage>::render_head(self, page)`
+/// - `<Self as ThemePage>::render_region(self, page, region)`,
+/// - `<Self as ThemePage>::render_body(self, page, self.page_regions())`, o
+/// - `<Self as ThemePage>::render_head(self, page)`.
 pub trait ThemePage {
     /// Renderiza el **contenedor** de una región concreta del `<body>` de la página.
     ///
@@ -206,9 +209,9 @@ pub trait Theme: Extension + ThemePage + Send + Sync {
     /// fn page_regions(&self) -> &'static [RegionRef] {
     ///     static REGIONS: LazyLock<[RegionRef; 4]> = LazyLock::new(|| {
     ///         [
-    ///             &ThemeRegion::Header,
-    ///             &ThemeRegion::Content,
-    ///             &ThemeRegion::Footer,
+    ///             &DefaultRegions::Header,
+    ///             &DefaultRegions::Content,
+    ///             &DefaultRegions::Footer,
     ///         ]
     ///     });
     ///     &*REGIONS
@@ -217,9 +220,9 @@ pub trait Theme: Extension + ThemePage + Send + Sync {
     fn page_regions(&self) -> &'static [RegionRef] {
         static REGIONS: LazyLock<[RegionRef; 3]> = LazyLock::new(|| {
             [
-                &ThemeRegion::Header,
-                &ThemeRegion::Content,
-                &ThemeRegion::Footer,
+                &DefaultRegions::Header,
+                &DefaultRegions::Content,
+                &DefaultRegions::Footer,
             ]
         });
         &*REGIONS

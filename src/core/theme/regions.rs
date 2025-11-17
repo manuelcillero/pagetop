@@ -31,25 +31,25 @@ pub const REGION_CONTENT: &str = "content";
 ///   `aria-label` o en descripciones semánticas del contenedor).
 ///
 /// Las implementaciones típicas son *enumeraciones estáticas* declaradas por cada tema (ver como
-/// ejemplo [`ThemeRegion`](crate::core::theme::ThemeRegion)), de modo que las claves y etiquetas
-/// permanecen inmutables y fácilmente referenciables.
+/// ejemplo [`DefaultRegions`](crate::core::theme::DefaultRegions)), de modo que las claves y
+/// etiquetas permanecen inmutables y fácilmente referenciables.
 ///
 /// # Ejemplo
 ///
 /// ```rust
 /// # use pagetop::prelude::*;
-/// pub enum MyThemeRegion {
+/// pub enum MyThemeRegions {
 ///     Header,
 ///     Content,
 ///     Footer,
 /// }
 ///
-/// impl Region for MyThemeRegion {
+/// impl Region for MyThemeRegions {
 ///     fn key(&self) -> &str {
 ///         match self {
-///             MyThemeRegion::Header => "header",
-///             MyThemeRegion::Content => "content",
-///             MyThemeRegion::Footer => "footer",
+///             Self::Header => "header",
+///             Self::Content => "content",
+///             Self::Footer => "footer",
 ///         }
 ///     }
 ///
@@ -111,7 +111,7 @@ impl ChildrenInRegions {
     }
 }
 
-/// Punto de acceso para añadir componentes a regiones globales o específicas de un tema.
+/// Permite añadir componentes a regiones globales o específicas de un tema.
 ///
 /// Según la variante, se pueden añadir componentes ([`add()`](Self::add)) que permanecerán
 /// disponibles durante toda la ejecución.
