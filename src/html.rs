@@ -104,11 +104,11 @@ pub use unit::UnitValue;
 /// # use pagetop::prelude::*;
 /// // Texto normal, se escapa automáticamente para evitar inyección de HTML.
 /// let fragment = PrepareMarkup::Escaped("Hola <b>mundo</b>".to_string());
-/// assert_eq!(fragment.render().into_string(), "Hola &lt;b&gt;mundo&lt;/b&gt;");
+/// assert_eq!(fragment.into_string(), "Hola &lt;b&gt;mundo&lt;/b&gt;");
 ///
 /// // HTML literal, se inserta directamente, sin escapado adicional.
 /// let raw_html = PrepareMarkup::Raw("<b>negrita</b>".to_string());
-/// assert_eq!(raw_html.render().into_string(), "<b>negrita</b>");
+/// assert_eq!(raw_html.into_string(), "<b>negrita</b>");
 ///
 /// // Fragmento ya preparado con la macro `html!`.
 /// let prepared = PrepareMarkup::With(html! {
@@ -116,11 +116,11 @@ pub use unit::UnitValue;
 ///     p { "Este es un párrafo con contenido dinámico." }
 /// });
 /// assert_eq!(
-///     prepared.render().into_string(),
+///     prepared.into_string(),
 ///     "<h2>Título de ejemplo</h2><p>Este es un párrafo con contenido dinámico.</p>"
 /// );
 /// ```
-#[derive(AutoDefault)]
+#[derive(AutoDefault, Clone)]
 pub enum PrepareMarkup {
     /// No se genera contenido HTML (equivale a `html! {}`).
     #[default]
@@ -152,8 +152,13 @@ impl PrepareMarkup {
         }
     }
 
-    /// Integra el renderizado fácilmente en la macro [`html!`].
-    pub fn render(&self) -> Markup {
+    /// Convierte el contenido en una cadena HTML renderizada. Usar sólo para pruebas o depuración.
+    pub fn into_string(&self) -> String {
+        self.render().into_string()
+    }
+
+    // Integra el renderizado fácilmente en la macro [`html!`].
+    pub(crate) fn render(&self) -> Markup {
         match self {
             PrepareMarkup::None => html! {},
             PrepareMarkup::Escaped(text) => html! { (text) },

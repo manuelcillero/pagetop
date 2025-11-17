@@ -4,8 +4,8 @@ use pagetop::prelude::*;
 async fn poweredby_default_shows_only_pagetop_recognition() {
     let _app = service::test::init_service(Application::new().test()).await;
 
-    let p = PoweredBy::default();
-    let html = render_component(&p);
+    let mut p = PoweredBy::default();
+    let html = p.render(&mut Context::default());
 
     // Debe mostrar el bloque de reconocimiento a PageTop.
     assert!(html.as_str().contains("poweredby__pagetop"));
@@ -18,8 +18,8 @@ async fn poweredby_default_shows_only_pagetop_recognition() {
 async fn poweredby_new_includes_current_year_and_app_name() {
     let _app = service::test::init_service(Application::new().test()).await;
 
-    let p = PoweredBy::new();
-    let html = render_component(&p);
+    let mut p = PoweredBy::new();
+    let html = p.render(&mut Context::default());
 
     let year = Utc::now().format("%Y").to_string();
     assert!(
@@ -43,8 +43,8 @@ async fn poweredby_with_copyright_overrides_text() {
     let _app = service::test::init_service(Application::new().test()).await;
 
     let custom = "2001 © FooBar Inc.";
-    let p = PoweredBy::default().with_copyright(Some(custom));
-    let html = render_component(&p);
+    let mut p = PoweredBy::default().with_copyright(Some(custom));
+    let html = p.render(&mut Context::default());
 
     assert!(html.as_str().contains(custom));
     assert!(html.as_str().contains("poweredby__copyright"));
@@ -54,8 +54,8 @@ async fn poweredby_with_copyright_overrides_text() {
 async fn poweredby_with_copyright_none_hides_text() {
     let _app = service::test::init_service(Application::new().test()).await;
 
-    let p = PoweredBy::new().with_copyright(None::<String>);
-    let html = render_component(&p);
+    let mut p = PoweredBy::new().with_copyright(None::<String>);
+    let html = p.render(&mut Context::default());
 
     assert!(!html.as_str().contains("poweredby__copyright"));
     // El reconocimiento a PageTop siempre debe aparecer.
@@ -66,8 +66,8 @@ async fn poweredby_with_copyright_none_hides_text() {
 async fn poweredby_link_points_to_crates_io() {
     let _app = service::test::init_service(Application::new().test()).await;
 
-    let p = PoweredBy::default();
-    let html = render_component(&p);
+    let mut p = PoweredBy::default();
+    let html = p.render(&mut Context::default());
 
     assert!(
         html.as_str().contains("https://pagetop.cillero.es"),
@@ -88,12 +88,4 @@ async fn poweredby_getter_reflects_internal_state() {
     let c1 = p1.copyright().expect("Expected copyright to exis");
     assert!(c1.contains(&Utc::now().format("%Y").to_string()));
     assert!(c1.contains(&global::SETTINGS.app.name));
-}
-
-// **< HELPERS >************************************************************************************
-
-fn render_component<C: Component>(c: &C) -> Markup {
-    let mut cx = Context::default();
-    let pm = c.prepare_component(&mut cx);
-    pm.render()
 }
