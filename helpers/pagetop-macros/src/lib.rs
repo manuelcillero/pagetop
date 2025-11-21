@@ -54,6 +54,56 @@ pub fn html(input: TokenStream) -> TokenStream {
 /// [`Default`]. Aunque, a diferencia de un simple `#[derive(Default)]`, el atributo
 /// `#[derive(AutoDefault)]` permite usar anotaciones en los campos como `#[default = "..."]`,
 /// funcionando incluso en estructuras con campos que no implementan [`Default`] o en *enums*.
+///
+/// # Ejemplos
+///
+/// ```rust
+/// # use pagetop_macros::AutoDefault;
+/// # fn main() {
+/// #[derive(AutoDefault)]
+/// # #[derive(PartialEq)]
+/// # #[allow(dead_code)]
+/// enum Foo {
+///     Bar,
+///     #[default]
+///     Baz {
+///         #[default = 12]
+///         a: i32,
+///         b: i32,
+///         #[default(Some(Default::default()))]
+///         c: Option<i32>,
+///         #[default(_code = "vec![1, 2, 3]")]
+///         d: Vec<u32>,
+///         #[default = "four"]
+///         e: String,
+///     },
+///     Qux(i32),
+/// }
+///
+/// assert!(Foo::default() == Foo::Baz {
+///     a: 12,
+///     b: 0,
+///     c: Some(0),
+///     d: vec![1, 2, 3],
+///     e: "four".to_owned(),
+/// });
+/// # }
+/// ```
+///
+/// * `Baz` tiene el atributo `#[default]`. Esto significa que el valor por defecto de `Foo` es
+///   `Foo::Baz`. Solo una variante puede tener el atributo `#[default]`, y dicho atributo no debe
+///   tener ningún valor asociado.
+/// * `a` tiene el atributo `#[default = 12]`. Esto significa que su valor por defecto es `12`.
+/// * `b` no tiene ningún atributo `#[default = ...]`. Su valor por defecto será, por tanto, el
+///   valor por defecto de `i32`, es decir, `0`.
+/// * `c` es un `Option<i32>`, y su valor por defecto es `Some(Default::default())`. Rust no puede
+///   (actualmente) analizar `#[default = Some(Default::default())]`, pero podemos escribir
+///   `#[default(Some(Default::default))]`.
+/// * `d` contiene el token `!`, que (actualmente) no puede ser analizado ni siquiera usando
+///   `#[default(...)]`, así que debemos codificarlo como una cadena y marcarlo con `_code =`.
+/// * `e` es un `String`, por lo que el literal de cadena `"four"` se convierte automáticamente en
+///   él. Esta conversión automática **solo** ocurre con literales de cadena (o de bytes), y solo si
+///   no se usa `_code`.
 #[proc_macro_derive(AutoDefault, attributes(default))]
 pub fn derive_auto_default(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
@@ -65,46 +115,49 @@ pub fn derive_auto_default(input: TokenStream) -> TokenStream {
 
 /// Macro (*attribute*) que asocia un método *builder* `with_` con un método `alter_`.
 ///
-/// La macro añade automáticamente un método `alter_` para modificar la instancia actual usando
-/// `&mut self`, y redefine el método *builder* `with_`, que consume la instancia (`mut self`), para
-/// delegar la lógica de la modificación al nuevo método `alter_`, reutilizando así la misma
-/// implementación.
+/// La macro añade automáticamente un método `alter_` que permite modificar la instancia actual
+/// usando `&mut self`; y redefine el método *builder* `with_`, que consume `mut self`, para delegar
+/// la lógica al nuevo método `alter_`, reutilizando así la misma implementación.
 ///
 /// Esta macro emitirá un error en tiempo de compilación si la función anotada no cumple con la
 /// firma esperada para el método *builder*: `pub fn with_...(mut self, ...) -> Self`.
 ///
-/// # Ejemplos
+/// # Ejemplo
 ///
 /// Si defines un método `with_` como este:
 ///
-/// ```rust,ignore
+/// ```rust
+/// # use pagetop_macros::builder_fn;
+/// # struct Example {value: Option<String>};
+/// # impl Example {
 /// #[builder_fn]
 /// pub fn with_example(mut self, value: impl Into<String>) -> Self {
 ///     self.value = Some(value.into());
 ///     self
 /// }
+/// # }
 /// ```
 ///
-/// la macro generará automáticamente el siguiente método `alter_`:
+/// la macro rescribirá el método `with_` y generará un nuevo método `alter_`:
 ///
-/// ```rust,ignore
-/// pub fn alter_example(&mut self, value: impl Into<String>) -> &mut Self {
-///     self.value = Some(value.into());
-///     self
-/// }
-/// ```
-///
-/// y reescribirá el método `with_` para delegar la modificación al método `alter_`:
-///
-/// ```rust,ignore
+/// ```rust
+/// # struct Example {value: Option<String>};
+/// # impl Example {
+/// #[inline]
 /// pub fn with_example(mut self, value: impl Into<String>) -> Self {
 ///     self.alter_example(value);
 ///     self
 /// }
+///
+/// pub fn alter_example(&mut self, value: impl Into<String>) -> &mut Self {
+///     self.value = Some(value.into());
+///     self
+/// }
+/// # }
 /// ```
 ///
-/// Así, cada método *builder* `with_...()` generará automáticamente su correspondiente método
-/// `alter_...()`, que permitirá más adelante modificar instancias existentes.
+/// De esta forma, cada método *builder* `with_...()` generará automáticamente su correspondiente
+/// método `alter_...()` para dejar modificar instancias existentes.
 #[proc_macro_attribute]
 pub fn builder_fn(_: TokenStream, item: TokenStream) -> TokenStream {
     use syn::{parse2, FnArg, Ident, ImplItemFn, Pat, ReturnType, TraitItemFn, Type};
