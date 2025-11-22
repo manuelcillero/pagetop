@@ -4,8 +4,10 @@ pub use error::ErrorPage;
 pub use actix_web::Result as ResultPage;
 
 use crate::base::action;
-use crate::core::component::{Child, ChildOp, Component, Context, ContextOp, Contextual};
-use crate::core::theme::{ThemeRef, REGION_CONTENT};
+use crate::base::component::Region;
+use crate::core::component::{Child, ChildOp, Component, ComponentRender};
+use crate::core::component::{Context, ContextOp, Contextual};
+use crate::core::theme::ThemeRef;
 use crate::html::{html, Markup, DOCTYPE};
 use crate::html::{Assets, Favicon, JavaScript, StyleSheet};
 use crate::html::{AttrClasses, ClassesOp};
@@ -109,14 +111,14 @@ impl Page {
     /// Añade un componente hijo a la región de contenido por defecto.
     pub fn add_child(mut self, component: impl Component) -> Self {
         self.context
-            .alter_child_in(REGION_CONTENT, ChildOp::Add(Child::with(component)));
+            .alter_child_in(Region::DEFAULT, ChildOp::Add(Child::with(component)));
         self
     }
 
-    /// Añade un componente hijo en una región (`region_key`) de la página.
-    pub fn add_child_in(mut self, region_key: &'static str, component: impl Component) -> Self {
+    /// Añade un componente hijo en la región `region_name` de la página.
+    pub fn add_child_in(mut self, region_name: &'static str, component: impl Component) -> Self {
         self.context
-            .alter_child_in(region_key, ChildOp::Add(Child::with(component)));
+            .alter_child_in(region_name, ChildOp::Add(Child::with(component)));
         self
     }
 
@@ -191,7 +193,11 @@ impl Page {
         action::page::BeforeRenderBody::dispatch(self);
 
         // Renderiza el <body>.
-        let body = self.context.theme().render_page_body(self);
+        let body = html! {
+            (Region::named(Region::PAGETOP).render(&mut self.context))
+            (self.context.theme().render_page_body(self))
+            (Region::named(Region::PAGEBOTTOM).render(&mut self.context))
+        };
 
         // Acciones específicas del tema después de renderizar el <body>.
         self.context.theme().after_render_page_body(self);
@@ -216,9 +222,7 @@ impl Page {
                     (head)
                 }
                 body id=[self.body_id().get()] class=[self.body_classes().get()] {
-                    (self.context.render_components_of("page-top"))
                     (body)
-                    (self.context.render_components_of("page-bottom"))
                 }
             }
         })
@@ -247,14 +251,14 @@ impl Contextual for Page {
     }
 
     #[builder_fn]
-    fn with_theme(mut self, theme_name: &'static str) -> Self {
-        self.context.alter_theme(theme_name);
+    fn with_theme(mut self, theme: ThemeRef) -> Self {
+        self.context.alter_theme(theme);
         self
     }
 
     #[builder_fn]
-    fn with_layout(mut self, layout_name: &'static str) -> Self {
-        self.context.alter_layout(layout_name);
+    fn with_template(mut self, template_name: &'static str) -> Self {
+        self.context.alter_template(template_name);
         self
     }
 
@@ -271,8 +275,8 @@ impl Contextual for Page {
     }
 
     #[builder_fn]
-    fn with_child_in(mut self, region_key: &'static str, op: ChildOp) -> Self {
-        self.context.alter_child_in(region_key, op);
+    fn with_child_in(mut self, region_name: impl AsRef<str>, op: ChildOp) -> Self {
+        self.context.alter_child_in(region_name, op);
         self
     }
 
@@ -286,8 +290,8 @@ impl Contextual for Page {
         self.context.theme()
     }
 
-    fn layout(&self) -> &str {
-        self.context.layout()
+    fn template(&self) -> &str {
+        self.context.template()
     }
 
     fn param<T: 'static>(&self, key: &'static str) -> Option<&T> {

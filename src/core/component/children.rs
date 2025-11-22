@@ -200,7 +200,7 @@ pub enum TypedOp<C: Component> {
 /// Esta lista permite añadir, modificar, renderizar y consultar componentes hijo en orden de
 /// inserción, soportando operaciones avanzadas como inserción relativa o reemplazo por
 /// identificador.
-#[derive(Clone, Default)]
+#[derive(AutoDefault, Clone)]
 pub struct Children(Vec<Child>);
 
 impl Children {

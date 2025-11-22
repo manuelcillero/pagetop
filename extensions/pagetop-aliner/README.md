@@ -63,10 +63,11 @@ theme = "Aliner"
 
 ```rust,no_run
 use pagetop::prelude::*;
+use pagetop_aliner::Aliner;
 
 async fn homepage(request: HttpRequest) -> ResultPage<Markup, ErrorPage> {
     Page::new(request)
-        .with_theme("Aliner")
+        .with_theme(&Aliner)
         .add_child(
             Block::new()
                 .with_title(L10n::l("sample_title"))

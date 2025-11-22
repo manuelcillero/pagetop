@@ -1,129 +1,136 @@
-use crate::core::component::{ContextOp, Contextual};
+use crate::base::component::Template;
+use crate::core::component::{ComponentRender, ContextOp, Contextual};
 use crate::core::extension::Extension;
-use crate::core::theme::{Region, RegionRef, REGION_CONTENT};
+use crate::global;
 use crate::html::{html, Markup, StyleSheet};
 use crate::locale::L10n;
 use crate::response::page::Page;
-use crate::{global, join, AutoDefault};
-
-use std::sync::LazyLock;
 
 /// Referencia estática a un tema.
 ///
 /// Los temas son también extensiones. Por tanto, deben declararse como **instancias estáticas** que
-/// implementen [`Theme`] y, a su vez, [`Extension`].
+/// implementen [`Theme`] y, a su vez, [`Extension`]. Estas instancias se exponen usando
+/// [`Extension::theme()`](crate::core::extension::Extension::theme).
 pub type ThemeRef = &'static dyn Theme;
 
-/// Conjunto de regiones predefinidas que los temas pueden exponer para el renderizado.
+/// Interfaz común que debe implementar cualquier tema de PageTop.
 ///
-/// `DefaultRegions` define un conjunto de regiones predefinidas para estructurar un documento HTML.
-/// Proporciona **identificadores estables** (vía [`Region::key()`]) y **etiquetas localizables**
-/// (vía [`Region::label()`]) a las regiones donde se añadirán los componentes.
+/// Un tema es una [`Extension`](crate::core::extension::Extension) que define el aspecto general de
+/// las páginas: cómo se renderiza el `<head>`, cómo se presenta el `<body>` mediante plantillas
+/// ([`Template`]) y qué contenido mostrar en las páginas de error.
 ///
-/// Se usa por defecto en [`Theme::page_regions()`](crate::core::theme::Theme::page_regions) y sus
-/// variantes representan el conjunto mínimo recomendado para cualquier tema. Sin embargo, cada tema
-/// podría exponer su propio conjunto de regiones.
-#[derive(AutoDefault)]
-pub enum DefaultRegions {
-    /// Cabecera de la página.
+/// Todos los métodos de este *trait* tienen una implementación por defecto, por lo que pueden
+/// sobrescribirse selectivamente para crear nuevos temas con comportamientos distintos a los
+/// predeterminados.
+///
+/// El único método **obligatorio** de `Extension` para un tema es [`theme()`](Extension::theme),
+/// que debe devolver una referencia estática al propio tema:
+///
+/// ```rust
+/// # use pagetop::prelude::*;
+/// pub struct MyTheme;
+///
+/// impl Extension for MyTheme {
+///     fn name(&self) -> L10n {
+///         L10n::n("My theme")
+///     }
+///
+///     fn description(&self) -> L10n {
+///         L10n::n("A personal theme")
+///     }
+///
+///     fn theme(&self) -> Option<ThemeRef> {
+///         Some(&Self)
+///     }
+/// }
+///
+/// impl Theme for MyTheme {}
+/// ```
+pub trait Theme: Extension + Send + Sync {
+    /// Acciones específicas del tema antes de renderizar el `<body>` de la página.
     ///
-    /// Clave: `"header"`. Suele contener *branding*, navegación principal o avisos globales.
-    Header,
-
-    /// Contenido principal de la página (**obligatoria**).
+    /// Se invoca antes de que se procese la plantilla ([`Template`]) asociada a la página
+    /// ([`Page::template()`](crate::response::page::Page::template)). Es un buen lugar para
+    /// inicializar o ajustar recursos en función del contexto de la página, por ejemplo:
     ///
-    /// Clave: `"content"`. Es el destino por defecto para insertar componentes a nivel de página.
-    #[default]
-    Content,
+    /// - Añadir metadatos o propiedades a la página.
+    /// - Preparar atributos compartidos.
+    /// - Registrar *assets* condicionales en el contexto.
+    #[allow(unused_variables)]
+    fn before_render_page_body(&self, page: &mut Page) {}
 
-    /// Pie de página.
+    /// Renderiza el contenido del `<body>` de la página.
     ///
-    /// Clave: `"footer"`. Suele contener enlaces legales, créditos o navegación secundaria.
-    Footer,
-}
+    /// Por defecto, delega en la plantilla ([`Template`]) asociada a la página
+    /// ([`Page::template()`](crate::response::page::Page::template)). La plantilla se encarga de
+    /// procesar las regiones y renderizar los componentes registrados en el contexto.
+    ///
+    /// Los temas pueden sobrescribir este método para:
+    ///
+    /// - Forzar una plantilla concreta en determinadas páginas.
+    /// - Envolver el contenido en marcadores adicionales.
+    /// - Implementar lógicas de composición alternativas.
+    #[inline]
+    fn render_page_body(&self, page: &mut Page) -> Markup {
+        Template::named(page.template()).render(page.context())
+    }
 
-impl Region for DefaultRegions {
-    fn key(&self) -> &str {
-        match self {
-            Self::Header => "header",
-            Self::Content => REGION_CONTENT,
-            Self::Footer => "footer",
+    /// Acciones específicas del tema después de renderizar el `<body>` de la página.
+    ///
+    /// Se invoca tras la generación del contenido del `<body>`. Es útil para:
+    ///
+    /// - Ajustar o registrar recursos en función de lo que se haya renderizado.
+    /// - Realizar *tracing* o recopilar métricas.
+    /// - Aplicar ajustes finales al estado de la página antes de producir el `<head>` o la
+    ///   respuesta final.
+    ///
+    /// La implementación por defecto añade una serie de hojas de estilo básicas (`normalize.css`,
+    /// `root.css`, `basic.css`) cuando el parámetro `include_basic_assets` de la página está
+    /// activado.
+    #[allow(unused_variables)]
+    fn after_render_page_body(&self, page: &mut Page) {
+        if page.param_or("include_basic_assets", false) {
+            let pkg_version = env!("CARGO_PKG_VERSION");
+
+            page.alter_assets(ContextOp::AddStyleSheet(
+                StyleSheet::from("/css/normalize.css")
+                    .with_version("8.0.1")
+                    .with_weight(-99),
+            ))
+            .alter_assets(ContextOp::AddStyleSheet(
+                StyleSheet::from("/css/root.css")
+                    .with_version(pkg_version)
+                    .with_weight(-99),
+            ))
+            .alter_assets(ContextOp::AddStyleSheet(
+                StyleSheet::from("/css/basic.css")
+                    .with_version(pkg_version)
+                    .with_weight(-99),
+            ));
         }
     }
 
-    fn label(&self) -> L10n {
-        L10n::l(join!("region_", self.key()))
-    }
-}
-
-/// Métodos predefinidos de renderizado para las páginas de un tema.
-///
-/// Contiene las implementaciones base para renderizar las **secciones** `<head>` y `<body>`. Se
-/// implementa automáticamente para cualquier tipo que implemente [`Theme`], por lo que normalmente
-/// no requiere implementación explícita.
-///
-/// Si un tema **sobrescribe** uno o más de los siguientes métodos de [`Theme`]:
-///
-/// - [`render_page_region()`](Theme::render_page_region),
-/// - [`render_page_head()`](Theme::render_page_head), o
-/// - [`render_page_body()`](Theme::render_page_body);
-///
-/// puede volver al comportamiento por defecto con una llamada FQS (*Fully Qualified Syntax*) a:
-///
-/// - `<Self as ThemePage>::render_region(self, page, region)`,
-/// - `<Self as ThemePage>::render_body(self, page, self.page_regions())`, o
-/// - `<Self as ThemePage>::render_head(self, page)`.
-pub trait ThemePage {
-    /// Renderiza el **contenedor** de una región concreta del `<body>` de la página.
+    /// Renderiza el contenido del `<head>` de la página.
     ///
-    /// Obtiene los componentes asociados a `region.key()` desde el contexto de la página y, si hay
-    /// salida, envuelve el contenido en un contenedor `<div>` predefinido.
+    /// Aunque en una página el `<head>` se encuentra antes del `<body>`, internamente se renderiza
+    /// después para contar con los ajustes que hayan ido acumulando los componentes. Por ejemplo,
+    /// permitiría añadir un archivo de iconos sólo si se ha incluido un icono en la página.
     ///
-    /// Si la región **no produce contenido**, devuelve un `Markup` vacío.
+    /// Por defecto incluye:
+    ///
+    /// - La codificación (`charset="utf-8"`).
+    /// - El título, usando el título de la página si existe y, en caso contrario, sólo el nombre de
+    ///   la aplicación.
+    /// - La descripción (`<meta name="description">`), si está definida.
+    /// - La etiqueta `viewport` básica para diseño adaptable.
+    /// - Los metadatos (`name`/`content`) y propiedades (`property`/`content`) declarados en la
+    ///   página.
+    /// - Todos los *assets* registrados en el contexto de la página.
+    ///
+    /// Los temas pueden sobrescribir este método para añadir etiquetas adicionales (por ejemplo,
+    /// *favicons* personalizados, manifest, etiquetas de analítica, etc.).
     #[inline]
-    fn render_region(&self, page: &mut Page, region: RegionRef) -> Markup {
-        html! {
-            @let key = region.key();
-            @let output = page.context().render_components_of(key);
-            @if !output.is_empty() {
-                div
-                    id=(key)
-                    class={ "region region--" (key) }
-                    role="region"
-                    aria-label=[region.label().lookup(page)]
-                {
-                    (output)
-                }
-            }
-        }
-    }
-
-    /// Renderiza el **contenido interior** del `<body>` de la página.
-    ///
-    /// Recorre `regions` en el **orden declarado** y, para cada región con contenido, delega en
-    /// [`render_region()`](Self::render_region) la generación del contenedor. Las regiones sin
-    /// contenido **no** producen salida. Se asume que cada identificador de región es **único**
-    /// dentro de la página.
-    ///
-    /// La etiqueta `<body>` no se incluye aquí; únicamente renderiza su contenido.
-    #[inline]
-    fn render_body(&self, page: &mut Page, regions: &[RegionRef]) -> Markup {
-        html! {
-            @for region in regions {
-                (self.render_region(page, *region))
-            }
-        }
-    }
-
-    /// Renderiza el **contenido interior** del `<head>` de la página.
-    ///
-    /// Incluye por defecto las etiquetas básicas (`charset`, `title`, `description`, `viewport`,
-    /// `X-UA-Compatible`), los metadatos (`name/content`) y propiedades (`property/content`),
-    /// además de los recursos CSS/JS de la página.
-    ///
-    /// La etiqueta `<head>` no se incluye aquí; únicamente se renderiza su contenido.
-    #[inline]
-    fn render_head(&self, page: &mut Page) -> Markup {
+    fn render_page_head(&self, page: &mut Page) -> Markup {
         let viewport = "width=device-width, initial-scale=1, shrink-to-fit=no";
         html! {
             meta charset="utf-8";
@@ -151,155 +158,20 @@ pub trait ThemePage {
             (page.context().render_assets())
         }
     }
-}
-
-/// Interfaz común que debe implementar cualquier tema de PageTop.
-///
-/// Un tema implementa [`Theme`] y los métodos necesarios de [`Extension`]. El único método
-/// **obligatorio** de `Extension` para un tema es [`theme()`](Extension::theme).
-///
-/// ```rust
-/// # use pagetop::prelude::*;
-/// pub struct MyTheme;
-///
-/// impl Extension for MyTheme {
-///     fn name(&self) -> L10n {
-///         L10n::n("My theme")
-///     }
-///
-///     fn description(&self) -> L10n {
-///         L10n::n("A personal theme")
-///     }
-///
-///     fn theme(&self) -> Option<ThemeRef> {
-///         Some(&Self)
-///     }
-/// }
-///
-/// impl Theme for MyTheme {}
-/// ```
-pub trait Theme: Extension + ThemePage + Send + Sync {
-    /// **Obsoleto desde la versión 0.4.0**: usar [`page_regions()`](Self::page_regions) en su
-    /// lugar.
-    #[deprecated(since = "0.4.0", note = "Use `page_regions()` instead")]
-    fn regions(&self) -> Vec<(&'static str, L10n)> {
-        vec![("content", L10n::l("content"))]
-    }
-
-    /// Declaración ordenada de las regiones disponibles en la página.
-    ///
-    /// Retorna una **lista estática** de referencias ([`RegionRef`](crate::core::theme::RegionRef))
-    /// que representan las regiones que el tema admite dentro del `<body>`.
-    ///
-    /// Cada referencia apunta a una instancia que implementa [`Region`](crate::core::theme::Region)
-    /// para definir cada región de forma segura y estable. Y si un tema necesita un conjunto
-    /// distinto de regiones, puede **sobrescribir** este método siguiendo estas recomendaciones:
-    ///
-    /// - Los identificadores devueltos por [`Region::key()`](crate::core::theme::Region::key)
-    ///   deben ser **estables** (p. ej. `"sidebar-left"`, `"content"`).
-    /// - La región `"content"` es **obligatoria**, ya que se usa como destino por defecto para
-    ///   insertar componentes y renderizarlos.
-    /// - El orden de la lista podría tener relevancia como **orden de renderizado** dentro del
-    ///   `<body>` segun la implementación de [`render_page_body()`](Self::render_page_body).
-    /// - Las etiquetas (`L10n`) de cada región se evaluarán con el idioma activo de la página.
-    ///
-    /// # Ejemplo
-    ///
-    /// ```rust,ignore
-    /// fn page_regions(&self) -> &'static [RegionRef] {
-    ///     static REGIONS: LazyLock<[RegionRef; 4]> = LazyLock::new(|| {
-    ///         [
-    ///             &DefaultRegions::Header,
-    ///             &DefaultRegions::Content,
-    ///             &DefaultRegions::Footer,
-    ///         ]
-    ///     });
-    ///     &*REGIONS
-    /// }
-    /// ```
-    fn page_regions(&self) -> &'static [RegionRef] {
-        static REGIONS: LazyLock<[RegionRef; 3]> = LazyLock::new(|| {
-            [
-                &DefaultRegions::Header,
-                &DefaultRegions::Content,
-                &DefaultRegions::Footer,
-            ]
-        });
-        &*REGIONS
-    }
-
-    /// Renderiza una región de la página.
-    ///
-    /// Si se sobrescribe este método, se puede volver al comportamiento base con:
-    /// `<Self as ThemePage>::render_region(self, page, region)`.
-    #[inline]
-    fn render_page_region(&self, page: &mut Page, region: RegionRef) -> Markup {
-        <Self as ThemePage>::render_region(self, page, region)
-    }
-
-    /// Acciones específicas del tema antes de renderizar el `<body>` de la página.
-    ///
-    /// Útil para preparar clases, inyectar recursos o ajustar metadatos.
-    #[allow(unused_variables)]
-    fn before_render_page_body(&self, page: &mut Page) {}
-
-    /// Renderiza el contenido del `<body>` de la página.
-    ///
-    /// Si se sobrescribe este método, se puede volver al renderizado base con:
-    /// `<Self as ThemePage>::render_body(self, page, self.page_regions())`.
-    #[inline]
-    fn render_page_body(&self, page: &mut Page) -> Markup {
-        <Self as ThemePage>::render_body(self, page, self.page_regions())
-    }
-
-    /// Acciones específicas del tema después de renderizar el `<body>` de la página.
-    ///
-    /// Útil para *tracing*, métricas o ajustes finales del estado de la página.
-    #[allow(unused_variables)]
-    fn after_render_page_body(&self, page: &mut Page) {}
-
-    /// Renderiza el contenido del `<head>` de la página.
-    ///
-    /// Si se sobrescribe este método, se puede volver al renderizado base con:
-    /// `<Self as ThemePage>::render_head(self, page)`.
-    #[inline]
-    fn render_page_head(&self, page: &mut Page) -> Markup {
-        if page.param_or("include_basic_assets", false) {
-            let pkg_version = env!("CARGO_PKG_VERSION");
-
-            page.alter_assets(ContextOp::AddStyleSheet(
-                StyleSheet::from("/css/normalize.css")
-                    .with_version("8.0.1")
-                    .with_weight(-99),
-            ))
-            .alter_assets(ContextOp::AddStyleSheet(
-                StyleSheet::from("/css/root.css")
-                    .with_version(pkg_version)
-                    .with_weight(-99),
-            ))
-            .alter_assets(ContextOp::AddStyleSheet(
-                StyleSheet::from("/css/basic.css")
-                    .with_version(pkg_version)
-                    .with_weight(-99),
-            ));
-        }
-        <Self as ThemePage>::render_head(self, page)
-    }
 
     /// Contenido predeterminado para la página de error "*403 - Forbidden*".
     ///
-    /// Se puede sobrescribir este método para personalizar y adaptar este contenido al tema.
+    /// Los temas pueden sobrescribir este método para personalizar el diseño y el contenido de la
+    /// página de error, manteniendo o no el mensaje de los textos localizados.
     fn error403(&self, page: &mut Page) -> Markup {
         html! { div { h1 { (L10n::l("error403_notice").using(page)) } } }
     }
 
     /// Contenido predeterminado para la página de error "*404 - Not Found*".
     ///
-    /// Se puede sobrescribir este método para personalizar y adaptar este contenido al tema.
+    /// Los temas pueden sobrescribir este método para personalizar el diseño y el contenido de la
+    /// página de error, manteniendo o no el mensaje de los textos localizados.
     fn error404(&self, page: &mut Page) -> Markup {
         html! { div { h1 { (L10n::l("error404_notice").using(page)) } } }
     }
 }
-
-/// Se implementa automáticamente `ThemePage` para cualquier tema.
-impl<T: Theme> ThemePage for T {}

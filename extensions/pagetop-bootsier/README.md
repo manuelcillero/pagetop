@@ -63,10 +63,11 @@ theme = "Bootsier"
 
 ```rust,no_run
 use pagetop::prelude::*;
+use pagetop_bootsier::Bootsier;
 
 async fn homepage(request: HttpRequest) -> ResultPage<Markup, ErrorPage> {
     Page::new(request)
-        .with_theme("Bootsier")
+        .with_theme(&Bootsier)
         .add_child(
             Block::new()
                 .with_title(L10n::l("sample_title"))

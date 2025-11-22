@@ -1,4 +1,4 @@
-use crate::base::component::Html;
+use crate::base::component::{Html, Template};
 use crate::core::component::Contextual;
 use crate::locale::L10n;
 use crate::response::ResponseError;
@@ -33,7 +33,7 @@ impl Display for ErrorPage {
                 let error403 = error_page.theme().error403(&mut error_page);
                 if let Ok(page) = error_page
                     .with_title(L10n::n("Error FORBIDDEN"))
-                    .with_layout("error")
+                    .with_template(Template::ERROR)
                     .add_child(Html::with(move |_| error403.clone()))
                     .render()
                 {
@@ -48,7 +48,7 @@ impl Display for ErrorPage {
                 let error404 = error_page.theme().error404(&mut error_page);
                 if let Ok(page) = error_page
                     .with_title(L10n::n("Error RESOURCE NOT FOUND"))
-                    .with_layout("error")
+                    .with_template(Template::ERROR)
                     .add_child(Html::with(move |_| error404.clone()))
                     .render()
                 {

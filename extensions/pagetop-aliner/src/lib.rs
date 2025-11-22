@@ -64,10 +64,11 @@ theme = "Aliner"
 
 ```rust,no_run
 use pagetop::prelude::*;
+use pagetop_aliner::Aliner;
 
 async fn homepage(request: HttpRequest) -> ResultPage<Markup, ErrorPage> {
     Page::new(request)
-        .with_theme("Aliner")
+        .with_theme(&Aliner)
         .add_child(
             Block::new()
                 .with_title(L10n::l("sample_title"))
@@ -82,15 +83,11 @@ async fn homepage(request: HttpRequest) -> ResultPage<Markup, ErrorPage> {
 
 use pagetop::prelude::*;
 
-/// El tema usa las mismas regiones predefinidas por [`DefaultRegions`].
-pub type AlinerRegions = DefaultRegions;
-
 /// Implementa el tema para usar en pruebas que muestran el esquema de páginas HTML.
 ///
-/// Tema mínimo ideal para **pruebas y demos** que renderiza el **esqueleto HTML** con las mismas
-/// regiones básicas definidas por [`DefaultRegions`]. No pretende ser un tema para producción, está
-/// pensado para:
+/// Define un tema mínimo útil para:
 ///
+/// - Comprobar el funcionamiento de temas, plantillas y regiones.
 /// - Verificar integración de componentes y composiciones (*layouts*) sin estilos complejos.
 /// - Realizar pruebas de renderizado rápido con salida estable y predecible.
 /// - Preparar ejemplos y documentación, sin dependencias visuales (CSS/JS) innecesarias.

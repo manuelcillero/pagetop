@@ -95,7 +95,7 @@ impl Extension for SuperMenu {
                     })),
             ));
 
-        InRegion::Key("header").add(Child::with(
+        InRegion::Named("header").add(Child::with(
             Container::new()
                 .with_width(container::Width::FluidMax(UnitValue::RelRem(75.0)))
                 .add_child(navbar_menu),

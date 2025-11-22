@@ -3,7 +3,7 @@ use crate::prelude::*;
 // Enlace a la página oficial de PageTop.
 const LINK: &str = "<a href=\"https://pagetop.cillero.es\" rel=\"noopener noreferrer\">PageTop</a>";
 
-/// Componente que renderiza la sección 'Powered by' (*Funciona con*) típica del pie de página.
+/// Componente que informa del 'Powered by' (*Funciona con*) típica del pie de página.
 ///
 /// Por defecto, usando [`default()`](Self::default) sólo se muestra un reconocimiento a PageTop.
 /// Sin embargo, se puede usar [`new()`](Self::new) para crear una instancia con un texto de

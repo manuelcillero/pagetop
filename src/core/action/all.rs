@@ -19,7 +19,7 @@ static ACTIONS: LazyLock<RwLock<HashMap<ActionKey, ActionsList>>> =
 //
 // Las extensiones llamarán a esta función durante su inicialización para instalar acciones
 // personalizadas que modifiquen el comportamiento del *core* o de otros componentes.
-pub fn add_action(action: ActionBox) {
+pub(crate) fn add_action(action: ActionBox) {
     let key = ActionKey::new(
         action.type_id(),
         action.theme_type_id(),

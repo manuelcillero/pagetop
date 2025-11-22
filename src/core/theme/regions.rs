@@ -1,6 +1,6 @@
+use crate::base::component::Region;
 use crate::core::component::{Child, ChildOp, Children};
 use crate::core::theme::ThemeRef;
-use crate::locale::L10n;
 use crate::{builder_fn, AutoDefault, UniqueId};
 
 use parking_lot::RwLock;
@@ -16,97 +16,36 @@ static THEME_REGIONS: LazyLock<RwLock<HashMap<UniqueId, ChildrenInRegions>>> =
 static COMMON_REGIONS: LazyLock<RwLock<ChildrenInRegions>> =
     LazyLock::new(|| RwLock::new(ChildrenInRegions::default()));
 
-/// Nombre de la región de contenido por defecto (`"content"`).
-pub const REGION_CONTENT: &str = "content";
-
-/// Define la interfaz mínima que describe una **región de renderizado** dentro de una página.
-///
-/// Una *región* representa una zona del documento HTML (por ejemplo: `"header"`, `"content"` o
-/// `"sidebar-left"`), en la que se pueden incluir y renderizar componentes dinámicamente.
-///
-/// Este `trait` abstrae los metadatos básicos de cada región, esencialmente:
-///
-/// - su **clave interna** (`key()`), que la identifica de forma única dentro de la página, y
-/// - su **etiqueta localizada** (`label()`), que se usa como texto accesible (por ejemplo en
-///   `aria-label` o en descripciones semánticas del contenedor).
-///
-/// Las implementaciones típicas son *enumeraciones estáticas* declaradas por cada tema (ver como
-/// ejemplo [`DefaultRegions`](crate::core::theme::DefaultRegions)), de modo que las claves y
-/// etiquetas permanecen inmutables y fácilmente referenciables.
-///
-/// # Ejemplo
-///
-/// ```rust
-/// # use pagetop::prelude::*;
-/// pub enum MyThemeRegions {
-///     Header,
-///     Content,
-///     Footer,
-/// }
-///
-/// impl Region for MyThemeRegions {
-///     fn key(&self) -> &str {
-///         match self {
-///             Self::Header => "header",
-///             Self::Content => "content",
-///             Self::Footer => "footer",
-///         }
-///     }
-///
-///     fn label(&self) -> L10n {
-///         L10n::l(join!("region__", self.key()))
-///     }
-/// }
-/// ```
-pub trait Region: Send + Sync {
-    /// Devuelve la **clave interna** que identifica de forma única una región.
-    ///
-    /// La clave se utiliza para asociar los componentes de la región con su contenedor HTML
-    /// correspondiente. Por convención, se emplean nombres en minúsculas y con guiones (`"header"`,
-    /// `"main"`, `"sidebar-right"`, etc.), y la región `"content"` es **obligatoria** en todos los
-    /// temas.
-    fn key(&self) -> &str;
-
-    /// Devuelve la **etiqueta localizada** (`L10n`) asociada a la región.
-    ///
-    /// Esta etiqueta se evalúa en el idioma activo de la página y se utiliza principalmente para
-    /// accesibilidad, como el valor de `aria-label` en el contenedor generado por
-    /// [`ThemePage::render_region()`](crate::core::theme::ThemePage::render_region).
-    fn label(&self) -> L10n;
-}
-
-/// Referencia estática a una región.
-pub type RegionRef = &'static dyn Region;
-
 // Contenedor interno de componentes agrupados por región.
 #[derive(AutoDefault)]
-pub struct ChildrenInRegions(HashMap<&'static str, Children>);
+pub(crate) struct ChildrenInRegions(HashMap<String, Children>);
 
 impl ChildrenInRegions {
-    pub fn with(region_key: &'static str, child: Child) -> Self {
-        ChildrenInRegions::default().with_child_in(region_key, ChildOp::Add(child))
+    pub fn with(region_name: impl AsRef<str>, child: Child) -> Self {
+        Self::default().with_child_in(region_name, ChildOp::Add(child))
     }
 
     #[builder_fn]
-    pub fn with_child_in(mut self, region_key: &'static str, op: ChildOp) -> Self {
-        if let Some(region) = self.0.get_mut(region_key) {
+    pub fn with_child_in(mut self, region_name: impl AsRef<str>, op: ChildOp) -> Self {
+        let name = region_name.as_ref();
+        if let Some(region) = self.0.get_mut(name) {
             region.alter_child(op);
         } else {
-            self.0.insert(region_key, Children::new().with_child(op));
+            self.0
+                .insert(name.to_owned(), Children::new().with_child(op));
         }
         self
     }
 
-    pub fn merge_all_components(&self, theme_ref: ThemeRef, region_key: &'static str) -> Children {
+    pub fn children_for(&self, theme_ref: ThemeRef, region_name: impl AsRef<str>) -> Children {
+        let name = region_name.as_ref();
         let common = COMMON_REGIONS.read();
-        if let Some(r) = THEME_REGIONS.read().get(&theme_ref.type_id()) {
-            Children::merge(&[
-                common.0.get(region_key),
-                self.0.get(region_key),
-                r.0.get(region_key),
-            ])
+        let themed = THEME_REGIONS.read();
+
+        if let Some(r) = themed.get(&theme_ref.type_id()) {
+            Children::merge(&[common.0.get(name), self.0.get(name), r.0.get(name)])
         } else {
-            Children::merge(&[common.0.get(region_key), self.0.get(region_key)])
+            Children::merge(&[common.0.get(name), self.0.get(name)])
         }
     }
 }
@@ -120,10 +59,10 @@ impl ChildrenInRegions {
 /// estas regiones, como las páginas de contenido ([`Page`](crate::response::page::Page)).
 pub enum InRegion {
     /// Región de contenido por defecto.
-    Content,
-    /// Región identificada por la clave proporcionado.
-    Key(&'static str),
-    /// Región identificada por una clave para un tema concreto.
+    Default,
+    /// Región identificada por el nombre proporcionado.
+    Named(&'static str),
+    /// Región identificada por su nombre para un tema concreto.
     OfTheme(&'static str, ThemeRef),
 }
 
@@ -135,39 +74,38 @@ impl InRegion {
     /// ```rust
     /// # use pagetop::prelude::*;
     /// // Banner global, en la región por defecto de cualquier página.
-    /// InRegion::Content.add(Child::with(Html::with(|_|
+    /// InRegion::Default.add(Child::with(Html::with(|_|
     ///     html! { ("🎉 ¡Bienvenido!") }
     /// )));
     ///
     /// // Texto en la región "sidebar".
-    /// InRegion::Key("sidebar").add(Child::with(Html::with(|_|
+    /// InRegion::Named("sidebar").add(Child::with(Html::with(|_|
     ///     html! { ("Publicidad") }
     /// )));
     /// ```
     pub fn add(&self, child: Child) -> &Self {
         match self {
-            InRegion::Content => {
-                COMMON_REGIONS
-                    .write()
-                    .alter_child_in(REGION_CONTENT, ChildOp::Add(child));
-            }
-            InRegion::Key(region_key) => {
-                COMMON_REGIONS
-                    .write()
-                    .alter_child_in(region_key, ChildOp::Add(child));
-            }
-            InRegion::OfTheme(region_key, theme_ref) => {
+            InRegion::Default => Self::add_to_common(Region::DEFAULT, child),
+            InRegion::Named(region_name) => Self::add_to_common(region_name, child),
+            InRegion::OfTheme(region_name, theme_ref) => {
                 let mut regions = THEME_REGIONS.write();
                 if let Some(r) = regions.get_mut(&theme_ref.type_id()) {
-                    r.alter_child_in(region_key, ChildOp::Add(child));
+                    r.alter_child_in(region_name, ChildOp::Add(child));
                 } else {
                     regions.insert(
                         theme_ref.type_id(),
-                        ChildrenInRegions::with(region_key, child),
+                        ChildrenInRegions::with(region_name, child),
                     );
                 }
             }
         }
         self
+    }
+
+    #[inline]
+    fn add_to_common(region_name: &str, child: Child) {
+        COMMON_REGIONS
+            .write()
+            .alter_child_in(region_name, ChildOp::Add(child));
     }
 }

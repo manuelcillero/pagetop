@@ -64,10 +64,11 @@ theme = "Bootsier"
 
 ```rust,no_run
 use pagetop::prelude::*;
+use pagetop_bootsier::Bootsier;
 
 async fn homepage(request: HttpRequest) -> ResultPage<Markup, ErrorPage> {
     Page::new(request)
-        .with_theme("Bootsier")
+        .with_theme(&Bootsier)
         .add_child(
             Block::new()
                 .with_title(L10n::l("sample_title"))
@@ -100,9 +101,6 @@ pub mod prelude {
     pub use crate::config::*;
     pub use crate::theme::*;
 }
-
-/// El tema usa las mismas regiones predefinidas por [`DefaultRegions`].
-pub type BootsierRegions = DefaultRegions;
 
 /// Implementa el tema.
 pub struct Bootsier;

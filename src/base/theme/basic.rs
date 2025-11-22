@@ -1,9 +1,6 @@
 /// Es el tema básico que incluye PageTop por defecto.
 use crate::prelude::*;
 
-/// El tema básico usa las mismas regiones predefinidas por [`DefaultRegions`].
-pub type BasicRegions = DefaultRegions;
-
 /// Tema básico por defecto que extiende el funcionamiento predeterminado de [`Theme`].
 pub struct Basic;
 

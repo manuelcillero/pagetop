@@ -1,25 +1,24 @@
 //! API para añadir y gestionar nuevos temas.
 //!
-//! En PageTop un tema es la *piel* de la aplicación, decide cómo se muestra cada documento HTML,
-//! especialmente las páginas de contenido ([`Page`](crate::response::page::Page)), sin alterar la
-//! lógica interna de sus componentes.
+//! En PageTop un tema es la *piel* de la aplicación. Es responsable último de los estilos,
+//! tipografías, espaciados y cualquier otro detalle visual o interactivo (animaciones, scripts de
+//! interfaz, etc.).
 //!
-//! Un tema **declara las regiones** (*cabecera*, *barra lateral*, *pie*, etc.) que estarán
-//! disponibles para colocar contenido. Los temas son responsables últimos de los estilos,
-//! tipografías, espaciados y cualquier otro detalle visual o de comportamiento (como animaciones,
-//! scripts de interfaz, etc.).
+//! Un tema determina el aspecto final de un documento HTML sin alterar la lógica interna de los
+//! componentes ni la estructura del documento, que queda definida por la plantilla
+//! ([`Template`](crate::base::component::Template)) utilizada por cada página.
 //!
 //! Los temas son extensiones que implementan [`Extension`](crate::core::extension::Extension), por
 //! lo que se instancian, declaran dependencias y se inician igual que cualquier otra extensión.
 //! También deben implementar [`Theme`] y sobrescribir el método
 //! [`Extension::theme()`](crate::core::extension::Extension::theme) para que PageTop pueda
-//! registrarlos como temas
+//! registrarlos como temas.
 
 mod definition;
-pub use definition::{Theme, ThemePage, ThemeRef, DefaultRegions};
+pub use definition::{Theme, ThemeRef};
 
 mod regions;
-pub(crate) use regions::{ChildrenInRegions, REGION_CONTENT};
-pub use regions::{InRegion, Region, RegionRef};
+pub(crate) use regions::ChildrenInRegions;
+pub use regions::InRegion;
 
 pub(crate) mod all;

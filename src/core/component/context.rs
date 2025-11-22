@@ -1,5 +1,6 @@
+use crate::base::component::Template;
 use crate::core::component::ChildOp;
-use crate::core::theme::all::{theme_by_short_name, DEFAULT_THEME};
+use crate::core::theme::all::DEFAULT_THEME;
 use crate::core::theme::{ChildrenInRegions, ThemeRef};
 use crate::core::TypeInfo;
 use crate::html::{html, Markup};
@@ -13,19 +14,16 @@ use std::collections::HashMap;
 
 /// Operaciones para modificar recursos asociados al contexto ([`Context`]) de un documento.
 pub enum ContextOp {
-    // Favicon.
     /// Define el *favicon* del documento. Sobrescribe cualquier valor anterior.
     SetFavicon(Option<Favicon>),
     /// Define el *favicon* solo si no se ha establecido previamente.
     SetFaviconIfNone(Favicon),
 
-    // Stylesheets.
     /// Añade una hoja de estilos CSS al documento.
     AddStyleSheet(StyleSheet),
     /// Elimina una hoja de estilos por su ruta o identificador.
     RemoveStyleSheet(&'static str),
 
-    // JavaScripts.
     /// Añade un script JavaScript al documento.
     AddJavaScript(JavaScript),
     /// Elimina un script por su ruta o identificador.
@@ -50,27 +48,27 @@ pub enum ContextError {
 
 /// Interfaz para gestionar el **contexto de renderizado** de un documento HTML.
 ///
-/// `Contextual` extiende [`LangId`] y define los métodos para:
+/// `Contextual` extiende [`LangId`] para establecer el idioma del documento y añade métodos para:
 ///
-/// - Establecer el **idioma** del documento.
 /// - Almacenar la **solicitud HTTP** de origen.
-/// - Seleccionar **tema** y **composición** (*layout*) de renderizado.
+/// - Seleccionar el **tema** y la **plantilla** de renderizado.
 /// - Administrar **recursos** del documento como el icono [`Favicon`], las hojas de estilo
 ///   [`StyleSheet`] o los scripts [`JavaScript`] mediante [`ContextOp`].
 /// - Leer y mantener **parámetros dinámicos tipados** de contexto.
 /// - Generar **identificadores únicos** por tipo de componente.
 ///
-/// Lo implementan, típicamente, estructuras que representan el contexto de renderizado, como
+/// Lo implementan, típicamente, estructuras que manejan el contexto de renderizado, como
 /// [`Context`](crate::core::component::Context) o [`Page`](crate::response::page::Page).
 ///
 /// # Ejemplo
 ///
 /// ```rust
 /// # use pagetop::prelude::*;
+/// # use pagetop_aliner::Aliner;
 /// fn prepare_context<C: Contextual>(cx: C) -> C {
 ///     cx.with_langid(&LangMatch::resolve("es-ES"))
-///       .with_theme("aliner")
-///       .with_layout("default")
+///       .with_theme(&Aliner)
+///       .with_template(Template::DEFAULT)
 ///       .with_assets(ContextOp::SetFavicon(Some(Favicon::new().with_icon("/favicon.ico"))))
 ///       .with_assets(ContextOp::AddStyleSheet(StyleSheet::from("/css/app.css")))
 ///       .with_assets(ContextOp::AddJavaScript(JavaScript::defer("/js/app.js")))
@@ -90,11 +88,11 @@ pub trait Contextual: LangId {
 
     /// Especifica el tema para renderizar el documento.
     #[builder_fn]
-    fn with_theme(self, theme_name: &'static str) -> Self;
+    fn with_theme(self, theme: ThemeRef) -> Self;
 
-    /// Especifica la composición para renderizar el documento.
+    /// Especifica la plantilla para renderizar el documento.
     #[builder_fn]
-    fn with_layout(self, layout_name: &'static str) -> Self;
+    fn with_template(self, template_name: &'static str) -> Self;
 
     /// Añade o modifica un parámetro dinámico del contexto.
     #[builder_fn]
@@ -104,9 +102,9 @@ pub trait Contextual: LangId {
     #[builder_fn]
     fn with_assets(self, op: ContextOp) -> Self;
 
-    /// Opera con [`ChildOp`] en una región (`region_key`) de la página.
+    /// Opera con [`ChildOp`] en una región (`region_name`) del documento.
     #[builder_fn]
-    fn with_child_in(self, region_key: &'static str, op: ChildOp) -> Self;
+    fn with_child_in(self, region_name: impl AsRef<str>, op: ChildOp) -> Self;
 
     // **< Contextual GETTERS >*********************************************************************
 
@@ -116,8 +114,8 @@ pub trait Contextual: LangId {
     /// Devuelve el tema que se usará para renderizar el documento.
     fn theme(&self) -> ThemeRef;
 
-    /// Devuelve la composición para renderizar el documento. Por defecto es `"default"`.
-    fn layout(&self) -> &str;
+    /// Devuelve el nombre de la plantilla usada para renderizar el documento.
+    fn template(&self) -> &str;
 
     /// Recupera un parámetro como [`Option`].
     fn param<T: 'static>(&self, key: &'static str) -> Option<&T>;
@@ -168,12 +166,13 @@ pub trait Contextual: LangId {
 ///
 /// ```rust
 /// # use pagetop::prelude::*;
+/// # use pagetop_aliner::Aliner;
 /// fn new_context(request: HttpRequest) -> Context {
 ///     Context::new(Some(request))
 ///         // Establece el idioma del documento a español.
 ///         .with_langid(&LangMatch::resolve("es-ES"))
-///         // Selecciona un tema (por su nombre corto).
-///         .with_theme("aliner")
+///         // Establece el tema para renderizar.
+///         .with_theme(&Aliner)
 ///         // Asigna un favicon.
 ///         .with_assets(ContextOp::SetFavicon(Some(Favicon::new().with_icon("/favicon.ico"))))
 ///         // Añade una hoja de estilo externa.
@@ -208,8 +207,8 @@ pub trait Contextual: LangId {
 pub struct Context {
     request    : Option<HttpRequest>,           // Solicitud HTTP de origen.
     langid     : &'static LanguageIdentifier,   // Identificador de idioma.
-    theme      : ThemeRef,                      // Referencia al tema para renderizar.
-    layout     : &'static str,                  // Composición del documento para renderizar.
+    theme      : ThemeRef,                      // Referencia al tema usado para renderizar.
+    template   : &'static str,                  // Nombre de la plantilla usada para renderizar.
     favicon    : Option<Favicon>,               // Favicon, si se ha definido.
     stylesheets: Assets<StyleSheet>,            // Hojas de estilo CSS.
     javascripts: Assets<JavaScript>,            // Scripts JavaScript.
@@ -227,8 +226,8 @@ impl Default for Context {
 impl Context {
     /// Crea un nuevo contexto asociado a una solicitud HTTP.
     ///
-    /// El contexto inicializa el idioma, tema y composición por defecto, sin favicon ni recursos
-    /// cargados.
+    /// El contexto inicializa el idioma, el tema y la plantilla por defecto, sin favicon ni otros
+    /// recursos cargados.
     #[rustfmt::skip]
     pub fn new(request: Option<HttpRequest>) -> Self {
         // Se intenta DEFAULT_LANGID.
@@ -249,7 +248,7 @@ impl Context {
             request,
             langid,
             theme      : *DEFAULT_THEME,
-            layout     : "default",
+            template   : Template::DEFAULT,
             favicon    : None,
             stylesheets: Assets::<StyleSheet>::new(),
             javascripts: Assets::<JavaScript>::new(),
@@ -287,10 +286,10 @@ impl Context {
         markup
     }
 
-    /// Renderiza los componentes de una región (`region_key`).
-    pub fn render_components_of(&mut self, region_key: &'static str) -> Markup {
+    /// Renderiza los componentes de la región `region_name`.
+    pub fn render_region(&mut self, region_name: impl AsRef<str>) -> Markup {
         self.regions
-            .merge_all_components(self.theme, region_key)
+            .children_for(self.theme, region_name)
             .render(self)
     }
 
@@ -364,7 +363,7 @@ impl Context {
 
     /// Elimina un parámetro del contexto. Devuelve `true` si la clave existía y se eliminó.
     ///
-    /// Devuelve `false` en caso contrario. Usar cuando solo interesa borrar la entrada.
+    /// Devuelve `false` en caso contrario. Usar cuando sólo interesa borrar la entrada.
     ///
     /// # Ejemplos
     ///
@@ -411,19 +410,15 @@ impl Contextual for Context {
         self
     }
 
-    /// Asigna el tema para renderizar el documento.
-    ///
-    /// Localiza el tema por su [`short_name()`](crate::core::AnyInfo::short_name), y si no aplica
-    /// ninguno entonces usará el tema por defecto.
     #[builder_fn]
-    fn with_theme(mut self, theme_name: &'static str) -> Self {
-        self.theme = theme_by_short_name(theme_name).unwrap_or(*DEFAULT_THEME);
+    fn with_theme(mut self, theme: ThemeRef) -> Self {
+        self.theme = theme;
         self
     }
 
     #[builder_fn]
-    fn with_layout(mut self, layout_name: &'static str) -> Self {
-        self.layout = layout_name;
+    fn with_template(mut self, template_name: &'static str) -> Self {
+        self.template = template_name;
         self
     }
 
@@ -467,7 +462,7 @@ impl Contextual for Context {
             ContextOp::RemoveStyleSheet(path) => {
                 self.stylesheets.remove(path);
             }
-            // JavaScripts.
+            // Scripts JavaScript.
             ContextOp::AddJavaScript(js) => {
                 self.javascripts.add(js);
             }
@@ -479,8 +474,8 @@ impl Contextual for Context {
     }
 
     #[builder_fn]
-    fn with_child_in(mut self, region_key: &'static str, op: ChildOp) -> Self {
-        self.regions.alter_child_in(region_key, op);
+    fn with_child_in(mut self, region_name: impl AsRef<str>, op: ChildOp) -> Self {
+        self.regions.alter_child_in(region_name, op);
         self
     }
 
@@ -494,8 +489,8 @@ impl Contextual for Context {
         self.theme
     }
 
-    fn layout(&self) -> &str {
-        self.layout
+    fn template(&self) -> &str {
+        self.template
     }
 
     /// Recupera un parámetro como [`Option`], simplificando el acceso.
