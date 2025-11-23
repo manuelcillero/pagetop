@@ -138,7 +138,7 @@ pub fn derive_auto_default(input: TokenStream) -> TokenStream {
 /// # }
 /// ```
 ///
-/// la macro rescribirá el método `with_` y generará un nuevo método `alter_`:
+/// la macro reescribirá el método `with_` y generará un nuevo método `alter_`:
 ///
 /// ```rust
 /// # struct Example {value: Option<String>};
@@ -157,7 +157,11 @@ pub fn derive_auto_default(input: TokenStream) -> TokenStream {
 /// ```
 ///
 /// De esta forma, cada método *builder* `with_...()` generará automáticamente su correspondiente
-/// método `alter_...()` para dejar modificar instancias existentes.
+/// método `alter_...()` para modificar instancias existentes.
+///
+/// La documentación del método `with_...()` incluirá también la firma resumida del método
+/// `alter_...()` y un alias de búsqueda con su nombre, de tal manera que buscando `alter_...` en la
+/// documentación se mostrará la entrada del método `with_...()`.
 #[proc_macro_attribute]
 pub fn builder_fn(_: TokenStream, item: TokenStream) -> TokenStream {
     use syn::{parse2, FnArg, Ident, ImplItemFn, Pat, ReturnType, TraitItemFn, Type};
@@ -282,11 +286,11 @@ pub fn builder_fn(_: TokenStream, item: TokenStream) -> TokenStream {
         }
     }
 
-    // Genera el nombre del método alter_...().
+    // Genera el nombre del método `alter_...()`.
     let stem = with_name_str.strip_prefix("with_").expect("validated");
     let alter_ident = Ident::new(&format!("alter_{stem}"), with_name.span());
 
-    // Extrae genéricos y cláusulas where.
+    // Extrae genéricos y cláusulas `where`.
     let generics = &sig.generics;
     let where_clause = &sig.generics.where_clause;
 
@@ -319,28 +323,70 @@ pub fn builder_fn(_: TokenStream, item: TokenStream) -> TokenStream {
         v
     };
 
-    // Filtra los atributos descartando `#[doc]` y `#[inline]` para el método `alter_...()`.
-    let non_doc_or_inline_attrs: Vec<_> = attrs
-        .iter()
-        .filter(|a| {
-            let p = a.path();
-            !p.is_ident("doc") && !p.is_ident("inline")
-        })
-        .cloned()
-        .collect();
+    // Separa atributos de documentación y resto.
+    let mut doc_attrs = Vec::new();
+    let mut other_attrs = Vec::new();
+    let mut non_doc_or_inline_attrs = Vec::new();
 
-    // Documentación del método alter_...().
-    let doc = format!("Equivale a [`Self::{with_name_str}()`], pero fuera del patrón *builder*.");
+    for a in attrs.iter() {
+        let p = a.path();
+        if p.is_ident("doc") {
+            doc_attrs.push(a.clone());
+        } else {
+            other_attrs.push(a.clone());
+            if !p.is_ident("inline") {
+                non_doc_or_inline_attrs.push(a.clone());
+            }
+        }
+    }
+
+    // Firma resumida de la función `alter_...()` para mostrarla en la doc de `with_...()`.
+    let alter_sig_tokens = if args.is_empty() {
+        // Sin argumentos sólo se muestra `&mut self` (puede que no tenga mucho sentido).
+        quote! { #vis_pub fn #alter_ident #generics (&mut self) -> &mut Self #where_clause }
+    } else {
+        // Con argumentos se muestra `&mut self, ...`.
+        quote! { #vis_pub fn #alter_ident #generics (&mut self, ...) -> &mut Self #where_clause }
+    };
+
+    // Normaliza espacios raros tipo `& mut`.
+    let alter_sig_str = alter_sig_tokens.to_string().replace("& mut", "&mut");
+
+    // Nombre de la función `alter_...()` como alias de búsqueda.
+    let alter_name_str = alter_ident.to_string();
+
+    // Texto introductorio para la documentación adicional de `with_...()`.
+    let with_alter_title = format!(
+        "# Añade método `{}()` generado por [`#[builder_fn]`](pagetop_macros::builder_fn)",
+        alter_name_str
+    );
+    let with_alter_doc = concat!(
+        "Modifica la instancia actual (`&mut self`) con los mismos argumentos ",
+        "en lugar de consumirla."
+    );
+
+    // Atributos completos que se aplican siempre a `with_...()`.
+    let with_prefix = quote! {
+        #(#other_attrs)*
+        #(#doc_attrs)*
+        #[doc(alias = #alter_name_str)]
+        #[doc = ""]
+        #[doc = #with_alter_title]
+        #[doc = #with_alter_doc]
+        #[doc = "```text"]
+        #[doc = #alter_sig_str]
+        #[doc = "```"]
+    };
 
     // Genera el código final.
     let expanded = match body_opt {
         None => {
             quote! {
-                #(#attrs)*
+                #with_prefix
                 fn #with_name #generics (self, #(#args),*) -> Self #where_clause;
 
                 #(#non_doc_or_inline_attrs)*
-                #[doc = #doc]
+                #[doc(hidden)]
                 fn #alter_ident #generics (&mut self, #(#args),*) -> &mut Self #where_clause;
             }
         }
@@ -351,8 +397,10 @@ pub fn builder_fn(_: TokenStream, item: TokenStream) -> TokenStream {
             } else {
                 quote! { #[inline] }
             };
+
             let with_fn = if is_trait {
                 quote! {
+                    #with_prefix
                     #force_inline
                     #vis_pub fn #with_name #generics (self, #(#args),*) -> Self #where_clause {
                         let mut s = self;
@@ -362,6 +410,7 @@ pub fn builder_fn(_: TokenStream, item: TokenStream) -> TokenStream {
                 }
             } else {
                 quote! {
+                    #with_prefix
                     #force_inline
                     #vis_pub fn #with_name #generics (mut self, #(#args),*) -> Self #where_clause {
                         self.#alter_ident(#(#call_idents),*);
@@ -369,12 +418,12 @@ pub fn builder_fn(_: TokenStream, item: TokenStream) -> TokenStream {
                     }
                 }
             };
+
             quote! {
-                #(#attrs)*
                 #with_fn
 
                 #(#non_doc_or_inline_attrs)*
-                #[doc = #doc]
+                #[doc(hidden)]
                 #vis_pub fn #alter_ident #generics (&mut self, #(#args),*) -> &mut Self #where_clause {
                     #body
                 }
