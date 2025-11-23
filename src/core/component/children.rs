@@ -172,6 +172,7 @@ impl<C: Component> Typed<C> {
 /// Operaciones para componentes hijo [`Child`] en una lista [`Children`].
 pub enum ChildOp {
     Add(Child),
+    AddIfEmpty(Child),
     AddMany(Vec<Child>),
     InsertAfterId(&'static str, Child),
     InsertBeforeId(&'static str, Child),
@@ -185,6 +186,7 @@ pub enum ChildOp {
 /// Operaciones con un componente hijo tipado [`Typed<C>`] en una lista [`Children`].
 pub enum TypedOp<C: Component> {
     Add(Typed<C>),
+    AddIfEmpty(Typed<C>),
     AddMany(Vec<Typed<C>>),
     InsertAfterId(&'static str, Typed<C>),
     InsertBeforeId(&'static str, Typed<C>),
@@ -230,6 +232,7 @@ impl Children {
     pub fn with_child(mut self, op: ChildOp) -> Self {
         match op {
             ChildOp::Add(any) => self.add(any),
+            ChildOp::AddIfEmpty(any) => self.add_if_empty(any),
             ChildOp::AddMany(many) => self.add_many(many),
             ChildOp::InsertAfterId(id, any) => self.insert_after_id(id, any),
             ChildOp::InsertBeforeId(id, any) => self.insert_before_id(id, any),
@@ -246,6 +249,7 @@ impl Children {
     pub fn with_typed<C: Component>(mut self, op: TypedOp<C>) -> Self {
         match op {
             TypedOp::Add(typed) => self.add(typed.into()),
+            TypedOp::AddIfEmpty(typed) => self.add_if_empty(typed.into()),
             TypedOp::AddMany(many) => self.add_many(many.into_iter().map(Typed::<C>::into)),
             TypedOp::InsertAfterId(id, typed) => self.insert_after_id(id, typed.into()),
             TypedOp::InsertBeforeId(id, typed) => self.insert_before_id(id, typed.into()),
@@ -263,6 +267,15 @@ impl Children {
     #[inline]
     pub fn add(&mut self, child: Child) -> &mut Self {
         self.0.push(child);
+        self
+    }
+
+    /// Añade un componente hijo en la lista sólo si está vacía.
+    #[inline]
+    pub fn add_if_empty(&mut self, child: Child) -> &mut Self {
+        if self.0.is_empty() {
+            self.0.push(child);
+        }
         self
     }
 

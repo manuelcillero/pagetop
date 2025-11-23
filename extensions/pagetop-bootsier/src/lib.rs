@@ -117,7 +117,7 @@ impl Extension for Bootsier {
 }
 
 impl Theme for Bootsier {
-    fn after_render_page_body(&self, page: &mut Page) {
+    fn before_render_page_body(&self, page: &mut Page) {
         page.alter_assets(ContextOp::AddStyleSheet(
             StyleSheet::from("/bootsier/bs/bootstrap.min.css")
                 .with_version(BOOTSTRAP_VERSION)
@@ -128,5 +128,15 @@ impl Theme for Bootsier {
                 .with_version(BOOTSTRAP_VERSION)
                 .with_weight(-90),
         ));
+    }
+
+    fn render_page_body(&self, page: &mut Page) -> Markup {
+        theme::Container::new()
+            .with_id("container-wrapper")
+            .with_width(theme::container::Width::FluidMax(
+                config::SETTINGS.bootsier.max_width,
+            ))
+            .add_child(Template::named(page.template()))
+            .render(page.context())
     }
 }

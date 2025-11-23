@@ -83,12 +83,33 @@ pub trait Theme: Extension + Send + Sync {
     /// - Realizar *tracing* o recopilar métricas.
     /// - Aplicar ajustes finales al estado de la página antes de producir el `<head>` o la
     ///   respuesta final.
-    ///
-    /// La implementación por defecto añade una serie de hojas de estilo básicas (`normalize.css`,
-    /// `root.css`, `basic.css`) cuando el parámetro `include_basic_assets` de la página está
-    /// activado.
     #[allow(unused_variables)]
-    fn after_render_page_body(&self, page: &mut Page) {
+    fn after_render_page_body(&self, page: &mut Page) {}
+
+    /// Renderiza el contenido del `<head>` de la página.
+    ///
+    /// Aunque en una página el `<head>` se encuentra antes del `<body>`, internamente se renderiza
+    /// después para contar con los ajustes que hayan ido acumulando los componentes. Por ejemplo,
+    /// permitiría añadir un archivo de iconos sólo si se ha incluido un icono en la página.
+    ///
+    /// Por defecto incluye:
+    ///
+    /// - La codificación (`charset="utf-8"`).
+    /// - El título, usando el título de la página si existe y, en caso contrario, sólo el nombre de
+    ///   la aplicación.
+    /// - La descripción (`<meta name="description">`), si está definida.
+    /// - La etiqueta `viewport` básica para diseño adaptable.
+    /// - Los metadatos (`name`/`content`) y propiedades (`property`/`content`) declarados en la
+    ///   página.
+    /// - Los *assets* registrados en el contexto de la página. Si el parámetro
+    ///   `include_basic_assets` está activado, añade de serie las siguientes hojas de estilo
+    ///   básicas: `normalize.css`, `root.css`, `basic.css`, útiles para temas sencillos o de uso
+    ///   general.
+    ///
+    /// Los temas pueden sobrescribir este método para añadir etiquetas adicionales (por ejemplo,
+    /// *favicons* personalizados, manifest, etiquetas de analítica, etc.).
+    #[inline]
+    fn render_page_head(&self, page: &mut Page) -> Markup {
         if page.param_or("include_basic_assets", false) {
             let pkg_version = env!("CARGO_PKG_VERSION");
 
@@ -108,29 +129,6 @@ pub trait Theme: Extension + Send + Sync {
                     .with_weight(-99),
             ));
         }
-    }
-
-    /// Renderiza el contenido del `<head>` de la página.
-    ///
-    /// Aunque en una página el `<head>` se encuentra antes del `<body>`, internamente se renderiza
-    /// después para contar con los ajustes que hayan ido acumulando los componentes. Por ejemplo,
-    /// permitiría añadir un archivo de iconos sólo si se ha incluido un icono en la página.
-    ///
-    /// Por defecto incluye:
-    ///
-    /// - La codificación (`charset="utf-8"`).
-    /// - El título, usando el título de la página si existe y, en caso contrario, sólo el nombre de
-    ///   la aplicación.
-    /// - La descripción (`<meta name="description">`), si está definida.
-    /// - La etiqueta `viewport` básica para diseño adaptable.
-    /// - Los metadatos (`name`/`content`) y propiedades (`property`/`content`) declarados en la
-    ///   página.
-    /// - Todos los *assets* registrados en el contexto de la página.
-    ///
-    /// Los temas pueden sobrescribir este método para añadir etiquetas adicionales (por ejemplo,
-    /// *favicons* personalizados, manifest, etiquetas de analítica, etc.).
-    #[inline]
-    fn render_page_head(&self, page: &mut Page) -> Markup {
         let viewport = "width=device-width, initial-scale=1, shrink-to-fit=no";
         html! {
             meta charset="utf-8";

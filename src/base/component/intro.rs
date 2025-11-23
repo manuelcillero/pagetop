@@ -17,17 +17,17 @@ pub enum IntroOpening {
     Custom,
 }
 
-/// Componente para presentar PageTop (como [`Welcome`](crate::base::extension::Welcome)), o mostrar
-/// introducciones.
+/// Componente para divulgar PageTop (como hace [`Welcome`](crate::base::extension::Welcome)), o
+/// mostrar presentaciones.
 ///
-/// Usa la imagen de PageTop para presentar contenidos con:
+/// Usa la imagen de PageTop para mostrar:
 ///
-/// - Una **imagen decorativa** (el *monster* de PageTop) antecediendo al contenido.
-/// - Una vista destacada con **título + eslogan**.
+/// - Una **figura decorativa** (que incluye el *monster* de PageTop) antecediendo al contenido.
+/// - Una vista destacada del **título** de la página con un **eslogan** de presentación.
 /// - Un **botón opcional** de llamada a la acción con texto y enlace configurables.
-/// - El **área de textos** con *badges* predefinidos (en modo [`IntroOpening::PageTop`]) y bloques
-///   ([`Block`](crate::base::component::Block)) para crear párrafos vistosos de texto. Aunque
-///   admite todo tipo de componentes.
+/// - Un **área para la presentación de contenidos**, con *badges* informativos de PageTop (si se
+///   opta por [`IntroOpening::PageTop`]) y bloques ([`Block`](crate::base::component::Block)) de
+///   contenido libre para crear párrafos vistosos de texto. Aunque admite todo tipo de componentes.
 ///
 /// ### Ejemplos
 ///
@@ -51,7 +51,7 @@ pub enum IntroOpening {
 ///     )));
 /// ```
 ///
-/// **Sin botón + modo *Custom* (sin *badges* predefinidos)**
+/// **Sin botón y en modo *Custom* (sin *badges* predefinidos)**
 ///
 /// ```rust
 /// # use pagetop::prelude::*;

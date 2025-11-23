@@ -104,12 +104,16 @@ impl Extension for Aliner {
 }
 
 impl Theme for Aliner {
-    fn after_render_page_body(&self, page: &mut Page) {
+    fn before_render_page_body(&self, page: &mut Page) {
         page.alter_param("include_basic_assets", true)
             .alter_assets(ContextOp::AddStyleSheet(
                 StyleSheet::from("/aliner/css/styles.css")
                     .with_version(env!("CARGO_PKG_VERSION"))
                     .with_weight(-90),
-            ));
+            ))
+            .alter_child_in(
+                Region::FOOTER,
+                ChildOp::AddIfEmpty(Child::with(PoweredBy::new())),
+            );
     }
 }

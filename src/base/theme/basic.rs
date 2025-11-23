@@ -12,6 +12,10 @@ impl Extension for Basic {
 
 impl Theme for Basic {
     fn before_render_page_body(&self, page: &mut Page) {
-        page.alter_param("include_basic_assets", true);
+        page.alter_param("include_basic_assets", true)
+            .alter_child_in(
+                Region::FOOTER,
+                ChildOp::AddIfEmpty(Child::with(PoweredBy::new())),
+            );
     }
 }

@@ -14,8 +14,11 @@ body {
 	-webkit-tap-highlight-color: transparent;
 }
 
-/* Page layout */
+/*
+ * Region Footer
+ */
 
-.region--footer {
-	padding-bottom: 2rem;
+.region-footer {
+	padding: .75rem 0 3rem;
+	text-align: center;
 }
