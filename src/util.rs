@@ -167,13 +167,3 @@ pub fn resolve_absolute_dir<P: AsRef<Path>>(path: P) -> io::Result<PathBuf> {
         })
     }
 }
-
-/// **Obsoleto desde la versión 0.3.0**: usar [`resolve_absolute_dir()`] en su lugar.
-#[deprecated(since = "0.3.0", note = "Use `resolve_absolute_dir()` instead")]
-pub fn absolute_dir<P, Q>(root_path: P, relative_path: Q) -> io::Result<PathBuf>
-where
-    P: AsRef<Path>,
-    Q: AsRef<Path>,
-{
-    resolve_absolute_dir(root_path.as_ref().join(relative_path.as_ref()))
-}

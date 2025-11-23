@@ -15,8 +15,7 @@ pub use crate::include_config;
 // crate::locale
 pub use crate::include_locales;
 // crate::service
-#[allow(deprecated)]
-pub use crate::{include_files, include_files_service, static_files_service};
+pub use crate::static_files_service;
 // crate::core::action
 pub use crate::actions_boxed;
 
@@ -28,14 +27,7 @@ pub use crate::global;
 
 pub use crate::trace;
 
-// No se usa `pub use crate::html::*;` para evitar duplicar alias marcados como obsoletos
-// (*deprecated*) porque han sido trasladados a `crate::core::component`. Cuando se retiren estos
-// alias obsoletos se volverá a declarar como `pub use crate::html::*;`.
-pub use crate::html::{
-    display, html_private, Asset, Assets, AttrClasses, AttrId, AttrL10n, AttrName, AttrValue,
-    ClassesOp, Escaper, Favicon, JavaScript, Markup, PageTopSvg, PreEscaped, PrepareMarkup,
-    StyleSheet, TargetMedia, UnitValue, DOCTYPE,
-};
+pub use crate::html::*;
 
 pub use crate::locale::*;
 

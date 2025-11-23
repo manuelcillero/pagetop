@@ -1,5 +1,7 @@
 //! HTML en código.
 
+use crate::AutoDefault;
+
 mod maud;
 pub use maud::{display, html, html_private, Escaper, Markup, PreEscaped, DOCTYPE};
 
@@ -14,78 +16,22 @@ pub use assets::{Asset, Assets};
 mod logo;
 pub use logo::PageTopSvg;
 
-// **< HTML DOCUMENT CONTEXT >**********************************************************************
-
-/// **Obsoleto desde la versión 0.5.0**: usar [`core::component::Context`] en su lugar.
-#[deprecated(since = "0.5.0", note = "Moved to `pagetop::core::component::Context`")]
-pub type Context = crate::core::component::Context;
-
-/// **Obsoleto desde la versión 0.5.0**: usar [`core::component::ContextOp`] en su lugar.
-#[deprecated(
-    since = "0.5.0",
-    note = "Moved to `pagetop::core::component::ContextOp`"
-)]
-pub type ContextOp = crate::core::component::ContextOp;
-
-/// **Obsoleto desde la versión 0.5.0**: usar [`core::component::Contextual`] en su lugar.
-#[deprecated(
-    since = "0.5.0",
-    note = "Moved to `pagetop::core::component::Contextual`"
-)]
-pub trait Contextual: crate::core::component::Contextual {}
-
-/// **Obsoleto desde la versión 0.5.0**: usar [`core::component::ContextError`] en su lugar.
-#[deprecated(
-    since = "0.5.0",
-    note = "Moved to `pagetop::core::component::ContextError`"
-)]
-pub type ContextError = crate::core::component::ContextError;
-
-/// **Obsoleto desde la versión 0.5.0**: usar [`ContextOp`] en su lugar.
-#[deprecated(since = "0.5.0", note = "Use `ContextOp` instead")]
-pub type AssetsOp = crate::core::component::ContextOp;
-
 // **< HTML ATTRIBUTES >****************************************************************************
 
 mod attr_id;
 pub use attr_id::AttrId;
-/// **Obsoleto desde la versión 0.4.0**: usar [`AttrId`] en su lugar.
-#[deprecated(since = "0.4.0", note = "Use `AttrId` instead")]
-pub type OptionId = AttrId;
 
 mod attr_name;
 pub use attr_name::AttrName;
-/// **Obsoleto desde la versión 0.4.0**: usar [`AttrName`] en su lugar.
-#[deprecated(since = "0.4.0", note = "Use `AttrName` instead")]
-pub type OptionName = AttrName;
 
 mod attr_value;
 pub use attr_value::AttrValue;
-/// **Obsoleto desde la versión 0.4.0**: usar [`AttrValue`] en su lugar.
-#[deprecated(since = "0.4.0", note = "Use `AttrValue` instead")]
-pub type OptionString = AttrValue;
 
 mod attr_l10n;
 pub use attr_l10n::AttrL10n;
-/// **Obsoleto desde la versión 0.4.0**: usar [`AttrL10n`] en su lugar.
-#[deprecated(since = "0.4.0", note = "Use `AttrL10n` instead")]
-pub type OptionTranslated = AttrL10n;
 
 mod attr_classes;
 pub use attr_classes::{AttrClasses, ClassesOp};
-/// **Obsoleto desde la versión 0.4.0**: usar [`AttrClasses`] en su lugar.
-#[deprecated(since = "0.4.0", note = "Use `AttrClasses` instead")]
-pub type OptionClasses = AttrClasses;
-
-use crate::{core, AutoDefault};
-
-/// **Obsoleto desde la versión 0.4.0**: usar [`Typed`](crate::core::component::Typed) en su lugar.
-#[deprecated(
-    since = "0.4.0",
-    note = "Use `pagetop::core::component::Typed` instead"
-)]
-#[allow(type_alias_bounds)]
-pub type OptionComponent<C: core::component::Component> = core::component::Typed<C>;
 
 mod unit;
 pub use unit::UnitValue;

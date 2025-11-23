@@ -463,12 +463,6 @@ impl L10n {
     pub fn using(&self, language: &impl LangId) -> Markup {
         PreEscaped(self.lookup(language).unwrap_or_default())
     }
-
-    /// **Obsoleto desde la versión 0.4.0**: usar [`using()`](Self::using) en su lugar.
-    #[deprecated(since = "0.4.0", note = "Use `using()` instead")]
-    pub fn to_markup(&self, language: &impl LangId) -> Markup {
-        self.using(language)
-    }
 }
 
 impl fmt::Debug for L10n {

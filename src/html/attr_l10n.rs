@@ -1,4 +1,3 @@
-use crate::html::Markup;
 use crate::locale::{L10n, LangId};
 use crate::{builder_fn, AutoDefault};
 
@@ -57,11 +56,5 @@ impl AttrL10n {
     /// Devuelve la traducción para `language` o una cadena vacía si no existe.
     pub fn value(&self, language: &impl LangId) -> String {
         self.0.lookup(language).unwrap_or_default()
-    }
-
-    /// **Obsoleto desde la versión 0.4.0**: no recomendado para atributos HTML.
-    #[deprecated(since = "0.4.0", note = "For attributes use `lookup()` or `value()`")]
-    pub fn to_markup(&self, language: &impl LangId) -> Markup {
-        self.0.using(language)
     }
 }
