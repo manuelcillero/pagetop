@@ -1,16 +1,31 @@
+:root {
+	/* Font families */
+	--val-font-sans: system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans","Liberation Sans",sans-serif;
+	--val-font-serif: Georgia,"Times New Roman",serif;
+	--val-font-monospace: SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
+	--val-font-family: var(--val-font-sans);
+	/* Font size */
+	--val-fs--base: 1rem;
+	/* Font weight */
+	--val-fw--base: 400;
+	/* Line height */
+	--val-lh--base: 1.5;
+	/* Colors */
+	--val-color--bg: #fafafa;
+	--val-color--text: #212529;
+}
+
 html {
     scroll-behavior: smooth;
 }
 
 body {
-	margin: 0;
 	font-family: var(--val-font-family);
 	font-size: var(--val-fs--base);
 	font-weight: var(--val-fw--base);
 	line-height: var(--val-lh--base);
 	color: var(--val-color--text);
 	background-color: var(--val-color--bg);
-	-webkit-text-size-adjust: 100%;
 	-webkit-tap-highlight-color: transparent;
 }
 

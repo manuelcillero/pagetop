@@ -1,7 +1,6 @@
-use crate::base::component::Template;
 use crate::core::component::ChildOp;
 use crate::core::theme::all::DEFAULT_THEME;
-use crate::core::theme::{ChildrenInRegions, ThemeRef};
+use crate::core::theme::{ChildrenInRegions, RegionRef, TemplateRef, ThemeRef};
 use crate::core::TypeInfo;
 use crate::html::{html, Markup};
 use crate::html::{Assets, Favicon, JavaScript, StyleSheet};
@@ -68,7 +67,7 @@ pub enum ContextError {
 /// fn prepare_context<C: Contextual>(cx: C) -> C {
 ///     cx.with_langid(&LangMatch::resolve("es-ES"))
 ///       .with_theme(&Aliner)
-///       .with_template(Template::DEFAULT)
+///       .with_template(&DefaultTemplate::Standard)
 ///       .with_assets(ContextOp::SetFavicon(Some(Favicon::new().with_icon("/favicon.ico"))))
 ///       .with_assets(ContextOp::AddStyleSheet(StyleSheet::from("/css/app.css")))
 ///       .with_assets(ContextOp::AddJavaScript(JavaScript::defer("/js/app.js")))
@@ -92,7 +91,7 @@ pub trait Contextual: LangId {
 
     /// Especifica la plantilla para renderizar el documento.
     #[builder_fn]
-    fn with_template(self, template_name: &'static str) -> Self;
+    fn with_template(self, template: TemplateRef) -> Self;
 
     /// Añade o modifica un parámetro dinámico del contexto.
     #[builder_fn]
@@ -102,9 +101,9 @@ pub trait Contextual: LangId {
     #[builder_fn]
     fn with_assets(self, op: ContextOp) -> Self;
 
-    /// Opera con [`ChildOp`] en una región (`region_name`) del documento.
+    /// Opera con [`ChildOp`] en una región del documento.
     #[builder_fn]
-    fn with_child_in(self, region_name: impl AsRef<str>, op: ChildOp) -> Self;
+    fn with_child_in(self, region_ref: RegionRef, op: ChildOp) -> Self;
 
     // **< Contextual GETTERS >*********************************************************************
 
@@ -114,8 +113,8 @@ pub trait Contextual: LangId {
     /// Devuelve el tema que se usará para renderizar el documento.
     fn theme(&self) -> ThemeRef;
 
-    /// Devuelve el nombre de la plantilla usada para renderizar el documento.
-    fn template(&self) -> &str;
+    /// Devuelve la plantilla configurada para renderizar el documento.
+    fn template(&self) -> TemplateRef;
 
     /// Recupera un parámetro como [`Option`].
     fn param<T: 'static>(&self, key: &'static str) -> Option<&T>;
@@ -208,7 +207,7 @@ pub struct Context {
     request    : Option<HttpRequest>,           // Solicitud HTTP de origen.
     langid     : &'static LanguageIdentifier,   // Identificador de idioma.
     theme      : ThemeRef,                      // Referencia al tema usado para renderizar.
-    template   : &'static str,                  // Nombre de la plantilla usada para renderizar.
+    template   : TemplateRef,                   // Plantilla usada para renderizar.
     favicon    : Option<Favicon>,               // Favicon, si se ha definido.
     stylesheets: Assets<StyleSheet>,            // Hojas de estilo CSS.
     javascripts: Assets<JavaScript>,            // Scripts JavaScript.
@@ -248,7 +247,7 @@ impl Context {
             request,
             langid,
             theme      : *DEFAULT_THEME,
-            template   : Template::DEFAULT,
+            template   : DEFAULT_THEME.default_template(),
             favicon    : None,
             stylesheets: Assets::<StyleSheet>::new(),
             javascripts: Assets::<JavaScript>::new(),
@@ -286,10 +285,10 @@ impl Context {
         markup
     }
 
-    /// Renderiza los componentes de la región `region_name`.
-    pub fn render_region(&mut self, region_name: impl AsRef<str>) -> Markup {
+    /// Renderiza los componentes de una región.
+    pub fn render_region(&mut self, region_ref: RegionRef) -> Markup {
         self.regions
-            .children_for(self.theme, region_name)
+            .children_for(self.theme, region_ref)
             .render(self)
     }
 
@@ -417,8 +416,8 @@ impl Contextual for Context {
     }
 
     #[builder_fn]
-    fn with_template(mut self, template_name: &'static str) -> Self {
-        self.template = template_name;
+    fn with_template(mut self, template: TemplateRef) -> Self {
+        self.template = template;
         self
     }
 
@@ -474,8 +473,8 @@ impl Contextual for Context {
     }
 
     #[builder_fn]
-    fn with_child_in(mut self, region_name: impl AsRef<str>, op: ChildOp) -> Self {
-        self.regions.alter_child_in(region_name, op);
+    fn with_child_in(mut self, region_ref: RegionRef, op: ChildOp) -> Self {
+        self.regions.alter_child_in(region_ref, op);
         self
     }
 
@@ -489,7 +488,7 @@ impl Contextual for Context {
         self.theme
     }
 
-    fn template(&self) -> &str {
+    fn template(&self) -> TemplateRef {
         self.template
     }
 

@@ -1,5 +1,6 @@
-use crate::base::component::{Html, Template};
+use crate::base::component::Html;
 use crate::core::component::Contextual;
+use crate::core::theme::DefaultTemplate;
 use crate::locale::L10n;
 use crate::response::ResponseError;
 use crate::service::http::{header::ContentType, StatusCode};
@@ -7,8 +8,21 @@ use crate::service::{HttpRequest, HttpResponse};
 
 use super::Page;
 
-use std::fmt::{self, Display};
+use std::fmt;
 
+/// Página de error asociada a un código de estado HTTP.
+///
+/// Este enumerado agrupa los distintos tipos de error que pueden devolverse como página HTML
+/// completa. Cada variante encapsula la solicitud original ([`HttpRequest`]) y se corresponde con
+/// un código de estado concreto.
+///
+/// Para algunos errores (como [`ErrorPage::AccessDenied`] y [`ErrorPage::NotFound`]) se construye
+/// una [`Page`] usando la plantilla de error del tema activo ([`DefaultTemplate::Error`]), lo que
+/// permite personalizar el contenido del mensaje. En el resto de casos se devuelve un cuerpo HTML
+/// mínimo basado en una descripción genérica del error.
+///
+/// `ErrorPage` implementa [`ResponseError`], por lo que puede utilizarse directamente como tipo de
+/// error en los controladores HTTP.
 #[derive(Debug)]
 pub enum ErrorPage {
     NotModified(HttpRequest),
@@ -20,7 +34,7 @@ pub enum ErrorPage {
     Timeout(HttpRequest),
 }
 
-impl Display for ErrorPage {
+impl fmt::Display for ErrorPage {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             // Error 304.
@@ -33,7 +47,7 @@ impl Display for ErrorPage {
                 let error403 = error_page.theme().error403(&mut error_page);
                 if let Ok(page) = error_page
                     .with_title(L10n::n("Error FORBIDDEN"))
-                    .with_template(Template::ERROR)
+                    .with_template(&DefaultTemplate::Error)
                     .add_child(Html::with(move |_| error403.clone()))
                     .render()
                 {
@@ -48,7 +62,7 @@ impl Display for ErrorPage {
                 let error404 = error_page.theme().error404(&mut error_page);
                 if let Ok(page) = error_page
                     .with_title(L10n::n("Error RESOURCE NOT FOUND"))
-                    .with_template(Template::ERROR)
+                    .with_template(&DefaultTemplate::Error)
                     .add_child(Html::with(move |_| error404.clone()))
                     .render()
                 {

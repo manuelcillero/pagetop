@@ -121,7 +121,7 @@ impl Theme for Aliner {
                 .with_weight(-99),
         ))
         .alter_child_in(
-            Region::FOOTER,
+            &DefaultRegion::Footer,
             ChildOp::AddIfEmpty(Child::with(PoweredBy::new())),
         );
     }

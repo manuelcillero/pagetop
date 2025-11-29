@@ -1,13 +1,27 @@
+//! Responde a una petición web generando una página HTML completa.
+//!
+//! Este módulo define [`Page`], que representa una página HTML lista para renderizar. Cada página
+//! se construye a partir de un [`Context`] propio, donde se registran el tema activo, la plantilla
+//! ([`Template`](crate::core::theme::Template)) que define la disposición de las regiones
+//! ([`Region`]), los componentes asociados y los recursos adicionales (hojas de estilo, scripts,
+//! *favicon*, etc.).
+//!
+//! El renderizado ([`Page::render()`]) delega en el tema ([`Theme`](crate::core::theme::Theme)) la
+//! composición del `<head>` y del `<body>`, y se ejecutan las acciones registradas por las
+//! extensiones antes y después de generar los contenidos.
+//!
+//! También introduce regiones internas reservadas ([`ReservedRegion`]) que actúan como puntos de
+//! anclaje globales al inicio y al final del documento.
+
 mod error;
 pub use error::ErrorPage;
 
 pub use actix_web::Result as ResultPage;
 
 use crate::base::action;
-use crate::base::component::Region;
-use crate::core::component::{Child, ChildOp, Component, ComponentRender};
+use crate::core::component::{Child, ChildOp, Component};
 use crate::core::component::{Context, ContextOp, Contextual};
-use crate::core::theme::ThemeRef;
+use crate::core::theme::{DefaultRegion, Region, RegionRef, TemplateRef, ThemeRef};
 use crate::html::{html, Markup, DOCTYPE};
 use crate::html::{Assets, Favicon, JavaScript, StyleSheet};
 use crate::html::{AttrClasses, ClassesOp};
@@ -15,6 +29,57 @@ use crate::html::{AttrId, AttrL10n};
 use crate::locale::{CharacterDirection, L10n, LangId, LanguageIdentifier};
 use crate::service::HttpRequest;
 use crate::{builder_fn, AutoDefault};
+
+// **< ReservedRegion >*****************************************************************************
+
+/// Regiones internas reservadas como puntos de anclaje globales.
+///
+/// Representan contenedores especiales situados al inicio y al final de un documento. Están
+/// pensadas para proporcionar regiones donde inyectar contenido global o técnico. No suelen usarse
+/// como regiones visibles en los temas.
+pub enum ReservedRegion {
+    /// Región interna situada al **inicio del documento**.
+    ///
+    /// Su función es proporcionar un contenedor donde las extensiones puedan inyectar contenido
+    /// global antes del resto de regiones principales (cabecera, contenido, etc.).
+    ///
+    /// No suele utilizarse en los temas como una región “visible” dentro del maquetado habitual,
+    /// sino como punto de anclaje para elementos auxiliares, marcadores técnicos, inicializadores o
+    /// contenido de depuración que deban situarse en la parte superior del documento.
+    ///
+    /// Se considera una región **reservada** para este tipo de usos globales.
+    PageTop,
+
+    /// Región interna situada al **final del documento**.
+    ///
+    /// Pensada para proporcionar un contenedor donde las extensiones puedan inyectar contenido
+    /// global después del resto de regiones principales (cabecera, contenido, etc.).
+    ///
+    /// No suele utilizarse en los temas como una región “visible” dentro del maquetado habitual,
+    /// sino como punto de anclaje para elementos auxiliares asociados a comportamientos dinámicos
+    /// que deban situarse en la parte inferior del documento.
+    ///
+    /// Igual que [`Self::PageTop`], se considera una región **reservada** para este tipo de usos
+    /// globales.
+    PageBottom,
+}
+
+impl Region for ReservedRegion {
+    #[inline]
+    fn name(&self) -> &'static str {
+        match self {
+            Self::PageTop => "page-top",
+            Self::PageBottom => "page-bottom",
+        }
+    }
+
+    #[inline]
+    fn label(&self) -> L10n {
+        L10n::default()
+    }
+}
+
+// **< Page >***************************************************************************************
 
 /// Representa una página HTML completa lista para renderizar.
 ///
@@ -77,7 +142,7 @@ impl Page {
     /// Añade una entrada `<meta property="..." content="...">` al `<head>`.
     #[builder_fn]
     pub fn with_property(mut self, property: &'static str, content: &'static str) -> Self {
-        self.metadata.push((property, content));
+        self.properties.push((property, content));
         self
     }
 
@@ -97,15 +162,17 @@ impl Page {
 
     /// Añade un componente hijo a la región de contenido por defecto.
     pub fn add_child(mut self, component: impl Component) -> Self {
-        self.context
-            .alter_child_in(Region::DEFAULT, ChildOp::Add(Child::with(component)));
+        self.context.alter_child_in(
+            &DefaultRegion::Content,
+            ChildOp::Add(Child::with(component)),
+        );
         self
     }
 
     /// Añade un componente hijo en la región `region_name` de la página.
-    pub fn add_child_in(mut self, region_name: &'static str, component: impl Component) -> Self {
+    pub fn add_child_in(mut self, region_ref: RegionRef, component: impl Component) -> Self {
         self.context
-            .alter_child_in(region_name, ChildOp::Add(Child::with(component)));
+            .alter_child_in(region_ref, ChildOp::Add(Child::with(component)));
         self
     }
 
@@ -154,8 +221,30 @@ impl Page {
 
     /// Renderiza la página completa en formato HTML.
     ///
-    /// Ejecuta las acciones correspondientes antes y después de renderizar el `<body>`,
-    /// así como del `<head>`, e inserta los atributos `lang` y `dir` en la etiqueta `<html>`.
+    /// El proceso de renderizado de la página sigue esta secuencia:
+    ///
+    /// 1. Ejecuta
+    ///    [`Theme::before_render_page_body()`](crate::core::theme::Theme::before_render_page_body)
+    ///    para que el tema pueda ejecutar acciones específicas antes de renderizar el `<body>`.
+    /// 2. Despacha [`action::page::BeforeRenderBody`] para que otras extensiones puedan realizar
+    ///    ajustes previos sobre la página.
+    /// 3. **Construye el contenido del `<body>`**:
+    ///    - Renderiza la región reservada superior ([`ReservedRegion::PageTop`]).
+    ///    - Llama a [`Theme::render_page_body()`](crate::core::theme::Theme::render_page_body) para
+    ///      renderizar las regiones del cuerpo principal de la página.
+    ///    - Renderiza la región reservada inferior ([`ReservedRegion::PageBottom`]).
+    /// 4. Ejecuta
+    ///    [`Theme::after_render_page_body()`](crate::core::theme::Theme::after_render_page_body)
+    ///    para que el tema pueda aplicar ajustes finales.
+    /// 5. Despacha [`action::page::AfterRenderBody`] para permitir que otras extensiones realicen
+    ///    sus últimos ajustes tras generar el `<body>`.
+    /// 6. Renderiza el `<head>` llamando a
+    ///    [`Theme::render_page_head()`](crate::core::theme::Theme::render_page_head).
+    /// 7. Obtiene el idioma y la dirección del texto a partir de
+    ///    [`Context::langid()`](crate::core::component::Context::langid) e inserta los atributos
+    ///    `lang` y `dir` en la etiqueta `<html>`.
+    /// 8. Compone el documento HTML completo (`<!DOCTYPE html>`, `<html>`, `<head>`, `<body>`) y
+    ///    devuelve un [`ResultPage`] con el [`Markup`] final.
     pub fn render(&mut self) -> ResultPage<Markup, ErrorPage> {
         // Acciones específicas del tema antes de renderizar el <body>.
         self.context.theme().before_render_page_body(self);
@@ -165,9 +254,9 @@ impl Page {
 
         // Renderiza el <body>.
         let body = html! {
-            (Region::named(Region::PAGETOP).render(&mut self.context))
+            (ReservedRegion::PageTop.render(&mut self.context))
             (self.context.theme().render_page_body(self))
-            (Region::named(Region::PAGEBOTTOM).render(&mut self.context))
+            (ReservedRegion::PageBottom.render(&mut self.context))
         };
 
         // Acciones específicas del tema después de renderizar el <body>.
@@ -228,8 +317,8 @@ impl Contextual for Page {
     }
 
     #[builder_fn]
-    fn with_template(mut self, template_name: &'static str) -> Self {
-        self.context.alter_template(template_name);
+    fn with_template(mut self, template: TemplateRef) -> Self {
+        self.context.alter_template(template);
         self
     }
 
@@ -246,8 +335,8 @@ impl Contextual for Page {
     }
 
     #[builder_fn]
-    fn with_child_in(mut self, region_name: impl AsRef<str>, op: ChildOp) -> Self {
-        self.context.alter_child_in(region_name, op);
+    fn with_child_in(mut self, region_ref: RegionRef, op: ChildOp) -> Self {
+        self.context.alter_child_in(region_ref, op);
         self
     }
 
@@ -261,7 +350,7 @@ impl Contextual for Page {
         self.context.theme()
     }
 
-    fn template(&self) -> &str {
+    fn template(&self) -> TemplateRef {
         self.context.template()
     }
 

@@ -1,6 +1,5 @@
-use crate::base::component::Region;
 use crate::core::component::{Child, ChildOp, Children};
-use crate::core::theme::ThemeRef;
+use crate::core::theme::{DefaultRegion, RegionRef, ThemeRef};
 use crate::{builder_fn, AutoDefault, UniqueId};
 
 use parking_lot::RwLock;
@@ -21,24 +20,23 @@ static COMMON_REGIONS: LazyLock<RwLock<ChildrenInRegions>> =
 pub(crate) struct ChildrenInRegions(HashMap<String, Children>);
 
 impl ChildrenInRegions {
-    pub fn with(region_name: impl AsRef<str>, child: Child) -> Self {
-        Self::default().with_child_in(region_name, ChildOp::Add(child))
+    pub fn with(region_ref: RegionRef, child: Child) -> Self {
+        Self::default().with_child_in(region_ref, ChildOp::Add(child))
     }
 
     #[builder_fn]
-    pub fn with_child_in(mut self, region_name: impl AsRef<str>, op: ChildOp) -> Self {
-        let name = region_name.as_ref();
-        if let Some(region) = self.0.get_mut(name) {
+    pub fn with_child_in(mut self, region_ref: RegionRef, op: ChildOp) -> Self {
+        if let Some(region) = self.0.get_mut(region_ref.name()) {
             region.alter_child(op);
         } else {
             self.0
-                .insert(name.to_owned(), Children::new().with_child(op));
+                .insert(region_ref.name().to_owned(), Children::new().with_child(op));
         }
         self
     }
 
-    pub fn children_for(&self, theme_ref: ThemeRef, region_name: impl AsRef<str>) -> Children {
-        let name = region_name.as_ref();
+    pub fn children_for(&self, theme_ref: ThemeRef, region_ref: RegionRef) -> Children {
+        let name = region_ref.name();
         let common = COMMON_REGIONS.read();
         let themed = THEME_REGIONS.read();
 
@@ -50,20 +48,36 @@ impl ChildrenInRegions {
     }
 }
 
-/// Permite añadir componentes a regiones globales o específicas de un tema.
+/// Añade componentes a regiones globales o específicas de un tema.
 ///
-/// Según la variante, se pueden añadir componentes ([`add()`](Self::add)) que permanecerán
-/// disponibles durante toda la ejecución.
-///
-/// Estos componentes se renderizarán automáticamente al procesar los documentos HTML que incluyen
-/// estas regiones, como las páginas de contenido ([`Page`](crate::response::page::Page)).
+/// Cada variante indica la región en la que se añade el componente usando [`Self::add()`]. Los
+/// componentes añadidos se mantienen durante toda la ejecución y se inyectan automáticamente al
+/// renderizar los documentos HTML que utilizan esas regiones, como las páginas de contenido
+/// ([`Page`](crate::response::page::Page)).
 pub enum InRegion {
-    /// Región de contenido por defecto.
-    Default,
-    /// Región identificada por el nombre proporcionado.
-    Named(&'static str),
-    /// Región identificada por su nombre para un tema concreto.
-    OfTheme(&'static str, ThemeRef),
+    /// Región principal de **contenido** por defecto.
+    ///
+    /// Añade el componente a la región lógica de contenido principal de la aplicación. Por
+    /// convención, esta región corresponde a [`DefaultRegion::Content`], cuyo nombre es
+    /// `"content"`. Cualquier tema que renderice esa misma región de contenido, ya sea usando
+    /// directamente [`DefaultRegion::Content`] o cualquier otra implementación de
+    /// [`Region`](crate::core::theme::Region) que devuelva ese mismo nombre, mostrará los
+    /// componentes registrados aquí, aunque lo harán según su propio método de renderizado
+    /// ([`Region::render()`](crate::core::theme::Region::render)).
+    Content,
+    /// Región global compartida por todos los temas.
+    ///
+    /// Los componentes añadidos aquí se asocian al nombre de la región indicado por [`RegionRef`],
+    /// es decir, al valor devuelto por [`Region::name()`](crate::core::theme::Region::name) para
+    /// esa región. Se mostrarán en cualquier tema cuya plantilla renderice una región que devuelva
+    /// ese mismo nombre.
+    Global(RegionRef),
+    /// Región asociada a un tema concreto.
+    ///
+    /// Los componentes sólo se renderizarán cuando el documento se procese con el tema indicado y
+    /// se utilice la región referenciada. Resulta útil para añadir contenido específico en un tema
+    /// sin afectar a otros.
+    ForTheme(ThemeRef, RegionRef),
 }
 
 impl InRegion {
@@ -73,28 +87,33 @@ impl InRegion {
     ///
     /// ```rust
     /// # use pagetop::prelude::*;
-    /// // Banner global, en la región por defecto de cualquier página.
-    /// InRegion::Default.add(Child::with(Html::with(|_|
-    ///     html! { ("🎉 ¡Bienvenido!") }
-    /// )));
+    /// // Banner global en la región por defecto.
+    /// InRegion::Content.add(Child::with(Html::with(|_| {
+    ///     html! { "🎉 ¡Bienvenido!" }
+    /// })));
     ///
-    /// // Texto en la región "sidebar".
-    /// InRegion::Named("sidebar").add(Child::with(Html::with(|_|
-    ///     html! { ("Publicidad") }
-    /// )));
+    /// // Texto en la cabecera.
+    /// InRegion::Global(&DefaultRegion::Header).add(Child::with(Html::with(|_| {
+    ///     html! { "Publicidad" }
+    /// })));
+    ///
+    /// // Contenido sólo para la región del pie de página en un tema concreto.
+    /// InRegion::ForTheme(&theme::Basic, &DefaultRegion::Footer).add(Child::with(Html::with(|_| {
+    ///     html! { "Aviso legal" }
+    /// })));
     /// ```
     pub fn add(&self, child: Child) -> &Self {
         match self {
-            InRegion::Default => Self::add_to_common(Region::DEFAULT, child),
-            InRegion::Named(region_name) => Self::add_to_common(region_name, child),
-            InRegion::OfTheme(region_name, theme_ref) => {
+            InRegion::Content => Self::add_to_common(&DefaultRegion::Content, child),
+            InRegion::Global(region_ref) => Self::add_to_common(*region_ref, child),
+            InRegion::ForTheme(theme_ref, region_ref) => {
                 let mut regions = THEME_REGIONS.write();
                 if let Some(r) = regions.get_mut(&theme_ref.type_id()) {
-                    r.alter_child_in(region_name, ChildOp::Add(child));
+                    r.alter_child_in(*region_ref, ChildOp::Add(child));
                 } else {
                     regions.insert(
                         theme_ref.type_id(),
-                        ChildrenInRegions::with(region_name, child),
+                        ChildrenInRegions::with(*region_ref, child),
                     );
                 }
             }
@@ -103,9 +122,9 @@ impl InRegion {
     }
 
     #[inline]
-    fn add_to_common(region_name: &str, child: Child) {
+    fn add_to_common(region_ref: RegionRef, child: Child) {
         COMMON_REGIONS
             .write()
-            .alter_child_in(region_name, ChildOp::Add(child));
+            .alter_child_in(region_ref, ChildOp::Add(child));
     }
 }

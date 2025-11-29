@@ -1,30 +1,26 @@
-use crate::base::component::Template;
-use crate::core::component::{ComponentRender, ContextOp, Contextual};
+use crate::core::component::Contextual;
 use crate::core::extension::Extension;
 use crate::global;
-use crate::html::{html, Markup, StyleSheet};
+use crate::html::{html, Markup};
 use crate::locale::L10n;
+use crate::prelude::{DefaultTemplate, TemplateRef};
 use crate::response::page::Page;
-
-/// Referencia estática a un tema.
-///
-/// Los temas son también extensiones. Por tanto, deben declararse como **instancias estáticas** que
-/// implementen [`Theme`] y, a su vez, [`Extension`]. Estas instancias se exponen usando
-/// [`Extension::theme()`](crate::core::extension::Extension::theme).
-pub type ThemeRef = &'static dyn Theme;
 
 /// Interfaz común que debe implementar cualquier tema de PageTop.
 ///
 /// Un tema es una [`Extension`](crate::core::extension::Extension) que define el aspecto general de
-/// las páginas: cómo se renderiza el `<head>`, cómo se presenta el `<body>` mediante plantillas
-/// ([`Template`]) y qué contenido mostrar en las páginas de error.
+/// las páginas: cómo se renderiza el `<head>`, cómo se presenta el `<body>` usando plantillas
+/// ([`Template`](crate::core::theme::Template)) que maquetan regiones
+/// ([`Region`](crate::core::theme::Region)) y qué contenido mostrar en las páginas de error. El
+/// contenido de cada región depende del [`Context`](crate::core::component::Context) y de su nombre
+/// lógico.
 ///
 /// Todos los métodos de este *trait* tienen una implementación por defecto, por lo que pueden
 /// sobrescribirse selectivamente para crear nuevos temas con comportamientos distintos a los
 /// predeterminados.
 ///
 /// El único método **obligatorio** de `Extension` para un tema es [`theme()`](Extension::theme),
-/// que debe devolver una referencia estática al propio tema:
+/// que debe devolver una referencia al propio tema:
 ///
 /// ```rust
 /// # use pagetop::prelude::*;
@@ -47,32 +43,55 @@ pub type ThemeRef = &'static dyn Theme;
 /// impl Theme for MyTheme {}
 /// ```
 pub trait Theme: Extension + Send + Sync {
+    /// Devuelve la plantilla ([`Template`](crate::core::theme::Template)) que el propio tema
+    /// propone como predeterminada.
+    ///
+    /// Se utiliza al inicializar un [`Context`](crate::core::component::Context) o una página
+    /// ([`Page`](crate::response::page::Page)) por si no se elige ninguna otra plantilla con
+    /// [`Contextual::with_template()`](crate::core::component::Contextual::with_template).
+    ///
+    /// La implementación por defecto devuelve la plantilla estándar ([`DefaultTemplate::Standard`])
+    /// con una estructura básica para la página. Los temas pueden sobrescribir este método para
+    /// seleccionar otra plantilla predeterminada o una plantilla propia.
+    #[inline]
+    fn default_template(&self) -> TemplateRef {
+        &DefaultTemplate::Standard
+    }
+
     /// Acciones específicas del tema antes de renderizar el `<body>` de la página.
     ///
-    /// Se invoca antes de que se procese la plantilla ([`Template`]) asociada a la página
-    /// ([`Page::template()`](crate::response::page::Page::template)). Es un buen lugar para
-    /// inicializar o ajustar recursos en función del contexto de la página, por ejemplo:
+    /// Es un buen lugar para inicializar o ajustar recursos en función del contexto de la página,
+    /// por ejemplo:
     ///
-    /// - Añadir metadatos o propiedades a la página.
+    /// - Añadir metadatos o propiedades a la cabecera de la página.
     /// - Preparar atributos compartidos.
     /// - Registrar *assets* condicionales en el contexto.
+    ///
+    /// La implementación por defecto no realiza ninguna acción.
     #[allow(unused_variables)]
     fn before_render_page_body(&self, page: &mut Page) {}
 
     /// Renderiza el contenido del `<body>` de la página.
     ///
-    /// Por defecto, delega en la plantilla ([`Template`]) asociada a la página
-    /// ([`Page::template()`](crate::response::page::Page::template)). La plantilla se encarga de
-    /// procesar las regiones y renderizar los componentes registrados en el contexto.
+    /// La implementación predeterminada delega en la plantilla asociada a la página, obtenida desde
+    /// su [`Context`](crate::core::component::Context), y llama a
+    /// [`Template::render()`](crate::core::theme::Template::render) para componer el `<body>` a
+    /// partir de las regiones.
+    ///
+    /// Con la configuración por defecto, la plantilla estándar utiliza las regiones
+    /// [`DefaultRegion::Header`](crate::core::theme::DefaultRegion::Header),
+    /// [`DefaultRegion::Content`](crate::core::theme::DefaultRegion::Content) y
+    /// [`DefaultRegion::Footer`](crate::core::theme::DefaultRegion::Footer) en ese orden.
     ///
     /// Los temas pueden sobrescribir este método para:
     ///
     /// - Forzar una plantilla concreta en determinadas páginas.
-    /// - Envolver el contenido en marcadores adicionales.
+    /// - Consultar la plantilla de la página y variar la composición según su nombre.
+    /// - Envolver el contenido en contenedores adicionales.
     /// - Implementar lógicas de composición alternativas.
     #[inline]
     fn render_page_body(&self, page: &mut Page) -> Markup {
-        Template::named(page.template()).render(page.context())
+        page.template().render(page.context())
     }
 
     /// Acciones específicas del tema después de renderizar el `<body>` de la página.
@@ -83,6 +102,8 @@ pub trait Theme: Extension + Send + Sync {
     /// - Realizar *tracing* o recopilar métricas.
     /// - Aplicar ajustes finales al estado de la página antes de producir el `<head>` o la
     ///   respuesta final.
+    ///
+    /// La implementación por defecto no realiza ninguna acción.
     #[allow(unused_variables)]
     fn after_render_page_body(&self, page: &mut Page) {}
 
@@ -101,34 +122,11 @@ pub trait Theme: Extension + Send + Sync {
     /// - La etiqueta `viewport` básica para diseño adaptable.
     /// - Los metadatos (`name`/`content`) y propiedades (`property`/`content`) declarados en la
     ///   página.
-    /// - Los *assets* registrados en el contexto de la página. Si el parámetro
-    ///   `include_basic_assets` está activado, añade de serie las siguientes hojas de estilo
-    ///   básicas: `normalize.css`, `root.css`, `basic.css`, útiles para temas sencillos o de uso
-    ///   general.
+    /// - Los *assets* registrados en el contexto de la página.
     ///
     /// Los temas pueden sobrescribir este método para añadir etiquetas adicionales (por ejemplo,
     /// *favicons* personalizados, manifest, etiquetas de analítica, etc.).
-    #[inline]
     fn render_page_head(&self, page: &mut Page) -> Markup {
-        if page.param_or("include_basic_assets", false) {
-            let pkg_version = env!("CARGO_PKG_VERSION");
-
-            page.alter_assets(ContextOp::AddStyleSheet(
-                StyleSheet::from("/css/normalize.css")
-                    .with_version("8.0.1")
-                    .with_weight(-99),
-            ))
-            .alter_assets(ContextOp::AddStyleSheet(
-                StyleSheet::from("/css/root.css")
-                    .with_version(pkg_version)
-                    .with_weight(-99),
-            ))
-            .alter_assets(ContextOp::AddStyleSheet(
-                StyleSheet::from("/css/basic.css")
-                    .with_version(pkg_version)
-                    .with_weight(-99),
-            ));
-        }
         let viewport = "width=device-width, initial-scale=1, shrink-to-fit=no";
         html! {
             meta charset="utf-8";
@@ -173,3 +171,6 @@ pub trait Theme: Extension + Send + Sync {
         html! { div { h1 { (L10n::l("error404_notice").using(page)) } } }
     }
 }
+
+/// Referencia estática a un tema.
+pub type ThemeRef = &'static dyn Theme;
