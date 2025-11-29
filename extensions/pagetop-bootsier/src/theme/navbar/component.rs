@@ -73,7 +73,7 @@ impl Component for Navbar {
             return PrepareMarkup::None;
         }
 
-        // Asegura que la barra tiene un id estable para poder asociarlo al colapso/offcanvas.
+        // Asegura que la barra tiene un `id` para poder asociarlo al colapso/offcanvas.
         let id = cx.required_id::<Self>(self.id());
 
         PrepareMarkup::With(html! {

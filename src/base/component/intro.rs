@@ -29,7 +29,7 @@ pub enum IntroOpening {
 ///   opta por [`IntroOpening::PageTop`]) y bloques ([`Block`](crate::base::component::Block)) de
 ///   contenido libre para crear párrafos vistosos de texto. Aunque admite todo tipo de componentes.
 ///
-/// ### Ejemplos
+/// # Ejemplos
 ///
 /// **Intro mínima por defecto**
 ///

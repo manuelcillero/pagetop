@@ -167,7 +167,7 @@ impl fmt::Display for UnitValue {
 
 /// Convierte una cadena a [`UnitValue`] siguiendo una gramática CSS acotada.
 ///
-/// ## Acepta
+/// # Acepta
 ///
 /// - `""` para `UnitValue::None`
 /// - `"auto"`
@@ -178,7 +178,7 @@ impl fmt::Display for UnitValue {
 ///
 /// (Se toleran espacios entre número y unidad: `"12 px"`, `"1.5  rem"`).
 ///
-/// ## Ejemplo
+/// # Ejemplo
 ///
 /// ```rust
 /// # use pagetop::prelude::*;
@@ -188,7 +188,7 @@ impl fmt::Display for UnitValue {
 /// assert!(UnitValue::from_str("12").is_err());
 /// ```
 ///
-/// ## Errores de interpretación
+/// # Errores de interpretación
 ///
 /// - Falta la unidad cuando es necesaria (p. ej., `"12"`, excepto para el valor cero).
 /// - Decimales en valores que deben ser absolutos (p. ej. `"1.5px"`).
@@ -262,7 +262,7 @@ impl FromStr for UnitValue {
 
 /// Deserializa desde una cadena usando la misma gramática que [`FromStr`].
 ///
-/// ### Ejemplo con `serde_json`
+/// # Ejemplo con `serde_json`
 /// ```rust
 /// # use pagetop::prelude::*;
 /// use serde::Deserialize;

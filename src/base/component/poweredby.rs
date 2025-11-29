@@ -3,7 +3,7 @@ use crate::prelude::*;
 // Enlace a la página oficial de PageTop.
 const LINK: &str = "<a href=\"https://pagetop.cillero.es\" rel=\"noopener noreferrer\">PageTop</a>";
 
-/// Componente que informa del 'Powered by' (*Funciona con*) típica del pie de página.
+/// Componente que muestra el típico mensaje *Powered by* (*Funciona con*) en el pie de página.
 ///
 /// Por defecto, usando [`default()`](Self::default) sólo se muestra un reconocimiento a PageTop.
 /// Sin embargo, se puede usar [`new()`](Self::new) para crear una instancia con un texto de
@@ -17,7 +17,7 @@ impl Component for PoweredBy {
     /// Crea una nueva instancia de `PoweredBy`.
     ///
     /// El copyright se genera automáticamente con el año actual y el nombre de la aplicación
-    /// configurada en [`global::SETTINGS`].
+    /// configurada en [`global::SETTINGS`], en el formato `YYYY © Nombre de la aplicación`.
     fn new() -> Self {
         let year = Utc::now().format("%Y").to_string();
         let c = join!(year, " © ", global::SETTINGS.app.name);

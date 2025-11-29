@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-/// Componente básico para renderizar dinámicamente código HTML recibiendo el contexto.
+/// Componente básico que renderiza dinámicamente código HTML según el contexto.
 ///
 /// Este componente permite generar contenido HTML arbitrario, usando la macro `html!` y accediendo
 /// opcionalmente al contexto de renderizado.
