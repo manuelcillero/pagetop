@@ -357,12 +357,17 @@ pub fn builder_fn(_: TokenStream, item: TokenStream) -> TokenStream {
 
     // Texto introductorio para la documentación adicional de `with_...()`.
     let with_alter_title = format!(
-        "# Añade método `{}()` generado por [`#[builder_fn]`](pagetop_macros::builder_fn)",
+        "# {} el método `{}()` generado por [`#[builder_fn]`](pagetop_macros::builder_fn)",
+        if doc_attrs.is_empty() {
+            "Añade"
+        } else {
+            "También añade"
+        },
         alter_name_str
     );
     let with_alter_doc = concat!(
-        "Modifica la instancia actual (`&mut self`) con los mismos argumentos ",
-        "en lugar de consumirla."
+        "Modifica la instancia actual (`&mut self`) con los mismos argumentos, ",
+        "sin consumirla."
     );
 
     // Atributos completos que se aplican siempre a `with_...()`.
