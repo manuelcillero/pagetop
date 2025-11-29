@@ -99,6 +99,40 @@ use std::ops::Deref;
 
 // **< RE-EXPORTED >********************************************************************************
 
+/// Versión del *crate* `pagetop`, obtenida en tiempo de compilación (`CARGO_PKG_VERSION`).
+///
+/// Útil para versionar recursos estáticos de PageTop desde otros *crates*. Por ejemplo:
+///
+/// ```rust
+/// use pagetop::prelude::*;
+///
+/// pub struct MyTheme;
+///
+/// impl Extension for MyTheme {
+///     fn theme(&self) -> Option<ThemeRef> {
+///         Some(&Self)
+///     }
+/// }
+///
+/// impl Theme for MyTheme {
+///     fn before_render_page_body(&self, page: &mut Page) {
+///         page
+///             .alter_assets(ContextOp::AddStyleSheet(
+///                 StyleSheet::from("/css/normalize.css").with_version("8.0.1"),
+///             ))
+///             .alter_assets(ContextOp::AddStyleSheet(
+///                 StyleSheet::from("/css/basic.css").with_version(PAGETOP_VERSION),
+///             ))
+///             .alter_assets(ContextOp::AddStyleSheet(
+///                 StyleSheet::from("/mytheme/styles.css").with_version(env!("CARGO_PKG_VERSION")),
+///             ));
+///     }
+/// }
+/// ```
+/// Donde `PAGETOP_VERSION` identifica la versión de PageTop y `env!("CARGO_PKG_VERSION")` hace
+/// referencia a la versión del *crate* que lo usa.
+pub const PAGETOP_VERSION: &str = env!("CARGO_PKG_VERSION");
+
 pub use pagetop_macros::{builder_fn, html, main, test, AutoDefault};
 
 pub use pagetop_statics::{resource, StaticResource};

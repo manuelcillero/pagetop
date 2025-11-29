@@ -6,7 +6,7 @@ use crate::core::{extension, extension::ExtensionRef};
 use crate::html::Markup;
 use crate::response::page::{ErrorPage, ResultPage};
 use crate::service::HttpRequest;
-use crate::{global, locale, service, trace};
+use crate::{global, locale, service, trace, PAGETOP_VERSION};
 
 use actix_session::config::{BrowserSession, PersistentSession, SessionLifecycle};
 use actix_session::storage::CookieSessionStore;
@@ -108,7 +108,7 @@ impl Application {
             println!(
                 "{} {}\n",
                 "Powered by PageTop".yellow(),
-                env!("CARGO_PKG_VERSION").yellow()
+                PAGETOP_VERSION.yellow()
             );
         }
     }

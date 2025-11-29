@@ -105,7 +105,7 @@ impl Component for Intro {
 
     fn setup_before_prepare(&mut self, cx: &mut Context) {
         cx.alter_assets(ContextOp::AddStyleSheet(
-            StyleSheet::from("/css/intro.css").with_version(env!("CARGO_PKG_VERSION")),
+            StyleSheet::from("/css/intro.css").with_version(PAGETOP_VERSION),
         ));
     }
 
