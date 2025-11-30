@@ -12,7 +12,7 @@ async fn literal_text() {
 async fn translation_without_args() {
     let _app = service::test::init_service(Application::new().test()).await;
 
-    let l10n = L10n::l("test-hello-world");
+    let l10n = L10n::l("test_hello_world");
     let translation = l10n.lookup(&LangMatch::resolve("es-ES"));
     assert_eq!(translation, Some("¡Hola mundo!".to_string()));
 }
@@ -21,7 +21,7 @@ async fn translation_without_args() {
 async fn translation_with_args() {
     let _app = service::test::init_service(Application::new().test()).await;
 
-    let l10n = L10n::l("test-hello-user").with_arg("userName", "Manuel");
+    let l10n = L10n::l("test_hello_user").with_arg("userName", "Manuel");
     let translation = l10n.lookup(&LangMatch::resolve("es-ES"));
     assert_eq!(translation, Some("¡Hola, Manuel!".to_string()));
 }
@@ -30,7 +30,7 @@ async fn translation_with_args() {
 async fn translation_with_plural_and_select() {
     let _app = service::test::init_service(Application::new().test()).await;
 
-    let l10n = L10n::l("test-shared-photos").with_args(vec![
+    let l10n = L10n::l("test_shared_photos").with_args(vec![
         ("userName", "Roberto"),
         ("photoCount", "3"),
         ("userGender", "male"),
@@ -43,7 +43,7 @@ async fn translation_with_plural_and_select() {
 async fn check_fallback_language() {
     let _app = service::test::init_service(Application::new().test()).await;
 
-    let l10n = L10n::l("test-hello-world");
+    let l10n = L10n::l("test_hello_world");
     let translation = l10n.lookup(&LangMatch::resolve("xx-YY")); // Retrocede a "en-US".
     assert_eq!(translation, Some("Hello world!".to_string()));
 }

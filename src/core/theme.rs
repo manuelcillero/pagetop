@@ -55,7 +55,7 @@ pub trait Region {
     /// las clases del contenedor de la región (`"region region-<name>"`).
     fn name(&self) -> &'static str;
 
-    /// Devuelve la etiqueta de accesibilidad localizada asociada a la región.
+    /// Devuelve un *texto localizado* como etiqueta de accesibilidad asociada a la región.
     ///
     /// En la implementación predeterminada de [`Self::render()`], este valor se usa como
     /// `aria-label` del contenedor de la región.
@@ -64,8 +64,8 @@ pub trait Region {
     /// Renderiza el contenedor de la región.
     ///
     /// Por defecto, recupera del [`Context`] el contenido de la región y, si no está vacío, lo
-    /// envuelve en un `<div>` con clases `"region region-<name>"` y un `aria-label` basado en la
-    /// etiqueta localizada de la región:
+    /// envuelve en un `<div>` con clases `"region region-<name>"` y un `aria-label` basado en el
+    /// *texto localizado* de la etiqueta asociada a la región:
     ///
     /// ```html
     /// <div class="region region-<name>" role="region" aria-label="<label>">

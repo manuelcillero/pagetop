@@ -20,7 +20,7 @@ pub enum Item {
     Brand(Typed<navbar::Brand>),
     /// Representa un menú de navegación [`Nav`](crate::theme::Nav).
     Nav(Typed<Nav>),
-    /// Representa un texto libre localizado.
+    /// Representa un *texto localizado* libre.
     Text(L10n),
 }
 
@@ -88,7 +88,7 @@ impl Item {
         Self::Nav(Typed::with(item))
     }
 
-    /// Crea un elemento de texto localizado, mostrado sin interacción.
+    /// Crea un elemento con un *texto localizado*, mostrado sin interacción.
     pub fn text(item: L10n) -> Self {
         Self::Text(item)
     }

@@ -24,7 +24,7 @@ use crate::{actions_boxed, service};
 /// }
 /// ```
 pub trait Extension: AnyInfo + Send + Sync {
-    /// Nombre localizado de la extensión legible para el usuario.
+    /// Nombre de la extensión como *texto localizado* legible para el usuario.
     ///
     /// Predeterminado por el [`short_name()`](AnyInfo::short_name) del tipo asociado a la
     /// extensión.
@@ -32,7 +32,7 @@ pub trait Extension: AnyInfo + Send + Sync {
         L10n::n(self.short_name())
     }
 
-    /// Descripción corta localizada de la extensión para paneles, listados, etc.
+    /// Descripción corta de la extensión como *texto localizado* para paneles, listados, etc.
     ///
     /// Por defecto devuelve un valor vacío (`L10n::default()`).
     fn description(&self) -> L10n {

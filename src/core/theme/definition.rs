@@ -158,7 +158,7 @@ pub trait Theme: Extension + Send + Sync {
     /// Contenido predeterminado para la página de error "*403 - Forbidden*".
     ///
     /// Los temas pueden sobrescribir este método para personalizar el diseño y el contenido de la
-    /// página de error, manteniendo o no el mensaje de los textos localizados.
+    /// página de error, manteniendo o no el mensaje de los *textos localizados*.
     fn error403(&self, page: &mut Page) -> Markup {
         html! { div { h1 { (L10n::l("error403_notice").using(page)) } } }
     }
@@ -166,7 +166,7 @@ pub trait Theme: Extension + Send + Sync {
     /// Contenido predeterminado para la página de error "*404 - Not Found*".
     ///
     /// Los temas pueden sobrescribir este método para personalizar el diseño y el contenido de la
-    /// página de error, manteniendo o no el mensaje de los textos localizados.
+    /// página de error, manteniendo o no el mensaje de los *textos localizados*.
     fn error404(&self, page: &mut Page) -> Markup {
         html! { div { h1 { (L10n::l("error404_notice").using(page)) } } }
     }

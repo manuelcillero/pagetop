@@ -310,7 +310,7 @@ enum L10nOp {
     Translate(Cow<'static, str>),
 }
 
-/// Crea instancias para traducir textos localizados.
+/// Crea instancias para traducir *textos localizados*.
 ///
 /// Cada instancia puede representar:
 ///

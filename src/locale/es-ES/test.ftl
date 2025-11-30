@@ -1,6 +1,6 @@
-test-hello-world = ¡Hola mundo!
-test-hello-user  = ¡Hola, { $userName }!
-test-shared-photos =
+test_hello_world = ¡Hola mundo!
+test_hello_user  = ¡Hola, { $userName }!
+test_shared_photos =
     { $userName } { $photoCount ->
         [one] ha añadido una nueva foto
        *[other] ha añadido { $photoCount } nuevas fotos

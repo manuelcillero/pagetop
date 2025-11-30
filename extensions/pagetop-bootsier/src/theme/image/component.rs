@@ -107,7 +107,7 @@ impl Image {
         self
     }
 
-    /// Define el texto alternativo localizado ([`L10n`]) para la imagen.
+    /// Define un *texto localizado* ([`L10n`]) alternativo para la imagen.
     ///
     /// Se recomienda siempre aportar un texto alternativo salvo que la imagen sea puramente
     /// decorativa.

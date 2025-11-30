@@ -10,7 +10,7 @@ use crate::{builder_fn, AutoDefault};
 /// ```rust
 /// # use pagetop::prelude::*;
 /// // Traducción por clave en las locales por defecto de PageTop.
-/// let hello = AttrL10n::new(L10n::l("test-hello-world"));
+/// let hello = AttrL10n::new(L10n::l("test_hello_world"));
 ///
 /// // Español disponible.
 /// assert_eq!(
