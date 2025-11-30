@@ -366,7 +366,7 @@ pub fn builder_fn(_: TokenStream, item: TokenStream) -> TokenStream {
         alter_name_str
     );
     let with_alter_doc = concat!(
-        "Modifica la instancia actual (`&mut self`) con los mismos argumentos, ",
+        "Permite modificar la instancia actual (`&mut self`) con los mismos argumentos, ",
         "sin consumirla."
     );
 
