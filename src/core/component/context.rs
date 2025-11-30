@@ -11,7 +11,7 @@ use crate::{builder_fn, join};
 use std::any::Any;
 use std::collections::HashMap;
 
-/// Operaciones para modificar recursos asociados al contexto ([`Context`]) de un documento.
+/// Operaciones para modificar recursos asociados al [`Context`] de un documento.
 pub enum ContextOp {
     /// Define el *favicon* del documento. Sobrescribe cualquier valor anterior.
     SetFavicon(Option<Favicon>),
@@ -386,7 +386,7 @@ impl Context {
 /// 3. Un idioma válido extraído de la cabecera `Accept-Language` del navegador.
 /// 4. Y si ninguna de las opciones anteriores aplica, se usa el idioma de respaldo (`"en-US"`).
 ///
-/// Resulta útil para usar un contexto ([`Context`]) como fuente de traducción en
+/// Resulta útil para usar el [`Context`] como fuente de traducción en
 /// [`L10n::lookup()`](crate::locale::L10n::lookup) o [`L10n::using()`](crate::locale::L10n::using).
 impl LangId for Context {
     fn langid(&self) -> &'static LanguageIdentifier {

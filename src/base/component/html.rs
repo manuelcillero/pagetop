@@ -51,9 +51,8 @@ impl Html {
 
     /// Crea una instancia que generará el `Markup`, con acceso opcional al contexto.
     ///
-    /// El método [`prepare_component()`](crate::core::component::Component::prepare_component)
-    /// delega el renderizado en la función proporcionada, que recibe una referencia mutable al
-    /// contexto de renderizado ([`Context`]).
+    /// El método [`Self::prepare_component()`] delega el renderizado a la función que aquí se
+    /// proporciona, que recibe una referencia mutable al [`Context`].
     pub fn with<F>(f: F) -> Self
     where
         F: Fn(&mut Context) -> Markup + Send + Sync + 'static,
@@ -64,8 +63,8 @@ impl Html {
     /// Sustituye la función que genera el `Markup`.
     ///
     /// Permite a otras extensiones modificar la función de renderizado que se ejecutará cuando
-    /// [`prepare_component()`](crate::core::component::Component::prepare_component) invoque esta
-    /// instancia. La nueva función también recibe una referencia al contexto ([`Context`]).
+    /// [`Self::prepare_component()`] invoque esta instancia. La nueva función también recibe una
+    /// referencia al [`Context`].
     #[builder_fn]
     pub fn with_fn<F>(mut self, f: F) -> Self
     where
