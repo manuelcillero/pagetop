@@ -17,13 +17,22 @@
 	--intro-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
 }
 
+body {
+	overflow-x: clip;
+}
+
 .intro {
 	position: relative;
 	min-width: 350px;
 	color: var(--intro-color);
 	background-color: var(--intro-bg-color);
 
-	width: 100%;
+	left: 50%;
+	right: 50%;
+	margin-left: -50vw;
+	margin-right: -50vw;
+	width: 100vw;
+
 	display: flex;
 	flex-direction: column;
 	justify-content: center;

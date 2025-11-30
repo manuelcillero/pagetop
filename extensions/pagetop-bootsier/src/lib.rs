@@ -102,6 +102,34 @@ pub mod prelude {
     pub use crate::theme::*;
 }
 
+/// Plantillas que Bootsier añade.
+#[derive(AutoDefault)]
+pub enum BootsierTemplate {
+    /// Plantilla predeterminada de Bootsier.
+    #[default]
+    Standard,
+}
+
+impl Template for BootsierTemplate {
+    fn render(&'static self, cx: &mut Context) -> Markup {
+        match self {
+            Self::Standard => theme::Container::new()
+                .with_classes(ClassesOp::Add, "container-wrapper")
+                .with_width(theme::container::Width::FluidMax(
+                    config::SETTINGS.bootsier.max_width,
+                ))
+                .add_child(Html::with(|cx| {
+                    html! {
+                        (DefaultRegion::Header.render(cx))
+                        (DefaultRegion::Content.render(cx))
+                        (DefaultRegion::Footer.render(cx))
+                    }
+                })),
+        }
+        .render(cx)
+    }
+}
+
 /// Implementa el tema.
 pub struct Bootsier;
 
@@ -117,6 +145,11 @@ impl Extension for Bootsier {
 }
 
 impl Theme for Bootsier {
+    #[inline]
+    fn default_template(&self) -> TemplateRef {
+        &BootsierTemplate::Standard
+    }
+
     fn before_render_page_body(&self, page: &mut Page) {
         page.alter_assets(ContextOp::AddStyleSheet(
             StyleSheet::from("/bootsier/bs/bootstrap.min.css")
@@ -127,16 +160,10 @@ impl Theme for Bootsier {
             JavaScript::defer("/bootsier/js/bootstrap.bundle.min.js")
                 .with_version(BOOTSTRAP_VERSION)
                 .with_weight(-90),
-        ));
-    }
-
-    fn render_page_body(&self, page: &mut Page) -> Markup {
-        theme::Container::new()
-            .with_id("container-wrapper")
-            .with_width(theme::container::Width::FluidMax(
-                config::SETTINGS.bootsier.max_width,
-            ))
-            .add_child(Template::named(page.template()))
-            .render(page.context())
+        ))
+        .alter_child_in(
+            &DefaultRegion::Footer,
+            ChildOp::AddIfEmpty(Child::with(PoweredBy::new())),
+        );
     }
 }
