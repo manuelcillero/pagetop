@@ -19,21 +19,32 @@ use crate::LOCALES_BOOTSIER;
 ///
 /// Ver ejemplo en el módulo [`dropdown`].
 /// Si no contiene elementos, el componente **no se renderiza**.
-#[rustfmt::skip]
-#[derive(AutoDefault)]
+#[derive(AutoDefault, Getters)]
 pub struct Dropdown {
-    id            : AttrId,
-    classes       : AttrClasses,
-    title         : L10n,
-    button_size   : ButtonSize,
-    button_color  : ButtonColor,
-    button_split  : bool,
+    #[getters(skip)]
+    id: AttrId,
+    /// Devuelve las clases CSS asociadas al menú desplegable.
+    classes: AttrClasses,
+    /// Devuelve el título del menú desplegable.
+    title: L10n,
+    /// Devuelve el tamaño configurado del botón.
+    button_size: ButtonSize,
+    /// Devuelve el color/estilo configurado del botón.
+    button_color: ButtonColor,
+    /// Devuelve si se debe desdoblar (*split*) el botón (botón de acción + *toggle*).
+    button_split: bool,
+    /// Devuelve si el botón del menú está integrado en un grupo de botones.
     button_grouped: bool,
-    auto_close    : dropdown::AutoClose,
-    direction     : dropdown::Direction,
-    menu_align    : dropdown::MenuAlign,
-    menu_position : dropdown::MenuPosition,
-    items         : Children,
+    /// Devuelve la política de cierre automático del menú desplegado.
+    auto_close: dropdown::AutoClose,
+    /// Devuelve la dirección de despliegue configurada.
+    direction: dropdown::Direction,
+    /// Devuelve la configuración de alineación horizontal del menú desplegable.
+    menu_align: dropdown::MenuAlign,
+    /// Devuelve la posición configurada para el menú desplegable.
+    menu_position: dropdown::MenuPosition,
+    /// Devuelve la lista de elementos del menú.
+    items: Children,
 }
 
 impl Component for Dropdown {
@@ -48,7 +59,7 @@ impl Component for Dropdown {
     fn setup_before_prepare(&mut self, _cx: &mut Context) {
         self.alter_classes(
             ClassesOp::Prepend,
-            self.direction().class_with(self.button_grouped()),
+            self.direction().class_with(*self.button_grouped()),
         );
     }
 
@@ -82,7 +93,7 @@ impl Component for Dropdown {
                     });
 
                     // Renderizado en modo split (dos botones) o simple (un botón).
-                    @if self.button_split() {
+                    @if *self.button_split() {
                         // Botón principal (acción/etiqueta).
                         @let btn = html! {
                             button
@@ -241,62 +252,5 @@ impl Dropdown {
     pub fn with_items(mut self, op: TypedOp<dropdown::Item>) -> Self {
         self.items.alter_typed(op);
         self
-    }
-
-    // **< Dropdown GETTERS >***********************************************************************
-
-    /// Devuelve las clases CSS asociadas al menú desplegable.
-    pub fn classes(&self) -> &AttrClasses {
-        &self.classes
-    }
-
-    /// Devuelve el título del menú desplegable.
-    pub fn title(&self) -> &L10n {
-        &self.title
-    }
-
-    /// Devuelve el tamaño configurado del botón.
-    pub fn button_size(&self) -> &ButtonSize {
-        &self.button_size
-    }
-
-    /// Devuelve el color/estilo configurado del botón.
-    pub fn button_color(&self) -> &ButtonColor {
-        &self.button_color
-    }
-
-    /// Devuelve si se debe desdoblar (*split*) el botón (botón de acción + *toggle*).
-    pub fn button_split(&self) -> bool {
-        self.button_split
-    }
-
-    /// Devuelve si el botón del menú está integrado en un grupo de botones.
-    pub fn button_grouped(&self) -> bool {
-        self.button_grouped
-    }
-
-    /// Devuelve la política de cierre automático del menú desplegado.
-    pub fn auto_close(&self) -> &dropdown::AutoClose {
-        &self.auto_close
-    }
-
-    /// Devuelve la dirección de despliegue configurada.
-    pub fn direction(&self) -> &dropdown::Direction {
-        &self.direction
-    }
-
-    /// Devuelve la configuración de alineación horizontal del menú desplegable.
-    pub fn menu_align(&self) -> &dropdown::MenuAlign {
-        &self.menu_align
-    }
-
-    /// Devuelve la posición configurada para el menú desplegable.
-    pub fn menu_position(&self) -> &dropdown::MenuPosition {
-        &self.menu_position
-    }
-
-    /// Devuelve la lista de elementos (`children`) del menú.
-    pub fn items(&self) -> &Children {
-        &self.items
     }
 }

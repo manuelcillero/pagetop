@@ -983,6 +983,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "getter-methods"
+version = "2.0.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c43d815f896a3c730f0d76b8348a1700dc8d8fd6c377e4590d531bdd646574d8"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
 name = "ghash"
 version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1558,6 +1569,7 @@ dependencies = [
  "config",
  "figlet-rs",
  "fluent-templates",
+ "getter-methods",
  "indoc",
  "itoa",
  "pagetop-aliner",

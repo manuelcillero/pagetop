@@ -14,15 +14,20 @@ const TOGGLE_OFFCANVAS: &str = "offcanvas";
 ///
 /// Ver ejemplos en el módulo [`navbar`].
 /// Si no contiene elementos, el componente **no se renderiza**.
-#[rustfmt::skip]
-#[derive(AutoDefault)]
+#[derive(AutoDefault, Getters)]
 pub struct Navbar {
-    id          : AttrId,
-    classes     : AttrClasses,
-    expand      : BreakPoint,
-    layout      : navbar::Layout,
-    position    : navbar::Position,
-    items       : Children,
+    #[getters(skip)]
+    id: AttrId,
+    /// Devuelve las clases CSS asociadas a la barra de navegación.
+    classes: AttrClasses,
+    /// Devuelve el punto de ruptura configurado.
+    expand: BreakPoint,
+    /// Devuelve la disposición configurada para la barra de navegación.
+    layout: navbar::Layout,
+    /// Devuelve la posición configurada para la barra de navegación.
+    position: navbar::Position,
+    /// Devuelve la lista de contenidos.
+    items: Children,
 }
 
 impl Component for Navbar {
@@ -262,32 +267,5 @@ impl Navbar {
     pub fn with_items(mut self, op: TypedOp<navbar::Item>) -> Self {
         self.items.alter_typed(op);
         self
-    }
-
-    // **< Navbar GETTERS >*************************************************************************
-
-    /// Devuelve las clases CSS asociadas a la barra de navegación.
-    pub fn classes(&self) -> &AttrClasses {
-        &self.classes
-    }
-
-    /// Devuelve el punto de ruptura configurado.
-    pub fn expand(&self) -> &BreakPoint {
-        &self.expand
-    }
-
-    /// Devuelve la disposición configurada para la barra de navegación.
-    pub fn layout(&self) -> &navbar::Layout {
-        &self.layout
-    }
-
-    /// Devuelve la posición configurada para la barra de navegación.
-    pub fn position(&self) -> &navbar::Position {
-        &self.position
-    }
-
-    /// Devuelve la lista de contenidos (`children`).
-    pub fn items(&self) -> &Children {
-        &self.items
     }
 }

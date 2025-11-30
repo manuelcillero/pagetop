@@ -13,11 +13,11 @@ pub enum IconKind {
     },
 }
 
-#[rustfmt::skip]
-#[derive(AutoDefault)]
+#[derive(AutoDefault, Getters)]
 pub struct Icon {
-    classes   : AttrClasses,
-    icon_kind : IconKind,
+    /// Devuelve las clases CSS asociadas al icono.
+    classes: AttrClasses,
+    icon_kind: IconKind,
     aria_label: AttrL10n,
 }
 
@@ -115,20 +115,5 @@ impl Icon {
     pub fn with_aria_label(mut self, label: L10n) -> Self {
         self.aria_label.alter_value(label);
         self
-    }
-
-    // **< Icon GETTERS >***************************************************************************
-
-    /// Devuelve las clases CSS asociadas al icono.
-    pub fn classes(&self) -> &AttrClasses {
-        &self.classes
-    }
-
-    pub fn icon_kind(&self) -> &IconKind {
-        &self.icon_kind
-    }
-
-    pub fn aria_label(&self) -> &AttrL10n {
-        &self.aria_label
     }
 }

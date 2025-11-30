@@ -76,12 +76,17 @@ pub enum IntroOpening {
 ///             })),
 ///     );
 /// ```
-#[rustfmt::skip]
+#[derive(Getters)]
 pub struct Intro {
-    title   : L10n,
-    slogan  : L10n,
-    button  : Option<(L10n, FnPathByContext)>,
-    opening : IntroOpening,
+    /// Devuelve el título de entrada.
+    title: L10n,
+    /// Devuelve el eslogan de la entrada.
+    slogan: L10n,
+    /// Devuelve el botón de llamada a la acción, si existe.
+    button: Option<(L10n, FnPathByContext)>,
+    /// Devuelve el modo de apertura configurado.
+    opening: IntroOpening,
+    /// Devuelve la lista de componentes hijo de la intro.
     children: Children,
 }
 
@@ -110,7 +115,7 @@ impl Component for Intro {
     }
 
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
-        if self.opening() == IntroOpening::PageTop {
+        if *self.opening() == IntroOpening::PageTop {
             cx.alter_assets(ContextOp::AddJavaScript(JavaScript::on_load_async("intro-js", |cx|
                 util::indoc!(r#"
                 try {
@@ -163,7 +168,7 @@ impl Component for Intro {
                                 }
                             }
                             div class="intro-text__children" {
-                                @if self.opening() == IntroOpening::PageTop {
+                                @if *self.opening() == IntroOpening::PageTop {
                                     p { (L10n::l("intro_text1").using(cx)) }
                                     div id="intro-badges" {
                                         img
@@ -288,32 +293,5 @@ impl Intro {
     pub fn with_child(mut self, op: ChildOp) -> Self {
         self.children.alter_child(op);
         self
-    }
-
-    // **< Intro GETTERS >**************************************************************************
-
-    /// Devuelve el título de entrada.
-    pub fn title(&self) -> &L10n {
-        &self.title
-    }
-
-    /// Devuelve el eslogan de la entrada.
-    pub fn slogan(&self) -> &L10n {
-        &self.slogan
-    }
-
-    /// Devuelve el botón de llamada a la acción, si existe.
-    pub fn button(&self) -> Option<(&L10n, &FnPathByContext)> {
-        self.button.as_ref().map(|(txt, lnk)| (txt, lnk))
-    }
-
-    /// Devuelve el modo de apertura configurado.
-    pub fn opening(&self) -> IntroOpening {
-        self.opening
-    }
-
-    /// Devuelve la lista de componentes (`children`) de la intro.
-    pub fn children(&self) -> &Children {
-        &self.children
     }
 }

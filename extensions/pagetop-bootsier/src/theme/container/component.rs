@@ -6,14 +6,18 @@ use crate::prelude::*;
 ///
 /// Envuelve un contenido con la etiqueta HTML indicada por [`container::Kind`]. Sólo se renderiza
 /// si existen componentes hijos (*children*).
-#[rustfmt::skip]
-#[derive(AutoDefault)]
+#[derive(AutoDefault, Getters)]
 pub struct Container {
-    id             : AttrId,
-    classes        : AttrClasses,
-    container_kind : container::Kind,
+    #[getters(skip)]
+    id: AttrId,
+    /// Devuelve las clases CSS asociadas al contenedor.
+    classes: AttrClasses,
+    /// Devuelve el tipo semántico del contenedor.
+    container_kind: container::Kind,
+    /// Devuelve el comportamiento para el ancho del contenedor.
     container_width: container::Width,
-    children       : Children,
+    /// Devuelve la lista de componentes (`children`) del contenedor.
+    children: Children,
 }
 
 impl Component for Container {
@@ -26,7 +30,7 @@ impl Component for Container {
     }
 
     fn setup_before_prepare(&mut self, _cx: &mut Context) {
-        self.alter_classes(ClassesOp::Prepend, self.width().to_class());
+        self.alter_classes(ClassesOp::Prepend, self.container_width().to_class());
     }
 
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
@@ -34,7 +38,7 @@ impl Component for Container {
         if output.is_empty() {
             return PrepareMarkup::None;
         }
-        let style = match self.width() {
+        let style = match self.container_width() {
             container::Width::FluidMax(w) if w.is_measurable() => {
                 Some(join!("max-width: ", w.to_string(), ";"))
             }
@@ -158,27 +162,5 @@ impl Container {
     pub fn with_child(mut self, op: ChildOp) -> Self {
         self.children.alter_child(op);
         self
-    }
-
-    // **< Container GETTERS >**********************************************************************
-
-    /// Devuelve las clases CSS asociadas al contenedor.
-    pub fn classes(&self) -> &AttrClasses {
-        &self.classes
-    }
-
-    /// Devuelve el tipo semántico del contenedor.
-    pub fn container_kind(&self) -> &container::Kind {
-        &self.container_kind
-    }
-
-    /// Devuelve el comportamiento para el ancho del contenedor.
-    pub fn width(&self) -> &container::Width {
-        &self.container_width
-    }
-
-    /// Devuelve la lista de componentes (`children`) del contenedor.
-    pub fn children(&self) -> &Children {
-        &self.children
     }
 }

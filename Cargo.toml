@@ -20,6 +20,7 @@ colored = "3.0"
 concat-string = "1.0"
 config = { version = "0.15", default-features = false, features = ["toml"] }
 figlet-rs = "0.1"
+getter-methods = "2.0"
 indoc = "2.0"
 itoa = "1.0"
 parking_lot = "0.12"

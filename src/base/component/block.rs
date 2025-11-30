@@ -4,12 +4,15 @@ use crate::prelude::*;
 ///
 /// Los bloques se utilizan como contenedores de otros componentes o contenidos, con un título
 /// opcional y un cuerpo que sólo se renderiza si existen componentes hijos (*children*).
-#[rustfmt::skip]
-#[derive(AutoDefault)]
+#[derive(AutoDefault, Getters)]
 pub struct Block {
-    id      : AttrId,
-    classes : AttrClasses,
-    title   : L10n,
+    #[getters(skip)]
+    id: AttrId,
+    /// Devuelve las clases CSS asociadas al bloque.
+    classes: AttrClasses,
+    /// Devuelve el título del bloque.
+    title: L10n,
+    /// Devuelve la lista de componentes hijo del bloque.
     children: Children,
 }
 
@@ -82,22 +85,5 @@ impl Block {
     pub fn with_child(mut self, op: ChildOp) -> Self {
         self.children.alter_child(op);
         self
-    }
-
-    // **< Block GETTERS >**************************************************************************
-
-    /// Devuelve las clases CSS asociadas al bloque.
-    pub fn classes(&self) -> &AttrClasses {
-        &self.classes
-    }
-
-    /// Devuelve el título del bloque.
-    pub fn title(&self) -> &L10n {
-        &self.title
-    }
-
-    /// Devuelve la lista de componentes (`children`) del bloque.
-    pub fn children(&self) -> &Children {
-        &self.children
     }
 }

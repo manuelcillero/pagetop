@@ -10,14 +10,18 @@ use crate::prelude::*;
 ///
 /// Ver ejemplo en el módulo [`nav`].
 /// Si no contiene elementos, el componente **no se renderiza**.
-#[rustfmt::skip]
-#[derive(AutoDefault)]
+#[derive(AutoDefault, Getters)]
 pub struct Nav {
-    id        : AttrId,
-    classes   : AttrClasses,
-    items     : Children,
-    nav_kind  : nav::Kind,
+    #[getters(skip)]
+    id: AttrId,
+    /// Devuelve las clases CSS asociadas al menú.
+    classes: AttrClasses,
+    /// Devuelve el estilo visual seleccionado.
+    nav_kind: nav::Kind,
+    /// Devuelve la distribución y orientación seleccionada.
     nav_layout: nav::Layout,
+    /// Devuelve la lista de elementos del menú.
+    items: Children,
 }
 
 impl Component for Nav {
@@ -109,27 +113,5 @@ impl Nav {
     pub fn with_items(mut self, op: TypedOp<nav::Item>) -> Self {
         self.items.alter_typed(op);
         self
-    }
-
-    // **< Nav GETTERS >****************************************************************************
-
-    /// Devuelve las clases CSS asociadas al menú.
-    pub fn classes(&self) -> &AttrClasses {
-        &self.classes
-    }
-
-    /// Devuelve el estilo visual seleccionado.
-    pub fn nav_kind(&self) -> &nav::Kind {
-        &self.nav_kind
-    }
-
-    /// Devuelve la distribución y orientación seleccionada.
-    pub fn nav_layout(&self) -> &nav::Layout {
-        &self.nav_layout
-    }
-
-    /// Devuelve la lista de elementos (`children`) del menú.
-    pub fn items(&self) -> &Children {
-        &self.items
     }
 }

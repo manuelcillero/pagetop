@@ -137,6 +137,8 @@ pub use pagetop_macros::{builder_fn, html, main, test, AutoDefault};
 
 pub use pagetop_statics::{resource, StaticResource};
 
+pub use getter_methods::Getters;
+
 /// Contenedor para un conjunto de recursos embebidos.
 #[derive(AutoDefault)]
 pub struct StaticResources {

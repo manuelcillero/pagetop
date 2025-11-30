@@ -8,8 +8,9 @@ const LINK: &str = "<a href=\"https://pagetop.cillero.es\" rel=\"noopener norefe
 /// Por defecto, usando [`default()`](Self::default) sólo se muestra un reconocimiento a PageTop.
 /// Sin embargo, se puede usar [`new()`](Self::new) para crear una instancia con un texto de
 /// copyright predeterminado.
-#[derive(AutoDefault)]
+#[derive(AutoDefault, Getters)]
 pub struct PoweredBy {
+    /// Devuelve el texto de copyright actual, si existe.
     copyright: Option<String>,
 }
 
@@ -55,12 +56,5 @@ impl PoweredBy {
     pub fn with_copyright(mut self, copyright: Option<impl Into<String>>) -> Self {
         self.copyright = copyright.map(Into::into);
         self
-    }
-
-    // **< PoweredBy GETTERS >**********************************************************************
-
-    /// Devuelve el texto de copyright actual, si existe.
-    pub fn copyright(&self) -> Option<&str> {
-        self.copyright.as_deref()
     }
 }

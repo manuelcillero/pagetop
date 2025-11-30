@@ -9,14 +9,18 @@ use crate::prelude::*;
 ///   ([`classes::Border`](crate::theme::classes::Border)) y **redondeo de esquinas**
 ///   ([`classes::Rounded`](crate::theme::classes::Rounded)).
 /// - Resuelve el texto alternativo `alt` con **localización** mediante [`L10n`].
-#[rustfmt::skip]
-#[derive(AutoDefault)]
+#[derive(AutoDefault, Getters)]
 pub struct Image {
-    id     : AttrId,
+    #[getters(skip)]
+    id: AttrId,
+    /// Devuelve las clases CSS asociadas a la imagen.
     classes: AttrClasses,
-    size   : image::Size,
-    source : image::Source,
-    alt    : AttrL10n,
+    /// Devuelve las dimensiones de la imagen.
+    size: image::Size,
+    /// Devuelve el origen de la imagen.
+    source: image::Source,
+    /// Devuelve el texto alternativo localizado.
+    alternative: AttrL10n,
 }
 
 impl Component for Image {
@@ -113,29 +117,7 @@ impl Image {
     /// decorativa.
     #[builder_fn]
     pub fn with_alternative(mut self, alt: L10n) -> Self {
-        self.alt.alter_value(alt);
+        self.alternative.alter_value(alt);
         self
-    }
-
-    // **< Image GETTERS >**************************************************************************
-
-    /// Devuelve las clases CSS asociadas a la imagen.
-    pub fn classes(&self) -> &AttrClasses {
-        &self.classes
-    }
-
-    /// Devuelve las dimensiones de la imagen.
-    pub fn size(&self) -> &image::Size {
-        &self.size
-    }
-
-    /// Devuelve el origen de la imagen.
-    pub fn source(&self) -> &image::Source {
-        &self.source
-    }
-
-    /// Devuelve el texto alternativo localizado.
-    pub fn alternative(&self) -> &AttrL10n {
-        &self.alt
     }
 }

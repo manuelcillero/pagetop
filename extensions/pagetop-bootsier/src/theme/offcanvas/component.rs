@@ -21,18 +21,26 @@ use crate::LOCALES_BOOTSIER;
 ///
 /// Ver ejemplo en el módulo [`offcanvas`].
 /// Si no contiene elementos, el componente **no se renderiza**.
-#[rustfmt::skip]
-#[derive(AutoDefault)]
+#[derive(AutoDefault, Getters)]
 pub struct Offcanvas {
-    id        : AttrId,
-    classes   : AttrClasses,
-    title     : L10n,
+    #[getters(skip)]
+    id: AttrId,
+    /// Devuelve las clases CSS asociadas al panel.
+    classes: AttrClasses,
+    /// Devuelve el título del panel.
+    title: L10n,
+    /// Devuelve el punto de ruptura configurado para cambiar el comportamiento del panel.
     breakpoint: BreakPoint,
-    backdrop  : offcanvas::Backdrop,
-    scrolling : offcanvas::BodyScroll,
-    placement : offcanvas::Placement,
+    /// Devuelve el comportamiento configurado para la capa de fondo.
+    backdrop: offcanvas::Backdrop,
+    /// Indica si la página principal puede desplazarse mientras el panel está abierto.
+    body_scroll: offcanvas::BodyScroll,
+    /// Devuelve la posición de inicio del panel.
+    placement: offcanvas::Placement,
+    /// Devuelve el estado inicial del panel.
     visibility: offcanvas::Visibility,
-    children  : Children,
+    /// Devuelve la lista de componentes (`children`) del panel.
+    children: Children,
 }
 
 impl Component for Offcanvas {
@@ -109,7 +117,7 @@ impl Offcanvas {
     /// Permite o bloquea el desplazamiento de la página principal mientras el panel está abierto.
     #[builder_fn]
     pub fn with_body_scroll(mut self, scrolling: offcanvas::BodyScroll) -> Self {
-        self.scrolling = scrolling;
+        self.body_scroll = scrolling;
         self
     }
 
@@ -139,48 +147,6 @@ impl Offcanvas {
     pub fn with_children(mut self, op: ChildOp) -> Self {
         self.children.alter_child(op);
         self
-    }
-
-    // **< Offcanvas GETTERS >**********************************************************************
-
-    /// Devuelve las clases CSS asociadas al panel.
-    pub fn classes(&self) -> &AttrClasses {
-        &self.classes
-    }
-
-    /// Devuelve el título del panel.
-    pub fn title(&self) -> &L10n {
-        &self.title
-    }
-
-    /// Devuelve el punto de ruptura configurado para cambiar el comportamiento del panel.
-    pub fn breakpoint(&self) -> &BreakPoint {
-        &self.breakpoint
-    }
-
-    /// Devuelve el comportamiento configurado para la capa de fondo.
-    pub fn backdrop(&self) -> &offcanvas::Backdrop {
-        &self.backdrop
-    }
-
-    /// Indica si la página principal puede desplazarse mientras el panel está abierto.
-    pub fn body_scroll(&self) -> &offcanvas::BodyScroll {
-        &self.scrolling
-    }
-
-    /// Devuelve la posición de inicio del panel.
-    pub fn placement(&self) -> &offcanvas::Placement {
-        &self.placement
-    }
-
-    /// Devuelve el estado inicial del panel.
-    pub fn visibility(&self) -> &offcanvas::Visibility {
-        &self.visibility
-    }
-
-    /// Devuelve la lista de componentes (`children`) del panel.
-    pub fn children(&self) -> &Children {
-        &self.children
     }
 
     // **< Offcanvas HELPERS >**********************************************************************

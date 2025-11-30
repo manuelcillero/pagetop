@@ -6,7 +6,7 @@ pub use crate::PAGETOP_VERSION;
 
 pub use crate::{builder_fn, html, main, test};
 
-pub use crate::{AutoDefault, StaticResources, UniqueId, Weight};
+pub use crate::{AutoDefault, Getters, StaticResources, UniqueId, Weight};
 
 // MACROS.
 

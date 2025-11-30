@@ -72,11 +72,13 @@ impl ItemKind {
 ///
 /// Permite definir identificador, clases de estilo adicionales o tipo de interacción asociada,
 /// manteniendo una interfaz común para renderizar todos los elementos del menú.
-#[rustfmt::skip]
-#[derive(AutoDefault)]
+#[derive(AutoDefault, Getters)]
 pub struct Item {
-    id       : AttrId,
-    classes  : AttrClasses,
+    #[getters(skip)]
+    id: AttrId,
+    /// Devuelve las clases CSS asociadas al elemento.
+    classes: AttrClasses,
+    /// Devuelve el tipo de elemento representado.
     item_kind: ItemKind,
 }
 
@@ -268,17 +270,5 @@ impl Item {
     pub fn with_classes(mut self, op: ClassesOp, classes: impl AsRef<str>) -> Self {
         self.classes.alter_value(op, classes);
         self
-    }
-
-    // **< Item GETTERS >***************************************************************************
-
-    /// Devuelve las clases CSS asociadas al elemento.
-    pub fn classes(&self) -> &AttrClasses {
-        &self.classes
-    }
-
-    /// Devuelve el tipo de elemento representado.
-    pub fn item_kind(&self) -> &ItemKind {
-        &self.item_kind
     }
 }

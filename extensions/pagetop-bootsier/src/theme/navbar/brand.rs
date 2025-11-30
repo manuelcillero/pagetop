@@ -11,16 +11,20 @@ use crate::prelude::*;
 /// - Si no hay imagen ([`with_image()`](Self::with_image)) ni título
 ///   ([`with_title()`](Self::with_title)), la marca de identidad no se renderiza.
 /// - El eslogan ([`with_slogan()`](Self::with_slogan)) es opcional; por defecto no tiene contenido.
-#[rustfmt::skip]
-#[derive(AutoDefault)]
+#[derive(AutoDefault, Getters)]
 pub struct Brand {
-    id    : AttrId,
-    image : Typed<Image>,
+    #[getters(skip)]
+    id: AttrId,
+    /// Devuelve la imagen de marca (si la hay).
+    image: Typed<Image>,
+    /// Devuelve el título de la identidad de marca.
     #[default(_code = "L10n::n(&global::SETTINGS.app.name)")]
-    title : L10n,
+    title: L10n,
+    /// Devuelve el eslogan de la marca.
     slogan: L10n,
+    /// Devuelve la función que resuelve la URL asociada a la marca (si existe).
     #[default(_code = "Some(|_| \"/\")")]
-    path  : Option<FnPathByContext>,
+    path: Option<FnPathByContext>,
 }
 
 impl Component for Brand {
@@ -85,27 +89,5 @@ impl Brand {
     pub fn with_path(mut self, path: Option<FnPathByContext>) -> Self {
         self.path = path;
         self
-    }
-
-    // **< Brand GETTERS >**************************************************************************
-
-    /// Devuelve la imagen de marca (si la hay).
-    pub fn image(&self) -> &Typed<Image> {
-        &self.image
-    }
-
-    /// Devuelve el título de la identidad de marca.
-    pub fn title(&self) -> &L10n {
-        &self.title
-    }
-
-    /// Devuelve el eslogan de la marca.
-    pub fn slogan(&self) -> &L10n {
-        &self.slogan
-    }
-
-    /// Devuelve la función que resuelve la URL asociada a la marca (si existe).
-    pub fn path(&self) -> &Option<FnPathByContext> {
-        &self.path
     }
 }
