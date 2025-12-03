@@ -101,7 +101,7 @@ pub struct Page {
 impl Page {
     /// Crea una nueva instancia de página.
     ///
-    /// La solicitud HTTP se guardará en el contexto de renderizado de la página para poder ser
+    /// La petición HTTP se guardará en el contexto de renderizado de la página para poder ser
     /// recuperada por los componentes si es necesario.
     #[rustfmt::skip]
     pub fn new(request: HttpRequest) -> Self {
@@ -211,7 +211,7 @@ impl Page {
     /// Devuelve una referencia mutable al [`Context`] de la página.
     ///
     /// El [`Context`] actúa como intermediario para muchos métodos de `Page` (idioma, tema,
-    /// *layout*, recursos, solicitud HTTP, etc.). Resulta especialmente útil cuando un componente
+    /// *layout*, recursos, petición HTTP, etc.). Resulta especialmente útil cuando un componente
     /// o un tema necesita recibir el contexto como parámetro.
     pub fn context(&mut self) -> &mut Context {
         &mut self.context
@@ -289,6 +289,10 @@ impl Page {
     }
 }
 
+/// Permite a [`Page`] actuar como proveedor de idioma usando el [`Context`] de la página.
+///
+/// Resulta útil para usar [`Page`] directamente como fuente de traducción en [`L10n::lookup()`] o
+/// [`L10n::using()`].
 impl LangId for Page {
     fn langid(&self) -> &'static LanguageIdentifier {
         self.context.langid()

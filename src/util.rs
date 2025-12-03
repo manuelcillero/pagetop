@@ -18,7 +18,6 @@ pub use indoc::{concatdoc, formatdoc, indoc};
 
 // **< MACROS ÚTILES >******************************************************************************
 
-#[macro_export]
 /// Macro para construir una colección de pares clave-valor.
 ///
 /// ```rust
@@ -31,6 +30,7 @@ pub use indoc::{concatdoc, formatdoc, indoc};
 ///     "userGender" => "male",
 /// ];
 /// ```
+#[macro_export]
 macro_rules! hm {
     ( $($key:expr => $value:expr),* $(,)? ) => {{
         let mut a = std::collections::HashMap::new();

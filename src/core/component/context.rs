@@ -49,7 +49,7 @@ pub enum ContextError {
 ///
 /// `Contextual` extiende [`LangId`] para establecer el idioma del documento y añade métodos para:
 ///
-/// - Almacenar la **solicitud HTTP** de origen.
+/// - Almacenar la **petición HTTP** de origen.
 /// - Seleccionar el **tema** y la **plantilla** de renderizado.
 /// - Administrar **recursos** del documento como el icono [`Favicon`], las hojas de estilo
 ///   [`StyleSheet`] o los scripts [`JavaScript`] mediante [`ContextOp`].
@@ -81,7 +81,7 @@ pub trait Contextual: LangId {
     #[builder_fn]
     fn with_langid(self, language: &impl LangId) -> Self;
 
-    /// Almacena la solicitud HTTP de origen en el contexto.
+    /// Almacena la petición HTTP de origen en el contexto.
     #[builder_fn]
     fn with_request(self, request: Option<HttpRequest>) -> Self;
 
@@ -107,7 +107,7 @@ pub trait Contextual: LangId {
 
     // **< Contextual GETTERS >*********************************************************************
 
-    /// Devuelve una referencia a la solicitud HTTP asociada, si existe.
+    /// Devuelve una referencia a la petición HTTP asociada, si existe.
     fn request(&self) -> Option<&HttpRequest>;
 
     /// Devuelve el tema que se usará para renderizar el documento.
@@ -161,7 +161,7 @@ pub trait Contextual: LangId {
 ///
 /// # Ejemplos
 ///
-/// Crea un nuevo contexto asociado a una solicitud HTTP:
+/// Crea un nuevo contexto asociado a una petición HTTP:
 ///
 /// ```rust
 /// # use pagetop::prelude::*;

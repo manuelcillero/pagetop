@@ -18,7 +18,7 @@ use crate::{builder_fn, AutoDefault};
 ///     Some("¡Hola mundo!".to_string())
 /// );
 ///
-/// // Japonés no disponible, traduce al idioma de respaldo ("en-US").
+/// // Japonés no disponible, traduce al idioma de respaldo (`"en-US"`).
 /// assert_eq!(
 ///     hello.lookup(&LangMatch::resolve("ja-JP")),
 ///     Some("Hello world!".to_string())
