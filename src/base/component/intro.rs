@@ -47,7 +47,7 @@ pub enum IntroOpening {
 ///     .with_slogan(L10n::l("intro_custom_slogan"))
 ///     .with_button(Some((
 ///         L10n::l("intro_learn_more"),
-///         |_| "/learn-more"
+///         |_| "/learn-more".into()
 ///     )));
 /// ```
 ///
@@ -252,7 +252,7 @@ impl Intro {
     /// ```rust
     /// # use pagetop::prelude::*;
     /// // Define un botón con texto y una URL fija.
-    /// let intro = Intro::default().with_button(Some((L10n::n("Learn more"), |_| "/start")));
+    /// let intro = Intro::default().with_button(Some((L10n::n("Start"), |_| "/start".into())));
     /// // Descarta el botón de la intro.
     /// let intro_no_button = Intro::default().with_button(None);
     /// ```
