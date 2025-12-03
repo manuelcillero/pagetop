@@ -25,6 +25,9 @@ pub enum ItemKind {
         blank: bool,
         disabled: bool,
     },
+    /// Contenido HTML arbitrario. El componente [`Html`] se renderiza tal cual como elemento del
+    /// menú, sin añadir ningún comportamiento de navegación adicional.
+    Html(Typed<Html>),
     /// Elemento que despliega un menú [`Dropdown`].
     Dropdown(Typed<Dropdown>),
 }
@@ -148,6 +151,12 @@ impl Component for Item {
                 })
             }
 
+            ItemKind::Html(html) => PrepareMarkup::With(html! {
+                li id=[self.id()] class=[self.classes().get()] {
+                    (html.render(cx))
+                }
+            }),
+
             ItemKind::Dropdown(menu) => {
                 if let Some(dd) = menu.borrow() {
                     let items = dd.items().render(cx);
@@ -240,6 +249,17 @@ impl Item {
                 blank: true,
                 disabled: true,
             },
+            ..Default::default()
+        }
+    }
+
+    /// Crea un elemento con contenido HTML arbitrario.
+    ///
+    /// El contenido se renderiza tal cual lo devuelve el componente [`Html`], dentro de un `<li>`
+    /// con las clases de navegación asociadas a [`Item`].
+    pub fn html(html: Html) -> Self {
+        Item {
+            item_kind: ItemKind::Html(Typed::with(html)),
             ..Default::default()
         }
     }
