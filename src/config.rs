@@ -1,4 +1,4 @@
-//! Carga las opciones de configuración.
+//! Carga las opciones de configuración de la aplicación.
 //!
 //! Estos ajustes se obtienen de archivos [TOML](https://toml.io) como pares `clave = valor` que se
 //! mapean a estructuras **fuertemente tipadas** y valores predefinidos.
@@ -125,7 +125,7 @@ const DEFAULT_CONFIG_DIR: &str = "config";
 // Modo de ejecución por defecto.
 const DEFAULT_RUN_MODE: &str = "default";
 
-/// Valores originales cargados desde los archivos de configuración como pares `clave = valor`.
+/// Valores originales de los archivos de configuración como pares `clave = valor`.
 pub static CONFIG_VALUES: LazyLock<ConfigBuilder<DefaultState>> = LazyLock::new(|| {
     // CONFIG_DIR (si existe) o DEFAULT_CONFIG_DIR. Si no se puede resolver, se usa tal cual.
     let dir = env::var_os("CONFIG_DIR").unwrap_or_else(|| DEFAULT_CONFIG_DIR.into());
@@ -229,10 +229,11 @@ pub static CONFIG_VALUES: LazyLock<ConfigBuilder<DefaultState>> = LazyLock::new(
 macro_rules! include_config {
     ( $SETTINGS_NAME:ident : $Settings_Type:ty => [ $( $k:literal => $v:expr ),* $(,)? ] ) => {
         #[doc = concat!(
-            "Instancia los ajustes de configuración para [`", stringify!($Settings_Type), "`]."
+            "Ajustes de configuración y **valores por defecto** para ",
+            "[`", stringify!($Settings_Type), "`]."
         )]
         #[doc = ""]
-        #[doc = "Valores por defecto:"]
+        #[doc = "Valores predeterminados que se aplican en ausencia de configuración:"]
         #[doc = "```text"]
         $(
             #[doc = concat!($k, " = ", stringify!($v))]

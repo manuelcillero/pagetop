@@ -1,10 +1,15 @@
 use crate::prelude::*;
 
-/// Página de bienvenida predeterminada de PageTop.
+/// Página de bienvenida de PageTop.
 ///
-/// Esta extensión se instala por defecto y muestra una página en la ruta raíz (`/`) cuando no se ha
-/// configurado ninguna página de inicio personalizada. Permite confirmar que el servidor está
-/// funcionando correctamente.
+/// Esta extensión se instala por defecto si el ajuste de configuración [`global::App::welcome`] es
+/// `true`. Muestra una página de bienvenida de PageTop en la ruta raíz (`/`) o en `/lang/{lang}`,
+/// siempre que `{lang}` sea un idioma soportado (si no, devuelve una página de error 404).
+///
+/// No obstante, cualquier extensión puede sobrescribir este comportamiento si utiliza estas mismas
+/// rutas.
+///
+/// Resulta útil en demos o para comprobar rápidamente que el servidor ha arrancado correctamente.
 pub struct Welcome;
 
 impl Extension for Welcome {
@@ -17,15 +22,33 @@ impl Extension for Welcome {
     }
 
     fn configure_service(&self, scfg: &mut service::web::ServiceConfig) {
-        scfg.route("/", service::web::get().to(homepage));
+        scfg.route("/", service::web::get().to(home_page))
+            .route("/lang/{lang}", service::web::get().to(home_lang));
     }
 }
 
-async fn homepage(request: HttpRequest) -> ResultPage<Markup, ErrorPage> {
+async fn home_page(request: HttpRequest) -> ResultPage<Markup, ErrorPage> {
+    let language = LangMatch::from_request(Some(&request));
+    home(request, &language)
+}
+
+async fn home_lang(
+    request: HttpRequest,
+    path: service::web::Path<String>,
+) -> ResultPage<Markup, ErrorPage> {
+    let language = LangMatch::resolve(path.into_inner());
+    match language {
+        LangMatch::Found(_) => home(request, &language),
+        _ => Err(ErrorPage::NotFound(request)),
+    }
+}
+
+fn home(request: HttpRequest, language: &impl LangId) -> ResultPage<Markup, ErrorPage> {
     let app = &global::SETTINGS.app.name;
 
     Page::new(request)
         .with_title(L10n::l("welcome_title"))
+        .with_langid(language)
         .add_child(
             Intro::new()
                 .add_child(

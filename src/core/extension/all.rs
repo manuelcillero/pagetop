@@ -29,8 +29,10 @@ pub fn register_extensions(root_extension: Option<ExtensionRef>) {
         add_to_enabled(&mut enabled_list, extension);
     }
 
-    // Añade la página de bienvenida por defecto a la lista de extensiones habilitadas.
-    add_to_enabled(&mut enabled_list, &crate::base::extension::Welcome);
+    // Añade la página de bienvenida predefinida si se habilita en la configuración.
+    if global::SETTINGS.app.welcome {
+        add_to_enabled(&mut enabled_list, &crate::base::extension::Welcome);
+    }
 
     // Guarda la lista final de extensiones habilitadas.
     ENABLED_EXTENSIONS.write().append(&mut enabled_list);

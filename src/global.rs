@@ -11,6 +11,7 @@ include_config!(SETTINGS: Settings => [
     "app.theme"               => "Basic",
     "app.language"            => "",
     "app.startup_banner"      => "Slant",
+    "app.welcome"             => true,
 
     // [dev]
     "dev.pagetop_static_dir"  => "",
@@ -59,13 +60,19 @@ pub struct App {
     /// Banner ASCII mostrado al inicio: *"Off"* (desactivado), *"Slant"*, *"Small"*, *"Speed"* o
     /// *"Starwars"*.
     pub startup_banner: String,
+    /// Activa la página de bienvenida de PageTop.
+    ///
+    /// Si está activada, se instala la extensión [`Welcome`](crate::base::extension::Welcome), que
+    /// ofrece una página de bienvenida predefinida en `"/"` y también en `"/lang/{lang}"`, para
+    /// mostrar el contenido en el idioma `{lang}`, siempre que esté soportado.
+    pub welcome: bool,
     /// Modo de ejecución, dado por la variable de entorno `PAGETOP_RUN_MODE`, o *"default"* si no
     /// está definido.
     pub run_mode: String,
 }
 
 #[derive(Debug, Deserialize)]
-/// Sección `[Dev]` de la configuración. Forma parte de [`Settings`].
+/// Sección `[dev]` de la configuración. Forma parte de [`Settings`].
 pub struct Dev {
     /// Directorio desde el que servir los archivos estáticos de PageTop.
     ///
@@ -87,7 +94,7 @@ pub struct Log {
     /// *"Warn"*, *"Info"*, *"Debug"* o *"Trace"*.
     /// Ejemplo: "Error,actix_server::builder=Info,tracing_actix_web=Debug".
     pub tracing: String,
-    /// Muestra los mensajes de traza en el terminal (*"Stdout"*) o las registra en archivos con
+    /// Muestra los mensajes de traza en el terminal (*"Stdout"*) o los vuelca en archivos con
     /// rotación: *"Daily"*, *"Hourly"*, *"Minutely"* o *"Endless"*.
     pub rolling: String,
     /// Directorio para los archivos de traza (si `rolling` ≠ *"Stdout"*).
