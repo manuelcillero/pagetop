@@ -23,7 +23,7 @@ pub struct Brand {
     /// Devuelve el eslogan de la marca.
     slogan: L10n,
     /// Devuelve la función que resuelve la URL asociada a la marca (si existe).
-    #[default(_code = "Some(|_| \"/\")")]
+    #[default(_code = "Some(|_| \"/\".into())")]
     path: Option<FnPathByContext>,
 }
 

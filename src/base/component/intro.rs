@@ -91,13 +91,14 @@ pub struct Intro {
 }
 
 impl Default for Intro {
-    #[rustfmt::skip]
     fn default() -> Self {
+        const BUTTON_LINK: &str = "https://pagetop.cillero.es";
+
         Intro {
-            title   : L10n::l("intro_default_title"),
-            slogan  : L10n::l("intro_default_slogan").with_arg("app", &global::SETTINGS.app.name),
-            button  : Some((L10n::l("intro_default_button"), |_| "https://pagetop.cillero.es")),
-            opening : IntroOpening::default(),
+            title: L10n::l("intro_default_title"),
+            slogan: L10n::l("intro_default_slogan").with_arg("app", &global::SETTINGS.app.name),
+            button: Some((L10n::l("intro_default_button"), |_| BUTTON_LINK.into())),
+            opening: IntroOpening::default(),
             children: Children::default(),
         }
     }

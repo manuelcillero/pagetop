@@ -10,10 +10,7 @@ impl Extension for SuperMenu {
     }
 
     fn initialize(&self) {
-        let home_path = |cx: &Context| match cx.langid().language.as_str() {
-            "en" => "/en",
-            _ => "/",
-        };
+        let home_path = |cx: &Context| join!("/lang/", cx.langid().language.as_str()).into();
 
         let navbar_menu = Navbar::brand_left(navbar::Brand::new().with_path(Some(home_path)))
             .with_expand(BreakPoint::LG)
@@ -25,7 +22,7 @@ impl Extension for SuperMenu {
                     ))
                     .add_item(nav::Item::link_blank(
                         L10n::l("sample_menus_item_blank"),
-                        |_| "https://docs.rs/pagetop",
+                        |_| "https://docs.rs/pagetop".into(),
                     ))
                     .add_item(nav::Item::dropdown(
                         Dropdown::new()
@@ -33,28 +30,28 @@ impl Extension for SuperMenu {
                             .add_item(dropdown::Item::header(L10n::l("sample_menus_dev_header")))
                             .add_item(dropdown::Item::link(
                                 L10n::l("sample_menus_dev_getting_started"),
-                                |_| "/dev/getting-started",
+                                |_| "/dev/getting-started".into(),
                             ))
                             .add_item(dropdown::Item::link(
                                 L10n::l("sample_menus_dev_guides"),
-                                |_| "/dev/guides",
+                                |_| "/dev/guides".into(),
                             ))
                             .add_item(dropdown::Item::link_blank(
                                 L10n::l("sample_menus_dev_forum"),
-                                |_| "https://forum.example.dev",
+                                |_| "https://forum.example.dev".into(),
                             ))
                             .add_item(dropdown::Item::divider())
                             .add_item(dropdown::Item::header(L10n::l("sample_menus_sdk_header")))
                             .add_item(dropdown::Item::link(
                                 L10n::l("sample_menus_sdk_rust"),
-                                |_| "/dev/sdks/rust",
+                                |_| "/dev/sdks/rust".into(),
                             ))
                             .add_item(dropdown::Item::link(L10n::l("sample_menus_sdk_js"), |_| {
-                                "/dev/sdks/js"
+                                "/dev/sdks/js".into()
                             }))
                             .add_item(dropdown::Item::link(
                                 L10n::l("sample_menus_sdk_python"),
-                                |_| "/dev/sdks/python",
+                                |_| "/dev/sdks/python".into(),
                             ))
                             .add_item(dropdown::Item::divider())
                             .add_item(dropdown::Item::header(L10n::l(
@@ -62,22 +59,22 @@ impl Extension for SuperMenu {
                             )))
                             .add_item(dropdown::Item::link(
                                 L10n::l("sample_menus_plugin_auth"),
-                                |_| "/dev/sdks/rust/plugins/auth",
+                                |_| "/dev/sdks/rust/plugins/auth".into(),
                             ))
                             .add_item(dropdown::Item::link(
                                 L10n::l("sample_menus_plugin_cache"),
-                                |_| "/dev/sdks/rust/plugins/cache",
+                                |_| "/dev/sdks/rust/plugins/cache".into(),
                             ))
                             .add_item(dropdown::Item::divider())
                             .add_item(dropdown::Item::label(L10n::l("sample_menus_item_label")))
                             .add_item(dropdown::Item::link_disabled(
                                 L10n::l("sample_menus_item_disabled"),
-                                |_| "#",
+                                |_| "#".into(),
                             )),
                     ))
                     .add_item(nav::Item::link_disabled(
                         L10n::l("sample_menus_item_disabled"),
-                        |_| "#",
+                        |_| "#".into(),
                     )),
             ))
             .add_item(navbar::Item::nav(
@@ -88,10 +85,10 @@ impl Extension for SuperMenu {
                     )
                     .add_item(nav::Item::link(
                         L10n::l("sample_menus_item_sign_up"),
-                        |_| "/auth/sign-up",
+                        |_| "/auth/sign-up".into(),
                     ))
                     .add_item(nav::Item::link(L10n::l("sample_menus_item_login"), |_| {
-                        "/auth/login"
+                        "/auth/login".into()
                     })),
             ));
 

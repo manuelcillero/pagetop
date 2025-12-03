@@ -1,5 +1,7 @@
 //! API para construir nuevos componentes.
 
+use std::borrow::Cow;
+
 mod definition;
 pub use definition::{Component, ComponentRender};
 
@@ -66,6 +68,10 @@ pub type FnIsRenderable = fn(cx: &Context) -> bool;
 
 /// Alias de función (*callback*) para **resolver una URL** según el contexto de renderizado.
 ///
-/// Se usa para generar enlaces dinámicos en función del contexto (petición, idioma, etc.). Debe
-/// devolver una referencia válida durante el renderizado.
-pub type FnPathByContext = fn(cx: &Context) -> &str;
+/// Se usa para generar enlaces dinámicos en función del contexto (petición, idioma, etc.). El
+/// resultado se devuelve como [`Cow<'static, str>`](std::borrow::Cow), lo que permite:
+///
+/// - Usar rutas estáticas sin asignaciones adicionales (`"/path".into()`).
+/// - Construir rutas dinámicas en tiempo de ejecución (`format!(...).into()`), por ejemplo, en
+///   función de parámetros almacenados en [`Context`].
+pub type FnPathByContext = fn(cx: &Context) -> Cow<'static, str>;

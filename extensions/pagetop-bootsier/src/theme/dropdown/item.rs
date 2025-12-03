@@ -81,7 +81,7 @@ impl Component for Item {
             } => {
                 let path = path(cx);
                 let current_path = cx.request().map(|request| request.path());
-                let is_current = !*disabled && (current_path == Some(path));
+                let is_current = !*disabled && (current_path == Some(&path));
 
                 let mut classes = "dropdown-item".to_string();
                 if is_current {
