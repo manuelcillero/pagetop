@@ -90,6 +90,7 @@
 //! traducir textos con [`L10n`].
 
 use crate::html::{Markup, PreEscaped};
+use crate::service::HttpRequest;
 use crate::{global, hm, AutoDefault};
 
 pub use fluent_templates;
@@ -122,15 +123,16 @@ static LANGUAGES: LazyLock<HashMap<&str, (LanguageIdentifier, &str)>> = LazyLock
 //
 // Se usa cuando el valor del identificador de idioma en las traducciones no corresponde con ningún
 // idioma soportado por la aplicación.
-pub(crate) static FALLBACK_LANGID: LazyLock<LanguageIdentifier> =
-    LazyLock::new(|| langid!("en-US"));
+static FALLBACK_LANGID: LazyLock<LanguageIdentifier> = LazyLock::new(|| langid!("en-US"));
 
 // Identificador de idioma **por defecto** para la aplicación.
 //
 // Se resuelve a partir de [`global::SETTINGS.app.language`](global::SETTINGS). Si el identificador
-// de idioma no es válido o no está disponible, se usa [`FALLBACK_LANGID`].
-pub(crate) static DEFAULT_LANGID: LazyLock<Option<&LanguageIdentifier>> =
-    LazyLock::new(|| LangMatch::resolve(&global::SETTINGS.app.language).as_option());
+// de idioma no es válido o no está disponible, se deja sin definir (`None`) y se delega en
+// [`LangMatch::default()`] o [`LangId::langid()`] la aplicación del idioma de respaldo.
+pub(crate) static DEFAULT_LANGID: LazyLock<Option<&LanguageIdentifier>> = LazyLock::new(|| {
+    LangMatch::resolve(global::SETTINGS.app.language.as_deref().unwrap_or("")).as_option()
+});
 
 /// Representa la fuente de idioma (`LanguageIdentifier`) asociada a un recurso.
 ///
@@ -168,7 +170,7 @@ pub trait LangId {
 ///
 /// Con la siguiente instrucción siempre se obtiene un [`LanguageIdentifier`] válido, ya sea porque
 /// resuelve un idioma soportado o porque se aplica el idioma por defecto o, en último caso, el de
-/// respaldo ("en-US"):
+/// respaldo (`"en-US"`):
 ///
 /// ```rust
 /// # use pagetop::prelude::*;
@@ -181,15 +183,15 @@ pub enum LangMatch {
     /// Cuando el identificador de idioma es una cadena vacía.
     Unspecified,
     /// Si encuentra un [`LanguageIdentifier`] en la lista de idiomas soportados por PageTop que
-    /// coincide exactamente con el identificador de idioma (p. ej. "es-ES"), o con el identificador
-    /// del idioma base (p. ej. "es").
+    /// coincide exactamente con el identificador de idioma (p. ej. `"es-ES"`), o con el
+    /// identificador del idioma base (p. ej. `"es"`).
     Found(&'static LanguageIdentifier),
     /// Si el identificador de idioma no está entre los soportados por PageTop.
     Unsupported(String),
 }
 
 impl Default for LangMatch {
-    /// Resuelve al idioma por defecto y, si no está disponible, al idioma de respaldo ("en-US").
+    /// Resuelve al idioma por defecto y, si no está disponible, al idioma de respaldo (`"en-US"`).
     fn default() -> Self {
         LangMatch::Found(DEFAULT_LANGID.unwrap_or(&FALLBACK_LANGID))
     }
@@ -220,6 +222,34 @@ impl LangMatch {
 
         // En caso contrario, indica que el idioma no está soportado.
         Self::Unsupported(language.to_string())
+    }
+
+    /// Crea un [`LangMatch`] a partir de una petición HTTP.
+    ///
+    /// El orden de resolución del idioma es el siguiente:
+    ///
+    /// 1. Idioma por defecto de la aplicación, si se ha definido en la configuración global
+    ///    ([`global::SETTINGS.app.language`]).
+    /// 2. Si no hay idioma por defecto válido, se intenta extraer el idioma de la cabecera HTTP
+    ///    `Accept-Language` usando [`LangMatch::resolve`].
+    /// 3. Si no hay cabecera o el valor no es legible, se devuelve [`LangMatch::Unspecified`].
+    ///
+    /// Este método **no aplica** idioma de respaldo. Para obtener siempre un [`LanguageIdentifier`]
+    /// válido (aplicando idioma por defecto y, en último término, el de respaldo), utiliza
+    /// [`LangId::langid()`] sobre el valor devuelto.
+    pub fn from_request(request: Option<&HttpRequest>) -> Self {
+        // 1) Se usa `DEFAULT_LANGID` si la aplicación tiene un idioma por defecto válido.
+        if let Some(default) = *DEFAULT_LANGID {
+            return LangMatch::Found(default);
+        }
+        // 2) Sin idioma por defecto, se evalúa la cabecera `Accept-Language` de la petición HTTP.
+        request
+            .and_then(|req| req.headers().get("Accept-Language"))
+            .and_then(|value| value.to_str().ok())
+            // Aplica `resolve()` para devolver `Found`, `Unspecified` o `Unsupported`.
+            .map(LangMatch::resolve)
+            // 3) Si no hay cabecera o no puede leerse, se considera no especificado.
+            .unwrap_or(LangMatch::Unspecified)
     }
 
     /// Devuelve el [`LanguageIdentifier`] si el idioma fue reconocido.

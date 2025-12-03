@@ -4,7 +4,7 @@ use crate::core::theme::{ChildrenInRegions, RegionRef, TemplateRef, ThemeRef};
 use crate::core::TypeInfo;
 use crate::html::{html, Markup};
 use crate::html::{Assets, Favicon, JavaScript, StyleSheet};
-use crate::locale::{LangId, LangMatch, LanguageIdentifier, DEFAULT_LANGID, FALLBACK_LANGID};
+use crate::locale::{LangId, LangMatch, LanguageIdentifier};
 use crate::service::HttpRequest;
 use crate::{builder_fn, join};
 
@@ -223,26 +223,13 @@ impl Default for Context {
 }
 
 impl Context {
-    /// Crea un nuevo contexto asociado a una solicitud HTTP.
+    /// Crea un nuevo contexto asociado a una petición HTTP.
     ///
     /// El contexto inicializa el idioma, el tema y la plantilla por defecto, sin favicon ni otros
     /// recursos cargados.
     #[rustfmt::skip]
     pub fn new(request: Option<HttpRequest>) -> Self {
-        // Se intenta DEFAULT_LANGID.
-        let langid = DEFAULT_LANGID
-            // Si es None evalúa la cadena de extracción desde la cabecera HTTP.
-            .or_else(|| {
-                request
-                    // Se usa `as_ref()` sobre `Option<HttpRequest>` para no mover el valor.
-                    .as_ref()
-                    .and_then(|req| req.headers().get("Accept-Language"))
-                    .and_then(|value| value.to_str().ok())
-                    .and_then(|language| LangMatch::resolve(language).as_option())
-            })
-            // Si todo falla, se recurre a &FALLBACK_LANGID.
-            .unwrap_or(&FALLBACK_LANGID);
-
+        let langid = LangMatch::from_request(request.as_ref()).langid();
         Context {
             request,
             langid,
