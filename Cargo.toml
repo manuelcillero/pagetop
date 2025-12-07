@@ -22,7 +22,6 @@ figlet-rs = "0.1"
 getter-methods = "2.0"
 itoa = "1.0"
 parking_lot = "0.12"
-paste = { package = "pastey", version = "0.1" }
 substring = "1.4"
 terminal_size = "0.4"
 

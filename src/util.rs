@@ -10,6 +10,18 @@ use std::path::{Path, PathBuf};
 
 pub use pagetop_minimal::{concatdoc, formatdoc, indoc, join, join_pair, kv};
 
+/// Permite *pegar* tokens y generar identificadores a partir de otros.
+///
+/// Dentro de `paste!`, los identificadores escritos como `[< ... >]` se combinan en uno solo que
+/// puede reutilizarse para referirse a items existentes o para definir nuevos (funciones,
+/// estructuras, métodos, etc.).
+///
+/// También admite modificadores de estilo (`lower`, `upper`, `snake`, `camel`, etc.) para
+/// transformar fragmentos interpolados antes de construir el nuevo identificador.
+pub use pagetop_minimal::paste;
+// La documentación anterior está copiada de `pagetop_minimal::paste!` porque el *crate* original
+// no la define y la de `pagetop_minimal` no se hereda automáticamente.
+
 // **< FUNCIONES ÚTILES >***************************************************************************
 
 /// Resuelve y valida la ruta de un directorio existente, devolviendo una ruta absoluta.

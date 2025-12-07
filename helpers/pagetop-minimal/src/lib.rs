@@ -30,9 +30,13 @@ Las macros para texto multilínea **`indoc!`**, **`formatdoc!`** y **`concatdoc!
 *crate* [indoc](https://crates.io/crates/indoc) de [David Tolnay](https://crates.io/users/dtolnay).
 
 Las macros para la concatenación de cadenas **`join!`** y **`join_pair!`** se apoyan internamente en
-el **crate** [concat-string](https://crates.io/crates/concat_string), desarrollado por
-[FaultyRAM](https://crates.io/users/FaultyRAM), para evitar el uso del formato de cadenas cuando la
+el *crate* [concat-string](https://crates.io/crates/concat_string), desarrollado por
+[FaultyRAM](https://crates.io/users/FaultyRAM), para evitar el formato de cadenas cuando la
 eficiencia pueda ser relevante.
+
+La macro para generar identificadores dinámicos **`paste!`** se reexporta del *crate*
+[pastey](https://crates.io/crates/pastey), una implementación avanzada y soportada del popular
+`paste!` de [David Tolnay](https://crates.io/users/dtolnay).
 */
 
 #![doc(
@@ -43,6 +47,18 @@ eficiencia pueda ser relevante.
 pub use concat_string::concat_string;
 
 pub use indoc::{concatdoc, formatdoc, indoc};
+
+/// Permite *pegar* tokens y generar identificadores a partir de otros.
+///
+/// Dentro de `paste!`, los identificadores escritos como `[< ... >]` se combinan en uno solo que
+/// puede reutilizarse para referirse a items existentes o para definir nuevos (funciones,
+/// estructuras, métodos, etc.).
+///
+/// También admite modificadores de estilo (`lower`, `upper`, `snake`, `camel`, etc.) para
+/// transformar fragmentos interpolados antes de construir el nuevo identificador.
+pub use pastey::paste;
+// La documentación anterior se copia en `pagetop::util::paste!` porque el *crate* original no la
+// define y `pagetop` no la hereda automáticamente.
 
 /// Concatena eficientemente varios fragmentos en un [`String`].
 ///

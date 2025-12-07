@@ -15,9 +15,6 @@ pub use pagetop_statics::ResourceFiles;
 #[doc(hidden)]
 pub use actix_web::test;
 
-#[doc(hidden)]
-pub use paste::paste;
-
 /// Configura un servicio web para publicar archivos estáticos.
 ///
 /// La macro ofrece tres modos para configurar el servicio:
@@ -75,7 +72,7 @@ macro_rules! static_files_service {
                 }
             }
             if serve_embedded {
-                $crate::service::paste! {
+                $crate::util::paste! {
                     mod [<static_files_ $bundle>] {
                         include!(concat!(env!("OUT_DIR"), "/", stringify!($bundle), ".rs"));
                     }
@@ -95,7 +92,7 @@ macro_rules! static_files_service {
             route = $route,
         );
         let _ = span.in_scope(|| {
-            $crate::service::paste! {
+            $crate::util::paste! {
                 mod [<static_files_ $bundle>] {
                     include!(concat!(env!("OUT_DIR"), "/", stringify!($bundle), ".rs"));
                 }
