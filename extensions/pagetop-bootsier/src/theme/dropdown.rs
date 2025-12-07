@@ -17,8 +17,8 @@
 //!     .with_button_color(ButtonColor::Background(Color::Secondary))
 //!     .with_auto_close(dropdown::AutoClose::ClickableInside)
 //!     .with_direction(dropdown::Direction::Dropend)
-//!     .add_item(dropdown::Item::link(L10n::n("Home"), |_| "/"))
-//!     .add_item(dropdown::Item::link_blank(L10n::n("External"), |_| "https://www.google.es"))
+//!     .add_item(dropdown::Item::link(L10n::n("Home"), |_| "/".into()))
+//!     .add_item(dropdown::Item::link_blank(L10n::n("External"), |_| "https://google.es".into()))
 //!     .add_item(dropdown::Item::divider())
 //!     .add_item(dropdown::Item::header(L10n::n("User session")))
 //!     .add_item(dropdown::Item::button(L10n::n("Sign out")));

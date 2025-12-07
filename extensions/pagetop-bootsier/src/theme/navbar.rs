@@ -17,9 +17,9 @@
 //! let navbar = Navbar::simple()
 //!     .add_item(navbar::Item::nav(
 //!         Nav::new()
-//!             .add_item(nav::Item::link(L10n::n("Home"), |_| "/"))
-//!             .add_item(nav::Item::link(L10n::n("About"), |_| "/about"))
-//!             .add_item(nav::Item::link(L10n::n("Contact"), |_| "/contact"))
+//!             .add_item(nav::Item::link(L10n::n("Home"), |_| "/".into()))
+//!             .add_item(nav::Item::link(L10n::n("About"), |_| "/about".into()))
+//!             .add_item(nav::Item::link(L10n::n("Contact"), |_| "/contact".into()))
 //!     ));
 //! ```
 //!
@@ -32,9 +32,9 @@
 //!     .with_expand(BreakPoint::MD)
 //!     .add_item(navbar::Item::nav(
 //!         Nav::new()
-//!             .add_item(nav::Item::link(L10n::n("Home"), |_| "/"))
-//!             .add_item(nav::Item::link_blank(L10n::n("Docs"), |_| "https://docs.example.com"))
-//!             .add_item(nav::Item::link(L10n::n("Support"), |_| "/support"))
+//!             .add_item(nav::Item::link(L10n::n("Home"), |_| "/".into()))
+//!             .add_item(nav::Item::link_blank(L10n::n("Docs"), |_| "https://sample.com".into()))
+//!             .add_item(nav::Item::link(L10n::n("Support"), |_| "/support".into()))
 //!     ));
 //! ```
 //!
@@ -45,19 +45,23 @@
 //! # use pagetop_bootsier::prelude::*;
 //! let brand = navbar::Brand::new()
 //!     .with_title(L10n::n("PageTop"))
-//!     .with_path(Some(|_| "/"));
+//!     .with_path(Some(|_| "/".into()));
 //!
 //! let navbar = Navbar::brand_left(brand)
 //!     .add_item(navbar::Item::nav(
 //!         Nav::new()
-//!             .add_item(nav::Item::link(L10n::n("Home"), |_| "/"))
+//!             .add_item(nav::Item::link(L10n::n("Home"), |_| "/".into()))
 //!             .add_item(nav::Item::dropdown(
 //!                 Dropdown::new()
 //!                     .with_title(L10n::n("Tools"))
-//!                     .add_item(dropdown::Item::link(L10n::n("Generator"), |_| "/tools/gen"))
-//!                     .add_item(dropdown::Item::link(L10n::n("Reports"), |_| "/tools/reports"))
+//!                     .add_item(dropdown::Item::link(
+//!                         L10n::n("Generator"), |_| "/tools/gen".into())
+//!                     )
+//!                     .add_item(dropdown::Item::link(
+//!                         L10n::n("Reports"), |_| "/tools/reports".into())
+//!                     )
 //!             ))
-//!             .add_item(nav::Item::link_disabled(L10n::n("Disabled"), |_| "#"))
+//!             .add_item(nav::Item::link_disabled(L10n::n("Disabled"), |_| "#".into()))
 //!     ));
 //! ```
 //!
@@ -68,14 +72,14 @@
 //! # use pagetop_bootsier::prelude::*;
 //! let brand = navbar::Brand::new()
 //!     .with_title(L10n::n("Intranet"))
-//!     .with_path(Some(|_| "/"));
+//!     .with_path(Some(|_| "/".into()));
 //!
 //! let navbar = Navbar::brand_right(brand)
 //!     .with_expand(BreakPoint::LG)
 //!     .add_item(navbar::Item::nav(
 //!         Nav::pills()
-//!             .add_item(nav::Item::link(L10n::n("Dashboard"), |_| "/dashboard"))
-//!             .add_item(nav::Item::link(L10n::n("Users"), |_| "/users"))
+//!             .add_item(nav::Item::link(L10n::n("Dashboard"), |_| "/dashboard".into()))
+//!             .add_item(nav::Item::link(L10n::n("Users"), |_| "/users".into()))
 //!     ));
 //! ```
 //!
@@ -93,13 +97,13 @@
 //! let navbar = Navbar::offcanvas(oc)
 //!     .add_item(navbar::Item::nav(
 //!         Nav::new()
-//!             .add_item(nav::Item::link(L10n::n("Home"), |_| "/"))
-//!             .add_item(nav::Item::link(L10n::n("Profile"), |_| "/profile"))
+//!             .add_item(nav::Item::link(L10n::n("Home"), |_| "/".into()))
+//!             .add_item(nav::Item::link(L10n::n("Profile"), |_| "/profile".into()))
 //!             .add_item(nav::Item::dropdown(
 //!                 Dropdown::new()
 //!                     .with_title(L10n::n("More"))
-//!                     .add_item(dropdown::Item::link(L10n::n("Settings"), |_| "/settings"))
-//!                     .add_item(dropdown::Item::link(L10n::n("Help"), |_| "/help"))
+//!                     .add_item(dropdown::Item::link(L10n::n("Settings"), |_| "/settings".into()))
+//!                     .add_item(dropdown::Item::link(L10n::n("Help"), |_| "/help".into()))
 //!             ))
 //!     ));
 //! ```
@@ -111,15 +115,15 @@
 //! # use pagetop_bootsier::prelude::*;
 //! let brand = navbar::Brand::new()
 //!     .with_title(L10n::n("Main App"))
-//!     .with_path(Some(|_| "/"));
+//!     .with_path(Some(|_| "/".into()));
 //!
 //! let navbar = Navbar::brand_left(brand)
 //!     .with_position(navbar::Position::FixedTop)
 //!     .add_item(navbar::Item::nav(
 //!         Nav::new()
-//!             .add_item(nav::Item::link(L10n::n("Dashboard"), |_| "/"))
-//!             .add_item(nav::Item::link(L10n::n("Donors"), |_| "/donors"))
-//!             .add_item(nav::Item::link(L10n::n("Stock"), |_| "/stock"))
+//!             .add_item(nav::Item::link(L10n::n("Dashboard"), |_| "/".into()))
+//!             .add_item(nav::Item::link(L10n::n("Donors"), |_| "/donors".into()))
+//!             .add_item(nav::Item::link(L10n::n("Stock"), |_| "/stock".into()))
 //!     ));
 //! ```
 
