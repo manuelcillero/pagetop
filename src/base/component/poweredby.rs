@@ -21,7 +21,7 @@ impl Component for PoweredBy {
     /// configurada en [`global::SETTINGS`], en el formato `YYYY © Nombre de la aplicación`.
     fn new() -> Self {
         let year = Utc::now().format("%Y").to_string();
-        let c = join!(year, " © ", global::SETTINGS.app.name);
+        let c = util::join!(year, " © ", global::SETTINGS.app.name);
         PoweredBy { copyright: Some(c) }
     }
 

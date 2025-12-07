@@ -51,7 +51,7 @@ impl Component for Navbar {
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
         // Botón de despliegue (colapso u offcanvas) para la barra.
         fn button(cx: &mut Context, data_bs_toggle: &str, id_content: &str) -> Markup {
-            let id_content_target = join!("#", id_content);
+            let id_content_target = util::join!("#", id_content);
             let aria_expanded = if data_bs_toggle == TOGGLE_COLLAPSE {
                 Some("false")
             } else {
@@ -92,7 +92,7 @@ impl Component for Navbar {
 
                         // Barra sencilla que se puede contraer/expandir.
                         navbar::Layout::SimpleToggle => {
-                            @let id_content = join!(id, "-content");
+                            @let id_content = util::join!(id, "-content");
 
                             (button(cx, TOGGLE_COLLAPSE, &id_content))
                             div id=(id_content) class="collapse navbar-collapse" {
@@ -108,7 +108,7 @@ impl Component for Navbar {
 
                         // Barra con marca a la izquierda y botón a la derecha.
                         navbar::Layout::BrandLeft(brand) => {
-                            @let id_content = join!(id, "-content");
+                            @let id_content = util::join!(id, "-content");
 
                             (brand.render(cx))
                             (button(cx, TOGGLE_COLLAPSE, &id_content))
@@ -119,7 +119,7 @@ impl Component for Navbar {
 
                         // Barra con botón a la izquierda y marca a la derecha.
                         navbar::Layout::BrandRight(brand) => {
-                            @let id_content = join!(id, "-content");
+                            @let id_content = util::join!(id, "-content");
 
                             (button(cx, TOGGLE_COLLAPSE, &id_content))
                             (brand.render(cx))

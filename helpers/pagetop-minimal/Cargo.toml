@@ -1,0 +1,20 @@
+[package]
+name = "pagetop-minimal"
+version = "0.0.10"
+edition = "2021"
+
+description = """
+    Reúne un conjunto mínimo de macros para mejorar el formato y la eficiencia de operaciones
+    básicas en PageTop.
+"""
+categories = ["development-tools::build-utils"]
+keywords = ["pagetop", "build", "assets", "resources", "static"]
+
+repository.workspace = true
+homepage.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[dependencies]
+concat-string = "1.0"
+indoc = "2.0"

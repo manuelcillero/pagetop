@@ -10,7 +10,7 @@ impl Extension for SuperMenu {
     }
 
     fn initialize(&self) {
-        let home_path = |cx: &Context| join!("/lang/", cx.langid().language.as_str()).into();
+        let home_path = |cx: &Context| util::join!("/lang/", cx.langid().language.as_str()).into();
 
         let navbar_menu = Navbar::brand_left(navbar::Brand::new().with_path(Some(home_path)))
             .with_expand(BreakPoint::LG)

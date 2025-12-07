@@ -91,7 +91,7 @@
 
 use crate::html::{Markup, PreEscaped};
 use crate::service::HttpRequest;
-use crate::{global, hm, AutoDefault};
+use crate::{global, util, AutoDefault};
 
 pub use fluent_templates;
 pub use unic_langid::{CharacterDirection, LanguageIdentifier};
@@ -110,7 +110,7 @@ use std::fmt;
 // Asocia cada identificador de idioma (como "en-US") con su respectivo [`LanguageIdentifier`] y la
 // clave en *locale/.../languages.ftl* para obtener el nombre del idioma según la localización.
 static LANGUAGES: LazyLock<HashMap<&str, (LanguageIdentifier, &str)>> = LazyLock::new(|| {
-    hm![
+    util::kv![
         "en"    => ( langid!("en-US"), "english" ),
         "en-gb" => ( langid!("en-GB"), "english_british" ),
         "en-us" => ( langid!("en-US"), "english_united_states" ),
@@ -411,7 +411,7 @@ impl L10n {
         self
     }
 
-    /// Añade varios argumentos a la traducción de una sola vez (p. ej. usando la macro [`hm!`],
+    /// Añade varios argumentos a la traducción de una vez (p. ej. usando la macro [`util::kv!`],
     /// también vec![("k", "v")], incluso un array de duplas u otras colecciones).
     pub fn with_args<I, K, V>(mut self, args: I) -> Self
     where

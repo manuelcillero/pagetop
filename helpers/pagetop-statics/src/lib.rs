@@ -20,7 +20,7 @@ configurables, basadas en HTML, CSS y JavaScript.
 
 ## Descripción general
 
-Esta librería permite incluir archivos estáticos en el ejecutable de las aplicaciones PageTop para
+Este *crate* permite incluir archivos estáticos en el ejecutable de las aplicaciones PageTop para
 servirlos de forma eficiente vía web, con detección de cambios que optimizan el tiempo de
 compilación.
 

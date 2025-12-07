@@ -10,8 +10,6 @@ pub use crate::{AutoDefault, Getters, StaticResources, UniqueId, Weight};
 
 // MACROS.
 
-// crate::util
-pub use crate::{hm, join, join_pair};
 // crate::config
 pub use crate::include_config;
 // crate::locale

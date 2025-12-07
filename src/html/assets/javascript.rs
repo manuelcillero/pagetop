@@ -1,7 +1,7 @@
 use crate::core::component::Context;
 use crate::html::assets::Asset;
 use crate::html::{html, Markup, PreEscaped};
-use crate::{join, join_pair, AutoDefault, Weight};
+use crate::{util, AutoDefault, Weight};
 
 // Define el origen del recurso JavaScript y cómo debe cargarse en el navegador.
 //
@@ -215,21 +215,21 @@ impl Asset for JavaScript {
     fn render(&self, cx: &mut Context) -> Markup {
         match &self.source {
             Source::From(path) => html! {
-                script src=(join_pair!(path, "?v=", &self.version)) {};
+                script src=(util::join_pair!(path, "?v=", &self.version)) {};
             },
             Source::Defer(path) => html! {
-                script src=(join_pair!(path, "?v=", &self.version)) defer {};
+                script src=(util::join_pair!(path, "?v=", &self.version)) defer {};
             },
             Source::Async(path) => html! {
-                script src=(join_pair!(path, "?v=", &self.version)) async {};
+                script src=(util::join_pair!(path, "?v=", &self.version)) async {};
             },
             Source::Inline(_, f) => html! {
                 script { (PreEscaped((f)(cx))) };
             },
-            Source::OnLoad(_, f) => html! { script { (PreEscaped(join!(
+            Source::OnLoad(_, f) => html! { script { (PreEscaped(util::join!(
                 "document.addEventListener(\"DOMContentLoaded\",function(){", (f)(cx), "});"
             ))) } },
-            Source::OnLoadAsync(_, f) => html! { script { (PreEscaped(join!(
+            Source::OnLoadAsync(_, f) => html! { script { (PreEscaped(util::join!(
                 "document.addEventListener(\"DOMContentLoaded\",async()=>{", (f)(cx), "});"
             ))) } },
         }

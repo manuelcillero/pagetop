@@ -159,8 +159,8 @@ impl Offcanvas {
         }
 
         let id = cx.required_id::<Self>(self.id());
-        let id_label = join!(id, "-label");
-        let id_target = join!("#", id);
+        let id_label = util::join!(id, "-label");
+        let id_target = util::join!("#", id);
 
         let body_scroll = match self.body_scroll() {
             offcanvas::BodyScroll::Disabled => None,

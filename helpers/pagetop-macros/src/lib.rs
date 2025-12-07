@@ -20,7 +20,7 @@ configurables, basadas en HTML, CSS y JavaScript.
 
 ## Créditos
 
-Esta librería incluye entre sus macros una adaptación de
+Este *crate* incluye entre sus macros una adaptación de
 [maud-macros](https://crates.io/crates/maud_macros)
 ([0.27.0](https://github.com/lambda-fairy/maud/tree/v0.27.0/maud_macros)) de
 [Chris Wong](https://crates.io/users/lambda-fairy) y una versión renombrada de

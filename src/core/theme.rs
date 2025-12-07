@@ -24,7 +24,7 @@
 use crate::core::component::Context;
 use crate::html::{html, Markup};
 use crate::locale::L10n;
-use crate::{join, AutoDefault};
+use crate::{util, AutoDefault};
 
 // **< Region >*************************************************************************************
 
@@ -83,7 +83,7 @@ pub trait Region {
             @let region = cx.render_region(self);
             @if !region.is_empty() {
                 div
-                    class=(join!("region region-", self.name()))
+                    class=(util::join!("region region-", self.name()))
                     role="region"
                     aria-label=[self.label().lookup(cx)]
                 {

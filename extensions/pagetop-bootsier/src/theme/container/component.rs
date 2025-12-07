@@ -40,7 +40,7 @@ impl Component for Container {
         }
         let style = match self.container_width() {
             container::Width::FluidMax(w) if w.is_measurable() => {
-                Some(join!("max-width: ", w.to_string(), ";"))
+                Some(util::join!("max-width: ", w.to_string(), ";"))
             }
             _ => None,
         };

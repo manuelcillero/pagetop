@@ -1,7 +1,7 @@
 use crate::core::component::Context;
 use crate::html::assets::Asset;
 use crate::html::{html, Markup, PreEscaped};
-use crate::{join_pair, AutoDefault, Weight};
+use crate::{util, AutoDefault, Weight};
 
 // Define el origen del recurso CSS y cómo se incluye en el documento.
 //
@@ -170,7 +170,7 @@ impl Asset for StyleSheet {
             Source::From(path) => html! {
                 link
                     rel="stylesheet"
-                    href=(join_pair!(path, "?v=", &self.version))
+                    href=(util::join_pair!(path, "?v=", &self.version))
                     media=[self.media.as_str()];
             },
             Source::Inline(_, f) => html! {

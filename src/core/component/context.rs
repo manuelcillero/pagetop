@@ -6,7 +6,7 @@ use crate::html::{html, Markup};
 use crate::html::{Assets, Favicon, JavaScript, StyleSheet};
 use crate::locale::{LangId, LangMatch, LanguageIdentifier};
 use crate::service::HttpRequest;
-use crate::{builder_fn, join};
+use crate::{builder_fn, util};
 
 use std::any::Any;
 use std::collections::HashMap;
@@ -546,7 +546,7 @@ impl Contextual for Context {
                 prefix
             };
             self.id_counter += 1;
-            join!(prefix, "-", self.id_counter.to_string())
+            util::join!(prefix, "-", self.id_counter.to_string())
         }
     }
 }

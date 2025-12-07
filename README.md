@@ -84,17 +84,21 @@ El código se organiza en un *workspace* donde actualmente se incluyen los sigui
 
 ## Auxiliares
 
-  * **[pagetop-statics](https://git.cillero.es/manuelcillero/pagetop/src/branch/main/helpers/pagetop-statics)**,
-    es la librería que permite incluir archivos estáticos en el ejecutable de las aplicaciones
-    PageTop para servirlos de forma eficiente, con detección de cambios que optimizan el tiempo de
-    compilación.
-
   * **[pagetop-build](https://git.cillero.es/manuelcillero/pagetop/src/branch/main/helpers/pagetop-build)**,
     prepara los archivos estáticos o archivos SCSS compilados para incluirlos en el binario de las
     aplicaciones PageTop durante la compilación de los ejecutables.
 
   * **[pagetop-macros](https://git.cillero.es/manuelcillero/pagetop/src/branch/main/helpers/pagetop-macros)**,
-    proporciona una colección de macros que mejoran la experiencia de desarrollo con PageTop.
+    proporciona una colección de macros procedurales que mejoran la experiencia de desarrollo con
+    PageTop.
+
+  * **[pagetop-minimal](https://git.cillero.es/manuelcillero/pagetop/src/branch/main/helpers/pagetop-minimal)**,
+    ofrece macros declarativas esenciales para optimizar tareas comunes como la composición de
+    texto, la concatenación de cadenas y el manejo de colecciones clave-valor.
+
+  * **[pagetop-statics](https://git.cillero.es/manuelcillero/pagetop/src/branch/main/helpers/pagetop-statics)**,
+    permite incluir archivos estáticos en el ejecutable de las aplicaciones PageTop para servirlos
+    de forma eficiente, con detección de cambios que optimizan el tiempo de compilación.
 
 ## Extensiones
 
