@@ -14,18 +14,18 @@ use crate::{builder_fn, AutoDefault};
 ///
 /// // Español disponible.
 /// assert_eq!(
-///     hello.lookup(&LangMatch::resolve("es-ES")),
+///     hello.lookup(&Locale::resolve("es-ES")),
 ///     Some("¡Hola mundo!".to_string())
 /// );
 ///
 /// // Japonés no disponible, traduce al idioma de respaldo (`"en-US"`).
 /// assert_eq!(
-///     hello.lookup(&LangMatch::resolve("ja-JP")),
+///     hello.lookup(&Locale::resolve("ja-JP")),
 ///     Some("Hello world!".to_string())
 /// );
 ///
 /// // Uso típico en un atributo:
-/// let title = hello.value(&LangMatch::resolve("es-ES"));
+/// let title = hello.value(&Locale::resolve("es-ES"));
 /// // Ejemplo: html! { a title=(title) { "Link" } }
 /// ```
 #[derive(AutoDefault, Clone, Debug)]

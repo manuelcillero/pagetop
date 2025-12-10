@@ -28,7 +28,7 @@ impl Extension for Welcome {
 }
 
 async fn home_page(request: HttpRequest) -> ResultPage<Markup, ErrorPage> {
-    let language = LangMatch::from_request(Some(&request));
+    let language = Locale::from_request(Some(&request));
     home(request, &language)
 }
 
@@ -36,9 +36,9 @@ async fn home_lang(
     request: HttpRequest,
     path: service::web::Path<String>,
 ) -> ResultPage<Markup, ErrorPage> {
-    let language = LangMatch::resolve(path.into_inner());
+    let language = Locale::resolve(path.into_inner());
     match language {
-        LangMatch::Found(_) => home(request, &language),
+        Locale::Found(_) => home(request, &language),
         _ => Err(ErrorPage::NotFound(request)),
     }
 }

@@ -4,7 +4,7 @@ use crate::core::theme::{ChildrenInRegions, RegionRef, TemplateRef, ThemeRef};
 use crate::core::TypeInfo;
 use crate::html::{html, Markup};
 use crate::html::{Assets, Favicon, JavaScript, StyleSheet};
-use crate::locale::{LangId, LangMatch, LanguageIdentifier};
+use crate::locale::{LangId, LanguageIdentifier, Locale};
 use crate::service::HttpRequest;
 use crate::{builder_fn, util};
 
@@ -65,7 +65,7 @@ pub enum ContextError {
 /// # use pagetop::prelude::*;
 /// # use pagetop_aliner::Aliner;
 /// fn prepare_context<C: Contextual>(cx: C) -> C {
-///     cx.with_langid(&LangMatch::resolve("es-ES"))
+///     cx.with_langid(&Locale::resolve("es-ES"))
 ///       .with_theme(&Aliner)
 ///       .with_template(&DefaultTemplate::Standard)
 ///       .with_assets(ContextOp::SetFavicon(Some(Favicon::new().with_icon("/favicon.ico"))))
@@ -169,7 +169,7 @@ pub trait Contextual: LangId {
 /// fn new_context(request: HttpRequest) -> Context {
 ///     Context::new(Some(request))
 ///         // Establece el idioma del documento a español.
-///         .with_langid(&LangMatch::resolve("es-ES"))
+///         .with_langid(&Locale::resolve("es-ES"))
 ///         // Establece el tema para renderizar.
 ///         .with_theme(&Aliner)
 ///         // Asigna un favicon.
@@ -229,7 +229,7 @@ impl Context {
     /// recursos cargados.
     #[rustfmt::skip]
     pub fn new(request: Option<HttpRequest>) -> Self {
-        let langid = LangMatch::from_request(request.as_ref()).langid();
+        let langid = Locale::from_request(request.as_ref()).langid();
         Context {
             request,
             langid,
