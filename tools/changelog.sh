@@ -35,10 +35,6 @@ cd "$(dirname "$0")/.." || exit 1
 # Determina ruta del archivo y ámbito de los archivos afectados para el crate
 # ------------------------------------------------------------------------------
 case "$CRATE" in
-    pagetop-statics)
-        CHANGELOG_FILE="helpers/pagetop-statics/CHANGELOG.md"
-        PATH_FLAGS=(--include-path "helpers/pagetop-statics/**/*")
-        ;;
     pagetop-build)
         CHANGELOG_FILE="helpers/pagetop-build/CHANGELOG.md"
         PATH_FLAGS=(--include-path "helpers/pagetop-build/**/*")
@@ -47,13 +43,22 @@ case "$CRATE" in
         CHANGELOG_FILE="helpers/pagetop-macros/CHANGELOG.md"
         PATH_FLAGS=(--include-path "helpers/pagetop-macros/**/*")
         ;;
+    pagetop-minimal)
+        CHANGELOG_FILE="helpers/pagetop-minimal/CHANGELOG.md"
+        PATH_FLAGS=(--include-path "helpers/pagetop-minimal/**/*")
+        ;;
+    pagetop-statics)
+        CHANGELOG_FILE="helpers/pagetop-statics/CHANGELOG.md"
+        PATH_FLAGS=(--include-path "helpers/pagetop-statics/**/*")
+        ;;
     pagetop)
         CHANGELOG_FILE="CHANGELOG.md"
         PATH_FLAGS=(
             # Helpers
-            --exclude-path "helpers/pagetop-statics/**/*"
             --exclude-path "helpers/pagetop-build/**/*"
             --exclude-path "helpers/pagetop-macros/**/*"
+            --exclude-path "helpers/pagetop-minimal/**/*"
+            --exclude-path "helpers/pagetop-statics/**/*"
             # Extensions
             --exclude-path "extensions/pagetop-aliner/**/*"
             --exclude-path "extensions/pagetop-bootsier/**/*"
