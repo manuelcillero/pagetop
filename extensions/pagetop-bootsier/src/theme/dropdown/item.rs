@@ -14,11 +14,12 @@ pub enum ItemKind {
     Void,
     /// Etiqueta sin comportamiento interactivo.
     Label(L10n),
-    /// Elemento de navegación. Opcionalmente puede abrirse en una nueva ventana y estar
-    /// inicialmente deshabilitado.
+    /// Elemento de navegación basado en una [`RoutePath`] dinámica devuelta por
+    /// [`FnPathByContext`]. Opcionalmente, puede abrirse en una nueva ventana y estar inicialmente
+    /// deshabilitado.
     Link {
         label: L10n,
-        path: FnPathByContext,
+        route: FnPathByContext,
         blank: bool,
         disabled: bool,
     },
@@ -40,8 +41,8 @@ pub enum ItemKind {
 /// visible que puede comportarse como texto, enlace, botón, encabezado o separador, según su
 /// [`ItemKind`].
 ///
-/// Permite definir identificador, clases de estilo adicionales o tipo de interacción asociada,
-/// manteniendo una interfaz común para renderizar todos los elementos del menú.
+/// Permite definir el identificador, las clases de estilo adicionales y el tipo de interacción
+/// asociada, manteniendo una interfaz común para renderizar todos los elementos del menú.
 #[derive(AutoDefault, Getters)]
 pub struct Item {
     #[getters(skip)]
@@ -75,13 +76,13 @@ impl Component for Item {
 
             ItemKind::Link {
                 label,
-                path,
+                route,
                 blank,
                 disabled,
             } => {
-                let path = path(cx);
+                let route_link = route(cx);
                 let current_path = cx.request().map(|request| request.path());
-                let is_current = !*disabled && (current_path == Some(&path));
+                let is_current = !*disabled && (current_path == Some(route_link.path()));
 
                 let mut classes = "dropdown-item".to_string();
                 if is_current {
@@ -91,9 +92,9 @@ impl Component for Item {
                     classes.push_str(" disabled");
                 }
 
-                let href = (!disabled).then_some(path);
-                let target = (!disabled && *blank).then_some("_blank");
-                let rel = (!disabled && *blank).then_some("noopener noreferrer");
+                let href = (!*disabled).then_some(route_link);
+                let target = (!*disabled && *blank).then_some("_blank");
+                let rel = (!*disabled && *blank).then_some("noopener noreferrer");
 
                 let aria_current = (href.is_some() && is_current).then_some("page");
                 let aria_disabled = disabled.then_some("true");
@@ -164,11 +165,15 @@ impl Item {
     }
 
     /// Crea un enlace para la navegación.
-    pub fn link(label: L10n, path: FnPathByContext) -> Self {
+    ///
+    /// La ruta se obtiene invocando [`FnPathByContext`], que devuelve dinámicamente una
+    /// [`RoutePath`] en función del [`Context`]. El enlace se marca como `active` si la ruta actual
+    /// del *request* coincide con la ruta de destino (devuelta por `RoutePath::path`).
+    pub fn link(label: L10n, route: FnPathByContext) -> Self {
         Item {
             item_kind: ItemKind::Link {
                 label,
-                path,
+                route,
                 blank: false,
                 disabled: false,
             },
@@ -177,11 +182,11 @@ impl Item {
     }
 
     /// Crea un enlace deshabilitado que no permite la interacción.
-    pub fn link_disabled(label: L10n, path: FnPathByContext) -> Self {
+    pub fn link_disabled(label: L10n, route: FnPathByContext) -> Self {
         Item {
             item_kind: ItemKind::Link {
                 label,
-                path,
+                route,
                 blank: false,
                 disabled: true,
             },
@@ -190,11 +195,11 @@ impl Item {
     }
 
     /// Crea un enlace que se abre en una nueva ventana o pestaña.
-    pub fn link_blank(label: L10n, path: FnPathByContext) -> Self {
+    pub fn link_blank(label: L10n, route: FnPathByContext) -> Self {
         Item {
             item_kind: ItemKind::Link {
                 label,
-                path,
+                route,
                 blank: true,
                 disabled: false,
             },
@@ -203,11 +208,11 @@ impl Item {
     }
 
     /// Crea un enlace inicialmente deshabilitado que se abriría en una nueva ventana.
-    pub fn link_blank_disabled(label: L10n, path: FnPathByContext) -> Self {
+    pub fn link_blank_disabled(label: L10n, route: FnPathByContext) -> Self {
         Item {
             item_kind: ItemKind::Link {
                 label,
-                path,
+                route,
                 blank: true,
                 disabled: true,
             },

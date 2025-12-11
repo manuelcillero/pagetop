@@ -1,6 +1,6 @@
 //! API para construir nuevos componentes.
 
-use std::borrow::Cow;
+use crate::html::RoutePath;
 
 mod definition;
 pub use definition::{Component, ComponentRender};
@@ -66,12 +66,31 @@ pub use context::{Context, ContextError, ContextOp, Contextual};
 /// ```
 pub type FnIsRenderable = fn(cx: &Context) -> bool;
 
-/// Alias de función (*callback*) para **resolver una URL** según el contexto de renderizado.
+/// Alias de función (*callback*) para **resolver una ruta URL** según el contexto de renderizado.
 ///
-/// Se usa para generar enlaces dinámicos en función del contexto (petición, idioma, etc.). El
-/// resultado se devuelve como [`Cow<'static, str>`](std::borrow::Cow), lo que permite:
+/// Se usa para generar enlaces dinámicos en función del contexto (petición, idioma, parámetros,
+/// etc.). El resultado se devuelve como una [`RoutePath`], que representa un *path* base junto con
+/// una lista opcional de parámetros de consulta.
 ///
-/// - Usar rutas estáticas sin asignaciones adicionales (`"/path".into()`).
-/// - Construir rutas dinámicas en tiempo de ejecución (`format!(...).into()`), por ejemplo, en
-///   función de parámetros almacenados en [`Context`].
-pub type FnPathByContext = fn(cx: &Context) -> Cow<'static, str>;
+/// Gracias a la implementación de [`RoutePath`] puedes usar rutas estáticas sin asignaciones
+/// adicionales:
+///
+/// ```rust
+/// # use pagetop::prelude::*;
+/// # let static_path: FnPathByContext =
+/// |_| "/path/to/resource".into()
+/// # ;
+/// ```
+///
+/// O construir rutas dinámicas en tiempo de ejecución:
+///
+/// ```rust
+/// # use pagetop::prelude::*;
+/// # let dynamic_path: FnPathByContext =
+/// |cx| RoutePath::new("/user").with_param("id", cx.param::<u64>("user_id").unwrap().to_string())
+/// # ;
+/// ```
+///
+/// El componente que reciba un [`FnPathByContext`] invocará esta función durante el renderizado
+/// para obtener la URL final para asignarla al atributo HTML correspondiente.
+pub type FnPathByContext = fn(cx: &Context) -> RoutePath;

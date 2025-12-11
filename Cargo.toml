@@ -21,6 +21,7 @@ config = { version = "0.15", default-features = false, features = ["toml"] }
 figlet-rs = "0.1"
 getter-methods = "2.0"
 itoa = "1.0"
+indexmap = "2.12"
 parking_lot = "0.12"
 substring = "1.4"
 terminal_size = "0.4"

@@ -5,6 +5,9 @@ use crate::AutoDefault;
 mod maud;
 pub use maud::{display, html, html_private, Escaper, Markup, PreEscaped, DOCTYPE};
 
+mod route;
+pub use route::RoutePath;
+
 // **< HTML DOCUMENT ASSETS >***********************************************************************
 
 mod assets;

@@ -67,14 +67,15 @@ impl AttrClasses {
             }
             ClassesOp::Remove => {
                 for class in classes {
-                    self.0.retain(|c| c.ne(&class.to_string()));
+                    self.0.retain(|c| c != class);
                 }
             }
             ClassesOp::Replace(classes_to_replace) => {
                 let mut pos = self.0.len();
-                let replace: Vec<&str> = classes_to_replace.split_ascii_whitespace().collect();
+                let replace = classes_to_replace.to_ascii_lowercase();
+                let replace: Vec<&str> = replace.split_ascii_whitespace().collect();
                 for class in replace {
-                    if let Some(replace_pos) = self.0.iter().position(|c| c.eq(class)) {
+                    if let Some(replace_pos) = self.0.iter().position(|c| c == class) {
                         self.0.remove(replace_pos);
                         if pos > replace_pos {
                             pos = replace_pos;
