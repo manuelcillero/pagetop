@@ -16,8 +16,8 @@ pub use context::{Context, ContextError, ContextOp, Contextual};
 /// Alias de función (*callback*) para **determinar si un componente se renderiza o no**.
 ///
 /// Puede usarse para permitir que una instancia concreta de un tipo de componente dado decida
-/// dinámicamente durante el proceso de renderizado ([`Component::is_renderable()`]) si se renderiza
-/// o no.
+/// dinámicamente durante el proceso de renderizado ([`Component::is_renderable()`]), si se
+/// renderiza o no.
 ///
 /// # Ejemplo
 ///
@@ -69,28 +69,37 @@ pub type FnIsRenderable = fn(cx: &Context) -> bool;
 /// Alias de función (*callback*) para **resolver una ruta URL** según el contexto de renderizado.
 ///
 /// Se usa para generar enlaces dinámicos en función del contexto (petición, idioma, parámetros,
-/// etc.). El resultado se devuelve como una [`RoutePath`], que representa un *path* base junto con
-/// una lista opcional de parámetros de consulta.
+/// etc.). Devuelve una [`RoutePath`], que representa un *path* base junto con una lista opcional de
+/// parámetros de consulta.
 ///
-/// Gracias a la implementación de [`RoutePath`] puedes usar rutas estáticas sin asignaciones
-/// adicionales:
+/// El caso más común es construir rutas relativas dependientes del contexto, normalmente usando
+/// [`Context::route`](crate::core::component::Context::route):
 ///
 /// ```rust
 /// # use pagetop::prelude::*;
-/// # let static_path: FnPathByContext =
-/// |_| "/path/to/resource".into()
+/// # let relative_route: FnPathByContext =
+/// |cx| cx.route("/path/to/page")
 /// # ;
 /// ```
 ///
-/// O construir rutas dinámicas en tiempo de ejecución:
+/// También es posible usar rutas estáticas sin asignaciones adicionales:
 ///
 /// ```rust
 /// # use pagetop::prelude::*;
-/// # let dynamic_path: FnPathByContext =
+/// # let external_route: FnPathByContext =
+/// |_| "https://www.example.com".into()
+/// # ;
+/// ```
+///
+/// O componer rutas dinámicas en tiempo de ejecución:
+///
+/// ```rust
+/// # use pagetop::prelude::*;
+/// # let dynamic_route: FnPathByContext =
 /// |cx| RoutePath::new("/user").with_param("id", cx.param::<u64>("user_id").unwrap().to_string())
 /// # ;
 /// ```
 ///
-/// El componente que reciba un [`FnPathByContext`] invocará esta función durante el renderizado
-/// para obtener la URL final para asignarla al atributo HTML correspondiente.
+/// Los componentes que acepten un [`FnPathByContext`] invocarán esta función durante el renderizado
+/// para obtener la URL final que se asignará al atributo HTML correspondiente.
 pub type FnPathByContext = fn(cx: &Context) -> RoutePath;

@@ -1,14 +1,17 @@
 //! Opciones de configuración globales.
 
-use crate::include_config;
+use crate::{include_config, AutoDefault};
 
 use serde::Deserialize;
+
+// **< SETTINGS >***********************************************************************************
 
 include_config!(SETTINGS: Settings => [
     // [app]
     "app.name"                => "PageTop App",
     "app.description"         => "Developed with the amazing PageTop framework.",
     "app.theme"               => "Basic",
+    "app.lang_negotiation"    => "Full",
     "app.startup_banner"      => "Slant",
     "app.welcome"             => true,
 
@@ -29,6 +32,37 @@ include_config!(SETTINGS: Settings => [
     "server.session_lifetime" => 604_800,
 ]);
 
+// **< LangNegotiation >****************************************************************************
+
+/// Modos disponibles para negociar el idioma de una petición HTTP.
+///
+/// El ajuste [`global::SETTINGS.app.lang_negotiation`](crate::global::App::lang_negotiation)
+/// determina qué fuentes intervienen en la resolución del idioma efectivo utilizado por
+/// [`RequestLocale`](crate::locale::RequestLocale) y en la generación de URLs mediante
+/// [`Context::route()`](crate::core::component::Context::route).
+#[derive(AutoDefault, Clone, Copy, Debug, Deserialize, Eq, PartialEq)]
+pub enum LangNegotiation {
+    /// Usa todas las fuentes disponibles para determinar el idioma, en este orden: comprueba el
+    /// parámetro `?lang` de la URL; si no está presente o no es válido, usa la cabecera HTTP
+    /// `Accept-Language`; si tampoco está disponible o no es válido, usa el idioma configurado en
+    /// [`global::SETTINGS.app.language`](crate::global::App::language) o, en su defecto, el idioma
+    /// de respaldo. Es el comportamiento por defecto.
+    #[default]
+    Full,
+
+    /// Igual que `LangNegotiation::Full`, pero sin tener en cuenta el parámetro `?lang` de la URL.
+    /// El idioma depende únicamente de la cabecera `Accept-Language` del navegador y, en última
+    /// instancia, de la configuración o idioma de respaldo.
+    NoQuery,
+
+    /// Usa sólo la configuración o, en su defecto, el idioma de respaldo; ignora la cabecera
+    /// `Accept-Language` y el parámetro de la URL. Este modo proporciona un comportamiento estable
+    /// con idioma fijo.
+    ConfigOnly,
+}
+
+// **< Settings >***********************************************************************************
+
 #[derive(Debug, Deserialize)]
 /// Tipos para las secciones globales [`[app]`](App), [`[dev]`](Dev), [`[log]`](Log) y
 /// [`[server]`](Server) de [`SETTINGS`].
@@ -48,22 +82,30 @@ pub struct App {
     pub description: String,
     /// Tema predeterminado.
     pub theme: String,
-    /// Idioma predeterminado de la aplicación.
+    /// Idioma predeterminado de la aplicación (p. ej., *"es-ES"* o *"en-US"*).
     ///
-    /// Si queda en `None`, el idioma de renderizado se decide intentando usar el asignado con
-    /// [`Contextual::with_langid()`](crate::core::component::Contextual::with_langid) en el
-    /// contexto del documento. Si no se ha establecido, prueba el recibido en la cabecera
-    /// `Accept-Language` enviada por el navegador. Y si ninguno aplica, emplea el idioma de
-    /// respaldo (`"en-US"`).
+    /// Cuando tiene un valor validado por [`Locale`](crate::locale::Locale), se usa como candidato
+    /// para resolver el idioma efectivo de cada petición según la estrategia definida en
+    /// [`lang_negotiation`](Self::lang_negotiation) y aplicada por
+    /// [`RequestLocale`](crate::locale::RequestLocale).
+    ///
+    /// Si es `None` o no contiene un valor válido, la negociación del idioma pasa a depender de
+    /// otras fuentes como la cabecera `Accept-Language` de la petición o, en último término, del
+    /// idioma de respaldo configurado en el sistema.
     pub language: Option<String>,
+    /// Estrategia para resolver el idioma usado en la petición: *"Full"*, *"NoQuery"* o
+    /// *"ConfigOnly"*.
+    ///
+    /// Define las fuentes que intervienen en la negociación del idioma para el renderizado de los
+    /// documentos y la generación de URLs. Ver [`LangNegotiation`] para los modos disponibles.
+    pub lang_negotiation: LangNegotiation,
     /// Banner ASCII mostrado al inicio: *"Off"* (desactivado), *"Slant"*, *"Small"*, *"Speed"* o
     /// *"Starwars"*.
     pub startup_banner: String,
     /// Activa la página de bienvenida de PageTop.
     ///
     /// Si está activada, se instala la extensión [`Welcome`](crate::base::extension::Welcome), que
-    /// ofrece una página de bienvenida predefinida en `"/"` y también en `"/lang/{lang}"`, para
-    /// mostrar el contenido en el idioma `{lang}`, siempre que esté soportado.
+    /// ofrece una página de bienvenida predefinida en `"/"`.
     pub welcome: bool,
     /// Modo de ejecución, dado por la variable de entorno `PAGETOP_RUN_MODE`, o *"default"* si no
     /// está definido.
@@ -87,18 +129,18 @@ pub struct Dev {
 #[derive(Debug, Deserialize)]
 /// Sección `[log]` de la configuración. Forma parte de [`Settings`].
 pub struct Log {
-    /// Gestión de trazas y registro de eventos activado (`true`) o desactivado (`false`).
+    /// Gestión de trazas y registro de eventos activada (*true*) o desactivada (*false*).
     pub enabled: bool,
     /// Opciones, o combinación de opciones separadas por comas, para filtrar las trazas: *"Error"*,
     /// *"Warn"*, *"Info"*, *"Debug"* o *"Trace"*.
-    /// Ejemplo: "Error,actix_server::builder=Info,tracing_actix_web=Debug".
+    /// Ejemplo: *"Error,actix_server::builder=Info,tracing_actix_web=Debug"*.
     pub tracing: String,
     /// Muestra los mensajes de traza en el terminal (*"Stdout"*) o los vuelca en archivos con
     /// rotación: *"Daily"*, *"Hourly"*, *"Minutely"* o *"Endless"*.
     pub rolling: String,
-    /// Directorio para los archivos de traza (si `rolling` ≠ *"Stdout"*).
+    /// Directorio para los archivos de traza (si [`rolling`](Self::rolling) ≠ *"Stdout"*).
     pub path: String,
-    /// Prefijo para los archivos de traza (si `rolling` ≠ *"Stdout"*).
+    /// Prefijo para los archivos de traza (si [`rolling`](Self::rolling) ≠ *"Stdout"*).
     pub prefix: String,
     /// Formato de salida de las trazas. Opciones: *"Full"*, *"Compact"*, *"Pretty"* o *"Json"*.
     pub format: String,

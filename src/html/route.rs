@@ -1,4 +1,4 @@
-use crate::AutoDefault;
+use crate::{builder_fn, AutoDefault};
 
 use std::borrow::Cow;
 use std::fmt;
@@ -56,12 +56,14 @@ impl RoutePath {
     }
 
     /// Añade o sustituye un parámetro `key=value`. Si la clave ya existe, el valor se sobrescribe.
+    #[builder_fn]
     pub fn with_param(mut self, key: impl Into<String>, value: impl Into<String>) -> Self {
         self.query.insert(key.into(), value.into());
         self
     }
 
     /// Añade o sustituye un *flag* sin valor, por ejemplo `?debug`.
+    #[builder_fn]
     pub fn with_flag(mut self, flag: impl Into<String>) -> Self {
         self.query.insert(flag.into(), String::new());
         self

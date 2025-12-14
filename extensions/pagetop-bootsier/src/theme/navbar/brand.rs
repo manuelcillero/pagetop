@@ -6,7 +6,7 @@ use crate::prelude::*;
 ///
 /// Representa la identidad del sitio con una imagen, título y eslogan:
 ///
-/// - Si hay URL ([`with_path()`](Self::with_path)), el bloque completo actúa como enlace. Por
+/// - Si hay URL ([`with_route()`](Self::with_route)), el bloque completo actúa como enlace. Por
 ///   defecto enlaza a la raíz del sitio (`/`).
 /// - Si no hay imagen ([`with_image()`](Self::with_image)) ni título
 ///   ([`with_title()`](Self::with_title)), la marca de identidad no se renderiza.
@@ -23,8 +23,8 @@ pub struct Brand {
     /// Devuelve el eslogan de la marca.
     slogan: L10n,
     /// Devuelve la función que resuelve la URL asociada a la marca (si existe).
-    #[default(_code = "Some(|_| \"/\".into())")]
-    path: Option<FnPathByContext>,
+    #[default(_code = "Some(|cx| cx.route(\"/\"))")]
+    route: Option<FnPathByContext>,
 }
 
 impl Component for Brand {
@@ -44,8 +44,8 @@ impl Component for Brand {
         }
         let slogan = self.slogan().using(cx);
         PrepareMarkup::With(html! {
-            @if let Some(path) = self.path() {
-                a class="navbar-brand" href=(path(cx)) { (image) (title) (slogan) }
+            @if let Some(route) = self.route() {
+                a class="navbar-brand" href=(route(cx)) { (image) (title) (slogan) }
             } @else {
                 span class="navbar-brand" { (image) (title) (slogan) }
             }
@@ -86,8 +86,8 @@ impl Brand {
 
     /// Define la URL de destino. Si es `None`, la marca no será un enlace.
     #[builder_fn]
-    pub fn with_path(mut self, path: Option<FnPathByContext>) -> Self {
-        self.path = path;
+    pub fn with_route(mut self, route: Option<FnPathByContext>) -> Self {
+        self.route = route;
         self
     }
 }

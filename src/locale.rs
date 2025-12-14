@@ -89,215 +89,57 @@
 //! Y *voilà*, sólo queda operar con los idiomas soportados por PageTop usando [`Locale`] y traducir
 //! textos con [`L10n`].
 
-use crate::html::{Markup, PreEscaped};
-use crate::service::HttpRequest;
-use crate::{global, util, AutoDefault};
-
 pub use fluent_templates;
 pub use unic_langid::{CharacterDirection, LanguageIdentifier};
 
 use unic_langid::langid;
 
-use fluent_templates::Loader;
-use fluent_templates::StaticLoader as Locales;
+mod languages;
 
-use std::borrow::Cow;
-use std::collections::HashMap;
-use std::sync::LazyLock;
+mod definition;
+pub use definition::{LangId, Locale};
 
-use std::fmt;
+mod request;
+pub use request::RequestLocale;
 
-// Asocia cada identificador de idioma (como "en-US") con su respectivo [`LanguageIdentifier`] y la
-// clave en *locale/.../languages.ftl* para obtener el nombre del idioma según la localización.
-static LANGUAGES: LazyLock<HashMap<&str, (LanguageIdentifier, &str)>> = LazyLock::new(|| {
-    util::kv![
-        "en"    => ( langid!("en-US"), "english" ),
-        "en-gb" => ( langid!("en-GB"), "english_british" ),
-        "en-us" => ( langid!("en-US"), "english_united_states" ),
-        "es"    => ( langid!("es-ES"), "spanish" ),
-        "es-es" => ( langid!("es-ES"), "spanish_spain" ),
-    ]
-});
+mod l10n;
+pub use l10n::L10n;
 
-// Identificador de idioma de **respaldo** (predefinido a `en-US`).
-//
-// Se usa cuando el valor del identificador de idioma en las traducciones no corresponde con ningún
-// idioma soportado por la aplicación.
-static FALLBACK_LANGID: LazyLock<LanguageIdentifier> = LazyLock::new(|| langid!("en-US"));
-
-// Identificador de idioma **por defecto** para la aplicación.
-//
-// Se resuelve a partir de [`global::SETTINGS.app.language`](global::SETTINGS). Si el identificador
-// de idioma no es válido o no está disponible, se deja sin definir (`None`) y se delega en
-// [`Locale::default()`] o [`LangId::langid()`] la aplicación del idioma de respaldo.
-pub(crate) static DEFAULT_LANGID: LazyLock<Option<&LanguageIdentifier>> = LazyLock::new(|| {
-    Locale::resolve(global::SETTINGS.app.language.as_deref().unwrap_or("")).as_option()
-});
-
-/// Representa la fuente de idioma (`LanguageIdentifier`) asociada a un recurso.
+/// Incluye un conjunto de recursos **Fluent** con textos de traducción propios.
 ///
-/// Este *trait* permite que distintas estructuras expongan su fuente de idioma de forma uniforme.
-pub trait LangId {
-    /// Devuelve el identificador de idioma asociado al recurso.
-    fn langid(&self) -> &'static LanguageIdentifier;
-}
-
-/// Operaciones con los idiomas soportados por PageTop.
+/// Esta macro integra en el binario de la aplicación los archivos FTL ubicados en los siguientes
+/// directorios opcionales de recursos Fluent:
 ///
-/// Utiliza [`Locale`] para transformar un identificador de idioma en un [`LanguageIdentifier`]
-/// soportado por PageTop.
+/// - `$dir_locales`, con los subdirectorios de cada idioma. Por ejemplo, `"files/ftl"` o
+///   `"assets/translations"`. Si no se indica, se usará el directorio por defecto `"src/locale"`.
+/// - `$core_locales`, que añade un conjunto de traducciones que se cargan para **todos** los
+///   idiomas. Sirve para definir textos comunes que no tienen por qué duplicarse en cada
+///   subdirectorio de idioma.
+///
+/// Cada extensión o tema puede definir sus propios recursos de traducción usando esta macro. Para
+/// más detalles sobre el sistema de localización consulta el módulo [`locale`](crate::locale).
 ///
 /// # Ejemplos
 ///
-/// ```rust
-/// # use pagetop::prelude::*;
-/// // Coincidencia exacta.
-/// let lang = Locale::resolve("es-ES");
-/// assert_eq!(lang.langid().to_string(), "es-ES");
-///
-/// // Coincidencia parcial (retrocede al idioma base si no hay variante regional).
-/// let lang = Locale::resolve("es-EC");
-/// assert_eq!(lang.langid().to_string(), "es-ES"); // Porque "es-EC" no está soportado.
-///
-/// // Idioma no especificado.
-/// let lang = Locale::resolve("");
-/// assert_eq!(lang, Locale::Unspecified);
-///
-/// // Idioma no soportado.
-/// let lang = Locale::resolve("ja-JP");
-/// assert_eq!(lang, Locale::Unsupported("ja-JP".to_string()));
-/// ```
-///
-/// Con la siguiente instrucción siempre se obtiene un [`LanguageIdentifier`] válido, ya sea porque
-/// resuelve un idioma soportado o porque se aplica el idioma por defecto o, en último caso, el de
-/// respaldo (`"en-US"`):
+/// Uso básico con el directorio por defecto `"src/locale"`:
 ///
 /// ```rust
 /// # use pagetop::prelude::*;
-/// // Idioma por defecto o de respaldo si no resuelve.
-/// let lang = Locale::resolve("it-IT");
-/// let langid = lang.langid();
+/// include_locales!(LOCALES_SAMPLE);
 /// ```
-#[derive(Clone, Debug, Eq, PartialEq)]
-pub enum Locale {
-    /// Cuando el identificador de idioma es una cadena vacía.
-    Unspecified,
-    /// Si encuentra un [`LanguageIdentifier`] en la lista de idiomas soportados por PageTop que
-    /// coincide exactamente con el identificador de idioma (p. ej. `"es-ES"`), o con el
-    /// identificador del idioma base (p. ej. `"es"`).
-    Found(&'static LanguageIdentifier),
-    /// Si el identificador de idioma no está entre los soportados por PageTop.
-    Unsupported(String),
-}
-
-impl Default for Locale {
-    /// Resuelve al idioma por defecto y, si no está disponible, al idioma de respaldo (`"en-US"`).
-    fn default() -> Self {
-        Locale::Found(DEFAULT_LANGID.unwrap_or(&FALLBACK_LANGID))
-    }
-}
-
-impl Locale {
-    /// Resuelve `language` y devuelve la variante [`Locale`] apropiada.
-    pub fn resolve(language: impl AsRef<str>) -> Self {
-        let language = language.as_ref().trim();
-
-        // Rechaza cadenas vacías.
-        if language.is_empty() {
-            return Self::Unspecified;
-        }
-
-        // Intenta aplicar coincidencia exacta con el código completo (p. ej. "es-MX").
-        let lang = language.to_ascii_lowercase();
-        if let Some(langid) = LANGUAGES.get(lang.as_str()).map(|(langid, _)| langid) {
-            return Self::Found(langid);
-        }
-
-        // Si la variante regional no existe, retrocede al idioma base (p. ej. "es").
-        if let Some((base_lang, _)) = lang.split_once('-') {
-            if let Some(langid) = LANGUAGES.get(base_lang).map(|(langid, _)| langid) {
-                return Self::Found(langid);
-            }
-        }
-
-        // En caso contrario, indica que el idioma no está soportado.
-        Self::Unsupported(language.to_string())
-    }
-
-    /// Crea un [`Locale`] a partir de una petición HTTP.
-    ///
-    /// El orden de resolución del idioma es el siguiente:
-    ///
-    /// 1. Idioma por defecto de la aplicación, si se ha definido en la configuración global
-    ///    ([`global::SETTINGS.app.language`]).
-    /// 2. Si no hay idioma por defecto válido, se intenta extraer el idioma de la cabecera HTTP
-    ///    `Accept-Language` usando [`Locale::resolve`].
-    /// 3. Si no hay cabecera o el valor no es legible, se devuelve [`Locale::Unspecified`].
-    ///
-    /// Este método **no aplica** idioma de respaldo. Para obtener siempre un [`LanguageIdentifier`]
-    /// válido (aplicando idioma por defecto y, en último término, el de respaldo), utiliza
-    /// [`LangId::langid()`] sobre el valor devuelto.
-    pub fn from_request(request: Option<&HttpRequest>) -> Self {
-        // 1) Se usa `DEFAULT_LANGID` si la aplicación tiene un idioma por defecto válido.
-        if let Some(default) = *DEFAULT_LANGID {
-            return Locale::Found(default);
-        }
-        // 2) Sin idioma por defecto, se evalúa la cabecera `Accept-Language` de la petición HTTP.
-        request
-            .and_then(|req| req.headers().get("Accept-Language"))
-            .and_then(|value| value.to_str().ok())
-            // Aplica `resolve()` para devolver `Found`, `Unspecified` o `Unsupported`.
-            .map(Locale::resolve)
-            // 3) Si no hay cabecera o no puede leerse, se considera no especificado.
-            .unwrap_or(Locale::Unspecified)
-    }
-
-    /// Devuelve el [`LanguageIdentifier`] si el idioma fue reconocido.
-    ///
-    /// Solo retorna `Some` si la variante es [`Locale::Found`]. En cualquier otro caso (por
-    /// ejemplo, si el identificador es vacío o no está soportado), devuelve `None`.
-    ///
-    /// Este método es útil cuando se desea acceder directamente al idioma reconocido sin aplicar el
-    /// idioma por defecto ni el de respaldo.
-    ///
-    /// # Ejemplo
-    ///
-    /// ```rust
-    /// # use pagetop::prelude::*;
-    /// let lang = Locale::resolve("es-ES").as_option();
-    /// assert_eq!(lang.unwrap().to_string(), "es-ES");
-    ///
-    /// let lang = Locale::resolve("ja-JP").as_option();
-    /// assert!(lang.is_none());
-    /// ```
-    #[inline]
-    pub fn as_option(&self) -> Option<&'static LanguageIdentifier> {
-        match self {
-            Locale::Found(l) => Some(l),
-            _ => None,
-        }
-    }
-}
-
-/// Permite a [`Locale`] actuar como proveedor de idioma.
 ///
-/// Devuelve el [`LanguageIdentifier`] si la variante es [`Locale::Found`]; en caso contrario,
-/// devuelve el idioma por defecto de la aplicación y, si tampoco está disponible, el idioma de
-/// respaldo ("en-US").
+/// Uso indicando recursos comunes (además de `"src/locale"`):
 ///
-/// Resulta útil para usar un valor de [`Locale`] como fuente de traducción en [`L10n::lookup()`]
-/// o [`L10n::using()`].
-impl LangId for Locale {
-    fn langid(&self) -> &'static LanguageIdentifier {
-        match self {
-            Locale::Found(l) => l,
-            _ => DEFAULT_LANGID.unwrap_or(&FALLBACK_LANGID),
-        }
-    }
-}
-
+/// ```rust,ignore
+/// include_locales!(LOCALES_SAMPLE, "src/core-locale");
+/// ```
+///
+/// Uso con un directorio de recursos Fluent alternativo:
+///
+/// ```rust,ignore
+/// include_locales!(LOCALES_SAMPLE from "ruta/a/las/traducciones");
+/// ```
 #[macro_export]
-/// Incluye un conjunto de recursos **Fluent** y textos de traducción propios.
 macro_rules! include_locales {
     // Se desactiva la inserción de marcas de aislamiento Unicode (FSI/PDI) en los argumentos para
     // mejorar la legibilidad y la compatibilidad en ciertos contextos de renderizado.
@@ -323,185 +165,4 @@ macro_rules! include_locales {
             };
         }
     };
-}
-
-include_locales!(LOCALES_PAGETOP);
-
-// Operación de localización a realizar.
-//
-// * `None` - No se aplica ninguna localización.
-// * `Text` - Con una cadena literal que se devolverá tal cual.
-// * `Translate` - Con la clave a resolver en el `Locales` indicado.
-#[derive(AutoDefault, Clone, Debug)]
-enum L10nOp {
-    #[default]
-    None,
-    Text(Cow<'static, str>),
-    Translate(Cow<'static, str>),
-}
-
-/// Crea instancias para traducir *textos localizados*.
-///
-/// Cada instancia puede representar:
-///
-/// - Un texto puro (`n()`) que no requiere traducción.
-/// - Una clave para traducir un texto de las traducciones predefinidas de PageTop (`l()`).
-/// - Una clave para traducir de un conjunto concreto de traducciones (`t()`).
-///
-/// # Ejemplo
-///
-/// Los argumentos dinámicos se añaden con `with_arg()` o `with_args()`.
-///
-/// ```rust
-/// # use pagetop::prelude::*;
-/// // Texto literal sin traducción.
-/// let raw = L10n::n("© 2025 PageTop").get();
-///
-/// // Traducción simple con clave y argumentos.
-/// let hello = L10n::l("greeting")
-///     .with_arg("name", "Manuel")
-///     .get();
-/// ```
-///
-/// También sirve para traducciones contra un conjunto de recursos concreto.
-///
-/// ```rust,ignore
-/// // Traducción con clave, conjunto de traducciones y fuente de idioma.
-/// let bye = L10n::t("goodbye", &LOCALES_CUSTOM).lookup(&Locale::resolve("it"));
-/// ```
-#[derive(AutoDefault, Clone)]
-pub struct L10n {
-    op: L10nOp,
-    #[default(&LOCALES_PAGETOP)]
-    locales: &'static Locales,
-    args: HashMap<String, String>,
-}
-
-impl L10n {
-    /// **n** = *“native”*. Crea una instancia con una cadena literal sin traducción.
-    pub fn n(text: impl Into<Cow<'static, str>>) -> Self {
-        L10n {
-            op: L10nOp::Text(text.into()),
-            ..Default::default()
-        }
-    }
-
-    /// **l** = *“lookup”*. Crea una instancia para traducir usando una clave del conjunto de
-    /// traducciones predefinidas.
-    pub fn l(key: impl Into<Cow<'static, str>>) -> Self {
-        L10n {
-            op: L10nOp::Translate(key.into()),
-            ..Default::default()
-        }
-    }
-
-    /// **t** = *“translate”*. Crea una instancia para traducir usando una clave de un conjunto de
-    /// traducciones específico.
-    pub fn t(key: impl Into<Cow<'static, str>>, locales: &'static Locales) -> Self {
-        L10n {
-            op: L10nOp::Translate(key.into()),
-            locales,
-            ..Default::default()
-        }
-    }
-
-    /// Añade un argumento `{$arg}` => `value` a la traducción.
-    pub fn with_arg(mut self, arg: impl Into<String>, value: impl Into<String>) -> Self {
-        self.args.insert(arg.into(), value.into());
-        self
-    }
-
-    /// Añade varios argumentos a la traducción de una vez (p. ej. usando la macro [`util::kv!`],
-    /// también vec![("k", "v")], incluso un array de duplas u otras colecciones).
-    pub fn with_args<I, K, V>(mut self, args: I) -> Self
-    where
-        I: IntoIterator<Item = (K, V)>,
-        K: Into<String>,
-        V: Into<String>,
-    {
-        self.args
-            .extend(args.into_iter().map(|(k, v)| (k.into(), v.into())));
-        self
-    }
-
-    /// Resuelve la traducción usando el idioma por defecto o, si no procede, el de respaldo de la
-    /// aplicación.
-    ///
-    /// Devuelve `None` si no aplica o no encuentra una traducción válida.
-    ///
-    /// # Ejemplo
-    ///
-    /// ```rust
-    /// # use pagetop::prelude::*;
-    /// let text = L10n::l("greeting").with_arg("name", "Manuel").get();
-    /// ```
-    pub fn get(&self) -> Option<String> {
-        self.lookup(&Locale::default())
-    }
-
-    /// Resuelve la traducción usando la fuente de idioma proporcionada.
-    ///
-    /// Devuelve `None` si no aplica o no encuentra una traducción válida.
-    ///
-    /// # Ejemplo
-    ///
-    /// ```rust
-    /// # use pagetop::prelude::*;
-    /// struct ResourceLang;
-    ///
-    /// impl LangId for ResourceLang {
-    ///     fn langid(&self) -> &'static LanguageIdentifier {
-    ///         Locale::resolve("es-MX").langid()
-    ///     }
-    /// }
-    ///
-    /// let r = ResourceLang;
-    /// let text = L10n::l("greeting").with_arg("name", "Usuario").lookup(&r);
-    /// ```
-    pub fn lookup(&self, language: &impl LangId) -> Option<String> {
-        match &self.op {
-            L10nOp::None => None,
-            L10nOp::Text(text) => Some(text.clone().into_owned()),
-            L10nOp::Translate(key) => {
-                if self.args.is_empty() {
-                    self.locales.try_lookup(language.langid(), key.as_ref())
-                } else {
-                    self.locales.try_lookup_with_args(
-                        language.langid(),
-                        key.as_ref(),
-                        &self
-                            .args
-                            .iter()
-                            .map(|(k, v)| (Cow::Owned(k.clone()), v.clone().into()))
-                            .collect::<HashMap<_, _>>(),
-                    )
-                }
-            }
-        }
-    }
-
-    /// Traduce el texto y lo devuelve como [`Markup`] usando la fuente de idioma proporcionada.
-    ///
-    /// Si no se encuentra una traducción válida, devuelve una cadena vacía.
-    ///
-    /// # Ejemplo
-    ///
-    /// ```rust
-    /// # use pagetop::prelude::*;
-    /// let html = L10n::l("welcome.message").using(&Locale::resolve("es"));
-    /// ```
-    pub fn using(&self, language: &impl LangId) -> Markup {
-        PreEscaped(self.lookup(language).unwrap_or_default())
-    }
-}
-
-impl fmt::Debug for L10n {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_struct("L10n")
-            .field("op", &self.op)
-            .field("args", &self.args)
-            // No se puede mostrar `locales`. Se representa con un texto fijo.
-            .field("locales", &"<StaticLoader>")
-            .finish()
-    }
 }

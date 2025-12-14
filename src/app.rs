@@ -4,9 +4,10 @@ mod figfont;
 
 use crate::core::{extension, extension::ExtensionRef};
 use crate::html::Markup;
+use crate::locale::Locale;
 use crate::response::page::{ErrorPage, ResultPage};
 use crate::service::HttpRequest;
-use crate::{global, locale, service, trace, PAGETOP_VERSION};
+use crate::{global, service, trace, PAGETOP_VERSION};
 
 use actix_session::config::{BrowserSession, PersistentSession, SessionLifecycle};
 use actix_session::storage::CookieSessionStore;
@@ -57,8 +58,8 @@ impl Application {
         // Inicia gestión de trazas y registro de eventos (logging).
         LazyLock::force(&trace::TRACING);
 
-        // Valida el identificador de idioma por defecto.
-        LazyLock::force(&locale::DEFAULT_LANGID);
+        // Inicializa el idioma predeterminado.
+        Locale::init();
 
         // Registra las extensiones de la aplicación.
         extension::all::register_extensions(root_extension);

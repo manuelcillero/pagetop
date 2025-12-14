@@ -3,8 +3,7 @@ use crate::prelude::*;
 /// Página de bienvenida de PageTop.
 ///
 /// Esta extensión se instala por defecto si el ajuste de configuración [`global::App::welcome`] es
-/// `true`. Muestra una página de bienvenida de PageTop en la ruta raíz (`/`) o en `/lang/{lang}`,
-/// siempre que `{lang}` sea un idioma soportado (si no, devuelve una página de error 404).
+/// `true`. Muestra una página de bienvenida de PageTop en la ruta raíz (`/`).
 ///
 /// No obstante, cualquier extensión puede sobrescribir este comportamiento si utiliza estas mismas
 /// rutas.
@@ -22,33 +21,15 @@ impl Extension for Welcome {
     }
 
     fn configure_service(&self, scfg: &mut service::web::ServiceConfig) {
-        scfg.route("/", service::web::get().to(home_page))
-            .route("/lang/{lang}", service::web::get().to(home_lang));
+        scfg.route("/", service::web::get().to(home));
     }
 }
 
-async fn home_page(request: HttpRequest) -> ResultPage<Markup, ErrorPage> {
-    let language = Locale::from_request(Some(&request));
-    home(request, &language)
-}
-
-async fn home_lang(
-    request: HttpRequest,
-    path: service::web::Path<String>,
-) -> ResultPage<Markup, ErrorPage> {
-    let language = Locale::resolve(path.into_inner());
-    match language {
-        Locale::Found(_) => home(request, &language),
-        _ => Err(ErrorPage::NotFound(request)),
-    }
-}
-
-fn home(request: HttpRequest, language: &impl LangId) -> ResultPage<Markup, ErrorPage> {
+async fn home(request: HttpRequest) -> ResultPage<Markup, ErrorPage> {
     let app = &global::SETTINGS.app.name;
 
     Page::new(request)
         .with_title(L10n::l("welcome_title"))
-        .with_langid(language)
         .add_child(
             Intro::new()
                 .add_child(

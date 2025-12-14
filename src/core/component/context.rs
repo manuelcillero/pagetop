@@ -2,13 +2,14 @@ use crate::core::component::ChildOp;
 use crate::core::theme::all::DEFAULT_THEME;
 use crate::core::theme::{ChildrenInRegions, RegionRef, TemplateRef, ThemeRef};
 use crate::core::TypeInfo;
-use crate::html::{html, Markup};
+use crate::html::{html, Markup, RoutePath};
 use crate::html::{Assets, Favicon, JavaScript, StyleSheet};
-use crate::locale::{LangId, LanguageIdentifier, Locale};
+use crate::locale::{LangId, LanguageIdentifier, RequestLocale};
 use crate::service::HttpRequest;
 use crate::{builder_fn, util};
 
 use std::any::Any;
+use std::borrow::Cow;
 use std::collections::HashMap;
 
 /// Operaciones para modificar recursos asociados al [`Context`] de un documento.
@@ -204,8 +205,8 @@ pub trait Contextual: LangId {
 /// ```
 #[rustfmt::skip]
 pub struct Context {
-    request    : Option<HttpRequest>,           // Solicitud HTTP de origen.
-    langid     : &'static LanguageIdentifier,   // Identificador de idioma.
+    request    : Option<HttpRequest>,           // Petición HTTP de origen.
+    locale     : RequestLocale,                 // Idioma asociado a la petición.
     theme      : ThemeRef,                      // Referencia al tema usado para renderizar.
     template   : TemplateRef,                   // Plantilla usada para renderizar.
     favicon    : Option<Favicon>,               // Favicon, si se ha definido.
@@ -229,10 +230,10 @@ impl Context {
     /// recursos cargados.
     #[rustfmt::skip]
     pub fn new(request: Option<HttpRequest>) -> Self {
-        let langid = Locale::from_request(request.as_ref()).langid();
+        let locale = RequestLocale::from_request(request.as_ref());
         Context {
             request,
-            langid,
+            locale,
             theme      : *DEFAULT_THEME,
             template   : DEFAULT_THEME.default_template(),
             favicon    : None,
@@ -362,22 +363,40 @@ impl Context {
     pub fn remove_param(&mut self, key: &'static str) -> bool {
         self.params.remove(key).is_some()
     }
+
+    // **< Context HELPERS >************************************************************************
+
+    /// Construye una ruta aplicada al contexto actual.
+    ///
+    /// La ruta resultante se envuelve en un [`RoutePath`], que permite añadir parámetros de
+    /// consulta de forma tipada. Si la política de negociación de idioma actual
+    /// [`LangNegotiation`](crate::global::LangNegotiation) indica que debe propagarse el idioma
+    /// para esta petición, se añade o actualiza el parámetro de *query* `lang=...` con el
+    /// identificador de idioma efectivo del contexto.
+    ///
+    /// Esto garantiza que los enlaces generados desde el contexto preservan la preferencia de
+    /// idioma del usuario cuando procede.
+    pub fn route(&self, path: impl Into<Cow<'static, str>>) -> RoutePath {
+        let mut route = RoutePath::new(path);
+        if self.locale.needs_lang_query() {
+            route.alter_param("lang", self.locale.langid().to_string());
+        }
+        route
+    }
 }
 
 /// Permite a [`Context`](crate::core::component::Context) actuar como proveedor de idioma.
 ///
-/// Devuelve un [`LanguageIdentifier`] siguiendo este orden de prioridad:
+/// Internamente delega en [`RequestLocale`], que tiene en cuenta la petición HTTP, la configuración
+/// global de idioma de la aplicación, la cabecera `Accept-Language` y/o el idioma de respaldo.
 ///
-/// 1. Un idioma válido establecido explícitamente con [`Context::with_langid`].
-/// 2. El idioma por defecto configurado para la aplicación.
-/// 3. Un idioma válido extraído de la cabecera `Accept-Language` del navegador.
-/// 4. Y si ninguna de las opciones anteriores aplica, se usa el idioma de respaldo (`"en-US"`).
-///
-/// Resulta útil para usar el [`Context`] como fuente de traducción en
+/// Todo ello según la negociación indicada en [`global::SETTINGS.app.lang_negotiation`]. Esto
+/// permite que el [`Context`] se use como fuente de idioma coherente en
 /// [`L10n::lookup()`](crate::locale::L10n::lookup) o [`L10n::using()`](crate::locale::L10n::using).
 impl LangId for Context {
+    #[inline]
     fn langid(&self) -> &'static LanguageIdentifier {
-        self.langid
+        self.locale.langid()
     }
 }
 
@@ -387,12 +406,14 @@ impl Contextual for Context {
     #[builder_fn]
     fn with_request(mut self, request: Option<HttpRequest>) -> Self {
         self.request = request;
+        // Recalcula el locale según la nueva petición y la política de negociación configurada.
+        self.locale = RequestLocale::from_request(self.request.as_ref());
         self
     }
 
     #[builder_fn]
     fn with_langid(mut self, language: &impl LangId) -> Self {
-        self.langid = language.langid();
+        self.locale.with_langid(language);
         self
     }
 

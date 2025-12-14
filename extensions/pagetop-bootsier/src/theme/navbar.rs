@@ -45,7 +45,7 @@
 //! # use pagetop_bootsier::prelude::*;
 //! let brand = navbar::Brand::new()
 //!     .with_title(L10n::n("PageTop"))
-//!     .with_path(Some(|_| "/".into()));
+//!     .with_route(Some(|cx| cx.route("/")));
 //!
 //! let navbar = Navbar::brand_left(brand)
 //!     .add_item(navbar::Item::nav(
@@ -72,7 +72,7 @@
 //! # use pagetop_bootsier::prelude::*;
 //! let brand = navbar::Brand::new()
 //!     .with_title(L10n::n("Intranet"))
-//!     .with_path(Some(|_| "/".into()));
+//!     .with_route(Some(|cx| cx.route("/")));
 //!
 //! let navbar = Navbar::brand_right(brand)
 //!     .with_expand(BreakPoint::LG)
@@ -115,7 +115,7 @@
 //! # use pagetop_bootsier::prelude::*;
 //! let brand = navbar::Brand::new()
 //!     .with_title(L10n::n("Main App"))
-//!     .with_path(Some(|_| "/".into()));
+//!     .with_route(Some(|cx| cx.route("/")));
 //!
 //! let navbar = Navbar::brand_left(brand)
 //!     .with_position(navbar::Position::FixedTop)

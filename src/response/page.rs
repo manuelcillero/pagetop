@@ -294,6 +294,7 @@ impl Page {
 /// Resulta útil para usar [`Page`] directamente como fuente de traducción en [`L10n::lookup()`] o
 /// [`L10n::using()`].
 impl LangId for Page {
+    #[inline]
     fn langid(&self) -> &'static LanguageIdentifier {
         self.context.langid()
     }
