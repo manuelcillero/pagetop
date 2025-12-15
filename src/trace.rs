@@ -14,6 +14,7 @@
 //! *spans* son estructurados, con la capacidad de registrar tipos de datos y mensajes de texto.
 
 use crate::global;
+use crate::global::{LogFormat, LogRolling};
 
 pub use tracing::{debug, error, info, trace, warn};
 pub use tracing::{debug_span, error_span, info_span, trace_span, warn_span};
@@ -33,7 +34,6 @@ use std::sync::LazyLock;
 /// Dado que las trazas o eventos registrados poco antes de un fallo suelen ser cruciales para
 /// diagnosticar la causa, `Lazy<WorkerGuard>` garantiza que todos los registros almacenados se
 /// envíen antes de finalizar la ejecución.
-#[rustfmt::skip]
 pub(crate) static TRACING: LazyLock<WorkerGuard> = LazyLock::new(|| {
     if !global::SETTINGS.log.enabled || cfg!(test) || cfg!(feature = "testing") {
         // Tracing desactivado, se instala un subscriber nulo.
@@ -46,25 +46,19 @@ pub(crate) static TRACING: LazyLock<WorkerGuard> = LazyLock::new(|| {
     let env_filter = EnvFilter::try_new(&global::SETTINGS.log.tracing)
         .unwrap_or_else(|_| EnvFilter::new("Info"));
 
-    let rolling = global::SETTINGS.log.rolling.to_lowercase();
+    let rolling = global::SETTINGS.log.rolling;
 
-    let (non_blocking, guard) = match rolling.as_str() {
-        "stdout" => tracing_appender::non_blocking(std::io::stdout()),
+    let (non_blocking, guard) = match rolling {
+        LogRolling::Stdout => tracing_appender::non_blocking(std::io::stdout()),
         _ => tracing_appender::non_blocking({
             let path = &global::SETTINGS.log.path;
             let prefix = &global::SETTINGS.log.prefix;
-            match rolling.as_str() {
-                "daily"    => tracing_appender::rolling::daily(path, prefix),
-                "hourly"   => tracing_appender::rolling::hourly(path, prefix),
-                "minutely" => tracing_appender::rolling::minutely(path, prefix),
-                "endless"  => tracing_appender::rolling::never(path, prefix),
-                _ => {
-                    println!(
-                        "Rolling value \"{}\" not valid. Using \"daily\". Check the settings file.",
-                        global::SETTINGS.log.rolling,
-                    );
-                    tracing_appender::rolling::daily(path, prefix)
-                }
+            match rolling {
+                LogRolling::Daily => tracing_appender::rolling::daily(path, prefix),
+                LogRolling::Hourly => tracing_appender::rolling::hourly(path, prefix),
+                LogRolling::Minutely => tracing_appender::rolling::minutely(path, prefix),
+                LogRolling::Endless => tracing_appender::rolling::never(path, prefix),
+                LogRolling::Stdout => unreachable!("Stdout rolling already handled above"),
             }
         }),
     };
@@ -72,20 +66,13 @@ pub(crate) static TRACING: LazyLock<WorkerGuard> = LazyLock::new(|| {
     let subscriber = tracing_subscriber::fmt()
         .with_env_filter(env_filter)
         .with_writer(non_blocking)
-        .with_ansi(rolling.as_str() == "stdout");
+        .with_ansi(matches!(rolling, LogRolling::Stdout));
 
-    match global::SETTINGS.log.format.to_lowercase().as_str() {
-        "json"    => subscriber.json().init(),
-        "full"    => subscriber.init(),
-        "compact" => subscriber.compact().init(),
-        "pretty"  => subscriber.pretty().init(),
-        _ => {
-            println!(
-                "Tracing format \"{}\" not valid. Using \"Full\". Check the settings file.",
-                global::SETTINGS.log.format,
-            );
-            subscriber.init();
-        }
+    match global::SETTINGS.log.format {
+        LogFormat::Json => subscriber.json().init(),
+        LogFormat::Full => subscriber.init(),
+        LogFormat::Compact => subscriber.compact().init(),
+        LogFormat::Pretty => subscriber.pretty().init(),
     }
 
     guard

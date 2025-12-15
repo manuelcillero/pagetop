@@ -10,6 +10,12 @@ pub use lang_negotiation::LangNegotiation;
 mod startup_banner;
 pub use startup_banner::StartupBanner;
 
+mod log_rolling;
+pub use log_rolling::LogRolling;
+
+mod log_format;
+pub use log_format::LogFormat;
+
 // **< SETTINGS >***********************************************************************************
 
 include_config!(SETTINGS: Settings => [
@@ -114,13 +120,13 @@ pub struct Log {
     pub tracing: String,
     /// Muestra los mensajes de traza en el terminal (*"Stdout"*) o los vuelca en archivos con
     /// rotación: *"Daily"*, *"Hourly"*, *"Minutely"* o *"Endless"*.
-    pub rolling: String,
+    pub rolling: LogRolling,
     /// Directorio para los archivos de traza (si [`rolling`](Self::rolling) ≠ *"Stdout"*).
     pub path: String,
     /// Prefijo para los archivos de traza (si [`rolling`](Self::rolling) ≠ *"Stdout"*).
     pub prefix: String,
     /// Formato de salida de las trazas. Opciones: *"Full"*, *"Compact"*, *"Pretty"* o *"Json"*.
-    pub format: String,
+    pub format: LogFormat,
 }
 
 #[derive(Debug, Deserialize)]
