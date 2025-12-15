@@ -10,21 +10,11 @@ pub static FIGFONT: LazyLock<FIGfont> = LazyLock::new(|| {
     let speed = include_str!("speed.flf");
     let starwars = include_str!("starwars.flf");
 
-    FIGfont::from_content(
-        match global::SETTINGS.app.startup_banner.to_lowercase().as_str() {
-            "off" => slant,
-            "slant" => slant,
-            "small" => small,
-            "speed" => speed,
-            "starwars" => starwars,
-            _ => {
-                println!(
-                    "\n FIGfont \"{}\" not found for banner. Using \"Slant\". Check settings.",
-                    global::SETTINGS.app.startup_banner,
-                );
-                slant
-            }
-        },
-    )
+    FIGfont::from_content(match global::SETTINGS.app.startup_banner {
+        global::StartupBanner::Off | global::StartupBanner::Slant => slant,
+        global::StartupBanner::Small => small,
+        global::StartupBanner::Speed => speed,
+        global::StartupBanner::Starwars => starwars,
+    })
     .unwrap()
 });

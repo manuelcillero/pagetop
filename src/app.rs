@@ -78,7 +78,7 @@ impl Application {
         use colored::Colorize;
         use terminal_size::{terminal_size, Width};
 
-        if global::SETTINGS.app.startup_banner.to_lowercase() != "off" {
+        if global::SETTINGS.app.startup_banner != global::StartupBanner::Off {
             // Nombre de la aplicación, ajustado al ancho del terminal si es necesario.
             let mut app_ff = String::new();
             let app_name = &global::SETTINGS.app.name;

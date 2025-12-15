@@ -1,8 +1,14 @@
 //! Opciones de configuración globales.
 
-use crate::{include_config, AutoDefault};
+use crate::include_config;
 
 use serde::Deserialize;
+
+mod lang_negotiation;
+pub use lang_negotiation::LangNegotiation;
+
+mod startup_banner;
+pub use startup_banner::StartupBanner;
 
 // **< SETTINGS >***********************************************************************************
 
@@ -31,35 +37,6 @@ include_config!(SETTINGS: Settings => [
     "server.bind_port"        => 8080,
     "server.session_lifetime" => 604_800,
 ]);
-
-// **< LangNegotiation >****************************************************************************
-
-/// Modos disponibles para negociar el idioma de una petición HTTP.
-///
-/// El ajuste [`global::SETTINGS.app.lang_negotiation`](crate::global::App::lang_negotiation)
-/// determina qué fuentes intervienen en la resolución del idioma efectivo utilizado por
-/// [`RequestLocale`](crate::locale::RequestLocale) y en la generación de URLs mediante
-/// [`Context::route()`](crate::core::component::Context::route).
-#[derive(AutoDefault, Clone, Copy, Debug, Deserialize, Eq, PartialEq)]
-pub enum LangNegotiation {
-    /// Usa todas las fuentes disponibles para determinar el idioma, en este orden: comprueba el
-    /// parámetro `?lang` de la URL; si no está presente o no es válido, usa la cabecera HTTP
-    /// `Accept-Language`; si tampoco está disponible o no es válido, usa el idioma configurado en
-    /// [`global::SETTINGS.app.language`](crate::global::App::language) o, en su defecto, el idioma
-    /// de respaldo. Es el comportamiento por defecto.
-    #[default]
-    Full,
-
-    /// Igual que `LangNegotiation::Full`, pero sin tener en cuenta el parámetro `?lang` de la URL.
-    /// El idioma depende únicamente de la cabecera `Accept-Language` del navegador y, en última
-    /// instancia, de la configuración o idioma de respaldo.
-    NoQuery,
-
-    /// Usa sólo la configuración o, en su defecto, el idioma de respaldo; ignora la cabecera
-    /// `Accept-Language` y el parámetro de la URL. Este modo proporciona un comportamiento estable
-    /// con idioma fijo.
-    ConfigOnly,
-}
 
 // **< Settings >***********************************************************************************
 
@@ -101,7 +78,7 @@ pub struct App {
     pub lang_negotiation: LangNegotiation,
     /// Banner ASCII mostrado al inicio: *"Off"* (desactivado), *"Slant"*, *"Small"*, *"Speed"* o
     /// *"Starwars"*.
-    pub startup_banner: String,
+    pub startup_banner: StartupBanner,
     /// Activa la página de bienvenida de PageTop.
     ///
     /// Si está activada, se instala la extensión [`Welcome`](crate::base::extension::Welcome), que
