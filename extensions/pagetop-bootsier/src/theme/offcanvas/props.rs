@@ -48,7 +48,7 @@ pub enum Placement {
 }
 
 impl Placement {
-    // Devuelve la clase base asociada a la posición de aparición del panel.
+    /// Devuelve la clase base asociada a la posición de aparición del panel.
     #[rustfmt::skip]
     #[inline]
     const fn as_str(self) -> &'static str {
@@ -60,7 +60,7 @@ impl Placement {
         }
     }
 
-    // Añade la clase asociada a la posición de aparición del panel a la cadena de clases.
+    /// Añade la clase asociada a la posición de aparición del panel a la cadena de clases.
     #[inline]
     pub(crate) fn push_class(self, classes: &mut String) {
         if !classes.is_empty() {
@@ -89,7 +89,7 @@ pub enum Visibility {
 }
 
 impl Visibility {
-    // Devuelve la clase base asociada al estado inicial del panel.
+    /// Devuelve la clase base asociada al estado inicial del panel.
     #[inline]
     const fn as_str(self) -> &'static str {
         match self {
@@ -98,7 +98,7 @@ impl Visibility {
         }
     }
 
-    // Añade la clase asociada al estado inicial del panel a la cadena de clases.
+    /// Añade la clase asociada al estado inicial del panel a la cadena de clases.
     #[inline]
     pub(crate) fn push_class(self, classes: &mut String) {
         let class = self.as_str();

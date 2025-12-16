@@ -113,14 +113,14 @@ impl Favicon {
         self
     }
 
-    // Función interna que centraliza la creación de las etiquetas `<link>`.
-    //
-    // - `icon_rel`: indica el tipo de recurso (`"icon"`, `"apple-touch-icon"`, etc.).
-    // - `icon_source`: URL del recurso.
-    // - `icon_sizes`: tamaños opcionales.
-    // - `icon_color`: color opcional (solo relevante para `mask-icon`).
-    //
-    // También infiere automáticamente el tipo MIME (`type`) según la extensión del archivo.
+    /// Función interna que centraliza la creación de las etiquetas `<link>`.
+    ///
+    /// - `icon_rel`: indica el tipo de recurso (`"icon"`, `"apple-touch-icon"`, etc.).
+    /// - `icon_source`: URL del recurso.
+    /// - `icon_sizes`: tamaños opcionales.
+    /// - `icon_color`: color opcional (solo relevante para `mask-icon`).
+    ///
+    /// También infiere automáticamente el tipo MIME (`type`) según la extensión del archivo.
     fn add_icon_item(
         mut self,
         icon_rel: &str,

@@ -106,7 +106,7 @@ impl PrepareMarkup {
         self.render().into_string()
     }
 
-    // Integra el renderizado fácilmente en la macro [`html!`].
+    /// Integra el renderizado fácilmente en la macro [`html!`].
     pub(crate) fn render(&self) -> Markup {
         match self {
             PrepareMarkup::None => html! {},

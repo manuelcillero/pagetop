@@ -34,7 +34,7 @@ impl AfterRenderBody {
         self
     }
 
-    // Despacha las acciones.
+    /// Despacha las acciones.
     #[inline(always)]
     #[allow(clippy::inline_always)]
     pub(crate) fn dispatch(page: &mut Page) {

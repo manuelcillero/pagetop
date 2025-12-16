@@ -64,7 +64,7 @@ pub enum Position {
 }
 
 impl Position {
-    // Devuelve la clase base asociada a la posición de la barra de navegación.
+    /// Devuelve la clase base asociada a la posición de la barra de navegación.
     #[inline]
     const fn as_str(self) -> &'static str {
         match self {
@@ -76,7 +76,7 @@ impl Position {
         }
     }
 
-    // Añade la clase asociada a la posición de la barra de navegación a la cadena de clases.
+    /// Añade la clase asociada a la posición de la barra de navegación a la cadena de clases.
     #[inline]
     pub(crate) fn push_class(self, classes: &mut String) {
         let class = self.as_str();
@@ -90,7 +90,7 @@ impl Position {
     }
 
     /* Devuelve la clase asociada a la posición de la barra de navegación, o cadena vacía si no
-    // aplica (reservado).
+    /// aplica (reservado).
     #[inline]
     pub(crate) fn to_class(self) -> String {
         self.as_str().to_string()

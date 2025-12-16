@@ -25,8 +25,8 @@ pub enum ScaleSize {
 }
 
 impl ScaleSize {
-    // Devuelve el sufijo para el tamaño (`"-0"`, `"-1"`, etc.), o `None` si no define ninguna
-    // clase, o `""` para el tamaño automático.
+    /// Devuelve el sufijo para el tamaño (`"-0"`, `"-1"`, etc.), o `None` si no define ninguna
+    /// clase, o `""` para el tamaño automático.
     #[rustfmt::skip]
     #[inline]
     const fn suffix(self) -> Option<&'static str> {
@@ -42,7 +42,7 @@ impl ScaleSize {
         }
     }
 
-    // Añade el tamaño a la cadena de clases usando el prefijo dado.
+    /// Añade el tamaño a la cadena de clases usando el prefijo dado.
     #[inline]
     pub(crate) fn push_class(self, classes: &mut String, prefix: &str) {
         if !prefix.is_empty() {
@@ -57,16 +57,16 @@ impl ScaleSize {
     }
 
     /* Devuelve la clase del tamaño para el prefijo, o una cadena vacía si no aplica (reservado).
-    //
-    // # Ejemplo
-    //
-    // ```rust
-    // # use pagetop_bootsier::prelude::*;
-    // assert_eq!(ScaleSize::Auto.class_with("border"), "border");
-    // assert_eq!(ScaleSize::Zero.class_with("m"), "m-0");
-    // assert_eq!(ScaleSize::Three.class_with("p"), "p-3");
-    // assert_eq!(ScaleSize::None.class_with("border"), "");
-    // ```
+    ///
+    /// # Ejemplo
+    ///
+    /// ```rust
+    /// # use pagetop_bootsier::prelude::*;
+    /// assert_eq!(ScaleSize::Auto.class_with("border"), "border");
+    /// assert_eq!(ScaleSize::Zero.class_with("m"), "m-0");
+    /// assert_eq!(ScaleSize::Three.class_with("p"), "p-3");
+    /// assert_eq!(ScaleSize::None.class_with("border"), "");
+    /// ```
     #[inline]
     pub(crate) fn class_with(self, prefix: &str) -> String {
         if !prefix.is_empty() {

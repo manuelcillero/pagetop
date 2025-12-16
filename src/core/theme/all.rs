@@ -19,7 +19,7 @@ pub static DEFAULT_THEME: LazyLock<ThemeRef> =
 
 // **< TEMA POR NOMBRE >****************************************************************************
 
-// Devuelve el tema identificado por su [`short_name()`](AnyInfo::short_name).
+/// Devuelve el tema identificado por su [`short_name()`](AnyInfo::short_name).
 pub fn theme_by_short_name(short_name: &'static str) -> Option<ThemeRef> {
     let short_name = short_name.to_lowercase();
     match THEMES

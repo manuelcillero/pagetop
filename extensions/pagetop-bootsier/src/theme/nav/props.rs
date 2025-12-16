@@ -21,7 +21,7 @@ impl Kind {
     const PILLS: &str = "nav-pills";
     const UNDERLINE: &str = "nav-underline";
 
-    // Devuelve la clase base asociada al tipo de menú, o una cadena vacía si no aplica.
+    /// Devuelve la clase base asociada al tipo de menú, o una cadena vacía si no aplica.
     #[rustfmt::skip]
     #[inline]
     const fn as_str(self) -> &'static str {
@@ -33,7 +33,7 @@ impl Kind {
         }
     }
 
-    // Añade la clase asociada al tipo de menú a la cadena de clases.
+    /// Añade la clase asociada al tipo de menú a la cadena de clases.
     #[inline]
     pub(crate) fn push_class(self, classes: &mut String) {
         let class = self.as_str();
@@ -83,7 +83,7 @@ impl Layout {
     const FILL: &str = "nav-fill";
     const JUSTIFIED: &str = "nav-justified";
 
-    // Devuelve la clase base asociada a la distribución y orientación del menú.
+    /// Devuelve la clase base asociada a la distribución y orientación del menú.
     #[rustfmt::skip]
     #[inline]
     const fn as_str(self) -> &'static str {
@@ -98,7 +98,7 @@ impl Layout {
         }
     }
 
-    // Añade la clase asociada a la distribución y orientación del menú a la cadena de clases.
+    /// Añade la clase asociada a la distribución y orientación del menú a la cadena de clases.
     #[inline]
     pub(crate) fn push_class(self, classes: &mut String) {
         let class = self.as_str();
@@ -112,7 +112,7 @@ impl Layout {
     }
 
     /* Devuelve la clase asociada a la distribución y orientación del menú, o una cadena vacía si no
-    // aplica (reservado).
+    /// aplica (reservado).
     #[inline]
     pub(crate) fn to_class(self) -> String {
         self.as_str().to_owned()

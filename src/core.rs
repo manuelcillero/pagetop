@@ -30,28 +30,28 @@ impl TypeInfo {
         }
     }
 
-    // Extrae un rango de segmentos de `type_name` (tokens separados por `::`).
-    //
-    // Los argumentos `start` y `end` identifican los índices de los segmentos teniendo en cuenta:
-    //
-    // * Los índices positivos cuentan **desde la izquierda**, empezando en `0`.
-    // * Los índices negativos cuentan **desde la derecha**, `-1` es el último.
-    // * Si `end` es `None`, el corte llega hasta el último segmento.
-    // * Si la selección resulta vacía por índices desordenados o segmento inexistente, se devuelve
-    //   la cadena vacía.
-    //
-    // Ejemplos (con `type_name = "alloc::vec::Vec<i32>"`):
-    //
-    // | Llamada                      | Resultado                |
-    // |------------------------------|--------------------------|
-    // | `partial(...,  0, None)`     | `"alloc::vec::Vec<i32>"` |
-    // | `partial(...,  1, None)`     | `"vec::Vec<i32>"`        |
-    // | `partial(..., -1, None)`     | `"Vec<i32>"`             |
-    // | `partial(...,  0, Some(-2))` | `"alloc::vec"`           |
-    // | `partial(..., -5, None)`     | `"alloc::vec::Vec<i32>"` |
-    //
-    // La porción devuelta vive tanto como `'static` porque `type_name` es `'static` y sólo se
-    // presta.
+    /// Extrae un rango de segmentos de `type_name` (tokens separados por `::`).
+    ///
+    /// Los argumentos `start` y `end` identifican los índices de los segmentos teniendo en cuenta:
+    ///
+    /// * Los índices positivos cuentan **desde la izquierda**, empezando en `0`.
+    /// * Los índices negativos cuentan **desde la derecha**, `-1` es el último.
+    /// * Si `end` es `None`, el corte llega hasta el último segmento.
+    /// * Si la selección resulta vacía por índices desordenados o segmento inexistente, se devuelve
+    ///   la cadena vacía.
+    ///
+    /// Ejemplos (con `type_name = "alloc::vec::Vec<i32>"`):
+    ///
+    /// | Llamada                      | Resultado                |
+    /// |------------------------------|--------------------------|
+    /// | `partial(...,  0, None)`     | `"alloc::vec::Vec<i32>"` |
+    /// | `partial(...,  1, None)`     | `"vec::Vec<i32>"`        |
+    /// | `partial(..., -1, None)`     | `"Vec<i32>"`             |
+    /// | `partial(...,  0, Some(-2))` | `"alloc::vec"`           |
+    /// | `partial(..., -5, None)`     | `"alloc::vec::Vec<i32>"` |
+    ///
+    /// La porción devuelta vive tanto como `'static` porque `type_name` es `'static` y sólo se
+    /// presta.
     fn partial(type_name: &'static str, start: isize, end: Option<isize>) -> &'static str {
         let maxlen = type_name.len();
 

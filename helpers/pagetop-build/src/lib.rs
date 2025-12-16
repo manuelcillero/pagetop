@@ -104,7 +104,7 @@ use pagetop::prelude::*;
 pub struct MyExtension;
 
 impl Extension for MyExtension {
-    // Servicio web que publica los recursos de `guides` en `/ruta/a/guides`.
+    /// Servicio web que publica los recursos de `guides` en `/ruta/a/guides`.
     fn configure_service(&self, scfg: &mut service::web::ServiceConfig) {
         static_files_service!(scfg, guides => "/ruta/a/guides");
     }

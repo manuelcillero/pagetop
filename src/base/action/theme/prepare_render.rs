@@ -41,7 +41,7 @@ impl<C: Component> PrepareRender<C> {
         }
     }
 
-    // Despacha las acciones. Se detiene en cuanto una renderiza.
+    /// Despacha las acciones. Se detiene en cuanto una renderiza.
     #[inline]
     pub(crate) fn dispatch(component: &C, cx: &mut Context) -> PrepareMarkup {
         let mut render_component = PrepareMarkup::None;

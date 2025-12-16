@@ -22,7 +22,7 @@ pub enum AutoClose {
 }
 
 impl AutoClose {
-    // Devuelve el valor para `data-bs-auto-close`, o `None` si es el comportamiento por defecto.
+    /// Devuelve el valor para `data-bs-auto-close`, o `None` si es el comportamiento por defecto.
     #[rustfmt::skip]
     #[inline]
     pub(crate) const fn as_str(self) -> Option<&'static str> {
@@ -59,7 +59,7 @@ pub enum Direction {
 }
 
 impl Direction {
-    // Mapea la dirección teniendo en cuenta si se agrupa con otros menús [`Dropdown`].
+    /// Mapea la dirección teniendo en cuenta si se agrupa con otros menús [`Dropdown`].
     #[rustfmt::skip ]
     #[inline]
     const fn as_str(self, grouped: bool) -> &'static str {
@@ -74,8 +74,8 @@ impl Direction {
         }
     }
 
-    // Añade la dirección de despliegue a la cadena de clases teniendo en cuenta si se agrupa con
-    // otros menús [`Dropdown`].
+    /// Añade la dirección de despliegue a la cadena de clases teniendo en cuenta si se agrupa con
+    /// otros menús [`Dropdown`].
     #[inline]
     pub(crate) fn push_class(self, classes: &mut String, grouped: bool) {
         if grouped {
@@ -93,8 +93,8 @@ impl Direction {
         }
     }
 
-    // Devuelve la clase asociada a la dirección teniendo en cuenta si se agrupa con otros menús
-    // [`Dropdown`], o `""` si no corresponde ninguna.
+    /// Devuelve la clase asociada a la dirección teniendo en cuenta si se agrupa con otros menús
+    /// [`Dropdown`], o `""` si no corresponde ninguna.
     #[inline]
     pub(crate) fn class_with(self, grouped: bool) -> String {
         let mut classes = String::new();
@@ -138,7 +138,7 @@ impl MenuAlign {
         classes.push_str(class);
     }
 
-    // Añade las clases de alineación a `classes` (sin incluir la base `dropdown-menu`).
+    /// Añade las clases de alineación a `classes` (sin incluir la base `dropdown-menu`).
     #[inline]
     pub(crate) fn push_class(self, classes: &mut String) {
         match self {
@@ -206,7 +206,7 @@ pub enum MenuPosition {
 }
 
 impl MenuPosition {
-    // Devuelve el valor para `data-bs-offset` o `None` si no aplica.
+    /// Devuelve el valor para `data-bs-offset` o `None` si no aplica.
     #[inline]
     pub(crate) fn data_offset(self) -> Option<String> {
         match self {
@@ -215,7 +215,7 @@ impl MenuPosition {
         }
     }
 
-    // Devuelve el valor para `data-bs-reference` o `None` si no aplica.
+    /// Devuelve el valor para `data-bs-reference` o `None` si no aplica.
     #[inline]
     pub(crate) fn data_reference(self) -> Option<&'static str> {
         match self {

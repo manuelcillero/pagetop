@@ -55,7 +55,7 @@ impl Child {
 
     // **< Child HELPERS >**************************************************************************
 
-    // Devuelve el [`UniqueId`] del tipo del componente, si existe.
+    /// Devuelve el [`UniqueId`] del tipo del componente, si existe.
     #[inline]
     fn type_id(&self) -> Option<UniqueId> {
         self.0.as_ref().map(|c| c.read().type_id())
@@ -156,7 +156,7 @@ impl<C: Component> Typed<C> {
 
     // **< Typed HELPERS >**************************************************************************
 
-    // Método interno para convertir un componente tipado en un [`Child`].
+    /// Método interno para convertir un componente tipado en un [`Child`].
     #[inline]
     fn into(self) -> Child {
         if let Some(c) = &self.0 {
@@ -216,7 +216,7 @@ impl Children {
         Children::default().with_child(ChildOp::Add(child))
     }
 
-    // Fusiona varias listas de `Children` en una sola.
+    /// Fusiona varias listas de `Children` en una sola.
     pub(crate) fn merge(mixes: &[Option<&Children>]) -> Self {
         let mut opt = Children::default();
         for m in mixes.iter().flatten() {
@@ -321,7 +321,7 @@ impl Children {
 
     // **< Children HELPERS >***********************************************************************
 
-    // Añade más de un componente hijo al final de la lista (en el orden recibido).
+    /// Añade más de un componente hijo al final de la lista (en el orden recibido).
     #[inline]
     fn add_many<I>(&mut self, iter: I) -> &mut Self
     where
@@ -331,7 +331,7 @@ impl Children {
         self
     }
 
-    // Inserta un hijo después del componente con el `id` dado, o al final si no se encuentra.
+    /// Inserta un hijo después del componente con el `id` dado, o al final si no se encuentra.
     #[inline]
     fn insert_after_id(&mut self, id: impl AsRef<str>, child: Child) -> &mut Self {
         let id = Some(id.as_ref());
@@ -342,7 +342,7 @@ impl Children {
         self
     }
 
-    // Inserta un hijo antes del componente con el `id` dado, o al principio si no se encuentra.
+    /// Inserta un hijo antes del componente con el `id` dado, o al principio si no se encuentra.
     #[inline]
     fn insert_before_id(&mut self, id: impl AsRef<str>, child: Child) -> &mut Self {
         let id = Some(id.as_ref());
@@ -353,14 +353,14 @@ impl Children {
         self
     }
 
-    // Inserta un hijo al principio de la colección.
+    /// Inserta un hijo al principio de la colección.
     #[inline]
     fn prepend(&mut self, child: Child) -> &mut Self {
         self.0.insert(0, child);
         self
     }
 
-    // Inserta más de un componente hijo al principio de la lista (manteniendo el orden recibido).
+    /// Inserta más de un componente hijo al principio de la lista (manteniendo el orden recibido).
     #[inline]
     fn prepend_many<I>(&mut self, iter: I) -> &mut Self
     where
@@ -371,7 +371,7 @@ impl Children {
         self
     }
 
-    // Elimina el primer hijo con el `id` dado.
+    /// Elimina el primer hijo con el `id` dado.
     #[inline]
     fn remove_by_id(&mut self, id: impl AsRef<str>) -> &mut Self {
         let id = Some(id.as_ref());
@@ -381,7 +381,7 @@ impl Children {
         self
     }
 
-    // Sustituye el primer hijo con el `id` dado por otro componente.
+    /// Sustituye el primer hijo con el `id` dado por otro componente.
     #[inline]
     fn replace_by_id(&mut self, id: impl AsRef<str>, child: Child) -> &mut Self {
         let id = Some(id.as_ref());
@@ -394,7 +394,7 @@ impl Children {
         self
     }
 
-    // Elimina todos los componentes hijo de la lista.
+    /// Elimina todos los componentes hijo de la lista.
     #[inline]
     fn reset(&mut self) -> &mut Self {
         self.0.clear();

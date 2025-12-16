@@ -60,7 +60,7 @@ impl ItemKind {
         classes.push_str(class);
     } */
 
-    // Devuelve las clases asociadas al tipo de elemento.
+    /// Devuelve las clases asociadas al tipo de elemento.
     #[inline]
     pub(crate) fn to_class(&self) -> String {
         self.as_str().to_owned()

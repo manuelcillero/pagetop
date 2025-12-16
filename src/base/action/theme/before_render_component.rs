@@ -34,7 +34,7 @@ impl<C: Component> BeforeRender<C> {
         }
     }
 
-    // Despacha las acciones.
+    /// Despacha las acciones.
     #[inline]
     pub(crate) fn dispatch(component: &mut C, cx: &mut Context) {
         dispatch_actions(

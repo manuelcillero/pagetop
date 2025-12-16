@@ -23,7 +23,7 @@ pub enum Color {
 }
 
 impl Color {
-    // Devuelve el nombre del color.
+    /// Devuelve el nombre del color.
     #[rustfmt::skip]
     #[inline]
     pub(crate) const fn as_str(self) -> &'static str {
@@ -94,7 +94,7 @@ impl Opacity {
     const OPACITY: &str = "opacity";
     const OPACITY_PREFIX: &str = "-opacity";
 
-    // Devuelve el sufijo para `*opacity-*`, o `None` si no define ninguna clase.
+    /// Devuelve el sufijo para `*opacity-*`, o `None` si no define ninguna clase.
     #[rustfmt::skip]
     #[inline]
     const fn suffix(self) -> Option<&'static str> {
@@ -109,8 +109,8 @@ impl Opacity {
         }
     }
 
-    // Añade la opacidad a la cadena de clases usando el prefijo dado (`bg`, `border`, `text`, o
-    // vacío para `opacity-*`).
+    /// Añade la opacidad a la cadena de clases usando el prefijo dado (`bg`, `border`, `text`, o
+    /// vacío para `opacity-*`).
     #[inline]
     pub(crate) fn push_class(self, classes: &mut String, prefix: &str) {
         if let Some(suffix) = self.suffix() {
@@ -127,18 +127,18 @@ impl Opacity {
         }
     }
 
-    // Devuelve la clase de opacidad con el prefijo dado (`bg`, `border`, `text`, o vacío para
-    // `opacity-*`).
-    //
-    // # Ejemplos
-    //
-    // ```rust
-    // # use pagetop_bootsier::prelude::*;
-    // assert_eq!(Opacity::Opaque.class_with(""), "opacity-100");
-    // assert_eq!(Opacity::Half.class_with("bg"), "bg-opacity-50");
-    // assert_eq!(Opacity::SemiTransparent.class_with("text"), "text-opacity-25");
-    // assert_eq!(Opacity::Default.class_with("bg"), "");
-    // ```
+    /// Devuelve la clase de opacidad con el prefijo dado (`bg`, `border`, `text`, o vacío para
+    /// `opacity-*`).
+    ///
+    /// # Ejemplos
+    ///
+    /// ```rust
+    /// # use pagetop_bootsier::prelude::*;
+    /// assert_eq!(Opacity::Opaque.class_with(""), "opacity-100");
+    /// assert_eq!(Opacity::Half.class_with("bg"), "bg-opacity-50");
+    /// assert_eq!(Opacity::SemiTransparent.class_with("text"), "text-opacity-25");
+    /// assert_eq!(Opacity::Default.class_with("bg"), "");
+    /// ```
     #[inline]
     pub(crate) fn class_with(self, prefix: &str) -> String {
         if let Some(suffix) = self.suffix() {
@@ -206,7 +206,7 @@ impl ColorBg {
     const BG: &str = "bg";
     const BG_PREFIX: &str = "bg-";
 
-    // Devuelve el sufijo de la clase `bg-*`, o `None` si no define ninguna clase.
+    /// Devuelve el sufijo de la clase `bg-*`, o `None` si no define ninguna clase.
     #[rustfmt::skip]
     #[inline]
     const fn suffix(self) -> Option<&'static str> {
@@ -223,7 +223,7 @@ impl ColorBg {
         }
     }
 
-    // Añade la clase de fondo `bg-*` a la cadena de clases.
+    /// Añade la clase de fondo `bg-*` a la cadena de clases.
     #[inline]
     pub(crate) fn push_class(self, classes: &mut String) {
         if let Some(suffix) = self.suffix() {
@@ -305,7 +305,7 @@ impl ColorText {
     const TEXT: &str = "text";
     const TEXT_PREFIX: &str = "text-";
 
-    // Devuelve el sufijo de la clase `text-*`, o `None` si no define ninguna clase.
+    /// Devuelve el sufijo de la clase `text-*`, o `None` si no define ninguna clase.
     #[rustfmt::skip]
     #[inline]
     const fn suffix(self) -> Option<&'static str> {
@@ -322,7 +322,7 @@ impl ColorText {
         }
     }
 
-    // Añade la clase de texto `text-*` a la cadena de clases.
+    /// Añade la clase de texto `text-*` a la cadena de clases.
     #[inline]
     pub(crate) fn push_class(self, classes: &mut String) {
         if let Some(suffix) = self.suffix() {

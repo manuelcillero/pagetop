@@ -12,13 +12,13 @@ static ACTIONS: LazyLock<RwLock<HashMap<ActionKey, ActionsList>>> =
 
 // **< AÑADIR ACCIONES >****************************************************************************
 
-// Registra una nueva acción en el sistema.
-//
-// Si ya existen acciones con la misma `ActionKey`, la acción se añade a la misma lista. Si no, se
-// crea una nueva lista.
-//
-// Las extensiones llamarán a esta función durante su inicialización para instalar acciones
-// personalizadas que modifiquen el comportamiento del *core* o de otros componentes.
+/// Registra una nueva acción en el sistema.
+///
+/// Si ya existen acciones con la misma `ActionKey`, la acción se añade a la misma lista. Si no, se
+/// crea una nueva lista.
+///
+/// Las extensiones llamarán a esta función durante su inicialización para instalar acciones
+/// personalizadas que modifiquen el comportamiento del *core* o de otros componentes.
 pub(crate) fn add_action(action: ActionBox) {
     let key = ActionKey::new(
         action.type_id(),

@@ -10,7 +10,7 @@
 //! #[derive(serde::Deserialize)]
 //! struct NuevoUsuario { nombre: String, email: String }
 //!
-//! // Manejador configurado para la ruta POST "/usuarios".
+//! /// Manejador configurado para la ruta POST "/usuarios".
 //! async fn crear_usuario(payload: Json<NuevoUsuario>) -> HttpResponse {
 //!     // `payload` ya es `NuevoUsuario`; si la deserialización falla,
 //!     // devolverá automáticamente 400 Bad Request con un cuerpo JSON que describe el error.

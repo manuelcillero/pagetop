@@ -29,8 +29,8 @@ pub enum RoundedRadius {
 impl RoundedRadius {
     const ROUNDED: &str = "rounded";
 
-    // Devuelve el sufijo para `*rounded-*`, o `None` si no define ninguna clase, o `""` para el
-    // redondeo por defecto.
+    /// Devuelve el sufijo para `*rounded-*`, o `None` si no define ninguna clase, o `""` para el
+    /// redondeo por defecto.
     #[rustfmt::skip]
     #[inline]
     const fn suffix(self) -> Option<&'static str> {
@@ -48,8 +48,8 @@ impl RoundedRadius {
         }
     }
 
-    // Añade el redondeo de esquinas a la cadena de clases usando el prefijo dado (`rounded-top`,
-    // `rounded-bottom-start`, o vacío para `rounded-*`).
+    /// Añade el redondeo de esquinas a la cadena de clases usando el prefijo dado (`rounded-top`,
+    /// `rounded-bottom-start`, o vacío para `rounded-*`).
     #[inline]
     pub(crate) fn push_class(self, classes: &mut String, prefix: &str) {
         if let Some(suffix) = self.suffix() {
@@ -65,19 +65,19 @@ impl RoundedRadius {
         }
     }
 
-    // Devuelve la clase para el redondeo de esquinas con el prefijo dado (`rounded-top`,
-    // `rounded-bottom-start`, o vacío para `rounded-*`).
-    //
-    // # Ejemplos
-    //
-    // ```rust
-    // # use pagetop_bootsier::prelude::*;
-    // assert_eq!(RoundedRadius::Scale2.class_with(""), "rounded-2");
-    // assert_eq!(RoundedRadius::Zero.class_with("rounded-top"), "rounded-top-0");
-    // assert_eq!(RoundedRadius::Scale3.class_with("rounded-top-end"), "rounded-top-end-3");
-    // assert_eq!(RoundedRadius::Circle.class_with(""), "rounded-circle");
-    // assert_eq!(RoundedRadius::None.class_with("rounded-bottom-start"), "");
-    // ```
+    /// Devuelve la clase para el redondeo de esquinas con el prefijo dado (`rounded-top`,
+    /// `rounded-bottom-start`, o vacío para `rounded-*`).
+    ///
+    /// # Ejemplos
+    ///
+    /// ```rust
+    /// # use pagetop_bootsier::prelude::*;
+    /// assert_eq!(RoundedRadius::Scale2.class_with(""), "rounded-2");
+    /// assert_eq!(RoundedRadius::Zero.class_with("rounded-top"), "rounded-top-0");
+    /// assert_eq!(RoundedRadius::Scale3.class_with("rounded-top-end"), "rounded-top-end-3");
+    /// assert_eq!(RoundedRadius::Circle.class_with(""), "rounded-circle");
+    /// assert_eq!(RoundedRadius::None.class_with("rounded-bottom-start"), "");
+    /// ```
     #[inline]
     pub(crate) fn class_with(self, prefix: &str) -> String {
         if let Some(suffix) = self.suffix() {

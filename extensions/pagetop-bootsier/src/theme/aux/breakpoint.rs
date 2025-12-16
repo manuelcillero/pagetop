@@ -19,7 +19,7 @@ pub enum BreakPoint {
 }
 
 impl BreakPoint {
-    // Devuelve la identificación del punto de ruptura.
+    /// Devuelve la identificación del punto de ruptura.
     #[rustfmt::skip]
     #[inline]
     pub(crate) const fn as_str(self) -> &'static str {
@@ -33,11 +33,11 @@ impl BreakPoint {
         }
     }
 
-    // Añade el punto de ruptura con un prefijo y un sufijo (opcional) separados por un guion `-` a
-    // la cadena de clases.
-    //
-    // - Para `None` - `prefix` o `prefix-suffix` (si `suffix` no está vacío).
-    // - Para `SM..XXL` - `prefix-{breakpoint}` o `prefix-{breakpoint}-{suffix}`.
+    /// Añade el punto de ruptura con un prefijo y un sufijo (opcional) separados por un guion `-` a
+    /// la cadena de clases.
+    ///
+    /// - Para `None` - `prefix` o `prefix-suffix` (si `suffix` no está vacío).
+    /// - Para `SM..XXL` - `prefix-{breakpoint}` o `prefix-{breakpoint}-{suffix}`.
     #[inline]
     pub(crate) fn push_class(self, classes: &mut String, prefix: &str, suffix: &str) {
         if prefix.is_empty() {
@@ -60,28 +60,28 @@ impl BreakPoint {
         }
     }
 
-    // Devuelve la clase para el punto de ruptura, con un prefijo y un sufijo opcional, separados
-    // por un guion `-`.
-    //
-    // - Para `None` - `prefix` o `prefix-suffix` (si `suffix` no está vacío).
-    // - Para `SM..XXL` - `prefix-{breakpoint}` o `prefix-{breakpoint}-{suffix}`.
-    // - Si `prefix` está vacío devuelve `""`.
-    //
-    // # Ejemplos
-    //
-    // ```rust
-    // # use pagetop_bootsier::prelude::*;
-    // let bp = BreakPoint::MD;
-    // assert_eq!(bp.class_with("col", ""), "col-md");
-    // assert_eq!(bp.class_with("col", "6"), "col-md-6");
-    //
-    // let bp = BreakPoint::None;
-    // assert_eq!(bp.class_with("offcanvas", ""), "offcanvas");
-    // assert_eq!(bp.class_with("col", "12"), "col-12");
-    //
-    // let bp = BreakPoint::LG;
-    // assert_eq!(bp.class_with("", "3"), "");
-    // ```
+    /// Devuelve la clase para el punto de ruptura, con un prefijo y un sufijo opcional, separados
+    /// por un guion `-`.
+    ///
+    /// - Para `None` - `prefix` o `prefix-suffix` (si `suffix` no está vacío).
+    /// - Para `SM..XXL` - `prefix-{breakpoint}` o `prefix-{breakpoint}-{suffix}`.
+    /// - Si `prefix` está vacío devuelve `""`.
+    ///
+    /// # Ejemplos
+    ///
+    /// ```rust
+    /// # use pagetop_bootsier::prelude::*;
+    /// let bp = BreakPoint::MD;
+    /// assert_eq!(bp.class_with("col", ""), "col-md");
+    /// assert_eq!(bp.class_with("col", "6"), "col-md-6");
+    ///
+    /// let bp = BreakPoint::None;
+    /// assert_eq!(bp.class_with("offcanvas", ""), "offcanvas");
+    /// assert_eq!(bp.class_with("col", "12"), "col-12");
+    ///
+    /// let bp = BreakPoint::LG;
+    /// assert_eq!(bp.class_with("", "3"), "");
+    /// ```
     #[inline]
     pub(crate) fn class_with(self, prefix: &str, suffix: &str) -> String {
         if prefix.is_empty() {

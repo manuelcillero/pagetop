@@ -22,7 +22,7 @@ impl BorderColor {
     const BORDER: &str = "border";
     const BORDER_PREFIX: &str = "border-";
 
-    // Devuelve el sufijo de la clase `border-*`, o `None` si no define ninguna clase.
+    /// Devuelve el sufijo de la clase `border-*`, o `None` si no define ninguna clase.
     #[rustfmt::skip]
     #[inline]
     const fn suffix(self) -> Option<&'static str> {
@@ -35,7 +35,7 @@ impl BorderColor {
         }
     }
 
-    // Añade la clase `border-*` a la cadena de clases.
+    /// Añade la clase `border-*` a la cadena de clases.
     #[inline]
     pub(crate) fn push_class(self, classes: &mut String) {
         if let Some(suffix) = self.suffix() {

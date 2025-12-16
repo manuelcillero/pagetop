@@ -23,7 +23,7 @@ impl ButtonColor {
     const BTN_OUTLINE_PREFIX: &str = "btn-outline-";
     const BTN_LINK: &str = "btn-link";
 
-    // Añade la clase `btn-*` a la cadena de clases.
+    /// Añade la clase `btn-*` a la cadena de clases.
     #[inline]
     pub(crate) fn push_class(self, classes: &mut String) {
         if let Self::Default = self {
@@ -106,7 +106,7 @@ impl ButtonSize {
     const BTN_SM: &str = "btn-sm";
     const BTN_LG: &str = "btn-lg";
 
-    // Añade la clase de tamaño `btn-sm` o `btn-lg` a la cadena de clases.
+    /// Añade la clase de tamaño `btn-sm` o `btn-lg` a la cadena de clases.
     #[inline]
     pub(crate) fn push_class(self, classes: &mut String) {
         if let Self::Default = self {

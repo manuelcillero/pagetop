@@ -31,7 +31,7 @@ pub enum Size {
 }
 
 impl Size {
-    // Devuelve el valor del atributo `style` en función del tamaño, o `None` si no aplica.
+    /// Devuelve el valor del atributo `style` en función del tamaño, o `None` si no aplica.
     #[inline]
     pub(crate) fn to_style(self) -> Option<String> {
         match self {
@@ -70,7 +70,7 @@ impl Source {
     const IMG_FLUID: &str = "img-fluid";
     const IMG_THUMBNAIL: &str = "img-thumbnail";
 
-    // Devuelve la clase base asociada a la imagen según la fuente.
+    /// Devuelve la clase base asociada a la imagen según la fuente.
     #[inline]
     fn as_str(&self) -> &'static str {
         match self {
@@ -93,7 +93,7 @@ impl Source {
         classes.push_str(s);
     } */
 
-    // Devuelve la clase asociada a la imagen según la fuente.
+    /// Devuelve la clase asociada a la imagen según la fuente.
     #[inline]
     pub(crate) fn to_class(&self) -> String {
         let s = self.as_str();

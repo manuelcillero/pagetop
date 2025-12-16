@@ -50,7 +50,7 @@ impl Application {
         Self::internal_prepare(Some(root_extension))
     }
 
-    // Método interno para preparar la aplicación, opcionalmente con una extensión.
+    /// Método interno para preparar la aplicación, opcionalmente con una extensión.
     fn internal_prepare(root_extension: Option<ExtensionRef>) -> Self {
         // Al arrancar muestra una cabecera para la aplicación.
         Self::show_banner();
@@ -73,7 +73,7 @@ impl Application {
         Self
     }
 
-    // Muestra una cabecera para la aplicación basada en la configuración.
+    /// Muestra una cabecera para la aplicación basada en la configuración.
     fn show_banner() {
         use colored::Colorize;
         use terminal_size::{terminal_size, Width};
@@ -164,7 +164,7 @@ impl Application {
         Self::service_app()
     }
 
-    // Configura el servicio web de la aplicación.
+    /// Configura el servicio web de la aplicación.
     fn service_app() -> service::App<
         impl service::Factory<
             service::Request,

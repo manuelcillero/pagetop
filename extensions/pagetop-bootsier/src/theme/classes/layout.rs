@@ -48,7 +48,7 @@ impl Margin {
 
     // **< Margin HELPERS >*************************************************************************
 
-    // Devuelve el prefijo `m*` según el lado.
+    /// Devuelve el prefijo `m*` según el lado.
     #[rustfmt::skip]
     #[inline]
     const fn side_prefix(&self) -> &'static str {
@@ -63,7 +63,7 @@ impl Margin {
         }
     }
 
-    // Devuelve el sufijo del tamaño (`auto`, `0`..`5`), o `None` si no define clase.
+    /// Devuelve el sufijo del tamaño (`auto`, `0`..`5`), o `None` si no define clase.
     #[rustfmt::skip]
     #[inline]
     const fn size_suffix(&self) -> Option<&'static str> {
@@ -80,8 +80,8 @@ impl Margin {
     }
 
     /* Añade la clase de **margin** a la cadena de clases (reservado).
-    //
-    // No añade nada si `size` es `ScaleSize::None`.
+    ///
+    /// No añade nada si `size` es `ScaleSize::None`.
     #[inline]
     pub(crate) fn push_class(self, classes: &mut String) {
         let Some(size) = self.size_suffix() else {
@@ -148,7 +148,7 @@ impl Padding {
 
     // **< Padding HELPERS >************************************************************************
 
-    // Devuelve el prefijo `p*` según el lado.
+    /// Devuelve el prefijo `p*` según el lado.
     #[rustfmt::skip]
     #[inline]
     const fn prefix(&self) -> &'static str {
@@ -163,9 +163,9 @@ impl Padding {
         }
     }
 
-    // Devuelve el sufijo del tamaño (`0`..`5`), o `None` si no define clase.
-    //
-    // Nota: `ScaleSize::Auto` **no aplica** a padding ⇒ devuelve `None`.
+    /// Devuelve el sufijo del tamaño (`0`..`5`), o `None` si no define clase.
+    ///
+    /// Nota: `ScaleSize::Auto` **no aplica** a padding ⇒ devuelve `None`.
     #[rustfmt::skip]
     #[inline]
     const fn suffix(&self) -> Option<&'static str> {
@@ -182,8 +182,8 @@ impl Padding {
     }
 
     /* Añade la clase de **padding** a la cadena de clases (reservado).
-    //
-    // No añade nada si `size` es `ScaleSize::None` o `ScaleSize::Auto`.
+    ///
+    /// No añade nada si `size` es `ScaleSize::None` o `ScaleSize::Auto`.
     #[inline]
     pub(crate) fn push_class(self, classes: &mut String) {
         let Some(size) = self.suffix() else {
@@ -192,9 +192,9 @@ impl Padding {
         self.breakpoint.push_class(classes, self.prefix(), size);
     } */
 
-    // Devuelve la clase de **padding** como cadena (`"px-2"`, `"pe-sm-4"`, etc.).
-    //
-    // Si `size` es `ScaleSize::None` o `ScaleSize::Auto`, devuelve `""`.
+    /// Devuelve la clase de **padding** como cadena (`"px-2"`, `"pe-sm-4"`, etc.).
+    ///
+    /// Si `size` es `ScaleSize::None` o `ScaleSize::Auto`, devuelve `""`.
     #[inline]
     pub fn to_class(self) -> String {
         let Some(size) = self.suffix() else {

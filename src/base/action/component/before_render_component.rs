@@ -52,7 +52,7 @@ impl<C: Component> BeforeRender<C> {
         self
     }
 
-    // Despacha las acciones.
+    /// Despacha las acciones.
     #[inline]
     pub(crate) fn dispatch(component: &mut C, cx: &mut Context) {
         // Primero despacha las acciones para el tipo de componente.
