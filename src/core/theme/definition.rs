@@ -1,10 +1,12 @@
-use crate::core::component::Contextual;
+use crate::base::component::{Html, Intro, IntroOpening};
+use crate::core::component::{Child, ChildOp, Component, Contextual};
 use crate::core::extension::Extension;
+use crate::core::theme::{DefaultRegion, DefaultTemplate, TemplateRef};
 use crate::global;
 use crate::html::{html, Markup};
 use crate::locale::L10n;
-use crate::prelude::{DefaultTemplate, TemplateRef};
 use crate::response::page::Page;
+use crate::service::http::StatusCode;
 
 /// Interfaz común que debe implementar cualquier tema de PageTop.
 ///
@@ -155,20 +157,76 @@ pub trait Theme: Extension + Send + Sync {
         }
     }
 
-    /// Contenido predeterminado para la página de error "*403 - Forbidden*".
+    /// Contenido predefinido para la página de error "*403 - Forbidden*" (acceso denegado).
     ///
     /// Los temas pueden sobrescribir este método para personalizar el diseño y el contenido de la
-    /// página de error, manteniendo o no el mensaje de los *textos localizados*.
-    fn error403(&self, page: &mut Page) -> Markup {
-        html! { div { h1 { (L10n::l("error403_notice").using(page)) } } }
+    /// página de error.
+    fn error_403(&self, page: &mut Page) {
+        page.alter_title(L10n::l("error403_title"))
+            .alter_template(&DefaultTemplate::Error)
+            .alter_child_in(
+                &DefaultRegion::Content,
+                ChildOp::Prepend(Child::with(Html::with(move |cx| {
+                    html! {
+                        div {
+                            h1 { (L10n::l("error403_alert").using(cx)) }
+                            p { (L10n::l("error403_help").using(cx)) }
+                        }
+                    }
+                }))),
+            );
     }
 
-    /// Contenido predeterminado para la página de error "*404 - Not Found*".
+    /// Contenido predefinido para la página de error "*404 - Not Found*" (recurso no encontrado).
     ///
     /// Los temas pueden sobrescribir este método para personalizar el diseño y el contenido de la
-    /// página de error, manteniendo o no el mensaje de los *textos localizados*.
-    fn error404(&self, page: &mut Page) -> Markup {
-        html! { div { h1 { (L10n::l("error404_notice").using(page)) } } }
+    /// página de error.
+    fn error_404(&self, page: &mut Page) {
+        page.alter_title(L10n::l("error404_title"))
+            .alter_template(&DefaultTemplate::Error)
+            .alter_child_in(
+                &DefaultRegion::Content,
+                ChildOp::Prepend(Child::with(Html::with(move |cx| {
+                    html! {
+                        div {
+                            h1 { (L10n::l("error404_alert").using(cx)) }
+                            p { (L10n::l("error404_help").using(cx)) }
+                        }
+                    }
+                }))),
+            );
+    }
+
+    /// Permite al tema preparar y componer una página de error fatal.
+    ///
+    /// Por defecto, asigna el título al documento (`title`) y muestra un componente [`Intro`] con
+    /// el código HTTP del error (`code`) y los mensajes proporcionados (`alert` y `help`) como
+    /// descripción del error.
+    ///
+    /// Este método no se utiliza en las implementaciones predefinidas de [`Self::error_403()`] ni
+    /// [`Self::error_404()`], que definen su propio contenido específico.
+    ///
+    /// Los temas pueden sobrescribir este método para personalizar el diseño y el contenido de la
+    /// página de error.
+    fn error_fatal(&self, page: &mut Page, code: StatusCode, title: L10n, alert: L10n, help: L10n) {
+        page.alter_title(title)
+            .alter_template(&DefaultTemplate::Error)
+            .alter_child_in(
+                &DefaultRegion::Content,
+                ChildOp::Prepend(Child::with(
+                    Intro::new()
+                        .with_title(L10n::l("error_code").with_arg("code", code.as_str()))
+                        .with_slogan(L10n::n(code.to_string()))
+                        .with_button(None)
+                        .with_opening(IntroOpening::Custom)
+                        .add_child(Html::with(move |cx| {
+                            html! {
+                                h1 { (alert.using(cx)) }
+                                p { (help.using(cx)) }
+                            }
+                        })),
+                )),
+            );
     }
 }
 

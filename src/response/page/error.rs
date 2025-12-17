@@ -1,10 +1,9 @@
-use crate::base::component::Html;
 use crate::core::component::Contextual;
-use crate::core::theme::DefaultTemplate;
 use crate::locale::L10n;
 use crate::response::ResponseError;
 use crate::service::http::{header::ContentType, StatusCode};
 use crate::service::{HttpRequest, HttpResponse};
+use crate::util;
 
 use super::Page;
 
@@ -12,71 +11,87 @@ use std::fmt;
 
 /// Página de error asociada a un código de estado HTTP.
 ///
-/// Este enumerado agrupa los distintos tipos de error que pueden devolverse como página HTML
-/// completa. Cada variante encapsula la solicitud original ([`HttpRequest`]) y se corresponde con
-/// un código de estado concreto.
+/// Este enumerado agrupa tipos esenciales de error que pueden devolverse como página HTML completa.
+/// Cada variante encapsula la solicitud original ([`HttpRequest`]) y se corresponde con un código
+/// de estado concreto.
 ///
-/// Para algunos errores (como [`ErrorPage::AccessDenied`] y [`ErrorPage::NotFound`]) se construye
-/// una [`Page`] usando la plantilla de error del tema activo ([`DefaultTemplate::Error`]), lo que
-/// permite personalizar el contenido del mensaje. En el resto de casos se devuelve un cuerpo HTML
-/// mínimo basado en una descripción genérica del error.
-///
-/// `ErrorPage` implementa [`ResponseError`], por lo que puede utilizarse directamente como tipo de
-/// error en los controladores HTTP.
+/// Para cada error se construye una [`Page`] usando el tema activo, lo que permite personalizar
+/// la plantilla y el contenido del mensaje mediante los métodos específicos del tema
+/// (por ejemplo, [`Theme::error_403()`](crate::core::theme::Theme::error_403),
+/// [`Theme::error_404()`](crate::core::theme::Theme::error_404) o
+/// [`Theme::error_fatal()`](crate::core::theme::Theme::error_fatal)).
 #[derive(Debug)]
 pub enum ErrorPage {
-    NotModified(HttpRequest),
     BadRequest(HttpRequest),
     AccessDenied(HttpRequest),
     NotFound(HttpRequest),
-    PreconditionFailed(HttpRequest),
     InternalError(HttpRequest),
-    Timeout(HttpRequest),
+    ServiceUnavailable(HttpRequest),
+    GatewayTimeout(HttpRequest),
+}
+
+impl ErrorPage {
+    /// Función auxiliar para renderizar una página de error genérica usando el tema activo.
+    ///
+    /// Construye una [`Page`] a partir de la petición y un prefijo de clave basado en el código de
+    /// estado (`error<code>`), del que se derivan los textos localizados `error<code>_title`,
+    /// `error<code>_alert` y `error<code>_help`.
+    ///
+    /// Si el renderizado falla, escribe en su lugar el texto plano asociado al código de estado.
+    fn display_error_page(&self, f: &mut fmt::Formatter<'_>, request: &HttpRequest) -> fmt::Result {
+        let mut page = Page::new(request.clone());
+        let code = self.status_code();
+        page.theme().error_fatal(
+            &mut page,
+            code,
+            L10n::l(util::join!("error", code.as_str(), "_title")),
+            L10n::l(util::join!("error", code.as_str(), "_alert")),
+            L10n::l(util::join!("error", code.as_str(), "_help")),
+        );
+        if let Ok(rendered) = page.render() {
+            write!(f, "{}", rendered.into_string())
+        } else {
+            f.write_str(&code.to_string())
+        }
+    }
 }
 
 impl fmt::Display for ErrorPage {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            // Error 304.
-            ErrorPage::NotModified(_) => f.write_str("Not Modified"),
             // Error 400.
-            ErrorPage::BadRequest(_) => f.write_str("Bad Client Data"),
+            Self::BadRequest(request) => self.display_error_page(f, request),
+
             // Error 403.
-            ErrorPage::AccessDenied(request) => {
-                let mut error_page = Page::new(request.clone());
-                let error403 = error_page.theme().error403(&mut error_page);
-                if let Ok(page) = error_page
-                    .with_title(L10n::n("Error FORBIDDEN"))
-                    .with_template(&DefaultTemplate::Error)
-                    .add_child(Html::with(move |_| error403.clone()))
-                    .render()
-                {
-                    write!(f, "{}", page.into_string())
+            Self::AccessDenied(request) => {
+                let mut page = Page::new(request.clone());
+                page.theme().error_403(&mut page);
+                if let Ok(rendered) = page.render() {
+                    write!(f, "{}", rendered.into_string())
                 } else {
-                    f.write_str("Access Denied")
+                    f.write_str(&self.status_code().to_string())
                 }
             }
+
             // Error 404.
-            ErrorPage::NotFound(request) => {
-                let mut error_page = Page::new(request.clone());
-                let error404 = error_page.theme().error404(&mut error_page);
-                if let Ok(page) = error_page
-                    .with_title(L10n::n("Error RESOURCE NOT FOUND"))
-                    .with_template(&DefaultTemplate::Error)
-                    .add_child(Html::with(move |_| error404.clone()))
-                    .render()
-                {
-                    write!(f, "{}", page.into_string())
+            Self::NotFound(request) => {
+                let mut page = Page::new(request.clone());
+                page.theme().error_404(&mut page);
+                if let Ok(rendered) = page.render() {
+                    write!(f, "{}", rendered.into_string())
                 } else {
-                    f.write_str("Not Found")
+                    f.write_str(&self.status_code().to_string())
                 }
             }
-            // Error 412.
-            ErrorPage::PreconditionFailed(_) => f.write_str("Precondition Failed"),
+
             // Error 500.
-            ErrorPage::InternalError(_) => f.write_str("Internal Error"),
+            Self::InternalError(request) => self.display_error_page(f, request),
+
+            // Error 503.
+            Self::ServiceUnavailable(request) => self.display_error_page(f, request),
+
             // Error 504.
-            ErrorPage::Timeout(_) => f.write_str("Timeout"),
+            Self::GatewayTimeout(request) => self.display_error_page(f, request),
         }
     }
 }
@@ -91,13 +106,12 @@ impl ResponseError for ErrorPage {
     #[rustfmt::skip]
     fn status_code(&self) -> StatusCode {
         match self {
-            ErrorPage::NotModified(_)        => StatusCode::NOT_MODIFIED,
             ErrorPage::BadRequest(_)         => StatusCode::BAD_REQUEST,
             ErrorPage::AccessDenied(_)       => StatusCode::FORBIDDEN,
             ErrorPage::NotFound(_)           => StatusCode::NOT_FOUND,
-            ErrorPage::PreconditionFailed(_) => StatusCode::PRECONDITION_FAILED,
             ErrorPage::InternalError(_)      => StatusCode::INTERNAL_SERVER_ERROR,
-            ErrorPage::Timeout(_)            => StatusCode::GATEWAY_TIMEOUT,
+            ErrorPage::ServiceUnavailable(_) => StatusCode::SERVICE_UNAVAILABLE,
+            ErrorPage::GatewayTimeout(_)     => StatusCode::GATEWAY_TIMEOUT,
         }
     }
 }
