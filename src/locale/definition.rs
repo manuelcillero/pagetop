@@ -179,7 +179,7 @@ impl Locale {
     /// Es el idioma garantizado incluso cuando no haya configuración de la aplicación o cuando
     /// el valor configurado no sea válido.
     pub fn fallback_langid() -> &'static LanguageIdentifier {
-        &*FALLBACK_LANGID
+        &FALLBACK_LANGID
     }
 
     /// Devuelve el identificador de idioma configurado o, en su defecto, el de respaldo.
@@ -187,7 +187,7 @@ impl Locale {
     /// Este es el idioma que utiliza internamente [`Locale::default()`] y resulta útil como idioma
     /// base cuando no se dispone de un contexto más específico.
     pub fn default_langid() -> &'static LanguageIdentifier {
-        (*CONFIG_LANGID).unwrap_or(&*FALLBACK_LANGID)
+        (*CONFIG_LANGID).unwrap_or(&FALLBACK_LANGID)
     }
 }
 
