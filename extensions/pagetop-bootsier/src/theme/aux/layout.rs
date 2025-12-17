@@ -67,8 +67,8 @@ impl ScaleSize {
     /// assert_eq!(ScaleSize::Three.class_with("p"), "p-3");
     /// assert_eq!(ScaleSize::None.class_with("border"), "");
     /// ```
-    #[inline]
-    pub(crate) fn class_with(self, prefix: &str) -> String {
+    #[doc(hidden)]
+    pub fn class_with(self, prefix: &str) -> String {
         if !prefix.is_empty() {
             if let Some(suffix) = self.suffix() {
                 let mut class = String::with_capacity(prefix.len() + suffix.len());

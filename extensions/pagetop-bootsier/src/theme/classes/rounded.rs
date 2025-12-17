@@ -160,7 +160,6 @@ impl Rounded {
     /// `"rounded-top rounded-bottom-start-4 rounded-bottom-end-circle"`, etc.).
     ///
     /// Si no se define ningún radio, devuelve `""`.
-    #[inline]
     pub fn to_class(self) -> String {
         let mut classes = String::new();
         self.push_class(&mut classes);

@@ -78,8 +78,8 @@ impl RoundedRadius {
     /// assert_eq!(RoundedRadius::Circle.class_with(""), "rounded-circle");
     /// assert_eq!(RoundedRadius::None.class_with("rounded-bottom-start"), "");
     /// ```
-    #[inline]
-    pub(crate) fn class_with(self, prefix: &str) -> String {
+    #[doc(hidden)]
+    pub fn class_with(self, prefix: &str) -> String {
         if let Some(suffix) = self.suffix() {
             let base_len = if prefix.is_empty() {
                 Self::ROUNDED.len()

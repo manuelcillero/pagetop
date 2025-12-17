@@ -145,7 +145,6 @@ impl Border {
     /// `"border border-top-0 border-end-3 border-primary border-opacity-50"`, etc.).
     ///
     /// Si no se define ningún tamaño, color ni opacidad, devuelve `""`.
-    #[inline]
     pub fn to_class(self) -> String {
         let mut classes = String::new();
         self.push_class(&mut classes);

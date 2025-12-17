@@ -64,7 +64,6 @@ impl BorderColor {
     /// assert_eq!(BorderColor::Black.to_class(), "border-black");
     /// assert_eq!(BorderColor::Default.to_class(), "");
     /// ```
-    #[inline]
     pub fn to_class(self) -> String {
         if let Some(suffix) = self.suffix() {
             let base_len = match self {

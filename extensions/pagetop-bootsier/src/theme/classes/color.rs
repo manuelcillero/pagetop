@@ -76,7 +76,6 @@ impl Background {
     /// Devuelve las clases de fondo como cadena (`"bg-primary"`, `"bg-body-secondary bg-opacity-50"`, etc.).
     ///
     /// Si no se define ni color ni opacidad, devuelve `""`.
-    #[inline]
     pub fn to_class(self) -> String {
         let mut classes = String::new();
         self.push_class(&mut classes);
@@ -189,7 +188,6 @@ impl Text {
     /// etc.).
     ///
     /// Si no se define ni color ni opacidad, devuelve `""`.
-    #[inline]
     pub fn to_class(self) -> String {
         let mut classes = String::new();
         self.push_class(&mut classes);

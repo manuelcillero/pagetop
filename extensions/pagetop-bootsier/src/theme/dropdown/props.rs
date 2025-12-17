@@ -95,8 +95,8 @@ impl Direction {
 
     /// Devuelve la clase asociada a la dirección teniendo en cuenta si se agrupa con otros menús
     /// [`Dropdown`], o `""` si no corresponde ninguna.
-    #[inline]
-    pub(crate) fn class_with(self, grouped: bool) -> String {
+    #[doc(hidden)]
+    pub fn class_with(self, grouped: bool) -> String {
         let mut classes = String::new();
         self.push_class(&mut classes, grouped);
         classes
@@ -179,8 +179,7 @@ impl MenuAlign {
     }
 
     /* Devuelve las clases de alineación sin incluir `dropdown-menu` (reservado).
-    #[inline]
-    pub(crate) fn to_class(self) -> String {
+    pub fn to_class(self) -> String {
         let mut classes = String::new();
         self.push_class(&mut classes);
         classes

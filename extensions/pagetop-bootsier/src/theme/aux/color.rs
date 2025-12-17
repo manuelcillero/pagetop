@@ -139,8 +139,8 @@ impl Opacity {
     /// assert_eq!(Opacity::SemiTransparent.class_with("text"), "text-opacity-25");
     /// assert_eq!(Opacity::Default.class_with("bg"), "");
     /// ```
-    #[inline]
-    pub(crate) fn class_with(self, prefix: &str) -> String {
+    #[doc(hidden)]
+    pub fn class_with(self, prefix: &str) -> String {
         if let Some(suffix) = self.suffix() {
             let base_len = if prefix.is_empty() {
                 Self::OPACITY.len()
@@ -253,7 +253,6 @@ impl ColorBg {
     /// assert_eq!(ColorBg::Transparent.to_class(), "bg-transparent");
     /// assert_eq!(ColorBg::Default.to_class(), "");
     /// ```
-    #[inline]
     pub fn to_class(self) -> String {
         if let Some(suffix) = self.suffix() {
             let base_len = match self {
@@ -352,7 +351,6 @@ impl ColorText {
     /// assert_eq!(ColorText::Black.to_class(), "text-black");
     /// assert_eq!(ColorText::Default.to_class(), "");
     /// ```
-    #[inline]
     pub fn to_class(self) -> String {
         if let Some(suffix) = self.suffix() {
             let base_len = match self {

@@ -65,7 +65,6 @@ impl ButtonColor {
     /// assert_eq!(ButtonColor::Link.to_class(), "btn-link");
     /// assert_eq!(ButtonColor::Default.to_class(), "");
     /// ```
-    #[inline]
     pub fn to_class(self) -> String {
         match self {
             Self::Default => String::new(),
@@ -132,7 +131,6 @@ impl ButtonSize {
     /// assert_eq!(ButtonSize::Large.to_class(), "btn-lg");
     /// assert_eq!(ButtonSize::Default.to_class(), "");
     /// ```
-    #[inline]
     pub fn to_class(self) -> String {
         match self {
             Self::Default => String::new(),

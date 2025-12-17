@@ -82,8 +82,8 @@ impl BreakPoint {
     /// let bp = BreakPoint::LG;
     /// assert_eq!(bp.class_with("", "3"), "");
     /// ```
-    #[inline]
-    pub(crate) fn class_with(self, prefix: &str, suffix: &str) -> String {
+    #[doc(hidden)]
+    pub fn class_with(self, prefix: &str, suffix: &str) -> String {
         if prefix.is_empty() {
             return String::new();
         }

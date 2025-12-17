@@ -94,8 +94,7 @@ impl Source {
     } */
 
     /// Devuelve la clase asociada a la imagen según la fuente.
-    #[inline]
-    pub(crate) fn to_class(&self) -> String {
+    pub fn to_class(&self) -> String {
         let s = self.as_str();
         if s.is_empty() {
             String::new()

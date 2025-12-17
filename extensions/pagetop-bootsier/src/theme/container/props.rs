@@ -59,7 +59,6 @@ impl Width {
     } */
 
     /// Devuelve la clase asociada al comportamiento del contenedor según el ajuste de su ancho.
-    #[inline]
     pub fn to_class(self) -> String {
         match self {
             Self::Default => BreakPoint::None.class_with(Self::CONTAINER, ""),

@@ -94,7 +94,6 @@ impl Margin {
     /// Devuelve la clase de **margin** como cadena (`"mt-3"`, `"ms-lg-auto"`, etc.).
     ///
     /// Si `size` es `ScaleSize::None`, devuelve `""`.
-    #[inline]
     pub fn to_class(self) -> String {
         let Some(size) = self.size_suffix() else {
             return String::new();
@@ -195,7 +194,6 @@ impl Padding {
     /// Devuelve la clase de **padding** como cadena (`"px-2"`, `"pe-sm-4"`, etc.).
     ///
     /// Si `size` es `ScaleSize::None` o `ScaleSize::Auto`, devuelve `""`.
-    #[inline]
     pub fn to_class(self) -> String {
         let Some(size) = self.suffix() else {
             return String::new();
