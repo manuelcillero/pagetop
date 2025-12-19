@@ -29,7 +29,7 @@ según las necesidades de cada proyecto, incluyendo:
     componentes sin comprometer su funcionalidad.
 
 
-# ⚡️ Guía rápida
+## ⚡️ Guía rápida
 
 La aplicación más sencilla de PageTop se ve así:
 
@@ -74,7 +74,7 @@ Este programa implementa una extensión llamada `HelloWorld` que sirve una pági
 (`/`) mostrando el texto "Hello world!" dentro de un elemento HTML `<h1>`.
 
 
-# 📂 Repositorio
+## 📂 Proyecto
 
 El código se organiza en un *workspace* donde actualmente se incluyen los siguientes subproyectos:
 
@@ -82,7 +82,7 @@ El código se organiza en un *workspace* donde actualmente se incluyen los sigui
     fuente de la librería principal. Reúne algunos de los *crates* más estables y populares del
     ecosistema Rust para proporcionar APIs y recursos para la creación avanzada de soluciones web.
 
-## Auxiliares
+### Auxiliares
 
   * **[pagetop-build](https://git.cillero.es/manuelcillero/pagetop/src/branch/main/helpers/pagetop-build)**,
     prepara los archivos estáticos o archivos SCSS compilados para incluirlos en el binario de las
@@ -100,7 +100,7 @@ El código se organiza en un *workspace* donde actualmente se incluyen los sigui
     permite incluir archivos estáticos en el ejecutable de las aplicaciones PageTop para servirlos
     de forma eficiente, con detección de cambios que optimizan el tiempo de compilación.
 
-## Extensiones
+### Extensiones
 
   * **[pagetop-aliner](https://git.cillero.es/manuelcillero/pagetop/src/branch/main/extensions/pagetop-aliner)**,
     es un tema para demos y pruebas que muestra esquemáticamente la composición de las páginas HTML.
@@ -110,7 +110,7 @@ El código se organiza en un *workspace* donde actualmente se incluyen los sigui
     componentes flexibles.
 
 
-# 🧪 Pruebas
+## 🧪 Pruebas
 
 Para simplificar el flujo de trabajo, el repositorio incluye varios **alias de Cargo** declarados en
 `.cargo/config.toml`. Basta con ejecutarlos desde la raíz del proyecto:
@@ -127,14 +127,14 @@ Para simplificar el flujo de trabajo, el repositorio incluye varios **alias de C
 > Si quieres **activar** las trazas del registro de eventos entonces usa simplemente `cargo test`.
 
 
-# 🚧 Advertencia
+## 🚧 Advertencia
 
 **PageTop** es un proyecto personal para aprender [Rust](https://www.rust-lang.org/es) y conocer su
 ecosistema. Su API está sujeta a cambios frecuentes. No se recomienda su uso en producción, al menos
 hasta que se libere la versión **1.0.0**.
 
 
-# 📜 Licencia
+## 📜 Licencia
 
 El código está disponible bajo una doble licencia:
 
@@ -148,7 +148,28 @@ Puedes elegir la licencia que prefieras. Este enfoque de doble licencia es el es
 el ecosistema Rust.
 
 
-# ✨ Contribuir
+## ✨ Contribuir
+
+PageTop mantiene **un único repositorio oficial**:
+
+  * **Repositorio oficial:** https://git.cillero.es/manuelcillero/pagetop
+  * **Repositorio espejo:** https://github.com/manuelcillero/pagetop
+
+El repositorio de GitHub actúa como espejo y punto de entrada para:
+
+  * dar mayor visibilidad al proyecto,
+  * facilitar la participación de la comunidad,
+  * centralizar *issues* y *pull requests* externas.
+
+Aunque GitHub permite abrir *pull requests*, **la integración del código se realiza únicamente en el
+repositorio oficial**. El repositorio de GitHub se sincroniza posteriormente para reflejar el mismo
+estado.
+
+En todos los casos, se respeta la **autoría original** de las contribuciones integradas, tanto en el
+historial como en la documentación asociada al cambio.
+
+Para conocer el proceso completo de participación, revisión e integración de cambios, consulta el
+archivo [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
 Cualquier contribución para añadir al proyecto se considerará automáticamente bajo la doble licencia
 indicada arriba (MIT o Apache v2.0), sin términos o condiciones adicionales, tal y como permite la

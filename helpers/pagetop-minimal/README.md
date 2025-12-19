@@ -11,19 +11,21 @@
 
 </div>
 
-## Sobre PageTop
+## 🧭 Sobre PageTop
 
 [PageTop](https://docs.rs/pagetop) es un entorno de desarrollo que reivindica la esencia de la web
 clásica para crear soluciones web SSR (*renderizadas en el servidor*) modulares, extensibles y
 configurables, basadas en HTML, CSS y JavaScript.
 
-## Descripción general
+
+## 🗺️ Descripción general
 
 Este *crate* proporciona un conjunto básico de macros que se integran en las utilidades de PageTop
 para optimizar operaciones habituales relacionadas con la composición estructurada de texto, la
 concatenación de cadenas y el uso rápido de colecciones clave-valor.
 
-## Créditos
+
+## 📚 Créditos
 
 Las macros para texto multilínea **`indoc!`**, **`formatdoc!`** y **`concatdoc!`** se reexportan del
 *crate* [indoc](https://crates.io/crates/indoc) de [David Tolnay](https://crates.io/users/dtolnay).
@@ -38,14 +40,14 @@ La macro para generar identificadores dinámicos **`paste!`** se reexporta del *
 `paste!` de [David Tolnay](https://crates.io/users/dtolnay).
 
 
-# 🚧 Advertencia
+## 🚧 Advertencia
 
 **PageTop** es un proyecto personal para aprender [Rust](https://www.rust-lang.org/es) y conocer su
 ecosistema. Su API está sujeta a cambios frecuentes. No se recomienda su uso en producción, al menos
 hasta que se libere la versión **1.0.0**.
 
 
-# 📜 Licencia
+## 📜 Licencia
 
 El código está disponible bajo una doble licencia:
 
