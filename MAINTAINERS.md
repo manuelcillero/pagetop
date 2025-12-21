@@ -10,204 +10,147 @@ usuarios externos**. Su objetivo es servir como **referencia operativa**, garant
 trazabilidad y preservación de la autoría en un entorno con repositorios espejo.
 
 
-## 1. Repositorios y roles
+## 1. Repositorios y principios
 
 PageTop mantiene **un único repositorio oficial**:
 
   * **Repositorio oficial:** https://git.cillero.es/manuelcillero/pagetop
   * **Repositorio espejo:** https://github.com/manuelcillero/pagetop
 
-El repositorio de GitHub actúa como espejo y punto de entrada para:
-
-  * dar mayor visibilidad al proyecto,
-  * facilitar la participación de la comunidad,
-  * centralizar *issues* y *pull requests* externas.
-
 ### Principios clave
 
   * El repositorio oficial **es la única fuente de verdad** del historial.
   * **Nunca se realizan *merges* en GitHub**.
+  * Toda integración definitiva se realiza en el repositorio oficial.
+  * La autoría original debe preservarse siempre.
 
 
 ## 2. Configuración local recomendada
 
-Configuración típica de *remotes*:
+El remoto `github` debe configurarse únicamente para operaciones de lectura (*fetch*), con la URL de
+*push* deshabilitada para evitar publicaciones accidentales en el repositorio espejo.
 
-```bash
-git remote -v
-```
-
-Ejemplo esperado:
+Estado esperado de `git remote -v`:
 
 ```text
 origin   git@git.cillero.es:manuelcillero/pagetop.git (fetch)
 origin   git@git.cillero.es:manuelcillero/pagetop.git (push)
-github   git@github.com:manuelcillero/pagetop.git    (fetch)
-github   git@github.com:manuelcillero/pagetop.git    (push)
+github   git@github.com:manuelcillero/pagetop.git     (fetch)
+github   DISABLED                                     (push)
 ```
 
 Convenciones usadas en este documento:
 
-* `origin` -> Oficial
-* `github` -> GitHub (espejo)
+  * `origin` -> Repositorio oficial
+  * `github` -> Repositorio espejo
 
 
-## 3. Recepción de Pull Requests desde GitHub
+## 3. Recepción y revisión de Pull Requests
 
-Las contribuciones externas llegan como *pull requests* en GitHub, normalmente contra `main`.
+Las PRs externas llegan por GitHub, normalmente contra la rama `main`.
 
-### 3.1 Obtener la PR en local
-
-Opción habitual (ejemplo con PR #123):
-
-```bash
-git fetch github pull/123/head:pr-123
-git checkout pr-123
-```
-
-Alternativamente, si la rama del contribuidor es accesible directamente como referencia remota:
+Se asume que el repositorio local está configurado para recuperar PRs de GitHub como referencias
+remotas (`refs/pull/<N>/head`):
 
 ```bash
-git fetch github
-git checkout nombre-de-la-rama
+git fetch github --prune
+git checkout -b pr-123 github/pr/123
 ```
 
+Antes de integrar:
 
-## 4. Revisión local
+  * Revisar el código manualmente.
+  * Verificar formato, análisis y pruebas:
 
-Antes de integrar cualquier cambio:
+    ```bash
+    cargo fmt
+    cargo clippy
+    cargo test
+    ```
 
-* Revisar el código manualmente.
-* Verificar compilación y pruebas:
+  * Comprobar impacto en documentación.
+  * Evaluar coherencia con la arquitectura y el estilo del proyecto.
 
-```bash
-cargo build
-cargo test
-```
-
-* Comprobar impacto en documentación.
-* Evaluar coherencia con la arquitectura y el estilo del proyecto.
-
-Si se requieren cambios:
-
-* comentar en la PR,
-* solicitar ajustes,
-* o realizar modificaciones locales explicadas claramente.
+Los cambios adicionales se solicitan o se aplican explicando claramente el motivo.
 
 
-## 5. Estrategia de integración
+## 4. Estrategia de integración
 
-La integración **se realiza siempre en el repositorio oficial**.
+La integración **se realiza siempre en el repositorio oficial** (`origin`).
 
-### 5.1 Estrategia por defecto: *squash merge*
+### 4.1 Estrategia por defecto: *rebase* + *fast-forward*
 
-Usada cuando:
+Esta es la **estrategia estándar y recomendada** en PageTop. Ventajas:
 
-* la PR tiene varios commits intermedios,
-* los commits no siguen el estilo del proyecto,
-* se desea un historial compacto.
+  * conserva los commits originales,
+  * preserva la autoría real de cada cambio,
+  * mantiene un historial lineal y trazable,
+  * facilita auditoría y depuración.
 
 Procedimiento típico:
 
 ```bash
+git checkout pr-123
+git rebase main
+
+# Resolver conflictos si los hay
+
 git checkout main
-git pull origin main
+git merge --ff-only pr-123
+```
+
+Si `merge --ff-only` falla, **no se debe continuar**, indica divergencias que deben resolverse antes
+de integrar la PR.
+
+### 4.2 Estrategia excepcional: *Squash*
+
+Sólo debe usarse cuando esté justificado:
+
+  * la PR contiene múltiples commits de prueba o ruido,
+  * el historial aportado no es significativo,
+  * el cambio es pequeño y autocontenido.
+
+En este caso, se debe **preservar explícitamente la autoría**:
+
+```bash
+git checkout main
 git merge --squash pr-123
-```
-
-Crear el commit final **preservando la autoría** (ver sección 6).
-
-### 5.2 Cherry-pick selectivo
-
-Usado cuando:
-
-* uno o varios commits son claros y autocontenidos,
-* interesa conservar referencias explícitas.
-
-Ejemplo:
-
-```bash
-git checkout main
-git pull origin main
-git cherry-pick -x <commit-sha>
-```
-
-
-## 6. Preservación de la autoría
-
-La autoría original **debe conservarse siempre**.
-
-### 6.1 Commit con autor explícito
-
-Ejemplo:
-
-```bash
 git commit --author="Nombre Apellido <email@ejemplo.com>"
 ```
 
-El mantenedor figura como *committer*; el contribuidor como *author*.
 
-### 6.2 Co-authored-by
-
-Cuando procede, puede añadirse al mensaje del commit:
-
-```text
-Co-authored-by: Nombre Apellido <email@ejemplo.com>
-```
-
-
-## 7. Push al repositorio oficial
-
-Una vez integrado:
+### 4.3. Publicación en el repositorio oficial
 
 ```bash
 git push origin main
 ```
 
-Este push representa **la integración definitiva**.
+Este *push* representa la **integración definitiva** del cambio en la rama `main`.
 
 
-## 8. Cierre de la Pull Request en GitHub
+## 5. Cierre de la PR y sincronización
 
-Tras integrar el cambio en el repositorio oficial:
-
-* **No se mergea la PR en GitHub**.
-* Se cierra manualmente con un mensaje estándar.
-
-Ejemplo recomendado:
+Tras integrar el cambio en el repositorio oficial, se cierra manualmente la PR en GitHub con un
+mensaje estándar:
 
 ```text
-Este cambio ha sido integrado en el repositorio oficial.
-GitHub actúa como repositorio espejo, por lo que la PR se cierra sin merge.
 Gracias por tu contribución.
+
+Este cambio ha sido integrado en el repositorio oficial en `main` (`<hash>`).
+GitHub actúa como repositorio espejo sincronizado.
 ```
 
 
-## 9. Sincronización del repositorio oficial a GitHub
+## 6. Principios de mantenimiento
 
-El repositorio de GitHub se mantiene como **espejo automático** del repositorio oficial
-mediante un **push mirror configurado**.
-
-No se realizan sincronizaciones manuales desde clones locales.
-
-### Consideraciones
-
-  * El repositorio oficial es siempre la **fuente de verdad**.
-  * El historial de GitHub puede **reescribirse automáticamente** para reflejar el estado del
-    repositorio oficial.
-  * Todas las ramas que deban preservarse en GitHub **deben existir también en el repositorio
-    oficial**.
-  * GitHub no debe usarse como referencia del historial real.
-
-
-## 10. Principios de mantenimiento
-
-* Priorizar **claridad y trazabilidad** frente a rapidez.
-* Mantener un historial legible y significativo.
-* Documentar cambios estructurales o públicos.
-* Tratar las contribuciones externas con respeto y transparencia.
+  * Priorizar **claridad y trazabilidad** frente a rapidez.
+  * Mantener un historial legible y significativo.
+  * Documentar cambios estructurales o públicos.
+  * Tratar las contribuciones externas con respeto y transparencia.
 
 ---
 
 Este documento puede evolucionar con el proyecto.
-Su objetivo no es imponer rigidez, sino **capturar el conocimiento operativo real** de PageTop.
+
+No se trata de imponer rigidez, sino de **capturar el conocimiento operativo real** de PageTop como
+guía práctica para el mantenimiento.

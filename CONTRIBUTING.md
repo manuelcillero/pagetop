@@ -15,19 +15,10 @@ PageTop mantiene **un único repositorio oficial**:
   * **Repositorio oficial:** https://git.cillero.es/manuelcillero/pagetop
   * **Repositorio espejo:** https://github.com/manuelcillero/pagetop
 
-El repositorio de GitHub actúa como espejo y punto de entrada para:
-
-  * dar mayor visibilidad al proyecto,
-  * facilitar la participación de la comunidad,
-  * centralizar *issues* y *pull requests* externas.
-
 > ⚠️ **Importante**
-> Aunque GitHub permite abrir *pull requests*, **la integración del código se realiza únicamente en
-> el repositorio oficial**. El repositorio de GitHub se sincroniza posteriormente para reflejar el
-> mismo estado.
-
-En todos los casos, se respeta la **autoría original** de las contribuciones integradas, tanto en el
-historial como en la documentación asociada al cambio.
+> Aunque GitHub permite abrir *issues* y *pull requests*, **la integración del código se realiza
+> únicamente en el repositorio oficial**. GitHub actúa como repositorio espejo que se sincroniza
+> automáticamente para reflejar el mismo estado.
 
 
 ## 2. Issues (incidencias, propuestas, preguntas)
@@ -50,8 +41,8 @@ Las *issues* se usan para:
 
 ### 3.1 Dónde abrirlas
 
-Las *pull requests* se abren **en GitHub**, contra la rama `main`. GitHub es el punto de entrada
-recomendado para contribuciones externas.
+Las *pull requests* se abren **en GitHub**, normalmente contra la rama `main`. GitHub es el punto de
+entrada recomendado para contribuciones externas.
 
 ### 3.2 Reglas generales para PRs
 
@@ -63,68 +54,22 @@ recomendado para contribuciones externas.
 
 ### 3.3 Revisión y aceptación
 
-Todas las PRs:
+Todas las PRs son **revisadas manualmente** y pueden recibir comentarios o solicitudes de cambios.
 
-  * serán **revisadas manualmente**,
-  * pueden recibir comentarios o solicitudes de cambios,
-  * **no se integran directamente en GitHub**, ya que la integración se realiza en el repositorio
-    oficial para mantener coherencia y trazabilidad.
-
-Una PR aceptada:
-
-  * se integra en el repositorio oficial (Forgejo),
-  * respetando **la autoría original del contribuidor**,
-  * normalmente mediante **squash merge** para mantener un historial limpio.
+Las PRs aceptadas se integran en el repositorio oficial, nunca directamente en GitHub, preservando
+siempre la **autoría original** del contribuidor.
 
 
-## 4. Autoría y atribución
+### 3.4. Cierre de Pull Requests y sincronización
 
-PageTop cuida especialmente la atribución de contribuciones.
+Una vez que el cambio ha sido integrado en el repositorio oficial:
 
-  * El **autor original del código se conserva** en el commit final integrado en Forgejo.
-  * Aunque el autor no tenga cuenta en Forgejo, su nombre y email quedarán reflejados.
-  * En GitHub, cuando es posible, la contribución quedará asociada al usuario original.
-
-Adicionalmente, el mensaje del commit puede incluir líneas `Co-authored-by` cuando proceda.
+  * La PR en GitHub se **cierra manualmente**.
+  * Se añade un **mensaje estándar de cierre** indicando que el cambio ha sido integrado.
+  * El repositorio de GitHub **se sincroniza automáticamente** como espejo.
 
 
-## 5. Cierre de Pull Requests en GitHub
-
-Una vez que el cambio ha sido integrado en Forgejo:
-
-  * La PR en GitHub se **cerrará manualmente** (no se mergea).
-  * Se añadirá un **mensaje estándar de cierre**, indicando:
-    * que el cambio ha sido integrado,
-    * la referencia al commit o versión,
-    * que GitHub es un repositorio espejo.
-
-Ejemplo de mensaje de cierre:
-
-> Este cambio ha sido integrado en el repositorio oficial (Forgejo).
-> GitHub actúa como repositorio espejo, por lo que la PR se cierra sin merge.
-> Gracias por tu contribución.
-
-Esto garantiza:
-
-  * transparencia,
-  * trazabilidad,
-  * coherencia entre repositorios.
-
-
-## 6. Sincronización entre Forgejo y GitHub
-
-Tras integrar cambios en Forgejo:
-
- * el repositorio de GitHub se **actualiza para reflejar el estado de Forgejo**,
- * el historial de GitHub puede reescribirse para mantener coherencia.
-
-Por este motivo:
-
-  * **no se deben hacer merges “definitivos” en GitHub**,
-  * GitHub no debe considerarse fuente de verdad del historial.
-
-
-## 7. Estilo de código y calidad
+## 4. Estilo de código y calidad
 
   * Sigue el estilo existente del proyecto.
   * Mantén los comentarios claros y precisos.
@@ -132,18 +77,28 @@ Por este motivo:
   * Cambios públicos o estructurales deben ir acompañados de documentación.
 
 
-## 8. Commits
+## 5. Commits
 
-Recomendaciones generales:
+PageTop usa la especificación **gitmoji** para los mensajes de *commit*. El formato recomendado es:
 
-  * Mensajes claros y descriptivos.
-  * Un commit debe representar una unidad lógica de cambio.
-  * En contribuciones externas, el formato exacto del commit puede ajustarse durante la integración.
+  `<propósito> (ámbito opcional): <mensaje>`
 
-Durante la integración, los commits pueden ajustarse (rebase, squash o edición de mensajes) para
-adaptarse al historial del proyecto.
+Ejemplos:
 
-## 9. Comunicación y respeto
+  * 📝 Actualiza la guía de contribución
+  * ✨ (locale): Refactoriza sistema de localización
+  * ♻️ (bootsier): Simplifica asignación de clases
+
+El emoji puede usarse en formato Unicode o como *shortcode*, por ejemplo `:sparkles:` en vez de ✨.
+
+Consulta la especificación oficial en https://gitmoji.dev/specification
+
+Durante la integración, los *commits* pueden ajustarse para adaptarse al historial del proyecto.
+
+Un *commit* debe representar una unidad lógica de cambio. Usa mensajes claros y descriptivos.
+
+
+## 6. Comunicación y respeto
 
 PageTop sigue un enfoque profesional y colaborativo:
 
@@ -151,13 +106,9 @@ PageTop sigue un enfoque profesional y colaborativo:
   * Acepta sugerencias técnicas como parte del proceso.
   * Recuerda que todas las contribuciones son revisadas con el objetivo de mejorar el proyecto.
 
+Si tienes dudas sobre el proceso, abre una *issue* de tipo pregunta para tratar la cuestión en
+comunidad.
 
-## 10. Dudas
+---
 
-Si tienes dudas sobre el proceso:
-
-  * abre una *issue* de tipo pregunta,
-  * o inicia una discusión (si está habilitada).
-
-Gracias por contribuir a **PageTop** 🚀 Cada aportación, grande o pequeña, ayuda a que el proyecto
-mejore.
+Gracias por contribuir a **PageTop** 🚀 Cada aportación contribuye a mejorar el proyecto.
