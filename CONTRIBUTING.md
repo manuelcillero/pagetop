@@ -81,13 +81,29 @@ Una vez que el cambio ha sido integrado en el repositorio oficial:
 
 PageTop usa la especificación **gitmoji** para los mensajes de *commit*. El formato recomendado es:
 
-  `<propósito> (ámbito opcional): <mensaje>`
+  ```text
+  <propósito> [(ámbito opcional):] <mensaje>
+  «LÍNEA EN BLANCO»
+  Cuerpo opcional
+  «LÍNEA EN BLANCO»
+  Nota(s) al pie opcional(es) para referencias, incidencias o cambios incompatibles
+  ```
 
-Ejemplos:
+Ejemplos (no más de 50 caracteres en la primera línea, y no más de 80 en el resto):
 
-  * 📝 Actualiza la guía de contribución
-  * ✨ (locale): Refactoriza sistema de localización
-  * ♻️ (bootsier): Simplifica asignación de clases
+  * `📝 Actualiza la guía de contribución`
+  * `♻️ (locale): Refactoriza sistema de localización`
+  * Un mensaje completo:
+    ```
+    🎨 (bootsier): Mejora la asignación de clases
+
+    - Simplifica la generación de clases CSS para componentes Bootstrap.
+    - Elimina duplicidades en enums de estilos y centraliza la lógica de composición
+      para reducir errores y facilitar mantenimiento.
+    - Alinea los nombres de variantes con la documentación pública.
+
+    Refs: PR #123
+    ```
 
 El emoji puede usarse en formato Unicode o como *shortcode*, por ejemplo `:sparkles:` en vez de ✨.
 
