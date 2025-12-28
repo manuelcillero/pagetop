@@ -24,8 +24,8 @@ use crate::core::component::{Context, ContextOp, Contextual};
 use crate::core::theme::{DefaultRegion, Region, RegionRef, TemplateRef, ThemeRef};
 use crate::html::{html, Markup, DOCTYPE};
 use crate::html::{Assets, Favicon, JavaScript, StyleSheet};
+use crate::html::{Attr, AttrId};
 use crate::html::{AttrClasses, ClassesOp};
-use crate::html::{AttrId, AttrL10n};
 use crate::locale::{CharacterDirection, L10n, LangId, LanguageIdentifier};
 use crate::service::HttpRequest;
 use crate::{builder_fn, AutoDefault};
@@ -89,8 +89,8 @@ impl Region for ReservedRegion {
 #[rustfmt::skip]
 #[derive(AutoDefault)]
 pub struct Page {
-    title       : AttrL10n,
-    description : AttrL10n,
+    title       : Attr<L10n>,
+    description : Attr<L10n>,
     metadata    : Vec<(&'static str, &'static str)>,
     properties  : Vec<(&'static str, &'static str)>,
     body_id     : AttrId,
@@ -106,8 +106,8 @@ impl Page {
     #[rustfmt::skip]
     pub fn new(request: HttpRequest) -> Self {
         Page {
-            title       : AttrL10n::default(),
-            description : AttrL10n::default(),
+            title       : Attr::<L10n>::default(),
+            description : Attr::<L10n>::default(),
             metadata    : Vec::default(),
             properties  : Vec::default(),
             body_id     : AttrId::default(),
@@ -149,7 +149,7 @@ impl Page {
     /// Establece el atributo `id` del elemento `<body>`.
     #[builder_fn]
     pub fn with_body_id(mut self, id: impl AsRef<str>) -> Self {
-        self.body_id.alter_value(id);
+        self.body_id.alter_id(id);
         self
     }
 

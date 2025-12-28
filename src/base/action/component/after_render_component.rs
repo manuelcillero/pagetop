@@ -42,7 +42,7 @@ impl<C: Component> AfterRender<C> {
     /// Afina el registro para ejecutar la acción [`FnActionWithComponent`] sólo para el componente
     /// `C` con identificador `id`.
     pub fn filter_by_referer_id(mut self, id: impl AsRef<str>) -> Self {
-        self.referer_id.alter_value(id);
+        self.referer_id.alter_id(id);
         self
     }
 

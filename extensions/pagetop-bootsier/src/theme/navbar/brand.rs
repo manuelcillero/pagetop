@@ -59,7 +59,7 @@ impl Brand {
     /// Establece el identificador único (`id`) de la marca.
     #[builder_fn]
     pub fn with_id(mut self, id: impl AsRef<str>) -> Self {
-        self.id.alter_value(id);
+        self.id.alter_id(id);
         self
     }
 

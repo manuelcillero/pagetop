@@ -55,7 +55,7 @@ impl Block {
     /// Establece el identificador único (`id`) del bloque.
     #[builder_fn]
     pub fn with_id(mut self, id: impl AsRef<str>) -> Self {
-        self.id.alter_value(id);
+        self.id.alter_id(id);
         self
     }
 

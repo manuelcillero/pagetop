@@ -20,7 +20,7 @@ pub struct Image {
     /// Devuelve el origen de la imagen.
     source: image::Source,
     /// Devuelve el texto alternativo localizado.
-    alternative: AttrL10n,
+    alternative: Attr<L10n>,
 }
 
 impl Component for Image {
@@ -81,7 +81,7 @@ impl Image {
     /// Establece el identificador único (`id`) de la imagen.
     #[builder_fn]
     pub fn with_id(mut self, id: impl AsRef<str>) -> Self {
-        self.id.alter_value(id);
+        self.id.alter_id(id);
         self
     }
 

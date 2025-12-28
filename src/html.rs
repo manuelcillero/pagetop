@@ -21,17 +21,8 @@ pub use logo::PageTopSvg;
 
 // **< HTML ATTRIBUTES >****************************************************************************
 
-mod attr_id;
-pub use attr_id::AttrId;
-
-mod attr_name;
-pub use attr_name::AttrName;
-
-mod attr_value;
-pub use attr_value::AttrValue;
-
-mod attr_l10n;
-pub use attr_l10n::AttrL10n;
+mod attr;
+pub use attr::{Attr, AttrId, AttrName, AttrValue};
 
 mod attr_classes;
 pub use attr_classes::{AttrClasses, ClassesOp};
