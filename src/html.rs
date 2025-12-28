@@ -24,8 +24,8 @@ pub use logo::PageTopSvg;
 mod attr;
 pub use attr::{Attr, AttrId, AttrName, AttrValue};
 
-mod attr_classes;
-pub use attr_classes::{AttrClasses, ClassesOp};
+mod classes;
+pub use classes::{Classes, ClassesOp};
 
 mod unit;
 pub use unit::UnitValue;

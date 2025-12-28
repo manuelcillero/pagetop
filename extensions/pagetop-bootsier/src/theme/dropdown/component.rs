@@ -24,7 +24,7 @@ pub struct Dropdown {
     #[getters(skip)]
     id: AttrId,
     /// Devuelve las clases CSS asociadas al menú desplegable.
-    classes: AttrClasses,
+    classes: Classes,
     /// Devuelve el título del menú desplegable.
     title: L10n,
     /// Devuelve el tamaño configurado del botón.
@@ -76,7 +76,7 @@ impl Component for Dropdown {
         PrepareMarkup::With(html! {
             div id=[self.id()] class=[self.classes().get()] {
                 @if !title.is_empty() {
-                    @let mut btn_classes = AttrClasses::new({
+                    @let mut btn_classes = Classes::new({
                         let mut classes = "btn".to_string();
                         self.button_size().push_class(&mut classes);
                         self.button_color().push_class(&mut classes);
@@ -86,7 +86,7 @@ impl Component for Dropdown {
                     @let offset = pos.data_offset();
                     @let reference = pos.data_reference();
                     @let auto_close = self.auto_close.as_str();
-                    @let menu_classes = AttrClasses::new({
+                    @let menu_classes = Classes::new({
                         let mut classes = "dropdown-menu".to_string();
                         self.menu_align().push_class(&mut classes);
                         classes
@@ -107,7 +107,7 @@ impl Component for Dropdown {
                         @let btn_toggle = html! {
                             button
                                 type="button"
-                                class=[btn_classes.alter_value(
+                                class=[btn_classes.alter_classes(
                                     ClassesOp::Add, "dropdown-toggle dropdown-toggle-split"
                                 ).get()]
                                 data-bs-toggle="dropdown"
@@ -138,7 +138,7 @@ impl Component for Dropdown {
                         // Botón único con funcionalidad de *toggle*.
                         button
                             type="button"
-                            class=[btn_classes.alter_value(
+                            class=[btn_classes.alter_classes(
                                 ClassesOp::Add, "dropdown-toggle"
                             ).get()]
                             data-bs-toggle="dropdown"
@@ -173,7 +173,7 @@ impl Dropdown {
     /// Modifica la lista de clases CSS aplicadas al menú desplegable.
     #[builder_fn]
     pub fn with_classes(mut self, op: ClassesOp, classes: impl AsRef<str>) -> Self {
-        self.classes.alter_value(op, classes);
+        self.classes.alter_classes(op, classes);
         self
     }
 

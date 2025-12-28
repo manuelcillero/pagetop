@@ -81,7 +81,7 @@ pub struct Item {
     #[getters(skip)]
     id: AttrId,
     /// Devuelve las clases CSS asociadas al elemento.
-    classes: AttrClasses,
+    classes: Classes,
     /// Devuelve el tipo de elemento representado.
     item_kind: ItemKind,
 }
@@ -293,7 +293,7 @@ impl Item {
     /// Modifica la lista de clases CSS aplicadas al elemento.
     #[builder_fn]
     pub fn with_classes(mut self, op: ClassesOp, classes: impl AsRef<str>) -> Self {
-        self.classes.alter_value(op, classes);
+        self.classes.alter_classes(op, classes);
         self
     }
 }

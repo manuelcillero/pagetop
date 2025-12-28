@@ -16,7 +16,7 @@ pub enum IconKind {
 #[derive(AutoDefault, Getters)]
 pub struct Icon {
     /// Devuelve las clases CSS asociadas al icono.
-    classes: AttrClasses,
+    classes: Classes,
     icon_kind: IconKind,
     aria_label: AttrL10n,
 }

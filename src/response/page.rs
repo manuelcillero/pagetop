@@ -25,7 +25,7 @@ use crate::core::theme::{DefaultRegion, Region, RegionRef, TemplateRef, ThemeRef
 use crate::html::{html, Markup, DOCTYPE};
 use crate::html::{Assets, Favicon, JavaScript, StyleSheet};
 use crate::html::{Attr, AttrId};
-use crate::html::{AttrClasses, ClassesOp};
+use crate::html::{Classes, ClassesOp};
 use crate::locale::{CharacterDirection, L10n, LangId, LanguageIdentifier};
 use crate::service::HttpRequest;
 use crate::{builder_fn, AutoDefault};
@@ -94,7 +94,7 @@ pub struct Page {
     metadata    : Vec<(&'static str, &'static str)>,
     properties  : Vec<(&'static str, &'static str)>,
     body_id     : AttrId,
-    body_classes: AttrClasses,
+    body_classes: Classes,
     context     : Context,
 }
 
@@ -111,7 +111,7 @@ impl Page {
             metadata    : Vec::default(),
             properties  : Vec::default(),
             body_id     : AttrId::default(),
-            body_classes: AttrClasses::default(),
+            body_classes: Classes::default(),
             context     : Context::new(Some(request)),
         }
     }
@@ -153,10 +153,10 @@ impl Page {
         self
     }
 
-    /// Modifica las clases CSS del elemento `<body>` con una operación sobre [`AttrClasses`].
+    /// Modifica las clases CSS del elemento `<body>` con una operación sobre [`Classes`].
     #[builder_fn]
     pub fn with_body_classes(mut self, op: ClassesOp, classes: impl AsRef<str>) -> Self {
-        self.body_classes.alter_value(op, classes);
+        self.body_classes.alter_classes(op, classes);
         self
     }
 
@@ -204,7 +204,7 @@ impl Page {
     }
 
     /// Devuelve las clases CSS del elemento `<body>`.
-    pub fn body_classes(&self) -> &AttrClasses {
+    pub fn body_classes(&self) -> &Classes {
         &self.body_classes
     }
 

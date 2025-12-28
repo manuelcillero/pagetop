@@ -1,16 +1,18 @@
 use crate::{builder_fn, AutoDefault};
 
-/// Operaciones disponibles sobre la lista de clases en [`AttrClasses`].
+use std::borrow::Cow;
+
+/// Operaciones disponibles sobre la lista de clases en [`Classes`].
 pub enum ClassesOp {
     /// Añade al final (si no existe).
     Add,
     /// Añade al principio.
     Prepend,
-    /// Elimina coincidencias.
+    /// Elimina la(s) clase(s) indicada(s).
     Remove,
-    /// Sustituye una o varias por las nuevas (`Replace("old other")`).
-    Replace(String),
-    /// Alterna presencia/ausencia.
+    /// Sustituye una o varias clases por otras nuevas (`Replace("old other".into())`).
+    Replace(Cow<'static, str>),
+    /// Alterna presencia/ausencia de una o más clases.
     Toggle,
     /// Sustituye toda la lista.
     Set,
@@ -23,34 +25,40 @@ pub enum ClassesOp {
 ///
 /// # Normalización
 ///
-/// - El [orden de las clases no es relevante](https://stackoverflow.com/a/1321712) en CSS.
-/// - No se permiten clases duplicadas.
+/// - El [orden de las clases no es relevante](https://stackoverflow.com/a/1321712) en CSS, pero
+///   [`ClassesOp`] ofrece operaciones para controlar su orden de aparición.
 /// - Las clases se convierten a minúsculas.
+/// - No se permiten clases duplicadas.
 /// - Las clases vacías se ignoran.
 ///
 /// # Ejemplo
 ///
 /// ```rust
 /// # use pagetop::prelude::*;
-/// let classes = AttrClasses::new("Btn btn-primary")
-///     .with_value(ClassesOp::Add, "Active")
-///     .with_value(ClassesOp::Remove, "btn-primary");
+/// let classes = Classes::new("Btn btn-primary")
+///     .with_classes(ClassesOp::Add, "Active")
+///     .with_classes(ClassesOp::Remove, "btn-primary");
 ///
 /// assert_eq!(classes.get(), Some("btn active".to_string()));
 /// assert!(classes.contains("active"));
 /// ```
 #[derive(AutoDefault, Clone, Debug)]
-pub struct AttrClasses(Vec<String>);
+pub struct Classes(Vec<String>);
 
-impl AttrClasses {
+impl Classes {
+    /// Crea una nueva lista de clases a partir de la clase o clases proporcionadas en `classes`.
     pub fn new(classes: impl AsRef<str>) -> Self {
-        Self::default().with_value(ClassesOp::Prepend, classes)
+        Self::default().with_classes(ClassesOp::Prepend, classes)
     }
 
-    // **< AttrClasses BUILDER >********************************************************************
+    // **< Classes BUILDER >************************************************************************
 
+    /// Modifica la lista de clases según la operación indicada.
+    ///
+    /// Realiza la operación indicada en `op` para las clases proporcionadas en `classes` sobre la
+    /// lista de clases actual.
     #[builder_fn]
-    pub fn with_value(mut self, op: ClassesOp, classes: impl AsRef<str>) -> Self {
+    pub fn with_classes(mut self, op: ClassesOp, classes: impl AsRef<str>) -> Self {
         let classes = classes.as_ref().to_ascii_lowercase();
         let classes: Vec<&str> = classes.split_ascii_whitespace().collect();
 
@@ -114,7 +122,7 @@ impl AttrClasses {
         }
     }
 
-    // **< AttrClasses GETTERS >********************************************************************
+    // **< Classes GETTERS >************************************************************************
 
     /// Devuelve la cadena de clases, si existe.
     pub fn get(&self) -> Option<String> {
@@ -127,7 +135,7 @@ impl AttrClasses {
 
     /// Devuelve `true` si la clase está presente.
     pub fn contains(&self, class: impl AsRef<str>) -> bool {
-        let class = class.as_ref();
-        self.0.iter().any(|c| c == class)
+        let class = class.as_ref().to_ascii_lowercase();
+        self.0.iter().any(|c| c == &class)
     }
 }

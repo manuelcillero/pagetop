@@ -19,7 +19,7 @@ pub struct Navbar {
     #[getters(skip)]
     id: AttrId,
     /// Devuelve las clases CSS asociadas a la barra de navegación.
-    classes: AttrClasses,
+    classes: Classes,
     /// Devuelve el punto de ruptura configurado.
     expand: BreakPoint,
     /// Devuelve la disposición configurada para la barra de navegación.
@@ -230,7 +230,7 @@ impl Navbar {
     /// - Definir la apariencia del texto ([`classes::Text`]).
     #[builder_fn]
     pub fn with_classes(mut self, op: ClassesOp, classes: impl AsRef<str>) -> Self {
-        self.classes.alter_value(op, classes);
+        self.classes.alter_classes(op, classes);
         self
     }
 

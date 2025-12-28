@@ -14,7 +14,7 @@ pub struct Image {
     #[getters(skip)]
     id: AttrId,
     /// Devuelve las clases CSS asociadas a la imagen.
-    classes: AttrClasses,
+    classes: Classes,
     /// Devuelve las dimensiones de la imagen.
     size: image::Size,
     /// Devuelve el origen de la imagen.
@@ -93,7 +93,7 @@ impl Image {
     /// - Redondear las esquinas ([`classes::Rounded`]).
     #[builder_fn]
     pub fn with_classes(mut self, op: ClassesOp, classes: impl AsRef<str>) -> Self {
-        self.classes.alter_value(op, classes);
+        self.classes.alter_classes(op, classes);
         self
     }
 

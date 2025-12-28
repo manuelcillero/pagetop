@@ -11,7 +11,7 @@ pub struct Container {
     #[getters(skip)]
     id: AttrId,
     /// Devuelve las clases CSS asociadas al contenedor.
-    classes: AttrClasses,
+    classes: Classes,
     /// Devuelve el tipo semántico del contenedor.
     container_kind: container::Kind,
     /// Devuelve el comportamiento para el ancho del contenedor.
@@ -139,7 +139,7 @@ impl Container {
     /// - Redondear las esquinas ([`classes::Rounded`]).
     #[builder_fn]
     pub fn with_classes(mut self, op: ClassesOp, classes: impl AsRef<str>) -> Self {
-        self.classes.alter_value(op, classes);
+        self.classes.alter_classes(op, classes);
         self
     }
 

@@ -26,7 +26,7 @@ pub struct Offcanvas {
     #[getters(skip)]
     id: AttrId,
     /// Devuelve las clases CSS asociadas al panel.
-    classes: AttrClasses,
+    classes: Classes,
     /// Devuelve el título del panel.
     title: L10n,
     /// Devuelve el punto de ruptura configurado para cambiar el comportamiento del panel.
@@ -80,7 +80,7 @@ impl Offcanvas {
     /// Modifica la lista de clases CSS aplicadas al panel.
     #[builder_fn]
     pub fn with_classes(mut self, op: ClassesOp, classes: impl AsRef<str>) -> Self {
-        self.classes.alter_value(op, classes);
+        self.classes.alter_classes(op, classes);
         self
     }
 

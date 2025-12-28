@@ -15,7 +15,7 @@ pub struct Nav {
     #[getters(skip)]
     id: AttrId,
     /// Devuelve las clases CSS asociadas al menú.
-    classes: AttrClasses,
+    classes: Classes,
     /// Devuelve el estilo visual seleccionado.
     nav_kind: nav::Kind,
     /// Devuelve la distribución y orientación seleccionada.
@@ -84,7 +84,7 @@ impl Nav {
     /// Modifica la lista de clases CSS aplicadas al menú.
     #[builder_fn]
     pub fn with_classes(mut self, op: ClassesOp, classes: impl AsRef<str>) -> Self {
-        self.classes.alter_value(op, classes);
+        self.classes.alter_classes(op, classes);
         self
     }
 

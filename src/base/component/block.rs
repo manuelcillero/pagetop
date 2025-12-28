@@ -9,7 +9,7 @@ pub struct Block {
     #[getters(skip)]
     id: AttrId,
     /// Devuelve las clases CSS asociadas al bloque.
-    classes: AttrClasses,
+    classes: Classes,
     /// Devuelve el título del bloque.
     title: L10n,
     /// Devuelve la lista de componentes hijo del bloque.
@@ -62,7 +62,7 @@ impl Block {
     /// Modifica la lista de clases CSS aplicadas al bloque.
     #[builder_fn]
     pub fn with_classes(mut self, op: ClassesOp, classes: impl AsRef<str>) -> Self {
-        self.classes.alter_value(op, classes);
+        self.classes.alter_classes(op, classes);
         self
     }
 
