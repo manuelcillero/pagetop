@@ -133,9 +133,37 @@ impl Classes {
         }
     }
 
-    /// Devuelve `true` si la clase está presente.
+    /// Devuelve `true` si **una única clase** está presente.
+    ///
+    /// Si necesitas comprobar varias clases separadas por espacios, usa [`contains_all`] o
+    /// [`contains_any`].
     pub fn contains(&self, class: impl AsRef<str>) -> bool {
-        let class = class.as_ref().to_ascii_lowercase();
-        self.0.iter().any(|c| c == &class)
+        self.contains_class(class.as_ref())
+    }
+
+    /// Devuelve `true` si **todas** las clases indicadas están presentes.
+    pub fn contains_all(&self, classes: impl AsRef<str>) -> bool {
+        classes
+            .as_ref()
+            .split_ascii_whitespace()
+            .all(|class| self.contains_class(class))
+    }
+
+    /// Devuelve `true` si **alguna** de las clases indicadas está presente.
+    pub fn contains_any(&self, classes: impl AsRef<str>) -> bool {
+        classes
+            .as_ref()
+            .split_ascii_whitespace()
+            .any(|class| self.contains_class(class))
+    }
+
+    #[inline]
+    fn contains_class(&self, class: &str) -> bool {
+        if class.bytes().any(|b| b.is_ascii_uppercase()) {
+            let class = class.to_ascii_lowercase();
+            self.0.iter().any(|c| c == &class)
+        } else {
+            self.0.iter().any(|c| c == class)
+        }
     }
 }
