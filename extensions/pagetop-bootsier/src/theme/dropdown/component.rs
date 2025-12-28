@@ -49,7 +49,7 @@ pub struct Dropdown {
 
 impl Component for Dropdown {
     fn new() -> Self {
-        Dropdown::default()
+        Self::default()
     }
 
     fn id(&self) -> Option<String> {

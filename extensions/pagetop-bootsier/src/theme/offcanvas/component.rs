@@ -45,7 +45,7 @@ pub struct Offcanvas {
 
 impl Component for Offcanvas {
     fn new() -> Self {
-        Offcanvas::default()
+        Self::default()
     }
 
     fn id(&self) -> Option<String> {

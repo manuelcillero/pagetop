@@ -91,7 +91,7 @@ impl StyleSheet {
     ///
     /// Equivale a `<link rel="stylesheet" href="...">`.
     pub fn from(path: impl Into<String>) -> Self {
-        StyleSheet {
+        Self {
             source: Source::From(path.into()),
             ..Default::default()
         }
@@ -107,7 +107,7 @@ impl StyleSheet {
     where
         F: Fn(&mut Context) -> String + Send + Sync + 'static,
     {
-        StyleSheet {
+        Self {
             source: Source::Inline(name.into(), Box::new(f)),
             ..Default::default()
         }

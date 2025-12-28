@@ -10,7 +10,7 @@ pub struct ActionsList(RwLock<Vec<ActionBox>>);
 
 impl ActionsList {
     pub fn new() -> Self {
-        ActionsList::default()
+        Self::default()
     }
 
     pub fn add(&mut self, action: ActionBox) {

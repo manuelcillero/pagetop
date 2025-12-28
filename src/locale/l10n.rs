@@ -66,7 +66,7 @@ pub struct L10n {
 impl L10n {
     /// **n** = *“native”*. Crea una instancia con una cadena literal sin traducción.
     pub fn n(text: impl Into<Cow<'static, str>>) -> Self {
-        L10n {
+        Self {
             op: L10nOp::Text(text.into()),
             ..Default::default()
         }
@@ -75,7 +75,7 @@ impl L10n {
     /// **l** = *“lookup”*. Crea una instancia para traducir usando una clave del conjunto de
     /// traducciones predefinidas.
     pub fn l(key: impl Into<Cow<'static, str>>) -> Self {
-        L10n {
+        Self {
             op: L10nOp::Translate(key.into()),
             ..Default::default()
         }
@@ -84,7 +84,7 @@ impl L10n {
     /// **t** = *“translate”*. Crea una instancia para traducir usando una clave de un conjunto de
     /// traducciones específico.
     pub fn t(key: impl Into<Cow<'static, str>>, locales: &'static Locales) -> Self {
-        L10n {
+        Self {
             op: L10nOp::Translate(key.into()),
             locales,
             ..Default::default()

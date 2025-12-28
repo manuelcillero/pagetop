@@ -32,7 +32,7 @@ pub struct Navbar {
 
 impl Component for Navbar {
     fn new() -> Self {
-        Navbar::default()
+        Self::default()
     }
 
     fn id(&self) -> Option<String> {
@@ -169,37 +169,37 @@ impl Component for Navbar {
 impl Navbar {
     /// Crea una barra de navegación **simple**, sin marca y sin botón.
     pub fn simple() -> Self {
-        Navbar::default().with_layout(navbar::Layout::Simple)
+        Self::default().with_layout(navbar::Layout::Simple)
     }
 
     /// Crea una barra de navegación **simple pero colapsable**, con botón a la izquierda.
     pub fn simple_toggle() -> Self {
-        Navbar::default().with_layout(navbar::Layout::SimpleToggle)
+        Self::default().with_layout(navbar::Layout::SimpleToggle)
     }
 
     /// Crea una barra de navegación **con marca a la izquierda**, siempre visible.
     pub fn simple_brand_left(brand: navbar::Brand) -> Self {
-        Navbar::default().with_layout(navbar::Layout::SimpleBrandLeft(Typed::with(brand)))
+        Self::default().with_layout(navbar::Layout::SimpleBrandLeft(Typed::with(brand)))
     }
 
     /// Crea una barra de navegación con **marca a la izquierda** y **botón a la derecha**.
     pub fn brand_left(brand: navbar::Brand) -> Self {
-        Navbar::default().with_layout(navbar::Layout::BrandLeft(Typed::with(brand)))
+        Self::default().with_layout(navbar::Layout::BrandLeft(Typed::with(brand)))
     }
 
     /// Crea una barra de navegación con **botón a la izquierda** y **marca a la derecha**.
     pub fn brand_right(brand: navbar::Brand) -> Self {
-        Navbar::default().with_layout(navbar::Layout::BrandRight(Typed::with(brand)))
+        Self::default().with_layout(navbar::Layout::BrandRight(Typed::with(brand)))
     }
 
     /// Crea una barra de navegación cuyo contenido se muestra en un **offcanvas**.
     pub fn offcanvas(oc: Offcanvas) -> Self {
-        Navbar::default().with_layout(navbar::Layout::Offcanvas(Typed::with(oc)))
+        Self::default().with_layout(navbar::Layout::Offcanvas(Typed::with(oc)))
     }
 
     /// Crea una barra de navegación con **marca a la izquierda** y contenido en **offcanvas**.
     pub fn offcanvas_brand_left(brand: navbar::Brand, oc: Offcanvas) -> Self {
-        Navbar::default().with_layout(navbar::Layout::OffcanvasBrandLeft(
+        Self::default().with_layout(navbar::Layout::OffcanvasBrandLeft(
             Typed::with(brand),
             Typed::with(oc),
         ))
@@ -207,7 +207,7 @@ impl Navbar {
 
     /// Crea una barra de navegación con **marca a la derecha** y contenido en **offcanvas**.
     pub fn offcanvas_brand_right(brand: navbar::Brand, oc: Offcanvas) -> Self {
-        Navbar::default().with_layout(navbar::Layout::OffcanvasBrandRight(
+        Self::default().with_layout(navbar::Layout::OffcanvasBrandRight(
             Typed::with(brand),
             Typed::with(oc),
         ))

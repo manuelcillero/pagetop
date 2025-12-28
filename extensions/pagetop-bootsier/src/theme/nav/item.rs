@@ -88,7 +88,7 @@ pub struct Item {
 
 impl Component for Item {
     fn new() -> Self {
-        Item::default()
+        Self::default()
     }
 
     fn id(&self) -> Option<String> {
@@ -196,7 +196,7 @@ impl Component for Item {
 impl Item {
     /// Crea un elemento de tipo texto, mostrado sin interacción.
     pub fn label(label: L10n) -> Self {
-        Item {
+        Self {
             item_kind: ItemKind::Label(label),
             ..Default::default()
         }
@@ -208,7 +208,7 @@ impl Item {
     /// [`RoutePath`] en función del [`Context`]. El enlace se marca como `active` si la ruta actual
     /// del *request* coincide con la ruta de destino (devuelta por `RoutePath::path`).
     pub fn link(label: L10n, route: FnPathByContext) -> Self {
-        Item {
+        Self {
             item_kind: ItemKind::Link {
                 label,
                 route,
@@ -221,7 +221,7 @@ impl Item {
 
     /// Crea un enlace deshabilitado que no permite la interacción.
     pub fn link_disabled(label: L10n, route: FnPathByContext) -> Self {
-        Item {
+        Self {
             item_kind: ItemKind::Link {
                 label,
                 route,
@@ -234,7 +234,7 @@ impl Item {
 
     /// Crea un enlace que se abre en una nueva ventana o pestaña.
     pub fn link_blank(label: L10n, route: FnPathByContext) -> Self {
-        Item {
+        Self {
             item_kind: ItemKind::Link {
                 label,
                 route,
@@ -247,7 +247,7 @@ impl Item {
 
     /// Crea un enlace inicialmente deshabilitado que se abriría en una nueva ventana.
     pub fn link_blank_disabled(label: L10n, route: FnPathByContext) -> Self {
-        Item {
+        Self {
             item_kind: ItemKind::Link {
                 label,
                 route,
@@ -263,7 +263,7 @@ impl Item {
     /// El contenido se renderiza tal cual lo devuelve el componente [`Html`], dentro de un `<li>`
     /// con las clases de navegación asociadas a [`Item`].
     pub fn html(html: Html) -> Self {
-        Item {
+        Self {
             item_kind: ItemKind::Html(Typed::with(html)),
             ..Default::default()
         }
@@ -275,7 +275,7 @@ impl Item {
     /// lista de elementos** del [`Dropdown`]; el resto de propiedades del componente no afectarán
     /// a su representación en [`Nav`].
     pub fn dropdown(menu: Dropdown) -> Self {
-        Item {
+        Self {
             item_kind: ItemKind::Dropdown(Typed::with(menu)),
             ..Default::default()
         }

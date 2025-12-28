@@ -106,7 +106,7 @@ impl Default for Intro {
 
 impl Component for Intro {
     fn new() -> Self {
-        Intro::default()
+        Self::default()
     }
 
     fn setup_before_prepare(&mut self, cx: &mut Context) {

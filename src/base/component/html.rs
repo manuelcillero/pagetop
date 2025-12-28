@@ -33,12 +33,13 @@ pub struct Html(Box<dyn Fn(&mut Context) -> Markup + Send + Sync>);
 
 impl Default for Html {
     fn default() -> Self {
-        Html::with(|_| html! {})
+        Self::with(|_| html! {})
     }
 }
+
 impl Component for Html {
     fn new() -> Self {
-        Html::default()
+        Self::default()
     }
 
     fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {

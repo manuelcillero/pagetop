@@ -18,7 +18,7 @@ pub struct Block {
 
 impl Component for Block {
     fn new() -> Self {
-        Block::default()
+        Self::default()
     }
 
     fn id(&self) -> Option<String> {

@@ -29,7 +29,7 @@ pub struct Brand {
 
 impl Component for Brand {
     fn new() -> Self {
-        Brand::default()
+        Self::default()
     }
 
     fn id(&self) -> Option<String> {

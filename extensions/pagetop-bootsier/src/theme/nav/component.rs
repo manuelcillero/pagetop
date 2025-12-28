@@ -26,7 +26,7 @@ pub struct Nav {
 
 impl Component for Nav {
     fn new() -> Self {
-        Nav::default()
+        Self::default()
     }
 
     fn id(&self) -> Option<String> {
@@ -59,17 +59,17 @@ impl Component for Nav {
 impl Nav {
     /// Crea un `Nav` usando pestañas para los elementos (*Tabs*).
     pub fn tabs() -> Self {
-        Nav::default().with_kind(nav::Kind::Tabs)
+        Self::default().with_kind(nav::Kind::Tabs)
     }
 
     /// Crea un `Nav` usando botones para los elementos (*Pills*).
     pub fn pills() -> Self {
-        Nav::default().with_kind(nav::Kind::Pills)
+        Self::default().with_kind(nav::Kind::Pills)
     }
 
     /// Crea un `Nav` usando elementos subrayados (*Underline*).
     pub fn underline() -> Self {
-        Nav::default().with_kind(nav::Kind::Underline)
+        Self::default().with_kind(nav::Kind::Underline)
     }
 
     // **< Nav BUILDER >****************************************************************************

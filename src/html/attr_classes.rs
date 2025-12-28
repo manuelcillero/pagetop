@@ -44,7 +44,7 @@ pub struct AttrClasses(Vec<String>);
 
 impl AttrClasses {
     pub fn new(classes: impl AsRef<str>) -> Self {
-        AttrClasses::default().with_value(ClassesOp::Prepend, classes)
+        Self::default().with_value(ClassesOp::Prepend, classes)
     }
 
     // **< AttrClasses BUILDER >********************************************************************

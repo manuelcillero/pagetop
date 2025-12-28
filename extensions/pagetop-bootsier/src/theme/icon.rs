@@ -23,7 +23,7 @@ pub struct Icon {
 
 impl Component for Icon {
     fn new() -> Self {
-        Icon::default()
+        Self::default()
     }
 
     fn setup_before_prepare(&mut self, _cx: &mut Context) {
@@ -75,22 +75,22 @@ impl Component for Icon {
 
 impl Icon {
     pub fn font() -> Self {
-        Icon::default().with_icon_kind(IconKind::Font(FontSize::default()))
+        Self::default().with_icon_kind(IconKind::Font(FontSize::default()))
     }
 
     pub fn font_sized(font_size: FontSize) -> Self {
-        Icon::default().with_icon_kind(IconKind::Font(font_size))
+        Self::default().with_icon_kind(IconKind::Font(font_size))
     }
 
     pub fn svg(shapes: Markup) -> Self {
-        Icon::default().with_icon_kind(IconKind::Svg {
+        Self::default().with_icon_kind(IconKind::Svg {
             shapes,
             viewbox: AttrValue::default(),
         })
     }
 
     pub fn svg_with_viewbox(shapes: Markup, viewbox: impl AsRef<str>) -> Self {
-        Icon::default().with_icon_kind(IconKind::Svg {
+        Self::default().with_icon_kind(IconKind::Svg {
             shapes,
             viewbox: AttrValue::new(viewbox),
         })

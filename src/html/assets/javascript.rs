@@ -88,7 +88,7 @@ impl JavaScript {
     ///
     /// Equivale a `<script src="...">`.
     pub fn from(path: impl Into<String>) -> Self {
-        JavaScript {
+        Self {
             source: Source::From(path.into()),
             ..Default::default()
         }
@@ -100,7 +100,7 @@ impl JavaScript {
     /// Equivale a `<script src="..." defer>`. Suele ser la opción recomendada para scripts no
     /// críticos.
     pub fn defer(path: impl Into<String>) -> Self {
-        JavaScript {
+        Self {
             source: Source::Defer(path.into()),
             ..Default::default()
         }
@@ -111,7 +111,7 @@ impl JavaScript {
     ///
     /// Equivale a `<script src="..." async>`. **No garantiza** el orden relativo con otros scripts.
     pub fn asynchronous(path: impl Into<String>) -> Self {
-        JavaScript {
+        Self {
             source: Source::Async(path.into()),
             ..Default::default()
         }
@@ -127,7 +127,7 @@ impl JavaScript {
     where
         F: Fn(&mut Context) -> String + Send + Sync + 'static,
     {
-        JavaScript {
+        Self {
             source: Source::Inline(name.into(), Box::new(f)),
             ..Default::default()
         }
@@ -147,7 +147,7 @@ impl JavaScript {
     where
         F: Fn(&mut Context) -> String + Send + Sync + 'static,
     {
-        JavaScript {
+        Self {
             source: Source::OnLoad(name.into(), Box::new(f)),
             ..Default::default()
         }
@@ -165,7 +165,7 @@ impl JavaScript {
     where
         F: Fn(&mut Context) -> String + Send + Sync + 'static,
     {
-        JavaScript {
+        Self {
             source: Source::OnLoadAsync(name.into(), Box::new(f)),
             ..Default::default()
         }

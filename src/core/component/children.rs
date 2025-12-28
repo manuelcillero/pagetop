@@ -208,12 +208,12 @@ pub struct Children(Vec<Child>);
 impl Children {
     /// Crea una lista vacía.
     pub fn new() -> Self {
-        Children::default()
+        Self::default()
     }
 
     /// Crea una lista con un componente hijo inicial.
     pub fn with(child: Child) -> Self {
-        Children::default().with_child(ChildOp::Add(child))
+        Self::default().with_child(ChildOp::Add(child))
     }
 
     /// Fusiona varias listas de `Children` en una sola.

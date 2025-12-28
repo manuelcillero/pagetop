@@ -25,7 +25,7 @@ pub struct Image {
 
 impl Component for Image {
     fn new() -> Self {
-        Image::default()
+        Self::default()
     }
 
     fn id(&self) -> Option<String> {
@@ -73,7 +73,7 @@ impl Component for Image {
 impl Image {
     /// Crea rápidamente una imagen especificando su origen.
     pub fn with(source: image::Source) -> Self {
-        Image::default().with_source(source)
+        Self::default().with_source(source)
     }
 
     // **< Image BUILDER >**************************************************************************

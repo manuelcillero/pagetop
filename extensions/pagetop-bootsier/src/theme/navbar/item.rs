@@ -26,7 +26,7 @@ pub enum Item {
 
 impl Component for Item {
     fn new() -> Self {
-        Item::default()
+        Self::default()
     }
 
     fn id(&self) -> Option<String> {

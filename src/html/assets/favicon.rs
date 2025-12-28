@@ -49,7 +49,7 @@ impl Favicon {
     /// Equivalente a `Favicon::default()`. Se recomienda iniciar la secuencia de configuración
     /// desde aquí.
     pub fn new() -> Self {
-        Favicon::default()
+        Self::default()
     }
 
     // **< Favicon BUILDER >************************************************************************

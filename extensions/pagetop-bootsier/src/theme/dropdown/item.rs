@@ -55,7 +55,7 @@ pub struct Item {
 
 impl Component for Item {
     fn new() -> Self {
-        Item::default()
+        Self::default()
     }
 
     fn id(&self) -> Option<String> {
@@ -158,7 +158,7 @@ impl Component for Item {
 impl Item {
     /// Crea un elemento de tipo texto, mostrado sin interacción.
     pub fn label(label: L10n) -> Self {
-        Item {
+        Self {
             item_kind: ItemKind::Label(label),
             ..Default::default()
         }
@@ -170,7 +170,7 @@ impl Item {
     /// [`RoutePath`] en función del [`Context`]. El enlace se marca como `active` si la ruta actual
     /// del *request* coincide con la ruta de destino (devuelta por `RoutePath::path`).
     pub fn link(label: L10n, route: FnPathByContext) -> Self {
-        Item {
+        Self {
             item_kind: ItemKind::Link {
                 label,
                 route,
@@ -183,7 +183,7 @@ impl Item {
 
     /// Crea un enlace deshabilitado que no permite la interacción.
     pub fn link_disabled(label: L10n, route: FnPathByContext) -> Self {
-        Item {
+        Self {
             item_kind: ItemKind::Link {
                 label,
                 route,
@@ -196,7 +196,7 @@ impl Item {
 
     /// Crea un enlace que se abre en una nueva ventana o pestaña.
     pub fn link_blank(label: L10n, route: FnPathByContext) -> Self {
-        Item {
+        Self {
             item_kind: ItemKind::Link {
                 label,
                 route,
@@ -209,7 +209,7 @@ impl Item {
 
     /// Crea un enlace inicialmente deshabilitado que se abriría en una nueva ventana.
     pub fn link_blank_disabled(label: L10n, route: FnPathByContext) -> Self {
-        Item {
+        Self {
             item_kind: ItemKind::Link {
                 label,
                 route,
@@ -222,7 +222,7 @@ impl Item {
 
     /// Crea un botón de acción local, sin navegación asociada.
     pub fn button(label: L10n) -> Self {
-        Item {
+        Self {
             item_kind: ItemKind::Button {
                 label,
                 disabled: false,
@@ -233,7 +233,7 @@ impl Item {
 
     /// Crea un botón deshabilitado.
     pub fn button_disabled(label: L10n) -> Self {
-        Item {
+        Self {
             item_kind: ItemKind::Button {
                 label,
                 disabled: true,
@@ -244,7 +244,7 @@ impl Item {
 
     /// Crea un encabezado para un grupo de elementos dentro del menú.
     pub fn header(label: L10n) -> Self {
-        Item {
+        Self {
             item_kind: ItemKind::Header(label),
             ..Default::default()
         }
@@ -252,7 +252,7 @@ impl Item {
 
     /// Crea un separador visual entre bloques de elementos.
     pub fn divider() -> Self {
-        Item {
+        Self {
             item_kind: ItemKind::Divider,
             ..Default::default()
         }

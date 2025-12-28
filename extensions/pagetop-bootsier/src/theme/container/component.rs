@@ -22,7 +22,7 @@ pub struct Container {
 
 impl Component for Container {
     fn new() -> Self {
-        Container::default()
+        Self::default()
     }
 
     fn id(&self) -> Option<String> {
@@ -82,7 +82,7 @@ impl Component for Container {
 impl Container {
     /// Crea un contenedor de tipo `Main` (`<main>`).
     pub fn main() -> Self {
-        Container {
+        Self {
             container_kind: container::Kind::Main,
             ..Default::default()
         }
@@ -90,7 +90,7 @@ impl Container {
 
     /// Crea un contenedor de tipo `Header` (`<header>`).
     pub fn header() -> Self {
-        Container {
+        Self {
             container_kind: container::Kind::Header,
             ..Default::default()
         }
@@ -98,7 +98,7 @@ impl Container {
 
     /// Crea un contenedor de tipo `Footer` (`<footer>`).
     pub fn footer() -> Self {
-        Container {
+        Self {
             container_kind: container::Kind::Footer,
             ..Default::default()
         }
@@ -106,7 +106,7 @@ impl Container {
 
     /// Crea un contenedor de tipo `Section` (`<section>`).
     pub fn section() -> Self {
-        Container {
+        Self {
             container_kind: container::Kind::Section,
             ..Default::default()
         }
@@ -114,7 +114,7 @@ impl Container {
 
     /// Crea un contenedor de tipo `Article` (`<article>`).
     pub fn article() -> Self {
-        Container {
+        Self {
             container_kind: container::Kind::Article,
             ..Default::default()
         }
