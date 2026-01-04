@@ -1,4 +1,4 @@
-use crate::{builder_fn, trace, util, AutoDefault};
+use crate::{builder_fn, util, AutoDefault};
 
 use std::borrow::Cow;
 use std::collections::HashSet;
@@ -74,16 +74,10 @@ impl Classes {
     /// lista de clases actual.
     #[builder_fn]
     pub fn with_classes(mut self, op: ClassesOp, classes: impl AsRef<str>) -> Self {
-        let normalized = match util::normalize_ascii(classes.as_ref()) {
-            Ok(c) => c,
-            Err(util::NormalizeAsciiError::NonAscii) => {
-                trace::debug!(
-                    classes = %classes.as_ref().escape_default(),
-                    "Classes::with_classes: Ignoring classes due to non-ASCII chars"
-                );
-                return self;
-            }
-            _ => Cow::Borrowed(""),
+        let Some(normalized) =
+            util::normalize_ascii_or_empty(classes.as_ref(), "Classes::with_classes")
+        else {
+            return self;
         };
         match op {
             ClassesOp::Add => {
@@ -116,25 +110,24 @@ impl Classes {
                 self.0.retain(|c| !to_remove.contains(c.as_str()));
             }
             ClassesOp::Replace(classes_to_replace) => {
-                let mut pos = self.0.len();
-                let classes_to_replace = match util::normalize_ascii(classes_to_replace.as_ref()) {
-                    Ok(c) => c,
-                    Err(util::NormalizeAsciiError::NonAscii) => {
-                        trace::debug!(
-                            classes = %classes_to_replace.as_ref().escape_default(),
-                            "Classes::with_classes: Invalid replace classes due to non-ASCII chars"
-                        );
-                        return self;
-                    }
-                    _ => Cow::Borrowed(""),
+                let Some(classes_to_replace) = util::normalize_ascii_or_empty(
+                    classes_to_replace.as_ref(),
+                    "ClassesOp::Replace",
+                ) else {
+                    return self;
                 };
+                let mut pos = self.0.len();
+                let mut replaced = false;
                 for class in classes_to_replace.as_ref().split_ascii_whitespace() {
                     if let Some(replace_pos) = self.0.iter().position(|c| c == class) {
                         self.0.remove(replace_pos);
                         pos = pos.min(replace_pos);
+                        replaced = true;
                     }
                 }
-                self.add(normalized.as_ref().split_ascii_whitespace(), pos);
+                if replaced {
+                    self.add(normalized.as_ref().split_ascii_whitespace(), pos);
+                }
             }
             ClassesOp::Toggle => {
                 for class in normalized.as_ref().split_ascii_whitespace() {

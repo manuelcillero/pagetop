@@ -128,6 +128,30 @@ pub fn normalize_ascii<'a>(input: &'a str) -> Result<Cow<'a, str>, NormalizeAsci
     Ok(Cow::Owned(output))
 }
 
+/// Normaliza una cadena ASCII, opcionalmente vacía, con uno o varios tokens separados.
+///
+/// - Devuelve `Some(Cow)` si la entrada es válida ASCII (normalizada a minúsculas).
+/// - Devuelve `Some(Cow::Borrowed(""))` si la entrada es `""` o queda vacía tras recortar.
+/// - Devuelve `None` si la entrada contiene bytes non-ASCII; y emite un `trace::debug!` con el
+///   campo `target`.
+#[inline]
+pub fn normalize_ascii_or_empty<'a>(input: &'a str, target: &'static str) -> Option<Cow<'a, str>> {
+    match normalize_ascii(input) {
+        Ok(s) => Some(s),
+        Err(NormalizeAsciiError::NonAscii) => {
+            trace::debug!(
+                target = %target,
+                input = %input.escape_default(),
+                "Ignoring due to non-ASCII chars"
+            );
+            None
+        }
+        Err(NormalizeAsciiError::IsEmpty | NormalizeAsciiError::EmptyAfterTrimming) => {
+            Some(Cow::Borrowed(""))
+        }
+    }
+}
+
 /// Resuelve y valida la ruta de un directorio existente, devolviendo una ruta absoluta.
 ///
 /// - Si la ruta es relativa, se resuelve respecto al directorio del proyecto según la variable de
