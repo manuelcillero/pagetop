@@ -2,7 +2,13 @@ use pagetop::prelude::*;
 
 fn assert_classes(c: &Classes, expected: Option<&str>) {
     let got = c.get();
-    assert_eq!(got.as_deref(), expected, "Expected {:?}, got {:?}", expected, got);
+    assert_eq!(
+        got.as_deref(),
+        expected,
+        "Expected {:?}, got {:?}",
+        expected,
+        got
+    );
 }
 
 // **< Construction & invariants (new/get) >********************************************************
@@ -177,9 +183,9 @@ async fn classes_contains_single() {
 async fn classes_contains_all_and_any() {
     let c = Classes::new("btn btn-primary active");
 
-    assert!(c.contains_all("btn active"));
-    assert!(c.contains_all("BTN BTN-PRIMARY"));
-    assert!(!c.contains_all("btn missing"));
+    assert!(c.contains("btn active"));
+    assert!(c.contains("BTN BTN-PRIMARY"));
+    assert!(!c.contains("btn missing"));
 
     assert!(c.contains_any("missing active"));
     assert!(c.contains_any("BTN-PRIMARY missing"));

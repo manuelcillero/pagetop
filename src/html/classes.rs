@@ -1,14 +1,17 @@
-use crate::{builder_fn, AutoDefault};
+use crate::{builder_fn, trace, util, AutoDefault};
 
 use std::borrow::Cow;
+use std::collections::HashSet;
 
 /// Operaciones disponibles sobre la lista de clases en [`Classes`].
 ///
 /// Cada variante opera sobre **una o más clases** proporcionadas como una cadena separada por
 /// espacios (p. ej. `"btn active"`), que se normalizan internamente a minúsculas en
 /// [`Classes::with_classes()`].
+#[derive(AutoDefault, Clone, Debug, PartialEq)]
 pub enum ClassesOp {
     /// Añade las clases que no existan al final.
+    #[default]
     Add,
     /// Añade las clases que no existan al principio.
     Prepend,
@@ -36,6 +39,7 @@ pub enum ClassesOp {
 ///
 /// - Aunque el orden de las clases en el atributo `class` no afecta al resultado en CSS,
 ///   [`ClassesOp`] ofrece operaciones para controlar su orden de aparición por legibilidad.
+/// - Solo se acepta una lista de clases con caracteres ASCII.
 /// - Las clases se almacenan en minúsculas.
 /// - No se permiten clases duplicadas tras la normalización (por ejemplo, `Btn` y `btn` se
 ///   consideran la misma clase).
@@ -59,7 +63,7 @@ pub struct Classes(Vec<String>);
 impl Classes {
     /// Crea una nueva lista de clases a partir de la clase o clases proporcionadas en `classes`.
     pub fn new(classes: impl AsRef<str>) -> Self {
-        Self::default().with_classes(ClassesOp::Prepend, classes)
+        Self::default().with_classes(ClassesOp::default(), classes)
     }
 
     // **< Classes BUILDER >************************************************************************
@@ -70,62 +74,80 @@ impl Classes {
     /// lista de clases actual.
     #[builder_fn]
     pub fn with_classes(mut self, op: ClassesOp, classes: impl AsRef<str>) -> Self {
-        let classes = classes.as_ref();
+        let normalized = match util::normalize_ascii(classes.as_ref()) {
+            Ok(c) => c,
+            Err(util::NormalizeAsciiError::NonAscii) => {
+                trace::debug!(
+                    classes = %classes.as_ref().escape_default(),
+                    "Classes::with_classes: Ignoring classes due to non-ASCII chars"
+                );
+                return self;
+            }
+            _ => Cow::Borrowed(""),
+        };
         match op {
             ClassesOp::Add => {
-                self.add(classes, self.0.len());
+                self.add(normalized.as_ref().split_ascii_whitespace(), self.0.len());
             }
             ClassesOp::Prepend => {
-                self.add(classes, 0);
+                self.add(normalized.as_ref().split_ascii_whitespace(), 0);
             }
             ClassesOp::Remove => {
-                let mut classes_to_remove = classes.split_ascii_whitespace();
+                let mut classes_to_remove = normalized.as_ref().split_ascii_whitespace();
 
                 // 0 clases: no se hace nada.
                 let Some(first) = classes_to_remove.next() else {
                     return self;
                 };
 
-                // 1 clase: un único *retain*, cero reservas extra.
-                let first = first.to_ascii_lowercase();
+                // 1 clase: un único *retain*, sin reservas extra.
                 let Some(second) = classes_to_remove.next() else {
-                    self.0.retain(|c| c != &first);
+                    self.0.retain(|c| c != first);
                     return self;
                 };
 
-                // 2+ clases: se construye lista para borrar y un único *retain*.
-                let mut to_remove = Vec::new();
-                to_remove.push(first);
-                to_remove.push(second.to_ascii_lowercase());
+                // 2+ clases: HashSet y un único *retain*.
+                let mut to_remove: HashSet<&str> = HashSet::new();
+                to_remove.insert(first);
+                to_remove.insert(second);
                 for class in classes_to_remove {
-                    to_remove.push(class.to_ascii_lowercase());
+                    to_remove.insert(class);
                 }
-                self.0.retain(|c| !to_remove.iter().any(|r| r == c));
+                self.0.retain(|c| !to_remove.contains(c.as_str()));
             }
             ClassesOp::Replace(classes_to_replace) => {
                 let mut pos = self.0.len();
-                for class in classes_to_replace.split_ascii_whitespace() {
-                    let class = class.to_ascii_lowercase();
-                    if let Some(replace_pos) = self.0.iter().position(|c| c == &class) {
+                let classes_to_replace = match util::normalize_ascii(classes_to_replace.as_ref()) {
+                    Ok(c) => c,
+                    Err(util::NormalizeAsciiError::NonAscii) => {
+                        trace::debug!(
+                            classes = %classes_to_replace.as_ref().escape_default(),
+                            "Classes::with_classes: Invalid replace classes due to non-ASCII chars"
+                        );
+                        return self;
+                    }
+                    _ => Cow::Borrowed(""),
+                };
+                for class in classes_to_replace.as_ref().split_ascii_whitespace() {
+                    if let Some(replace_pos) = self.0.iter().position(|c| c == class) {
                         self.0.remove(replace_pos);
                         pos = pos.min(replace_pos);
                     }
                 }
-                self.add(classes, pos);
+                self.add(normalized.as_ref().split_ascii_whitespace(), pos);
             }
             ClassesOp::Toggle => {
-                for class in classes.split_ascii_whitespace() {
-                    let class = class.to_ascii_lowercase();
-                    if let Some(pos) = self.0.iter().position(|c| c == &class) {
+                for class in normalized.as_ref().split_ascii_whitespace() {
+                    if let Some(pos) = self.0.iter().position(|c| c == class) {
                         self.0.remove(pos);
                     } else {
-                        self.0.push(class);
+                        self.0.push(class.to_string());
                     }
                 }
             }
             ClassesOp::Set => {
                 self.0.clear();
-                self.add(classes, 0);
+                self.add(normalized.as_ref().split_ascii_whitespace(), 0);
             }
         }
 
@@ -133,11 +155,14 @@ impl Classes {
     }
 
     #[inline]
-    fn add(&mut self, classes: &str, mut pos: usize) {
-        for class in classes.split_ascii_whitespace() {
-            let class = class.to_ascii_lowercase();
+    fn add<'a, I>(&mut self, classes: I, mut pos: usize)
+    where
+        I: IntoIterator<Item = &'a str>,
+    {
+        for class in classes {
             // Inserción segura descartando duplicados.
-            if !self.0.iter().any(|c| c == &class) {
+            if !self.0.iter().any(|c| c == class) {
+                let class = class.to_string();
                 if pos >= self.0.len() {
                     self.0.push(class);
                 } else {
@@ -159,32 +184,25 @@ impl Classes {
         }
     }
 
-    /// Devuelve `true` si **una única clase** está presente.
-    ///
-    /// Si necesitas comprobar varias clases, usa [`contains_all()`](Self::contains_all) o
-    /// [`contains_any()`](Self::contains_any).
-    pub fn contains(&self, class: impl AsRef<str>) -> bool {
-        self.contains_class(class.as_ref())
-    }
-
-    /// Devuelve `true` si **todas** las clases indicadas están presentes.
-    pub fn contains_all(&self, classes: impl AsRef<str>) -> bool {
-        classes
+    /// Devuelve `true` si la clase o **todas** las clases indicadas están presentes.
+    pub fn contains(&self, classes: impl AsRef<str>) -> bool {
+        let Ok(normalized) = util::normalize_ascii(classes.as_ref()) else {
+            return false;
+        };
+        normalized
             .as_ref()
             .split_ascii_whitespace()
-            .all(|class| self.contains_class(class))
+            .all(|class| self.0.iter().any(|c| c == class))
     }
 
-    /// Devuelve `true` si **alguna** de las clases indicadas está presente.
+    /// Devuelve `true` si la clase o **alguna** de las clases indicadas está presente.
     pub fn contains_any(&self, classes: impl AsRef<str>) -> bool {
-        classes
+        let Ok(normalized) = util::normalize_ascii(classes.as_ref()) else {
+            return false;
+        };
+        normalized
             .as_ref()
             .split_ascii_whitespace()
-            .any(|class| self.contains_class(class))
-    }
-
-    #[inline]
-    fn contains_class(&self, class: &str) -> bool {
-        self.0.iter().any(|c| c.eq_ignore_ascii_case(class))
+            .any(|class| self.0.iter().any(|c| c == class))
     }
 }
