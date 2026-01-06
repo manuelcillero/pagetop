@@ -7,7 +7,7 @@ use std::str::FromStr;
 
 /// Representa una **unidad CSS** lista para formatear o deserializar.
 ///
-/// ## Unidades soportadas
+/// # Unidades soportadas
 ///
 /// - **Absolutas** *(valores enteros, `isize`)*:
 ///   - `Cm(isize)` - `cm` (centímetros)
@@ -24,13 +24,13 @@ use std::str::FromStr;
 ///   - `RelVh(f32)`  - `vh`  (1% de la **altura** del viewport)
 ///   - `RelVw(f32)`  - `vw`  (1% del **ancho** del viewport)
 ///
-/// ## Valores especiales
+/// # Valores especiales
 ///
 /// - `None` - equivale a un texto vacío (`""`), útil para atributos opcionales.
 /// - `Auto` - equivale a `"auto"`.
 /// - `Zero` - equivale a `"0"` (cero sin unidad).
 ///
-/// ## Características
+/// # Características
 ///
 /// - Soporta unidades **absolutas** (`cm`, `in`, `mm`, `pc`, `pt`, `px`) y **relativas** (`em`,
 ///   `rem`, `%`, `vh`, `vw`).
@@ -38,7 +38,7 @@ use std::str::FromStr;
 /// - `Display` para formatear a cadena (p. ej., `UnitValue::Px(12)` genera `"12px"`).
 /// - `Deserialize` delega en `FromStr`, garantizando una gramática única.
 ///
-/// ## Ejemplos
+/// # Ejemplos
 ///
 /// ```rust
 /// # use pagetop::prelude::*;
@@ -52,7 +52,7 @@ use std::str::FromStr;
 /// assert_eq!(UnitValue::from_str("0").unwrap(), UnitValue::Zero);
 /// ```
 ///
-/// ## Notas
+/// # Notas
 ///
 /// - Las absolutas **no aceptan** decimales (p. ej., `"1.5px"` sería erróneo).
 /// - Se aceptan signos `+`/`-` en todas las unidades (p. ej., `"-12px"`, `"+0.5em"`).
