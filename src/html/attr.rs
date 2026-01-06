@@ -25,6 +25,13 @@ impl<T> Attr<T> {
 
     // **< Attr<T> BUILDER >************************************************************************
 
+    /// Establece un valor opcional para el atributo.
+    #[builder_fn]
+    pub fn with_opt(mut self, opt: Option<T>) -> Self {
+        self.0 = opt;
+        self
+    }
+
     /// Establece un valor para el atributo.
     #[builder_fn]
     pub fn with_value(mut self, value: T) -> Self {

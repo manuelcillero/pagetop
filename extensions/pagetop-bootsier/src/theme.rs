@@ -19,6 +19,11 @@ pub mod dropdown;
 #[doc(inline)]
 pub use dropdown::Dropdown;
 
+// Form.
+pub mod form;
+#[doc(inline)]
+pub use form::Form;
+
 // Image.
 pub mod image;
 #[doc(inline)]

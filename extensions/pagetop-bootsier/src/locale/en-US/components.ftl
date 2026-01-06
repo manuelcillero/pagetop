@@ -1,8 +1,11 @@
 # Dropdown
 dropdown_toggle = Toggle Dropdown
 
-# Offcanvas
-offcanvas_close = Close
+# form::Input
+input_required = This field is required
 
 # Navbar
 toggle = Toggle navigation
+
+# Offcanvas
+offcanvas_close = Close
