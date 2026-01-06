@@ -85,7 +85,7 @@ pub fn html(input: TokenStream) -> TokenStream {
 ///     b: 0,
 ///     c: Some(0),
 ///     d: vec![1, 2, 3],
-///     e: "four".to_owned(),
+///     e: "four".to_string(),
 /// });
 /// # }
 /// ```
