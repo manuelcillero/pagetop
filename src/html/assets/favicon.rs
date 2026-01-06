@@ -1,6 +1,6 @@
 use crate::core::component::Context;
 use crate::html::{html, Markup};
-use crate::AutoDefault;
+use crate::{AutoDefault, CowStr};
 
 /// Un **Favicon** es un recurso gráfico que usa el navegador como icono asociado al sitio.
 ///
@@ -41,7 +41,32 @@ use crate::AutoDefault;
 ///     .with_ms_tile_image("/icons/mstile-144x144.png");
 /// ```
 #[derive(AutoDefault)]
-pub struct Favicon(Vec<Markup>);
+pub struct Favicon(Vec<Item>);
+
+/// Elementos que componen un favicon.
+#[derive(Clone, Debug)]
+enum Item {
+    /// Etiqueta `<link>` para iconos.
+    ///
+    /// - `rel`: `"icon"`, `"apple-touch-icon"`, `"mask-icon"`, etc.
+    /// - `href`: URL/ruta del recurso.
+    /// - `sizes`: tamaños opcionales (p. ej. `"32x32"` o `"16x16 32x32"`).
+    /// - `color`: color opcional (relevante para `mask-icon`).
+    /// - `mime`: tipo MIME inferido por la extensión del recurso.
+    Icon {
+        rel: &'static str,
+        href: CowStr,
+        sizes: Option<CowStr>,
+        color: Option<CowStr>,
+        mime: Option<&'static str>,
+    },
+
+    /// Etiqueta `<meta>` para configuraciones del navegador/sistema.
+    ///
+    /// - `name`: `"theme-color"`, `"msapplication-TileColor"`, `"msapplication-TileImage"`, etc.
+    /// - `content`: valor asociado.
+    Meta { name: &'static str, content: CowStr },
+}
 
 impl Favicon {
     /// Crea un nuevo `Favicon` vacío.
@@ -56,7 +81,7 @@ impl Favicon {
 
     /// Le añade un icono genérico apuntando a `image`. El tipo MIME se infiere automáticamente a
     /// partir de la extensión.
-    pub fn with_icon(self, image: impl Into<String>) -> Self {
+    pub fn with_icon(self, image: impl Into<CowStr>) -> Self {
         self.add_icon_item("icon", image.into(), None, None)
     }
 
@@ -67,14 +92,14 @@ impl Favicon {
     /// `"16x16 32x32 48x48"` o usar `any` para iconos escalables (SVG).
     ///
     /// No es imprescindible, pero puede mejorar la selección del icono más adecuado.
-    pub fn with_icon_for_sizes(self, image: impl Into<String>, sizes: impl Into<String>) -> Self {
+    pub fn with_icon_for_sizes(self, image: impl Into<CowStr>, sizes: impl Into<CowStr>) -> Self {
         self.add_icon_item("icon", image.into(), Some(sizes.into()), None)
     }
 
     /// Le añade un *Apple Touch Icon*, usado por dispositivos iOS para las pantallas de inicio.
     ///
-    /// Se recomienda indicar también el tamaño, p. ej. `"256x256"`.
-    pub fn with_apple_touch_icon(self, image: impl Into<String>, sizes: impl Into<String>) -> Self {
+    /// Se recomienda indicar también el tamaño, p. ej. `"180x180"`.
+    pub fn with_apple_touch_icon(self, image: impl Into<CowStr>, sizes: impl Into<CowStr>) -> Self {
         self.add_icon_item("apple-touch-icon", image.into(), Some(sizes.into()), None)
     }
 
@@ -83,71 +108,85 @@ impl Favicon {
     /// El atributo `color` lo usa Safari para colorear el trazado SVG cuando el icono se muestra en
     /// modo *Pinned Tab*. Aunque Safari 12+ acepta *favicons normales*, este método garantiza
     /// compatibilidad con versiones anteriores.
-    pub fn with_mask_icon(self, image: impl Into<String>, color: impl Into<String>) -> Self {
+    pub fn with_mask_icon(self, image: impl Into<CowStr>, color: impl Into<CowStr>) -> Self {
         self.add_icon_item("mask-icon", image.into(), None, Some(color.into()))
     }
 
     /// Define el color del tema (`<meta name="theme-color">`).
     ///
     /// Lo usan algunos navegadores para colorear la barra de direcciones o interfaces.
-    pub fn with_theme_color(mut self, color: impl Into<String>) -> Self {
-        self.0.push(html! {
-            meta name="theme-color" content=(color.into());
+    pub fn with_theme_color(mut self, color: impl Into<CowStr>) -> Self {
+        self.0.push(Item::Meta {
+            name: "theme-color",
+            content: color.into(),
         });
         self
     }
 
     /// Define el color del *tile* en Windows (`<meta name="msapplication-TileColor">`).
-    pub fn with_ms_tile_color(mut self, color: impl Into<String>) -> Self {
-        self.0.push(html! {
-            meta name="msapplication-TileColor" content=(color.into());
+    pub fn with_ms_tile_color(mut self, color: impl Into<CowStr>) -> Self {
+        self.0.push(Item::Meta {
+            name: "msapplication-TileColor",
+            content: color.into(),
         });
         self
     }
 
     /// Define la imagen del *tile* en Windows (`<meta name="msapplication-TileImage">`).
-    pub fn with_ms_tile_image(mut self, image: impl Into<String>) -> Self {
-        self.0.push(html! {
-            meta name="msapplication-TileImage" content=(image.into());
+    pub fn with_ms_tile_image(mut self, image: impl Into<CowStr>) -> Self {
+        self.0.push(Item::Meta {
+            name: "msapplication-TileImage",
+            content: image.into(),
         });
         self
     }
 
-    /// Función interna que centraliza la creación de las etiquetas `<link>`.
+    // **< Favicon HELPERS >************************************************************************
+
+    /// Infiere el tipo MIME (`type="..."`) a partir de la extensión del recurso.
+    #[inline]
+    fn infer_mime(href: &str) -> Option<&'static str> {
+        // Ignora query/fragment sin asignaciones (p. ej. ".png?v=1" o ".svg#v2").
+        let href = href.split_once('#').map(|(s, _)| s).unwrap_or(href);
+        let href = href.split_once('?').map(|(s, _)| s).unwrap_or(href);
+
+        let (_, ext) = href.rsplit_once('.')?;
+
+        match ext.len() {
+            3 if ext.eq_ignore_ascii_case("gif") => Some("image/gif"),
+            3 if ext.eq_ignore_ascii_case("ico") => Some("image/x-icon"),
+            3 if ext.eq_ignore_ascii_case("jpg") => Some("image/jpeg"),
+            3 if ext.eq_ignore_ascii_case("png") => Some("image/png"),
+            3 if ext.eq_ignore_ascii_case("svg") => Some("image/svg+xml"),
+            4 if ext.eq_ignore_ascii_case("avif") => Some("image/avif"),
+            4 if ext.eq_ignore_ascii_case("jpeg") => Some("image/jpeg"),
+            4 if ext.eq_ignore_ascii_case("webp") => Some("image/webp"),
+            _ => None,
+        }
+    }
+
+    /// Centraliza la creación de los elementos `<link>`.
     ///
     /// - `icon_rel`: indica el tipo de recurso (`"icon"`, `"apple-touch-icon"`, etc.).
-    /// - `icon_source`: URL del recurso.
-    /// - `icon_sizes`: tamaños opcionales.
-    /// - `icon_color`: color opcional (solo relevante para `mask-icon`).
+    /// - `href`: URL del recurso.
+    /// - `sizes`: tamaños opcionales.
+    /// - `color`: color opcional (solo relevante para `mask-icon`).
     ///
     /// También infiere automáticamente el tipo MIME (`type`) según la extensión del archivo.
     fn add_icon_item(
         mut self,
-        icon_rel: &str,
-        icon_source: String,
-        icon_sizes: Option<String>,
-        icon_color: Option<String>,
+        icon_rel: &'static str,
+        icon_source: CowStr,
+        icon_sizes: Option<CowStr>,
+        icon_color: Option<CowStr>,
     ) -> Self {
-        let icon_type = match icon_source.rfind('.') {
-            Some(i) => match icon_source[i..].to_string().to_lowercase().as_str() {
-                ".avif" => Some("image/avif"),
-                ".gif" => Some("image/gif"),
-                ".ico" => Some("image/x-icon"),
-                ".jpg" | ".jpeg" => Some("image/jpeg"),
-                ".png" => Some("image/png"),
-                ".svg" => Some("image/svg+xml"),
-                ".webp" => Some("image/webp"),
-                _ => None,
-            },
-            _ => None,
-        };
-        self.0.push(html! {
-            link
-                rel=(icon_rel)
-                type=[(icon_type)]
-                sizes=[(icon_sizes)]
-                color=[(icon_color)]
-                href=(icon_source);
+        let mime = Self::infer_mime(icon_source.as_ref());
+        self.0.push(Item::Icon {
+            rel: icon_rel,
+            href: icon_source,
+            sizes: icon_sizes,
+            color: icon_color,
+            mime,
         });
         self
     }
@@ -161,7 +200,19 @@ impl Favicon {
     pub fn render(&self, _cx: &mut Context) -> Markup {
         html! {
             @for item in &self.0 {
-                (item)
+                @match item {
+                    Item::Icon { rel, href, sizes, color, mime } => {
+                        link
+                            rel=(rel)
+                            type=[*mime]
+                            sizes=[sizes.as_deref()]
+                            color=[color.as_deref()]
+                            href=(href.as_ref());
+                    }
+                    Item::Meta { name, content } => {
+                        meta name=(name) content=(content.as_ref());
+                    }
+                }
             }
         }
     }

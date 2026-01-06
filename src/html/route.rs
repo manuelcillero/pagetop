@@ -1,6 +1,5 @@
-use crate::{builder_fn, AutoDefault};
+use crate::{builder_fn, AutoDefault, CowStr};
 
-use std::borrow::Cow;
 use std::fmt;
 
 /// Representa una ruta como un *path* inicial más una lista opcional de parámetros.
@@ -28,19 +27,16 @@ use std::fmt;
 /// ```
 #[derive(AutoDefault)]
 pub struct RoutePath {
-    // *Path* inicial sobre el que se añadirán los parámetros.
-    //
-    // Puede ser relativo (p. ej. `/about`) o una ruta completa (`https://example.com/about`).
-    // `RoutePath` no realiza ninguna validación ni normalización.
-    //
-    // Se almacena como `Cow<'static, str>` para reutilizar literales estáticos sin asignación
-    // adicional y, al mismo tiempo, aceptar rutas dinámicas representadas como `String`.
-    path: Cow<'static, str>,
+    /// *Path* inicial sobre el que se añadirán los parámetros.
+    ///
+    /// Puede ser relativo (p. ej. `/about`) o una ruta completa (`https://example.com/about`).
+    /// `RoutePath` no realiza ninguna validación ni normalización.
+    path: CowStr,
 
-    // Conjunto de parámetros asociados a la ruta.
-    //
-    // Cada clave es única y se mantiene el orden de inserción. El valor vacío se utiliza para
-    // representar *flags* sin valor explícito (por ejemplo `?debug`).
+    /// Conjunto de parámetros asociados a la ruta.
+    ///
+    /// Cada clave es única y se mantiene el orden de inserción. El valor vacío se utiliza para
+    /// representar *flags* sin valor explícito (por ejemplo `?debug`).
     query: indexmap::IndexMap<String, String>,
 }
 
@@ -48,7 +44,7 @@ impl RoutePath {
     /// Crea un `RoutePath` a partir de un *path* inicial.
     ///
     /// Por ejemplo: `RoutePath::new("/about")`.
-    pub fn new(path: impl Into<Cow<'static, str>>) -> Self {
+    pub fn new(path: impl Into<CowStr>) -> Self {
         Self {
             path: path.into(),
             query: indexmap::IndexMap::new(),

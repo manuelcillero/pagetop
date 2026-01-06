@@ -1,22 +1,22 @@
 use crate::core::component::Context;
 use crate::html::assets::Asset;
 use crate::html::{html, Markup, PreEscaped};
-use crate::{util, AutoDefault, Weight};
+use crate::{util, AutoDefault, CowStr, Weight};
 
-// Define el origen del recurso CSS y cómo se incluye en el documento.
-//
-// Los estilos pueden cargarse desde un archivo externo o estar embebidos directamente en una
-// etiqueta `<style>`.
-//
-// - [`From`]   - Carga la hoja de estilos desde un archivo externo, insertándola mediante una
-//                etiqueta `<link>` con `rel="stylesheet"`.
-// - [`Inline`] - Inserta directamente el contenido CSS dentro de una etiqueta `<style>`.
+/// Define el origen del recurso CSS y cómo se incluye en el documento.
+///
+/// Los estilos pueden cargarse desde un archivo externo o estar embebidos directamente en una
+/// etiqueta `<style>`.
+///
+/// - [`From`]   - Carga la hoja de estilos desde un archivo externo, insertándola mediante una
+///                etiqueta `<link>` con `rel="stylesheet"`.
+/// - [`Inline`] - Inserta directamente el contenido CSS dentro de una etiqueta `<style>`.
 #[derive(AutoDefault)]
 enum Source {
     #[default]
-    From(String),
-    // `name`, `closure(Context) -> String`.
-    Inline(String, Box<dyn Fn(&mut Context) -> String + Send + Sync>),
+    From(CowStr),
+    /// `name`, `closure(&mut Context) -> String`.
+    Inline(CowStr, Box<dyn Fn(&mut Context) -> String + Send + Sync>),
 }
 
 /// Define el medio objetivo para la hoja de estilos.
@@ -37,14 +37,13 @@ pub enum TargetMedia {
 }
 
 /// Devuelve el valor para el atributo `media` (`Some(...)`) o `None` para `Default`.
-#[rustfmt::skip]
 impl TargetMedia {
     const fn as_str(self) -> Option<&'static str> {
         match self {
             TargetMedia::Default => None,
-            TargetMedia::Print   => Some("print"),
-            TargetMedia::Screen  => Some("screen"),
-            TargetMedia::Speech  => Some("speech"),
+            TargetMedia::Print => Some("print"),
+            TargetMedia::Screen => Some("screen"),
+            TargetMedia::Speech => Some("speech"),
         }
     }
 }
@@ -77,20 +76,19 @@ impl TargetMedia {
 ///     }
 /// "#.to_string());
 /// ```
-#[rustfmt::skip]
 #[derive(AutoDefault)]
 pub struct StyleSheet {
-    source : Source,      // Fuente y modo de inclusión del CSS.
-    version: String,      // Versión del recurso para la caché del navegador.
-    media  : TargetMedia, // Medio objetivo para los estilos (`print`, `screen`, ...).
-    weight : Weight,      // Peso que determina el orden.
+    source: Source,     // Fuente y modo de inclusión del CSS.
+    version: CowStr,    // Versión del recurso para la caché del navegador.
+    media: TargetMedia, // Medio objetivo para los estilos (`print`, `screen`, ...).
+    weight: Weight,     // Peso que determina el orden.
 }
 
 impl StyleSheet {
     /// Crea una hoja de estilos externa.
     ///
     /// Equivale a `<link rel="stylesheet" href="...">`.
-    pub fn from(path: impl Into<String>) -> Self {
+    pub fn from(path: impl Into<CowStr>) -> Self {
         Self {
             source: Source::From(path.into()),
             ..Default::default()
@@ -103,7 +101,7 @@ impl StyleSheet {
     /// recurso.
     ///
     /// La función *closure* recibirá el [`Context`] por si se necesita durante el renderizado.
-    pub fn inline<F>(name: impl Into<String>, f: F) -> Self
+    pub fn inline<F>(name: impl Into<CowStr>, f: F) -> Self
     where
         F: Fn(&mut Context) -> String + Send + Sync + 'static,
     {
@@ -118,7 +116,7 @@ impl StyleSheet {
     /// Asocia una versión al recurso (usada para control de la caché del navegador).
     ///
     /// Si `version` está vacío, no se añade ningún parámetro a la URL.
-    pub fn with_version(mut self, version: impl Into<String>) -> Self {
+    pub fn with_version(mut self, version: impl Into<CowStr>) -> Self {
         self.version = version.into();
         self
     }

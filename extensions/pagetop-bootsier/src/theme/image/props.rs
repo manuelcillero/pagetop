@@ -54,21 +54,45 @@ pub enum Source {
     Logo(PageTopSvg),
     /// Imagen que se adapta automáticamente a su contenedor.
     ///
-    /// El `String` asociado es la URL (o ruta) de la imagen.
-    Responsive(String),
+    /// Lleva asociada la URL (o ruta) de la imagen.
+    Responsive(CowStr),
     /// Imagen que aplica el estilo **miniatura** de Bootstrap.
     ///
-    /// El `String` asociado es la URL (o ruta) de la imagen.
-    Thumbnail(String),
+    /// Lleva asociada la URL (o ruta) de la imagen.
+    Thumbnail(CowStr),
     /// Imagen sin clases específicas de Bootstrap, útil para controlar con CSS propio.
     ///
-    /// El `String` asociado es la URL (o ruta) de la imagen.
-    Plain(String),
+    /// Lleva asociada la URL (o ruta) de la imagen.
+    Plain(CowStr),
 }
 
 impl Source {
     const IMG_FLUID: &str = "img-fluid";
     const IMG_THUMBNAIL: &str = "img-thumbnail";
+
+    /// Imagen con el logotipo de PageTop.
+    #[inline]
+    pub fn logo(svg: PageTopSvg) -> Self {
+        Self::Logo(svg)
+    }
+
+    /// Imagen responsive (`img-fluid`).
+    #[inline]
+    pub fn responsive(url: impl Into<CowStr>) -> Self {
+        Self::Responsive(url.into())
+    }
+
+    /// Imagen miniatura (`img-thumbnail`).
+    #[inline]
+    pub fn thumbnail(url: impl Into<CowStr>) -> Self {
+        Self::Thumbnail(url.into())
+    }
+
+    /// Imagen sin clases adicionales.
+    #[inline]
+    pub fn plain(url: impl Into<CowStr>) -> Self {
+        Self::Plain(url.into())
+    }
 
     /// Devuelve la clase base asociada a la imagen según la fuente.
     #[inline]

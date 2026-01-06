@@ -1,36 +1,36 @@
 use crate::core::component::Context;
 use crate::html::assets::Asset;
 use crate::html::{html, Markup, PreEscaped};
-use crate::{util, AutoDefault, Weight};
+use crate::{util, AutoDefault, CowStr, Weight};
 
-// Define el origen del recurso JavaScript y cómo debe cargarse en el navegador.
-//
-// Los distintos modos de carga permiten optimizar el rendimiento y controlar el comportamiento del
-// script en relación con el análisis del documento HTML y la ejecución del resto de scripts.
-//
-// - [`From`]        - Carga estándar con la etiqueta `<script src="...">`.
-// - [`Defer`]       - Igual que [`From`], pero con el atributo `defer`, descarga en paralelo y se
-//                     ejecuta tras el análisis del documento HTML, respetando el orden de
-//                     aparición.
-// - [`Async`]       - Igual que [`From`], pero con el atributo `async`, descarga en paralelo y se
-//                     ejecuta en cuanto esté listo, **sin garantizar** el orden relativo respecto a
-//                     otros scripts.
-// - [`Inline`]      - Inserta el código directamente en la etiqueta `<script>`.
-// - [`OnLoad`]      - Inserta el código JavaScript y lo ejecuta tras el evento `DOMContentLoaded`.
-// - [`OnLoadAsync`] - Igual que [`OnLoad`], pero con manejador asíncrono (`async`), útil si dentro
-//                     del código JavaScript se utiliza `await`.
+/// Define el origen del recurso JavaScript y cómo debe cargarse en el navegador.
+///
+/// Los distintos modos de carga permiten optimizar el rendimiento y controlar el comportamiento del
+/// script en relación con el análisis del documento HTML y la ejecución del resto de scripts.
+///
+/// - [`From`]        - Carga estándar con la etiqueta `<script src="...">`.
+/// - [`Defer`]       - Igual que [`From`], pero con el atributo `defer`, descarga en paralelo y se
+///                     ejecuta tras el análisis del documento HTML, respetando el orden de
+///                     aparición.
+/// - [`Async`]       - Igual que [`From`], pero con el atributo `async`, descarga en paralelo y se
+///                     ejecuta en cuanto esté listo, **sin garantizar** el orden relativo respecto
+///                     a otros scripts.
+/// - [`Inline`]      - Inserta el código directamente en la etiqueta `<script>`.
+/// - [`OnLoad`]      - Inserta el código JavaScript y lo ejecuta tras el evento `DOMContentLoaded`.
+/// - [`OnLoadAsync`] - Igual que [`OnLoad`], pero con manejador asíncrono (`async`), útil si dentro
+///                     del código JavaScript se utiliza `await`.
 #[derive(AutoDefault)]
 enum Source {
     #[default]
-    From(String),
-    Defer(String),
-    Async(String),
-    // `name`, `closure(Context) -> String`.
-    Inline(String, Box<dyn Fn(&mut Context) -> String + Send + Sync>),
-    // `name`, `closure(Context) -> String` (se ejecuta tras `DOMContentLoaded`).
-    OnLoad(String, Box<dyn Fn(&mut Context) -> String + Send + Sync>),
-    // `name`, `closure(Context) -> String` (manejador `async` tras `DOMContentLoaded`).
-    OnLoadAsync(String, Box<dyn Fn(&mut Context) -> String + Send + Sync>),
+    From(CowStr),
+    Defer(CowStr),
+    Async(CowStr),
+    /// `name`, `closure(&mut Context) -> String`.
+    Inline(CowStr, Box<dyn Fn(&mut Context) -> String + Send + Sync>),
+    /// `name`, `closure(&mut Context) -> String` (se ejecuta tras `DOMContentLoaded`).
+    OnLoad(CowStr, Box<dyn Fn(&mut Context) -> String + Send + Sync>),
+    /// `name`, `closure(&mut Context) -> String` (manejador `async` tras `DOMContentLoaded`).
+    OnLoadAsync(CowStr, Box<dyn Fn(&mut Context) -> String + Send + Sync>),
 }
 
 /// Define un recurso **JavaScript** para incluir en un documento HTML.
@@ -74,12 +74,11 @@ enum Source {
 ///     "#, uid)
 /// });
 /// ```
-#[rustfmt::skip]
 #[derive(AutoDefault)]
 pub struct JavaScript {
-    source : Source, // Fuente y estrategia de carga del script.
-    version: String, // Versión del recurso para la caché del navegador.
-    weight : Weight, // Peso que determina el orden.
+    source: Source,  // Fuente y estrategia de carga del script.
+    version: CowStr, // Versión del recurso para la caché del navegador.
+    weight: Weight,  // Peso que determina el orden.
 }
 
 impl JavaScript {
@@ -87,7 +86,7 @@ impl JavaScript {
     /// del documento HTML.
     ///
     /// Equivale a `<script src="...">`.
-    pub fn from(path: impl Into<String>) -> Self {
+    pub fn from(path: impl Into<CowStr>) -> Self {
         Self {
             source: Source::From(path.into()),
             ..Default::default()
@@ -99,7 +98,7 @@ impl JavaScript {
     ///
     /// Equivale a `<script src="..." defer>`. Suele ser la opción recomendada para scripts no
     /// críticos.
-    pub fn defer(path: impl Into<String>) -> Self {
+    pub fn defer(path: impl Into<CowStr>) -> Self {
         Self {
             source: Source::Defer(path.into()),
             ..Default::default()
@@ -110,7 +109,7 @@ impl JavaScript {
     /// tan pronto como esté disponible.
     ///
     /// Equivale a `<script src="..." async>`. **No garantiza** el orden relativo con otros scripts.
-    pub fn asynchronous(path: impl Into<String>) -> Self {
+    pub fn asynchronous(path: impl Into<CowStr>) -> Self {
         Self {
             source: Source::Async(path.into()),
             ..Default::default()
@@ -123,7 +122,7 @@ impl JavaScript {
     /// script.
     ///
     /// La función *closure* recibirá el [`Context`] por si se necesita durante el renderizado.
-    pub fn inline<F>(name: impl Into<String>, f: F) -> Self
+    pub fn inline<F>(name: impl Into<CowStr>, f: F) -> Self
     where
         F: Fn(&mut Context) -> String + Send + Sync + 'static,
     {
@@ -140,10 +139,10 @@ impl JavaScript {
     /// Útil para inicializaciones que no dependen de `await`. El parámetro `name` se usa como
     /// identificador interno del script.
     ///
-    /// Los scripts con `defer` se ejecutan antes de `DOMContentLoaded`.
+    /// En condiciones normales, los scripts con `defer` se ejecutan antes de `DOMContentLoaded`.
     ///
     /// La función *closure* recibirá el [`Context`] por si se necesita durante el renderizado.
-    pub fn on_load<F>(name: impl Into<String>, f: F) -> Self
+    pub fn on_load<F>(name: impl Into<CowStr>, f: F) -> Self
     where
         F: Fn(&mut Context) -> String + Send + Sync + 'static,
     {
@@ -161,7 +160,7 @@ impl JavaScript {
     /// iniciales.
     ///
     /// La función *closure* recibirá el [`Context`] por si se necesita durante el renderizado.
-    pub fn on_load_async<F>(name: impl Into<String>, f: F) -> Self
+    pub fn on_load_async<F>(name: impl Into<CowStr>, f: F) -> Self
     where
         F: Fn(&mut Context) -> String + Send + Sync + 'static,
     {
@@ -176,7 +175,7 @@ impl JavaScript {
     /// Asocia una **versión** al recurso (usada para control de la caché del navegador).
     ///
     /// Si `version` está vacío, **no** se añade ningún parámetro a la URL.
-    pub fn with_version(mut self, version: impl Into<String>) -> Self {
+    pub fn with_version(mut self, version: impl Into<CowStr>) -> Self {
         self.version = version.into();
         self
     }

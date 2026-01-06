@@ -1,6 +1,5 @@
-use crate::{builder_fn, util, AutoDefault};
+use crate::{builder_fn, util, AutoDefault, CowStr};
 
-use std::borrow::Cow;
 use std::collections::HashSet;
 
 /// Operaciones disponibles sobre la lista de clases en [`Classes`].
@@ -19,7 +18,7 @@ pub enum ClassesOp {
     Remove,
     /// Sustituye una o varias clases existentes (indicadas en la variante) por las clases
     /// proporcionadas.
-    Replace(Cow<'static, str>),
+    Replace(CowStr),
     /// Alterna presencia/ausencia de una o más clases.
     ///
     /// Si en una misma llamada se repite una clase (p. ej. `"a a"`) que ya existe, el resultado
@@ -52,10 +51,11 @@ pub enum ClassesOp {
 /// # use pagetop::prelude::*;
 /// let classes = Classes::new("Btn btn-primary")
 ///     .with_classes(ClassesOp::Add, "Active")
+///     .with_classes(ClassesOp::Replace("active".into()), "Disabled")
 ///     .with_classes(ClassesOp::Remove, "btn-primary");
 ///
-/// assert_eq!(classes.get(), Some("btn active".to_string()));
-/// assert!(classes.contains("active"));
+/// assert_eq!(classes.get(), Some("btn disabled".to_string()));
+/// assert!(classes.contains("disabled"));
 /// ```
 #[derive(AutoDefault, Clone, Debug)]
 pub struct Classes(Vec<String>);

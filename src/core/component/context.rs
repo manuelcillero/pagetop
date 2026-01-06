@@ -6,10 +6,9 @@ use crate::html::{html, Markup, RoutePath};
 use crate::html::{Assets, Favicon, JavaScript, StyleSheet};
 use crate::locale::{LangId, LanguageIdentifier, RequestLocale};
 use crate::service::HttpRequest;
-use crate::{builder_fn, util};
+use crate::{builder_fn, util, CowStr};
 
 use std::any::Any;
-use std::borrow::Cow;
 use std::collections::HashMap;
 
 /// Operaciones para modificar recursos asociados al [`Context`] de un documento.
@@ -376,7 +375,7 @@ impl Context {
     ///
     /// Esto garantiza que los enlaces generados desde el contexto preservan la preferencia de
     /// idioma del usuario cuando procede.
-    pub fn route(&self, path: impl Into<Cow<'static, str>>) -> RoutePath {
+    pub fn route(&self, path: impl Into<CowStr>) -> RoutePath {
         let mut route = RoutePath::new(path);
         if self.locale.needs_lang_query() {
             route.alter_param("lang", self.locale.langid().to_string());

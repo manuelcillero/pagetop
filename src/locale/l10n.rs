@@ -1,12 +1,11 @@
 use crate::html::{Markup, PreEscaped};
-use crate::{include_locales, AutoDefault};
+use crate::{include_locales, AutoDefault, CowStr};
 
 use super::{LangId, Locale};
 
 use fluent_templates::Loader;
 use fluent_templates::StaticLoader as Locales;
 
-use std::borrow::Cow;
 use std::collections::HashMap;
 
 use std::fmt;
@@ -22,8 +21,8 @@ include_locales!(LOCALES_PAGETOP);
 enum L10nOp {
     #[default]
     None,
-    Text(Cow<'static, str>),
-    Translate(Cow<'static, str>),
+    Text(CowStr),
+    Translate(CowStr),
 }
 
 /// Crea instancias para traducir *textos localizados*.
@@ -60,12 +59,12 @@ pub struct L10n {
     op: L10nOp,
     #[default(&LOCALES_PAGETOP)]
     locales: &'static Locales,
-    args: HashMap<String, String>,
+    args: Vec<(CowStr, CowStr)>,
 }
 
 impl L10n {
     /// **n** = *“native”*. Crea una instancia con una cadena literal sin traducción.
-    pub fn n(text: impl Into<Cow<'static, str>>) -> Self {
+    pub fn n(text: impl Into<CowStr>) -> Self {
         Self {
             op: L10nOp::Text(text.into()),
             ..Default::default()
@@ -74,7 +73,7 @@ impl L10n {
 
     /// **l** = *“lookup”*. Crea una instancia para traducir usando una clave del conjunto de
     /// traducciones predefinidas.
-    pub fn l(key: impl Into<Cow<'static, str>>) -> Self {
+    pub fn l(key: impl Into<CowStr>) -> Self {
         Self {
             op: L10nOp::Translate(key.into()),
             ..Default::default()
@@ -83,7 +82,7 @@ impl L10n {
 
     /// **t** = *“translate”*. Crea una instancia para traducir usando una clave de un conjunto de
     /// traducciones específico.
-    pub fn t(key: impl Into<Cow<'static, str>>, locales: &'static Locales) -> Self {
+    pub fn t(key: impl Into<CowStr>, locales: &'static Locales) -> Self {
         Self {
             op: L10nOp::Translate(key.into()),
             locales,
@@ -92,8 +91,8 @@ impl L10n {
     }
 
     /// Añade un argumento `{$arg}` => `value` a la traducción.
-    pub fn with_arg(mut self, arg: impl Into<String>, value: impl Into<String>) -> Self {
-        self.args.insert(arg.into(), value.into());
+    pub fn with_arg(mut self, arg: impl Into<CowStr>, value: impl Into<CowStr>) -> Self {
+        self.args.push((arg.into(), value.into()));
         self
     }
 
@@ -103,8 +102,8 @@ impl L10n {
     pub fn with_args<I, K, V>(mut self, args: I) -> Self
     where
         I: IntoIterator<Item = (K, V)>,
-        K: Into<String>,
-        V: Into<String>,
+        K: Into<CowStr>,
+        V: Into<CowStr>,
     {
         self.args
             .extend(args.into_iter().map(|(k, v)| (k.into(), v.into())));
@@ -153,15 +152,12 @@ impl L10n {
                 if self.args.is_empty() {
                     self.locales.try_lookup(language.langid(), key.as_ref())
                 } else {
-                    self.locales.try_lookup_with_args(
-                        language.langid(),
-                        key.as_ref(),
-                        &self
-                            .args
-                            .iter()
-                            .map(|(k, v)| (Cow::Owned(k.clone()), v.clone().into()))
-                            .collect::<HashMap<_, _>>(),
-                    )
+                    let mut args = HashMap::with_capacity(self.args.len());
+                    for (k, v) in self.args.iter() {
+                        args.insert(k.clone(), v.as_ref().into());
+                    }
+                    self.locales
+                        .try_lookup_with_args(language.langid(), key.as_ref(), &args)
                 }
             }
         }

@@ -215,7 +215,7 @@ pub trait Theme: Extension + Send + Sync {
                 &DefaultRegion::Content,
                 ChildOp::Prepend(Child::with(
                     Intro::new()
-                        .with_title(L10n::l("error_code").with_arg("code", code.as_str()))
+                        .with_title(L10n::l("error_code").with_arg("code", code.to_string()))
                         .with_slogan(L10n::n(code.to_string()))
                         .with_button(None)
                         .with_opening(IntroOpening::Custom)

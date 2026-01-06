@@ -161,6 +161,13 @@ impl Deref for StaticResources {
     }
 }
 
+/// Alias para `Cow<'static, str>`.
+///
+/// Es un puntero inteligente con semántica *copy-on-write* para cadenas. Permite reutilizar
+/// literales estáticos sin asignación de memoria adicional y, al mismo tiempo, aceptar cadenas
+/// dinámicas representadas como `String`.
+pub type CowStr = std::borrow::Cow<'static, str>;
+
 /// Identificador único de un tipo estático durante la ejecución de la aplicación.
 ///
 /// **Nota:** El valor es único sólo dentro del proceso actual y cambia en cada compilación.
