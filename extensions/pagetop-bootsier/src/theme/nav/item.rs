@@ -99,17 +99,17 @@ impl Component for Item {
         self.alter_classes(ClassesOp::Prepend, self.item_kind().to_class());
     }
 
-    fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
+    fn prepare_component(&self, cx: &mut Context) -> Markup {
         match self.item_kind() {
-            ItemKind::Void => PrepareMarkup::None,
+            ItemKind::Void => html! {},
 
-            ItemKind::Label(label) => PrepareMarkup::With(html! {
+            ItemKind::Label(label) => html! {
                 li id=[self.id()] class=[self.classes().get()] {
                     span class="nav-link disabled" aria-disabled="true" {
                         (label.using(cx))
                     }
                 }
-            }),
+            },
 
             ItemKind::Link {
                 label,
@@ -136,7 +136,7 @@ impl Component for Item {
                 let aria_current = (href.is_some() && is_current).then_some("page");
                 let aria_disabled = (*disabled).then_some("true");
 
-                PrepareMarkup::With(html! {
+                html! {
                     li id=[self.id()] class=[self.classes().get()] {
                         a
                             class=(classes)
@@ -149,27 +149,27 @@ impl Component for Item {
                             (label.using(cx))
                         }
                     }
-                })
+                }
             }
 
-            ItemKind::Html(html) => PrepareMarkup::With(html! {
+            ItemKind::Html(html) => html! {
                 li id=[self.id()] class=[self.classes().get()] {
                     (html.render(cx))
                 }
-            }),
+            },
 
             ItemKind::Dropdown(menu) => {
                 if let Some(dd) = menu.borrow() {
                     let items = dd.items().render(cx);
                     if items.is_empty() {
-                        return PrepareMarkup::None;
+                        return html! {};
                     }
                     let title = dd.title().lookup(cx).unwrap_or_else(|| {
                         L10n::t("dropdown", &LOCALES_BOOTSIER)
                             .lookup(cx)
                             .unwrap_or_else(|| "Dropdown".to_string())
                     });
-                    PrepareMarkup::With(html! {
+                    html! {
                         li id=[self.id()] class=[self.classes().get()] {
                             a
                                 class="nav-link dropdown-toggle"
@@ -184,9 +184,9 @@ impl Component for Item {
                                 (items)
                             }
                         }
-                    })
+                    }
                 } else {
-                    PrepareMarkup::None
+                    html! {}
                 }
             }
         }

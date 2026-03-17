@@ -36,20 +36,20 @@ impl Component for Brand {
         self.id.get()
     }
 
-    fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
+    fn prepare_component(&self, cx: &mut Context) -> Markup {
         let image = self.image().render(cx);
         let title = self.title().using(cx);
         if title.is_empty() && image.is_empty() {
-            return PrepareMarkup::None;
+            return html! {};
         }
         let slogan = self.slogan().using(cx);
-        PrepareMarkup::With(html! {
+        html! {
             @if let Some(route) = self.route() {
                 a class="navbar-brand" href=(route(cx)) { (image) (title) (slogan) }
             } @else {
                 span class="navbar-brand" { (image) (title) (slogan) }
             }
-        })
+        }
     }
 }
 

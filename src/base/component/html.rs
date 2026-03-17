@@ -42,8 +42,8 @@ impl Component for Html {
         Self::default()
     }
 
-    fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
-        PrepareMarkup::With(self.html(cx))
+    fn prepare_component(&self, cx: &mut Context) -> Markup {
+        self.html(cx)
     }
 }
 

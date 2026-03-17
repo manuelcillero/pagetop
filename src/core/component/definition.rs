@@ -1,7 +1,7 @@
 use crate::base::action;
 use crate::core::component::Context;
 use crate::core::{AnyInfo, TypeInfo};
-use crate::html::{html, Markup, PrepareMarkup};
+use crate::html::{html, Markup};
 
 /// Define la función de renderizado para todos los componentes.
 ///
@@ -77,10 +77,10 @@ pub trait Component: AnyInfo + ComponentRender + Send + Sync {
     /// los campos de la estructura del componente. Es una forma de garantizar que los programadores
     /// podrán sobrescribir este método sin preocuparse por los detalles internos del componente.
     ///
-    /// Por defecto, devuelve [`PrepareMarkup::None`].
+    /// Por defecto, devuelve un [`Markup`] vacío (`html! {}`).
     #[allow(unused_variables)]
-    fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
-        PrepareMarkup::None
+    fn prepare_component(&self, cx: &mut Context) -> Markup {
+        html! {}
     }
 }
 
@@ -137,6 +137,6 @@ impl<C: Component> ComponentRender for C {
         action::component::AfterRender::dispatch(self, cx);
 
         // Devuelve el marcado final.
-        prepare.render()
+        prepare
     }
 }

@@ -35,7 +35,7 @@ pub use all::dispatch_actions;
 /// impl Theme for MyTheme {}
 ///
 /// fn before_render_button(c: &mut Button, cx: &mut Context) { todo!() }
-/// fn render_error404(c: &Error404, cx: &mut Context) -> PrepareMarkup { todo!() }
+/// fn render_error404(c: &Error404, cx: &mut Context) -> Markup { todo!() }
 /// ```
 #[macro_export]
 macro_rules! actions_boxed {

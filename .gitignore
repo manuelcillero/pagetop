@@ -8,3 +8,5 @@
 **/local.*.toml
 **/local.toml
 .env
+.cargo
+.vscode

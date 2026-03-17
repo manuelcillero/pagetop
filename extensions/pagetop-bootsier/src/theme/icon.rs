@@ -35,26 +35,26 @@ impl Component for Icon {
         }
     }
 
-    fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
+    fn prepare_component(&self, cx: &mut Context) -> Markup {
         match self.icon_kind() {
-            IconKind::None => PrepareMarkup::None,
+            IconKind::None => html! {},
             IconKind::Font(_) => {
                 let aria_label = self.aria_label().lookup(cx);
                 let has_label = aria_label.is_some();
-                PrepareMarkup::With(html! {
+                html! {
                     i
                         class=[self.classes().get()]
                         role=[has_label.then_some("img")]
                         aria-label=[aria_label]
                         aria-hidden=[(!has_label).then_some("true")]
                     {}
-                })
+                }
             }
             IconKind::Svg { shapes, viewbox } => {
                 let aria_label = self.aria_label().lookup(cx);
                 let has_label = aria_label.is_some();
                 let viewbox = viewbox.get().unwrap_or_else(|| DEFAULT_VIEWBOX.to_string());
-                PrepareMarkup::With(html! {
+                html! {
                     svg
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox=(viewbox)
@@ -67,7 +67,7 @@ impl Component for Icon {
                     {
                         (shapes)
                     }
-                })
+                }
             }
         }
     }

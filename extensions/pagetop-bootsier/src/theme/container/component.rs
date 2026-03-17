@@ -33,10 +33,10 @@ impl Component for Container {
         self.alter_classes(ClassesOp::Prepend, self.container_width().to_class());
     }
 
-    fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
+    fn prepare_component(&self, cx: &mut Context) -> Markup {
         let output = self.children().render(cx);
         if output.is_empty() {
-            return PrepareMarkup::None;
+            return html! {};
         }
         let style = match self.container_width() {
             container::Width::FluidMax(w) if w.is_measurable() => {
@@ -45,36 +45,36 @@ impl Component for Container {
             _ => None,
         };
         match self.container_kind() {
-            container::Kind::Default => PrepareMarkup::With(html! {
+            container::Kind::Default => html! {
                 div id=[self.id()] class=[self.classes().get()] style=[style] {
                     (output)
                 }
-            }),
-            container::Kind::Main => PrepareMarkup::With(html! {
+            },
+            container::Kind::Main => html! {
                 main id=[self.id()] class=[self.classes().get()] style=[style] {
                     (output)
                 }
-            }),
-            container::Kind::Header => PrepareMarkup::With(html! {
+            },
+            container::Kind::Header => html! {
                 header id=[self.id()] class=[self.classes().get()] style=[style] {
                     (output)
                 }
-            }),
-            container::Kind::Footer => PrepareMarkup::With(html! {
+            },
+            container::Kind::Footer => html! {
                 footer id=[self.id()] class=[self.classes().get()] style=[style] {
                     (output)
                 }
-            }),
-            container::Kind::Section => PrepareMarkup::With(html! {
+            },
+            container::Kind::Section => html! {
                 section id=[self.id()] class=[self.classes().get()] style=[style] {
                     (output)
                 }
-            }),
-            container::Kind::Article => PrepareMarkup::With(html! {
+            },
+            container::Kind::Article => html! {
                 article id=[self.id()] class=[self.classes().get()] style=[style] {
                     (output)
                 }
-            }),
+            },
         }
     }
 }

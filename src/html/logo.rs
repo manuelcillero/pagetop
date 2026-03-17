@@ -9,8 +9,8 @@ use crate::AutoDefault;
 ///
 /// ```rust
 /// # use pagetop::prelude::*;
-/// fn render_logo(cx: &mut Context) -> PrepareMarkup {
-///     PrepareMarkup::With(html! {
+/// fn render_logo(cx: &mut Context) -> Markup {
+///     html! {
 ///         div class="logo_color" {
 ///             (PageTopSvg::Color.render(cx))
 ///         }
@@ -23,7 +23,7 @@ use crate::AutoDefault;
 ///         div class="line_red" {
 ///             (PageTopSvg::LineRGB(255, 0, 0).render(cx))
 ///         }
-///     })
+///     }
 /// };
 /// ```
 

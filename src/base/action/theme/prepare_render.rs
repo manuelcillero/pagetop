@@ -6,7 +6,7 @@ use crate::prelude::*;
 /// los componentes.
 ///
 /// Recibe una referencia al componente `component` y una referencia mutable al contexto `cx`.
-pub type FnPrepareRender<C> = fn(component: &C, cx: &mut Context) -> PrepareMarkup;
+pub type FnPrepareRender<C> = fn(component: &C, cx: &mut Context) -> Markup;
 
 /// Ejecuta [`FnPrepareRender`] para preparar el renderizado de un componente.
 ///
@@ -43,8 +43,8 @@ impl<C: Component> PrepareRender<C> {
 
     /// Despacha las acciones. Se detiene en cuanto una renderiza.
     #[inline]
-    pub(crate) fn dispatch(component: &C, cx: &mut Context) -> PrepareMarkup {
-        let mut render_component = PrepareMarkup::None;
+    pub(crate) fn dispatch(component: &C, cx: &mut Context) -> Markup {
+        let mut render_component = html! {};
         dispatch_actions(
             &ActionKey::new(
                 UniqueId::of::<Self>(),
