@@ -10,6 +10,7 @@ use crate::{builder_fn, util, CowStr};
 
 use std::any::Any;
 use std::collections::HashMap;
+use std::fmt;
 
 /// Operaciones para modificar recursos asociados al [`Context`] de un documento.
 pub enum ContextOp {
@@ -44,6 +45,26 @@ pub enum ContextError {
         saved: &'static str,
     },
 }
+
+impl fmt::Display for ContextError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            ContextError::ParamNotFound => {
+                write!(f, "parameter not found")
+            }
+            ContextError::ParamTypeMismatch {
+                key,
+                expected,
+                saved,
+            } => write!(
+                f,
+                "type mismatch for parameter \"{key}\": expected \"{expected}\", found \"{saved}\""
+            ),
+        }
+    }
+}
+
+impl std::error::Error for ContextError {}
 
 /// Interfaz para gestionar el **contexto de renderizado** de un documento HTML.
 ///

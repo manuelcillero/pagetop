@@ -38,8 +38,8 @@ pub use context::{Context, ContextError, ContextOp, Contextual};
 ///         self.renderable.map_or(true, |f| f(cx))
 ///     }
 ///
-///     fn prepare_component(&self, _cx: &mut Context) -> PrepareMarkup {
-///         PrepareMarkup::Escaped("Visible component".into())
+///     fn prepare_component(&self, _cx: &mut Context) -> Markup {
+///         html! { "Visible component" }
 ///     }
 /// }
 ///

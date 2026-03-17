@@ -62,17 +62,17 @@ impl Component for Item {
         self.id.get()
     }
 
-    fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
+    fn prepare_component(&self, cx: &mut Context) -> Markup {
         match self.item_kind() {
-            ItemKind::Void => PrepareMarkup::None,
+            ItemKind::Void => html! {},
 
-            ItemKind::Label(label) => PrepareMarkup::With(html! {
+            ItemKind::Label(label) => html! {
                 li id=[self.id()] class=[self.classes().get()] {
                     span class="dropdown-item-text" {
                         (label.using(cx))
                     }
                 }
-            }),
+            },
 
             ItemKind::Link {
                 label,
@@ -100,7 +100,7 @@ impl Component for Item {
                 let aria_disabled = disabled.then_some("true");
                 let tabindex = disabled.then_some("-1");
 
-                PrepareMarkup::With(html! {
+                html! {
                     li id=[self.id()] class=[self.classes().get()] {
                         a
                             class=(classes)
@@ -114,7 +114,7 @@ impl Component for Item {
                             (label.using(cx))
                         }
                     }
-                })
+                }
             }
 
             ItemKind::Button { label, disabled } => {
@@ -126,7 +126,7 @@ impl Component for Item {
                 let aria_disabled = disabled.then_some("true");
                 let disabled_attr = disabled.then_some("disabled");
 
-                PrepareMarkup::With(html! {
+                html! {
                     li id=[self.id()] class=[self.classes().get()] {
                         button
                             class=(classes)
@@ -137,20 +137,20 @@ impl Component for Item {
                             (label.using(cx))
                         }
                     }
-                })
+                }
             }
 
-            ItemKind::Header(label) => PrepareMarkup::With(html! {
+            ItemKind::Header(label) => html! {
                 li id=[self.id()] class=[self.classes().get()] {
                     h6 class="dropdown-header" {
                         (label.using(cx))
                     }
                 }
-            }),
+            },
 
-            ItemKind::Divider => PrepareMarkup::With(html! {
+            ItemKind::Divider => html! {
                 li id=[self.id()] class=[self.classes().get()] { hr class="dropdown-divider" {} }
-            }),
+            },
         }
     }
 }

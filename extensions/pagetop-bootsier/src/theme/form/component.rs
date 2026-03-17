@@ -52,12 +52,12 @@ impl Component for Form {
         self.alter_classes(ClassesOp::Prepend, "form");
     }
 
-    fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
+    fn prepare_component(&self, cx: &mut Context) -> Markup {
         let method = match self.method() {
             form::Method::Post => Some("post"),
             form::Method::Get => None,
         };
-        PrepareMarkup::With(html! {
+        html! {
             form
                 id=[self.id()]
                 class=[self.classes().get()]
@@ -67,7 +67,7 @@ impl Component for Form {
             {
                 (self.children().render(cx))
             }
-        })
+        }
     }
 }
 

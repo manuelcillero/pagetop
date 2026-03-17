@@ -62,8 +62,8 @@ impl Component for Offcanvas {
         });
     }
 
-    fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
-        PrepareMarkup::With(self.render_offcanvas(cx, None))
+    fn prepare_component(&self, cx: &mut Context) -> Markup {
+        self.render_offcanvas(cx, None)
     }
 }
 

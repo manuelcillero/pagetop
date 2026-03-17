@@ -42,17 +42,17 @@ impl Component for Nav {
         });
     }
 
-    fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
+    fn prepare_component(&self, cx: &mut Context) -> Markup {
         let items = self.items().render(cx);
         if items.is_empty() {
-            return PrepareMarkup::None;
+            return html! {};
         }
 
-        PrepareMarkup::With(html! {
+        html! {
             ul id=[self.id()] class=[self.classes().get()] {
                 (items)
             }
-        })
+        }
     }
 }
 

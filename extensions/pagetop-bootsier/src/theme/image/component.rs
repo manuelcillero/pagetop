@@ -36,13 +36,13 @@ impl Component for Image {
         self.alter_classes(ClassesOp::Prepend, self.source().to_class());
     }
 
-    fn prepare_component(&self, cx: &mut Context) -> PrepareMarkup {
+    fn prepare_component(&self, cx: &mut Context) -> Markup {
         let dimensions = self.size().to_style();
         let alt_text = self.alternative().lookup(cx).unwrap_or_default();
         let is_decorative = alt_text.is_empty();
         let source = match self.source() {
             image::Source::Logo(logo) => {
-                return PrepareMarkup::With(html! {
+                return html! {
                     span
                         id=[self.id()]
                         class=[self.classes().get()]
@@ -53,20 +53,20 @@ impl Component for Image {
                     {
                         (logo.render(cx))
                     }
-                })
+                }
             }
             image::Source::Responsive(source) => Some(source),
             image::Source::Thumbnail(source) => Some(source),
             image::Source::Plain(source) => Some(source),
         };
-        PrepareMarkup::With(html! {
+        html! {
             img
                 src=[source]
                 alt=(alt_text)
                 id=[self.id()]
                 class=[self.classes().get()]
                 style=[dimensions] {}
-        })
+        }
     }
 }
 
