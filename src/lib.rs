@@ -117,13 +117,13 @@ use std::ops::Deref;
 /// impl Theme for MyTheme {
 ///     fn before_render_page_body(&self, page: &mut Page) {
 ///         page
-///             .alter_assets(ContextOp::AddStyleSheet(
+///             .alter_assets(AssetsOp::AddStyleSheet(
 ///                 StyleSheet::from("/css/normalize.css").with_version("8.0.1"),
 ///             ))
-///             .alter_assets(ContextOp::AddStyleSheet(
+///             .alter_assets(AssetsOp::AddStyleSheet(
 ///                 StyleSheet::from("/css/basic.css").with_version(PAGETOP_VERSION),
 ///             ))
-///             .alter_assets(ContextOp::AddStyleSheet(
+///             .alter_assets(AssetsOp::AddStyleSheet(
 ///                 StyleSheet::from("/mytheme/styles.css").with_version(env!("CARGO_PKG_VERSION")),
 ///             ));
 ///     }

@@ -11,7 +11,7 @@ pub use children::{Child, ChildOp};
 pub use children::{Typed, TypedOp};
 
 mod context;
-pub use context::{Context, ContextError, ContextOp, Contextual};
+pub use context::{AssetsOp, Context, ContextError, Contextual};
 
 /// Alias de función (*callback*) para **determinar si un componente se renderiza o no**.
 ///

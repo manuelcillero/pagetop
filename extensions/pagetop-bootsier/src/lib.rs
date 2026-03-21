@@ -151,12 +151,12 @@ impl Theme for Bootsier {
     }
 
     fn before_render_page_body(&self, page: &mut Page) {
-        page.alter_assets(ContextOp::AddStyleSheet(
+        page.alter_assets(AssetsOp::AddStyleSheet(
             StyleSheet::from("/bootsier/bs/bootstrap.min.css")
                 .with_version(BOOTSTRAP_VERSION)
                 .with_weight(-90),
         ))
-        .alter_assets(ContextOp::AddJavaScript(
+        .alter_assets(AssetsOp::AddJavaScript(
             JavaScript::defer("/bootsier/js/bootstrap.bundle.min.js")
                 .with_version(BOOTSTRAP_VERSION)
                 .with_weight(-90),

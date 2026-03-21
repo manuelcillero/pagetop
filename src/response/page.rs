@@ -19,8 +19,8 @@ pub use error::ErrorPage;
 pub use actix_web::Result as ResultPage;
 
 use crate::base::action;
+use crate::core::component::{AssetsOp, Context, Contextual};
 use crate::core::component::{Child, ChildOp, Component};
-use crate::core::component::{Context, ContextOp, Contextual};
 use crate::core::theme::{DefaultRegion, Region, RegionRef, TemplateRef, ThemeRef};
 use crate::html::{html, Markup, DOCTYPE};
 use crate::html::{Assets, Favicon, JavaScript, StyleSheet};
@@ -334,7 +334,7 @@ impl Contextual for Page {
     }
 
     #[builder_fn]
-    fn with_assets(mut self, op: ContextOp) -> Self {
+    fn with_assets(mut self, op: AssetsOp) -> Self {
         self.context.alter_assets(op);
         self
     }
