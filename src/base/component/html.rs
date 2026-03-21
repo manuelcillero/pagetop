@@ -1,5 +1,7 @@
 use crate::prelude::*;
 
+use std::fmt;
+
 /// Componente básico que renderiza dinámicamente código HTML según el contexto.
 ///
 /// Este componente permite generar contenido HTML arbitrario, usando la macro `html!` y accediendo
@@ -30,6 +32,14 @@ use crate::prelude::*;
 /// });
 /// ```
 pub struct Html(Box<dyn Fn(&mut Context) -> Markup + Send + Sync>);
+
+impl fmt::Debug for Html {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_tuple("Html")
+            .field(&"Fn(&mut Context) -> Markup")
+            .finish()
+    }
+}
 
 impl Default for Html {
     fn default() -> Self {

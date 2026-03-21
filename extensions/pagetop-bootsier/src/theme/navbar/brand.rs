@@ -11,7 +11,7 @@ use crate::prelude::*;
 /// - Si no hay imagen ([`with_image()`](Self::with_image)) ni título
 ///   ([`with_title()`](Self::with_title)), la marca de identidad no se renderiza.
 /// - El eslogan ([`with_slogan()`](Self::with_slogan)) es opcional; por defecto no tiene contenido.
-#[derive(AutoDefault, Getters)]
+#[derive(AutoDefault, Debug, Getters)]
 pub struct Brand {
     #[getters(skip)]
     id: AttrId,

@@ -14,7 +14,7 @@ const TOGGLE_OFFCANVAS: &str = "offcanvas";
 ///
 /// Ver ejemplos en el módulo [`navbar`].
 /// Si no contiene elementos, el componente **no se renderiza**.
-#[derive(AutoDefault, Getters)]
+#[derive(AutoDefault, Debug, Getters)]
 pub struct Navbar {
     #[getters(skip)]
     id: AttrId,

@@ -7,7 +7,7 @@ use pagetop::prelude::*;
 ///
 /// Define internamente la naturaleza del elemento y su comportamiento al mostrarse o interactuar
 /// con él.
-#[derive(AutoDefault)]
+#[derive(AutoDefault, Debug)]
 pub enum ItemKind {
     /// Elemento vacío, no produce salida.
     #[default]
@@ -43,7 +43,7 @@ pub enum ItemKind {
 ///
 /// Permite definir el identificador, las clases de estilo adicionales y el tipo de interacción
 /// asociada, manteniendo una interfaz común para renderizar todos los elementos del menú.
-#[derive(AutoDefault, Getters)]
+#[derive(AutoDefault, Debug, Getters)]
 pub struct Item {
     #[getters(skip)]
     id: AttrId,

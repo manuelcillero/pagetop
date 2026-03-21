@@ -13,7 +13,7 @@ pub enum IconKind {
     },
 }
 
-#[derive(AutoDefault, Getters)]
+#[derive(AutoDefault, Debug, Getters)]
 pub struct Icon {
     /// Devuelve las clases CSS asociadas al icono.
     classes: Classes,

@@ -7,6 +7,7 @@ use parking_lot::RwLock;
 pub use parking_lot::RwLockReadGuard as ComponentReadGuard;
 pub use parking_lot::RwLockWriteGuard as ComponentWriteGuard;
 
+use std::fmt;
 use std::sync::Arc;
 use std::vec::IntoIter;
 
@@ -16,6 +17,15 @@ use std::vec::IntoIter;
 /// habilita acceso concurrente mediante [`Arc<RwLock<_>>`].
 #[derive(AutoDefault, Clone)]
 pub struct Child(Option<Arc<RwLock<dyn Component>>>);
+
+impl fmt::Debug for Child {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match &self.0 {
+            None => write!(f, "Child(None)"),
+            Some(c) => write!(f, "Child({})", c.read().name()),
+        }
+    }
+}
 
 impl Child {
     /// Crea un nuevo `Child` a partir de un componente.
@@ -70,6 +80,15 @@ impl Child {
 /// [`Component`], y habilita acceso concurrente mediante [`Arc<RwLock<_>>`].
 #[derive(AutoDefault, Clone)]
 pub struct Typed<C: Component>(Option<Arc<RwLock<C>>>);
+
+impl<C: Component> fmt::Debug for Typed<C> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match &self.0 {
+            None => write!(f, "Typed(None)"),
+            Some(c) => write!(f, "Typed({})", c.read().name()),
+        }
+    }
+}
 
 impl<C: Component> Typed<C> {
     /// Crea un nuevo `Typed` a partir de un componente.
@@ -202,7 +221,7 @@ pub enum TypedOp<C: Component> {
 /// Esta lista permite añadir, modificar, renderizar y consultar componentes hijo en orden de
 /// inserción, soportando operaciones avanzadas como inserción relativa o reemplazo por
 /// identificador.
-#[derive(AutoDefault, Clone)]
+#[derive(AutoDefault, Clone, Debug)]
 pub struct Children(Vec<Child>);
 
 impl Children {

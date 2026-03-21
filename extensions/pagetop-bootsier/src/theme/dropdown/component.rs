@@ -19,7 +19,7 @@ use crate::LOCALES_BOOTSIER;
 ///
 /// Ver ejemplo en el módulo [`dropdown`].
 /// Si no contiene elementos, el componente **no se renderiza**.
-#[derive(AutoDefault, Getters)]
+#[derive(AutoDefault, Debug, Getters)]
 pub struct Dropdown {
     #[getters(skip)]
     id: AttrId,

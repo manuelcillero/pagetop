@@ -5,7 +5,7 @@ use crate::prelude::*;
 // **< Layout >*************************************************************************************
 
 /// Representa los diferentes tipos de presentación de una barra de navegación [`Navbar`].
-#[derive(AutoDefault)]
+#[derive(AutoDefault, Debug)]
 pub enum Layout {
     /// Barra simple, sin marca de identidad y sin botón de despliegue.
     ///

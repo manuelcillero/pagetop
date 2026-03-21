@@ -76,7 +76,7 @@ pub enum IntroOpening {
 ///             })),
 ///     );
 /// ```
-#[derive(Getters)]
+#[derive(Debug, Getters)]
 pub struct Intro {
     /// Devuelve el título de entrada.
     title: L10n,

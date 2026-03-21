@@ -7,7 +7,7 @@ use crate::prelude::*;
 /// Cada variante determina qué se renderiza y cómo. Estos elementos se colocan **dentro del
 /// contenido** de la barra (la parte colapsable, el *offcanvas* o el bloque simple), por lo que son
 /// independientes de la marca o del botón que ya pueda definir el propio [`navbar::Layout`].
-#[derive(AutoDefault)]
+#[derive(AutoDefault, Debug)]
 pub enum Item {
     /// Sin contenido, no produce salida.
     #[default]

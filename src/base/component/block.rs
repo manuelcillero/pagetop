@@ -4,7 +4,7 @@ use crate::prelude::*;
 ///
 /// Los bloques se utilizan como contenedores de otros componentes o contenidos, con un título
 /// opcional y un cuerpo que sólo se renderiza si existen componentes hijos (*children*).
-#[derive(AutoDefault, Getters)]
+#[derive(AutoDefault, Debug, Getters)]
 pub struct Block {
     #[getters(skip)]
     id: AttrId,
