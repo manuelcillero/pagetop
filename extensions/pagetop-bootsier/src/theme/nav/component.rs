@@ -10,7 +10,7 @@ use crate::prelude::*;
 ///
 /// Ver ejemplo en el módulo [`nav`].
 /// Si no contiene elementos, el componente **no se renderiza**.
-#[derive(AutoDefault, Getters)]
+#[derive(AutoDefault, Debug, Getters)]
 pub struct Nav {
     #[getters(skip)]
     id: AttrId,

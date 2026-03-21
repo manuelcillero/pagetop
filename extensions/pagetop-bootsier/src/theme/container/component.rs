@@ -6,7 +6,7 @@ use crate::prelude::*;
 ///
 /// Envuelve un contenido con la etiqueta HTML indicada por [`container::Kind`]. Sólo se renderiza
 /// si existen componentes hijos (*children*).
-#[derive(AutoDefault, Getters)]
+#[derive(AutoDefault, Debug, Getters)]
 pub struct Container {
     #[getters(skip)]
     id: AttrId,

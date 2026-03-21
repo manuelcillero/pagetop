@@ -21,7 +21,7 @@ use crate::LOCALES_BOOTSIER;
 ///
 /// Ver ejemplo en el módulo [`offcanvas`].
 /// Si no contiene elementos, el componente **no se renderiza**.
-#[derive(AutoDefault, Getters)]
+#[derive(AutoDefault, Debug, Getters)]
 pub struct Offcanvas {
     #[getters(skip)]
     id: AttrId,

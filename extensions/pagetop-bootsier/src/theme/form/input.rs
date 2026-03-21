@@ -3,7 +3,7 @@ use pagetop::prelude::*;
 use crate::theme::form;
 use crate::LOCALES_BOOTSIER;
 
-#[derive(AutoDefault, Getters)]
+#[derive(AutoDefault, Debug, Getters)]
 pub struct Input {
     classes: Classes,
     input_type: form::InputType,

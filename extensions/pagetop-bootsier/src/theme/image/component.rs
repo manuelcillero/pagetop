@@ -9,7 +9,7 @@ use crate::prelude::*;
 ///   ([`classes::Border`](crate::theme::classes::Border)) y **redondeo de esquinas**
 ///   ([`classes::Rounded`](crate::theme::classes::Rounded)).
 /// - Resuelve el texto alternativo `alt` con **localización** mediante [`L10n`].
-#[derive(AutoDefault, Getters)]
+#[derive(AutoDefault, Debug, Getters)]
 pub struct Image {
     #[getters(skip)]
     id: AttrId,

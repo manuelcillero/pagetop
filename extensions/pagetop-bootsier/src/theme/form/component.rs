@@ -27,7 +27,7 @@ use crate::theme::form;
 ///     .with_classes(ClassesOp::Add, "mb-3")
 ///     .add_child(Input::new().with_name("q"));
 /// ```
-#[derive(AutoDefault, Getters)]
+#[derive(AutoDefault, Debug, Getters)]
 pub struct Form {
     #[getters(skip)]
     id: AttrId,

@@ -3,7 +3,7 @@ use pagetop::prelude::*;
 /// Agrupa controles relacionados de un formulario (`<fieldset>`).
 ///
 /// Se usa para mejorar la accesibilidad cuando se acompaña de una leyenda que encabeza el grupo.
-#[derive(AutoDefault, Getters)]
+#[derive(AutoDefault, Debug, Getters)]
 pub struct Fieldset {
     #[getters(skip)]
     id: AttrId,

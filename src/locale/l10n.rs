@@ -62,6 +62,17 @@ pub struct L10n {
     args: Vec<(CowStr, CowStr)>,
 }
 
+impl fmt::Debug for L10n {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("L10n")
+            .field("op", &self.op)
+            .field("args", &self.args)
+            // No se puede mostrar `locales`; se representa con un texto fijo.
+            .field("locales", &"<StaticLoader>")
+            .finish()
+    }
+}
+
 impl L10n {
     /// **n** = *“native”*. Crea una instancia con una cadena literal sin traducción.
     pub fn n(text: impl Into<CowStr>) -> Self {
@@ -175,16 +186,5 @@ impl L10n {
     /// ```
     pub fn using(&self, language: &impl LangId) -> Markup {
         PreEscaped(self.lookup(language).unwrap_or_default())
-    }
-}
-
-impl fmt::Debug for L10n {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_struct("L10n")
-            .field("op", &self.op)
-            .field("args", &self.args)
-            // No se puede mostrar `locales`; se representa con un texto fijo.
-            .field("locales", &"<StaticLoader>")
-            .finish()
     }
 }
