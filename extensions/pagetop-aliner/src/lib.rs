@@ -105,17 +105,17 @@ impl Extension for Aliner {
 
 impl Theme for Aliner {
     fn before_render_page_body(&self, page: &mut Page) {
-        page.alter_assets(ContextOp::AddStyleSheet(
+        page.alter_assets(AssetsOp::AddStyleSheet(
             StyleSheet::from("/css/normalize.css")
                 .with_version("8.0.1")
                 .with_weight(-99),
         ))
-        .alter_assets(ContextOp::AddStyleSheet(
+        .alter_assets(AssetsOp::AddStyleSheet(
             StyleSheet::from("/css/basic.css")
                 .with_version(PAGETOP_VERSION)
                 .with_weight(-99),
         ))
-        .alter_assets(ContextOp::AddStyleSheet(
+        .alter_assets(AssetsOp::AddStyleSheet(
             StyleSheet::from("/aliner/css/styles.css")
                 .with_version(env!("CARGO_PKG_VERSION"))
                 .with_weight(-99),

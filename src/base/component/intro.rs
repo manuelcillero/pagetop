@@ -110,14 +110,14 @@ impl Component for Intro {
     }
 
     fn setup_before_prepare(&mut self, cx: &mut Context) {
-        cx.alter_assets(ContextOp::AddStyleSheet(
+        cx.alter_assets(AssetsOp::AddStyleSheet(
             StyleSheet::from("/css/intro.css").with_version(PAGETOP_VERSION),
         ));
     }
 
     fn prepare_component(&self, cx: &mut Context) -> Markup {
         if *self.opening() == IntroOpening::PageTop {
-            cx.alter_assets(ContextOp::AddJavaScript(JavaScript::on_load_async("intro-js", |cx|
+            cx.alter_assets(AssetsOp::AddJavaScript(JavaScript::on_load_async("intro-js", |cx|
                 util::indoc!(r#"
                 try {
                     const resp = await fetch("https://crates.io/api/v1/crates/pagetop");
