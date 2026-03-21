@@ -85,7 +85,7 @@ async fn poweredby_getter_reflects_internal_state() {
 
     // Y `new()` lo inicializa con año + nombre de app.
     let p1 = PoweredBy::new();
-    let c1 = p1.copyright().expect("Expected copyright to exis");
+    let c1 = p1.copyright().expect("Expected copyright to exist");
     assert!(c1.contains(&Utc::now().format("%Y").to_string()));
     assert!(c1.contains(&global::SETTINGS.app.name));
 }

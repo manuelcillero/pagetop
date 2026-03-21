@@ -213,12 +213,12 @@ impl FromStr for UnitValue {
             None => {
                 let n: f32 = s
                     .parse()
-                    .map_err(|e| format!("Invalid number `{s}`: {e}"))?;
+                    .map_err(|e| format!("invalid number `{s}`: {e}"))?;
                 if n == 0.0 {
                     Ok(UnitValue::Zero)
                 } else {
                     Err(
-                        "Missing unit (expected one of cm,in,mm,pc,pt,px,em,rem,vh,vw, or %)"
+                        "missing unit (expected one of cm,in,mm,pc,pt,px,em,rem,vh,vw, or %)"
                             .to_string(),
                     )
                 }
@@ -230,11 +230,11 @@ impl FromStr for UnitValue {
 
                 let parse_abs = |n_s: &str| -> Result<isize, String> {
                     n_s.parse::<isize>()
-                        .map_err(|e| format!("Invalid integer `{n_s}`: {e}"))
+                        .map_err(|e| format!("invalid integer `{n_s}`: {e}"))
                 };
                 let parse_rel = |n_s: &str| -> Result<f32, String> {
                     n_s.parse::<f32>()
-                        .map_err(|e| format!("Invalid float `{n_s}`: {e}"))
+                        .map_err(|e| format!("invalid float `{n_s}`: {e}"))
                 };
 
                 match u.to_ascii_lowercase().as_str() {
@@ -253,7 +253,7 @@ impl FromStr for UnitValue {
                     // Porcentaje como unidad.
                     "%" => Ok(UnitValue::RelPct(parse_rel(n)?)),
                     // Unidad desconocida.
-                    _ => Err(format!("Unknown unit: `{u}`")),
+                    _ => Err(format!("unknown unit: `{u}`")),
                 }
             }
         }
