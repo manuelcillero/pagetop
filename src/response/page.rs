@@ -380,4 +380,8 @@ impl Contextual for Page {
     fn required_id<T>(&mut self, id: Option<String>) -> String {
         self.context.required_id::<T>(id)
     }
+
+    fn push_message(&mut self, level: crate::prelude::MessageLevel, text: L10n) {
+        self.context.push_message(level, text);
+    }
 }
