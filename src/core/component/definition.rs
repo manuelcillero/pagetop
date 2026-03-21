@@ -1,5 +1,5 @@
 use crate::base::action;
-use crate::core::component::Context;
+use crate::core::component::{ComponentError, Context, Contextual};
 use crate::core::{AnyInfo, TypeInfo};
 use crate::html::{html, Markup};
 
@@ -14,11 +14,15 @@ pub trait ComponentRender {
 
 /// Interfaz común que debe implementar un componente renderizable en PageTop.
 ///
-/// Se recomienda que los componentes deriven [`AutoDefault`](crate::AutoDefault). También deben
-/// implementar explícitamente el método [`new()`](Self::new) y pueden sobrescribir los otros
-/// métodos para personalizar su comportamiento.
+/// Se recomienda que los componentes declaren sus campos como privados, que deriven
+/// [`AutoDefault`](crate::AutoDefault) o implementen [`Default`] para inicializarlos por defecto, y
+/// [`Getters`](crate::Getters) para acceder a sus datos. Deberán implementar explícitamente el
+/// método [`new()`](Self::new) y podrán sobrescribir los demás métodos para personalizar su
+/// comportamiento.
 pub trait Component: AnyInfo + ComponentRender + Send + Sync {
     /// Crea una nueva instancia del componente.
+    ///
+    /// Por convención suele devolver `Self::default()`.
     fn new() -> Self
     where
         Self: Sized;
@@ -51,9 +55,9 @@ pub trait Component: AnyInfo + ComponentRender + Send + Sync {
     /// puede sobrescribirse para decidir dinámicamente si los componentes de este tipo se
     /// renderizan o no en función del contexto de renderizado.
     ///
-    /// También puede usarse junto con un alias de función como
-    /// ([`FnIsRenderable`](crate::core::component::FnIsRenderable)) para permitir que instancias
-    /// concretas del componente decidan si se renderizan o no.
+    /// También puede asignarse una función [`FnIsRenderable`](super::FnIsRenderable) a un campo del
+    /// componente para permitir que instancias concretas del mismo puedan decidir dinámicamente si
+    /// se renderizan o no.
     #[allow(unused_variables)]
     fn is_renderable(&self, cx: &mut Context) -> bool {
         true
@@ -62,25 +66,28 @@ pub trait Component: AnyInfo + ComponentRender + Send + Sync {
     /// Configura el componente justo antes de preparar el renderizado.
     ///
     /// Este método puede sobrescribirse para modificar la estructura interna del componente o el
-    /// contexto antes de preparar la renderización del componente. Por defecto no hace nada.
+    /// contexto antes de renderizarlo. Por defecto no hace nada.
     #[allow(unused_variables)]
     fn setup_before_prepare(&mut self, cx: &mut Context) {}
 
-    /// Devuelve una representación renderizada del componente.
+    /// Devuelve el marcado HTML del componente usando el contexto proporcionado.
     ///
     /// Este método forma parte del ciclo de vida de los componentes y se invoca automáticamente
-    /// durante el proceso de construcción del documento. Puede sobrescribirse para generar
-    /// dinámicamente el contenido HTML con acceso al contexto de renderizado.
+    /// durante el proceso de construcción del documento. Cada componente lo implementa para generar
+    /// su propio contenido HTML. Los temas hijo pueden sobrescribir opcionalmente su resultado
+    /// mediante la acción [`PrepareRender`](crate::base::action::theme::PrepareRender).
     ///
-    /// Este método debe ser capaz de preparar el renderizado del componente con los métodos del
-    /// propio componente y el contexto proporcionado, no debería hacerlo accediendo directamente a
-    /// los campos de la estructura del componente. Es una forma de garantizar que los programadores
-    /// podrán sobrescribir este método sin preocuparse por los detalles internos del componente.
+    /// Se recomienda obtener los datos del componente a través de sus propios métodos para que los
+    /// temas hijo que implementen dicha acción puedan generar el nuevo HTML sin depender de los
+    /// detalles internos del componente.
     ///
-    /// Por defecto, devuelve un [`Markup`] vacío (`html! {}`).
+    /// Por defecto, devuelve un [`Markup`] vacío (`Ok(html! {})`).
+    ///
+    /// En caso de error, devuelve un [`ComponentError`] que puede incluir un marcado alternativo
+    /// (*fallback*) para sustituir al componente fallido.
     #[allow(unused_variables)]
-    fn prepare_component(&self, cx: &mut Context) -> Markup {
-        html! {}
+    fn prepare_component(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
+        Ok(html! {})
     }
 }
 
@@ -123,11 +130,33 @@ impl<C: Component> ComponentRender for C {
         action::component::BeforeRender::dispatch(self, cx);
 
         // Prepara el renderizado del componente.
-        let prepare = action::theme::PrepareRender::dispatch(self, cx);
-        let prepare = if prepare.is_empty() {
-            self.prepare_component(cx)
-        } else {
-            prepare
+        let prepare = match action::theme::PrepareRender::dispatch(self, cx) {
+            Ok(markup) if !markup.is_empty() => markup,
+            Ok(_) => match self.prepare_component(cx) {
+                Ok(markup) => markup,
+                Err(error) => {
+                    crate::trace::error!(
+                        path = cx.request().map(|r| r.path()).unwrap_or("<unknown>"),
+                        component = self.name(),
+                        id = self.id().as_deref().unwrap_or("<not set>"),
+                        source = "prepare_component",
+                        "render failed, using fallback: {}",
+                        error.message()
+                    );
+                    error.into_fallback()
+                }
+            },
+            Err(error) => {
+                crate::trace::error!(
+                    path = cx.request().map(|r| r.path()).unwrap_or("<unknown>"),
+                    component = self.name(),
+                    id = self.id().as_deref().unwrap_or("<not set>"),
+                    source = "PrepareRender",
+                    "render failed, using fallback: {}",
+                    error.message()
+                );
+                error.into_fallback()
+            }
         };
 
         // Acciones específicas del tema después de renderizar el componente.

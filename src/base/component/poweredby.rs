@@ -25,8 +25,8 @@ impl Component for PoweredBy {
         PoweredBy { copyright: Some(c) }
     }
 
-    fn prepare_component(&self, cx: &mut Context) -> Markup {
-        html! {
+    fn prepare_component(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
+        Ok(html! {
             div id=[self.id()] class="poweredby" {
                 @if let Some(c) = self.copyright() {
                     span class="poweredby__copyright" { (c) "." } " "
@@ -35,7 +35,7 @@ impl Component for PoweredBy {
                     (L10n::l("poweredby_pagetop").with_arg("pagetop_link", LINK).using(cx))
                 }
             }
-        }
+        })
     }
 }
 

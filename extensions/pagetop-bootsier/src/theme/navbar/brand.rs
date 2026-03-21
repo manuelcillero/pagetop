@@ -36,20 +36,20 @@ impl Component for Brand {
         self.id.get()
     }
 
-    fn prepare_component(&self, cx: &mut Context) -> Markup {
+    fn prepare_component(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
         let image = self.image().render(cx);
         let title = self.title().using(cx);
         if title.is_empty() && image.is_empty() {
-            return html! {};
+            return Ok(html! {});
         }
         let slogan = self.slogan().using(cx);
-        html! {
+        Ok(html! {
             @if let Some(route) = self.route() {
                 a class="navbar-brand" href=(route(cx)) { (image) (title) (slogan) }
             } @else {
                 span class="navbar-brand" { (image) (title) (slogan) }
             }
-        }
+        })
     }
 }
 

@@ -63,17 +63,17 @@ impl Component for Dropdown {
         );
     }
 
-    fn prepare_component(&self, cx: &mut Context) -> Markup {
+    fn prepare_component(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
         // Si no hay elementos en el menú, no se prepara.
         let items = self.items().render(cx);
         if items.is_empty() {
-            return html! {};
+            return Ok(html! {});
         }
 
         // Título opcional para el menú desplegable.
         let title = self.title().using(cx);
 
-        html! {
+        Ok(html! {
             div id=[self.id()] class=[self.classes().get()] {
                 @if !title.is_empty() {
                     @let mut btn_classes = Classes::new({
@@ -156,7 +156,7 @@ impl Component for Dropdown {
                     ul class="dropdown-menu" { (items) }
                 }
             }
-        }
+        })
     }
 }
 

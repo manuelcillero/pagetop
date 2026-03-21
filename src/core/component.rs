@@ -2,6 +2,9 @@
 
 use crate::html::RoutePath;
 
+mod error;
+pub use error::ComponentError;
+
 mod definition;
 pub use definition::{Component, ComponentRender};
 
@@ -38,8 +41,8 @@ pub use context::{AssetsOp, Context, ContextError, Contextual};
 ///         self.renderable.map_or(true, |f| f(cx))
 ///     }
 ///
-///     fn prepare_component(&self, _cx: &mut Context) -> Markup {
-///         html! { "Visible component" }
+///     fn prepare_component(&self, _cx: &mut Context) -> Result<Markup, ComponentError> {
+///         Ok(html! { "Visible component" })
 ///     }
 /// }
 ///

@@ -22,15 +22,15 @@ impl Component for Fieldset {
         self.id.get()
     }
 
-    fn prepare_component(&self, cx: &mut Context) -> Markup {
-        html! {
+    fn prepare_component(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
+        Ok(html! {
             fieldset id=[self.id()] class=[self.classes().get()] disabled[*self.disabled()] {
                 @if let Some(legend) = self.legend().lookup(cx) {
                     legend { (legend) }
                 }
                 (self.children().render(cx))
             }
-        }
+        })
     }
 }
 

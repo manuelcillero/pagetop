@@ -72,3 +72,18 @@ where
         list.iter_map(f);
     }
 }
+
+/// Despacha las funciones asociadas a una [`ActionKey`] con posible salida anticipada.
+///
+/// Funciona igual que [`dispatch_actions`], pero el *closure* puede devolver
+/// [`std::ops::ControlFlow::Continue`] para continuar ejecutando la siguiente acción; o
+/// [`std::ops::ControlFlow::Break`] para detener la iteración inmediatamente.
+pub fn dispatch_actions_until<A, F>(key: &ActionKey, f: F)
+where
+    A: ActionDispatcher,
+    F: FnMut(&A) -> std::ops::ControlFlow<()>,
+{
+    if let Some(list) = ACTIONS.read().get(key) {
+        list.iter_try_map(f);
+    }
+}

@@ -6,7 +6,7 @@ use crate::prelude::*;
 /// los componentes.
 ///
 /// Recibe una referencia al componente `component` y una referencia mutable al contexto `cx`.
-pub type FnPrepareRender<C> = fn(component: &C, cx: &mut Context) -> Markup;
+pub type FnPrepareRender<C> = fn(component: &C, cx: &mut Context) -> Result<Markup, ComponentError>;
 
 /// Ejecuta [`FnPrepareRender`] para preparar el renderizado de un componente.
 ///
@@ -41,23 +41,25 @@ impl<C: Component> PrepareRender<C> {
         }
     }
 
-    /// Despacha las acciones. Se detiene en cuanto una renderiza.
+    /// Despacha las acciones. Se detiene en cuanto una renderiza o produce un error.
     #[inline]
-    pub(crate) fn dispatch(component: &C, cx: &mut Context) -> Markup {
-        let mut render_component = html! {};
-        dispatch_actions(
+    pub(crate) fn dispatch(component: &C, cx: &mut Context) -> Result<Markup, ComponentError> {
+        let mut render_result: Result<Markup, ComponentError> = Ok(html! {});
+        dispatch_actions_until(
             &ActionKey::new(
                 UniqueId::of::<Self>(),
                 Some(cx.theme().type_id()),
                 Some(UniqueId::of::<C>()),
                 None,
             ),
-            |action: &Self| {
-                if render_component.is_empty() {
-                    render_component = (action.f)(component, cx);
+            |action: &Self| match &render_result {
+                Ok(markup) if markup.is_empty() => {
+                    render_result = (action.f)(component, cx);
+                    std::ops::ControlFlow::Continue(())
                 }
+                _ => std::ops::ControlFlow::Break(()),
             },
         );
-        render_component
+        render_result
     }
 }

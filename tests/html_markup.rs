@@ -10,15 +10,15 @@ struct TestMarkupComponent {
 
 impl Component for TestMarkupComponent {
     fn new() -> Self {
-        TestMarkupComponent::default()
+        Self::default()
     }
 
     fn is_renderable(&self, cx: &mut Context) -> bool {
         cx.param_or::<bool>("renderable", true)
     }
 
-    fn prepare_component(&self, _cx: &mut Context) -> Markup {
-        self.markup.clone()
+    fn prepare_component(&self, _cx: &mut Context) -> Result<Markup, ComponentError> {
+        Ok(self.markup.clone())
     }
 }
 
