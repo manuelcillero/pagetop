@@ -1,9 +1,10 @@
-use crate::core::component::ChildOp;
+use crate::core::component::{ChildOp, MessageLevel, StatusMessage};
 use crate::core::theme::all::DEFAULT_THEME;
 use crate::core::theme::{ChildrenInRegions, RegionRef, TemplateRef, ThemeRef};
 use crate::core::TypeInfo;
 use crate::html::{html, Markup, RoutePath};
 use crate::html::{Assets, Favicon, JavaScript, StyleSheet};
+use crate::locale::L10n;
 use crate::locale::{LangId, LanguageIdentifier, RequestLocale};
 use crate::service::HttpRequest;
 use crate::{builder_fn, util, CowStr};
@@ -115,6 +116,19 @@ pub trait Contextual: LangId {
     fn with_template(self, template: TemplateRef) -> Self;
 
     /// Añade o modifica un parámetro dinámico del contexto.
+    ///
+    /// El valor se guardará conservando el *nombre del tipo* real para mejorar los mensajes de
+    /// error posteriores.
+    ///
+    /// # Ejemplos
+    ///
+    /// ```rust
+    /// # use pagetop::prelude::*;
+    /// let cx = Context::new(None)
+    ///     .with_param("usuario_id", 42_i32)
+    ///     .with_param("titulo", "Hola".to_string())
+    ///     .with_param("flags", vec!["a", "b"]);
+    /// ```
     #[builder_fn]
     fn with_param<T: 'static>(self, key: &'static str, value: T) -> Self;
 
@@ -137,7 +151,34 @@ pub trait Contextual: LangId {
     /// Devuelve la plantilla configurada para renderizar el documento.
     fn template(&self) -> TemplateRef;
 
-    /// Recupera un parámetro como [`Option`].
+    /// Recupera un parámetro como [`Option`], simplificando el acceso.
+    ///
+    /// A diferencia de [`get_param`](Context::get_param), que devuelve un [`Result`] con
+    /// información detallada de error, este método devuelve `None` tanto si la clave no existe como
+    /// si el valor guardado no coincide con el tipo solicitado.
+    ///
+    /// Resulta útil en escenarios donde sólo interesa saber si el valor existe y es del tipo
+    /// correcto, sin necesidad de diferenciar entre error de ausencia o de tipo.
+    ///
+    /// # Ejemplo
+    ///
+    /// ```rust
+    /// # use pagetop::prelude::*;
+    /// let cx = Context::new(None).with_param("username", "Alice".to_string());
+    ///
+    /// // Devuelve Some(&String) si existe y coincide el tipo.
+    /// assert_eq!(cx.param::<String>("username").map(|s| s.as_str()), Some("Alice"));
+    ///
+    /// // Devuelve None si no existe o si el tipo no coincide.
+    /// assert!(cx.param::<i32>("username").is_none());
+    /// assert!(cx.param::<String>("missing").is_none());
+    ///
+    /// // Acceso con valor por defecto.
+    /// let user = cx.param::<String>("missing")
+    ///     .cloned()
+    ///     .unwrap_or_else(|| "visitor".to_string());
+    /// assert_eq!(user, "visitor");
+    /// ```
     fn param<T: 'static>(&self, key: &'static str) -> Option<&T>;
 
     /// Devuelve el parámetro clonado o el **valor por defecto del tipo** (`T::default()`).
@@ -166,11 +207,27 @@ pub trait Contextual: LangId {
 
     // **< Contextual HELPERS >*********************************************************************
 
-    /// Genera un identificador único por tipo (`<tipo>-<n>`) cuando no se aporta uno explícito.
+    /// Devuelve el `id` proporcionado tal cual, o genera uno único para el tipo `T` si no se
+    /// proporciona ninguno.
     ///
-    /// Es útil para componentes u otros elementos HTML que necesitan un identificador predecible si
-    /// no se proporciona ninguno.
+    /// Si `id` es `None`, construye un identificador en la forma `<tipo>-<n>`, donde `<tipo>` es el
+    /// nombre corto del tipo en minúsculas y `<n>` un contador incremental interno del contexto. Es
+    /// útil para asignar identificadores HTML predecibles cuando el componente no recibe uno
+    /// explícito.
     fn required_id<T>(&mut self, id: Option<String>) -> String;
+
+    /// Acumula un [`StatusMessage`] en el contexto para notificar al visitante.
+    ///
+    /// Pueden generarse en cualquier punto del ciclo de una petición web (manejadores, renderizado,
+    /// lógica de negocio, etc.) que tengan acceso al contexto, y mostrarlos luego, por ejemplo, en
+    /// la página final devuelta al usuario.
+    ///
+    /// # Ejemplo
+    ///
+    /// ```rust,ignore
+    /// cx.push_message(MessageLevel::Warning, L10n::l("session-not-valid"));
+    /// ```
+    fn push_message(&mut self, level: MessageLevel, text: L10n);
 }
 
 /// Implementa un **contexto de renderizado** para un documento HTML.
@@ -235,6 +292,7 @@ pub struct Context {
     regions    : ChildrenInRegions,             // Regiones de componentes para renderizar.
     params     : HashMap<&'static str, (Box<dyn Any>, &'static str)>, // Parámetros en ejecución.
     id_counter : usize,                         // Contador para generar identificadores únicos.
+    messages   : Vec<StatusMessage>,            // Mensajes de usuario acumulados.
 }
 
 impl Default for Context {
@@ -262,6 +320,7 @@ impl Context {
             regions    : ChildrenInRegions::default(),
             params     : HashMap::default(),
             id_counter : 0,
+            messages   : Vec::new(),
         }
     }
 
@@ -403,6 +462,16 @@ impl Context {
         }
         route
     }
+
+    /// Devuelve todos los mensajes de usuario acumulados.
+    pub fn messages(&self) -> &[StatusMessage] {
+        &self.messages
+    }
+
+    /// Indica si hay mensajes de usuario acumulados.
+    pub fn has_messages(&self) -> bool {
+        !self.messages.is_empty()
+    }
 }
 
 /// Permite a [`Context`](crate::core::component::Context) actuar como proveedor de idioma.
@@ -449,20 +518,6 @@ impl Contextual for Context {
         self
     }
 
-    /// Añade o modifica un parámetro dinámico del contexto.
-    ///
-    /// El valor se guarda conservando el *nombre del tipo* real para mejorar los mensajes de error
-    /// posteriores.
-    ///
-    /// # Ejemplos
-    ///
-    /// ```rust
-    /// # use pagetop::prelude::*;
-    /// let cx = Context::new(None)
-    ///     .with_param("usuario_id", 42_i32)
-    ///     .with_param("titulo", "Hola".to_string())
-    ///     .with_param("flags", vec!["a", "b"]);
-    /// ```
     #[builder_fn]
     fn with_param<T: 'static>(mut self, key: &'static str, value: T) -> Self {
         let type_name = TypeInfo::FullName.of::<T>();
@@ -520,34 +575,6 @@ impl Contextual for Context {
         self.template
     }
 
-    /// Recupera un parámetro como [`Option`], simplificando el acceso.
-    ///
-    /// A diferencia de [`get_param`](Self::get_param), que devuelve un [`Result`] con información
-    /// detallada de error, este método devuelve `None` tanto si la clave no existe como si el valor
-    /// guardado no coincide con el tipo solicitado.
-    ///
-    /// Resulta útil en escenarios donde sólo interesa saber si el valor existe y es del tipo
-    /// correcto, sin necesidad de diferenciar entre error de ausencia o de tipo.
-    ///
-    /// # Ejemplo
-    ///
-    /// ```rust
-    /// # use pagetop::prelude::*;
-    /// let cx = Context::new(None).with_param("username", "Alice".to_string());
-    ///
-    /// // Devuelve Some(&String) si existe y coincide el tipo.
-    /// assert_eq!(cx.param::<String>("username").map(|s| s.as_str()), Some("Alice"));
-    ///
-    /// // Devuelve None si no existe o si el tipo no coincide.
-    /// assert!(cx.param::<i32>("username").is_none());
-    /// assert!(cx.param::<String>("missing").is_none());
-    ///
-    /// // Acceso con valor por defecto.
-    /// let user = cx.param::<String>("missing")
-    ///     .cloned()
-    ///     .unwrap_or_else(|| "visitor".to_string());
-    /// assert_eq!(user, "visitor");
-    /// ```
     fn param<T: 'static>(&self, key: &'static str) -> Option<&T> {
         self.get_param::<T>(key).ok()
     }
@@ -566,12 +593,6 @@ impl Contextual for Context {
 
     // **< Contextual HELPERS >*********************************************************************
 
-    /// Devuelve un identificador único dentro del contexto para el tipo `T`, si no se proporciona
-    /// un `id` explícito.
-    ///
-    /// Si no se proporciona un `id`, se genera un identificador único en la forma `<tipo>-<número>`
-    /// donde `<tipo>` es el nombre corto del tipo en minúsculas (sin espacios) y `<número>` es un
-    /// contador interno incremental.
     fn required_id<T>(&mut self, id: Option<String>) -> String {
         if let Some(id) = id {
             id
@@ -589,5 +610,9 @@ impl Contextual for Context {
             self.id_counter += 1;
             util::join!(prefix, "-", self.id_counter.to_string())
         }
+    }
+
+    fn push_message(&mut self, level: MessageLevel, text: L10n) {
+        self.messages.push(StatusMessage::new(level, text));
     }
 }

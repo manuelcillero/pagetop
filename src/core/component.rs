@@ -13,6 +13,9 @@ pub use children::Children;
 pub use children::{Child, ChildOp};
 pub use children::{Typed, TypedOp};
 
+mod message;
+pub use message::{MessageLevel, StatusMessage};
+
 mod context;
 pub use context::{AssetsOp, Context, ContextError, Contextual};
 
