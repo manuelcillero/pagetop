@@ -62,8 +62,8 @@ impl Component for Offcanvas {
         });
     }
 
-    fn prepare_component(&self, cx: &mut Context) -> Markup {
-        self.render_offcanvas(cx, None)
+    fn prepare_component(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
+        Ok(self.render_offcanvas(cx, None))
     }
 }
 

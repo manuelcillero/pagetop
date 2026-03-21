@@ -115,7 +115,7 @@ impl Component for Intro {
         ));
     }
 
-    fn prepare_component(&self, cx: &mut Context) -> Markup {
+    fn prepare_component(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
         if *self.opening() == IntroOpening::PageTop {
             cx.alter_assets(AssetsOp::AddJavaScript(JavaScript::on_load_async("intro-js", |cx|
                 util::indoc!(r#"
@@ -135,7 +135,7 @@ impl Component for Intro {
             )));
         }
 
-        html! {
+        Ok(html! {
             div class="intro" {
                 div class="intro-header" {
                     section class="intro-header__body" {
@@ -206,7 +206,7 @@ impl Component for Intro {
                     }
                 }
             }
-        }
+        })
     }
 }
 

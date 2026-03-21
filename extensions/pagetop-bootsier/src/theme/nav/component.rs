@@ -42,17 +42,17 @@ impl Component for Nav {
         });
     }
 
-    fn prepare_component(&self, cx: &mut Context) -> Markup {
+    fn prepare_component(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
         let items = self.items().render(cx);
         if items.is_empty() {
-            return html! {};
+            return Ok(html! {});
         }
 
-        html! {
+        Ok(html! {
             ul id=[self.id()] class=[self.classes().get()] {
                 (items)
             }
-        }
+        })
     }
 }
 

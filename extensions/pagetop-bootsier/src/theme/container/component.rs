@@ -33,10 +33,10 @@ impl Component for Container {
         self.alter_classes(ClassesOp::Prepend, self.container_width().to_class());
     }
 
-    fn prepare_component(&self, cx: &mut Context) -> Markup {
+    fn prepare_component(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
         let output = self.children().render(cx);
         if output.is_empty() {
-            return html! {};
+            return Ok(html! {});
         }
         let style = match self.container_width() {
             container::Width::FluidMax(w) if w.is_measurable() => {
@@ -44,7 +44,7 @@ impl Component for Container {
             }
             _ => None,
         };
-        match self.container_kind() {
+        Ok(match self.container_kind() {
             container::Kind::Default => html! {
                 div id=[self.id()] class=[self.classes().get()] style=[style] {
                     (output)
@@ -75,7 +75,7 @@ impl Component for Container {
                     (output)
                 }
             },
-        }
+        })
     }
 }
 

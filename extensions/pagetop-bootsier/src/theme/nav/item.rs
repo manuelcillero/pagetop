@@ -99,8 +99,8 @@ impl Component for Item {
         self.alter_classes(ClassesOp::Prepend, self.item_kind().to_class());
     }
 
-    fn prepare_component(&self, cx: &mut Context) -> Markup {
-        match self.item_kind() {
+    fn prepare_component(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
+        Ok(match self.item_kind() {
             ItemKind::Void => html! {},
 
             ItemKind::Label(label) => html! {
@@ -162,7 +162,7 @@ impl Component for Item {
                 if let Some(dd) = menu.borrow() {
                     let items = dd.items().render(cx);
                     if items.is_empty() {
-                        return html! {};
+                        return Ok(html! {});
                     }
                     let title = dd.title().lookup(cx).unwrap_or_else(|| {
                         L10n::t("dropdown", &LOCALES_BOOTSIER)
@@ -189,7 +189,7 @@ impl Component for Item {
                     html! {}
                 }
             }
-        }
+        })
     }
 }
 

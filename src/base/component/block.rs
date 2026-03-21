@@ -29,23 +29,23 @@ impl Component for Block {
         self.alter_classes(ClassesOp::Prepend, "block");
     }
 
-    fn prepare_component(&self, cx: &mut Context) -> Markup {
+    fn prepare_component(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
         let block_body = self.children().render(cx);
 
         if block_body.is_empty() {
-            return html! {};
+            return Ok(html! {});
         }
 
         let id = cx.required_id::<Block>(self.id());
 
-        html! {
+        Ok(html! {
             div id=(id) class=[self.classes().get()] {
                 @if let Some(title) = self.title().lookup(cx) {
                     h2 class="block__title" { span { (title) } }
                 }
                 div class="block__body" { (block_body) }
             }
-        }
+        })
     }
 }
 

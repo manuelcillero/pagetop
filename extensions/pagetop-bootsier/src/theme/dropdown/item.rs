@@ -62,8 +62,8 @@ impl Component for Item {
         self.id.get()
     }
 
-    fn prepare_component(&self, cx: &mut Context) -> Markup {
-        match self.item_kind() {
+    fn prepare_component(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
+        Ok(match self.item_kind() {
             ItemKind::Void => html! {},
 
             ItemKind::Label(label) => html! {
@@ -151,7 +151,7 @@ impl Component for Item {
             ItemKind::Divider => html! {
                 li id=[self.id()] class=[self.classes().get()] { hr class="dropdown-divider" {} }
             },
-        }
+        })
     }
 }
 

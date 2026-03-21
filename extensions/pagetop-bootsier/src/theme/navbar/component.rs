@@ -48,7 +48,7 @@ impl Component for Navbar {
         });
     }
 
-    fn prepare_component(&self, cx: &mut Context) -> Markup {
+    fn prepare_component(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
         // Botón de despliegue (colapso u offcanvas) para la barra.
         fn button(cx: &mut Context, data_bs_toggle: &str, id_content: &str) -> Markup {
             let id_content_target = util::join!("#", id_content);
@@ -75,13 +75,13 @@ impl Component for Navbar {
         // Si no hay contenidos, no tiene sentido mostrar una barra vacía.
         let items = self.items().render(cx);
         if items.is_empty() {
-            return html! {};
+            return Ok(html! {});
         }
 
         // Asegura que la barra tiene un `id` para poder asociarlo al colapso/offcanvas.
         let id = cx.required_id::<Self>(self.id());
 
-        html! {
+        Ok(html! {
             nav id=(id) class=[self.classes().get()] {
                 div class="container-fluid" {
                     @match self.layout() {
@@ -162,7 +162,7 @@ impl Component for Navbar {
                     }
                 }
             }
-        }
+        })
     }
 }
 

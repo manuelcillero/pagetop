@@ -46,15 +46,15 @@ impl Component for Item {
         }
     }
 
-    fn prepare_component(&self, cx: &mut Context) -> Markup {
-        match self {
+    fn prepare_component(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
+        Ok(match self {
             Self::Void => html! {},
             Self::Brand(brand) => html! { (brand.render(cx)) },
             Self::Nav(nav) => {
                 if let Some(nav) = nav.borrow() {
                     let items = nav.items().render(cx);
                     if items.is_empty() {
-                        return html! {};
+                        return Ok(html! {});
                     }
                     html! {
                         ul id=[nav.id()] class=[nav.classes().get()] {
@@ -70,7 +70,7 @@ impl Component for Item {
                     (text.using(cx))
                 }
             },
-        }
+        })
     }
 }
 

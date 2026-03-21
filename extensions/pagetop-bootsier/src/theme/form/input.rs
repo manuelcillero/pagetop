@@ -36,9 +36,9 @@ impl Component for Input {
         );
     }
 
-    fn prepare_component(&self, cx: &mut Context) -> Markup {
+    fn prepare_component(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
         let id = self.name().get().map(|name| util::join!("edit-", name));
-        html! {
+        Ok(html! {
             div class=[self.classes().get()] {
                 @if let Some(label) = self.label().lookup(cx) {
                     label for=[&id] class="form-label" {
@@ -72,7 +72,7 @@ impl Component for Input {
                     div class="form-text" { (description) }
                 }
             }
-        }
+        })
     }
 }
 

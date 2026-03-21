@@ -35,8 +35,8 @@ impl Component for Icon {
         }
     }
 
-    fn prepare_component(&self, cx: &mut Context) -> Markup {
-        match self.icon_kind() {
+    fn prepare_component(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
+        Ok(match self.icon_kind() {
             IconKind::None => html! {},
             IconKind::Font(_) => {
                 let aria_label = self.aria_label().lookup(cx);
@@ -69,7 +69,7 @@ impl Component for Icon {
                     }
                 }
             }
-        }
+        })
     }
 }
 
