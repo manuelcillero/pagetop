@@ -192,7 +192,7 @@ pub fn resolve_absolute_dir<P: AsRef<Path>>(path: P) -> io::Result<PathBuf> {
         Ok(absolute_dir)
     } else {
         Err({
-            let msg = format!("Path \"{}\" is not a directory", absolute_dir.display());
+            let msg = format!("path \"{}\" is not a directory", absolute_dir.display());
             trace::warn!(msg);
             io::Error::new(io::ErrorKind::InvalidInput, msg)
         })
