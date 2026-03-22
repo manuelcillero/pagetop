@@ -26,7 +26,7 @@ según las necesidades de cada proyecto, incluyendo:
   * **Extensiones** (*extensions*): añaden, extienden o personalizan funcionalidades usando las APIs
     de PageTop o de terceros.
   * **Temas** (*themes*): son extensiones que permiten modificar la apariencia de páginas y
-    componentes. Pueden crearse temas hijo que heredan y refinan el comportamiento de su tema padre.
+    componentes.
 
 
 ## ⚡️ Guía rápida
