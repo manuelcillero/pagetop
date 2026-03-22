@@ -21,7 +21,9 @@ pub use all::dispatch_actions;
 /// Evita escribir repetidamente `Box::new(...)` para cada acción de la lista, manteniendo el código
 /// más limpio.
 ///
-/// # Ejemplo
+/// # Ejemplos
+///
+/// Acciones de tema que ajustan un componente antes y después de renderizarlo:
 ///
 /// ```rust,ignore
 /// impl Extension for MyTheme {
@@ -37,6 +39,22 @@ pub use all::dispatch_actions;
 ///
 /// fn before_render_button(c: &mut Button, cx: &mut Context) { todo!() }
 /// fn after_render_button(c: &mut Button, cx: &mut Context) { todo!() }
+/// ```
+///
+/// Acción de extensión que transforma el HTML final de un componente mediante edición de texto:
+///
+/// ```rust,ignore
+/// impl Extension for MyExtension {
+///     fn actions(&self) -> Vec<ActionBox> {
+///         actions_boxed![
+///             action::component::AlterMarkup::<Button>::new(alter_button_markup),
+///         ]
+///     }
+/// }
+///
+/// fn alter_button_markup(c: &mut Button, cx: &mut Context, markup: Markup) -> Markup {
+///     todo!()
+/// }
 /// ```
 #[macro_export]
 macro_rules! actions_boxed {

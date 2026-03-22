@@ -5,3 +5,6 @@ pub use before_render_component::*;
 
 mod after_render_component;
 pub use after_render_component::*;
+
+mod alter_markup_component;
+pub use alter_markup_component::*;

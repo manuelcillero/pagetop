@@ -109,11 +109,13 @@ pub trait Component: AnyInfo + ComponentRender + Send + Sync {
 ///      (hijo → padre → abuelo…) hasta que uno devuelva `Some`.
 ///    - Si ningún tema lo sobrescribe, llama a
 ///      [`Component::prepare_component()`](Component::prepare_component) del propio componente.
-/// 6. Despacha [`action::theme::AfterRender<C>`](crate::base::action::theme::AfterRender) para
-///    que el tema pueda aplicar ajustes finales.
+/// 6. Despacha [`action::theme::AfterRender<C>`](crate::base::action::theme::AfterRender) para que
+///    el tema pueda reaccionar tras el renderizado.
 /// 7. Despacha [`action::component::AfterRender<C>`](crate::base::action::component::AfterRender)
-///    para que otras extensiones puedan hacer sus últimos ajustes.
-/// 8. Devuelve el [`Markup`] generado en el paso 5.
+///    para que otras extensiones puedan reaccionar con sus últimos ajustes.
+/// 8. Despacha [`action::component::AlterMarkup<C>`](crate::base::action::component::AlterMarkup)
+///    para que las extensiones puedan modificar el HTML final antes de devolverlo.
+/// 9. Devuelve el [`Markup`] resultante.
 impl<C: Component> ComponentRender for C {
     fn render(&mut self, cx: &mut Context) -> Markup {
         // Si no es renderizable, devuelve un bloque HTML vacío.
@@ -160,7 +162,7 @@ impl<C: Component> ComponentRender for C {
         // Acciones de las extensiones después de renderizar el componente.
         action::component::AfterRender::dispatch(self, cx);
 
-        // Devuelve el marcado final.
-        prepare
+        // Acciones de las extensiones que transforman el HTML final antes de devolverlo.
+        action::component::AlterMarkup::dispatch(self, cx, prepare)
     }
 }

@@ -1,17 +1,18 @@
 use crate::prelude::*;
 
-use crate::base::action::FnActionWithComponent;
+use crate::base::action::FnActionAlterMarkup;
+use crate::html::html;
 
-/// Ejecuta [`FnActionWithComponent`] después de renderizar un componente.
-pub struct AfterRender<C: Component> {
-    f: FnActionWithComponent<C>,
+/// Ejecuta [`FnActionAlterMarkup`] para modificar el renderizado de un componente.
+pub struct AlterMarkup<C: Component> {
+    f: FnActionAlterMarkup<C>,
     referer_type_id: Option<UniqueId>,
     referer_id: AttrId,
     weight: Weight,
 }
 
-/// Filtro para despachar [`FnActionWithComponent`] después de renderizar un componente `C`.
-impl<C: Component> ActionDispatcher for AfterRender<C> {
+/// Filtro para despachar [`FnActionAlterMarkup`] sobre el renderizado de un componente `C`.
+impl<C: Component> ActionDispatcher for AlterMarkup<C> {
     /// Devuelve el identificador de tipo ([`UniqueId`]) del componente `C`.
     fn referer_type_id(&self) -> Option<UniqueId> {
         self.referer_type_id
@@ -28,10 +29,10 @@ impl<C: Component> ActionDispatcher for AfterRender<C> {
     }
 }
 
-impl<C: Component> AfterRender<C> {
-    /// Permite [registrar](Extension::actions) una nueva acción [`FnActionWithComponent`].
-    pub fn new(f: FnActionWithComponent<C>) -> Self {
-        AfterRender {
+impl<C: Component> AlterMarkup<C> {
+    /// Permite [registrar](Extension::actions) una nueva acción [`FnActionAlterMarkup`].
+    pub fn new(f: FnActionAlterMarkup<C>) -> Self {
+        AlterMarkup {
             f,
             referer_type_id: Some(UniqueId::of::<C>()),
             referer_id: AttrId::default(),
@@ -39,7 +40,7 @@ impl<C: Component> AfterRender<C> {
         }
     }
 
-    /// Afina el registro para ejecutar la acción [`FnActionWithComponent`] sólo para el componente
+    /// Afina el registro para ejecutar la acción [`FnActionAlterMarkup`] sólo para el componente
     /// `C` con identificador `id`.
     pub fn filter_by_referer_id(mut self, id: impl AsRef<str>) -> Self {
         self.referer_id.alter_id(id);
@@ -52,9 +53,11 @@ impl<C: Component> AfterRender<C> {
         self
     }
 
-    /// Despacha las acciones.
+    /// Despacha las acciones encadenando el [`Markup`] entre cada una.
     #[inline]
-    pub(crate) fn dispatch(component: &mut C, cx: &mut Context) {
+    pub(crate) fn dispatch(component: &mut C, cx: &mut Context, markup: Markup) -> Markup {
+        let mut output = markup;
+
         // Primero despacha las acciones para el tipo de componente.
         dispatch_actions(
             &ActionKey::new(
@@ -63,7 +66,10 @@ impl<C: Component> AfterRender<C> {
                 Some(UniqueId::of::<C>()),
                 None,
             ),
-            |action: &Self| (action.f)(component, cx),
+            |action: &Self| {
+                let taken = std::mem::replace(&mut output, html! {});
+                output = (action.f)(component, cx, taken);
+            },
         );
 
         // Y luego despacha las acciones para el tipo de componente con un identificador dado.
@@ -75,8 +81,13 @@ impl<C: Component> AfterRender<C> {
                     Some(UniqueId::of::<C>()),
                     Some(id),
                 ),
-                |action: &Self| (action.f)(component, cx),
+                |action: &Self| {
+                    let taken = std::mem::replace(&mut output, html! {});
+                    output = (action.f)(component, cx, taken);
+                },
             );
         }
+
+        output
     }
 }

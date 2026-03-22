@@ -65,6 +65,7 @@ impl<C: Component> BeforeRender<C> {
             ),
             |action: &Self| (action.f)(component, cx),
         );
+
         // Y luego despacha las aciones para el tipo de componente con un identificador dado.
         if let Some(id) = component.id() {
             dispatch_actions(
