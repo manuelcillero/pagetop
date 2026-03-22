@@ -18,6 +18,12 @@
 //! registran componentes en el [`Context`], las plantillas organizan las regiones y las páginas
 //! generan el documento HTML resultante.
 //!
+//! PageTop permite crear **temas hijo** que refinan el comportamiento de su tema padre. Un tema
+//! hijo hereda automáticamente todos los métodos del padre y puede sobrescribirlos selectivamente:
+//! por ejemplo, puede redefinir el renderizado de un componente con [`Theme::prepare_component()`]
+//! sin modificar el resto del comportamiento heredado. Un tema hijo puede ser a su vez padre de
+//! otro, basta declararlo cada vez con [`Theme::parent()`].
+//!
 //! Los temas pueden definir sus propias implementaciones de [`Template`] y [`Region`] (por ejemplo,
 //! mediante *enums* adicionales) para añadir nuevas plantillas o exponer regiones específicas.
 
@@ -199,6 +205,44 @@ pub enum DefaultTemplate {
 }
 
 impl Template for DefaultTemplate {}
+
+// **< render_component! >**************************************************************************
+
+/// Sobrescribe el renderizado de componentes en la implementación de
+/// [`Theme::prepare_component()`](crate::core::theme::Theme::prepare_component).
+///
+/// Evalúa `$component` contra cada tipo listado en orden. En cuanto encuentra coincidencia,
+/// devuelve `Some(Ok(markup))` o `Some(Err(e))` según el resultado de la expresión asociada.
+/// Si ningún tipo coincide, devuelve `None` para que el sistema continúe con la cadena de
+/// herencia o con el renderizado por defecto del propio componente.
+///
+/// # Ejemplo
+///
+/// ```rust,ignore
+/// fn prepare_component(
+///     &self,
+///     component: &dyn Component,
+///     cx: &mut Context,
+/// ) -> Option<Result<Markup, ComponentError>> {
+///     render_component!(component, {
+///         Button  => |btn| Ok(html! { button.btn.btn-primary { (btn.label()) } }),
+///         Heading => |h|   Ok(html! { h2.display-4 { (h.text()) } }),
+///     })
+/// }
+/// ```
+#[macro_export]
+macro_rules! render_component {
+    ($component:expr, { $($type:ty => |$var:ident| $body:expr),* $(,)? }) => {
+        'render_component: {
+            $(
+                if let Some($var) = ($component).downcast_ref::<$type>() {
+                    break 'render_component Some($body);
+                }
+            )*
+            None
+        }
+    };
+}
 
 // **< Definitions >********************************************************************************
 

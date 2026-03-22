@@ -18,6 +18,8 @@ pub use crate::include_locales;
 pub use crate::static_files_service;
 // crate::core::action
 pub use crate::actions_boxed;
+// crate::core::theme
+pub use crate::render_component;
 
 // API.
 

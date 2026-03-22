@@ -105,6 +105,8 @@ pub use request::RequestLocale;
 mod l10n;
 pub use l10n::L10n;
 
+// **< include_locales! >***************************************************************************
+
 /// Incluye un conjunto de recursos **Fluent** con textos de traducción propios.
 ///
 /// Esta macro integra en el binario de la aplicación los archivos FTL ubicados en los siguientes

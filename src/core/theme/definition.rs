@@ -1,5 +1,5 @@
 use crate::base::component::{Html, Intro, IntroOpening};
-use crate::core::component::{Child, ChildOp, Component, Contextual};
+use crate::core::component::{Child, ChildOp, Component, ComponentError, Context, Contextual};
 use crate::core::extension::Extension;
 use crate::core::theme::{DefaultRegion, DefaultTemplate, TemplateRef};
 use crate::global;
@@ -45,6 +45,16 @@ use crate::service::http::StatusCode;
 /// impl Theme for MyTheme {}
 /// ```
 pub trait Theme: Extension + Send + Sync {
+    /// Devuelve el tema padre del que hereda este tema, si existe.
+    ///
+    /// Un tema hijo delega automáticamente todos los métodos de esta interfaz al tema padre cuando
+    /// no los sobrescribe.
+    ///
+    /// La implementación por defecto devuelve `None` (tema sin padre).
+    fn parent(&self) -> Option<ThemeRef> {
+        None
+    }
+
     /// Devuelve la plantilla ([`Template`](crate::core::theme::Template)) que el propio tema
     /// propone como predeterminada.
     ///
@@ -57,7 +67,9 @@ pub trait Theme: Extension + Send + Sync {
     /// seleccionar otra plantilla predeterminada o una plantilla propia.
     #[inline]
     fn default_template(&self) -> TemplateRef {
-        &DefaultTemplate::Standard
+        self.parent().map_or(&DefaultTemplate::Standard, |parent| {
+            parent.default_template()
+        })
     }
 
     /// Acciones específicas del tema antes de renderizar el `<body>` de la página.
@@ -71,7 +83,11 @@ pub trait Theme: Extension + Send + Sync {
     ///
     /// La implementación por defecto no realiza ninguna acción.
     #[allow(unused_variables)]
-    fn before_render_page_body(&self, page: &mut Page) {}
+    fn before_render_page_body(&self, page: &mut Page) {
+        if let Some(parent) = self.parent() {
+            parent.before_render_page_body(page);
+        }
+    }
 
     /// Renderiza el contenido del `<body>` de la página.
     ///
@@ -93,7 +109,11 @@ pub trait Theme: Extension + Send + Sync {
     /// - Implementar lógicas de composición alternativas.
     #[inline]
     fn render_page_body(&self, page: &mut Page) -> Markup {
-        page.template().render(page.context())
+        if let Some(parent) = self.parent() {
+            parent.render_page_body(page)
+        } else {
+            page.template().render(page.context())
+        }
     }
 
     /// Acciones específicas del tema después de renderizar el `<body>` de la página.
@@ -107,7 +127,11 @@ pub trait Theme: Extension + Send + Sync {
     ///
     /// La implementación por defecto no realiza ninguna acción.
     #[allow(unused_variables)]
-    fn after_render_page_body(&self, page: &mut Page) {}
+    fn after_render_page_body(&self, page: &mut Page) {
+        if let Some(parent) = self.parent() {
+            parent.after_render_page_body(page);
+        }
+    }
 
     /// Renderiza el contenido del `<head>` de la página.
     ///
@@ -129,6 +153,9 @@ pub trait Theme: Extension + Send + Sync {
     /// Los temas pueden sobrescribir este método para añadir etiquetas adicionales (por ejemplo,
     /// *favicons* personalizados, manifest, etiquetas de analítica, etc.).
     fn render_page_head(&self, page: &mut Page) -> Markup {
+        if let Some(parent) = self.parent() {
+            return parent.render_page_head(page);
+        }
         let viewport = "width=device-width, initial-scale=1, shrink-to-fit=no";
         html! {
             meta charset="utf-8";
@@ -157,11 +184,53 @@ pub trait Theme: Extension + Send + Sync {
         }
     }
 
+    /// Permite sobrescribir el renderizado de un componente.
+    ///
+    /// Este método tiene especial utilidad en los **temas hijo** porque permite sobrescribir el
+    /// renderizado que el propio componente o el tema padre ofrece para un componente concreto, sin
+    /// modificar el resto del comportamiento heredado.
+    ///
+    /// Recibe una referencia al componente (como objeto dinámico [`Component`]) y el contexto de
+    /// renderizado. Devuelve:
+    ///
+    /// - `None` si este tema no sobrescribe el componente. Es la implementación por defecto. En
+    ///   este caso se recorre la cadena de temas padre y, si ninguno lo sobrescribe, se usa
+    ///   [`Component::prepare_component()`](crate::core::component::Component::prepare_component).
+    /// - `Some(Ok(markup))` con el HTML generado por el tema para el componente.
+    /// - `Some(Err(e))` si el tema intentó renderizarlo pero falló.
+    ///
+    /// La mejor manera de implementar este método es usando la macro [`render_component!`], que
+    /// determina el componente a renderizar y devuelve `None` si ninguno coincide:
+    ///
+    /// ```rust,ignore
+    /// fn prepare_component(
+    ///     &self,
+    ///     component: &dyn Component,
+    ///     cx: &mut Context,
+    /// ) -> Option<Result<Markup, ComponentError>> {
+    ///     render_component!(component, {
+    ///         Button  => |btn| Ok(html! { button.btn.btn-primary { (btn.label()) } }),
+    ///         Heading => |h|   Ok(html! { h2.display-4 { (h.text()) } }),
+    ///     })
+    /// }
+    /// ```
+    #[allow(unused_variables)]
+    fn prepare_component(
+        &self,
+        component: &dyn Component,
+        cx: &mut Context,
+    ) -> Option<Result<Markup, ComponentError>> {
+        None
+    }
+
     /// Contenido predefinido para la página de error "*403 - Forbidden*" (acceso denegado).
     ///
     /// Los temas pueden sobrescribir este método para personalizar el diseño y el contenido de la
     /// página de error.
     fn error_403(&self, page: &mut Page) {
+        if let Some(parent) = self.parent() {
+            return parent.error_403(page);
+        }
         page.alter_title(L10n::l("error403_title"))
             .alter_template(&DefaultTemplate::Error)
             .alter_child_in(
@@ -182,6 +251,9 @@ pub trait Theme: Extension + Send + Sync {
     /// Los temas pueden sobrescribir este método para personalizar el diseño y el contenido de la
     /// página de error.
     fn error_404(&self, page: &mut Page) {
+        if let Some(parent) = self.parent() {
+            return parent.error_404(page);
+        }
         page.alter_title(L10n::l("error404_title"))
             .alter_template(&DefaultTemplate::Error)
             .alter_child_in(
@@ -209,6 +281,9 @@ pub trait Theme: Extension + Send + Sync {
     /// Los temas pueden sobrescribir este método para personalizar el diseño y el contenido de la
     /// página de error.
     fn error_fatal(&self, page: &mut Page, code: StatusCode, title: L10n, alert: L10n, help: L10n) {
+        if let Some(parent) = self.parent() {
+            return parent.error_fatal(page, code, title, alert, help);
+        }
         page.alter_title(title)
             .alter_template(&DefaultTemplate::Error)
             .alter_child_in(

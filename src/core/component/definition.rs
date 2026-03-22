@@ -1,5 +1,6 @@
 use crate::base::action;
 use crate::core::component::{ComponentError, Context, Contextual};
+use crate::core::theme::ThemeRef;
 use crate::core::{AnyInfo, TypeInfo};
 use crate::html::{html, Markup};
 
@@ -70,16 +71,15 @@ pub trait Component: AnyInfo + ComponentRender + Send + Sync {
     #[allow(unused_variables)]
     fn setup_before_prepare(&mut self, cx: &mut Context) {}
 
-    /// Devuelve el marcado HTML del componente usando el contexto proporcionado.
+    /// Versión del componente para preparar su propio renderizado.
     ///
     /// Este método forma parte del ciclo de vida de los componentes y se invoca automáticamente
-    /// durante el proceso de construcción del documento. Cada componente lo implementa para generar
-    /// su propio contenido HTML. Los temas hijo pueden sobrescribir opcionalmente su resultado
-    /// mediante la acción [`PrepareRender`](crate::base::action::theme::PrepareRender).
+    /// durante el proceso de construcción del documento cuando ningún tema sobrescribe el
+    /// renderizado mediante [`Theme::prepare_component()`](crate::core::theme::Theme::prepare_component).
     ///
     /// Se recomienda obtener los datos del componente a través de sus propios métodos para que los
-    /// temas hijo que implementen dicha acción puedan generar el nuevo HTML sin depender de los
-    /// detalles internos del componente.
+    /// temas puedan implementar [`Theme::prepare_component()`](crate::core::theme::Theme::prepare_component)
+    /// sin depender de los detalles internos del componente.
     ///
     /// Por defecto, devuelve un [`Markup`] vacío (`Ok(html! {})`).
     ///
@@ -104,10 +104,11 @@ pub trait Component: AnyInfo + ComponentRender + Send + Sync {
 /// 4. Despacha [`action::component::BeforeRender<C>`](crate::base::action::component::BeforeRender)
 ///    para que otras extensiones puedan también hacer ajustes previos.
 /// 5. **Prepara el renderizado del componente**:
-///    - Despacha [`action::theme::PrepareRender<C>`](crate::base::action::theme::PrepareRender)
-///      para permitir al tema generar un renderizado alternativo.
-///    - Si el tema no lo modifica, llama a [`prepare_component()`](Component::prepare_component)
-///      para obtener el renderizado por defecto del componente.
+///    - Recorre la cadena de temas llamando a
+///      [`Theme::prepare_component()`](crate::core::theme::Theme::prepare_component) en cada nivel
+///      (hijo → padre → abuelo…) hasta que uno devuelva `Some`.
+///    - Si ningún tema lo sobrescribe, llama a
+///      [`Component::prepare_component()`](Component::prepare_component) del propio componente.
 /// 6. Despacha [`action::theme::AfterRender<C>`](crate::base::action::theme::AfterRender) para
 ///    que el tema pueda aplicar ajustes finales.
 /// 7. Despacha [`action::component::AfterRender<C>`](crate::base::action::component::AfterRender)
@@ -129,29 +130,23 @@ impl<C: Component> ComponentRender for C {
         // Acciones de las extensiones antes de renderizar el componente.
         action::component::BeforeRender::dispatch(self, cx);
 
-        // Prepara el renderizado del componente.
-        let prepare = match action::theme::PrepareRender::dispatch(self, cx) {
-            Ok(markup) if !markup.is_empty() => markup,
-            Ok(_) => match self.prepare_component(cx) {
-                Ok(markup) => markup,
-                Err(error) => {
-                    crate::trace::error!(
-                        path = cx.request().map(|r| r.path()).unwrap_or("<unknown>"),
-                        component = self.name(),
-                        id = self.id().as_deref().unwrap_or("<not set>"),
-                        source = "prepare_component",
-                        "render failed, using fallback: {}",
-                        error.message()
-                    );
-                    error.into_fallback()
+        // Prepara el renderizado: recorre la cadena de temas, luego el componente.
+        let prepare = match 'resolve: {
+            let mut t: Option<ThemeRef> = Some(cx.theme());
+            while let Some(theme) = t {
+                if let Some(r) = theme.prepare_component(self, cx) {
+                    break 'resolve r;
                 }
-            },
+                t = theme.parent();
+            }
+            self.prepare_component(cx)
+        } {
+            Ok(markup) => markup,
             Err(error) => {
                 crate::trace::error!(
                     path = cx.request().map(|r| r.path()).unwrap_or("<unknown>"),
                     component = self.name(),
                     id = self.id().as_deref().unwrap_or("<not set>"),
-                    source = "PrepareRender",
                     "render failed, using fallback: {}",
                     error.message()
                 );
