@@ -39,21 +39,4 @@ impl ActionsList {
             })
             .collect();
     }
-
-    pub fn iter_try_map<A, F>(&self, mut f: F)
-    where
-        A: ActionDispatcher,
-        F: FnMut(&A) -> std::ops::ControlFlow<()>,
-    {
-        let list = self.0.read();
-        for a in list.iter().rev() {
-            if let Some(action) = (**a).downcast_ref::<A>() {
-                if f(action).is_break() {
-                    break;
-                }
-            } else {
-                trace::error!("Failed to downcast action of type {}", (**a).type_name());
-            }
-        }
-    }
 }

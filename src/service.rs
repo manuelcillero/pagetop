@@ -15,6 +15,8 @@ pub use pagetop_statics::ResourceFiles;
 #[doc(hidden)]
 pub use actix_web::test;
 
+// **< static_files_service! >**********************************************************************
+
 /// Configura un servicio web para publicar archivos estáticos.
 ///
 /// La macro ofrece tres modos para configurar el servicio:

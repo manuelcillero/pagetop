@@ -12,7 +12,9 @@ use list::ActionsList;
 
 mod all;
 pub(crate) use all::add_action;
-pub use all::{dispatch_actions, dispatch_actions_until};
+pub use all::dispatch_actions;
+
+// **< actions_boxed! >*****************************************************************************
 
 /// Facilita la implementación del método [`actions()`](crate::core::extension::Extension::actions).
 ///
@@ -22,12 +24,11 @@ pub use all::{dispatch_actions, dispatch_actions_until};
 /// # Ejemplo
 ///
 /// ```rust,ignore
-/// # use pagetop::prelude::*;
 /// impl Extension for MyTheme {
 ///     fn actions(&self) -> Vec<ActionBox> {
 ///         actions_boxed![
 ///             action::theme::BeforeRender::<Button>::new(&Self, before_render_button),
-///             action::theme::PrepareRender::<Error404>::new(&Self, render_error404),
+///             action::theme::AfterRender::<Button>::new(&Self, after_render_button),
 ///         ]
 ///     }
 /// }
@@ -35,7 +36,7 @@ pub use all::{dispatch_actions, dispatch_actions_until};
 /// impl Theme for MyTheme {}
 ///
 /// fn before_render_button(c: &mut Button, cx: &mut Context) { todo!() }
-/// fn render_error404(c: &Error404, cx: &mut Context) -> Markup { todo!() }
+/// fn after_render_button(c: &mut Button, cx: &mut Context) { todo!() }
 /// ```
 #[macro_export]
 macro_rules! actions_boxed {

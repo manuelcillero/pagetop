@@ -149,6 +149,8 @@ pub static CONFIG_VALUES: LazyLock<ConfigBuilder<DefaultState>> = LazyLock::new(
         .expect("Failed to set application run mode")
 });
 
+// **< include_config! >****************************************************************************
+
 /// Incluye los ajustes necesarios de la configuración anticipando valores por defecto.
 ///
 /// # Sintaxis
