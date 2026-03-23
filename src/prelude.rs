@@ -17,9 +17,9 @@ pub use crate::include_locales;
 // crate::service
 pub use crate::static_files_service;
 // crate::core::action
-pub use crate::actions_boxed;
+pub use crate::actions;
 // crate::core::theme
-pub use crate::render_component;
+pub use crate::{render_component, setup_component};
 
 // API.
 

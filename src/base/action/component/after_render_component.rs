@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-use crate::base::action::FnActionWithComponent;
+use super::FnActionWithComponent;
 
 /// Ejecuta [`FnActionWithComponent`] después de renderizar un componente.
 pub struct AfterRender<C: Component> {
@@ -57,24 +57,14 @@ impl<C: Component> AfterRender<C> {
     pub(crate) fn dispatch(component: &mut C, cx: &mut Context) {
         // Primero despacha las acciones para el tipo de componente.
         dispatch_actions(
-            &ActionKey::new(
-                UniqueId::of::<Self>(),
-                None,
-                Some(UniqueId::of::<C>()),
-                None,
-            ),
+            &ActionKey::new(UniqueId::of::<Self>(), Some(UniqueId::of::<C>()), None),
             |action: &Self| (action.f)(component, cx),
         );
 
         // Y luego despacha las acciones para el tipo de componente con un identificador dado.
         if let Some(id) = component.id() {
             dispatch_actions(
-                &ActionKey::new(
-                    UniqueId::of::<Self>(),
-                    None,
-                    Some(UniqueId::of::<C>()),
-                    Some(id),
-                ),
+                &ActionKey::new(UniqueId::of::<Self>(), Some(UniqueId::of::<C>()), Some(id)),
                 |action: &Self| (action.f)(component, cx),
             );
         }

@@ -184,30 +184,42 @@ pub trait Theme: Extension + Send + Sync {
         }
     }
 
-    /// Permite sobrescribir el renderizado de un componente.
+    /// Permite al tema intervenir en el ciclo de renderizado de un componente.
     ///
     /// Este método tiene especial utilidad en los **temas hijo** porque permite sobrescribir el
     /// renderizado que el propio componente o el tema padre ofrece para un componente concreto, sin
     /// modificar el resto del comportamiento heredado.
     ///
-    /// Recibe una referencia al componente (como objeto dinámico [`Component`]) y el contexto de
-    /// renderizado. Devuelve:
+    /// Recibe una referencia mutable al componente (como objeto dinámico [`Component`]) y el
+    /// contexto de renderizado. Devuelve:
     ///
-    /// - `None` si este tema no sobrescribe el componente. Es la implementación por defecto. En
-    ///   este caso se recorre la cadena de temas padre y, si ninguno lo sobrescribe, se usa
+    /// - `None` si este tema no sobrescribe el renderizado. Es la implementación por defecto. El
+    ///   sistema continúa con el siguiente tema de la cadena y, si ninguno lo sobrescribe, usa
     ///   [`Component::prepare_component()`](crate::core::component::Component::prepare_component).
+    ///   El tema puede mutar el componente antes de devolver `None`, dejando que otro nivel de la
+    ///   cadena se encargue del renderizado.
     /// - `Some(Ok(markup))` con el HTML generado por el tema para el componente.
+    ///
+    /// > **Nota para componentes en región:** los componentes registrados con `InRegion` son
+    /// > instancias únicas compartidas entre peticiones. Cualquier mutación realizada aquí debe
+    /// > ser idempotente — sobrescribir valores, nunca acumular — o el estado se corromperá a
+    /// > partir de la segunda petición.
     /// - `Some(Err(e))` si el tema intentó renderizarlo pero falló.
     ///
-    /// La mejor manera de implementar este método es usando la macro [`render_component!`], que
-    /// determina el componente a renderizar y devuelve `None` si ninguno coincide:
+    /// Para renderizar usa [`render_component!`], que devuelve `None` si ningún tipo coincide. Para
+    /// mutar sin renderizar usa [`setup_component!`] y devuelve `None` explícitamente:
     ///
     /// ```rust,ignore
-    /// fn prepare_component(
+    /// fn handle_component(
     ///     &self,
-    ///     component: &dyn Component,
+    ///     component: &mut dyn Component,
     ///     cx: &mut Context,
     /// ) -> Option<Result<Markup, ComponentError>> {
+    ///     // Solo mutación: ajusta el componente y deja que otro nivel lo renderice.
+    ///     setup_component!(component, {
+    ///         Button => |btn| { btn.add_class("btn-primary"); },
+    ///     });
+    ///     // O renderizado completo:
     ///     render_component!(component, {
     ///         Button  => |btn| Ok(html! { button.btn.btn-primary { (btn.label()) } }),
     ///         Heading => |h|   Ok(html! { h2.display-4 { (h.text()) } }),
@@ -215,9 +227,9 @@ pub trait Theme: Extension + Send + Sync {
     /// }
     /// ```
     #[allow(unused_variables)]
-    fn prepare_component(
+    fn handle_component(
         &self,
-        component: &dyn Component,
+        component: &mut dyn Component,
         cx: &mut Context,
     ) -> Option<Result<Markup, ComponentError>> {
         None

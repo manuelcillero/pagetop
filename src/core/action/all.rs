@@ -22,7 +22,6 @@ static ACTIONS: LazyLock<RwLock<HashMap<ActionKey, ActionsList>>> =
 pub(crate) fn add_action(action: ActionBox) {
     let key = ActionKey::new(
         action.type_id(),
-        action.theme_type_id(),
         action.referer_type_id(),
         action.referer_id(),
     );
@@ -55,7 +54,6 @@ pub(crate) fn add_action(action: ActionBox) {
 ///     dispatch_actions(
 ///         &ActionKey::new(
 ///             UniqueId::of::<Self>(),
-///             Some(cx.theme().type_id()),
 ///             Some(UniqueId::of::<C>()),
 ///             None,
 ///         ),
