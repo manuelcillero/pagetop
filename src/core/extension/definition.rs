@@ -2,7 +2,7 @@ use crate::core::action::ActionBox;
 use crate::core::theme::ThemeRef;
 use crate::core::AnyInfo;
 use crate::locale::L10n;
-use crate::{actions_boxed, service};
+use crate::{actions, service};
 
 /// Interfaz común que debe implementar cualquier extensión de PageTop.
 ///
@@ -74,10 +74,10 @@ pub trait Extension: AnyInfo + Send + Sync {
     /// Devuelve la lista de acciones que la extensión registra.
     ///
     /// Estas [acciones](crate::core::action) se despachan por orden de registro o por
-    /// [peso](crate::Weight) (ver [`actions_boxed!`](crate::actions_boxed)), permitiendo
+    /// [peso](crate::Weight) (ver [`actions!`](crate::actions)), permitiendo
     /// personalizar el comportamiento de la aplicación en puntos específicos.
     fn actions(&self) -> Vec<ActionBox> {
-        actions_boxed![]
+        actions![]
     }
 
     /// Inicializa la extensión durante la fase de arranque de la aplicación.

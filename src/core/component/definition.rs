@@ -75,10 +75,10 @@ pub trait Component: AnyInfo + ComponentRender + Send + Sync {
     ///
     /// Este método forma parte del ciclo de vida de los componentes y se invoca automáticamente
     /// durante el proceso de construcción del documento cuando ningún tema sobrescribe el
-    /// renderizado mediante [`Theme::prepare_component()`](crate::core::theme::Theme::prepare_component).
+    /// renderizado mediante [`Theme::handle_component()`](crate::core::theme::Theme::handle_component).
     ///
     /// Se recomienda obtener los datos del componente a través de sus propios métodos para que los
-    /// temas puedan implementar [`Theme::prepare_component()`](crate::core::theme::Theme::prepare_component)
+    /// temas puedan implementar [`Theme::handle_component()`](crate::core::theme::Theme::handle_component)
     /// sin depender de los detalles internos del componente.
     ///
     /// Por defecto, devuelve un [`Markup`] vacío (`Ok(html! {})`).
@@ -99,23 +99,17 @@ pub trait Component: AnyInfo + ComponentRender + Send + Sync {
 ///    contexto actual. Si no es así, devuelve un [`Markup`] vacío.
 /// 2. Ejecuta [`setup_before_prepare()`](Component::setup_before_prepare) para que el componente
 ///    pueda ajustar su estructura interna o modificar el contexto.
-/// 3. Despacha [`action::theme::BeforeRender<C>`](crate::base::action::theme::BeforeRender) para
-///    permitir que el tema realice ajustes previos.
-/// 4. Despacha [`action::component::BeforeRender<C>`](crate::base::action::component::BeforeRender)
-///    para que otras extensiones puedan también hacer ajustes previos.
-/// 5. **Prepara el renderizado del componente**:
-///    - Recorre la cadena de temas llamando a
-///      [`Theme::prepare_component()`](crate::core::theme::Theme::prepare_component) en cada nivel
-///      (hijo → padre → abuelo…) hasta que uno devuelva `Some`.
-///    - Si ningún tema lo sobrescribe, llama a
-///      [`Component::prepare_component()`](Component::prepare_component) del propio componente.
-/// 6. Despacha [`action::theme::AfterRender<C>`](crate::base::action::theme::AfterRender) para que
-///    el tema pueda reaccionar tras el renderizado.
-/// 7. Despacha [`action::component::AfterRender<C>`](crate::base::action::component::AfterRender)
-///    para que otras extensiones puedan reaccionar con sus últimos ajustes.
-/// 8. Despacha [`action::component::AlterMarkup<C>`](crate::base::action::component::AlterMarkup)
+/// 3. Despacha [`action::component::BeforeRender<C>`](crate::base::action::component::BeforeRender)
+///    para que las extensiones puedan hacer ajustes previos.
+/// 4. **Prepara el renderizado del componente** recorriendo la cadena de temas (hijo → padre →
+///    abuelo…) llamando a [`Theme::handle_component()`](crate::core::theme::Theme::handle_component)
+///    en cada nivel hasta que uno devuelva `Some`. Si ninguno lo sobrescribe, llama a
+///    [`Component::prepare_component()`](Component::prepare_component) del propio componente.
+/// 5. Despacha [`action::component::AfterRender<C>`](crate::base::action::component::AfterRender)
+///    para que las extensiones puedan reaccionar con sus últimos ajustes.
+/// 6. Despacha [`action::component::TransformMarkup<C>`](crate::base::action::component::TransformMarkup)
 ///    para que las extensiones puedan modificar el HTML final antes de devolverlo.
-/// 9. Devuelve el [`Markup`] resultante.
+/// 7. Devuelve el [`Markup`] resultante.
 impl<C: Component> ComponentRender for C {
     fn render(&mut self, cx: &mut Context) -> Markup {
         // Si no es renderizable, devuelve un bloque HTML vacío.
@@ -126,9 +120,6 @@ impl<C: Component> ComponentRender for C {
         // Configura el componente antes de preparar.
         self.setup_before_prepare(cx);
 
-        // Acciones específicas del tema antes de renderizar el componente.
-        action::theme::BeforeRender::dispatch(self, cx);
-
         // Acciones de las extensiones antes de renderizar el componente.
         action::component::BeforeRender::dispatch(self, cx);
 
@@ -136,7 +127,7 @@ impl<C: Component> ComponentRender for C {
         let prepare = match 'resolve: {
             let mut t: Option<ThemeRef> = Some(cx.theme());
             while let Some(theme) = t {
-                if let Some(r) = theme.prepare_component(self, cx) {
+                if let Some(r) = theme.handle_component(self, cx) {
                     break 'resolve r;
                 }
                 t = theme.parent();
@@ -156,13 +147,10 @@ impl<C: Component> ComponentRender for C {
             }
         };
 
-        // Acciones específicas del tema después de renderizar el componente.
-        action::theme::AfterRender::dispatch(self, cx);
-
         // Acciones de las extensiones después de renderizar el componente.
         action::component::AfterRender::dispatch(self, cx);
 
         // Acciones de las extensiones que transforman el HTML final antes de devolverlo.
-        action::component::AlterMarkup::dispatch(self, cx, prepare)
+        action::component::TransformMarkup::dispatch(self, cx, prepare)
     }
 }

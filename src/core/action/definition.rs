@@ -11,7 +11,6 @@ pub type ActionBox = Box<dyn ActionDispatcher>;
 #[derive(Eq, PartialEq, Hash)]
 pub struct ActionKey {
     action_type_id: UniqueId,
-    theme_type_id: Option<UniqueId>,
     referer_type_id: Option<UniqueId>,
     referer_id: Option<String>,
 }
@@ -22,22 +21,19 @@ impl ActionKey {
     /// Se crea con los siguientes campos:
     ///
     /// - `action_type_id`: Tipo de la acción.
-    /// - `theme_type_id`: Opcional, identificador de tipo ([`UniqueId`]) del tema asociado.
     /// - `referer_type_id`: Opcional, identificador de tipo ([`UniqueId`]) del componente referido.
     /// - `referer_id`: Opcional, identificador de la instancia (p. ej. para asociar la acción a un
     ///   componente concreto).
     ///
     /// Esta clave permitirá seleccionar las funciones a ejecutar para ese tipo de acción, con
-    /// filtros opcionales por tema, componente, o una instancia concreta según su identificador.
+    /// filtros opcionales por componente o por una instancia concreta según su identificador.
     pub fn new(
         action_type_id: UniqueId,
-        theme_type_id: Option<UniqueId>,
         referer_type_id: Option<UniqueId>,
         referer_id: Option<String>,
     ) -> Self {
         ActionKey {
             action_type_id,
-            theme_type_id,
             referer_type_id,
             referer_id,
         }
@@ -49,11 +45,6 @@ impl ActionKey {
 /// Las acciones tienen que sobrescribir los métodos para el filtro que apliquen. Por defecto
 /// implementa un filtro nulo.
 pub trait ActionDispatcher: AnyInfo + Send + Sync {
-    /// Identificador de tipo ([`UniqueId`]) del tema asociado. En este caso devuelve `None`.
-    fn theme_type_id(&self) -> Option<UniqueId> {
-        None
-    }
-
     /// Identificador de tipo ([`UniqueId`]) del objeto referido. En este caso devuelve `None`.
     fn referer_type_id(&self) -> Option<UniqueId> {
         None

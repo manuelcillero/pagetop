@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-use crate::base::action::page::FnActionWithPage;
+use super::FnActionWithPage;
 
 /// Ejecuta [`FnActionWithPage`](crate::base::action::page::FnActionWithPage) después de renderizar
 /// el cuerpo de la página.
@@ -39,7 +39,7 @@ impl AfterRenderBody {
     #[allow(clippy::inline_always)]
     pub(crate) fn dispatch(page: &mut Page) {
         dispatch_actions(
-            &ActionKey::new(UniqueId::of::<Self>(), None, None, None),
+            &ActionKey::new(UniqueId::of::<Self>(), None, None),
             |action: &Self| (action.f)(page),
         );
     }

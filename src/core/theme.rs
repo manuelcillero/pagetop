@@ -20,7 +20,7 @@
 //!
 //! PageTop permite crear **temas hijo** que refinan el comportamiento de su tema padre. Un tema
 //! hijo hereda automáticamente todos los métodos del padre y puede sobrescribirlos selectivamente:
-//! por ejemplo, puede redefinir el renderizado de un componente con [`Theme::prepare_component()`]
+//! por ejemplo, puede redefinir el renderizado de un componente con [`Theme::handle_component()`]
 //! sin modificar el resto del comportamiento heredado. Un tema hijo puede ser a su vez padre de
 //! otro, basta declararlo cada vez con [`Theme::parent()`].
 //!
@@ -208,26 +208,30 @@ impl Template for DefaultTemplate {}
 
 // **< render_component! >**************************************************************************
 
-/// Sobrescribe el renderizado de componentes en la implementación de
-/// [`Theme::prepare_component()`](crate::core::theme::Theme::prepare_component).
+/// Sobrescribe el renderizado de componentes en
+/// [`Theme::handle_component()`](crate::core::theme::Theme::handle_component).
 ///
-/// Evalúa `$component` contra cada tipo listado en orden. En cuanto encuentra coincidencia,
-/// devuelve `Some(Ok(markup))` o `Some(Err(e))` según el resultado de la expresión asociada.
-/// Si ningún tipo coincide, devuelve `None` para que el sistema continúe con la cadena de
+/// Evalúa `$component` contra cada tipo de componente listado en orden. En cuanto encuentra
+/// coincidencia, devuelve `Some(Ok(markup))` o `Some(Err(e))` según el resultado de la expresión
+/// asociada. Si ningún tipo coincide, devuelve `None` para que el sistema continúe con la cadena de
 /// herencia o con el renderizado por defecto del propio componente.
 ///
 /// # Ejemplo
 ///
 /// ```rust,ignore
-/// fn prepare_component(
+/// fn handle_component(
 ///     &self,
 ///     component: &dyn Component,
 ///     cx: &mut Context,
 /// ) -> Option<Result<Markup, ComponentError>> {
 ///     render_component!(component, {
-///         Button  => |btn| Ok(html! { button.btn.btn-primary { (btn.label()) } }),
-///         Heading => |h|   Ok(html! { h2.display-4 { (h.text()) } }),
+///         Button  => |btn| { Ok(html! { button.btn.btn-primary { (btn.label()) } }) },
+///         Heading => |h| self.render_heading(h, cx),
 ///     })
+/// }
+///
+/// fn render_heading(&self, h: &Heading, cx: &mut Context) -> Result<Markup, ComponentError> {
+///     Ok(html! { h2.display-4 { (h.text()) } })
 /// }
 /// ```
 #[macro_export]
@@ -240,6 +244,66 @@ macro_rules! render_component {
                 }
             )*
             None
+        }
+    };
+}
+
+// **< setup_component! >***************************************************************************
+
+/// Muta un componente dentro de
+/// [`Theme::handle_component()`](crate::core::theme::Theme::handle_component).
+///
+/// Evalúa `$component` contra cada tipo de componente listado en orden. En cuanto encuentra
+/// coincidencia, ejecuta el bloque asociado y detiene la evaluación. Si ningún tipo coincide, no
+/// hace nada.
+///
+/// Usa acceso mutable al componente mediante [`downcast_mut`](crate::core::AnyCast::downcast_mut),
+/// lo que permite modificar su estado. El tema puede devolver `None` tras la mutación para que otro
+/// nivel de la cadena se encargue del renderizado.
+///
+/// # Ejemplos
+///
+/// Solo mutación: el tema ajusta el componente y delega el renderizado al siguiente nivel:
+///
+/// ```rust,ignore
+/// fn handle_component(
+///     &self,
+///     component: &mut dyn Component,
+///     cx: &mut Context,
+/// ) -> Option<Result<Markup, ComponentError>> {
+///     setup_component!(component, { Button => |btn| { btn.add_class("btn-primary"); } });
+///     None
+/// }
+/// ```
+///
+/// Mutación y renderizado combinados: el `Button` se muta y se renderiza aquí; el `Heading` se
+/// muta pero continúa la cadena para que otro nivel lo renderice:
+///
+/// ```rust,ignore
+/// fn handle_component(
+///     &self,
+///     component: &mut dyn Component,
+///     cx: &mut Context,
+/// ) -> Option<Result<Markup, ComponentError>> {
+///     setup_component!(component, {
+///         Button  => |btn| { btn.add_class("btn-primary"); },
+///         Heading => |h|   { h.add_class("display-4"); },
+///     });
+///     render_component!(component, {
+///         Button => |btn| Ok(html! { button.btn { (btn.label()) } }),
+///     })
+/// }
+/// ```
+#[macro_export]
+macro_rules! setup_component {
+    ($component:expr, { $($type:ty => |$var:ident| $body:expr),* $(,)? }) => {
+        'setup_component: {
+            $(
+                if let Some($var) = ($component).downcast_mut::<$type>() {
+                    $body;
+                    break 'setup_component;
+                }
+            )*
         }
     };
 }
