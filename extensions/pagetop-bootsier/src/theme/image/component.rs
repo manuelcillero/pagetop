@@ -9,7 +9,7 @@ use crate::prelude::*;
 ///   ([`classes::Border`](crate::theme::classes::Border)) y **redondeo de esquinas**
 ///   ([`classes::Rounded`](crate::theme::classes::Rounded)).
 /// - Resuelve el texto alternativo `alt` con **localización** mediante [`L10n`].
-#[derive(AutoDefault, Debug, Getters)]
+#[derive(AutoDefault, Clone, Debug, Getters)]
 pub struct Image {
     #[getters(skip)]
     id: AttrId,
@@ -32,11 +32,11 @@ impl Component for Image {
         self.id.get()
     }
 
-    fn setup_before_prepare(&mut self, _cx: &mut Context) {
+    fn setup(&mut self, _cx: &Context) {
         self.alter_classes(ClassesOp::Prepend, self.source().to_class());
     }
 
-    fn prepare_component(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
+    fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
         let dimensions = self.size().to_style();
         let alt_text = self.alternative().lookup(cx).unwrap_or_default();
         let is_decorative = alt_text.is_empty();

@@ -4,7 +4,7 @@ use crate::prelude::*;
 ///
 /// Los bloques se utilizan como contenedores de otros componentes o contenidos, con un título
 /// opcional y un cuerpo que sólo se renderiza si existen componentes hijos (*children*).
-#[derive(AutoDefault, Debug, Getters)]
+#[derive(AutoDefault, Clone, Debug, Getters)]
 pub struct Block {
     #[getters(skip)]
     id: AttrId,
@@ -25,11 +25,11 @@ impl Component for Block {
         self.id.get()
     }
 
-    fn setup_before_prepare(&mut self, _cx: &mut Context) {
+    fn setup(&mut self, _cx: &Context) {
         self.alter_classes(ClassesOp::Prepend, "block");
     }
 
-    fn prepare_component(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
+    fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
         let block_body = self.children().render(cx);
 
         if block_body.is_empty() {

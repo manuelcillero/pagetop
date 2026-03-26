@@ -10,7 +10,7 @@ use crate::LOCALES_BOOTSIER;
 ///
 /// Define internamente la naturaleza del elemento y su comportamiento al mostrarse o interactuar
 /// con él.
-#[derive(AutoDefault, Debug)]
+#[derive(AutoDefault, Clone, Debug)]
 pub enum ItemKind {
     /// Elemento vacío, no produce salida.
     #[default]
@@ -28,9 +28,9 @@ pub enum ItemKind {
     },
     /// Contenido HTML arbitrario. El componente [`Html`] se renderiza tal cual como elemento del
     /// menú, sin añadir ningún comportamiento de navegación adicional.
-    Html(Typed<Html>),
+    Html(Slot<Html>),
     /// Elemento que despliega un menú [`Dropdown`].
-    Dropdown(Typed<Dropdown>),
+    Dropdown(Slot<Dropdown>),
 }
 
 impl ItemKind {
@@ -76,7 +76,7 @@ impl ItemKind {
 ///
 /// Permite definir el identificador, las clases de estilo adicionales y el tipo de interacción
 /// asociada, manteniendo una interfaz común para renderizar todos los elementos del menú.
-#[derive(AutoDefault, Debug, Getters)]
+#[derive(AutoDefault, Clone, Debug, Getters)]
 pub struct Item {
     #[getters(skip)]
     id: AttrId,
@@ -95,11 +95,11 @@ impl Component for Item {
         self.id.get()
     }
 
-    fn setup_before_prepare(&mut self, _cx: &mut Context) {
+    fn setup(&mut self, _cx: &Context) {
         self.alter_classes(ClassesOp::Prepend, self.item_kind().to_class());
     }
 
-    fn prepare_component(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
+    fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
         Ok(match self.item_kind() {
             ItemKind::Void => html! {},
 
@@ -159,7 +159,7 @@ impl Component for Item {
             },
 
             ItemKind::Dropdown(menu) => {
-                if let Some(dd) = menu.borrow() {
+                if let Some(dd) = menu.get() {
                     let items = dd.items().render(cx);
                     if items.is_empty() {
                         return Ok(html! {});
@@ -264,7 +264,7 @@ impl Item {
     /// con las clases de navegación asociadas a [`Item`].
     pub fn html(html: Html) -> Self {
         Self {
-            item_kind: ItemKind::Html(Typed::with(html)),
+            item_kind: ItemKind::Html(Slot::with(html)),
             ..Default::default()
         }
     }
@@ -276,7 +276,7 @@ impl Item {
     /// a su representación en [`Nav`].
     pub fn dropdown(menu: Dropdown) -> Self {
         Self {
-            item_kind: ItemKind::Dropdown(Typed::with(menu)),
+            item_kind: ItemKind::Dropdown(Slot::with(menu)),
             ..Default::default()
         }
     }

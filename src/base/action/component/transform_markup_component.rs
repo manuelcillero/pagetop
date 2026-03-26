@@ -54,7 +54,7 @@ impl<C: Component> TransformMarkup<C> {
 
     /// Despacha las acciones encadenando el [`Markup`] entre cada una.
     #[inline]
-    pub(crate) fn dispatch(component: &C, cx: &mut Context, markup: Markup) -> Markup {
+    pub(crate) fn dispatch(component: &C, cx: &Context, markup: Markup) -> Markup {
         let mut output = markup;
 
         // Primero despacha las acciones para el tipo de componente.

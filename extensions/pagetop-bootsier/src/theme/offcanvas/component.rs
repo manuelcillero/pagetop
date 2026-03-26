@@ -21,7 +21,7 @@ use crate::LOCALES_BOOTSIER;
 ///
 /// Ver ejemplo en el módulo [`offcanvas`].
 /// Si no contiene elementos, el componente **no se renderiza**.
-#[derive(AutoDefault, Debug, Getters)]
+#[derive(AutoDefault, Clone, Debug, Getters)]
 pub struct Offcanvas {
     #[getters(skip)]
     id: AttrId,
@@ -52,7 +52,7 @@ impl Component for Offcanvas {
         self.id.get()
     }
 
-    fn setup_before_prepare(&mut self, _cx: &mut Context) {
+    fn setup(&mut self, _cx: &Context) {
         self.alter_classes(ClassesOp::Prepend, {
             let mut classes = "offcanvas".to_string();
             self.breakpoint().push_class(&mut classes, "offcanvas", "");
@@ -62,7 +62,7 @@ impl Component for Offcanvas {
         });
     }
 
-    fn prepare_component(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
+    fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
         Ok(self.render_offcanvas(cx, None))
     }
 }

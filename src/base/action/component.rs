@@ -5,9 +5,9 @@ use pagetop::prelude::*;
 /// Tipo de función para manipular componentes y su contexto de renderizado.
 ///
 /// Se usa en [`action::component::BeforeRender`] y [`action::component::AfterRender`] para alterar
-/// el comportamiento predefinido de los componentes.
+/// el comportamiento predefinido de los componentes antes y después de renderizarlos.
 ///
-/// Recibe referencias mutables (`&mut`) del componente `component` y del contexto `cx`.
+/// Recibe referencias mutables del componente `component` y del contexto `cx`.
 pub type FnActionWithComponent<C> = fn(component: &mut C, cx: &mut Context);
 
 /// Tipo de función para alterar el [`Markup`] generado por un componente.
@@ -18,10 +18,12 @@ pub type FnActionWithComponent<C> = fn(component: &mut C, cx: &mut Context);
 /// sustituciones, concatenaciones y cualquier otra primitiva de trabajo con cadenas.
 ///
 /// La función recibe una referencia inmutable al componente `component` (el renderizado ya ha
-/// concluido, solo se necesita leer su estado), una referencia mutable al contexto `cx`, y toma
-/// posesión del `markup` producido hasta ese momento. Devuelve el nuevo [`Markup`] transformado,
-/// que se encadena como entrada para la siguiente acción registrada, si la hay.
-pub type FnActionTransformMarkup<C> = fn(component: &C, cx: &mut Context, markup: Markup) -> Markup;
+/// concluido, solo se necesita leer su estado), y al contexto `cx` (solo para consulta), y toma
+/// posesión del `markup` producido hasta ese momento.
+///
+/// Devuelve el nuevo [`Markup`] transformado, que se encadena como entrada para la siguiente acción
+/// registrada, si la hay.
+pub type FnActionTransformMarkup<C> = fn(component: &C, cx: &Context, markup: Markup) -> Markup;
 
 mod before_render_component;
 pub use before_render_component::*;

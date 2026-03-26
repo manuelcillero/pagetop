@@ -6,12 +6,13 @@ mod error;
 pub use error::ComponentError;
 
 mod definition;
-pub use definition::{Component, ComponentRender};
+pub use definition::{Component, ComponentClone, ComponentRender};
 
 mod children;
+pub use children::Slot;
 pub use children::Children;
+pub use children::ComponentGuard;
 pub use children::{Child, ChildOp};
-pub use children::{Typed, TypedOp};
 
 mod message;
 pub use message::{MessageLevel, StatusMessage};
@@ -29,7 +30,7 @@ pub use context::{AssetsOp, Context, ContextError, Contextual};
 ///
 /// ```rust
 /// # use pagetop::prelude::*;
-/// #[derive(AutoDefault)]
+/// #[derive(AutoDefault, Clone)]
 /// struct SampleComponent {
 ///     renderable: Option<FnIsRenderable>,
 /// }
@@ -39,12 +40,12 @@ pub use context::{AssetsOp, Context, ContextError, Contextual};
 ///         Self::default()
 ///     }
 ///
-///     fn is_renderable(&self, cx: &mut Context) -> bool {
+///     fn is_renderable(&self, cx: &Context) -> bool {
 ///         // Si hay callback, se usa; en caso contrario, se renderiza por defecto.
 ///         self.renderable.map_or(true, |f| f(cx))
 ///     }
 ///
-///     fn prepare_component(&self, _cx: &mut Context) -> Result<Markup, ComponentError> {
+///     fn prepare(&self, _cx: &mut Context) -> Result<Markup, ComponentError> {
 ///         Ok(html! { "Visible component" })
 ///     }
 /// }

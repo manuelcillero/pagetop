@@ -10,6 +10,7 @@ use crate::service::HttpRequest;
 use crate::{builder_fn, util, CowStr};
 
 use std::any::Any;
+use std::cell::Cell;
 use std::collections::HashMap;
 use std::fmt;
 
@@ -214,7 +215,7 @@ pub trait Contextual: LangId {
     /// nombre corto del tipo en minúsculas y `<n>` un contador incremental interno del contexto. Es
     /// útil para asignar identificadores HTML predecibles cuando el componente no recibe uno
     /// explícito.
-    fn required_id<T>(&mut self, id: Option<String>) -> String;
+    fn required_id<T>(&self, id: Option<String>) -> String;
 
     /// Acumula un [`StatusMessage`] en el contexto para notificar al visitante.
     ///
@@ -291,7 +292,7 @@ pub struct Context {
     javascripts: Assets<JavaScript>,            // Scripts JavaScript.
     regions    : ChildrenInRegions,             // Regiones de componentes para renderizar.
     params     : HashMap<&'static str, (Box<dyn Any>, &'static str)>, // Parámetros en ejecución.
-    id_counter : usize,                         // Contador para generar identificadores únicos.
+    id_counter : Cell<usize>,  // Cell permite incrementarlo desde &self en required_id().
     messages   : Vec<StatusMessage>,            // Mensajes de usuario acumulados.
 }
 
@@ -319,7 +320,7 @@ impl Context {
             javascripts: Assets::<JavaScript>::new(),
             regions    : ChildrenInRegions::default(),
             params     : HashMap::default(),
-            id_counter : 0,
+            id_counter : Cell::new(0),
             messages   : Vec::new(),
         }
     }
@@ -593,7 +594,7 @@ impl Contextual for Context {
 
     // **< Contextual HELPERS >*********************************************************************
 
-    fn required_id<T>(&mut self, id: Option<String>) -> String {
+    fn required_id<T>(&self, id: Option<String>) -> String {
         if let Some(id) = id {
             id
         } else {
@@ -607,8 +608,8 @@ impl Contextual for Context {
             } else {
                 prefix
             };
-            self.id_counter += 1;
-            util::join!(prefix, "-", self.id_counter.to_string())
+            self.id_counter.set(self.id_counter.get() + 1);
+            util::join!(prefix, "-", self.id_counter.get().to_string())
         }
     }
 

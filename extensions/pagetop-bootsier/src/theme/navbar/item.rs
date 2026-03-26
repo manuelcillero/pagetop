@@ -7,7 +7,7 @@ use crate::prelude::*;
 /// Cada variante determina qué se renderiza y cómo. Estos elementos se colocan **dentro del
 /// contenido** de la barra (la parte colapsable, el *offcanvas* o el bloque simple), por lo que son
 /// independientes de la marca o del botón que ya pueda definir el propio [`navbar::Layout`].
-#[derive(AutoDefault, Debug)]
+#[derive(AutoDefault, Clone, Debug)]
 pub enum Item {
     /// Sin contenido, no produce salida.
     #[default]
@@ -17,9 +17,9 @@ pub enum Item {
     /// Útil cuando el [`navbar::Layout`] no incluye marca, y se quiere incluir dentro del área
     /// colapsable/*offcanvas*. Si el *layout* ya muestra una marca, esta variante no la sustituye,
     /// sólo añade otra dentro del bloque de contenidos.
-    Brand(Typed<navbar::Brand>),
+    Brand(Slot<navbar::Brand>),
     /// Representa un menú de navegación [`Nav`](crate::theme::Nav).
-    Nav(Typed<Nav>),
+    Nav(Slot<Nav>),
     /// Representa un *texto localizado* libre.
     Text(L10n),
 }
@@ -38,20 +38,20 @@ impl Component for Item {
         }
     }
 
-    fn setup_before_prepare(&mut self, _cx: &mut Context) {
+    fn setup(&mut self, _cx: &Context) {
         if let Self::Nav(nav) = self {
-            if let Some(mut nav) = nav.borrow_mut() {
+            if let Some(mut nav) = nav.get() {
                 nav.alter_classes(ClassesOp::Prepend, "navbar-nav");
             }
         }
     }
 
-    fn prepare_component(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
+    fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
         Ok(match self {
             Self::Void => html! {},
             Self::Brand(brand) => html! { (brand.render(cx)) },
             Self::Nav(nav) => {
-                if let Some(nav) = nav.borrow() {
+                if let Some(nav) = nav.get() {
                     let items = nav.items().render(cx);
                     if items.is_empty() {
                         return Ok(html! {});
@@ -80,12 +80,12 @@ impl Item {
     /// Pensado para barras colapsables u offcanvas donde se quiere que la marca aparezca en la zona
     /// desplegable.
     pub fn brand(brand: navbar::Brand) -> Self {
-        Self::Brand(Typed::with(brand))
+        Self::Brand(Slot::with(brand))
     }
 
     /// Crea un elemento de tipo [`Nav`] para añadir al contenido de [`Navbar`].
     pub fn nav(item: Nav) -> Self {
-        Self::Nav(Typed::with(item))
+        Self::Nav(Slot::with(item))
     }
 
     /// Crea un elemento con un *texto localizado*, mostrado sin interacción.

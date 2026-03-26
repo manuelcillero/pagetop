@@ -27,7 +27,7 @@ use crate::theme::form;
 ///     .with_classes(ClassesOp::Add, "mb-3")
 ///     .add_child(Input::new().with_name("q"));
 /// ```
-#[derive(AutoDefault, Debug, Getters)]
+#[derive(AutoDefault, Clone, Debug, Getters)]
 pub struct Form {
     #[getters(skip)]
     id: AttrId,
@@ -48,11 +48,11 @@ impl Component for Form {
         self.id.get()
     }
 
-    fn setup_before_prepare(&mut self, _cx: &mut Context) {
+    fn setup(&mut self, _cx: &Context) {
         self.alter_classes(ClassesOp::Prepend, "form");
     }
 
-    fn prepare_component(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
+    fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
         let method = match self.method() {
             form::Method::Post => Some("post"),
             form::Method::Get => None,

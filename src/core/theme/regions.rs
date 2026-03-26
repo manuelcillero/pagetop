@@ -1,19 +1,42 @@
-use crate::core::component::{Child, ChildOp, Children};
+use crate::core::component::{Child, ChildOp, Children, Component};
 use crate::core::theme::{DefaultRegion, RegionRef, ThemeRef};
 use crate::{builder_fn, AutoDefault, UniqueId};
 
 use parking_lot::RwLock;
 
 use std::collections::HashMap;
-use std::sync::LazyLock;
+use std::sync::{Arc, LazyLock};
 
-// Conjunto de regiones globales asociadas a un tema específico.
-static THEME_REGIONS: LazyLock<RwLock<HashMap<UniqueId, ChildrenInRegions>>> =
+// Permite almacenar un componente como prototipo en regiones globales.
+//
+// Se implementa automáticamente para todo tipo que implemente [`Component`] y [`Clone`]. En cada
+// llamada a [`as_child`](Self::as_child) produce un clon fresco del estado original, de modo que
+// cada página renderiza el componente desde su estado inicial sin acumular mutaciones de peticiones
+// anteriores.
+trait ComponentGlobal: Send + Sync {
+    // Devuelve un nuevo [`Child`] con una copia independiente del componente original.
+    fn as_child(&self) -> Child;
+}
+
+impl<T: Component + Clone + 'static> ComponentGlobal for T {
+    #[inline]
+    fn as_child(&self) -> Child {
+        Child::with(self.clone())
+    }
+}
+
+// Mapa de nombre de región a lista de prototipos de componentes.
+type RegionComponents = HashMap<String, Vec<Arc<dyn ComponentGlobal>>>;
+
+// Regiones globales con prototipos asociados a un tema específico.
+static THEME_REGIONS: LazyLock<RwLock<HashMap<UniqueId, RegionComponents>>> =
     LazyLock::new(|| RwLock::new(HashMap::new()));
 
-// Conjunto de regiones globales comunes a todos los temas.
-static COMMON_REGIONS: LazyLock<RwLock<ChildrenInRegions>> =
-    LazyLock::new(|| RwLock::new(ChildrenInRegions::default()));
+// Regiones globales con prototipos comunes a todos los temas.
+static COMMON_REGIONS: LazyLock<RwLock<RegionComponents>> =
+    LazyLock::new(|| RwLock::new(HashMap::new()));
+
+// *************************************************************************************************
 
 // Contenedor interno de componentes agrupados por región.
 #[derive(AutoDefault)]
@@ -35,25 +58,67 @@ impl ChildrenInRegions {
         self
     }
 
-    pub fn children_for(&self, theme_ref: ThemeRef, region_ref: RegionRef) -> Children {
+    /// Construye una lista de componentes frescos para la región indicada.
+    ///
+    /// El orden es: prototipos globales comunes → children propios de la página →
+    /// prototipos específicos del tema activo.
+    ///
+    /// Los prototipos globales se clonan en cada llamada (clon profundo gracias a
+    /// [`ComponentClone`]), garantizando que `setup()` siempre parte del estado
+    /// inicial. Los children propios de la página se mueven (son por petición y no necesitan
+    /// clonarse).
+    ///
+    /// [`ComponentClone`]: crate::core::component::ComponentClone
+    pub fn children_for(&mut self, theme_ref: ThemeRef, region_ref: RegionRef) -> Children {
         let name = region_ref.name();
         let common = COMMON_REGIONS.read();
         let themed = THEME_REGIONS.read();
 
-        if let Some(r) = themed.get(&theme_ref.type_id()) {
-            Children::merge(&[common.0.get(name), self.0.get(name), r.0.get(name)])
-        } else {
-            Children::merge(&[common.0.get(name), self.0.get(name)])
+        let mut result = Children::new();
+
+        // 1. Prototipos globales comunes — clon fresco por cada página.
+        if let Some(protos) = common.get(name) {
+            for proto in protos {
+                result.add(proto.as_child());
+            }
         }
+        // 2. Children propios de la página — se mueven (son por petición, no requieren clonado).
+        if let Some(page_children) = self.0.remove(name) {
+            for child in page_children {
+                result.add(child);
+            }
+        }
+        // 3. Prototipos del tema activo — clon fresco por cada página.
+        if let Some(theme_map) = themed.get(&theme_ref.type_id()) {
+            if let Some(protos) = theme_map.get(name) {
+                for proto in protos {
+                    result.add(proto.as_child());
+                }
+            }
+        }
+
+        result
     }
 }
 
+// *************************************************************************************************
+
 /// Añade componentes a regiones globales o específicas de un tema.
 ///
-/// Cada variante indica la región en la que se añade el componente usando [`Self::add()`]. Los
-/// componentes añadidos se mantienen durante toda la ejecución y se inyectan automáticamente al
-/// renderizar los documentos HTML que utilizan esas regiones, como las páginas de contenido
-/// ([`Page`](crate::response::page::Page)).
+/// Los componentes se almacenan como **prototipos**: cada página recibe un clon fresco en el
+/// momento del renderizado, de modo que `setup()` se ejecuta siempre sobre un
+/// estado inicial limpio sin acumular mutaciones de peticiones anteriores.
+///
+/// # Ejemplo
+///
+/// ```rust
+/// # use pagetop::prelude::*;
+/// // Banner global en la región de contenido.
+/// InRegion::Content.add(Html::with(|_| html! { "🎉 ¡Bienvenido!" }));
+///
+/// // Texto en la cabecera, visible en todos los temas.
+/// InRegion::Global(&DefaultRegion::Header).add(Html::with(|_| html! { "Publicidad" }));
+/// ```
 pub enum InRegion {
     /// Región principal de **contenido** por defecto.
     ///
@@ -81,50 +146,55 @@ pub enum InRegion {
 }
 
 impl InRegion {
-    /// Añade un componente a la región indicada por la variante.
+    /// Añade un componente como prototipo en la región indicada por la variante.
+    ///
+    /// El componente se almacena internamente como prototipo. Cada vez que se renderiza una página,
+    /// se genera un clon fresco del estado original, garantizando que `setup()` no
+    /// acumula estado entre peticiones.
     ///
     /// # Ejemplo
     ///
     /// ```rust
     /// # use pagetop::prelude::*;
     /// // Banner global en la región por defecto.
-    /// InRegion::Content.add(Child::with(Html::with(|_| {
+    /// InRegion::Content.add(Html::with(|_| {
     ///     html! { "🎉 ¡Bienvenido!" }
-    /// })));
+    /// }));
     ///
     /// // Texto en la cabecera.
-    /// InRegion::Global(&DefaultRegion::Header).add(Child::with(Html::with(|_| {
+    /// InRegion::Global(&DefaultRegion::Header).add(Html::with(|_| {
     ///     html! { "Publicidad" }
-    /// })));
+    /// }));
     ///
     /// // Contenido sólo para la región del pie de página en un tema concreto.
-    /// InRegion::ForTheme(&theme::Basic, &DefaultRegion::Footer).add(Child::with(Html::with(|_| {
+    /// InRegion::ForTheme(&theme::Basic, &DefaultRegion::Footer).add(Html::with(|_| {
     ///     html! { "Aviso legal" }
-    /// })));
+    /// }));
     /// ```
-    pub fn add(&self, child: Child) -> &Self {
+    pub fn add(&self, component: impl Component + Clone + 'static) -> &Self {
+        let proto: Arc<dyn ComponentGlobal> = Arc::new(component);
         match self {
-            InRegion::Content => Self::add_to_common(&DefaultRegion::Content, child),
-            InRegion::Global(region_ref) => Self::add_to_common(*region_ref, child),
+            InRegion::Content => Self::add_to_common(&DefaultRegion::Content, proto),
+            InRegion::Global(region_ref) => Self::add_to_common(*region_ref, proto),
             InRegion::ForTheme(theme_ref, region_ref) => {
-                let mut regions = THEME_REGIONS.write();
-                if let Some(r) = regions.get_mut(&theme_ref.type_id()) {
-                    r.alter_child_in(*region_ref, ChildOp::Add(child));
-                } else {
-                    regions.insert(
-                        theme_ref.type_id(),
-                        ChildrenInRegions::with(*region_ref, child),
-                    );
-                }
+                THEME_REGIONS
+                    .write()
+                    .entry(theme_ref.type_id())
+                    .or_default()
+                    .entry((*region_ref).name().to_owned())
+                    .or_default()
+                    .push(proto);
             }
         }
         self
     }
 
     #[inline]
-    fn add_to_common(region_ref: RegionRef, child: Child) {
+    fn add_to_common(region_ref: RegionRef, proto: Arc<dyn ComponentGlobal>) {
         COMMON_REGIONS
             .write()
-            .alter_child_in(region_ref, ChildOp::Add(child));
+            .entry(region_ref.name().to_owned())
+            .or_default()
+            .push(proto);
     }
 }

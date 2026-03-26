@@ -377,7 +377,7 @@ impl Contextual for Page {
 
     // **< Contextual HELPERS >*********************************************************************
 
-    fn required_id<T>(&mut self, id: Option<String>) -> String {
+    fn required_id<T>(&self, id: Option<String>) -> String {
         self.context.required_id::<T>(id)
     }
 

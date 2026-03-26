@@ -2,27 +2,28 @@ use crate::core::component::{Component, Context};
 use crate::html::{html, Markup};
 use crate::{builder_fn, AutoDefault, UniqueId};
 
-use parking_lot::RwLock;
+use parking_lot::Mutex;
 
-pub use parking_lot::RwLockReadGuard as ComponentReadGuard;
-pub use parking_lot::RwLockWriteGuard as ComponentWriteGuard;
+pub use parking_lot::MutexGuard as ComponentGuard;
 
 use std::fmt;
-use std::sync::Arc;
 use std::vec::IntoIter;
 
-/// Representa un componente encapsulado de forma segura y compartida.
-///
-/// Esta estructura permite manipular y renderizar un componente que implemente [`Component`], y
-/// habilita acceso concurrente mediante [`Arc<RwLock<_>>`].
-#[derive(AutoDefault, Clone)]
-pub struct Child(Option<Arc<RwLock<dyn Component>>>);
+/// Representa un componente hijo encapsulado para su uso en una lista [`Children`].
+#[derive(AutoDefault)]
+pub struct Child(Option<Mutex<Box<dyn Component>>>);
+
+impl Clone for Child {
+    fn clone(&self) -> Self {
+        Child(self.0.as_ref().map(|m| Mutex::new(m.lock().clone_box())))
+    }
+}
 
 impl fmt::Debug for Child {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match &self.0 {
             None => write!(f, "Child(None)"),
-            Some(c) => write!(f, "Child({})", c.read().name()),
+            Some(c) => write!(f, "Child({})", c.lock().name()),
         }
     }
 }
@@ -30,7 +31,7 @@ impl fmt::Debug for Child {
 impl Child {
     /// Crea un nuevo `Child` a partir de un componente.
     pub fn with(component: impl Component) -> Self {
-        Child(Some(Arc::new(RwLock::new(component))))
+        Child(Some(Mutex::new(Box::new(component))))
     }
 
     // **< Child BUILDER >**************************************************************************
@@ -40,11 +41,7 @@ impl Child {
     /// Si se proporciona `Some(component)`, se encapsula como [`Child`]; y si es `None`, se limpia.
     #[builder_fn]
     pub fn with_component<C: Component>(mut self, component: Option<C>) -> Self {
-        if let Some(c) = component {
-            self.0 = Some(Arc::new(RwLock::new(c)));
-        } else {
-            self.0 = None;
-        }
+        self.0 = component.map(|c| Mutex::new(Box::new(c) as Box<dyn Component>));
         self
     }
 
@@ -53,14 +50,14 @@ impl Child {
     /// Devuelve el identificador del componente, si existe y está definido.
     #[inline]
     pub fn id(&self) -> Option<String> {
-        self.0.as_ref().and_then(|c| c.read().id())
+        self.0.as_ref().and_then(|c| c.lock().id())
     }
 
     // **< Child RENDER >***************************************************************************
 
     /// Renderiza el componente con el contexto proporcionado.
     pub fn render(&self, cx: &mut Context) -> Markup {
-        self.0.as_ref().map_or(html! {}, |c| c.write().render(cx))
+        self.0.as_ref().map_or(html! {}, |c| c.lock().render(cx))
     }
 
     // **< Child HELPERS >**************************************************************************
@@ -68,121 +65,128 @@ impl Child {
     /// Devuelve el [`UniqueId`] del tipo del componente, si existe.
     #[inline]
     fn type_id(&self) -> Option<UniqueId> {
-        self.0.as_ref().map(|c| c.read().type_id())
+        self.0.as_ref().map(|c| c.lock().type_id())
+    }
+}
+
+impl<C: Component + 'static> From<Slot<C>> for Child {
+    /// Convierte un [`Slot<C>`] en un [`Child`], consumiendo el componente tipado.
+    ///
+    /// Útil cuando se tiene un [`Slot`] y se necesita añadirlo a una lista [`Children`]:
+    ///
+    /// ```rust,ignore
+    /// children.add(Child::from(my_slot));
+    /// // o equivalentemente:
+    /// children.add(my_slot.into());
+    /// ```
+    fn from(typed: Slot<C>) -> Self {
+        if let Some(m) = typed.0 {
+            Child(Some(Mutex::new(
+                Box::new(m.into_inner()) as Box<dyn Component>
+            )))
+        } else {
+            Child(None)
+        }
+    }
+}
+
+impl<T: Component + 'static> From<T> for Child {
+    #[inline]
+    fn from(component: T) -> Self {
+        Child::with(component)
     }
 }
 
 // *************************************************************************************************
 
-/// Variante tipada de [`Child`] para evitar conversiones de tipo durante el uso.
+/// Variante tipada de [`Child`] para componentes con un tipo concreto conocido.
 ///
-/// Esta estructura permite manipular y renderizar un componente concreto que implemente
-/// [`Component`], y habilita acceso concurrente mediante [`Arc<RwLock<_>>`].
-#[derive(AutoDefault, Clone)]
-pub struct Typed<C: Component>(Option<Arc<RwLock<C>>>);
+/// A diferencia de [`Child`], que encapsula cualquier componente como `dyn Component`, `Slot`
+/// mantiene el tipo concreto `C` y permite acceder directamente a sus métodos específicos a través
+/// de [`get()`](Slot::get).
+///
+/// Se utiliza habitualmente para incrustar un componente dentro de otro cuando no se necesita una
+/// lista completa de hijos ([`Children`]), sino un único componente tipado en un campo concreto.
+#[derive(AutoDefault)]
+pub struct Slot<C: Component>(Option<Mutex<C>>);
 
-impl<C: Component> fmt::Debug for Typed<C> {
+impl<C: Component + Clone> Clone for Slot<C> {
+    fn clone(&self) -> Self {
+        Slot(self.0.as_ref().map(|m| Mutex::new(m.lock().clone())))
+    }
+}
+
+impl<C: Component> fmt::Debug for Slot<C> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match &self.0 {
-            None => write!(f, "Typed(None)"),
-            Some(c) => write!(f, "Typed({})", c.read().name()),
+            None => write!(f, "Slot(None)"),
+            Some(c) => write!(f, "Slot({})", c.lock().name()),
         }
     }
 }
 
-impl<C: Component> Typed<C> {
-    /// Crea un nuevo `Typed` a partir de un componente.
+impl<C: Component> Slot<C> {
+    /// Crea un nuevo `Slot` a partir de un componente.
     pub fn with(component: C) -> Self {
-        Typed(Some(Arc::new(RwLock::new(component))))
+        Slot(Some(Mutex::new(component)))
     }
 
-    // **< Typed BUILDER >**************************************************************************
+    // **< Slot BUILDER >*********************************************************************
 
     /// Establece un componente nuevo, o lo vacía.
     ///
-    /// Si se proporciona `Some(component)`, se encapsula como [`Typed`]; y si es `None`, se limpia.
+    /// Si se proporciona `Some(component)`, se encapsula como [`Slot`]; y si es `None`, se
+    /// limpia.
     #[builder_fn]
     pub fn with_component(mut self, component: Option<C>) -> Self {
-        self.0 = component.map(|c| Arc::new(RwLock::new(c)));
+        self.0 = component.map(Mutex::new);
         self
     }
 
-    // **< Typed GETTERS >**************************************************************************
+    // **< Slot GETTERS >*********************************************************************
 
     /// Devuelve el identificador del componente, si existe y está definido.
     #[inline]
     pub fn id(&self) -> Option<String> {
-        self.0.as_ref().and_then(|c| c.read().id())
+        self.0.as_ref().and_then(|c| c.lock().id())
     }
 
-    /// Devuelve una **referencia inmutable** al componente interno.
+    /// Devuelve un acceso al componente interno.
     ///
-    /// - Devuelve `Some(ComponentReadGuard<C>)` si existe el componente, o `None` si está vacío.
-    /// - Permite realizar **múltiples lecturas concurrentes**.
-    /// - Mientras el *guard* esté activo, no se pueden realizar escrituras concurrentes (ver
-    ///   [`borrow_mut`](Self::borrow_mut)).
+    /// - Devuelve `Some(ComponentGuard<C>)` si existe el componente, o `None` si está vacío.
+    /// - El acceso es **exclusivo**: mientras el *guard* esté activo, no habrá otros accesos.
     /// - Se recomienda mantener el *guard* **el menor tiempo posible** para evitar bloqueos
     ///   innecesarios.
+    /// - Para modificar el componente, declara el *guard* como `mut`:
+    ///   `if let Some(mut c) = child.get() { c.alter_title(...); }`.
     ///
     /// # Ejemplo
     ///
-    /// Lectura del nombre del componente:
-    ///
     /// ```rust
     /// # use pagetop::prelude::*;
-    /// let typed = Typed::with(Html::with(|_| html! { "Prueba" }));
+    /// let child = Slot::with(Html::with(|_| html! { "Prueba" }));
     /// {
-    ///     if let Some(component) = typed.borrow() {
+    ///     if let Some(component) = child.get() {
     ///         assert_eq!(component.name(), "Html");
     ///     }
-    /// }; // El *guard* se libera aquí, antes del *drop* de `typed`.
-    /// ```
-    pub fn borrow(&self) -> Option<ComponentReadGuard<'_, C>> {
-        self.0.as_ref().map(|a| a.read())
-    }
-
-    /// Obtiene una **referencia mutable exclusiva** al componente interno.
+    /// }; // El *guard* se libera aquí, antes del *drop* de `child`.
     ///
-    /// - Devuelve `Some(ComponentWriteGuard<C>)` si existe el componente, o `None` si está vacío.
-    /// - **Exclusivo**: mientras el *guard* esté activo, no habrá otros lectores ni escritores.
-    /// - Usar sólo para operaciones que **modifican** el estado interno.
-    /// - Igual que con [`borrow`](Self::borrow), se recomienda mantener el *guard* en un **ámbito
-    ///   reducido**.
-    ///
-    /// # Ejemplo
-    ///
-    /// Acceso mutable (ámbito corto):
-    ///
-    /// ```rust
-    /// # use pagetop::prelude::*;
-    /// let typed = Typed::with(Block::new().with_title(L10n::n("Título")));
+    /// let child = Slot::with(Block::new().with_title(L10n::n("Título")));
     /// {
-    ///     if let Some(mut component) = typed.borrow_mut() {
+    ///     if let Some(mut component) = child.get() {
     ///         component.alter_title(L10n::n("Nuevo título"));
     ///     }
-    /// }; // El *guard* se libera aquí, antes del *drop* de `typed`.
+    /// }; // El *guard* se libera aquí, antes del *drop* de `child`.
     /// ```
-    pub fn borrow_mut(&self) -> Option<ComponentWriteGuard<'_, C>> {
-        self.0.as_ref().map(|a| a.write())
+    pub fn get(&self) -> Option<ComponentGuard<'_, C>> {
+        self.0.as_ref().map(|m| m.lock())
     }
 
-    // **< Typed RENDER >***************************************************************************
+    // **< Slot RENDER >**********************************************************************
 
     /// Renderiza el componente con el contexto proporcionado.
     pub fn render(&self, cx: &mut Context) -> Markup {
-        self.0.as_ref().map_or(html! {}, |c| c.write().render(cx))
-    }
-
-    // **< Typed HELPERS >**************************************************************************
-
-    /// Método interno para convertir un componente tipado en un [`Child`].
-    #[inline]
-    fn into(self) -> Child {
-        if let Some(c) = &self.0 {
-            Child(Some(c.clone()))
-        } else {
-            Child(None)
-        }
+        self.0.as_ref().map_or(html! {}, |c| c.lock().render(cx))
     }
 }
 
@@ -199,20 +203,6 @@ pub enum ChildOp {
     PrependMany(Vec<Child>),
     RemoveById(&'static str),
     ReplaceById(&'static str, Child),
-    Reset,
-}
-
-/// Operaciones con un componente hijo tipado [`Typed<C>`] en una lista [`Children`].
-pub enum TypedOp<C: Component> {
-    Add(Typed<C>),
-    AddIfEmpty(Typed<C>),
-    AddMany(Vec<Typed<C>>),
-    InsertAfterId(&'static str, Typed<C>),
-    InsertBeforeId(&'static str, Typed<C>),
-    Prepend(Typed<C>),
-    PrependMany(Vec<Typed<C>>),
-    RemoveById(&'static str),
-    ReplaceById(&'static str, Typed<C>),
     Reset,
 }
 
@@ -235,15 +225,6 @@ impl Children {
         Self::default().with_child(ChildOp::Add(child))
     }
 
-    /// Fusiona varias listas de `Children` en una sola.
-    pub(crate) fn merge(mixes: &[Option<&Children>]) -> Self {
-        let mut opt = Children::default();
-        for m in mixes.iter().flatten() {
-            opt.0.extend(m.0.iter().cloned());
-        }
-        opt
-    }
-
     // **< Children BUILDER >***********************************************************************
 
     /// Ejecuta una operación con [`ChildOp`] en la lista.
@@ -260,23 +241,6 @@ impl Children {
             ChildOp::RemoveById(id) => self.remove_by_id(id),
             ChildOp::ReplaceById(id, any) => self.replace_by_id(id, any),
             ChildOp::Reset => self.reset(),
-        }
-    }
-
-    /// Ejecuta una operación con [`TypedOp`] en la lista.
-    #[builder_fn]
-    pub fn with_typed<C: Component>(mut self, op: TypedOp<C>) -> Self {
-        match op {
-            TypedOp::Add(typed) => self.add(typed.into()),
-            TypedOp::AddIfEmpty(typed) => self.add_if_empty(typed.into()),
-            TypedOp::AddMany(many) => self.add_many(many.into_iter().map(Typed::<C>::into)),
-            TypedOp::InsertAfterId(id, typed) => self.insert_after_id(id, typed.into()),
-            TypedOp::InsertBeforeId(id, typed) => self.insert_before_id(id, typed.into()),
-            TypedOp::Prepend(typed) => self.prepend(typed.into()),
-            TypedOp::PrependMany(many) => self.prepend_many(many.into_iter().map(Typed::<C>::into)),
-            TypedOp::RemoveById(id) => self.remove_by_id(id),
-            TypedOp::ReplaceById(id, typed) => self.replace_by_id(id, typed.into()),
-            TypedOp::Reset => self.reset(),
         }
     }
 

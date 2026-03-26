@@ -4,6 +4,16 @@ use crate::core::theme::ThemeRef;
 use crate::core::{AnyInfo, TypeInfo};
 use crate::html::{html, Markup};
 
+/// Permite clonar un componente.
+///
+/// Se implementa automáticamente para todo tipo que implemente [`Component`] y [`Clone`]. El método
+/// [`clone_box`](Self::clone_box) devuelve una copia en la *pila* del componente original, lo que
+/// permite clonar componentes sin conocer su tipo concreto en tiempo de compilación.
+pub trait ComponentClone {
+    /// Devuelve un clon del componente encapsulado en un [`Box<dyn Component>`].
+    fn clone_box(&self) -> Box<dyn Component>;
+}
+
 /// Define la función de renderizado para todos los componentes.
 ///
 /// Este *trait* se implementa automáticamente en cualquier tipo (componente) que implemente
@@ -20,7 +30,16 @@ pub trait ComponentRender {
 /// [`Getters`](crate::Getters) para acceder a sus datos. Deberán implementar explícitamente el
 /// método [`new()`](Self::new) y podrán sobrescribir los demás métodos para personalizar su
 /// comportamiento.
-pub trait Component: AnyInfo + ComponentRender + Send + Sync {
+///
+/// # Requisito: derivar `Clone`
+///
+/// Todo tipo que implemente `Component` **debe** derivar también [`Clone`]. Aunque el compilador
+/// no lo exige directamente —hacerlo rompería la seguridad de objeto de `dyn Component`—,
+/// [`ComponentClone`] se implementa automáticamente mediante una *impl* blanket solo para los
+/// tipos que sean `Component + Clone + 'static`. Sin `Clone`, habría que implementar
+/// [`ComponentClone`] a mano, y el componente no podría registrarse en
+/// [`InRegion`](crate::core::theme::InRegion).
+pub trait Component: AnyInfo + ComponentClone + ComponentRender + Send + Sync {
     /// Crea una nueva instancia del componente.
     ///
     /// Por convención suele devolver `Self::default()`.
@@ -54,42 +73,55 @@ pub trait Component: AnyInfo + ComponentRender + Send + Sync {
     ///
     /// Por defecto, todos los componentes son renderizables (`true`). Sin embargo, este método
     /// puede sobrescribirse para decidir dinámicamente si los componentes de este tipo se
-    /// renderizan o no en función del contexto de renderizado.
+    /// renderizan o no en función del contexto de renderizado. Recibe solo una referencia
+    /// compartida al contexto porque su único propósito es consultar datos, no modificarlos.
     ///
     /// También puede asignarse una función [`FnIsRenderable`](super::FnIsRenderable) a un campo del
     /// componente para permitir que instancias concretas del mismo puedan decidir dinámicamente si
     /// se renderizan o no.
     #[allow(unused_variables)]
-    fn is_renderable(&self, cx: &mut Context) -> bool {
+    fn is_renderable(&self, cx: &Context) -> bool {
         true
     }
 
-    /// Configura el componente justo antes de preparar el renderizado.
+    /// Configura el estado interno del componente antes de generar el marcado.
     ///
-    /// Este método puede sobrescribirse para modificar la estructura interna del componente o el
-    /// contexto antes de renderizarlo. Por defecto no hace nada.
+    /// Segundo paso del [ciclo de renderizado](ComponentRender): se ejecuta tras comprobar
+    /// [`is_renderable()`](Self::is_renderable) y antes de la acción
+    /// [`BeforeRender`](crate::base::action::component::BeforeRender) y de
+    /// [`prepare()`](Self::prepare). Recibe solo una referencia compartida al contexto porque su
+    /// propósito es mutar el propio componente, no el contexto. Por defecto no hace nada.
     #[allow(unused_variables)]
-    fn setup_before_prepare(&mut self, cx: &mut Context) {}
+    fn setup(&mut self, cx: &Context) {}
 
-    /// Versión del componente para preparar su propio renderizado.
+    /// Genera el marcado HTML del componente cuando ningún tema lo sobrescribe.
     ///
-    /// Este método forma parte del ciclo de vida de los componentes y se invoca automáticamente
-    /// durante el proceso de construcción del documento cuando ningún tema sobrescribe el
-    /// renderizado mediante [`Theme::handle_component()`](crate::core::theme::Theme::handle_component).
+    /// Cuarto paso del [ciclo de renderizado](ComponentRender): se invoca tras
+    /// [`setup()`](Self::setup) y la acción
+    /// [`BeforeRender`](crate::base::action::component::BeforeRender), pero solo si ningún tema
+    /// en la cadena devuelve `Some` en
+    /// [`Theme::handle_component()`](crate::core::theme::Theme::handle_component).
     ///
     /// Se recomienda obtener los datos del componente a través de sus propios métodos para que los
-    /// temas puedan implementar [`Theme::handle_component()`](crate::core::theme::Theme::handle_component)
-    /// sin depender de los detalles internos del componente.
+    /// temas puedan implementar `handle_component()` sin depender de los detalles internos.
     ///
-    /// Por defecto, devuelve un [`Markup`] vacío (`Ok(html! {})`).
-    ///
-    /// En caso de error, devuelve un [`ComponentError`] que puede incluir un marcado alternativo
-    /// (*fallback*) para sustituir al componente fallido.
+    /// Por defecto, devuelve un [`Markup`] vacío (`Ok(html! {})`). En caso de error, devuelve un
+    /// [`ComponentError`] que puede incluir un marcado alternativo (*fallback*).
     #[allow(unused_variables)]
-    fn prepare_component(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
+    fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
         Ok(html! {})
     }
 }
+
+// *************************************************************************************************
+
+impl<T: Component + Clone + 'static> ComponentClone for T {
+    fn clone_box(&self) -> Box<dyn Component> {
+        Box::new(self.clone())
+    }
+}
+
+// *************************************************************************************************
 
 /// Implementa [`render()`](ComponentRender::render) para todos los componentes.
 ///
@@ -97,14 +129,14 @@ pub trait Component: AnyInfo + ComponentRender + Send + Sync {
 ///
 /// 1. Ejecuta [`is_renderable()`](Component::is_renderable) para ver si puede renderizarse en el
 ///    contexto actual. Si no es así, devuelve un [`Markup`] vacío.
-/// 2. Ejecuta [`setup_before_prepare()`](Component::setup_before_prepare) para que el componente
-///    pueda ajustar su estructura interna o modificar el contexto.
+/// 2. Ejecuta [`setup()`](Component::setup) para que el componente
+///    pueda ajustar su estructura interna.
 /// 3. Despacha [`action::component::BeforeRender<C>`](crate::base::action::component::BeforeRender)
 ///    para que las extensiones puedan hacer ajustes previos.
 /// 4. **Prepara el renderizado del componente** recorriendo la cadena de temas (hijo → padre →
 ///    abuelo…) llamando a [`Theme::handle_component()`](crate::core::theme::Theme::handle_component)
 ///    en cada nivel hasta que uno devuelva `Some`. Si ninguno lo sobrescribe, llama a
-///    [`Component::prepare_component()`](Component::prepare_component) del propio componente.
+///    [`Component::prepare()`](Component::prepare) del propio componente.
 /// 5. Despacha [`action::component::AfterRender<C>`](crate::base::action::component::AfterRender)
 ///    para que las extensiones puedan reaccionar con sus últimos ajustes.
 /// 6. Despacha [`action::component::TransformMarkup<C>`](crate::base::action::component::TransformMarkup)
@@ -118,7 +150,7 @@ impl<C: Component> ComponentRender for C {
         }
 
         // Configura el componente antes de preparar.
-        self.setup_before_prepare(cx);
+        self.setup(cx);
 
         // Acciones de las extensiones antes de renderizar el componente.
         action::component::BeforeRender::dispatch(self, cx);
@@ -132,7 +164,7 @@ impl<C: Component> ComponentRender for C {
                 }
                 t = theme.parent();
             }
-            self.prepare_component(cx)
+            self.prepare(cx)
         } {
             Ok(markup) => markup,
             Err(error) => {

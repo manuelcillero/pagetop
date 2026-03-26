@@ -11,12 +11,12 @@ use crate::prelude::*;
 /// - Si no hay imagen ([`with_image()`](Self::with_image)) ni título
 ///   ([`with_title()`](Self::with_title)), la marca de identidad no se renderiza.
 /// - El eslogan ([`with_slogan()`](Self::with_slogan)) es opcional; por defecto no tiene contenido.
-#[derive(AutoDefault, Debug, Getters)]
+#[derive(AutoDefault, Clone, Debug, Getters)]
 pub struct Brand {
     #[getters(skip)]
     id: AttrId,
     /// Devuelve la imagen de marca (si la hay).
-    image: Typed<Image>,
+    image: Slot<Image>,
     /// Devuelve el título de la identidad de marca.
     #[default(_code = "L10n::n(&global::SETTINGS.app.name)")]
     title: L10n,
@@ -36,7 +36,7 @@ impl Component for Brand {
         self.id.get()
     }
 
-    fn prepare_component(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
+    fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
         let image = self.image().render(cx);
         let title = self.title().using(cx);
         if title.is_empty() && image.is_empty() {

@@ -5,7 +5,7 @@ use crate::prelude::*;
 // **< Layout >*************************************************************************************
 
 /// Representa los diferentes tipos de presentación de una barra de navegación [`Navbar`].
-#[derive(AutoDefault, Debug)]
+#[derive(AutoDefault, Clone, Debug)]
 pub enum Layout {
     /// Barra simple, sin marca de identidad y sin botón de despliegue.
     ///
@@ -19,24 +19,24 @@ pub enum Layout {
     /// Barra simple, con marca de identidad a la izquierda y sin botón de despliegue.
     ///
     /// La barra de navegación no se colapsa.
-    SimpleBrandLeft(Typed<navbar::Brand>),
+    SimpleBrandLeft(Slot<navbar::Brand>),
 
     /// Barra con marca de identidad a la izquierda y botón de despliegue a la derecha.
-    BrandLeft(Typed<navbar::Brand>),
+    BrandLeft(Slot<navbar::Brand>),
 
     /// Barra con botón de despliegue a la izquierda y marca de identidad a la derecha.
-    BrandRight(Typed<navbar::Brand>),
+    BrandRight(Slot<navbar::Brand>),
 
     /// Contenido en [`Offcanvas`], con botón de despliegue a la izquierda y sin marca de identidad.
-    Offcanvas(Typed<Offcanvas>),
+    Offcanvas(Slot<Offcanvas>),
 
     /// Contenido en [`Offcanvas`], con marca de identidad a la izquierda y botón de despliegue a la
     /// derecha.
-    OffcanvasBrandLeft(Typed<navbar::Brand>, Typed<Offcanvas>),
+    OffcanvasBrandLeft(Slot<navbar::Brand>, Slot<Offcanvas>),
 
     /// Contenido en [`Offcanvas`], con botón de despliegue a la izquierda y marca de identidad a la
     /// derecha.
-    OffcanvasBrandRight(Typed<navbar::Brand>, Typed<Offcanvas>),
+    OffcanvasBrandRight(Slot<navbar::Brand>, Slot<Offcanvas>),
 }
 
 // **< Position >***********************************************************************************

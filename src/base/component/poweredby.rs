@@ -8,7 +8,7 @@ const LINK: &str = "<a href=\"https://pagetop.cillero.es\" rel=\"noopener norefe
 /// Por defecto, usando [`default()`](Self::default) sólo se muestra un reconocimiento a PageTop.
 /// Sin embargo, se puede usar [`new()`](Self::new) para crear una instancia con un texto de
 /// copyright predeterminado.
-#[derive(AutoDefault, Debug, Getters)]
+#[derive(AutoDefault, Clone, Debug, Getters)]
 pub struct PoweredBy {
     /// Devuelve el texto de copyright actual, si existe.
     copyright: Option<String>,
@@ -25,7 +25,7 @@ impl Component for PoweredBy {
         PoweredBy { copyright: Some(c) }
     }
 
-    fn prepare_component(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
+    fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
         Ok(html! {
             div id=[self.id()] class="poweredby" {
                 @if let Some(c) = self.copyright() {
