@@ -3,7 +3,7 @@ use pagetop::prelude::*;
 use crate::theme::form;
 use crate::LOCALES_BOOTSIER;
 
-#[derive(AutoDefault, Debug, Getters)]
+#[derive(AutoDefault, Clone, Debug, Getters)]
 pub struct Input {
     classes: Classes,
     input_type: form::InputType,
@@ -29,14 +29,14 @@ impl Component for Input {
         Self::default()
     }
 
-    fn setup_before_prepare(&mut self, _cx: &mut Context) {
+    fn setup(&mut self, _cx: &Context) {
         self.alter_classes(
             ClassesOp::Prepend,
             util::join!("form-item form-type-", self.input_type().to_string()),
         );
     }
 
-    fn prepare_component(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
+    fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
         let id = self.name().get().map(|name| util::join!("edit-", name));
         Ok(html! {
             div class=[self.classes().get()] {

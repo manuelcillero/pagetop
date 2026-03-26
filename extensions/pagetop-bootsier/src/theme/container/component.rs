@@ -6,7 +6,7 @@ use crate::prelude::*;
 ///
 /// Envuelve un contenido con la etiqueta HTML indicada por [`container::Kind`]. Sólo se renderiza
 /// si existen componentes hijos (*children*).
-#[derive(AutoDefault, Debug, Getters)]
+#[derive(AutoDefault, Clone, Debug, Getters)]
 pub struct Container {
     #[getters(skip)]
     id: AttrId,
@@ -29,11 +29,11 @@ impl Component for Container {
         self.id.get()
     }
 
-    fn setup_before_prepare(&mut self, _cx: &mut Context) {
+    fn setup(&mut self, _cx: &Context) {
         self.alter_classes(ClassesOp::Prepend, self.container_width().to_class());
     }
 
-    fn prepare_component(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
+    fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
         let output = self.children().render(cx);
         if output.is_empty() {
             return Ok(html! {});

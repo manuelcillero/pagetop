@@ -3,7 +3,7 @@ use pagetop::prelude::*;
 /// Componente mínimo para probar `Markup` pasando por el ciclo real de renderizado de componentes
 /// (`ComponentRender`). El parámetro de contexto `"renderable"` se usará para controlar si el
 /// componente se renderiza (`true` por defecto).
-#[derive(AutoDefault)]
+#[derive(AutoDefault, Clone)]
 struct TestMarkupComponent {
     markup: Markup,
 }
@@ -13,11 +13,11 @@ impl Component for TestMarkupComponent {
         Self::default()
     }
 
-    fn is_renderable(&self, cx: &mut Context) -> bool {
+    fn is_renderable(&self, cx: &Context) -> bool {
         cx.param_or::<bool>("renderable", true)
     }
 
-    fn prepare_component(&self, _cx: &mut Context) -> Result<Markup, ComponentError> {
+    fn prepare(&self, _cx: &mut Context) -> Result<Markup, ComponentError> {
         Ok(self.markup.clone())
     }
 }

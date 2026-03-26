@@ -10,7 +10,7 @@ use crate::prelude::*;
 ///
 /// Ver ejemplo en el módulo [`nav`].
 /// Si no contiene elementos, el componente **no se renderiza**.
-#[derive(AutoDefault, Debug, Getters)]
+#[derive(AutoDefault, Clone, Debug, Getters)]
 pub struct Nav {
     #[getters(skip)]
     id: AttrId,
@@ -33,7 +33,7 @@ impl Component for Nav {
         self.id.get()
     }
 
-    fn setup_before_prepare(&mut self, _cx: &mut Context) {
+    fn setup(&mut self, _cx: &Context) {
         self.alter_classes(ClassesOp::Prepend, {
             let mut classes = "nav".to_string();
             self.nav_kind().push_class(&mut classes);
@@ -42,7 +42,7 @@ impl Component for Nav {
         });
     }
 
-    fn prepare_component(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
+    fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
         let items = self.items().render(cx);
         if items.is_empty() {
             return Ok(html! {});
@@ -108,10 +108,22 @@ impl Nav {
         self
     }
 
-    /// Modifica la lista de elementos (`children`) aplicando una operación [`TypedOp`].
+    /// Modifica la lista de elementos del menú aplicando una operación [`ChildOp`].
+    ///
+    /// Para añadir elementos usa [`Child::with(item)`](Child::with):
+    ///
+    /// ```rust,ignore
+    /// nav.with_items(ChildOp::Add(Child::with(nav::Item::link(...))));
+    /// nav.with_items(ChildOp::AddMany(vec![
+    ///     Child::with(nav::Item::link(...)),
+    ///     Child::with(nav::Item::link_disabled(...)),
+    /// ]));
+    /// ```
+    ///
+    /// Para la mayoría de los casos, [`add_item()`](Self::add_item) es más directo.
     #[builder_fn]
-    pub fn with_items(mut self, op: TypedOp<nav::Item>) -> Self {
-        self.items.alter_typed(op);
+    pub fn with_items(mut self, op: ChildOp) -> Self {
+        self.items.alter_child(op);
         self
     }
 }

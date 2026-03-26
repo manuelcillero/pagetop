@@ -1,6 +1,7 @@
 use crate::prelude::*;
 
 use std::fmt;
+use std::sync::Arc;
 
 /// Componente básico que renderiza dinámicamente código HTML según el contexto.
 ///
@@ -31,7 +32,8 @@ use std::fmt;
 ///     }
 /// });
 /// ```
-pub struct Html(Box<dyn Fn(&mut Context) -> Markup + Send + Sync>);
+#[derive(Clone)]
+pub struct Html(Arc<dyn Fn(&mut Context) -> Markup + Send + Sync>);
 
 impl fmt::Debug for Html {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -52,7 +54,7 @@ impl Component for Html {
         Self::default()
     }
 
-    fn prepare_component(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
+    fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
         Ok(self.html(cx))
     }
 }
@@ -62,26 +64,26 @@ impl Html {
 
     /// Crea una instancia que generará el `Markup`, con acceso opcional al contexto.
     ///
-    /// El método [`Self::prepare_component()`] delega el renderizado a la función que aquí se
-    /// proporciona, que recibe una referencia mutable al [`Context`].
+    /// El método [`Self::prepare()`] delega el renderizado a la función que aquí se proporciona,
+    /// con una llamada que requiere una referencia mutable al [`Context`].
     pub fn with<F>(f: F) -> Self
     where
         F: Fn(&mut Context) -> Markup + Send + Sync + 'static,
     {
-        Html(Box::new(f))
+        Html(Arc::new(f))
     }
 
     /// Sustituye la función que genera el `Markup`.
     ///
     /// Permite a otras extensiones modificar la función de renderizado que se ejecutará cuando
-    /// [`Self::prepare_component()`] invoque esta instancia. La nueva función también recibe una
-    /// referencia al [`Context`].
+    /// [`Self::prepare()`] invoque esta instancia. La nueva función también recibe una referencia
+    /// mutable al [`Context`].
     #[builder_fn]
     pub fn with_fn<F>(mut self, f: F) -> Self
     where
         F: Fn(&mut Context) -> Markup + Send + Sync + 'static,
     {
-        self.0 = Box::new(f);
+        self.0 = Arc::new(f);
         self
     }
 
@@ -91,8 +93,8 @@ impl Html {
     ///
     /// Normalmente no se invoca manualmente, ya que el proceso de renderizado de los componentes lo
     /// invoca automáticamente durante la construcción de la página. Puede usarse, no obstante, para
-    /// sobrescribir [`prepare_component()`](crate::core::component::Component::prepare_component)
-    /// y alterar el comportamiento del componente.
+    /// sobrescribir [`prepare()`](crate::core::component::Component::prepare) y alterar el
+    /// comportamiento del componente.
     pub fn html(&self, cx: &mut Context) -> Markup {
         (self.0)(cx)
     }

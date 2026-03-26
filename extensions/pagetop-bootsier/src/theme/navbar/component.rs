@@ -14,7 +14,7 @@ const TOGGLE_OFFCANVAS: &str = "offcanvas";
 ///
 /// Ver ejemplos en el módulo [`navbar`].
 /// Si no contiene elementos, el componente **no se renderiza**.
-#[derive(AutoDefault, Debug, Getters)]
+#[derive(AutoDefault, Clone, Debug, Getters)]
 pub struct Navbar {
     #[getters(skip)]
     id: AttrId,
@@ -39,7 +39,7 @@ impl Component for Navbar {
         self.id.get()
     }
 
-    fn setup_before_prepare(&mut self, _cx: &mut Context) {
+    fn setup(&mut self, _cx: &Context) {
         self.alter_classes(ClassesOp::Prepend, {
             let mut classes = "navbar".to_string();
             self.expand().push_class(&mut classes, "navbar-expand", "");
@@ -48,7 +48,7 @@ impl Component for Navbar {
         });
     }
 
-    fn prepare_component(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
+    fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
         // Botón de despliegue (colapso u offcanvas) para la barra.
         fn button(cx: &mut Context, data_bs_toggle: &str, id_content: &str) -> Markup {
             let id_content_target = util::join!("#", id_content);
@@ -133,7 +133,7 @@ impl Component for Navbar {
                             @let id_content = offcanvas.id().unwrap_or_default();
 
                             (button(cx, TOGGLE_OFFCANVAS, &id_content))
-                            @if let Some(oc) = offcanvas.borrow() {
+                            @if let Some(oc) = offcanvas.get() {
                                 (oc.render_offcanvas(cx, Some(self.items())))
                             }
                         },
@@ -144,7 +144,7 @@ impl Component for Navbar {
 
                             (brand.render(cx))
                             (button(cx, TOGGLE_OFFCANVAS, &id_content))
-                            @if let Some(oc) = offcanvas.borrow() {
+                            @if let Some(oc) = offcanvas.get() {
                                 (oc.render_offcanvas(cx, Some(self.items())))
                             }
                         },
@@ -155,7 +155,7 @@ impl Component for Navbar {
 
                             (button(cx, TOGGLE_OFFCANVAS, &id_content))
                             (brand.render(cx))
-                            @if let Some(oc) = offcanvas.borrow() {
+                            @if let Some(oc) = offcanvas.get() {
                                 (oc.render_offcanvas(cx, Some(self.items())))
                             }
                         },
@@ -179,37 +179,37 @@ impl Navbar {
 
     /// Crea una barra de navegación **con marca a la izquierda**, siempre visible.
     pub fn simple_brand_left(brand: navbar::Brand) -> Self {
-        Self::default().with_layout(navbar::Layout::SimpleBrandLeft(Typed::with(brand)))
+        Self::default().with_layout(navbar::Layout::SimpleBrandLeft(Slot::with(brand)))
     }
 
     /// Crea una barra de navegación con **marca a la izquierda** y **botón a la derecha**.
     pub fn brand_left(brand: navbar::Brand) -> Self {
-        Self::default().with_layout(navbar::Layout::BrandLeft(Typed::with(brand)))
+        Self::default().with_layout(navbar::Layout::BrandLeft(Slot::with(brand)))
     }
 
     /// Crea una barra de navegación con **botón a la izquierda** y **marca a la derecha**.
     pub fn brand_right(brand: navbar::Brand) -> Self {
-        Self::default().with_layout(navbar::Layout::BrandRight(Typed::with(brand)))
+        Self::default().with_layout(navbar::Layout::BrandRight(Slot::with(brand)))
     }
 
     /// Crea una barra de navegación cuyo contenido se muestra en un **offcanvas**.
     pub fn offcanvas(oc: Offcanvas) -> Self {
-        Self::default().with_layout(navbar::Layout::Offcanvas(Typed::with(oc)))
+        Self::default().with_layout(navbar::Layout::Offcanvas(Slot::with(oc)))
     }
 
     /// Crea una barra de navegación con **marca a la izquierda** y contenido en **offcanvas**.
     pub fn offcanvas_brand_left(brand: navbar::Brand, oc: Offcanvas) -> Self {
         Self::default().with_layout(navbar::Layout::OffcanvasBrandLeft(
-            Typed::with(brand),
-            Typed::with(oc),
+            Slot::with(brand),
+            Slot::with(oc),
         ))
     }
 
     /// Crea una barra de navegación con **marca a la derecha** y contenido en **offcanvas**.
     pub fn offcanvas_brand_right(brand: navbar::Brand, oc: Offcanvas) -> Self {
         Self::default().with_layout(navbar::Layout::OffcanvasBrandRight(
-            Typed::with(brand),
-            Typed::with(oc),
+            Slot::with(brand),
+            Slot::with(oc),
         ))
     }
 
@@ -262,10 +262,22 @@ impl Navbar {
         self
     }
 
-    /// Modifica la lista de contenidos (`children`) aplicando una operación [`TypedOp`].
+    /// Modifica la lista de contenidos de la barra aplicando una operación [`ChildOp`].
+    ///
+    /// Para añadir elementos usa [`Child::with(item)`](Child::with):
+    ///
+    /// ```rust,ignore
+    /// navbar.with_items(ChildOp::Add(Child::with(navbar::Item::nav(...))));
+    /// navbar.with_items(ChildOp::AddMany(vec![
+    ///     Child::with(navbar::Item::nav(...)),
+    ///     Child::with(navbar::Item::text(...)),
+    /// ]));
+    /// ```
+    ///
+    /// Para la mayoría de los casos, [`add_item()`](Self::add_item) es más directo.
     #[builder_fn]
-    pub fn with_items(mut self, op: TypedOp<navbar::Item>) -> Self {
-        self.items.alter_typed(op);
+    pub fn with_items(mut self, op: ChildOp) -> Self {
+        self.items.alter_child(op);
         self
     }
 }

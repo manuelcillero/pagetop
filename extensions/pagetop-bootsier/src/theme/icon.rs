@@ -2,7 +2,7 @@ use crate::prelude::*;
 
 const DEFAULT_VIEWBOX: &str = "0 0 16 16";
 
-#[derive(AutoDefault)]
+#[derive(AutoDefault, Clone)]
 pub enum IconKind {
     #[default]
     None,
@@ -13,7 +13,7 @@ pub enum IconKind {
     },
 }
 
-#[derive(AutoDefault, Debug, Getters)]
+#[derive(AutoDefault, Clone, Debug, Getters)]
 pub struct Icon {
     /// Devuelve las clases CSS asociadas al icono.
     classes: Classes,
@@ -26,7 +26,7 @@ impl Component for Icon {
         Self::default()
     }
 
-    fn setup_before_prepare(&mut self, _cx: &mut Context) {
+    fn setup(&mut self, _cx: &Context) {
         if !matches!(self.icon_kind(), IconKind::None) {
             self.alter_classes(ClassesOp::Prepend, "icon");
         }
@@ -35,7 +35,7 @@ impl Component for Icon {
         }
     }
 
-    fn prepare_component(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
+    fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
         Ok(match self.icon_kind() {
             IconKind::None => html! {},
             IconKind::Font(_) => {

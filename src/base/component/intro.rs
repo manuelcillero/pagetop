@@ -76,7 +76,7 @@ pub enum IntroOpening {
 ///             })),
 ///     );
 /// ```
-#[derive(Debug, Getters)]
+#[derive(Clone, Debug, Getters)]
 pub struct Intro {
     /// Devuelve el título de entrada.
     title: L10n,
@@ -109,13 +109,10 @@ impl Component for Intro {
         Self::default()
     }
 
-    fn setup_before_prepare(&mut self, cx: &mut Context) {
+    fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
         cx.alter_assets(AssetsOp::AddStyleSheet(
             StyleSheet::from("/css/intro.css").with_version(PAGETOP_VERSION),
         ));
-    }
-
-    fn prepare_component(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
         if *self.opening() == IntroOpening::PageTop {
             cx.alter_assets(AssetsOp::AddJavaScript(JavaScript::on_load_async("intro-js", |cx|
                 util::indoc!(r#"

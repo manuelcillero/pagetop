@@ -3,7 +3,7 @@ use pagetop::prelude::*;
 /// Agrupa controles relacionados de un formulario (`<fieldset>`).
 ///
 /// Se usa para mejorar la accesibilidad cuando se acompaña de una leyenda que encabeza el grupo.
-#[derive(AutoDefault, Debug, Getters)]
+#[derive(AutoDefault, Clone, Debug, Getters)]
 pub struct Fieldset {
     #[getters(skip)]
     id: AttrId,
@@ -22,7 +22,7 @@ impl Component for Fieldset {
         self.id.get()
     }
 
-    fn prepare_component(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
+    fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
         Ok(html! {
             fieldset id=[self.id()] class=[self.classes().get()] disabled[*self.disabled()] {
                 @if let Some(legend) = self.legend().lookup(cx) {

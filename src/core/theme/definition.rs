@@ -195,7 +195,7 @@ pub trait Theme: Extension + Send + Sync {
     ///
     /// - `None` si este tema no sobrescribe el renderizado. Es la implementación por defecto. El
     ///   sistema continúa con el siguiente tema de la cadena y, si ninguno lo sobrescribe, usa
-    ///   [`Component::prepare_component()`](crate::core::component::Component::prepare_component).
+    ///   [`Component::prepare()`](crate::core::component::Component::prepare).
     ///   El tema puede mutar el componente antes de devolver `None`, dejando que otro nivel de la
     ///   cadena se encargue del renderizado.
     /// - `Some(Ok(markup))` con el HTML generado por el tema para el componente.

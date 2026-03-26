@@ -3,7 +3,7 @@ use crate::{AutoDefault, Getters};
 
 /// Error producido durante el renderizado de un componente.
 ///
-/// Se usa en [`Component::prepare_component()`](super::Component::prepare_component) para devolver
+/// Se usa en [`Component::prepare()`](super::Component::prepare) para devolver
 /// un [`Err`]. Puede incluir un marcado HTML alternativo para renderizar el componente de manera
 /// diferente en caso de error.
 ///
@@ -11,10 +11,11 @@ use crate::{AutoDefault, Getters};
 ///
 /// ```rust
 /// # use pagetop::prelude::*;
+/// # #[derive(Clone)]
 /// # struct MyComponent;
 /// # impl Component for MyComponent {
 /// #     fn new() -> Self { MyComponent }
-/// fn prepare_component(&self, _cx: &mut Context) -> Result<Markup, ComponentError> {
+/// fn prepare(&self, _cx: &mut Context) -> Result<Markup, ComponentError> {
 ///     Err(ComponentError::new("Database connection failed")
 ///         .with_fallback(html! { p class="error" { "Content temporarily unavailable." } }))
 /// }

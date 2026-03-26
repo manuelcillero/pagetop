@@ -19,9 +19,9 @@
 //!     .add_item(nav::Item::dropdown(
 //!         Dropdown::new()
 //!             .with_title(L10n::n("Options"))
-//!             .with_items(TypedOp::AddMany(vec![
-//!                 Typed::with(dropdown::Item::link(L10n::n("Action"), |_| "/action".into())),
-//!                 Typed::with(dropdown::Item::link(L10n::n("Another"), |_| "/another".into())),
+//!             .with_items(ChildOp::AddMany(vec![
+//!                 Child::with(dropdown::Item::link(L10n::n("Action"), |_| "/action".into())),
+//!                 Child::with(dropdown::Item::link(L10n::n("Another"), |_| "/another".into())),
 //!             ])),
 //!     ))
 //!     .add_item(nav::Item::link_disabled(L10n::n("Disabled"), |_| "#".into()));
