@@ -42,7 +42,7 @@ if [[ "$EXECUTE" != "--execute" ]]; then
     echo "Running dry-run (default mode). Add --execute to publish"
     cargo release --config "$CONFIG" --package "$CRATE" "$LEVEL"
 else
-    echo "Releasing $CRATE ($LEVEL)…"
+    echo "Releasing $CRATE ($LEVEL)..."
     cargo release --config "$CONFIG" --package "$CRATE" "$LEVEL" --execute
     echo "Release completed."
 fi

@@ -60,7 +60,7 @@ Y **selecciona el tema en la configuración** de la aplicación:
 theme = "Bootsier"
 ```
 
-…o **fuerza el tema por código** en una página concreta:
+o **fuerza el tema por código** en una página concreta:
 
 ```rust,no_run
 use pagetop::prelude::*;
@@ -69,10 +69,10 @@ use pagetop_bootsier::Bootsier;
 async fn homepage(request: HttpRequest) -> ResultPage<Markup, ErrorPage> {
     Page::new(request)
         .with_theme(&Bootsier)
-        .add_child(
+        .with_child(
             Block::new()
                 .with_title(L10n::l("sample_title"))
-                .add_child(Html::with(|cx| html! {
+                .with_child(Html::with(|cx| html! {
                     p { (L10n::l("sample_content").using(cx)) }
                 })),
         )
@@ -118,7 +118,7 @@ impl Template for BootsierTemplate {
                 .with_width(theme::container::Width::FluidMax(
                     config::SETTINGS.bootsier.max_width,
                 ))
-                .add_child(Html::with(|cx| {
+                .with_child(Html::with(|cx| {
                     html! {
                         (DefaultRegion::Header.render(cx))
                         (DefaultRegion::Content.render(cx))
@@ -163,7 +163,7 @@ impl Theme for Bootsier {
         ))
         .alter_child_in(
             &DefaultRegion::Footer,
-            ChildOp::AddIfEmpty(Child::with(PoweredBy::new())),
+            ChildOp::AddIfEmpty(PoweredBy::new().into()),
         );
     }
 }
