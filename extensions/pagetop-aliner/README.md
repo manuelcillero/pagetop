@@ -59,7 +59,7 @@ Y **selecciona el tema en la configuración** de la aplicación:
 theme = "Aliner"
 ```
 
-…o **fuerza el tema por código** en una página concreta:
+o **fuerza el tema por código** en una página concreta:
 
 ```rust,no_run
 use pagetop::prelude::*;

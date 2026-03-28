@@ -133,14 +133,16 @@ impl<T: Component + Clone + 'static> ComponentClone for T {
 ///    pueda ajustar su estructura interna.
 /// 3. Despacha [`action::component::BeforeRender<C>`](crate::base::action::component::BeforeRender)
 ///    para que las extensiones puedan hacer ajustes previos.
-/// 4. **Prepara el renderizado del componente** recorriendo la cadena de temas (hijo → padre →
-///    abuelo…) llamando a [`Theme::handle_component()`](crate::core::theme::Theme::handle_component)
-///    en cada nivel hasta que uno devuelva `Some`. Si ninguno lo sobrescribe, llama a
+/// 4. Prepara el renderizado del componente, recorre la cadena de temas (hijo > padre > abuelo...)
+///    llamando a [`Theme::handle_component()`](crate::core::theme::Theme::handle_component) en cada
+///    nivel hasta que uno devuelva `Some`. Si ninguno lo sobrescribe, llama al
 ///    [`Component::prepare()`](Component::prepare) del propio componente.
 /// 5. Despacha [`action::component::AfterRender<C>`](crate::base::action::component::AfterRender)
 ///    para que las extensiones puedan reaccionar con sus últimos ajustes.
-/// 6. Despacha [`action::component::TransformMarkup<C>`](crate::base::action::component::TransformMarkup)
-///    para que las extensiones puedan modificar el HTML final antes de devolverlo.
+/// 6. Finalmente despacha
+///    [`action::component::TransformMarkup<C>`](crate::base::action::component::TransformMarkup)
+///    para que las extensiones puedan trabajar sobre el HTML final para modificarlo antes de
+///    devolverlo.
 /// 7. Devuelve el [`Markup`] resultante.
 impl<C: Component> ComponentRender for C {
     fn render(&mut self, cx: &mut Context) -> Markup {

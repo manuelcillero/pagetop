@@ -56,7 +56,7 @@ use std::str::FromStr;
 ///
 /// - Las absolutas **no aceptan** decimales (p. ej., `"1.5px"` sería erróneo).
 /// - Se aceptan signos `+`/`-` en todas las unidades (p. ej., `"-12px"`, `"+0.5em"`).
-/// - La comparación de unidad es *case-insensitive* al interpretar el texto (`"PX"`, `"Px"`, …).
+/// - La comparación de unidad es *case-insensitive* al interpretar el texto (`"PX"`, `"Px"`, ...).
 /// - **Sobre píxeles**: Los píxeles (px) son relativos al dispositivo de visualización. En
 ///   dispositivos con baja densidad de píxeles (dpi), 1px equivale a un píxel (punto) del
 ///   dispositivo. En impresoras y pantallas de alta resolución, 1px implica múltiples píxeles del
