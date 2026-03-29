@@ -69,18 +69,18 @@ impl Child {
     }
 }
 
-impl<C: Component + 'static> From<Slot<C>> for Child {
-    /// Convierte un [`Slot<C>`] en un [`Child`], consumiendo el componente tipado.
+impl<C: Component + 'static> From<Embed<C>> for Child {
+    /// Convierte un [`Embed<C>`] en un [`Child`], consumiendo el componente tipado.
     ///
-    /// Útil cuando se tiene un [`Slot`] y se necesita añadirlo a una lista [`Children`]:
+    /// Útil cuando se tiene un [`Embed`] y se necesita añadirlo a una lista [`Children`]:
     ///
     /// ```rust,ignore
-    /// children.with_child(Child::from(my_slot));
+    /// children.with_child(Child::from(my_embed));
     /// // o equivalentemente:
-    /// children.with_child(my_slot.into());
+    /// children.with_child(my_embed.into());
     /// ```
-    fn from(typed: Slot<C>) -> Self {
-        if let Some(m) = typed.0 {
+    fn from(embed: Embed<C>) -> Self {
+        if let Some(m) = embed.0 {
             Child(Some(Mutex::new(
                 Box::new(m.into_inner()) as Box<dyn Component>
             )))
@@ -118,49 +118,48 @@ impl From<Child> for ChildOp {
 
 /// Contenedor tipado para un *único* componente de un tipo concreto conocido.
 ///
-/// A diferencia de [`Child`], que encapsula cualquier componente como `dyn Component`, `Slot`
+/// A diferencia de [`Child`], que encapsula cualquier componente como `dyn Component`, `Embed`
 /// mantiene el tipo concreto `C` y permite acceder directamente a sus métodos específicos a través
-/// de [`get()`](Slot::get).
+/// de [`get()`](Embed::get).
 ///
-/// Se usa habitualmente para incluir un componente dentro de otro cuando no se necesita una lista
+/// Se usa habitualmente para incrustar un componente dentro de otro cuando no se necesita una lista
 /// completa de hijos ([`Children`]), sino un único componente tipado en un campo concreto.
 #[derive(AutoDefault)]
-pub struct Slot<C: Component>(Option<Mutex<C>>);
+pub struct Embed<C: Component>(Option<Mutex<C>>);
 
-impl<C: Component + Clone> Clone for Slot<C> {
+impl<C: Component + Clone> Clone for Embed<C> {
     fn clone(&self) -> Self {
-        Slot(self.0.as_ref().map(|m| Mutex::new(m.lock().clone())))
+        Embed(self.0.as_ref().map(|m| Mutex::new(m.lock().clone())))
     }
 }
 
-impl<C: Component> fmt::Debug for Slot<C> {
+impl<C: Component> fmt::Debug for Embed<C> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match &self.0 {
-            None => write!(f, "Slot(None)"),
-            Some(c) => write!(f, "Slot({})", c.lock().name()),
+            None => write!(f, "Embed(None)"),
+            Some(c) => write!(f, "Embed({})", c.lock().name()),
         }
     }
 }
 
-impl<C: Component> Slot<C> {
-    /// Crea un nuevo `Slot` a partir de un componente.
+impl<C: Component> Embed<C> {
+    /// Crea un nuevo `Embed` a partir de un componente.
     pub fn with(component: C) -> Self {
-        Slot(Some(Mutex::new(component)))
+        Embed(Some(Mutex::new(component)))
     }
 
-    // **< Slot BUILDER >*********************************************************************
+    // **< Embed BUILDER >**************************************************************************
 
     /// Establece un componente nuevo, o lo vacía.
     ///
-    /// Si se proporciona `Some(component)`, se encapsula como [`Slot`]; y si es `None`, se
-    /// limpia.
+    /// Si se proporciona `Some(component)`, se encapsula como [`Embed`]; y si es `None`, se limpia.
     #[builder_fn]
     pub fn with_component(mut self, component: Option<C>) -> Self {
         self.0 = component.map(Mutex::new);
         self
     }
 
-    // **< Slot GETTERS >*********************************************************************
+    // **< Embed GETTERS >**************************************************************************
 
     /// Devuelve el identificador del componente, si existe y está definido.
     #[inline]
@@ -168,38 +167,38 @@ impl<C: Component> Slot<C> {
         self.0.as_ref().and_then(|c| c.lock().id())
     }
 
-    /// Devuelve un acceso al componente interno.
+    /// Devuelve un acceso al componente incrustado.
     ///
     /// - Devuelve `Some(ComponentGuard<C>)` si existe el componente, o `None` si está vacío.
     /// - El acceso es **exclusivo**: mientras el *guard* esté activo, no habrá otros accesos.
     /// - Se recomienda mantener el *guard* **el menor tiempo posible** para evitar bloqueos
     ///   innecesarios.
     /// - Para modificar el componente, declara el *guard* como `mut`:
-    ///   `if let Some(mut c) = child.get() { c.alter_title(...); }`.
+    ///   `if let Some(mut c) = embed.get() { c.alter_title(...); }`.
     ///
     /// # Ejemplo
     ///
     /// ```rust
     /// # use pagetop::prelude::*;
-    /// let child = Slot::with(Html::with(|_| html! { "Prueba" }));
+    /// let embed = Embed::with(Html::with(|_| html! { "Prueba" }));
     /// {
-    ///     if let Some(component) = child.get() {
+    ///     if let Some(component) = embed.get() {
     ///         assert_eq!(component.name(), "Html");
     ///     }
-    /// }; // El *guard* se libera aquí, antes del *drop* de `child`.
+    /// }; // El *guard* se libera aquí, antes del *drop* de `embed`.
     ///
-    /// let child = Slot::with(Block::new().with_title(L10n::n("Título")));
+    /// let embed = Embed::with(Block::new().with_title(L10n::n("Título")));
     /// {
-    ///     if let Some(mut component) = child.get() {
+    ///     if let Some(mut component) = embed.get() {
     ///         component.alter_title(L10n::n("Nuevo título"));
     ///     }
-    /// }; // El *guard* se libera aquí, antes del *drop* de `child`.
+    /// }; // El *guard* se libera aquí, antes del *drop* de `embed`.
     /// ```
     pub fn get(&self) -> Option<ComponentGuard<'_, C>> {
         self.0.as_ref().map(|m| m.lock())
     }
 
-    // **< Slot RENDER >**********************************************************************
+    // **< Embed RENDER >***************************************************************************
 
     /// Renderiza el componente con el contexto proporcionado.
     pub fn render(&self, cx: &mut Context) -> Markup {
@@ -243,11 +242,12 @@ pub enum ChildOp {
 ///
 /// - [`Child`]: representa un componente hijo encapsulado dentro de la lista. Almacena cualquier
 ///   componente sin necesidad de conocer su tipo concreto.
-/// - [`Slot<C>`]: contenedor tipado para un *único* componente de tipo `C`. Preferible a `Children`
-///   cuando el padre solo necesita un componente y quiere acceso directo a los métodos de `C`.
+/// - [`Embed<C>`]: contenedor tipado para un *único* componente de tipo `C`. Preferible a
+///   `Children` cuando el padre solo necesita un componente y quiere acceso directo a los métodos
+///   de `C`.
 /// - [`ChildOp`]: operaciones disponibles sobre la lista. Cuando se necesita algo más que añadir al
 ///   final, se construye la variante adecuada y se pasa a [`with_child`](Self::with_child).
-/// - [`ComponentGuard`]: devuelto por [`Slot::get`] para garantizar acceso exclusivo al componente
+/// - [`ComponentGuard`]: devuelto por [`Embed::get`] para garantizar acceso exclusivo al componente
 ///   tipado. Mientras está activo bloquea cualquier otro acceso por lo que conviene liberarlo
 ///   cuanto antes.
 ///

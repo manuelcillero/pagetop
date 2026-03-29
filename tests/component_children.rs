@@ -264,70 +264,70 @@ async fn children_render_concatenates_all_outputs_in_order() {
     );
 }
 
-// **< Slot >****************************************************************************************
+// **< Embed >**************************************************************************************
 
 #[pagetop::test]
-async fn slot_default_is_empty() {
-    let slot: Slot<TestComp> = Slot::default();
-    assert!(slot.id().is_none());
-    assert!(slot.render(&mut Context::default()).is_empty());
-    assert!(slot.get().is_none());
+async fn embed_default_is_empty() {
+    let embed: Embed<TestComp> = Embed::default();
+    assert!(embed.id().is_none());
+    assert!(embed.render(&mut Context::default()).is_empty());
+    assert!(embed.get().is_none());
 }
 
 #[pagetop::test]
-async fn slot_with_stores_component() {
-    let slot = Slot::with(TestComp::text("contenido"));
-    assert!(slot.get().is_some());
+async fn embed_with_stores_component() {
+    let embed = Embed::with(TestComp::text("contenido"));
+    assert!(embed.get().is_some());
     assert_eq!(
-        slot.render(&mut Context::default()).into_string(),
+        embed.render(&mut Context::default()).into_string(),
         "contenido"
     );
 }
 
 #[pagetop::test]
-async fn slot_id_returns_component_id() {
-    let slot = Slot::with(TestComp::tagged("slot-id", "texto"));
-    assert_eq!(slot.id(), Some("slot-id".to_string()));
+async fn embed_id_returns_component_id() {
+    let embed = Embed::with(TestComp::tagged("embed-id", "texto"));
+    assert_eq!(embed.id(), Some("embed-id".to_string()));
 }
 
 #[pagetop::test]
-async fn slot_get_is_some_when_component_present() {
-    let slot = Slot::with(TestComp::tagged("abc", "hola"));
+async fn embed_get_is_some_when_component_present() {
+    let embed = Embed::with(TestComp::tagged("abc", "hola"));
     // `get()` devuelve Some; la lectura del id verifica que accede al componente correctamente.
-    assert!(slot.get().is_some());
-    assert_eq!(slot.id(), Some("abc".to_string()));
+    assert!(embed.get().is_some());
+    assert_eq!(embed.id(), Some("abc".to_string()));
 }
 
 #[pagetop::test]
-async fn slot_get_allows_mutating_component() {
-    let slot = Slot::with(TestComp::tagged("orig", "texto"));
-    // El `;` final convierte el `if let` en sentencia y libera el guard antes que `slot`.
-    if let Some(mut comp) = slot.get() {
+async fn embed_get_allows_mutating_component() {
+    let embed = Embed::with(TestComp::tagged("orig", "texto"));
+    // El `;` final convierte el `if let` en sentencia y libera el guard antes que `embed`.
+    if let Some(mut comp) = embed.get() {
         comp.id.alter_id("modificado");
     };
-    assert_eq!(slot.id(), Some("modificado".to_string()));
+    assert_eq!(embed.id(), Some("modificado".to_string()));
 }
 
 #[pagetop::test]
-async fn slot_with_component_replaces_content() {
-    let slot =
-        Slot::with(TestComp::text("primero")).with_component(Some(TestComp::text("segundo")));
+async fn embed_with_component_replaces_content() {
+    let embed =
+        Embed::with(TestComp::text("primero")).with_component(Some(TestComp::text("segundo")));
     assert_eq!(
-        slot.render(&mut Context::default()).into_string(),
+        embed.render(&mut Context::default()).into_string(),
         "segundo"
     );
 }
 
 #[pagetop::test]
-async fn slot_with_component_none_empties_slot() {
-    let slot = Slot::with(TestComp::text("algo")).with_component(None);
-    assert!(slot.get().is_none());
-    assert!(slot.render(&mut Context::default()).is_empty());
+async fn embed_with_component_none_empties_embed() {
+    let embed = Embed::with(TestComp::text("algo")).with_component(None);
+    assert!(embed.get().is_none());
+    assert!(embed.render(&mut Context::default()).is_empty());
 }
 
 #[pagetop::test]
-async fn slot_clone_is_deep() {
-    let original = Slot::with(TestComp::tagged("orig", "texto"));
+async fn embed_clone_is_deep() {
+    let original = Embed::with(TestComp::tagged("orig", "texto"));
     let clone = original.clone();
     // Mutar el clon no debe afectar al original.
     if let Some(mut comp) = clone.get() {
@@ -338,11 +338,11 @@ async fn slot_clone_is_deep() {
 }
 
 #[pagetop::test]
-async fn slot_converts_into_child() {
-    let slot = Slot::with(TestComp::text("desde slot"));
-    let child = Child::from(slot);
+async fn embed_converts_into_child() {
+    let embed = Embed::with(TestComp::text("desde embed"));
+    let child = Child::from(embed);
     assert_eq!(
         child.render(&mut Context::default()).into_string(),
-        "desde slot"
+        "desde embed"
     );
 }

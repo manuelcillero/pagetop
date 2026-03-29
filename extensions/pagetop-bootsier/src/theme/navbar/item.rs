@@ -17,9 +17,9 @@ pub enum Item {
     /// Útil cuando el [`navbar::Layout`] no incluye marca, y se quiere incluir dentro del área
     /// colapsable/*offcanvas*. Si el *layout* ya muestra una marca, esta variante no la sustituye,
     /// sólo añade otra dentro del bloque de contenidos.
-    Brand(Slot<navbar::Brand>),
+    Brand(Embed<navbar::Brand>),
     /// Representa un menú de navegación [`Nav`](crate::theme::Nav).
-    Nav(Slot<Nav>),
+    Nav(Embed<Nav>),
     /// Representa un *texto localizado* libre.
     Text(L10n),
 }
@@ -80,12 +80,12 @@ impl Item {
     /// Pensado para barras colapsables u offcanvas donde se quiere que la marca aparezca en la zona
     /// desplegable.
     pub fn brand(brand: navbar::Brand) -> Self {
-        Self::Brand(Slot::with(brand))
+        Self::Brand(Embed::with(brand))
     }
 
     /// Crea un elemento de tipo [`Nav`] para añadir al contenido de [`Navbar`].
     pub fn nav(item: Nav) -> Self {
-        Self::Nav(Slot::with(item))
+        Self::Nav(Embed::with(item))
     }
 
     /// Crea un elemento con un *texto localizado*, mostrado sin interacción.

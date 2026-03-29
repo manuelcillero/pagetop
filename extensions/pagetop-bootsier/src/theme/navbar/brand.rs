@@ -16,7 +16,7 @@ pub struct Brand {
     #[getters(skip)]
     id: AttrId,
     /// Devuelve la imagen de marca (si la hay).
-    image: Slot<Image>,
+    image: Embed<Image>,
     /// Devuelve el título de la identidad de marca.
     #[default(_code = "L10n::n(&global::SETTINGS.app.name)")]
     title: L10n,
