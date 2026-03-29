@@ -69,10 +69,10 @@ use pagetop_aliner::Aliner;
 async fn homepage(request: HttpRequest) -> ResultPage<Markup, ErrorPage> {
     Page::new(request)
         .with_theme(&Aliner)
-        .add_child(
+        .with_child(
             Block::new()
                 .with_title(L10n::l("sample_title"))
-                .add_child(Html::with(|cx| html! {
+                .with_child(Html::with(|cx| html! {
                     p { (L10n::l("sample_content").using(cx)) }
                 })),
         )
@@ -122,7 +122,7 @@ impl Theme for Aliner {
         ))
         .alter_child_in(
             &DefaultRegion::Footer,
-            ChildOp::AddIfEmpty(Child::with(PoweredBy::new())),
+            ChildOp::AddIfEmpty(PoweredBy::new().into()),
         );
     }
 }

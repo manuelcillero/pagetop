@@ -25,7 +25,7 @@ use crate::theme::form;
 ///     .with_action("/search")
 ///     .with_method(form::Method::Get)
 ///     .with_classes(ClassesOp::Add, "mb-3")
-///     .add_child(Input::new().with_name("q"));
+///     .with_child(Input::new().with_name("q"));
 /// ```
 #[derive(AutoDefault, Clone, Debug, Getters)]
 pub struct Form {
@@ -114,17 +114,11 @@ impl Form {
         self
     }
 
-    /// Añade un nuevo componente hijo al formulario.
-    #[inline]
-    pub fn add_child(mut self, component: impl Component) -> Self {
-        self.children.add(Child::with(component));
-        self
-    }
-
-    /// Modifica la lista de componentes (`children`) aplicando una operación [`ChildOp`].
+    /// Añade un nuevo componente al formulario o modifica la lista de de componentes (`children`)
+    /// con una operación [`ChildOp`].
     #[builder_fn]
-    pub fn with_child(mut self, op: ChildOp) -> Self {
-        self.children.alter_child(op);
+    pub fn with_child(mut self, op: impl Into<ChildOp>) -> Self {
+        self.children.alter_child(op.into());
         self
     }
 }

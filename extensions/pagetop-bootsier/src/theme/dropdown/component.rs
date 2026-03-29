@@ -240,27 +240,22 @@ impl Dropdown {
         self
     }
 
-    /// Añade un nuevo elemento hijo al menú.
-    #[inline]
-    pub fn add_item(mut self, item: dropdown::Item) -> Self {
-        self.items.add(Child::with(item));
-        self
-    }
-
-    /// Modifica la lista de elementos del menú aplicando una operación [`ChildOp`].
+    /// Añade un nuevo elemento al menú o modifica la lista de elementos del menú con una operación
+    /// [`ChildOp`].
     ///
-    /// Para añadir elementos usa [`Child::with(item)`](Child::with):
+    /// # Ejemplo
     ///
     /// ```rust,ignore
-    /// dropdown.with_items(ChildOp::Add(Child::with(dropdown::Item::link(...))));
-    /// dropdown.with_items(ChildOp::AddMany(vec![
-    ///     Child::with(dropdown::Item::link(...)),
-    ///     Child::with(dropdown::Item::divider()),
+    /// dropdown.with_item(dropdown::Item::link("Opción", "/ruta"));
+    /// dropdown.with_item(ChildOp::AddMany(vec![
+    ///     dropdown::Item::link(...).into(),
+    ///     dropdown::Item::divider().into(),
+    ///     dropdown::Item::link(...).into(),
     /// ]));
     /// ```
     #[builder_fn]
-    pub fn with_items(mut self, op: ChildOp) -> Self {
-        self.items.alter_child(op);
+    pub fn with_item(mut self, op: impl Into<ChildOp>) -> Self {
+        self.items.alter_child(op.into());
         self
     }
 }

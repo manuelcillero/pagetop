@@ -9,10 +9,9 @@ mod definition;
 pub use definition::{Component, ComponentClone, ComponentRender};
 
 mod children;
-pub use children::Slot;
 pub use children::Children;
 pub use children::ComponentGuard;
-pub use children::{Child, ChildOp};
+pub use children::{Child, ChildOp, Slot};
 
 mod message;
 pub use message::{MessageLevel, StatusMessage};

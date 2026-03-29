@@ -12,11 +12,11 @@
 //!     .with_backdrop(offcanvas::Backdrop::Enabled)
 //!     .with_body_scroll(offcanvas::BodyScroll::Enabled)
 //!     .with_visibility(offcanvas::Visibility::Default)
-//!     .add_child(Dropdown::new()
+//!     .with_child(Dropdown::new()
 //!         .with_title(L10n::n("Menu"))
-//!         .add_item(dropdown::Item::label(L10n::n("Label")))
-//!         .add_item(dropdown::Item::link_blank(L10n::n("Google"), |_| "https://google.es".into()))
-//!         .add_item(dropdown::Item::link(L10n::n("Sign out"), |_| "/signout".into()))
+//!         .with_item(dropdown::Item::label(L10n::n("Label")))
+//!         .with_item(dropdown::Item::link_blank(L10n::n("Docs"), |_| "https://docs.rs".into()))
+//!         .with_item(dropdown::Item::link(L10n::n("Sign out"), |_| "/signout".into()))
 //!     );
 //! ```
 

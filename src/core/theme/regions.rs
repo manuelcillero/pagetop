@@ -44,16 +44,19 @@ pub(crate) struct ChildrenInRegions(HashMap<String, Children>);
 
 impl ChildrenInRegions {
     pub fn with(region_ref: RegionRef, child: Child) -> Self {
-        Self::default().with_child_in(region_ref, ChildOp::Add(child))
+        Self::default().with_child_in(region_ref, child)
     }
 
     #[builder_fn]
-    pub fn with_child_in(mut self, region_ref: RegionRef, op: ChildOp) -> Self {
+    pub fn with_child_in(mut self, region_ref: RegionRef, op: impl Into<ChildOp>) -> Self {
+        let child = op.into();
         if let Some(region) = self.0.get_mut(region_ref.name()) {
-            region.alter_child(op);
+            region.alter_child(child);
         } else {
-            self.0
-                .insert(region_ref.name().to_owned(), Children::new().with_child(op));
+            self.0.insert(
+                region_ref.name().to_owned(),
+                Children::new().with_child(child),
+            );
         }
         self
     }

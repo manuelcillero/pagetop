@@ -14,7 +14,7 @@ async fn hello_name(
 ) -> ResultPage<Markup, ErrorPage> {
     let name = path.into_inner();
     Page::new(request)
-        .add_child(Html::with(move |_| {
+        .with_child(Html::with(move |_| {
             html! {
                 h1 style="text-align: center;" { "Hello " (name) "!" }
             }

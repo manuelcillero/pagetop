@@ -1,5 +1,5 @@
 use crate::base::component::{Html, Intro, IntroOpening};
-use crate::core::component::{Child, ChildOp, Component, ComponentError, Context, Contextual};
+use crate::core::component::{ChildOp, Component, ComponentError, Context, Contextual};
 use crate::core::extension::Extension;
 use crate::core::theme::{DefaultRegion, DefaultTemplate, TemplateRef};
 use crate::global;
@@ -247,14 +247,17 @@ pub trait Theme: Extension + Send + Sync {
             .alter_template(&DefaultTemplate::Error)
             .alter_child_in(
                 &DefaultRegion::Content,
-                ChildOp::Prepend(Child::with(Html::with(move |cx| {
-                    html! {
-                        div {
-                            h1 { (L10n::l("error403_alert").using(cx)) }
-                            p { (L10n::l("error403_help").using(cx)) }
+                ChildOp::Prepend(
+                    Html::with(move |cx| {
+                        html! {
+                            div {
+                                h1 { (L10n::l("error403_alert").using(cx)) }
+                                p { (L10n::l("error403_help").using(cx)) }
+                            }
                         }
-                    }
-                }))),
+                    })
+                    .into(),
+                ),
             );
     }
 
@@ -270,14 +273,17 @@ pub trait Theme: Extension + Send + Sync {
             .alter_template(&DefaultTemplate::Error)
             .alter_child_in(
                 &DefaultRegion::Content,
-                ChildOp::Prepend(Child::with(Html::with(move |cx| {
-                    html! {
-                        div {
-                            h1 { (L10n::l("error404_alert").using(cx)) }
-                            p { (L10n::l("error404_help").using(cx)) }
+                ChildOp::Prepend(
+                    Html::with(move |cx| {
+                        html! {
+                            div {
+                                h1 { (L10n::l("error404_alert").using(cx)) }
+                                p { (L10n::l("error404_help").using(cx)) }
+                            }
                         }
-                    }
-                }))),
+                    })
+                    .into(),
+                ),
             );
     }
 
@@ -300,19 +306,20 @@ pub trait Theme: Extension + Send + Sync {
             .alter_template(&DefaultTemplate::Error)
             .alter_child_in(
                 &DefaultRegion::Content,
-                ChildOp::Prepend(Child::with(
+                ChildOp::Prepend(
                     Intro::new()
                         .with_title(L10n::l("error_code").with_arg("code", code.to_string()))
                         .with_slogan(L10n::n(code.to_string()))
                         .with_button(None)
                         .with_opening(IntroOpening::Custom)
-                        .add_child(Html::with(move |cx| {
+                        .with_child(Html::with(move |cx| {
                             html! {
                                 h1 { (alert.using(cx)) }
                                 p { (help.using(cx)) }
                             }
-                        })),
-                )),
+                        }))
+                        .into(),
+                ),
             );
     }
 }
