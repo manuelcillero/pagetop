@@ -19,24 +19,24 @@ pub enum Layout {
     /// Barra simple, con marca de identidad a la izquierda y sin botón de despliegue.
     ///
     /// La barra de navegación no se colapsa.
-    SimpleBrandLeft(Slot<navbar::Brand>),
+    SimpleBrandLeft(Embed<navbar::Brand>),
 
     /// Barra con marca de identidad a la izquierda y botón de despliegue a la derecha.
-    BrandLeft(Slot<navbar::Brand>),
+    BrandLeft(Embed<navbar::Brand>),
 
     /// Barra con botón de despliegue a la izquierda y marca de identidad a la derecha.
-    BrandRight(Slot<navbar::Brand>),
+    BrandRight(Embed<navbar::Brand>),
 
     /// Contenido en [`Offcanvas`], con botón de despliegue a la izquierda y sin marca de identidad.
-    Offcanvas(Slot<Offcanvas>),
+    Offcanvas(Embed<Offcanvas>),
 
     /// Contenido en [`Offcanvas`], con marca de identidad a la izquierda y botón de despliegue a la
     /// derecha.
-    OffcanvasBrandLeft(Slot<navbar::Brand>, Slot<Offcanvas>),
+    OffcanvasBrandLeft(Embed<navbar::Brand>, Embed<Offcanvas>),
 
     /// Contenido en [`Offcanvas`], con botón de despliegue a la izquierda y marca de identidad a la
     /// derecha.
-    OffcanvasBrandRight(Slot<navbar::Brand>, Slot<Offcanvas>),
+    OffcanvasBrandRight(Embed<navbar::Brand>, Embed<Offcanvas>),
 }
 
 // **< Position >***********************************************************************************

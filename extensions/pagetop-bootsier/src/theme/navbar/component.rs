@@ -179,37 +179,37 @@ impl Navbar {
 
     /// Crea una barra de navegación **con marca a la izquierda**, siempre visible.
     pub fn simple_brand_left(brand: navbar::Brand) -> Self {
-        Self::default().with_layout(navbar::Layout::SimpleBrandLeft(Slot::with(brand)))
+        Self::default().with_layout(navbar::Layout::SimpleBrandLeft(Embed::with(brand)))
     }
 
     /// Crea una barra de navegación con **marca a la izquierda** y **botón a la derecha**.
     pub fn brand_left(brand: navbar::Brand) -> Self {
-        Self::default().with_layout(navbar::Layout::BrandLeft(Slot::with(brand)))
+        Self::default().with_layout(navbar::Layout::BrandLeft(Embed::with(brand)))
     }
 
     /// Crea una barra de navegación con **botón a la izquierda** y **marca a la derecha**.
     pub fn brand_right(brand: navbar::Brand) -> Self {
-        Self::default().with_layout(navbar::Layout::BrandRight(Slot::with(brand)))
+        Self::default().with_layout(navbar::Layout::BrandRight(Embed::with(brand)))
     }
 
     /// Crea una barra de navegación cuyo contenido se muestra en un **offcanvas**.
     pub fn offcanvas(oc: Offcanvas) -> Self {
-        Self::default().with_layout(navbar::Layout::Offcanvas(Slot::with(oc)))
+        Self::default().with_layout(navbar::Layout::Offcanvas(Embed::with(oc)))
     }
 
     /// Crea una barra de navegación con **marca a la izquierda** y contenido en **offcanvas**.
     pub fn offcanvas_brand_left(brand: navbar::Brand, oc: Offcanvas) -> Self {
         Self::default().with_layout(navbar::Layout::OffcanvasBrandLeft(
-            Slot::with(brand),
-            Slot::with(oc),
+            Embed::with(brand),
+            Embed::with(oc),
         ))
     }
 
     /// Crea una barra de navegación con **marca a la derecha** y contenido en **offcanvas**.
     pub fn offcanvas_brand_right(brand: navbar::Brand, oc: Offcanvas) -> Self {
         Self::default().with_layout(navbar::Layout::OffcanvasBrandRight(
-            Slot::with(brand),
-            Slot::with(oc),
+            Embed::with(brand),
+            Embed::with(oc),
         ))
     }
 

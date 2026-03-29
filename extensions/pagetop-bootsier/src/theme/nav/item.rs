@@ -28,9 +28,9 @@ pub enum ItemKind {
     },
     /// Contenido HTML arbitrario. El componente [`Html`] se renderiza tal cual como elemento del
     /// menú, sin añadir ningún comportamiento de navegación adicional.
-    Html(Slot<Html>),
+    Html(Embed<Html>),
     /// Elemento que despliega un menú [`Dropdown`].
-    Dropdown(Slot<Dropdown>),
+    Dropdown(Embed<Dropdown>),
 }
 
 impl ItemKind {
@@ -264,7 +264,7 @@ impl Item {
     /// con las clases de navegación asociadas a [`Item`].
     pub fn html(html: Html) -> Self {
         Self {
-            item_kind: ItemKind::Html(Slot::with(html)),
+            item_kind: ItemKind::Html(Embed::with(html)),
             ..Default::default()
         }
     }
@@ -276,7 +276,7 @@ impl Item {
     /// a su representación en [`Nav`].
     pub fn dropdown(menu: Dropdown) -> Self {
         Self {
-            item_kind: ItemKind::Dropdown(Slot::with(menu)),
+            item_kind: ItemKind::Dropdown(Embed::with(menu)),
             ..Default::default()
         }
     }
