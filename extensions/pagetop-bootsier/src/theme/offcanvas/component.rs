@@ -135,17 +135,11 @@ impl Offcanvas {
         self
     }
 
-    /// Añade un nuevo componente hijo al panel.
-    #[inline]
-    pub fn add_child(mut self, child: impl Component) -> Self {
-        self.children.add(Child::with(child));
-        self
-    }
-
-    /// Modifica la lista de componentes (`children`) aplicando una operación [`ChildOp`].
+    /// Añade un nuevo componente al panel o modifica la lista de componentes (`children`) con una
+    /// operación [`ChildOp`].
     #[builder_fn]
-    pub fn with_children(mut self, op: ChildOp) -> Self {
-        self.children.alter_child(op);
+    pub fn with_child(mut self, op: impl Into<ChildOp>) -> Self {
+        self.children.alter_child(op.into());
         self
     }
 

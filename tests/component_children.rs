@@ -66,7 +66,10 @@ async fn child_id_returns_component_id() {
 #[pagetop::test]
 async fn child_from_component_is_equivalent_to_with() {
     let child: Child = TestComp::text("desde from").into();
-    assert_eq!(child.render(&mut Context::default()).into_string(), "desde from");
+    assert_eq!(
+        child.render(&mut Context::default()).into_string(),
+        "desde from"
+    );
 }
 
 #[pagetop::test]
@@ -74,8 +77,14 @@ async fn child_clone_is_deep() {
     // Modificar el clon no debe afectar al original.
     let original = Child::with(TestComp::text("original"));
     let clone = original.clone();
-    assert_eq!(original.render(&mut Context::default()).into_string(), "original");
-    assert_eq!(clone.render(&mut Context::default()).into_string(), "original");
+    assert_eq!(
+        original.render(&mut Context::default()).into_string(),
+        "original"
+    );
+    assert_eq!(
+        clone.render(&mut Context::default()).into_string(),
+        "original"
+    );
 }
 
 // **< Children + ChildOp >*************************************************************************
@@ -90,9 +99,9 @@ async fn children_new_is_empty() {
 #[pagetop::test]
 async fn children_add_appends_in_order() {
     let c = Children::new()
-        .with_child(ChildOp::Add(Child::with(TestComp::text("a"))))
-        .with_child(ChildOp::Add(Child::with(TestComp::text("b"))))
-        .with_child(ChildOp::Add(Child::with(TestComp::text("c"))));
+        .with_child(TestComp::text("a"))
+        .with_child(TestComp::text("b"))
+        .with_child(TestComp::text("c"));
     assert_eq!(c.len(), 3);
     assert_eq!(c.render(&mut Context::default()).into_string(), "abc");
 }
@@ -102,12 +111,11 @@ async fn children_add_if_empty_only_adds_when_list_is_empty() {
     let mut cx = Context::default();
 
     // Se añade porque la lista está vacía.
-    let c = Children::new()
-        .with_child(ChildOp::AddIfEmpty(Child::with(TestComp::text("primero"))));
+    let c = Children::new().with_child(ChildOp::AddIfEmpty(TestComp::text("primero").into()));
     assert_eq!(c.len(), 1);
 
     // No se añade porque ya hay un elemento.
-    let c = c.with_child(ChildOp::AddIfEmpty(Child::with(TestComp::text("segundo"))));
+    let c = c.with_child(ChildOp::AddIfEmpty(TestComp::text("segundo").into()));
     assert_eq!(c.len(), 1);
     assert_eq!(c.render(&mut cx).into_string(), "primero");
 }
@@ -115,9 +123,9 @@ async fn children_add_if_empty_only_adds_when_list_is_empty() {
 #[pagetop::test]
 async fn children_add_many_appends_all_in_order() {
     let c = Children::new().with_child(ChildOp::AddMany(vec![
-        Child::with(TestComp::text("x")),
-        Child::with(TestComp::text("y")),
-        Child::with(TestComp::text("z")),
+        TestComp::text("x").into(),
+        TestComp::text("y").into(),
+        TestComp::text("z").into(),
     ]));
     assert_eq!(c.len(), 3);
     assert_eq!(c.render(&mut Context::default()).into_string(), "xyz");
@@ -126,18 +134,18 @@ async fn children_add_many_appends_all_in_order() {
 #[pagetop::test]
 async fn children_prepend_inserts_at_start() {
     let c = Children::new()
-        .with_child(ChildOp::Add(Child::with(TestComp::text("b"))))
-        .with_child(ChildOp::Prepend(Child::with(TestComp::text("a"))));
+        .with_child(TestComp::text("b"))
+        .with_child(ChildOp::Prepend(TestComp::text("a").into()));
     assert_eq!(c.render(&mut Context::default()).into_string(), "ab");
 }
 
 #[pagetop::test]
 async fn children_prepend_many_inserts_all_at_start_maintaining_order() {
     let c = Children::new()
-        .with_child(ChildOp::Add(Child::with(TestComp::text("c"))))
+        .with_child(TestComp::text("c"))
         .with_child(ChildOp::PrependMany(vec![
-            Child::with(TestComp::text("a")),
-            Child::with(TestComp::text("b")),
+            TestComp::text("a").into(),
+            TestComp::text("b").into(),
         ]));
     assert_eq!(c.render(&mut Context::default()).into_string(), "abc");
 }
@@ -145,43 +153,49 @@ async fn children_prepend_many_inserts_all_at_start_maintaining_order() {
 #[pagetop::test]
 async fn children_insert_after_id_inserts_after_matching_element() {
     let c = Children::new()
-        .with_child(ChildOp::Add(Child::with(TestComp::tagged("first", "a"))))
-        .with_child(ChildOp::Add(Child::with(TestComp::text("c"))))
-        .with_child(ChildOp::InsertAfterId("first", Child::with(TestComp::text("b"))));
+        .with_child(TestComp::tagged("first", "a"))
+        .with_child(TestComp::text("c"))
+        .with_child(ChildOp::InsertAfterId("first", TestComp::text("b").into()));
     assert_eq!(c.render(&mut Context::default()).into_string(), "abc");
 }
 
 #[pagetop::test]
 async fn children_insert_after_id_appends_when_id_not_found() {
     let c = Children::new()
-        .with_child(ChildOp::Add(Child::with(TestComp::text("a"))))
-        .with_child(ChildOp::InsertAfterId("no-existe", Child::with(TestComp::text("b"))));
+        .with_child(TestComp::text("a"))
+        .with_child(ChildOp::InsertAfterId(
+            "no-existe",
+            TestComp::text("b").into(),
+        ));
     assert_eq!(c.render(&mut Context::default()).into_string(), "ab");
 }
 
 #[pagetop::test]
 async fn children_insert_before_id_inserts_before_matching_element() {
     let c = Children::new()
-        .with_child(ChildOp::Add(Child::with(TestComp::text("a"))))
-        .with_child(ChildOp::Add(Child::with(TestComp::tagged("last", "c"))))
-        .with_child(ChildOp::InsertBeforeId("last", Child::with(TestComp::text("b"))));
+        .with_child(TestComp::text("a"))
+        .with_child(TestComp::tagged("last", "c"))
+        .with_child(ChildOp::InsertBeforeId("last", TestComp::text("b").into()));
     assert_eq!(c.render(&mut Context::default()).into_string(), "abc");
 }
 
 #[pagetop::test]
 async fn children_insert_before_id_prepends_when_id_not_found() {
     let c = Children::new()
-        .with_child(ChildOp::Add(Child::with(TestComp::text("b"))))
-        .with_child(ChildOp::InsertBeforeId("no-existe", Child::with(TestComp::text("a"))));
+        .with_child(TestComp::text("b"))
+        .with_child(ChildOp::InsertBeforeId(
+            "no-existe",
+            TestComp::text("a").into(),
+        ));
     assert_eq!(c.render(&mut Context::default()).into_string(), "ab");
 }
 
 #[pagetop::test]
 async fn children_remove_by_id_removes_first_matching_element() {
     let c = Children::new()
-        .with_child(ChildOp::Add(Child::with(TestComp::tagged("keep", "a"))))
-        .with_child(ChildOp::Add(Child::with(TestComp::tagged("drop", "b"))))
-        .with_child(ChildOp::Add(Child::with(TestComp::text("c"))))
+        .with_child(TestComp::tagged("keep", "a"))
+        .with_child(TestComp::tagged("drop", "b"))
+        .with_child(TestComp::text("c"))
         .with_child(ChildOp::RemoveById("drop"));
     assert_eq!(c.len(), 2);
     assert_eq!(c.render(&mut Context::default()).into_string(), "ac");
@@ -190,7 +204,7 @@ async fn children_remove_by_id_removes_first_matching_element() {
 #[pagetop::test]
 async fn children_remove_by_id_does_nothing_when_id_not_found() {
     let c = Children::new()
-        .with_child(ChildOp::Add(Child::with(TestComp::text("a"))))
+        .with_child(TestComp::text("a"))
         .with_child(ChildOp::RemoveById("no-existe"));
     assert_eq!(c.len(), 1);
 }
@@ -198,11 +212,11 @@ async fn children_remove_by_id_does_nothing_when_id_not_found() {
 #[pagetop::test]
 async fn children_replace_by_id_replaces_first_matching_element() {
     let c = Children::new()
-        .with_child(ChildOp::Add(Child::with(TestComp::tagged("target", "viejo"))))
-        .with_child(ChildOp::Add(Child::with(TestComp::text("b"))))
+        .with_child(TestComp::tagged("target", "viejo"))
+        .with_child(TestComp::text("b"))
         .with_child(ChildOp::ReplaceById(
             "target",
-            Child::with(TestComp::text("nuevo")),
+            TestComp::text("nuevo").into(),
         ));
     assert_eq!(c.len(), 2);
     assert_eq!(c.render(&mut Context::default()).into_string(), "nuevob");
@@ -211,8 +225,8 @@ async fn children_replace_by_id_replaces_first_matching_element() {
 #[pagetop::test]
 async fn children_reset_clears_all_elements() {
     let c = Children::new()
-        .with_child(ChildOp::Add(Child::with(TestComp::text("a"))))
-        .with_child(ChildOp::Add(Child::with(TestComp::text("b"))))
+        .with_child(TestComp::text("a"))
+        .with_child(TestComp::text("b"))
         .with_child(ChildOp::Reset);
     assert!(c.is_empty());
 }
@@ -220,8 +234,8 @@ async fn children_reset_clears_all_elements() {
 #[pagetop::test]
 async fn children_get_by_id_returns_first_matching_child() {
     let c = Children::new()
-        .with_child(ChildOp::Add(Child::with(TestComp::tagged("uno", "a"))))
-        .with_child(ChildOp::Add(Child::with(TestComp::tagged("dos", "b"))));
+        .with_child(TestComp::tagged("uno", "a"))
+        .with_child(TestComp::tagged("dos", "b"));
     assert!(c.get_by_id("uno").is_some());
     assert!(c.get_by_id("dos").is_some());
     assert!(c.get_by_id("tres").is_none());
@@ -230,9 +244,9 @@ async fn children_get_by_id_returns_first_matching_child() {
 #[pagetop::test]
 async fn children_iter_by_id_yields_all_matching_children() {
     let c = Children::new()
-        .with_child(ChildOp::Add(Child::with(TestComp::tagged("rep", "a"))))
-        .with_child(ChildOp::Add(Child::with(TestComp::tagged("rep", "b"))))
-        .with_child(ChildOp::Add(Child::with(TestComp::tagged("otro", "c"))));
+        .with_child(TestComp::tagged("rep", "a"))
+        .with_child(TestComp::tagged("rep", "b"))
+        .with_child(TestComp::tagged("otro", "c"));
     assert_eq!(c.iter_by_id("rep").count(), 2);
     assert_eq!(c.iter_by_id("otro").count(), 1);
     assert_eq!(c.iter_by_id("ninguno").count(), 0);
@@ -241,10 +255,13 @@ async fn children_iter_by_id_yields_all_matching_children() {
 #[pagetop::test]
 async fn children_render_concatenates_all_outputs_in_order() {
     let c = Children::new()
-        .with_child(ChildOp::Add(Child::with(TestComp::text("uno "))))
-        .with_child(ChildOp::Add(Child::with(TestComp::text("dos "))))
-        .with_child(ChildOp::Add(Child::with(TestComp::text("tres"))));
-    assert_eq!(c.render(&mut Context::default()).into_string(), "uno dos tres");
+        .with_child(TestComp::text("uno "))
+        .with_child(TestComp::text("dos "))
+        .with_child(TestComp::text("tres"));
+    assert_eq!(
+        c.render(&mut Context::default()).into_string(),
+        "uno dos tres"
+    );
 }
 
 // **< Slot >****************************************************************************************
@@ -261,7 +278,10 @@ async fn slot_default_is_empty() {
 async fn slot_with_stores_component() {
     let slot = Slot::with(TestComp::text("contenido"));
     assert!(slot.get().is_some());
-    assert_eq!(slot.render(&mut Context::default()).into_string(), "contenido");
+    assert_eq!(
+        slot.render(&mut Context::default()).into_string(),
+        "contenido"
+    );
 }
 
 #[pagetop::test]
@@ -290,9 +310,12 @@ async fn slot_get_allows_mutating_component() {
 
 #[pagetop::test]
 async fn slot_with_component_replaces_content() {
-    let slot = Slot::with(TestComp::text("primero"))
-        .with_component(Some(TestComp::text("segundo")));
-    assert_eq!(slot.render(&mut Context::default()).into_string(), "segundo");
+    let slot =
+        Slot::with(TestComp::text("primero")).with_component(Some(TestComp::text("segundo")));
+    assert_eq!(
+        slot.render(&mut Context::default()).into_string(),
+        "segundo"
+    );
 }
 
 #[pagetop::test]
@@ -318,5 +341,8 @@ async fn slot_clone_is_deep() {
 async fn slot_converts_into_child() {
     let slot = Slot::with(TestComp::text("desde slot"));
     let child = Child::from(slot);
-    assert_eq!(child.render(&mut Context::default()).into_string(), "desde slot");
+    assert_eq!(
+        child.render(&mut Context::default()).into_string(),
+        "desde slot"
+    );
 }

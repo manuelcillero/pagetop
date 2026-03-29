@@ -1,6 +1,6 @@
 use crate::core::component::{ChildOp, MessageLevel, StatusMessage};
 use crate::core::theme::all::DEFAULT_THEME;
-use crate::core::theme::{ChildrenInRegions, RegionRef, TemplateRef, ThemeRef};
+use crate::core::theme::{ChildrenInRegions, DefaultRegion, RegionRef, TemplateRef, ThemeRef};
 use crate::core::TypeInfo;
 use crate::html::{html, Markup, RoutePath};
 use crate::html::{Assets, Favicon, JavaScript, StyleSheet};
@@ -137,9 +137,15 @@ pub trait Contextual: LangId {
     #[builder_fn]
     fn with_assets(self, op: AssetsOp) -> Self;
 
-    /// Opera con [`ChildOp`] en una región del documento.
+    /// Añade un componente o aplica una operación [`ChildOp`] en la región por defecto del
+    /// documento.
     #[builder_fn]
-    fn with_child_in(self, region_ref: RegionRef, op: ChildOp) -> Self;
+    fn with_child(self, op: impl Into<ChildOp>) -> Self;
+
+    /// Añade un componente o aplica una operación [`ChildOp`] en una región específica del
+    /// documento.
+    #[builder_fn]
+    fn with_child_in(self, region_ref: RegionRef, op: impl Into<ChildOp>) -> Self;
 
     // **< Contextual GETTERS >*********************************************************************
 
@@ -557,8 +563,15 @@ impl Contextual for Context {
     }
 
     #[builder_fn]
-    fn with_child_in(mut self, region_ref: RegionRef, op: ChildOp) -> Self {
-        self.regions.alter_child_in(region_ref, op);
+    fn with_child(mut self, op: impl Into<ChildOp>) -> Self {
+        self.regions
+            .alter_child_in(&DefaultRegion::Content, op.into());
+        self
+    }
+
+    #[builder_fn]
+    fn with_child_in(mut self, region_ref: RegionRef, op: impl Into<ChildOp>) -> Self {
+        self.regions.alter_child_in(region_ref, op.into());
         self
     }
 

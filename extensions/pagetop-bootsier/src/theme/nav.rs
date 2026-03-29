@@ -14,17 +14,17 @@
 //! # use pagetop_bootsier::prelude::*;
 //! let nav = Nav::tabs()
 //!     .with_layout(nav::Layout::End)
-//!     .add_item(nav::Item::link(L10n::n("Home"), |_| "/".into()))
-//!     .add_item(nav::Item::link_blank(L10n::n("External"), |_| "https://google.es".into()))
-//!     .add_item(nav::Item::dropdown(
+//!     .with_item(nav::Item::link(L10n::n("Home"), |_| "/".into()))
+//!     .with_item(nav::Item::link_blank(L10n::n("External"), |_| "https://docs.rs".into()))
+//!     .with_item(nav::Item::dropdown(
 //!         Dropdown::new()
 //!             .with_title(L10n::n("Options"))
-//!             .with_items(ChildOp::AddMany(vec![
-//!                 Child::with(dropdown::Item::link(L10n::n("Action"), |_| "/action".into())),
-//!                 Child::with(dropdown::Item::link(L10n::n("Another"), |_| "/another".into())),
+//!             .with_item(ChildOp::AddMany(vec![
+//!                 dropdown::Item::link(L10n::n("Action"), |_| "/action".into()).into(),
+//!                 dropdown::Item::link(L10n::n("Another"), |_| "/another".into()).into(),
 //!             ])),
 //!     ))
-//!     .add_item(nav::Item::link_disabled(L10n::n("Disabled"), |_| "#".into()));
+//!     .with_item(nav::Item::link_disabled(L10n::n("Disabled"), |_| "#".into()));
 //! ```
 
 mod props;

@@ -19,8 +19,7 @@ pub use error::ErrorPage;
 pub use actix_web::Result as ResultPage;
 
 use crate::base::action;
-use crate::core::component::{AssetsOp, Context, Contextual};
-use crate::core::component::{Child, ChildOp, Component};
+use crate::core::component::{AssetsOp, ChildOp, Context, Contextual};
 use crate::core::theme::{DefaultRegion, Region, RegionRef, TemplateRef, ThemeRef};
 use crate::html::{html, Markup, DOCTYPE};
 use crate::html::{Assets, Favicon, JavaScript, StyleSheet};
@@ -157,22 +156,6 @@ impl Page {
     #[builder_fn]
     pub fn with_body_classes(mut self, op: ClassesOp, classes: impl AsRef<str>) -> Self {
         self.body_classes.alter_classes(op, classes);
-        self
-    }
-
-    /// Añade un componente hijo a la región de contenido por defecto.
-    pub fn add_child(mut self, component: impl Component) -> Self {
-        self.context.alter_child_in(
-            &DefaultRegion::Content,
-            ChildOp::Add(Child::with(component)),
-        );
-        self
-    }
-
-    /// Añade un componente hijo en la región `region_name` de la página.
-    pub fn add_child_in(mut self, region_ref: RegionRef, component: impl Component) -> Self {
-        self.context
-            .alter_child_in(region_ref, ChildOp::Add(Child::with(component)));
         self
     }
 
@@ -340,8 +323,15 @@ impl Contextual for Page {
     }
 
     #[builder_fn]
-    fn with_child_in(mut self, region_ref: RegionRef, op: ChildOp) -> Self {
-        self.context.alter_child_in(region_ref, op);
+    fn with_child(mut self, op: impl Into<ChildOp>) -> Self {
+        self.context
+            .alter_child_in(&DefaultRegion::Content, op.into());
+        self
+    }
+
+    #[builder_fn]
+    fn with_child_in(mut self, region_ref: RegionRef, op: impl Into<ChildOp>) -> Self {
+        self.context.alter_child_in(region_ref, op.into());
         self
     }
 

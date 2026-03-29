@@ -75,9 +75,9 @@ impl<C: Component + 'static> From<Slot<C>> for Child {
     /// Útil cuando se tiene un [`Slot`] y se necesita añadirlo a una lista [`Children`]:
     ///
     /// ```rust,ignore
-    /// children.add(Child::from(my_slot));
+    /// children.with_child(Child::from(my_slot));
     /// // o equivalentemente:
-    /// children.add(my_slot.into());
+    /// children.with_child(my_slot.into());
     /// ```
     fn from(typed: Slot<C>) -> Self {
         if let Some(m) = typed.0 {
@@ -97,16 +97,33 @@ impl<T: Component + 'static> From<T> for Child {
     }
 }
 
+impl<T: Component + 'static> From<T> for ChildOp {
+    /// Convierte un componente en [`ChildOp::Add`], permitiendo pasar componentes directamente a
+    /// métodos como [`Children::with_child`] sin envolverlos explícitamente.
+    #[inline]
+    fn from(component: T) -> Self {
+        ChildOp::Add(Child::with(component))
+    }
+}
+
+impl From<Child> for ChildOp {
+    /// Convierte un [`Child`] en [`ChildOp::Add`].
+    #[inline]
+    fn from(child: Child) -> Self {
+        ChildOp::Add(child)
+    }
+}
+
 // *************************************************************************************************
 
-/// Variante tipada de [`Child`] para componentes con un tipo concreto conocido.
+/// Contenedor tipado para un *único* componente de un tipo concreto conocido.
 ///
 /// A diferencia de [`Child`], que encapsula cualquier componente como `dyn Component`, `Slot`
 /// mantiene el tipo concreto `C` y permite acceder directamente a sus métodos específicos a través
 /// de [`get()`](Slot::get).
 ///
-/// Se utiliza habitualmente para incrustar un componente dentro de otro cuando no se necesita una
-/// lista completa de hijos ([`Children`]), sino un único componente tipado en un campo concreto.
+/// Se usa habitualmente para incluir un componente dentro de otro cuando no se necesita una lista
+/// completa de hijos ([`Children`]), sino un único componente tipado en un campo concreto.
 #[derive(AutoDefault)]
 pub struct Slot<C: Component>(Option<Mutex<C>>);
 
@@ -194,23 +211,59 @@ impl<C: Component> Slot<C> {
 
 /// Operaciones para componentes hijo [`Child`] en una lista [`Children`].
 pub enum ChildOp {
+    /// Añade un hijo al final de la lista.
     Add(Child),
+    /// Añade un hijo solo si la lista está vacía.
     AddIfEmpty(Child),
+    /// Añade varios hijos al final de la lista, en el orden recibido.
     AddMany(Vec<Child>),
+    /// Inserta un hijo justo después del componente con el `id` dado, o al final si no existe.
     InsertAfterId(&'static str, Child),
+    /// Inserta un hijo justo antes del componente con el `id` dado, o al principio si no existe.
     InsertBeforeId(&'static str, Child),
+    /// Inserta un hijo al principio de la lista.
     Prepend(Child),
+    /// Inserta varios hijos al principio de la lista, manteniendo el orden recibido.
     PrependMany(Vec<Child>),
+    /// Elimina el primer hijo con el `id` dado.
     RemoveById(&'static str),
+    /// Sustituye el primer hijo con el `id` dado por otro componente.
     ReplaceById(&'static str, Child),
+    /// Vacía la lista eliminando todos los hijos.
     Reset,
 }
 
 /// Lista ordenada de componentes hijo ([`Child`]) mantenida por un componente padre.
 ///
-/// Esta lista permite añadir, modificar, renderizar y consultar componentes hijo en orden de
-/// inserción, soportando operaciones avanzadas como inserción relativa o reemplazo por
-/// identificador.
+/// Permite añadir, modificar, renderizar y consultar componentes hijo en orden de inserción, con
+/// soporte para operaciones avanzadas como inserción relativa o reemplazo por identificador a
+/// través de [`ChildOp`].
+///
+/// Los tipos que completan este sistema son:
+///
+/// - [`Child`]: representa un componente hijo encapsulado dentro de la lista. Almacena cualquier
+///   componente sin necesidad de conocer su tipo concreto.
+/// - [`Slot<C>`]: contenedor tipado para un *único* componente de tipo `C`. Preferible a `Children`
+///   cuando el padre solo necesita un componente y quiere acceso directo a los métodos de `C`.
+/// - [`ChildOp`]: operaciones disponibles sobre la lista. Cuando se necesita algo más que añadir al
+///   final, se construye la variante adecuada y se pasa a [`with_child`](Self::with_child).
+/// - [`ComponentGuard`]: devuelto por [`Slot::get`] para garantizar acceso exclusivo al componente
+///   tipado. Mientras está activo bloquea cualquier otro acceso por lo que conviene liberarlo
+///   cuanto antes.
+///
+/// # Conversiones implícitas
+///
+/// Cualquier componente implementa `Into<ChildOp>` (equivalente a `ChildOp::Add`) e `Into<Child>`.
+/// Gracias a esto, [`with_child`](Self::with_child) acepta un componente directamente o cualquier
+/// variante de [`ChildOp`]:
+///
+/// ```rust,ignore
+/// // Añadir al final de la lista (implícito):
+/// children.with_child(MiComponente::new());
+///
+/// // Operación explícita:
+/// children.with_child(ChildOp::Prepend(MiComponente::new().into()));
+/// ```
 #[derive(AutoDefault, Clone, Debug)]
 pub struct Children(Vec<Child>);
 
@@ -222,15 +275,15 @@ impl Children {
 
     /// Crea una lista con un componente hijo inicial.
     pub fn with(child: Child) -> Self {
-        Self::default().with_child(ChildOp::Add(child))
+        Self::default().with_child(child)
     }
 
     // **< Children BUILDER >***********************************************************************
 
-    /// Ejecuta una operación con [`ChildOp`] en la lista.
+    /// Añade un componente hijo o aplica una operación [`ChildOp`] sobre la lista.
     #[builder_fn]
-    pub fn with_child(mut self, op: ChildOp) -> Self {
-        match op {
+    pub fn with_child(mut self, op: impl Into<ChildOp>) -> Self {
+        match op.into() {
             ChildOp::Add(any) => self.add(any),
             ChildOp::AddIfEmpty(any) => self.add_if_empty(any),
             ChildOp::AddMany(many) => self.add_many(many),
@@ -245,17 +298,15 @@ impl Children {
     }
 
     /// Añade un componente hijo al final de la lista.
-    ///
-    /// Es un atajo para `children.alter_child(ChildOp::Add(child))`.
     #[inline]
-    pub fn add(&mut self, child: Child) -> &mut Self {
+    pub(crate) fn add(&mut self, child: Child) -> &mut Self {
         self.0.push(child);
         self
     }
 
     /// Añade un componente hijo en la lista sólo si está vacía.
     #[inline]
-    pub fn add_if_empty(&mut self, child: Child) -> &mut Self {
+    pub(crate) fn add_if_empty(&mut self, child: Child) -> &mut Self {
         if self.0.is_empty() {
             self.0.push(child);
         }
@@ -336,7 +387,7 @@ impl Children {
         self
     }
 
-    /// Inserta un hijo al principio de la colección.
+    /// Inserta un hijo al principio de la lista.
     #[inline]
     fn prepend(&mut self, child: Child) -> &mut Self {
         self.0.insert(0, child);
@@ -391,7 +442,7 @@ impl IntoIterator for Children {
 
     /// Consume la estructura `Children`, devolviendo un iterador que consume los elementos.
     ///
-    /// # Ejemplo de uso:
+    /// # Ejemplo
     ///
     /// ```rust,ignore
     /// let children = Children::new().with(child1).with(child2);
@@ -410,7 +461,7 @@ impl<'a> IntoIterator for &'a Children {
 
     /// Itera sobre una referencia inmutable de `Children`, devolviendo un iterador de referencia.
     ///
-    /// # Ejemplo de uso:
+    /// # Ejemplo
     ///
     /// ```rust,ignore
     /// let children = Children::new().with(child1).with(child2);
@@ -429,7 +480,7 @@ impl<'a> IntoIterator for &'a mut Children {
 
     /// Itera sobre una referencia mutable de `Children`, devolviendo un iterador mutable.
     ///
-    /// # Ejemplo de uso:
+    /// # Ejemplo
     ///
     /// ```rust,ignore
     /// let mut children = Children::new().with(child1).with(child2);

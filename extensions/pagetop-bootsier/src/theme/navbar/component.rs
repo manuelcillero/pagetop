@@ -255,29 +255,21 @@ impl Navbar {
         self
     }
 
-    /// Añade un nuevo contenido hijo.
-    #[inline]
-    pub fn add_item(mut self, item: navbar::Item) -> Self {
-        self.items.add(Child::with(item));
-        self
-    }
-
-    /// Modifica la lista de contenidos de la barra aplicando una operación [`ChildOp`].
+    /// Añade un nuevo contenido a la barra de navegación o modifica la lista de contenidos de la
+    /// barra con una operación [`ChildOp`].
     ///
-    /// Para añadir elementos usa [`Child::with(item)`](Child::with):
+    /// # Ejemplo
     ///
     /// ```rust,ignore
-    /// navbar.with_items(ChildOp::Add(Child::with(navbar::Item::nav(...))));
-    /// navbar.with_items(ChildOp::AddMany(vec![
-    ///     Child::with(navbar::Item::nav(...)),
-    ///     Child::with(navbar::Item::text(...)),
+    /// navbar.with_item(navbar::Item::nav(...));
+    /// navbar.with_item(ChildOp::AddMany(vec![
+    ///     navbar::Item::nav(...).into(),
+    ///     navbar::Item::text(...).into(),
     /// ]));
     /// ```
-    ///
-    /// Para la mayoría de los casos, [`add_item()`](Self::add_item) es más directo.
     #[builder_fn]
-    pub fn with_items(mut self, op: ChildOp) -> Self {
-        self.items.alter_child(op);
+    pub fn with_item(mut self, op: impl Into<ChildOp>) -> Self {
+        self.items.alter_child(op.into());
         self
     }
 }

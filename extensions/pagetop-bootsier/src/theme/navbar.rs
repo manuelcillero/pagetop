@@ -15,11 +15,11 @@
 //! # use pagetop::prelude::*;
 //! # use pagetop_bootsier::prelude::*;
 //! let navbar = Navbar::simple()
-//!     .add_item(navbar::Item::nav(
+//!     .with_item(navbar::Item::nav(
 //!         Nav::new()
-//!             .add_item(nav::Item::link(L10n::n("Home"), |_| "/".into()))
-//!             .add_item(nav::Item::link(L10n::n("About"), |_| "/about".into()))
-//!             .add_item(nav::Item::link(L10n::n("Contact"), |_| "/contact".into()))
+//!             .with_item(nav::Item::link(L10n::n("Home"), |_| "/".into()))
+//!             .with_item(nav::Item::link(L10n::n("About"), |_| "/about".into()))
+//!             .with_item(nav::Item::link(L10n::n("Contact"), |_| "/contact".into()))
 //!     ));
 //! ```
 //!
@@ -30,11 +30,11 @@
 //! # use pagetop_bootsier::prelude::*;
 //! let navbar = Navbar::simple_toggle()
 //!     .with_expand(BreakPoint::MD)
-//!     .add_item(navbar::Item::nav(
+//!     .with_item(navbar::Item::nav(
 //!         Nav::new()
-//!             .add_item(nav::Item::link(L10n::n("Home"), |_| "/".into()))
-//!             .add_item(nav::Item::link_blank(L10n::n("Docs"), |_| "https://sample.com".into()))
-//!             .add_item(nav::Item::link(L10n::n("Support"), |_| "/support".into()))
+//!             .with_item(nav::Item::link(L10n::n("Home"), |_| "/".into()))
+//!             .with_item(nav::Item::link_blank(L10n::n("Docs"), |_| "https://docs.rs".into()))
+//!             .with_item(nav::Item::link(L10n::n("Support"), |_| "/support".into()))
 //!     ));
 //! ```
 //!
@@ -48,20 +48,20 @@
 //!     .with_route(Some(|cx| cx.route("/")));
 //!
 //! let navbar = Navbar::brand_left(brand)
-//!     .add_item(navbar::Item::nav(
+//!     .with_item(navbar::Item::nav(
 //!         Nav::new()
-//!             .add_item(nav::Item::link(L10n::n("Home"), |_| "/".into()))
-//!             .add_item(nav::Item::dropdown(
+//!             .with_item(nav::Item::link(L10n::n("Home"), |_| "/".into()))
+//!             .with_item(nav::Item::dropdown(
 //!                 Dropdown::new()
 //!                     .with_title(L10n::n("Tools"))
-//!                     .add_item(dropdown::Item::link(
+//!                     .with_item(dropdown::Item::link(
 //!                         L10n::n("Generator"), |_| "/tools/gen".into())
 //!                     )
-//!                     .add_item(dropdown::Item::link(
+//!                     .with_item(dropdown::Item::link(
 //!                         L10n::n("Reports"), |_| "/tools/reports".into())
 //!                     )
 //!             ))
-//!             .add_item(nav::Item::link_disabled(L10n::n("Disabled"), |_| "#".into()))
+//!             .with_item(nav::Item::link_disabled(L10n::n("Disabled"), |_| "#".into()))
 //!     ));
 //! ```
 //!
@@ -76,10 +76,10 @@
 //!
 //! let navbar = Navbar::brand_right(brand)
 //!     .with_expand(BreakPoint::LG)
-//!     .add_item(navbar::Item::nav(
+//!     .with_item(navbar::Item::nav(
 //!         Nav::pills()
-//!             .add_item(nav::Item::link(L10n::n("Dashboard"), |_| "/dashboard".into()))
-//!             .add_item(nav::Item::link(L10n::n("Users"), |_| "/users".into()))
+//!             .with_item(nav::Item::link(L10n::n("Dashboard"), |_| "/dashboard".into()))
+//!             .with_item(nav::Item::link(L10n::n("Users"), |_| "/users".into()))
 //!     ));
 //! ```
 //!
@@ -95,15 +95,15 @@
 //!     .with_backdrop(offcanvas::Backdrop::Enabled);
 //!
 //! let navbar = Navbar::offcanvas(oc)
-//!     .add_item(navbar::Item::nav(
+//!     .with_item(navbar::Item::nav(
 //!         Nav::new()
-//!             .add_item(nav::Item::link(L10n::n("Home"), |_| "/".into()))
-//!             .add_item(nav::Item::link(L10n::n("Profile"), |_| "/profile".into()))
-//!             .add_item(nav::Item::dropdown(
+//!             .with_item(nav::Item::link(L10n::n("Home"), |_| "/".into()))
+//!             .with_item(nav::Item::link(L10n::n("Profile"), |_| "/profile".into()))
+//!             .with_item(nav::Item::dropdown(
 //!                 Dropdown::new()
 //!                     .with_title(L10n::n("More"))
-//!                     .add_item(dropdown::Item::link(L10n::n("Settings"), |_| "/settings".into()))
-//!                     .add_item(dropdown::Item::link(L10n::n("Help"), |_| "/help".into()))
+//!                     .with_item(dropdown::Item::link(L10n::n("Settings"), |_| "/settings".into()))
+//!                     .with_item(dropdown::Item::link(L10n::n("Help"), |_| "/help".into()))
 //!             ))
 //!     ));
 //! ```
@@ -119,11 +119,11 @@
 //!
 //! let navbar = Navbar::brand_left(brand)
 //!     .with_position(navbar::Position::FixedTop)
-//!     .add_item(navbar::Item::nav(
+//!     .with_item(navbar::Item::nav(
 //!         Nav::new()
-//!             .add_item(nav::Item::link(L10n::n("Dashboard"), |_| "/".into()))
-//!             .add_item(nav::Item::link(L10n::n("Donors"), |_| "/donors".into()))
-//!             .add_item(nav::Item::link(L10n::n("Stock"), |_| "/stock".into()))
+//!             .with_item(nav::Item::link(L10n::n("Dashboard"), |_| "/".into()))
+//!             .with_item(nav::Item::link(L10n::n("Donors"), |_| "/donors".into()))
+//!             .with_item(nav::Item::link(L10n::n("Stock"), |_| "/stock".into()))
 //!     ));
 //! ```
 

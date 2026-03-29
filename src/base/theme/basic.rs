@@ -24,7 +24,7 @@ impl Theme for Basic {
         ))
         .alter_child_in(
             &DefaultRegion::Footer,
-            ChildOp::AddIfEmpty(Child::with(PoweredBy::new())),
+            ChildOp::AddIfEmpty(PoweredBy::new().into()),
         );
     }
 }

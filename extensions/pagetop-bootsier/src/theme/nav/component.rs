@@ -102,28 +102,21 @@ impl Nav {
         self
     }
 
-    /// Añade un nuevo elemento hijo al menú.
-    pub fn add_item(mut self, item: nav::Item) -> Self {
-        self.items.add(Child::with(item));
-        self
-    }
-
-    /// Modifica la lista de elementos del menú aplicando una operación [`ChildOp`].
+    /// Añade un nuevo elemento al menú o modifica la lista de elementos del menú con una operación
+    /// [`ChildOp`].
     ///
-    /// Para añadir elementos usa [`Child::with(item)`](Child::with):
+    /// # Ejemplo
     ///
     /// ```rust,ignore
-    /// nav.with_items(ChildOp::Add(Child::with(nav::Item::link(...))));
-    /// nav.with_items(ChildOp::AddMany(vec![
-    ///     Child::with(nav::Item::link(...)),
-    ///     Child::with(nav::Item::link_disabled(...)),
+    /// nav.with_item(nav::Item::link("Inicio", "/"));
+    /// nav.with_item(ChildOp::AddMany(vec![
+    ///     nav::Item::link(...).into(),
+    ///     nav::Item::link_disabled(...).into(),
     /// ]));
     /// ```
-    ///
-    /// Para la mayoría de los casos, [`add_item()`](Self::add_item) es más directo.
     #[builder_fn]
-    pub fn with_items(mut self, op: ChildOp) -> Self {
-        self.items.alter_child(op);
+    pub fn with_item(mut self, op: impl Into<ChildOp>) -> Self {
+        self.items.alter_child(op.into());
         self
     }
 }

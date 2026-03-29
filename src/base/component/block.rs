@@ -73,17 +73,11 @@ impl Block {
         self
     }
 
-    /// Añade un nuevo componente hijo al bloque.
-    #[inline]
-    pub fn add_child(mut self, component: impl Component) -> Self {
-        self.children.add(Child::with(component));
-        self
-    }
-
-    /// Modifica la lista de componentes (`children`) aplicando una operación [`ChildOp`].
+    /// Añade un nuevo componente al bloque o modifica la lista de componentes (`children`) con una
+    /// operación [`ChildOp`].
     #[builder_fn]
-    pub fn with_child(mut self, op: ChildOp) -> Self {
-        self.children.alter_child(op);
+    pub fn with_child(mut self, op: impl Into<ChildOp>) -> Self {
+        self.children.alter_child(op.into());
         self
     }
 }
