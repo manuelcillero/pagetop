@@ -33,7 +33,7 @@ impl ButtonColor {
             classes.push(' ');
         }
         match self {
-            Self::Default => unreachable!(),
+            Self::Default => {}
             Self::Background(c) => {
                 classes.push_str(Self::BTN_PREFIX);
                 classes.push_str(c.as_str());
@@ -66,24 +66,9 @@ impl ButtonColor {
     /// assert_eq!(ButtonColor::Default.to_class(), "");
     /// ```
     pub fn to_class(self) -> String {
-        match self {
-            Self::Default => String::new(),
-            Self::Background(c) => {
-                let color = c.as_str();
-                let mut class = String::with_capacity(Self::BTN_PREFIX.len() + color.len());
-                class.push_str(Self::BTN_PREFIX);
-                class.push_str(color);
-                class
-            }
-            Self::Outline(c) => {
-                let color = c.as_str();
-                let mut class = String::with_capacity(Self::BTN_OUTLINE_PREFIX.len() + color.len());
-                class.push_str(Self::BTN_OUTLINE_PREFIX);
-                class.push_str(color);
-                class
-            }
-            Self::Link => Self::BTN_LINK.to_string(),
-        }
+        let mut class = String::new();
+        self.push_class(&mut class);
+        class
     }
 }
 
@@ -108,17 +93,15 @@ impl ButtonSize {
     /// Añade la clase de tamaño `btn-sm` o `btn-lg` a la cadena de clases.
     #[inline]
     pub(crate) fn push_class(self, classes: &mut String) {
-        if let Self::Default = self {
-            return;
-        }
+        let class = match self {
+            Self::Default => return,
+            Self::Small => Self::BTN_SM,
+            Self::Large => Self::BTN_LG,
+        };
         if !classes.is_empty() {
             classes.push(' ');
         }
-        match self {
-            Self::Default => unreachable!(),
-            Self::Small => classes.push_str(Self::BTN_SM),
-            Self::Large => classes.push_str(Self::BTN_LG),
-        }
+        classes.push_str(class);
     }
 
     /// Devuelve la clase `btn-sm` o `btn-lg` correspondiente al tamaño del botón.
@@ -132,10 +115,8 @@ impl ButtonSize {
     /// assert_eq!(ButtonSize::Default.to_class(), "");
     /// ```
     pub fn to_class(self) -> String {
-        match self {
-            Self::Default => String::new(),
-            Self::Small => Self::BTN_SM.to_string(),
-            Self::Large => Self::BTN_LG.to_string(),
-        }
+        let mut class = String::new();
+        self.push_class(&mut class);
+        class
     }
 }

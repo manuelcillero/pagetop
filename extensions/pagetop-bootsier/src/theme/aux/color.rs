@@ -5,9 +5,9 @@ use pagetop::prelude::*;
 /// Paleta de colores temáticos.
 ///
 /// Equivalen a los nombres estándar definidos por Bootstrap (`primary`, `secondary`, `success`,
-/// etc.). Este tipo enumerado sirve de base para componer las clases de color para fondo
-/// ([`classes::Background`](crate::theme::classes::Background)), bordes
-/// ([`classes::Border`](crate::theme::classes::Border)) y texto
+/// etc.). Este tipo enumerado sirve de referencia para componer las clases de color para el fondo
+/// ([`classes::Background`](crate::theme::classes::Background)), los bordes
+/// ([`classes::Border`](crate::theme::classes::Border)) o para el texto
 /// ([`classes::Text`](crate::theme::classes::Text)).
 #[derive(AutoDefault, Clone, Copy, Debug, PartialEq)]
 pub enum Color {
@@ -38,15 +38,6 @@ impl Color {
             Self::Dark      => "dark",
         }
     }
-
-    /* Añade el nombre del color a la cadena de clases (reservado).
-    #[inline]
-    pub(crate) fn push_class(self, classes: &mut String) {
-        if !classes.is_empty() {
-            classes.push(' ');
-        }
-        classes.push_str(self.as_str());
-    } */
 
     /// Devuelve la clase correspondiente al color.
     ///
@@ -254,23 +245,9 @@ impl ColorBg {
     /// assert_eq!(ColorBg::Default.to_class(), "");
     /// ```
     pub fn to_class(self) -> String {
-        if let Some(suffix) = self.suffix() {
-            let base_len = match self {
-                Self::Theme(c) | Self::Subtle(c) => Self::BG_PREFIX.len() + c.as_str().len(),
-                _ => Self::BG.len(),
-            };
-            let mut class = String::with_capacity(base_len + suffix.len());
-            match self {
-                Self::Theme(c) | Self::Subtle(c) => {
-                    class.push_str(Self::BG_PREFIX);
-                    class.push_str(c.as_str());
-                }
-                _ => class.push_str(Self::BG),
-            }
-            class.push_str(suffix);
-            return class;
-        }
-        String::new()
+        let mut class = String::new();
+        self.push_class(&mut class);
+        class
     }
 }
 
@@ -352,22 +329,8 @@ impl ColorText {
     /// assert_eq!(ColorText::Default.to_class(), "");
     /// ```
     pub fn to_class(self) -> String {
-        if let Some(suffix) = self.suffix() {
-            let base_len = match self {
-                Self::Theme(c) | Self::Emphasis(c) => Self::TEXT_PREFIX.len() + c.as_str().len(),
-                _ => Self::TEXT.len(),
-            };
-            let mut class = String::with_capacity(base_len + suffix.len());
-            match self {
-                Self::Theme(c) | Self::Emphasis(c) => {
-                    class.push_str(Self::TEXT_PREFIX);
-                    class.push_str(c.as_str());
-                }
-                _ => class.push_str(Self::TEXT),
-            }
-            class.push_str(suffix);
-            return class;
-        }
-        String::new()
+        let mut class = String::new();
+        self.push_class(&mut class);
+        class
     }
 }
