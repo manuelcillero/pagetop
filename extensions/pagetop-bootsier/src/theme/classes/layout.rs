@@ -79,18 +79,6 @@ impl Margin {
         }
     }
 
-    /* Añade la clase de **margin** a la cadena de clases (reservado).
-    ///
-    /// No añade nada si `size` es `ScaleSize::None`.
-    #[inline]
-    pub(crate) fn push_class(self, classes: &mut String) {
-        let Some(size) = self.size_suffix() else {
-            return;
-        };
-        self.breakpoint
-            .push_class(classes, self.side_prefix(), size);
-    } */
-
     /// Devuelve la clase de **margin** como cadena (`"mt-3"`, `"ms-lg-auto"`, etc.).
     ///
     /// Si `size` es `ScaleSize::None`, devuelve `""`.
@@ -179,17 +167,6 @@ impl Padding {
             ScaleSize::Five  => Some("5"),
         }
     }
-
-    /* Añade la clase de **padding** a la cadena de clases (reservado).
-    ///
-    /// No añade nada si `size` es `ScaleSize::None` o `ScaleSize::Auto`.
-    #[inline]
-    pub(crate) fn push_class(self, classes: &mut String) {
-        let Some(size) = self.suffix() else {
-            return;
-        };
-        self.breakpoint.push_class(classes, self.prefix(), size);
-    } */
 
     /// Devuelve la clase de **padding** como cadena (`"px-2"`, `"pe-sm-4"`, etc.).
     ///
