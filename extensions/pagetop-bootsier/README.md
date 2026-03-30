@@ -25,7 +25,7 @@ Igual que con otras extensiones, **añade la dependencia** a tu `Cargo.toml`:
 
 ```toml
 [dependencies]
-pagetop-bootsier = "..."
+pagetop-bootsier = { ... }
 ```
 
 **Declara la extensión** en tu aplicación (o extensión que la requiera). Recuerda que el orden en
