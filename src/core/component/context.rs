@@ -1,4 +1,4 @@
-use crate::core::component::{ChildOp, MessageLevel, StatusMessage};
+use crate::core::component::{ChildOp, Component, MessageLevel, StatusMessage};
 use crate::core::theme::all::DEFAULT_THEME;
 use crate::core::theme::{ChildrenInRegions, DefaultRegion, RegionRef, TemplateRef, ThemeRef};
 use crate::core::TypeInfo;
@@ -77,7 +77,6 @@ impl std::error::Error for ContextError {}
 /// - Administrar **recursos** del documento como el icono [`Favicon`], las hojas de estilo
 ///   [`StyleSheet`] o los scripts [`JavaScript`] mediante [`AssetsOp`].
 /// - Leer y mantener **parámetros dinámicos tipados** de contexto.
-/// - Generar **identificadores únicos** por tipo de componente.
 ///
 /// Lo implementan, típicamente, estructuras que manejan el contexto de renderizado, como
 /// [`Context`](crate::core::component::Context) o [`Page`](crate::response::page::Page).
@@ -94,7 +93,7 @@ impl std::error::Error for ContextError {}
 ///       .with_assets(AssetsOp::SetFavicon(Some(Favicon::new().with_icon("/favicon.ico"))))
 ///       .with_assets(AssetsOp::AddStyleSheet(StyleSheet::from("/css/app.css")))
 ///       .with_assets(AssetsOp::AddJavaScript(JavaScript::defer("/js/app.js")))
-///       .with_param("usuario_id", 42_i32)
+///       .with_param("user_id", 42_i32)
 /// }
 /// ```
 pub trait Contextual: LangId {
@@ -118,16 +117,17 @@ pub trait Contextual: LangId {
 
     /// Añade o modifica un parámetro dinámico del contexto.
     ///
-    /// El valor se guardará conservando el *nombre del tipo* real para mejorar los mensajes de
-    /// error posteriores.
+    /// El valor se almacena junto con el nombre de su tipo, lo que permite generar mensajes de
+    /// error precisos al recuperarlo con [`param`](Contextual::param) si el tipo solicitado no
+    /// coincide.
     ///
-    /// # Ejemplos
+    /// # Ejemplo
     ///
     /// ```rust
     /// # use pagetop::prelude::*;
     /// let cx = Context::new(None)
-    ///     .with_param("usuario_id", 42_i32)
-    ///     .with_param("titulo", "Hola".to_string())
+    ///     .with_param("user_id", 42_i32)
+    ///     .with_param("title", "Hello".to_string())
     ///     .with_param("flags", vec!["a", "b"]);
     /// ```
     #[builder_fn]
@@ -158,49 +158,43 @@ pub trait Contextual: LangId {
     /// Devuelve la plantilla configurada para renderizar el documento.
     fn template(&self) -> TemplateRef;
 
-    /// Recupera un parámetro como [`Option`], simplificando el acceso.
+    /// Recupera una *referencia tipada* al parámetro solicitado.
     ///
-    /// A diferencia de [`get_param`](Context::get_param), que devuelve un [`Result`] con
-    /// información detallada de error, este método devuelve `None` tanto si la clave no existe como
-    /// si el valor guardado no coincide con el tipo solicitado.
+    /// Devuelve:
     ///
-    /// Resulta útil en escenarios donde sólo interesa saber si el valor existe y es del tipo
-    /// correcto, sin necesidad de diferenciar entre error de ausencia o de tipo.
+    /// - `Ok(&T)` si la clave existe y el tipo coincide.
+    /// - `Err(ContextError::ParamNotFound)` si la clave no existe.
+    /// - `Err(ContextError::ParamTypeMismatch)` si la clave existe pero el tipo no coincide.
     ///
     /// # Ejemplo
     ///
     /// ```rust
     /// # use pagetop::prelude::*;
-    /// let cx = Context::new(None).with_param("username", "Alice".to_string());
+    /// let cx = Context::new(None)
+    ///     .with_param("user_id", 42_i32)
+    ///     .with_param("title", "Hello".to_string());
     ///
-    /// // Devuelve Some(&String) si existe y coincide el tipo.
-    /// assert_eq!(cx.param::<String>("username").map(|s| s.as_str()), Some("Alice"));
+    /// let id: i32 = *cx.param("user_id").unwrap();
+    /// let title: &String = cx.param("title").unwrap();
     ///
-    /// // Devuelve None si no existe o si el tipo no coincide.
-    /// assert!(cx.param::<i32>("username").is_none());
-    /// assert!(cx.param::<String>("missing").is_none());
-    ///
-    /// // Acceso con valor por defecto.
-    /// let user = cx.param::<String>("missing")
-    ///     .cloned()
-    ///     .unwrap_or_else(|| "visitor".to_string());
-    /// assert_eq!(user, "visitor");
+    /// // Error de tipo:
+    /// assert!(cx.param::<String>("user_id").is_err());
     /// ```
-    fn param<T: 'static>(&self, key: &'static str) -> Option<&T>;
+    fn param<T: 'static>(&self, key: &'static str) -> Result<&T, ContextError>;
 
     /// Devuelve el parámetro clonado o el **valor por defecto del tipo** (`T::default()`).
-    fn param_or_default<T: Default + Clone + 'static>(&self, key: &'static str) -> T {
-        self.param::<T>(key).cloned().unwrap_or_default()
+    fn param_or_default<T: Clone + Default + 'static>(&self, key: &'static str) -> T {
+        self.param::<T>(key).ok().cloned().unwrap_or_default()
     }
 
     /// Devuelve el parámetro clonado o un **valor por defecto** si no existe.
     fn param_or<T: Clone + 'static>(&self, key: &'static str, default: T) -> T {
-        self.param::<T>(key).cloned().unwrap_or(default)
+        self.param::<T>(key).ok().cloned().unwrap_or(default)
     }
 
     /// Devuelve el parámetro clonado o el **valor evaluado** por la función `f` si no existe.
     fn param_or_else<T: Clone + 'static, F: FnOnce() -> T>(&self, key: &'static str, f: F) -> T {
-        self.param::<T>(key).cloned().unwrap_or_else(f)
+        self.param::<T>(key).ok().cloned().unwrap_or_else(f)
     }
 
     /// Devuelve el Favicon de los recursos del contexto.
@@ -214,27 +208,17 @@ pub trait Contextual: LangId {
 
     // **< Contextual HELPERS >*********************************************************************
 
-    /// Devuelve el `id` proporcionado tal cual, o genera uno único para el tipo `T` si no se
-    /// proporciona ninguno.
-    ///
-    /// Si `id` es `None`, construye un identificador en la forma `<tipo>-<n>`, donde `<tipo>` es el
-    /// nombre corto del tipo en minúsculas y `<n>` un contador incremental interno del contexto. Es
-    /// útil para asignar identificadores HTML predecibles cuando el componente no recibe uno
-    /// explícito.
-    fn required_id<T>(&self, id: Option<String>) -> String;
-
-    /// Acumula un [`StatusMessage`] en el contexto para notificar al visitante.
-    ///
-    /// Pueden generarse en cualquier punto del ciclo de una petición web (manejadores, renderizado,
-    /// lógica de negocio, etc.) que tengan acceso al contexto, y mostrarlos luego, por ejemplo, en
-    /// la página final devuelta al usuario.
+    /// Elimina un parámetro del contexto. Devuelve `true` si la clave existía y se eliminó.
     ///
     /// # Ejemplo
     ///
-    /// ```rust,ignore
-    /// cx.push_message(MessageLevel::Warning, L10n::l("session-not-valid"));
+    /// ```rust
+    /// # use pagetop::prelude::*;
+    /// let mut cx = Context::new(None).with_param("temp", 1u8);
+    /// assert!(cx.remove_param("temp"));
+    /// assert!(!cx.remove_param("temp")); // ya no existe
     /// ```
-    fn push_message(&mut self, level: MessageLevel, text: L10n);
+    fn remove_param(&mut self, key: &'static str) -> bool;
 }
 
 /// Implementa un **contexto de renderizado** para un documento HTML.
@@ -264,7 +248,7 @@ pub trait Contextual: LangId {
 ///         // Añade un script JavaScript.
 ///         .with_assets(AssetsOp::AddJavaScript(JavaScript::defer("/js/main.js")))
 ///         // Añade un parámetro dinámico al contexto.
-///         .with_param("usuario_id", 42)
+///         .with_param("user_id", 42)
 /// }
 /// ```
 ///
@@ -272,34 +256,38 @@ pub trait Contextual: LangId {
 ///
 /// ```rust
 /// # use pagetop::prelude::*;
+/// # #[derive(AutoDefault, Clone, Debug)]
+/// # struct Menu;
+/// # impl Component for Menu {
+/// #     fn new() -> Self { Self::default() }
+/// # }
 /// fn use_context(cx: &mut Context) {
 ///     // Recupera el tema seleccionado.
 ///     let active_theme = cx.theme();
 ///     assert_eq!(active_theme.short_name(), "aliner");
 ///
 ///     // Recupera el parámetro a su tipo original.
-///     let id: i32 = *cx.get_param::<i32>("usuario_id").unwrap();
+///     let id: i32 = *cx.param::<i32>("user_id").unwrap();
 ///     assert_eq!(id, 42);
 ///
 ///     // Genera un identificador para un componente de tipo `Menu`.
-///     struct Menu;
-///     let unique_id = cx.required_id::<Menu>(None);
+///     let unique_id = cx.required_id::<Menu>(None, 1);
 ///     assert_eq!(unique_id, "menu-1"); // Si es el primero generado.
 /// }
 /// ```
 #[rustfmt::skip]
 pub struct Context {
-    request    : Option<HttpRequest>,           // Petición HTTP de origen.
-    locale     : RequestLocale,                 // Idioma asociado a la petición.
-    theme      : ThemeRef,                      // Referencia al tema usado para renderizar.
-    template   : TemplateRef,                   // Plantilla usada para renderizar.
-    favicon    : Option<Favicon>,               // Favicon, si se ha definido.
-    stylesheets: Assets<StyleSheet>,            // Hojas de estilo CSS.
-    javascripts: Assets<JavaScript>,            // Scripts JavaScript.
-    regions    : ChildrenInRegions,             // Regiones de componentes para renderizar.
+    request    : Option<HttpRequest>,      // Petición HTTP de origen.
+    locale     : RequestLocale,            // Idioma asociado a la petición.
+    theme      : ThemeRef,                 // Referencia al tema usado para renderizar.
+    template   : TemplateRef,              // Plantilla usada para renderizar.
+    favicon    : Option<Favicon>,          // Favicon, si se ha definido.
+    stylesheets: Assets<StyleSheet>,       // Hojas de estilo CSS.
+    javascripts: Assets<JavaScript>,       // Scripts JavaScript.
+    regions    : ChildrenInRegions,        // Regiones de componentes para renderizar.
     params     : HashMap<&'static str, (Box<dyn Any>, &'static str)>, // Parámetros en ejecución.
-    id_counter : Cell<usize>,  // Cell permite incrementarlo desde &self en required_id().
-    messages   : Vec<StatusMessage>,            // Mensajes de usuario acumulados.
+    id_counter : Cell<usize>,              // Cell permite incrementar desde &self en required_id().
+    messages   : Vec<StatusMessage>,       // Mensajes de usuario acumulados.
 }
 
 impl Default for Context {
@@ -366,90 +354,6 @@ impl Context {
             .render(self)
     }
 
-    // **< Context PARAMS >*************************************************************************
-
-    /// Recupera una *referencia tipada* al parámetro solicitado.
-    ///
-    /// Devuelve:
-    ///
-    /// - `Ok(&T)` si la clave existe y el tipo coincide.
-    /// - `Err(ContextError::ParamNotFound)` si la clave no existe.
-    /// - `Err(ContextError::ParamTypeMismatch)` si la clave existe pero el tipo no coincide.
-    ///
-    /// # Ejemplos
-    ///
-    /// ```rust
-    /// # use pagetop::prelude::*;
-    /// let cx = Context::new(None)
-    ///     .with_param("usuario_id", 42_i32)
-    ///     .with_param("titulo", "Hola".to_string());
-    ///
-    /// let id: &i32 = cx.get_param("usuario_id").unwrap();
-    /// let titulo: &String = cx.get_param("titulo").unwrap();
-    ///
-    /// // Error de tipo:
-    /// assert!(cx.get_param::<String>("usuario_id").is_err());
-    /// ```
-    pub fn get_param<T: 'static>(&self, key: &'static str) -> Result<&T, ContextError> {
-        let (any, type_name) = self.params.get(key).ok_or(ContextError::ParamNotFound)?;
-        any.downcast_ref::<T>()
-            .ok_or_else(|| ContextError::ParamTypeMismatch {
-                key,
-                expected: TypeInfo::FullName.of::<T>(),
-                saved: type_name,
-            })
-    }
-
-    /// Recupera el parámetro solicitado y lo elimina del contexto.
-    ///
-    /// Devuelve:
-    ///
-    /// - `Ok(T)` si la clave existía y el tipo coincide.
-    /// - `Err(ContextError::ParamNotFound)` si la clave no existe.
-    /// - `Err(ContextError::ParamTypeMismatch)` si el tipo no coincide.
-    ///
-    /// # Ejemplos
-    ///
-    /// ```rust
-    /// # use pagetop::prelude::*;
-    /// let mut cx = Context::new(None)
-    ///     .with_param("contador", 7_i32)
-    ///     .with_param("titulo", "Hola".to_string());
-    ///
-    /// let n: i32 = cx.take_param("contador").unwrap();
-    /// assert!(cx.get_param::<i32>("contador").is_err()); // ya no está
-    ///
-    /// // Error de tipo:
-    /// assert!(cx.take_param::<i32>("titulo").is_err());
-    /// ```
-    pub fn take_param<T: 'static>(&mut self, key: &'static str) -> Result<T, ContextError> {
-        let (boxed, saved) = self.params.remove(key).ok_or(ContextError::ParamNotFound)?;
-        boxed
-            .downcast::<T>()
-            .map(|b| *b)
-            .map_err(|_| ContextError::ParamTypeMismatch {
-                key,
-                expected: TypeInfo::FullName.of::<T>(),
-                saved,
-            })
-    }
-
-    /// Elimina un parámetro del contexto. Devuelve `true` si la clave existía y se eliminó.
-    ///
-    /// Devuelve `false` en caso contrario. Usar cuando sólo interesa borrar la entrada.
-    ///
-    /// # Ejemplos
-    ///
-    /// ```rust
-    /// # use pagetop::prelude::*;
-    /// let mut cx = Context::new(None).with_param("temp", 1u8);
-    /// assert!(cx.remove_param("temp"));
-    /// assert!(!cx.remove_param("temp")); // ya no existe
-    /// ```
-    pub fn remove_param(&mut self, key: &'static str) -> bool {
-        self.params.remove(key).is_some()
-    }
-
     // **< Context HELPERS >************************************************************************
 
     /// Construye una ruta aplicada al contexto actual.
@@ -468,6 +372,51 @@ impl Context {
             route.alter_param("lang", self.locale.langid().to_string());
         }
         route
+    }
+
+    /// Garantiza un identificador único para un componente `C`, generándolo si no se proporciona
+    /// ninguno.
+    ///
+    /// Si `id` es `None`, crea un identificador usando los últimos segmentos del *path* completo
+    /// del tipo `C`, separados por `-` y en minúsculas, seguidos de un contador incremental interno
+    /// del contexto. Por ejemplo, para un componente `MyApp::ui::Menu` con `parts = 2` podría
+    /// devolver un identificador como `ui-menu-1` si ha sido el primero en generarse.
+    ///
+    /// Con `parts = 1` se usa el nombre corto del tipo. Si `parts` es `0` o supera el número de
+    /// segmentos del *path*, entonces se usará el *path* completo.
+    ///
+    /// Es útil para asignar identificadores HTML predecibles cuando el componente no recibe uno
+    /// explícito.
+    pub fn required_id<C: Component>(&self, id: Option<String>, parts: usize) -> String {
+        if let Some(id) = id {
+            return id;
+        }
+        let segments: Vec<&str> = TypeInfo::FullName.of::<C>().split("::").collect();
+        let parts = if parts == 0 || parts >= segments.len() {
+            segments.len()
+        } else {
+            parts
+        };
+        self.id_counter.set(self.id_counter.get() + 1);
+        let prefix = segments[segments.len() - parts..].join("-").to_lowercase();
+        util::join!(prefix, "-", self.id_counter.get().to_string())
+    }
+
+    /// Acumula un [`StatusMessage`] en el contexto para notificar al visitante.
+    ///
+    /// Pueden generarse en cualquier punto del ciclo de una petición web (manejadores, renderizado,
+    /// lógica de negocio, etc.) que tengan acceso al contexto, y mostrarlos luego, por ejemplo, en
+    /// la página final devuelta al usuario.
+    ///
+    /// # Ejemplo
+    ///
+    /// ```rust
+    /// # use pagetop::prelude::*;
+    /// # let mut cx = Context::new(None);
+    /// cx.push_message(MessageLevel::Warning, L10n::n("Session is not valid"));
+    /// ```
+    pub fn push_message(&mut self, level: MessageLevel, text: L10n) {
+        self.messages.push(StatusMessage::new(level, text));
     }
 
     /// Devuelve todos los mensajes de usuario acumulados.
@@ -589,8 +538,14 @@ impl Contextual for Context {
         self.template
     }
 
-    fn param<T: 'static>(&self, key: &'static str) -> Option<&T> {
-        self.get_param::<T>(key).ok()
+    fn param<T: 'static>(&self, key: &'static str) -> Result<&T, ContextError> {
+        let (any, type_name) = self.params.get(key).ok_or(ContextError::ParamNotFound)?;
+        any.downcast_ref::<T>()
+            .ok_or_else(|| ContextError::ParamTypeMismatch {
+                key,
+                expected: TypeInfo::FullName.of::<T>(),
+                saved: type_name,
+            })
     }
 
     fn favicon(&self) -> Option<&Favicon> {
@@ -607,26 +562,7 @@ impl Contextual for Context {
 
     // **< Contextual HELPERS >*********************************************************************
 
-    fn required_id<T>(&self, id: Option<String>) -> String {
-        if let Some(id) = id {
-            id
-        } else {
-            let prefix = TypeInfo::ShortName
-                .of::<T>()
-                .trim()
-                .replace(' ', "_")
-                .to_lowercase();
-            let prefix = if prefix.is_empty() {
-                "prefix".to_string()
-            } else {
-                prefix
-            };
-            self.id_counter.set(self.id_counter.get() + 1);
-            util::join!(prefix, "-", self.id_counter.get().to_string())
-        }
-    }
-
-    fn push_message(&mut self, level: MessageLevel, text: L10n) {
-        self.messages.push(StatusMessage::new(level, text));
+    fn remove_param(&mut self, key: &'static str) -> bool {
+        self.params.remove(key).is_some()
     }
 }

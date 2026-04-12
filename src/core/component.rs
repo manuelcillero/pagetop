@@ -63,7 +63,7 @@ pub use context::{AssetsOp, Context, ContextError, Contextual};
 ///
 ///     // Se instancia un componente que sólo se renderiza si `user_logged_in` es `true`.
 ///     let mut component = SampleComponent::new().with_renderable(Some(|cx: &Context| {
-///         cx.param::<bool>("user_logged_in").copied().unwrap_or(false)
+///         cx.param_or_default::<bool>("user_logged_in")
 ///     }));
 ///
 ///     // Aquí simplemente se comprueba que compila y se puede invocar.

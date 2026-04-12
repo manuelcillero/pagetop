@@ -26,7 +26,7 @@ use std::sync::Arc;
 /// ```rust
 /// # use pagetop::prelude::*;
 /// let component = Html::with(|cx| {
-///     let user = cx.param::<String>("username").cloned().unwrap_or("visitor".to_string());
+///     let user = cx.param_or("username", "visitor".to_string());
 ///     html! {
 ///         h1 { "Hello, " (user) }
 ///     }

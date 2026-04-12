@@ -19,7 +19,7 @@ pub use error::ErrorPage;
 pub use actix_web::Result as ResultPage;
 
 use crate::base::action;
-use crate::core::component::{AssetsOp, ChildOp, Context, Contextual};
+use crate::core::component::{AssetsOp, ChildOp, Context, ContextError, Contextual};
 use crate::core::theme::{DefaultRegion, Region, RegionRef, TemplateRef, ThemeRef};
 use crate::html::{html, Markup, DOCTYPE};
 use crate::html::{Assets, Favicon, JavaScript, StyleSheet};
@@ -349,7 +349,7 @@ impl Contextual for Page {
         self.context.template()
     }
 
-    fn param<T: 'static>(&self, key: &'static str) -> Option<&T> {
+    fn param<T: 'static>(&self, key: &'static str) -> Result<&T, ContextError> {
         self.context.param(key)
     }
 
@@ -367,11 +367,7 @@ impl Contextual for Page {
 
     // **< Contextual HELPERS >*********************************************************************
 
-    fn required_id<T>(&self, id: Option<String>) -> String {
-        self.context.required_id::<T>(id)
-    }
-
-    fn push_message(&mut self, level: crate::prelude::MessageLevel, text: L10n) {
-        self.context.push_message(level, text);
+    fn remove_param(&mut self, key: &'static str) -> bool {
+        self.context.remove_param(key)
     }
 }
