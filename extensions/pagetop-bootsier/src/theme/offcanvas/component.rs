@@ -152,7 +152,7 @@ impl Offcanvas {
             return html! {};
         }
 
-        let id = cx.required_id::<Self>(self.id());
+        let id = cx.required_id::<Self>(self.id(), 1);
         let id_label = util::join!(id, "-label");
         let id_target = util::join!("#", id);
 
@@ -171,7 +171,7 @@ impl Offcanvas {
 
         html! {
             div
-                id=(id)
+                id=(&id)
                 class=[self.classes().get()]
                 tabindex="-1"
                 data-bs-scroll=[body_scroll]
@@ -180,7 +180,7 @@ impl Offcanvas {
             {
                 div class="offcanvas-header" {
                     @if !title.is_empty() {
-                        h5 class="offcanvas-title" id=(id_label) { (title) }
+                        h5 id=(&id_label) class="offcanvas-title" { (title) }
                     }
                     button
                         type="button"

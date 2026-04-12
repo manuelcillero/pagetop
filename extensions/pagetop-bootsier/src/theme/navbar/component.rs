@@ -79,10 +79,10 @@ impl Component for Navbar {
         }
 
         // Asegura que la barra tiene un `id` para poder asociarlo al colapso/offcanvas.
-        let id = cx.required_id::<Self>(self.id());
+        let id = cx.required_id::<Self>(self.id(), 1);
 
         Ok(html! {
-            nav id=(id) class=[self.classes().get()] {
+            nav id=(&id) class=[self.classes().get()] {
                 div class="container-fluid" {
                     @match self.layout() {
                         // Barra más sencilla: sólo contenido.
@@ -95,7 +95,7 @@ impl Component for Navbar {
                             @let id_content = util::join!(id, "-content");
 
                             (button(cx, TOGGLE_COLLAPSE, &id_content))
-                            div id=(id_content) class="collapse navbar-collapse" {
+                            div id=(&id_content) class="collapse navbar-collapse" {
                                 (items)
                             }
                         },
@@ -112,7 +112,7 @@ impl Component for Navbar {
 
                             (brand.render(cx))
                             (button(cx, TOGGLE_COLLAPSE, &id_content))
-                            div id=(id_content) class="collapse navbar-collapse" {
+                            div id=(&id_content) class="collapse navbar-collapse" {
                                 (items)
                             }
                         },
@@ -123,7 +123,7 @@ impl Component for Navbar {
 
                             (button(cx, TOGGLE_COLLAPSE, &id_content))
                             (brand.render(cx))
-                            div id=(id_content) class="collapse navbar-collapse" {
+                            div id=(&id_content) class="collapse navbar-collapse" {
                                 (items)
                             }
                         },

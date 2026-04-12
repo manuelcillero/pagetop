@@ -36,10 +36,10 @@ impl Component for Block {
             return Ok(html! {});
         }
 
-        let id = cx.required_id::<Block>(self.id());
+        let id = cx.required_id::<Self>(self.id(), 1);
 
         Ok(html! {
-            div id=(id) class=[self.classes().get()] {
+            div id=(&id) class=[self.classes().get()] {
                 @if let Some(title) = self.title().lookup(cx) {
                     h2 class="block__title" { span { (title) } }
                 }
