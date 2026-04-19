@@ -2,7 +2,7 @@
 
 mod props;
 pub use props::{Autocomplete, AutofillField};
-pub use props::{InputType, Method};
+pub use props::{CheckboxKind, InputType, Method};
 
 mod component;
 pub use component::Form;
@@ -12,3 +12,6 @@ pub use fieldset::Fieldset;
 
 mod input;
 pub use input::Input;
+
+mod checkbox;
+pub use checkbox::Checkbox;
