@@ -1,15 +1,40 @@
 use pagetop::prelude::*;
 
-/// Agrupa controles relacionados de un formulario (`<fieldset>`).
+/// Componente para crear un **grupo de controles relacionados** en un formulario.
 ///
-/// Se usa para mejorar la accesibilidad cuando se acompaña de una leyenda que encabeza el grupo.
+/// Renderiza un `<fieldset>` con una leyenda opcional que sirve de encabezado y una descripción
+/// también opcional que aparece justo antes de los controles. Es un elemento semántico que mejora
+/// la accesibilidad porque los lectores de pantalla anuncian la leyenda antes de leer cada control
+/// del contenido.
+///
+/// Los componentes del grupo se añaden con [`with_child()`](Fieldset::with_child). Si no hay
+/// contenido para renderizar, el `fieldset` no se genera. Si está deshabilitado, todos sus
+/// controles hijos quedan deshabilitados automáticamente por el navegador.
+///
+/// # Ejemplo
+///
+/// ```rust
+/// # use pagetop::prelude::*;
+/// # use pagetop_bootsier::prelude::*;
+/// let personal_data = form::Fieldset::new()
+///     .with_legend(L10n::n("Personal data"))
+///     .with_description(L10n::n("Enter your full name and contact email."))
+///     .with_child(form::Input::textfield().with_name("name").with_label(L10n::n("Full name")))
+///     .with_child(form::Input::email().with_name("email").with_label(L10n::n("Email")));
+/// ```
 #[derive(AutoDefault, Clone, Debug, Getters)]
 pub struct Fieldset {
     #[getters(skip)]
     id: AttrId,
+    /// Devuelve las clases CSS del `fieldset`.
     classes: Classes,
+    /// Devuelve la leyenda del `fieldset`.
     legend: Attr<L10n>,
+    /// Devuelve la descripción del `fieldset`.
+    description: Attr<L10n>,
+    /// Devuelve si el `fieldset` está deshabilitado.
     disabled: bool,
+    /// Devuelve la lista de componentes del `fieldset`.
     children: Children,
 }
 
@@ -23,12 +48,21 @@ impl Component for Fieldset {
     }
 
     fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
+        let children = self.children().render(cx);
+
+        if children.is_empty() {
+            return Ok(html! {});
+        }
+
         Ok(html! {
             fieldset id=[self.id()] class=[self.classes().get()] disabled[*self.disabled()] {
                 @if let Some(legend) = self.legend().lookup(cx) {
                     legend { (legend) }
                 }
-                (self.children().render(cx))
+                @if let Some(description) = self.description().lookup(cx) {
+                    p class="fieldset-description" { (description) }
+                }
+                (children)
             }
         })
     }
@@ -51,10 +85,17 @@ impl Fieldset {
         self
     }
 
-    /// Establece la leyenda del `fieldset`.
+    /// Establece o elimina la leyenda del `fieldset` (basta pasar `None` para quitarla).
     #[builder_fn]
-    pub fn with_legend(mut self, legend: L10n) -> Self {
-        self.legend.alter_value(legend);
+    pub fn with_legend(mut self, legend: impl Into<Option<L10n>>) -> Self {
+        self.legend.alter_opt(legend.into());
+        self
+    }
+
+    /// Establece o elimina la descripción del `fieldset` (basta pasar `None` para quitarla).
+    #[builder_fn]
+    pub fn with_description(mut self, description: impl Into<Option<L10n>>) -> Self {
+        self.description.alter_opt(description.into());
         self
     }
 
@@ -65,8 +106,8 @@ impl Fieldset {
         self
     }
 
-    /// Añade un nuevo componente al `fieldset` o modifica la lista de de componentes (`children`)
-    /// con una operación [`ChildOp`].
+    /// Añade un nuevo componente al `fieldset`, o aplica una operación [`ChildOp`] sobre la lista
+    /// de componentes (`children`).
     #[builder_fn]
     pub fn with_child(mut self, op: impl Into<ChildOp>) -> Self {
         self.children.alter_child(op.into());
