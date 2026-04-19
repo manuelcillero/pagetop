@@ -1,45 +1,41 @@
-//! Definiciones para crear grupos de casillas de verificación (*check buttons*).
+//! Definiciones para crear grupos de botones de opción (*radio buttons*).
 
 use pagetop::prelude::*;
 
+use crate::LOCALES_BOOTSIER;
+
 // **< Item >***************************************************************************************
 
-/// Casilla de verificación individual de un [`form::check::Group`](Group).
+/// Botón de opción individual de un [`form::radio::Group`](Group).
 ///
-/// Representa cada casilla de un grupo de casillas de verificación, con una etiqueta localizable
-/// visible. Puede marcarse como seleccionada o deshabilitada de forma independiente al resto.
-///
-/// El parámetro `name` de [`form::check::Item::new()`](Item::new) se combina con el `name` del
-/// grupo para componer el atributo `name` de la casilla. Por ejemplo, si el grupo tiene
-/// `name=interests` y el ítem se crea con `name=tech`, la casilla tendrá `name=interests_tech`.
+/// Representa cada opción de un grupo de opciones exclusivas entre sí, con un valor (el que se
+/// envía al servidor), una etiqueta localizable visible y puede marcarse como seleccionada o
+/// inicialmente deshabilitada de forma independiente.
 ///
 /// # Ejemplo
 ///
 /// ```rust
 /// # use pagetop::prelude::*;
 /// # use pagetop_bootsier::prelude::*;
-/// let item = form::check::Item::new("apple", L10n::n("Apple")).with_checked(true);
+/// let item = form::radio::Item::new("monthly", L10n::n("Monthly")).with_checked(true);
 /// ```
 #[derive(AutoDefault, Clone, Debug, Getters)]
 pub struct Item {
-    /// Devuelve el nombre que se combina con el del grupo para componer el atributo `name`.
-    name: AttrValue,
-    /// Devuelve la etiqueta de la casilla.
+    /// Devuelve el valor enviado al servidor cuando la opción está seleccionada.
+    value: AttrValue,
+    /// Devuelve la etiqueta de la opción.
     label: L10n,
-    /// Devuelve si la casilla debe aparecer marcada por defecto.
+    /// Devuelve si la opción debe aparecer seleccionada por defecto.
     checked: bool,
-    /// Devuelve si la casilla está deshabilitada.
+    /// Devuelve si la opción está deshabilitada.
     disabled: bool,
 }
 
 impl Item {
-    /// Crea una nueva casilla con el nombre y la etiqueta indicados.
-    ///
-    /// El parámetro `name` se combina con el del grupo para componer el atributo `name` de la
-    /// casilla.
-    pub fn new(name: impl AsRef<str>, label: L10n) -> Self {
+    /// Crea una nueva opción con el valor y la etiqueta indicados.
+    pub fn new(value: impl AsRef<str>, label: L10n) -> Self {
         Self {
-            name: AttrValue::new(name),
+            value: AttrValue::new(value),
             label,
             checked: false,
             disabled: false,
@@ -48,13 +44,16 @@ impl Item {
 
     // **< Item BUILDER >***************************************************************************
 
-    /// Establece si la casilla debe aparecer marcada por defecto.
+    /// Establece si la opción aparece seleccionada por defecto.
+    ///
+    /// Si varias opciones del grupo tienen `checked` activo, sólo la primera se renderizará como
+    /// seleccionada; las demás se ignorarán.
     pub fn with_checked(mut self, checked: bool) -> Self {
         self.checked = checked;
         self
     }
 
-    /// Establece si la casilla está deshabilitada.
+    /// Establece si la opción está inicialmente deshabilitada.
     pub fn with_disabled(mut self, disabled: bool) -> Self {
         self.disabled = disabled;
         self
@@ -63,47 +62,36 @@ impl Item {
 
 // **< Group >**************************************************************************************
 
-/// Componente para crear un **grupo de casillas de verificación**.
+/// Componente para crear un **grupo de botones de opción**.
 ///
-/// Renderiza un conjunto de casillas de verificación donde, a diferencia de un grupo de botones
-/// [`form::radio::Group`](crate::theme::form::radio::Group), cada casilla puede marcarse de forma
-/// independiente.
+/// Renderiza un grupo de botones de opción [`form::radio::Item`](Item) que comparten el mismo
+/// atributo `name`, por lo que sólo puede seleccionarse uno a la vez. Las opciones se añaden con
+/// [`with_item()`](Group::with_item).
 ///
-/// Las casillas se añaden mediante [`with_item()`](Group::with_item) usando instancias de
-/// [`form::check::Item`](Item). Si se activa el modo en línea con
-/// [`with_inline()`](Group::with_inline), las casillas se disponen horizontalmente.
-///
-/// El atributo `name` de cada casilla se construye automáticamente combinando el `name` del grupo
-/// y el `name` del [`form::check::Item`](Item) con un guion bajo. Por ejemplo, para el grupo con
-/// `name=interests` y casillas con `name=art` y `name=tech`, se genera `name=interests_art` y
-/// `name=interests_tech`.
+/// Si se activa el modo en línea [`with_inline()`](Group::with_inline), los botones se
+/// disponen horizontalmente. El atributo `required` se propaga a todos los botones del grupo para
+/// cumplir con la especificación HTML.
 ///
 /// # Ejemplo
 ///
 /// ```rust
 /// # use pagetop::prelude::*;
 /// # use pagetop_bootsier::prelude::*;
-/// let interests = form::check::Group::new()
-///     .with_name("interests")
-///     .with_label(L10n::n("Areas of interest"))
-///     .with_item(form::check::Item::new("art", L10n::n("Art")))
-///     .with_item(form::check::Item::new("tech", L10n::n("Technology")))
-///     .with_item(form::check::Item::new("science", L10n::n("Science")).with_checked(true));
+/// let plan = form::radio::Group::new()
+///     .with_name("plan")
+///     .with_label(L10n::n("Subscription plan"))
+///     .with_item(form::radio::Item::new("monthly", L10n::n("Monthly")))
+///     .with_item(form::radio::Item::new("annual", L10n::n("Annual")).with_checked(true))
+///     .with_required(true);
 /// ```
 ///
-/// Cada `name` debe ser único y válido como identificador de campo. Cuando el usuario marca una
-/// casilla, el navegador envía algo como `interests_tech=true`; mientras que si no la marca, no
-/// envía nada. En el servidor cada campo se deserializa como `bool` con `#[serde(default)]`:
+/// Cuando el usuario selecciona un botón, el navegador envía algo como `plan=monthly`; si no
+/// selecciona ninguno, no envía nada. En el servidor el campo se deserializa como `Option<String>`:
 ///
 /// ```rust,ignore
 /// #[derive(serde::Deserialize)]
 /// struct FormData {
-///     #[serde(default)]
-///     interests_art: bool,
-///     #[serde(default)]
-///     interests_tech: bool,
-///     #[serde(default)]
-///     interests_science: bool,
+///     plan: Option<String>, // Some("monthly"), Some("annual"), ..., o None si no se seleccionó.
 /// }
 /// ```
 #[derive(AutoDefault, Clone, Debug, Getters)]
@@ -112,17 +100,19 @@ pub struct Group {
     id: AttrId,
     /// Devuelve las clases CSS del contenedor del grupo.
     classes: Classes,
-    /// Devuelve el nombre base compartido por todas las casillas del grupo.
+    /// Devuelve el nombre compartido por todos los botones de opción del grupo.
     name: AttrName,
     /// Devuelve la etiqueta del grupo.
     label: Attr<L10n>,
     /// Devuelve el texto de ayuda del grupo.
     help_text: Attr<L10n>,
-    /// Devuelve las casillas del grupo.
+    /// Devuelve las opciones del grupo.
     items: Vec<Item>,
+    /// Devuelve si la selección de alguna opción del grupo es obligatoria.
+    required: bool,
     /// Devuelve si todo el grupo está deshabilitado.
     disabled: bool,
-    /// Devuelve si las casillas se muestran en línea horizontalmente.
+    /// Devuelve si los botones se muestran en línea horizontalmente.
     inline: bool,
 }
 
@@ -136,7 +126,7 @@ impl Component for Group {
     }
 
     fn setup(&mut self, _cx: &Context) {
-        self.alter_classes(ClassesOp::Prepend, "form-item form-item-checkboxes");
+        self.alter_classes(ClassesOp::Prepend, "form-item form-item-radios");
     }
 
     fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
@@ -148,29 +138,41 @@ impl Component for Group {
         Ok(html! {
             div id=(&group_id) class=[self.classes().get()] {
                 @if let Some(label) = self.label().lookup(cx) {
-                    label class="form-label" { (label) }
+                    label class="form-label" {
+                        (label)
+                        @if *self.required() {
+                            span
+                                class="form-required"
+                                title=(L10n::t("input_required", &LOCALES_BOOTSIER).using(cx))
+                            {
+                                "*"
+                            }
+                        }
+                    }
                 }
                 @let item_classes = if *self.inline() {
                     "form-check form-check-inline"
                 } else {
                     "form-check"
                 };
+                @let mut do_check = true;
                 @for (item, i) in self.items().iter().zip(1..) {
+                    @let checked = {
+                        let c = *item.checked() && do_check;
+                        if c { do_check = false; }
+                        c
+                    };
                     @let i = i.to_string();
                     @let item_id = util::join!(&group_id, "-", &i);
-                    @let item_name = if let Some(item_name) = item.name().get() {
-                        util::join!(&name, "_", &item_name)
-                    } else {
-                        util::join!(&name, "_", &i)
-                    };
                     div class=(item_classes) {
                         input
-                            type="checkbox"
+                            type="radio"
                             id=(&item_id)
                             class="form-check-input"
-                            name=(&item_name)
-                            value="true"
-                            checked[*item.checked()]
+                            name=(&name)
+                            value=[item.value().get()]
+                            checked[checked]
+                            required[*self.required()]
                             disabled[*item.disabled() || *self.disabled()];
                         label class="form-check-label" for=(&item_id) {
                             (item.label().using(cx))
@@ -188,25 +190,25 @@ impl Component for Group {
 impl Group {
     // **< Group BUILDER >**************************************************************************
 
-    /// Establece el identificador único (`id`) del grupo de casillas.
+    /// Establece el identificador único (`id`) del grupo de opciones.
     #[builder_fn]
     pub fn with_id(mut self, id: impl AsRef<str>) -> Self {
         self.id.alter_id(id);
         self
     }
 
-    /// Modifica la lista de clases CSS aplicadas al contenedor del grupo de casillas.
+    /// Modifica la lista de clases CSS aplicadas al contenedor del grupo de opciones.
     #[builder_fn]
     pub fn with_classes(mut self, op: ClassesOp, classes: impl AsRef<str>) -> Self {
         self.classes.alter_classes(op, classes);
         self
     }
 
-    /// Establece el nombre base para el grupo de casillas.
+    /// Establece el nombre compartido por todos los botones de opción del grupo.
     ///
-    /// Se combina con el `name` de cada [`form::check::Item`](Item) para generar el atributo `name`
-    /// de cada casilla de verificación. Por ejemplo, con `name=interests` en el grupo y `name=tech`
-    /// en el ítem, se genera `name=interests_tech`.
+    /// Todas las opciones [`form::radio::Item`](Item) del grupo llevarán este mismo `name`, lo que
+    /// garantiza la exclusividad de la selección. Es imprescindible establecer un `name`; sin él
+    /// los botones no se envían al servidor.
     ///
     /// Si se omite, se asigna un nombre generado automáticamente. Para deserializar los campos en
     /// el servidor es recomendable establecer un `name` explícito.
@@ -230,10 +232,20 @@ impl Group {
         self
     }
 
-    /// Añade una casilla al grupo. Las casillas se muestran en el orden en que se añaden.
+    /// Añade una opción al grupo. Las opciones se muestran en el orden en que se añaden.
     #[builder_fn]
     pub fn with_item(mut self, item: Item) -> Self {
         self.items.push(item);
+        self
+    }
+
+    /// Establece si la selección de alguna opción del grupo es obligatoria.
+    ///
+    /// El atributo `required` se propaga a todos los botones del grupo para cumplir con la
+    /// especificación HTML.
+    #[builder_fn]
+    pub fn with_required(mut self, required: bool) -> Self {
+        self.required = required;
         self
     }
 
@@ -246,9 +258,9 @@ impl Group {
         self
     }
 
-    /// Establece si las casillas se muestran en línea horizontalmente.
+    /// Establece si los botones se muestran en línea horizontalmente.
     ///
-    /// Al activar este modo, se añade la clase `form-check-inline` al contenedor de cada casilla.
+    /// Al activar este modo, se añade la clase `form-check-inline` al contenedor de cada opción.
     #[builder_fn]
     pub fn with_inline(mut self, inline: bool) -> Self {
         self.inline = inline;
