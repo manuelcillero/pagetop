@@ -134,9 +134,9 @@ impl Component for Group {
             .name()
             .get()
             .unwrap_or_else(|| cx.required_id::<Self>(self.id(), 3));
-        let group_id = self.id().unwrap_or_else(|| util::join!("edit-", &name));
+        let container_id = self.id().unwrap_or_else(|| util::join!("edit-", &name));
         Ok(html! {
-            div id=(&group_id) class=[self.classes().get()] {
+            div id=(&container_id) class=[self.classes().get()] {
                 @if let Some(label) = self.label().lookup(cx) {
                     label class="form-label" {
                         (label)
@@ -163,7 +163,7 @@ impl Component for Group {
                         c
                     };
                     @let i = i.to_string();
-                    @let item_id = util::join!(&group_id, "-", &i);
+                    @let item_id = util::join!(&container_id, "-radio-", &i);
                     div class=(item_classes) {
                         input
                             type="radio"

@@ -3,6 +3,24 @@ use pagetop::prelude::*;
 use std::borrow::Cow;
 use std::fmt;
 
+// **< CheckboxKind >*******************************************************************************
+
+/// Variante visual para [`form::Checkbox`](crate::theme::form::Checkbox) en un formulario.
+///
+/// Determina si el control se renderiza como una casilla de verificación estándar o como un
+/// interruptor (*toggle switch*).
+#[derive(AutoDefault, Clone, Copy, Debug, PartialEq)]
+pub enum CheckboxKind {
+    /// Casilla de verificación estándar. Es el tipo por defecto.
+    #[default]
+    Check,
+    /// Interruptor de encendido/apagado.
+    Switch,
+    // TODO: Añadir variante `NativeSwitch` cuando el atributo `switch` de la propuesta WHATWG
+    // (https://github.com/whatwg/html/issues/9546) sea estándar y tenga soporte amplio. Safari ya
+    // lo soporta. También se añadiría el constructor `Checkbox::native_switch()`.
+}
+
 // **< Autocomplete >*******************************************************************************
 
 /// Valor del atributo HTML `autocomplete`.
