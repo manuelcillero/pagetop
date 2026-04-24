@@ -77,7 +77,7 @@ impl Component for Checkbox {
     }
 
     fn setup(&mut self, _cx: &Context) {
-        let mut classes = "form-item form-check".to_string();
+        let mut classes = "form-field form-check".to_string();
         if *self.checkbox_kind() == form::CheckboxKind::Switch {
             classes.push_str(" form-switch");
         }

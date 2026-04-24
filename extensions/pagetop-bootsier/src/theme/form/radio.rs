@@ -126,7 +126,7 @@ impl Component for Group {
     }
 
     fn setup(&mut self, _cx: &Context) {
-        self.alter_classes(ClassesOp::Prepend, "form-item form-item-radios");
+        self.alter_classes(ClassesOp::Prepend, "form-field form-field-radios");
     }
 
     fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
