@@ -55,6 +55,8 @@ pub struct Checkbox {
     label: Attr<L10n>,
     /// Devuelve si el control debe estar marcado/activo por defecto.
     checked: bool,
+    /// Devuelve si el control recibe el foco automáticamente al cargar la página.
+    autofocus: bool,
     /// Devuelve si el campo es obligatorio.
     required: bool,
     /// Devuelve si el control está deshabilitado.
@@ -93,23 +95,24 @@ impl Component for Checkbox {
             .name()
             .get()
             .unwrap_or_else(|| cx.required_id::<Self>(self.id(), 1));
-        let id = self.id().unwrap_or_else(|| util::join!("edit-", &name));
+        let container_id = self.id().unwrap_or_else(|| util::join!("edit-", &name));
+        let checkbox_id = util::join!(&container_id, "-checkbox");
         let is_switch = *self.checkbox_kind() == form::CheckboxKind::Switch;
         Ok(html! {
-            div class=[self.classes().get()] {
+            div id=(&container_id) class=[self.classes().get()] {
                 input
                     type="checkbox"
                     role=[is_switch.then_some("switch")]
-                    id=(&id)
+                    id=(&checkbox_id)
                     class="form-check-input"
                     name=(&name)
                     value="true"
                     checked[*self.checked()]
+                    autofocus[*self.autofocus()]
                     required[*self.required()]
-                    disabled[*self.disabled()]
-                    switch[is_switch];
+                    disabled[*self.disabled()];
                 @if let Some(label) = self.label().lookup(cx) {
-                    label class="form-check-label" for=(&id) {
+                    label class="form-check-label" for=(&checkbox_id) {
                         (label)
                         @if *self.required() {
                             span
@@ -184,6 +187,13 @@ impl Checkbox {
     #[builder_fn]
     pub fn with_checked(mut self, checked: bool) -> Self {
         self.checked = checked;
+        self
+    }
+
+    /// Establece si el control recibe el foco automáticamente al cargar la página.
+    #[builder_fn]
+    pub fn with_autofocus(mut self, autofocus: bool) -> Self {
+        self.autofocus = autofocus;
         self
     }
 
