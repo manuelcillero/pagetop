@@ -19,3 +19,5 @@ pub use checkbox::Checkbox;
 pub mod check;
 
 pub mod radio;
+
+pub mod select;
