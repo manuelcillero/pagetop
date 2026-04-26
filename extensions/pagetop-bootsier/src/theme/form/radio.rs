@@ -6,7 +6,7 @@ use crate::LOCALES_BOOTSIER;
 
 // **< Item >***************************************************************************************
 
-/// Botón de opción individual de un [`form::radio::Group`](Group).
+/// Botón de opción individual de un [`form::radio::Field`](Field).
 ///
 /// Representa cada opción de un grupo de opciones exclusivas entre sí, con un valor (el que se
 /// envía al servidor), una etiqueta localizable visible y puede marcarse como seleccionada o
@@ -60,24 +60,24 @@ impl Item {
     }
 }
 
-// **< Group >**************************************************************************************
+// **< Field >**************************************************************************************
 
 /// Componente para crear un **grupo de botones de opción**.
 ///
 /// Renderiza un grupo de botones de opción [`form::radio::Item`](Item) que comparten el mismo
 /// atributo `name`, por lo que sólo puede seleccionarse uno a la vez. Las opciones se añaden con
-/// [`with_item()`](Group::with_item).
+/// [`with_item()`](Field::with_item).
 ///
-/// Si se activa el modo en línea [`with_inline()`](Group::with_inline), los botones se
-/// disponen horizontalmente. El atributo `required` se propaga a todos los botones del grupo para
-/// cumplir con la especificación HTML.
+/// Si se activa el modo en línea [`with_inline()`](Field::with_inline), los botones se disponen
+/// horizontalmente. El atributo `required` se propaga a todos los botones del grupo para cumplir
+/// con la especificación HTML.
 ///
 /// # Ejemplo
 ///
 /// ```rust
 /// # use pagetop::prelude::*;
 /// # use pagetop_bootsier::prelude::*;
-/// let plan = form::radio::Group::new()
+/// let plan = form::radio::Field::new()
 ///     .with_name("plan")
 ///     .with_label(L10n::n("Subscription plan"))
 ///     .with_item(form::radio::Item::new("monthly", L10n::n("Monthly")))
@@ -95,7 +95,7 @@ impl Item {
 /// }
 /// ```
 #[derive(AutoDefault, Clone, Debug, Getters)]
-pub struct Group {
+pub struct Field {
     #[getters(skip)]
     id: AttrId,
     /// Devuelve las clases CSS del contenedor del grupo.
@@ -116,7 +116,7 @@ pub struct Group {
     inline: bool,
 }
 
-impl Component for Group {
+impl Component for Field {
     fn new() -> Self {
         Self::default()
     }
@@ -187,8 +187,8 @@ impl Component for Group {
     }
 }
 
-impl Group {
-    // **< Group BUILDER >**************************************************************************
+impl Field {
+    // **< Field BUILDER >**************************************************************************
 
     /// Establece el identificador único (`id`) del grupo de opciones.
     #[builder_fn]
