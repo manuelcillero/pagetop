@@ -4,7 +4,7 @@ use pagetop::prelude::*;
 
 // **< Item >***************************************************************************************
 
-/// Casilla de verificación individual de un [`form::check::Group`](Group).
+/// Casilla de verificación individual de un [`form::check::Field`](Field).
 ///
 /// Representa cada casilla de un grupo de casillas de verificación, con una etiqueta localizable
 /// visible. Puede marcarse como seleccionada o deshabilitada de forma independiente al resto.
@@ -61,17 +61,17 @@ impl Item {
     }
 }
 
-// **< Group >**************************************************************************************
+// **< Field >**************************************************************************************
 
 /// Componente para crear un **grupo de casillas de verificación**.
 ///
 /// Renderiza un conjunto de casillas de verificación donde, a diferencia de un grupo de botones
-/// [`form::radio::Group`](crate::theme::form::radio::Group), cada casilla puede marcarse de forma
+/// [`form::radio::Field`](crate::theme::form::radio::Field), cada casilla puede marcarse de forma
 /// independiente.
 ///
-/// Las casillas se añaden mediante [`with_item()`](Group::with_item) usando instancias de
+/// Las casillas se añaden mediante [`with_item()`](Field::with_item) usando instancias de
 /// [`form::check::Item`](Item). Si se activa el modo en línea con
-/// [`with_inline()`](Group::with_inline), las casillas se disponen horizontalmente.
+/// [`with_inline()`](Field::with_inline), las casillas se disponen horizontalmente.
 ///
 /// El atributo `name` de cada casilla se construye automáticamente combinando el `name` del grupo
 /// y el `name` del [`form::check::Item`](Item) con un guion bajo. Por ejemplo, para el grupo con
@@ -83,7 +83,7 @@ impl Item {
 /// ```rust
 /// # use pagetop::prelude::*;
 /// # use pagetop_bootsier::prelude::*;
-/// let interests = form::check::Group::new()
+/// let interests = form::check::Field::new()
 ///     .with_name("interests")
 ///     .with_label(L10n::n("Areas of interest"))
 ///     .with_item(form::check::Item::new("art", L10n::n("Art")))
@@ -107,7 +107,7 @@ impl Item {
 /// }
 /// ```
 #[derive(AutoDefault, Clone, Debug, Getters)]
-pub struct Group {
+pub struct Field {
     #[getters(skip)]
     id: AttrId,
     /// Devuelve las clases CSS del contenedor del grupo.
@@ -126,7 +126,7 @@ pub struct Group {
     inline: bool,
 }
 
-impl Component for Group {
+impl Component for Field {
     fn new() -> Self {
         Self::default()
     }
@@ -185,8 +185,8 @@ impl Component for Group {
     }
 }
 
-impl Group {
-    // **< Group BUILDER >**************************************************************************
+impl Field {
+    // **< Field BUILDER >**************************************************************************
 
     /// Establece el identificador único (`id`) del grupo de casillas.
     #[builder_fn]

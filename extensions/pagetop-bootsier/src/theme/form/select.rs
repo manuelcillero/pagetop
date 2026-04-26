@@ -7,7 +7,7 @@ use crate::LOCALES_BOOTSIER;
 
 // **< Item >***************************************************************************************
 
-/// Elemento individual de [`form::select::List`] o de [`form::select::Group`].
+/// Elemento individual de [`form::select::Field`] o de [`form::select::Group`].
 ///
 /// Representa un elemento dentro de una lista de selección o de un grupo de elementos de la lista.
 /// Cada elemento tiene un valor que se envía al servidor y una etiqueta localizable visible para el
@@ -67,7 +67,7 @@ impl Item {
 
 // **< Group >**************************************************************************************
 
-/// Grupo de elementos dentro de [`form::select::List`].
+/// Grupo de elementos dentro de [`form::select::Field`].
 ///
 /// Agrupa un conjunto de elementos dentro de una lista de selección con una etiqueta visible. El
 /// grupo completo puede deshabilitarse en bloque con [`with_disabled()`](Group::with_disabled).
@@ -117,13 +117,13 @@ impl Group {
 
 // **< Entry >**************************************************************************************
 
-/// Entrada de [`form::select::List`] con un elemento o un grupo de elementos.
+/// Entrada de [`form::select::Field`] con un elemento o un grupo de elementos.
 ///
-/// Cada entrada se crea implícitamente cuando se usa [`form::select::List::with_item()`] para
-/// añadir un elemento individual o [`form::select::List::with_group()`] para añadir un grupo de
+/// Cada entrada se crea implícitamente cuando se usa [`form::select::Field::with_item()`] para
+/// añadir un elemento individual o [`form::select::Field::with_group()`] para añadir un grupo de
 /// elementos a una lista de selección.
 ///
-/// Con [`form::select::List::entries()`] se pueden recuperar todas las entradas para su
+/// Con [`form::select::Field::entries()`] se pueden recuperar todas las entradas para su
 /// renderizado.
 #[derive(Clone, Debug)]
 pub enum Entry {
@@ -133,16 +133,16 @@ pub enum Entry {
     Group(Group),
 }
 
-// **< List >***************************************************************************************
+// **< Field >**************************************************************************************
 
 /// Componente para crear una **lista de selección**.
 ///
 /// Renderiza un campo para mostrar una lista de elementos con una etiqueta opcional. Permite elegir
 /// uno, o más de uno si se activa la selección múltiple con
-/// [`with_multiple()`](List::with_multiple).
+/// [`with_multiple()`](Field::with_multiple).
 ///
-/// Los elementos individuales se añaden con [`with_item()`](List::with_item); los grupos de
-/// elementos con un encabezado común se añaden con [`with_group()`](List::with_group). Ambos
+/// Los elementos individuales se añaden con [`with_item()`](Field::with_item); los grupos de
+/// elementos con un encabezado común se añaden con [`with_group()`](Field::with_group). Ambos
 /// métodos pueden combinarse libremente.
 ///
 /// # Ejemplo
@@ -150,7 +150,7 @@ pub enum Entry {
 /// ```rust
 /// # use pagetop::prelude::*;
 /// # use pagetop_bootsier::prelude::*;
-/// let idioma = form::select::List::new()
+/// let idioma = form::select::Field::new()
 ///     .with_name("language")
 ///     .with_label(L10n::n("Language"))
 ///     .with_item(form::select::Item::new("", L10n::n("— Choose —")).with_selected(true))
@@ -190,7 +190,7 @@ pub enum Entry {
 /// }
 /// ```
 #[derive(AutoDefault, Clone, Debug, Getters)]
-pub struct List {
+pub struct Field {
     #[getters(skip)]
     id: AttrId,
     /// Devuelve las clases CSS del contenedor de la lista de selección.
@@ -217,7 +217,7 @@ pub struct List {
     disabled: bool,
 }
 
-impl Component for List {
+impl Component for Field {
     fn new() -> Self {
         Self::default()
     }
@@ -299,8 +299,8 @@ impl Component for List {
     }
 }
 
-impl List {
-    // **< List BUILDER >***************************************************************************
+impl Field {
+    // **< Field BUILDER >***************************************************************************
 
     /// Establece el identificador único (`id`) del control.
     #[builder_fn]
@@ -361,11 +361,11 @@ impl List {
     /// Establece si el control permite seleccionar varios elementos.
     ///
     /// Al activar la selección múltiple, se muestra una lista en lugar de un desplegable. Se
-    /// recomienda combinar con [`with_size()`](List::with_size) para controlar el número de filas
+    /// recomienda combinar con [`with_size()`](Field::with_size) para controlar el número de filas
     /// visibles.
     ///
     /// Para un número reducido de elementos con etiquetas descriptivas considera usar
-    /// [`form::check::Group`] en su lugar, ofrece una presentación más clara y es más accesible en
+    /// [`form::check::Field`] en su lugar, ofrece una presentación más clara y es más accesible en
     /// pantallas pequeñas.
     #[builder_fn]
     pub fn with_multiple(mut self, multiple: bool) -> Self {
