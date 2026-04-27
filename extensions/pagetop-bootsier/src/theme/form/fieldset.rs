@@ -19,8 +19,8 @@ use pagetop::prelude::*;
 /// let personal_data = form::Fieldset::new()
 ///     .with_legend(L10n::n("Personal data"))
 ///     .with_description(L10n::n("Enter your full name and contact email."))
-///     .with_child(form::Input::textfield().with_name("name").with_label(L10n::n("Full name")))
-///     .with_child(form::Input::email().with_name("email").with_label(L10n::n("Email")));
+///     .with_child(form::input::Field::text().with_name("name").with_label(L10n::n("Full name")))
+///     .with_child(form::input::Field::email().with_name("email").with_label(L10n::n("Email")));
 /// ```
 #[derive(AutoDefault, Clone, Debug, Getters)]
 pub struct Fieldset {
