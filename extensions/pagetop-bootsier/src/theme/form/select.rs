@@ -302,7 +302,7 @@ impl Component for Field {
 impl Field {
     // **< Field BUILDER >***************************************************************************
 
-    /// Establece el identificador único (`id`) del control.
+    /// Establece el identificador único (`id`) del contenedor del campo.
     #[builder_fn]
     pub fn with_id(mut self, id: impl AsRef<str>) -> Self {
         self.id.alter_id(id);
@@ -400,7 +400,7 @@ impl Field {
         self
     }
 
-    /// Establece si el control recibe el foco automáticamente al cargar la página.
+    /// Establece si el campo recibe el foco automáticamente al cargar la página.
     #[builder_fn]
     pub fn with_autofocus(mut self, autofocus: bool) -> Self {
         self.autofocus = autofocus;
@@ -414,7 +414,7 @@ impl Field {
         self
     }
 
-    /// Establece si el control está deshabilitado.
+    /// Establece si el campo está deshabilitado.
     #[builder_fn]
     pub fn with_disabled(mut self, disabled: bool) -> Self {
         self.disabled = disabled;

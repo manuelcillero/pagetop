@@ -21,68 +21,93 @@ pub enum CheckboxKind {
     // lo soporta. También se añadiría el constructor `Checkbox::native_switch()`.
 }
 
-// **< Autocomplete >*******************************************************************************
+// **< Autocomplete / AutofillField >***************************************************************
 
-/// Valor del atributo HTML `autocomplete`.
+/// Configuración para el autocompletado de controles en un formulario.
 ///
-/// Según la [especificación](https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#autofill)
-/// oficial este valor puede ser:
+/// Indica al navegador si puede sugerir o rellenar automáticamente el valor del control usando
+/// datos que el usuario haya introducido antes (credenciales guardadas, datos de contacto, etc.).
 ///
-/// - `on` / `off`, o
-/// - una lista ordenada de tokens predefinidos separados por espacios.
+/// Lo habitual es usar uno de los **métodos predefinidos**, que generan el token canónico adecuado
+/// para cada tipo de dato:
 ///
-/// Las variantes de `Autocomplete` permiten:
+/// - Identidad y credenciales: [`username()`](Autocomplete::username),
+///   [`email()`](Autocomplete::email), [`current_password()`](Autocomplete::current_password),
+///   [`new_password()`](Autocomplete::new_password), [`otp()`](Autocomplete::otp).
+/// - Token o tokens directos: [`token(field)`](Autocomplete::token) con una variante de
+///   [`AutofillField`].
+/// - Direcciones: [`shipping(field)`](Autocomplete::shipping),
+///   [`billing(field)`](Autocomplete::billing).
+/// - Datos de contacto: [`home(field)`](Autocomplete::home), [`work(field)`](Autocomplete::work),
+///   [`mobile(field)`](Autocomplete::mobile), [`fax(field)`](Autocomplete::fax),
+///   [`pager(field)`](Autocomplete::pager).
+/// - Sección personalizada: [`section(name, field)`](Autocomplete::section).
 ///
-/// - Generar valores canónicos `on`/`off` ([`Autocomplete::On`], [`Autocomplete::Off`]).
-/// - Generar una lista de tokens en formato texto ([`Autocomplete::Custom`]). Los valores creados
-///   mediante [`Autocomplete::custom()`] se normalizan con [`util::normalize_ascii_or_empty()`].
+/// Para activar o inhibir el autocompletado sin especificar el tipo de dato basta con usar las
+/// variantes [`form::Autocomplete::On`](Autocomplete::On) o
+/// [`form::Autocomplete::Off`](Autocomplete::Off). Para combinaciones no cubiertas por los métodos
+/// anteriores, [`custom()`](Autocomplete::custom) acepta cualquier cadena ASCII válida.
 ///
-/// Las entradas no válidas que lleguen a [`Autocomplete::custom()`] se degradan a
-/// [`Autocomplete::On`] (valor canónico y seguro).
+/// # Ejemplo
+///
+/// ```rust
+/// # use pagetop::prelude::*;
+/// # use pagetop_bootsier::prelude::*;
+/// // Correo electrónico con sugerencia semántica del navegador.
+/// let ac = form::Autocomplete::email();
+///
+/// // Contraseña nueva en un formulario de registro.
+/// let ac = form::Autocomplete::new_password();
+///
+/// // Teléfono de contacto del trabajo.
+/// let ac = form::Autocomplete::work(form::AutofillField::Tel);
+/// ```
 #[derive(Clone, Debug, PartialEq)]
 pub enum Autocomplete {
     /// Genera `autocomplete="on"`.
     On,
     /// Genera `autocomplete="off"`.
     Off,
-    /// Genera un valor personalizado (se espera en formato canónico).
+    /// Contiene el valor literal del atributo `autocomplete` tal como se enviará al navegador.
     ///
-    /// Normalmente contiene una lista de tokens separados por espacios (p. ej. `"username"` o
+    /// Debe contener un token o lista de tokens separados por espacios (p. ej. `"username"` o
     /// `"username webauthn"`).
     Custom(CowStr),
 }
 
 impl Autocomplete {
-    // --< Field token >----------------------------------------------------------------------------
+    // --< Token >----------------------------------------------------------------------------------
 
-    /// Genera `autocomplete="<field>"` usando un campo predefinido.
+    /// Genera `autocomplete` a partir del token o tokens del [`AutofillField`] indicado.
     #[inline]
-    pub fn field(field: AutofillField) -> Self {
+    pub fn token(field: AutofillField) -> Self {
         Self::Custom(Cow::Borrowed(field.as_str()))
     }
 
-    // --< Sections >-------------------------------------------------------------------------------
+    // --< Secciones >------------------------------------------------------------------------------
 
-    /// Construye `autocomplete` usando un nombre de sección y un campo predefinido.
+    /// Construye `autocomplete` con un prefijo de sección y un token o tokens del
+    /// [`form::AutofillField`](AutofillField) indicado.
     ///
-    /// Genera `autocomplete="section-<name> <field>"`.
+    /// Genera `autocomplete="section-<name> <field>"`. Si `name` no es ASCII o contiene espacios,
+    /// se ignora la sección y se genera sólo el token indicado.
     ///
-    /// Si `name` contiene espacios tras normalizar con [`util::normalize_ascii()`] (o si no es
-    /// ASCII / queda vacío), se ignora la sección y se genera solo el campo (`<field>`).
+    /// El prefijo `section-*` sirve para distinguir entre varios grupos del mismo tipo en una misma
+    /// página (p. ej. una dirección de envío y otra de facturación).
     pub fn section(name: impl AsRef<str>, field: AutofillField) -> Self {
         match util::normalize_ascii(name.as_ref()) {
             Ok(n) if !n.as_ref().contains(' ') => {
                 Self::custom(util::join!("section-", n.as_ref(), " ", field.as_str()))
             }
-            _ => Self::field(field),
+            _ => Self::token(field),
         }
     }
 
-    // --< Common fields >--------------------------------------------------------------------------
+    // --< Comunes >--------------------------------------------------------------------------------
 
     /// Genera `autocomplete="username"`.
     pub fn username() -> Self {
-        Self::field(AutofillField::Username)
+        Self::token(AutofillField::Username)
     }
 
     /// Genera `autocomplete="username webauthn"` (Passkeys / WebAuthn).
@@ -92,12 +117,12 @@ impl Autocomplete {
 
     /// Genera `autocomplete="email"`.
     pub fn email() -> Self {
-        Self::field(AutofillField::Email)
+        Self::token(AutofillField::Email)
     }
 
     /// Genera `autocomplete="current-password"`.
     pub fn current_password() -> Self {
-        Self::field(AutofillField::CurrentPassword)
+        Self::token(AutofillField::CurrentPassword)
     }
 
     /// Genera `autocomplete="current-password webauthn"` (Passkeys / WebAuthn).
@@ -107,15 +132,15 @@ impl Autocomplete {
 
     /// Genera `autocomplete="new-password"`.
     pub fn new_password() -> Self {
-        Self::field(AutofillField::NewPassword)
+        Self::token(AutofillField::NewPassword)
     }
 
     /// Genera `autocomplete="one-time-code"`.
     pub fn otp() -> Self {
-        Self::field(AutofillField::OneTimeCode)
+        Self::token(AutofillField::OneTimeCode)
     }
 
-    // --< Address contexts >-----------------------------------------------------------------------
+    // --< Direcciones >----------------------------------------------------------------------------
 
     /// Contexto de dirección de envío. Genera `autocomplete="shipping <field>"`.
     pub fn shipping(field: AutofillField) -> Self {
@@ -127,7 +152,7 @@ impl Autocomplete {
         Self::Custom(Cow::Owned(util::join!("billing ", field.as_str())))
     }
 
-    // --< Contact hints >--------------------------------------------------------------------------
+    // --< Contacto >-------------------------------------------------------------------------------
 
     /// Detalle de contacto: `autocomplete="home <field>"`.
     pub fn home(field: AutofillField) -> Self {
@@ -154,21 +179,17 @@ impl Autocomplete {
         Self::Custom(Cow::Owned(util::join!("pager ", field.as_str())))
     }
 
-    // --< Custom tokens >--------------------------------------------------------------------------
+    // --< Tokens personalizados >------------------------------------------------------------------
 
-    /// Crea un `autocomplete` con texto libre (se espera en formato canónico).
+    /// Crea un valor de `autocomplete` a partir de una cadena de texto libre.
     ///
-    /// Esta función acepta una cadena con `on`/`off` o una lista de tokens separados por espacios:
+    /// Normaliza la entrada recortando espacios extra, compactando separadores y convirtiendo a
+    /// minúsculas. Si el resultado es `"on"` u `"off"`, devuelve la variante correspondiente; si la
+    /// entrada contiene caracteres no ASCII o queda vacía tras normalizar, devuelve
+    /// [`form::Autocomplete::On`](Autocomplete::On).
     ///
-    /// - Rechaza entradas no ASCII.
-    /// - Recorta separadores ASCII al inicio/fin.
-    /// - Compacta secuencias de separadores ASCII en un único espacio.
-    /// - Convierte a minúsculas.
-    ///
-    /// - Si el valor normalizado es `"on"` o `"off"`, devuelve [`Autocomplete::On`] o
-    ///   [`Autocomplete::Off`].
-    /// - Si el valor es inválido (vacío tras normalizar o contiene bytes no ASCII), devuelve
-    ///   [`Autocomplete::On`].
+    /// Para los casos habituales se recomienda usar los métodos predefinidos de
+    /// [`form::Autocomplete`](Autocomplete).
     pub fn custom(autocomplete: impl Into<CowStr>) -> Self {
         let value: CowStr = autocomplete.into();
         let raw = value.as_ref();
@@ -206,9 +227,31 @@ impl fmt::Display for Autocomplete {
     }
 }
 
+/// Tokens para el autocompletado de formularios con [`form::Autocomplete`](Autocomplete).
+///
+/// Representa los tokens de autorrelleno (*autofill field*) definidos por la
+/// [especificación WHATWG](https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#autofill-field)
+/// para el atributo `autocomplete`. Cada variante corresponde exactamente a un token canónico
+/// de dicha especificación.
+///
+/// Los valores se usan en combinación con [`form::Autocomplete`](Autocomplete) para construir el
+/// valor completo del atributo `autocomplete` de un control de formulario. Los métodos de
+/// [`form::Autocomplete`](Autocomplete) como [`token()`](Autocomplete::token),
+/// [`email()`](Autocomplete::email), [`shipping()`](Autocomplete::shipping) o
+/// [`section()`](Autocomplete::section) aceptan variantes de `AutofillField` para generar el token
+/// correspondiente.
+///
+/// # Ejemplo
+///
+/// ```rust
+/// # use pagetop_bootsier::prelude::*;
+/// let ac = form::Autocomplete::token(form::AutofillField::Username);
+/// let ac = form::Autocomplete::shipping(form::AutofillField::StreetAddress);
+/// let ac = form::Autocomplete::section("job", form::AutofillField::Email);
+/// ```
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum AutofillField {
-    // Identidad / cuenta
+    // --< Identidad / cuenta >---------------------------------------------------------------------
     /// Nombre completo.
     Name,
     /// Tratamiento o título (p. ej. "Sr.", "Sra.", "Dra.").
@@ -226,7 +269,7 @@ pub enum AutofillField {
     /// Identificador de usuario (login).
     Username,
 
-    // Credenciales
+    // --< Credenciales >---------------------------------------------------------------------------
     /// Contraseña actual.
     CurrentPassword,
     /// Nueva contraseña.
@@ -234,13 +277,13 @@ pub enum AutofillField {
     /// Código de un solo uso (OTP).
     OneTimeCode,
 
-    // Organización
+    // --< Organización >---------------------------------------------------------------------------
     /// Cargo o título dentro de una organización.
     OrganizationTitle,
     /// Nombre de la organización.
     Organization,
 
-    // Contacto
+    // --< Contacto >-------------------------------------------------------------------------------
     /// Correo electrónico.
     Email,
     /// Teléfono.
@@ -259,12 +302,12 @@ pub enum AutofillField {
     TelLocalSuffix,
     /// Extensión interna.
     TelExtension,
-    /// URL.
+    /// URL personal o de contacto.
     Url,
     /// Referencia de mensajería instantánea (URL).
     Impp,
 
-    // Dirección (muy habitual en formularios)
+    // --< Dirección >------------------------------------------------------------------------------
     /// Dirección postal completa (una sola línea/textarea).
     StreetAddress,
     /// Línea 1 de dirección.
@@ -283,12 +326,12 @@ pub enum AutofillField {
     AddressLevel1,
     /// Código postal.
     PostalCode,
-    /// País (código o token `country`).
+    /// País (el navegador rellena el código de país).
     Country,
     /// Nombre del país.
     CountryName,
 
-    // Pago (si algún día lo necesitas)
+    // --< Pago >-----------------------------------------------------------------------------------
     /// Nombre del titular de la tarjeta.
     CcName,
     /// Nombre de pila del titular de la tarjeta.
@@ -310,7 +353,7 @@ pub enum AutofillField {
     /// Tipo de tarjeta (p. ej. visa/mastercard).
     CcType,
 
-    // Transacción / preferencias
+    // --< Transacción / preferencias >-------------------------------------------------------------
     /// Moneda preferida para la transacción (código ISO 4217).
     TransactionCurrency,
     /// Cantidad de la transacción (número).
@@ -318,7 +361,7 @@ pub enum AutofillField {
     /// Idioma preferido (BCP 47).
     Language,
 
-    // Otros datos personales (según necesidad del producto)
+    // --< Datos personales >-----------------------------------------------------------------------
     /// Fecha de nacimiento completa.
     Bday,
     /// Día de nacimiento.
@@ -327,9 +370,9 @@ pub enum AutofillField {
     BdayMonth,
     /// Año de nacimiento.
     BdayYear,
-    /// Sexo (según el valor que el UA tenga guardado).
+    /// Sexo (valor libre guardado por el navegador).
     Sex,
-    /// Foto (URL o referencia, según UA).
+    /// Foto (URL o referencia guardada por el navegador).
     Photo,
 }
 
@@ -399,32 +442,6 @@ impl AutofillField {
             AutofillField::Sex => "sex",
             AutofillField::Photo => "photo",
         }
-    }
-}
-
-// **< InputType >**********************************************************************************
-
-#[derive(AutoDefault, Clone, Copy, Debug, PartialEq)]
-pub enum InputType {
-    #[default]
-    Textfield,
-    Password,
-    Search,
-    Email,
-    Telephone,
-    Url,
-}
-
-impl fmt::Display for InputType {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.write_str(match self {
-            InputType::Textfield => "text",
-            InputType::Password => "password",
-            InputType::Search => "search",
-            InputType::Email => "email",
-            InputType::Telephone => "tel",
-            InputType::Url => "url",
-        })
     }
 }
 
