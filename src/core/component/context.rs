@@ -385,8 +385,7 @@ impl Context {
     /// Con `parts = 1` se usa el nombre corto del tipo. Si `parts` es `0` o supera el número de
     /// segmentos del *path*, entonces se usará el *path* completo.
     ///
-    /// Es útil para asignar identificadores HTML predecibles cuando el componente no recibe uno
-    /// explícito.
+    /// Es útil para asignar identificadores HTML cuando el componente no recibe uno explícito.
     pub fn required_id<C: Component>(&self, id: Option<String>, parts: usize) -> String {
         if let Some(id) = id {
             return id;
