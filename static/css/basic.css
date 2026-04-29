@@ -15,6 +15,10 @@
 	--val-color--text: #212529;
 }
 
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
 html {
     scroll-behavior: smooth;
 }

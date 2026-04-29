@@ -1,3 +1,13 @@
+# intro-colors.rs
+sample_colors_slogan = Prueba de intro cromática
+sample_colors_block = Bloque { $n } — intro-bg-block-{ $n }
+sample_colors_val_1 = Color de fondo: <code style="color: #8b2500">#FFB84B</code> — Ámbar dorado.
+sample_colors_val_2 = Color de fondo: <code style="color: #8b2500">#FFC66F</code> — Dorado claro.
+sample_colors_val_3 = Color de fondo: <code style="color: #8b2500">#FFD493</code> — Dorado pálido.
+sample_colors_val_4 = Color de fondo: <code style="color: #8b2500">#FFE3B7</code> — Melocotón claro.
+sample_colors_val_5 = Color de fondo: <code style="color: #8b2500">#FFF1DB</code> — Crema.
+sample_colors_val_6 = Color de fondo: <code style="color: #8b2500">#FFFFFF</code> — Blanco.
+
 # menus.rs
 sample_menus_item_label = Etiqueta
 sample_menus_item_link = Enlace
