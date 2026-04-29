@@ -366,8 +366,8 @@ pub fn builder_fn(_: TokenStream, item: TokenStream) -> TokenStream {
         alter_name_str
     );
     let with_alter_doc = concat!(
-        "Permite modificar la instancia actual (`&mut self`) con los mismos argumentos, ",
-        "sin consumirla."
+        "Permite modificar la instancia (`&mut self`) con los mismos argumentos ",
+        "pero sin consumirla."
     );
 
     // Atributos completos que se aplican siempre a `with_...()`.
