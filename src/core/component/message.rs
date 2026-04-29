@@ -31,7 +31,7 @@ pub enum MessageLevel {
 /// let info = StatusMessage::new(MessageLevel::Info, L10n::l("saved-successfully"));
 ///
 /// // Aviso con texto literal sin traducción.
-/// let warn = StatusMessage::new(MessageLevel::Warning, L10n::n("Formulario incompleto."));
+/// let warn = StatusMessage::new(MessageLevel::Warning, L10n::n("Incomplete form."));
 /// ```
 #[derive(Debug, Getters)]
 pub struct StatusMessage {

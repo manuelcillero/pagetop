@@ -187,10 +187,10 @@ impl<C: Component> Embed<C> {
     ///     }
     /// }; // El *guard* se libera aquí, antes del *drop* de `embed`.
     ///
-    /// let embed = Embed::with(Block::new().with_title(L10n::n("Título")));
+    /// let embed = Embed::with(Block::new().with_title(L10n::n("Title")));
     /// {
     ///     if let Some(mut component) = embed.get() {
-    ///         component.alter_title(L10n::n("Nuevo título"));
+    ///         component.alter_title(L10n::n("New Title"));
     ///     }
     /// }; // El *guard* se libera aquí, antes del *drop* de `embed`.
     /// ```
