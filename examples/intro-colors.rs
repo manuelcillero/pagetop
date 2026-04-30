@@ -1,5 +1,7 @@
 use pagetop::prelude::*;
 
+include_locales!(LOC from "examples/locale");
+
 struct IntroColors;
 
 impl Extension for IntroColors {
@@ -14,59 +16,59 @@ async fn intro_colors(request: HttpRequest) -> ResultPage<Markup, ErrorPage> {
             Intro::default()
                 .with_opening(IntroOpening::Custom)
                 .with_title(L10n::n("PageTop"))
-                .with_slogan(L10n::l("sample_colors_slogan"))
+                .with_slogan(L10n::t("colors_slogan", &LOC))
                 .with_button(None::<(L10n, FnPathByContext)>)
                 .with_child(
                     Block::new()
-                        .with_title(L10n::l("sample_colors_block").with_arg("n", "1"))
+                        .with_title(L10n::t("colors_block", &LOC).with_arg("n", "1"))
                         .with_child(Html::with(|cx| {
                             html! {
-                                p { (L10n::l("sample_colors_val_1").using(cx)) }
+                                p { (L10n::t("colors_val_1", &LOC).using(cx)) }
                             }
                         })),
                 )
                 .with_child(
                     Block::new()
-                        .with_title(L10n::l("sample_colors_block").with_arg("n", "2"))
+                        .with_title(L10n::t("colors_block", &LOC).with_arg("n", "2"))
                         .with_child(Html::with(|cx| {
                             html! {
-                                p { (L10n::l("sample_colors_val_2").using(cx)) }
+                                p { (L10n::t("colors_val_2", &LOC).using(cx)) }
                             }
                         })),
                 )
                 .with_child(
                     Block::new()
-                        .with_title(L10n::l("sample_colors_block").with_arg("n", "3"))
+                        .with_title(L10n::t("colors_block", &LOC).with_arg("n", "3"))
                         .with_child(Html::with(|cx| {
                             html! {
-                                p { (L10n::l("sample_colors_val_3").using(cx)) }
+                                p { (L10n::t("colors_val_3", &LOC).using(cx)) }
                             }
                         })),
                 )
                 .with_child(
                     Block::new()
-                        .with_title(L10n::l("sample_colors_block").with_arg("n", "4"))
+                        .with_title(L10n::t("colors_block", &LOC).with_arg("n", "4"))
                         .with_child(Html::with(|cx| {
                             html! {
-                                p { (L10n::l("sample_colors_val_4").using(cx)) }
+                                p { (L10n::t("colors_val_4", &LOC).using(cx)) }
                             }
                         })),
                 )
                 .with_child(
                     Block::new()
-                        .with_title(L10n::l("sample_colors_block").with_arg("n", "5"))
+                        .with_title(L10n::t("colors_block", &LOC).with_arg("n", "5"))
                         .with_child(Html::with(|cx| {
                             html! {
-                                p { (L10n::l("sample_colors_val_5").using(cx)) }
+                                p { (L10n::t("colors_val_5", &LOC).using(cx)) }
                             }
                         })),
                 )
                 .with_child(
                     Block::new()
-                        .with_title(L10n::l("sample_colors_block").with_arg("n", "6"))
+                        .with_title(L10n::t("colors_block", &LOC).with_arg("n", "6"))
                         .with_child(Html::with(|cx| {
                             html! {
-                                p { (L10n::l("sample_colors_val_6").using(cx)) }
+                                p { (L10n::t("colors_val_6", &LOC).using(cx)) }
                             }
                         })),
                 ),
