@@ -22,12 +22,13 @@ pub enum IntroOpening {
 ///
 /// Usa la imagen de PageTop para mostrar:
 ///
-/// - Una **figura decorativa** (que incluye el *monster* de PageTop) antecediendo al contenido.
+/// - Una **figura decorativa** (que incluye la *mascota* de PageTop) antecediendo al contenido.
 /// - Una vista destacada del **título** de la página con un **eslogan** de presentación.
 /// - Un **botón opcional** de llamada a la acción con texto y enlace configurables.
 /// - Un **área para la presentación de contenidos**, con *badges* informativos de PageTop (si se
 ///   opta por [`IntroOpening::PageTop`]) y bloques ([`Block`](crate::base::component::Block)) de
-///   contenido libre para crear párrafos vistosos de texto. Aunque admite todo tipo de componentes.
+///   contenido libre. Los párrafos que tengan la clase `.intro-text-lead` se mostrarán con una
+///   tipografía ampliada, ideal para presentaciones breves e impactantes.
 ///
 /// # Ejemplos
 ///
@@ -70,7 +71,9 @@ pub enum IntroOpening {
 ///             .with_title(L10n::l("intro_custom_block_title"))
 ///             .with_child(Html::with(move |cx| {
 ///                 html! {
-///                     p { (L10n::l("intro_custom_paragraph_1").using(cx)) }
+///                     p class="intro-text-lead" {
+///                         (L10n::l("intro_custom_paragraph_1").using(cx))
+///                     }
 ///                     p { (L10n::l("intro_custom_paragraph_2").using(cx)) }
 ///                 }
 ///             })),
@@ -135,39 +138,41 @@ impl Component for Intro {
         Ok(html! {
             div class="intro" {
                 div class="intro-header" {
-                    section class="intro-header__body" {
-                        h1 class="intro-header__title" {
+                    section class="intro-header-body" {
+                        h1 class="intro-header-title" {
                             span { (self.title().using(cx)) }
                             (self.slogan().using(cx))
                         }
                     }
-                    aside class="intro-header__image" aria-hidden="true" {
-                        div class="intro-header__monster" {
+                    aside class="intro-header-img" aria-hidden="true" {
+                        div class="intro-header-mascot" {
                             (PageTopSvg::Color.render(cx))
                         }
                     }
                 }
                 div class="intro-content" {
-                    section class="intro-content__body" {
+                    section class="intro-content-body" {
                         div class="intro-text" {
                             @if let Some((txt, lnk)) = self.button() {
                                 div class="intro-button" {
                                     a
-                                        class="intro-button__link"
+                                        class="intro-button-link"
                                         href=((lnk)(cx))
                                         target="_blank"
                                         rel="noopener noreferrer"
                                     {
                                         span {} span {} span {}
-                                        div class="intro-button__text" {
+                                        div class="intro-button-text" {
                                             (txt.using(cx))
                                         }
                                     }
                                 }
                             }
-                            div class="intro-text__children" {
+                            div class="intro-text-body" {
                                 @if *self.opening() == IntroOpening::PageTop {
-                                    p { (L10n::l("intro_text1").using(cx)) }
+                                    p class="intro-text-lead" {
+                                        (L10n::l("intro_text1").using(cx))
+                                    }
                                     div id="intro-badges" {
                                         img
                                             src="https://img.shields.io/crates/v/pagetop.svg?label=PageTop&style=for-the-badge"
@@ -182,7 +187,9 @@ impl Component for Intro {
                                             ))
                                             alt=[L10n::l("intro_license_label").lookup(cx)] {}
                                     }
-                                    p { (L10n::l("intro_text2").using(cx)) }
+                                    p class="intro-text-lead" {
+                                        (L10n::l("intro_text2").using(cx))
+                                    }
                                 }
                                 (self.children().render(cx))
                             }
@@ -190,11 +197,11 @@ impl Component for Intro {
                     }
                 }
                 div class="intro-footer" {
-                    section class="intro-footer__body" {
-                        div class="intro-footer__logo" {
+                    section class="intro-footer-body" {
+                        div class="intro-footer-logo" {
                             (PageTopSvg::LineLight.render(cx))
                         }
-                        div class="intro-footer__links" {
+                        div class="intro-footer-links" {
                             a href="https://crates.io/crates/pagetop" target="_blank" rel="noopener noreferrer" { ("Crates.io") }
                             a href="https://docs.rs/pagetop" target="_blank" rel="noopener noreferrer" { ("Docs.rs") }
                             a href="https://git.cillero.es/manuelcillero/pagetop" target="_blank" rel="noopener noreferrer" { (L10n::l("intro_code").using(cx)) }
