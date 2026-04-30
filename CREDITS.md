@@ -1,7 +1,7 @@
 # 🔃 Dependencias
 
 PageTop está basado en [Rust](https://www.rust-lang.org/) y crece a hombros de gigantes aprovechando
-algunas de las librerías más robustas y populares del [ecosistema Rust](https://lib.rs) como son:
+algunas de las librerías más robustas y populares del [ecosistema Rust](https://lib.rs/) como son:
 
   * [Actix Web](https://actix.rs/) para los servicios web.
   * [Config](https://docs.rs/config) para cargar y procesar las opciones de configuración.
@@ -26,8 +26,15 @@ para mostrar un banner de presentación en el terminal con el nombre de la aplic
   * [starwars.flf](http://www.figlet.org/fontdb_example.cgi?font=starwars.flf) de *Ryan Youck*
 
 
-# 🎨 Icono
+# 🎨 CSS
 
-"La Criatura" sonriente es una simpática creación de [Webalys](https://www.iconfinder.com/webalys).
+La extensión `pagetop-bootsier` es un tema que integra [Bootstrap 5.3.8](https://getbootstrap.com/)
+para los estilos y componentes de la interfaz. Bootstrap está distribuido bajo licencia
+[MIT](https://github.com/twbs/bootstrap/blob/main/LICENSE).
+
+
+# 👾 Icono
+
+"La Mascota" sonriente es una simpática creación de [Webalys](https://www.iconfinder.com/webalys).
 Forma parte de su colección [Nasty Icons](https://www.iconfinder.com/iconsets/nasty), disponible en
 [ICONFINDER](https://www.iconfinder.com).

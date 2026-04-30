@@ -199,11 +199,6 @@ pub trait Theme: Extension + Send + Sync {
     ///   El tema puede mutar el componente antes de devolver `None`, dejando que otro nivel de la
     ///   cadena se encargue del renderizado.
     /// - `Some(Ok(markup))` con el HTML generado por el tema para el componente.
-    ///
-    /// > **Nota para componentes en región:** los componentes registrados con `InRegion` son
-    /// > instancias únicas compartidas entre peticiones. Cualquier mutación realizada aquí debe
-    /// > ser idempotente — sobrescribir valores, nunca acumular — o el estado se corromperá a
-    /// > partir de la segunda petición.
     /// - `Some(Err(e))` si el tema intentó renderizarlo pero falló.
     ///
     /// Para renderizar usa [`render_component!`], que devuelve `None` si ningún tipo coincide. Para
