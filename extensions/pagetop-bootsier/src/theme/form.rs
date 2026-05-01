@@ -21,3 +21,6 @@ pub mod radio;
 pub mod select;
 
 pub mod input;
+
+mod textarea;
+pub use textarea::Textarea;
