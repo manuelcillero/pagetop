@@ -95,12 +95,12 @@ impl fmt::Display for Mode {
 ///
 /// Renderiza los tipos más habituales en formularios:
 ///
-/// - [`Field::text()`]: campo de texto genérico (`type="text"`, por defecto).
-/// - [`Field::password()`]: contraseña (`type="password"`).
-/// - [`Field::search()`]: búsqueda (`type="search"`).
-/// - [`Field::email()`]: correo electrónico (`type="email"`).
-/// - [`Field::telephone()`]: teléfono (`type="tel"`).
-/// - [`Field::url()`]: URL (`type="url"`).
+/// - [`form::input::Field::text()`]: campo de texto genérico (`type="text"`, por defecto).
+/// - [`form::input::Field::password()`]: contraseña (`type="password"`).
+/// - [`form::input::Field::search()`]: búsqueda (`type="search"`).
+/// - [`form::input::Field::email()`]: correo electrónico (`type="email"`).
+/// - [`form::input::Field::telephone()`]: teléfono (`type="tel"`).
+/// - [`form::input::Field::url()`]: URL (`type="url"`).
 ///
 /// # Ejemplo
 ///
@@ -138,6 +138,8 @@ pub struct Field {
     value: AttrValue,
     /// Devuelve la etiqueta del campo.
     label: Attr<L10n>,
+    /// Devuelve si la etiqueta se muestra flotante sobre el campo.
+    floating_label: bool,
     /// Devuelve el texto de ayuda del campo.
     help_text: Attr<L10n>,
     /// Devuelve la longitud mínima permitida en caracteres.
@@ -172,6 +174,9 @@ impl Component for Field {
     }
 
     fn setup(&mut self, _cx: &Context) {
+        if *self.floating_label() {
+            self.alter_classes(ClassesOp::Prepend, "form-floating");
+        }
         self.alter_classes(
             ClassesOp::Prepend,
             util::join!("form-field form-field-", self.kind().to_string()),
@@ -188,20 +193,33 @@ impl Component for Field {
         } else {
             "form-control"
         };
-        Ok(html! {
-            div id=[container_id.as_deref()] class=[self.classes().get()] {
-                @if let Some(label) = self.label().lookup(cx) {
-                    label for=[input_id.as_deref()] class="form-label" {
-                        (label)
-                        @if *self.required() {
-                            span
-                                class="form-required"
-                                title=(L10n::t("input_required", &LOCALES_BOOTSIER).using(cx))
-                            {
-                                "*"
-                            }
+        // La etiqueta flotante requiere el atributo `placeholder` para detectar cuándo el campo
+        // está vacío y animar la etiqueta; si no está definido, se fuerza `placeholder=""`.
+        let placeholder = if *self.floating_label() {
+            Some(self.placeholder().lookup(cx).unwrap_or_default())
+        } else {
+            self.placeholder().lookup(cx)
+        };
+        let label = match self.label().lookup(cx) {
+            Some(text) => html! {
+                label for=[input_id.as_deref()] class="form-label" {
+                    (text)
+                    @if *self.required() {
+                        span
+                            class="form-required"
+                            title=(L10n::t("input_required", &LOCALES_BOOTSIER).using(cx))
+                        {
+                            "*"
                         }
                     }
+                }
+            },
+            None => html! {},
+        };
+        Ok(html! {
+            div id=[container_id.as_deref()] class=[self.classes().get()] {
+                @if !*self.floating_label() {
+                    (label)
                 }
                 input
                     type=(self.kind())
@@ -211,13 +229,16 @@ impl Component for Field {
                     value=[self.value().get()]
                     minlength=[self.minlength().get()]
                     maxlength=[self.maxlength().get()]
-                    placeholder=[self.placeholder().lookup(cx)]
+                    placeholder=[placeholder]
                     inputmode=[self.inputmode().get()]
                     autocomplete=[self.autocomplete().get()]
                     autofocus[*self.autofocus()]
                     readonly[*self.readonly() || *self.plaintext()]
                     required[*self.required()]
                     disabled[*self.disabled()];
+                @if *self.floating_label() {
+                    (label)
+                }
                 @if let Some(description) = self.help_text().lookup(cx) {
                     div class="form-text" { (description) }
                 }
@@ -232,14 +253,14 @@ impl Field {
     /// Es el tipo por defecto. Adecuado para nombres, apellidos, ciudades y cualquier entrada
     /// textual sin restricciones de formato específicas.
     pub fn text() -> Self {
-        Field::default()
+        Self::default()
     }
 
     /// Crea un campo de **contraseña** (`type="password"`).
     ///
     /// El navegador oculta los caracteres introducidos. Se recomienda usar con
-    /// [`with_autocomplete()`](Field::with_autocomplete) para indicar si acepta la contraseña
-    /// actual o una nueva.
+    /// [`with_autocomplete()`](Self::with_autocomplete) para permitir autorrellenar con una
+    /// contraseña guardada o dejar al usuario recibir sugerencias o crear una nueva.
     pub fn password() -> Self {
         Self {
             kind: Kind::Password,
@@ -327,6 +348,16 @@ impl Field {
     #[builder_fn]
     pub fn with_label(mut self, label: impl Into<Option<L10n>>) -> Self {
         self.label.alter_opt(label.into());
+        self
+    }
+
+    /// Establece si la etiqueta se muestra flotante sobre el campo.
+    ///
+    /// Cuando está activo, la etiqueta se superpone al campo y asciende al enfocarlo o cuando tiene
+    /// contenido.
+    #[builder_fn]
+    pub fn with_floating_label(mut self, floating_label: bool) -> Self {
+        self.floating_label = floating_label;
         self
     }
 

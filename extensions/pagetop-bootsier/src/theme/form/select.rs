@@ -13,8 +13,8 @@ use crate::LOCALES_BOOTSIER;
 /// Cada elemento tiene un valor que se envía al servidor y una etiqueta localizable visible para el
 /// usuario.
 ///
-/// Puede marcarse como seleccionado por defecto con [`with_selected()`](Item::with_selected) o
-/// deshabilitado de forma independiente al resto usando [`with_disabled()`](Item::with_disabled).
+/// Puede marcarse como seleccionado por defecto con [`with_selected()`](Self::with_selected) o
+/// deshabilitado de forma independiente al resto usando [`with_disabled()`](Self::with_disabled).
 ///
 /// # Ejemplo
 ///
@@ -70,7 +70,7 @@ impl Item {
 /// Grupo de elementos dentro de [`form::select::Field`].
 ///
 /// Agrupa un conjunto de elementos dentro de una lista de selección con una etiqueta visible. El
-/// grupo completo puede deshabilitarse en bloque con [`with_disabled()`](Group::with_disabled).
+/// grupo completo puede deshabilitarse en bloque con [`with_disabled()`](Self::with_disabled).
 ///
 /// # Ejemplo
 ///
@@ -139,10 +139,10 @@ pub enum Entry {
 ///
 /// Renderiza un campo para mostrar una lista de elementos con una etiqueta opcional. Permite elegir
 /// uno, o más de uno si se activa la selección múltiple con
-/// [`with_multiple()`](Field::with_multiple).
+/// [`with_multiple()`](Self::with_multiple).
 ///
-/// Los elementos individuales se añaden con [`with_item()`](Field::with_item); los grupos de
-/// elementos con un encabezado común se añaden con [`with_group()`](Field::with_group). Ambos
+/// Los elementos individuales se añaden con [`with_item()`](Self::with_item); los grupos de
+/// elementos con un encabezado común se añaden con [`with_group()`](Self::with_group). Ambos
 /// métodos pueden combinarse libremente.
 ///
 /// # Ejemplo
@@ -199,14 +199,16 @@ pub struct Field {
     name: AttrName,
     /// Devuelve la etiqueta del campo.
     label: Attr<L10n>,
+    /// Devuelve si la etiqueta se muestra flotante sobre el campo.
+    floating_label: bool,
     /// Devuelve el texto de ayuda del campo.
     help_text: Attr<L10n>,
     /// Devuelve las entradas de la lista (elementos individuales y grupos de elementos).
     entries: Vec<Entry>,
     /// Devuelve si la lista permite selección múltiple.
     multiple: bool,
-    /// Devuelve el número de filas visibles (relevante con selección múltiple o en modo lista).
-    size: Attr<u16>,
+    /// Devuelve el número de filas visibles de la lista de selección.
+    rows: Attr<u16>,
     /// Devuelve la configuración de autocompletado del campo.
     autocomplete: Attr<form::Autocomplete>,
     /// Devuelve si la lista recibe el foco automáticamente al cargar la página.
@@ -227,6 +229,11 @@ impl Component for Field {
     }
 
     fn setup(&mut self, _cx: &Context) {
+        if *self.floating_label() {
+            self.multiple = false;
+            self.rows.alter_opt(None::<u16>);
+            self.alter_classes(ClassesOp::Prepend, "form-floating");
+        }
         self.alter_classes(ClassesOp::Prepend, "form-field form-field-select");
     }
 
@@ -235,27 +242,33 @@ impl Component for Field {
             .id()
             .or_else(|| self.name().get().map(|n| util::join!("edit-", n)));
         let select_id = container_id.as_deref().map(|id| util::join!(id, "-select"));
-        Ok(html! {
-            div id=[container_id.as_deref()] class=[self.classes().get()] {
-                @if let Some(label) = self.label().lookup(cx) {
-                    label for=[select_id.as_deref()] class="form-label" {
-                        (label)
-                        @if *self.required() {
-                            span
-                                class="form-required"
-                                title=(L10n::t("input_required", &LOCALES_BOOTSIER).using(cx))
-                            {
-                                "*"
-                            }
+        let label = match self.label().lookup(cx) {
+            Some(text) => html! {
+                label for=[select_id.as_deref()] class="form-label" {
+                    (text)
+                    @if *self.required() {
+                        span
+                            class="form-required"
+                            title=(L10n::t("input_required", &LOCALES_BOOTSIER).using(cx))
+                        {
+                            "*"
                         }
                     }
+                }
+            },
+            None => html! {},
+        };
+        Ok(html! {
+            div id=[container_id.as_deref()] class=[self.classes().get()] {
+                @if !*self.floating_label() {
+                    (label)
                 }
                 select
                     id=[select_id.as_deref()]
                     class="form-select"
                     name=[self.name().get()]
                     multiple[*self.multiple()]
-                    size=[self.size().get()]
+                    size=[self.rows().get()]
                     autocomplete=[self.autocomplete().get()]
                     autofocus[*self.autofocus()]
                     required[*self.required()]
@@ -290,6 +303,9 @@ impl Component for Field {
                             }
                         }
                     }
+                }
+                @if *self.floating_label() {
+                    (label)
                 }
                 @if let Some(description) = self.help_text().lookup(cx) {
                     div class="form-text" { (description) }
@@ -333,6 +349,20 @@ impl Field {
         self
     }
 
+    /// Establece si la etiqueta se muestra flotante sobre el campo.
+    ///
+    /// Cuando está activo, la etiqueta se superpone al control y permanece flotante siempre que
+    /// haya una opción visible.
+    ///
+    /// Si se usa la etiqueta flotante, el [`setup()`](Self::setup) del componente anulará los
+    /// valores establecidos con [`with_multiple()`](Self::with_multiple) y
+    /// [`with_rows()`](Self::with_rows) antes del renderizado.
+    #[builder_fn]
+    pub fn with_floating_label(mut self, floating_label: bool) -> Self {
+        self.floating_label = floating_label;
+        self
+    }
+
     /// Establece o elimina el texto de ayuda del campo (basta pasar `None` para quitarlo).
     #[builder_fn]
     pub fn with_help_text(mut self, help_text: impl Into<Option<L10n>>) -> Self {
@@ -361,27 +391,33 @@ impl Field {
     /// Establece si el control permite seleccionar varios elementos.
     ///
     /// Al activar la selección múltiple, se muestra una lista en lugar de un desplegable. Se
-    /// recomienda combinar con [`with_size()`](Field::with_size) para controlar el número de filas
+    /// recomienda combinar con [`with_rows()`](Self::with_rows) para controlar el número de filas
     /// visibles.
     ///
     /// Para un número reducido de elementos con etiquetas descriptivas considera usar
     /// [`form::check::Field`] en su lugar, ofrece una presentación más clara y es más accesible en
     /// pantallas pequeñas.
+    ///
+    /// Se anula si se usa con [`with_floating_label(true)`](Self::with_floating_label).
     #[builder_fn]
     pub fn with_multiple(mut self, multiple: bool) -> Self {
         self.multiple = multiple;
         self
     }
 
-    /// Establece el número de filas visibles en la lista de selección.
+    /// Establece el número de filas visibles de la lista de selección.
     ///
     /// Cuando se establece un valor mayor que 1, el control se muestra como lista en lugar de
-    /// desplegable, tanto en modo simple como múltiple. Es especialmente útil con selección
-    /// múltiple para controlar el número de filas visibles sin necesidad de recurrir al
-    /// desplazamiento.
+    /// desplegable, tanto en modo simple como múltiple. Con `None` se omite el atributo y presenta
+    /// el control como desplegable (comportamiento por defecto).
+    ///
+    /// Es especialmente útil con selección múltiple para controlar el número de filas visibles sin
+    /// necesidad de recurrir al desplazamiento.
+    ///
+    /// Se anula si se usa con [`with_floating_label(true)`](Self::with_floating_label).
     #[builder_fn]
-    pub fn with_size(mut self, size: Option<u16>) -> Self {
-        self.size.alter_opt(size);
+    pub fn with_rows(mut self, rows: Option<u16>) -> Self {
+        self.rows.alter_opt(rows);
         self
     }
 
