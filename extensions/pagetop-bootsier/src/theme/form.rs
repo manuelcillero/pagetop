@@ -24,3 +24,6 @@ pub mod input;
 
 mod textarea;
 pub use textarea::Textarea;
+
+mod range;
+pub use range::Range;
