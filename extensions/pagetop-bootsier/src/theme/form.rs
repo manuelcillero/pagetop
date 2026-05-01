@@ -27,3 +27,6 @@ pub use textarea::Textarea;
 
 mod range;
 pub use range::Range;
+
+mod hidden;
+pub use hidden::Hidden;
