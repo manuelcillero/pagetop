@@ -2,15 +2,15 @@ use pagetop::prelude::*;
 
 use crate::theme::aux::Color;
 
-/// Colores `border-*` para los bordes ([`classes::Border`](crate::theme::classes::Border)).
+/// Esquema de color para los bordes ([`classes::Border`](crate::theme::classes::Border)).
 #[derive(AutoDefault, Clone, Copy, Debug, PartialEq)]
 pub enum BorderColor {
     /// No define ninguna clase.
     #[default]
     Default,
-    /// Genera internamente clases `border-{color}`.
+    /// Genera la clase `border-{color}`.
     Theme(Color),
-    /// Genera internamente clases `border-{color}-subtle` (un tono suavizado del color).
+    /// Genera la clase `border-{color}-subtle` (un tono suavizado del color).
     Subtle(Color),
     /// Color negro.
     Black,

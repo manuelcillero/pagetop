@@ -17,4 +17,4 @@ mod rounded;
 pub use rounded::RoundedRadius;
 
 mod button;
-pub use button::{ButtonColor, ButtonSize};
+pub use button::{ButtonAction, ButtonColor, ButtonSize};

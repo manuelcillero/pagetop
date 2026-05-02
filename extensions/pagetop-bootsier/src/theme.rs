@@ -9,6 +9,10 @@ pub use aux::*;
 
 pub mod classes;
 
+// Button.
+mod button;
+pub use button::Button;
+
 // Container.
 pub mod container;
 #[doc(inline)]

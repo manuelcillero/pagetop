@@ -169,7 +169,7 @@ impl Opacity {
 
 // **< ColorBg >************************************************************************************
 
-/// Colores `bg-*` para el fondo.
+/// Esquema de color para el fondo.
 #[derive(AutoDefault, Clone, Copy, Debug, PartialEq)]
 pub enum ColorBg {
     /// No define ninguna clase.
@@ -181,9 +181,9 @@ pub enum ColorBg {
     BodySecondary,
     /// Fondo predefinido del tema (`bg-body-tertiary`).
     BodyTertiary,
-    /// Genera internamente clases `bg-{color}` (p. ej., `bg-primary`).
+    /// Genera la clase `bg-{color}` (p. ej., `bg-primary`).
     Theme(Color),
-    /// Genera internamente clases `bg-{color}-subtle` (un tono suavizado del color).
+    /// Genera la clase `bg-{color}-subtle` (un tono suavizado del color).
     Subtle(Color),
     /// Color negro.
     Black,
@@ -253,7 +253,7 @@ impl ColorBg {
 
 // **< ColorText >**********************************************************************************
 
-/// Colores `text-*` para el texto.
+/// Esquema de color para el texto.
 #[derive(AutoDefault, Clone, Copy, Debug, PartialEq)]
 pub enum ColorText {
     /// No define ninguna clase.
@@ -267,9 +267,9 @@ pub enum ColorText {
     BodySecondary,
     /// Color predefinido del tema (`text-body-tertiary`).
     BodyTertiary,
-    /// Genera internamente clases `text-{color}`.
+    /// Genera la clase `text-{color}`.
     Theme(Color),
-    /// Genera internamente clases `text-{color}-emphasis` (mayor contraste acorde al tema).
+    /// Genera la clase `text-{color}-emphasis` (mayor contraste acorde al tema).
     Emphasis(Color),
     /// Color negro.
     Black,

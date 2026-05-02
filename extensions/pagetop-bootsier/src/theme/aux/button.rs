@@ -2,17 +2,42 @@ use pagetop::prelude::*;
 
 use crate::theme::aux::Color;
 
+// **< ButtonAction >*********************************************************************************
+
+/// Comportamiento de un [`Button`](crate::theme::Button) al activarse.
+#[derive(AutoDefault, Clone, Copy, Debug, PartialEq)]
+pub enum ButtonAction {
+    /// Envía un formulario al servidor. Es el **tipo por defecto**.
+    #[default]
+    Submit,
+    /// Restablece todos los campos de un formulario a sus valores iniciales.
+    Reset,
+    /// Botón de propósito general, sin efecto predeterminado. Su comportamiento podría definirse
+    /// mediante JavaScript.
+    Plain,
+}
+
+impl std::fmt::Display for ButtonAction {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(match self {
+            ButtonAction::Submit => "submit",
+            ButtonAction::Reset => "reset",
+            ButtonAction::Plain => "button",
+        })
+    }
+}
+
 // **< ButtonColor >********************************************************************************
 
-/// Variantes de color `btn-*` para botones.
+/// Esquema de color para [`Button`](crate::theme::Button).
 #[derive(AutoDefault, Clone, Copy, Debug, PartialEq)]
 pub enum ButtonColor {
     /// No define ninguna clase.
     #[default]
     Default,
-    /// Genera internamente clases `btn-{color}` (botón relleno).
+    /// Genera la clase `btn-{color}` (botón sólido).
     Background(Color),
-    /// Genera `btn-outline-{color}` (fondo transparente y contorno con borde).
+    /// Genera la clase `btn-outline-{color}` (fondo transparente con contorno coloreado).
     Outline(Color),
     /// Aplica estilo de los enlaces (`btn-link`), sin caja ni fondo, heredando el color de texto.
     Link,
@@ -33,7 +58,6 @@ impl ButtonColor {
             classes.push(' ');
         }
         match self {
-            Self::Default => {}
             Self::Background(c) => {
                 classes.push_str(Self::BTN_PREFIX);
                 classes.push_str(c.as_str());
@@ -42,9 +66,8 @@ impl ButtonColor {
                 classes.push_str(Self::BTN_OUTLINE_PREFIX);
                 classes.push_str(c.as_str());
             }
-            Self::Link => {
-                classes.push_str(Self::BTN_LINK);
-            }
+            Self::Link => classes.push_str(Self::BTN_LINK),
+            Self::Default => unreachable!(),
         }
     }
 
@@ -82,7 +105,7 @@ pub enum ButtonSize {
     Default,
     /// Botón compacto.
     Small,
-    /// Botón destacado/grande.
+    /// Botón grande.
     Large,
 }
 
