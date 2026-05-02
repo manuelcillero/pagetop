@@ -23,7 +23,7 @@ use crate::theme::form;
 ///     .with_id("search")
 ///     .with_action("/search")
 ///     .with_method(form::Method::Get)
-///     .with_child(form::Input::search().with_name("q"));
+///     .with_child(form::input::Field::search().with_name("q"));
 /// ```
 #[derive(AutoDefault, Clone, Debug, Getters)]
 pub struct Form {
