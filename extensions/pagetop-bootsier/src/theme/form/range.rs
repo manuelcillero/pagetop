@@ -11,9 +11,9 @@ use pagetop::prelude::*;
 /// ```rust
 /// # use pagetop::prelude::*;
 /// # use pagetop_bootsier::prelude::*;
-/// let volumen = form::Range::new()
+/// let volume = form::Range::new()
 ///     .with_name("volume")
-///     .with_label(L10n::n("Volumen"))
+///     .with_label(L10n::n("Volume"))
 ///     .with_min(Some(0.0))
 ///     .with_max(Some(100.0))
 ///     .with_step(Some(5.0))

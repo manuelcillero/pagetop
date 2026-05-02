@@ -18,6 +18,58 @@ $enable-cssgrid: true;
   --bs-text-opacity: 0.1;
 }
 
+// FORMS
+
+// Required field indicator
+.form-required {
+  color: var(--bs-danger);
+  margin: 0 0.25rem;
+}
+
+// Form fields
+.form-field {
+  margin-bottom: 1rem;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+// Fieldset
+fieldset {
+  position: relative;
+  background-color: var(--bs-body-bg);
+  border: var(--bs-border-width) solid var(--bs-border-color);
+  border-radius: var(--bs-border-radius);
+  padding: 2rem 1rem 1rem;
+  margin: 2rem 0 1rem;
+}
+fieldset > legend {
+  position: absolute;
+  top: 0;
+  left: 1rem;
+  transform: translateY(-50%);
+  background-color: var(--bs-body-bg);
+  border: var(--bs-border-width) solid var(--bs-border-color);
+  border-radius: var(--bs-border-radius);
+  padding: 0.125rem 0.75rem;
+  font-size: $font-size-sm;
+  line-height: 1.25;
+  width: fit-content;
+  max-width: 75%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.fieldset-description {
+  margin-bottom: 1rem;
+}
+
+// Check buttons, gap between label and first inline check
+.form-label + .form-check-inline {
+  margin-left: 1rem;
+}
+
 // Extending utilities
 $utilities: map-merge(
   $utilities,

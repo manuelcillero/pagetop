@@ -16,26 +16,29 @@ use crate::theme::form;
 ///
 /// # Ejemplo
 ///
-/// ```ignore
-/// use pagetop::prelude::*;
-/// use crate::prelude::*;
-///
-/// let form = Form::new()
+/// ```rust
+/// # use pagetop::prelude::*;
+/// # use pagetop_bootsier::prelude::*;
+/// let search = Form::new()
 ///     .with_id("search")
 ///     .with_action("/search")
 ///     .with_method(form::Method::Get)
-///     .with_classes(ClassesOp::Add, "mb-3")
-///     .with_child(Input::new().with_name("q"));
+///     .with_child(form::Input::search().with_name("q"));
 /// ```
 #[derive(AutoDefault, Clone, Debug, Getters)]
 pub struct Form {
     #[getters(skip)]
     id: AttrId,
+    /// Devuelve las clases CSS del formulario.
     classes: Classes,
+    /// Devuelve la URL/ruta de destino del formulario.
     action: AttrValue,
+    /// Devuelve el método para enviar el formulario.
     method: form::Method,
+    /// Devuelve el juego de caracteres aceptado por el formulario.
     #[default(_code = "AttrValue::new(\"UTF-8\")")]
     charset: AttrValue,
+    /// Devuelve la lista de componentes del formulario.
     children: Children,
 }
 
@@ -107,15 +110,15 @@ impl Form {
 
     /// Establece el juego de caracteres aceptado por el formulario.
     ///
-    /// Por defecto se usa `"UTF-8"`.
+    /// Por defecto se utiliza `"UTF-8"`.
     #[builder_fn]
     pub fn with_charset(mut self, charset: impl AsRef<str>) -> Self {
         self.charset.alter_str(charset);
         self
     }
 
-    /// Añade un nuevo componente al formulario o modifica la lista de de componentes (`children`)
-    /// con una operación [`ChildOp`].
+    /// Añade un nuevo componente al formulario o modifica la lista de componentes (`children`) con
+    /// una operación [`ChildOp`].
     #[builder_fn]
     pub fn with_child(mut self, op: impl Into<ChildOp>) -> Self {
         self.children.alter_child(op.into());
