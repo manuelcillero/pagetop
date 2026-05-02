@@ -16,12 +16,12 @@ authors.workspace = true
 
 [dependencies]
 chrono = "0.4"
-colored = "3.0"
+colored = "3.1"
 config = { version = "0.15", default-features = false, features = ["toml"] }
-figlet-rs = "0.1"
+figlet-rs = "1.0"
 getter-methods = "2.0"
 itoa = "1.0"
-indexmap = "2.12"
+indexmap = "2.14"
 parking_lot = "0.12"
 substring = "1.4"
 terminal_size = "0.4"
@@ -31,7 +31,7 @@ tracing-appender = "0.2"
 tracing-subscriber = { version = "0.3", features = ["json", "env-filter"] }
 tracing-actix-web = "0.7"
 
-fluent-templates = "0.13"
+fluent-templates = "0.14"
 unic-langid = { version = "0.9", features = ["macros"] }
 
 actix-web = { workspace = true, default-features = true }
@@ -49,7 +49,7 @@ default = []
 testing = []
 
 [dev-dependencies]
-tempfile = "3.23"
+tempfile = "3.27"
 serde_json = "1.0"
 pagetop-aliner.workspace = true
 pagetop-bootsier.workspace = true
@@ -78,7 +78,7 @@ license = "MIT OR Apache-2.0"
 authors = ["Manuel Cillero <manuel@cillero.es>"]
 
 [workspace.dependencies]
-actix-web = { version = "4.11", default-features = false }
+actix-web = { version = "4.13", default-features = false }
 serde = { version = "1.0", features = ["derive"] }
 # Helpers
 pagetop-build = { version = "0.3", path = "helpers/pagetop-build" }

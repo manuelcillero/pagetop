@@ -158,7 +158,7 @@ impl<C: Component> ComponentRender for C {
         action::component::BeforeRender::dispatch(self, cx);
 
         // Prepara el renderizado: recorre la cadena de temas, luego el componente.
-        let prepare = match 'resolve: {
+        let result = 'resolve: {
             let mut t: Option<ThemeRef> = Some(cx.theme());
             while let Some(theme) = t {
                 if let Some(r) = theme.handle_component(self, cx) {
@@ -167,7 +167,8 @@ impl<C: Component> ComponentRender for C {
                 t = theme.parent();
             }
             self.prepare(cx)
-        } {
+        };
+        let prepare = match result {
             Ok(markup) => markup,
             Err(error) => {
                 crate::trace::error!(
