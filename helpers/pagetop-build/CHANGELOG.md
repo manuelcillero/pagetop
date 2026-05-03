@@ -8,6 +8,14 @@ Resume la evolución del proyecto para usuarios y colaboradores, destacando nuev
 correcciones, mejoras durante el desarrollo o cambios en la documentación. Cambios menores o
 internos pueden omitirse si no afectan al uso del proyecto.
 
+## 0.3.2 (2026-05-03)
+
+### Documentado
+
+- Depura enlaces de información de licencias
+- Actualiza licencias y revisa *badges* de README
+- Añade guías de contribución y revisa estilos
+
 ## 0.3.1 (2025-09-20)
 
 ### Dependencias
@@ -37,8 +45,8 @@ internos pueden omitirse si no afectan al uso del proyecto.
 
 ### Otros cambios
 
-- 🩹 Corrige enlace del botón de licencia en la documentación
-- 🚩 Afina Cargo.toml para buscar la mejor categoría
+- Corrige enlace del botón de licencia en la documentación
+- Afina Cargo.toml para buscar la mejor categoría
 
 ## 0.1.1 (2025-08-05)
 
