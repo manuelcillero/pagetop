@@ -86,7 +86,7 @@ pagetop-macros = { version = "0.3", path = "helpers/pagetop-macros" }
 pagetop-minimal = { version = "0.1", path = "helpers/pagetop-minimal" }
 pagetop-statics = { version = "0.1", path = "helpers/pagetop-statics" }
 # Extensions
-pagetop-aliner = { version = "0.0", path = "extensions/pagetop-aliner" }
+pagetop-aliner = { version = "0.1", path = "extensions/pagetop-aliner" }
 pagetop-bootsier = { version = "0.0", path = "extensions/pagetop-bootsier" }
 # PageTop
 pagetop = { version = "0.5", path = "." }
