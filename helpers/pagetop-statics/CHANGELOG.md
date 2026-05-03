@@ -8,6 +8,13 @@ Resume la evolución del proyecto para usuarios y colaboradores, destacando nuev
 correcciones, mejoras durante el desarrollo o cambios en la documentación. Cambios menores o
 internos pueden omitirse si no afectan al uso del proyecto.
 
+## 0.1.3 (2026-05-03)
+
+### Documentado
+
+- Añade guías de contribución y revisa estilos
+- Actualiza licencias y revisa *badges* de README
+
 ## 0.1.2 (2025-09-20)
 
 ### Dependencias
