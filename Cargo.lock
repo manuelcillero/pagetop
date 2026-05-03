@@ -1677,7 +1677,7 @@ dependencies = [
 
 [[package]]
 name = "pagetop-bootsier"
-version = "0.0.18"
+version = "0.1.0"
 dependencies = [
  "pagetop",
  "pagetop-build",
