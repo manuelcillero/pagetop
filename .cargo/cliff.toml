@@ -40,9 +40,18 @@ body = """
     | replace(from="🍱 ", to="")
     | replace(from="📝 ", to="")
     | replace(from="💡 ", to="")
+    | replace(from="🎨 ", to="")
+    | replace(from="✅ ", to="")
+    | replace(from="🔨 ", to="")
+    | replace(from="💄 ", to="")
+    | replace(from="🔥 ", to="")
+    | replace(from="🚩 ", to="")
+    | replace(from="🚨 ", to="")
+    | replace(from="📄 ", to="")
+    | replace(from="🩹 ", to="")
 -%}
 
-- {{ msg | trim }} {% if commit.author.name != "Manuel Cillero" %} - {{ commit.author.name }}{% endif %}
+- {{ msg | trim }}{% if commit.author.name != "Manuel Cillero" %} - {{ commit.author.name }}{% endif %}
 {% endfor %}{% endfor %}
 """
 
@@ -53,6 +62,7 @@ topo_order_commits = true
 sort_commits = "oldest"
 
 commit_parsers = [
+    { message = "^🔖", skip = true },
     { message = "^✨", group = "Añadido" },
     { message = "^🐛", group = "Corregido" },
     { message = "^🚑", group = "Corregido" },

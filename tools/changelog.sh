@@ -5,9 +5,12 @@ set -euo pipefail
 # Script para generar el archivo de cambios del crate indicado.
 # Uso:
 #   ./tools/changelog.sh <crate> <version> [--stage]
-# Ejemplo:
+# Ejemplos:
 #   ./tools/changelog.sh pagetop-macros 0.1.0     # Sólo genera archivo
-#   ./tools/changelog.sh pagetop 0.1.0 --stage    # Prepara archivo para commit
+#   ./tools/changelog.sh pagetop 0.1.0 --stage    # Genera y prepara para commit
+#
+# El modo --stage lo invoca pre-release-hook de cargo-release desde release.sh
+# para añadir el archivo de cambios al commit de liberación de la versión.
 # ------------------------------------------------------------------------------
 
 # Configuración
@@ -103,23 +106,26 @@ else
 fi
 git-cliff --unreleased "${COMMON_ARGS[@]}"
 echo "CHANGELOG generated at '$CHANGELOG_FILE'"
+echo ""
 
-# Pregunta por la revisión del archivo de cambios generado
-echo "Do you want to review the changelog before continuing? [y/N]"
-read -r REPLY
+# Permite revisar (y editar) el archivo de cambios antes de continuar
+read -r -p "Do you want to review the changelog before continuing? [y/N] " REPLY
+echo ""
 if [[ "$REPLY" =~ ^[Yy]$ ]]; then
     ${EDITOR:-nano} "$CHANGELOG_FILE"
 fi
-echo "Do you want to proceed with the release of $CRATE? [y/N]"
-read -r REPLY
-echo
+
+# Confirmación antes de proceder con la publicación
+read -r -p "Do you want to proceed with the release of $CRATE? [y/N] " REPLY
+echo ""
 if [[ ! "$REPLY" =~ ^[Yy]$ ]]; then
     echo "Aborting release process." >&2
+    git restore --worktree -- .
     exit 1
 fi
 
 # Si hay cambios y procede, añade al stage (cargo-release hará el commit)
-if [[ -n $(git status --porcelain -- "$CHANGELOG_FILE") ]]; then
+if [[ -n "$(git status --porcelain -- "$CHANGELOG_FILE")" ]]; then
     if [[ "$STAGE" == "--stage" ]]; then
         git add "$CHANGELOG_FILE"
         echo "Staged $CHANGELOG_FILE for commit"
