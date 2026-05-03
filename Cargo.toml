@@ -1,6 +1,6 @@
 [package]
 name = "pagetop"
-version = "0.4.0"
+version = "0.5.0"
 edition = "2021"
 
 description = """
@@ -89,4 +89,4 @@ pagetop-statics = { version = "0.1", path = "helpers/pagetop-statics" }
 pagetop-aliner = { version = "0.0", path = "extensions/pagetop-aliner" }
 pagetop-bootsier = { version = "0.0", path = "extensions/pagetop-bootsier" }
 # PageTop
-pagetop = { version = "0.4", path = "." }
+pagetop = { version = "0.5", path = "." }
