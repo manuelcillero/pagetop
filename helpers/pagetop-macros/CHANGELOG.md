@@ -8,6 +8,18 @@ Resume la evolución del proyecto para usuarios y colaboradores, destacando nuev
 correcciones, mejoras durante el desarrollo o cambios en la documentación. Cambios menores o
 internos pueden omitirse si no afectan al uso del proyecto.
 
+## 0.3.0 (2026-05-03)
+
+### Cambiado
+
+- Depura atributos `#[inline]` en `builder_fn`
+- Mejora documentación generada por `builder_fn`
+
+### Documentado
+
+- Depura enlaces de información de licencias
+- Actualiza licencias y revisa *badges* de README
+
 ## 0.2.0 (2025-09-20)
 
 ### Cambiado

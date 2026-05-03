@@ -82,7 +82,7 @@ actix-web = { version = "4.13", default-features = false }
 serde = { version = "1.0", features = ["derive"] }
 # Helpers
 pagetop-build = { version = "0.3", path = "helpers/pagetop-build" }
-pagetop-macros = { version = "0.2", path = "helpers/pagetop-macros" }
+pagetop-macros = { version = "0.3", path = "helpers/pagetop-macros" }
 pagetop-minimal = { version = "0.0", path = "helpers/pagetop-minimal" }
 pagetop-statics = { version = "0.1", path = "helpers/pagetop-statics" }
 # Extensions
