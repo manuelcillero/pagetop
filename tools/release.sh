@@ -25,6 +25,11 @@ if [[ ! "$LEVEL" =~ ^(patch|minor|major)$ ]]; then
     echo "Error: invalid level '$LEVEL'. Use: patch, minor, or major"
     exit 1
 fi
+if [[ -n "$(git status --porcelain)" ]]; then
+    echo "Error: uncommitted changes detected. Please commit or stash before releasing." >&2
+    git status --short >&2
+    exit 1
+fi
 
 # Dependencias
 command -v cargo-release >/dev/null || {
@@ -41,6 +46,8 @@ cd "$(dirname "$0")/.." || exit 1
 if [[ "$EXECUTE" != "--execute" ]]; then
     echo "Running dry-run (default mode). Add --execute to publish"
     cargo release --config "$CONFIG" --package "$CRATE" "$LEVEL"
+    # El hook puede haber añadido el CHANGELOG al staged; lo revertimos
+    git diff --cached --name-only | grep 'CHANGELOG.md' | xargs -r git reset --
 else
     echo "Releasing $CRATE ($LEVEL)..."
     cargo release --config "$CONFIG" --package "$CRATE" "$LEVEL" --execute

@@ -130,8 +130,9 @@ if [[ -n "$(git status --porcelain -- "$CHANGELOG_FILE")" ]]; then
         git add "$CHANGELOG_FILE"
         echo "Staged $CHANGELOG_FILE for commit"
     else
-        echo "Changes detected in '$CHANGELOG_FILE', but not staged (no --stage flag)"
+        echo "Changes not staged (no --stage flag)"
     fi
 else
-    echo "No changes in '$CHANGELOG_FILE', skipping staging"
+    echo "No changes in '$CHANGELOG_FILE', aborting release."
+    exit 1
 fi
