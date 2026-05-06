@@ -1,6 +1,6 @@
 use pagetop::prelude::*;
 
-use crate::theme::aux::Color;
+use crate::theme::attrs::Color;
 
 /// Esquema de color para los bordes ([`classes::Border`](crate::theme::classes::Border)).
 #[derive(AutoDefault, Clone, Copy, Debug, PartialEq)]

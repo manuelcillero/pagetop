@@ -1,6 +1,6 @@
 use pagetop::prelude::*;
 
-use crate::theme::aux::{BorderColor, Opacity, ScaleSize, Side};
+use crate::theme::attrs::{BorderColor, Opacity, ScaleSize, Side};
 
 /// Clases para crear **bordes**.
 ///

@@ -1,6 +1,6 @@
 use pagetop::prelude::*;
 
-use crate::theme::aux::BreakPoint;
+use crate::theme::attrs::BreakPoint;
 
 // **< Kind >***************************************************************************************
 

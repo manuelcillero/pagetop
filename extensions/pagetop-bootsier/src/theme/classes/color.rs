@@ -1,6 +1,6 @@
 use pagetop::prelude::*;
 
-use crate::theme::aux::{ColorBg, ColorText, Opacity};
+use crate::theme::attrs::{ColorBg, ColorText, Opacity};
 
 // **< Background >*********************************************************************************
 

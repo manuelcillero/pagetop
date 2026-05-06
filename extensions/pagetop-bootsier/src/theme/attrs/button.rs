@@ -1,6 +1,6 @@
 use pagetop::prelude::*;
 
-use crate::theme::aux::Color;
+use crate::theme::attrs::Color;
 
 // **< ButtonAction >*********************************************************************************
 

@@ -1,6 +1,6 @@
 use pagetop::prelude::*;
 
-use crate::theme::aux::RoundedRadius;
+use crate::theme::attrs::RoundedRadius;
 
 /// Clases para definir **esquinas redondeadas**.
 ///

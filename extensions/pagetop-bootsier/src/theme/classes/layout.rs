@@ -1,6 +1,6 @@
 use pagetop::prelude::*;
 
-use crate::theme::aux::{ScaleSize, Side};
+use crate::theme::attrs::{ScaleSize, Side};
 use crate::theme::BreakPoint;
 
 // **< Margin >*************************************************************************************

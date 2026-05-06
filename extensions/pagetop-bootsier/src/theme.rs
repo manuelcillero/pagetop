@@ -4,8 +4,8 @@
 //! que se muestran en el apartado **Structs**, mientras que en **Enums** se listan los elementos
 //! auxiliares del tema utilizados en clases y componentes.
 
-mod aux;
-pub use aux::*;
+mod attrs;
+pub use attrs::*;
 
 pub mod classes;
 
