@@ -134,6 +134,14 @@ impl Template for BootsierTemplate {
 pub struct Bootsier;
 
 impl Extension for Bootsier {
+    fn name(&self) -> L10n {
+        L10n::t("extension_name", &LOCALES_BOOTSIER)
+    }
+
+    fn description(&self) -> L10n {
+        L10n::t("extension_description", &LOCALES_BOOTSIER)
+    }
+
     fn theme(&self) -> Option<ThemeRef> {
         Some(&Self)
     }
