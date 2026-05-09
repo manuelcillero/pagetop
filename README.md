@@ -116,16 +116,20 @@ El código se organiza en un *workspace* donde actualmente se incluyen los sigui
 Para simplificar el flujo de trabajo, el repositorio incluye varios **alias de Cargo** declarados en
 `.cargo/config.toml`. Basta con ejecutarlos desde la raíz del proyecto:
 
-| Comando | Descripción |
-| ------- | ----------- |
-| `cargo ts` | Ejecuta los tests de `pagetop` (*unit + integration*) con la *feature* `testing`. |
-| `cargo ts --test util` | Lanza sólo las pruebas de integración del módulo `util`. |
-| `cargo ts --doc locale` | Lanza las pruebas de la documentación del módulo `locale`. |
-| `cargo tw` | Ejecuta los tests de **todos los paquetes** del *workspace*. |
+| Comando                 | Descripción                                                     |
+| ----------------------- | --------------------------------------------------------------- |
+| `cargo ts`              | Lanza **todos los tests** de `pagetop`                          |
+| `cargo ts --test util`  | Lanza los tests de integración del archivo `tests/util.rs`      |
+| `cargo ts --doc locale` | Lanza los *doctests* de `pagetop` cuyo *path* contiene `locale` |
+| `cargo tw`              | Lanza **todos los tests** del *workspace*                       |
+| `cargo td <crate>`      | Lanza los *doctests* de un *crate* concreto del *workspace*     |
 
 > **Nota**
-> Estos alias ya compilan con la configuración adecuada. No requieren `--no-default-features`.
-> Si quieres **activar** las trazas del registro de eventos entonces usa simplemente `cargo test`.
+> * Todos los alias, excepto `cargo td`, aplican la *feature* `testing` para los *crates* que la
+>   declaren.
+> * Cuando lanza **todos los tests** se incluyen las pruebas unitarias, de integración y *doctests*.
+> * Los alias suprimen las trazas del registro de eventos. Para activarlas usa directamente
+>   `cargo test`.
 
 
 ## 🚧 Advertencia

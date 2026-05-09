@@ -1,3 +1,4 @@
 [alias]
 ts = ["test", "--features", "testing"]                  # cargo ts
 tw = ["test", "--workspace", "--features", "testing"]   # cargo tw
+td = ["test", "--doc", "-p"]                            # cargo td <crate>
