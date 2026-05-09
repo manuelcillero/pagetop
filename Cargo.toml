@@ -69,6 +69,7 @@ members = [
     # Extensions
     "extensions/pagetop-aliner",
     "extensions/pagetop-bootsier",
+    "extensions/pagetop-seaorm",
 ]
 
 [workspace.package]
@@ -88,5 +89,6 @@ pagetop-statics = { version = "0.1", path = "helpers/pagetop-statics" }
 # Extensions
 pagetop-aliner = { version = "0.1", path = "extensions/pagetop-aliner" }
 pagetop-bootsier = { version = "0.1", path = "extensions/pagetop-bootsier" }
+pagetop-seaorm = { version = "0.0", path = "extensions/pagetop-seaorm" }
 # PageTop
 pagetop = { version = "0.5", path = "." }

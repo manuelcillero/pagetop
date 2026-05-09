@@ -1,0 +1,36 @@
+[package]
+name = "pagetop-seaorm"
+version = "0.0.4"
+edition = "2021"
+
+description = """
+    Proporciona a PageTop acceso basado en SeaORM a bases de datos relacionales.
+"""
+categories = ["database", "development-tools", "asynchronous"]
+keywords = ["pagetop", "database", "sql", "orm", "ssr"]
+
+repository.workspace = true
+homepage.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[features]
+mysql = ["sea-orm/sqlx-mysql"]
+postgres = ["sea-orm/sqlx-postgres"]
+sqlite = ["sea-orm/sqlx-sqlite"]
+
+[dependencies]
+pagetop.workspace = true
+serde.workspace = true
+
+async-trait = "0.1"
+futures = "0.3"
+url = "2.5"
+
+[dependencies.sea-orm]
+version = "~1.0"
+features = ["debug-print", "macros", "runtime-async-std-native-tls"]
+default-features = false
+
+[dependencies.sea-schema]
+version = "~0.15"

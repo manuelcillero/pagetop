@@ -110,6 +110,9 @@ El código se organiza en un *workspace* donde actualmente se incluyen los sigui
     tema basado en [Bootstrap](https://getbootstrap.com) para integrar su catálogo de estilos y
     componentes flexibles.
 
+  * **[pagetop-seaorm](https://git.cillero.es/manuelcillero/pagetop/src/branch/main/extensions/pagetop-seaorm)**,
+    integra [SeaORM](https://www.sea-ql.org/SeaORM) para acceder a bases de datos relacionales.
+
 
 ## 🧪 Pruebas
 

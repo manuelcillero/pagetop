@@ -43,6 +43,8 @@ cd "$(dirname "$0")/.." || exit 1
 # ------------------------------------------------------------------------------
 # DRY-RUN (por defecto) o ejecución real con --execute
 # ------------------------------------------------------------------------------
+export PAGETOP_RESTORE_TREE=1
+
 if [[ "$EXECUTE" != "--execute" ]]; then
     echo "Running dry-run (default mode). Add --execute to publish"
     cargo release --config "$CONFIG" --package "$CRATE" "$LEVEL"

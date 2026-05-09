@@ -65,6 +65,7 @@ case "$CRATE" in
             # Extensions
             --exclude-path "extensions/pagetop-aliner/**/*"
             --exclude-path "extensions/pagetop-bootsier/**/*"
+            --exclude-path "extensions/pagetop-seaorm/**/*"
         )
         ;;
     pagetop-aliner)
@@ -74,6 +75,10 @@ case "$CRATE" in
     pagetop-bootsier)
         CHANGELOG_FILE="extensions/pagetop-bootsier/CHANGELOG.md"
         PATH_FLAGS=(--include-path "extensions/pagetop-bootsier/**/*")
+        ;;
+    pagetop-seaorm)
+        CHANGELOG_FILE="extensions/pagetop-seaorm/CHANGELOG.md"
+        PATH_FLAGS=(--include-path "extensions/pagetop-seaorm/**/*")
         ;;
     *)
         echo "Error: unsupported crate '$CRATE'" >&2
@@ -120,7 +125,9 @@ read -r -p "Do you want to proceed with the release of $CRATE? [y/N] " REPLY
 echo ""
 if [[ ! "$REPLY" =~ ^[Yy]$ ]]; then
     echo "Aborting release process." >&2
-    git restore --worktree -- .
+    if [[ -n "${PAGETOP_RESTORE_TREE:-}" ]]; then
+        git restore --worktree -- .
+    fi
     exit 1
 fi
 
