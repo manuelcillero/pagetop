@@ -68,7 +68,7 @@ async fn main() -> std::io::Result<()> {
 **Escribe las migraciones** usando la API de SeaORM:
 
 ```rust,no_run
-use pagetop_seaorm::prelude::*;
+use pagetop_seaorm::db::*;
 
 #[derive(DeriveMigrationName)]
 pub struct Migration;

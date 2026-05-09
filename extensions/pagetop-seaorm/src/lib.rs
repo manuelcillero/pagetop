@@ -69,7 +69,7 @@ async fn main() -> std::io::Result<()> {
 **Escribe las migraciones** usando la API de SeaORM:
 
 ```rust,no_run
-use pagetop_seaorm::prelude::*;
+use pagetop_seaorm::db::*;
 
 #[derive(DeriveMigrationName)]
 pub struct Migration;
@@ -108,13 +108,6 @@ include_locales!(LOCALES_SEAORM);
 pub mod config;
 
 pub mod db;
-
-/// *Prelude* de la extensión.
-pub mod prelude {
-    pub use crate::config::*;
-    pub use crate::db::*;
-    pub use crate::install_migrations;
-}
 
 /// Implementa la extensión.
 pub struct SeaORM;
