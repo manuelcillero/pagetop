@@ -10,7 +10,7 @@ use pagetop::prelude::*;
 ///
 /// ```rust
 /// # use pagetop::prelude::*;
-/// # use pagetop_bootsier::prelude::*;
+/// # use pagetop_bootsier::theme::*;
 /// let volume = form::Range::new()
 ///     .with_name("volume")
 ///     .with_label(L10n::n("Volume"))

@@ -1,14 +1,16 @@
 use pagetop::prelude::*;
 
-use crate::prelude::*;
+use crate::theme::*;
 
-/// Componente para renderizar una **imagen**.
+/// Componente para renderizar una **imagen** ([`image`]).
 ///
-/// - Ajusta su disposición según el origen definido en [`image::Source`].
-/// - Permite configurar **dimensiones** ([`with_size()`](Self::with_size)), **borde**
+/// A una imagen se le puede:
+///
+/// - Establecer su contenido a partir del origen definido en [`image::Source`].
+/// - Configurar sus **dimensiones** ([`with_size()`](Self::with_size)), **borde**
 ///   ([`classes::Border`](crate::theme::classes::Border)) y **redondeo de esquinas**
 ///   ([`classes::Rounded`](crate::theme::classes::Rounded)).
-/// - Resuelve el texto alternativo `alt` con **localización** mediante [`L10n`].
+/// - Aplicar el texto alternativo `alt` con **localización** mediante [`L10n`].
 #[derive(AutoDefault, Clone, Debug, Getters)]
 pub struct Image {
     #[getters(skip)]

@@ -106,7 +106,7 @@ impl fmt::Display for Mode {
 ///
 /// ```rust
 /// # use pagetop::prelude::*;
-/// # use pagetop_bootsier::prelude::*;
+/// # use pagetop_bootsier::theme::*;
 /// let email = form::input::Field::email()
 ///     .with_name("email")
 ///     .with_label(L10n::n("Email address"))

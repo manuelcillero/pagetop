@@ -1,6 +1,6 @@
 use pagetop::prelude::*;
 
-use crate::prelude::*;
+use crate::theme::*;
 
 /// Marca de identidad para mostrar en una barra de navegación [`Navbar`].
 ///

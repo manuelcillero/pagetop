@@ -15,7 +15,7 @@ use pagetop::prelude::*;
 ///
 /// ```rust
 /// # use pagetop::prelude::*;
-/// # use pagetop_bootsier::prelude::*;
+/// # use pagetop_bootsier::theme::*;
 /// let personal_data = form::Fieldset::new()
 ///     .with_legend(L10n::n("Personal data"))
 ///     .with_description(L10n::n("Enter your full name and contact email."))

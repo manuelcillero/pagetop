@@ -70,7 +70,7 @@ impl BreakPoint {
     /// # Ejemplos
     ///
     /// ```rust
-    /// # use pagetop_bootsier::prelude::*;
+    /// # use pagetop_bootsier::theme::*;
     /// let bp = BreakPoint::MD;
     /// assert_eq!(bp.class_with("col", ""), "col-md");
     /// assert_eq!(bp.class_with("col", "6"), "col-md-6");

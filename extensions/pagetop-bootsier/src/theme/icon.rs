@@ -1,4 +1,4 @@
-use crate::prelude::*;
+use crate::theme::*;
 
 const DEFAULT_VIEWBOX: &str = "0 0 16 16";
 

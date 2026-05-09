@@ -1,6 +1,6 @@
 use pagetop::prelude::*;
 
-use pagetop_bootsier::prelude::*;
+use pagetop_bootsier::theme::*;
 
 include_locales!(LOC from "examples/locale");
 

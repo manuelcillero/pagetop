@@ -1,6 +1,6 @@
 use pagetop::prelude::*;
 
-use crate::prelude::*;
+use crate::theme::*;
 use crate::LOCALES_BOOTSIER;
 
 // **< ItemKind >***********************************************************************************

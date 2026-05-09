@@ -19,8 +19,9 @@ use crate::theme::{ButtonAction, ButtonColor, ButtonSize};
 /// # Ejemplo
 ///
 /// ```rust
-/// # use pagetop::prelude::*;
-/// # use pagetop_bootsier::prelude::*;
+/// use pagetop::prelude::*;
+/// use pagetop_bootsier::theme::*;
+///
 /// let save = Button::submit(L10n::n("Save"))
 ///     .with_color(ButtonColor::Background(Color::Primary));
 ///

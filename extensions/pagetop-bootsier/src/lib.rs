@@ -96,12 +96,6 @@ pub mod config;
 
 pub mod theme;
 
-/// *Prelude* del tema.
-pub mod prelude {
-    pub use crate::config::*;
-    pub use crate::theme::*;
-}
-
 /// Plantillas que Bootsier añade.
 #[derive(AutoDefault)]
 pub enum BootsierTemplate {

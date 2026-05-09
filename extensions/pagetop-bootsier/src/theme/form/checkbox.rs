@@ -17,7 +17,7 @@ use crate::LOCALES_BOOTSIER;
 ///
 /// ```rust
 /// # use pagetop::prelude::*;
-/// # use pagetop_bootsier::prelude::*;
+/// # use pagetop_bootsier::theme::*;
 /// let accept_terms = form::Checkbox::check() // También sirve new() o default().
 ///     .with_name("terms_accepted")
 ///     .with_label(L10n::n("I accept the terms and conditions"))

@@ -10,7 +10,8 @@ use crate::theme::BreakPoint;
 /// # Ejemplos
 ///
 /// ```rust
-/// # use pagetop_bootsier::prelude::*;
+/// use pagetop_bootsier::theme::*;
+///
 /// let m = classes::Margin::with(Side::Top, ScaleSize::Three);
 /// assert_eq!(m.to_class(), "mt-3");
 ///
@@ -97,7 +98,8 @@ impl Margin {
 /// # Ejemplos
 ///
 /// ```rust
-/// # use pagetop_bootsier::prelude::*;
+/// use pagetop_bootsier::theme::*;
+///
 /// let p = classes::Padding::with(Side::LeftAndRight, ScaleSize::Two);
 /// assert_eq!(p.to_class(), "px-2");
 ///

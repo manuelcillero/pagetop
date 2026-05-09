@@ -2,9 +2,9 @@ use pagetop::prelude::*;
 
 use crate::theme::form;
 
-/// Componente para crear un **formulario**.
+/// Componente para crear un **formulario** ([`form`]).
 ///
-/// Este componente renderiza un `<form>` estándar con soporte para los atributos más habituales:
+/// Este componente renderiza un formulario estándar con soporte para los atributos más habituales:
 ///
 /// - `id`: identificador opcional del formulario.
 /// - `classes`: clases CSS adicionales (p. ej. utilidades CSS).
@@ -17,13 +17,33 @@ use crate::theme::form;
 /// # Ejemplo
 ///
 /// ```rust
-/// # use pagetop::prelude::*;
-/// # use pagetop_bootsier::prelude::*;
-/// let search = Form::new()
-///     .with_id("search")
-///     .with_action("/search")
-///     .with_method(form::Method::Get)
-///     .with_child(form::input::Field::search().with_name("q"));
+/// use pagetop::prelude::*;
+/// use pagetop_bootsier::theme::*;
+///
+/// let form_login = Form::new()
+///     .with_id("login")
+///     .with_action("/login")
+///     .with_child(
+///         form::input::Field::email()
+///             .with_name("email")
+///             .with_label(L10n::n("Email"))
+///             .with_required(true),
+///     )
+///     .with_child(
+///         form::input::Field::password()
+///             .with_name("password")
+///             .with_label(L10n::n("Password"))
+///             .with_required(true),
+///     )
+///     .with_child(
+///         form::Checkbox::check()
+///             .with_name("remember")
+///             .with_label(L10n::n("Remember me")),
+///     )
+///     .with_child(
+///         Button::submit(L10n::n("Sign in"))
+///             .with_color(ButtonColor::Background(Color::Primary)),
+///     );
 /// ```
 #[derive(AutoDefault, Clone, Debug, Getters)]
 pub struct Form {

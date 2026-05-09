@@ -1,6 +1,6 @@
 use pagetop::prelude::*;
 
-use crate::prelude::*;
+use crate::theme::*;
 
 /// Elementos que puede contener una barra de navegación [`Navbar`](crate::theme::Navbar).
 ///

@@ -12,7 +12,7 @@ use pagetop::prelude::*;
 ///
 /// ```rust
 /// # use pagetop::prelude::*;
-/// # use pagetop_bootsier::prelude::*;
+/// # use pagetop_bootsier::theme::*;
 /// let token = form::Hidden::new()
 ///     .with_name("csrf_token")
 ///     .with_value("a1b2c3d4e5");

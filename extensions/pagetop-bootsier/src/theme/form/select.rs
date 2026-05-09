@@ -20,7 +20,7 @@ use crate::LOCALES_BOOTSIER;
 ///
 /// ```rust
 /// # use pagetop::prelude::*;
-/// # use pagetop_bootsier::prelude::*;
+/// # use pagetop_bootsier::theme::*;
 /// let item = form::select::Item::new("es", L10n::n("Spanish")).with_selected(true);
 /// ```
 #[derive(AutoDefault, Clone, Debug, Getters)]
@@ -76,7 +76,7 @@ impl Item {
 ///
 /// ```rust
 /// # use pagetop::prelude::*;
-/// # use pagetop_bootsier::prelude::*;
+/// # use pagetop_bootsier::theme::*;
 /// let group = form::select::Group::new(L10n::n("Europe"))
 ///     .with_item(form::select::Item::new("es", L10n::n("Spanish")))
 ///     .with_item(form::select::Item::new("fr", L10n::n("French")));
@@ -149,7 +149,7 @@ pub enum Entry {
 ///
 /// ```rust
 /// # use pagetop::prelude::*;
-/// # use pagetop_bootsier::prelude::*;
+/// # use pagetop_bootsier::theme::*;
 /// let idioma = form::select::Field::new()
 ///     .with_name("language")
 ///     .with_label(L10n::n("Language"))

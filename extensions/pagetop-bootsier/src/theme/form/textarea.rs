@@ -13,7 +13,7 @@ use crate::LOCALES_BOOTSIER;
 ///
 /// ```rust
 /// # use pagetop::prelude::*;
-/// # use pagetop_bootsier::prelude::*;
+/// # use pagetop_bootsier::theme::*;
 /// let descripcion = form::Textarea::new()
 ///     .with_name("description")
 ///     .with_label(L10n::n("Description"))

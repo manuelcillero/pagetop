@@ -1,9 +1,9 @@
 use pagetop::prelude::*;
 
-use crate::prelude::*;
+use crate::theme::*;
 use crate::LOCALES_BOOTSIER;
 
-/// Componente para crear un **panel lateral deslizante** con contenidos adicionales.
+/// Componente para crear un **panel lateral deslizante** ([`offcanvas`]).
 ///
 /// Útil para navegación, filtros, formularios o menús contextuales. Incluye las siguientes
 /// características principales:
@@ -19,8 +19,28 @@ use crate::LOCALES_BOOTSIER;
 /// - Asocia título y controles de accesibilidad a un identificador único y expone atributos
 ///   adecuados para lectores de pantalla y navegación por teclado.
 ///
-/// Ver ejemplo en el módulo [`offcanvas`].
 /// Si no contiene elementos, el componente **no se renderiza**.
+///
+/// # Ejemplo
+///
+/// ```rust
+/// use pagetop::prelude::*;
+/// use pagetop_bootsier::theme::*;
+///
+/// let panel = Offcanvas::new()
+///     .with_id("offcanvas_example")
+///     .with_title(L10n::n("Offcanvas title"))
+///     .with_placement(offcanvas::Placement::End)
+///     .with_backdrop(offcanvas::Backdrop::Enabled)
+///     .with_body_scroll(offcanvas::BodyScroll::Enabled)
+///     .with_visibility(offcanvas::Visibility::Default)
+///     .with_child(Dropdown::new()
+///         .with_title(L10n::n("Menu"))
+///         .with_item(dropdown::Item::label(L10n::n("Label")))
+///         .with_item(dropdown::Item::link_blank(L10n::n("Docs"), |_| "https://docs.rs".into()))
+///         .with_item(dropdown::Item::link(L10n::n("Sign out"), |_| "/signout".into()))
+///     );
+/// ```
 #[derive(AutoDefault, Clone, Debug, Getters)]
 pub struct Offcanvas {
     #[getters(skip)]

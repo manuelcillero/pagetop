@@ -17,7 +17,7 @@ use pagetop::prelude::*;
 ///
 /// ```rust
 /// # use pagetop::prelude::*;
-/// # use pagetop_bootsier::prelude::*;
+/// # use pagetop_bootsier::theme::*;
 /// let item = form::check::Item::new("apple", L10n::n("Apple")).with_checked(true);
 /// ```
 #[derive(AutoDefault, Clone, Debug, Getters)]
@@ -82,7 +82,7 @@ impl Item {
 ///
 /// ```rust
 /// # use pagetop::prelude::*;
-/// # use pagetop_bootsier::prelude::*;
+/// # use pagetop_bootsier::theme::*;
 /// let interests = form::check::Field::new()
 ///     .with_name("interests")
 ///     .with_label(L10n::n("Areas of interest"))

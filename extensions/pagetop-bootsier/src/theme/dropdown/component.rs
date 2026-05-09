@@ -1,14 +1,14 @@
 use pagetop::prelude::*;
 
-use crate::prelude::*;
+use crate::theme::*;
 use crate::LOCALES_BOOTSIER;
 
-/// Componente para crear un **menú desplegable**.
+/// Componente para crear un **menú desplegable** ([`dropdown`]).
 ///
 /// Renderiza un botón (único o desdoblado, ver [`with_button_split()`](Self::with_button_split))
-/// para mostrar un menú desplegable de elementos [`dropdown::Item`], que se muestra/oculta según la
-/// interacción del usuario. Admite variaciones de tamaño/color del botón, también dirección de
-/// apertura, alineación o política de cierre.
+/// para mostrar un menú desplegable de elementos [`dropdown::Item`], que se muestra u oculta según
+/// la interacción del usuario. Admite variaciones para el tamaño y el color del botón, también para
+/// la dirección de apertura, alineación o política de cierre.
 ///
 /// Si no tiene título (ver [`with_title()`](Self::with_title)) se muestra únicamente la lista de
 /// elementos sin ningún botón para interactuar.
@@ -17,8 +17,25 @@ use crate::LOCALES_BOOTSIER;
 /// cuenta **el título** (si no existe le asigna uno por defecto) y **la lista de elementos**; el
 /// resto de propiedades no afectarán a su representación en [`Nav`].
 ///
-/// Ver ejemplo en el módulo [`dropdown`].
 /// Si no contiene elementos, el componente **no se renderiza**.
+///
+/// # Ejemplo
+///
+/// ```rust
+/// use pagetop::prelude::*;
+/// use pagetop_bootsier::theme::*;
+///
+/// let dd = Dropdown::new()
+///     .with_title(L10n::n("Menu"))
+///     .with_button_color(ButtonColor::Background(Color::Secondary))
+///     .with_auto_close(dropdown::AutoClose::ClickableInside)
+///     .with_direction(dropdown::Direction::Dropend)
+///     .with_item(dropdown::Item::link(L10n::n("Home"), |_| "/".into()))
+///     .with_item(dropdown::Item::link_blank(L10n::n("External"), |_| "https://docs.rs".into()))
+///     .with_item(dropdown::Item::divider())
+///     .with_item(dropdown::Item::header(L10n::n("User session")))
+///     .with_item(dropdown::Item::button(L10n::n("Sign out")));
+/// ```
 #[derive(AutoDefault, Clone, Debug, Getters)]
 pub struct Dropdown {
     #[getters(skip)]

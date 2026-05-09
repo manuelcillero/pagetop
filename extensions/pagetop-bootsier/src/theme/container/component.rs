@@ -1,11 +1,23 @@
 use pagetop::prelude::*;
 
-use crate::prelude::*;
+use crate::theme::*;
 
-/// Componente para crear un **contenedor de componentes**.
+/// Componente para crear un **contenedor de componentes** ([`container`]).
 ///
-/// Envuelve un contenido con la etiqueta HTML indicada por [`container::Kind`]. Sólo se renderiza
-/// si existen componentes hijos (*children*).
+/// Envuelve un conjunto de componentes en un contenedor establecido que se crea aplicando uno de
+/// los tipos definidos en [`container::Kind`].
+///
+/// Si no contiene elementos, el componente **no se renderiza**.
+///
+/// # Ejemplo
+///
+/// ```rust
+/// use pagetop_bootsier::theme::*;
+///
+/// let main = Container::main()
+///     .with_id("main-page")
+///     .with_width(container::Width::From(BreakPoint::LG));
+/// ```
 #[derive(AutoDefault, Clone, Debug, Getters)]
 pub struct Container {
     #[getters(skip)]

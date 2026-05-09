@@ -58,7 +58,7 @@ impl BorderColor {
     /// # Ejemplos
     ///
     /// ```rust
-    /// # use pagetop_bootsier::prelude::*;
+    /// # use pagetop_bootsier::theme::*;
     /// assert_eq!(BorderColor::Theme(Color::Primary).to_class(), "border-primary");
     /// assert_eq!(BorderColor::Subtle(Color::Warning).to_class(), "border-warning-subtle");
     /// assert_eq!(BorderColor::Black.to_class(), "border-black");

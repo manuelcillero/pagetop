@@ -1,19 +1,139 @@
 use pagetop::prelude::*;
 
-use crate::prelude::*;
+use crate::theme::*;
 use crate::LOCALES_BOOTSIER;
 
 const TOGGLE_COLLAPSE: &str = "collapse";
 const TOGGLE_OFFCANVAS: &str = "offcanvas";
 
-/// Componente para crear una **barra de navegación**.
+/// Componente para crear una **barra de navegación** ([`navbar`]).
 ///
 /// Permite mostrar enlaces, menús y una marca de identidad en distintas disposiciones (simples, con
 /// botón de despliegue o dentro de un [`offcanvas`]), controladas por [`navbar::Layout`]. También
 /// puede fijarse en la parte superior o inferior del documento mediante [`navbar::Position`].
 ///
-/// Ver ejemplos en el módulo [`navbar`].
 /// Si no contiene elementos, el componente **no se renderiza**.
+///
+/// # Ejemplos
+///
+/// Barra **simple**, sólo con un menú horizontal:
+///
+/// ```rust
+/// use pagetop::prelude::*;
+/// use pagetop_bootsier::theme::*;
+///
+/// let navbar = Navbar::simple()
+///     .with_item(navbar::Item::nav(
+///         Nav::new()
+///             .with_item(nav::Item::link(L10n::n("Home"), |_| "/".into()))
+///             .with_item(nav::Item::link(L10n::n("About"), |_| "/about".into()))
+///             .with_item(nav::Item::link(L10n::n("Contact"), |_| "/contact".into()))
+///     ));
+/// ```
+///
+/// Barra **colapsable**, con botón de despliegue y contenido en el desplegable cuando colapsa:
+///
+/// ```rust
+/// # use pagetop::prelude::*;
+/// # use pagetop_bootsier::theme::*;
+/// let navbar = Navbar::simple_toggle()
+///     .with_expand(BreakPoint::MD)
+///     .with_item(navbar::Item::nav(
+///         Nav::new()
+///             .with_item(nav::Item::link(L10n::n("Home"), |_| "/".into()))
+///             .with_item(nav::Item::link_blank(L10n::n("Docs"), |_| "https://docs.rs".into()))
+///             .with_item(nav::Item::link(L10n::n("Support"), |_| "/support".into()))
+///     ));
+/// ```
+///
+/// Barra con **marca de identidad a la izquierda** y menú a la derecha, típica de una cabecera:
+///
+/// ```rust
+/// # use pagetop::prelude::*;
+/// # use pagetop_bootsier::theme::*;
+/// let brand = navbar::Brand::new()
+///     .with_title(L10n::n("PageTop"))
+///     .with_route(Some(|cx| cx.route("/")));
+///
+/// let navbar = Navbar::brand_left(brand)
+///     .with_item(navbar::Item::nav(
+///         Nav::new()
+///             .with_item(nav::Item::link(L10n::n("Home"), |_| "/".into()))
+///             .with_item(nav::Item::dropdown(
+///                 Dropdown::new()
+///                     .with_title(L10n::n("Tools"))
+///                     .with_item(dropdown::Item::link(
+///                         L10n::n("Generator"), |_| "/tools/gen".into())
+///                     )
+///                     .with_item(dropdown::Item::link(
+///                         L10n::n("Reports"), |_| "/tools/reports".into())
+///                     )
+///             ))
+///             .with_item(nav::Item::link_disabled(L10n::n("Disabled"), |_| "#".into()))
+///     ));
+/// ```
+///
+/// Barra con **botón de despliegue a la izquierda** y **marca de identidad a la derecha**:
+///
+/// ```rust
+/// # use pagetop::prelude::*;
+/// # use pagetop_bootsier::theme::*;
+/// let brand = navbar::Brand::new()
+///     .with_title(L10n::n("Intranet"))
+///     .with_route(Some(|cx| cx.route("/")));
+///
+/// let navbar = Navbar::brand_right(brand)
+///     .with_expand(BreakPoint::LG)
+///     .with_item(navbar::Item::nav(
+///         Nav::pills()
+///             .with_item(nav::Item::link(L10n::n("Dashboard"), |_| "/dashboard".into()))
+///             .with_item(nav::Item::link(L10n::n("Users"), |_| "/users".into()))
+///     ));
+/// ```
+///
+/// Barra con el **contenido en un *offcanvas***, ideal para dispositivos móviles o menús largos:
+///
+/// ```rust
+/// # use pagetop::prelude::*;
+/// # use pagetop_bootsier::theme::*;
+/// let oc = Offcanvas::new()
+///     .with_id("main_offcanvas")
+///     .with_title(L10n::n("Main menu"))
+///     .with_placement(offcanvas::Placement::Start)
+///     .with_backdrop(offcanvas::Backdrop::Enabled);
+///
+/// let navbar = Navbar::offcanvas(oc)
+///     .with_item(navbar::Item::nav(
+///         Nav::new()
+///             .with_item(nav::Item::link(L10n::n("Home"), |_| "/".into()))
+///             .with_item(nav::Item::link(L10n::n("Profile"), |_| "/profile".into()))
+///             .with_item(nav::Item::dropdown(
+///                 Dropdown::new()
+///                     .with_title(L10n::n("More"))
+///                     .with_item(dropdown::Item::link(L10n::n("Settings"), |_| "/settings".into()))
+///                     .with_item(dropdown::Item::link(L10n::n("Help"), |_| "/help".into()))
+///             ))
+///     ));
+/// ```
+///
+/// Barra **fija arriba**:
+///
+/// ```rust
+/// # use pagetop::prelude::*;
+/// # use pagetop_bootsier::theme::*;
+/// let brand = navbar::Brand::new()
+///     .with_title(L10n::n("Main App"))
+///     .with_route(Some(|cx| cx.route("/")));
+///
+/// let navbar = Navbar::brand_left(brand)
+///     .with_position(navbar::Position::FixedTop)
+///     .with_item(navbar::Item::nav(
+///         Nav::new()
+///             .with_item(nav::Item::link(L10n::n("Dashboard"), |_| "/".into()))
+///             .with_item(nav::Item::link(L10n::n("Donors"), |_| "/donors".into()))
+///             .with_item(nav::Item::link(L10n::n("Stock"), |_| "/stock".into()))
+///     ));
+/// ```
 #[derive(AutoDefault, Clone, Debug, Getters)]
 pub struct Navbar {
     #[getters(skip)]

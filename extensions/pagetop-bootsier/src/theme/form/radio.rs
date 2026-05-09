@@ -16,7 +16,7 @@ use crate::LOCALES_BOOTSIER;
 ///
 /// ```rust
 /// # use pagetop::prelude::*;
-/// # use pagetop_bootsier::prelude::*;
+/// # use pagetop_bootsier::theme::*;
 /// let item = form::radio::Item::new("monthly", L10n::n("Monthly")).with_checked(true);
 /// ```
 #[derive(AutoDefault, Clone, Debug, Getters)]
@@ -76,7 +76,7 @@ impl Item {
 ///
 /// ```rust
 /// # use pagetop::prelude::*;
-/// # use pagetop_bootsier::prelude::*;
+/// # use pagetop_bootsier::theme::*;
 /// let plan = form::radio::Field::new()
 ///     .with_name("plan")
 ///     .with_label(L10n::n("Subscription plan"))

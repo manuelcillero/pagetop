@@ -1,15 +1,35 @@
 use pagetop::prelude::*;
 
-use crate::prelude::*;
+use crate::theme::*;
 
-/// Componente para crear un **menú** o alguna de sus variantes ([`nav::Kind`]).
+/// Componente para crear un **menú** ([`nav`]).
 ///
 /// Presenta un menú con una lista de elementos usando una vista básica, o alguna de sus variantes
-/// como *pestañas* (`Tabs`), *botones* (`Pills`) o *subrayado* (`Underline`). También permite
-/// controlar su distribución y orientación ([`nav::Layout`](crate::theme::nav::Layout)).
+/// ([`nav::Kind`]) como *pestañas* (`Tabs`), *botones* (`Pills`) o *subrayado* (`Underline`).
+/// También permite controlar su distribución y orientación ([`nav::Layout`](crate::theme::nav::Layout)).
 ///
-/// Ver ejemplo en el módulo [`nav`].
 /// Si no contiene elementos, el componente **no se renderiza**.
+///
+/// # Ejemplo
+///
+/// ```rust
+/// use pagetop::prelude::*;
+/// use pagetop_bootsier::theme::*;
+///
+/// let nav = Nav::tabs()
+///     .with_layout(nav::Layout::End)
+///     .with_item(nav::Item::link(L10n::n("Home"), |_| "/".into()))
+///     .with_item(nav::Item::link_blank(L10n::n("External"), |_| "https://docs.rs".into()))
+///     .with_item(nav::Item::dropdown(
+///         Dropdown::new()
+///             .with_title(L10n::n("Options"))
+///             .with_item(ChildOp::AddMany(vec![
+///                 dropdown::Item::link(L10n::n("Action"), |_| "/action".into()).into(),
+///                 dropdown::Item::link(L10n::n("Another"), |_| "/another".into()).into(),
+///             ])),
+///     ))
+///     .with_item(nav::Item::link_disabled(L10n::n("Disabled"), |_| "#".into()));
+/// ```
 #[derive(AutoDefault, Clone, Debug, Getters)]
 pub struct Nav {
     #[getters(skip)]

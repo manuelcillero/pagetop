@@ -14,42 +14,30 @@ use crate::theme::attrs::RoundedRadius;
 ///
 /// # Ejemplos
 ///
-/// **Radio global:**
 /// ```rust
-/// # use pagetop_bootsier::prelude::*;
+/// use pagetop_bootsier::theme::*;
+///
+/// // Radio global:
 /// let r = classes::Rounded::with(RoundedRadius::Default);
 /// assert_eq!(r.to_class(), "rounded");
-/// ```
 ///
-/// **Sin redondeo:**
-/// ```rust
-/// # use pagetop_bootsier::prelude::*;
+/// // Sin redondeo:
 /// let r = classes::Rounded::new();
 /// assert_eq!(r.to_class(), "");
-/// ```
 ///
-/// **Radio en las esquinas de un lado lógico:**
-/// ```rust
-/// # use pagetop_bootsier::prelude::*;
+/// // Radio en las esquinas de un lado lógico:
 /// let r = classes::Rounded::new().with_end(RoundedRadius::Scale2);
 /// assert_eq!(r.to_class(), "rounded-end-2");
-/// ```
 ///
-/// **Radio en una esquina concreta:**
-/// ```rust
-/// # use pagetop_bootsier::prelude::*;
+/// // Radio en una esquina concreta:
 /// let r = classes::Rounded::new().with_top_start(RoundedRadius::Scale3);
 /// assert_eq!(r.to_class(), "rounded-top-start-3");
-/// ```
 ///
-/// **Combinado (ejemplo completo):**
-/// ```rust
-/// # use pagetop_bootsier::prelude::*;
+/// // Combinado (ejemplo completo):
 /// let r = classes::Rounded::new()
 ///     .with_top(RoundedRadius::Default)           // Añade redondeo arriba.
 ///     .with_bottom_start(RoundedRadius::Scale4)   // Añade una esquina redondeada concreta.
 ///     .with_bottom_end(RoundedRadius::Circle);    // Añade redondeo extremo en otra esquina.
-///
 /// assert_eq!(r.to_class(), "rounded-top rounded-bottom-start-4 rounded-bottom-end-circle");
 /// ```
 #[rustfmt::skip]

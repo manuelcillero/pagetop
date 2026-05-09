@@ -26,45 +26,33 @@ use crate::theme::attrs::{BorderColor, Opacity, ScaleSize, Side};
 ///
 /// # Ejemplos
 ///
-/// **Borde global:**
 /// ```rust
-/// # use pagetop_bootsier::prelude::*;
+/// use pagetop_bootsier::theme::*;
+///
+/// // Borde global.
 /// let b = classes::Border::with(ScaleSize::Two);
 /// assert_eq!(b.to_class(), "border-2");
-/// ```
 ///
-/// **Aditivo (solo borde superior):**
-/// ```rust
-/// # use pagetop_bootsier::prelude::*;
+/// // Aditivo (sólo borde superior):
 /// let b = classes::Border::default().with_side(Side::Top, ScaleSize::One);
 /// assert_eq!(b.to_class(), "border-top-1");
-/// ```
 ///
-/// **Sustractivo (borde global menos el superior):**
-/// ```rust
-/// # use pagetop_bootsier::prelude::*;
+/// // Sustractivo (borde global menos el superior):
 /// let b = classes::Border::new().with_side(Side::Top, ScaleSize::Zero);
 /// assert_eq!(b.to_class(), "border border-top-0");
-/// ```
 ///
-/// **Ancho por lado (lado lógico inicial a 2 y final a 4):**
-/// ```rust
-/// # use pagetop_bootsier::prelude::*;
+/// // Ancho por lado (lado lógico inicial a 2 y final a 4):
 /// let b = classes::Border::default()
 ///     .with_side(Side::Start, ScaleSize::Two)
 ///     .with_side(Side::End, ScaleSize::Four);
 /// assert_eq!(b.to_class(), "border-end-4 border-start-2");
-/// ```
 ///
-/// **Combinado (ejemplo completo):**
-/// ```rust
-/// # use pagetop_bootsier::prelude::*;
+/// // Combinado (ejemplo completo):
 /// let b = classes::Border::new()                      // Borde por defecto.
 ///     .with_side(Side::Top, ScaleSize::Zero)          // Quita borde superior.
 ///     .with_side(Side::End, ScaleSize::Three)         // Ancho 3 para el lado lógico final.
 ///     .with_color(BorderColor::Theme(Color::Primary))
 ///     .with_opacity(Opacity::Half);
-///
 /// assert_eq!(b.to_class(), "border border-top-0 border-end-3 border-primary border-opacity-50");
 /// ```
 #[rustfmt::skip]
@@ -158,7 +146,7 @@ impl Border {
 /// # Ejemplos
 ///
 /// ```rust
-/// # use pagetop_bootsier::prelude::*;
+/// # use pagetop_bootsier::theme::*;
 /// // Convertir explícitamente con `From::from`:
 /// let b = classes::Border::from(ScaleSize::Two);
 /// assert_eq!(b.to_class(), "border-2");

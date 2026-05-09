@@ -9,7 +9,8 @@ use crate::theme::attrs::{ColorBg, ColorText, Opacity};
 /// # Ejemplos
 ///
 /// ```
-/// # use pagetop_bootsier::prelude::*;
+/// use pagetop_bootsier::theme::*;
+///
 /// // Sin clases.
 /// let s = classes::Background::new();
 /// assert_eq!(s.to_class(), "");
@@ -90,7 +91,7 @@ impl From<(ColorBg, Opacity)> for Background {
     /// # Ejemplo
     ///
     /// ```
-    /// # use pagetop_bootsier::prelude::*;
+    /// # use pagetop_bootsier::theme::*;
     /// let s: classes::Background = (ColorBg::White, Opacity::SemiTransparent).into();
     /// assert_eq!(s.to_class(), "bg-white bg-opacity-25");
     /// ```
@@ -105,7 +106,7 @@ impl From<ColorBg> for Background {
     /// # Ejemplo
     ///
     /// ```
-    /// # use pagetop_bootsier::prelude::*;
+    /// # use pagetop_bootsier::theme::*;
     /// let s: classes::Background = ColorBg::Black.into();
     /// assert_eq!(s.to_class(), "bg-black");
     /// ```
@@ -121,7 +122,8 @@ impl From<ColorBg> for Background {
 /// # Ejemplos
 ///
 /// ```
-/// # use pagetop_bootsier::prelude::*;
+/// use pagetop_bootsier::theme::*;
+///
 /// // Sin clases.
 /// let s = classes::Text::new();
 /// assert_eq!(s.to_class(), "");
@@ -202,7 +204,7 @@ impl From<(ColorText, Opacity)> for Text {
     /// # Ejemplo
     ///
     /// ```
-    /// # use pagetop_bootsier::prelude::*;
+    /// # use pagetop_bootsier::theme::*;
     /// let s: classes::Text = (ColorText::Theme(Color::Danger), Opacity::Opaque).into();
     /// assert_eq!(s.to_class(), "text-danger text-opacity-100");
     /// ```
@@ -218,7 +220,7 @@ impl From<ColorText> for Text {
     /// # Ejemplo
     ///
     /// ```
-    /// # use pagetop_bootsier::prelude::*;
+    /// # use pagetop_bootsier::theme::*;
     /// let s: classes::Text = ColorText::Black.into();
     /// assert_eq!(s.to_class(), "text-black");
     /// ```
