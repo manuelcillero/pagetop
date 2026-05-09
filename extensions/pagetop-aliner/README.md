@@ -9,7 +9,6 @@
 [![Descargas](https://img.shields.io/crates/d/pagetop-aliner.svg?label=Descargas&style=for-the-badge&logo=transmission)](https://crates.io/crates/pagetop-aliner)
 [![Licencia](https://img.shields.io/badge/license-MIT%2FApache-blue.svg?label=Licencia&style=for-the-badge)](https://git.cillero.es/manuelcillero/pagetop/src/branch/main/extensions/pagetop-aliner#licencia)
 
-<br>
 </div>
 
 ## 🧭 Sobre PageTop

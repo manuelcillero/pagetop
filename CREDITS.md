@@ -26,13 +26,6 @@ para mostrar un banner de presentación en el terminal con el nombre de la aplic
   * [starwars.flf](http://www.figlet.org/fontdb_example.cgi?font=starwars.flf) de *Ryan Youck*
 
 
-# 🎨 CSS
-
-La extensión `pagetop-bootsier` es un tema que integra [Bootstrap 5.3.8](https://getbootstrap.com/)
-para los estilos y componentes de la interfaz. Bootstrap está distribuido bajo licencia
-[MIT](https://github.com/twbs/bootstrap/blob/main/LICENSE).
-
-
 # 👾 Icono
 
 "La Mascota" sonriente es una simpática creación de [Webalys](https://www.iconfinder.com/webalys).

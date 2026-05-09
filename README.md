@@ -11,8 +11,9 @@
 [![Descargas](https://img.shields.io/crates/d/pagetop.svg?label=Descargas&style=for-the-badge&logo=transmission)](https://crates.io/crates/pagetop)
 [![Licencia](https://img.shields.io/badge/license-MIT%2FApache-blue.svg?label=Licencia&style=for-the-badge)](https://git.cillero.es/manuelcillero/pagetop#licencia)
 
-<br>
 </div>
+
+<br>
 
 PageTop reivindica la esencia de la web clásica usando [Rust](https://www.rust-lang.org/es) para la
 creación de soluciones web SSR (*renderizadas en el servidor*) basadas en HTML, CSS y JavaScript.

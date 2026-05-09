@@ -9,7 +9,6 @@
 [![Descargas](https://img.shields.io/crates/d/pagetop-bootsier.svg?label=Descargas&style=for-the-badge&logo=transmission)](https://crates.io/crates/pagetop-bootsier)
 [![Licencia](https://img.shields.io/badge/license-MIT%2FApache-blue.svg?label=Licencia&style=for-the-badge)](https://git.cillero.es/manuelcillero/pagetop/src/branch/main/extensions/pagetop-bootsier#licencia)
 
-<br>
 </div>
 
 ## 🧭 Sobre PageTop
@@ -78,6 +77,13 @@ async fn homepage(request: HttpRequest) -> ResultPage<Markup, ErrorPage> {
         .render()
 }
 ```
+
+
+## 📚 Créditos
+
+Este *crate* integra la biblioteca de estilos [Bootstrap 5.3.8](https://getbootstrap.com/) para
+definir el comportamiento, la apariencia y los componentes de la interfaz. Bootstrap se distribuye
+bajo licencia [MIT](https://github.com/twbs/bootstrap/blob/main/LICENSE).
 
 
 ## 🚧 Advertencia
