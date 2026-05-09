@@ -85,9 +85,10 @@ use pagetop::prelude::*;
 
 include_locales!(LOCALES_ALINER);
 
-/// Implementa el tema para usar en pruebas que muestran el esquema de páginas HTML.
+/// Implementa el tema.
 ///
-/// Define un tema mínimo útil para:
+/// Define un tema mínimo que muestra esquemáticamente la composición de las páginas HTML; útil
+/// para:
 ///
 /// - Comprobar el funcionamiento de temas, plantillas y regiones.
 /// - Verificar integración de componentes y composiciones (*layouts*) sin estilos complejos.
