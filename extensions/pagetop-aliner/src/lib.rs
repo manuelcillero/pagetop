@@ -83,6 +83,8 @@ async fn homepage(request: HttpRequest) -> ResultPage<Markup, ErrorPage> {
 
 use pagetop::prelude::*;
 
+include_locales!(LOCALES_ALINER);
+
 /// Implementa el tema para usar en pruebas que muestran el esquema de páginas HTML.
 ///
 /// Define un tema mínimo útil para:
@@ -94,6 +96,14 @@ use pagetop::prelude::*;
 pub struct Aliner;
 
 impl Extension for Aliner {
+    fn name(&self) -> L10n {
+        L10n::t("extension_name", &LOCALES_ALINER)
+    }
+
+    fn description(&self) -> L10n {
+        L10n::t("extension_description", &LOCALES_ALINER)
+    }
+
     fn theme(&self) -> Option<ThemeRef> {
         Some(&Self)
     }
