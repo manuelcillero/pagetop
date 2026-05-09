@@ -11,9 +11,8 @@
 //! the schema helpers to create the Db fields.
 //!
 //! ```rust
-//! use sea_orm_migration::{prelude::*, schema::*};
+//! use pagetop_seaorm::db::*;
 //!
-//! #[derive(DeriveMigrationName)]
 //! pub struct Migration;
 //!
 //! #[async_trait::async_trait]

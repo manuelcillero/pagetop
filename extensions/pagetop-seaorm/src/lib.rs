@@ -43,7 +43,7 @@ Para MySQL o PostgreSQL añade también `db_user`, `db_pass`, `db_host` y `db_po
 
 **Declara la extensión** en tu aplicación o en la extensión que la requiera:
 
-```rust,no_run
+```rust,ignore
 use pagetop::prelude::*;
 
 struct MyApp;
@@ -71,7 +71,6 @@ async fn main() -> std::io::Result<()> {
 ```rust,no_run
 use pagetop_seaorm::db::*;
 
-#[derive(DeriveMigrationName)]
 pub struct Migration;
 
 #[async_trait::async_trait]
