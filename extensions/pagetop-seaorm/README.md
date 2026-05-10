@@ -42,7 +42,7 @@ Para MySQL o PostgreSQL añade también `db_user`, `db_pass`, `db_host` y `db_po
 
 **Declara la extensión** en tu aplicación o en la extensión que la requiera:
 
-```rust,no_run
+```rust,ignore
 use pagetop::prelude::*;
 
 struct MyApp;
@@ -70,7 +70,6 @@ async fn main() -> std::io::Result<()> {
 ```rust,no_run
 use pagetop_seaorm::db::*;
 
-#[derive(DeriveMigrationName)]
 pub struct Migration;
 
 #[async_trait::async_trait]
@@ -111,27 +110,22 @@ Este *crate* se apoya en bibliotecas del ecosistema [SeaQL](https://github.com/S
   usada por el módulo de migraciones para interrogar la estructura real de la base de datos (tablas,
   columnas, índices y claves externas).
 
-También incorpora código adaptado de las siguientes fuentes:
+El módulo de migraciones (`src/db/migration/`) incorpora una adaptación de
+[sea-orm-migration](https://crates.io/crates/sea-orm-migration). El código que se integra procede de
+la versión [**1.1.20**](https://github.com/SeaQL/sea-orm/tree/1.1.20/sea-orm-migration) en lugar de
+usarlo como dependencia ya que su paradigma de CLI no es compatible con el ciclo de vida de las
+extensiones de PageTop, donde las migraciones deben ejecutarse durante la inicialización de cada
+extensión. Los ficheros adaptados del original son:
 
-* [**sea-orm-migration (v1.0.0)**](https://github.com/SeaQL/sea-orm/tree/1.0.0/sea-orm-migration):
-  El módulo de migraciones (`src/db/migration/`) es una versión personalizada de
-  [sea-orm-migration](https://crates.io/crates/sea-orm-migration). Se integra directamente en lugar
-  de usarlo como dependencia porque su paradigma de CLI no es compatible con el ciclo de vida de las
-  extensiones de PageTop, donde las migraciones deben ejecutarse durante la inicialización de cada
-  extensión. Los ficheros adaptados del original son:
-
-  | Original en `sea-orm-migration` | Observaciones                           |
-  |---------------------------------|-----------------------------------------|
-  | `lib.rs`                        | Excluye módulos y exportaciones del CLI |
-  | `connection.rs`                 | Integración completa                    |
-  | `manager.rs`                    | Integración completa                    |
-  | `migrator.rs`                   | Omite la gestión de errores del CLI     |
-  | `prelude.rs`                    | Excluye exportaciones del CLI           |
-  | `seaql_migrations.rs`           | Integración completa                    |
-
-* [**loco-rs/loco**](https://github.com/loco-rs/loco/blob/master/src/schema.rs): El módulo
-  `src/db/migration/schema.rs`, con funciones de ayuda para definir columnas de tablas de forma
-  ergonómica, está adaptado del fichero `src/schema.rs` del proyecto [Loco](https://loco.rs/).
+| Archivos                   | Observaciones                                                |
+|----------------------------|--------------------------------------------------------------|
+| `lib.rs` en `migration.rs` | Excluye módulos y exportaciones del CLI                      |
+| `connection.rs`            | Integración completa                                         |
+| `manager.rs`               | Adapta *features* propias                                    |
+| `migrator.rs`              | Adapta *features* propias y omite gestión de errores del CLI |
+| `prelude.rs`               | Excluye exportaciones del CLI                                |
+| `schema.rs`                | Integración ajustada con cambios menores                     |
+| `seaql_migrations.rs`      | Integración completa                                         |
 
 
 ## 🚧 Advertencia

@@ -7,7 +7,7 @@ use std::time::SystemTime;
 use pagetop::trace::info;
 
 use sea_orm::sea_query::{
-    self, extension::postgres::Type, Alias, Expr, ForeignKey, IntoIden, JoinType, Order, Query,
+    self, extension::postgres::Type, Alias, Expr, ExprTrait, ForeignKey, IntoIden, Order, Query,
     SelectStatement, SimpleExpr, Table,
 };
 use sea_orm::{
@@ -15,7 +15,8 @@ use sea_orm::{
     DynIden, EntityTrait, FromQueryResult, Iterable, QueryFilter, Schema, Statement,
     TransactionTrait,
 };
-use sea_schema::{mysql::MySql, postgres::Postgres, probe::SchemaProbe, sqlite::Sqlite};
+#[allow(unused_imports)]
+use sea_schema::probe::SchemaProbe;
 
 use super::{seaql_migrations, IntoSchemaManagerConnection, MigrationTrait, SchemaManager};
 
@@ -445,9 +446,14 @@ where
     C: ConnectionTrait,
 {
     match db.get_database_backend() {
-        DbBackend::MySql => MySql.query_tables(),
-        DbBackend::Postgres => Postgres.query_tables(),
-        DbBackend::Sqlite => Sqlite.query_tables(),
+        #[cfg(feature = "mysql")]
+        DbBackend::MySql => sea_schema::mysql::MySql.query_tables(),
+        #[cfg(feature = "postgres")]
+        DbBackend::Postgres => sea_schema::postgres::Postgres.query_tables(),
+        #[cfg(feature = "sqlite")]
+        DbBackend::Sqlite => sea_schema::sqlite::Sqlite.query_tables(),
+        #[allow(unreachable_patterns)]
+        other => panic!("{other:?} feature is off"),
     }
 }
 
@@ -456,9 +462,14 @@ where
     C: ConnectionTrait,
 {
     match db.get_database_backend() {
-        DbBackend::MySql => MySql::get_current_schema(),
-        DbBackend::Postgres => Postgres::get_current_schema(),
-        DbBackend::Sqlite => unimplemented!(),
+        #[cfg(feature = "mysql")]
+        DbBackend::MySql => sea_schema::mysql::MySql::get_current_schema(),
+        #[cfg(feature = "postgres")]
+        DbBackend::Postgres => sea_schema::postgres::Postgres::get_current_schema(),
+        #[cfg(feature = "sqlite")]
+        DbBackend::Sqlite => sea_schema::sqlite::Sqlite::get_current_schema(),
+        #[allow(unreachable_patterns)]
+        other => panic!("{other:?} feature is off"),
     }
 }
 
@@ -490,7 +501,7 @@ where
     ))
     .cond_where(
         Condition::all()
-            .add(Expr::expr(get_current_schema(db)).equals((
+            .add(get_current_schema(db).equals((
                 InformationSchema::TableConstraints,
                 InformationSchema::TableSchema,
             )))
@@ -508,9 +519,18 @@ where
 #[derive(DeriveIden)]
 enum PgType {
     Table,
+    Oid,
     Typname,
     Typnamespace,
     Typelem,
+}
+
+#[derive(DeriveIden)]
+enum PgDepend {
+    Table,
+    Objid,
+    Deptype,
+    Refclassid,
 }
 
 #[derive(DeriveIden)]
@@ -524,24 +544,28 @@ fn query_pg_types<C>(db: &C) -> SelectStatement
 where
     C: ConnectionTrait,
 {
-    let mut stmt = Query::select();
-    stmt.column(PgType::Typname)
+    Query::select()
+        .column(PgType::Typname)
         .from(PgType::Table)
-        .join(
-            JoinType::LeftJoin,
+        .left_join(
             PgNamespace::Table,
             Expr::col((PgNamespace::Table, PgNamespace::Oid))
                 .equals((PgType::Table, PgType::Typnamespace)),
         )
-        .cond_where(
-            Condition::all()
-                .add(
-                    Expr::expr(get_current_schema(db))
-                        .equals((PgNamespace::Table, PgNamespace::Nspname)),
+        .left_join(
+            PgDepend::Table,
+            Expr::col((PgDepend::Table, PgDepend::Objid))
+                .equals((PgType::Table, PgType::Oid))
+                .and(
+                    Expr::col((PgDepend::Table, PgDepend::Refclassid))
+                        .eq(Expr::cust("'pg_extension'::regclass::oid")),
                 )
-                .add(Expr::col((PgType::Table, PgType::Typelem)).eq(0)),
-        );
-    stmt
+                .and(Expr::col((PgDepend::Table, PgDepend::Deptype)).eq(Expr::cust("'e'"))),
+        )
+        .and_where(get_current_schema(db).equals((PgNamespace::Table, PgNamespace::Nspname)))
+        .and_where(Expr::col((PgType::Table, PgType::Typelem)).eq(0))
+        .and_where(Expr::col((PgDepend::Table, PgDepend::Objid)).is_null())
+        .take()
 }
 
 trait QueryTable {

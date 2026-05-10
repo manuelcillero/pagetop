@@ -10,4 +10,3 @@ pub use sea_orm;
 pub use sea_orm::sea_query;
 pub use sea_orm::sea_query::*;
 pub use sea_orm::DeriveIden;
-pub use sea_orm::DeriveMigrationName;

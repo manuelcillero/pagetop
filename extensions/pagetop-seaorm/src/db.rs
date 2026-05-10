@@ -11,17 +11,7 @@ use sea_orm::{ConnectionTrait, DatabaseBackend, Statement};
 mod dbconn;
 pub(crate) use dbconn::{run_now, DBCONN};
 
-// The migration module is a customized version of the sea_orm_migration module (v1.0.0)
-// https://github.com/SeaQL/sea-orm/tree/1.0.0/sea-orm-migration to avoid errors caused by the
-// package paradigm of PageTop. Files integrated from original:
-//
-//    lib.rs => db/migration.rs . . . . . . . . . . . . . . (excluding some modules and exports)
-//    connection.rs => db/migration/connection.rs . . . . . . . . . . . . . . (full integration)
-//    manager.rs => db/migration/manager.rs . . . . . . . . . . . . . . . . . (full integration)
-//    migrator.rs => db/migration/migrator.rs . . . . . . . . . . . .(omitting error management)
-//    prelude.rs => db/migration/prelude.rs . . . . . . . . . . . . . . . . . . . (avoiding CLI)
-//    seaql_migrations.rs => db/migration/seaql_migrations.rs . . . . . . . . (full integration)
-//
+// Adaptación de `sea-orm-migration` (ver §Créditos en README.md).
 mod migration;
 pub use migration::prelude::*;
 pub use migration::schema::*;
