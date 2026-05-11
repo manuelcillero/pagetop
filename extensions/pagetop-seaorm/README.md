@@ -38,7 +38,8 @@ db_name = "my_app.db"
 max_pool_size = 5
 ```
 
-Para MySQL o PostgreSQL añade también `db_user`, `db_pass`, `db_host` y `db_port`.
+Para MySQL o PostgreSQL añade también `db_user`, `db_pass` y `db_host`. El campo `db_port` es
+opcional; si se omite se usa el puerto predeterminado del motor.
 
 **Declara la extensión** en tu aplicación o en la extensión que la requiera:
 
@@ -117,15 +118,15 @@ usarlo como dependencia ya que su paradigma de CLI no es compatible con el ciclo
 extensiones de PageTop, donde las migraciones deben ejecutarse durante la inicialización de cada
 extensión. Los ficheros adaptados del original son:
 
-| Archivos                   | Observaciones                                                |
-|----------------------------|--------------------------------------------------------------|
-| `lib.rs` en `migration.rs` | Excluye módulos y exportaciones del CLI                      |
-| `connection.rs`            | Integración completa                                         |
-| `manager.rs`               | Adapta *features* propias                                    |
-| `migrator.rs`              | Adapta *features* propias y omite gestión de errores del CLI |
-| `prelude.rs`               | Excluye exportaciones del CLI                                |
-| `schema.rs`                | Integración ajustada con cambios menores                     |
-| `seaql_migrations.rs`      | Integración completa                                         |
+| Archivos              | Observaciones                                                            |
+|-----------------------|--------------------------------------------------------------------------|
+| `lib.rs`              | Incluido en `migration.rs`, descarta módulos y exportaciones del CLI     |
+| `connection.rs`       | Integración completa                                                     |
+| `manager.rs`          | Adapta *features* propias                                                |
+| `migrator.rs`         | Adapta *features* propias y omite gestión de errores del CLI             |
+| `prelude.rs`          | Excluye exportaciones del CLI                                            |
+| `schema.rs`           | Integra con ajustes, original de [loco](https://github.com/loco-rs/loco) |
+| `seaql_migrations.rs` | Integración completa                                                     |
 
 
 ## 🚧 Advertencia

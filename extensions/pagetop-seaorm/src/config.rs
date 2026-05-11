@@ -34,7 +34,6 @@ include_config!(SETTINGS: Settings => [
     "database.db_user"       => "",
     "database.db_pass"       => "",
     "database.db_host"       => "localhost",
-    "database.db_port"       => 0,
     "database.max_pool_size" => 5,
 ]);
 
@@ -57,8 +56,9 @@ pub struct Database {
     pub db_pass: String,
     /// Servidor de conexión a la base de datos (para mysql/postgres).
     pub db_host: String,
-    /// Puerto de conexión a la base de datos, normalmente 3306 (para mysql) ó 5432 (para postgres).
-    pub db_port: u16,
+    /// Puerto de conexión a la base de datos (para mysql/postgres). Si es `None` se usa el puerto
+    /// predeterminado para el motor: 3306 para MySQL y 5432 para PostgreSQL.
+    pub db_port: Option<u16>,
     /// Número máximo de conexiones habilitadas.
     pub max_pool_size: u32,
 }

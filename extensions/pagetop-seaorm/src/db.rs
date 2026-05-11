@@ -1,7 +1,7 @@
 use pagetop::core::TypeInfo;
 use pagetop::trace;
 
-pub use url::Url as DbUri;
+pub(crate) use url::Url as DbUri;
 
 pub use sea_orm::error::{DbErr, RuntimeErr};
 pub use sea_orm::{DatabaseConnection as DbConn, ExecResult, QueryResult};
@@ -16,7 +16,30 @@ mod migration;
 pub use migration::prelude::*;
 pub use migration::schema::*;
 
-pub async fn query<Q: QueryStatementWriter>(stmt: &mut Q) -> Result<Vec<QueryResult>, DbErr> {
+/// Ejecuta una consulta para devolver todas las filas resultantes.
+///
+/// Acepta cualquier tipo que implemente [`QueryStatementWriter`] (p. ej. [`SelectStatement`]) y
+/// serializa la sentencia al dialecto de la base de datos configurada antes de ejecutarla. Cada
+/// fila se devuelve como un [`QueryResult`] sin tipar; extrae los valores con
+/// [`QueryResult::try_get`].
+///
+/// ```rust,no_run
+/// use pagetop_seaorm::db::*;
+///
+/// async fn example() -> Result<(), DbErr> {
+///     let mut stmt = Query::select()
+///         .column(Asterisk)
+///         .from(Alias::new("users"))
+///         .to_owned();
+///     let rows = fetch_all(&mut stmt).await?;
+///     for row in rows {
+///         let name: String = row.try_get("", "name")?;
+///         println!("{name}");
+///     }
+///     Ok(())
+/// }
+/// ```
+pub async fn fetch_all<Q: QueryStatementWriter>(stmt: &mut Q) -> Result<Vec<QueryResult>, DbErr> {
     let dbconn = &*DBCONN;
     let dbbackend = dbconn.get_database_backend();
     dbconn
@@ -31,7 +54,30 @@ pub async fn query<Q: QueryStatementWriter>(stmt: &mut Q) -> Result<Vec<QueryRes
         .await
 }
 
-pub async fn exec<Q: QueryStatementWriter>(stmt: &mut Q) -> Result<Option<QueryResult>, DbErr> {
+/// Ejecuta una consulta y devuelve sólo la primera fila, si existe.
+///
+/// Funciona igual que [`fetch_all`] pero detiene la ejecución tras la primera fila y devuelve
+/// `None` si la consulta no produce resultados.
+///
+/// ```rust,no_run
+/// use pagetop_seaorm::db::*;
+///
+/// async fn example() -> Result<(), DbErr> {
+///     let mut stmt = Query::select()
+///         .column(Asterisk)
+///         .from(Alias::new("users"))
+///         .and_where(Expr::col(Alias::new("id")).eq(1))
+///         .to_owned();
+///     if let Some(row) = fetch_one(&mut stmt).await? {
+///         let name: String = row.try_get("", "name")?;
+///         println!("{name}");
+///     }
+///     Ok(())
+/// }
+/// ```
+pub async fn fetch_one<Q: QueryStatementWriter>(
+    stmt: &mut Q,
+) -> Result<Option<QueryResult>, DbErr> {
     let dbconn = &*DBCONN;
     let dbbackend = dbconn.get_database_backend();
     dbconn
@@ -46,11 +92,27 @@ pub async fn exec<Q: QueryStatementWriter>(stmt: &mut Q) -> Result<Option<QueryR
         .await
 }
 
-pub async fn exec_raw(stmt: String) -> Result<ExecResult, DbErr> {
+/// Ejecuta una sentencia SQL en crudo (INSERT, UPDATE, DELETE…) y devuelve el resultado de
+/// la operación.
+///
+/// A diferencia de [`fetch_all`] y [`fetch_one`], no construye la consulta, sino que la recibe como
+/// cadena ya formada. Útil para sentencias avanzadas o para migraciones puntuales. El
+/// [`ExecResult`] devuelto permite consultar las filas afectadas o el último ID insertado.
+///
+/// ```rust,no_run
+/// use pagetop_seaorm::db::*;
+///
+/// async fn example() -> Result<(), DbErr> {
+///     let result = execute("DELETE FROM sessions WHERE expired = 1").await?;
+///     println!("Filas eliminadas: {}", result.rows_affected());
+///     Ok(())
+/// }
+/// ```
+pub async fn execute(stmt: impl Into<String>) -> Result<ExecResult, DbErr> {
     let dbconn = &*DBCONN;
     let dbbackend = dbconn.get_database_backend();
     dbconn
-        .execute(Statement::from_string(dbbackend, stmt))
+        .execute(Statement::from_string(dbbackend, stmt.into()))
         .await
 }
 

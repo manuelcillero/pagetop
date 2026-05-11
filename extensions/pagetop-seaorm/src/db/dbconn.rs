@@ -35,10 +35,8 @@ pub static DBCONN: LazyLock<DbConn> = LazyLock::new(|| {
             tmp_uri
                 .set_password(Some(config::SETTINGS.database.db_pass.as_str()))
                 .unwrap();
-            if config::SETTINGS.database.db_port != 0 {
-                tmp_uri
-                    .set_port(Some(config::SETTINGS.database.db_port))
-                    .unwrap();
+            if let Some(port) = config::SETTINGS.database.db_port {
+                tmp_uri.set_port(Some(port)).unwrap();
             }
             tmp_uri
         }
@@ -51,13 +49,10 @@ pub static DBCONN: LazyLock<DbConn> = LazyLock::new(|| {
             .as_str(),
         )
         .unwrap(),
-        _ => {
-            trace::error!(
-                "Unrecognized database type \"{}\"",
-                &config::SETTINGS.database.db_type
-            );
-            DbUri::parse("").unwrap()
-        }
+        _ => panic!(
+            "Unrecognized database type \"{}\"",
+            config::SETTINGS.database.db_type
+        ),
     };
 
     run_now(Database::connect::<ConnectOptions>({

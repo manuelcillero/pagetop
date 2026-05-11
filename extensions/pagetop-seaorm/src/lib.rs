@@ -39,7 +39,8 @@ db_name = "my_app.db"
 max_pool_size = 5
 ```
 
-Para MySQL o PostgreSQL añade también `db_user`, `db_pass`, `db_host` y `db_port`.
+Para MySQL o PostgreSQL añade también `db_user`, `db_pass` y `db_host`. El campo `db_port` es
+opcional; si se omite se usa el puerto predeterminado del motor.
 
 **Declara la extensión** en tu aplicación o en la extensión que la requiera:
 
