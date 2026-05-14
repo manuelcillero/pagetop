@@ -69,7 +69,7 @@ async fn main() -> std::io::Result<()> {
 **Escribe las migraciones** usando la API de SeaORM:
 
 ```rust,no_run
-use pagetop_seaorm::db::*;
+use pagetop_seaorm::migration::*;
 
 pub struct Migration;
 
@@ -111,7 +111,7 @@ Este *crate* se apoya en bibliotecas del ecosistema [SeaQL](https://github.com/S
   usada por el módulo de migraciones para interrogar la estructura real de la base de datos (tablas,
   columnas, índices y claves externas).
 
-El módulo de migraciones (`src/db/migration/`) incorpora una adaptación de
+El módulo de migraciones (`src/migration/`) incorpora una adaptación de
 [sea-orm-migration](https://crates.io/crates/sea-orm-migration). El código que se integra procede de
 la versión [**1.1.20**](https://github.com/SeaQL/sea-orm/tree/1.1.20/sea-orm-migration) en lugar de
 usarlo como dependencia ya que su paradigma de CLI no es compatible con el ciclo de vida de las
@@ -124,7 +124,7 @@ extensión. Los ficheros adaptados del original son:
 | `connection.rs`       | Integración completa                                                     |
 | `manager.rs`          | Adapta *features* propias                                                |
 | `migrator.rs`         | Adapta *features* propias y omite gestión de errores del CLI             |
-| `prelude.rs`          | Excluye exportaciones del CLI                                            |
+| `prelude.rs`          | Absorbido en `migration.rs`, descarta exportaciones del CLI              |
 | `schema.rs`           | Integra con ajustes, original de [loco](https://github.com/loco-rs/loco) |
 | `seaql_migrations.rs` | Integración completa                                                     |
 

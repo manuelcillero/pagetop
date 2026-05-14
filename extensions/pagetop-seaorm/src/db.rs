@@ -1,30 +1,52 @@
-use pagetop::core::TypeInfo;
-use pagetop::trace;
+//! API completa de SeaORM para operaciones con la base de datos.
+//!
+//! Re-exporta el *prelude* de SeaORM (entidades, traits, tipos de valor, macros de derivación…)
+//! y expone tres funciones de consulta propias. Con una sola importación tienes todo lo necesario
+//! para definir entidades y realizar operaciones CRUD:
+//!
+//! ```rust,ignore
+//! use pagetop_seaorm::db::*;
+//! ```
+//!
+//! Para definir el esquema de la base de datos o escribir migraciones usa además
+//! [`crate::migration`].
 
-pub(crate) use url::Url as DbUri;
+pub use sea_orm::prelude::*;
 
-pub use sea_orm::error::{DbErr, RuntimeErr};
-pub use sea_orm::{DatabaseConnection as DbConn, ExecResult, QueryResult};
+use sea_orm::sea_query::{
+    MysqlQueryBuilder, PostgresQueryBuilder, QueryStatementWriter, SqliteQueryBuilder,
+};
+use sea_orm::{DatabaseBackend, ExecResult, Statement};
 
-use sea_orm::{ConnectionTrait, DatabaseBackend, Statement};
-
-mod dbconn;
-pub(crate) use dbconn::{run_now, DBCONN};
-
-// Adaptación de `sea-orm-migration` (ver §Créditos en README.md).
-mod migration;
-pub use migration::prelude::*;
-pub use migration::schema::*;
+/// Devuelve una referencia al pool de conexiones para usarla con el sistema de entidades.
+///
+/// Permite pasar la conexión a los métodos `all`, `one`, `exec`, etc. del sistema de entidades
+/// de SeaORM. El coste de esta llamada es prácticamente nulo: sólo devuelve una referencia a un
+/// valor inicializado una sola vez al arrancar la aplicación.
+///
+/// ```rust,no_run
+/// use pagetop_seaorm::db::*;
+///
+/// // Consultas tipadas con el sistema de entidades de SeaORM:
+/// //   let users = User::find().all(connection()).await?;
+/// //   let user  = User::find_by_id(1).one(connection()).await?;
+/// //   User::insert(model).exec(connection()).await?;
+/// let _conn = connection();
+/// ```
+pub fn connection() -> &'static DatabaseConnection {
+    &super::DBCONN
+}
 
 /// Ejecuta una consulta para devolver todas las filas resultantes.
 ///
-/// Acepta cualquier tipo que implemente [`QueryStatementWriter`] (p. ej. [`SelectStatement`]) y
+/// Acepta cualquier tipo que implemente [`crate::migration::QueryStatementWriter`] (p. ej. [`crate::migration::SelectStatement`]) y
 /// serializa la sentencia al dialecto de la base de datos configurada antes de ejecutarla. Cada
 /// fila se devuelve como un [`QueryResult`] sin tipar; extrae los valores con
 /// [`QueryResult::try_get`].
 ///
 /// ```rust,no_run
 /// use pagetop_seaorm::db::*;
+/// use pagetop_seaorm::migration::*;
 ///
 /// async fn example() -> Result<(), DbErr> {
 ///     let mut stmt = Query::select()
@@ -40,7 +62,7 @@ pub use migration::schema::*;
 /// }
 /// ```
 pub async fn fetch_all<Q: QueryStatementWriter>(stmt: &mut Q) -> Result<Vec<QueryResult>, DbErr> {
-    let dbconn = &*DBCONN;
+    let dbconn = &*super::DBCONN;
     let dbbackend = dbconn.get_database_backend();
     dbconn
         .query_all(Statement::from_string(
@@ -61,6 +83,7 @@ pub async fn fetch_all<Q: QueryStatementWriter>(stmt: &mut Q) -> Result<Vec<Quer
 ///
 /// ```rust,no_run
 /// use pagetop_seaorm::db::*;
+/// use pagetop_seaorm::migration::*;
 ///
 /// async fn example() -> Result<(), DbErr> {
 ///     let mut stmt = Query::select()
@@ -78,7 +101,7 @@ pub async fn fetch_all<Q: QueryStatementWriter>(stmt: &mut Q) -> Result<Vec<Quer
 pub async fn fetch_one<Q: QueryStatementWriter>(
     stmt: &mut Q,
 ) -> Result<Option<QueryResult>, DbErr> {
-    let dbconn = &*DBCONN;
+    let dbconn = &*super::DBCONN;
     let dbbackend = dbconn.get_database_backend();
     dbconn
         .query_one(Statement::from_string(
@@ -95,8 +118,8 @@ pub async fn fetch_one<Q: QueryStatementWriter>(
 /// Ejecuta una sentencia SQL en crudo (INSERT, UPDATE, DELETE…) y devuelve el resultado de
 /// la operación.
 ///
-/// A diferencia de [`fetch_all`] y [`fetch_one`], no construye la consulta, sino que la recibe como
-/// cadena ya formada. Útil para sentencias avanzadas o para migraciones puntuales. El
+/// A diferencia de [`fetch_all`] y [`fetch_one`], no construye la consulta, sino que la recibe
+/// como cadena ya formada. Útil para sentencias avanzadas o para migraciones puntuales. El
 /// [`ExecResult`] devuelto permite consultar las filas afectadas o el último ID insertado.
 ///
 /// ```rust,no_run
@@ -109,76 +132,9 @@ pub async fn fetch_one<Q: QueryStatementWriter>(
 /// }
 /// ```
 pub async fn execute(stmt: impl Into<String>) -> Result<ExecResult, DbErr> {
-    let dbconn = &*DBCONN;
+    let dbconn = &*super::DBCONN;
     let dbbackend = dbconn.get_database_backend();
     dbconn
         .execute(Statement::from_string(dbbackend, stmt.into()))
         .await
-}
-
-pub trait MigratorBase {
-    fn run_up();
-
-    fn run_down();
-}
-
-#[rustfmt::skip]
-impl<M: MigratorTrait> MigratorBase for M {
-    fn run_up() {
-        if let Err(e) = run_now(Self::up(SchemaManagerConnection::Connection(&DBCONN), None)) {
-            trace::error!("Migration upgrade failed ({})", e);
-        };
-    }
-
-    fn run_down() {
-        if let Err(e) = run_now(Self::down(SchemaManagerConnection::Connection(&DBCONN), None)) {
-            trace::error!("Migration downgrade failed ({})", e);
-        };
-    }
-}
-
-impl<M: MigrationTrait> MigrationName for M {
-    fn name(&self) -> &str {
-        TypeInfo::NameTo(-2).of::<M>()
-    }
-}
-
-pub type MigrationItem = Box<dyn MigrationTrait>;
-
-#[macro_export]
-macro_rules! install_migrations {
-    ( $($migration_module:ident),+ $(,)? ) => {{
-        use $crate::db::{MigrationItem, MigratorBase, MigratorTrait};
-
-        struct Migrator;
-        impl MigratorTrait for Migrator {
-            fn migrations() -> Vec<MigrationItem> {
-                let mut m = Vec::<MigrationItem>::new();
-                $(
-                    m.push(Box::new(migration::$migration_module::Migration));
-                )*
-                m
-            }
-        }
-        Migrator::run_up();
-    }};
-}
-
-#[macro_export]
-macro_rules! uninstall_migrations {
-    ( $($migration_module:ident),+ $(,)? ) => {{
-        use $crate::db::{MigrationItem, MigratorBase, MigratorTrait};
-
-        struct Migrator;
-        impl MigratorTrait for Migrator {
-            fn migrations() -> Vec<MigrationItem> {
-                let mut m = Vec::<MigrationItem>::new();
-                $(
-                    m.push(Box::new(migration::$migration_module::Migration));
-                )*
-                m
-            }
-        }
-        Migrator::run_down();
-    }};
 }

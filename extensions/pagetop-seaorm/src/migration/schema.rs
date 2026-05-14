@@ -1,17 +1,16 @@
-//! Adapted from <https://github.com/loco-rs/loco/blob/master/src/schema.rs>
+//! Adaptación de <https://github.com/loco-rs/loco/blob/master/src/schema.rs>
 //!
-//! # Database Table Schema Helpers
+//! # Ayudantes de esquema de base de datos
 //!
-//! This module defines functions and helpers for creating database table
-//! schemas using the `sea-orm` and `sea-query` libraries.
+//! Define funciones y ayudantes para crear esquemas de tablas usando `sea-orm` y `sea-query`.
 //!
-//! # Example
+//! # Ejemplo
 //!
-//! The following example shows how the user migration file should be and using
-//! the schema helpers to create the Db fields.
+//! El siguiente ejemplo muestra cómo escribir un archivo de migración usando los ayudantes
+//! de esquema.
 //!
 //! ```rust
-//! use pagetop_seaorm::db::*;
+//! use pagetop_seaorm::migration::*;
 //!
 //! pub struct Migration;
 //!
@@ -38,7 +37,7 @@
 //!     }
 //! }
 //!
-//! #[derive(Iden)]
+//! #[derive(DeriveIden)]
 //! pub enum Users {
 //!     Table,
 //!     Id,
@@ -51,10 +50,9 @@
 //! }
 //! ```
 
-use crate::db::Iden;
-
 use sea_orm::sea_query::{
-    self, Alias, ColumnDef, ColumnType, Expr, IntoIden, PgInterval, Table, TableCreateStatement,
+    self, Alias, ColumnDef, ColumnType, Expr, Iden, IntoIden, PgInterval, Table,
+    TableCreateStatement,
 };
 
 #[derive(Iden)]
@@ -599,7 +597,7 @@ pub fn array_uniq<T: IntoIden>(col: T, elem_type: ColumnType) -> ColumnDef {
     array(col, elem_type).unique_key().take()
 }
 
-/// Add timestamp columns (`CreatedAt` and `UpdatedAt`) to an existing table.
+/// Añade las columnas de timestamp (`CreatedAt` y `UpdatedAt`) a una tabla existente.
 pub fn timestamps(t: TableCreateStatement) -> TableCreateStatement {
     let mut t = t;
     t.col(timestamp(GeneralIds::CreatedAt).default(Expr::current_timestamp()))
@@ -607,7 +605,7 @@ pub fn timestamps(t: TableCreateStatement) -> TableCreateStatement {
         .take()
 }
 
-/// Create an Alias.
+/// Crea un alias.
 pub fn name<T: Into<String>>(name: T) -> Alias {
     Alias::new(name)
 }
