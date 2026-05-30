@@ -1,8 +1,8 @@
 :root {
-	--intro-bg-img: url('/img/intro-header.jpg');
-	--intro-bg-img-set: image-set(url('/img/intro-header.avif') type('image/avif'), url('/img/intro-header.webp') type('image/webp'), var(--intro-bg-img) type('image/jpeg'));
-	--intro-bg-img-sm: url('/img/intro-header-sm.jpg');
-	--intro-bg-img-sm-set: image-set(url('/img/intro-header-sm.avif') type('image/avif'), url('/img/intro-header-sm.webp') type('image/webp'), var(--intro-bg-img-sm) type('image/jpeg'));
+	--intro-bg-img: url('/pagetop/img/intro-header.jpg');
+	--intro-bg-img-set: image-set(url('/pagetop/img/intro-header.avif') type('image/avif'), url('/pagetop/img/intro-header.webp') type('image/webp'), var(--intro-bg-img) type('image/jpeg'));
+	--intro-bg-img-sm: url('/pagetop/img/intro-header-sm.jpg');
+	--intro-bg-img-sm-set: image-set(url('/pagetop/img/intro-header-sm.avif') type('image/avif'), url('/pagetop/img/intro-header-sm.webp') type('image/webp'), var(--intro-bg-img-sm) type('image/jpeg'));
 	--intro-bg-color: #7a430e;
 	--intro-bg-block-1: #ffb84b;
 	--intro-bg-block-2: #ffc66f;

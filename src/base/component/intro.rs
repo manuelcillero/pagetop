@@ -114,7 +114,7 @@ impl Component for Intro {
 
     fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
         cx.alter_assets(AssetsOp::AddStyleSheet(
-            StyleSheet::from("/css/intro.css").with_version(PAGETOP_VERSION),
+            StyleSheet::from("/pagetop/css/intro.css").with_version(PAGETOP_VERSION),
         ));
         if *self.opening() == IntroOpening::PageTop {
             cx.alter_assets(AssetsOp::AddJavaScript(JavaScript::on_load_async("intro-js", |cx|
