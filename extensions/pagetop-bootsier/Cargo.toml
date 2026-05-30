@@ -1,7 +1,6 @@
 [package]
 name = "pagetop-bootsier"
 version = "0.1.1"
-edition = "2021"
 
 description = """
     Tema de PageTop basado en Bootstrap para aplicar su catálogo de estilos y componentes flexibles.
@@ -11,12 +10,16 @@ keywords = ["pagetop", "theme", "bootstrap", "css", "js"]
 
 repository.workspace = true
 homepage.workspace = true
+edition.workspace = true
 license.workspace = true
 authors.workspace = true
 
 [dependencies]
 pagetop.workspace = true
 serde.workspace = true
+
+[dev-dependencies]
+tokio.workspace = true
 
 [build-dependencies]
 pagetop-build.workspace = true

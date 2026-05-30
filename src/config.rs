@@ -7,11 +7,11 @@
 //! **código** de la **configuración**, lo que permite tener configuraciones diferentes para cada
 //! despliegue, como *dev*, *staging* o *production*, sin modificar el código fuente.
 //!
-//!
 //! # Orden de carga
 //!
 //! Si tu aplicación necesita archivos de configuración, crea un directorio `config` en la raíz del
-//! proyecto, al mismo nivel que el archivo *Cargo.toml* o que el binario de la aplicación.
+//! proyecto, al mismo nivel que el archivo *Cargo.toml* o que el binario de la aplicación. Puedes
+//! cambiar esta ubicación mediante la variable de entorno `CONFIG_DIR`.
 //!
 //! PageTop carga en este orden, y siempre de forma opcional, los siguientes archivos TOML:
 //!
@@ -41,7 +41,6 @@
 //!
 //! Los archivos se combinan en el orden anterior, cada archivo sobrescribe a los anteriores en caso
 //! de conflicto.
-//!
 //!
 //! # Cómo añadir opciones de configuración a tu código
 //!
@@ -91,7 +90,6 @@
 //!
 //! Las estructuras de configuración son de **sólo lectura** durante la ejecución.
 //!
-//!
 //! # Usando tus opciones de configuración
 //!
 //! ```rust,ignore
@@ -131,9 +129,14 @@ pub static CONFIG_VALUES: LazyLock<ConfigBuilder<DefaultState>> = LazyLock::new(
     let dir = env::var_os("CONFIG_DIR").unwrap_or_else(|| DEFAULT_CONFIG_DIR.into());
     let config_dir = util::resolve_absolute_dir(&dir).unwrap_or_else(|_| PathBuf::from(&dir));
 
-    // Modo de ejecución según la variable de entorno PAGETOP_RUN_MODE. Si no está definida, se usa
-    // por defecto DEFAULT_RUN_MODE (p. ej. PAGETOP_RUN_MODE=production).
-    let rm = env::var("PAGETOP_RUN_MODE").unwrap_or_else(|_| DEFAULT_RUN_MODE.into());
+    // Modo de ejecución. Con la *feature* `testing` activa (usada por `cargo ts` y `cargo tw`), se
+    // fija en "test" en tiempo de compilación, sin manipular el entorno. En caso contrario se lee
+    // de PAGETOP_RUN_MODE, o se usa DEFAULT_RUN_MODE si la variable no está definida.
+    let rm = if cfg!(feature = "testing") {
+        "test".to_string()
+    } else {
+        env::var("PAGETOP_RUN_MODE").unwrap_or_else(|_| DEFAULT_RUN_MODE.into())
+    };
 
     Config::builder()
         // 1. Configuración común para todos los entornos (common.toml).
@@ -158,7 +161,7 @@ pub static CONFIG_VALUES: LazyLock<ConfigBuilder<DefaultState>> = LazyLock::new(
 /// Hay que añadir en nuestra librería el siguiente código:
 ///
 /// ```rust,ignore
-/// include_config!(SETTINGS: Settings => [
+/// include_config!(SETTINGS_NAME: SettingsType => [
 ///     "ruta.clave" => valor,
 ///     // ...
 /// ]);
@@ -168,8 +171,8 @@ pub static CONFIG_VALUES: LazyLock<ConfigBuilder<DefaultState>> = LazyLock::new(
 ///
 /// * **`SETTINGS_NAME`** es el nombre de la variable global que se usará para referenciar los
 ///   ajustes. Se recomienda usar `SETTINGS`, aunque no es obligatorio.
-/// * **`Settings_Type`** es la referencia a la estructura que define los tipos para deserializar la
-///   configuración. Debe implementar `Deserialize` (derivable con `#[derive(Deserialize)]`).
+/// * **`SettingsType`** es la estructura que define los tipos para deserializar la configuración.
+///   Debe implementar `Deserialize` (derivable con `#[derive(Deserialize)]`).
 /// * **Lista de pares** con las claves TOML que requieran valores por defecto. Siguen la notación
 ///   `"seccion.subclave"` para coincidir con el árbol TOML.
 ///
@@ -211,7 +214,7 @@ pub static CONFIG_VALUES: LazyLock<ConfigBuilder<DefaultState>> = LazyLock::new(
 /// * **Secciones únicas**. Agrupa tus claves dentro de una sección exclusiva (p. ej. `[blog]`) para
 ///   evitar colisiones con otras librerías.
 ///
-/// * **Solo lectura**. La variable generada es inmutable durante toda la vida del programa. Para
+/// * **Sólo lectura**. La variable generada es inmutable durante toda la vida del programa. Para
 ///   configurar distintos entornos (*dev*, *staging*, *prod*) usa los archivos TOML descritos en la
 ///   documentación de [`config`](crate::config).
 ///
@@ -220,8 +223,8 @@ pub static CONFIG_VALUES: LazyLock<ConfigBuilder<DefaultState>> = LazyLock::new(
 ///
 /// # Requisitos
 ///
-/// * Dependencia `serde` con la *feature* `derive`.
-/// * Las claves deben coincidir con los campos (*snake case*) de tu estructura `Settings_Type`.
+/// * Las claves deben coincidir con los campos (*snake case*) de la estructura de ajustes.
+/// * Añade `serde` con la *feature* `derive` en *Cargo.toml*:
 ///
 /// ```toml
 /// [dependencies]
@@ -229,10 +232,10 @@ pub static CONFIG_VALUES: LazyLock<ConfigBuilder<DefaultState>> = LazyLock::new(
 /// ```
 #[macro_export]
 macro_rules! include_config {
-    ( $SETTINGS_NAME:ident : $Settings_Type:ty => [ $( $k:literal => $v:expr ),* $(,)? ] ) => {
+    ( $SETTINGS_NAME:ident : $settings_type:ty => [ $( $k:literal => $v:expr ),* $(,)? ] ) => {
         #[doc = concat!(
             "Ajustes de configuración y **valores por defecto** para ",
-            "[`", stringify!($Settings_Type), "`]."
+            "[`", stringify!($settings_type), "`]."
         )]
         #[doc = ""]
         #[doc = "Valores predeterminados que se aplican en ausencia de configuración:"]
@@ -241,17 +244,18 @@ macro_rules! include_config {
             #[doc = concat!($k, " = ", stringify!($v))]
         )*
         #[doc = "```"]
-        pub static $SETTINGS_NAME: std::sync::LazyLock<$Settings_Type> =
+        pub static $SETTINGS_NAME: std::sync::LazyLock<$settings_type> =
             std::sync::LazyLock::new(|| {
                 let mut settings = $crate::config::CONFIG_VALUES.clone();
                 $(
-                    settings = settings.set_default($k, $v).unwrap();
+                    settings = settings.set_default($k, $v)
+                        .expect(concat!("Failed to set default for key ", $k));
                 )*
                 settings
                     .build()
-                    .expect(concat!("Failed to build config for ", stringify!($Settings_Type)))
-                    .try_deserialize::<$Settings_Type>()
-                    .expect(concat!("Error parsing settings for ", stringify!($Settings_Type)))
+                    .expect(concat!("Failed to build config for ", stringify!($settings_type)))
+                    .try_deserialize::<$settings_type>()
+                    .expect(concat!("Error parsing settings for ", stringify!($settings_type)))
             });
     };
 }

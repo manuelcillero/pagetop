@@ -1,7 +1,7 @@
 //! HTML en código.
 
 mod maud;
-pub use maud::{display, html, html_private, Escaper, Markup, PreEscaped, DOCTYPE};
+pub use maud::{DOCTYPE, Escaper, Markup, PreEscaped, display, html, html_private};
 
 mod route;
 pub use route::RoutePath;

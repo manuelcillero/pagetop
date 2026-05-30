@@ -39,9 +39,8 @@ include_config!(SETTINGS: Settings => [
     "log.format"              => "Full",
 
     // [server]
-    "server.bind_address"     => "localhost",
-    "server.bind_port"        => 8080,
-    "server.session_lifetime" => 604_800,
+    "server.bind_address" => "localhost",
+    "server.bind_port"    => 8080,
 ]);
 
 // **< Settings >***********************************************************************************
@@ -116,7 +115,7 @@ pub struct Log {
     pub enabled: bool,
     /// Opciones, o combinación de opciones separadas por comas, para filtrar las trazas: *"Error"*,
     /// *"Warn"*, *"Info"*, *"Debug"* o *"Trace"*.
-    /// Ejemplo: *"Error,actix_server::builder=Info,tracing_actix_web=Debug"*.
+    /// Ejemplo: *"Error,tower_http=Debug,axum::rejection=trace"*.
     pub tracing: String,
     /// Muestra los mensajes de traza en el terminal (*"Stdout"*) o los vuelca en archivos con
     /// rotación: *"Daily"*, *"Hourly"*, *"Minutely"* o *"Endless"*.
@@ -136,8 +135,4 @@ pub struct Server {
     pub bind_address: String,
     /// Puerto de escucha del servidor web.
     pub bind_port: u16,
-    /// Duración de la cookie de sesión en segundos (p. ej., `604_800` para una semana).
-    ///
-    /// El valor `0` indica que la cookie permanecerá activa hasta que se cierre el navegador.
-    pub session_lifetime: i64,
 }

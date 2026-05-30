@@ -14,7 +14,7 @@ pub use crate::{AutoDefault, CowStr, Getters, StaticResources, UniqueId, Weight}
 pub use crate::include_config;
 // crate::locale
 pub use crate::include_locales;
-// crate::service
+// crate::web
 pub use crate::static_files_service;
 // crate::core::action
 pub use crate::actions;
@@ -35,8 +35,8 @@ pub use crate::locale::*;
 
 pub use crate::datetime::*;
 
-pub use crate::service;
-pub use crate::service::{HttpMessage, HttpRequest, HttpResponse};
+pub use crate::web;
+pub use crate::web::{HttpRequest, IntoResponse, Json, Path, Query, Router};
 
 pub use crate::core::{AnyCast, AnyInfo, TypeInfo};
 
@@ -45,7 +45,7 @@ pub use crate::core::component::*;
 pub use crate::core::extension::*;
 pub use crate::core::theme::*;
 
-pub use crate::response::{json::*, page::*, redirect::*, ResponseError};
+pub use crate::response::{page::*, redirect::*};
 
 pub use crate::base::action;
 pub use crate::base::component::*;

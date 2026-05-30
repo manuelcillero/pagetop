@@ -53,8 +53,8 @@ use pagetop::prelude::*;
 struct HelloWorld;
 
 impl Extension for HelloWorld {
-    fn configure_service(&self, scfg: &mut service::web::ServiceConfig) {
-        scfg.route("/", service::web::get().to(hello_world));
+    fn configure_router(&self, router: Router) -> Router {
+        router.route("/", web::get(hello_world))
     }
 }
 
@@ -117,10 +117,10 @@ use std::ops::Deref;
 ///     fn before_render_page_body(&self, page: &mut Page) {
 ///         page
 ///             .alter_assets(AssetsOp::AddStyleSheet(
-///                 StyleSheet::from("/css/normalize.css").with_version("8.0.1"),
+///                 StyleSheet::from("/pagetop/css/normalize.css").with_version("8.0.1"),
 ///             ))
 ///             .alter_assets(AssetsOp::AddStyleSheet(
-///                 StyleSheet::from("/css/basic.css").with_version(PAGETOP_VERSION),
+///                 StyleSheet::from("/pagetop/css/basic.css").with_version(PAGETOP_VERSION),
 ///             ))
 ///             .alter_assets(AssetsOp::AddStyleSheet(
 ///                 StyleSheet::from("/mytheme/styles.css").with_version(env!("CARGO_PKG_VERSION")),
@@ -132,9 +132,9 @@ use std::ops::Deref;
 /// referencia a la versión del *crate* que lo usa.
 pub const PAGETOP_VERSION: &str = env!("CARGO_PKG_VERSION");
 
-pub use pagetop_macros::{builder_fn, html, main, test, AutoDefault};
+pub use pagetop_macros::{AutoDefault, builder_fn, html, main, test};
 
-pub use pagetop_statics::{resource, StaticResource};
+pub use pagetop_statics::{StaticResource, resource};
 
 pub use getter_methods::Getters;
 
@@ -198,8 +198,8 @@ pub mod datetime;
 pub mod core;
 // Respuestas a peticiones web en sus diferentes formatos.
 pub mod response;
-// Gestión del servidor y servicios web.
-pub mod service;
+// Gestión del servidor y rutas web.
+pub mod web;
 // Reúne acciones, componentes, extensiones y temas predefinidos.
 pub mod base;
 // Prepara y ejecuta la aplicación.

@@ -1,63 +1,3 @@
-[package]
-name = "pagetop"
-version = "0.5.0"
-edition = "2021"
-
-description = """
-    Un entorno de desarrollo para crear soluciones web modulares, extensibles y configurables.
-"""
-categories = ["web-programming::http-server"]
-keywords = ["pagetop", "web", "framework", "frontend", "ssr"]
-
-repository.workspace = true
-homepage.workspace = true
-license.workspace = true
-authors.workspace = true
-
-[dependencies]
-chrono = "0.4"
-colored = "3.1"
-config = { version = "0.15", default-features = false, features = ["toml"] }
-figlet-rs = "1.0"
-getter-methods = "2.0"
-itoa = "1.0"
-indexmap = "2.14"
-parking_lot = "0.12"
-substring = "1.4"
-terminal_size = "0.4"
-
-tracing = "0.1"
-tracing-appender = "0.2"
-tracing-subscriber = { version = "0.3", features = ["json", "env-filter"] }
-tracing-actix-web = "0.7"
-
-fluent-templates = "0.14"
-unic-langid = { version = "0.9", features = ["macros"] }
-
-actix-web = { workspace = true, default-features = true }
-actix-session = { version = "0.11", features = ["cookie-session"] }
-actix-web-files = { package = "actix-files", version = "0.6" }
-
-serde.workspace = true
-
-pagetop-macros.workspace = true
-pagetop-minimal.workspace = true
-pagetop-statics.workspace = true
-
-[features]
-default = []
-testing = []
-
-[dev-dependencies]
-tempfile = "3.27"
-serde_json = "1.0"
-pagetop-aliner.workspace = true
-pagetop-bootsier.workspace = true
-
-[build-dependencies]
-pagetop-build.workspace = true
-
-
 [workspace]
 resolver = "2"
 members = [
@@ -75,12 +15,45 @@ members = [
 [workspace.package]
 repository = "https://git.cillero.es/manuelcillero/pagetop"
 homepage = "https://pagetop.cillero.es"
+edition = "2024"
 license = "MIT OR Apache-2.0"
 authors = ["Manuel Cillero <manuel@cillero.es>"]
 
 [workspace.dependencies]
-actix-web = { version = "4.13", default-features = false }
+async-trait = "0.1"
+axum = { version = "0.8" }
+change-detection = "1.2"
+chrono = "0.4"
+colored = "3.1"
+concat-string = "1.0"
+config = { version = "0.15", default-features = false, features = ["toml"] }
+figlet-rs = "1.0"
+fluent-templates = "0.14"
+getter-methods = "2.0"
+grass = "0.13"
+indexmap = "2.14"
+indoc = "2.0"
+itoa = "1.0"
+mime_guess = "2.0"
+parking_lot = "0.12"
+pastey = "0.2"
+path-slash = "0.2"
+proc-macro2 = "1.0"
+proc-macro2-diagnostics = { version = "0.10", default-features = false }
+quote = "1.0"
 serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+syn = { version = "2.0", features = ["full", "extra-traits"] }
+tempfile = "3.27"
+terminal_size = "0.4"
+tokio = { version = "1", features = ["full"] }
+tower = { version = "0.5", features = ["util"] }
+tower-http = { version = "0.6", features = ["fs"] }
+tracing = "0.1"
+tracing-appender = "0.2"
+tracing-subscriber = { version = "0.3", features = ["json", "env-filter"] }
+unic-langid = { version = "0.9", features = ["macros"] }
+url = "2.5"
 # Helpers
 pagetop-build = { version = "0.3", path = "helpers/pagetop-build" }
 pagetop-macros = { version = "0.3", path = "helpers/pagetop-macros" }
@@ -92,3 +65,65 @@ pagetop-bootsier = { version = "0.1", path = "extensions/pagetop-bootsier" }
 pagetop-seaorm = { version = "0.0", path = "extensions/pagetop-seaorm" }
 # PageTop
 pagetop = { version = "0.5", path = "." }
+
+[workspace.dependencies.sea-orm]
+version = "1.1"
+features = ["debug-print", "macros", "runtime-tokio-native-tls"]
+default-features = false
+
+[workspace.dependencies.sea-schema]
+version = "0.16"
+
+
+[package]
+name = "pagetop"
+version = "0.5.0"
+
+description = """
+    Un entorno de desarrollo para crear soluciones web modulares, extensibles y configurables.
+"""
+categories = ["web-programming::http-server"]
+keywords = ["pagetop", "web", "framework", "frontend", "ssr"]
+
+repository.workspace = true
+homepage.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[features]
+default = []
+testing = []
+
+[dependencies]
+axum.workspace = true
+chrono.workspace = true
+colored.workspace = true
+config.workspace = true
+figlet-rs.workspace = true
+fluent-templates.workspace = true
+getter-methods.workspace = true
+indexmap.workspace = true
+itoa.workspace = true
+parking_lot.workspace = true
+pagetop-macros.workspace = true
+pagetop-minimal.workspace = true
+pagetop-statics.workspace = true
+serde.workspace = true
+terminal_size.workspace = true
+tokio.workspace = true
+tower.workspace = true
+tower-http.workspace = true
+tracing.workspace = true
+tracing-appender.workspace = true
+tracing-subscriber.workspace = true
+unic-langid.workspace = true
+
+[dev-dependencies]
+pagetop-aliner.workspace = true
+pagetop-bootsier.workspace = true
+serde_json.workspace = true
+tempfile.workspace = true
+
+[build-dependencies]
+pagetop-build.workspace = true

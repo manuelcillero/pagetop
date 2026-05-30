@@ -1,7 +1,6 @@
 [package]
 name = "pagetop-build"
 version = "0.3.2"
-edition = "2021"
 
 description = """
     Prepara un conjunto de archivos estáticos o archivos SCSS compilados para ser incluidos en el
@@ -12,9 +11,10 @@ keywords = ["pagetop", "build", "assets", "resources", "static"]
 
 repository.workspace = true
 homepage.workspace = true
+edition.workspace = true
 license.workspace = true
 authors.workspace = true
 
 [dependencies]
-grass = "0.13"
+grass.workspace = true
 pagetop-statics.workspace = true

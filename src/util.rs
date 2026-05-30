@@ -58,14 +58,15 @@ pub enum NormalizeAsciiError {
 /// # use pagetop::util;
 /// assert_eq!(util::normalize_ascii("  Foo\tBAR  CLi\r\n").unwrap().as_ref(), "foo bar cli");
 /// ```
-pub fn normalize_ascii<'a>(input: &'a str) -> Result<Cow<'a, str>, NormalizeAsciiError> {
+pub fn normalize_ascii(input: &str) -> Result<Cow<'_, str>, NormalizeAsciiError> {
     let bytes = input.as_bytes();
     if bytes.is_empty() {
         return Err(NormalizeAsciiError::IsEmpty);
     }
 
-    let mut start = 0usize;
-    let mut end = 0usize;
+    // Primera pasada, determina si se necesita asignación y calcula los límites del contenido.
+    let mut start = 0;
+    let mut end = 0;
 
     let mut needs_alloc = false;
     let mut needs_alloc_ws = false;
@@ -110,6 +111,7 @@ pub fn normalize_ascii<'a>(input: &'a str) -> Result<Cow<'a, str>, NormalizeAsci
         return Ok(Cow::Borrowed(slice));
     }
 
+    // Segunda pasada, construye la cadena normalizada.
     let mut output = String::with_capacity(slice.len());
     let mut prev_sep = true;
 
@@ -132,8 +134,8 @@ pub fn normalize_ascii<'a>(input: &'a str) -> Result<Cow<'a, str>, NormalizeAsci
 ///
 /// - Devuelve `Some(Cow)` si la entrada es válida ASCII (normalizada a minúsculas).
 /// - Devuelve `Some(Cow::Borrowed(""))` si la entrada es `""` o queda vacía tras recortar.
-/// - Devuelve `None` si la entrada contiene bytes non-ASCII; y emite un `trace::debug!` con el
-///   campo `target`.
+/// - Devuelve `None` si la entrada contiene bytes no ASCII; y emite un `trace::debug!` con el campo
+///   `target`.
 #[inline]
 pub fn normalize_ascii_or_empty<'a>(input: &'a str, target: &'static str) -> Option<Cow<'a, str>> {
     match normalize_ascii(input) {
@@ -171,15 +173,25 @@ pub fn normalize_ascii_or_empty<'a>(input: &'a str, target: &'static str) -> Opt
 /// println!("{:#?}", util::resolve_absolute_dir("/var/www"));
 /// ```
 pub fn resolve_absolute_dir<P: AsRef<Path>>(path: P) -> io::Result<PathBuf> {
+    resolve_absolute_dir_with_base(path, env::var_os("CARGO_MANIFEST_DIR").map(PathBuf::from))
+}
+
+/// Auxiliar de [`resolve_absolute_dir`] expuesta para tests.
+///
+/// Permite probar la lógica de resolución inyectando el directorio base explícitamente, sin
+/// modificar variables de entorno globales. No forma parte de la API pública.
+#[doc(hidden)]
+pub fn resolve_absolute_dir_with_base<P: AsRef<Path>>(
+    path: P,
+    base: Option<PathBuf>,
+) -> io::Result<PathBuf> {
     let path = path.as_ref();
 
     let candidate = if path.is_absolute() {
         path.to_path_buf()
     } else {
-        // Directorio base CARGO_MANIFEST_DIR si está disponible; o current_dir() en su defecto.
-        env::var_os("CARGO_MANIFEST_DIR")
-            .map(PathBuf::from)
-            .or_else(|| env::current_dir().ok())
+        // Directorio base proporcionado, o current_dir() en su defecto.
+        base.or_else(|| env::current_dir().ok())
             .unwrap_or_else(|| PathBuf::from("."))
             .join(path)
     };
@@ -191,10 +203,8 @@ pub fn resolve_absolute_dir<P: AsRef<Path>>(path: P) -> io::Result<PathBuf> {
     if absolute_dir.is_dir() {
         Ok(absolute_dir)
     } else {
-        Err({
-            let msg = format!("path \"{}\" is not a directory", absolute_dir.display());
-            trace::warn!(msg);
-            io::Error::new(io::ErrorKind::InvalidInput, msg)
-        })
+        let msg = format!("path \"{}\" is not a directory", absolute_dir.display());
+        trace::warn!(msg);
+        Err(io::Error::new(io::ErrorKind::InvalidInput, msg))
     }
 }
