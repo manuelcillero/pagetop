@@ -1,5 +1,5 @@
 use crate::locale::{L10n, LangId};
-use crate::{builder_fn, AutoDefault};
+use crate::{AutoDefault, builder_fn};
 
 /// Valor opcional para atributos HTML.
 ///

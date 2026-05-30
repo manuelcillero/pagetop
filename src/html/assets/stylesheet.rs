@@ -1,7 +1,7 @@
 use crate::core::component::Context;
 use crate::html::assets::Asset;
-use crate::html::{html, Markup, PreEscaped};
-use crate::{util, AutoDefault, CowStr, Weight};
+use crate::html::{Markup, PreEscaped, html};
+use crate::{AutoDefault, CowStr, Weight, util};
 
 /// Define el origen del recurso CSS y cómo se incluye en el documento.
 ///

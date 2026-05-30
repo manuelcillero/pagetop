@@ -1,7 +1,7 @@
-use crate::core::component::Context;
-use crate::html::{html, Markup};
-use crate::locale::L10n;
 use crate::AutoDefault;
+use crate::core::component::Context;
+use crate::html::{Markup, html};
+use crate::locale::L10n;
 
 /// Representación SVG del **logotipo de PageTop** para incrustar en HTML.
 ///

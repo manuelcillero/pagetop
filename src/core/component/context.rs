@@ -1,13 +1,13 @@
+use crate::core::TypeInfo;
 use crate::core::component::{ChildOp, Component, MessageLevel, StatusMessage};
 use crate::core::theme::all::DEFAULT_THEME;
 use crate::core::theme::{ChildrenInRegions, DefaultRegion, RegionRef, TemplateRef, ThemeRef};
-use crate::core::TypeInfo;
-use crate::html::{html, Markup, RoutePath};
 use crate::html::{Assets, Favicon, JavaScript, StyleSheet};
+use crate::html::{Markup, RoutePath, html};
 use crate::locale::L10n;
 use crate::locale::{LangId, LanguageIdentifier, RequestLocale};
-use crate::service::HttpRequest;
-use crate::{builder_fn, util, CowStr};
+use crate::web::HttpRequest;
+use crate::{CowStr, builder_fn, util};
 
 use std::any::Any;
 use std::cell::Cell;

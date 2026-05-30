@@ -1,4 +1,4 @@
-use crate::html::{html, Markup};
+use crate::html::{Markup, html};
 use crate::{AutoDefault, Getters};
 
 /// Error producido durante el renderizado de un componente.

@@ -1,6 +1,6 @@
 use crate::util;
 
-use super::{langid, LanguageIdentifier};
+use super::{LanguageIdentifier, langid};
 
 use std::collections::HashMap;
 use std::sync::LazyLock;

@@ -1,6 +1,6 @@
 use crate::core::component::{Component, Context};
-use crate::html::{html, Markup};
-use crate::{builder_fn, AutoDefault, UniqueId};
+use crate::html::{Markup, html};
+use crate::{AutoDefault, UniqueId, builder_fn};
 
 use parking_lot::Mutex;
 

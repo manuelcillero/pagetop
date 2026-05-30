@@ -1,4 +1,4 @@
-use super::sets::{generate_resources_sets, SplitByCount};
+use super::sets::{SplitByCount, generate_resources_sets};
 use std::{
     env, io,
     path::{Path, PathBuf},

@@ -1,7 +1,7 @@
 use crate::{global, trace};
 
 use super::languages::LANGUAGES;
-use super::{langid, LanguageIdentifier};
+use super::{LanguageIdentifier, langid};
 
 use std::sync::LazyLock;
 

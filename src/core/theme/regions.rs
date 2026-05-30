@@ -1,6 +1,6 @@
 use crate::core::component::{Child, ChildOp, Children, Component};
 use crate::core::theme::{DefaultRegion, RegionRef, ThemeRef};
-use crate::{builder_fn, AutoDefault, UniqueId};
+use crate::{AutoDefault, UniqueId, builder_fn};
 
 use parking_lot::RwLock;
 

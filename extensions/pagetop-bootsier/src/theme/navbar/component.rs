@@ -1,7 +1,7 @@
 use pagetop::prelude::*;
 
-use crate::theme::*;
 use crate::LOCALES_BOOTSIER;
+use crate::theme::*;
 
 const TOGGLE_COLLAPSE: &str = "collapse";
 const TOGGLE_OFFCANVAS: &str = "offcanvas";

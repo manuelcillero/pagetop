@@ -1,5 +1,5 @@
 use crate::html::{Markup, PreEscaped};
-use crate::{include_locales, AutoDefault, CowStr};
+use crate::{AutoDefault, CowStr, include_locales};
 
 use super::{LangId, Locale};
 

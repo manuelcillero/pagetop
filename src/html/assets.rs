@@ -3,7 +3,7 @@ pub mod javascript;
 pub mod stylesheet;
 
 use crate::core::component::Context;
-use crate::html::{html, Markup};
+use crate::html::{Markup, html};
 use crate::{AutoDefault, Weight};
 
 /// Representación genérica de un script [`JavaScript`](crate::html::JavaScript) o una hoja de

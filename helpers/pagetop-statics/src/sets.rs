@@ -5,8 +5,8 @@ use std::{
 };
 
 use super::resource::{
-    collect_resources, generate_function_end, generate_function_header, generate_resource_insert,
-    generate_uses, generate_variable_header, generate_variable_return, DEFAULT_VARIABLE_NAME,
+    DEFAULT_VARIABLE_NAME, collect_resources, generate_function_end, generate_function_header,
+    generate_resource_insert, generate_uses, generate_variable_header, generate_variable_return,
 };
 
 /// Defines the split strategie.

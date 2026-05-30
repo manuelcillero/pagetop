@@ -1,4 +1,4 @@
-use crate::{builder_fn, util, AutoDefault, CowStr};
+use crate::{AutoDefault, CowStr, builder_fn, util};
 
 use std::collections::HashSet;
 

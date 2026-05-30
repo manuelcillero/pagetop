@@ -1,7 +1,7 @@
 use pagetop::prelude::*;
 
-use crate::theme::*;
 use crate::LOCALES_BOOTSIER;
+use crate::theme::*;
 
 /// Componente para crear un **menú desplegable** ([`dropdown`]).
 ///

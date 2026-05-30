@@ -13,7 +13,7 @@ use resource_dir::resource_dir;
 mod sets {
     include!("src/sets.rs");
 }
-use sets::{generate_resources_sets, SplitByCount};
+use sets::{SplitByCount, generate_resources_sets};
 
 use std::{env, path::Path};
 

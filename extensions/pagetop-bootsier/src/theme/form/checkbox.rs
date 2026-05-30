@@ -1,7 +1,7 @@
 use pagetop::prelude::*;
 
-use crate::theme::form;
 use crate::LOCALES_BOOTSIER;
+use crate::theme::form;
 
 /// Componente para crear una **casilla de verificación** o un **interruptor** (*toggle switch*).
 ///

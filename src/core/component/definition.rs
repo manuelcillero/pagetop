@@ -2,7 +2,7 @@ use crate::base::action;
 use crate::core::component::{ComponentError, Context, Contextual};
 use crate::core::theme::ThemeRef;
 use crate::core::{AnyInfo, TypeInfo};
-use crate::html::{html, Markup};
+use crate::html::{Markup, html};
 
 /// Permite clonar un componente.
 ///

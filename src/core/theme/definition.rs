@@ -3,10 +3,10 @@ use crate::core::component::{ChildOp, Component, ComponentError, Context, Contex
 use crate::core::extension::Extension;
 use crate::core::theme::{DefaultRegion, DefaultTemplate, TemplateRef};
 use crate::global;
-use crate::html::{html, Markup};
+use crate::html::{Markup, html};
 use crate::locale::L10n;
 use crate::response::page::Page;
-use crate::service::http::StatusCode;
+use crate::web::http::StatusCode;
 
 /// Interfaz común que debe implementar cualquier tema de PageTop.
 ///

@@ -28,9 +28,9 @@
 //! mediante *enums* adicionales) para añadir nuevas plantillas o exponer regiones específicas.
 
 use crate::core::component::Context;
-use crate::html::{html, Markup};
+use crate::html::{Markup, html};
 use crate::locale::L10n;
-use crate::{util, AutoDefault};
+use crate::{AutoDefault, util};
 
 // **< Region >*************************************************************************************
 
