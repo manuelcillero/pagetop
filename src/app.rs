@@ -5,7 +5,7 @@ mod figfont;
 use crate::core::{extension, extension::ExtensionRef};
 use crate::html::Markup;
 use crate::locale::Locale;
-use crate::response::page::{ErrorPage, ResultPage};
+use crate::response::page::ErrorPage;
 use crate::web::{HttpRequest, Router};
 use crate::{PAGETOP_VERSION, global, trace};
 
@@ -159,6 +159,6 @@ impl Application {
     }
 }
 
-async fn route_not_found(request: HttpRequest) -> ResultPage<Markup, ErrorPage> {
+async fn route_not_found(request: HttpRequest) -> Result<Markup, ErrorPage> {
     Err(ErrorPage::NotFound(request))
 }

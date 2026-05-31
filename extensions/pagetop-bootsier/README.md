@@ -64,7 +64,7 @@ o **fuerza el tema por código** en una página concreta:
 use pagetop::prelude::*;
 use pagetop_bootsier::Bootsier;
 
-async fn homepage(request: HttpRequest) -> ResultPage<Markup, ErrorPage> {
+async fn homepage(request: HttpRequest) -> Result<Markup, ErrorPage> {
     Page::new(request)
         .with_theme(&Bootsier)
         .add_child(

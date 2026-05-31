@@ -1,9 +1,7 @@
 use crate::core::component::Contextual;
 use crate::locale::L10n;
-use crate::response::ResponseError;
-use crate::service::http::{header::ContentType, StatusCode};
-use crate::service::{HttpRequest, HttpResponse};
 use crate::util;
+use crate::web::{HttpRequest, IntoResponse, Response, http};
 
 use super::Page;
 
@@ -31,13 +29,9 @@ pub enum ErrorPage {
 }
 
 impl ErrorPage {
-    /// Función auxiliar para renderizar una página de error genérica usando el tema activo.
-    ///
-    /// Construye una [`Page`] a partir de la petición y un prefijo de clave basado en el código de
-    /// estado (`error<code>`), del que se derivan los textos localizados `error<code>_title`,
-    /// `error<code>_alert` y `error<code>_help`.
-    ///
-    /// Si el renderizado falla, escribe en su lugar el texto plano asociado al código de estado.
+    // Renderiza una página de error genérica usando el tema activo. Deriva las claves de
+    // localización del código de estado (`error<code>_title`, `_alert`, `_help`). Si el
+    // renderizado falla, escribe el texto plano del código de estado.
     fn display_error_page(&self, f: &mut fmt::Formatter<'_>, request: &HttpRequest) -> fmt::Result {
         let mut page = Page::new(request.clone());
         let code = self.status_code();
@@ -51,7 +45,19 @@ impl ErrorPage {
         if let Ok(rendered) = page.render() {
             write!(f, "{}", rendered.into_string())
         } else {
-            f.write_str(&code.to_string())
+            f.write_str(code.as_str())
+        }
+    }
+
+    /// Devuelve el código de estado HTTP asociado a la variante de error.
+    pub fn status_code(&self) -> http::StatusCode {
+        match self {
+            ErrorPage::BadRequest(_) => http::StatusCode::BAD_REQUEST,
+            ErrorPage::AccessDenied(_) => http::StatusCode::FORBIDDEN,
+            ErrorPage::NotFound(_) => http::StatusCode::NOT_FOUND,
+            ErrorPage::InternalError(_) => http::StatusCode::INTERNAL_SERVER_ERROR,
+            ErrorPage::ServiceUnavailable(_) => http::StatusCode::SERVICE_UNAVAILABLE,
+            ErrorPage::GatewayTimeout(_) => http::StatusCode::GATEWAY_TIMEOUT,
         }
     }
 }
@@ -69,7 +75,7 @@ impl fmt::Display for ErrorPage {
                 if let Ok(rendered) = page.render() {
                     write!(f, "{}", rendered.into_string())
                 } else {
-                    f.write_str(&self.status_code().to_string())
+                    f.write_str(self.status_code().as_str())
                 }
             }
 
@@ -80,7 +86,7 @@ impl fmt::Display for ErrorPage {
                 if let Ok(rendered) = page.render() {
                     write!(f, "{}", rendered.into_string())
                 } else {
-                    f.write_str(&self.status_code().to_string())
+                    f.write_str(self.status_code().as_str())
                 }
             }
 
@@ -96,22 +102,17 @@ impl fmt::Display for ErrorPage {
     }
 }
 
-impl ResponseError for ErrorPage {
-    fn error_response(&self) -> HttpResponse {
-        HttpResponse::build(self.status_code())
-            .insert_header(ContentType::html())
-            .body(self.to_string())
-    }
-
-    #[rustfmt::skip]
-    fn status_code(&self) -> StatusCode {
-        match self {
-            ErrorPage::BadRequest(_)         => StatusCode::BAD_REQUEST,
-            ErrorPage::AccessDenied(_)       => StatusCode::FORBIDDEN,
-            ErrorPage::NotFound(_)           => StatusCode::NOT_FOUND,
-            ErrorPage::InternalError(_)      => StatusCode::INTERNAL_SERVER_ERROR,
-            ErrorPage::ServiceUnavailable(_) => StatusCode::SERVICE_UNAVAILABLE,
-            ErrorPage::GatewayTimeout(_)     => StatusCode::GATEWAY_TIMEOUT,
-        }
+/// Convierte un [`ErrorPage`] en una respuesta HTTP con el código de estado adecuado y el cuerpo
+/// HTML generado por el tema activo.
+impl IntoResponse for ErrorPage {
+    fn into_response(self) -> Response {
+        let status = self.status_code();
+        let body = self.to_string();
+        (
+            status,
+            [(http::header::CONTENT_TYPE, "text/html; charset=utf-8")],
+            body,
+        )
+            .into_response()
     }
 }

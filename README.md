@@ -59,7 +59,7 @@ impl Extension for HelloWorld {
     }
 }
 
-async fn hello_world(request: HttpRequest) -> ResultPage<Markup, ErrorPage> {
+async fn hello_world(request: HttpRequest) -> Result<Markup, ErrorPage> {
     Page::new(request)
         .add_child(Html::with(|_| html! { h1 { "Hello World!" } }))
         .render()

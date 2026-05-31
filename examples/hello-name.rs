@@ -3,16 +3,15 @@ use pagetop::prelude::*;
 struct HelloName;
 
 impl Extension for HelloName {
-    fn configure_service(&self, scfg: &mut service::web::ServiceConfig) {
-        scfg.route("/hello/{name}", service::web::get().to(hello_name));
+    fn configure_router(&self, router: Router) -> Router {
+        router.route("/hello/{name}", web::get(hello_name))
     }
 }
 
 async fn hello_name(
     request: HttpRequest,
-    path: service::web::Path<String>,
-) -> ResultPage<Markup, ErrorPage> {
-    let name = path.into_inner();
+    web::Path(name): web::Path<String>,
+) -> Result<Markup, ErrorPage> {
     Page::new(request)
         .with_child(Html::with(move |_| {
             html! {

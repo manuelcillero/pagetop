@@ -5,12 +5,12 @@ include_locales!(LOC from "examples/locale");
 struct IntroColors;
 
 impl Extension for IntroColors {
-    fn configure_service(&self, scfg: &mut service::web::ServiceConfig) {
-        scfg.route("/", service::web::get().to(intro_colors));
+    fn configure_router(&self, router: Router) -> Router {
+        router.route("/", web::get(intro_colors))
     }
 }
 
-async fn intro_colors(request: HttpRequest) -> ResultPage<Markup, ErrorPage> {
+async fn intro_colors(request: HttpRequest) -> Result<Markup, ErrorPage> {
     Page::new(request)
         .with_child(
             Intro::default()

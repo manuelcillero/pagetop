@@ -20,12 +20,12 @@ impl Extension for Welcome {
         L10n::l("welcome_extension_description")
     }
 
-    fn configure_service(&self, scfg: &mut service::web::ServiceConfig) {
-        scfg.route("/", service::web::get().to(home));
+    fn configure_router(&self, router: Router) -> Router {
+        router.route("/", web::get(home))
     }
 }
 
-async fn home(request: HttpRequest) -> ResultPage<Markup, ErrorPage> {
+async fn home(request: HttpRequest) -> Result<Markup, ErrorPage> {
     let app = &global::SETTINGS.app.name;
 
     Page::new(request)

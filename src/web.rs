@@ -1,10 +1,9 @@
 //! Servidor web y rutas de la aplicación (basado en [Axum](https://docs.rs/axum)).
 //!
 //! Define rutas y manejadores: el [`Router`], las operaciones HTTP ([`get`], [`post`], [`put`],
-//! [`delete`], [`patch`]), los extractores ([`Path`], [`Query`]), [`Json`] e [`IntoResponse`], y
-//! re-exporta el módulo `http` para tipos de bajo nivel como `StatusCode`, `HeaderName` o `Method`.
-//! También incluye servicios para gestionar archivos estáticos como [`ServeDir`] y
-//! [`ServeEmbedded`].
+//! [`delete`], [`patch`]), los extractores ([`Path`], [`Query`]) e [`IntoResponse`], y re-exporta
+//! el módulo `http` para tipos de bajo nivel como `StatusCode`, `HeaderName` o `Method`. También
+//! ofrece utilidades para servir archivos estáticos, [`ServeDir`] y [`ServeEmbedded`].
 
 use std::collections::HashMap;
 use std::convert::Infallible;
@@ -12,8 +11,6 @@ use std::task::{Context, Poll};
 
 use axum::body::Body;
 use axum::extract::FromRequestParts;
-use axum::http::request::Parts;
-use axum::http::{HeaderMap, Request, Response, StatusCode, Uri};
 
 // Infraestructura del router.
 pub use axum::Router;
@@ -22,11 +19,10 @@ pub use axum::http;
 // Extractores de petición.
 pub use axum::extract::{Path, Query};
 
-// Tipos de respuesta.
-pub use axum::Json;
-pub use axum::response::IntoResponse;
+// Para implementar respuestas.
+pub use axum::response::{IntoResponse, Response};
 
-// Verbos HTTP para registrar rutas.
+// Operaciones HTTP para registrar rutas.
 pub use axum::routing::{delete, get, patch, post, put};
 
 // Servicios para archivos estáticos (disco y embebidos).
@@ -45,12 +41,12 @@ pub use tower_http::services::ServeDir;
 /// [`ErrorPage`](crate::response::page::ErrorPage):
 ///
 /// ```rust,ignore
-/// async fn my_handler(request: HttpRequest) -> ResultPage<Markup, ErrorPage> { ... }
+/// async fn my_handler(request: HttpRequest) -> Result<Markup, ErrorPage> { ... }
 /// ```
 #[derive(Clone, Debug)]
 pub struct HttpRequest {
-    uri: Uri,
-    headers: HeaderMap,
+    uri: http::Uri,
+    headers: http::HeaderMap,
 }
 
 impl HttpRequest {
@@ -75,7 +71,7 @@ impl HttpRequest {
     }
 
     /// Devuelve las cabeceras HTTP de la petición.
-    pub fn headers(&self) -> &HeaderMap {
+    pub fn headers(&self) -> &http::HeaderMap {
         &self.headers
     }
 }
@@ -84,7 +80,10 @@ impl<S: Send + Sync> FromRequestParts<S> for HttpRequest {
     type Rejection = Infallible;
 
     // Implementa el extractor de Axum para poder declarar `HttpRequest` como parámetro.
-    async fn from_request_parts(parts: &mut Parts, _state: &S) -> Result<Self, Self::Rejection> {
+    async fn from_request_parts(
+        parts: &mut http::request::Parts,
+        _state: &S,
+    ) -> Result<Self, Self::Rejection> {
         Ok(HttpRequest {
             uri: parts.uri.clone(),
             headers: parts.headers.clone(),
@@ -94,13 +93,14 @@ impl<S: Send + Sync> FromRequestParts<S> for HttpRequest {
 
 // **< ServeEmbedded >******************************************************************************
 
-/// Permite servir archivos estáticos embebidos en el binario.
+/// Servicio para archivos estáticos embebidos en el binario.
 ///
-/// Creado por la macro [`crate::static_files_service!`] cuando se pide servir recursos embebidos.
-/// Los recursos se indexan por ruta relativa sin la barra inicial (p. ej. `"css/style.css"`). Si se
-/// solicita la raíz o un directorio, devuelve `index.html` si existe.
+/// Creado por la macro [`serve_static_files!`](crate::serve_static_files) en los modos que incluyen
+/// recursos embebidos. Estos recursos se identifican por su ruta relativa sin la barra inicial
+/// (p. ej. `"css/style.css"`). Si se solicita la raíz o una ruta que termina en `/`, el servicio
+/// devuelve el `index.html` raíz si existe; no busca por subdirectorio.
 ///
-/// Es [`Clone`] para clonar el servicio por petición, pero internamente comparte el mapa de
+/// Implementa [`Clone`] para clonar el servicio por petición, pero internamente comparte el mapa de
 /// recursos con un [`Arc`](std::sync::Arc) para evitar copias innecesarias.
 #[derive(Clone)]
 pub struct ServeEmbedded {
@@ -116,8 +116,8 @@ impl ServeEmbedded {
     }
 }
 
-impl tower::Service<Request<Body>> for ServeEmbedded {
-    type Response = Response<Body>;
+impl tower::Service<http::Request<Body>> for ServeEmbedded {
+    type Response = http::Response<Body>;
     type Error = Infallible;
     type Future = std::future::Ready<Result<Self::Response, Self::Error>>;
 
@@ -125,7 +125,7 @@ impl tower::Service<Request<Body>> for ServeEmbedded {
         Poll::Ready(Ok(()))
     }
 
-    fn call(&mut self, req: Request<Body>) -> Self::Future {
+    fn call(&mut self, req: http::Request<Body>) -> Self::Future {
         use axum::http::header;
 
         // Axum elimina el prefijo de montaje: la ruta restante puede o no comenzar con '/'.
@@ -141,12 +141,12 @@ impl tower::Service<Request<Body>> for ServeEmbedded {
         });
 
         let response = match resource {
-            Some(r) => Response::builder()
+            Some(r) => http::Response::builder()
                 .header(header::CONTENT_TYPE, r.mime_type)
                 .body(Body::from(r.data))
                 .unwrap(),
-            None => Response::builder()
-                .status(StatusCode::NOT_FOUND)
+            None => http::Response::builder()
+                .status(http::StatusCode::NOT_FOUND)
                 .body(Body::empty())
                 .unwrap(),
         };
@@ -155,23 +155,26 @@ impl tower::Service<Request<Body>> for ServeEmbedded {
     }
 }
 
-// **< static_files_service! >**********************************************************************
+// **< serve_static_files! >************************************************************************
 
-/// Configura un servicio web para publicar archivos estáticos.
+/// Configura el servidor web para publicar archivos estáticos.
 ///
-/// La macro añade rutas al [`Router`] de Axum pasado como primer argumento y ofrece tres modos:
+/// La macro añade rutas al [`Router`] del primer argumento usando uno de los tres modos posibles:
 ///
-/// - **Sistema de ficheros o embebido** (`[$path, $bundle]`): intenta servir desde `$path`; si es
-///   vacío, no existe o no es un directorio, usa el conjunto de recursos `$bundle` embebido.
-/// - **Sólo embebido** (`[$bundle]`): sirve siempre desde el conjunto de recursos embebido.
-/// - **Sólo sistema de ficheros** (`$path`): sin corchetes, sirve únicamente desde disco si existe.
+/// - **Sistema de ficheros o embebido** (`[$dir, $bundle]`): intenta servir los archivos desde el
+///   directorio `$dir`; si está vacío, no existe o no es un directorio, usa el conjunto de recursos
+///   `$bundle` embebido.
+/// - **Sólo embebido** (`[$bundle]`): sirve siempre desde el conjunto de recursos embebido en el
+///   binario.
+/// - **Sólo sistema de ficheros** (`$dir`): sin corchetes, sirve únicamente desde el directorio si
+///   existe.
 ///
 /// # Argumentos
 ///
-/// * `$router` — Variable mutable de tipo [`Router`] donde registrar el servicio.
-/// * `$path`   — Ruta al directorio local con los archivos estáticos.
-/// * `$bundle` — Nombre del conjunto de recursos embebidos generado por `build.rs`.
-/// * `$route`  — Ruta URL base desde la que se servirán los archivos.
+/// * `$router` - Variable de tipo [`Router`] donde registrar las rutas.
+/// * `$dir`    - Ruta al directorio local con los archivos estáticos.
+/// * `$bundle` - Nombre del conjunto de recursos embebidos generado por `build.rs`.
+/// * `$path`   - Prefijo URL bajo el que se publicarán los archivos.
 ///
 /// # Ejemplos
 ///
@@ -180,92 +183,99 @@ impl tower::Service<Request<Body>> for ServeEmbedded {
 /// pub struct MyExtension;
 ///
 /// impl Extension for MyExtension {
-///     fn configure_router(&self, mut router: Router) -> Router {
+///     fn configure_router(&self, router: Router) -> Router {
 ///         // Forma 1) Sistema de ficheros o embebido.
-///         static_files_service!(router, ["/var/www/static", assets] => "/public");
+///         serve_static_files!(router, ["/var/www/static", assets] => "/public");
 ///
 ///         // Forma 2) Siempre embebido.
-///         static_files_service!(router, [assets] => "/public");
+///         serve_static_files!(router, [assets] => "/public");
 ///
 ///         // Forma 3) Sólo sistema de ficheros (no requiere `assets`).
-///         static_files_service!(router, "/var/www/static" => "/public");
+///         serve_static_files!(router, "/var/www/static" => "/public");
 ///
 ///         router
 ///     }
 /// }
 /// ```
 #[macro_export]
-macro_rules! static_files_service {
+macro_rules! serve_static_files {
     // Forma 1: primero intenta servir desde el sistema de ficheros; si falla, sirve embebido.
-    ( $router:ident, [$path:expr, $bundle:ident] => $route:expr $(,)? ) => {{
-        let span = $crate::trace::debug_span!(
-            "static_files_service",
-            mode = "filesystem_or_embedded",
-            route = $route,
-        );
-        let _guard = span.enter();
-        let mut served_from_fs = false;
-        if !::std::path::Path::new(&$path).as_os_str().is_empty() {
-            if let Ok(absolute) = $crate::util::resolve_absolute_dir($path) {
-                $router = $router.nest_service($route, $crate::web::ServeDir::new(absolute));
-                served_from_fs = true;
+    ( $router:ident, [$dir:expr, $bundle:ident] => $path:expr $(,)? ) => {
+        let $router = {
+            let _span = $crate::trace::debug_span!(
+                "serve_static_files",
+                mode = "filesystem_or_embedded",
+                route = $path,
+            )
+            .entered();
+            let mut __r = $router;
+            let mut served_from_fs = false;
+            if !::std::path::Path::new(&$dir).as_os_str().is_empty() {
+                if let Ok(absolute) = $crate::util::resolve_absolute_dir($dir) {
+                    __r = __r.nest_service($path, $crate::web::ServeDir::new(absolute));
+                    served_from_fs = true;
+                }
             }
-        }
-        if !served_from_fs {
+            if !served_from_fs {
+                $crate::util::paste! {
+                    mod [<static_files_ $bundle>] {
+                        include!(concat!(env!("OUT_DIR"), "/", stringify!($bundle), ".rs"));
+                    }
+                    __r = __r.nest_service(
+                        $path,
+                        $crate::web::ServeEmbedded::new(
+                            [<static_files_ $bundle>]::$bundle(),
+                        ),
+                    );
+                }
+            }
+            __r
+        };
+    };
+    // Forma 2: sirve siempre embebido.
+    ( $router:ident, [$bundle:ident] => $path:expr $(,)? ) => {
+        let $router = {
+            let _span = $crate::trace::debug_span!(
+                "serve_static_files",
+                mode = "embedded_only",
+                route = $path,
+            )
+            .entered();
             $crate::util::paste! {
                 mod [<static_files_ $bundle>] {
                     include!(concat!(env!("OUT_DIR"), "/", stringify!($bundle), ".rs"));
                 }
-                $router = $router.nest_service(
-                    $route,
+                $router.nest_service(
+                    $path,
                     $crate::web::ServeEmbedded::new(
                         [<static_files_ $bundle>]::$bundle(),
                     ),
-                );
+                )
             }
-        }
-    }};
-    // Forma 2: sirve siempre embebido.
-    ( $router:ident, [$bundle:ident] => $route:expr $(,)? ) => {{
-        let span = $crate::trace::debug_span!(
-            "static_files_service",
-            mode = "embedded_only",
-            route = $route,
-        );
-        let _guard = span.enter();
-        $crate::util::paste! {
-            mod [<static_files_ $bundle>] {
-                include!(concat!(env!("OUT_DIR"), "/", stringify!($bundle), ".rs"));
-            }
-            $router = $router.nest_service(
-                $route,
-                $crate::web::ServeEmbedded::new(
-                    [<static_files_ $bundle>]::$bundle(),
-                ),
-            );
-        }
-    }};
+        };
+    };
     // Forma 3: intenta servir desde el sistema de ficheros.
-    ( $router:ident, $path:expr => $route:expr $(,)? ) => {{
-        let span = $crate::trace::debug_span!(
-            "static_files_service",
-            mode = "filesystem_only",
-            route = $route,
-        );
-        let _guard = span.enter();
-        match $crate::util::resolve_absolute_dir($path) {
-            Ok(absolute) => {
-                $router = $router.nest_service($route, $crate::web::ServeDir::new(absolute));
+    ( $router:ident, $dir:expr => $path:expr $(,)? ) => {
+        let $router = {
+            let _span = $crate::trace::debug_span!(
+                "serve_static_files",
+                mode = "filesystem_only",
+                route = $path,
+            )
+            .entered();
+            match $crate::util::resolve_absolute_dir($dir) {
+                Ok(absolute) => $router.nest_service($path, $crate::web::ServeDir::new(absolute)),
+                Err(e) => {
+                    $crate::trace::warn!(
+                        "Static dir not found or invalid for route `{}`: {} ({e})",
+                        $path,
+                        $dir,
+                    );
+                    $router
+                }
             }
-            Err(e) => {
-                $crate::trace::warn!(
-                    "Static dir not found or invalid for route `{}`: {:?} ({e})",
-                    $route,
-                    $path,
-                );
-            }
-        }
-    }};
+        };
+    };
 }
 
 // **< Utilidades de test >*************************************************************************
@@ -275,8 +285,7 @@ macro_rules! static_files_service {
 pub mod test {
     use axum::Router;
     use axum::body::Body;
-    use axum::http::{Method, Request};
-    use axum::response::Response;
+    use axum::http;
     use tower::ServiceExt;
 
     /// Devuelve el router tal como se recibe, listo para usarse en pruebas de integración.
@@ -286,7 +295,7 @@ pub mod test {
 
     /// Constructor de peticiones HTTP para pruebas.
     pub struct TestRequest {
-        method: Method,
+        method: http::Method,
         uri: String,
     }
 
@@ -294,7 +303,7 @@ pub mod test {
         /// Crea una petición GET.
         pub fn get() -> Self {
             Self {
-                method: Method::GET,
+                method: http::Method::GET,
                 uri: "/".to_owned(),
             }
         }
@@ -302,7 +311,7 @@ pub mod test {
         /// Crea una petición POST.
         pub fn post() -> Self {
             Self {
-                method: Method::POST,
+                method: http::Method::POST,
                 uri: "/".to_owned(),
             }
         }
@@ -314,8 +323,8 @@ pub mod test {
         }
 
         /// Construye la petición HTTP de Axum (para enviar al router en tests de integración).
-        pub fn to_request(self) -> Request<Body> {
-            Request::builder()
+        pub fn to_request(self) -> http::Request<Body> {
+            http::Request::builder()
                 .method(self.method)
                 .uri(self.uri)
                 .body(Body::empty())
@@ -334,7 +343,7 @@ pub mod test {
     }
 
     /// Envía una petición al router y devuelve la respuesta.
-    pub async fn send_request(router: &Router, req: Request<Body>) -> Response {
+    pub async fn send_request(router: &Router, req: http::Request<Body>) -> http::Response<Body> {
         router.clone().oneshot(req).await.unwrap()
     }
 }

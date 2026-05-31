@@ -3,12 +3,12 @@ use pagetop::prelude::*;
 struct HelloWorld;
 
 impl Extension for HelloWorld {
-    fn configure_service(&self, scfg: &mut service::web::ServiceConfig) {
-        scfg.route("/", service::web::get().to(hello_world));
+    fn configure_router(&self, router: Router) -> Router {
+        router.route("/", web::get(hello_world))
     }
 }
 
-async fn hello_world(request: HttpRequest) -> ResultPage<Markup, ErrorPage> {
+async fn hello_world(request: HttpRequest) -> Result<Markup, ErrorPage> {
     Page::new(request)
         .with_child(Html::with(|_| {
             html! {

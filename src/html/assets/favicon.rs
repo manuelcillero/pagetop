@@ -13,7 +13,7 @@ use crate::{AutoDefault, CowStr};
 ///
 /// > **Nota**
 /// > Los archivos de los iconos deben estar disponibles en el servidor web de la aplicación. Pueden
-/// > servirse usando [`static_files_service!`](crate::static_files_service).
+/// > servirse usando [`serve_static_files!`](crate::serve_static_files).
 ///
 /// # Ejemplo
 ///
@@ -165,14 +165,12 @@ impl Favicon {
         }
     }
 
-    /// Centraliza la creación de los elementos `<link>`.
-    ///
-    /// - `icon_rel`: indica el tipo de recurso (`"icon"`, `"apple-touch-icon"`, etc.).
-    /// - `href`: URL del recurso.
-    /// - `sizes`: tamaños opcionales.
-    /// - `color`: color opcional (solo relevante para `mask-icon`).
-    ///
-    /// También infiere automáticamente el tipo MIME (`type`) según la extensión del archivo.
+    // Crea un elemento <link> para el favicon. Infiere el tipo MIME según la extensión.
+    //
+    // - `icon_rel`: indica el tipo de recurso (`"icon"`, `"apple-touch-icon"`, etc.).
+    // - `href`: URL del recurso.
+    // - `sizes`: tamaños opcionales.
+    // - `color`: color opcional (solo relevante para `mask-icon`).
     fn add_icon_item(
         mut self,
         icon_rel: &'static str,

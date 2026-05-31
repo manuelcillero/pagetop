@@ -66,7 +66,7 @@ o **fuerza el tema por código** en una página concreta:
 use pagetop::prelude::*;
 use pagetop_bootsier::Bootsier;
 
-async fn homepage(request: HttpRequest) -> ResultPage<Markup, ErrorPage> {
+async fn homepage(request: HttpRequest) -> Result<Markup, ErrorPage> {
     Page::new(request)
         .with_theme(&Bootsier)
         .with_child(
@@ -140,9 +140,10 @@ impl Extension for Bootsier {
         Some(&Self)
     }
 
-    fn configure_service(&self, scfg: &mut service::web::ServiceConfig) {
-        static_files_service!(scfg, [bootsier_bs] => "/bootsier/bs");
-        static_files_service!(scfg, [bootsier_js] => "/bootsier/js");
+    fn configure_router(&self, router: Router) -> Router {
+        serve_static_files!(router, [bootsier_bs] => "/bootsier/bs");
+        serve_static_files!(router, [bootsier_js] => "/bootsier/js");
+        router
     }
 }
 

@@ -1,4 +1,4 @@
-//! Extractor y generador de respuestas JSON (reexporta [`actix_web::web::Json`]).
+//! Extractor y generador de respuestas JSON (reexporta [`axum::Json`]).
 //!
 //! # Uso como extractor JSON
 //!
@@ -11,10 +11,10 @@
 //! struct NuevoUsuario { nombre: String, email: String }
 //!
 //! /// Manejador configurado para la ruta POST "/usuarios".
-//! async fn crear_usuario(payload: Json<NuevoUsuario>) -> HttpResponse {
+//! async fn crear_usuario(payload: Json<NuevoUsuario>) -> web::http::StatusCode {
 //!     // `payload` ya es `NuevoUsuario`; si la deserialización falla,
-//!     // devolverá automáticamente 400 Bad Request con un cuerpo JSON que describe el error.
-//!     HttpResponse::Ok().finish()
+//!     // devolverá automáticamente 400 Bad Request.
+//!     web::http::StatusCode::OK
 //! }
 //! ```
 //!
@@ -36,4 +36,4 @@
 //! `Json<T>` funciona con cualquier tipo que implemente `serde::Serialize` (para respuestas) y/o
 //! `serde::Deserialize` (para peticiones).
 
-pub use actix_web::web::Json;
+pub use axum::Json;

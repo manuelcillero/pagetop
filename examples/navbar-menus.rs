@@ -8,7 +8,11 @@ struct SuperMenu;
 
 impl Extension for SuperMenu {
     fn dependencies(&self) -> Vec<ExtensionRef> {
-        vec![&pagetop_aliner::Aliner, &pagetop_bootsier::Bootsier]
+        vec![
+            &pagetop_aliner::Aliner,
+            &pagetop_bootsier::Bootsier,
+            &pagetop::base::extension::Welcome,
+        ]
     }
 
     fn initialize(&self) {

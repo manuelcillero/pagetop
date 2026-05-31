@@ -95,7 +95,7 @@ No hay ningún problema en generar más de un conjunto de recursos para cada pro
 usen nombres diferentes.
 
 Normalmente no habrá que acceder a estos módulos; sólo declarar el nombre del conjunto de recursos
-en [`static_files_service!`](https://docs.rs/pagetop/latest/pagetop/macro.static_files_service.html)
+en [`serve_static_files!`](https://docs.rs/pagetop/latest/pagetop/macro.serve_static_files.html)
 para configurar un servicio web que sirva los archivos desde la ruta indicada. Por ejemplo:
 
 ```rust,ignore
@@ -104,9 +104,10 @@ use pagetop::prelude::*;
 pub struct MyExtension;
 
 impl Extension for MyExtension {
-    /// Servicio web que publica los recursos de `guides` en `/ruta/a/guides`.
-    fn configure_service(&self, scfg: &mut service::web::ServiceConfig) {
-        static_files_service!(scfg, guides => "/ruta/a/guides");
+    /// Registra los recursos de `guides` en el router bajo `/ruta/a/guides`.
+    fn configure_router(&self, mut router: Router) -> Router {
+        serve_static_files!(router, [guides] => "/ruta/a/guides");
+        router
     }
 }
 ```
@@ -116,10 +117,10 @@ impl Extension for MyExtension {
     html_favicon_url = "https://git.cillero.es/manuelcillero/pagetop/raw/branch/main/static/favicon.ico"
 )]
 
-use grass::{from_path, Options, OutputStyle};
-use pagetop_statics::{resource_dir, ResourceDir};
+use grass::{Options, OutputStyle, from_path};
+use pagetop_statics::{ResourceDir, resource_dir};
 
-use std::fs::{create_dir_all, remove_dir_all, File};
+use std::fs::{File, create_dir_all, remove_dir_all};
 use std::io::Write;
 use std::path::Path;
 

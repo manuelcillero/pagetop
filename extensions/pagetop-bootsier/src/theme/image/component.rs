@@ -55,7 +55,7 @@ impl Component for Image {
                     {
                         (logo.render(cx))
                     }
-                })
+                });
             }
             image::Source::Responsive(source) => Some(source),
             image::Source::Thumbnail(source) => Some(source),

@@ -16,18 +16,16 @@
 mod error;
 pub use error::ErrorPage;
 
-pub use actix_web::Result as ResultPage;
-
 use crate::base::action;
 use crate::core::component::{AssetsOp, ChildOp, Context, ContextError, Contextual};
 use crate::core::theme::{DefaultRegion, Region, RegionRef, TemplateRef, ThemeRef};
-use crate::html::{html, Markup, DOCTYPE};
 use crate::html::{Assets, Favicon, JavaScript, StyleSheet};
 use crate::html::{Attr, AttrId};
 use crate::html::{Classes, ClassesOp};
+use crate::html::{DOCTYPE, Markup, html};
 use crate::locale::{CharacterDirection, L10n, LangId, LanguageIdentifier};
-use crate::service::HttpRequest;
-use crate::{builder_fn, AutoDefault};
+use crate::web::HttpRequest;
+use crate::{AutoDefault, builder_fn};
 
 // **< ReservedRegion >*****************************************************************************
 
@@ -227,8 +225,8 @@ impl Page {
     ///    [`Context::langid()`](crate::core::component::Context::langid) e inserta los atributos
     ///    `lang` y `dir` en la etiqueta `<html>`.
     /// 8. Compone el documento HTML completo (`<!DOCTYPE html>`, `<html>`, `<head>`, `<body>`) y
-    ///    devuelve un [`ResultPage`] con el [`Markup`] final.
-    pub fn render(&mut self) -> ResultPage<Markup, ErrorPage> {
+    ///    devuelve un [`Result`] con el [`Markup`] final.
+    pub fn render(&mut self) -> Result<Markup, ErrorPage> {
         // Acciones específicas del tema antes de renderizar el <body>.
         self.context.theme().before_render_page_body(self);
 

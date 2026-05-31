@@ -11,12 +11,12 @@ impl Extension for FormControls {
         vec![&pagetop_aliner::Aliner, &pagetop_bootsier::Bootsier]
     }
 
-    fn configure_service(&self, scfg: &mut service::web::ServiceConfig) {
-        scfg.route("/", service::web::get().to(form_controls));
+    fn configure_router(&self, router: Router) -> Router {
+        router.route("/", web::get(form_controls))
     }
 }
 
-async fn form_controls(request: HttpRequest) -> ResultPage<Markup, ErrorPage> {
+async fn form_controls(request: HttpRequest) -> Result<Markup, ErrorPage> {
     Page::new(request)
         .with_child(
             Intro::default()

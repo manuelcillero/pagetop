@@ -1,8 +1,9 @@
+use crate::actions;
+use crate::core::AnyInfo;
 use crate::core::action::ActionBox;
 use crate::core::theme::ThemeRef;
-use crate::core::AnyInfo;
 use crate::locale::L10n;
-use crate::{actions, service};
+use crate::web::Router;
 
 /// Interfaz común que debe implementar cualquier extensión de PageTop.
 ///
@@ -11,15 +12,15 @@ use crate::{actions, service};
 ///
 /// ```rust
 /// # use pagetop::prelude::*;
-/// pub struct Blog;
+/// pub struct MyExtension;
 ///
-/// impl Extension for Blog {
+/// impl Extension for MyExtension {
 ///     fn name(&self) -> L10n {
-///         L10n::n("Blog")
+///         L10n::n("My Extension")
 ///     }
 ///
 ///     fn description(&self) -> L10n {
-///         L10n::n("Blog system")
+///         L10n::n("Does something useful")
 ///     }
 /// }
 /// ```
@@ -86,31 +87,95 @@ pub trait Extension: AnyInfo + Send + Sync {
     /// aceptar cualquier petición HTTP.
     fn initialize(&self) {}
 
-    /// Configura los servicios web de la extensión, como rutas, *middleware*, acceso a ficheros
-    /// estáticos, etc., usando [`ServiceConfig`](crate::service::web::ServiceConfig).
+    /// Registra rutas, servicios y capas de la extensión en el servidor web de la aplicación.
     ///
-    /// # Ejemplo
+    /// Recibe las rutas acumuladas hasta ese momento, añade lo que la extensión necesite y retorna
+    /// las rutas con las nuevas modificaciones. La implementación por defecto devuelve las rutas
+    /// sin cambios.
     ///
-    /// ```rust,ignore
+    /// # Operaciones disponibles
+    ///
+    /// | Operación                          | Llamada sobre `router`                          |
+    /// |------------------------------------|-------------------------------------------------|
+    /// | Ruta HTTP                          | `.route("/path", web::get(handler))`            |
+    /// | Rutas bajo prefijo común           | `.nest("/prefix", sub_router)`                  |
+    /// | Archivos estáticos                 | `serve_static_files!(router, [...] => "/path")` |
+    /// | Capa de *middleware*               | `.layer(some_layer)`                            |
+    /// | Estado compartido entre *handlers* | `.with_state(my_state)`                         |
+    ///
+    /// # Ejemplos
+    ///
+    /// ## Rutas HTTP básicas
+    ///
+    /// ```rust
     /// # use pagetop::prelude::*;
-    /// pub struct ExtensionSample;
+    /// # async fn list_posts() -> &'static str { "" }
+    /// # async fn view_post() -> &'static str { "" }
+    /// # async fn create_post() -> &'static str { "" }
+    /// pub struct Blog;
     ///
-    /// impl Extension for ExtensionSample {
-    ///     fn configure_service(&self, scfg: &mut service::web::ServiceConfig) {
-    ///         scfg.route("/sample", web::get().to(route_sample));
+    /// impl Extension for Blog {
+    ///     fn configure_router(&self, router: Router) -> Router {
+    ///         router
+    ///             .route("/posts",      web::get(list_posts))
+    ///             .route("/posts/{id}", web::get(view_post))
+    ///             .route("/posts/new",  web::post(create_post))
     ///     }
     /// }
     /// ```
-    #[allow(unused_variables)]
-    fn configure_service(&self, scfg: &mut service::web::ServiceConfig) {}
-
-    /// Permite declarar extensiones destinadas a deshabilitar o desinstalar recursos de otras
-    /// extensiones asociadas a versiones anteriores de la aplicación.
     ///
-    /// Actualmente PageTop no utiliza este método, pero se reserva como *placeholder* para futuras
-    /// implementaciones.
-    fn drop_extensions(&self) -> Vec<ExtensionRef> {
-        vec![]
+    /// ## Rutas agrupadas bajo un prefijo
+    ///
+    /// ```rust
+    /// # use pagetop::prelude::*;
+    /// # async fn dashboard() -> &'static str { "" }
+    /// # async fn list_users() -> &'static str { "" }
+    /// pub struct Admin;
+    ///
+    /// impl Extension for Admin {
+    ///     fn configure_router(&self, router: Router) -> Router {
+    ///         let admin = Router::new()
+    ///             .route("/dashboard", web::get(dashboard))
+    ///             .route("/users",     web::get(list_users));
+    ///
+    ///         router.nest("/admin", admin)
+    ///     }
+    /// }
+    /// ```
+    ///
+    /// ## Rutas con capa de *middleware*
+    ///
+    /// ```rust,ignore
+    /// # use pagetop::prelude::*;
+    /// pub struct Api;
+    ///
+    /// impl Extension for Api {
+    ///     fn configure_router(&self, router: Router) -> Router {
+    ///         router
+    ///             .route("/api/data", web::get(get_data))
+    ///             .layer(auth_layer())
+    ///     }
+    /// }
+    /// ```
+    ///
+    /// ## Archivos estáticos
+    ///
+    /// La macro [`serve_static_files!`](crate::serve_static_files) sombrea `router` internamente,
+    /// por lo que el parámetro no necesita `mut`. Sí es necesario devolverlo al final.
+    ///
+    /// ```rust,ignore
+    /// # use pagetop::prelude::*;
+    /// pub struct MyExtension;
+    ///
+    /// impl Extension for MyExtension {
+    ///     fn configure_router(&self, router: Router) -> Router {
+    ///         serve_static_files!(router, [assets] => "/static");
+    ///         router
+    ///     }
+    /// }
+    /// ```
+    fn configure_router(&self, router: Router) -> Router {
+        router
     }
 }
 

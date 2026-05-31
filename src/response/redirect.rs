@@ -18,12 +18,12 @@
 //!
 //! - **Respuestas especiales**.
 
-use crate::service::HttpResponse;
+use crate::web::{IntoResponse, Response, http};
 
 /// Funciones predefinidas para generar respuestas HTTP de redirección.
 ///
-/// Ofrece atajos para construir respuestas con el código de estado apropiado, añade la cabecera
-/// `Location` y la cierra con `.finish()`, evitando repetir la misma secuencia en cada controlador.
+/// Ofrece atajos para construir respuestas con el código de estado apropiado y la cabecera
+/// `Location`, evitando repetir la misma secuencia en cada controlador.
 pub struct Redirect;
 
 impl Redirect {
@@ -34,10 +34,12 @@ impl Redirect {
     /// Emplear cuando un recurso se ha movido de forma definitiva y la URL antigua debe dejar de
     /// usarse.
     #[must_use]
-    pub fn moved(redirect_to_url: &str) -> HttpResponse {
-        HttpResponse::MovedPermanently()
-            .append_header(("Location", redirect_to_url))
-            .finish()
+    pub fn moved(redirect_to_url: &str) -> Response {
+        (
+            http::StatusCode::MOVED_PERMANENTLY,
+            [(http::header::LOCATION, redirect_to_url.to_owned())],
+        )
+            .into_response()
     }
 
     /// Redirección **permanente**. Código de estado **308**. Mantiene método y cuerpo sin cambios.
@@ -45,10 +47,12 @@ impl Redirect {
     /// Indicada para reorganizaciones de un sitio o aplicación web en las que también existen
     /// métodos distintos de GET (POST, PUT, ...) que no deben degradarse a GET.
     #[must_use]
-    pub fn permanent(redirect_to_url: &str) -> HttpResponse {
-        HttpResponse::PermanentRedirect()
-            .append_header(("Location", redirect_to_url))
-            .finish()
+    pub fn permanent(redirect_to_url: &str) -> Response {
+        (
+            http::StatusCode::PERMANENT_REDIRECT,
+            [(http::header::LOCATION, redirect_to_url.to_owned())],
+        )
+            .into_response()
     }
 
     /// Redirección **temporal**. Código de estado **302**. El método GET (y normalmente HEAD) se
@@ -57,10 +61,12 @@ impl Redirect {
     /// Útil cuando un recurso está fuera de servicio de forma imprevista (mantenimiento breve,
     /// sobrecarga, ...).
     #[must_use]
-    pub fn found(redirect_to_url: &str) -> HttpResponse {
-        HttpResponse::Found()
-            .append_header(("Location", redirect_to_url))
-            .finish()
+    pub fn found(redirect_to_url: &str) -> Response {
+        (
+            http::StatusCode::FOUND,
+            [(http::header::LOCATION, redirect_to_url.to_owned())],
+        )
+            .into_response()
     }
 
     /// Redirección **temporal**. Código de estado **303**. Método GET se mantiene tal cual. Los
@@ -69,10 +75,12 @@ impl Redirect {
     /// Se usa típicamente tras un POST o PUT para aplicar el patrón *Post/Redirect/Get*, permite
     /// recargar la página de resultados sin volver a ejecutar la operación.
     #[must_use]
-    pub fn see_other(redirect_to_url: &str) -> HttpResponse {
-        HttpResponse::SeeOther()
-            .append_header(("Location", redirect_to_url))
-            .finish()
+    pub fn see_other(redirect_to_url: &str) -> Response {
+        (
+            http::StatusCode::SEE_OTHER,
+            [(http::header::LOCATION, redirect_to_url.to_owned())],
+        )
+            .into_response()
     }
 
     /// Redirección **temporal**. Código de estado **307**. Conserva método y cuerpo íntegros.
@@ -80,10 +88,12 @@ impl Redirect {
     /// Preferible a [`found`](Self::found) cuando el sitio expone operaciones diferentes de GET que
     /// deben respetarse durante la redirección.
     #[must_use]
-    pub fn temporary(redirect_to_url: &str) -> HttpResponse {
-        HttpResponse::TemporaryRedirect()
-            .append_header(("Location", redirect_to_url))
-            .finish()
+    pub fn temporary(redirect_to_url: &str) -> Response {
+        (
+            http::StatusCode::TEMPORARY_REDIRECT,
+            [(http::header::LOCATION, redirect_to_url.to_owned())],
+        )
+            .into_response()
     }
 
     /// Respuesta **especial**. Código de estado **304**. Se envía tras una petición condicional,
@@ -92,7 +102,7 @@ impl Redirect {
     ///
     /// No es una redirección, el cliente debe reutilizar su copia local.
     #[must_use]
-    pub fn not_modified() -> HttpResponse {
-        HttpResponse::NotModified().finish()
+    pub fn not_modified() -> Response {
+        http::StatusCode::NOT_MODIFIED.into_response()
     }
 }

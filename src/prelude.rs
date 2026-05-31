@@ -15,7 +15,7 @@ pub use crate::include_config;
 // crate::locale
 pub use crate::include_locales;
 // crate::web
-pub use crate::static_files_service;
+pub use crate::serve_static_files;
 // crate::core::action
 pub use crate::actions;
 // crate::core::theme
@@ -36,7 +36,7 @@ pub use crate::locale::*;
 pub use crate::datetime::*;
 
 pub use crate::web;
-pub use crate::web::{HttpRequest, IntoResponse, Json, Path, Query, Router};
+pub use crate::web::{HttpRequest, Router};
 
 pub use crate::core::{AnyCast, AnyInfo, TypeInfo};
 
@@ -45,7 +45,7 @@ pub use crate::core::component::*;
 pub use crate::core::extension::*;
 pub use crate::core::theme::*;
 
-pub use crate::response::{page::*, redirect::*};
+pub use crate::response::{json::*, page::*, redirect::*};
 
 pub use crate::base::action;
 pub use crate::base::component::*;

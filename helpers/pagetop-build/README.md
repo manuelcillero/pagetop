@@ -94,7 +94,7 @@ No hay ningún problema en generar más de un conjunto de recursos para cada pro
 usen nombres diferentes.
 
 Normalmente no habrá que acceder a estos módulos; sólo declarar el nombre del conjunto de recursos
-en [`static_files_service!`](https://docs.rs/pagetop/latest/pagetop/macro.static_files_service.html)
+en [`serve_static_files!`](https://docs.rs/pagetop/latest/pagetop/macro.serve_static_files.html)
 para configurar un servicio web que sirva los archivos desde la ruta indicada. Por ejemplo:
 
 ```rust,ignore
@@ -105,7 +105,7 @@ pub struct MyExtension;
 impl Extension for MyExtension {
     // Servicio web que publica los recursos de `guides` en `/ruta/a/guides`.
     fn configure_service(&self, scfg: &mut service::web::ServiceConfig) {
-        static_files_service!(scfg, guides => "/ruta/a/guides");
+        serve_static_files!(scfg, guides => "/ruta/a/guides");
     }
 }
 ```

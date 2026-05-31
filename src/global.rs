@@ -20,27 +20,26 @@ pub use log_format::LogFormat;
 
 include_config!(SETTINGS: Settings => [
     // [app]
-    "app.name"                => "PageTop App",
-    "app.description"         => "Developed with the amazing PageTop framework.",
-    "app.theme"               => "Basic",
-    "app.lang_negotiation"    => "Full",
-    "app.startup_banner"      => "Slant",
-    "app.welcome"             => true,
+    "app.name"               => "PageTop App",
+    "app.description"        => "Developed with the amazing PageTop framework.",
+    "app.theme"              => "Basic",
+    "app.lang_negotiation"   => "Full",
+    "app.startup_banner"     => "Slant",
 
     // [dev]
-    "dev.pagetop_static_dir"  => "",
+    "dev.pagetop_static_dir" => "",
 
     // [log]
-    "log.enabled"             => true,
-    "log.tracing"             => "Info",
-    "log.rolling"             => "Stdout",
-    "log.path"                => "log",
-    "log.prefix"              => "tracing.log",
-    "log.format"              => "Full",
+    "log.enabled"            => true,
+    "log.tracing"            => "Info",
+    "log.rolling"            => "Stdout",
+    "log.path"               => "log",
+    "log.prefix"             => "tracing.log",
+    "log.format"             => "Full",
 
     // [server]
-    "server.bind_address" => "localhost",
-    "server.bind_port"    => 8080,
+    "server.bind_address"    => "localhost",
+    "server.bind_port"       => 8080,
 ]);
 
 // **< Settings >***********************************************************************************
@@ -84,11 +83,6 @@ pub struct App {
     /// Banner ASCII mostrado al inicio: *"Off"* (desactivado), *"Slant"*, *"Small"*, *"Speed"* o
     /// *"Starwars"*.
     pub startup_banner: StartupBanner,
-    /// Activa la página de bienvenida de PageTop.
-    ///
-    /// Si está activada, se instala la extensión [`Welcome`](crate::base::extension::Welcome), que
-    /// ofrece una página de bienvenida predefinida en `"/"`.
-    pub welcome: bool,
     /// Modo de ejecución, dado por la variable de entorno `PAGETOP_RUN_MODE`, o *"default"* si no
     /// está definido.
     pub run_mode: String,

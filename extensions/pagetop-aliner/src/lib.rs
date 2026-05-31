@@ -66,7 +66,7 @@ o **fuerza el tema por código** en una página concreta:
 use pagetop::prelude::*;
 use pagetop_aliner::Aliner;
 
-async fn homepage(request: HttpRequest) -> ResultPage<Markup, ErrorPage> {
+async fn homepage(request: HttpRequest) -> Result<Markup, ErrorPage> {
     Page::new(request)
         .with_theme(&Aliner)
         .with_child(
@@ -109,8 +109,9 @@ impl Extension for Aliner {
         Some(&Self)
     }
 
-    fn configure_service(&self, scfg: &mut service::web::ServiceConfig) {
-        static_files_service!(scfg, [aliner] => "/aliner");
+    fn configure_router(&self, router: Router) -> Router {
+        serve_static_files!(router, [aliner] => "/aliner");
+        router
     }
 }
 

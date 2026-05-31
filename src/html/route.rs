@@ -1,4 +1,4 @@
-use crate::{builder_fn, AutoDefault, CowStr};
+use crate::{AutoDefault, CowStr, builder_fn};
 
 use std::fmt;
 

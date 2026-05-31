@@ -1,5 +1,5 @@
 use crate::global;
-use crate::service::HttpRequest;
+use crate::web::HttpRequest;
 
 use super::{LangId, LanguageIdentifier, Locale};
 
