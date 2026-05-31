@@ -47,10 +47,7 @@ pub mod resource;
 pub use resource::Resource as StaticResource;
 
 mod resource_dir;
-pub use resource_dir::{resource_dir, ResourceDir};
-
-mod resource_files;
-pub use resource_files::{ResourceFiles, UriSegmentError};
+pub use resource_dir::{ResourceDir, resource_dir};
 
 /// Support for module based generations. Use it for large data sets (more than 128 Mb).
 pub mod sets;
