@@ -39,7 +39,7 @@ mod smart_default;
 
 use proc_macro::TokenStream;
 use quote::{quote, quote_spanned};
-use syn::{parse_macro_input, spanned::Spanned, DeriveInput};
+use syn::{DeriveInput, parse_macro_input, spanned::Spanned};
 
 /// Macro para escribir plantillas HTML (basada en [Maud](https://docs.rs/maud)).
 #[proc_macro]
@@ -164,7 +164,7 @@ pub fn derive_auto_default(input: TokenStream) -> TokenStream {
 /// documentación se mostrará la entrada del método `with_...()`.
 #[proc_macro_attribute]
 pub fn builder_fn(_: TokenStream, item: TokenStream) -> TokenStream {
-    use syn::{parse2, FnArg, Ident, ImplItemFn, Pat, ReturnType, TraitItemFn, Type};
+    use syn::{FnArg, Ident, ImplItemFn, Pat, ReturnType, TraitItemFn, Type, parse2};
 
     let ts: proc_macro2::TokenStream = item.clone().into();
 
@@ -451,7 +451,7 @@ pub fn builder_fn(_: TokenStream, item: TokenStream) -> TokenStream {
 #[proc_macro_attribute]
 pub fn main(_: TokenStream, item: TokenStream) -> TokenStream {
     let mut output: TokenStream = (quote! {
-        #[::pagetop::service::rt::main(system = "::pagetop::service::rt::System")]
+        #[::tokio::main]
     })
     .into();
 
@@ -472,7 +472,7 @@ pub fn main(_: TokenStream, item: TokenStream) -> TokenStream {
 #[proc_macro_attribute]
 pub fn test(_: TokenStream, item: TokenStream) -> TokenStream {
     let mut output: TokenStream = (quote! {
-        #[::pagetop::service::rt::test(system = "::pagetop::service::rt::System")]
+        #[::tokio::test]
     })
     .into();
 

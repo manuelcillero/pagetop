@@ -1,9 +1,9 @@
 use proc_macro2::TokenStream;
 
 use quote::quote;
+use syn::DeriveInput;
 use syn::parse::Error;
 use syn::spanned::Spanned;
-use syn::DeriveInput;
 
 use crate::smart_default::default_attr::{ConversionStrategy, DefaultAttr};
 use crate::smart_default::util::find_only;
@@ -68,7 +68,7 @@ fn default_body_tt(body: &syn::Fields) -> Result<(TokenStream, String), Error> {
     let mut doc = String::new();
     use std::fmt::Write;
     let body_tt = match body {
-        syn::Fields::Named(ref fields) => {
+        syn::Fields::Named(fields) => {
             doc.push_str(" {");
             let result = {
                 let field_assignments = fields
@@ -101,7 +101,7 @@ fn default_body_tt(body: &syn::Fields) -> Result<(TokenStream, String), Error> {
             doc.push('}');
             result
         }
-        syn::Fields::Unnamed(ref fields) => {
+        syn::Fields::Unnamed(fields) => {
             doc.push('(');
             let result = {
                 let field_assignments = fields

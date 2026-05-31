@@ -1,6 +1,6 @@
 use proc_macro2::TokenStream;
 use quote::ToTokens;
-use syn::{parse::Error, MetaNameValue};
+use syn::{MetaNameValue, parse::Error};
 
 use crate::smart_default::util::find_only;
 
