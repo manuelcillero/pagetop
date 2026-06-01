@@ -270,46 +270,14 @@ impl<T: Default> Default for PreEscaped<T> {
 /// ```
 pub const DOCTYPE: PreEscaped<&'static str> = PreEscaped("<!DOCTYPE html>");
 
-mod actix_support {
-    extern crate alloc;
+mod axum_support {
+    use super::PreEscaped;
+    use axum::response::{Html, IntoResponse, Response};
 
-    use core::{
-        pin::Pin,
-        task::{Context, Poll},
-    };
-
-    use crate::html::PreEscaped;
-    use actix_web::{
-        body::{BodySize, MessageBody},
-        http::header,
-        web::Bytes,
-        HttpRequest, HttpResponse, Responder,
-    };
-    use alloc::string::String;
-
-    impl MessageBody for PreEscaped<String> {
-        type Error = <String as MessageBody>::Error;
-
-        fn size(&self) -> BodySize {
-            self.0.size()
-        }
-
-        fn poll_next(
-            mut self: Pin<&mut Self>,
-            cx: &mut Context<'_>,
-        ) -> Poll<Option<Result<Bytes, Self::Error>>> {
-            Pin::new(&mut self.0).poll_next(cx)
-        }
-    }
-
-    impl Responder for PreEscaped<String> {
-        type Body = String;
-
-        fn respond_to(self, _req: &HttpRequest) -> HttpResponse<Self::Body> {
-            HttpResponse::Ok()
-                .content_type(header::ContentType::html())
-                .message_body(self.0)
-                .unwrap()
+    /// Convierte un bloque de [`Markup`](super::Markup) en una respuesta HTTP HTML 200.
+    impl IntoResponse for PreEscaped<String> {
+        fn into_response(self) -> Response {
+            Html(self.0).into_response()
         }
     }
 }
@@ -318,7 +286,7 @@ mod actix_support {
 pub mod html_private {
     extern crate alloc;
 
-    use super::{display, Render};
+    use super::{Render, display};
     use alloc::string::String;
     use core::fmt::Display;
 
