@@ -28,13 +28,14 @@ include_config!(SETTINGS: Settings => [
     "bootsier.max_width" => "1440px",
 ]);
 
-#[derive(Debug, Deserialize)]
 /// Tipos para la sección [`[bootsier]`](Bootsier) de [`SETTINGS`].
+#[derive(Debug, Deserialize)]
 pub struct Settings {
     pub bootsier: Bootsier,
 }
-#[derive(Debug, Deserialize)]
+
 /// Sección `[bootsier]` de la configuración. Forma parte de [`Settings`].
+#[derive(Debug, Deserialize)]
 pub struct Bootsier {
     /// Ancho máximo predeterminado para la página, por ejemplo "100%" o "90rem".
     pub max_width: UnitValue,

@@ -44,9 +44,9 @@ include_config!(SETTINGS: Settings => [
 
 // **< Settings >***********************************************************************************
 
-#[derive(Debug, Deserialize)]
 /// Tipos para las secciones globales [`[app]`](App), [`[dev]`](Dev), [`[log]`](Log) y
 /// [`[server]`](Server) de [`SETTINGS`].
+#[derive(Debug, Deserialize)]
 pub struct Settings {
     pub app: App,
     pub dev: Dev,
@@ -54,8 +54,8 @@ pub struct Settings {
     pub server: Server,
 }
 
-#[derive(Debug, Deserialize)]
 /// Sección `[app]` de la configuración. Forma parte de [`Settings`].
+#[derive(Debug, Deserialize)]
 pub struct App {
     /// Nombre de la aplicación.
     pub name: String,
@@ -88,8 +88,8 @@ pub struct App {
     pub run_mode: String,
 }
 
-#[derive(Debug, Deserialize)]
 /// Sección `[dev]` de la configuración. Forma parte de [`Settings`].
+#[derive(Debug, Deserialize)]
 pub struct Dev {
     /// Directorio desde el que servir los archivos estáticos de PageTop.
     ///
@@ -102,8 +102,8 @@ pub struct Dev {
     pub pagetop_static_dir: String,
 }
 
-#[derive(Debug, Deserialize)]
 /// Sección `[log]` de la configuración. Forma parte de [`Settings`].
+#[derive(Debug, Deserialize)]
 pub struct Log {
     /// Gestión de trazas y registro de eventos activada (*true*) o desactivada (*false*).
     pub enabled: bool,
@@ -122,8 +122,8 @@ pub struct Log {
     pub format: LogFormat,
 }
 
-#[derive(Debug, Deserialize)]
 /// Sección `[server]` de la configuración. Forma parte de [`Settings`].
+#[derive(Debug, Deserialize)]
 pub struct Server {
     /// Dirección de enlace para el servidor web.
     pub bind_address: String,
