@@ -134,26 +134,26 @@ pub const PAGETOP_VERSION: &str = env!("CARGO_PKG_VERSION");
 
 pub use pagetop_macros::{AutoDefault, builder_fn, html, main, test};
 
-pub use pagetop_statics::{StaticResource, resource};
+pub use pagetop_statics::{StaticFile, resource};
 
 pub use getter_methods::Getters;
 
 /// Contenedor para un conjunto de recursos embebidos.
 #[derive(AutoDefault)]
 pub struct StaticResources {
-    bundle: HashMap<&'static str, StaticResource>,
+    bundle: HashMap<&'static str, StaticFile>,
 }
 
 impl StaticResources {
     /// Crea un contenedor para un conjunto de recursos generado por `build.rs` (consultar
     /// [`pagetop_build`](https://docs.rs/pagetop-build)).
-    pub fn new(bundle: HashMap<&'static str, StaticResource>) -> Self {
+    pub fn new(bundle: HashMap<&'static str, StaticFile>) -> Self {
         Self { bundle }
     }
 }
 
 impl Deref for StaticResources {
-    type Target = HashMap<&'static str, StaticResource>;
+    type Target = HashMap<&'static str, StaticFile>;
 
     fn deref(&self) -> &Self::Target {
         &self.bundle

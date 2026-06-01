@@ -116,7 +116,7 @@ where
     writeln!(
         module_file,
         "
-use ::{crate_name}::StaticResource;
+use ::{crate_name}::StaticFile;
 use ::std::collections::HashMap;"
     )?;
 
@@ -177,7 +177,7 @@ fn create_set_module_file(module_dir: &Path, module_index: usize) -> io::Result<
         "#[allow(clippy::wildcard_imports)]
 use super::*;
 #[allow(clippy::unreadable_literal)]
-pub(crate) fn generate({DEFAULT_VARIABLE_NAME}: &mut HashMap<&'static str, StaticResource>) {{",
+pub(crate) fn generate({DEFAULT_VARIABLE_NAME}: &mut HashMap<&'static str, StaticFile>) {{",
     )?;
 
     Ok(set_module)

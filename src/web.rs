@@ -5,6 +5,8 @@
 //! el módulo `http` para tipos de bajo nivel como `StatusCode`, `HeaderName` o `Method`. También
 //! ofrece utilidades para servir archivos estáticos, [`ServeDir`] y [`ServeEmbedded`].
 
+use crate::StaticFile;
+
 use std::collections::HashMap;
 use std::convert::Infallible;
 use std::task::{Context, Poll};
@@ -24,10 +26,6 @@ pub use axum::response::{IntoResponse, Response};
 
 // Operaciones HTTP para registrar rutas.
 pub use axum::routing::{delete, get, patch, post, put};
-
-// Servicios para archivos estáticos (disco y embebidos).
-pub use pagetop_statics::StaticResource;
-pub use tower_http::services::ServeDir;
 
 // **< HttpRequest >********************************************************************************
 
@@ -91,6 +89,11 @@ impl<S: Send + Sync> FromRequestParts<S> for HttpRequest {
     }
 }
 
+// **< ServeDir >***********************************************************************************
+
+// Servicio para archivos estáticos en disco.
+pub use tower_http::services::ServeDir;
+
 // **< ServeEmbedded >******************************************************************************
 
 /// Servicio para archivos estáticos embebidos en el binario.
@@ -104,12 +107,12 @@ impl<S: Send + Sync> FromRequestParts<S> for HttpRequest {
 /// recursos con un [`Arc`](std::sync::Arc) para evitar copias innecesarias.
 #[derive(Clone)]
 pub struct ServeEmbedded {
-    files: std::sync::Arc<HashMap<&'static str, StaticResource>>,
+    files: std::sync::Arc<HashMap<&'static str, StaticFile>>,
 }
 
 impl ServeEmbedded {
     /// Crea un nuevo servicio a partir del mapa de recursos embebidos generado por `build.rs`.
-    pub fn new(files: HashMap<&'static str, StaticResource>) -> Self {
+    pub fn new(files: HashMap<&'static str, StaticFile>) -> Self {
         Self {
             files: std::sync::Arc::new(files),
         }

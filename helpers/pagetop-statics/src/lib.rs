@@ -26,14 +26,11 @@ compilación.
 
 ## Créditos
 
-Para ello, adapta el código de los *crates* [static-files](https://crates.io/crates/static_files)
-(versión [0.2.5](https://github.com/static-files-rs/static-files/tree/v0.2.5)) y
-[actix-web-static-files](https://crates.io/crates/actix_web_static_files) (versión
-[4.0.1](https://github.com/kilork/actix-web-static-files/tree/v4.0.1)), desarrollados ambos por
-[Alexander Korolev](https://crates.io/users/kilork).
-
-Estas implementaciones se integran en PageTop para evitar que cada proyecto tenga que declarar
-`static-files` manualmente como dependencia en su `Cargo.toml`.
+Para ello, adapta el código de [static-files](https://crates.io/crates/static_files) (versión
+[0.2.5](https://github.com/static-files-rs/static-files/tree/v0.2.5)) desarrollado por
+[Alexander Korolev](https://crates.io/users/kilork), bajo licencia MIT/Apache 2.0. La implementación
+se integra en PageTop para evitar que cada proyecto tenga que declarar `static-files` manualmente
+como dependencia en su `Cargo.toml`.
 */
 
 #![doc(test(no_crate_inject))]
@@ -44,7 +41,7 @@ Estas implementaciones se integran en PageTop para evitar que cada proyecto teng
 
 /// Resource definition and single module based generation.
 pub mod resource;
-pub use resource::Resource as StaticResource;
+pub use resource::Resource as StaticFile;
 
 mod resource_dir;
 pub use resource_dir::{ResourceDir, resource_dir};

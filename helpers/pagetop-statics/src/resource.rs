@@ -93,9 +93,9 @@ pub fn generate_resources<P: AsRef<Path>, G: AsRef<Path>>(
 /// ```rust
 /// use std::collections::HashMap;
 ///
-/// use pagetop_statics::StaticResource;
+/// use pagetop_statics::StaticFile;
 ///
-/// fn generate_mapping() -> HashMap<&'static str, StaticResource> {
+/// fn generate_mapping() -> HashMap<&'static str, StaticFile> {
 ///   include!(concat!(env!("OUT_DIR"), "/generated_mapping.rs"))
 /// }
 ///
@@ -221,7 +221,7 @@ pub(crate) fn generate_function_header<F: Write>(
 ) -> io::Result<()> {
     writeln!(
         f,
-        "#[allow(clippy::unreadable_literal)] pub fn {fn_name}() -> ::std::collections::HashMap<&'static str, ::{crate_name}::StaticResource> {{",
+        "#[allow(clippy::unreadable_literal)] pub fn {fn_name}() -> ::std::collections::HashMap<&'static str, ::{crate_name}::StaticFile> {{",
     )
 }
 
