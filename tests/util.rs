@@ -1,6 +1,6 @@
 use pagetop::prelude::*;
 
-use std::{borrow::Cow, env, fs, io};
+use std::{borrow::Cow, fs, io};
 use tempfile::TempDir;
 
 // **< Testing normalize_ascii() >******************************************************************
@@ -265,7 +265,7 @@ mod unix {
 
     #[pagetop::test]
     async fn ok_absolute_dir() -> io::Result<()> {
-        let _app = service::test::init_service(Application::new().test()).await;
+        let _app = web::test::init_router(Application::new().test());
 
         // /tmp/<rand>/sub
         let td = TempDir::new()?;
@@ -279,21 +279,13 @@ mod unix {
 
     #[pagetop::test]
     async fn ok_relative_dir_with_manifest() -> io::Result<()> {
-        let _app = service::test::init_service(Application::new().test()).await;
+        let _app = web::test::init_router(Application::new().test());
 
         let td = TempDir::new()?;
         let sub = td.path().join("sub");
         fs::create_dir(&sub)?;
 
-        // Fija CARGO_MANIFEST_DIR para que "sub" se resuelva contra td.path()
-        let prev_manifest_dir = env::var_os("CARGO_MANIFEST_DIR");
-        env::set_var("CARGO_MANIFEST_DIR", td.path());
-        let res = util::resolve_absolute_dir("sub");
-        // Restaura entorno.
-        match prev_manifest_dir {
-            Some(v) => env::set_var("CARGO_MANIFEST_DIR", v),
-            None => env::remove_var("CARGO_MANIFEST_DIR"),
-        }
+        let res = util::resolve_absolute_dir_with_base("sub", Some(td.path().to_path_buf()));
 
         assert_eq!(res?, std::fs::canonicalize(&sub)?);
         Ok(())
@@ -301,7 +293,7 @@ mod unix {
 
     #[pagetop::test]
     async fn error_not_a_directory() -> io::Result<()> {
-        let _app = service::test::init_service(Application::new().test()).await;
+        let _app = web::test::init_router(Application::new().test());
 
         let td = TempDir::new()?;
         let file = td.path().join("foo.txt");
@@ -319,7 +311,7 @@ mod windows {
 
     #[pagetop::test]
     async fn ok_absolute_dir() -> io::Result<()> {
-        let _app = service::test::init_service(Application::new().test()).await;
+        let _app = web::test::init_router(Application::new().test());
 
         // C:\Users\...\Temp\...
         let td = TempDir::new()?;
@@ -333,21 +325,13 @@ mod windows {
 
     #[pagetop::test]
     async fn ok_relative_dir_with_manifest() -> io::Result<()> {
-        let _app = service::test::init_service(Application::new().test()).await;
+        let _app = web::test::init_router(Application::new().test());
 
         let td = TempDir::new()?;
         let sub = td.path().join("sub");
         fs::create_dir(&sub)?;
 
-        // Fija CARGO_MANIFEST_DIR para que "sub" se resuelva contra td.path()
-        let prev_manifest_dir = env::var_os("CARGO_MANIFEST_DIR");
-        env::set_var("CARGO_MANIFEST_DIR", td.path());
-        let res = util::resolve_absolute_dir("sub");
-        // Restaura entorno.
-        match prev_manifest_dir {
-            Some(v) => env::set_var("CARGO_MANIFEST_DIR", v),
-            None => env::remove_var("CARGO_MANIFEST_DIR"),
-        }
+        let res = resolve_absolute_dir_with_base("sub", Some(td.path().to_path_buf()));
 
         assert_eq!(res?, std::fs::canonicalize(&sub)?);
         Ok(())
@@ -355,7 +339,7 @@ mod windows {
 
     #[pagetop::test]
     async fn error_not_a_directory() -> io::Result<()> {
-        let _app = service::test::init_service(Application::new().test()).await;
+        let _app = web::test::init_router(Application::new().test());
 
         let td = TempDir::new()?;
         let file = td.path().join("foo.txt");

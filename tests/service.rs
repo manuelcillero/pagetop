@@ -2,11 +2,11 @@ use pagetop::prelude::*;
 
 #[pagetop::test]
 async fn homepage_returns_404() {
-    let app = service::test::init_service(Application::new().test()).await;
+    let app = web::test::init_router(Application::new().test());
 
-    let req = service::test::TestRequest::get().uri("/").to_request();
-    let resp = service::test::call_service(&app, req).await;
+    let req = web::test::TestRequest::get().uri("/").to_request();
+    let resp = web::test::send_request(&app, req).await;
 
     // Comprueba el acceso a la ruta de inicio.
-    assert_eq!(resp.status(), service::http::StatusCode::OK);
+    assert_eq!(resp.status(), web::http::StatusCode::OK);
 }

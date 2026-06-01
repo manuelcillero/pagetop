@@ -46,18 +46,20 @@ async fn component_html_default_renders_empty_markup() {
 }
 
 #[pagetop::test]
-async fn component_html_can_access_http_method() {
-    let req = service::test::TestRequest::with_uri("/").to_http_request();
+async fn component_html_can_access_request_path() {
+    let req = web::test::TestRequest::get()
+        .uri("/hello/world")
+        .to_http_request();
     let mut cx = Context::new(Some(req));
 
     let mut component = Html::with(|cx| {
-        let method = cx
+        let path = cx
             .request()
-            .map(|r| r.method().to_string())
+            .map(|r| r.path().to_string())
             .unwrap_or_default();
-        html! { span { (method) } }
+        html! { span { (path) } }
     });
 
     let markup = component.render(&mut cx);
-    assert_eq!(markup.0, "<span>GET</span>");
+    assert_eq!(markup.0, "<span>/hello/world</span>");
 }

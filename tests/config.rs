@@ -2,8 +2,6 @@ use pagetop::prelude::*;
 
 use serde::Deserialize;
 
-use std::env;
-
 include_config!(SETTINGS: Settings => [
     "test.string_value" => "Test String",
     "test.int_value"    => -321,
@@ -22,10 +20,12 @@ pub struct Test {
     pub float_value: f32,
 }
 
+// La *feature* `testing` (activo con `cargo ts` / `cargo tw`) fija el modo "test" en tiempo de
+// compilación dentro de `config::CONFIG_VALUES`, de forma que `global::SETTINGS` y cualquier
+// `include_config!` local cargan automáticamente la configuración del modo "test".
+
 #[pagetop::test]
 async fn check_global_config() {
-    env::set_var("PAGETOP_RUN_MODE", "test");
-
     assert_eq!(global::SETTINGS.app.run_mode, "test");
     assert_eq!(global::SETTINGS.app.name, "Testing");
     assert_eq!(global::SETTINGS.server.bind_port, 9000);
@@ -33,8 +33,6 @@ async fn check_global_config() {
 
 #[pagetop::test]
 async fn check_local_config() {
-    env::set_var("PAGETOP_RUN_MODE", "test");
-
     assert_eq!(SETTINGS.test.string_value, "Modified value");
     assert_eq!(SETTINGS.test.int_value, -321);
     assert_eq!(SETTINGS.test.float_value, 8.7654);
