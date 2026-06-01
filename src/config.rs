@@ -234,8 +234,8 @@ pub static CONFIG_VALUES: LazyLock<ConfigBuilder<DefaultState>> = LazyLock::new(
 macro_rules! include_config {
     ( $SETTINGS_NAME:ident : $settings_type:ty => [ $( $k:literal => $v:expr ),* $(,)? ] ) => {
         #[doc = concat!(
-            "Ajustes de configuración y **valores por defecto** para ",
-            "[`", stringify!($settings_type), "`]."
+            "Carga [`", stringify!($settings_type), "`] ",
+            "(y aplica **valores por defecto** en claves no definidas)."
         )]
         #[doc = ""]
         #[doc = "Valores predeterminados que se aplican en ausencia de configuración:"]

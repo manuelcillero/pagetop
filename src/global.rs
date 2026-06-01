@@ -44,8 +44,7 @@ include_config!(SETTINGS: Settings => [
 
 // **< Settings >***********************************************************************************
 
-/// Tipos para las secciones globales [`[app]`](App), [`[dev]`](Dev), [`[log]`](Log) y
-/// [`[server]`](Server) de [`SETTINGS`].
+/// Ajustes para las secciones globales [`App`], [`Dev`], [`Log`] y [`Server`] de [`SETTINGS`].
 #[derive(Debug, Deserialize)]
 pub struct Settings {
     pub app: App,
@@ -54,7 +53,7 @@ pub struct Settings {
     pub server: Server,
 }
 
-/// Sección `[app]` de la configuración. Forma parte de [`Settings`].
+/// Sección **`[app]`** de la configuración. Forma parte de [`Settings`].
 #[derive(Debug, Deserialize)]
 pub struct App {
     /// Nombre de la aplicación.
@@ -88,7 +87,7 @@ pub struct App {
     pub run_mode: String,
 }
 
-/// Sección `[dev]` de la configuración. Forma parte de [`Settings`].
+/// Sección **`[dev]`** de la configuración. Forma parte de [`Settings`].
 #[derive(Debug, Deserialize)]
 pub struct Dev {
     /// Directorio desde el que servir los archivos estáticos de PageTop.
@@ -102,7 +101,7 @@ pub struct Dev {
     pub pagetop_static_dir: String,
 }
 
-/// Sección `[log]` de la configuración. Forma parte de [`Settings`].
+/// Sección **`[log]`** de la configuración. Forma parte de [`Settings`].
 #[derive(Debug, Deserialize)]
 pub struct Log {
     /// Gestión de trazas y registro de eventos activada (*true*) o desactivada (*false*).
@@ -122,7 +121,7 @@ pub struct Log {
     pub format: LogFormat,
 }
 
-/// Sección `[server]` de la configuración. Forma parte de [`Settings`].
+/// Sección **`[server]`** de la configuración. Forma parte de [`Settings`].
 #[derive(Debug, Deserialize)]
 pub struct Server {
     /// Dirección de enlace para el servidor web.
