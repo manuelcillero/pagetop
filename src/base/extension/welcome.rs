@@ -2,11 +2,11 @@ use crate::prelude::*;
 
 /// Página de bienvenida de PageTop.
 ///
-/// Esta extensión se instala por defecto si el ajuste de configuración [`global::App::welcome`] es
-/// `true`. Muestra una página de bienvenida de PageTop en la ruta raíz (`/`).
+/// Se registra automáticamente cuando la aplicación arranca sin extensión raíz. Muestra una página
+/// de bienvenida de PageTop en la ruta raíz (`/`) usando el componente [`Intro`].
 ///
-/// No obstante, cualquier extensión puede sobrescribir este comportamiento si utiliza estas mismas
-/// rutas.
+/// También puede incluirse explícitamente como dependencia de la extensión raíz o de cualquier otra
+/// extensión dentro de la estructura de la aplicación.
 ///
 /// Resulta útil en demos o para comprobar rápidamente que el servidor ha arrancado correctamente.
 pub struct Welcome;
