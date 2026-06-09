@@ -1,6 +1,6 @@
 use pagetop::prelude::*;
 
-/// Inicializa PageTop (locale, extensiones…) una sola vez para toda la suite.
+/// Inicializa PageTop (locale, extensiones...) una sola vez para toda la suite.
 ///
 /// Los tests de este módulo renderizan componentes directamente con `Context::default()`, por lo
 /// que sólo necesitan el subsistema de localización y las extensiones registradas, no un router.
