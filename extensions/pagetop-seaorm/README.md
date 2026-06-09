@@ -45,6 +45,9 @@ opcional; si se omite se usa el puerto predeterminado del motor.
 
 ```rust,ignore
 use pagetop::prelude::*;
+use pagetop_seaorm::install_migrations;
+
+mod migration;
 
 struct MyApp;
 
@@ -66,9 +69,10 @@ async fn main() -> std::io::Result<()> {
 }
 ```
 
-**Escribe las migraciones** usando la API de SeaORM:
+**Escribe las migraciones** usando la API de [`migration`]:
 
 ```rust,no_run
+// src/migration/m20240101_000001_create_users.rs
 use pagetop_seaorm::migration::*;
 
 pub struct Migration;
@@ -81,6 +85,7 @@ impl MigrationTrait for Migration {
                 table_auto(Users::Table)
                     .col(pk_auto(Users::Id))
                     .col(string_uniq(Users::Email))
+                    .col(string(Users::Name))
                     .to_owned(),
             )
             .await
@@ -92,6 +97,52 @@ enum Users {
     Table,
     Id,
     Email,
+    Name,
+}
+```
+
+**Define las entidades** en un módulo `entity/` usando las macros de derivación de [`db`]:
+
+```rust,no_run
+// src/entity/user.rs
+use pagetop_seaorm::db::*;
+
+#[derive(Clone, Debug, DeriveEntityModel, PartialEq)]
+#[sea_orm(table_name = "users")]
+pub struct Model {
+    #[sea_orm(primary_key)]
+    pub id: i32,
+    pub email: String,
+    pub name: String,
+}
+
+#[derive(Clone, Copy, Debug, DeriveRelation, EnumIter)]
+pub enum Relation {}
+
+impl ActiveModelBehavior for ActiveModel {}
+```
+
+**Opera con la base de datos** pasando la conexión [`db::dbconn()`] a cada consulta:
+
+```rust,ignore
+use pagetop_seaorm::db::*;
+
+// Asumiendo que existe un módulo `user` con la entidad definida arriba.
+async fn example() -> Result<(), DbErr> {
+    // Listar todos los registros:
+    let users = user::Entity::find().all(dbconn()).await?;
+
+    // Buscar por clave primaria:
+    let found = user::Entity::find_by_id(1).one(dbconn()).await?;
+
+    // Insertar un registro:
+    let new_user = user::ActiveModel {
+        email: Set("alice@example.com".to_owned()),
+        name: Set("Alice".to_owned()),
+        ..Default::default()
+    };
+    user::Entity::insert(new_user).exec(dbconn()).await?;
+    Ok(())
 }
 ```
 
@@ -125,7 +176,7 @@ extensión. Los ficheros adaptados del original son:
 | `manager.rs`          | Adapta *features* propias                                                |
 | `migrator.rs`         | Adapta *features* propias y omite gestión de errores del CLI             |
 | `prelude.rs`          | Absorbido en `migration.rs`, descarta exportaciones del CLI              |
-| `schema.rs`           | Integra con ajustes, original de [loco](https://github.com/loco-rs/loco) |
+| `schema.rs`           | Integra con ajustes, adaptado de [loco](https://github.com/loco-rs/loco) |
 | `seaql_migrations.rs` | Integración completa                                                     |
 
 

@@ -461,6 +461,9 @@ pub fn main(_: TokenStream, item: TokenStream) -> TokenStream {
 
 /// Define funciones de prueba asíncronas para usar con PageTop.
 ///
+/// Usa el *runtime* multi-hilo de **Tokio**, igual que [`#[pagetop::main]`](macro@main), para
+/// garantizar compatibilidad con extensiones que ejecutan código asíncrono de forma síncrona.
+///
 /// # Ejemplo
 ///
 /// ```rust,ignore
@@ -472,7 +475,7 @@ pub fn main(_: TokenStream, item: TokenStream) -> TokenStream {
 #[proc_macro_attribute]
 pub fn test(_: TokenStream, item: TokenStream) -> TokenStream {
     let mut output: TokenStream = (quote! {
-        #[::tokio::test]
+        #[::tokio::test(flavor = "multi_thread")]
     })
     .into();
 

@@ -46,6 +46,9 @@ opcional; si se omite se usa el puerto predeterminado del motor.
 
 ```rust,ignore
 use pagetop::prelude::*;
+use pagetop_seaorm::install_migrations;
+
+mod migration;
 
 struct MyApp;
 
@@ -57,7 +60,7 @@ impl Extension for MyApp {
     }
 
     fn initialize(&self) {
-        install_migrations!(m20240101_000001_create_users_table);
+        install_migrations!(m20240101_000001_create_users);
     }
 }
 
@@ -67,9 +70,10 @@ async fn main() -> std::io::Result<()> {
 }
 ```
 
-**Escribe las migraciones** usando la API de SeaORM:
+**Escribe las migraciones** usando la API de [`migration`]:
 
 ```rust,no_run
+// src/migration/m20240101_000001_create_users.rs
 use pagetop_seaorm::migration::*;
 
 pub struct Migration;
@@ -82,6 +86,7 @@ impl MigrationTrait for Migration {
                 table_auto(Users::Table)
                     .col(pk_auto(Users::Id))
                     .col(string_uniq(Users::Email))
+                    .col(string(Users::Name))
                     .to_owned(),
             )
             .await
@@ -93,6 +98,52 @@ enum Users {
     Table,
     Id,
     Email,
+    Name,
+}
+```
+
+**Define las entidades** en un módulo `entity/` usando las macros de derivación de [`db`]:
+
+```rust,no_run
+// src/entity/user.rs
+use pagetop_seaorm::db::*;
+
+#[derive(Clone, Debug, DeriveEntityModel, PartialEq)]
+#[sea_orm(table_name = "users")]
+pub struct Model {
+    #[sea_orm(primary_key)]
+    pub id: i32,
+    pub email: String,
+    pub name: String,
+}
+
+#[derive(Clone, Copy, Debug, DeriveRelation, EnumIter)]
+pub enum Relation {}
+
+impl ActiveModelBehavior for ActiveModel {}
+```
+
+**Opera con la base de datos** pasando la conexión [`db::dbconn()`] a cada consulta:
+
+```rust,ignore
+use pagetop_seaorm::db::*;
+
+// Asumiendo que existe un módulo `user` con la entidad definida arriba.
+async fn example() -> Result<(), DbErr> {
+    // Listar todos los registros:
+    let users = user::Entity::find().all(dbconn()).await?;
+
+    // Buscar por clave primaria:
+    let found = user::Entity::find_by_id(1).one(dbconn()).await?;
+
+    // Insertar un registro:
+    let new_user = user::ActiveModel {
+        email: Set("alice@example.com".to_owned()),
+        name: Set("Alice".to_owned()),
+        ..Default::default()
+    };
+    user::Entity::insert(new_user).exec(dbconn()).await?;
+    Ok(())
 }
 ```
 */
@@ -116,7 +167,18 @@ pub mod db;
 
 pub mod migration;
 
-pub(crate) use futures::executor::block_on as run_now;
+// Ejecuta un *future* de forma síncrona dentro del runtime de Tokio.
+//
+// Usa [`tokio::task::block_in_place`] para ceder el hilo actual al código bloqueante sin detener el
+// *pool* de trabajo de Tokio, y a continuación ejecuta el *future* con el *handle* del *runtime*
+// activo. Requiere el *runtime* multi-hilo (predeterminado con `#[pagetop::main]`).
+//
+// En tests, `#[pagetop::test]` aplica `multi_thread` por defecto. Si se utiliza `#[tokio::test]`
+// directamente, habría que añadir `(flavor = "multi_thread")` si el test invoca código que llame a
+// esta función.
+pub(crate) fn run_now<F: std::future::Future>(future: F) -> F::Output {
+    tokio::task::block_in_place(|| tokio::runtime::Handle::current().block_on(future))
+}
 
 pub(crate) static DBCONN: LazyLock<DatabaseConnection> = LazyLock::new(|| {
     trace::info!(
@@ -125,51 +187,48 @@ pub(crate) static DBCONN: LazyLock<DatabaseConnection> = LazyLock::new(|| {
         &config::SETTINGS.database.max_pool_size
     );
 
-    let db_uri = match config::SETTINGS.database.db_type.as_str() {
-        "mysql" | "postgres" => {
-            let mut tmp_uri = Url::parse(
-                format!(
-                    "{}://{}/{}",
-                    &config::SETTINGS.database.db_type,
-                    &config::SETTINGS.database.db_host,
-                    &config::SETTINGS.database.db_name
-                )
-                .as_str(),
-            )
-            .unwrap();
+    let db_uri: String = match config::SETTINGS.database.db_type {
+        config::DbType::Unset => panic!(
+            "database.db_type is not configured: set it to \"mysql\", \"postgres\" or \"sqlite\""
+        ),
+        config::DbType::Mysql | config::DbType::Postgres => {
+            let scheme = if matches!(config::SETTINGS.database.db_type, config::DbType::Mysql) {
+                "mysql"
+            } else {
+                "postgres"
+            };
+            let mut tmp_uri = Url::parse(&format!(
+                "{}://{}/{}",
+                scheme,
+                &config::SETTINGS.database.db_host,
+                &config::SETTINGS.database.db_name
+            ))
+            .expect("Invalid database URL: check db_host and db_name in config");
             tmp_uri
                 .set_username(config::SETTINGS.database.db_user.as_str())
-                .unwrap();
+                .expect("Failed to set db_user in connection URL");
             // https://github.com/launchbadge/sqlx/issues/1624
             tmp_uri
                 .set_password(Some(config::SETTINGS.database.db_pass.as_str()))
-                .unwrap();
+                .expect("Failed to set db_pass in connection URL");
             if let Some(port) = config::SETTINGS.database.db_port {
-                tmp_uri.set_port(Some(port)).unwrap();
+                tmp_uri
+                    .set_port(Some(port))
+                    .expect("Failed to set db_port in connection URL");
             }
-            tmp_uri
+            tmp_uri.to_string()
         }
-        "sqlite" => Url::parse(
-            format!(
-                "{}://{}",
-                &config::SETTINGS.database.db_type,
-                &config::SETTINGS.database.db_name
-            )
-            .as_str(),
-        )
-        .unwrap(),
-        _ => panic!(
-            "Unrecognized database type \"{}\"",
-            config::SETTINGS.database.db_type
-        ),
+        config::DbType::Sqlite => {
+            format!("sqlite://{}", &config::SETTINGS.database.db_name)
+        }
     };
 
     run_now(Database::connect::<ConnectOptions>({
-        let mut db_opt = ConnectOptions::new(db_uri.to_string());
+        let mut db_opt = ConnectOptions::new(db_uri);
         db_opt.max_connections(config::SETTINGS.database.max_pool_size);
         db_opt
     }))
-    .unwrap_or_else(|_| panic!("Failed to connect to database"))
+    .expect("Failed to connect to database")
 });
 
 /// Implementa la extensión.

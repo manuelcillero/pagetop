@@ -1,13 +1,14 @@
-//! Adaptación de <https://github.com/loco-rs/loco/blob/master/src/schema.rs>
+//! Adapted from <https://github.com/loco-rs/loco/blob/master/src/schema.rs>
 //!
-//! # Ayudantes de esquema de base de datos
+//! # Database Table Schema Helpers
 //!
-//! Define funciones y ayudantes para crear esquemas de tablas usando `sea-orm` y `sea-query`.
+//! This module defines functions and helpers for creating database table
+//! schemas using the `sea-orm` and `sea-query` libraries.
 //!
-//! # Ejemplo
+//! # Example
 //!
-//! El siguiente ejemplo muestra cómo escribir un archivo de migración usando los ayudantes
-//! de esquema.
+//! The following example shows how the user migration file should be and using
+//! the schema helpers to create the Db fields.
 //!
 //! ```rust
 //! use pagetop_seaorm::migration::*;
@@ -597,7 +598,7 @@ pub fn array_uniq<T: IntoIden>(col: T, elem_type: ColumnType) -> ColumnDef {
     array(col, elem_type).unique_key().take()
 }
 
-/// Añade las columnas de timestamp (`CreatedAt` y `UpdatedAt`) a una tabla existente.
+/// Add timestamp columns (`CreatedAt` and `UpdatedAt`) to an existing table.
 pub fn timestamps(t: TableCreateStatement) -> TableCreateStatement {
     let mut t = t;
     t.col(timestamp(GeneralIds::CreatedAt).default(Expr::current_timestamp()))
@@ -605,7 +606,7 @@ pub fn timestamps(t: TableCreateStatement) -> TableCreateStatement {
         .take()
 }
 
-/// Crea un alias.
+/// Create an Alias.
 pub fn name<T: Into<String>>(name: T) -> Alias {
     Alias::new(name)
 }

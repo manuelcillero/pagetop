@@ -1,14 +1,14 @@
-use futures::Future;
 use std::collections::HashSet;
 use std::fmt::Display;
+use std::future::Future;
 use std::pin::Pin;
 use std::time::SystemTime;
 
 use pagetop::trace::info;
 
 use sea_orm::sea_query::{
-    self, extension::postgres::Type, Alias, Expr, ExprTrait, ForeignKey, IntoIden, Order, Query,
-    SelectStatement, SimpleExpr, Table,
+    self, Alias, Expr, ExprTrait, ForeignKey, IntoIden, Order, Query, SelectStatement, SimpleExpr,
+    Table, extension::postgres::Type,
 };
 use sea_orm::{
     ActiveModelTrait, ActiveValue, Condition, ConnectionTrait, DbBackend, DbErr, DeriveIden,
@@ -18,10 +18,10 @@ use sea_orm::{
 #[allow(unused_imports)]
 use sea_schema::probe::SchemaProbe;
 
-use super::{seaql_migrations, IntoSchemaManagerConnection, MigrationTrait, SchemaManager};
+use super::{IntoSchemaManagerConnection, MigrationTrait, SchemaManager, seaql_migrations};
 
-#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 /// Status of migration
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum MigrationStatus {
     /// Not yet applied
     Pending,
