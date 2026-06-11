@@ -139,7 +139,7 @@ impl Generator {
     }
 
     fn attrs(&self, attrs: Vec<Attribute>, build: &mut Builder) {
-        let (classes, id, named_attrs) = split_attrs(attrs);
+        let (classes, id, named_attrs, spliced) = split_attrs(attrs);
 
         if !classes.is_empty() {
             let mut toggle_class_exprs = vec![];
@@ -183,6 +183,9 @@ impl Generator {
 
         for (name, attr_type) in named_attrs {
             self.attr(name, attr_type, build);
+        }
+        for expr in spliced {
+            self.splice(expr, build);
         }
     }
 
@@ -316,10 +319,12 @@ fn split_attrs(
     Vec<(HtmlNameOrMarkup, Option<Expr>)>,
     Option<HtmlNameOrMarkup>,
     Vec<(HtmlName, AttributeType)>,
+    Vec<Expr>,
 ) {
     let mut classes = vec![];
     let mut id = None;
     let mut named_attrs = vec![];
+    let mut spliced = vec![];
 
     for attr in attrs {
         match attr {
@@ -328,10 +333,11 @@ fn split_attrs(
             }
             Attribute::Id { name, .. } => id = Some(name),
             Attribute::Named { name, attr_type } => named_attrs.push((name, attr_type)),
+            Attribute::Splice { expr, .. } => spliced.push(expr),
         }
     }
 
-    (classes, id, named_attrs)
+    (classes, id, named_attrs, spliced)
 }
 
 ////////////////////////////////////////////////////////

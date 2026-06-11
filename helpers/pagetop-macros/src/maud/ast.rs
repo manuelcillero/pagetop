@@ -212,6 +212,7 @@ impl DiagnosticParse for Element {
                     || input.peek(Lit)
                     || input.peek(Dot)
                     || input.peek(Pound)
+                    || input.peek(Paren)
                 {
                     let attr = input.diagnostic_parse(diagnostics)?;
 
@@ -346,6 +347,10 @@ pub enum Attribute {
         name: HtmlName,
         attr_type: AttributeType,
     },
+    Splice {
+        paren_token: Paren,
+        expr: Expr,
+    },
 }
 
 impl DiagnosticParse for Attribute {
@@ -373,6 +378,12 @@ impl DiagnosticParse for Attribute {
             Ok(Self::Id {
                 pound_token: input.parse()?,
                 name: input.diagnostic_parse(diagnostics)?,
+            })
+        } else if lookahead.peek(Paren) {
+            let content;
+            Ok(Self::Splice {
+                paren_token: parenthesized!(content in input),
+                expr: content.parse()?,
             })
         } else {
             let name = input.diagnostic_parse::<HtmlName>(diagnostics)?;
@@ -423,6 +434,11 @@ impl ToTokens for Attribute {
             Self::Named { name, attr_type } => {
                 name.to_tokens(tokens);
                 attr_type.to_tokens(tokens);
+            }
+            Self::Splice { paren_token, expr } => {
+                paren_token.surround(tokens, |tokens| {
+                    expr.to_tokens(tokens);
+                });
             }
         }
     }
