@@ -1,7 +1,7 @@
 //! HTML en código.
 
-mod maud;
-pub use maud::{DOCTYPE, Escaper, Markup, PreEscaped, display, html, html_private};
+pub(crate) mod maud;
+pub use maud::{DOCTYPE, Escaper, Markup, PreEscaped, Render, display, html, html_private};
 
 mod route;
 pub use route::RoutePath;
@@ -22,8 +22,8 @@ pub use logo::PageTopSvg;
 mod attr;
 pub use attr::{Attr, AttrId, AttrName, AttrValue};
 
-mod classes;
-pub use classes::{Classes, ClassesOp};
+mod props;
+pub use props::{Props, PropsOp};
 
 mod unit;
 pub use unit::UnitValue;

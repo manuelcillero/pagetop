@@ -8,8 +8,8 @@ use crate::prelude::*;
 pub struct Block {
     #[getters(skip)]
     id: AttrId,
-    /// Devuelve las clases CSS asociadas al bloque.
-    classes: Classes,
+    /// Devuelve los atributos HTML y clases CSS del bloque.
+    props: Props,
     /// Devuelve el título del bloque.
     title: L10n,
     /// Devuelve la lista de componentes hijo del bloque.
@@ -26,7 +26,7 @@ impl Component for Block {
     }
 
     fn setup(&mut self, _cx: &Context) {
-        self.alter_classes(ClassesOp::Prepend, "block");
+        self.props.alter_prop(PropsOp::prepend_classes("block"));
     }
 
     fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
@@ -39,7 +39,7 @@ impl Component for Block {
         let id = cx.required_id::<Self>(self.id(), 1);
 
         Ok(html! {
-            div id=(&id) class=[self.classes().get()] {
+            div id=(&id) (self.props()) {
                 @if let Some(title) = self.title().lookup(cx) {
                     h2 class="block__title" { span { (title) } }
                 }
@@ -59,10 +59,10 @@ impl Block {
         self
     }
 
-    /// Modifica la lista de clases CSS aplicadas al bloque.
+    /// Modifica los atributos HTML o las clases CSS del bloque.
     #[builder_fn]
-    pub fn with_classes(mut self, op: ClassesOp, classes: impl AsRef<str>) -> Self {
-        self.classes.alter_classes(op, classes);
+    pub fn with_prop(mut self, op: PropsOp) -> Self {
+        self.props.alter_prop(op);
         self
     }
 

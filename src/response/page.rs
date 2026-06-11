@@ -20,8 +20,7 @@ use crate::base::action;
 use crate::core::component::{AssetsOp, ChildOp, Context, ContextError, Contextual};
 use crate::core::theme::{DefaultRegion, Region, RegionRef, TemplateRef, ThemeRef};
 use crate::html::{Assets, Favicon, JavaScript, StyleSheet};
-use crate::html::{Attr, AttrId};
-use crate::html::{Classes, ClassesOp};
+use crate::html::{Attr, AttrId, Props, PropsOp};
 use crate::html::{DOCTYPE, Markup, html};
 use crate::locale::{CharacterDirection, L10n, LangId, LanguageIdentifier};
 use crate::web::HttpRequest;
@@ -91,7 +90,7 @@ pub struct Page {
     metadata    : Vec<(&'static str, &'static str)>,
     properties  : Vec<(&'static str, &'static str)>,
     body_id     : AttrId,
-    body_classes: Classes,
+    body_props  : Props,
     context     : Context,
 }
 
@@ -108,7 +107,7 @@ impl Page {
             metadata    : Vec::default(),
             properties  : Vec::default(),
             body_id     : AttrId::default(),
-            body_classes: Classes::default(),
+            body_props  : Props::default(),
             context     : Context::new(Some(request)),
         }
     }
@@ -150,10 +149,10 @@ impl Page {
         self
     }
 
-    /// Modifica las clases CSS del elemento `<body>` con una operación sobre [`Classes`].
+    /// Modifica los atributos HTML o las clases CSS del elemento `<body>`.
     #[builder_fn]
-    pub fn with_body_classes(mut self, op: ClassesOp, classes: impl AsRef<str>) -> Self {
-        self.body_classes.alter_classes(op, classes);
+    pub fn with_body_props(mut self, op: PropsOp) -> Self {
+        self.body_props.alter_prop(op);
         self
     }
 
@@ -184,9 +183,9 @@ impl Page {
         &self.body_id
     }
 
-    /// Devuelve las clases CSS del elemento `<body>`.
-    pub fn body_classes(&self) -> &Classes {
-        &self.body_classes
+    /// Devuelve los atributos HTML y clases CSS del elemento `<body>`.
+    pub fn body_props(&self) -> &Props {
+        &self.body_props
     }
 
     /// Devuelve una referencia mutable al [`Context`] de la página.
@@ -262,7 +261,7 @@ impl Page {
                 head {
                     (head)
                 }
-                body id=[self.body_id().get()] class=[self.body_classes().get()] {
+                body id=[self.body_id().get()] (self.body_props()) {
                     (body)
                 }
             }

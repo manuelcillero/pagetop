@@ -80,10 +80,9 @@ impl Extension for SuperMenu {
             ))
             .with_item(navbar::Item::nav(
                 Nav::new()
-                    .with_classes(
-                        ClassesOp::Add,
+                    .with_prop(PropsOp::add_classes(
                         classes::Margin::with(Side::Start, ScaleSize::Auto).to_class(),
-                    )
+                    ))
                     .with_item(nav::Item::link(L10n::t("menus_item_sign_up", &LOC), |cx| {
                         cx.route("/auth/sign-up")
                     }))
