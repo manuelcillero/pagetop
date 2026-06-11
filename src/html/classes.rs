@@ -1,4 +1,4 @@
-use crate::{AutoDefault, CowStr, builder_fn, util};
+use crate::{AutoDefault, builder_fn, util};
 
 use std::collections::HashSet;
 
@@ -7,6 +7,27 @@ use std::collections::HashSet;
 /// Cada variante opera sobre **una o más clases** proporcionadas como una cadena separada por
 /// espacios (p. ej. `"btn active"`), que se normalizan internamente a minúsculas en
 /// [`Classes::with_classes()`].
+///
+/// # Orden de las clases y CSS
+///
+/// El navegador aplica los estilos según la especificidad de los selectores y el orden en que las
+/// reglas aparecen en la **hoja de estilos**, no por el orden de las clases en el atributo `class`.
+/// Por tanto, `"btn active"` y `"active btn"` producen exactamente el mismo resultado visual.
+///
+/// Las operaciones [`Add`](Self::Add) y [`Prepend`](Self::Prepend) permiten controlar ese orden
+/// únicamente por legibilidad o por convención de proyecto, no porque afecte al comportamiento
+/// del navegador.
+///
+/// # Reemplazar una clase
+///
+/// Para sustituir una clase por otra encadena [`Remove`](Self::Remove) y [`Add`](Self::Add):
+/// ```rust
+/// # use pagetop::prelude::*;
+/// let c = Classes::new("btn btn-primary active")
+///     .with_classes(ClassesOp::Remove, "btn-primary")
+///     .with_classes(ClassesOp::Add, "btn-secondary");
+/// assert_eq!(c.get(), Some("btn active btn-secondary".to_string()));
+/// ```
 #[derive(AutoDefault, Clone, Debug, PartialEq)]
 pub enum ClassesOp {
     /// Añade las clases que no existan al final.
@@ -16,9 +37,6 @@ pub enum ClassesOp {
     Prepend,
     /// Elimina las clases indicadas que existan.
     Remove,
-    /// Sustituye una o varias clases existentes (indicadas en la variante) por las clases
-    /// proporcionadas.
-    Replace(CowStr),
     /// Alterna presencia/ausencia de una o más clases.
     ///
     /// Si en una misma llamada se repite una clase (p. ej. `"a a"`) que ya existe, el resultado
@@ -26,7 +44,7 @@ pub enum ClassesOp {
     /// final).
     Toggle,
     /// Sustituye la lista completa por las clases indicadas.
-    Set,
+    Reset,
 }
 
 /// Lista de clases CSS normalizadas para el atributo `class` de HTML.
@@ -36,8 +54,8 @@ pub enum ClassesOp {
 ///
 /// # Normalización
 ///
-/// - Aunque el orden de las clases en el atributo `class` no afecta al resultado en CSS,
-///   [`ClassesOp`] ofrece operaciones para controlar su orden de aparición por legibilidad.
+/// - El orden de las clases no afecta al resultado en CSS; las operaciones de ordenación
+///   ([`Add`](ClassesOp::Add), [`Prepend`](ClassesOp::Prepend)) son puramente estéticas.
 /// - Solo se acepta una lista de clases con caracteres ASCII.
 /// - Las clases se almacenan en minúsculas.
 /// - No se permiten clases duplicadas tras la normalización (por ejemplo, `Btn` y `btn` se
@@ -51,7 +69,8 @@ pub enum ClassesOp {
 /// # use pagetop::prelude::*;
 /// let classes = Classes::new("Btn btn-primary")
 ///     .with_classes(ClassesOp::Add, "Active")
-///     .with_classes(ClassesOp::Replace("active".into()), "Disabled")
+///     .with_classes(ClassesOp::Remove, "active")
+///     .with_classes(ClassesOp::Add, "Disabled")
 ///     .with_classes(ClassesOp::Remove, "btn-primary");
 ///
 /// assert_eq!(classes.get(), Some("btn disabled".to_string()));
@@ -109,26 +128,6 @@ impl Classes {
                 }
                 self.0.retain(|c| !to_remove.contains(c.as_str()));
             }
-            ClassesOp::Replace(classes_to_replace) => {
-                let Some(classes_to_replace) = util::normalize_ascii_or_empty(
-                    classes_to_replace.as_ref(),
-                    "ClassesOp::Replace",
-                ) else {
-                    return self;
-                };
-                let mut pos = self.0.len();
-                let mut replaced = false;
-                for class in classes_to_replace.as_ref().split_ascii_whitespace() {
-                    if let Some(replace_pos) = self.0.iter().position(|c| c == class) {
-                        self.0.remove(replace_pos);
-                        pos = pos.min(replace_pos);
-                        replaced = true;
-                    }
-                }
-                if replaced {
-                    self.add(normalized.as_ref().split_ascii_whitespace(), pos);
-                }
-            }
             ClassesOp::Toggle => {
                 for class in normalized.as_ref().split_ascii_whitespace() {
                     if let Some(pos) = self.0.iter().position(|c| c == class) {
@@ -138,7 +137,7 @@ impl Classes {
                     }
                 }
             }
-            ClassesOp::Set => {
+            ClassesOp::Reset => {
                 self.0.clear();
                 self.add(normalized.as_ref().split_ascii_whitespace(), 0);
             }
@@ -167,6 +166,11 @@ impl Classes {
     }
 
     // **< Classes GETTERS >************************************************************************
+
+    /// Devuelve `true` si no hay clases.
+    pub fn is_empty(&self) -> bool {
+        self.0.is_empty()
+    }
 
     /// Devuelve la cadena de clases, si existe.
     pub fn get(&self) -> Option<String> {

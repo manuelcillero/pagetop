@@ -79,19 +79,19 @@ async fn classes_prepend_ignores_empty_input() {
 }
 
 #[pagetop::test]
-async fn classes_set_replaces_entire_list_and_dedups() {
-    let c = Classes::new("a b c").with_classes(ClassesOp::Set, "X  y  y  Z");
+async fn classes_reset_replaces_entire_list_and_dedups() {
+    let c = Classes::new("a b c").with_classes(ClassesOp::Reset, "X  y  y  Z");
     assert_classes(&c, Some("x y z"));
 }
 
 #[pagetop::test]
-async fn classes_set_with_empty_input_clears() {
+async fn classes_reset_with_empty_input_clears() {
     let base = Classes::new("a b");
-    let c = base.with_classes(ClassesOp::Set, " \n ");
+    let c = base.with_classes(ClassesOp::Reset, " \n ");
     assert_classes(&c, None);
 }
 
-// **< Mutation operations (remove/toggle/replace) >************************************************
+// **< Mutation operations (remove/toggle) >********************************************************
 
 #[pagetop::test]
 async fn classes_remove_is_case_insensitive() {
@@ -136,49 +136,6 @@ async fn classes_toggle_duplicate_tokens_are_applied_sequentially() {
 
     let c = Classes::new("a b").with_classes(ClassesOp::Toggle, "a a");
     assert_classes(&c, Some("b a"));
-}
-
-#[pagetop::test]
-async fn classes_replace_removes_targets_and_inserts_new_at_min_position() {
-    let c = Classes::new("a b c d").with_classes(ClassesOp::Replace("c a".into()), "x y");
-    assert_classes(&c, Some("x y b d"));
-}
-
-#[pagetop::test]
-async fn classes_replace_when_none_found_does_nothing() {
-    let c = Classes::new("a b").with_classes(ClassesOp::Replace("x y".into()), "c d");
-    assert_classes(&c, Some("a b"));
-}
-
-#[pagetop::test]
-async fn classes_replace_is_case_insensitive_on_targets_and_new_values_are_normalized() {
-    let c = Classes::new("btn btn-primary active")
-        .with_classes(ClassesOp::Replace("BTN-PRIMARY".into()), "Btn-Secondary");
-    assert_classes(&c, Some("btn btn-secondary active"));
-}
-
-#[pagetop::test]
-async fn classes_replace_with_empty_new_removes_only() {
-    let c = Classes::new("a b c").with_classes(ClassesOp::Replace("b".into()), "   ");
-    assert_classes(&c, Some("a c"));
-}
-
-#[pagetop::test]
-async fn classes_replace_dedups_against_existing_items() {
-    let c = Classes::new("a b c").with_classes(ClassesOp::Replace("b".into()), "c d");
-    assert_classes(&c, Some("a d c"));
-}
-
-#[pagetop::test]
-async fn classes_replace_ignores_target_whitespace_and_repetition() {
-    let c = Classes::new("a b c").with_classes(ClassesOp::Replace("  b  b ".into()), "x y");
-    assert_classes(&c, Some("a x y c"));
-}
-
-#[pagetop::test]
-async fn classes_replace_rejects_non_ascii_targets_is_noop() {
-    let c = Classes::new("a b c").with_classes(ClassesOp::Replace("b ñ".into()), "x");
-    assert_classes(&c, Some("a b c"));
 }
 
 // **< Queries (contains) >*************************************************************************
