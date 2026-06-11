@@ -203,9 +203,11 @@ impl StaticFilesBundle {
     where
         P: AsRef<Path>,
     {
-        // Crea un directorio temporal para el archivo CSS.
+        // Crea un directorio temporal único para el archivo CSS (basado en su nombre, para que
+        // varias llamadas a from_scss en el mismo build.rs no se pisen).
         let out_dir = std::env::var("OUT_DIR").unwrap();
-        let temp_dir = Path::new(&out_dir).join("from_scss_files");
+        let safe_name = target_name.replace(['.', '-'], "_");
+        let temp_dir = Path::new(&out_dir).join(format!("from_scss_{safe_name}"));
 
         // Limpia el directorio temporal de ejecuciones previas, si existe.
         if temp_dir.exists() {
