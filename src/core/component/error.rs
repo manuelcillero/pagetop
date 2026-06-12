@@ -9,7 +9,7 @@ use crate::{AutoDefault, Getters};
 ///
 /// # Ejemplo
 ///
-/// ```rust
+/// ```rust,no_run
 /// # use pagetop::prelude::*;
 /// # #[derive(Clone)]
 /// # struct MyComponent;

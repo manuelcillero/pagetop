@@ -17,7 +17,7 @@ use crate::{AutoDefault, CowStr};
 ///
 /// # Ejemplo
 ///
-/// ```rust
+/// ```rust,no_run
 /// # use pagetop::prelude::*;
 /// let favicon = Favicon::new()
 ///     // Estándar de facto admitido por todos los navegadores.

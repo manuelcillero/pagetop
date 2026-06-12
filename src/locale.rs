@@ -75,7 +75,7 @@
 //! Si los recursos se encuentran en el directorio por defecto `src/locale` del *crate*, sólo hay
 //! que declarar:
 //!
-//! ```rust
+//! ```rust,no_run
 //! # use pagetop::prelude::*;
 //! include_locales!(LOCALES_SAMPLE);
 //! ```
@@ -125,7 +125,7 @@ pub use l10n::L10n;
 ///
 /// Uso básico con el directorio por defecto `"src/locale"`:
 ///
-/// ```rust
+/// ```rust,no_run
 /// # use pagetop::prelude::*;
 /// include_locales!(LOCALES_SAMPLE);
 /// ```

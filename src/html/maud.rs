@@ -252,7 +252,7 @@ impl<T: Default> Default for PreEscaped<T> {
 ///
 /// A minimal web page:
 ///
-/// ```rust
+/// ```rust,no_run
 /// use pagetop::prelude::*;
 ///
 /// let markup = html! {

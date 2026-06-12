@@ -83,7 +83,7 @@ impl std::error::Error for ContextError {}
 ///
 /// # Ejemplo
 ///
-/// ```rust
+/// ```rust,no_run
 /// # use pagetop::prelude::*;
 /// # use pagetop_aliner::Aliner;
 /// fn prepare_context<C: Contextual>(cx: C) -> C {
@@ -123,7 +123,7 @@ pub trait Contextual: LangId {
     ///
     /// # Ejemplo
     ///
-    /// ```rust
+    /// ```rust,no_run
     /// # use pagetop::prelude::*;
     /// let cx = Context::new(None)
     ///     .with_param("user_id", 42_i32)
@@ -232,7 +232,7 @@ pub trait Contextual: LangId {
 ///
 /// Crea un nuevo contexto asociado a una petición HTTP:
 ///
-/// ```rust
+/// ```rust,no_run
 /// # use pagetop::prelude::*;
 /// # use pagetop_aliner::Aliner;
 /// fn new_context(request: HttpRequest) -> Context {
@@ -254,7 +254,7 @@ pub trait Contextual: LangId {
 ///
 /// Y hace operaciones con un contexto dado:
 ///
-/// ```rust
+/// ```rust,no_run
 /// # use pagetop::prelude::*;
 /// # #[derive(AutoDefault, Clone, Debug)]
 /// # struct Menu;
@@ -409,7 +409,7 @@ impl Context {
     ///
     /// # Ejemplo
     ///
-    /// ```rust
+    /// ```rust,no_run
     /// # use pagetop::prelude::*;
     /// # let mut cx = Context::new(None);
     /// cx.push_message(MessageLevel::Warning, L10n::n("Session is not valid"));

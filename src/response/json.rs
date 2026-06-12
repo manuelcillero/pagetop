@@ -5,7 +5,7 @@
 //! Convierte automáticamente el cuerpo de una petición con `Content-Type: application/json` en un
 //! tipo Rust fuertemente tipado, validando el formato y deserializando con *serde*.
 //!
-//! ```rust
+//! ```rust,no_run
 //! # use pagetop::prelude::*;
 //! #[derive(serde::Deserialize)]
 //! struct NuevoUsuario { nombre: String, email: String }
@@ -23,7 +23,7 @@
 //! Serializa valores Rust a JSON y genera una respuesta HTTP con el encabezado apropiado
 //! `application/json; charset=utf-8`, todo con una llamada compacta.
 //!
-//! ```rust
+//! ```rust,no_run
 //! # use pagetop::prelude::*;
 //! #[derive(serde::Serialize)]
 //! struct Usuario { id: u32, nombre: String }

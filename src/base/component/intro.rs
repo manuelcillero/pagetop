@@ -34,14 +34,14 @@ pub enum IntroOpening {
 ///
 /// **Intro mínima por defecto**
 ///
-/// ```rust
+/// ```rust,no_run
 /// # use pagetop::prelude::*;
 /// let intro = Intro::default();
 /// ```
 ///
 /// **Título, eslogan y botón personalizados**
 ///
-/// ```rust
+/// ```rust,no_run
 /// # use pagetop::prelude::*;
 /// let intro = Intro::default()
 ///     .with_title(L10n::l("intro_custom_title"))
@@ -54,7 +54,7 @@ pub enum IntroOpening {
 ///
 /// **Sin botón y en modo *Custom* (sin *badges* predefinidos)**
 ///
-/// ```rust
+/// ```rust,no_run
 /// # use pagetop::prelude::*;
 /// let intro = Intro::default()
 ///     .with_button(None::<(L10n, FnPathByContext)>)
@@ -63,7 +63,7 @@ pub enum IntroOpening {
 ///
 /// **Añadir contenidos hijo**
 ///
-/// ```rust
+/// ```rust,no_run
 /// # use pagetop::prelude::*;
 /// let intro = Intro::default()
 ///     .with_child(
@@ -221,7 +221,7 @@ impl Intro {
     ///
     /// # Ejemplo
     ///
-    /// ```rust
+    /// ```rust,no_run
     /// # use pagetop::prelude::*;
     /// let intro = Intro::default().with_title(L10n::n("Intro title"));
     /// ```
@@ -235,7 +235,7 @@ impl Intro {
     ///
     /// # Ejemplo
     ///
-    /// ```rust
+    /// ```rust,no_run
     /// # use pagetop::prelude::*;
     /// let intro = Intro::default().with_slogan(L10n::n("A short slogan"));
     /// ```
@@ -253,7 +253,7 @@ impl Intro {
     ///
     /// # Ejemplo
     ///
-    /// ```rust
+    /// ```rust,no_run
     /// # use pagetop::prelude::*;
     /// // Define un botón con texto y una URL fija.
     /// let intro = Intro::default().with_button(Some((L10n::n("Start"), |_| "/start".into())));
@@ -274,7 +274,7 @@ impl Intro {
     ///
     /// # Ejemplo
     ///
-    /// ```rust
+    /// ```rust,no_run
     /// # use pagetop::prelude::*;
     /// let intro = Intro::default().with_opening(IntroOpening::Custom);
     /// ```

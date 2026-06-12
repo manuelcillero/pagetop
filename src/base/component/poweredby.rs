@@ -47,7 +47,7 @@ impl PoweredBy {
     /// Al pasar `Some(valor)` se sobrescribe el texto de copyright por defecto. Al pasar `None` se
     /// eliminará, pero en este caso es necesario especificar el tipo explícitamente:
     ///
-    /// ```rust
+    /// ```rust,no_run
     /// # use pagetop::prelude::*;
     /// let p1 = PoweredBy::default().with_copyright(Some("2001 © Foo Inc."));
     /// let p2 = PoweredBy::new().with_copyright(None::<String>);

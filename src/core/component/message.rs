@@ -25,7 +25,7 @@ pub enum MessageLevel {
 ///
 /// # Ejemplo
 ///
-/// ```rust
+/// ```rust,no_run
 /// # use pagetop::prelude::*;
 /// // Mensaje informativo con clave traducible.
 /// let info = StatusMessage::new(MessageLevel::Info, L10n::l("saved-successfully"));

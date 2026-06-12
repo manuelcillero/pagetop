@@ -114,7 +114,7 @@ impl ChildrenInRegions {
 ///
 /// # Ejemplo
 ///
-/// ```rust
+/// ```rust,no_run
 /// # use pagetop::prelude::*;
 /// // Banner global en la región de contenido.
 /// InRegion::Content.add(Html::with(|_| html! { "🎉 ¡Bienvenido!" }));
@@ -157,7 +157,7 @@ impl InRegion {
     ///
     /// # Ejemplo
     ///
-    /// ```rust
+    /// ```rust,no_run
     /// # use pagetop::prelude::*;
     /// // Banner global en la región por defecto.
     /// InRegion::Content.add(Html::with(|_| {

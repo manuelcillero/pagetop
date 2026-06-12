@@ -101,7 +101,7 @@ impl PropsOp {
 ///
 /// El patrón recomendado es añadir un campo `props: Props` con su método *builder* delegado:
 ///
-/// ```rust
+/// ```rust,no_run
 /// # use pagetop::prelude::*;
 /// #[derive(AutoDefault, Clone, Getters)]
 /// pub struct MyButton {

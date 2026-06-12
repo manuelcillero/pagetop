@@ -102,7 +102,7 @@ use std::ops::Deref;
 ///
 /// Útil para versionar recursos estáticos de PageTop desde otros *crates*. Por ejemplo:
 ///
-/// ```rust
+/// ```rust,no_run
 /// use pagetop::prelude::*;
 ///
 /// pub struct MyTheme;

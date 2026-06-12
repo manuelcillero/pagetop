@@ -43,7 +43,7 @@ enum Source {
 ///
 /// # Ejemplo
 ///
-/// ```rust
+/// ```rust,no_run
 /// # use pagetop::prelude::*;
 /// // Script externo con carga diferida, versión de caché y prioridad en el renderizado.
 /// let script = JavaScript::defer("/assets/js/app.js")

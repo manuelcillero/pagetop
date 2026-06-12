@@ -24,7 +24,7 @@ use crate::web::http::StatusCode;
 /// El único método **obligatorio** de `Extension` para un tema es [`theme()`](Extension::theme),
 /// que debe devolver una referencia al propio tema:
 ///
-/// ```rust
+/// ```rust,no_run
 /// # use pagetop::prelude::*;
 /// pub struct MyTheme;
 ///

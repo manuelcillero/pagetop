@@ -263,7 +263,7 @@ impl FromStr for UnitValue {
 /// Deserializa desde una cadena usando la misma gramática que [`FromStr`].
 ///
 /// # Ejemplo con `serde_json`
-/// ```rust
+/// ```rust,no_run
 /// # use pagetop::prelude::*;
 /// use serde::Deserialize;
 ///

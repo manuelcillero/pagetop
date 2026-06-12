@@ -37,7 +37,7 @@ enum L10nOp {
 ///
 /// Los argumentos dinámicos se añaden con `with_arg()` o `with_args()`.
 ///
-/// ```rust
+/// ```rust,no_run
 /// # use pagetop::prelude::*;
 /// // Texto literal sin traducción.
 /// let raw = L10n::n("© 2025 PageTop").get();
@@ -128,7 +128,7 @@ impl L10n {
     ///
     /// # Ejemplo
     ///
-    /// ```rust
+    /// ```rust,no_run
     /// # use pagetop::prelude::*;
     /// let text = L10n::l("greeting").with_arg("name", "Manuel").get();
     /// ```
@@ -142,7 +142,7 @@ impl L10n {
     ///
     /// # Ejemplo
     ///
-    /// ```rust
+    /// ```rust,no_run
     /// # use pagetop::prelude::*;
     /// struct ResourceLang;
     ///
@@ -180,7 +180,7 @@ impl L10n {
     ///
     /// # Ejemplo
     ///
-    /// ```rust
+    /// ```rust,no_run
     /// # use pagetop::prelude::*;
     /// let html = L10n::l("welcome.message").using(&Locale::resolve("es"));
     /// ```

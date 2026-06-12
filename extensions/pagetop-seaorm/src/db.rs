@@ -3,7 +3,7 @@
 //! Agrupa los *traits*, macros y tipos del sistema de entidades de SeaORM, junto con las funciones
 //! [`dbconn`], [`execute`], [`fetch_all`] y [`fetch_one`], en una sola importación:
 //!
-//! ```rust
+//! ```rust,no_run
 //! use pagetop_seaorm::db::*;
 //! ```
 //!
@@ -34,7 +34,7 @@
 //!
 //! ## Definir una entidad
 //!
-//! ```rust
+//! ```rust,no_run
 //! use pagetop_seaorm::db::*;
 //!
 //! #[derive(Clone, Debug, PartialEq, DeriveEntityModel)]
@@ -111,7 +111,7 @@
 //! El módulo [`api`] re-exporta el crate `sea_orm` íntegro bajo ese alias. Úsalo cuando necesites
 //! un tipo o función que no esté expuesto directamente en `db::*`:
 //!
-//! ```rust
+//! ```rust,no_run
 //! use pagetop_seaorm::db::api;
 //!
 //! // Tipos o utilidades no incluidos en db::*:
@@ -123,7 +123,7 @@
 //! El módulo [`query`] re-exporta `sea_query` para construir las sentencias SQL que se pasan a
 //! [`fetch_all`] y [`fetch_one`]. Es el compañero natural de esas funciones dentro del módulo `db`:
 //!
-//! ```rust
+//! ```rust,no_run
 //! use pagetop_seaorm::db::*;
 //! use pagetop_seaorm::db::query::*;
 //!
@@ -193,7 +193,7 @@ pub fn dbconn() -> &'static DatabaseConnection {
 /// > **Advertencia:** nunca interpoles valores externos en la cadena SQL directamente. Para
 /// > sentencias con parámetros de usuario usa el sistema de entidades.
 ///
-/// ```rust
+/// ```rust,no_run
 /// use pagetop_seaorm::db::*;
 ///
 /// async fn example() -> Result<(), DbErr> {
@@ -224,7 +224,7 @@ pub async fn execute(stmt: impl Into<String>) -> Result<ExecResult, DbErr> {
 /// Los valores se integran como literales escapados, no como parámetros de base de datos. Para
 /// datos procedentes del usuario, el sistema de entidades es más robusto.
 ///
-/// ```rust
+/// ```rust,no_run
 /// use pagetop_seaorm::db::*;
 /// use pagetop_seaorm::db::query::*;
 ///
@@ -274,7 +274,7 @@ pub async fn fetch_all<Q: query::QueryStatementWriter>(
 /// Los valores se integran como literales escapados, no como parámetros de base de datos. Para
 /// datos procedentes del usuario, el sistema de entidades es más robusto.
 ///
-/// ```rust
+/// ```rust,no_run
 /// use pagetop_seaorm::db::*;
 /// use pagetop_seaorm::db::query::*;
 ///

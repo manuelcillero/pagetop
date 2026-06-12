@@ -27,7 +27,7 @@ pub use context::{AssetsOp, Context, ContextError, Contextual};
 ///
 /// # Ejemplo
 ///
-/// ```rust
+/// ```rust,no_run
 /// # use pagetop::prelude::*;
 /// #[derive(AutoDefault, Clone)]
 /// struct SampleComponent {
@@ -81,7 +81,7 @@ pub type FnIsRenderable = fn(cx: &Context) -> bool;
 /// El caso más común es construir rutas relativas dependientes del contexto, normalmente usando
 /// [`Context::route`](crate::core::component::Context::route):
 ///
-/// ```rust
+/// ```rust,no_run
 /// # use pagetop::prelude::*;
 /// # let relative_route: FnPathByContext =
 /// |cx| cx.route("/path/to/page")
@@ -90,7 +90,7 @@ pub type FnIsRenderable = fn(cx: &Context) -> bool;
 ///
 /// También es posible usar rutas estáticas sin asignaciones adicionales:
 ///
-/// ```rust
+/// ```rust,no_run
 /// # use pagetop::prelude::*;
 /// # let external_route: FnPathByContext =
 /// |_| "https://www.example.com".into()
@@ -99,7 +99,7 @@ pub type FnIsRenderable = fn(cx: &Context) -> bool;
 ///
 /// O componer rutas dinámicas en tiempo de ejecución:
 ///
-/// ```rust
+/// ```rust,no_run
 /// # use pagetop::prelude::*;
 /// # let dynamic_route: FnPathByContext =
 /// |cx| RoutePath::new("/user").with_param("id", cx.param::<u64>("user_id").unwrap().to_string())

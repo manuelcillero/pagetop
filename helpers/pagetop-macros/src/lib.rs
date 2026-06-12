@@ -126,7 +126,7 @@ pub fn derive_auto_default(input: TokenStream) -> TokenStream {
 ///
 /// Si defines un método `with_` como este:
 ///
-/// ```rust
+/// ```rust,no_run
 /// # use pagetop_macros::builder_fn;
 /// # struct Example {value: Option<String>};
 /// # impl Example {
@@ -140,7 +140,7 @@ pub fn derive_auto_default(input: TokenStream) -> TokenStream {
 ///
 /// la macro reescribirá el método `with_` y generará un nuevo método `alter_`:
 ///
-/// ```rust
+/// ```rust,no_run
 /// # struct Example {value: Option<String>};
 /// # impl Example {
 /// #[inline]

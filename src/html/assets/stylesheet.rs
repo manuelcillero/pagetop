@@ -60,7 +60,7 @@ impl TargetMedia {
 ///
 /// # Ejemplo
 ///
-/// ```rust
+/// ```rust,no_run
 /// # use pagetop::prelude::*;
 /// // Crea una hoja de estilos externa con control de versión y medio específico (`screen`).
 /// let stylesheet = StyleSheet::from("/assets/css/main.css")

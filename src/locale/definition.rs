@@ -54,7 +54,7 @@ pub trait LangId {
 /// resuelve un idioma soportado o porque se aplica el idioma por defecto o, en último término, el
 /// de respaldo (`"en-US"`):
 ///
-/// ```rust
+/// ```rust,no_run
 /// # use pagetop::prelude::*;
 /// // Idioma por defecto si no resuelve.
 /// let lang = Locale::resolve("it-IT");

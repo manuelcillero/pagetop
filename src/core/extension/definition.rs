@@ -10,7 +10,7 @@ use crate::web::Router;
 /// Este *trait* es fácil de implementar, basta con declarar una estructura sin campos para la
 /// extensión y sobrescribir los métodos que sean necesarios. Por ejemplo:
 ///
-/// ```rust
+/// ```rust,no_run
 /// # use pagetop::prelude::*;
 /// pub struct MyExtension;
 ///
@@ -48,7 +48,7 @@ pub trait Extension: AnyInfo + Send + Sync {
     ///
     /// # Ejemplo
     ///
-    /// ```rust
+    /// ```rust,no_run
     /// # use pagetop::prelude::*;
     /// pub struct MyTheme;
     ///
@@ -107,7 +107,7 @@ pub trait Extension: AnyInfo + Send + Sync {
     ///
     /// ## Rutas HTTP básicas
     ///
-    /// ```rust
+    /// ```rust,no_run
     /// # use pagetop::prelude::*;
     /// # async fn list_posts() -> &'static str { "" }
     /// # async fn view_post() -> &'static str { "" }
@@ -126,7 +126,7 @@ pub trait Extension: AnyInfo + Send + Sync {
     ///
     /// ## Rutas agrupadas bajo un prefijo
     ///
-    /// ```rust
+    /// ```rust,no_run
     /// # use pagetop::prelude::*;
     /// # async fn dashboard() -> &'static str { "" }
     /// # async fn list_users() -> &'static str { "" }

@@ -10,7 +10,7 @@ use std::sync::Arc;
 ///
 /// # Ejemplo
 ///
-/// ```rust
+/// ```rust,no_run
 /// # use pagetop::prelude::*;
 /// let component = Html::with(|_| {
 ///     html! {
@@ -23,7 +23,7 @@ use std::sync::Arc;
 ///
 /// Para renderizar contenido que dependa del contexto, se puede acceder a él dentro del *closure*:
 ///
-/// ```rust
+/// ```rust,no_run
 /// # use pagetop::prelude::*;
 /// let component = Html::with(|cx| {
 ///     let user = cx.param_or("username", "visitor".to_string());

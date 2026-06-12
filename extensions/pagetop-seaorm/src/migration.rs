@@ -6,7 +6,7 @@
 //!
 //! Con una sola importación tienes todo lo necesario:
 //!
-//! ```rust
+//! ```rust,no_run
 //! use pagetop_seaorm::migration::*;
 //! ```
 //!

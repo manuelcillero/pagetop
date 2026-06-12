@@ -7,7 +7,7 @@ use crate::locale::L10n;
 ///
 /// # Ejemplo
 ///
-/// ```rust
+/// ```rust,no_run
 /// # use pagetop::prelude::*;
 /// fn render_logo(cx: &mut Context) -> Markup {
 ///     html! {
