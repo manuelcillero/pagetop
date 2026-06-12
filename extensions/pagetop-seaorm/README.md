@@ -11,14 +11,13 @@
 
 </div>
 
-## 🧭 Sobre PageTop
+## Sobre PageTop
 
 [PageTop](https://docs.rs/pagetop) es un entorno de desarrollo que reivindica la esencia de la web
 clásica para crear soluciones web SSR (*renderizadas en el servidor*) modulares, extensibles y
 configurables, basadas en HTML, CSS y JavaScript.
 
-
-## ⚡️ Guía rápida
+## Guía rápida
 
 **Añade la dependencia** a tu `Cargo.toml` activando el motor de base de datos que necesites:
 
@@ -59,7 +58,7 @@ impl Extension for MyApp {
     }
 
     fn initialize(&self) {
-        install_migrations!(m20240101_000001_create_users_table);
+        install_migrations!(m20240101_000001_create_users);
     }
 }
 
@@ -146,8 +145,7 @@ async fn example() -> Result<(), DbErr> {
 }
 ```
 
-
-## 📚 Créditos
+## Créditos
 
 Este *crate* se apoya en bibliotecas del ecosistema [SeaQL](https://github.com/SeaQL) como:
 
@@ -179,15 +177,13 @@ extensión. Los ficheros adaptados del original son:
 | `schema.rs`           | Integra con ajustes, adaptado de [loco](https://github.com/loco-rs/loco) |
 | `seaql_migrations.rs` | Integración completa                                                     |
 
-
-## 🚧 Advertencia
+## Advertencia
 
 **PageTop** es un proyecto personal para aprender [Rust](https://www.rust-lang.org/es) y conocer su
 ecosistema. Su API está sujeta a cambios frecuentes. No se recomienda su uso en producción, al menos
 hasta que se libere la versión **1.0.0**.
 
-
-## 📜 Licencia
+## Licencia
 
 El código está disponible bajo una doble licencia:
 

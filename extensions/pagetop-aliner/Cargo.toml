@@ -17,8 +17,5 @@ authors.workspace = true
 [dependencies]
 pagetop.workspace = true
 
-[dev-dependencies]
-tokio.workspace = true
-
 [build-dependencies]
 pagetop-build.workspace = true

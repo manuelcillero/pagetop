@@ -41,6 +41,8 @@ como dependencia en su `Cargo.toml`.
 
 /// Resource definition and single module based generation.
 pub mod resource;
+
+#[doc(inline)]
 pub use resource::Resource as StaticFile;
 
 mod resource_dir;

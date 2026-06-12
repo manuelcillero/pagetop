@@ -18,8 +18,7 @@
 clásica para crear soluciones web SSR (*renderizadas en el servidor*) modulares, extensibles y
 configurables, basadas en HTML, CSS y JavaScript.
 
-
-# ⚡️ Guía rápida
+## Guía rápida
 
 Añadir en el archivo `Cargo.toml` del proyecto:
 
@@ -31,7 +30,7 @@ pagetop-build = { ... }
 Y crear un archivo `build.rs` a la altura de `Cargo.toml` para indicar cómo se van a incluir los
 archivos estáticos o cómo se van a compilar los archivos SCSS para el proyecto. Casos de uso:
 
-## Incluir archivos estáticos desde un directorio
+### Incluir archivos estáticos desde un directorio
 
 Hay que preparar una carpeta en el proyecto con todos los archivos que se quieren incluir, por
 ejemplo `static`, y añadir el siguiente código en `build.rs` para crear el conjunto de recursos:
@@ -65,7 +64,7 @@ fn main() -> std::io::Result<()> {
 }
 ```
 
-## Compilar archivos SCSS a CSS
+### Compilar archivos SCSS a CSS
 
 Se puede compilar un archivo SCSS, que podría importar otros a su vez, para preparar un recurso con
 el archivo CSS minificado obtenido. Por ejemplo:
@@ -83,8 +82,7 @@ fn main() -> std::io::Result<()> {
 Este código compila el archivo `main.scss` de la carpeta `static` del proyecto, y prepara un recurso
 llamado `main_styles` que contiene el archivo `styles.min.css` obtenido.
 
-
-# 📦 Archivos generados
+## Archivos generados
 
 Cada conjunto de recursos [`StaticFilesBundle`] genera un archivo en el directorio estándar
 [OUT_DIR](https://doc.rust-lang.org/cargo/reference/environment-variables.html#environment-variables-cargo-sets-for-build-scripts)

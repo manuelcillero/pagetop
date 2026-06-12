@@ -3,14 +3,13 @@
 
 <h1>PageTop Aliner</h1>
 
-<p>Tema para <strong>PageTop</strong> que muestra esquemáticamente la composición de las páginas HTML.</p>
+<p>Tema de <strong>PageTop</strong> que muestra esquemáticamente la composición de las páginas HTML.</p>
 
 [![Doc API](https://img.shields.io/docsrs/pagetop-aliner?label=Doc%20API&style=for-the-badge&logo=Docs.rs)](https://docs.rs/pagetop-aliner)
 [![Crates.io](https://img.shields.io/crates/v/pagetop-aliner.svg?style=for-the-badge&logo=ipfs)](https://crates.io/crates/pagetop-aliner)
 [![Descargas](https://img.shields.io/crates/d/pagetop-aliner.svg?label=Descargas&style=for-the-badge&logo=transmission)](https://crates.io/crates/pagetop-aliner)
 [![Licencia](https://img.shields.io/badge/license-MIT%2FApache-blue.svg?label=Licencia&style=for-the-badge)](https://git.cillero.es/manuelcillero/pagetop/src/branch/main/extensions/pagetop-aliner#licencia)
 
-<br>
 </div>
 
 ## Sobre PageTop
@@ -19,8 +18,7 @@
 clásica para crear soluciones web SSR (*renderizadas en el servidor*) modulares, extensibles y
 configurables, basadas en HTML, CSS y JavaScript.
 
-
-# ⚡️ Guía rápida
+## Guía rápida
 
 Igual que con otras extensiones, **añade la dependencia** a tu `Cargo.toml`:
 
@@ -45,11 +43,6 @@ impl Extension for MyApp {
             // ...
         ]
     }
-}
-
-#[pagetop::main]
-async fn main() -> std::io::Result<()> {
-    Application::prepare(&MyApp).run()?.await
 }
 ```
 

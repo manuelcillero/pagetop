@@ -10,7 +10,6 @@
 [![Descargas](https://img.shields.io/crates/d/pagetop-bootsier.svg?label=Descargas&style=for-the-badge&logo=transmission)](https://crates.io/crates/pagetop-bootsier)
 [![Licencia](https://img.shields.io/badge/license-MIT%2FApache-blue.svg?label=Licencia&style=for-the-badge)](https://git.cillero.es/manuelcillero/pagetop/src/branch/main/extensions/pagetop-bootsier#licencia)
 
-<br>
 </div>
 
 ## Sobre PageTop
@@ -19,8 +18,7 @@
 clásica para crear soluciones web SSR (*renderizadas en el servidor*) modulares, extensibles y
 configurables, basadas en HTML, CSS y JavaScript.
 
-
-# ⚡️ Guía rápida
+## Guía rápida
 
 Igual que con otras extensiones, **añade la dependencia** a tu `Cargo.toml`:
 
@@ -45,11 +43,6 @@ impl Extension for MyApp {
             // ...
         ]
     }
-}
-
-#[pagetop::main]
-async fn main() -> std::io::Result<()> {
-    Application::prepare(&MyApp).run()?.await
 }
 ```
 

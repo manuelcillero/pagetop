@@ -18,8 +18,5 @@ authors.workspace = true
 pagetop.workspace = true
 serde.workspace = true
 
-[dev-dependencies]
-tokio.workspace = true
-
 [build-dependencies]
 pagetop-build.workspace = true

@@ -11,14 +11,13 @@
 
 </div>
 
-## 🧭 Sobre PageTop
+## Sobre PageTop
 
 [PageTop](https://docs.rs/pagetop) es un entorno de desarrollo que reivindica la esencia de la web
 clásica para crear soluciones web SSR (*renderizadas en el servidor*) modulares, extensibles y
 configurables, basadas en HTML, CSS y JavaScript.
 
-
-## ⚡️ Guía rápida
+## Guía rápida
 
 Igual que con otras extensiones, **añade la dependencia** a tu `Cargo.toml`:
 
@@ -44,11 +43,6 @@ impl Extension for MyApp {
         ]
     }
 }
-
-#[pagetop::main]
-async fn main() -> std::io::Result<()> {
-    Application::prepare(&MyApp).run()?.await
-}
 ```
 
 Y **selecciona el tema en la configuración** de la aplicación:
@@ -67,10 +61,10 @@ use pagetop_aliner::Aliner;
 async fn homepage(request: HttpRequest) -> Result<Markup, ErrorPage> {
     Page::new(request)
         .with_theme(&Aliner)
-        .add_child(
+        .with_child(
             Block::new()
                 .with_title(L10n::l("sample_title"))
-                .add_child(Html::with(|cx| html! {
+                .with_child(Html::with(|cx| html! {
                     p { (L10n::l("sample_content").using(cx)) }
                 })),
         )
@@ -78,15 +72,13 @@ async fn homepage(request: HttpRequest) -> Result<Markup, ErrorPage> {
 }
 ```
 
-
-## 🚧 Advertencia
+## Advertencia
 
 **PageTop** es un proyecto personal para aprender [Rust](https://www.rust-lang.org/es) y conocer su
 ecosistema. Su API está sujeta a cambios frecuentes. No se recomienda su uso en producción, al menos
 hasta que se libere la versión **1.0.0**.
 
-
-## 📜 Licencia
+## Licencia
 
 El código está disponible bajo una doble licencia:
 

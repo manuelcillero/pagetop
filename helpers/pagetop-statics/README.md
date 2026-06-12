@@ -31,15 +31,13 @@ Para ello, adapta el código de [static-files](https://crates.io/crates/static_f
 se integra en PageTop para evitar que cada proyecto tenga que declarar `static-files` manualmente
 como dependencia en su `Cargo.toml`.
 
-
-## 🚧 Advertencia
+## Advertencia
 
 **PageTop** es un proyecto personal para aprender [Rust](https://www.rust-lang.org/es) y conocer su
 ecosistema. Su API está sujeta a cambios frecuentes. No se recomienda su uso en producción, al menos
 hasta que se libere la versión **1.0.0**.
 
-
-## 📜 Licencia
+## Licencia
 
 El código está disponible bajo una doble licencia:
 

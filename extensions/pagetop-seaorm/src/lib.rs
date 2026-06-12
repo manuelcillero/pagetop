@@ -12,14 +12,13 @@
 
 </div>
 
-## 🧭 Sobre PageTop
+## Sobre PageTop
 
 [PageTop](https://docs.rs/pagetop) es un entorno de desarrollo que reivindica la esencia de la web
 clásica para crear soluciones web SSR (*renderizadas en el servidor*) modulares, extensibles y
 configurables, basadas en HTML, CSS y JavaScript.
 
-
-## ⚡️ Guía rápida
+## Guía rápida
 
 **Añade la dependencia** a tu `Cargo.toml` activando el motor de base de datos que necesites:
 

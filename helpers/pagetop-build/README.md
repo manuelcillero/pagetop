@@ -11,14 +11,13 @@
 
 </div>
 
-## 🧭 Sobre PageTop
+## Sobre PageTop
 
 [PageTop](https://docs.rs/pagetop) es un entorno de desarrollo que reivindica la esencia de la web
 clásica para crear soluciones web SSR (*renderizadas en el servidor*) modulares, extensibles y
 configurables, basadas en HTML, CSS y JavaScript.
 
-
-## ⚡️ Guía rápida
+## Guía rápida
 
 Añadir en el archivo `Cargo.toml` del proyecto:
 
@@ -82,8 +81,7 @@ fn main() -> std::io::Result<()> {
 Este código compila el archivo `main.scss` de la carpeta `static` del proyecto, y prepara un recurso
 llamado `main_styles` que contiene el archivo `styles.min.css` obtenido.
 
-
-## 📦 Archivos generados
+## Archivos generados
 
 Cada conjunto de recursos [`StaticFilesBundle`] genera un archivo en el directorio estándar
 [OUT_DIR](https://doc.rust-lang.org/cargo/reference/environment-variables.html#environment-variables-cargo-sets-for-build-scripts)
@@ -103,22 +101,21 @@ use pagetop::prelude::*;
 pub struct MyExtension;
 
 impl Extension for MyExtension {
-    // Servicio web que publica los recursos de `guides` en `/ruta/a/guides`.
-    fn configure_service(&self, scfg: &mut service::web::ServiceConfig) {
-        serve_static_files!(scfg, guides => "/ruta/a/guides");
+    /// Registra los recursos de `guides` en el router bajo `/ruta/a/guides`.
+    fn configure_router(&self, mut router: Router) -> Router {
+        serve_static_files!(router, [guides] => "/ruta/a/guides");
+        router
     }
 }
 ```
 
-
-## 🚧 Advertencia
+## Advertencia
 
 **PageTop** es un proyecto personal para aprender [Rust](https://www.rust-lang.org/es) y conocer su
 ecosistema. Su API está sujeta a cambios frecuentes. No se recomienda su uso en producción, al menos
 hasta que se libere la versión **1.0.0**.
 
-
-## 📜 Licencia
+## Licencia
 
 El código está disponible bajo una doble licencia:
 

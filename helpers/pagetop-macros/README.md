@@ -11,14 +11,13 @@
 
 </div>
 
-## 🧭 Sobre PageTop
+## Sobre PageTop
 
 [PageTop](https://docs.rs/pagetop) es un entorno de desarrollo que reivindica la esencia de la web
 clásica para crear soluciones web SSR (*renderizadas en el servidor*) modulares, extensibles y
 configurables, basadas en HTML, CSS y JavaScript.
 
-
-## 📚 Créditos
+## Créditos
 
 Este *crate* incluye entre sus macros una adaptación de
 [maud-macros](https://crates.io/crates/maud_macros)
@@ -29,15 +28,13 @@ Este *crate* incluye entre sus macros una adaptación de
 necesidad de referenciar `maud` o `smart_default` en las dependencias del archivo `Cargo.toml` de
 cada proyecto PageTop.
 
-
-## 🚧 Advertencia
+## Advertencia
 
 **PageTop** es un proyecto personal para aprender [Rust](https://www.rust-lang.org/es) y conocer su
 ecosistema. Su API está sujeta a cambios frecuentes. No se recomienda su uso en producción, al menos
 hasta que se libere la versión **1.0.0**.
 
-
-## 📜 Licencia
+## Licencia
 
 El código está disponible bajo una doble licencia:
 
