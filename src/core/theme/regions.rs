@@ -79,19 +79,19 @@ impl ChildrenInRegions {
 
         let mut result = Children::new();
 
-        // 1. Prototipos globales comunes — clon fresco por cada página.
+        // 1. Prototipos globales comunes - clon fresco por cada página.
         if let Some(protos) = common.get(name) {
             for proto in protos {
                 result.add(proto.as_child());
             }
         }
-        // 2. Children propios de la página — se mueven (son por petición, no requieren clonado).
+        // 2. Children propios de la página - se mueven (son por petición, no requieren clonado).
         if let Some(page_children) = self.0.remove(name) {
             for child in page_children {
                 result.add(child);
             }
         }
-        // 3. Prototipos del tema activo — clon fresco por cada página.
+        // 3. Prototipos del tema activo - clon fresco por cada página.
         if let Some(theme_map) = themed.get(&theme_ref.type_id()) {
             if let Some(protos) = theme_map.get(name) {
                 for proto in protos {

@@ -1,6 +1,6 @@
 use pagetop::prelude::*;
 
-// **< TestComp — componente mínimo para los tests >************************************************
+// **< TestComp - componente mínimo para los tests >************************************************
 //
 // Componente con id configurable y texto fijo de salida. El id permite probar las operaciones de
 // `Children` basadas en identificador (`InsertAfterId`, `RemoveById`, etc.).

@@ -34,11 +34,10 @@ pub trait ComponentRender {
 /// # Requisito: derivar `Clone`
 ///
 /// Todo tipo que implemente `Component` **debe** derivar también [`Clone`]. Aunque el compilador
-/// no lo exige directamente —hacerlo rompería la seguridad de objeto de `dyn Component`—,
-/// [`ComponentClone`] se implementa automáticamente mediante una *impl* blanket solo para los
-/// tipos que sean `Component + Clone + 'static`. Sin `Clone`, habría que implementar
-/// [`ComponentClone`] a mano, y el componente no podría registrarse en
-/// [`InRegion`](crate::core::theme::InRegion).
+/// no lo exige directamente (hacerlo rompería la seguridad de objeto de `dyn Component`),
+/// [`ComponentClone`] se implementa automáticamente mediante una *impl* blanket solo para los tipos
+/// que sean `Component + Clone + 'static`. Sin `Clone`, habría que implementar [`ComponentClone`] a
+/// mano, y el componente no podría registrarse en [`InRegion`](crate::core::theme::InRegion).
 pub trait Component: AnyInfo + ComponentClone + ComponentRender + Send + Sync {
     /// Crea una nueva instancia del componente.
     ///
