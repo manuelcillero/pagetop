@@ -65,6 +65,7 @@ case "$CRATE" in
             # Extensions
             --exclude-path "extensions/pagetop-aliner/**/*"
             --exclude-path "extensions/pagetop-bootsier/**/*"
+            --exclude-path "extensions/pagetop-htmx/**/*"
             --exclude-path "extensions/pagetop-seaorm/**/*"
         )
         ;;
@@ -75,6 +76,10 @@ case "$CRATE" in
     pagetop-bootsier)
         CHANGELOG_FILE="extensions/pagetop-bootsier/CHANGELOG.md"
         PATH_FLAGS=(--include-path "extensions/pagetop-bootsier/**/*")
+        ;;
+    pagetop-htmx)
+        CHANGELOG_FILE="extensions/pagetop-htmx/CHANGELOG.md"
+        PATH_FLAGS=(--include-path "extensions/pagetop-htmx/**/*")
         ;;
     pagetop-seaorm)
         CHANGELOG_FILE="extensions/pagetop-seaorm/CHANGELOG.md"

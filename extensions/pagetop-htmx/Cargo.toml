@@ -1,0 +1,21 @@
+[package]
+name = "pagetop-htmx"
+version = "0.1.0"
+
+description = """
+    Extensión de PageTop que integra HTMX para enriquecer las páginas con interacciones dinámicas.
+"""
+categories = ["web-programming"]
+keywords = ["pagetop", "htmx", "ajax", "ssr"]
+
+repository.workspace = true
+homepage.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[dependencies]
+pagetop.workspace = true
+
+[build-dependencies]
+pagetop-build.workspace = true
