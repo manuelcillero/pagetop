@@ -35,7 +35,7 @@ como dependencia en su `Cargo.toml`.
 
 #![doc(test(no_crate_inject))]
 #![doc(
-    html_favicon_url = "https://git.cillero.es/manuelcillero/pagetop/raw/branch/main/static/favicon.ico"
+    html_favicon_url = "https://git.cillero.es/manuelcillero/pagetop/raw/branch/main/assets/favicon.ico"
 )]
 #![allow(clippy::needless_doctest_main)]
 

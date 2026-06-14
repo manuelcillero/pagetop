@@ -1,6 +1,9 @@
 # Ignora directorios de compilación
 **/target
 
+# Ignora directorios de archivos estáticos
+**/static
+
 # Archivos de log
 **/log/*.log*
 

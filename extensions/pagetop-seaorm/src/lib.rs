@@ -148,7 +148,7 @@ async fn example() -> Result<(), DbErr> {
 */
 
 #![doc(
-    html_favicon_url = "https://git.cillero.es/manuelcillero/pagetop/raw/branch/main/static/favicon.ico"
+    html_favicon_url = "https://git.cillero.es/manuelcillero/pagetop/raw/branch/main/assets/favicon.ico"
 )]
 
 use pagetop::prelude::*;

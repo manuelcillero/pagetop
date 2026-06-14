@@ -3,7 +3,7 @@
 
 <h1>PageTop Build</h1>
 
-<p>Prepara un conjunto de archivos estáticos o archivos SCSS compilados para ser incluidos en el binario de un proyecto <strong>PageTop</strong>.</p>
+<p>Genera o prepara archivos estáticos para servirlos o incluirlos en un proyecto <strong>PageTop</strong>.</p>
 
 [![Doc API](https://img.shields.io/docsrs/pagetop-build?label=Doc%20API&style=for-the-badge&logo=Docs.rs)](https://docs.rs/pagetop-build)
 [![Crates.io](https://img.shields.io/crates/v/pagetop-build.svg?style=for-the-badge&logo=ipfs)](https://crates.io/crates/pagetop-build)
@@ -20,81 +20,77 @@ configurables, basadas en HTML, CSS y JavaScript.
 
 ## Guía rápida
 
-Añadir en el archivo `Cargo.toml` del proyecto:
+La convención recomendada para extensiones, temas o aplicaciones basadas en **PageTop** es separar
+los archivos fuente de los generados siguiendo el patrón `assets/` -> `static/`:
 
-```toml
-[build-dependencies]
-pagetop-build = { ... }
-```
+- **`assets/`** - archivos versionados en el repositorio, por ejemplo archivos SCSS, JavaScript de
+  terceros, fuentes, etc. Todo lo que hay aquí se sube al repositorio y será la fuente para generar
+  el directorio final `static/`.
+- **`static/`** - archivos generados en tiempo de compilación a partir de `assets/`. Se añade a
+  `.gitignore` y nunca se sube al repositorio.
+- **`build.rs`** - orquesta la transformación: genera `static/` desde `assets/` para servirlos o
+  incluirlos en el proyecto.
 
-Y crear un archivo `build.rs` a la altura de `Cargo.toml` para indicar cómo se van a incluir los
-archivos estáticos o cómo se van a compilar los archivos SCSS para el proyecto. Casos de uso:
+Durante el desarrollo, `static/` existe en disco y los archivos se sirven desde ahí. En producción,
+el directorio no existe y los recursos salen del binario. La macro
+[`serve_static_files!`](https://docs.rs/pagetop/latest/pagetop/macro.serve_static_files.html)
+gestiona esta dualidad de forma transparente.
 
-### Incluir archivos estáticos desde un directorio
+### Funciones de transformación
 
-Hay que preparar una carpeta en el proyecto con todos los archivos que se quieren incluir, por
-ejemplo `static`, y añadir el siguiente código en `build.rs` para crear el conjunto de recursos:
+Estas funciones se usan en el `build.rs` de cada proyecto para generar `static/` a partir de
+`assets/`. Todas crean el directorio padre del destino si no existe y devuelven `io::Result<()>`
+para poder propagarse con `?` en caso de error.
+
+- `compile_scss()` - compila un archivo SCSS a CSS minificado.
+- `copy_dir()` - copia recursivamente un directorio completo. Útil para copiar todos los archivos de
+  `assets/` o de un subdirectorio a `static/` sin transformación.
+- `copy_file()` - copia un archivo al destino.
+- `copy_file_replacing()` - copia un archivo aplicando una lista de sustituciones de texto en su
+  contenido; útil para actualizar referencias internas (p.ej. `sourceMappingURL`) al renombrar
+  archivos.
+- `minify_js()` - minifica un archivo JavaScript.
+
+### Incluir los archivos estáticos en el proyecto
+
+Una vez generado `static/`, usaremos `StaticFilesBundle` para incluir su contenido en el binario. Se
+pueden crear tantos paquetes de recursos como sea necesario, siempre que tengan nombres distintos:
 
 ```rust,no_run
 use pagetop_build::StaticFilesBundle;
 
 fn main() -> std::io::Result<()> {
-    StaticFilesBundle::from_dir("./static", None)
-        .with_name("guides")
+    StaticFilesBundle::from_dir("./static/css", None)
+        .with_name("app_css")
+        .build()?;
+    StaticFilesBundle::from_dir("./static/fonts", None)
+        .with_name("app_fonts")
         .build()
 }
 ```
 
-Si es necesario, se puede añadir un filtro para seleccionar archivos específicos de la carpeta, por
-ejemplo:
+Si es necesario excluir algunos archivos del paquete de recursos (p. ej. los archivos `.map` que no
+son necesarios en producción), se puede pasar una función de filtro:
 
 ```rust,no_run
 use pagetop_build::StaticFilesBundle;
 use std::path::Path;
 
 fn main() -> std::io::Result<()> {
-    fn only_pdf_files(path: &Path) -> bool {
-        // Selecciona únicamente los archivos con extensión `.pdf`.
-        path.extension().map_or(false, |ext| ext == "pdf")
-    }
-
-    StaticFilesBundle::from_dir("./static", Some(only_pdf_files))
-        .with_name("guides")
+    StaticFilesBundle::from_dir("./static/js", Some(only_js))
+        .with_name("app_js")
         .build()
+}
+
+fn only_js(path: &Path) -> bool {
+    path.extension().map_or(false, |ext| ext == "js")
 }
 ```
 
-### Compilar archivos SCSS a CSS
-
-Se puede compilar un archivo SCSS, que podría importar otros a su vez, para preparar un recurso con
-el archivo CSS minificado obtenido. Por ejemplo:
-
-```rust,no_run
-use pagetop_build::StaticFilesBundle;
-
-fn main() -> std::io::Result<()> {
-    StaticFilesBundle::from_scss("./styles/main.scss", "styles.min.css")
-        .with_name("main_styles")
-        .build()
-}
-```
-
-Este código compila el archivo `main.scss` de la carpeta `static` del proyecto, y prepara un recurso
-llamado `main_styles` que contiene el archivo `styles.min.css` obtenido.
-
-## Archivos generados
-
-Cada conjunto de recursos [`StaticFilesBundle`] genera un archivo en el directorio estándar
-[OUT_DIR](https://doc.rust-lang.org/cargo/reference/environment-variables.html#environment-variables-cargo-sets-for-build-scripts)
-donde se incluye el código necesario para compilar el proyecto. Por ejemplo, para
-`with_name("guides")` se genera un archivo llamado `guides.rs`.
-
-No hay ningún problema en generar más de un conjunto de recursos para cada proyecto siempre que se
-usen nombres diferentes.
-
-Normalmente no habrá que acceder a estos módulos; sólo declarar el nombre del conjunto de recursos
-en [`serve_static_files!`](https://docs.rs/pagetop/latest/pagetop/macro.serve_static_files.html)
-para configurar un servicio web que sirva los archivos desde la ruta indicada. Por ejemplo:
+Cada paquete de recursos genera un archivo `.rs` en
+[OUT_DIR](https://doc.rust-lang.org/cargo/reference/environment-variables.html#environment-variables-cargo-sets-for-build-scripts).
+No es necesario acceder a él directamente: el nombre asignado con `.with_name()` se usa como
+identificador en `serve_static_files!` para configurar la ruta del servicio:
 
 ```rust,ignore
 use pagetop::prelude::*;
@@ -102,39 +98,77 @@ use pagetop::prelude::*;
 pub struct MyExtension;
 
 impl Extension for MyExtension {
-    /// Registra los recursos de `guides` en el router bajo `/ruta/a/guides`.
     fn configure_router(&self, mut router: Router) -> Router {
-        serve_static_files!(router, [guides] => "/ruta/a/guides");
+        serve_static_files!(router, ["./static/css", app_css] => "/public/css");
         router
     }
+}
+```
+
+## Ejemplo completo
+
+```rust,no_run
+use pagetop_build::StaticFilesBundle;
+use pagetop_build::{compile_scss, copy_file, copy_file_replacing, minify_js};
+use std::path::Path;
+
+fn main() -> std::io::Result<()> {
+    // Regenera `static/` desde cero sólo si hay cambios en `assets/`.
+    println!("cargo:rerun-if-changed=assets");
+    let _ = std::fs::remove_dir_all("static");
+
+    // Genera `static/` a partir de `assets/`.
+    compile_scss("assets/main.scss", "static/css/main.min.css")?;
+    copy_file("assets/fonts/icon.woff2", "static/fonts/icon.woff2")?;
+    copy_file_replacing(
+        "assets/lib.min.js",
+        "static/js/app.min.js",
+        &[("lib.min.js.map", "app.min.js.map")],
+    )?;
+    minify_js("assets/shell.js", "static/js/shell.min.js")?;
+
+    // Prepara los paquetes de recursos para incluir en el proyecto.
+    StaticFilesBundle::from_dir("./static/css", None).with_name("app_css").build()?;
+    StaticFilesBundle::from_dir("./static/js", Some(only_js)).with_name("app_js").build()?;
+    StaticFilesBundle::from_dir("./static/fonts", None).with_name("app_fonts").build()
+}
+
+// Los `.map` no se incluyen, se servirán desde disco durante el desarrollo.
+fn only_js(path: &Path) -> bool {
+    path.extension().map_or(false, |ext| ext == "js")
 }
 ```
 */
 
 #![doc(
-    html_favicon_url = "https://git.cillero.es/manuelcillero/pagetop/raw/branch/main/static/favicon.ico"
+    html_favicon_url = "https://git.cillero.es/manuelcillero/pagetop/raw/branch/main/assets/favicon.ico"
 )]
 
 use grass::{Options, OutputStyle, from_path};
-use pagetop_statics::{ResourceDir, resource_dir};
+use minify_js::{Session, TopLevelMode, minify};
+use pagetop_statics::resource_dir;
 
-use std::fs::{File, create_dir_all, remove_dir_all};
-use std::io::Write;
-use std::path::Path;
+use std::fs::{File, copy as fs_copy, create_dir_all, read_dir};
+use std::io::{self, Write};
+use std::path::{Path, PathBuf};
 
-/// Prepara un conjunto de recursos para ser incluidos en el binario del proyecto.
+// **< StaticFilesBundle >**************************************************************************
+
+/// Prepara un paquete de recursos para incluir en el binario del proyecto.
 pub struct StaticFilesBundle {
-    resource_dir: ResourceDir,
+    dir: PathBuf,
+    filter: Option<fn(&Path) -> bool>,
+    name: Option<String>,
 }
 
 impl StaticFilesBundle {
-    /// Prepara el conjunto de recursos con los archivos de un directorio. Opcionalmente se puede
-    /// aplicar un filtro para seleccionar un subconjunto de los archivos.
+    /// Crea el paquete de recursos con los archivos del directorio indicado.
     ///
     /// # Argumentos
     ///
-    /// * `dir` - Directorio que contiene los archivos.
-    /// * `filter` - Una función opcional para aceptar o no un archivo según su ruta.
+    /// * `dir` - Ruta al directorio con los archivos a incluir, normalmente `static/` o un
+    ///   directorio dentro de este.
+    /// * `filter` - Función opcional para seleccionar qué archivos incluir en el paquete.
     ///
     /// # Ejemplo
     ///
@@ -143,124 +177,227 @@ impl StaticFilesBundle {
     /// use std::path::Path;
     ///
     /// fn main() -> std::io::Result<()> {
-    ///     fn only_images(path: &Path) -> bool {
-    ///         matches!(
-    ///             path.extension().and_then(|ext| ext.to_str()),
-    ///             Some("jpg" | "png" | "gif")
-    ///         )
-    ///     }
-    ///
     ///     StaticFilesBundle::from_dir("./static", Some(only_images))
     ///         .with_name("images")
     ///         .build()
+    /// }
+    ///
+    /// fn only_images(path: &Path) -> bool {
+    ///     matches!(
+    ///         path.extension().and_then(|ext| ext.to_str()),
+    ///         Some("jpg" | "png" | "gif")
+    ///     )
     /// }
     /// ```
     pub fn from_dir<P>(dir: P, filter: Option<fn(&Path) -> bool>) -> Self
     where
         P: AsRef<Path>,
     {
-        let dir_path = dir.as_ref();
-        let dir_str = dir_path.to_str().unwrap_or_else(|| {
-            panic!(
-                "Resource directory path is not valid UTF-8: {}",
-                dir_path.display()
-            );
-        });
-
-        let mut resource_dir = resource_dir(dir_str);
-
-        // Aplica el filtro si está definido.
-        if let Some(f) = filter {
-            resource_dir.with_filter(f);
+        Self {
+            dir: dir.as_ref().to_path_buf(),
+            filter,
+            name: None,
         }
-
-        // Identifica el directorio temporal de recursos.
-        StaticFilesBundle { resource_dir }
     }
 
-    /// Prepara un recurso CSS minimizado a partir de la compilación de un archivo SCSS (que puede a
-    /// su vez importar otros archivos SCSS).
+    /// Asigna un nombre al paquete de recursos.
     ///
-    /// # Argumentos
+    /// El nombre debe ser un identificador Rust válido que se convertirá en nombre del módulo y de
+    /// la función del archivo `.rs` generado en `OUT_DIR`. Si no se llama a este método, el nombre
+    /// por defecto será `"bundle"`.
     ///
-    /// * `path` - Archivo SCSS a compilar.
-    /// * `target_name` - Nombre para el archivo CSS.
+    /// Este nombre es el que hay que declarar en
+    /// [`serve_static_files!`](https://docs.rs/pagetop/latest/pagetop/macro.serve_static_files.html)
+    /// para configurar la ruta del servicio:
     ///
-    /// # Ejemplo
-    ///
-    /// ```rust,no_run
-    /// use pagetop_build::StaticFilesBundle;
-    ///
-    /// fn main() -> std::io::Result<()> {
-    ///     StaticFilesBundle::from_scss("./bootstrap/scss/main.scss", "bootstrap.min.css")
-    ///         .with_name("bootstrap_css")
-    ///         .build()
-    /// }
+    /// ```rust,ignore
+    /// serve_static_files!(router, ["./static/css", app_css] => "/public/css");
+    /// //                                           ^^^^^^^
+    /// //                                           debe coincidir con .with_name("app_css")
     /// ```
-    pub fn from_scss<P>(path: P, target_name: &str) -> Self
-    where
-        P: AsRef<Path>,
-    {
-        // Crea un directorio temporal único para el archivo CSS (basado en su nombre, para que
-        // varias llamadas a from_scss en el mismo build.rs no se pisen).
-        let out_dir = std::env::var("OUT_DIR").unwrap();
-        let safe_name = target_name.replace(['.', '-'], "_");
-        let temp_dir = Path::new(&out_dir).join(format!("from_scss_{safe_name}"));
-
-        // Limpia el directorio temporal de ejecuciones previas, si existe.
-        if temp_dir.exists() {
-            remove_dir_all(&temp_dir).unwrap_or_else(|e| {
-                panic!(
-                    "Failed to clean temporary directory `{}`: {e}",
-                    temp_dir.display()
-                );
-            });
-        }
-        create_dir_all(&temp_dir).unwrap_or_else(|e| {
-            panic!(
-                "Failed to create temporary directory `{}`: {e}",
-                temp_dir.display()
-            );
-        });
-
-        // Compila SCSS a CSS.
-        let css_content = from_path(
-            path.as_ref(),
-            &Options::default().style(OutputStyle::Compressed),
-        )
-        .unwrap_or_else(|e| {
-            panic!(
-                "Failed to compile SCSS file `{}`: {e}",
-                path.as_ref().display(),
-            )
-        });
-
-        // Guarda el archivo CSS compilado en el directorio temporal.
-        let css_path = temp_dir.join(target_name);
-        File::create(&css_path)
-            .unwrap_or_else(|_| panic!("Failed to create CSS file `{}`", css_path.display()))
-            .write_all(css_content.as_bytes())
-            .unwrap_or_else(|_| panic!("Failed to write CSS content to `{}`", css_path.display()));
-
-        // Identifica el directorio temporal de recursos.
-        StaticFilesBundle {
-            resource_dir: resource_dir(temp_dir.to_str().unwrap()),
-        }
-    }
-
-    /// Asigna un nombre al conjunto de recursos.
     pub fn with_name(mut self, name: impl AsRef<str>) -> Self {
-        let name = name.as_ref();
-        let out_dir = std::env::var("OUT_DIR").unwrap();
-        let filename = Path::new(&out_dir).join(format!("{name}.rs"));
-        self.resource_dir.with_generated_filename(filename);
-        self.resource_dir.with_module_name(format!("bundle_{name}"));
-        self.resource_dir.with_generated_fn(name);
+        self.name = Some(name.as_ref().to_string());
         self
     }
 
-    /// Contruye finalmente el conjunto de recursos para incluir en el binario de la aplicación.
+    /// Genera el archivo `.rs` en `OUT_DIR` para incluir los recursos del directorio en el binario.
     pub fn build(self) -> std::io::Result<()> {
-        self.resource_dir.build()
+        let out_dir = std::env::var("OUT_DIR").unwrap();
+        let name = self.name.as_deref().unwrap_or("bundle");
+
+        let mut rd = resource_dir(&self.dir);
+        if let Some(f) = self.filter {
+            rd.with_filter(f);
+        }
+
+        let generated_filename = PathBuf::from(&out_dir).join(format!("{name}.rs"));
+        rd.with_generated_filename(generated_filename);
+        rd.with_module_name(format!("bundle_{name}"));
+        rd.with_generated_fn(name);
+        rd.build()
     }
+}
+
+// **< compile_scss / copy_dir / copy_file / copy_file_replacing / minify_js >**********************
+
+/// Compila un archivo SCSS a CSS minificado y lo escribe en la ruta de destino.
+///
+/// Crea el directorio padre del destino si no existe.
+///
+/// # Ejemplo
+///
+/// ```rust,no_run
+/// fn main() -> std::io::Result<()> {
+///     pagetop_build::compile_scss("assets/main.scss", "static/css/main.min.css")
+/// }
+/// ```
+pub fn compile_scss<P, Q>(src: P, dst: Q) -> io::Result<()>
+where
+    P: AsRef<Path>,
+    Q: AsRef<Path>,
+{
+    let src = src.as_ref();
+    let dst = dst.as_ref();
+
+    if let Some(parent) = dst.parent() {
+        create_dir_all(parent)?;
+    }
+
+    let options = Options::default().style(OutputStyle::Compressed);
+    let css = from_path(src, &options)
+        .map_err(|e| io::Error::other(format!("failed to compile `{}`: {e}", src.display())))?;
+    File::create(dst)?.write_all(css.as_bytes())
+}
+
+/// Copia recursivamente el contenido de un directorio a otro destino.
+///
+/// Crea el directorio destino y todos los subdirectorios necesarios.
+///
+/// # Ejemplo
+///
+/// ```rust,no_run
+/// fn main() -> std::io::Result<()> {
+///     pagetop_build::copy_dir("assets", "static")
+/// }
+/// ```
+pub fn copy_dir<P, Q>(src: P, dst: Q) -> io::Result<()>
+where
+    P: AsRef<Path>,
+    Q: AsRef<Path>,
+{
+    let src = src.as_ref();
+    let dst = dst.as_ref();
+    create_dir_all(dst)?;
+    for entry in read_dir(src)? {
+        let entry = entry?;
+        let src_path = entry.path();
+        let dst_path = dst.join(entry.file_name());
+        if src_path.is_dir() {
+            copy_dir(&src_path, &dst_path)?;
+        } else {
+            fs_copy(&src_path, &dst_path)?;
+        }
+    }
+    Ok(())
+}
+
+/// Copia un archivo a su destino.
+///
+/// Crea el directorio padre del destino si no existe.
+///
+/// # Ejemplo
+///
+/// ```rust,no_run
+/// fn main() -> std::io::Result<()> {
+///     pagetop_build::copy_file("assets/fonts/icon.woff2", "static/fonts/icon.woff2")
+/// }
+/// ```
+pub fn copy_file<P, Q>(src: P, dst: Q) -> io::Result<()>
+where
+    P: AsRef<Path>,
+    Q: AsRef<Path>,
+{
+    let src = src.as_ref();
+    let dst = dst.as_ref();
+
+    if let Some(parent) = dst.parent() {
+        create_dir_all(parent)?;
+    }
+
+    fs_copy(src, dst)?;
+    Ok(())
+}
+
+/// Copia un archivo a su destino con una lista de sustituciones de texto en su contenido.
+///
+/// El archivo fuente se lee como texto UTF-8; no debe usarse con archivos binarios. Las
+/// sustituciones de texto se aplican en orden y de forma encadenada: el resultado de cada
+/// sustitución puede ser entrada de la siguiente.
+///
+/// Crea el directorio padre del destino si no existe.
+///
+/// # Ejemplo
+///
+/// ```rust,no_run
+/// fn main() -> std::io::Result<()> {
+///     pagetop_build::copy_file_replacing(
+///         "assets/adminlte.min.js",
+///         "static/js/myapp.min.js",
+///         &[("adminlte.min.js.map", "myapp.min.js.map")],
+///     )
+/// }
+/// ```
+pub fn copy_file_replacing<P, Q>(src: P, dst: Q, replacements: &[(&str, &str)]) -> io::Result<()>
+where
+    P: AsRef<Path>,
+    Q: AsRef<Path>,
+{
+    let src = src.as_ref();
+    let dst = dst.as_ref();
+
+    if let Some(parent) = dst.parent() {
+        create_dir_all(parent)?;
+    }
+
+    let content = std::fs::read_to_string(src)?;
+    let patched = replacements
+        .iter()
+        .fold(content, |acc, (old, new)| acc.replace(old, new));
+    File::create(dst)?.write_all(patched.as_bytes())
+}
+
+/// Minifica un archivo JavaScript y lo escribe en la ruta de destino.
+///
+/// El archivo se procesa en modo de ámbito global (`TopLevelMode::Global`), adecuado para scripts
+/// sin `import`/`export`. Los archivos con sintaxis de módulo ES deben procesarse con
+/// `TopLevelMode::Module`, que el *crate* subyacente (`minify-js`) también soporta pero esta
+/// función no expone actualmente.
+///
+/// Crea el directorio padre del destino si no existe.
+///
+/// # Ejemplo
+///
+/// ```rust,no_run
+/// fn main() -> std::io::Result<()> {
+///     pagetop_build::minify_js("assets/shell.js", "static/js/shell.min.js")
+/// }
+/// ```
+pub fn minify_js<P, Q>(src: P, dst: Q) -> io::Result<()>
+where
+    P: AsRef<Path>,
+    Q: AsRef<Path>,
+{
+    let src = src.as_ref();
+    let dst = dst.as_ref();
+
+    if let Some(parent) = dst.parent() {
+        create_dir_all(parent)?;
+    }
+
+    let source = std::fs::read(src)?;
+    let session = Session::new();
+    let mut output = Vec::new();
+    minify(&session, TopLevelMode::Global, &source, &mut output)
+        .map_err(|e| io::Error::other(format!("failed to minify `{}`: {e:?}", src.display())))?;
+    File::create(dst)?.write_all(&output)
 }

@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="https://git.cillero.es/manuelcillero/pagetop/raw/branch/main/static/banner.png" />
+<img src="https://git.cillero.es/manuelcillero/pagetop/raw/branch/main/assets/banner.png" />
 
 <h1>PageTop</h1>
 

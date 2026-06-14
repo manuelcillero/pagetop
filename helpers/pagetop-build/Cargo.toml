@@ -3,8 +3,7 @@ name = "pagetop-build"
 version = "0.3.2"
 
 description = """
-    Prepara un conjunto de archivos estáticos o archivos SCSS compilados para ser incluidos en el
-    binario de un proyecto PageTop.
+    Genera o prepara archivos estáticos para servirlos o incluirlos en un proyecto PageTop.
 """
 categories = ["development-tools::build-utils"]
 keywords = ["pagetop", "build", "assets", "resources", "static"]
@@ -17,4 +16,5 @@ authors.workspace = true
 
 [dependencies]
 grass.workspace = true
+minify-js.workspace = true
 pagetop-statics.workspace = true

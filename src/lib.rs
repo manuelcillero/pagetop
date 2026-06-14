@@ -1,7 +1,7 @@
 /*!
 <div align="center">
 
-<img src="https://git.cillero.es/manuelcillero/pagetop/raw/branch/main/static/banner.png" />
+<img src="https://git.cillero.es/manuelcillero/pagetop/raw/branch/main/assets/banner.png" />
 
 <h1>PageTop</h1>
 
@@ -86,7 +86,7 @@ estructurar e inicializar la aplicación de forma modular.
 
 #![cfg_attr(docsrs, feature(doc_cfg))]
 #![doc(
-    html_favicon_url = "https://git.cillero.es/manuelcillero/pagetop/raw/branch/main/static/favicon.ico"
+    html_favicon_url = "https://git.cillero.es/manuelcillero/pagetop/raw/branch/main/assets/favicon.ico"
 )]
 
 // Alias para que las rutas absolutas `::pagetop::...` generadas por las macros funcionen en el
@@ -138,14 +138,14 @@ pub use pagetop_statics::{StaticFile, resource};
 
 pub use getter_methods::Getters;
 
-/// Contenedor para un conjunto de recursos embebidos.
+/// Contenedor para un paquete de recursos embebidos.
 #[derive(AutoDefault)]
 pub struct StaticResources {
     bundle: HashMap<&'static str, StaticFile>,
 }
 
 impl StaticResources {
-    /// Crea un contenedor para un conjunto de recursos generado por `build.rs` (consultar
+    /// Crea un contenedor para un paquete de recursos generado por `build.rs` (consultar
     /// [`pagetop_build`](https://docs.rs/pagetop-build)).
     pub fn new(bundle: HashMap<&'static str, StaticFile>) -> Self {
         Self { bundle }
