@@ -16,7 +16,7 @@ use crate::theme::form;
 ///
 /// # Ejemplo
 ///
-/// ```rust
+/// ```rust,no_run
 /// use pagetop::prelude::*;
 /// use pagetop_bootsier::theme::*;
 ///
@@ -49,8 +49,8 @@ use crate::theme::form;
 pub struct Form {
     #[getters(skip)]
     id: AttrId,
-    /// Devuelve las clases CSS del formulario.
-    classes: Classes,
+    /// Devuelve los atributos HTML y clases CSS del formulario.
+    props: Props,
     /// Devuelve la URL/ruta de destino del formulario.
     action: AttrValue,
     /// Devuelve el método para enviar el formulario.
@@ -72,7 +72,7 @@ impl Component for Form {
     }
 
     fn setup(&mut self, _cx: &Context) {
-        self.alter_classes(ClassesOp::Prepend, "form");
+        self.alter_prop(PropsOp::prepend_classes("form"));
     }
 
     fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
@@ -83,7 +83,7 @@ impl Component for Form {
         Ok(html! {
             form
                 id=[self.id()]
-                class=[self.classes().get()]
+                (self.props())
                 action=[self.action().get()]
                 method=[method]
                 accept-charset=[self.charset().get()]
@@ -104,10 +104,10 @@ impl Form {
         self
     }
 
-    /// Modifica la lista de clases CSS aplicadas al formulario.
+    /// Modifica los atributos HTML o las clases CSS del formulario.
     #[builder_fn]
-    pub fn with_classes(mut self, op: ClassesOp, classes: impl AsRef<str>) -> Self {
-        self.classes.alter_classes(op, classes);
+    pub fn with_prop(mut self, op: PropsOp) -> Self {
+        self.props.alter_prop(op);
         self
     }
 

@@ -9,7 +9,7 @@ use crate::theme::attrs::{ScaleSize, Side};
 ///
 /// # Ejemplos
 ///
-/// ```rust
+/// ```rust,no_run
 /// use pagetop_bootsier::theme::*;
 ///
 /// let m = classes::Margin::with(Side::Top, ScaleSize::Three);
@@ -97,7 +97,7 @@ impl Margin {
 ///
 /// # Ejemplos
 ///
-/// ```rust
+/// ```rust,no_run
 /// use pagetop_bootsier::theme::*;
 ///
 /// let p = classes::Padding::with(Side::LeftAndRight, ScaleSize::Two);

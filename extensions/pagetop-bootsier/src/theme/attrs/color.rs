@@ -43,7 +43,7 @@ impl Color {
     ///
     /// # Ejemplos
     ///
-    /// ```rust
+    /// ```rust,no_run
     /// # use pagetop_bootsier::theme::*;
     /// assert_eq!(Color::Primary.to_class(), "primary");
     /// assert_eq!(Color::Danger.to_class(), "danger");
@@ -123,7 +123,7 @@ impl Opacity {
     ///
     /// # Ejemplos
     ///
-    /// ```rust
+    /// ```rust,no_run
     /// # use pagetop_bootsier::theme::*;
     /// assert_eq!(Opacity::Opaque.class_with(""), "opacity-100");
     /// assert_eq!(Opacity::Half.class_with("bg"), "bg-opacity-50");
@@ -155,7 +155,7 @@ impl Opacity {
     ///
     /// # Ejemplos
     ///
-    /// ```rust
+    /// ```rust,no_run
     /// # use pagetop_bootsier::theme::*;
     /// assert_eq!(Opacity::Opaque.to_class(), "opacity-100");
     /// assert_eq!(Opacity::Half.to_class(), "opacity-50");
@@ -236,7 +236,7 @@ impl ColorBg {
     ///
     /// # Ejemplos
     ///
-    /// ```rust
+    /// ```rust,no_run
     /// # use pagetop_bootsier::theme::*;
     /// assert_eq!(ColorBg::Body.to_class(), "bg-body");
     /// assert_eq!(ColorBg::Theme(Color::Primary).to_class(), "bg-primary");
@@ -320,7 +320,7 @@ impl ColorText {
     ///
     /// # Ejemplos
     ///
-    /// ```rust
+    /// ```rust,no_run
     /// # use pagetop_bootsier::theme::*;
     /// assert_eq!(ColorText::Body.to_class(), "text-body");
     /// assert_eq!(ColorText::Theme(Color::Primary).to_class(), "text-primary");

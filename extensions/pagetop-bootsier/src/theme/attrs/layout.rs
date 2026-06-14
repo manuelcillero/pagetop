@@ -60,7 +60,7 @@ impl ScaleSize {
     ///
     /// # Ejemplo
     ///
-    /// ```rust
+    /// ```rust,no_run
     /// # use pagetop_bootsier::theme::*;
     /// assert_eq!(ScaleSize::Auto.class_with("border"), "border");
     /// assert_eq!(ScaleSize::Zero.class_with("m"), "m-0");

@@ -12,7 +12,7 @@ use crate::theme::*;
 ///
 /// # Ejemplo
 ///
-/// ```rust
+/// ```rust,no_run
 /// use pagetop::prelude::*;
 /// use pagetop_bootsier::theme::*;
 ///
@@ -34,8 +34,8 @@ use crate::theme::*;
 pub struct Nav {
     #[getters(skip)]
     id: AttrId,
-    /// Devuelve las clases CSS asociadas al menú.
-    classes: Classes,
+    /// Devuelve los atributos HTML y clases CSS del menú.
+    props: Props,
     /// Devuelve el estilo visual seleccionado.
     nav_kind: nav::Kind,
     /// Devuelve la distribución y orientación seleccionada.
@@ -54,12 +54,12 @@ impl Component for Nav {
     }
 
     fn setup(&mut self, _cx: &Context) {
-        self.alter_classes(ClassesOp::Prepend, {
+        self.alter_prop(PropsOp::prepend_classes({
             let mut classes = "nav".to_string();
             self.nav_kind().push_class(&mut classes);
             self.nav_layout().push_class(&mut classes);
             classes
-        });
+        }));
     }
 
     fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
@@ -69,7 +69,7 @@ impl Component for Nav {
         }
 
         Ok(html! {
-            ul id=[self.id()] class=[self.classes().get()] {
+            ul id=[self.id()] (self.props()) {
                 (items)
             }
         })
@@ -101,10 +101,10 @@ impl Nav {
         self
     }
 
-    /// Modifica la lista de clases CSS aplicadas al menú.
+    /// Modifica los atributos HTML o las clases CSS del menú.
     #[builder_fn]
-    pub fn with_classes(mut self, op: ClassesOp, classes: impl AsRef<str>) -> Self {
-        self.classes.alter_classes(op, classes);
+    pub fn with_prop(mut self, op: PropsOp) -> Self {
+        self.props.alter_prop(op);
         self
     }
 

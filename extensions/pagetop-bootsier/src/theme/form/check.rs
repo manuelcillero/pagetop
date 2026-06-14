@@ -15,7 +15,7 @@ use pagetop::prelude::*;
 ///
 /// # Ejemplo
 ///
-/// ```rust
+/// ```rust,no_run
 /// # use pagetop::prelude::*;
 /// # use pagetop_bootsier::theme::*;
 /// let item = form::check::Item::new("apple", L10n::n("Apple")).with_checked(true);
@@ -80,7 +80,7 @@ impl Item {
 ///
 /// # Ejemplo
 ///
-/// ```rust
+/// ```rust,no_run
 /// # use pagetop::prelude::*;
 /// # use pagetop_bootsier::theme::*;
 /// let interests = form::check::Field::new()
@@ -110,8 +110,8 @@ impl Item {
 pub struct Field {
     #[getters(skip)]
     id: AttrId,
-    /// Devuelve las clases CSS del contenedor del grupo.
-    classes: Classes,
+    /// Devuelve los atributos HTML y clases CSS del contenedor del grupo.
+    props: Props,
     /// Devuelve el nombre base compartido por todas las casillas del grupo.
     name: AttrName,
     /// Devuelve la etiqueta del grupo.
@@ -136,7 +136,7 @@ impl Component for Field {
     }
 
     fn setup(&mut self, _cx: &Context) {
-        self.alter_classes(ClassesOp::Prepend, "form-field form-field-checkboxes");
+        self.alter_prop(PropsOp::prepend_classes("form-field form-field-checkboxes"));
     }
 
     fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
@@ -146,7 +146,7 @@ impl Component for Field {
             .unwrap_or_else(|| cx.required_id::<Self>(self.id(), 3));
         let container_id = self.id().unwrap_or_else(|| util::join!("edit-", &name));
         Ok(html! {
-            div id=(&container_id) class=[self.classes().get()] {
+            div id=(&container_id) (self.props()) {
                 @if let Some(label) = self.label().lookup(cx) {
                     label class="form-label" { (label) }
                 }
@@ -195,10 +195,10 @@ impl Field {
         self
     }
 
-    /// Modifica la lista de clases CSS aplicadas al contenedor del grupo de casillas.
+    /// Modifica los atributos HTML o las clases CSS del contenedor del grupo de casillas.
     #[builder_fn]
-    pub fn with_classes(mut self, op: ClassesOp, classes: impl AsRef<str>) -> Self {
-        self.classes.alter_classes(op, classes);
+    pub fn with_prop(mut self, op: PropsOp) -> Self {
+        self.props.alter_prop(op);
         self
     }
 

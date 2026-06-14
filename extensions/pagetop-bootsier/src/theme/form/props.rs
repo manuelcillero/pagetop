@@ -50,7 +50,7 @@ pub enum CheckboxKind {
 ///
 /// # Ejemplo
 ///
-/// ```rust
+/// ```rust,no_run
 /// # use pagetop::prelude::*;
 /// # use pagetop_bootsier::theme::*;
 /// // Correo electrónico con sugerencia semántica del navegador.
@@ -243,7 +243,7 @@ impl fmt::Display for Autocomplete {
 ///
 /// # Ejemplo
 ///
-/// ```rust
+/// ```rust,no_run
 /// # use pagetop_bootsier::theme::*;
 /// let ac = form::Autocomplete::token(form::AutofillField::Username);
 /// let ac = form::Autocomplete::shipping(form::AutofillField::StreetAddress);

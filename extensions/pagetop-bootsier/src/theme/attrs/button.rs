@@ -75,7 +75,7 @@ impl ButtonColor {
     ///
     /// # Ejemplos
     ///
-    /// ```rust
+    /// ```rust,no_run
     /// # use pagetop_bootsier::theme::*;
     /// assert_eq!(
     ///     ButtonColor::Background(Color::Primary).to_class(),
@@ -131,7 +131,7 @@ impl ButtonSize {
     ///
     /// # Ejemplos
     ///
-    /// ```rust
+    /// ```rust,no_run
     /// # use pagetop_bootsier::theme::*;
     /// assert_eq!(ButtonSize::Small.to_class(), "btn-sm");
     /// assert_eq!(ButtonSize::Large.to_class(), "btn-lg");

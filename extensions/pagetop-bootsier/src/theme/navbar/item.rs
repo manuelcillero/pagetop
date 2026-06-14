@@ -41,7 +41,7 @@ impl Component for Item {
     fn setup(&mut self, _cx: &Context) {
         if let Self::Nav(nav) = self {
             if let Some(mut nav) = nav.get() {
-                nav.alter_classes(ClassesOp::Prepend, "navbar-nav");
+                nav.alter_prop(PropsOp::prepend_classes("navbar-nav"));
             }
         }
     }
@@ -57,7 +57,7 @@ impl Component for Item {
                         return Ok(html! {});
                     }
                     html! {
-                        ul id=[nav.id()] class=[nav.classes().get()] {
+                        ul id=[nav.id()] (nav.props()) {
                             (items)
                         }
                     }

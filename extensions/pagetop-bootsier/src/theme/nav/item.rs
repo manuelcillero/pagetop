@@ -80,8 +80,8 @@ impl ItemKind {
 pub struct Item {
     #[getters(skip)]
     id: AttrId,
-    /// Devuelve las clases CSS asociadas al elemento.
-    classes: Classes,
+    /// Devuelve los atributos HTML y clases CSS del elemento.
+    props: Props,
     /// Devuelve el tipo de elemento representado.
     item_kind: ItemKind,
 }
@@ -96,7 +96,7 @@ impl Component for Item {
     }
 
     fn setup(&mut self, _cx: &Context) {
-        self.alter_classes(ClassesOp::Prepend, self.item_kind().to_class());
+        self.alter_prop(PropsOp::prepend_classes(self.item_kind().to_class()));
     }
 
     fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
@@ -104,7 +104,7 @@ impl Component for Item {
             ItemKind::Void => html! {},
 
             ItemKind::Label(label) => html! {
-                li id=[self.id()] class=[self.classes().get()] {
+                li id=[self.id()] (self.props()) {
                     span class="nav-link disabled" aria-disabled="true" {
                         (label.using(cx))
                     }
@@ -137,7 +137,7 @@ impl Component for Item {
                 let aria_disabled = (*disabled).then_some("true");
 
                 html! {
-                    li id=[self.id()] class=[self.classes().get()] {
+                    li id=[self.id()] (self.props()) {
                         a
                             class=(classes)
                             href=[href]
@@ -153,7 +153,7 @@ impl Component for Item {
             }
 
             ItemKind::Html(html) => html! {
-                li id=[self.id()] class=[self.classes().get()] {
+                li id=[self.id()] (self.props()) {
                     (html.render(cx))
                 }
             },
@@ -170,7 +170,7 @@ impl Component for Item {
                             .unwrap_or_else(|| "Dropdown".to_string())
                     });
                     html! {
-                        li id=[self.id()] class=[self.classes().get()] {
+                        li id=[self.id()] (self.props()) {
                             a
                                 class="nav-link dropdown-toggle"
                                 data-bs-toggle="dropdown"
@@ -290,10 +290,10 @@ impl Item {
         self
     }
 
-    /// Modifica la lista de clases CSS aplicadas al elemento.
+    /// Modifica los atributos HTML o las clases CSS del elemento.
     #[builder_fn]
-    pub fn with_classes(mut self, op: ClassesOp, classes: impl AsRef<str>) -> Self {
-        self.classes.alter_classes(op, classes);
+    pub fn with_prop(mut self, op: PropsOp) -> Self {
+        self.props.alter_prop(op);
         self
     }
 }

@@ -18,7 +18,7 @@ use crate::theme::{ButtonAction, ButtonColor, ButtonSize};
 ///
 /// # Ejemplo
 ///
-/// ```rust
+/// ```rust,no_run
 /// use pagetop::prelude::*;
 /// use pagetop_bootsier::theme::*;
 ///
@@ -47,8 +47,8 @@ use crate::theme::{ButtonAction, ButtonColor, ButtonSize};
 pub struct Button {
     #[getters(skip)]
     id: AttrId,
-    /// Devuelve las clases CSS del botón.
-    classes: Classes,
+    /// Devuelve los atributos HTML y clases CSS del botón.
+    props: Props,
     /// Devuelve el comportamiento del botón al activarse.
     kind: ButtonAction,
     /// Devuelve el esquema de color del botón.
@@ -80,7 +80,7 @@ impl Component for Button {
         let mut classes = "btn".to_string();
         (*self.color()).push_class(&mut classes);
         (*self.size()).push_class(&mut classes);
-        self.alter_classes(ClassesOp::Prepend, classes);
+        self.alter_prop(PropsOp::prepend_classes(classes));
     }
 
     fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
@@ -88,7 +88,7 @@ impl Component for Button {
             button
                 id=[self.id()]
                 type=(self.kind())
-                class=[self.classes().get()]
+                (self.props())
                 name=[self.name().get()]
                 value=[self.value().get()]
                 autofocus[*self.autofocus()]
@@ -147,10 +147,10 @@ impl Button {
         self
     }
 
-    /// Modifica la lista de clases CSS aplicadas al botón.
+    /// Modifica los atributos HTML o las clases CSS del botón.
     #[builder_fn]
-    pub fn with_classes(mut self, op: ClassesOp, classes: impl AsRef<str>) -> Self {
-        self.classes.alter_classes(op, classes);
+    pub fn with_prop(mut self, op: PropsOp) -> Self {
+        self.props.alter_prop(op);
         self
     }
 

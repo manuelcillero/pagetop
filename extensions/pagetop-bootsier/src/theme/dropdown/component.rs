@@ -21,7 +21,7 @@ use crate::theme::*;
 ///
 /// # Ejemplo
 ///
-/// ```rust
+/// ```rust,no_run
 /// use pagetop::prelude::*;
 /// use pagetop_bootsier::theme::*;
 ///
@@ -40,8 +40,8 @@ use crate::theme::*;
 pub struct Dropdown {
     #[getters(skip)]
     id: AttrId,
-    /// Devuelve las clases CSS asociadas al menú desplegable.
-    classes: Classes,
+    /// Devuelve los atributos HTML y clases CSS del menú desplegable.
+    props: Props,
     /// Devuelve el título del menú desplegable.
     title: L10n,
     /// Devuelve el tamaño configurado del botón.
@@ -74,10 +74,9 @@ impl Component for Dropdown {
     }
 
     fn setup(&mut self, _cx: &Context) {
-        self.alter_classes(
-            ClassesOp::Prepend,
+        self.alter_prop(PropsOp::prepend_classes(
             self.direction().class_with(*self.button_grouped()),
-        );
+        ));
     }
 
     fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
@@ -91,23 +90,23 @@ impl Component for Dropdown {
         let title = self.title().using(cx);
 
         Ok(html! {
-            div id=[self.id()] class=[self.classes().get()] {
+            div id=[self.id()] (self.props()) {
                 @if !title.is_empty() {
-                    @let mut btn_classes = Classes::new({
+                    @let btn_base = {
                         let mut classes = "btn".to_string();
                         self.button_size().push_class(&mut classes);
                         self.button_color().push_class(&mut classes);
                         classes
-                    });
+                    };
                     @let pos = self.menu_position();
                     @let offset = pos.data_offset();
                     @let reference = pos.data_reference();
                     @let auto_close = self.auto_close.as_str();
-                    @let menu_classes = Classes::new({
+                    @let menu_classes = {
                         let mut classes = "dropdown-menu".to_string();
                         self.menu_align().push_class(&mut classes);
                         classes
-                    });
+                    };
 
                     // Renderizado en modo split (dos botones) o simple (un botón).
                     @if *self.button_split() {
@@ -115,18 +114,18 @@ impl Component for Dropdown {
                         @let btn = html! {
                             button
                                 type="button"
-                                class=[btn_classes.get()]
+                                class=(&btn_base)
                             {
                                 (title)
                             }
                         };
                         // Botón *toggle* que abre/cierra el menú asociado.
+                        @let btn_toggle_classes =
+                            util::join!(&btn_base, " dropdown-toggle dropdown-toggle-split");
                         @let btn_toggle = html! {
                             button
                                 type="button"
-                                class=[btn_classes.alter_classes(
-                                    ClassesOp::Add, "dropdown-toggle dropdown-toggle-split"
-                                ).get()]
+                                class=(&btn_toggle_classes)
                                 data-bs-toggle="dropdown"
                                 data-bs-offset=[offset]
                                 data-bs-reference=[reference]
@@ -142,22 +141,21 @@ impl Component for Dropdown {
                         @match self.direction() {
                             dropdown::Direction::Dropstart => {
                                 (btn_toggle)
-                                ul class=[menu_classes.get()] { (items) }
+                                ul class=(&menu_classes) { (items) }
                                 (btn)
                             }
                             _ => {
                                 (btn)
                                 (btn_toggle)
-                                ul class=[menu_classes.get()] { (items) }
+                                ul class=(&menu_classes) { (items) }
                             }
                         }
                     } @else {
                         // Botón único con funcionalidad de *toggle*.
+                        @let btn_toggle_classes = util::join!(&btn_base, " dropdown-toggle");
                         button
                             type="button"
-                            class=[btn_classes.alter_classes(
-                                ClassesOp::Add, "dropdown-toggle"
-                            ).get()]
+                            class=(&btn_toggle_classes)
                             data-bs-toggle="dropdown"
                             data-bs-offset=[offset]
                             data-bs-reference=[reference]
@@ -166,7 +164,7 @@ impl Component for Dropdown {
                         {
                             (title)
                         }
-                        ul class=[menu_classes.get()] { (items) }
+                        ul class=(&menu_classes) { (items) }
                     }
                 } @else {
                     // Sin botón: sólo el listado como menú contextual.
@@ -187,10 +185,10 @@ impl Dropdown {
         self
     }
 
-    /// Modifica la lista de clases CSS aplicadas al menú desplegable.
+    /// Modifica los atributos HTML o las clases CSS del menú desplegable.
     #[builder_fn]
-    pub fn with_classes(mut self, op: ClassesOp, classes: impl AsRef<str>) -> Self {
-        self.classes.alter_classes(op, classes);
+    pub fn with_prop(mut self, op: PropsOp) -> Self {
+        self.props.alter_prop(op);
         self
     }
 

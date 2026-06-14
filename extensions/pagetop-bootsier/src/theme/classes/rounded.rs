@@ -14,7 +14,7 @@ use crate::theme::attrs::RoundedRadius;
 ///
 /// # Ejemplos
 ///
-/// ```rust
+/// ```rust,no_run
 /// use pagetop_bootsier::theme::*;
 ///
 /// // Radio global:

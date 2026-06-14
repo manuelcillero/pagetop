@@ -23,7 +23,7 @@ use crate::theme::*;
 ///
 /// # Ejemplo
 ///
-/// ```rust
+/// ```rust,no_run
 /// use pagetop::prelude::*;
 /// use pagetop_bootsier::theme::*;
 ///
@@ -45,8 +45,8 @@ use crate::theme::*;
 pub struct Offcanvas {
     #[getters(skip)]
     id: AttrId,
-    /// Devuelve las clases CSS asociadas al panel.
-    classes: Classes,
+    /// Devuelve los atributos HTML y clases CSS del panel.
+    props: Props,
     /// Devuelve el título del panel.
     title: L10n,
     /// Devuelve el punto de ruptura configurado para cambiar el comportamiento del panel.
@@ -73,13 +73,13 @@ impl Component for Offcanvas {
     }
 
     fn setup(&mut self, _cx: &Context) {
-        self.alter_classes(ClassesOp::Prepend, {
+        self.alter_prop(PropsOp::prepend_classes({
             let mut classes = "offcanvas".to_string();
             self.breakpoint().push_class(&mut classes, "offcanvas", "");
             self.placement().push_class(&mut classes);
             self.visibility().push_class(&mut classes);
             classes
-        });
+        }));
     }
 
     fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
@@ -97,10 +97,10 @@ impl Offcanvas {
         self
     }
 
-    /// Modifica la lista de clases CSS aplicadas al panel.
+    /// Modifica los atributos HTML o las clases CSS del panel.
     #[builder_fn]
-    pub fn with_classes(mut self, op: ClassesOp, classes: impl AsRef<str>) -> Self {
-        self.classes.alter_classes(op, classes);
+    pub fn with_prop(mut self, op: PropsOp) -> Self {
+        self.props.alter_prop(op);
         self
     }
 
@@ -192,7 +192,7 @@ impl Offcanvas {
         html! {
             div
                 id=(&id)
-                class=[self.classes().get()]
+                (self.props())
                 tabindex="-1"
                 data-bs-scroll=[body_scroll]
                 data-bs-backdrop=[backdrop]

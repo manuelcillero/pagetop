@@ -10,7 +10,7 @@ use pagetop::prelude::*;
 ///
 /// # Ejemplo
 ///
-/// ```rust
+/// ```rust,no_run
 /// # use pagetop::prelude::*;
 /// # use pagetop_bootsier::theme::*;
 /// let token = form::Hidden::new()

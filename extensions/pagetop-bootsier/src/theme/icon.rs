@@ -15,8 +15,8 @@ pub enum IconKind {
 
 #[derive(AutoDefault, Clone, Debug, Getters)]
 pub struct Icon {
-    /// Devuelve las clases CSS asociadas al icono.
-    classes: Classes,
+    /// Devuelve los atributos HTML y clases CSS del icono.
+    props: Props,
     icon_kind: IconKind,
     aria_label: AttrL10n,
 }
@@ -28,10 +28,10 @@ impl Component for Icon {
 
     fn setup(&mut self, _cx: &Context) {
         if !matches!(self.icon_kind(), IconKind::None) {
-            self.alter_classes(ClassesOp::Prepend, "icon");
+            self.alter_prop(PropsOp::prepend_classes("icon"));
         }
         if let IconKind::Font(font_size) = self.icon_kind() {
-            self.alter_classes(ClassesOp::Add, font_size.as_str());
+            self.alter_prop(PropsOp::add_classes(font_size.as_str()));
         }
     }
 
@@ -43,7 +43,7 @@ impl Component for Icon {
                 let has_label = aria_label.is_some();
                 html! {
                     i
-                        class=[self.classes().get()]
+                        (self.props())
                         role=[has_label.then_some("img")]
                         aria-label=[aria_label]
                         aria-hidden=[(!has_label).then_some("true")]
@@ -60,7 +60,7 @@ impl Component for Icon {
                         viewBox=(viewbox)
                         fill="currentColor"
                         focusable="false"
-                        class=[self.classes().get()]
+                        (self.props())
                         role=[has_label.then_some("img")]
                         aria-label=[aria_label]
                         aria-hidden=[(!has_label).then_some("true")]
@@ -98,10 +98,10 @@ impl Icon {
 
     // **< Icon BUILDER >***************************************************************************
 
-    /// Modifica la lista de clases CSS aplicadas al icono.
+    /// Modifica los atributos HTML o las clases CSS del icono.
     #[builder_fn]
-    pub fn with_classes(mut self, op: ClassesOp, classes: impl AsRef<str>) -> Self {
-        self.classes.alter_value(op, classes);
+    pub fn with_prop(mut self, op: PropsOp) -> Self {
+        self.props.alter_prop(op);
         self
     }
 

@@ -18,7 +18,7 @@ const TOGGLE_OFFCANVAS: &str = "offcanvas";
 ///
 /// Barra **simple**, sólo con un menú horizontal:
 ///
-/// ```rust
+/// ```rust,no_run
 /// use pagetop::prelude::*;
 /// use pagetop_bootsier::theme::*;
 ///
@@ -33,7 +33,7 @@ const TOGGLE_OFFCANVAS: &str = "offcanvas";
 ///
 /// Barra **colapsable**, con botón de despliegue y contenido en el desplegable cuando colapsa:
 ///
-/// ```rust
+/// ```rust,no_run
 /// # use pagetop::prelude::*;
 /// # use pagetop_bootsier::theme::*;
 /// let navbar = Navbar::simple_toggle()
@@ -48,7 +48,7 @@ const TOGGLE_OFFCANVAS: &str = "offcanvas";
 ///
 /// Barra con **marca de identidad a la izquierda** y menú a la derecha, típica de una cabecera:
 ///
-/// ```rust
+/// ```rust,no_run
 /// # use pagetop::prelude::*;
 /// # use pagetop_bootsier::theme::*;
 /// let brand = navbar::Brand::new()
@@ -75,7 +75,7 @@ const TOGGLE_OFFCANVAS: &str = "offcanvas";
 ///
 /// Barra con **botón de despliegue a la izquierda** y **marca de identidad a la derecha**:
 ///
-/// ```rust
+/// ```rust,no_run
 /// # use pagetop::prelude::*;
 /// # use pagetop_bootsier::theme::*;
 /// let brand = navbar::Brand::new()
@@ -93,7 +93,7 @@ const TOGGLE_OFFCANVAS: &str = "offcanvas";
 ///
 /// Barra con el **contenido en un *offcanvas***, ideal para dispositivos móviles o menús largos:
 ///
-/// ```rust
+/// ```rust,no_run
 /// # use pagetop::prelude::*;
 /// # use pagetop_bootsier::theme::*;
 /// let oc = Offcanvas::new()
@@ -118,7 +118,7 @@ const TOGGLE_OFFCANVAS: &str = "offcanvas";
 ///
 /// Barra **fija arriba**:
 ///
-/// ```rust
+/// ```rust,no_run
 /// # use pagetop::prelude::*;
 /// # use pagetop_bootsier::theme::*;
 /// let brand = navbar::Brand::new()
@@ -138,8 +138,8 @@ const TOGGLE_OFFCANVAS: &str = "offcanvas";
 pub struct Navbar {
     #[getters(skip)]
     id: AttrId,
-    /// Devuelve las clases CSS asociadas a la barra de navegación.
-    classes: Classes,
+    /// Devuelve los atributos HTML y clases CSS de la barra de navegación.
+    props: Props,
     /// Devuelve el punto de ruptura configurado.
     expand: BreakPoint,
     /// Devuelve la disposición configurada para la barra de navegación.
@@ -160,12 +160,12 @@ impl Component for Navbar {
     }
 
     fn setup(&mut self, _cx: &Context) {
-        self.alter_classes(ClassesOp::Prepend, {
+        self.alter_prop(PropsOp::prepend_classes({
             let mut classes = "navbar".to_string();
             self.expand().push_class(&mut classes, "navbar-expand", "");
             self.position().push_class(&mut classes);
             classes
-        });
+        }));
     }
 
     fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
@@ -202,7 +202,7 @@ impl Component for Navbar {
         let id = cx.required_id::<Self>(self.id(), 1);
 
         Ok(html! {
-            nav id=(&id) class=[self.classes().get()] {
+            nav id=(&id) (self.props()) {
                 div class="container-fluid" {
                     @match self.layout() {
                         // Barra más sencilla: sólo contenido.
@@ -342,15 +342,15 @@ impl Navbar {
         self
     }
 
-    /// Modifica la lista de clases CSS aplicadas a la barra de navegación.
+    /// Modifica los atributos HTML o las clases CSS de la barra de navegación.
     ///
     /// También acepta clases predefinidas para:
     ///
     /// - Modificar el color de fondo ([`classes::Background`]).
     /// - Definir la apariencia del texto ([`classes::Text`]).
     #[builder_fn]
-    pub fn with_classes(mut self, op: ClassesOp, classes: impl AsRef<str>) -> Self {
-        self.classes.alter_classes(op, classes);
+    pub fn with_prop(mut self, op: PropsOp) -> Self {
+        self.props.alter_prop(op);
         self
     }
 

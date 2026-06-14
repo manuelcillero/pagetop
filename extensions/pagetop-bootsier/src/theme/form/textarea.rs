@@ -11,7 +11,7 @@ use crate::theme::form;
 ///
 /// # Ejemplo
 ///
-/// ```rust
+/// ```rust,no_run
 /// # use pagetop::prelude::*;
 /// # use pagetop_bootsier::theme::*;
 /// let descripcion = form::Textarea::new()
@@ -36,8 +36,8 @@ use crate::theme::form;
 pub struct Textarea {
     #[getters(skip)]
     id: AttrId,
-    /// Devuelve las clases CSS del contenedor del área de texto.
-    classes: Classes,
+    /// Devuelve los atributos HTML y clases CSS del contenedor del área de texto.
+    props: Props,
     /// Devuelve el nombre del campo.
     name: AttrName,
     /// Devuelve el valor inicial del área de texto.
@@ -79,10 +79,10 @@ impl Component for Textarea {
 
     fn setup(&mut self, _cx: &Context) {
         if *self.floating_label() {
-            self.rows.alter_opt(None::<u16>);
-            self.alter_classes(ClassesOp::Prepend, "form-floating");
+            self.alter_rows(None::<u16>);
+            self.alter_prop(PropsOp::prepend_classes("form-floating"));
         }
-        self.alter_classes(ClassesOp::Prepend, "form-field form-field-textarea");
+        self.alter_prop(PropsOp::prepend_classes("form-field form-field-textarea"));
     }
 
     fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
@@ -116,7 +116,7 @@ impl Component for Textarea {
             None => html! {},
         };
         Ok(html! {
-            div id=[container_id.as_deref()] class=[self.classes().get()] {
+            div id=[container_id.as_deref()] (self.props()) {
                 @if !*self.floating_label() {
                     (label)
                 }
@@ -159,10 +159,10 @@ impl Textarea {
         self
     }
 
-    /// Modifica la lista de clases CSS aplicadas al contenedor del campo.
+    /// Modifica los atributos HTML o las clases CSS del contenedor del campo.
     #[builder_fn]
-    pub fn with_classes(mut self, op: ClassesOp, classes: impl AsRef<str>) -> Self {
-        self.classes.alter_classes(op, classes);
+    pub fn with_prop(mut self, op: PropsOp) -> Self {
+        self.props.alter_prop(op);
         self
     }
 

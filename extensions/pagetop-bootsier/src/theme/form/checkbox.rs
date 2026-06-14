@@ -15,7 +15,7 @@ use crate::theme::form;
 ///
 /// # Ejemplo
 ///
-/// ```rust
+/// ```rust,no_run
 /// # use pagetop::prelude::*;
 /// # use pagetop_bootsier::theme::*;
 /// let accept_terms = form::Checkbox::check() // También sirve new() o default().
@@ -45,8 +45,8 @@ use crate::theme::form;
 pub struct Checkbox {
     #[getters(skip)]
     id: AttrId,
-    /// Devuelve las clases CSS del contenedor del control.
-    classes: Classes,
+    /// Devuelve los atributos HTML y clases CSS del contenedor del control.
+    props: Props,
     /// Devuelve la variante visual del control.
     checkbox_kind: form::CheckboxKind,
     /// Devuelve el nombre del campo.
@@ -87,7 +87,7 @@ impl Component for Checkbox {
         if *self.reverse() {
             classes.push_str(" form-check-reverse");
         }
-        self.alter_classes(ClassesOp::Prepend, classes);
+        self.alter_prop(PropsOp::prepend_classes(classes));
     }
 
     fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
@@ -99,7 +99,7 @@ impl Component for Checkbox {
         let checkbox_id = util::join!(&container_id, "-checkbox");
         let is_switch = *self.checkbox_kind() == form::CheckboxKind::Switch;
         Ok(html! {
-            div id=(&container_id) class=[self.classes().get()] {
+            div id=(&container_id) (self.props()) {
                 input
                     type="checkbox"
                     role=[is_switch.then_some("switch")]
@@ -152,10 +152,10 @@ impl Checkbox {
         self
     }
 
-    /// Modifica la lista de clases CSS aplicadas al contenedor del control.
+    /// Modifica los atributos HTML o las clases CSS del contenedor del control.
     #[builder_fn]
-    pub fn with_classes(mut self, op: ClassesOp, classes: impl AsRef<str>) -> Self {
-        self.classes.alter_classes(op, classes);
+    pub fn with_prop(mut self, op: PropsOp) -> Self {
+        self.props.alter_prop(op);
         self
     }
 

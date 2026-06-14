@@ -15,8 +15,8 @@ use crate::theme::*;
 pub struct Image {
     #[getters(skip)]
     id: AttrId,
-    /// Devuelve las clases CSS asociadas a la imagen.
-    classes: Classes,
+    /// Devuelve los atributos HTML y clases CSS de la imagen.
+    props: Props,
     /// Devuelve las dimensiones de la imagen.
     size: image::Size,
     /// Devuelve el origen de la imagen.
@@ -35,7 +35,7 @@ impl Component for Image {
     }
 
     fn setup(&mut self, _cx: &Context) {
-        self.alter_classes(ClassesOp::Prepend, self.source().to_class());
+        self.alter_prop(PropsOp::prepend_classes(self.source().to_class()));
     }
 
     fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
@@ -47,7 +47,7 @@ impl Component for Image {
                 return Ok(html! {
                     span
                         id=[self.id()]
-                        class=[self.classes().get()]
+                        (self.props())
                         style=[dimensions]
                         role=[(!is_decorative).then_some("img")]
                         aria-label=[(!is_decorative).then_some(alt_text)]
@@ -66,7 +66,7 @@ impl Component for Image {
                 src=[source]
                 alt=(alt_text)
                 id=[self.id()]
-                class=[self.classes().get()]
+                (self.props())
                 style=[dimensions] {}
         })
     }
@@ -87,15 +87,15 @@ impl Image {
         self
     }
 
-    /// Modifica la lista de clases CSS aplicadas a la imagen.
+    /// Modifica los atributos HTML o las clases CSS de la imagen.
     ///
     /// También acepta clases predefinidas para:
     ///
     /// - Establecer bordes ([`classes::Border`]).
     /// - Redondear las esquinas ([`classes::Rounded`]).
     #[builder_fn]
-    pub fn with_classes(mut self, op: ClassesOp, classes: impl AsRef<str>) -> Self {
-        self.classes.alter_classes(op, classes);
+    pub fn with_prop(mut self, op: PropsOp) -> Self {
+        self.props.alter_prop(op);
         self
     }
 

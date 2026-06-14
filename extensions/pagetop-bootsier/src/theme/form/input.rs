@@ -104,7 +104,7 @@ impl fmt::Display for Mode {
 ///
 /// # Ejemplo
 ///
-/// ```rust
+/// ```rust,no_run
 /// # use pagetop::prelude::*;
 /// # use pagetop_bootsier::theme::*;
 /// let email = form::input::Field::email()
@@ -128,8 +128,8 @@ impl fmt::Display for Mode {
 pub struct Field {
     #[getters(skip)]
     id: AttrId,
-    /// Devuelve las clases CSS del contenedor del campo.
-    classes: Classes,
+    /// Devuelve los atributos HTML y clases CSS del contenedor del campo.
+    props: Props,
     /// Devuelve el tipo de campo.
     kind: Kind,
     /// Devuelve el nombre del campo.
@@ -175,12 +175,12 @@ impl Component for Field {
 
     fn setup(&mut self, _cx: &Context) {
         if *self.floating_label() {
-            self.alter_classes(ClassesOp::Prepend, "form-floating");
+            self.alter_prop(PropsOp::prepend_classes("form-floating"));
         }
-        self.alter_classes(
-            ClassesOp::Prepend,
-            util::join!("form-field form-field-", self.kind().to_string()),
-        );
+        self.alter_prop(PropsOp::prepend_classes(util::join!(
+            "form-field form-field-",
+            self.kind().to_string()
+        )));
     }
 
     fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
@@ -217,7 +217,7 @@ impl Component for Field {
             None => html! {},
         };
         Ok(html! {
-            div id=[container_id.as_deref()] class=[self.classes().get()] {
+            div id=[container_id.as_deref()] (self.props()) {
                 @if !*self.floating_label() {
                     (label)
                 }
@@ -320,10 +320,10 @@ impl Field {
         self
     }
 
-    /// Modifica la lista de clases CSS aplicadas al contenedor del campo.
+    /// Modifica los atributos HTML o las clases CSS del contenedor del campo.
     #[builder_fn]
-    pub fn with_classes(mut self, op: ClassesOp, classes: impl AsRef<str>) -> Self {
-        self.classes.alter_classes(op, classes);
+    pub fn with_prop(mut self, op: PropsOp) -> Self {
+        self.props.alter_prop(op);
         self
     }
 

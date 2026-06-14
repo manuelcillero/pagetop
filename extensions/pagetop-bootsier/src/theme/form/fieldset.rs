@@ -13,7 +13,7 @@ use pagetop::prelude::*;
 ///
 /// # Ejemplo
 ///
-/// ```rust
+/// ```rust,no_run
 /// # use pagetop::prelude::*;
 /// # use pagetop_bootsier::theme::*;
 /// let personal_data = form::Fieldset::new()
@@ -26,8 +26,8 @@ use pagetop::prelude::*;
 pub struct Fieldset {
     #[getters(skip)]
     id: AttrId,
-    /// Devuelve las clases CSS del `fieldset`.
-    classes: Classes,
+    /// Devuelve los atributos HTML y clases CSS del `fieldset`.
+    props: Props,
     /// Devuelve la leyenda del `fieldset`.
     legend: Attr<L10n>,
     /// Devuelve la descripción del `fieldset`.
@@ -55,7 +55,7 @@ impl Component for Fieldset {
         }
 
         Ok(html! {
-            fieldset id=[self.id()] class=[self.classes().get()] disabled[*self.disabled()] {
+            fieldset id=[self.id()] (self.props()) disabled[*self.disabled()] {
                 @if let Some(legend) = self.legend().lookup(cx) {
                     legend { (legend) }
                 }
@@ -78,10 +78,10 @@ impl Fieldset {
         self
     }
 
-    /// Modifica la lista de clases CSS aplicadas al `fieldset`.
+    /// Modifica los atributos HTML o las clases CSS del `fieldset`.
     #[builder_fn]
-    pub fn with_classes(mut self, op: ClassesOp, classes: impl AsRef<str>) -> Self {
-        self.classes.alter_classes(op, classes);
+    pub fn with_prop(mut self, op: PropsOp) -> Self {
+        self.props.alter_prop(op);
         self
     }
 

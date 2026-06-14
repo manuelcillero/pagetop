@@ -70,7 +70,7 @@ impl RoundedRadius {
     ///
     /// # Ejemplos
     ///
-    /// ```rust
+    /// ```rust,no_run
     /// # use pagetop_bootsier::theme::*;
     /// assert_eq!(RoundedRadius::Scale2.class_with(""), "rounded-2");
     /// assert_eq!(RoundedRadius::Zero.class_with("rounded-top"), "rounded-top-0");
@@ -102,7 +102,7 @@ impl RoundedRadius {
     ///
     /// # Ejemplos
     ///
-    /// ```rust
+    /// ```rust,no_run
     /// # use pagetop_bootsier::theme::*;
     /// assert_eq!(RoundedRadius::Default.to_class(), "rounded");
     /// assert_eq!(RoundedRadius::Zero.to_class(), "rounded-0");

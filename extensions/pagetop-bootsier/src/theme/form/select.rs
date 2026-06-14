@@ -18,7 +18,7 @@ use crate::theme::form;
 ///
 /// # Ejemplo
 ///
-/// ```rust
+/// ```rust,no_run
 /// # use pagetop::prelude::*;
 /// # use pagetop_bootsier::theme::*;
 /// let item = form::select::Item::new("es", L10n::n("Spanish")).with_selected(true);
@@ -74,7 +74,7 @@ impl Item {
 ///
 /// # Ejemplo
 ///
-/// ```rust
+/// ```rust,no_run
 /// # use pagetop::prelude::*;
 /// # use pagetop_bootsier::theme::*;
 /// let group = form::select::Group::new(L10n::n("Europe"))
@@ -147,7 +147,7 @@ pub enum Entry {
 ///
 /// # Ejemplo
 ///
-/// ```rust
+/// ```rust,no_run
 /// # use pagetop::prelude::*;
 /// # use pagetop_bootsier::theme::*;
 /// let idioma = form::select::Field::new()
@@ -193,8 +193,8 @@ pub enum Entry {
 pub struct Field {
     #[getters(skip)]
     id: AttrId,
-    /// Devuelve las clases CSS del contenedor de la lista de selección.
-    classes: Classes,
+    /// Devuelve los atributos HTML y clases CSS del contenedor de la lista de selección.
+    props: Props,
     /// Devuelve el nombre del campo.
     name: AttrName,
     /// Devuelve la etiqueta del campo.
@@ -230,11 +230,11 @@ impl Component for Field {
 
     fn setup(&mut self, _cx: &Context) {
         if *self.floating_label() {
-            self.multiple = false;
-            self.rows.alter_opt(None::<u16>);
-            self.alter_classes(ClassesOp::Prepend, "form-floating");
+            self.alter_multiple(false);
+            self.alter_rows(None::<u16>);
+            self.alter_prop(PropsOp::prepend_classes("form-floating"));
         }
-        self.alter_classes(ClassesOp::Prepend, "form-field form-field-select");
+        self.alter_prop(PropsOp::prepend_classes("form-field form-field-select"));
     }
 
     fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
@@ -259,7 +259,7 @@ impl Component for Field {
             None => html! {},
         };
         Ok(html! {
-            div id=[container_id.as_deref()] class=[self.classes().get()] {
+            div id=[container_id.as_deref()] (self.props()) {
                 @if !*self.floating_label() {
                     (label)
                 }
@@ -325,10 +325,10 @@ impl Field {
         self
     }
 
-    /// Modifica la lista de clases CSS aplicadas al contenedor de la lista de selección.
+    /// Modifica los atributos HTML o las clases CSS del contenedor de la lista de selección.
     #[builder_fn]
-    pub fn with_classes(mut self, op: ClassesOp, classes: impl AsRef<str>) -> Self {
-        self.classes.alter_classes(op, classes);
+    pub fn with_prop(mut self, op: PropsOp) -> Self {
+        self.props.alter_prop(op);
         self
     }
 

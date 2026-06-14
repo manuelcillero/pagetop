@@ -47,8 +47,8 @@ pub enum ItemKind {
 pub struct Item {
     #[getters(skip)]
     id: AttrId,
-    /// Devuelve las clases CSS asociadas al elemento.
-    classes: Classes,
+    /// Devuelve los atributos HTML y clases CSS del elemento.
+    props: Props,
     /// Devuelve el tipo de elemento representado.
     item_kind: ItemKind,
 }
@@ -67,7 +67,7 @@ impl Component for Item {
             ItemKind::Void => html! {},
 
             ItemKind::Label(label) => html! {
-                li id=[self.id()] class=[self.classes().get()] {
+                li id=[self.id()] (self.props()) {
                     span class="dropdown-item-text" {
                         (label.using(cx))
                     }
@@ -101,7 +101,7 @@ impl Component for Item {
                 let tabindex = disabled.then_some("-1");
 
                 html! {
-                    li id=[self.id()] class=[self.classes().get()] {
+                    li id=[self.id()] (self.props()) {
                         a
                             class=(classes)
                             href=[href]
@@ -127,7 +127,7 @@ impl Component for Item {
                 let disabled_attr = disabled.then_some("disabled");
 
                 html! {
-                    li id=[self.id()] class=[self.classes().get()] {
+                    li id=[self.id()] (self.props()) {
                         button
                             class=(classes)
                             type="button"
@@ -141,7 +141,7 @@ impl Component for Item {
             }
 
             ItemKind::Header(label) => html! {
-                li id=[self.id()] class=[self.classes().get()] {
+                li id=[self.id()] (self.props()) {
                     h6 class="dropdown-header" {
                         (label.using(cx))
                     }
@@ -149,7 +149,7 @@ impl Component for Item {
             },
 
             ItemKind::Divider => html! {
-                li id=[self.id()] class=[self.classes().get()] { hr class="dropdown-divider" {} }
+                li id=[self.id()] (self.props()) { hr class="dropdown-divider" {} }
             },
         })
     }
@@ -267,10 +267,10 @@ impl Item {
         self
     }
 
-    /// Modifica la lista de clases CSS aplicadas al elemento.
+    /// Modifica los atributos HTML o las clases CSS del elemento.
     #[builder_fn]
-    pub fn with_classes(mut self, op: ClassesOp, classes: impl AsRef<str>) -> Self {
-        self.classes.alter_classes(op, classes);
+    pub fn with_prop(mut self, op: PropsOp) -> Self {
+        self.props.alter_prop(op);
         self
     }
 }

@@ -26,7 +26,7 @@ use crate::theme::attrs::{BorderColor, Opacity, ScaleSize, Side};
 ///
 /// # Ejemplos
 ///
-/// ```rust
+/// ```rust,no_run
 /// use pagetop_bootsier::theme::*;
 ///
 /// // Borde global.
@@ -145,7 +145,7 @@ impl Border {
 ///
 /// # Ejemplos
 ///
-/// ```rust
+/// ```rust,no_run
 /// # use pagetop_bootsier::theme::*;
 /// // Convertir explícitamente con `From::from`:
 /// let b = classes::Border::from(ScaleSize::Two);

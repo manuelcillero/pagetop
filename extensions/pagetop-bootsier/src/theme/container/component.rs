@@ -11,7 +11,7 @@ use crate::theme::*;
 ///
 /// # Ejemplo
 ///
-/// ```rust
+/// ```rust,no_run
 /// use pagetop_bootsier::theme::*;
 ///
 /// let main = Container::main()
@@ -22,8 +22,8 @@ use crate::theme::*;
 pub struct Container {
     #[getters(skip)]
     id: AttrId,
-    /// Devuelve las clases CSS asociadas al contenedor.
-    classes: Classes,
+    /// Devuelve los atributos HTML y clases CSS del contenedor.
+    props: Props,
     /// Devuelve el tipo semántico del contenedor.
     container_kind: container::Kind,
     /// Devuelve el comportamiento para el ancho del contenedor.
@@ -42,7 +42,7 @@ impl Component for Container {
     }
 
     fn setup(&mut self, _cx: &Context) {
-        self.alter_classes(ClassesOp::Prepend, self.container_width().to_class());
+        self.alter_prop(PropsOp::prepend_classes(self.container_width().to_class()));
     }
 
     fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
@@ -58,32 +58,32 @@ impl Component for Container {
         };
         Ok(match self.container_kind() {
             container::Kind::Default => html! {
-                div id=[self.id()] class=[self.classes().get()] style=[style] {
+                div id=[self.id()] (self.props()) style=[style] {
                     (output)
                 }
             },
             container::Kind::Main => html! {
-                main id=[self.id()] class=[self.classes().get()] style=[style] {
+                main id=[self.id()] (self.props()) style=[style] {
                     (output)
                 }
             },
             container::Kind::Header => html! {
-                header id=[self.id()] class=[self.classes().get()] style=[style] {
+                header id=[self.id()] (self.props()) style=[style] {
                     (output)
                 }
             },
             container::Kind::Footer => html! {
-                footer id=[self.id()] class=[self.classes().get()] style=[style] {
+                footer id=[self.id()] (self.props()) style=[style] {
                     (output)
                 }
             },
             container::Kind::Section => html! {
-                section id=[self.id()] class=[self.classes().get()] style=[style] {
+                section id=[self.id()] (self.props()) style=[style] {
                     (output)
                 }
             },
             container::Kind::Article => html! {
-                article id=[self.id()] class=[self.classes().get()] style=[style] {
+                article id=[self.id()] (self.props()) style=[style] {
                     (output)
                 }
             },
@@ -141,7 +141,7 @@ impl Container {
         self
     }
 
-    /// Modifica la lista de clases CSS aplicadas al contenedor.
+    /// Modifica los atributos HTML o las clases CSS del contenedor.
     ///
     /// También acepta clases predefinidas para:
     ///
@@ -150,8 +150,8 @@ impl Container {
     /// - Establecer bordes ([`classes::Border`]).
     /// - Redondear las esquinas ([`classes::Rounded`]).
     #[builder_fn]
-    pub fn with_classes(mut self, op: ClassesOp, classes: impl AsRef<str>) -> Self {
-        self.classes.alter_classes(op, classes);
+    pub fn with_prop(mut self, op: PropsOp) -> Self {
+        self.props.alter_prop(op);
         self
     }
 
