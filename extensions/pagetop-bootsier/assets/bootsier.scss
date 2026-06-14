@@ -1,0 +1,91 @@
+// AdminLTE v4.0.0 + Bootstrap 5.3.8 - PageTop Bootsier Styles.
+
+// Bootstrap Configuration
+// ---------------------------------------------------
+@import "bootstrap-5.3.8/scss/functions";
+
+// AdminLTE Configuration (little modified are here)
+// ---------------------------------------------------
+@import "adminlte-4.0.0/scss/bootstrap-variables";
+
+// Bootsier Bootstrap variable overrides
+// ---------------------------------------------------
+@import "bootsier-variables";
+
+// Bootstrap Configuration
+// ---------------------------------------------------
+@import "bootstrap-5.3.8/scss/variables";
+@import "bootstrap-5.3.8/scss/variables-dark";
+@import "bootstrap-5.3.8/scss/maps";
+@import "bootstrap-5.3.8/scss/mixins";
+@import "bootstrap-5.3.8/scss/utilities";
+
+// Bootstrap Layout & components
+@import "bootstrap-5.3.8/scss/root";
+@import "bootstrap-5.3.8/scss/reboot";
+@import "bootstrap-5.3.8/scss/type";
+@import "bootstrap-5.3.8/scss/images";
+@import "bootstrap-5.3.8/scss/containers";
+@import "bootstrap-5.3.8/scss/grid";
+@import "bootstrap-5.3.8/scss/tables";
+@import "bootstrap-5.3.8/scss/forms";
+@import "bootstrap-5.3.8/scss/buttons";
+@import "bootstrap-5.3.8/scss/transitions";
+@import "bootstrap-5.3.8/scss/dropdown";
+@import "bootstrap-5.3.8/scss/button-group";
+@import "bootstrap-5.3.8/scss/nav";
+@import "bootstrap-5.3.8/scss/navbar";
+@import "bootstrap-5.3.8/scss/card";
+@import "bootstrap-5.3.8/scss/accordion";
+@import "bootstrap-5.3.8/scss/breadcrumb";
+@import "bootstrap-5.3.8/scss/pagination";
+@import "bootstrap-5.3.8/scss/badge";
+@import "bootstrap-5.3.8/scss/alert";
+@import "bootstrap-5.3.8/scss/progress";
+@import "bootstrap-5.3.8/scss/list-group";
+@import "bootstrap-5.3.8/scss/close";
+@import "bootstrap-5.3.8/scss/toasts";
+@import "bootstrap-5.3.8/scss/modal";
+@import "bootstrap-5.3.8/scss/tooltip";
+@import "bootstrap-5.3.8/scss/popover";
+@import "bootstrap-5.3.8/scss/carousel";
+@import "bootstrap-5.3.8/scss/spinners";
+@import "bootstrap-5.3.8/scss/offcanvas";
+@import "bootstrap-5.3.8/scss/placeholders";
+
+// Bootstrap Helpers
+@import "bootstrap-5.3.8/scss/helpers";
+
+// Bootsier Utilities (must precede utilities/api to extend $utilities)
+@import "bootsier-utilities";
+
+// Bootstrap Utilities
+@import "bootstrap-5.3.8/scss/utilities/api";
+
+// AdminLTE Configuration
+// ---------------------------------------------------
+@import "adminlte-4.0.0/scss/variables";
+@import "adminlte-4.0.0/scss/variables-dark";
+@import "adminlte-4.0.0/scss/mixins";
+
+// AdminLTE Parts
+// ---------------------------------------------------
+@import "adminlte-4.0.0/scss/parts/core";
+@import "adminlte-4.0.0/scss/parts/components";
+@import "adminlte-4.0.0/scss/parts/extra-components";
+@import "adminlte-4.0.0/scss/parts/pages";
+@import "adminlte-4.0.0/scss/parts/miscellaneous";
+
+// AdminLTE Accessibility Styles - WCAG 2.1 AA Compliance
+@import "adminlte-4.0.0/scss/accessibility";
+
+// AdminLTE Documentation Styles (only applies to pages with body.docs-page)
+@import "adminlte-4.0.0/scss/docs";
+
+// Bootstrap Icons 1.13.1
+// ---------------------------------------------------
+@import "bootsier-icons";
+
+// Bootsier customizations
+// ---------------------------------------------------
+@import "bootsier-custom";

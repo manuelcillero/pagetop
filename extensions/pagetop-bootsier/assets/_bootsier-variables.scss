@@ -1,0 +1,4 @@
+// Bootsier overrides for Bootstrap variables. Imported before bootstrap/scss/variables
+// so that Bootstrap's !default declarations do not override these values.
+
+$font-size-base: 1.125rem;

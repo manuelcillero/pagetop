@@ -1,0 +1,77 @@
+// Bootsier CSS rules: self-hosted fonts, form components, and regions.
+
+// Self-hosted Source Sans 3 (SIL OFL 1.1), served from /bootsier/fonts.
+// Required by AdminLTE 4, which declares it as the primary font family in $font-family-sans-serif.
+@font-face {
+  font-family: "Source Sans 3";
+  src: url("/bootsier/fonts/bootsier.font.woff2") format("woff2");
+  font-weight: 200 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Source Sans 3";
+  src: url("/bootsier/fonts/bootsier.font.italic.woff2") format("woff2");
+  font-weight: 200 900;
+  font-style: italic;
+  font-display: swap;
+}
+
+// Required field indicator in forms.
+.form-required {
+  color: var(--bs-danger);
+  margin: 0 0.25rem;
+}
+
+// Form field with consistent bottom margin.
+.form-field {
+  margin-bottom: 1rem;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+// Fieldset with border and floating legend.
+fieldset {
+  position: relative;
+  background-color: var(--bs-body-bg);
+  border: var(--bs-border-width) solid var(--bs-border-color);
+  border-radius: var(--bs-border-radius);
+  padding: 2rem 1rem 1rem;
+  margin: 2rem 0 1rem;
+}
+
+fieldset > legend {
+  position: absolute;
+  top: 0;
+  left: 1rem;
+  transform: translateY(-50%);
+  background-color: var(--bs-body-bg);
+  border: var(--bs-border-width) solid var(--bs-border-color);
+  border-radius: var(--bs-border-radius);
+  padding: 0.125rem 0.75rem;
+  font-size: $font-size-sm;
+  line-height: 1.25;
+  width: fit-content;
+  max-width: 75%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.fieldset-description {
+  margin-bottom: 1rem;
+}
+
+// Gap between group label and first inline check.
+.form-label + .form-check-inline {
+  margin-left: 1rem;
+}
+
+// Footer region.
+.region-footer {
+  padding: 0.75rem 0 3rem;
+  text-align: center;
+}

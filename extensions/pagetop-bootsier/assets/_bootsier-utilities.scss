@@ -1,80 +1,14 @@
-// Enable CSS Grid
+// Bootstrap utility extensions. Imported just before utilities/api so variable changes take effect.
+
+// CSS Grid (Bootstrap 5): disable legacy grid classes and enable native CSS Grid.
 $enable-grid-classes: false;
 $enable-cssgrid: true;
 
-// Opacity
-.bg-opacity-0 {
-  --bs-bg-opacity: 0;
-}
-
-.border-opacity-0 {
-  --bs-border-opacity: 0;
-}
-
-.text-opacity-0 {
-  --bs-text-opacity: 0;
-}
-.text-opacity-10 {
-  --bs-text-opacity: 0.1;
-}
-
-// FORMS
-
-// Required field indicator
-.form-required {
-  color: var(--bs-danger);
-  margin: 0 0.25rem;
-}
-
-// Form fields
-.form-field {
-  margin-bottom: 1rem;
-
-  &:last-child {
-    margin-bottom: 0;
-  }
-}
-
-// Fieldset
-fieldset {
-  position: relative;
-  background-color: var(--bs-body-bg);
-  border: var(--bs-border-width) solid var(--bs-border-color);
-  border-radius: var(--bs-border-radius);
-  padding: 2rem 1rem 1rem;
-  margin: 2rem 0 1rem;
-}
-fieldset > legend {
-  position: absolute;
-  top: 0;
-  left: 1rem;
-  transform: translateY(-50%);
-  background-color: var(--bs-body-bg);
-  border: var(--bs-border-width) solid var(--bs-border-color);
-  border-radius: var(--bs-border-radius);
-  padding: 0.125rem 0.75rem;
-  font-size: $font-size-sm;
-  line-height: 1.25;
-  width: fit-content;
-  max-width: 75%;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.fieldset-description {
-  margin-bottom: 1rem;
-}
-
-// Check buttons, gap between label and first inline check
-.form-label + .form-check-inline {
-  margin-left: 1rem;
-}
-
-// Extending utilities
+// Extend the $utilities map with additional classes.
 $utilities: map-merge(
   $utilities,
   (
-    // Individual border widths
+    // Individual border widths per side.
     "border-top": (
       property: border-top-width,
       class: border-top,
@@ -95,7 +29,7 @@ $utilities: map-merge(
       class: border-start,
       values: $border-widths
     ),
-    // Individual rounded values
+    // Individual corner radii.
     "rounded-top-start": (
       property: border-top-left-radius,
       class: rounded-top-start,
@@ -156,11 +90,18 @@ $utilities: map-merge(
         pill: var(--#{$prefix}border-radius-pill)
       )
     ),
+    // Opacity: add missing values (0 for bg/border/text; 10 for text) not in Bootstrap defaults.
+    "bg-opacity": map-merge(
+      map-get($utilities, "bg-opacity"),
+      (values: map-merge(map-get(map-get($utilities, "bg-opacity"), "values"), (0: 0)))
+    ),
+    "border-opacity": map-merge(
+      map-get($utilities, "border-opacity"),
+      (values: map-merge(map-get(map-get($utilities, "border-opacity"), "values"), (0: 0)))
+    ),
+    "text-opacity": map-merge(
+      map-get($utilities, "text-opacity"),
+      (values: map-merge(map-get(map-get($utilities, "text-opacity"), "values"), (0: 0, 10: .1)))
+    ),
   )
 );
-
-// Region Footer
-.region-footer {
-	padding: .75rem 0 3rem;
-	text-align: center;
-}
