@@ -90,12 +90,11 @@ pub struct App {
 /// Sección **`[dev]`** de la configuración. Forma parte de [`Settings`].
 #[derive(Debug, Deserialize)]
 pub struct Dev {
-    /// Directorio desde el que servir los archivos estáticos de PageTop.
+    /// Directorio raíz de `static/` para servir los archivos estáticos propios de PageTop.
     ///
-    /// Por defecto, los archivos se integran en el binario de la aplicación. Si aquí se indica una
-    /// ruta válida, ya sea absoluta o relativa al directorio del proyecto o del binario en
-    /// ejecución, se servirán desde el sistema de ficheros en su lugar. Esto es especialmente útil
-    /// en desarrollo, ya que evita recompilar el proyecto por cambios en estos archivos.
+    /// Si se indica una ruta válida, absoluta o relativa al directorio del proyecto o del binario
+    /// en ejecución, los archivos estáticos se servirán desde disco. Útil para poder modificar los
+    /// archivos estáticos mientras la aplicación está en ejecución, sin necesidad de recompilar.
     ///
     /// Si la cadena está vacía, se ignora este ajuste.
     pub pagetop_static_dir: String,

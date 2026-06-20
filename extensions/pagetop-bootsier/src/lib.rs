@@ -134,8 +134,17 @@ impl Extension for Bootsier {
     }
 
     fn configure_router(&self, router: Router) -> Router {
-        serve_static_files!(router, [bootsier_bs] => "/bootsier/bs");
-        serve_static_files!(router, [bootsier_js] => "/bootsier/js");
+        let base = &config::SETTINGS.dev.bootsier_static_dir;
+        let subdir = |s: &str| {
+            if base.is_empty() {
+                String::new()
+            } else {
+                format!("{base}/{s}")
+            }
+        };
+        serve_static_files!(router, [subdir("css"),   bootsier_css]   => "/bootsier/css");
+        serve_static_files!(router, [subdir("js"),    bootsier_js]    => "/bootsier/js");
+        serve_static_files!(router, [subdir("fonts"), bootsier_fonts] => "/bootsier/fonts");
         router
     }
 }
