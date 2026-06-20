@@ -89,7 +89,6 @@ pub struct Page {
     description : Attr<L10n>,
     metadata    : Vec<(&'static str, &'static str)>,
     properties  : Vec<(&'static str, &'static str)>,
-    body_props  : Props,
     context     : Context,
 }
 
@@ -105,7 +104,6 @@ impl Page {
             description : Attr::<L10n>::default(),
             metadata    : Vec::default(),
             properties  : Vec::default(),
-            body_props  : Props::default(),
             context     : Context::new(Some(request)),
         }
     }
@@ -140,13 +138,6 @@ impl Page {
         self
     }
 
-    /// Modifica identificador, clases CSS o atributos HTML del elemento `<body>`.
-    #[builder_fn]
-    pub fn with_body_props(mut self, op: PropsOp) -> Self {
-        self.body_props.alter_prop(op);
-        self
-    }
-
     // **< Page GETTERS >***************************************************************************
 
     /// Devuelve el título traducido para el idioma de la página, si existe.
@@ -167,11 +158,6 @@ impl Page {
     /// Devuelve la lista de propiedades `<meta property=...>`.
     pub fn properties(&self) -> &Vec<(&str, &str)> {
         &self.properties
-    }
-
-    /// Devuelve identificador, clases CSS y atributos HTML del elemento `<body>`.
-    pub fn body_props(&self) -> &Props {
-        &self.body_props
     }
 
     /// Devuelve una referencia mutable al [`Context`] de la página.
@@ -306,6 +292,12 @@ impl Contextual for Page {
     }
 
     #[builder_fn]
+    fn with_body_props(mut self, op: PropsOp) -> Self {
+        self.context.alter_body_props(op);
+        self
+    }
+
+    #[builder_fn]
     fn with_child(mut self, op: impl Into<ChildOp>) -> Self {
         self.context
             .alter_child_in(&DefaultRegion::Content, op.into());
@@ -346,6 +338,10 @@ impl Contextual for Page {
 
     fn javascripts(&self) -> &Assets<JavaScript> {
         self.context.javascripts()
+    }
+
+    fn body_props(&self) -> &Props {
+        self.context.body_props()
     }
 
     // **< Contextual HELPERS >*********************************************************************

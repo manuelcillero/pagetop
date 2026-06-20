@@ -3,7 +3,7 @@ use crate::core::component::{ChildOp, Component, MessageLevel, StatusMessage};
 use crate::core::theme::all::DEFAULT_THEME;
 use crate::core::theme::{ChildrenInRegions, DefaultRegion, RegionRef, TemplateRef, ThemeRef};
 use crate::html::{Assets, Favicon, JavaScript, StyleSheet};
-use crate::html::{Markup, RoutePath, html};
+use crate::html::{Markup, Props, PropsOp, RoutePath, html};
 use crate::locale::L10n;
 use crate::locale::{LangId, LanguageIdentifier, RequestLocale};
 use crate::web::HttpRequest;
@@ -137,6 +137,10 @@ pub trait Contextual: LangId {
     #[builder_fn]
     fn with_assets(self, op: AssetsOp) -> Self;
 
+    /// Modifica identificador, clases CSS o atributos HTML del elemento `<body>`.
+    #[builder_fn]
+    fn with_body_props(self, op: PropsOp) -> Self;
+
     /// Añade un componente o aplica una operación [`ChildOp`] en la región por defecto del
     /// documento.
     #[builder_fn]
@@ -205,6 +209,9 @@ pub trait Contextual: LangId {
 
     /// Devuelve los scripts JavaScript de los recursos del contexto.
     fn javascripts(&self) -> &Assets<JavaScript>;
+
+    /// Devuelve identificador, clases CSS y atributos HTML del elemento `<body>`.
+    fn body_props(&self) -> &Props;
 
     // **< Contextual HELPERS >*********************************************************************
 
@@ -284,6 +291,7 @@ pub struct Context {
     favicon    : Option<Favicon>,          // Favicon, si se ha definido.
     stylesheets: Assets<StyleSheet>,       // Hojas de estilo CSS.
     javascripts: Assets<JavaScript>,       // Scripts JavaScript.
+    body_props : Props,                    // Identificador, clases CSS y atributos del <body>.
     regions    : ChildrenInRegions,        // Regiones de componentes para renderizar.
     params     : HashMap<&'static str, (Box<dyn Any>, &'static str)>, // Parámetros en ejecución.
     id_counters: RefCell<HashMap<TypeId, usize>>,   // RefCell permite mutar desde build_id(&self).
@@ -312,6 +320,7 @@ impl Context {
             favicon    : None,
             stylesheets: Assets::<StyleSheet>::new(),
             javascripts: Assets::<JavaScript>::new(),
+            body_props : Props::default(),
             regions    : ChildrenInRegions::default(),
             params     : HashMap::default(),
             id_counters: RefCell::new(HashMap::new()),
@@ -522,6 +531,12 @@ impl Contextual for Context {
     }
 
     #[builder_fn]
+    fn with_body_props(mut self, op: PropsOp) -> Self {
+        self.body_props.alter_prop(op);
+        self
+    }
+
+    #[builder_fn]
     fn with_child(mut self, op: impl Into<ChildOp>) -> Self {
         self.regions
             .alter_child_in(&DefaultRegion::Content, op.into());
@@ -568,6 +583,10 @@ impl Contextual for Context {
 
     fn javascripts(&self) -> &Assets<JavaScript> {
         &self.javascripts
+    }
+
+    fn body_props(&self) -> &Props {
+        &self.body_props
     }
 
     // **< Contextual HELPERS >*********************************************************************
