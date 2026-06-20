@@ -136,9 +136,7 @@ const TOGGLE_OFFCANVAS: &str = "offcanvas";
 /// ```
 #[derive(AutoDefault, Clone, Debug, Getters)]
 pub struct Navbar {
-    #[getters(skip)]
-    id: AttrId,
-    /// Devuelve los atributos HTML y clases CSS de la barra de navegación.
+    /// Devuelve identificador, clases CSS y atributos HTML del componente.
     props: Props,
     /// Devuelve el punto de ruptura configurado.
     expand: BreakPoint,
@@ -156,10 +154,14 @@ impl Component for Navbar {
     }
 
     fn id(&self) -> Option<String> {
-        self.id.get()
+        self.props.get_id()
     }
 
-    fn setup(&mut self, _cx: &Context) {
+    fn setup(&mut self, cx: &Context) {
+        // Asegura que la barra de navegación tiene un identificador único.
+        self.alter_prop(PropsOp::ensure_id(cx.build_id::<Self>(1)));
+
+        // Clases CSS por defecto para la barra de navegación.
         self.alter_prop(PropsOp::prepend_classes({
             let mut classes = "navbar".to_string();
             self.expand().push_class(&mut classes, "navbar-expand", "");
@@ -198,11 +200,11 @@ impl Component for Navbar {
             return Ok(html! {});
         }
 
-        // Asegura que la barra tiene un `id` para poder asociarlo al colapso/offcanvas.
-        let id = cx.required_id::<Self>(self.id(), 1);
+        // `setup()` garantiza que habrá un `id` antes de renderizar.
+        let id = self.id().unwrap();
 
         Ok(html! {
-            nav id=(&id) (self.props()) {
+            nav (self.props()) {
                 div class="container-fluid" {
                     @match self.layout() {
                         // Barra más sencilla: sólo contenido.
@@ -335,14 +337,14 @@ impl Navbar {
 
     // **< Navbar BUILDER >*************************************************************************
 
-    /// Establece el identificador único (`id`) de la barra de navegación.
+    /// Establece el identificador único del componente; igual a `with_prop(PropsOp::set_id(id))`.
     #[builder_fn]
-    pub fn with_id(mut self, id: impl AsRef<str>) -> Self {
-        self.id.alter_id(id);
+    pub fn with_id(mut self, id: impl Into<CowStr>) -> Self {
+        self.props.alter_id(id);
         self
     }
 
-    /// Modifica los atributos HTML o las clases CSS de la barra de navegación.
+    /// Modifica identificador, clases CSS o atributos HTML del componente.
     ///
     /// También acepta clases predefinidas para:
     ///

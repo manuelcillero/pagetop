@@ -43,9 +43,7 @@ use crate::theme::*;
 /// ```
 #[derive(AutoDefault, Clone, Debug, Getters)]
 pub struct Offcanvas {
-    #[getters(skip)]
-    id: AttrId,
-    /// Devuelve los atributos HTML y clases CSS del panel.
+    /// Devuelve identificador, clases CSS y atributos HTML del componente.
     props: Props,
     /// Devuelve el título del panel.
     title: L10n,
@@ -69,10 +67,14 @@ impl Component for Offcanvas {
     }
 
     fn id(&self) -> Option<String> {
-        self.id.get()
+        self.props.get_id()
     }
 
-    fn setup(&mut self, _cx: &Context) {
+    fn setup(&mut self, cx: &Context) {
+        // Asegura que el panel tiene un identificador único.
+        self.alter_prop(PropsOp::ensure_id(cx.build_id::<Self>(1)));
+
+        // Clases CSS por defecto para el panel.
         self.alter_prop(PropsOp::prepend_classes({
             let mut classes = "offcanvas".to_string();
             self.breakpoint().push_class(&mut classes, "offcanvas", "");
@@ -90,14 +92,14 @@ impl Component for Offcanvas {
 impl Offcanvas {
     // **< Offcanvas BUILDER >**********************************************************************
 
-    /// Establece el identificador único (`id`) del panel.
+    /// Establece el identificador único del componente; igual a `with_prop(PropsOp::set_id(id))`.
     #[builder_fn]
-    pub fn with_id(mut self, id: impl AsRef<str>) -> Self {
-        self.id.alter_id(id);
+    pub fn with_id(mut self, id: impl Into<CowStr>) -> Self {
+        self.props.alter_id(id);
         self
     }
 
-    /// Modifica los atributos HTML o las clases CSS del panel.
+    /// Modifica identificador, clases CSS o atributos HTML del componente.
     #[builder_fn]
     pub fn with_prop(mut self, op: PropsOp) -> Self {
         self.props.alter_prop(op);
@@ -172,7 +174,8 @@ impl Offcanvas {
             return html! {};
         }
 
-        let id = cx.required_id::<Self>(self.id(), 1);
+        // `setup()` garantiza que habrá un `id` antes de renderizar.
+        let id = self.id().unwrap();
         let id_label = util::join!(id, "-label");
         let id_target = util::join!("#", id);
 
@@ -191,7 +194,6 @@ impl Offcanvas {
 
         html! {
             div
-                id=(&id)
                 (self.props())
                 tabindex="-1"
                 data-bs-scroll=[body_scroll]
