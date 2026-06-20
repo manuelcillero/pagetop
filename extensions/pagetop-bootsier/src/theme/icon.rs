@@ -15,7 +15,7 @@ pub enum IconKind {
 
 #[derive(AutoDefault, Clone, Debug, Getters)]
 pub struct Icon {
-    /// Devuelve los atributos HTML y clases CSS del icono.
+    /// Devuelve los atributos HTML y clases CSS del componente.
     props: Props,
     icon_kind: IconKind,
     aria_label: AttrL10n,
@@ -24,6 +24,10 @@ pub struct Icon {
 impl Component for Icon {
     fn new() -> Self {
         Self::default()
+    }
+
+    fn id(&self) -> Option<String> {
+        self.props.get_id()
     }
 
     fn setup(&mut self, _cx: &Context) {
@@ -98,7 +102,14 @@ impl Icon {
 
     // **< Icon BUILDER >***************************************************************************
 
-    /// Modifica los atributos HTML o las clases CSS del icono.
+    /// Establece el identificador único del componente; igual a `with_prop(PropsOp::set_id(id))`.
+    #[builder_fn]
+    pub fn with_id(mut self, id: impl Into<CowStr>) -> Self {
+        self.props.alter_id(id);
+        self
+    }
+
+    /// Modifica identificador, clases CSS o atributos HTML del componente.
     #[builder_fn]
     pub fn with_prop(mut self, op: PropsOp) -> Self {
         self.props.alter_prop(op);

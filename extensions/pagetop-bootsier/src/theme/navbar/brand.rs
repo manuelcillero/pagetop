@@ -13,8 +13,6 @@ use crate::theme::*;
 /// - El eslogan ([`with_slogan()`](Self::with_slogan)) es opcional; por defecto no tiene contenido.
 #[derive(AutoDefault, Clone, Debug, Getters)]
 pub struct Brand {
-    #[getters(skip)]
-    id: AttrId,
     /// Devuelve la imagen de marca (si la hay).
     image: Embed<Image>,
     /// Devuelve el título de la identidad de marca.
@@ -30,10 +28,6 @@ pub struct Brand {
 impl Component for Brand {
     fn new() -> Self {
         Self::default()
-    }
-
-    fn id(&self) -> Option<String> {
-        self.id.get()
     }
 
     fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
@@ -55,13 +49,6 @@ impl Component for Brand {
 
 impl Brand {
     // **< Brand BUILDER >**************************************************************************
-
-    /// Establece el identificador único (`id`) de la marca.
-    #[builder_fn]
-    pub fn with_id(mut self, id: impl AsRef<str>) -> Self {
-        self.id.alter_id(id);
-        self
-    }
 
     /// Asigna o quita la imagen de marca. Si se pasa `None`, no se mostrará.
     #[builder_fn]

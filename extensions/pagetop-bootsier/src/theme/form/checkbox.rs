@@ -43,9 +43,7 @@ use crate::theme::form;
 /// ```
 #[derive(AutoDefault, Clone, Debug, Getters)]
 pub struct Checkbox {
-    #[getters(skip)]
-    id: AttrId,
-    /// Devuelve los atributos HTML y clases CSS del contenedor del control.
+    /// Devuelve identificador, clases CSS y atributos HTML del componente.
     props: Props,
     /// Devuelve la variante visual del control.
     checkbox_kind: form::CheckboxKind,
@@ -73,10 +71,21 @@ impl Component for Checkbox {
     }
 
     fn id(&self) -> Option<String> {
-        self.id.get()
+        self.props.get_id()
     }
 
-    fn setup(&mut self, _cx: &Context) {
+    fn setup(&mut self, cx: &Context) {
+        // Asegura `name` e `id`.
+        // Si falta uno se deriva del otro; si faltan ambos se genera un valor único.
+        let name = self
+            .name()
+            .get()
+            .unwrap_or_else(|| cx.required_id::<Self>(self.id(), 1));
+        self.alter_name(&name);
+        let container_id = self.id().unwrap_or_else(|| util::join!("edit-", &name));
+        self.alter_prop(PropsOp::ensure_id(container_id));
+
+        // Clases CSS del contenedor de la casilla de verificación.
         let mut classes = "form-field form-check".to_string();
         if *self.checkbox_kind() == form::CheckboxKind::Switch {
             classes.push_str(" form-switch");
@@ -91,15 +100,15 @@ impl Component for Checkbox {
     }
 
     fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
-        let name = self
-            .name()
-            .get()
-            .unwrap_or_else(|| cx.required_id::<Self>(self.id(), 1));
-        let container_id = self.id().unwrap_or_else(|| util::join!("edit-", &name));
+        // En `setup()` se garantiza que `name` e `id` están definidos antes del renderizado.
+        let name = self.name().get().unwrap();
+        let container_id = self.id().unwrap();
+
         let checkbox_id = util::join!(&container_id, "-checkbox");
         let is_switch = *self.checkbox_kind() == form::CheckboxKind::Switch;
+
         Ok(html! {
-            div id=(&container_id) (self.props()) {
+            div (self.props()) {
                 input
                     type="checkbox"
                     role=[is_switch.then_some("switch")]
@@ -145,14 +154,14 @@ impl Checkbox {
 
     // **< Checkbox BUILDER >***********************************************************************
 
-    /// Establece el identificador único (`id`) del control.
+    /// Establece el identificador único del componente; igual a `with_prop(PropsOp::set_id(id))`.
     #[builder_fn]
-    pub fn with_id(mut self, id: impl AsRef<str>) -> Self {
-        self.id.alter_id(id);
+    pub fn with_id(mut self, id: impl Into<CowStr>) -> Self {
+        self.props.alter_id(id);
         self
     }
 
-    /// Modifica los atributos HTML o las clases CSS del contenedor del control.
+    /// Modifica identificador, clases CSS o atributos HTML del componente.
     #[builder_fn]
     pub fn with_prop(mut self, op: PropsOp) -> Self {
         self.props.alter_prop(op);

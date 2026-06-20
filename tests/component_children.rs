@@ -7,7 +7,7 @@ use pagetop::prelude::*;
 
 #[derive(AutoDefault, Clone)]
 struct TestComp {
-    id: AttrId,
+    props: Props,
     text: String,
 }
 
@@ -17,7 +17,7 @@ impl Component for TestComp {
     }
 
     fn id(&self) -> Option<String> {
-        self.id.get()
+        self.props.get_id()
     }
 
     fn prepare(&self, _cx: &mut Context) -> Result<Markup, ComponentError> {
@@ -29,7 +29,7 @@ impl TestComp {
     /// Crea un componente con id y texto de salida fijos.
     fn tagged(id: &str, text: &str) -> Self {
         let mut c = Self::default();
-        c.id.alter_id(id);
+        c.props.alter_prop(PropsOp::set_id(id.to_string()));
         c.text = text.to_string();
         c
     }
@@ -303,7 +303,8 @@ async fn embed_get_allows_mutating_component() {
     let embed = Embed::with(TestComp::tagged("orig", "texto"));
     // El `;` final convierte el `if let` en sentencia y libera el guard antes que `embed`.
     if let Some(mut comp) = embed.get() {
-        comp.id.alter_id("modificado");
+        comp.props
+            .alter_prop(PropsOp::set_id("modificado".to_string()));
     };
     assert_eq!(embed.id(), Some("modificado".to_string()));
 }
@@ -331,7 +332,8 @@ async fn embed_clone_is_deep() {
     let clone = original.clone();
     // Mutar el clon no debe afectar al original.
     if let Some(mut comp) = clone.get() {
-        comp.id.alter_id("clone-id");
+        comp.props
+            .alter_prop(PropsOp::set_id("clone-id".to_string()));
     }
     assert_eq!(original.id(), Some("orig".to_string()));
     assert_eq!(clone.id(), Some("clone-id".to_string()));

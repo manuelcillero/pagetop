@@ -18,6 +18,11 @@
   font-display: swap;
 }
 
+// Font-relative top offset to keep the skip-link hidden at any font size.
+.skip-link {
+  top: -3em;
+}
+
 // Required field indicator in forms.
 .form-required {
   color: var(--bs-danger);

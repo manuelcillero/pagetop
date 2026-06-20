@@ -8,7 +8,7 @@ use crate::{AutoDefault, builder_fn};
 ///
 /// Este tipo **no impone ninguna normalización ni semántica concreta**; dichas reglas se definen en
 /// implementaciones concretas como `Attr<L10n>` y `Attr<String>`, o en tipos específicos como
-/// [`AttrId`] y [`AttrName`].
+/// [`AttrName`].
 #[derive(AutoDefault, Clone, Debug)]
 pub struct Attr<T>(Option<T>);
 
@@ -125,73 +125,6 @@ impl Attr<String> {
     /// Devuelve el texto como `&str` si existe.
     pub fn as_str(&self) -> Option<&str> {
         self.0.as_deref()
-    }
-}
-
-// **< AttrId >*************************************************************************************
-
-/// Identificador normalizado para el atributo `id` o similar de HTML.
-///
-/// Este tipo encapsula `Option<String>` garantizando un valor normalizado para su uso:
-///
-/// - Se eliminan los espacios al principio y al final.
-/// - Se convierte a minúsculas.
-/// - Se sustituyen los espacios (`' '`) intermedios por guiones bajos (`_`).
-/// - Si el resultado es una cadena vacía, se guarda `None`.
-///
-/// # Ejemplo
-///
-/// ```rust
-/// # use pagetop::prelude::*;
-/// let id = AttrId::new("  main Section ");
-/// assert_eq!(id.as_str(), Some("main_section"));
-///
-/// let empty = AttrId::default();
-/// assert_eq!(empty.get(), None);
-/// ```
-#[derive(AutoDefault, Clone, Debug)]
-pub struct AttrId(Attr<String>);
-
-impl AttrId {
-    /// Crea un nuevo `AttrId` normalizando el valor.
-    pub fn new(id: impl AsRef<str>) -> Self {
-        Self::default().with_id(id)
-    }
-
-    // **< AttrId BUILDER >*************************************************************************
-
-    /// Establece un identificador nuevo normalizando el valor.
-    #[builder_fn]
-    pub fn with_id(mut self, id: impl AsRef<str>) -> Self {
-        let id = id.as_ref().trim();
-        if id.is_empty() {
-            self.0 = Attr::default();
-        } else {
-            self.0 = Attr::some(id.to_ascii_lowercase().replace(' ', "_"));
-        }
-        self
-    }
-
-    // **< AttrId GETTERS >*************************************************************************
-
-    /// Devuelve el identificador normalizado, si existe.
-    pub fn get(&self) -> Option<String> {
-        self.0.get()
-    }
-
-    /// Devuelve el identificador normalizado (sin clonar), si existe.
-    pub fn as_str(&self) -> Option<&str> {
-        self.0.as_str()
-    }
-
-    /// Devuelve el identificador normalizado (propiedad), si existe.
-    pub fn into_inner(self) -> Option<String> {
-        self.0.into_inner()
-    }
-
-    /// `true` si no hay valor.
-    pub fn is_empty(&self) -> bool {
-        self.0.is_empty()
     }
 }
 

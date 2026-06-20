@@ -108,9 +108,7 @@ impl Item {
 /// ```
 #[derive(AutoDefault, Clone, Debug, Getters)]
 pub struct Field {
-    #[getters(skip)]
-    id: AttrId,
-    /// Devuelve los atributos HTML y clases CSS del contenedor del grupo.
+    /// Devuelve identificador, clases CSS y atributos HTML del componente.
     props: Props,
     /// Devuelve el nombre base compartido por todas las casillas del grupo.
     name: AttrName,
@@ -132,21 +130,31 @@ impl Component for Field {
     }
 
     fn id(&self) -> Option<String> {
-        self.id.get()
+        self.props.get_id()
     }
 
-    fn setup(&mut self, _cx: &Context) {
-        self.alter_prop(PropsOp::prepend_classes("form-field form-field-checkboxes"));
-    }
-
-    fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
+    fn setup(&mut self, cx: &Context) {
+        // Asegura `name` e `id`.
+        // Si falta uno se deriva del otro; si faltan ambos se genera un valor único.
         let name = self
             .name()
             .get()
             .unwrap_or_else(|| cx.required_id::<Self>(self.id(), 3));
+        self.alter_name(&name);
         let container_id = self.id().unwrap_or_else(|| util::join!("edit-", &name));
+        self.alter_prop(PropsOp::ensure_id(container_id));
+
+        // Clases CSS del contenedor del grupo de casillas.
+        self.alter_prop(PropsOp::prepend_classes("form-field form-field-checkboxes"));
+    }
+
+    fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
+        // En `setup()` se garantiza que `name` e `id` están definidos antes del renderizado.
+        let name = self.name().get().unwrap();
+        let container_id = self.id().unwrap();
+
         Ok(html! {
-            div id=(&container_id) (self.props()) {
+            div (self.props()) {
                 @if let Some(label) = self.label().lookup(cx) {
                     label class="form-label" { (label) }
                 }
@@ -188,14 +196,14 @@ impl Component for Field {
 impl Field {
     // **< Field BUILDER >**************************************************************************
 
-    /// Establece el identificador único (`id`) del grupo de casillas.
+    /// Establece el identificador único del componente; igual a `with_prop(PropsOp::set_id(id))`.
     #[builder_fn]
-    pub fn with_id(mut self, id: impl AsRef<str>) -> Self {
-        self.id.alter_id(id);
+    pub fn with_id(mut self, id: impl Into<CowStr>) -> Self {
+        self.props.alter_id(id);
         self
     }
 
-    /// Modifica los atributos HTML o las clases CSS del contenedor del grupo de casillas.
+    /// Modifica identificador, clases CSS o atributos HTML del componente.
     #[builder_fn]
     pub fn with_prop(mut self, op: PropsOp) -> Self {
         self.props.alter_prop(op);

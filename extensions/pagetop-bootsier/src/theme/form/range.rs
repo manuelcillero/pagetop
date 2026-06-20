@@ -31,9 +31,7 @@ use pagetop::prelude::*;
 /// ```
 #[derive(AutoDefault, Clone, Debug, Getters)]
 pub struct Range {
-    #[getters(skip)]
-    id: AttrId,
-    /// Devuelve los atributos HTML y clases CSS del contenedor del control deslizante.
+    /// Devuelve identificador, clases CSS y atributos HTML del componente.
     props: Props,
     /// Devuelve el nombre del campo.
     name: AttrName,
@@ -61,20 +59,26 @@ impl Component for Range {
     }
 
     fn id(&self) -> Option<String> {
-        self.id.get()
+        self.props.get_id()
     }
 
     fn setup(&mut self, _cx: &Context) {
+        if let Some(container_id) = self
+            .id()
+            .or_else(|| self.name().get().map(|n| util::join!("edit-", n)))
+        {
+            self.alter_prop(PropsOp::ensure_id(container_id));
+        };
+
+        // Clases CSS del contenedor del control deslizante.
         self.alter_prop(PropsOp::prepend_classes("form-field form-field-range"));
     }
 
     fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
-        let container_id = self
-            .id()
-            .or_else(|| self.name().get().map(|n| util::join!("edit-", n)));
+        let container_id = self.id();
         let range_id = container_id.as_deref().map(|id| util::join!(id, "-range"));
         Ok(html! {
-            div id=[container_id.as_deref()] (self.props()) {
+            div (self.props()) {
                 @if let Some(label) = self.label().lookup(cx) {
                     label for=[range_id.as_deref()] class="form-label" { (label) }
                 }
@@ -100,14 +104,14 @@ impl Component for Range {
 impl Range {
     // **< Range BUILDER >**************************************************************************
 
-    /// Establece el identificador único (`id`) del contenedor del control deslizante.
+    /// Establece el identificador único del componente; igual a `with_prop(PropsOp::set_id(id))`.
     #[builder_fn]
-    pub fn with_id(mut self, id: impl AsRef<str>) -> Self {
-        self.id.alter_id(id);
+    pub fn with_id(mut self, id: impl Into<CowStr>) -> Self {
+        self.props.alter_id(id);
         self
     }
 
-    /// Modifica los atributos HTML o las clases CSS del contenedor del control deslizante.
+    /// Modifica identificador, clases CSS o atributos HTML del componente.
     #[builder_fn]
     pub fn with_prop(mut self, op: PropsOp) -> Self {
         self.props.alter_prop(op);

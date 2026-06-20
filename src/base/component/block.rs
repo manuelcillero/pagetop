@@ -6,9 +6,7 @@ use crate::prelude::*;
 /// opcional y un cuerpo que sólo se renderiza si existen componentes hijos (*children*).
 #[derive(AutoDefault, Clone, Debug, Getters)]
 pub struct Block {
-    #[getters(skip)]
-    id: AttrId,
-    /// Devuelve los atributos HTML y clases CSS del bloque.
+    /// Devuelve identificador, clases CSS y atributos HTML del componente.
     props: Props,
     /// Devuelve el título del bloque.
     title: L10n,
@@ -22,11 +20,15 @@ impl Component for Block {
     }
 
     fn id(&self) -> Option<String> {
-        self.id.get()
+        self.props.get_id()
     }
 
-    fn setup(&mut self, _cx: &Context) {
-        self.props.alter_prop(PropsOp::prepend_classes("block"));
+    fn setup(&mut self, cx: &Context) {
+        // Asegura que el bloque tiene un identificador único.
+        self.alter_prop(PropsOp::ensure_id(cx.build_id::<Self>(1)));
+
+        // Todos los bloques tienen la clase CSS `block` por defecto.
+        self.alter_prop(PropsOp::prepend_classes("block"));
     }
 
     fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
@@ -36,14 +38,12 @@ impl Component for Block {
             return Ok(html! {});
         }
 
-        let id = cx.required_id::<Self>(self.id(), 1);
-
         Ok(html! {
-            div id=(&id) (self.props()) {
+            div (self.props()) {
                 @if let Some(title) = self.title().lookup(cx) {
-                    h2 class="block__title" { span { (title) } }
+                    h2 class="block-title" { span { (title) } }
                 }
-                div class="block__body" { (block_body) }
+                div class="block-body" { (block_body) }
             }
         })
     }
@@ -52,14 +52,14 @@ impl Component for Block {
 impl Block {
     // **< Block BUILDER >**************************************************************************
 
-    /// Establece el identificador único (`id`) del bloque.
+    /// Establece el identificador único del componente; igual a `with_prop(PropsOp::set_id(id))`.
     #[builder_fn]
-    pub fn with_id(mut self, id: impl AsRef<str>) -> Self {
-        self.id.alter_id(id);
+    pub fn with_id(mut self, id: impl Into<CowStr>) -> Self {
+        self.props.alter_id(id);
         self
     }
 
-    /// Modifica los atributos HTML o las clases CSS del bloque.
+    /// Modifica identificador, clases CSS o atributos HTML del componente.
     #[builder_fn]
     pub fn with_prop(mut self, op: PropsOp) -> Self {
         self.props.alter_prop(op);

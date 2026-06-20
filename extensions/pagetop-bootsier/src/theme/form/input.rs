@@ -126,9 +126,7 @@ impl fmt::Display for Mode {
 /// ```
 #[derive(AutoDefault, Clone, Debug, Getters)]
 pub struct Field {
-    #[getters(skip)]
-    id: AttrId,
-    /// Devuelve los atributos HTML y clases CSS del contenedor del campo.
+    /// Devuelve identificador, clases CSS y atributos HTML del componente.
     props: Props,
     /// Devuelve el tipo de campo.
     kind: Kind,
@@ -170,10 +168,18 @@ impl Component for Field {
     }
 
     fn id(&self) -> Option<String> {
-        self.id.get()
+        self.props.get_id()
     }
 
     fn setup(&mut self, _cx: &Context) {
+        if let Some(container_id) = self
+            .id()
+            .or_else(|| self.name().get().map(|n| util::join!("edit-", n)))
+        {
+            self.alter_prop(PropsOp::ensure_id(container_id));
+        }
+
+        // Clases CSS del contenedor del campo de texto.
         if *self.floating_label() {
             self.alter_prop(PropsOp::prepend_classes("form-floating"));
         }
@@ -184,9 +190,7 @@ impl Component for Field {
     }
 
     fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
-        let container_id = self
-            .id()
-            .or_else(|| self.name().get().map(|n| util::join!("edit-", n)));
+        let container_id = self.id();
         let input_id = container_id.as_deref().map(|id| util::join!(id, "-input"));
         let input_class = if *self.plaintext() {
             "form-control-plaintext"
@@ -217,7 +221,7 @@ impl Component for Field {
             None => html! {},
         };
         Ok(html! {
-            div id=[container_id.as_deref()] (self.props()) {
+            div (self.props()) {
                 @if !*self.floating_label() {
                     (label)
                 }
@@ -313,14 +317,14 @@ impl Field {
 
     // **< Field BUILDER >**************************************************************************
 
-    /// Establece el identificador único (`id`) del contenedor del campo.
+    /// Establece el identificador único del componente; igual a `with_prop(PropsOp::set_id(id))`.
     #[builder_fn]
-    pub fn with_id(mut self, id: impl AsRef<str>) -> Self {
-        self.id.alter_id(id);
+    pub fn with_id(mut self, id: impl Into<CowStr>) -> Self {
+        self.props.alter_id(id);
         self
     }
 
-    /// Modifica los atributos HTML o las clases CSS del contenedor del campo.
+    /// Modifica identificador, clases CSS o atributos HTML del componente.
     #[builder_fn]
     pub fn with_prop(mut self, op: PropsOp) -> Self {
         self.props.alter_prop(op);

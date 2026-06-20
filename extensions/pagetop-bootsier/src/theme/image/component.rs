@@ -13,9 +13,7 @@ use crate::theme::*;
 /// - Aplicar el texto alternativo `alt` con **localización** mediante [`L10n`].
 #[derive(AutoDefault, Clone, Debug, Getters)]
 pub struct Image {
-    #[getters(skip)]
-    id: AttrId,
-    /// Devuelve los atributos HTML y clases CSS de la imagen.
+    /// Devuelve identificador, clases CSS y atributos HTML del componente.
     props: Props,
     /// Devuelve las dimensiones de la imagen.
     size: image::Size,
@@ -31,10 +29,11 @@ impl Component for Image {
     }
 
     fn id(&self) -> Option<String> {
-        self.id.get()
+        self.props.get_id()
     }
 
     fn setup(&mut self, _cx: &Context) {
+        // Clases CSS por defecto para la imagen, según el origen seleccionado.
         self.alter_prop(PropsOp::prepend_classes(self.source().to_class()));
     }
 
@@ -46,7 +45,6 @@ impl Component for Image {
             image::Source::Logo(logo) => {
                 return Ok(html! {
                     span
-                        id=[self.id()]
                         (self.props())
                         style=[dimensions]
                         role=[(!is_decorative).then_some("img")]
@@ -65,7 +63,6 @@ impl Component for Image {
             img
                 src=[source]
                 alt=(alt_text)
-                id=[self.id()]
                 (self.props())
                 style=[dimensions] {}
         })
@@ -80,14 +77,14 @@ impl Image {
 
     // **< Image BUILDER >**************************************************************************
 
-    /// Establece el identificador único (`id`) de la imagen.
+    /// Establece el identificador único del componente; igual a `with_prop(PropsOp::set_id(id))`.
     #[builder_fn]
-    pub fn with_id(mut self, id: impl AsRef<str>) -> Self {
-        self.id.alter_id(id);
+    pub fn with_id(mut self, id: impl Into<CowStr>) -> Self {
+        self.props.alter_id(id);
         self
     }
 
-    /// Modifica los atributos HTML o las clases CSS de la imagen.
+    /// Modifica identificador, clases CSS o atributos HTML del componente.
     ///
     /// También acepta clases predefinidas para:
     ///

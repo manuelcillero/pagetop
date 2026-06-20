@@ -6,7 +6,7 @@ use super::FnActionTransformMarkup;
 pub struct TransformMarkup<C: Component> {
     f: FnActionTransformMarkup<C>,
     referer_type_id: Option<UniqueId>,
-    referer_id: AttrId,
+    referer_id: Option<String>,
     weight: Weight,
 }
 
@@ -19,7 +19,7 @@ impl<C: Component> ActionDispatcher for TransformMarkup<C> {
 
     /// Devuelve el identificador del componente.
     fn referer_id(&self) -> Option<String> {
-        self.referer_id.get()
+        self.referer_id.clone()
     }
 
     /// Devuelve el peso para definir el orden de ejecución.
@@ -34,7 +34,7 @@ impl<C: Component> TransformMarkup<C> {
         TransformMarkup {
             f,
             referer_type_id: Some(UniqueId::of::<C>()),
-            referer_id: AttrId::default(),
+            referer_id: None,
             weight: 0,
         }
     }
@@ -42,7 +42,8 @@ impl<C: Component> TransformMarkup<C> {
     /// Afina el registro para ejecutar la acción [`FnActionTransformMarkup`] sólo para el
     /// componente `C` con identificador `id`.
     pub fn filter_by_referer_id(mut self, id: impl AsRef<str>) -> Self {
-        self.referer_id.alter_id(id);
+        let id = id.as_ref().trim().to_ascii_lowercase().replace(' ', "_");
+        self.referer_id = if id.is_empty() { None } else { Some(id) };
         self
     }
 

@@ -32,9 +32,7 @@ use crate::theme::*;
 /// ```
 #[derive(AutoDefault, Clone, Debug, Getters)]
 pub struct Nav {
-    #[getters(skip)]
-    id: AttrId,
-    /// Devuelve los atributos HTML y clases CSS del menú.
+    /// Devuelve identificador, clases CSS y atributos HTML del componente.
     props: Props,
     /// Devuelve el estilo visual seleccionado.
     nav_kind: nav::Kind,
@@ -50,10 +48,11 @@ impl Component for Nav {
     }
 
     fn id(&self) -> Option<String> {
-        self.id.get()
+        self.props.get_id()
     }
 
     fn setup(&mut self, _cx: &Context) {
+        // Clases CSS por defecto para el menú, según el estilo y la distribución seleccionados.
         self.alter_prop(PropsOp::prepend_classes({
             let mut classes = "nav".to_string();
             self.nav_kind().push_class(&mut classes);
@@ -69,7 +68,7 @@ impl Component for Nav {
         }
 
         Ok(html! {
-            ul id=[self.id()] (self.props()) {
+            ul (self.props()) {
                 (items)
             }
         })
@@ -94,14 +93,14 @@ impl Nav {
 
     // **< Nav BUILDER >****************************************************************************
 
-    /// Establece el identificador único (`id`) del menú.
+    /// Establece el identificador único del componente; igual a `with_prop(PropsOp::set_id(id))`.
     #[builder_fn]
-    pub fn with_id(mut self, id: impl AsRef<str>) -> Self {
-        self.id.alter_id(id);
+    pub fn with_id(mut self, id: impl Into<CowStr>) -> Self {
+        self.props.alter_id(id);
         self
     }
 
-    /// Modifica los atributos HTML o las clases CSS del menú.
+    /// Modifica identificador, clases CSS o atributos HTML del componente.
     #[builder_fn]
     pub fn with_prop(mut self, op: PropsOp) -> Self {
         self.props.alter_prop(op);

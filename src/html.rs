@@ -20,7 +20,7 @@ pub use logo::PageTopSvg;
 // **< HTML ATTRIBUTES >****************************************************************************
 
 mod attr;
-pub use attr::{Attr, AttrId, AttrName, AttrValue};
+pub use attr::{Attr, AttrName, AttrValue};
 
 mod props;
 pub use props::{Props, PropsOp};

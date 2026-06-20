@@ -47,9 +47,7 @@ use crate::theme::form;
 /// ```
 #[derive(AutoDefault, Clone, Debug, Getters)]
 pub struct Form {
-    #[getters(skip)]
-    id: AttrId,
-    /// Devuelve los atributos HTML y clases CSS del formulario.
+    /// Devuelve identificador, clases CSS y atributos HTML del componente.
     props: Props,
     /// Devuelve la URL/ruta de destino del formulario.
     action: AttrValue,
@@ -68,7 +66,7 @@ impl Component for Form {
     }
 
     fn id(&self) -> Option<String> {
-        self.id.get()
+        self.props.get_id()
     }
 
     fn setup(&mut self, _cx: &Context) {
@@ -82,7 +80,6 @@ impl Component for Form {
         };
         Ok(html! {
             form
-                id=[self.id()]
                 (self.props())
                 action=[self.action().get()]
                 method=[method]
@@ -97,14 +94,14 @@ impl Component for Form {
 impl Form {
     // **< Form BUILDER >***************************************************************************
 
-    /// Establece el identificador único (`id`) del formulario.
+    /// Establece el identificador único del componente; igual a `with_prop(PropsOp::set_id(id))`.
     #[builder_fn]
-    pub fn with_id(mut self, id: impl AsRef<str>) -> Self {
-        self.id.alter_id(id);
+    pub fn with_id(mut self, id: impl Into<CowStr>) -> Self {
+        self.props.alter_id(id);
         self
     }
 
-    /// Modifica los atributos HTML o las clases CSS del formulario.
+    /// Modifica identificador, clases CSS o atributos HTML del componente.
     #[builder_fn]
     pub fn with_prop(mut self, op: PropsOp) -> Self {
         self.props.alter_prop(op);

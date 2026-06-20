@@ -20,9 +20,7 @@ use crate::theme::*;
 /// ```
 #[derive(AutoDefault, Clone, Debug, Getters)]
 pub struct Container {
-    #[getters(skip)]
-    id: AttrId,
-    /// Devuelve los atributos HTML y clases CSS del contenedor.
+    /// Devuelve identificador, clases CSS y atributos HTML del componente.
     props: Props,
     /// Devuelve el tipo semántico del contenedor.
     container_kind: container::Kind,
@@ -38,7 +36,7 @@ impl Component for Container {
     }
 
     fn id(&self) -> Option<String> {
-        self.id.get()
+        self.props.get_id()
     }
 
     fn setup(&mut self, _cx: &Context) {
@@ -58,32 +56,32 @@ impl Component for Container {
         };
         Ok(match self.container_kind() {
             container::Kind::Default => html! {
-                div id=[self.id()] (self.props()) style=[style] {
+                div (self.props()) style=[style] {
                     (output)
                 }
             },
             container::Kind::Main => html! {
-                main id=[self.id()] (self.props()) style=[style] {
+                main (self.props()) style=[style] {
                     (output)
                 }
             },
             container::Kind::Header => html! {
-                header id=[self.id()] (self.props()) style=[style] {
+                header (self.props()) style=[style] {
                     (output)
                 }
             },
             container::Kind::Footer => html! {
-                footer id=[self.id()] (self.props()) style=[style] {
+                footer (self.props()) style=[style] {
                     (output)
                 }
             },
             container::Kind::Section => html! {
-                section id=[self.id()] (self.props()) style=[style] {
+                section (self.props()) style=[style] {
                     (output)
                 }
             },
             container::Kind::Article => html! {
-                article id=[self.id()] (self.props()) style=[style] {
+                article (self.props()) style=[style] {
                     (output)
                 }
             },
@@ -134,14 +132,14 @@ impl Container {
 
     // **< Container BUILDER >**********************************************************************
 
-    /// Establece el identificador único (`id`) del contenedor.
+    /// Establece el identificador único del componente; igual a `with_prop(PropsOp::set_id(id))`.
     #[builder_fn]
-    pub fn with_id(mut self, id: impl AsRef<str>) -> Self {
-        self.id.alter_id(id);
+    pub fn with_id(mut self, id: impl Into<CowStr>) -> Self {
+        self.props.alter_id(id);
         self
     }
 
-    /// Modifica los atributos HTML o las clases CSS del contenedor.
+    /// Modifica identificador, clases CSS o atributos HTML del componente.
     ///
     /// También acepta clases predefinidas para:
     ///

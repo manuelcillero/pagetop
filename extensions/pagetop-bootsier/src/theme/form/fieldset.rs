@@ -24,9 +24,7 @@ use pagetop::prelude::*;
 /// ```
 #[derive(AutoDefault, Clone, Debug, Getters)]
 pub struct Fieldset {
-    #[getters(skip)]
-    id: AttrId,
-    /// Devuelve los atributos HTML y clases CSS del `fieldset`.
+    /// Devuelve identificador, clases CSS y atributos HTML del componente.
     props: Props,
     /// Devuelve la leyenda del `fieldset`.
     legend: Attr<L10n>,
@@ -44,7 +42,7 @@ impl Component for Fieldset {
     }
 
     fn id(&self) -> Option<String> {
-        self.id.get()
+        self.props.get_id()
     }
 
     fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
@@ -55,7 +53,7 @@ impl Component for Fieldset {
         }
 
         Ok(html! {
-            fieldset id=[self.id()] (self.props()) disabled[*self.disabled()] {
+            fieldset (self.props()) disabled[*self.disabled()] {
                 @if let Some(legend) = self.legend().lookup(cx) {
                     legend { (legend) }
                 }
@@ -71,14 +69,14 @@ impl Component for Fieldset {
 impl Fieldset {
     // **< Fieldset BUILDER >***********************************************************************
 
-    /// Establece el identificador único (`id`) del `fieldset` (grupo de controles).
+    /// Establece el identificador único del componente; igual a `with_prop(PropsOp::set_id(id))`.
     #[builder_fn]
-    pub fn with_id(mut self, id: impl AsRef<str>) -> Self {
-        self.id.alter_id(id);
+    pub fn with_id(mut self, id: impl Into<CowStr>) -> Self {
+        self.props.alter_id(id);
         self
     }
 
-    /// Modifica los atributos HTML o las clases CSS del `fieldset`.
+    /// Modifica identificador, clases CSS o atributos HTML del componente.
     #[builder_fn]
     pub fn with_prop(mut self, op: PropsOp) -> Self {
         self.props.alter_prop(op);

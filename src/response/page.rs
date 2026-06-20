@@ -20,7 +20,7 @@ use crate::base::action;
 use crate::core::component::{AssetsOp, ChildOp, Context, ContextError, Contextual};
 use crate::core::theme::{DefaultRegion, Region, RegionRef, TemplateRef, ThemeRef};
 use crate::html::{Assets, Favicon, JavaScript, StyleSheet};
-use crate::html::{Attr, AttrId, Props, PropsOp};
+use crate::html::{Attr, Props, PropsOp};
 use crate::html::{DOCTYPE, Markup, html};
 use crate::locale::{CharacterDirection, L10n, LangId, LanguageIdentifier};
 use crate::web::HttpRequest;
@@ -89,7 +89,6 @@ pub struct Page {
     description : Attr<L10n>,
     metadata    : Vec<(&'static str, &'static str)>,
     properties  : Vec<(&'static str, &'static str)>,
-    body_id     : AttrId,
     body_props  : Props,
     context     : Context,
 }
@@ -106,7 +105,6 @@ impl Page {
             description : Attr::<L10n>::default(),
             metadata    : Vec::default(),
             properties  : Vec::default(),
-            body_id     : AttrId::default(),
             body_props  : Props::default(),
             context     : Context::new(Some(request)),
         }
@@ -142,14 +140,7 @@ impl Page {
         self
     }
 
-    /// Establece el atributo `id` del elemento `<body>`.
-    #[builder_fn]
-    pub fn with_body_id(mut self, id: impl AsRef<str>) -> Self {
-        self.body_id.alter_id(id);
-        self
-    }
-
-    /// Modifica los atributos HTML o las clases CSS del elemento `<body>`.
+    /// Modifica identificador, clases CSS o atributos HTML del elemento `<body>`.
     #[builder_fn]
     pub fn with_body_props(mut self, op: PropsOp) -> Self {
         self.body_props.alter_prop(op);
@@ -178,12 +169,7 @@ impl Page {
         &self.properties
     }
 
-    /// Devuelve el identificador del elemento `<body>`.
-    pub fn body_id(&self) -> &AttrId {
-        &self.body_id
-    }
-
-    /// Devuelve los atributos HTML y clases CSS del elemento `<body>`.
+    /// Devuelve identificador, clases CSS y atributos HTML del elemento `<body>`.
     pub fn body_props(&self) -> &Props {
         &self.body_props
     }
@@ -261,7 +247,7 @@ impl Page {
                 head {
                     (head)
                 }
-                body id=[self.body_id().get()] (self.body_props()) {
+                body (self.body_props()) {
                     (body)
                 }
             }

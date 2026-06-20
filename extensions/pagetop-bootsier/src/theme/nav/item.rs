@@ -78,9 +78,7 @@ impl ItemKind {
 /// asociada, manteniendo una interfaz común para renderizar todos los elementos del menú.
 #[derive(AutoDefault, Clone, Debug, Getters)]
 pub struct Item {
-    #[getters(skip)]
-    id: AttrId,
-    /// Devuelve los atributos HTML y clases CSS del elemento.
+    /// Devuelve identificador, clases CSS y atributos HTML del componente.
     props: Props,
     /// Devuelve el tipo de elemento representado.
     item_kind: ItemKind,
@@ -92,7 +90,7 @@ impl Component for Item {
     }
 
     fn id(&self) -> Option<String> {
-        self.id.get()
+        self.props.get_id()
     }
 
     fn setup(&mut self, _cx: &Context) {
@@ -104,7 +102,7 @@ impl Component for Item {
             ItemKind::Void => html! {},
 
             ItemKind::Label(label) => html! {
-                li id=[self.id()] (self.props()) {
+                li (self.props()) {
                     span class="nav-link disabled" aria-disabled="true" {
                         (label.using(cx))
                     }
@@ -137,7 +135,7 @@ impl Component for Item {
                 let aria_disabled = (*disabled).then_some("true");
 
                 html! {
-                    li id=[self.id()] (self.props()) {
+                    li (self.props()) {
                         a
                             class=(classes)
                             href=[href]
@@ -153,7 +151,7 @@ impl Component for Item {
             }
 
             ItemKind::Html(html) => html! {
-                li id=[self.id()] (self.props()) {
+                li (self.props()) {
                     (html.render(cx))
                 }
             },
@@ -170,7 +168,7 @@ impl Component for Item {
                             .unwrap_or_else(|| "Dropdown".to_string())
                     });
                     html! {
-                        li id=[self.id()] (self.props()) {
+                        li (self.props()) {
                             a
                                 class="nav-link dropdown-toggle"
                                 data-bs-toggle="dropdown"
@@ -283,14 +281,14 @@ impl Item {
 
     // **< Item BUILDER >***************************************************************************
 
-    /// Establece el identificador único (`id`) del elemento.
+    /// Establece el identificador único del componente; igual a `with_prop(PropsOp::set_id(id))`.
     #[builder_fn]
-    pub fn with_id(mut self, id: impl AsRef<str>) -> Self {
-        self.id.alter_id(id);
+    pub fn with_id(mut self, id: impl Into<CowStr>) -> Self {
+        self.props.alter_id(id);
         self
     }
 
-    /// Modifica los atributos HTML o las clases CSS del elemento.
+    /// Modifica identificador, clases CSS o atributos HTML del componente.
     #[builder_fn]
     pub fn with_prop(mut self, op: PropsOp) -> Self {
         self.props.alter_prop(op);

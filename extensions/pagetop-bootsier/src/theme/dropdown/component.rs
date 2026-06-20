@@ -38,9 +38,7 @@ use crate::theme::*;
 /// ```
 #[derive(AutoDefault, Clone, Debug, Getters)]
 pub struct Dropdown {
-    #[getters(skip)]
-    id: AttrId,
-    /// Devuelve los atributos HTML y clases CSS del menú desplegable.
+    /// Devuelve identificador, clases CSS y atributos HTML del componente.
     props: Props,
     /// Devuelve el título del menú desplegable.
     title: L10n,
@@ -70,7 +68,7 @@ impl Component for Dropdown {
     }
 
     fn id(&self) -> Option<String> {
-        self.id.get()
+        self.props.get_id()
     }
 
     fn setup(&mut self, _cx: &Context) {
@@ -90,7 +88,7 @@ impl Component for Dropdown {
         let title = self.title().using(cx);
 
         Ok(html! {
-            div id=[self.id()] (self.props()) {
+            div (self.props()) {
                 @if !title.is_empty() {
                     @let btn_base = {
                         let mut classes = "btn".to_string();
@@ -178,14 +176,14 @@ impl Component for Dropdown {
 impl Dropdown {
     // **< Dropdown BUILDER >***********************************************************************
 
-    /// Establece el identificador único (`id`) del menú desplegable.
+    /// Establece el identificador único del componente; igual a `with_prop(PropsOp::set_id(id))`.
     #[builder_fn]
-    pub fn with_id(mut self, id: impl AsRef<str>) -> Self {
-        self.id.alter_id(id);
+    pub fn with_id(mut self, id: impl Into<CowStr>) -> Self {
+        self.props.alter_id(id);
         self
     }
 
-    /// Modifica los atributos HTML o las clases CSS del menú desplegable.
+    /// Modifica identificador, clases CSS o atributos HTML del componente.
     #[builder_fn]
     pub fn with_prop(mut self, op: PropsOp) -> Self {
         self.props.alter_prop(op);

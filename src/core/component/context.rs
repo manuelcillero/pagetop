@@ -9,8 +9,8 @@ use crate::locale::{LangId, LanguageIdentifier, RequestLocale};
 use crate::web::HttpRequest;
 use crate::{CowStr, builder_fn, util};
 
-use std::any::Any;
-use std::cell::Cell;
+use std::any::{Any, TypeId};
+use std::cell::RefCell;
 use std::collections::HashMap;
 use std::fmt;
 
@@ -271,7 +271,7 @@ pub trait Contextual: LangId {
 ///     assert_eq!(id, 42);
 ///
 ///     // Genera un identificador para un componente de tipo `Menu`.
-///     let unique_id = cx.required_id::<Menu>(None, 1);
+///     let unique_id = cx.build_id::<Menu>(1);
 ///     assert_eq!(unique_id, "menu-1"); // Si es el primero generado.
 /// }
 /// ```
@@ -286,7 +286,7 @@ pub struct Context {
     javascripts: Assets<JavaScript>,       // Scripts JavaScript.
     regions    : ChildrenInRegions,        // Regiones de componentes para renderizar.
     params     : HashMap<&'static str, (Box<dyn Any>, &'static str)>, // Parámetros en ejecución.
-    id_counter : Cell<usize>,              // Cell permite incrementar desde &self en required_id().
+    id_counters: RefCell<HashMap<TypeId, usize>>,   // RefCell permite mutar desde build_id(&self).
     messages   : Vec<StatusMessage>,       // Mensajes de usuario acumulados.
 }
 
@@ -314,7 +314,7 @@ impl Context {
             javascripts: Assets::<JavaScript>::new(),
             regions    : ChildrenInRegions::default(),
             params     : HashMap::default(),
-            id_counter : Cell::new(0),
+            id_counters: RefCell::new(HashMap::new()),
             messages   : Vec::new(),
         }
     }
@@ -374,31 +374,42 @@ impl Context {
         route
     }
 
-    /// Garantiza un identificador único para un componente `C`, generándolo si no se proporciona
-    /// ninguno.
+    /// Construye un identificador HTML único para el tipo de componente `C`.
     ///
-    /// Si `id` es `None`, crea un identificador usando los últimos segmentos del *path* completo
-    /// del tipo `C`, separados por `-` y en minúsculas, seguidos de un contador incremental interno
-    /// del contexto. Por ejemplo, para un componente `MyApp::ui::Menu` con `parts = 2` podría
-    /// devolver un identificador como `ui-menu-1` si ha sido el primero en generarse.
+    /// Toma los `segments` finales del *path* completo del tipo, los une con `-` y los convierte a
+    /// minúsculas, y añade un contador independiente por tipo. Por ejemplo, para `MyApp::ui::Menu`
+    /// con `segments = 2` devuelve `ui-menu-1` la primera vez que se invoca para ese tipo,
+    /// `ui-menu-2` la segunda, etc.
     ///
-    /// Con `parts = 1` se usa el nombre corto del tipo. Si `parts` es `0` o supera el número de
-    /// segmentos del *path*, entonces se usará el *path* completo.
+    /// Con `segments = 1` se usa sólo el nombre corto del tipo. Si `segments` es `0` o supera el
+    /// número de segmentos del *path*, se usan todos.
     ///
-    /// Es útil para asignar identificadores HTML cuando el componente no recibe uno explícito.
-    pub fn required_id<C: Component>(&self, id: Option<String>, parts: usize) -> String {
-        if let Some(id) = id {
-            return id;
-        }
-        let segments: Vec<&str> = TypeInfo::FullName.of::<C>().split("::").collect();
-        let parts = if parts == 0 || parts >= segments.len() {
-            segments.len()
+    /// Es útil para asignar identificadores cuando el componente no recibe uno explícito. El
+    /// contador es local a este contexto y se reinicia para cada nueva petición.
+    pub fn build_id<C: Component>(&self, segments: usize) -> String {
+        let path: Vec<&str> = TypeInfo::FullName.of::<C>().split("::").collect();
+        let segments = if segments == 0 || segments >= path.len() {
+            path.len()
         } else {
-            parts
+            segments
         };
-        self.id_counter.set(self.id_counter.get() + 1);
-        let prefix = segments[segments.len() - parts..].join("-").to_lowercase();
-        util::join!(prefix, "-", self.id_counter.get().to_string())
+        let count = {
+            let mut map = self.id_counters.borrow_mut();
+            let n = map.entry(TypeId::of::<C>()).or_insert(0);
+            *n += 1;
+            *n
+        };
+        let prefix = path[path.len() - segments..].join("-").to_lowercase();
+        util::join!(prefix, "-", count.to_string())
+    }
+
+    /// Devuelve `id` si contiene un valor, o genera uno único con [`build_id`](Self::build_id)
+    /// si es `None`.
+    pub fn required_id<C: Component>(&self, id: Option<String>, segments: usize) -> String {
+        match id {
+            Some(id) => id,
+            None => self.build_id::<C>(segments),
+        }
     }
 
     /// Acumula un [`StatusMessage`] en el contexto para notificar al visitante.

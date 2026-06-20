@@ -13,7 +13,7 @@ async fn props_default_renders_nothing() {
 #[pagetop::test]
 async fn props_new_creates_first_attr() {
     let p = Props::new("hx-get", "/api");
-    assert_eq!(p.get_prop("hx-get"), Some("/api"));
+    assert_eq!(p.get_prop("hx-get"), Some("/api".to_string()));
 }
 
 #[pagetop::test]
@@ -59,14 +59,14 @@ async fn props_set_adds_new_attrs() {
     let p = Props::default()
         .with_prop(PropsOp::set("hx-get", "/api"))
         .with_prop(PropsOp::set("hx-swap", "outerHTML"));
-    assert_eq!(p.get_prop("hx-get"), Some("/api"));
-    assert_eq!(p.get_prop("hx-swap"), Some("outerHTML"));
+    assert_eq!(p.get_prop("hx-get"), Some("/api".to_string()));
+    assert_eq!(p.get_prop("hx-swap"), Some("outerHTML".to_string()));
 }
 
 #[pagetop::test]
 async fn props_set_replaces_existing_value() {
     let p = Props::new("hx-get", "/old").with_prop(PropsOp::set("hx-get", "/new"));
-    assert_eq!(p.get_prop("hx-get"), Some("/new"));
+    assert_eq!(p.get_prop("hx-get"), Some("/new".to_string()));
 }
 
 #[pagetop::test]
@@ -98,13 +98,13 @@ async fn props_remove_existing_attr() {
         .with_prop(PropsOp::set("b", "2"))
         .with_prop(PropsOp::remove("a"));
     assert_eq!(p.get_prop("a"), None);
-    assert_eq!(p.get_prop("b"), Some("2"));
+    assert_eq!(p.get_prop("b"), Some("2".to_string()));
 }
 
 #[pagetop::test]
 async fn props_remove_nonexistent_key_is_noop() {
     let p = Props::new("a", "1").with_prop(PropsOp::remove("missing"));
-    assert_eq!(p.get_prop("a"), Some("1"));
+    assert_eq!(p.get_prop("a"), Some("1".to_string()));
     assert_eq!(p.get_prop("missing"), None);
 }
 
@@ -222,22 +222,42 @@ async fn props_splice_empty_string_emits_nothing() {
     assert_eq!(html! { span ("") { "x" } }.into_string(), "<span>x</span>");
 }
 
-// **< is_props_empty / is_classes_empty >**********************************************************
+// **< is_attrs_empty / is_classes_empty / is_empty >***********************************************
 
 #[pagetop::test]
-async fn props_is_props_empty_on_default() {
-    assert!(Props::default().is_props_empty());
+async fn props_is_attrs_empty_on_default() {
+    assert!(Props::default().is_attrs_empty());
 }
 
 #[pagetop::test]
-async fn props_is_props_empty_false_after_set() {
-    assert!(!Props::new("hx-get", "/api").is_props_empty());
+async fn props_is_attrs_empty_false_after_set() {
+    assert!(!Props::new("hx-get", "/api").is_attrs_empty());
 }
 
 #[pagetop::test]
-async fn props_is_props_empty_true_after_removing_last_attr() {
+async fn props_is_attrs_empty_true_after_removing_last_attr() {
     let p = Props::new("only", "one").with_prop(PropsOp::remove("only"));
-    assert!(p.is_props_empty());
+    assert!(p.is_attrs_empty());
+}
+
+#[pagetop::test]
+async fn props_is_empty_on_default() {
+    assert!(Props::default().is_empty());
+}
+
+#[pagetop::test]
+async fn props_is_empty_false_with_id() {
+    assert!(!Props::default().with_id("main").is_empty());
+}
+
+#[pagetop::test]
+async fn props_is_empty_false_with_attr() {
+    assert!(!Props::new("hx-get", "/api").is_empty());
+}
+
+#[pagetop::test]
+async fn props_is_empty_false_with_class() {
+    assert!(!Props::classes("btn").is_empty());
 }
 
 #[pagetop::test]
@@ -254,6 +274,45 @@ async fn props_is_classes_empty_false_after_add_classes() {
 async fn props_is_classes_empty_true_after_remove_class() {
     let p = Props::classes("btn").with_prop(PropsOp::remove("class"));
     assert!(p.is_classes_empty());
+}
+
+// **< get_prop("id") / get_prop("class") >*********************************************************
+
+#[pagetop::test]
+async fn get_prop_id_returns_none_by_default() {
+    assert_eq!(Props::default().get_prop("id"), None);
+}
+
+#[pagetop::test]
+async fn get_prop_id_returns_normalized_value() {
+    let p = Props::default().with_id("My Button");
+    assert_eq!(p.get_prop("id"), Some("my_button".to_string()));
+}
+
+#[pagetop::test]
+async fn get_prop_id_matches_get_id() {
+    let p = Props::default().with_id("Header");
+    assert_eq!(p.get_prop("id"), p.get_id());
+}
+
+#[pagetop::test]
+async fn get_prop_class_returns_none_by_default() {
+    assert_eq!(Props::default().get_prop("class"), None);
+}
+
+#[pagetop::test]
+async fn get_prop_class_returns_joined_classes() {
+    let p = Props::classes("btn btn-primary").with_prop(PropsOp::add_classes("active"));
+    assert_eq!(
+        p.get_prop("class"),
+        Some("btn btn-primary active".to_string())
+    );
+}
+
+#[pagetop::test]
+async fn get_prop_class_matches_get_classes() {
+    let p = Props::classes("btn active");
+    assert_eq!(p.get_prop("class"), p.get_classes());
 }
 
 // **< Regression & edge cases >********************************************************************
@@ -284,9 +343,9 @@ async fn props_chained_set_and_remove_yields_expected_state() {
         .with_prop(PropsOp::set("c", "3"))
         .with_prop(PropsOp::remove("b"))
         .with_prop(PropsOp::set("a", "updated"));
-    assert_eq!(p.get_prop("a"), Some("updated"));
+    assert_eq!(p.get_prop("a"), Some("updated".to_string()));
     assert_eq!(p.get_prop("b"), None);
-    assert_eq!(p.get_prop("c"), Some("3"));
+    assert_eq!(p.get_prop("c"), Some("3".to_string()));
     assert_eq!(
         html! { span (p) {} }.into_string(),
         r#"<span a="updated" c="3"></span>"#

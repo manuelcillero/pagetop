@@ -45,9 +45,7 @@ use crate::theme::{ButtonAction, ButtonColor, ButtonSize};
 /// ```
 #[derive(AutoDefault, Clone, Debug, Getters)]
 pub struct Button {
-    #[getters(skip)]
-    id: AttrId,
-    /// Devuelve los atributos HTML y clases CSS del botón.
+    /// Devuelve identificador, clases CSS y atributos HTML del componente.
     props: Props,
     /// Devuelve el comportamiento del botón al activarse.
     kind: ButtonAction,
@@ -73,7 +71,7 @@ impl Component for Button {
     }
 
     fn id(&self) -> Option<String> {
-        self.id.get()
+        self.props.get_id()
     }
 
     fn setup(&mut self, _cx: &Context) {
@@ -86,7 +84,6 @@ impl Component for Button {
     fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
         Ok(html! {
             button
-                id=[self.id()]
                 type=(self.kind())
                 (self.props())
                 name=[self.name().get()]
@@ -140,14 +137,14 @@ impl Button {
 
     // **< Button BUILDER >*************************************************************************
 
-    /// Establece el identificador único (`id`) del botón.
+    /// Establece el identificador único del componente; igual a `with_prop(PropsOp::set_id(id))`.
     #[builder_fn]
-    pub fn with_id(mut self, id: impl AsRef<str>) -> Self {
-        self.id.alter_id(id);
+    pub fn with_id(mut self, id: impl Into<CowStr>) -> Self {
+        self.props.alter_id(id);
         self
     }
 
-    /// Modifica los atributos HTML o las clases CSS del botón.
+    /// Modifica identificador, clases CSS o atributos HTML del componente.
     #[builder_fn]
     pub fn with_prop(mut self, op: PropsOp) -> Self {
         self.props.alter_prop(op);
