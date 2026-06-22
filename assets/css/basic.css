@@ -13,6 +13,11 @@
 	/* Colors */
 	--val-color--bg: #fafafa;
 	--val-color--text: #212529;
+	--val-color--text--muted: color-mix(in srgb, var(--val-color--text) 50%, var(--val-color--bg));
+	--val-color--border: #212529;
+	--val-color--primary: #0d6efd;
+	--val-color--danger: #dc3545;
+	--val-color--switch-off: #adb5bd;
 }
 
 *, *::before, *::after {
@@ -31,6 +36,105 @@ body {
 	color: var(--val-color--text);
 	background-color: var(--val-color--bg);
 	-webkit-tap-highlight-color: transparent;
+}
+
+/*
+ * Form components
+ */
+
+.form-required {
+    color: var(--val-color--danger);
+    margin-left: 0.25rem;
+}
+
+.form-label {
+    display: block;
+    margin-top: 1em;
+}
+
+.form-text {
+    font-size: 0.9375rem;
+    color: var(--val-color--text--muted);
+}
+
+.form-field > select.form-select,
+.form-field > input.form-control,
+.form-field > input.form-range,
+.form-field > textarea.form-control {
+    display: block;
+    padding: 0.25rem 0.5rem;
+    width: 100%;
+}
+
+fieldset {
+    margin: 2rem 0 1rem;
+    background: var(--val-color--bg);
+}
+fieldset > legend {
+    background-color: var(--val-color--bg);
+    border: 2px groove threedface;
+    padding: 0 0.5em;
+}
+
+.form-check {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 1.5rem;
+    margin-bottom: 0.25rem;
+}
+.form-check-inline {
+    display: inline-flex;
+    margin-right: 1rem;
+}
+.form-check-reverse {
+    flex-direction: row-reverse;
+    justify-content: flex-start;
+    text-align: right;
+}
+.form-check-input {
+    flex-shrink: 0;
+    cursor: pointer;
+}
+.form-check-label {
+    cursor: pointer;
+}
+.form-switch .form-check-input {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 2em;
+    height: 1em;
+    background-color: var(--val-color--switch-off);
+    border-radius: 1em;
+    position: relative;
+    cursor: pointer;
+    transition: background-color .15s ease-in-out;
+}
+.form-switch .form-check-input::after {
+    content: "";
+    position: absolute;
+    width: 1em;
+    height: 1em;
+    background-color: white;
+    border-radius: 50%;
+    top: 0;
+    left: 0;
+    transition: transform .15s ease-in-out;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, .25);
+}
+.form-switch .form-check-input:checked {
+    background-color: var(--val-color--primary);
+}
+.form-switch .form-check-input:checked::after {
+    transform: translateX(1em);
+}
+
+input:disabled,
+input:disabled + label {
+    cursor: default !important;
+}
+input:disabled + label {
+    color: var(--val-color--text--muted);
 }
 
 /*

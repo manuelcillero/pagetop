@@ -1,4 +1,4 @@
-use pagetop::prelude::*;
+use crate::prelude::*;
 
 /// Componente para crear un **control deslizante** de rango.
 ///
@@ -9,8 +9,8 @@ use pagetop::prelude::*;
 /// # Ejemplo
 ///
 /// ```rust,no_run
-/// # use pagetop::prelude::*;
-/// # use pagetop_bootsier::theme::*;
+/// use pagetop::prelude::*;
+///
 /// let volume = form::Range::new()
 ///     .with_name("volume")
 ///     .with_label(L10n::n("Volume"))

@@ -1,20 +1,21 @@
-use pagetop::prelude::*;
+use crate::prelude::*;
 
 use std::borrow::Cow;
 use std::fmt;
 
 // **< CheckboxKind >*******************************************************************************
 
-/// Variante visual para [`form::Checkbox`](crate::theme::form::Checkbox) en un formulario.
+/// Variante visual para un [`form::Checkbox`] en un formulario.
 ///
 /// Determina si el control se renderiza como una casilla de verificación estándar o como un
-/// interruptor (*toggle switch*).
+/// interruptor (*toggle switch*). La variante [`Switch`](Self::Switch) añade la clase `form-switch`
+/// al contenedor y el atributo `role="switch"` al control para accesibilidad.
 #[derive(AutoDefault, Clone, Copy, Debug, PartialEq)]
 pub enum CheckboxKind {
     /// Casilla de verificación estándar. Es el tipo por defecto.
     #[default]
     Check,
-    /// Interruptor de encendido/apagado.
+    /// Interruptor de encendido/apagado (*toggle switch*).
     Switch,
     // TODO: Añadir variante `NativeSwitch` cuando el atributo `switch` de la propuesta WHATWG
     // (https://github.com/whatwg/html/issues/9546) sea estándar y tenga soporte amplio. Safari ya
@@ -51,8 +52,8 @@ pub enum CheckboxKind {
 /// # Ejemplo
 ///
 /// ```rust,no_run
-/// # use pagetop::prelude::*;
-/// # use pagetop_bootsier::theme::*;
+/// use pagetop::prelude::*;
+///
 /// // Correo electrónico con sugerencia semántica del navegador.
 /// let ac = form::Autocomplete::email();
 ///
@@ -87,7 +88,7 @@ impl Autocomplete {
     // --< Secciones >------------------------------------------------------------------------------
 
     /// Construye `autocomplete` con un prefijo de sección y un token o tokens del
-    /// [`form::AutofillField`](AutofillField) indicado.
+    /// [`AutofillField`] indicado.
     ///
     /// Genera `autocomplete="section-<name> <field>"`. Si `name` no es ASCII o contiene espacios,
     /// se ignora la sección y se genera sólo el token indicado.
@@ -244,7 +245,8 @@ impl fmt::Display for Autocomplete {
 /// # Ejemplo
 ///
 /// ```rust,no_run
-/// # use pagetop_bootsier::theme::*;
+/// use pagetop::prelude::*;
+///
 /// let ac = form::Autocomplete::token(form::AutofillField::Username);
 /// let ac = form::Autocomplete::shipping(form::AutofillField::StreetAddress);
 /// let ac = form::Autocomplete::section("job", form::AutofillField::Email);
@@ -447,7 +449,7 @@ impl AutofillField {
 
 // **< Method >*************************************************************************************
 
-/// Método HTTP usado por un formulario ([`Form`](crate::theme::Form)) para el envío de los datos.
+/// Método HTTP usado por un [`Form`](super::Form) para el envío de los datos.
 ///
 /// En HTML, el atributo `method` del formulario indica **cómo** se envían los datos:
 ///

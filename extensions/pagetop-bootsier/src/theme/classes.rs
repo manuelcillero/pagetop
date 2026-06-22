@@ -3,6 +3,9 @@
 mod color;
 pub use color::{Background, Text};
 
+mod button;
+pub use button::{ButtonColor, ButtonSize};
+
 mod border;
 pub use border::Border;
 

@@ -238,8 +238,11 @@ impl Template for DefaultTemplate {}
 macro_rules! render_component {
     ($component:expr, { $($type:ty => |$var:ident| $body:expr),* $(,)? }) => {
         'render_component: {
+            // Reborrow explícito como referencia compartida para que `downcast_ref` funcione
+            // correctamente con `&mut dyn Component` (limitación del compilador con trait objects).
+            let __c = &*($component);
             $(
-                if let Some($var) = ($component).downcast_ref::<$type>() {
+                if let Some($var) = __c.downcast_ref::<$type>() {
                     break 'render_component Some($body);
                 }
             )*

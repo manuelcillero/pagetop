@@ -1,5 +1,6 @@
 use pagetop::prelude::*;
 
+use pagetop_bootsier::theme::form;
 use pagetop_bootsier::theme::*;
 
 include_locales!(LOC from "examples/locale");
@@ -143,17 +144,20 @@ async fn form_controls(request: HttpRequest) -> Result<Markup, ErrorPage> {
                                         .with_value("form-selections"),
                                 )
                                 // Botones de acción.
+                                .with_child(Button::submit(L10n::t("btn_submit", &LOC)).with_prop(
+                                    PropsOp::add_classes(classes::ButtonColor::solid(
+                                        Color::Primary,
+                                    )),
+                                ))
+                                .with_child(Button::reset(L10n::t("btn_reset", &LOC)).with_prop(
+                                    PropsOp::add_classes(classes::ButtonColor::outline(
+                                        Color::Secondary,
+                                    )),
+                                ))
                                 .with_child(
-                                    Button::submit(L10n::t("btn_submit", &LOC))
-                                        .with_color(ButtonColor::Background(Color::Primary)),
-                                )
-                                .with_child(
-                                    Button::reset(L10n::t("btn_reset", &LOC))
-                                        .with_color(ButtonColor::Outline(Color::Secondary)),
-                                )
-                                .with_child(
-                                    Button::plain(L10n::t("btn_cancel", &LOC))
-                                        .with_color(ButtonColor::Link),
+                                    Button::plain(L10n::t("btn_cancel", &LOC)).with_prop(
+                                        PropsOp::add_classes(classes::ButtonColor::link()),
+                                    ),
                                 ),
                         ),
                 )
@@ -175,6 +179,7 @@ async fn form_controls(request: HttpRequest) -> Result<Markup, ErrorPage> {
                                                 .with_name("name")
                                                 .with_label(L10n::t("label_name", &LOC))
                                                 .with_placeholder(L10n::t("placeholder_name", &LOC))
+                                                .with_help_text(L10n::t("help_name", &LOC))
                                                 .with_required(true),
                                         )
                                         .with_child(
@@ -185,6 +190,7 @@ async fn form_controls(request: HttpRequest) -> Result<Markup, ErrorPage> {
                                                     "placeholder_email",
                                                     &LOC,
                                                 ))
+                                                .with_help_text(L10n::t("help_email", &LOC))
                                                 .with_autocomplete(
                                                     Some(form::Autocomplete::email()),
                                                 )
@@ -262,192 +268,173 @@ async fn form_controls(request: HttpRequest) -> Result<Markup, ErrorPage> {
                                         .with_value("form-text"),
                                 )
                                 // Botones de acción.
+                                .with_child(Button::submit(L10n::t("btn_submit", &LOC)).with_prop(
+                                    PropsOp::add_classes(classes::ButtonColor::solid(
+                                        Color::Primary,
+                                    )),
+                                ))
+                                .with_child(Button::reset(L10n::t("btn_reset", &LOC)).with_prop(
+                                    PropsOp::add_classes(classes::ButtonColor::outline(
+                                        Color::Secondary,
+                                    )),
+                                ))
                                 .with_child(
-                                    Button::submit(L10n::t("btn_submit", &LOC))
-                                        .with_color(ButtonColor::Background(Color::Primary)),
-                                )
-                                .with_child(
-                                    Button::reset(L10n::t("btn_reset", &LOC))
-                                        .with_color(ButtonColor::Outline(Color::Secondary)),
-                                )
-                                .with_child(
-                                    Button::plain(L10n::t("btn_cancel", &LOC))
-                                        .with_color(ButtonColor::Link),
+                                    Button::plain(L10n::t("btn_cancel", &LOC)).with_prop(
+                                        PropsOp::add_classes(classes::ButtonColor::link()),
+                                    ),
                                 ),
                         ),
                 )
                 // Bloque 3: listas de selección y etiquetas flotantes.
                 .with_child(
                     Block::new()
-                        .with_title(L10n::t("block_lists", &LOC))
-                        .with_child(
-                            Form::new()
-                                .with_id("form-lists")
-                                .with_action("/")
-                                .with_method(form::Method::Post)
-                                // Listas de selección (form::select::Field).
-                                .with_child(
-                                    form::Fieldset::new()
-                                        .with_legend(L10n::t("fieldset_select", &LOC))
-                                        .with_child(
-                                            form::select::Field::new()
-                                                .with_name("language")
-                                                .with_label(L10n::t("label_language", &LOC))
-                                                .with_item(
-                                                    form::select::Item::new(
-                                                        "",
-                                                        L10n::t("select_choose", &LOC),
-                                                    )
-                                                    .with_selected(true),
-                                                )
-                                                .with_group(
-                                                    form::select::Group::new(L10n::t(
-                                                        "select_group_europe",
-                                                        &LOC,
-                                                    ))
-                                                    .with_item(form::select::Item::new(
-                                                        "es",
-                                                        L10n::t("select_spanish", &LOC),
-                                                    ))
-                                                    .with_item(form::select::Item::new(
-                                                        "fr",
-                                                        L10n::t("select_french", &LOC),
-                                                    )),
-                                                )
-                                                .with_group(
-                                                    form::select::Group::new(L10n::t(
-                                                        "select_group_americas",
-                                                        &LOC,
-                                                    ))
-                                                    .with_item(form::select::Item::new(
-                                                        "en",
-                                                        L10n::t("select_english", &LOC),
-                                                    ))
-                                                    .with_item(form::select::Item::new(
-                                                        "pt",
-                                                        L10n::t("select_portuguese", &LOC),
-                                                    )),
-                                                )
-                                                .with_item(
-                                                    form::select::Item::new(
-                                                        "xx",
-                                                        L10n::t("select_disabled", &LOC),
-                                                    )
-                                                    .with_disabled(true),
-                                                )
-                                                .with_required(true),
-                                        )
-                                        .with_child(
-                                            form::select::Field::new()
-                                                .with_name("technologies")
-                                                .with_label(L10n::t("label_technologies", &LOC))
-                                                .with_item(
-                                                    form::select::Item::new(
-                                                        "rust",
-                                                        L10n::n("Rust"),
-                                                    )
-                                                    .with_selected(true),
-                                                )
-                                                .with_item(
-                                                    form::select::Item::new(
-                                                        "python",
-                                                        L10n::n("Python"),
-                                                    )
-                                                    .with_selected(true),
-                                                )
-                                                .with_item(form::select::Item::new(
-                                                    "javascript",
-                                                    L10n::n("JavaScript"),
-                                                ))
-                                                .with_item(form::select::Item::new(
-                                                    "go",
-                                                    L10n::n("Go"),
-                                                ))
-                                                .with_item(form::select::Item::new(
-                                                    "typescript",
-                                                    L10n::n("TypeScript"),
-                                                ))
-                                                .with_multiple(true)
-                                                .with_rows(Some(4))
-                                                .with_help_text(L10n::t("help_technologies", &LOC)),
-                                        ),
-                                )
-                                // Etiquetas flotantes.
-                                .with_child(
-                                    form::Fieldset::new()
-                                        .with_legend(L10n::t("fieldset_floating", &LOC))
-                                        .with_child(
-                                            form::input::Field::text()
-                                                .with_name("fl_name")
-                                                .with_label(L10n::t("label_name", &LOC))
-                                                .with_placeholder(L10n::t("placeholder_name", &LOC))
-                                                .with_floating_label(true)
-                                                .with_required(true),
-                                        )
-                                        .with_child(
-                                            form::Textarea::new()
-                                                .with_name("fl_comment")
-                                                .with_label(L10n::t("label_comment", &LOC))
-                                                .with_placeholder(L10n::t(
-                                                    "placeholder_comment",
-                                                    &LOC,
-                                                ))
-                                                .with_floating_label(true),
-                                        )
-                                        .with_child(
-                                            form::select::Field::new()
-                                                .with_name("fl_country")
-                                                .with_label(L10n::t("label_country", &LOC))
-                                                .with_item(
-                                                    form::select::Item::new(
-                                                        "",
-                                                        L10n::t("select_choose", &LOC),
-                                                    )
-                                                    .with_selected(true),
-                                                )
-                                                .with_item(form::select::Item::new(
-                                                    "de",
-                                                    L10n::t("select_germany", &LOC),
-                                                ))
-                                                .with_item(form::select::Item::new(
-                                                    "es",
-                                                    L10n::t("select_spain", &LOC),
-                                                ))
-                                                .with_item(form::select::Item::new(
-                                                    "fr",
-                                                    L10n::t("select_france", &LOC),
-                                                ))
-                                                .with_item(form::select::Item::new(
-                                                    "pt",
-                                                    L10n::t("select_portugal", &LOC),
-                                                ))
-                                                .with_floating_label(true)
-                                                .with_required(true),
-                                        ),
-                                )
-                                // Campo oculto (form::Hidden).
-                                .with_child(
-                                    form::Hidden::new()
-                                        .with_name("origin")
-                                        .with_value("form-lists"),
-                                )
-                                // Botones de acción.
-                                .with_child(
-                                    Button::submit(L10n::t("btn_submit", &LOC))
-                                        .with_color(ButtonColor::Background(Color::Primary)),
-                                )
-                                .with_child(
-                                    Button::reset(L10n::t("btn_reset", &LOC))
-                                        .with_color(ButtonColor::Outline(Color::Secondary)),
-                                )
-                                .with_child(
-                                    Button::plain(L10n::t("btn_cancel", &LOC))
-                                        .with_color(ButtonColor::Link),
-                                ),
-                        ),
+                        .with_title(
+                            if global::SETTINGS.app.theme.eq_ignore_ascii_case("bootsier") {
+                                L10n::t("block_lists_floating", &LOC)
+                            } else {
+                                L10n::t("block_lists", &LOC)
+                            },
+                        )
+                        .with_child(form_lists()),
                 ),
         )
         .render()
+}
+
+fn form_lists() -> Form {
+    let mut form = Form::new()
+        .with_id("form-lists")
+        .with_action("/")
+        .with_method(form::Method::Post)
+        // Listas de selección (form::select::Field).
+        .with_child(
+            form::Fieldset::new()
+                .with_legend(L10n::t("fieldset_select", &LOC))
+                .with_child(
+                    form::select::Field::new()
+                        .with_name("language")
+                        .with_label(L10n::t("label_language", &LOC))
+                        .with_item(
+                            form::select::Item::new("", L10n::t("select_choose", &LOC))
+                                .with_selected(true),
+                        )
+                        .with_group(
+                            form::select::Group::new(L10n::t("select_group_europe", &LOC))
+                                .with_item(form::select::Item::new(
+                                    "es",
+                                    L10n::t("select_spanish", &LOC),
+                                ))
+                                .with_item(form::select::Item::new(
+                                    "fr",
+                                    L10n::t("select_french", &LOC),
+                                )),
+                        )
+                        .with_group(
+                            form::select::Group::new(L10n::t("select_group_americas", &LOC))
+                                .with_item(form::select::Item::new(
+                                    "en",
+                                    L10n::t("select_english", &LOC),
+                                ))
+                                .with_item(form::select::Item::new(
+                                    "pt",
+                                    L10n::t("select_portuguese", &LOC),
+                                )),
+                        )
+                        .with_item(
+                            form::select::Item::new("xx", L10n::t("select_disabled", &LOC))
+                                .with_disabled(true),
+                        )
+                        .with_required(true),
+                )
+                .with_child(
+                    form::select::Field::new()
+                        .with_name("technologies")
+                        .with_label(L10n::t("label_technologies", &LOC))
+                        .with_item(
+                            form::select::Item::new("rust", L10n::n("Rust")).with_selected(true),
+                        )
+                        .with_item(
+                            form::select::Item::new("python", L10n::n("Python"))
+                                .with_selected(true),
+                        )
+                        .with_item(form::select::Item::new("javascript", L10n::n("JavaScript")))
+                        .with_item(form::select::Item::new("go", L10n::n("Go")))
+                        .with_item(form::select::Item::new("typescript", L10n::n("TypeScript")))
+                        .with_multiple(true)
+                        .with_rows(Some(4))
+                        .with_help_text(L10n::t("help_technologies", &LOC)),
+                ),
+        );
+
+    // Etiquetas flotantes: solo disponibles con el tema Bootsier.
+    if global::SETTINGS.app.theme.eq_ignore_ascii_case("bootsier") {
+        form = form.with_child(
+            form::Fieldset::new()
+                .with_legend(L10n::t("fieldset_floating", &LOC))
+                .with_child(
+                    form::input::Field::text()
+                        .with_name("fl_name")
+                        .with_label(L10n::t("label_name", &LOC))
+                        .with_placeholder(L10n::t("placeholder_name", &LOC))
+                        .with_floating_label(true)
+                        .with_required(true),
+                )
+                .with_child(
+                    form::Textarea::new()
+                        .with_name("fl_comment")
+                        .with_label(L10n::t("label_comment", &LOC))
+                        .with_placeholder(L10n::t("placeholder_comment", &LOC))
+                        .with_floating_label(true),
+                )
+                .with_child(
+                    form::select::Field::new()
+                        .with_name("fl_country")
+                        .with_label(L10n::t("label_country", &LOC))
+                        .with_item(
+                            form::select::Item::new("", L10n::t("select_choose", &LOC))
+                                .with_selected(true),
+                        )
+                        .with_item(form::select::Item::new(
+                            "de",
+                            L10n::t("select_germany", &LOC),
+                        ))
+                        .with_item(form::select::Item::new("es", L10n::t("select_spain", &LOC)))
+                        .with_item(form::select::Item::new(
+                            "fr",
+                            L10n::t("select_france", &LOC),
+                        ))
+                        .with_item(form::select::Item::new(
+                            "pt",
+                            L10n::t("select_portugal", &LOC),
+                        ))
+                        .with_floating_label(true)
+                        .with_required(true),
+                ),
+        );
+    }
+
+    form
+        // Campo oculto (form::Hidden).
+        .with_child(
+            form::Hidden::new()
+                .with_name("origin")
+                .with_value("form-lists"),
+        )
+        // Botones de acción.
+        .with_child(
+            Button::submit(L10n::t("btn_submit", &LOC)).with_prop(PropsOp::add_classes(
+                classes::ButtonColor::solid(Color::Primary),
+            )),
+        )
+        .with_child(
+            Button::reset(L10n::t("btn_reset", &LOC)).with_prop(PropsOp::add_classes(
+                classes::ButtonColor::outline(Color::Secondary),
+            )),
+        )
+        .with_child(
+            Button::plain(L10n::t("btn_cancel", &LOC))
+                .with_prop(PropsOp::add_classes(classes::ButtonColor::link())),
+        )
 }
 
 #[pagetop::main]

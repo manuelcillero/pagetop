@@ -1,3 +1,6 @@
+# Form components.
+field_required = This field is required
+
 # Intro component.
 intro_default_title = Hello, world!
 intro_default_slogan = Discover⚡{ $app }

@@ -1,16 +1,15 @@
-use pagetop::prelude::*;
+use crate::prelude::*;
 
-use crate::theme::form;
+use crate::base::component::form;
 
-/// Componente para crear un **formulario** ([`form`]).
+/// Componente para crear un **formulario** HTML ([`form`]).
 ///
-/// Este componente renderiza un formulario estándar con soporte para los atributos más habituales:
+/// Renderiza un formulario estándar con soporte para los atributos más habituales:
 ///
 /// - `id`: identificador opcional del formulario.
 /// - `classes`: clases CSS adicionales (p. ej. utilidades CSS).
 /// - `action`: URL/ruta de destino para el envío.
-/// - `method`: método usado por el formulario para el envío de los datos (ver explicaciones en
-///   [`form::Method`](crate::theme::form::Method)).
+/// - `method`: método usado por el formulario para el envío de los datos (ver [`form::Method`]).
 /// - `accept-charset`: juego de caracteres aceptado (por defecto es `"UTF-8"`).
 /// - `children`: contenido del formulario.
 ///
@@ -18,7 +17,6 @@ use crate::theme::form;
 ///
 /// ```rust,no_run
 /// use pagetop::prelude::*;
-/// use pagetop_bootsier::theme::*;
 ///
 /// let form_login = Form::new()
 ///     .with_id("login")
@@ -42,7 +40,6 @@ use crate::theme::form;
 ///     )
 ///     .with_child(
 ///         Button::submit(L10n::n("Sign in"))
-///             .with_color(ButtonColor::Background(Color::Primary)),
 ///     );
 /// ```
 #[derive(AutoDefault, Clone, Debug, Getters)]

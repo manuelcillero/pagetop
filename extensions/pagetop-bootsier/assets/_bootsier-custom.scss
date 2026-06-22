@@ -53,11 +53,13 @@ fieldset > legend {
   top: 0;
   left: 1rem;
   transform: translateY(-50%);
+  color: var(--bs-secondary-color);
   background-color: var(--bs-body-bg);
   border: var(--bs-border-width) solid var(--bs-border-color);
   border-radius: var(--bs-border-radius);
   padding: 0.125rem 0.75rem;
-  font-size: $font-size-sm;
+  font-size: ($font-size-sm + $font-size-base) / 2;
+  font-weight: var(--bs-font-weight-normal);
   line-height: 1.25;
   width: fit-content;
   max-width: 75%;

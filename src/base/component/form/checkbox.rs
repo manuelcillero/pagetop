@@ -1,13 +1,9 @@
-use pagetop::prelude::*;
-
-use crate::LOCALES_BOOTSIER;
-use crate::theme::form;
+use crate::prelude::*;
 
 /// Componente para crear una **casilla de verificación** o un **interruptor** (*toggle switch*).
 ///
-/// Renderiza un control binario (marcado/no marcado) en dos variantes visuales, por defecto se
-/// muestra como una casilla de verificación estándar, pero también puede renderizarse como un
-/// interruptor de encendido/apagado ([`Checkbox::switch()`]).
+/// Renderiza un control binario (marcado/no marcado) en dos variantes, por defecto como casilla de
+/// verificación estándar, y también como interruptor ([`Checkbox::switch()`]).
 ///
 /// Se puede mostrar en línea con otros controles usando [`with_inline()`](Checkbox::with_inline), o
 /// justificar a la derecha del contenedor invirtiendo el orden de la etiqueta y el control usando
@@ -16,9 +12,9 @@ use crate::theme::form;
 /// # Ejemplo
 ///
 /// ```rust,no_run
-/// # use pagetop::prelude::*;
-/// # use pagetop_bootsier::theme::*;
-/// let accept_terms = form::Checkbox::check() // También sirve new() o default().
+/// use pagetop::prelude::*;
+///
+/// let accept_terms = form::Checkbox::new()
 ///     .with_name("terms_accepted")
 ///     .with_label(L10n::n("I accept the terms and conditions"))
 ///     .with_required(true);
@@ -86,7 +82,7 @@ impl Component for Checkbox {
         self.alter_prop(PropsOp::ensure_id(container_id));
 
         // Clases CSS del contenedor de la casilla de verificación.
-        let mut classes = "form-field form-check".to_string();
+        let mut classes = String::from("form-field form-check");
         if *self.checkbox_kind() == form::CheckboxKind::Switch {
             classes.push_str(" form-switch");
         }
@@ -126,7 +122,7 @@ impl Component for Checkbox {
                         @if *self.required() {
                             span
                                 class="form-required"
-                                title=(L10n::t("input_required", &LOCALES_BOOTSIER).using(cx))
+                                title=(L10n::l("field_required").using(cx))
                             {
                                 "*"
                             }

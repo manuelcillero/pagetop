@@ -1,30 +1,24 @@
 //! Definiciones para crear formularios ([`Form`]).
 
-mod props;
-pub use props::{Autocomplete, AutofillField, CheckboxKind, Method};
+pub use pagetop::base::component::form::{Autocomplete, AutofillField, CheckboxKind, Method};
 
-mod component;
-pub use component::Form;
+pub use pagetop::base::component::form::Form;
 
-mod fieldset;
-pub use fieldset::Fieldset;
+pub use pagetop::base::component::form::Fieldset;
 
-mod checkbox;
-pub use checkbox::Checkbox;
+pub use pagetop::base::component::form::Checkbox;
 
-pub mod check;
+pub use pagetop::base::component::form::check;
 
-pub mod radio;
+pub use pagetop::base::component::form::radio;
 
 pub mod select;
 
 pub mod input;
 
-mod textarea;
+pub mod textarea;
 pub use textarea::Textarea;
 
-mod range;
-pub use range::Range;
+pub use pagetop::base::component::form::Range;
 
-mod hidden;
-pub use hidden::Hidden;
+pub use pagetop::base::component::form::Hidden;

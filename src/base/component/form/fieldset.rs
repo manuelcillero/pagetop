@@ -1,4 +1,4 @@
-use pagetop::prelude::*;
+use crate::prelude::*;
 
 /// Componente para crear un **grupo de controles relacionados** en un formulario.
 ///
@@ -14,8 +14,8 @@ use pagetop::prelude::*;
 /// # Ejemplo
 ///
 /// ```rust,no_run
-/// # use pagetop::prelude::*;
-/// # use pagetop_bootsier::theme::*;
+/// use pagetop::prelude::*;
+///
 /// let personal_data = form::Fieldset::new()
 ///     .with_legend(L10n::n("Personal data"))
 ///     .with_description(L10n::n("Enter your full name and contact email."))

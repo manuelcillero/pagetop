@@ -89,32 +89,11 @@ pub mod config;
 
 pub mod theme;
 
-/// Plantillas que Bootsier añade.
-#[derive(AutoDefault)]
-pub enum BootsierTemplate {
-    /// Plantilla predeterminada de Bootsier.
-    #[default]
-    Standard,
-}
-
-impl Template for BootsierTemplate {
-    fn render(&'static self, cx: &mut Context) -> Markup {
-        match self {
-            Self::Standard => theme::Container::new()
-                .with_classes(ClassesOp::Add, "container-wrapper")
-                .with_width(theme::container::Width::FluidMax(
-                    config::SETTINGS.bootsier.max_width,
-                ))
-                .with_child(Html::with(|cx| {
-                    html! {
-                        (DefaultRegion::Header.render(cx))
-                        (DefaultRegion::Content.render(cx))
-                        (DefaultRegion::Footer.render(cx))
-                    }
-                })),
-        }
-        .render(cx)
-    }
+mod handlers {
+    pub mod button;
+    pub mod input;
+    pub mod select;
+    pub mod textarea;
 }
 
 /// Implementa el tema.
@@ -153,6 +132,23 @@ impl Theme for Bootsier {
     #[inline]
     fn default_template(&self) -> TemplateRef {
         &BootsierTemplate::Standard
+    }
+
+    fn handle_component(
+        &self,
+        component: &mut dyn Component,
+        cx: &mut Context,
+    ) -> Option<Result<Markup, ComponentError>> {
+        setup_component!(component, {
+            Button              => |c| handlers::button::setup(c),
+            form::select::Field => |c| handlers::select::setup(c),
+            form::Textarea      => |c| handlers::textarea::setup(c),
+        });
+        render_component!(component, {
+            form::input::Field  => |c| handlers::input::render(c, cx),
+            form::select::Field => |c| handlers::select::render(c, cx),
+            form::Textarea      => |c| handlers::textarea::render(c, cx),
+        })
     }
 
     fn before_render_page_body(&self, page: &mut Page) {

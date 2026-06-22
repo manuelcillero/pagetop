@@ -1,3 +1,6 @@
+# Form components.
+field_required = Este campo es obligatorio
+
 # Intro component.
 intro_default_title = ¡Hola, mundo!
 intro_default_slogan = Descubre⚡{ $app }

@@ -2,7 +2,8 @@ title = Form controls
 slogan = Bootsier form components showcase
 block_selections = Checkboxes, switches and radio buttons
 block_text = Text fields, multiline and range
-block_lists = Select lists and floating labels
+block_lists = Selection lists
+block_lists_floating = Select lists and floating labels
 
 fieldset_text = Text fields
 label_name = Full name
@@ -16,6 +17,8 @@ label_url = Website
 placeholder_url = https://example.com
 label_search = Search
 placeholder_search = Search term...
+help_name = Enter your full name as it appears on your ID.
+help_email = We will only use your email to send important notifications.
 
 fieldset_textarea = Multiline text
 label_comment = Comment

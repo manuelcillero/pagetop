@@ -11,7 +11,7 @@ pub mod classes;
 
 // Button.
 mod button;
-pub use button::Button;
+pub use button::{Button, ButtonAction};
 
 // Container.
 pub mod container;
@@ -27,6 +27,12 @@ pub use dropdown::Dropdown;
 pub mod form;
 #[doc(inline)]
 pub use form::Form;
+#[doc(hidden)]
+pub use form::input::InputBootsier;
+#[doc(hidden)]
+pub use form::select::SelectBootsier;
+#[doc(hidden)]
+pub use form::textarea::TextareaBootsier;
 
 // Image.
 pub mod image;

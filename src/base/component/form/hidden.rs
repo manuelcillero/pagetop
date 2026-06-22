@@ -1,4 +1,4 @@
-use pagetop::prelude::*;
+use crate::prelude::*;
 
 /// Componente para crear un **campo oculto** del formulario.
 ///
@@ -11,8 +11,8 @@ use pagetop::prelude::*;
 /// # Ejemplo
 ///
 /// ```rust,no_run
-/// # use pagetop::prelude::*;
-/// # use pagetop_bootsier::theme::*;
+/// use pagetop::prelude::*;
+///
 /// let token = form::Hidden::new()
 ///     .with_name("csrf_token")
 ///     .with_value("a1b2c3d4e5");

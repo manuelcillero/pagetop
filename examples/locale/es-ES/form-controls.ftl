@@ -2,7 +2,8 @@ title = Controles de formulario
 slogan = Componentes Bootsier para formularios
 block_selections = Casillas, interruptores y botones de opción
 block_text = Campos de texto, multilínea y rango
-block_lists = Listas de selección y etiquetas flotantes
+block_lists = Listas de selección
+block_lists_floating = Listas de selección y etiquetas flotantes
 
 fieldset_text = Campos de texto
 label_name = Nombre completo
@@ -16,6 +17,8 @@ label_url = Sitio web
 placeholder_url = https://ejemplo.com
 label_search = Búsqueda
 placeholder_search = Término de búsqueda...
+help_name = Introduce tu nombre completo tal como aparece en tu documento de identidad.
+help_email = Solo usaremos tu correo para enviarte notificaciones importantes.
 
 fieldset_textarea = Texto multilínea
 label_comment = Comentario

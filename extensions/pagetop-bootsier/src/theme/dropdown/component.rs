@@ -27,7 +27,7 @@ use crate::theme::*;
 ///
 /// let dd = Dropdown::new()
 ///     .with_title(L10n::n("Menu"))
-///     .with_button_color(ButtonColor::Background(Color::Secondary))
+///     .with_button_color(classes::ButtonColor::solid(Color::Secondary))
 ///     .with_auto_close(dropdown::AutoClose::ClickableInside)
 ///     .with_direction(dropdown::Direction::Dropend)
 ///     .with_item(dropdown::Item::link(L10n::n("Home"), |_| "/".into()))
@@ -43,9 +43,9 @@ pub struct Dropdown {
     /// Devuelve el título del menú desplegable.
     title: L10n,
     /// Devuelve el tamaño configurado del botón.
-    button_size: ButtonSize,
+    button_size: classes::ButtonSize,
     /// Devuelve el color/estilo configurado del botón.
-    button_color: ButtonColor,
+    button_color: classes::ButtonColor,
     /// Devuelve si se debe desdoblar (*split*) el botón (botón de acción + *toggle*).
     button_split: bool,
     /// Devuelve si el botón del menú está integrado en un grupo de botones.
@@ -91,9 +91,11 @@ impl Component for Dropdown {
             div (self.props()) {
                 @if !title.is_empty() {
                     @let btn_base = {
-                        let mut classes = "btn".to_string();
-                        self.button_size().push_class(&mut classes);
-                        self.button_color().push_class(&mut classes);
+                        let size = self.button_size().to_class();
+                        let color = self.button_color().to_class();
+                        let mut classes = String::from("btn");
+                        if !size.is_empty() { classes.push(' '); classes.push_str(&size); }
+                        if !color.is_empty() { classes.push(' '); classes.push_str(&color); }
                         classes
                     };
                     @let pos = self.menu_position();
@@ -199,14 +201,14 @@ impl Dropdown {
 
     /// Ajusta el tamaño del botón.
     #[builder_fn]
-    pub fn with_button_size(mut self, size: ButtonSize) -> Self {
+    pub fn with_button_size(mut self, size: classes::ButtonSize) -> Self {
         self.button_size = size;
         self
     }
 
     /// Define el color/estilo del botón.
     #[builder_fn]
-    pub fn with_button_color(mut self, color: ButtonColor) -> Self {
+    pub fn with_button_color(mut self, color: classes::ButtonColor) -> Self {
         self.button_color = color;
         self
     }
