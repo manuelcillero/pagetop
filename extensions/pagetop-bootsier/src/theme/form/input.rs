@@ -11,7 +11,7 @@ pub use pagetop::base::component::form::input::{Field, Kind, Mode};
 /// enfocado.
 ///
 /// ```rust,no_run
-/// use pagetop::prelude::*;
+/// # use pagetop::locale::L10n;
 /// use pagetop_bootsier::theme::*;
 ///
 /// let nombre = form::input::Field::text()

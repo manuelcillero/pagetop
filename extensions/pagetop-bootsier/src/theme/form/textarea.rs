@@ -11,7 +11,8 @@ pub use pagetop::base::component::form::Textarea;
 /// una selección activa.
 ///
 /// ```rust,no_run
-/// use pagetop::prelude::*;
+/// # use pagetop::locale::L10n;
+/// # use pagetop::core::component::Component;
 /// use pagetop_bootsier::theme::*;
 ///
 /// let comentario = form::Textarea::new()

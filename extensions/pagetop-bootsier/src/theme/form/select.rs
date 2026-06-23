@@ -11,7 +11,8 @@ pub use pagetop::base::component::form::select::{Entry, Field, Group, Item};
 /// una selección activa.
 ///
 /// ```rust,no_run
-/// use pagetop::prelude::*;
+/// # use pagetop::locale::L10n;
+/// # use pagetop::core::component::Component;
 /// use pagetop_bootsier::theme::*;
 ///
 /// let language = form::select::Field::new()
