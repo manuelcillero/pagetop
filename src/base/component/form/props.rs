@@ -380,7 +380,7 @@ pub enum AutofillField {
 
 impl AutofillField {
     /// Devuelve el token exacto definido por HTML para `autocomplete`.
-    pub(crate) fn as_str(&self) -> &'static str {
+    pub const fn as_str(&self) -> &'static str {
         match self {
             AutofillField::Name => "name",
             AutofillField::HonorificPrefix => "honorific-prefix",
