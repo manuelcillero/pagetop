@@ -1,0 +1,279 @@
+use pagetop::prelude::*;
+
+use crate::LOCALES_BOOTSIER;
+use crate::theme::*;
+
+// **< ItemKind >***********************************************************************************
+
+/// Tipos de [`nav::Item`](crate::theme::bs::nav::Item) disponibles en un menú
+/// [`Nav`](crate::theme::bs::Nav).
+///
+/// Define internamente la naturaleza del elemento y su comportamiento al mostrarse o interactuar
+/// con él.
+#[derive(AutoDefault, Clone, Debug)]
+pub enum ItemKind {
+    /// Elemento vacío, no produce salida.
+    #[default]
+    Void,
+    /// Etiqueta sin comportamiento interactivo.
+    Label(L10n),
+    /// Elemento de navegación basado en una [`RoutePath`] dinámica devuelta por
+    /// [`FnPathByContext`]. Opcionalmente, puede abrirse en una nueva ventana y estar inicialmente
+    /// deshabilitado.
+    Link {
+        label: L10n,
+        route: FnPathByContext,
+        blank: bool,
+        disabled: bool,
+    },
+    /// Contenido HTML arbitrario. El componente [`Html`] se renderiza tal cual como elemento del
+    /// menú, sin añadir ningún comportamiento de navegación adicional.
+    Html(Embed<Html>),
+    /// Elemento que despliega un menú [`Dropdown`](crate::theme::bs::Dropdown).
+    Dropdown(Embed<bs::Dropdown>),
+}
+
+impl ItemKind {
+    const ITEM: &str = "nav-item";
+    const DROPDOWN: &str = "nav-item dropdown";
+
+    /// Devuelve las clases base asociadas al tipo de elemento.
+    #[inline]
+    pub const fn as_str(&self) -> &'static str {
+        match self {
+            Self::Void => "",
+            Self::Dropdown(_) => Self::DROPDOWN,
+            _ => Self::ITEM,
+        }
+    }
+}
+
+// **< Item >***************************************************************************************
+
+/// Representa un **elemento individual** de un menú [`Nav`](crate::theme::bs::Nav).
+///
+/// Cada instancia de [`nav::Item`](crate::theme::bs::nav::Item) se traduce en un componente visible que
+/// puede comportarse como texto, enlace, contenido HTML o menú desplegable, según su [`ItemKind`].
+///
+/// Permite definir el identificador, las clases de estilo adicionales y el tipo de interacción
+/// asociada, manteniendo una interfaz común para renderizar todos los elementos del menú.
+#[derive(AutoDefault, Clone, Debug, Getters)]
+pub struct Item {
+    /// Devuelve identificador, clases CSS y atributos HTML del componente.
+    props: Props,
+    /// Devuelve el tipo de elemento representado.
+    item_kind: ItemKind,
+}
+
+impl Component for Item {
+    fn new() -> Self {
+        Self::default()
+    }
+
+    fn id(&self) -> Option<String> {
+        self.props.get_id()
+    }
+
+    fn setup(&mut self, _cx: &Context) {
+        self.alter_prop(PropsOp::prepend_classes(self.item_kind().as_str()));
+    }
+
+    fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
+        Ok(match self.item_kind() {
+            ItemKind::Void => html! {},
+
+            ItemKind::Label(label) => html! {
+                li (self.props()) {
+                    span class="nav-link disabled" aria-disabled="true" {
+                        (label.using(cx))
+                    }
+                }
+            },
+
+            ItemKind::Link {
+                label,
+                route,
+                blank,
+                disabled,
+            } => {
+                let route_link = route(cx);
+                let current_path = cx.request().map(|request| request.path());
+                let is_current = !*disabled && (current_path == Some(route_link.path()));
+
+                let mut classes = "nav-link".to_string();
+                if is_current {
+                    classes.push_str(" active");
+                }
+                if *disabled {
+                    classes.push_str(" disabled");
+                }
+
+                let href = (!*disabled).then_some(route_link);
+                let target = (!*disabled && *blank).then_some("_blank");
+                let rel = (!*disabled && *blank).then_some("noopener noreferrer");
+
+                let aria_current = (href.is_some() && is_current).then_some("page");
+                let aria_disabled = (*disabled).then_some("true");
+
+                html! {
+                    li (self.props()) {
+                        a
+                            class=(classes)
+                            href=[href]
+                            target=[target]
+                            rel=[rel]
+                            aria-current=[aria_current]
+                            aria-disabled=[aria_disabled]
+                        {
+                            (label.using(cx))
+                        }
+                    }
+                }
+            }
+
+            ItemKind::Html(html) => html! {
+                li (self.props()) {
+                    (html.render(cx))
+                }
+            },
+
+            ItemKind::Dropdown(menu) => {
+                if let Some(dd) = menu.get() {
+                    let items = dd.items().render(cx);
+                    if items.is_empty() {
+                        return Ok(html! {});
+                    }
+                    let title = dd.title().lookup(cx).unwrap_or_else(|| {
+                        L10n::t("dropdown", &LOCALES_BOOTSIER)
+                            .lookup(cx)
+                            .unwrap_or_else(|| "Dropdown".to_string())
+                    });
+                    html! {
+                        li (self.props()) {
+                            a
+                                class="nav-link dropdown-toggle"
+                                data-bs-toggle="dropdown"
+                                href="#"
+                                role="button"
+                                aria-expanded="false"
+                            {
+                                (title)
+                            }
+                            ul class="dropdown-menu" {
+                                (items)
+                            }
+                        }
+                    }
+                } else {
+                    html! {}
+                }
+            }
+        })
+    }
+}
+
+impl Item {
+    /// Crea un elemento de tipo texto, mostrado sin interacción.
+    pub fn label(label: L10n) -> Self {
+        Self {
+            item_kind: ItemKind::Label(label),
+            ..Default::default()
+        }
+    }
+
+    /// Crea un enlace para la navegación.
+    ///
+    /// La ruta se obtiene invocando [`FnPathByContext`], que devuelve dinámicamente una
+    /// [`RoutePath`] en función del [`Context`]. El enlace se marca como `active` si la ruta actual
+    /// del *request* coincide con la ruta de destino (devuelta por `RoutePath::path`).
+    pub fn link(label: L10n, route: FnPathByContext) -> Self {
+        Self {
+            item_kind: ItemKind::Link {
+                label,
+                route,
+                blank: false,
+                disabled: false,
+            },
+            ..Default::default()
+        }
+    }
+
+    /// Crea un enlace deshabilitado que no permite la interacción.
+    pub fn link_disabled(label: L10n, route: FnPathByContext) -> Self {
+        Self {
+            item_kind: ItemKind::Link {
+                label,
+                route,
+                blank: false,
+                disabled: true,
+            },
+            ..Default::default()
+        }
+    }
+
+    /// Crea un enlace que se abre en una nueva ventana o pestaña.
+    pub fn link_blank(label: L10n, route: FnPathByContext) -> Self {
+        Self {
+            item_kind: ItemKind::Link {
+                label,
+                route,
+                blank: true,
+                disabled: false,
+            },
+            ..Default::default()
+        }
+    }
+
+    /// Crea un enlace inicialmente deshabilitado que se abriría en una nueva ventana.
+    pub fn link_blank_disabled(label: L10n, route: FnPathByContext) -> Self {
+        Self {
+            item_kind: ItemKind::Link {
+                label,
+                route,
+                blank: true,
+                disabled: true,
+            },
+            ..Default::default()
+        }
+    }
+
+    /// Crea un elemento con contenido HTML arbitrario.
+    ///
+    /// El contenido se renderiza tal cual lo devuelve el componente [`Html`], dentro de un `<li>`
+    /// con las clases de navegación asociadas a [`Item`].
+    pub fn html(html: Html) -> Self {
+        Self {
+            item_kind: ItemKind::Html(Embed::with(html)),
+            ..Default::default()
+        }
+    }
+
+    /// Crea un elemento de navegación que contiene un menú desplegable
+    /// [`Dropdown`](crate::theme::bs::Dropdown).
+    ///
+    /// Sólo se tienen en cuenta **el título** (si no existe, se asigna uno por defecto) y **la
+    /// lista de elementos** del [`Dropdown`](crate::theme::bs::Dropdown); el resto de propiedades
+    /// del componente no afectarán a su representación en [`Nav`](crate::theme::bs::Nav).
+    pub fn dropdown(menu: bs::Dropdown) -> Self {
+        Self {
+            item_kind: ItemKind::Dropdown(Embed::with(menu)),
+            ..Default::default()
+        }
+    }
+
+    // **< Item BUILDER >***************************************************************************
+
+    /// Establece el identificador único del componente; igual a `with_prop(PropsOp::set_id(id))`.
+    #[builder_fn]
+    pub fn with_id(mut self, id: impl Into<CowStr>) -> Self {
+        self.props.alter_id(id);
+        self
+    }
+
+    /// Modifica identificador, clases CSS o atributos HTML del componente.
+    #[builder_fn]
+    pub fn with_prop(mut self, op: PropsOp) -> Self {
+        self.props.alter_prop(op);
+        self
+    }
+}
