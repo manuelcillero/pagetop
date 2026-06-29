@@ -1,6 +1,4 @@
 use pagetop::prelude::*;
-
-use pagetop_bootsier::theme::form;
 use pagetop_bootsier::theme::*;
 
 include_locales!(LOC from "examples/locale");
@@ -145,18 +143,18 @@ async fn form_controls(request: HttpRequest) -> Result<Markup, ErrorPage> {
                                 )
                                 // Botones de acción.
                                 .with_child(Button::submit(L10n::t("btn_submit", &LOC)).with_prop(
-                                    PropsOp::add_classes(classes::ButtonColor::solid(
-                                        Color::Primary,
+                                    PropsOp::add_classes(class::ButtonColor::solid(
+                                        token::Color::Primary,
                                     )),
                                 ))
                                 .with_child(Button::reset(L10n::t("btn_reset", &LOC)).with_prop(
-                                    PropsOp::add_classes(classes::ButtonColor::outline(
-                                        Color::Secondary,
+                                    PropsOp::add_classes(class::ButtonColor::outline(
+                                        token::Color::Secondary,
                                     )),
                                 ))
                                 .with_child(
                                     Button::plain(L10n::t("btn_cancel", &LOC)).with_prop(
-                                        PropsOp::add_classes(classes::ButtonColor::link()),
+                                        PropsOp::add_classes(class::ButtonColor::link()),
                                     ),
                                 ),
                         ),
@@ -269,18 +267,18 @@ async fn form_controls(request: HttpRequest) -> Result<Markup, ErrorPage> {
                                 )
                                 // Botones de acción.
                                 .with_child(Button::submit(L10n::t("btn_submit", &LOC)).with_prop(
-                                    PropsOp::add_classes(classes::ButtonColor::solid(
-                                        Color::Primary,
+                                    PropsOp::add_classes(class::ButtonColor::solid(
+                                        token::Color::Primary,
                                     )),
                                 ))
                                 .with_child(Button::reset(L10n::t("btn_reset", &LOC)).with_prop(
-                                    PropsOp::add_classes(classes::ButtonColor::outline(
-                                        Color::Secondary,
+                                    PropsOp::add_classes(class::ButtonColor::outline(
+                                        token::Color::Secondary,
                                     )),
                                 ))
                                 .with_child(
                                     Button::plain(L10n::t("btn_cancel", &LOC)).with_prop(
-                                        PropsOp::add_classes(classes::ButtonColor::link()),
+                                        PropsOp::add_classes(class::ButtonColor::link()),
                                     ),
                                 ),
                         ),
@@ -423,17 +421,17 @@ fn form_lists() -> Form {
         // Botones de acción.
         .with_child(
             Button::submit(L10n::t("btn_submit", &LOC)).with_prop(PropsOp::add_classes(
-                classes::ButtonColor::solid(Color::Primary),
+                class::ButtonColor::solid(token::Color::Primary),
             )),
         )
         .with_child(
             Button::reset(L10n::t("btn_reset", &LOC)).with_prop(PropsOp::add_classes(
-                classes::ButtonColor::outline(Color::Secondary),
+                class::ButtonColor::outline(token::Color::Secondary),
             )),
         )
         .with_child(
             Button::plain(L10n::t("btn_cancel", &LOC))
-                .with_prop(PropsOp::add_classes(classes::ButtonColor::link())),
+                .with_prop(PropsOp::add_classes(class::ButtonColor::link())),
         )
 }
 
