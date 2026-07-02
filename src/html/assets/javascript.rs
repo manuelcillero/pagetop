@@ -15,7 +15,7 @@ use crate::{AutoDefault, CowStr, Weight, util};
 ///   ejecuta en cuanto esté listo, **sin garantizar** el orden relativo respecto a otros scripts.
 /// - [`Inline`] - Inserta el código directamente en la etiqueta `<script>`.
 /// - [`OnLoad`] - Inserta el código JavaScript y lo ejecuta tras el evento `DOMContentLoaded`.
-/// - [`OnLoadAsync`] - Igual que [`OnLoad`], pero con manejador asíncrono (`async`), útil si dentro
+/// - [`OnLoadAsync`] - Igual que [`OnLoad`], pero con *handler* asíncrono (`async`), útil si dentro
 ///   del código JavaScript se utiliza `await`.
 #[derive(AutoDefault)]
 enum Source {
@@ -27,7 +27,7 @@ enum Source {
     Inline(CowStr, Box<dyn Fn(&mut Context) -> String + Send + Sync>),
     /// `name`, `closure(&mut Context) -> String` (se ejecuta tras `DOMContentLoaded`).
     OnLoad(CowStr, Box<dyn Fn(&mut Context) -> String + Send + Sync>),
-    /// `name`, `closure(&mut Context) -> String` (manejador `async` tras `DOMContentLoaded`).
+    /// `name`, `closure(&mut Context) -> String` (*handler* `async` tras `DOMContentLoaded`).
     OnLoadAsync(CowStr, Box<dyn Fn(&mut Context) -> String + Send + Sync>),
 }
 
@@ -58,7 +58,7 @@ enum Source {
 ///     }
 /// "#.to_string());
 ///
-/// // Script embebido con manejador asíncrono (`async`) que puede usar `await`.
+/// // Script embebido con *handler* asíncrono (`async`) que puede usar `await`.
 /// let mut cx = Context::new(None).with_param("user_id", 7u32);
 ///
 /// let js = JavaScript::on_load_async("hydrate", |cx| {
@@ -150,7 +150,7 @@ impl JavaScript {
         }
     }
 
-    /// Crea un **script embebido** con un **manejador asíncrono**.
+    /// Crea un **script embebido** con un ***handler* asíncrono**.
     ///
     /// El código se envuelve en un `addEventListener('DOMContentLoaded',async()=>{...})`, que
     /// emplea una función `async` para que el cuerpo devuelto por la función *closure* pueda usar

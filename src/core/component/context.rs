@@ -1,3 +1,4 @@
+use crate::auth::CurrentUser;
 use crate::core::TypeInfo;
 use crate::core::component::{ChildOp, Component, MessageLevel, StatusMessage};
 use crate::core::theme::all::DEFAULT_THEME;
@@ -156,6 +157,26 @@ pub trait Contextual: LangId {
     /// Devuelve una referencia a la petición HTTP asociada, si existe.
     fn request(&self) -> Option<&HttpRequest>;
 
+    /// Devuelve la identidad del usuario actual.
+    ///
+    /// Si ninguna extensión de autenticación ha inyectado un
+    /// [`CurrentUser`](crate::auth::CurrentUser) en las extensiones de la petición HTTP, devuelve
+    /// `&CurrentUser::Anonymous`.
+    ///
+    /// # Ejemplo
+    ///
+    /// ```rust,no_run
+    /// # use pagetop::prelude::*;
+    /// async fn greet(request: HttpRequest) -> Result<Markup, ErrorPage> {
+    ///     let mut page = Page::new(request);
+    ///     if page.current_user().is_authenticated() {
+    ///         // Personalizar la página para el usuario autenticado.
+    ///     }
+    ///     page.render()
+    /// }
+    /// ```
+    fn current_user(&self) -> &CurrentUser;
+
     /// Devuelve el tema que se usará para renderizar el documento.
     fn theme(&self) -> ThemeRef;
 
@@ -284,18 +305,19 @@ pub trait Contextual: LangId {
 /// ```
 #[rustfmt::skip]
 pub struct Context {
-    request    : Option<HttpRequest>,      // Petición HTTP de origen.
-    locale     : RequestLocale,            // Idioma asociado a la petición.
-    theme      : ThemeRef,                 // Referencia al tema usado para renderizar.
-    template   : TemplateRef,              // Plantilla usada para renderizar.
-    favicon    : Option<Favicon>,          // Favicon, si se ha definido.
-    stylesheets: Assets<StyleSheet>,       // Hojas de estilo CSS.
-    javascripts: Assets<JavaScript>,       // Scripts JavaScript.
-    body_props : Props,                    // Identificador, clases CSS y atributos del <body>.
-    regions    : ChildrenInRegions,        // Regiones de componentes para renderizar.
-    params     : HashMap<&'static str, (Box<dyn Any>, &'static str)>, // Parámetros en ejecución.
-    id_counters: RefCell<HashMap<TypeId, usize>>,   // RefCell permite mutar desde build_id(&self).
-    messages   : Vec<StatusMessage>,       // Mensajes de usuario acumulados.
+    request     : Option<HttpRequest>,      // Petición HTTP de origen.
+    locale      : RequestLocale,            // Idioma asociado a la petición.
+    current_user: CurrentUser,              // Identidad del usuario actual.
+    theme       : ThemeRef,                 // Referencia al tema usado para renderizar.
+    template    : TemplateRef,              // Plantilla usada para renderizar.
+    favicon     : Option<Favicon>,          // Favicon, si se ha definido.
+    stylesheets : Assets<StyleSheet>,       // Hojas de estilo CSS.
+    javascripts : Assets<JavaScript>,       // Scripts JavaScript.
+    body_props  : Props,                    // Identificador, clases CSS y atributos del <body>.
+    regions     : ChildrenInRegions,        // Regiones de componentes para renderizar.
+    params      : HashMap<&'static str, (Box<dyn Any>, &'static str)>, // Parámetros en ejecución.
+    id_counters : RefCell<HashMap<TypeId, usize>>,  // RefCell permite mutar desde build_id(&self).
+    messages    : Vec<StatusMessage>,       // Mensajes de usuario acumulados.
 }
 
 impl Default for Context {
@@ -312,9 +334,11 @@ impl Context {
     #[rustfmt::skip]
     pub fn new(request: Option<HttpRequest>) -> Self {
         let locale = RequestLocale::from_request(request.as_ref());
+        let current_user = Self::resolve_current_user(request.as_ref());
         Context {
             request,
             locale,
+            current_user,
             theme      : *DEFAULT_THEME,
             template   : DEFAULT_THEME.default_template(),
             favicon    : None,
@@ -326,6 +350,15 @@ impl Context {
             id_counters: RefCell::new(HashMap::new()),
             messages   : Vec::new(),
         }
+    }
+
+    // Extrae el `CurrentUser` inyectado por *middleware* en las extensiones de la petición, o
+    // `CurrentUser::Anonymous` si no hay petición o ninguna extensión de autenticación está activa.
+    fn resolve_current_user(request: Option<&HttpRequest>) -> CurrentUser {
+        request
+            .and_then(|r| r.extension::<CurrentUser>())
+            .cloned()
+            .unwrap_or(CurrentUser::Anonymous)
     }
 
     // **< Context RENDER >*************************************************************************
@@ -421,9 +454,9 @@ impl Context {
         }
     }
 
-    /// Acumula un [`StatusMessage`] en el contexto para notificar al visitante.
+    /// Acumula un [`StatusMessage`] en el contexto para notificar al usuario.
     ///
-    /// Pueden generarse en cualquier punto del ciclo de una petición web (manejadores, renderizado,
+    /// Pueden generarse en cualquier punto del ciclo de una petición web (*handlers*, renderizado,
     /// lógica de negocio, etc.) que tengan acceso al contexto, y mostrarlos luego, por ejemplo, en
     /// la página final devuelta al usuario.
     ///
@@ -470,8 +503,10 @@ impl Contextual for Context {
     #[builder_fn]
     fn with_request(mut self, request: Option<HttpRequest>) -> Self {
         self.request = request;
-        // Recalcula el locale según la nueva petición y la política de negociación configurada.
+        // Recalcula el *locale* y el usuario actual según la nueva petición y la política de
+        // negociación configurada.
         self.locale = RequestLocale::from_request(self.request.as_ref());
+        self.current_user = Self::resolve_current_user(self.request.as_ref());
         self
     }
 
@@ -553,6 +588,10 @@ impl Contextual for Context {
 
     fn request(&self) -> Option<&HttpRequest> {
         self.request.as_ref()
+    }
+
+    fn current_user(&self) -> &CurrentUser {
+        &self.current_user
     }
 
     fn theme(&self) -> ThemeRef {

@@ -45,17 +45,17 @@ impl ActionKey {
 /// Las acciones tienen que sobrescribir los métodos para el filtro que apliquen. Por defecto
 /// implementa un filtro nulo.
 pub trait ActionDispatcher: AnyInfo + Send + Sync {
-    /// Identificador de tipo ([`UniqueId`]) del objeto referido. En este caso devuelve `None`.
+    /// Devuelve el identificador de tipo ([`UniqueId`]) del objeto referido.
     fn referer_type_id(&self) -> Option<UniqueId> {
         None
     }
 
-    /// Identificador del objeto referido. En este caso devuelve `None`.
+    /// Devuelve el identificador del objeto referido.
     fn referer_id(&self) -> Option<String> {
         None
     }
 
-    /// Funciones con pesos más bajos se aplican antes. En este caso siempre devuelve `0`.
+    /// Devuelve el peso para definir el orden de ejecución.
     fn weight(&self) -> Weight {
         0
     }

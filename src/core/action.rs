@@ -12,7 +12,7 @@ use list::ActionsList;
 
 mod all;
 pub(crate) use all::add_action;
-pub use all::dispatch_actions;
+pub use all::{dispatch_actions, try_dispatch_actions};
 
 // **< actions! >***********************************************************************************
 

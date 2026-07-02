@@ -19,24 +19,35 @@ impl ActionsList {
         list.sort_by_key(|a| a.weight());
     }
 
-    pub fn iter_map<A, B, F>(&self, mut f: F)
+    pub fn for_each<A, F>(&self, mut f: F)
     where
-        Self: Sized,
         A: ActionDispatcher,
-        F: FnMut(&A) -> B,
+        F: FnMut(&A),
     {
-        let _: Vec<_> = self
-            .0
-            .read()
-            .iter()
-            .rev()
-            .map(|a| {
-                if let Some(action) = (**a).downcast_ref::<A>() {
-                    f(action);
-                } else {
-                    trace::error!("Failed to downcast action of type {}", (**a).type_name());
+        let list = self.0.read();
+        for a in list.iter().rev() {
+            if let Some(action) = (**a).downcast_ref::<A>() {
+                f(action);
+            } else {
+                trace::error!("Failed to downcast action of type {}", (**a).type_name());
+            }
+        }
+    }
+
+    pub fn try_for_each<A, F>(&self, mut f: F)
+    where
+        A: ActionDispatcher,
+        F: FnMut(&A) -> std::ops::ControlFlow<()>,
+    {
+        let list = self.0.read();
+        for a in list.iter().rev() {
+            if let Some(action) = (**a).downcast_ref::<A>() {
+                if f(action).is_break() {
+                    break;
                 }
-            })
-            .collect();
+            } else {
+                trace::error!("Failed to downcast action of type {}", (**a).type_name());
+            }
+        }
     }
 }

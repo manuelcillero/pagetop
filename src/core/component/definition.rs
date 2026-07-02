@@ -4,7 +4,7 @@ use crate::core::theme::ThemeRef;
 use crate::core::{AnyInfo, TypeInfo};
 use crate::html::{Markup, html};
 
-/// Permite clonar un componente.
+/// Habilita el clonado de componentes.
 ///
 /// Se implementa automáticamente para todo tipo que implemente [`Component`] y [`Clone`]. El método
 /// [`clone_box`](Self::clone_box) devuelve una copia en la *pila* del componente original, lo que

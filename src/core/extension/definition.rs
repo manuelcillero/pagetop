@@ -100,7 +100,6 @@ pub trait Extension: AnyInfo + Send + Sync {
     /// | Ruta HTTP                          | `.route("/path", web::get(handler))`            |
     /// | Rutas bajo prefijo común           | `.nest("/prefix", sub_router)`                  |
     /// | Archivos estáticos                 | `serve_static_files!(router, [...] => "/path")` |
-    /// | Capa de *middleware*               | `.layer(some_layer)`                            |
     /// | Estado compartido entre *handlers* | `.with_state(my_state)`                         |
     ///
     /// # Ejemplos
@@ -143,7 +142,16 @@ pub trait Extension: AnyInfo + Send + Sync {
     /// }
     /// ```
     ///
-    /// ## Rutas con capa de *middleware*
+    /// ## Rutas con *middleware* acotado a esta extensión
+    ///
+    /// Cada `Router` mantiene su propia pila de *middleware* independiente. Cuando se crea un
+    /// `Router::new()` separado y se llama a `.layer()` sobre él, esa capa sólo se aplica a las
+    /// rutas de ese *router* concreto. Al fusionarlo con `.merge()` en el `router` principal, cada
+    /// ruta se añade con su *middleware* asociado, sin tocar las demás.
+    ///
+    /// Otra cosa es llamar a `.layer()` directamente sobre el `router` principal que se recibe como
+    /// parámetro, porque ese objeto ya contiene todas las rutas acumuladas por extensiones
+    /// anteriores, y la capa se aplica a todas las rutas, no sólo a las propias.
     ///
     /// ```rust,ignore
     /// # use pagetop::prelude::*;
@@ -151,12 +159,16 @@ pub trait Extension: AnyInfo + Send + Sync {
     ///
     /// impl Extension for Api {
     ///     fn configure_router(&self, router: Router) -> Router {
-    ///         router
+    ///         let api = Router::new()
     ///             .route("/api/data", web::get(get_data))
-    ///             .layer(auth_layer())
+    ///             .layer(auth_layer());
+    ///         router.merge(api)
     ///     }
     /// }
     /// ```
+    ///
+    /// Para *middleware* que deba cubrir **todas** las rutas, usar
+    /// [`configure_middleware`](Self::configure_middleware).
     ///
     /// ## Archivos estáticos
     ///
@@ -175,6 +187,36 @@ pub trait Extension: AnyInfo + Send + Sync {
     /// }
     /// ```
     fn configure_router(&self, router: Router) -> Router {
+        router
+    }
+
+    /// Añade capas de *middleware* globales al *router* ya completamente preparado.
+    ///
+    /// Se invoca **después** de que todas las extensiones hayan registrado sus rutas con
+    /// [`configure_router`](Self::configure_router), de modo que las capas añadidas aquí se aplican
+    /// a **todas** las rutas de la aplicación, independientemente del orden de las extensiones.
+    ///
+    /// Usar este método cuando el *middleware* deba interceptar cualquier petición entrante (p. ej.
+    /// resolución de sesión, autenticación, cabeceras de seguridad, ...).
+    ///
+    /// # Ejemplo
+    ///
+    /// ```rust,no_run
+    /// # use pagetop::prelude::*;
+    /// # use axum::middleware;
+    /// # async fn session_middleware(
+    /// #     req: axum::extract::Request,
+    /// #     next: middleware::Next,
+    /// # ) -> axum::response::Response { next.run(req).await }
+    /// pub struct MyAuth;
+    ///
+    /// impl Extension for MyAuth {
+    ///     fn configure_middleware(&self, router: Router) -> Router {
+    ///         router.layer(middleware::from_fn(session_middleware))
+    ///     }
+    /// }
+    /// ```
+    fn configure_middleware(&self, router: Router) -> Router {
         router
     }
 }

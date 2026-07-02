@@ -17,7 +17,7 @@ pub enum MessageLevel {
 ///
 /// Representa un mensaje con carácter informativo, una advertencia o un error. A diferencia de
 /// [`ComponentError`](super::ComponentError), no está ligado a un fallo interno de renderizado,
-/// puede generarse en cualquier punto del procesamiento de una petición web (manejadores,
+/// puede generarse en cualquier punto del procesamiento de una petición web (*handlers*,
 /// renderizado, lógica de negocio, etc.).
 ///
 /// El texto se almacena como [`L10n`] para resolverse con el idioma del contexto en el momento de

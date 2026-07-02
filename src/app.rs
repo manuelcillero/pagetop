@@ -110,9 +110,10 @@ impl Application {
         }
     }
 
-    // Construye el router con las rutas de todas las extensiones habilitadas.
+    // Construye el router con las rutas y el middleware de todas las extensiones habilitadas.
     fn build_router() -> Router {
         let router = extension::all::configure_routes(Router::new());
+        let router = extension::all::configure_middleware(router);
         router.fallback(route_not_found)
     }
 

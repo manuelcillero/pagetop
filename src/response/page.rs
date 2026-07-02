@@ -16,6 +16,7 @@
 mod error;
 pub use error::ErrorPage;
 
+use crate::auth::CurrentUser;
 use crate::base::action;
 use crate::core::component::{AssetsOp, ChildOp, Context, ContextError, Contextual};
 use crate::core::theme::{DefaultRegion, Region, RegionRef, TemplateRef, ThemeRef};
@@ -95,8 +96,10 @@ pub struct Page {
 impl Page {
     /// Crea una nueva instancia de página.
     ///
-    /// La petición HTTP se guardará en el contexto de renderizado de la página para poder ser
-    /// recuperada por los componentes si es necesario.
+    /// La petición HTTP se guarda en el contexto de renderizado, que extrae automáticamente el
+    /// [`CurrentUser`] inyectado por *middleware* en sus extensiones (ver
+    /// [`Context::new`](crate::core::component::Context::new)). Cualquier *handler* tiene acceso al
+    /// usuario actual desde el momento en que se crea la página, sin llamadas adicionales.
     #[rustfmt::skip]
     pub fn new(request: HttpRequest) -> Self {
         Page {
@@ -314,6 +317,10 @@ impl Contextual for Page {
 
     fn request(&self) -> Option<&HttpRequest> {
         self.context.request()
+    }
+
+    fn current_user(&self) -> &CurrentUser {
+        self.context.current_user()
     }
 
     fn theme(&self) -> ThemeRef {

@@ -45,6 +45,8 @@ pub use crate::core::component::*;
 pub use crate::core::extension::*;
 pub use crate::core::theme::*;
 
+pub use crate::auth::*;
+
 pub use crate::response::{json::*, page::*, redirect::*};
 
 pub use crate::base::action;

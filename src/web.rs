@@ -1,22 +1,20 @@
 //! Servidor web y rutas de la aplicación (basado en [Axum](https://docs.rs/axum)).
 //!
-//! Define rutas y manejadores: el [`Router`], las operaciones HTTP ([`get`], [`post`], [`put`],
+//! Define rutas y *handlers*: el [`Router`], las operaciones HTTP ([`get`], [`post`], [`put`],
 //! [`delete`], [`patch`]), los extractores ([`Path`], [`Query`]) e [`IntoResponse`], y re-exporta
 //! el módulo `http` para tipos de bajo nivel como `StatusCode`, `HeaderName` o `Method`. También
 //! ofrece utilidades para servir archivos estáticos, [`ServeDir`] y [`ServeEmbedded`].
+//!
+//! Los *handlers* son las funciones asíncronas que el servidor invoca al recibir una petición
+//! HTTP en una ruta concreta.
 
 use crate::StaticFile;
 
-use std::collections::HashMap;
-use std::convert::Infallible;
-use std::task::{Context, Poll};
-
-use axum::body::Body;
-use axum::extract::FromRequestParts;
+#[doc(inline)]
+pub use axum::http;
 
 // Infraestructura del router.
 pub use axum::Router;
-pub use axum::http;
 
 // Extractores de petición.
 pub use axum::extract::{Path, Query};
@@ -27,24 +25,47 @@ pub use axum::response::{IntoResponse, Response};
 // Operaciones HTTP para registrar rutas.
 pub use axum::routing::{delete, get, patch, post, put};
 
+use axum::body::Body;
+use axum::extract::FromRequestParts;
+
+use std::collections::HashMap;
+use std::convert::Infallible;
+use std::sync::Arc;
+use std::task::{Context, Poll};
+
 // **< HttpRequest >********************************************************************************
 
 /// Representa una petición HTTP.
 ///
 /// Almacena los datos necesarios para negociar el idioma y renderizar las páginas de error,
-/// incluyendo la URI completa y las cabeceras de la petición original.
+/// incluyendo la URI completa, las cabeceras de la petición original y las extensiones de tipo que
+/// los *middlewares* pueden inyectar antes de que el *handler* se ejecute.
 ///
 /// Puede declararse directamente como parámetro en un *handler* para pasarlo al
 /// [`Context`](crate::core::component::Context) de renderizado y a las variantes de
 /// [`ErrorPage`](crate::response::page::ErrorPage):
 ///
+/// ```rust,no_run
+/// # use pagetop::prelude::*;
+/// async fn my_handler(request: HttpRequest) -> Result<Markup, ErrorPage> {
+///     // ...
+///     # todo!()
+/// }
+/// ```
+///
+/// Las extensiones inyectadas por *middleware* son accesibles vía [`extension`](Self::extension).
+/// Por ejemplo, desde un *handler*, tras añadir `MyData` en un *middleware*:
+///
 /// ```rust,ignore
-/// async fn my_handler(request: HttpRequest) -> Result<Markup, ErrorPage> { ... }
+/// if let Some(data) = request.extension::<MyData>() {
+///     // ...
+/// }
 /// ```
 #[derive(Clone, Debug)]
 pub struct HttpRequest {
     uri: http::Uri,
     headers: http::HeaderMap,
+    extensions: Arc<http::Extensions>,
 }
 
 impl HttpRequest {
@@ -72,19 +93,35 @@ impl HttpRequest {
     pub fn headers(&self) -> &http::HeaderMap {
         &self.headers
     }
+
+    /// Accede a un valor inyectado por *middleware* en las extensiones de la petición.
+    ///
+    /// Devuelve una referencia al tipo `T` si algún *middleware* lo insertó antes de que el
+    /// *handler* recibiera la petición, o `None` en caso contrario.
+    ///
+    /// El tipo debe implementar `Send + Sync + 'static` (requisito de [`http::Extensions`]).
+    pub fn extension<T: Send + Sync + 'static>(&self) -> Option<&T> {
+        self.extensions.get::<T>()
+    }
 }
 
 impl<S: Send + Sync> FromRequestParts<S> for HttpRequest {
     type Rejection = Infallible;
 
-    // Implementa el extractor de Axum para poder declarar `HttpRequest` como parámetro.
+    // Extrae la petición y toma las extensiones que han sido inyectadas por *middleware*. Las
+    // extensiones se mueven a un `Arc` compartido para que `HttpRequest` sea `Clone`.
+    //
+    // Nota: tras este extractor `parts.extensions` queda vacío; otros extractores que dependan de
+    //       `Extension<T>` deben registrarse antes en la cadena del *handler*.
     async fn from_request_parts(
         parts: &mut http::request::Parts,
         _state: &S,
     ) -> Result<Self, Self::Rejection> {
+        let extensions = std::mem::take(&mut parts.extensions);
         Ok(HttpRequest {
             uri: parts.uri.clone(),
             headers: parts.headers.clone(),
+            extensions: Arc::new(extensions),
         })
     }
 }
@@ -104,7 +141,7 @@ pub use tower_http::services::ServeDir;
 /// devuelve el `index.html` raíz si existe; no busca por subdirectorio.
 ///
 /// Implementa [`Clone`] para clonar el servicio por petición, pero internamente comparte el mapa de
-/// recursos con un [`Arc`](std::sync::Arc) para evitar copias innecesarias.
+/// recursos con un [`Arc`] para evitar copias innecesarias.
 #[derive(Clone)]
 pub struct ServeEmbedded {
     files: std::sync::Arc<HashMap<&'static str, StaticFile>>,
@@ -300,6 +337,7 @@ pub mod test {
     pub struct TestRequest {
         method: http::Method,
         uri: String,
+        extensions: http::Extensions,
     }
 
     impl TestRequest {
@@ -308,6 +346,7 @@ pub mod test {
             Self {
                 method: http::Method::GET,
                 uri: "/".to_owned(),
+                extensions: http::Extensions::new(),
             }
         }
 
@@ -316,6 +355,7 @@ pub mod test {
             Self {
                 method: http::Method::POST,
                 uri: "/".to_owned(),
+                extensions: http::Extensions::new(),
             }
         }
 
@@ -325,13 +365,24 @@ pub mod test {
             self
         }
 
+        /// Inserta un valor en las extensiones de la petición.
+        ///
+        /// Útil para simular lo que un *middleware* haría en producción antes de que el *handler*
+        /// reciba la petición. El tipo debe implementar `Clone + Send + Sync + 'static`.
+        pub fn with_extension<T: Clone + Send + Sync + 'static>(mut self, value: T) -> Self {
+            self.extensions.insert(value);
+            self
+        }
+
         /// Construye la petición HTTP de Axum (para enviar al router en tests de integración).
         pub fn to_request(self) -> http::Request<Body> {
-            http::Request::builder()
+            let mut req = http::Request::builder()
                 .method(self.method)
                 .uri(self.uri)
                 .body(Body::empty())
-                .unwrap()
+                .unwrap();
+            *req.extensions_mut() = self.extensions;
+            req
         }
 
         /// Construye un [`HttpRequest`](super::HttpRequest) listo para pasarlo a
@@ -341,6 +392,7 @@ pub mod test {
             super::HttpRequest {
                 uri,
                 headers: axum::http::HeaderMap::new(),
+                extensions: std::sync::Arc::new(self.extensions),
             }
         }
     }

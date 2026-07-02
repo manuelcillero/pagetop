@@ -45,9 +45,9 @@ pub(crate) fn add_action(action: ActionBox) {
 /// # Parámetros genéricos
 ///
 /// - `A`: Tipo de acción que esperamos procesar. Debe implementar [`ActionDispatcher`].
-/// - `F`: Función asociada a cada acción, devuelve un valor de tipo `B`.
+/// - `F`: Función que se aplica para una acción dada.
 ///
-/// # Ejemplo de uso
+/// # Ejemplo
 ///
 /// ```rust,ignore
 /// pub(crate) fn dispatch(component: &mut C, cx: &mut Context) {
@@ -61,12 +61,47 @@ pub(crate) fn add_action(action: ActionBox) {
 ///     );
 /// }
 /// ```
-pub fn dispatch_actions<A, B, F>(key: &ActionKey, f: F)
+pub fn dispatch_actions<A, F>(key: &ActionKey, f: F)
 where
     A: ActionDispatcher,
-    F: FnMut(&A) -> B,
+    F: FnMut(&A),
 {
     if let Some(list) = ACTIONS.read().get(key) {
-        list.iter_map(f);
+        list.for_each(f);
+    }
+}
+
+/// Despacha las funciones asociadas a una [`ActionKey`] con posible salida anticipada.
+///
+/// Funciona igual que [`dispatch_actions`], pero el *closure* puede devolver
+/// [`std::ops::ControlFlow::Continue`] para continuar ejecutando la siguiente acción; o
+/// [`std::ops::ControlFlow::Break`] para detener la iteración inmediatamente.
+///
+/// # Ejemplo
+///
+/// ```rust,ignore
+/// pub(crate) fn check(cx: &Context, key: &str) -> bool {
+///     let mut granted = false;
+///     try_dispatch_actions(
+///         &ActionKey::new(UniqueId::of::<Self>(), None, None),
+///         |action: &Self| {
+///             (action.f)(cx, key, &mut granted);
+///             if granted {
+///                 std::ops::ControlFlow::Break(())
+///             } else {
+///                 std::ops::ControlFlow::Continue(())
+///             }
+///         },
+///     );
+///     granted
+/// }
+/// ```
+pub fn try_dispatch_actions<A, F>(key: &ActionKey, f: F)
+where
+    A: ActionDispatcher,
+    F: FnMut(&A) -> std::ops::ControlFlow<()>,
+{
+    if let Some(list) = ACTIONS.read().get(key) {
+        list.try_for_each(f);
     }
 }

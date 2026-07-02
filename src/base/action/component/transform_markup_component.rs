@@ -10,19 +10,16 @@ pub struct TransformMarkup<C: Component> {
     weight: Weight,
 }
 
-/// Filtro para despachar [`FnActionTransformMarkup`] sobre el renderizado de un componente `C`.
+// Filtro para despachar `FnActionTransformMarkup` sobre el renderizado de un componente `C`.
 impl<C: Component> ActionDispatcher for TransformMarkup<C> {
-    /// Devuelve el identificador de tipo ([`UniqueId`]) del componente `C`.
     fn referer_type_id(&self) -> Option<UniqueId> {
         self.referer_type_id
     }
 
-    /// Devuelve el identificador del componente.
     fn referer_id(&self) -> Option<String> {
         self.referer_id.clone()
     }
 
-    /// Devuelve el peso para definir el orden de ejecución.
     fn weight(&self) -> Weight {
         self.weight
     }

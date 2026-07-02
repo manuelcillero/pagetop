@@ -10,19 +10,16 @@ pub struct BeforeRender<C: Component> {
     weight: Weight,
 }
 
-/// Filtro para despachar [`FnActionWithComponent`] antes de renderizar un componente `C`.
+// Filtro para despachar `FnActionWithComponent` antes de renderizar un componente `C`.
 impl<C: Component> ActionDispatcher for BeforeRender<C> {
-    /// Devuelve el identificador de tipo ([`UniqueId`]) del componente `C`.
     fn referer_type_id(&self) -> Option<UniqueId> {
         self.referer_type_id
     }
 
-    /// Devuelve el identificador del componente.
     fn referer_id(&self) -> Option<String> {
         self.referer_id.clone()
     }
 
-    /// Devuelve el peso para definir el orden de ejecución.
     fn weight(&self) -> Weight {
         self.weight
     }

@@ -14,8 +14,8 @@ pub struct BeforeRenderBody {
     weight: Weight,
 }
 
+// Filtro para despachar `FnActionWithPage` antes de renderizar el cuerpo de la página.
 impl ActionDispatcher for BeforeRenderBody {
-    /// Devuelve el peso para definir el orden de ejecución.
     fn weight(&self) -> Weight {
         self.weight
     }
@@ -35,8 +35,7 @@ impl BeforeRenderBody {
     }
 
     /// Despacha las acciones.
-    #[inline(always)]
-    #[allow(clippy::inline_always)]
+    #[inline]
     pub(crate) fn dispatch(page: &mut Page) {
         dispatch_actions(
             &ActionKey::new(UniqueId::of::<Self>(), None, None),
