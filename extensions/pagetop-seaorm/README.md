@@ -19,14 +19,34 @@ configurables, basadas en HTML, CSS y JavaScript.
 
 ## Guía rápida
 
-**Añade la dependencia** a tu `Cargo.toml` activando el motor de base de datos que necesites:
+**Añade la dependencia** a tu `Cargo.toml`:
 
-```toml
-[dependencies]
-pagetop-seaorm = { version = "...", features = ["sqlite"] }
-```
+- Si estás desarrollando una **aplicación**, activa el motor de base de datos que necesites:
 
-Las *features* disponibles son `mysql`, `postgres` y `sqlite`.
+  ```toml
+  [features]
+  default  = ["postgres"]
+  mysql    = ["pagetop-seaorm/mysql"]
+  postgres = ["pagetop-seaorm/postgres"]
+  sqlite   = ["pagetop-seaorm/sqlite"]
+
+  [dependencies]
+  pagetop-seaorm = { version = "..." }
+  ```
+
+  Las *features* disponibles son `mysql`, `postgres` y `sqlite`. Gracias a la unificación de
+  *features* de Cargo, activar el motor aquí lo propaga a todos los *crates* del árbol de
+  dependencias que usen `pagetop-seaorm`; no es necesario que cada extensión lo reexporte.
+
+- Si estás escribiendo una **extensión**, declara la dependencia sin *features*:
+
+  ```toml
+  [dependencies]
+  pagetop-seaorm = { version = "..." }
+  ```
+
+  La selección del motor es responsabilidad de la aplicación que use la extensión, no de la
+  extensión misma.
 
 **Configura la conexión** en el archivo de configuración de la aplicación:
 
