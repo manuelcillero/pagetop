@@ -25,7 +25,7 @@ impl ActionsList {
         F: FnMut(&A),
     {
         let list = self.0.read();
-        for a in list.iter().rev() {
+        for a in list.iter() {
             if let Some(action) = (**a).downcast_ref::<A>() {
                 f(action);
             } else {
@@ -40,7 +40,7 @@ impl ActionsList {
         F: FnMut(&A) -> std::ops::ControlFlow<()>,
     {
         let list = self.0.read();
-        for a in list.iter().rev() {
+        for a in list.iter() {
             if let Some(action) = (**a).downcast_ref::<A>() {
                 if f(action).is_break() {
                     break;
