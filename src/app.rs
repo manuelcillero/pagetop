@@ -9,45 +9,40 @@ use crate::response::page::ErrorPage;
 use crate::web::{HttpRequest, Router};
 use crate::{PAGETOP_VERSION, global, trace};
 
-use std::future::Future;
 use std::io::Error;
 use std::sync::LazyLock;
 
 /// Punto de entrada de una aplicación PageTop.
 ///
-/// No almacena datos, **encapsula** el inicio completo de la configuración y puesta en marcha de la
-/// aplicación. Para instanciarla se puede usar [`new()`](Application::new) o
-/// [`prepare()`](Application::prepare). Después sólo hay que llamar a [`run()`](Application::run)
-/// para ejecutar la aplicación (o a [`test()`](Application::test) si se está preparando un entorno
-/// de pruebas).
+/// Orquesta el arranque de la aplicación. Primero se instancia con [`new()`](Application::new) o
+/// [`prepare()`](Application::prepare), y después se ejecuta usando [`run()`](Application::run) (o
+/// usando [`test()`](Application::test) si se está preparando un entorno de pruebas).
 pub struct Application;
-
-impl Default for Application {
-    fn default() -> Self {
-        Self::new()
-    }
-}
 
 impl Application {
     /// Crea una instancia mínima de la aplicación, sin extensión raíz.
     ///
     /// Útil para verificar que el servidor arranca correctamente. Para una aplicación real, usa
     /// [`prepare()`](Application::prepare) con una extensión raíz.
-    pub fn new() -> Self {
-        Self::internal_prepare(None)
+    pub async fn new() -> Self {
+        Self::internal_prepare(None).await
     }
 
     /// Prepara una instancia de la aplicación a partir de una extensión raíz.
     ///
-    /// Las dependencias se habilitan en orden: primero las que no dependen de ninguna otra, luego
-    /// las que dependen de extensiones ya habilitadas, y así sucesivamente hasta dejar habilitada
-    /// la extensión raíz.
-    pub fn prepare(root_extension: ExtensionRef) -> Self {
-        Self::internal_prepare(Some(root_extension))
+    /// Inicializa la aplicación habilitando las extensiones en orden de dependencia: primero las
+    /// que no dependen de ninguna otra, luego las que dependen de extensiones ya habilitadas, y así
+    /// hasta habilitar la extensión raíz.
+    ///
+    /// Es *async* porque cada extensión puede realizar operaciones asíncronas en su
+    /// [`initialize()`](crate::core::extension::Extension::initialize) (conexión a base de datos,
+    /// migraciones, semillas de datos...).
+    pub async fn prepare(root_extension: ExtensionRef) -> Self {
+        Self::internal_prepare(Some(root_extension)).await
     }
 
     // Secuencia de arranque común a new() y prepare().
-    fn internal_prepare(root_extension: Option<ExtensionRef>) -> Self {
+    async fn internal_prepare(root_extension: Option<ExtensionRef>) -> Self {
         // Al arrancar muestra una cabecera para la aplicación.
         Self::show_banner();
 
@@ -64,7 +59,7 @@ impl Application {
         extension::all::register_actions();
 
         // Inicializa las extensiones.
-        extension::all::initialize_extensions();
+        extension::all::initialize_extensions().await;
 
         Self
     }
@@ -119,9 +114,9 @@ impl Application {
 
     /// Arranca el servidor web de la aplicación.
     ///
-    /// Enlaza el puerto del servidor web de forma síncrona (puede fallar con [`std::io::Error`] si
-    /// el puerto ya está en uso o el proceso carece de permisos) y devuelve un [`Future`] que
-    /// ejecuta el bucle de atención de peticiones. El patrón habitual es:
+    /// Enlaza el puerto del servidor web (puede fallar con [`std::io::Error`] si el puerto ya está
+    /// en uso o el proceso carece de permisos) y ejecuta el bucle de atención de peticiones. El
+    /// patrón habitual es:
     ///
     /// ```rust,no_run
     /// use pagetop::prelude::*;
@@ -132,26 +127,24 @@ impl Application {
     ///
     /// #[pagetop::main]
     /// async fn main() -> std::io::Result<()> {
-    ///     Application::prepare(&MyApp).run()?.await
+    ///     Application::prepare(&MyApp).await.run().await
     /// }
     /// ```
-    pub fn run(self) -> Result<impl Future<Output = Result<(), Error>>, Error> {
+    pub async fn run(self) -> Result<(), Error> {
         let addr = format!(
             "{}:{}",
             global::SETTINGS.server.bind_address,
             global::SETTINGS.server.bind_port
         );
 
-        // Enlaza el puerto de forma síncrona para detectar errores antes del *await*.
+        // Enlaza el puerto de forma síncrona para detectar errores.
         let std_listener = std::net::TcpListener::bind(&addr)?;
         std_listener.set_nonblocking(true)?;
 
         let router = Self::build_router();
 
-        Ok(async move {
-            let listener = tokio::net::TcpListener::from_std(std_listener)?;
-            axum::serve(listener, router).await
-        })
+        let listener = tokio::net::TcpListener::from_std(std_listener)?;
+        axum::serve(listener, router).await
     }
 
     /// Devuelve el servidor web configurado para usarlo en pruebas de integración.

@@ -4,7 +4,7 @@
 
 pub use crate::PAGETOP_VERSION;
 
-pub use crate::{builder_fn, html, main, test};
+pub use crate::{async_trait, builder_fn, html, main, test};
 
 pub use crate::{AutoDefault, CowStr, Getters, StaticResources, UniqueId, Weight};
 

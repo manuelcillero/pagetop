@@ -29,7 +29,7 @@ según las necesidades de cada proyecto, incluyendo:
   * **Temas** (*themes*): son extensiones que permiten modificar la apariencia de páginas y
     componentes.
 
-# ⚡️ Guía rápida
+## Guía rápida
 
 La aplicación más sencilla de PageTop se ve así:
 
@@ -38,14 +38,14 @@ use pagetop::prelude::*;
 
 #[pagetop::main]
 async fn main() -> std::io::Result<()> {
-    Application::new().run()?.await
+    Application::new().await.run().await
 }
 ```
 
 Este código arranca el servidor de PageTop. Con la configuración por defecto, muestra una página de
 bienvenida accesible desde un navegador local en la dirección `http://localhost:8080`.
 
-Para personalizar el servicio, se puede crear una extensión de PageTop de la siguiente manera:
+Para personalizar el servicio, puedes crear una extensión de PageTop de la siguiente manera:
 
 ```rust,no_run
 use pagetop::prelude::*;
@@ -66,22 +66,12 @@ async fn hello_world(request: HttpRequest) -> Result<Markup, ErrorPage> {
 
 #[pagetop::main]
 async fn main() -> std::io::Result<()> {
-    Application::prepare(&HelloWorld).run()?.await
+    Application::prepare(&HelloWorld).await.run().await
 }
 ```
 
 Este programa implementa una extensión llamada `HelloWorld` que sirve una página web en la ruta raíz
-(`/`) mostrando el texto "Hello world!" dentro de un elemento HTML `<h1>`.
-
-
-# 🧩 Gestión de Dependencias
-
-Los proyectos que utilizan PageTop gestionan las dependencias con `cargo`, como cualquier otro
-proyecto en Rust.
-
-Sin embargo, es fundamental que cada extensión declare explícitamente sus
-[dependencias](core::extension::Extension::dependencies), si las tiene, para que PageTop pueda
-estructurar e inicializar la aplicación de forma modular.
+(`/`) mostrando el texto "Hello World!" dentro de un elemento HTML `<h1>`.
 */
 
 #![cfg_attr(docsrs, feature(doc_cfg))]
@@ -132,6 +122,21 @@ use std::ops::Deref;
 /// referencia a la versión del *crate* que lo usa.
 pub const PAGETOP_VERSION: &str = env!("CARGO_PKG_VERSION");
 
+/// Re-exporta el atributo [`async_trait`](https://docs.rs/async-trait) para implementar *traits*
+/// con métodos `async`.
+///
+/// Si en el ámbito se declara `use pagetop::prelude::*` o `use pagetop::async_trait;` basta con
+/// usar el nombre corto `#[async_trait]`. Otra opción es usar su forma cualificada
+/// `#[pagetop::async_trait]`.
+///
+/// Al estar incluido en PageTop, no hace falta añadir la dependencia `async-trait` en el
+/// `Cargo.toml` del proyecto.
+///
+/// En proyectos que crean extensiones de PageTop, su uso es necesario cuando se sobrescribe
+/// [`initialize()`](crate::core::extension::Extension::initialize) en un bloque
+/// [`impl Extension`](crate::core::extension::Extension).
+pub use async_trait::async_trait;
+
 pub use pagetop_macros::{AutoDefault, builder_fn, html, main, test};
 
 pub use pagetop_statics::{StaticFile, resource};
@@ -174,8 +179,8 @@ pub type UniqueId = std::any::TypeId;
 
 /// Representa el peso lógico de una instancia en una colección ordenada por pesos.
 ///
-/// Las instancias con pesos **más bajos**, incluyendo valores negativos (`-128..127`), se situarán
-/// antes en la ordenación.
+/// Las instancias con pesos **más bajos**, incluyendo valores negativos, se situarán antes en la
+/// ordenación. Acepta valores `i8` de -128 a 127.
 pub type Weight = i8;
 
 // **< API >****************************************************************************************

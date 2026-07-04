@@ -1,8 +1,12 @@
 use pagetop::prelude::*;
 
+async fn setup() {
+    Application::new().await;
+}
+
 #[pagetop::test]
 async fn literal_text() {
-    let _app = web::test::init_router(Application::new().test());
+    setup().await;
 
     let l10n = L10n::n("© 2025 PageTop");
     assert_eq!(l10n.get(), Some("© 2025 PageTop".to_string()));
@@ -10,7 +14,7 @@ async fn literal_text() {
 
 #[pagetop::test]
 async fn translation_without_args() {
-    let _app = web::test::init_router(Application::new().test());
+    setup().await;
 
     let l10n = L10n::l("test_hello_world");
     let translation = l10n.lookup(&Locale::resolve("es-ES"));
@@ -19,7 +23,7 @@ async fn translation_without_args() {
 
 #[pagetop::test]
 async fn translation_with_args() {
-    let _app = web::test::init_router(Application::new().test());
+    setup().await;
 
     let l10n = L10n::l("test_hello_user").with_arg("userName", "Manuel");
     let translation = l10n.lookup(&Locale::resolve("es-ES"));
@@ -28,7 +32,7 @@ async fn translation_with_args() {
 
 #[pagetop::test]
 async fn translation_with_plural_and_select() {
-    let _app = web::test::init_router(Application::new().test());
+    setup().await;
 
     let l10n = L10n::l("test_shared_photos").with_args(vec![
         ("userName", "Roberto"),
@@ -41,7 +45,7 @@ async fn translation_with_plural_and_select() {
 
 #[pagetop::test]
 async fn check_fallback_language() {
-    let _app = web::test::init_router(Application::new().test());
+    setup().await;
 
     let l10n = L10n::l("test_hello_world");
     let translation = l10n.lookup(&Locale::resolve("xx-YY")); // Retrocede a "en-US".
@@ -50,7 +54,7 @@ async fn check_fallback_language() {
 
 #[pagetop::test]
 async fn check_unknown_key() {
-    let _app = web::test::init_router(Application::new().test());
+    setup().await;
 
     let l10n = L10n::l("non-existent-key");
     let translation = l10n.lookup(&Locale::resolve("en-US"));

@@ -3,6 +3,10 @@ use pagetop::prelude::*;
 use std::{borrow::Cow, fs, io};
 use tempfile::TempDir;
 
+async fn setup() {
+    Application::new().await;
+}
+
 // **< Testing normalize_ascii() >******************************************************************
 
 fn assert_err(input: &str, expected: util::NormalizeAsciiError) {
@@ -265,7 +269,7 @@ mod unix {
 
     #[pagetop::test]
     async fn ok_absolute_dir() -> io::Result<()> {
-        let _app = web::test::init_router(Application::new().test());
+        setup().await;
 
         // /tmp/<rand>/sub
         let td = TempDir::new()?;
@@ -279,7 +283,7 @@ mod unix {
 
     #[pagetop::test]
     async fn ok_relative_dir_with_manifest() -> io::Result<()> {
-        let _app = web::test::init_router(Application::new().test());
+        setup().await;
 
         let td = TempDir::new()?;
         let sub = td.path().join("sub");
@@ -293,7 +297,7 @@ mod unix {
 
     #[pagetop::test]
     async fn error_not_a_directory() -> io::Result<()> {
-        let _app = web::test::init_router(Application::new().test());
+        setup().await;
 
         let td = TempDir::new()?;
         let file = td.path().join("foo.txt");
@@ -311,7 +315,7 @@ mod windows {
 
     #[pagetop::test]
     async fn ok_absolute_dir() -> io::Result<()> {
-        let _app = web::test::init_router(Application::new().test());
+        setup().await;
 
         // C:\Users\...\Temp\...
         let td = TempDir::new()?;
@@ -325,7 +329,7 @@ mod windows {
 
     #[pagetop::test]
     async fn ok_relative_dir_with_manifest() -> io::Result<()> {
-        let _app = web::test::init_router(Application::new().test());
+        setup().await;
 
         let td = TempDir::new()?;
         let sub = td.path().join("sub");
@@ -339,7 +343,7 @@ mod windows {
 
     #[pagetop::test]
     async fn error_not_a_directory() -> io::Result<()> {
-        let _app = web::test::init_router(Application::new().test());
+        setup().await;
 
         let td = TempDir::new()?;
         let file = td.path().join("foo.txt");

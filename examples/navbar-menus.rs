@@ -5,6 +5,7 @@ include_locales!(LOC from "examples/locale");
 
 struct SuperMenu;
 
+#[async_trait]
 impl Extension for SuperMenu {
     fn dependencies(&self) -> Vec<ExtensionRef> {
         vec![
@@ -14,7 +15,7 @@ impl Extension for SuperMenu {
         ]
     }
 
-    fn initialize(&self) {
+    async fn initialize(&self) {
         let navbar_menu = bs::Navbar::brand_left(bs::navbar::Brand::new())
             .with_expand(token::BreakPoint::LG)
             .with_item(bs::navbar::Item::nav(
@@ -114,5 +115,5 @@ impl Extension for SuperMenu {
 
 #[pagetop::main]
 async fn main() -> std::io::Result<()> {
-    Application::prepare(&SuperMenu).run()?.await
+    Application::prepare(&SuperMenu).await.run().await
 }

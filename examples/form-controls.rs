@@ -437,5 +437,5 @@ fn form_lists() -> Form {
 
 #[pagetop::main]
 async fn main() -> std::io::Result<()> {
-    Application::prepare(&FormControls).run()?.await
+    Application::prepare(&FormControls).await.run().await
 }

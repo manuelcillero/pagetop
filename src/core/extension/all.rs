@@ -72,10 +72,10 @@ pub fn register_actions() {
 
 // **< INICIALIZA LAS EXTENSIONES >*****************************************************************
 
-pub fn initialize_extensions() {
+pub async fn initialize_extensions() {
     trace::info!("Calling application bootstrap");
     for e in EXTENSIONS.get().into_iter().flatten() {
-        e.initialize();
+        e.initialize().await;
     }
 }
 

@@ -78,5 +78,5 @@ async fn intro_colors(request: HttpRequest) -> Result<Markup, ErrorPage> {
 
 #[pagetop::main]
 async fn main() -> std::io::Result<()> {
-    Application::prepare(&IntroColors).run()?.await
+    Application::prepare(&IntroColors).await.run().await
 }

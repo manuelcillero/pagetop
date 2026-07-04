@@ -1,4 +1,5 @@
 use crate::actions;
+use crate::async_trait;
 use crate::core::AnyInfo;
 use crate::core::action::ActionBox;
 use crate::core::theme::ThemeRef;
@@ -24,6 +25,7 @@ use crate::web::Router;
 ///     }
 /// }
 /// ```
+#[async_trait]
 pub trait Extension: AnyInfo + Send + Sync {
     /// Nombre de la extensión como *texto localizado* legible para el usuario.
     ///
@@ -64,10 +66,30 @@ pub trait Extension: AnyInfo + Send + Sync {
         None
     }
 
-    /// Otras extensiones que deben habilitarse **antes** de esta.
+    /// Extensiones que deben inicializarse **antes** de esta.
     ///
-    /// PageTop resolverá automáticamente estas dependencias respetando el orden durante el arranque
-    /// de la aplicación.
+    /// PageTop usa este método para construir un grafo de dependencias en tiempo de ejecución entre
+    /// extensiones. Garantiza que todas las extensiones requeridas están presentes y se inicializan
+    /// en el orden apropiado, es decir, las dependencias siempre antes que la extensión que las
+    /// declara.
+    ///
+    /// Esta declaración es independiente de las dependencias en `Cargo.toml`, donde Rust gestiona
+    /// las dependencias de los *crates* en tiempo de compilación.
+    ///
+    /// # Ejemplo
+    ///
+    /// ```rust,no_run
+    /// # use pagetop::prelude::*;
+    /// # pub struct Database;
+    /// # impl Extension for Database {}
+    /// pub struct MyApp;
+    ///
+    /// impl Extension for MyApp {
+    ///     fn dependencies(&self) -> Vec<ExtensionRef> {
+    ///         vec![&Database]
+    ///     }
+    /// }
+    /// ```
     fn dependencies(&self) -> Vec<ExtensionRef> {
         vec![]
     }
@@ -83,9 +105,34 @@ pub trait Extension: AnyInfo + Send + Sync {
 
     /// Inicializa la extensión durante la fase de arranque de la aplicación.
     ///
-    /// Se llama una sola vez, después de que todas las dependencias se han inicializado y antes de
-    /// aceptar cualquier petición HTTP.
-    fn initialize(&self) {}
+    /// La firma extendida que se muestra es el resultado de aplicar la macro
+    /// [`pagetop::async_trait`](pagetop::async_trait) a la declaración del método:
+    ///
+    /// ```text
+    /// async fn initialize(&self) {}
+    /// ```
+    ///
+    /// Solo es necesario sobrescribir este método **cuando la extensión necesita ejecutar alguna
+    /// lógica de inicialización**. PageTop lo invoca una sola vez, después de que todas las
+    /// dependencias se han inicializado y antes de aceptar cualquier petición HTTP.
+    ///
+    /// En ese caso, el bloque `impl Extension` debe llevar `#[async_trait]`:
+    ///
+    /// ```rust,no_run
+    /// use pagetop::prelude::*;
+    ///
+    /// pub struct MyExtension;
+    ///
+    /// #[async_trait]
+    /// impl Extension for MyExtension {
+    ///     async fn initialize(&self) {
+    ///         // lógica de inicialización...
+    ///     }
+    /// }
+    /// ```
+    ///
+    /// Las extensiones que no sobrescriben `initialize()` no necesitan `#[async_trait]`.
+    async fn initialize(&self) {}
 
     /// Registra rutas, servicios y capas de la extensión en el servidor web de la aplicación.
     ///
@@ -95,12 +142,12 @@ pub trait Extension: AnyInfo + Send + Sync {
     ///
     /// # Operaciones disponibles
     ///
-    /// | Operación                          | Llamada sobre `router`                          |
-    /// |------------------------------------|-------------------------------------------------|
-    /// | Ruta HTTP                          | `.route("/path", web::get(handler))`            |
-    /// | Rutas bajo prefijo común           | `.nest("/prefix", sub_router)`                  |
-    /// | Archivos estáticos                 | `serve_static_files!(router, [...] => "/path")` |
-    /// | Estado compartido entre *handlers* | `.with_state(my_state)`                         |
+    /// | Operación                          | Llamada sobre `router`                             |
+    /// |------------------------------------|----------------------------------------------------|
+    /// | Ruta HTTP                          | `.route("/path", web::get(handler))`               |
+    /// | Rutas bajo prefijo común           | `.nest("/prefix", sub_router)`                     |
+    /// | Archivos estáticos                 | `serve_static_files!(router, [assets] => "/path")` |
+    /// | Estado compartido entre *handlers* | `.with_state(my_state)`                            |
     ///
     /// # Ejemplos
     ///

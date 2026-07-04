@@ -4,13 +4,13 @@ use pagetop::prelude::*;
 ///
 /// Los tests de este módulo renderizan componentes directamente con `Context::default()`, por lo
 /// que sólo necesitan el subsistema de localización y las extensiones registradas, no un router.
-fn setup() {
-    let _ = Application::new();
+async fn setup() {
+    Application::new().await;
 }
 
 #[pagetop::test]
 async fn poweredby_default_shows_only_pagetop_recognition() {
-    setup();
+    setup().await;
 
     let mut p = PoweredBy::default();
     let html = p.render(&mut Context::default());
@@ -24,7 +24,7 @@ async fn poweredby_default_shows_only_pagetop_recognition() {
 
 #[pagetop::test]
 async fn poweredby_new_includes_current_year_and_app_name() {
-    setup();
+    setup().await;
 
     let mut p = PoweredBy::new();
     let html = p.render(&mut Context::default());
@@ -48,7 +48,7 @@ async fn poweredby_new_includes_current_year_and_app_name() {
 
 #[pagetop::test]
 async fn poweredby_with_copyright_overrides_text() {
-    setup();
+    setup().await;
 
     let custom = "2001 © FooBar Inc.";
     let mut p = PoweredBy::default().with_copyright(Some(custom));
@@ -60,7 +60,7 @@ async fn poweredby_with_copyright_overrides_text() {
 
 #[pagetop::test]
 async fn poweredby_with_copyright_none_hides_text() {
-    setup();
+    setup().await;
 
     let mut p = PoweredBy::new().with_copyright(None::<String>);
     let html = p.render(&mut Context::default());
@@ -72,7 +72,7 @@ async fn poweredby_with_copyright_none_hides_text() {
 
 #[pagetop::test]
 async fn poweredby_link_points_to_crates_io() {
-    setup();
+    setup().await;
 
     let mut p = PoweredBy::default();
     let html = p.render(&mut Context::default());
@@ -85,7 +85,7 @@ async fn poweredby_link_points_to_crates_io() {
 
 #[pagetop::test]
 async fn poweredby_getter_reflects_internal_state() {
-    setup();
+    setup().await;
 
     // Por defecto no hay copyright.
     let p0 = PoweredBy::default();

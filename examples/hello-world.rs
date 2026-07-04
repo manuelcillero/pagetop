@@ -20,5 +20,5 @@ async fn hello_world(request: HttpRequest) -> Result<Markup, ErrorPage> {
 
 #[pagetop::main]
 async fn main() -> std::io::Result<()> {
-    Application::prepare(&HelloWorld).run()?.await
+    Application::prepare(&HelloWorld).await.run().await
 }

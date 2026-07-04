@@ -11,9 +11,8 @@
 [![Descargas](https://img.shields.io/crates/d/pagetop.svg?label=Descargas&style=for-the-badge&logo=transmission)](https://crates.io/crates/pagetop)
 [![Licencia](https://img.shields.io/badge/license-MIT%2FApache-blue.svg?label=Licencia&style=for-the-badge)](https://git.cillero.es/manuelcillero/pagetop#licencia)
 
-</div>
-
 <br>
+</div>
 
 PageTop reivindica la esencia de la web clásica usando [Rust](https://www.rust-lang.org/es) para la
 creación de soluciones web SSR (*renderizadas en el servidor*) basadas en HTML, CSS y JavaScript.
@@ -29,8 +28,7 @@ según las necesidades de cada proyecto, incluyendo:
   * **Temas** (*themes*): son extensiones que permiten modificar la apariencia de páginas y
     componentes.
 
-
-## ⚡️ Guía rápida
+## Guía rápida
 
 La aplicación más sencilla de PageTop se ve así:
 
@@ -39,14 +37,14 @@ use pagetop::prelude::*;
 
 #[pagetop::main]
 async fn main() -> std::io::Result<()> {
-    Application::new().run()?.await
+    Application::new().await.run().await
 }
 ```
 
 Este código arranca el servidor de PageTop. Con la configuración por defecto, muestra una página de
 bienvenida accesible desde un navegador local en la dirección `http://localhost:8080`.
 
-Para personalizar el servicio, se puede crear una extensión de PageTop de la siguiente manera:
+Para personalizar el servicio, puedes crear una extensión de PageTop de la siguiente manera:
 
 ```rust,no_run
 use pagetop::prelude::*;
@@ -54,28 +52,28 @@ use pagetop::prelude::*;
 struct HelloWorld;
 
 impl Extension for HelloWorld {
-    fn configure_service(&self, scfg: &mut service::web::ServiceConfig) {
-        scfg.route("/", service::web::get().to(hello_world));
+    fn configure_router(&self, router: Router) -> Router {
+        router.route("/", web::get(hello_world))
     }
 }
 
 async fn hello_world(request: HttpRequest) -> Result<Markup, ErrorPage> {
     Page::new(request)
-        .add_child(Html::with(|_| html! { h1 { "Hello World!" } }))
+        .with_child(Html::with(|_| html! { h1 { "Hello World!" } }))
         .render()
 }
 
 #[pagetop::main]
 async fn main() -> std::io::Result<()> {
-    Application::prepare(&HelloWorld).run()?.await
+    Application::prepare(&HelloWorld).await.run().await
 }
 ```
 
 Este programa implementa una extensión llamada `HelloWorld` que sirve una página web en la ruta raíz
-(`/`) mostrando el texto "Hello world!" dentro de un elemento HTML `<h1>`.
+(`/`) mostrando el texto "Hello World!" dentro de un elemento HTML `<h1>`.
 
 
-## 📂 Proyecto
+## Proyecto
 
 El código se organiza en un *workspace* donde actualmente se incluyen los siguientes subproyectos:
 
@@ -114,7 +112,7 @@ El código se organiza en un *workspace* donde actualmente se incluyen los sigui
     integra [SeaORM](https://www.sea-ql.org/SeaORM) para acceder a bases de datos relacionales.
 
 
-## 🧪 Pruebas
+## Pruebas
 
 Para simplificar el flujo de trabajo, el repositorio incluye varios **alias de Cargo** declarados en
 `.cargo/config.toml`. Basta con ejecutarlos desde la raíz del proyecto:
@@ -135,14 +133,14 @@ Para simplificar el flujo de trabajo, el repositorio incluye varios **alias de C
 >   `cargo test`.
 
 
-## 🚧 Advertencia
+## Advertencia
 
 **PageTop** es un proyecto personal para aprender [Rust](https://www.rust-lang.org/es) y conocer su
 ecosistema. Su API está sujeta a cambios frecuentes. No se recomienda su uso en producción, al menos
 hasta que se libere la versión **1.0.0**.
 
 
-## 📜 Licencia
+## Licencia
 
 El código está disponible bajo una doble licencia:
 
@@ -156,7 +154,7 @@ Puedes elegir la licencia que prefieras. Este enfoque de doble licencia es el es
 el ecosistema Rust.
 
 
-## ✨ Contribuir
+## Contribuir
 
 PageTop mantiene **un único repositorio oficial**:
 
