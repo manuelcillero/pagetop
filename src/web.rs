@@ -61,6 +61,26 @@ use std::task::{Context, Poll};
 ///     // ...
 /// }
 /// ```
+///
+/// # Orden de parámetros en el *handler*
+///
+/// `HttpRequest` toma las extensiones de la petición al extraerse. Los extractores que leen de ahí
+/// (como `Path<T>` o `Extension<T>`) deben aparecer **antes** en la lista de parámetros del
+/// *handler*:
+///
+/// ```rust,no_run
+/// # use pagetop::prelude::*;
+/// // Correcto: Path<T> se declara antes que HttpRequest.
+/// async fn view_post(
+///     web::Path(id): web::Path<u32>,
+///     request: HttpRequest,
+/// ) -> Result<Markup, ErrorPage> {
+///     # todo!()
+/// }
+/// ```
+///
+/// Los extractores que no dependen de las extensiones, como `Query<T>` o `Method`, no están sujetos
+/// a esta restricción.
 #[derive(Clone, Debug)]
 pub struct HttpRequest {
     uri: http::Uri,

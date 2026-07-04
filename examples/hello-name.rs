@@ -9,8 +9,8 @@ impl Extension for HelloName {
 }
 
 async fn hello_name(
-    request: HttpRequest,
     web::Path(name): web::Path<String>,
+    request: HttpRequest,
 ) -> Result<Markup, ErrorPage> {
     Page::new(request)
         .with_child(Html::with(move |_| {
