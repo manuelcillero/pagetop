@@ -10,7 +10,6 @@ pub use definition::{Component, ComponentClone, ComponentRender};
 
 mod children;
 pub use children::Children;
-pub use children::ComponentGuard;
 pub use children::{Child, ChildOp, Embed};
 
 mod message;
@@ -34,6 +33,7 @@ pub use context::{AssetsOp, Context, ContextError, Contextual};
 ///     renderable: Option<FnIsRenderable>,
 /// }
 ///
+/// #[async_trait]
 /// impl Component for SampleComponent {
 ///     fn new() -> Self {
 ///         Self::default()
@@ -44,7 +44,7 @@ pub use context::{AssetsOp, Context, ContextError, Contextual};
 ///         self.renderable.map_or(true, |f| f(cx))
 ///     }
 ///
-///     fn prepare(&self, _cx: &mut Context) -> Result<Markup, ComponentError> {
+///     async fn prepare(&self, _cx: &mut Context) -> Result<Markup, ComponentError> {
 ///         Ok(html! { "Visible component" })
 ///     }
 /// }

@@ -26,6 +26,7 @@ pub use all::{dispatch_actions, try_dispatch_actions};
 /// Extensión que ajusta un botón antes de renderizarlo y transforma su HTML final:
 ///
 /// ```rust,ignore
+/// #[async_trait]
 /// impl Extension for MyExtension {
 ///     fn actions(&self) -> Vec<ActionBox> {
 ///         actions![

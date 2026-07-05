@@ -2,28 +2,23 @@ use crate::core::component::{Component, Context};
 use crate::html::{Markup, html};
 use crate::{AutoDefault, UniqueId, builder_fn};
 
-use parking_lot::Mutex;
-
-pub use parking_lot::MutexGuard as ComponentGuard;
+use parking_lot::RwLock;
 
 use std::fmt;
+use std::sync::Arc;
 use std::vec::IntoIter;
 
-/// Representa un componente hijo encapsulado para su uso en una lista [`Children`].
-#[derive(AutoDefault)]
-pub struct Child(Option<Mutex<Box<dyn Component>>>);
+// **< Child >**************************************************************************************
 
-impl Clone for Child {
-    fn clone(&self) -> Self {
-        Child(self.0.as_ref().map(|m| Mutex::new(m.lock().clone_box())))
-    }
-}
+/// Representa un componente hijo encapsulado para su uso en una lista [`Children`].
+#[derive(AutoDefault, Clone)]
+pub struct Child(Option<Arc<RwLock<Box<dyn Component>>>>);
 
 impl fmt::Debug for Child {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match &self.0 {
             None => write!(f, "Child(None)"),
-            Some(c) => write!(f, "Child({})", c.lock().name()),
+            Some(c) => write!(f, "Child({})", c.read().name()),
         }
     }
 }
@@ -31,7 +26,7 @@ impl fmt::Debug for Child {
 impl Child {
     /// Crea un nuevo `Child` a partir de un componente.
     pub fn with(component: impl Component) -> Self {
-        Child(Some(Mutex::new(Box::new(component))))
+        Child(Some(Arc::new(RwLock::new(Box::new(component)))))
     }
 
     // **< Child BUILDER >**************************************************************************
@@ -41,7 +36,7 @@ impl Child {
     /// Si se proporciona `Some(component)`, se encapsula como [`Child`]; y si es `None`, se limpia.
     #[builder_fn]
     pub fn with_component<C: Component>(mut self, component: Option<C>) -> Self {
-        self.0 = component.map(|c| Mutex::new(Box::new(c) as Box<dyn Component>));
+        self.0 = component.map(|c| Arc::new(RwLock::new(Box::new(c) as Box<dyn Component>)));
         self
     }
 
@@ -50,22 +45,28 @@ impl Child {
     /// Devuelve el identificador del componente, si existe y está definido.
     #[inline]
     pub fn id(&self) -> Option<String> {
-        self.0.as_ref().and_then(|c| c.lock().id())
+        self.0.as_ref().and_then(|c| c.read().id())
     }
 
     // **< Child RENDER >***************************************************************************
 
     /// Renderiza el componente con el contexto proporcionado.
-    pub fn render(&self, cx: &mut Context) -> Markup {
-        self.0.as_ref().map_or(html! {}, |c| c.lock().render(cx))
+    pub async fn render(&self, cx: &mut Context) -> Markup {
+        match &self.0 {
+            None => html! {},
+            Some(m) => {
+                let mut component = m.read().clone_box();
+                component.render(cx).await
+            }
+        }
     }
 
     // **< Child HELPERS >**************************************************************************
 
-    /// Devuelve el [`UniqueId`] del tipo del componente, si existe.
+    // Devuelve el [`UniqueId`] del tipo del componente, si el Child no está vacío.
     #[inline]
     fn type_id(&self) -> Option<UniqueId> {
-        self.0.as_ref().map(|c| c.lock().type_id())
+        self.0.as_ref().map(|c| c.read().type_id())
     }
 }
 
@@ -80,12 +81,12 @@ impl<C: Component + 'static> From<Embed<C>> for Child {
     /// children.with_child(my_embed.into());
     /// ```
     fn from(embed: Embed<C>) -> Self {
-        if let Some(m) = embed.0 {
-            Child(Some(Mutex::new(
-                Box::new(m.into_inner()) as Box<dyn Component>
-            )))
-        } else {
-            Child(None)
+        match embed.0 {
+            None => Child(None),
+            Some(arc) => Child(Some(Arc::new(RwLock::new(match Arc::try_unwrap(arc) {
+                Ok(c) => Box::new(c) as Box<dyn Component>,
+                Err(arc) => arc.clone_box(),
+            })))),
         }
     }
 }
@@ -114,7 +115,7 @@ impl From<Child> for ChildOp {
     }
 }
 
-// *************************************************************************************************
+// **< Embed >**************************************************************************************
 
 /// Contenedor tipado para un *único* componente de un tipo concreto conocido.
 ///
@@ -125,11 +126,12 @@ impl From<Child> for ChildOp {
 /// Se usa habitualmente para incrustar un componente dentro de otro cuando no se necesita una lista
 /// completa de hijos ([`Children`]), sino un único componente tipado en un campo concreto.
 #[derive(AutoDefault)]
-pub struct Embed<C: Component>(Option<Mutex<C>>);
+pub struct Embed<C: Component>(Option<Arc<C>>);
 
-impl<C: Component + Clone> Clone for Embed<C> {
+// Arc<C>: Clone no requiere C: Clone, pero #[derive(Clone)] añadiría ese bound innecesariamente.
+impl<C: Component> Clone for Embed<C> {
     fn clone(&self) -> Self {
-        Embed(self.0.as_ref().map(|m| Mutex::new(m.lock().clone())))
+        Embed(self.0.clone())
     }
 }
 
@@ -137,7 +139,7 @@ impl<C: Component> fmt::Debug for Embed<C> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match &self.0 {
             None => write!(f, "Embed(None)"),
-            Some(c) => write!(f, "Embed({})", c.lock().name()),
+            Some(c) => write!(f, "Embed({})", c.name()),
         }
     }
 }
@@ -145,7 +147,7 @@ impl<C: Component> fmt::Debug for Embed<C> {
 impl<C: Component> Embed<C> {
     /// Crea un nuevo `Embed` a partir de un componente.
     pub fn with(component: C) -> Self {
-        Embed(Some(Mutex::new(component)))
+        Embed(Some(Arc::new(component)))
     }
 
     // **< Embed BUILDER >**************************************************************************
@@ -155,7 +157,7 @@ impl<C: Component> Embed<C> {
     /// Si se proporciona `Some(component)`, se encapsula como [`Embed`]; y si es `None`, se limpia.
     #[builder_fn]
     pub fn with_component(mut self, component: Option<C>) -> Self {
-        self.0 = component.map(Mutex::new);
+        self.0 = component.map(Arc::new);
         self
     }
 
@@ -164,55 +166,69 @@ impl<C: Component> Embed<C> {
     /// Devuelve el identificador del componente, si existe y está definido.
     #[inline]
     pub fn id(&self) -> Option<String> {
-        self.0.as_ref().and_then(|c| c.lock().id())
+        self.0.as_deref().and_then(|c| c.id())
     }
 
-    /// Devuelve un acceso al componente incrustado.
+    /// Devuelve una referencia inmutable al componente incrustado, si existe.
     ///
-    /// - Devuelve `Some(ComponentGuard<C>)` si existe el componente, o `None` si está vacío.
-    /// - El acceso es **exclusivo**: mientras el *guard* esté activo, no habrá otros accesos.
-    /// - Se recomienda mantener el *guard* **el menor tiempo posible** para evitar bloqueos
-    ///   innecesarios.
-    /// - Para modificar el componente, declara el *guard* como `mut`:
-    ///   `if let Some(mut c) = embed.get() { c.alter_title(...); }`.
+    /// Para acceso mutable, usa [`get_mut`](Embed::get_mut).
     ///
     /// # Ejemplo
     ///
     /// ```rust,no_run
     /// # use pagetop::prelude::*;
     /// let embed = Embed::with(Html::with(|_| html! { "Prueba" }));
-    /// {
-    ///     if let Some(component) = embed.get() {
-    ///         assert_eq!(component.name(), "Html");
-    ///     }
-    /// }; // El *guard* se libera aquí, antes del *drop* de `embed`.
-    ///
-    /// let embed = Embed::with(Block::new().with_title(L10n::n("Title")));
-    /// {
-    ///     if let Some(mut component) = embed.get() {
-    ///         component.alter_title(L10n::n("New Title"));
-    ///     }
-    /// }; // El *guard* se libera aquí, antes del *drop* de `embed`.
+    /// if let Some(component) = embed.get() {
+    ///     assert_eq!(component.name(), "Html");
+    /// }
     /// ```
-    pub fn get(&self) -> Option<ComponentGuard<'_, C>> {
-        self.0.as_ref().map(|m| m.lock())
+    pub fn get(&self) -> Option<&C> {
+        self.0.as_deref()
+    }
+
+    /// Devuelve una referencia mutable al componente incrustado, si existe.
+    ///
+    /// Si el [`Arc`] interno es compartido (por ejemplo, justo después de clonar el componente
+    /// padre), aplica *copy-on-write*: clona `C` antes de devolver la referencia mutable. El
+    /// prototipo almacenado queda intacto.
+    ///
+    /// # Ejemplo
+    ///
+    /// ```rust,no_run
+    /// # use pagetop::prelude::*;
+    /// let mut embed = Embed::with(Block::new().with_title(L10n::n("Title")));
+    /// if let Some(component) = embed.get_mut() {
+    ///     component.alter_title(L10n::n("New Title"));
+    /// }
+    /// ```
+    pub fn get_mut(&mut self) -> Option<&mut C>
+    where
+        C: Clone,
+    {
+        self.0.as_mut().map(Arc::make_mut)
     }
 
     // **< Embed RENDER >***************************************************************************
 
     /// Renderiza el componente con el contexto proporcionado.
-    pub fn render(&self, cx: &mut Context) -> Markup {
-        self.0.as_ref().map_or(html! {}, |c| c.lock().render(cx))
+    pub async fn render(&self, cx: &mut Context) -> Markup {
+        match &self.0 {
+            None => html! {},
+            Some(m) => {
+                let mut component = m.clone_box();
+                component.render(cx).await
+            }
+        }
     }
 }
 
-// *************************************************************************************************
+// **< Children >***********************************************************************************
 
 /// Operaciones para componentes hijo [`Child`] en una lista [`Children`].
 pub enum ChildOp {
     /// Añade un hijo al final de la lista.
     Add(Child),
-    /// Añade un hijo solo si la lista está vacía.
+    /// Añade un hijo sólo si la lista está vacía.
     AddIfEmpty(Child),
     /// Añade varios hijos al final de la lista, en el orden recibido.
     AddMany(Vec<Child>),
@@ -243,13 +259,10 @@ pub enum ChildOp {
 /// - [`Child`]: representa un componente hijo encapsulado dentro de la lista. Almacena cualquier
 ///   componente sin necesidad de conocer su tipo concreto.
 /// - [`Embed<C>`]: contenedor tipado para un *único* componente de tipo `C`. Preferible a
-///   `Children` cuando el padre solo necesita un componente y quiere acceso directo a los métodos
+///   `Children` cuando el padre sólo necesita un componente y quiere acceso directo a los métodos
 ///   de `C`.
 /// - [`ChildOp`]: operaciones disponibles sobre la lista. Cuando se necesita algo más que añadir al
 ///   final, se construye la variante adecuada y se pasa a [`with_child`](Self::with_child).
-/// - [`ComponentGuard`]: devuelto por [`Embed::get`] para garantizar acceso exclusivo al componente
-///   tipado. Mientras está activo bloquea cualquier otro acceso por lo que conviene liberarlo
-///   cuanto antes.
 ///
 /// # Conversiones implícitas
 ///
@@ -297,14 +310,14 @@ impl Children {
         }
     }
 
-    /// Añade un componente hijo al final de la lista.
+    // Añade un componente hijo al final de la lista.
     #[inline]
     pub(crate) fn add(&mut self, child: Child) -> &mut Self {
         self.0.push(child);
         self
     }
 
-    /// Añade un componente hijo en la lista sólo si está vacía.
+    // Añade un componente hijo en la lista sólo si está vacía.
     #[inline]
     pub(crate) fn add_if_empty(&mut self, child: Child) -> &mut Self {
         if self.0.is_empty() {
@@ -345,17 +358,17 @@ impl Children {
     // **< Children RENDER >************************************************************************
 
     /// Renderiza todos los componentes hijo, en orden.
-    pub fn render(&self, cx: &mut Context) -> Markup {
+    pub async fn render(&self, cx: &mut Context) -> Markup {
         html! {
             @for c in &self.0 {
-                (c.render(cx))
+                (c.render(cx).await)
             }
         }
     }
 
     // **< Children HELPERS >***********************************************************************
 
-    /// Añade más de un componente hijo al final de la lista (en el orden recibido).
+    // Añade más de un componente hijo al final de la lista (en el orden recibido).
     #[inline]
     fn add_many<I>(&mut self, iter: I) -> &mut Self
     where
@@ -365,7 +378,7 @@ impl Children {
         self
     }
 
-    /// Inserta un hijo después del componente con el `id` dado, o al final si no se encuentra.
+    // Inserta un hijo después del componente con el `id` dado, o al final si no se encuentra.
     #[inline]
     fn insert_after_id(&mut self, id: impl AsRef<str>, child: Child) -> &mut Self {
         let id = Some(id.as_ref());
@@ -376,7 +389,7 @@ impl Children {
         self
     }
 
-    /// Inserta un hijo antes del componente con el `id` dado, o al principio si no se encuentra.
+    // Inserta un hijo antes del componente con el `id` dado, o al principio si no se encuentra.
     #[inline]
     fn insert_before_id(&mut self, id: impl AsRef<str>, child: Child) -> &mut Self {
         let id = Some(id.as_ref());
@@ -387,14 +400,14 @@ impl Children {
         self
     }
 
-    /// Inserta un hijo al principio de la lista.
+    // Inserta un hijo al principio de la lista.
     #[inline]
     fn prepend(&mut self, child: Child) -> &mut Self {
         self.0.insert(0, child);
         self
     }
 
-    /// Inserta más de un componente hijo al principio de la lista (manteniendo el orden recibido).
+    // Inserta más de un componente hijo al principio de la lista (manteniendo el orden recibido).
     #[inline]
     fn prepend_many<I>(&mut self, iter: I) -> &mut Self
     where
@@ -405,7 +418,7 @@ impl Children {
         self
     }
 
-    /// Elimina el primer hijo con el `id` dado.
+    // Elimina el primer hijo con el `id` dado.
     #[inline]
     fn remove_by_id(&mut self, id: impl AsRef<str>) -> &mut Self {
         let id = Some(id.as_ref());
@@ -415,7 +428,7 @@ impl Children {
         self
     }
 
-    /// Sustituye el primer hijo con el `id` dado por otro componente.
+    // Sustituye el primer hijo con el `id` dado por otro componente.
     #[inline]
     fn replace_by_id(&mut self, id: impl AsRef<str>, child: Child) -> &mut Self {
         let id = Some(id.as_ref());
@@ -428,7 +441,7 @@ impl Children {
         self
     }
 
-    /// Elimina todos los componentes hijo de la lista.
+    // Elimina todos los componentes hijo de la lista.
     #[inline]
     fn reset(&mut self) -> &mut Self {
         self.0.clear();
@@ -445,7 +458,7 @@ impl IntoIterator for Children {
     /// # Ejemplo
     ///
     /// ```rust,ignore
-    /// let children = Children::new().with(child1).with(child2);
+    /// let children = Children::new().with_child(child1).with_child(child2);
     /// for child in children {
     ///     println!("{:?}", child.id());
     /// }
@@ -464,7 +477,7 @@ impl<'a> IntoIterator for &'a Children {
     /// # Ejemplo
     ///
     /// ```rust,ignore
-    /// let children = Children::new().with(child1).with(child2);
+    /// let children = Children::new().with_child(child1).with_child(child2);
     /// for child in &children {
     ///     println!("{:?}", child.id());
     /// }
@@ -483,9 +496,9 @@ impl<'a> IntoIterator for &'a mut Children {
     /// # Ejemplo
     ///
     /// ```rust,ignore
-    /// let mut children = Children::new().with(child1).with(child2);
+    /// let mut children = Children::new().with_child(child1).with_child(child2);
     /// for child in &mut children {
-    ///     child.render(&mut context);
+    ///     child.render(&mut context).await;
     /// }
     /// ```
     fn into_iter(self) -> Self::IntoIter {

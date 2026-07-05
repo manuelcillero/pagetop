@@ -5,7 +5,7 @@ mod figfont;
 use crate::core::{extension, extension::ExtensionRef};
 use crate::html::Markup;
 use crate::locale::Locale;
-use crate::response::page::ErrorPage;
+use crate::response::page::{ErrorPage, render_error_pages};
 use crate::web::{HttpRequest, Router};
 use crate::{PAGETOP_VERSION, global, trace};
 
@@ -109,7 +109,9 @@ impl Application {
     fn build_router() -> Router {
         let router = extension::all::configure_routes(Router::new());
         let router = extension::all::configure_middleware(router);
-        router.fallback(route_not_found)
+        router
+            .fallback(route_not_found)
+            .layer(axum::middleware::from_fn(render_error_pages))
     }
 
     /// Arranca el servidor web de la aplicación.
@@ -123,6 +125,7 @@ impl Application {
     ///
     /// struct MyApp;
     ///
+    /// #[async_trait]
     /// impl Extension for MyApp {}
     ///
     /// #[pagetop::main]

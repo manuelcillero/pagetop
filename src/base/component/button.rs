@@ -81,6 +81,7 @@ pub struct Button {
     disabled: bool,
 }
 
+#[async_trait]
 impl Component for Button {
     fn new() -> Self {
         Self::default()
@@ -94,7 +95,7 @@ impl Component for Button {
         self.alter_prop(PropsOp::prepend_classes("button"));
     }
 
-    fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
+    async fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
         Ok(html! {
             button
                 type=(self.kind())

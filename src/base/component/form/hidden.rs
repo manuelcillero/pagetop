@@ -35,12 +35,13 @@ pub struct Hidden {
     value: AttrValue,
 }
 
+#[async_trait]
 impl Component for Hidden {
     fn new() -> Self {
         Self::default()
     }
 
-    fn prepare(&self, _cx: &mut Context) -> Result<Markup, ComponentError> {
+    async fn prepare(&self, _cx: &mut Context) -> Result<Markup, ComponentError> {
         Ok(html! {
             input
                 type="hidden"

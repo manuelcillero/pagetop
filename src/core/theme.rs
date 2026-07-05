@@ -27,6 +27,7 @@
 //! Los temas pueden definir sus propias implementaciones de [`Template`] y [`Region`] (por ejemplo,
 //! mediante *enums* adicionales) para añadir nuevas plantillas o exponer regiones específicas.
 
+use crate::async_trait;
 use crate::core::component::Context;
 use crate::html::{Markup, html};
 use crate::locale::L10n;
@@ -49,7 +50,8 @@ use crate::{AutoDefault, util};
 ///
 /// El tema decide qué regiones mostrar en el cuerpo del documento, normalmente usando una plantilla
 /// ([`Template`]) al renderizar la página ([`Page`](crate::response::page::Page)).
-pub trait Region {
+#[async_trait]
+pub trait Region: Send + Sync {
     /// Devuelve el nombre de la región.
     ///
     /// Este nombre es el identificador lógico de la región y se usa como clave en el [`Context`]
@@ -81,12 +83,9 @@ pub trait Region {
     ///
     /// Se puede sobrescribir este método para modificar la estructura del contenedor, las clases
     /// utilizadas o la semántica del marcado generado para cada región.
-    fn render(&'static self, cx: &mut Context) -> Markup
-    where
-        Self: Sized,
-    {
+    async fn render(&self, cx: &mut Context) -> Markup {
         html! {
-            @let region = cx.render_region(self);
+            @let region = cx.render_region_named(self.name()).await;
             @if !region.is_empty() {
                 div
                     class=(util::join!("region region-", self.name()))
@@ -157,7 +156,8 @@ impl Region for DefaultRegion {
 /// Una `Template` puede proporcionar una o más variantes para decidir la composición del `<body>`
 /// de una página ([`Page`](crate::response::page::Page)). El tema utiliza esta información para
 /// determinar qué regiones ([`Region`]) deben renderizarse y en qué orden.
-pub trait Template {
+#[async_trait]
+pub trait Template: Send + Sync {
     /// Renderiza el contenido de la plantilla.
     ///
     /// Por defecto, renderiza las regiones básicas de [`DefaultRegion`] en este orden:
@@ -173,11 +173,11 @@ pub trait Template {
     /// Este método se invoca normalmente desde [`Theme::render_page_body()`] para generar el
     /// contenido del `<body>` de una página según la plantilla devuelta por el contexto de la
     /// propia página ([`Contextual::template()`](crate::core::component::Contextual::template())).
-    fn render(&'static self, cx: &mut Context) -> Markup {
+    async fn render(&self, cx: &mut Context) -> Markup {
         html! {
-            (DefaultRegion::Header.render(cx))
-            (DefaultRegion::Content.render(cx))
-            (DefaultRegion::Footer.render(cx))
+            (DefaultRegion::Header.render(cx).await)
+            (DefaultRegion::Content.render(cx).await)
+            (DefaultRegion::Footer.render(cx).await)
         }
     }
 }
@@ -204,6 +204,7 @@ pub enum DefaultTemplate {
     Error,
 }
 
+#[async_trait]
 impl Template for DefaultTemplate {}
 
 // **< render_component! >**************************************************************************

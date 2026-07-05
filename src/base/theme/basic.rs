@@ -4,12 +4,14 @@ use crate::prelude::*;
 /// Tema básico por defecto que extiende el funcionamiento predeterminado de [`Theme`].
 pub struct Basic;
 
+#[async_trait]
 impl Extension for Basic {
     fn theme(&self) -> Option<ThemeRef> {
         Some(&Self)
     }
 }
 
+#[async_trait]
 impl Theme for Basic {
     fn before_render_page_body(&self, page: &mut Page) {
         page.alter_assets(AssetsOp::AddStyleSheet(

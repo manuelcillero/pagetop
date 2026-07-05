@@ -14,6 +14,7 @@ pub struct Block {
     children: Children,
 }
 
+#[async_trait]
 impl Component for Block {
     fn new() -> Self {
         Self::default()
@@ -31,8 +32,8 @@ impl Component for Block {
         self.alter_prop(PropsOp::prepend_classes("block"));
     }
 
-    fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
-        let block_body = self.children().render(cx);
+    async fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
+        let block_body = self.children().render(cx).await;
 
         if block_body.is_empty() {
             return Ok(html! {});

@@ -49,12 +49,13 @@ impl Default for Html {
     }
 }
 
+#[async_trait]
 impl Component for Html {
     fn new() -> Self {
         Self::default()
     }
 
-    fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
+    async fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
         Ok(self.html(cx))
     }
 }

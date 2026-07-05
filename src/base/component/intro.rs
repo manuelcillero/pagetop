@@ -107,12 +107,13 @@ impl Default for Intro {
     }
 }
 
+#[async_trait]
 impl Component for Intro {
     fn new() -> Self {
         Self::default()
     }
 
-    fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
+    async fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
         cx.alter_assets(AssetsOp::AddStyleSheet(
             StyleSheet::from("/pagetop/css/intro.css").with_version(PAGETOP_VERSION),
         ));
@@ -146,7 +147,7 @@ impl Component for Intro {
                     }
                     aside class="intro-header-img" aria-hidden="true" {
                         div class="intro-header-mascot" {
-                            (PageTopSvg::Color.render(cx))
+                            (PageTopSvg::Color.markup(cx))
                         }
                     }
                 }
@@ -191,7 +192,7 @@ impl Component for Intro {
                                         (L10n::l("intro_text2").using(cx))
                                     }
                                 }
-                                (self.children().render(cx))
+                                (self.children().render(cx).await)
                             }
                         }
                     }
@@ -199,7 +200,7 @@ impl Component for Intro {
                 div class="intro-footer" {
                     section class="intro-footer-body" {
                         div class="intro-footer-logo" {
-                            (PageTopSvg::LineLight.render(cx))
+                            (PageTopSvg::LineLight.markup(cx))
                         }
                         div class="intro-footer-links" {
                             a href="https://crates.io/crates/pagetop" target="_blank" rel="noopener noreferrer" { ("Crates.io") }

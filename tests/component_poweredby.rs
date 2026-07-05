@@ -13,13 +13,13 @@ async fn poweredby_default_shows_only_pagetop_recognition() {
     setup().await;
 
     let mut p = PoweredBy::default();
-    let html = p.render(&mut Context::default());
+    let html = p.render(&mut Context::default()).await.into_string();
 
     // Debe mostrar el bloque de reconocimiento a PageTop.
-    assert!(html.as_str().contains("poweredby__pagetop"));
+    assert!(html.contains("poweredby__pagetop"));
 
     // Y NO debe mostrar el bloque de copyright.
-    assert!(!html.as_str().contains("poweredby__copyright"));
+    assert!(!html.contains("poweredby__copyright"));
 }
 
 #[pagetop::test]
@@ -27,23 +27,20 @@ async fn poweredby_new_includes_current_year_and_app_name() {
     setup().await;
 
     let mut p = PoweredBy::new();
-    let html = p.render(&mut Context::default());
+    let html = p.render(&mut Context::default()).await.into_string();
 
     let year = Utc::now().format("%Y").to_string();
-    assert!(
-        html.as_str().contains(&year),
-        "HTML should include the current year"
-    );
+    assert!(html.contains(&year), "HTML should include the current year");
 
     // El nombre de la app proviene de `global::SETTINGS.app.name`.
     let app_name = &global::SETTINGS.app.name;
     assert!(
-        html.as_str().contains(app_name),
+        html.contains(app_name),
         "HTML should include the application name"
     );
 
     // Debe existir el span de copyright.
-    assert!(html.as_str().contains("poweredby__copyright"));
+    assert!(html.contains("poweredby__copyright"));
 }
 
 #[pagetop::test]
@@ -52,10 +49,10 @@ async fn poweredby_with_copyright_overrides_text() {
 
     let custom = "2001 © FooBar Inc.";
     let mut p = PoweredBy::default().with_copyright(Some(custom));
-    let html = p.render(&mut Context::default());
+    let html = p.render(&mut Context::default()).await.into_string();
 
-    assert!(html.as_str().contains(custom));
-    assert!(html.as_str().contains("poweredby__copyright"));
+    assert!(html.contains(custom));
+    assert!(html.contains("poweredby__copyright"));
 }
 
 #[pagetop::test]
@@ -63,11 +60,11 @@ async fn poweredby_with_copyright_none_hides_text() {
     setup().await;
 
     let mut p = PoweredBy::new().with_copyright(None::<String>);
-    let html = p.render(&mut Context::default());
+    let html = p.render(&mut Context::default()).await.into_string();
 
-    assert!(!html.as_str().contains("poweredby__copyright"));
+    assert!(!html.contains("poweredby__copyright"));
     // El reconocimiento a PageTop siempre debe aparecer.
-    assert!(html.as_str().contains("poweredby__pagetop"));
+    assert!(html.contains("poweredby__pagetop"));
 }
 
 #[pagetop::test]
@@ -75,10 +72,10 @@ async fn poweredby_link_points_to_crates_io() {
     setup().await;
 
     let mut p = PoweredBy::default();
-    let html = p.render(&mut Context::default());
+    let html = p.render(&mut Context::default()).await.into_string();
 
     assert!(
-        html.as_str().contains("https://pagetop.cillero.es"),
+        html.contains("https://pagetop.cillero.es"),
         "Link should point to pagetop.cillero.es"
     );
 }

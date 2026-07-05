@@ -52,6 +52,7 @@ use pagetop::prelude::*;
 
 struct HelloWorld;
 
+#[async_trait]
 impl Extension for HelloWorld {
     fn configure_router(&self, router: Router) -> Router {
         router.route("/", web::get(hello_world))
@@ -61,7 +62,7 @@ impl Extension for HelloWorld {
 async fn hello_world(request: HttpRequest) -> Result<Markup, ErrorPage> {
     Page::new(request)
         .with_child(Html::with(|_| html! { h1 { "Hello World!" } }))
-        .render()
+        .render().await
 }
 
 #[pagetop::main]
@@ -97,12 +98,14 @@ use std::ops::Deref;
 ///
 /// pub struct MyTheme;
 ///
+/// #[async_trait]
 /// impl Extension for MyTheme {
 ///     fn theme(&self) -> Option<ThemeRef> {
 ///         Some(&Self)
 ///     }
 /// }
 ///
+/// #[async_trait]
 /// impl Theme for MyTheme {
 ///     fn before_render_page_body(&self, page: &mut Page) {
 ///         page

@@ -51,6 +51,7 @@ use pagetop::prelude::*;
 
 struct HelloWorld;
 
+#[async_trait]
 impl Extension for HelloWorld {
     fn configure_router(&self, router: Router) -> Router {
         router.route("/", web::get(hello_world))
@@ -60,7 +61,7 @@ impl Extension for HelloWorld {
 async fn hello_world(request: HttpRequest) -> Result<Markup, ErrorPage> {
     Page::new(request)
         .with_child(Html::with(|_| html! { h1 { "Hello World!" } }))
-        .render()
+        .render().await
 }
 
 #[pagetop::main]
@@ -71,7 +72,6 @@ async fn main() -> std::io::Result<()> {
 
 Este programa implementa una extensión llamada `HelloWorld` que sirve una página web en la ruta raíz
 (`/`) mostrando el texto "Hello World!" dentro de un elemento HTML `<h1>`.
-
 
 ## Proyecto
 
@@ -111,7 +111,6 @@ El código se organiza en un *workspace* donde actualmente se incluyen los sigui
   * **[pagetop-seaorm](https://git.cillero.es/manuelcillero/pagetop/src/branch/main/extensions/pagetop-seaorm)**,
     integra [SeaORM](https://www.sea-ql.org/SeaORM) para acceder a bases de datos relacionales.
 
-
 ## Pruebas
 
 Para simplificar el flujo de trabajo, el repositorio incluye varios **alias de Cargo** declarados en
@@ -132,13 +131,11 @@ Para simplificar el flujo de trabajo, el repositorio incluye varios **alias de C
 > * Los alias suprimen las trazas del registro de eventos. Para activarlas usa directamente
 >   `cargo test`.
 
-
 ## Advertencia
 
 **PageTop** es un proyecto personal para aprender [Rust](https://www.rust-lang.org/es) y conocer su
 ecosistema. Su API está sujeta a cambios frecuentes. No se recomienda su uso en producción, al menos
 hasta que se libere la versión **1.0.0**.
-
 
 ## Licencia
 
@@ -152,7 +149,6 @@ El código está disponible bajo una doble licencia:
 
 Puedes elegir la licencia que prefieras. Este enfoque de doble licencia es el estándar de facto en
 el ecosistema Rust.
-
 
 ## Contribuir
 

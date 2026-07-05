@@ -61,39 +61,37 @@ impl ChildrenInRegions {
         self
     }
 
-    /// Construye una lista de componentes frescos para la región indicada.
+    /// Ensambla los componentes frescos de la región indicada.
     ///
-    /// El orden es: prototipos globales comunes → children propios de la página →
-    /// prototipos específicos del tema activo.
+    /// Se recogen desde tres fuentes disponibles, en el siguiente orden:
     ///
-    /// Los prototipos globales se clonan en cada llamada (clon profundo gracias a
-    /// [`ComponentClone`]), garantizando que `setup()` siempre parte del estado
-    /// inicial. Los children propios de la página se mueven (son por petición y no necesitan
-    /// clonarse).
-    ///
-    /// [`ComponentClone`]: crate::core::component::ComponentClone
-    pub fn children_for(&mut self, theme_ref: ThemeRef, region_ref: RegionRef) -> Children {
-        let name = region_ref.name();
+    /// 1. Prototipos globales comunes, disponibles en cualquier tema. Se clonan en cada petición
+    ///    para que `setup()` parta siempre de un estado inicial limpio.
+    /// 2. Componentes propios de la página, registrados para esta petición concreta. Se mueven en
+    ///    lugar de clonarse, ya que son de un único uso.
+    /// 3. Prototipos del tema activo, exclusivos del tema en curso. También se clonan para asegurar
+    ///    que llegan a `setup()` con el mismo estado inicial.
+    pub fn assemble_region(&mut self, theme_ref: ThemeRef, region_name: &str) -> Children {
         let common = COMMON_REGIONS.read();
         let themed = THEME_REGIONS.read();
 
         let mut result = Children::new();
 
-        // 1. Prototipos globales comunes - clon fresco por cada página.
-        if let Some(protos) = common.get(name) {
+        // 1. Prototipos globales comunes.
+        if let Some(protos) = common.get(region_name) {
             for proto in protos {
                 result.add(proto.as_child());
             }
         }
-        // 2. Children propios de la página - se mueven (son por petición, no requieren clonado).
-        if let Some(page_children) = self.0.remove(name) {
+        // 2. Componentes propios de la página: se mueven, no se clonan.
+        if let Some(page_children) = self.0.remove(region_name) {
             for child in page_children {
                 result.add(child);
             }
         }
-        // 3. Prototipos del tema activo - clon fresco por cada página.
+        // 3. Prototipos del tema activo.
         if let Some(theme_map) = themed.get(&theme_ref.type_id()) {
-            if let Some(protos) = theme_map.get(name) {
+            if let Some(protos) = theme_map.get(region_name) {
                 for proto in protos {
                     result.add(proto.as_child());
                 }

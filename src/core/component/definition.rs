@@ -1,3 +1,4 @@
+use crate::async_trait;
 use crate::base::action;
 use crate::core::component::{ComponentError, Context, Contextual};
 use crate::core::theme::ThemeRef;
@@ -7,8 +8,9 @@ use crate::html::{Markup, html};
 /// Habilita el clonado de componentes.
 ///
 /// Se implementa automáticamente para todo tipo que implemente [`Component`] y [`Clone`]. El método
-/// [`clone_box`](Self::clone_box) devuelve una copia en la *pila* del componente original, lo que
-/// permite clonar componentes sin conocer su tipo concreto en tiempo de compilación.
+/// [`clone_box`](Self::clone_box) devuelve un clon del componente original encapsulado en un
+/// `Box<dyn Component>`, lo que permite clonar componentes sin conocer su tipo concreto en tiempo
+/// de compilación.
 pub trait ComponentClone {
     /// Devuelve un clon del componente encapsulado en un [`Box<dyn Component>`].
     fn clone_box(&self) -> Box<dyn Component>;
@@ -18,9 +20,10 @@ pub trait ComponentClone {
 ///
 /// Este *trait* se implementa automáticamente en cualquier tipo (componente) que implemente
 /// [`Component`], por lo que no requiere ninguna codificación manual.
+#[async_trait]
 pub trait ComponentRender {
     /// Renderiza el componente usando el contexto proporcionado.
-    fn render(&mut self, cx: &mut Context) -> Markup;
+    async fn render(&mut self, cx: &mut Context) -> Markup;
 }
 
 /// Interfaz común que debe implementar un componente renderizable en PageTop.
@@ -35,9 +38,10 @@ pub trait ComponentRender {
 ///
 /// Todo tipo que implemente `Component` **debe** derivar también [`Clone`]. Aunque el compilador
 /// no lo exige directamente (hacerlo rompería la seguridad de objeto de `dyn Component`),
-/// [`ComponentClone`] se implementa automáticamente mediante una *impl* blanket solo para los tipos
+/// [`ComponentClone`] se implementa automáticamente mediante una *impl blanket* sólo para los tipos
 /// que sean `Component + Clone + 'static`. Sin `Clone`, habría que implementar [`ComponentClone`] a
 /// mano, y el componente no podría registrarse en [`InRegion`](crate::core::theme::InRegion).
+#[async_trait]
 pub trait Component: AnyInfo + ComponentClone + ComponentRender + Send + Sync {
     /// Crea una nueva instancia del componente.
     ///
@@ -72,12 +76,12 @@ pub trait Component: AnyInfo + ComponentClone + ComponentRender + Send + Sync {
     ///
     /// Por defecto, todos los componentes son renderizables (`true`). Sin embargo, este método
     /// puede sobrescribirse para decidir dinámicamente si los componentes de este tipo se
-    /// renderizan o no en función del contexto de renderizado. Recibe solo una referencia
+    /// renderizan o no en función del contexto de renderizado. Recibe sólo una referencia
     /// compartida al contexto porque su único propósito es consultar datos, no modificarlos.
     ///
-    /// También puede asignarse una función [`FnIsRenderable`](super::FnIsRenderable) a un campo del
-    /// componente para permitir que instancias concretas del mismo puedan decidir dinámicamente si
-    /// se renderizan o no.
+    /// También **puede asignarse una función [`FnIsRenderable`](super::FnIsRenderable) a un campo
+    /// del componente** para permitir que instancias concretas del mismo puedan decidir
+    /// dinámicamente si se renderizan o no.
     #[allow(unused_variables)]
     fn is_renderable(&self, cx: &Context) -> bool {
         true
@@ -88,8 +92,19 @@ pub trait Component: AnyInfo + ComponentClone + ComponentRender + Send + Sync {
     /// Segundo paso del [ciclo de renderizado](ComponentRender): se ejecuta tras comprobar
     /// [`is_renderable()`](Self::is_renderable) y antes de la acción
     /// [`BeforeRender`](crate::base::action::component::BeforeRender) y de
-    /// [`prepare()`](Self::prepare). Recibe solo una referencia compartida al contexto porque su
+    /// [`prepare()`](Self::prepare). Recibe sólo una referencia compartida al contexto porque su
     /// propósito es mutar el propio componente, no el contexto. Por defecto no hace nada.
+    ///
+    /// Está pensado para **normalizar el estado interno** del componente antes de renderizarlo. Por
+    /// ejemplo, calcular clases CSS, ajustar valores de campos, derivar atributos a partir del
+    /// contexto, etc. Se desaconseja utilizar para operaciones de E/S o consultas a base de datos;
+    /// es intencionadamente síncrono.
+    ///
+    /// La carga y el acceso a datos en general corresponden a [`prepare()`](Self::prepare), que es
+    /// `async` precisamente para ello.
+    ///
+    /// La separación entre `setup()` (mutación de estado) y [`prepare()`](Self::prepare)
+    /// (generación de HTML) es deliberada y no debe fusionarse.
     #[allow(unused_variables)]
     fn setup(&mut self, cx: &Context) {}
 
@@ -97,8 +112,8 @@ pub trait Component: AnyInfo + ComponentClone + ComponentRender + Send + Sync {
     ///
     /// Cuarto paso del [ciclo de renderizado](ComponentRender): se invoca tras
     /// [`setup()`](Self::setup) y la acción
-    /// [`BeforeRender`](crate::base::action::component::BeforeRender), pero solo si ningún tema
-    /// en la cadena devuelve `Some` en
+    /// [`BeforeRender`](crate::base::action::component::BeforeRender), pero solamente si ningún
+    /// tema en la cadena devuelve `Some` en
     /// [`Theme::handle_component()`](crate::core::theme::Theme::handle_component).
     ///
     /// Se recomienda obtener los datos del componente a través de sus propios métodos para que los
@@ -107,7 +122,7 @@ pub trait Component: AnyInfo + ComponentClone + ComponentRender + Send + Sync {
     /// Por defecto, devuelve un [`Markup`] vacío (`Ok(html! {})`). En caso de error, devuelve un
     /// [`ComponentError`] que puede incluir un marcado alternativo (*fallback*).
     #[allow(unused_variables)]
-    fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
+    async fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
         Ok(html! {})
     }
 }
@@ -143,8 +158,9 @@ impl<T: Component + Clone + 'static> ComponentClone for T {
 ///    para que las extensiones puedan trabajar sobre el HTML final para modificarlo antes de
 ///    devolverlo.
 /// 7. Devuelve el [`Markup`] resultante.
+#[async_trait]
 impl<C: Component> ComponentRender for C {
-    fn render(&mut self, cx: &mut Context) -> Markup {
+    async fn render(&mut self, cx: &mut Context) -> Markup {
         // Si no es renderizable, devuelve un bloque HTML vacío.
         if !self.is_renderable(cx) {
             return html! {};
@@ -160,12 +176,12 @@ impl<C: Component> ComponentRender for C {
         let result = 'resolve: {
             let mut t: Option<ThemeRef> = Some(cx.theme());
             while let Some(theme) = t {
-                if let Some(r) = theme.handle_component(self, cx) {
+                if let Some(r) = theme.handle_component(self, cx).await {
                     break 'resolve r;
                 }
                 t = theme.parent();
             }
-            self.prepare(cx)
+            self.prepare(cx).await
         };
         let prepare = match result {
             Ok(markup) => markup,

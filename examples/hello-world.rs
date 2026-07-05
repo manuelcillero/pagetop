@@ -2,6 +2,7 @@ use pagetop::prelude::*;
 
 struct HelloWorld;
 
+#[async_trait]
 impl Extension for HelloWorld {
     fn configure_router(&self, router: Router) -> Router {
         router.route("/", web::get(hello_world))
@@ -16,6 +17,7 @@ async fn hello_world(request: HttpRequest) -> Result<Markup, ErrorPage> {
             }
         }))
         .render()
+        .await
 }
 
 #[pagetop::main]

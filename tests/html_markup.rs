@@ -8,6 +8,7 @@ struct TestMarkupComponent {
     markup: Markup,
 }
 
+#[async_trait]
 impl Component for TestMarkupComponent {
     fn new() -> Self {
         Self::default()
@@ -17,7 +18,7 @@ impl Component for TestMarkupComponent {
         cx.param_or::<bool>("renderable", true)
     }
 
-    fn prepare(&self, _cx: &mut Context) -> Result<Markup, ComponentError> {
+    async fn prepare(&self, _cx: &mut Context) -> Result<Markup, ComponentError> {
         Ok(self.markup.clone())
     }
 }
@@ -74,7 +75,7 @@ async fn non_renderable_component_produces_empty_markup() {
     let mut comp = TestMarkupComponent {
         markup: html! { p { "Should never be rendered" } },
     };
-    assert_eq!(comp.render(&mut cx).into_string(), "");
+    assert_eq!(comp.render(&mut cx).await.into_string(), "");
 }
 
 #[pagetop::test]
@@ -93,7 +94,7 @@ async fn markup_from_component_equals_markup_reinjected_in_html_macro() {
             let mut comp = TestMarkupComponent {
                 markup: markup.clone(),
             };
-            comp.render(&mut cx).into_string()
+            comp.render(&mut cx).await.into_string()
         };
 
         // Vía 2: reinyectamos el Markup en `html!` directamente.

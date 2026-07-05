@@ -11,6 +11,7 @@ use crate::prelude::*;
 /// Resulta útil en demos o para comprobar rápidamente que el servidor ha arrancado correctamente.
 pub struct Welcome;
 
+#[async_trait]
 impl Extension for Welcome {
     fn name(&self) -> L10n {
         L10n::l("welcome_extension_name")
@@ -62,4 +63,5 @@ async fn home(request: HttpRequest) -> Result<Markup, ErrorPage> {
                 ),
         )
         .render()
+        .await
 }

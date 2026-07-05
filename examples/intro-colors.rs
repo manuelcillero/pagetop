@@ -4,6 +4,7 @@ include_locales!(LOC from "examples/locale");
 
 struct IntroColors;
 
+#[async_trait]
 impl Extension for IntroColors {
     fn configure_router(&self, router: Router) -> Router {
         router.route("/", web::get(intro_colors))
@@ -74,6 +75,7 @@ async fn intro_colors(request: HttpRequest) -> Result<Markup, ErrorPage> {
                 ),
         )
         .render()
+        .await
 }
 
 #[pagetop::main]

@@ -15,6 +15,7 @@ use crate::web::Router;
 /// # use pagetop::prelude::*;
 /// pub struct MyExtension;
 ///
+/// #[async_trait]
 /// impl Extension for MyExtension {
 ///     fn name(&self) -> L10n {
 ///         L10n::n("My Extension")
@@ -54,12 +55,14 @@ pub trait Extension: AnyInfo + Send + Sync {
     /// # use pagetop::prelude::*;
     /// pub struct MyTheme;
     ///
+    /// #[async_trait]
     /// impl Extension for MyTheme {
     ///     fn theme(&self) -> Option<ThemeRef> {
     ///         Some(&Self)
     ///     }
     /// }
     ///
+    /// #[async_trait]
     /// impl Theme for MyTheme {}
     /// ```
     fn theme(&self) -> Option<ThemeRef> {
@@ -81,9 +84,11 @@ pub trait Extension: AnyInfo + Send + Sync {
     /// ```rust,no_run
     /// # use pagetop::prelude::*;
     /// # pub struct Database;
+    /// # #[async_trait]
     /// # impl Extension for Database {}
     /// pub struct MyApp;
     ///
+    /// #[async_trait]
     /// impl Extension for MyApp {
     ///     fn dependencies(&self) -> Vec<ExtensionRef> {
     ///         vec![&Database]
@@ -116,8 +121,6 @@ pub trait Extension: AnyInfo + Send + Sync {
     /// lógica de inicialización**. PageTop lo invoca una sola vez, después de que todas las
     /// dependencias se han inicializado y antes de aceptar cualquier petición HTTP.
     ///
-    /// En ese caso, el bloque `impl Extension` debe llevar `#[async_trait]`:
-    ///
     /// ```rust,no_run
     /// use pagetop::prelude::*;
     ///
@@ -130,8 +133,6 @@ pub trait Extension: AnyInfo + Send + Sync {
     ///     }
     /// }
     /// ```
-    ///
-    /// Las extensiones que no sobrescriben `initialize()` no necesitan `#[async_trait]`.
     async fn initialize(&self) {}
 
     /// Registra rutas, servicios y capas de la extensión en el servidor web de la aplicación.
@@ -160,6 +161,7 @@ pub trait Extension: AnyInfo + Send + Sync {
     /// # async fn create_post() -> &'static str { "" }
     /// pub struct Blog;
     ///
+    /// #[async_trait]
     /// impl Extension for Blog {
     ///     fn configure_router(&self, router: Router) -> Router {
     ///         router
@@ -178,6 +180,7 @@ pub trait Extension: AnyInfo + Send + Sync {
     /// # async fn list_users() -> &'static str { "" }
     /// pub struct Admin;
     ///
+    /// #[async_trait]
     /// impl Extension for Admin {
     ///     fn configure_router(&self, router: Router) -> Router {
     ///         let admin = Router::new()
@@ -204,6 +207,7 @@ pub trait Extension: AnyInfo + Send + Sync {
     /// # use pagetop::prelude::*;
     /// pub struct Api;
     ///
+    /// #[async_trait]
     /// impl Extension for Api {
     ///     fn configure_router(&self, router: Router) -> Router {
     ///         let api = Router::new()
@@ -226,6 +230,7 @@ pub trait Extension: AnyInfo + Send + Sync {
     /// # use pagetop::prelude::*;
     /// pub struct MyExtension;
     ///
+    /// #[async_trait]
     /// impl Extension for MyExtension {
     ///     fn configure_router(&self, router: Router) -> Router {
     ///         serve_static_files!(router, [assets] => "/static");
@@ -257,6 +262,7 @@ pub trait Extension: AnyInfo + Send + Sync {
     /// # ) -> axum::response::Response { next.run(req).await }
     /// pub struct MyAuth;
     ///
+    /// #[async_trait]
     /// impl Extension for MyAuth {
     ///     fn configure_middleware(&self, router: Router) -> Router {
     ///         router.layer(middleware::from_fn(session_middleware))

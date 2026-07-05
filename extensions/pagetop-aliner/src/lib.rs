@@ -35,6 +35,7 @@ use pagetop::prelude::*;
 
 struct MyApp;
 
+#[async_trait]
 impl Extension for MyApp {
     fn dependencies(&self) -> Vec<ExtensionRef> {
         vec![
@@ -69,7 +70,7 @@ async fn homepage(request: HttpRequest) -> Result<Markup, ErrorPage> {
                     p { (L10n::l("sample_content").using(cx)) }
                 })),
         )
-        .render()
+        .render().await
 }
 ```
 */
@@ -89,6 +90,7 @@ include_locales!(LOCALES_ALINER);
 /// - Preparar ejemplos y documentación, sin dependencias visuales (CSS/JS) innecesarias.
 pub struct Aliner;
 
+#[async_trait]
 impl Extension for Aliner {
     fn name(&self) -> L10n {
         L10n::t("extension_name", &LOCALES_ALINER)
@@ -108,6 +110,7 @@ impl Extension for Aliner {
     }
 }
 
+#[async_trait]
 impl Theme for Aliner {
     fn before_render_page_body(&self, page: &mut Page) {
         page.alter_assets(AssetsOp::AddStyleSheet(

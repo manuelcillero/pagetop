@@ -63,6 +63,7 @@ pub struct Textarea {
     disabled: bool,
 }
 
+#[async_trait]
 impl Component for Textarea {
     fn new() -> Self {
         Self::default()
@@ -84,7 +85,7 @@ impl Component for Textarea {
         self.alter_prop(PropsOp::prepend_classes("form-field form-field-textarea"));
     }
 
-    fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
+    async fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
         let container_id = self.id();
         let textarea_id = container_id
             .as_deref()

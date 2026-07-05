@@ -61,6 +61,7 @@ pub struct Checkbox {
     reverse: bool,
 }
 
+#[async_trait]
 impl Component for Checkbox {
     fn new() -> Self {
         Self::default()
@@ -95,7 +96,7 @@ impl Component for Checkbox {
         self.alter_prop(PropsOp::prepend_classes(classes));
     }
 
-    fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
+    async fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
         // En `setup()` se garantiza que `name` e `id` están definidos antes del renderizado.
         let name = self.name().get().unwrap();
         let container_id = self.id().unwrap();

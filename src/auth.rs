@@ -94,6 +94,7 @@ pub type FnCheckPermission = fn(cx: &Context, key: &str, granted: &mut bool);
 ///
 /// pub struct MyAuth;
 ///
+/// #[async_trait]
 /// impl Extension for MyAuth {
 ///     fn actions(&self) -> Vec<ActionBox> {
 ///         actions![CheckPermission::new(check_my_permissions)]
@@ -162,7 +163,7 @@ impl CheckPermission {
 ///     if !has_permission(page.context(), "myapp.edit") {
 ///         return Err(ErrorPage::NotFound(request));
 ///     }
-///     page.render()
+///     page.render().await
 /// }
 /// ```
 pub fn has_permission(cx: &Context, key: &str) -> bool {

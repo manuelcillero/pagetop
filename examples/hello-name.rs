@@ -2,6 +2,7 @@ use pagetop::prelude::*;
 
 struct HelloName;
 
+#[async_trait]
 impl Extension for HelloName {
     fn configure_router(&self, router: Router) -> Router {
         router.route("/hello/{name}", web::get(hello_name))
@@ -19,6 +20,7 @@ async fn hello_name(
             }
         }))
         .render()
+        .await
 }
 
 #[pagetop::main]

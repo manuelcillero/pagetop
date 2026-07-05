@@ -5,6 +5,7 @@ include_locales!(LOC from "examples/locale");
 
 struct FormControls;
 
+#[async_trait]
 impl Extension for FormControls {
     fn dependencies(&self) -> Vec<ExtensionRef> {
         vec![&pagetop_aliner::Aliner, &pagetop_bootsier::Bootsier]
@@ -297,6 +298,7 @@ async fn form_controls(request: HttpRequest) -> Result<Markup, ErrorPage> {
                 ),
         )
         .render()
+        .await
 }
 
 fn form_lists() -> Form {

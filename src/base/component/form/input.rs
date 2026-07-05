@@ -157,6 +157,7 @@ pub struct Field {
     inputmode: Attr<Mode>,
 }
 
+#[async_trait]
 impl Component for Field {
     fn new() -> Self {
         Self::default()
@@ -181,7 +182,7 @@ impl Component for Field {
         )));
     }
 
-    fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
+    async fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
         let container_id = self.id();
         let input_id = container_id.as_deref().map(|id| util::join!(id, "-input"));
         let input_class = if *self.plaintext() {

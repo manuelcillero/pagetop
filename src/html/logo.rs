@@ -12,16 +12,16 @@ use crate::locale::L10n;
 /// fn render_logo(cx: &mut Context) -> Markup {
 ///     html! {
 ///         div class="logo_color" {
-///             (PageTopSvg::Color.render(cx))
+///             (PageTopSvg::Color.markup(cx))
 ///         }
 ///         div class="line_dark" {
-///             (PageTopSvg::LineDark.render(cx))
+///             (PageTopSvg::LineDark.markup(cx))
 ///         }
 ///         div class="line_light" {
-///             (PageTopSvg::LineLight.render(cx))
+///             (PageTopSvg::LineLight.markup(cx))
 ///         }
 ///         div class="line_red" {
-///             (PageTopSvg::LineRGB(255, 0, 0).render(cx))
+///             (PageTopSvg::LineRGB(255, 0, 0).markup(cx))
 ///         }
 ///     }
 /// };
@@ -41,8 +41,8 @@ pub enum PageTopSvg {
 }
 
 impl PageTopSvg {
-    /// Renderiza el SVG del logotipo según la variante elegida.
-    pub fn render(&self, cx: &Context) -> Markup {
+    /// Devuelve el marcado SVG del logotipo según la variante elegida.
+    pub fn markup(&self, cx: &Context) -> Markup {
         let path_fills = match self {
             Self::Color => self.logo_color(),
             Self::LineDark => self.logo_line(10, 11, 9),

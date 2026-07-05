@@ -1,3 +1,4 @@
+use crate::async_trait;
 use crate::base::component::{Html, Intro, IntroOpening};
 use crate::core::component::{ChildOp, Component, ComponentError, Context, Contextual};
 use crate::core::extension::Extension;
@@ -28,6 +29,7 @@ use crate::web::http::StatusCode;
 /// # use pagetop::prelude::*;
 /// pub struct MyTheme;
 ///
+/// #[async_trait]
 /// impl Extension for MyTheme {
 ///     fn name(&self) -> L10n {
 ///         L10n::n("My theme")
@@ -42,8 +44,10 @@ use crate::web::http::StatusCode;
 ///     }
 /// }
 ///
+/// #[async_trait]
 /// impl Theme for MyTheme {}
 /// ```
+#[async_trait]
 pub trait Theme: Extension + Send + Sync {
     /// Devuelve el tema padre del que hereda este tema, si existe.
     ///
@@ -108,11 +112,11 @@ pub trait Theme: Extension + Send + Sync {
     /// - Envolver el contenido en contenedores adicionales.
     /// - Implementar lógicas de composición alternativas.
     #[inline]
-    fn render_page_body(&self, page: &mut Page) -> Markup {
+    async fn render_page_body(&self, page: &mut Page) -> Markup {
         if let Some(parent) = self.parent() {
-            parent.render_page_body(page)
+            parent.render_page_body(page).await
         } else {
-            page.template().render(page.context())
+            page.template().render(page.context()).await
         }
     }
 
@@ -152,9 +156,9 @@ pub trait Theme: Extension + Send + Sync {
     ///
     /// Los temas pueden sobrescribir este método para añadir etiquetas adicionales (por ejemplo,
     /// *favicons* personalizados, manifest, etiquetas de analítica, etc.).
-    fn render_page_head(&self, page: &mut Page) -> Markup {
+    async fn render_page_head(&self, page: &mut Page) -> Markup {
         if let Some(parent) = self.parent() {
-            return parent.render_page_head(page);
+            return parent.render_page_head(page).await;
         }
         let viewport = "width=device-width, initial-scale=1, shrink-to-fit=no";
         html! {
@@ -222,7 +226,7 @@ pub trait Theme: Extension + Send + Sync {
     /// }
     /// ```
     #[allow(unused_variables)]
-    fn handle_component(
+    async fn handle_component(
         &self,
         component: &mut dyn Component,
         cx: &mut Context,

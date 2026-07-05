@@ -212,6 +212,7 @@ pub struct Field {
     disabled: bool,
 }
 
+#[async_trait]
 impl Component for Field {
     fn new() -> Self {
         Self::default()
@@ -233,7 +234,7 @@ impl Component for Field {
         self.alter_prop(PropsOp::prepend_classes("form-field form-field-select"));
     }
 
-    fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
+    async fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
         let container_id = self.id();
         let select_id = container_id.as_deref().map(|id| util::join!(id, "-select"));
 

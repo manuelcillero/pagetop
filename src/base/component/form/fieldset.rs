@@ -36,6 +36,7 @@ pub struct Fieldset {
     children: Children,
 }
 
+#[async_trait]
 impl Component for Fieldset {
     fn new() -> Self {
         Self::default()
@@ -45,8 +46,8 @@ impl Component for Fieldset {
         self.props.get_id()
     }
 
-    fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
-        let children = self.children().render(cx);
+    async fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
+        let children = self.children().render(cx).await;
 
         if children.is_empty() {
             return Ok(html! {});

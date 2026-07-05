@@ -97,6 +97,7 @@ use pagetop::prelude::*;
 
 pub struct MyExtension;
 
+#[async_trait]
 impl Extension for MyExtension {
     fn configure_router(&self, mut router: Router) -> Router {
         serve_static_files!(router, ["./static/css", app_css] => "/public/css");

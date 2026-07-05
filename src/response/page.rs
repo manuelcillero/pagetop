@@ -15,6 +15,7 @@
 
 mod error;
 pub use error::ErrorPage;
+pub(crate) use error::render_error_pages;
 
 use crate::auth::CurrentUser;
 use crate::base::action;
@@ -200,7 +201,7 @@ impl Page {
     ///    `lang` y `dir` en la etiqueta `<html>`.
     /// 8. Compone el documento HTML completo (`<!DOCTYPE html>`, `<html>`, `<head>`, `<body>`) y
     ///    devuelve un [`Result`] con el [`Markup`] final.
-    pub fn render(&mut self) -> Result<Markup, ErrorPage> {
+    pub async fn render(&mut self) -> Result<Markup, ErrorPage> {
         // Acciones específicas del tema antes de renderizar el <body>.
         self.context.theme().before_render_page_body(self);
 
@@ -209,9 +210,9 @@ impl Page {
 
         // Renderiza el <body>.
         let body = html! {
-            (ReservedRegion::PageTop.render(&mut self.context))
-            (self.context.theme().render_page_body(self))
-            (ReservedRegion::PageBottom.render(&mut self.context))
+            (ReservedRegion::PageTop.render(&mut self.context).await)
+            (self.context.theme().render_page_body(self).await)
+            (ReservedRegion::PageBottom.render(&mut self.context).await)
         };
 
         // Acciones específicas del tema después de renderizar el <body>.
@@ -221,7 +222,7 @@ impl Page {
         action::page::AfterRenderBody::dispatch(self);
 
         // Renderiza el <head>.
-        let head = self.context.theme().render_page_head(self);
+        let head = self.context.theme().render_page_head(self).await;
 
         // Compone la página incluyendo los atributos de idioma y dirección del texto.
         let lang = &self.context.langid().language;
@@ -283,7 +284,7 @@ impl Contextual for Page {
     }
 
     #[builder_fn]
-    fn with_param<T: 'static>(mut self, key: &'static str, value: T) -> Self {
+    fn with_param<T: Send + Sync + 'static>(mut self, key: &'static str, value: T) -> Self {
         self.context.alter_param(key, value);
         self
     }

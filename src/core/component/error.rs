@@ -13,9 +13,10 @@ use crate::{AutoDefault, Getters};
 /// # use pagetop::prelude::*;
 /// # #[derive(Clone)]
 /// # struct MyComponent;
+/// # #[async_trait]
 /// # impl Component for MyComponent {
 /// #     fn new() -> Self { MyComponent }
-/// fn prepare(&self, _cx: &mut Context) -> Result<Markup, ComponentError> {
+/// async fn prepare(&self, _cx: &mut Context) -> Result<Markup, ComponentError> {
 ///     Err(ComponentError::new("Database connection failed")
 ///         .with_fallback(html! { p class="error" { "Content temporarily unavailable." } }))
 /// }

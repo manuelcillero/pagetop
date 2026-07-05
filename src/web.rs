@@ -242,6 +242,7 @@ impl tower::Service<http::Request<Body>> for ServeEmbedded {
 /// # use pagetop::prelude::*;
 /// pub struct MyExtension;
 ///
+/// #[async_trait]
 /// impl Extension for MyExtension {
 ///     fn configure_router(&self, router: Router) -> Router {
 ///         // Forma 1) Sistema de ficheros o embebido.

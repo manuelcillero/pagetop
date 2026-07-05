@@ -162,10 +162,11 @@ impl PropsOp {
 ///     props: Props,
 /// }
 ///
+/// #[async_trait]
 /// impl Component for MyButton {
 ///     fn new() -> Self { Self::default() }
 ///
-///     fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
+///     async fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
 ///         Ok(html! {
 ///             button (self.props()) {
 ///                 (self.label().using(cx))

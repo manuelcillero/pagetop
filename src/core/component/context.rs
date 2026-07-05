@@ -10,8 +10,9 @@ use crate::locale::{LangId, LanguageIdentifier, RequestLocale};
 use crate::web::HttpRequest;
 use crate::{CowStr, builder_fn, util};
 
+use parking_lot::Mutex;
+
 use std::any::{Any, TypeId};
-use std::cell::RefCell;
 use std::collections::HashMap;
 use std::fmt;
 
@@ -132,7 +133,7 @@ pub trait Contextual: LangId {
     ///     .with_param("flags", vec!["a", "b"]);
     /// ```
     #[builder_fn]
-    fn with_param<T: 'static>(self, key: &'static str, value: T) -> Self;
+    fn with_param<T: Send + Sync + 'static>(self, key: &'static str, value: T) -> Self;
 
     /// Define los recursos del contexto usando [`AssetsOp`].
     #[builder_fn]
@@ -172,7 +173,7 @@ pub trait Contextual: LangId {
     ///     if page.current_user().is_authenticated() {
     ///         // Personalizar la página para el usuario autenticado.
     ///     }
-    ///     page.render()
+    ///     page.render().await
     /// }
     /// ```
     fn current_user(&self) -> &CurrentUser;
@@ -305,19 +306,19 @@ pub trait Contextual: LangId {
 /// ```
 #[rustfmt::skip]
 pub struct Context {
-    request     : Option<HttpRequest>,      // Petición HTTP de origen.
-    locale      : RequestLocale,            // Idioma asociado a la petición.
-    current_user: CurrentUser,              // Identidad del usuario actual.
-    theme       : ThemeRef,                 // Referencia al tema usado para renderizar.
-    template    : TemplateRef,              // Plantilla usada para renderizar.
-    favicon     : Option<Favicon>,          // Favicon, si se ha definido.
-    stylesheets : Assets<StyleSheet>,       // Hojas de estilo CSS.
-    javascripts : Assets<JavaScript>,       // Scripts JavaScript.
-    body_props  : Props,                    // Identificador, clases CSS y atributos del <body>.
-    regions     : ChildrenInRegions,        // Regiones de componentes para renderizar.
-    params      : HashMap<&'static str, (Box<dyn Any>, &'static str)>, // Parámetros en ejecución.
-    id_counters : RefCell<HashMap<TypeId, usize>>,  // RefCell permite mutar desde build_id(&self).
-    messages    : Vec<StatusMessage>,       // Mensajes de usuario acumulados.
+    request     : Option<HttpRequest>,            // Petición HTTP de origen.
+    locale      : RequestLocale,                  // Idioma asociado a la petición.
+    current_user: CurrentUser,                    // Identidad del usuario actual.
+    theme       : ThemeRef,                       // Referencia al tema usado para renderizar.
+    template    : TemplateRef,                    // Plantilla usada para renderizar.
+    favicon     : Option<Favicon>,                // Favicon, si se ha definido.
+    stylesheets : Assets<StyleSheet>,             // Hojas de estilo CSS.
+    javascripts : Assets<JavaScript>,             // Scripts JavaScript.
+    body_props  : Props,                          // Id, clases CSS y atributos del <body>.
+    regions     : ChildrenInRegions,              // Regiones de componentes para renderizar.
+    params      : HashMap<&'static str, (Box<dyn Any + Send + Sync>, &'static str)>, // Parámetros.
+    id_counters : Mutex<HashMap<TypeId, usize>>,  // Mutex permite mutar desde build_id(&self).
+    messages    : Vec<StatusMessage>,             // Mensajes de usuario acumulados.
 }
 
 impl Default for Context {
@@ -347,7 +348,7 @@ impl Context {
             body_props : Props::default(),
             regions    : ChildrenInRegions::default(),
             params     : HashMap::default(),
-            id_counters: RefCell::new(HashMap::new()),
+            id_counters: Mutex::new(HashMap::new()),
             messages   : Vec::new(),
         }
     }
@@ -390,10 +391,11 @@ impl Context {
     }
 
     /// Renderiza los componentes de una región.
-    pub fn render_region(&mut self, region_ref: RegionRef) -> Markup {
+    pub async fn render_region_named(&mut self, region_name: &str) -> Markup {
         self.regions
-            .children_for(self.theme, region_ref)
+            .assemble_region(self.theme, region_name)
             .render(self)
+            .await
     }
 
     // **< Context HELPERS >************************************************************************
@@ -436,7 +438,7 @@ impl Context {
             segments
         };
         let count = {
-            let mut map = self.id_counters.borrow_mut();
+            let mut map = self.id_counters.lock();
             let n = map.entry(TypeId::of::<C>()).or_insert(0);
             *n += 1;
             *n
@@ -529,7 +531,7 @@ impl Contextual for Context {
     }
 
     #[builder_fn]
-    fn with_param<T: 'static>(mut self, key: &'static str, value: T) -> Self {
+    fn with_param<T: Send + Sync + 'static>(mut self, key: &'static str, value: T) -> Self {
         let type_name = TypeInfo::FullName.of::<T>();
         self.params.insert(key, (Box::new(value), type_name));
         self

@@ -8,8 +8,8 @@ async fn component_html_renders_static_markup() {
         }
     });
 
-    let markup = component.render(&mut Context::default());
-    assert_eq!(markup.0, "<p>Test</p>");
+    let markup = component.render(&mut Context::default()).await;
+    assert_eq!(markup.into_string(), "<p>Test</p>");
 }
 
 #[pagetop::test]
@@ -23,8 +23,8 @@ async fn component_html_renders_using_context_param() {
         }
     });
 
-    let markup = component.render(&mut cx);
-    assert_eq!(markup.0, "<span>Alice</span>");
+    let markup = component.render(&mut cx).await;
+    assert_eq!(markup.into_string(), "<span>Alice</span>");
 }
 
 #[pagetop::test]
@@ -33,16 +33,16 @@ async fn component_html_allows_replacing_render_function() {
 
     component.alter_fn(|_| html! { div { "Modified" } });
 
-    let markup = component.render(&mut Context::default());
-    assert_eq!(markup.0, "<div>Modified</div>");
+    let markup = component.render(&mut Context::default()).await;
+    assert_eq!(markup.into_string(), "<div>Modified</div>");
 }
 
 #[pagetop::test]
 async fn component_html_default_renders_empty_markup() {
     let mut component = Html::default();
 
-    let markup = component.render(&mut Context::default());
-    assert_eq!(markup.0, "");
+    let markup = component.render(&mut Context::default()).await;
+    assert_eq!(markup.into_string(), "");
 }
 
 #[pagetop::test]
@@ -60,6 +60,6 @@ async fn component_html_can_access_request_path() {
         html! { span { (path) } }
     });
 
-    let markup = component.render(&mut cx);
-    assert_eq!(markup.0, "<span>/hello/world</span>");
+    let markup = component.render(&mut cx).await;
+    assert_eq!(markup.into_string(), "<span>/hello/world</span>");
 }

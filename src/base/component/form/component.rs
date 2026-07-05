@@ -57,6 +57,7 @@ pub struct Form {
     children: Children,
 }
 
+#[async_trait]
 impl Component for Form {
     fn new() -> Self {
         Self::default()
@@ -70,7 +71,7 @@ impl Component for Form {
         self.alter_prop(PropsOp::prepend_classes("form"));
     }
 
-    fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
+    async fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
         let method = match self.method() {
             form::Method::Post => Some("post"),
             form::Method::Get => None,
@@ -82,7 +83,7 @@ impl Component for Form {
                 method=[method]
                 accept-charset=[self.charset().get()]
             {
-                (self.children().render(cx))
+                (self.children().render(cx).await)
             }
         })
     }

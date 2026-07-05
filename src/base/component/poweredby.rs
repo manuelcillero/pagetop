@@ -14,6 +14,7 @@ pub struct PoweredBy {
     copyright: Option<String>,
 }
 
+#[async_trait]
 impl Component for PoweredBy {
     /// Crea una nueva instancia de `PoweredBy`.
     ///
@@ -25,7 +26,7 @@ impl Component for PoweredBy {
         PoweredBy { copyright: Some(c) }
     }
 
-    fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
+    async fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
         Ok(html! {
             div id=[self.id()] class="poweredby" {
                 @if let Some(c) = self.copyright() {
