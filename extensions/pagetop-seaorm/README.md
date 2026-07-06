@@ -70,6 +70,7 @@ mod migration;
 
 struct MyApp;
 
+#[async_trait]
 impl Extension for MyApp {
     fn dependencies(&self) -> Vec<ExtensionRef> {
         vec![
@@ -77,14 +78,14 @@ impl Extension for MyApp {
         ]
     }
 
-    fn initialize(&self) {
+    async fn initialize(&self) {
         install_migrations!(m20240101_000001_create_users);
     }
 }
 
 #[pagetop::main]
 async fn main() -> std::io::Result<()> {
-    Application::prepare(&MyApp).run()?.await
+    Application::prepare(&MyApp).await.run().await
 }
 ```
 
@@ -96,7 +97,7 @@ use pagetop_seaorm::migration::*;
 
 pub struct Migration;
 
-#[async_trait::async_trait]
+#[pagetop::async_trait]
 impl MigrationTrait for Migration {
     async fn up(&self, manager: &SchemaManager) -> Result<(), DbErr> {
         manager

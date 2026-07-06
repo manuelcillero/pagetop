@@ -10,7 +10,7 @@ pub enum SchemaManagerConnection<'c> {
     Transaction(&'c DatabaseTransaction),
 }
 
-#[async_trait::async_trait]
+#[pagetop::async_trait]
 impl ConnectionTrait for SchemaManagerConnection<'_> {
     fn get_database_backend(&self) -> DbBackend {
         match self {
@@ -55,7 +55,7 @@ impl ConnectionTrait for SchemaManagerConnection<'_> {
     }
 }
 
-#[async_trait::async_trait]
+#[pagetop::async_trait]
 impl TransactionTrait for SchemaManagerConnection<'_> {
     async fn begin(&self) -> Result<DatabaseTransaction, DbErr> {
         match self {

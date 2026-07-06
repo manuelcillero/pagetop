@@ -143,10 +143,6 @@ pub use sea_orm::{
     ActiveValue, DatabaseTransaction, ExecResult, QueryOrder, QuerySelect, TransactionTrait,
 };
 
-/// Permite implementar *traits* con métodos `async`:
-#[doc(inline)]
-pub use async_trait;
-
 /// Re-exporta el crate `sea_orm` íntegro como puerta de acceso a su API completa.
 ///
 /// Útil para tipos o utilidades que no están expuestos directamente en [`db::*`](self). La inmensa
@@ -176,7 +172,13 @@ pub use sea_orm::sea_query as query;
 /// ```
 #[inline]
 pub fn dbconn() -> &'static DatabaseConnection {
-    &super::DBCONN
+    super::DBCONN
+        // La inicialización requiere async (`Database::connect().await`). OnceLock asigna el valor
+        // con `.set()` en `Extension::initialize()` (contra LazyLock que sólo admite uso síncrono).
+        .get()
+        // Este texto no se multiplica al hacer `#[inline]`, es un `&'static str` que el compilador
+        // almacena una vez. Sólo se duplica una comprobación de nulo y un salto condicional.
+        .expect("Database not initialized: SeaORM extension must be listed as a dependency")
 }
 
 /// Ejecuta una sentencia SQL en crudo y devuelve su resultado.

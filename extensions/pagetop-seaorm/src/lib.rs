@@ -71,6 +71,7 @@ mod migration;
 
 struct MyApp;
 
+#[async_trait]
 impl Extension for MyApp {
     fn dependencies(&self) -> Vec<ExtensionRef> {
         vec![
@@ -78,14 +79,14 @@ impl Extension for MyApp {
         ]
     }
 
-    fn initialize(&self) {
+    async fn initialize(&self) {
         install_migrations!(m20240101_000001_create_users);
     }
 }
 
 #[pagetop::main]
 async fn main() -> std::io::Result<()> {
-    Application::prepare(&MyApp).run()?.await
+    Application::prepare(&MyApp).await.run().await
 }
 ```
 
@@ -97,7 +98,7 @@ use pagetop_seaorm::migration::*;
 
 pub struct Migration;
 
-#[async_trait::async_trait]
+#[pagetop::async_trait]
 impl MigrationTrait for Migration {
     async fn up(&self, manager: &SchemaManager) -> Result<(), DbErr> {
         manager
@@ -176,7 +177,7 @@ use pagetop::prelude::*;
 use sea_orm::{ConnectOptions, Database, DatabaseConnection};
 use url::Url;
 
-use std::sync::LazyLock;
+use std::sync::OnceLock;
 
 include_locales!(LOCALES_SEAORM);
 
@@ -186,73 +187,12 @@ pub mod db;
 
 pub mod migration;
 
-// Ejecuta un *future* de forma síncrona dentro del runtime de Tokio.
-//
-// Usa [`tokio::task::block_in_place`] para ceder el hilo actual al código bloqueante sin detener el
-// *pool* de trabajo de Tokio, y a continuación ejecuta el *future* con el *handle* del *runtime*
-// activo. Requiere el *runtime* multi-hilo (predeterminado con `#[pagetop::main]`).
-//
-// En tests, `#[pagetop::test]` aplica `multi_thread` por defecto. Si se utiliza `#[tokio::test]`
-// directamente, habría que añadir `(flavor = "multi_thread")` si el test invoca código que llame a
-// esta función.
-pub(crate) fn run_now<F: std::future::Future>(future: F) -> F::Output {
-    tokio::task::block_in_place(|| tokio::runtime::Handle::current().block_on(future))
-}
-
-pub(crate) static DBCONN: LazyLock<DatabaseConnection> = LazyLock::new(|| {
-    trace::info!(
-        "Connecting to database \"{}\" using a pool of {} connections",
-        &config::SETTINGS.database.db_name,
-        &config::SETTINGS.database.max_pool_size
-    );
-
-    let db_uri: String = match config::SETTINGS.database.db_type {
-        config::DbType::Unset => panic!(
-            "database.db_type is not configured: set it to \"mysql\", \"postgres\" or \"sqlite\""
-        ),
-        config::DbType::Mysql | config::DbType::Postgres => {
-            let scheme = if matches!(config::SETTINGS.database.db_type, config::DbType::Mysql) {
-                "mysql"
-            } else {
-                "postgres"
-            };
-            let mut tmp_uri = Url::parse(&format!(
-                "{}://{}/{}",
-                scheme,
-                &config::SETTINGS.database.db_host,
-                &config::SETTINGS.database.db_name
-            ))
-            .expect("Invalid database URL: check db_host and db_name in config");
-            tmp_uri
-                .set_username(config::SETTINGS.database.db_user.as_str())
-                .expect("Failed to set db_user in connection URL");
-            // https://github.com/launchbadge/sqlx/issues/1624
-            tmp_uri
-                .set_password(Some(config::SETTINGS.database.db_pass.as_str()))
-                .expect("Failed to set db_pass in connection URL");
-            if let Some(port) = config::SETTINGS.database.db_port {
-                tmp_uri
-                    .set_port(Some(port))
-                    .expect("Failed to set db_port in connection URL");
-            }
-            tmp_uri.to_string()
-        }
-        config::DbType::Sqlite => {
-            format!("sqlite://{}", &config::SETTINGS.database.db_name)
-        }
-    };
-
-    run_now(Database::connect::<ConnectOptions>({
-        let mut db_opt = ConnectOptions::new(db_uri);
-        db_opt.max_connections(config::SETTINGS.database.max_pool_size);
-        db_opt
-    }))
-    .expect("Failed to connect to database")
-});
+static DBCONN: OnceLock<DatabaseConnection> = OnceLock::new();
 
 /// Implementa la extensión.
 pub struct SeaORM;
 
+#[async_trait]
 impl Extension for SeaORM {
     fn name(&self) -> L10n {
         L10n::t("extension_name", &LOCALES_SEAORM)
@@ -262,7 +202,57 @@ impl Extension for SeaORM {
         L10n::t("extension_description", &LOCALES_SEAORM)
     }
 
-    fn initialize(&self) {
-        std::sync::LazyLock::force(&DBCONN);
+    async fn initialize(&self) {
+        trace::info!(
+            "Connecting to database \"{}\" using a pool of {} connections",
+            &config::SETTINGS.database.db_name,
+            &config::SETTINGS.database.max_pool_size
+        );
+
+        let db_uri: String = match config::SETTINGS.database.db_type {
+            config::DbType::Unset => panic!(
+                "database.db_type is not configured: use \"mysql\", \"postgres\" or \"sqlite\""
+            ),
+            config::DbType::Mysql | config::DbType::Postgres => {
+                let scheme = if matches!(config::SETTINGS.database.db_type, config::DbType::Mysql) {
+                    "mysql"
+                } else {
+                    "postgres"
+                };
+                let mut tmp_uri = Url::parse(&format!(
+                    "{}://{}/{}",
+                    scheme,
+                    &config::SETTINGS.database.db_host,
+                    &config::SETTINGS.database.db_name
+                ))
+                .expect("Invalid database URL: check db_host and db_name in config");
+                tmp_uri
+                    .set_username(config::SETTINGS.database.db_user.as_str())
+                    .expect("Failed to set db_user in connection URL");
+                tmp_uri
+                    // https://github.com/launchbadge/sqlx/issues/1624
+                    .set_password(Some(config::SETTINGS.database.db_pass.as_str()))
+                    .expect("Failed to set db_pass in connection URL");
+                if let Some(port) = config::SETTINGS.database.db_port {
+                    tmp_uri
+                        .set_port(Some(port))
+                        .expect("Failed to set db_port in connection URL");
+                }
+                tmp_uri.to_string()
+            }
+            config::DbType::Sqlite => {
+                format!("sqlite://{}", &config::SETTINGS.database.db_name)
+            }
+        };
+
+        let conn = Database::connect::<ConnectOptions>({
+            let mut db_opt = ConnectOptions::new(db_uri);
+            db_opt.max_connections(config::SETTINGS.database.max_pool_size);
+            db_opt
+        })
+        .await
+        .expect("Failed to connect to database");
+
+        DBCONN.set(conn).expect("DBCONN already initialized");
     }
 }

@@ -57,7 +57,7 @@ impl Migration {
 }
 
 /// Performing migrations on a database
-#[async_trait::async_trait]
+#[pagetop::async_trait]
 pub trait MigratorTrait: Send {
     /// Vector of migrations in time sequence
     fn migrations() -> Vec<Box<dyn MigrationTrait>>;

@@ -20,7 +20,6 @@ postgres = ["sea-orm/sqlx-postgres"]
 sqlite = ["sea-orm/sqlx-sqlite"]
 
 [dependencies]
-async-trait.workspace = true
 pagetop.workspace = true
 sea-orm.workspace = true
 sea-schema.workspace = true

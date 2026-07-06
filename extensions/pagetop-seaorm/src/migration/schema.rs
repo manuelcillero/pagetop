@@ -15,7 +15,7 @@
 //!
 //! pub struct Migration;
 //!
-//! #[async_trait::async_trait]
+//! #[pagetop::async_trait]
 //! impl MigrationTrait for Migration {
 //!     async fn up(&self, manager: &SchemaManager) -> Result<(), DbErr> {
 //!         let table = table_auto(Users::Table)

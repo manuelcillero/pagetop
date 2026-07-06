@@ -34,7 +34,7 @@
 //!
 //! pub struct Migration;
 //!
-//! #[async_trait::async_trait]
+//! #[pagetop::async_trait]
 //! impl MigrationTrait for Migration {
 //!     async fn up(&self, manager: &SchemaManager) -> Result<(), DbErr> {
 //!         manager
@@ -127,9 +127,7 @@ pub use connection::*;
 pub use manager::*;
 //pub use migrator::*;
 
-/// Permite implementar *traits* con métodos `async`:
-#[doc(inline)]
-pub use async_trait;
+//pub use async_trait;
 //pub use sea_orm;
 //pub use sea_orm::sea_query;
 pub use sea_orm::DbErr;
@@ -139,7 +137,7 @@ pub trait MigrationName {
 }
 
 /// The migration definition
-#[async_trait::async_trait]
+#[pagetop::async_trait]
 pub trait MigrationTrait: MigrationName + Send + Sync {
     /// Define actions to perform when applying the migration
     async fn up(&self, manager: &SchemaManager) -> Result<(), DbErr>;
@@ -173,35 +171,37 @@ impl<M: MigrationTrait> MigrationName for M {
 /// Elemento de migración listo para incluir en la lista de un [`MigratorTrait`].
 pub type MigrationItem = Box<dyn MigrationTrait>;
 
-/// Interfaz síncrona para ejecutar migraciones desde código no asíncrono.
+/// Interfaz asíncrona para ejecutar migraciones.
 ///
 /// Todo tipo que implemente [`MigratorTrait`] obtiene esta interfaz automáticamente, incluidos los
 /// tipos generados por los macros [`install_migrations!`](crate::install_migrations) y
 /// [`uninstall_migrations!`](crate::uninstall_migrations).
+#[pagetop::async_trait]
 pub trait MigratorBase {
     /// Ejecuta las migraciones pendientes en orden ascendente.
     ///
     /// Provoca un `panic!` si alguna migración falla, evitando que la aplicación arranque con un
     /// esquema de base de datos inconsistente.
-    fn run_up();
+    async fn run_up();
 
     /// Revierte todas las migraciones en orden descendente.
     ///
     /// Provoca un `panic!` si alguna reversión falla.
-    fn run_down();
+    async fn run_down();
 }
 
+#[pagetop::async_trait]
 impl<M: MigratorTrait> MigratorBase for M {
-    fn run_up() {
-        let conn = SchemaManagerConnection::Connection(&super::DBCONN);
-        if let Err(e) = super::run_now(Self::up(conn, None)) {
+    async fn run_up() {
+        let conn = SchemaManagerConnection::Connection(super::db::dbconn());
+        if let Err(e) = Self::up(conn, None).await {
             panic!("Migration upgrade failed: {e}");
         }
     }
 
-    fn run_down() {
-        let conn = SchemaManagerConnection::Connection(&super::DBCONN);
-        if let Err(e) = super::run_now(Self::down(conn, None)) {
+    async fn run_down() {
+        let conn = SchemaManagerConnection::Connection(super::db::dbconn());
+        if let Err(e) = Self::down(conn, None).await {
             panic!("Migration downgrade failed: {e}");
         }
     }
@@ -228,8 +228,9 @@ impl<M: MigratorTrait> MigratorBase for M {
 /// ```rust,ignore
 /// mod migration;
 ///
+/// #[async_trait]
 /// impl Extension for MyExt {
-///     fn initialize(&self) {
+///     async fn initialize(&self) {
 ///         install_migrations!(
 ///             m20240101_000001_create_users,
 ///             m20240115_000002_add_email_index,
@@ -252,7 +253,7 @@ macro_rules! install_migrations {
                 m
             }
         }
-        Migrator::run_up();
+        Migrator::run_up().await;
     }};
 }
 
@@ -269,8 +270,9 @@ macro_rules! install_migrations {
 ///
 /// En `src/lib.rs`:
 /// ```rust,ignore
+/// #[async_trait]
 /// impl Extension for MyExt {
-///     fn uninitialize(&self) {
+///     async fn uninitialize(&self) {
 ///         uninstall_migrations!(
 ///             m20240101_000001_create_users,
 ///             m20240115_000002_add_email_index,
@@ -293,6 +295,6 @@ macro_rules! uninstall_migrations {
                 m
             }
         }
-        Migrator::run_down();
+        Migrator::run_down().await;
     }};
 }
