@@ -26,6 +26,7 @@ pub enum Item {
     Text(L10n),
 }
 
+#[async_trait]
 impl Component for Item {
     fn new() -> Self {
         Self::default()
@@ -42,19 +43,19 @@ impl Component for Item {
 
     fn setup(&mut self, _cx: &Context) {
         if let Self::Nav(nav) = self {
-            if let Some(mut nav) = nav.get() {
+            if let Some(nav) = nav.get_mut() {
                 nav.alter_prop(PropsOp::prepend_classes("navbar-nav"));
             }
         }
     }
 
-    fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
+    async fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
         Ok(match self {
             Self::Void => html! {},
-            Self::Brand(brand) => html! { (brand.render(cx)) },
+            Self::Brand(brand) => html! { (brand.render(cx).await) },
             Self::Nav(nav) => {
                 if let Some(nav) = nav.get() {
-                    let items = nav.items().render(cx);
+                    let items = nav.items().render(cx).await;
                     if items.is_empty() {
                         return Ok(html! {});
                     }

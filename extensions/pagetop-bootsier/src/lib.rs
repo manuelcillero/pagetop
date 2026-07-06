@@ -35,6 +35,7 @@ use pagetop::prelude::*;
 
 struct MyApp;
 
+#[async_trait]
 impl Extension for MyApp {
     fn dependencies(&self) -> Vec<ExtensionRef> {
         vec![
@@ -69,13 +70,13 @@ async fn homepage(request: HttpRequest) -> Result<Markup, ErrorPage> {
                     p { (L10n::l("sample_content").using(cx)) }
                 })),
         )
-        .render()
+        .render().await
 }
 ```
 */
 
 #![doc(
-    html_favicon_url = "https://git.cillero.es/manuelcillero/pagetop/raw/branch/main/static/favicon.ico"
+    html_favicon_url = "https://git.cillero.es/manuelcillero/pagetop/raw/branch/main/assets/favicon.ico"
 )]
 
 use pagetop::prelude::*;
@@ -99,6 +100,7 @@ mod handlers {
 /// Implementa el tema.
 pub struct Bootsier;
 
+#[async_trait]
 impl Extension for Bootsier {
     fn name(&self) -> L10n {
         L10n::t("extension_name", &LOCALES_BOOTSIER)
@@ -128,13 +130,14 @@ impl Extension for Bootsier {
     }
 }
 
+#[async_trait]
 impl Theme for Bootsier {
     #[inline]
     fn default_template(&self) -> TemplateRef {
         &BootsierTemplate::Standard
     }
 
-    fn handle_component(
+    async fn handle_component(
         &self,
         component: &mut dyn Component,
         cx: &mut Context,

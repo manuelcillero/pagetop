@@ -29,7 +29,7 @@ use pagetop::prelude::*;
 ///             .with_child(Html::with(|_| html! {
 ///                 ul { li { "Item 1" } li { "Item 2" } }
 ///             }))
-///             .render()
+///             .render().await
 ///             .into_response()
 ///     }
 /// }

@@ -332,7 +332,7 @@ pub const DISABLE: &str = "hx-disable";
 
 /// Genera `hx-on:{event}` para escuchar eventos nativos del DOM en línea.
 ///
-/// Es la alternativa de HTMX a los manejadores `on*` de HTML (`onclick`, `onmouseenter`, ...). La
+/// Es la alternativa de HTMX a los *handlers* `on*` de HTML (`onclick`, `onmouseenter`, ...). La
 /// diferencia clave está en cómo los trata el navegador bajo una política CSP (*Content Security
 /// Policy*): los atributos `on*` son JavaScript en línea y quedan bloqueados si la CSP no incluye
 /// `'unsafe-inline'`; en cambio, `hx-on:*` es un atributo de datos que HTMX lee e interpreta desde

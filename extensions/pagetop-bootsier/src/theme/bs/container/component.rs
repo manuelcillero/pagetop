@@ -31,6 +31,7 @@ pub struct Container {
     children: Children,
 }
 
+#[async_trait]
 impl Component for Container {
     fn new() -> Self {
         Self::default()
@@ -44,8 +45,8 @@ impl Component for Container {
         self.alter_prop(PropsOp::prepend_classes(self.container_width().to_class()));
     }
 
-    fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
-        let output = self.children().render(cx);
+    async fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
+        let output = self.children().render(cx).await;
         if output.is_empty() {
             return Ok(html! {});
         }

@@ -25,13 +25,14 @@ pub struct Brand {
     route: Option<FnPathByContext>,
 }
 
+#[async_trait]
 impl Component for Brand {
     fn new() -> Self {
         Self::default()
     }
 
-    fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
-        let image = self.image().render(cx);
+    async fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
+        let image = self.image().render(cx).await;
         let title = self.title().using(cx);
         if title.is_empty() && image.is_empty() {
             return Ok(html! {});

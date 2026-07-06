@@ -149,6 +149,7 @@ pub struct Navbar {
     items: Children,
 }
 
+#[async_trait]
 impl Component for Navbar {
     fn new() -> Self {
         Self::default()
@@ -171,7 +172,7 @@ impl Component for Navbar {
         }));
     }
 
-    fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
+    async fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
         // Botón de despliegue (colapso u offcanvas) para la barra.
         fn button(cx: &mut Context, data_bs_toggle: &str, id_content: &str) -> Markup {
             let id_content_target = util::join!("#", id_content);
@@ -196,7 +197,7 @@ impl Component for Navbar {
         }
 
         // Si no hay contenidos, no tiene sentido mostrar una barra vacía.
-        let items = self.items().render(cx);
+        let items = self.items().render(cx).await;
         if items.is_empty() {
             return Ok(html! {});
         }
@@ -225,7 +226,7 @@ impl Component for Navbar {
 
                         // Barra con marca a la izquierda, siempre visible.
                         bs::navbar::Layout::SimpleBrandLeft(brand) => {
-                            (brand.render(cx))
+                            (brand.render(cx).await)
                             (items)
                         },
 
@@ -233,7 +234,7 @@ impl Component for Navbar {
                         bs::navbar::Layout::BrandLeft(brand) => {
                             @let id_content = util::join!(id, "-content");
 
-                            (brand.render(cx))
+                            (brand.render(cx).await)
                             (button(cx, TOGGLE_COLLAPSE, &id_content))
                             div id=(&id_content) class="collapse navbar-collapse" {
                                 (items)
@@ -245,7 +246,7 @@ impl Component for Navbar {
                             @let id_content = util::join!(id, "-content");
 
                             (button(cx, TOGGLE_COLLAPSE, &id_content))
-                            (brand.render(cx))
+                            (brand.render(cx).await)
                             div id=(&id_content) class="collapse navbar-collapse" {
                                 (items)
                             }
@@ -257,7 +258,7 @@ impl Component for Navbar {
 
                             (button(cx, TOGGLE_OFFCANVAS, &id_content))
                             @if let Some(oc) = offcanvas.get() {
-                                (oc.render_offcanvas(cx, Some(self.items())))
+                                (oc.render_offcanvas(cx, Some(self.items())).await)
                             }
                         },
 
@@ -265,10 +266,10 @@ impl Component for Navbar {
                         bs::navbar::Layout::OffcanvasBrandLeft(brand, offcanvas) => {
                             @let id_content = offcanvas.id().unwrap_or_default();
 
-                            (brand.render(cx))
+                            (brand.render(cx).await)
                             (button(cx, TOGGLE_OFFCANVAS, &id_content))
                             @if let Some(oc) = offcanvas.get() {
-                                (oc.render_offcanvas(cx, Some(self.items())))
+                                (oc.render_offcanvas(cx, Some(self.items())).await)
                             }
                         },
 
@@ -277,9 +278,9 @@ impl Component for Navbar {
                             @let id_content = offcanvas.id().unwrap_or_default();
 
                             (button(cx, TOGGLE_OFFCANVAS, &id_content))
-                            (brand.render(cx))
+                            (brand.render(cx).await)
                             @if let Some(oc) = offcanvas.get() {
-                                (oc.render_offcanvas(cx, Some(self.items())))
+                                (oc.render_offcanvas(cx, Some(self.items())).await)
                             }
                         },
                     }

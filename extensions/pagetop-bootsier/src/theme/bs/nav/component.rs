@@ -44,6 +44,7 @@ pub struct Nav {
     items: Children,
 }
 
+#[async_trait]
 impl Component for Nav {
     fn new() -> Self {
         Self::default()
@@ -63,8 +64,8 @@ impl Component for Nav {
         }));
     }
 
-    fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
-        let items = self.items().render(cx);
+    async fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
+        let items = self.items().render(cx).await;
         if items.is_empty() {
             return Ok(html! {});
         }

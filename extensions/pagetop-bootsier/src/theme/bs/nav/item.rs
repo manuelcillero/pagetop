@@ -65,6 +65,7 @@ pub struct Item {
     item_kind: ItemKind,
 }
 
+#[async_trait]
 impl Component for Item {
     fn new() -> Self {
         Self::default()
@@ -78,7 +79,7 @@ impl Component for Item {
         self.alter_prop(PropsOp::prepend_classes(self.item_kind().as_str()));
     }
 
-    fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
+    async fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
         Ok(match self.item_kind() {
             ItemKind::Void => html! {},
 
@@ -133,13 +134,13 @@ impl Component for Item {
 
             ItemKind::Html(html) => html! {
                 li (self.props()) {
-                    (html.render(cx))
+                    (html.render(cx).await)
                 }
             },
 
             ItemKind::Dropdown(menu) => {
                 if let Some(dd) = menu.get() {
-                    let items = dd.items().render(cx);
+                    let items = dd.items().render(cx).await;
                     if items.is_empty() {
                         return Ok(html! {});
                     }

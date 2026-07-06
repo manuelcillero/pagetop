@@ -112,7 +112,7 @@ impl Direction {
 /// Alineación horizontal del menú desplegable [`Dropdown`](crate::theme::bs::Dropdown).
 ///
 /// Permite alinear el menú al inicio o al final del botón (respetando LTR/RTL) y añadirle una
-/// alineación diferente a partir de un punto de ruptura ([`BreakPoint`]).
+/// alineación diferente a partir de un punto de ruptura ([`BreakPoint`](token::BreakPoint)).
 #[derive(AutoDefault, Clone, Copy, Debug, PartialEq)]
 pub enum MenuAlign {
     /// Alineación al inicio (comportamiento por defecto).

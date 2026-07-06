@@ -21,6 +21,7 @@ pub struct Icon {
     aria_label: AttrL10n,
 }
 
+#[async_trait]
 impl Component for Icon {
     fn new() -> Self {
         Self::default()
@@ -39,7 +40,7 @@ impl Component for Icon {
         }
     }
 
-    fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
+    async fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
         Ok(match self.icon_kind() {
             IconKind::None => html! {},
             IconKind::Font(_) => {

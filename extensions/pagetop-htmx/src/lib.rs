@@ -35,6 +35,7 @@ use pagetop::prelude::*;
 
 struct MyApp;
 
+#[async_trait]
 impl Extension for MyApp {
     fn dependencies(&self) -> Vec<ExtensionRef> {
         vec![
@@ -60,7 +61,7 @@ async fn homepage(request: HttpRequest) -> Result<Markup, ErrorPage> {
             }
             div #result {}
         }))
-        .render()
+        .render().await
 }
 ```
 */
@@ -91,6 +92,7 @@ include_locales!(LOCALES_HTMX);
 ///
 /// struct MyApp;
 ///
+/// #[async_trait]
 /// impl Extension for MyApp {
 ///     fn dependencies(&self) -> Vec<ExtensionRef> {
 ///         vec![
@@ -103,6 +105,7 @@ include_locales!(LOCALES_HTMX);
 /// ```
 pub struct Htmx;
 
+#[async_trait]
 impl Extension for Htmx {
     fn name(&self) -> L10n {
         L10n::t("extension_name", &LOCALES_HTMX)

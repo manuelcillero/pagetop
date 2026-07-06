@@ -24,6 +24,7 @@ pub struct Image {
     alternative: Attr<L10n>,
 }
 
+#[async_trait]
 impl Component for Image {
     fn new() -> Self {
         Self::default()
@@ -38,7 +39,7 @@ impl Component for Image {
         self.alter_prop(PropsOp::prepend_classes(self.source().to_class()));
     }
 
-    fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
+    async fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
         let dimensions = self.size().to_style();
         let alt_text = self.alternative().lookup(cx).unwrap_or_default();
         let is_decorative = alt_text.is_empty();
@@ -52,7 +53,7 @@ impl Component for Image {
                         aria-label=[(!is_decorative).then_some(alt_text)]
                         aria-hidden=[is_decorative.then_some("true")]
                     {
-                        (logo.render(cx))
+                        (logo.markup(cx))
                     }
                 });
             }

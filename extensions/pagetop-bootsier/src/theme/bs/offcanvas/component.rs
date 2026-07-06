@@ -61,6 +61,7 @@ pub struct Offcanvas {
     children: Children,
 }
 
+#[async_trait]
 impl Component for Offcanvas {
     fn new() -> Self {
         Self::default()
@@ -84,8 +85,8 @@ impl Component for Offcanvas {
         }));
     }
 
-    fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
-        Ok(self.render_offcanvas(cx, None))
+    async fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
+        Ok(self.render_offcanvas(cx, None).await)
     }
 }
 
@@ -167,9 +168,17 @@ impl Offcanvas {
 
     // **< Offcanvas HELPERS >**********************************************************************
 
-    pub(crate) fn render_offcanvas(&self, cx: &mut Context, extra: Option<&Children>) -> Markup {
-        let body = self.children().render(cx);
-        let body_extra = extra.map(|c| c.render(cx)).unwrap_or_else(|| html! {});
+    pub(crate) async fn render_offcanvas(
+        &self,
+        cx: &mut Context,
+        extra: Option<&Children>,
+    ) -> Markup {
+        let body = self.children().render(cx).await;
+        let body_extra = if let Some(c) = extra {
+            c.render(cx).await
+        } else {
+            html! {}
+        };
         if body.is_empty() && body_extra.is_empty() {
             return html! {};
         }

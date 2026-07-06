@@ -34,6 +34,7 @@ use pagetop::prelude::*;
 
 struct MyApp;
 
+#[async_trait]
 impl Extension for MyApp {
     fn dependencies(&self) -> Vec<ExtensionRef> {
         vec![
@@ -59,7 +60,7 @@ async fn homepage(request: HttpRequest) -> Result<Markup, ErrorPage> {
             }
             div #result {}
         }))
-        .render()
+        .render().await
 }
 ```
 

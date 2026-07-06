@@ -51,6 +51,7 @@ pub struct Item {
     item_kind: ItemKind,
 }
 
+#[async_trait]
 impl Component for Item {
     fn new() -> Self {
         Self::default()
@@ -60,7 +61,7 @@ impl Component for Item {
         self.props.get_id()
     }
 
-    fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
+    async fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
         Ok(match self.item_kind() {
             ItemKind::Void => html! {},
 
