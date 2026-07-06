@@ -155,7 +155,15 @@ impl Theme for Bootsier {
     }
 
     fn before_render_page_body(&self, page: &mut Page) {
-        page.alter_assets(AssetsOp::AddStyleSheet(
+        // Las URLs de las fuentes deben coincidir exactamente con las declaradas en @font-face de
+        // _bootsier-custom.scss; cualquier discrepancia hace que el navegador descargue dos veces.
+        page.alter_assets(AssetsOp::AddPreload(
+            Preload::font("/bootsier/fonts/bootsier.font.woff2").with_weight(-99),
+        ))
+        .alter_assets(AssetsOp::AddPreload(
+            Preload::font("/bootsier/fonts/bootsier.font.italic.woff2").with_weight(-99),
+        ))
+        .alter_assets(AssetsOp::AddStyleSheet(
             StyleSheet::from("/bootsier/css/bootsier.min.css")
                 .with_version(ADMINLTE_VERSION)
                 .with_weight(-90),
@@ -168,7 +176,7 @@ impl Theme for Bootsier {
         .alter_assets(AssetsOp::AddJavaScript(
             JavaScript::defer("/bootsier/js/bootsier.extended.min.js")
                 .with_version(ADMINLTE_VERSION)
-                .with_weight(-89),
+                .with_weight(-90),
         ))
         .alter_child_in(
             &DefaultRegion::Footer,

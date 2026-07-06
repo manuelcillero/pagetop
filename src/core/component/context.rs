@@ -3,7 +3,7 @@ use crate::core::TypeInfo;
 use crate::core::component::{ChildOp, Component, MessageLevel, StatusMessage};
 use crate::core::theme::all::DEFAULT_THEME;
 use crate::core::theme::{ChildrenInRegions, DefaultRegion, RegionRef, TemplateRef, ThemeRef};
-use crate::html::{Assets, Favicon, JavaScript, StyleSheet};
+use crate::html::{Assets, Favicon, JavaScript, Preload, StyleSheet};
 use crate::html::{Markup, Props, PropsOp, RoutePath, html};
 use crate::locale::L10n;
 use crate::locale::{LangId, LanguageIdentifier, RequestLocale};
@@ -22,6 +22,11 @@ pub enum AssetsOp {
     SetFavicon(Option<Favicon>),
     /// Define el *favicon* solo si no se ha establecido previamente.
     SetFaviconIfNone(Favicon),
+
+    /// Añade un recurso para precarga al documento.
+    AddPreload(Preload),
+    /// Elimina un recurso para precarga por su ruta.
+    RemovePreload(&'static str),
 
     /// Añade una hoja de estilos CSS al documento.
     AddStyleSheet(StyleSheet),
@@ -312,6 +317,7 @@ pub struct Context {
     theme       : ThemeRef,                       // Referencia al tema usado para renderizar.
     template    : TemplateRef,                    // Plantilla usada para renderizar.
     favicon     : Option<Favicon>,                // Favicon, si se ha definido.
+    preloads    : Assets<Preload>,                // Recursos para precarga.
     stylesheets : Assets<StyleSheet>,             // Hojas de estilo CSS.
     javascripts : Assets<JavaScript>,             // Scripts JavaScript.
     body_props  : Props,                          // Id, clases CSS y atributos del <body>.
@@ -343,6 +349,7 @@ impl Context {
             theme      : *DEFAULT_THEME,
             template   : DEFAULT_THEME.default_template(),
             favicon    : None,
+            preloads   : Assets::<Preload>::new(),
             stylesheets: Assets::<StyleSheet>::new(),
             javascripts: Assets::<JavaScript>::new(),
             body_props : Props::default(),
@@ -370,6 +377,7 @@ impl Context {
 
         // Extrae temporalmente los recursos.
         let favicon = mem_take(&mut self.favicon); // Deja valor por defecto (None) en self.
+        let preloads = mem_take(&mut self.preloads); // Assets<Preload>::default() en self.
         let stylesheets = mem_take(&mut self.stylesheets); // Assets<StyleSheet>::default() en self.
         let javascripts = mem_take(&mut self.javascripts); // Assets<JavaScript>::default() en self.
 
@@ -378,12 +386,15 @@ impl Context {
             @if let Some(fi) = &favicon {
                 (fi.render(self))
             }
+            // Primero los recursos para precarga para iniciar las descargas inmediatamente.
+            (preloads.render(self))
             (stylesheets.render(self))
             (javascripts.render(self))
         };
 
         // Restaura los campos tal y como estaban.
         self.favicon = favicon;
+        self.preloads = preloads;
         self.stylesheets = stylesheets;
         self.javascripts = javascripts;
 
@@ -548,6 +559,13 @@ impl Contextual for Context {
                 if self.favicon.is_none() {
                     self.favicon = Some(icon);
                 }
+            }
+            // Preloads.
+            AssetsOp::AddPreload(preload) => {
+                self.preloads.add(preload);
+            }
+            AssetsOp::RemovePreload(path) => {
+                self.preloads.remove(path);
             }
             // Stylesheets.
             AssetsOp::AddStyleSheet(css) => {

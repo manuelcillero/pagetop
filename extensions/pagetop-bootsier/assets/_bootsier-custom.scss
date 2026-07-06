@@ -2,6 +2,7 @@
 
 // Self-hosted Source Sans 3 (SIL OFL 1.1), served from /bootsier/fonts.
 // Required by AdminLTE 4, which declares it as the primary font family in $font-family-sans-serif.
+// Font URLs must match the Preload declarations in src/lib.rs; a mismatch causes double downloads.
 @font-face {
   font-family: "Source Sans 3";
   src: url("/bootsier/fonts/bootsier.font.woff2") format("woff2");

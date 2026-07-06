@@ -1,5 +1,6 @@
 pub mod favicon;
 pub mod javascript;
+pub mod preload;
 pub mod stylesheet;
 
 use crate::core::component::Context;
