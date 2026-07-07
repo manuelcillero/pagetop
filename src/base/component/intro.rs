@@ -126,9 +126,10 @@ impl Component for Intro {
                     const date = new Date(data.versions[0].created_at);
                     const formatted = date.toLocaleDateString("LANGID", { year: "numeric", month: "2-digit", day: "2-digit" });
                     document.getElementById("intro-release").src = `https://img.shields.io/badge/Release%20date-${encodeURIComponent(formatted)}-blue?label=LABEL&style=for-the-badge`;
-                    document.getElementById("intro-badges").style.display = "block";
                 } catch (e) {
                     console.error("Failed to fetch release date from crates.io:", e);
+                } finally {
+                    document.getElementById("intro-badges").style.visibility = "visible";
                 }
                 "#)
                 .replace("LANGID", cx.langid().to_string().as_str())

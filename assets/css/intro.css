@@ -447,11 +447,15 @@ body {
 }
 
 #intro-badges {
-	display: none;
+	min-height: 3rem;
 	text-align: center;
+	visibility: hidden;
 }
 #intro-badges img {
 	margin-bottom: 1.1rem;
+}
+#intro-release:not([src]) {
+	display: none;
 }
 
 /*
