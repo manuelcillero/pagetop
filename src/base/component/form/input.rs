@@ -123,7 +123,7 @@ impl fmt::Display for Mode {
 /// ```
 #[derive(AutoDefault, Clone, Debug, Getters)]
 pub struct Field {
-    /// Devuelve identificador, clases CSS y atributos HTML del componente.
+    /// Devuelve identificador, clases CSS, atributos HTML y valores extra del componente.
     props: Props,
     /// Devuelve el tipo de campo.
     kind: Kind,
@@ -302,7 +302,7 @@ impl Field {
         self
     }
 
-    /// Modifica identificador, clases CSS o atributos HTML del componente.
+    /// Modifica identificador, clases CSS, atributos HTML o valores extra del componente.
     #[builder_fn]
     pub fn with_prop(mut self, op: PropsOp) -> Self {
         self.props.alter_prop(op);

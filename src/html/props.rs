@@ -1,50 +1,133 @@
+use crate::core::TypeInfo;
 use crate::html::maud::{Escaper, Render};
 use crate::{AutoDefault, CowStr, builder_fn, util};
 
-use std::fmt::Write;
+use std::any::Any;
+use std::collections::HashMap;
+use std::fmt::{self, Write};
+use std::sync::Arc;
+
+// **< PropsExtra >*********************************************************************************
+
+/// Encapsula un valor tipado extra para almacenar en [`Props`].
+///
+/// Internamente usa [`Arc`] para que [`Props`] pueda implementar [`Clone`] sin requerir que los
+/// valores almacenados sean clonables. El nombre del tipo almacenado permite generar mensajes de
+/// error precisos.
+pub struct PropsExtra {
+    value: Arc<dyn Any + Send + Sync>,
+    type_name: &'static str,
+}
+
+impl Clone for PropsExtra {
+    fn clone(&self) -> Self {
+        Self {
+            value: Arc::clone(&self.value),
+            type_name: self.type_name,
+        }
+    }
+}
+
+impl fmt::Debug for PropsExtra {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "<{}>", self.type_name)
+    }
+}
+
+// **< PropsError >*********************************************************************************
+
+/// Errores de acceso a valores extra de [`Props`].
+///
+/// - [`PropsError::ExtraNotFound`]: la clave no existe. Incluye la clave (`key`).
+/// - [`PropsError::ExtraTypeMismatch`]: la clave existe pero el tipo solicitado no coincide con el
+///   almacenado. Incluye la clave (`key`), tipo esperado (`expected`) y tipo realmente encontrado
+///   (`found`) para facilitar el diagnóstico.
+#[derive(Debug, PartialEq, Eq)]
+pub enum PropsError {
+    ExtraNotFound {
+        key: &'static str,
+    },
+    ExtraTypeMismatch {
+        key: &'static str,
+        expected: &'static str,
+        found: &'static str,
+    },
+}
+
+impl fmt::Display for PropsError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            PropsError::ExtraNotFound { key } => write!(f, "extra \"{key}\" not found"),
+            PropsError::ExtraTypeMismatch {
+                key,
+                expected,
+                found,
+            } => write!(
+                f,
+                "type mismatch for extra \"{key}\": expected \"{expected}\", found \"{found}\""
+            ),
+        }
+    }
+}
+
+impl std::error::Error for PropsError {}
 
 // **< PropsOp >************************************************************************************
 
-/// Operaciones disponibles sobre atributos HTML y clases CSS en [`Props`].
+/// Operaciones sobre el identificador, clases CSS, atributos HTML y valores extra en [`Props`].
 ///
 /// Cada variante lleva los datos necesarios para ejecutarse. El método recomendado para usarlas es
-/// recurrir a los constructores asociados como [`set()`](Self::set), [`set_id()`](Self::set_id),
-/// [`remove()`](Self::remove), [`add_classes()`](Self::add_classes), etc.
+/// recurrir a los constructores asociados como [`set_id()`](Self::set_id),
+/// [`add_classes()`](Self::add_classes), [`set()`](Self::set), etc.
 ///
 /// Las variantes `*Id` operan sobre el atributo `id` del componente. Cuando se usa `"id"` como
-/// nombre de atributo en `Set`, el valor se normaliza igual que en `SetId` o `EnsureId`.
+/// nombre de atributo en `Set`, el valor se normaliza igual que [`SetId`](Self::SetId).
 ///
-/// Las variantes `*Classes` operan siempre sobre la lista de clases CSS para el componente. Cuando
-/// se usa `"class"` como nombre en `Set` o `Remove` la operación se aplica a la lista de clases
-/// completa. Así, `Set("class", ...)` reemplaza la lista de clases completa por las nuevas clases
-/// indicadas, y `Remove("class")` vacía la lista de clases.
-#[derive(Clone, Debug, PartialEq)]
+/// Las variantes `*Classes` gestionan la lista de clases CSS. Además, `Set("class", ...)`
+/// reemplaza la lista completa y `Remove("class")` la vacía.
+///
+/// Las variantes [`Set`](Self::Set) y [`Remove`](Self::Remove) son operaciones de propósito
+/// general: `Set` añade o reemplaza cualquier atributo HTML por nombre y valor, y `Remove` lo
+/// elimina. Los atributos `id` y `class` tienen semántica especial documentada en cada variante.
+///
+/// Las variantes `*Extra` permiten añadir valores tipados usando una clave. Están pensadas para que
+/// temas y extensiones amplíen el comportamiento de componentes ya existentes. Como no es posible
+/// añadir campos a la estructura de un componente ya definido, temas y extensiones pueden definir
+/// un *trait* con nuevos métodos que leen y escriben valores extra en [`Props`]. Esos valores se
+/// interpretan como si fueran valores internos del componente para tomar decisiones durante el
+/// renderizado.
+#[derive(Clone, Debug)]
 pub enum PropsOp {
-    /// Establece el identificador del elemento normalizando el valor: recorta espacios, convierte a
-    /// minúsculas y sustituye los espacios intermedios por `_`. Si el resultado es vacío, elimina
+    /// Establece el identificador del componente normalizando el valor: recorta espacios, convierte
+    /// a minúsculas y sustituye los espacios intermedios por `_`. Si el resultado es vacío, elimina
     /// el identificador.
     SetId(CowStr),
-    /// Establece el identificador del elemento si aún no hay ninguno definido, de modo que no
-    /// sobrescribe un valor asignado con anterioridad. Aplica la misma normalización que
-    /// [`SetId`](Self::SetId); si el resultado es vacío, la operación tampoco tiene efecto.
+    /// Establece el identificador del componente **sólo si aún no hay ninguno definido**. Aplica la
+    /// misma normalización que [`SetId`](Self::SetId); si el resultado es vacío, la operación no
+    /// tiene efecto.
     EnsureId(CowStr),
-    /// Añade el atributo o sustituye su valor si ya existe. Usar `"id"` como nombre aplica la misma
-    /// normalización que [`SetId`](Self::SetId). Usar `"class"` como nombre reemplaza la lista
-    /// completa de clases por las nuevas indicadas; la operación se ignora si el valor contiene
-    /// caracteres no ASCII.
-    Set(CowStr, CowStr),
-    /// Elimina el atributo indicado, incluido `"id"`. Si se usa `"class"` como nombre se vacía la
-    /// lista de clases.
-    Remove(CowStr),
-    /// Añade las clases que no existan al final de la lista. La operación se ignora si el valor
-    /// contiene caracteres no ASCII.
+    /// Añade la clase o clases que no existan al final de la lista. La operación se ignora si el
+    /// valor contiene caracteres no ASCII.
     AddClasses(CowStr),
-    /// Añade las clases que no existan al principio de la lista. La operación se ignora si el valor
-    /// contiene caracteres no ASCII.
+    /// Añade la clase o clases que no existan al principio de la lista. La operación se ignora si
+    /// el valor contiene caracteres no ASCII.
     PrependClasses(CowStr),
-    /// Elimina las clases indicadas de la lista. La operación se ignora si el valor contiene
+    /// Elimina la clase o clases indicadas de la lista. La operación se ignora si el valor contiene
     /// caracteres no ASCII.
     RemoveClasses(CowStr),
+    /// Añade un atributo o sustituye su valor si ya existe. Usar `"id"` como nombre de atributo
+    /// aplica al valor la misma normalización que [`SetId`](Self::SetId). Usar `"class"` como
+    /// nombre de atributo reemplaza la lista completa de clases por las nuevas indicadas; la
+    /// operación se ignora si el valor contiene caracteres no ASCII.
+    Set(CowStr, CowStr),
+    /// Elimina el atributo indicado. Usar `"id"` elimina el identificador; usar `"class"` vacía la
+    /// lista de clases.
+    Remove(CowStr),
+    /// Almacena un valor extra tipado asociado a la clave indicada. Si ya existe uno con esa clave,
+    /// lo reemplaza.
+    SetExtra(&'static str, PropsExtra),
+    /// Elimina el valor extra asociado a la clave indicada, si existe.
+    RemoveExtra(&'static str),
 }
 
 impl PropsOp {
@@ -58,6 +141,21 @@ impl PropsOp {
         Self::EnsureId(id.into())
     }
 
+    /// Crea la variante [`AddClasses`](Self::AddClasses) con la clase o clases indicadas.
+    pub fn add_classes(classes: impl Into<CowStr>) -> Self {
+        Self::AddClasses(classes.into())
+    }
+
+    /// Crea la variante [`PrependClasses`](Self::PrependClasses) con la clase o clases indicadas.
+    pub fn prepend_classes(classes: impl Into<CowStr>) -> Self {
+        Self::PrependClasses(classes.into())
+    }
+
+    /// Crea la variante [`RemoveClasses`](Self::RemoveClasses) con la clase o clases indicadas.
+    pub fn remove_classes(classes: impl Into<CowStr>) -> Self {
+        Self::RemoveClasses(classes.into())
+    }
+
     /// Crea la variante [`Set`](Self::Set) con nombre y valor del atributo.
     pub fn set(name: impl Into<CowStr>, value: impl Into<CowStr>) -> Self {
         Self::Set(name.into(), value.into())
@@ -68,28 +166,37 @@ impl PropsOp {
         Self::Remove(name.into())
     }
 
-    /// Crea la variante [`AddClasses`](Self::AddClasses) con las clases indicadas.
-    pub fn add_classes(classes: impl Into<CowStr>) -> Self {
-        Self::AddClasses(classes.into())
+    /// Crea la variante [`SetExtra`](Self::SetExtra) con la clave y el valor indicados.
+    ///
+    /// ```rust
+    /// # use pagetop::prelude::*;
+    /// const EXT_SIZE: &str = "myext.size";
+    /// let props = Props::default().with_prop(PropsOp::set_extra(EXT_SIZE, 42_u32));
+    /// assert_eq!(props.extra_or(EXT_SIZE, 0_u32), 42);
+    /// ```
+    pub fn set_extra<T: Any + Send + Sync + 'static>(key: &'static str, value: T) -> Self {
+        Self::SetExtra(
+            key,
+            PropsExtra {
+                value: Arc::new(value),
+                type_name: TypeInfo::FullName.of::<T>(),
+            },
+        )
     }
 
-    /// Crea la variante [`PrependClasses`](Self::PrependClasses) con las clases indicadas.
-    pub fn prepend_classes(classes: impl Into<CowStr>) -> Self {
-        Self::PrependClasses(classes.into())
-    }
-
-    /// Crea la variante [`RemoveClasses`](Self::RemoveClasses) con las clases indicadas.
-    pub fn remove_classes(classes: impl Into<CowStr>) -> Self {
-        Self::RemoveClasses(classes.into())
+    /// Crea la variante [`RemoveExtra`](Self::RemoveExtra) para la clave indicada.
+    pub fn remove_extra(key: &'static str) -> Self {
+        Self::RemoveExtra(key)
     }
 }
 
 // **< Props >**************************************************************************************
 
-/// Colección de identificador, atributos HTML y clases CSS para aplicar en componentes.
+/// Recoge el identificador, clases CSS, atributos HTML y valores extra de un componente.
 ///
-/// Al renderizar en `html!` emite primero `id` (si existe), luego `class` (si hay clases) y después
-/// el resto de atributos.
+/// Al renderizar con [`html!`](crate::html::html) se emite primero el identificador `id` (si
+/// existe), luego `class` (si hay clases) y después el resto de atributos, normalmente aplicados al
+/// elemento raíz del componente.
 ///
 /// # Ejemplo
 ///
@@ -111,7 +218,7 @@ impl PropsOp {
 ///
 /// # Identificadores
 ///
-/// [`SetId`](PropsOp::SetId) (usando [`PropsOp::set_id`]) normaliza el valor asignado al
+/// [`SetId`](PropsOp::SetId) (usando [`PropsOp::set_id()`]) normaliza el valor asignado al
 /// identificador del componente: recorta espacios, convierte a minúsculas y sustituye los espacios
 /// intermedios por `_`.
 ///
@@ -122,8 +229,8 @@ impl PropsOp {
 /// assert_eq!(markup.into_string(), r#"<button id="my_button">OK</button>"#);
 /// ```
 ///
-/// [`EnsureId`](PropsOp::EnsureId) (usando [`PropsOp::ensure_id`]) sólo asigna si no
-/// hay identificador previo:
+/// [`EnsureId`](PropsOp::EnsureId) (usando [`PropsOp::ensure_id()`]) sólo asigna si no hay
+/// identificador previo:
 ///
 /// ```rust
 /// # use pagetop::prelude::*;
@@ -149,6 +256,33 @@ impl PropsOp {
 /// let markup = html! { button (props) { "OK" } };
 /// assert_eq!(markup.into_string(), r#"<button class="btn btn-primary active">OK</button>"#);
 /// ```
+///
+/// # Valores extra
+///
+/// Las variantes [`SetExtra`](PropsOp::SetExtra) y [`RemoveExtra`](PropsOp::RemoveExtra), usando
+/// [`PropsOp::set_extra()`] y [`PropsOp::remove_extra()`] respectivamente, permiten adjuntar
+/// valores tipados a un `Props`. Son útiles para que temas y extensiones amplíen el comportamiento
+/// de componentes ya existentes mediante *traits* con nuevos métodos que lean y escriban esos
+/// valores.
+///
+/// ```rust
+/// # use pagetop::prelude::*;
+/// const EXT_ENABLED: &str = "myext.enabled";
+/// const EXT_LABEL: &str = "myext.label";
+///
+/// let props = Props::default()
+///     .with_prop(PropsOp::set_extra(EXT_ENABLED, true))
+///     .with_prop(PropsOp::set_extra(EXT_LABEL, "flotante".to_string()));
+///
+/// assert!(props.extra_or(EXT_ENABLED, false));
+/// assert_eq!(props.extra_or(EXT_LABEL, String::new()), "flotante");
+///
+/// // Tipo incorrecto devuelve el valor por defecto indicado:
+/// assert_eq!(props.extra_or(EXT_ENABLED, 0_u8), 0);
+/// ```
+///
+/// Los valores extra no se emiten en el HTML al renderizar; son exclusivamente para uso interno de
+/// temas y extensiones.
 ///
 /// # Integración en componentes
 ///
@@ -176,7 +310,7 @@ impl PropsOp {
 /// }
 ///
 /// impl MyButton {
-///     /// Modifica identificador, clases CSS o atributos HTML del elemento raíz.
+///     /// Modifica identificador, clases CSS, atributos HTML o valores extra del componente.
 ///     #[builder_fn]
 ///     pub fn with_prop(mut self, op: PropsOp) -> Self {
 ///         self.props.alter_prop(op);
@@ -187,8 +321,9 @@ impl PropsOp {
 #[derive(AutoDefault, Clone, Debug)]
 pub struct Props {
     id: Option<String>,
-    attrs: Vec<(CowStr, CowStr)>,
     classes: Vec<String>,
+    attrs: Vec<(CowStr, CowStr)>,
+    extras: HashMap<&'static str, PropsExtra>,
 }
 
 impl Props {
@@ -211,20 +346,21 @@ impl Props {
         self
     }
 
-    /// Modifica el identificador, los atributos o las clases según la operación indicada.
+    /// Modifica el identificador, las clases, los atributos o los valores extra según la operación
+    /// indicada. El método recomendado para construir cada operación es usar los constructores de
+    /// [`PropsOp`]:
     ///
-    /// - [`SetId(value)`](PropsOp::SetId) establece el identificador normalizando el valor.
-    /// - [`EnsureId(value)`](PropsOp::EnsureId) establece el identificador (con la misma
-    ///   normalización) sólo si no hay ninguno definido.
-    /// - [`Set(name, value)`](PropsOp::Set) añade el atributo o reemplaza su valor.
-    ///   `Set("id", ...)` aplica la misma normalización que `SetId`.
-    ///   `Set("class", ...)` reemplaza la lista de clases completa.
-    /// - [`Remove(name)`](PropsOp::Remove) elimina el atributo. `Remove("id")` elimina el
-    ///   identificador. `Remove("class")` vacía la lista de clases.
-    /// - [`AddClasses(clases)`](PropsOp::AddClasses) añade clases al final (sin duplicados).
-    /// - [`PrependClasses(clases)`](PropsOp::PrependClasses) añade clases al principio (sin
-    ///   duplicados).
-    /// - [`RemoveClasses(clases)`](PropsOp::RemoveClasses) elimina las clases indicadas.
+    /// - [`PropsOp::set_id()`] - establece el identificador normalizando el valor.
+    /// - [`PropsOp::ensure_id()`] - establece el identificador sólo si no hay ninguno definido.
+    /// - [`PropsOp::add_classes()`] - añade clases al final (sin duplicados).
+    /// - [`PropsOp::prepend_classes()`] - añade clases al principio (sin duplicados).
+    /// - [`PropsOp::remove_classes()`] - elimina las clases indicadas.
+    /// - [`PropsOp::set()`] - añade el atributo o reemplaza su valor. `set("id", ...)` aplica la
+    ///   misma normalización que `set_id()`. `set("class", ...)` reemplaza la lista de clases.
+    /// - [`PropsOp::remove()`] - elimina el atributo. `remove("id")` elimina el identificador;
+    ///   `remove("class")` vacía la lista de clases.
+    /// - [`PropsOp::set_extra()`] - almacena un valor extra tipado.
+    /// - [`PropsOp::remove_extra()`] - elimina el valor extra asociado a la clave.
     #[builder_fn]
     pub fn with_prop(mut self, op: PropsOp) -> Self {
         match op {
@@ -234,31 +370,6 @@ impl Props {
             PropsOp::EnsureId(value) => {
                 if self.id.is_none() {
                     self.apply_id(value.as_ref());
-                }
-            }
-            PropsOp::Set(name, value) => {
-                if name.as_ref() == "id" {
-                    self.apply_id(value.as_ref());
-                } else if name.as_ref() == "class" {
-                    if let Some(normalized) =
-                        util::normalize_ascii_or_empty(value.as_ref(), "Props::with_prop")
-                    {
-                        self.classes.clear();
-                        self.insert_classes(normalized.as_ref().split_ascii_whitespace(), 0);
-                    }
-                } else if let Some(pos) = self.attrs.iter().position(|(k, _)| k == &name) {
-                    self.attrs[pos].1 = value;
-                } else {
-                    self.attrs.push((name, value));
-                }
-            }
-            PropsOp::Remove(name) => {
-                if name.as_ref() == "id" {
-                    self.id = None;
-                } else if name.as_ref() == "class" {
-                    self.classes.clear();
-                } else {
-                    self.attrs.retain(|(k, _)| k != &name);
                 }
             }
             PropsOp::AddClasses(classes) => {
@@ -291,16 +402,56 @@ impl Props {
                         .any(|r| r == c.as_str())
                 });
             }
+            PropsOp::Set(name, value) => {
+                if name.as_ref() == "id" {
+                    self.apply_id(value.as_ref());
+                } else if name.as_ref() == "class" {
+                    if let Some(normalized) =
+                        util::normalize_ascii_or_empty(value.as_ref(), "Props::with_prop")
+                    {
+                        self.classes.clear();
+                        self.insert_classes(normalized.as_ref().split_ascii_whitespace(), 0);
+                    }
+                } else if let Some(pos) = self.attrs.iter().position(|(k, _)| k == &name) {
+                    self.attrs[pos].1 = value;
+                } else {
+                    self.attrs.push((name, value));
+                }
+            }
+            PropsOp::Remove(name) => {
+                if name.as_ref() == "id" {
+                    self.id = None;
+                } else if name.as_ref() == "class" {
+                    self.classes.clear();
+                } else {
+                    self.attrs.retain(|(k, _)| k != &name);
+                }
+            }
+            PropsOp::SetExtra(key, extra) => {
+                self.extras.insert(key, extra);
+            }
+            PropsOp::RemoveExtra(key) => {
+                self.extras.remove(key);
+            }
         }
         self
     }
 
     // **< Props GETTERS >**************************************************************************
 
-    /// Devuelve el identificador normalizado del elemento, si existe.
+    /// Devuelve el identificador normalizado del componente, si existe.
     #[inline]
     pub fn get_id(&self) -> Option<String> {
         self.id.clone()
+    }
+
+    /// Devuelve la lista de clases como cadena de texto, si hay clases definidas.
+    pub fn get_classes(&self) -> Option<String> {
+        if self.classes.is_empty() {
+            None
+        } else {
+            Some(self.classes.join(" "))
+        }
     }
 
     /// Devuelve el valor del atributo indicado, si existe.
@@ -319,26 +470,10 @@ impl Props {
         }
     }
 
-    /// Devuelve la lista de clases como cadena de texto, si hay clases definidas.
-    pub fn get_classes(&self) -> Option<String> {
-        if self.classes.is_empty() {
-            None
-        } else {
-            Some(self.classes.join(" "))
-        }
-    }
-
     /// Devuelve `true` si no hay ningún identificador definido.
     #[inline]
     pub fn is_id_empty(&self) -> bool {
         self.id.is_none()
-    }
-
-    /// Devuelve `true` si no hay ningún atributo extra definido, sin tener en cuenta el
-    /// identificador ni las clases.
-    #[inline]
-    pub fn is_attrs_empty(&self) -> bool {
-        self.attrs.is_empty()
     }
 
     /// Devuelve `true` si no hay ninguna clase definida.
@@ -347,7 +482,15 @@ impl Props {
         self.classes.is_empty()
     }
 
-    /// Devuelve `true` si no hay ningún identificador, atributo ni clase definidos.
+    /// Devuelve `true` si no hay ningún atributo adicional definido, sin tener en cuenta el
+    /// identificador ni las clases.
+    #[inline]
+    pub fn is_attrs_empty(&self) -> bool {
+        self.attrs.is_empty()
+    }
+
+    /// Devuelve `true` si no hay ningún identificador, clases ni atributos adicionales definidos,
+    /// sin tener en cuenta los valores extra.
     #[inline]
     pub fn is_empty(&self) -> bool {
         self.id.is_none() && self.attrs.is_empty() && self.classes.is_empty()
@@ -373,6 +516,96 @@ impl Props {
             .as_ref()
             .split_ascii_whitespace()
             .any(|class| self.classes.iter().any(|c| c == class))
+    }
+
+    /// Recupera una referencia tipada al valor extra asociado a la clave `key`.
+    ///
+    /// Devuelve un [`Result`] que indica si la clave existe y si el tipo coincide:
+    ///
+    /// - `Ok(&T)` si la clave existe y el tipo coincide. El tipo `T` debe ser el mismo que se usó
+    ///   al almacenar el valor con [`PropsOp::set_extra()`].
+    /// - `Err(PropsError::ExtraNotFound)` si la clave no existe.
+    /// - `Err(PropsError::ExtraTypeMismatch)` si el tipo no coincide.
+    ///
+    /// ```rust
+    /// # use pagetop::prelude::*;
+    /// const EXT_COUNT: &str = "myext.count";
+    /// const EXT_OTHER: &str = "myext.other";
+    ///
+    /// let props = Props::default().with_prop(PropsOp::set_extra(EXT_COUNT, 7_i32));
+    ///
+    /// assert_eq!(*props.extra::<i32>(EXT_COUNT).unwrap(), 7);
+    /// assert_eq!(props.extra::<i32>(EXT_OTHER), Err(PropsError::ExtraNotFound { key: EXT_OTHER }));
+    /// assert!(matches!(
+    ///     props.extra::<u32>(EXT_COUNT),
+    ///     Err(PropsError::ExtraTypeMismatch { .. })
+    /// ));
+    /// ```
+    pub fn extra<T: 'static>(&self, key: &'static str) -> Result<&T, PropsError> {
+        let ev = self
+            .extras
+            .get(key)
+            .ok_or(PropsError::ExtraNotFound { key })?;
+        ev.value
+            .downcast_ref::<T>()
+            .ok_or_else(|| PropsError::ExtraTypeMismatch {
+                key,
+                expected: TypeInfo::FullName.of::<T>(),
+                found: ev.type_name,
+            })
+    }
+
+    /// Devuelve el valor extra clonado o el **valor `default`** si no existe o el tipo no coincide.
+    ///
+    /// ```rust
+    /// # use pagetop::prelude::*;
+    /// const EXT_FLAG: &str = "myext.flag";
+    /// const EXT_OTHER: &str = "myext.other";
+    ///
+    /// let props = Props::default().with_prop(PropsOp::set_extra(EXT_FLAG, true));
+    ///
+    /// assert!(props.extra_or(EXT_FLAG, false));
+    /// assert!(!props.extra_or(EXT_OTHER, false));
+    /// ```
+    pub fn extra_or<T: Clone + 'static>(&self, key: &'static str, default: T) -> T {
+        self.extra::<T>(key).ok().cloned().unwrap_or(default)
+    }
+
+    /// Devuelve el valor extra clonado o el **valor por defecto del tipo** si no existe o el tipo
+    /// no coincide.
+    ///
+    /// ```rust
+    /// # use pagetop::prelude::*;
+    /// const EXT_FLAG: &str = "myext.flag";
+    /// const EXT_COUNT: &str = "myext.count";
+    ///
+    /// let props = Props::default();
+    ///
+    /// assert_eq!(props.extra_or_default::<bool>(EXT_FLAG), false);
+    /// assert_eq!(props.extra_or_default::<i32>(EXT_COUNT), 0);
+    /// ```
+    pub fn extra_or_default<T: Clone + Default + 'static>(&self, key: &'static str) -> T {
+        self.extra::<T>(key).ok().cloned().unwrap_or_default()
+    }
+
+    /// Devuelve el valor extra clonado o el **valor evaluado por la función `f`** si no existe o el
+    /// tipo no coincide.
+    ///
+    /// ```rust
+    /// # use pagetop::prelude::*;
+    /// const EXT_LABEL: &str = "myext.label";
+    ///
+    /// let props = Props::default();
+    ///
+    /// let result = props.extra_or_else(EXT_LABEL, || "default".to_string());
+    /// assert_eq!(result, "default");
+    /// ```
+    pub fn extra_or_else<T: Clone + 'static, F: FnOnce() -> T>(
+        &self,
+        key: &'static str,
+        f: F,
+    ) -> T {
+        self.extra::<T>(key).ok().cloned().unwrap_or_else(f)
     }
 
     // **< Props PRIVATE >**************************************************************************

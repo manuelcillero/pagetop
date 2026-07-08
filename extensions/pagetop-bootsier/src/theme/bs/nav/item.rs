@@ -59,7 +59,7 @@ impl ItemKind {
 /// asociada, manteniendo una interfaz común para renderizar todos los elementos del menú.
 #[derive(AutoDefault, Clone, Debug, Getters)]
 pub struct Item {
-    /// Devuelve identificador, clases CSS y atributos HTML del componente.
+    /// Devuelve identificador, clases CSS, atributos HTML y valores extra del componente.
     props: Props,
     /// Devuelve el tipo de elemento representado.
     item_kind: ItemKind,
@@ -271,7 +271,7 @@ impl Item {
         self
     }
 
-    /// Modifica identificador, clases CSS o atributos HTML del componente.
+    /// Modifica identificador, clases CSS, atributos HTML o valores extra del componente.
     #[builder_fn]
     pub fn with_prop(mut self, op: PropsOp) -> Self {
         self.props.alter_prop(op);

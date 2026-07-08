@@ -33,7 +33,7 @@ use crate::prelude::*;
 /// ```
 #[derive(AutoDefault, Clone, Debug, Getters)]
 pub struct Textarea {
-    /// Devuelve identificador, clases CSS y atributos HTML del componente.
+    /// Devuelve identificador, clases CSS, atributos HTML y valores extra del componente.
     props: Props,
     /// Devuelve el nombre del campo.
     name: AttrName,
@@ -142,7 +142,7 @@ impl Textarea {
         self
     }
 
-    /// Modifica identificador, clases CSS o atributos HTML del componente.
+    /// Modifica identificador, clases CSS, atributos HTML o valores extra del componente.
     #[builder_fn]
     pub fn with_prop(mut self, op: PropsOp) -> Self {
         self.props.alter_prop(op);

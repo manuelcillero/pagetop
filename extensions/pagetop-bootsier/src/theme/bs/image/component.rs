@@ -14,7 +14,7 @@ use crate::theme::*;
 /// - Aplicar el texto alternativo `alt` con **localización** mediante [`L10n`].
 #[derive(AutoDefault, Clone, Debug, Getters)]
 pub struct Image {
-    /// Devuelve identificador, clases CSS y atributos HTML del componente.
+    /// Devuelve identificador, clases CSS, atributos HTML y valores extra del componente.
     props: Props,
     /// Devuelve las dimensiones de la imagen.
     size: bs::image::Size,
@@ -86,7 +86,7 @@ impl Image {
         self
     }
 
-    /// Modifica identificador, clases CSS o atributos HTML del componente.
+    /// Modifica identificador, clases CSS, atributos HTML o valores extra del componente.
     ///
     /// También acepta clases predefinidas para:
     ///

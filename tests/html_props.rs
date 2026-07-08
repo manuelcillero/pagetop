@@ -23,35 +23,6 @@ async fn props_get_missing_key_returns_none() {
     assert_eq!(p.get_prop(""), None);
 }
 
-// **< Props::classes >*****************************************************************************
-
-#[pagetop::test]
-async fn props_classes_renders_class_attribute() {
-    let p = Props::classes("btn btn-primary");
-    assert_eq!(
-        html! { button (p) { "OK" } }.into_string(),
-        r#"<button class="btn btn-primary">OK</button>"#
-    );
-}
-
-#[pagetop::test]
-async fn props_classes_empty_input_renders_no_class_attribute() {
-    let p = Props::classes("   ");
-    assert_eq!(
-        html! { button (p) { "OK" } }.into_string(),
-        "<button>OK</button>"
-    );
-}
-
-#[pagetop::test]
-async fn props_classes_can_be_extended_with_with_prop() {
-    let p = Props::classes("btn").with_prop(PropsOp::add_classes("active"));
-    assert_eq!(
-        html! { button (p) { "OK" } }.into_string(),
-        r#"<button class="btn active">OK</button>"#
-    );
-}
-
 // **< PropsOp::set >*******************************************************************************
 
 #[pagetop::test]
@@ -222,7 +193,7 @@ async fn props_splice_empty_string_emits_nothing() {
     assert_eq!(html! { span ("") { "x" } }.into_string(), "<span>x</span>");
 }
 
-// **< is_attrs_empty / is_classes_empty / is_empty >***********************************************
+// **< is_attrs_empty / is_empty >******************************************************************
 
 #[pagetop::test]
 async fn props_is_attrs_empty_on_default() {
@@ -260,23 +231,7 @@ async fn props_is_empty_false_with_class() {
     assert!(!Props::classes("btn").is_empty());
 }
 
-#[pagetop::test]
-async fn props_is_classes_empty_on_default() {
-    assert!(Props::default().is_classes_empty());
-}
-
-#[pagetop::test]
-async fn props_is_classes_empty_false_after_add_classes() {
-    assert!(!Props::classes("btn").is_classes_empty());
-}
-
-#[pagetop::test]
-async fn props_is_classes_empty_true_after_remove_class() {
-    let p = Props::classes("btn").with_prop(PropsOp::remove("class"));
-    assert!(p.is_classes_empty());
-}
-
-// **< get_prop("id") / get_prop("class") >*********************************************************
+// **< get_prop("id") >*****************************************************************************
 
 #[pagetop::test]
 async fn get_prop_id_returns_none_by_default() {
@@ -293,26 +248,6 @@ async fn get_prop_id_returns_normalized_value() {
 async fn get_prop_id_matches_get_id() {
     let p = Props::default().with_id("Header");
     assert_eq!(p.get_prop("id"), p.get_id());
-}
-
-#[pagetop::test]
-async fn get_prop_class_returns_none_by_default() {
-    assert_eq!(Props::default().get_prop("class"), None);
-}
-
-#[pagetop::test]
-async fn get_prop_class_returns_joined_classes() {
-    let p = Props::classes("btn btn-primary").with_prop(PropsOp::add_classes("active"));
-    assert_eq!(
-        p.get_prop("class"),
-        Some("btn btn-primary active".to_string())
-    );
-}
-
-#[pagetop::test]
-async fn get_prop_class_matches_get_classes() {
-    let p = Props::classes("btn active");
-    assert_eq!(p.get_prop("class"), p.get_classes());
 }
 
 // **< Regression & edge cases >********************************************************************

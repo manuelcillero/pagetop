@@ -144,7 +144,7 @@ pub trait Contextual: LangId {
     #[builder_fn]
     fn with_assets(self, op: AssetsOp) -> Self;
 
-    /// Modifica identificador, clases CSS o atributos HTML del elemento `<body>`.
+    /// Modifica identificador, clases CSS, atributos HTML o valores extra del elemento `<body>`.
     #[builder_fn]
     fn with_body_props(self, op: PropsOp) -> Self;
 
@@ -237,7 +237,7 @@ pub trait Contextual: LangId {
     /// Devuelve los scripts JavaScript de los recursos del contexto.
     fn javascripts(&self) -> &Assets<JavaScript>;
 
-    /// Devuelve identificador, clases CSS y atributos HTML del elemento `<body>`.
+    /// Devuelve identificador, clases CSS, atributos HTML y valores extra del elemento `<body>`.
     fn body_props(&self) -> &Props;
 
     // **< Contextual HELPERS >*********************************************************************

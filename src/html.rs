@@ -24,7 +24,7 @@ mod attr;
 pub use attr::{Attr, AttrName, AttrValue};
 
 mod props;
-pub use props::{Props, PropsOp};
+pub use props::{Props, PropsError, PropsExtra, PropsOp};
 
 mod unit;
 pub use unit::UnitValue;

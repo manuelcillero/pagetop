@@ -137,7 +137,7 @@ const TOGGLE_OFFCANVAS: &str = "offcanvas";
 /// ```
 #[derive(AutoDefault, Clone, Debug, Getters)]
 pub struct Navbar {
-    /// Devuelve identificador, clases CSS y atributos HTML del componente.
+    /// Devuelve identificador, clases CSS, atributos HTML y valores extra del componente.
     props: Props,
     /// Devuelve el punto de ruptura configurado.
     expand: token::BreakPoint,
@@ -346,7 +346,7 @@ impl Navbar {
         self
     }
 
-    /// Modifica identificador, clases CSS o atributos HTML del componente.
+    /// Modifica identificador, clases CSS, atributos HTML o valores extra del componente.
     ///
     /// También acepta clases predefinidas para:
     ///

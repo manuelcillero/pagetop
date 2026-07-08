@@ -21,7 +21,7 @@ use crate::theme::*;
 /// ```
 #[derive(AutoDefault, Clone, Debug, Getters)]
 pub struct Container {
-    /// Devuelve identificador, clases CSS y atributos HTML del componente.
+    /// Devuelve identificador, clases CSS, atributos HTML y valores extra del componente.
     props: Props,
     /// Devuelve el tipo semántico del contenedor.
     container_kind: bs::container::Kind,
@@ -141,7 +141,7 @@ impl Container {
         self
     }
 
-    /// Modifica identificador, clases CSS o atributos HTML del componente.
+    /// Modifica identificador, clases CSS, atributos HTML o valores extra del componente.
     ///
     /// También acepta clases predefinidas para:
     ///
