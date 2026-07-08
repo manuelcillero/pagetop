@@ -143,14 +143,15 @@ impl Theme for Bootsier {
         cx: &mut Context,
     ) -> Option<Result<Markup, ComponentError>> {
         setup_component!(component, {
-            Button              => |c| handlers::button::setup(c),
-            form::select::Field => |c| handlers::select::setup(c),
-            form::Textarea      => |c| handlers::textarea::setup(c),
+            Button              => |c| theme::bs::button::setup(c),
+            form::input::Field  => |c| theme::bs::form::input::setup(c),
+            form::select::Field => |c| theme::bs::form::select::setup(c),
+            form::Textarea      => |c| theme::bs::form::textarea::setup(c),
         });
         render_component!(component, {
-            form::input::Field  => |c| handlers::input::render(c, cx),
-            form::select::Field => |c| handlers::select::render(c, cx),
-            form::Textarea      => |c| handlers::textarea::render(c, cx),
+            form::input::Field  => |c| theme::bs::form::input::render(c, cx),
+            form::select::Field => |c| theme::bs::form::select::render(c, cx),
+            form::Textarea      => |c| theme::bs::form::textarea::render(c, cx),
         })
     }
 

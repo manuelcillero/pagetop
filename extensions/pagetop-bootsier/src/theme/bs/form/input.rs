@@ -4,6 +4,8 @@ use pagetop::prelude::*;
 
 pub use pagetop::base::component::form::input::{Field, Kind, Mode};
 
+const EXTRA_FLOATING_LABEL: &str = "bootsier.form.input.floating_label";
+
 /// Extensión de Bootsier para [`form::input::Field`].
 ///
 /// Proporciona soporte para **etiquetas flotantes** (*floating label*). La etiqueta flotante se
@@ -31,10 +33,76 @@ pub trait InputBootsier {
 
 impl InputBootsier for Field {
     fn with_floating_label(self, floating: bool) -> Self {
-        if floating {
-            self.with_prop(PropsOp::add_classes("form-floating"))
-        } else {
-            self.with_prop(PropsOp::remove_classes("form-floating"))
-        }
+        self.with_prop(PropsOp::set_extra(EXTRA_FLOATING_LABEL, floating))
     }
+}
+
+// **< Field SETUP >********************************************************************************
+
+pub(crate) fn setup(field: &mut Field) {
+    if field.props().extra_or(EXTRA_FLOATING_LABEL, false) {
+        field.alter_prop(PropsOp::add_classes("form-floating"));
+    } else {
+        field.alter_prop(PropsOp::remove_classes("form-floating"));
+    }
+}
+
+// **< Field RENDER >*******************************************************************************
+
+pub(crate) fn render(field: &Field, cx: &mut Context) -> Result<Markup, ComponentError> {
+    let container_id = field.id();
+    let input_id = container_id.as_deref().map(|id| util::join!(id, "-input"));
+    let floating = field.props().extra_or(EXTRA_FLOATING_LABEL, false);
+    let input_class = if *field.plaintext() {
+        "form-control-plaintext"
+    } else {
+        "form-control"
+    };
+    // La etiqueta flotante requiere `placeholder` para animar la etiqueta; si no está definido, se
+    // fuerza `placeholder=""`.
+    let placeholder = if floating {
+        Some(field.placeholder().lookup(cx).unwrap_or_default())
+    } else {
+        field.placeholder().lookup(cx)
+    };
+    let label = match field.label().lookup(cx) {
+        Some(text) => html! {
+            label for=[input_id.as_deref()] class="form-label" {
+                (text)
+                @if *field.required() {
+                    span
+                        class="form-required"
+                        title=(L10n::l("field_required").using(cx))
+                    {
+                        "*"
+                    }
+                }
+            }
+        },
+        None => html! {},
+    };
+    Ok(html! {
+        div (field.props()) {
+            @if !floating { (label) }
+            input
+                type=(field.kind())
+                id=[input_id.as_deref()]
+                class=(input_class)
+                name=[field.name().get()]
+                value=[field.value().get()]
+                minlength=[field.minlength().get()]
+                maxlength=[field.maxlength().get()]
+                placeholder=[placeholder]
+                inputmode=[field.inputmode().get()]
+                autocomplete=[field.autocomplete().get()]
+                autofocus[*field.autofocus()]
+                readonly[*field.readonly() || *field.plaintext()]
+                required[*field.required()]
+                disabled[*field.disabled()];
+            @if floating { (label) }
+            @if let Some(description) = field.help_text().lookup(cx) {
+                div class="form-text" { (description) }
+            }
+        }
+    })
 }

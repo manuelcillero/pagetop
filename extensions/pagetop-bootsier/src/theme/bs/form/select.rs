@@ -4,6 +4,8 @@ use pagetop::prelude::*;
 
 pub use pagetop::base::component::form::select::{Entry, Field, Group, Item};
 
+const EXTRA_FLOATING_LABEL: &str = "bootsier.form.select.floating_label";
+
 /// Extensión de Bootsier para [`form::select::Field`].
 ///
 /// Proporciona soporte para **etiquetas flotantes** (*floating label*). La etiqueta flotante se
@@ -36,10 +38,92 @@ pub trait SelectBootsier {
 
 impl SelectBootsier for Field {
     fn with_floating_label(self, floating: bool) -> Self {
-        if floating {
-            self.with_prop(PropsOp::add_classes("form-floating"))
-        } else {
-            self.with_prop(PropsOp::remove_classes("form-floating"))
-        }
+        self.with_prop(PropsOp::set_extra(EXTRA_FLOATING_LABEL, floating))
     }
+}
+
+// **< Field SETUP >********************************************************************************
+
+pub(crate) fn setup(field: &mut Field) {
+    if field.props().extra_or(EXTRA_FLOATING_LABEL, false) {
+        field.alter_prop(PropsOp::add_classes("form-floating"));
+        field.alter_multiple(false);
+        field.alter_rows(None::<u16>);
+    } else {
+        field.alter_prop(PropsOp::remove_classes("form-floating"));
+    }
+}
+
+// **< Field RENDER >*******************************************************************************
+
+pub(crate) fn render(field: &Field, cx: &mut Context) -> Result<Markup, ComponentError> {
+    let container_id = field.id();
+    let select_id = container_id.as_deref().map(|id| util::join!(id, "-select"));
+    let floating = field.props().extra_or(EXTRA_FLOATING_LABEL, false);
+    let label = match field.label().lookup(cx) {
+        Some(text) => html! {
+            label for=[select_id.as_deref()] class="form-label" {
+                (text)
+                @if *field.required() {
+                    span
+                        class="form-required"
+                        title=(L10n::l("field_required").using(cx))
+                    {
+                        "*"
+                    }
+                }
+            }
+        },
+        None => html! {},
+    };
+    Ok(html! {
+        div (field.props()) {
+            @if !floating { (label) }
+            select
+                id=[select_id.as_deref()]
+                class="form-select"
+                name=[field.name().get()]
+                multiple[*field.multiple()]
+                size=[field.rows().get()]
+                autocomplete=[field.autocomplete().get()]
+                autofocus[*field.autofocus()]
+                required[*field.required()]
+                disabled[*field.disabled()]
+            {
+                @for entry in field.entries() {
+                    @match entry {
+                        form::select::Entry::Item(opt) => {
+                            option
+                                value=(opt.value().as_str().unwrap_or(""))
+                                selected[*opt.selected()]
+                                disabled[*opt.disabled()]
+                            {
+                                (opt.label().using(cx))
+                            }
+                        }
+                        form::select::Entry::Group(group) => {
+                            optgroup
+                                label=(group.label().using(cx))
+                                disabled[*group.disabled()]
+                            {
+                                @for opt in group.items() {
+                                    option
+                                        value=(opt.value().as_str().unwrap_or(""))
+                                        selected[*opt.selected()]
+                                        disabled[*opt.disabled()]
+                                    {
+                                        (opt.label().using(cx))
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            @if floating { (label) }
+            @if let Some(description) = field.help_text().lookup(cx) {
+                div class="form-text" { (description) }
+            }
+        }
+    })
 }
