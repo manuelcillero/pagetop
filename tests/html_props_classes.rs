@@ -74,6 +74,51 @@ async fn classes_prepend_ignores_empty_input() {
     assert_classes(&p, Some("a b"));
 }
 
+// **< PropsOp::replace_classes >********************************************************************
+
+#[pagetop::test]
+async fn classes_replace_removes_targets_and_inserts_new_at_min_position() {
+    let p = Props::classes("a b c d").with_prop(PropsOp::replace_classes("c a", "x y"));
+    assert_classes(&p, Some("x y b d"));
+}
+
+#[pagetop::test]
+async fn classes_replace_when_none_found_does_nothing() {
+    let p = Props::classes("a b").with_prop(PropsOp::replace_classes("x y", "c d"));
+    assert_classes(&p, Some("a b"));
+}
+
+#[pagetop::test]
+async fn classes_replace_is_case_insensitive_on_targets_and_new_values_are_normalized() {
+    let p = Props::classes("btn btn-primary active")
+        .with_prop(PropsOp::replace_classes("BTN-PRIMARY", "Btn-Secondary"));
+    assert_classes(&p, Some("btn btn-secondary active"));
+}
+
+#[pagetop::test]
+async fn classes_replace_with_empty_new_removes_only() {
+    let p = Props::classes("a b c").with_prop(PropsOp::replace_classes("b", "   "));
+    assert_classes(&p, Some("a c"));
+}
+
+#[pagetop::test]
+async fn classes_replace_dedups_against_existing_items() {
+    let p = Props::classes("a b c").with_prop(PropsOp::replace_classes("b", "c d"));
+    assert_classes(&p, Some("a d c"));
+}
+
+#[pagetop::test]
+async fn classes_replace_ignores_target_whitespace_and_repetition() {
+    let p = Props::classes("a b c").with_prop(PropsOp::replace_classes("  b  b ", "x y"));
+    assert_classes(&p, Some("a x y c"));
+}
+
+#[pagetop::test]
+async fn classes_replace_rejects_non_ascii_targets_is_noop() {
+    let p = Props::classes("a b c").with_prop(PropsOp::replace_classes("b ñ", "x"));
+    assert_classes(&p, Some("a b c"));
+}
+
 // **< PropsOp::set / remove ("class") >************************************************************
 
 #[pagetop::test]

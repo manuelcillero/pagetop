@@ -112,6 +112,11 @@ pub enum PropsOp {
     /// Añade la clase o clases que no existan al principio de la lista. La operación se ignora si
     /// el valor contiene caracteres no ASCII.
     PrependClasses(CowStr),
+    /// Sustituye una o varias clases existentes (primer valor) por las clases indicadas (segundo
+    /// valor), insertando las nuevas en la posición de la primera clase sustituida encontrada. Si
+    /// ninguna de las clases a sustituir existe, la operación no tiene efecto. Se ignora si alguno
+    /// de los dos valores contiene caracteres no ASCII.
+    ReplaceClasses(CowStr, CowStr),
     /// Elimina la clase o clases indicadas de la lista. La operación se ignora si el valor contiene
     /// caracteres no ASCII.
     RemoveClasses(CowStr),
@@ -149,6 +154,19 @@ impl PropsOp {
     /// Crea la variante [`PrependClasses`](Self::PrependClasses) con la clase o clases indicadas.
     pub fn prepend_classes(classes: impl Into<CowStr>) -> Self {
         Self::PrependClasses(classes.into())
+    }
+
+    /// Crea la variante [`ReplaceClasses`](Self::ReplaceClasses) con las clases a sustituir (`old`)
+    /// y las nuevas clases (`new`).
+    ///
+    /// ```rust
+    /// # use pagetop::prelude::*;
+    /// let props = Props::classes("button primary")
+    ///     .with_prop(PropsOp::replace_classes("button", "btn"));
+    /// assert_eq!(props.get_classes(), Some("btn primary".to_string()));
+    /// ```
+    pub fn replace_classes(old: impl Into<CowStr>, new: impl Into<CowStr>) -> Self {
+        Self::ReplaceClasses(old.into(), new.into())
     }
 
     /// Crea la variante [`RemoveClasses`](Self::RemoveClasses) con la clase o clases indicadas.
@@ -251,10 +269,11 @@ impl PropsOp {
 /// # use pagetop::prelude::*;
 /// let props = Props::default()
 ///     .with_prop(PropsOp::add_classes("btn btn-primary"))
-///     .with_prop(PropsOp::add_classes("active"));
+///     .with_prop(PropsOp::add_classes("active"))
+///     .with_prop(PropsOp::replace_classes("btn-primary", "btn-secondary"));
 ///
 /// let markup = html! { button (props) { "OK" } };
-/// assert_eq!(markup.into_string(), r#"<button class="btn btn-primary active">OK</button>"#);
+/// assert_eq!(markup.into_string(), r#"<button class="btn btn-secondary active">OK</button>"#);
 /// ```
 ///
 /// # Valores extra
@@ -354,6 +373,8 @@ impl Props {
     /// - [`PropsOp::ensure_id()`] - establece el identificador sólo si no hay ninguno definido.
     /// - [`PropsOp::add_classes()`] - añade clases al final (sin duplicados).
     /// - [`PropsOp::prepend_classes()`] - añade clases al principio (sin duplicados).
+    /// - [`PropsOp::replace_classes()`] - sustituye una o varias clases existentes por otras
+    ///   nuevas, preservando su posición.
     /// - [`PropsOp::remove_classes()`] - elimina las clases indicadas.
     /// - [`PropsOp::set()`] - añade el atributo o reemplaza su valor. `set("id", ...)` aplica la
     ///   misma normalización que `set_id()`. `set("class", ...)` reemplaza la lista de clases.
@@ -388,6 +409,28 @@ impl Props {
                     return self;
                 };
                 self.insert_classes(normalized.as_ref().split_ascii_whitespace(), 0);
+            }
+            PropsOp::ReplaceClasses(old, new) => {
+                let Some(old) = util::normalize_ascii_or_empty(old.as_ref(), "Props::with_prop")
+                else {
+                    return self;
+                };
+                let Some(new) = util::normalize_ascii_or_empty(new.as_ref(), "Props::with_prop")
+                else {
+                    return self;
+                };
+                let mut pos = self.classes.len();
+                let mut replaced = false;
+                for class in old.as_ref().split_ascii_whitespace() {
+                    if let Some(replace_pos) = self.classes.iter().position(|c| c == class) {
+                        self.classes.remove(replace_pos);
+                        pos = pos.min(replace_pos);
+                        replaced = true;
+                    }
+                }
+                if replaced {
+                    self.insert_classes(new.as_ref().split_ascii_whitespace(), pos);
+                }
             }
             PropsOp::RemoveClasses(classes) => {
                 let Some(normalized) =
