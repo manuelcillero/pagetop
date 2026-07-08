@@ -7,11 +7,14 @@ use crate::core::component::Context;
 use crate::html::{Markup, html};
 use crate::{AutoDefault, Weight};
 
-/// Representación genérica de un script [`JavaScript`](crate::html::JavaScript) o una hoja de
-/// estilos [`StyleSheet`](crate::html::StyleSheet).
+/// Representación genérica de un activo de un documento HTML gestionado por [`Assets`].
 ///
-/// Estos recursos se incluyen en los conjuntos de recursos ([`Assets`]) que suelen renderizarse en
-/// un documento HTML.
+/// Puede ser un script [`JavaScript`](crate::html::JavaScript), una hoja de estilos
+/// [`StyleSheet`](crate::html::StyleSheet) o un recurso precargado
+/// [`Preload`](crate::html::Preload).
+///
+/// Estos recursos se incluyen en los conjuntos de recursos [`Assets`] que suelen renderizarse en un
+/// documento HTML.
 ///
 /// Cada recurso se identifica por un **nombre único** ([`Asset::name()`]), usado como clave; y un
 /// **peso** ([`Asset::weight()`]), que determina su orden relativo de renderizado.
@@ -26,8 +29,8 @@ pub trait Asset {
     fn render(&self, cx: &mut Context) -> Markup;
 }
 
-/// Gestión común para conjuntos de recursos como [`JavaScript`](crate::html::JavaScript) y
-/// [`StyleSheet`](crate::html::StyleSheet).
+/// Gestión común de recursos [`JavaScript`](crate::html::JavaScript),
+/// [`StyleSheet`](crate::html::StyleSheet) y [`Preload`](crate::html::Preload).
 ///
 /// Se emplea normalmente para agrupar, administrar y renderizar los recursos de un documento HTML.
 /// Cada recurso se identifica por un nombre único ([`Asset::name()`]) y tiene asociado un peso

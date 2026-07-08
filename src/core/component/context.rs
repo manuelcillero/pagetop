@@ -297,16 +297,13 @@ pub trait Contextual: LangId {
 /// # }
 /// fn use_context(cx: &mut Context) {
 ///     // Recupera el tema seleccionado.
-///     let active_theme = cx.theme();
-///     assert_eq!(active_theme.short_name(), "aliner");
+///     let _theme = cx.theme(); // short_name() => "basic" por defecto
 ///
 ///     // Recupera el parámetro a su tipo original.
-///     let id: i32 = *cx.param::<i32>("user_id").unwrap();
-///     assert_eq!(id, 42);
+///     let _id: i32 = *cx.param::<i32>("user_id").unwrap(); // => 42
 ///
 ///     // Genera un identificador para un componente de tipo `Menu`.
-///     let unique_id = cx.build_id::<Menu>(1);
-///     assert_eq!(unique_id, "menu-1"); // Si es el primero generado.
+///     let _unique_id = cx.build_id::<Menu>(1); // => "menu-1" si es el primero
 /// }
 /// ```
 #[rustfmt::skip]

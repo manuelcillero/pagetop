@@ -175,7 +175,7 @@ impl<C: Component> Embed<C> {
     ///
     /// # Ejemplo
     ///
-    /// ```rust,no_run
+    /// ```rust
     /// # use pagetop::prelude::*;
     /// let embed = Embed::with(Html::with(|_| html! { "Prueba" }));
     /// if let Some(component) = embed.get() {
