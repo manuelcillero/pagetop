@@ -6,6 +6,10 @@ pub use block::Block;
 mod button;
 pub use button::{Button, ButtonAction};
 
+pub mod container;
+#[doc(inline)]
+pub use container::Container;
+
 pub mod form;
 #[doc(inline)]
 pub use form::Form;

@@ -2,7 +2,7 @@ use pagetop::prelude::*;
 
 use crate::theme::*;
 
-/// Componente para crear un **menú** ([`nav`](crate::theme::bs::nav)).
+/// Componente para crear un **menú**.
 ///
 /// Presenta un menú con una lista de elementos usando una vista básica, o alguna de sus variantes
 /// ([`nav::Kind`](crate::theme::bs::nav::Kind)) como *pestañas* (`Tabs`), *botones* (`Pills`) o

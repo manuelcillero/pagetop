@@ -3,7 +3,7 @@ use pagetop::prelude::*;
 use crate::LOCALES_BOOTSIER;
 use crate::theme::*;
 
-/// Componente para crear un **menú desplegable** ([`dropdown`](crate::theme::bs::dropdown)).
+/// Componente para crear un **menú desplegable**.
 ///
 /// Renderiza un botón (único o desdoblado, ver [`with_button_split()`](Self::with_button_split))
 /// con un menú desplegable de elementos [`dropdown::Item`](crate::theme::bs::dropdown::Item), que

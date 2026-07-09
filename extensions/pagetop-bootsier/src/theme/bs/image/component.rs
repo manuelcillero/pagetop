@@ -2,7 +2,7 @@ use pagetop::prelude::*;
 
 use crate::theme::*;
 
-/// Componente para renderizar una **imagen** ([`image`](crate::theme::bs::image)).
+/// Componente para renderizar una **imagen**.
 ///
 /// A una imagen se le puede:
 ///

@@ -6,7 +6,7 @@ use crate::theme::*;
 const TOGGLE_COLLAPSE: &str = "collapse";
 const TOGGLE_OFFCANVAS: &str = "offcanvas";
 
-/// Componente para crear una **barra de navegación** ([`navbar`](crate::theme::bs::navbar)).
+/// Componente para crear una **barra de navegación**.
 ///
 /// Permite mostrar enlaces, menús y una marca de identidad en distintas disposiciones (simples, con
 /// botón de despliegue o dentro de un [`Offcanvas`](crate::theme::bs::Offcanvas)), controladas por

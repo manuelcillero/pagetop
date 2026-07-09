@@ -144,14 +144,15 @@ impl Theme for Bootsier {
     ) -> Option<Result<Markup, ComponentError>> {
         setup_component!(component, {
             Button              => |c| theme::bs::button::setup(c),
+            Container           => |c| theme::bs::container::setup(c),
             form::input::Field  => |c| theme::bs::form::input::setup(c),
             form::select::Field => |c| theme::bs::form::select::setup(c),
             form::Textarea      => |c| theme::bs::form::textarea::setup(c),
         });
         render_component!(component, {
-            form::input::Field  => |c| theme::bs::form::input::render(c, cx),
-            form::select::Field => |c| theme::bs::form::select::render(c, cx),
-            form::Textarea      => |c| theme::bs::form::textarea::render(c, cx),
+            form::input::Field   => |c| theme::bs::form::input::render(c, cx),
+            form::select::Field  => |c| theme::bs::form::select::render(c, cx),
+            form::Textarea       => |c| theme::bs::form::textarea::render(c, cx),
         })
     }
 
@@ -167,17 +168,17 @@ impl Theme for Bootsier {
         .alter_assets(AssetsOp::AddStyleSheet(
             StyleSheet::from("/bootsier/css/bootsier.min.css")
                 .with_version(ADMINLTE_VERSION)
-                .with_weight(-90),
+                .with_weight(-99),
         ))
         .alter_assets(AssetsOp::AddJavaScript(
             JavaScript::defer("/bootsier/js/bootsier.bundle.min.js")
                 .with_version(BOOTSTRAP_VERSION)
-                .with_weight(-90),
+                .with_weight(-99),
         ))
         .alter_assets(AssetsOp::AddJavaScript(
             JavaScript::defer("/bootsier/js/bootsier.extended.min.js")
                 .with_version(ADMINLTE_VERSION)
-                .with_weight(-90),
+                .with_weight(-99),
         ))
         .alter_child_in(
             &DefaultRegion::Footer,

@@ -3,7 +3,7 @@ use pagetop::prelude::*;
 use crate::LOCALES_BOOTSIER;
 use crate::theme::*;
 
-/// Componente para crear un **panel lateral deslizante** ([`offcanvas`](crate::theme::bs::offcanvas)).
+/// Componente para crear un **panel lateral deslizante**.
 ///
 /// Útil para navegación, filtros, formularios o menús contextuales. Incluye las siguientes
 /// características principales:

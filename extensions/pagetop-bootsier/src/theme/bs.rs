@@ -1,14 +1,4 @@
-//! Tipos y componentes disponibles.
-//!
-//! A continuación, el apartado **Modules** incluye las definiciones necesarias para los componentes
-//! que se muestran en el apartado **Structs**, mientras que en **Enums** se listan los elementos
-//! auxiliares del tema utilizados en clases y componentes.
-
-mod attrs;
-pub use attrs::*;
-
-mod classes;
-pub use classes::*;
+//! Componentes proporcionados por el tema.
 
 // Button.
 mod button;
@@ -18,6 +8,8 @@ pub use button::{Button, ButtonAction};
 pub mod container;
 #[doc(inline)]
 pub use container::Container;
+#[doc(inline)]
+pub use container::ContainerBootsier;
 
 // Dropdown.
 pub mod dropdown;

@@ -13,11 +13,17 @@ pub use pagetop::base::component::form::check;
 pub use pagetop::base::component::form::radio;
 
 pub mod select;
+#[doc(inline)]
+pub use select::SelectBootsier;
 
 pub mod input;
+#[doc(inline)]
+pub use input::InputBootsier;
 
 pub mod textarea;
 pub use textarea::Textarea;
+#[doc(inline)]
+pub use textarea::TextareaBootsier;
 
 pub use pagetop::base::component::form::Range;
 

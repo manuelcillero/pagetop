@@ -2,7 +2,7 @@ use crate::prelude::*;
 
 use crate::base::component::form;
 
-/// Componente para crear un **formulario** HTML ([`form`]).
+/// Componente para crear un **formulario**.
 ///
 /// Renderiza un formulario estándar con soporte para los atributos más habituales:
 ///

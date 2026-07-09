@@ -1,4 +1,4 @@
-//! Componentes y tipos para crear formularios HTML ([`Form`]).
+//! Definiciones para crear formularios ([`Form`]).
 
 mod props;
 pub use props::{Autocomplete, AutofillField, CheckboxKind, Method};
