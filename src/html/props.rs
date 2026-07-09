@@ -1,6 +1,6 @@
 use crate::core::TypeInfo;
 use crate::html::maud::{Escaper, Render};
-use crate::{AutoDefault, CowStr, builder_fn, util};
+use crate::{AutoDefault, CowStr, builder_fn, trace, util};
 
 use std::any::Any;
 use std::collections::HashMap;
@@ -84,18 +84,22 @@ impl std::error::Error for PropsError {}
 /// nombre de atributo en `Set`, el valor se normaliza igual que [`SetId`](Self::SetId).
 ///
 /// Las variantes `*Classes` gestionan la lista de clases CSS. Además, `Set("class", ...)`
-/// reemplaza la lista completa y `Remove("class")` la vacía.
+/// reemplaza la lista completa de clases y `Remove("class")` la vacía.
+///
+/// Las variantes `*Style` gestionan las declaraciones de estilos para el atributo `style`, con una
+/// propiedad cada vez. Además, `Set("style", ...)` reemplaza la lista completa de estilos y
+/// `Remove("style")` la vacía.
 ///
 /// Las variantes [`Set`](Self::Set) y [`Remove`](Self::Remove) son operaciones de propósito
-/// general: `Set` añade o reemplaza cualquier atributo HTML por nombre y valor, y `Remove` lo
-/// elimina. Los atributos `id` y `class` tienen semántica especial documentada en cada variante.
+/// general. `Set` añade o reemplaza cualquier atributo HTML por nombre y valor, y `Remove` lo
+/// elimina. Los atributos `id`, `class` y `style` tienen semántica especial documentada en cada
+/// variante.
 ///
-/// Las variantes `*Extra` permiten añadir valores tipados usando una clave. Están pensadas para que
-/// temas y extensiones amplíen el comportamiento de componentes ya existentes. Como no es posible
-/// añadir campos a la estructura de un componente ya definido, temas y extensiones pueden definir
-/// un *trait* con nuevos métodos que leen y escriben valores extra en [`Props`]. Esos valores se
-/// interpretan como si fueran valores internos del componente para tomar decisiones durante el
-/// renderizado.
+/// Las variantes `*Extra` permiten añadir valores tipados usando una clave. Están pensadas para
+/// ampliar el comportamiento de componentes ya existentes. Como no es posible añadir campos a la
+/// estructura de un componente ya definido, temas y extensiones pueden definir un *trait* con
+/// nuevos métodos que leen y escriben valores extra en [`Props`]. Esos valores se interpretan como
+/// si fueran valores internos del componente para tomar decisiones durante el renderizado.
 #[derive(Clone, Debug)]
 pub enum PropsOp {
     /// Establece el identificador del componente normalizando el valor: recorta espacios, convierte
@@ -120,13 +124,31 @@ pub enum PropsOp {
     /// Elimina la clase o clases indicadas de la lista. La operación se ignora si el valor contiene
     /// caracteres no ASCII.
     RemoveClasses(CowStr),
-    /// Añade un atributo o sustituye su valor si ya existe. Usar `"id"` como nombre de atributo
-    /// aplica al valor la misma normalización que [`SetId`](Self::SetId). Usar `"class"` como
-    /// nombre de atributo reemplaza la lista completa de clases por las nuevas indicadas; la
-    /// operación se ignora si el valor contiene caracteres no ASCII.
+    /// Añade una declaración de estilo (propiedad, valor) o sustituye su valor si la propiedad ya
+    /// existe, conservando su posición; si no, se añade al final. A diferencia de las clases, el
+    /// valor admite caracteres no ASCII (p. ej. `content`, `font-family`) y distingue mayúsculas y
+    /// minúsculas. El nombre de la propiedad se normaliza a minúsculas. Si la propiedad o el valor
+    /// quedan vacíos tras recortar espacios, la operación se ignora.
+    AddStyle(CowStr, CowStr),
+    /// Elimina la propiedad de estilo indicada, si existe.
+    RemoveStyle(CowStr),
+    /// Añade un atributo o sustituye su valor si ya existe.
+    ///
+    /// Usar `"id"` como nombre de atributo aplica al valor la misma normalización que
+    /// [`SetId`](Self::SetId).
+    ///
+    /// Usar `"class"` como nombre de atributo reemplaza la lista completa de clases por las nuevas
+    /// indicadas; la operación se ignora si el valor contiene caracteres no ASCII.
+    ///
+    /// Usar `"style"` como nombre de atributo reemplaza la lista completa de estilos por los nuevos
+    /// indicados, interpretando el valor como declaraciones `"propiedad: valor"` separadas por `;`
+    /// (igual que el propio atributo `style` HTML). El separador `;` respeta paréntesis y comillas,
+    /// tal que valores como una *data URI* (`background: url(data:image/png;base64,...)`) o una
+    /// cadena con `;` (`content: "a;b"`) se interpretan correctamente. En cualquier caso, se
+    /// recomienda usar [`PropsOp::add_style()`](Self::add_style) para declarar estilos.
     Set(CowStr, CowStr),
     /// Elimina el atributo indicado. Usar `"id"` elimina el identificador; usar `"class"` vacía la
-    /// lista de clases.
+    /// lista de clases; y usar `"style"` vacía la lista de estilos.
     Remove(CowStr),
     /// Almacena un valor extra tipado asociado a la clave indicada. Si ya existe uno con esa clave,
     /// lo reemplaza.
@@ -174,6 +196,26 @@ impl PropsOp {
         Self::RemoveClasses(classes.into())
     }
 
+    /// Crea la variante [`AddStyle`](Self::AddStyle) con la propiedad y el valor de estilo
+    /// indicados.
+    ///
+    /// ```rust
+    /// # use pagetop::prelude::*;
+    /// let props = Props::default()
+    ///     .with_prop(PropsOp::add_style("color", "red"))
+    ///     .with_prop(PropsOp::add_style("font-weight", "bold"))
+    ///     .with_prop(PropsOp::add_style("color", "blue"));
+    /// assert_eq!(props.get_styles(), Some("color: blue; font-weight: bold".to_string()));
+    /// ```
+    pub fn add_style(property: impl Into<CowStr>, value: impl Into<CowStr>) -> Self {
+        Self::AddStyle(property.into(), value.into())
+    }
+
+    /// Crea la variante [`RemoveStyle`](Self::RemoveStyle) para la propiedad de estilo indicada.
+    pub fn remove_style(property: impl Into<CowStr>) -> Self {
+        Self::RemoveStyle(property.into())
+    }
+
     /// Crea la variante [`Set`](Self::Set) con nombre y valor del atributo.
     pub fn set(name: impl Into<CowStr>, value: impl Into<CowStr>) -> Self {
         Self::Set(name.into(), value.into())
@@ -212,9 +254,10 @@ impl PropsOp {
 
 /// Recoge el identificador, clases CSS, atributos HTML y valores extra de un componente.
 ///
-/// Al renderizar con [`html!`](crate::html::html) se emite primero el identificador `id` (si
-/// existe), luego `class` (si hay clases) y después el resto de atributos, normalmente aplicados al
-/// elemento raíz del componente.
+/// Guarda estos valores con operaciones [`PropsOp`]. Cuando se renderiza usando
+/// [`html!`](crate::html::html) se emite primero el identificador `id` (si existe), luego `class`
+/// (si hay clases), después `style` (si hay declaraciones de estilo) y por último el resto de
+/// atributos; normalmente se asignan al elemento raíz del componente.
 ///
 /// # Ejemplo
 ///
@@ -274,6 +317,23 @@ impl PropsOp {
 ///
 /// let markup = html! { button (props) { "OK" } };
 /// assert_eq!(markup.into_string(), r#"<button class="btn btn-secondary active">OK</button>"#);
+/// ```
+///
+/// # Estilos CSS
+///
+/// Cada declaración se añade indicando una propiedad y su valor. Si la propiedad ya existe,
+/// [`AddStyle`](PropsOp::AddStyle) sustituye su valor conservando la posición, sin duplicarla.
+///
+/// ```rust
+/// # use pagetop::prelude::*;
+/// let props = Props::default()
+///     .with_prop(PropsOp::add_style("color", "red"))
+///     .with_prop(PropsOp::add_style("font-weight", "bold"))
+///     .with_prop(PropsOp::add_style("color", "blue"))
+///     .with_prop(PropsOp::remove_style("font-weight"));
+///
+/// let markup = html! { button (props) { "OK" } };
+/// assert_eq!(markup.into_string(), r#"<button style="color: blue">OK</button>"#);
 /// ```
 ///
 /// # Valores extra
@@ -341,6 +401,7 @@ impl PropsOp {
 pub struct Props {
     id: Option<String>,
     classes: Vec<String>,
+    styles: Vec<(CowStr, CowStr)>,
     attrs: Vec<(CowStr, CowStr)>,
     extras: HashMap<&'static str, PropsExtra>,
 }
@@ -367,21 +428,7 @@ impl Props {
 
     /// Modifica el identificador, las clases, los atributos o los valores extra según la operación
     /// indicada. El método recomendado para construir cada operación es usar los constructores de
-    /// [`PropsOp`]:
-    ///
-    /// - [`PropsOp::set_id()`] - establece el identificador normalizando el valor.
-    /// - [`PropsOp::ensure_id()`] - establece el identificador sólo si no hay ninguno definido.
-    /// - [`PropsOp::add_classes()`] - añade clases al final (sin duplicados).
-    /// - [`PropsOp::prepend_classes()`] - añade clases al principio (sin duplicados).
-    /// - [`PropsOp::replace_classes()`] - sustituye una o varias clases existentes por otras
-    ///   nuevas, preservando su posición.
-    /// - [`PropsOp::remove_classes()`] - elimina las clases indicadas.
-    /// - [`PropsOp::set()`] - añade el atributo o reemplaza su valor. `set("id", ...)` aplica la
-    ///   misma normalización que `set_id()`. `set("class", ...)` reemplaza la lista de clases.
-    /// - [`PropsOp::remove()`] - elimina el atributo. `remove("id")` elimina el identificador;
-    ///   `remove("class")` vacía la lista de clases.
-    /// - [`PropsOp::set_extra()`] - almacena un valor extra tipado.
-    /// - [`PropsOp::remove_extra()`] - elimina el valor extra asociado a la clave.
+    /// [`PropsOp`].
     #[builder_fn]
     pub fn with_prop(mut self, op: PropsOp) -> Self {
         match op {
@@ -445,6 +492,12 @@ impl Props {
                         .any(|r| r == c.as_str())
                 });
             }
+            PropsOp::AddStyle(property, value) => {
+                self.set_style(property.as_ref(), value.as_ref());
+            }
+            PropsOp::RemoveStyle(property) => {
+                self.remove_style(property.as_ref());
+            }
             PropsOp::Set(name, value) => {
                 if name.as_ref() == "id" {
                     self.apply_id(value.as_ref());
@@ -455,6 +508,9 @@ impl Props {
                         self.classes.clear();
                         self.insert_classes(normalized.as_ref().split_ascii_whitespace(), 0);
                     }
+                } else if name.as_ref() == "style" {
+                    self.styles.clear();
+                    self.parse_styles(value.as_ref());
                 } else if let Some(pos) = self.attrs.iter().position(|(k, _)| k == &name) {
                     self.attrs[pos].1 = value;
                 } else {
@@ -466,6 +522,8 @@ impl Props {
                     self.id = None;
                 } else if name.as_ref() == "class" {
                     self.classes.clear();
+                } else if name.as_ref() == "style" {
+                    self.styles.clear();
                 } else {
                     self.attrs.retain(|(k, _)| k != &name);
                 }
@@ -497,14 +555,41 @@ impl Props {
         }
     }
 
+    /// Devuelve las declaraciones de estilo como cadena de texto (separadas por `"; "`), si hay
+    /// estilos definidos.
+    pub fn get_styles(&self) -> Option<String> {
+        if self.styles.is_empty() {
+            None
+        } else {
+            Some(
+                self.styles
+                    .iter()
+                    .map(|(k, v)| format!("{k}: {v}"))
+                    .collect::<Vec<_>>()
+                    .join("; "),
+            )
+        }
+    }
+
+    /// Devuelve el valor de la propiedad de estilo indicada, si existe.
+    pub fn get_style(&self, property: impl AsRef<str>) -> Option<String> {
+        let property = property.as_ref().trim().to_ascii_lowercase();
+        self.styles
+            .iter()
+            .find(|(k, _)| k.as_ref() == property)
+            .map(|(_, v)| v.to_string())
+    }
+
     /// Devuelve el valor del atributo indicado, si existe.
     ///
-    /// Los nombres `"id"` y `"class"` son equivalentes a llamar a [`get_id()`](Self::get_id) y
-    /// [`get_classes()`](Self::get_classes) respectivamente.
+    /// Los nombres `"id"`, `"class"` y `"style"` son equivalentes a llamar a
+    /// [`get_id()`](Self::get_id), [`get_classes()`](Self::get_classes) y
+    /// [`get_styles()`](Self::get_styles) respectivamente.
     pub fn get_prop(&self, name: impl AsRef<str>) -> Option<String> {
         match name.as_ref() {
             "id" => self.id.clone(),
             "class" => self.get_classes(),
+            "style" => self.get_styles(),
             name => self
                 .attrs
                 .iter()
@@ -525,18 +610,27 @@ impl Props {
         self.classes.is_empty()
     }
 
+    /// Devuelve `true` si no hay ningún estilo definido.
+    #[inline]
+    pub fn is_styles_empty(&self) -> bool {
+        self.styles.is_empty()
+    }
+
     /// Devuelve `true` si no hay ningún atributo adicional definido, sin tener en cuenta el
-    /// identificador ni las clases.
+    /// identificador, las clases ni los estilos.
     #[inline]
     pub fn is_attrs_empty(&self) -> bool {
         self.attrs.is_empty()
     }
 
-    /// Devuelve `true` si no hay ningún identificador, clases ni atributos adicionales definidos,
-    /// sin tener en cuenta los valores extra.
+    /// Devuelve `true` si no hay ningún identificador, clases, estilos o atributos adicionales
+    /// definidos, sin tener en cuenta los valores extra.
     #[inline]
     pub fn is_empty(&self) -> bool {
-        self.id.is_none() && self.attrs.is_empty() && self.classes.is_empty()
+        self.id.is_none()
+            && self.classes.is_empty()
+            && self.styles.is_empty()
+            && self.attrs.is_empty()
     }
 
     /// Devuelve `true` si la clase o **todas** las clases indicadas están presentes.
@@ -578,7 +672,10 @@ impl Props {
     /// let props = Props::default().with_prop(PropsOp::set_extra(EXT_COUNT, 7_i32));
     ///
     /// assert_eq!(*props.extra::<i32>(EXT_COUNT).unwrap(), 7);
-    /// assert_eq!(props.extra::<i32>(EXT_OTHER), Err(PropsError::ExtraNotFound { key: EXT_OTHER }));
+    /// assert_eq!(
+    ///     props.extra::<i32>(EXT_OTHER),
+    ///     Err(PropsError::ExtraNotFound { key: EXT_OTHER })
+    /// );
     /// assert!(matches!(
     ///     props.extra::<u32>(EXT_COUNT),
     ///     Err(PropsError::ExtraTypeMismatch { .. })
@@ -678,6 +775,79 @@ impl Props {
             }
         }
     }
+
+    // Añade o sustituye una declaración "propiedad: valor". Si la propiedad ya existe, sustituye
+    // su valor conservando la posición; si no, la añade al final. Ignora la declaración si la
+    // propiedad o el valor quedan vacíos tras recortar espacios. No aplica
+    // normalize_ascii_or_empty: ver la documentación de `PropsOp::AddStyle` sobre por qué los
+    // valores de estilo no se restringen a ASCII.
+    fn set_style(&mut self, property: &str, value: &str) {
+        let property = property.trim().to_ascii_lowercase();
+        let value = value.trim();
+        if property.is_empty() || value.is_empty() {
+            return;
+        }
+        if let Some(pos) = self.styles.iter().position(|(k, _)| k.as_ref() == property) {
+            self.styles[pos].1 = value.to_string().into();
+        } else {
+            self.styles
+                .push((property.into(), value.to_string().into()));
+        }
+    }
+
+    // Interpreta una cadena "propiedad: valor" separadas por ";" (igual que el atributo HTML
+    // `style`) y aplica cada declaración con `set_style`. Ignora las declaraciones sin ":".
+    fn parse_styles(&mut self, styles: &str) {
+        for style in Self::split_style_declarations(styles) {
+            let style = style.trim();
+            if style.is_empty() {
+                continue;
+            }
+            let Some((property, value)) = style.split_once(':') else {
+                trace::debug!(
+                    target = "Props::with_prop",
+                    declaration = %style,
+                    "Ignoring malformed style declaration (missing \":\")"
+                );
+                continue;
+            };
+            self.set_style(property, value);
+        }
+    }
+
+    // Divide una cadena de declaraciones de estilo por ";", igual que `str::split(';')`, pero sin
+    // cortar dentro de paréntesis (`url(...)`) ni de cadenas entre comillas simples o dobles
+    // (`content: "a;b"`). No es un análisis CSS completo: no reconoce comentarios `/* ... */` ni
+    // comillas escapadas, y unos paréntesis o comillas sin cerrar arrastran el resto de la cadena
+    // a la última declaración.
+    fn split_style_declarations(styles: &str) -> Vec<&str> {
+        let mut depth = 0i32;
+        let mut quote = None;
+        let mut start = 0;
+        let mut parts = Vec::new();
+        for (i, c) in styles.char_indices() {
+            if quote.is_none() && (c == '\'' || c == '"') {
+                quote = Some(c);
+            } else if quote == Some(c) {
+                quote = None;
+            } else if quote.is_none() && c == '(' {
+                depth += 1;
+            } else if quote.is_none() && c == ')' {
+                depth = (depth - 1).max(0);
+            } else if quote.is_none() && depth == 0 && c == ';' {
+                parts.push(&styles[start..i]);
+                start = i + 1;
+            }
+        }
+        parts.push(&styles[start..]);
+        parts
+    }
+
+    // Elimina la propiedad de estilo indicada, si existe.
+    fn remove_style(&mut self, property: &str) {
+        let property = property.trim().to_ascii_lowercase();
+        self.styles.retain(|(k, _)| k.as_ref() != property);
+    }
 }
 
 #[doc(hidden)]
@@ -694,6 +864,15 @@ impl Render for Props {
             for class in rest {
                 w.push(' ');
                 let _ = write!(Escaper::new(w), "{}", class);
+            }
+            w.push('"');
+        }
+        if let Some((first, rest)) = self.styles.split_first() {
+            w.push_str(" style=\"");
+            let _ = write!(Escaper::new(w), "{}: {}", first.0, first.1);
+            for (property, value) in rest {
+                w.push_str("; ");
+                let _ = write!(Escaper::new(w), "{}: {}", property, value);
             }
             w.push('"');
         }
