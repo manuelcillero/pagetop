@@ -102,7 +102,7 @@ pub fn configure_routes(router: Router) -> Router {
 
 // **< CONFIGURA EL MIDDLEWARE GLOBAL >*************************************************************
 
-/// Aplica las capas de *middleware* globales de todas las extensiones sobre el router ya enrutado.
+/// Aplica las capas de middleware globales de todas las extensiones sobre el router ya enrutado.
 ///
 /// Se llama después de [`configure_routes`] para garantizar que las capas envuelven todas las
 /// rutas de la aplicación, independientemente del orden de las extensiones.

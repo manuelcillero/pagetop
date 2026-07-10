@@ -17,7 +17,7 @@ use crate::{UniqueId, Weight};
 ///
 /// Se almacena automáticamente en el [`Context`] a partir de la petición HTTP (ver
 /// [`Context::new()`](crate::core::component::Context::new)). La identidad se extrae de las
-/// extensiones de la petición, que una extensión de autenticación inyecta mediante su *middleware*.
+/// extensiones de la petición, que una extensión de autenticación inyecta mediante su middleware.
 ///
 /// Se accede con [`Contextual::current_user()`](crate::core::component::Contextual::current_user).
 ///
@@ -72,9 +72,9 @@ impl CurrentUser {
 /// Se invoca con:
 ///
 /// - `cx`: el contexto de renderizado desde el que se puede acceder a la petición HTTP y a
-///   cualquier dato inyectado por el *middleware* de autenticación.
+///   cualquier dato inyectado por el middleware de autenticación.
 /// - `key`: clave del permiso a comprobar (p. ej. `"myapp.edit_posts"`).
-/// - `granted`: referencia mutable; el *handler* debe asignarla a `true` si concede el permiso.
+/// - `granted`: referencia mutable; el handler debe asignarla a `true` si concede el permiso.
 pub type FnCheckPermission = fn(cx: &Context, key: &str, granted: &mut bool);
 
 /// Acción para comprobar si el usuario actual tiene un permiso concreto.
@@ -148,7 +148,7 @@ impl CheckPermission {
 /// Comprueba si el usuario actual tiene el permiso indicado.
 ///
 /// Despacha la acción [`CheckPermission`]: cualquier extensión registrada puede conceder el permiso
-/// asignando `granted = true` en su *handler*. Si no hay extensiones de autenticación activas,
+/// asignando `granted = true` en su handler. Si no hay extensiones de autenticación activas,
 /// devuelve `false` para cualquier usuario, incluido el anónimo.
 ///
 /// La decisión de conceder o denegar permisos al usuario anónimo también es responsabilidad de cada

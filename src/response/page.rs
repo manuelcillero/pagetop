@@ -98,8 +98,8 @@ impl Page {
     /// Crea una nueva instancia de página.
     ///
     /// La petición HTTP se guarda en el contexto de renderizado, que extrae automáticamente el
-    /// [`CurrentUser`] inyectado por *middleware* en sus extensiones (ver
-    /// [`Context::new`](crate::core::component::Context::new)). Cualquier *handler* tiene acceso al
+    /// [`CurrentUser`] inyectado por middleware en sus extensiones (ver
+    /// [`Context::new`](crate::core::component::Context::new)). Cualquier handler tiene acceso al
     /// usuario actual desde el momento en que se crea la página, sin llamadas adicionales.
     #[rustfmt::skip]
     pub fn new(request: HttpRequest) -> Self {

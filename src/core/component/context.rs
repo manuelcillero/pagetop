@@ -357,7 +357,7 @@ impl Context {
         }
     }
 
-    // Extrae el `CurrentUser` inyectado por *middleware* en las extensiones de la petición, o
+    // Extrae el `CurrentUser` inyectado por middleware en las extensiones de la petición, o
     // `CurrentUser::Anonymous` si no hay petición o ninguna extensión de autenticación está activa.
     fn resolve_current_user(request: Option<&HttpRequest>) -> CurrentUser {
         request

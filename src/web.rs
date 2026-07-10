@@ -39,9 +39,9 @@ use std::task::{Context, Poll};
 ///
 /// Almacena los datos necesarios para negociar el idioma y renderizar las páginas de error,
 /// incluyendo la URI completa, las cabeceras de la petición original y las extensiones de tipo que
-/// los *middlewares* pueden inyectar antes de que el *handler* se ejecute.
+/// los *middlewares* pueden inyectar antes de que el handler se ejecute.
 ///
-/// Puede declararse directamente como parámetro en un *handler* para pasarlo al
+/// Puede declararse directamente como parámetro en un handler para pasarlo al
 /// [`Context`](crate::core::component::Context) de renderizado y a las variantes de
 /// [`ErrorPage`](crate::response::page::ErrorPage):
 ///
@@ -53,8 +53,8 @@ use std::task::{Context, Poll};
 /// }
 /// ```
 ///
-/// Las extensiones inyectadas por *middleware* son accesibles vía [`extension`](Self::extension).
-/// Por ejemplo, desde un *handler*, tras añadir `MyData` en un *middleware*:
+/// Las extensiones inyectadas por middleware son accesibles vía [`extension`](Self::extension). Por
+/// ejemplo, desde un handler, tras añadir `MyData` en un middleware:
 ///
 /// ```rust,ignore
 /// if let Some(data) = request.extension::<MyData>() {
@@ -62,11 +62,11 @@ use std::task::{Context, Poll};
 /// }
 /// ```
 ///
-/// # Orden de parámetros en el *handler*
+/// # Orden de parámetros en el handler
 ///
 /// `HttpRequest` toma las extensiones de la petición al extraerse. Los extractores que leen de ahí
 /// (como `Path<T>` o `Extension<T>`) deben aparecer **antes** en la lista de parámetros del
-/// *handler*:
+/// handler:
 ///
 /// ```rust,no_run
 /// # use pagetop::prelude::*;
@@ -114,10 +114,10 @@ impl HttpRequest {
         &self.headers
     }
 
-    /// Accede a un valor inyectado por *middleware* en las extensiones de la petición.
+    /// Accede a un valor inyectado por middleware en las extensiones de la petición.
     ///
-    /// Devuelve una referencia al tipo `T` si algún *middleware* lo insertó antes de que el
-    /// *handler* recibiera la petición, o `None` en caso contrario.
+    /// Devuelve una referencia al tipo `T` si algún middleware lo insertó antes de que el handler
+    /// recibiera la petición, o `None` en caso contrario.
     ///
     /// El tipo debe implementar `Send + Sync + 'static` (requisito de [`http::Extensions`]).
     pub fn extension<T: Send + Sync + 'static>(&self) -> Option<&T> {
@@ -128,11 +128,11 @@ impl HttpRequest {
 impl<S: Send + Sync> FromRequestParts<S> for HttpRequest {
     type Rejection = Infallible;
 
-    // Extrae la petición y toma las extensiones que han sido inyectadas por *middleware*. Las
+    // Extrae la petición y toma las extensiones que han sido inyectadas por middleware. Las
     // extensiones se mueven a un `Arc` compartido para que `HttpRequest` sea `Clone`.
     //
     // Nota: tras este extractor `parts.extensions` queda vacío; otros extractores que dependan de
-    //       `Extension<T>` deben registrarse antes en la cadena del *handler*.
+    //       `Extension<T>` deben registrarse antes en la cadena del handler.
     async fn from_request_parts(
         parts: &mut http::request::Parts,
         _state: &S,
@@ -388,7 +388,7 @@ pub mod test {
 
         /// Inserta un valor en las extensiones de la petición.
         ///
-        /// Útil para simular lo que un *middleware* haría en producción antes de que el *handler*
+        /// Útil para simular lo que un middleware haría en producción antes de que el handler
         /// reciba la petición. El tipo debe implementar `Clone + Send + Sync + 'static`.
         pub fn with_extension<T: Clone + Send + Sync + 'static>(mut self, value: T) -> Self {
             self.extensions.insert(value);
