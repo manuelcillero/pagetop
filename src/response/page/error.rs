@@ -2,11 +2,16 @@ use axum::extract::Request;
 use axum::middleware::Next;
 
 use crate::core::component::Contextual;
+use crate::html::Markup;
 use crate::locale::L10n;
-use crate::util;
 use crate::web::{HttpRequest, IntoResponse, Response, http};
+use crate::{trace, util};
 
 use super::Page;
+
+use std::any::Any;
+
+// **< Errores controlados >************************************************************************
 
 /// Página de error asociada a un código de estado HTTP.
 ///
@@ -15,7 +20,7 @@ use super::Page;
 /// de estado concreto.
 ///
 /// Para cada error se construye una [`Page`] usando el tema activo, lo que permite personalizar la
-/// plantilla y el contenido del mensaje mediante los métodos específicos del tema (por ejemplo,
+/// plantilla y el contenido del mensaje mediante los métodos específicos del tema (como
 /// [`Theme::error_403()`](crate::core::theme::Theme::error_403),
 /// [`Theme::error_404()`](crate::core::theme::Theme::error_404) o
 /// [`Theme::error_fatal()`](crate::core::theme::Theme::error_fatal)).
@@ -95,14 +100,58 @@ impl IntoResponse for ErrorPage {
     }
 }
 
-// Intercepta respuestas con un [`ErrorPage`] pendiente y las convierte en páginas HTML completas
-// usando el tema activo.
+// Gestión de las rutas sin coincidencia.
 //
-// Se registra globalmente sobre el router principal desde [`crate::app`].
-pub(crate) async fn render_error_pages(req: Request, next: Next) -> Response {
-    let mut response = next.run(req).await;
+// Se registra como `.fallback()` del router principal desde [`Application`](crate::Application).
+pub(crate) async fn route_not_found(request: HttpRequest) -> Result<Markup, ErrorPage> {
+    Err(ErrorPage::NotFound(request))
+}
+
+// Intercepta respuestas con un [`ErrorPage`] pendiente y las convierte en páginas HTML.
+//
+// Se registra globalmente sobre el router principal desde [`Application`](crate::Application).
+pub(crate) async fn render_error_pages(request: Request, next: Next) -> Response {
+    let mut response = next.run(request).await;
     if let Some(error_page) = response.extensions_mut().remove::<ErrorPage>() {
         return error_page.render_html().await;
     }
     response
+}
+
+// **< Fallo catastrófico >*************************************************************************
+
+// HTML mínimo para un fallo catastrófico (`panic!`). No usa el tema, ni componentes, ni acceso a
+// datos, porque el fallo podría estar precisamente ahí. Tampoco se traduce porque ni siquiera el
+// sistema de localización es seguro; tampoco hay forma de elegir idioma vía `Accept-Language`.
+const FATAL_ERROR_HTML: &str = concat!(
+    "<!DOCTYPE html>",
+    "<html lang=\"en\">",
+    "<head>",
+    "<meta charset=\"utf-8\">",
+    "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">",
+    "<title>Unexpected error</title>",
+    "</head><body>",
+    "<h1>An unexpected error has occurred</h1>",
+    "<p>Sorry for the inconvenience. Please try again or contact your system administrator.</p>",
+    "</body>",
+    "</html>",
+);
+
+// Captura el fallo catastrófico (`panic!`) con el motivo para diagnóstico y responde un HTTP 500.
+//
+// Se registra sobre el router principal desde [`Application`](crate::Application).
+pub(crate) fn response_for_panic(err: Box<dyn Any + Send + 'static>) -> Response {
+    let reason = err
+        .downcast_ref::<&str>()
+        .map(|s| s.to_string())
+        .or_else(|| err.downcast_ref::<String>().cloned())
+        .unwrap_or_else(|| "panic with no message".to_string());
+    trace::error!(panic = %reason, "Unhandled panic caught by CatchPanicLayer");
+
+    (
+        http::StatusCode::INTERNAL_SERVER_ERROR,
+        [(http::header::CONTENT_TYPE, "text/html; charset=utf-8")],
+        FATAL_ERROR_HTML,
+    )
+        .into_response()
 }

@@ -3,20 +3,31 @@
 mod figfont;
 
 use crate::core::{extension, extension::ExtensionRef};
-use crate::html::Markup;
 use crate::locale::Locale;
-use crate::response::page::{ErrorPage, render_error_pages};
-use crate::web::{HttpRequest, Router};
+use crate::response::page::{render_error_pages, response_for_panic, route_not_found};
+use crate::web::Router;
 use crate::{PAGETOP_VERSION, global, trace};
+
+use tower_http::catch_panic::CatchPanicLayer;
 
 use std::io::Error;
 use std::sync::LazyLock;
 
 /// Punto de entrada de una aplicación PageTop.
 ///
-/// Orquesta el arranque de la aplicación. Primero se instancia con [`new()`](Application::new) o
-/// [`prepare()`](Application::prepare), y después se ejecuta usando [`run()`](Application::run) (o
-/// usando [`test()`](Application::test) si se está preparando un entorno de pruebas).
+/// Orquesta el arranque de la aplicación. Primero se instancia con [`Application::new()`] o
+/// [`Application::prepare()`], y después se ejecuta usando [`run()`](Application::run). Si se está
+/// preparando un entorno de pruebas, se usa [`test()`](Application::test).
+///
+/// Los **errores controlados** (403, 404, o un fallo que un handler devuelva explícitamente como
+/// [`ErrorPage`](crate::response::page::ErrorPage)) se renderizan usando el tema activo (ver
+/// [`Theme::error_403()`](crate::core::theme::Theme::error_403),
+/// [`Theme::error_404()`](crate::core::theme::Theme::error_404) y
+/// [`Theme::error_fatal()`](crate::core::theme::Theme::error_fatal)).
+///
+/// La última capa del router captura cualquier **fallo catastrófico** (`panic!`) de la aplicación
+/// en lugar de abortar la conexión. Devuelve una respuesta mínima HTTP 500 que es independiente del
+/// tema y del ciclo de renderizado de componentes.
 pub struct Application;
 
 impl Application {
@@ -34,7 +45,7 @@ impl Application {
     /// que no dependen de ninguna otra, luego las que dependen de extensiones ya habilitadas, y así
     /// hasta habilitar la extensión raíz.
     ///
-    /// Es *async* porque cada extensión puede realizar operaciones asíncronas en su
+    /// Es `async` porque cada extensión puede realizar operaciones asíncronas en su
     /// [`initialize()`](crate::core::extension::Extension::initialize) (conexión a base de datos,
     /// migraciones, semillas de datos...).
     pub async fn prepare(root_extension: ExtensionRef) -> Self {
@@ -106,12 +117,16 @@ impl Application {
     }
 
     // Construye el router con las rutas y el middleware de todas las extensiones habilitadas.
+    //
+    // Con `CatchPanicLayer` en la última capa se capturan incluso los `panic!` que se produzcan
+    // dentro del propio renderizado de una página de error.
     fn build_router() -> Router {
         let router = extension::all::configure_routes(Router::new());
         let router = extension::all::configure_middleware(router);
         router
             .fallback(route_not_found)
             .layer(axum::middleware::from_fn(render_error_pages))
+            .layer(CatchPanicLayer::custom(response_for_panic))
     }
 
     /// Arranca el servidor web de la aplicación.
@@ -154,8 +169,4 @@ impl Application {
     pub fn test(self) -> Router {
         Self::build_router()
     }
-}
-
-async fn route_not_found(request: HttpRequest) -> Result<Markup, ErrorPage> {
-    Err(ErrorPage::NotFound(request))
 }

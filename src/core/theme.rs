@@ -1,31 +1,86 @@
 //! API para añadir y gestionar nuevos temas.
 //!
-//! Los temas son extensiones que implementan [`Extension`](crate::core::extension::Extension) y
-//! también [`Theme`], de modo que [`Extension::theme()`](crate::core::extension::Extension::theme)
-//! permita identificar y registrar los temas disponibles.
-//!
 //! Un tema es la *piel* de la aplicación: define estilos, tipografías, espaciados o comportamientos
 //! interactivos. Para ello utiliza plantillas ([`Template`]) que describen cómo maquetar el cuerpo
-//! del documento a partir de varias regiones ([`Region`]). Cada región es un contenedor lógico
-//! identificado por un nombre, cuyo contenido se obtiene del [`Context`] de la página.
+//! del documento a partir de regiones ([`Region`]). Cada región es un contenedor lógico
+//! identificado por un nombre para agrupar y renderizar componentes.
 //!
-//! Una página ([`Page`](crate::response::page::Page)) representa un documento HTML completo.
-//! Implementa [`Contextual`](crate::core::component::Contextual) para gestionar su propio
-//! [`Context`], donde mantiene el tema activo, la plantilla seleccionada y los componentes
-//! asociados a cada región.
+//! Una página ([`Page`](crate::response::page::Page)) es un documento HTML completo. Implementa
+//! [`Contextual`](crate::core::component::Contextual) para gestionar su propio [`Context`], donde
+//! mantiene el tema activo, la plantilla seleccionada y los componentes asociados a cada región a
+//! renderizar.
 //!
-//! De este modo, temas y extensiones colaboran sobre una estructura común: las aplicaciones
-//! registran componentes en el [`Context`], las plantillas organizan las regiones y las páginas
-//! generan el documento HTML resultante.
+//! Además, PageTop permite crear **temas hijo** que refinan el comportamiento de su tema padre. Un
+//! tema hijo hereda automáticamente todos los métodos del padre y puede sobrescribirlos
+//! selectivamente. Por ejemplo, puede redefinir el renderizado de un componente a través de
+//! [`Theme::handle_component()`] sin cambiar el resto del comportamiento heredado. Un tema hijo
+//! puede ser a su vez padre de otro, basta declararlo cada vez con [`Theme::parent()`].
 //!
-//! PageTop permite crear **temas hijo** que refinan el comportamiento de su tema padre. Un tema
-//! hijo hereda automáticamente todos los métodos del padre y puede sobrescribirlos selectivamente:
-//! por ejemplo, puede redefinir el renderizado de un componente con [`Theme::handle_component()`]
-//! sin modificar el resto del comportamiento heredado. Un tema hijo puede ser a su vez padre de
-//! otro, basta declararlo cada vez con [`Theme::parent()`].
+//! # Cómo crear un tema nuevo
 //!
-//! Los temas pueden definir sus propias implementaciones de [`Template`] y [`Region`] (por ejemplo,
-//! mediante *enums* adicionales) para añadir nuevas plantillas o exponer regiones específicas.
+//! Un tema mínimo es una extensión que implementa [`Extension`](crate::core::extension::Extension)
+//! y también [`Theme`] para que [`Extension::theme()`](crate::core::extension::Extension::theme)
+//! devuelva `Some(&Self)`. Basta con un `impl Theme for MyTheme {}` vacío, ya que todos los
+//! métodos de [`Theme`] tienen implementación por defecto.
+//!
+//! Un tema puede personalizarse en tres pasos, cada uno necesario sólo si lo que ofrece PageTop por
+//! defecto no basta:
+//!
+//! 1. **Definir regiones propias**. Por defecto PageTop define [`DefaultRegions`], con tres
+//!    regiones (`Header`, `Content` y `Footer`) que usan la implementación por defecto de
+//!    [`Region::render()`]. Un tema puede definir un *enum* propio que implemente [`Region`] para
+//!    exponer sus propias regiones (por ejemplo, una barra lateral) o para cambiar cómo se muestra
+//!    el contenido de una región ya existente (identificada por su nombre).
+//! 2. **Definir plantillas propias**. Por defecto existe [`DefaultTemplates`], con dos plantillas
+//!    (`Standard` y `Admin`) que usan la implementación por defecto de [`Template::render()`] para
+//!    renderizar [`DefaultRegions::Header`], [`DefaultRegions::Content`] y
+//!    [`DefaultRegions::Footer`], en este orden. Un tema puede definir un *enum* propio que
+//!    implemente [`Template`] para crear nuevas plantillas, maquetar las regiones de otra forma,
+//!    cambiar su orden o envolverlas en contenedores adicionales.
+//! 3. **Elegir las plantillas predeterminadas**. Por un lado, la plantilla por defecto vía
+//!    [`Theme::default_template()`] y, por otro, la plantilla para las páginas de administración,
+//!    [`Theme::admin_template()`]. De esta forma, las páginas creadas con `Page::new()` usarán
+//!    automáticamente la plantilla `default_template()` del tema activo, y las páginas creadas con
+//!    `Page::admin()` usarán la de `admin_template()`, sin tener que llamar manualmente a
+//!    [`with_template()`](crate::core::component::Contextual::with_template). Un tema que no
+//!    sobrescriba estos métodos sigue usando las plantillas por defecto de PageTop.
+//!
+//! Las páginas de error (403, 404, y otros errores fatales) no tienen una plantilla propia: se
+//! renderizan con la plantilla ya activa en la página, para que el usuario no pierda el contexto de
+//! navegación del sitio. Los temas pueden personalizar su contenido sobrescribiendo
+//! [`Theme::error_403()`], [`Theme::error_404()`] o [`Theme::error_fatal()`], sin necesidad de una
+//! plantilla distinta.
+//!
+//! El resto del comportamiento de un tema (renderizado del `<head>`, o intervención en el
+//! renderizado de componentes concretos con [`Theme::handle_component()`]) se sobrescribe de forma
+//! independiente de estos tres pasos y no es necesario para tener un tema funcional.
+//!
+//! # Componentes que se procesan en todas las páginas
+//!
+//! Los componentes añadidos a una página con
+//! [`with_child_in()`](crate::core::component::Contextual::with_child_in) sólo existen para esa
+//! petición concreta: hay que volver a añadirlos cada vez que se construya la página. [`InRegion`]
+//! resuelve el caso contrario: un componente que se debe procesar en todas las páginas, o en todas
+//! las de un tema concreto, sin tener que registrarlo en el código de cada página.
+//!
+//! `InRegion` registra el componente una sola vez, normalmente al arrancar la aplicación o al
+//! inicializar una extensión, y a partir de ahí se procesa automáticamente en todas las páginas que
+//! correspondan:
+//!
+//! ```rust,no_run
+//! # use pagetop::prelude::*;
+//! InRegion::Global(&DefaultRegions::Footer).add(PoweredBy::new());
+//! ```
+//!
+//! El componente se guarda como **prototipo**: cada página recibe un clon fresco en el momento del
+//! renderizado, de modo que su `setup()` siempre parte de un estado inicial limpio y no acumula
+//! mutaciones entre peticiones.
+//!
+//! Como cualquier otro componente, antes de renderizarse pasa por
+//! [`is_renderable()`](crate::core::component::Component::is_renderable), el primer paso del
+//! [ciclo de renderizado](crate::core::component::ComponentRender). Esto permite registrarlo una
+//! sola vez y que decida por sí mismo cuándo mostrarse, por ejemplo según la ruta de la petición o
+//! si el usuario actual está autenticado.
 
 use crate::async_trait;
 use crate::core::component::Context;
@@ -44,7 +99,7 @@ use crate::{AutoDefault, util};
 /// El contenido de una región viene determinado únicamente por su nombre, no por su tipo. Distintas
 /// implementaciones de [`Region`] que devuelvan el mismo nombre compartirán el mismo conjunto de
 /// componentes registrados en el [`Context`], aunque cada región puede renderizar ese contenido de
-/// forma diferente. Por ejemplo, [`DefaultRegion::Header`] y `BootsierRegion::Header` mostrarían
+/// forma diferente. Por ejemplo, [`DefaultRegions::Header`] y `BootsierRegions::Header` mostrarían
 /// los mismos componentes si ambas devuelven el nombre `"header"`, pero podrían maquetarse de
 /// manera distinta.
 ///
@@ -102,7 +157,7 @@ pub trait Region: Send + Sync {
 /// Referencia estática a una región.
 pub type RegionRef = &'static dyn Region;
 
-// **< DefaultRegion >******************************************************************************
+// **< DefaultRegions >*****************************************************************************
 
 /// Regiones básicas que PageTop proporciona por defecto.
 ///
@@ -110,7 +165,7 @@ pub type RegionRef = &'static dyn Region;
 /// equivalente definida por otros temas, por lo que comparten también el contenido registrado bajo
 /// esos nombres.
 #[derive(AutoDefault)]
-pub enum DefaultRegion {
+pub enum DefaultRegions {
     /// Región estándar para la **cabecera** del documento, de nombre `"header"`.
     ///
     /// Suele emplearse para mostrar un logotipo, navegación principal, barras superiores, etc.
@@ -129,7 +184,7 @@ pub enum DefaultRegion {
     Footer,
 }
 
-impl Region for DefaultRegion {
+impl Region for DefaultRegions {
     #[inline]
     fn name(&self) -> &'static str {
         match self {
@@ -160,8 +215,8 @@ impl Region for DefaultRegion {
 pub trait Template: Send + Sync {
     /// Renderiza el contenido de la plantilla.
     ///
-    /// Por defecto, renderiza las regiones básicas de [`DefaultRegion`] en este orden:
-    /// [`DefaultRegion::Header`], [`DefaultRegion::Content`] y [`DefaultRegion::Footer`].
+    /// Por defecto, renderiza las regiones básicas de [`DefaultRegions`] en este orden:
+    /// [`DefaultRegions::Header`], [`DefaultRegions::Content`] y [`DefaultRegions::Footer`].
     ///
     /// Se puede sobrescribir este método para:
     ///
@@ -175,9 +230,9 @@ pub trait Template: Send + Sync {
     /// propia página ([`Contextual::template()`](crate::core::component::Contextual::template())).
     async fn render(&self, cx: &mut Context) -> Markup {
         html! {
-            (DefaultRegion::Header.render(cx).await)
-            (DefaultRegion::Content.render(cx).await)
-            (DefaultRegion::Footer.render(cx).await)
+            (DefaultRegions::Header.render(cx).await)
+            (DefaultRegions::Content.render(cx).await)
+            (DefaultRegions::Footer.render(cx).await)
         }
     }
 }
@@ -185,11 +240,11 @@ pub trait Template: Send + Sync {
 /// Referencia estática a una plantilla.
 pub type TemplateRef = &'static dyn Template;
 
-// **< DefaultTemplate >****************************************************************************
+// **< DefaultTemplates >***************************************************************************
 
 /// Plantillas que PageTop proporciona por defecto.
 #[derive(AutoDefault)]
-pub enum DefaultTemplate {
+pub enum DefaultTemplates {
     /// Plantilla predeterminada.
     ///
     /// Utiliza la implementación por defecto de [`Template::render()`] y se emplea cuando no se
@@ -197,15 +252,15 @@ pub enum DefaultTemplate {
     #[default]
     Standard,
 
-    /// Plantilla de error.
+    /// Plantilla para la **interfaz de administración**.
     ///
-    /// Se utiliza para páginas de error u otros estados excepcionales. Por defecto utiliza la misma
+    /// Se utiliza para páginas de administración o paneles de control. Por defecto utiliza la misma
     /// implementación de [`Template::render()`] que [`Self::Standard`].
-    Error,
+    Admin,
 }
 
 #[async_trait]
-impl Template for DefaultTemplate {}
+impl Template for DefaultTemplates {}
 
 // **< render_component! >**************************************************************************
 

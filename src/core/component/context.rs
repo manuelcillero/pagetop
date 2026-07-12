@@ -2,7 +2,7 @@ use crate::auth::CurrentUser;
 use crate::core::TypeInfo;
 use crate::core::component::{ChildOp, Component, MessageLevel, StatusMessage};
 use crate::core::theme::all::DEFAULT_THEME;
-use crate::core::theme::{ChildrenInRegions, DefaultRegion, RegionRef, TemplateRef, ThemeRef};
+use crate::core::theme::{ChildrenInRegions, DefaultRegions, RegionRef, TemplateRef, ThemeRef};
 use crate::html::{Assets, Favicon, JavaScript, Preload, StyleSheet};
 use crate::html::{Markup, Props, PropsOp, RoutePath, html};
 use crate::locale::L10n;
@@ -96,7 +96,7 @@ impl std::error::Error for ContextError {}
 /// fn prepare_context<C: Contextual>(cx: C) -> C {
 ///     cx.with_langid(&Locale::resolve("es-ES"))
 ///       .with_theme(&Aliner)
-///       .with_template(&DefaultTemplate::Standard)
+///       .with_template(&DefaultTemplates::Standard)
 ///       .with_assets(AssetsOp::SetFavicon(Some(Favicon::new().with_icon("/favicon.ico"))))
 ///       .with_assets(AssetsOp::AddStyleSheet(StyleSheet::from("/css/app.css")))
 ///       .with_assets(AssetsOp::AddJavaScript(JavaScript::defer("/js/app.js")))
@@ -306,13 +306,36 @@ pub trait Contextual: LangId {
 ///     let _unique_id = cx.build_id::<Menu>(1); // => "menu-1" si es el primero
 /// }
 /// ```
+
+// Cómo obtener la plantilla activa del contexto: la del tema (por defecto o de administración), o
+// una fijada explícitamente. Se resuelve contra el tema activo al leer `Context::template()`, no al
+// asignarla, para que un cambio de tema posterior con `with_theme()` se refleje automáticamente.
+enum TemplateSource {
+    // Plantilla por defecto.
+    Default,
+    // Plantilla de administración del tema activo.
+    Admin,
+    // Plantilla fijada explícitamente con `with_template()`.
+    Explicit(TemplateRef),
+}
+
+impl TemplateSource {
+    fn resolve(&self, theme: ThemeRef) -> TemplateRef {
+        match self {
+            Self::Default => theme.default_template(),
+            Self::Admin => theme.admin_template(),
+            Self::Explicit(template) => *template,
+        }
+    }
+}
+
 #[rustfmt::skip]
 pub struct Context {
     request     : Option<HttpRequest>,            // Petición HTTP de origen.
     locale      : RequestLocale,                  // Idioma asociado a la petición.
     current_user: CurrentUser,                    // Identidad del usuario actual.
     theme       : ThemeRef,                       // Referencia al tema usado para renderizar.
-    template    : TemplateRef,                    // Plantilla usada para renderizar.
+    template    : TemplateSource,                 // Plantilla usada para renderizar.
     favicon     : Option<Favicon>,                // Favicon, si se ha definido.
     preloads    : Assets<Preload>,                // Recursos para precarga.
     stylesheets : Assets<StyleSheet>,             // Hojas de estilo CSS.
@@ -344,7 +367,7 @@ impl Context {
             locale,
             current_user,
             theme      : *DEFAULT_THEME,
-            template   : DEFAULT_THEME.default_template(),
+            template   : TemplateSource::Default,
             favicon    : None,
             preloads   : Assets::<Preload>::new(),
             stylesheets: Assets::<StyleSheet>::new(),
@@ -364,6 +387,13 @@ impl Context {
             .and_then(|r| r.extension::<CurrentUser>())
             .cloned()
             .unwrap_or(CurrentUser::Anonymous)
+    }
+
+    // Fuerza la plantilla de administración del tema activo (usada por `Page::admin()`). Se
+    // resuelve dinámicamente contra `self.theme`, igual que `TemplateSource::Default`, así que
+    // sigue reflejando cualquier cambio de tema posterior con `with_theme()`.
+    pub(crate) fn use_admin_template(&mut self) {
+        self.template = TemplateSource::Admin;
     }
 
     // **< Context RENDER >*************************************************************************
@@ -534,7 +564,7 @@ impl Contextual for Context {
 
     #[builder_fn]
     fn with_template(mut self, template: TemplateRef) -> Self {
-        self.template = template;
+        self.template = TemplateSource::Explicit(template);
         self
     }
 
@@ -591,7 +621,7 @@ impl Contextual for Context {
     #[builder_fn]
     fn with_child(mut self, op: impl Into<ChildOp>) -> Self {
         self.regions
-            .alter_child_in(&DefaultRegion::Content, op.into());
+            .alter_child_in(&DefaultRegions::Content, op.into());
         self
     }
 
@@ -616,7 +646,7 @@ impl Contextual for Context {
     }
 
     fn template(&self) -> TemplateRef {
-        self.template
+        self.template.resolve(self.theme)
     }
 
     fn param<T: 'static>(&self, key: &'static str) -> Result<&T, ContextError> {

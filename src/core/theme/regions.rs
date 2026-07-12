@@ -1,5 +1,5 @@
 use crate::core::component::{Child, ChildOp, Children, Component};
-use crate::core::theme::{DefaultRegion, RegionRef, ThemeRef};
+use crate::core::theme::{DefaultRegions, RegionRef, ThemeRef};
 use crate::{AutoDefault, UniqueId, builder_fn};
 
 use parking_lot::RwLock;
@@ -118,15 +118,15 @@ impl ChildrenInRegions {
 /// InRegion::Content.add(Html::with(|_| html! { "🎉 ¡Bienvenido!" }));
 ///
 /// // Texto en la cabecera, visible en todos los temas.
-/// InRegion::Global(&DefaultRegion::Header).add(Html::with(|_| html! { "Publicidad" }));
+/// InRegion::Global(&DefaultRegions::Header).add(Html::with(|_| html! { "Publicidad" }));
 /// ```
 pub enum InRegion {
     /// Región principal de **contenido** por defecto.
     ///
     /// Añade el componente a la región lógica de contenido principal de la aplicación. Por
-    /// convención, esta región corresponde a [`DefaultRegion::Content`], cuyo nombre es
+    /// convención, esta región corresponde a [`DefaultRegions::Content`], cuyo nombre es
     /// `"content"`. Cualquier tema que renderice esa misma región de contenido, ya sea usando
-    /// directamente [`DefaultRegion::Content`] o cualquier otra implementación de
+    /// directamente [`DefaultRegions::Content`] o cualquier otra implementación de
     /// [`Region`](crate::core::theme::Region) que devuelva ese mismo nombre, mostrará los
     /// componentes registrados aquí, aunque lo harán según su propio método de renderizado
     /// ([`Region::render()`](crate::core::theme::Region::render)).
@@ -163,19 +163,19 @@ impl InRegion {
     /// }));
     ///
     /// // Texto en la cabecera.
-    /// InRegion::Global(&DefaultRegion::Header).add(Html::with(|_| {
+    /// InRegion::Global(&DefaultRegions::Header).add(Html::with(|_| {
     ///     html! { "Publicidad" }
     /// }));
     ///
     /// // Contenido sólo para la región del pie de página en un tema concreto.
-    /// InRegion::ForTheme(&theme::Basic, &DefaultRegion::Footer).add(Html::with(|_| {
+    /// InRegion::ForTheme(&theme::Basic, &DefaultRegions::Footer).add(Html::with(|_| {
     ///     html! { "Aviso legal" }
     /// }));
     /// ```
     pub fn add(&self, component: impl Component + Clone + 'static) -> &Self {
         let proto: Arc<dyn ComponentGlobal> = Arc::new(component);
         match self {
-            InRegion::Content => Self::add_to_common(&DefaultRegion::Content, proto),
+            InRegion::Content => Self::add_to_common(&DefaultRegions::Content, proto),
             InRegion::Global(region_ref) => Self::add_to_common(*region_ref, proto),
             InRegion::ForTheme(theme_ref, region_ref) => {
                 THEME_REGIONS

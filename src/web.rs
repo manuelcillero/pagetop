@@ -422,4 +422,12 @@ pub mod test {
     pub async fn send_request(router: &Router, req: http::Request<Body>) -> http::Response<Body> {
         router.clone().oneshot(req).await.unwrap()
     }
+
+    /// Devuelve el cuerpo de una respuesta como texto UTF-8, para comprobaciones en tests.
+    pub async fn read_body_text(response: http::Response<Body>) -> String {
+        let bytes = axum::body::to_bytes(response.into_body(), usize::MAX)
+            .await
+            .unwrap();
+        String::from_utf8(bytes.to_vec()).unwrap()
+    }
 }

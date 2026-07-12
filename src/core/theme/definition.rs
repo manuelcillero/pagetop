@@ -2,7 +2,7 @@ use crate::async_trait;
 use crate::base::component::{Html, Intro, IntroOpening};
 use crate::core::component::{ChildOp, Component, ComponentError, Context, Contextual};
 use crate::core::extension::Extension;
-use crate::core::theme::{DefaultRegion, DefaultTemplate, TemplateRef};
+use crate::core::theme::{DefaultRegions, DefaultTemplates, TemplateRef};
 use crate::global;
 use crate::html::{Markup, html};
 use crate::locale::L10n;
@@ -66,14 +66,25 @@ pub trait Theme: Extension + Send + Sync {
     /// ([`Page`](crate::response::page::Page)) por si no se elige ninguna otra plantilla con
     /// [`Contextual::with_template()`](crate::core::component::Contextual::with_template).
     ///
-    /// La implementación por defecto devuelve la plantilla estándar ([`DefaultTemplate::Standard`])
-    /// con una estructura básica para la página. Los temas pueden sobrescribir este método para
-    /// seleccionar otra plantilla predeterminada o una plantilla propia.
+    /// La implementación por defecto devuelve la plantilla [`DefaultTemplates::Standard`] con una
+    /// estructura básica para la página. Los temas pueden sobrescribir este método para seleccionar
+    /// otra plantilla predeterminada o una plantilla propia.
     #[inline]
     fn default_template(&self) -> TemplateRef {
-        self.parent().map_or(&DefaultTemplate::Standard, |parent| {
-            parent.default_template()
-        })
+        self.parent()
+            .map_or(&DefaultTemplates::Standard, |p| p.default_template())
+    }
+
+    /// Devuelve la plantilla ([`Template`](crate::core::theme::Template)) que el tema propone para
+    /// la interfaz de administración.
+    ///
+    /// La implementación por defecto devuelve la plantilla [`DefaultTemplates::Admin`] con una
+    /// estructura básica para la interfaz de administración. Los temas pueden sobrescribir este
+    /// método para seleccionar otra plantilla predeterminada o una plantilla propia.
+    #[inline]
+    fn admin_template(&self) -> TemplateRef {
+        self.parent()
+            .map_or(&DefaultTemplates::Admin, |p| p.admin_template())
     }
 
     /// Acciones específicas del tema antes de renderizar el `<body>` de la página.
@@ -101,9 +112,9 @@ pub trait Theme: Extension + Send + Sync {
     /// partir de las regiones.
     ///
     /// Con la configuración por defecto, la plantilla estándar utiliza las regiones
-    /// [`DefaultRegion::Header`](crate::core::theme::DefaultRegion::Header),
-    /// [`DefaultRegion::Content`](crate::core::theme::DefaultRegion::Content) y
-    /// [`DefaultRegion::Footer`](crate::core::theme::DefaultRegion::Footer) en ese orden.
+    /// [`DefaultRegions::Header`](crate::core::theme::DefaultRegions::Header),
+    /// [`DefaultRegions::Content`](crate::core::theme::DefaultRegions::Content) y
+    /// [`DefaultRegions::Footer`](crate::core::theme::DefaultRegions::Footer) en ese orden.
     ///
     /// Los temas pueden sobrescribir este método para:
     ///
@@ -236,64 +247,77 @@ pub trait Theme: Extension + Send + Sync {
 
     /// Contenido predefinido para la página de error "*403 - Forbidden*" (acceso denegado).
     ///
-    /// Los temas pueden sobrescribir este método para personalizar el diseño y el contenido de la
-    /// página de error.
+    /// Normalmente se renderiza con la plantilla predeterminada del tema (por defecto suele ser
+    /// [`DefaultTemplates::Standard`]), para que el usuario no pierda el contexto de navegación del
+    /// sitio. Los temas pueden sobrescribir este método para personalizar completamente el diseño y
+    /// el contenido de la página de error.
     fn error_403(&self, page: &mut Page) {
         if let Some(parent) = self.parent() {
             return parent.error_403(page);
         }
-        page.alter_title(L10n::l("error403_title"))
-            .alter_template(&DefaultTemplate::Error)
-            .alter_child_in(
-                &DefaultRegion::Content,
-                ChildOp::Prepend(
-                    Html::with(move |cx| {
-                        html! {
-                            div {
-                                h1 { (L10n::l("error403_alert").using(cx)) }
-                                p { (L10n::l("error403_help").using(cx)) }
-                            }
+        page.alter_title(L10n::l("error403_title")).alter_child_in(
+            &DefaultRegions::Content,
+            ChildOp::Prepend(
+                Html::with(move |cx| {
+                    html! {
+                        div {
+                            h1 { (L10n::l("error403_alert").using(cx)) }
+                            p { (L10n::l("error403_help").using(cx)) }
                         }
-                    })
-                    .into(),
-                ),
-            );
+                    }
+                })
+                .into(),
+            ),
+        );
     }
 
     /// Contenido predefinido para la página de error "*404 - Not Found*" (recurso no encontrado).
     ///
-    /// Los temas pueden sobrescribir este método para personalizar el diseño y el contenido de la
-    /// página de error.
+    /// Normalmente se renderiza con la plantilla predeterminada del tema (por defecto suele ser
+    /// [`DefaultTemplates::Standard`]). Los temas pueden sobrescribir este método para personalizar
+    /// completamente el diseño y el contenido de la página de error.
     fn error_404(&self, page: &mut Page) {
         if let Some(parent) = self.parent() {
             return parent.error_404(page);
         }
-        page.alter_title(L10n::l("error404_title"))
-            .alter_template(&DefaultTemplate::Error)
-            .alter_child_in(
-                &DefaultRegion::Content,
-                ChildOp::Prepend(
-                    Html::with(move |cx| {
-                        html! {
-                            div {
-                                h1 { (L10n::l("error404_alert").using(cx)) }
-                                p { (L10n::l("error404_help").using(cx)) }
-                            }
+        page.alter_title(L10n::l("error404_title")).alter_child_in(
+            &DefaultRegions::Content,
+            ChildOp::Prepend(
+                Html::with(move |cx| {
+                    html! {
+                        div {
+                            h1 { (L10n::l("error404_alert").using(cx)) }
+                            p { (L10n::l("error404_help").using(cx)) }
                         }
-                    })
-                    .into(),
-                ),
-            );
+                    }
+                })
+                .into(),
+            ),
+        );
     }
 
-    /// Permite al tema preparar y componer una página de error fatal.
+    /// Permite al tema preparar y componer una página de **error fatal controlado**.
     ///
-    /// Por defecto, asigna el título al documento (`title`) y muestra un componente [`Intro`] con
-    /// el código HTTP del error (`code`) y los mensajes proporcionados (`alert` y `help`) como
-    /// descripción del error.
+    /// Esta función decide explícitamente devolver
+    /// [`ErrorPage::BadRequest`](crate::response::page::ErrorPage::BadRequest),
+    /// [`ErrorPage::InternalError`](crate::response::page::ErrorPage::InternalError),
+    /// [`ErrorPage::ServiceUnavailable`](crate::response::page::ErrorPage::ServiceUnavailable) o
+    /// [`ErrorPage::GatewayTimeout`](crate::response::page::ErrorPage::GatewayTimeout) porque algo
+    /// ha fallado, pero el servidor sigue activo y el tema, el renderizado y el resto de
+    /// componentes funcionan con normalidad.
+    ///
+    /// Por defecto, asigna el título al documento (`title`), se renderiza con la plantilla ya
+    /// activa en la página (normalmente [`DefaultTemplates::Standard`]) y muestra un componente
+    /// [`Intro`] con el código HTTP del error (`code`) y los mensajes proporcionados (`alert` y
+    /// `help`) como descripción del error.
     ///
     /// Este método no se utiliza en las implementaciones predefinidas de [`Self::error_403()`] ni
     /// [`Self::error_404()`], que definen su propio contenido específico.
+    ///
+    /// Tampoco cubre los **fallos catastróficos** (un `panic!` en un handler, componente o
+    /// plantilla). Ese caso se intercepta en una última capa que responde con un HTML mínimo y
+    /// autónomo, sin pasar por el tema ni por el ciclo de renderizado de componentes, porque no es
+    /// seguro asumir que ese ciclo sigue funcionando tras un `panic!`.
     ///
     /// Los temas pueden sobrescribir este método para personalizar el diseño y el contenido de la
     /// página de error.
@@ -301,25 +325,23 @@ pub trait Theme: Extension + Send + Sync {
         if let Some(parent) = self.parent() {
             return parent.error_fatal(page, code, title, alert, help);
         }
-        page.alter_title(title)
-            .alter_template(&DefaultTemplate::Error)
-            .alter_child_in(
-                &DefaultRegion::Content,
-                ChildOp::Prepend(
-                    Intro::new()
-                        .with_title(L10n::l("error_code").with_arg("code", code.to_string()))
-                        .with_slogan(L10n::n(code.to_string()))
-                        .with_button(None)
-                        .with_opening(IntroOpening::Custom)
-                        .with_child(Html::with(move |cx| {
-                            html! {
-                                h1 { (alert.using(cx)) }
-                                p { (help.using(cx)) }
-                            }
-                        }))
-                        .into(),
-                ),
-            );
+        page.alter_title(title).alter_child_in(
+            &DefaultRegions::Content,
+            ChildOp::Prepend(
+                Intro::new()
+                    .with_title(L10n::l("error_code").with_arg("code", code.to_string()))
+                    .with_slogan(L10n::n(code.to_string()))
+                    .with_button(None)
+                    .with_opening(IntroOpening::Custom)
+                    .with_child(Html::with(move |cx| {
+                        html! {
+                            h1 { (alert.using(cx)) }
+                            p { (help.using(cx)) }
+                        }
+                    }))
+                    .into(),
+            ),
+        );
     }
 }
 

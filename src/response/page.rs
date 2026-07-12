@@ -15,12 +15,12 @@
 
 mod error;
 pub use error::ErrorPage;
-pub(crate) use error::render_error_pages;
+pub(crate) use error::{render_error_pages, response_for_panic, route_not_found};
 
 use crate::auth::CurrentUser;
 use crate::base::action;
 use crate::core::component::{AssetsOp, ChildOp, Context, ContextError, Contextual};
-use crate::core::theme::{DefaultRegion, Region, RegionRef, TemplateRef, ThemeRef};
+use crate::core::theme::{DefaultRegions, Region, RegionRef, TemplateRef, ThemeRef};
 use crate::html::{Assets, Favicon, JavaScript, StyleSheet};
 use crate::html::{Attr, Props, PropsOp};
 use crate::html::{DOCTYPE, Markup, html};
@@ -110,6 +110,13 @@ impl Page {
             properties  : Vec::default(),
             context     : Context::new(Some(request)),
         }
+    }
+
+    /// Crea una nueva instancia de página con la plantilla de administración del tema activo.
+    pub fn admin(request: HttpRequest) -> Self {
+        let mut page = Page::new(request);
+        page.context().use_admin_template();
+        page
     }
 
     // **< Page BUILDER >***************************************************************************
@@ -304,7 +311,7 @@ impl Contextual for Page {
     #[builder_fn]
     fn with_child(mut self, op: impl Into<ChildOp>) -> Self {
         self.context
-            .alter_child_in(&DefaultRegion::Content, op.into());
+            .alter_child_in(&DefaultRegions::Content, op.into());
         self
     }
 
