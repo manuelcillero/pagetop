@@ -39,7 +39,7 @@ mod smart_default;
 
 use proc_macro::TokenStream;
 use quote::{quote, quote_spanned};
-use syn::{DeriveInput, parse_macro_input, spanned::Spanned};
+use syn::{DeriveInput, ItemFn, parse_macro_input, spanned::Spanned};
 
 /// Macro para escribir plantillas HTML (basada en [Maud](https://docs.rs/maud)).
 #[proc_macro]
@@ -450,19 +450,14 @@ pub fn builder_fn(_: TokenStream, item: TokenStream) -> TokenStream {
 /// ```
 #[proc_macro_attribute]
 pub fn main(_: TokenStream, item: TokenStream) -> TokenStream {
-    let mut output: TokenStream = (quote! {
-        #[::tokio::main]
-    })
-    .into();
-
-    output.extend(item);
-    output
+    let input = parse_macro_input!(item as ItemFn);
+    expand_entry(input, false)
 }
 
 /// Define funciones de prueba asíncronas para usar con PageTop.
 ///
-/// Usa el *runtime* multi-hilo de **Tokio**, igual que [`#[pagetop::main]`](macro@main), para
-/// garantizar compatibilidad con extensiones que ejecutan código asíncrono de forma síncrona.
+/// Usa el mismo *runtime* multi-hilo que [`#[pagetop::main]`](macro@main), para garantizar
+/// compatibilidad con extensiones que ejecutan código asíncrono de forma síncrona.
 ///
 /// # Ejemplo
 ///
@@ -474,11 +469,43 @@ pub fn main(_: TokenStream, item: TokenStream) -> TokenStream {
 /// ```
 #[proc_macro_attribute]
 pub fn test(_: TokenStream, item: TokenStream) -> TokenStream {
-    let mut output: TokenStream = (quote! {
-        #[::tokio::test(flavor = "multi_thread")]
-    })
-    .into();
+    let input = parse_macro_input!(item as ItemFn);
+    expand_entry(input, true)
+}
 
-    output.extend(item);
-    output
+// Genera la función síncrona que envuelve el cuerpo asíncrono original, común a `main` y `test`.
+fn expand_entry(input: ItemFn, is_test: bool) -> TokenStream {
+    if input.sig.asyncness.is_none() {
+        return syn::Error::new_spanned(&input.sig.fn_token, "the function must be `async`")
+            .to_compile_error()
+            .into();
+    }
+
+    let ItemFn {
+        attrs,
+        vis,
+        mut sig,
+        block,
+    } = input;
+    sig.asyncness = None;
+
+    // Ruta absoluta para evitar ambigüedad con `pagetop::test` bajo `use pagetop::prelude::*;`.
+    let test_attr = is_test.then(|| quote! { #[::core::prelude::v1::test] });
+
+    let expanded = quote! {
+        #test_attr
+        #(#attrs)*
+        #vis #sig {
+            #[allow(
+                clippy::expect_used,
+                clippy::diverging_sub_expression,
+                clippy::needless_return,
+                clippy::unwrap_in_result
+            )]
+            {
+                return ::pagetop::util::build_runtime().block_on(async move #block);
+            }
+        }
+    };
+    expanded.into()
 }

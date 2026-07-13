@@ -25,6 +25,20 @@ pub use pagetop_minimal::paste;
 
 // **< FUNCIONES ÚTILES >***************************************************************************
 
+/// Código requerido por las macros [`pagetop::main`](crate::main) y [`pagetop::test`](crate::test).
+///
+/// Equivale a `Builder::new_multi_thread().enable_all().build()`, el mismo runtime que construye
+/// `#[tokio::main]`/`#[tokio::test(flavor = "multi_thread")]` sin argumentos. Las aplicaciones o
+/// extensiones que usen estas macros no necesitan declarar `tokio` como dependencia directa en su
+/// `Cargo.toml`.
+///
+/// Esta función no forma parte de la API pública; es `pub` para ser llamada por el código generado
+/// por las macros.
+#[doc(hidden)]
+pub fn build_runtime() -> tokio::runtime::Runtime {
+    tokio::runtime::Runtime::new().expect("Failed to build the Tokio runtime")
+}
+
 /// Errores posibles al normalizar una cadena ASCII con [`normalize_ascii()`].
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum NormalizeAsciiError {
