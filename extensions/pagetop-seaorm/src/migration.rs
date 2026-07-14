@@ -128,8 +128,9 @@ pub use manager::*;
 //pub use migrator::*;
 
 //pub use async_trait;
-//pub use sea_orm;
-//pub use sea_orm::sea_query;
+pub use sea_orm;
+pub use sea_orm::sea_query;
+
 pub use sea_orm::DbErr;
 
 pub trait MigrationName {

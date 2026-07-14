@@ -15,10 +15,10 @@
 //!
 //! Estas funciones integran los valores como literales escapados, no como parámetros de base de
 //! datos. Para consultas con datos del usuario, el sistema de entidades es más robusto. Si aun así
-//! se necesita SQL en crudo con parámetros reales, se puede construir un [`api::Statement`]
-//! directamente con [`api::Statement::from_sql_and_values`].
+//! se necesita SQL en crudo con parámetros reales, se puede construir un [`sea_orm::Statement`]
+//! directamente con [`sea_orm::Statement::from_sql_and_values`].
 //!
-//! ## Tipos esenciales
+//! # Tipos esenciales
 //!
 //! Destacan los siguientes elementos de uso más frecuente:
 //!
@@ -32,7 +32,7 @@
 //! - **Errores**: [`DbErr`].
 //! - **Resultados**: [`QueryResult`] (filas sin tipar), [`ExecResult`] (INSERT/UPDATE/DELETE).
 //!
-//! ## Definir una entidad
+//! # Definir una entidad
 //!
 //! ```rust,no_run
 //! use pagetop_seaorm::db::*;
@@ -54,7 +54,7 @@
 //! impl ActiveModelBehavior for ActiveModel {}
 //! ```
 //!
-//! ## Operaciones CRUD
+//! # Operaciones CRUD
 //!
 //! ```rust,ignore
 //! use pagetop_seaorm::db::*;
@@ -106,19 +106,19 @@
 //!
 //! Para migraciones y definición de esquemas usa [`migration`](crate::migration).
 //!
-//! ## Acceso completo a SeaORM
+//! # Acceso completo a SeaORM
 //!
-//! El módulo [`api`] re-exporta el crate `sea_orm` íntegro bajo ese alias. Úsalo cuando necesites
-//! un tipo o función que no esté expuesto directamente en `db::*`:
+//! Este módulo re-exporta el crate `sea_orm` íntegro. Úsalo cuando necesites un tipo o función que
+//! no esté expuesto directamente en `db::*`:
 //!
 //! ```rust,no_run
-//! use pagetop_seaorm::db::api;
+//! use pagetop_seaorm::db::sea_orm;
 //!
 //! // Tipos o utilidades no incluidos en db::*:
-//! let _: api::DatabaseBackend = api::DatabaseBackend::Sqlite;
+//! let _: sea_orm::DatabaseBackend = sea_orm::DatabaseBackend::Sqlite;
 //! ```
 //!
-//! ## Construcción de consultas en tiempo de ejecución
+//! # Construcción de consultas en tiempo de ejecución
 //!
 //! El módulo [`query`] re-exporta `sea_query` para construir las sentencias SQL que se pasan a
 //! [`fetch_all`] y [`fetch_one`]. Es el compañero natural de esas funciones dentro del módulo `db`:
@@ -139,16 +139,24 @@
 
 pub use sea_orm::prelude::*;
 
-pub use sea_orm::{
-    ActiveValue, DatabaseTransaction, ExecResult, QueryOrder, QuerySelect, TransactionTrait,
-};
+// Re-exporta el crate `sea_orm` íntegro como puerta de acceso a su API completa.
+//
+// Útil para tipos o utilidades que no están expuestos directamente en `db::*`; la inmensa mayoría
+// de operaciones no necesitan este módulo, `db::*` cubre los casos habituales.
+//
+// Por otro lado, este re-export es funcionalmente necesario para que los derive de `sea-orm-macros`
+// (`DeriveEntityModel`, `DeriveRelation`...) compilen sin declarar `sea-orm` como dependencia
+// directa en el `Cargo.toml` de la extensión o aplicación. Los derive generan rutas `sea_orm::...`
+// (vía `quote!`, sin `Span::mixed_site()`), que resuelven contra cualquier item `sea_orm` visible
+// en el módulo que invoca la macro. Basta con declarar `use pagetop_seaorm::db::*;` en cada entidad
+// para compilar sin errores.
+#[doc(hidden)]
+pub use sea_orm;
 
-/// Re-exporta el crate `sea_orm` íntegro como puerta de acceso a su API completa.
-///
-/// Útil para tipos o utilidades que no están expuestos directamente en [`db::*`](self). La inmensa
-/// mayoría de operaciones no necesitan este módulo; `db::*` cubre los casos habituales.
-#[doc(inline)]
-pub use sea_orm as api;
+pub use sea_orm::{
+    ActiveValue, Condition, DatabaseTransaction, DbBackend, ExecResult, NotSet, Order, QueryOrder,
+    QuerySelect, Set, TransactionError, TransactionTrait, Unchanged,
+};
 
 /// Re-exporta `sea_query` para construir sentencias SQL en tiempo de ejecución.
 ///
@@ -207,7 +215,7 @@ pub fn dbconn() -> &'static DatabaseConnection {
 pub async fn execute(stmt: impl Into<String>) -> Result<ExecResult, DbErr> {
     let conn = dbconn();
     let backend = conn.get_database_backend();
-    conn.execute(api::Statement::from_string(backend, stmt.into()))
+    conn.execute(sea_orm::Statement::from_string(backend, stmt.into()))
         .await
 }
 
@@ -248,12 +256,12 @@ pub async fn fetch_all<Q: query::QueryStatementWriter>(
 ) -> Result<Vec<QueryResult>, DbErr> {
     let conn = dbconn();
     let backend = conn.get_database_backend();
-    conn.query_all(api::Statement::from_string(
+    conn.query_all(sea_orm::Statement::from_string(
         backend,
         match backend {
-            api::DatabaseBackend::MySql => stmt.to_string(query::MysqlQueryBuilder),
-            api::DatabaseBackend::Postgres => stmt.to_string(query::PostgresQueryBuilder),
-            api::DatabaseBackend::Sqlite => stmt.to_string(query::SqliteQueryBuilder),
+            sea_orm::DatabaseBackend::MySql => stmt.to_string(query::MysqlQueryBuilder),
+            sea_orm::DatabaseBackend::Postgres => stmt.to_string(query::PostgresQueryBuilder),
+            sea_orm::DatabaseBackend::Sqlite => stmt.to_string(query::SqliteQueryBuilder),
         },
     ))
     .await
@@ -298,12 +306,12 @@ pub async fn fetch_one<Q: query::QueryStatementWriter>(
 ) -> Result<Option<QueryResult>, DbErr> {
     let conn = dbconn();
     let backend = conn.get_database_backend();
-    conn.query_one(api::Statement::from_string(
+    conn.query_one(sea_orm::Statement::from_string(
         backend,
         match backend {
-            api::DatabaseBackend::MySql => stmt.to_string(query::MysqlQueryBuilder),
-            api::DatabaseBackend::Postgres => stmt.to_string(query::PostgresQueryBuilder),
-            api::DatabaseBackend::Sqlite => stmt.to_string(query::SqliteQueryBuilder),
+            sea_orm::DatabaseBackend::MySql => stmt.to_string(query::MysqlQueryBuilder),
+            sea_orm::DatabaseBackend::Postgres => stmt.to_string(query::PostgresQueryBuilder),
+            sea_orm::DatabaseBackend::Sqlite => stmt.to_string(query::SqliteQueryBuilder),
         },
     ))
     .await
