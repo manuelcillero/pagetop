@@ -129,7 +129,7 @@ impl Theme for Aliner {
                 .with_weight(-99),
         ))
         .alter_child_in(
-            &DefaultRegion::Footer,
+            &DefaultRegions::Footer,
             ChildOp::AddIfEmpty(PoweredBy::new().into()),
         );
     }
