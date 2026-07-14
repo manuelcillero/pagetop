@@ -496,7 +496,7 @@ impl Context {
 
     /// Acumula un [`StatusMessage`] en el contexto para notificar al usuario.
     ///
-    /// Pueden generarse en cualquier punto del ciclo de una petición web (*handlers*, renderizado,
+    /// Pueden generarse en cualquier punto del ciclo de una petición web (handlers, renderizado,
     /// lógica de negocio, etc.) que tengan acceso al contexto, y mostrarlos luego, por ejemplo, en
     /// la página final devuelta al usuario.
     ///

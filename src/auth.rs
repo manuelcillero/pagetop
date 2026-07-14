@@ -5,7 +5,9 @@
 //! propios modelos de permisos, y la función auxiliar [`has_permission()`].
 //!
 //! La resolución concreta del usuario (sesión en BD, LDAP, OAuth, ...) y la lógica de permisos
-//! (RBAC, grupos LDAP, ...) son responsabilidad de las extensiones de autenticación.
+//! (RBAC, grupos LDAP, ...) son responsabilidad de las extensiones de autenticación. Un concepto
+//! como "administrador" que tiene todos los permisos no es responsabilidad del core: cada extensión
+//! decide si existe y, si es así, lo aplica dentro de su propio handler [`CheckPermission`].
 
 use crate::core::action::{ActionDispatcher, ActionKey, try_dispatch_actions};
 use crate::core::component::Context;
@@ -79,9 +81,9 @@ pub type FnCheckPermission = fn(cx: &Context, key: &str, granted: &mut bool);
 
 /// Acción para comprobar si el usuario actual tiene un permiso concreto.
 ///
-/// Las extensiones de autenticación registran *handlers* de esta acción para implementar su modelo
-/// de permisos. Los *handlers* son aditivos: si cualquiera de ellos asigna `granted = true`, el
-/// permiso se concede.
+/// Las extensiones de autenticación registran handlers de esta acción para implementar su modelo de
+/// permisos. Los handlers son aditivos: si cualquiera de ellos asigna `granted = true`, el permiso
+/// se concede.
 ///
 /// # Ejemplo
 ///

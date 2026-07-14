@@ -143,12 +143,12 @@ pub trait Extension: AnyInfo + Send + Sync {
     ///
     /// # Operaciones disponibles
     ///
-    /// | Operación                          | Llamada sobre `router`                             |
-    /// |------------------------------------|----------------------------------------------------|
-    /// | Ruta HTTP                          | `.route("/path", web::get(handler))`               |
-    /// | Rutas bajo prefijo común           | `.nest("/prefix", sub_router)`                     |
-    /// | Archivos estáticos                 | `serve_static_files!(router, [assets] => "/path")` |
-    /// | Estado compartido entre *handlers* | `.with_state(my_state)`                            |
+    /// | Operación                        | Llamada sobre `router`                             |
+    /// |----------------------------------|----------------------------------------------------|
+    /// | Ruta HTTP                        | `.route("/path", web::get(handler))`               |
+    /// | Rutas bajo prefijo común         | `.nest("/prefix", sub_router)`                     |
+    /// | Archivos estáticos               | `serve_static_files!(router, [assets] => "/path")` |
+    /// | Estado compartido entre handlers | `.with_state(my_state)`                            |
     ///
     /// # Ejemplos
     ///
