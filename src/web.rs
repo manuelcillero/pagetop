@@ -1,12 +1,13 @@
 //! Servidor web y rutas de la aplicación (basado en [Axum](https://docs.rs/axum)).
 //!
 //! Define rutas y handlers: el [`Router`], las operaciones HTTP ([`get`], [`post`], [`put`],
-//! [`delete`], [`patch`]), los extractores ([`Path`], [`Query`]) e [`IntoResponse`], y re-exporta
-//! el módulo `http` para tipos de bajo nivel como `StatusCode`, `HeaderName` o `Method`. También
-//! ofrece utilidades para servir archivos estáticos, [`ServeDir`] y [`ServeEmbedded`].
+//! [`delete`], [`patch`]), los extractores ([`Path`], [`Query`], [`Form`], [`RawForm`],
+//! [`Request`]) e [`IntoResponse`], el módulo [`middleware`] para *middlewares* de función, y
+//! re-exporta el módulo `http` para tipos de bajo nivel como `StatusCode`, `HeaderName` o `Method`.
+//! También ofrece utilidades para servir archivos estáticos, [`ServeDir`] y [`ServeEmbedded`].
 //!
-//! Los handlers son las funciones asíncronas que el servidor invoca al recibir una petición
-//! HTTP en una ruta concreta.
+//! Los handlers son las funciones asíncronas que el servidor invoca al recibir una petición HTTP en
+//! una ruta concreta.
 
 use crate::StaticFile;
 
@@ -17,13 +18,16 @@ pub use axum::http;
 pub use axum::Router;
 
 // Extractores de petición.
-pub use axum::extract::{Path, Query};
+pub use axum::extract::{Form, Path, Query, RawForm, Request};
 
 // Para implementar respuestas.
 pub use axum::response::{IntoResponse, Response};
 
 // Operaciones HTTP para registrar rutas.
 pub use axum::routing::{delete, get, patch, post, put};
+
+// Middlewares de función (`from_fn`) y tipos asociados (`Next`).
+pub use axum::middleware;
 
 use axum::body::Body;
 use axum::extract::FromRequestParts;
