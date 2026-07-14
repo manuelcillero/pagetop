@@ -102,11 +102,6 @@ impl Application {
                 print!("\n{app_ff}");
             }
 
-            // Descripción de la aplicación.
-            if !global::SETTINGS.app.description.is_empty() {
-                println!("{}", global::SETTINGS.app.description.cyan());
-            }
-
             // Versión de PageTop.
             println!(
                 "{} {}\n",

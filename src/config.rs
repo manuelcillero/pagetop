@@ -92,18 +92,21 @@
 //!
 //! # Usando tus opciones de configuración
 //!
+//! Los ajustes de cada extensión y los globales de PageTop
+//! ([`global::SETTINGS`](crate::global::SETTINGS)) conviven sin conflicto: cada cual vive en su
+//! propia sección del TOML y pueden combinarse libremente cuando se necesiten.
+//!
 //! ```rust,ignore
 //! use pagetop::prelude::*;
 //! use crate::config;
 //!
 //! fn global_settings() {
 //!     println!("Nombre de la app: {}", &global::SETTINGS.app.name);
-//!     println!("Descripción: {}",      &global::SETTINGS.app.description);
 //!     println!("Run mode: {}",         &global::SETTINGS.app.run_mode);
 //! }
 //!
 //! fn extension_settings() {
-//!     println!("{} - {:?}", &config::SETTINGS.myapp.name, &config::SETTINGS.myapp.description);
+//!     println!("{}", &config::SETTINGS.myapp.name);
 //!     println!("{}", &config::SETTINGS.myapp.width);
 //! }
 //! ```

@@ -21,7 +21,6 @@ pub use log_format::LogFormat;
 include_config!(SETTINGS: Settings => [
     // [app]
     "app.name"               => "PageTop App",
-    "app.description"        => "Developed with the amazing PageTop framework.",
     "app.theme"              => "Basic",
     "app.lang_negotiation"   => "Full",
     "app.startup_banner"     => "Slant",
@@ -58,8 +57,6 @@ pub struct Settings {
 pub struct App {
     /// Nombre de la aplicación.
     pub name: String,
-    /// Breve descripción de la aplicación.
-    pub description: String,
     /// Tema predeterminado.
     pub theme: String,
     /// Idioma predeterminado de la aplicación (p. ej., *"es-ES"* o *"en-US"*).
