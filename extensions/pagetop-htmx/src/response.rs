@@ -6,12 +6,12 @@ use pagetop::prelude::*;
 
 /// Generador de respuestas HTML parciales con cabeceras HTMX.
 ///
-/// En una aplicación HTMX, los *handlers* del servidor devuelven con frecuencia fragmentos HTML
+/// En una aplicación HTMX, los handlers del servidor devuelven con frecuencia fragmentos HTML
 /// parciales acompañados de cabeceras especiales que instruyen al cliente sobre qué hacer con la
 /// respuesta: actualizar la URL del historial, disparar eventos JavaScript, redirigir, etc.
 ///
 /// Implementa [`IntoResponse`](pagetop::web::IntoResponse), por lo que puede devolverse
-/// directamente desde cualquier *handler*.
+/// directamente desde cualquier handler.
 ///
 /// # Ejemplo
 ///

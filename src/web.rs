@@ -1,11 +1,11 @@
 //! Servidor web y rutas de la aplicación (basado en [Axum](https://docs.rs/axum)).
 //!
-//! Define rutas y *handlers*: el [`Router`], las operaciones HTTP ([`get`], [`post`], [`put`],
+//! Define rutas y handlers: el [`Router`], las operaciones HTTP ([`get`], [`post`], [`put`],
 //! [`delete`], [`patch`]), los extractores ([`Path`], [`Query`]) e [`IntoResponse`], y re-exporta
 //! el módulo `http` para tipos de bajo nivel como `StatusCode`, `HeaderName` o `Method`. También
 //! ofrece utilidades para servir archivos estáticos, [`ServeDir`] y [`ServeEmbedded`].
 //!
-//! Los *handlers* son las funciones asíncronas que el servidor invoca al recibir una petición
+//! Los handlers son las funciones asíncronas que el servidor invoca al recibir una petición
 //! HTTP en una ruta concreta.
 
 use crate::StaticFile;
