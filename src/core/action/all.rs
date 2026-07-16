@@ -73,7 +73,7 @@ where
 
 /// Despacha las funciones asociadas a una [`ActionKey`] con posible salida anticipada.
 ///
-/// Funciona igual que [`dispatch_actions`], pero el *closure* puede devolver
+/// Funciona igual que [`dispatch_actions`], pero el closure puede devolver
 /// [`std::ops::ControlFlow::Continue`] para continuar ejecutando la siguiente acción; o
 /// [`std::ops::ControlFlow::Break`] para detener la iteración inmediatamente.
 ///

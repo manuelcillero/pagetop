@@ -21,7 +21,7 @@ use std::sync::Arc;
 /// });
 /// ```
 ///
-/// Para renderizar contenido que dependa del contexto, se puede acceder a él dentro del *closure*:
+/// Para renderizar contenido que dependa del contexto, se puede acceder a él dentro del closure:
 ///
 /// ```rust,no_run
 /// # use pagetop::prelude::*;

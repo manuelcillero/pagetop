@@ -100,7 +100,7 @@ impl StyleSheet {
     /// Equivale a `<style>...</style>`. El parámetro `name` se usa como identificador interno del
     /// recurso.
     ///
-    /// La función *closure* recibirá el [`Context`] por si se necesita durante el renderizado.
+    /// La función closure recibirá el [`Context`] por si se necesita durante el renderizado.
     pub fn inline<F>(name: impl Into<CowStr>, f: F) -> Self
     where
         F: Fn(&mut Context) -> String + Send + Sync + 'static,

@@ -310,7 +310,8 @@ impl Children {
         }
     }
 
-    // Añade un componente hijo al final de la lista.
+    // Añade un componente hijo al final de la lista. También lo usa `core::theme::regions` al
+    // fusionar regiones, fuera de este módulo.
     #[inline]
     pub(crate) fn add(&mut self, child: Child) -> &mut Self {
         self.0.push(child);

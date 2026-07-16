@@ -7,7 +7,7 @@ use crate::{AutoDefault, CowStr, Weight, util};
 // Informa al navegador de la naturaleza del recurso para que pueda asignarle la prioridad correcta
 // y aplicar la política de caché adecuada.
 #[derive(AutoDefault, Clone, Copy, Debug, PartialEq)]
-pub(crate) enum AsType {
+enum AsType {
     // Fuente web (`@font-face`). Implica `crossorigin` automático.
     #[default]
     Font,

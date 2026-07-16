@@ -119,7 +119,7 @@ impl JavaScript {
     /// Equivale a `<script>...</script>`. El parámetro `name` se usa como identificador interno del
     /// script.
     ///
-    /// La función *closure* recibirá el [`Context`] por si se necesita durante el renderizado.
+    /// La función closure recibirá el [`Context`] por si se necesita durante el renderizado.
     pub fn inline<F>(name: impl Into<CowStr>, f: F) -> Self
     where
         F: Fn(&mut Context) -> String + Send + Sync + 'static,
@@ -139,7 +139,7 @@ impl JavaScript {
     ///
     /// En condiciones normales, los scripts con `defer` se ejecutan antes de `DOMContentLoaded`.
     ///
-    /// La función *closure* recibirá el [`Context`] por si se necesita durante el renderizado.
+    /// La función closure recibirá el [`Context`] por si se necesita durante el renderizado.
     pub fn on_load<F>(name: impl Into<CowStr>, f: F) -> Self
     where
         F: Fn(&mut Context) -> String + Send + Sync + 'static,
@@ -153,11 +153,11 @@ impl JavaScript {
     /// Crea un **script embebido** con un **handler asíncrono**.
     ///
     /// El código se envuelve en un `addEventListener('DOMContentLoaded',async()=>{...})`, que
-    /// emplea una función `async` para que el cuerpo devuelto por la función *closure* pueda usar
+    /// emplea una función `async` para que el cuerpo devuelto por la función closure pueda usar
     /// `await`. Ideal para hidratar la interfaz, cargar módulos dinámicos o realizar lecturas
     /// iniciales.
     ///
-    /// La función *closure* recibirá el [`Context`] por si se necesita durante el renderizado.
+    /// La función closure recibirá el [`Context`] por si se necesita durante el renderizado.
     pub fn on_load_async<F>(name: impl Into<CowStr>, f: F) -> Self
     where
         F: Fn(&mut Context) -> String + Send + Sync + 'static,

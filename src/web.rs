@@ -66,25 +66,12 @@ use std::task::{Context, Poll};
 /// }
 /// ```
 ///
-/// # Orden de parámetros en el handler
-///
-/// `HttpRequest` toma las extensiones de la petición al extraerse. Los extractores que leen de ahí
-/// (como `Path<T>` o `Extension<T>`) deben aparecer **antes** en la lista de parámetros del
-/// handler:
-///
-/// ```rust,no_run
-/// # use pagetop::prelude::*;
-/// // Correcto: Path<T> se declara antes que HttpRequest.
-/// async fn view_post(
-///     web::Path(id): web::Path<u32>,
-///     request: HttpRequest,
-/// ) -> Result<Markup, ErrorPage> {
-///     # todo!()
-/// }
-/// ```
-///
-/// Los extractores que no dependen de las extensiones, como `Query<T>` o `Method`, no están sujetos
-/// a esta restricción.
+/// `HttpRequest` no consume las extensiones de la petición, por lo que el resto de extractores del
+/// handler que también las necesiten (como `Path<T>`, `Extension<T>`...) las siguen viendo
+/// intactas, sea cual sea la posición en la que se declare `HttpRequest`. Por convención, se
+/// declara como primer parámetro del handler. El único orden que sigue siendo obligatorio es el que
+/// impone Axum: un extractor que consuma el cuerpo de la petición (`Form<T>`, `RawForm`...) debe ir
+/// siempre el último.
 #[derive(Clone, Debug)]
 pub struct HttpRequest {
     uri: http::Uri,
@@ -132,20 +119,18 @@ impl HttpRequest {
 impl<S: Send + Sync> FromRequestParts<S> for HttpRequest {
     type Rejection = Infallible;
 
-    // Extrae la petición y toma las extensiones que han sido inyectadas por middleware. Las
-    // extensiones se mueven a un `Arc` compartido para que `HttpRequest` sea `Clone`.
-    //
-    // Nota: tras este extractor `parts.extensions` queda vacío; otros extractores que dependan de
-    //       `Extension<T>` deben registrarse antes en la cadena del handler.
+    // Clona (no toma) las extensiones inyectadas por middleware, para que otros extractores del
+    // handler (`Path<T>`, `Extension<T>`...) las sigan viendo intactas sin importar en qué posición
+    // se declare `HttpRequest`. El clon se envuelve en un `Arc` compartido para que `HttpRequest`
+    // sea `Clone` a coste mínimo en el resto de su ciclo de vida.
     async fn from_request_parts(
         parts: &mut http::request::Parts,
         _state: &S,
     ) -> Result<Self, Self::Rejection> {
-        let extensions = std::mem::take(&mut parts.extensions);
         Ok(HttpRequest {
             uri: parts.uri.clone(),
             headers: parts.headers.clone(),
-            extensions: Arc::new(extensions),
+            extensions: Arc::new(parts.extensions.clone()),
         })
     }
 }

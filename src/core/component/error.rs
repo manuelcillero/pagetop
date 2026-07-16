@@ -51,10 +51,9 @@ impl ComponentError {
 
     // **< ComponentError GETTERS >*****************************************************************
 
-    /// Consume el error y devuelve su marcado alternativo.
-    ///
-    /// Se invoca internamente en [`ComponentRender`](crate::core::component::ComponentRender).
-    pub(crate) fn into_fallback(self) -> Markup {
+    // Consume el error y devuelve su marcado alternativo. Se invoca internamente desde
+    // `ComponentRender::render()`, en el mismo módulo `core::component`.
+    pub(super) fn into_fallback(self) -> Markup {
         self.fallback
     }
 }
