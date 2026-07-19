@@ -1,6 +1,6 @@
 use pagetop::prelude::*;
 
-// **< Tema con plantilla propia >******************************************************************
+// **< Theme with its own template >****************************************************************
 
 struct MarkerTemplate;
 
@@ -36,19 +36,19 @@ async fn render_active_template(cx: &mut Context) -> String {
     template.render(cx).await.into_string()
 }
 
-// **< Context::template() sigue al tema activo >***************************************************
+// **< Context::template() follows the active theme >***********************************************
 
 #[pagetop::test]
 async fn with_theme_updates_the_effective_template() {
-    // Sin cambiar de tema, la plantilla activa no es la de `MarkerTheme`.
+    // Without changing theme, the active template is not `MarkerTheme`'s.
     let mut cx = Context::new(None);
     assert_ne!(
         render_active_template(&mut cx).await,
         "marker-template-output"
     );
 
-    // Tras cambiar de tema con `with_theme()`, la plantilla activa pasa a ser la de ese tema, sin
-    // necesidad de llamar a `with_template()` explícitamente.
+    // After changing theme with `with_theme()`, the active template becomes that theme's, with no
+    // need to call `with_template()` explicitly.
     let mut cx = Context::new(None).with_theme(&MarkerTheme);
     assert_eq!(
         render_active_template(&mut cx).await,
@@ -58,8 +58,8 @@ async fn with_theme_updates_the_effective_template() {
 
 #[pagetop::test]
 async fn explicit_template_is_not_overridden_by_a_later_with_theme() {
-    // Una plantilla fijada explícitamente con `with_template()` prevalece aunque `with_theme()` se
-    // llame después, en cualquier orden.
+    // A template explicitly set with `with_template()` prevails even if `with_theme()` is called
+    // afterwards, regardless of order.
     let mut cx = Context::new(None)
         .with_template(&MarkerTemplate)
         .with_theme(&pagetop::base::theme::Basic);
@@ -70,7 +70,7 @@ async fn explicit_template_is_not_overridden_by_a_later_with_theme() {
     );
 }
 
-// **< Page::admin() sigue al tema activo >*********************************************************
+// **< Page::admin() follows the active theme >*****************************************************
 
 #[pagetop::test]
 async fn page_admin_template_follows_a_later_with_theme() {

@@ -34,10 +34,9 @@ async fn panic_in_handler_returns_minimal_500_page_instead_of_crashing() {
 
 // **< ErrorPage::NotFound >************************************************************************
 
-// `EXTENSIONS` es un `OnceLock` global (`core/extension/all.rs`): se inicializa una sola vez por
-// binario de test. Todos los tests de este fichero comparten la misma extensión raíz
-// (`PanicExtension`) para que el orden de ejecución en paralelo no cambie qué rutas quedan
-// registradas.
+// `EXTENSIONS` is a global `OnceLock` (`core/extension/all.rs`): it is initialized only once per
+// test binary. All tests in this file share the same root extension (`PanicExtension`) so that the
+// parallel execution order does not change which routes end up registered.
 #[pagetop::test]
 async fn unknown_route_returns_themed_404_page() {
     let app = web::test::init_router(Application::prepare(&PanicExtension).await.test());

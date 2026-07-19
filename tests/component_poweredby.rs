@@ -1,9 +1,9 @@
 use pagetop::prelude::*;
 
-/// Inicializa PageTop (locale, extensiones...) una sola vez para toda la suite.
+/// Initializes PageTop (locale, extensions...) once for the whole suite.
 ///
-/// Los tests de este módulo renderizan componentes directamente con `Context::default()`, por lo
-/// que sólo necesitan el subsistema de localización y las extensiones registradas, no un router.
+/// The tests in this module render components directly with `Context::default()`, so they only need
+/// the localization subsystem and the registered extensions, not a router.
 async fn setup() {
     Application::new().await;
 }
@@ -15,10 +15,10 @@ async fn poweredby_default_shows_only_pagetop_recognition() {
     let mut p = PoweredBy::default();
     let html = p.render(&mut Context::default()).await.into_string();
 
-    // Debe mostrar el bloque de reconocimiento a PageTop.
+    // Should show the PageTop acknowledgment block.
     assert!(html.contains("poweredby__pagetop"));
 
-    // Y NO debe mostrar el bloque de copyright.
+    // And should NOT show the copyright block.
     assert!(!html.contains("poweredby__copyright"));
 }
 
@@ -32,14 +32,14 @@ async fn poweredby_new_includes_current_year_and_app_name() {
     let year = Utc::now().format("%Y").to_string();
     assert!(html.contains(&year), "HTML should include the current year");
 
-    // El nombre de la app proviene de `global::SETTINGS.app.name`.
+    // The app name comes from `global::SETTINGS.app.name`.
     let app_name = &global::SETTINGS.app.name;
     assert!(
         html.contains(app_name),
         "HTML should include the application name"
     );
 
-    // Debe existir el span de copyright.
+    // The copyright span must exist.
     assert!(html.contains("poweredby__copyright"));
 }
 
@@ -63,7 +63,7 @@ async fn poweredby_with_copyright_none_hides_text() {
     let html = p.render(&mut Context::default()).await.into_string();
 
     assert!(!html.contains("poweredby__copyright"));
-    // El reconocimiento a PageTop siempre debe aparecer.
+    // The PageTop acknowledgment must always appear.
     assert!(html.contains("poweredby__pagetop"));
 }
 
@@ -84,11 +84,11 @@ async fn poweredby_link_points_to_crates_io() {
 async fn poweredby_getter_reflects_internal_state() {
     setup().await;
 
-    // Por defecto no hay copyright.
+    // There is no copyright by default.
     let p0 = PoweredBy::default();
     assert_eq!(p0.copyright(), None);
 
-    // Y `new()` lo inicializa con año + nombre de app.
+    // And `new()` initializes it with year + app name.
     let p1 = PoweredBy::new();
     let c1 = p1.copyright().expect("Expected copyright to exist");
     assert!(c1.contains(&Utc::now().format("%Y").to_string()));

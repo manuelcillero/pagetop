@@ -45,15 +45,15 @@ fn assert_owned(input: &str, expected: &str) {
 
 #[pagetop::test]
 async fn normalize_errors() {
-    // Caso especial: cadena vacía.
+    // Special case: empty string.
     assert_err("", util::NormalizeAsciiError::IsEmpty);
 
-    // Sólo separadores ASCII: tras el recorte no queda nada.
+    // Only ASCII separators: nothing is left after trimming.
     for input in [" ", "   ", "\t", "\n", "\r", "\t \n\r  "] {
         assert_err(input, util::NormalizeAsciiError::EmptyAfterTrimming);
     }
 
-    // Cualquier byte no-ASCII debe fallar, aunque el resto pueda normalizarse.
+    // Any non-ASCII byte must fail, even if the rest could be normalized.
     for input in [
         "©",
         "á",
@@ -70,7 +70,7 @@ async fn normalize_errors() {
 
 #[pagetop::test]
 async fn normalize_borrowed_trim_and_already_normalized() {
-    // Sólo recorte (incluyendo separadores al final).
+    // Trimming only (including trailing separators).
     for (input, expected) in [
         ("  a", "a"),
         ("a  ", "a"),
@@ -89,7 +89,7 @@ async fn normalize_borrowed_trim_and_already_normalized() {
         assert_borrowed(input, expected);
     }
 
-    // Ya normalizado (minúsculas y un único espacio entre tokens).
+    // Already normalized (lowercase and a single space between tokens).
     for input in [
         "a",
         "a b",
@@ -107,12 +107,12 @@ async fn normalize_borrowed_trim_and_already_normalized() {
         "path/to/resource",
         "foo+bar=baz",
         "a-._:/+=",
-        "a\x1Bb", // Byte de control ASCII: se conserva tal cual.
+        "a\x1Bb", // ASCII control byte: preserved as-is.
     ] {
         assert_borrowed(input, input);
     }
 
-    // Separador "raro" al final de la cadena: se recorta y se devuelve porción.
+    // "Unusual" separator at the end of the string: it is trimmed and a slice is returned.
     for (input, expected) in [
         ("foo bar\t", "foo bar"),
         ("foo bar\r\n", "foo bar"),
@@ -124,7 +124,7 @@ async fn normalize_borrowed_trim_and_already_normalized() {
 
 #[pagetop::test]
 async fn normalize_owned_due_to_uppercase() {
-    // Sólo por mayúsculas (y otros ASCII que se preservan).
+    // Only due to uppercase (and other ASCII that is preserved).
     for (input, expected) in [
         ("A", "a"),
         ("Foo", "foo"),
@@ -141,7 +141,7 @@ async fn normalize_owned_due_to_uppercase() {
         ("ETag:W/\"XYZ\"", "etag:w/\"xyz\""),
         ("Foo+Bar=Baz", "foo+bar=baz"),
         ("A-._:/+=", "a-._:/+="),
-        ("A\x1BB", "a\x1bb"), // Sólo letras en minúsculas; el byte de control se conserva.
+        ("A\x1BB", "a\x1bb"), // Only letters get lowercased; the control byte is preserved.
     ] {
         assert_owned(input, expected);
     }
@@ -149,12 +149,12 @@ async fn normalize_owned_due_to_uppercase() {
 
 #[pagetop::test]
 async fn normalize_owned_due_to_internal_whitespace() {
-    // Espacios consecutivos (deben colapsar a un único espacio).
+    // Consecutive spaces (must collapse to a single space).
     for (input, expected) in [("a  b", "a b"), ("a   b", "a b")] {
         assert_owned(input, expected);
     }
 
-    // Separadores ASCII distintos de ' ' entre tokens (tab, newline, CR, CRLF).
+    // ASCII separators other than ' ' between tokens (tab, newline, CR, CRLF).
     for (input, expected) in [
         ("a\tb", "a b"),
         ("a\nb", "a b"),
@@ -168,7 +168,7 @@ async fn normalize_owned_due_to_internal_whitespace() {
         assert_owned(input, expected);
     }
 
-    // Mezclas de separadores.
+    // Mixed separators.
     for (input, expected) in [
         ("a \t \n  b", "a b"),
         ("a\t  \n b", "a b"),
@@ -180,7 +180,7 @@ async fn normalize_owned_due_to_internal_whitespace() {
         assert_owned(input, expected);
     }
 
-    // El resultado nunca debe tener espacios al inicio/fin (tras normalizar).
+    // The result must never have leading/trailing spaces (after normalizing).
     for (input, expected) in [
         ("  a  b  ", "a b"),
         ("  a\tb  ", "a b"),
@@ -192,7 +192,7 @@ async fn normalize_owned_due_to_internal_whitespace() {
 
 #[pagetop::test]
 async fn normalize_owned_due_to_mixed_causes() {
-    // Combinaciones de mayúsculas y separador no normalizado.
+    // Combinations of uppercase and non-normalized separators.
     for (input, expected) in [
         ("  Foo   BAR\tbaz  ", "foo bar baz"),
         ("\nFOO\rbar\tBAZ\n", "foo bar baz"),
@@ -209,17 +209,17 @@ async fn normalize_owned_due_to_mixed_causes() {
 
 #[pagetop::test]
 async fn normalize_borrowed_vs_owned_edge_cases() {
-    // Un sólo token con separador al final.
+    // A single token with a trailing separator.
     for (input, expected) in [("x ", "x"), ("x\t", "x"), ("x\n", "x"), ("x\r\n", "x")] {
         assert_borrowed(input, expected);
     }
 
-    // Dos tokens con separador no normalizado.
+    // Two tokens with a non-normalized separator.
     for input in ["x  y", "x\t\ty", "x \t y", "x\r\ny"] {
         assert_owned(input, "x y");
     }
 
-    // Dos tokens con separación limpia.
+    // Two tokens with a clean separator.
     for (input, expected) in [("x y ", "x y"), ("x y\t", "x y"), ("x y\r\n", "x y")] {
         assert_borrowed(input, expected);
     }
@@ -227,7 +227,7 @@ async fn normalize_borrowed_vs_owned_edge_cases() {
 
 #[pagetop::test]
 async fn normalize_is_idempotent() {
-    // La normalización debe ser idempotente: normalizar el resultado no cambia nada.
+    // Normalization must be idempotent: normalizing the result changes nothing.
     let cases = [
         "a",
         "a b c",
@@ -243,7 +243,7 @@ async fn normalize_is_idempotent() {
     ];
 
     for &input in &cases {
-        // Todos son ASCII, pero se deja este control por si se amplía la lista en el futuro.
+        // All are ASCII, but this check is kept in case the list is expanded in the future.
         if !input.is_ascii() {
             continue;
         }

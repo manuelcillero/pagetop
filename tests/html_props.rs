@@ -42,7 +42,7 @@ async fn props_set_replaces_existing_value() {
 
 #[pagetop::test]
 async fn props_set_does_not_create_duplicate_key() {
-    // Reasignar la misma clave debe reemplazar el valor, no añadir una entrada duplicada.
+    // Reassigning the same key must replace the value, not add a duplicate entry.
     let p = Props::new("key", "v1").with_prop(PropsOp::set("key", "v2"));
     assert_eq!(
         html! { span (p) {} }.into_string(),
@@ -109,7 +109,7 @@ async fn props_escapes_double_quotes_in_value() {
 
 #[pagetop::test]
 async fn props_empty_in_html_macro_produces_no_attributes() {
-    // Una Props vacía no debe emitir ni siquiera un espacio en blanco extra.
+    // An empty Props must not emit even an extra blank space.
     let p = Props::default();
     assert_eq!(
         html! { button (p) { "x" } }.into_string(),
@@ -139,7 +139,7 @@ async fn props_multiple_attrs_preserve_order_in_html_macro() {
 
 #[pagetop::test]
 async fn props_alongside_class_and_id_in_html_macro() {
-    // El splice siempre se emite después de class e id, independientemente del orden escrito.
+    // The splice is always emitted after class and id, regardless of the order they are written in.
     let p = Props::new("hx-get", "/api");
     assert_eq!(
         html! { button #mybtn .btn (p) { "Go" } }.into_string(),
@@ -189,7 +189,7 @@ async fn props_conditional_expression_in_html_macro() {
 
 #[pagetop::test]
 async fn props_splice_empty_string_emits_nothing() {
-    // Un splice vacío no emite ningún atributo ni espacio extra.
+    // An empty splice emits no attribute nor extra space.
     assert_eq!(html! { span ("") { "x" } }.into_string(), "<span>x</span>");
 }
 
@@ -254,7 +254,7 @@ async fn get_prop_id_matches_get_id() {
 
 #[pagetop::test]
 async fn props_hx_target_value_with_hash_renders_correctly() {
-    // Regresión: r#"..."# se cerraba prematuramente al encontrar `"#lista"`.
+    // Regression: r#"..."# used to close prematurely when it found `"#list"`.
     let p = Props::new("hx-target", "#list");
     assert_eq!(
         html! { button (p) {} }.into_string(),
@@ -289,7 +289,7 @@ async fn props_chained_set_and_remove_yields_expected_state() {
 
 #[pagetop::test]
 async fn props_with_empty_attr_name_renders_without_validation() {
-    // Comportamiento documentado: los nombres no se validan; el HTML resultante no es estándar.
+    // Documented behavior: names are not validated; the resulting HTML is not standard.
     let p = Props::new("", "val");
     assert_eq!(
         html! { span (p) {} }.into_string(),

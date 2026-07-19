@@ -1,8 +1,8 @@
 use pagetop::prelude::*;
 
-/// Componente mínimo para probar `Markup` pasando por el ciclo real de renderizado de componentes
-/// (`ComponentRender`). El parámetro de contexto `"renderable"` se usará para controlar si el
-/// componente se renderiza (`true` por defecto).
+/// Minimal component to test `Markup` going through the real component rendering cycle
+/// (`ComponentRender`). The context parameter `"renderable"` is used to control whether the
+/// component is rendered (`true` by default).
 #[derive(AutoDefault, Clone)]
 struct TestMarkupComponent {
     markup: Markup,
@@ -23,7 +23,7 @@ impl Component for TestMarkupComponent {
     }
 }
 
-// **< Comportamiento de Markup >*******************************************************************
+// **< Markup behavior >****************************************************************************
 
 #[pagetop::test]
 async fn string_in_html_macro_escapes_html_entities() {
@@ -39,11 +39,11 @@ async fn preescaped_in_html_macro_is_inserted_verbatim() {
 
 #[pagetop::test]
 async fn unicode_is_preserved_in_markup() {
-    // Texto con acentos y emojis: sólo se escapan los signos HTML.
+    // Text with accents and emoji: only HTML signs are escaped.
     let esc = html! { ("Hello, tomorrow coffee ☕ & donuts!") };
     assert_eq!(esc.into_string(), "Hello, tomorrow coffee ☕ &amp; donuts!");
 
-    // PreEscaped debe pasar íntegro.
+    // PreEscaped must pass through untouched.
     let raw = html! { (PreEscaped("Title — section © 2025")) };
     assert_eq!(raw.into_string(), "Title — section © 2025");
 }
@@ -62,12 +62,12 @@ async fn markup_is_empty_semantics() {
 
     assert!(!html! { span { "!" } }.is_empty());
 
-    // Espacios NO se consideran vacíos.
+    // Spaces are NOT considered empty.
     assert!(!html! { (" ") }.is_empty());
     assert!(!html! { (PreEscaped(" ")) }.is_empty());
 }
 
-// **< Markup a través del ciclo de componente >****************************************************
+// **< Markup through the component cycle >*********************************************************
 
 #[pagetop::test]
 async fn non_renderable_component_produces_empty_markup() {
@@ -88,7 +88,7 @@ async fn markup_from_component_equals_markup_reinjected_in_html_macro() {
     ];
 
     for markup in cases {
-        // Vía 1: renderizamos a través del ciclo de componente.
+        // Path 1: we render through the component cycle.
         let via_component = {
             let mut cx = Context::default();
             let mut comp = TestMarkupComponent {
@@ -97,7 +97,7 @@ async fn markup_from_component_equals_markup_reinjected_in_html_macro() {
             comp.render(&mut cx).await.into_string()
         };
 
-        // Vía 2: reinyectamos el Markup en `html!` directamente.
+        // Path 2: we reinject the Markup into `html!` directly.
         let via_macro = html! { (markup) }.into_string();
 
         assert_eq!(

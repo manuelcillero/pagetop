@@ -20,9 +20,9 @@ pub struct Test {
     pub float_value: f32,
 }
 
-// La *feature* `testing` (activo con `cargo ts` / `cargo tw`) fija el modo "test" en tiempo de
-// compilación dentro de `config::CONFIG_VALUES`, de forma que `global::SETTINGS` y cualquier
-// `include_config!` local cargan automáticamente la configuración del modo "test".
+// The `testing` *feature* (active with `cargo ts` / `cargo tw`) fixes the "test" mode at compile
+// time inside `config::CONFIG_VALUES`, so that `global::SETTINGS` and any local `include_config!`
+// automatically load the "test" mode configuration.
 
 #[pagetop::test]
 async fn check_global_config() {

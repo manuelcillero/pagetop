@@ -55,9 +55,9 @@ async fn add_style_value_preserves_case_and_non_ascii() {
 
 #[pagetop::test]
 async fn add_style_value_may_contain_semicolons() {
-    // A diferencia de PropsOp::Set("style", ...), que interpreta la cadena como declaraciones
-    // separadas por ";", AddStyle recibe la propiedad y el valor ya separados, así que un ";"
-    // dentro del valor (p. ej. una data URI) no supone ningún problema.
+    // Unlike PropsOp::Set("style", ...), which interprets the string as declarations separated by
+    // ";", AddStyle receives the property and the value already separated, so a ";" inside the
+    // value (e.g. a data URI) is not a problem.
     let p = Props::default().with_prop(PropsOp::add_style(
         "background",
         "url(data:image/png;base64,AAAA)",
@@ -188,9 +188,9 @@ async fn styles_reset_mixes_declarations_with_and_without_parens() {
     assert_styles(&p, Some("color: red; background: url(a;b); margin: 0"));
 }
 
-// Límite conocido de PropsOp::Set("style", ...): no es un análisis CSS completo. Unos paréntesis
-// sin cerrar arrastran el resto de la cadena a la misma declaración. Este test fija el
-// comportamiento actual para que un cambio futuro sea deliberado, no accidental.
+// Known limitation of PropsOp::Set("style", ...): it is not a full CSS parser. Unclosed parentheses
+// drag the rest of the string into the same declaration. This test pins the current behavior so
+// that a future change is deliberate, not accidental.
 #[pagetop::test]
 async fn styles_reset_unbalanced_parens_swallows_rest_of_string() {
     let p = Props::default().with_prop(PropsOp::set(

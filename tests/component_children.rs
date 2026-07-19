@@ -1,9 +1,9 @@
 use pagetop::prelude::*;
 
-// **< TestComp - componente mínimo para los tests >************************************************
+// **< TestComp - minimal component for the tests >*************************************************
 //
-// Componente con id configurable y texto fijo de salida. El id permite probar las operaciones de
-// `Children` basadas en identificador (`InsertAfterId`, `RemoveById`, etc.).
+// Component with configurable id and fixed output text. The id allows testing the identifier-based
+// `Children` operations (`InsertAfterId`, `RemoveById`, etc.).
 
 #[derive(AutoDefault, Clone)]
 struct TestComp {
@@ -27,7 +27,7 @@ impl Component for TestComp {
 }
 
 impl TestComp {
-    /// Crea un componente con id y texto de salida fijos.
+    /// Creates a component with a fixed id and output text.
     fn tagged(id: &str, text: &str) -> Self {
         let mut c = Self::default();
         c.props.alter_prop(PropsOp::set_id(id.to_string()));
@@ -35,7 +35,7 @@ impl TestComp {
         c
     }
 
-    /// Crea un componente sin id, con texto de salida fijo.
+    /// Creates a component with no id, with fixed output text.
     fn text(text: &str) -> Self {
         let mut c = Self::default();
         c.text = text.to_string();
@@ -43,7 +43,7 @@ impl TestComp {
     }
 }
 
-// **< Child >***************************************************************************************
+// **< Child >**************************************************************************************
 
 #[pagetop::test]
 async fn child_default_is_empty() {
@@ -78,7 +78,7 @@ async fn child_from_component_is_equivalent_to_with() {
 
 #[pagetop::test]
 async fn child_clone_is_deep() {
-    // Modificar el clon no debe afectar al original.
+    // Modifying the clone must not affect the original.
     let original = Child::with(TestComp::text("original"));
     let clone = original.clone();
     assert_eq!(
@@ -114,11 +114,11 @@ async fn children_add_appends_in_order() {
 async fn children_add_if_empty_only_adds_when_list_is_empty() {
     let mut cx = Context::default();
 
-    // Se añade porque la lista está vacía.
+    // It gets added because the list is empty.
     let c = Children::new().with_child(ChildOp::AddIfEmpty(TestComp::text("first").into()));
     assert_eq!(c.len(), 1);
 
-    // No se añade porque ya hay un elemento.
+    // It does not get added because there is already an element.
     let c = c.with_child(ChildOp::AddIfEmpty(TestComp::text("second").into()));
     assert_eq!(c.len(), 1);
     assert_eq!(c.render(&mut cx).await.into_string(), "first");
@@ -297,7 +297,7 @@ async fn embed_id_returns_component_id() {
 #[pagetop::test]
 async fn embed_get_is_some_when_component_present() {
     let embed = Embed::with(TestComp::tagged("abc", "hello"));
-    // `get()` devuelve Some; la lectura del id verifica que accede al componente correctamente.
+    // `get()` returns Some; reading the id verifies that it accesses the component correctly.
     assert!(embed.get().is_some());
     assert_eq!(embed.id(), Some("abc".to_string()));
 }
@@ -332,7 +332,7 @@ async fn embed_with_component_none_empties_embed() {
 async fn embed_clone_is_deep() {
     let original = Embed::with(TestComp::tagged("orig", "text"));
     let mut clone = original.clone();
-    // Mutar el clon no debe afectar al original.
+    // Mutating the clone must not affect the original.
     if let Some(comp) = clone.get_mut() {
         comp.props
             .alter_prop(PropsOp::set_id("clone-id".to_string()));

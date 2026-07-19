@@ -8,7 +8,7 @@ async fn unit_value_empty_and_auto_and_zero_without_unit() {
     assert_eq!(UnitValue::from_str("auto").unwrap(), UnitValue::Auto);
     assert_eq!(UnitValue::from_str("AUTO").unwrap(), UnitValue::Auto);
 
-    // Cero sin unidad.
+    // Zero without a unit.
     assert_eq!(UnitValue::from_str("0").unwrap(), UnitValue::Zero);
     assert_eq!(UnitValue::from_str("+0").unwrap(), UnitValue::Zero);
     assert_eq!(UnitValue::from_str("-0").unwrap(), UnitValue::Zero);
@@ -16,7 +16,7 @@ async fn unit_value_empty_and_auto_and_zero_without_unit() {
 
 #[pagetop::test]
 async fn unit_value_absolute_integers_with_signs_and_spaces_and_case() {
-    // Positivos, negativos y con espacios.
+    // Positive, negative, and with spaces.
     assert_eq!(UnitValue::from_str("12px").unwrap(), UnitValue::Px(12));
     assert_eq!(UnitValue::from_str("-5pt").unwrap(), UnitValue::Pt(-5));
     assert_eq!(UnitValue::from_str("  7 cm ").unwrap(), UnitValue::Cm(7));
@@ -24,7 +24,7 @@ async fn unit_value_absolute_integers_with_signs_and_spaces_and_case() {
     assert_eq!(UnitValue::from_str(" 13   mm ").unwrap(), UnitValue::Mm(13));
     assert_eq!(UnitValue::from_str("4   pc").unwrap(), UnitValue::Pc(4));
 
-    // Insensibilidad a mayúsculas.
+    // Case insensitivity.
     assert_eq!(UnitValue::from_str("10PX").unwrap(), UnitValue::Px(10));
     assert_eq!(UnitValue::from_str("15Pt").unwrap(), UnitValue::Pt(15));
 }
@@ -55,7 +55,7 @@ async fn unit_value_relative_floats_with_signs_and_spaces_and_case() {
 
 #[pagetop::test]
 async fn unit_value_whitespace_between_number_and_unit_is_allowed() {
-    // Hay espacio entre número y unidad (la implementación actual lo admite).
+    // There is a space between number and unit (the current implementation allows it).
     assert_eq!(UnitValue::from_str("12 px").unwrap(), UnitValue::Px(12));
     assert_eq!(
         UnitValue::from_str("1.5  rem").unwrap(),
@@ -113,7 +113,7 @@ async fn unit_value_percentage_trimming_and_signs() {
     );
 }
 
-// ERRORES ESPERADOS (no cambiar los mensajes; con is_err() basta).
+// EXPECTED ERRORS (don't change the messages; is_err() is enough).
 
 #[pagetop::test]
 async fn unit_value_errors_missing_unit_for_non_zero() {
@@ -136,10 +136,10 @@ async fn unit_value_errors_decimals_in_absolute_units() {
 
 #[pagetop::test]
 async fn unit_value_errors_unknown_units_or_bad_percentages() {
-    // Unidad no soportada.
+    // Unsupported unit.
     assert!(UnitValue::from_str("10ch").is_err());
     assert!(UnitValue::from_str("2q").is_err());
-    // Falta número.
+    // Missing number.
     assert!(UnitValue::from_str("%").is_err());
     assert!(UnitValue::from_str("  % ").is_err());
 }
@@ -147,7 +147,7 @@ async fn unit_value_errors_unknown_units_or_bad_percentages() {
 #[pagetop::test]
 async fn unit_value_errors_non_numeric_numbers() {
     assert!(UnitValue::from_str("NaNem").is_err());
-    // Decimal no permitido por FromStr.
+    // Decimal not allowed by FromStr.
     assert!(UnitValue::from_str("1,5rem").is_err());
 }
 
@@ -190,22 +190,22 @@ async fn unit_value_serde_deserialize_struct_and_array() {
 
 #[pagetop::test]
 async fn unit_value_accepts_dot5_and_1dot_shorthand_for_relatives() {
-    // `.5` y `1.` se parsean correctamente en relativas.
+    // `.5` and `1.` parse correctly for relative units.
     assert_eq!(UnitValue::from_str(".5em").unwrap(), UnitValue::RelEm(0.5));
     assert_eq!(
         UnitValue::from_str("1.rem").unwrap(),
         UnitValue::RelRem(1.0)
     );
     assert_eq!(UnitValue::from_str("1.vh").unwrap(), UnitValue::RelVh(1.0));
-    // Sin unidad debe seguir fallando.
+    // Without a unit it must keep failing.
     assert!(UnitValue::from_str("1.").is_err());
 }
 
 #[pagetop::test]
 async fn unit_value_display_keeps_minus_zero_for_relatives() {
-    // Comportamiento actual: f32 Display muestra "-0" si el valor es -0.0.
+    // Current behavior: f32 Display shows "-0" if the value is -0.0.
     let v = UnitValue::RelEm(-0.0);
-    // Se acepta cualquiera de los dos formatos como válidos.
+    // Either of the two formats is accepted as valid.
     let s = v.to_string();
     assert!(
         s == "-0em" || s == "0em",
@@ -215,9 +215,9 @@ async fn unit_value_display_keeps_minus_zero_for_relatives() {
 
 #[pagetop::test]
 async fn unit_value_rejects_non_decimal_notations() {
-    // Octal, los ceros a la izquierda (p. ej. `"020px"`) se interpretan en **base 10** (`20px`).
+    // Leading zeros (e.g. `"020px"`) are interpreted in **base 10** (`20px`), not octal.
     assert_eq!(UnitValue::from_str("020px").unwrap(), UnitValue::Px(20));
-    // Notación científica y bases no decimales (p. ej., `"1e3vw"`, `"0x10px"`) no están soportadas.
+    // Scientific notation and non-decimal bases (e.g., `"1e3vw"`, `"0x10px"`) are not supported.
     assert!(UnitValue::from_str("1e3vw").is_err());
     assert!(UnitValue::from_str("0x10px").is_err());
 }
