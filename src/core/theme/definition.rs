@@ -6,7 +6,7 @@ use crate::core::theme::{DefaultRegions, DefaultTemplates, TemplateRef};
 use crate::global;
 use crate::html::{Markup, html};
 use crate::locale::L10n;
-use crate::response::page::Page;
+use crate::response::Page;
 use crate::web::http::StatusCode;
 
 /// Interfaz común que debe implementar cualquier tema de PageTop.
@@ -63,7 +63,7 @@ pub trait Theme: Extension + Send + Sync {
     /// propone como predeterminada.
     ///
     /// Se utiliza al inicializar un [`Context`](crate::core::component::Context) o una página
-    /// ([`Page`](crate::response::page::Page)) por si no se elige ninguna otra plantilla con
+    /// ([`Page`](crate::response::Page)) por si no se elige ninguna otra plantilla con
     /// [`Contextual::with_template()`](crate::core::component::Contextual::with_template).
     ///
     /// La implementación por defecto devuelve la plantilla [`DefaultTemplates::Standard`] con una
@@ -299,12 +299,12 @@ pub trait Theme: Extension + Send + Sync {
     /// Permite al tema preparar y componer una página de **error fatal controlado**.
     ///
     /// Esta función decide explícitamente devolver
-    /// [`ErrorPage::BadRequest`](crate::response::page::ErrorPage::BadRequest),
-    /// [`ErrorPage::InternalError`](crate::response::page::ErrorPage::InternalError),
-    /// [`ErrorPage::ServiceUnavailable`](crate::response::page::ErrorPage::ServiceUnavailable) o
-    /// [`ErrorPage::GatewayTimeout`](crate::response::page::ErrorPage::GatewayTimeout) porque algo
-    /// ha fallado, pero el servidor sigue activo y el tema, el renderizado y el resto de
-    /// componentes funcionan con normalidad.
+    /// [`ErrorPage::BadRequest`](crate::response::ErrorPage::BadRequest),
+    /// [`ErrorPage::InternalError`](crate::response::ErrorPage::InternalError),
+    /// [`ErrorPage::ServiceUnavailable`](crate::response::ErrorPage::ServiceUnavailable) o
+    /// [`ErrorPage::GatewayTimeout`](crate::response::ErrorPage::GatewayTimeout) porque algo ha
+    /// fallado, pero el servidor sigue activo y el tema, el renderizado y el resto de componentes
+    /// funcionan con normalidad.
     ///
     /// Por defecto, asigna el título al documento (`title`), se renderiza con la plantilla ya
     /// activa en la página (normalmente [`DefaultTemplates::Standard`]) y muestra un componente

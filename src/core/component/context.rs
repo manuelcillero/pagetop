@@ -8,13 +8,13 @@ use crate::html::{Markup, Props, PropsOp, RoutePath, html};
 use crate::locale::L10n;
 use crate::locale::{LangId, LanguageIdentifier, RequestLocale};
 use crate::web::HttpRequest;
-use crate::{CowStr, builder_fn, util};
+use crate::{builder_fn, util};
 
 use parking_lot::Mutex;
+use thiserror::Error;
 
 use std::any::{Any, TypeId};
 use std::collections::HashMap;
-use std::fmt;
 
 /// Operaciones para modificar recursos asociados al [`Context`] de un documento.
 pub enum AssetsOp {
@@ -40,40 +40,21 @@ pub enum AssetsOp {
 }
 
 /// Errores de acceso a parámetros dinámicos del contexto.
-///
-/// - [`ContextError::ParamNotFound`]: la clave no existe.
-/// - [`ContextError::ParamTypeMismatch`]: la clave existe, pero el valor guardado no coincide con
-///   el tipo solicitado. Incluye nombre de la clave (`key`), tipo esperado (`expected`) y tipo
-///   realmente guardado (`saved`) para facilitar el diagnóstico.
-#[derive(Debug)]
+#[derive(Debug, Error)]
 pub enum ContextError {
+    /// La clave no existe.
+    #[error("parameter not found")]
     ParamNotFound,
+    /// La clave existe, pero el valor guardado no coincide con el tipo solicitado. Incluye
+    /// nombre de la clave (`key`), tipo esperado (`expected`) y tipo realmente guardado (`saved`)
+    /// para facilitar el diagnóstico.
+    #[error("type mismatch for parameter \"{key}\": expected \"{expected}\", found \"{saved}\"")]
     ParamTypeMismatch {
         key: &'static str,
         expected: &'static str,
         saved: &'static str,
     },
 }
-
-impl fmt::Display for ContextError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            ContextError::ParamNotFound => {
-                write!(f, "parameter not found")
-            }
-            ContextError::ParamTypeMismatch {
-                key,
-                expected,
-                saved,
-            } => write!(
-                f,
-                "type mismatch for parameter \"{key}\": expected \"{expected}\", found \"{saved}\""
-            ),
-        }
-    }
-}
-
-impl std::error::Error for ContextError {}
 
 /// Interfaz para gestionar el **contexto de renderizado** de un documento HTML.
 ///
@@ -86,7 +67,7 @@ impl std::error::Error for ContextError {}
 /// - Leer y mantener **parámetros dinámicos tipados** de contexto.
 ///
 /// Lo implementan, típicamente, estructuras que manejan el contexto de renderizado, como
-/// [`Context`](crate::core::component::Context) o [`Page`](crate::response::page::Page).
+/// [`Context`](crate::core::component::Context) o [`Page`](crate::response::Page).
 ///
 /// # Ejemplo
 ///
@@ -255,12 +236,51 @@ pub trait Contextual: LangId {
     fn remove_param(&mut self, key: &'static str) -> bool;
 }
 
+// Cómo obtener la plantilla activa del contexto: la del tema (por defecto o de administración), o
+// una fijada explícitamente. Se resuelve contra el tema activo al leer `Context::template()`, no al
+// asignarla, para que un cambio de tema posterior con `with_theme()` se refleje automáticamente.
+enum TemplateSource {
+    // Plantilla por defecto.
+    Default,
+    // Plantilla de administración del tema activo.
+    Admin,
+    // Plantilla fijada explícitamente con `with_template()`.
+    Explicit(TemplateRef),
+}
+
+impl TemplateSource {
+    fn resolve(&self, theme: ThemeRef) -> TemplateRef {
+        match self {
+            Self::Default => theme.default_template(),
+            Self::Admin => theme.admin_template(),
+            Self::Explicit(template) => *template,
+        }
+    }
+}
+
 /// Implementa un **contexto de renderizado** para un documento HTML.
 ///
-/// Extiende [`Contextual`] con métodos para **instanciar** y configurar un nuevo contexto,
-/// **renderizar los recursos** del documento (incluyendo el [`Favicon`], las hojas de estilo
-/// [`StyleSheet`] y los scripts [`JavaScript`]), o extender el uso de **parámetros dinámicos
-/// tipados** con nuevos métodos.
+/// Se crea una sola vez por petición usando [`Context::new()`] (típicamente a través de
+/// [`Page::new()`](crate::response::Page::new) o [`Page::admin()`](crate::response::Page::admin)),
+/// y es la única vía por la que un componente, una acción o el tema activo conocen: la petición
+/// HTTP de origen, el idioma negociado, el usuario autenticado
+/// ([`current_user()`](Contextual::current_user)), el tema y la plantilla en uso, y los recursos
+/// (favicon, hojas de estilo, scripts) acumulados hasta ese momento. Otros datos que los
+/// componentes necesiten durante el renderizado pueden ser parámetros dinámicos tipados con
+/// [`with_param()`](Contextual::with_param)/[`param()`](Contextual::param).
+///
+/// La implementación extiende [`Contextual`], que aporta los métodos *builder* (`with_*`) y los
+/// *getters* comunes a cualquier estructura que gestione un contexto de renderizado (también los
+/// implementa [`Page`](crate::response::Page)). Además, `Context` añade:
+///
+/// - [`route()`](Self::route) para construir URLs que preserven `?lang=...` cuando corresponda.
+/// - [`build_id()`](Self::build_id)/[`required_id()`](Self::required_id) para generar
+///   identificadores HTML únicos por tipo de componente.
+/// - [`push_message()`](Self::push_message)/[`messages()`](Self::messages) para acumular
+///   [`StatusMessage`] que mostrar en algún momento del renderizado.
+/// - [`render_assets()`](Self::render_assets)/[`render_region_named()`](Self::render_region_named),
+///   usados internamente por [`Page`](crate::response::Page) para producir el HTML final del
+///   documento.
 ///
 /// # Ejemplos
 ///
@@ -306,29 +326,6 @@ pub trait Contextual: LangId {
 ///     let _unique_id = cx.build_id::<Menu>(1); // => "menu-1" si es el primero
 /// }
 /// ```
-
-// Cómo obtener la plantilla activa del contexto: la del tema (por defecto o de administración), o
-// una fijada explícitamente. Se resuelve contra el tema activo al leer `Context::template()`, no al
-// asignarla, para que un cambio de tema posterior con `with_theme()` se refleje automáticamente.
-enum TemplateSource {
-    // Plantilla por defecto.
-    Default,
-    // Plantilla de administración del tema activo.
-    Admin,
-    // Plantilla fijada explícitamente con `with_template()`.
-    Explicit(TemplateRef),
-}
-
-impl TemplateSource {
-    fn resolve(&self, theme: ThemeRef) -> TemplateRef {
-        match self {
-            Self::Default => theme.default_template(),
-            Self::Admin => theme.admin_template(),
-            Self::Explicit(template) => *template,
-        }
-    }
-}
-
 #[rustfmt::skip]
 pub struct Context {
     request     : Option<HttpRequest>,            // Petición HTTP de origen.
@@ -440,17 +437,24 @@ impl Context {
 
     /// Construye una ruta aplicada al contexto actual.
     ///
-    /// La ruta resultante se envuelve en un [`RoutePath`], que permite añadir parámetros de
-    /// consulta de forma tipada. Si la política de negociación de idioma actual
-    /// [`LangNegotiation`](crate::global::LangNegotiation) indica que debe propagarse el idioma
-    /// para esta petición, se añade o actualiza el parámetro de *query* `lang=...` con el
-    /// identificador de idioma efectivo del contexto.
+    /// Acepta cualquier tipo convertible a [`RoutePath`] (un literal, un `String`, un `&str` de
+    /// cualquier vida, o un [`RoutePath`] ya construido con sus propios parámetros). Si la política
+    /// de negociación del idioma ([`LangNegotiation`](crate::global::LangNegotiation)) indica que
+    /// debe propagarse el idioma para esta petición, se añade o actualiza automáticamente el
+    /// parámetro de *query* `lang=...` con el identificador de idioma definido en el contexto.
     ///
     /// Esto garantiza que los enlaces generados desde el contexto preservan la preferencia de
-    /// idioma del usuario cuando procede.
-    pub fn route(&self, path: impl Into<CowStr>) -> RoutePath {
-        let mut route = RoutePath::new(path);
-        if self.locale.needs_lang_query() {
+    /// idioma del usuario durante la navegación. Si `path` **parece** una URL externa (ver
+    /// [`util::url_looks_external()`](crate::util::url_looks_external)), nunca se le añade `lang`.
+    ///
+    /// Este método asume que ya tienes `cx` a mano en el momento de construir la ruta (dentro de
+    /// `prepare()`, un *handler* HTTP, etc.). Si lo que estás definiendo es un campo de componente
+    /// que se construye una sola vez y se reutiliza en peticiones futuras (un menú, un botón,
+    /// etc.), usa [`Route`](crate::core::component::Route) en su lugar (su documentación explica el
+    /// criterio completo para elegir entre ambos).
+    pub fn route(&self, path: impl Into<RoutePath>) -> RoutePath {
+        let mut route = path.into();
+        if !route.is_external() && self.locale.needs_lang_query() {
             route.alter_param("lang", self.locale.langid().to_string());
         }
         route

@@ -1,6 +1,10 @@
 //! API para construir nuevos componentes.
-
-use crate::html::RoutePath;
+//!
+//! Para cualquier `href`, `action` o redirección que deba preservar el idioma negociado (anexando a
+//! la URL el parámetro de consulta `?lang=...`), PageTop no usa `String`/`&str` sueltos, sino que
+//! usa [`Context::route()`] cuando ya se tiene el contexto de renderizado a mano, o [`Route`] para
+//! campos de componente que se construyen una vez y se resuelven más tarde, en cada petición. La
+//! documentación de [`Route`] explica el criterio completo para elegir entre ambos.
 
 mod error;
 pub use error::ComponentError;
@@ -17,6 +21,9 @@ pub use message::{MessageLevel, StatusMessage};
 
 mod context;
 pub use context::{AssetsOp, Context, ContextError, Contextual};
+
+mod route;
+pub use route::Route;
 
 /// Alias de función (*callback*) para **determinar si un componente se renderiza o no**.
 ///
@@ -71,41 +78,3 @@ pub use context::{AssetsOp, Context, ContextError, Contextual};
 /// }
 /// ```
 pub type FnIsRenderable = fn(cx: &Context) -> bool;
-
-/// Alias de función (*callback*) para **resolver una ruta URL** según el contexto de renderizado.
-///
-/// Se usa para generar enlaces dinámicos en función del contexto (petición, idioma, parámetros,
-/// etc.). Devuelve una [`RoutePath`], que representa un *path* base junto con una lista opcional de
-/// parámetros de consulta.
-///
-/// El caso más común es construir rutas relativas dependientes del contexto, normalmente usando
-/// [`Context::route`](crate::core::component::Context::route):
-///
-/// ```rust,no_run
-/// # use pagetop::prelude::*;
-/// # let relative_route: FnPathByContext =
-/// |cx| cx.route("/path/to/page")
-/// # ;
-/// ```
-///
-/// También es posible usar rutas estáticas sin asignaciones adicionales:
-///
-/// ```rust,no_run
-/// # use pagetop::prelude::*;
-/// # let external_route: FnPathByContext =
-/// |_| "https://www.example.com".into()
-/// # ;
-/// ```
-///
-/// O componer rutas dinámicas en tiempo de ejecución:
-///
-/// ```rust,no_run
-/// # use pagetop::prelude::*;
-/// # let dynamic_route: FnPathByContext =
-/// |cx| RoutePath::new("/user").with_param("id", cx.param::<u64>("user_id").unwrap().to_string())
-/// # ;
-/// ```
-///
-/// Los componentes que acepten un [`FnPathByContext`] invocarán esta función durante el renderizado
-/// para obtener la URL final que se asignará al atributo HTML correspondiente.
-pub type FnPathByContext = fn(cx: &Context) -> RoutePath;

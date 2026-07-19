@@ -1,6 +1,8 @@
 use crate::html::{Markup, html};
 use crate::{AutoDefault, Getters};
 
+use thiserror::Error;
+
 /// Error producido durante el renderizado de un componente.
 ///
 /// Se usa en [`Component::prepare()`](super::Component::prepare) para devolver
@@ -22,7 +24,8 @@ use crate::{AutoDefault, Getters};
 /// }
 /// # }
 /// ```
-#[derive(AutoDefault, Debug, Getters)]
+#[derive(AutoDefault, Debug, Error, Getters)]
+#[error("{message}")]
 pub struct ComponentError {
     /// Mensaje descriptivo del error.
     message: String,
@@ -57,11 +60,3 @@ impl ComponentError {
         self.fallback
     }
 }
-
-impl std::fmt::Display for ComponentError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.message)
-    }
-}
-
-impl std::error::Error for ComponentError {}

@@ -18,7 +18,7 @@ async fn intro_colors(request: HttpRequest) -> Result<Markup, ErrorPage> {
                 .with_opening(IntroOpening::Custom)
                 .with_title(L10n::n("PageTop"))
                 .with_slogan(L10n::t("colors_slogan", &LOC))
-                .with_button(None::<(L10n, FnPathByContext)>)
+                .with_button(None::<(L10n, Route)>)
                 .with_child(
                     Block::new()
                         .with_title(L10n::t("colors_block", &LOC).with_arg("n", "1"))

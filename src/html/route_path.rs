@@ -1,6 +1,6 @@
 use crate::{AutoDefault, CowStr, builder_fn};
 
-use std::fmt;
+use std::fmt::{self, Write as _};
 
 /// Representa una ruta como un *path* inicial más una lista opcional de parámetros.
 ///
@@ -8,13 +8,22 @@ use std::fmt;
 /// pensadas para usarse en atributos HTML como `href`, `action` o `src`.
 ///
 /// `RoutePath` no valida ni interpreta la estructura del *path*; simplemente concatena los
-/// parámetros de consulta sobre el valor proporcionado.
+/// parámetros de consulta sobre el valor proporcionado. El *path* tampoco se codifica: se asume
+/// que ya es válido (rutas propias de la aplicación, normalmente literales o formadas a partir de
+/// identificadores conocidos).
+///
+/// # Codificación de los valores
+///
+/// El método [`with_param()`](Self::with_param) codifica el **valor** (no la clave) según RFC 3986
+/// antes de insertarlo. Así, cualquier valor (como una búsqueda de usuario, un destino con su
+/// propia *query string*, etc.) puede pasarse tal cual, sin que quien llama tenga que codificarlo
+/// primero.
 ///
 /// # Ejemplos
 ///
 /// ```rust
 /// # use pagetop::prelude::*;
-/// // Ruta relativa con parámetros y una *flag* sin valor.
+/// // Ruta relativa con parámetros y un *flag* sin valor.
 /// let route = RoutePath::new("/search")
 ///     .with_param("q", "rust")
 ///     .with_param("page", "2")
@@ -24,8 +33,12 @@ use std::fmt;
 /// // Ruta absoluta a un recurso externo.
 /// let external = RoutePath::new("https://example.com/export").with_param("format", "csv");
 /// assert_eq!(external.to_string(), "https://example.com/export?format=csv");
+///
+/// // Un valor con espacios o símbolos se codifica automáticamente.
+/// let search = RoutePath::new("/search").with_param("q", "rust & htmx");
+/// assert_eq!(search.to_string(), "/search?q=rust%20%26%20htmx");
 /// ```
-#[derive(AutoDefault)]
+#[derive(AutoDefault, Clone, Debug)]
 pub struct RoutePath {
     /// *Path* inicial sobre el que se añadirán los parámetros.
     ///
@@ -52,9 +65,17 @@ impl RoutePath {
     }
 
     /// Añade o sustituye un parámetro `key=value`. Si la clave ya existe, el valor se sobrescribe.
+    ///
+    /// El valor se codifica según RFC 3986, los caracteres no reservados (alfanuméricos ASCII, `-`,
+    /// `_`, `.`, `~`) quedan intactos, el resto se sustituye por su secuencia `%XX`. La clave se
+    /// inserta tal cual, sin codificar.
+    ///
+    /// Un `value` vacío no se distingue de [`with_flag()`](Self::with_flag): ambos se renderizan
+    /// como `?key`, sin `=`.
     #[builder_fn]
     pub fn with_param(mut self, key: impl Into<String>, value: impl Into<String>) -> Self {
-        self.query.insert(key.into(), value.into());
+        self.query
+            .insert(key.into(), Self::encode_query_value(&value.into()));
         self
     }
 
@@ -68,6 +89,29 @@ impl RoutePath {
     /// Devuelve el *path* inicial tal y como se pasó a [`RoutePath::new`], sin parámetros.
     pub fn path(&self) -> &str {
         &self.path
+    }
+
+    /// Indica si el *path* **parece** una URL externa por su prefijo (ver
+    /// [`util::url_looks_external()`](crate::util::url_looks_external)).
+    pub fn is_external(&self) -> bool {
+        crate::util::url_looks_external(&self.path)
+    }
+
+    // **< RoutePath HELPERS >**********************************************************************
+
+    // Codifica un valor para su uso seguro como parte de una *query string* según RFC 3986: los
+    // caracteres no reservados quedan intactos y el resto se codifica como `%XX`.
+    fn encode_query_value(value: &str) -> String {
+        let mut out = String::with_capacity(value.len());
+        for byte in value.bytes() {
+            match byte {
+                b'A'..=b'Z' | b'a'..=b'z' | b'0'..=b'9' | b'-' | b'_' | b'.' | b'~' => {
+                    out.push(byte as char);
+                }
+                _ => write!(out, "%{byte:02X}").unwrap(),
+            }
+        }
+        out
     }
 }
 
@@ -91,9 +135,13 @@ impl fmt::Display for RoutePath {
     }
 }
 
-impl From<&'static str> for RoutePath {
-    fn from(path: &'static str) -> Self {
-        RoutePath::new(path)
+// Cualquier `&str`, sea cual sea su vida, se acepta copiándolo a un `String` propio: así, por
+// ejemplo, una función hipotética que devuelva un `&str` con una vida atada a una petición, no
+// `'static` (del estilo `fn resolve_target<'a>(next: &'a str, fallback: &'a str) -> &'a str`),
+// sigue pudiendo construir un `RoutePath` sin que quien llama tenga que convertir el valor a mano.
+impl From<&str> for RoutePath {
+    fn from(path: &str) -> Self {
+        RoutePath::new(path.to_owned())
     }
 }
 

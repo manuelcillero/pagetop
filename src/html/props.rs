@@ -2,6 +2,8 @@ use crate::core::TypeInfo;
 use crate::html::maud::{Escaper, Render};
 use crate::{AutoDefault, CowStr, builder_fn, trace, util};
 
+use thiserror::Error;
+
 use std::any::Any;
 use std::collections::HashMap;
 use std::fmt::{self, Write};
@@ -37,40 +39,21 @@ impl fmt::Debug for PropsExtra {
 // **< PropsError >*********************************************************************************
 
 /// Errores de acceso a valores extra de [`Props`].
-///
-/// - [`PropsError::ExtraNotFound`]: la clave no existe. Incluye la clave (`key`).
-/// - [`PropsError::ExtraTypeMismatch`]: la clave existe pero el tipo solicitado no coincide con el
-///   almacenado. Incluye la clave (`key`), tipo esperado (`expected`) y tipo realmente encontrado
-///   (`found`) para facilitar el diagnóstico.
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Error)]
 pub enum PropsError {
-    ExtraNotFound {
-        key: &'static str,
-    },
+    /// La clave no existe. Incluye la clave (`key`).
+    #[error("extra \"{key}\" not found")]
+    ExtraNotFound { key: &'static str },
+    /// La clave existe pero el tipo solicitado no coincide con el almacenado. Incluye la clave
+    /// (`key`), tipo esperado (`expected`) y tipo realmente encontrado (`found`) para facilitar el
+    /// diagnóstico.
+    #[error("type mismatch for extra \"{key}\": expected \"{expected}\", found \"{found}\"")]
     ExtraTypeMismatch {
         key: &'static str,
         expected: &'static str,
         found: &'static str,
     },
 }
-
-impl fmt::Display for PropsError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            PropsError::ExtraNotFound { key } => write!(f, "extra \"{key}\" not found"),
-            PropsError::ExtraTypeMismatch {
-                key,
-                expected,
-                found,
-            } => write!(
-                f,
-                "type mismatch for extra \"{key}\": expected \"{expected}\", found \"{found}\""
-            ),
-        }
-    }
-}
-
-impl std::error::Error for PropsError {}
 
 // **< PropsOp >************************************************************************************
 

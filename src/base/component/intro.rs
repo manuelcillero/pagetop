@@ -48,7 +48,7 @@ pub enum IntroOpening {
 ///     .with_slogan(L10n::l("intro_custom_slogan"))
 ///     .with_button(Some((
 ///         L10n::l("intro_learn_more"),
-///         |_| "/learn-more".into()
+///         "/learn-more".into()
 ///     )));
 /// ```
 ///
@@ -57,7 +57,7 @@ pub enum IntroOpening {
 /// ```rust,no_run
 /// # use pagetop::prelude::*;
 /// let intro = Intro::default()
-///     .with_button(None::<(L10n, FnPathByContext)>)
+///     .with_button(None::<(L10n, Route)>)
 ///     .with_opening(IntroOpening::Custom);
 /// ```
 ///
@@ -86,7 +86,7 @@ pub struct Intro {
     /// Devuelve el eslogan de la entrada.
     slogan: L10n,
     /// Devuelve el botón de llamada a la acción, si existe.
-    button: Option<(L10n, FnPathByContext)>,
+    button: Option<(L10n, Route)>,
     /// Devuelve el modo de apertura configurado.
     opening: IntroOpening,
     /// Devuelve la lista de componentes hijo de la intro.
@@ -100,7 +100,7 @@ impl Default for Intro {
         Intro {
             title: L10n::l("intro_default_title"),
             slogan: L10n::l("intro_default_slogan").with_arg("app", &global::SETTINGS.app.name),
-            button: Some((L10n::l("intro_default_button"), |_| BUTTON_LINK.into())),
+            button: Some((L10n::l("intro_default_button"), BUTTON_LINK.into())),
             opening: IntroOpening::default(),
             children: Children::default(),
         }
@@ -159,7 +159,7 @@ impl Component for Intro {
                                 div class="intro-button" {
                                     a
                                         class="intro-button-link"
-                                        href=((lnk)(cx))
+                                        href=(lnk.resolve(cx))
                                         target="_blank"
                                         rel="noopener noreferrer"
                                     {
@@ -249,21 +249,21 @@ impl Intro {
 
     /// Configura el botón opcional de llamada a la acción.
     ///
-    /// - Usa `Some((texto, closure_url))` para mostrarlo, donde [`FnPathByContext`] recibe el
-    ///   [`Context`] y devuelve la ruta o URL final al pulsar el botón.
+    /// - Usa `Some((texto, ruta))` para mostrarlo, donde [`Route`] resuelve la ruta o URL final al
+    ///   pulsar el botón según el contexto de renderizado.
     /// - Usa `None` para ocultarlo.
     ///
     /// # Ejemplo
     ///
     /// ```rust,no_run
     /// # use pagetop::prelude::*;
-    /// // Define un botón con texto y una URL fija.
-    /// let intro = Intro::default().with_button(Some((L10n::n("Start"), |_| "/start".into())));
+    /// // Define un botón con texto y una ruta interna (preserva `lang` si corresponde).
+    /// let intro = Intro::default().with_button(Some((L10n::n("Start"), "/start".into())));
     /// // Descarta el botón de la intro.
     /// let intro_no_button = Intro::default().with_button(None);
     /// ```
     #[builder_fn]
-    pub fn with_button(mut self, button: Option<(L10n, FnPathByContext)>) -> Self {
+    pub fn with_button(mut self, button: Option<(L10n, Route)>) -> Self {
         self.button = button;
         self
     }

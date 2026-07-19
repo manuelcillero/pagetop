@@ -3,8 +3,8 @@
 pub(crate) mod maud;
 pub use maud::{DOCTYPE, Escaper, Markup, PreEscaped, Render, display, html, html_private};
 
-mod route;
-pub use route::RoutePath;
+mod route_path;
+pub use route_path::RoutePath;
 
 // **< HTML DOCUMENT ASSETS >***********************************************************************
 

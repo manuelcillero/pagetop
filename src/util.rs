@@ -168,6 +168,45 @@ pub fn normalize_ascii_or_empty<'a>(input: &'a str, target: &'static str) -> Opt
     }
 }
 
+/// Indica si una URL **parece** externa por su prefijo.
+///
+/// No es una validación de la URL; sólo mira el inicio del texto: `//` (relativa al protocolo),
+/// `http://`, `https://`, `mailto:` o `tel:`. La comparación ignora mayúsculas/minúsculas ASCII en
+/// los prefijos (`HTTPS://...` o `MAILTO:...` se detectan igual), porque el esquema de una URI es
+/// *case-insensitive* según RFC 3986.
+///
+/// La usan [`RoutePath::is_external()`](crate::html::RoutePath::is_external) y las conversiones
+/// `From<&str>`/`From<String>` de [`Route`](crate::core::component::Route) para decidir si una
+/// ruta debe evitar [`Context::route()`](crate::core::component::Context::route).
+///
+/// Cualquier otro código que necesite el mismo criterio (por ejemplo, para decidir si un enlace
+/// debe llevar `target="_blank"`) puede usarla en lugar de reimplementar su propia versión.
+///
+/// # Ejemplo
+///
+/// ```rust
+/// # use pagetop::util;
+/// assert!(util::url_looks_external("https://example.com"));
+/// assert!(util::url_looks_external("mailto:info@example.com"));
+/// assert!(util::url_looks_external("HTTPS://EXAMPLE.COM"));
+/// assert!(!util::url_looks_external("/admin/users"));
+/// ```
+pub fn url_looks_external(url: &str) -> bool {
+    starts_with_ignore_ascii_case(url, "//")
+        || starts_with_ignore_ascii_case(url, "http://")
+        || starts_with_ignore_ascii_case(url, "https://")
+        || starts_with_ignore_ascii_case(url, "mailto:")
+        || starts_with_ignore_ascii_case(url, "tel:")
+}
+
+// Compara si `text` empieza por `prefix` ignorando mayúsculas/minúsculas en ASCII (los esquemas de
+// URI son case-insensitive según RFC 3986). No reserva memoria: sólo compara el primer tramo de
+// bytes de `text` con `prefix`.
+fn starts_with_ignore_ascii_case(text: &str, prefix: &str) -> bool {
+    text.get(..prefix.len())
+        .is_some_and(|head| head.eq_ignore_ascii_case(prefix))
+}
+
 /// Resuelve y valida la ruta de un directorio existente, devolviendo una ruta absoluta.
 ///
 /// - Si la ruta es relativa, se resuelve respecto al directorio del proyecto según la variable de

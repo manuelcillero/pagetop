@@ -1,7 +1,13 @@
 //! Respuestas a las peticiones web en sus diferentes formatos.
 
-pub mod page;
+mod page;
+pub use page::*;
 
-pub mod json;
+mod json;
+pub use json::*;
 
-pub mod redirect;
+mod redirect;
+pub use redirect::*;
+
+mod waypoint;
+pub use waypoint::*;

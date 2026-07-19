@@ -47,7 +47,7 @@ use std::task::{Context, Poll};
 ///
 /// Puede declararse directamente como parámetro en un handler para pasarlo al
 /// [`Context`](crate::core::component::Context) de renderizado y a las variantes de
-/// [`ErrorPage`](crate::response::page::ErrorPage):
+/// [`ErrorPage`](crate::response::ErrorPage):
 ///
 /// ```rust,no_run
 /// # use pagetop::prelude::*;

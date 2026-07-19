@@ -5,7 +5,7 @@
 //! del documento a partir de regiones ([`Region`]). Cada región es un contenedor lógico
 //! identificado por un nombre para agrupar y renderizar componentes.
 //!
-//! Una página ([`Page`](crate::response::page::Page)) es un documento HTML completo. Implementa
+//! Una página ([`Page`](crate::response::Page)) es un documento HTML completo. Implementa
 //! [`Contextual`](crate::core::component::Contextual) para gestionar su propio [`Context`], donde
 //! mantiene el tema activo, la plantilla seleccionada y los componentes asociados a cada región a
 //! renderizar.
@@ -104,7 +104,7 @@ use crate::{AutoDefault, util};
 /// manera distinta.
 ///
 /// El tema decide qué regiones mostrar en el cuerpo del documento, normalmente usando una plantilla
-/// ([`Template`]) al renderizar la página ([`Page`](crate::response::page::Page)).
+/// ([`Template`]) al renderizar la página ([`Page`](crate::response::Page)).
 #[async_trait]
 pub trait Region: Send + Sync {
     /// Devuelve el nombre de la región.
@@ -209,7 +209,7 @@ impl Region for DefaultRegions {
 /// Interfaz común para definir plantillas de contenido.
 ///
 /// Una `Template` puede proporcionar una o más variantes para decidir la composición del `<body>`
-/// de una página ([`Page`](crate::response::page::Page)). El tema utiliza esta información para
+/// de una página ([`Page`](crate::response::Page)). El tema utiliza esta información para
 /// determinar qué regiones ([`Region`]) deben renderizarse y en qué orden.
 #[async_trait]
 pub trait Template: Send + Sync {

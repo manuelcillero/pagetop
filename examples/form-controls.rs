@@ -23,7 +23,7 @@ async fn form_controls(request: HttpRequest) -> Result<Markup, ErrorPage> {
                 .with_opening(IntroOpening::Custom)
                 .with_title(L10n::t("title", &LOC))
                 .with_slogan(L10n::t("slogan", &LOC))
-                .with_button(None::<(L10n, FnPathByContext)>)
+                .with_button(None::<(L10n, Route)>)
                 // Bloque 1: casillas, interruptores y botones de opción.
                 .with_child(
                     Block::new()

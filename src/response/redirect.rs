@@ -18,6 +18,7 @@
 //!
 //! - **Respuestas especiales**.
 
+use crate::html::RoutePath;
 use crate::web::{IntoResponse, Response, http};
 
 /// Funciones predefinidas para generar respuestas HTTP de redirección.
@@ -34,10 +35,10 @@ impl Redirect {
     /// Emplear cuando un recurso se ha movido de forma definitiva y la URL antigua debe dejar de
     /// usarse.
     #[must_use]
-    pub fn moved(redirect_to_url: &str) -> Response {
+    pub fn moved(redirect_to_url: impl Into<RoutePath>) -> Response {
         (
             http::StatusCode::MOVED_PERMANENTLY,
-            [(http::header::LOCATION, redirect_to_url.to_owned())],
+            [(http::header::LOCATION, redirect_to_url.into().to_string())],
         )
             .into_response()
     }
@@ -47,10 +48,10 @@ impl Redirect {
     /// Indicada para reorganizaciones de un sitio o aplicación web en las que también existen
     /// métodos distintos de GET (POST, PUT, ...) que no deben degradarse a GET.
     #[must_use]
-    pub fn permanent(redirect_to_url: &str) -> Response {
+    pub fn permanent(redirect_to_url: impl Into<RoutePath>) -> Response {
         (
             http::StatusCode::PERMANENT_REDIRECT,
-            [(http::header::LOCATION, redirect_to_url.to_owned())],
+            [(http::header::LOCATION, redirect_to_url.into().to_string())],
         )
             .into_response()
     }
@@ -61,10 +62,10 @@ impl Redirect {
     /// Útil cuando un recurso está fuera de servicio de forma imprevista (mantenimiento breve,
     /// sobrecarga, ...).
     #[must_use]
-    pub fn found(redirect_to_url: &str) -> Response {
+    pub fn found(redirect_to_url: impl Into<RoutePath>) -> Response {
         (
             http::StatusCode::FOUND,
-            [(http::header::LOCATION, redirect_to_url.to_owned())],
+            [(http::header::LOCATION, redirect_to_url.into().to_string())],
         )
             .into_response()
     }
@@ -75,10 +76,10 @@ impl Redirect {
     /// Se usa típicamente tras un POST o PUT para aplicar el patrón *Post/Redirect/Get*, permite
     /// recargar la página de resultados sin volver a ejecutar la operación.
     #[must_use]
-    pub fn see_other(redirect_to_url: &str) -> Response {
+    pub fn see_other(redirect_to_url: impl Into<RoutePath>) -> Response {
         (
             http::StatusCode::SEE_OTHER,
-            [(http::header::LOCATION, redirect_to_url.to_owned())],
+            [(http::header::LOCATION, redirect_to_url.into().to_string())],
         )
             .into_response()
     }
@@ -88,10 +89,10 @@ impl Redirect {
     /// Preferible a [`found`](Self::found) cuando el sitio expone operaciones diferentes de GET que
     /// deben respetarse durante la redirección.
     #[must_use]
-    pub fn temporary(redirect_to_url: &str) -> Response {
+    pub fn temporary(redirect_to_url: impl Into<RoutePath>) -> Response {
         (
             http::StatusCode::TEMPORARY_REDIRECT,
-            [(http::header::LOCATION, redirect_to_url.to_owned())],
+            [(http::header::LOCATION, redirect_to_url.into().to_string())],
         )
             .into_response()
     }

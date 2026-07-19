@@ -1,6 +1,6 @@
 //! Acciones para alterar el contenido de las páginas a renderizar.
 
-use crate::response::page::Page;
+use crate::response::Page;
 
 /// Tipo de función para manipular una página durante su construcción o renderizado.
 ///

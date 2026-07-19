@@ -4,7 +4,7 @@ mod figfont;
 
 use crate::core::{extension, extension::ExtensionRef};
 use crate::locale::Locale;
-use crate::response::page::{render_error_pages, response_for_panic, route_not_found};
+use crate::response::{render_error_pages, response_for_panic, route_not_found};
 use crate::web::Router;
 use crate::{PAGETOP_VERSION, global, trace};
 
@@ -20,7 +20,7 @@ use std::sync::LazyLock;
 /// preparando un entorno de pruebas, se usa [`test()`](Application::test).
 ///
 /// Los **errores controlados** (403, 404, o un fallo que un handler devuelva explícitamente como
-/// [`ErrorPage`](crate::response::page::ErrorPage)) se renderizan usando el tema activo (ver
+/// [`ErrorPage`](crate::response::ErrorPage)) se renderizan usando el tema activo (ver
 /// [`Theme::error_403()`](crate::core::theme::Theme::error_403),
 /// [`Theme::error_404()`](crate::core::theme::Theme::error_404) y
 /// [`Theme::error_fatal()`](crate::core::theme::Theme::error_fatal)).
