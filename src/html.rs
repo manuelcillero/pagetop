@@ -6,6 +6,9 @@ pub use maud::{DOCTYPE, Escaper, Markup, PreEscaped, Render, display, html, html
 mod route_path;
 pub use route_path::RoutePath;
 
+mod sort_dir;
+pub use sort_dir::SortDir;
+
 // **< HTML DOCUMENT ASSETS >***********************************************************************
 
 mod assets;

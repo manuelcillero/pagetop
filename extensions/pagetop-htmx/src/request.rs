@@ -16,7 +16,7 @@ use pagetop::prelude::*;
 ///
 /// ```rust,no_run
 /// use pagetop::prelude::*;
-/// use pagetop_htmx::{HtmxRequestExt, HtmxResponse};
+/// use pagetop_htmx::prelude::*;
 ///
 /// async fn list_items(request: HttpRequest) -> Response {
 ///     if request.is_htmx() {

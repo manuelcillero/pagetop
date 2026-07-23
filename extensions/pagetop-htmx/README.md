@@ -64,6 +64,27 @@ async fn homepage(request: HttpRequest) -> Result<Markup, ErrorPage> {
 }
 ```
 
+Cuando los valores se construyen en tiempo de ejecución o quieres que una extensión aplique estos
+atributos sin que el componente dependa de HTMX, usa `Props` junto con las constantes de `hx` en
+lugar de escribirlos como literales en `html!`:
+
+```rust
+use pagetop::prelude::*;
+use pagetop_htmx::prelude::*;
+
+async fn homepage(request: HttpRequest) -> Result<Markup, ErrorPage> {
+    let props = Props::new(hx::GET, "/api/hello")
+        .with_prop(PropsOp::set(hx::TARGET, "#result"));
+
+    Page::new(request)
+        .with_child(Html::with(move |_| html! {
+            button (props) { "Say hello" }
+            div #result {}
+        }))
+        .render().await
+}
+```
+
 ## Créditos
 
 Este *crate* integra la biblioteca [HTMX 2.0.10](https://htmx.org), distribuida bajo licencia

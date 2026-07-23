@@ -24,11 +24,9 @@
 //!
 //! ```rust,no_run
 //! use pagetop::prelude::*;
-//! use pagetop_htmx::hx;
+//! use pagetop_htmx::prelude::*;
 //!
-//! let endpoint = "/api/items";   // Calculado en tiempo de ejecución.
-//!
-//! let props = Props::new(hx::GET, endpoint)
+//! let props = Props::new(hx::GET, "/api/items")
 //!     .with_prop(PropsOp::set(hx::TARGET, "#list"))
 //!     .with_prop(PropsOp::set(hx::SWAP, hx::swap::OUTER_HTML));
 //!
@@ -45,7 +43,7 @@
 //!
 //! ```rust,no_run
 //! use pagetop::prelude::*;
-//! use pagetop_htmx::hx;
+//! use pagetop_htmx::prelude::*;
 //!
 //! #[derive(AutoDefault, Getters)]
 //! pub struct MyButton {
@@ -75,7 +73,7 @@
 //!
 //! ```rust,no_run
 //! use pagetop::prelude::*;
-//! use pagetop_htmx::hx;
+//! use pagetop_htmx::prelude::*;
 //!
 //! // Evento nativo del DOM: hx-on:click="..."
 //! // Evento propio de HTMX: hx-on::after-swap="..."
@@ -91,7 +89,7 @@
 ///
 /// ```rust,no_run
 /// # use pagetop::prelude::*;
-/// # use pagetop_htmx::hx;
+/// # use pagetop_htmx::prelude::*;
 /// let props = Props::new(hx::GET, "/api/search")
 ///     .with_prop(PropsOp::set(hx::TARGET, "#results"));
 /// ```
@@ -113,7 +111,7 @@ pub const PATCH: &str = "hx-patch";
 ///
 /// ```rust,no_run
 /// # use pagetop::prelude::*;
-/// # use pagetop_htmx::hx;
+/// # use pagetop_htmx::prelude::*;
 /// // Al eliminar un elemento, reemplazarlo con respuesta vacía borra el nodo del DOM.
 /// let props = Props::new(hx::DELETE, "/api/item/42")
 ///     .with_prop(PropsOp::set(hx::TARGET, "closest li"))
@@ -130,7 +128,7 @@ pub const DELETE: &str = "hx-delete";
 ///
 /// ```rust,no_run
 /// # use pagetop::prelude::*;
-/// # use pagetop_htmx::hx;
+/// # use pagetop_htmx::prelude::*;
 /// let props = Props::new(hx::GET, "/api/detalles")
 ///     .with_prop(PropsOp::set(hx::TARGET, "closest article"));
 /// ```
@@ -144,7 +142,7 @@ pub const TARGET: &str = "hx-target";
 ///
 /// ```rust,no_run
 /// # use pagetop::prelude::*;
-/// # use pagetop_htmx::hx;
+/// # use pagetop_htmx::prelude::*;
 /// // Reemplaza el elemento completo con una transición de 300 ms.
 /// let props = Props::new(hx::SWAP, "outerHTML swap:300ms");
 /// // O usando la constante tipada más los modificadores:
@@ -176,7 +174,7 @@ pub const SELECT_OOB: &str = "hx-select-oob";
 ///
 /// ```rust,no_run
 /// # use pagetop::prelude::*;
-/// # use pagetop_htmx::hx;
+/// # use pagetop_htmx::prelude::*;
 /// // Buscar mientras se escribe, con 400 ms de espera y sólo si el valor cambia:
 /// let props = Props::new(hx::GET, "/api/search")
 ///     .with_prop(PropsOp::set(hx::TRIGGER, "keyup changed delay:400ms"))
@@ -294,6 +292,11 @@ pub const PRESERVE: &str = "hx-preserve";
 /// - `"sse"` - soporte Server-Sent Events.
 /// - `"json-enc"` - codifica la petición como JSON en lugar de form-urlencoded.
 /// - `"loading-states"` - gestión avanzada de estados de carga.
+///
+/// `pagetop-htmx` sólo integra el *core* de HTMX: usar cualquiera de estas extensiones (ver el
+/// [catálogo oficial](https://htmx.org/extensions/)) requiere añadir su script correspondiente por
+/// separado, por ejemplo con [`JavaScript::defer()`](pagetop::html::JavaScript::defer) en
+/// [`dependencies()`](pagetop::core::extension::Extension::dependencies).
 pub const EXT: &str = "hx-ext";
 
 /// Atributos HTMX que los elementos descendientes NO heredarán de este elemento.
@@ -348,7 +351,7 @@ pub const DISABLE: &str = "hx-disable";
 ///
 /// ```rust,no_run
 /// # use pagetop::prelude::*;
-/// # use pagetop_htmx::hx;
+/// # use pagetop_htmx::prelude::*;
 /// let props = Props::new(hx::on("click"), "this.classList.toggle('active')")
 ///     .with_prop(PropsOp::set(hx::on("mouseenter"), "this.style.opacity='0.8'"));
 /// ```
@@ -364,7 +367,7 @@ pub fn on(event: &str) -> String {
 ///
 /// ```rust,no_run
 /// # use pagetop::prelude::*;
-/// # use pagetop_htmx::hx;
+/// # use pagetop_htmx::prelude::*;
 /// let props = Props::new(hx::on_htmx("before-request"), "console.log('enviando...')")
 ///     .with_prop(PropsOp::set(hx::on_htmx("after-swap"), "initTooltips()"));
 /// ```
@@ -382,7 +385,7 @@ pub fn on_htmx(event: &str) -> String {
 ///
 /// ```rust,no_run
 /// use pagetop::prelude::*;
-/// use pagetop_htmx::hx;
+/// use pagetop_htmx::prelude::*;
 ///
 /// async fn handler(request: HttpRequest) {
 ///     if let Some(target) = request.headers().get(hx::request::TARGET) {
@@ -417,18 +420,19 @@ pub mod request {
 /// manualmente, aunque lo habitual es usar el constructor [`HtmxResponse`](crate::HtmxResponse).
 ///
 /// ```rust,no_run
-/// use pagetop_htmx::hx;
-/// use pagetop::web::http::{HeaderMap, HeaderName, HeaderValue};
+/// use pagetop::prelude::*;
+/// use pagetop_htmx::prelude::*;
 ///
-/// let mut headers = HeaderMap::new();
+/// let mut headers = web::http::HeaderMap::new();
 /// headers.insert(
-///     hx::response::TRIGGER.parse::<HeaderName>().unwrap(),
-///     HeaderValue::from_static("itemAdded"),
+///     hx::response::TRIGGER.parse::<web::http::HeaderName>().unwrap(),
+///     web::http::HeaderValue::from_static("itemAdded"),
 /// );
 /// ```
 pub mod response {
     /// Redirige mediante AJAX a la URL o configuración JSON indicada. Ver
-    /// [`HtmxResponse::location()`](crate::HtmxResponse::location).
+    /// [`HtmxResponse::location()`](crate::HtmxResponse::location) y
+    /// [`HtmxResponse::location_json()`](crate::HtmxResponse::location_json).
     pub const LOCATION: &str = "HX-Location";
     /// Empuja la URL indicada al historial del navegador. Ver
     /// [`HtmxResponse::push_url()`](crate::HtmxResponse::push_url).
@@ -475,7 +479,7 @@ pub mod response {
 ///
 /// ```rust,no_run
 /// # use pagetop::prelude::*;
-/// # use pagetop_htmx::hx;
+/// # use pagetop_htmx::prelude::*;
 /// // Reemplaza el elemento con una transición de 200 ms y desplaza al inicio:
 /// let props = Props::new(hx::SWAP, format!("{} swap:200ms scroll:top", hx::swap::OUTER_HTML));
 /// ```
@@ -515,7 +519,7 @@ pub mod swap {
 ///
 /// ```rust,no_run
 /// # use pagetop::prelude::*;
-/// # use pagetop_htmx::hx;
+/// # use pagetop_htmx::prelude::*;
 /// // Búsqueda progresiva: petición 400 ms después de que el usuario deje de escribir.
 /// let search = Props::new(hx::TRIGGER, "keyup changed delay:400ms");
 ///

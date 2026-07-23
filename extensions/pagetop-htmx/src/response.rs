@@ -17,7 +17,7 @@ use pagetop::prelude::*;
 ///
 /// ```rust,no_run
 /// use pagetop::prelude::*;
-/// use pagetop_htmx::{HtmxResponse, hx};
+/// use pagetop_htmx::prelude::*;
 ///
 /// async fn add_item(request: HttpRequest) -> impl IntoResponse {
 ///     let new_item = html! { li #item-42 { "New item" } };
@@ -37,7 +37,7 @@ use pagetop::prelude::*;
 ///
 /// ```rust,no_run
 /// use pagetop::prelude::*;
-/// use pagetop_htmx::HtmxResponse;
+/// use pagetop_htmx::prelude::*;
 ///
 /// async fn delete_item() -> impl IntoResponse {
 ///     HtmxResponse::empty().redirect("/items")
@@ -59,7 +59,7 @@ use pagetop::prelude::*;
 ///
 /// ```rust,no_run
 /// use pagetop::prelude::*;
-/// use pagetop_htmx::HtmxResponse;
+/// use pagetop_htmx::prelude::*;
 ///
 /// // Dos eventos sin datos:
 /// HtmxResponse::empty().trigger("itemAdded, listUpdated");
@@ -67,6 +67,7 @@ use pagetop::prelude::*;
 /// // Evento con datos en JSON:
 /// HtmxResponse::empty().trigger(r#"{"itemAdded": {"id": 42}}"#);
 /// ```
+#[must_use]
 pub struct HtmxResponse {
     markup: Markup,
     headers: web::http::HeaderMap,
@@ -91,45 +92,123 @@ impl HtmxResponse {
     /// Hace que HTMX realice una navegación AJAX a la URL indicada sin recargar la página.
     ///
     /// A diferencia de [`redirect()`](Self::redirect), la navegación usa HTMX y actualiza sólo el
-    /// objetivo definido por el destino. Acepta una URL o un objeto JSON con claves `path`,
-    /// `target`, `swap`, `select` y `values` para personalizar la navegación:
+    /// objetivo definido por el destino. Para personalizar `target`, `swap`, `select` o `values`,
+    /// usa [`location_json()`](Self::location_json).
+    ///
+    /// Usa [`Context::route()`](pagetop::core::component::Context::route) en lugar de un literal
+    /// para que la URL preserve el parámetro `lang` cuando corresponda:
     ///
     /// ```rust,no_run
     /// use pagetop::prelude::*;
-    /// use pagetop_htmx::HtmxResponse;
+    /// use pagetop_htmx::prelude::*;
     ///
-    /// // Navegación simple:
-    /// HtmxResponse::empty().location("/items");
-    ///
-    /// // Navegación con destino personalizado:
-    /// HtmxResponse::empty()
-    ///     .location(r##"{"path": "/items", "target": "#content"}"##);
+    /// # fn build_response(cx: &Context) -> HtmxResponse {
+    /// HtmxResponse::empty().location(cx.route("/items"))
+    /// # }
     /// ```
-    pub fn location(self, url: impl Into<String>) -> Self {
-        self.set_header(b"hx-location", url)
+    pub fn location(self, url: impl Into<RoutePath>) -> Self {
+        self.set_header(b"hx-location", url.into().to_string())
+    }
+
+    /// Hace que HTMX realice una navegación AJAX personalizada, con un objeto JSON de configuración
+    /// en lugar de una URL simple.
+    ///
+    /// Acepta un objeto JSON con las claves `path`, `target`, `swap`, `select` y `values` (ver la
+    /// [documentación de HTMX](https://htmx.org/reference/#response_headers) para el detalle de
+    /// cada una). Al no ser una URL, no admite `Context::route()`: si `path` necesita el parámetro
+    /// `lang`, hay que componerlo a mano antes de construir el JSON. Para una navegación simple sin
+    /// estas opciones, usa [`location()`](Self::location).
+    ///
+    /// Si `json` no es sintácticamente válido, la cabecera se descarta y se registra un aviso; el
+    /// resto de la respuesta no se ve afectado. Esta comprobación sólo valida la sintaxis JSON, no
+    /// que las claves sean las que espera HTMX.
+    ///
+    /// ```rust,no_run
+    /// use pagetop::prelude::*;
+    /// use pagetop_htmx::prelude::*;
+    ///
+    /// HtmxResponse::empty()
+    ///     .location_json(r##"{"path": "/items", "target": "#content"}"##);
+    /// ```
+    ///
+    /// Si algún valor se calcula en tiempo de ejecución, constrúyelo con [`serde_json::json!`] en
+    /// lugar de interpolarlo a mano con `format!()`: evita comillas u otros caracteres sin escapar
+    /// que romperían la estructura del JSON.
+    ///
+    /// ```rust,no_run
+    /// use pagetop::prelude::*;
+    /// use pagetop_htmx::prelude::*;
+    ///
+    /// let item_name = "Alice's item"; // Contiene una comilla: no es seguro interpolarlo a mano.
+    ///
+    /// let json = serde_json::json!({
+    ///     "path": "/items",
+    ///     "values": { "name": item_name },
+    /// })
+    /// .to_string();
+    ///
+    /// HtmxResponse::empty().location_json(json);
+    /// ```
+    pub fn location_json(self, json: impl Into<String>) -> Self {
+        let json = json.into();
+        if let Err(error) = serde_json::from_str::<serde_json::Value>(&json) {
+            trace::warn!(
+                json = %json,
+                %error,
+                "HtmxResponse: invalid JSON in location_json(), header discarded",
+            );
+            return self;
+        }
+        self.set_header(b"hx-location", json)
     }
 
     /// Empuja la URL indicada al historial del navegador.
     ///
     /// El usuario podrá navegar hacia atrás hasta esa URL. Usar `"false"` para desactivar el empuje
     /// aunque esté habilitado por el atributo `hx-push-url` del elemento.
-    pub fn push_url(self, url: impl Into<String>) -> Self {
-        self.set_header(b"hx-push-url", url)
+    ///
+    /// Usa [`Context::route()`](pagetop::core::component::Context::route) en lugar de un literal
+    /// para que la URL preserve el parámetro `lang` cuando corresponda:
+    ///
+    /// ```rust,no_run
+    /// use pagetop::prelude::*;
+    /// use pagetop_htmx::prelude::*;
+    ///
+    /// # fn build_response(cx: &Context) -> HtmxResponse {
+    /// HtmxResponse::empty().push_url(cx.route("/items"))
+    /// # }
+    /// ```
+    pub fn push_url(self, url: impl Into<RoutePath>) -> Self {
+        self.set_header(b"hx-push-url", url.into().to_string())
     }
 
     /// Reemplaza la URL actual en el historial sin añadir una nueva entrada.
     ///
-    /// Usar `"false"` para desactivar el reemplazo.
-    pub fn replace_url(self, url: impl Into<String>) -> Self {
-        self.set_header(b"hx-replace-url", url)
+    /// Usar `"false"` para desactivar el reemplazo. Usa
+    /// [`Context::route()`](pagetop::core::component::Context::route) en lugar de un literal para
+    /// que la URL preserve el parámetro `lang` cuando corresponda.
+    pub fn replace_url(self, url: impl Into<RoutePath>) -> Self {
+        self.set_header(b"hx-replace-url", url.into().to_string())
     }
 
     /// Provoca una redirección completa del navegador a la URL indicada.
     ///
     /// A diferencia de [`location()`](Self::location), esta redirección recarga la página por
     /// completo, como un `window.location.href = url` en JavaScript.
-    pub fn redirect(self, url: impl Into<String>) -> Self {
-        self.set_header(b"hx-redirect", url)
+    ///
+    /// Usa [`Context::route()`](pagetop::core::component::Context::route) en lugar de un literal
+    /// para que la URL preserve el parámetro `lang` cuando corresponda:
+    ///
+    /// ```rust,no_run
+    /// use pagetop::prelude::*;
+    /// use pagetop_htmx::prelude::*;
+    ///
+    /// # fn build_response(cx: &Context) -> HtmxResponse {
+    /// HtmxResponse::empty().redirect(cx.route("/items"))
+    /// # }
+    /// ```
+    pub fn redirect(self, url: impl Into<RoutePath>) -> Self {
+        self.set_header(b"hx-redirect", url.into().to_string())
     }
 
     /// Provoca una recarga completa de la página actual.
@@ -170,7 +249,7 @@ impl HtmxResponse {
     ///
     /// ```rust,no_run
     /// use pagetop::prelude::*;
-    /// use pagetop_htmx::HtmxResponse;
+    /// use pagetop_htmx::prelude::*;
     ///
     /// // Evento simple:
     /// HtmxResponse::empty().trigger("itemAdded");
@@ -180,6 +259,21 @@ impl HtmxResponse {
     ///
     /// // Evento con datos en JSON:
     /// HtmxResponse::empty().trigger(r#"{"itemAdded": {"id": 42, "name": "Example"}}"#);
+    /// ```
+    ///
+    /// Si el dato del evento se calcula en tiempo de ejecución, constrúyelo con
+    /// [`serde_json::json!`] en lugar de interpolarlo a mano con `format!()`, para evitar comillas
+    /// u otros caracteres sin escapar que romperían la estructura del JSON:
+    ///
+    /// ```rust,no_run
+    /// use pagetop::prelude::*;
+    /// use pagetop_htmx::prelude::*;
+    ///
+    /// let item_name = "Alice's item"; // Contiene una comilla: no es seguro interpolarlo a mano.
+    ///
+    /// let json = serde_json::json!({ "itemAdded": { "name": item_name } }).to_string();
+    ///
+    /// HtmxResponse::empty().trigger(json);
     /// ```
     pub fn trigger(self, event: impl Into<String>) -> Self {
         self.set_header(b"hx-trigger", event)
