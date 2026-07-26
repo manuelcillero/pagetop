@@ -381,8 +381,12 @@ impl Children {
     // **< Children HELPERS >***********************************************************************
 
     // Añade más de un componente hijo al final de la lista (en el orden recibido).
+    //
+    // Usa `Vec::extend()`, que reserva la capacidad necesaria de una vez a partir del `size_hint()`
+    // del iterador, en vez de una reasignación incremental por cada `push()`. También lo usa
+    // `core::theme::regions` para fusionar las fuentes de una región.
     #[inline]
-    fn add_many<I>(&mut self, iter: I) -> &mut Self
+    pub(crate) fn add_many<I>(&mut self, iter: I) -> &mut Self
     where
         I: IntoIterator<Item = Child>,
     {

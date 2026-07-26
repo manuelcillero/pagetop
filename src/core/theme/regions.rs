@@ -7,16 +7,39 @@ use parking_lot::RwLock;
 use std::collections::HashMap;
 use std::sync::{Arc, LazyLock};
 
-// Mapea cada nombre de región con su lista de prototipos de componentes.
+// Lista de prototipos de componentes por nombre de región.
+//
+// Utiliza Vec en lugar de HashMap. El número de regiones registradas por tema o aplicación es casi
+// siempre de un dígito, así que una búsqueda lineal por igualdad de `&str` evita el coste de
+// hashear la clave. Además, el trabajo para recorrer regiones vacías es mínimo.
 //
 // La clave es `&'static str` (lo que ya devuelve `RegionName::name()`) en lugar de `String`. No
 // hace falta reservar en el heap una copia de un dato que ya vive de forma estática.
-//
-// Se comparten como `Arc<dyn Component>`. El prototipo no se clona al registrarse ni al ensamblar
-// la región (sólo se clona el `Arc`, barato). En cambio, sí se realiza un clonado del componente en
-// `Child::render()`, cuando cada petición necesita su propia copia mutable para pasar por `setup()`
-// desde un estado inicial limpio.
-type RegionComponents = HashMap<&'static str, Vec<Arc<dyn Component>>>;
+#[derive(AutoDefault)]
+struct RegionComponents(Vec<(&'static str, Vec<Arc<dyn Component>>)>);
+
+impl RegionComponents {
+    // Devuelve los prototipos registrados para la región indicada, si hay alguno.
+    fn get(&self, region_name: &str) -> Option<&Vec<Arc<dyn Component>>> {
+        self.0
+            .iter()
+            .find(|(name, _)| *name == region_name)
+            .map(|(_, protos)| protos)
+    }
+
+    // Añade un prototipo a la región indicada, creando la entrada si es la primera.
+    //
+    // Se comparte como `Arc<dyn Component>`. El prototipo no se clona aquí ni al ensamblar la
+    // región (sólo se clona el `Arc`, barato). El único clonado real del componente ocurre en
+    // `Child::render()`, cuando cada petición necesita su propia copia mutable para pasar por
+    // `setup()` desde un estado inicial limpio.
+    fn push(&mut self, region_name: &'static str, proto: Arc<dyn Component>) {
+        match self.0.iter_mut().find(|(name, _)| *name == region_name) {
+            Some((_, protos)) => protos.push(proto),
+            None => self.0.push((region_name, vec![proto])),
+        }
+    }
+}
 
 // Regiones globales con prototipos asociados a un tema específico.
 static THEME_REGIONS: LazyLock<RwLock<HashMap<UniqueId, RegionComponents>>> =
@@ -24,7 +47,7 @@ static THEME_REGIONS: LazyLock<RwLock<HashMap<UniqueId, RegionComponents>>> =
 
 // Regiones globales con prototipos comunes a todos los temas.
 static COMMON_REGIONS: LazyLock<RwLock<RegionComponents>> =
-    LazyLock::new(|| RwLock::new(HashMap::new()));
+    LazyLock::new(|| RwLock::new(RegionComponents::default()));
 
 // *************************************************************************************************
 
@@ -68,23 +91,25 @@ impl ChildrenInRegions {
 
         // 1. Prototipos globales comunes.
         if let Some(global_protos) = COMMON_REGIONS.read().get(region_name) {
-            for proto in global_protos {
-                result.add(Child::from_arc(Arc::clone(proto)));
-            }
+            result.add_many(
+                global_protos
+                    .iter()
+                    .map(|proto| Child::from_arc(Arc::clone(proto))),
+            );
         }
         // 2. Componentes propios de la página: se mueven, no se clonan.
         if let Some(page_children) = self.0.remove(region_name) {
-            for child in page_children {
-                result.add(child);
-            }
+            result.add_many(page_children);
         }
         // 3. Prototipos del tema activo.
         if let Some(theme_region) = THEME_REGIONS.read().get(&theme.type_id())
             && let Some(theme_protos) = theme_region.get(region_name)
         {
-            for proto in theme_protos {
-                result.add(Child::from_arc(Arc::clone(proto)));
-            }
+            result.add_many(
+                theme_protos
+                    .iter()
+                    .map(|proto| Child::from_arc(Arc::clone(proto))),
+            );
         }
 
         result
@@ -167,9 +192,7 @@ impl InRegion {
                     .write()
                     .entry(theme.type_id())
                     .or_default()
-                    .entry((*region).name())
-                    .or_default()
-                    .push(proto);
+                    .push((*region).name(), proto);
             }
         }
         self
@@ -177,10 +200,6 @@ impl InRegion {
 
     #[inline]
     fn add_to_common(region: RegionRef, proto: Arc<dyn Component>) {
-        COMMON_REGIONS
-            .write()
-            .entry(region.name())
-            .or_default()
-            .push(proto);
+        COMMON_REGIONS.write().push(region.name(), proto);
     }
 }
