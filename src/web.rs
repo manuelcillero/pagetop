@@ -347,6 +347,7 @@ pub mod test {
     pub struct TestRequest {
         method: http::Method,
         uri: String,
+        headers: http::HeaderMap,
         extensions: http::Extensions,
     }
 
@@ -356,6 +357,7 @@ pub mod test {
             Self {
                 method: http::Method::GET,
                 uri: "/".to_owned(),
+                headers: http::HeaderMap::new(),
                 extensions: http::Extensions::new(),
             }
         }
@@ -365,6 +367,7 @@ pub mod test {
             Self {
                 method: http::Method::POST,
                 uri: "/".to_owned(),
+                headers: http::HeaderMap::new(),
                 extensions: http::Extensions::new(),
             }
         }
@@ -372,6 +375,20 @@ pub mod test {
         /// Establece la URI de la petición.
         pub fn uri(mut self, uri: impl Into<String>) -> Self {
             self.uri = uri.into();
+            self
+        }
+
+        /// Añade una cabecera a la petición.
+        ///
+        /// Si `name` o `value` no son válidos como cabecera HTTP, se descarta en silencio en lugar
+        /// de entrar en pánico.
+        pub fn header(mut self, name: impl AsRef<str>, value: impl AsRef<str>) -> Self {
+            if let (Ok(n), Ok(v)) = (
+                http::HeaderName::from_bytes(name.as_ref().as_bytes()),
+                http::HeaderValue::from_str(value.as_ref()),
+            ) {
+                self.headers.insert(n, v);
+            }
             self
         }
 
@@ -391,6 +408,7 @@ pub mod test {
                 .uri(self.uri)
                 .body(Body::empty())
                 .unwrap();
+            *req.headers_mut() = self.headers;
             *req.extensions_mut() = self.extensions;
             req
         }
@@ -401,7 +419,7 @@ pub mod test {
             let uri = self.uri.parse().unwrap();
             super::HttpRequest {
                 uri,
-                headers: axum::http::HeaderMap::new(),
+                headers: self.headers,
                 extensions: std::sync::Arc::new(self.extensions),
             }
         }
