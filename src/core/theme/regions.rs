@@ -9,11 +9,14 @@ use std::sync::{Arc, LazyLock};
 
 // Mapea cada nombre de región con su lista de prototipos de componentes.
 //
+// La clave es `&'static str` (lo que ya devuelve `RegionName::name()`) en lugar de `String`. No
+// hace falta reservar en el heap una copia de un dato que ya vive de forma estática.
+//
 // Se comparten como `Arc<dyn Component>`. El prototipo no se clona al registrarse ni al ensamblar
 // la región (sólo se clona el `Arc`, barato). En cambio, sí se realiza un clonado del componente en
 // `Child::render()`, cuando cada petición necesita su propia copia mutable para pasar por `setup()`
 // desde un estado inicial limpio.
-type RegionComponents = HashMap<String, Vec<Arc<dyn Component>>>;
+type RegionComponents = HashMap<&'static str, Vec<Arc<dyn Component>>>;
 
 // Regiones globales con prototipos asociados a un tema específico.
 static THEME_REGIONS: LazyLock<RwLock<HashMap<UniqueId, RegionComponents>>> =
@@ -27,7 +30,7 @@ static COMMON_REGIONS: LazyLock<RwLock<RegionComponents>> =
 
 // Contenedor interno de componentes agrupados por región.
 #[derive(AutoDefault)]
-pub(crate) struct ChildrenInRegions(HashMap<String, Children>);
+pub(crate) struct ChildrenInRegions(HashMap<&'static str, Children>);
 
 impl ChildrenInRegions {
     pub fn with(region: RegionRef, child: Child) -> Self {
@@ -42,7 +45,7 @@ impl ChildrenInRegions {
             region.alter_child(child);
         } else {
             let children = Children::new().with_child(child);
-            self.0.insert(region_name.to_owned(), children);
+            self.0.insert(region_name, children);
         }
         self
     }
@@ -164,7 +167,7 @@ impl InRegion {
                     .write()
                     .entry(theme.type_id())
                     .or_default()
-                    .entry((*region).name().to_owned())
+                    .entry((*region).name())
                     .or_default()
                     .push(proto);
             }
@@ -176,7 +179,7 @@ impl InRegion {
     fn add_to_common(region: RegionRef, proto: Arc<dyn Component>) {
         COMMON_REGIONS
             .write()
-            .entry(region.name().to_owned())
+            .entry(region.name())
             .or_default()
             .push(proto);
     }
