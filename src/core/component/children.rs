@@ -32,6 +32,13 @@ impl Child {
         Child(Some(Arc::new(component)))
     }
 
+    // Envuelve un `Arc` ya construido, sin clonar el componente. La usa `core::theme::regions` para
+    // registrar los prototipos de `InRegion` sin clonar su estado hasta que `render()` obtenga la
+    // copia propia que necesita mutar.
+    pub(crate) fn from_arc(component: Arc<dyn Component>) -> Self {
+        Child(Some(component))
+    }
+
     // **< Child BUILDER >**************************************************************************
 
     /// Establece un componente nuevo, o lo vacía.
@@ -73,7 +80,7 @@ impl Child {
     }
 }
 
-impl<C: Component + 'static> From<Embed<C>> for Child {
+impl<C: Component> From<Embed<C>> for Child {
     /// Convierte un [`Embed<C>`] en un [`Child`], consumiendo el componente tipado.
     ///
     /// Útil cuando se tiene un [`Embed`] para añadir a una lista [`Children`]:
@@ -93,7 +100,7 @@ impl<C: Component + 'static> From<Embed<C>> for Child {
     }
 }
 
-impl<T: Component + 'static> From<T> for Child {
+impl<T: Component> From<T> for Child {
     /// Convierte cualquier componente en un [`Child`], equivalente a [`Child::with()`].
     #[inline]
     fn from(component: T) -> Self {
@@ -101,7 +108,7 @@ impl<T: Component + 'static> From<T> for Child {
     }
 }
 
-impl<T: Component + 'static> From<T> for ChildOp {
+impl<T: Component> From<T> for ChildOp {
     /// Convierte un componente en [`ChildOp::Add`], permitiendo pasar componentes directamente a
     /// métodos como [`Children::with_child`] sin envolverlos explícitamente.
     #[inline]

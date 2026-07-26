@@ -7,26 +7,13 @@ use parking_lot::RwLock;
 use std::collections::HashMap;
 use std::sync::{Arc, LazyLock};
 
-// Permite almacenar un componente como prototipo en regiones globales.
+// Mapea cada nombre de región con su lista de prototipos de componentes.
 //
-// Se implementa automáticamente para todo tipo que implemente [`Component`] y [`Clone`]. En cada
-// llamada a [`as_child`](Self::as_child) produce un clon fresco del estado original, de modo que
-// cada página renderiza el componente desde su estado inicial sin acumular mutaciones de peticiones
-// anteriores.
-trait ComponentGlobal: Send + Sync {
-    // Devuelve un nuevo [`Child`] con una copia independiente del componente original.
-    fn as_child(&self) -> Child;
-}
-
-impl<T: Component + Clone + 'static> ComponentGlobal for T {
-    #[inline]
-    fn as_child(&self) -> Child {
-        Child::with(self.clone())
-    }
-}
-
-// Mapa de nombre de región a lista de prototipos de componentes.
-type RegionComponents = HashMap<String, Vec<Arc<dyn ComponentGlobal>>>;
+// Se comparten como `Arc<dyn Component>`. El prototipo no se clona al registrarse ni al ensamblar
+// la región (sólo se clona el `Arc`, barato). En cambio, sí se realiza un clonado del componente en
+// `Child::render()`, cuando cada petición necesita su propia copia mutable para pasar por `setup()`
+// desde un estado inicial limpio.
+type RegionComponents = HashMap<String, Vec<Arc<dyn Component>>>;
 
 // Regiones globales con prototipos asociados a un tema específico.
 static THEME_REGIONS: LazyLock<RwLock<HashMap<UniqueId, RegionComponents>>> =
@@ -64,23 +51,22 @@ impl ChildrenInRegions {
     ///
     /// Se recogen desde tres fuentes disponibles, en el siguiente orden:
     ///
-    /// 1. Prototipos globales comunes, disponibles en cualquier tema. Se clonan en cada petición
+    /// 1. Prototipos globales comunes, disponibles en cualquier tema. Se comparten como `Arc` (sin
+    ///    clonar el componente); `Child::render()` obtiene su propia copia mutable más adelante,
     ///    para que `setup()` parta siempre de un estado inicial limpio.
     /// 2. Componentes propios de la página, registrados para esta petición concreta. Se mueven en
     ///    lugar de clonarse, ya que son de un único uso.
-    /// 3. Prototipos del tema activo, exclusivos del tema en curso. También se clonan para asegurar
-    ///    que llegan a `setup()` con el mismo estado inicial.
+    /// 3. Prototipos del tema activo, exclusivos del tema en curso. Se comparten igual que los
+    ///    comunes.
     pub fn assemble_region(&mut self, theme: ThemeRef, region: RegionRef) -> Children {
-        let region_name = region.name();
-        let common = COMMON_REGIONS.read();
-        let themed = THEME_REGIONS.read();
-
         let mut result = Children::new();
 
+        let region_name = region.name();
+
         // 1. Prototipos globales comunes.
-        if let Some(protos) = common.get(region_name) {
-            for proto in protos {
-                result.add(proto.as_child());
+        if let Some(global_protos) = COMMON_REGIONS.read().get(region_name) {
+            for proto in global_protos {
+                result.add(Child::from_arc(Arc::clone(proto)));
             }
         }
         // 2. Componentes propios de la página: se mueven, no se clonan.
@@ -90,11 +76,11 @@ impl ChildrenInRegions {
             }
         }
         // 3. Prototipos del tema activo.
-        if let Some(theme_map) = themed.get(&theme.type_id()) {
-            if let Some(protos) = theme_map.get(region_name) {
-                for proto in protos {
-                    result.add(proto.as_child());
-                }
+        if let Some(theme_region) = THEME_REGIONS.read().get(&theme.type_id())
+            && let Some(theme_protos) = theme_region.get(region_name)
+        {
+            for proto in theme_protos {
+                result.add(Child::from_arc(Arc::clone(proto)));
             }
         }
 
@@ -168,8 +154,8 @@ impl InRegion {
     ///     html! { "Aviso legal" }
     /// }));
     /// ```
-    pub fn add(&self, component: impl Component + Clone + 'static) -> &Self {
-        let proto: Arc<dyn ComponentGlobal> = Arc::new(component);
+    pub fn add(&self, component: impl Component) -> &Self {
+        let proto: Arc<dyn Component> = Arc::new(component);
         match self {
             InRegion::Content => Self::add_to_common(&CoreRegion::Content, proto),
             InRegion::Global(region) => Self::add_to_common(*region, proto),
@@ -187,7 +173,7 @@ impl InRegion {
     }
 
     #[inline]
-    fn add_to_common(region: RegionRef, proto: Arc<dyn ComponentGlobal>) {
+    fn add_to_common(region: RegionRef, proto: Arc<dyn Component>) {
         COMMON_REGIONS
             .write()
             .entry(region.name().to_owned())
