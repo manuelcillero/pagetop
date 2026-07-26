@@ -1,4 +1,4 @@
-//! Implementación de [`HtmxResponse`] e [`IntoResponse`](pagetop::web::IntoResponse) para HTMX.
+//! Implementación de [`HtmxResponse`] e [`IntoResponse`] para HTMX.
 
 use pagetop::prelude::*;
 
@@ -10,8 +10,7 @@ use pagetop::prelude::*;
 /// parciales acompañados de cabeceras especiales que instruyen al cliente sobre qué hacer con la
 /// respuesta: actualizar la URL del historial, disparar eventos JavaScript, redirigir, etc.
 ///
-/// Implementa [`IntoResponse`](pagetop::web::IntoResponse), por lo que puede devolverse
-/// directamente desde cualquier handler.
+/// Implementa [`IntoResponse`], por lo que puede devolverse directamente desde cualquier handler.
 ///
 /// # Ejemplo
 ///

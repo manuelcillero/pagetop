@@ -93,18 +93,13 @@ include_locales!(LOCALES_HTMX);
 
 pub mod hx;
 pub mod hx_table;
-
-mod request;
-pub use request::HtmxRequestExt;
-
-mod response;
-pub use response::HtmxResponse;
+pub mod request;
+pub mod response;
 
 /// Prelude de `pagetop-htmx`.
 pub mod prelude {
     pub use crate::hx;
     pub use crate::hx_table;
-
     pub use crate::request::HtmxRequestExt;
     pub use crate::response::HtmxResponse;
 }

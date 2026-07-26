@@ -1,5 +1,5 @@
 use pagetop::prelude::*;
-use pagetop_htmx::HtmxRequestExt;
+use pagetop_htmx::prelude::*;
 
 struct TestApp;
 

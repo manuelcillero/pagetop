@@ -4,8 +4,7 @@ use pagetop::prelude::*;
 
 // **< HtmxRequestExt >*****************************************************************************
 
-/// Extiende [`HttpRequest`](pagetop::web::HttpRequest) con métodos para detectar y leer peticiones
-/// HTMX.
+/// Extiende [`HttpRequest`] con métodos para detectar y leer peticiones HTMX.
 ///
 /// HTMX añade cabeceras especiales a cada petición AJAX. Este trait permite acceder a ellas de
 /// forma expresiva, sin manipular [`pagetop::web::http::HeaderMap`] directamente.

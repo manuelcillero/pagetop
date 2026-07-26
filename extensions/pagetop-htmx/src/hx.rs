@@ -381,7 +381,8 @@ pub fn on_htmx(event: &str) -> String {
 ///
 /// Están en minúsculas porque así las normaliza el módulo `http`. Se pueden usar con
 /// [`HttpRequest::headers()`](pagetop::web::HttpRequest::headers) para leer sus valores
-/// directamente, aunque lo habitual es usar el trait [`HtmxRequestExt`](crate::HtmxRequestExt).
+/// directamente, aunque lo habitual es usar el trait
+/// [`HtmxRequestExt`](crate::request::HtmxRequestExt).
 ///
 /// ```rust,no_run
 /// use pagetop::prelude::*;
@@ -417,7 +418,8 @@ pub mod request {
 /// Cabeceras de respuesta HTTP para HTMX.
 ///
 /// Se pueden usar con [`HeaderMap`](pagetop::web::http::HeaderMap) para construir respuestas
-/// manualmente, aunque lo habitual es usar el constructor [`HtmxResponse`](crate::HtmxResponse).
+/// manualmente, aunque lo habitual es usar el constructor
+/// [`HtmxResponse`](crate::response::HtmxResponse).
 ///
 /// ```rust,no_run
 /// use pagetop::prelude::*;
@@ -431,38 +433,38 @@ pub mod request {
 /// ```
 pub mod response {
     /// Redirige mediante AJAX a la URL o configuración JSON indicada. Ver
-    /// [`HtmxResponse::location()`](crate::HtmxResponse::location) y
-    /// [`HtmxResponse::location_json()`](crate::HtmxResponse::location_json).
+    /// [`HtmxResponse::location()`](crate::response::HtmxResponse::location) y
+    /// [`HtmxResponse::location_json()`](crate::response::HtmxResponse::location_json).
     pub const LOCATION: &str = "HX-Location";
     /// Empuja la URL indicada al historial del navegador. Ver
-    /// [`HtmxResponse::push_url()`](crate::HtmxResponse::push_url).
+    /// [`HtmxResponse::push_url()`](crate::response::HtmxResponse::push_url).
     pub const PUSH_URL: &str = "HX-Push-Url";
     /// Provoca una redirección completa del navegador. Ver
-    /// [`HtmxResponse::redirect()`](crate::HtmxResponse::redirect).
+    /// [`HtmxResponse::redirect()`](crate::response::HtmxResponse::redirect).
     pub const REDIRECT: &str = "HX-Redirect";
     /// Provoca una recarga completa de la página. Ver
-    /// [`HtmxResponse::refresh()`](crate::HtmxResponse::refresh).
+    /// [`HtmxResponse::refresh()`](crate::response::HtmxResponse::refresh).
     pub const REFRESH: &str = "HX-Refresh";
     /// Reemplaza la URL actual en el historial. Ver
-    /// [`HtmxResponse::replace_url()`](crate::HtmxResponse::replace_url).
+    /// [`HtmxResponse::replace_url()`](crate::response::HtmxResponse::replace_url).
     pub const REPLACE_URL: &str = "HX-Replace-Url";
     /// Anula el `hx-swap` del elemento. Ver
-    /// [`HtmxResponse::reswap()`](crate::HtmxResponse::reswap).
+    /// [`HtmxResponse::reswap()`](crate::response::HtmxResponse::reswap).
     pub const RESWAP: &str = "HX-Reswap";
     /// Anula el `hx-target` del elemento. Ver
-    /// [`HtmxResponse::retarget()`](crate::HtmxResponse::retarget).
+    /// [`HtmxResponse::retarget()`](crate::response::HtmxResponse::retarget).
     pub const RETARGET: &str = "HX-Retarget";
     /// Anula el `hx-select` del elemento. Ver
-    /// [`HtmxResponse::reselect()`](crate::HtmxResponse::reselect).
+    /// [`HtmxResponse::reselect()`](crate::response::HtmxResponse::reselect).
     pub const RESELECT: &str = "HX-Reselect";
     /// Dispara eventos JavaScript al completar la respuesta. Ver
-    /// [`HtmxResponse::trigger()`](crate::HtmxResponse::trigger).
+    /// [`HtmxResponse::trigger()`](crate::response::HtmxResponse::trigger).
     pub const TRIGGER: &str = "HX-Trigger";
     /// Dispara eventos tras la fase *settle*. Ver
-    /// [`HtmxResponse::trigger_after_settle()`](crate::HtmxResponse::trigger_after_settle).
+    /// [`HtmxResponse::trigger_after_settle()`](crate::response::HtmxResponse::trigger_after_settle).
     pub const TRIGGER_AFTER_SETTLE: &str = "HX-Trigger-After-Settle";
     /// Dispara eventos tras el *swap*. Ver
-    /// [`HtmxResponse::trigger_after_swap()`](crate::HtmxResponse::trigger_after_swap).
+    /// [`HtmxResponse::trigger_after_swap()`](crate::response::HtmxResponse::trigger_after_swap).
     pub const TRIGGER_AFTER_SWAP: &str = "HX-Trigger-After-Swap";
 }
 
