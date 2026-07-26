@@ -2,8 +2,6 @@ use crate::core::component::{Component, Context};
 use crate::html::{Markup, html};
 use crate::{AutoDefault, UniqueId, builder_fn};
 
-use parking_lot::RwLock;
-
 use std::fmt;
 use std::sync::Arc;
 use std::vec::IntoIter;
@@ -11,14 +9,19 @@ use std::vec::IntoIter;
 // **< Child >**************************************************************************************
 
 /// Representa un componente hijo encapsulado para su uso en una lista [`Children`].
+///
+/// Envuelve el componente en `Arc<dyn Component>`, compartido y de sólo lectura. Clonar un `Child`
+/// sólo incrementa el contador de referencias. Para renderizar obtiene una copia propia con
+/// [`ComponentClone::clone_box()`](crate::core::component::ComponentClone::clone_box), de modo que
+/// el componente original nunca se modifica.
 #[derive(AutoDefault, Clone)]
-pub struct Child(Option<Arc<RwLock<Box<dyn Component>>>>);
+pub struct Child(Option<Arc<dyn Component>>);
 
 impl fmt::Debug for Child {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match &self.0 {
             None => write!(f, "Child(None)"),
-            Some(c) => write!(f, "Child({})", c.read().name()),
+            Some(c) => write!(f, "Child({})", c.name()),
         }
     }
 }
@@ -26,7 +29,7 @@ impl fmt::Debug for Child {
 impl Child {
     /// Crea un nuevo `Child` a partir de un componente.
     pub fn with(component: impl Component) -> Self {
-        Child(Some(Arc::new(RwLock::new(Box::new(component)))))
+        Child(Some(Arc::new(component)))
     }
 
     // **< Child BUILDER >**************************************************************************
@@ -36,7 +39,7 @@ impl Child {
     /// Si se proporciona `Some(component)`, se encapsula como [`Child`]; y si es `None`, se limpia.
     #[builder_fn]
     pub fn with_component<C: Component>(mut self, component: Option<C>) -> Self {
-        self.0 = component.map(|c| Arc::new(RwLock::new(Box::new(c) as Box<dyn Component>)));
+        self.0 = component.map(|c| Arc::new(c) as Arc<dyn Component>);
         self
     }
 
@@ -45,7 +48,7 @@ impl Child {
     /// Devuelve el identificador del componente, si existe y está definido.
     #[inline]
     pub fn id(&self) -> Option<String> {
-        self.0.as_ref().and_then(|c| c.read().id())
+        self.0.as_ref().and_then(|c| c.id())
     }
 
     // **< Child RENDER >***************************************************************************
@@ -55,7 +58,7 @@ impl Child {
         match &self.0 {
             None => html! {},
             Some(m) => {
-                let mut component = m.read().clone_box();
+                let mut component = m.clone_box();
                 component.render(cx).await
             }
         }
@@ -66,32 +69,32 @@ impl Child {
     // Devuelve el [`UniqueId`] del tipo del componente, si el Child no está vacío.
     #[inline]
     fn type_id(&self) -> Option<UniqueId> {
-        self.0.as_ref().map(|c| c.read().type_id())
+        self.0.as_ref().map(|c| c.type_id())
     }
 }
 
 impl<C: Component + 'static> From<Embed<C>> for Child {
     /// Convierte un [`Embed<C>`] en un [`Child`], consumiendo el componente tipado.
     ///
-    /// Útil cuando se tiene un [`Embed`] y se necesita añadirlo a una lista [`Children`]:
+    /// Útil cuando se tiene un [`Embed`] para añadir a una lista [`Children`]:
     ///
-    /// ```rust,ignore
-    /// children.with_child(Child::from(my_embed));
-    /// // o equivalentemente:
-    /// children.with_child(my_embed.into());
+    /// ```rust,no_run
+    /// # use pagetop::prelude::*;
+    /// let my_embed = Embed::with(Html::with(|_| html! { "Text" }));
+    /// let children = Children::new().with_child(Child::from(my_embed));
+    ///
+    /// // De forma equivalente se puede usar la conversión implícita hacia `Child`:
+    /// let my_embed = Embed::with(Html::with(|_| html! { "Text" }));
+    /// let child: Child = my_embed.into();
+    /// let children = children.with_child(child);
     /// ```
     fn from(embed: Embed<C>) -> Self {
-        match embed.0 {
-            None => Child(None),
-            Some(arc) => Child(Some(Arc::new(RwLock::new(match Arc::try_unwrap(arc) {
-                Ok(c) => Box::new(c) as Box<dyn Component>,
-                Err(arc) => arc.clone_box(),
-            })))),
-        }
+        Child(embed.0.map(|arc| arc as Arc<dyn Component>))
     }
 }
 
 impl<T: Component + 'static> From<T> for Child {
+    /// Convierte cualquier componente en un [`Child`], equivalente a [`Child::with()`].
     #[inline]
     fn from(component: T) -> Self {
         Child::with(component)
@@ -270,12 +273,13 @@ pub enum ChildOp {
 /// Gracias a esto, [`with_child`](Self::with_child) acepta un componente directamente o cualquier
 /// variante de [`ChildOp`]:
 ///
-/// ```rust,ignore
+/// ```rust,no_run
+/// # use pagetop::prelude::*;
 /// // Añadir al final de la lista (implícito):
-/// children.with_child(MiComponente::new());
+/// let children = Children::new().with_child(Html::new());
 ///
 /// // Operación explícita:
-/// children.with_child(ChildOp::Prepend(MiComponente::new().into()));
+/// let children = children.with_child(ChildOp::Prepend(Html::new().into()));
 /// ```
 #[derive(AutoDefault, Clone, Debug)]
 pub struct Children(Vec<Child>);
@@ -458,8 +462,9 @@ impl IntoIterator for Children {
     ///
     /// # Ejemplo
     ///
-    /// ```rust,ignore
-    /// let children = Children::new().with_child(child1).with_child(child2);
+    /// ```rust,no_run
+    /// # use pagetop::prelude::*;
+    /// let children = Children::new().with_child(Html::new()).with_child(Html::new());
     /// for child in children {
     ///     println!("{:?}", child.id());
     /// }
@@ -477,8 +482,9 @@ impl<'a> IntoIterator for &'a Children {
     ///
     /// # Ejemplo
     ///
-    /// ```rust,ignore
-    /// let children = Children::new().with_child(child1).with_child(child2);
+    /// ```rust,no_run
+    /// # use pagetop::prelude::*;
+    /// let children = Children::new().with_child(Html::new()).with_child(Html::new());
     /// for child in &children {
     ///     println!("{:?}", child.id());
     /// }
@@ -496,10 +502,12 @@ impl<'a> IntoIterator for &'a mut Children {
     ///
     /// # Ejemplo
     ///
-    /// ```rust,ignore
-    /// let mut children = Children::new().with_child(child1).with_child(child2);
-    /// for child in &mut children {
-    ///     child.render(&mut context).await;
+    /// ```rust,no_run
+    /// # use pagetop::prelude::*;
+    /// async fn render_all(mut children: Children, context: &mut Context) {
+    ///     for child in &mut children {
+    ///         child.render(context).await;
+    ///     }
     /// }
     /// ```
     fn into_iter(self) -> Self::IntoIter {
