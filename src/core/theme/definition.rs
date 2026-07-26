@@ -1,8 +1,9 @@
 use crate::async_trait;
-use crate::base::component::{Html, Intro, IntroOpening};
-use crate::core::component::{ChildOp, Component, ComponentError, Context, Contextual};
+use crate::base::component::{Html, Intro, IntroOpening, layout};
+use crate::core::component::{ChildOp, Component, ComponentError, ComponentRender};
+use crate::core::component::{Context, Contextual};
 use crate::core::extension::Extension;
-use crate::core::theme::{DefaultRegions, DefaultTemplates, TemplateRef};
+use crate::core::theme::CoreRegion;
 use crate::global;
 use crate::html::{Markup, html};
 use crate::locale::L10n;
@@ -13,10 +14,10 @@ use crate::web::http::StatusCode;
 ///
 /// Un tema es una [`Extension`](crate::core::extension::Extension) que define el aspecto general de
 /// las páginas: cómo se renderiza el `<head>`, cómo se presenta el `<body>` usando plantillas
-/// ([`Template`](crate::core::theme::Template)) que maquetan regiones
-/// ([`Region`](crate::core::theme::Region)) y qué contenido mostrar en las páginas de error. El
-/// contenido de cada región depende del [`Context`](crate::core::component::Context) y de su nombre
-/// lógico.
+/// ([`TemplateName`](crate::core::theme::TemplateName)) que maquetan regiones
+/// ([`RegionName`](crate::core::theme::RegionName)) y qué contenido mostrar en las páginas de
+/// error. El contenido de cada región depende del [`Context`](crate::core::component::Context) y de
+/// su nombre lógico.
 ///
 /// Todos los métodos de este *trait* tienen una implementación por defecto, por lo que pueden
 /// sobrescribirse selectivamente para crear nuevos temas con comportamientos distintos a los
@@ -59,34 +60,6 @@ pub trait Theme: Extension + Send + Sync {
         None
     }
 
-    /// Devuelve la plantilla ([`Template`](crate::core::theme::Template)) que el propio tema
-    /// propone como predeterminada.
-    ///
-    /// Se utiliza al inicializar un [`Context`](crate::core::component::Context) o una página
-    /// ([`Page`](crate::response::Page)) por si no se elige ninguna otra plantilla con
-    /// [`Contextual::with_template()`](crate::core::component::Contextual::with_template).
-    ///
-    /// La implementación por defecto devuelve la plantilla [`DefaultTemplates::Standard`] con una
-    /// estructura básica para la página. Los temas pueden sobrescribir este método para seleccionar
-    /// otra plantilla predeterminada o una plantilla propia.
-    #[inline]
-    fn default_template(&self) -> TemplateRef {
-        self.parent()
-            .map_or(&DefaultTemplates::Standard, |p| p.default_template())
-    }
-
-    /// Devuelve la plantilla ([`Template`](crate::core::theme::Template)) que el tema propone para
-    /// la interfaz de administración.
-    ///
-    /// La implementación por defecto devuelve la plantilla [`DefaultTemplates::Admin`] con una
-    /// estructura básica para la interfaz de administración. Los temas pueden sobrescribir este
-    /// método para seleccionar otra plantilla predeterminada o una plantilla propia.
-    #[inline]
-    fn admin_template(&self) -> TemplateRef {
-        self.parent()
-            .map_or(&DefaultTemplates::Admin, |p| p.admin_template())
-    }
-
     /// Acciones específicas del tema antes de renderizar el `<body>` de la página.
     ///
     /// Es un buen lugar para inicializar o ajustar recursos en función del contexto de la página,
@@ -107,14 +80,13 @@ pub trait Theme: Extension + Send + Sync {
     /// Renderiza el contenido del `<body>` de la página.
     ///
     /// La implementación predeterminada delega en la plantilla asociada a la página, obtenida desde
-    /// su [`Context`](crate::core::component::Context), y llama a
-    /// [`Template::render()`](crate::core::theme::Template::render) para componer el `<body>` a
-    /// partir de las regiones.
+    /// su [`Context`](crate::core::component::Context), para componer el `<body>` a partir de las
+    /// regiones.
     ///
     /// Con la configuración por defecto, la plantilla estándar utiliza las regiones
-    /// [`DefaultRegions::Header`](crate::core::theme::DefaultRegions::Header),
-    /// [`DefaultRegions::Content`](crate::core::theme::DefaultRegions::Content) y
-    /// [`DefaultRegions::Footer`](crate::core::theme::DefaultRegions::Footer) en ese orden.
+    /// [`CoreRegion::Header`](crate::core::theme::CoreRegion::Header),
+    /// [`CoreRegion::Content`](crate::core::theme::CoreRegion::Content) y
+    /// [`CoreRegion::Footer`](crate::core::theme::CoreRegion::Footer) en ese orden.
     ///
     /// Los temas pueden sobrescribir este método para:
     ///
@@ -127,7 +99,8 @@ pub trait Theme: Extension + Send + Sync {
         if let Some(parent) = self.parent() {
             parent.render_page_body(page).await
         } else {
-            page.template().render(page.context()).await
+            let template = page.template();
+            layout::Template::of(template).render(page.context()).await
         }
     }
 
@@ -247,16 +220,16 @@ pub trait Theme: Extension + Send + Sync {
 
     /// Contenido predefinido para la página de error "*403 - Forbidden*" (acceso denegado).
     ///
-    /// Normalmente se renderiza con la plantilla predeterminada del tema (por defecto suele ser
-    /// [`DefaultTemplates::Standard`]), para que el usuario no pierda el contexto de navegación del
-    /// sitio. Los temas pueden sobrescribir este método para personalizar completamente el diseño y
-    /// el contenido de la página de error.
+    /// Normalmente se renderiza con la plantilla ya activa en la página (por ejemplo
+    /// [`CoreTemplate::Standard`](crate::core::theme::CoreTemplate::Standard)), para que el usuario
+    /// no pierda el contexto de navegación del sitio. Los temas pueden sobrescribir este método
+    /// para personalizar completamente el diseño y el contenido de la página de error.
     fn error_403(&self, page: &mut Page) {
         if let Some(parent) = self.parent() {
             return parent.error_403(page);
         }
         page.alter_title(L10n::l("error403_title")).alter_child_in(
-            &DefaultRegions::Content,
+            &CoreRegion::Content,
             ChildOp::Prepend(
                 Html::with(move |cx| {
                     html! {
@@ -273,15 +246,16 @@ pub trait Theme: Extension + Send + Sync {
 
     /// Contenido predefinido para la página de error "*404 - Not Found*" (recurso no encontrado).
     ///
-    /// Normalmente se renderiza con la plantilla predeterminada del tema (por defecto suele ser
-    /// [`DefaultTemplates::Standard`]). Los temas pueden sobrescribir este método para personalizar
-    /// completamente el diseño y el contenido de la página de error.
+    /// Normalmente se renderiza con la plantilla ya activa en la página (por ejemplo
+    /// [`CoreTemplate::Standard`](crate::core::theme::CoreTemplate::Standard)). Los temas pueden
+    /// sobrescribir este método para personalizar completamente el diseño y el contenido de la
+    /// página de error.
     fn error_404(&self, page: &mut Page) {
         if let Some(parent) = self.parent() {
             return parent.error_404(page);
         }
         page.alter_title(L10n::l("error404_title")).alter_child_in(
-            &DefaultRegions::Content,
+            &CoreRegion::Content,
             ChildOp::Prepend(
                 Html::with(move |cx| {
                     html! {
@@ -307,9 +281,10 @@ pub trait Theme: Extension + Send + Sync {
     /// funcionan con normalidad.
     ///
     /// Por defecto, asigna el título al documento (`title`), se renderiza con la plantilla ya
-    /// activa en la página (normalmente [`DefaultTemplates::Standard`]) y muestra un componente
-    /// [`Intro`] con el código HTTP del error (`code`) y los mensajes proporcionados (`alert` y
-    /// `help`) como descripción del error.
+    /// activa en la página (normalmente
+    /// [`CoreTemplate::Standard`](crate::core::theme::CoreTemplate::Standard)) y muestra un
+    /// componente [`Intro`] con el código HTTP del error (`code`) y los mensajes proporcionados
+    /// (`alert` y `help`) como descripción del error.
     ///
     /// Este método no se utiliza en las implementaciones predefinidas de [`Self::error_403()`] ni
     /// [`Self::error_404()`], que definen su propio contenido específico.
@@ -326,7 +301,7 @@ pub trait Theme: Extension + Send + Sync {
             return parent.error_fatal(page, code, title, alert, help);
         }
         page.alter_title(title).alter_child_in(
-            &DefaultRegions::Content,
+            &CoreRegion::Content,
             ChildOp::Prepend(
                 Intro::new()
                     .with_title(L10n::l("error_code").with_arg("code", code.to_string()))

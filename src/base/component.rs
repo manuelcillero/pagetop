@@ -1,5 +1,7 @@
 //! Componentes nativos proporcionados por PageTop.
 
+pub mod layout;
+
 mod block;
 pub use block::Block;
 

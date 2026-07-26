@@ -2,7 +2,8 @@ use crate::auth::CurrentUser;
 use crate::core::TypeInfo;
 use crate::core::component::{ChildOp, Component, MessageLevel, StatusMessage};
 use crate::core::theme::all::DEFAULT_THEME;
-use crate::core::theme::{ChildrenInRegions, DefaultRegions, RegionRef, TemplateRef, ThemeRef};
+use crate::core::theme::{ChildrenInRegions, CoreRegion, CoreTemplate};
+use crate::core::theme::{RegionRef, TemplateRef, ThemeRef};
 use crate::html::{Assets, Favicon, JavaScript, Preload, StyleSheet};
 use crate::html::{Markup, Props, PropsOp, RoutePath, html};
 use crate::locale::L10n;
@@ -77,7 +78,7 @@ pub enum ContextError {
 /// fn prepare_context<C: Contextual>(cx: C) -> C {
 ///     cx.with_langid(&Locale::resolve("es-ES"))
 ///       .with_theme(&Aliner)
-///       .with_template(&DefaultTemplates::Standard)
+///       .with_template(&CoreTemplate::Standard)
 ///       .with_assets(AssetsOp::SetFavicon(Some(Favicon::new().with_icon("/favicon.ico"))))
 ///       .with_assets(AssetsOp::AddStyleSheet(StyleSheet::from("/css/app.css")))
 ///       .with_assets(AssetsOp::AddJavaScript(JavaScript::defer("/js/app.js")))
@@ -137,7 +138,7 @@ pub trait Contextual: LangId {
     /// Añade un componente o aplica una operación [`ChildOp`] en una región específica del
     /// documento.
     #[builder_fn]
-    fn with_child_in(self, region_ref: RegionRef, op: impl Into<ChildOp>) -> Self;
+    fn with_child_in(self, region: RegionRef, op: impl Into<ChildOp>) -> Self;
 
     // **< Contextual GETTERS >*********************************************************************
 
@@ -236,28 +237,6 @@ pub trait Contextual: LangId {
     fn remove_param(&mut self, key: &'static str) -> bool;
 }
 
-// Cómo obtener la plantilla activa del contexto: la del tema (por defecto o de administración), o
-// una fijada explícitamente. Se resuelve contra el tema activo al leer `Context::template()`, no al
-// asignarla, para que un cambio de tema posterior con `with_theme()` se refleje automáticamente.
-enum TemplateSource {
-    // Plantilla por defecto.
-    Default,
-    // Plantilla de administración del tema activo.
-    Admin,
-    // Plantilla fijada explícitamente con `with_template()`.
-    Explicit(TemplateRef),
-}
-
-impl TemplateSource {
-    fn resolve(&self, theme: ThemeRef) -> TemplateRef {
-        match self {
-            Self::Default => theme.default_template(),
-            Self::Admin => theme.admin_template(),
-            Self::Explicit(template) => *template,
-        }
-    }
-}
-
 /// Implementa un **contexto de renderizado** para un documento HTML.
 ///
 /// Se crea una sola vez por petición usando [`Context::new()`] (típicamente a través de
@@ -278,9 +257,8 @@ impl TemplateSource {
 ///   identificadores HTML únicos por tipo de componente.
 /// - [`push_message()`](Self::push_message)/[`messages()`](Self::messages) para acumular
 ///   [`StatusMessage`] que mostrar en algún momento del renderizado.
-/// - [`render_assets()`](Self::render_assets)/[`render_region_named()`](Self::render_region_named),
-///   usados internamente por [`Page`](crate::response::Page) para producir el HTML final del
-///   documento.
+/// - [`render_assets()`](Self::render_assets)/[`render_region()`](Self::render_region), usados
+///   internamente por [`Page`](crate::response::Page) para producir el HTML final del documento.
 ///
 /// # Ejemplos
 ///
@@ -332,7 +310,7 @@ pub struct Context {
     locale      : RequestLocale,                  // Idioma asociado a la petición.
     current_user: CurrentUser,                    // Identidad del usuario actual.
     theme       : ThemeRef,                       // Referencia al tema usado para renderizar.
-    template    : TemplateSource,                 // Plantilla usada para renderizar.
+    template    : TemplateRef,                    // Plantilla usada para renderizar.
     favicon     : Option<Favicon>,                // Favicon, si se ha definido.
     preloads    : Assets<Preload>,                // Recursos para precarga.
     stylesheets : Assets<StyleSheet>,             // Hojas de estilo CSS.
@@ -364,7 +342,7 @@ impl Context {
             locale,
             current_user,
             theme      : *DEFAULT_THEME,
-            template   : TemplateSource::Default,
+            template   : &CoreTemplate::Standard,
             favicon    : None,
             preloads   : Assets::<Preload>::new(),
             stylesheets: Assets::<StyleSheet>::new(),
@@ -384,13 +362,6 @@ impl Context {
             .and_then(|r| r.extension::<CurrentUser>())
             .cloned()
             .unwrap_or(CurrentUser::Anonymous)
-    }
-
-    // Fuerza la plantilla de administración del tema activo (usada por `Page::admin()`). Se
-    // resuelve dinámicamente contra `self.theme`, igual que `TemplateSource::Default`, así que
-    // sigue reflejando cualquier cambio de tema posterior con `with_theme()`.
-    pub(crate) fn use_admin_template(&mut self) {
-        self.template = TemplateSource::Admin;
     }
 
     // **< Context RENDER >*************************************************************************
@@ -426,9 +397,13 @@ impl Context {
     }
 
     /// Renderiza los componentes de una región.
-    pub async fn render_region_named(&mut self, region_name: &str) -> Markup {
+    ///
+    /// Combina los componentes registrados para esta región en la petición actual con los
+    /// prototipos globales añadidos vía [`InRegion`](crate::core::theme::InRegion) (comunes o
+    /// específicos del tema activo).
+    pub async fn render_region(&mut self, region: RegionRef) -> Markup {
         self.regions
-            .assemble_region(self.theme, region_name)
+            .assemble_region(self.theme, region)
             .render(self)
             .await
     }
@@ -568,7 +543,7 @@ impl Contextual for Context {
 
     #[builder_fn]
     fn with_template(mut self, template: TemplateRef) -> Self {
-        self.template = TemplateSource::Explicit(template);
+        self.template = template;
         self
     }
 
@@ -624,14 +599,13 @@ impl Contextual for Context {
 
     #[builder_fn]
     fn with_child(mut self, op: impl Into<ChildOp>) -> Self {
-        self.regions
-            .alter_child_in(&DefaultRegions::Content, op.into());
+        self.regions.alter_child_in(&CoreRegion::Content, op.into());
         self
     }
 
     #[builder_fn]
-    fn with_child_in(mut self, region_ref: RegionRef, op: impl Into<ChildOp>) -> Self {
-        self.regions.alter_child_in(region_ref, op.into());
+    fn with_child_in(mut self, region: RegionRef, op: impl Into<ChildOp>) -> Self {
+        self.regions.alter_child_in(region, op.into());
         self
     }
 
@@ -650,7 +624,7 @@ impl Contextual for Context {
     }
 
     fn template(&self) -> TemplateRef {
-        self.template.resolve(self.theme)
+        self.template
     }
 
     fn param<T: 'static>(&self, key: &'static str) -> Result<&T, ContextError> {

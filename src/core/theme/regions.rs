@@ -1,5 +1,5 @@
 use crate::core::component::{Child, ChildOp, Children, Component};
-use crate::core::theme::{DefaultRegions, RegionRef, ThemeRef};
+use crate::core::theme::{CoreRegion, RegionRef, ThemeRef};
 use crate::{AutoDefault, UniqueId, builder_fn};
 
 use parking_lot::RwLock;
@@ -43,20 +43,19 @@ static COMMON_REGIONS: LazyLock<RwLock<RegionComponents>> =
 pub(crate) struct ChildrenInRegions(HashMap<String, Children>);
 
 impl ChildrenInRegions {
-    pub fn with(region_ref: RegionRef, child: Child) -> Self {
-        Self::default().with_child_in(region_ref, child)
+    pub fn with(region: RegionRef, child: Child) -> Self {
+        Self::default().with_child_in(region, child)
     }
 
     #[builder_fn]
-    pub fn with_child_in(mut self, region_ref: RegionRef, op: impl Into<ChildOp>) -> Self {
+    pub fn with_child_in(mut self, region: RegionRef, op: impl Into<ChildOp>) -> Self {
         let child = op.into();
-        if let Some(region) = self.0.get_mut(region_ref.name()) {
+        let region_name = region.name();
+        if let Some(region) = self.0.get_mut(region_name) {
             region.alter_child(child);
         } else {
-            self.0.insert(
-                region_ref.name().to_owned(),
-                Children::new().with_child(child),
-            );
+            let children = Children::new().with_child(child);
+            self.0.insert(region_name.to_owned(), children);
         }
         self
     }
@@ -71,7 +70,8 @@ impl ChildrenInRegions {
     ///    lugar de clonarse, ya que son de un único uso.
     /// 3. Prototipos del tema activo, exclusivos del tema en curso. También se clonan para asegurar
     ///    que llegan a `setup()` con el mismo estado inicial.
-    pub fn assemble_region(&mut self, theme_ref: ThemeRef, region_name: &str) -> Children {
+    pub fn assemble_region(&mut self, theme: ThemeRef, region: RegionRef) -> Children {
+        let region_name = region.name();
         let common = COMMON_REGIONS.read();
         let themed = THEME_REGIONS.read();
 
@@ -90,7 +90,7 @@ impl ChildrenInRegions {
             }
         }
         // 3. Prototipos del tema activo.
-        if let Some(theme_map) = themed.get(&theme_ref.type_id()) {
+        if let Some(theme_map) = themed.get(&theme.type_id()) {
             if let Some(protos) = theme_map.get(region_name) {
                 for proto in protos {
                     result.add(proto.as_child());
@@ -118,31 +118,27 @@ impl ChildrenInRegions {
 /// InRegion::Content.add(Html::with(|_| html! { "🎉 ¡Bienvenido!" }));
 ///
 /// // Texto en la cabecera, visible en todos los temas.
-/// InRegion::Global(&DefaultRegions::Header).add(Html::with(|_| html! { "Publicidad" }));
+/// InRegion::Global(&CoreRegion::Header).add(Html::with(|_| html! { "Publicidad" }));
 /// ```
 pub enum InRegion {
     /// Región principal de **contenido** por defecto.
     ///
-    /// Añade el componente a la región lógica de contenido principal de la aplicación. Por
-    /// convención, esta región corresponde a [`DefaultRegions::Content`], cuyo nombre es
-    /// `"content"`. Cualquier tema que renderice esa misma región de contenido, ya sea usando
-    /// directamente [`DefaultRegions::Content`] o cualquier otra implementación de
-    /// [`Region`](crate::core::theme::Region) que devuelva ese mismo nombre, mostrará los
-    /// componentes registrados aquí, aunque lo harán según su propio método de renderizado
-    /// ([`Region::render()`](crate::core::theme::Region::render)).
+    /// Añade el componente a la región lógica de contenido principal de la aplicación. Internamente
+    /// equivale a `InRegion::Global(&CoreRegion::Content)`.
     Content,
     /// Región global compartida por todos los temas.
     ///
     /// Los componentes añadidos aquí se asocian al nombre de la región indicado por [`RegionRef`],
-    /// es decir, al valor devuelto por [`Region::name()`](crate::core::theme::Region::name) para
-    /// esa región. Se mostrarán en cualquier tema cuya plantilla renderice una región que devuelva
-    /// ese mismo nombre.
+    /// es decir, al valor devuelto por
+    /// [`RegionName::name()`](crate::core::theme::RegionName::name) para esa región. Se mostrarán
+    /// en cualquier tema que renderice la región que devuelva ese nombre.
     Global(RegionRef),
     /// Región asociada a un tema concreto.
     ///
-    /// Los componentes sólo se renderizarán cuando el documento se procese con el tema indicado y
-    /// se utilice la región referenciada. Resulta útil para añadir contenido específico en un tema
-    /// sin afectar a otros.
+    /// Los componentes sólo se renderizarán cuando el documento se procese exactamente con el tema
+    /// indicado (no sirve un tema hijo que lo herede), y se utilice la región referenciada. A
+    /// diferencia del resto de comportamiento de `Theme`, este registro no sigue la cadena
+    /// `parent()`. Resulta útil para añadir contenido específico en un tema sin afectar a otros.
     ForTheme(ThemeRef, RegionRef),
 }
 
@@ -163,26 +159,26 @@ impl InRegion {
     /// }));
     ///
     /// // Texto en la cabecera.
-    /// InRegion::Global(&DefaultRegions::Header).add(Html::with(|_| {
+    /// InRegion::Global(&CoreRegion::Header).add(Html::with(|_| {
     ///     html! { "Publicidad" }
     /// }));
     ///
     /// // Contenido sólo para la región del pie de página en un tema concreto.
-    /// InRegion::ForTheme(&theme::Basic, &DefaultRegions::Footer).add(Html::with(|_| {
+    /// InRegion::ForTheme(&theme::Basic, &CoreRegion::Footer).add(Html::with(|_| {
     ///     html! { "Aviso legal" }
     /// }));
     /// ```
     pub fn add(&self, component: impl Component + Clone + 'static) -> &Self {
         let proto: Arc<dyn ComponentGlobal> = Arc::new(component);
         match self {
-            InRegion::Content => Self::add_to_common(&DefaultRegions::Content, proto),
-            InRegion::Global(region_ref) => Self::add_to_common(*region_ref, proto),
-            InRegion::ForTheme(theme_ref, region_ref) => {
+            InRegion::Content => Self::add_to_common(&CoreRegion::Content, proto),
+            InRegion::Global(region) => Self::add_to_common(*region, proto),
+            InRegion::ForTheme(theme, region) => {
                 THEME_REGIONS
                     .write()
-                    .entry(theme_ref.type_id())
+                    .entry(theme.type_id())
                     .or_default()
-                    .entry((*region_ref).name().to_owned())
+                    .entry((*region).name().to_owned())
                     .or_default()
                     .push(proto);
             }
@@ -191,10 +187,10 @@ impl InRegion {
     }
 
     #[inline]
-    fn add_to_common(region_ref: RegionRef, proto: Arc<dyn ComponentGlobal>) {
+    fn add_to_common(region: RegionRef, proto: Arc<dyn ComponentGlobal>) {
         COMMON_REGIONS
             .write()
-            .entry(region_ref.name().to_owned())
+            .entry(region.name().to_owned())
             .or_default()
             .push(proto);
     }

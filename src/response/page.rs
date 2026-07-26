@@ -2,16 +2,17 @@
 //!
 //! Este módulo define [`Page`], que representa una página HTML lista para renderizar. Cada página
 //! se construye a partir de un [`Context`] propio, donde se registran el tema activo, la plantilla
-//! ([`Template`](crate::core::theme::Template)) que define la disposición de las regiones
-//! ([`Region`]), los componentes asociados y los recursos adicionales (hojas de estilo, scripts,
-//! *favicon*, etc.).
+//! ([`TemplateName`](crate::core::theme::TemplateName)) que define la disposición de las regiones
+//! ([`RegionName`]), los componentes asociados y los recursos adicionales (hojas de estilo,
+//! scripts, *favicon*, etc.).
 //!
 //! El renderizado ([`Page::render()`]) delega en el tema ([`Theme`](crate::core::theme::Theme)) la
 //! composición del `<head>` y del `<body>`, y se ejecutan las acciones registradas por las
 //! extensiones antes y después de generar los contenidos.
 //!
-//! También introduce regiones internas reservadas ([`ReservedRegion`]) que actúan como puntos de
-//! anclaje globales al inicio y al final del documento.
+//! También define las regiones internas reservadas ([`ReservedRegion`]) que actúan como puntos de
+//! anclaje globales al inicio y al final del `<body>`, fuera de las regiones que maqueta la
+//! plantilla activa.
 
 mod error;
 pub use error::ErrorPage;
@@ -19,8 +20,10 @@ pub(crate) use error::{render_error_pages, response_for_panic, route_not_found};
 
 use crate::auth::CurrentUser;
 use crate::base::action;
-use crate::core::component::{AssetsOp, ChildOp, Context, ContextError, Contextual};
-use crate::core::theme::{DefaultRegions, Region, RegionRef, TemplateRef, ThemeRef};
+use crate::base::component::layout;
+use crate::core::component::{AssetsOp, ChildOp, ComponentRender};
+use crate::core::component::{Context, ContextError, Contextual};
+use crate::core::theme::{CoreRegion, CoreTemplate, RegionName, RegionRef, TemplateRef, ThemeRef};
 use crate::html::{Assets, Favicon, JavaScript, StyleSheet};
 use crate::html::{Attr, Props, PropsOp};
 use crate::html::{DOCTYPE, Markup, html};
@@ -32,37 +35,35 @@ use crate::{AutoDefault, builder_fn};
 
 /// Regiones internas reservadas como puntos de anclaje globales.
 ///
-/// Representan contenedores especiales situados al inicio y al final de un documento. Están
-/// pensadas para proporcionar regiones donde inyectar contenido global o técnico. No suelen usarse
-/// como regiones visibles en los temas.
+/// Representan contenedores especiales situados al inicio y al final del `<body>`, fuera de las
+/// regiones que maqueta la plantilla activa. Las renderiza directamente [`Page::render()`],
+/// envolviendo el resultado de
+/// [`Theme::render_page_body()`](crate::core::theme::Theme::render_page_body). **No suelen usarse
+/// como regiones "visibles" en los temas**, sino para inyectar contenido global o técnico.
+#[derive(AutoDefault)]
 pub enum ReservedRegion {
-    /// Región interna situada al **inicio del documento**.
+    /// Región interna situada al **inicio del `<body>`**, de nombre `"page-top"`.
     ///
-    /// Su función es proporcionar un contenedor donde las extensiones puedan inyectar contenido
-    /// global antes del resto de regiones principales (cabecera, contenido, etc.).
-    ///
-    /// No suele utilizarse en los temas como una región “visible” dentro del maquetado habitual,
-    /// sino como punto de anclaje para elementos auxiliares, marcadores técnicos, inicializadores o
-    /// contenido de depuración que deban situarse en la parte superior del documento.
+    /// Proporciona un contenedor donde las extensiones puedan inyectar elementos auxiliares antes
+    /// del resto de regiones (cabecera, contenido, etc.), como marcadores técnicos, inicializadores
+    /// o contenido de depuración.
     ///
     /// Se considera una región **reservada** para este tipo de usos globales.
+    #[default]
     PageTop,
 
-    /// Región interna situada al **final del documento**.
+    /// Región interna situada al **final del `<body>`**, de nombre `"page-bottom"`.
     ///
-    /// Pensada para proporcionar un contenedor donde las extensiones puedan inyectar contenido
-    /// global después del resto de regiones principales (cabecera, contenido, etc.).
-    ///
-    /// No suele utilizarse en los temas como una región “visible” dentro del maquetado habitual,
-    /// sino como punto de anclaje para elementos auxiliares asociados a comportamientos dinámicos
-    /// que deban situarse en la parte inferior del documento.
+    /// Proporciona un contenedor donde las extensiones puedan inyectar contenido global después del
+    /// resto de regiones (cabecera, contenido, etc.), como elementos auxiliares asociados a
+    /// comportamientos dinámicos.
     ///
     /// Igual que [`Self::PageTop`], se considera una región **reservada** para este tipo de usos
     /// globales.
     PageBottom,
 }
 
-impl Region for ReservedRegion {
+impl RegionName for ReservedRegion {
     #[inline]
     fn name(&self) -> &'static str {
         match self {
@@ -101,22 +102,23 @@ impl Page {
     /// [`CurrentUser`] inyectado por middleware en sus extensiones (ver
     /// [`Context::new`](crate::core::component::Context::new)). Cualquier handler tiene acceso al
     /// usuario actual desde el momento en que se crea la página, sin llamadas adicionales.
-    #[rustfmt::skip]
     pub fn new(request: HttpRequest) -> Self {
         Page {
-            title       : Attr::<L10n>::default(),
-            description : Attr::<L10n>::default(),
-            metadata    : Vec::default(),
-            properties  : Vec::default(),
-            context     : Context::new(Some(request)),
+            context: Context::new(Some(request)),
+            ..Default::default()
         }
     }
 
-    /// Crea una nueva instancia de página con la plantilla de administración del tema activo.
+    /// Crea una nueva instancia de página con la plantilla [`CoreTemplate::Admin`].
+    ///
+    /// Cada tema puede maquetarla de forma distinta capturando
+    /// [`Template`](crate::base::component::layout::Template) en `handle_component()`, pero la
+    /// plantilla en sí es la misma constante para cualquier tema.
     pub fn admin(request: HttpRequest) -> Self {
-        let mut page = Page::new(request);
-        page.context().use_admin_template();
-        page
+        Page {
+            context: Context::new(Some(request)).with_template(&CoreTemplate::Admin),
+            ..Default::default()
+        }
     }
 
     // **< Page BUILDER >***************************************************************************
@@ -217,9 +219,9 @@ impl Page {
 
         // Renderiza el <body>.
         let body = html! {
-            (ReservedRegion::PageTop.render(&mut self.context).await)
+            (layout::Region::of(&ReservedRegion::PageTop).render(&mut self.context).await)
             (self.context.theme().render_page_body(self).await)
-            (ReservedRegion::PageBottom.render(&mut self.context).await)
+            (layout::Region::of(&ReservedRegion::PageBottom).render(&mut self.context).await)
         };
 
         // Acciones específicas del tema después de renderizar el <body>.
@@ -310,14 +312,13 @@ impl Contextual for Page {
 
     #[builder_fn]
     fn with_child(mut self, op: impl Into<ChildOp>) -> Self {
-        self.context
-            .alter_child_in(&DefaultRegions::Content, op.into());
+        self.context.alter_child_in(&CoreRegion::Content, op.into());
         self
     }
 
     #[builder_fn]
-    fn with_child_in(mut self, region_ref: RegionRef, op: impl Into<ChildOp>) -> Self {
-        self.context.alter_child_in(region_ref, op.into());
+    fn with_child_in(mut self, region: RegionRef, op: impl Into<ChildOp>) -> Self {
+        self.context.alter_child_in(region, op.into());
         self
     }
 
