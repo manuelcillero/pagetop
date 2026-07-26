@@ -11,7 +11,7 @@ fn header<'a>(response: &'a web::Response, name: &str) -> Option<&'a str> {
     response.headers().get(name)?.to_str().ok()
 }
 
-// **< HtmxResponse::new() / empty() >**************************************************************
+// **< HtmxResponse::new() / empty() / oob() >******************************************************
 
 #[pagetop::test]
 async fn new_renders_the_given_markup_with_an_html_content_type() {
@@ -37,6 +37,50 @@ async fn empty_has_no_body_but_keeps_the_html_content_type() {
 
     let body = web::test::read_body_text(response).await;
     assert_eq!(body, "");
+}
+
+#[pagetop::test]
+async fn oob_appends_markup_after_the_main_body() {
+    let response = HtmxResponse::new(html! { li #item-42 { "New item" } })
+        .oob(html! { span #item-count hx-swap-oob="true" { "1" } })
+        .into_response();
+
+    let body = web::test::read_body_text(response).await;
+    assert_eq!(
+        body,
+        concat!(
+            r#"<li id="item-42">New item</li>"#,
+            r#"<span id="item-count" hx-swap-oob="true">1</span>"#,
+        )
+    );
+}
+
+#[pagetop::test]
+async fn oob_can_be_called_several_times_to_accumulate_fragments() {
+    let response = HtmxResponse::new(html! { p { "Main" } })
+        .oob(html! { span #a hx-swap-oob="true" { "A" } })
+        .oob(html! { span #b hx-swap-oob="true" { "B" } })
+        .into_response();
+
+    let body = web::test::read_body_text(response).await;
+    assert_eq!(
+        body,
+        concat!(
+            "<p>Main</p>",
+            r#"<span id="a" hx-swap-oob="true">A</span>"#,
+            r#"<span id="b" hx-swap-oob="true">B</span>"#,
+        )
+    );
+}
+
+#[pagetop::test]
+async fn oob_works_from_an_empty_response() {
+    let response = HtmxResponse::empty()
+        .oob(html! { span #item-count hx-swap-oob="true" { "0" } })
+        .into_response();
+
+    let body = web::test::read_body_text(response).await;
+    assert_eq!(body, r#"<span id="item-count" hx-swap-oob="true">0</span>"#);
 }
 
 // **< location() / location_json() >***************************************************************

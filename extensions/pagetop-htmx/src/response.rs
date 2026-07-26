@@ -2,6 +2,8 @@
 
 use pagetop::prelude::*;
 
+use crate::hx;
+
 // **< HtmxResponse >*******************************************************************************
 
 /// Generador de respuestas HTML parciales con cabeceras HTMX.
@@ -18,7 +20,7 @@ use pagetop::prelude::*;
 /// use pagetop::prelude::*;
 /// use pagetop_htmx::prelude::*;
 ///
-/// async fn add_item(request: HttpRequest) -> impl IntoResponse {
+/// async fn add_item() -> impl IntoResponse {
 ///     let new_item = html! { li #item-42 { "New item" } };
 ///
 ///     HtmxResponse::new(new_item)
@@ -47,6 +49,21 @@ use pagetop::prelude::*;
 ///
 /// - [`HtmxResponse::new(markup)`](Self::new), con el fragmento HTML.
 /// - [`HtmxResponse::empty()`](Self::empty), sin cuerpo, sólo cabeceras.
+///
+/// # Sustituciones fuera de banda (*Out-of-band*)
+///
+/// Sirve para cuando una misma acción tiene que actualizar dos partes del DOM que no están una
+/// dentro de la otra, así que no caben en el mismo [`hx::TARGET`]. Por ejemplo, al borrar una fila
+/// de una tabla paginada donde la respuesta renderiza de nuevo la tabla hacia su destino habitual,
+/// pero un contador en la cabecera de la página vive fuera de ese contenedor. Si nadie le avisa, se
+/// queda mostrando el valor antiguo aunque la tabla ya esté actualizada.
+///
+/// [`oob()`](Self::oob) añade a la respuesta un fragmento adicional marcado con [`hx::SWAP_OOB`],
+/// que HTMX localiza por su propio `id` en cualquier parte del documento y sustituye aparte, sin
+/// depender del [`hx::TARGET`] de la petición. Así, una sola petición actualiza a la vez la tabla y
+/// el contador, en lugar de forzar una segunda petición aparte sólo para el contador, o de meter el
+/// contador dentro del mismo contenedor que la tabla únicamente para que quede sincronizado (ver
+/// ejemplo de [`oob()`](Self::oob)).
 ///
 /// # Cabeceras disponibles
 ///
@@ -86,6 +103,36 @@ impl HtmxResponse {
         Self::new(html! {})
     }
 
+    /// Añade contenido al cuerpo de la respuesta para una sustitución fuera de banda
+    /// (`hx-swap-oob`), además del fragmento principal.
+    ///
+    /// El propio `markup` debe llevar su `id` y el atributo [`hx::SWAP_OOB`] puestos en su elemento
+    /// raíz, típicamente vía `PropsOp::set(hx::SWAP_OOB, "true")` en los `Props` del componente que
+    /// se está actualizando fuera de banda, igual que ya hacen [`hx::TARGET`] o [`hx::SWAP`] en
+    /// cualquier otro atributo. Este método sólo concatena ese contenido al cuerpo de la respuesta;
+    /// no construye ningún envoltorio ni comprueba su contenido, porque HTMX localiza el elemento a
+    /// sustituir por su `id` en el DOM actual, no por la etiqueta que use aquí (envolverlo forzaría
+    /// una etiqueta que podría no coincidir con la del elemento real).
+    ///
+    /// Se puede llamar varias veces para acumular varios fragmentos; el orden no importa, porque
+    /// HTMX los localiza por separado en todo el cuerpo de la respuesta.
+    ///
+    /// ```rust,no_run
+    /// use pagetop::prelude::*;
+    /// use pagetop_htmx::prelude::*;
+    ///
+    /// # fn build_response(table: Markup, roles_count: i64) -> HtmxResponse {
+    /// let counter = html! {
+    ///     span #roles-count hx-swap-oob="true" { (roles_count) }
+    /// };
+    /// HtmxResponse::new(table).oob(counter)
+    /// # }
+    /// ```
+    pub fn oob(mut self, markup: Markup) -> Self {
+        self.markup = html! { (self.markup) (markup) };
+        self
+    }
+
     // **< HtmxResponse BUILDER >*******************************************************************
 
     /// Hace que HTMX realice una navegación AJAX a la URL indicada sin recargar la página.
@@ -106,17 +153,17 @@ impl HtmxResponse {
     /// # }
     /// ```
     pub fn location(self, url: impl Into<RoutePath>) -> Self {
-        self.set_header(b"hx-location", url.into().to_string())
+        self.set_header(hx::response::LOCATION.as_bytes(), url.into().to_string())
     }
 
     /// Hace que HTMX realice una navegación AJAX personalizada, con un objeto JSON de configuración
     /// en lugar de una URL simple.
     ///
-    /// Acepta un objeto JSON con las claves `path`, `target`, `swap`, `select` y `values` (ver la
-    /// [documentación de HTMX](https://htmx.org/reference/#response_headers) para el detalle de
-    /// cada una). Al no ser una URL, no admite `Context::route()`: si `path` necesita el parámetro
-    /// `lang`, hay que componerlo a mano antes de construir el JSON. Para una navegación simple sin
-    /// estas opciones, usa [`location()`](Self::location).
+    /// Acepta un objeto JSON con claves como `path`, `target`, `swap`, `select` o `values`, entre
+    /// otras (ver la [documentación de HTMX](https://htmx.org/reference/#response_headers) para el
+    /// listado completo y el detalle de cada una). Al no ser una URL, no admite `Context::route()`:
+    /// si `path` necesita el parámetro `lang`, hay que componerlo a mano antes de construir el
+    /// JSON. Para una navegación simple sin estas opciones, usa [`location()`](Self::location).
     ///
     /// Si `json` no es sintácticamente válido, la cabecera se descarta y se registra un aviso; el
     /// resto de la respuesta no se ve afectado. Esta comprobación sólo valida la sintaxis JSON, no
@@ -158,7 +205,7 @@ impl HtmxResponse {
             );
             return self;
         }
-        self.set_header(b"hx-location", json)
+        self.set_header(hx::response::LOCATION.as_bytes(), json)
     }
 
     /// Empuja la URL indicada al historial del navegador.
@@ -178,7 +225,7 @@ impl HtmxResponse {
     /// # }
     /// ```
     pub fn push_url(self, url: impl Into<RoutePath>) -> Self {
-        self.set_header(b"hx-push-url", url.into().to_string())
+        self.set_header(hx::response::PUSH_URL.as_bytes(), url.into().to_string())
     }
 
     /// Reemplaza la URL actual en el historial sin añadir una nueva entrada.
@@ -187,7 +234,7 @@ impl HtmxResponse {
     /// [`Context::route()`](pagetop::core::component::Context::route) en lugar de un literal para
     /// que la URL preserve el parámetro `lang` cuando corresponda.
     pub fn replace_url(self, url: impl Into<RoutePath>) -> Self {
-        self.set_header(b"hx-replace-url", url.into().to_string())
+        self.set_header(hx::response::REPLACE_URL.as_bytes(), url.into().to_string())
     }
 
     /// Provoca una redirección completa del navegador a la URL indicada.
@@ -207,14 +254,14 @@ impl HtmxResponse {
     /// # }
     /// ```
     pub fn redirect(self, url: impl Into<RoutePath>) -> Self {
-        self.set_header(b"hx-redirect", url.into().to_string())
+        self.set_header(hx::response::REDIRECT.as_bytes(), url.into().to_string())
     }
 
     /// Provoca una recarga completa de la página actual.
     ///
     /// Equivale a `window.location.reload()` en JavaScript.
     pub fn refresh(self) -> Self {
-        self.set_header(b"hx-refresh", "true")
+        self.set_header(hx::response::REFRESH.as_bytes(), "true")
     }
 
     /// Anula el `hx-target` del elemento y redirige la respuesta al selector CSS indicado.
@@ -222,7 +269,7 @@ impl HtmxResponse {
     /// Útil cuando el servidor necesita actualizar un elemento distinto al que realizó la petición,
     /// sin modificar el HTML del cliente.
     pub fn retarget(self, selector: impl Into<String>) -> Self {
-        self.set_header(b"hx-retarget", selector)
+        self.set_header(hx::response::RETARGET.as_bytes(), selector)
     }
 
     /// Anula el `hx-swap` del elemento e impone la estrategia de sustitución indicada.
@@ -230,13 +277,13 @@ impl HtmxResponse {
     /// Acepta los mismos valores que el atributo `hx-swap`, incluidos modificadores (`swap:200ms`,
     /// `scroll:top`, ...). Los valores tipados están en [`crate::hx::swap`].
     pub fn reswap(self, strategy: impl Into<String>) -> Self {
-        self.set_header(b"hx-reswap", strategy)
+        self.set_header(hx::response::RESWAP.as_bytes(), strategy)
     }
 
     /// Anula el `hx-select` del elemento y selecciona el fragmento CSS indicado de la respuesta
     /// para insertarlo en el objetivo.
     pub fn reselect(self, selector: impl Into<String>) -> Self {
-        self.set_header(b"hx-reselect", selector)
+        self.set_header(hx::response::RESELECT.as_bytes(), selector)
     }
 
     /// Dispara uno o varios eventos JavaScript en el cliente al completar la respuesta.
@@ -275,7 +322,7 @@ impl HtmxResponse {
     /// HtmxResponse::empty().trigger(json);
     /// ```
     pub fn trigger(self, event: impl Into<String>) -> Self {
-        self.set_header(b"hx-trigger", event)
+        self.set_header(hx::response::TRIGGER.as_bytes(), event)
     }
 
     /// Dispara eventos JavaScript después de que HTMX haya aplicado la respuesta al DOM y haya
@@ -283,7 +330,7 @@ impl HtmxResponse {
     ///
     /// Acepta los mismos formatos que [`trigger()`](Self::trigger).
     pub fn trigger_after_settle(self, event: impl Into<String>) -> Self {
-        self.set_header(b"hx-trigger-after-settle", event)
+        self.set_header(hx::response::TRIGGER_AFTER_SETTLE.as_bytes(), event)
     }
 
     /// Dispara eventos JavaScript después de que HTMX haya aplicado la respuesta al DOM, pero antes
@@ -291,10 +338,12 @@ impl HtmxResponse {
     ///
     /// Acepta los mismos formatos que [`trigger()`](Self::trigger).
     pub fn trigger_after_swap(self, event: impl Into<String>) -> Self {
-        self.set_header(b"hx-trigger-after-swap", event)
+        self.set_header(hx::response::TRIGGER_AFTER_SWAP.as_bytes(), event)
     }
 
-    // Inserta o reemplaza una cabecera. Los nombres deben ser bytes ASCII en minúsculas.
+    // Inserta o reemplaza una cabecera. `HeaderName::from_bytes()` normaliza mayúsculas por su
+    // cuenta, así que `name` admite cualquier combinación (aquí siempre llega tal cual las
+    // constantes de `hx::response`).
     fn set_header(mut self, name: &[u8], value: impl Into<String>) -> Self {
         let value = value.into();
         if let (Ok(n), Ok(v)) = (
