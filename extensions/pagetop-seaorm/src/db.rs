@@ -1,7 +1,7 @@
 //! Definición de entidades y acceso a la base de datos.
 //!
 //! Agrupa los *traits*, macros y tipos del sistema de entidades de SeaORM, junto con las funciones
-//! [`dbconn`], [`execute`], [`fetch_all`] y [`fetch_one`], en una sola importación:
+//! [`dbconn`], [`execute`], [`fetch_all`], [`fetch_one`] y [`paginate`], en una sola importación:
 //!
 //! ```rust,no_run
 //! use pagetop_seaorm::db::*;
@@ -30,7 +30,8 @@
 //! - **Macros de derivación**: [`DeriveEntityModel`], [`DeriveColumn`], [`DerivePrimaryKey`],
 //!   [`DeriveRelation`], [`EnumIter`].
 //! - **Errores**: [`DbErr`].
-//! - **Resultados**: [`QueryResult`] (filas sin tipar), [`ExecResult`] (INSERT/UPDATE/DELETE).
+//! - **Resultados**: [`QueryResult`] (filas sin tipar), [`ExecResult`] (INSERT/UPDATE/DELETE),
+//!   [`Paginated`] (página de resultados).
 //!
 //! # Definir una entidad
 //!
@@ -105,6 +106,17 @@
 //! ```
 //!
 //! Para migraciones y definición de esquemas usa [`migration`](crate::migration).
+//!
+//! # Paginación
+//!
+//! [`paginate`] ejecuta una consulta paginada sobre una entidad y devuelve un [`Paginated`] con los
+//! elementos de la página junto con su metadata (`total`, `page`, `per_page`, `total_pages`). Es el
+//! camino habitual para listados administrables (usuarios, roles...).
+//!
+//! Cuando cada elemento necesita enriquecerse con datos de otra tabla que no vienen incluidos en
+//! la propia consulta paginada (una colección asociada, un conteo relacionado...),
+//! [`Paginated::map_items`] aplica esa transformación de forma asíncrona y falible sin perder la
+//! metadata de paginación ya calculada.
 //!
 //! # Acceso completo a SeaORM
 //!
@@ -315,4 +327,111 @@ pub async fn fetch_one<Q: query::QueryStatementWriter>(
         },
     ))
     .await
+}
+
+// **< Paginated / paginate >***********************************************************************
+
+/// Página de resultados de una consulta paginada.
+pub struct Paginated<T> {
+    /// Elementos de esta página.
+    pub items: Vec<T>,
+    /// Número total de registros que cumplen la consulta, sin paginar.
+    pub total: u64,
+    /// Página actual, empezando en `1`.
+    pub page: u64,
+    /// Número de elementos por página.
+    pub per_page: u64,
+    /// Número total de páginas.
+    pub total_pages: u64,
+}
+
+// Implementación manual en lugar de `#[derive(Default)]`, que exigiría un `T: Default` innecesario,
+// ya que una página vacía no requiere que el tipo de elemento lo sea.
+impl<T> Default for Paginated<T> {
+    fn default() -> Self {
+        Paginated {
+            items: Vec::new(),
+            total: 0,
+            page: 1,
+            per_page: 1,
+            total_pages: 1,
+        }
+    }
+}
+
+impl<T> Paginated<T> {
+    /// Transforma los elementos de la página con una función asíncrona y falible, conservando el
+    /// resto de la metadata de paginación (`total`, `page`, `per_page`, `total_pages`).
+    ///
+    /// * `f` - función que recibe los elementos actuales (`Vec<T>`) y devuelve, de forma
+    ///   asíncrona, el resultado de la transformación (`Result<Vec<U>, E>`).
+    pub async fn map_items<U, E, Fut>(
+        self,
+        f: impl FnOnce(Vec<T>) -> Fut,
+    ) -> Result<Paginated<U>, E>
+    where
+        Fut: std::future::Future<Output = Result<Vec<U>, E>>,
+    {
+        let items = f(self.items).await?;
+        Ok(Paginated {
+            items,
+            total: self.total,
+            page: self.page,
+            per_page: self.per_page,
+            total_pages: self.total_pages,
+        })
+    }
+}
+
+/// Ejecuta una consulta paginada con el sistema de entidades y devuelve la página solicitada.
+///
+/// Añade la metadata de paginación (`total`, `total_pages`); `page` y `per_page` se ajustan a un
+/// mínimo de `1`, ya que no existe la página `0` ni un tamaño de página vacío.
+///
+/// ```rust,no_run
+/// use pagetop_seaorm::db::*;
+///
+/// #[derive(Clone, Debug, PartialEq, DeriveEntityModel)]
+/// #[sea_orm(table_name = "users")]
+/// pub struct Model {
+///     #[sea_orm(primary_key)]
+///     pub id: i32,
+///     pub email: String,
+/// }
+///
+/// #[derive(Clone, Copy, Debug, EnumIter, DeriveRelation)]
+/// pub enum Relation {}
+///
+/// impl ActiveModelBehavior for ActiveModel {}
+///
+/// async fn example() -> Result<(), DbErr> {
+///     let page = paginate(Entity::find(), 1, 20).await?;
+///     println!("{} usuarios en {} páginas", page.total, page.total_pages);
+///     Ok(())
+/// }
+/// ```
+pub async fn paginate<E>(
+    select: Select<E>,
+    page: u64,
+    per_page: u64,
+) -> Result<Paginated<E::Model>, DbErr>
+where
+    E: EntityTrait,
+    E::Model: sea_orm::FromQueryResult + Send + Sync,
+{
+    let per_page = per_page.max(1);
+    let page = page.max(1);
+    let paginator = select.paginate(dbconn(), per_page);
+    let sea_orm::ItemsAndPagesNumber {
+        number_of_items: total,
+        number_of_pages: total_pages,
+    } = paginator.num_items_and_pages().await?;
+    let items = paginator.fetch_page(page.saturating_sub(1)).await?;
+    Ok(Paginated {
+        items,
+        total,
+        page,
+        per_page,
+        total_pages,
+    })
 }

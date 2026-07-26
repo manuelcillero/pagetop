@@ -174,12 +174,12 @@ async fn example() -> Result<(), DbErr> {
 
 use pagetop::prelude::*;
 
+include_locales!(LOCALES_SEAORM);
+
 use sea_orm::{ConnectOptions, Database, DatabaseConnection};
 use url::Url;
 
 use std::sync::OnceLock;
-
-include_locales!(LOCALES_SEAORM);
 
 pub mod config;
 
