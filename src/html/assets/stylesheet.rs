@@ -19,7 +19,7 @@ enum Source {
     Inline(CowStr, Box<dyn Fn(&mut Context) -> String + Send + Sync>),
 }
 
-/// Define el medio objetivo para la hoja de estilos.
+/// Define el medio objetivo para una hoja de estilos.
 ///
 /// Permite especificar en qué contexto se aplica el CSS, adaptándose a diferentes dispositivos o
 /// situaciones de impresión.

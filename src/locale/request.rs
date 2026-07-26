@@ -29,13 +29,13 @@ impl RequestLocale {
     /// - [`LangNegotiation::Full`](crate::global::LangNegotiation::Full) determina el idioma en
     ///   este orden:
     ///   1. Parámetro de *query* `?lang=...`, si existe y corresponde a un idioma soportado.
-    ///   2. [`Locale::configured_langid()`], si la aplicación tiene un idioma por defecto válido.
+    ///   2. [`Locale::try_langid()`], si la aplicación tiene un idioma por defecto válido.
     ///   3. Cabecera `Accept-Language`, si puede resolverse con [`Locale::resolve()`].
     ///   4. Idioma de respaldo.
     ///
     /// - [`LangNegotiation::NoQuery`](crate::global::LangNegotiation::NoQuery) descarta el uso del
     ///   parámetro `?lang=...` y determina el idioma en este orden:
-    ///   1. [`Locale::configured_langid()`], si la aplicación tiene un idioma por defecto válido.
+    ///   1. [`Locale::try_langid()`], si la aplicación tiene un idioma por defecto válido.
     ///   2. Cabecera `Accept-Language`, si puede resolverse con [`Locale::resolve()`].
     ///   3. Idioma de respaldo.
     ///
@@ -56,7 +56,7 @@ impl RequestLocale {
                 Locale::default_langid()
             }
             global::LangNegotiation::Full | global::LangNegotiation::NoQuery => {
-                if let Some(default) = Locale::configured_langid() {
+                if let Some(default) = Locale::try_langid() {
                     default
                 } else {
                     // Sin idioma por defecto, se evalúa la cabecera `Accept-Language`.

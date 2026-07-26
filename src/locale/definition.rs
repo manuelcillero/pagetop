@@ -170,7 +170,7 @@ impl Locale {
     /// Devuelve el identificador de idioma configurado explícitamente, si es válido.
     ///
     /// Si no se ha configurado un idioma por defecto o el valor no es válido, devuelve `None`.
-    pub fn configured_langid() -> Option<&'static LanguageIdentifier> {
+    pub fn try_langid() -> Option<&'static LanguageIdentifier> {
         *CONFIG_LANGID
     }
 

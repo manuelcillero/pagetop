@@ -97,6 +97,12 @@ impl RoutePath {
         crate::util::url_looks_external(&self.path)
     }
 
+    /// Indica si la ruta no tiene *path* ni parámetros, es decir, si su representación textual
+    /// sería una cadena vacía.
+    pub fn is_empty(&self) -> bool {
+        self.path.is_empty() && self.query.is_empty()
+    }
+
     // **< RoutePath HELPERS >**********************************************************************
 
     // Codifica un valor para su uso seguro como parte de una *query string* según RFC 3986: los

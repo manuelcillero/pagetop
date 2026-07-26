@@ -3,14 +3,14 @@ use crate::{AutoDefault, CowStr, include_locales};
 
 use super::{LangId, Locale};
 
+include_locales!(LOCALES_PAGETOP);
+
 use fluent_templates::Loader;
 use fluent_templates::StaticLoader as Locales;
 
 use std::collections::HashMap;
 
 use std::fmt;
-
-include_locales!(LOCALES_PAGETOP);
 
 /// Operación de localización a realizar.
 ///

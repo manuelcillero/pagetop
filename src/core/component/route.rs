@@ -144,6 +144,15 @@ impl Route {
     pub fn resolve(&self, cx: &Context) -> RoutePath {
         (self.0)(cx)
     }
+
+    /// Como [`resolve()`](Self::resolve), pero devuelve `None` cuando la ruta calculada está vacía.
+    ///
+    /// Útil para atributos HTML opcionales (por ejemplo `href`) que no deben renderizarse si la
+    /// ruta resultante no tiene contenido.
+    pub fn try_resolve(&self, cx: &Context) -> Option<RoutePath> {
+        let route = self.resolve(cx);
+        (!route.is_empty()).then_some(route)
+    }
 }
 
 impl fmt::Debug for Route {
