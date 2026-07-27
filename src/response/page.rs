@@ -23,7 +23,7 @@ use crate::base::action;
 use crate::base::component::layout;
 use crate::core::component::{AssetsOp, ChildOp, ComponentRender};
 use crate::core::component::{Context, ContextError, Contextual};
-use crate::core::theme::{CoreRegion, CoreTemplate, RegionName, RegionRef, TemplateRef, ThemeRef};
+use crate::core::theme::{CoreRegion, RegionName, RegionRef, TemplateRef, ThemeRef};
 use crate::html::{Assets, Favicon, JavaScript, StyleSheet};
 use crate::html::{Attr, Props, PropsOp};
 use crate::html::{DOCTYPE, Markup, html};
@@ -104,7 +104,7 @@ impl Page {
     /// usuario actual desde el momento en que se crea la página, sin llamadas adicionales.
     pub fn new(request: HttpRequest) -> Self {
         Page {
-            context: Context::new(Some(request)),
+            context: Context::new(request),
             ..Default::default()
         }
     }
@@ -114,9 +114,11 @@ impl Page {
     /// Cada tema puede maquetarla de forma distinta capturando
     /// [`Template`](crate::base::component::layout::Template) en `handle_component()`, pero la
     /// plantilla en sí es la misma constante para cualquier tema.
+    ///
+    /// [`CoreTemplate::Admin`]: crate::core::theme::CoreTemplate::Admin
     pub fn admin(request: HttpRequest) -> Self {
         Page {
-            context: Context::new(Some(request)).with_template(&CoreTemplate::Admin),
+            context: Context::admin(request),
             ..Default::default()
         }
     }
@@ -154,22 +156,22 @@ impl Page {
     // **< Page GETTERS >***************************************************************************
 
     /// Devuelve el título traducido para el idioma de la página, si existe.
-    pub fn title(&mut self) -> Option<String> {
+    pub fn title(&self) -> Option<String> {
         self.title.lookup(&self.context)
     }
 
     /// Devuelve la descripción traducida para el idioma de la página, si existe.
-    pub fn description(&mut self) -> Option<String> {
+    pub fn description(&self) -> Option<String> {
         self.description.lookup(&self.context)
     }
 
     /// Devuelve la lista de metadatos `<meta name=...>`.
-    pub fn metadata(&self) -> &Vec<(&str, &str)> {
+    pub fn metadata(&self) -> &Vec<(&'static str, &'static str)> {
         &self.metadata
     }
 
     /// Devuelve la lista de propiedades `<meta property=...>`.
-    pub fn properties(&self) -> &Vec<(&str, &str)> {
+    pub fn properties(&self) -> &Vec<(&'static str, &'static str)> {
         &self.properties
     }
 
@@ -281,14 +283,14 @@ impl Contextual for Page {
     }
 
     #[builder_fn]
-    fn with_theme(mut self, theme: ThemeRef) -> Self {
-        self.context.alter_theme(theme);
+    fn with_template(mut self, template: TemplateRef) -> Self {
+        self.context.alter_template(template);
         self
     }
 
     #[builder_fn]
-    fn with_template(mut self, template: TemplateRef) -> Self {
-        self.context.alter_template(template);
+    fn with_theme(mut self, theme: ThemeRef) -> Self {
+        self.context.alter_theme(theme);
         self
     }
 
@@ -332,12 +334,12 @@ impl Contextual for Page {
         self.context.current_user()
     }
 
-    fn theme(&self) -> ThemeRef {
-        self.context.theme()
-    }
-
     fn template(&self) -> TemplateRef {
         self.context.template()
+    }
+
+    fn theme(&self) -> ThemeRef {
+        self.context.theme()
     }
 
     fn param<T: 'static>(&self, key: &'static str) -> Result<&T, ContextError> {

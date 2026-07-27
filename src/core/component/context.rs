@@ -62,7 +62,7 @@ pub enum ContextError {
 /// `Contextual` extiende [`LangId`] para establecer el idioma del documento y añade métodos para:
 ///
 /// - Almacenar la **petición HTTP** de origen.
-/// - Seleccionar el **tema** y la **plantilla** de renderizado.
+/// - Seleccionar la **plantilla** y el **tema** de renderizado.
 /// - Administrar **recursos** del documento como el icono [`Favicon`], las hojas de estilo
 ///   [`StyleSheet`] o los scripts [`JavaScript`] mediante [`AssetsOp`].
 /// - Leer y mantener **parámetros dinámicos tipados** de contexto.
@@ -77,8 +77,8 @@ pub enum ContextError {
 /// # use pagetop_aliner::Aliner;
 /// fn prepare_context<C: Contextual>(cx: C) -> C {
 ///     cx.with_langid(&Locale::resolve("es-ES"))
-///       .with_theme(&Aliner)
 ///       .with_template(&CoreTemplate::Standard)
+///       .with_theme(&Aliner)
 ///       .with_assets(AssetsOp::SetFavicon(Some(Favicon::new().with_icon("/favicon.ico"))))
 ///       .with_assets(AssetsOp::AddStyleSheet(StyleSheet::from("/css/app.css")))
 ///       .with_assets(AssetsOp::AddJavaScript(JavaScript::defer("/js/app.js")))
@@ -93,16 +93,22 @@ pub trait Contextual: LangId {
     fn with_langid(self, language: &impl LangId) -> Self;
 
     /// Almacena la petición HTTP de origen en el contexto.
+    ///
+    /// También recalcula el idioma ([`RequestLocale::from_request()`]) y
+    /// [`current_user()`](Self::current_user) a partir de la petición indicada, descartando
+    /// cualquier idioma forzado antes con [`with_langid()`](Self::with_langid) o el usuario ya
+    /// resuelto. Si necesitas forzar el idioma o el usuario, llama a `with_request()` primero en
+    /// la cadena de construcción, nunca después.
     #[builder_fn]
     fn with_request(self, request: Option<HttpRequest>) -> Self;
-
-    /// Especifica el tema para renderizar el documento.
-    #[builder_fn]
-    fn with_theme(self, theme: ThemeRef) -> Self;
 
     /// Especifica la plantilla para renderizar el documento.
     #[builder_fn]
     fn with_template(self, template: TemplateRef) -> Self;
+
+    /// Especifica el tema para renderizar el documento.
+    #[builder_fn]
+    fn with_theme(self, theme: ThemeRef) -> Self;
 
     /// Añade o modifica un parámetro dinámico del contexto.
     ///
@@ -114,7 +120,7 @@ pub trait Contextual: LangId {
     ///
     /// ```rust,no_run
     /// # use pagetop::prelude::*;
-    /// let cx = Context::new(None)
+    /// let cx = Context::default()
     ///     .with_param("user_id", 42_i32)
     ///     .with_param("title", "Hello".to_string())
     ///     .with_param("flags", vec!["a", "b"]);
@@ -165,11 +171,11 @@ pub trait Contextual: LangId {
     /// ```
     fn current_user(&self) -> &CurrentUser;
 
-    /// Devuelve el tema que se usará para renderizar el documento.
-    fn theme(&self) -> ThemeRef;
-
     /// Devuelve la plantilla configurada para renderizar el documento.
     fn template(&self) -> TemplateRef;
+
+    /// Devuelve el tema que se usará para renderizar el documento.
+    fn theme(&self) -> ThemeRef;
 
     /// Recupera una *referencia tipada* al parámetro solicitado.
     ///
@@ -183,7 +189,7 @@ pub trait Contextual: LangId {
     ///
     /// ```rust
     /// # use pagetop::prelude::*;
-    /// let cx = Context::new(None)
+    /// let cx = Context::default()
     ///     .with_param("user_id", 42_i32)
     ///     .with_param("title", "Hello".to_string());
     ///
@@ -230,7 +236,7 @@ pub trait Contextual: LangId {
     ///
     /// ```rust
     /// # use pagetop::prelude::*;
-    /// let mut cx = Context::new(None).with_param("temp", 1u8);
+    /// let mut cx = Context::default().with_param("temp", 1u8);
     /// assert!(cx.remove_param("temp"));
     /// assert!(!cx.remove_param("temp")); // ya no existe
     /// ```
@@ -243,7 +249,7 @@ pub trait Contextual: LangId {
 /// [`Page::new()`](crate::response::Page::new) o [`Page::admin()`](crate::response::Page::admin)),
 /// y es la única vía por la que un componente, una acción o el tema activo conocen: la petición
 /// HTTP de origen, el idioma negociado, el usuario autenticado
-/// ([`current_user()`](Contextual::current_user)), el tema y la plantilla en uso, y los recursos
+/// ([`current_user()`](Contextual::current_user)), la plantilla y el tema en uso, y los recursos
 /// (favicon, hojas de estilo, scripts) acumulados hasta ese momento. Otros datos que los
 /// componentes necesiten durante el renderizado pueden ser parámetros dinámicos tipados con
 /// [`with_param()`](Contextual::with_param)/[`param()`](Contextual::param).
@@ -267,21 +273,21 @@ pub trait Contextual: LangId {
 /// ```rust,no_run
 /// # use pagetop::prelude::*;
 /// # use pagetop_aliner::Aliner;
-/// fn new_context(request: HttpRequest) -> Context {
-///     Context::new(Some(request))
-///         // Establece el idioma del documento a español.
-///         .with_langid(&Locale::resolve("es-ES"))
-///         // Establece el tema para renderizar.
-///         .with_theme(&Aliner)
-///         // Asigna un favicon.
-///         .with_assets(AssetsOp::SetFavicon(Some(Favicon::new().with_icon("/favicon.ico"))))
-///         // Añade una hoja de estilo externa.
-///         .with_assets(AssetsOp::AddStyleSheet(StyleSheet::from("/css/style.css")))
-///         // Añade un script JavaScript.
-///         .with_assets(AssetsOp::AddJavaScript(JavaScript::defer("/js/main.js")))
-///         // Añade un parámetro dinámico al contexto.
-///         .with_param("user_id", 42)
-/// }
+/// # fn new_context(request: HttpRequest) -> Context {
+/// let cx = Context::new(request)
+///     // Establece el idioma del documento a español.
+///     .with_langid(&Locale::resolve("es-ES"))
+///     // Establece el tema para renderizar.
+///     .with_theme(&Aliner)
+///     // Asigna un favicon.
+///     .with_assets(AssetsOp::SetFavicon(Some(Favicon::new().with_icon("/favicon.ico"))))
+///     // Añade una hoja de estilo externa.
+///     .with_assets(AssetsOp::AddStyleSheet(StyleSheet::from("/css/style.css")))
+///     // Añade un script JavaScript.
+///     .with_assets(AssetsOp::AddJavaScript(JavaScript::defer("/js/main.js")))
+///     // Añade un parámetro dinámico al contexto.
+///     .with_param("user_id", 42);
+/// # cx }
 /// ```
 ///
 /// Y hace operaciones con un contexto dado:
@@ -309,8 +315,8 @@ pub struct Context {
     request     : Option<HttpRequest>,            // Petición HTTP de origen.
     locale      : RequestLocale,                  // Idioma asociado a la petición.
     current_user: CurrentUser,                    // Identidad del usuario actual.
-    theme       : ThemeRef,                       // Referencia al tema usado para renderizar.
     template    : TemplateRef,                    // Plantilla usada para renderizar.
+    theme       : ThemeRef,                       // Referencia al tema usado para renderizar.
     favicon     : Option<Favicon>,                // Favicon, si se ha definido.
     preloads    : Assets<Preload>,                // Recursos para precarga.
     stylesheets : Assets<StyleSheet>,             // Hojas de estilo CSS.
@@ -324,25 +330,25 @@ pub struct Context {
 
 impl Default for Context {
     fn default() -> Self {
-        Context::new(None)
+        Self::base(None, &CoreTemplate::Standard)
     }
 }
 
 impl Context {
-    /// Crea un nuevo contexto asociado a una petición HTTP.
-    ///
-    /// El contexto inicializa el idioma, el tema y la plantilla por defecto, sin favicon ni otros
-    /// recursos cargados.
+    // Construye el `Context` compartido por `new()`, `admin()` y `Default::default()`, evitando
+    // duplicar la lista de campos entre ambos (y la recursión que tendría `new()` llamando a
+    // `Default::default()`, o viceversa). Recibe la plantilla para que `admin()` no tenga que
+    // construir con la plantilla estándar y sobrescribirla después.
     #[rustfmt::skip]
-    pub fn new(request: Option<HttpRequest>) -> Self {
+    fn base(request: Option<HttpRequest>, template: TemplateRef) -> Self {
         let locale = RequestLocale::from_request(request.as_ref());
         let current_user = Self::resolve_current_user(request.as_ref());
         Context {
             request,
             locale,
             current_user,
+            template,
             theme      : *DEFAULT_THEME,
-            template   : &CoreTemplate::Standard,
             favicon    : None,
             preloads   : Assets::<Preload>::new(),
             stylesheets: Assets::<StyleSheet>::new(),
@@ -353,6 +359,25 @@ impl Context {
             id_counters: Mutex::new(HashMap::new()),
             messages   : Vec::new(),
         }
+    }
+
+    /// Crea un nuevo contexto asociado a una petición HTTP.
+    ///
+    /// El contexto inicializa el idioma, el tema y la plantilla por defecto, sin favicon ni otros
+    /// recursos cargados.
+    ///
+    /// Para un contexto sin petición (renderizar un componente de forma aislada, en tests o fuera
+    /// del ciclo de una petición web), usa [`Context::default()`].
+    pub fn new(request: HttpRequest) -> Self {
+        Self::base(Some(request), &CoreTemplate::Standard)
+    }
+
+    /// Crea un nuevo contexto asociado a una petición HTTP, con la plantilla de administración.
+    ///
+    /// El contexto inicializa el idioma, el tema y la plantilla [`CoreTemplate::Admin`], sin
+    /// favicon ni otros recursos cargados.
+    pub fn admin(request: HttpRequest) -> Self {
+        Self::base(Some(request), &CoreTemplate::Admin)
     }
 
     // Extrae el `CurrentUser` inyectado por middleware en las extensiones de la petición, o
@@ -483,7 +508,7 @@ impl Context {
     ///
     /// ```rust,no_run
     /// # use pagetop::prelude::*;
-    /// # let mut cx = Context::new(None);
+    /// # let mut cx = Context::default();
     /// cx.push_message(MessageLevel::Warning, L10n::n("Session is not valid"));
     /// ```
     pub fn push_message(&mut self, level: MessageLevel, text: L10n) {
@@ -501,14 +526,19 @@ impl Context {
     }
 }
 
-/// Permite a [`Context`](crate::core::component::Context) actuar como proveedor de idioma.
+/// Permite a [`Context`] actuar como proveedor de idioma.
 ///
 /// Internamente delega en [`RequestLocale`], que tiene en cuenta la petición HTTP, la configuración
 /// global de idioma de la aplicación, la cabecera `Accept-Language` y/o el idioma de respaldo.
 ///
 /// Todo ello según la negociación indicada en [`global::SETTINGS.app.lang_negotiation`]. Esto
-/// permite que el [`Context`] se use como fuente de idioma coherente en
-/// [`L10n::lookup()`](crate::locale::L10n::lookup) o [`L10n::using()`](crate::locale::L10n::using).
+/// permite que el [`Context`] se use como fuente de idioma coherente en [`L10n::lookup()`] o
+/// [`L10n::using()`].
+///
+/// [`Context`]: crate::core::component::Context
+/// [`global::SETTINGS.app.lang_negotiation`]: crate::global::App::lang_negotiation
+/// [`L10n::lookup()`]: crate::locale::L10n::lookup
+/// [`L10n::using()`]: crate::locale::L10n::using
 impl LangId for Context {
     #[inline]
     fn langid(&self) -> &'static LanguageIdentifier {
@@ -536,14 +566,14 @@ impl Contextual for Context {
     }
 
     #[builder_fn]
-    fn with_theme(mut self, theme: ThemeRef) -> Self {
-        self.theme = theme;
+    fn with_template(mut self, template: TemplateRef) -> Self {
+        self.template = template;
         self
     }
 
     #[builder_fn]
-    fn with_template(mut self, template: TemplateRef) -> Self {
-        self.template = template;
+    fn with_theme(mut self, theme: ThemeRef) -> Self {
+        self.theme = theme;
         self
     }
 
@@ -619,12 +649,12 @@ impl Contextual for Context {
         &self.current_user
     }
 
-    fn theme(&self) -> ThemeRef {
-        self.theme
-    }
-
     fn template(&self) -> TemplateRef {
         self.template
+    }
+
+    fn theme(&self) -> ThemeRef {
+        self.theme
     }
 
     fn param<T: 'static>(&self, key: &'static str) -> Result<&T, ContextError> {

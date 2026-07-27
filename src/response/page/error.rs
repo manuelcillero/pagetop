@@ -16,22 +16,41 @@ use std::any::Any;
 /// Página de error asociada a un código de estado HTTP.
 ///
 /// Este enumerado agrupa tipos esenciales de error que pueden devolverse como página HTML completa.
-/// Cada variante encapsula la solicitud original ([`HttpRequest`]) y se corresponde con un código
-/// de estado concreto.
+/// Cada variante encapsula la petición original si está disponible ([`HttpRequest`]), y se asocia a
+/// un código de estado concreto.
 ///
 /// Para cada error se construye una [`Page`] usando el tema activo, lo que permite personalizar la
-/// plantilla y el contenido del mensaje mediante los métodos específicos del tema (como
-/// [`Theme::error_403()`](crate::core::theme::Theme::error_403),
-/// [`Theme::error_404()`](crate::core::theme::Theme::error_404) o
-/// [`Theme::error_fatal()`](crate::core::theme::Theme::error_fatal)).
+/// plantilla y el contenido del mensaje con los métodos específicos del tema, como
+/// [`Theme::error_403()`], [`Theme::error_404()`] o [`Theme::error_fatal()`].
+///
+/// Sin `request` (`None`), la página se renderiza igualmente, pero sin el idioma negociado ni el
+/// usuario actual, que dependen de la petición original.
+///
+/// [`Theme::error_403()`]: crate::core::theme::Theme::error_403
+/// [`Theme::error_404()`]: crate::core::theme::Theme::error_404
+/// [`Theme::error_fatal()`]: crate::core::theme::Theme::error_fatal
 #[derive(Clone, Debug)]
 pub enum ErrorPage {
-    BadRequest(HttpRequest),
-    AccessDenied(HttpRequest),
-    NotFound(HttpRequest),
-    InternalError(HttpRequest),
-    ServiceUnavailable(HttpRequest),
-    GatewayTimeout(HttpRequest),
+    /// Petición incorrecta (400). El servidor no puede procesar la petición tal y como está
+    /// formulada (datos malformados, parámetros inválidos, etc.).
+    BadRequest(Option<HttpRequest>),
+    /// Acceso denegado (403). El usuario actual no tiene permiso para acceder al recurso.
+    ///
+    /// Se renderiza con [`Theme::error_403()`](crate::core::theme::Theme::error_403).
+    AccessDenied(Option<HttpRequest>),
+    /// Recurso no encontrado (404). La ruta solicitada no existe o no coincide con ningún handler.
+    ///
+    /// Se renderiza con [`Theme::error_404()`](crate::core::theme::Theme::error_404).
+    NotFound(Option<HttpRequest>),
+    /// Error interno del servidor (500). Un fallo controlado (no un `panic!`) impide completar la
+    /// petición.
+    InternalError(Option<HttpRequest>),
+    /// Servicio no disponible (503). El servidor no puede atender la petición temporalmente
+    /// (mantenimiento, sobrecarga, etc.).
+    ServiceUnavailable(Option<HttpRequest>),
+    /// Tiempo de espera agotado (504). Una dependencia externa (proxy, servicio remoto) no ha
+    /// respondido a tiempo.
+    GatewayTimeout(Option<HttpRequest>),
 }
 
 impl ErrorPage {
@@ -53,12 +72,12 @@ impl ErrorPage {
         let status = self.status_code();
         let mut page = match self {
             Self::AccessDenied(request) => {
-                let mut page = Page::new(request);
+                let mut page = Page::default().with_request(request);
                 page.theme().error_403(&mut page);
                 page
             }
             Self::NotFound(request) => {
-                let mut page = Page::new(request);
+                let mut page = Page::default().with_request(request);
                 page.theme().error_404(&mut page);
                 page
             }
@@ -66,7 +85,7 @@ impl ErrorPage {
             | Self::InternalError(request)
             | Self::ServiceUnavailable(request)
             | Self::GatewayTimeout(request) => {
-                let mut page = Page::new(request);
+                let mut page = Page::default().with_request(request);
                 page.theme().error_fatal(
                     &mut page,
                     status,
@@ -84,6 +103,9 @@ impl ErrorPage {
                 rendered.into_string(),
             )
                 .into_response(),
+            // Si renderizar la propia página de error falla, se descarta el `ErrorPage` resultante
+            // en vez de intentar renderizarlo de nuevo, para no arriesgarse a una recursión si el
+            // fallo persiste.
             Err(_) => status.into_response(),
         }
     }
@@ -104,7 +126,7 @@ impl IntoResponse for ErrorPage {
 //
 // Se registra como `.fallback()` del router principal desde [`Application`](crate::Application).
 pub(crate) async fn route_not_found(request: HttpRequest) -> Result<Markup, ErrorPage> {
-    Err(ErrorPage::NotFound(request))
+    Err(ErrorPage::NotFound(Some(request)))
 }
 
 // Intercepta respuestas con un [`ErrorPage`] pendiente y las convierte en páginas HTML.

@@ -50,7 +50,7 @@ async fn component_html_can_access_request_path() {
     let req = web::test::TestRequest::get()
         .uri("/hello/world")
         .to_http_request();
-    let mut cx = Context::new(Some(req));
+    let mut cx = Context::new(req);
 
     let mut component = Html::with(|cx| {
         let path = cx

@@ -96,7 +96,7 @@ use std::sync::Arc;
 ///
 /// ```rust,no_run
 /// # use pagetop::prelude::*;
-/// # let cx = Context::new(None);
+/// # let cx = Context::default();
 /// # let waypoint = Waypoint::default();
 /// let route: Route = waypoint.append_to(cx.route("/items")).into();
 /// ```

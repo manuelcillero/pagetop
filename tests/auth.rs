@@ -39,7 +39,7 @@ async fn current_user_propagates_from_request_extensions() {
             display_name: "Bob".to_owned(),
         })
         .to_http_request();
-    let cx = Context::new(Some(req));
+    let cx = Context::new(req);
     let user = cx.current_user();
     assert!(user.is_authenticated());
     assert_eq!(user.id(), Some(7));

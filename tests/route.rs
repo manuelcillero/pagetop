@@ -3,7 +3,7 @@ use pagetop::prelude::*;
 // Forces an effective language different from the default negotiated one (en-US, with no `?lang` in
 // the request), so that `Context::route()` decides to propagate `?lang=...` in local routes.
 fn cx_with_lang(lang: &str) -> Context {
-    Context::new(None).with_langid(&Locale::resolve(lang))
+    Context::default().with_langid(&Locale::resolve(lang))
 }
 
 // **< Route - automatic detection of external URLs >***********************************************
@@ -107,7 +107,7 @@ async fn route_with_captures_dynamic_values_from_the_environment() {
 
 #[pagetop::test]
 async fn route_default_resolves_to_an_empty_path() {
-    let cx = Context::new(None);
+    let cx = Context::default();
     assert_eq!(Route::default().resolve(&cx).to_string(), "");
 }
 

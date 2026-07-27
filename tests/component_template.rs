@@ -46,10 +46,10 @@ impl Theme for MarkerTheme {
 
 #[pagetop::test]
 async fn default_template_identity_is_independent_of_theme() {
-    let cx = Context::new(None);
+    let cx = Context::default();
     assert_eq!(cx.template().name(), "standard");
 
-    let cx = Context::new(None).with_theme(&MarkerTheme);
+    let cx = Context::default().with_theme(&MarkerTheme);
     assert_eq!(cx.template().name(), "standard");
 }
 
@@ -67,7 +67,7 @@ async fn admin_template_identity_is_independent_of_theme() {
 async fn explicit_template_is_not_overridden_by_a_later_with_theme() {
     // A template explicitly set with `with_template()` prevails even if `with_theme()` is called
     // afterwards.
-    let cx = Context::new(None)
+    let cx = Context::default()
         .with_template(&CoreTemplate::Admin)
         .with_theme(&pagetop::base::theme::Basic);
 

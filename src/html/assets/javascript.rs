@@ -59,7 +59,7 @@ enum Source {
 /// "#.to_string());
 ///
 /// // Script embebido con handler asíncrono (`async`) que puede usar `await`.
-/// let mut cx = Context::new(None).with_param("user_id", 7u32);
+/// let mut cx = Context::default().with_param("user_id", 7u32);
 ///
 /// let js = JavaScript::on_load_async("hydrate", |cx| {
 ///     // Ejemplo: lectura de un parámetro del contexto para inyectarlo en el código.
