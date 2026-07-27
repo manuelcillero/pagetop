@@ -39,8 +39,7 @@ impl<C: Component> BeforeRender<C> {
     /// Afina el registro para ejecutar la acción [`FnActionWithComponent`] sólo para el componente
     /// `C` con identificador `id`.
     pub fn filter_by_referer_id(mut self, id: impl AsRef<str>) -> Self {
-        let id = id.as_ref().trim().to_ascii_lowercase().replace(' ', "_");
-        self.referer_id = if id.is_empty() { None } else { Some(id) };
+        self.referer_id = util::normalize_token(id);
         self
     }
 

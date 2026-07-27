@@ -50,6 +50,25 @@ pub enum NormalizeAsciiError {
     NonAscii,
 }
 
+/// Recorta espacios y convierte una cadena vacía en `None`.
+///
+/// Pensada para campos de formulario opcionales, de tal manera que si una cadena queda vacía tras
+/// recortar, entonces se trata como "no proporcionado" en lugar de como un valor válido.
+///
+/// # Ejemplo
+///
+/// ```rust
+/// # use pagetop::util;
+/// assert_eq!(util::non_blank("  hello  "), Some("hello"));
+/// assert_eq!(util::non_blank("   "), None);
+/// assert_eq!(util::non_blank(""), None);
+/// ```
+#[inline]
+pub fn non_blank(s: &str) -> Option<&str> {
+    let s = s.trim();
+    if s.is_empty() { None } else { Some(s) }
+}
+
 /// Normaliza una cadena ASCII con uno o varios tokens separados.
 ///
 /// Los *separadores* son caracteres `is_ascii_whitespace()` como `' '`, `'\t'`, `'\n'` o `'\r'`.
@@ -166,6 +185,32 @@ pub fn normalize_ascii_or_empty<'a>(input: &'a str, target: &'static str) -> Opt
             Some(Cow::Borrowed(""))
         }
     }
+}
+
+/// Recorta espacios, convierte una cadena vacía en `None` y normaliza el resto.
+///
+/// Convierte en un único token: en minúsculas y con cada espacio en blanco sustituido por `_`.
+///
+/// Al contrario que [`normalize_ascii()`], no colapsa las secuencias de varios espacios en blanco
+/// seguidos, sino que cada uno se convierte en su propio `_` (p. ej. dos espacios seguidos generan
+/// `__`).
+///
+/// Está pensada para identificadores internos (p. ej. el `id` HTML de un componente, o la clave
+/// `referer_id` de una acción) construidos a partir de texto libre.
+///
+/// # Ejemplo
+///
+/// ```rust
+/// # use pagetop::util;
+/// assert_eq!(util::normalize_token("  My Id  "), Some("my_id".to_string()));
+/// assert_eq!(util::normalize_token("AÑO\tNuevo"), Some("año_nuevo".to_string()));
+/// assert_eq!(util::normalize_token("a   b"), Some("a___b".to_string()));
+/// assert_eq!(util::normalize_token("   "), None);
+/// assert_eq!(util::normalize_token(""), None);
+/// ```
+#[inline]
+pub fn normalize_token(s: impl AsRef<str>) -> Option<String> {
+    non_blank(s.as_ref()).map(|s| s.to_lowercase().replace(char::is_whitespace, "_"))
 }
 
 /// Indica si una URL **parece** externa por su prefijo.

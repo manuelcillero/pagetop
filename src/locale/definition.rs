@@ -1,4 +1,4 @@
-use crate::{global, trace};
+use crate::{global, trace, util};
 
 use super::languages::LANGUAGES;
 use super::{LanguageIdentifier, langid};
@@ -92,12 +92,9 @@ impl Locale {
     ///   [`Locale::Resolved`].
     /// - En caso contrario, devuelve [`Locale::Unsupported`] con la cadena original.
     pub fn resolve(language: impl AsRef<str>) -> Self {
-        let language = language.as_ref().trim();
-
-        // Rechaza cadenas vacías.
-        if language.is_empty() {
+        let Some(language) = util::non_blank(language.as_ref()) else {
             return Self::Unspecified;
-        }
+        };
 
         // Intenta aplicar coincidencia exacta con el código completo (p. ej. "es-MX").
         let lang = language.to_ascii_lowercase();
@@ -149,8 +146,13 @@ impl Locale {
     /// Debe llamarse durante la inicialización para indicar si el idioma por defecto procede de la
     /// configuración, de una configuración no válida o del idioma de respaldo.
     pub(crate) fn init() {
-        match global::SETTINGS.app.language.as_deref() {
-            Some(raw) if !raw.trim().is_empty() => {
+        match global::SETTINGS
+            .app
+            .language
+            .as_deref()
+            .and_then(util::non_blank)
+        {
+            Some(raw) => {
                 if let Some(langid) = *CONFIG_LANGID {
                     trace::debug!("Default language \"{langid}\" (from config: \"{raw}\")");
                 } else {

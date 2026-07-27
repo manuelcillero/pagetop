@@ -1,5 +1,5 @@
 use crate::locale::{L10n, LangId};
-use crate::{AutoDefault, builder_fn};
+use crate::{AutoDefault, builder_fn, util};
 
 /// Valor opcional para atributos HTML.
 ///
@@ -163,12 +163,10 @@ impl AttrName {
     /// Establece un nombre nuevo normalizando el valor.
     #[builder_fn]
     pub fn with_name(mut self, name: impl AsRef<str>) -> Self {
-        let name = name.as_ref().trim();
-        if name.is_empty() {
-            self.0 = Attr::default();
-        } else {
-            self.0 = Attr::some(name.to_ascii_lowercase().replace(' ', "_"));
-        }
+        self.0 = match util::normalize_token(name) {
+            Some(name) => Attr::some(name),
+            None => Attr::default(),
+        };
         self
     }
 
@@ -228,12 +226,10 @@ impl AttrValue {
     /// Establece una cadena nueva normalizando el valor.
     #[builder_fn]
     pub fn with_str(mut self, value: impl AsRef<str>) -> Self {
-        let value = value.as_ref().trim();
-        if value.is_empty() {
-            self.0 = Attr::default();
-        } else {
-            self.0 = Attr::some(value.to_string());
-        }
+        self.0 = match util::non_blank(value.as_ref()) {
+            Some(value) => Attr::some(value.to_string()),
+            None => Attr::default(),
+        };
         self
     }
 

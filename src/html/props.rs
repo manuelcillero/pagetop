@@ -734,12 +734,7 @@ impl Props {
     // **< Props PRIVATE >**************************************************************************
 
     fn apply_id(&mut self, id: &str) {
-        let id = id.trim();
-        self.id = if id.is_empty() {
-            None
-        } else {
-            Some(id.to_ascii_lowercase().replace(' ', "_"))
-        };
+        self.id = util::normalize_token(id);
     }
 
     fn insert_classes<'a, I>(&mut self, classes: I, mut pos: usize)

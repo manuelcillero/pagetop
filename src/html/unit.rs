@@ -1,4 +1,4 @@
-use crate::AutoDefault;
+use crate::{AutoDefault, util};
 
 use serde::{Deserialize, Deserializer};
 
@@ -201,10 +201,9 @@ impl FromStr for UnitValue {
     type Err = String;
 
     fn from_str(input: &str) -> Result<Self, Self::Err> {
-        let s = input.trim();
-        if s.is_empty() {
+        let Some(s) = util::non_blank(input) else {
             return Ok(UnitValue::None);
-        }
+        };
         if s.eq_ignore_ascii_case("auto") {
             return Ok(UnitValue::Auto);
         }
