@@ -4,7 +4,7 @@ use pagetop_htmx::prelude::*;
 // Forces an effective language different from the default negotiated one (en-US, with no `?lang` in
 // the request), so that `Context::route()` decides to propagate `?lang=...` in local routes.
 fn cx_with_lang(lang: &str) -> Context {
-    Context::new(None).with_langid(&Locale::resolve(lang))
+    Context::default().with_langid(&Locale::resolve(lang))
 }
 
 fn header<'a>(response: &'a web::Response, name: &str) -> Option<&'a str> {
