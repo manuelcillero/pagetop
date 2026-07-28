@@ -11,11 +11,28 @@
 //! [`Context`](crate::core::component::Context), donde mantiene el tema activo, la plantilla
 //! seleccionada y los componentes asociados a cada región a renderizar.
 //!
-//! Además, PageTop permite crear **temas hijo** que refinan el comportamiento de su tema padre. Un
-//! tema hijo hereda automáticamente todos los métodos del padre y puede sobrescribirlos
-//! selectivamente. Por ejemplo, puede redefinir el renderizado de un componente a través de
-//! [`Theme::handle_component()`] sin cambiar el resto del comportamiento heredado. Un tema hijo
-//! puede ser a su vez padre de otro, basta declararlo cada vez con [`Theme::parent()`].
+//! # Temas hijo, herencia y componentes
+//!
+//! PageTop permite crear **temas hijo** que refinan el comportamiento de su tema padre. Un tema
+//! hijo hereda automáticamente todos los métodos del padre y puede sobrescribirlos selectivamente.
+//! Esta herencia sólo determina qué implementación de sus métodos se usa cuando el tema hijo no los
+//! sobrescribe (como el renderizado del `<body>` y del `<head>`, los recursos incorporados, el uso
+//! de [`Theme::handle_component()`], las páginas de error, etc.). Un tema hijo puede ser a su vez
+//! padre de otro, basta declararlo cada vez con [`Theme::parent()`].
+//!
+//! Sin embargo, no dice nada sobre los componentes. Aunque un tema puede exportar su propio
+//! catálogo de componentes, realmente no pertenecen como tal a ningún tema ni dependen de esa
+//! cadena de herencia. Una extensión puede existir únicamente para aportar un componente genérico
+//! (por ejemplo, un editor de texto enriquecido) pensado para usarse en cualquier aplicación, con
+//! independencia del tema activo. Que un tema decida capturar ese componente en
+//! [`Theme::handle_component()`] para adaptarlo es una decisión propia del tema, no una relación de
+//! parentesco: cualquier tema de la cadena de herencia puede interceptar cualquier componente,
+//! venga de la extensión que venga, sin que exista ningún vínculo de diseño previo entre ambos.
+//!
+//! Lo que sí es responsabilidad del tema activo es garantizar que el componente disponga de los
+//! recursos que necesita para verse y comportarse correctamente: sus propios estilos y JavaScript,
+//! si los aporta, o los que ofrezca el tema. El componente genera su marcado igual aunque esos
+//! recursos falten, pero el resultado seguramente no lucirá ni funcionará como se espera.
 //!
 //! # Cómo crear un tema nuevo
 //!
