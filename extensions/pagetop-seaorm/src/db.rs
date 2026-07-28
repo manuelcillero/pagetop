@@ -24,12 +24,13 @@
 //!
 //! - **Acceso**: [`DatabaseConnection`], [`dbconn`] (para obtener el pool de conexiones).
 //! - **Consultas**: [`EntityTrait`], [`QueryFilter`], [`QueryOrder`], [`QuerySelect`].
-//! - **Transacciones**: [`TransactionTrait`], [`DatabaseTransaction`].
+//! - **Transacciones**: [`TransactionTrait`], [`DatabaseTransaction`], [`flatten_txn_err`]
+//!   (para convertir [`TransactionError<E>`] a `E`).
 //! - **Modelos activos**: [`ActiveModelTrait`], [`ActiveValue`] ([`ActiveValue::Set`],
 //!   [`ActiveValue::Unchanged`], [`ActiveValue::NotSet`]).
 //! - **Macros de derivación**: [`DeriveEntityModel`], [`DeriveColumn`], [`DerivePrimaryKey`],
 //!   [`DeriveRelation`], [`EnumIter`].
-//! - **Errores**: [`DbErr`].
+//! - **Errores**: [`DbErr`], [`TransactionError`].
 //! - **Resultados**: [`QueryResult`] (filas sin tipar), [`ExecResult`] (INSERT/UPDATE/DELETE),
 //!   [`Paginated`] (página de resultados).
 //!
@@ -329,6 +330,74 @@ pub async fn fetch_one<Q: query::QueryStatementWriter>(
     .await
 }
 
+/// Convierte el error de una transacción (`TransactionError<E>`) al propio tipo `E`.
+///
+/// [`TransactionTrait::transaction`] puede fallar de dos formas distintas:
+/// [`TransactionError::Connection`] si el fallo ocurre en la propia transacción (conexión,
+/// `BEGIN`/`COMMIT`/`ROLLBACK`...), o [`TransactionError::Transaction`] si el fallo es el error que
+/// devolvió la clausura. `flatten_txn_err()` convierte ambos casos al mismo tipo `E` (usando
+/// `From<DbErr>` para el primero), de modo que el resultado se pueda propagar con
+/// `.map_err(flatten_txn_err)?` sin distinguir el origen del error.
+///
+/// Requiere que el tipo de error propio de la aplicación implemente `From<DbErr>`, lo habitual con
+/// `#[derive(thiserror::Error)]` y `#[from]`.
+///
+/// Uso directo, en el punto donde se resuelve la transacción, sin nada más que declarar:
+///
+/// ```rust,no_run
+/// use pagetop_seaorm::db::*;
+///
+/// async fn example() -> Result<(), DbErr> {
+///     dbconn()
+///         .transaction::<_, (), DbErr>(|_txn| Box::pin(async move { Ok(()) }))
+///         .await
+///         .map_err(flatten_txn_err)
+/// }
+/// ```
+///
+/// Si una aplicación hace transacciones en muchos puntos con su propio tipo de error, puede delegar
+/// en `flatten_txn_err()` una sola vez mediante `impl From<TransactionError<E>> for E` (legal
+/// porque `E` es un tipo local de la aplicación, no genérico) y despreocuparse de `.map_err()` en
+/// el resto de llamadas, propagando el error con `?` directamente:
+///
+/// ```rust,no_run
+/// use pagetop_seaorm::db::*;
+///
+/// #[derive(Debug)]
+/// struct MyError(DbErr);
+///
+/// impl std::fmt::Display for MyError {
+///     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+///         write!(f, "database error: {}", self.0)
+///     }
+/// }
+///
+/// impl From<DbErr> for MyError {
+///     fn from(err: DbErr) -> Self {
+///         MyError(err)
+///     }
+/// }
+///
+/// impl From<TransactionError<MyError>> for MyError {
+///     fn from(err: TransactionError<MyError>) -> Self {
+///         flatten_txn_err(err)
+///     }
+/// }
+///
+/// async fn example() -> Result<(), MyError> {
+///     dbconn()
+///         .transaction::<_, (), MyError>(|_txn| Box::pin(async move { Ok(()) }))
+///         .await?;
+///     Ok(())
+/// }
+/// ```
+pub fn flatten_txn_err<E: From<DbErr>>(err: TransactionError<E>) -> E {
+    match err {
+        TransactionError::Connection(db_err) => db_err.into(),
+        TransactionError::Transaction(err) => err,
+    }
+}
+
 // **< Paginated / paginate >***********************************************************************
 
 /// Página de resultados de una consulta paginada.
@@ -383,7 +452,7 @@ impl<T> Paginated<T> {
     }
 }
 
-/// Ejecuta una consulta paginada con el sistema de entidades y devuelve la página solicitada.
+/// Ejecuta una consulta paginada con el sistema de entidades y retorna la página solicitada.
 ///
 /// Añade la metadata de paginación (`total`, `total_pages`); `page` y `per_page` se ajustan a un
 /// mínimo de `1`, ya que no existe la página `0` ni un tamaño de página vacío.
