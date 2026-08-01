@@ -24,6 +24,12 @@ pub use dropdown::Dropdown;
 pub mod form;
 #[doc(inline)]
 pub use form::Form;
+#[doc(inline)]
+pub use form::input::InputBootsier;
+#[doc(inline)]
+pub use form::select::SelectBootsier;
+#[doc(inline)]
+pub use form::textarea::TextareaBootsier;
 
 // Image.
 pub mod image;

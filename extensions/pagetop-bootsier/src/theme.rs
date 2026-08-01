@@ -1,38 +1,22 @@
-//! Definiciones y componentes del tema.
-//!
-//! En esta página, el apartado **Modules** incluye las definiciones necesarias para los componentes
-//! que se muestran en el apartado **Structs**, mientras que en **Enums** se listan los elementos
-//! auxiliares del tema utilizados en clases y componentes.
+//! Definiciones y plantillas del tema Bootsier.
 
-mod attrs;
-pub use attrs::*;
+pub mod bs;
 
-pub mod classes;
+pub mod class;
 
-// Button.
-mod button;
-pub use button::{Button, ButtonAction};
+mod token;
+pub use token::*;
 
-// Container.
-pub mod container;
-#[doc(inline)]
-pub use container::Container;
-
-// Dropdown.
-pub mod dropdown;
-#[doc(inline)]
-pub use dropdown::Dropdown;
-
-// Form.
-pub mod form;
-#[doc(inline)]
-pub use form::Form;
 #[doc(hidden)]
-pub use form::input::InputBootsier;
+pub use bs::badge::BadgeBootsier;
 #[doc(hidden)]
-pub use form::select::SelectBootsier;
+pub use bs::container::ContainerBootsier;
 #[doc(hidden)]
-pub use form::textarea::TextareaBootsier;
+pub use bs::form::input::InputBootsier;
+#[doc(hidden)]
+pub use bs::form::select::SelectBootsier;
+#[doc(hidden)]
+pub use bs::form::textarea::TextareaBootsier;
 
 // Image.
 pub mod image;

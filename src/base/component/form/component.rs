@@ -46,8 +46,8 @@ use crate::base::component::form;
 pub struct Form {
     /// Devuelve identificador, clases CSS, atributos HTML y valores extra del componente.
     props: Props,
-    /// Devuelve la URL/ruta de destino del formulario.
-    action: AttrValue,
+    /// Devuelve la ruta de destino del formulario.
+    action: Route,
     /// Devuelve el método para enviar el formulario.
     method: form::Method,
     /// Devuelve el juego de caracteres aceptado por el formulario.
@@ -79,7 +79,7 @@ impl Component for Form {
         Ok(html! {
             form
                 (self.props())
-                action=[self.action().get()]
+                action=[self.action().try_resolve(cx)]
                 method=[method]
                 accept-charset=[self.charset().get()]
             {
@@ -106,10 +106,13 @@ impl Form {
         self
     }
 
-    /// Establece la URL/ruta de destino del formulario.
+    /// Establece la ruta de destino del formulario.
+    ///
+    /// Acepta un literal, un `String`, o una [`Route`] explícita construida con [`Route::with()`]
+    /// para rutas que dependan del contexto de renderizado.
     #[builder_fn]
-    pub fn with_action(mut self, action: impl AsRef<str>) -> Self {
-        self.action.alter_str(action);
+    pub fn with_action(mut self, action: impl Into<Route>) -> Self {
+        self.action = action.into();
         self
     }
 

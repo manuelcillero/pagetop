@@ -28,12 +28,15 @@ pub trait InputBootsier {
     /// Cuando está activo, la etiqueta se superpone al campo y asciende al enfocarlo o cuando tiene
     /// contenido. Requiere que el campo tenga un atributo `placeholder` definido; si no se
     /// especifica, se fuerza `placeholder=""` antes del renderizado.
+    #[builder_fn]
     fn with_floating_label(self, floating: bool) -> Self;
 }
 
 impl InputBootsier for Field {
-    fn with_floating_label(self, floating: bool) -> Self {
-        self.with_prop(PropsOp::set_extra(EXTRA_FLOATING_LABEL, floating))
+    #[builder_fn]
+    fn with_floating_label(mut self, floating: bool) -> Self {
+        self.alter_prop(PropsOp::set_extra(EXTRA_FLOATING_LABEL, floating));
+        self
     }
 }
 

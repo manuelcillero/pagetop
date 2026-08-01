@@ -31,12 +31,15 @@ pub trait TextareaBootsier {
     ///
     /// Si se usa la etiqueta flotante, se anula el valor establecido con
     /// [`with_rows()`](form::Textarea::with_rows) antes del renderizado.
+    #[builder_fn]
     fn with_floating_label(self, floating: bool) -> Self;
 }
 
 impl TextareaBootsier for Textarea {
-    fn with_floating_label(self, floating: bool) -> Self {
-        self.with_prop(PropsOp::set_extra(EXTRA_FLOATING_LABEL, floating))
+    #[builder_fn]
+    fn with_floating_label(mut self, floating: bool) -> Self {
+        self.alter_prop(PropsOp::set_extra(EXTRA_FLOATING_LABEL, floating));
+        self
     }
 }
 

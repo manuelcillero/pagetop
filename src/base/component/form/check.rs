@@ -9,10 +9,6 @@ use crate::prelude::*;
 /// Representa cada casilla de un grupo de casillas de verificación, con una etiqueta localizable
 /// visible. Puede marcarse como seleccionada o deshabilitada de forma independiente al resto.
 ///
-/// El parámetro `name` de [`form::check::Item::new()`](Item::new) se combina con el `name` del
-/// grupo para componer el atributo `name` de la casilla. Por ejemplo, si el grupo tiene
-/// `name=interests` y el ítem se crea con `name=tech`, la casilla tendrá `name=interests_tech`.
-///
 /// # Ejemplo
 ///
 /// ```rust,no_run
@@ -22,8 +18,8 @@ use crate::prelude::*;
 /// ```
 #[derive(AutoDefault, Clone, Debug, Getters)]
 pub struct Item {
-    /// Devuelve el nombre que se combina con el del grupo para componer el atributo `name`.
-    name: AttrValue,
+    /// Devuelve el valor enviado al servidor cuando la casilla está marcada.
+    value: AttrValue,
     /// Devuelve la etiqueta de la casilla.
     label: L10n,
     /// Devuelve si la casilla debe aparecer marcada por defecto.
@@ -33,13 +29,10 @@ pub struct Item {
 }
 
 impl Item {
-    /// Crea una nueva casilla con el nombre y la etiqueta indicados.
-    ///
-    /// El parámetro `name` se combina con el del grupo para componer el atributo `name` de la
-    /// casilla.
-    pub fn new(name: impl AsRef<str>, label: L10n) -> Self {
+    /// Crea una nueva casilla con el valor y la etiqueta indicados.
+    pub fn new(value: impl AsRef<str>, label: L10n) -> Self {
         Self {
-            name: AttrValue::new(name),
+            value: AttrValue::new(value),
             label,
             checked: false,
             disabled: false,
@@ -65,15 +58,10 @@ impl Item {
 
 /// Componente para crear un **grupo de casillas de verificación**.
 ///
-/// Renderiza un conjunto de casillas de verificación donde cada casilla puede marcarse de forma
-/// independiente. Las casillas se añaden con [`with_item()`](Field::with_item) usando instancias
-/// de [`form::check::Item`]. Si se activa el modo en línea con
-/// [`with_inline()`](Field::with_inline), las casillas se disponen horizontalmente.
-///
-/// El atributo `name` de cada casilla se construye automáticamente combinando el `name` del grupo
-/// y el `name` del [`form::check::Item`] con un guion bajo. Por ejemplo, para el grupo con
-/// `name=interests` y casillas con `name=art` y `name=tech`, se genera `name=interests_art` y
-/// `name=interests_tech`.
+/// Renderiza una lista de opciones de la que el usuario puede marcar cero, una o varias. Todas las
+/// casillas comparten el mismo `name` (el del grupo); cada una envía como valor el de su
+/// [`form::check::Item`] cuando está marcada. Las opciones se añaden con [`with_item()`]. Si se
+/// activa el modo en línea con [`with_inline()`], las casillas se disponen horizontalmente.
 ///
 /// # Ejemplo
 ///
@@ -88,26 +76,29 @@ impl Item {
 ///     .with_item(form::check::Item::new("science", L10n::n("Science")).with_checked(true));
 /// ```
 ///
-/// Cada `name` debe ser único y válido como identificador de campo. Cuando el usuario marca una
-/// casilla, el navegador envía algo como `interests_tech=true`; mientras que si no la marca, no
-/// envía nada. En el servidor cada campo se deserializa como `bool` con `#[serde(default)]`:
+/// El navegador envía una entrada por cada casilla marcada, todas bajo la misma clave (por ejemplo,
+/// si el usuario marca "Technology" y "Science", `interests=tech&interests=science`) y ninguna si
+/// no marca ninguna. El servidor no necesita conocer de antemano qué opciones existían, lo que hace
+/// de `Field` la opción adecuada también para listas de opciones dinámicas (por ejemplo, cargadas
+/// de una base de datos). `axum::extract::Form` (basado en `serde_urlencoded`) no deserializa
+/// claves repetidas en un `Vec<T>`; hace falta un extractor que sí lo haga, como [`serde_qs`]:
 ///
 /// ```rust,ignore
 /// #[derive(serde::Deserialize)]
 /// struct FormData {
 ///     #[serde(default)]
-///     interests_art: bool,
-///     #[serde(default)]
-///     interests_tech: bool,
-///     #[serde(default)]
-///     interests_science: bool,
+///     interests: Vec<String>, // ["tech", "science"], o [] si no se marcó ninguna.
 /// }
 /// ```
+///
+/// [`with_item()`]: Field::with_item
+/// [`with_inline()`]: Field::with_inline
+/// [`serde_qs`]: https://docs.rs/serde_qs
 #[derive(AutoDefault, Clone, Debug, Getters)]
 pub struct Field {
     /// Devuelve identificador, clases CSS, atributos HTML y valores extra del componente.
     props: Props,
-    /// Devuelve el nombre base compartido por todas las casillas del grupo.
+    /// Devuelve el nombre compartido por todas las casillas del grupo.
     name: AttrName,
     /// Devuelve la etiqueta del grupo.
     label: Attr<L10n>,
@@ -164,18 +155,13 @@ impl Component for Field {
                 @for (item, i) in self.items().iter().zip(1..) {
                     @let i = i.to_string();
                     @let item_id = util::join!(&container_id, "-check-", &i);
-                    @let item_name = if let Some(item_name) = item.name().get() {
-                        util::join!(&name, "_", &item_name)
-                    } else {
-                        util::join!(&name, "_", &i)
-                    };
                     div class=(item_classes) {
                         input
                             type="checkbox"
                             id=(&item_id)
                             class="form-check-input"
-                            name=(&item_name)
-                            value="true"
+                            name=(&name)
+                            value=[item.value().get()]
                             checked[*item.checked()]
                             disabled[*item.disabled() || *self.disabled()];
                         label class="form-check-label" for=(&item_id) {
@@ -208,14 +194,11 @@ impl Field {
         self
     }
 
-    /// Establece el nombre base para el grupo de casillas.
+    /// Establece el nombre compartido por todas las casillas del grupo.
     ///
-    /// Se combina con el `name` de cada [`form::check::Item`](Item) para generar el atributo `name`
-    /// de cada casilla de verificación. Por ejemplo, con `name=interests` en el grupo y `name=tech`
-    /// en el ítem, se genera `name=interests_tech`.
-    ///
-    /// Si se omite, se asigna un nombre generado automáticamente. Para deserializar los campos en
-    /// el servidor es recomendable establecer un `name` explícito.
+    /// Todas las casillas [`form::check::Item`](Item) del grupo llevarán este mismo `name`. Si se
+    /// omite, se asigna un nombre generado automáticamente. Para deserializar los campos en el
+    /// servidor es recomendable establecer un `name` explícito.
     #[builder_fn]
     pub fn with_name(mut self, name: impl AsRef<str>) -> Self {
         self.name.alter_name(name);

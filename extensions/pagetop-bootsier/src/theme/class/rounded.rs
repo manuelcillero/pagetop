@@ -104,32 +104,48 @@ impl Into<CowStr> for RoundedRadius {
 /// - Ajustar el radio de las **esquinas concretas** (`top-start`, `top-end`, `bottom-start`,
 ///   `bottom-end`, **en este orden**, respetando LTR/RTL).
 ///
+/// # Comportamiento aditivo / sustractivo
+///
+/// - **Aditivo**: se parte de [`Rounded::default()`] (sin redondeo) y se van añadiendo lados o
+///   esquinas concretas con el radio deseado.
+///
+/// - **Sustractivo**: se parte de [`Rounded::new()`] o [`Rounded::with`] (radio global ya aplicado)
+///   y se anulan lados o esquinas concretas con [`RoundedRadius::Zero`].
+///
 /// # Ejemplos
 ///
 /// ```rust
 /// use pagetop_bootsier::theme::*;
 ///
-/// // Radio global:
-/// let r = class::Rounded::with(class::RoundedRadius::Default);
+/// // Radio global por defecto, equivalente a `Rounded::with(RoundedRadius::Default)`:
+/// let r = class::Rounded::new();
 /// assert_eq!(r.to_class(), "rounded");
 ///
-/// // Sin redondeo:
-/// let r = class::Rounded::new();
+/// // Radio global explícito:
+/// let r = class::Rounded::with(class::RoundedRadius::Scale3);
+/// assert_eq!(r.to_class(), "rounded-3");
+///
+/// // Sin redondeo (comportamiento de `Default`):
+/// let r = class::Rounded::default();
 /// assert_eq!(r.to_class(), "");
 ///
-/// // Radio en las esquinas de un lado lógico:
-/// let r = class::Rounded::new().with_end(class::RoundedRadius::Scale2);
+/// // Aditivo (radio en las esquinas de un lado lógico):
+/// let r = class::Rounded::default().with_end(class::RoundedRadius::Scale2);
 /// assert_eq!(r.to_class(), "rounded-end-2");
 ///
-/// // Radio en una esquina concreta:
-/// let r = class::Rounded::new().with_top_start(class::RoundedRadius::Scale3);
+/// // Aditivo (radio en una esquina concreta):
+/// let r = class::Rounded::default().with_top_start(class::RoundedRadius::Scale3);
 /// assert_eq!(r.to_class(), "rounded-top-start-3");
 ///
+/// // Sustractivo (radio global menos la esquina superior-inicial):
+/// let r = class::Rounded::new().with_top_start(class::RoundedRadius::Zero);
+/// assert_eq!(r.to_class(), "rounded rounded-top-start-0");
+///
 /// // Combinado (ejemplo completo):
-/// let r = class::Rounded::new()
+/// let r = class::Rounded::default()
 ///     .with_top(class::RoundedRadius::Default)          // Añade redondeo arriba.
-///     .with_bottom_start(class::RoundedRadius::Scale4)  // Añade una esquina redondeada concreta.
-///     .with_bottom_end(class::RoundedRadius::Circle);   // Añade redondeo extremo en otra esquina.
+///     .with_bottom_start(class::RoundedRadius::Scale4)  // Añade esquina redondeada concreta.
+///     .with_bottom_end(class::RoundedRadius::Circle);   // Añade redondeo máximo en otra esquina.
 /// assert_eq!(r.to_class(), "rounded-top rounded-bottom-start-4 rounded-bottom-end-circle");
 /// ```
 #[rustfmt::skip]
@@ -147,12 +163,13 @@ pub struct Rounded {
 }
 
 impl Rounded {
-    /// Prepara las esquinas **sin redondeo global** de partida.
+    /// Prepara las esquinas con el **radio de redondeo por defecto** (`rounded`), como
+    /// [`Self::with`] con [`RoundedRadius::Default`].
     pub fn new() -> Self {
-        Self::default()
+        Self::default().with_radius(RoundedRadius::Default)
     }
 
-    /// Crea las esquinas **con redondeo global** (`radius`).
+    /// Crea las esquinas con un **radio global** explícito (`radius`).
     pub fn with(radius: RoundedRadius) -> Self {
         Self::default().with_radius(radius)
     }

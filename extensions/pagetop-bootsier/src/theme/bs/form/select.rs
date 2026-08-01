@@ -33,12 +33,15 @@ pub trait SelectBootsier {
     /// Si se usa la etiqueta flotante, se anulan los valores establecidos con
     /// [`with_multiple()`](form::select::Field::with_multiple) y
     /// [`with_rows()`](form::select::Field::with_rows) antes del renderizado.
+    #[builder_fn]
     fn with_floating_label(self, floating: bool) -> Self;
 }
 
 impl SelectBootsier for Field {
-    fn with_floating_label(self, floating: bool) -> Self {
-        self.with_prop(PropsOp::set_extra(EXTRA_FLOATING_LABEL, floating))
+    #[builder_fn]
+    fn with_floating_label(mut self, floating: bool) -> Self {
+        self.alter_prop(PropsOp::set_extra(EXTRA_FLOATING_LABEL, floating));
+        self
     }
 }
 

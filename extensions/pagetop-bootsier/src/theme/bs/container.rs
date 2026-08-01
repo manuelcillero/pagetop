@@ -10,10 +10,12 @@ const EXTRA_WIDTH: &str = "bootsier.container.width";
 
 /// Extensión de Bootsier para [`Container`].
 ///
-/// Permite definir el comportamiento del ancho del contenedor usando el método
-/// [`with_width()`](Self::with_width). También acepta clases predefinidas para:
+/// Permite establecer el comportamiento del ancho del contenedor usando el método
+/// [`with_width()`](Self::with_width).
 ///
-/// - Modificar el color de fondo ([`Background`](crate::theme::class::Background)).
+/// También habilita al componente para aceptar clases predefinidas para:
+///
+/// - Modificar el color de fondo ([`Bg`](crate::theme::class::Bg)).
 /// - Definir la apariencia del texto ([`Text`](crate::theme::class::Text)).
 /// - Establecer bordes ([`Border`](crate::theme::class::Border)).
 /// - Redondear las esquinas ([`Rounded`](crate::theme::class::Rounded)).
@@ -24,11 +26,11 @@ const EXTRA_WIDTH: &str = "bootsier.container.width";
 ///
 /// let main = bs::Container::main()
 ///     .with_id("main-page")
-///     .with_width(bs::container::Width::From(token::BreakPoint::LG))
-///     .with_prop(PropsOp::add_classes(class::Background::with(token::Color::Light)))
-///     .with_prop(PropsOp::add_classes(class::Text::with(token::Color::Dark)))
-///     .with_prop(PropsOp::add_classes(class::Border::with(token::ScaleSize::One)))
-///     .with_prop(PropsOp::add_classes(class::Rounded::with(token::RoundedRadius::Default)));
+///     .with_width(bs::container::Width::From(BreakPoint::LG))
+///     .with_prop(PropsOp::add_classes(class::Bg::with(ThemeColor::Light)))
+///     .with_prop(PropsOp::add_classes(class::Text::with(ThemeColor::Dark)))
+///     .with_prop(PropsOp::add_classes(class::Border::with(ScaleSize::One)))
+///     .with_prop(PropsOp::add_classes(class::Rounded::new()));
 /// ```
 pub trait ContainerBootsier {
     /// Establece el comportamiento del ancho para el contenedor.
@@ -36,12 +38,15 @@ pub trait ContainerBootsier {
     /// Determina si el contenedor aplica los anchos máximos predefinidos para cada punto de
     /// ruptura, o si ocupa siempre el 100% del ancho disponible, o lo hace hasta un ancho máximo
     /// explícito. Ver [`Width`] para las variantes disponibles.
+    #[builder_fn]
     fn with_width(self, width: Width) -> Self;
 }
 
 impl ContainerBootsier for Container {
-    fn with_width(self, width: Width) -> Self {
-        self.with_prop(PropsOp::set_extra(EXTRA_WIDTH, width))
+    #[builder_fn]
+    fn with_width(mut self, width: Width) -> Self {
+        self.alter_prop(PropsOp::set_extra(EXTRA_WIDTH, width));
+        self
     }
 }
 
@@ -56,7 +61,7 @@ pub enum Width {
     Default,
     /// Aplica los anchos máximos predefinidos a partir del punto de ruptura indicado. Por debajo de
     /// ese punto de ruptura ocupa el 100% del ancho disponible.
-    From(token::BreakPoint),
+    From(BreakPoint),
     /// Ocupa el 100% del ancho disponible siempre.
     Fluid,
     /// Ocupa el 100% del ancho disponible hasta un ancho máximo explícito.
@@ -70,10 +75,10 @@ impl Width {
     #[inline]
     pub fn push_to(self, classes: &mut String) {
         match self {
-            Self::Default => token::BreakPoint::None.push_to(classes, Self::CONTAINER, ""),
+            Self::Default => BreakPoint::None.push_to(classes, Self::CONTAINER, ""),
             Self::From(bp) => bp.push_to(classes, Self::CONTAINER, ""),
             Self::Fluid | Self::FluidMax(_) => {
-                token::BreakPoint::None.push_to(classes, Self::CONTAINER, "fluid")
+                BreakPoint::None.push_to(classes, Self::CONTAINER, "fluid")
             }
         }
     }
