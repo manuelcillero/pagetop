@@ -1,5 +1,9 @@
 //! Componentes proporcionados por el tema.
 
+// Badge.
+pub(crate) mod badge;
+pub use badge::{Badge, BadgeBootsier};
+
 // Button.
 mod button;
 pub use button::{Button, ButtonAction};

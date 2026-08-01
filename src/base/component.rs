@@ -2,6 +2,9 @@
 
 pub mod layout;
 
+mod badge;
+pub use badge::Badge;
+
 mod block;
 pub use block::Block;
 
