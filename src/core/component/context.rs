@@ -455,7 +455,7 @@ impl Context {
     pub fn route(&self, path: impl Into<RoutePath>) -> RoutePath {
         let mut route = path.into();
         if !route.is_external() && self.locale.needs_lang_query() {
-            route.alter_param("lang", self.locale.langid().to_string());
+            route.alter_param("lang", self.locale.lang_query_value());
         }
         route
     }

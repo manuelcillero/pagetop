@@ -7,45 +7,53 @@ use super::{LangId, LanguageIdentifier, Locale};
 ///
 /// Determina qué idioma se usará para renderizar la respuesta asociada a una petición. También
 /// indica si es necesario propagar ese idioma en los enlaces usando el parámetro de *query*
-/// `?lang=...`. El comportamiento concreto depende de la política global
-/// [`LangNegotiation`](crate::global::LangNegotiation) configurada en la aplicación.
+/// `?lang=...`. El comportamiento concreto depende de la política global [`LangNegotiation`]
+/// configurada en la aplicación.
 ///
 /// El idioma resultante se expone a través del *trait* [`LangId`], de modo que pueda usarse
 /// [`RequestLocale`] como cualquier otra fuente de idioma en PageTop.
+///
+/// [`LangNegotiation`]: crate::global::LangNegotiation
 pub struct RequestLocale {
     // Idioma elegido por la aplicación para esta petición, combinando la configuración, la cabecera
     // `Accept-Language` y/o el idioma de respaldo.
     base: &'static LanguageIdentifier,
     // Idioma finalmente aplicado a la petición (puede coincidir con `base` o no).
     effective: &'static LanguageIdentifier,
+    // Valor original de `?lang=...`, tal como llegó en la petición, si resultó en un idioma
+    // soportado. Permite propagarlo en los enlaces con su grafía original (p. ej. "en") en vez de
+    // expandirlo siempre a la forma canónica del idioma resuelto (p. ej. "en-US").
+    query_lang: Option<String>,
 }
 
 impl RequestLocale {
     /// Construye un `RequestLocale` a partir de una petición HTTP.
     ///
-    /// El idioma de la petición se decide según la estrategia definida por
-    /// [`LangNegotiation`](crate::global::LangNegotiation):
+    /// El idioma de la petición se decide según la estrategia definida por [`LangNegotiation`]:
     ///
-    /// - [`LangNegotiation::Full`](crate::global::LangNegotiation::Full) determina el idioma en
-    ///   este orden:
+    /// - [`LangNegotiation::Full`] determina el idioma en este orden:
     ///   1. Parámetro de *query* `?lang=...`, si existe y corresponde a un idioma soportado.
     ///   2. [`Locale::try_langid()`], si la aplicación tiene un idioma por defecto válido.
     ///   3. Cabecera `Accept-Language`, si puede resolverse con [`Locale::resolve()`].
     ///   4. Idioma de respaldo.
     ///
-    /// - [`LangNegotiation::NoQuery`](crate::global::LangNegotiation::NoQuery) descarta el uso del
-    ///   parámetro `?lang=...` y determina el idioma en este orden:
+    /// - [`LangNegotiation::NoQuery`] descarta el uso del parámetro `?lang=...` y determina el
+    ///   idioma en este orden:
     ///   1. [`Locale::try_langid()`], si la aplicación tiene un idioma por defecto válido.
     ///   2. Cabecera `Accept-Language`, si puede resolverse con [`Locale::resolve()`].
     ///   3. Idioma de respaldo.
     ///
-    /// - [`LangNegotiation::ConfigOnly`](crate::global::LangNegotiation::ConfigOnly) sólo usa la
-    ///   configuración de la aplicación mediante [`Locale::default_langid()`], sin consultar la
-    ///   cabecera `Accept-Language` ni el parámetro `?lang`. Este modo también aplica el idioma de
-    ///   respaldo si es necesario.
+    /// - [`LangNegotiation::ConfigOnly`] sólo usa la configuración de la aplicación mediante
+    ///   [`Locale::default_langid()`], sin consultar la cabecera `Accept-Language` ni el parámetro
+    ///   `?lang`. Este modo también aplica el idioma de respaldo si es necesario.
     ///
     /// En todos los casos, el idioma resultante es siempre un [`LanguageIdentifier`] soportado por
     /// la aplicación y será el que PageTop utilice para renderizar la respuesta de la petición.
+    ///
+    /// [`LangNegotiation`]: crate::global::LangNegotiation
+    /// [`LangNegotiation::Full`]: crate::global::LangNegotiation::Full
+    /// [`LangNegotiation::NoQuery`]: crate::global::LangNegotiation::NoQuery
+    /// [`LangNegotiation::ConfigOnly`]: crate::global::LangNegotiation::ConfigOnly
     pub fn from_request(request: Option<&HttpRequest>) -> Self {
         let mode = global::SETTINGS.app.lang_negotiation;
 
@@ -98,38 +106,44 @@ impl RequestLocale {
             }
         };
 
-        // Idioma aplicado a la petición tras considerar la *query* `?lang=...`.
-        let effective: &'static LanguageIdentifier = match mode {
+        // Valor de `?lang=...`, si existe y corresponde a un idioma soportado. Se conserva junto al
+        // `LanguageIdentifier` resuelto para poder propagar más tarde su grafía original.
+        let query_lang: Option<(&'static LanguageIdentifier, String)> = match mode {
             global::LangNegotiation::ConfigOnly | global::LangNegotiation::NoQuery => {
                 // En estos modos no se permite que la URL modifique el idioma.
-                base
+                None
             }
-            global::LangNegotiation::Full => {
-                request
-                    // Se obtiene el valor de `lang` de la petición, si existe.
-                    .and_then(|req| {
-                        req.query_string().split('&').find_map(|pair| {
-                            let mut param = pair.splitn(2, '=');
-                            match (param.next(), param.next()) {
-                                (Some("lang"), Some(value)) if !value.is_empty() => Some(value),
-                                _ => None,
-                            }
-                        })
-                    })
-                    // Se comprueba si es un idioma soportado.
-                    .and_then(|language| {
-                        if let Locale::Resolved(langid) = Locale::resolve(language) {
-                            Some(langid)
-                        } else {
-                            None
+            global::LangNegotiation::Full => request
+                // Se obtiene el valor de `lang` de la petición, si existe.
+                .and_then(|req| {
+                    req.query_string().split('&').find_map(|pair| {
+                        let mut param = pair.splitn(2, '=');
+                        match (param.next(), param.next()) {
+                            (Some("lang"), Some(value)) if !value.is_empty() => Some(value),
+                            _ => None,
                         }
                     })
-                    // Si no hay `lang` o no es válido, se usa `base`.
-                    .unwrap_or(base)
-            }
+                })
+                // Se comprueba si es un idioma soportado.
+                .and_then(|language| {
+                    if let Locale::Resolved(langid) = Locale::resolve(language) {
+                        Some((langid, language.to_string()))
+                    } else {
+                        None
+                    }
+                }),
         };
 
-        RequestLocale { base, effective }
+        // Idioma aplicado a la petición tras considerar la *query* `?lang=...`. Si no hay `lang` o
+        // no es válido, se usa `base`.
+        let effective: &'static LanguageIdentifier =
+            query_lang.as_ref().map_or(base, |(langid, _)| *langid);
+
+        RequestLocale {
+            base,
+            effective,
+            query_lang: query_lang.map(|(_, raw)| raw),
+        }
     }
 
     /// Fuerza el idioma que se utilizará para las traducciones de esta petición.
@@ -140,32 +154,48 @@ impl RequestLocale {
     #[inline]
     pub fn with_langid(&mut self, language: &impl LangId) -> &mut Self {
         self.effective = language.langid();
+        self.query_lang = None;
         self
     }
 
     /// Indica si conviene propagar `lang=...` en los enlaces generados.
     ///
-    /// El comportamiento depende de la estrategia configurada en
-    /// [`LangNegotiation`](crate::global::LangNegotiation):
+    /// El comportamiento depende de la estrategia configurada en [`LangNegotiation`]:
     ///
-    /// - En modo [`LangNegotiation::Full`](crate::global::LangNegotiation::Full) devuelve `true`
-    ///   cuando la respuesta se está generando en un idioma distinto del que la aplicación habría
-    ///   elegido automáticamente a partir de la configuración, el navegador y el idioma de
-    ///   respaldo. En la práctica suele significar que el usuario ha pedido expresamente otro
-    ///   idioma (por ejemplo, con `?lang=...`) o que se ha forzado con
-    ///   [`with_langid()`](Self::with_langid), y por tanto es recomendable propagar `lang=...` en
-    ///   los enlaces para mantener esa preferencia mientras se navega.
+    /// - En modo [`LangNegotiation::Full`] devuelve `true` cuando la respuesta se está generando en
+    ///   un idioma distinto del que la aplicación habría elegido automáticamente a partir de la
+    ///   configuración, el navegador y el idioma de respaldo. En la práctica suele significar que
+    ///   el usuario ha pedido expresamente otro idioma (por ejemplo, con `?lang=...`) o que se ha
+    ///   forzado con [`with_langid()`](Self::with_langid), y por tanto es recomendable propagar
+    ///   `lang=...` en los enlaces para mantener esa preferencia mientras se navega.
     ///
-    /// - En modos [`LangNegotiation::NoQuery`](crate::global::LangNegotiation::NoQuery) y
-    ///   [`LangNegotiation::ConfigOnly`](crate::global::LangNegotiation::ConfigOnly) siempre
-    ///   devuelve `false`, ya que en estas estrategias la aplicación no utiliza el parámetro
-    ///   `?lang=...` para seleccionar ni para propagar el idioma.
+    /// - En modos [`LangNegotiation::NoQuery`] y [`LangNegotiation::ConfigOnly`] siempre devuelve
+    ///   `false`, ya que en estas estrategias la aplicación no utiliza el parámetro `?lang=...`
+    ///   para seleccionar ni para propagar el idioma.
+    ///
+    /// [`LangNegotiation`]: crate::global::LangNegotiation
+    /// [`LangNegotiation::Full`]: crate::global::LangNegotiation::Full
+    /// [`LangNegotiation::NoQuery`]: crate::global::LangNegotiation::NoQuery
+    /// [`LangNegotiation::ConfigOnly`]: crate::global::LangNegotiation::ConfigOnly
     #[inline]
     pub(crate) fn needs_lang_query(&self) -> bool {
         match global::SETTINGS.app.lang_negotiation {
             global::LangNegotiation::Full => self.base != self.effective,
             global::LangNegotiation::NoQuery | global::LangNegotiation::ConfigOnly => false,
         }
+    }
+
+    /// Devuelve el valor a propagar en el parámetro `?lang=...` de los enlaces generados.
+    ///
+    /// Si el idioma efectivo procede del parámetro `?lang=...` de la petición, devuelve ese valor
+    /// tal como llegó, conservando su grafía original (p. ej. `"en"` o `"en-US"`). En caso
+    /// contrario (por ejemplo, si el idioma se forzó con [`with_langid()`](Self::with_langid)),
+    /// devuelve la forma canónica del idioma efectivo.
+    #[inline]
+    pub(crate) fn lang_query_value(&self) -> String {
+        self.query_lang
+            .clone()
+            .unwrap_or_else(|| self.effective.to_string())
     }
 }
 
