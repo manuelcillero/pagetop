@@ -2,11 +2,14 @@ use pagetop::prelude::*;
 
 // **< ScaleSize >**********************************************************************************
 
-/// Escala discreta de tamaños para clases utilitarias de Bootstrap.
+/// Escala discreta de tamaños para clases utilitarias.
 ///
-/// Se usa como parámetro de tamaño en [`Border`](crate::theme::class::Border),
-/// [`Margin`](crate::theme::class::Margin) y [`Padding`](crate::theme::class::Padding). La
+/// Se usa como parámetro de tamaño para las clases de [`Border`], [`Margin`] y [`Padding`]. La
 /// variante `Auto` no aplica en `Padding`.
+///
+/// [`Border`]: crate::theme::class::Border
+/// [`Margin`]: crate::theme::class::Margin
+/// [`Padding`]: crate::theme::class::Padding
 #[derive(AutoDefault, Clone, Copy, Debug, PartialEq)]
 pub enum ScaleSize {
     /// Sin tamaño (no define ninguna clase).
@@ -61,14 +64,17 @@ impl ScaleSize {
     }
 }
 
-// **< Side >***************************************************************************************
+// **< BoxSide >************************************************************************************
 
 /// Lados sobre los que aplicar una clase utilitaria (respetando LTR/RTL).
 ///
-/// Se usa como selector de lado en [`Border`](crate::theme::class::Border),
-/// [`Margin`](crate::theme::class::Margin) y [`Padding`](crate::theme::class::Padding).
+/// Se usa como selector de lado para las clases de [`Border`], [`Margin`] y [`Padding`].
+///
+/// [`Border`]: crate::theme::class::Border
+/// [`Margin`]: crate::theme::class::Margin
+/// [`Padding`]: crate::theme::class::Padding
 #[derive(AutoDefault, Clone, Copy, Debug, PartialEq)]
-pub enum Side {
+pub enum BoxSide {
     /// Todos los lados.
     #[default]
     All,

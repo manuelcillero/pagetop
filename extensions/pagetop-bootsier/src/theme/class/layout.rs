@@ -1,6 +1,6 @@
 use pagetop::prelude::*;
 
-use crate::theme::token::{BreakPoint, ScaleSize, Side};
+use crate::theme::{BoxSide, BreakPoint, ScaleSize};
 
 // **< Margin >*************************************************************************************
 
@@ -11,19 +11,19 @@ use crate::theme::token::{BreakPoint, ScaleSize, Side};
 /// ```rust
 /// use pagetop_bootsier::theme::*;
 ///
-/// let m = class::Margin::with(token::Side::Top, token::ScaleSize::Three);
+/// let m = class::Margin::with(BoxSide::Top, ScaleSize::Three);
 /// assert_eq!(m.to_class(), "mt-3");
 ///
-/// let m = class::Margin::with(token::Side::Start, token::ScaleSize::Auto)
-///     .with_breakpoint(token::BreakPoint::LG);
+/// let m = class::Margin::with(BoxSide::Start, ScaleSize::Auto)
+///     .with_breakpoint(BreakPoint::LG);
 /// assert_eq!(m.to_class(), "ms-lg-auto");
 ///
-/// let m = class::Margin::with(token::Side::All, token::ScaleSize::None);
+/// let m = class::Margin::with(BoxSide::All, ScaleSize::None);
 /// assert_eq!(m.to_class(), "");
 /// ```
 #[derive(AutoDefault, Clone, Copy, Debug, PartialEq)]
 pub struct Margin {
-    side: Side,
+    side: BoxSide,
     size: ScaleSize,
     breakpoint: BreakPoint,
 }
@@ -31,7 +31,7 @@ pub struct Margin {
 impl Margin {
     /// Crea un **margin** indicando lado(s) y tamaño. Por defecto no se aplica a ningún punto de
     /// ruptura.
-    pub fn with(side: Side, size: ScaleSize) -> Self {
+    pub fn with(side: BoxSide, size: ScaleSize) -> Self {
         Margin {
             side,
             size,
@@ -54,13 +54,13 @@ impl Margin {
     #[inline]
     const fn side_prefix(&self) -> &'static str {
         match self.side {
-            Side::All          => "m",
-            Side::Top          => "mt",
-            Side::Bottom       => "mb",
-            Side::Start        => "ms",
-            Side::End          => "me",
-            Side::LeftAndRight => "mx",
-            Side::TopAndBottom => "my",
+            BoxSide::All          => "m",
+            BoxSide::Top          => "mt",
+            BoxSide::Bottom       => "mb",
+            BoxSide::Start        => "ms",
+            BoxSide::End          => "me",
+            BoxSide::LeftAndRight => "mx",
+            BoxSide::TopAndBottom => "my",
         }
     }
 
@@ -114,19 +114,19 @@ impl Into<CowStr> for Margin {
 /// ```rust
 /// use pagetop_bootsier::theme::*;
 ///
-/// let p = class::Padding::with(token::Side::LeftAndRight, token::ScaleSize::Two);
+/// let p = class::Padding::with(BoxSide::LeftAndRight, ScaleSize::Two);
 /// assert_eq!(p.to_class(), "px-2");
 ///
-/// let p = class::Padding::with(token::Side::End, token::ScaleSize::Four)
-///     .with_breakpoint(token::BreakPoint::SM);
+/// let p = class::Padding::with(BoxSide::End, ScaleSize::Four)
+///     .with_breakpoint(BreakPoint::SM);
 /// assert_eq!(p.to_class(), "pe-sm-4");
 ///
-/// let p = class::Padding::with(token::Side::All, token::ScaleSize::Auto);
+/// let p = class::Padding::with(BoxSide::All, ScaleSize::Auto);
 /// assert_eq!(p.to_class(), ""); // `Auto` no aplica a padding.
 /// ```
 #[derive(AutoDefault, Clone, Copy, Debug, PartialEq)]
 pub struct Padding {
-    side: Side,
+    side: BoxSide,
     size: ScaleSize,
     breakpoint: BreakPoint,
 }
@@ -134,7 +134,7 @@ pub struct Padding {
 impl Padding {
     /// Crea un **padding** indicando lado(s) y tamaño. Por defecto no se aplica a ningún punto de
     /// ruptura.
-    pub fn with(side: Side, size: ScaleSize) -> Self {
+    pub fn with(side: BoxSide, size: ScaleSize) -> Self {
         Padding {
             side,
             size,
@@ -157,13 +157,13 @@ impl Padding {
     #[inline]
     const fn side_prefix(&self) -> &'static str {
         match self.side {
-            Side::All          => "p",
-            Side::Top          => "pt",
-            Side::Bottom       => "pb",
-            Side::Start        => "ps",
-            Side::End          => "pe",
-            Side::LeftAndRight => "px",
-            Side::TopAndBottom => "py",
+            BoxSide::All          => "p",
+            BoxSide::Top          => "pt",
+            BoxSide::Bottom       => "pb",
+            BoxSide::Start        => "ps",
+            BoxSide::End          => "pe",
+            BoxSide::LeftAndRight => "px",
+            BoxSide::TopAndBottom => "py",
         }
     }
 

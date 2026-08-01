@@ -1,15 +1,20 @@
 use pagetop::prelude::*;
 
-use crate::theme::token::Color;
+use crate::theme::ThemeColor;
 
 // **< ButtonColor >********************************************************************************
 
+/// Estilo visual aplicado al color de un botón ([`ButtonColor`]).
 #[derive(AutoDefault, Clone, Copy, Debug, PartialEq)]
-enum ButtonColorStyle {
+pub enum ButtonColorStyle {
+    /// Sin clase de color (estilo por defecto del tema).
     #[default]
     None,
+    /// Botón sólido: genera la clase `btn-{color}`.
     Solid,
+    /// Botón con contorno: genera la clase `btn-outline-{color}`.
     Outline,
+    /// Botón tipo enlace: genera la clase `btn-link`.
     Link,
 }
 
@@ -23,11 +28,11 @@ enum ButtonColorStyle {
 ///
 /// // Botón sólido.
 /// let save = bs::Button::submit(L10n::n("Save"))
-///     .with_prop(PropsOp::add_classes(class::ButtonColor::solid(token::Color::Primary)));
+///     .with_prop(PropsOp::add_classes(class::ButtonColor::solid(ThemeColor::Primary)));
 ///
 /// // Botón con contorno.
 /// let cancel = bs::Button::plain(L10n::n("Cancel"))
-///     .with_prop(PropsOp::add_classes(class::ButtonColor::outline(token::Color::Secondary)));
+///     .with_prop(PropsOp::add_classes(class::ButtonColor::outline(ThemeColor::Secondary)));
 ///
 /// // Botón tipo enlace.
 /// let back = bs::Button::plain(L10n::n("Back"))
@@ -36,7 +41,7 @@ enum ButtonColorStyle {
 #[derive(AutoDefault, Clone, Copy, Debug, PartialEq)]
 pub struct ButtonColor {
     style: ButtonColorStyle,
-    color: Color,
+    color: ThemeColor,
 }
 
 impl ButtonColor {
@@ -46,7 +51,7 @@ impl ButtonColor {
     }
 
     /// Botón sólido: genera la clase `btn-{color}`.
-    pub fn solid(color: Color) -> Self {
+    pub fn solid(color: ThemeColor) -> Self {
         Self {
             style: ButtonColorStyle::Solid,
             color,
@@ -55,7 +60,7 @@ impl ButtonColor {
     }
 
     /// Botón con contorno: genera la clase `btn-outline-{color}`.
-    pub fn outline(color: Color) -> Self {
+    pub fn outline(color: ThemeColor) -> Self {
         Self {
             style: ButtonColorStyle::Outline,
             color,
@@ -74,8 +79,14 @@ impl ButtonColor {
     // **< ButtonColor BUILDER >********************************************************************
 
     /// Cambia el color aplicado al botón (`btn-*` o `btn-outline-*`).
-    pub fn with_color(mut self, color: Color) -> Self {
+    pub fn with_color(mut self, color: ThemeColor) -> Self {
         self.color = color;
+        self
+    }
+
+    /// Cambia el estilo aplicado al botón (sólido, contorno o enlace).
+    pub fn with_style(mut self, style: ButtonColorStyle) -> Self {
+        self.style = style;
         self
     }
 
@@ -117,11 +128,15 @@ impl Into<CowStr> for ButtonColor {
 
 // **< ButtonSize >*********************************************************************************
 
+/// Tamaño aplicado a un botón ([`ButtonSize`]).
 #[derive(AutoDefault, Clone, Copy, Debug, PartialEq)]
-enum ButtonSizeVariant {
+pub enum ButtonSizeKind {
+    /// Sin clase de tamaño (tamaño por defecto del tema).
     #[default]
     None,
+    /// Botón compacto: genera la clase `btn-sm`.
     Small,
+    /// Botón grande: genera la clase `btn-lg`.
     Large,
 }
 
@@ -141,7 +156,7 @@ enum ButtonSizeVariant {
 /// ```
 #[derive(AutoDefault, Clone, Copy, Debug, PartialEq)]
 pub struct ButtonSize {
-    size: ButtonSizeVariant,
+    size: ButtonSizeKind,
 }
 
 impl ButtonSize {
@@ -153,15 +168,23 @@ impl ButtonSize {
     /// Botón compacto: genera la clase `btn-sm`.
     pub fn small() -> Self {
         Self {
-            size: ButtonSizeVariant::Small,
+            size: ButtonSizeKind::Small,
         }
     }
 
     /// Botón grande: genera la clase `btn-lg`.
     pub fn large() -> Self {
         Self {
-            size: ButtonSizeVariant::Large,
+            size: ButtonSizeKind::Large,
         }
+    }
+
+    // **< ButtonSize BUILDER >*********************************************************************
+
+    /// Cambia el tamaño aplicado al botón.
+    pub fn with_size(mut self, size: ButtonSizeKind) -> Self {
+        self.size = size;
+        self
     }
 
     // **< ButtonSize HELPERS >*********************************************************************
@@ -170,9 +193,9 @@ impl ButtonSize {
     #[inline]
     pub fn push_to(self, classes: &mut String) {
         let class = match self.size {
-            ButtonSizeVariant::None => return,
-            ButtonSizeVariant::Small => "btn-sm",
-            ButtonSizeVariant::Large => "btn-lg",
+            ButtonSizeKind::None => return,
+            ButtonSizeKind::Small => "btn-sm",
+            ButtonSizeKind::Large => "btn-lg",
         };
         if !classes.is_empty() {
             classes.push(' ');

@@ -447,12 +447,12 @@ body {
 }
 
 #intro-badges {
-	min-height: 3rem;
+	min-height: 3.2rem;
 	text-align: center;
 	visibility: hidden;
 }
 #intro-badges img {
-	margin-bottom: 1.1rem;
+	margin-bottom: 0.25rem;
 }
 #intro-release:not([src]) {
 	display: none;

@@ -1,6 +1,6 @@
 use pagetop::prelude::*;
 
-/// Define los puntos de ruptura (*breakpoints*) para aplicar diseño *responsive*.
+/// Puntos de ruptura (*breakpoints*) para aplicar diseño *responsive*.
 #[derive(AutoDefault, Clone, Copy, Debug, PartialEq)]
 pub enum BreakPoint {
     /// **Menos de 576px**. Dispositivos muy pequeños: teléfonos en modo vertical.

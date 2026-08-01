@@ -1,6 +1,114 @@
 use pagetop::prelude::*;
 
-use crate::theme::token::{ColorBorder, Opacity, ScaleSize, Side};
+use crate::theme::{BoxSide, OpacityLevel, ScaleSize, ThemeColor};
+
+// **< BorderColor >********************************************************************************
+
+/// Esquema de color para los bordes ([`Border`]).
+///
+/// - `Solid(ThemeColor)` y `Subtle(ThemeColor)` usan la paleta de colores temáticos
+///   ([`ThemeColor`]).
+/// - `Black` y `White` son colores fijos independientes del tema.
+/// - `Default` no genera ninguna clase.
+#[derive(AutoDefault, Clone, Copy, Debug, PartialEq)]
+pub enum BorderColor {
+    /// No define ninguna clase.
+    #[default]
+    Default,
+    /// Genera la clase `border-{color}`.
+    Solid(ThemeColor),
+    /// Genera la clase `border-{color}-subtle` (un tono suavizado del color).
+    Subtle(ThemeColor),
+    /// Color negro.
+    Black,
+    /// Color blanco.
+    White,
+}
+
+impl BorderColor {
+    // Devuelve el sufijo de la clase `border-*`, o `None` si no define ninguna clase.
+    #[rustfmt::skip]
+    #[inline]
+    const fn suffix(self) -> Option<&'static str> {
+        match self {
+            Self::Default   => None,
+            Self::Solid(_)  => Some(""),
+            Self::Subtle(_) => Some("-subtle"),
+            Self::Black     => Some("-black"),
+            Self::White     => Some("-white"),
+        }
+    }
+
+    /// Añade la clase `border-*` a la cadena de clases.
+    #[inline]
+    pub fn push_to(self, classes: &mut String) {
+        if let Some(suffix) = self.suffix() {
+            if !classes.is_empty() {
+                classes.push(' ');
+            }
+            match self {
+                Self::Solid(c) | Self::Subtle(c) => {
+                    classes.push_str("border-");
+                    classes.push_str(c.as_str());
+                }
+                _ => classes.push_str("border"),
+            }
+            classes.push_str(suffix);
+        }
+    }
+
+    /// Devuelve la clase `border-*` correspondiente al color de borde.
+    ///
+    /// # Ejemplos
+    ///
+    /// ```rust
+    /// # use pagetop_bootsier::theme::*;
+    /// let solid = class::BorderColor::Solid(ThemeColor::Primary).to_class();
+    /// assert_eq!(solid, "border-primary");
+    ///
+    /// let subtle = class::BorderColor::Subtle(ThemeColor::Warning).to_class();
+    /// assert_eq!(subtle, "border-warning-subtle");
+    ///
+    /// let black = class::BorderColor::Black.to_class();
+    /// assert_eq!(black, "border-black");
+    ///
+    /// let none = class::BorderColor::Default.to_class();
+    /// assert_eq!(none, "");
+    /// ```
+    #[inline]
+    pub fn to_class(self) -> String {
+        let mut class = String::new();
+        self.push_to(&mut class);
+        class
+    }
+}
+
+impl From<ThemeColor> for BorderColor {
+    /// Convierte un [`ThemeColor`] en [`BorderColor::Solid`].
+    ///
+    /// Es el atajo habitual para los colores temáticos. Para los demás esquemas (`Subtle`, `Black`,
+    /// `White`) sigue usando [`BorderColor`].
+    ///
+    /// # Ejemplo
+    ///
+    /// ```rust
+    /// # use pagetop_bootsier::theme::*;
+    /// let border: class::BorderColor = ThemeColor::Success.into();
+    /// assert_eq!(border.to_class(), "border-success");
+    /// ```
+    fn from(color: ThemeColor) -> Self {
+        Self::Solid(color)
+    }
+}
+
+impl Into<CowStr> for BorderColor {
+    /// Permite pasar [`BorderColor`] directamente a [`PropsOp`](pagetop::prelude::PropsOp).
+    fn into(self) -> CowStr {
+        self.to_class().into()
+    }
+}
+
+// **< Border >*************************************************************************************
 
 /// Clases para definir **bordes**.
 ///
@@ -10,19 +118,19 @@ use crate::theme::token::{ColorBorder, Opacity, ScaleSize, Side};
 /// - Crear un borde con tamaño por defecto (`Border::new()`).
 /// - Ajustar el tamaño de cada **lado lógico** (`side`, respetando LTR/RTL).
 /// - Asignar **un tamaño global** para todo el borde (`size`).
-/// - Aplicar un **color** al borde (`ColorBorder`).
-/// - Aplicar un nivel de **opacidad** (`Opacity`).
+/// - Aplicar un **color** al borde (`BorderColor`).
+/// - Aplicar un nivel de **opacidad** (`OpacityLevel`).
 ///
 /// # Comportamiento aditivo / sustractivo
 ///
 /// - **Aditivo**: basta con crear un borde sin tamaño con `class::Border::default()` para ir
-///   añadiendo cada lado lógico con el tamaño deseado usando `token::ScaleSize::{One..Five}`.
+///   añadiendo cada lado lógico con el tamaño deseado usando `ScaleSize::{One..Five}`.
 ///
 /// - **Sustractivo**: se crea un borde con tamaño predefinido, por ejemplo usando
-///   `class::Border::new()` o `class::Border::with(token::ScaleSize::Two)` y eliminar los lados
-///   deseados con `token::ScaleSize::Zero`.
+///   `class::Border::new()` o `class::Border::with(ScaleSize::Two)` y eliminar los lados deseados
+///   con `ScaleSize::Zero`.
 ///
-/// - **Anchos diferentes por lado**: usando `token::ScaleSize::{Zero..Five}` en cada lado deseado.
+/// - **Anchos diferentes por lado**: usando `ScaleSize::{Zero..Five}` en cada lado deseado.
 ///
 /// # Ejemplos
 ///
@@ -30,29 +138,29 @@ use crate::theme::token::{ColorBorder, Opacity, ScaleSize, Side};
 /// use pagetop_bootsier::theme::*;
 ///
 /// // Borde global.
-/// let b = class::Border::with(token::ScaleSize::Two);
+/// let b = class::Border::with(ScaleSize::Two);
 /// assert_eq!(b.to_class(), "border-2");
 ///
 /// // Aditivo (sólo borde superior):
-/// let b = class::Border::default().with_side(token::Side::Top, token::ScaleSize::One);
+/// let b = class::Border::default().with_side(BoxSide::Top, ScaleSize::One);
 /// assert_eq!(b.to_class(), "border-top-1");
 ///
 /// // Sustractivo (borde global menos el superior):
-/// let b = class::Border::new().with_side(token::Side::Top, token::ScaleSize::Zero);
+/// let b = class::Border::new().with_side(BoxSide::Top, ScaleSize::Zero);
 /// assert_eq!(b.to_class(), "border border-top-0");
 ///
 /// // Ancho por lado (lado lógico inicial a 2 y final a 4):
 /// let b = class::Border::default()
-///     .with_side(token::Side::Start, token::ScaleSize::Two)
-///     .with_side(token::Side::End, token::ScaleSize::Four);
+///     .with_side(BoxSide::Start, ScaleSize::Two)
+///     .with_side(BoxSide::End, ScaleSize::Four);
 /// assert_eq!(b.to_class(), "border-end-4 border-start-2");
 ///
 /// // Combinado (ejemplo completo):
-/// let b = class::Border::new()                               // Borde por defecto.
-///     .with_side(token::Side::Top, token::ScaleSize::Zero)   // Quita borde superior.
-///     .with_side(token::Side::End, token::ScaleSize::Three)  // Ancho 3 para lado lógico final.
-///     .with_color(token::Color::Primary)
-///     .with_opacity(token::Opacity::Half);
+/// let b = class::Border::new()                      // Borde por defecto.
+///     .with_side(BoxSide::Top, ScaleSize::Zero)     // Quita borde superior.
+///     .with_side(BoxSide::End, ScaleSize::Three)    // Ancho 3 para lado lógico final.
+///     .with_color(ThemeColor::Primary)
+///     .with_opacity(OpacityLevel::Half);
 /// assert_eq!(b.to_class(), "border border-top-0 border-end-3 border-primary border-opacity-50");
 /// ```
 #[rustfmt::skip]
@@ -63,8 +171,8 @@ pub struct Border {
     end    : ScaleSize,
     bottom : ScaleSize,
     start  : ScaleSize,
-    color  : ColorBorder,
-    opacity: Opacity,
+    color  : BorderColor,
+    opacity: OpacityLevel,
 }
 
 impl Border {
@@ -75,24 +183,24 @@ impl Border {
 
     /// Define un borde con un tamaño global (`size`) para todos los lados.
     pub fn with(size: ScaleSize) -> Self {
-        Self::default().with_side(Side::All, size)
+        Self::default().with_side(BoxSide::All, size)
     }
 
     // **< Border BUILDER >*************************************************************************
 
-    /// Ajusta el tamaño del borde en el lado indicado (ver [`Side`](crate::theme::token::Side)).
-    pub fn with_side(mut self, side: Side, size: ScaleSize) -> Self {
+    /// Ajusta el tamaño del borde en el lado indicado (ver [`BoxSide`](crate::theme::BoxSide)).
+    pub fn with_side(mut self, side: BoxSide, size: ScaleSize) -> Self {
         match side {
-            Side::All => self.all = size,
-            Side::Top => self.top = size,
-            Side::Bottom => self.bottom = size,
-            Side::Start => self.start = size,
-            Side::End => self.end = size,
-            Side::LeftAndRight => {
+            BoxSide::All => self.all = size,
+            BoxSide::Top => self.top = size,
+            BoxSide::Bottom => self.bottom = size,
+            BoxSide::Start => self.start = size,
+            BoxSide::End => self.end = size,
+            BoxSide::LeftAndRight => {
                 self.start = size;
                 self.end = size;
             }
-            Side::TopAndBottom => {
+            BoxSide::TopAndBottom => {
                 self.top = size;
                 self.bottom = size;
             }
@@ -102,15 +210,15 @@ impl Border {
 
     /// Establece el color del borde.
     ///
-    /// Acepta un tipo convertible en [`ColorBorder`]. Un [`Color`](crate::theme::token::Color) se
-    /// convierte automáticamente en [`ColorBorder::Theme`].
-    pub fn with_color(mut self, color: impl Into<ColorBorder>) -> Self {
+    /// Acepta un tipo convertible en [`BorderColor`]. Un [`ThemeColor`] se convierte
+    /// automáticamente en [`BorderColor::Solid`].
+    pub fn with_color(mut self, color: impl Into<BorderColor>) -> Self {
         self.color = color.into();
         self
     }
 
     /// Establece la opacidad del borde.
-    pub fn with_opacity(mut self, opacity: Opacity) -> Self {
+    pub fn with_opacity(mut self, opacity: OpacityLevel) -> Self {
         self.opacity = opacity;
         self
     }
@@ -150,11 +258,11 @@ impl From<ScaleSize> for Border {
     /// ```rust
     /// # use pagetop_bootsier::theme::*;
     /// // Convertir explícitamente con `From::from`:
-    /// let b = class::Border::from(token::ScaleSize::Two);
+    /// let b = class::Border::from(ScaleSize::Two);
     /// assert_eq!(b.to_class(), "border-2");
     ///
     /// // Convertir implícitamente con `into()`:
-    /// let b: class::Border = token::ScaleSize::Auto.into();
+    /// let b: class::Border = ScaleSize::Auto.into();
     /// assert_eq!(b.to_class(), "border");
     /// ```
     fn from(size: ScaleSize) -> Self {

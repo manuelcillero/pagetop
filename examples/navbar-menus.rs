@@ -17,7 +17,7 @@ impl Extension for SuperMenu {
 
     async fn initialize(&self) {
         let navbar_menu = bs::Navbar::brand_left(bs::navbar::Brand::new())
-            .with_expand(token::BreakPoint::LG)
+            .with_expand(BreakPoint::LG)
             .with_item(bs::navbar::Item::nav(
                 bs::Nav::new()
                     .with_item(bs::nav::Item::link(L10n::t("menus_item_link", &LOC), "/"))
@@ -89,8 +89,8 @@ impl Extension for SuperMenu {
             .with_item(bs::navbar::Item::nav(
                 bs::Nav::new()
                     .with_prop(PropsOp::add_classes(class::Margin::with(
-                        token::Side::Start,
-                        token::ScaleSize::Auto,
+                        BoxSide::Start,
+                        ScaleSize::Auto,
                     )))
                     .with_item(bs::nav::Item::link(
                         L10n::t("menus_item_sign_up", &LOC),

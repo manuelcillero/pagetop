@@ -145,12 +145,12 @@ async fn form_controls(request: HttpRequest) -> Result<Markup, ErrorPage> {
                                 // Botones de acción.
                                 .with_child(Button::submit(L10n::t("btn_submit", &LOC)).with_prop(
                                     PropsOp::add_classes(class::ButtonColor::solid(
-                                        token::Color::Primary,
+                                        ThemeColor::Primary,
                                     )),
                                 ))
                                 .with_child(Button::reset(L10n::t("btn_reset", &LOC)).with_prop(
                                     PropsOp::add_classes(class::ButtonColor::outline(
-                                        token::Color::Secondary,
+                                        ThemeColor::Secondary,
                                     )),
                                 ))
                                 .with_child(
@@ -269,12 +269,12 @@ async fn form_controls(request: HttpRequest) -> Result<Markup, ErrorPage> {
                                 // Botones de acción.
                                 .with_child(Button::submit(L10n::t("btn_submit", &LOC)).with_prop(
                                     PropsOp::add_classes(class::ButtonColor::solid(
-                                        token::Color::Primary,
+                                        ThemeColor::Primary,
                                     )),
                                 ))
                                 .with_child(Button::reset(L10n::t("btn_reset", &LOC)).with_prop(
                                     PropsOp::add_classes(class::ButtonColor::outline(
-                                        token::Color::Secondary,
+                                        ThemeColor::Secondary,
                                     )),
                                 ))
                                 .with_child(
@@ -423,12 +423,12 @@ fn form_lists() -> Form {
         // Botones de acción.
         .with_child(
             Button::submit(L10n::t("btn_submit", &LOC)).with_prop(PropsOp::add_classes(
-                class::ButtonColor::solid(token::Color::Primary),
+                class::ButtonColor::solid(ThemeColor::Primary),
             )),
         )
         .with_child(
             Button::reset(L10n::t("btn_reset", &LOC)).with_prop(PropsOp::add_classes(
-                class::ButtonColor::outline(token::Color::Secondary),
+                class::ButtonColor::outline(ThemeColor::Secondary),
             )),
         )
         .with_child(
