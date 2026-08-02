@@ -9,9 +9,18 @@ use std::fmt;
 /// Tipo de campo para un [`form::input::Field`].
 ///
 /// Determina el tipo de entrada que acepta, así como el comportamiento del navegador al interactuar
-/// con el campo. Implícitamente se aplica al crear el control: [`text()`](Field::text),
-/// [`password()`](Field::password), [`search()`](Field::search), [`email()`](Field::email),
-/// [`telephone()`](Field::telephone) o [`url()`](Field::url).
+/// con el campo. Implícitamente se aplica al crear el control usando [`text()`] o [`password()`],
+/// [`strict_text()`] o [`strict_password()`], [`search()`], [`email()`], [`telephone()`] o
+/// [`url()`].
+///
+/// [`text()`]: Field::text
+/// [`password()`]: Field::password
+/// [`strict_text()`]: Field::strict_text
+/// [`strict_password()`]: Field::strict_password
+/// [`search()`]: Field::search
+/// [`email()`]: Field::email
+/// [`telephone()`]: Field::telephone
+/// [`url()`]: Field::url
 #[derive(AutoDefault, Clone, Copy, Debug, PartialEq)]
 pub enum Kind {
     /// Entrada de texto genérico (`type="text"`). Es el tipo por defecto.
@@ -19,6 +28,14 @@ pub enum Kind {
     Text,
     /// Entrada de una contraseña (`type="password"`). El contenido aparece enmascarado.
     Password,
+    /// Texto genérico blindado contra el autorrelleno del navegador (`type="text"`).
+    ///
+    /// Ver [`Field::strict_text()`].
+    StrictText,
+    /// Contraseña blindada contra el autorrelleno del navegador (`type="text"`).
+    ///
+    /// Ver [`Field::strict_password()`].
+    StrictPassword,
     /// Campo de búsqueda (`type="search"`). Es un tipo semántico para los cuadros de búsqueda.
     Search,
     /// Entrada de un correo electrónico (`type="email"`). Permite validar el formato del correo.
@@ -29,10 +46,20 @@ pub enum Kind {
     Url,
 }
 
+impl Kind {
+    /// Devuelve `true` si el tipo aplica el conjunto de medidas contra el autorrelleno del
+    /// navegador.
+    ///
+    /// Ver [`Field::strict_text()`] y [`Field::strict_password()`].
+    pub fn is_strict(self) -> bool {
+        matches!(self, Kind::StrictText | Kind::StrictPassword)
+    }
+}
+
 impl fmt::Display for Kind {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.write_str(match self {
-            Kind::Text => "text",
+            Kind::Text | Kind::StrictText | Kind::StrictPassword => "text",
             Kind::Password => "password",
             Kind::Search => "search",
             Kind::Email => "email",
@@ -94,6 +121,8 @@ impl fmt::Display for Mode {
 ///
 /// - [`Field::text()`]: campo de texto genérico (`type="text"`, por defecto).
 /// - [`Field::password()`]: contraseña (`type="password"`).
+/// - [`Field::strict_text()`]: texto genérico blindado contra el autorrelleno del navegador.
+/// - [`Field::strict_password()`]: contraseña blindada contra el autorrelleno del navegador.
 /// - [`Field::search()`]: búsqueda (`type="search"`).
 /// - [`Field::email()`]: correo electrónico (`type="email"`).
 /// - [`Field::telephone()`]: teléfono (`type="tel"`).
@@ -176,6 +205,9 @@ impl Component for Field {
         }
 
         // Clases CSS del contenedor del campo de texto.
+        if self.kind().is_strict() {
+            self.alter_prop(PropsOp::prepend_classes("form-field-strict"));
+        }
         self.alter_prop(PropsOp::prepend_classes(util::join!(
             "form-field form-field-",
             self.kind().to_string()
@@ -189,6 +221,13 @@ impl Component for Field {
             "form-control-plaintext"
         } else {
             "form-control"
+        };
+        let strict = self.kind().is_strict();
+        let masked = *self.kind() == Kind::StrictPassword;
+        let autocomplete = if strict {
+            Some(form::Autocomplete::Off)
+        } else {
+            self.autocomplete().get()
         };
 
         Ok(html! {
@@ -216,9 +255,13 @@ impl Component for Field {
                     maxlength=[self.maxlength().get()]
                     placeholder=[self.placeholder().lookup(cx)]
                     inputmode=[self.inputmode().get()]
-                    autocomplete=[self.autocomplete().get()]
+                    autocomplete=[autocomplete]
+                    spellcheck=[strict.then_some("false")]
+                    autocorrect=[strict.then_some("off")]
+                    style=[masked.then_some("-webkit-text-security: disc; text-security: disc;")]
                     autofocus[*self.autofocus()]
-                    readonly[*self.readonly() || *self.plaintext()]
+                    readonly[*self.readonly() || *self.plaintext() || strict]
+                    onfocus=[strict.then_some("this.removeAttribute('readonly')")]
                     required[*self.required()]
                     disabled[*self.disabled()];
                 @if let Some(description) = self.help_text().lookup(cx) {
@@ -246,6 +289,55 @@ impl Field {
     pub fn password() -> Self {
         Self {
             kind: Kind::Password,
+            ..Default::default()
+        }
+    }
+
+    /// Crea un campo de **texto genérico blindado** contra el autorrelleno del navegador.
+    ///
+    /// Algunos navegadores rellenan los campos de texto con datos ya guardados (como usuario,
+    /// email, etc.) aplicando heurísticas por nombre o posición, incluso con `autocomplete="off"`.
+    /// Este método fuerza `autocomplete="off"`, desactiva corrección ortográfica y autocorrección,
+    /// y permanece de sólo lectura hasta que el usuario hace foco (ya que normalmente el navegador
+    /// respeta el `readonly` en la carga aunque ignore `autocomplete="off"`).
+    ///
+    /// Soporte por motor de navegador (Blink: Chrome, Edge, Opera; Gecko: Firefox; WebKit: Safari):
+    ///
+    /// | Medida                        | Blink      | Gecko      | WebKit                   |
+    /// |-------------------------------|------------|------------|--------------------------|
+    /// | `autocomplete="off"` ignorado | Sí         | Sí         | Lo respeta mejor         |
+    /// | `spellcheck="false"`          | Sí         | Sí         | Sí                       |
+    /// | `autocorrect="off"`           | Sin efecto | Sin efecto | Sí (origen del atributo) |
+    ///
+    /// El truco `readonly` + `onfocus` compensa específicamente la agresividad de Chrome/Blink al
+    /// autorrellenar campos nada más cargar la página; su fiabilidad varía entre versiones y no
+    /// está documentada de forma oficial. Ninguna de estas medidas es infalible frente a gestores
+    /// de contraseñas de terceros, que usan heurísticas propias.
+    ///
+    /// Ver también [`Field::strict_password()`].
+    pub fn strict_text() -> Self {
+        Self {
+            kind: Kind::StrictText,
+            ..Default::default()
+        }
+    }
+
+    /// Crea un campo de **contraseña blindada** contra el autorrelleno del navegador.
+    ///
+    /// Aplica las mismas medidas que [`Field::strict_text()`] y, además, enmascara el contenido
+    /// visualmente vía CSS (usando `-webkit-text-security`) en lugar de usar `type="password"`. Al
+    /// no ser un campo de contraseña para el navegador, evita el gestor nativo de contraseñas, el
+    /// icono de mostrar/ocultar y el aviso de guardar la contraseña.
+    ///
+    /// Útil en formularios de acceso donde ese comportamiento no es deseable (como puestos
+    /// compartidos o paneles administrativos sensibles).
+    ///
+    /// La propiedad `-webkit-text-security` está soportada de forma nativa en Blink (Chrome, Edge,
+    /// Opera) y en WebKit (Safari, su origen); Firefox lo soporta desde la versión 114 (2023) con
+    /// el mismo nombre.
+    pub fn strict_password() -> Self {
+        Self {
+            kind: Kind::StrictPassword,
             ..Default::default()
         }
     }

@@ -55,14 +55,22 @@ pub(crate) fn setup(field: &mut Field) {
 pub(crate) fn render(field: &Field, cx: &mut Context) -> Result<Markup, ComponentError> {
     let container_id = field.id();
     let input_id = container_id.as_deref().map(|id| util::join!(id, "-input"));
-    let floating = field.props().extra_or(EXTRA_FLOATING_LABEL, false);
     let input_class = if *field.plaintext() {
         "form-control-plaintext"
     } else {
         "form-control"
     };
-    // La etiqueta flotante requiere `placeholder` para animar la etiqueta; si no está definido, se
-    // fuerza `placeholder=""`.
+    let strict = field.kind().is_strict();
+    let masked = *field.kind() == Kind::StrictPassword;
+    let autocomplete = if strict {
+        Some(form::Autocomplete::Off)
+    } else {
+        field.autocomplete().get()
+    };
+
+    // La etiqueta flotante requiere `placeholder` para animar la etiqueta.
+    let floating = field.props().extra_or(EXTRA_FLOATING_LABEL, false);
+    // Si no está definido, se fuerza `placeholder=""`.
     let placeholder = if floating {
         Some(field.placeholder().lookup(cx).unwrap_or_default())
     } else {
@@ -84,6 +92,7 @@ pub(crate) fn render(field: &Field, cx: &mut Context) -> Result<Markup, Componen
         },
         None => html! {},
     };
+
     Ok(html! {
         div (field.props()) {
             @if !floating { (label) }
@@ -97,9 +106,13 @@ pub(crate) fn render(field: &Field, cx: &mut Context) -> Result<Markup, Componen
                 maxlength=[field.maxlength().get()]
                 placeholder=[placeholder]
                 inputmode=[field.inputmode().get()]
-                autocomplete=[field.autocomplete().get()]
+                autocomplete=[autocomplete]
+                spellcheck=[strict.then_some("false")]
+                autocorrect=[strict.then_some("off")]
+                style=[masked.then_some("-webkit-text-security: disc; text-security: disc;")]
                 autofocus[*field.autofocus()]
-                readonly[*field.readonly() || *field.plaintext()]
+                readonly[*field.readonly() || *field.plaintext() || strict]
+                onfocus=[strict.then_some("this.removeAttribute('readonly')")]
                 required[*field.required()]
                 disabled[*field.disabled()];
             @if floating { (label) }
