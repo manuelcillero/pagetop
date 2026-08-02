@@ -44,15 +44,14 @@
 //! Un tema puede personalizarse en tres pasos, cada uno necesario sólo si lo que ofrece PageTop por
 //! defecto no basta:
 //!
-//! 1. **Definir regiones nuevas**. Por defecto, PageTop define [`CoreRegion`] (`Header`, `Content`,
-//!    `Footer`) como las regiones de plantilla que se asumen siempre disponibles, y
-//!    [`ReservedRegion`](crate::response::ReservedRegion) (`PageTop`, `PageBottom`) como las
-//!    regiones reservadas que se renderizan al margen de cualquier plantilla. Un tema puede definir
-//!    su propio *enum* que implemente [`RegionName`] para **añadir** nuevas regiones que PageTop no
-//!    ofrece (por ejemplo, una barra lateral). No es necesario redefinir las de [`CoreRegion`] ni
-//!    las de [`ReservedRegion`](crate::response::ReservedRegion), que ya existen y se asume que
-//!    cualquier tema respeta.
-//! 2. **Definir plantillas nuevas**. Por defecto existe [`CoreTemplate`], con las plantillas
+//! 1. **Definir regiones nuevas**. Por defecto, PageTop define [`CoreRegions`] (`Header`, `Aside`,
+//!    `Content`, `Footer`) como regiones de plantilla siempre disponibles, y [`ReservedRegions`]
+//!    (`PageTop`, `PageBottom`) como regiones reservadas que se renderizan al margen de cualquier
+//!    plantilla. Un tema puede definir su propio *enum* que implemente [`RegionName`] para
+//!    **añadir** nuevas regiones que PageTop no ofrece (como barras laterales, regiones específicas
+//!    para menús, sliders, cabeceras hero, etc.). No es necesario redefinir las de [`CoreRegions`]
+//!    ni las de [`ReservedRegions`], que ya existen y se asume que cualquier tema respeta.
+//! 2. **Definir plantillas nuevas**. Por defecto existe [`CoreTemplates`], con las plantillas
 //!    `Standard` y `Admin` que usan `Page::new()` y `Page::admin()` respectivamente, y que son
 //!    siempre las mismas: no hay un método de `Theme` para elegir una plantilla predeterminada
 //!    distinta. Un tema puede definir su propio *enum* que implemente [`TemplateName`] para
@@ -66,7 +65,7 @@
 //!    ([`Region::region()`](crate::base::component::layout::Region::region) o
 //!    [`Template::template()`](crate::base::component::layout::Template::template)) con
 //!    [`AnyCast::downcast_ref()`](crate::core::AnyCast::downcast_ref) hacia el tipo concreto (por
-//!    ejemplo, [`CoreTemplate`] o el propio *enum* del tema). `pagetop-bootsier` hace exactamente
+//!    ejemplo, [`CoreTemplates`] o el propio *enum* del tema). `pagetop-bootsier` hace exactamente
 //!    esto para maquetar `Standard` y `Admin` de forma distinta, sin necesitar sus propias
 //!    variantes de plantilla.
 //!
@@ -96,7 +95,7 @@
 //!
 //! ```rust,no_run
 //! # use pagetop::prelude::*;
-//! InRegion::Global(&CoreRegion::Footer).add(PoweredBy::new());
+//! InRegion::Global(&CoreRegions::Footer).add(PoweredBy::new());
 //! ```
 //!
 //! El componente se guarda como **prototipo**: cada página recibe un clon fresco en el momento del
@@ -108,6 +107,8 @@
 //! [ciclo de renderizado](crate::core::component::ComponentRender). Esto permite registrarlo una
 //! sola vez y que decida por sí mismo cuándo mostrarse, por ejemplo según la ruta de la petición o
 //! si el usuario actual está autenticado.
+//!
+//! [`ReservedRegions`]: crate::response::ReservedRegions
 
 use crate::AutoDefault;
 use crate::core::AnyInfo;
@@ -117,26 +118,30 @@ use crate::locale::L10n;
 
 /// Interfaz común para las regiones lógicas del `<body>`.
 ///
-/// Una `RegionName` representa un contenedor lógico identificado por un nombre de región. Su
-/// contenido se obtiene del [`Context`](crate::core::component::Context), donde los componentes
-/// suelen registrarse usando implementaciones de métodos como
-/// [`Contextual::with_child_in()`](crate::core::component::Contextual::with_child_in).
+/// Una [`RegionName`] representa un contenedor lógico identificado por un nombre de región. Su
+/// contenido se obtiene del [`Context`], donde los componentes suelen registrarse usando
+/// implementaciones de métodos como [`Contextual::with_child_in()`].
 ///
 /// El contenido de una región viene determinado únicamente por su nombre, no por su tipo. Distintas
 /// implementaciones de [`RegionName`] que devuelvan el mismo nombre comparten el mismo conjunto de
-/// componentes registrados en el [`Context`](crate::core::component::Context). Un *enum* propio que
-/// implemente [`RegionName`] está pensado para **añadir** regiones que PageTop no ofrece (con un
-/// nombre propio que no colisione con los de [`CoreRegion`] o
-/// [`ReservedRegion`](crate::response::ReservedRegion)).
+/// componentes registrados en el [`Context`]. Un *enum* propio que implemente [`RegionName`] está
+/// pensado para **añadir** regiones que PageTop no ofrece (con un nombre propio que no colisione
+/// con los de [`CoreRegions`] o [`ReservedRegions`]).
 ///
 /// El tema decide qué regiones mostrar en el `<body>`, normalmente usando una plantilla
-/// ([`TemplateName`]) al renderizar la página ([`Page`](crate::response::Page)).
+/// ([`TemplateName`]) al renderizar la página ([`Page`]).
 ///
 /// Requiere [`AnyInfo`] para que un [`RegionRef`] pueda recuperarse mediante
-/// [`AnyCast::downcast_ref()`](crate::core::AnyCast::downcast_ref) hacia su tipo concreto (por
-/// ejemplo, para que un tema distinga en
-/// [`Theme::handle_component()`](crate::core::theme::Theme::handle_component) qué variante
-/// concreta está renderizando el componente [`Region`](crate::base::component::layout::Region)).
+/// [`AnyCast::downcast_ref()`] hacia su tipo concreto (por ejemplo, para que un tema distinga en
+/// [`Theme::handle_component()`] qué variante concreta está renderizando el componente [`Region`]).
+///
+/// [`Context`]: crate::core::component::Context
+/// [`Contextual::with_child_in()`]: crate::core::component::Contextual::with_child_in
+/// [`ReservedRegions`]: crate::response::ReservedRegions
+/// [`Page`]: crate::response::Page
+/// [`AnyCast::downcast_ref()`]: crate::core::AnyCast::downcast_ref
+/// [`Theme::handle_component()`]: crate::core::theme::Theme::handle_component
+/// [`Region`]: crate::base::component::layout::Region
 pub trait RegionName: Send + Sync + AnyInfo {
     /// Devuelve el nombre de la región.
     ///
@@ -156,23 +161,33 @@ pub trait RegionName: Send + Sync + AnyInfo {
 /// Referencia estática a una región.
 pub type RegionRef = &'static dyn RegionName;
 
-// **< CoreRegion >*********************************************************************************
+// **< CoreRegions >********************************************************************************
 
 /// Regiones básicas que PageTop proporciona por defecto.
 ///
-/// Comparten sus nombres (`"header"`, `"content"`, `"footer"`) con otras regiones que implementen
-/// [`RegionName`], por lo que comparten también el contenido registrado bajo esos nombres. Por
-/// defecto, son las regiones usadas por [`Template`](crate::base::component::layout::Template).
+/// Comparten sus nombres (`"header"`, `"aside"`, `"content"`, `"footer"`) con otras regiones que
+/// implementen [`RegionName`], por lo que comparten también el contenido registrado bajo esos
+/// nombres. Por defecto, son las regiones usadas por [`Template`].
 ///
-/// A estas regiones hay que sumar también las regiones internas reservadas por
-/// [`ReservedRegion`](crate::response::ReservedRegion) (`"page-top"` y `"page-bottom"`), que
-/// [`Page::render()`](crate::response::Page::render) renderiza en cualquier caso.
+/// A estas regiones hay que sumar también las regiones internas reservadas por [`ReservedRegions`]
+/// (`"page-top"` y `"page-bottom"`), que [`Page::render()`] renderiza en cualquier caso.
+///
+/// [`Template`]: crate::base::component::layout::Template
+/// [`ReservedRegions`]: crate::response::ReservedRegions
+/// [`Page::render()`]: crate::response::Page::render
 #[derive(AutoDefault)]
-pub enum CoreRegion {
+pub enum CoreRegions {
     /// Región estándar para la **cabecera** del documento, de nombre `"header"`.
     ///
     /// Suele emplearse para mostrar un logotipo, navegación principal, barras superiores, etc.
     Header,
+
+    /// Región de **contenido secundario**, de nombre `"aside"`.
+    ///
+    /// Se renderiza por defecto entre `Header` y `Content`. Un tema podría maquetarla, por ejemplo,
+    /// como columna lateral junto a `Content` y emplearla para menús secundarios o cualquier otro
+    /// contenido complementario al principal.
+    Aside,
 
     /// Región principal de **contenido**, de nombre `"content"`.
     ///
@@ -187,11 +202,12 @@ pub enum CoreRegion {
     Footer,
 }
 
-impl RegionName for CoreRegion {
+impl RegionName for CoreRegions {
     #[inline]
     fn name(&self) -> &'static str {
         match self {
             Self::Header => "header",
+            Self::Aside => "aside",
             Self::Content => "content",
             Self::Footer => "footer",
         }
@@ -200,9 +216,10 @@ impl RegionName for CoreRegion {
     #[inline]
     fn label(&self) -> L10n {
         match self {
-            Self::Header => L10n::l("region-header"),
-            Self::Content => L10n::l("region-content"),
-            Self::Footer => L10n::l("region-footer"),
+            Self::Header => L10n::l("region_header"),
+            Self::Aside => L10n::l("region_aside"),
+            Self::Content => L10n::l("region_content"),
+            Self::Footer => L10n::l("region_footer"),
         }
     }
 }
@@ -231,11 +248,11 @@ pub trait TemplateName: Send + Sync + AnyInfo {
 /// Referencia estática a una plantilla.
 pub type TemplateRef = &'static dyn TemplateName;
 
-// **< CoreTemplate >*******************************************************************************
+// **< CoreTemplates >******************************************************************************
 
 /// Plantillas que PageTop proporciona por defecto.
 #[derive(AutoDefault)]
-pub enum CoreTemplate {
+pub enum CoreTemplates {
     /// Plantilla predeterminada, de nombre `"standard"`.
     ///
     /// Se emplea cuando no se selecciona ninguna otra plantilla explícitamente.
@@ -248,7 +265,7 @@ pub enum CoreTemplate {
     Admin,
 }
 
-impl TemplateName for CoreTemplate {
+impl TemplateName for CoreTemplates {
     #[inline]
     fn name(&self) -> &'static str {
         match self {

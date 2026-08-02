@@ -11,7 +11,7 @@ async fn setup() {
 // **< A theme that intercepts the `Template` component >*******************************************
 
 /// Replaces the default `Template` composition (`Header` + `Content` + `Footer`) with a fixed
-/// marker string, for both `CoreTemplate::Standard` and `CoreTemplate::Admin`. Mirrors how
+/// marker string, for both `CoreTemplates::Standard` and `CoreTemplates::Admin`. Mirrors how
 /// a real theme (e.g. `pagetop-bootsier`) tells its own layout apart from PageTop's default: by
 /// intercepting the `Template` component in `handle_component()`, not by swapping which
 /// `TemplateRef` gets resolved.
@@ -32,7 +32,7 @@ impl Theme for MarkerTheme {
         _cx: &mut Context,
     ) -> Option<Result<Markup, ComponentError>> {
         let template = (&*component).downcast_ref::<layout::Template>()?;
-        template.template().downcast_ref::<CoreTemplate>()?;
+        template.template().downcast_ref::<CoreTemplates>()?;
         Some(Ok(html! { "marker-template-output" }))
     }
 }
@@ -40,7 +40,7 @@ impl Theme for MarkerTheme {
 // **< Default/Admin template identity is independent of the active theme >*************************
 //
 // `Theme::default_template()`/`admin_template()` were removed: `Context::template()` always
-// resolves `Default`/`Admin` to the core `CoreTemplate::Standard`/`Admin` identity, regardless
+// resolves `Default`/`Admin` to the core `CoreTemplates::Standard`/`Admin` identity, regardless
 // of which theme is active. Themes customize the actual rendering by intercepting the `Template`
 // component in `handle_component()` instead (see the tests further below).
 
@@ -68,7 +68,7 @@ async fn explicit_template_is_not_overridden_by_a_later_with_theme() {
     // A template explicitly set with `with_template()` prevails even if `with_theme()` is called
     // afterwards.
     let cx = Context::default()
-        .with_template(&CoreTemplate::Admin)
+        .with_template(&CoreTemplates::Admin)
         .with_theme(&pagetop::base::theme::Basic);
 
     assert_eq!(cx.template().name(), "admin");

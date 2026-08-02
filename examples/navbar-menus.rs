@@ -102,7 +102,7 @@ impl Extension for SuperMenu {
                     )),
             ));
 
-        InRegion::Global(&CoreRegion::Header).add(
+        InRegion::Global(&CoreRegions::Header).add(
             bs::Container::new()
                 .with_width(bs::container::Width::FluidMax(UnitValue::RelRem(75.0)))
                 .with_child(navbar_menu),

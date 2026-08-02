@@ -3,7 +3,7 @@ use crate::base::component::{Html, Intro, IntroOpening, layout};
 use crate::core::component::{ChildOp, Component, ComponentError, ComponentRender};
 use crate::core::component::{Context, Contextual};
 use crate::core::extension::Extension;
-use crate::core::theme::CoreRegion;
+use crate::core::theme::CoreRegions;
 use crate::global;
 use crate::html::{Markup, html};
 use crate::locale::L10n;
@@ -84,9 +84,10 @@ pub trait Theme: Extension + Send + Sync {
     /// regiones.
     ///
     /// Con la configuración por defecto, la plantilla estándar utiliza las regiones
-    /// [`CoreRegion::Header`](crate::core::theme::CoreRegion::Header),
-    /// [`CoreRegion::Content`](crate::core::theme::CoreRegion::Content) y
-    /// [`CoreRegion::Footer`](crate::core::theme::CoreRegion::Footer) en ese orden.
+    /// [`CoreRegions::Header`](crate::core::theme::CoreRegions::Header),
+    /// [`CoreRegions::Aside`](crate::core::theme::CoreRegions::Aside),
+    /// [`CoreRegions::Content`](crate::core::theme::CoreRegions::Content) y
+    /// [`CoreRegions::Footer`](crate::core::theme::CoreRegions::Footer) en ese orden.
     ///
     /// Los temas pueden sobrescribir este método para:
     ///
@@ -198,7 +199,7 @@ pub trait Theme: Extension + Send + Sync {
     ///     component: &mut dyn Component,
     ///     cx: &mut Context,
     /// ) -> Option<Result<Markup, ComponentError>> {
-    ///     // Solo mutación: ajusta el componente y deja que otro nivel lo renderice.
+    ///     // Sólo mutación: ajusta el componente y deja que otro nivel lo renderice.
     ///     setup_component!(component, {
     ///         Button => |btn| { btn.add_class("btn-primary"); },
     ///     });
@@ -221,15 +222,15 @@ pub trait Theme: Extension + Send + Sync {
     /// Contenido predefinido para la página de error "*403 - Forbidden*" (acceso denegado).
     ///
     /// Normalmente se renderiza con la plantilla ya activa en la página (por ejemplo
-    /// [`CoreTemplate::Standard`](crate::core::theme::CoreTemplate::Standard)), para que el usuario
-    /// no pierda el contexto de navegación del sitio. Los temas pueden sobrescribir este método
-    /// para personalizar completamente el diseño y el contenido de la página de error.
+    /// [`CoreTemplates::Standard`](crate::core::theme::CoreTemplates::Standard)), para que el
+    /// usuario no pierda el contexto de navegación del sitio. Los temas pueden sobrescribir este
+    /// método para personalizar completamente el diseño y el contenido de la página de error.
     fn error_403(&self, page: &mut Page) {
         if let Some(parent) = self.parent() {
             return parent.error_403(page);
         }
         page.alter_title(L10n::l("error403_title")).alter_child_in(
-            &CoreRegion::Content,
+            &CoreRegions::Content,
             ChildOp::Prepend(
                 Html::with(move |cx| {
                     html! {
@@ -247,7 +248,7 @@ pub trait Theme: Extension + Send + Sync {
     /// Contenido predefinido para la página de error "*404 - Not Found*" (recurso no encontrado).
     ///
     /// Normalmente se renderiza con la plantilla ya activa en la página (por ejemplo
-    /// [`CoreTemplate::Standard`](crate::core::theme::CoreTemplate::Standard)). Los temas pueden
+    /// [`CoreTemplates::Standard`](crate::core::theme::CoreTemplates::Standard)). Los temas pueden
     /// sobrescribir este método para personalizar completamente el diseño y el contenido de la
     /// página de error.
     fn error_404(&self, page: &mut Page) {
@@ -255,7 +256,7 @@ pub trait Theme: Extension + Send + Sync {
             return parent.error_404(page);
         }
         page.alter_title(L10n::l("error404_title")).alter_child_in(
-            &CoreRegion::Content,
+            &CoreRegions::Content,
             ChildOp::Prepend(
                 Html::with(move |cx| {
                     html! {
@@ -272,19 +273,15 @@ pub trait Theme: Extension + Send + Sync {
 
     /// Permite al tema preparar y componer una página de **error fatal controlado**.
     ///
-    /// Esta función decide explícitamente devolver
-    /// [`ErrorPage::BadRequest`](crate::response::ErrorPage::BadRequest),
-    /// [`ErrorPage::InternalError`](crate::response::ErrorPage::InternalError),
-    /// [`ErrorPage::ServiceUnavailable`](crate::response::ErrorPage::ServiceUnavailable) o
-    /// [`ErrorPage::GatewayTimeout`](crate::response::ErrorPage::GatewayTimeout) porque algo ha
-    /// fallado, pero el servidor sigue activo y el tema, el renderizado y el resto de componentes
-    /// funcionan con normalidad.
+    /// Devuelve explícitamente [`ErrorPage::BadRequest`], [`ErrorPage::InternalError`],
+    /// [`ErrorPage::ServiceUnavailable`] o [`ErrorPage::GatewayTimeout`], porque algo ha fallado,
+    /// pero el servidor sigue activo y el tema, el renderizado y el resto de componentes funcionan
+    /// con normalidad.
     ///
     /// Por defecto, asigna el título al documento (`title`), se renderiza con la plantilla ya
-    /// activa en la página (normalmente
-    /// [`CoreTemplate::Standard`](crate::core::theme::CoreTemplate::Standard)) y muestra un
-    /// componente [`Intro`] con el código HTTP del error (`code`) y los mensajes proporcionados
-    /// (`alert` y `help`) como descripción del error.
+    /// activa en la página (normalmente [`CoreTemplates::Standard`]) y muestra un componente
+    /// [`Intro`] con el código HTTP del error (`code`) y los mensajes proporcionados (`alert` y
+    /// `help`) como descripción del error.
     ///
     /// Este método no se utiliza en las implementaciones predefinidas de [`Self::error_403()`] ni
     /// [`Self::error_404()`], que definen su propio contenido específico.
@@ -296,12 +293,18 @@ pub trait Theme: Extension + Send + Sync {
     ///
     /// Los temas pueden sobrescribir este método para personalizar el diseño y el contenido de la
     /// página de error.
+    ///
+    /// [`ErrorPage::BadRequest`]: crate::response::ErrorPage::BadRequest
+    /// [`ErrorPage::InternalError`]: crate::response::ErrorPage::InternalError
+    /// [`ErrorPage::ServiceUnavailable`]: crate::response::ErrorPage::ServiceUnavailable
+    /// [`ErrorPage::GatewayTimeout`]: crate::response::ErrorPage::GatewayTimeout
+    /// [`CoreTemplates::Standard`]: crate::core::theme::CoreTemplates::Standard
     fn error_fatal(&self, page: &mut Page, code: StatusCode, title: L10n, alert: L10n, help: L10n) {
         if let Some(parent) = self.parent() {
             return parent.error_fatal(page, code, title, alert, help);
         }
         page.alter_title(title).alter_child_in(
-            &CoreRegion::Content,
+            &CoreRegions::Content,
             ChildOp::Prepend(
                 Intro::new()
                     .with_title(L10n::l("error_code").with_arg("code", code.to_string()))

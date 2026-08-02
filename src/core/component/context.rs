@@ -2,7 +2,7 @@ use crate::auth::CurrentUser;
 use crate::core::TypeInfo;
 use crate::core::component::{ChildOp, Component, MessageLevel, StatusMessage};
 use crate::core::theme::all::DEFAULT_THEME;
-use crate::core::theme::{ChildrenInRegions, CoreRegion, CoreTemplate};
+use crate::core::theme::{ChildrenInRegions, CoreRegions, CoreTemplates};
 use crate::core::theme::{RegionRef, TemplateRef, ThemeRef};
 use crate::html::{Assets, Favicon, JavaScript, Preload, StyleSheet};
 use crate::html::{Markup, Props, PropsOp, RoutePath, html};
@@ -77,7 +77,7 @@ pub enum ContextError {
 /// # use pagetop_aliner::Aliner;
 /// fn prepare_context<C: Contextual>(cx: C) -> C {
 ///     cx.with_langid(&Locale::resolve("es-ES"))
-///       .with_template(&CoreTemplate::Standard)
+///       .with_template(&CoreTemplates::Standard)
 ///       .with_theme(&Aliner)
 ///       .with_assets(AssetsOp::SetFavicon(Some(Favicon::new().with_icon("/favicon.ico"))))
 ///       .with_assets(AssetsOp::AddStyleSheet(StyleSheet::from("/css/app.css")))
@@ -330,7 +330,7 @@ pub struct Context {
 
 impl Default for Context {
     fn default() -> Self {
-        Self::base(None, &CoreTemplate::Standard)
+        Self::base(None, &CoreTemplates::Standard)
     }
 }
 
@@ -369,15 +369,15 @@ impl Context {
     /// Para un contexto sin petición (renderizar un componente de forma aislada, en tests o fuera
     /// del ciclo de una petición web), usa [`Context::default()`].
     pub fn new(request: HttpRequest) -> Self {
-        Self::base(Some(request), &CoreTemplate::Standard)
+        Self::base(Some(request), &CoreTemplates::Standard)
     }
 
     /// Crea un nuevo contexto asociado a una petición HTTP, con la plantilla de administración.
     ///
-    /// El contexto inicializa el idioma, el tema y la plantilla [`CoreTemplate::Admin`], sin
+    /// El contexto inicializa el idioma, el tema y la plantilla [`CoreTemplates::Admin`], sin
     /// favicon ni otros recursos cargados.
     pub fn admin(request: HttpRequest) -> Self {
-        Self::base(Some(request), &CoreTemplate::Admin)
+        Self::base(Some(request), &CoreTemplates::Admin)
     }
 
     // Extrae el `CurrentUser` inyectado por middleware en las extensiones de la petición, o
@@ -629,7 +629,8 @@ impl Contextual for Context {
 
     #[builder_fn]
     fn with_child(mut self, op: impl Into<ChildOp>) -> Self {
-        self.regions.alter_child_in(&CoreRegion::Content, op.into());
+        self.regions
+            .alter_child_in(&CoreRegions::Content, op.into());
         self
     }
 

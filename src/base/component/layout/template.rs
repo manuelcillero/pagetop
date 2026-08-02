@@ -4,25 +4,32 @@ use std::fmt;
 
 /// Componente que renderiza el cuerpo de una plantilla de regiones.
 ///
-/// La composición por defecto usa el componente [`Region`](crate::base::component::layout::Region)
-/// para mostrar, en este orden, las regiones [`CoreRegion::Header`], [`CoreRegion::Content`] y
-/// [`CoreRegion::Footer`].
+/// La composición por defecto usa el componente [`Region`] para mostrar, en este orden, las
+/// regiones [`CoreRegions::Header`], [`CoreRegions::Aside`], [`CoreRegions::Content`] y
+/// [`CoreRegions::Footer`], envueltas en un contenedor `div.wrapper` que un tema puede maquetar a
+/// su gusto (por ejemplo, usando CSS Grid, para que `Aside` se muestre como columna lateral junto a
+/// `Content`). Si `Aside`, o cualquier otra región, no tiene contenido, no se renderiza.
 ///
-/// No incluye las regiones reservadas
-/// [`ReservedRegion::PageTop`](crate::response::ReservedRegion::PageTop) y
-/// [`ReservedRegion::PageBottom`](crate::response::ReservedRegion::PageBottom) porque el propio
-/// [`Page::render()`](crate::response::Page::render) las añade antes y después del resultado de
-/// [`Theme::render_page_body()`](crate::core::theme::Theme::render_page_body) para que se
-/// rendericen siempre, independientemente de la plantilla que se use.
+/// No incluye las regiones reservadas ([`ReservedRegions::PageTop`] y
+/// [`ReservedRegions::PageBottom`]) porque el propio [`Page::render()`] las añade antes y después
+/// del resultado de [`Theme::render_page_body()`] para que se rendericen siempre,
+/// independientemente de la plantilla que se use.
 ///
 /// Si un tema necesita maquetar una plantilla determinada de forma distinta, puede capturar este
-/// componente en [`Theme::handle_component()`](crate::core::theme::Theme::handle_component) y hacer
-/// [`downcast_ref()`](crate::core::AnyCast::downcast_ref) sobre el [`TemplateRef`] que devuelve
-/// [`Self::template()`], para compararlo con la variante deseada.
+/// componente en [`Theme::handle_component()`] y hacer [`downcast_ref()`] sobre el [`TemplateRef`]
+/// que devuelve [`Self::template()`], para compararlo con la variante deseada.
 ///
 /// Como cualquier otro componente, participa también en el despacho de las
 /// [acciones de componentes](crate::base::action::component) para que otras extensiones puedan
 /// intervenir en su renderizado.
+///
+/// [`Region`]: crate::base::component::layout::Region
+/// [`ReservedRegions::PageTop`]: crate::response::ReservedRegions::PageTop
+/// [`ReservedRegions::PageBottom`]: crate::response::ReservedRegions::PageBottom
+/// [`Page::render()`]: crate::response::Page::render
+/// [`Theme::render_page_body()`]: crate::core::theme::Theme::render_page_body
+/// [`Theme::handle_component()`]: crate::core::theme::Theme::handle_component
+/// [`downcast_ref()`]: crate::core::AnyCast::downcast_ref
 #[derive(Clone, Getters)]
 pub struct Template {
     /// Devuelve la plantilla subyacente.
@@ -41,7 +48,7 @@ impl fmt::Debug for Template {
 impl Default for Template {
     fn default() -> Self {
         Template {
-            template: &CoreTemplate::Standard,
+            template: &CoreTemplates::Standard,
         }
     }
 }
@@ -58,19 +65,39 @@ impl Component for Template {
     }
 
     async fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
-        Ok(html! {
+        let body = html! {
             (layout::Region::header().render(cx).await)
-            (layout::Region::default().render(cx).await)
+            (layout::Region::aside().render(cx).await)
+            (layout::Region::content().render(cx).await)
             (layout::Region::footer().render(cx).await)
+        };
+
+        if body.is_empty() {
+            return Ok(html! {});
+        }
+
+        Ok(html! {
+            div.wrapper {
+                (body)
+            }
         })
     }
 }
 
 impl Template {
-    /// Define el componente que renderizará [`CoreTemplate::Admin`].
+    /// Define el componente que renderizará [`CoreTemplates::Standard`].
+    ///
+    /// Equivale a [`Self::new()`] o [`Self::default()`], que ya usan esta plantilla por defecto.
+    pub fn standard() -> Self {
+        Template {
+            template: &CoreTemplates::Standard,
+        }
+    }
+
+    /// Define el componente que renderizará [`CoreTemplates::Admin`].
     pub fn admin() -> Self {
         Template {
-            template: &CoreTemplate::Admin,
+            template: &CoreTemplates::Admin,
         }
     }
 

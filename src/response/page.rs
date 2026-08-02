@@ -10,7 +10,7 @@
 //! composición del `<head>` y del `<body>`, y se ejecutan las acciones registradas por las
 //! extensiones antes y después de generar los contenidos.
 //!
-//! También define las regiones internas reservadas ([`ReservedRegion`]) que actúan como puntos de
+//! También define las regiones internas reservadas ([`ReservedRegions`]) que actúan como puntos de
 //! anclaje globales al inicio y al final del `<body>`, fuera de las regiones que maqueta la
 //! plantilla activa.
 
@@ -23,7 +23,7 @@ use crate::base::action;
 use crate::base::component::layout;
 use crate::core::component::{AssetsOp, ChildOp, ComponentRender};
 use crate::core::component::{Context, ContextError, Contextual};
-use crate::core::theme::{CoreRegion, RegionName, RegionRef, TemplateRef, ThemeRef};
+use crate::core::theme::{CoreRegions, RegionName, RegionRef, TemplateRef, ThemeRef};
 use crate::html::{Assets, Favicon, JavaScript, StyleSheet};
 use crate::html::{Attr, Props, PropsOp};
 use crate::html::{DOCTYPE, Markup, html};
@@ -31,7 +31,7 @@ use crate::locale::{CharacterDirection, L10n, LangId, LanguageIdentifier};
 use crate::web::HttpRequest;
 use crate::{AutoDefault, builder_fn};
 
-// **< ReservedRegion >*****************************************************************************
+// **< ReservedRegions >****************************************************************************
 
 /// Regiones internas reservadas como puntos de anclaje globales.
 ///
@@ -41,7 +41,7 @@ use crate::{AutoDefault, builder_fn};
 /// [`Theme::render_page_body()`](crate::core::theme::Theme::render_page_body). **No suelen usarse
 /// como regiones "visibles" en los temas**, sino para inyectar contenido global o técnico.
 #[derive(AutoDefault)]
-pub enum ReservedRegion {
+pub enum ReservedRegions {
     /// Región interna situada al **inicio del `<body>`**, de nombre `"page-top"`.
     ///
     /// Proporciona un contenedor donde las extensiones puedan inyectar elementos auxiliares antes
@@ -63,7 +63,7 @@ pub enum ReservedRegion {
     PageBottom,
 }
 
-impl RegionName for ReservedRegion {
+impl RegionName for ReservedRegions {
     #[inline]
     fn name(&self) -> &'static str {
         match self {
@@ -109,13 +109,13 @@ impl Page {
         }
     }
 
-    /// Crea una nueva instancia de página con la plantilla [`CoreTemplate::Admin`].
+    /// Crea una nueva instancia de página con la plantilla [`CoreTemplates::Admin`].
     ///
     /// Cada tema puede maquetarla de forma distinta capturando
     /// [`Template`](crate::base::component::layout::Template) en `handle_component()`, pero la
     /// plantilla en sí es la misma constante para cualquier tema.
     ///
-    /// [`CoreTemplate::Admin`]: crate::core::theme::CoreTemplate::Admin
+    /// [`CoreTemplates::Admin`]: crate::core::theme::CoreTemplates::Admin
     pub fn admin(request: HttpRequest) -> Self {
         Page {
             context: Context::admin(request),
@@ -196,10 +196,10 @@ impl Page {
     /// 2. Despacha [`action::page::BeforeRenderBody`] para que otras extensiones puedan realizar
     ///    ajustes previos sobre la página.
     /// 3. **Construye el contenido del `<body>`**:
-    ///    - Renderiza la región reservada superior ([`ReservedRegion::PageTop`]).
+    ///    - Renderiza la región reservada superior ([`ReservedRegions::PageTop`]).
     ///    - Llama a [`Theme::render_page_body()`](crate::core::theme::Theme::render_page_body) para
     ///      renderizar las regiones del cuerpo principal de la página.
-    ///    - Renderiza la región reservada inferior ([`ReservedRegion::PageBottom`]).
+    ///    - Renderiza la región reservada inferior ([`ReservedRegions::PageBottom`]).
     /// 4. Ejecuta
     ///    [`Theme::after_render_page_body()`](crate::core::theme::Theme::after_render_page_body)
     ///    para que el tema pueda aplicar ajustes finales.
@@ -221,9 +221,9 @@ impl Page {
 
         // Renderiza el <body>.
         let body = html! {
-            (layout::Region::of(&ReservedRegion::PageTop).render(&mut self.context).await)
+            (layout::Region::of(&ReservedRegions::PageTop).render(&mut self.context).await)
             (self.context.theme().render_page_body(self).await)
-            (layout::Region::of(&ReservedRegion::PageBottom).render(&mut self.context).await)
+            (layout::Region::of(&ReservedRegions::PageBottom).render(&mut self.context).await)
         };
 
         // Acciones específicas del tema después de renderizar el <body>.
@@ -314,7 +314,8 @@ impl Contextual for Page {
 
     #[builder_fn]
     fn with_child(mut self, op: impl Into<ChildOp>) -> Self {
-        self.context.alter_child_in(&CoreRegion::Content, op.into());
+        self.context
+            .alter_child_in(&CoreRegions::Content, op.into());
         self
     }
 

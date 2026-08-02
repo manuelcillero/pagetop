@@ -1,5 +1,5 @@
 use crate::core::component::{Child, ChildOp, Children, Component};
-use crate::core::theme::{CoreRegion, RegionRef, ThemeRef};
+use crate::core::theme::{CoreRegions, RegionRef, ThemeRef};
 use crate::{AutoDefault, UniqueId, builder_fn};
 
 use parking_lot::RwLock;
@@ -132,13 +132,13 @@ impl ChildrenInRegions {
 /// InRegion::Content.add(Html::with(|_| html! { "🎉 ¡Bienvenido!" }));
 ///
 /// // Texto en la cabecera, visible en todos los temas.
-/// InRegion::Global(&CoreRegion::Header).add(Html::with(|_| html! { "Publicidad" }));
+/// InRegion::Global(&CoreRegions::Header).add(Html::with(|_| html! { "Publicidad" }));
 /// ```
 pub enum InRegion {
     /// Región principal de **contenido** por defecto.
     ///
     /// Añade el componente a la región lógica de contenido principal de la aplicación. Internamente
-    /// equivale a `InRegion::Global(&CoreRegion::Content)`.
+    /// equivale a `InRegion::Global(&CoreRegions::Content)`.
     Content,
     /// Región global compartida por todos los temas.
     ///
@@ -173,19 +173,19 @@ impl InRegion {
     /// }));
     ///
     /// // Texto en la cabecera.
-    /// InRegion::Global(&CoreRegion::Header).add(Html::with(|_| {
+    /// InRegion::Global(&CoreRegions::Header).add(Html::with(|_| {
     ///     html! { "Publicidad" }
     /// }));
     ///
     /// // Contenido sólo para la región del pie de página en un tema concreto.
-    /// InRegion::ForTheme(&theme::Basic, &CoreRegion::Footer).add(Html::with(|_| {
+    /// InRegion::ForTheme(&theme::Basic, &CoreRegions::Footer).add(Html::with(|_| {
     ///     html! { "Aviso legal" }
     /// }));
     /// ```
     pub fn add(&self, component: impl Component) -> &Self {
         let proto: Arc<dyn Component> = Arc::new(component);
         match self {
-            InRegion::Content => Self::add_to_common(&CoreRegion::Content, proto),
+            InRegion::Content => Self::add_to_common(&CoreRegions::Content, proto),
             InRegion::Global(region) => Self::add_to_common(*region, proto),
             InRegion::ForTheme(theme, region) => {
                 THEME_REGIONS

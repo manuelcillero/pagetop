@@ -55,7 +55,7 @@ impl fmt::Debug for Region {
 impl Default for Region {
     fn default() -> Self {
         Region {
-            region: &CoreRegion::Content,
+            region: &CoreRegions::Content,
         }
     }
 }
@@ -90,17 +90,33 @@ impl Component for Region {
 }
 
 impl Region {
-    /// Define el componente que renderizará [`CoreRegion::Header`].
+    /// Define el componente que renderizará [`CoreRegions::Header`].
     pub fn header() -> Self {
         Region {
-            region: &CoreRegion::Header,
+            region: &CoreRegions::Header,
         }
     }
 
-    /// Define el componente que renderizará [`CoreRegion::Footer`].
+    /// Define el componente que renderizará [`CoreRegions::Aside`].
+    pub fn aside() -> Self {
+        Region {
+            region: &CoreRegions::Aside,
+        }
+    }
+
+    /// Define el componente que renderizará [`CoreRegions::Content`].
+    ///
+    /// Equivale a [`Self::new()`] o [`Self::default()`], que ya usan esta región por defecto.
+    pub fn content() -> Self {
+        Region {
+            region: &CoreRegions::Content,
+        }
+    }
+
+    /// Define el componente que renderizará [`CoreRegions::Footer`].
     pub fn footer() -> Self {
         Region {
-            region: &CoreRegion::Footer,
+            region: &CoreRegions::Footer,
         }
     }
 
