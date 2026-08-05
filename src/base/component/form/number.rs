@@ -1,60 +1,63 @@
 use crate::prelude::*;
 
-/// Componente para crear un **control deslizante** de rango.
+/// Componente para crear un **campo numérico**.
 ///
-/// Renderiza una barra deslizante con una etiqueta opcional y un texto de ayuda. Permite
-/// seleccionar un valor de entre una lista de valores posibles, acotados por un valor mínimo y
-/// máximo, con un paso opcional entre valores.
+/// Renderiza un campo de entrada numérica (`input type="number"`) con una etiqueta opcional y un
+/// texto de ayuda. El navegador restringe la entrada a valores numéricos y ofrece controles nativos
+/// para incrementar o decrementar el valor.
 ///
 /// # Ejemplo
 ///
 /// ```rust,no_run
 /// use pagetop::prelude::*;
 ///
-/// let volume = form::Range::new()
-///     .with_name("volume")
-///     .with_label(L10n::n("Volume"))
-///     .with_min(Some(0.0))
-///     .with_max(Some(100.0))
-///     .with_step(Some(5.0))
-///     .with_value(Some(50.0));
+/// let quantity = form::Number::new()
+///     .with_name("quantity")
+///     .with_label(L10n::n("Quantity"))
+///     .with_min(Some(1))
+///     .with_max(Some(100))
+///     .with_value(Some(1));
 /// ```
 ///
-/// Al enviar el formulario el navegador transmite `name=valor`. Un control deslizante siempre
-/// envía su valor. En el servidor se deserializa como `f64`:
+/// Al enviar el formulario el navegador transmite `name=valor`. Un campo numérico siempre envía su
+/// valor. En el servidor se deserializa como `u64`:
 ///
 /// ```rust,ignore
 /// #[derive(serde::Deserialize)]
 /// struct FormData {
-///     volume: f64, // Siempre presente con el valor numérico seleccionado.
+///     quantity: u64, // Siempre presente con el valor numérico introducido.
 /// }
 /// ```
 #[derive(AutoDefault, Clone, Debug, Getters)]
-pub struct Range {
+pub struct Number {
     /// Devuelve identificador, clases CSS, atributos HTML y valores extra del componente.
     props: Props,
     /// Devuelve el nombre del campo.
     name: AttrName,
     /// Devuelve el valor inicial del campo.
-    value: Attr<f64>,
+    value: Attr<u64>,
     /// Devuelve la etiqueta del campo.
     label: Attr<L10n>,
     /// Devuelve el texto de ayuda del campo.
     help_text: Attr<L10n>,
     /// Devuelve el valor mínimo permitido.
-    min: Attr<f64>,
+    min: Attr<u64>,
     /// Devuelve el valor máximo permitido.
-    max: Attr<f64>,
+    max: Attr<u64>,
     /// Devuelve el incremento entre valores del campo.
-    step: Attr<f64>,
-    /// Devuelve si el control recibe el foco automáticamente al cargar la página.
+    step: Attr<u64>,
+    /// Devuelve si el campo recibe el foco automáticamente al cargar la página.
     autofocus: bool,
-    /// Devuelve si el control está deshabilitado.
+    /// Devuelve si el campo es de sólo lectura.
+    readonly: bool,
+    /// Devuelve si el campo es obligatorio.
+    required: bool,
+    /// Devuelve si el campo está deshabilitado.
     disabled: bool,
 }
 
 #[async_trait]
-impl Component for Range {
+impl Component for Number {
     fn new() -> Self {
         Self::default()
     }
@@ -69,30 +72,42 @@ impl Component for Range {
             .or_else(|| self.name().get().map(|n| util::join!("edit-", n)))
         {
             self.alter_prop(PropsOp::ensure_id(container_id));
-        };
+        }
 
-        // Clases CSS del contenedor del control deslizante.
-        self.alter_prop(PropsOp::prepend_classes("form-field form-field-range"));
+        // Clases CSS del contenedor del campo numérico.
+        self.alter_prop(PropsOp::prepend_classes("form-field form-field-number"));
     }
 
     async fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
         let container_id = self.id();
-        let range_id = container_id.as_deref().map(|id| util::join!(id, "-range"));
+        let input_id = container_id.as_deref().map(|id| util::join!(id, "-input"));
         Ok(html! {
             div (self.props()) {
                 @if let Some(label) = self.label().lookup(cx) {
-                    label for=[range_id.as_deref()] class="form-label" { (label) }
+                    label for=[input_id.as_deref()] class="form-label" {
+                        (label)
+                        @if *self.required() {
+                            span
+                                class="form-required"
+                                title=(L10n::l("field_required").using(cx))
+                            {
+                                "*"
+                            }
+                        }
+                    }
                 }
                 input
-                    type="range"
-                    id=[range_id.as_deref()]
-                    class="form-range"
+                    type="number"
+                    id=[input_id.as_deref()]
+                    class="form-control"
                     name=[self.name().get()]
                     min=[self.min().get()]
                     max=[self.max().get()]
                     step=[self.step().get()]
                     value=[self.value().get()]
                     autofocus[*self.autofocus()]
+                    readonly[*self.readonly()]
+                    required[*self.required()]
                     disabled[*self.disabled()];
                 @if let Some(description) = self.help_text().lookup(cx) {
                     div class="form-text" { (description) }
@@ -102,8 +117,8 @@ impl Component for Range {
     }
 }
 
-impl Range {
-    // **< Range BUILDER >**************************************************************************
+impl Number {
+    // **< Number BUILDER >************************************************************************
 
     /// Establece el identificador único del componente; igual a `with_prop(PropsOp::set_id(id))`.
     #[builder_fn]
@@ -130,11 +145,8 @@ impl Range {
     }
 
     /// Establece el valor inicial del campo.
-    ///
-    /// Pasar `None` omite el atributo `value` y deja que el navegador aplique su valor por defecto
-    /// (normalmente el punto medio del rango).
     #[builder_fn]
-    pub fn with_value(mut self, value: Option<f64>) -> Self {
+    pub fn with_value(mut self, value: Option<u64>) -> Self {
         self.value.alter_opt(value);
         self
     }
@@ -153,20 +165,16 @@ impl Range {
         self
     }
 
-    /// Establece el valor mínimo del rango.
-    ///
-    /// Pasar `None` omite el atributo `min` y deja que el navegador aplique su valor por defecto.
+    /// Establece el valor mínimo permitido (`None` para no imponer mínimo).
     #[builder_fn]
-    pub fn with_min(mut self, min: Option<f64>) -> Self {
+    pub fn with_min(mut self, min: Option<u64>) -> Self {
         self.min.alter_opt(min);
         self
     }
 
-    /// Establece el valor máximo del rango.
-    ///
-    /// Pasar `None` omite el atributo `max` y deja que el navegador aplique su valor por defecto.
+    /// Establece el valor máximo permitido (`None` para no imponer máximo).
     #[builder_fn]
-    pub fn with_max(mut self, max: Option<f64>) -> Self {
+    pub fn with_max(mut self, max: Option<u64>) -> Self {
         self.max.alter_opt(max);
         self
     }
@@ -176,19 +184,33 @@ impl Range {
     /// Pasar `None` omite el atributo `step` y deja que el navegador aplique su valor por defecto
     /// (normalmente `1`).
     #[builder_fn]
-    pub fn with_step(mut self, step: Option<f64>) -> Self {
+    pub fn with_step(mut self, step: Option<u64>) -> Self {
         self.step.alter_opt(step);
         self
     }
 
-    /// Establece si el control recibe el foco automáticamente al cargar la página.
+    /// Establece si el campo recibe el foco automáticamente al cargar la página.
     #[builder_fn]
     pub fn with_autofocus(mut self, autofocus: bool) -> Self {
         self.autofocus = autofocus;
         self
     }
 
-    /// Establece si el control está deshabilitado.
+    /// Establece si el campo es de sólo lectura.
+    #[builder_fn]
+    pub fn with_readonly(mut self, readonly: bool) -> Self {
+        self.readonly = readonly;
+        self
+    }
+
+    /// Establece si el campo es obligatorio.
+    #[builder_fn]
+    pub fn with_required(mut self, required: bool) -> Self {
+        self.required = required;
+        self
+    }
+
+    /// Establece si el campo está deshabilitado.
     #[builder_fn]
     pub fn with_disabled(mut self, disabled: bool) -> Self {
         self.disabled = disabled;

@@ -20,11 +20,14 @@ pub mod select;
 
 pub mod input;
 
-mod textarea;
-pub use textarea::Textarea;
+mod number;
+pub use number::Number;
 
 mod range;
 pub use range::Range;
+
+mod textarea;
+pub use textarea::Textarea;
 
 mod hidden;
 pub use hidden::Hidden;
