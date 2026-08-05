@@ -84,16 +84,16 @@ impl Application {
             // Nombre de la aplicación, ajustado al ancho del terminal si es necesario.
             let mut app_ff = String::new();
             let app_name = &global::SETTINGS.app.name;
-            if let Some((Width(term_width), _)) = terminal_size() {
-                if term_width >= 80 {
-                    let maxlen: usize = ((term_width / 10) - 2).into();
-                    let mut app: String = app_name.chars().take(maxlen).collect();
-                    if app_name.chars().count() > maxlen {
-                        app = format!("{app}...");
-                    }
-                    if let Some(ff) = figfont::FIGFONT.convert(&app) {
-                        app_ff = ff.to_string();
-                    }
+            if let Some((Width(term_width), _)) = terminal_size()
+                && term_width >= 80
+            {
+                let maxlen: usize = ((term_width / 10) - 2).into();
+                let mut app: String = app_name.chars().take(maxlen).collect();
+                if app_name.chars().count() > maxlen {
+                    app = format!("{app}...");
+                }
+                if let Some(ff) = figfont::FIGFONT.convert(&app) {
+                    app_ff = ff.to_string();
                 }
             }
             if app_ff.is_empty() {

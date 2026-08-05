@@ -158,10 +158,10 @@ fn collect_resources_nested<P: AsRef<Path>>(
         let entry = entry?;
         let path = entry.path();
 
-        if let Some(ref filter) = filter {
-            if !filter(path.as_ref()) {
-                continue;
-            }
+        if let Some(ref filter) = filter
+            && !filter(path.as_ref())
+        {
+            continue;
         }
 
         if path.is_dir() {

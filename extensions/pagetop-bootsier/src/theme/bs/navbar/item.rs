@@ -42,10 +42,10 @@ impl Component for Item {
     }
 
     fn setup(&mut self, _cx: &Context) {
-        if let Self::Nav(nav) = self {
-            if let Some(nav) = nav.get_mut() {
-                nav.alter_prop(PropsOp::prepend_classes("navbar-nav"));
-            }
+        if let Self::Nav(nav) = self
+            && let Some(nav) = nav.get_mut()
+        {
+            nav.alter_prop(PropsOp::prepend_classes("navbar-nav"));
         }
     }
 

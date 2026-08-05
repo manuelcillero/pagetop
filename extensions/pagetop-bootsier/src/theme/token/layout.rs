@@ -52,14 +52,14 @@ impl ScaleSize {
     // Añade el tamaño a la cadena de clases usando el prefijo dado.
     #[inline]
     pub(crate) fn push_to(self, classes: &mut String, prefix: &str) {
-        if !prefix.is_empty() {
-            if let Some(suffix) = self.suffix() {
-                if !classes.is_empty() {
-                    classes.push(' ');
-                }
-                classes.push_str(prefix);
-                classes.push_str(suffix);
+        if !prefix.is_empty()
+            && let Some(suffix) = self.suffix()
+        {
+            if !classes.is_empty() {
+                classes.push(' ');
             }
+            classes.push_str(prefix);
+            classes.push_str(suffix);
         }
     }
 }

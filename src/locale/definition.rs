@@ -103,10 +103,10 @@ impl Locale {
         }
 
         // Si la variante regional no existe, retrocede al idioma base (p. ej. "es").
-        if let Some((base_lang, _)) = lang.split_once('-') {
-            if let Some(langid) = LANGUAGES.get(base_lang).map(|(langid, _)| langid) {
-                return Self::Resolved(langid);
-            }
+        if let Some((base_lang, _)) = lang.split_once('-')
+            && let Some(langid) = LANGUAGES.get(base_lang).map(|(langid, _)| langid)
+        {
+            return Self::Resolved(langid);
         }
 
         // En caso contrario, indica que el idioma no está soportado.
