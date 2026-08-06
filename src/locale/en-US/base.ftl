@@ -18,3 +18,10 @@ intro_have_fun = Coding is creating
 
 # PoweredBy component.
 poweredby_pagetop = Powered by { $pagetop_link }
+
+# Pager component.
+pager_aria_label = Page navigation
+pager_previous_label = Previous page
+pager_next_label = Next page
+pager_goto_label = Go to page
+pager_goto_button = Go

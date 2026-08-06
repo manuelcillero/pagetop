@@ -73,9 +73,9 @@ impl RoutePath {
     /// Un `value` vacío no se distingue de [`with_flag()`](Self::with_flag): ambos se renderizan
     /// como `?key`, sin `=`.
     #[builder_fn]
-    pub fn with_param(mut self, key: impl Into<String>, value: impl Into<String>) -> Self {
+    pub fn with_param(mut self, key: impl Into<String>, value: impl AsRef<str>) -> Self {
         self.query
-            .insert(key.into(), Self::encode_query_value(&value.into()));
+            .insert(key.into(), Self::encode_query_value(value.as_ref()));
         self
     }
 
@@ -89,6 +89,16 @@ impl RoutePath {
     /// Devuelve el *path* inicial tal y como se pasó a [`RoutePath::new`], sin parámetros.
     pub fn path(&self) -> &str {
         &self.path
+    }
+
+    /// Devuelve el valor de un parámetro de consulta ya almacenado, si existe.
+    ///
+    /// El valor se devuelve tal como se almacenó, es decir, ya codificado según RFC 3986 (ver
+    /// [`with_param()`](Self::with_param)). Para valores que sólo usen caracteres sin reservar
+    /// (letras, dígitos, `-`, `_`, `.`, `~`), como un identificador de idioma BCP 47, no hay
+    /// diferencia con el valor original.
+    pub fn param(&self, key: impl AsRef<str>) -> Option<&str> {
+        self.query.get(key.as_ref()).map(String::as_str)
     }
 
     /// Indica si el *path* **parece** una URL externa por su prefijo (ver

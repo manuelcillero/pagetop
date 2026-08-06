@@ -137,11 +137,7 @@ async fn form_controls(request: HttpRequest) -> Result<Markup, ErrorPage> {
                                         ),
                                 )
                                 // Campo oculto (form::Hidden).
-                                .with_child(
-                                    form::Hidden::new()
-                                        .with_name("origin")
-                                        .with_value("form-selections"),
-                                )
+                                .with_child(form::Hidden::field("origin", "form-selections"))
                                 // Botones de acción.
                                 .with_child(Button::submit(L10n::t("btn_submit", &LOC)).with_prop(
                                     PropsOp::add_classes(class::ButtonColor::solid(
@@ -261,11 +257,7 @@ async fn form_controls(request: HttpRequest) -> Result<Markup, ErrorPage> {
                                         ),
                                 )
                                 // Campo oculto (form::Hidden).
-                                .with_child(
-                                    form::Hidden::new()
-                                        .with_name("origin")
-                                        .with_value("form-text"),
-                                )
+                                .with_child(form::Hidden::field("origin", "form-text"))
                                 // Botones de acción.
                                 .with_child(Button::submit(L10n::t("btn_submit", &LOC)).with_prop(
                                     PropsOp::add_classes(class::ButtonColor::solid(
@@ -415,11 +407,7 @@ fn form_lists() -> Form {
 
     form
         // Campo oculto (form::Hidden).
-        .with_child(
-            form::Hidden::new()
-                .with_name("origin")
-                .with_value("form-lists"),
-        )
+        .with_child(form::Hidden::field("origin", "form-lists"))
         // Botones de acción.
         .with_child(
             Button::submit(L10n::t("btn_submit", &LOC)).with_prop(PropsOp::add_classes(

@@ -26,7 +26,7 @@ async fn sort_link_sets_the_four_fixed_htmx_attributes() {
 
     assert!(html.contains(r#"hx-get="/admin/users""#));
     assert!(html.contains(r##"hx-target="#user-table""##));
-    assert!(html.contains(r#"hx-swap="outerHTML""#));
+    assert!(html.contains(r#"hx-swap="outerHTML scroll:top""#));
     assert!(html.contains(r#"hx-push-url="true""#));
 }
 

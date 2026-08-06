@@ -490,6 +490,13 @@ pub mod swap {
     pub const INNER_HTML: &str = "innerHTML";
     /// Reemplaza el elemento objetivo completo.
     pub const OUTER_HTML: &str = "outerHTML";
+    /// Reemplaza el elemento objetivo completo y desplaza la vista al borde superior tras el
+    /// intercambio (combina [`OUTER_HTML`] con el modificador `scroll:top`).
+    ///
+    /// Pensado para listados paginados/ordenables cuyo `hx-swap` sustituye un contenedor completo
+    /// (tabla + paginador) al variar el número de filas entre páginas. Sin este anclaje la posición
+    /// del scroll tras el intercambio queda desajustada.
+    pub const OUTER_HTML_SCROLL_TOP: &str = "outerHTML scroll:top";
     /// Inserta la respuesta antes de la etiqueta de apertura del objetivo.
     pub const BEFORE_BEGIN: &str = "beforebegin";
     /// Inserta la respuesta al inicio del contenido del objetivo.

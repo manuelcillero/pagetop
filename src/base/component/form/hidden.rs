@@ -16,6 +16,9 @@ use crate::prelude::*;
 /// let token = form::Hidden::new()
 ///     .with_name("csrf_token")
 ///     .with_value("a1b2c3d4e5");
+///
+/// // Equivalente, cuando `name` y `value` se conocen de antemano:
+/// let token = form::Hidden::field("csrf_token", "a1b2c3d4e5");
 /// ```
 ///
 /// Al enviar el formulario el navegador transmite `name=valor`. En el servidor se deserializa
@@ -52,6 +55,13 @@ impl Component for Hidden {
 }
 
 impl Hidden {
+    /// Crea un campo oculto con nombre y valor (atributos `name` y `value`) ya establecidos.
+    ///
+    /// Equivale a `Hidden::new().with_name(name).with_value(value)`.
+    pub fn field(name: impl AsRef<str>, value: impl AsRef<str>) -> Self {
+        Self::default().with_name(name).with_value(value)
+    }
+
     // **< Hidden BUILDER >*************************************************************************
 
     /// Establece el nombre del campo oculto (atributo `name`).

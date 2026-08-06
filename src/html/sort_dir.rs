@@ -99,9 +99,25 @@ impl SortDir {
     }
 }
 
+/// Permite pasar un [`SortDir`] allí donde se espere `impl AsRef<str>`, por ejemplo, en el
+/// parámetro `value` de [`RoutePath::with_param()`](crate::html::RoutePath::with_param) o su
+/// equivalente `alter_param()`, sin tener que escribir `.as_str()` a mano.
+///
+/// ```rust
+/// use pagetop::html::SortDir;
+///
+/// assert_eq!(SortDir::Asc.as_ref(), "asc");
+/// assert_eq!(SortDir::Desc.as_ref(), "desc");
+/// ```
+impl AsRef<str> for SortDir {
+    fn as_ref(&self) -> &str {
+        self.as_str()
+    }
+}
+
 /// Permite pasar un [`SortDir`] allí donde se espere `impl Into<String>`, por ejemplo, en
-/// [`RoutePath::with_param()`](crate::html::RoutePath::with_param) o su equivalente
-/// `alter_param()`, sin tener que escribir `as_str().to_owned()` a mano.
+/// [`Pager::with_extra_query()`](crate::base::component::Pager::with_extra_query), sin tener que
+/// escribir `as_str().to_owned()` a mano.
 ///
 /// ```rust
 /// use pagetop::html::SortDir;
