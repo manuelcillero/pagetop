@@ -83,10 +83,14 @@ pub enum PagerAlign {
 /// para saltar directamente a una página escribiendo su número, sin depender de JavaScript. Un
 /// único campo numérico (`min`/`max` según el total de páginas) y un botón de envío.
 ///
+/// Con [`with_summary()`](Self::with_summary) se puede añadir un texto que resume la vista de las
+/// páginas que se muestran en ese momento. Por defecto está oculto.
+///
 /// # Clases CSS
 ///
 /// - `.pager` - clase base del componente (elemento `<nav>`).
 /// - `.pager-align-start` / `.pager-align-center` / `.pager-align-end` - según [`PagerAlign`].
+/// - `.pager-summary` - clase del resumen de las páginas mostradas, si está activado.
 /// - `.pagination` - clase del elemento `<ul>` que contiene los enlaces de página.
 /// - `.page-item` - presente en todos los `<li>` del listado.
 /// - `.page-link` - presente en todos los enlaces (`<a>`) del listado, y también en el `<span>` de
@@ -142,6 +146,8 @@ pub struct Pager {
     window: u64,
     /// Devuelve la alineación horizontal del paginador dentro de su contenedor.
     align: PagerAlign,
+    /// Devuelve si se muestra el resumen ("Showing 1-20 of 97") antes del listado de páginas.
+    summary: bool,
     /// Devuelve la visibilidad de los botones de página anterior/siguiente.
     prev_next: PagerVisibility,
     /// Devuelve la visibilidad del formulario para saltar directamente a una página.
@@ -215,6 +221,18 @@ impl Component for Pager {
 
         Ok(html! {
             nav (self.props()) aria-label=(self.aria_label().using(cx)) {
+                @if *self.summary() {
+                    @let items_per_page = self.items_per_page().max(1);
+                    @let first = (page - 1) * items_per_page + 1;
+                    @let last = (page * items_per_page).min(self.total_items());
+                    span.pager-summary {
+                        (L10n::l("pager_summary")
+                            .with_arg("first", first.to_string())
+                            .with_arg("last", last.to_string())
+                            .with_arg("total", self.total_items().to_string())
+                            .using(cx))
+                    }
+                }
                 ul.pagination {
                     @if show_prev_next {
                         li.page-item.page-previous.disabled[first_disabled] {
@@ -372,6 +390,13 @@ impl Pager {
     #[builder_fn]
     pub fn with_align(mut self, align: PagerAlign) -> Self {
         self.align = align;
+        self
+    }
+
+    /// Establece si se muestra el resumen de las páginas que se muestran en ese momento.
+    #[builder_fn]
+    pub fn with_summary(mut self, summary: bool) -> Self {
+        self.summary = summary;
         self
     }
 

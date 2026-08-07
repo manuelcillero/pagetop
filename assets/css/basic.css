@@ -158,6 +158,23 @@ input:disabled + label {
 .pager-align-end {
     justify-content: flex-end;
 }
+.pager-summary {
+    color: var(--val-color--text--muted);
+    font-size: 0.8125rem;
+    align-self: flex-start;
+    margin-inline-end: auto;
+}
+.pager-align-start .pager-summary {
+    order: 1;
+    margin-inline-end: 0;
+    margin-inline-start: auto;
+}
+.pager-align-center .pager-summary {
+    order: 1;
+    flex-basis: 100%;
+    text-align: center;
+    margin-inline-end: 0;
+}
 
 .pagination {
     display: flex;

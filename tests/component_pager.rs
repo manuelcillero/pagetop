@@ -41,6 +41,47 @@ async fn with_aria_label_overrides_the_default() {
 }
 
 #[pagetop::test]
+async fn summary_is_hidden_by_default() {
+    let mut pager = Pager::new()
+        .with_base_path("/list")
+        .with_current_page(1)
+        .with_items_per_page(20)
+        .with_total_items(97);
+
+    let html = pager.render(&mut Context::default()).await.into_string();
+
+    assert!(!html.contains("pager-summary"));
+}
+
+#[pagetop::test]
+async fn summary_shows_the_range_of_the_current_page() {
+    let mut first_page = Pager::new()
+        .with_base_path("/list")
+        .with_current_page(1)
+        .with_items_per_page(20)
+        .with_total_items(97)
+        .with_summary(true);
+    let html = first_page
+        .render(&mut Context::default())
+        .await
+        .into_string();
+    assert!(html.contains(r#"<span class="pager-summary">Showing 1-20 of 97</span>"#));
+
+    // Last page: fewer items than `items_per_page`, so `last` stops at `total_items`.
+    let mut last_page = Pager::new()
+        .with_base_path("/list")
+        .with_current_page(5)
+        .with_items_per_page(20)
+        .with_total_items(97)
+        .with_summary(true);
+    let html = last_page
+        .render(&mut Context::default())
+        .await
+        .into_string();
+    assert!(html.contains(r#"<span class="pager-summary">Showing 81-97 of 97</span>"#));
+}
+
+#[pagetop::test]
 async fn renders_page_links_and_current_page() {
     let mut pager = Pager::new()
         .with_base_path("/admin/users")

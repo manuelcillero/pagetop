@@ -27,3 +27,4 @@ pager_next_label = Siguiente
 pager_next_aria_label = Página siguiente
 pager_goto_label = Saltar a la página
 pager_goto_button = Ir
+pager_summary = Mostrando { $first }-{ $last } de { $total }
