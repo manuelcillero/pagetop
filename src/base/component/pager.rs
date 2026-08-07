@@ -14,6 +14,18 @@ pub enum PagerVisibility {
     Auto,
 }
 
+/// Define la alineación horizontal de [`Pager`] dentro de su contenedor.
+#[derive(AutoDefault, Clone, Copy, Debug, PartialEq)]
+pub enum PagerAlign {
+    /// Alineado al comienzo.
+    Start,
+    /// Centrado (comportamiento por defecto).
+    #[default]
+    Center,
+    /// Alineado al final.
+    End,
+}
+
 /// Componente para añadir un **paginador** a un listado.
 ///
 /// `Pager` permite navegar por las páginas de un listado de ítems cuando supera el número máximo de
@@ -38,14 +50,19 @@ pub enum PagerVisibility {
 /// un extremo, el botón correspondiente se muestra igualmente, pero desactivado.
 ///
 /// Un elemento `<nav>` envuelve todo el paginador. Lleva un `aria-label` por defecto que puede
-/// sustituirse con [`with_aria_label()`](Self::with_aria_label) por otro más específico, por
+/// sustituirse por otro más específico usando [`with_aria_label()`](Self::with_aria_label), por
 /// ejemplo cuando una misma página tiene varios paginadores.
+///
+/// La alineación horizontal del paginador dentro de este contenedor se controla con [`PagerAlign`]
+/// a través de [`with_align()`](Self::with_align). Por defecto es [`PagerAlign::Center`].
 ///
 /// # Acotando el número de ítems del paginador
 ///
 /// Con listados largos, mostrar un número por cada página real puede desbordar la interfaz. Con
 /// [`with_window()`](Self::with_window) se puede limitar el número de páginas que se muestran a
-/// cada lado de la página actual. Por defecto vale `2` para no mostrar más de 9 celdas en total.
+/// cada lado de la página actual. Por defecto vale `2`, que limita la vista a `9` celdas en total
+/// (sin contar los botones de navegación anterior/siguiente). En general, el número máximo de
+/// celdas mostradas para un `window` dado es `2 * window + 5`.
 ///
 /// Si el valor de la ventana es mayor que `0`, `Pager` siempre muestra la primera y la última
 /// página como números, más la ventana indicada antes y después de la página actual, sustituyendo
@@ -59,6 +76,9 @@ pub enum PagerVisibility {
 /// ‹ | 1 | … | 31 | 32 | 33 | [34] | 35 | 36 | 37 | … | 200 | ›
 /// ```
 ///
+/// Cuando la página actual está cerca de los extremos, se ajustan las páginas numeradas para
+/// mantener el número de celdas mostradas según el valor de `window`.
+///
 /// Cuando corresponda según [`jump()`](Self::jump), [`Pager`] puede añadir un pequeño formulario
 /// para saltar directamente a una página escribiendo su número, sin depender de JavaScript. Un
 /// único campo numérico (`min`/`max` según el total de páginas) y un botón de envío.
@@ -66,15 +86,17 @@ pub enum PagerVisibility {
 /// # Clases CSS
 ///
 /// - `.pager` - clase base del componente (elemento `<nav>`).
+/// - `.pager-align-start` / `.pager-align-center` / `.pager-align-end` - según [`PagerAlign`].
 /// - `.pagination` - clase del elemento `<ul>` que contiene los enlaces de página.
 /// - `.page-item` - presente en todos los `<li>` del listado.
-/// - `.page-link` - presente en todos los enlaces (`<a>`) del listado.
-/// - `.page-link-icon` - envuelve el carácter (`‹`/`›`) de los botones de navegación, para poder
-///   ajustar su tamaño o posición sin afectar al área interactiva de `.page-link`.
+/// - `.page-link` - presente en todos los enlaces (`<a>`) del listado, y también en el `<span>` de
+///   la elipsis, para que comparta con ellos el aspecto de celda (borde, fondo, radio, margen).
+/// - `.page-link-icon` - envuelve el texto de los botones de navegación anterior/siguiente.
 /// - `.page-previous` / `.page-next` - añadidas a los `<li>` de página anterior/siguiente.
 /// - `.page-ellipsis` - clase del `<li>` que representa un tramo de páginas ocultas.
 /// - `.active` - añadida al `<li>` de la página actualmente visible.
-/// - `.disabled` - añadida al `<li>` de los extremos cuando no procede navegar.
+/// - `.disabled` - añadida al `<li>` de los extremos cuando no procede navegar, y también al de la
+///   elipsis, ya que tampoco es interactiva.
 /// - `.pager-jump` - clase del `<form>` para saltar directamente a una página.
 /// - `.pager-jump-input` - clase del campo numérico del formulario de salto.
 /// - `.pager-jump-button` - clase del botón de envío del formulario de salto.
@@ -118,6 +140,8 @@ pub struct Pager {
     /// con un número pequeño de páginas.
     #[default(2)]
     window: u64,
+    /// Devuelve la alineación horizontal del paginador dentro de su contenedor.
+    align: PagerAlign,
     /// Devuelve la visibilidad de los botones de página anterior/siguiente.
     prev_next: PagerVisibility,
     /// Devuelve la visibilidad del formulario para saltar directamente a una página.
@@ -150,6 +174,11 @@ impl Component for Pager {
         let id = cx.required_id::<Self>(self.id(), 1);
         self.alter_prop(PropsOp::ensure_id(id));
         self.alter_prop(PropsOp::prepend_classes("pager"));
+        self.alter_prop(PropsOp::add_classes(match self.align() {
+            PagerAlign::Start => "pager-align-start",
+            PagerAlign::Center => "pager-align-center",
+            PagerAlign::End => "pager-align-end",
+        }));
     }
 
     async fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
@@ -192,8 +221,8 @@ impl Component for Pager {
                             a.page-link
                                 href=[(!first_disabled).then(|| Self::page_route(&route, page - 1))]
                                 aria-disabled=[first_disabled.then_some("true")]
-                                aria-label=(L10n::l("pager_previous_label").using(cx)) {
-                                span.page-link-icon { "‹" }
+                                aria-label=(L10n::l("pager_previous_aria_label").using(cx)) {
+                                span.page-link-icon { (L10n::l("pager_previous_label").using(cx)) }
                             }
                         }
                     }
@@ -210,7 +239,9 @@ impl Component for Pager {
                                 }
                             }
                             PageItem::Ellipsis => {
-                                li.page-item.page-ellipsis aria-hidden="true" { "…" }
+                                li.page-item.page-ellipsis.disabled aria-hidden="true" {
+                                    span.page-link { "…" }
+                                }
                             }
                         }
                     }
@@ -219,8 +250,8 @@ impl Component for Pager {
                             a.page-link
                                 href=[(!last_disabled).then(|| Self::page_route(&route, page + 1))]
                                 aria-disabled=[last_disabled.then_some("true")]
-                                aria-label=(L10n::l("pager_next_label").using(cx)) {
-                                span.page-link-icon { "›" }
+                                aria-label=(L10n::l("pager_next_aria_label").using(cx)) {
+                                span.page-link-icon { (L10n::l("pager_next_label").using(cx)) }
                             }
                         }
                     }
@@ -246,19 +277,23 @@ impl Component for Pager {
                         form = form.with_child(form::Hidden::field("lang", lang));
                     }
 
+                    // Info para ajustar el ancho del campo al número de dígitos de `total_pages`.
+                    let jump_width = util::join!(&total_pages.to_string().len().to_string(), "ch");
+
                     form.with_child(
                         form::Number::new()
                             .with_id(util::join!(id, "-jump-page"))
                             .with_prop(PropsOp::add_classes("pager-jump-input"))
+                            .with_prop(PropsOp::add_style("--pager-jump-width", jump_width))
                             .with_name("page")
                             .with_min(Some(1))
                             .with_max(Some(total_pages))
-                            .with_value(Some(page))
-                            .with_label(L10n::l("pager_goto_label")),
+                            .with_value(Some(page)),
                     )
                     .with_child(
                         Button::submit(L10n::l("pager_goto_button"))
-                            .with_prop(PropsOp::add_classes("pager-jump-button")),
+                            .with_prop(PropsOp::add_classes("pager-jump-button"))
+                            .with_title(L10n::l("pager_goto_label")),
                     )
                     .render(cx).await
                 }) }
@@ -332,6 +367,14 @@ impl Pager {
         self
     }
 
+    /// Establece la alineación horizontal del paginador dentro de su contenedor. Por defecto es
+    /// [`PagerAlign::Center`].
+    #[builder_fn]
+    pub fn with_align(mut self, align: PagerAlign) -> Self {
+        self.align = align;
+        self
+    }
+
     /// Establece la visibilidad de los botones de página anterior/siguiente. Por defecto es
     /// `PagerVisibility::Auto`: sólo se muestran cuando el número total de páginas supera al
     /// número de páginas que se muestra en el paginador (con el extremo correspondiente
@@ -389,8 +432,34 @@ impl Pager {
             return (1..=total_pages).map(PageItem::Number).collect();
         }
 
-        let low = page.saturating_sub(window).max(2);
-        let high = page.saturating_add(window).min(total_pages - 1);
+        // Ventana centrada en `page`, protegiendo las operaciones aritméticas con signo.
+        let mut low = page as i128 - window as i128;
+        let mut high = page as i128 + window as i128;
+
+        if low < 2 {
+            let overflow = 2 - low;
+            low += overflow;
+            high += overflow;
+        }
+        if high > total_pages as i128 - 1 {
+            let overflow = high - (total_pages as i128 - 1);
+            high -= overflow;
+            low -= overflow;
+        }
+        low = low.clamp(2, total_pages as i128 - 1);
+        high = high.clamp(2, total_pages as i128 - 1);
+
+        // Si la ventana toca la primera o la última página, ese lado no necesita elipsis ni número
+        // de relleno: el hueco que se ahorra se reinvierte ampliando la ventana por el otro lado.
+        if low == 2 {
+            high = (high + 1).min(total_pages as i128 - 1);
+        }
+        if high == total_pages as i128 - 1 {
+            low = (low - 1).max(2);
+        }
+
+        let low = low as u64;
+        let high = high as u64;
 
         let mut items = vec![PageItem::Number(1)];
 

@@ -138,6 +138,128 @@ input:disabled + label {
 }
 
 /*
+ * Pager component
+ */
+
+.pager {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem;
+    margin: 1rem 0;
+    padding: 0 1rem;
+}
+.pager-align-start {
+    justify-content: flex-start;
+}
+.pager-align-center {
+    justify-content: center;
+}
+.pager-align-end {
+    justify-content: flex-end;
+}
+
+.pagination {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+.pagination a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.5rem;
+    padding: 0.375rem 0.625rem;
+    border-radius: 0.375rem;
+    color: var(--val-color--text);
+    text-decoration: none;
+}
+.pagination a:hover {
+    background-color: color-mix(in srgb, var(--val-color--text) 8%, transparent);
+}
+.pagination .active a {
+    color: #fff;
+    background-color: var(--val-color--primary);
+}
+.pagination .disabled a {
+    color: var(--val-color--text--muted);
+    pointer-events: none;
+    cursor: default;
+}
+
+.page-ellipsis {
+    padding: 0.375rem 0.25rem;
+    color: var(--val-color--text--muted);
+}
+
+/* .page-link-icon muestra el texto de navegación de los botones anterior/siguiente. El texto
+   accesible completo va aparte, en el aria-label del enlace. Por eso sustituir el texto visible por
+   otro contenido no afecta a la accesibilidad, p.ej. para usar "‹"/"›" se puede aplicar:
+
+.page-link-icon {
+    display: inline-block;
+    font-size: 0;
+}
+.page-previous .page-link-icon::before {
+    content: "‹";
+    font-size: 1rem;
+    display: inline-block;
+    transform: translateY(-0.15em) scale(1.5);
+}
+.page-next .page-link-icon::before {
+    content: "›";
+    font-size: 1rem;
+    display: inline-block;
+    transform: translateY(-0.15em) scale(1.5);
+}
+*/
+
+.pager-jump {
+    display: flex;
+    align-items: center;
+}
+.pager-jump:focus-within {
+    border-radius: 0.375rem;
+    box-shadow: 0 0 0 0.2rem color-mix(in srgb, var(--val-color--primary) 25%, transparent);
+}
+.pager-jump-input > input.form-control:focus,
+.pager-jump-button:focus {
+    outline: none;
+    box-shadow: none;
+}
+.pager-jump-input > input.form-control {
+    width: calc(var(--pager-jump-width, 1ch) + 2.5rem);
+    padding: 0.375rem 0.625rem;
+    line-height: var(--val-lh--base);
+    border: 0;
+    border-start-end-radius: 0;
+    border-end-end-radius: 0;
+    background-color: var(--val-color--light);
+}
+.pager-jump-input > input.form-control {
+    text-align: center;
+    appearance: textfield;
+    -moz-appearance: textfield;
+}
+.pager-jump-input > input.form-control::-webkit-outer-spin-button,
+.pager-jump-input > input.form-control::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+.pager-jump-button {
+    padding: 0.375rem 0.625rem;
+    border: 0;
+    border-start-start-radius: 0;
+    border-end-start-radius: 0;
+}
+.pager-jump-button:hover {
+    background-color: color-mix(in srgb, var(--val-color--primary) 85%, black);
+}
+
+/*
  * Region Footer
  */
 

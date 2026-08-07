@@ -21,7 +21,9 @@ poweredby_pagetop = Funciona con { $pagetop_link }
 
 # Pager component.
 pager_aria_label = Navegación de páginas
-pager_previous_label = Página anterior
-pager_next_label = Página siguiente
-pager_goto_label = Ir a la página
+pager_previous_label = Anterior
+pager_previous_aria_label = Página anterior
+pager_next_label = Siguiente
+pager_next_aria_label = Página siguiente
+pager_goto_label = Saltar a la página
 pager_goto_button = Ir

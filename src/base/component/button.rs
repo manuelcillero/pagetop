@@ -75,6 +75,8 @@ pub struct Button {
     value: AttrValue,
     /// Devuelve la etiqueta del botón.
     label: Attr<L10n>,
+    /// Devuelve el texto emergente del botón (atributo `title`).
+    title: Attr<L10n>,
     /// Devuelve si el botón recibe el foco automáticamente al cargar la página.
     autofocus: bool,
     /// Devuelve si el botón está deshabilitado.
@@ -102,6 +104,7 @@ impl Component for Button {
                 (self.props())
                 name=[self.name().get()]
                 value=[self.value().get()]
+                title=[self.title().lookup(cx)]
                 autofocus[*self.autofocus()]
                 disabled[*self.disabled()]
             {
@@ -189,6 +192,13 @@ impl Button {
     #[builder_fn]
     pub fn with_label(mut self, label: impl Into<Option<L10n>>) -> Self {
         self.label.alter_opt(label.into());
+        self
+    }
+
+    /// Establece o elimina el texto emergente del botón (basta pasar `None` para quitarlo).
+    #[builder_fn]
+    pub fn with_title(mut self, title: impl Into<Option<L10n>>) -> Self {
+        self.title.alter_opt(title.into());
         self
     }
 

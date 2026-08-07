@@ -314,6 +314,128 @@ async fn current_page_near_an_edge_does_not_panic_and_keeps_first_and_last() {
 }
 
 #[pagetop::test]
+async fn window_max_cell_count_follows_2_window_plus_5() {
+    // Max cells = first + last + one filler slot each side (number or ellipsis) + the numbers in
+    // the window itself (2 * window + 1) = 2 * window + 5. Must hold both for a centered page
+    // (baseline case) and near an edge (padded case), for any window size.
+    for window in [1_u64, 2, 3, 4, 5] {
+        let max_cells = 2 * window + 5;
+
+        let mut centered = Pager::new()
+            .with_base_path("/list")
+            .with_current_page(500)
+            .with_items_per_page(1)
+            .with_total_items(1000)
+            .with_window(window)
+            .with_prev_next(PagerVisibility::Never);
+        let html = centered.render(&mut Context::default()).await.into_string();
+        assert_eq!(
+            html.matches("page-item").count() as u64,
+            max_cells,
+            "window={window}, centered page"
+        );
+
+        let mut near_edge = Pager::new()
+            .with_base_path("/list")
+            .with_current_page(1)
+            .with_items_per_page(1)
+            .with_total_items(1000)
+            .with_window(window)
+            .with_prev_next(PagerVisibility::Never);
+        let html = near_edge
+            .render(&mut Context::default())
+            .await
+            .into_string();
+        assert_eq!(
+            html.matches("page-item").count() as u64,
+            max_cells,
+            "window={window}, page 1"
+        );
+    }
+}
+
+#[pagetop::test]
+async fn window_pads_out_as_documented_in_the_module_example() {
+    // Matches the exact example in the doc comment of `Pager`.
+    let mut pager = Pager::new()
+        .with_base_path("/list")
+        .with_current_page(1)
+        .with_items_per_page(1)
+        .with_total_items(200)
+        .with_window(3);
+
+    let html = pager.render(&mut Context::default()).await.into_string();
+
+    assert_eq!(html.matches("page-ellipsis").count(), 1);
+    for page in [1, 2, 3, 4, 5, 6, 7, 8, 9, 200] {
+        assert!(
+            html.contains(&format!(r#"href="/list?page={page}""#)),
+            "expected page {page} to be visible"
+        );
+    }
+    for page in [10, 11, 199] {
+        assert!(
+            !html.contains(&format!(r#"href="/list?page={page}""#)),
+            "expected page {page} to be hidden behind an ellipsis"
+        );
+    }
+}
+
+#[pagetop::test]
+async fn window_pads_out_to_a_constant_cell_count_near_the_first_page() {
+    let mut pager = Pager::new()
+        .with_base_path("/list")
+        .with_current_page(1)
+        .with_items_per_page(1)
+        .with_total_items(188)
+        .with_window(2);
+
+    let html = pager.render(&mut Context::default()).await.into_string();
+
+    // Near page 1 the low side of the window needs neither ellipsis nor filler number, so that gap
+    // is reinvested on the high side instead of just shrinking the window.
+    assert_eq!(html.matches("page-ellipsis").count(), 1);
+    for page in [1, 2, 3, 4, 5, 6, 7, 188] {
+        assert!(
+            html.contains(&format!(r#"href="/list?page={page}""#)),
+            "expected page {page} to be visible"
+        );
+    }
+    for page in [8, 9, 100, 187] {
+        assert!(
+            !html.contains(&format!(r#"href="/list?page={page}""#)),
+            "expected page {page} to be hidden behind an ellipsis"
+        );
+    }
+}
+
+#[pagetop::test]
+async fn window_pads_out_to_a_constant_cell_count_near_the_last_page() {
+    let mut pager = Pager::new()
+        .with_base_path("/list")
+        .with_current_page(188)
+        .with_items_per_page(1)
+        .with_total_items(188)
+        .with_window(2);
+
+    let html = pager.render(&mut Context::default()).await.into_string();
+
+    assert_eq!(html.matches("page-ellipsis").count(), 1);
+    for page in [1, 182, 183, 184, 185, 186, 187, 188] {
+        assert!(
+            html.contains(&format!(r#"href="/list?page={page}""#)),
+            "expected page {page} to be visible"
+        );
+    }
+    for page in [2, 89, 181] {
+        assert!(
+            !html.contains(&format!(r#"href="/list?page={page}""#)),
+            "expected page {page} to be hidden behind an ellipsis"
+        );
+    }
+}
+
+#[pagetop::test]
 async fn small_total_is_never_truncated_even_with_a_window() {
     let mut pager = Pager::new()
         .with_base_path("/list")
