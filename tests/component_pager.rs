@@ -41,7 +41,9 @@ async fn with_aria_label_overrides_the_default() {
 }
 
 #[pagetop::test]
-async fn summary_is_hidden_by_default() {
+async fn summary_is_hidden_by_default_when_not_truncated() {
+    // 97 items at 20 per page is only 5 pages: with the default window (2) that fits without
+    // truncation, so `PagerVisibility::Auto` keeps the summary hidden.
     let mut pager = Pager::new()
         .with_base_path("/list")
         .with_current_page(1)
@@ -54,13 +56,26 @@ async fn summary_is_hidden_by_default() {
 }
 
 #[pagetop::test]
+async fn summary_is_shown_by_default_when_truncated() {
+    let mut pager = Pager::new()
+        .with_base_path("/list")
+        .with_current_page(10)
+        .with_items_per_page(1)
+        .with_total_items(20);
+
+    let html = pager.render(&mut Context::default()).await.into_string();
+
+    assert!(html.contains("pager-summary"));
+}
+
+#[pagetop::test]
 async fn summary_shows_the_range_of_the_current_page() {
     let mut first_page = Pager::new()
         .with_base_path("/list")
         .with_current_page(1)
         .with_items_per_page(20)
         .with_total_items(97)
-        .with_summary(true);
+        .with_summary(PagerVisibility::Always);
     let html = first_page
         .render(&mut Context::default())
         .await
@@ -73,12 +88,40 @@ async fn summary_shows_the_range_of_the_current_page() {
         .with_current_page(5)
         .with_items_per_page(20)
         .with_total_items(97)
-        .with_summary(true);
+        .with_summary(PagerVisibility::Always);
     let html = last_page
         .render(&mut Context::default())
         .await
         .into_string();
     assert!(html.contains(r#"<span class="pager-summary">Showing 81-97 of 97</span>"#));
+}
+
+#[pagetop::test]
+async fn summary_can_be_forced_to_always_show_even_when_not_truncated() {
+    let mut pager = Pager::new()
+        .with_base_path("/list")
+        .with_current_page(1)
+        .with_items_per_page(20)
+        .with_total_items(97)
+        .with_summary(PagerVisibility::Always);
+
+    let html = pager.render(&mut Context::default()).await.into_string();
+
+    assert!(html.contains("pager-summary"));
+}
+
+#[pagetop::test]
+async fn summary_never_shows_it_even_when_truncated() {
+    let mut pager = Pager::new()
+        .with_base_path("/list")
+        .with_current_page(10)
+        .with_items_per_page(1)
+        .with_total_items(20)
+        .with_summary(PagerVisibility::Never);
+
+    let html = pager.render(&mut Context::default()).await.into_string();
+
+    assert!(!html.contains("pager-summary"));
 }
 
 #[pagetop::test]

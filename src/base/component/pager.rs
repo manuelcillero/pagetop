@@ -31,8 +31,7 @@ pub enum PagerAlign {
 /// `Pager` permite navegar por las páginas de un listado de ítems cuando supera el número máximo de
 /// ítems admitidos por página. Resuelve el enlace para acceder a cada página del listado a partir
 /// de una ruta base, un conjunto de parámetros de consulta adicionales (orden, búsqueda, etc.) y el
-/// estado actual ([`current_page`](Self::current_page), [`items_per_page`](Self::items_per_page),
-/// [`total_items`](Self::total_items)).
+/// estado actual ([`current_page`], [`items_per_page`], [`total_items`]).
 ///
 /// El componente se renderiza sólo si el listado requiere más de una página.
 ///
@@ -41,33 +40,31 @@ pub enum PagerAlign {
 ///
 /// El listado de páginas se flanquea con dos botones de navegación: página anterior y página
 /// siguiente (las páginas primera y última ya están siempre disponibles como números, así que no
-/// llevan un botón dedicado). Su visibilidad, junto a la del formulario de salto a página, se
-/// controla con [`PagerVisibility`] a través de [`with_prev_next()`](Self::with_prev_next) y
-/// [`with_jump()`](Self::with_jump): `Never` los oculta siempre, `Always` los muestra siempre (en
-/// el caso de los botones, con el extremo correspondiente desactivado en vez de oculto), y `Auto`
-/// -el valor por defecto de ambos- los muestra sólo cuando el número total de páginas supera al
-/// número de páginas que se muestra en el paginador; en ese caso, si la página actual coincide con
-/// un extremo, el botón correspondiente se muestra igualmente, pero desactivado.
+/// llevan un botón dedicado). Su visibilidad, junto a la del formulario de salto a página y la del
+/// resumen de páginas, se controla con [`PagerVisibility`] a través de [`with_prev_next()`],
+/// [`with_jump()`] y [`with_summary()`]: `Never` los oculta siempre, `Always` los muestra siempre,
+/// y el valor por defecto `Auto` los muestra sólo cuando el paginador necesita truncar el listado
+/// de páginas por superar el número máximo de páginas visible.
 ///
 /// Un elemento `<nav>` envuelve todo el paginador. Lleva un `aria-label` por defecto que puede
-/// sustituirse por otro más específico usando [`with_aria_label()`](Self::with_aria_label), por
-/// ejemplo cuando una misma página tiene varios paginadores.
+/// sustituirse por otro más específico usando [`with_aria_label()`], por ejemplo cuando una misma
+/// página tiene varios paginadores.
 ///
 /// La alineación horizontal del paginador dentro de este contenedor se controla con [`PagerAlign`]
-/// a través de [`with_align()`](Self::with_align). Por defecto es [`PagerAlign::Center`].
+/// a través de [`with_align()`]. Por defecto es [`PagerAlign::Center`].
 ///
 /// # Acotando el número de ítems del paginador
 ///
 /// Con listados largos, mostrar un número por cada página real puede desbordar la interfaz. Con
-/// [`with_window()`](Self::with_window) se puede limitar el número de páginas que se muestran a
-/// cada lado de la página actual. Por defecto vale `2`, que limita la vista a `9` celdas en total
-/// (sin contar los botones de navegación anterior/siguiente). En general, el número máximo de
-/// celdas mostradas para un `window` dado es `2 * window + 5`.
+/// [`with_window()`] se puede limitar el número de páginas que se muestran a cada lado de la página
+/// actual. Por defecto vale `2`, que limita la vista a `9` celdas en total (sin contar los botones
+/// de navegación anterior/siguiente). En general, el número máximo de celdas mostradas para un
+/// `window` dado es `2 * window + 5`.
 ///
-/// Si el valor de la ventana es mayor que `0`, `Pager` siempre muestra la primera y la última
-/// página como números, más la ventana indicada antes y después de la página actual, sustituyendo
-/// por una elipsis (`…`) cualquier tramo oculto de dos o más páginas. Si el tramo oculto es de una
-/// sola página, se muestra directamente en vez de la elipsis, porque ocultarla no ahorra espacio.
+/// Incluso cuando se trunca el paginador, `Pager` siempre muestra la primera y la última página
+/// como números, más la ventana indicada antes y después de la página actual, sustituyendo por una
+/// elipsis (`…`) cualquier tramo oculto de dos o más páginas. Si el tramo oculto es de una sola
+/// página, se muestra directamente en vez de la elipsis, porque ocultarla no ahorra espacio.
 ///
 /// Por ejemplo, con `with_window(3)`, página actual `34` y con `200` páginas en total, el paginador
 /// se mostraría así:
@@ -83,8 +80,8 @@ pub enum PagerAlign {
 /// para saltar directamente a una página escribiendo su número, sin depender de JavaScript. Un
 /// único campo numérico (`min`/`max` según el total de páginas) y un botón de envío.
 ///
-/// Con [`with_summary()`](Self::with_summary) se puede añadir un texto que resume la vista de las
-/// páginas que se muestran en ese momento. Por defecto está oculto.
+/// Con [`with_summary()`] se puede añadir un texto que resume la vista de las páginas que se
+/// muestran en ese momento (ver más arriba su visibilidad según [`PagerVisibility`]).
 ///
 /// # Clases CSS
 ///
@@ -122,6 +119,16 @@ pub enum PagerAlign {
 ///     .with_items_per_page(20)
 ///     .with_total_items(97);
 /// ```
+///
+/// [`current_page`]: Self::current_page
+/// [`items_per_page`]: Self::items_per_page
+/// [`total_items`]: Self::total_items
+/// [`with_window()`]: Self::with_window
+/// [`with_align()`]: Self::with_align
+/// [`with_summary()`]: Self::with_summary
+/// [`with_prev_next()`]: Self::with_prev_next
+/// [`with_jump()`]: Self::with_jump
+/// [`with_aria_label()`]: Self::with_aria_label
 #[derive(AutoDefault, Clone, Debug, Getters)]
 pub struct Pager {
     /// Devuelve identificador, clases CSS, atributos HTML y valores extra del componente.
@@ -146,8 +153,8 @@ pub struct Pager {
     window: u64,
     /// Devuelve la alineación horizontal del paginador dentro de su contenedor.
     align: PagerAlign,
-    /// Devuelve si se muestra el resumen ("Showing 1-20 of 97") antes del listado de páginas.
-    summary: bool,
+    /// Devuelve la visibilidad del resumen de las páginas que se muestran en cada vista.
+    summary: PagerVisibility,
     /// Devuelve la visibilidad de los botones de página anterior/siguiente.
     prev_next: PagerVisibility,
     /// Devuelve la visibilidad del formulario para saltar directamente a una página.
@@ -218,10 +225,15 @@ impl Component for Pager {
             PagerVisibility::Always => true,
             PagerVisibility::Auto => truncated,
         };
+        let show_summary = match self.summary() {
+            PagerVisibility::Never => false,
+            PagerVisibility::Always => true,
+            PagerVisibility::Auto => truncated,
+        };
 
         Ok(html! {
             nav (self.props()) aria-label=(self.aria_label().using(cx)) {
-                @if *self.summary() {
+                @if show_summary {
                     @let items_per_page = self.items_per_page().max(1);
                     @let first = (page - 1) * items_per_page + 1;
                     @let last = (page * items_per_page).min(self.total_items());
@@ -393,9 +405,15 @@ impl Pager {
         self
     }
 
-    /// Establece si se muestra el resumen de las páginas que se muestran en ese momento.
+    /// Establece la visibilidad del resumen de las páginas que se muestran en cada vista. Por
+    /// defecto es `PagerVisibility::Auto`: sólo se muestra cuando el número total de páginas supera
+    /// al número de páginas que se muestra en el paginador, igual que [`with_prev_next()`] y
+    /// [`with_jump()`].
+    ///
+    /// [`with_prev_next()`]: Self::with_prev_next
+    /// [`with_jump()`]: Self::with_jump
     #[builder_fn]
-    pub fn with_summary(mut self, summary: bool) -> Self {
+    pub fn with_summary(mut self, summary: PagerVisibility) -> Self {
         self.summary = summary;
         self
     }
