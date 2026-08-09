@@ -1,5 +1,6 @@
 use crate::core::action::add_action;
 use crate::core::extension::ExtensionRef;
+use crate::core::theme::ThemeRef;
 use crate::core::theme::all::THEMES;
 use crate::web::Router;
 use crate::{global, serve_static_files, trace, web};
@@ -45,6 +46,8 @@ fn add_to_enabled(list: &mut Vec<ExtensionRef>, extension: ExtensionRef) {
 
         // Comprueba si la extensión tiene un tema asociado que deba registrarse.
         if let Some(theme) = extension.theme() {
+            check_theme_parent_chain(theme);
+
             let mut registered_themes = THEMES.write();
             // Asegura que el tema no esté ya registrado para evitar duplicados.
             if !registered_themes
@@ -57,6 +60,31 @@ fn add_to_enabled(list: &mut Vec<ExtensionRef>, extension: ExtensionRef) {
         } else {
             trace::debug!("Enabling \"{}\" extension", extension.short_name());
         }
+    }
+}
+
+// Recorre la cadena de `Theme::parent()` para detectar referencias circulares. `parent()` se
+// resuelve en tiempo de ejecución, así que un ciclo no puede descartarse al compilar. Se rechaza el
+// arranque al detectar uno, antes de provocar un bucle infinito (en `Theme::handle_component()`) o
+// un desbordamiento de pila (en los métodos predefinidos de `Theme` que delegan recursivamente en
+// el tema padre).
+fn check_theme_parent_chain(theme: ThemeRef) {
+    let mut chain: Vec<ThemeRef> = vec![theme];
+    let mut current = theme;
+    while let Some(parent) = current.parent() {
+        if let Some(pos) = chain.iter().position(|t| t.type_id() == parent.type_id()) {
+            let cycle: Vec<&str> = chain[pos..]
+                .iter()
+                .map(|t| t.short_name())
+                .chain(std::iter::once(parent.short_name()))
+                .collect();
+            panic!(
+                "Circular theme parent chain detected: {}",
+                cycle.join(" -> ")
+            );
+        }
+        chain.push(parent);
+        current = parent;
     }
 }
 

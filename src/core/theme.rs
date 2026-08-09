@@ -20,6 +20,13 @@
 //! de [`Theme::handle_component()`], las páginas de error, etc.). Un tema hijo puede ser a su vez
 //! padre de otro, basta declararlo cada vez con [`Theme::parent()`].
 //!
+//! Como `parent()` se resuelve en tiempo de ejecución, PageTop no puede descartar en compilación
+//! referencias circulares (un tema acaba siendo padre de sí mismo, directa o transitivamente). Ese
+//! ciclo provocaría un bucle infinito en [`Theme::handle_component()`] o un desbordamiento de pila
+//! en los métodos predefinidos de `Theme` que delegan recursivamente en el padre. Para evitarlo,
+//! PageTop recorre la cadena de cada tema al registrarlo y **aborta el arranque de la aplicación**
+//! si detecta una referencia circular.
+//!
 //! Sin embargo, no dice nada sobre los componentes. Aunque un tema puede exportar su propio
 //! catálogo de componentes, realmente no pertenecen como tal a ningún tema ni dependen de esa
 //! cadena de herencia. Una extensión puede existir únicamente para aportar un componente genérico

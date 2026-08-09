@@ -56,6 +56,11 @@ pub trait Theme: Extension + Send + Sync {
     /// no los sobrescribe.
     ///
     /// La implementación por defecto devuelve `None` (tema sin padre).
+    ///
+    /// Una referencia circular (un tema acaba siendo padre de sí mismo, directa o transitivamente)
+    /// no puede descartarse en tiempo de compilación. PageTop la detecta al registrar el tema y
+    /// aborta el arranque de la aplicación si encuentra una, para evitar bucles infinitos o
+    /// desbordamientos de pila al usar el tema.
     fn parent(&self) -> Option<ThemeRef> {
         None
     }
