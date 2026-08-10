@@ -277,6 +277,38 @@ input:disabled + label {
 }
 
 /*
+ * Breadcrumb component
+ */
+
+.breadcrumb {
+    display: flex;
+    flex-wrap: wrap;
+    list-style: none;
+    margin: 0 0 1rem;
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+}
+.breadcrumb-item + .breadcrumb-item {
+    padding-left: 0.5rem;
+}
+.breadcrumb-item + .breadcrumb-item::before {
+    float: left;
+    padding-right: 0.5rem;
+    color: var(--val-color--text--muted);
+    content: "/";
+}
+.breadcrumb-item.active {
+    color: var(--val-color--text--muted);
+}
+.breadcrumb-item a {
+    color: var(--val-color--text);
+    text-decoration: none;
+}
+.breadcrumb-item a:hover {
+    text-decoration: underline;
+}
+
+/*
  * Region Footer
  */
 

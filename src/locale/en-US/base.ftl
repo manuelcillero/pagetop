@@ -19,6 +19,9 @@ intro_have_fun = Coding is creating
 # PoweredBy component.
 poweredby_pagetop = Powered by { $pagetop_link }
 
+# Breadcrumb component.
+breadcrumb_label = Breadcrumb navigation
+
 # Pager component.
 pager_aria_label = Page navigation
 pager_previous_label = Previous

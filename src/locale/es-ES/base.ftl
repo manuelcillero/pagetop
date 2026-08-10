@@ -19,6 +19,9 @@ intro_have_fun = Programar es crear
 # PoweredBy component.
 poweredby_pagetop = Funciona con { $pagetop_link }
 
+# Breadcrumb component.
+breadcrumb_label = Ruta de navegación
+
 # Pager component.
 pager_aria_label = Navegación de páginas
 pager_previous_label = Anterior
