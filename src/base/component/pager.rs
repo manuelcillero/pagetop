@@ -1,7 +1,10 @@
 use crate::prelude::*;
 
-/// Define cuándo mostrar los botones de página anterior/siguiente o el formulario de salto a página
-/// de [`Pager`].
+/// Establece la visibilidad de elementos esenciales de un [`Pager`].
+///
+/// Se aplica al resumen de páginas mostradas ([`Pager::with_summary()`]), a los botones de
+/// navegación anterior/siguiente ([`Pager::with_prev_next()`]) y al formulario de salto directo a
+/// página ([`Pager::with_jump()`]).
 #[derive(AutoDefault, Clone, Copy, Debug, PartialEq)]
 pub enum PagerVisibility {
     /// Nunca se muestra.
@@ -232,7 +235,7 @@ impl Component for Pager {
         };
 
         Ok(html! {
-            nav (self.props()) aria-label=(self.aria_label().using(cx)) {
+            nav (self.props()) aria-label=[self.aria_label().lookup(cx)] {
                 @if show_summary {
                     @let items_per_page = self.items_per_page().max(1);
                     @let first = (page - 1) * items_per_page + 1;
@@ -251,7 +254,7 @@ impl Component for Pager {
                             a.page-link
                                 href=[(!first_disabled).then(|| Self::page_route(&route, page - 1))]
                                 aria-disabled=[first_disabled.then_some("true")]
-                                aria-label=(L10n::l("pager_previous_aria_label").using(cx)) {
+                                aria-label=[L10n::l("pager_previous_aria_label").lookup(cx)] {
                                 span.page-link-icon { (L10n::l("pager_previous_label").using(cx)) }
                             }
                         }
@@ -280,7 +283,7 @@ impl Component for Pager {
                             a.page-link
                                 href=[(!last_disabled).then(|| Self::page_route(&route, page + 1))]
                                 aria-disabled=[last_disabled.then_some("true")]
-                                aria-label=(L10n::l("pager_next_aria_label").using(cx)) {
+                                aria-label=[L10n::l("pager_next_aria_label").lookup(cx)] {
                                 span.page-link-icon { (L10n::l("pager_next_label").using(cx)) }
                             }
                         }

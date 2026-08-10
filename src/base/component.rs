@@ -26,7 +26,7 @@ mod intro;
 pub use intro::{Intro, IntroOpening};
 
 mod pager;
-pub use pager::{Pager, PagerVisibility};
+pub use pager::{Pager, PagerAlign, PagerVisibility};
 
 mod poweredby;
 pub use poweredby::PoweredBy;
