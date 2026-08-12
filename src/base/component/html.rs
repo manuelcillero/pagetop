@@ -100,3 +100,18 @@ impl Html {
         (self.0)(cx)
     }
 }
+
+impl From<Lc> for Child {
+    /// Convierte un texto traducible [`Lc`] en un [`Child`], envolviéndolo en un [`Html`] que lo
+    /// resuelve con el `cx` del ciclo de renderizado.
+    fn from(label: Lc) -> Self {
+        Child::with(Html::with(move |cx| label.using(cx)))
+    }
+}
+
+impl From<Lc> for ChildOp {
+    /// Convierte un [`Lc`] en [`ChildOp::Add`]; equivale a `ChildOp::Add(Child::from(label))`.
+    fn from(label: Lc) -> Self {
+        ChildOp::Add(Child::from(label))
+    }
+}
