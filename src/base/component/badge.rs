@@ -5,9 +5,8 @@ use crate::prelude::*;
 /// # Ejemplo
 ///
 /// ```rust,no_run
-/// use pagetop::prelude::*;
-///
-/// let badge = Badge::new().with_label(L10n::n("Admin"));
+/// # use pagetop::prelude::*;
+/// let badge = Badge::labeled(L10n::n("Admin"));
 /// ```
 #[derive(AutoDefault, Clone, Debug, Getters)]
 pub struct Badge {
@@ -41,6 +40,14 @@ impl Component for Badge {
 }
 
 impl Badge {
+    /// Crea un badge a partir de la etiqueta indicada.
+    pub fn labeled(label: L10n) -> Self {
+        Self {
+            label,
+            ..Default::default()
+        }
+    }
+
     // **< Badge BUILDER >**************************************************************************
 
     /// Establece el identificador único del componente; igual a `with_prop(PropsOp::set_id(id))`.
@@ -50,7 +57,7 @@ impl Badge {
         self
     }
 
-    /// Modifica identificador, clases CSS o atributos HTML del componente.
+    /// Modifica identificador, clases CSS, atributos HTML o valores extra del componente.
     #[builder_fn]
     pub fn with_prop(mut self, op: PropsOp) -> Self {
         self.props.alter_prop(op);

@@ -70,7 +70,7 @@ pub(crate) fn render(field: &Field, cx: &mut Context) -> Result<Markup, Componen
                 @if *field.required() {
                     span
                         class="form-required"
-                        title=(L10n::l("field_required").using(cx))
+                        title=[L10n::l("field_required").lookup(cx)]
                     {
                         "*"
                     }
@@ -106,7 +106,7 @@ pub(crate) fn render(field: &Field, cx: &mut Context) -> Result<Markup, Componen
                         }
                         form::select::Entry::Group(group) => {
                             optgroup
-                                label=(group.label().using(cx))
+                                label=[group.label().lookup(cx)]
                                 disabled[*group.disabled()]
                             {
                                 @for opt in group.items() {

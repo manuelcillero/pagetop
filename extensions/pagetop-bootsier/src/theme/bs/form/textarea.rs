@@ -76,7 +76,7 @@ pub(crate) fn render(field: &Textarea, cx: &mut Context) -> Result<Markup, Compo
                 @if *field.required() {
                     span
                         class="form-required"
-                        title=(L10n::l("field_required").using(cx))
+                        title=[L10n::l("field_required").lookup(cx)]
                     {
                         "*"
                     }

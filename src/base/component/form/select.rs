@@ -246,7 +246,7 @@ impl Component for Field {
                         @if *self.required() {
                             span
                                 class="form-required"
-                                title=(L10n::l("field_required").using(cx))
+                                title=[L10n::l("field_required").lookup(cx)]
                             {
                                 "*"
                             }
@@ -277,7 +277,7 @@ impl Component for Field {
                             }
                             Entry::Group(group) => {
                                 optgroup
-                                    label=(group.label().using(cx))
+                                    label=[group.label().lookup(cx)]
                                     disabled[*group.disabled()]
                                 {
                                     @for opt in group.items() {

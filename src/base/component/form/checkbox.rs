@@ -123,7 +123,7 @@ impl Component for Checkbox {
                         @if *self.required() {
                             span
                                 class="form-required"
-                                title=(L10n::l("field_required").using(cx))
+                                title=[L10n::l("field_required").lookup(cx)]
                             {
                                 "*"
                             }

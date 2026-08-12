@@ -60,3 +60,28 @@ async fn check_unknown_key() {
     let translation = l10n.lookup(&Locale::resolve("en-US"));
     assert_eq!(translation, None);
 }
+
+// `using()` renders literal text (`L10n::n()`) as HTML-escaped `Markup`, because it may come from
+// runtime data (e.g. a menu title or a role label) rather than developer-authored content.
+#[pagetop::test]
+async fn literal_text_is_escaped_when_rendered_as_markup() {
+    setup().await;
+
+    let l10n = L10n::n("<script>alert(1)</script>");
+    let markup = l10n.using(&Locale::default());
+    assert_eq!(
+        markup.into_string(),
+        "&lt;script&gt;alert(1)&lt;/script&gt;"
+    );
+}
+
+// Translation keys (`L10n::l()`/`L10n::t()`) are developer-authored `.ftl` content that may embed
+// HTML on purpose (e.g. `<strong>`), so `using()` must keep rendering them unescaped.
+#[pagetop::test]
+async fn translated_text_is_not_escaped_when_rendered_as_markup() {
+    setup().await;
+
+    let l10n = L10n::l("test_hello_world");
+    let markup = l10n.using(&Locale::resolve("en-US"));
+    assert_eq!(markup.into_string(), "Hello world!");
+}

@@ -1,4 +1,4 @@
-use crate::html::{Markup, PreEscaped};
+use crate::html::{Markup, PreEscaped, Render};
 use crate::{AutoDefault, CowStr, include_locales};
 
 use super::{LangId, Locale};
@@ -30,8 +30,29 @@ enum L10nOp {
 /// Cada instancia puede representar:
 ///
 /// - Un texto puro (`n()`) que no requiere traducción.
-/// - Una clave para traducir un texto de las traducciones predefinidas de PageTop (`l()`).
+/// - Una clave para traducir un texto del conjunto de traducciones predefinidas de PageTop (`l()`).
 /// - Una clave para traducir de un conjunto concreto de traducciones (`t()`).
+///
+/// # ¿Cuál usar, `get()`, `lookup()` o `using()`?
+///
+/// Los tres métodos resuelven la traducción; difieren en el tipo que devuelven y en la fuente de
+/// idioma que aceptan.
+///
+/// - [`get()`](Self::get) y [`lookup()`](Self::lookup) devuelven `Option<String>`: el texto
+///   traducido en bruto, con el escapado habitual de cualquier `String` al interpolarlo, y `None`
+///   si no aplica o no hay traducción. Son la opción adecuada para cualquier valor de atributo
+///   (`attr=[...]` en [`html!`](crate::html::html)), como `title`, `aria-label` o `alt`.
+///
+///   Entre ambos, la opción habitual es [`lookup()`](Self::lookup), que acepta una fuente de idioma
+///   explícita (`&impl LangId`, normalmente `cx: &Context`). [`get()`](Self::get) queda para los
+///   casos marginales en los que no hay `Context` ni otra fuente de idioma a mano, y resuelve con
+///   el idioma por defecto o de respaldo de la aplicación.
+///
+/// - [`using()`](Self::using) devuelve [`Markup`] para presentar al usuario, listo para insertarse
+///   en el contenido de una plantilla (`(x.using(cx))` dentro de [`html!`](crate::html::html)).
+///   Nunca devuelve `None`, por lo que una traducción no encontrada se convierte en marcado vacío.
+///   Para `n()` se escapa el texto para evitar HTML no controlado. Para valores de atributo, usa
+///   siempre [`lookup()`](Self::lookup).
 ///
 /// # Ejemplo
 ///
@@ -82,8 +103,8 @@ impl L10n {
         }
     }
 
-    /// **l** = *“lookup”*. Crea una instancia para traducir usando una clave del conjunto de
-    /// traducciones predefinidas.
+    /// **l** = *“library”*. Crea una instancia con una clave del conjunto de traducciones
+    /// predefinidas propias de PageTop.
     pub fn l(key: impl Into<CowStr>) -> Self {
         Self {
             op: L10nOp::Translate(key.into()),
@@ -91,8 +112,8 @@ impl L10n {
         }
     }
 
-    /// **t** = *“translate”*. Crea una instancia para traducir usando una clave de un conjunto de
-    /// traducciones específico.
+    /// **t** = *“translate”*. Crea una instancia con una clave de un conjunto de traducciones
+    /// específico.
     pub fn t(key: impl Into<CowStr>, locales: &'static Locales) -> Self {
         Self {
             op: L10nOp::Translate(key.into()),
@@ -140,6 +161,11 @@ impl L10n {
     ///
     /// Devuelve `None` si no aplica o no encuentra una traducción válida.
     ///
+    /// Es la opción adecuada para cualquier valor de atributo (`attr=[...]` en
+    /// [`html!`](crate::html::html)). Para insertar el resultado directamente en el contenido de
+    /// una plantilla, utiliza [`using()`](Self::using) en su lugar, que ya devuelve [`Markup`] con
+    /// el escapado adecuado y nunca `None`.
+    ///
     /// # Ejemplo
     ///
     /// ```rust,no_run
@@ -176,7 +202,18 @@ impl L10n {
 
     /// Traduce el texto y lo devuelve como [`Markup`] usando la fuente de idioma proporcionada.
     ///
-    /// Si no se encuentra una traducción válida, devuelve una cadena vacía.
+    /// Devuelve un marcado vacío si no aplica o no encuentra una traducción válida.
+    ///
+    /// Las claves de traducción (`l()`/`t()`) son texto de confianza, con traducciones en ficheros
+    /// `.ftl` que pueden incluir marcado HTML (p. ej. `<strong>`, enlaces, etc.) que se insertan
+    /// tal cual. El texto literal (`n()`), en cambio, suele venir de datos en tiempo de ejecución
+    /// que no debe interpretarse como marcado, por lo que se escapa igual que cualquier otro valor
+    /// interpolado con [`html!`](crate::html::html).
+    ///
+    /// No debe usarse para un valor de atributo (`attr=[...]` en [`html!`](crate::html::html)): el
+    /// marcado de confianza que se aplica en `l()`/`t()` no tiene sentido ahí, y podría romper el
+    /// delimitador del atributo si la traducción contuviera una comilla. Para atributos, usa
+    /// siempre [`lookup()`](Self::lookup) en su lugar.
     ///
     /// # Ejemplo
     ///
@@ -185,6 +222,9 @@ impl L10n {
     /// let html = L10n::l("welcome.message").using(&Locale::resolve("es"));
     /// ```
     pub fn using(&self, language: &impl LangId) -> Markup {
-        PreEscaped(self.lookup(language).unwrap_or_default())
+        match &self.op {
+            L10nOp::Text(text) => text.render(),
+            _ => PreEscaped(self.lookup(language).unwrap_or_default()),
+        }
     }
 }
