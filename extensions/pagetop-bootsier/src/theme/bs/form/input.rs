@@ -18,8 +18,8 @@ const EXTRA_FLOATING_LABEL: &str = "bootsier.form.input.floating_label";
 ///
 /// let nombre = bs::form::input::Field::text()
 ///     .with_name("name")
-///     .with_label(L10n::n("Name"))
-///     .with_placeholder(L10n::n("Enter your name"))
+///     .with_label(Lc::n("Name"))
+///     .with_placeholder(Lc::n("Enter your name"))
 ///     .with_floating_label(true);
 /// ```
 pub trait InputBootsier {
@@ -83,7 +83,7 @@ pub(crate) fn render(field: &Field, cx: &mut Context) -> Result<Markup, Componen
                 @if *field.required() {
                     span
                         class="form-required"
-                        title=[L10n::l("field_required").lookup(cx)]
+                        title=[Lc::l("field_required").lookup(cx)]
                     {
                         "*"
                     }

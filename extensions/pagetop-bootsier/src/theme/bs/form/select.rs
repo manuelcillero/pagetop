@@ -18,11 +18,11 @@ const EXTRA_FLOATING_LABEL: &str = "bootsier.form.select.floating_label";
 ///
 /// let language = bs::form::select::Field::new()
 ///     .with_name("language")
-///     .with_label(L10n::n("Language"))
+///     .with_label(Lc::n("Language"))
 ///     .with_floating_label(true)
-///     .with_item(bs::form::select::Item::new("", L10n::n("— Choose —")).with_selected(true))
-///     .with_item(bs::form::select::Item::new("es", L10n::n("Spanish")))
-///     .with_item(bs::form::select::Item::new("en", L10n::n("English")));
+///     .with_item(bs::form::select::Item::new("", Lc::n("— Choose —")).with_selected(true))
+///     .with_item(bs::form::select::Item::new("es", Lc::n("Spanish")))
+///     .with_item(bs::form::select::Item::new("en", Lc::n("English")));
 /// ```
 pub trait SelectBootsier {
     /// Establece si la etiqueta se muestra flotante sobre el campo.
@@ -70,7 +70,7 @@ pub(crate) fn render(field: &Field, cx: &mut Context) -> Result<Markup, Componen
                 @if *field.required() {
                     span
                         class="form-required"
-                        title=[L10n::l("field_required").lookup(cx)]
+                        title=[Lc::l("field_required").lookup(cx)]
                     {
                         "*"
                     }

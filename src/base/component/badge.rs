@@ -6,14 +6,14 @@ use crate::prelude::*;
 ///
 /// ```rust,no_run
 /// # use pagetop::prelude::*;
-/// let badge = Badge::labeled(L10n::n("Admin"));
+/// let badge = Badge::labeled(Lc::n("Admin"));
 /// ```
 #[derive(AutoDefault, Clone, Debug, Getters)]
 pub struct Badge {
     /// Devuelve identificador, clases CSS, atributos HTML y valores extra del componente.
     props: Props,
     /// Devuelve la etiqueta del badge.
-    label: L10n,
+    label: Lc,
 }
 
 #[async_trait]
@@ -41,7 +41,7 @@ impl Component for Badge {
 
 impl Badge {
     /// Crea un badge a partir de la etiqueta indicada.
-    pub fn labeled(label: L10n) -> Self {
+    pub fn labeled(label: Lc) -> Self {
         Self {
             label,
             ..Default::default()
@@ -66,7 +66,7 @@ impl Badge {
 
     /// Establece la etiqueta del badge.
     #[builder_fn]
-    pub fn with_label(mut self, label: L10n) -> Self {
+    pub fn with_label(mut self, label: Lc) -> Self {
         self.label = label;
         self
     }

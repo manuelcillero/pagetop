@@ -21,13 +21,13 @@ async fn form_controls(request: HttpRequest) -> Result<Markup, ErrorPage> {
         .with_child(
             Intro::default()
                 .with_opening(IntroOpening::Custom)
-                .with_title(L10n::t("title", &LOC))
-                .with_slogan(L10n::t("slogan", &LOC))
-                .with_button(None::<(L10n, Route)>)
+                .with_title(Lc::t("title", &LOC))
+                .with_slogan(Lc::t("slogan", &LOC))
+                .with_button(None::<(Lc, Route)>)
                 // Bloque 1: casillas, interruptores y botones de opción.
                 .with_child(
                     Block::new()
-                        .with_title(L10n::t("block_selections", &LOC))
+                        .with_title(Lc::t("block_selections", &LOC))
                         .with_child(
                             Form::new()
                                 .with_id("form-selections")
@@ -36,69 +36,69 @@ async fn form_controls(request: HttpRequest) -> Result<Markup, ErrorPage> {
                                 // Casillas e interruptores (form::Checkbox).
                                 .with_child(
                                     form::Fieldset::new()
-                                        .with_legend(L10n::t("fieldset_checkbox", &LOC))
-                                        .with_description(L10n::t("desc_checkbox", &LOC))
+                                        .with_legend(Lc::t("fieldset_checkbox", &LOC))
+                                        .with_description(Lc::t("desc_checkbox", &LOC))
                                         .with_child(
                                             form::Checkbox::new()
                                                 .with_name("accept_terms")
-                                                .with_label(L10n::t("label_terms", &LOC))
+                                                .with_label(Lc::t("label_terms", &LOC))
                                                 .with_required(true),
                                         )
                                         .with_child(
                                             form::Checkbox::new()
                                                 .with_name("accept_marketing")
-                                                .with_label(L10n::t("label_marketing", &LOC))
+                                                .with_label(Lc::t("label_marketing", &LOC))
                                                 .with_checked(true)
                                                 .with_inline(true),
                                         )
                                         .with_child(
                                             form::Checkbox::new()
                                                 .with_name("newsletter")
-                                                .with_label(L10n::t("label_newsletter", &LOC))
+                                                .with_label(Lc::t("label_newsletter", &LOC))
                                                 .with_inline(true),
                                         )
                                         .with_child(
                                             form::Checkbox::switch()
                                                 .with_name("notifications")
-                                                .with_label(L10n::t("label_notifications", &LOC))
+                                                .with_label(Lc::t("label_notifications", &LOC))
                                                 .with_checked(true)
                                                 .with_reverse(true),
                                         )
                                         .with_child(
                                             form::Checkbox::switch()
                                                 .with_name("dark_mode")
-                                                .with_label(L10n::t("label_dark_mode", &LOC))
+                                                .with_label(Lc::t("label_dark_mode", &LOC))
                                                 .with_disabled(true),
                                         ),
                                 )
                                 // Grupo de casillas de verificación (form::check::Field).
                                 .with_child(
                                     form::Fieldset::new()
-                                        .with_legend(L10n::t("fieldset_checkgroup", &LOC))
+                                        .with_legend(Lc::t("fieldset_checkgroup", &LOC))
                                         .with_child(
                                             form::check::Field::new()
                                                 .with_name("interests")
-                                                .with_label(L10n::t("label_interests", &LOC))
-                                                .with_help_text(L10n::t("help_interests", &LOC))
+                                                .with_label(Lc::t("label_interests", &LOC))
+                                                .with_help_text(Lc::t("help_interests", &LOC))
                                                 .with_item(
                                                     form::check::Item::new(
                                                         "rust",
-                                                        L10n::t("check_rust", &LOC),
+                                                        Lc::t("check_rust", &LOC),
                                                     )
                                                     .with_checked(true),
                                                 )
                                                 .with_item(form::check::Item::new(
                                                     "web",
-                                                    L10n::t("check_web", &LOC),
+                                                    Lc::t("check_web", &LOC),
                                                 ))
                                                 .with_item(form::check::Item::new(
                                                     "ai",
-                                                    L10n::t("check_ai", &LOC),
+                                                    Lc::t("check_ai", &LOC),
                                                 ))
                                                 .with_item(
                                                     form::check::Item::new(
                                                         "games",
-                                                        L10n::t("check_games", &LOC),
+                                                        Lc::t("check_games", &LOC),
                                                     )
                                                     .with_disabled(true),
                                                 ),
@@ -107,30 +107,30 @@ async fn form_controls(request: HttpRequest) -> Result<Markup, ErrorPage> {
                                 // Botones de opción (form::radio::Field).
                                 .with_child(
                                     form::Fieldset::new()
-                                        .with_legend(L10n::t("fieldset_radio", &LOC))
+                                        .with_legend(Lc::t("fieldset_radio", &LOC))
                                         .with_child(
                                             form::radio::Field::new()
                                                 .with_name("frequency")
-                                                .with_label(L10n::t("label_frequency", &LOC))
+                                                .with_label(Lc::t("label_frequency", &LOC))
                                                 .with_item(form::radio::Item::new(
                                                     "daily",
-                                                    L10n::t("radio_daily", &LOC),
+                                                    Lc::t("radio_daily", &LOC),
                                                 ))
                                                 .with_item(
                                                     form::radio::Item::new(
                                                         "weekly",
-                                                        L10n::t("radio_weekly", &LOC),
+                                                        Lc::t("radio_weekly", &LOC),
                                                     )
                                                     .with_checked(true),
                                                 )
                                                 .with_item(form::radio::Item::new(
                                                     "monthly",
-                                                    L10n::t("radio_monthly", &LOC),
+                                                    Lc::t("radio_monthly", &LOC),
                                                 ))
                                                 .with_item(
                                                     form::radio::Item::new(
                                                         "never",
-                                                        L10n::t("radio_never", &LOC),
+                                                        Lc::t("radio_never", &LOC),
                                                     )
                                                     .with_disabled(true),
                                                 ),
@@ -139,18 +139,18 @@ async fn form_controls(request: HttpRequest) -> Result<Markup, ErrorPage> {
                                 // Campo oculto (form::Hidden).
                                 .with_child(form::Hidden::field("origin", "form-selections"))
                                 // Botones de acción.
-                                .with_child(Button::submit(L10n::t("btn_submit", &LOC)).with_prop(
+                                .with_child(Button::submit(Lc::t("btn_submit", &LOC)).with_prop(
                                     PropsOp::add_classes(class::ButtonColor::solid(
                                         ThemeColor::Primary,
                                     )),
                                 ))
-                                .with_child(Button::reset(L10n::t("btn_reset", &LOC)).with_prop(
+                                .with_child(Button::reset(Lc::t("btn_reset", &LOC)).with_prop(
                                     PropsOp::add_classes(class::ButtonColor::outline(
                                         ThemeColor::Secondary,
                                     )),
                                 ))
                                 .with_child(
-                                    Button::plain(L10n::t("btn_cancel", &LOC)).with_prop(
+                                    Button::plain(Lc::t("btn_cancel", &LOC)).with_prop(
                                         PropsOp::add_classes(class::ButtonColor::link()),
                                     ),
                                 ),
@@ -159,7 +159,7 @@ async fn form_controls(request: HttpRequest) -> Result<Markup, ErrorPage> {
                 // Bloque 2: campos de texto, multilínea y rango.
                 .with_child(
                     Block::new()
-                        .with_title(L10n::t("block_text", &LOC))
+                        .with_title(Lc::t("block_text", &LOC))
                         .with_child(
                             Form::new()
                                 .with_id("form-text")
@@ -168,24 +168,21 @@ async fn form_controls(request: HttpRequest) -> Result<Markup, ErrorPage> {
                                 // Campos de texto (form::input::Field).
                                 .with_child(
                                     form::Fieldset::new()
-                                        .with_legend(L10n::t("fieldset_text", &LOC))
+                                        .with_legend(Lc::t("fieldset_text", &LOC))
                                         .with_child(
                                             form::input::Field::text()
                                                 .with_name("name")
-                                                .with_label(L10n::t("label_name", &LOC))
-                                                .with_placeholder(L10n::t("placeholder_name", &LOC))
-                                                .with_help_text(L10n::t("help_name", &LOC))
+                                                .with_label(Lc::t("label_name", &LOC))
+                                                .with_placeholder(Lc::t("placeholder_name", &LOC))
+                                                .with_help_text(Lc::t("help_name", &LOC))
                                                 .with_required(true),
                                         )
                                         .with_child(
                                             form::input::Field::email()
                                                 .with_name("email")
-                                                .with_label(L10n::t("label_email", &LOC))
-                                                .with_placeholder(L10n::t(
-                                                    "placeholder_email",
-                                                    &LOC,
-                                                ))
-                                                .with_help_text(L10n::t("help_email", &LOC))
+                                                .with_label(Lc::t("label_email", &LOC))
+                                                .with_placeholder(Lc::t("placeholder_email", &LOC))
+                                                .with_help_text(Lc::t("help_email", &LOC))
                                                 .with_autocomplete(
                                                     Some(form::Autocomplete::email()),
                                                 )
@@ -194,7 +191,7 @@ async fn form_controls(request: HttpRequest) -> Result<Markup, ErrorPage> {
                                         .with_child(
                                             form::input::Field::password()
                                                 .with_name("password")
-                                                .with_label(L10n::t("label_password", &LOC))
+                                                .with_label(Lc::t("label_password", &LOC))
                                                 .with_autocomplete(Some(
                                                     form::Autocomplete::new_password(),
                                                 ))
@@ -203,23 +200,20 @@ async fn form_controls(request: HttpRequest) -> Result<Markup, ErrorPage> {
                                         .with_child(
                                             form::input::Field::telephone()
                                                 .with_name("phone")
-                                                .with_label(L10n::t("label_phone", &LOC))
-                                                .with_placeholder(L10n::t(
-                                                    "placeholder_phone",
-                                                    &LOC,
-                                                )),
+                                                .with_label(Lc::t("label_phone", &LOC))
+                                                .with_placeholder(Lc::t("placeholder_phone", &LOC)),
                                         )
                                         .with_child(
                                             form::input::Field::url()
                                                 .with_name("website")
-                                                .with_label(L10n::t("label_url", &LOC))
-                                                .with_placeholder(L10n::t("placeholder_url", &LOC)),
+                                                .with_label(Lc::t("label_url", &LOC))
+                                                .with_placeholder(Lc::t("placeholder_url", &LOC)),
                                         )
                                         .with_child(
                                             form::input::Field::search()
                                                 .with_name("search")
-                                                .with_label(L10n::t("label_search", &LOC))
-                                                .with_placeholder(L10n::t(
+                                                .with_label(Lc::t("label_search", &LOC))
+                                                .with_placeholder(Lc::t(
                                                     "placeholder_search",
                                                     &LOC,
                                                 )),
@@ -228,49 +222,49 @@ async fn form_controls(request: HttpRequest) -> Result<Markup, ErrorPage> {
                                 // Área de texto (form::Textarea).
                                 .with_child(
                                     form::Fieldset::new()
-                                        .with_legend(L10n::t("fieldset_textarea", &LOC))
+                                        .with_legend(Lc::t("fieldset_textarea", &LOC))
                                         .with_child(
                                             form::Textarea::new()
                                                 .with_name("comment")
-                                                .with_label(L10n::t("label_comment", &LOC))
-                                                .with_placeholder(L10n::t(
+                                                .with_label(Lc::t("label_comment", &LOC))
+                                                .with_placeholder(Lc::t(
                                                     "placeholder_comment",
                                                     &LOC,
                                                 ))
                                                 .with_rows(Some(4))
-                                                .with_help_text(L10n::t("help_comment", &LOC)),
+                                                .with_help_text(Lc::t("help_comment", &LOC)),
                                         ),
                                 )
                                 // Control deslizante (form::Range).
                                 .with_child(
                                     form::Fieldset::new()
-                                        .with_legend(L10n::t("fieldset_range", &LOC))
+                                        .with_legend(Lc::t("fieldset_range", &LOC))
                                         .with_child(
                                             form::Range::new()
                                                 .with_name("rating")
-                                                .with_label(L10n::t("label_rating", &LOC))
+                                                .with_label(Lc::t("label_rating", &LOC))
                                                 .with_min(Some(1.0))
                                                 .with_max(Some(10.0))
                                                 .with_step(Some(1.0))
                                                 .with_value(Some(5.0))
-                                                .with_help_text(L10n::t("help_rating", &LOC)),
+                                                .with_help_text(Lc::t("help_rating", &LOC)),
                                         ),
                                 )
                                 // Campo oculto (form::Hidden).
                                 .with_child(form::Hidden::field("origin", "form-text"))
                                 // Botones de acción.
-                                .with_child(Button::submit(L10n::t("btn_submit", &LOC)).with_prop(
+                                .with_child(Button::submit(Lc::t("btn_submit", &LOC)).with_prop(
                                     PropsOp::add_classes(class::ButtonColor::solid(
                                         ThemeColor::Primary,
                                     )),
                                 ))
-                                .with_child(Button::reset(L10n::t("btn_reset", &LOC)).with_prop(
+                                .with_child(Button::reset(Lc::t("btn_reset", &LOC)).with_prop(
                                     PropsOp::add_classes(class::ButtonColor::outline(
                                         ThemeColor::Secondary,
                                     )),
                                 ))
                                 .with_child(
-                                    Button::plain(L10n::t("btn_cancel", &LOC)).with_prop(
+                                    Button::plain(Lc::t("btn_cancel", &LOC)).with_prop(
                                         PropsOp::add_classes(class::ButtonColor::link()),
                                     ),
                                 ),
@@ -281,9 +275,9 @@ async fn form_controls(request: HttpRequest) -> Result<Markup, ErrorPage> {
                     Block::new()
                         .with_title(
                             if global::SETTINGS.app.theme.eq_ignore_ascii_case("bootsier") {
-                                L10n::t("block_lists_floating", &LOC)
+                                Lc::t("block_lists_floating", &LOC)
                             } else {
-                                L10n::t("block_lists", &LOC)
+                                Lc::t("block_lists", &LOC)
                             },
                         )
                         .with_child(form_lists()),
@@ -301,39 +295,39 @@ fn form_lists() -> Form {
         // Listas de selección (form::select::Field).
         .with_child(
             form::Fieldset::new()
-                .with_legend(L10n::t("fieldset_select", &LOC))
+                .with_legend(Lc::t("fieldset_select", &LOC))
                 .with_child(
                     form::select::Field::new()
                         .with_name("language")
-                        .with_label(L10n::t("label_language", &LOC))
+                        .with_label(Lc::t("label_language", &LOC))
                         .with_item(
-                            form::select::Item::new("", L10n::t("select_choose", &LOC))
+                            form::select::Item::new("", Lc::t("select_choose", &LOC))
                                 .with_selected(true),
                         )
                         .with_group(
-                            form::select::Group::new(L10n::t("select_group_europe", &LOC))
+                            form::select::Group::new(Lc::t("select_group_europe", &LOC))
                                 .with_item(form::select::Item::new(
                                     "es",
-                                    L10n::t("select_spanish", &LOC),
+                                    Lc::t("select_spanish", &LOC),
                                 ))
                                 .with_item(form::select::Item::new(
                                     "fr",
-                                    L10n::t("select_french", &LOC),
+                                    Lc::t("select_french", &LOC),
                                 )),
                         )
                         .with_group(
-                            form::select::Group::new(L10n::t("select_group_americas", &LOC))
+                            form::select::Group::new(Lc::t("select_group_americas", &LOC))
                                 .with_item(form::select::Item::new(
                                     "en",
-                                    L10n::t("select_english", &LOC),
+                                    Lc::t("select_english", &LOC),
                                 ))
                                 .with_item(form::select::Item::new(
                                     "pt",
-                                    L10n::t("select_portuguese", &LOC),
+                                    Lc::t("select_portuguese", &LOC),
                                 )),
                         )
                         .with_item(
-                            form::select::Item::new("xx", L10n::t("select_disabled", &LOC))
+                            form::select::Item::new("xx", Lc::t("select_disabled", &LOC))
                                 .with_disabled(true),
                         )
                         .with_required(true),
@@ -341,20 +335,19 @@ fn form_lists() -> Form {
                 .with_child(
                     form::select::Field::new()
                         .with_name("technologies")
-                        .with_label(L10n::t("label_technologies", &LOC))
+                        .with_label(Lc::t("label_technologies", &LOC))
                         .with_item(
-                            form::select::Item::new("rust", L10n::n("Rust")).with_selected(true),
+                            form::select::Item::new("rust", Lc::n("Rust")).with_selected(true),
                         )
                         .with_item(
-                            form::select::Item::new("python", L10n::n("Python"))
-                                .with_selected(true),
+                            form::select::Item::new("python", Lc::n("Python")).with_selected(true),
                         )
-                        .with_item(form::select::Item::new("javascript", L10n::n("JavaScript")))
-                        .with_item(form::select::Item::new("go", L10n::n("Go")))
-                        .with_item(form::select::Item::new("typescript", L10n::n("TypeScript")))
+                        .with_item(form::select::Item::new("javascript", Lc::n("JavaScript")))
+                        .with_item(form::select::Item::new("go", Lc::n("Go")))
+                        .with_item(form::select::Item::new("typescript", Lc::n("TypeScript")))
                         .with_multiple(true)
                         .with_rows(Some(4))
-                        .with_help_text(L10n::t("help_technologies", &LOC)),
+                        .with_help_text(Lc::t("help_technologies", &LOC)),
                 ),
         );
 
@@ -362,42 +355,36 @@ fn form_lists() -> Form {
     if global::SETTINGS.app.theme.eq_ignore_ascii_case("bootsier") {
         form = form.with_child(
             form::Fieldset::new()
-                .with_legend(L10n::t("fieldset_floating", &LOC))
+                .with_legend(Lc::t("fieldset_floating", &LOC))
                 .with_child(
                     form::input::Field::text()
                         .with_name("fl_name")
-                        .with_label(L10n::t("label_name", &LOC))
-                        .with_placeholder(L10n::t("placeholder_name", &LOC))
+                        .with_label(Lc::t("label_name", &LOC))
+                        .with_placeholder(Lc::t("placeholder_name", &LOC))
                         .with_floating_label(true)
                         .with_required(true),
                 )
                 .with_child(
                     form::Textarea::new()
                         .with_name("fl_comment")
-                        .with_label(L10n::t("label_comment", &LOC))
-                        .with_placeholder(L10n::t("placeholder_comment", &LOC))
+                        .with_label(Lc::t("label_comment", &LOC))
+                        .with_placeholder(Lc::t("placeholder_comment", &LOC))
                         .with_floating_label(true),
                 )
                 .with_child(
                     form::select::Field::new()
                         .with_name("fl_country")
-                        .with_label(L10n::t("label_country", &LOC))
+                        .with_label(Lc::t("label_country", &LOC))
                         .with_item(
-                            form::select::Item::new("", L10n::t("select_choose", &LOC))
+                            form::select::Item::new("", Lc::t("select_choose", &LOC))
                                 .with_selected(true),
                         )
-                        .with_item(form::select::Item::new(
-                            "de",
-                            L10n::t("select_germany", &LOC),
-                        ))
-                        .with_item(form::select::Item::new("es", L10n::t("select_spain", &LOC)))
-                        .with_item(form::select::Item::new(
-                            "fr",
-                            L10n::t("select_france", &LOC),
-                        ))
+                        .with_item(form::select::Item::new("de", Lc::t("select_germany", &LOC)))
+                        .with_item(form::select::Item::new("es", Lc::t("select_spain", &LOC)))
+                        .with_item(form::select::Item::new("fr", Lc::t("select_france", &LOC)))
                         .with_item(form::select::Item::new(
                             "pt",
-                            L10n::t("select_portugal", &LOC),
+                            Lc::t("select_portugal", &LOC),
                         ))
                         .with_floating_label(true)
                         .with_required(true),
@@ -410,17 +397,17 @@ fn form_lists() -> Form {
         .with_child(form::Hidden::field("origin", "form-lists"))
         // Botones de acción.
         .with_child(
-            Button::submit(L10n::t("btn_submit", &LOC)).with_prop(PropsOp::add_classes(
+            Button::submit(Lc::t("btn_submit", &LOC)).with_prop(PropsOp::add_classes(
                 class::ButtonColor::solid(ThemeColor::Primary),
             )),
         )
         .with_child(
-            Button::reset(L10n::t("btn_reset", &LOC)).with_prop(PropsOp::add_classes(
+            Button::reset(Lc::t("btn_reset", &LOC)).with_prop(PropsOp::add_classes(
                 class::ButtonColor::outline(ThemeColor::Secondary),
             )),
         )
         .with_child(
-            Button::plain(L10n::t("btn_cancel", &LOC))
+            Button::plain(Lc::t("btn_cancel", &LOC))
                 .with_prop(PropsOp::add_classes(class::ButtonColor::link())),
         )
 }

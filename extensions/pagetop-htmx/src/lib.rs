@@ -135,12 +135,12 @@ pub struct Htmx;
 
 #[async_trait]
 impl Extension for Htmx {
-    fn name(&self) -> L10n {
-        L10n::t("extension_name", &LOCALES_HTMX)
+    fn name(&self) -> Lc {
+        Lc::t("extension_name", &LOCALES_HTMX)
     }
 
-    fn description(&self) -> L10n {
-        L10n::t("extension_description", &LOCALES_HTMX)
+    fn description(&self) -> Lc {
+        Lc::t("extension_description", &LOCALES_HTMX)
     }
 
     fn actions(&self) -> Vec<ActionBox> {

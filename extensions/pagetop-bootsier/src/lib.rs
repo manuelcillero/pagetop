@@ -65,9 +65,9 @@ async fn homepage(request: HttpRequest) -> Result<Markup, ErrorPage> {
         .with_theme(&Bootsier)
         .with_child(
             Block::new()
-                .with_title(L10n::l("sample_title"))
+                .with_title(Lc::l("sample_title"))
                 .with_child(Html::with(|cx| html! {
-                    p { (L10n::l("sample_content").using(cx)) }
+                    p { (Lc::l("sample_content").using(cx)) }
                 })),
         )
         .render().await
@@ -102,12 +102,12 @@ pub struct Bootsier;
 
 #[async_trait]
 impl Extension for Bootsier {
-    fn name(&self) -> L10n {
-        L10n::t("extension_name", &LOCALES_BOOTSIER)
+    fn name(&self) -> Lc {
+        Lc::t("extension_name", &LOCALES_BOOTSIER)
     }
 
-    fn description(&self) -> L10n {
-        L10n::t("extension_description", &LOCALES_BOOTSIER)
+    fn description(&self) -> Lc {
+        Lc::t("extension_description", &LOCALES_BOOTSIER)
     }
 
     fn theme(&self) -> Option<ThemeRef> {

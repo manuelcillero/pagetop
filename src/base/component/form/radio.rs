@@ -15,14 +15,14 @@ use crate::prelude::*;
 /// ```rust,no_run
 /// use pagetop::prelude::*;
 ///
-/// let item = form::radio::Item::new("monthly", L10n::n("Monthly")).with_checked(true);
+/// let item = form::radio::Item::new("monthly", Lc::n("Monthly")).with_checked(true);
 /// ```
 #[derive(AutoDefault, Clone, Debug, Getters)]
 pub struct Item {
     /// Devuelve el valor enviado al servidor cuando la opción está seleccionada.
     value: AttrValue,
     /// Devuelve la etiqueta de la opción.
-    label: L10n,
+    label: Lc,
     /// Devuelve si la opción debe aparecer seleccionada por defecto.
     checked: bool,
     /// Devuelve si la opción está deshabilitada.
@@ -31,7 +31,7 @@ pub struct Item {
 
 impl Item {
     /// Crea una nueva opción con el valor y la etiqueta indicados.
-    pub fn new(value: impl AsRef<str>, label: L10n) -> Self {
+    pub fn new(value: impl AsRef<str>, label: Lc) -> Self {
         Self {
             value: AttrValue::new(value),
             label,
@@ -77,9 +77,9 @@ impl Item {
 ///
 /// let plan = form::radio::Field::new()
 ///     .with_name("plan")
-///     .with_label(L10n::n("Subscription plan"))
-///     .with_item(form::radio::Item::new("monthly", L10n::n("Monthly")))
-///     .with_item(form::radio::Item::new("annual", L10n::n("Annual")).with_checked(true))
+///     .with_label(Lc::n("Subscription plan"))
+///     .with_item(form::radio::Item::new("monthly", Lc::n("Monthly")))
+///     .with_item(form::radio::Item::new("annual", Lc::n("Annual")).with_checked(true))
 ///     .with_required(true);
 /// ```
 ///
@@ -99,9 +99,9 @@ pub struct Field {
     /// Devuelve el nombre compartido por todos los botones de opción del grupo.
     name: AttrName,
     /// Devuelve la etiqueta del grupo.
-    label: Attr<L10n>,
+    label: Attr<Lc>,
     /// Devuelve el texto de ayuda del grupo.
-    help_text: Attr<L10n>,
+    help_text: Attr<Lc>,
     /// Devuelve las opciones del grupo.
     items: Vec<Item>,
     /// Devuelve si la selección de alguna opción del grupo es obligatoria.
@@ -150,7 +150,7 @@ impl Component for Field {
                         @if *self.required() {
                             span
                                 class="form-required"
-                                title=[L10n::l("field_required").lookup(cx)]
+                                title=[Lc::l("field_required").lookup(cx)]
                             {
                                 "*"
                             }
@@ -227,14 +227,14 @@ impl Field {
 
     /// Establece o elimina la etiqueta visible del grupo (basta pasar `None` para quitarla).
     #[builder_fn]
-    pub fn with_label(mut self, label: impl Into<Option<L10n>>) -> Self {
+    pub fn with_label(mut self, label: impl Into<Option<Lc>>) -> Self {
         self.label.alter_opt(label.into());
         self
     }
 
     /// Establece o elimina el texto de ayuda del grupo (basta pasar `None` para quitarlo).
     #[builder_fn]
-    pub fn with_help_text(mut self, help_text: impl Into<Option<L10n>>) -> Self {
+    pub fn with_help_text(mut self, help_text: impl Into<Option<Lc>>) -> Self {
         self.help_text.alter_opt(help_text.into());
         self
     }

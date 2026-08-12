@@ -24,22 +24,22 @@ use crate::base::component::form;
 ///     .with_child(
 ///         form::input::Field::email()
 ///             .with_name("email")
-///             .with_label(L10n::n("Email"))
+///             .with_label(Lc::n("Email"))
 ///             .with_required(true),
 ///     )
 ///     .with_child(
 ///         form::input::Field::password()
 ///             .with_name("password")
-///             .with_label(L10n::n("Password"))
+///             .with_label(Lc::n("Password"))
 ///             .with_required(true),
 ///     )
 ///     .with_child(
 ///         form::Checkbox::check()
 ///             .with_name("remember")
-///             .with_label(L10n::n("Remember me")),
+///             .with_label(Lc::n("Remember me")),
 ///     )
 ///     .with_child(
-///         Button::submit(L10n::n("Sign in"))
+///         Button::submit(Lc::n("Sign in"))
 ///     );
 /// ```
 #[derive(AutoDefault, Clone, Debug, Getters)]

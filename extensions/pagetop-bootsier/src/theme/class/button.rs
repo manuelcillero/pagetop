@@ -27,15 +27,15 @@ pub enum ButtonColorStyle {
 /// use pagetop_bootsier::theme::*;
 ///
 /// // Botón sólido.
-/// let save = bs::Button::submit(L10n::n("Save"))
+/// let save = bs::Button::submit(Lc::n("Save"))
 ///     .with_prop(PropsOp::add_classes(class::ButtonColor::solid(ThemeColor::Primary)));
 ///
 /// // Botón con contorno.
-/// let cancel = bs::Button::plain(L10n::n("Cancel"))
+/// let cancel = bs::Button::plain(Lc::n("Cancel"))
 ///     .with_prop(PropsOp::add_classes(class::ButtonColor::outline(ThemeColor::Secondary)));
 ///
 /// // Botón tipo enlace.
-/// let back = bs::Button::plain(L10n::n("Back"))
+/// let back = bs::Button::plain(Lc::n("Back"))
 ///     .with_prop(PropsOp::add_classes(class::ButtonColor::link()));
 /// ```
 #[derive(AutoDefault, Clone, Copy, Debug, PartialEq)]
@@ -148,10 +148,10 @@ pub enum ButtonSizeKind {
 /// use pagetop::prelude::*;
 /// use pagetop_bootsier::theme::*;
 ///
-/// let small = bs::Button::submit(L10n::n("Save"))
+/// let small = bs::Button::submit(Lc::n("Save"))
 ///     .with_prop(PropsOp::add_classes(class::ButtonSize::small()));
 ///
-/// let large = bs::Button::submit(L10n::n("Save"))
+/// let large = bs::Button::submit(Lc::n("Save"))
 ///     .with_prop(PropsOp::add_classes(class::ButtonSize::large()));
 /// ```
 #[derive(AutoDefault, Clone, Copy, Debug, PartialEq)]

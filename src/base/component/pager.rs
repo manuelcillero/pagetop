@@ -163,8 +163,8 @@ pub struct Pager {
     /// Devuelve la visibilidad del formulario para saltar directamente a una página.
     jump: PagerVisibility,
     /// Devuelve la etiqueta de accesibilidad (`aria-label`) del elemento `<nav>`.
-    #[default(L10n::l("pager_aria_label"))]
-    aria_label: L10n,
+    #[default(Lc::l("pager_aria_label"))]
+    aria_label: Lc,
 }
 
 // Elemento visible del listado de páginas: un número de página o una elipsis que resume un tramo
@@ -241,7 +241,7 @@ impl Component for Pager {
                     @let first = (page - 1) * items_per_page + 1;
                     @let last = (page * items_per_page).min(self.total_items());
                     span.pager-summary {
-                        (L10n::l("pager_summary")
+                        (Lc::l("pager_summary")
                             .with_arg("first", first.to_string())
                             .with_arg("last", last.to_string())
                             .with_arg("total", self.total_items().to_string())
@@ -254,8 +254,8 @@ impl Component for Pager {
                             a.page-link
                                 href=[(!first_disabled).then(|| Self::page_route(&route, page - 1))]
                                 aria-disabled=[first_disabled.then_some("true")]
-                                aria-label=[L10n::l("pager_previous_aria_label").lookup(cx)] {
-                                span.page-link-icon { (L10n::l("pager_previous_label").using(cx)) }
+                                aria-label=[Lc::l("pager_previous_aria_label").lookup(cx)] {
+                                span.page-link-icon { (Lc::l("pager_previous_label").using(cx)) }
                             }
                         }
                     }
@@ -283,8 +283,8 @@ impl Component for Pager {
                             a.page-link
                                 href=[(!last_disabled).then(|| Self::page_route(&route, page + 1))]
                                 aria-disabled=[last_disabled.then_some("true")]
-                                aria-label=[L10n::l("pager_next_aria_label").lookup(cx)] {
-                                span.page-link-icon { (L10n::l("pager_next_label").using(cx)) }
+                                aria-label=[Lc::l("pager_next_aria_label").lookup(cx)] {
+                                span.page-link-icon { (Lc::l("pager_next_label").using(cx)) }
                             }
                         }
                     }
@@ -324,9 +324,9 @@ impl Component for Pager {
                             .with_value(Some(page)),
                     )
                     .with_child(
-                        Button::submit(L10n::l("pager_goto_button"))
+                        Button::submit(Lc::l("pager_goto_button"))
                             .with_prop(PropsOp::add_classes("pager-jump-button"))
-                            .with_title(L10n::l("pager_goto_label")),
+                            .with_title(Lc::l("pager_goto_label")),
                     )
                     .render(cx).await
                 }) }
@@ -443,7 +443,7 @@ impl Pager {
     /// Establece la etiqueta de accesibilidad (`aria-label`) del elemento `<nav>`. Por defecto es
     /// "Page navigation" (clave `pager_aria_label`), igual que hace el paginador de Bootstrap.
     #[builder_fn]
-    pub fn with_aria_label(mut self, aria_label: L10n) -> Self {
+    pub fn with_aria_label(mut self, aria_label: Lc) -> Self {
         self.aria_label = aria_label;
         self
     }

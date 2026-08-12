@@ -119,7 +119,7 @@
 
 use crate::AutoDefault;
 use crate::core::AnyInfo;
-use crate::locale::L10n;
+use crate::locale::Lc;
 
 // **< RegionName >*********************************************************************************
 
@@ -162,7 +162,7 @@ pub trait RegionName: Send + Sync + AnyInfo {
     ///
     /// En la implementación predeterminada de [`Region`](crate::base::component::layout::Region),
     /// este valor se usa como `aria-label` del contenedor de la región.
-    fn label(&self) -> L10n;
+    fn label(&self) -> Lc;
 }
 
 /// Referencia estática a una región.
@@ -221,12 +221,12 @@ impl RegionName for CoreRegions {
     }
 
     #[inline]
-    fn label(&self) -> L10n {
+    fn label(&self) -> Lc {
         match self {
-            Self::Header => L10n::l("region_header"),
-            Self::Aside => L10n::l("region_aside"),
-            Self::Content => L10n::l("region_content"),
-            Self::Footer => L10n::l("region_footer"),
+            Self::Header => Lc::l("region_header"),
+            Self::Aside => Lc::l("region_aside"),
+            Self::Content => Lc::l("region_content"),
+            Self::Footer => Lc::l("region_footer"),
         }
     }
 }
@@ -249,7 +249,7 @@ pub trait TemplateName: Send + Sync + AnyInfo {
     fn name(&self) -> &'static str;
 
     /// Devuelve un *texto localizado* como etiqueta descriptiva de la plantilla.
-    fn label(&self) -> L10n;
+    fn label(&self) -> Lc;
 }
 
 /// Referencia estática a una plantilla.
@@ -282,10 +282,10 @@ impl TemplateName for CoreTemplates {
     }
 
     #[inline]
-    fn label(&self) -> L10n {
+    fn label(&self) -> Lc {
         match self {
-            Self::Standard => L10n::l("template-standard"),
-            Self::Admin => L10n::l("template-admin"),
+            Self::Standard => Lc::l("template-standard"),
+            Self::Admin => Lc::l("template-admin"),
         }
     }
 }

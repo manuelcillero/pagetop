@@ -27,7 +27,7 @@ use crate::core::theme::{CoreRegions, RegionName, RegionRef, TemplateRef, ThemeR
 use crate::html::{Assets, Favicon, JavaScript, StyleSheet};
 use crate::html::{Attr, Props, PropsOp};
 use crate::html::{DOCTYPE, Markup, html};
-use crate::locale::{CharacterDirection, L10n, LangId, LanguageIdentifier};
+use crate::locale::{CharacterDirection, LangId, LanguageIdentifier, Lc};
 use crate::web::HttpRequest;
 use crate::{AutoDefault, builder_fn};
 
@@ -73,8 +73,8 @@ impl RegionName for ReservedRegions {
     }
 
     #[inline]
-    fn label(&self) -> L10n {
-        L10n::default()
+    fn label(&self) -> Lc {
+        Lc::default()
     }
 }
 
@@ -88,8 +88,8 @@ impl RegionName for ReservedRegions {
 #[rustfmt::skip]
 #[derive(AutoDefault)]
 pub struct Page {
-    title       : Attr<L10n>,
-    description : Attr<L10n>,
+    title       : Attr<Lc>,
+    description : Attr<Lc>,
     metadata    : Vec<(&'static str, &'static str)>,
     properties  : Vec<(&'static str, &'static str)>,
     context     : Context,
@@ -127,14 +127,14 @@ impl Page {
 
     /// Establece el título de la página como un valor traducible.
     #[builder_fn]
-    pub fn with_title(mut self, title: L10n) -> Self {
+    pub fn with_title(mut self, title: Lc) -> Self {
         self.title.alter_value(title);
         self
     }
 
     /// Establece la descripción de la página como un valor traducible.
     #[builder_fn]
-    pub fn with_description(mut self, description: L10n) -> Self {
+    pub fn with_description(mut self, description: Lc) -> Self {
         self.description.alter_value(description);
         self
     }
@@ -258,8 +258,8 @@ impl Page {
 
 /// Permite a [`Page`] actuar como proveedor de idioma usando el [`Context`] de la página.
 ///
-/// Resulta útil para usar [`Page`] directamente como fuente de traducción en [`L10n::lookup()`] o
-/// [`L10n::using()`].
+/// Resulta útil para usar [`Page`] directamente como fuente de traducción en [`Lc::lookup()`] o
+/// [`Lc::using()`].
 impl LangId for Page {
     #[inline]
     fn langid(&self) -> &'static LanguageIdentifier {

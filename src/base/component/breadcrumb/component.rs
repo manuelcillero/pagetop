@@ -22,9 +22,9 @@ use crate::prelude::*;
 /// use pagetop::prelude::*;
 ///
 /// let bc = Breadcrumb::new()
-///     .with_crumb(breadcrumb::Crumb::new(L10n::n("Home"), "/"))
-///     .with_crumb(breadcrumb::Crumb::new(L10n::n("Users"), "/admin/users"))
-///     .with_crumb(breadcrumb::Crumb::current(L10n::n("Julia")));
+///     .with_crumb(breadcrumb::Crumb::new(Lc::n("Home"), "/"))
+///     .with_crumb(breadcrumb::Crumb::new(Lc::n("Users"), "/admin/users"))
+///     .with_crumb(breadcrumb::Crumb::current(Lc::n("Julia")));
 /// ```
 #[derive(AutoDefault, Clone, Debug, Getters)]
 pub struct Breadcrumb {
@@ -56,7 +56,7 @@ impl Component for Breadcrumb {
         }
 
         Ok(html! {
-            nav (self.props()) aria-label=[L10n::l("breadcrumb_label").lookup(cx)] {
+            nav (self.props()) aria-label=[Lc::l("breadcrumb_label").lookup(cx)] {
                 ol.breadcrumb {
                     @for crumb in self.crumbs() {
                         (crumb.render_crumb(cx))

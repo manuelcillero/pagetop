@@ -14,14 +14,14 @@ use crate::prelude::*;
 /// ```rust,no_run
 /// use pagetop::prelude::*;
 ///
-/// let item = form::check::Item::new("apple", L10n::n("Apple")).with_checked(true);
+/// let item = form::check::Item::new("apple", Lc::n("Apple")).with_checked(true);
 /// ```
 #[derive(AutoDefault, Clone, Debug, Getters)]
 pub struct Item {
     /// Devuelve el valor enviado al servidor cuando la casilla está marcada.
     value: AttrValue,
     /// Devuelve la etiqueta de la casilla.
-    label: L10n,
+    label: Lc,
     /// Devuelve si la casilla debe aparecer marcada por defecto.
     checked: bool,
     /// Devuelve si la casilla está deshabilitada.
@@ -30,7 +30,7 @@ pub struct Item {
 
 impl Item {
     /// Crea una nueva casilla con el valor y la etiqueta indicados.
-    pub fn new(value: impl AsRef<str>, label: L10n) -> Self {
+    pub fn new(value: impl AsRef<str>, label: Lc) -> Self {
         Self {
             value: AttrValue::new(value),
             label,
@@ -70,10 +70,10 @@ impl Item {
 ///
 /// let interests = form::check::Field::new()
 ///     .with_name("interests")
-///     .with_label(L10n::n("Areas of interest"))
-///     .with_item(form::check::Item::new("art", L10n::n("Art")))
-///     .with_item(form::check::Item::new("tech", L10n::n("Technology")))
-///     .with_item(form::check::Item::new("science", L10n::n("Science")).with_checked(true));
+///     .with_label(Lc::n("Areas of interest"))
+///     .with_item(form::check::Item::new("art", Lc::n("Art")))
+///     .with_item(form::check::Item::new("tech", Lc::n("Technology")))
+///     .with_item(form::check::Item::new("science", Lc::n("Science")).with_checked(true));
 /// ```
 ///
 /// El navegador envía una entrada por cada casilla marcada, todas bajo la misma clave (por ejemplo,
@@ -101,9 +101,9 @@ pub struct Field {
     /// Devuelve el nombre compartido por todas las casillas del grupo.
     name: AttrName,
     /// Devuelve la etiqueta del grupo.
-    label: Attr<L10n>,
+    label: Attr<Lc>,
     /// Devuelve el texto de ayuda del grupo.
-    help_text: Attr<L10n>,
+    help_text: Attr<Lc>,
     /// Devuelve las casillas del grupo.
     items: Vec<Item>,
     /// Devuelve si todo el grupo está deshabilitado.
@@ -207,14 +207,14 @@ impl Field {
 
     /// Establece o elimina la etiqueta visible del grupo (basta pasar `None` para quitarla).
     #[builder_fn]
-    pub fn with_label(mut self, label: impl Into<Option<L10n>>) -> Self {
+    pub fn with_label(mut self, label: impl Into<Option<Lc>>) -> Self {
         self.label.alter_opt(label.into());
         self
     }
 
     /// Establece o elimina el texto de ayuda del grupo (basta pasar `None` para quitarlo).
     #[builder_fn]
-    pub fn with_help_text(mut self, help_text: impl Into<Option<L10n>>) -> Self {
+    pub fn with_help_text(mut self, help_text: impl Into<Option<Lc>>) -> Self {
         self.help_text.alter_opt(help_text.into());
         self
     }

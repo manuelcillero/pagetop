@@ -16,12 +16,12 @@ use crate::prelude::*;
 ///
 /// let accept_terms = form::Checkbox::new()
 ///     .with_name("terms_accepted")
-///     .with_label(L10n::n("I accept the terms and conditions"))
+///     .with_label(Lc::n("I accept the terms and conditions"))
 ///     .with_required(true);
 ///
 /// let notifications = form::Checkbox::switch()
 ///     .with_name("notifications_enabled")
-///     .with_label(L10n::n("Receive email notifications"))
+///     .with_label(Lc::n("Receive email notifications"))
 ///     .with_checked(true);
 /// ```
 ///
@@ -46,7 +46,7 @@ pub struct Checkbox {
     /// Devuelve el nombre del campo.
     name: AttrName,
     /// Devuelve la etiqueta del control.
-    label: Attr<L10n>,
+    label: Attr<Lc>,
     /// Devuelve si el control debe estar marcado/activo por defecto.
     checked: bool,
     /// Devuelve si el control recibe el foco automáticamente al cargar la página.
@@ -123,7 +123,7 @@ impl Component for Checkbox {
                         @if *self.required() {
                             span
                                 class="form-required"
-                                title=[L10n::l("field_required").lookup(cx)]
+                                title=[Lc::l("field_required").lookup(cx)]
                             {
                                 "*"
                             }
@@ -184,7 +184,7 @@ impl Checkbox {
 
     /// Establece o elimina la etiqueta visible del control (basta pasar `None` para quitarla).
     #[builder_fn]
-    pub fn with_label(mut self, label: impl Into<Option<L10n>>) -> Self {
+    pub fn with_label(mut self, label: impl Into<Option<Lc>>) -> Self {
         self.label.alter_opt(label.into());
         self
     }

@@ -18,14 +18,14 @@ use crate::prelude::*;
 /// ```rust,no_run
 /// use pagetop::prelude::*;
 ///
-/// let item = form::select::Item::new("es", L10n::n("Spanish")).with_selected(true);
+/// let item = form::select::Item::new("es", Lc::n("Spanish")).with_selected(true);
 /// ```
 #[derive(AutoDefault, Clone, Debug, Getters)]
 pub struct Item {
     /// Devuelve el valor enviado al servidor cuando se selecciona el elemento.
     value: AttrValue,
     /// Devuelve la etiqueta visible del elemento.
-    label: L10n,
+    label: Lc,
     /// Devuelve si el elemento debe aparecer seleccionado por defecto.
     selected: bool,
     /// Devuelve si el elemento está deshabilitado.
@@ -34,7 +34,7 @@ pub struct Item {
 
 impl Item {
     /// Crea un nuevo elemento con el valor y la etiqueta indicados.
-    pub fn new(value: impl AsRef<str>, label: L10n) -> Self {
+    pub fn new(value: impl AsRef<str>, label: Lc) -> Self {
         Self {
             value: AttrValue::new(value),
             label,
@@ -74,14 +74,14 @@ impl Item {
 /// ```rust,no_run
 /// use pagetop::prelude::*;
 ///
-/// let group = form::select::Group::new(L10n::n("Europe"))
-///     .with_item(form::select::Item::new("es", L10n::n("Spanish")))
-///     .with_item(form::select::Item::new("fr", L10n::n("French")));
+/// let group = form::select::Group::new(Lc::n("Europe"))
+///     .with_item(form::select::Item::new("es", Lc::n("Spanish")))
+///     .with_item(form::select::Item::new("fr", Lc::n("French")));
 /// ```
 #[derive(AutoDefault, Clone, Debug, Getters)]
 pub struct Group {
     /// Devuelve la etiqueta visible del grupo de elementos.
-    label: L10n,
+    label: Lc,
     /// Devuelve los elementos del grupo.
     items: Vec<Item>,
     /// Devuelve si el grupo de elementos está deshabilitado.
@@ -90,7 +90,7 @@ pub struct Group {
 
 impl Group {
     /// Crea un nuevo grupo con la etiqueta indicada.
-    pub fn new(label: L10n) -> Self {
+    pub fn new(label: Lc) -> Self {
         Self {
             label,
             ..Self::default()
@@ -149,17 +149,17 @@ pub enum Entry {
 ///
 /// let idioma = form::select::Field::new()
 ///     .with_name("language")
-///     .with_label(L10n::n("Language"))
-///     .with_item(form::select::Item::new("", L10n::n("— Choose —")).with_selected(true))
+///     .with_label(Lc::n("Language"))
+///     .with_item(form::select::Item::new("", Lc::n("— Choose —")).with_selected(true))
 ///     .with_group(
-///         form::select::Group::new(L10n::n("Europe"))
-///             .with_item(form::select::Item::new("es", L10n::n("Spanish")))
-///             .with_item(form::select::Item::new("fr", L10n::n("French"))),
+///         form::select::Group::new(Lc::n("Europe"))
+///             .with_item(form::select::Item::new("es", Lc::n("Spanish")))
+///             .with_item(form::select::Item::new("fr", Lc::n("French"))),
 ///     )
 ///     .with_group(
-///         form::select::Group::new(L10n::n("Americas"))
-///             .with_item(form::select::Item::new("en", L10n::n("English")))
-///             .with_item(form::select::Item::new("pt", L10n::n("Portuguese"))),
+///         form::select::Group::new(Lc::n("Americas"))
+///             .with_item(form::select::Item::new("en", Lc::n("English")))
+///             .with_item(form::select::Item::new("pt", Lc::n("Portuguese"))),
 ///     )
 ///     .with_required(true);
 /// ```
@@ -193,9 +193,9 @@ pub struct Field {
     /// Devuelve el nombre del campo.
     name: AttrName,
     /// Devuelve la etiqueta del campo.
-    label: Attr<L10n>,
+    label: Attr<Lc>,
     /// Devuelve el texto de ayuda del campo.
-    help_text: Attr<L10n>,
+    help_text: Attr<Lc>,
     /// Devuelve las entradas de la lista (elementos individuales y grupos de elementos).
     entries: Vec<Entry>,
     /// Devuelve si la lista permite selección múltiple.
@@ -246,7 +246,7 @@ impl Component for Field {
                         @if *self.required() {
                             span
                                 class="form-required"
-                                title=[L10n::l("field_required").lookup(cx)]
+                                title=[Lc::l("field_required").lookup(cx)]
                             {
                                 "*"
                             }
@@ -331,14 +331,14 @@ impl Field {
 
     /// Establece o elimina la etiqueta visible del campo (basta pasar `None` para quitarla).
     #[builder_fn]
-    pub fn with_label(mut self, label: impl Into<Option<L10n>>) -> Self {
+    pub fn with_label(mut self, label: impl Into<Option<Lc>>) -> Self {
         self.label.alter_opt(label.into());
         self
     }
 
     /// Establece o elimina el texto de ayuda del campo (basta pasar `None` para quitarlo).
     #[builder_fn]
-    pub fn with_help_text(mut self, help_text: impl Into<Option<L10n>>) -> Self {
+    pub fn with_help_text(mut self, help_text: impl Into<Option<Lc>>) -> Self {
         self.help_text.alter_opt(help_text.into());
         self
     }

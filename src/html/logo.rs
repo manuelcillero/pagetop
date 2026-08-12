@@ -1,7 +1,7 @@
 use crate::AutoDefault;
 use crate::core::component::Context;
 use crate::html::{Markup, html};
-use crate::locale::L10n;
+use crate::locale::Lc;
 
 /// Representación SVG del **logotipo de PageTop** para incrustar en HTML.
 ///
@@ -54,7 +54,7 @@ impl PageTopSvg {
                 viewBox="0 0 1614 1614"
                 xmlns="http://www.w3.org/2000/svg"
                 role="img"
-                aria-label=[L10n::l("pagetop_logo").lookup(cx)]
+                aria-label=[Lc::l("pagetop_logo").lookup(cx)]
                 preserveAspectRatio="xMidYMid slice"
                 focusable="false"
             {

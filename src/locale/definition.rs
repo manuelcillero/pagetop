@@ -199,8 +199,11 @@ impl Locale {
 /// devuelve el idioma por defecto de la aplicación y, si tampoco está disponible, el idioma de
 /// respaldo (`"en-US"`).
 ///
-/// Resulta útil para usar un valor de [`Locale`] como fuente de traducción en
-/// [`L10n::lookup()`](crate::locale::L10n::lookup) o [`L10n::using()`](crate::locale::L10n::using).
+/// Resulta útil para usar un valor de [`Locale`] como fuente de traducción en [`Lc::lookup()`] o
+/// [`Lc::using()`].
+///
+/// [`Lc::lookup()`]: crate::locale::Lc::lookup
+/// [`Lc::using()`]: crate::locale::Lc::using
 impl LangId for Locale {
     #[inline]
     fn langid(&self) -> &'static LanguageIdentifier {

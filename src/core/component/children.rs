@@ -206,9 +206,9 @@ impl<C: Component> Embed<C> {
     ///
     /// ```rust,no_run
     /// # use pagetop::prelude::*;
-    /// let mut embed = Embed::with(Block::new().with_title(L10n::n("Title")));
+    /// let mut embed = Embed::with(Block::new().with_title(Lc::n("Title")));
     /// if let Some(component) = embed.get_mut() {
-    ///     component.alter_title(L10n::n("New Title"));
+    ///     component.alter_title(Lc::n("New Title"));
     /// }
     /// ```
     pub fn get_mut(&mut self) -> Option<&mut C>

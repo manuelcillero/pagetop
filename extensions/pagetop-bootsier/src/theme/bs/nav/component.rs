@@ -20,17 +20,17 @@ use crate::theme::*;
 ///
 /// let nav = bs::Nav::tabs()
 ///     .with_layout(bs::nav::Layout::End)
-///     .with_item(bs::nav::Item::link(L10n::n("Home"), |_| "/".into()))
-///     .with_item(bs::nav::Item::link_blank(L10n::n("External"), |_| "https://docs.rs".into()))
+///     .with_item(bs::nav::Item::link(Lc::n("Home"), "/"))
+///     .with_item(bs::nav::Item::link_blank(Lc::n("External"), "https://docs.rs"))
 ///     .with_item(bs::nav::Item::dropdown(
 ///         bs::Dropdown::new()
-///             .with_title(L10n::n("Options"))
+///             .with_title(Lc::n("Options"))
 ///             .with_item(ChildOp::AddMany(vec![
-///                 bs::dropdown::Item::link(L10n::n("Action"), |_| "/action".into()).into(),
-///                 bs::dropdown::Item::link(L10n::n("Another"), |_| "/another".into()).into(),
+///                 bs::dropdown::Item::link(Lc::n("Action"), "/action").into(),
+///                 bs::dropdown::Item::link(Lc::n("Another"), "/another").into(),
 ///             ])),
 ///     ))
-///     .with_item(bs::nav::Item::link_disabled(L10n::n("Disabled"), |_| "#".into()));
+///     .with_item(bs::nav::Item::link_disabled(Lc::n("Disabled"), "#"));
 /// ```
 #[derive(AutoDefault, Clone, Debug, Getters)]
 pub struct Nav {

@@ -17,7 +17,7 @@
 //! [`Context`]: crate::core::component::Context
 
 use crate::core::action::{ActionDispatcher, ActionKey, try_dispatch_actions};
-use crate::locale::L10n;
+use crate::locale::Lc;
 use crate::response::ErrorPage;
 use crate::web::HttpRequest;
 use crate::{CowStr, UniqueId, Weight};
@@ -116,8 +116,8 @@ pub trait Permission: Send + Sync {
     ///
     /// Por defecto devuelve la propia clave; una extensión que registre sus permisos en un catálogo
     /// visible debería sobrescribirlo con un texto traducible.
-    fn label(&self) -> L10n {
-        L10n::n(self.key())
+    fn label(&self) -> Lc {
+        Lc::n(self.key())
     }
 
     /// Identificador estable de la categoría del permiso, usado para agrupar en un catálogo (p.
@@ -129,8 +129,8 @@ pub trait Permission: Send + Sync {
     /// Título traducible de [`group()`](Self::group), mostrado en la UI de administración.
     ///
     /// Por defecto reutiliza el propio identificador del grupo como texto fijo.
-    fn group_label(&self) -> L10n {
-        L10n::n(self.group())
+    fn group_label(&self) -> Lc {
+        Lc::n(self.group())
     }
 }
 

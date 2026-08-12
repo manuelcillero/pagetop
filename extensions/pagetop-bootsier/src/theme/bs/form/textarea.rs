@@ -18,8 +18,8 @@ const EXTRA_FLOATING_LABEL: &str = "bootsier.form.textarea.floating_label";
 ///
 /// let comentario = bs::form::Textarea::new()
 ///     .with_name("comment")
-///     .with_label(L10n::n("Comment"))
-///     .with_placeholder(L10n::n("Write here..."))
+///     .with_label(Lc::n("Comment"))
+///     .with_placeholder(Lc::n("Write here..."))
 ///     .with_floating_label(true);
 /// ```
 pub trait TextareaBootsier {
@@ -76,7 +76,7 @@ pub(crate) fn render(field: &Textarea, cx: &mut Context) -> Result<Markup, Compo
                 @if *field.required() {
                     span
                         class="form-required"
-                        title=[L10n::l("field_required").lookup(cx)]
+                        title=[Lc::l("field_required").lookup(cx)]
                     {
                         "*"
                     }

@@ -1,4 +1,4 @@
-use crate::locale::L10n;
+use crate::locale::Lc;
 use crate::{AutoDefault, Getters};
 
 /// Nivel de severidad de un [`StatusMessage`].
@@ -20,30 +20,30 @@ pub enum MessageLevel {
 /// puede generarse en cualquier punto del procesamiento de una petición web (handlers, renderizado,
 /// lógica de negocio, etc.).
 ///
-/// El texto se almacena como [`L10n`] para resolverse con el idioma del contexto en el momento de
-/// la visualización.
+/// El texto se almacena como [`Lc`] para resolverse con el idioma del contexto en el momento de la
+/// visualización.
 ///
 /// # Ejemplo
 ///
 /// ```rust,no_run
 /// # use pagetop::prelude::*;
 /// // Mensaje informativo con clave traducible.
-/// let info = StatusMessage::new(MessageLevel::Info, L10n::l("saved-successfully"));
+/// let info = StatusMessage::new(MessageLevel::Info, Lc::l("saved-successfully"));
 ///
 /// // Aviso con texto literal sin traducción.
-/// let warn = StatusMessage::new(MessageLevel::Warning, L10n::n("Incomplete form."));
+/// let warn = StatusMessage::new(MessageLevel::Warning, Lc::n("Incomplete form."));
 /// ```
 #[derive(Debug, Getters)]
 pub struct StatusMessage {
     /// Nivel de severidad del mensaje.
     level: MessageLevel,
     /// Texto del mensaje.
-    text: L10n,
+    text: Lc,
 }
 
 impl StatusMessage {
     /// Crea un nuevo mensaje de usuario con el nivel y texto indicados.
-    pub fn new(level: MessageLevel, text: L10n) -> Self {
+    pub fn new(level: MessageLevel, text: Lc) -> Self {
         StatusMessage { level, text }
     }
 }

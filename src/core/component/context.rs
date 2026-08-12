@@ -6,7 +6,7 @@ use crate::core::theme::{ChildrenInRegions, CoreRegions, CoreTemplates};
 use crate::core::theme::{RegionRef, TemplateRef, ThemeRef};
 use crate::html::{Assets, Favicon, JavaScript, Preload, StyleSheet};
 use crate::html::{Markup, Props, PropsOp, RoutePath, html};
-use crate::locale::L10n;
+use crate::locale::Lc;
 use crate::locale::{LangId, LanguageIdentifier, RequestLocale};
 use crate::web::HttpRequest;
 use crate::{builder_fn, util};
@@ -509,9 +509,9 @@ impl Context {
     /// ```rust,no_run
     /// # use pagetop::prelude::*;
     /// # let mut cx = Context::default();
-    /// cx.push_message(MessageLevel::Warning, L10n::n("Session is not valid"));
+    /// cx.push_message(MessageLevel::Warning, Lc::n("Session is not valid"));
     /// ```
-    pub fn push_message(&mut self, level: MessageLevel, text: L10n) {
+    pub fn push_message(&mut self, level: MessageLevel, text: Lc) {
         self.messages.push(StatusMessage::new(level, text));
     }
 
@@ -532,13 +532,13 @@ impl Context {
 /// global de idioma de la aplicación, la cabecera `Accept-Language` y/o el idioma de respaldo.
 ///
 /// Todo ello según la negociación indicada en [`global::SETTINGS.app.lang_negotiation`]. Esto
-/// permite que el [`Context`] se use como fuente de idioma coherente en [`L10n::lookup()`] o
-/// [`L10n::using()`].
+/// permite que el [`Context`] se use como fuente de idioma coherente en [`Lc::lookup()`] o
+/// [`Lc::using()`].
 ///
 /// [`Context`]: crate::core::component::Context
 /// [`global::SETTINGS.app.lang_negotiation`]: crate::global::App::lang_negotiation
-/// [`L10n::lookup()`]: crate::locale::L10n::lookup
-/// [`L10n::using()`]: crate::locale::L10n::using
+/// [`Lc::lookup()`]: crate::locale::Lc::lookup
+/// [`Lc::using()`]: crate::locale::Lc::using
 impl LangId for Context {
     #[inline]
     fn langid(&self) -> &'static LanguageIdentifier {

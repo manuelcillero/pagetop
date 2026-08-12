@@ -62,7 +62,7 @@ use crate::hx;
 ///     .with_param("sort", field)
 ///     .with_param("dir", next_dir);
 ///
-/// table::Column::new(L10n::n("User"))
+/// table::Column::new(Lc::n("User"))
 ///     .with_sort(hx_table::sort_link(href, "#user-table-wrapper", active))
 /// # }
 /// ```

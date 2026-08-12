@@ -12,13 +12,13 @@ use std::collections::HashMap;
 
 use std::fmt;
 
-/// Operación de localización a realizar.
-///
-/// * `None` - No se aplica ninguna localización.
-/// * `Text` - Con una cadena literal que se devolverá tal cual.
-/// * `Translate` - Con la clave a resolver en el `Locales` indicado.
+// Tipo de localización a aplicar.
+//
+// * `None` - No se aplica ninguna localización.
+// * `Text` - Con una cadena literal que se devolverá tal cual.
+// * `Translate` - Con la clave a resolver en el `Locales` indicado.
 #[derive(AutoDefault, Clone, Debug)]
-enum L10nOp {
+enum LcKind {
     #[default]
     None,
     Text(CowStr),
@@ -61,10 +61,10 @@ enum L10nOp {
 /// ```rust,no_run
 /// # use pagetop::prelude::*;
 /// // Texto literal sin traducción.
-/// let raw = L10n::n("© 2025 PageTop").get();
+/// let raw = Lc::n("© 2025 PageTop").get();
 ///
 /// // Traducción simple con clave y argumentos.
-/// let hello = L10n::l("greeting")
+/// let hello = Lc::l("greeting")
 ///     .with_arg("name", "Manuel")
 ///     .get();
 /// ```
@@ -73,19 +73,19 @@ enum L10nOp {
 ///
 /// ```rust,ignore
 /// // Traducción con clave, conjunto de traducciones y fuente de idioma.
-/// let bye = L10n::t("goodbye", &LOCALES_CUSTOM).lookup(&Locale::resolve("it"));
+/// let bye = Lc::t("goodbye", &LOCALES_CUSTOM).lookup(&Locale::resolve("it"));
 /// ```
 #[derive(AutoDefault, Clone)]
-pub struct L10n {
-    op: L10nOp,
+pub struct Lc {
+    op: LcKind,
     #[default(&LOCALES_PAGETOP)]
     locales: &'static Locales,
     args: Vec<(CowStr, CowStr)>,
 }
 
-impl fmt::Debug for L10n {
+impl fmt::Debug for Lc {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_struct("L10n")
+        f.debug_struct("Lc")
             .field("op", &self.op)
             .field("args", &self.args)
             // No se puede mostrar `locales`; se representa con un texto fijo.
@@ -94,11 +94,11 @@ impl fmt::Debug for L10n {
     }
 }
 
-impl L10n {
+impl Lc {
     /// **n** = *“native”*. Crea una instancia con una cadena literal sin traducción.
     pub fn n(text: impl Into<CowStr>) -> Self {
         Self {
-            op: L10nOp::Text(text.into()),
+            op: LcKind::Text(text.into()),
             ..Default::default()
         }
     }
@@ -107,7 +107,7 @@ impl L10n {
     /// predefinidas propias de PageTop.
     pub fn l(key: impl Into<CowStr>) -> Self {
         Self {
-            op: L10nOp::Translate(key.into()),
+            op: LcKind::Translate(key.into()),
             ..Default::default()
         }
     }
@@ -116,7 +116,7 @@ impl L10n {
     /// específico.
     pub fn t(key: impl Into<CowStr>, locales: &'static Locales) -> Self {
         Self {
-            op: L10nOp::Translate(key.into()),
+            op: LcKind::Translate(key.into()),
             locales,
             ..Default::default()
         }
@@ -151,7 +151,7 @@ impl L10n {
     ///
     /// ```rust,no_run
     /// # use pagetop::prelude::*;
-    /// let text = L10n::l("greeting").with_arg("name", "Manuel").get();
+    /// let text = Lc::l("greeting").with_arg("name", "Manuel").get();
     /// ```
     pub fn get(&self) -> Option<String> {
         self.lookup(&Locale::default())
@@ -179,13 +179,13 @@ impl L10n {
     /// }
     ///
     /// let r = ResourceLang;
-    /// let text = L10n::l("greeting").with_arg("name", "Usuario").lookup(&r);
+    /// let text = Lc::l("greeting").with_arg("name", "Usuario").lookup(&r);
     /// ```
     pub fn lookup(&self, language: &impl LangId) -> Option<String> {
         match &self.op {
-            L10nOp::None => None,
-            L10nOp::Text(text) => Some(text.clone().into_owned()),
-            L10nOp::Translate(key) => {
+            LcKind::None => None,
+            LcKind::Text(text) => Some(text.clone().into_owned()),
+            LcKind::Translate(key) => {
                 if self.args.is_empty() {
                     self.locales.try_lookup(language.langid(), key.as_ref())
                 } else {
@@ -219,11 +219,11 @@ impl L10n {
     ///
     /// ```rust,no_run
     /// # use pagetop::prelude::*;
-    /// let html = L10n::l("welcome.message").using(&Locale::resolve("es"));
+    /// let html = Lc::l("welcome.message").using(&Locale::resolve("es"));
     /// ```
     pub fn using(&self, language: &impl LangId) -> Markup {
         match &self.op {
-            L10nOp::Text(text) => text.render(),
+            LcKind::Text(text) => text.render(),
             _ => PreEscaped(self.lookup(language).unwrap_or_default()),
         }
     }

@@ -65,9 +65,9 @@ async fn homepage(request: HttpRequest) -> Result<Markup, ErrorPage> {
         .with_theme(&Aliner)
         .with_child(
             Block::new()
-                .with_title(L10n::l("sample_title"))
+                .with_title(Lc::l("sample_title"))
                 .with_child(Html::with(|cx| html! {
-                    p { (L10n::l("sample_content").using(cx)) }
+                    p { (Lc::l("sample_content").using(cx)) }
                 })),
         )
         .render().await
@@ -92,12 +92,12 @@ pub struct Aliner;
 
 #[async_trait]
 impl Extension for Aliner {
-    fn name(&self) -> L10n {
-        L10n::t("extension_name", &LOCALES_ALINER)
+    fn name(&self) -> Lc {
+        Lc::t("extension_name", &LOCALES_ALINER)
     }
 
-    fn description(&self) -> L10n {
-        L10n::t("extension_description", &LOCALES_ALINER)
+    fn description(&self) -> Lc {
+        Lc::t("extension_description", &LOCALES_ALINER)
     }
 
     fn theme(&self) -> Option<ThemeRef> {
@@ -129,7 +129,7 @@ impl Theme for Aliner {
                 .with_weight(-99),
         ))
         .alter_child_in(
-            &DefaultRegions::Footer,
+            &CoreRegions::Footer,
             ChildOp::AddIfEmpty(PoweredBy::new().into()),
         );
     }

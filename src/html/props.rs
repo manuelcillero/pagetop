@@ -354,7 +354,7 @@ impl PropsOp {
 /// # use pagetop::prelude::*;
 /// #[derive(AutoDefault, Clone, Getters)]
 /// pub struct MyButton {
-///     label: L10n,
+///     label: Lc,
 ///     props: Props,
 /// }
 ///

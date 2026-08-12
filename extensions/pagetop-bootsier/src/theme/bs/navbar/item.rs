@@ -23,7 +23,7 @@ pub enum Item {
     /// Representa un menú de navegación [`Nav`](crate::theme::bs::Nav).
     Nav(Embed<bs::Nav>),
     /// Representa un *texto localizado* libre.
-    Text(L10n),
+    Text(Lc),
 }
 
 #[async_trait]
@@ -92,7 +92,7 @@ impl Item {
     }
 
     /// Crea un elemento con un *texto localizado*, mostrado sin interacción.
-    pub fn text(item: L10n) -> Self {
+    pub fn text(item: Lc) -> Self {
         Self::Text(item)
     }
 }

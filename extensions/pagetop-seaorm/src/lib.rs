@@ -194,12 +194,12 @@ pub struct SeaORM;
 
 #[async_trait]
 impl Extension for SeaORM {
-    fn name(&self) -> L10n {
-        L10n::t("extension_name", &LOCALES_SEAORM)
+    fn name(&self) -> Lc {
+        Lc::t("extension_name", &LOCALES_SEAORM)
     }
 
-    fn description(&self) -> L10n {
-        L10n::t("extension_description", &LOCALES_SEAORM)
+    fn description(&self) -> Lc {
+        Lc::t("extension_description", &LOCALES_SEAORM)
     }
 
     async fn initialize(&self) {

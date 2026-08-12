@@ -64,9 +64,9 @@ async fn homepage(request: HttpRequest) -> Result<Markup, ErrorPage> {
         .with_theme(&Aliner)
         .with_child(
             Block::new()
-                .with_title(L10n::l("sample_title"))
+                .with_title(Lc::l("sample_title"))
                 .with_child(Html::with(|cx| html! {
-                    p { (L10n::l("sample_content").using(cx)) }
+                    p { (Lc::l("sample_content").using(cx)) }
                 })),
         )
         .render().await

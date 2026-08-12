@@ -135,8 +135,8 @@ impl fmt::Display for Mode {
 ///
 /// let email = form::input::Field::email()
 ///     .with_name("email")
-///     .with_label(L10n::n("Email address"))
-///     .with_placeholder(L10n::n("user@example.com"))
+///     .with_label(Lc::n("Email address"))
+///     .with_placeholder(Lc::n("user@example.com"))
 ///     .with_autocomplete(Some(form::Autocomplete::email()))
 ///     .with_required(true);
 /// ```
@@ -161,15 +161,15 @@ pub struct Field {
     /// Devuelve el valor inicial del campo.
     value: AttrValue,
     /// Devuelve la etiqueta del campo.
-    label: Attr<L10n>,
+    label: Attr<Lc>,
     /// Devuelve el texto de ayuda del campo.
-    help_text: Attr<L10n>,
+    help_text: Attr<Lc>,
     /// Devuelve la longitud mínima permitida en caracteres.
     minlength: Attr<u16>,
     /// Devuelve la longitud máxima permitida en caracteres.
     maxlength: Attr<u16>,
     /// Devuelve el texto indicativo del campo.
-    placeholder: Attr<L10n>,
+    placeholder: Attr<Lc>,
     /// Devuelve la configuración de autocompletado del campo.
     autocomplete: Attr<form::Autocomplete>,
     /// Devuelve si el campo recibe el foco automáticamente al cargar la página.
@@ -238,7 +238,7 @@ impl Component for Field {
                         @if *self.required() {
                             span
                                 class="form-required"
-                                title=[L10n::l("field_required").lookup(cx)]
+                                title=[Lc::l("field_required").lookup(cx)]
                             {
                                 "*"
                             }
@@ -420,14 +420,14 @@ impl Field {
 
     /// Establece o elimina la etiqueta visible del campo (basta pasar `None` para quitarla).
     #[builder_fn]
-    pub fn with_label(mut self, label: impl Into<Option<L10n>>) -> Self {
+    pub fn with_label(mut self, label: impl Into<Option<Lc>>) -> Self {
         self.label.alter_opt(label.into());
         self
     }
 
     /// Establece o elimina el texto de ayuda del campo (basta pasar `None` para quitarlo).
     #[builder_fn]
-    pub fn with_help_text(mut self, help_text: impl Into<Option<L10n>>) -> Self {
+    pub fn with_help_text(mut self, help_text: impl Into<Option<Lc>>) -> Self {
         self.help_text.alter_opt(help_text.into());
         self
     }
@@ -449,9 +449,9 @@ impl Field {
     /// Establece o elimina el texto indicativo del campo (`None` para quitarlo).
     ///
     /// Este texto aparece en el mismo campo y desaparece en cuanto el usuario empieza a escribir.
-    /// Al ser texto visible para el usuario se acepta [`L10n`] para poder localizarlo.
+    /// Al ser texto visible para el usuario se acepta [`Lc`] para poder localizarlo.
     #[builder_fn]
-    pub fn with_placeholder(mut self, placeholder: impl Into<Option<L10n>>) -> Self {
+    pub fn with_placeholder(mut self, placeholder: impl Into<Option<Lc>>) -> Self {
         self.placeholder.alter_opt(placeholder.into());
         self
     }

@@ -47,9 +47,9 @@ impl fmt::Display for ButtonAction {
 /// ```rust,no_run
 /// use pagetop::prelude::*;
 ///
-/// let save   = Button::submit(L10n::n("Save"));
-/// let cancel = Button::plain(L10n::n("Cancel"));
-/// let clear  = Button::reset(L10n::n("Clear"));
+/// let save   = Button::submit(Lc::n("Save"));
+/// let cancel = Button::plain(Lc::n("Cancel"));
+/// let clear  = Button::reset(Lc::n("Clear"));
 /// ```
 ///
 /// Cuando el botón activa el envío, el navegador incluye el par `name=value` en los datos del
@@ -74,9 +74,9 @@ pub struct Button {
     /// Devuelve el valor del botón.
     value: AttrValue,
     /// Devuelve la etiqueta del botón.
-    label: Attr<L10n>,
+    label: Attr<Lc>,
     /// Devuelve el texto emergente del botón (atributo `title`).
-    title: Attr<L10n>,
+    title: Attr<Lc>,
     /// Devuelve si el botón recibe el foco automáticamente al cargar la página.
     autofocus: bool,
     /// Devuelve si el botón está deshabilitado.
@@ -121,7 +121,7 @@ impl Button {
     ///
     /// Es la acción predeterminada al pulsar un botón en la mayoría de los formularios: envía los
     /// datos al servidor.
-    pub fn submit(label: L10n) -> Self {
+    pub fn submit(label: Lc) -> Self {
         Self {
             kind: ButtonAction::Submit,
             label: Attr::some(label),
@@ -132,7 +132,7 @@ impl Button {
     /// Crea un botón de **restablecimiento** (`type="reset"`).
     ///
     /// Al pulsarlo, devuelve todos los campos del formulario a sus valores iniciales.
-    pub fn reset(label: L10n) -> Self {
+    pub fn reset(label: Lc) -> Self {
         Self {
             kind: ButtonAction::Reset,
             label: Attr::some(label),
@@ -144,7 +144,7 @@ impl Button {
     ///
     /// No tiene un comportamiento predeterminado sobre el formulario. Su comportamiento puede
     /// definirse mediante JavaScript.
-    pub fn plain(label: L10n) -> Self {
+    pub fn plain(label: Lc) -> Self {
         Self {
             kind: ButtonAction::Plain,
             label: Attr::some(label),
@@ -190,14 +190,14 @@ impl Button {
 
     /// Establece o elimina la etiqueta visible del botón (basta pasar `None` para quitarla).
     #[builder_fn]
-    pub fn with_label(mut self, label: impl Into<Option<L10n>>) -> Self {
+    pub fn with_label(mut self, label: impl Into<Option<Lc>>) -> Self {
         self.label.alter_opt(label.into());
         self
     }
 
     /// Establece o elimina el texto emergente del botón (basta pasar `None` para quitarlo).
     #[builder_fn]
-    pub fn with_title(mut self, title: impl Into<Option<L10n>>) -> Self {
+    pub fn with_title(mut self, title: impl Into<Option<Lc>>) -> Self {
         self.title.alter_opt(title.into());
         self
     }

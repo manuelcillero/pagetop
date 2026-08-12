@@ -26,9 +26,9 @@ const TOGGLE_OFFCANVAS: &str = "offcanvas";
 /// let navbar = bs::Navbar::simple()
 ///     .with_item(bs::navbar::Item::nav(
 ///         bs::Nav::new()
-///             .with_item(bs::nav::Item::link(L10n::n("Home"), |_| "/".into()))
-///             .with_item(bs::nav::Item::link(L10n::n("About"), |_| "/about".into()))
-///             .with_item(bs::nav::Item::link(L10n::n("Contact"), |_| "/contact".into()))
+///             .with_item(bs::nav::Item::link(Lc::n("Home"), "/"))
+///             .with_item(bs::nav::Item::link(Lc::n("About"), "/about"))
+///             .with_item(bs::nav::Item::link(Lc::n("Contact"), "/contact"))
 ///     ));
 /// ```
 ///
@@ -38,12 +38,12 @@ const TOGGLE_OFFCANVAS: &str = "offcanvas";
 /// # use pagetop::prelude::*;
 /// # use pagetop_bootsier::theme::*;
 /// let navbar = bs::Navbar::simple_toggle()
-///     .with_expand(token::BreakPoint::MD)
+///     .with_expand(BreakPoint::MD)
 ///     .with_item(bs::navbar::Item::nav(
 ///         bs::Nav::new()
-///             .with_item(bs::nav::Item::link(L10n::n("Home"), |_| "/".into()))
-///             .with_item(bs::nav::Item::link_blank(L10n::n("Doc"), |_| "https://docs.rs".into()))
-///             .with_item(bs::nav::Item::link(L10n::n("Support"), |_| "/support".into()))
+///             .with_item(bs::nav::Item::link(Lc::n("Home"), "/"))
+///             .with_item(bs::nav::Item::link_blank(Lc::n("Doc"), "https://docs.rs"))
+///             .with_item(bs::nav::Item::link(Lc::n("Support"), "/support"))
 ///     ));
 /// ```
 ///
@@ -53,24 +53,24 @@ const TOGGLE_OFFCANVAS: &str = "offcanvas";
 /// # use pagetop::prelude::*;
 /// # use pagetop_bootsier::theme::*;
 /// let brand = bs::navbar::Brand::new()
-///     .with_title(L10n::n("PageTop"))
-///     .with_route(Some(|cx| cx.route("/")));
+///     .with_title(Lc::n("PageTop"))
+///     .with_route(Some("/".into()));
 ///
 /// let navbar = bs::Navbar::brand_left(brand)
 ///     .with_item(bs::navbar::Item::nav(
 ///         bs::Nav::new()
-///             .with_item(bs::nav::Item::link(L10n::n("Home"), |_| "/".into()))
+///             .with_item(bs::nav::Item::link(Lc::n("Home"), "/"))
 ///             .with_item(bs::nav::Item::dropdown(
 ///                 bs::Dropdown::new()
-///                     .with_title(L10n::n("Tools"))
+///                     .with_title(Lc::n("Tools"))
 ///                     .with_item(bs::dropdown::Item::link(
-///                         L10n::n("Generator"), |_| "/tools/gen".into())
+///                         Lc::n("Generator"), "/tools/gen")
 ///                     )
 ///                     .with_item(bs::dropdown::Item::link(
-///                         L10n::n("Reports"), |_| "/tools/reports".into())
+///                         Lc::n("Reports"), "/tools/reports")
 ///                     )
 ///             ))
-///             .with_item(bs::nav::Item::link_disabled(L10n::n("Disabled"), |_| "#".into()))
+///             .with_item(bs::nav::Item::link_disabled(Lc::n("Disabled"), "#"))
 ///     ));
 /// ```
 ///
@@ -80,15 +80,15 @@ const TOGGLE_OFFCANVAS: &str = "offcanvas";
 /// # use pagetop::prelude::*;
 /// # use pagetop_bootsier::theme::*;
 /// let brand = bs::navbar::Brand::new()
-///     .with_title(L10n::n("Intranet"))
-///     .with_route(Some(|cx| cx.route("/")));
+///     .with_title(Lc::n("Intranet"))
+///     .with_route(Some("/".into()));
 ///
 /// let navbar = bs::Navbar::brand_right(brand)
-///     .with_expand(token::BreakPoint::LG)
+///     .with_expand(BreakPoint::LG)
 ///     .with_item(bs::navbar::Item::nav(
 ///         bs::Nav::pills()
-///             .with_item(bs::nav::Item::link(L10n::n("Dashboard"), |_| "/dashboard".into()))
-///             .with_item(bs::nav::Item::link(L10n::n("Users"), |_| "/users".into()))
+///             .with_item(bs::nav::Item::link(Lc::n("Dashboard"), "/dashboard"))
+///             .with_item(bs::nav::Item::link(Lc::n("Users"), "/users"))
 ///     ));
 /// ```
 ///
@@ -99,20 +99,20 @@ const TOGGLE_OFFCANVAS: &str = "offcanvas";
 /// # use pagetop_bootsier::theme::*;
 /// let oc = bs::Offcanvas::new()
 ///     .with_id("main_offcanvas")
-///     .with_title(L10n::n("Main menu"))
+///     .with_title(Lc::n("Main menu"))
 ///     .with_placement(bs::offcanvas::Placement::Start)
 ///     .with_backdrop(bs::offcanvas::Backdrop::Enabled);
 ///
 /// let navbar = bs::Navbar::offcanvas(oc)
 ///     .with_item(bs::navbar::Item::nav(
 ///         bs::Nav::new()
-///             .with_item(bs::nav::Item::link(L10n::n("Home"), |_| "/".into()))
-///             .with_item(bs::nav::Item::link(L10n::n("Profile"), |_| "/profile".into()))
+///             .with_item(bs::nav::Item::link(Lc::n("Home"), "/"))
+///             .with_item(bs::nav::Item::link(Lc::n("Profile"), "/profile"))
 ///             .with_item(bs::nav::Item::dropdown(
 ///                 bs::Dropdown::new()
-///                     .with_title(L10n::n("More"))
-///                     .with_item(bs::dropdown::Item::link(L10n::n("Settings"), |_| "/settings".into()))
-///                     .with_item(bs::dropdown::Item::link(L10n::n("Help"), |_| "/help".into()))
+///                     .with_title(Lc::n("More"))
+///                     .with_item(bs::dropdown::Item::link(Lc::n("Settings"), "/settings"))
+///                     .with_item(bs::dropdown::Item::link(Lc::n("Help"), "/help"))
 ///             ))
 ///     ));
 /// ```
@@ -123,16 +123,16 @@ const TOGGLE_OFFCANVAS: &str = "offcanvas";
 /// # use pagetop::prelude::*;
 /// # use pagetop_bootsier::theme::*;
 /// let brand = bs::navbar::Brand::new()
-///     .with_title(L10n::n("Main App"))
-///     .with_route(Some(|cx| cx.route("/")));
+///     .with_title(Lc::n("Main App"))
+///     .with_route(Some("/".into()));
 ///
 /// let navbar = bs::Navbar::brand_left(brand)
 ///     .with_position(bs::navbar::Position::FixedTop)
 ///     .with_item(bs::navbar::Item::nav(
 ///         bs::Nav::new()
-///             .with_item(bs::nav::Item::link(L10n::n("Dashboard"), |_| "/".into()))
-///             .with_item(bs::nav::Item::link(L10n::n("Donors"), |_| "/donors".into()))
-///             .with_item(bs::nav::Item::link(L10n::n("Stock"), |_| "/stock".into()))
+///             .with_item(bs::nav::Item::link(Lc::n("Dashboard"), "/"))
+///             .with_item(bs::nav::Item::link(Lc::n("Donors"), "/donors"))
+///             .with_item(bs::nav::Item::link(Lc::n("Stock"), "/stock"))
 ///     ));
 /// ```
 #[derive(AutoDefault, Clone, Debug, Getters)]
@@ -140,7 +140,7 @@ pub struct Navbar {
     /// Devuelve identificador, clases CSS, atributos HTML y valores extra del componente.
     props: Props,
     /// Devuelve el punto de ruptura configurado.
-    expand: token::BreakPoint,
+    expand: BreakPoint,
     /// Devuelve la disposición configurada para la barra de navegación.
     layout: bs::navbar::Layout,
     /// Devuelve la posición configurada para la barra de navegación.
@@ -189,7 +189,7 @@ impl Component for Navbar {
                     data-bs-target=(id_content_target)
                     aria-controls=(id_content)
                     aria-expanded=[aria_expanded]
-                    aria-label=[L10n::t("toggle", &LOCALES_BOOTSIER).lookup(cx)]
+                    aria-label=[Lc::t("toggle", &LOCALES_BOOTSIER).lookup(cx)]
                 {
                     span class="navbar-toggler-icon" {}
                 }
@@ -350,7 +350,7 @@ impl Navbar {
     ///
     /// También acepta clases predefinidas para:
     ///
-    /// - Modificar el color de fondo ([`Background`]).
+    /// - Modificar el color de fondo ([`Bg`]).
     /// - Definir la apariencia del texto ([`Text`]).
     #[builder_fn]
     pub fn with_prop(mut self, op: PropsOp) -> Self {
@@ -360,7 +360,7 @@ impl Navbar {
 
     /// Define a partir de qué punto de ruptura la barra de navegación deja de colapsar.
     #[builder_fn]
-    pub fn with_expand(mut self, bp: token::BreakPoint) -> Self {
+    pub fn with_expand(mut self, bp: BreakPoint) -> Self {
         self.expand = bp;
         self
     }

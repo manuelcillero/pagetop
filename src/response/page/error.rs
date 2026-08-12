@@ -3,7 +3,7 @@ use axum::middleware::Next;
 
 use crate::core::component::Contextual;
 use crate::html::Markup;
-use crate::locale::L10n;
+use crate::locale::Lc;
 use crate::web::{HttpRequest, IntoResponse, Response, http};
 use crate::{trace, util};
 
@@ -89,9 +89,9 @@ impl ErrorPage {
                 page.theme().error_fatal(
                     &mut page,
                     status,
-                    L10n::l(util::join!("error", status.as_str(), "_title")),
-                    L10n::l(util::join!("error", status.as_str(), "_alert")),
-                    L10n::l(util::join!("error", status.as_str(), "_help")),
+                    Lc::l(util::join!("error", status.as_str(), "_title")),
+                    Lc::l(util::join!("error", status.as_str(), "_alert")),
+                    Lc::l(util::join!("error", status.as_str(), "_help")),
                 );
                 page
             }

@@ -1,4 +1,4 @@
-use crate::locale::{L10n, LangId};
+use crate::locale::{LangId, Lc};
 use crate::{AutoDefault, builder_fn, util};
 
 /// Valor opcional para atributos HTML.
@@ -7,7 +7,7 @@ use crate::{AutoDefault, builder_fn, util};
 /// opcionales, uniformes y tipados.
 ///
 /// Este tipo **no impone ninguna normalización ni semántica concreta**; dichas reglas se definen en
-/// implementaciones concretas como `Attr<L10n>` y `Attr<String>`, o en tipos específicos como
+/// implementaciones concretas como `Attr<Lc>` y `Attr<String>`, o en tipos específicos como
 /// [`AttrName`].
 #[derive(AutoDefault, Clone, Debug)]
 pub struct Attr<T>(Option<T>);
@@ -72,18 +72,18 @@ impl<T> Attr<T> {
     }
 }
 
-// **< Attr<L10n> >*********************************************************************************
+// **< Attr<Lc> >***********************************************************************************
 
 /// Extiende [`Attr`] para [texto localizado](crate::locale) en atributos HTML.
 ///
-/// Encapsula un [`L10n`] para manejar traducciones de forma segura en atributos.
+/// Encapsula un [`Lc`] para manejar traducciones de forma segura en atributos.
 ///
 /// # Ejemplo
 ///
 /// ```rust
 /// # use pagetop::prelude::*;
 /// // Traducción por clave en las locales por defecto de PageTop.
-/// let hello = Attr::<L10n>::new(L10n::l("test_hello_world"));
+/// let hello = Attr::<Lc>::new(Lc::l("test_hello_world"));
 ///
 /// // Español disponible.
 /// assert_eq!(
@@ -101,9 +101,9 @@ impl<T> Attr<T> {
 /// let title = hello.value(&Locale::resolve("es-ES"));
 /// // Ejemplo: html! { a title=(title) { "Link" } }
 /// ```
-impl Attr<L10n> {
-    /// Crea una nueva instancia `Attr<L10n>`.
-    pub fn new(value: L10n) -> Self {
+impl Attr<Lc> {
+    /// Crea una nueva instancia `Attr<Lc>`.
+    pub fn new(value: Lc) -> Self {
         Self::some(value)
     }
 

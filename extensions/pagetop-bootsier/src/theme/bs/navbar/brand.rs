@@ -16,13 +16,13 @@ pub struct Brand {
     /// Devuelve la imagen de marca (si la hay).
     image: Embed<bs::Image>,
     /// Devuelve el título de la identidad de marca.
-    #[default(_code = "L10n::n(&global::SETTINGS.app.name)")]
-    title: L10n,
+    #[default(_code = "Lc::n(&global::SETTINGS.app.name)")]
+    title: Lc,
     /// Devuelve el eslogan de la marca.
-    slogan: L10n,
-    /// Devuelve la función que resuelve la URL asociada a la marca (si existe).
-    #[default(_code = "Some(|cx| cx.route(\"/\"))")]
-    route: Option<FnPathByContext>,
+    slogan: Lc,
+    /// Devuelve la ruta asociada a la marca (si existe).
+    #[default(_code = "Some(\"/\".into())")]
+    route: Option<Route>,
 }
 
 #[async_trait]
@@ -40,7 +40,7 @@ impl Component for Brand {
         let slogan = self.slogan().using(cx);
         Ok(html! {
             @if let Some(route) = self.route() {
-                a class="navbar-brand" href=(route(cx)) { (image) (title) (slogan) }
+                a class="navbar-brand" href=(route.resolve(cx)) { (image) (title) (slogan) }
             } @else {
                 span class="navbar-brand" { (image) (title) (slogan) }
             }
@@ -60,21 +60,21 @@ impl Brand {
 
     /// Establece el título de la identidad de marca.
     #[builder_fn]
-    pub fn with_title(mut self, title: L10n) -> Self {
+    pub fn with_title(mut self, title: Lc) -> Self {
         self.title = title;
         self
     }
 
     /// Define el eslogan de la marca.
     #[builder_fn]
-    pub fn with_slogan(mut self, slogan: L10n) -> Self {
+    pub fn with_slogan(mut self, slogan: Lc) -> Self {
         self.slogan = slogan;
         self
     }
 
-    /// Define la URL de destino. Si es `None`, la marca no será un enlace.
+    /// Define la ruta de destino. Si es `None`, la marca no será un enlace.
     #[builder_fn]
-    pub fn with_route(mut self, route: Option<FnPathByContext>) -> Self {
+    pub fn with_route(mut self, route: Option<Route>) -> Self {
         self.route = route;
         self
     }

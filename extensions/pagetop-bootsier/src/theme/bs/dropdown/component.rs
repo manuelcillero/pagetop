@@ -27,22 +27,22 @@ use crate::theme::*;
 /// use pagetop_bootsier::theme::*;
 ///
 /// let dd = bs::Dropdown::new()
-///     .with_title(L10n::n("Menu"))
+///     .with_title(Lc::n("Menu"))
 ///     .with_button_color(class::ButtonColor::solid(token::Color::Secondary))
 ///     .with_auto_close(bs::dropdown::AutoClose::ClickableInside)
 ///     .with_direction(bs::dropdown::Direction::Dropend)
-///     .with_item(bs::dropdown::Item::link(L10n::n("Home"), |_| "/".into()))
-///     .with_item(bs::dropdown::Item::link_blank(L10n::n("Doc"), |_| "https://docs.rs".into()))
+///     .with_item(bs::dropdown::Item::link(Lc::n("Home"), "/"))
+///     .with_item(bs::dropdown::Item::link_blank(Lc::n("Doc"), "https://docs.rs"))
 ///     .with_item(bs::dropdown::Item::divider())
-///     .with_item(bs::dropdown::Item::header(L10n::n("User session")))
-///     .with_item(bs::dropdown::Item::button(L10n::n("Sign out")));
+///     .with_item(bs::dropdown::Item::header(Lc::n("User session")))
+///     .with_item(bs::dropdown::Item::button(Lc::n("Sign out")));
 /// ```
 #[derive(AutoDefault, Clone, Debug, Getters)]
 pub struct Dropdown {
     /// Devuelve identificador, clases CSS, atributos HTML y valores extra del componente.
     props: Props,
     /// Devuelve el título del menú desplegable.
-    title: L10n,
+    title: Lc,
     /// Devuelve el tamaño configurado del botón.
     button_size: class::ButtonSize,
     /// Devuelve el color/estilo configurado del botón.
@@ -133,7 +133,7 @@ impl Component for Dropdown {
                                 aria-expanded="false"
                             {
                                 span class="visually-hidden" {
-                                    (L10n::t("dropdown_toggle", &LOCALES_BOOTSIER).using(cx))
+                                    (Lc::t("dropdown_toggle", &LOCALES_BOOTSIER).using(cx))
                                 }
                             }
                         };
@@ -194,7 +194,7 @@ impl Dropdown {
 
     /// Establece el título del menú desplegable.
     #[builder_fn]
-    pub fn with_title(mut self, title: L10n) -> Self {
+    pub fn with_title(mut self, title: Lc) -> Self {
         self.title = title;
         self
     }

@@ -20,69 +20,63 @@ impl Extension for SuperMenu {
             .with_expand(BreakPoint::LG)
             .with_item(bs::navbar::Item::nav(
                 bs::Nav::new()
-                    .with_item(bs::nav::Item::link(L10n::t("menus_item_link", &LOC), "/"))
+                    .with_item(bs::nav::Item::link(Lc::t("menus_item_link", &LOC), "/"))
                     .with_item(bs::nav::Item::link_blank(
-                        L10n::t("menus_item_blank", &LOC),
+                        Lc::t("menus_item_blank", &LOC),
                         "https://docs.rs/pagetop",
                     ))
                     .with_item(bs::nav::Item::dropdown(
                         bs::Dropdown::new()
-                            .with_title(L10n::t("menus_test_title", &LOC))
-                            .with_item(bs::dropdown::Item::header(L10n::t(
-                                "menus_dev_header",
-                                &LOC,
-                            )))
+                            .with_title(Lc::t("menus_test_title", &LOC))
+                            .with_item(bs::dropdown::Item::header(Lc::t("menus_dev_header", &LOC)))
                             .with_item(bs::dropdown::Item::link(
-                                L10n::t("menus_dev_getting_started", &LOC),
+                                Lc::t("menus_dev_getting_started", &LOC),
                                 "/dev/getting-started",
                             ))
                             .with_item(bs::dropdown::Item::link(
-                                L10n::t("menus_dev_guides", &LOC),
+                                Lc::t("menus_dev_guides", &LOC),
                                 "/dev/guides",
                             ))
                             .with_item(bs::dropdown::Item::link_blank(
-                                L10n::t("menus_dev_forum", &LOC),
+                                Lc::t("menus_dev_forum", &LOC),
                                 "https://forum.example.dev",
                             ))
                             .with_item(bs::dropdown::Item::divider())
-                            .with_item(bs::dropdown::Item::header(L10n::t(
-                                "menus_sdk_header",
-                                &LOC,
-                            )))
+                            .with_item(bs::dropdown::Item::header(Lc::t("menus_sdk_header", &LOC)))
                             .with_item(bs::dropdown::Item::link(
-                                L10n::t("menus_sdk_rust", &LOC),
+                                Lc::t("menus_sdk_rust", &LOC),
                                 "/dev/sdks/rust",
                             ))
                             .with_item(bs::dropdown::Item::link(
-                                L10n::t("menus_sdk_js", &LOC),
+                                Lc::t("menus_sdk_js", &LOC),
                                 "/dev/sdks/js",
                             ))
                             .with_item(bs::dropdown::Item::link(
-                                L10n::t("menus_sdk_python", &LOC),
+                                Lc::t("menus_sdk_python", &LOC),
                                 "/dev/sdks/python",
                             ))
                             .with_item(bs::dropdown::Item::divider())
-                            .with_item(bs::dropdown::Item::header(L10n::t(
+                            .with_item(bs::dropdown::Item::header(Lc::t(
                                 "menus_plugin_header",
                                 &LOC,
                             )))
                             .with_item(bs::dropdown::Item::link(
-                                L10n::t("menus_plugin_auth", &LOC),
+                                Lc::t("menus_plugin_auth", &LOC),
                                 "/dev/sdks/rust/plugins/auth",
                             ))
                             .with_item(bs::dropdown::Item::link(
-                                L10n::t("menus_plugin_cache", &LOC),
+                                Lc::t("menus_plugin_cache", &LOC),
                                 "/dev/sdks/rust/plugins/cache",
                             ))
                             .with_item(bs::dropdown::Item::divider())
-                            .with_item(bs::dropdown::Item::label(L10n::t("menus_item_label", &LOC)))
+                            .with_item(bs::dropdown::Item::label(Lc::t("menus_item_label", &LOC)))
                             .with_item(bs::dropdown::Item::link_disabled(
-                                L10n::t("menus_item_disabled", &LOC),
+                                Lc::t("menus_item_disabled", &LOC),
                                 "#",
                             )),
                     ))
                     .with_item(bs::nav::Item::link_disabled(
-                        L10n::t("menus_item_disabled", &LOC),
+                        Lc::t("menus_item_disabled", &LOC),
                         "#",
                     )),
             ))
@@ -93,11 +87,11 @@ impl Extension for SuperMenu {
                         ScaleSize::Auto,
                     )))
                     .with_item(bs::nav::Item::link(
-                        L10n::t("menus_item_sign_up", &LOC),
+                        Lc::t("menus_item_sign_up", &LOC),
                         "/auth/sign-up",
                     ))
                     .with_item(bs::nav::Item::link(
-                        L10n::t("menus_item_login", &LOC),
+                        Lc::t("menus_item_login", &LOC),
                         "/auth/login",
                     )),
             ));

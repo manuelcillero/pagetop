@@ -13,21 +13,20 @@ pub enum ItemKind {
     #[default]
     Void,
     /// Etiqueta sin comportamiento interactivo.
-    Label(L10n),
-    /// Elemento de navegación basado en una [`RoutePath`] dinámica devuelta por
-    /// [`FnPathByContext`]. Opcionalmente, puede abrirse en una nueva ventana y estar inicialmente
-    /// deshabilitado.
+    Label(Lc),
+    /// Elemento de navegación basado en una [`RoutePath`] dinámica resuelta por una [`Route`].
+    /// Opcionalmente, puede abrirse en una nueva ventana y estar inicialmente deshabilitado.
     Link {
-        label: L10n,
-        route: FnPathByContext,
+        label: Lc,
+        route: Route,
         blank: bool,
         disabled: bool,
     },
     /// Acción ejecutable en la propia página, sin navegación asociada. Inicialmente puede estar
     /// deshabilitado.
-    Button { label: L10n, disabled: bool },
+    Button { label: Lc, disabled: bool },
     /// Título o encabezado que separa grupos de opciones.
-    Header(L10n),
+    Header(Lc),
     /// Separador visual entre bloques de elementos.
     Divider,
 }
@@ -79,7 +78,7 @@ impl Component for Item {
                 blank,
                 disabled,
             } => {
-                let route_link = route(cx);
+                let route_link = route.resolve(cx);
                 let current_path = cx.request().map(|request| request.path());
                 let is_current = !*disabled && (current_path == Some(route_link.path()));
 
@@ -156,7 +155,7 @@ impl Component for Item {
 
 impl Item {
     /// Crea un elemento de tipo texto, mostrado sin interacción.
-    pub fn label(label: L10n) -> Self {
+    pub fn label(label: Lc) -> Self {
         Self {
             item_kind: ItemKind::Label(label),
             ..Default::default()
@@ -165,14 +164,14 @@ impl Item {
 
     /// Crea un enlace para la navegación.
     ///
-    /// La ruta se obtiene invocando [`FnPathByContext`], que devuelve dinámicamente una
+    /// La ruta se obtiene invocando [`Route::resolve()`], que devuelve dinámicamente una
     /// [`RoutePath`] en función del [`Context`]. El enlace se marca como `active` si la ruta actual
     /// del *request* coincide con la ruta de destino (devuelta por `RoutePath::path`).
-    pub fn link(label: L10n, route: FnPathByContext) -> Self {
+    pub fn link(label: Lc, route: impl Into<Route>) -> Self {
         Self {
             item_kind: ItemKind::Link {
                 label,
-                route,
+                route: route.into(),
                 blank: false,
                 disabled: false,
             },
@@ -181,11 +180,11 @@ impl Item {
     }
 
     /// Crea un enlace deshabilitado que no permite la interacción.
-    pub fn link_disabled(label: L10n, route: FnPathByContext) -> Self {
+    pub fn link_disabled(label: Lc, route: impl Into<Route>) -> Self {
         Self {
             item_kind: ItemKind::Link {
                 label,
-                route,
+                route: route.into(),
                 blank: false,
                 disabled: true,
             },
@@ -194,11 +193,11 @@ impl Item {
     }
 
     /// Crea un enlace que se abre en una nueva ventana o pestaña.
-    pub fn link_blank(label: L10n, route: FnPathByContext) -> Self {
+    pub fn link_blank(label: Lc, route: impl Into<Route>) -> Self {
         Self {
             item_kind: ItemKind::Link {
                 label,
-                route,
+                route: route.into(),
                 blank: true,
                 disabled: false,
             },
@@ -207,11 +206,11 @@ impl Item {
     }
 
     /// Crea un enlace inicialmente deshabilitado que se abriría en una nueva ventana.
-    pub fn link_blank_disabled(label: L10n, route: FnPathByContext) -> Self {
+    pub fn link_blank_disabled(label: Lc, route: impl Into<Route>) -> Self {
         Self {
             item_kind: ItemKind::Link {
                 label,
-                route,
+                route: route.into(),
                 blank: true,
                 disabled: true,
             },
@@ -220,7 +219,7 @@ impl Item {
     }
 
     /// Crea un botón de acción local, sin navegación asociada.
-    pub fn button(label: L10n) -> Self {
+    pub fn button(label: Lc) -> Self {
         Self {
             item_kind: ItemKind::Button {
                 label,
@@ -231,7 +230,7 @@ impl Item {
     }
 
     /// Crea un botón deshabilitado.
-    pub fn button_disabled(label: L10n) -> Self {
+    pub fn button_disabled(label: Lc) -> Self {
         Self {
             item_kind: ItemKind::Button {
                 label,
@@ -242,7 +241,7 @@ impl Item {
     }
 
     /// Crea un encabezado para un grupo de elementos dentro del menú.
-    pub fn header(label: L10n) -> Self {
+    pub fn header(label: Lc) -> Self {
         Self {
             item_kind: ItemKind::Header(label),
             ..Default::default()

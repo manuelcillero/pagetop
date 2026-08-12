@@ -111,28 +111,33 @@ pub trait Component: AnyInfo + ComponentClone + ComponentRender + Send + Sync {
     /// Genera el marcado HTML del componente cuando ningún tema lo sobrescribe.
     ///
     /// Este es el cuarto paso del [ciclo de renderizado](ComponentRender) tras llamar al
-    /// [`setup()`](Self::setup) del componente y despachar la acción
-    /// [`BeforeRender`](crate::base::action::component::BeforeRender) que atiende los cambios de
+    /// [`setup()`] del componente y despachar la acción [`BeforeRender`] que atiende los cambios de
     /// otras extensiones antes de renderizar. Se invoca sólo si ningún tema en la cadena devuelve
-    /// `Some` en [`Theme::handle_component()`](crate::core::theme::Theme::handle_component) para
-    /// este componente.
+    /// `Some` en [`Theme::handle_component()`] para este componente.
     ///
-    /// Es `async`, a diferencia de [`setup()`](Self::setup), para permitir a los componentes
-    /// realizar aquí sus llamadas asíncronas, como consultas a base de datos, peticiones a
-    /// servicios externos, o cualquier operación de E/S, que necesiten para preparar su contenido.
+    /// Es `async`, a diferencia de [`setup()`], para permitir a los componentes realizar aquí sus
+    /// llamadas asíncronas, como consultas a base de datos, peticiones a servicios externos, o
+    /// cualquier operación de E/S, que necesiten para preparar su contenido.
     ///
     /// Se recomienda obtener los datos del componente a través de sus propios métodos para que los
     /// temas puedan implementar `handle_component()` sin depender de los detalles internos.
     ///
     /// Los campos que representen contenido no deben almacenar [`Markup`] ya generado, sino que
-    /// guardarán el dato en bruto, por ejemplo [`L10n`](crate::locale::L10n) para textos
-    /// traducibles, o un componente anidado como [`Html`](crate::base::component::Html), o
-    /// cualquier otro `Component`, normalmente a través de [`Embed`](crate::core::component::Embed)
-    /// o [`Child`](crate::core::component::Child); y será este método quien lo convierta en HTML en
-    /// el momento del renderizado, no quien construye la instancia.
+    /// guardarán el dato en bruto, por ejemplo [`Lc`] para textos traducibles, o un componente
+    /// anidado como [`Html`], o cualquier otro `Component`, normalmente a través de [`Embed`] o
+    /// [`Child`]; y será este método quien lo convierta en HTML en el momento del renderizado, no
+    /// quien construye la instancia.
     ///
     /// Por defecto, devuelve un [`Markup`] vacío (`Ok(html! {})`). En caso de error, devuelve un
     /// [`ComponentError`] que puede incluir un marcado alternativo (*fallback*).
+    ///
+    /// [`setup()`]: Self::setup
+    /// [`BeforeRender`]: crate::base::action::component::BeforeRender
+    /// [`Theme::handle_component()`]: crate::core::theme::Theme::handle_component
+    /// [`Lc`]: crate::locale::Lc
+    /// [`Html`]: crate::base::component::Html
+    /// [`Embed`]: crate::core::component::Embed
+    /// [`Child`]: crate::core::component::Child
     #[allow(unused_variables)]
     async fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
         Ok(html! {})

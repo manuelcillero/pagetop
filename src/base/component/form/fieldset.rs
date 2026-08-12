@@ -17,19 +17,19 @@ use crate::prelude::*;
 /// use pagetop::prelude::*;
 ///
 /// let personal_data = form::Fieldset::new()
-///     .with_legend(L10n::n("Personal data"))
-///     .with_description(L10n::n("Enter your full name and contact email."))
-///     .with_child(form::input::Field::text().with_name("name").with_label(L10n::n("Full name")))
-///     .with_child(form::input::Field::email().with_name("email").with_label(L10n::n("Email")));
+///     .with_legend(Lc::n("Personal data"))
+///     .with_description(Lc::n("Enter your full name and contact email."))
+///     .with_child(form::input::Field::text().with_name("name").with_label(Lc::n("Full name")))
+///     .with_child(form::input::Field::email().with_name("email").with_label(Lc::n("Email")));
 /// ```
 #[derive(AutoDefault, Clone, Debug, Getters)]
 pub struct Fieldset {
     /// Devuelve identificador, clases CSS, atributos HTML y valores extra del componente.
     props: Props,
     /// Devuelve la leyenda del `fieldset`.
-    legend: Attr<L10n>,
+    legend: Attr<Lc>,
     /// Devuelve la descripción del `fieldset`.
-    description: Attr<L10n>,
+    description: Attr<Lc>,
     /// Devuelve si el `fieldset` está deshabilitado.
     disabled: bool,
     /// Devuelve la lista de componentes del `fieldset`.
@@ -86,14 +86,14 @@ impl Fieldset {
 
     /// Establece o elimina la leyenda del `fieldset` (basta pasar `None` para quitarla).
     #[builder_fn]
-    pub fn with_legend(mut self, legend: impl Into<Option<L10n>>) -> Self {
+    pub fn with_legend(mut self, legend: impl Into<Option<Lc>>) -> Self {
         self.legend.alter_opt(legend.into());
         self
     }
 
     /// Establece o elimina la descripción del `fieldset` (basta pasar `None` para quitarla).
     #[builder_fn]
-    pub fn with_description(mut self, description: impl Into<Option<L10n>>) -> Self {
+    pub fn with_description(mut self, description: impl Into<Option<Lc>>) -> Self {
         self.description.alter_opt(description.into());
         self
     }

@@ -1,7 +1,14 @@
 use crate::prelude::*;
 
 // Enlace a la página oficial de PageTop.
-const LINK: &str = "<a href=\"https://pagetop.cillero.es\" rel=\"noopener noreferrer\">PageTop</a>";
+const PAGETOP_LINK: &str = concat!(
+    "<a ",
+    "href=\"https://pagetop.cillero.es\" ",
+    "target=\"_blank\" ",
+    "rel=\"noopener noreferrer\">",
+    "PageTop",
+    "</a>",
+);
 
 /// Componente que muestra el típico mensaje *Powered by* (*Funciona con*) en el pie de página.
 ///
@@ -33,7 +40,7 @@ impl Component for PoweredBy {
                     span class="poweredby__copyright" { (c) "." } " "
                 }
                 span class="poweredby__pagetop" {
-                    (L10n::l("poweredby_pagetop").with_arg("pagetop_link", LINK).using(cx))
+                    (Lc::l("poweredby_pagetop").with_arg("pagetop_link", PAGETOP_LINK).using(cx))
                 }
             }
         })

@@ -29,8 +29,8 @@ use std::fmt;
 ///         "sidebar"
 ///     }
 ///
-///     fn label(&self) -> L10n {
-///         L10n::n("Sidebar")
+///     fn label(&self) -> Lc {
+///         Lc::n("Sidebar")
 ///     }
 /// }
 ///

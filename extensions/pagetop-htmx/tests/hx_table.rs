@@ -16,7 +16,7 @@ async fn render_column(column: table::Column) -> String {
 
 #[pagetop::test]
 async fn sort_link_sets_the_four_fixed_htmx_attributes() {
-    let column = table::Column::new(L10n::n("User")).with_sort(hx_table::sort_link(
+    let column = table::Column::new(Lc::n("User")).with_sort(hx_table::sort_link(
         "/admin/users",
         "#user-table",
         None,
@@ -34,7 +34,7 @@ async fn sort_link_sets_the_four_fixed_htmx_attributes() {
 async fn sort_link_href_matches_the_hx_get_value() {
     // The link must work with or without HTMX: `href` is the real destination, and `hx-get` must
     // request that very same URL so both navigation paths land on the same state.
-    let column = table::Column::new(L10n::n("User")).with_sort(hx_table::sort_link(
+    let column = table::Column::new(Lc::n("User")).with_sort(hx_table::sort_link(
         "/admin/users?sort=username",
         "#user-table",
         None,
@@ -48,7 +48,7 @@ async fn sort_link_href_matches_the_hx_get_value() {
 
 #[pagetop::test]
 async fn sort_link_target_is_configurable_per_table() {
-    let column = table::Column::new(L10n::n("Email")).with_sort(hx_table::sort_link(
+    let column = table::Column::new(Lc::n("Email")).with_sort(hx_table::sort_link(
         "/admin/users",
         "#other-wrapper",
         None,
@@ -63,7 +63,7 @@ async fn sort_link_target_is_configurable_per_table() {
 
 #[pagetop::test]
 async fn sort_link_without_active_direction_marks_aria_sort_none() {
-    let column = table::Column::new(L10n::n("User")).with_sort(hx_table::sort_link(
+    let column = table::Column::new(Lc::n("User")).with_sort(hx_table::sort_link(
         "/admin/users",
         "#user-table",
         None,
@@ -76,7 +76,7 @@ async fn sort_link_without_active_direction_marks_aria_sort_none() {
 
 #[pagetop::test]
 async fn sort_link_with_active_direction_marks_aria_sort_and_css_class() {
-    let column = table::Column::new(L10n::n("User")).with_sort(hx_table::sort_link(
+    let column = table::Column::new(Lc::n("User")).with_sort(hx_table::sort_link(
         "/admin/users",
         "#user-table",
         SortDir::Desc,
@@ -94,7 +94,7 @@ async fn sort_link_with_active_direction_marks_aria_sort_and_css_class() {
 async fn sort_link_with_a_bare_literal_href_never_adds_lang() {
     // `sort_link()` does not receive `cx`, so it cannot add `lang` on its own: passing a raw
     // literal must leave both `href` and `hx-get` exactly as given.
-    let column = table::Column::new(L10n::n("User")).with_sort(hx_table::sort_link(
+    let column = table::Column::new(Lc::n("User")).with_sort(hx_table::sort_link(
         "/admin/users",
         "#user-table",
         None,
@@ -113,11 +113,8 @@ async fn sort_link_carries_through_a_lang_aware_href_unchanged() {
     let cx = cx_with_lang("es-ES");
     let href = cx.route("/admin/users");
 
-    let column = table::Column::new(L10n::n("User")).with_sort(hx_table::sort_link(
-        href,
-        "#user-table",
-        None,
-    ));
+    let column =
+        table::Column::new(Lc::n("User")).with_sort(hx_table::sort_link(href, "#user-table", None));
 
     let html = render_column(column).await;
 
@@ -133,7 +130,7 @@ async fn sort_link_carries_through_extra_query_params_in_order() {
         .with_param("sort", "username")
         .with_param("dir", "desc");
 
-    let column = table::Column::new(L10n::n("User")).with_sort(hx_table::sort_link(
+    let column = table::Column::new(Lc::n("User")).with_sort(hx_table::sort_link(
         href,
         "#user-table",
         SortDir::Desc,
@@ -153,7 +150,7 @@ async fn sort_link_with_an_external_href_is_left_untouched() {
     let href = cx.route("https://example.com/export");
 
     let column =
-        table::Column::new(L10n::n("Export")).with_sort(hx_table::sort_link(href, "#table", None));
+        table::Column::new(Lc::n("Export")).with_sort(hx_table::sort_link(href, "#table", None));
 
     let html = render_column(column).await;
 

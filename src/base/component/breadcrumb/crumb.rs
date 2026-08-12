@@ -15,16 +15,16 @@ use crate::prelude::*;
 /// use pagetop::prelude::*;
 ///
 /// let bc = Breadcrumb::new()
-///     .with_crumb(breadcrumb::Crumb::new(L10n::n("Home"), "/"))
-///     .with_crumb(breadcrumb::Crumb::text(L10n::n("Users")))
-///     .with_crumb(breadcrumb::Crumb::current(L10n::n("Julia")));
+///     .with_crumb(breadcrumb::Crumb::new(Lc::n("Home"), "/"))
+///     .with_crumb(breadcrumb::Crumb::text(Lc::n("Users")))
+///     .with_crumb(breadcrumb::Crumb::current(Lc::n("Julia")));
 /// ```
 #[derive(AutoDefault, Clone, Debug, Getters)]
 pub struct Crumb {
     /// Devuelve identificador, clases CSS y atributos HTML del elemento.
     props: Props,
     /// Devuelve la etiqueta del elemento.
-    label: L10n,
+    label: Lc,
     /// Devuelve la ruta de destino del elemento, si es un enlace.
     route: Option<Route>,
     /// Devuelve si el elemento representa la página actual.
@@ -33,7 +33,7 @@ pub struct Crumb {
 
 impl Crumb {
     /// Crea un elemento enlazado a la ruta indicada.
-    pub fn new(label: L10n, route: impl Into<Route>) -> Self {
+    pub fn new(label: Lc, route: impl Into<Route>) -> Self {
         Self {
             label,
             route: Some(route.into()),
@@ -46,7 +46,7 @@ impl Crumb {
     ///
     /// Al renderizarse dentro de un `Breadcrumb`, el elemento lleva `aria-current="page"` y la
     /// clase `.active`.
-    pub fn current(label: L10n) -> Self {
+    pub fn current(label: Lc) -> Self {
         Self {
             label,
             is_current: true,
@@ -56,7 +56,7 @@ impl Crumb {
 
     /// Crea un elemento de sólo texto, sin enlace ni marca de página actual (por ejemplo, un nivel
     /// intermedio sin URL propia).
-    pub fn text(label: L10n) -> Self {
+    pub fn text(label: Lc) -> Self {
         Self {
             label,
             ..Default::default()

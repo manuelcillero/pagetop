@@ -87,7 +87,7 @@
 //! ```
 //!
 //! Y *voilà*, sólo queda operar con los idiomas soportados por PageTop usando [`Locale`] y traducir
-//! textos con [`L10n`].
+//! textos con [`Lc`].
 
 pub use fluent_templates;
 pub use unic_langid::{CharacterDirection, LanguageIdentifier};
@@ -102,8 +102,8 @@ pub use definition::{LangId, Locale};
 mod request;
 pub use request::RequestLocale;
 
-mod l10n;
-pub use l10n::L10n;
+mod lc;
+pub use lc::Lc;
 
 // **< include_locales! >***************************************************************************
 

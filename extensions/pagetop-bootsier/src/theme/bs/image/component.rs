@@ -11,7 +11,7 @@ use crate::theme::*;
 /// - Configurar sus **dimensiones** ([`with_size()`](Self::with_size)), **borde**
 ///   ([`Border`](crate::theme::class::Border)) y **redondeo de esquinas**
 ///   ([`Rounded`](crate::theme::class::Rounded)).
-/// - Aplicar el texto alternativo `alt` con **localización** mediante [`L10n`].
+/// - Aplicar el texto alternativo `alt` con **localización** mediante [`Lc`].
 #[derive(AutoDefault, Clone, Debug, Getters)]
 pub struct Image {
     /// Devuelve identificador, clases CSS, atributos HTML y valores extra del componente.
@@ -21,7 +21,7 @@ pub struct Image {
     /// Devuelve el origen de la imagen.
     source: bs::image::Source,
     /// Devuelve el texto alternativo localizado.
-    alternative: Attr<L10n>,
+    alternative: Attr<Lc>,
 }
 
 #[async_trait]
@@ -112,12 +112,12 @@ impl Image {
         self
     }
 
-    /// Define un *texto localizado* ([`L10n`]) alternativo para la imagen.
+    /// Define un *texto localizado* ([`Lc`]) alternativo para la imagen.
     ///
     /// Se recomienda siempre aportar un texto alternativo salvo que la imagen sea puramente
     /// decorativa.
     #[builder_fn]
-    pub fn with_alternative(mut self, alt: L10n) -> Self {
+    pub fn with_alternative(mut self, alt: Lc) -> Self {
         self.alternative.alter_value(alt);
         self
     }

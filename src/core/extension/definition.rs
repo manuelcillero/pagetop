@@ -3,7 +3,7 @@ use crate::async_trait;
 use crate::core::AnyInfo;
 use crate::core::action::ActionBox;
 use crate::core::theme::ThemeRef;
-use crate::locale::L10n;
+use crate::locale::Lc;
 use crate::web::Router;
 
 /// Interfaz común que debe implementar cualquier extensión de PageTop.
@@ -17,12 +17,12 @@ use crate::web::Router;
 ///
 /// #[async_trait]
 /// impl Extension for MyExtension {
-///     fn name(&self) -> L10n {
-///         L10n::n("My Extension")
+///     fn name(&self) -> Lc {
+///         Lc::n("My Extension")
 ///     }
 ///
-///     fn description(&self) -> L10n {
-///         L10n::n("Does something useful")
+///     fn description(&self) -> Lc {
+///         Lc::n("Does something useful")
 ///     }
 /// }
 /// ```
@@ -32,15 +32,15 @@ pub trait Extension: AnyInfo + Send + Sync {
     ///
     /// Predeterminado por el [`short_name()`](AnyInfo::short_name) del tipo asociado a la
     /// extensión.
-    fn name(&self) -> L10n {
-        L10n::n(self.short_name())
+    fn name(&self) -> Lc {
+        Lc::n(self.short_name())
     }
 
     /// Descripción corta de la extensión como *texto localizado* para paneles, listados, etc.
     ///
-    /// Por defecto devuelve un valor vacío (`L10n::default()`).
-    fn description(&self) -> L10n {
-        L10n::default()
+    /// Por defecto devuelve un valor vacío (`Lc::default()`).
+    fn description(&self) -> Lc {
+        Lc::default()
     }
 
     /// Devuelve una referencia a esta misma extensión cuando actúa como un tema.

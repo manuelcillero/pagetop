@@ -13,7 +13,7 @@ use crate::prelude::*;
 ///
 /// let quantity = form::Number::new()
 ///     .with_name("quantity")
-///     .with_label(L10n::n("Quantity"))
+///     .with_label(Lc::n("Quantity"))
 ///     .with_min(Some(1))
 ///     .with_max(Some(100))
 ///     .with_value(Some(1));
@@ -37,9 +37,9 @@ pub struct Number {
     /// Devuelve el valor inicial del campo.
     value: Attr<u64>,
     /// Devuelve la etiqueta del campo.
-    label: Attr<L10n>,
+    label: Attr<Lc>,
     /// Devuelve el texto de ayuda del campo.
-    help_text: Attr<L10n>,
+    help_text: Attr<Lc>,
     /// Devuelve el valor mínimo permitido.
     min: Attr<u64>,
     /// Devuelve el valor máximo permitido.
@@ -89,7 +89,7 @@ impl Component for Number {
                         @if *self.required() {
                             span
                                 class="form-required"
-                                title=[L10n::l("field_required").lookup(cx)]
+                                title=[Lc::l("field_required").lookup(cx)]
                             {
                                 "*"
                             }
@@ -153,14 +153,14 @@ impl Number {
 
     /// Establece o elimina la etiqueta visible del campo (basta pasar `None` para quitarla).
     #[builder_fn]
-    pub fn with_label(mut self, label: impl Into<Option<L10n>>) -> Self {
+    pub fn with_label(mut self, label: impl Into<Option<Lc>>) -> Self {
         self.label.alter_opt(label.into());
         self
     }
 
     /// Establece o elimina el texto de ayuda del campo (basta pasar `None` para quitarlo).
     #[builder_fn]
-    pub fn with_help_text(mut self, help_text: impl Into<Option<L10n>>) -> Self {
+    pub fn with_help_text(mut self, help_text: impl Into<Option<Lc>>) -> Self {
         self.help_text.alter_opt(help_text.into());
         self
     }

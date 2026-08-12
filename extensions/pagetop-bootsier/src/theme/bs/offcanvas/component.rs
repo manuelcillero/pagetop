@@ -29,16 +29,16 @@ use crate::theme::*;
 ///
 /// let panel = bs::Offcanvas::new()
 ///     .with_id("offcanvas_example")
-///     .with_title(L10n::n("Offcanvas title"))
+///     .with_title(Lc::n("Offcanvas title"))
 ///     .with_placement(bs::offcanvas::Placement::End)
 ///     .with_backdrop(bs::offcanvas::Backdrop::Enabled)
 ///     .with_body_scroll(bs::offcanvas::BodyScroll::Enabled)
 ///     .with_visibility(bs::offcanvas::Visibility::Default)
 ///     .with_child(bs::Dropdown::new()
-///         .with_title(L10n::n("Menu"))
-///         .with_item(bs::dropdown::Item::label(L10n::n("Label")))
-///         .with_item(bs::dropdown::Item::link_blank(L10n::n("Doc"), |_| "https://docs.rs".into()))
-///         .with_item(bs::dropdown::Item::link(L10n::n("Sign out"), |_| "/signout".into()))
+///         .with_title(Lc::n("Menu"))
+///         .with_item(bs::dropdown::Item::label(Lc::n("Label")))
+///         .with_item(bs::dropdown::Item::link_blank(Lc::n("Doc"), "https://docs.rs"))
+///         .with_item(bs::dropdown::Item::link(Lc::n("Sign out"), "/signout"))
 ///     );
 /// ```
 #[derive(AutoDefault, Clone, Debug, Getters)]
@@ -46,9 +46,9 @@ pub struct Offcanvas {
     /// Devuelve identificador, clases CSS, atributos HTML y valores extra del componente.
     props: Props,
     /// Devuelve el título del panel.
-    title: L10n,
+    title: Lc,
     /// Devuelve el punto de ruptura configurado para cambiar el comportamiento del panel.
-    breakpoint: token::BreakPoint,
+    breakpoint: BreakPoint,
     /// Devuelve el comportamiento configurado para la capa de fondo.
     backdrop: bs::offcanvas::Backdrop,
     /// Indica si la página principal puede desplazarse mientras el panel está abierto.
@@ -109,7 +109,7 @@ impl Offcanvas {
 
     /// Establece el título del encabezado.
     #[builder_fn]
-    pub fn with_title(mut self, title: L10n) -> Self {
+    pub fn with_title(mut self, title: Lc) -> Self {
         self.title = title;
         self
     }
@@ -124,7 +124,7 @@ impl Offcanvas {
     /// directamente en pantallas grandes. Por defecto usa `BreakPoint::None` para que sea
     /// *offcanvas* siempre.
     #[builder_fn]
-    pub fn with_breakpoint(mut self, bp: token::BreakPoint) -> Self {
+    pub fn with_breakpoint(mut self, bp: BreakPoint) -> Self {
         self.breakpoint = bp;
         self
     }
@@ -210,7 +210,7 @@ impl Offcanvas {
                         class="btn-close"
                         data-bs-dismiss="offcanvas"
                         data-bs-target=(id_target)
-                        aria-label=[L10n::t("offcanvas_close", &LOCALES_BOOTSIER).lookup(cx)]
+                        aria-label=[Lc::t("offcanvas_close", &LOCALES_BOOTSIER).lookup(cx)]
                     {}
                 }
                 div class="offcanvas-body" {

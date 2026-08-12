@@ -9,7 +9,7 @@ pub struct Block {
     /// Devuelve identificador, clases CSS, atributos HTML y valores extra del componente.
     props: Props,
     /// Devuelve el título del bloque.
-    title: L10n,
+    title: Lc,
     /// Devuelve la lista de componentes hijo del bloque.
     children: Children,
 }
@@ -69,7 +69,7 @@ impl Block {
 
     /// Establece el título del bloque.
     #[builder_fn]
-    pub fn with_title(mut self, title: L10n) -> Self {
+    pub fn with_title(mut self, title: Lc) -> Self {
         self.title = title;
         self
     }

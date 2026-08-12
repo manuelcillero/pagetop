@@ -5,7 +5,7 @@
 //! navegación, botones de acción, encabezados o divisores visuales.
 //!
 //! Los ítems pueden estar activos, deshabilitados o abrirse en nueva ventana según su contexto y
-//! configuración, y permiten incluir etiquetas localizables usando [`L10n`](pagetop::locale::L10n).
+//! configuración, y permiten incluir etiquetas localizables usando [`Lc`](pagetop::locale::Lc).
 
 mod props;
 pub use props::{AutoClose, Direction, MenuAlign, MenuPosition};

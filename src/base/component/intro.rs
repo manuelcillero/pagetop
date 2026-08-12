@@ -44,10 +44,10 @@ pub enum IntroOpening {
 /// ```rust,no_run
 /// # use pagetop::prelude::*;
 /// let intro = Intro::default()
-///     .with_title(L10n::l("intro_custom_title"))
-///     .with_slogan(L10n::l("intro_custom_slogan"))
+///     .with_title(Lc::l("intro_custom_title"))
+///     .with_slogan(Lc::l("intro_custom_slogan"))
 ///     .with_button(Some((
-///         L10n::l("intro_learn_more"),
+///         Lc::l("intro_learn_more"),
 ///         "/learn-more".into()
 ///     )));
 /// ```
@@ -57,7 +57,7 @@ pub enum IntroOpening {
 /// ```rust,no_run
 /// # use pagetop::prelude::*;
 /// let intro = Intro::default()
-///     .with_button(None::<(L10n, Route)>)
+///     .with_button(None::<(Lc, Route)>)
 ///     .with_opening(IntroOpening::Custom);
 /// ```
 ///
@@ -68,13 +68,13 @@ pub enum IntroOpening {
 /// let intro = Intro::default()
 ///     .with_child(
 ///         Block::new()
-///             .with_title(L10n::l("intro_custom_block_title"))
+///             .with_title(Lc::l("intro_custom_block_title"))
 ///             .with_child(Html::with(move |cx| {
 ///                 html! {
 ///                     p class="intro-text-lead" {
-///                         (L10n::l("intro_custom_paragraph_1").using(cx))
+///                         (Lc::l("intro_custom_paragraph_1").using(cx))
 ///                     }
-///                     p { (L10n::l("intro_custom_paragraph_2").using(cx)) }
+///                     p { (Lc::l("intro_custom_paragraph_2").using(cx)) }
 ///                 }
 ///             })),
 ///     );
@@ -82,11 +82,11 @@ pub enum IntroOpening {
 #[derive(Clone, Debug, Getters)]
 pub struct Intro {
     /// Devuelve el título de entrada.
-    title: L10n,
+    title: Lc,
     /// Devuelve el eslogan de la entrada.
-    slogan: L10n,
+    slogan: Lc,
     /// Devuelve el botón de llamada a la acción, si existe.
-    button: Option<(L10n, Route)>,
+    button: Option<(Lc, Route)>,
     /// Devuelve el modo de apertura configurado.
     opening: IntroOpening,
     /// Devuelve la lista de componentes hijo de la intro.
@@ -98,9 +98,9 @@ impl Default for Intro {
         const BUTTON_LINK: &str = "https://pagetop.cillero.es";
 
         Intro {
-            title: L10n::l("intro_default_title"),
-            slogan: L10n::l("intro_default_slogan").with_arg("app", &global::SETTINGS.app.name),
-            button: Some((L10n::l("intro_default_button"), BUTTON_LINK.into())),
+            title: Lc::l("intro_default_title"),
+            slogan: Lc::l("intro_default_slogan").with_arg("app", &global::SETTINGS.app.name),
+            button: Some((Lc::l("intro_default_button"), BUTTON_LINK.into())),
             opening: IntroOpening::default(),
             children: Children::default(),
         }
@@ -133,7 +133,7 @@ impl Component for Intro {
                 }
                 "#)
                 .replace("LANGID", cx.langid().to_string().as_str())
-                .replace("LABEL", L10n::l("intro_release_label").using(cx).as_str())
+                .replace("LABEL", Lc::l("intro_release_label").using(cx).as_str())
             )));
         }
 
@@ -173,24 +173,24 @@ impl Component for Intro {
                             div class="intro-text-body" {
                                 @if *self.opening() == IntroOpening::PageTop {
                                     p class="intro-text-lead" {
-                                        (L10n::l("intro_text1").using(cx))
+                                        (Lc::l("intro_text1").using(cx))
                                     }
                                     div id="intro-badges" {
                                         img
                                             src="https://img.shields.io/crates/v/pagetop.svg?label=PageTop&style=for-the-badge"
-                                            alt=[L10n::l("intro_pagetop_label").lookup(cx)] {} (" ")
+                                            alt=[Lc::l("intro_pagetop_label").lookup(cx)] {} (" ")
                                         img
                                             id="intro-release"
-                                            alt=[L10n::l("intro_release_label").lookup(cx)] {} (" ")
+                                            alt=[Lc::l("intro_release_label").lookup(cx)] {} (" ")
                                         img
                                             src=(format!(
                                                 "https://img.shields.io/badge/license-MIT%2FApache-blue.svg?label={}&style=for-the-badge",
-                                                L10n::l("intro_license_label").lookup(cx).unwrap_or_default()
+                                                Lc::l("intro_license_label").lookup(cx).unwrap_or_default()
                                             ))
-                                            alt=[L10n::l("intro_license_label").lookup(cx)] {}
+                                            alt=[Lc::l("intro_license_label").lookup(cx)] {}
                                     }
                                     p class="intro-text-lead" {
-                                        (L10n::l("intro_text2").using(cx))
+                                        (Lc::l("intro_text2").using(cx))
                                     }
                                 }
                                 (self.children().render(cx).await)
@@ -206,8 +206,8 @@ impl Component for Intro {
                         div class="intro-footer-links" {
                             a href="https://crates.io/crates/pagetop" target="_blank" rel="noopener noreferrer" { ("Crates.io") }
                             a href="https://docs.rs/pagetop" target="_blank" rel="noopener noreferrer" { ("Docs.rs") }
-                            a href="https://git.cillero.es/manuelcillero/pagetop" target="_blank" rel="noopener noreferrer" { (L10n::l("intro_code").using(cx)) }
-                            em { (L10n::l("intro_have_fun").using(cx)) }
+                            a href="https://git.cillero.es/manuelcillero/pagetop" target="_blank" rel="noopener noreferrer" { (Lc::l("intro_code").using(cx)) }
+                            em { (Lc::l("intro_have_fun").using(cx)) }
                         }
                     }
                 }
@@ -225,10 +225,10 @@ impl Intro {
     ///
     /// ```rust,no_run
     /// # use pagetop::prelude::*;
-    /// let intro = Intro::default().with_title(L10n::n("Intro title"));
+    /// let intro = Intro::default().with_title(Lc::n("Intro title"));
     /// ```
     #[builder_fn]
-    pub fn with_title(mut self, title: L10n) -> Self {
+    pub fn with_title(mut self, title: Lc) -> Self {
         self.title = title;
         self
     }
@@ -239,10 +239,10 @@ impl Intro {
     ///
     /// ```rust,no_run
     /// # use pagetop::prelude::*;
-    /// let intro = Intro::default().with_slogan(L10n::n("A short slogan"));
+    /// let intro = Intro::default().with_slogan(Lc::n("A short slogan"));
     /// ```
     #[builder_fn]
-    pub fn with_slogan(mut self, slogan: L10n) -> Self {
+    pub fn with_slogan(mut self, slogan: Lc) -> Self {
         self.slogan = slogan;
         self
     }
@@ -258,12 +258,12 @@ impl Intro {
     /// ```rust,no_run
     /// # use pagetop::prelude::*;
     /// // Define un botón con texto y una ruta interna (preserva `lang` si corresponde).
-    /// let intro = Intro::default().with_button(Some((L10n::n("Start"), "/start".into())));
+    /// let intro = Intro::default().with_button(Some((Lc::n("Start"), "/start".into())));
     /// // Descarta el botón de la intro.
     /// let intro_no_button = Intro::default().with_button(None);
     /// ```
     #[builder_fn]
-    pub fn with_button(mut self, button: Option<(L10n, Route)>) -> Self {
+    pub fn with_button(mut self, button: Option<(Lc, Route)>) -> Self {
         self.button = button;
         self
     }

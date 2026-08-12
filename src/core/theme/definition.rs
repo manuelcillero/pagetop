@@ -6,7 +6,7 @@ use crate::core::extension::Extension;
 use crate::core::theme::CoreRegions;
 use crate::global;
 use crate::html::{Markup, html};
-use crate::locale::L10n;
+use crate::locale::Lc;
 use crate::response::Page;
 use crate::web::http::StatusCode;
 
@@ -32,12 +32,12 @@ use crate::web::http::StatusCode;
 ///
 /// #[async_trait]
 /// impl Extension for MyTheme {
-///     fn name(&self) -> L10n {
-///         L10n::n("My theme")
+///     fn name(&self) -> Lc {
+///         Lc::n("My theme")
 ///     }
 ///
-///     fn description(&self) -> L10n {
-///         L10n::n("A personal theme")
+///     fn description(&self) -> Lc {
+///         Lc::n("A personal theme")
 ///     }
 ///
 ///     fn theme(&self) -> Option<ThemeRef> {
@@ -234,14 +234,14 @@ pub trait Theme: Extension + Send + Sync {
         if let Some(parent) = self.parent() {
             return parent.error_403(page);
         }
-        page.alter_title(L10n::l("error403_title")).alter_child_in(
+        page.alter_title(Lc::l("error403_title")).alter_child_in(
             &CoreRegions::Content,
             ChildOp::Prepend(
                 Html::with(move |cx| {
                     html! {
                         div {
-                            h1 { (L10n::l("error403_alert").using(cx)) }
-                            p { (L10n::l("error403_help").using(cx)) }
+                            h1 { (Lc::l("error403_alert").using(cx)) }
+                            p { (Lc::l("error403_help").using(cx)) }
                         }
                     }
                 })
@@ -260,14 +260,14 @@ pub trait Theme: Extension + Send + Sync {
         if let Some(parent) = self.parent() {
             return parent.error_404(page);
         }
-        page.alter_title(L10n::l("error404_title")).alter_child_in(
+        page.alter_title(Lc::l("error404_title")).alter_child_in(
             &CoreRegions::Content,
             ChildOp::Prepend(
                 Html::with(move |cx| {
                     html! {
                         div {
-                            h1 { (L10n::l("error404_alert").using(cx)) }
-                            p { (L10n::l("error404_help").using(cx)) }
+                            h1 { (Lc::l("error404_alert").using(cx)) }
+                            p { (Lc::l("error404_help").using(cx)) }
                         }
                     }
                 })
@@ -304,7 +304,7 @@ pub trait Theme: Extension + Send + Sync {
     /// [`ErrorPage::ServiceUnavailable`]: crate::response::ErrorPage::ServiceUnavailable
     /// [`ErrorPage::GatewayTimeout`]: crate::response::ErrorPage::GatewayTimeout
     /// [`CoreTemplates::Standard`]: crate::core::theme::CoreTemplates::Standard
-    fn error_fatal(&self, page: &mut Page, code: StatusCode, title: L10n, alert: L10n, help: L10n) {
+    fn error_fatal(&self, page: &mut Page, code: StatusCode, title: Lc, alert: Lc, help: Lc) {
         if let Some(parent) = self.parent() {
             return parent.error_fatal(page, code, title, alert, help);
         }
@@ -312,8 +312,8 @@ pub trait Theme: Extension + Send + Sync {
             &CoreRegions::Content,
             ChildOp::Prepend(
                 Intro::new()
-                    .with_title(L10n::l("error_code").with_arg("code", code.to_string()))
-                    .with_slogan(L10n::n(code.to_string()))
+                    .with_title(Lc::l("error_code").with_arg("code", code.to_string()))
+                    .with_slogan(Lc::n(code.to_string()))
                     .with_button(None)
                     .with_opening(IntroOpening::Custom)
                     .with_child(Html::with(move |cx| {

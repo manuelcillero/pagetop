@@ -32,7 +32,7 @@ async fn with_aria_label_overrides_the_default() {
         .with_current_page(1)
         .with_items_per_page(10)
         .with_total_items(50)
-        .with_aria_label(L10n::n("Users pagination"));
+        .with_aria_label(Lc::n("Users pagination"));
 
     let html = pager.render(&mut Context::default()).await.into_string();
 

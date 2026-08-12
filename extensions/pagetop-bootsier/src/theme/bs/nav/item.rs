@@ -16,13 +16,12 @@ pub enum ItemKind {
     #[default]
     Void,
     /// Etiqueta sin comportamiento interactivo.
-    Label(L10n),
-    /// Elemento de navegación basado en una [`RoutePath`] dinámica devuelta por
-    /// [`FnPathByContext`]. Opcionalmente, puede abrirse en una nueva ventana y estar inicialmente
-    /// deshabilitado.
+    Label(Lc),
+    /// Elemento de navegación basado en una [`RoutePath`] dinámica resuelta por una [`Route`].
+    /// Opcionalmente, puede abrirse en una nueva ventana y estar inicialmente deshabilitado.
     Link {
-        label: L10n,
-        route: FnPathByContext,
+        label: Lc,
+        route: Route,
         blank: bool,
         disabled: bool,
     },
@@ -97,7 +96,7 @@ impl Component for Item {
                 blank,
                 disabled,
             } => {
-                let route_link = route(cx);
+                let route_link = route.resolve(cx);
                 let current_path = cx.request().map(|request| request.path());
                 let is_current = !*disabled && (current_path == Some(route_link.path()));
 
@@ -145,7 +144,7 @@ impl Component for Item {
                         return Ok(html! {});
                     }
                     let title = dd.title().lookup(cx).unwrap_or_else(|| {
-                        L10n::t("dropdown", &LOCALES_BOOTSIER)
+                        Lc::t("dropdown", &LOCALES_BOOTSIER)
                             .lookup(cx)
                             .unwrap_or_else(|| "Dropdown".to_string())
                     });
@@ -175,7 +174,7 @@ impl Component for Item {
 
 impl Item {
     /// Crea un elemento de tipo texto, mostrado sin interacción.
-    pub fn label(label: L10n) -> Self {
+    pub fn label(label: Lc) -> Self {
         Self {
             item_kind: ItemKind::Label(label),
             ..Default::default()
@@ -184,14 +183,14 @@ impl Item {
 
     /// Crea un enlace para la navegación.
     ///
-    /// La ruta se obtiene invocando [`FnPathByContext`], que devuelve dinámicamente una
+    /// La ruta se obtiene invocando [`Route::resolve()`], que devuelve dinámicamente una
     /// [`RoutePath`] en función del [`Context`]. El enlace se marca como `active` si la ruta actual
     /// del *request* coincide con la ruta de destino (devuelta por `RoutePath::path`).
-    pub fn link(label: L10n, route: FnPathByContext) -> Self {
+    pub fn link(label: Lc, route: impl Into<Route>) -> Self {
         Self {
             item_kind: ItemKind::Link {
                 label,
-                route,
+                route: route.into(),
                 blank: false,
                 disabled: false,
             },
@@ -200,11 +199,11 @@ impl Item {
     }
 
     /// Crea un enlace deshabilitado que no permite la interacción.
-    pub fn link_disabled(label: L10n, route: FnPathByContext) -> Self {
+    pub fn link_disabled(label: Lc, route: impl Into<Route>) -> Self {
         Self {
             item_kind: ItemKind::Link {
                 label,
-                route,
+                route: route.into(),
                 blank: false,
                 disabled: true,
             },
@@ -213,11 +212,11 @@ impl Item {
     }
 
     /// Crea un enlace que se abre en una nueva ventana o pestaña.
-    pub fn link_blank(label: L10n, route: FnPathByContext) -> Self {
+    pub fn link_blank(label: Lc, route: impl Into<Route>) -> Self {
         Self {
             item_kind: ItemKind::Link {
                 label,
-                route,
+                route: route.into(),
                 blank: true,
                 disabled: false,
             },
@@ -226,11 +225,11 @@ impl Item {
     }
 
     /// Crea un enlace inicialmente deshabilitado que se abriría en una nueva ventana.
-    pub fn link_blank_disabled(label: L10n, route: FnPathByContext) -> Self {
+    pub fn link_blank_disabled(label: Lc, route: impl Into<Route>) -> Self {
         Self {
             item_kind: ItemKind::Link {
                 label,
-                route,
+                route: route.into(),
                 blank: true,
                 disabled: true,
             },

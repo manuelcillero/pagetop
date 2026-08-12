@@ -15,7 +15,7 @@ const EXTRA_TEXT_BG: &str = "bootsier.badge.text_bg";
 /// use pagetop::prelude::*;
 /// use pagetop_bootsier::theme::*;
 ///
-/// let admin = bs::Badge::labeled(L10n::n("Admin")).with_text_bg(ThemeColor::Danger);
+/// let admin = bs::Badge::labeled(Lc::n("Admin")).with_text_bg(ThemeColor::Danger);
 /// ```
 pub trait BadgeBootsier {
     #[builder_fn]
