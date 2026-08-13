@@ -112,3 +112,10 @@ impl From<Lc> for Cell {
         Cell::new(label)
     }
 }
+
+impl<C: Component> From<C> for Cell {
+    /// Convierte cualquier componente en una celda; equivale a `Cell::new(component)`.
+    fn from(component: C) -> Self {
+        Cell::new(component)
+    }
+}
