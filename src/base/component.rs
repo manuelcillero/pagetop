@@ -34,3 +34,7 @@ pub use pager::{Pager, PagerAlign, PagerVisibility};
 
 mod poweredby;
 pub use poweredby::PoweredBy;
+
+pub mod table;
+#[doc(inline)]
+pub use table::Table;

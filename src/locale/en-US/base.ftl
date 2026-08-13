@@ -31,3 +31,6 @@ pager_next_aria_label = Next page
 pager_goto_label = Jump to page
 pager_goto_button = Go
 pager_summary = Showing { $first }-{ $last } of { $total }
+
+# Table component.
+table_empty = No data to display
