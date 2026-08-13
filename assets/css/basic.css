@@ -16,6 +16,10 @@
 	--val-color--text--muted: color-mix(in srgb, var(--val-color--text) 50%, var(--val-color--bg));
 	--val-color--border: #212529;
 	--val-color--primary: #0d6efd;
+	--val-color--secondary: #6c757d;
+	--val-color--light: #dee2e6;
+	--val-color--info: #0dcaf0;
+	--val-color--warning: #ffc107;
 	--val-color--danger: #dc3545;
 	--val-color--switch-off: #adb5bd;
 }
@@ -135,6 +139,35 @@ input:disabled + label {
 }
 input:disabled + label {
     color: var(--val-color--text--muted);
+}
+
+/*
+ * Messages component
+ */
+
+.message {
+    padding: 0.75rem 1rem;
+    margin-bottom: 1rem;
+    border: 1px solid transparent;
+    border-radius: 0.375rem;
+}
+
+.message-info {
+    color: color-mix(in srgb, var(--val-color--info) 40%, black);
+    background-color: color-mix(in srgb, var(--val-color--info) 15%, var(--val-color--bg));
+    border-color: color-mix(in srgb, var(--val-color--info) 40%, var(--val-color--bg));
+}
+
+.message-warning {
+    color: color-mix(in srgb, var(--val-color--warning) 40%, black);
+    background-color: color-mix(in srgb, var(--val-color--warning) 15%, var(--val-color--bg));
+    border-color: color-mix(in srgb, var(--val-color--warning) 40%, var(--val-color--bg));
+}
+
+.message-error {
+    color: color-mix(in srgb, var(--val-color--danger) 40%, black);
+    background-color: color-mix(in srgb, var(--val-color--danger) 15%, var(--val-color--bg));
+    border-color: color-mix(in srgb, var(--val-color--danger) 40%, var(--val-color--bg));
 }
 
 /*

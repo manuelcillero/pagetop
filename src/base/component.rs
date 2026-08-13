@@ -29,6 +29,9 @@ pub use html::Html;
 mod intro;
 pub use intro::{Intro, IntroOpening};
 
+mod messages;
+pub use messages::Messages;
+
 mod pager;
 pub use pager::{Pager, PagerAlign, PagerVisibility};
 
