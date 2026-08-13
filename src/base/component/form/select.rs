@@ -50,12 +50,14 @@ impl Item {
     /// En una lista de selección única, el navegador aplica la selección al último elemento marcado
     /// si hay más de uno; mientras que en una lista múltiple se respetan todos los elementos
     /// marcados.
+    #[builder_fn]
     pub fn with_selected(mut self, selected: bool) -> Self {
         self.selected = selected;
         self
     }
 
     /// Establece si el elemento está deshabilitado.
+    #[builder_fn]
     pub fn with_disabled(mut self, disabled: bool) -> Self {
         self.disabled = disabled;
         self
@@ -100,12 +102,14 @@ impl Group {
     // **< Group BUILDER >**************************************************************************
 
     /// Añade un elemento al grupo. Los elementos se muestran en el orden en que se añaden.
+    #[builder_fn]
     pub fn with_item(mut self, item: Item) -> Self {
         self.items.push(item);
         self
     }
 
     /// Establece si el grupo de elementos está deshabilitado en bloque.
+    #[builder_fn]
     pub fn with_disabled(mut self, disabled: bool) -> Self {
         self.disabled = disabled;
         self

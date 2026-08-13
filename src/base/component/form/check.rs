@@ -42,12 +42,14 @@ impl Item {
     // **< Item BUILDER >***************************************************************************
 
     /// Establece si la casilla debe aparecer marcada por defecto.
+    #[builder_fn]
     pub fn with_checked(mut self, checked: bool) -> Self {
         self.checked = checked;
         self
     }
 
     /// Establece si la casilla está deshabilitada.
+    #[builder_fn]
     pub fn with_disabled(mut self, disabled: bool) -> Self {
         self.disabled = disabled;
         self

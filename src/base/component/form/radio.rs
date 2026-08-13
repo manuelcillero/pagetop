@@ -46,12 +46,14 @@ impl Item {
     ///
     /// Si varias opciones del grupo tienen `checked` activo, sólo la primera se renderizará como
     /// seleccionada; las demás se ignorarán.
+    #[builder_fn]
     pub fn with_checked(mut self, checked: bool) -> Self {
         self.checked = checked;
         self
     }
 
     /// Establece si la opción está inicialmente deshabilitada.
+    #[builder_fn]
     pub fn with_disabled(mut self, disabled: bool) -> Self {
         self.disabled = disabled;
         self
