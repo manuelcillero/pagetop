@@ -24,6 +24,12 @@ impl Theme for Basic {
                 .with_version(PAGETOP_VERSION)
                 .with_weight(-99),
         ))
+        .alter_assets(AssetsOp::AddJavaScript(
+            JavaScript::defer("/pagetop/js/basic.menu.min.js").with_version("4.4.0"),
+        ))
+        .alter_assets(AssetsOp::AddJavaScript(
+            JavaScript::defer("/pagetop/js/dropdown.init.js").with_version(PAGETOP_VERSION),
+        ))
         .alter_child_in(
             &CoreRegions::Footer,
             ChildOp::AddIfEmpty(PoweredBy::new().into()),

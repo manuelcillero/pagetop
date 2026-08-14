@@ -19,6 +19,10 @@ intro_have_fun = Coding is creating
 # PoweredBy component.
 poweredby_pagetop = Powered by { $pagetop_link }
 
+# Dropdown component.
+dropdown_toggle = Toggle dropdown
+dropdown_default_title = Dropdown
+
 # Breadcrumb component.
 breadcrumb_label = Breadcrumb navigation
 

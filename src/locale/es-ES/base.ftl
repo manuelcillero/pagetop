@@ -19,6 +19,10 @@ intro_have_fun = Programar es crear
 # PoweredBy component.
 poweredby_pagetop = Funciona con { $pagetop_link }
 
+# Dropdown component.
+dropdown_toggle = Alternar menú desplegable
+dropdown_default_title = Menú desplegable
+
 # Breadcrumb component.
 breadcrumb_label = Ruta de navegación
 

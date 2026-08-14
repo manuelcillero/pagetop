@@ -19,6 +19,10 @@ pub mod container;
 #[doc(inline)]
 pub use container::Container;
 
+pub mod dropdown;
+#[doc(inline)]
+pub use dropdown::Dropdown;
+
 pub mod form;
 #[doc(inline)]
 pub use form::Form;
