@@ -24,8 +24,8 @@ async fn classes_new_empty_and_whitespace_is_empty() {
 async fn classes_new_normalizes_and_dedups_and_preserves_first_occurrence_order() {
     let p = Props::classes("Btn btn BTN  btn-primary  BTN-PRIMARY");
     assert_classes(&p, Some("btn btn-primary"));
-    assert!(p.has_class("BTN"));
-    assert!(p.has_class("btn-primary"));
+    assert!(p.has_all_classes("BTN"));
+    assert!(p.has_all_classes("btn-primary"));
 }
 
 // **< PropsOp::add_classes >***********************************************************************
@@ -119,6 +119,57 @@ async fn classes_replace_rejects_non_ascii_targets_is_noop() {
     assert_classes(&p, Some("a b c"));
 }
 
+// **< PropsOp::replace_all_classes >***************************************************************
+
+#[pagetop::test]
+async fn classes_replace_all_removes_targets_and_inserts_new_at_min_position() {
+    let p = Props::classes("a b c d").with_prop(PropsOp::replace_all_classes("c a", "x y"));
+    assert_classes(&p, Some("x y b d"));
+}
+
+#[pagetop::test]
+async fn classes_replace_all_when_missing_one_does_nothing_even_to_existing_one() {
+    let p = Props::classes("a b").with_prop(PropsOp::replace_all_classes("a x", "c d"));
+    assert_classes(&p, Some("a b"));
+}
+
+#[pagetop::test]
+async fn classes_replace_all_when_none_found_does_nothing() {
+    let p = Props::classes("a b").with_prop(PropsOp::replace_all_classes("x y", "c d"));
+    assert_classes(&p, Some("a b"));
+}
+
+#[pagetop::test]
+async fn classes_replace_all_is_case_insensitive_on_targets_and_new_values_are_normalized() {
+    let p = Props::classes("btn btn-primary active")
+        .with_prop(PropsOp::replace_all_classes("BTN ACTIVE", "Btn-Secondary"));
+    assert_classes(&p, Some("btn-secondary btn-primary"));
+}
+
+#[pagetop::test]
+async fn classes_replace_all_with_empty_new_removes_only() {
+    let p = Props::classes("a b c").with_prop(PropsOp::replace_all_classes("a b", "   "));
+    assert_classes(&p, Some("c"));
+}
+
+#[pagetop::test]
+async fn classes_replace_all_dedups_against_existing_items() {
+    let p = Props::classes("a b c").with_prop(PropsOp::replace_all_classes("a b", "c d"));
+    assert_classes(&p, Some("d c"));
+}
+
+#[pagetop::test]
+async fn classes_replace_all_ignores_target_whitespace_and_repetition() {
+    let p = Props::classes("a b c").with_prop(PropsOp::replace_all_classes("  b  b ", "x y"));
+    assert_classes(&p, Some("a x y c"));
+}
+
+#[pagetop::test]
+async fn classes_replace_all_rejects_non_ascii_targets_is_noop() {
+    let p = Props::classes("a b c").with_prop(PropsOp::replace_all_classes("b ñ", "x"));
+    assert_classes(&p, Some("a b c"));
+}
+
 // **< PropsOp::set / remove ("class") >************************************************************
 
 #[pagetop::test]
@@ -165,41 +216,41 @@ async fn classes_remove_with_extra_whitespace() {
     assert_classes(&p, Some("a c"));
 }
 
-// **< has_class / has_any_class >******************************************************************
+// **< has_classes / has_all_classes >**************************************************************
 
 #[pagetop::test]
 async fn classes_contains_single() {
     let p = Props::classes("btn btn-primary");
-    assert!(p.has_class("btn"));
-    assert!(p.has_class("BTN"));
-    assert!(!p.has_class("missing"));
+    assert!(p.has_all_classes("btn"));
+    assert!(p.has_all_classes("BTN"));
+    assert!(!p.has_all_classes("missing"));
 }
 
 #[pagetop::test]
 async fn classes_contains_all_and_any() {
     let p = Props::classes("btn btn-primary active");
-    assert!(p.has_class("btn active"));
-    assert!(p.has_class("BTN BTN-PRIMARY"));
-    assert!(!p.has_class("btn missing"));
-    assert!(p.has_any_class("missing active"));
-    assert!(p.has_any_class("BTN-PRIMARY missing"));
-    assert!(!p.has_any_class("missing other"));
+    assert!(p.has_classes("missing active"));
+    assert!(p.has_classes("BTN-PRIMARY missing"));
+    assert!(!p.has_classes("missing other"));
+    assert!(p.has_all_classes("btn active"));
+    assert!(p.has_all_classes("BTN BTN-PRIMARY"));
+    assert!(!p.has_all_classes("btn missing"));
 }
 
 #[pagetop::test]
 async fn classes_contains_empty_and_whitespace_is_false() {
     let p = Props::classes("a b");
-    assert!(!p.has_class(""));
-    assert!(!p.has_class("   \t"));
-    assert!(!p.has_any_class(""));
-    assert!(!p.has_any_class(" \n "));
+    assert!(!p.has_classes(""));
+    assert!(!p.has_classes(" \n "));
+    assert!(!p.has_all_classes(""));
+    assert!(!p.has_all_classes("   \t"));
 }
 
 #[pagetop::test]
 async fn classes_contains_non_ascii_is_false() {
     let p = Props::classes("a b");
-    assert!(!p.has_class("ñ"));
-    assert!(!p.has_any_class("a ñ"));
+    assert!(!p.has_classes("a ñ"));
+    assert!(!p.has_all_classes("ñ"));
 }
 
 // **< is_classes_empty >***************************************************************************

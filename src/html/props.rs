@@ -99,11 +99,19 @@ pub enum PropsOp {
     /// Añade la clase o clases que no existan al principio de la lista. La operación se ignora si
     /// el valor contiene caracteres no ASCII.
     PrependClasses(CowStr),
-    /// Sustituye una o varias clases existentes (primer valor) por las clases indicadas (segundo
-    /// valor), insertando las nuevas en la posición de la primera clase sustituida encontrada. Si
-    /// ninguna de las clases a sustituir existe, la operación no tiene efecto. Se ignora si alguno
-    /// de los dos valores contiene caracteres no ASCII.
+    /// Sustituye **una o más** clases del primer valor por las clases indicadas en el segundo
+    /// valor, insertando las nuevas en la posición de la primera clase a sustituir encontrada, con
+    /// independencia del orden en que aparecen en el primer valor. Las que no existan se ignoran.
+    /// Si **ninguna** de las clases a sustituir existe, la operación no tiene efecto y no se
+    /// inserta nada. Se ignora si alguno de los dos valores contiene caracteres no ASCII.
     ReplaceClasses(CowStr, CowStr),
+    /// A diferencia de [`ReplaceClasses`](Self::ReplaceClasses), exige que **todas** las clases del
+    /// primer valor estén presentes, independientemente de su orden; si falta una sola, la
+    /// operación no tiene efecto: ninguna clase se elimina ni se inserta. Si todas están presentes,
+    /// las sustituye por las clases indicadas en el segundo valor, insertando las nuevas en la
+    /// posición de la primera clase a sustituir encontrada. Se ignora si alguno de los dos valores
+    /// contiene caracteres no ASCII.
+    ReplaceAllClasses(CowStr, CowStr),
     /// Elimina la clase o clases indicadas de la lista. La operación se ignora si el valor contiene
     /// caracteres no ASCII.
     RemoveClasses(CowStr),
@@ -169,9 +177,32 @@ impl PropsOp {
     /// let props = Props::classes("button primary")
     ///     .with_prop(PropsOp::replace_classes("button", "btn"));
     /// assert_eq!(props.get_classes(), Some("btn primary".to_string()));
+    ///
+    /// // Basta con que exista alguna clase de `old` para aplicar el reemplazo.
+    /// let props = Props::classes("btn primary")
+    ///     .with_prop(PropsOp::replace_classes("primary secondary", "danger"));
+    /// assert_eq!(props.get_classes(), Some("btn danger".to_string()));
     /// ```
     pub fn replace_classes(old: impl Into<CowStr>, new: impl Into<CowStr>) -> Self {
         Self::ReplaceClasses(old.into(), new.into())
+    }
+
+    /// Crea la variante [`ReplaceAllClasses`](Self::ReplaceAllClasses) con las clases a sustituir
+    /// (`old`) y las nuevas clases (`new`).
+    ///
+    /// ```rust
+    /// # use pagetop::prelude::*;
+    /// let props = Props::classes("btn primary")
+    ///     .with_prop(PropsOp::replace_all_classes("btn primary", "btn danger"));
+    /// assert_eq!(props.get_classes(), Some("btn danger".to_string()));
+    ///
+    /// // Si falta una sola clase de `old`, no hay reemplazo.
+    /// let props = Props::classes("btn primary")
+    ///     .with_prop(PropsOp::replace_all_classes("primary secondary", "danger"));
+    /// assert_eq!(props.get_classes(), Some("btn primary".to_string()));
+    /// ```
+    pub fn replace_all_classes(old: impl Into<CowStr>, new: impl Into<CowStr>) -> Self {
+        Self::ReplaceAllClasses(old.into(), new.into())
     }
 
     /// Crea la variante [`RemoveClasses`](Self::RemoveClasses) con la clase o clases indicadas.
@@ -462,6 +493,27 @@ impl Props {
                     self.insert_classes(new.as_ref().split_ascii_whitespace(), pos);
                 }
             }
+            PropsOp::ReplaceAllClasses(old, new) => {
+                let Some(old) = util::normalize_ascii_or_empty(old.as_ref(), "Props::with_prop")
+                else {
+                    return self;
+                };
+                let Some(new) = util::normalize_ascii_or_empty(new.as_ref(), "Props::with_prop")
+                else {
+                    return self;
+                };
+                if !self.has_all_classes(old.as_ref()) {
+                    return self;
+                }
+                let mut pos = self.classes.len();
+                for class in old.as_ref().split_ascii_whitespace() {
+                    if let Some(replace_pos) = self.classes.iter().position(|c| c == class) {
+                        self.classes.remove(replace_pos);
+                        pos = pos.min(replace_pos);
+                    }
+                }
+                self.insert_classes(new.as_ref().split_ascii_whitespace(), pos);
+            }
             PropsOp::RemoveClasses(classes) => {
                 let Some(normalized) =
                     util::normalize_ascii_or_empty(classes.as_ref(), "Props::with_prop")
@@ -616,19 +668,8 @@ impl Props {
             && self.attrs.is_empty()
     }
 
-    /// Devuelve `true` si la clase o **todas** las clases indicadas están presentes.
-    pub fn has_class(&self, classes: impl AsRef<str>) -> bool {
-        let Ok(normalized) = util::normalize_ascii(classes.as_ref()) else {
-            return false;
-        };
-        normalized
-            .as_ref()
-            .split_ascii_whitespace()
-            .all(|class| self.classes.iter().any(|c| c == class))
-    }
-
     /// Devuelve `true` si la clase o **alguna** de las clases indicadas está presente.
-    pub fn has_any_class(&self, classes: impl AsRef<str>) -> bool {
+    pub fn has_classes(&self, classes: impl AsRef<str>) -> bool {
         let Ok(normalized) = util::normalize_ascii(classes.as_ref()) else {
             return false;
         };
@@ -636,6 +677,17 @@ impl Props {
             .as_ref()
             .split_ascii_whitespace()
             .any(|class| self.classes.iter().any(|c| c == class))
+    }
+
+    /// Devuelve `true` si la clase o **todas** las clases indicadas están presentes.
+    pub fn has_all_classes(&self, classes: impl AsRef<str>) -> bool {
+        let Ok(normalized) = util::normalize_ascii(classes.as_ref()) else {
+            return false;
+        };
+        normalized
+            .as_ref()
+            .split_ascii_whitespace()
+            .all(|class| self.classes.iter().any(|c| c == class))
     }
 
     /// Recupera una referencia tipada al valor extra asociado a la clave `key`.
