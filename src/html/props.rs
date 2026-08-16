@@ -1,5 +1,5 @@
 use crate::core::TypeInfo;
-use crate::html::maud::{Escaper, Render};
+use crate::html::maud::{Escaper, RenderAttrs};
 use crate::{AutoDefault, CowStr, builder_fn, trace, util};
 
 use thiserror::Error;
@@ -7,6 +7,7 @@ use thiserror::Error;
 use std::any::Any;
 use std::collections::HashMap;
 use std::fmt::{self, Write};
+use std::panic::Location;
 use std::sync::Arc;
 
 // **< PropsExtra >*********************************************************************************
@@ -348,6 +349,24 @@ impl PropsOp {
 ///
 /// let markup = html! { button (props) { "OK" } };
 /// assert_eq!(markup.into_string(), r#"<button style="color: blue">OK</button>"#);
+/// ```
+///
+/// # Atributos duplicados junto a `Props`
+///
+/// Cuando el componente combina `(self.props())` con un atributo literal del mismo nombre en el
+/// mismo elemento (una clase, un `#id`, o `nombre=valor`), la macro [`html!`](crate::html::html)
+/// evita automáticamente la duplicación. Recopila en tiempo de compilación los nombres de los
+/// atributos del elemento y al renderizar se omiten los duplicados en tiempo de ejecución. No
+/// depende del orden en que se escriban ni requiere ninguna acción del desarrollador.
+///
+/// ```rust
+/// # use pagetop::prelude::*;
+/// let props = Props::default().with_prop(PropsOp::set("title", "de Props"));
+///
+/// let markup = html! { span title="literal" (props) { "OK" } };
+///
+/// // El atributo literal prevalece; `Props` omite su propio "title" en vez de duplicarlo.
+/// assert_eq!(markup.into_string(), r#"<span title="literal">OK</span>"#);
 /// ```
 ///
 /// # Valores extra
@@ -881,32 +900,82 @@ impl Props {
 }
 
 #[doc(hidden)]
-impl Render for Props {
-    fn render_to(&self, w: &mut String) {
+impl RenderAttrs for Props {
+    // Omite cualquier atributo que esté en `exclude` (recopilados por `html!` a partir de los
+    // atributos literales del elemento). Registra un `trace::debug!` por cada atributo duplicado,
+    // con la posición exacta del `html!` que lo produjo (propagado gracias a `#[track_caller]`)
+    // para facilitar la localización del problema.
+    #[track_caller]
+    fn render_attrs_to(&self, w: &mut String, exclude: &[&str]) {
         if let Some(id) = self.id.as_deref() {
-            w.push_str(" id=\"");
-            let _ = write!(Escaper::new(w), "{}", id);
-            w.push('"');
+            if exclude.contains(&"id") {
+                trace::debug!(
+                    caller = %Location::caller(),
+                    attribute = "id",
+                    discarded = %id,
+                    "Ignoring Props attribute already set as a literal on the same element"
+                );
+            } else {
+                w.push_str(" id=\"");
+                let _ = write!(Escaper::new(w), "{}", id);
+                w.push('"');
+            }
         }
         if let Some((first, rest)) = self.classes.split_first() {
-            w.push_str(" class=\"");
-            let _ = write!(Escaper::new(w), "{}", first);
-            for class in rest {
-                w.push(' ');
-                let _ = write!(Escaper::new(w), "{}", class);
+            if exclude.contains(&"class") {
+                trace::debug!(
+                    caller = %Location::caller(),
+                    attribute = "class",
+                    discarded = %self.classes.join(" "),
+                    id = %self.id.as_deref().unwrap_or("<none>"),
+                    "Ignoring Props attribute already set as a literal on the same element"
+                );
+            } else {
+                w.push_str(" class=\"");
+                let _ = write!(Escaper::new(w), "{}", first);
+                for class in rest {
+                    w.push(' ');
+                    let _ = write!(Escaper::new(w), "{}", class);
+                }
+                w.push('"');
             }
-            w.push('"');
         }
         if let Some((first, rest)) = self.styles.split_first() {
-            w.push_str(" style=\"");
-            let _ = write!(Escaper::new(w), "{}: {}", first.0, first.1);
-            for (property, value) in rest {
-                w.push_str("; ");
-                let _ = write!(Escaper::new(w), "{}: {}", property, value);
+            if exclude.contains(&"style") {
+                let discarded = self
+                    .styles
+                    .iter()
+                    .map(|(property, value)| format!("{property}: {value}"))
+                    .collect::<Vec<_>>()
+                    .join("; ");
+                trace::debug!(
+                    caller = %Location::caller(),
+                    attribute = "style",
+                    discarded = %discarded,
+                    id = %self.id.as_deref().unwrap_or("<none>"),
+                    "Ignoring Props attribute already set as a literal on the same element"
+                );
+            } else {
+                w.push_str(" style=\"");
+                let _ = write!(Escaper::new(w), "{}: {}", first.0, first.1);
+                for (property, value) in rest {
+                    w.push_str("; ");
+                    let _ = write!(Escaper::new(w), "{}: {}", property, value);
+                }
+                w.push('"');
             }
-            w.push('"');
         }
         for (name, value) in &self.attrs {
+            if exclude.contains(&name.as_ref()) {
+                trace::debug!(
+                    caller = %Location::caller(),
+                    attribute = %name,
+                    discarded = %value,
+                    id = %self.id.as_deref().unwrap_or("<none>"),
+                    "Ignoring Props attribute already set as a literal on the same element"
+                );
+                continue;
+            }
             w.push(' ');
             let _ = write!(Escaper::new(w), "{}", name);
             w.push_str("=\"");

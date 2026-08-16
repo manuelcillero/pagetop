@@ -1,7 +1,9 @@
 //! HTML en código.
 
 pub(crate) mod maud;
-pub use maud::{DOCTYPE, Escaper, Markup, PreEscaped, Render, display, html, html_private};
+pub use maud::DOCTYPE;
+pub use maud::{Escaper, Markup, PreEscaped, Render, RenderAttrs};
+pub use maud::{display, html, html_private};
 
 mod route_path;
 pub use route_path::RoutePath;

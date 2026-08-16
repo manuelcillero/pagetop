@@ -1,6 +1,6 @@
 use proc_macro2::{Ident, Span, TokenStream};
 use quote::{ToTokens, quote};
-use syn::{Expr, Local, parse_quote, token::Brace};
+use syn::{Expr, LitStr, Local, parse_quote, token::Brace};
 
 use crate::maud::{ast::*, escape};
 
@@ -69,6 +69,17 @@ impl Generator {
         build.push_tokens(
             quote!(pagetop::html::html_private::render_to!(&(#expr), &mut #output_ident);),
         );
+    }
+
+    fn splice_attrs(&self, expr: Expr, exclude: &[LitStr], build: &mut Builder) {
+        let output_ident = &self.output_ident;
+        build.push_tokens(quote!(
+            pagetop::html::html_private::render_attrs_to!(
+                &(#expr),
+                &[#(#exclude),*],
+                &mut #output_ident
+            );
+        ));
     }
 
     fn element(&self, element: Element, build: &mut Builder) {
@@ -141,6 +152,21 @@ impl Generator {
     fn attrs(&self, attrs: Vec<Attribute>, build: &mut Builder) {
         let (classes, id, named_attrs, spliced) = split_attrs(attrs);
 
+        // Must run before `classes`/`id`/`named_attrs` are consumed below.
+        let literal_attr_names: Vec<LitStr> = {
+            let mut names = Vec::new();
+            if !classes.is_empty() {
+                names.push(LitStr::new("class", Span::call_site()));
+            }
+            if id.is_some() {
+                names.push(LitStr::new("id", Span::call_site()));
+            }
+            for (name, _) in &named_attrs {
+                names.push(LitStr::new(&name.to_string(), Span::call_site()));
+            }
+            names
+        };
+
         if !classes.is_empty() {
             let mut toggle_class_exprs = vec![];
 
@@ -185,7 +211,7 @@ impl Generator {
             self.attr(name, attr_type, build);
         }
         for expr in spliced {
-            self.splice(expr, build);
+            self.splice_attrs(expr, &literal_attr_names, build);
         }
     }
 

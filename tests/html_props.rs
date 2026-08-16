@@ -157,11 +157,13 @@ async fn props_alongside_named_attr_renders_after_it() {
 }
 
 #[pagetop::test]
-async fn props_multiple_splices_in_same_element() {
-    let p1 = Props::new("hx-get", "/api");
-    let p2 = Props::new("hx-swap", "outerHTML");
+async fn props_combined_via_chaining_instead_of_multiple_splices() {
+    // An element accepts only a single attribute splice (a second `(props)` on the same element
+    // is a compile error); values from separate sources are combined by chaining `with_prop()`
+    // on one `Props`, not by splicing two of them.
+    let p = Props::new("hx-get", "/api").with_prop(PropsOp::set("hx-swap", "outerHTML"));
     assert_eq!(
-        html! { button (p1) (p2) {} }.into_string(),
+        html! { button (p) {} }.into_string(),
         r#"<button hx-get="/api" hx-swap="outerHTML"></button>"#
     );
 }
@@ -191,6 +193,48 @@ async fn props_conditional_expression_in_html_macro() {
 async fn props_splice_empty_string_emits_nothing() {
     // An empty splice emits no attribute nor extra space.
     assert_eq!(html! { span ("") { "x" } }.into_string(), "<span>x</span>");
+}
+
+// **< RenderAttrs: literal attribute collisions >**************************************************
+
+#[pagetop::test]
+async fn props_id_collision_with_literal_omits_props_id() {
+    // A literal `#id` on the element takes precedence; `Props`'s own id is silently omitted instead
+    // of producing a duplicate `id` attribute.
+    let p = Props::default().with_id("from-props");
+    assert_eq!(
+        html! { div #fixed (p) {} }.into_string(),
+        r#"<div id="fixed"></div>"#
+    );
+}
+
+#[pagetop::test]
+async fn props_class_collision_with_literal_omits_props_classes() {
+    let p = Props::classes("from-props-a from-props-b");
+    assert_eq!(
+        html! { div.fixed (p) {} }.into_string(),
+        r#"<div class="fixed"></div>"#
+    );
+}
+
+#[pagetop::test]
+async fn props_style_collision_with_literal_omits_props_styles() {
+    let p = Props::default()
+        .with_prop(PropsOp::add_style("color", "red"))
+        .with_prop(PropsOp::add_style("font-weight", "bold"));
+    assert_eq!(
+        html! { div style="color: blue" (p) {} }.into_string(),
+        r#"<div style="color: blue"></div>"#
+    );
+}
+
+#[pagetop::test]
+async fn props_named_attr_collision_with_literal_omits_props_value() {
+    let p = Props::default().with_prop(PropsOp::set("title", "from-props"));
+    assert_eq!(
+        html! { span title="literal" (p) {} }.into_string(),
+        r#"<span title="literal"></span>"#
+    );
 }
 
 // **< is_attrs_empty / is_empty >******************************************************************

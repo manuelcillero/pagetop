@@ -2,8 +2,8 @@
 
 //! A macro for writing HTML templates.
 //!
-//! This documentation only describes the runtime API. For a general
-//! guide, check out the [book] instead.
+//! This documentation only describes the runtime API. For a general guide, check out the [book]
+//! instead.
 //!
 //! [book]: https://maud.lambda.xyz/
 
@@ -29,8 +29,7 @@ mod escape;
 ///
 /// All other characters are passed through unchanged.
 ///
-/// **Note:** In versions prior to 0.13, the single quote (`'`) was
-/// escaped as well.
+/// **Note:** In versions prior to 0.13, the single quote (`'`) was escaped as well.
 ///
 /// # Example
 ///
@@ -59,15 +58,14 @@ impl fmt::Write for Escaper<'_> {
 
 /// Representa un tipo que puede renderizarse como HTML.
 ///
-/// To implement this for your own type, override either the `.render()`
-/// or `.render_to()` methods; since each is defined in terms of the
-/// other, you only need to implement one of them. See the example below.
+/// To implement this for your own type, override either the `.render()` or `.render_to()` methods;
+/// since each is defined in terms of the other, you only need to implement one of them. See the
+/// example below.
 ///
 /// # Minimal implementation
 ///
-/// An implementation of this trait must override at least one of
-/// `.render()` or `.render_to()`. Since the default definitions of
-/// these methods call each other, not doing this will result in
+/// An implementation of this trait must override at least one of `.render()` or `.render_to()`.
+/// Since the default definitions of these methods call each other, not doing this will result in
 /// infinite recursion.
 pub trait Render {
     /// Renders `self` as a block of `Markup`.
@@ -79,13 +77,12 @@ pub trait Render {
 
     /// Appends a representation of `self` to the given buffer.
     ///
-    /// Its default implementation just calls `.render()`, but you may
-    /// override it with something more efficient.
+    /// Its default implementation just calls `.render()`, but you may override it with something
+    /// more efficient.
     ///
-    /// Note that no further escaping is performed on data written to
-    /// the buffer. If you override this method, you must make sure that
-    /// any data written is properly escaped, whether by hand or using
-    /// the [`Escaper`](struct.Escaper.html) wrapper struct.
+    /// Note that no further escaping is performed on data written to the buffer. If you override
+    /// this method, you must make sure that any data written is properly escaped, whether by hand
+    /// or using the [`Escaper`](struct.Escaper.html) wrapper struct.
     fn render_to(&self, buffer: &mut String) {
         buffer.push_str(&self.render().into_string());
     }
@@ -136,6 +133,27 @@ impl<T: Render + ?Sized> Render for Box<T> {
 impl<T: Render + ?Sized> Render for Arc<T> {
     fn render_to(&self, w: &mut String) {
         T::render_to(self, w);
+    }
+}
+
+/// Representa un tipo que puede renderizarse como los atributos de un elemento HTML.
+///
+/// Exists so that a single value "spliced" into the attribute position of an element can avoid
+/// duplicating an attribute the element already writes literally. The [`html!`](crate::html::html)
+/// macro automatically computes the names of the element's literal attributes and passes them here;
+/// no action is required from the programmer.
+///
+/// [`Props`](crate::html::Props) is the only implementation in PageTop.
+pub trait RenderAttrs {
+    /// Same as [`Render::render_to()`], but omitting any attribute whose name is in `exclude`.
+    #[track_caller]
+    fn render_attrs_to(&self, buffer: &mut String, exclude: &[&str]);
+}
+
+impl<T: RenderAttrs + ?Sized> RenderAttrs for &T {
+    #[track_caller]
+    fn render_attrs_to(&self, buffer: &mut String, exclude: &[&str]) {
+        T::render_attrs_to(self, buffer, exclude);
     }
 }
 
@@ -286,7 +304,7 @@ mod axum_support {
 pub mod html_private {
     extern crate alloc;
 
-    use super::{Render, display};
+    use super::{Render, RenderAttrs, display};
     use alloc::string::String;
     use core::fmt::Display;
 
@@ -330,6 +348,79 @@ pub mod html_private {
 
     impl ViaDisplayTag {
         pub fn render_to<T: Display + ?Sized>(self, value: &T, buffer: &mut String) {
+            display(value).render_to(buffer);
+        }
+    }
+
+    #[doc(hidden)]
+    #[macro_export]
+    macro_rules! render_attrs_to {
+        ($x:expr, $exclude:expr, $buffer:expr) => {{
+            use $crate::html::html_private::*;
+            match ChooseAttrsRenderOrDisplay($x) {
+                x => (&&&x)
+                    .implements_attrs_render_or_display()
+                    .render_to(x.0, $exclude, $buffer),
+            }
+        }};
+    }
+
+    pub use render_attrs_to;
+
+    pub struct ChooseAttrsRenderOrDisplay<T>(pub T);
+
+    pub struct ViaAttrsTag;
+    pub struct ViaAttrsRenderTag;
+    pub struct ViaAttrsDisplayTag;
+
+    pub trait ViaAttrs {
+        fn implements_attrs_render_or_display(&self) -> ViaAttrsTag {
+            ViaAttrsTag
+        }
+    }
+    pub trait ViaAttrsRender {
+        fn implements_attrs_render_or_display(&self) -> ViaAttrsRenderTag {
+            ViaAttrsRenderTag
+        }
+    }
+    pub trait ViaAttrsDisplay {
+        fn implements_attrs_render_or_display(&self) -> ViaAttrsDisplayTag {
+            ViaAttrsDisplayTag
+        }
+    }
+
+    impl<T: RenderAttrs> ViaAttrs for &&ChooseAttrsRenderOrDisplay<T> {}
+    impl<T: Render> ViaAttrsRender for &ChooseAttrsRenderOrDisplay<T> {}
+    impl<T: Display> ViaAttrsDisplay for ChooseAttrsRenderOrDisplay<T> {}
+
+    impl ViaAttrsTag {
+        #[track_caller]
+        pub fn render_to<T: RenderAttrs + ?Sized>(
+            self,
+            value: &T,
+            exclude: &[&str],
+            buffer: &mut String,
+        ) {
+            value.render_attrs_to(buffer, exclude);
+        }
+    }
+    impl ViaAttrsRenderTag {
+        pub fn render_to<T: Render + ?Sized>(
+            self,
+            value: &T,
+            _exclude: &[&str],
+            buffer: &mut String,
+        ) {
+            value.render_to(buffer);
+        }
+    }
+    impl ViaAttrsDisplayTag {
+        pub fn render_to<T: Display + ?Sized>(
+            self,
+            value: &T,
+            _exclude: &[&str],
+            buffer: &mut String,
+        ) {
             display(value).render_to(buffer);
         }
     }
