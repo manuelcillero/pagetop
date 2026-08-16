@@ -206,6 +206,7 @@ impl DiagnosticParse for Element {
             },
             attrs: {
                 let mut id_pushed = false;
+                let mut splice_pushed = false;
                 let mut attrs = Vec::new();
 
                 while input.peek(Ident::peek_any)
@@ -224,6 +225,16 @@ impl DiagnosticParse for Element {
                             ));
                         }
                         id_pushed = true;
+                    }
+
+                    if let Attribute::Splice { .. } = attr {
+                        if splice_pushed {
+                            return Err(Error::new_spanned(
+                                attr,
+                                "only one spliced attribute value is allowed per element",
+                            ));
+                        }
+                        splice_pushed = true;
                     }
 
                     attrs.push(attr);
