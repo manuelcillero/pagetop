@@ -1,25 +1,33 @@
-use pagetop::prelude::*;
-
-use crate::theme::*;
+use crate::prelude::*;
 
 /// Componente para renderizar una **imagen**.
 ///
 /// A una imagen se le puede:
 ///
-/// - Establecer su contenido a partir del origen definido en
-///   [`image::Source`](crate::theme::bs::image::Source).
-/// - Configurar sus **dimensiones** ([`with_size()`](Self::with_size)), **borde**
-///   ([`Border`](crate::theme::class::Border)) y **redondeo de esquinas**
-///   ([`Rounded`](crate::theme::class::Rounded)).
+/// - Establecer su contenido a partir del origen definido en [`image::Source`].
+/// - Configurar sus **dimensiones** ([`with_size()`](Self::with_size)).
 /// - Aplicar el texto alternativo `alt` con **localización** mediante [`Lc`].
+///
+/// # Ejemplo
+///
+/// ```rust,no_run
+/// use pagetop::prelude::*;
+///
+/// let logo = Image::with(image::Source::logo(PageTopSvg::Color))
+///     .with_alternative(Lc::n("PageTop"));
+///
+/// let photo = Image::with(image::Source::responsive("/files/photo.jpg"))
+///     .with_size(image::Size::Width(UnitValue::Px(320)))
+///     .with_alternative(Lc::n("Team photo"));
+/// ```
 #[derive(AutoDefault, Clone, Debug, Getters)]
 pub struct Image {
     /// Devuelve identificador, clases CSS, atributos HTML y valores extra del componente.
     props: Props,
     /// Devuelve las dimensiones de la imagen.
-    size: bs::image::Size,
+    size: image::Size,
     /// Devuelve el origen de la imagen.
-    source: bs::image::Source,
+    source: image::Source,
     /// Devuelve el texto alternativo localizado.
     alternative: Attr<Lc>,
 }
@@ -35,20 +43,40 @@ impl Component for Image {
     }
 
     fn setup(&mut self, _cx: &Context) {
-        // Clases CSS por defecto para la imagen, según el origen seleccionado.
-        self.alter_prop(PropsOp::prepend_classes(self.source().to_class()));
+        self.alter_prop(PropsOp::prepend_classes(match self.source() {
+            image::Source::Logo(_) => "image image-fluid",
+            image::Source::Responsive(_) => "image image-fluid",
+            image::Source::Thumbnail(_) => "image image-thumbnail",
+            image::Source::Plain(_) => "image",
+        }));
+        // El tamaño se aplica como declaraciones `style` individuales sobre `Props`.
+        match *self.size() {
+            image::Size::Auto => {}
+            image::Size::Dimensions(w, h) => {
+                self.alter_prop(PropsOp::add_style("width", w.to_string()));
+                self.alter_prop(PropsOp::add_style("height", h.to_string()));
+            }
+            image::Size::Width(w) => {
+                self.alter_prop(PropsOp::add_style("width", w.to_string()));
+            }
+            image::Size::Height(h) => {
+                self.alter_prop(PropsOp::add_style("height", h.to_string()));
+            }
+            image::Size::Both(v) => {
+                self.alter_prop(PropsOp::add_style("width", v.to_string()));
+                self.alter_prop(PropsOp::add_style("height", v.to_string()));
+            }
+        }
     }
 
     async fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
-        let dimensions = self.size().to_style();
         let alt_text = self.alternative().lookup(cx).unwrap_or_default();
-        let is_decorative = alt_text.is_empty();
         let source = match self.source() {
-            bs::image::Source::Logo(logo) => {
+            image::Source::Logo(logo) => {
+                let is_decorative = alt_text.is_empty();
                 return Ok(html! {
                     span
                         (self.props())
-                        style=[dimensions]
                         role=[(!is_decorative).then_some("img")]
                         aria-label=[(!is_decorative).then_some(alt_text)]
                         aria-hidden=[is_decorative.then_some("true")]
@@ -57,23 +85,22 @@ impl Component for Image {
                     }
                 });
             }
-            bs::image::Source::Responsive(source) => Some(source),
-            bs::image::Source::Thumbnail(source) => Some(source),
-            bs::image::Source::Plain(source) => Some(source),
+            image::Source::Responsive(source) => Some(source),
+            image::Source::Thumbnail(source) => Some(source),
+            image::Source::Plain(source) => Some(source),
         };
         Ok(html! {
             img
                 src=[source]
                 alt=(alt_text)
-                (self.props())
-                style=[dimensions] {}
+                (self.props()) {}
         })
     }
 }
 
 impl Image {
     /// Crea rápidamente una imagen especificando su origen.
-    pub fn with(source: bs::image::Source) -> Self {
+    pub fn with(source: image::Source) -> Self {
         Self::default().with_source(source)
     }
 
@@ -87,11 +114,6 @@ impl Image {
     }
 
     /// Modifica identificador, clases CSS, atributos HTML o valores extra del componente.
-    ///
-    /// También acepta clases predefinidas para:
-    ///
-    /// - Establecer bordes ([`Border`]).
-    /// - Redondear las esquinas ([`Rounded`]).
     #[builder_fn]
     pub fn with_prop(mut self, op: PropsOp) -> Self {
         self.props.alter_prop(op);
@@ -100,14 +122,14 @@ impl Image {
 
     /// Define las dimensiones de la imagen (auto, ancho/alto, ambos).
     #[builder_fn]
-    pub fn with_size(mut self, size: bs::image::Size) -> Self {
+    pub fn with_size(mut self, size: image::Size) -> Self {
         self.size = size;
         self
     }
 
     /// Establece el origen de la imagen, influyendo en su disposición en el contenido.
     #[builder_fn]
-    pub fn with_source(mut self, source: bs::image::Source) -> Self {
+    pub fn with_source(mut self, source: image::Source) -> Self {
         self.source = source;
         self
     }

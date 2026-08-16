@@ -1,8 +1,8 @@
-use pagetop::prelude::*;
+use crate::prelude::*;
 
 // **< Size >***************************************************************************************
 
-/// Define las **dimensiones** de una imagen ([`Image`](crate::theme::bs::Image)).
+/// Define las **dimensiones** de una imagen ([`Image`](super::Image)).
 #[derive(AutoDefault, Clone, Copy, Debug, PartialEq)]
 pub enum Size {
     /// Ajuste automático por defecto.
@@ -30,23 +30,13 @@ pub enum Size {
     Both(UnitValue),
 }
 
-impl Size {
-    /// Devuelve el valor del atributo `style` en función del tamaño, o `None` si no aplica.
-    #[inline]
-    pub fn to_style(self) -> Option<String> {
-        match self {
-            Self::Auto => None,
-            Self::Dimensions(w, h) => Some(format!("width: {w}; height: {h};")),
-            Self::Width(w) => Some(format!("width: {w};")),
-            Self::Height(h) => Some(format!("height: {h};")),
-            Self::Both(v) => Some(format!("width: {v}; height: {v};")),
-        }
-    }
-}
-
 // **< Source >*************************************************************************************
 
-/// Especifica la **fuente** para publicar una imagen ([`Image`](crate::theme::bs::Image)).
+/// Especifica la **fuente** para publicar una imagen ([`Image`](super::Image)).
+///
+/// Las variantes son puramente semánticas. El componente aplica una clase CSS base según la
+/// variante en su propio `setup()`; los temas pueden sobrescribirla interceptando el renderizado
+/// del componente.
 #[derive(AutoDefault, Clone, Debug, PartialEq)]
 pub enum Source {
     /// Imagen con el logotipo de PageTop.
@@ -56,71 +46,39 @@ pub enum Source {
     ///
     /// Lleva asociada la URL (o ruta) de la imagen.
     Responsive(CowStr),
-    /// Imagen que aplica el estilo **miniatura** de Bootstrap.
+    /// Imagen que aplica un estilo de miniatura.
     ///
     /// Lleva asociada la URL (o ruta) de la imagen.
     Thumbnail(CowStr),
-    /// Imagen sin clases específicas de Bootstrap, útil para controlar con CSS propio.
+    /// Imagen sin modificadores adicionales de estilo, útil para controlar la apariencia con CSS
+    /// propio.
     ///
     /// Lleva asociada la URL (o ruta) de la imagen.
     Plain(CowStr),
 }
 
 impl Source {
-    const IMG_FLUID: &str = "img-fluid";
-    const IMG_THUMBNAIL: &str = "img-thumbnail";
-
     /// Imagen con el logotipo de PageTop.
     #[inline]
     pub fn logo(svg: PageTopSvg) -> Self {
         Self::Logo(svg)
     }
 
-    /// Imagen responsive (`img-fluid`).
+    /// Imagen responsive.
     #[inline]
     pub fn responsive(url: impl Into<CowStr>) -> Self {
         Self::Responsive(url.into())
     }
 
-    /// Imagen miniatura (`img-thumbnail`).
+    /// Imagen miniatura.
     #[inline]
     pub fn thumbnail(url: impl Into<CowStr>) -> Self {
         Self::Thumbnail(url.into())
     }
 
-    /// Imagen sin clases adicionales.
+    /// Imagen sin modificadores adicionales de estilo.
     #[inline]
     pub fn plain(url: impl Into<CowStr>) -> Self {
         Self::Plain(url.into())
-    }
-
-    /// Devuelve la clase base asociada a la imagen según la fuente.
-    #[inline]
-    pub const fn as_str(&self) -> &'static str {
-        match self {
-            Source::Logo(_) | Source::Responsive(_) => Self::IMG_FLUID,
-            Source::Thumbnail(_) => Self::IMG_THUMBNAIL,
-            Source::Plain(_) => "",
-        }
-    }
-
-    /// Añade la clase asociada al tipo de imagen a la cadena de clases.
-    #[inline]
-    pub fn push_to(&self, classes: &mut String) {
-        let s = self.as_str();
-        if s.is_empty() {
-            return;
-        }
-        if !classes.is_empty() {
-            classes.push(' ');
-        }
-        classes.push_str(s);
-    }
-
-    /// Devuelve la clase asociada al tipo de imagen.
-    pub fn to_class(&self) -> String {
-        let mut class = String::new();
-        self.push_to(&mut class);
-        class
     }
 }

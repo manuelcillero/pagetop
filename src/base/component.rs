@@ -30,6 +30,10 @@ pub use form::Form;
 mod html;
 pub use html::Html;
 
+pub mod image;
+#[doc(inline)]
+pub use image::Image;
+
 mod intro;
 pub use intro::{Intro, IntroOpening};
 

@@ -145,6 +145,7 @@ impl Theme for Bootsier {
         setup_component!(component, {
             Button              => |c| theme::bs::button::setup(c),
             Container           => |c| theme::bs::container::setup(c),
+            Image               => |c| theme::bs::image::setup(c),
             form::input::Field  => |c| theme::bs::form::input::setup(c),
             form::select::Field => |c| theme::bs::form::select::setup(c),
             form::Textarea      => |c| theme::bs::form::textarea::setup(c),
