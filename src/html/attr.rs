@@ -1,4 +1,3 @@
-use crate::locale::{LangId, Lc};
 use crate::{AutoDefault, builder_fn, util};
 
 /// Valor opcional para atributos HTML.
@@ -7,8 +6,9 @@ use crate::{AutoDefault, builder_fn, util};
 /// opcionales, uniformes y tipados.
 ///
 /// Este tipo **no impone ninguna normalización ni semántica concreta**; dichas reglas se definen en
-/// implementaciones concretas como `Attr<Lc>` y `Attr<String>`, o en tipos específicos como
-/// [`AttrName`].
+/// implementaciones concretas como `Attr<String>`, o en tipos específicos como [`AttrName`]. Para
+/// texto localizado usa directamente [`Lc`](crate::locale::Lc) que ya representa su propia ausencia
+/// con [`Lc::none()`](crate::locale::Lc::none()), sin necesidad de envolverlo en `Attr<Lc>`.
 #[derive(AutoDefault, Clone, Debug)]
 pub struct Attr<T>(Option<T>);
 
@@ -69,52 +69,6 @@ impl<T> Attr<T> {
     /// `true` si no hay valor.
     pub fn is_empty(&self) -> bool {
         self.0.is_none()
-    }
-}
-
-// **< Attr<Lc> >***********************************************************************************
-
-/// Extiende [`Attr`] para [texto localizado](crate::locale) en atributos HTML.
-///
-/// Encapsula un [`Lc`] para manejar traducciones de forma segura en atributos.
-///
-/// # Ejemplo
-///
-/// ```rust
-/// # use pagetop::prelude::*;
-/// // Traducción por clave en las locales por defecto de PageTop.
-/// let hello = Attr::<Lc>::new(Lc::l("test_hello_world"));
-///
-/// // Español disponible.
-/// assert_eq!(
-///     hello.lookup(&Locale::resolve("es-ES")),
-///     Some("¡Hola mundo!".to_string())
-/// );
-///
-/// // Japonés no disponible, traduce al idioma de respaldo (`"en-US"`).
-/// assert_eq!(
-///     hello.lookup(&Locale::resolve("ja-JP")),
-///     Some("Hello world!".to_string())
-/// );
-///
-/// // Uso típico en un atributo:
-/// let title = hello.value(&Locale::resolve("es-ES"));
-/// // Ejemplo: html! { a title=(title) { "Link" } }
-/// ```
-impl Attr<Lc> {
-    /// Crea una nueva instancia `Attr<Lc>`.
-    pub fn new(value: Lc) -> Self {
-        Self::some(value)
-    }
-
-    /// Devuelve la traducción para `language` si puede resolverse.
-    pub fn lookup(&self, language: &impl LangId) -> Option<String> {
-        self.0.as_ref()?.lookup(language)
-    }
-
-    /// Devuelve la traducción para `language` o una cadena vacía si no existe.
-    pub fn value(&self, language: &impl LangId) -> String {
-        self.lookup(language).unwrap_or_default()
     }
 }
 

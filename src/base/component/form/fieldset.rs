@@ -27,9 +27,9 @@ pub struct Fieldset {
     /// Devuelve identificador, clases CSS, atributos HTML y valores extra del componente.
     props: Props,
     /// Devuelve la leyenda del `fieldset`.
-    legend: Attr<Lc>,
+    legend: Lc,
     /// Devuelve la descripción del `fieldset`.
-    description: Attr<Lc>,
+    description: Lc,
     /// Devuelve si el `fieldset` está deshabilitado.
     disabled: bool,
     /// Devuelve la lista de componentes del `fieldset`.
@@ -84,17 +84,17 @@ impl Fieldset {
         self
     }
 
-    /// Establece o elimina la leyenda del `fieldset` (basta pasar `None` para quitarla).
+    /// Establece la leyenda del `fieldset` (usa [`Lc::none()`] para quitarla).
     #[builder_fn]
-    pub fn with_legend(mut self, legend: impl Into<Option<Lc>>) -> Self {
-        self.legend.alter_opt(legend.into());
+    pub fn with_legend(mut self, legend: Lc) -> Self {
+        self.legend = legend;
         self
     }
 
-    /// Establece o elimina la descripción del `fieldset` (basta pasar `None` para quitarla).
+    /// Establece la descripción del `fieldset` (usa [`Lc::none()`] para quitarla).
     #[builder_fn]
-    pub fn with_description(mut self, description: impl Into<Option<Lc>>) -> Self {
-        self.description.alter_opt(description.into());
+    pub fn with_description(mut self, description: Lc) -> Self {
+        self.description = description;
         self
     }
 

@@ -29,7 +29,7 @@ pub struct Image {
     /// Devuelve el origen de la imagen.
     source: image::Source,
     /// Devuelve el texto alternativo localizado.
-    alternative: Attr<Lc>,
+    alternative: Lc,
 }
 
 #[async_trait]
@@ -140,7 +140,7 @@ impl Image {
     /// decorativa.
     #[builder_fn]
     pub fn with_alternative(mut self, alt: Lc) -> Self {
-        self.alternative.alter_value(alt);
+        self.alternative = alt;
         self
     }
 }

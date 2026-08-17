@@ -38,9 +38,9 @@ pub struct Range {
     /// Devuelve el valor inicial del campo.
     value: Attr<f64>,
     /// Devuelve la etiqueta del campo.
-    label: Attr<Lc>,
+    label: Lc,
     /// Devuelve el texto de ayuda del campo.
-    help_text: Attr<Lc>,
+    help_text: Lc,
     /// Devuelve el valor mínimo permitido.
     min: Attr<f64>,
     /// Devuelve el valor máximo permitido.
@@ -139,17 +139,17 @@ impl Range {
         self
     }
 
-    /// Establece o elimina la etiqueta visible del campo (basta pasar `None` para quitarla).
+    /// Establece la etiqueta visible del campo (usa [`Lc::none()`] para quitarla).
     #[builder_fn]
-    pub fn with_label(mut self, label: impl Into<Option<Lc>>) -> Self {
-        self.label.alter_opt(label.into());
+    pub fn with_label(mut self, label: Lc) -> Self {
+        self.label = label;
         self
     }
 
-    /// Establece o elimina el texto de ayuda del campo (basta pasar `None` para quitarlo).
+    /// Establece el texto de ayuda del campo (usa [`Lc::none()`] para quitarlo).
     #[builder_fn]
-    pub fn with_help_text(mut self, help_text: impl Into<Option<Lc>>) -> Self {
-        self.help_text.alter_opt(help_text.into());
+    pub fn with_help_text(mut self, help_text: Lc) -> Self {
+        self.help_text = help_text;
         self
     }
 

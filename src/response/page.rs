@@ -25,8 +25,8 @@ use crate::core::component::{AssetsOp, ChildOp, ComponentRender};
 use crate::core::component::{Context, ContextError, Contextual};
 use crate::core::theme::{CoreRegions, RegionName, RegionRef, TemplateRef, ThemeRef};
 use crate::html::{Assets, Favicon, JavaScript, StyleSheet};
-use crate::html::{Attr, Props, PropsOp};
 use crate::html::{DOCTYPE, Markup, html};
+use crate::html::{Props, PropsOp};
 use crate::locale::{CharacterDirection, LangId, LanguageIdentifier, Lc};
 use crate::web::HttpRequest;
 use crate::{AutoDefault, builder_fn};
@@ -88,11 +88,11 @@ impl RegionName for ReservedRegions {
 #[rustfmt::skip]
 #[derive(AutoDefault)]
 pub struct Page {
-    title       : Attr<Lc>,
-    description : Attr<Lc>,
-    metadata    : Vec<(&'static str, &'static str)>,
-    properties  : Vec<(&'static str, &'static str)>,
-    context     : Context,
+    title      : Lc,
+    description: Lc,
+    metadata   : Vec<(&'static str, &'static str)>,
+    properties : Vec<(&'static str, &'static str)>,
+    context    : Context,
 }
 
 impl Page {
@@ -128,14 +128,14 @@ impl Page {
     /// Establece el título de la página como un valor traducible.
     #[builder_fn]
     pub fn with_title(mut self, title: Lc) -> Self {
-        self.title.alter_value(title);
+        self.title = title;
         self
     }
 
     /// Establece la descripción de la página como un valor traducible.
     #[builder_fn]
     pub fn with_description(mut self, description: Lc) -> Self {
-        self.description.alter_value(description);
+        self.description = description;
         self
     }
 

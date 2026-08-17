@@ -40,9 +40,9 @@ pub struct Textarea {
     /// Devuelve el valor inicial del área de texto.
     value: AttrValue,
     /// Devuelve la etiqueta del campo.
-    label: Attr<Lc>,
+    label: Lc,
     /// Devuelve el texto de ayuda del campo.
-    help_text: Attr<Lc>,
+    help_text: Lc,
     /// Devuelve el número de filas visibles del área de texto.
     rows: Attr<u16>,
     /// Devuelve la longitud mínima permitida en caracteres.
@@ -50,7 +50,7 @@ pub struct Textarea {
     /// Devuelve la longitud máxima permitida en caracteres.
     maxlength: Attr<u16>,
     /// Devuelve el texto indicativo del área de texto.
-    placeholder: Attr<Lc>,
+    placeholder: Lc,
     /// Devuelve la configuración de autocompletado del campo.
     autocomplete: Attr<form::Autocomplete>,
     /// Devuelve si el campo recibe el foco automáticamente al cargar la página.
@@ -166,17 +166,17 @@ impl Textarea {
         self
     }
 
-    /// Establece o elimina la etiqueta visible del campo (basta pasar `None` para quitarla).
+    /// Establece la etiqueta visible del campo (usa [`Lc::none()`] para quitarla).
     #[builder_fn]
-    pub fn with_label(mut self, label: impl Into<Option<Lc>>) -> Self {
-        self.label.alter_opt(label.into());
+    pub fn with_label(mut self, label: Lc) -> Self {
+        self.label = label;
         self
     }
 
-    /// Establece o elimina el texto de ayuda del campo (basta pasar `None` para quitarlo).
+    /// Establece el texto de ayuda del campo (usa [`Lc::none()`] para quitarlo).
     #[builder_fn]
-    pub fn with_help_text(mut self, help_text: impl Into<Option<Lc>>) -> Self {
-        self.help_text.alter_opt(help_text.into());
+    pub fn with_help_text(mut self, help_text: Lc) -> Self {
+        self.help_text = help_text;
         self
     }
 
@@ -204,13 +204,13 @@ impl Textarea {
         self
     }
 
-    /// Establece o elimina el texto indicativo del área de texto (`None` para quitarlo).
+    /// Establece el texto indicativo del área de texto (usa [`Lc::none()`] para quitarlo).
     ///
     /// Este texto aparece en el área de texto y desaparece en cuanto el usuario empieza a escribir.
     /// Al ser texto visible para el usuario se acepta [`Lc`] para poder localizarlo.
     #[builder_fn]
-    pub fn with_placeholder(mut self, placeholder: impl Into<Option<Lc>>) -> Self {
-        self.placeholder.alter_opt(placeholder.into());
+    pub fn with_placeholder(mut self, placeholder: Lc) -> Self {
+        self.placeholder = placeholder;
         self
     }
 

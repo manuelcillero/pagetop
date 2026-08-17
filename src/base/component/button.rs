@@ -74,9 +74,9 @@ pub struct Button {
     /// Devuelve el valor del botón.
     value: AttrValue,
     /// Devuelve la etiqueta del botón.
-    label: Attr<Lc>,
+    label: Lc,
     /// Devuelve el texto emergente del botón (atributo `title`).
-    title: Attr<Lc>,
+    title: Lc,
     /// Devuelve si el botón recibe el foco automáticamente al cargar la página.
     autofocus: bool,
     /// Devuelve si el botón está deshabilitado.
@@ -124,7 +124,7 @@ impl Button {
     pub fn submit(label: Lc) -> Self {
         Self {
             kind: ButtonAction::Submit,
-            label: Attr::some(label),
+            label,
             ..Default::default()
         }
     }
@@ -135,7 +135,7 @@ impl Button {
     pub fn reset(label: Lc) -> Self {
         Self {
             kind: ButtonAction::Reset,
-            label: Attr::some(label),
+            label,
             ..Default::default()
         }
     }
@@ -147,7 +147,7 @@ impl Button {
     pub fn plain(label: Lc) -> Self {
         Self {
             kind: ButtonAction::Plain,
-            label: Attr::some(label),
+            label,
             ..Default::default()
         }
     }
@@ -188,17 +188,17 @@ impl Button {
         self
     }
 
-    /// Establece o elimina la etiqueta visible del botón (basta pasar `None` para quitarla).
+    /// Establece la etiqueta visible del botón (usa [`Lc::none()`] para quitarla).
     #[builder_fn]
-    pub fn with_label(mut self, label: impl Into<Option<Lc>>) -> Self {
-        self.label.alter_opt(label.into());
+    pub fn with_label(mut self, label: Lc) -> Self {
+        self.label = label;
         self
     }
 
-    /// Establece o elimina el texto emergente del botón (basta pasar `None` para quitarlo).
+    /// Establece el texto emergente del botón (usa [`Lc::none()`] para quitarlo).
     #[builder_fn]
-    pub fn with_title(mut self, title: impl Into<Option<Lc>>) -> Self {
-        self.title.alter_opt(title.into());
+    pub fn with_title(mut self, title: Lc) -> Self {
+        self.title = title;
         self
     }
 

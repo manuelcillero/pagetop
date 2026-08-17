@@ -32,6 +32,7 @@ enum LcKind {
 /// - Un texto puro (`n()`) que no requiere traducción.
 /// - Una clave para traducir un texto del conjunto de traducciones predefinidas de PageTop (`l()`).
 /// - Una clave para traducir de un conjunto concreto de traducciones (`t()`).
+/// - Ningún contenido (`none()`), para representar la ausencia en un campo `Lc` opcional.
 ///
 /// # ¿Cuál usar, `get()`, `lookup()` o `using()`?
 ///
@@ -122,6 +123,23 @@ impl Lc {
         }
     }
 
+    /// Crea una instancia **sin contenido**: no traduce nada y no representa ningún texto.
+    ///
+    /// Equivale a [`Lc::default()`](Default::default), con un nombre más explícito. Útil para
+    /// representar la ausencia en un campo `Lc` opcional sin requerir `Option<Lc>`:
+    /// [`get()`](Self::get) y [`lookup()`](Self::lookup) devuelven `None`, y
+    /// [`using()`](Self::using) devuelve un marcado vacío.
+    ///
+    /// ```rust
+    /// # use pagetop::prelude::*;
+    /// assert_eq!(Lc::none().get(), None);
+    /// ```
+    pub fn none() -> Self {
+        Self::default()
+    }
+
+    // **< Lc BUILDER >*****************************************************************************
+
     /// Añade un argumento `{$arg}` => `value` a la traducción.
     pub fn with_arg(mut self, arg: impl Into<CowStr>, value: impl Into<CowStr>) -> Self {
         self.args.push((arg.into(), value.into()));
@@ -141,6 +159,8 @@ impl Lc {
             .extend(args.into_iter().map(|(k, v)| (k.into(), v.into())));
         self
     }
+
+    // **< Lc GETTERS >*****************************************************************************
 
     /// Resuelve la traducción usando el idioma por defecto o, si no procede, el de respaldo de la
     /// aplicación.

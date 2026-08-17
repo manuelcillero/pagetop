@@ -46,7 +46,7 @@ pub struct Checkbox {
     /// Devuelve el nombre del campo.
     name: AttrName,
     /// Devuelve la etiqueta del control.
-    label: Attr<Lc>,
+    label: Lc,
     /// Devuelve si el control debe estar marcado/activo por defecto.
     checked: bool,
     /// Devuelve si el control recibe el foco automáticamente al cargar la página.
@@ -182,10 +182,10 @@ impl Checkbox {
         self
     }
 
-    /// Establece o elimina la etiqueta visible del control (basta pasar `None` para quitarla).
+    /// Establece la etiqueta visible del control (usa [`Lc::none()`] para quitarla).
     #[builder_fn]
-    pub fn with_label(mut self, label: impl Into<Option<Lc>>) -> Self {
-        self.label.alter_opt(label.into());
+    pub fn with_label(mut self, label: Lc) -> Self {
+        self.label = label;
         self
     }
 

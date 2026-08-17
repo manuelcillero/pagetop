@@ -103,9 +103,9 @@ pub struct Field {
     /// Devuelve el nombre compartido por todas las casillas del grupo.
     name: AttrName,
     /// Devuelve la etiqueta del grupo.
-    label: Attr<Lc>,
+    label: Lc,
     /// Devuelve el texto de ayuda del grupo.
-    help_text: Attr<Lc>,
+    help_text: Lc,
     /// Devuelve las casillas del grupo.
     items: Vec<Item>,
     /// Devuelve si todo el grupo está deshabilitado.
@@ -207,17 +207,17 @@ impl Field {
         self
     }
 
-    /// Establece o elimina la etiqueta visible del grupo (basta pasar `None` para quitarla).
+    /// Establece la etiqueta visible del grupo (usa [`Lc::none()`] para quitarla).
     #[builder_fn]
-    pub fn with_label(mut self, label: impl Into<Option<Lc>>) -> Self {
-        self.label.alter_opt(label.into());
+    pub fn with_label(mut self, label: Lc) -> Self {
+        self.label = label;
         self
     }
 
-    /// Establece o elimina el texto de ayuda del grupo (basta pasar `None` para quitarlo).
+    /// Establece el texto de ayuda del grupo (usa [`Lc::none()`] para quitarlo).
     #[builder_fn]
-    pub fn with_help_text(mut self, help_text: impl Into<Option<Lc>>) -> Self {
-        self.help_text.alter_opt(help_text.into());
+    pub fn with_help_text(mut self, help_text: Lc) -> Self {
+        self.help_text = help_text;
         self
     }
 
