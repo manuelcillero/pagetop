@@ -476,7 +476,7 @@ pub fn test(_: TokenStream, item: TokenStream) -> TokenStream {
 // Genera la función síncrona que envuelve el cuerpo asíncrono original, común a `main` y `test`.
 fn expand_entry(input: ItemFn, is_test: bool) -> TokenStream {
     if input.sig.asyncness.is_none() {
-        return syn::Error::new_spanned(&input.sig.fn_token, "the function must be `async`")
+        return syn::Error::new_spanned(input.sig.fn_token, "the function must be `async`")
             .to_compile_error()
             .into();
     }
