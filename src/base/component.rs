@@ -5,6 +5,9 @@ pub mod layout;
 mod badge;
 pub use badge::Badge;
 
+mod brand;
+pub use brand::Brand;
+
 pub mod breadcrumb;
 #[doc(inline)]
 pub use breadcrumb::Breadcrumb;

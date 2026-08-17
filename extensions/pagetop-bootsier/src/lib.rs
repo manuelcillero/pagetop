@@ -143,6 +143,8 @@ impl Theme for Bootsier {
         cx: &mut Context,
     ) -> Option<Result<Markup, ComponentError>> {
         setup_component!(component, {
+            Badge               => |c| theme::bs::badge::setup(c),
+            Brand               => |c| theme::bs::brand::setup(c),
             Button              => |c| theme::bs::button::setup(c),
             Container           => |c| theme::bs::container::setup(c),
             Image               => |c| theme::bs::image::setup(c),
