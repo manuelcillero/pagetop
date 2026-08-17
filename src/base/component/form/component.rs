@@ -81,7 +81,7 @@ impl Component for Form {
                 (self.props())
                 action=[self.action().try_resolve(cx)]
                 method=[method]
-                accept-charset=[self.charset().get()]
+                accept-charset=[self.charset().as_deref()]
             {
                 (self.children().render(cx).await)
             }

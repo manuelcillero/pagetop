@@ -203,11 +203,11 @@ impl Component for Pager {
             return Ok(html! {});
         }
         let page = self.current_page().clamp(1, total_pages);
-        let base_path = self.base_path().as_str().unwrap_or_default();
+        let base_path = self.base_path().as_deref().unwrap_or("");
 
         // Ruta común a los enlaces del paginador, con los parámetros de `extra_query` añadidos a
         // `base_path`. Pasa por `cx.route()` para preservar el parámetro `lang` si corresponde.
-        let mut route = cx.route(base_path.to_owned());
+        let mut route = cx.route(base_path);
         for (key, value) in self.extra_query() {
             route.alter_param(key, value);
         }

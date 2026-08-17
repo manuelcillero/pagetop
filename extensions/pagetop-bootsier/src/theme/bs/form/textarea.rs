@@ -91,18 +91,18 @@ pub(crate) fn render(field: &Textarea, cx: &mut Context) -> Result<Markup, Compo
             textarea
                 id=[textarea_id.as_deref()]
                 class="form-control"
-                name=[field.name().get()]
-                rows=[field.rows().get()]
-                minlength=[field.minlength().get()]
-                maxlength=[field.maxlength().get()]
+                name=[field.name().as_deref()]
+                rows=[field.rows()]
+                minlength=[field.minlength()]
+                maxlength=[field.maxlength()]
                 placeholder=[placeholder]
-                autocomplete=[field.autocomplete().get()]
+                autocomplete=[field.autocomplete()]
                 autofocus[*field.autofocus()]
                 readonly[*field.readonly()]
                 required[*field.required()]
                 disabled[*field.disabled()]
             {
-                @if let Some(value) = field.value().get() { (value) }
+                @if let Some(value) = field.value().as_deref() { (value) }
             }
             @if floating { (label) }
             @if let Some(description) = field.help_text().lookup(cx) {

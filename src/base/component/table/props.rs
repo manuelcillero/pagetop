@@ -21,7 +21,7 @@ use crate::prelude::*;
 ///     .with_prop(PropsOp::set("data-sort", "email"));
 ///
 /// assert_eq!(link.props().get_id(), Some("sort-email".to_string()));
-/// assert_eq!(link.href().as_str(), Some("/admin/users?sort=email"));
+/// assert_eq!(link.href().as_deref(), Some("/admin/users?sort=email"));
 /// assert_eq!(link.dir(), Some(&SortDir::Desc));
 /// ```
 ///

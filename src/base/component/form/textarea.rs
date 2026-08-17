@@ -44,15 +44,18 @@ pub struct Textarea {
     /// Devuelve el texto de ayuda del campo.
     help_text: Lc,
     /// Devuelve el número de filas visibles del área de texto.
-    rows: Attr<u16>,
+    #[getters(copy)]
+    rows: Option<u16>,
     /// Devuelve la longitud mínima permitida en caracteres.
-    minlength: Attr<u16>,
+    #[getters(copy)]
+    minlength: Option<u16>,
     /// Devuelve la longitud máxima permitida en caracteres.
-    maxlength: Attr<u16>,
+    #[getters(copy)]
+    maxlength: Option<u16>,
     /// Devuelve el texto indicativo del área de texto.
     placeholder: Lc,
     /// Devuelve la configuración de autocompletado del campo.
-    autocomplete: Attr<form::Autocomplete>,
+    autocomplete: Option<form::Autocomplete>,
     /// Devuelve si el campo recibe el foco automáticamente al cargar la página.
     autofocus: bool,
     /// Devuelve si el campo es de sólo lectura.
@@ -76,7 +79,7 @@ impl Component for Textarea {
     fn setup(&mut self, _cx: &Context) {
         if let Some(container_id) = self
             .id()
-            .or_else(|| self.name().get().map(|n| util::join!("edit-", n)))
+            .or_else(|| self.name().as_deref().map(|n| util::join!("edit-", n)))
         {
             self.alter_prop(PropsOp::ensure_id(container_id));
         }
@@ -109,18 +112,18 @@ impl Component for Textarea {
                 textarea
                     id=[textarea_id.as_deref()]
                     class="form-control"
-                    name=[self.name().get()]
-                    rows=[self.rows().get()]
-                    minlength=[self.minlength().get()]
-                    maxlength=[self.maxlength().get()]
+                    name=[self.name().as_deref()]
+                    rows=[self.rows()]
+                    minlength=[self.minlength()]
+                    maxlength=[self.maxlength()]
                     placeholder=[self.placeholder().lookup(cx)]
-                    autocomplete=[self.autocomplete().get()]
+                    autocomplete=[self.autocomplete()]
                     autofocus[*self.autofocus()]
                     readonly[*self.readonly()]
                     required[*self.required()]
                     disabled[*self.disabled()]
                 {
-                    @if let Some(value) = self.value().get() {
+                    @if let Some(value) = self.value().as_deref() {
                         (value)
                     }
                 }
@@ -185,22 +188,22 @@ impl Textarea {
     /// Sin valor o pasando `None`, el área muestra su altura predeterminada, dos filas según el
     /// estándar.
     #[builder_fn]
-    pub fn with_rows(mut self, rows: Option<u16>) -> Self {
-        self.rows.alter_opt(rows);
+    pub fn with_rows(mut self, rows: impl Into<Option<u16>>) -> Self {
+        self.rows = rows.into();
         self
     }
 
     /// Establece la longitud mínima permitida en caracteres.
     #[builder_fn]
-    pub fn with_minlength(mut self, minlength: Option<u16>) -> Self {
-        self.minlength.alter_opt(minlength);
+    pub fn with_minlength(mut self, minlength: impl Into<Option<u16>>) -> Self {
+        self.minlength = minlength.into();
         self
     }
 
     /// Establece la longitud máxima permitida en caracteres.
     #[builder_fn]
-    pub fn with_maxlength(mut self, maxlength: Option<u16>) -> Self {
-        self.maxlength.alter_opt(maxlength);
+    pub fn with_maxlength(mut self, maxlength: impl Into<Option<u16>>) -> Self {
+        self.maxlength = maxlength.into();
         self
     }
 
@@ -222,8 +225,11 @@ impl Textarea {
     /// Usa los métodos de [`form::Autocomplete`] para los valores más habituales. Pasa `None` para
     /// omitir el atributo.
     #[builder_fn]
-    pub fn with_autocomplete(mut self, autocomplete: Option<form::Autocomplete>) -> Self {
-        self.autocomplete.alter_opt(autocomplete);
+    pub fn with_autocomplete(
+        mut self,
+        autocomplete: impl Into<Option<form::Autocomplete>>,
+    ) -> Self {
+        self.autocomplete = autocomplete.into();
         self
     }
 

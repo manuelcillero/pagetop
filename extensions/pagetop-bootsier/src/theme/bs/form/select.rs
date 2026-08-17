@@ -85,10 +85,10 @@ pub(crate) fn render(field: &Field, cx: &mut Context) -> Result<Markup, Componen
             select
                 id=[select_id.as_deref()]
                 class="form-select"
-                name=[field.name().get()]
+                name=[field.name().as_deref()]
                 multiple[*field.multiple()]
-                size=[field.rows().get()]
-                autocomplete=[field.autocomplete().get()]
+                size=[field.rows()]
+                autocomplete=[field.autocomplete()]
                 autofocus[*field.autofocus()]
                 required[*field.required()]
                 disabled[*field.disabled()]
@@ -97,7 +97,7 @@ pub(crate) fn render(field: &Field, cx: &mut Context) -> Result<Markup, Componen
                     @match entry {
                         form::select::Entry::Item(opt) => {
                             option
-                                value=(opt.value().as_str().unwrap_or(""))
+                                value=(opt.value().as_deref().unwrap_or(""))
                                 selected[*opt.selected()]
                                 disabled[*opt.disabled()]
                             {
@@ -111,7 +111,7 @@ pub(crate) fn render(field: &Field, cx: &mut Context) -> Result<Markup, Componen
                             {
                                 @for opt in group.items() {
                                     option
-                                        value=(opt.value().as_str().unwrap_or(""))
+                                        value=(opt.value().as_deref().unwrap_or(""))
                                         selected[*opt.selected()]
                                         disabled[*opt.disabled()]
                                     {

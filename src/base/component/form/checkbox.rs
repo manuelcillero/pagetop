@@ -98,7 +98,7 @@ impl Component for Checkbox {
 
     async fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
         // En `setup()` se garantiza que `name` e `id` están definidos antes del renderizado.
-        let name = self.name().get().unwrap();
+        let name = self.name().as_deref().unwrap();
         let container_id = self.id().unwrap();
 
         let checkbox_id = util::join!(&container_id, "-checkbox");
@@ -111,7 +111,7 @@ impl Component for Checkbox {
                     role=[is_switch.then_some("switch")]
                     id=(&checkbox_id)
                     class="form-check-input"
-                    name=(&name)
+                    name=(name)
                     value="true"
                     checked[*self.checked()]
                     autofocus[*self.autofocus()]

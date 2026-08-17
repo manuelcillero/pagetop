@@ -48,8 +48,8 @@ impl Component for Hidden {
         Ok(html! {
             input
                 type="hidden"
-                name=[self.name().get()]
-                value=[self.value().get()];
+                name=[self.name().as_deref()]
+                value=[self.value().as_deref()];
         })
     }
 }

@@ -102,8 +102,8 @@ impl Component for Button {
             button
                 type=(self.kind())
                 (self.props())
-                name=[self.name().get()]
-                value=[self.value().get()]
+                name=[self.name().as_deref()]
+                value=[self.value().as_deref()]
                 title=[self.title().lookup(cx)]
                 autofocus[*self.autofocus()]
                 disabled[*self.disabled()]

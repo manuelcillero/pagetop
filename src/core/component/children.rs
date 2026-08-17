@@ -45,8 +45,8 @@ impl Child {
     ///
     /// Si se proporciona `Some(component)`, se encapsula como [`Child`]; y si es `None`, se limpia.
     #[builder_fn]
-    pub fn with_component<C: Component>(mut self, component: Option<C>) -> Self {
-        self.0 = component.map(|c| Arc::new(c) as Arc<dyn Component>);
+    pub fn with_component<C: Component>(mut self, component: impl Into<Option<C>>) -> Self {
+        self.0 = component.into().map(|c| Arc::new(c) as Arc<dyn Component>);
         self
     }
 
@@ -166,8 +166,8 @@ impl<C: Component> Embed<C> {
     ///
     /// Si se proporciona `Some(component)`, se encapsula como [`Embed`]; y si es `None`, se limpia.
     #[builder_fn]
-    pub fn with_component(mut self, component: Option<C>) -> Self {
-        self.0 = component.map(Arc::new);
+    pub fn with_component(mut self, component: impl Into<Option<C>>) -> Self {
+        self.0 = component.into().map(Arc::new);
         self
     }
 

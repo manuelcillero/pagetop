@@ -165,13 +165,15 @@ pub struct Field {
     /// Devuelve el texto de ayuda del campo.
     help_text: Lc,
     /// Devuelve la longitud mínima permitida en caracteres.
-    minlength: Attr<u16>,
+    #[getters(copy)]
+    minlength: Option<u16>,
     /// Devuelve la longitud máxima permitida en caracteres.
-    maxlength: Attr<u16>,
+    #[getters(copy)]
+    maxlength: Option<u16>,
     /// Devuelve el texto indicativo del campo.
     placeholder: Lc,
     /// Devuelve la configuración de autocompletado del campo.
-    autocomplete: Attr<form::Autocomplete>,
+    autocomplete: Option<form::Autocomplete>,
     /// Devuelve si el campo recibe el foco automáticamente al cargar la página.
     autofocus: bool,
     /// Devuelve si el campo es de sólo lectura.
@@ -183,7 +185,8 @@ pub struct Field {
     /// Devuelve si el campo se muestra como texto plano sin bordes ni fondo.
     plaintext: bool,
     /// Devuelve la sugerencia de teclado virtual para el campo.
-    inputmode: Attr<Mode>,
+    #[getters(copy)]
+    inputmode: Option<Mode>,
 }
 
 #[async_trait]
@@ -199,7 +202,7 @@ impl Component for Field {
     fn setup(&mut self, _cx: &Context) {
         if let Some(container_id) = self
             .id()
-            .or_else(|| self.name().get().map(|n| util::join!("edit-", n)))
+            .or_else(|| self.name().as_deref().map(|n| util::join!("edit-", n)))
         {
             self.alter_prop(PropsOp::ensure_id(container_id));
         }
@@ -225,9 +228,9 @@ impl Component for Field {
         let strict = self.kind().is_strict();
         let masked = *self.kind() == Kind::StrictPassword;
         let autocomplete = if strict {
-            Some(form::Autocomplete::Off)
+            Some(&form::Autocomplete::Off)
         } else {
-            self.autocomplete().get()
+            self.autocomplete()
         };
 
         Ok(html! {
@@ -249,12 +252,12 @@ impl Component for Field {
                     type=(self.kind())
                     id=[input_id.as_deref()]
                     class=(input_class)
-                    name=[self.name().get()]
-                    value=[self.value().get()]
-                    minlength=[self.minlength().get()]
-                    maxlength=[self.maxlength().get()]
+                    name=[self.name().as_deref()]
+                    value=[self.value().as_deref()]
+                    minlength=[self.minlength()]
+                    maxlength=[self.maxlength()]
                     placeholder=[self.placeholder().lookup(cx)]
-                    inputmode=[self.inputmode().get()]
+                    inputmode=[self.inputmode()]
                     autocomplete=[autocomplete]
                     spellcheck=[strict.then_some("false")]
                     autocorrect=[strict.then_some("off")]
@@ -434,15 +437,15 @@ impl Field {
 
     /// Establece la longitud mínima permitida en caracteres (`None` para no imponer mínimo).
     #[builder_fn]
-    pub fn with_minlength(mut self, minlength: Option<u16>) -> Self {
-        self.minlength.alter_opt(minlength);
+    pub fn with_minlength(mut self, minlength: impl Into<Option<u16>>) -> Self {
+        self.minlength = minlength.into();
         self
     }
 
     /// Establece la longitud máxima permitida en caracteres (`None` para no imponer límite).
     #[builder_fn]
-    pub fn with_maxlength(mut self, maxlength: Option<u16>) -> Self {
-        self.maxlength.alter_opt(maxlength);
+    pub fn with_maxlength(mut self, maxlength: impl Into<Option<u16>>) -> Self {
+        self.maxlength = maxlength.into();
         self
     }
 
@@ -462,8 +465,11 @@ impl Field {
     /// [`Autocomplete::email()`](form::Autocomplete::email) o
     /// [`Autocomplete::current_password()`](form::Autocomplete::current_password)).
     #[builder_fn]
-    pub fn with_autocomplete(mut self, autocomplete: Option<form::Autocomplete>) -> Self {
-        self.autocomplete.alter_opt(autocomplete);
+    pub fn with_autocomplete(
+        mut self,
+        autocomplete: impl Into<Option<form::Autocomplete>>,
+    ) -> Self {
+        self.autocomplete = autocomplete.into();
         self
     }
 
@@ -510,8 +516,8 @@ impl Field {
     /// A diferencia del atributo `type` ([`form::input::Kind`]), no restringe los valores aceptados
     /// ni activa la validación del navegador; es sólo una sugerencia de presentación.
     #[builder_fn]
-    pub fn with_inputmode(mut self, inputmode: Option<Mode>) -> Self {
-        self.inputmode.alter_opt(inputmode);
+    pub fn with_inputmode(mut self, inputmode: impl Into<Option<Mode>>) -> Self {
+        self.inputmode = inputmode.into();
         self
     }
 }

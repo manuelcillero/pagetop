@@ -141,7 +141,7 @@ impl Component for Field {
 
     async fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
         // En `setup()` se garantiza que `name` e `id` están definidos antes del renderizado.
-        let name = self.name().get().unwrap();
+        let name = self.name().as_deref().unwrap();
         let container_id = self.id().unwrap();
 
         Ok(html! {
@@ -162,8 +162,8 @@ impl Component for Field {
                             type="checkbox"
                             id=(&item_id)
                             class="form-check-input"
-                            name=(&name)
-                            value=[item.value().get()]
+                            name=(name)
+                            value=[item.value().as_deref()]
                             checked[*item.checked()]
                             disabled[*item.disabled() || *self.disabled()];
                         label class="form-check-label" for=(&item_id) {

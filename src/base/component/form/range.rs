@@ -36,17 +36,21 @@ pub struct Range {
     /// Devuelve el nombre del campo.
     name: AttrName,
     /// Devuelve el valor inicial del campo.
-    value: Attr<f64>,
+    #[getters(copy)]
+    value: Option<f64>,
     /// Devuelve la etiqueta del campo.
     label: Lc,
     /// Devuelve el texto de ayuda del campo.
     help_text: Lc,
     /// Devuelve el valor mínimo permitido.
-    min: Attr<f64>,
+    #[getters(copy)]
+    min: Option<f64>,
     /// Devuelve el valor máximo permitido.
-    max: Attr<f64>,
+    #[getters(copy)]
+    max: Option<f64>,
     /// Devuelve el incremento entre valores del campo.
-    step: Attr<f64>,
+    #[getters(copy)]
+    step: Option<f64>,
     /// Devuelve si el control recibe el foco automáticamente al cargar la página.
     autofocus: bool,
     /// Devuelve si el control está deshabilitado.
@@ -66,7 +70,7 @@ impl Component for Range {
     fn setup(&mut self, _cx: &Context) {
         if let Some(container_id) = self
             .id()
-            .or_else(|| self.name().get().map(|n| util::join!("edit-", n)))
+            .or_else(|| self.name().as_deref().map(|n| util::join!("edit-", n)))
         {
             self.alter_prop(PropsOp::ensure_id(container_id));
         };
@@ -87,11 +91,11 @@ impl Component for Range {
                     type="range"
                     id=[range_id.as_deref()]
                     class="form-range"
-                    name=[self.name().get()]
-                    min=[self.min().get()]
-                    max=[self.max().get()]
-                    step=[self.step().get()]
-                    value=[self.value().get()]
+                    name=[self.name().as_deref()]
+                    min=[self.min()]
+                    max=[self.max()]
+                    step=[self.step()]
+                    value=[self.value()]
                     autofocus[*self.autofocus()]
                     disabled[*self.disabled()];
                 @if let Some(description) = self.help_text().lookup(cx) {
@@ -134,8 +138,8 @@ impl Range {
     /// Pasar `None` omite el atributo `value` y deja que el navegador aplique su valor por defecto
     /// (normalmente el punto medio del rango).
     #[builder_fn]
-    pub fn with_value(mut self, value: Option<f64>) -> Self {
-        self.value.alter_opt(value);
+    pub fn with_value(mut self, value: impl Into<Option<f64>>) -> Self {
+        self.value = value.into();
         self
     }
 
@@ -157,8 +161,8 @@ impl Range {
     ///
     /// Pasar `None` omite el atributo `min` y deja que el navegador aplique su valor por defecto.
     #[builder_fn]
-    pub fn with_min(mut self, min: Option<f64>) -> Self {
-        self.min.alter_opt(min);
+    pub fn with_min(mut self, min: impl Into<Option<f64>>) -> Self {
+        self.min = min.into();
         self
     }
 
@@ -166,8 +170,8 @@ impl Range {
     ///
     /// Pasar `None` omite el atributo `max` y deja que el navegador aplique su valor por defecto.
     #[builder_fn]
-    pub fn with_max(mut self, max: Option<f64>) -> Self {
-        self.max.alter_opt(max);
+    pub fn with_max(mut self, max: impl Into<Option<f64>>) -> Self {
+        self.max = max.into();
         self
     }
 
@@ -176,8 +180,8 @@ impl Range {
     /// Pasar `None` omite el atributo `step` y deja que el navegador aplique su valor por defecto
     /// (normalmente `1`).
     #[builder_fn]
-    pub fn with_step(mut self, step: Option<f64>) -> Self {
-        self.step.alter_opt(step);
+    pub fn with_step(mut self, step: impl Into<Option<f64>>) -> Self {
+        self.step = step.into();
         self
     }
 

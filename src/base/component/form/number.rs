@@ -35,17 +35,21 @@ pub struct Number {
     /// Devuelve el nombre del campo.
     name: AttrName,
     /// Devuelve el valor inicial del campo.
-    value: Attr<u64>,
+    #[getters(copy)]
+    value: Option<u64>,
     /// Devuelve la etiqueta del campo.
     label: Lc,
     /// Devuelve el texto de ayuda del campo.
     help_text: Lc,
     /// Devuelve el valor mínimo permitido.
-    min: Attr<u64>,
+    #[getters(copy)]
+    min: Option<u64>,
     /// Devuelve el valor máximo permitido.
-    max: Attr<u64>,
+    #[getters(copy)]
+    max: Option<u64>,
     /// Devuelve el incremento entre valores del campo.
-    step: Attr<u64>,
+    #[getters(copy)]
+    step: Option<u64>,
     /// Devuelve si el campo recibe el foco automáticamente al cargar la página.
     autofocus: bool,
     /// Devuelve si el campo es de sólo lectura.
@@ -69,7 +73,7 @@ impl Component for Number {
     fn setup(&mut self, _cx: &Context) {
         if let Some(container_id) = self
             .id()
-            .or_else(|| self.name().get().map(|n| util::join!("edit-", n)))
+            .or_else(|| self.name().as_deref().map(|n| util::join!("edit-", n)))
         {
             self.alter_prop(PropsOp::ensure_id(container_id));
         }
@@ -100,11 +104,11 @@ impl Component for Number {
                     type="number"
                     id=[input_id.as_deref()]
                     class="form-control"
-                    name=[self.name().get()]
-                    min=[self.min().get()]
-                    max=[self.max().get()]
-                    step=[self.step().get()]
-                    value=[self.value().get()]
+                    name=[self.name().as_deref()]
+                    min=[self.min()]
+                    max=[self.max()]
+                    step=[self.step()]
+                    value=[self.value()]
                     autofocus[*self.autofocus()]
                     readonly[*self.readonly()]
                     required[*self.required()]
@@ -146,8 +150,8 @@ impl Number {
 
     /// Establece el valor inicial del campo.
     #[builder_fn]
-    pub fn with_value(mut self, value: Option<u64>) -> Self {
-        self.value.alter_opt(value);
+    pub fn with_value(mut self, value: impl Into<Option<u64>>) -> Self {
+        self.value = value.into();
         self
     }
 
@@ -167,15 +171,15 @@ impl Number {
 
     /// Establece el valor mínimo permitido (`None` para no imponer mínimo).
     #[builder_fn]
-    pub fn with_min(mut self, min: Option<u64>) -> Self {
-        self.min.alter_opt(min);
+    pub fn with_min(mut self, min: impl Into<Option<u64>>) -> Self {
+        self.min = min.into();
         self
     }
 
     /// Establece el valor máximo permitido (`None` para no imponer máximo).
     #[builder_fn]
-    pub fn with_max(mut self, max: Option<u64>) -> Self {
-        self.max.alter_opt(max);
+    pub fn with_max(mut self, max: impl Into<Option<u64>>) -> Self {
+        self.max = max.into();
         self
     }
 
@@ -184,8 +188,8 @@ impl Number {
     /// Pasar `None` omite el atributo `step` y deja que el navegador aplique su valor por defecto
     /// (normalmente `1`).
     #[builder_fn]
-    pub fn with_step(mut self, step: Option<u64>) -> Self {
-        self.step.alter_opt(step);
+    pub fn with_step(mut self, step: impl Into<Option<u64>>) -> Self {
+        self.step = step.into();
         self
     }
 

@@ -99,7 +99,7 @@ impl Column {
 
         html! {
             th (self.props()) scope="col" aria-sort=(aria_sort) {
-                a href=[sort.href().as_str()] (link_props) { (label) }
+                a href=[sort.href().as_deref()] (link_props) { (label) }
             }
         }
     }

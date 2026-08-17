@@ -263,8 +263,8 @@ impl Intro {
     /// let intro_no_button = Intro::default().with_button(None);
     /// ```
     #[builder_fn]
-    pub fn with_button(mut self, button: Option<(Lc, Route)>) -> Self {
-        self.button = button;
+    pub fn with_button(mut self, button: impl Into<Option<(Lc, Route)>>) -> Self {
+        self.button = button.into();
         self
     }
 

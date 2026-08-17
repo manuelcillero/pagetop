@@ -205,9 +205,10 @@ pub struct Field {
     /// Devuelve si la lista permite selección múltiple.
     multiple: bool,
     /// Devuelve el número de filas visibles de la lista de selección.
-    rows: Attr<u16>,
+    #[getters(copy)]
+    rows: Option<u16>,
     /// Devuelve la configuración de autocompletado del campo.
-    autocomplete: Attr<form::Autocomplete>,
+    autocomplete: Option<form::Autocomplete>,
     /// Devuelve si la lista recibe el foco automáticamente al cargar la página.
     autofocus: bool,
     /// Devuelve si la selección de un elemento es obligatoria.
@@ -229,7 +230,7 @@ impl Component for Field {
     fn setup(&mut self, _cx: &Context) {
         if let Some(container_id) = self
             .id()
-            .or_else(|| self.name().get().map(|n| util::join!("edit-", n)))
+            .or_else(|| self.name().as_deref().map(|n| util::join!("edit-", n)))
         {
             self.alter_prop(PropsOp::ensure_id(container_id));
         }
@@ -260,10 +261,10 @@ impl Component for Field {
                 select
                     id=[select_id.as_deref()]
                     class="form-select"
-                    name=[self.name().get()]
+                    name=[self.name().as_deref()]
                     multiple[*self.multiple()]
-                    size=[self.rows().get()]
-                    autocomplete=[self.autocomplete().get()]
+                    size=[self.rows()]
+                    autocomplete=[self.autocomplete()]
                     autofocus[*self.autofocus()]
                     required[*self.required()]
                     disabled[*self.disabled()]
@@ -272,7 +273,7 @@ impl Component for Field {
                         @match entry {
                             Entry::Item(opt) => {
                                 option
-                                    value=(opt.value().as_str().unwrap_or(""))
+                                    value=(opt.value().as_deref().unwrap_or(""))
                                     selected[*opt.selected()]
                                     disabled[*opt.disabled()]
                                 {
@@ -286,7 +287,7 @@ impl Component for Field {
                                 {
                                     @for opt in group.items() {
                                         option
-                                            value=(opt.value().as_str().unwrap_or(""))
+                                            value=(opt.value().as_deref().unwrap_or(""))
                                             selected[*opt.selected()]
                                             disabled[*opt.disabled()]
                                         {
@@ -389,8 +390,8 @@ impl Field {
     /// Es especialmente útil con selección múltiple para controlar el número de filas visibles sin
     /// necesidad de recurrir al desplazamiento.
     #[builder_fn]
-    pub fn with_rows(mut self, rows: Option<u16>) -> Self {
-        self.rows.alter_opt(rows);
+    pub fn with_rows(mut self, rows: impl Into<Option<u16>>) -> Self {
+        self.rows = rows.into();
         self
     }
 
@@ -404,8 +405,11 @@ impl Field {
     /// Usa los métodos de [`form::Autocomplete`] para los valores más habituales. Pasa `None` para
     /// omitir el atributo.
     #[builder_fn]
-    pub fn with_autocomplete(mut self, autocomplete: Option<form::Autocomplete>) -> Self {
-        self.autocomplete.alter_opt(autocomplete);
+    pub fn with_autocomplete(
+        mut self,
+        autocomplete: impl Into<Option<form::Autocomplete>>,
+    ) -> Self {
+        self.autocomplete = autocomplete.into();
         self
     }
 

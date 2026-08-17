@@ -63,9 +63,9 @@ pub(crate) fn render(field: &Field, cx: &mut Context) -> Result<Markup, Componen
     let strict = field.kind().is_strict();
     let masked = *field.kind() == Kind::StrictPassword;
     let autocomplete = if strict {
-        Some(form::Autocomplete::Off)
+        Some(&form::Autocomplete::Off)
     } else {
-        field.autocomplete().get()
+        field.autocomplete()
     };
 
     // La etiqueta flotante requiere `placeholder` para animar la etiqueta.
@@ -100,12 +100,12 @@ pub(crate) fn render(field: &Field, cx: &mut Context) -> Result<Markup, Componen
                 type=(field.kind())
                 id=[input_id.as_deref()]
                 class=(input_class)
-                name=[field.name().get()]
-                value=[field.value().get()]
-                minlength=[field.minlength().get()]
-                maxlength=[field.maxlength().get()]
+                name=[field.name().as_deref()]
+                value=[field.value().as_deref()]
+                minlength=[field.minlength()]
+                maxlength=[field.maxlength()]
                 placeholder=[placeholder]
-                inputmode=[field.inputmode().get()]
+                inputmode=[field.inputmode()]
                 autocomplete=[autocomplete]
                 spellcheck=[strict.then_some("false")]
                 autocorrect=[strict.then_some("off")]

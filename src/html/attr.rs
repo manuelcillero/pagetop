@@ -1,87 +1,5 @@
 use crate::{AutoDefault, builder_fn, util};
 
-/// Valor opcional para atributos HTML.
-///
-/// `Attr<T>` encapsula un `Option<T>` y sirve como tipo base para representar atributos HTML
-/// opcionales, uniformes y tipados.
-///
-/// Este tipo **no impone ninguna normalización ni semántica concreta**; dichas reglas se definen en
-/// implementaciones concretas como `Attr<String>`, o en tipos específicos como [`AttrName`]. Para
-/// texto localizado usa directamente [`Lc`](crate::locale::Lc) que ya representa su propia ausencia
-/// con [`Lc::none()`](crate::locale::Lc::none()), sin necesidad de envolverlo en `Attr<Lc>`.
-#[derive(AutoDefault, Clone, Debug)]
-pub struct Attr<T>(Option<T>);
-
-impl<T> Attr<T> {
-    /// Crea un atributo vacío.
-    pub fn empty() -> Self {
-        Self(None)
-    }
-
-    /// Crea un atributo con valor.
-    pub fn some(value: T) -> Self {
-        Self(Some(value))
-    }
-
-    // **< Attr<T> BUILDER >************************************************************************
-
-    /// Establece un valor opcional para el atributo.
-    #[builder_fn]
-    pub fn with_opt(mut self, opt: Option<T>) -> Self {
-        self.0 = opt;
-        self
-    }
-
-    /// Establece un valor para el atributo.
-    #[builder_fn]
-    pub fn with_value(mut self, value: T) -> Self {
-        self.0 = Some(value);
-        self
-    }
-
-    /// Elimina el valor del atributo.
-    #[builder_fn]
-    pub fn with_none(mut self) -> Self {
-        self.0 = None;
-        self
-    }
-
-    // **< Attr<T> GETTERS >************************************************************************
-
-    /// Devuelve el valor (clonado), si existe.
-    pub fn get(&self) -> Option<T>
-    where
-        T: Clone,
-    {
-        self.0.clone()
-    }
-
-    /// Devuelve una referencia al valor, si existe.
-    pub fn as_ref(&self) -> Option<&T> {
-        self.0.as_ref()
-    }
-
-    /// Devuelve el valor (propiedad), si existe.
-    pub fn into_inner(self) -> Option<T> {
-        self.0
-    }
-
-    /// `true` si no hay valor.
-    pub fn is_empty(&self) -> bool {
-        self.0.is_none()
-    }
-}
-
-// **< Attr<String> >*******************************************************************************
-
-/// Extiende [`Attr`] para cadenas de texto.
-impl Attr<String> {
-    /// Devuelve el texto como `&str` si existe.
-    pub fn as_str(&self) -> Option<&str> {
-        self.0.as_deref()
-    }
-}
-
 // **< AttrName >***********************************************************************************
 
 /// Nombre normalizado para el atributo `name` o similar de HTML.
@@ -98,13 +16,13 @@ impl Attr<String> {
 /// ```rust
 /// # use pagetop::prelude::*;
 /// let name = AttrName::new("  DISplay name ");
-/// assert_eq!(name.as_str(), Some("display_name"));
+/// assert_eq!(name.as_deref(), Some("display_name"));
 ///
 /// let empty = AttrName::default();
 /// assert_eq!(empty.get(), None);
 /// ```
 #[derive(AutoDefault, Clone, Debug)]
-pub struct AttrName(Attr<String>);
+pub struct AttrName(Option<String>);
 
 impl AttrName {
     /// Crea un nuevo `AttrName` normalizando el valor.
@@ -117,33 +35,25 @@ impl AttrName {
     /// Establece un nombre nuevo normalizando el valor.
     #[builder_fn]
     pub fn with_name(mut self, name: impl AsRef<str>) -> Self {
-        self.0 = match util::normalize_token(name) {
-            Some(name) => Attr::some(name),
-            None => Attr::default(),
-        };
+        self.0 = util::normalize_token(name);
         self
     }
 
     // **< AttrName GETTERS >***********************************************************************
 
-    /// Devuelve el nombre normalizado, si existe.
-    pub fn get(&self) -> Option<String> {
-        self.0.get()
-    }
-
     /// Devuelve el nombre normalizado (sin clonar), si existe.
-    pub fn as_str(&self) -> Option<&str> {
-        self.0.as_str()
+    pub fn as_deref(&self) -> Option<&str> {
+        self.0.as_deref()
     }
 
-    /// Devuelve el nombre normalizado (propiedad), si existe.
-    pub fn into_inner(self) -> Option<String> {
-        self.0.into_inner()
+    /// Devuelve el nombre normalizado (clonado), si existe.
+    pub fn get(&self) -> Option<String> {
+        self.0.clone()
     }
 
     /// `true` si no hay valor.
     pub fn is_empty(&self) -> bool {
-        self.0.is_empty()
+        self.0.is_none()
     }
 }
 
@@ -161,13 +71,13 @@ impl AttrName {
 /// ```rust
 /// # use pagetop::prelude::*;
 /// let s = AttrValue::new("  a new string   ");
-/// assert_eq!(s.as_str(), Some("a new string"));
+/// assert_eq!(s.as_deref(), Some("a new string"));
 ///
 /// let empty = AttrValue::default();
 /// assert_eq!(empty.get(), None);
 /// ```
 #[derive(AutoDefault, Clone, Debug)]
-pub struct AttrValue(Attr<String>);
+pub struct AttrValue(Option<String>);
 
 impl AttrValue {
     /// Crea un nuevo `AttrValue` normalizando el valor.
@@ -180,32 +90,24 @@ impl AttrValue {
     /// Establece una cadena nueva normalizando el valor.
     #[builder_fn]
     pub fn with_str(mut self, value: impl AsRef<str>) -> Self {
-        self.0 = match util::non_blank(value.as_ref()) {
-            Some(value) => Attr::some(value.to_string()),
-            None => Attr::default(),
-        };
+        self.0 = util::non_blank(value.as_ref()).map(str::to_string);
         self
     }
 
     // **< AttrValue GETTERS >**********************************************************************
 
-    /// Devuelve la cadena normalizada, si existe.
-    pub fn get(&self) -> Option<String> {
-        self.0.get()
-    }
-
     /// Devuelve la cadena normalizada (sin clonar), si existe.
-    pub fn as_str(&self) -> Option<&str> {
-        self.0.as_str()
+    pub fn as_deref(&self) -> Option<&str> {
+        self.0.as_deref()
     }
 
-    /// Devuelve la cadena normalizada (propiedad), si existe.
-    pub fn into_inner(self) -> Option<String> {
-        self.0.into_inner()
+    /// Devuelve la cadena normalizada (clonada), si existe.
+    pub fn get(&self) -> Option<String> {
+        self.0.clone()
     }
 
     /// `true` si no hay valor.
     pub fn is_empty(&self) -> bool {
-        self.0.is_empty()
+        self.0.is_none()
     }
 }
