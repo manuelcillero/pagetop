@@ -10,18 +10,20 @@
 	--val-fw--base: 400;
 	/* Line height */
 	--val-lh--base: 1.5;
-	/* Colors */
-	--val-color--bg: #fafafa;
-	--val-color--text: #212529;
-	--val-color--text--muted: color-mix(in srgb, var(--val-color--text) 50%, var(--val-color--bg));
-	--val-color--border: #212529;
+	/* Core Colors */
 	--val-color--primary: #0d6efd;
 	--val-color--secondary: #6c757d;
-	--val-color--light: #dee2e6;
+	--val-color--success: #198754;
 	--val-color--info: #0dcaf0;
 	--val-color--warning: #ffc107;
 	--val-color--danger: #dc3545;
+	/* Other Colors */
+	--val-color--bg: #fafafa;
+	--val-color--bg--muted: #dee2e6;
+	--val-color--text: #212529;
+	--val-color--text--muted: color-mix(in srgb, var(--val-color--text) 50%, var(--val-color--bg));
 	--val-color--switch-off: #adb5bd;
+	--val-color--border: #212529;
 }
 
 *, *::before, *::after {
