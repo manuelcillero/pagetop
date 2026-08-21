@@ -31,7 +31,7 @@ impl Theme for MarkerTheme {
         component: &mut dyn Component,
         _cx: &mut Context,
     ) -> Option<Result<Markup, ComponentError>> {
-        let template = (&*component).downcast_ref::<layout::Template>()?;
+        let template = (*component).downcast_ref::<layout::Template>()?;
         template.template().downcast_ref::<CoreTemplates>()?;
         Some(Ok(html! { "marker-template-output" }))
     }

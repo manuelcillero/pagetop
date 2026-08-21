@@ -37,9 +37,10 @@ impl TestComp {
 
     /// Creates a component with no id, with fixed output text.
     fn text(text: &str) -> Self {
-        let mut c = Self::default();
-        c.text = text.to_string();
-        c
+        Self {
+            text: text.to_string(),
+            ..Default::default()
+        }
     }
 }
 

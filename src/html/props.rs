@@ -81,9 +81,9 @@ pub enum PropsError {
 ///
 /// Las variantes `*Extra` permiten añadir valores tipados usando una clave. Están pensadas para
 /// ampliar el comportamiento de componentes ya existentes. Como no es posible añadir campos a la
-/// estructura de un componente ya definido, temas y extensiones pueden definir un *trait* con
-/// nuevos métodos que leen y escriben valores extra en [`Props`]. Esos valores se interpretan como
-/// si fueran valores internos del componente para tomar decisiones durante el renderizado.
+/// estructura de un componente ya definido, temas y extensiones pueden definir un trait con nuevos
+/// métodos que leen y escriben valores extra en [`Props`]. Esos valores se interpretan como si
+/// fueran valores internos del componente para tomar decisiones durante el renderizado.
 #[derive(Clone, Debug)]
 pub enum PropsOp {
     /// Establece el identificador del componente normalizando el valor: recorta espacios, convierte
@@ -374,7 +374,7 @@ impl PropsOp {
 /// Las variantes [`SetExtra`](PropsOp::SetExtra) y [`RemoveExtra`](PropsOp::RemoveExtra), usando
 /// [`PropsOp::set_extra()`] y [`PropsOp::remove_extra()`] respectivamente, permiten adjuntar
 /// valores tipados a un `Props`. Son útiles para que temas y extensiones amplíen el comportamiento
-/// de componentes ya existentes mediante *traits* con nuevos métodos que lean y escriban esos
+/// de componentes ya existentes mediante traits con nuevos métodos que lean y escriban esos
 /// valores.
 ///
 /// ```rust

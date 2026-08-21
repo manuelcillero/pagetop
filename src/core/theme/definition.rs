@@ -19,7 +19,7 @@ use crate::web::http::StatusCode;
 /// error. El contenido de cada región depende del [`Context`](crate::core::component::Context) y de
 /// su nombre lógico.
 ///
-/// Todos los métodos de este *trait* tienen una implementación por defecto, por lo que pueden
+/// Todos los métodos de este trait tienen una implementación por defecto, por lo que pueden
 /// sobrescribirse selectivamente para crear nuevos temas con comportamientos distintos a los
 /// predeterminados.
 ///

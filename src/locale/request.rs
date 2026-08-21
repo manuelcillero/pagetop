@@ -10,7 +10,7 @@ use super::{LangId, LanguageIdentifier, Locale};
 /// `?lang=...`. El comportamiento concreto depende de la política global [`LangNegotiation`]
 /// configurada en la aplicación.
 ///
-/// El idioma resultante se expone a través del *trait* [`LangId`], de modo que pueda usarse
+/// El idioma resultante se expone a través del trait [`LangId`], de modo que pueda usarse
 /// [`RequestLocale`] como cualquier otra fuente de idioma en PageTop.
 ///
 /// [`LangNegotiation`]: crate::global::LangNegotiation

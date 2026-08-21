@@ -125,8 +125,8 @@ use std::ops::Deref;
 /// referencia a la versión del *crate* que lo usa.
 pub const PAGETOP_VERSION: &str = env!("CARGO_PKG_VERSION");
 
-/// Re-exporta el atributo [`async_trait`](https://docs.rs/async-trait) para implementar *traits*
-/// con métodos `async`.
+/// Re-exporta el atributo [`async_trait`](https://docs.rs/async-trait) para implementar traits con
+/// métodos `async`.
 ///
 /// Si en el ámbito se declara `use pagetop::prelude::*` o `use pagetop::async_trait;` basta con
 /// usar el nombre corto `#[async_trait]`. Otra opción es usar su forma cualificada

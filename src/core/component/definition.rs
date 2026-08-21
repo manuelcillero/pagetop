@@ -18,7 +18,7 @@ pub trait ComponentClone {
 
 /// Define la función de renderizado para todos los componentes.
 ///
-/// Este *trait* se implementa automáticamente en cualquier tipo (componente) que implemente
+/// Este trait se implementa automáticamente en cualquier tipo (componente) que implemente
 /// [`Component`], por lo que no requiere ninguna codificación manual.
 #[async_trait]
 pub trait ComponentRender {

@@ -15,7 +15,7 @@ static FALLBACK_LANGID: LazyLock<LanguageIdentifier> = LazyLock::new(|| langid!(
 
 /// Representa el identificador de idioma [`LanguageIdentifier`] asociado a un recurso.
 ///
-/// Este *trait* permite que distintas estructuras expongan su idioma de forma uniforme. Las
+/// Este trait permite que distintas estructuras expongan su idioma de forma uniforme. Las
 /// implementaciones deben garantizar que siempre se devuelve un identificador de idioma válido. Si
 /// el recurso no tiene uno asignado, se puede devolver, si procede, el identificador de idioma por
 /// defecto de la aplicación ([`Locale::default_langid()`]).

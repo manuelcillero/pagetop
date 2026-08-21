@@ -8,7 +8,7 @@ use crate::web::Router;
 
 /// Interfaz común que debe implementar cualquier extensión de PageTop.
 ///
-/// Este *trait* es fácil de implementar, basta con declarar una estructura sin campos para la
+/// Este trait es fácil de implementar, basta con declarar una estructura sin campos para la
 /// extensión y sobrescribir los métodos que sean necesarios. Por ejemplo:
 ///
 /// ```rust,no_run

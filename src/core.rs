@@ -109,7 +109,7 @@ impl TypeInfo {
 
 /// Proporciona información de tipo en tiempo de ejecución y conversión dinámica de tipos.
 ///
-/// Este *trait* se implementa automáticamente para **todos** los tipos que implementen [`Any`], de
+/// Este trait se implementa automáticamente para **todos** los tipos que implementen [`Any`], de
 /// modo que basta con traer [`AnyInfo`] al ámbito (`use crate::AnyInfo;`) para disponer de estos
 /// métodos adicionales, o usar el [`prelude`](crate::prelude) de PageTop.
 ///
