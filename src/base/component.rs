@@ -3,7 +3,7 @@
 pub mod layout;
 
 mod badge;
-pub use badge::Badge;
+pub use badge::{Badge, BadgeKind};
 
 mod brand;
 pub use brand::Brand;

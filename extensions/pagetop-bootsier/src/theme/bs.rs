@@ -2,7 +2,7 @@
 
 // Badge.
 pub(crate) mod badge;
-pub use badge::{Badge, BadgeBootsier};
+pub use badge::{Badge, BadgeKind};
 
 // Button.
 mod button;
