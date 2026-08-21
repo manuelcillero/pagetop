@@ -118,7 +118,7 @@
 //! [`ReservedRegions`]: crate::response::ReservedRegions
 
 mod color;
-pub use color::{ColorName, CoreColors};
+pub use color::{ColorName, CoreColors, IntoColor};
 
 mod layout;
 pub use layout::{CoreRegions, RegionName, RegionRef};
