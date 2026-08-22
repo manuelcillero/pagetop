@@ -1,7 +1,5 @@
 use crate::AutoDefault;
-use crate::core::component::Context;
-use crate::html::{Markup, html};
-use crate::locale::Lc;
+use crate::html::{Markup, Props, html};
 
 /// Representación SVG del **logotipo de PageTop** para incrustar en HTML.
 ///
@@ -9,19 +7,19 @@ use crate::locale::Lc;
 ///
 /// ```rust,no_run
 /// # use pagetop::prelude::*;
-/// fn render_logo(cx: &mut Context) -> Markup {
+/// fn render_logo() -> Markup {
 ///     html! {
 ///         div class="logo_color" {
-///             (PageTopSvg::Color.markup(cx))
+///             (PageTopSvg::Color.markup())
 ///         }
 ///         div class="line_dark" {
-///             (PageTopSvg::LineDark.markup(cx))
+///             (PageTopSvg::LineDark.markup())
 ///         }
 ///         div class="line_light" {
-///             (PageTopSvg::LineLight.markup(cx))
+///             (PageTopSvg::LineLight.markup())
 ///         }
 ///         div class="line_red" {
-///             (PageTopSvg::LineRGB(255, 0, 0).markup(cx))
+///             (PageTopSvg::LineRGB(255, 0, 0).markup())
 ///         }
 ///     }
 /// };
@@ -42,28 +40,59 @@ pub enum PageTopSvg {
 
 impl PageTopSvg {
     /// Devuelve el marcado SVG del logotipo según la variante elegida.
-    pub fn markup(&self, cx: &Context) -> Markup {
-        let path_fills = match self {
-            Self::Color => self.logo_color(),
-            Self::LineDark => self.logo_line(10, 11, 9),
-            Self::LineLight => self.logo_line(255, 255, 255),
-            Self::LineRGB(r, g, b) => self.logo_line(*r, *g, *b),
-        };
+    pub fn markup(&self) -> Markup {
         html! {
             svg
                 viewBox="0 0 1614 1614"
                 xmlns="http://www.w3.org/2000/svg"
                 role="img"
-                aria-label=[Lc::l("pagetop_logo").lookup(cx)]
+                aria-label="PageTop"
                 preserveAspectRatio="xMidYMid slice"
                 focusable="false"
             {
-                (path_fills)
+                (self.path_fills())
+            }
+        }
+    }
+
+    /// Igual que [`markup()`], pero fusiona [`Props`] (identificador, clases, estilo, atributos)
+    /// directamente en el `<svg>` y deja la etiqueta libre para quien llama. Con `Some(texto)` se
+    /// muestra como imagen informativa (`role="img"` + `aria-label`), y con `None` como imagen
+    /// puramente decorativa (`aria-hidden="true"`, sin `role` ni `aria-label`).
+    ///
+    /// Pensado para poner el logotipo con clases, estilo y accesibilidad propios, sin envolverlo en
+    /// un elemento aparte; como hace el componente [`Image`] con [`image::Source::Logo`].
+    ///
+    /// [`markup()`]: Self::markup
+    /// [`Image`]: crate::base::component::Image
+    /// [`image::Source::Logo`]: crate::base::component::image::Source::Logo
+    pub fn markup_with(&self, props: &Props, label: Option<&str>) -> Markup {
+        html! {
+            svg
+                viewBox="0 0 1614 1614"
+                xmlns="http://www.w3.org/2000/svg"
+                role=[label.is_some().then_some("img")]
+                aria-label=[label]
+                aria-hidden=[label.is_none().then_some("true")]
+                preserveAspectRatio="xMidYMid slice"
+                focusable="false"
+                (props)
+            {
+                (self.path_fills())
             }
         }
     }
 
     // **< PageTopSvg HELPERS >*********************************************************************
+
+    fn path_fills(&self) -> Markup {
+        match self {
+            Self::Color => self.logo_color(),
+            Self::LineDark => self.logo_line(10, 11, 9),
+            Self::LineLight => self.logo_line(255, 255, 255),
+            Self::LineRGB(r, g, b) => self.logo_line(*r, *g, *b),
+        }
+    }
 
     fn logo_color(&self) -> Markup {
         html! {

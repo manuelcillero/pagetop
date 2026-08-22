@@ -49,6 +49,13 @@ impl Component for Image {
             image::Source::Thumbnail(_) => "image image-thumbnail",
             image::Source::Plain(_) => "image",
         }));
+
+        // Se asigna un tamaño predefinido para el logotipo que `with_size()` puede sobrescribir.
+        if matches!(self.source(), image::Source::Logo(_)) {
+            self.alter_prop(PropsOp::add_style("width", "1.25em"));
+            self.alter_prop(PropsOp::add_style("height", "1.25em"));
+        }
+
         // El tamaño se aplica como declaraciones `style` individuales sobre `Props`.
         match *self.size() {
             image::Size::Auto => {}
@@ -72,18 +79,9 @@ impl Component for Image {
     async fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
         let alt_text = self.alternative().lookup(cx).unwrap_or_default();
         let source = match self.source() {
-            image::Source::Logo(logo) => {
-                let is_decorative = alt_text.is_empty();
-                return Ok(html! {
-                    span
-                        (self.props())
-                        role=[(!is_decorative).then_some("img")]
-                        aria-label=[(!is_decorative).then_some(alt_text)]
-                        aria-hidden=[is_decorative.then_some("true")]
-                    {
-                        (logo.markup(cx))
-                    }
-                });
+            image::Source::Logo(svg) => {
+                let label = (!alt_text.is_empty()).then_some(alt_text.as_str());
+                return Ok(svg.markup_with(self.props(), label));
             }
             image::Source::Responsive(source) => Some(source),
             image::Source::Thumbnail(source) => Some(source),
@@ -142,5 +140,21 @@ impl Image {
     pub fn with_alternative(mut self, alt: Lc) -> Self {
         self.alternative = alt;
         self
+    }
+}
+
+impl From<image::Source> for Image {
+    /// Igual que [`Image::with()`].
+    fn from(source: image::Source) -> Self {
+        Self::with(source)
+    }
+}
+
+impl From<image::Source> for Option<Image> {
+    /// Permite pasar un [`image::Source`] directamente donde se espera `impl Into<Option<Image>>`
+    /// (p. ej. [`Brand::with_image()`](super::super::Brand::with_image)), sin construir la
+    /// [`Image`] a mano.
+    fn from(source: image::Source) -> Self {
+        Some(Image::with(source))
     }
 }

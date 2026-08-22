@@ -117,8 +117,8 @@
 //!
 //! [`ReservedRegions`]: crate::response::ReservedRegions
 
-mod color;
-pub use color::{ColorName, CoreColors, IntoColor};
+mod intent;
+pub use intent::Intent;
 
 mod layout;
 pub use layout::{CoreRegions, RegionName, RegionRef};

@@ -28,7 +28,7 @@ async fn renders_as_a_span_element() {
 }
 
 #[pagetop::test]
-async fn default_kind_is_secondary() {
+async fn default_intent_is_secondary() {
     let mut badge = Badge::labeled(Lc::n("Admin"));
     let html = badge.render(&mut Context::default()).await.into_string();
 
@@ -36,7 +36,7 @@ async fn default_kind_is_secondary() {
 }
 
 #[pagetop::test]
-async fn each_direct_constructor_sets_its_kind() {
+async fn each_direct_constructor_sets_its_intent() {
     let cases = [
         (Badge::primary(Lc::n("x")), "badge-primary"),
         (Badge::secondary(Lc::n("x")), "badge-secondary"),
@@ -55,17 +55,17 @@ async fn each_direct_constructor_sets_its_kind() {
 }
 
 #[pagetop::test]
-async fn with_kind_overrides_the_default() {
-    let mut badge = Badge::labeled(Lc::n("Admin")).with_kind(BadgeKind::Danger);
+async fn with_intent_overrides_the_default() {
+    let mut badge = Badge::labeled(Lc::n("Admin")).with_intent(Intent::Danger);
     let html = badge.render(&mut Context::default()).await.into_string();
 
     assert!(html.contains(r#"class="badge badge-danger""#));
 }
 
 #[pagetop::test]
-async fn direct_constructor_is_equivalent_to_labeled_with_kind() {
+async fn direct_constructor_is_equivalent_to_labeled_with_intent() {
     let mut from_constructor = Badge::danger(Lc::n("Admin"));
-    let mut from_builder = Badge::labeled(Lc::n("Admin")).with_kind(BadgeKind::Danger);
+    let mut from_builder = Badge::labeled(Lc::n("Admin")).with_intent(Intent::Danger);
 
     assert_eq!(
         from_constructor
@@ -88,7 +88,7 @@ async fn with_id_sets_the_identifier() {
 }
 
 #[pagetop::test]
-async fn with_prop_adds_extra_classes_alongside_the_kind_class() {
+async fn with_prop_adds_extra_classes_alongside_the_intent_class() {
     let mut badge = Badge::danger(Lc::n("Admin")).with_prop(PropsOp::add_classes("custom"));
     let html = badge.render(&mut Context::default()).await.into_string();
 

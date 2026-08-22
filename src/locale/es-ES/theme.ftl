@@ -2,9 +2,7 @@
 region_header = Cabecera
 region_content = Contenido
 region_footer = Pie de página
-
-# Logo.
-pagetop_logo = Logotipo de PageTop
+region_aside = Barra lateral
 
 # Error Messages.
 error_code = Error { $code }

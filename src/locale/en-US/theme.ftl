@@ -2,9 +2,7 @@
 region_header = Header
 region_content = Content
 region_footer = Footer
-
-# Logo.
-pagetop_logo = PageTop Logo
+region_aside = Aside
 
 # Error Messages.
 error_code = Error { $code }

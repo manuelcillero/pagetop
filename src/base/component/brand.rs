@@ -2,14 +2,14 @@ use crate::prelude::*;
 
 /// Componente para mostrar la **identidad de marca** de un sitio o aplicación.
 ///
-/// Combina una imagen, un título y un eslogan opcional, típicamente en la cabecera de la página o
-/// dentro de una barra de navegación proporcionada por un tema.
+/// Combina una imagen y un título, típicamente en la cabecera de la página o dentro de una barra de
+/// navegación.
 ///
 /// - Si hay ruta ([`with_route()`]), el bloque completo actúa como enlace. Por defecto enlaza a la
 ///   raíz del sitio (`/`).
-/// - Si no hay imagen ([`with_image()`]) ni título ([`with_title()`]), la marca de identidad no se
-///   renderiza.
-/// - El eslogan ([`with_slogan()`]) es opcional; por defecto no tiene contenido.
+/// - Si no tiene ningún contenido (ni imagen ni título), la marca de identidad no se renderiza.
+/// - El título predefinido es el nombre de la aplicación ([`global::SETTINGS.app.name`]). La imagen
+///   es opcional, por defecto no tiene contenido.
 ///
 /// # Ejemplo
 ///
@@ -17,15 +17,13 @@ use crate::prelude::*;
 /// use pagetop::prelude::*;
 ///
 /// let brand = Brand::new()
-///     .with_image(Some(Image::with(image::Source::logo(PageTopSvg::Color))))
+///     .with_image(image::Source::logo(PageTopSvg::Color))
 ///     .with_title(Lc::n("PageTop"))
 ///     .with_route(Route::from("/"));
 /// ```
 ///
 /// [`with_route()`]: Self::with_route
-/// [`with_image()`]: Self::with_image
-/// [`with_title()`]: Self::with_title
-/// [`with_slogan()`]: Self::with_slogan
+/// [`global::SETTINGS.app.name`]: crate::global::App::name
 #[derive(AutoDefault, Clone, Debug, Getters)]
 pub struct Brand {
     /// Devuelve identificador, clases CSS, atributos HTML y valores extra del componente.
@@ -35,8 +33,6 @@ pub struct Brand {
     /// Devuelve el título de la identidad de marca.
     #[default(_code = "Lc::n(&global::SETTINGS.app.name)")]
     title: Lc,
-    /// Devuelve el eslogan de la marca.
-    slogan: Lc,
     /// Devuelve la ruta asociada a la marca (si existe).
     #[default(_code = "Some(\"/\".into())")]
     route: Option<Route>,
@@ -59,15 +55,23 @@ impl Component for Brand {
     async fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
         let image = self.image().render(cx).await;
         let title = self.title().using(cx);
-        if image.is_empty() && title.is_empty() {
+        let inner_brand = html! {
+            (image)
+            @if !title.is_empty() {
+                @if !image.is_empty() {
+                    (" ")
+                }
+                span class="brand-title" { (title) }
+            }
+        };
+        if inner_brand.is_empty() {
             return Ok(html! {});
         }
-        let slogan = self.slogan().using(cx);
         Ok(html! {
             @if let Some(route) = self.route() {
-                a (self.props()) href=(route.resolve(cx)) { (image) (title) (slogan) }
+                a (self.props()) href=(route.resolve(cx)) { (inner_brand) }
             } @else {
-                span (self.props()) { (image) (title) (slogan) }
+                span (self.props()) { (inner_brand) }
             }
         })
     }
@@ -101,13 +105,6 @@ impl Brand {
     #[builder_fn]
     pub fn with_title(mut self, title: Lc) -> Self {
         self.title = title;
-        self
-    }
-
-    /// Define el eslogan de la marca.
-    #[builder_fn]
-    pub fn with_slogan(mut self, slogan: Lc) -> Self {
-        self.slogan = slogan;
         self
     }
 

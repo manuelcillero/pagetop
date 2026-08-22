@@ -148,7 +148,7 @@ impl Component for Intro {
                     }
                     aside class="intro-header-img" aria-hidden="true" {
                         div class="intro-header-mascot" {
-                            (PageTopSvg::Color.markup(cx))
+                            (PageTopSvg::Color.markup())
                         }
                     }
                 }
@@ -201,7 +201,7 @@ impl Component for Intro {
                 div class="intro-footer" {
                     section class="intro-footer-body" {
                         div class="intro-footer-logo" {
-                            (PageTopSvg::LineLight.markup(cx))
+                            (PageTopSvg::LineLight.markup())
                         }
                         div class="intro-footer-links" {
                             a href="https://crates.io/crates/pagetop" target="_blank" rel="noopener noreferrer" { ("Crates.io") }
