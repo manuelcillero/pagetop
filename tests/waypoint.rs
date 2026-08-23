@@ -6,7 +6,7 @@ use pagetop::prelude::*;
 async fn waypoint_accepts_local_paths() {
     for path in ["/", "/admin/users", "/admin/users?page=2"] {
         let w = Waypoint::from(path.to_owned());
-        assert_eq!(w.as_str(), Some(path));
+        assert_eq!(w.as_deref(), Some(path));
     }
 }
 
@@ -22,7 +22,7 @@ async fn waypoint_rejects_open_redirect_targets() {
         "javascript:alert(1)",
     ] {
         let w = Waypoint::from(target.to_owned());
-        assert_eq!(w.as_str(), None, "expected {target:?} to be rejected");
+        assert_eq!(w.as_deref(), None, "expected {target:?} to be rejected");
     }
 }
 
@@ -31,7 +31,7 @@ async fn waypoint_deserialize_rejects_open_redirect_targets() {
     // Reproduces the real entry point (`web::Query<Waypoint>`): the value arrives via
     // deserialization, not through `Waypoint::from(String)` as in the previous test.
     let w: Waypoint = serde_json::from_str(r#"{"waypoint":"https://evil.example"}"#).unwrap();
-    assert_eq!(w.as_str(), None);
+    assert_eq!(w.as_deref(), None);
 }
 
 // **< Waypoint::or() >*****************************************************************************

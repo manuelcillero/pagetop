@@ -75,7 +75,7 @@ impl Waypoint {
     }
 
     /// Devuelve la URL de destino, si se proporcionó una y es una ruta local válida.
-    pub fn as_str(&self) -> Option<&str> {
+    pub fn as_deref(&self) -> Option<&str> {
         self.waypoint.as_deref()
     }
 
@@ -108,7 +108,7 @@ impl Waypoint {
     /// ```
     pub fn append_to(&self, route: impl Into<RoutePath>) -> RoutePath {
         let mut route = route.into();
-        if let Some(d) = self.as_str() {
+        if let Some(d) = self.as_deref() {
             route.alter_param("waypoint", d);
         }
         route
@@ -144,7 +144,7 @@ impl Waypoint {
     /// }
     /// ```
     pub fn or(&self, fallback: impl Into<RoutePath>) -> RoutePath {
-        match self.as_str() {
+        match self.as_deref() {
             Some(d) => RoutePath::new(d.to_owned()),
             None => fallback.into(),
         }
