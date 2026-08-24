@@ -138,21 +138,23 @@ async fn form_controls(request: HttpRequest) -> Result<Markup, ErrorPage> {
                                 )
                                 // Campo oculto (form::Hidden).
                                 .with_child(form::Hidden::field("origin", "form-selections"))
-                                // Botones de acción.
-                                .with_child(Button::submit(Lc::t("btn_submit", &LOC)).with_prop(
-                                    PropsOp::add_classes(class::ButtonColor::solid(
-                                        ThemeColor::Primary,
-                                    )),
-                                ))
-                                .with_child(Button::reset(Lc::t("btn_reset", &LOC)).with_prop(
-                                    PropsOp::add_classes(class::ButtonColor::outline(
-                                        ThemeColor::Secondary,
-                                    )),
-                                ))
+                                // Botonera de acciones.
                                 .with_child(
-                                    Button::plain(Lc::t("btn_cancel", &LOC)).with_prop(
-                                        PropsOp::add_classes(class::ButtonColor::link()),
-                                    ),
+                                    button::ButtonSet::new()
+                                        .with_button(
+                                            Button::submit(Lc::t("btn_submit", &LOC)).with_style(
+                                                button::ButtonStyle::Solid(Intent::Primary),
+                                            ),
+                                        )
+                                        .with_button(
+                                            Button::reset(Lc::t("btn_reset", &LOC)).with_style(
+                                                button::ButtonStyle::Outline(Intent::Secondary),
+                                            ),
+                                        )
+                                        .with_button(
+                                            Button::plain(Lc::t("btn_cancel", &LOC))
+                                                .with_style(button::ButtonStyle::Link),
+                                        ),
                                 ),
                         ),
                 )
@@ -252,21 +254,23 @@ async fn form_controls(request: HttpRequest) -> Result<Markup, ErrorPage> {
                                 )
                                 // Campo oculto (form::Hidden).
                                 .with_child(form::Hidden::field("origin", "form-text"))
-                                // Botones de acción.
-                                .with_child(Button::submit(Lc::t("btn_submit", &LOC)).with_prop(
-                                    PropsOp::add_classes(class::ButtonColor::solid(
-                                        ThemeColor::Primary,
-                                    )),
-                                ))
-                                .with_child(Button::reset(Lc::t("btn_reset", &LOC)).with_prop(
-                                    PropsOp::add_classes(class::ButtonColor::outline(
-                                        ThemeColor::Secondary,
-                                    )),
-                                ))
+                                // Botonera de acciones.
                                 .with_child(
-                                    Button::plain(Lc::t("btn_cancel", &LOC)).with_prop(
-                                        PropsOp::add_classes(class::ButtonColor::link()),
-                                    ),
+                                    button::ButtonSet::new()
+                                        .with_button(
+                                            Button::submit(Lc::t("btn_submit", &LOC)).with_style(
+                                                button::ButtonStyle::Solid(Intent::Primary),
+                                            ),
+                                        )
+                                        .with_button(
+                                            Button::reset(Lc::t("btn_reset", &LOC)).with_style(
+                                                button::ButtonStyle::Outline(Intent::Secondary),
+                                            ),
+                                        )
+                                        .with_button(
+                                            Button::plain(Lc::t("btn_cancel", &LOC))
+                                                .with_style(button::ButtonStyle::Link),
+                                        ),
                                 ),
                         ),
                 )
@@ -395,20 +399,20 @@ fn form_lists() -> Form {
     form
         // Campo oculto (form::Hidden).
         .with_child(form::Hidden::field("origin", "form-lists"))
-        // Botones de acción.
+        // Botonera de acciones.
         .with_child(
-            Button::submit(Lc::t("btn_submit", &LOC)).with_prop(PropsOp::add_classes(
-                class::ButtonColor::solid(ThemeColor::Primary),
-            )),
-        )
-        .with_child(
-            Button::reset(Lc::t("btn_reset", &LOC)).with_prop(PropsOp::add_classes(
-                class::ButtonColor::outline(ThemeColor::Secondary),
-            )),
-        )
-        .with_child(
-            Button::plain(Lc::t("btn_cancel", &LOC))
-                .with_prop(PropsOp::add_classes(class::ButtonColor::link())),
+            button::ButtonSet::new()
+                .with_button(
+                    Button::submit(Lc::t("btn_submit", &LOC))
+                        .with_style(button::ButtonStyle::Solid(Intent::Primary)),
+                )
+                .with_button(
+                    Button::reset(Lc::t("btn_reset", &LOC))
+                        .with_style(button::ButtonStyle::Outline(Intent::Secondary)),
+                )
+                .with_button(
+                    Button::plain(Lc::t("btn_cancel", &LOC)).with_style(button::ButtonStyle::Link),
+                ),
         )
 }
 

@@ -75,3 +75,5 @@ help_rating = De 1 (muy malo) a 10 (excelente).
 btn_submit = Enviar
 btn_reset = Restablecer
 btn_cancel = Cancelar
+btn_ok = Aceptar
+btn_delete = Eliminar registro

@@ -75,3 +75,5 @@ help_rating = From 1 (very poor) to 10 (excellent).
 btn_submit = Submit
 btn_reset = Reset
 btn_cancel = Cancel
+btn_ok = Ok
+btn_delete = Delete record

@@ -15,8 +15,9 @@ pub use breadcrumb::Breadcrumb;
 mod block;
 pub use block::Block;
 
-mod button;
-pub use button::{Button, ButtonAction};
+pub mod button;
+#[doc(inline)]
+pub use button::{Button, ButtonSet};
 
 pub mod container;
 #[doc(inline)]
