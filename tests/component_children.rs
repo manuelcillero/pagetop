@@ -269,6 +269,106 @@ async fn children_render_concatenates_all_outputs_in_order() {
     );
 }
 
+// **< TypedOp >************************************************************************************
+//
+// `TypedOp<C>` just translates to the equivalent `ChildOp` variant (see the `From` impl in
+// `children.rs`), so these tests only check that each variant reaches the right `Children`
+// operation (the operations themselves are already covered above under `ChildOp`).
+
+#[pagetop::test]
+async fn typed_op_add_appends_component() {
+    let c = Children::new().with_child(TypedOp::Add(TestComp::text("a")));
+    assert_eq!(c.render(&mut Context::default()).await.into_string(), "a");
+}
+
+#[pagetop::test]
+async fn typed_op_add_if_empty_only_adds_when_list_is_empty() {
+    let c = Children::new()
+        .with_child(TypedOp::AddIfEmpty(TestComp::text("first")))
+        .with_child(TypedOp::AddIfEmpty(TestComp::text("second")));
+    assert_eq!(
+        c.render(&mut Context::default()).await.into_string(),
+        "first"
+    );
+}
+
+#[pagetop::test]
+async fn typed_op_add_many_appends_all_in_order() {
+    let c = Children::new().with_child(TypedOp::AddMany(vec![
+        TestComp::text("x"),
+        TestComp::text("y"),
+        TestComp::text("z"),
+    ]));
+    assert_eq!(c.render(&mut Context::default()).await.into_string(), "xyz");
+}
+
+#[pagetop::test]
+async fn typed_op_insert_after_id_inserts_after_matching_element() {
+    let c = Children::new()
+        .with_child(TestComp::tagged("first", "a"))
+        .with_child(TestComp::text("c"))
+        .with_child(TypedOp::InsertAfterId("first", TestComp::text("b")));
+    assert_eq!(c.render(&mut Context::default()).await.into_string(), "abc");
+}
+
+#[pagetop::test]
+async fn typed_op_insert_before_id_inserts_before_matching_element() {
+    let c = Children::new()
+        .with_child(TestComp::text("a"))
+        .with_child(TestComp::tagged("last", "c"))
+        .with_child(TypedOp::InsertBeforeId("last", TestComp::text("b")));
+    assert_eq!(c.render(&mut Context::default()).await.into_string(), "abc");
+}
+
+#[pagetop::test]
+async fn typed_op_prepend_inserts_at_start() {
+    let c = Children::new()
+        .with_child(TestComp::text("b"))
+        .with_child(TypedOp::Prepend(TestComp::text("a")));
+    assert_eq!(c.render(&mut Context::default()).await.into_string(), "ab");
+}
+
+#[pagetop::test]
+async fn typed_op_prepend_many_inserts_all_at_start() {
+    let c = Children::new()
+        .with_child(TestComp::text("c"))
+        .with_child(TypedOp::PrependMany(vec![
+            TestComp::text("a"),
+            TestComp::text("b"),
+        ]));
+    assert_eq!(c.render(&mut Context::default()).await.into_string(), "abc");
+}
+
+#[pagetop::test]
+async fn typed_op_remove_by_id_removes_matching_element() {
+    let c = Children::new()
+        .with_child(TestComp::tagged("keep", "a"))
+        .with_child(TestComp::tagged("drop", "b"))
+        .with_child(TypedOp::<TestComp>::RemoveById("drop"));
+    assert_eq!(c.render(&mut Context::default()).await.into_string(), "a");
+}
+
+#[pagetop::test]
+async fn typed_op_replace_by_id_replaces_matching_element() {
+    let c = Children::new()
+        .with_child(TestComp::tagged("target", "old"))
+        .with_child(TestComp::text("b"))
+        .with_child(TypedOp::ReplaceById("target", TestComp::text("new")));
+    assert_eq!(
+        c.render(&mut Context::default()).await.into_string(),
+        "newb"
+    );
+}
+
+#[pagetop::test]
+async fn typed_op_reset_clears_all_elements() {
+    let c = Children::new()
+        .with_child(TestComp::text("a"))
+        .with_child(TestComp::text("b"))
+        .with_child(TypedOp::<TestComp>::Reset);
+    assert!(c.is_empty());
+}
+
 // **< Embed >**************************************************************************************
 
 #[pagetop::test]

@@ -258,6 +258,79 @@ pub enum ChildOp {
     Reset,
 }
 
+/// Mismo repertorio de operaciones de [`ChildOp`] restringido a un tipo de componente.
+///
+/// Conserva toda la funcionalidad de [`ChildOp`] (inserción relativa, reemplazo o eliminación por
+/// `id`, etc.) sin permitir que un componente ajeno al tipo `C` acabe en una lista pensada para un
+/// único tipo de elemento (p. ej., los elementos de un menú [`Nav`](crate::base::component::Nav)).
+///
+/// # Ejemplo
+///
+/// ```rust,no_run
+/// use pagetop::prelude::*;
+///
+/// let nav = nav::Nav::new()
+///     // Un componente `nav::Item` se convierte implícitamente en `TypedOp::Add`.
+///     .with_item(nav::Item::link(Lc::n("Home"), "/"))
+///     // Para el resto de operaciones se construye la variante explícita.
+///     .with_item(TypedOp::AddMany(vec![
+///         nav::Item::link(Lc::n("About"), "/about"),
+///         nav::Item::link(Lc::n("Contact"), "/contact"),
+///     ]));
+/// ```
+pub enum TypedOp<C: Component> {
+    /// Añade un componente al final de la lista.
+    Add(C),
+    /// Añade un componente sólo si la lista está vacía.
+    AddIfEmpty(C),
+    /// Añade varios componentes al final de la lista, en el orden recibido.
+    AddMany(Vec<C>),
+    /// Inserta un componente justo después del que tiene el `id` dado, o al final si no existe.
+    InsertAfterId(&'static str, C),
+    /// Inserta un componente justo antes del que tiene el `id` dado, o al principio si no existe.
+    InsertBeforeId(&'static str, C),
+    /// Inserta un componente al principio de la lista.
+    Prepend(C),
+    /// Inserta varios componentes al principio de la lista, manteniendo el orden recibido.
+    PrependMany(Vec<C>),
+    /// Elimina el primer componente con el `id` dado.
+    RemoveById(&'static str),
+    /// Sustituye el primer componente con el `id` dado por otro.
+    ReplaceById(&'static str, C),
+    /// Vacía la lista eliminando todos los componentes.
+    Reset,
+}
+
+impl<C: Component> From<C> for TypedOp<C> {
+    /// Convierte un componente de tipo `C` en [`TypedOp::Add`], permitiendo pasarlo directamente a
+    /// métodos como `with_item()` sin envolverlo explícitamente.
+    #[inline]
+    fn from(component: C) -> Self {
+        TypedOp::Add(component)
+    }
+}
+
+impl<C: Component> From<TypedOp<C>> for ChildOp {
+    /// Traduce cada variante de [`TypedOp<C>`] a su equivalente en [`ChildOp`], envolviendo cada
+    /// componente `C` en un [`Child`].
+    fn from(op: TypedOp<C>) -> Self {
+        match op {
+            TypedOp::Add(c) => ChildOp::Add(Child::with(c)),
+            TypedOp::AddIfEmpty(c) => ChildOp::AddIfEmpty(Child::with(c)),
+            TypedOp::AddMany(cs) => ChildOp::AddMany(cs.into_iter().map(Child::with).collect()),
+            TypedOp::InsertAfterId(id, c) => ChildOp::InsertAfterId(id, Child::with(c)),
+            TypedOp::InsertBeforeId(id, c) => ChildOp::InsertBeforeId(id, Child::with(c)),
+            TypedOp::Prepend(c) => ChildOp::Prepend(Child::with(c)),
+            TypedOp::PrependMany(cs) => {
+                ChildOp::PrependMany(cs.into_iter().map(Child::with).collect())
+            }
+            TypedOp::RemoveById(id) => ChildOp::RemoveById(id),
+            TypedOp::ReplaceById(id, c) => ChildOp::ReplaceById(id, Child::with(c)),
+            TypedOp::Reset => ChildOp::Reset,
+        }
+    }
+}
+
 /// Lista ordenada de componentes hijo ([`Child`]) mantenida por un componente padre.
 ///
 /// Permite añadir, modificar, renderizar y consultar componentes hijo en orden de inserción, con

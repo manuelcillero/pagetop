@@ -14,7 +14,7 @@ pub use definition::{Component, ComponentClone, ComponentRender};
 
 mod children;
 pub use children::Children;
-pub use children::{Child, ChildOp, Embed};
+pub use children::{Child, ChildOp, Embed, TypedOp};
 
 mod message;
 pub use message::{MessageLevel, StatusMessage};
