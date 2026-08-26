@@ -365,18 +365,14 @@ input:disabled + label {
     cursor: pointer;
 }
 .dropdown-toggle::after {
-    content: "";
+    content: "\25BC";
     display: inline-block;
-    width: 0.4em;
-    height: 0.4em;
     margin-left: 0.35em;
-    border-right: 0.125em solid currentColor;
-    border-bottom: 0.125em solid currentColor;
-    transform: rotate(45deg);
+    font-size: 0.8em;
     transition: transform .15s ease-in-out;
 }
 .dropdown:has(> .dropdown-menu.show) > .dropdown-toggle::after {
-    transform: rotate(-135deg);
+    transform: rotate(180deg);
 }
 
 .dropdown-menu {
@@ -392,9 +388,11 @@ input:disabled + label {
     border: 1px solid color-mix(in srgb, var(--val-color--border) 15%, var(--val-color--bg));
     border-radius: 0.375rem;
     box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-}
-.dropdown-menu.hide {
+    /* Closed by default */
     display: none;
+}
+.dropdown-menu.show {
+    display: block;
 }
 
 .dropdown-item {

@@ -28,7 +28,7 @@ impl Theme for Basic {
             JavaScript::defer("/pagetop/js/basic.menu.min.js").with_version("4.4.0"),
         ))
         .alter_assets(AssetsOp::AddJavaScript(
-            JavaScript::defer("/pagetop/js/dropdown.init.js").with_version(PAGETOP_VERSION),
+            JavaScript::defer("/pagetop/js/basic.dropdown.min.js").with_version(PAGETOP_VERSION),
         ))
         .alter_assets(AssetsOp::AddJavaScript(
             JavaScript::defer("/pagetop/js/basic.dialog.min.js").with_version(PAGETOP_VERSION),

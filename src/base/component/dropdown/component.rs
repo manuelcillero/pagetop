@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-/// Componente para crear un **menú de acciones desplegable**.
+/// Componente para crear un **menú desplegable**.
 ///
 /// Renderiza un botón (único o desdoblado, ver [`with_button_split()`](Self::with_button_split))
 /// que despliega u oculta una lista de elementos [`dropdown::Item`](super::Item).
@@ -29,7 +29,7 @@ pub struct Dropdown {
     props: Props,
     /// Devuelve el título del menú desplegable.
     title: Lc,
-    /// Devuelve si el botón se desdobla (*split*) en botón de acción + *toggle*.
+    /// Devuelve si el botón se desdobla (*split*) en botón de acción más *toggle*.
     button_split: bool,
     /// Devuelve la lista de elementos del menú.
     items: Children,
@@ -119,28 +119,31 @@ impl Dropdown {
         self
     }
 
-    /// Activa/desactiva el modo *split* (botón de acción + *toggle*).
+    /// Activa/desactiva el modo *split* (botón de acción más *toggle*).
     #[builder_fn]
     pub fn with_button_split(mut self, split: bool) -> Self {
         self.button_split = split;
         self
     }
 
-    /// Añade un nuevo elemento al menú o modifica la lista de elementos del menú con una
-    /// operación [`ChildOp`].
+    /// Añade un nuevo elemento al menú o modifica la lista de elementos del menú con una operación
+    /// [`TypedOp`].
     ///
     /// # Ejemplo
     ///
-    /// ```rust,ignore
-    /// dropdown.with_item(dropdown::Item::link("Opción", "/ruta"));
-    /// dropdown.with_item(ChildOp::AddMany(vec![
-    ///     dropdown::Item::link(...).into(),
-    ///     dropdown::Item::divider().into(),
-    ///     dropdown::Item::link(...).into(),
-    /// ]));
+    /// ```rust,no_run
+    /// use pagetop::prelude::*;
+    ///
+    /// let dd = dropdown::Dropdown::new()
+    ///     .with_item(dropdown::Item::link(Lc::n("Option"), "/path/to/option"))
+    ///     .with_item(TypedOp::AddMany(vec![
+    ///         dropdown::Item::link(Lc::n("Other"), "/path/to/other"),
+    ///         dropdown::Item::divider(),
+    ///         dropdown::Item::link(Lc::n("Home"), "/"),
+    ///     ]));
     /// ```
     #[builder_fn]
-    pub fn with_item(mut self, op: impl Into<ChildOp>) -> Self {
+    pub fn with_item(mut self, op: impl Into<TypedOp<dropdown::Item>>) -> Self {
         self.items.alter_child(op.into());
         self
     }
