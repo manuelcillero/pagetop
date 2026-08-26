@@ -4,6 +4,7 @@ block_selections = Casillas, interruptores y botones de opción
 block_text = Campos de texto, multilínea y rango
 block_lists = Listas de selección
 block_lists_floating = Listas de selección y etiquetas flotantes
+block_dialog = Diálogo modal
 
 fieldset_text = Campos de texto
 label_name = Nombre completo
@@ -77,3 +78,6 @@ btn_reset = Restablecer
 btn_cancel = Cancelar
 btn_ok = Aceptar
 btn_delete = Eliminar registro
+
+dialog_delete_title = Eliminar registro
+dialog_delete_body = ¿Seguro que quieres eliminar este registro? Esta acción no se puede deshacer.

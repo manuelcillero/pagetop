@@ -30,6 +30,9 @@ impl Theme for Basic {
         .alter_assets(AssetsOp::AddJavaScript(
             JavaScript::defer("/pagetop/js/dropdown.init.js").with_version(PAGETOP_VERSION),
         ))
+        .alter_assets(AssetsOp::AddJavaScript(
+            JavaScript::defer("/pagetop/js/basic.dialog.min.js").with_version(PAGETOP_VERSION),
+        ))
         .alter_child_in(
             &CoreRegions::Footer,
             ChildOp::AddIfEmpty(PoweredBy::new().into()),

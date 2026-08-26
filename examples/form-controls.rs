@@ -285,6 +285,39 @@ async fn form_controls(request: HttpRequest) -> Result<Markup, ErrorPage> {
                             },
                         )
                         .with_child(form_lists()),
+                )
+                // Bloque 4: diálogo modal.
+                .with_child(
+                    Block::new()
+                        .with_title(Lc::t("block_dialog", &LOC))
+                        .with_child(
+                            Dialog::new()
+                                .with_id("delete-confirm")
+                                .with_title(Lc::t("dialog_delete_title", &LOC))
+                                .with_child(Html::with(|cx| {
+                                    html! {
+                                        p { (Lc::t("dialog_delete_body", &LOC).using(cx)) }
+                                    }
+                                }))
+                                .with_footer(
+                                    Button::plain(Lc::t("btn_cancel", &LOC))
+                                        .with_prop(PropsOp::set("data-dialog-dismiss", "modal"))
+                                        .with_style(button::ButtonStyle::Outline(
+                                            Intent::Secondary,
+                                        )),
+                                )
+                                .with_footer(
+                                    Button::plain(Lc::t("btn_ok", &LOC))
+                                        .with_prop(PropsOp::set("data-dialog-dismiss", "modal"))
+                                        .with_style(button::ButtonStyle::Solid(Intent::Primary)),
+                                ),
+                        )
+                        .with_child(
+                            Button::plain(Lc::t("btn_delete", &LOC))
+                                .with_prop(PropsOp::set("data-dialog-toggle", "modal"))
+                                .with_prop(PropsOp::set("data-dialog-target", "#delete-confirm"))
+                                .with_style(button::ButtonStyle::Solid(Intent::Danger)),
+                        ),
                 ),
         )
         .render()

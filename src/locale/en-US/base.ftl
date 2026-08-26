@@ -1,3 +1,13 @@
+# Breadcrumb component.
+breadcrumb_label = Breadcrumb navigation
+
+# Dialog component.
+dialog_close = Close dialog
+
+# Dropdown component.
+dropdown_toggle = Toggle dropdown
+dropdown_default_title = Dropdown
+
 # Form components.
 field_required = This field is required
 
@@ -16,15 +26,8 @@ intro_text2 = PageTop brings back the essence of the classic web, renders on the
 intro_code = Code
 intro_have_fun = Coding is creating
 
-# PoweredBy component.
-poweredby_pagetop = Powered by { $pagetop_link }
-
-# Dropdown component.
-dropdown_toggle = Toggle dropdown
-dropdown_default_title = Dropdown
-
-# Breadcrumb component.
-breadcrumb_label = Breadcrumb navigation
+# Navbar component.
+navbar_toggle = Toggle navigation
 
 # Pager component.
 pager_aria_label = Page navigation
@@ -35,6 +38,9 @@ pager_next_aria_label = Next page
 pager_goto_label = Jump to page
 pager_goto_button = Go
 pager_summary = Showing { $first }-{ $last } of { $total }
+
+# PoweredBy component.
+poweredby_pagetop = Powered by { $pagetop_link }
 
 # Table component.
 table_empty = No data to display

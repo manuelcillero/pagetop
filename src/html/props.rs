@@ -76,8 +76,13 @@ pub enum PropsError {
 ///
 /// Las variantes [`Set`](Self::Set) y [`Remove`](Self::Remove) son operaciones de propósito
 /// general. `Set` añade o reemplaza cualquier atributo HTML por nombre y valor, y `Remove` lo
-/// elimina. Los atributos `id`, `class` y `style` tienen semántica especial documentada en cada
-/// variante.
+/// elimina. Los atributos `id`, `class` y `style` tienen semántica especial documentada en estas
+/// variantes.
+///
+/// [`Rename`](Self::Rename) cambia el nombre de un atributo genérico conservando su valor; no
+/// reconoce `"id"`, `"class"` ni `"style"` como origen ni destino. Está pensada para que un tema
+/// traduzca a su propio vocabulario los atributos que un componente ya expone, sin que éste tenga
+/// que conocer ningún tema en concreto.
 ///
 /// Las variantes `*Extra` permiten añadir valores tipados usando una clave. Están pensadas para
 /// ampliar el comportamiento de componentes ya existentes. Como no es posible añadir campos a la
@@ -139,16 +144,16 @@ pub enum PropsOp {
     /// cadena con `;` (`content: "a;b"`) se interpretan correctamente. En cualquier caso, se
     /// recomienda usar [`PropsOp::add_style()`](Self::add_style) para declarar estilos.
     Set(CowStr, CowStr),
-    /// Elimina el atributo indicado. Usar `"id"` elimina el identificador; usar `"class"` vacía la
-    /// lista de clases; y usar `"style"` vacía la lista de estilos.
-    Remove(CowStr),
     /// Si el primer atributo (origen) existe, lo renombra al segundo (destino), conservando su
     /// valor; si el destino ya tiene su propio valor, se respeta sin sobrescribir y sólo se elimina
     /// el origen. Si el origen no existe, la operación no tiene efecto.
     ///
     /// Sólo actúa sobre atributos genéricos, por lo que los nombres `"id"`, `"class"` y `"style"`
     /// no se reconocen como origen ni destino.
-    Translate(CowStr, CowStr),
+    Rename(CowStr, CowStr),
+    /// Elimina el atributo indicado. Usar `"id"` elimina el identificador; usar `"class"` vacía la
+    /// lista de clases; y usar `"style"` vacía la lista de estilos.
+    Remove(CowStr),
     /// Almacena un valor extra tipado asociado a la clave indicada. Si ya existe uno con esa clave,
     /// lo reemplaza.
     SetExtra(&'static str, PropsExtra),
@@ -243,29 +248,29 @@ impl PropsOp {
         Self::Set(name.into(), value.into())
     }
 
-    /// Crea la variante [`Remove`](Self::Remove) para el atributo indicado.
-    pub fn remove(name: impl Into<CowStr>) -> Self {
-        Self::Remove(name.into())
-    }
-
-    /// Crea la variante [`Translate`](Self::Translate) para renombrar `from` a `to`.
+    /// Crea la variante [`Rename`](Self::Rename) para renombrar `from` a `to`.
     ///
     /// ```rust
     /// # use pagetop::prelude::*;
     /// let props = Props::new("data-dialog-toggle", "modal")
-    ///     .with_prop(PropsOp::translate("data-dialog-toggle", "data-bs-toggle"));
+    ///     .with_prop(PropsOp::rename("data-dialog-toggle", "data-bs-toggle"));
     /// assert_eq!(props.get_prop("data-bs-toggle"), Some("modal".to_string()));
     /// assert_eq!(props.get_prop("data-dialog-toggle"), None);
     ///
     /// // Si el destino tiene su propio valor no se sobrescribe, sólo se elimina el origen.
     /// let props = Props::new("data-bs-toggle", "collapse")
     ///     .with_prop(PropsOp::set("data-dialog-toggle", "modal"))
-    ///     .with_prop(PropsOp::translate("data-dialog-toggle", "data-bs-toggle"));
+    ///     .with_prop(PropsOp::rename("data-dialog-toggle", "data-bs-toggle"));
     /// assert_eq!(props.get_prop("data-bs-toggle"), Some("collapse".to_string()));
     /// assert_eq!(props.get_prop("data-dialog-toggle"), None);
     /// ```
-    pub fn translate(from: impl Into<CowStr>, to: impl Into<CowStr>) -> Self {
-        Self::Translate(from.into(), to.into())
+    pub fn rename(from: impl Into<CowStr>, to: impl Into<CowStr>) -> Self {
+        Self::Rename(from.into(), to.into())
+    }
+
+    /// Crea la variante [`Remove`](Self::Remove) para el atributo indicado.
+    pub fn remove(name: impl Into<CowStr>) -> Self {
+        Self::Remove(name.into())
     }
 
     /// Crea la variante [`SetExtra`](Self::SetExtra) con la clave y el valor indicados.
@@ -598,6 +603,14 @@ impl Props {
                     self.attrs.push((name, value));
                 }
             }
+            PropsOp::Rename(from, to) => {
+                if let Some(pos) = self.attrs.iter().position(|(k, _)| k == &from) {
+                    let (_, value) = self.attrs.remove(pos);
+                    if !self.attrs.iter().any(|(k, _)| k == &to) {
+                        self.attrs.push((to, value));
+                    }
+                }
+            }
             PropsOp::Remove(name) => {
                 if name.as_ref() == "id" {
                     self.id = None;
@@ -607,14 +620,6 @@ impl Props {
                     self.styles.clear();
                 } else {
                     self.attrs.retain(|(k, _)| k != &name);
-                }
-            }
-            PropsOp::Translate(from, to) => {
-                if let Some(pos) = self.attrs.iter().position(|(k, _)| k == &from) {
-                    let (_, value) = self.attrs.remove(pos);
-                    if !self.attrs.iter().any(|(k, _)| k == &to) {
-                        self.attrs.push((to, value));
-                    }
                 }
             }
             PropsOp::SetExtra(key, extra) => {

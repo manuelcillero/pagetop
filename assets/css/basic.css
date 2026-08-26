@@ -284,6 +284,68 @@ input:disabled + label {
 }
 
 /*
+ * Dialog component
+ */
+
+.dialog {
+    padding: 0;
+    width: 100%;
+    max-width: 32rem;
+    color: var(--val-color--text);
+    background-color: var(--val-color--bg);
+    border: none;
+    border-radius: 0.5rem;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+.dialog::backdrop {
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.dialog-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid color-mix(in srgb, var(--val-color--border) 15%, var(--val-color--bg));
+}
+
+.dialog-title {
+    margin: 0;
+    font-size: 1.125rem;
+    font-weight: 600;
+}
+
+.dialog-close {
+    width: 1.5rem;
+    height: 1.5rem;
+    padding: 0;
+    line-height: 1;
+    color: var(--val-color--text--muted);
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+}
+.dialog-close::before {
+    content: "\2715";
+}
+.dialog-close:hover {
+    color: var(--val-color--text);
+}
+
+.dialog-body {
+    padding: 1.25rem;
+}
+
+.dialog-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    padding: 1rem 1.25rem;
+    border-top: 1px solid color-mix(in srgb, var(--val-color--border) 15%, var(--val-color--bg));
+}
+
+/*
  * Dropdown component
  */
 

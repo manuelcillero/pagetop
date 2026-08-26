@@ -4,6 +4,7 @@ block_selections = Checkboxes, switches and radio buttons
 block_text = Text fields, multiline and range
 block_lists = Selection lists
 block_lists_floating = Select lists and floating labels
+block_dialog = Modal dialog
 
 fieldset_text = Text fields
 label_name = Full name
@@ -77,3 +78,6 @@ btn_reset = Reset
 btn_cancel = Cancel
 btn_ok = Ok
 btn_delete = Delete record
+
+dialog_delete_title = Delete record
+dialog_delete_body = Are you sure you want to delete this record? This action cannot be undone.

@@ -23,6 +23,9 @@ pub mod container;
 #[doc(inline)]
 pub use container::Container;
 
+mod dialog;
+pub use dialog::Dialog;
+
 pub mod dropdown;
 #[doc(inline)]
 pub use dropdown::Dropdown;

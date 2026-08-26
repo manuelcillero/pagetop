@@ -1,3 +1,13 @@
+# Breadcrumb component.
+breadcrumb_label = Ruta de navegación
+
+# Dialog component.
+dialog_close = Cerrar diálogo
+
+# Dropdown component.
+dropdown_toggle = Alternar menú desplegable
+dropdown_default_title = Menú desplegable
+
 # Form components.
 field_required = Este campo es obligatorio
 
@@ -16,15 +26,8 @@ intro_text2 = PageTop reivindica la esencia de la web clásica, renderiza en el 
 intro_code = Código
 intro_have_fun = Programar es crear
 
-# PoweredBy component.
-poweredby_pagetop = Funciona con { $pagetop_link }
-
-# Dropdown component.
-dropdown_toggle = Alternar menú desplegable
-dropdown_default_title = Menú desplegable
-
-# Breadcrumb component.
-breadcrumb_label = Ruta de navegación
+# Navbar component.
+navbar_toggle = Alternar navegación
 
 # Pager component.
 pager_aria_label = Navegación de páginas
@@ -35,6 +38,9 @@ pager_next_aria_label = Página siguiente
 pager_goto_label = Saltar a la página
 pager_goto_button = Ir
 pager_summary = Mostrando { $first }-{ $last } de { $total }
+
+# PoweredBy component.
+poweredby_pagetop = Funciona con { $pagetop_link }
 
 # Table component.
 table_empty = No hay datos que mostrar
