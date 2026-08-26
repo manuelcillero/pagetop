@@ -142,6 +142,13 @@ pub enum PropsOp {
     /// Elimina el atributo indicado. Usar `"id"` elimina el identificador; usar `"class"` vacía la
     /// lista de clases; y usar `"style"` vacía la lista de estilos.
     Remove(CowStr),
+    /// Si el primer atributo (origen) existe, lo renombra al segundo (destino), conservando su
+    /// valor; si el destino ya tiene su propio valor, se respeta sin sobrescribir y sólo se elimina
+    /// el origen. Si el origen no existe, la operación no tiene efecto.
+    ///
+    /// Sólo actúa sobre atributos genéricos, por lo que los nombres `"id"`, `"class"` y `"style"`
+    /// no se reconocen como origen ni destino.
+    Translate(CowStr, CowStr),
     /// Almacena un valor extra tipado asociado a la clave indicada. Si ya existe uno con esa clave,
     /// lo reemplaza.
     SetExtra(&'static str, PropsExtra),
@@ -239,6 +246,26 @@ impl PropsOp {
     /// Crea la variante [`Remove`](Self::Remove) para el atributo indicado.
     pub fn remove(name: impl Into<CowStr>) -> Self {
         Self::Remove(name.into())
+    }
+
+    /// Crea la variante [`Translate`](Self::Translate) para renombrar `from` a `to`.
+    ///
+    /// ```rust
+    /// # use pagetop::prelude::*;
+    /// let props = Props::new("data-dialog-toggle", "modal")
+    ///     .with_prop(PropsOp::translate("data-dialog-toggle", "data-bs-toggle"));
+    /// assert_eq!(props.get_prop("data-bs-toggle"), Some("modal".to_string()));
+    /// assert_eq!(props.get_prop("data-dialog-toggle"), None);
+    ///
+    /// // Si el destino tiene su propio valor no se sobrescribe, sólo se elimina el origen.
+    /// let props = Props::new("data-bs-toggle", "collapse")
+    ///     .with_prop(PropsOp::set("data-dialog-toggle", "modal"))
+    ///     .with_prop(PropsOp::translate("data-dialog-toggle", "data-bs-toggle"));
+    /// assert_eq!(props.get_prop("data-bs-toggle"), Some("collapse".to_string()));
+    /// assert_eq!(props.get_prop("data-dialog-toggle"), None);
+    /// ```
+    pub fn translate(from: impl Into<CowStr>, to: impl Into<CowStr>) -> Self {
+        Self::Translate(from.into(), to.into())
     }
 
     /// Crea la variante [`SetExtra`](Self::SetExtra) con la clave y el valor indicados.
@@ -580,6 +607,14 @@ impl Props {
                     self.styles.clear();
                 } else {
                     self.attrs.retain(|(k, _)| k != &name);
+                }
+            }
+            PropsOp::Translate(from, to) => {
+                if let Some(pos) = self.attrs.iter().position(|(k, _)| k == &from) {
+                    let (_, value) = self.attrs.remove(pos);
+                    if !self.attrs.iter().any(|(k, _)| k == &to) {
+                        self.attrs.push((to, value));
+                    }
                 }
             }
             PropsOp::SetExtra(key, extra) => {
