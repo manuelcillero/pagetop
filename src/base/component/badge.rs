@@ -6,10 +6,10 @@ use crate::prelude::*;
 ///
 /// ```rust,no_run
 /// # use pagetop::prelude::*;
-/// let badge = Badge::labeled(Lc::n("Admin")).with_intent(Intent::Danger);
+/// let badge = Badge::labeled(Lc::n("Admin")).with_intent(Intent::Severe);
 ///
 /// // Equivalente usando el constructor directo del tipo.
-/// let badge = Badge::danger(Lc::n("Admin"));
+/// let badge = Badge::severe(Lc::n("Admin"));
 /// ```
 #[derive(AutoDefault, Clone, Debug, Getters)]
 pub struct Badge {
@@ -19,7 +19,7 @@ pub struct Badge {
     label: Lc,
     /// Devuelve la intención semántica del badge.
     #[getters(copy)]
-    #[default(Intent::Secondary)]
+    #[default(Intent::Neutral)]
     intent: Intent,
 }
 
@@ -33,10 +33,10 @@ impl Component for Badge {
         self.props.get_id()
     }
 
-    fn setup(&mut self, _cx: &Context) {
+    fn setup(&mut self, cx: &Context) {
         self.alter_prop(PropsOp::prepend_classes(util::join!(
             "badge badge-",
-            self.intent().as_str()
+            self.intent().color(cx)
         )));
     }
 
@@ -67,11 +67,11 @@ impl Badge {
         }
     }
 
-    /// Crea un badge de tipo *secondary* con la etiqueta indicada.
-    pub fn secondary(label: Lc) -> Self {
+    /// Crea un badge de tipo *neutral* con la etiqueta indicada.
+    pub fn neutral(label: Lc) -> Self {
         Self {
             label,
-            intent: Intent::Secondary,
+            intent: Intent::Neutral,
             ..Default::default()
         }
     }
@@ -103,11 +103,11 @@ impl Badge {
         }
     }
 
-    /// Crea un badge de tipo *danger* con la etiqueta indicada.
-    pub fn danger(label: Lc) -> Self {
+    /// Crea un badge de tipo *severe* con la etiqueta indicada.
+    pub fn severe(label: Lc) -> Self {
         Self {
             label,
-            intent: Intent::Danger,
+            intent: Intent::Severe,
             ..Default::default()
         }
     }

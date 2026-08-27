@@ -13,12 +13,14 @@
 //!
 //! # Temas hijo, herencia y componentes
 //!
-//! PageTop permite crear **temas hijo** que refinan el comportamiento de su tema padre. Un tema
-//! hijo hereda automáticamente todos los métodos del padre y puede sobrescribirlos selectivamente.
-//! Esta herencia sólo determina qué implementación de sus métodos se usa cuando el tema hijo no los
-//! sobrescribe (como el renderizado del `<body>` y del `<head>`, los recursos incorporados, el uso
-//! de [`Theme::handle_component()`], las páginas de error, etc.). Un tema hijo puede ser a su vez
-//! padre de otro, basta declararlo cada vez con [`Theme::parent()`].
+//! PageTop permite crear **temas hijo** que refinan el comportamiento de su tema padre,
+//! identificado por [`Theme::parent()`]. Un tema hijo hereda automáticamente todos los métodos del
+//! padre y puede sobrescribirlos selectivamente. Esta herencia determina qué implementación de sus
+//! métodos se usa cuando el tema hijo no los sobrescribe (ya sea el renderizado del `<body>` o del
+//! `<head>`, la definición de los recursos necesarios, la asignación de colores por intención vía
+//! [`Theme::intent_color()`], la captura de componentes con [`Theme::handle_component()`], las
+//! páginas de error, etc.). Un tema hijo puede ser a su vez padre de otro, basta declararlo cada
+//! vez con [`Theme::parent()`].
 //!
 //! Como `parent()` se resuelve en tiempo de ejecución, PageTop no puede descartar en compilación
 //! referencias circulares (un tema acaba siendo padre de sí mismo, directa o transitivamente). Ese
@@ -48,8 +50,8 @@
 //! devuelva `Some(&Self)`. Basta con un `impl Theme for MyTheme {}` vacío, ya que todos los
 //! métodos de [`Theme`] tienen implementación por defecto.
 //!
-//! Un tema puede personalizarse en tres pasos, cada uno necesario sólo si lo que ofrece PageTop por
-//! defecto no basta:
+//! Un tema puede personalizarse en cinco pasos, cada uno necesario sólo si lo que ofrece PageTop
+//! por defecto no basta:
 //!
 //! 1. **Definir regiones nuevas**. Por defecto, PageTop define [`CoreRegions`] (`Header`, `Aside`,
 //!    `Content`, `Footer`) como regiones de plantilla siempre disponibles, y [`ReservedRegions`]
@@ -75,6 +77,21 @@
 //!    ejemplo, [`CoreTemplates`] o el propio *enum* del tema). `pagetop-bootsier` hace exactamente
 //!    esto para maquetar `Standard` y `Admin` de forma distinta, sin necesitar sus propias
 //!    variantes de plantilla.
+//! 4. **Traducir [`Intent`] a la paleta de colores propia del tema** sobrescribiendo
+//!    [`Theme::intent_color()`]. Por defecto, este método devuelve el vocabulario semántico de
+//!    [`Intent`] (`"primary"`, `"severe"`, etc.); un tema con su propio catálogo de colores (por
+//!    ejemplo, uno basado en Bootstrap) debe traducir cada variante al nombre que le corresponda en
+//!    su paleta. Los componentes que generan clases CSS a partir de una [`Intent`] (`Button`,
+//!    `Badge`, `Dropdown`, etc.) consultan este método a través de [`Intent::color()`], así que la
+//!    clase resultante ya nace en la paleta del tema activo.
+//! 5. **Reexportar, extender o añadir componentes**. Un tema puede reexportar tal cual los
+//!    componentes propios de PageTop que no requieran adaptación, extenderlos con un trait propio
+//!    para añadir métodos exclusivos (guardando su estado en valores extra con
+//!    [`PropsOp::set_extra()`](crate::html::PropsOp::set_extra) para consumirlos en el
+//!    `setup()`/`render()` vía [`Theme::handle_component()`]), o aportar componentes propios.
+//!    `pagetop-bootsier` combina las tres estrategias: reexporta `Form`/`Fieldset` sin cambios,
+//!    extiende `Button`/`Badge`/`Dropdown`/`Nav`/`Navbar` con sus propios traits (`ButtonBootsier`,
+//!    `BadgeBootsier`, etc.), y añade componentes propios como `Offcanvas`.
 //!
 //! Para forzar una plantilla completamente distinta en una página concreta, se puede llamar
 //! manualmente a [`with_template()`](crate::core::component::Contextual::with_template).
@@ -86,7 +103,7 @@
 //! plantilla distinta.
 //!
 //! El resto del comportamiento de un tema (por ejemplo, el renderizado del `<head>`) se sobrescribe
-//! de forma independiente de estos tres pasos y no es necesario para tener un tema funcional.
+//! de forma independiente de estos pasos y no es necesario para tener un tema funcional.
 //!
 //! # Componentes que se procesan en todas las páginas
 //!

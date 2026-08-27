@@ -3,7 +3,7 @@ use crate::base::component::{Html, Intro, IntroOpening, layout};
 use crate::core::component::{ChildOp, Component, ComponentError, ComponentRender};
 use crate::core::component::{Context, Contextual};
 use crate::core::extension::Extension;
-use crate::core::theme::CoreRegions;
+use crate::core::theme::{CoreRegions, Intent};
 use crate::global;
 use crate::html::{Markup, html};
 use crate::locale::Lc;
@@ -63,6 +63,34 @@ pub trait Theme: Extension + Send + Sync {
     /// desbordamientos de pila al usar el tema.
     fn parent(&self) -> Option<ThemeRef> {
         None
+    }
+
+    /// Traduce una [`Intent`] al nombre de color de la paleta propia del tema.
+    ///
+    /// `Intent` no define ninguna cadena propia. Cada tema decide qué nombre le corresponde a cada
+    /// variante en su paleta (p. ej. un tema basado en Bootstrap traduce `Severe` a `"danger"`).
+    /// Los componentes que generan clases CSS a partir de una `Intent` (`Button`, `Badge`,
+    /// `Dropdown`, etc.) no llaman a este método directamente en su `setup()`, usan mejor
+    /// [`Intent::color()`](crate::core::theme::Intent::color) como la forma más sencilla de obtener
+    /// este mismo valor a través de [`Context::theme()`](crate::core::component::Context::theme),
+    /// para que la clase resultante ya nazca en la paleta del tema activo.
+    ///
+    /// La implementación por defecto devuelve el vocabulario semántico propio de PageTop
+    /// (`"primary"`, `"severe"`, etc.), que actúa como paleta base cuando ningún tema la
+    /// sobrescribe.
+    #[rustfmt::skip]
+    fn intent_color(&self, intent: Intent) -> &'static str {
+        if let Some(parent) = self.parent() {
+            return parent.intent_color(intent);
+        }
+        match intent {
+            Intent::Primary => "primary",
+            Intent::Neutral => "neutral",
+            Intent::Info    => "info",
+            Intent::Success => "success",
+            Intent::Warning => "warning",
+            Intent::Severe  => "severe",
+        }
     }
 
     /// Acciones específicas del tema antes de renderizar el `<body>` de la página.
