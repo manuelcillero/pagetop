@@ -85,10 +85,10 @@ impl RoundedRadius {
     }
 }
 
-impl Into<CowStr> for RoundedRadius {
-    /// Permite pasar [`RoundedRadius`] directamente a [`PropsOp`](pagetop::prelude::PropsOp).
-    fn into(self) -> CowStr {
-        self.to_class().into()
+impl From<RoundedRadius> for CowStr {
+    /// Permite pasar [`RoundedRadius`] directamente a [`PropsOp`].
+    fn from(val: RoundedRadius) -> Self {
+        val.to_class().into()
     }
 }
 
@@ -262,9 +262,9 @@ impl Rounded {
     }
 }
 
-impl Into<CowStr> for Rounded {
-    /// Permite pasar [`Rounded`] directamente a [`PropsOp`](pagetop::prelude::PropsOp).
-    fn into(self) -> CowStr {
-        self.to_class().into()
+impl From<Rounded> for CowStr {
+    /// Permite pasar [`Rounded`] directamente a [`PropsOp`].
+    fn from(val: Rounded) -> Self {
+        val.to_class().into()
     }
 }

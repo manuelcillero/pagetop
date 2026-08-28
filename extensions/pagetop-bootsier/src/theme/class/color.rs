@@ -1,14 +1,14 @@
 use pagetop::prelude::*;
 
-use crate::theme::{OpacityLevel, ThemeColor};
+use crate::theme::{BootsierColors, OpacityLevel};
 
 // **< BgColor >************************************************************************************
 
 /// Esquema de color para el fondo ([`Bg`]).
 ///
 /// - `Body`, `BodySecondary` y `BodyTertiary` siguen el esquema del tema (claro/oscuro).
-/// - `Solid(ThemeColor)` y `Subtle(ThemeColor)` usan la paleta de colores temáticos
-///   ([`ThemeColor`]).
+/// - `Solid(BootsierColors)` y `Subtle(BootsierColors)` usan la paleta de colores temáticos
+///   ([`BootsierColors`]).
 /// - `Black`, `White`, `Transparent` son colores fijos independientes del tema.
 /// - `Default` no genera ninguna clase.
 #[derive(AutoDefault, Clone, Copy, Debug, PartialEq)]
@@ -23,9 +23,9 @@ pub enum BgColor {
     /// Fondo predefinido del tema (`bg-body-tertiary`).
     BodyTertiary,
     /// Genera la clase `bg-{color}` (p. ej., `bg-primary`).
-    Solid(ThemeColor),
+    Solid(BootsierColors),
     /// Genera la clase `bg-{color}-subtle` (un tono suavizado del color).
-    Subtle(ThemeColor),
+    Subtle(BootsierColors),
     /// Color negro.
     Black,
     /// Color blanco.
@@ -79,10 +79,10 @@ impl BgColor {
     /// let body = class::BgColor::Body.to_class();
     /// assert_eq!(body, "bg-body");
     ///
-    /// let solid = class::BgColor::Solid(ThemeColor::Primary).to_class();
+    /// let solid = class::BgColor::Solid(BootsierColors::Primary).to_class();
     /// assert_eq!(solid, "bg-primary");
     ///
-    /// let subtle = class::BgColor::Subtle(ThemeColor::Warning).to_class();
+    /// let subtle = class::BgColor::Subtle(BootsierColors::Warning).to_class();
     /// assert_eq!(subtle, "bg-warning-subtle");
     ///
     /// let transparent = class::BgColor::Transparent.to_class();
@@ -99,8 +99,8 @@ impl BgColor {
     }
 }
 
-impl From<ThemeColor> for BgColor {
-    /// Convierte un [`ThemeColor`] en [`BgColor::Solid`].
+impl From<BootsierColors> for BgColor {
+    /// Convierte un [`BootsierColors`] en [`BgColor::Solid`].
     ///
     /// Es el atajo habitual para los colores temáticos. Para los demás esquemas (`Body`, `Subtle`,
     /// `Black`, etc.) sigue usando [`BgColor`].
@@ -109,18 +109,18 @@ impl From<ThemeColor> for BgColor {
     ///
     /// ```rust
     /// # use pagetop_bootsier::theme::*;
-    /// let bg: class::BgColor = ThemeColor::Primary.into();
+    /// let bg: class::BgColor = BootsierColors::Primary.into();
     /// assert_eq!(bg.to_class(), "bg-primary");
     /// ```
-    fn from(color: ThemeColor) -> Self {
+    fn from(color: BootsierColors) -> Self {
         Self::Solid(color)
     }
 }
 
-impl Into<CowStr> for BgColor {
-    /// Permite pasar [`BgColor`] directamente a [`PropsOp`](pagetop::prelude::PropsOp).
-    fn into(self) -> CowStr {
-        self.to_class().into()
+impl From<BgColor> for CowStr {
+    /// Permite pasar [`BgColor`] directamente a [`PropsOp`].
+    fn from(val: BgColor) -> Self {
+        val.to_class().into()
     }
 }
 
@@ -137,8 +137,8 @@ impl Into<CowStr> for BgColor {
 /// let s = class::Bg::new();
 /// assert_eq!(s.to_class(), "");
 ///
-/// // Sólo color de fondo (forma corta con ThemeColor).
-/// let s = class::Bg::with(ThemeColor::Primary);
+/// // Sólo color de fondo (forma corta con BootsierColors).
+/// let s = class::Bg::with(BootsierColors::Primary);
 /// assert_eq!(s.to_class(), "bg-primary");
 ///
 /// // Color más opacidad.
@@ -167,13 +167,13 @@ impl Bg {
 
     /// Crea un estilo fijando el color de fondo (`bg-*`).
     ///
-    /// Acepta cualquier tipo convertible en [`BgColor`]. Un [`ThemeColor`] se convierte
+    /// Acepta cualquier tipo convertible en [`BgColor`]. Un [`BootsierColors`] se convierte
     /// automáticamente en [`BgColor::Solid`]:
     ///
     /// ```rust
     /// # use pagetop_bootsier::theme::*;
-    /// // Forma corta con ThemeColor:
-    /// let s = class::Bg::with(ThemeColor::Primary);
+    /// // Forma corta con BootsierColors:
+    /// let s = class::Bg::with(BootsierColors::Primary);
     /// assert_eq!(s.to_class(), "bg-primary");
     ///
     /// // Forma explícita para variantes no temáticas:
@@ -188,7 +188,7 @@ impl Bg {
 
     /// Establece el color de fondo (`bg-*`).
     ///
-    /// Acepta cualquier tipo convertible en [`BgColor`]. Un [`ThemeColor`] se convierte
+    /// Acepta cualquier tipo convertible en [`BgColor`]. Un [`BootsierColors`] se convierte
     /// automáticamente en [`BgColor::Solid`].
     pub fn with_color(mut self, color: impl Into<BgColor>) -> Self {
         self.color = color.into();
@@ -253,10 +253,10 @@ impl From<BgColor> for Bg {
     }
 }
 
-impl Into<CowStr> for Bg {
-    /// Permite pasar [`Bg`] directamente a [`PropsOp`](pagetop::prelude::PropsOp).
-    fn into(self) -> CowStr {
-        self.to_class().into()
+impl From<Bg> for CowStr {
+    /// Permite pasar [`Bg`] directamente a [`PropsOp`].
+    fn from(val: Bg) -> Self {
+        val.to_class().into()
     }
 }
 
@@ -265,10 +265,10 @@ impl Into<CowStr> for Bg {
 /// Esquema de color para el texto ([`Text`]).
 ///
 /// - `Body`, `BodyEmphasis`, `BodySecondary` y `BodyTertiary` siguen el tema (claro/oscuro).
-/// - `Solid(ThemeColor)` y `Emphasis(ThemeColor)` usan la paleta de colores temáticos
-///   ([`ThemeColor`]).
-/// - `Bg(ThemeColor)` genera la utilidad combinada `text-bg-{color}` (fondo más un color de texto
-///   de contraste garantizado; no es una utilidad puramente de texto).
+/// - `Solid(BootsierColors)` y `Emphasis(BootsierColors)` usan la paleta de colores temáticos
+///   ([`BootsierColors`]).
+/// - `Bg(BootsierColors)` genera la utilidad combinada `text-bg-{color}` (fondo más un color de
+///   texto de contraste garantizado; no es una utilidad puramente de texto).
 /// - `Black` y `White` son colores fijos independientes del tema.
 /// - `Default` no genera ninguna clase.
 #[derive(AutoDefault, Clone, Copy, Debug, PartialEq)]
@@ -285,11 +285,11 @@ pub enum TextColor {
     /// Color predefinido del tema (`text-body-tertiary`).
     BodyTertiary,
     /// Genera la clase `text-{color}`.
-    Solid(ThemeColor),
+    Solid(BootsierColors),
     /// Genera la clase `text-{color}-emphasis` (mayor contraste acorde al tema).
-    Emphasis(ThemeColor),
+    Emphasis(BootsierColors),
     /// Genera la clase `text-bg-{color}` (fondo con color de texto de contraste garantizado).
-    Bg(ThemeColor),
+    Bg(BootsierColors),
     /// Color negro.
     Black,
     /// Color blanco.
@@ -346,13 +346,13 @@ impl TextColor {
     /// let body = class::TextColor::Body.to_class();
     /// assert_eq!(body, "text-body");
     ///
-    /// let solid = class::TextColor::Solid(ThemeColor::Primary).to_class();
+    /// let solid = class::TextColor::Solid(BootsierColors::Primary).to_class();
     /// assert_eq!(solid, "text-primary");
     ///
-    /// let emphasis = class::TextColor::Emphasis(ThemeColor::Danger).to_class();
+    /// let emphasis = class::TextColor::Emphasis(BootsierColors::Danger).to_class();
     /// assert_eq!(emphasis, "text-danger-emphasis");
     ///
-    /// let bg = class::TextColor::Bg(ThemeColor::Secondary).to_class();
+    /// let bg = class::TextColor::Bg(BootsierColors::Secondary).to_class();
     /// assert_eq!(bg, "text-bg-secondary");
     ///
     /// let black = class::TextColor::Black.to_class();
@@ -369,8 +369,8 @@ impl TextColor {
     }
 }
 
-impl From<ThemeColor> for TextColor {
-    /// Convierte un [`ThemeColor`] en [`TextColor::Solid`].
+impl From<BootsierColors> for TextColor {
+    /// Convierte un [`BootsierColors`] en [`TextColor::Solid`].
     ///
     /// Es el atajo habitual para los colores temáticos. Para los demás esquemas (`Body`,
     /// `Emphasis`, `Black`, etc.) sigue usando [`TextColor`].
@@ -379,18 +379,18 @@ impl From<ThemeColor> for TextColor {
     ///
     /// ```rust
     /// # use pagetop_bootsier::theme::*;
-    /// let text: class::TextColor = ThemeColor::Danger.into();
+    /// let text: class::TextColor = BootsierColors::Danger.into();
     /// assert_eq!(text.to_class(), "text-danger");
     /// ```
-    fn from(color: ThemeColor) -> Self {
+    fn from(color: BootsierColors) -> Self {
         Self::Solid(color)
     }
 }
 
-impl Into<CowStr> for TextColor {
-    /// Permite pasar [`TextColor`] directamente a [`PropsOp`](pagetop::prelude::PropsOp).
-    fn into(self) -> CowStr {
-        self.to_class().into()
+impl From<TextColor> for CowStr {
+    /// Permite pasar [`TextColor`] directamente a [`PropsOp`].
+    fn from(val: TextColor) -> Self {
+        val.to_class().into()
     }
 }
 
@@ -407,8 +407,8 @@ impl Into<CowStr> for TextColor {
 /// let s = class::Text::new();
 /// assert_eq!(s.to_class(), "");
 ///
-/// // Sólo color del texto (forma corta con ThemeColor).
-/// let s = class::Text::with(ThemeColor::Primary);
+/// // Sólo color del texto (forma corta con BootsierColors).
+/// let s = class::Text::with(BootsierColors::Primary);
 /// assert_eq!(s.to_class(), "text-primary");
 ///
 /// // Color del texto y opacidad.
@@ -422,7 +422,7 @@ impl Into<CowStr> for TextColor {
 ///
 /// // Usando `From<(TextColor, OpacityLevel)>`.
 /// let s: class::Text = (
-///     class::TextColor::Solid(ThemeColor::Danger),
+///     class::TextColor::Solid(BootsierColors::Danger),
 ///     OpacityLevel::Opaque,
 /// ).into();
 /// assert_eq!(s.to_class(), "text-danger text-opacity-100");
@@ -441,13 +441,13 @@ impl Text {
 
     /// Crea un estilo fijando el color del texto (`text-*`).
     ///
-    /// Acepta cualquier tipo convertible en [`TextColor`]. Un [`ThemeColor`] se convierte
+    /// Acepta cualquier tipo convertible en [`TextColor`]. Un [`BootsierColors`] se convierte
     /// automáticamente en [`TextColor::Solid`]:
     ///
     /// ```rust
     /// # use pagetop_bootsier::theme::*;
-    /// // Forma corta con ThemeColor:
-    /// let s = class::Text::with(ThemeColor::Danger);
+    /// // Forma corta con BootsierColors:
+    /// let s = class::Text::with(BootsierColors::Danger);
     /// assert_eq!(s.to_class(), "text-danger");
     ///
     /// // Forma explícita para variantes no temáticas:
@@ -462,7 +462,7 @@ impl Text {
 
     /// Establece el color del texto (`text-*`).
     ///
-    /// Acepta cualquier tipo convertible en [`TextColor`]. Un [`ThemeColor`] se convierte
+    /// Acepta cualquier tipo convertible en [`TextColor`]. Un [`BootsierColors`] se convierte
     /// automáticamente en [`TextColor::Solid`].
     pub fn with_color(mut self, color: impl Into<TextColor>) -> Self {
         self.color = color.into();
@@ -504,7 +504,7 @@ impl From<(TextColor, OpacityLevel)> for Text {
     /// ```rust
     /// # use pagetop_bootsier::theme::*;
     /// let s: class::Text = (
-    ///     class::TextColor::Solid(ThemeColor::Danger),
+    ///     class::TextColor::Solid(BootsierColors::Danger),
     ///     OpacityLevel::Opaque,
     /// ).into();
     /// assert_eq!(s.to_class(), "text-danger text-opacity-100");
@@ -529,9 +529,9 @@ impl From<TextColor> for Text {
     }
 }
 
-impl Into<CowStr> for Text {
-    /// Permite pasar [`Text`] directamente a [`PropsOp`](pagetop::prelude::PropsOp).
-    fn into(self) -> CowStr {
-        self.to_class().into()
+impl From<Text> for CowStr {
+    /// Permite pasar [`Text`] directamente a [`PropsOp`].
+    fn from(val: Text) -> Self {
+        val.to_class().into()
     }
 }

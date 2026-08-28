@@ -27,8 +27,8 @@ const EXTRA_WIDTH: &str = "bootsier.container.width";
 /// let main = bs::Container::main()
 ///     .with_id("main-page")
 ///     .with_width(bs::container::Width::From(BreakPoint::LG))
-///     .with_prop(PropsOp::add_classes(class::Bg::with(ThemeColor::Light)))
-///     .with_prop(PropsOp::add_classes(class::Text::with(ThemeColor::Dark)))
+///     .with_prop(PropsOp::add_classes(class::Bg::with(BootsierColors::Light)))
+///     .with_prop(PropsOp::add_classes(class::Text::with(BootsierColors::Dark)))
 ///     .with_prop(PropsOp::add_classes(class::Border::with(ScaleSize::One)))
 ///     .with_prop(PropsOp::add_classes(class::Rounded::new()));
 /// ```

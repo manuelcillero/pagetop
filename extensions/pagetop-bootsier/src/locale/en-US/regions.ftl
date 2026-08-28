@@ -1,9 +1,3 @@
-region_header = Header
-region_nav_branding = Navigation branding region
-region_nav_main = Main navigation region
-region_nav_additional = Additional navigation region (eg search form, social icons, etc)
-region_breadcrumb = Breadcrumb
-region_content = Main content
-region_sidebar_first = Sidebar first
-region_sidebar_second = Sidebar second
-region_footer = Footer
+# BootsierRegions
+region_sidebar = Sidebar
+region_navbar = Navigation bar

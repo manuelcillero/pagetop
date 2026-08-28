@@ -34,6 +34,7 @@ use pagetop::prelude::*;
 
 struct MyApp;
 
+#[async_trait]
 impl Extension for MyApp {
     fn dependencies(&self) -> Vec<ExtensionRef> {
         vec![
@@ -63,13 +64,88 @@ async fn homepage(request: HttpRequest) -> Result<Markup, ErrorPage> {
         .with_theme(&Bootsier)
         .with_child(
             Block::new()
-                .with_title(L10n::l("sample_title"))
+                .with_title(Lc::l("sample_title"))
                 .with_child(Html::with(|cx| html! {
-                    p { (L10n::l("sample_content").using(cx)) }
+                    p { (Lc::l("sample_content").using(cx)) }
                 })),
         )
+        .render().await
+}
+```
+
+## Plantillas
+
+Bootsier ofrece dos plantillas (`BootsierTemplates`): `Standard`, con cabecera, contenido y pie,
+que es la plantilla por defecto de cualquier página; y `Admin`, con la shell completa de
+AdminLTE 4 (barra superior + barra lateral + área de contenido), que se activa creando la página
+con `Page::admin()` en lugar de `Page::new()`.
+
+```rust,no_run
+use pagetop::prelude::*;
+
+async fn about(request: HttpRequest) -> Result<Markup, ErrorPage> {
+    Page::new(request)
+        .with_child(Html::with(|_| html! {
+            h1 { "Sobre nosotros" }
+            p { "Texto de presentación." }
+        }))
         .render()
 }
+```
+
+## Barra lateral
+
+Registra elementos en `BootsierRegion::Sidebar` para poblar la barra lateral de la shell. Los
+elementos esperados son `theme::sidebar::Item` y `theme::sidebar::Section`.
+
+De forma **global** (visibles en todas las páginas de administración):
+
+```rust,no_run
+use pagetop::prelude::*;
+use pagetop_bootsier::theme::{BootsierRegion, sidebar};
+
+fn register_navigation() {
+    InRegion::Global(&BootsierRegion::Sidebar)
+        .add(sidebar::Section::titled(Lc::n("Administración")))
+        .add(sidebar::Item::link(Lc::n("Usuarios"), "/users", "people"))
+        .add(sidebar::Item::link(Lc::n("Roles"), "/roles", "shield-check"));
+}
+```
+
+O de forma **por página**:
+
+```rust,no_run
+use pagetop::prelude::*;
+use pagetop_bootsier::theme::{BootsierRegion, sidebar};
+
+async fn settings(request: HttpRequest) -> Result<Markup, ErrorPage> {
+    Page::admin(request)
+        .with_child_in(
+            &BootsierRegion::Sidebar,
+            sidebar::Item::link(Lc::n("Ajustes"), "/settings", "gear"),
+        )
+        .with_child(Html::with(|_| html! { h3 { "Ajustes" } }))
+        .render()
+}
+```
+
+## Barra de navegación superior
+
+La barra superior incluye por defecto los controles de pantalla completa y selector
+de tema. Para añadir elementos adicionales en el lado derecho (por ejemplo, el
+dropdown de usuario de `pagetop-user`), registra componentes en
+`BootsierRegion::Navbar`:
+
+```rust,no_run
+use pagetop::prelude::*;
+use pagetop_bootsier::theme::BootsierRegion;
+
+InRegion::Global(&BootsierRegion::Navbar)
+    .add(Html::with(|_| html! {
+        li class="nav-item" {
+            a class="nav-link" href="/logout" { "Cerrar sesión" }
+        }
+    }));
 ```
 
 ## Créditos

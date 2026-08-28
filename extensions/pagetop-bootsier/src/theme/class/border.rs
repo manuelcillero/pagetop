@@ -1,13 +1,13 @@
 use pagetop::prelude::*;
 
-use crate::theme::{BoxSide, OpacityLevel, ScaleSize, ThemeColor};
+use crate::theme::{BootsierColors, BoxSide, OpacityLevel, ScaleSize};
 
 // **< BorderColor >********************************************************************************
 
 /// Esquema de color para los bordes ([`Border`]).
 ///
-/// - `Solid(ThemeColor)` y `Subtle(ThemeColor)` usan la paleta de colores temáticos
-///   ([`ThemeColor`]).
+/// - `Solid(BootsierColors)` y `Subtle(BootsierColors)` usan la paleta de colores temáticos
+///   ([`BootsierColors`]).
 /// - `Black` y `White` son colores fijos independientes del tema.
 /// - `Default` no genera ninguna clase.
 #[derive(AutoDefault, Clone, Copy, Debug, PartialEq)]
@@ -16,9 +16,9 @@ pub enum BorderColor {
     #[default]
     Default,
     /// Genera la clase `border-{color}`.
-    Solid(ThemeColor),
+    Solid(BootsierColors),
     /// Genera la clase `border-{color}-subtle` (un tono suavizado del color).
-    Subtle(ThemeColor),
+    Subtle(BootsierColors),
     /// Color negro.
     Black,
     /// Color blanco.
@@ -63,10 +63,10 @@ impl BorderColor {
     ///
     /// ```rust
     /// # use pagetop_bootsier::theme::*;
-    /// let solid = class::BorderColor::Solid(ThemeColor::Primary).to_class();
+    /// let solid = class::BorderColor::Solid(BootsierColors::Primary).to_class();
     /// assert_eq!(solid, "border-primary");
     ///
-    /// let subtle = class::BorderColor::Subtle(ThemeColor::Warning).to_class();
+    /// let subtle = class::BorderColor::Subtle(BootsierColors::Warning).to_class();
     /// assert_eq!(subtle, "border-warning-subtle");
     ///
     /// let black = class::BorderColor::Black.to_class();
@@ -83,8 +83,8 @@ impl BorderColor {
     }
 }
 
-impl From<ThemeColor> for BorderColor {
-    /// Convierte un [`ThemeColor`] en [`BorderColor::Solid`].
+impl From<BootsierColors> for BorderColor {
+    /// Convierte un [`BootsierColors`] en [`BorderColor::Solid`].
     ///
     /// Es el atajo habitual para los colores temáticos. Para los demás esquemas (`Subtle`, `Black`,
     /// `White`) sigue usando [`BorderColor`].
@@ -93,18 +93,18 @@ impl From<ThemeColor> for BorderColor {
     ///
     /// ```rust
     /// # use pagetop_bootsier::theme::*;
-    /// let border: class::BorderColor = ThemeColor::Success.into();
+    /// let border: class::BorderColor = BootsierColors::Success.into();
     /// assert_eq!(border.to_class(), "border-success");
     /// ```
-    fn from(color: ThemeColor) -> Self {
+    fn from(color: BootsierColors) -> Self {
         Self::Solid(color)
     }
 }
 
-impl Into<CowStr> for BorderColor {
-    /// Permite pasar [`BorderColor`] directamente a [`PropsOp`](pagetop::prelude::PropsOp).
-    fn into(self) -> CowStr {
-        self.to_class().into()
+impl From<BorderColor> for CowStr {
+    /// Permite pasar [`BorderColor`] directamente a [`PropsOp`].
+    fn from(val: BorderColor) -> Self {
+        val.to_class().into()
     }
 }
 
@@ -159,7 +159,7 @@ impl Into<CowStr> for BorderColor {
 /// let b = class::Border::new()                      // Borde por defecto.
 ///     .with_side(BoxSide::Top, ScaleSize::Zero)     // Quita borde superior.
 ///     .with_side(BoxSide::End, ScaleSize::Three)    // Ancho 3 para lado lógico final.
-///     .with_color(ThemeColor::Primary)
+///     .with_color(BootsierColors::Primary)
 ///     .with_opacity(OpacityLevel::Half);
 /// assert_eq!(b.to_class(), "border border-top-0 border-end-3 border-primary border-opacity-50");
 /// ```
@@ -210,7 +210,7 @@ impl Border {
 
     /// Establece el color del borde.
     ///
-    /// Acepta un tipo convertible en [`BorderColor`]. Un [`ThemeColor`] se convierte
+    /// Acepta un tipo convertible en [`BorderColor`]. Un [`BootsierColors`] se convierte
     /// automáticamente en [`BorderColor::Solid`].
     pub fn with_color(mut self, color: impl Into<BorderColor>) -> Self {
         self.color = color.into();
@@ -270,9 +270,9 @@ impl From<ScaleSize> for Border {
     }
 }
 
-impl Into<CowStr> for Border {
-    /// Permite pasar [`Border`] directamente a [`PropsOp`](pagetop::prelude::PropsOp).
-    fn into(self) -> CowStr {
-        self.to_class().into()
+impl From<Border> for CowStr {
+    /// Permite pasar [`Border`] directamente a [`PropsOp`].
+    fn from(val: Border) -> Self {
+        val.to_class().into()
     }
 }

@@ -83,19 +83,12 @@ use pagetop::prelude::*;
 
 include_locales!(LOCALES_BOOTSIER);
 
-// Versión de la librería Bootstrap.
+pub(crate) const ADMINLTE_VERSION: &str = "4.0.0";
 const BOOTSTRAP_VERSION: &str = "5.3.8";
 
 pub mod config;
 
 pub mod theme;
-
-mod handlers {
-    pub mod button;
-    pub mod input;
-    pub mod select;
-    pub mod textarea;
-}
 
 /// Implementa el tema.
 pub struct Bootsier;
@@ -132,9 +125,8 @@ impl Extension for Bootsier {
 
 #[async_trait]
 impl Theme for Bootsier {
-    #[inline]
-    fn default_template(&self) -> TemplateRef {
-        &BootsierTemplate::Standard
+    fn intent_color(&self, intent: Intent) -> &'static str {
+        theme::BootsierColors::from(intent).as_str()
     }
 
     async fn handle_component(
@@ -147,19 +139,41 @@ impl Theme for Bootsier {
             Brand               => |c| theme::bs::brand::setup(c),
             Button              => |c| theme::bs::button::setup(c),
             Container           => |c| theme::bs::container::setup(c),
+            Dialog              => |c| theme::bs::dialog::setup(c),
+            Dropdown            => |c| theme::bs::dropdown::setup(c),
             Image               => |c| theme::bs::image::setup(c),
+            Nav                 => |c| theme::bs::nav::setup(c),
+            Navbar              => |c| theme::bs::navbar::setup(c),
             form::input::Field  => |c| theme::bs::form::input::setup(c),
             form::select::Field => |c| theme::bs::form::select::setup(c),
             form::Textarea      => |c| theme::bs::form::textarea::setup(c),
         });
+
         render_component!(component, {
-            form::input::Field   => |c| theme::bs::form::input::render(c, cx),
-            form::select::Field  => |c| theme::bs::form::select::render(c, cx),
-            form::Textarea       => |c| theme::bs::form::textarea::render(c, cx),
+            layout::Region      => |c| theme::bs::layout::region::render(c, cx).await?,
+            layout::Template    => |c| theme::bs::layout::template::render(c, cx).await?,
+            Dialog              => |c| theme::bs::dialog::render(c, cx).await,
+            Dropdown            => |c| theme::bs::dropdown::render(c, cx).await,
+            nav::Item           => |c| theme::bs::nav::item_render(c, cx).await,
+            Navbar              => |c| theme::bs::navbar::render(c, cx).await,
+            navbar::Item        => |c| theme::bs::navbar::item_render(c, cx).await,
+            form::input::Field  => |c| theme::bs::form::input::render(c, cx),
+            form::select::Field => |c| theme::bs::form::select::render(c, cx),
+            form::Textarea      => |c| theme::bs::form::textarea::render(c, cx),
         })
     }
 
     fn before_render_page_body(&self, page: &mut Page) {
+        // Etiquetas de los botones del modal de confirmación que sustituye al `confirm()` nativo
+        // de htmx (ver `bootsier.confirm.js`); se leen aquí porque este es el único punto con
+        // acceso al `Context` para resolverlas antes de escribirlas en el `<body>`.
+        let confirm_ok = Lc::l("confirm_ok")
+            .lookup(page.context())
+            .unwrap_or_default();
+        let confirm_cancel = Lc::l("confirm_cancel")
+            .lookup(page.context())
+            .unwrap_or_default();
+
         // Las URLs de las fuentes deben coincidir exactamente con las declaradas en @font-face de
         // _bootsier-custom.scss; cualquier discrepancia hace que el navegador descargue dos veces.
         page.alter_assets(AssetsOp::AddPreload(
@@ -183,8 +197,20 @@ impl Theme for Bootsier {
                 .with_version(ADMINLTE_VERSION)
                 .with_weight(-99),
         ))
+        .alter_assets(AssetsOp::AddJavaScript(
+            JavaScript::defer("/bootsier/js/bootsier.dialog.min.js")
+                .with_version(BOOTSTRAP_VERSION)
+                .with_weight(-99),
+        ))
+        .alter_assets(AssetsOp::AddJavaScript(
+            JavaScript::defer("/bootsier/js/bootsier.confirm.min.js")
+                .with_version(BOOTSTRAP_VERSION)
+                .with_weight(-99),
+        ))
+        .alter_body_props(PropsOp::set("data-confirm-ok", confirm_ok))
+        .alter_body_props(PropsOp::set("data-confirm-cancel", confirm_cancel))
         .alter_child_in(
-            &DefaultRegion::Footer,
+            &CoreRegions::Footer,
             ChildOp::AddIfEmpty(PoweredBy::new().into()),
         );
     }

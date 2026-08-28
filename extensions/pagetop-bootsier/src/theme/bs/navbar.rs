@@ -10,11 +10,14 @@
 mod props;
 pub use props::{Layout, Position};
 
-mod brand;
-pub use brand::Brand;
+pub use super::Brand;
+
+pub use pagetop::base::component::Navbar;
+pub use pagetop::base::component::navbar::Item;
 
 mod component;
-pub use component::Navbar;
+pub use component::NavbarBootsier;
+pub(crate) use component::{render, setup};
 
 mod item;
-pub use item::Item;
+pub(crate) use item::render as item_render;

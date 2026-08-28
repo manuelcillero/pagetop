@@ -18,7 +18,7 @@ pub struct Icon {
     /// Devuelve identificador, clases CSS, atributos HTML y valores extra del componente.
     props: Props,
     icon_kind: IconKind,
-    aria_label: AttrL10n,
+    aria_label: AttrLc,
 }
 
 #[async_trait]
@@ -124,7 +124,7 @@ impl Icon {
     }
 
     #[builder_fn]
-    pub fn with_aria_label(mut self, label: L10n) -> Self {
+    pub fn with_aria_label(mut self, label: Lc) -> Self {
         self.aria_label.alter_value(label);
         self
     }

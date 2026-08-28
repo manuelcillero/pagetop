@@ -1,4 +1,4 @@
-// Bootsier CSS rules: self-hosted fonts, form components, and regions.
+// Bootsier CSS rules: self-hosted fonts, form elements, regions and components.
 
 // Self-hosted Source Sans 3 (SIL OFL 1.1), served from /bootsier/fonts.
 // Required by AdminLTE 4, which declares it as the primary font family in $font-family-sans-serif.
@@ -37,6 +37,15 @@
   &:last-child {
     margin-bottom: 0;
   }
+}
+
+// Button set (button::ButtonSet): spaces its buttons with a gap instead of relying on Bootstrap's
+// .btn-group, which merges adjacent buttons into a single joined control.
+.button-set {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacer * .5;
+  margin: 1rem 0;
 }
 
 // Fieldset with border and floating legend.
@@ -82,4 +91,154 @@ fieldset > legend {
 .region-footer {
   padding: 0.75rem 0 3rem;
   text-align: center;
+}
+
+// Messages component. Classes are fixed by pagetop core (`.message`, `.message-info`,
+// `.message-warning`, `.message-error`); reusing Bootstrap's own `.alert`/`.alert-*` styles keeps
+// the palette in sync with the active Bootstrap theme instead of duplicating it here.
+.message {
+  @extend .alert;
+}
+.message-info {
+  @extend .alert-info;
+}
+.message-warning {
+  @extend .alert-warning;
+}
+.message-error {
+  @extend .alert-danger;
+}
+
+// Sort indicator on sortable table headers (`table::SortLink`), using Bootstrap Icons'
+// sort-up/sort-down glyphs instead of the plain triangle from basic.css.
+.table-sort::after {
+  font-family: $bootstrap-icons-font;
+  content: "\f575"; // sort-down
+  margin-left: 0.25rem;
+  font-size: 0.8em;
+  opacity: 0.35;
+}
+.table-sort-asc::after {
+  content: "\f57b"; // sort-up
+  opacity: 1;
+}
+.table-sort-desc::after {
+  content: "\f575"; // sort-down
+  opacity: 1;
+}
+
+// Pager component.
+// `.pagination`, `.page-item`, `.page-link`, `.active` and `.disabled` already come styled by
+// Bootstrap, since Pager reuses that same markup (the ellipsis is a disabled `.page-link` span,
+// same as any other cell). Only what Pager adds on top needs rules here: the <nav> wrapper and
+// the jump-to-page form.
+
+// <nav> wrapper: flex row that also holds the jump-to-page form.
+.pager {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 $spacer; // row-gap column-gap: no vertical gap when the summary drops to its own line.
+  margin-block: $spacer;
+}
+
+// Horizontal alignment set via PagerAlign.
+.pager-align-start {
+  justify-content: flex-start;
+}
+.pager-align-center {
+  justify-content: center;
+}
+.pager-align-end {
+  justify-content: flex-end;
+}
+
+// Pushes the rest of .pager (pagination, jump form) to the opposite side. With
+// PagerAlign::Start the summary swaps to the other end instead, since otherwise it would sit
+// right next to a pagination that's already at the start. With PagerAlign::Center an auto margin
+// wouldn't work -it always claims all the free space, so the pagination could never be genuinely
+// centered- so instead the summary drops to its own line below, centered too.
+.pager-summary {
+  color: var(--bs-secondary-color);
+  font-size: $font-size-sm;
+  align-self: flex-start;
+  margin-inline-end: auto;
+}
+.pager-align-start .pager-summary {
+  order: 1;
+  margin-inline-end: 0;
+  margin-inline-start: auto;
+}
+.pager-align-center .pager-summary {
+  order: 1;
+  flex-basis: 100%;
+  text-align: center;
+  margin-inline-end: 0;
+}
+
+// By default, .page-link-icon shows the text of pager_previous_label/pager_next_label
+// ("Previous"/"Next"). The full accessible text lives separately, in the link's aria-label, so
+// replacing the visible text here with a symbol does not affect accessibility. To use "‹"/"›"
+// instead, uncomment:
+/*
+.page-link-icon {
+  display: inline-block;
+  font-size: 0;
+}
+.page-previous .page-link-icon::before {
+  content: "‹";
+  font-size: var(--bs-pagination-font-size);
+  display: inline-block;
+  transform: translateY(-0.1em) scale(1.5);
+}
+.page-next .page-link-icon::before {
+  content: "›";
+  font-size: var(--bs-pagination-font-size);
+  display: inline-block;
+  transform: translateY(-0.1em) scale(1.5);
+}
+*/
+
+// Jump-to-page field and submit button, presented as a single joined control. Same block margins
+// as `ol`/`ul`/`dl` in Bootstrap's reboot (literal values there too, not variables).
+.pager-jump {
+  display: flex;
+  align-items: center;
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
+// One focus ring for the whole control instead of one per element.
+.pager-jump:focus-within {
+  border-radius: $input-border-radius;
+  box-shadow: $input-focus-box-shadow;
+}
+.pager-jump-input > .form-control:focus,
+.pager-jump-button:focus {
+  box-shadow: none;
+}
+.pager-jump-input > .form-control {
+  // Extra width equals twice the field's own horizontal padding.
+  width: calc(var(--pager-jump-width, 1ch) + #{$input-padding-x * 4});
+  text-align: center;
+  appearance: textfield;
+  -moz-appearance: textfield;
+
+  // Logical (not physical) corners, so the shape flips correctly under RTL.
+  border-start-end-radius: 0;
+  border-end-end-radius: 0;
+
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+}
+.pager-jump-input {
+  margin: 0;
+}
+.pager-jump-button {
+  @extend .btn-primary;
+  border-start-start-radius: 0;
+  border-end-start-radius: 0;
 }

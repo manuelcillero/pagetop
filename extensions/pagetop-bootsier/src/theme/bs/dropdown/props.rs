@@ -112,22 +112,22 @@ impl Direction {
 /// Alineación horizontal del menú desplegable [`Dropdown`](crate::theme::bs::Dropdown).
 ///
 /// Permite alinear el menú al inicio o al final del botón (respetando LTR/RTL) y añadirle una
-/// alineación diferente a partir de un punto de ruptura ([`BreakPoint`](token::BreakPoint)).
+/// alineación diferente a partir de un punto de ruptura ([`BreakPoint`]).
 #[derive(AutoDefault, Clone, Copy, Debug, PartialEq)]
 pub enum MenuAlign {
     /// Alineación al inicio (comportamiento por defecto).
     #[default]
     Start,
     /// Alineación al inicio a partir del punto de ruptura indicado.
-    StartAt(token::BreakPoint),
+    StartAt(BreakPoint),
     /// Alineación al inicio por defecto, y al final a partir de un punto de ruptura válido.
-    StartAndEnd(token::BreakPoint),
+    StartAndEnd(BreakPoint),
     /// Alineación al final.
     End,
     /// Alineación al final a partir del punto de ruptura indicado.
-    EndAt(token::BreakPoint),
+    EndAt(BreakPoint),
     /// Alineación al final por defecto, y al inicio a partir de un punto de ruptura válido.
-    EndAndStart(token::BreakPoint),
+    EndAndStart(BreakPoint),
 }
 
 impl MenuAlign {
@@ -145,13 +145,13 @@ impl MenuAlign {
 
             // `dropdown-menu-start` + `dropdown-menu-{bp}-end`
             Self::StartAndEnd(bp) => {
-                token::BreakPoint::None.push_to(classes, "dropdown-menu", "start");
+                BreakPoint::None.push_to(classes, "dropdown-menu", "start");
                 bp.push_to(classes, "dropdown-menu", "end");
             }
 
             // `dropdown-menu-end`
             Self::End => {
-                token::BreakPoint::None.push_to(classes, "dropdown-menu", "end");
+                BreakPoint::None.push_to(classes, "dropdown-menu", "end");
             }
 
             // `dropdown-menu-{bp}-end`
@@ -161,7 +161,7 @@ impl MenuAlign {
 
             // `dropdown-menu-end` + `dropdown-menu-{bp}-start`
             Self::EndAndStart(bp) => {
-                token::BreakPoint::None.push_to(classes, "dropdown-menu", "end");
+                BreakPoint::None.push_to(classes, "dropdown-menu", "end");
                 bp.push_to(classes, "dropdown-menu", "start");
             }
         }

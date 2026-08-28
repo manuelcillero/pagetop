@@ -1,98 +1,24 @@
 use pagetop::prelude::*;
 
-use crate::theme::*;
+use crate::theme::bs::nav;
 
-/// Elementos que puede contener una barra de navegación [`Navbar`](crate::theme::bs::Navbar).
-///
-/// Cada variante determina qué se renderiza y cómo. Estos elementos se colocan **dentro del
-/// contenido** de la barra (la parte colapsable, el *offcanvas* o el bloque simple), por lo que son
-/// independientes de la marca o del botón que ya pueda definir el propio
-/// [`navbar::Layout`](crate::theme::bs::navbar::Layout).
-#[derive(AutoDefault, Clone, Debug)]
-pub enum Item {
-    /// Sin contenido, no produce salida.
-    #[default]
-    Void,
-    /// Marca de identidad mostrada dentro del contenido de la barra de navegación.
-    ///
-    /// Útil cuando el [`navbar::Layout`](crate::theme::bs::navbar::Layout) no incluye marca, y se
-    /// quiere incluir dentro del área
-    /// colapsable/*offcanvas*. Si el *layout* ya muestra una marca, esta variante no la sustituye,
-    /// sólo añade otra dentro del bloque de contenidos.
-    Brand(Embed<bs::navbar::Brand>),
-    /// Representa un menú de navegación [`Nav`](crate::theme::bs::Nav).
-    Nav(Embed<bs::Nav>),
-    /// Representa un *texto localizado* libre.
-    Text(Lc),
-}
-
-#[async_trait]
-impl Component for Item {
-    fn new() -> Self {
-        Self::default()
-    }
-
-    fn id(&self) -> Option<String> {
-        match self {
-            Self::Void => None,
-            Self::Brand(brand) => brand.id(),
-            Self::Nav(nav) => nav.id(),
-            Self::Text(_) => None,
+// Idéntico a `navbar::Item::prepare()` de base salvo la variante `Nav`: en vez de reconstruir el
+// `<ul>` a mano (lo que se salta la cadena de temas), clona el `Nav` embebido, lo marca como
+// "dentro de una Navbar" (para que `theme::bs::nav::setup()` use `navbar-nav` en vez de `nav` como
+// clase base) y lo renderiza con su ciclo de vida completo -así recibe también `kind`/`layout`
+// traducidos a clases de Bootstrap, y cualquier otro tema que intercepte `Nav` en el futuro-.
+pub(crate) async fn render(
+    item: &navbar::Item,
+    cx: &mut Context,
+) -> Result<Markup, ComponentError> {
+    match item {
+        navbar::Item::Nav(embed) => {
+            let Some(mut nav) = embed.get().cloned() else {
+                return Ok(html! {});
+            };
+            nav.alter_prop(PropsOp::set_extra(nav::EXTRA_IN_NAVBAR, true));
+            Ok(html! { (nav.render(cx).await) })
         }
-    }
-
-    fn setup(&mut self, _cx: &Context) {
-        if let Self::Nav(nav) = self
-            && let Some(nav) = nav.get_mut()
-        {
-            nav.alter_prop(PropsOp::prepend_classes("navbar-nav"));
-        }
-    }
-
-    async fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
-        Ok(match self {
-            Self::Void => html! {},
-            Self::Brand(brand) => html! { (brand.render(cx).await) },
-            Self::Nav(nav) => {
-                if let Some(nav) = nav.get() {
-                    let items = nav.items().render(cx).await;
-                    if items.is_empty() {
-                        return Ok(html! {});
-                    }
-                    html! {
-                        ul id=[nav.id()] (nav.props()) {
-                            (items)
-                        }
-                    }
-                } else {
-                    html! {}
-                }
-            }
-            Self::Text(text) => html! {
-                span class="navbar-text" {
-                    (text.using(cx))
-                }
-            },
-        })
-    }
-}
-
-impl Item {
-    /// Crea un elemento de tipo [`navbar::Brand`](crate::theme::bs::navbar::Brand) para añadir en el contenido de [`Navbar`](crate::theme::bs::Navbar).
-    ///
-    /// Pensado para barras colapsables u offcanvas donde se quiere que la marca aparezca en la zona
-    /// desplegable.
-    pub fn brand(brand: bs::navbar::Brand) -> Self {
-        Self::Brand(Embed::with(brand))
-    }
-
-    /// Crea un elemento de tipo [`Nav`](crate::theme::bs::Nav) para añadir al contenido de [`Navbar`](crate::theme::bs::Navbar).
-    pub fn nav(item: bs::Nav) -> Self {
-        Self::Nav(Embed::with(item))
-    }
-
-    /// Crea un elemento con un *texto localizado*, mostrado sin interacción.
-    pub fn text(item: Lc) -> Self {
-        Self::Text(item)
+        _ => item.prepare(cx).await,
     }
 }

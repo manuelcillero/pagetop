@@ -1,17 +1,19 @@
 use pagetop::prelude::*;
 
-// **< ThemeColor >*********************************************************************************
+// **< BootsierColors >*****************************************************************************
 
 /// Paleta de colores temáticos.
 ///
 /// Equivalen a los nombres estándar definidos por Bootstrap (`primary`, `secondary`, `success`,
-/// etc.). Se utiliza para componer las clases de color de [`Bg`], [`Border`] o [`Text`].
+/// etc.), incluidos dos que [`Intent`](pagetop::prelude::Intent) no trae por defecto (`light`,
+/// `dark`). Se utiliza para componer las clases de color de [`Bg`],
+/// [`Border`] o [`Text`]. Enum cerrado, sin depender de ningún trait genérico de color.
 ///
 /// [`Bg`]: crate::theme::class::Bg
 /// [`Border`]: crate::theme::class::Border
 /// [`Text`]: crate::theme::class::Text
 #[derive(AutoDefault, Clone, Copy, Debug, PartialEq)]
-pub enum ThemeColor {
+pub enum BootsierColors {
     #[default]
     Primary,
     Secondary,
@@ -23,11 +25,10 @@ pub enum ThemeColor {
     Dark,
 }
 
-impl ThemeColor {
+impl BootsierColors {
     /// Devuelve el nombre del color Bootstrap (`"primary"`, `"danger"`, etc.).
     #[rustfmt::skip]
-    #[inline]
-    pub const fn as_str(self) -> &'static str {
+    pub const fn as_str(&self) -> &'static str {
         match self {
             Self::Primary   => "primary",
             Self::Secondary => "secondary",
@@ -37,6 +38,24 @@ impl ThemeColor {
             Self::Danger    => "danger",
             Self::Light     => "light",
             Self::Dark      => "dark",
+        }
+    }
+}
+
+/// Traduce el vocabulario semántico de [`Intent`] a la paleta de colores Bootstrap.
+///
+/// `Neutral` y `Severe` no tienen equivalente literal en Bootstrap; se traducen a `secondary` y
+/// `danger` respectivamente, que son los colores que Bootstrap usa para ese mismo propósito.
+#[rustfmt::skip]
+impl From<Intent> for BootsierColors {
+    fn from(intent: Intent) -> Self {
+        match intent {
+            Intent::Primary => Self::Primary,
+            Intent::Neutral => Self::Secondary,
+            Intent::Info    => Self::Info,
+            Intent::Success => Self::Success,
+            Intent::Warning => Self::Warning,
+            Intent::Severe  => Self::Danger,
         }
     }
 }

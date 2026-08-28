@@ -20,13 +20,13 @@ pub enum Layout {
     /// Barra simple, con marca de identidad a la izquierda y sin botón de despliegue.
     ///
     /// La barra de navegación no se colapsa.
-    SimpleBrandLeft(Embed<bs::navbar::Brand>),
+    SimpleBrandLeft(Embed<Brand>),
 
     /// Barra con marca de identidad a la izquierda y botón de despliegue a la derecha.
-    BrandLeft(Embed<bs::navbar::Brand>),
+    BrandLeft(Embed<Brand>),
 
     /// Barra con botón de despliegue a la izquierda y marca de identidad a la derecha.
-    BrandRight(Embed<bs::navbar::Brand>),
+    BrandRight(Embed<Brand>),
 
     /// Contenido en [`Offcanvas`](crate::theme::bs::Offcanvas), con botón de despliegue a la
     /// izquierda y sin marca de identidad.
@@ -34,11 +34,11 @@ pub enum Layout {
 
     /// Contenido en [`Offcanvas`](crate::theme::bs::Offcanvas), con marca de identidad a la
     /// izquierda y botón de despliegue a la derecha.
-    OffcanvasBrandLeft(Embed<bs::navbar::Brand>, Embed<bs::Offcanvas>),
+    OffcanvasBrandLeft(Embed<Brand>, Embed<bs::Offcanvas>),
 
     /// Contenido en [`Offcanvas`](crate::theme::bs::Offcanvas), con botón de despliegue a la
     /// izquierda y marca de identidad a la derecha.
-    OffcanvasBrandRight(Embed<bs::navbar::Brand>, Embed<bs::Offcanvas>),
+    OffcanvasBrandRight(Embed<Brand>, Embed<bs::Offcanvas>),
 }
 
 // **< Position >***********************************************************************************

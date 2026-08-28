@@ -6,18 +6,15 @@
 //! ```rust,no_run
 //! use pagetop_bootsier::theme::*;
 //!
-//! let bg = class::Bg::with(ThemeColor::Primary);
+//! let bg = class::Bg::with(BootsierColors::Primary);
 //! let border = class::Border::new()
 //!     .with_side(BoxSide::Top, ScaleSize::Zero)
-//!     .with_color(ThemeColor::Danger);
+//!     .with_color(BootsierColors::Danger);
 //! ```
 
 mod color;
 pub use color::{Bg, BgColor};
 pub use color::{Text, TextColor};
-
-mod button;
-pub use button::{ButtonColor, ButtonColorStyle, ButtonSize, ButtonSizeKind};
 
 mod border;
 pub use border::{Border, BorderColor};

@@ -25,6 +25,8 @@ pub use textarea::Textarea;
 #[doc(inline)]
 pub use textarea::TextareaBootsier;
 
+pub use pagetop::base::component::form::Number;
+
 pub use pagetop::base::component::form::Range;
 
 pub use pagetop::base::component::form::Hidden;

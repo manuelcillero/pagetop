@@ -98,10 +98,10 @@ impl Margin {
     }
 }
 
-impl Into<CowStr> for Margin {
-    /// Permite pasar [`Margin`] directamente a [`PropsOp`](pagetop::prelude::PropsOp).
-    fn into(self) -> CowStr {
-        self.to_class().into()
+impl From<Margin> for CowStr {
+    /// Permite pasar [`Margin`] directamente a [`PropsOp`].
+    fn from(val: Margin) -> Self {
+        val.to_class().into()
     }
 }
 
@@ -203,9 +203,9 @@ impl Padding {
     }
 }
 
-impl Into<CowStr> for Padding {
-    /// Permite pasar [`Padding`] directamente a [`PropsOp`](pagetop::prelude::PropsOp).
-    fn into(self) -> CowStr {
-        self.to_class().into()
+impl From<Padding> for CowStr {
+    /// Permite pasar [`Padding`] directamente a [`PropsOp`].
+    fn from(val: Padding) -> Self {
+        val.to_class().into()
     }
 }

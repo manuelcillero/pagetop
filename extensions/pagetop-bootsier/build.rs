@@ -45,6 +45,16 @@ fn main() -> std::io::Result<()> {
         "assets/bootsier.shell.js",
         "static/js/bootsier.shell.min.js",
     )?;
+    // JS: fix de apilamiento para Dialog.
+    minify_js(
+        "assets/bootsier.dialog.js",
+        "static/js/bootsier.dialog.min.js",
+    )?;
+    // JS: sustituye el `confirm()` nativo de htmx por un modal de Bootstrap.
+    minify_js(
+        "assets/bootsier.confirm.js",
+        "static/js/bootsier.confirm.min.js",
+    )?;
 
     // Fuentes: Bootstrap Icons.
     copy_file(
@@ -81,5 +91,5 @@ fn main() -> std::io::Result<()> {
 
 // Los archivos .map no se embeben en el binario; solo se sirven desde disco en desarrollo.
 fn only_js_files(path: &Path) -> bool {
-    path.extension().map_or(false, |ext| ext == "js")
+    path.extension().is_some_and(|ext| ext == "js")
 }
