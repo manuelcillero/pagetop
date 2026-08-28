@@ -1,0 +1,19 @@
+[package]
+name        = "pagetop-menu"
+description = "Gestión centralizada y persistente de menús para PageTop."
+version     = "0.1.0"
+categories  = ["web-programming", "development-tools"]
+keywords    = ["pagetop", "menu", "navigation", "cms", "ssr"]
+
+repository.workspace   = true
+homepage.workspace     = true
+edition.workspace      = true
+license.workspace      = true
+authors.workspace      = true
+
+[dependencies]
+pagetop.workspace        = true
+pagetop-seaorm.workspace = true
+chrono.workspace         = true
+serde.workspace          = true
+thiserror.workspace      = true

@@ -1884,10 +1884,8 @@ dependencies = [
  "chrono",
  "pagetop",
  "pagetop-seaorm",
- "sea-orm",
  "serde",
  "thiserror",
- "tokio",
 ]
 
 [[package]]
