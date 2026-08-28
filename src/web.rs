@@ -67,11 +67,11 @@ use std::task::{Context, Poll};
 /// ```
 ///
 /// `HttpRequest` no consume las extensiones de la petición, por lo que el resto de extractores del
-/// handler que también las necesiten (como `Path<T>`, `Extension<T>`...) las siguen viendo
+/// handler que también las necesiten (como `Path<T>`, `Extension<T>`, etc.) las siguen viendo
 /// intactas, sea cual sea la posición en la que se declare `HttpRequest`. Por convención, se
 /// declara como primer parámetro del handler. El único orden que sigue siendo obligatorio es el que
-/// impone Axum: un extractor que consuma el cuerpo de la petición (`Form<T>`, `RawForm`...) debe ir
-/// siempre el último.
+/// impone Axum: un extractor que consuma el cuerpo de la petición (`Form<T>`, `RawForm`, etc.) debe
+/// ir siempre el último.
 #[derive(Clone, Debug)]
 pub struct HttpRequest {
     uri: http::Uri,
@@ -120,9 +120,9 @@ impl<S: Send + Sync> FromRequestParts<S> for HttpRequest {
     type Rejection = Infallible;
 
     // Clona (no toma) las extensiones inyectadas por middleware, para que otros extractores del
-    // handler (`Path<T>`, `Extension<T>`...) las sigan viendo intactas sin importar en qué posición
-    // se declare `HttpRequest`. El clon se envuelve en un `Arc` compartido para que `HttpRequest`
-    // sea `Clone` a coste mínimo en el resto de su ciclo de vida.
+    // handler (`Path<T>`, `Extension<T>`, etc.) las sigan viendo intactas sin importar en qué
+    // posición se declare `HttpRequest`. El clon se envuelve en un `Arc` compartido para que
+    // `HttpRequest` sea `Clone` a coste mínimo en el resto de su ciclo de vida.
     async fn from_request_parts(
         parts: &mut http::request::Parts,
         _state: &S,
