@@ -1,0 +1,19 @@
+[package]
+name        = "pagetop-admin"
+description = "Panel de administración extensible para PageTop."
+version     = "0.1.0"
+categories  = ["web-programming", "development-tools"]
+keywords    = ["pagetop", "admin", "cms", "settings", "ssr"]
+
+repository.workspace   = true
+homepage.workspace     = true
+edition.workspace      = true
+license.workspace      = true
+authors.workspace      = true
+
+[dependencies]
+pagetop.workspace        = true
+pagetop-seaorm.workspace = true
+serde.workspace          = true
+serde_json.workspace     = true
+thiserror.workspace      = true
