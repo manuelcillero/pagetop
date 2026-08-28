@@ -1,7 +1,7 @@
 //! Definiciones para crear botones ([`Button`]) y conjuntos de botones ([`ButtonSet`]).
 
 mod props;
-pub use props::{ButtonKind, ButtonStyle};
+pub use props::{Kind, Size, Style};
 
 mod component;
 pub use component::Button;

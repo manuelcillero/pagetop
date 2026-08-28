@@ -142,18 +142,17 @@ async fn form_controls(request: HttpRequest) -> Result<Markup, ErrorPage> {
                                 .with_child(
                                     button::ButtonSet::new()
                                         .with_button(
-                                            Button::submit(Lc::t("btn_submit", &LOC)).with_style(
-                                                button::ButtonStyle::Solid(Intent::Primary),
-                                            ),
+                                            Button::submit(Lc::t("btn_submit", &LOC))
+                                                .with_style(button::Style::Solid(Intent::Primary)),
                                         )
                                         .with_button(
                                             Button::reset(Lc::t("btn_reset", &LOC)).with_style(
-                                                button::ButtonStyle::Outline(Intent::Secondary),
+                                                button::Style::Outline(Intent::Neutral),
                                             ),
                                         )
                                         .with_button(
                                             Button::plain(Lc::t("btn_cancel", &LOC))
-                                                .with_style(button::ButtonStyle::Link),
+                                                .with_style(button::Style::Link),
                                         ),
                                 ),
                         ),
@@ -258,18 +257,17 @@ async fn form_controls(request: HttpRequest) -> Result<Markup, ErrorPage> {
                                 .with_child(
                                     button::ButtonSet::new()
                                         .with_button(
-                                            Button::submit(Lc::t("btn_submit", &LOC)).with_style(
-                                                button::ButtonStyle::Solid(Intent::Primary),
-                                            ),
+                                            Button::submit(Lc::t("btn_submit", &LOC))
+                                                .with_style(button::Style::Solid(Intent::Primary)),
                                         )
                                         .with_button(
                                             Button::reset(Lc::t("btn_reset", &LOC)).with_style(
-                                                button::ButtonStyle::Outline(Intent::Secondary),
+                                                button::Style::Outline(Intent::Neutral),
                                             ),
                                         )
                                         .with_button(
                                             Button::plain(Lc::t("btn_cancel", &LOC))
-                                                .with_style(button::ButtonStyle::Link),
+                                                .with_style(button::Style::Link),
                                         ),
                                 ),
                         ),
@@ -300,23 +298,21 @@ async fn form_controls(request: HttpRequest) -> Result<Markup, ErrorPage> {
                                     }
                                 }))
                                 .with_footer(
-                                    Button::plain(Lc::t("btn_cancel", &LOC))
-                                        .with_prop(PropsOp::set("data-dialog-dismiss", "modal"))
-                                        .with_style(button::ButtonStyle::Outline(
-                                            Intent::Secondary,
-                                        )),
-                                )
-                                .with_footer(
                                     Button::plain(Lc::t("btn_ok", &LOC))
                                         .with_prop(PropsOp::set("data-dialog-dismiss", "modal"))
-                                        .with_style(button::ButtonStyle::Solid(Intent::Primary)),
+                                        .with_style(button::Style::Solid(Intent::Primary)),
+                                )
+                                .with_footer(
+                                    Button::plain(Lc::t("btn_cancel", &LOC))
+                                        .with_prop(PropsOp::set("data-dialog-dismiss", "modal"))
+                                        .with_style(button::Style::Outline(Intent::Neutral)),
                                 ),
                         )
                         .with_child(
                             Button::plain(Lc::t("btn_delete", &LOC))
                                 .with_prop(PropsOp::set("data-dialog-toggle", "modal"))
                                 .with_prop(PropsOp::set("data-dialog-target", "#delete-confirm"))
-                                .with_style(button::ButtonStyle::Solid(Intent::Danger)),
+                                .with_style(button::Style::Solid(Intent::Severe)),
                         ),
                 ),
         )
@@ -437,14 +433,14 @@ fn form_lists() -> Form {
             button::ButtonSet::new()
                 .with_button(
                     Button::submit(Lc::t("btn_submit", &LOC))
-                        .with_style(button::ButtonStyle::Solid(Intent::Primary)),
+                        .with_style(button::Style::Solid(Intent::Primary)),
                 )
                 .with_button(
                     Button::reset(Lc::t("btn_reset", &LOC))
-                        .with_style(button::ButtonStyle::Outline(Intent::Secondary)),
+                        .with_style(button::Style::Outline(Intent::Neutral)),
                 )
                 .with_button(
-                    Button::plain(Lc::t("btn_cancel", &LOC)).with_style(button::ButtonStyle::Link),
+                    Button::plain(Lc::t("btn_cancel", &LOC)).with_style(button::Style::Link),
                 ),
         )
 }

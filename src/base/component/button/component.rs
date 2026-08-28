@@ -7,6 +7,12 @@ use crate::prelude::*;
 /// - [`Button::submit()`]: botón de envío (por defecto).
 /// - [`Button::reset()`]: botón de restablecimiento de valores.
 /// - [`Button::plain()`]: botón genérico sin comportamiento predeterminado.
+/// - [`Button::anchor()`]: enlace de navegación real con el aspecto de un botón.
+///
+/// No confundir [`Button::anchor()`] con [`button::Style::Link`]: el primero renderiza un `<a
+/// href=...>` real que navega; el segundo es sólo un estilo visual (clase `button-link`) que se
+/// aplica con [`with_style()`](Self::with_style) sobre cualquiera de las otras variantes, que
+/// siguen siendo un `<button>`.
 ///
 /// Un botón puede usarse dentro o fuera de un formulario.
 ///
@@ -18,6 +24,7 @@ use crate::prelude::*;
 /// let save   = Button::submit(Lc::n("Save"));
 /// let cancel = Button::plain(Lc::n("Cancel"));
 /// let clear  = Button::reset(Lc::n("Clear"));
+/// let edit   = Button::anchor(Lc::n("Edit"), "/items/1/edit");
 /// ```
 ///
 /// Cuando el botón activa el envío, el navegador incluye el par `name=value` en los datos del
@@ -36,10 +43,13 @@ pub struct Button {
     /// Devuelve identificador, clases CSS, atributos HTML y valores extra del componente.
     props: Props,
     /// Devuelve el comportamiento del botón al activarse.
-    kind: button::ButtonKind,
+    kind: button::Kind,
+    /// Devuelve el tamaño visual del botón.
+    #[getters(copy)]
+    size: button::Size,
     /// Devuelve el estilo visual del botón.
     #[getters(copy)]
-    style: button::ButtonStyle,
+    style: button::Style,
     /// Devuelve el nombre del botón.
     name: AttrName,
     /// Devuelve el valor del botón.
@@ -48,6 +58,10 @@ pub struct Button {
     label: Lc,
     /// Devuelve el texto emergente del botón (atributo `title`).
     title: Lc,
+    /// Devuelve la ruta de destino cuando el botón se renderiza como enlace de navegación
+    /// (`<a href=...>` en vez de `<button>`). Vacía por defecto: en ese caso `prepare()` renderiza
+    /// un `<button>` normal, ignorando este campo.
+    href: Route,
     /// Devuelve si el botón recibe el foco automáticamente al cargar la página.
     autofocus: bool,
     /// Devuelve si el botón está deshabilitado.
@@ -64,18 +78,43 @@ impl Component for Button {
         self.props.get_id()
     }
 
-    fn setup(&mut self, _cx: &Context) {
-        use button::ButtonStyle;
+    fn setup(&mut self, cx: &Context) {
+        use button::{Size, Style};
 
+        self.alter_prop(PropsOp::prepend_classes(match self.size() {
+            Size::None => "",
+            Size::Small => "button-sm",
+            Size::Large => "button-lg",
+        }));
         self.alter_prop(PropsOp::prepend_classes(match self.style() {
-            ButtonStyle::None => "button".to_string(),
-            ButtonStyle::Solid(intent) => util::join!("button button-", intent.as_str()),
-            ButtonStyle::Outline(intent) => util::join!("button button-outline-", intent.as_str()),
-            ButtonStyle::Link => "button button-link".to_string(),
+            Style::None => "button".to_string(),
+            Style::Solid(intent) => util::join!("button button-", intent.color(cx)),
+            Style::Outline(intent) => util::join!("button button-outline-", intent.color(cx)),
+            Style::Link => "button button-link".to_string(),
         }));
     }
 
     async fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
+        if let Some(route) = self.href().try_resolve(cx) {
+            let disabled = *self.disabled();
+            let href = (!disabled).then_some(route);
+            let aria_disabled = disabled.then_some("true");
+            let tabindex = disabled.then_some("-1");
+
+            return Ok(html! {
+                a
+                    (self.props())
+                    href=[href]
+                    title=[self.title().lookup(cx)]
+                    autofocus[*self.autofocus()]
+                    aria-disabled=[aria_disabled]
+                    tabindex=[tabindex]
+                {
+                    (self.label().using(cx))
+                }
+            });
+        }
+
         Ok(html! {
             button
                 type=(self.kind())
@@ -86,9 +125,7 @@ impl Component for Button {
                 autofocus[*self.autofocus()]
                 disabled[*self.disabled()]
             {
-                @if let Some(label) = self.label().lookup(cx) {
-                    (label)
-                }
+                (self.label().using(cx))
             }
         })
     }
@@ -101,7 +138,7 @@ impl Button {
     /// datos al servidor.
     pub fn submit(label: Lc) -> Self {
         Self {
-            kind: button::ButtonKind::Submit,
+            kind: button::Kind::Submit,
             label,
             ..Default::default()
         }
@@ -112,7 +149,7 @@ impl Button {
     /// Al pulsarlo, devuelve todos los campos del formulario a sus valores iniciales.
     pub fn reset(label: Lc) -> Self {
         Self {
-            kind: button::ButtonKind::Reset,
+            kind: button::Kind::Reset,
             label,
             ..Default::default()
         }
@@ -124,8 +161,24 @@ impl Button {
     /// definirse mediante JavaScript.
     pub fn plain(label: Lc) -> Self {
         Self {
-            kind: button::ButtonKind::Plain,
+            kind: button::Kind::Plain,
             label,
+            ..Default::default()
+        }
+    }
+
+    /// Crea un **enlace de navegación** con el aspecto de un botón (`<a href=...>`).
+    ///
+    /// A diferencia de [`Button::submit()`], [`Button::reset()`] y [`Button::plain()`], que
+    /// siempre renderizan un `<button>`, este constructor produce un enlace real. Navega a `route`
+    /// en vez de interactuar con un formulario. Se aplican las mismas clases de estilo (ver
+    /// [`with_style()`](Self::with_style)), por lo que el tema activo puede mostrarlo igual que
+    /// cualquier otra variante de `Button`. No confundir con [`button::Style::Link`], que es sólo
+    /// un estilo visual sobre un `<button>`.
+    pub fn anchor(label: Lc, route: impl Into<Route>) -> Self {
+        Self {
+            label,
+            href: route.into(),
             ..Default::default()
         }
     }
@@ -148,14 +201,21 @@ impl Button {
 
     /// Establece el comportamiento del botón al activarse.
     #[builder_fn]
-    pub fn with_kind(mut self, kind: button::ButtonKind) -> Self {
+    pub fn with_kind(mut self, kind: button::Kind) -> Self {
         self.kind = kind;
         self
     }
 
-    /// Establece el estilo visual del botón (usa [`button::ButtonStyle::None`] para quitarlo).
+    /// Establece el tamaño visual del botón (usa [`button::Size::None`] para quitarlo).
     #[builder_fn]
-    pub fn with_style(mut self, style: button::ButtonStyle) -> Self {
+    pub fn with_size(mut self, size: button::Size) -> Self {
+        self.size = size;
+        self
+    }
+
+    /// Establece el estilo visual del botón (usa [`button::Style::None`] para quitarlo).
+    #[builder_fn]
+    pub fn with_style(mut self, style: button::Style) -> Self {
         self.style = style;
         self
     }
@@ -191,6 +251,15 @@ impl Button {
     #[builder_fn]
     pub fn with_title(mut self, title: Lc) -> Self {
         self.title = title;
+        self
+    }
+
+    /// Establece la ruta de destino y convierte el botón en enlace de navegación (`<a href=...>`).
+    /// Puedes usar un [`Route`] vacío (por defecto) para que vuelva a renderizarse como `<button>`.
+    /// Ver [`Button::anchor()`] para el constructor equivalente.
+    #[builder_fn]
+    pub fn with_href(mut self, route: impl Into<Route>) -> Self {
+        self.href = route.into();
         self
     }
 
