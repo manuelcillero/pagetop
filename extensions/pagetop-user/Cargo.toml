@@ -1,0 +1,34 @@
+[package]
+name = "pagetop-user"
+version = "0.1.0"
+
+description = """
+    Gestión de usuarios, autenticación, roles y permisos para aplicaciones PageTop.
+"""
+categories = ["authentication", "web-programming::http-server"]
+keywords = ["pagetop", "auth", "users", "session", "rbac"]
+
+repository.workspace = true
+homepage.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[features]
+demo-data = []
+
+[dependencies]
+pagetop.workspace = true
+pagetop-admin.workspace = true
+pagetop-seaorm.workspace = true
+pagetop-htmx.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+serde_qs.workspace = true
+thiserror.workspace = true
+
+# Criptografía
+argon2.workspace = true
+base64ct.workspace = true
+sha2.workspace = true
+rand_core.workspace = true
