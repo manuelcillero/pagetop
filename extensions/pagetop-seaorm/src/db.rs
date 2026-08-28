@@ -1,6 +1,6 @@
 //! Definición de entidades y acceso a la base de datos.
 //!
-//! Agrupa los *traits*, macros y tipos del sistema de entidades de SeaORM, junto con las funciones
+//! Agrupa los traits, macros y tipos del sistema de entidades de SeaORM, junto con las funciones
 //! [`dbconn`], [`execute`], [`fetch_all`], [`fetch_one`] y [`paginate`], en una sola importación:
 //!
 //! ```rust,no_run
