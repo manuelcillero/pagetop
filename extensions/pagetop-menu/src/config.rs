@@ -25,6 +25,11 @@ include_config!(CONFIG_MENU: MenuTopConfig => [
 /// Estructura raíz para la sección `[menu]` del fichero de configuración.
 #[derive(Clone, Debug, Deserialize)]
 pub struct MenuTopConfig {
+    // `default_menus` (el único campo de `Settings`) no puede recibir su valor por defecto vía
+    // `set_default` en `include_config!` (config-rs no soporta defaults de tipo lista, ver arriba),
+    // así que si la aplicación no declara `[menu]` en ningún TOML, la sección entera falta en la
+    // configuración combinada. `#[serde(default)]` recurre a `Settings::default()` en ese caso.
+    #[serde(default)]
     pub menu: Settings,
 }
 
