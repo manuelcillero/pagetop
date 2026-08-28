@@ -20,7 +20,7 @@ impl Theme for Basic {
                 .with_weight(-99),
         ))
         .alter_assets(AssetsOp::AddStyleSheet(
-            StyleSheet::from("/pagetop/css/basic.css")
+            StyleSheet::from("/pagetop/css/basic.min.css")
                 .with_version(PAGETOP_VERSION)
                 .with_weight(-99),
         ))
@@ -29,6 +29,9 @@ impl Theme for Basic {
         ))
         .alter_assets(AssetsOp::AddJavaScript(
             JavaScript::defer("/pagetop/js/basic.dropdown.min.js").with_version(PAGETOP_VERSION),
+        ))
+        .alter_assets(AssetsOp::AddJavaScript(
+            JavaScript::defer("/pagetop/js/basic.navbar.init.js").with_version(PAGETOP_VERSION),
         ))
         .alter_assets(AssetsOp::AddJavaScript(
             JavaScript::defer("/pagetop/js/basic.dialog.min.js").with_version(PAGETOP_VERSION),

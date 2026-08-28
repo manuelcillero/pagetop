@@ -10,7 +10,10 @@ members = [
     "extensions/pagetop-aliner",
     "extensions/pagetop-bootsier",
     "extensions/pagetop-htmx",
+    "extensions/pagetop-admin",
+    "extensions/pagetop-menu",
     "extensions/pagetop-seaorm",
+    "extensions/pagetop-user",
 ]
 
 [workspace.package]
@@ -21,8 +24,10 @@ license = "MIT OR Apache-2.0"
 authors = ["Manuel Cillero <manuel@cillero.es>"]
 
 [workspace.dependencies]
+argon2 = "0.5"
 async-trait = "0.1"
 axum = { version = "0.8" }
+base64ct = { version = "1.8", features = ["alloc"] }
 change-detection = "1.2"
 chrono = "0.4"
 colored = "3.1"
@@ -43,14 +48,18 @@ path-slash = "0.2"
 proc-macro2 = "1.0"
 proc-macro2-diagnostics = { version = "0.10", default-features = false }
 quote = "1.0"
+rand_core = { version = "0.6", features = ["getrandom"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
+serde_qs = "1.1"
+sha2 = "0.11"
 syn = { version = "2.0", features = ["full", "extra-traits"] }
 tempfile = "3.27"
 terminal_size = "0.4"
+thiserror = "2.0"
 tokio = { version = "1", features = ["full"] }
 tower = { version = "0.5", features = ["util"] }
-tower-http = { version = "0.6", features = ["fs"] }
+tower-http = { version = "0.7", features = ["catch-panic", "fs"] }
 tracing = "0.1"
 tracing-appender = "0.2"
 tracing-subscriber = { version = "0.3", features = ["json", "env-filter"] }
@@ -62,16 +71,19 @@ pagetop-macros = { version = "0.3", path = "helpers/pagetop-macros" }
 pagetop-minimal = { version = "0.1", path = "helpers/pagetop-minimal" }
 pagetop-statics = { version = "0.1", path = "helpers/pagetop-statics" }
 # Extensions
-pagetop-aliner = { version = "0.1", path = "extensions/pagetop-aliner" }
+pagetop-admin    = { version = "0.1", path = "extensions/pagetop-admin" }
+pagetop-aliner   = { version = "0.1", path = "extensions/pagetop-aliner" }
 pagetop-bootsier = { version = "0.1", path = "extensions/pagetop-bootsier" }
-pagetop-htmx = { version = "0.1", path = "extensions/pagetop-htmx" }
-pagetop-seaorm = { version = "0.0", path = "extensions/pagetop-seaorm" }
+pagetop-htmx     = { version = "0.1", path = "extensions/pagetop-htmx" }
+pagetop-menu     = { version = "0.1", path = "extensions/pagetop-menu" }
+pagetop-seaorm   = { version = "0.0", path = "extensions/pagetop-seaorm" }
+pagetop-user     = { version = "0.1", path = "extensions/pagetop-user" }
 # PageTop
 pagetop = { version = "0.5", path = "." }
 
 [workspace.dependencies.sea-orm]
 version = "1.1"
-features = ["debug-print", "macros", "runtime-tokio-native-tls"]
+features = ["debug-print", "macros", "runtime-tokio-native-tls", "with-chrono"]
 default-features = false
 
 [workspace.dependencies.sea-schema]
@@ -99,6 +111,7 @@ default = []
 testing = []
 
 [dependencies]
+async-trait.workspace = true
 axum.workspace = true
 chrono.workspace = true
 colored.workspace = true
@@ -114,6 +127,7 @@ pagetop-minimal.workspace = true
 pagetop-statics.workspace = true
 serde.workspace = true
 terminal_size.workspace = true
+thiserror.workspace = true
 tokio.workspace = true
 tower.workspace = true
 tower-http.workspace = true

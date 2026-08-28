@@ -24,7 +24,6 @@ body {
 
 .intro {
 	position: relative;
-	min-width: 350px;
 	color: var(--intro-color);
 	background-color: var(--intro-bg-color);
 

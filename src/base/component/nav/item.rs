@@ -1,0 +1,291 @@
+use crate::prelude::*;
+
+// **< ItemKind >***********************************************************************************
+
+/// Tipos de [`nav::Item`](super::Item) disponibles en un menú [`Nav`](super::Nav).
+///
+/// Define internamente la naturaleza del elemento y su comportamiento al mostrarse o interactuar
+/// con él.
+#[derive(AutoDefault, Clone, Debug)]
+pub enum ItemKind {
+    /// Elemento vacío, no produce salida.
+    #[default]
+    Void,
+    /// Etiqueta sin comportamiento interactivo.
+    Label(Lc),
+    /// Elemento de navegación basado en una [`RoutePath`] dinámica resuelta por una [`Route`].
+    /// Opcionalmente, puede abrirse en una nueva ventana y estar inicialmente deshabilitado.
+    Link {
+        label: Lc,
+        route: Route,
+        blank: bool,
+        disabled: bool,
+    },
+    /// Contenido HTML arbitrario. El componente [`Html`] se renderiza tal cual como elemento del
+    /// menú, sin añadir ningún comportamiento de navegación adicional.
+    Html(Embed<Html>),
+    /// Elemento que despliega un menú [`Dropdown`](super::super::Dropdown).
+    Dropdown(Embed<Dropdown>),
+}
+
+impl ItemKind {
+    const ITEM: &str = "nav-item";
+    const DROPDOWN: &str = "nav-item dropdown";
+
+    /// Devuelve las clases base asociadas al tipo de elemento.
+    #[inline]
+    pub const fn as_str(&self) -> &'static str {
+        match self {
+            Self::Void => "",
+            Self::Dropdown(_) => Self::DROPDOWN,
+            _ => Self::ITEM,
+        }
+    }
+}
+
+// **< Item >***************************************************************************************
+
+/// Representa un **elemento individual** de un menú [`Nav`](super::Nav).
+///
+/// Cada instancia de [`nav::Item`](super::Item) se traduce en un componente visible que puede
+/// comportarse como texto, enlace, contenido HTML o menú desplegable, según su [`ItemKind`].
+///
+/// Permite definir el identificador, las clases de estilo adicionales y el tipo de interacción
+/// asociada, manteniendo una interfaz común para renderizar todos los elementos del menú.
+#[derive(AutoDefault, Clone, Debug, Getters)]
+pub struct Item {
+    /// Devuelve identificador, clases CSS, atributos HTML y valores extra del componente.
+    props: Props,
+    /// Devuelve el tipo de elemento representado.
+    item_kind: ItemKind,
+    /// Devuelve el valor de `active` forzado explícitamente, si lo hay.
+    ///
+    /// Sin forzar (`None`), un [`ItemKind::Link`] se marca activo cuando su ruta coincide
+    /// exactamente con la del *request* actual (ver [`prepare()`](Component::prepare)). Forzarlo
+    /// permite otros criterios, como marcar activa una sección mientras la ruta actual sea
+    /// cualquiera de sus subrutas.
+    active_override: Option<bool>,
+}
+
+#[async_trait]
+impl Component for Item {
+    fn new() -> Self {
+        Self::default()
+    }
+
+    fn id(&self) -> Option<String> {
+        self.props.get_id()
+    }
+
+    fn setup(&mut self, _cx: &Context) {
+        self.alter_prop(PropsOp::prepend_classes(self.item_kind().as_str()));
+    }
+
+    async fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
+        Ok(match self.item_kind() {
+            ItemKind::Void => html! {},
+
+            ItemKind::Label(label) => html! {
+                li (self.props()) {
+                    span class="nav-link disabled" aria-disabled="true" {
+                        (label.using(cx))
+                    }
+                }
+            },
+
+            ItemKind::Link {
+                label,
+                route,
+                blank,
+                disabled,
+            } => {
+                let enabled = !*disabled;
+
+                // Deshabilitado, `href` no la usa: evita resolver la ruta para nada.
+                let route_link = enabled.then(|| route.resolve(cx));
+                let current_path = cx.request().map(|request| request.path());
+                let is_current = self
+                    .active_override()
+                    .copied()
+                    .unwrap_or(enabled && route_link.as_ref().map(RoutePath::path) == current_path);
+
+                let active_class = if is_current { " active" } else { "" };
+                let disabled_class = if *disabled { " disabled" } else { "" };
+                let classes = util::join!("nav-link", active_class, disabled_class);
+
+                let target = (enabled && *blank).then_some("_blank");
+                let rel = (enabled && *blank).then_some("noopener noreferrer");
+                let aria_current = (enabled && is_current).then_some("page");
+                let aria_disabled = (*disabled).then_some("true");
+
+                html! {
+                    li (self.props()) {
+                        a
+                            class=(classes)
+                            href=[route_link]
+                            target=[target]
+                            rel=[rel]
+                            aria-current=[aria_current]
+                            aria-disabled=[aria_disabled]
+                        {
+                            (label.using(cx))
+                        }
+                    }
+                }
+            }
+
+            ItemKind::Html(html) => html! {
+                li (self.props()) {
+                    (html.render(cx).await)
+                }
+            },
+
+            ItemKind::Dropdown(menu) => {
+                if let Some(dd) = menu.get() {
+                    let items = dd.items().render(cx).await;
+                    if items.is_empty() {
+                        return Ok(html! {});
+                    }
+                    let title = dd.title().using(cx);
+                    let title = if title.is_empty() {
+                        Lc::l("dropdown_default_title").using(cx)
+                    } else {
+                        title
+                    };
+                    html! {
+                        li (self.props()) {
+                            a
+                                class="nav-link dropdown-toggle"
+                                href="#"
+                                role="button"
+                                aria-haspopup="true"
+                                aria-expanded="false"
+                            {
+                                (title)
+                            }
+                            ul class="dropdown-menu" {
+                                (items)
+                            }
+                        }
+                    }
+                } else {
+                    html! {}
+                }
+            }
+        })
+    }
+}
+
+impl Item {
+    /// Crea un elemento de tipo texto, mostrado sin interacción.
+    pub fn label(label: Lc) -> Self {
+        Self {
+            item_kind: ItemKind::Label(label),
+            ..Default::default()
+        }
+    }
+
+    /// Crea un enlace para la navegación.
+    ///
+    /// La ruta se obtiene invocando [`Route::resolve()`], que devuelve dinámicamente una
+    /// [`RoutePath`] en función del [`Context`]. El enlace se marca como `active` si la ruta
+    /// actual del *request* coincide con la ruta de destino (devuelta por `RoutePath::path`).
+    pub fn link(label: Lc, route: impl Into<Route>) -> Self {
+        Self {
+            item_kind: ItemKind::Link {
+                label,
+                route: route.into(),
+                blank: false,
+                disabled: false,
+            },
+            ..Default::default()
+        }
+    }
+
+    /// Crea un enlace deshabilitado que no permite la interacción.
+    pub fn link_disabled(label: Lc, route: impl Into<Route>) -> Self {
+        Self {
+            item_kind: ItemKind::Link {
+                label,
+                route: route.into(),
+                blank: false,
+                disabled: true,
+            },
+            ..Default::default()
+        }
+    }
+
+    /// Crea un enlace que se abre en una nueva ventana o pestaña.
+    pub fn link_blank(label: Lc, route: impl Into<Route>) -> Self {
+        Self {
+            item_kind: ItemKind::Link {
+                label,
+                route: route.into(),
+                blank: true,
+                disabled: false,
+            },
+            ..Default::default()
+        }
+    }
+
+    /// Crea un enlace inicialmente deshabilitado que se abriría en una nueva ventana.
+    pub fn link_blank_disabled(label: Lc, route: impl Into<Route>) -> Self {
+        Self {
+            item_kind: ItemKind::Link {
+                label,
+                route: route.into(),
+                blank: true,
+                disabled: true,
+            },
+            ..Default::default()
+        }
+    }
+
+    /// Crea un elemento con contenido HTML arbitrario.
+    ///
+    /// El contenido se renderiza tal cual lo devuelve el componente [`Html`], dentro de un `<li>`
+    /// con las clases de navegación asociadas a [`Item`].
+    pub fn html(html: Html) -> Self {
+        Self {
+            item_kind: ItemKind::Html(Embed::with(html)),
+            ..Default::default()
+        }
+    }
+
+    /// Crea un elemento de navegación que contiene un menú desplegable
+    /// [`Dropdown`](super::super::Dropdown).
+    ///
+    /// Sólo se tienen en cuenta **el título** (si no existe, se asigna uno por defecto) y **la
+    /// lista de elementos** del [`Dropdown`](super::super::Dropdown); el resto de propiedades no
+    /// afectarán a su representación en [`Nav`](super::Nav).
+    pub fn dropdown(menu: Dropdown) -> Self {
+        Self {
+            item_kind: ItemKind::Dropdown(Embed::with(menu)),
+            ..Default::default()
+        }
+    }
+
+    // **< Item BUILDER >***************************************************************************
+
+    /// Establece el identificador único del componente; igual a `with_prop(PropsOp::set_id(id))`.
+    #[builder_fn]
+    pub fn with_id(mut self, id: impl Into<CowStr>) -> Self {
+        self.props.alter_id(id);
+        self
+    }
+
+    /// Modifica identificador, clases CSS, atributos HTML o valores extra del componente.
+    #[builder_fn]
+    pub fn with_prop(mut self, op: PropsOp) -> Self {
+        self.props.alter_prop(op);
+        self
+    }
+
+    /// Fuerza si un [`ItemKind::Link`] se marca activo, o `None` para volver a la detección
+    /// automática por coincidencia exacta de ruta.
+    #[builder_fn]
+    pub fn with_active(mut self, active: impl Into<Option<bool>>) -> Self {
+        self.active_override = active.into();
+        self
+    }
+}

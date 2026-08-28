@@ -44,21 +44,10 @@ body {
 	-webkit-tap-highlight-color: transparent;
 }
 
-/*
- * Brand component
- */
-
-.brand {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    color: var(--val-color--text);
-    font-size: 1.75rem;
-    font-weight: 600;
-    text-decoration: none;
-}
-.brand .image {
-    display: flex;
+/* Header, Aside, Content y Footer se apilan en el mismo orden ocupando todo el ancho disponible. */
+.wrapper {
+	display: flex;
+	flex-direction: column;
 }
 
 /*
@@ -86,6 +75,70 @@ body {
 .badge-info      { background-color: var(--val-color--info); }
 .badge-warning   { background-color: var(--val-color--warning); }
 .badge-severe    { background-color: var(--val-color--danger); }
+
+/*
+ * Brand component
+ */
+
+.brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--val-color--text);
+    font-size: 1.75rem;
+    font-weight: 600;
+    text-decoration: none;
+}
+.brand .image {
+    display: flex;
+}
+
+/*
+ * Breadcrumb component
+ */
+
+.breadcrumb {
+    display: flex;
+    flex-wrap: wrap;
+    list-style: none;
+    margin: 0 0 1rem;
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+}
+.breadcrumb-item + .breadcrumb-item {
+    padding-left: 0.5rem;
+}
+.breadcrumb-item + .breadcrumb-item::before {
+    float: left;
+    padding-right: 0.5rem;
+    color: var(--val-color--text--muted);
+    content: "/";
+}
+.breadcrumb-item.active {
+    color: var(--val-color--text--muted);
+}
+.breadcrumb-item a {
+    color: var(--val-color--text);
+    text-decoration: none;
+}
+.breadcrumb-item a:hover {
+    text-decoration: underline;
+}
+
+/* Geometría base de .dropdown-button/.dropdown-toggle (ver "Dropdown component" más abajo). Se
+ * declara aquí, antes de "Buttons", para que las clases .button-sm/.button-lg/.button-* ganen el
+ * empate de especificidad frente a ella cuando se combinan en el mismo elemento (CSS resuelve un
+ * empate por orden de aparición en el fichero, no por el orden de las clases en el HTML). */
+.dropdown-button,
+.dropdown-toggle {
+    padding: 0.5rem 0.75rem;
+    font: inherit;
+    color: var(--val-color--text);
+    background-color: transparent;
+    border: 1px solid var(--val-color--border);
+    border-radius: 0.375rem;
+    cursor: pointer;
+}
 
 /*
  * Buttons
@@ -195,6 +248,171 @@ body {
 }
 
 /*
+ * Dialog component
+ */
+
+.dialog {
+    padding: 0;
+    width: 100%;
+    max-width: 32rem;
+    color: var(--val-color--text);
+    background-color: var(--val-color--bg);
+    border: none;
+    border-radius: 0.5rem;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+.dialog::backdrop {
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.dialog-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid color-mix(in srgb, var(--val-color--border) 15%, var(--val-color--bg));
+}
+
+.dialog-title {
+    margin: 0;
+    font-size: 1.125rem;
+    font-weight: 600;
+}
+
+.dialog-close {
+    width: 1.5rem;
+    height: 1.5rem;
+    padding: 0;
+    line-height: 1;
+    color: var(--val-color--text--muted);
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+}
+.dialog-close::before {
+    content: "\2715";
+}
+.dialog-close:hover {
+    color: var(--val-color--text);
+}
+
+.dialog-body {
+    padding: 1.25rem;
+}
+
+.dialog-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    padding: 1rem 1.25rem;
+    border-top: 1px solid color-mix(in srgb, var(--val-color--border) 15%, var(--val-color--bg));
+}
+
+/*
+ * Dropdown component
+ */
+
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+/* La geometría base de .dropdown-button/.dropdown-toggle vive junto a "Buttons" (antes de esta
+ * sección), para que las clases .button-sm/.button-lg/.button-* ganen el empate de especificidad
+ * frente a ella (CSS resuelve un empate por orden de aparición en el fichero, no por el orden de
+ * las clases en el HTML). */
+.dropdown-toggle::after {
+    content: "\25BC";
+    display: inline-block;
+    margin-left: 0.35em;
+    font-size: 0.8em;
+    transition: transform .15s ease-in-out;
+}
+.dropdown:has(> .dropdown-menu.show) > .dropdown-toggle::after {
+    transform: rotate(180deg);
+}
+
+.dropdown-menu {
+    position: absolute;
+    z-index: 1000;
+    top: 100%;
+    left: 0;
+    min-width: 12rem;
+    margin: 0.25rem 0 0;
+    padding: 0.5rem 0;
+    list-style: none;
+    background-color: var(--val-color--bg);
+    border: 1px solid color-mix(in srgb, var(--val-color--border) 15%, var(--val-color--bg));
+    border-radius: 0.375rem;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    /* Closed by default */
+    display: none;
+}
+.dropdown-menu.show {
+    display: block;
+}
+
+.dropdown-item {
+    display: block;
+    width: 100%;
+    padding: 0.375rem 1rem;
+    text-align: left;
+    color: var(--val-color--text);
+    text-decoration: none;
+    background-color: transparent;
+    border: none;
+    font: inherit;
+    cursor: pointer;
+}
+.dropdown-item:hover {
+    background-color: color-mix(in srgb, var(--val-color--text) 8%, transparent);
+}
+.dropdown-item.active {
+    color: var(--val-color--primary);
+    font-weight: 600;
+}
+.dropdown-item.disabled {
+    color: var(--val-color--text--muted);
+    pointer-events: none;
+}
+
+.dropdown-item-text {
+    display: block;
+    padding: 0.375rem 1rem;
+    color: var(--val-color--text--muted);
+}
+
+.dropdown-header {
+    display: block;
+    padding: 0.5rem 1rem 0.25rem;
+    margin: 0;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--val-color--text--muted);
+}
+
+.dropdown-divider {
+    height: 0;
+    margin: 0.5rem 0;
+    border: none;
+    border-top: 1px solid var(--val-color--border);
+}
+
+/* Utility: visually hidden but still accessible to assistive technology */
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/*
  * Form components
  */
 
@@ -293,175 +511,20 @@ input:disabled + label {
     color: var(--val-color--text--muted);
 }
 
-/*
- * Dialog component
- */
-
-.dialog {
-    padding: 0;
-    width: 100%;
-    max-width: 32rem;
-    color: var(--val-color--text);
-    background-color: var(--val-color--bg);
-    border: none;
-    border-radius: 0.5rem;
-    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-}
-.dialog::backdrop {
-    background-color: rgba(0, 0, 0, 0.5);
-}
-
-.dialog-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    padding: 1rem 1.25rem;
-    border-bottom: 1px solid color-mix(in srgb, var(--val-color--border) 15%, var(--val-color--bg));
-}
-
-.dialog-title {
-    margin: 0;
-    font-size: 1.125rem;
-    font-weight: 600;
-}
-
-.dialog-close {
-    width: 1.5rem;
-    height: 1.5rem;
-    padding: 0;
-    line-height: 1;
-    color: var(--val-color--text--muted);
-    background-color: transparent;
-    border: none;
-    cursor: pointer;
-}
-.dialog-close::before {
-    content: "\2715";
-}
-.dialog-close:hover {
-    color: var(--val-color--text);
-}
-
-.dialog-body {
-    padding: 1.25rem;
-}
-
-.dialog-footer {
-    display: flex;
-    justify-content: flex-end;
-    gap: 0.5rem;
-    padding: 1rem 1.25rem;
-    border-top: 1px solid color-mix(in srgb, var(--val-color--border) 15%, var(--val-color--bg));
-}
-
-/*
- * Dropdown component
- */
-
-.dropdown {
-    position: relative;
-    display: inline-block;
-}
-
-.dropdown-button,
-.dropdown-toggle {
-    padding: 0.5rem 0.75rem;
-    font: inherit;
-    color: var(--val-color--text);
-    background-color: transparent;
+.form-field > select.form-select,
+.form-field > input.form-control,
+.form-field > textarea.form-control {
     border: 1px solid var(--val-color--border);
     border-radius: 0.375rem;
-    cursor: pointer;
+    background-color: #fff;
+    transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
 }
-.dropdown-toggle::after {
-    content: "\25BC";
-    display: inline-block;
-    margin-left: 0.35em;
-    font-size: 0.8em;
-    transition: transform .15s ease-in-out;
-}
-.dropdown:has(> .dropdown-menu.show) > .dropdown-toggle::after {
-    transform: rotate(180deg);
-}
-
-.dropdown-menu {
-    position: absolute;
-    z-index: 1000;
-    top: 100%;
-    left: 0;
-    min-width: 12rem;
-    margin: 0.25rem 0 0;
-    padding: 0.5rem 0;
-    list-style: none;
-    background-color: var(--val-color--bg);
-    border: 1px solid color-mix(in srgb, var(--val-color--border) 15%, var(--val-color--bg));
-    border-radius: 0.375rem;
-    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-    /* Closed by default */
-    display: none;
-}
-.dropdown-menu.show {
-    display: block;
-}
-
-.dropdown-item {
-    display: block;
-    width: 100%;
-    padding: 0.375rem 1rem;
-    text-align: left;
-    color: var(--val-color--text);
-    text-decoration: none;
-    background-color: transparent;
-    border: none;
-    font: inherit;
-    cursor: pointer;
-}
-.dropdown-item:hover {
-    background-color: color-mix(in srgb, var(--val-color--text) 8%, transparent);
-}
-.dropdown-item.active {
-    color: var(--val-color--primary);
-    font-weight: 600;
-}
-.dropdown-item.disabled {
-    color: var(--val-color--text--muted);
-    pointer-events: none;
-}
-
-.dropdown-item-text {
-    display: block;
-    padding: 0.375rem 1rem;
-    color: var(--val-color--text--muted);
-}
-
-.dropdown-header {
-    display: block;
-    padding: 0.5rem 1rem 0.25rem;
-    margin: 0;
-    font-size: 0.8125rem;
-    font-weight: 600;
-    color: var(--val-color--text--muted);
-}
-
-.dropdown-divider {
-    height: 0;
-    margin: 0.5rem 0;
-    border: none;
-    border-top: 1px solid var(--val-color--border);
-}
-
-/* Utility: visually hidden but still accessible to assistive technology */
-.visually-hidden {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border: 0;
+.form-field > select.form-select:focus,
+.form-field > input.form-control:focus,
+.form-field > textarea.form-control:focus {
+    outline: none;
+    border-color: var(--val-color--primary);
+    box-shadow: 0 0 0 0.2rem color-mix(in srgb, var(--val-color--primary) 25%, transparent);
 }
 
 /*
@@ -514,59 +577,123 @@ input:disabled + label {
 }
 
 /*
- * Table component
+ * Nav component
  */
 
-.table-responsive {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
+.nav {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
 }
 
-.table {
-    width: 100%;
-    border-collapse: collapse;
-    text-align: left;
+.nav-item {
+    position: relative;
 }
 
-.table th,
-.table td {
+.nav-link {
+    display: block;
     padding: 0.5rem 0.75rem;
-    border-bottom: 1px solid color-mix(in srgb, var(--val-color--border) 15%, var(--val-color--bg));
+    color: var(--val-color--text);
+    text-decoration: none;
+    border-radius: 0.375rem;
 }
-
-.table thead th {
-    border-bottom-width: 2px;
+.nav-link:hover {
+    background-color: color-mix(in srgb, var(--val-color--text) 8%, transparent);
+}
+.nav-link.active {
+    color: var(--val-color--primary);
     font-weight: 600;
 }
-
-.table-sort {
-    color: inherit;
-    text-decoration: none;
-}
-.table-sort:hover {
-    text-decoration: underline;
-}
-.table-sort::after {
-    content: "\25BC";
-    margin-left: 0.25rem;
-    font-size: 0.8em;
-    opacity: 0.15;
-}
-.table-sort-asc::after {
-    content: "\25B2";
-    font-size: 0.8em;
-    opacity: 1;
-}
-.table-sort-desc::after {
-    content: "\25BC";
-    font-size: 0.8em;
-    opacity: 1;
-}
-
-.table-empty {
-    text-align: center;
-    font-style: italic;
+.nav-link.disabled {
     color: var(--val-color--text--muted);
+    pointer-events: none;
+}
+
+.nav-start {
+    justify-content: flex-start;
+}
+.nav-center {
+    justify-content: center;
+}
+.nav-end {
+    justify-content: flex-end;
+}
+.nav-vertical {
+    flex-direction: column;
+    align-items: stretch;
+}
+.nav-fill > .nav-item {
+    flex: 1 1 auto;
+    text-align: center;
+}
+.nav-justified > .nav-item {
+    flex-basis: 0;
+    flex-grow: 1;
+    text-align: center;
+}
+
+/*
+ * Navbar component
+ */
+
+.navbar {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.5rem 1rem;
+}
+
+.navbar-toggle {
+    display: none;
+    padding: 0.25rem 0.5rem;
+    font-size: 1.25rem;
+    line-height: 1;
+    color: inherit;
+    background-color: transparent;
+    border: 1px solid var(--val-color--border);
+    border-radius: 0.375rem;
+    cursor: pointer;
+}
+.navbar-toggle::before {
+    content: "\2630";
+}
+
+.navbar-content {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex: 1 1 auto;
+}
+
+.navbar-text {
+    color: var(--val-color--text--muted);
+}
+
+@media (max-width: 767.98px) {
+    .navbar {
+        flex-wrap: wrap;
+    }
+    .navbar:has(.navbar-toggle) .navbar-toggle {
+        display: inline-block;
+        order: -1;
+    }
+    .navbar:has(.navbar-toggle) .navbar-content {
+        display: none;
+        flex-direction: column;
+        align-items: stretch;
+        width: 100%;
+    }
+    .navbar:has(.navbar-toggle) .navbar-content.show {
+        display: flex;
+    }
+    .navbar .nav {
+        flex-direction: column;
+        align-items: stretch;
+        width: 100%;
+    }
 }
 
 /*
@@ -686,7 +813,7 @@ input:disabled + label {
     border: 0;
     border-start-end-radius: 0;
     border-end-end-radius: 0;
-    background-color: var(--val-color--light);
+    background-color: var(--val-color--bg--muted);
 }
 .pager-jump-input > input.form-control {
     text-align: center;
@@ -709,35 +836,59 @@ input:disabled + label {
 }
 
 /*
- * Breadcrumb component
+ * Table component
  */
 
-.breadcrumb {
-    display: flex;
-    flex-wrap: wrap;
-    list-style: none;
-    margin: 0 0 1rem;
-    padding: 0.75rem 1rem;
-    font-size: 0.875rem;
+.table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
 }
-.breadcrumb-item + .breadcrumb-item {
-    padding-left: 0.5rem;
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
 }
-.breadcrumb-item + .breadcrumb-item::before {
-    float: left;
-    padding-right: 0.5rem;
-    color: var(--val-color--text--muted);
-    content: "/";
+
+.table th,
+.table td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid color-mix(in srgb, var(--val-color--border) 15%, var(--val-color--bg));
 }
-.breadcrumb-item.active {
-    color: var(--val-color--text--muted);
+
+.table thead th {
+    border-bottom-width: 2px;
+    font-weight: 600;
 }
-.breadcrumb-item a {
-    color: var(--val-color--text);
+
+.table-sort {
+    color: inherit;
     text-decoration: none;
 }
-.breadcrumb-item a:hover {
+.table-sort:hover {
     text-decoration: underline;
+}
+.table-sort::after {
+    content: "\25BC";
+    margin-left: 0.25rem;
+    font-size: 0.8em;
+    opacity: 0.15;
+}
+.table-sort-asc::after {
+    content: "\25B2";
+    font-size: 0.8em;
+    opacity: 1;
+}
+.table-sort-desc::after {
+    content: "\25BC";
+    font-size: 0.8em;
+    opacity: 1;
+}
+
+.table-empty {
+    text-align: center;
+    font-style: italic;
+    color: var(--val-color--text--muted);
 }
 
 /*
@@ -747,4 +898,77 @@ input:disabled + label {
 .region-footer {
 	padding: .75rem 0 3rem;
 	text-align: center;
+}
+
+/*
+ * pagetop-user: login page
+ */
+
+.user-login-page {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 70vh;
+    padding: 2rem 1rem;
+    background: radial-gradient(
+        ellipse 120% 60% at 50% -10%,
+        color-mix(in srgb, var(--val-color--primary) 18%, var(--val-color--bg)) 0%,
+        var(--val-color--bg) 70%
+    );
+}
+
+.user-login-card {
+    width: 100%;
+    max-width: 24rem;
+    padding: 2rem;
+    background-color: #fff;
+    border-radius: 0.75rem;
+    box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.15);
+}
+
+.user-login-card .form-label {
+    margin-top: 1.25rem;
+}
+
+.user-login-card .button {
+    display: block;
+    width: 100%;
+    margin-top: 1.5rem;
+}
+
+.user-admin-table-wrapper {
+    margin: 1.5rem 0;
+}
+
+.user-admin-table {
+    font-size: 0.9375rem;
+}
+
+.user-admin-permission-list {
+    list-style: none;
+    padding-left: 0;
+}
+
+.user-admin-permission-granted {
+    font-weight: 600;
+}
+
+.user-admin-permission-missing {
+    color: var(--val-color--text--muted);
+}
+
+.user-form-error {
+    padding: 0.625rem 0.875rem;
+    margin-bottom: 1rem;
+    color: #fff;
+    background-color: var(--val-color--danger);
+    border-radius: 0.375rem;
+    font-size: 0.9375rem;
+}
+
+.user-register-link,
+.user-reset-link {
+    margin-top: 1rem;
+    text-align: center;
+    font-size: 0.9375rem;
 }

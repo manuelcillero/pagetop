@@ -47,6 +47,14 @@ pub use intro::{Intro, IntroOpening};
 mod messages;
 pub use messages::Messages;
 
+pub mod nav;
+#[doc(inline)]
+pub use nav::Nav;
+
+pub mod navbar;
+#[doc(inline)]
+pub use navbar::Navbar;
+
 mod pager;
 pub use pager::{Pager, PagerAlign, PagerVisibility};
 

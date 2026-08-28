@@ -1,9 +1,9 @@
-# 🔃 Dependencias
+# Dependencias
 
 PageTop está basado en [Rust](https://www.rust-lang.org/) y crece a hombros de gigantes aprovechando
 algunas de las librerías más robustas y populares del [ecosistema Rust](https://lib.rs/) como son:
 
-  * [Actix Web](https://actix.rs/) para los servicios web.
+  * [Axum](https://github.com/tokio-rs/axum) para los servicios web.
   * [Config](https://docs.rs/config) para cargar y procesar las opciones de configuración.
   * [Tracing](https://github.com/tokio-rs/tracing) para la gestión de trazas y registro de eventos
     de la aplicación.
@@ -13,7 +13,7 @@ algunas de las librerías más robustas y populares del [ecosistema Rust](https:
     PageTop y sus extensiones.
 
 
-# 🗚 FIGfonts
+# FIGfonts
 
 PageTop usa el *crate* [figlet-rs](https://crates.io/crates/figlet-rs) desarrollado por *yuanbohan*
 para mostrar un banner de presentación en el terminal con el nombre de la aplicación en caracteres
@@ -26,7 +26,13 @@ para mostrar un banner de presentación en el terminal con el nombre de la aplic
   * [starwars.flf](http://www.figlet.org/fontdb_example.cgi?font=starwars.flf) de *Ryan Youck*
 
 
-# 👾 Icono
+# Menús accesibles
+
+El tema Basic de PageTop usa [Accessible Menu](https://github.com/NickDJM/accessible-menu),
+desarrollado por *Nick Milton*, para implementar la navegación de sus menús con soporte avanzado.
+
+
+# Icono
 
 "La Mascota" sonriente es una simpática creación de [Webalys](https://www.iconfinder.com/webalys).
 Forma parte de su colección [Nasty Icons](https://www.iconfinder.com/iconsets/nasty), disponible en
