@@ -1,6 +1,6 @@
 use crate::core::component::{Child, ChildOp, Children, Component};
 use crate::core::theme::{CoreRegions, RegionRef, ThemeRef};
-use crate::{AutoDefault, UniqueId, builder_fn};
+use crate::{AutoDefault, UniqueId, builder_impl};
 
 use parking_lot::RwLock;
 
@@ -55,12 +55,12 @@ static COMMON_REGIONS: LazyLock<RwLock<RegionComponents>> =
 #[derive(AutoDefault)]
 pub(crate) struct ChildrenInRegions(HashMap<&'static str, Children>);
 
+#[builder_impl]
 impl ChildrenInRegions {
     pub fn with(region: RegionRef, child: Child) -> Self {
         Self::default().with_child_in(region, child)
     }
 
-    #[builder_fn]
     pub fn with_child_in(mut self, region: RegionRef, op: impl Into<ChildOp>) -> Self {
         let child = op.into();
         let region_name = region.name();

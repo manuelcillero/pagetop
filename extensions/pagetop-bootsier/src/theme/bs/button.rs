@@ -33,36 +33,32 @@ const EXTRA_COLOR: &str = "bootsier.button.color";
 ///     .with_style(button::Style::Solid(Intent::Neutral))
 ///     .with_color(BootsierColors::Light);
 /// ```
+#[builder_impl]
 pub trait ButtonBootsier {
     /// Marca el botón como activo (`.active`, `aria-pressed="true"`).
-    #[builder_fn]
     fn with_active(self, active: bool) -> Self;
 
     /// Expande el botón al ancho completo de su contenedor (`w-100`).
-    #[builder_fn]
     fn with_full_width(self, full_width: bool) -> Self;
 
     /// Fuerza un color de la paleta de Bootsier, ignorando el que le correspondería a la `Intent`
     /// del botón. `None` restablece el comportamiento por defecto (color derivado de la `Intent`).
     /// Sin efecto si el estilo del botón es [`Style::Link`] o [`Style::None`].
-    #[builder_fn]
     fn with_color(self, color: impl Into<Option<BootsierColors>>) -> Self;
 }
 
+#[builder_impl]
 impl ButtonBootsier for Button {
-    #[builder_fn]
     fn with_active(mut self, active: bool) -> Self {
         self.alter_prop(PropsOp::set_extra(EXTRA_ACTIVE, active));
         self
     }
 
-    #[builder_fn]
     fn with_full_width(mut self, full_width: bool) -> Self {
         self.alter_prop(PropsOp::set_extra(EXTRA_FULL_WIDTH, full_width));
         self
     }
 
-    #[builder_fn]
     fn with_color(mut self, color: impl Into<Option<BootsierColors>>) -> Self {
         match color.into() {
             Some(color) => self.alter_prop(PropsOp::set_extra(EXTRA_COLOR, color)),

@@ -67,39 +67,35 @@ impl Component for Fieldset {
     }
 }
 
+#[builder_impl]
 impl Fieldset {
     // **< Fieldset BUILDER >***********************************************************************
 
     /// Establece el identificador único del componente; igual a `with_prop(PropsOp::set_id(id))`.
-    #[builder_fn]
     pub fn with_id(mut self, id: impl Into<CowStr>) -> Self {
         self.props.alter_id(id);
         self
     }
 
     /// Modifica identificador, clases CSS, atributos HTML o valores extra del componente.
-    #[builder_fn]
     pub fn with_prop(mut self, op: PropsOp) -> Self {
         self.props.alter_prop(op);
         self
     }
 
     /// Establece la leyenda del `fieldset` (usa [`Lc::none()`] para quitarla).
-    #[builder_fn]
     pub fn with_legend(mut self, legend: Lc) -> Self {
         self.legend = legend;
         self
     }
 
     /// Establece la descripción del `fieldset` (usa [`Lc::none()`] para quitarla).
-    #[builder_fn]
     pub fn with_description(mut self, description: Lc) -> Self {
         self.description = description;
         self
     }
 
     /// Establece si el `fieldset` está deshabilitado.
-    #[builder_fn]
     pub fn with_disabled(mut self, disabled: bool) -> Self {
         self.disabled = disabled;
         self
@@ -107,7 +103,6 @@ impl Fieldset {
 
     /// Añade un nuevo componente al `fieldset`, o aplica una operación [`ChildOp`] sobre la lista
     /// de componentes (`children`).
-    #[builder_fn]
     pub fn with_child(mut self, op: impl Into<ChildOp>) -> Self {
         self.children.alter_child(op.into());
         self

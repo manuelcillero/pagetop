@@ -1,6 +1,6 @@
 use crate::core::component::{Component, Context};
 use crate::html::{Markup, html};
-use crate::{AutoDefault, UniqueId, builder_fn};
+use crate::{AutoDefault, UniqueId, builder_impl};
 
 use std::fmt;
 use std::sync::Arc;
@@ -26,6 +26,7 @@ impl fmt::Debug for Child {
     }
 }
 
+#[builder_impl]
 impl Child {
     /// Crea un nuevo `Child` a partir de un componente.
     pub fn with(component: impl Component) -> Self {
@@ -44,7 +45,6 @@ impl Child {
     /// Establece un componente nuevo, o lo vacía.
     ///
     /// Si se proporciona `Some(component)`, se encapsula como [`Child`]; y si es `None`, se limpia.
-    #[builder_fn]
     pub fn with_component<C: Component>(mut self, component: impl Into<Option<C>>) -> Self {
         self.0 = component.into().map(|c| Arc::new(c) as Arc<dyn Component>);
         self
@@ -154,6 +154,7 @@ impl<C: Component> fmt::Debug for Embed<C> {
     }
 }
 
+#[builder_impl]
 impl<C: Component> Embed<C> {
     /// Crea un nuevo `Embed` a partir de un componente.
     pub fn with(component: C) -> Self {
@@ -165,7 +166,6 @@ impl<C: Component> Embed<C> {
     /// Establece un componente nuevo, o lo vacía.
     ///
     /// Si se proporciona `Some(component)`, se encapsula como [`Embed`]; y si es `None`, se limpia.
-    #[builder_fn]
     pub fn with_component(mut self, component: impl Into<Option<C>>) -> Self {
         self.0 = component.into().map(Arc::new);
         self
@@ -364,6 +364,7 @@ impl<C: Component> From<TypedOp<C>> for ChildOp {
 #[derive(AutoDefault, Clone, Debug)]
 pub struct Children(Vec<Child>);
 
+#[builder_impl]
 impl Children {
     /// Crea una lista vacía.
     pub fn new() -> Self {
@@ -378,7 +379,6 @@ impl Children {
     // **< Children BUILDER >***********************************************************************
 
     /// Añade un componente hijo o aplica una operación [`ChildOp`] sobre la lista.
-    #[builder_fn]
     pub fn with_child(mut self, op: impl Into<ChildOp>) -> Self {
         match op.into() {
             ChildOp::Add(any) => self.add(any),

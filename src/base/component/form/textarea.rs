@@ -135,18 +135,17 @@ impl Component for Textarea {
     }
 }
 
+#[builder_impl]
 impl Textarea {
     // **< Textarea BUILDER >***********************************************************************
 
     /// Establece el identificador único del componente; igual a `with_prop(PropsOp::set_id(id))`.
-    #[builder_fn]
     pub fn with_id(mut self, id: impl Into<CowStr>) -> Self {
         self.props.alter_id(id);
         self
     }
 
     /// Modifica identificador, clases CSS, atributos HTML o valores extra del componente.
-    #[builder_fn]
     pub fn with_prop(mut self, op: PropsOp) -> Self {
         self.props.alter_prop(op);
         self
@@ -156,28 +155,24 @@ impl Textarea {
     ///
     /// Sin él, el valor del campo no se transmite al servidor al enviar el formulario. Para
     /// deserializar el campo en el servidor es recomendable establecer un `name` explícito.
-    #[builder_fn]
     pub fn with_name(mut self, name: impl AsRef<str>) -> Self {
         self.name.alter_name(name);
         self
     }
 
     /// Establece el valor inicial del área de texto.
-    #[builder_fn]
     pub fn with_value(mut self, value: impl AsRef<str>) -> Self {
         self.value.alter_str(value);
         self
     }
 
     /// Establece la etiqueta visible del campo (usa [`Lc::none()`] para quitarla).
-    #[builder_fn]
     pub fn with_label(mut self, label: Lc) -> Self {
         self.label = label;
         self
     }
 
     /// Establece el texto de ayuda del campo (usa [`Lc::none()`] para quitarlo).
-    #[builder_fn]
     pub fn with_help_text(mut self, help_text: Lc) -> Self {
         self.help_text = help_text;
         self
@@ -187,21 +182,18 @@ impl Textarea {
     ///
     /// Sin valor o pasando `None`, el área muestra su altura predeterminada, dos filas según el
     /// estándar.
-    #[builder_fn]
     pub fn with_rows(mut self, rows: impl Into<Option<u16>>) -> Self {
         self.rows = rows.into();
         self
     }
 
     /// Establece la longitud mínima permitida en caracteres.
-    #[builder_fn]
     pub fn with_minlength(mut self, minlength: impl Into<Option<u16>>) -> Self {
         self.minlength = minlength.into();
         self
     }
 
     /// Establece la longitud máxima permitida en caracteres.
-    #[builder_fn]
     pub fn with_maxlength(mut self, maxlength: impl Into<Option<u16>>) -> Self {
         self.maxlength = maxlength.into();
         self
@@ -211,7 +203,6 @@ impl Textarea {
     ///
     /// Este texto aparece en el área de texto y desaparece en cuanto el usuario empieza a escribir.
     /// Al ser texto visible para el usuario se acepta [`Lc`] para poder localizarlo.
-    #[builder_fn]
     pub fn with_placeholder(mut self, placeholder: Lc) -> Self {
         self.placeholder = placeholder;
         self
@@ -224,7 +215,6 @@ impl Textarea {
     ///
     /// Usa los métodos de [`form::Autocomplete`] para los valores más habituales. Pasa `None` para
     /// omitir el atributo.
-    #[builder_fn]
     pub fn with_autocomplete(
         mut self,
         autocomplete: impl Into<Option<form::Autocomplete>>,
@@ -234,28 +224,24 @@ impl Textarea {
     }
 
     /// Establece si el campo recibe el foco automáticamente al cargar la página.
-    #[builder_fn]
     pub fn with_autofocus(mut self, autofocus: bool) -> Self {
         self.autofocus = autofocus;
         self
     }
 
     /// Establece si el campo es de sólo lectura.
-    #[builder_fn]
     pub fn with_readonly(mut self, readonly: bool) -> Self {
         self.readonly = readonly;
         self
     }
 
     /// Establece si el campo es obligatorio.
-    #[builder_fn]
     pub fn with_required(mut self, required: bool) -> Self {
         self.required = required;
         self
     }
 
     /// Establece si el campo está deshabilitado.
-    #[builder_fn]
     pub fn with_disabled(mut self, disabled: bool) -> Self {
         self.disabled = disabled;
         self

@@ -19,6 +19,7 @@ pub struct Row {
     cells: Vec<table::Cell>,
 }
 
+#[builder_impl]
 impl Row {
     /// Crea una fila vacía.
     pub fn new() -> Self {
@@ -28,14 +29,12 @@ impl Row {
     // **< Row BUILDER >****************************************************************************
 
     /// Establece el identificador único de la fila.
-    #[builder_fn]
     pub fn with_id(mut self, id: impl Into<CowStr>) -> Self {
         self.props.alter_id(id);
         self
     }
 
     /// Modifica identificador, clases CSS o atributos HTML de la fila.
-    #[builder_fn]
     pub fn with_prop(mut self, op: PropsOp) -> Self {
         self.props.alter_prop(op);
         self
@@ -46,7 +45,6 @@ impl Row {
     /// Acepta directamente un `&str`, un `String` o un [`Lc`] (equivalen a `table::Cell::new(...)`
     /// con el contenido indicado), o un [`table::Cell`] ya construido (por ejemplo para asignarle
     /// clases o atributos propios, o para contener otros componentes).
-    #[builder_fn]
     pub fn with_cell(mut self, cell: impl Into<table::Cell>) -> Self {
         self.cells.push(cell.into());
         self

@@ -96,6 +96,7 @@ impl Component for Image {
     }
 }
 
+#[builder_impl]
 impl Image {
     /// Crea rápidamente una imagen especificando su origen.
     pub fn with(source: image::Source) -> Self {
@@ -105,28 +106,24 @@ impl Image {
     // **< Image BUILDER >**************************************************************************
 
     /// Establece el identificador único del componente; igual a `with_prop(PropsOp::set_id(id))`.
-    #[builder_fn]
     pub fn with_id(mut self, id: impl Into<CowStr>) -> Self {
         self.props.alter_id(id);
         self
     }
 
     /// Modifica identificador, clases CSS, atributos HTML o valores extra del componente.
-    #[builder_fn]
     pub fn with_prop(mut self, op: PropsOp) -> Self {
         self.props.alter_prop(op);
         self
     }
 
     /// Define las dimensiones de la imagen (auto, ancho/alto, ambos).
-    #[builder_fn]
     pub fn with_size(mut self, size: image::Size) -> Self {
         self.size = size;
         self
     }
 
     /// Establece el origen de la imagen, influyendo en su disposición en el contenido.
-    #[builder_fn]
     pub fn with_source(mut self, source: image::Source) -> Self {
         self.source = source;
         self
@@ -136,7 +133,6 @@ impl Image {
     ///
     /// Se recomienda siempre aportar un texto alternativo salvo que la imagen sea puramente
     /// decorativa.
-    #[builder_fn]
     pub fn with_alternative(mut self, alt: Lc) -> Self {
         self.alternative = alt;
         self

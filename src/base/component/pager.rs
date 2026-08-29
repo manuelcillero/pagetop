@@ -335,25 +335,23 @@ impl Component for Pager {
     }
 }
 
+#[builder_impl]
 impl Pager {
     // **< Pager BUILDER >*************************************************************************
 
     /// Establece el identificador único del componente; igual a `with_prop(PropsOp::set_id(id))`.
-    #[builder_fn]
     pub fn with_id(mut self, id: impl Into<CowStr>) -> Self {
         self.props.alter_id(id);
         self
     }
 
     /// Modifica identificador, clases CSS o atributos HTML del componente.
-    #[builder_fn]
     pub fn with_prop(mut self, op: PropsOp) -> Self {
         self.props.alter_prop(op);
         self
     }
 
     /// Establece la ruta base sobre la que se construye el enlace de cada página.
-    #[builder_fn]
     pub fn with_base_path(mut self, base_path: impl AsRef<str>) -> Self {
         self.base_path.alter_str(base_path);
         self
@@ -362,28 +360,24 @@ impl Pager {
     /// Añade un parámetro de consulta que debe viajar en el enlace de cada página, además de
     /// `page` (que `Pager` añade siempre al final). Llamar varias veces añade varios
     /// parámetros, en el orden en que se declaren.
-    #[builder_fn]
     pub fn with_extra_query(mut self, key: impl Into<String>, value: impl Into<String>) -> Self {
         self.extra_query.push((key.into(), value.into()));
         self
     }
 
     /// Establece la página actual (siendo 1 la primera página).
-    #[builder_fn]
     pub fn with_current_page(mut self, current_page: u64) -> Self {
         self.current_page = current_page;
         self
     }
 
     /// Establece el número de elementos que se muestran por página.
-    #[builder_fn]
     pub fn with_items_per_page(mut self, items_per_page: u64) -> Self {
         self.items_per_page = items_per_page;
         self
     }
 
     /// Establece el número total de elementos del listado completo.
-    #[builder_fn]
     pub fn with_total_items(mut self, total_items: u64) -> Self {
         self.total_items = total_items;
         self
@@ -394,7 +388,6 @@ impl Pager {
     ///
     /// El valor `0` desactiva el truncado y muestra siempre todas las páginas. Usar cuando el
     /// número total de páginas sea pequeño y no haya riesgo de desbordar la interfaz.
-    #[builder_fn]
     pub fn with_window(mut self, window: u64) -> Self {
         self.window = window;
         self
@@ -402,7 +395,6 @@ impl Pager {
 
     /// Establece la alineación horizontal del paginador dentro de su contenedor. Por defecto es
     /// [`PagerAlign::Center`].
-    #[builder_fn]
     pub fn with_align(mut self, align: PagerAlign) -> Self {
         self.align = align;
         self
@@ -415,7 +407,6 @@ impl Pager {
     ///
     /// [`with_prev_next()`]: Self::with_prev_next
     /// [`with_jump()`]: Self::with_jump
-    #[builder_fn]
     pub fn with_summary(mut self, summary: PagerVisibility) -> Self {
         self.summary = summary;
         self
@@ -425,7 +416,6 @@ impl Pager {
     /// `PagerVisibility::Auto`: sólo se muestran cuando el número total de páginas supera al
     /// número de páginas que se muestra en el paginador (con el extremo correspondiente
     /// desactivado en vez de oculto).
-    #[builder_fn]
     pub fn with_prev_next(mut self, prev_next: PagerVisibility) -> Self {
         self.prev_next = prev_next;
         self
@@ -434,7 +424,6 @@ impl Pager {
     /// Establece la visibilidad del formulario para saltar directamente a una página. Por
     /// defecto es `PagerVisibility::Auto`: sólo se muestra cuando el número total de páginas
     /// supera al número de páginas que se muestra en el paginador.
-    #[builder_fn]
     pub fn with_jump(mut self, jump: PagerVisibility) -> Self {
         self.jump = jump;
         self
@@ -442,7 +431,6 @@ impl Pager {
 
     /// Establece la etiqueta de accesibilidad (`aria-label`) del elemento `<nav>`. Por defecto es
     /// "Page navigation" (clave `pager_aria_label`), igual que hace el paginador de Bootstrap.
-    #[builder_fn]
     pub fn with_aria_label(mut self, aria_label: Lc) -> Self {
         self.aria_label = aria_label;
         self

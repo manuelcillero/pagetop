@@ -67,25 +67,23 @@ impl Component for Breadcrumb {
     }
 }
 
+#[builder_impl]
 impl Breadcrumb {
     // **< Breadcrumb BUILDER >*********************************************************************
 
     /// Establece el identificador único del componente; igual a `with_prop(PropsOp::set_id(id))`.
-    #[builder_fn]
     pub fn with_id(mut self, id: impl Into<CowStr>) -> Self {
         self.props.alter_id(id);
         self
     }
 
     /// Modifica identificador, clases CSS, atributos HTML o valores extra del componente.
-    #[builder_fn]
     pub fn with_prop(mut self, op: PropsOp) -> Self {
         self.props.alter_prop(op);
         self
     }
 
     /// Añade un nuevo elemento al final del breadcrumb.
-    #[builder_fn]
     pub fn with_crumb(mut self, crumb: breadcrumb::Crumb) -> Self {
         self.crumbs.push(crumb);
         self

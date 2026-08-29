@@ -1,6 +1,6 @@
 use crate::core::TypeInfo;
 use crate::html::maud::{Escaper, RenderAttrs};
-use crate::{AutoDefault, CowStr, builder_fn, trace, util};
+use crate::{AutoDefault, CowStr, builder_impl, trace, util};
 
 use thiserror::Error;
 
@@ -453,9 +453,9 @@ impl PropsOp {
 ///     }
 /// }
 ///
+/// #[builder_impl]
 /// impl MyButton {
 ///     /// Modifica identificador, clases CSS, atributos HTML o valores extra del componente.
-///     #[builder_fn]
 ///     pub fn with_prop(mut self, op: PropsOp) -> Self {
 ///         self.props.alter_prop(op);
 ///         self
@@ -471,6 +471,7 @@ pub struct Props {
     extras: HashMap<&'static str, PropsExtra>,
 }
 
+#[builder_impl]
 impl Props {
     /// Crea una colección con un primer atributo ya establecido.
     pub fn new(name: impl Into<CowStr>, value: impl Into<CowStr>) -> Self {
@@ -485,7 +486,6 @@ impl Props {
     // **< Props BUILDER >**************************************************************************
 
     /// Establece el identificador del componente; equivale a `with_prop(PropsOp::set_id(id))`.
-    #[builder_fn]
     pub fn with_id(mut self, id: impl Into<CowStr>) -> Self {
         self.apply_id(id.into().as_ref());
         self
@@ -494,7 +494,6 @@ impl Props {
     /// Modifica el identificador, las clases, los atributos o los valores extra según la operación
     /// indicada. El método recomendado para construir cada operación es usar los constructores de
     /// [`PropsOp`].
-    #[builder_fn]
     pub fn with_prop(mut self, op: PropsOp) -> Self {
         match op {
             PropsOp::SetId(value) => {

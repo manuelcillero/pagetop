@@ -97,14 +97,13 @@ fn links(allow_registration: bool) -> Html {
     })
 }
 
+#[builder_impl]
 impl LoginForm {
-    #[builder_fn]
     pub fn with_error(mut self, error: impl Into<Option<Lc>>) -> Self {
         self.error = error.into();
         self
     }
 
-    #[builder_fn]
     pub fn with_waypoint(mut self, waypoint: impl Into<Waypoint>) -> Self {
         self.waypoint = waypoint.into();
         self

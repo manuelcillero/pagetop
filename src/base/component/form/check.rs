@@ -28,6 +28,7 @@ pub struct Item {
     disabled: bool,
 }
 
+#[builder_impl]
 impl Item {
     /// Crea una nueva casilla con el valor y la etiqueta indicados.
     pub fn new(value: impl AsRef<str>, label: Lc) -> Self {
@@ -42,14 +43,12 @@ impl Item {
     // **< Item BUILDER >***************************************************************************
 
     /// Establece si la casilla debe aparecer marcada por defecto.
-    #[builder_fn]
     pub fn with_checked(mut self, checked: bool) -> Self {
         self.checked = checked;
         self
     }
 
     /// Establece si la casilla está deshabilitada.
-    #[builder_fn]
     pub fn with_disabled(mut self, disabled: bool) -> Self {
         self.disabled = disabled;
         self
@@ -179,18 +178,17 @@ impl Component for Field {
     }
 }
 
+#[builder_impl]
 impl Field {
     // **< Field BUILDER >**************************************************************************
 
     /// Establece el identificador único del componente; igual a `with_prop(PropsOp::set_id(id))`.
-    #[builder_fn]
     pub fn with_id(mut self, id: impl Into<CowStr>) -> Self {
         self.props.alter_id(id);
         self
     }
 
     /// Modifica identificador, clases CSS, atributos HTML o valores extra del componente.
-    #[builder_fn]
     pub fn with_prop(mut self, op: PropsOp) -> Self {
         self.props.alter_prop(op);
         self
@@ -201,28 +199,24 @@ impl Field {
     /// Todas las casillas [`form::check::Item`](Item) del grupo llevarán este mismo `name`. Si se
     /// omite, se asigna un nombre generado automáticamente. Para deserializar los campos en el
     /// servidor es recomendable establecer un `name` explícito.
-    #[builder_fn]
     pub fn with_name(mut self, name: impl AsRef<str>) -> Self {
         self.name.alter_name(name);
         self
     }
 
     /// Establece la etiqueta visible del grupo (usa [`Lc::none()`] para quitarla).
-    #[builder_fn]
     pub fn with_label(mut self, label: Lc) -> Self {
         self.label = label;
         self
     }
 
     /// Establece el texto de ayuda del grupo (usa [`Lc::none()`] para quitarlo).
-    #[builder_fn]
     pub fn with_help_text(mut self, help_text: Lc) -> Self {
         self.help_text = help_text;
         self
     }
 
     /// Añade una casilla al grupo. Las casillas se muestran en el orden en que se añaden.
-    #[builder_fn]
     pub fn with_item(mut self, item: Item) -> Self {
         self.items.push(item);
         self
@@ -231,7 +225,6 @@ impl Field {
     /// Establece si todo el grupo está deshabilitado.
     ///
     /// Cuando está activo, se combina con el estado `disabled` de cada [`Item`].
-    #[builder_fn]
     pub fn with_disabled(mut self, disabled: bool) -> Self {
         self.disabled = disabled;
         self
@@ -240,7 +233,6 @@ impl Field {
     /// Establece si las casillas se muestran en línea horizontalmente.
     ///
     /// Al activar este modo, se añade la clase `form-check-inline` al contenedor de cada casilla.
-    #[builder_fn]
     pub fn with_inline(mut self, inline: bool) -> Self {
         self.inline = inline;
         self

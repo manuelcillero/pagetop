@@ -46,14 +46,14 @@ pub(crate) const EXTRA_IN_NAVBAR: &str = "bootsier.nav.in_navbar";
 ///     ))
 ///     .with_item(bs::nav::Item::link_disabled(Lc::n("Disabled"), "#"));
 /// ```
+#[builder_impl]
 pub trait NavBootsier {
     /// Cambia el estilo del menú (*Tabs*, *Pills*, *Underline* o *Default*).
-    #[builder_fn]
     fn with_kind(self, kind: Kind) -> Self;
 }
 
+#[builder_impl]
 impl NavBootsier for Nav {
-    #[builder_fn]
     fn with_kind(mut self, kind: Kind) -> Self {
         self.alter_prop(PropsOp::set_extra(EXTRA_KIND, kind));
         self

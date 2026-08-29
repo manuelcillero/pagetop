@@ -60,6 +60,7 @@ impl Component for Html {
     }
 }
 
+#[builder_impl]
 impl Html {
     // **< Html BUILDER >***************************************************************************
 
@@ -79,7 +80,6 @@ impl Html {
     /// Permite a otras extensiones modificar la función de renderizado que se ejecutará cuando
     /// [`Self::prepare()`] invoque esta instancia. La nueva función también recibe una referencia
     /// mutable al [`Context`].
-    #[builder_fn]
     pub fn with_fn<F>(mut self, f: F) -> Self
     where
         F: Fn(&mut Context) -> Markup + Send + Sync + 'static,

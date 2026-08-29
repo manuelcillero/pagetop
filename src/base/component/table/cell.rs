@@ -24,6 +24,7 @@ pub struct Cell {
     children: Children,
 }
 
+#[builder_impl]
 impl Cell {
     /// Crea una celda a partir del componente o texto ([`Lc`]) indicado.
     ///
@@ -44,14 +45,12 @@ impl Cell {
     // **< Cell BUILDER >***************************************************************************
 
     /// Establece el identificador único de la celda.
-    #[builder_fn]
     pub fn with_id(mut self, id: impl Into<CowStr>) -> Self {
         self.props.alter_id(id);
         self
     }
 
     /// Modifica identificador, clases CSS o atributos HTML de la celda.
-    #[builder_fn]
     pub fn with_prop(mut self, op: PropsOp) -> Self {
         self.props.alter_prop(op);
         self
@@ -60,7 +59,6 @@ impl Cell {
     /// Establece el número de columnas que ocupa la celda (atributo `colspan`).
     ///
     /// Con `1` (el valor por defecto de HTML) elimina el atributo en vez de fijarlo.
-    #[builder_fn]
     pub fn with_colspan(mut self, span: u8) -> Self {
         self.props.alter_prop(if span == 1 {
             PropsOp::remove("colspan")
@@ -73,7 +71,6 @@ impl Cell {
     /// Establece el número de filas que ocupa la celda (atributo `rowspan`).
     ///
     /// Con `1` (el valor por defecto de HTML) elimina el atributo en vez de fijarlo.
-    #[builder_fn]
     pub fn with_rowspan(mut self, span: u8) -> Self {
         self.props.alter_prop(if span == 1 {
             PropsOp::remove("rowspan")
@@ -85,7 +82,6 @@ impl Cell {
 
     /// Añade un nuevo componente a la celda o modifica la lista de componentes (`children`) con una
     /// operación [`ChildOp`].
-    #[builder_fn]
     pub fn with_child(mut self, op: impl Into<ChildOp>) -> Self {
         self.children.alter_child(op.into());
         self

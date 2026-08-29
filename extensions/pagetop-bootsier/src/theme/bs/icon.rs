@@ -78,6 +78,7 @@ impl Component for Icon {
     }
 }
 
+#[builder_impl]
 impl Icon {
     pub fn font() -> Self {
         Self::default().with_icon_kind(IconKind::Font(FontSize::default()))
@@ -104,26 +105,22 @@ impl Icon {
     // **< Icon BUILDER >***************************************************************************
 
     /// Establece el identificador único del componente; igual a `with_prop(PropsOp::set_id(id))`.
-    #[builder_fn]
     pub fn with_id(mut self, id: impl Into<CowStr>) -> Self {
         self.props.alter_id(id);
         self
     }
 
     /// Modifica identificador, clases CSS, atributos HTML o valores extra del componente.
-    #[builder_fn]
     pub fn with_prop(mut self, op: PropsOp) -> Self {
         self.props.alter_prop(op);
         self
     }
 
-    #[builder_fn]
     pub fn with_icon_kind(mut self, icon_kind: IconKind) -> Self {
         self.icon_kind = icon_kind;
         self
     }
 
-    #[builder_fn]
     pub fn with_aria_label(mut self, label: Lc) -> Self {
         self.aria_label.alter_value(label);
         self

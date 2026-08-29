@@ -73,6 +73,7 @@ impl Component for MenuBreadcrumb {
     }
 }
 
+#[builder_impl]
 impl MenuBreadcrumb {
     /// Crea un `MenuBreadcrumb` para el menú con el `machine_name` dado.
     pub fn with(menu_name: impl Into<String>) -> Self {
@@ -81,7 +82,6 @@ impl MenuBreadcrumb {
         bc
     }
 
-    #[builder_fn]
     pub fn with_include_current(mut self, v: impl Into<Option<bool>>) -> Self {
         if let Some(v) = v.into() {
             self.include_current = v;

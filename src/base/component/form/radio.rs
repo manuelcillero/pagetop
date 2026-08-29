@@ -29,6 +29,7 @@ pub struct Item {
     disabled: bool,
 }
 
+#[builder_impl]
 impl Item {
     /// Crea una nueva opción con el valor y la etiqueta indicados.
     pub fn new(value: impl AsRef<str>, label: Lc) -> Self {
@@ -46,14 +47,12 @@ impl Item {
     ///
     /// Si varias opciones del grupo tienen `checked` activo, sólo la primera se renderizará como
     /// seleccionada; las demás se ignorarán.
-    #[builder_fn]
     pub fn with_checked(mut self, checked: bool) -> Self {
         self.checked = checked;
         self
     }
 
     /// Establece si la opción está inicialmente deshabilitada.
-    #[builder_fn]
     pub fn with_disabled(mut self, disabled: bool) -> Self {
         self.disabled = disabled;
         self
@@ -196,18 +195,17 @@ impl Component for Field {
     }
 }
 
+#[builder_impl]
 impl Field {
     // **< Field BUILDER >**************************************************************************
 
     /// Establece el identificador único del componente; igual a `with_prop(PropsOp::set_id(id))`.
-    #[builder_fn]
     pub fn with_id(mut self, id: impl Into<CowStr>) -> Self {
         self.props.alter_id(id);
         self
     }
 
     /// Modifica identificador, clases CSS, atributos HTML o valores extra del componente.
-    #[builder_fn]
     pub fn with_prop(mut self, op: PropsOp) -> Self {
         self.props.alter_prop(op);
         self
@@ -221,28 +219,24 @@ impl Field {
     ///
     /// Si se omite, se asigna un nombre generado automáticamente. Para deserializar los campos en
     /// el servidor es recomendable establecer un `name` explícito.
-    #[builder_fn]
     pub fn with_name(mut self, name: impl AsRef<str>) -> Self {
         self.name.alter_name(name);
         self
     }
 
     /// Establece la etiqueta visible del grupo (usa [`Lc::none()`] para quitarla).
-    #[builder_fn]
     pub fn with_label(mut self, label: Lc) -> Self {
         self.label = label;
         self
     }
 
     /// Establece el texto de ayuda del grupo (usa [`Lc::none()`] para quitarlo).
-    #[builder_fn]
     pub fn with_help_text(mut self, help_text: Lc) -> Self {
         self.help_text = help_text;
         self
     }
 
     /// Añade una opción al grupo. Las opciones se muestran en el orden en que se añaden.
-    #[builder_fn]
     pub fn with_item(mut self, item: Item) -> Self {
         self.items.push(item);
         self
@@ -252,7 +246,6 @@ impl Field {
     ///
     /// El atributo `required` se propaga a todos los botones del grupo para cumplir con la
     /// especificación HTML.
-    #[builder_fn]
     pub fn with_required(mut self, required: bool) -> Self {
         self.required = required;
         self
@@ -261,7 +254,6 @@ impl Field {
     /// Establece si todo el grupo está deshabilitado.
     ///
     /// Cuando está activo, se combina con el estado `disabled` de cada [`Item`].
-    #[builder_fn]
     pub fn with_disabled(mut self, disabled: bool) -> Self {
         self.disabled = disabled;
         self
@@ -270,7 +262,6 @@ impl Field {
     /// Establece si los botones se muestran en línea horizontalmente.
     ///
     /// Al activar este modo, se añade la clase `form-check-inline` al contenedor de cada opción.
-    #[builder_fn]
     pub fn with_inline(mut self, inline: bool) -> Self {
         self.inline = inline;
         self

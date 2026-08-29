@@ -29,7 +29,7 @@ use crate::html::{DOCTYPE, Markup, html};
 use crate::html::{Props, PropsOp};
 use crate::locale::{CharacterDirection, LangId, LanguageIdentifier, Lc};
 use crate::web::HttpRequest;
-use crate::{AutoDefault, builder_fn};
+use crate::{AutoDefault, builder_impl};
 
 // **< ReservedRegions >****************************************************************************
 
@@ -95,6 +95,7 @@ pub struct Page {
     context    : Context,
 }
 
+#[builder_impl]
 impl Page {
     /// Crea una nueva instancia de página.
     ///
@@ -126,28 +127,24 @@ impl Page {
     // **< Page BUILDER >***************************************************************************
 
     /// Establece el título de la página como un valor traducible.
-    #[builder_fn]
     pub fn with_title(mut self, title: Lc) -> Self {
         self.title = title;
         self
     }
 
     /// Establece la descripción de la página como un valor traducible.
-    #[builder_fn]
     pub fn with_description(mut self, description: Lc) -> Self {
         self.description = description;
         self
     }
 
     /// Añade una entrada `<meta name="..." content="...">` al `<head>`.
-    #[builder_fn]
     pub fn with_metadata(mut self, name: &'static str, content: &'static str) -> Self {
         self.metadata.push((name, content));
         self
     }
 
     /// Añade una entrada `<meta property="..." content="...">` al `<head>`.
-    #[builder_fn]
     pub fn with_property(mut self, property: &'static str, content: &'static str) -> Self {
         self.properties.push((property, content));
         self
@@ -267,59 +264,51 @@ impl LangId for Page {
     }
 }
 
+#[builder_impl]
 impl Contextual for Page {
     // **< Contextual BUILDER >*********************************************************************
 
-    #[builder_fn]
     fn with_request(mut self, request: Option<HttpRequest>) -> Self {
         self.context.alter_request(request);
         self
     }
 
-    #[builder_fn]
     fn with_langid(mut self, language: &impl LangId) -> Self {
         self.context.alter_langid(language);
         self
     }
 
-    #[builder_fn]
     fn with_template(mut self, template: TemplateRef) -> Self {
         self.context.alter_template(template);
         self
     }
 
-    #[builder_fn]
     fn with_theme(mut self, theme: ThemeRef) -> Self {
         self.context.alter_theme(theme);
         self
     }
 
-    #[builder_fn]
     fn with_param<T: Send + Sync + 'static>(mut self, key: &'static str, value: T) -> Self {
         self.context.alter_param(key, value);
         self
     }
 
-    #[builder_fn]
     fn with_assets(mut self, op: AssetsOp) -> Self {
         self.context.alter_assets(op);
         self
     }
 
-    #[builder_fn]
     fn with_body_props(mut self, op: PropsOp) -> Self {
         self.context.alter_body_props(op);
         self
     }
 
-    #[builder_fn]
     fn with_child(mut self, op: impl Into<ChildOp>) -> Self {
         self.context
             .alter_child_in(&CoreRegions::Content, op.into());
         self
     }
 
-    #[builder_fn]
     fn with_child_in(mut self, region: RegionRef, op: impl Into<ChildOp>) -> Self {
         self.context.alter_child_in(region, op.into());
         self

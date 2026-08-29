@@ -44,54 +44,46 @@ const EXTRA_MENU_POSITION: &str = "bootsier.dropdown.menu_position";
 ///     .with_item(bs::dropdown::Item::header(Lc::n("User session")))
 ///     .with_item(bs::dropdown::Item::button(Lc::n("Sign out")));
 /// ```
+#[builder_impl]
 pub trait DropdownBootsier {
     /// Indica si el botón del menú está integrado en un grupo de botones.
-    #[builder_fn]
     fn with_button_grouped(self, grouped: bool) -> Self;
 
     /// Establece la política de cierre automático del menú desplegable.
-    #[builder_fn]
     fn with_auto_close(self, auto_close: AutoClose) -> Self;
 
     /// Establece la dirección de despliegue del menú.
-    #[builder_fn]
     fn with_direction(self, direction: Direction) -> Self;
 
     /// Configura la alineación horizontal (con posible comportamiento *responsive* adicional).
-    #[builder_fn]
     fn with_menu_align(self, align: MenuAlign) -> Self;
 
     /// Configura la posición del menú.
-    #[builder_fn]
     fn with_menu_position(self, position: MenuPosition) -> Self;
 }
 
+#[builder_impl]
 impl DropdownBootsier for Dropdown {
-    #[builder_fn]
     fn with_button_grouped(mut self, grouped: bool) -> Self {
         self.alter_prop(PropsOp::set_extra(EXTRA_BUTTON_GROUPED, grouped));
         self
     }
 
-    #[builder_fn]
     fn with_auto_close(mut self, auto_close: AutoClose) -> Self {
         self.alter_prop(PropsOp::set_extra(EXTRA_AUTO_CLOSE, auto_close));
         self
     }
 
-    #[builder_fn]
     fn with_direction(mut self, direction: Direction) -> Self {
         self.alter_prop(PropsOp::set_extra(EXTRA_DIRECTION, direction));
         self
     }
 
-    #[builder_fn]
     fn with_menu_align(mut self, align: MenuAlign) -> Self {
         self.alter_prop(PropsOp::set_extra(EXTRA_MENU_ALIGN, align));
         self
     }
 
-    #[builder_fn]
     fn with_menu_position(mut self, position: MenuPosition) -> Self {
         self.alter_prop(PropsOp::set_extra(EXTRA_MENU_POSITION, position));
         self

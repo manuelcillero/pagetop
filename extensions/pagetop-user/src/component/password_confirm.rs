@@ -48,18 +48,17 @@ impl Component for PasswordConfirm {
     }
 }
 
+#[builder_impl]
 impl PasswordConfirm {
     // **< PasswordConfirm BUILDER >********************************************************************
 
     /// Establece la etiqueta del campo de contraseña (por defecto, "field-password").
-    #[builder_fn]
     pub(crate) fn with_password_label(mut self, label: Lc) -> Self {
         self.password_label = label;
         self
     }
 
     /// Establece la etiqueta del campo de confirmación (por defecto, "field-confirm-password").
-    #[builder_fn]
     pub(crate) fn with_confirm_label(mut self, label: Lc) -> Self {
         self.confirm_label = label;
         self

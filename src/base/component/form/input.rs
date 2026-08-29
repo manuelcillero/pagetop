@@ -275,6 +275,7 @@ impl Component for Field {
     }
 }
 
+#[builder_impl]
 impl Field {
     /// Crea un campo de **texto genérico** (`type="text"`).
     ///
@@ -391,14 +392,12 @@ impl Field {
     // **< Field BUILDER >**************************************************************************
 
     /// Establece el identificador único del componente; igual a `with_prop(PropsOp::set_id(id))`.
-    #[builder_fn]
     pub fn with_id(mut self, id: impl Into<CowStr>) -> Self {
         self.props.alter_id(id);
         self
     }
 
     /// Modifica identificador, clases CSS, atributos HTML o valores extra del componente.
-    #[builder_fn]
     pub fn with_prop(mut self, op: PropsOp) -> Self {
         self.props.alter_prop(op);
         self
@@ -408,42 +407,36 @@ impl Field {
     ///
     /// Sin él, el valor del campo no se transmite al servidor al enviar el formulario. Para
     /// deserializar el campo en el servidor es recomendable establecer un `name` explícito.
-    #[builder_fn]
     pub fn with_name(mut self, name: impl AsRef<str>) -> Self {
         self.name.alter_name(name);
         self
     }
 
     /// Establece el valor inicial del campo.
-    #[builder_fn]
     pub fn with_value(mut self, value: impl AsRef<str>) -> Self {
         self.value.alter_str(value);
         self
     }
 
     /// Establece la etiqueta visible del campo (usa [`Lc::none()`] para quitarla).
-    #[builder_fn]
     pub fn with_label(mut self, label: Lc) -> Self {
         self.label = label;
         self
     }
 
     /// Establece el texto de ayuda del campo (usa [`Lc::none()`] para quitarlo).
-    #[builder_fn]
     pub fn with_help_text(mut self, help_text: Lc) -> Self {
         self.help_text = help_text;
         self
     }
 
     /// Establece la longitud mínima permitida en caracteres (`None` para no imponer mínimo).
-    #[builder_fn]
     pub fn with_minlength(mut self, minlength: impl Into<Option<u16>>) -> Self {
         self.minlength = minlength.into();
         self
     }
 
     /// Establece la longitud máxima permitida en caracteres (`None` para no imponer límite).
-    #[builder_fn]
     pub fn with_maxlength(mut self, maxlength: impl Into<Option<u16>>) -> Self {
         self.maxlength = maxlength.into();
         self
@@ -453,7 +446,6 @@ impl Field {
     ///
     /// Este texto aparece en el mismo campo y desaparece en cuanto el usuario empieza a escribir.
     /// Al ser texto visible para el usuario se acepta [`Lc`] para poder localizarlo.
-    #[builder_fn]
     pub fn with_placeholder(mut self, placeholder: Lc) -> Self {
         self.placeholder = placeholder;
         self
@@ -464,7 +456,6 @@ impl Field {
     /// Usar los métodos de [`form::Autocomplete`] para los valores más habituales (p. ej.
     /// [`Autocomplete::email()`](form::Autocomplete::email) o
     /// [`Autocomplete::current_password()`](form::Autocomplete::current_password)).
-    #[builder_fn]
     pub fn with_autocomplete(
         mut self,
         autocomplete: impl Into<Option<form::Autocomplete>>,
@@ -474,28 +465,24 @@ impl Field {
     }
 
     /// Establece si el campo recibe el foco automáticamente al cargar la página.
-    #[builder_fn]
     pub fn with_autofocus(mut self, autofocus: bool) -> Self {
         self.autofocus = autofocus;
         self
     }
 
     /// Establece si el campo es de sólo lectura.
-    #[builder_fn]
     pub fn with_readonly(mut self, readonly: bool) -> Self {
         self.readonly = readonly;
         self
     }
 
     /// Establece si el campo es obligatorio.
-    #[builder_fn]
     pub fn with_required(mut self, required: bool) -> Self {
         self.required = required;
         self
     }
 
     /// Establece si el campo está deshabilitado.
-    #[builder_fn]
     pub fn with_disabled(mut self, disabled: bool) -> Self {
         self.disabled = disabled;
         self
@@ -505,7 +492,6 @@ impl Field {
     ///
     /// Útil para mostrar un valor no editable en pantalla que sí se envía al servidor con el
     /// formulario. El efecto visual depende del tema activo.
-    #[builder_fn]
     pub fn with_plaintext(mut self, plaintext: bool) -> Self {
         self.plaintext = plaintext;
         self
@@ -515,7 +501,6 @@ impl Field {
     ///
     /// A diferencia del atributo `type` ([`form::input::Kind`]), no restringe los valores aceptados
     /// ni activa la validación del navegador; es sólo una sugerencia de presentación.
-    #[builder_fn]
     pub fn with_inputmode(mut self, inputmode: impl Into<Option<Mode>>) -> Self {
         self.inputmode = inputmode.into();
         self

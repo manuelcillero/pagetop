@@ -49,8 +49,8 @@ fn back_to_login() -> Html {
     })
 }
 
+#[builder_impl]
 impl PasswordResetForm {
-    #[builder_fn]
     pub fn with_error(mut self, error: impl Into<Option<Lc>>) -> Self {
         self.error = error.into();
         self

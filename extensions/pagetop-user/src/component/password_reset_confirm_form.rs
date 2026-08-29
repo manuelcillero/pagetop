@@ -44,8 +44,8 @@ impl Component for PasswordResetConfirmForm {
     }
 }
 
+#[builder_impl]
 impl PasswordResetConfirmForm {
-    #[builder_fn]
     pub fn with_error(mut self, error: impl Into<Option<Lc>>) -> Self {
         self.error = error.into();
         self

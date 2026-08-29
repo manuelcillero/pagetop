@@ -9,7 +9,7 @@ use crate::html::{Markup, Props, PropsOp, RoutePath, html};
 use crate::locale::Lc;
 use crate::locale::{LangId, LanguageIdentifier, RequestLocale};
 use crate::web::HttpRequest;
-use crate::{builder_fn, util};
+use crate::{builder_impl, util};
 
 use parking_lot::Mutex;
 use thiserror::Error;
@@ -85,11 +85,11 @@ pub enum ContextError {
 ///       .with_param("user_id", 42_i32)
 /// }
 /// ```
+#[builder_impl]
 pub trait Contextual: LangId {
     // **< Contextual BUILDER >*********************************************************************
 
     /// Establece el idioma del documento.
-    #[builder_fn]
     fn with_langid(self, language: &impl LangId) -> Self;
 
     /// Almacena la petición HTTP de origen en el contexto.
@@ -99,15 +99,12 @@ pub trait Contextual: LangId {
     /// cualquier idioma forzado antes con [`with_langid()`](Self::with_langid) o el usuario ya
     /// resuelto. Si necesitas forzar el idioma o el usuario, llama a `with_request()` primero en
     /// la cadena de construcción, nunca después.
-    #[builder_fn]
     fn with_request(self, request: Option<HttpRequest>) -> Self;
 
     /// Especifica la plantilla para renderizar el documento.
-    #[builder_fn]
     fn with_template(self, template: TemplateRef) -> Self;
 
     /// Especifica el tema para renderizar el documento.
-    #[builder_fn]
     fn with_theme(self, theme: ThemeRef) -> Self;
 
     /// Añade o modifica un parámetro dinámico del contexto.
@@ -125,25 +122,20 @@ pub trait Contextual: LangId {
     ///     .with_param("title", "Hello".to_string())
     ///     .with_param("flags", vec!["a", "b"]);
     /// ```
-    #[builder_fn]
     fn with_param<T: Send + Sync + 'static>(self, key: &'static str, value: T) -> Self;
 
     /// Define los recursos del contexto usando [`AssetsOp`].
-    #[builder_fn]
     fn with_assets(self, op: AssetsOp) -> Self;
 
     /// Modifica identificador, clases CSS, atributos HTML o valores extra del elemento `<body>`.
-    #[builder_fn]
     fn with_body_props(self, op: PropsOp) -> Self;
 
     /// Añade un componente o aplica una operación [`ChildOp`] en la región por defecto del
     /// documento.
-    #[builder_fn]
     fn with_child(self, op: impl Into<ChildOp>) -> Self;
 
     /// Añade un componente o aplica una operación [`ChildOp`] en una región específica del
     /// documento.
-    #[builder_fn]
     fn with_child_in(self, region: RegionRef, op: impl Into<ChildOp>) -> Self;
 
     // **< Contextual GETTERS >*********************************************************************
@@ -546,10 +538,10 @@ impl LangId for Context {
     }
 }
 
+#[builder_impl]
 impl Contextual for Context {
     // **< Contextual BUILDER >*********************************************************************
 
-    #[builder_fn]
     fn with_request(mut self, request: Option<HttpRequest>) -> Self {
         self.request = request;
         // Recalcula el *locale* y el usuario actual según la nueva petición y la política de
@@ -559,32 +551,27 @@ impl Contextual for Context {
         self
     }
 
-    #[builder_fn]
     fn with_langid(mut self, language: &impl LangId) -> Self {
         self.locale.with_langid(language);
         self
     }
 
-    #[builder_fn]
     fn with_template(mut self, template: TemplateRef) -> Self {
         self.template = template;
         self
     }
 
-    #[builder_fn]
     fn with_theme(mut self, theme: ThemeRef) -> Self {
         self.theme = theme;
         self
     }
 
-    #[builder_fn]
     fn with_param<T: Send + Sync + 'static>(mut self, key: &'static str, value: T) -> Self {
         let type_name = TypeInfo::FullName.of::<T>();
         self.params.insert(key, (Box::new(value), type_name));
         self
     }
 
-    #[builder_fn]
     fn with_assets(mut self, op: AssetsOp) -> Self {
         match op {
             // Favicon.
@@ -621,20 +608,17 @@ impl Contextual for Context {
         self
     }
 
-    #[builder_fn]
     fn with_body_props(mut self, op: PropsOp) -> Self {
         self.body_props.alter_prop(op);
         self
     }
 
-    #[builder_fn]
     fn with_child(mut self, op: impl Into<ChildOp>) -> Self {
         self.regions
             .alter_child_in(&CoreRegions::Content, op.into());
         self
     }
 
-    #[builder_fn]
     fn with_child_in(mut self, region: RegionRef, op: impl Into<ChildOp>) -> Self {
         self.regions.alter_child_in(region, op.into());
         self

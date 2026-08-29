@@ -1,4 +1,4 @@
-use crate::{AutoDefault, CowStr, builder_fn};
+use crate::{AutoDefault, CowStr, builder_impl};
 
 use std::fmt::{self, Write as _};
 
@@ -53,6 +53,7 @@ pub struct RoutePath {
     query: indexmap::IndexMap<String, String>,
 }
 
+#[builder_impl]
 impl RoutePath {
     /// Crea un `RoutePath` a partir de un *path* inicial.
     ///
@@ -72,7 +73,6 @@ impl RoutePath {
     ///
     /// Un `value` vacío no se distingue de [`with_flag()`](Self::with_flag): ambos se renderizan
     /// como `?key`, sin `=`.
-    #[builder_fn]
     pub fn with_param(mut self, key: impl Into<String>, value: impl AsRef<str>) -> Self {
         self.query
             .insert(key.into(), Self::encode_query_value(value.as_ref()));
@@ -80,7 +80,6 @@ impl RoutePath {
     }
 
     /// Añade o sustituye un *flag* sin valor, por ejemplo `?debug`.
-    #[builder_fn]
     pub fn with_flag(mut self, flag: impl Into<String>) -> Self {
         self.query.insert(flag.into(), String::new());
         self

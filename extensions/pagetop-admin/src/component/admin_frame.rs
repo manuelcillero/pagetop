@@ -68,16 +68,15 @@ impl Component for AdminFrame {
     }
 }
 
+#[builder_impl]
 impl AdminFrame {
     /// Establece el título de la página.
-    #[builder_fn]
     pub fn with_title(mut self, title: Lc) -> Self {
         self.title = title;
         self
     }
 
     /// Añade un componente hijo al contenido de la página.
-    #[builder_fn]
     pub fn with_child(mut self, op: impl Into<ChildOp>) -> Self {
         self.children.alter_child(op.into());
         self

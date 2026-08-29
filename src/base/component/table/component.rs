@@ -118,18 +118,17 @@ impl Component for Table {
     }
 }
 
+#[builder_impl]
 impl Table {
     // **< Table BUILDER >**************************************************************************
 
     /// Establece el identificador único de la tabla.
-    #[builder_fn]
     pub fn with_id(mut self, id: impl Into<CowStr>) -> Self {
         self.props.alter_id(id);
         self
     }
 
     /// Modifica identificador, clases CSS o atributos HTML de la tabla.
-    #[builder_fn]
     pub fn with_prop(mut self, op: PropsOp) -> Self {
         self.props.alter_prop(op);
         self
@@ -141,14 +140,12 @@ impl Table {
     /// `table::Column::new(...)` con el texto indicado), o un [`table::Column`] ya construido (por
     /// ejemplo para asignarle clases, atributos propios o un enlace de ordenación con
     /// `with_sort()`).
-    #[builder_fn]
     pub fn with_column(mut self, column: impl Into<table::Column>) -> Self {
         self.columns.push(column.into());
         self
     }
 
     /// Añade una fila de datos al final de la tabla.
-    #[builder_fn]
     pub fn with_row(mut self, row: table::Row) -> Self {
         self.rows.push(row);
         self
@@ -160,7 +157,6 @@ impl Table {
     ///
     /// Ese mismo resultado se obtiene también si la traducción no resuelve a ningún texto (por
     /// ejemplo, con `Lc::n("")`).
-    #[builder_fn]
     pub fn with_empty(mut self, empty: impl Into<Option<Lc>>) -> Self {
         self.empty = empty.into();
         self

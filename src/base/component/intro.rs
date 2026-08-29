@@ -216,6 +216,7 @@ impl Component for Intro {
     }
 }
 
+#[builder_impl]
 impl Intro {
     // **< Intro BUILDER >**************************************************************************
 
@@ -227,7 +228,6 @@ impl Intro {
     /// # use pagetop::prelude::*;
     /// let intro = Intro::default().with_title(Lc::n("Intro title"));
     /// ```
-    #[builder_fn]
     pub fn with_title(mut self, title: Lc) -> Self {
         self.title = title;
         self
@@ -241,7 +241,6 @@ impl Intro {
     /// # use pagetop::prelude::*;
     /// let intro = Intro::default().with_slogan(Lc::n("A short slogan"));
     /// ```
-    #[builder_fn]
     pub fn with_slogan(mut self, slogan: Lc) -> Self {
         self.slogan = slogan;
         self
@@ -262,7 +261,6 @@ impl Intro {
     /// // Descarta el botón de la intro.
     /// let intro_no_button = Intro::default().with_button(None);
     /// ```
-    #[builder_fn]
     pub fn with_button(mut self, button: impl Into<Option<(Lc, Route)>>) -> Self {
         self.button = button.into();
         self
@@ -280,7 +278,6 @@ impl Intro {
     /// # use pagetop::prelude::*;
     /// let intro = Intro::default().with_opening(IntroOpening::Custom);
     /// ```
-    #[builder_fn]
     pub fn with_opening(mut self, opening: IntroOpening) -> Self {
         self.opening = opening;
         self
@@ -290,7 +287,6 @@ impl Intro {
     /// operación [`ChildOp`].
     ///
     /// Si se añade un bloque ([`Block`]) se aplicarán estilos específicos para destacarlo.
-    #[builder_fn]
     pub fn with_child(mut self, op: impl Into<ChildOp>) -> Self {
         self.children.alter_child(op.into());
         self

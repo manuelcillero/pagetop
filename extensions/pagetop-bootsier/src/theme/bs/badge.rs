@@ -18,15 +18,15 @@ const EXTRA_COLOR: &str = "bootsier.badge.color";
 ///
 /// let badge = bs::Badge::labeled(Lc::n("Beta")).with_color(BootsierColors::Dark);
 /// ```
+#[builder_impl]
 pub trait BadgeBootsier {
     /// Fuerza un color de la paleta de Bootsier, ignorando el que le correspondería a la `Intent`
     /// del badge. `None` restablece el comportamiento por defecto (color derivado de la `Intent`).
-    #[builder_fn]
     fn with_color(self, color: impl Into<Option<BootsierColors>>) -> Self;
 }
 
+#[builder_impl]
 impl BadgeBootsier for Badge {
-    #[builder_fn]
     fn with_color(mut self, color: impl Into<Option<BootsierColors>>) -> Self {
         match color.into() {
             Some(color) => self.alter_prop(PropsOp::set_extra(EXTRA_COLOR, color)),

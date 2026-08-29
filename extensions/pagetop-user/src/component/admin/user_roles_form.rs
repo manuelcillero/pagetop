@@ -43,28 +43,25 @@ impl Component for UserRolesForm {
     }
 }
 
+#[builder_impl]
 impl UserRolesForm {
     // **< UserRolesForm BUILDER >******************************************************************
 
-    #[builder_fn]
     pub(crate) fn with_user_id(mut self, user_id: i32) -> Self {
         self.user_id = user_id;
         self
     }
 
-    #[builder_fn]
     pub(crate) fn with_error(mut self, error: impl Into<Option<Lc>>) -> Self {
         self.error = error.into();
         self
     }
 
-    #[builder_fn]
     pub(crate) fn with_roles(mut self, roles: Vec<(i32, String, bool)>) -> Self {
         self.roles = roles;
         self
     }
 
-    #[builder_fn]
     pub(crate) fn with_waypoint(mut self, waypoint: impl Into<Waypoint>) -> Self {
         self.waypoint = waypoint.into();
         self

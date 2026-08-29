@@ -22,6 +22,7 @@ const EXTRA_FLOATING_LABEL: &str = "bootsier.form.textarea.floating_label";
 ///     .with_placeholder(Lc::n("Write here..."))
 ///     .with_floating_label(true);
 /// ```
+#[builder_impl]
 pub trait TextareaBootsier {
     /// Establece si la etiqueta se muestra flotante sobre el campo.
     ///
@@ -31,12 +32,11 @@ pub trait TextareaBootsier {
     ///
     /// Si se usa la etiqueta flotante, se anula el valor establecido con
     /// [`with_rows()`](form::Textarea::with_rows) antes del renderizado.
-    #[builder_fn]
     fn with_floating_label(self, floating: bool) -> Self;
 }
 
+#[builder_impl]
 impl TextareaBootsier for Textarea {
-    #[builder_fn]
     fn with_floating_label(mut self, floating: bool) -> Self {
         self.alter_prop(PropsOp::set_extra(EXTRA_FLOATING_LABEL, floating));
         self

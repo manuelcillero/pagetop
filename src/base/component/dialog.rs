@@ -103,25 +103,23 @@ impl Component for Dialog {
     }
 }
 
+#[builder_impl]
 impl Dialog {
     // **< Dialog BUILDER >*************************************************************************
 
     /// Establece el identificador único del componente; igual a `with_prop(PropsOp::set_id(id))`.
-    #[builder_fn]
     pub fn with_id(mut self, id: impl Into<CowStr>) -> Self {
         self.props.alter_id(id);
         self
     }
 
     /// Modifica identificador, clases CSS, atributos HTML o valores extra del componente.
-    #[builder_fn]
     pub fn with_prop(mut self, op: PropsOp) -> Self {
         self.props.alter_prop(op);
         self
     }
 
     /// Establece el título del diálogo.
-    #[builder_fn]
     pub fn with_title(mut self, title: Lc) -> Self {
         self.title = title;
         self
@@ -129,7 +127,6 @@ impl Dialog {
 
     /// Añade un nuevo componente al cuerpo del diálogo o modifica la lista de componentes
     /// (`children`) del cuerpo con una operación [`ChildOp`].
-    #[builder_fn]
     pub fn with_child(mut self, op: impl Into<ChildOp>) -> Self {
         self.body.alter_child(op.into());
         self
@@ -141,7 +138,6 @@ impl Dialog {
     /// El pie ya se maqueta en fila y alineado a la derecha por su propia clase CSS
     /// (`dialog-footer`); por lo que no requiere un [`ButtonSet`](super::ButtonSet) para alinear
     /// los botones, aunque puede usarse si se desea.
-    #[builder_fn]
     pub fn with_footer(mut self, op: impl Into<ChildOp>) -> Self {
         self.footer.alter_child(op.into());
         self

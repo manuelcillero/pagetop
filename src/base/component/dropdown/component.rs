@@ -130,46 +130,41 @@ impl Component for Dropdown {
     }
 }
 
+#[builder_impl]
 impl Dropdown {
     // **< Dropdown BUILDER >***********************************************************************
 
     /// Establece el identificador único del componente; igual a `with_prop(PropsOp::set_id(id))`.
-    #[builder_fn]
     pub fn with_id(mut self, id: impl Into<CowStr>) -> Self {
         self.props.alter_id(id);
         self
     }
 
     /// Modifica identificador, clases CSS, atributos HTML o valores extra del componente.
-    #[builder_fn]
     pub fn with_prop(mut self, op: PropsOp) -> Self {
         self.props.alter_prop(op);
         self
     }
 
     /// Establece el título del menú desplegable.
-    #[builder_fn]
     pub fn with_title(mut self, title: Lc) -> Self {
         self.title = title;
         self
     }
 
     /// Activa/desactiva el modo *split* (botón de acción más *toggle*).
-    #[builder_fn]
     pub fn with_button_split(mut self, split: bool) -> Self {
         self.button_split = split;
         self
     }
 
     /// Establece el tamaño visual del botón (usa [`button::Size::None`] para quitarlo).
-    #[builder_fn]
     pub fn with_button_size(mut self, size: button::Size) -> Self {
         self.button_size = size;
         self
     }
 
     /// Establece el estilo visual del botón (usa [`button::Style::None`] para quitarlo).
-    #[builder_fn]
     pub fn with_button_style(mut self, style: button::Style) -> Self {
         self.button_style = style;
         self
@@ -191,7 +186,6 @@ impl Dropdown {
     ///         dropdown::Item::link(Lc::n("Home"), "/"),
     ///     ]));
     /// ```
-    #[builder_fn]
     pub fn with_item(mut self, op: impl Into<TypedOp<dropdown::Item>>) -> Self {
         self.items.alter_child(op.into());
         self

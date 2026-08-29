@@ -89,18 +89,17 @@ impl Component for Form {
     }
 }
 
+#[builder_impl]
 impl Form {
     // **< Form BUILDER >***************************************************************************
 
     /// Establece el identificador único del componente; igual a `with_prop(PropsOp::set_id(id))`.
-    #[builder_fn]
     pub fn with_id(mut self, id: impl Into<CowStr>) -> Self {
         self.props.alter_id(id);
         self
     }
 
     /// Modifica identificador, clases CSS, atributos HTML o valores extra del componente.
-    #[builder_fn]
     pub fn with_prop(mut self, op: PropsOp) -> Self {
         self.props.alter_prop(op);
         self
@@ -110,7 +109,6 @@ impl Form {
     ///
     /// Acepta un literal, un `String`, o una [`Route`] explícita construida con [`Route::with()`]
     /// para rutas que dependan del contexto de renderizado.
-    #[builder_fn]
     pub fn with_action(mut self, action: impl Into<Route>) -> Self {
         self.action = action.into();
         self
@@ -120,7 +118,6 @@ impl Form {
     ///
     /// - `GET`: el atributo `method` se omite.
     /// - `POST`: se establece `method="post"`.
-    #[builder_fn]
     pub fn with_method(mut self, method: form::Method) -> Self {
         self.method = method;
         self
@@ -129,7 +126,6 @@ impl Form {
     /// Establece el juego de caracteres aceptado por el formulario.
     ///
     /// Por defecto se utiliza `"UTF-8"`.
-    #[builder_fn]
     pub fn with_charset(mut self, charset: impl AsRef<str>) -> Self {
         self.charset.alter_str(charset);
         self
@@ -137,7 +133,6 @@ impl Form {
 
     /// Añade un nuevo componente al formulario o modifica la lista de componentes (`children`) con
     /// una operación [`ChildOp`].
-    #[builder_fn]
     pub fn with_child(mut self, op: impl Into<ChildOp>) -> Self {
         self.children.alter_child(op.into());
         self

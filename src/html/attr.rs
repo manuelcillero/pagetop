@@ -1,4 +1,4 @@
-use crate::{AutoDefault, builder_fn, util};
+use crate::{AutoDefault, builder_impl, util};
 
 // **< AttrName >***********************************************************************************
 
@@ -24,6 +24,7 @@ use crate::{AutoDefault, builder_fn, util};
 #[derive(AutoDefault, Clone, Debug)]
 pub struct AttrName(Option<String>);
 
+#[builder_impl]
 impl AttrName {
     /// Crea un nuevo `AttrName` normalizando el valor.
     pub fn new(name: impl AsRef<str>) -> Self {
@@ -33,7 +34,6 @@ impl AttrName {
     // **< AttrName BUILDER >***********************************************************************
 
     /// Establece un nombre nuevo normalizando el valor.
-    #[builder_fn]
     pub fn with_name(mut self, name: impl AsRef<str>) -> Self {
         self.0 = util::normalize_token(name);
         self
@@ -79,6 +79,7 @@ impl AttrName {
 #[derive(AutoDefault, Clone, Debug)]
 pub struct AttrValue(Option<String>);
 
+#[builder_impl]
 impl AttrValue {
     /// Crea un nuevo `AttrValue` normalizando el valor.
     pub fn new(value: impl AsRef<str>) -> Self {
@@ -88,7 +89,6 @@ impl AttrValue {
     // **< AttrValue BUILDER >**********************************************************************
 
     /// Establece una cadena nueva normalizando el valor.
-    #[builder_fn]
     pub fn with_str(mut self, value: impl AsRef<str>) -> Self {
         self.0 = util::non_blank(value.as_ref()).map(str::to_string);
         self

@@ -32,6 +32,7 @@ pub struct Item {
     disabled: bool,
 }
 
+#[builder_impl]
 impl Item {
     /// Crea un nuevo elemento con el valor y la etiqueta indicados.
     pub fn new(value: impl AsRef<str>, label: Lc) -> Self {
@@ -50,14 +51,12 @@ impl Item {
     /// En una lista de selección única, el navegador aplica la selección al último elemento marcado
     /// si hay más de uno; mientras que en una lista múltiple se respetan todos los elementos
     /// marcados.
-    #[builder_fn]
     pub fn with_selected(mut self, selected: bool) -> Self {
         self.selected = selected;
         self
     }
 
     /// Establece si el elemento está deshabilitado.
-    #[builder_fn]
     pub fn with_disabled(mut self, disabled: bool) -> Self {
         self.disabled = disabled;
         self
@@ -90,6 +89,7 @@ pub struct Group {
     disabled: bool,
 }
 
+#[builder_impl]
 impl Group {
     /// Crea un nuevo grupo con la etiqueta indicada.
     pub fn new(label: Lc) -> Self {
@@ -102,14 +102,12 @@ impl Group {
     // **< Group BUILDER >**************************************************************************
 
     /// Añade un elemento al grupo. Los elementos se muestran en el orden en que se añaden.
-    #[builder_fn]
     pub fn with_item(mut self, item: Item) -> Self {
         self.items.push(item);
         self
     }
 
     /// Establece si el grupo de elementos está deshabilitado en bloque.
-    #[builder_fn]
     pub fn with_disabled(mut self, disabled: bool) -> Self {
         self.disabled = disabled;
         self
@@ -307,18 +305,17 @@ impl Component for Field {
     }
 }
 
+#[builder_impl]
 impl Field {
     // **< Field BUILDER >**************************************************************************
 
     /// Establece el identificador único del componente; igual a `with_prop(PropsOp::set_id(id))`.
-    #[builder_fn]
     pub fn with_id(mut self, id: impl Into<CowStr>) -> Self {
         self.props.alter_id(id);
         self
     }
 
     /// Modifica identificador, clases CSS, atributos HTML o valores extra del componente.
-    #[builder_fn]
     pub fn with_prop(mut self, op: PropsOp) -> Self {
         self.props.alter_prop(op);
         self
@@ -328,21 +325,18 @@ impl Field {
     ///
     /// Sin él, el valor seleccionado no se transmite al servidor al enviar el formulario. Para
     /// deserializar el campo en el servidor es recomendable establecer un `name` explícito.
-    #[builder_fn]
     pub fn with_name(mut self, name: impl AsRef<str>) -> Self {
         self.name.alter_name(name);
         self
     }
 
     /// Establece la etiqueta visible del campo (usa [`Lc::none()`] para quitarla).
-    #[builder_fn]
     pub fn with_label(mut self, label: Lc) -> Self {
         self.label = label;
         self
     }
 
     /// Establece el texto de ayuda del campo (usa [`Lc::none()`] para quitarlo).
-    #[builder_fn]
     pub fn with_help_text(mut self, help_text: Lc) -> Self {
         self.help_text = help_text;
         self
@@ -351,7 +345,6 @@ impl Field {
     /// Añade un elemento individual a la lista de selección.
     ///
     /// Los elementos y grupos se muestran en el orden en que se añaden.
-    #[builder_fn]
     pub fn with_item(mut self, item: Item) -> Self {
         self.entries.push(Entry::Item(item));
         self
@@ -360,7 +353,6 @@ impl Field {
     /// Añade un grupo de elementos a la lista de selección.
     ///
     /// Los elementos y grupos se muestran en el orden en que se añaden.
-    #[builder_fn]
     pub fn with_group(mut self, group: Group) -> Self {
         self.entries.push(Entry::Group(group));
         self
@@ -375,7 +367,6 @@ impl Field {
     /// Para un número reducido de elementos con etiquetas descriptivas considera usar
     /// [`form::check::Field`] en su lugar, ofrece una presentación más clara y es más accesible en
     /// pantallas pequeñas.
-    #[builder_fn]
     pub fn with_multiple(mut self, multiple: bool) -> Self {
         self.multiple = multiple;
         self
@@ -389,7 +380,6 @@ impl Field {
     ///
     /// Es especialmente útil con selección múltiple para controlar el número de filas visibles sin
     /// necesidad de recurrir al desplazamiento.
-    #[builder_fn]
     pub fn with_rows(mut self, rows: impl Into<Option<u16>>) -> Self {
         self.rows = rows.into();
         self
@@ -404,7 +394,6 @@ impl Field {
     ///
     /// Usa los métodos de [`form::Autocomplete`] para los valores más habituales. Pasa `None` para
     /// omitir el atributo.
-    #[builder_fn]
     pub fn with_autocomplete(
         mut self,
         autocomplete: impl Into<Option<form::Autocomplete>>,
@@ -414,21 +403,18 @@ impl Field {
     }
 
     /// Establece si el campo recibe el foco automáticamente al cargar la página.
-    #[builder_fn]
     pub fn with_autofocus(mut self, autofocus: bool) -> Self {
         self.autofocus = autofocus;
         self
     }
 
     /// Establece si el campo es obligatorio.
-    #[builder_fn]
     pub fn with_required(mut self, required: bool) -> Self {
         self.required = required;
         self
     }
 
     /// Establece si el campo está deshabilitado.
-    #[builder_fn]
     pub fn with_disabled(mut self, disabled: bool) -> Self {
         self.disabled = disabled;
         self

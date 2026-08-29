@@ -167,6 +167,7 @@ impl Component for Navbar {
     }
 }
 
+#[builder_impl]
 impl Navbar {
     /// Crea una barra de navegación **simple**, sin marca y sin botón.
     pub fn simple() -> Self {
@@ -198,21 +199,18 @@ impl Navbar {
     // **< Navbar BUILDER >*************************************************************************
 
     /// Establece el identificador único del componente; igual a `with_prop(PropsOp::set_id(id))`.
-    #[builder_fn]
     pub fn with_id(mut self, id: impl Into<CowStr>) -> Self {
         self.props.alter_id(id);
         self
     }
 
     /// Modifica identificador, clases CSS, atributos HTML o valores extra del componente.
-    #[builder_fn]
     pub fn with_prop(mut self, op: PropsOp) -> Self {
         self.props.alter_prop(op);
         self
     }
 
     /// Define el tipo de disposición que tendrá la barra de navegación.
-    #[builder_fn]
     pub fn with_layout(mut self, layout: navbar::Layout) -> Self {
         self.layout = layout;
         self
@@ -230,7 +228,6 @@ impl Navbar {
     ///     navbar::Item::text(...),
     /// ]));
     /// ```
-    #[builder_fn]
     pub fn with_item(mut self, op: impl Into<TypedOp<navbar::Item>>) -> Self {
         self.items.alter_child(op.into());
         self

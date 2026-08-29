@@ -45,8 +45,8 @@ impl Component for RegisterForm {
     }
 }
 
+#[builder_impl]
 impl RegisterForm {
-    #[builder_fn]
     pub fn with_error(mut self, error: impl Into<Option<Lc>>) -> Self {
         self.error = error.into();
         self

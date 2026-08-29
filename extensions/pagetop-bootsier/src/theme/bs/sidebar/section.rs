@@ -40,6 +40,7 @@ impl Component for Section {
     }
 }
 
+#[builder_impl]
 impl Section {
     /// Crea un encabezado de sección con el título indicado.
     pub fn titled(title: Lc) -> Self {
@@ -49,7 +50,6 @@ impl Section {
     // **< Section BUILDER >************************************************************************
 
     /// Establece el título localizable de la sección.
-    #[builder_fn]
     pub fn with_title(mut self, title: Lc) -> Self {
         self.title = title;
         self

@@ -65,6 +65,7 @@ impl Component for Item {
     }
 }
 
+#[builder_impl]
 impl Item {
     /// Crea un ítem de navegación con etiqueta, ruta e icono.
     ///
@@ -82,21 +83,18 @@ impl Item {
     // **< Item BUILDER >***************************************************************************
 
     /// Establece el texto localizable del ítem.
-    #[builder_fn]
     pub fn with_label(mut self, label: Lc) -> Self {
         self.label = label;
         self
     }
 
     /// Establece la ruta de destino del ítem.
-    #[builder_fn]
     pub fn with_route(mut self, route: impl Into<Option<Route>>) -> Self {
         self.route = route.into();
         self
     }
 
     /// Establece el nombre del icono de Bootstrap Icons (sin el prefijo `bi-`).
-    #[builder_fn]
     pub fn with_icon(mut self, icon: impl Into<CowStr>) -> Self {
         self.icon = icon.into();
         self

@@ -107,6 +107,7 @@ impl Component for MenuBlock {
     }
 }
 
+#[builder_impl]
 impl MenuBlock {
     /// Crea un `MenuBlock` para el menú con el `machine_name` dado.
     pub fn with(menu_name: impl Into<String>) -> Self {
@@ -115,7 +116,6 @@ impl MenuBlock {
         block
     }
 
-    #[builder_fn]
     pub fn with_show_title(mut self, v: impl Into<Option<bool>>) -> Self {
         if let Some(v) = v.into() {
             self.show_title = v;
@@ -125,13 +125,11 @@ impl MenuBlock {
 
     /// Establece la profundidad máxima de nodos a incluir. El efectivo nunca supera `2`, por muy
     /// alto que sea el valor indicado (ver "Limitaciones conocidas" en [`MenuBlock`]).
-    #[builder_fn]
     pub fn with_max_depth(mut self, v: impl Into<Option<u8>>) -> Self {
         self.max_depth = v.into();
         self
     }
 
-    #[builder_fn]
     pub fn with_include_disabled(mut self, v: impl Into<Option<bool>>) -> Self {
         if let Some(v) = v.into() {
             self.include_disabled = v;
@@ -139,7 +137,6 @@ impl MenuBlock {
         self
     }
 
-    #[builder_fn]
     pub fn with_hide_when_empty(mut self, v: impl Into<Option<bool>>) -> Self {
         if let Some(v) = v.into() {
             self.hide_when_empty = v;

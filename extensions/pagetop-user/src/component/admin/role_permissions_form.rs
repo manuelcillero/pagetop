@@ -61,28 +61,25 @@ impl Component for RolePermissionsForm {
     }
 }
 
+#[builder_impl]
 impl RolePermissionsForm {
     // **< RolePermissionsForm BUILDER >************************************************************
 
-    #[builder_fn]
     pub(crate) fn with_role_id(mut self, role_id: i32) -> Self {
         self.role_id = role_id;
         self
     }
 
-    #[builder_fn]
     pub(crate) fn with_error(mut self, error: impl Into<Option<Lc>>) -> Self {
         self.error = error.into();
         self
     }
 
-    #[builder_fn]
     pub(crate) fn with_groups(mut self, groups: PermissionGroups) -> Self {
         self.groups = groups;
         self
     }
 
-    #[builder_fn]
     pub(crate) fn with_waypoint(mut self, waypoint: impl Into<Waypoint>) -> Self {
         self.waypoint = waypoint.into();
         self

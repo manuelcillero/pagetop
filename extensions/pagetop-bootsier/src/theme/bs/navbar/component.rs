@@ -140,6 +140,7 @@ const EXTRA_EXPAND: &str = "bootsier.navbar.expand";
 ///             .with_item(bs::nav::Item::link(Lc::n("Stock"), "/stock"))
 ///     ));
 /// ```
+#[builder_impl]
 pub trait NavbarBootsier {
     /// Crea una barra de navegación cuyo contenido se muestra en un **offcanvas**.
     fn offcanvas(oc: bs::Offcanvas) -> Self;
@@ -151,14 +152,13 @@ pub trait NavbarBootsier {
     fn offcanvas_brand_right(brand: Brand, oc: bs::Offcanvas) -> Self;
 
     /// Define a partir de qué punto de ruptura la barra de navegación deja de colapsar.
-    #[builder_fn]
     fn with_expand(self, bp: BreakPoint) -> Self;
 
     /// Define dónde se mostrará la barra de navegación dentro del documento.
-    #[builder_fn]
     fn with_position(self, position: bs::navbar::Position) -> Self;
 }
 
+#[builder_impl]
 impl NavbarBootsier for Navbar {
     fn offcanvas(oc: bs::Offcanvas) -> Self {
         let mut navbar = Self::new();
@@ -187,13 +187,11 @@ impl NavbarBootsier for Navbar {
         navbar
     }
 
-    #[builder_fn]
     fn with_expand(mut self, bp: BreakPoint) -> Self {
         self.alter_prop(PropsOp::set_extra(EXTRA_EXPAND, bp));
         self
     }
 
-    #[builder_fn]
     fn with_position(mut self, position: bs::navbar::Position) -> Self {
         self.alter_prop(PropsOp::set_extra(EXTRA_POSITION, position));
         self

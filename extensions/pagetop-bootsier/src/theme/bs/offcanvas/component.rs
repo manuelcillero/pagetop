@@ -90,25 +90,23 @@ impl Component for Offcanvas {
     }
 }
 
+#[builder_impl]
 impl Offcanvas {
     // **< Offcanvas BUILDER >**********************************************************************
 
     /// Establece el identificador único del componente; igual a `with_prop(PropsOp::set_id(id))`.
-    #[builder_fn]
     pub fn with_id(mut self, id: impl Into<CowStr>) -> Self {
         self.props.alter_id(id);
         self
     }
 
     /// Modifica identificador, clases CSS, atributos HTML o valores extra del componente.
-    #[builder_fn]
     pub fn with_prop(mut self, op: PropsOp) -> Self {
         self.props.alter_prop(op);
         self
     }
 
     /// Establece el título del encabezado.
-    #[builder_fn]
     pub fn with_title(mut self, title: Lc) -> Self {
         self.title = title;
         self
@@ -123,7 +121,6 @@ impl Offcanvas {
     /// Por ejemplo, con `BreakPoint::Lg`, será *offcanvas* en móviles y tabletas, y visible
     /// directamente en pantallas grandes. Por defecto usa `BreakPoint::None` para que sea
     /// *offcanvas* siempre.
-    #[builder_fn]
     pub fn with_breakpoint(mut self, bp: BreakPoint) -> Self {
         self.breakpoint = bp;
         self
@@ -131,28 +128,24 @@ impl Offcanvas {
 
     /// Ajusta la capa de fondo del panel para definir su comportamiento al hacer clic fuera del
     /// panel.
-    #[builder_fn]
     pub fn with_backdrop(mut self, backdrop: bs::offcanvas::Backdrop) -> Self {
         self.backdrop = backdrop;
         self
     }
 
     /// Permite o bloquea el desplazamiento de la página principal mientras el panel está abierto.
-    #[builder_fn]
     pub fn with_body_scroll(mut self, scrolling: bs::offcanvas::BodyScroll) -> Self {
         self.body_scroll = scrolling;
         self
     }
 
     /// Indica desde qué borde de la ventana entra y se ancla el panel.
-    #[builder_fn]
     pub fn with_placement(mut self, placement: bs::offcanvas::Placement) -> Self {
         self.placement = placement;
         self
     }
 
     /// Fija el estado inicial del panel (oculto o visible al cargar).
-    #[builder_fn]
     pub fn with_visibility(mut self, visibility: bs::offcanvas::Visibility) -> Self {
         self.visibility = visibility;
         self
@@ -160,7 +153,6 @@ impl Offcanvas {
 
     /// Añade un nuevo componente al panel o modifica la lista de componentes (`children`) con una
     /// operación [`ChildOp`].
-    #[builder_fn]
     pub fn with_child(mut self, op: impl Into<ChildOp>) -> Self {
         self.children.alter_child(op.into());
         self

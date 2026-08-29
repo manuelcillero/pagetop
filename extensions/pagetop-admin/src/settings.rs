@@ -3,7 +3,7 @@
 //! Proporciona una API async para leer y escribir valores JSON en la tabla `settings`.
 
 use pagetop::datetime::Utc;
-use pagetop::{Getters, builder_fn};
+use pagetop::{Getters, builder_impl};
 use pagetop_seaorm::db::{
     ActiveModelTrait, ActiveValue, ColumnTrait, EntityTrait, QueryFilter, dbconn,
 };
@@ -128,6 +128,7 @@ pub struct SettingField {
     default_value: Option<String>,
 }
 
+#[builder_impl]
 impl SettingField {
     /// Crea un campo de texto con nombre y etiqueta.
     pub fn text(name: impl Into<String>, label: impl Into<String>) -> Self {
@@ -185,21 +186,18 @@ impl SettingField {
     }
 
     /// Establece si el campo es obligatorio.
-    #[builder_fn]
     pub fn with_required(mut self, required: bool) -> Self {
         self.required = required;
         self
     }
 
     /// Añade texto de ayuda bajo el campo.
-    #[builder_fn]
     pub fn with_help(mut self, text: impl Into<String>) -> Self {
         self.help_text = Some(text.into());
         self
     }
 
     /// Establece el valor por defecto (como valor JSON serializado).
-    #[builder_fn]
     pub fn with_default<T: Serialize>(mut self, value: &T) -> Self {
         self.default_value = serde_json::to_string(value).ok();
         self
@@ -215,6 +213,7 @@ pub struct SettingsSchema {
     fields: Vec<SettingField>,
 }
 
+#[builder_impl]
 impl SettingsSchema {
     /// Crea un nuevo esquema vacío para el `scope` dado.
     pub fn new(scope: impl Into<String>) -> Self {
@@ -225,7 +224,6 @@ impl SettingsSchema {
     }
 
     /// Añade un campo al esquema.
-    #[builder_fn]
     pub fn with_field(mut self, field: SettingField) -> Self {
         self.fields.push(field);
         self

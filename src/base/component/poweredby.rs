@@ -47,6 +47,7 @@ impl Component for PoweredBy {
     }
 }
 
+#[builder_impl]
 impl PoweredBy {
     // **< PoweredBy BUILDER >**********************************************************************
 
@@ -60,7 +61,6 @@ impl PoweredBy {
     /// let p1 = PoweredBy::default().with_copyright(Some("2001 © Foo Inc."));
     /// let p2 = PoweredBy::new().with_copyright(None::<String>);
     /// ```
-    #[builder_fn]
     pub fn with_copyright(mut self, copyright: Option<impl Into<String>>) -> Self {
         self.copyright = copyright.map(Into::into);
         self

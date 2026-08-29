@@ -49,6 +49,7 @@ impl Component for Badge {
     }
 }
 
+#[builder_impl]
 impl Badge {
     /// Crea un badge predeterminado (`Intent::default()`) con la etiqueta indicada.
     pub fn labeled(label: Lc) -> Self {
@@ -115,28 +116,24 @@ impl Badge {
     // **< Badge BUILDER >**************************************************************************
 
     /// Establece el identificador único del componente; igual a `with_prop(PropsOp::set_id(id))`.
-    #[builder_fn]
     pub fn with_id(mut self, id: impl Into<CowStr>) -> Self {
         self.props.alter_id(id);
         self
     }
 
     /// Modifica identificador, clases CSS, atributos HTML o valores extra del componente.
-    #[builder_fn]
     pub fn with_prop(mut self, op: PropsOp) -> Self {
         self.props.alter_prop(op);
         self
     }
 
     /// Establece la etiqueta del badge.
-    #[builder_fn]
     pub fn with_label(mut self, label: Lc) -> Self {
         self.label = label;
         self
     }
 
     /// Establece la intención semántica del badge.
-    #[builder_fn]
     pub fn with_intent(mut self, intent: Intent) -> Self {
         self.intent = intent;
         self

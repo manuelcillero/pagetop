@@ -24,6 +24,7 @@ const EXTRA_FLOATING_LABEL: &str = "bootsier.form.select.floating_label";
 ///     .with_item(bs::form::select::Item::new("es", Lc::n("Spanish")))
 ///     .with_item(bs::form::select::Item::new("en", Lc::n("English")));
 /// ```
+#[builder_impl]
 pub trait SelectBootsier {
     /// Establece si la etiqueta se muestra flotante sobre el campo.
     ///
@@ -33,12 +34,11 @@ pub trait SelectBootsier {
     /// Si se usa la etiqueta flotante, se anulan los valores establecidos con
     /// [`with_multiple()`](form::select::Field::with_multiple) y
     /// [`with_rows()`](form::select::Field::with_rows) antes del renderizado.
-    #[builder_fn]
     fn with_floating_label(self, floating: bool) -> Self;
 }
 
+#[builder_impl]
 impl SelectBootsier for Field {
-    #[builder_fn]
     fn with_floating_label(mut self, floating: bool) -> Self {
         self.alter_prop(PropsOp::set_extra(EXTRA_FLOATING_LABEL, floating));
         self

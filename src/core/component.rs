@@ -55,10 +55,9 @@ pub use route::Route;
 ///         Ok(html! { "Visible component" })
 ///     }
 /// }
-///
+/// #[builder_impl]
 /// impl SampleComponent {
 ///     /// Asigna una función que decidirá si el componente se renderiza o no.
-///     #[builder_fn]
 ///     pub fn with_renderable(mut self, f: Option<FnIsRenderable>) -> Self {
 ///         self.renderable = f;
 ///         self

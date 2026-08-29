@@ -54,6 +54,7 @@ impl Component for Hidden {
     }
 }
 
+#[builder_impl]
 impl Hidden {
     /// Crea un campo oculto con nombre y valor (atributos `name` y `value`) ya establecidos.
     ///
@@ -68,14 +69,12 @@ impl Hidden {
     ///
     /// Sin él, el valor del campo no se transmite al servidor al enviar el formulario. Para
     /// deserializar el campo en el servidor es recomendable establecer un `name` explícito.
-    #[builder_fn]
     pub fn with_name(mut self, name: impl AsRef<str>) -> Self {
         self.name.alter_name(name);
         self
     }
 
     /// Establece el valor del campo oculto (atributo `value`).
-    #[builder_fn]
     pub fn with_value(mut self, value: impl AsRef<str>) -> Self {
         self.value.alter_str(value);
         self

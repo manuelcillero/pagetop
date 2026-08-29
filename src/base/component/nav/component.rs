@@ -69,25 +69,23 @@ impl Component for Nav {
     }
 }
 
+#[builder_impl]
 impl Nav {
     // **< Nav BUILDER >****************************************************************************
 
     /// Establece el identificador único del componente; igual a `with_prop(PropsOp::set_id(id))`.
-    #[builder_fn]
     pub fn with_id(mut self, id: impl Into<CowStr>) -> Self {
         self.props.alter_id(id);
         self
     }
 
     /// Modifica identificador, clases CSS, atributos HTML o valores extra del componente.
-    #[builder_fn]
     pub fn with_prop(mut self, op: PropsOp) -> Self {
         self.props.alter_prop(op);
         self
     }
 
     /// Selecciona la distribución y orientación del menú.
-    #[builder_fn]
     pub fn with_layout(mut self, layout: nav::Layout) -> Self {
         self.nav_layout = layout;
         self
@@ -105,7 +103,6 @@ impl Nav {
     ///     nav::Item::link_disabled(...),
     /// ]));
     /// ```
-    #[builder_fn]
     pub fn with_item(mut self, op: impl Into<TypedOp<nav::Item>>) -> Self {
         self.items.alter_child(op.into());
         self

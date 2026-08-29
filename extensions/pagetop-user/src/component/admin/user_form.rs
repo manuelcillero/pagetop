@@ -121,76 +121,65 @@ impl Component for UserForm {
     }
 }
 
+#[builder_impl]
 impl UserForm {
     // **< UserForm BUILDER >***********************************************************************
 
-    #[builder_fn]
     pub(crate) fn with_mode(mut self, mode: UserFormMode) -> Self {
         self.mode = mode;
         self
     }
 
-    #[builder_fn]
     pub(crate) fn with_error(mut self, error: impl Into<Option<Lc>>) -> Self {
         self.error = error.into();
         self
     }
 
-    #[builder_fn]
     pub(crate) fn with_user_id(mut self, user_id: impl Into<Option<i32>>) -> Self {
         self.user_id = user_id.into();
         self
     }
 
-    #[builder_fn]
     pub(crate) fn with_waypoint(mut self, waypoint: impl Into<Waypoint>) -> Self {
         self.waypoint = waypoint.into();
         self
     }
 
-    #[builder_fn]
     pub(crate) fn with_username(mut self, username: impl Into<String>) -> Self {
         self.username = username.into();
         self
     }
 
-    #[builder_fn]
     pub(crate) fn with_email(mut self, email: impl Into<String>) -> Self {
         self.email = email.into();
         self
     }
 
-    #[builder_fn]
     pub(crate) fn with_display_name(mut self, display_name: impl Into<String>) -> Self {
         self.display_name = display_name.into();
         self
     }
 
-    #[builder_fn]
     pub(crate) fn with_language(mut self, language: impl Into<String>) -> Self {
         self.language = language.into();
         self
     }
 
-    #[builder_fn]
     pub(crate) fn with_timezone(mut self, timezone: impl Into<String>) -> Self {
         self.timezone = timezone.into();
         self
     }
 
-    #[builder_fn]
     pub(crate) fn with_roles(mut self, roles: Vec<(i32, String, bool)>) -> Self {
         self.roles = roles;
         self
     }
 
-    #[builder_fn]
     pub(crate) fn with_allow_admin_field(mut self, allow_admin_field: bool) -> Self {
         self.allow_admin_field = allow_admin_field;
         self
     }
 
-    #[builder_fn]
     pub(crate) fn with_is_admin(mut self, is_admin: bool) -> Self {
         self.is_admin = is_admin;
         self

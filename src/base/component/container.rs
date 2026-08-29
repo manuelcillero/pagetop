@@ -78,6 +78,7 @@ impl Component for Container {
     }
 }
 
+#[builder_impl]
 impl Container {
     /// Crea un contenedor de tipo `Main` (`<main>`).
     pub fn main() -> Self {
@@ -122,14 +123,12 @@ impl Container {
     // **< Container BUILDER >**********************************************************************
 
     /// Establece el identificador único del componente; igual a `with_prop(PropsOp::set_id(id))`.
-    #[builder_fn]
     pub fn with_id(mut self, id: impl Into<CowStr>) -> Self {
         self.props.alter_id(id);
         self
     }
 
     /// Modifica identificador, clases CSS, atributos HTML o valores extra del componente.
-    #[builder_fn]
     pub fn with_prop(mut self, op: PropsOp) -> Self {
         self.props.alter_prop(op);
         self
@@ -137,7 +136,6 @@ impl Container {
 
     /// Añade un nuevo componente al contenedor o modifica la lista de componentes (`children`) con
     /// una operación [`ChildOp`].
-    #[builder_fn]
     pub fn with_child(mut self, op: impl Into<ChildOp>) -> Self {
         self.children.alter_child(op.into());
         self

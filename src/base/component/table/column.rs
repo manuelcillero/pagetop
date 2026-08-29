@@ -27,6 +27,7 @@ pub struct Column {
     sort: Option<table::SortLink>,
 }
 
+#[builder_impl]
 impl Column {
     /// Crea una cabecera con el texto localizado indicado.
     pub fn new(label: Lc) -> Self {
@@ -39,14 +40,12 @@ impl Column {
     // **< Column BUILDER >*************************************************************************
 
     /// Establece el identificador único de la celda de cabecera.
-    #[builder_fn]
     pub fn with_id(mut self, id: impl Into<CowStr>) -> Self {
         self.props.alter_id(id);
         self
     }
 
     /// Modifica identificador, clases CSS o atributos HTML de la columna.
-    #[builder_fn]
     pub fn with_prop(mut self, op: PropsOp) -> Self {
         self.props.alter_prop(op);
         self
@@ -55,7 +54,6 @@ impl Column {
     /// Establece el número de columnas que ocupa la cabecera (atributo `colspan`).
     ///
     /// Con `1` (el valor por defecto de HTML) elimina el atributo en vez de fijarlo.
-    #[builder_fn]
     pub fn with_colspan(mut self, span: u8) -> Self {
         self.props.alter_prop(if span == 1 {
             PropsOp::remove("colspan")
@@ -68,7 +66,6 @@ impl Column {
     /// Establece el número de filas que ocupa la cabecera (atributo `rowspan`).
     ///
     /// Con `1` (el valor por defecto de HTML) elimina el atributo en vez de fijarlo.
-    #[builder_fn]
     pub fn with_rowspan(mut self, span: u8) -> Self {
         self.props.alter_prop(if span == 1 {
             PropsOp::remove("rowspan")
@@ -80,7 +77,6 @@ impl Column {
 
     /// Convierte la columna en ordenable con el enlace indicado, o la vuelve no ordenable con
     /// `None`.
-    #[builder_fn]
     pub fn with_sort(mut self, sort: impl Into<Option<table::SortLink>>) -> Self {
         self.sort = sort.into();
         self

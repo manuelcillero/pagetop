@@ -100,52 +100,45 @@ impl Component for UserTable {
     }
 }
 
+#[builder_impl]
 impl UserTable {
     // **< UserTable BUILDER >**********************************************************************
 
-    #[builder_fn]
     pub(crate) fn with_prop(mut self, op: PropsOp) -> Self {
         self.props.alter_prop(op);
         self
     }
 
-    #[builder_fn]
     pub(crate) fn with_items(mut self, items: Vec<UserListItem>) -> Self {
         self.items = items;
         self
     }
 
-    #[builder_fn]
     pub(crate) fn with_sort(mut self, sort: UserSortField) -> Self {
         self.sort = sort;
         self
     }
 
-    #[builder_fn]
     pub(crate) fn with_dir(mut self, dir: SortDir) -> Self {
         self.dir = dir;
         self
     }
 
-    #[builder_fn]
     pub(crate) fn with_query(mut self, query: impl Into<Option<String>>) -> Self {
         self.query = query.into();
         self
     }
 
-    #[builder_fn]
     pub(crate) fn with_page(mut self, page: u64) -> Self {
         self.page = page;
         self
     }
 
-    #[builder_fn]
     pub(crate) fn with_per_page(mut self, per_page: u64) -> Self {
         self.per_page = per_page;
         self
     }
 
-    #[builder_fn]
     pub(crate) fn with_total(mut self, total: u64) -> Self {
         self.total = total;
         self

@@ -32,18 +32,18 @@ const EXTRA_WIDTH: &str = "bootsier.container.width";
 ///     .with_prop(PropsOp::add_classes(class::Border::with(ScaleSize::One)))
 ///     .with_prop(PropsOp::add_classes(class::Rounded::new()));
 /// ```
+#[builder_impl]
 pub trait ContainerBootsier {
     /// Establece el comportamiento del ancho para el contenedor.
     ///
     /// Determina si el contenedor aplica los anchos máximos predefinidos para cada punto de
     /// ruptura, o si ocupa siempre el 100% del ancho disponible, o lo hace hasta un ancho máximo
     /// explícito. Ver [`Width`] para las variantes disponibles.
-    #[builder_fn]
     fn with_width(self, width: Width) -> Self;
 }
 
+#[builder_impl]
 impl ContainerBootsier for Container {
-    #[builder_fn]
     fn with_width(mut self, width: Width) -> Self {
         self.alter_prop(PropsOp::set_extra(EXTRA_WIDTH, width));
         self

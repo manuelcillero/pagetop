@@ -121,18 +121,17 @@ impl Component for Number {
     }
 }
 
+#[builder_impl]
 impl Number {
     // **< Number BUILDER >************************************************************************
 
     /// Establece el identificador único del componente; igual a `with_prop(PropsOp::set_id(id))`.
-    #[builder_fn]
     pub fn with_id(mut self, id: impl Into<CowStr>) -> Self {
         self.props.alter_id(id);
         self
     }
 
     /// Modifica identificador, clases CSS, atributos HTML o valores extra del componente.
-    #[builder_fn]
     pub fn with_prop(mut self, op: PropsOp) -> Self {
         self.props.alter_prop(op);
         self
@@ -142,42 +141,36 @@ impl Number {
     ///
     /// Sin él, el valor del campo no se transmite al servidor al enviar el formulario. Para
     /// deserializar el campo en el servidor es recomendable establecer un `name` explícito.
-    #[builder_fn]
     pub fn with_name(mut self, name: impl AsRef<str>) -> Self {
         self.name.alter_name(name);
         self
     }
 
     /// Establece el valor inicial del campo.
-    #[builder_fn]
     pub fn with_value(mut self, value: impl Into<Option<u64>>) -> Self {
         self.value = value.into();
         self
     }
 
     /// Establece la etiqueta visible del campo (usa [`Lc::none()`] para quitarla).
-    #[builder_fn]
     pub fn with_label(mut self, label: Lc) -> Self {
         self.label = label;
         self
     }
 
     /// Establece el texto de ayuda del campo (usa [`Lc::none()`] para quitarlo).
-    #[builder_fn]
     pub fn with_help_text(mut self, help_text: Lc) -> Self {
         self.help_text = help_text;
         self
     }
 
     /// Establece el valor mínimo permitido (`None` para no imponer mínimo).
-    #[builder_fn]
     pub fn with_min(mut self, min: impl Into<Option<u64>>) -> Self {
         self.min = min.into();
         self
     }
 
     /// Establece el valor máximo permitido (`None` para no imponer máximo).
-    #[builder_fn]
     pub fn with_max(mut self, max: impl Into<Option<u64>>) -> Self {
         self.max = max.into();
         self
@@ -187,35 +180,30 @@ impl Number {
     ///
     /// Pasar `None` omite el atributo `step` y deja que el navegador aplique su valor por defecto
     /// (normalmente `1`).
-    #[builder_fn]
     pub fn with_step(mut self, step: impl Into<Option<u64>>) -> Self {
         self.step = step.into();
         self
     }
 
     /// Establece si el campo recibe el foco automáticamente al cargar la página.
-    #[builder_fn]
     pub fn with_autofocus(mut self, autofocus: bool) -> Self {
         self.autofocus = autofocus;
         self
     }
 
     /// Establece si el campo es de sólo lectura.
-    #[builder_fn]
     pub fn with_readonly(mut self, readonly: bool) -> Self {
         self.readonly = readonly;
         self
     }
 
     /// Establece si el campo es obligatorio.
-    #[builder_fn]
     pub fn with_required(mut self, required: bool) -> Self {
         self.required = required;
         self
     }
 
     /// Establece si el campo está deshabilitado.
-    #[builder_fn]
     pub fn with_disabled(mut self, disabled: bool) -> Self {
         self.disabled = disabled;
         self

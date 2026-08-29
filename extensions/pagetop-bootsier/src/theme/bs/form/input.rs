@@ -22,18 +22,18 @@ const EXTRA_FLOATING_LABEL: &str = "bootsier.form.input.floating_label";
 ///     .with_placeholder(Lc::n("Enter your name"))
 ///     .with_floating_label(true);
 /// ```
+#[builder_impl]
 pub trait InputBootsier {
     /// Establece si la etiqueta se muestra flotante sobre el campo.
     ///
     /// Cuando está activo, la etiqueta se superpone al campo y asciende al enfocarlo o cuando tiene
     /// contenido. Requiere que el campo tenga un atributo `placeholder` definido; si no se
     /// especifica, se fuerza `placeholder=""` antes del renderizado.
-    #[builder_fn]
     fn with_floating_label(self, floating: bool) -> Self;
 }
 
+#[builder_impl]
 impl InputBootsier for Field {
-    #[builder_fn]
     fn with_floating_label(mut self, floating: bool) -> Self {
         self.alter_prop(PropsOp::set_extra(EXTRA_FLOATING_LABEL, floating));
         self

@@ -135,6 +135,7 @@ impl Component for Checkbox {
     }
 }
 
+#[builder_impl]
 impl Checkbox {
     /// Crea una casilla de verificación estándar.
     pub fn check() -> Self {
@@ -152,21 +153,18 @@ impl Checkbox {
     // **< Checkbox BUILDER >***********************************************************************
 
     /// Establece el identificador único del componente; igual a `with_prop(PropsOp::set_id(id))`.
-    #[builder_fn]
     pub fn with_id(mut self, id: impl Into<CowStr>) -> Self {
         self.props.alter_id(id);
         self
     }
 
     /// Modifica identificador, clases CSS, atributos HTML o valores extra del componente.
-    #[builder_fn]
     pub fn with_prop(mut self, op: PropsOp) -> Self {
         self.props.alter_prop(op);
         self
     }
 
     /// Establece la variante visual del control.
-    #[builder_fn]
     pub fn with_kind(mut self, kind: form::CheckboxKind) -> Self {
         self.checkbox_kind = kind;
         self
@@ -176,42 +174,36 @@ impl Checkbox {
     ///
     /// Si se omite, se asigna un identificador generado automáticamente. Para deserializar el campo
     /// en el servidor es recomendable establecer un `name` explícito.
-    #[builder_fn]
     pub fn with_name(mut self, name: impl AsRef<str>) -> Self {
         self.name.alter_name(name);
         self
     }
 
     /// Establece la etiqueta visible del control (usa [`Lc::none()`] para quitarla).
-    #[builder_fn]
     pub fn with_label(mut self, label: Lc) -> Self {
         self.label = label;
         self
     }
 
     /// Establece si el control debe aparecer marcado/activo por defecto.
-    #[builder_fn]
     pub fn with_checked(mut self, checked: bool) -> Self {
         self.checked = checked;
         self
     }
 
     /// Establece si el control recibe el foco automáticamente al cargar la página.
-    #[builder_fn]
     pub fn with_autofocus(mut self, autofocus: bool) -> Self {
         self.autofocus = autofocus;
         self
     }
 
     /// Establece si el campo es obligatorio.
-    #[builder_fn]
     pub fn with_required(mut self, required: bool) -> Self {
         self.required = required;
         self
     }
 
     /// Establece si el control está deshabilitado.
-    #[builder_fn]
     pub fn with_disabled(mut self, disabled: bool) -> Self {
         self.disabled = disabled;
         self
@@ -221,7 +213,6 @@ impl Checkbox {
     ///
     /// Al activar este modo, se añade la clase `form-check-inline` al contenedor, lo que permite
     /// alinear varios controles horizontalmente.
-    #[builder_fn]
     pub fn with_inline(mut self, inline: bool) -> Self {
         self.inline = inline;
         self
@@ -230,7 +221,6 @@ impl Checkbox {
     /// Establece si el control y su etiqueta se justifican a la derecha del contenedor.
     ///
     /// Al activar este modo, se añade la clase `form-check-reverse` al contenedor.
-    #[builder_fn]
     pub fn with_reverse(mut self, reverse: bool) -> Self {
         self.reverse = reverse;
         self

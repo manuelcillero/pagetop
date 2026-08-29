@@ -106,18 +106,17 @@ impl Component for Range {
     }
 }
 
+#[builder_impl]
 impl Range {
     // **< Range BUILDER >**************************************************************************
 
     /// Establece el identificador único del componente; igual a `with_prop(PropsOp::set_id(id))`.
-    #[builder_fn]
     pub fn with_id(mut self, id: impl Into<CowStr>) -> Self {
         self.props.alter_id(id);
         self
     }
 
     /// Modifica identificador, clases CSS, atributos HTML o valores extra del componente.
-    #[builder_fn]
     pub fn with_prop(mut self, op: PropsOp) -> Self {
         self.props.alter_prop(op);
         self
@@ -127,7 +126,6 @@ impl Range {
     ///
     /// Sin él, el valor del campo no se transmite al servidor al enviar el formulario. Para
     /// deserializar el campo en el servidor es recomendable establecer un `name` explícito.
-    #[builder_fn]
     pub fn with_name(mut self, name: impl AsRef<str>) -> Self {
         self.name.alter_name(name);
         self
@@ -137,21 +135,18 @@ impl Range {
     ///
     /// Pasar `None` omite el atributo `value` y deja que el navegador aplique su valor por defecto
     /// (normalmente el punto medio del rango).
-    #[builder_fn]
     pub fn with_value(mut self, value: impl Into<Option<f64>>) -> Self {
         self.value = value.into();
         self
     }
 
     /// Establece la etiqueta visible del campo (usa [`Lc::none()`] para quitarla).
-    #[builder_fn]
     pub fn with_label(mut self, label: Lc) -> Self {
         self.label = label;
         self
     }
 
     /// Establece el texto de ayuda del campo (usa [`Lc::none()`] para quitarlo).
-    #[builder_fn]
     pub fn with_help_text(mut self, help_text: Lc) -> Self {
         self.help_text = help_text;
         self
@@ -160,7 +155,6 @@ impl Range {
     /// Establece el valor mínimo del rango.
     ///
     /// Pasar `None` omite el atributo `min` y deja que el navegador aplique su valor por defecto.
-    #[builder_fn]
     pub fn with_min(mut self, min: impl Into<Option<f64>>) -> Self {
         self.min = min.into();
         self
@@ -169,7 +163,6 @@ impl Range {
     /// Establece el valor máximo del rango.
     ///
     /// Pasar `None` omite el atributo `max` y deja que el navegador aplique su valor por defecto.
-    #[builder_fn]
     pub fn with_max(mut self, max: impl Into<Option<f64>>) -> Self {
         self.max = max.into();
         self
@@ -179,21 +172,18 @@ impl Range {
     ///
     /// Pasar `None` omite el atributo `step` y deja que el navegador aplique su valor por defecto
     /// (normalmente `1`).
-    #[builder_fn]
     pub fn with_step(mut self, step: impl Into<Option<f64>>) -> Self {
         self.step = step.into();
         self
     }
 
     /// Establece si el control recibe el foco automáticamente al cargar la página.
-    #[builder_fn]
     pub fn with_autofocus(mut self, autofocus: bool) -> Self {
         self.autofocus = autofocus;
         self
     }
 
     /// Establece si el control está deshabilitado.
-    #[builder_fn]
     pub fn with_disabled(mut self, disabled: bool) -> Self {
         self.disabled = disabled;
         self

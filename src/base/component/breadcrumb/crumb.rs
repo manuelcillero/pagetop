@@ -31,6 +31,7 @@ pub struct Crumb {
     is_current: bool,
 }
 
+#[builder_impl]
 impl Crumb {
     /// Crea un elemento enlazado a la ruta indicada.
     pub fn new(label: Lc, route: impl Into<Route>) -> Self {
@@ -66,14 +67,12 @@ impl Crumb {
     // **< Crumb BUILDER >**************************************************************************
 
     /// Establece el identificador único del elemento.
-    #[builder_fn]
     pub fn with_id(mut self, id: impl Into<CowStr>) -> Self {
         self.props.alter_id(id);
         self
     }
 
     /// Modifica identificador, clases CSS o atributos HTML del elemento.
-    #[builder_fn]
     pub fn with_prop(mut self, op: PropsOp) -> Self {
         self.props.alter_prop(op);
         self

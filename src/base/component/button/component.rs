@@ -131,6 +131,7 @@ impl Component for Button {
     }
 }
 
+#[builder_impl]
 impl Button {
     /// Crea un botón de **envío** (`type="submit"`).
     ///
@@ -186,35 +187,30 @@ impl Button {
     // **< Button BUILDER >*************************************************************************
 
     /// Establece el identificador único del componente; igual a `with_prop(PropsOp::set_id(id))`.
-    #[builder_fn]
     pub fn with_id(mut self, id: impl Into<CowStr>) -> Self {
         self.props.alter_id(id);
         self
     }
 
     /// Modifica identificador, clases CSS, atributos HTML o valores extra del componente.
-    #[builder_fn]
     pub fn with_prop(mut self, op: PropsOp) -> Self {
         self.props.alter_prop(op);
         self
     }
 
     /// Establece el comportamiento del botón al activarse.
-    #[builder_fn]
     pub fn with_kind(mut self, kind: button::Kind) -> Self {
         self.kind = kind;
         self
     }
 
     /// Establece el tamaño visual del botón (usa [`button::Size::None`] para quitarlo).
-    #[builder_fn]
     pub fn with_size(mut self, size: button::Size) -> Self {
         self.size = size;
         self
     }
 
     /// Establece el estilo visual del botón (usa [`button::Style::None`] para quitarlo).
-    #[builder_fn]
     pub fn with_style(mut self, style: button::Style) -> Self {
         self.style = style;
         self
@@ -224,7 +220,6 @@ impl Button {
     ///
     /// Cuando el formulario tiene varios botones de envío, el navegador incluye en el envío el par
     /// `name=value` sólo del botón que activó el formulario. Permite identificar cuál fue pulsado.
-    #[builder_fn]
     pub fn with_name(mut self, name: impl AsRef<str>) -> Self {
         self.name.alter_name(name);
         self
@@ -234,21 +229,18 @@ impl Button {
     ///
     /// Es el dato que el navegador transmite al servidor junto con el `name` cuando este botón
     /// activa el envío. Útil para distinguir entre varios botones de envío en un mismo formulario.
-    #[builder_fn]
     pub fn with_value(mut self, value: impl AsRef<str>) -> Self {
         self.value.alter_str(value);
         self
     }
 
     /// Establece la etiqueta visible del botón (usa [`Lc::none()`] para quitarla).
-    #[builder_fn]
     pub fn with_label(mut self, label: Lc) -> Self {
         self.label = label;
         self
     }
 
     /// Establece el texto emergente del botón (usa [`Lc::none()`] para quitarlo).
-    #[builder_fn]
     pub fn with_title(mut self, title: Lc) -> Self {
         self.title = title;
         self
@@ -257,21 +249,18 @@ impl Button {
     /// Establece la ruta de destino y convierte el botón en enlace de navegación (`<a href=...>`).
     /// Puedes usar un [`Route`] vacío (por defecto) para que vuelva a renderizarse como `<button>`.
     /// Ver [`Button::anchor()`] para el constructor equivalente.
-    #[builder_fn]
     pub fn with_href(mut self, route: impl Into<Route>) -> Self {
         self.href = route.into();
         self
     }
 
     /// Establece si el botón recibe el foco automáticamente al cargar la página.
-    #[builder_fn]
     pub fn with_autofocus(mut self, autofocus: bool) -> Self {
         self.autofocus = autofocus;
         self
     }
 
     /// Establece si el botón está deshabilitado.
-    #[builder_fn]
     pub fn with_disabled(mut self, disabled: bool) -> Self {
         self.disabled = disabled;
         self

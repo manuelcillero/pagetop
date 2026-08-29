@@ -151,6 +151,7 @@ impl Component for Item {
     }
 }
 
+#[builder_impl]
 impl Item {
     /// Crea un elemento de tipo texto, mostrado sin interacción.
     pub fn label(label: Lc) -> Self {
@@ -257,14 +258,12 @@ impl Item {
     // **< Item BUILDER >***************************************************************************
 
     /// Establece el identificador único del componente; igual a `with_prop(PropsOp::set_id(id))`.
-    #[builder_fn]
     pub fn with_id(mut self, id: impl Into<CowStr>) -> Self {
         self.props.alter_id(id);
         self
     }
 
     /// Modifica identificador, clases CSS, atributos HTML o valores extra del componente.
-    #[builder_fn]
     pub fn with_prop(mut self, op: PropsOp) -> Self {
         self.props.alter_prop(op);
         self

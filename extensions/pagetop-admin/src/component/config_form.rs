@@ -201,8 +201,10 @@ impl Component for ConfigForm {
     }
 }
 
+#[builder_impl]
 impl ConfigForm {
     /// Crea el componente con el [`SettingsSchema`] dado.
+    #[builder_skip]
     pub fn with_schema(schema: SettingsSchema) -> Self {
         ConfigForm {
             schema: Some(schema),
@@ -210,7 +212,6 @@ impl ConfigForm {
         }
     }
 
-    #[builder_fn]
     pub fn with_action_path(mut self, v: impl Into<Option<Route>>) -> Self {
         if let Some(v) = v.into() {
             self.action_path = Some(v);
@@ -218,6 +219,7 @@ impl ConfigForm {
         self
     }
 
+    #[builder_skip]
     pub(crate) fn with_saved(mut self, saved: bool, error: bool) -> Self {
         self.saved = saved;
         self.error = error;

@@ -98,52 +98,45 @@ impl Component for RoleForm {
     }
 }
 
+#[builder_impl]
 impl RoleForm {
     // **< RoleForm BUILDER >***********************************************************************
 
-    #[builder_fn]
     pub(crate) fn with_mode(mut self, mode: RoleFormMode) -> Self {
         self.mode = mode;
         self
     }
 
-    #[builder_fn]
     pub(crate) fn with_error(mut self, error: impl Into<Option<Lc>>) -> Self {
         self.error = error.into();
         self
     }
 
-    #[builder_fn]
     pub(crate) fn with_role_id(mut self, role_id: impl Into<Option<i32>>) -> Self {
         self.role_id = role_id.into();
         self
     }
 
-    #[builder_fn]
     pub(crate) fn with_waypoint(mut self, waypoint: impl Into<Waypoint>) -> Self {
         self.waypoint = waypoint.into();
         self
     }
 
-    #[builder_fn]
     pub(crate) fn with_machine_name(mut self, machine_name: impl Into<String>) -> Self {
         self.machine_name = machine_name.into();
         self
     }
 
-    #[builder_fn]
     pub(crate) fn with_label(mut self, label: impl Into<String>) -> Self {
         self.label = label.into();
         self
     }
 
-    #[builder_fn]
     pub(crate) fn with_description(mut self, description: impl Into<String>) -> Self {
         self.description = description.into();
         self
     }
 
-    #[builder_fn]
     pub(crate) fn with_weight(mut self, weight: i32) -> Self {
         self.weight = weight;
         self

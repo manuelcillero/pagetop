@@ -39,6 +39,7 @@ pub struct SortLink {
     dir: Option<SortDir>,
 }
 
+#[builder_impl]
 impl SortLink {
     /// Crea un enlace de ordenación hacia la URL indicada, sin dirección activa.
     pub fn new(href: impl Into<RoutePath>) -> Self {
@@ -51,7 +52,6 @@ impl SortLink {
     // **< SortLink BUILDER >***********************************************************************
 
     /// Establece el identificador único del enlace.
-    #[builder_fn]
     pub fn with_id(mut self, id: impl Into<CowStr>) -> Self {
         self.props.alter_id(id);
         self
@@ -59,7 +59,6 @@ impl SortLink {
 
     /// Establece la dirección de orden vigente, o `None` si esta columna no es la que ordena
     /// actualmente la tabla.
-    #[builder_fn]
     pub fn with_dir(mut self, dir: impl Into<Option<SortDir>>) -> Self {
         self.dir = dir.into();
         self
@@ -67,7 +66,6 @@ impl SortLink {
 
     /// Modifica los atributos HTML del enlace. Es el punto de extensión para añadir atributos de
     /// interactividad sin que `Table` necesite conocerlos.
-    #[builder_fn]
     pub fn with_prop(mut self, op: PropsOp) -> Self {
         self.props.alter_prop(op);
         self

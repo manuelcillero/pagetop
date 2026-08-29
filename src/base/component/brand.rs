@@ -77,39 +77,35 @@ impl Component for Brand {
     }
 }
 
+#[builder_impl]
 impl Brand {
     // **< Brand BUILDER >**************************************************************************
 
     /// Establece el identificador único del componente; igual a `with_prop(PropsOp::set_id(id))`.
-    #[builder_fn]
     pub fn with_id(mut self, id: impl Into<CowStr>) -> Self {
         self.props.alter_id(id);
         self
     }
 
     /// Modifica identificador, clases CSS, atributos HTML o valores extra del componente.
-    #[builder_fn]
     pub fn with_prop(mut self, op: PropsOp) -> Self {
         self.props.alter_prop(op);
         self
     }
 
     /// Asigna o quita la imagen de marca. Si se pasa `None`, no se mostrará.
-    #[builder_fn]
     pub fn with_image(mut self, image: impl Into<Option<Image>>) -> Self {
         self.image.alter_component(image);
         self
     }
 
     /// Establece el título de la identidad de marca.
-    #[builder_fn]
     pub fn with_title(mut self, title: Lc) -> Self {
         self.title = title;
         self
     }
 
     /// Define la ruta de destino. Si es `None`, la marca no será un enlace.
-    #[builder_fn]
     pub fn with_route(mut self, route: impl Into<Option<Route>>) -> Self {
         self.route = route.into();
         self
