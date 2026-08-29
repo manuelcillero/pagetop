@@ -140,7 +140,7 @@ pub const PAGETOP_VERSION: &str = env!("CARGO_PKG_VERSION");
 /// [`impl Extension`](crate::core::extension::Extension).
 pub use async_trait::async_trait;
 
-pub use pagetop_macros::{AutoDefault, builder_fn, html, main, test};
+pub use pagetop_macros::{AutoDefault, builder_fn, builder_impl, html, main, test};
 
 pub use pagetop_statics::{StaticFile, resource};
 

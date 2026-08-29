@@ -34,12 +34,13 @@ cada proyecto PageTop.
     html_favicon_url = "https://git.cillero.es/manuelcillero/pagetop/raw/branch/main/assets/favicon.ico"
 )]
 
+mod builder;
 mod maud;
 mod smart_default;
 
 use proc_macro::TokenStream;
-use quote::{quote, quote_spanned};
-use syn::{DeriveInput, ItemFn, parse_macro_input, spanned::Spanned};
+use quote::quote;
+use syn::{DeriveInput, ItemFn, parse_macro_input};
 
 /// Macro para escribir plantillas HTML (basada en [Maud](https://docs.rs/maud)).
 #[proc_macro]
@@ -162,280 +163,84 @@ pub fn derive_auto_default(input: TokenStream) -> TokenStream {
 /// La documentación del método `with_...()` incluirá también la firma resumida del método
 /// `alter_...()` y un alias de búsqueda con su nombre, de tal manera que buscando `alter_...` en la
 /// documentación se mostrará la entrada del método `with_...()`.
+///
+/// Para aplicar la misma transformación a todos los métodos `with_...()` de un `impl` de una sola
+/// vez, usa [`#[builder_impl]`](builder_impl).
 #[proc_macro_attribute]
 pub fn builder_fn(_: TokenStream, item: TokenStream) -> TokenStream {
-    use syn::{FnArg, Ident, ImplItemFn, Pat, ReturnType, TraitItemFn, Type, parse2};
+    builder::expand_fn(item.into()).into()
+}
 
-    let ts: proc_macro2::TokenStream = item.clone().into();
-
-    enum Kind {
-        Impl(ImplItemFn),
-        Trait(TraitItemFn),
-    }
-
-    // Detecta si estamos en `impl` o `trait`.
-    let kind = if let Ok(it) = parse2::<ImplItemFn>(ts.clone()) {
-        Kind::Impl(it)
-    } else if let Ok(tt) = parse2::<TraitItemFn>(ts.clone()) {
-        Kind::Trait(tt)
-    } else {
-        return quote! {
-            compile_error!("#[builder_fn] only supports methods in `impl` blocks or `trait` items");
-        }
-        .into();
-    };
-
-    // Extrae piezas comunes (sig, attrs, vis, bloque?, es_trait?).
-    let (sig, attrs, vis, body_opt, is_trait) = match &kind {
-        Kind::Impl(m) => (&m.sig, &m.attrs, Some(&m.vis), Some(&m.block), false),
-        Kind::Trait(t) => (&t.sig, &t.attrs, None, t.default.as_ref(), true),
-    };
-
-    let with_name = sig.ident.clone();
-    let with_name_str = sig.ident.to_string();
-
-    // Valida el nombre del método.
-    if !with_name_str.starts_with("with_") {
-        return quote_spanned! {
-            sig.ident.span() => compile_error!("expected a named `with_...()` method");
-        }
-        .into();
-    }
-
-    // Sólo se exige `pub` en `impl` (en `trait` no aplica).
-    let vis_pub = match (is_trait, vis) {
-        (false, Some(v)) => quote! { #v },
-        _ => quote! {},
-    };
-
-    // Validaciones comunes.
-    if sig.asyncness.is_some() {
-        return quote_spanned! {
-            sig.asyncness.span() => compile_error!("`with_...()` cannot be `async`");
-        }
-        .into();
-    }
-    if sig.constness.is_some() {
-        return quote_spanned! {
-            sig.constness.span() => compile_error!("`with_...()` cannot be `const`");
-        }
-        .into();
-    }
-    if sig.abi.is_some() {
-        return quote_spanned! {
-            sig.abi.span() => compile_error!("`with_...()` cannot be `extern`");
-        }
-        .into();
-    }
-    if sig.unsafety.is_some() {
-        return quote_spanned! {
-            sig.unsafety.span() => compile_error!("`with_...()` cannot be `unsafe`");
-        }
-        .into();
-    }
-
-    // En `impl` se exige exactamente `mut self`; y en `trait` se exige `self` (sin &).
-    let receiver_ok = match sig.inputs.first() {
-        Some(FnArg::Receiver(r)) => {
-            // Rechaza `self: SomeType`.
-            if r.colon_token.is_some() {
-                false
-            } else if is_trait {
-                // Exactamente `self` (sin &, sin mut).
-                r.reference.is_none() && r.mutability.is_none()
-            } else {
-                // Exactamente `mut self`.
-                r.reference.is_none() && r.mutability.is_some()
-            }
-        }
-        _ => false,
-    };
-    if !receiver_ok {
-        let msg = if is_trait {
-            "expected `self` (not `mut self`, `&self` or `&mut self`) in trait method"
-        } else {
-            "expected first argument to be exactly `mut self`"
-        };
-        let err = sig
-            .inputs
-            .first()
-            .map(|a| a.span())
-            .unwrap_or(sig.ident.span());
-        return quote_spanned! {
-            err => compile_error!(#msg);
-        }
-        .into();
-    }
-
-    // Valida que el método devuelve exactamente `Self`.
-    match &sig.output {
-        ReturnType::Type(_, ty) => match ty.as_ref() {
-            Type::Path(p) if p.qself.is_none() && p.path.is_ident("Self") => {}
-            _ => {
-                return quote_spanned! {
-                    ty.span() => compile_error!("expected return type to be exactly `Self`");
-                }
-                .into();
-            }
-        },
-        _ => {
-            return quote_spanned! {
-                sig.output.span() => compile_error!("expected return type to be exactly `Self`");
-            }
-            .into();
-        }
-    }
-
-    // Genera el nombre del método `alter_...()`.
-    let stem = with_name_str.strip_prefix("with_").expect("validated");
-    let alter_ident = Ident::new(&format!("alter_{stem}"), with_name.span());
-
-    // Extrae genéricos y cláusulas `where`.
-    let generics = &sig.generics;
-    let where_clause = &sig.generics.where_clause;
-
-    // Extrae identificadores de los argumentos para la llamada (sin `mut` ni patrones complejos).
-    let args: Vec<_> = sig.inputs.iter().skip(1).collect();
-    let call_idents: Vec<Ident> = {
-        let mut v = Vec::new();
-        for arg in sig.inputs.iter().skip(1) {
-            match arg {
-                FnArg::Typed(pat) => {
-                    if let Pat::Ident(pat_ident) = pat.pat.as_ref() {
-                        v.push(pat_ident.ident.clone());
-                    } else {
-                        return quote_spanned! {
-                            pat.pat.span() => compile_error!(
-                                "each parameter must be a simple identifier, e.g. `value: T`"
-                            );
-                        }
-                        .into();
-                    }
-                }
-                _ => {
-                    return quote_spanned! {
-                        arg.span() => compile_error!("unexpected receiver in parameter list");
-                    }
-                    .into();
-                }
-            }
-        }
-        v
-    };
-
-    // Separa atributos de documentación y resto.
-    let mut doc_attrs = Vec::new();
-    let mut other_attrs = Vec::new();
-    let mut non_doc_or_inline_attrs = Vec::new();
-
-    for a in attrs.iter() {
-        let p = a.path();
-        if p.is_ident("doc") {
-            doc_attrs.push(a.clone());
-        } else {
-            other_attrs.push(a.clone());
-            if !p.is_ident("inline") {
-                non_doc_or_inline_attrs.push(a.clone());
-            }
-        }
-    }
-
-    // Firma resumida de la función `alter_...()` para mostrarla en la doc de `with_...()`.
-    let alter_sig_tokens = if args.is_empty() {
-        // Sin argumentos sólo se muestra `&mut self` (puede que no tenga mucho sentido).
-        quote! { #vis_pub fn #alter_ident #generics (&mut self) -> &mut Self #where_clause }
-    } else {
-        // Con argumentos se muestra `&mut self, ...`.
-        quote! { #vis_pub fn #alter_ident #generics (&mut self, ...) -> &mut Self #where_clause }
-    };
-
-    // Normaliza espacios raros tipo `& mut`.
-    let alter_sig_str = alter_sig_tokens.to_string().replace("& mut", "&mut");
-
-    // Nombre de la función `alter_...()` como alias de búsqueda.
-    let alter_name_str = alter_ident.to_string();
-
-    // Texto introductorio para la documentación adicional de `with_...()`.
-    let with_alter_title = format!(
-        "# {} el método `{}()` generado por [`#[builder_fn]`](pagetop_macros::builder_fn)",
-        if doc_attrs.is_empty() {
-            "Añade"
-        } else {
-            "También añade"
-        },
-        alter_name_str
-    );
-    let with_alter_doc = concat!(
-        "Permite modificar la instancia (`&mut self`) con los mismos argumentos ",
-        "pero sin consumirla."
-    );
-
-    // Atributos completos que se aplican siempre a `with_...()`.
-    let with_prefix = quote! {
-        #(#other_attrs)*
-        #(#doc_attrs)*
-        #[doc(alias = #alter_name_str)]
-        #[doc = ""]
-        #[doc = #with_alter_title]
-        #[doc = #with_alter_doc]
-        #[doc = "```text"]
-        #[doc = #alter_sig_str]
-        #[doc = "```"]
-    };
-
-    // Genera el código final.
-    let expanded = match body_opt {
-        None => {
-            quote! {
-                #with_prefix
-                fn #with_name #generics (self, #(#args),*) -> Self #where_clause;
-
-                #(#non_doc_or_inline_attrs)*
-                #[doc(hidden)]
-                fn #alter_ident #generics (&mut self, #(#args),*) -> &mut Self #where_clause;
-            }
-        }
-        Some(body) => {
-            // Si no se indicó ninguna forma de `inline`, fuerza `#[inline]` para `with_...()`.
-            let force_inline = if attrs.iter().any(|a| a.path().is_ident("inline")) {
-                quote! {}
-            } else {
-                quote! { #[inline] }
-            };
-
-            let with_fn = if is_trait {
-                quote! {
-                    #with_prefix
-                    #force_inline
-                    #vis_pub fn #with_name #generics (self, #(#args),*) -> Self #where_clause {
-                        let mut s = self;
-                        s.#alter_ident(#(#call_idents),*);
-                        s
-                    }
-                }
-            } else {
-                quote! {
-                    #with_prefix
-                    #force_inline
-                    #vis_pub fn #with_name #generics (mut self, #(#args),*) -> Self #where_clause {
-                        self.#alter_ident(#(#call_idents),*);
-                        self
-                    }
-                }
-            };
-
-            quote! {
-                #with_fn
-
-                #(#non_doc_or_inline_attrs)*
-                #[doc(hidden)]
-                #vis_pub fn #alter_ident #generics (&mut self, #(#args),*) -> &mut Self #where_clause {
-                    #body
-                }
-            }
-        }
-    };
-    expanded.into()
+/// Macro (*attribute*) que aplica [`#[builder_fn]`](builder_fn) a los métodos `with_` de un
+/// `impl`/`trait`.
+///
+/// Cada método que empiece por `with_` se transforma igual que si llevara `#[builder_fn]`
+/// individualmente: se genera su correspondiente método `alter_...()` y se añade la misma
+/// documentación. El resto de ítems del bloque (métodos que no empiecen por `with_`, constantes
+/// asociadas, tipos, etc.) no se modifican.
+///
+/// La política es estricta; si un método `with_...()` no cumple la firma esperada por
+/// [`#[builder_fn]`](builder_fn) para su contexto, la macro emite el mismo error de compilación que
+/// emitiría `#[builder_fn]` sobre ese método. Para excluir deliberadamente un método `with_...()`,
+/// márcalo con `#[builder_skip]`; se mantendrá intacto, como cualquier otro método que no sea
+/// *builder*.
+///
+/// Un `#[builder_fn]` explícito sobre un método dentro de un bloque `#[builder_impl]` es
+/// redundante pero inofensivo, no se expande dos veces. Combinar `#[builder_skip]` y
+/// `#[builder_fn]` sobre el mismo método sí es un error de compilación porque la intención de ambos
+/// atributos sí es contradictoria.
+///
+/// # Ejemplo
+///
+/// ```rust,no_run
+/// # use pagetop_macros::builder_impl;
+/// # #[derive(Default)]
+/// # struct Example { a: Option<String>, b: Option<u32> }
+/// #[builder_impl]
+/// impl Example {
+///     pub fn with_a(mut self, value: impl Into<String>) -> Self {
+///         self.a = Some(value.into());
+///         self
+///     }
+///
+///     pub fn with_b(mut self, value: u32) -> Self {
+///         self.b = Some(value);
+///         self
+///     }
+///
+///     pub fn a(&self) -> Option<&str> {
+///         self.a.as_deref()
+///     }
+/// }
+///
+/// let example = Example::default().with_a("hello").with_b(42);
+/// ```
+///
+/// genera, para `with_a` y `with_b`, el mismo par `with_.../alter_...` que produciría anotar cada
+/// uno individualmente con [`#[builder_fn]`](builder_fn); `a()` se reemite sin modificar.
+///
+/// Sobre una definición de `trait`, con receptor `self` (sin `mut`) en cada `with_...()`:
+///
+/// ```rust,no_run
+/// # use pagetop_macros::builder_impl;
+/// #[builder_impl]
+/// pub trait Example {
+///     /// Sin cuerpo por defecto: sólo genera la declaración.
+///     fn with_a(self, value: impl Into<String>) -> Self;
+///
+///     /// Con cuerpo por defecto: genera también la implementación, heredable sin redefinirla.
+///     fn with_b(self, value: u32) -> Self {
+///         self
+///     }
+/// }
+/// ```
+///
+/// Un `with_...()` de trait con cuerpo por defecto añade `where Self: Sized` automáticamente. A
+/// diferencia de una declaración sin cuerpo, éste se compila junto a la propia definición del
+/// trait, donde `Self` podría no ser `Sized`, y Rust lo exige para poder devolverlo por valor.
+#[proc_macro_attribute]
+pub fn builder_impl(_: TokenStream, item: TokenStream) -> TokenStream {
+    builder::expand_impl(item.into()).into()
 }
 
 /// Define una función `main` asíncrona como punto de entrada de PageTop.
