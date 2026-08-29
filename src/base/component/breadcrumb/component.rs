@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-/// Componente para representar una ruta de navegación (*breadcrumb*).
+/// Componente para representar una **ruta de navegación** (*breadcrumb*).
 ///
 /// Renderiza la estructura HTML de cualquier breadcrumb encapsulando en un elemento `<nav>` una
 /// lista con un [`breadcrumb::Crumb`] por cada nivel de la ruta de navegación. Deja en manos de

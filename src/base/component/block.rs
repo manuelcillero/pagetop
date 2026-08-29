@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-/// Componente genérico que representa un bloque de contenido.
+/// Componente para presentar un **bloque de contenido**.
 ///
 /// Los bloques se utilizan como contenedores de otros componentes o contenidos, con un título
 /// opcional y un cuerpo que sólo se renderiza si existen componentes hijos (*children*).
