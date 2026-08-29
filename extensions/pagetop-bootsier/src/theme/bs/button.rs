@@ -1,8 +1,10 @@
+//! Definiciones para crear botones ([`Button`]) y conjuntos de botones ([`ButtonSet`]).
+
 use pagetop::prelude::*;
 
 use crate::theme::BootsierColors;
 
-pub use pagetop::base::component::button::{Button, Kind, Size, Style};
+pub use pagetop::base::component::button::{Button, ButtonSet, Kind, Size, Style};
 
 const EXTRA_ACTIVE: &str = "bootsier.button.active";
 const EXTRA_FULL_WIDTH: &str = "bootsier.button.full_width";
