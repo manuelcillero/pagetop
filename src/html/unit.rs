@@ -1,4 +1,4 @@
-use crate::{AutoDefault, util};
+use crate::{AutoDefault, CowStr, util};
 
 use serde::{Deserialize, Deserializer};
 
@@ -42,14 +42,12 @@ use std::str::FromStr;
 ///
 /// ```rust
 /// # use pagetop::prelude::*;
-/// use std::str::FromStr;
-///
-/// assert_eq!(UnitValue::from_str("16px").unwrap(), UnitValue::Px(16));
-/// assert_eq!(UnitValue::from_str("1.25rem").unwrap(), UnitValue::RelRem(1.25));
-/// assert_eq!(UnitValue::from_str("33%").unwrap(), UnitValue::RelPct(33.0));
-/// assert_eq!(UnitValue::from_str("auto").unwrap(), UnitValue::Auto);
-/// assert_eq!(UnitValue::from_str("").unwrap(), UnitValue::None);
-/// assert_eq!(UnitValue::from_str("0").unwrap(), UnitValue::Zero);
+/// assert_eq!(Ok(UnitValue::Px(16)), "16px".parse());
+/// assert_eq!(Ok(UnitValue::RelRem(1.25)), "1.25rem".parse());
+/// assert_eq!(Ok(UnitValue::RelPct(33.0)), "33%".parse());
+/// assert_eq!(Ok(UnitValue::Auto), "auto".parse());
+/// assert_eq!(Ok(UnitValue::None), "".parse());
+/// assert_eq!(Ok(UnitValue::Zero), "0".parse());
 /// ```
 ///
 /// # Notas
@@ -165,6 +163,14 @@ impl fmt::Display for UnitValue {
     }
 }
 
+impl From<UnitValue> for CowStr {
+    /// Delega en `Display`; siempre produce un `Cow::Owned`, porque `to_string()` reserva un
+    /// `String` nuevo con independencia del contenido.
+    fn from(value: UnitValue) -> Self {
+        value.to_string().into()
+    }
+}
+
 /// Convierte una cadena a [`UnitValue`] siguiendo una gramática CSS acotada.
 ///
 /// # Acepta
@@ -182,10 +188,8 @@ impl fmt::Display for UnitValue {
 ///
 /// ```rust
 /// # use pagetop::prelude::*;
-/// use std::str::FromStr;
-///
-/// assert_eq!(UnitValue::from_str("12px").unwrap(), UnitValue::Px(12));
-/// assert!(UnitValue::from_str("12").is_err());
+/// assert_eq!("12px".parse(), Ok(UnitValue::Px(12)));
+/// assert!("12".parse::<UnitValue>().is_err());
 /// ```
 ///
 /// # Errores de interpretación

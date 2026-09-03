@@ -140,17 +140,22 @@ async fn form_controls(request: HttpRequest) -> Result<Markup, ErrorPage> {
                                 .with_child(form::Hidden::field("origin", "form-selections"))
                                 // Botonera de acciones.
                                 .with_child(
-                                    button::ButtonSet::new()
-                                        .with_button(
+                                    Container::new()
+                                        .with_flex(
+                                            Flex::row()
+                                                .with_wrap(flex::Behavior::Wrap)
+                                                .with_gap(flex::Gap::Both(UnitValue::RelRem(0.5))),
+                                        )
+                                        .with_child(
                                             Button::submit(Lc::t("btn_submit", &LOC))
                                                 .with_style(button::Style::Solid(Intent::Primary)),
                                         )
-                                        .with_button(
+                                        .with_child(
                                             Button::reset(Lc::t("btn_reset", &LOC)).with_style(
                                                 button::Style::Outline(Intent::Neutral),
                                             ),
                                         )
-                                        .with_button(
+                                        .with_child(
                                             Button::plain(Lc::t("btn_cancel", &LOC))
                                                 .with_style(button::Style::Link),
                                         ),
@@ -255,17 +260,22 @@ async fn form_controls(request: HttpRequest) -> Result<Markup, ErrorPage> {
                                 .with_child(form::Hidden::field("origin", "form-text"))
                                 // Botonera de acciones.
                                 .with_child(
-                                    button::ButtonSet::new()
-                                        .with_button(
+                                    Container::new()
+                                        .with_flex(
+                                            Flex::row()
+                                                .with_wrap(flex::Behavior::Wrap)
+                                                .with_gap(flex::Gap::Both(UnitValue::RelRem(0.5))),
+                                        )
+                                        .with_child(
                                             Button::submit(Lc::t("btn_submit", &LOC))
                                                 .with_style(button::Style::Solid(Intent::Primary)),
                                         )
-                                        .with_button(
+                                        .with_child(
                                             Button::reset(Lc::t("btn_reset", &LOC)).with_style(
                                                 button::Style::Outline(Intent::Neutral),
                                             ),
                                         )
-                                        .with_button(
+                                        .with_child(
                                             Button::plain(Lc::t("btn_cancel", &LOC))
                                                 .with_style(button::Style::Link),
                                         ),
@@ -430,16 +440,21 @@ fn form_lists() -> Form {
         .with_child(form::Hidden::field("origin", "form-lists"))
         // Botonera de acciones.
         .with_child(
-            button::ButtonSet::new()
-                .with_button(
+            Container::new()
+                .with_flex(
+                    Flex::row()
+                        .with_wrap(flex::Behavior::Wrap)
+                        .with_gap(flex::Gap::Both(UnitValue::RelRem(0.5))),
+                )
+                .with_child(
                     Button::submit(Lc::t("btn_submit", &LOC))
                         .with_style(button::Style::Solid(Intent::Primary)),
                 )
-                .with_button(
+                .with_child(
                     Button::reset(Lc::t("btn_reset", &LOC))
                         .with_style(button::Style::Outline(Intent::Neutral)),
                 )
-                .with_button(
+                .with_child(
                     Button::plain(Lc::t("btn_cancel", &LOC)).with_style(button::Style::Link),
                 ),
         )

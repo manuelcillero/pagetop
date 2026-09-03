@@ -1,4 +1,5 @@
 use crate::core::TypeInfo;
+use crate::html::flex::FlexItem;
 use crate::html::maud::{Escaper, RenderAttrs};
 use crate::{AutoDefault, CowStr, builder_impl, trace, util};
 
@@ -89,6 +90,9 @@ pub enum PropsError {
 /// estructura de un componente ya definido, temas y extensiones pueden definir un trait con nuevos
 /// métodos que leen y escriben valores extra en [`Props`]. Esos valores se interpretan como si
 /// fueran valores internos del componente para tomar decisiones durante el renderizado.
+///
+/// Finalmente, [`FlexItem`](Self::FlexItem) aplica un posicionamiento Flexbox a nivel de ítem sobre
+/// cualquier componente.
 #[derive(Clone, Debug)]
 pub enum PropsOp {
     /// Establece el identificador del componente normalizando el valor: recorta espacios, convierte
@@ -159,6 +163,22 @@ pub enum PropsOp {
     SetExtra(&'static str, PropsExtra),
     /// Elimina el valor extra asociado a la clave indicada, si existe.
     RemoveExtra(&'static str),
+    /// Aplica un posicionamiento [`FlexItem`] a un componente particular en un contenedor [`Flex`].
+    /// Añade directamente sus estilos Flexbox al propio componente, sin usar clases CSS.
+    ///
+    /// Existe como variante de `PropsOp`, y no como método builder de un componente, porque las
+    /// propiedades de un ítem Flexbox tienen sentido sobre **cualquier** componente que pueda
+    /// añadirse como hijo de un contenedor Flex (por ejemplo `Button`, `Nav`, un componente de
+    /// terceros, incluso otro componente que sea, a su vez, un contenedor Flex para sus propios
+    /// hijos).
+    ///
+    /// No existe una variante equivalente `PropsOp::Flex` para el componente contenedor. No hace
+    /// falta porque los componentes contenedores, como `Container` o `Navbar`, ofrecen su propio
+    /// `with_flex()` tipado y con introspección (p. ej. [`Container::flex()`]).
+    ///
+    /// [`Flex`]: crate::html::flex::Flex
+    /// [`Container::flex()`]: crate::base::component::Container::flex
+    FlexItem(FlexItem),
 }
 
 impl PropsOp {
@@ -294,6 +314,11 @@ impl PropsOp {
     /// Crea la variante [`RemoveExtra`](Self::RemoveExtra) para la clave indicada.
     pub fn remove_extra(key: &'static str) -> Self {
         Self::RemoveExtra(key)
+    }
+
+    /// Crea la variante [`FlexItem`](Self::FlexItem) con el posicionamiento indicado.
+    pub fn flex_item(placement: FlexItem) -> Self {
+        Self::FlexItem(placement)
     }
 }
 
@@ -626,6 +651,9 @@ impl Props {
             }
             PropsOp::RemoveExtra(key) => {
                 self.extras.remove(key);
+            }
+            PropsOp::FlexItem(placement) => {
+                placement.apply_to(self);
             }
         }
         self

@@ -136,8 +136,7 @@ impl Dialog {
     /// lista de componentes (`children`) del pie con una operación [`ChildOp`].
     ///
     /// El pie ya se maqueta en fila y alineado a la derecha por su propia clase CSS
-    /// (`dialog-footer`); por lo que no requiere un [`ButtonSet`](super::ButtonSet) para alinear
-    /// los botones, aunque puede usarse si se desea.
+    /// (`dialog-footer`); no requiere ninguna configuración adicional para alinear los botones.
     pub fn with_footer(mut self, op: impl Into<ChildOp>) -> Self {
         self.footer.alter_child(op.into());
         self

@@ -317,14 +317,12 @@ async fn render_user_edit(
 // pantalla siga sabiendo devolver al listado en el estado en que se dejó.
 //
 // "Guardar" (envía el `<form>` de `UserForm` vía el atributo `form`, ver `USER_ADMIN_FORM_ID`),
-// "Gestionar roles" y "Restablecer contraseña" se agrupan en un `button::ButtonSet` para que el
-// tema los alinee con espaciado uniforme. Los botones de bloqueo/activación y de
+// "Gestionar roles" y "Restablecer contraseña" son botones sueltos; bloqueo/activación y
 // concesión/revocación de admin (este último sólo si `can_toggle_admin`) van cada uno en su propio
-// `Form`, con un campo `Hidden` para el nuevo valor: `ButtonSet` sólo admite componentes `Button`,
-// así que no pueden ir dentro; conservan así el envío nativo sin JavaScript, mejorado con
-// `hx-post`/`hx-confirm`. Todo se construye con componentes -- `Container`, `Form`, `Hidden`,
-// `ButtonSet`, `Button` --, sin `html!` en bruto (ver PAGETOP.md, "Preferir componentes a `html!`
-// en bruto"); la alineación en línea de los tres queda pendiente de una pasada posterior.
+// `Form`, con un campo `Hidden` para el nuevo valor, para conservar el envío nativo sin JavaScript,
+// mejorado con `hx-post`/`hx-confirm`. Todos son hijos directos del mismo `Container` con Flex, que
+// los alinea en fila con espaciado uniforme sin que ninguno tenga que ser forzosamente un `Button`
+// suelto (ver PAGETOP.md, "Preferir componentes a `html!` en bruto").
 fn edit_actions(
     user_id: i32,
     status: UserStatus,
@@ -350,21 +348,6 @@ fn edit_actions(
         waypoint.append_to(cx.route(format!("{ADMIN_USERS_PATH}/{user_id}/status")));
     let admin_action = waypoint.append_to(cx.route(format!("{ADMIN_USERS_PATH}/{user_id}/admin")));
 
-    let buttons = button::ButtonSet::new()
-        .with_button(
-            Button::submit(Lc::t("btn-save", &LOCALES_USER))
-                .with_style(button::Style::Solid(Intent::Primary))
-                .with_prop(PropsOp::set("form", USER_ADMIN_FORM_ID)),
-        )
-        .with_button(
-            Button::anchor(Lc::t("btn-manage-roles", &LOCALES_USER), roles_href)
-                .with_style(button::Style::Solid(Intent::Neutral)),
-        )
-        .with_button(
-            Button::anchor(Lc::t("btn-reset-password", &LOCALES_USER), password_href)
-                .with_style(button::Style::Solid(Intent::Neutral)),
-        );
-
     let mut status_form = Form::new()
         .with_action(status_action.clone())
         .with_method(form::Method::Post)
@@ -378,7 +361,27 @@ fn edit_actions(
         status_form = status_form.with_prop(PropsOp::set(hx::CONFIRM, confirm));
     }
 
-    let mut container = Container::new().with_child(buttons).with_child(status_form);
+    let mut container = Container::new()
+        .with_flex(
+            Flex::row()
+                .with_wrap(flex::Behavior::Wrap)
+                .with_align(flex::Align::Center)
+                .with_gap(flex::Gap::Both(UnitValue::RelRem(0.5))),
+        )
+        .with_child(
+            Button::submit(Lc::t("btn-save", &LOCALES_USER))
+                .with_style(button::Style::Solid(Intent::Primary))
+                .with_prop(PropsOp::set("form", USER_ADMIN_FORM_ID)),
+        )
+        .with_child(
+            Button::anchor(Lc::t("btn-manage-roles", &LOCALES_USER), roles_href)
+                .with_style(button::Style::Solid(Intent::Neutral)),
+        )
+        .with_child(
+            Button::anchor(Lc::t("btn-reset-password", &LOCALES_USER), password_href)
+                .with_style(button::Style::Solid(Intent::Neutral)),
+        )
+        .with_child(status_form);
 
     if can_toggle_admin {
         let mut admin_form = Form::new()

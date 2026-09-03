@@ -17,7 +17,7 @@ pub use block::Block;
 
 pub mod button;
 #[doc(inline)]
-pub use button::{Button, ButtonSet};
+pub use button::Button;
 
 pub mod container;
 #[doc(inline)]

@@ -21,7 +21,7 @@ pub use pagetop::base::component::breadcrumb;
 
 // Button.
 pub mod button;
-pub use button::{Button, ButtonBootsier, ButtonSet};
+pub use button::{Button, ButtonBootsier};
 
 // Container.
 pub mod container;

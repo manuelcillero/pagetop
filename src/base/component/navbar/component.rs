@@ -81,6 +81,9 @@ pub struct Navbar {
     props: Props,
     /// Devuelve la disposición configurada para la barra de navegación.
     layout: navbar::Layout,
+    /// Devuelve el posicionamiento Flexbox como contenedor, si tiene alguno.
+    #[getters(copy)]
+    flex: Option<Flex>,
     /// Devuelve la lista de contenidos.
     items: Children,
 }
@@ -128,37 +131,44 @@ impl Component for Navbar {
         let id = self.id().unwrap();
         let id_content = util::join!(id, "-content");
 
+        // Posicionamiento Flexbox opcional (no del `<nav>`, cuya estructura la fija `layout()`).
+        let mut content_props = Props::default();
+        if let Some(flex) = self.flex() {
+            flex.apply_to(&mut content_props);
+        }
+        content_props.alter_prop(PropsOp::prepend_classes("navbar-content"));
+
         Ok(html! {
             nav (self.props()) {
                 @match self.layout() {
                     // Barra más sencilla: sólo contenido, siempre visible.
                     navbar::Layout::Simple => {
-                        div class="navbar-content" { (items) }
+                        div (content_props) { (items) }
                     },
 
                     // Barra sencilla que se puede contraer/expandir.
                     navbar::Layout::SimpleToggle => {
                         (button(cx, &id_content))
-                        div id=(&id_content) class="navbar-content" { (items) }
+                        div id=(&id_content) (content_props) { (items) }
                     },
 
                     // Barra con marca, siempre visible, sin botón.
                     navbar::Layout::SimpleBrandLeft(brand) => {
                         (brand.render(cx).await)
-                        div class="navbar-content" { (items) }
+                        div (content_props) { (items) }
                     },
 
                     // Barra con marca y botón, en ese orden.
                     navbar::Layout::BrandLeft(brand) => {
                         (brand.render(cx).await)
                         (button(cx, &id_content))
-                        div id=(&id_content) class="navbar-content" { (items) }
+                        div id=(&id_content) (content_props) { (items) }
                     },
 
                     // Barra con botón y marca, en ese orden.
                     navbar::Layout::BrandRight(brand) => {
                         (button(cx, &id_content))
-                        div id=(&id_content) class="navbar-content" { (items) }
+                        div id=(&id_content) (content_props) { (items) }
                         (brand.render(cx).await)
                     },
                 }
@@ -213,6 +223,15 @@ impl Navbar {
     /// Define el tipo de disposición que tendrá la barra de navegación.
     pub fn with_layout(mut self, layout: navbar::Layout) -> Self {
         self.layout = layout;
+        self
+    }
+
+    /// Establece el posicionamiento Flexbox como contenedor (usa `None` para quitarlo).
+    ///
+    /// No afecta a la posición de la marca ni del botón de despliegue, que quedan fijados con
+    /// [`with_layout()`](Self::with_layout).
+    pub fn with_flex(mut self, flex: impl Into<Option<Flex>>) -> Self {
+        self.flex = flex.into();
         self
     }
 

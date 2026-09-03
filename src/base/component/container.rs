@@ -47,6 +47,9 @@ pub struct Container {
     props: Props,
     /// Devuelve el tipo semántico del contenedor.
     kind: Kind,
+    /// Devuelve el posicionamiento Flexbox como contenedor, si tiene alguno.
+    #[getters(copy)]
+    flex: Option<Flex>,
     /// Devuelve la lista de componentes (`children`) del contenedor.
     children: Children,
 }
@@ -59,6 +62,12 @@ impl Component for Container {
 
     fn id(&self) -> Option<String> {
         self.props.get_id()
+    }
+
+    fn setup(&mut self, _cx: &Context) {
+        if let Some(flex) = self.flex() {
+            flex.apply_to(&mut self.props);
+        }
     }
 
     #[rustfmt::skip]
@@ -131,6 +140,12 @@ impl Container {
     /// Modifica identificador, clases CSS, atributos HTML o valores extra del componente.
     pub fn with_prop(mut self, op: PropsOp) -> Self {
         self.props.alter_prop(op);
+        self
+    }
+
+    /// Establece el posicionamiento Flexbox como contenedor (usa `None` para quitarlo).
+    pub fn with_flex(mut self, flex: impl Into<Option<Flex>>) -> Self {
+        self.flex = flex.into();
         self
     }
 

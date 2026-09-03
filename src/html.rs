@@ -33,3 +33,9 @@ pub use props::{Props, PropsError, PropsExtra, PropsOp};
 
 mod unit;
 pub use unit::UnitValue;
+
+// **< HTML LAYOUT >********************************************************************************
+
+pub mod flex;
+#[doc(inline)]
+pub use flex::{Flex, FlexItem};
