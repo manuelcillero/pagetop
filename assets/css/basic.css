@@ -773,7 +773,7 @@ input:disabled + label {
 
 /* .page-link-icon muestra el texto de navegación de los botones anterior/siguiente. El texto
    accesible completo va aparte, en el aria-label del enlace. Por eso sustituir el texto visible por
-   otro contenido no afecta a la accesibilidad, p.ej. para usar "‹"/"›" se puede aplicar:
+   otro contenido no afecta a la accesibilidad, p. ej. para usar "‹"/"›" se puede aplicar:
 
 .page-link-icon {
     display: inline-block;

@@ -46,7 +46,7 @@ para poder propagarse con `?` en caso de error.
   `assets/` o de un subdirectorio a `static/` sin transformación.
 - `copy_file()` - copia un archivo al destino.
 - `copy_file_replacing()` - copia un archivo aplicando una lista de sustituciones de texto en su
-  contenido; útil para actualizar referencias internas (p.ej. `sourceMappingURL`) al renombrar
+  contenido; útil para actualizar referencias internas (p. ej. `sourceMappingURL`) al renombrar
   archivos.
 - `minify_js()` - minifica un archivo JavaScript.
 
