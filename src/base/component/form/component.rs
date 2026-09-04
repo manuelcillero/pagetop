@@ -78,7 +78,7 @@ impl Component for Form {
         };
         Ok(html! {
             form
-                (self.props())
+                (self.props().unpack(cx))
                 action=[self.action().try_resolve(cx)]
                 method=[method]
                 accept-charset=[self.charset().as_deref()]

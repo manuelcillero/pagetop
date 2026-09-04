@@ -95,7 +95,7 @@ impl Component for Textarea {
             .map(|id| util::join!(id, "-textarea"));
 
         Ok(html! {
-            div (self.props()) {
+            div (self.props().unpack(cx)) {
                 @if let Some(label) = self.label().lookup(cx) {
                     label for=[textarea_id.as_deref()] class="form-label" {
                         (label)

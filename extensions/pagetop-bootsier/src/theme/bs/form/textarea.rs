@@ -86,7 +86,7 @@ pub(crate) fn render(field: &Textarea, cx: &mut Context) -> Result<Markup, Compo
         None => html! {},
     };
     Ok(html! {
-        div (field.props()) {
+        div (field.props().unpack(cx)) {
             @if !floating { (label) }
             textarea
                 id=[textarea_id.as_deref()]

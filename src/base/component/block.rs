@@ -40,7 +40,7 @@ impl Component for Block {
         }
 
         Ok(html! {
-            div (self.props()) {
+            div (self.props().unpack(cx)) {
                 @if let Some(title) = self.title().lookup(cx) {
                     h2 class="block-title" { span { (title) } }
                 }

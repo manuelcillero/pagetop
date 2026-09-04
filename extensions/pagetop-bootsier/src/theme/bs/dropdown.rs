@@ -121,7 +121,7 @@ pub(crate) async fn render(
     if title.is_empty() {
         // Sin título: menú contextual estático, sin botón ni comportamiento de apertura/cierre.
         return Ok(html! {
-            div (dropdown.props()) {
+            div (dropdown.props().unpack(cx)) {
                 ul class="dropdown-menu" { (items) }
             }
         });
@@ -173,7 +173,7 @@ pub(crate) async fn render(
     };
 
     Ok(html! {
-        div (dropdown.props()) {
+        div (dropdown.props().unpack(cx)) {
             // Renderizado en modo split (dos botones) o simple (un botón).
             @if *dropdown.button_split() {
                 // Botón principal (acción/etiqueta).

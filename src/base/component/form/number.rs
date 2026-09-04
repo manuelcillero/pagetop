@@ -86,7 +86,7 @@ impl Component for Number {
         let container_id = self.id();
         let input_id = container_id.as_deref().map(|id| util::join!(id, "-input"));
         Ok(html! {
-            div (self.props()) {
+            div (self.props().unpack(cx)) {
                 @if let Some(label) = self.label().lookup(cx) {
                     label for=[input_id.as_deref()] class="form-label" {
                         (label)

@@ -42,7 +42,7 @@ impl Component for Badge {
 
     async fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
         Ok(html! {
-            span (self.props()) {
+            span (self.props().unpack(cx)) {
                 (self.label().using(cx))
             }
         })

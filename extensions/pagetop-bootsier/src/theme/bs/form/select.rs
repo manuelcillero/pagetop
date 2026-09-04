@@ -80,7 +80,7 @@ pub(crate) fn render(field: &Field, cx: &mut Context) -> Result<Markup, Componen
         None => html! {},
     };
     Ok(html! {
-        div (field.props()) {
+        div (field.props().unpack(cx)) {
             @if !floating { (label) }
             select
                 id=[select_id.as_deref()]

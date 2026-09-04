@@ -187,7 +187,7 @@ impl Offcanvas {
 
         html! {
             div
-                (self.props())
+                (self.props().unpack(cx))
                 tabindex="-1"
                 data-bs-scroll=[body_scroll]
                 data-bs-backdrop=[backdrop]

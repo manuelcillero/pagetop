@@ -54,7 +54,7 @@ impl Component for Fieldset {
         }
 
         Ok(html! {
-            fieldset (self.props()) disabled[*self.disabled()] {
+            fieldset (self.props().unpack(cx)) disabled[*self.disabled()] {
                 @if let Some(legend) = self.legend().lookup(cx) {
                     legend { (legend) }
                 }

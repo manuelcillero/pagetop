@@ -111,7 +111,7 @@ impl Component for RoleTable {
         let new_href = waypoint.append_to(cx.route(format!("{ADMIN_ROLES_PATH}/new")));
 
         Ok(html! {
-            div (self.props()) {
+            div (self.props().unpack(cx)) {
                 div.user-admin-actions {
                     a href=(new_href) {
                         (Lc::t("btn-create-role", &LOCALES_USER).using(cx))

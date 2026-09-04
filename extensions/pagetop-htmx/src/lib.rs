@@ -78,8 +78,8 @@ async fn homepage(request: HttpRequest) -> Result<Markup, ErrorPage> {
         .with_prop(PropsOp::set(hx::TARGET, "#result"));
 
     Page::new(request)
-        .with_child(Html::with(move |_| html! {
-            button (props) { "Say hello" }
+        .with_child(Html::with(move |cx| html! {
+            button (props.unpack(cx)) { "Say hello" }
             div #result {}
         }))
         .render().await

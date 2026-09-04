@@ -62,7 +62,7 @@ impl Component for Nav {
         }
 
         Ok(html! {
-            ul (self.props()) {
+            ul (self.props().unpack(cx)) {
                 (items)
             }
         })

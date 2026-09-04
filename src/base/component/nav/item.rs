@@ -86,7 +86,7 @@ impl Component for Item {
             ItemKind::Void => html! {},
 
             ItemKind::Label(label) => html! {
-                li (self.props()) {
+                li (self.props().unpack(cx)) {
                     span class="nav-link disabled" aria-disabled="true" {
                         (label.using(cx))
                     }
@@ -119,7 +119,7 @@ impl Component for Item {
                 let aria_disabled = (*disabled).then_some("true");
 
                 html! {
-                    li (self.props()) {
+                    li (self.props().unpack(cx)) {
                         a
                             class=(classes)
                             href=[route_link]
@@ -135,7 +135,7 @@ impl Component for Item {
             }
 
             ItemKind::Html(html) => html! {
-                li (self.props()) {
+                li (self.props().unpack(cx)) {
                     (html.render(cx).await)
                 }
             },
@@ -153,7 +153,7 @@ impl Component for Item {
                         title
                     };
                     html! {
-                        li (self.props()) {
+                        li (self.props().unpack(cx)) {
                             a
                                 class="nav-link dropdown-toggle"
                                 href="#"

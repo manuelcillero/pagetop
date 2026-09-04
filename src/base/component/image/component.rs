@@ -77,11 +77,9 @@ impl Component for Image {
     }
 
     async fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
-        let alt_text = self.alternative().lookup(cx).unwrap_or_default();
         let source = match self.source() {
             image::Source::Logo(svg) => {
-                let label = (!alt_text.is_empty()).then_some(alt_text.as_str());
-                return Ok(svg.markup_with(self.props(), label));
+                return Ok(svg.markup_with(cx, self.props(), self.alternative().clone()));
             }
             image::Source::Responsive(source) => Some(source),
             image::Source::Thumbnail(source) => Some(source),
@@ -90,8 +88,8 @@ impl Component for Image {
         Ok(html! {
             img
                 src=[source]
-                alt=(alt_text)
-                (self.props()) {}
+                alt=(self.alternative().lookup(cx).unwrap_or_default())
+                (self.props().unpack(cx)) {}
         })
     }
 }

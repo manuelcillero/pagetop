@@ -103,7 +103,7 @@ impl Component for Dropdown {
         let toggle_label = Lc::l("dropdown_toggle").using(cx);
 
         Ok(html! {
-            div (self.props()) {
+            div (self.props().unpack(cx)) {
                 @if *self.button_split() {
                     button type="button" class=(&button_classes) { (&title) }
                     button

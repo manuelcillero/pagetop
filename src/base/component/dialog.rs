@@ -82,7 +82,7 @@ impl Component for Dialog {
         let id_label = (!title.is_empty()).then(|| util::join!(self.id().unwrap(), "-label"));
 
         Ok(html! {
-            dialog (self.props()) aria-labelledby=[id_label.as_deref()] {
+            dialog (self.props().unpack(cx)) aria-labelledby=[id_label.as_deref()] {
                 div class="dialog-header" {
                     @if let Some(id_label) = &id_label {
                         h2 id=(id_label) class="dialog-title" { (title) }

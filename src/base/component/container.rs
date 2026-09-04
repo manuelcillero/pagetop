@@ -77,12 +77,12 @@ impl Component for Container {
             return Ok(html! {});
         }
         Ok(match self.kind() {
-            Kind::Default => html! { div     (self.props()) { (output) } },
-            Kind::Main    => html! { main    (self.props()) { (output) } },
-            Kind::Header  => html! { header  (self.props()) { (output) } },
-            Kind::Footer  => html! { footer  (self.props()) { (output) } },
-            Kind::Section => html! { section (self.props()) { (output) } },
-            Kind::Article => html! { article (self.props()) { (output) } },
+            Kind::Default => html! { div     (self.props().unpack(cx)) { (output) } },
+            Kind::Main    => html! { main    (self.props().unpack(cx)) { (output) } },
+            Kind::Header  => html! { header  (self.props().unpack(cx)) { (output) } },
+            Kind::Footer  => html! { footer  (self.props().unpack(cx)) { (output) } },
+            Kind::Section => html! { section (self.props().unpack(cx)) { (output) } },
+            Kind::Article => html! { article (self.props().unpack(cx)) { (output) } },
         })
     }
 }

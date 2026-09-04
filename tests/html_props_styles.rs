@@ -275,8 +275,9 @@ async fn props_styles_renders_style_attribute() {
     let p = Props::default()
         .with_prop(PropsOp::add_style("color", "red"))
         .with_prop(PropsOp::add_style("font-weight", "bold"));
+    let cx = Context::default();
     assert_eq!(
-        html! { button (p) { "OK" } }.into_string(),
+        html! { button (p.unpack(&cx)) { "OK" } }.into_string(),
         r#"<button style="color: red; font-weight: bold">OK</button>"#
     );
 }
@@ -288,8 +289,9 @@ async fn props_styles_render_after_class_and_before_other_attrs() {
         .with_prop(PropsOp::add_classes("btn"))
         .with_prop(PropsOp::add_style("color", "red"))
         .with_prop(PropsOp::set("data-x", "1"));
+    let cx = Context::default();
     assert_eq!(
-        html! { button (p) { "OK" } }.into_string(),
+        html! { button (p.unpack(&cx)) { "OK" } }.into_string(),
         r#"<button id="main" class="btn" style="color: red" data-x="1">OK</button>"#
     );
 }
@@ -297,8 +299,9 @@ async fn props_styles_render_after_class_and_before_other_attrs() {
 #[pagetop::test]
 async fn props_styles_escapes_double_quotes_in_value() {
     let p = Props::default().with_prop(PropsOp::add_style("content", r#""hi""#));
+    let cx = Context::default();
     assert_eq!(
-        html! { span (p) {} }.into_string(),
+        html! { span (p.unpack(&cx)) {} }.into_string(),
         r#"<span style="content: &quot;hi&quot;"></span>"#
     );
 }

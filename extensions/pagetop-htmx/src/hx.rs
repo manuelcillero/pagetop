@@ -23,15 +23,15 @@
 //! puedes usar [`Props`](pagetop::html::Props) combinado con las constantes de este módulo:
 //!
 //! ```rust,no_run
-//! use pagetop::prelude::*;
-//! use pagetop_htmx::prelude::*;
-//!
+//! # use pagetop::prelude::*;
+//! # use pagetop_htmx::prelude::*;
+//! # let cx = Context::default();
 //! let props = Props::new(hx::GET, "/api/items")
 //!     .with_prop(PropsOp::set(hx::TARGET, "#list"))
 //!     .with_prop(PropsOp::set(hx::SWAP, hx::swap::OUTER_HTML));
 //!
 //! let markup = html! {
-//!     button (props) { "Load" }
+//!     button (props.unpack(&cx)) { "Load" }
 //! };
 //! ```
 //!

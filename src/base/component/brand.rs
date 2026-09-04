@@ -69,9 +69,9 @@ impl Component for Brand {
         }
         Ok(html! {
             @if let Some(route) = self.route() {
-                a (self.props()) href=(route.resolve(cx)) { (inner_brand) }
+                a (self.props().unpack(cx)) href=(route.resolve(cx)) { (inner_brand) }
             } @else {
-                span (self.props()) { (inner_brand) }
+                span (self.props().unpack(cx)) { (inner_brand) }
             }
         })
     }

@@ -245,7 +245,7 @@ impl Page {
                 head {
                     (head)
                 }
-                body (self.body_props()) {
+                body (self.body_props().unpack(&self.context)) {
                     (body)
                 }
             }

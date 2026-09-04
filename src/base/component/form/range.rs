@@ -83,7 +83,7 @@ impl Component for Range {
         let container_id = self.id();
         let range_id = container_id.as_deref().map(|id| util::join!(id, "-range"));
         Ok(html! {
-            div (self.props()) {
+            div (self.props().unpack(cx)) {
                 @if let Some(label) = self.label().lookup(cx) {
                     label for=[range_id.as_deref()] class="form-label" { (label) }
                 }

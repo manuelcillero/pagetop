@@ -242,7 +242,7 @@ impl Component for Field {
         let select_id = container_id.as_deref().map(|id| util::join!(id, "-select"));
 
         Ok(html! {
-            div (self.props()) {
+            div (self.props().unpack(cx)) {
                 @if let Some(label) = self.label().lookup(cx) {
                     label for=[select_id.as_deref()] class="form-label" {
                         (label)

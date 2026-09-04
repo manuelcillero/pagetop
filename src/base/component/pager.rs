@@ -235,7 +235,7 @@ impl Component for Pager {
         };
 
         Ok(html! {
-            nav (self.props()) aria-label=[self.aria_label().lookup(cx)] {
+            nav (self.props().unpack(cx)) aria-label=[self.aria_label().lookup(cx)] {
                 @if show_summary {
                     @let items_per_page = self.items_per_page().max(1);
                     @let first = (page - 1) * items_per_page + 1;

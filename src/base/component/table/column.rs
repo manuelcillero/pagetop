@@ -89,13 +89,13 @@ impl Column {
         let label = self.label().using(cx);
 
         let Some(sort) = self.sort() else {
-            return html! { th (self.props()) scope="col" { (label) } };
+            return html! { th (self.props().unpack(cx)) scope="col" { (label) } };
         };
         let (aria_sort, link_props) = sort.header_attrs();
 
         html! {
-            th (self.props()) scope="col" aria-sort=(aria_sort) {
-                a href=[sort.href().as_deref()] (link_props) { (label) }
+            th (self.props().unpack(cx)) scope="col" aria-sort=(aria_sort) {
+                a href=[sort.href().as_deref()] (link_props.unpack(cx)) { (label) }
             }
         }
     }

@@ -48,7 +48,7 @@ impl Component for Icon {
                 let has_label = aria_label.is_some();
                 html! {
                     i
-                        (self.props())
+                        (self.props().unpack(cx))
                         role=[has_label.then_some("img")]
                         aria-label=[aria_label]
                         aria-hidden=[(!has_label).then_some("true")]
@@ -65,7 +65,7 @@ impl Component for Icon {
                         viewBox=(viewbox)
                         fill="currentColor"
                         focusable="false"
-                        (self.props())
+                        (self.props().unpack(cx))
                         role=[has_label.then_some("img")]
                         aria-label=[aria_label]
                         aria-hidden=[(!has_label).then_some("true")]

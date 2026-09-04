@@ -105,7 +105,7 @@ impl Component for Checkbox {
         let is_switch = *self.checkbox_kind() == form::CheckboxKind::Switch;
 
         Ok(html! {
-            div (self.props()) {
+            div (self.props().unpack(cx)) {
                 input
                     type="checkbox"
                     role=[is_switch.then_some("switch")]

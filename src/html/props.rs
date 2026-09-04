@@ -1,4 +1,5 @@
 use crate::core::TypeInfo;
+use crate::core::component::Context;
 use crate::html::flex::FlexItem;
 use crate::html::maud::{Escaper, RenderAttrs};
 use crate::{AutoDefault, CowStr, builder_impl, trace, util};
@@ -333,14 +334,18 @@ impl PropsOp {
 ///
 /// # Ejemplo
 ///
+/// En los ejemplos se omite la construcción explícita de `Context` (`let cx = Context::default();`)
+/// para no distraer del resto del ejemplo.
+///
 /// ```rust
 /// # use pagetop::prelude::*;
+/// # let cx = Context::default();
 /// let props = Props::new("hx-get", "/api/items")
 ///     .with_prop(PropsOp::set("hx-target", "#lista"))
 ///     .with_prop(PropsOp::set("hx-swap", "outerHTML"));
 ///
 /// let markup = html! {
-///     button (props) { "Cargar" }
+///     button (props.unpack(&cx)) { "Cargar" }
 /// };
 ///
 /// assert_eq!(
@@ -357,8 +362,9 @@ impl PropsOp {
 ///
 /// ```rust
 /// # use pagetop::prelude::*;
+/// # let cx = Context::default();
 /// let props = Props::default().with_id("My Button");
-/// let markup = html! { button (props) { "OK" } };
+/// let markup = html! { button (props.unpack(&cx)) { "OK" } };
 /// assert_eq!(markup.into_string(), r#"<button id="my_button">OK</button>"#);
 /// ```
 ///
@@ -382,12 +388,13 @@ impl PropsOp {
 ///
 /// ```rust
 /// # use pagetop::prelude::*;
+/// # let cx = Context::default();
 /// let props = Props::default()
 ///     .with_prop(PropsOp::add_classes("btn btn-primary"))
 ///     .with_prop(PropsOp::add_classes("active"))
 ///     .with_prop(PropsOp::replace_classes("btn-primary", "btn-secondary"));
 ///
-/// let markup = html! { button (props) { "OK" } };
+/// let markup = html! { button (props.unpack(&cx)) { "OK" } };
 /// assert_eq!(markup.into_string(), r#"<button class="btn btn-secondary active">OK</button>"#);
 /// ```
 ///
@@ -398,19 +405,20 @@ impl PropsOp {
 ///
 /// ```rust
 /// # use pagetop::prelude::*;
+/// # let cx = Context::default();
 /// let props = Props::default()
 ///     .with_prop(PropsOp::add_style("color", "red"))
 ///     .with_prop(PropsOp::add_style("font-weight", "bold"))
 ///     .with_prop(PropsOp::add_style("color", "blue"))
 ///     .with_prop(PropsOp::remove_style("font-weight"));
 ///
-/// let markup = html! { button (props) { "OK" } };
+/// let markup = html! { button (props.unpack(&cx)) { "OK" } };
 /// assert_eq!(markup.into_string(), r#"<button style="color: blue">OK</button>"#);
 /// ```
 ///
 /// # Atributos duplicados junto a `Props`
 ///
-/// Cuando el componente combina `(self.props())` con un atributo literal del mismo nombre en el
+/// Cuando el componente combina `(self.props().unpack(cx))` con un atributo del mismo nombre en el
 /// mismo elemento (una clase, un `#id`, o `nombre=valor`), la macro [`html!`](crate::html::html)
 /// evita automáticamente la duplicación. Recopila en tiempo de compilación los nombres de los
 /// atributos del elemento y al renderizar se omiten los duplicados en tiempo de ejecución. No
@@ -418,9 +426,10 @@ impl PropsOp {
 ///
 /// ```rust
 /// # use pagetop::prelude::*;
+/// # let cx = Context::default();
 /// let props = Props::default().with_prop(PropsOp::set("title", "de Props"));
 ///
-/// let markup = html! { span title="literal" (props) { "OK" } };
+/// let markup = html! { span title="literal" (props.unpack(&cx)) { "OK" } };
 ///
 /// // El atributo literal prevalece; `Props` omite su propio "title" en vez de duplicarlo.
 /// assert_eq!(markup.into_string(), r#"<span title="literal">OK</span>"#);
@@ -471,7 +480,7 @@ impl PropsOp {
 ///
 ///     async fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
 ///         Ok(html! {
-///             button (self.props()) {
+///             button (self.props().unpack(cx)) {
 ///                 (self.label().using(cx))
 ///             }
 ///         })
@@ -869,6 +878,25 @@ impl Props {
         self.extra::<T>(key).ok().cloned().unwrap_or_else(f)
     }
 
+    // **< Props RENDER >***************************************************************************
+
+    /// Extrae `Props` en la posición de atributos de [`html!`](crate::html::html) usando el
+    /// `Context` activo: `button (self.props().unpack(cx)) { ... }`.
+    ///
+    /// `Props` no implementa [`RenderAttrs`] directamente. Obliga a pasar siempre el `Context`
+    /// vigente en el punto donde se renderiza, aunque no lo necesite ningún atributo.
+    ///
+    /// ```rust
+    /// # use pagetop::prelude::*;
+    /// # let cx = Context::default();
+    /// let props = Props::default().with_id("example");
+    /// let markup = html! { button (props.unpack(&cx)) { "OK" } };
+    /// assert_eq!(markup.into_string(), r#"<button id="example">OK</button>"#);
+    /// ```
+    pub fn unpack<'a>(&'a self, cx: &'a Context) -> impl RenderAttrs + 'a {
+        PropsUnpack { props: self, cx }
+    }
+
     // **< Props PRIVATE >**************************************************************************
 
     fn apply_id(&mut self, id: &str) {
@@ -966,14 +994,14 @@ impl Props {
     }
 }
 
-#[doc(hidden)]
-impl RenderAttrs for Props {
-    // Omite cualquier atributo que esté en `exclude` (recopilados por `html!` a partir de los
-    // atributos literales del elemento). Registra un `trace::debug!` por cada atributo duplicado,
-    // con la posición exacta del `html!` que lo produjo (propagado gracias a `#[track_caller]`)
-    // para facilitar la localización del problema.
+impl Props {
+    // Escribe los atributos, omitiendo cualquiera que esté en `exclude` (recopilados por `html!` a
+    // partir de los atributos literales del elemento). Registra un `trace::debug!` por cada
+    // atributo duplicado, con la posición exacta del `html!` que lo produjo (propagado gracias a
+    // `#[track_caller]`, heredado desde `PropsUnpack::render_attrs_to()`) para facilitar la
+    // localización del problema.
     #[track_caller]
-    fn render_attrs_to(&self, w: &mut String, exclude: &[&str]) {
+    fn write_attrs(&self, _cx: &Context, w: &mut String, exclude: &[&str]) {
         if let Some(id) = self.id.as_deref() {
             if exclude.contains(&"id") {
                 trace::debug!(
@@ -1049,5 +1077,21 @@ impl RenderAttrs for Props {
             let _ = write!(Escaper::new(w), "{}", value);
             w.push('"');
         }
+    }
+}
+
+// **< PropsUnpack >********************************************************************************
+
+// Devuelto por `Props::unpack()`.
+struct PropsUnpack<'a> {
+    props: &'a Props,
+    cx: &'a Context,
+}
+
+#[doc(hidden)]
+impl RenderAttrs for PropsUnpack<'_> {
+    #[track_caller]
+    fn render_attrs_to(&self, w: &mut String, exclude: &[&str]) {
+        self.props.write_attrs(self.cx, w, exclude);
     }
 }

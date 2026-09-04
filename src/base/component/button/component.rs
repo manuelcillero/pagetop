@@ -103,7 +103,7 @@ impl Component for Button {
 
             return Ok(html! {
                 a
-                    (self.props())
+                    (self.props().unpack(cx))
                     href=[href]
                     title=[self.title().lookup(cx)]
                     autofocus[*self.autofocus()]
@@ -118,7 +118,7 @@ impl Component for Button {
         Ok(html! {
             button
                 type=(self.kind())
-                (self.props())
+                (self.props().unpack(cx))
                 name=[self.name().as_deref()]
                 value=[self.value().as_deref()]
                 title=[self.title().lookup(cx)]

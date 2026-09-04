@@ -261,7 +261,7 @@ pub(crate) async fn render(navbar: &Navbar, cx: &mut Context) -> Result<Markup, 
         .unwrap_or_else(|_| translate_layout(navbar.layout()));
 
     Ok(html! {
-        nav (navbar.props()) {
+        nav (navbar.props().unpack(cx)) {
             div class="container-fluid" {
                 @match layout {
                     // Barra más sencilla: sólo contenido.

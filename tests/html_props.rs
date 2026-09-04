@@ -4,8 +4,9 @@ use pagetop::prelude::*;
 
 #[pagetop::test]
 async fn props_default_renders_nothing() {
+    let cx = Context::default();
     assert_eq!(
-        html! { span (Props::default()) {} }.into_string(),
+        html! { span (Props::default().unpack(&cx)) {} }.into_string(),
         "<span></span>"
     );
 }
@@ -44,8 +45,9 @@ async fn props_set_replaces_existing_value() {
 async fn props_set_does_not_create_duplicate_key() {
     // Reassigning the same key must replace the value, not add a duplicate entry.
     let p = Props::new("key", "v1").with_prop(PropsOp::set("key", "v2"));
+    let cx = Context::default();
     assert_eq!(
-        html! { span (p) {} }.into_string(),
+        html! { span (p.unpack(&cx)) {} }.into_string(),
         r#"<span key="v2"></span>"#
     );
 }
@@ -55,8 +57,9 @@ async fn props_set_preserves_insertion_order() {
     let p = Props::new("a", "1")
         .with_prop(PropsOp::set("b", "2"))
         .with_prop(PropsOp::set("c", "3"));
+    let cx = Context::default();
     assert_eq!(
-        html! { span (p) {} }.into_string(),
+        html! { span (p.unpack(&cx)) {} }.into_string(),
         r#"<span a="1" b="2" c="3"></span>"#
     );
 }
@@ -82,7 +85,11 @@ async fn props_remove_nonexistent_key_is_noop() {
 #[pagetop::test]
 async fn props_renders_nothing_after_removing_last_attr() {
     let p = Props::new("only", "one").with_prop(PropsOp::remove("only"));
-    assert_eq!(html! { span (p) {} }.into_string(), "<span></span>");
+    let cx = Context::default();
+    assert_eq!(
+        html! { span (p.unpack(&cx)) {} }.into_string(),
+        "<span></span>"
+    );
 }
 
 // **< HTML Escaped >*******************************************************************************
@@ -90,8 +97,9 @@ async fn props_renders_nothing_after_removing_last_attr() {
 #[pagetop::test]
 async fn props_escapes_ampersand_and_angle_brackets_in_value() {
     let p = Props::new("data-info", "a&b<c>d");
+    let cx = Context::default();
     assert_eq!(
-        html! { span (p) {} }.into_string(),
+        html! { span (p.unpack(&cx)) {} }.into_string(),
         r#"<span data-info="a&amp;b&lt;c&gt;d"></span>"#
     );
 }
@@ -99,8 +107,9 @@ async fn props_escapes_ampersand_and_angle_brackets_in_value() {
 #[pagetop::test]
 async fn props_escapes_double_quotes_in_value() {
     let p = Props::new("data-label", r#"say "hello""#);
+    let cx = Context::default();
     assert_eq!(
-        html! { span (p) {} }.into_string(),
+        html! { span (p.unpack(&cx)) {} }.into_string(),
         r#"<span data-label="say &quot;hello&quot;"></span>"#
     );
 }
@@ -111,8 +120,9 @@ async fn props_escapes_double_quotes_in_value() {
 async fn props_empty_in_html_macro_produces_no_attributes() {
     // An empty Props must not emit even an extra blank space.
     let p = Props::default();
+    let cx = Context::default();
     assert_eq!(
-        html! { button (p) { "x" } }.into_string(),
+        html! { button (p.unpack(&cx)) { "x" } }.into_string(),
         "<button>x</button>"
     );
 }
@@ -120,8 +130,9 @@ async fn props_empty_in_html_macro_produces_no_attributes() {
 #[pagetop::test]
 async fn props_single_attr_in_html_macro() {
     let p = Props::new("hx-get", "/api");
+    let cx = Context::default();
     assert_eq!(
-        html! { button (p) { "Load" } }.into_string(),
+        html! { button (p.unpack(&cx)) { "Load" } }.into_string(),
         r#"<button hx-get="/api">Load</button>"#
     );
 }
@@ -131,18 +142,20 @@ async fn props_multiple_attrs_preserve_order_in_html_macro() {
     let p = Props::new("hx-get", "/api")
         .with_prop(PropsOp::set("hx-target", "#result"))
         .with_prop(PropsOp::set("hx-swap", "outerHTML"));
+    let cx = Context::default();
     assert_eq!(
-        html! { button (p) {} }.into_string(),
+        html! { button (p.unpack(&cx)) {} }.into_string(),
         r##"<button hx-get="/api" hx-target="#result" hx-swap="outerHTML"></button>"##
     );
 }
 
 #[pagetop::test]
 async fn props_alongside_class_and_id_in_html_macro() {
-    // The splice is always emitted after class and id, regardless of the order they are written in.
+    // The unpack is always emitted after class and id, regardless of the order they are written in.
     let p = Props::new("hx-get", "/api");
+    let cx = Context::default();
     assert_eq!(
-        html! { button #mybtn .btn (p) { "Go" } }.into_string(),
+        html! { button #mybtn .btn (p.unpack(&cx)) { "Go" } }.into_string(),
         r#"<button class="btn" id="mybtn" hx-get="/api">Go</button>"#
     );
 }
@@ -150,40 +163,44 @@ async fn props_alongside_class_and_id_in_html_macro() {
 #[pagetop::test]
 async fn props_alongside_named_attr_renders_after_it() {
     let p = Props::new("hx-get", "/api");
+    let cx = Context::default();
     assert_eq!(
-        html! { button type="button" (p) {} }.into_string(),
+        html! { button type="button" (p.unpack(&cx)) {} }.into_string(),
         r#"<button type="button" hx-get="/api"></button>"#
     );
 }
 
 #[pagetop::test]
 async fn props_combined_via_chaining_instead_of_multiple_splices() {
-    // An element accepts only a single attribute splice (a second `(props)` on the same element
+    // An element accepts only a single attribute unpack (a second `(props)` on the same element
     // is a compile error); values from separate sources are combined by chaining `with_prop()`
     // on one `Props`, not by splicing two of them.
     let p = Props::new("hx-get", "/api").with_prop(PropsOp::set("hx-swap", "outerHTML"));
+    let cx = Context::default();
     assert_eq!(
-        html! { button (p) {} }.into_string(),
+        html! { button (p.unpack(&cx)) {} }.into_string(),
         r#"<button hx-get="/api" hx-swap="outerHTML"></button>"#
     );
 }
 
 #[pagetop::test]
 async fn props_inline_construction_in_html_macro() {
+    let cx = Context::default();
     assert_eq!(
-        html! { button (Props::new("hx-get", "/api")) { "Go" } }.into_string(),
+        html! { button (Props::new("hx-get", "/api").unpack(&cx)) { "Go" } }.into_string(),
         r#"<button hx-get="/api">Go</button>"#
     );
 }
 
 #[pagetop::test]
 async fn props_conditional_expression_in_html_macro() {
+    let cx = Context::default();
     for (active, expected) in [
         (true, r#"<button hx-get="/api">x</button>"#),
         (false, "<button>x</button>"),
     ] {
         let markup = html! {
-            button (if active { Props::new("hx-get", "/api") } else { Props::default() }) { "x" }
+            button (if active { Props::new("hx-get", "/api") } else { Props::default() }.unpack(&cx)) { "x" }
         };
         assert_eq!(markup.into_string(), expected);
     }
@@ -191,7 +208,7 @@ async fn props_conditional_expression_in_html_macro() {
 
 #[pagetop::test]
 async fn props_splice_empty_string_emits_nothing() {
-    // An empty splice emits no attribute nor extra space.
+    // An empty unpack emits no attribute nor extra space.
     assert_eq!(html! { span ("") { "x" } }.into_string(), "<span>x</span>");
 }
 
@@ -202,8 +219,9 @@ async fn props_id_collision_with_literal_omits_props_id() {
     // A literal `#id` on the element takes precedence; `Props`'s own id is silently omitted instead
     // of producing a duplicate `id` attribute.
     let p = Props::default().with_id("from-props");
+    let cx = Context::default();
     assert_eq!(
-        html! { div #fixed (p) {} }.into_string(),
+        html! { div #fixed (p.unpack(&cx)) {} }.into_string(),
         r#"<div id="fixed"></div>"#
     );
 }
@@ -211,8 +229,9 @@ async fn props_id_collision_with_literal_omits_props_id() {
 #[pagetop::test]
 async fn props_class_collision_with_literal_omits_props_classes() {
     let p = Props::classes("from-props-a from-props-b");
+    let cx = Context::default();
     assert_eq!(
-        html! { div.fixed (p) {} }.into_string(),
+        html! { div.fixed (p.unpack(&cx)) {} }.into_string(),
         r#"<div class="fixed"></div>"#
     );
 }
@@ -222,8 +241,9 @@ async fn props_style_collision_with_literal_omits_props_styles() {
     let p = Props::default()
         .with_prop(PropsOp::add_style("color", "red"))
         .with_prop(PropsOp::add_style("font-weight", "bold"));
+    let cx = Context::default();
     assert_eq!(
-        html! { div style="color: blue" (p) {} }.into_string(),
+        html! { div style="color: blue" (p.unpack(&cx)) {} }.into_string(),
         r#"<div style="color: blue"></div>"#
     );
 }
@@ -231,8 +251,9 @@ async fn props_style_collision_with_literal_omits_props_styles() {
 #[pagetop::test]
 async fn props_named_attr_collision_with_literal_omits_props_value() {
     let p = Props::default().with_prop(PropsOp::set("title", "from-props"));
+    let cx = Context::default();
     assert_eq!(
-        html! { span title="literal" (p) {} }.into_string(),
+        html! { span title="literal" (p.unpack(&cx)) {} }.into_string(),
         r#"<span title="literal"></span>"#
     );
 }
@@ -300,8 +321,9 @@ async fn get_prop_id_matches_get_id() {
 async fn props_hx_target_value_with_hash_renders_correctly() {
     // Regression: r#"..."# used to close prematurely when it found `"#list"`.
     let p = Props::new("hx-target", "#list");
+    let cx = Context::default();
     assert_eq!(
-        html! { button (p) {} }.into_string(),
+        html! { button (p.unpack(&cx)) {} }.into_string(),
         r##"<button hx-target="#list"></button>"##
     );
 }
@@ -309,8 +331,9 @@ async fn props_hx_target_value_with_hash_renders_correctly() {
 #[pagetop::test]
 async fn props_with_empty_value_renders_attr_with_empty_value() {
     let p = Props::new("data-expanded", "");
+    let cx = Context::default();
     assert_eq!(
-        html! { span (p) {} }.into_string(),
+        html! { span (p.unpack(&cx)) {} }.into_string(),
         r#"<span data-expanded=""></span>"#
     );
 }
@@ -325,8 +348,9 @@ async fn props_chained_set_and_remove_yields_expected_state() {
     assert_eq!(p.get_prop("a"), Some("updated".to_string()));
     assert_eq!(p.get_prop("b"), None);
     assert_eq!(p.get_prop("c"), Some("3".to_string()));
+    let cx = Context::default();
     assert_eq!(
-        html! { span (p) {} }.into_string(),
+        html! { span (p.unpack(&cx)) {} }.into_string(),
         r#"<span a="updated" c="3"></span>"#
     );
 }
@@ -335,8 +359,9 @@ async fn props_chained_set_and_remove_yields_expected_state() {
 async fn props_with_empty_attr_name_renders_without_validation() {
     // Documented behavior: names are not validated; the resulting HTML is not standard.
     let p = Props::new("", "val");
+    let cx = Context::default();
     assert_eq!(
-        html! { span (p) {} }.into_string(),
+        html! { span (p.unpack(&cx)) {} }.into_string(),
         r#"<span ="val"></span>"#
     );
 }

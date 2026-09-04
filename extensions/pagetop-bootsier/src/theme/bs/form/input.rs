@@ -94,7 +94,7 @@ pub(crate) fn render(field: &Field, cx: &mut Context) -> Result<Markup, Componen
     };
 
     Ok(html! {
-        div (field.props()) {
+        div (field.props().unpack(cx)) {
             @if !floating { (label) }
             input
                 type=(field.kind())

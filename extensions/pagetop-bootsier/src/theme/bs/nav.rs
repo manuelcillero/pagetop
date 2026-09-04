@@ -101,7 +101,7 @@ pub(crate) async fn item_render(item: &Item, cx: &mut Context) -> Result<Markup,
         ItemKind::Void => html! {},
 
         ItemKind::Label(label) => html! {
-            li (item.props()) {
+            li (item.props().unpack(cx)) {
                 span class="nav-link disabled" aria-disabled="true" {
                     (label.using(cx))
                 }
@@ -137,7 +137,7 @@ pub(crate) async fn item_render(item: &Item, cx: &mut Context) -> Result<Markup,
             let aria_disabled = (*disabled).then_some("true");
 
             html! {
-                li (item.props()) {
+                li (item.props().unpack(cx)) {
                     a
                         class=(classes)
                         href=[href]
@@ -153,7 +153,7 @@ pub(crate) async fn item_render(item: &Item, cx: &mut Context) -> Result<Markup,
         }
 
         ItemKind::Html(html) => html! {
-            li (item.props()) {
+            li (item.props().unpack(cx)) {
                 (html.render(cx).await)
             }
         },
@@ -170,7 +170,7 @@ pub(crate) async fn item_render(item: &Item, cx: &mut Context) -> Result<Markup,
                         .unwrap_or_else(|| "Dropdown".to_string())
                 });
                 html! {
-                    li (item.props()) {
+                    li (item.props().unpack(cx)) {
                         a
                             class="nav-link dropdown-toggle"
                             data-bs-toggle="dropdown"

@@ -92,12 +92,12 @@ impl Crumb {
         let label = self.label().using(cx);
         match self.route() {
             Some(route) => html! {
-                li (self.props()) {
+                li (self.props().unpack(cx)) {
                     a href=(route.resolve(cx).to_string()) { (label) }
                 }
             },
             None => html! {
-                li (self.props()) { (label) }
+                li (self.props().unpack(cx)) { (label) }
             },
         }
     }

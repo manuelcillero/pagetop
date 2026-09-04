@@ -56,7 +56,7 @@ impl Component for Breadcrumb {
         }
 
         Ok(html! {
-            nav (self.props()) aria-label=[Lc::l("breadcrumb_label").lookup(cx)] {
+            nav (self.props().unpack(cx)) aria-label=[Lc::l("breadcrumb_label").lookup(cx)] {
                 ol.breadcrumb {
                     @for crumb in self.crumbs() {
                         (crumb.render_crumb(cx))

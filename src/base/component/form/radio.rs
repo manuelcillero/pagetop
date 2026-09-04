@@ -144,7 +144,7 @@ impl Component for Field {
         let container_id = self.id().unwrap();
 
         Ok(html! {
-            div (self.props()) {
+            div (self.props().unpack(cx)) {
                 @if let Some(label) = self.label().lookup(cx) {
                     label class="form-label" {
                         (label)

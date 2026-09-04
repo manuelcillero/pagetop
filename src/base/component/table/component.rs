@@ -81,7 +81,7 @@ impl Component for Table {
 
         Ok(html! {
             div.table-responsive {
-                table (self.props()) {
+                table (self.props().unpack(cx)) {
                     @if !self.columns().is_empty() {
                         thead {
                             tr {
@@ -94,9 +94,9 @@ impl Component for Table {
                     @if !self.rows().is_empty() {
                         tbody {
                             @for row in self.rows() {
-                                tr (row.props()) {
+                                tr (row.props().unpack(cx)) {
                                     @for cell in row.cells() {
-                                        td (cell.props()) { (cell.children().render(cx).await) }
+                                        td (cell.props().unpack(cx)) { (cell.children().render(cx).await) }
                                     }
                                 }
                             }

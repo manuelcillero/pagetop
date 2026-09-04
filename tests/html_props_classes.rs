@@ -299,8 +299,9 @@ async fn get_prop_class_matches_get_classes() {
 #[pagetop::test]
 async fn props_classes_renders_class_attribute() {
     let p = Props::classes("btn btn-primary");
+    let cx = Context::default();
     assert_eq!(
-        html! { button (p) { "OK" } }.into_string(),
+        html! { button (p.unpack(&cx)) { "OK" } }.into_string(),
         r#"<button class="btn btn-primary">OK</button>"#
     );
 }
@@ -308,8 +309,9 @@ async fn props_classes_renders_class_attribute() {
 #[pagetop::test]
 async fn props_classes_can_be_extended_with_add_classes() {
     let p = Props::classes("btn").with_prop(PropsOp::add_classes("active"));
+    let cx = Context::default();
     assert_eq!(
-        html! { button (p) { "OK" } }.into_string(),
+        html! { button (p.unpack(&cx)) { "OK" } }.into_string(),
         r#"<button class="btn active">OK</button>"#
     );
 }

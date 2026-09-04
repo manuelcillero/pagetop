@@ -63,7 +63,7 @@ impl Component for Item {
             ItemKind::Void => html! {},
 
             ItemKind::Label(label) => html! {
-                li (self.props()) {
+                li (self.props().unpack(cx)) {
                     span class="dropdown-item-text" {
                         (label.using(cx))
                     }
@@ -97,7 +97,7 @@ impl Component for Item {
                 let tabindex = disabled.then_some("-1");
 
                 html! {
-                    li (self.props()) {
+                    li (self.props().unpack(cx)) {
                         a
                             class=(classes)
                             href=[href]
@@ -123,7 +123,7 @@ impl Component for Item {
                 let disabled_attr = disabled.then_some("disabled");
 
                 html! {
-                    li (self.props()) {
+                    li (self.props().unpack(cx)) {
                         button
                             class=(classes)
                             type="button"
@@ -137,7 +137,7 @@ impl Component for Item {
             }
 
             ItemKind::Header(label) => html! {
-                li (self.props()) {
+                li (self.props().unpack(cx)) {
                     h6 class="dropdown-header" {
                         (label.using(cx))
                     }
@@ -145,7 +145,7 @@ impl Component for Item {
             },
 
             ItemKind::Divider => html! {
-                li (self.props()) { hr class="dropdown-divider" {} }
+                li (self.props().unpack(cx)) { hr class="dropdown-divider" {} }
             },
         })
     }

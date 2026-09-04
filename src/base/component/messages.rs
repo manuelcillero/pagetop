@@ -54,7 +54,7 @@ impl Component for Messages {
             return Ok(html! {});
         }
         Ok(html! {
-            div (self.props()) role="alert" {
+            div (self.props().unpack(cx)) role="alert" {
                 @for message in cx.messages() {
                     div class=(match message.level() {
                         MessageLevel::Info => "message message-info",

@@ -139,36 +139,36 @@ impl Component for Navbar {
         content_props.alter_prop(PropsOp::prepend_classes("navbar-content"));
 
         Ok(html! {
-            nav (self.props()) {
+            nav (self.props().unpack(cx)) {
                 @match self.layout() {
                     // Barra más sencilla: sólo contenido, siempre visible.
                     navbar::Layout::Simple => {
-                        div (content_props) { (items) }
+                        div (content_props.unpack(cx)) { (items) }
                     },
 
                     // Barra sencilla que se puede contraer/expandir.
                     navbar::Layout::SimpleToggle => {
                         (button(cx, &id_content))
-                        div id=(&id_content) (content_props) { (items) }
+                        div id=(&id_content) (content_props.unpack(cx)) { (items) }
                     },
 
                     // Barra con marca, siempre visible, sin botón.
                     navbar::Layout::SimpleBrandLeft(brand) => {
                         (brand.render(cx).await)
-                        div (content_props) { (items) }
+                        div (content_props.unpack(cx)) { (items) }
                     },
 
                     // Barra con marca y botón, en ese orden.
                     navbar::Layout::BrandLeft(brand) => {
                         (brand.render(cx).await)
                         (button(cx, &id_content))
-                        div id=(&id_content) (content_props) { (items) }
+                        div id=(&id_content) (content_props.unpack(cx)) { (items) }
                     },
 
                     // Barra con botón y marca, en ese orden.
                     navbar::Layout::BrandRight(brand) => {
                         (button(cx, &id_content))
-                        div id=(&id_content) (content_props) { (items) }
+                        div id=(&id_content) (content_props.unpack(cx)) { (items) }
                         (brand.render(cx).await)
                     },
                 }

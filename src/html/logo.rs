@@ -1,5 +1,7 @@
 use crate::AutoDefault;
+use crate::core::component::Context;
 use crate::html::{Markup, Props, html};
+use crate::locale::Lc;
 
 /// Representación SVG del **logotipo de PageTop** para incrustar en HTML.
 ///
@@ -55,28 +57,32 @@ impl PageTopSvg {
         }
     }
 
-    /// Igual que [`markup()`], pero fusiona [`Props`] (identificador, clases, estilo, atributos)
-    /// directamente en el `<svg>` y deja la etiqueta libre para quien llama. Con `Some(texto)` se
-    /// muestra como imagen informativa (`role="img"` + `aria-label`), y con `None` como imagen
-    /// puramente decorativa (`aria-hidden="true"`, sin `role` ni `aria-label`).
+    /// Igual que [`markup()`], pero incluye [`Props`] (identificador, clases, estilo, atributos)
+    /// directamente en el `<svg>`, con etiqueta de accesibilidad (`aria-label`) según `label`; `cx`
+    /// es el `Context` activo, necesario para combinarlo con `props` (ver [`Props::unpack()`]) y
+    /// para resolver `label`. Si `label` resuelve a texto se muestra como imagen informativa
+    /// (`role="img"` + `aria-label`); con [`Lc::none()`] o una traducción sin resultado, como
+    /// imagen puramente decorativa (`aria-hidden="true"`, sin `role` ni `aria-label`).
     ///
     /// Pensado para poner el logotipo con clases, estilo y accesibilidad propios, sin envolverlo en
     /// un elemento aparte; como hace el componente [`Image`] con [`image::Source::Logo`].
     ///
     /// [`markup()`]: Self::markup
+    /// [`Lc::none()`]: crate::locale::Lc::none
     /// [`Image`]: crate::base::component::Image
     /// [`image::Source::Logo`]: crate::base::component::image::Source::Logo
-    pub fn markup_with(&self, props: &Props, label: Option<&str>) -> Markup {
+    pub fn markup_with(&self, cx: &Context, props: &Props, label: Lc) -> Markup {
+        let label = label.lookup(cx);
         html! {
             svg
                 viewBox="0 0 1614 1614"
                 xmlns="http://www.w3.org/2000/svg"
                 role=[label.is_some().then_some("img")]
-                aria-label=[label]
+                aria-label=[label.as_deref()]
                 aria-hidden=[label.is_none().then_some("true")]
                 preserveAspectRatio="xMidYMid slice"
                 focusable="false"
-                (props)
+                (props.unpack(cx))
             {
                 (self.path_fills())
             }

@@ -27,7 +27,7 @@ pub(crate) async fn render(dialog: &Dialog, cx: &mut Context) -> Result<Markup, 
 
     Ok(html! {
         div
-            (dialog.props())
+            (dialog.props().unpack(cx))
             tabindex="-1"
             aria-hidden="true"
             aria-labelledby=[id_label.as_deref()]
