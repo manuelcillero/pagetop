@@ -24,7 +24,7 @@ use crate::base::component::layout;
 use crate::core::component::{AssetsOp, ChildOp, ComponentRender};
 use crate::core::component::{Context, ContextError, Contextual};
 use crate::core::theme::{CoreRegions, RegionName, RegionRef, TemplateRef, ThemeRef};
-use crate::html::{Assets, Favicon, JavaScript, StyleSheet};
+use crate::html::{Assets, Favicon, JavaScript, ResponsiveStyles, StyleSheet};
 use crate::html::{DOCTYPE, Markup, html};
 use crate::html::{Props, PropsOp};
 use crate::locale::{CharacterDirection, LangId, LanguageIdentifier, Lc};
@@ -346,6 +346,10 @@ impl Contextual for Page {
 
     fn javascripts(&self) -> &Assets<JavaScript> {
         self.context.javascripts()
+    }
+
+    fn responsive_styles(&self) -> &ResponsiveStyles {
+        self.context.responsive_styles()
     }
 
     fn body_props(&self) -> &Props {

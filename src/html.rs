@@ -17,6 +17,7 @@ mod assets;
 pub use assets::favicon::Favicon;
 pub use assets::javascript::JavaScript;
 pub use assets::preload::Preload;
+pub use assets::responsive::ResponsiveStyles;
 pub use assets::stylesheet::{StyleSheet, TargetMedia};
 pub use assets::{Asset, Assets};
 

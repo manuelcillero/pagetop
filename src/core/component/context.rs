@@ -2,9 +2,9 @@ use crate::auth::CurrentUser;
 use crate::core::TypeInfo;
 use crate::core::component::{ChildOp, Component, MessageLevel, StatusMessage};
 use crate::core::theme::all::DEFAULT_THEME;
-use crate::core::theme::{ChildrenInRegions, CoreRegions, CoreTemplates};
+use crate::core::theme::{Breakpoint, ChildrenInRegions, CoreRegions, CoreTemplates};
 use crate::core::theme::{RegionRef, TemplateRef, ThemeRef};
-use crate::html::{Assets, Favicon, JavaScript, Preload, StyleSheet};
+use crate::html::{Assets, Favicon, JavaScript, Preload, ResponsiveStyles, StyleSheet};
 use crate::html::{Markup, Props, PropsOp, RoutePath, html};
 use crate::locale::Lc;
 use crate::locale::{LangId, LanguageIdentifier, RequestLocale};
@@ -38,6 +38,11 @@ pub enum AssetsOp {
     AddJavaScript(JavaScript),
     /// Elimina un script por su ruta o identificador.
     RemoveJavaScript(&'static str),
+
+    /// Añade una declaración de estilo responsive (`property: value`) para las clases indicadas,
+    /// dentro del punto de corte dado (`None` para una regla siempre activa). Ver
+    /// [`ResponsiveStyles::add_style()`].
+    AddResponsiveStyle(Option<Breakpoint>, &'static str, &'static str, &'static str),
 }
 
 /// Errores de acceso a parámetros dinámicos del contexto.
@@ -217,6 +222,9 @@ pub trait Contextual: LangId {
     /// Devuelve los scripts JavaScript de los recursos del contexto.
     fn javascripts(&self) -> &Assets<JavaScript>;
 
+    /// Devuelve los estilos *responsive* acumulados en el contexto.
+    fn responsive_styles(&self) -> &ResponsiveStyles;
+
     /// Devuelve identificador, clases CSS, atributos HTML y valores extra del elemento `<body>`.
     fn body_props(&self) -> &Props;
 
@@ -313,6 +321,7 @@ pub struct Context {
     preloads    : Assets<Preload>,                // Recursos para precarga.
     stylesheets : Assets<StyleSheet>,             // Hojas de estilo CSS.
     javascripts : Assets<JavaScript>,             // Scripts JavaScript.
+    responsives : ResponsiveStyles,               // Estilos *responsive*.
     body_props  : Props,                          // Id, clases CSS y atributos del <body>.
     regions     : ChildrenInRegions,              // Regiones de componentes para renderizar.
     params      : HashMap<&'static str, (Box<dyn Any + Send + Sync>, &'static str)>, // Parámetros.
@@ -345,6 +354,7 @@ impl Context {
             preloads   : Assets::<Preload>::new(),
             stylesheets: Assets::<StyleSheet>::new(),
             javascripts: Assets::<JavaScript>::new(),
+            responsives: ResponsiveStyles::new(),
             body_props : Props::default(),
             regions    : ChildrenInRegions::default(),
             params     : HashMap::default(),
@@ -401,6 +411,10 @@ impl Context {
             // Primero los recursos para precarga para iniciar las descargas inmediatamente.
             (preloads.render(self))
             (stylesheets.render(self))
+            // Después los estilos *responsive*, para poder sobrescribir sus clases.
+            @if !self.responsives.is_empty() {
+                style { (self.responsives.render(self)) }
+            }
             (javascripts.render(self))
         };
 
@@ -604,6 +618,11 @@ impl Contextual for Context {
             AssetsOp::RemoveJavaScript(path) => {
                 self.javascripts.remove(path);
             }
+            // Estilos responsive.
+            AssetsOp::AddResponsiveStyle(breakpoint, classes, property, value) => {
+                self.responsives
+                    .add_style(breakpoint, classes, property, value);
+            }
         }
         self
     }
@@ -662,6 +681,10 @@ impl Contextual for Context {
 
     fn javascripts(&self) -> &Assets<JavaScript> {
         &self.javascripts
+    }
+
+    fn responsive_styles(&self) -> &ResponsiveStyles {
+        &self.responsives
     }
 
     fn body_props(&self) -> &Props {

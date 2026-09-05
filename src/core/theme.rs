@@ -50,8 +50,8 @@
 //! devuelva `Some(&Self)`. Basta con un `impl Theme for MyTheme {}` vacío, ya que todos los
 //! métodos de [`Theme`] tienen implementación por defecto.
 //!
-//! Un tema puede personalizarse en cinco pasos, cada uno necesario sólo si lo que ofrece PageTop
-//! por defecto no basta:
+//! Un tema puede personalizarse en seis pasos, cada uno necesario sólo si lo que ofrece PageTop
+//! por defecto no basta o no aplica:
 //!
 //! 1. **Definir regiones nuevas**. Por defecto, PageTop define [`CoreRegions`] (`Header`, `Aside`,
 //!    `Content`, `Footer`) como regiones de plantilla siempre disponibles, y [`ReservedRegions`]
@@ -77,14 +77,22 @@
 //!    ejemplo, [`CoreTemplates`] o el propio *enum* del tema). `pagetop-bootsier` hace exactamente
 //!    esto para maquetar `Standard` y `Admin` de forma distinta, sin necesitar sus propias
 //!    variantes de plantilla.
-//! 4. **Traducir [`Intent`] a la paleta de colores propia del tema** sobrescribiendo
+//! 4. **Definir los anchos mínimos *mobile-first* para los puntos de corte** sobrescribiendo
+//!    [`Theme::breakpoint_min_width()`]. Por defecto, [`Breakpoint`] resuelve el ancho mínimo de
+//!    cada variante (`Sm`, `Md`, etc.) como una cadena CSS ya formateada (p. ej. `"768px"`) que
+//!    cada tema puede adaptar. Cuando se genera CSS *responsive* a partir de un [`Breakpoint`], se
+//!    consulta el punto de corte a través de [`Breakpoint::min_width()`], listo para interpolar en
+//!    un `@media (min-width: ...)` sin ningún cálculo adicional. Un tema sin diseño *responsive*
+//!    puede traducir todas las variantes a `""` porque al ser *mobile-first*, un punto de corte sin
+//!    ancho real se aplicará siempre.
+//! 5. **Traducir [`Intent`] a la paleta de colores propia del tema** sobrescribiendo
 //!    [`Theme::intent_color()`]. Por defecto, este método devuelve el vocabulario semántico de
 //!    [`Intent`] (`"primary"`, `"severe"`, etc.); un tema con su propio catálogo de colores (por
 //!    ejemplo, uno basado en Bootstrap) debe traducir cada variante al nombre que le corresponda en
 //!    su paleta. Los componentes que generan clases CSS a partir de una [`Intent`] (`Button`,
 //!    `Badge`, `Dropdown`, etc.) consultan este método a través de [`Intent::color()`], así que la
 //!    clase resultante ya nace en la paleta del tema activo.
-//! 5. **Reexportar, extender o añadir componentes**. Un tema puede reexportar tal cual los
+//! 6. **Reexportar, extender o añadir componentes**. Un tema puede reexportar tal cual los
 //!    componentes propios de PageTop que no requieran adaptación, extenderlos con un trait propio
 //!    para añadir métodos exclusivos (guardando su estado en valores extra con
 //!    [`PropsOp::set_extra()`](crate::html::PropsOp::set_extra) para consumirlos en el
@@ -136,6 +144,9 @@
 
 mod intent;
 pub use intent::Intent;
+
+mod breakpoint;
+pub use breakpoint::Breakpoint;
 
 mod layout;
 pub use layout::{CoreRegions, RegionName, RegionRef};

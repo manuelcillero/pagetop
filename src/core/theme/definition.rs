@@ -3,7 +3,7 @@ use crate::base::component::{Html, Intro, IntroOpening, layout};
 use crate::core::component::{ChildOp, Component, ComponentError, ComponentRender};
 use crate::core::component::{Context, Contextual};
 use crate::core::extension::Extension;
-use crate::core::theme::{CoreRegions, Intent};
+use crate::core::theme::{Breakpoint, CoreRegions, Intent};
 use crate::global;
 use crate::html::{Markup, html};
 use crate::locale::Lc;
@@ -65,19 +65,49 @@ pub trait Theme: Extension + Send + Sync {
         None
     }
 
+    /// Traduce un [`Breakpoint`] al punto de corte *responsive*, *mobile-first*, propio del tema.
+    ///
+    /// `Breakpoint` no define ningún valor propio en píxeles. Será cada tema el que decida a qué
+    /// ancho corresponde cada variante como valor CSS ya formateado (p. ej. `"768px"`), listo para
+    /// aplicar en un `@media (min-width: ...)` sin ningún cálculo adicional. La cadena vacía (`""`)
+    /// indica que la variante no representa ningún ancho mínimo y se aplica siempre; es el caso de
+    /// `Xs`.
+    ///
+    /// Normalmente, para resolver un ancho *responsive* no se llamará a este método directamente,
+    /// sino que se usará [`Breakpoint::min_width()`] a través de [`Context::theme()`].
+    ///
+    /// [`Breakpoint::min_width()`]: crate::core::theme::Breakpoint::min_width
+    /// [`Context::theme()`]: crate::core::component::Context::theme
+    #[rustfmt::skip]
+    fn breakpoint_min_width(&self, bp: Breakpoint) -> &'static str {
+        if let Some(parent) = self.parent() {
+            return parent.breakpoint_min_width(bp);
+        }
+        match bp {
+            Breakpoint::Xs  => "",
+            Breakpoint::Sm  => "576px",
+            Breakpoint::Md  => "768px",
+            Breakpoint::Lg  => "992px",
+            Breakpoint::Xl  => "1200px",
+            Breakpoint::Xxl => "1400px",
+        }
+    }
+
     /// Traduce una [`Intent`] al nombre de color de la paleta propia del tema.
     ///
     /// `Intent` no define ninguna cadena propia. Cada tema decide qué nombre le corresponde a cada
     /// variante en su paleta (p. ej. un tema basado en Bootstrap traduce `Severe` a `"danger"`).
     /// Los componentes que generan clases CSS a partir de una `Intent` (`Button`, `Badge`,
     /// `Dropdown`, etc.) no llaman a este método directamente en su `setup()`, usan mejor
-    /// [`Intent::color()`](crate::core::theme::Intent::color) como la forma más sencilla de obtener
-    /// este mismo valor a través de [`Context::theme()`](crate::core::component::Context::theme),
-    /// para que la clase resultante ya nazca en la paleta del tema activo.
+    /// [`Intent::color()`] como la forma más sencilla de obtener este mismo valor a través de
+    /// [`Context::theme()`], para que la clase resultante ya nazca en la paleta del tema activo.
     ///
     /// La implementación por defecto devuelve el vocabulario semántico propio de PageTop
     /// (`"primary"`, `"severe"`, etc.), que actúa como paleta base cuando ningún tema la
     /// sobrescribe.
+    ///
+    /// [`Intent::color()`]: crate::core::theme::Intent::color
+    /// [`Context::theme()`]: crate::core::component::Context::theme
     #[rustfmt::skip]
     fn intent_color(&self, intent: Intent) -> &'static str {
         if let Some(parent) = self.parent() {
