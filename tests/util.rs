@@ -7,10 +7,10 @@ async fn setup() {
     Application::new().await;
 }
 
-// **< Testing normalize_ascii() >******************************************************************
+// **< Testing normalize_ascii_non_blank() >********************************************************
 
 fn assert_err(input: &str, expected: util::NormalizeAsciiError) {
-    let out = util::normalize_ascii(input);
+    let out = util::normalize_ascii_non_blank(input);
     assert_eq!(
         out,
         Err(expected),
@@ -22,7 +22,7 @@ fn assert_err(input: &str, expected: util::NormalizeAsciiError) {
 }
 
 fn assert_borrowed(input: &str, expected: &str) {
-    let out = util::normalize_ascii(input).expect("Expected Ok(..)");
+    let out = util::normalize_ascii_non_blank(input).expect("Expected Ok(..)");
     assert_eq!(out.as_ref(), expected, "Input {:?}", input);
     assert!(
         matches!(out, Cow::Borrowed(_)),
@@ -33,7 +33,7 @@ fn assert_borrowed(input: &str, expected: &str) {
 }
 
 fn assert_owned(input: &str, expected: &str) {
-    let out = util::normalize_ascii(input).expect("Expected Ok(..)");
+    let out = util::normalize_ascii_non_blank(input).expect("Expected Ok(..)");
     assert_eq!(out.as_ref(), expected, "Input {:?}", input);
     assert!(
         matches!(out, Cow::Owned(_)),
@@ -248,8 +248,8 @@ async fn normalize_is_idempotent() {
             continue;
         }
 
-        let first = util::normalize_ascii(input).unwrap();
-        let second = util::normalize_ascii(first.as_ref()).unwrap();
+        let first = util::normalize_ascii_non_blank(input).unwrap();
+        let second = util::normalize_ascii_non_blank(first.as_ref()).unwrap();
         assert_eq!(
             first.as_ref(),
             second.as_ref(),

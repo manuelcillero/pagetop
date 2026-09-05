@@ -5,6 +5,7 @@ use crate::trace;
 use std::borrow::Cow;
 use std::env;
 use std::io;
+use std::panic::Location;
 use std::path::{Path, PathBuf};
 
 // **< MACROS INTEGRADAS >**************************************************************************
@@ -39,7 +40,7 @@ pub fn build_runtime() -> tokio::runtime::Runtime {
     tokio::runtime::Runtime::new().expect("Failed to build the Tokio runtime")
 }
 
-/// Errores posibles al normalizar una cadena ASCII con [`normalize_ascii()`].
+/// Errores al normalizar una cadena ASCII con [`normalize_ascii_non_blank()`].
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum NormalizeAsciiError {
     /// La entrada está vacía (`""`).
@@ -69,9 +70,10 @@ pub fn non_blank(s: &str) -> Option<&str> {
     if s.is_empty() { None } else { Some(s) }
 }
 
-/// Normaliza una cadena ASCII con uno o varios tokens separados.
+/// Normaliza una cadena ASCII con uno o varios tokens, exigiendo contenido no vacío.
 ///
-/// Los *separadores* son caracteres `is_ascii_whitespace()` como `' '`, `'\t'`, `'\n'` o `'\r'`.
+/// Los *separadores* de los tokens son caracteres `is_ascii_whitespace()` como `' '`, `'\t'`,
+/// `'\n'` o `'\r'`.
 ///
 /// Reglas:
 ///
@@ -85,13 +87,20 @@ pub fn non_blank(s: &str) -> Option<&str> {
 /// Intenta devolver siempre `Cow::Borrowed` para no reservar memoria, y `Cow::Owned` sólo si ha
 /// tenido que aplicar cambios para normalizar.
 ///
+/// Normalmente se usará [`normalize_ascii()`], que trata una cadena en blanco como resultado
+/// válido, en vez de como un error. Esta variante es para detectar también cuándo un resultado es
+/// una cadena vacía para rechazarla de inmediato.
+///
 /// # Ejemplo
 ///
 /// ```rust
 /// # use pagetop::util;
-/// assert_eq!(util::normalize_ascii("  Foo\tBAR  CLi\r\n").unwrap().as_ref(), "foo bar cli");
+/// assert_eq!(
+///     util::normalize_ascii_non_blank("  Foo\tBAR  CLi\r\n").unwrap().as_ref(),
+///     "foo bar cli"
+/// );
 /// ```
-pub fn normalize_ascii(input: &str) -> Result<Cow<'_, str>, NormalizeAsciiError> {
+pub fn normalize_ascii_non_blank(input: &str) -> Result<Cow<'_, str>, NormalizeAsciiError> {
     let bytes = input.as_bytes();
     if bytes.is_empty() {
         return Err(NormalizeAsciiError::IsEmpty);
@@ -163,19 +172,35 @@ pub fn normalize_ascii(input: &str) -> Result<Cow<'_, str>, NormalizeAsciiError>
     Ok(Cow::Owned(output))
 }
 
-/// Normaliza una cadena ASCII, opcionalmente vacía, con uno o varios tokens separados.
+/// Normaliza una cadena ASCII con uno o varios tokens, aceptando cadenas vacías.
 ///
-/// - Devuelve `Some(Cow)` si la entrada es válida ASCII (normalizada a minúsculas).
-/// - Devuelve `Some(Cow::Borrowed(""))` si la entrada es `""` o queda vacía tras recortar.
-/// - Devuelve `None` si la entrada contiene bytes no ASCII; y emite un `trace::debug!` con el campo
-///   `target`.
+/// - Devuelve `Some(Cow)` normalizado (ver [`normalize_ascii_non_blank()`] para las reglas exactas
+///   de recorte, colapso de espacios y minúsculas) si la entrada es ASCII válida.
+/// - Devuelve `Some(Cow::Borrowed(""))` si la entrada es `""` o queda vacía tras recortar. Una
+///   entrada en blanco no es un error, es un resultado trivial.
+/// - Devuelve `None` **sólo** si la entrada contiene bytes no ASCII; y emite un `trace::debug!` con
+///   la ubicación exacta del llamador (vía `#[track_caller]`) para poder localizar el origen del
+///   valor rechazado.
+///
+/// # Ejemplo
+///
+/// ```rust
+/// # use pagetop::util;
+/// assert_eq!(
+///     util::normalize_ascii("  Foo\tBAR  CLi\r\n").unwrap().as_ref(),
+///     "foo bar cli"
+/// );
+/// assert_eq!(util::normalize_ascii("   ").unwrap().as_ref(), "");
+/// assert_eq!(util::normalize_ascii("ñoño"), None);
+/// ```
 #[inline]
-pub fn normalize_ascii_or_empty<'a>(input: &'a str, target: &'static str) -> Option<Cow<'a, str>> {
-    match normalize_ascii(input) {
+#[track_caller]
+pub fn normalize_ascii(input: &str) -> Option<Cow<'_, str>> {
+    match normalize_ascii_non_blank(input) {
         Ok(s) => Some(s),
         Err(NormalizeAsciiError::NonAscii) => {
             trace::debug!(
-                target = %target,
+                caller = %Location::caller(),
                 input = %input.escape_default(),
                 "Ignoring due to non-ASCII chars"
             );

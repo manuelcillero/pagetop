@@ -96,7 +96,7 @@ impl Autocomplete {
     /// El prefijo `section-*` sirve para distinguir entre varios grupos del mismo tipo en una misma
     /// página (p. ej. una dirección de envío y otra de facturación).
     pub fn section(name: impl AsRef<str>, field: AutofillField) -> Self {
-        match util::normalize_ascii(name.as_ref()) {
+        match util::normalize_ascii_non_blank(name.as_ref()) {
             Ok(n) if !n.as_ref().contains(' ') => {
                 Self::custom(util::join!("section-", n.as_ref(), " ", field.as_str()))
             }
@@ -196,7 +196,7 @@ impl Autocomplete {
         let raw = value.as_ref();
 
         // Normaliza la entrada.
-        let Some(normalized) = util::normalize_ascii_or_empty(raw, "Autocomplete::custom") else {
+        let Some(normalized) = util::normalize_ascii(raw) else {
             return Self::On;
         };
         let autocomplete = normalized.as_ref();

@@ -539,29 +539,23 @@ impl Props {
                 }
             }
             PropsOp::AddClasses(classes) => {
-                let Some(normalized) =
-                    util::normalize_ascii_or_empty(classes.as_ref(), "Props::with_prop")
-                else {
+                let Some(normalized) = util::normalize_ascii(classes.as_ref()) else {
                     return self;
                 };
                 let pos = self.classes.len();
                 self.insert_classes(normalized.as_ref().split_ascii_whitespace(), pos);
             }
             PropsOp::PrependClasses(classes) => {
-                let Some(normalized) =
-                    util::normalize_ascii_or_empty(classes.as_ref(), "Props::with_prop")
-                else {
+                let Some(normalized) = util::normalize_ascii(classes.as_ref()) else {
                     return self;
                 };
                 self.insert_classes(normalized.as_ref().split_ascii_whitespace(), 0);
             }
             PropsOp::ReplaceClasses(old, new) => {
-                let Some(old) = util::normalize_ascii_or_empty(old.as_ref(), "Props::with_prop")
-                else {
+                let Some(old) = util::normalize_ascii(old.as_ref()) else {
                     return self;
                 };
-                let Some(new) = util::normalize_ascii_or_empty(new.as_ref(), "Props::with_prop")
-                else {
+                let Some(new) = util::normalize_ascii(new.as_ref()) else {
                     return self;
                 };
                 let mut pos = self.classes.len();
@@ -578,12 +572,10 @@ impl Props {
                 }
             }
             PropsOp::ReplaceAllClasses(old, new) => {
-                let Some(old) = util::normalize_ascii_or_empty(old.as_ref(), "Props::with_prop")
-                else {
+                let Some(old) = util::normalize_ascii(old.as_ref()) else {
                     return self;
                 };
-                let Some(new) = util::normalize_ascii_or_empty(new.as_ref(), "Props::with_prop")
-                else {
+                let Some(new) = util::normalize_ascii(new.as_ref()) else {
                     return self;
                 };
                 if !self.has_all_classes(old.as_ref()) {
@@ -599,9 +591,7 @@ impl Props {
                 self.insert_classes(new.as_ref().split_ascii_whitespace(), pos);
             }
             PropsOp::RemoveClasses(classes) => {
-                let Some(normalized) =
-                    util::normalize_ascii_or_empty(classes.as_ref(), "Props::with_prop")
-                else {
+                let Some(normalized) = util::normalize_ascii(classes.as_ref()) else {
                     return self;
                 };
                 self.classes.retain(|c| {
@@ -621,9 +611,7 @@ impl Props {
                 if name.as_ref() == "id" {
                     self.apply_id(value.as_ref());
                 } else if name.as_ref() == "class" {
-                    if let Some(normalized) =
-                        util::normalize_ascii_or_empty(value.as_ref(), "Props::with_prop")
-                    {
+                    if let Some(normalized) = util::normalize_ascii(value.as_ref()) {
                         self.classes.clear();
                         self.insert_classes(normalized.as_ref().split_ascii_whitespace(), 0);
                     }
@@ -765,7 +753,7 @@ impl Props {
 
     /// Devuelve `true` si la clase o **alguna** de las clases indicadas está presente.
     pub fn has_classes(&self, classes: impl AsRef<str>) -> bool {
-        let Ok(normalized) = util::normalize_ascii(classes.as_ref()) else {
+        let Ok(normalized) = util::normalize_ascii_non_blank(classes.as_ref()) else {
             return false;
         };
         normalized
@@ -776,7 +764,7 @@ impl Props {
 
     /// Devuelve `true` si la clase o **todas** las clases indicadas están presentes.
     pub fn has_all_classes(&self, classes: impl AsRef<str>) -> bool {
-        let Ok(normalized) = util::normalize_ascii(classes.as_ref()) else {
+        let Ok(normalized) = util::normalize_ascii_non_blank(classes.as_ref()) else {
             return false;
         };
         normalized
@@ -922,15 +910,17 @@ impl Props {
 
     // Añade o sustituye una declaración "propiedad: valor". Si la propiedad ya existe, sustituye
     // su valor conservando la posición; si no, la añade al final. Ignora la declaración si la
-    // propiedad o el valor quedan vacíos tras recortar espacios. No aplica
-    // normalize_ascii_or_empty: ver la documentación de `PropsOp::AddStyle` sobre por qué los
-    // valores de estilo no se restringen a ASCII.
+    // propiedad o el valor quedan vacíos tras recortar espacios. No aplica `normalize_ascii`: ver
+    // la documentación de `PropsOp::AddStyle` sobre por qué los valores de estilo no se restringen
+    // a ASCII.
     fn set_style(&mut self, property: &str, value: &str) {
-        let property = property.trim().to_ascii_lowercase();
-        let value = value.trim();
-        if property.is_empty() || value.is_empty() {
+        let Some(property) = util::non_blank(property) else {
             return;
-        }
+        };
+        let property = property.to_ascii_lowercase();
+        let Some(value) = util::non_blank(value) else {
+            return;
+        };
         if let Some(pos) = self.styles.iter().position(|(k, _)| k.as_ref() == property) {
             self.styles[pos].1 = value.to_string().into();
         } else {
@@ -943,10 +933,9 @@ impl Props {
     // `style`) y aplica cada declaración con `set_style`. Ignora las declaraciones sin ":".
     fn parse_styles(&mut self, styles: &str) {
         for style in Self::split_style_declarations(styles) {
-            let style = style.trim();
-            if style.is_empty() {
+            let Some(style) = util::non_blank(style) else {
                 continue;
-            }
+            };
             let Some((property, value)) = style.split_once(':') else {
                 trace::debug!(
                     target = "Props::with_prop",

@@ -1,4 +1,5 @@
 use crate::global;
+use crate::util;
 use crate::web::HttpRequest;
 
 use super::{LangId, LanguageIdentifier, Locale};
@@ -82,7 +83,7 @@ impl RequestLocale {
 
                             // En este primer elemento también puede aparecer `;q=...`, así que se
                             // extrae únicamente la etiqueta de idioma: "es-ES;q=0.9" -> "es-ES".
-                            let tag = first.split(';').next()?.trim();
+                            let tag = util::non_blank(first.split(';').next()?)?;
 
                             // TODO: Mejorar el soporte de `Accept-Language` en el futuro:
                             //
@@ -92,9 +93,7 @@ impl RequestLocale {
                             // - Tener en cuenta rangos de idioma (`es`, `en`, etc.) y variantes
                             //   regionales.
                             // - Añadir tests unitarios para distintas combinaciones de cabecera.
-                            if tag.is_empty() {
-                                None
-                            } else if let Locale::Resolved(langid) = Locale::resolve(tag) {
+                            if let Locale::Resolved(langid) = Locale::resolve(tag) {
                                 Some(langid)
                             } else {
                                 None
