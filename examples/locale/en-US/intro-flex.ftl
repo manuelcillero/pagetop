@@ -44,6 +44,7 @@ flex_title_gap_some = With spacing
 flex_title_grid_thirds = Column grid: three thirds
 flex_title_grid_offset = Column grid: centered column with offset
 flex_title_toolbar = Composite structure: toolbar
+flex_desc_toolbar = FlexItem::push_end() on an intermediate item of the same Container with Flex
 
 flex_item_label = Flex item { $n }
 

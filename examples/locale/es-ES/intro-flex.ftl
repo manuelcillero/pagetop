@@ -44,6 +44,7 @@ flex_title_gap_some = Con espaciado
 flex_title_grid_thirds = Rejilla de columnas: tres tercios
 flex_title_grid_offset = Rejilla de columnas: columna centrada con desplazamiento
 flex_title_toolbar = Estructura compuesta: barra de herramientas
+flex_desc_toolbar = FlexItem::push_end() sobre un elemento intermedio del propio Container con Flex
 
 flex_item_label = Flex ítem { $n }
 

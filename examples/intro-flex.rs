@@ -59,7 +59,7 @@ fn direction_block() -> Block {
     ];
     for (title_key, flex, code) in direction_variants {
         block = block
-            .with_child(caption(Lc::t(title_key, &LOC), code))
+            .with_child(caption(Lc::t(title_key, &LOC), Lc::n(code)))
             .with_child(
                 demo_row(flex)
                     .with_child(demo_box(flex_item("1")))
@@ -107,7 +107,7 @@ fn justify_block() -> Block {
     ];
     for (title_key, justify, code) in justify_variants {
         block = block
-            .with_child(caption(Lc::t(title_key, &LOC), code))
+            .with_child(caption(Lc::t(title_key, &LOC), Lc::n(code)))
             .with_child(
                 demo_row(
                     Flex::row()
@@ -149,7 +149,7 @@ fn align_block() -> Block {
     ];
     for (title_key, align, code) in align_variants {
         block = block
-            .with_child(caption(Lc::t(title_key, &LOC), code))
+            .with_child(caption(Lc::t(title_key, &LOC), Lc::n(code)))
             .with_child(
                 demo_row(
                     Flex::row()
@@ -164,7 +164,7 @@ fn align_block() -> Block {
     block
         .with_child(caption(
             Lc::t("flex_title_align_baseline", &LOC),
-            "Flex::row().with_align(Align::Baseline)",
+            Lc::n("Flex::row().with_align(Align::Baseline)"),
         ))
         .with_child(
             demo_row(
@@ -208,7 +208,7 @@ fn align_self_block() -> Block {
     ];
     for (title_key, align_self, code) in align_self_variants {
         block = block
-            .with_child(caption(Lc::t(title_key, &LOC), code))
+            .with_child(caption(Lc::t(title_key, &LOC), Lc::n(code)))
             .with_child(
                 demo_row(
                     Flex::row()
@@ -225,7 +225,7 @@ fn align_self_block() -> Block {
     block
         .with_child(caption(
             Lc::t("flex_title_align_self_baseline", &LOC),
-            "FlexItem::new().with_align_self(flex::ItemAlign::Baseline)",
+            Lc::n("FlexItem::new().with_align_self(flex::ItemAlign::Baseline)"),
         ))
         .with_child(
             demo_row(
@@ -300,7 +300,7 @@ fn align_content_block() -> Block {
             );
         }
         block = block
-            .with_child(caption(Lc::t(title_key, &LOC), code))
+            .with_child(caption(Lc::t(title_key, &LOC), Lc::n(code)))
             .with_child(row);
     }
     block
@@ -311,7 +311,7 @@ fn grow_shrink_block() -> Block {
         .with_title(Lc::t("flex_block_title_grow_shrink", &LOC))
         .with_child(caption(
             Lc::t("flex_title_grow", &LOC),
-            "FlexItem::new().with_grow(flex::ItemGrow::Is1)",
+            Lc::n("FlexItem::new().with_grow(flex::ItemGrow::Is1)"),
         ))
         .with_child(
             demo_row(Flex::row().with_gap(flex::Gap::Both(UnitValue::RelRem(0.5))))
@@ -325,7 +325,7 @@ fn grow_shrink_block() -> Block {
         )
         .with_child(caption(
             Lc::t("flex_title_shrink", &LOC),
-            "FlexItem::new().with_shrink(flex::ItemShrink::Is0)",
+            Lc::n("FlexItem::new().with_shrink(flex::ItemShrink::Is0)"),
         ))
         .with_child(
             demo_row(Flex::row().with_gap(flex::Gap::Both(UnitValue::RelRem(0.5))))
@@ -352,7 +352,7 @@ fn other_block() -> Block {
     block = block
         .with_child(caption(
             Lc::t("flex_title_push_end", &LOC),
-            "FlexItem::push_end()",
+            Lc::n("FlexItem::push_end()"),
         ))
         .with_child(
             demo_row(Flex::row().with_gap(flex::Gap::Both(UnitValue::RelRem(0.5))))
@@ -378,12 +378,16 @@ fn other_block() -> Block {
     block
         .with_child(caption(
             Lc::t("flex_title_wrap", &LOC),
-            "Flex::row().with_wrap(Behavior::Wrap).with_align_content(AlignContent::SpaceBetween)",
+            Lc::n(concat!(
+                "Flex::row()",
+                ".with_wrap(Behavior::Wrap)",
+                ".with_align_content(AlignContent::SpaceBetween)",
+            )),
         ))
         .with_child(wrap_row)
         .with_child(caption(
             Lc::t("flex_title_order", &LOC),
-            "FlexItem::new().with_order(ItemOrder::First) / .with_order(ItemOrder::Last)",
+            Lc::n("FlexItem::new().with_order(ItemOrder::First) / .with_order(ItemOrder::Last)"),
         ))
         .with_child(
             demo_row(Flex::row().with_gap(flex::Gap::Both(UnitValue::RelRem(0.5))))
@@ -399,7 +403,7 @@ fn other_block() -> Block {
         )
         .with_child(caption(
             Lc::t("flex_title_gap_none", &LOC),
-            "Flex::row() (Gap::None por defecto)",
+            Lc::n("Flex::row() (Gap::None por defecto)"),
         ))
         .with_child(
             demo_row(Flex::row())
@@ -409,7 +413,7 @@ fn other_block() -> Block {
         )
         .with_child(caption(
             Lc::t("flex_title_gap_some", &LOC),
-            "Flex::row().with_gap(flex::Gap::Both(UnitValue::RelRem(1.5)))",
+            Lc::n("Flex::row().with_gap(flex::Gap::Both(UnitValue::RelRem(1.5)))"),
         ))
         .with_child(
             demo_row(Flex::row().with_gap(flex::Gap::Both(UnitValue::RelRem(1.5))))
@@ -419,7 +423,7 @@ fn other_block() -> Block {
         )
         .with_child(caption(
             Lc::t("flex_title_grid_thirds", &LOC),
-            "FlexItem::new().with_size(flex::ItemSize::Percent33)",
+            Lc::n("FlexItem::new().with_size(flex::ItemSize::Percent33)"),
         ))
         .with_child(
             demo_row(Flex::row())
@@ -435,7 +439,11 @@ fn other_block() -> Block {
         )
         .with_child(caption(
             Lc::t("flex_title_grid_offset", &LOC),
-            "FlexItem::new().with_size(ItemSize::Percent50).with_offset(ItemOffset::Percent25)",
+            Lc::n(concat!(
+                "FlexItem::new()",
+                ".with_size(ItemSize::Percent50)",
+                ".with_offset(ItemOffset::Percent25)",
+            )),
         ))
         .with_child(
             demo_row(Flex::row()).with_child(
@@ -448,24 +456,19 @@ fn other_block() -> Block {
         )
         .with_child(caption(
             Lc::t("flex_title_toolbar", &LOC),
-            "Container con Flex anidado dentro de otro Container con Flex, y push_end()",
+            Lc::t("flex_desc_toolbar", &LOC),
         ))
         .with_child(
-            demo_row(Flex::row().with_align(flex::Align::Center))
-                .with_child(
-                    Container::new()
-                        .with_flex(Flex::row().with_gap(flex::Gap::Both(UnitValue::RelRem(0.5))))
-                        .with_child(demo_box(Lc::t("flex_box_file", &LOC)))
-                        .with_child(demo_box(Lc::t("flex_box_edit", &LOC)))
-                        .with_child(demo_box(Lc::t("flex_box_view", &LOC))),
-                )
-                .with_child(
-                    Container::new()
-                        .with_prop(FlexItem::push_end())
-                        .with_flex(Flex::row().with_gap(flex::Gap::Both(UnitValue::RelRem(0.5))))
-                        .with_child(demo_box(Lc::t("flex_box_profile", &LOC)))
-                        .with_child(demo_box(Lc::t("flex_box_logout", &LOC))),
-                ),
+            demo_row(
+                Flex::row()
+                    .with_align(flex::Align::Center)
+                    .with_gap(flex::Gap::Both(UnitValue::RelRem(0.5))),
+            )
+            .with_child(demo_box(Lc::t("flex_box_file", &LOC)))
+            .with_child(demo_box(Lc::t("flex_box_edit", &LOC)))
+            .with_child(demo_box(Lc::t("flex_box_view", &LOC)))
+            .with_child(demo_box(Lc::t("flex_box_profile", &LOC)).with_prop(FlexItem::push_end()))
+            .with_child(demo_box(Lc::t("flex_box_logout", &LOC))),
         )
 }
 
@@ -525,11 +528,11 @@ fn demo_row(flex: Flex) -> Container {
 }
 
 // Titulo y fragmento de codigo que introducen cada demostracion.
-fn caption(title: Lc, code: &'static str) -> Html {
+fn caption(title: Lc, code: Lc) -> Html {
     Html::with(move |cx| {
         html! {
             h3 { (title.using(cx)) }
-            p { code { (code) } }
+            p { code { (code.using(cx)) } }
         }
     })
 }
