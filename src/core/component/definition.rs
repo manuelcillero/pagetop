@@ -119,14 +119,15 @@ pub trait Component: AnyInfo + ComponentClone + ComponentRender + Send + Sync {
     /// Este es el cuarto paso del [ciclo de renderizado](ComponentRender) tras llamar al
     /// [`setup()`] del componente y despachar la acción [`BeforeRender`] que atiende los cambios de
     /// otras extensiones antes de renderizar. Se invoca sólo si ningún tema en la cadena devuelve
-    /// `Some` en [`Theme::handle_component()`] para este componente.
+    /// `Some` en [`Theme::render_component()`] para este componente.
     ///
     /// Es `async`, a diferencia de [`setup()`], para permitir a los componentes realizar aquí sus
     /// llamadas asíncronas, como consultas a base de datos, peticiones a servicios externos, o
     /// cualquier operación de E/S, que necesiten para preparar su contenido.
     ///
     /// Se recomienda obtener los datos del componente a través de sus propios métodos para que los
-    /// temas puedan implementar `handle_component()` sin depender de los detalles internos.
+    /// temas puedan implementar [`Theme::setup_component()`]/[`Theme::render_component()`] sin
+    /// depender de los detalles internos.
     ///
     /// Los campos que representen contenido no deben almacenar [`Markup`] ya generado, sino que
     /// guardarán el dato en bruto, por ejemplo [`Lc`] para textos traducibles, o un componente
@@ -138,12 +139,13 @@ pub trait Component: AnyInfo + ComponentClone + ComponentRender + Send + Sync {
     /// [`ComponentError`] que puede incluir un marcado alternativo (*fallback*).
     ///
     /// [`setup()`]: Self::setup
-    /// [`BeforeRender`]: crate::base::action::component::BeforeRender
-    /// [`Theme::handle_component()`]: crate::core::theme::Theme::handle_component
     /// [`Lc`]: crate::locale::Lc
-    /// [`Html`]: crate::base::component::Html
+    /// [`Theme::setup_component()`]: crate::core::theme::Theme::setup_component
+    /// [`Theme::render_component()`]: crate::core::theme::Theme::render_component
     /// [`Embed`]: crate::core::component::Embed
     /// [`Child`]: crate::core::component::Child
+    /// [`BeforeRender`]: crate::base::action::component::BeforeRender
+    /// [`Html`]: crate::base::component::Html
     #[allow(unused_variables)]
     async fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
         Ok(html! {})
@@ -171,8 +173,9 @@ impl<T: Component + Clone + 'static> ComponentClone for T {
 /// 3. Despacha [`action::component::BeforeRender<C>`] para que las extensiones puedan hacer ajustes
 ///    previos.
 /// 4. Prepara el renderizado del componente, recorre la cadena de temas (hijo > padre > abuelo...)
-///    llamando a [`Theme::handle_component()`] en cada nivel hasta que uno devuelva `Some`. Si
-///    ninguno lo sobrescribe, llama al [`Component::prepare()`] del propio componente.
+///    llamando en cada nivel primero a [`Theme::setup_component()`] y después a
+///    [`Theme::render_component()`], hasta que uno devuelva `Some`. Si ninguno lo sobrescribe,
+///    llama al [`Component::prepare()`] del propio componente.
 /// 5. Despacha [`action::component::AfterRender<C>`] para que las extensiones puedan reaccionar con
 ///    sus últimos ajustes.
 /// 6. Finalmente despacha [`action::component::TransformMarkup<C>`] para que las extensiones puedan
@@ -186,7 +189,8 @@ impl<T: Component + Clone + 'static> ComponentClone for T {
 /// [`action::component::BeforeRender<C>`]: crate::base::action::component::BeforeRender
 /// [`action::component::AfterRender<C>`]: crate::base::action::component::AfterRender
 /// [`action::component::TransformMarkup<C>`]: crate::base::action::component::TransformMarkup
-/// [`Theme::handle_component()`]: crate::core::theme::Theme::handle_component
+/// [`Theme::setup_component()`]: crate::core::theme::Theme::setup_component
+/// [`Theme::render_component()`]: crate::core::theme::Theme::render_component
 #[async_trait]
 impl<C: Component> ComponentRender for C {
     async fn render(&mut self, cx: &mut Context) -> Markup {
@@ -205,7 +209,8 @@ impl<C: Component> ComponentRender for C {
         let result = 'resolve: {
             let mut t: Option<ThemeRef> = Some(cx.theme());
             while let Some(theme) = t {
-                if let Some(r) = theme.handle_component(self, cx).await {
+                theme.setup_component(self, cx);
+                if let Some(r) = theme.render_component(self, cx).await {
                     break 'resolve r;
                 }
                 t = theme.parent();

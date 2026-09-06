@@ -129,11 +129,7 @@ impl Theme for Bootsier {
         theme::BootsierColors::from(intent).as_str()
     }
 
-    async fn handle_component(
-        &self,
-        component: &mut dyn Component,
-        cx: &mut Context,
-    ) -> Option<Result<Markup, ComponentError>> {
+    fn setup_component(&self, component: &mut dyn Component, _cx: &mut Context) {
         setup_component!(component, {
             Badge               => |c| theme::bs::badge::setup(c),
             Brand               => |c| theme::bs::brand::setup(c),
@@ -148,7 +144,13 @@ impl Theme for Bootsier {
             form::select::Field => |c| theme::bs::form::select::setup(c),
             form::Textarea      => |c| theme::bs::form::textarea::setup(c),
         });
+    }
 
+    async fn render_component(
+        &self,
+        component: &dyn Component,
+        cx: &mut Context,
+    ) -> Option<Result<Markup, ComponentError>> {
         render_component!(component, {
             layout::Region      => |c| theme::bs::layout::region::render(c, cx).await?,
             layout::Template    => |c| theme::bs::layout::template::render(c, cx).await?,

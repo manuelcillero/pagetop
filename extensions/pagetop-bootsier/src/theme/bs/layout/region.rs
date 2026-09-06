@@ -9,7 +9,7 @@ pub enum BootsierRegions {
     /// Los componentes registrados aquí se renderizan directamente dentro del
     /// `<ul class="sidebar-menu">`, sin el `<div>` envolvente que añade
     /// [`Region`](pagetop::base::component::layout::Region) por defecto --
-    /// [`Bootsier`](crate::Bootsier) intercepta este componente en `handle_component()` para
+    /// [`Bootsier`](crate::Bootsier) intercepta este componente en `render_component()` para
     /// renderizarlo así. Los elementos esperados son
     /// [`bs::sidebar::Item`](crate::theme::bs::sidebar::Item) y
     /// [`bs::sidebar::Section`](crate::theme::bs::sidebar::Section).

@@ -236,38 +236,53 @@ pub trait Theme: Extension + Send + Sync {
         }
     }
 
-    /// Permite al tema intervenir en el ciclo de renderizado de un componente.
+    /// Permite al tema modificar un componente antes de decidir cómo renderizarlo.
+    ///
+    /// Este método tiene especial utilidad en los **temas hijo** porque permite ajustar el estado
+    /// de un componente concreto sin modificar el resto del comportamiento heredado.
+    ///
+    /// Recibe una referencia mutable al componente (como objeto dinámico [`Component`]) y el
+    /// contexto de renderizado. Se ejecuta en cada tema de la cadena (hijo > padre > abuelo...), en
+    /// ese orden, justo antes de que ese mismo nivel decida si renderiza el componente con
+    /// [`render_component()`](Self::render_component). La implementación por defecto no hace nada.
+    ///
+    /// Usa la macro [`setup_component!`](crate::setup_component) para mutar por tipo:
+    ///
+    /// ```rust,ignore
+    /// fn setup_component(&self, component: &mut dyn Component, cx: &mut Context) {
+    ///     setup_component!(component, {
+    ///         Button => |btn| { btn.add_class("btn-primary"); },
+    ///     });
+    /// }
+    /// ```
+    #[allow(unused_variables)]
+    fn setup_component(&self, component: &mut dyn Component, cx: &mut Context) {}
+
+    /// Permite al tema sobrescribir el renderizado de un componente.
     ///
     /// Este método tiene especial utilidad en los **temas hijo** porque permite sobrescribir el
     /// renderizado que el propio componente o el tema padre ofrece para un componente concreto, sin
     /// modificar el resto del comportamiento heredado.
     ///
-    /// Recibe una referencia mutable al componente (como objeto dinámico [`Component`]) y el
-    /// contexto de renderizado. Devuelve:
+    /// Recibe una referencia compartida al componente (como objeto dinámico [`Component`]), ya con
+    /// las modificaciones de [`setup_component()`](Self::setup_component) del mismo nivel
+    /// aplicadas, y el contexto de renderizado. Devuelve:
     ///
     /// - `None` si este tema no sobrescribe el renderizado. Es la implementación por defecto. El
     ///   sistema continúa con el siguiente tema de la cadena y, si ninguno lo sobrescribe, usa
     ///   [`Component::prepare()`](crate::core::component::Component::prepare).
-    ///   El tema puede mutar el componente antes de devolver `None`, dejando que otro nivel de la
-    ///   cadena se encargue del renderizado.
     /// - `Some(Ok(markup))` con el HTML generado por el tema para el componente.
     /// - `Some(Err(e))` si el tema intentó renderizarlo pero falló.
     ///
-    /// Para renderizar usa [`render_component!`](crate::render_component), que devuelve `None` si
-    /// ningún tipo coincide. Para mutar sin renderizar usa
-    /// [`setup_component!`](crate::setup_component) y devuelve `None` explícitamente:
+    /// Usa la macro [`render_component!`](crate::render_component), que devuelve `None` si ningún
+    /// tipo coincide:
     ///
     /// ```rust,ignore
-    /// fn handle_component(
+    /// fn render_component(
     ///     &self,
-    ///     component: &mut dyn Component,
+    ///     component: &dyn Component,
     ///     cx: &mut Context,
     /// ) -> Option<Result<Markup, ComponentError>> {
-    ///     // Sólo mutación: ajusta el componente y deja que otro nivel lo renderice.
-    ///     setup_component!(component, {
-    ///         Button => |btn| { btn.add_class("btn-primary"); },
-    ///     });
-    ///     // O renderizado completo:
     ///     render_component!(component, {
     ///         Button  => |btn| Ok(html! { button.btn.btn-primary { (btn.label()) } }),
     ///         Heading => |h|   Ok(html! { h2.display-4 { (h.text()) } }),
@@ -275,9 +290,9 @@ pub trait Theme: Extension + Send + Sync {
     /// }
     /// ```
     #[allow(unused_variables)]
-    async fn handle_component(
+    async fn render_component(
         &self,
-        component: &mut dyn Component,
+        component: &dyn Component,
         cx: &mut Context,
     ) -> Option<Result<Markup, ComponentError>> {
         None
@@ -390,9 +405,47 @@ pub trait Theme: Extension + Send + Sync {
 /// Referencia estática a un tema.
 pub type ThemeRef = &'static dyn Theme;
 
+// **< setup_component! >***************************************************************************
+
+/// Modifica un componente dentro de [`Theme::setup_component()`].
+///
+/// Evalúa `$component` contra cada tipo de componente listado en orden. En cuanto encuentra
+/// coincidencia, ejecuta el bloque asociado y detiene la evaluación. Si ningún tipo coincide, no
+/// hace nada.
+///
+/// Usa acceso mutable al componente mediante [`downcast_mut`], lo que permite modificar su estado.
+///
+/// # Ejemplo
+///
+/// ```rust,ignore
+/// fn setup_component(&self, component: &mut dyn Component, cx: &mut Context) {
+///     setup_component!(component, { Button => |btn| { btn.add_class("btn-primary"); } });
+/// }
+/// ```
+///
+/// El tipo mutado aquí puede además renderizarse en [`Theme::render_component()`] del mismo tema,
+/// que se ejecuta a continuación sobre el componente ya mutado.
+///
+/// [`Theme::setup_component()`]: crate::core::theme::Theme::setup_component
+/// [`downcast_mut`]: crate::core::AnyCast::downcast_mut
+/// [`Theme::render_component()`]: crate::core::theme::Theme::render_component
+#[macro_export]
+macro_rules! setup_component {
+    ($component:expr, { $($type:ty => |$var:ident| $body:expr),* $(,)? }) => {
+        'setup_component: {
+            $(
+                if let Some($var) = ($component).downcast_mut::<$type>() {
+                    $body;
+                    break 'setup_component;
+                }
+            )*
+        }
+    };
+}
+
 // **< render_component! >**************************************************************************
 
-/// Sobrescribe el renderizado de componentes en [`Theme::handle_component()`].
+/// Sobrescribe el renderizado de componentes en [`Theme::render_component()`].
 ///
 /// Evalúa `$component` contra cada tipo de componente listado en orden. En cuanto encuentra
 /// coincidencia, devuelve `Some(Ok(markup))` o `Some(Err(e))` según el resultado de la expresión
@@ -402,7 +455,7 @@ pub type ThemeRef = &'static dyn Theme;
 /// # Ejemplo
 ///
 /// ```rust,ignore
-/// fn handle_component(
+/// fn render_component(
 ///     &self,
 ///     component: &dyn Component,
 ///     cx: &mut Context,
@@ -417,78 +470,18 @@ pub type ThemeRef = &'static dyn Theme;
 ///     Ok(html! { h2.display-4 { (h.text()) } })
 /// }
 /// ```
+///
+/// [`Theme::render_component()`]: crate::core::theme::Theme::render_component
 #[macro_export]
 macro_rules! render_component {
     ($component:expr, { $($type:ty => |$var:ident| $body:expr),* $(,)? }) => {
         'render_component: {
-            // Reborrow explícito como referencia compartida para que `downcast_ref` funcione
-            // correctamente con `&mut dyn Component` (limitación del compilador con trait objects).
-            let __c = &*($component);
             $(
-                if let Some($var) = __c.downcast_ref::<$type>() {
+                if let Some($var) = ($component).downcast_ref::<$type>() {
                     break 'render_component Some($body);
                 }
             )*
             None
-        }
-    };
-}
-
-// **< setup_component! >***************************************************************************
-
-/// Muta un componente dentro de [`Theme::handle_component()`].
-///
-/// Evalúa `$component` contra cada tipo de componente listado en orden. En cuanto encuentra
-/// coincidencia, ejecuta el bloque asociado y detiene la evaluación. Si ningún tipo coincide, no
-/// hace nada.
-///
-/// Usa acceso mutable al componente mediante [`downcast_mut`](crate::core::AnyCast::downcast_mut),
-/// lo que permite modificar su estado. El tema puede devolver `None` tras la mutación para que otro
-/// nivel de la cadena se encargue del renderizado.
-///
-/// # Ejemplos
-///
-/// Solo mutación: el tema ajusta el componente y delega el renderizado al siguiente nivel:
-///
-/// ```rust,ignore
-/// fn handle_component(
-///     &self,
-///     component: &mut dyn Component,
-///     cx: &mut Context,
-/// ) -> Option<Result<Markup, ComponentError>> {
-///     setup_component!(component, { Button => |btn| { btn.add_class("btn-primary"); } });
-///     None
-/// }
-/// ```
-///
-/// Mutación y renderizado combinados: el `Button` se muta y se renderiza aquí; el `Heading` se
-/// muta pero continúa la cadena para que otro nivel lo renderice:
-///
-/// ```rust,ignore
-/// fn handle_component(
-///     &self,
-///     component: &mut dyn Component,
-///     cx: &mut Context,
-/// ) -> Option<Result<Markup, ComponentError>> {
-///     setup_component!(component, {
-///         Button  => |btn| { btn.add_class("btn-primary"); },
-///         Heading => |h|   { h.add_class("display-4"); },
-///     });
-///     render_component!(component, {
-///         Button => |btn| Ok(html! { button.btn { (btn.label()) } }),
-///     })
-/// }
-/// ```
-#[macro_export]
-macro_rules! setup_component {
-    ($component:expr, { $($type:ty => |$var:ident| $body:expr),* $(,)? }) => {
-        'setup_component: {
-            $(
-                if let Some($var) = ($component).downcast_mut::<$type>() {
-                    $body;
-                    break 'setup_component;
-                }
-            )*
         }
     };
 }

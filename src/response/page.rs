@@ -112,11 +112,13 @@ impl Page {
 
     /// Crea una nueva instancia de página con la plantilla [`CoreTemplates::Admin`].
     ///
-    /// Cada tema puede maquetarla de forma distinta capturando
-    /// [`Template`](crate::base::component::layout::Template) en `handle_component()`, pero la
-    /// plantilla en sí es la misma constante para cualquier tema.
+    /// Cada tema puede maquetarla de forma distinta capturando [`Template`] vía
+    /// [`Theme::render_component()`], pero la plantilla en sí es la misma constante para cualquier
+    /// tema.
     ///
     /// [`CoreTemplates::Admin`]: crate::core::theme::CoreTemplates::Admin
+    /// [`Template`]: crate::base::component::layout::Template
+    /// [`Theme::render_component()`]: crate::core::theme::Theme::render_component
     pub fn admin(request: HttpRequest) -> Self {
         Page {
             context: Context::admin(request),

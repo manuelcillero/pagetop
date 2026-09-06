@@ -9,8 +9,8 @@ use std::fmt;
 /// se renderiza nada.
 ///
 /// Si un tema necesita maquetar una región determinada de forma distinta, puede capturar este
-/// componente en [`Theme::handle_component()`](crate::core::theme::Theme::handle_component) y hacer
-/// [`downcast_ref()`](crate::core::AnyCast::downcast_ref) sobre el [`RegionRef`] que devuelve
+/// componente en [`Theme::render_component()`](crate::core::theme::Theme::render_component) y
+/// hacer [`downcast_ref()`](crate::core::AnyCast::downcast_ref) sobre el [`RegionRef`] que devuelve
 /// [`Self::region()`], para compararlo con la variante deseada.
 ///
 /// Como cualquier otro componente, participa también en el despacho de las

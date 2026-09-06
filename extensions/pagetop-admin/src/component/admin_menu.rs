@@ -7,7 +7,7 @@ use crate::registry;
 /// Construye el [`Nav`] en cada petición a partir de [`registry::admin_menu()`], ya filtrado por
 /// el usuario de la petición actual. Pensado para que un tema lo registre en su propia región de
 /// navegación (p. ej. `pagetop-bootsier` lo añade a su sidebar) e intercepte `Nav`/`nav::Item` en
-/// [`Theme::handle_component()`](pagetop::core::theme::Theme::handle_component) si quiere darle un
+/// [`Theme::render_component()`](pagetop::core::theme::Theme::render_component) si quiere darle un
 /// aspecto propio; sin intercepción, se renderiza con el marcado por defecto de [`Nav`].
 ///
 /// Sólo se renderiza en páginas creadas con

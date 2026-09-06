@@ -276,7 +276,7 @@ pub fn global() -> &'static AdminRegistry {
 /// Pensado para que un tema lo use como navegación de `CoreTemplates::Admin` (p. ej. un sidebar) --
 /// ver [`crate::component::AdminMenu`]. `pagetop-admin` no impone ningún marcado propio: el
 /// [`Nav`] resultante se renderiza con su aspecto por defecto salvo que el tema lo intercepte en
-/// [`Theme::handle_component()`](pagetop::core::theme::Theme::handle_component).
+/// [`Theme::render_component()`](pagetop::core::theme::Theme::render_component).
 pub fn admin_menu(cx: &Context) -> Nav {
     let reg = global();
     let current_path = cx.request().map(|r| r.path()).unwrap_or("");

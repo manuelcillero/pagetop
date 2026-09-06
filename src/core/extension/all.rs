@@ -65,9 +65,9 @@ fn add_to_enabled(list: &mut Vec<ExtensionRef>, extension: ExtensionRef) {
 
 // Recorre la cadena de `Theme::parent()` para detectar referencias circulares. `parent()` se
 // resuelve en tiempo de ejecución, así que un ciclo no puede descartarse al compilar. Se rechaza el
-// arranque al detectar uno, antes de provocar un bucle infinito (en `Theme::handle_component()`) o
-// un desbordamiento de pila (en los métodos predefinidos de `Theme` que delegan recursivamente en
-// el tema padre).
+// arranque si detecta uno, antes de provocar un bucle infinito en el `ComponentRender::render()` o
+// un desbordamiento de pila en los métodos predefinidos de `Theme` que delegan recursivamente en el
+// tema padre.
 fn check_theme_parent_chain(theme: ThemeRef) {
     let mut chain: Vec<ThemeRef> = vec![theme];
     let mut current = theme;

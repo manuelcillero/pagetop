@@ -17,7 +17,7 @@
 //! la shell completa de AdminLTE 4 (barra superior + barra lateral + área de contenido), que se
 //! activa creando la página con [`Page::admin()`](pagetop::response::Page::admin) en lugar de
 //! [`Page::new()`](pagetop::response::Page::new). No define sus propias variantes de plantilla:
-//! intercepta el componente `Template` en `handle_component()` (ver `bs::layout`).
+//! intercepta el componente `Template` en `render_component()` (ver `bs::layout`).
 //!
 //! ```rust,no_run
 //! use pagetop::prelude::*;

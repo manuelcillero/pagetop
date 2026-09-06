@@ -21,14 +21,14 @@ use crate::locale::Lc;
 ///
 /// Requiere [`AnyInfo`] para que un [`RegionRef`] pueda recuperarse mediante
 /// [`AnyCast::downcast_ref()`] hacia su tipo concreto (por ejemplo, para que un tema distinga en
-/// [`Theme::handle_component()`] qué variante concreta está renderizando el componente [`Region`]).
+/// [`Theme::render_component()`] qué variante concreta está renderizando el componente [`Region`]).
 ///
 /// [`Context`]: crate::core::component::Context
 /// [`Contextual::with_child_in()`]: crate::core::component::Contextual::with_child_in
 /// [`ReservedRegions`]: crate::response::ReservedRegions
 /// [`Page`]: crate::response::Page
 /// [`AnyCast::downcast_ref()`]: crate::core::AnyCast::downcast_ref
-/// [`Theme::handle_component()`]: crate::core::theme::Theme::handle_component
+/// [`Theme::render_component()`]: crate::core::theme::Theme::render_component
 /// [`Region`]: crate::base::component::layout::Region
 pub trait RegionName: Send + Sync + AnyInfo {
     /// Devuelve el nombre de la región.
@@ -117,14 +117,18 @@ impl RegionName for CoreRegions {
 /// Interfaz común para las plantillas lógicas de una página.
 ///
 /// Representa una variante identificada por un nombre. Un tema puede usar este nombre para decidir
-/// la composición del cuerpo de una página ([`Page`](crate::response::Page)), es decir, qué
-/// regiones ([`RegionName`]) renderizar y en qué orden.
+/// la composición del cuerpo de una página ([`Page`]), es decir, qué regiones ([`RegionName`])
+/// renderizar y en qué orden.
 ///
 /// Requiere [`AnyInfo`] por el mismo motivo que [`RegionName`], para que un [`TemplateRef`] pueda
-/// recuperarse mediante [`AnyCast::downcast_ref()`](crate::core::AnyCast::downcast_ref) hacia su
-/// tipo concreto (por ejemplo, para que un tema distinga en
-/// [`Theme::handle_component()`](crate::core::theme::Theme::handle_component) qué variante concreta
-/// está renderizando el componente [`Template`](crate::base::component::layout::Template)).
+/// recuperarse mediante [`AnyCast::downcast_ref()`] hacia su tipo concreto (por ejemplo, para que
+/// un tema distinga en [`Theme::render_component()`] qué variante concreta está renderizando el
+/// componente [`Template`]).
+///
+/// [`Page`]: crate::response::Page
+/// [`AnyCast::downcast_ref()`]: crate::core::AnyCast::downcast_ref
+/// [`Theme::render_component()`]: crate::core::theme::Theme::render_component
+/// [`Template`]: crate::base::component::layout::Template
 pub trait TemplateName: Send + Sync + AnyInfo {
     /// Devuelve el nombre de la plantilla.
     fn name(&self) -> &'static str;

@@ -16,7 +16,7 @@ use std::fmt;
 /// independientemente de la plantilla que se use.
 ///
 /// Si un tema necesita maquetar una plantilla determinada de forma distinta, puede capturar este
-/// componente en [`Theme::handle_component()`] y hacer [`downcast_ref()`] sobre el [`TemplateRef`]
+/// componente en [`Theme::render_component()`] y hacer [`downcast_ref()`] sobre el [`TemplateRef`]
 /// que devuelve [`Self::template()`], para compararlo con la variante deseada.
 ///
 /// Como cualquier otro componente, participa también en el despacho de las
@@ -28,7 +28,7 @@ use std::fmt;
 /// [`ReservedRegions::PageBottom`]: crate::response::ReservedRegions::PageBottom
 /// [`Page::render()`]: crate::response::Page::render
 /// [`Theme::render_page_body()`]: crate::core::theme::Theme::render_page_body
-/// [`Theme::handle_component()`]: crate::core::theme::Theme::handle_component
+/// [`Theme::render_component()`]: crate::core::theme::Theme::render_component
 /// [`downcast_ref()`]: crate::core::AnyCast::downcast_ref
 #[derive(Clone, Getters)]
 pub struct Template {

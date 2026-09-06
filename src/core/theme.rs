@@ -1,15 +1,13 @@
 //! API para añadir y gestionar nuevos temas.
 //!
 //! Un tema es la *piel* de la aplicación: define estilos, tipografías, espaciados o comportamientos
-//! interactivos. Usa plantillas ([`Template`](crate::base::component::layout::Template)) para
-//! maquetar los contenidos en base a regiones ([`Region`](crate::base::component::layout::Region)).
-//! Cada región es un contenedor lógico identificado por un nombre para agrupar y renderizar
-//! componentes.
+//! interactivos. Usa plantillas ([`Template`]) para maquetar los contenidos en base a regiones
+//! ([`Region`]). Cada región es un contenedor lógico identificado por un nombre para agrupar y
+//! renderizar componentes.
 //!
-//! Una página ([`Page`](crate::response::Page)) es un documento HTML completo. Implementa
-//! [`Contextual`](crate::core::component::Contextual) para gestionar su propio
-//! [`Context`](crate::core::component::Context), donde mantiene el tema activo, la plantilla
-//! seleccionada y los componentes asociados a cada región a renderizar.
+//! Una página ([`Page`]) es un documento HTML completo. Implementa [`Contextual`] para gestionar su
+//! propio [`Context`], donde mantiene el tema activo, la plantilla seleccionada y los componentes
+//! asociados a cada región a renderizar.
 //!
 //! # Temas hijo, herencia y componentes
 //!
@@ -17,26 +15,29 @@
 //! identificado por [`Theme::parent()`]. Un tema hijo hereda automáticamente todos los métodos del
 //! padre y puede sobrescribirlos selectivamente. Esta herencia determina qué implementación de sus
 //! métodos se usa cuando el tema hijo no los sobrescribe (ya sea el renderizado del `<body>` o del
-//! `<head>`, la definición de los recursos necesarios, la asignación de colores por intención vía
-//! [`Theme::intent_color()`], la captura de componentes con [`Theme::handle_component()`], las
-//! páginas de error, etc.). Un tema hijo puede ser a su vez padre de otro, basta declararlo cada
-//! vez con [`Theme::parent()`].
+//! `<head>`, la definición de los recursos necesarios, la traducción de puntos de corte y colores
+//! por intención vía [`Theme::breakpoint_min_width()`] y [`Theme::intent_color()`], la captura de
+//! componentes para alterar su comportamiento usando [`Theme::setup_component()`] y
+//! [`Theme::render_component()`], las páginas de error, etc.).
 //!
+//! Un tema hijo puede ser a su vez padre de otro, basta declararlo cada vez en [`Theme::parent()`].
 //! Como `parent()` se resuelve en tiempo de ejecución, PageTop no puede descartar en compilación
 //! referencias circulares (un tema acaba siendo padre de sí mismo, directa o transitivamente). Ese
-//! ciclo provocaría un bucle infinito en [`Theme::handle_component()`] o un desbordamiento de pila
-//! en los métodos predefinidos de `Theme` que delegan recursivamente en el padre. Para evitarlo,
-//! PageTop recorre la cadena de cada tema al registrarlo y **aborta el arranque de la aplicación**
-//! si detecta una referencia circular.
+//! ciclo causaría un bucle infinito recorriendo la cadena de temas en [`Theme::setup_component()`]
+//! y [`Theme::render_component()`], o un desbordamiento de pila en los métodos predefinidos de
+//! `Theme` que delegan recursivamente en el padre. Para evitarlo, PageTop recorre la cadena de cada
+//! tema al registrarlo y **aborta el arranque de la aplicación** si detecta una referencia
+//! circular.
 //!
 //! Sin embargo, no dice nada sobre los componentes. Aunque un tema puede exportar su propio
 //! catálogo de componentes, realmente no pertenecen como tal a ningún tema ni dependen de esa
 //! cadena de herencia. Una extensión puede existir únicamente para aportar un componente genérico
 //! (por ejemplo, un editor de texto enriquecido) pensado para usarse en cualquier aplicación, con
 //! independencia del tema activo. Que un tema decida capturar ese componente en
-//! [`Theme::handle_component()`] para adaptarlo es una decisión propia del tema, no una relación de
-//! parentesco: cualquier tema de la cadena de herencia puede interceptar cualquier componente,
-//! venga de la extensión que venga, sin que exista ningún vínculo de diseño previo entre ambos.
+//! [`Theme::setup_component()`] o [`Theme::render_component()`] para adaptarlo es una decisión
+//! propia del tema, no una relación de parentesco. Cualquier tema de la cadena de herencia puede
+//! interceptar cualquier componente, venga de la extensión que venga, sin que exista ningún vínculo
+//! de diseño previo entre ambos.
 //!
 //! Lo que sí es responsabilidad del tema activo es garantizar que el componente disponga de los
 //! recursos que necesita para verse y comportarse correctamente: sus propios estilos y JavaScript,
@@ -45,10 +46,9 @@
 //!
 //! # Cómo crear un tema nuevo
 //!
-//! Un tema mínimo es una extensión que implementa [`Extension`](crate::core::extension::Extension)
-//! y también [`Theme`] para que [`Extension::theme()`](crate::core::extension::Extension::theme)
-//! devuelva `Some(&Self)`. Basta con un `impl Theme for MyTheme {}` vacío, ya que todos los
-//! métodos de [`Theme`] tienen implementación por defecto.
+//! Un tema mínimo es una extensión que implementa [`Extension`] y también [`Theme`] para que
+//! [`Extension::theme()`] devuelva `Some(&Self)`. Basta con un `impl Theme for MyTheme {}` vacío,
+//! ya que todos los métodos de [`Theme`] tienen implementación por defecto.
 //!
 //! Un tema puede personalizarse en seis pasos, cada uno necesario sólo si lo que ofrece PageTop
 //! por defecto no basta o no aplica:
@@ -65,18 +65,18 @@
 //!    siempre las mismas: no hay un método de `Theme` para elegir una plantilla predeterminada
 //!    distinta. Un tema puede definir su propio *enum* que implemente [`TemplateName`] para
 //!    **añadir** plantillas que PageTop no ofrece, y no para redefinir `Standard`/`Admin`.
-//! 3. **Cambiar cómo se renderiza** una región, una plantilla o un componente ya existente, se hace
-//!    capturando el componente ([`Region`](crate::base::component::layout::Region) o
-//!    [`Template`](crate::base::component::layout::Template), o el componente que sea) en
-//!    [`Theme::handle_component()`]. En el caso de regiones y plantillas, para distinguir *qué*
-//!    región o plantilla concreta envuelve el componente, sin comparar cadenas, basta con encadenar
-//!    el *getter* correspondiente
+//! 3. **Cambiar cómo se renderiza o se ajusta** una región, una plantilla o un componente ya
+//!    existente. Para sobrescribir su renderizado se captura el componente (por ejemplo, [`Region`]
+//!    o [`Template`], o el componente que sea) usando [`Theme::render_component()`]. En el caso de
+//!    regiones y plantillas, para distinguir *qué* región o plantilla concreta envuelve el
+//!    componente, sin comparar cadenas, basta con encadenar el *getter* correspondiente
 //!    ([`Region::region()`](crate::base::component::layout::Region::region) o
 //!    [`Template::template()`](crate::base::component::layout::Template::template)) con
 //!    [`AnyCast::downcast_ref()`](crate::core::AnyCast::downcast_ref) hacia el tipo concreto (por
 //!    ejemplo, [`CoreTemplates`] o el propio *enum* del tema). `pagetop-bootsier` hace exactamente
 //!    esto para maquetar `Standard` y `Admin` de forma distinta, sin necesitar sus propias
-//!    variantes de plantilla.
+//!    variantes de plantilla. Para ajustarlo sin rehacer su marcado (añadir una clase, un
+//!    atributo, etc.), se usa [`Theme::setup_component()`] en su lugar.
 //! 4. **Definir los anchos mínimos *mobile-first* para los puntos de corte** sobrescribiendo
 //!    [`Theme::breakpoint_min_width()`]. Por defecto, [`Breakpoint`] resuelve el ancho mínimo de
 //!    cada variante (`Sm`, `Md`, etc.) como una cadena CSS ya formateada (p. ej. `"768px"`) que
@@ -95,14 +95,14 @@
 //! 6. **Reexportar, extender o añadir componentes**. Un tema puede reexportar tal cual los
 //!    componentes propios de PageTop que no requieran adaptación, extenderlos con un trait propio
 //!    para añadir métodos exclusivos (guardando su estado en valores extra con
-//!    [`PropsOp::set_extra()`](crate::html::PropsOp::set_extra) para consumirlos en el
-//!    `setup()`/`render()` vía [`Theme::handle_component()`]), o aportar componentes propios.
+//!    [`PropsOp::set_extra()`] para consumirlos en el `setup()` vía [`Theme::setup_component()`] o
+//!    en el `render()` vía [`Theme::render_component()`]), o aportar componentes propios.
 //!    `pagetop-bootsier` combina las tres estrategias: reexporta `Form`/`Fieldset` sin cambios,
 //!    extiende `Button`/`Badge`/`Dropdown`/`Nav`/`Navbar` con sus propios traits (`ButtonBootsier`,
 //!    `BadgeBootsier`, etc.), y añade componentes propios como `Offcanvas`.
 //!
 //! Para forzar una plantilla completamente distinta en una página concreta, se puede llamar
-//! manualmente a [`with_template()`](crate::core::component::Contextual::with_template).
+//! manualmente a [`with_template()`].
 //!
 //! Las páginas de error (403, 404, y otros errores fatales) no tienen una plantilla propia: se
 //! renderizan con la plantilla ya activa en la página, para que el usuario no pierda el contexto de
@@ -115,11 +115,10 @@
 //!
 //! # Componentes que se procesan en todas las páginas
 //!
-//! Los componentes añadidos a una página con
-//! [`with_child_in()`](crate::core::component::Contextual::with_child_in) sólo existen para esa
-//! petición concreta: hay que volver a añadirlos cada vez que se construya la página. [`InRegion`]
-//! resuelve el caso contrario: un componente que se debe procesar en todas las páginas, o en todas
-//! las de un tema concreto, sin tener que registrarlo en el código de cada página.
+//! Los componentes añadidos a una página con [`with_child_in()`] sólo existen para esa petición
+//! concreta: hay que volver a añadirlos cada vez que se construya la página. [`InRegion`] resuelve
+//! el caso contrario: un componente que se debe procesar en todas las páginas, o en todas las de un
+//! tema concreto, sin tener que registrarlo en el código de cada página.
 //!
 //! `InRegion` registra el componente una sola vez, normalmente al arrancar la aplicación o al
 //! inicializar una extensión, y a partir de ahí se procesa automáticamente en todas las páginas que
@@ -134,13 +133,23 @@
 //! renderizado, de modo que su `setup()` siempre parte de un estado inicial limpio y no acumula
 //! mutaciones entre peticiones.
 //!
-//! Como cualquier otro componente, antes de renderizarse pasa por
-//! [`is_renderable()`](crate::core::component::Component::is_renderable), el primer paso del
-//! [ciclo de renderizado](crate::core::component::ComponentRender). Esto permite registrarlo una
-//! sola vez y que decida por sí mismo cuándo mostrarse, por ejemplo según la ruta de la petición o
-//! si el usuario actual está autenticado.
+//! Como cualquier otro componente, antes de renderizarse pasa por [`is_renderable()`], el primer
+//! paso del [ciclo de renderizado](crate::core::component::ComponentRender). Esto permite
+//! registrarlo una sola vez y que decida por sí mismo cuándo mostrarse, por ejemplo según la ruta
+//! de la petición o si el usuario actual está autenticado.
 //!
+//! [`PropsOp::set_extra()`]: crate::html::PropsOp::set_extra
 //! [`ReservedRegions`]: crate::response::ReservedRegions
+//! [`Page`]: crate::response::Page
+//! [`Extension`]: crate::core::extension::Extension
+//! [`Extension::theme()`]: crate::core::extension::Extension::theme
+//! [`Context`]: crate::core::component::Context
+//! [`Contextual`]: crate::core::component::Contextual
+//! [`with_template()`]: crate::core::component::Contextual::with_template
+//! [`with_child_in()`]: crate::core::component::Contextual::with_child_in
+//! [`is_renderable()`]: crate::core::component::Component::is_renderable
+//! [`Template`]: crate::base::component::layout::Template
+//! [`Region`]: crate::base::component::layout::Region
 
 mod intent;
 pub use intent::Intent;

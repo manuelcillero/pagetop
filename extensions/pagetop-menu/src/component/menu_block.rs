@@ -17,7 +17,7 @@ use crate::tree::{MenuKey, MenuNode, TreeOptions, build_tree, try_resolve_menu_u
 /// </nav>
 /// ```
 ///
-/// Los temas pueden sobreescribir el render con `handle_component()`, tanto de `MenuBlock` como,
+/// Los temas pueden sobreescribir el render con `render_component()`, tanto de `MenuBlock` como,
 /// más generalmente, de [`Nav`]/[`nav::Item`]/[`Dropdown`]/[`dropdown::Item`]. `pagetop-bootsier`
 /// ya intercepta `Dropdown` así (ver `theme::bs::dropdown`), y por tanto también los que cuelguen
 /// de un `nav::Item::dropdown()`; `MenuBlock`, `Nav` y `Navbar` siguen sin interceptarse: Bootsier
