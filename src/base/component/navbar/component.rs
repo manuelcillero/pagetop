@@ -98,7 +98,7 @@ impl Component for Navbar {
         self.props.get_id()
     }
 
-    fn setup(&mut self, cx: &Context) {
+    fn setup(&mut self, cx: &mut Context) {
         // Asegura que la barra de navegación tiene un identificador único: lo necesita el botón de
         // despliegue para referenciar el contenido colapsable con `aria-controls`.
         self.alter_prop(PropsOp::ensure_id(cx.build_id::<Self>(1)));

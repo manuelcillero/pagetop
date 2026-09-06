@@ -37,7 +37,7 @@ impl Component for Item {
         }
     }
 
-    fn setup(&mut self, _cx: &Context) {
+    fn setup(&mut self, _cx: &mut Context) {
         if let Self::Nav(nav) = self
             && let Some(nav) = nav.get_mut()
         {

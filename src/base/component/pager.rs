@@ -184,7 +184,7 @@ impl Component for Pager {
         self.props.get_id()
     }
 
-    fn setup(&mut self, cx: &Context) {
+    fn setup(&mut self, cx: &mut Context) {
         // Asegura un `id` propio si no está definido. El formulario de salto a página deriva sus
         // identificadores de éste para no colisionar si hay varios paginadores en la misma página.
         let id = cx.required_id::<Self>(self.id(), 1);

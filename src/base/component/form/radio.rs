@@ -123,7 +123,7 @@ impl Component for Field {
         self.props.get_id()
     }
 
-    fn setup(&mut self, cx: &Context) {
+    fn setup(&mut self, cx: &mut Context) {
         // Asegura `name` e `id`.
         // Si falta uno se deriva del otro; si faltan ambos se genera un valor único.
         let name = self

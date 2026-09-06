@@ -33,7 +33,7 @@ impl Component for Badge {
         self.props.get_id()
     }
 
-    fn setup(&mut self, cx: &Context) {
+    fn setup(&mut self, cx: &mut Context) {
         self.alter_prop(PropsOp::prepend_classes(util::join!(
             "badge badge-",
             self.intent().color(cx)

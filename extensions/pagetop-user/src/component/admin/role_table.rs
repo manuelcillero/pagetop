@@ -33,7 +33,7 @@ impl Component for RoleTable {
         self.props.get_id()
     }
 
-    fn setup(&mut self, _cx: &Context) {
+    fn setup(&mut self, _cx: &mut Context) {
         self.alter_prop(PropsOp::set_id("role-table-wrapper"));
         self.alter_prop(PropsOp::prepend_classes("user-admin-table-wrapper"));
     }

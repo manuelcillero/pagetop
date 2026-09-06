@@ -89,24 +89,30 @@ pub trait Component: AnyInfo + ComponentClone + ComponentRender + Send + Sync {
 
     /// Configura el estado interno del componente antes de generar el marcado.
     ///
-    /// Segundo paso del [ciclo de renderizado](ComponentRender): se ejecuta tras comprobar
-    /// [`is_renderable()`](Self::is_renderable) y antes de la acción
-    /// [`BeforeRender`](crate::base::action::component::BeforeRender) y de
-    /// [`prepare()`](Self::prepare). Recibe sólo una referencia compartida al contexto porque su
-    /// propósito es mutar el propio componente, no el contexto. Por defecto no hace nada.
+    /// Segundo paso del [ciclo de renderizado](ComponentRender). Se ejecuta tras comprobar
+    /// [`is_renderable()`] y antes de la acción [`BeforeRender`] y de [`prepare()`]. Por defecto no
+    /// hace nada.
     ///
     /// Está pensado para **normalizar el estado interno** del componente antes de renderizarlo. Por
     /// ejemplo, calcular clases CSS, ajustar valores de campos, derivar atributos a partir del
-    /// contexto, etc. Se desaconseja utilizar para operaciones de E/S o consultas a base de datos;
-    /// es intencionadamente síncrono.
+    /// contexto, etc. Recibe `&mut Context` donde también puede aplicar ajustes que dependan del
+    /// propio componente (p. ej. estilos o *assets*); cualquier extensión que intercepte
+    /// [`BeforeRender`] verá ya aplicados esos cambios, porque `setup()` se ejecuta antes. Se
+    /// desaconseja utilizar para operaciones de E/S o consultas a base de datos; es
+    /// intencionadamente síncrono.
     ///
-    /// La carga y el acceso a datos en general corresponden a [`prepare()`](Self::prepare), que es
-    /// `async` precisamente para ello.
+    /// La frontera con [`prepare()`] es de **sincronía**, no de qué puede modificar cada uno. Los
+    /// dos reciben `&mut Context` (ambos pueden realizar ajustes en él), pero sólo `setup()` recibe
+    /// además `&mut self` (`prepare()` sólo recibe `&self`, así que no puede normalizar el propio
+    /// componente). La carga y el acceso a datos siguen correspondiendo a `prepare()`, que es
+    /// `async` precisamente para permitir E/S; `setup()` se mantiene síncrono a propósito. Esta
+    /// separación es deliberada y no debe fusionarse.
     ///
-    /// La separación entre `setup()` (mutación de estado) y [`prepare()`](Self::prepare)
-    /// (generación de HTML) es deliberada y no debe fusionarse.
+    /// [`is_renderable()`]: Self::is_renderable
+    /// [`prepare()`]: Self::prepare
+    /// [`BeforeRender`]: crate::base::action::component::BeforeRender
     #[allow(unused_variables)]
-    fn setup(&mut self, cx: &Context) {}
+    fn setup(&mut self, cx: &mut Context) {}
 
     /// Genera el marcado HTML del componente cuando ningún tema lo sobrescribe.
     ///
@@ -154,27 +160,33 @@ impl<T: Component + Clone + 'static> ComponentClone for T {
 
 // *************************************************************************************************
 
-/// Implementa [`render()`](ComponentRender::render) para todos los componentes.
+/// Implementa [`render()`] para todos los componentes.
 ///
 /// El proceso de renderizado de cada componente sigue esta secuencia:
 ///
-/// 1. Ejecuta [`is_renderable()`](Component::is_renderable) para ver si puede renderizarse en el
-///    contexto actual. Si no es así, devuelve un [`Markup`] vacío.
-/// 2. Ejecuta [`setup()`](Component::setup) para que el componente
-///    pueda ajustar su estructura interna.
-/// 3. Despacha [`action::component::BeforeRender<C>`](crate::base::action::component::BeforeRender)
-///    para que las extensiones puedan hacer ajustes previos.
+/// 1. Ejecuta [`is_renderable()`] para ver si puede renderizarse en el contexto actual. Si no es
+///    así, devuelve un [`Markup`] vacío.
+/// 2. Ejecuta [`setup()`] para que el componente pueda ajustar su estado interno y, de forma
+///    síncrona, el propio [`Context`].
+/// 3. Despacha [`action::component::BeforeRender<C>`] para que las extensiones puedan hacer ajustes
+///    previos.
 /// 4. Prepara el renderizado del componente, recorre la cadena de temas (hijo > padre > abuelo...)
-///    llamando a [`Theme::handle_component()`](crate::core::theme::Theme::handle_component) en cada
-///    nivel hasta que uno devuelva `Some`. Si ninguno lo sobrescribe, llama al
-///    [`Component::prepare()`](Component::prepare) del propio componente.
-/// 5. Despacha [`action::component::AfterRender<C>`](crate::base::action::component::AfterRender)
-///    para que las extensiones puedan reaccionar con sus últimos ajustes.
-/// 6. Finalmente despacha
-///    [`action::component::TransformMarkup<C>`](crate::base::action::component::TransformMarkup)
-///    para que las extensiones puedan trabajar sobre el HTML final para modificarlo antes de
-///    devolverlo.
+///    llamando a [`Theme::handle_component()`] en cada nivel hasta que uno devuelva `Some`. Si
+///    ninguno lo sobrescribe, llama al [`Component::prepare()`] del propio componente.
+/// 5. Despacha [`action::component::AfterRender<C>`] para que las extensiones puedan reaccionar con
+///    sus últimos ajustes.
+/// 6. Finalmente despacha [`action::component::TransformMarkup<C>`] para que las extensiones puedan
+///    trabajar sobre el HTML final para modificarlo antes de devolverlo.
 /// 7. Devuelve el [`Markup`] resultante.
+///
+/// [`render()`]: ComponentRender::render
+/// [`is_renderable()`]: Component::is_renderable
+/// [`setup()`]: Component::setup
+/// [`Component::prepare()`]: Component::prepare
+/// [`action::component::BeforeRender<C>`]: crate::base::action::component::BeforeRender
+/// [`action::component::AfterRender<C>`]: crate::base::action::component::AfterRender
+/// [`action::component::TransformMarkup<C>`]: crate::base::action::component::TransformMarkup
+/// [`Theme::handle_component()`]: crate::core::theme::Theme::handle_component
 #[async_trait]
 impl<C: Component> ComponentRender for C {
     async fn render(&mut self, cx: &mut Context) -> Markup {
@@ -183,7 +195,7 @@ impl<C: Component> ComponentRender for C {
             return html! {};
         }
 
-        // Configura el componente antes de preparar.
+        // Configura el componente (y, de forma síncrona, el contexto) antes de preparar.
         self.setup(cx);
 
         // Acciones de las extensiones antes de renderizar el componente.

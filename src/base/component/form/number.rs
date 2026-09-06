@@ -70,7 +70,7 @@ impl Component for Number {
         self.props.get_id()
     }
 
-    fn setup(&mut self, _cx: &Context) {
+    fn setup(&mut self, _cx: &mut Context) {
         if let Some(container_id) = self
             .id()
             .or_else(|| self.name().as_deref().map(|n| util::join!("edit-", n)))

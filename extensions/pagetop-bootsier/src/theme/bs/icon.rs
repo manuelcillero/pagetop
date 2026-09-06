@@ -31,7 +31,7 @@ impl Component for Icon {
         self.props.get_id()
     }
 
-    fn setup(&mut self, _cx: &Context) {
+    fn setup(&mut self, _cx: &mut Context) {
         if !matches!(self.icon_kind(), IconKind::None) {
             self.alter_prop(PropsOp::prepend_classes("icon"));
         }

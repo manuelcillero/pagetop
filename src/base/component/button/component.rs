@@ -78,7 +78,7 @@ impl Component for Button {
         self.props.get_id()
     }
 
-    fn setup(&mut self, cx: &Context) {
+    fn setup(&mut self, cx: &mut Context) {
         use button::{Size, Style};
 
         self.alter_prop(PropsOp::prepend_classes(match self.size() {

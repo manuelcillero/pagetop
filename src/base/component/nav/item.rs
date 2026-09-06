@@ -77,7 +77,7 @@ impl Component for Item {
         self.props.get_id()
     }
 
-    fn setup(&mut self, _cx: &Context) {
+    fn setup(&mut self, _cx: &mut Context) {
         self.alter_prop(PropsOp::prepend_classes(self.item_kind().as_str()));
     }
 

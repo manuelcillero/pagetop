@@ -44,7 +44,7 @@ impl Component for Breadcrumb {
         self.props.get_id()
     }
 
-    fn setup(&mut self, cx: &Context) {
+    fn setup(&mut self, cx: &mut Context) {
         for crumb in self.crumbs.iter_mut() {
             crumb.setup(cx);
         }

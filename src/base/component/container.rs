@@ -64,7 +64,7 @@ impl Component for Container {
         self.props.get_id()
     }
 
-    fn setup(&mut self, _cx: &Context) {
+    fn setup(&mut self, _cx: &mut Context) {
         if let Some(flex) = self.flex() {
             flex.apply_to(&mut self.props);
         }

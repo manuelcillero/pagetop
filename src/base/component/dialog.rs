@@ -62,7 +62,7 @@ impl Component for Dialog {
         self.props.get_id()
     }
 
-    fn setup(&mut self, cx: &Context) {
+    fn setup(&mut self, cx: &mut Context) {
         // Asegura que el diálogo tiene un identificador único con el que abrirlo.
         self.alter_prop(PropsOp::ensure_id(cx.build_id::<Self>(1)));
         self.alter_prop(PropsOp::prepend_classes("dialog"));

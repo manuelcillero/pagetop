@@ -51,7 +51,7 @@ impl Component for Dropdown {
         self.props.get_id()
     }
 
-    fn setup(&mut self, _cx: &Context) {
+    fn setup(&mut self, _cx: &mut Context) {
         self.alter_prop(PropsOp::prepend_classes("dropdown"));
     }
 

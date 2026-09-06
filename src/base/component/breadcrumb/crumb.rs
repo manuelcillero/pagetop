@@ -79,7 +79,7 @@ impl Crumb {
     }
 
     // Normaliza la clase base según el papel del elemento. Sólo lo usa `Breadcrumb`.
-    pub(super) fn setup(&mut self, _cx: &Context) {
+    pub(super) fn setup(&mut self, _cx: &mut Context) {
         if *self.is_current() {
             self.alter_prop(PropsOp::prepend_classes("active"))
                 .alter_prop(PropsOp::set("aria-current", "page"));

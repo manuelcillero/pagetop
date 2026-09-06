@@ -43,7 +43,7 @@ impl Component for Nav {
         self.props.get_id()
     }
 
-    fn setup(&mut self, _cx: &Context) {
+    fn setup(&mut self, _cx: &mut Context) {
         self.alter_prop(PropsOp::prepend_classes(match self.nav_layout() {
             nav::Layout::Default => "nav",
             nav::Layout::Start => "nav nav-start",

@@ -71,7 +71,7 @@ impl Component for Offcanvas {
         self.props.get_id()
     }
 
-    fn setup(&mut self, cx: &Context) {
+    fn setup(&mut self, cx: &mut Context) {
         // Asegura que el panel tiene un identificador único.
         self.alter_prop(PropsOp::ensure_id(cx.build_id::<Self>(1)));
 

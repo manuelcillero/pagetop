@@ -42,7 +42,7 @@ impl Component for Image {
         self.props.get_id()
     }
 
-    fn setup(&mut self, _cx: &Context) {
+    fn setup(&mut self, _cx: &mut Context) {
         self.alter_prop(PropsOp::prepend_classes(match self.source() {
             image::Source::Logo(_) => "image image-fluid",
             image::Source::Responsive(_) => "image image-fluid",
