@@ -19,18 +19,18 @@ use std::panic::Location;
 ///
 /// # Ejemplo
 ///
-/// En los ejemplos se omite la construcción explícita de `Context` (`let cx = Context::default();`)
-/// para no distraer del resto del ejemplo.
+/// Se omite la construcción explícita de `Context` (`let mut cx = Context::default();`) para no
+/// distraer del resto del ejemplo.
 ///
 /// ```rust
 /// # use pagetop::prelude::*;
-/// # let cx = Context::default();
+/// # let mut cx = Context::default();
 /// let props = Props::new("hx-get", "/api/items")
 ///     .with_prop(PropsOp::set("hx-target", "#lista"))
 ///     .with_prop(PropsOp::set("hx-swap", "outerHTML"));
 ///
 /// let markup = html! {
-///     button (props.unpack(&cx)) { "Cargar" }
+///     button (props.unpack(&mut cx)) { "Cargar" }
 /// };
 ///
 /// assert_eq!(
@@ -47,9 +47,9 @@ use std::panic::Location;
 ///
 /// ```rust
 /// # use pagetop::prelude::*;
-/// # let cx = Context::default();
+/// # let mut cx = Context::default();
 /// let props = Props::default().with_id("My Button");
-/// let markup = html! { button (props.unpack(&cx)) { "OK" } };
+/// let markup = html! { button (props.unpack(&mut cx)) { "OK" } };
 /// assert_eq!(markup.into_string(), r#"<button id="my_button">OK</button>"#);
 /// ```
 ///
@@ -73,13 +73,13 @@ use std::panic::Location;
 ///
 /// ```rust
 /// # use pagetop::prelude::*;
-/// # let cx = Context::default();
+/// # let mut cx = Context::default();
 /// let props = Props::default()
 ///     .with_prop(PropsOp::add_classes("btn btn-primary"))
 ///     .with_prop(PropsOp::add_classes("active"))
 ///     .with_prop(PropsOp::replace_classes("btn-primary", "btn-secondary"));
 ///
-/// let markup = html! { button (props.unpack(&cx)) { "OK" } };
+/// let markup = html! { button (props.unpack(&mut cx)) { "OK" } };
 /// assert_eq!(markup.into_string(), r#"<button class="btn btn-secondary active">OK</button>"#);
 /// ```
 ///
@@ -90,14 +90,14 @@ use std::panic::Location;
 ///
 /// ```rust
 /// # use pagetop::prelude::*;
-/// # let cx = Context::default();
+/// # let mut cx = Context::default();
 /// let props = Props::default()
 ///     .with_prop(PropsOp::add_style("color", "red"))
 ///     .with_prop(PropsOp::add_style("font-weight", "bold"))
 ///     .with_prop(PropsOp::add_style("color", "blue"))
 ///     .with_prop(PropsOp::remove_style("font-weight"));
 ///
-/// let markup = html! { button (props.unpack(&cx)) { "OK" } };
+/// let markup = html! { button (props.unpack(&mut cx)) { "OK" } };
 /// assert_eq!(markup.into_string(), r#"<button style="color: blue">OK</button>"#);
 /// ```
 ///
@@ -111,10 +111,10 @@ use std::panic::Location;
 ///
 /// ```rust
 /// # use pagetop::prelude::*;
-/// # let cx = Context::default();
+/// # let mut cx = Context::default();
 /// let props = Props::default().with_prop(PropsOp::set("title", "de Props"));
 ///
-/// let markup = html! { span title="literal" (props.unpack(&cx)) { "OK" } };
+/// let markup = html! { span title="literal" (props.unpack(&mut cx)) { "OK" } };
 ///
 /// // El atributo literal prevalece; `Props` omite su propio "title" en vez de duplicarlo.
 /// assert_eq!(markup.into_string(), r#"<span title="literal">OK</span>"#);
@@ -553,21 +553,54 @@ impl Props {
 
     // **< Props RENDER >***************************************************************************
 
-    /// Extrae `Props` en la posición de atributos de [`html!`](crate::html::html) usando el
-    /// `Context` activo: `button (self.props().unpack(cx)) { ... }`.
+    /// Extrae `Props` en la posición de atributos de [`html!`] usando el `Context` activo:
+    /// `button (self.props().unpack(cx)) { ... }`.
     ///
     /// `Props` no implementa [`RenderAttrs`] directamente. Obliga a pasar siempre el `Context`
-    /// vigente en el punto donde se renderiza, aunque no lo necesite ningún atributo.
+    /// vigente en el punto donde se renderiza, aunque no lo necesite ningún atributo propio. Recibe
+    /// `&mut Context` porque aquí, en el momento de extraer los atributos, es donde se resuelve
+    /// [`FlexItem`]: las clases que devuelve se añaden a las del propio componente al escribir el
+    /// atributo `class`.
+    ///
+    /// Si el propio elemento actúa además como contenedor [`Flex`], utiliza [`unpack_with_flex()`]
+    /// en su lugar.
     ///
     /// ```rust
     /// # use pagetop::prelude::*;
-    /// # let cx = Context::default();
+    /// # let mut cx = Context::default();
     /// let props = Props::default().with_id("example");
-    /// let markup = html! { button (props.unpack(&cx)) { "OK" } };
+    /// let markup = html! { button (props.unpack(&mut cx)) { "OK" } };
     /// assert_eq!(markup.into_string(), r#"<button id="example">OK</button>"#);
     /// ```
-    pub fn unpack<'a>(&'a self, cx: &'a Context) -> impl RenderAttrs + 'a {
-        PropsUnpack { props: self, cx }
+    ///
+    /// [`html!`]: crate::html::html
+    /// [`Flex`]: crate::html::flex::Flex
+    /// [`FlexItem`]: crate::html::flex::FlexItem
+    /// [`unpack_with_flex()`]: Self::unpack_with_flex
+    pub fn unpack<'a>(&'a self, cx: &mut Context) -> impl RenderAttrs + 'a {
+        PropsUnpack {
+            props: self,
+            classes: self.flex_item.apply(cx),
+        }
+    }
+
+    /// Igual que [`unpack()`], pero además resuelve `flex` con el posicionamiento [`Flex`].
+    ///
+    /// A diferencia de [`FlexItem`] (que se acumula con [`PropsOp::FlexItem`] porque cualquier
+    /// componente ajeno puede necesitarlo sin tener un campo propio para ello), `Flex` sólo tiene
+    /// sentido en los contenedores que ya declaran su propio campo `flex: Flex` (`Container`,
+    /// `Navbar`...): se les pasa aquí directamente, ya resuelto (`self.flex()`), sin pasar por
+    /// `PropsOp`.
+    ///
+    /// [`unpack()`]: Self::unpack
+    /// [`Flex`]: crate::html::flex::Flex
+    /// [`FlexItem`]: crate::html::flex::FlexItem
+    /// [`PropsOp::FlexItem`]: crate::html::props::PropsOp::FlexItem
+    pub fn unpack_with_flex<'a>(&'a self, cx: &mut Context, flex: Flex) -> impl RenderAttrs + 'a {
+        PropsUnpack {
+            props: self,
+            classes: util::join_pair!(flex.apply(cx), " ", self.flex_item.apply(cx)),
+        }
     }
 
     // **< Props PRIVATE >**************************************************************************
@@ -675,7 +708,7 @@ impl Props {
     // `#[track_caller]`, heredado desde `PropsUnpack::render_attrs_to()`) para facilitar la
     // localización del problema.
     #[track_caller]
-    fn write_attrs(&self, _cx: &Context, w: &mut String, exclude: &[&str]) {
+    fn write_attrs(&self, classes: &str, w: &mut String, exclude: &[&str]) {
         if let Some(id) = self.id.as_deref() {
             if exclude.contains(&"id") {
                 trace::debug!(
@@ -690,12 +723,15 @@ impl Props {
                 w.push('"');
             }
         }
-        if let Some((first, rest)) = self.classes.split_first() {
+        // Clases propias del componente más las que aplica `Props::unpack()`/`unpack_with_flex()`.
+        let mut all_classes: Vec<&str> = self.classes.iter().map(String::as_str).collect();
+        all_classes.extend(classes.split_ascii_whitespace());
+        if let Some((first, rest)) = all_classes.split_first() {
             if exclude.contains(&"class") {
                 trace::debug!(
                     caller = %Location::caller(),
                     attribute = "class",
-                    discarded = %self.classes.join(" "),
+                    discarded = %all_classes.join(" "),
                     id = %self.id.as_deref().unwrap_or("<none>"),
                     "Ignoring Props attribute already set as a literal on the same element"
                 );
@@ -756,16 +792,18 @@ impl Props {
 
 // **< PropsUnpack >********************************************************************************
 
-// Devuelto por `Props::unpack()`.
+// Devuelto por `Props::unpack()`/`Props::unpack_with_flex()`. `classes` son las clases resueltas
+// por `FlexItem::apply()`/`Flex::apply()` (desde el propio `unpack*()` usando el `&mut Context`),
+// pendientes sólo de añadir a las del componente (ver `Props::write_attrs()`).
 struct PropsUnpack<'a> {
     props: &'a Props,
-    cx: &'a Context,
+    classes: String,
 }
 
 #[doc(hidden)]
 impl RenderAttrs for PropsUnpack<'_> {
     #[track_caller]
     fn render_attrs_to(&self, w: &mut String, exclude: &[&str]) {
-        self.props.write_attrs(self.cx, w, exclude);
+        self.props.write_attrs(&self.classes, w, exclude);
     }
 }

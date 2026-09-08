@@ -88,7 +88,7 @@ impl Crumb {
     }
 
     // Renderiza con enlace si tiene ruta, o texto plano en otro caso. Sólo lo usa `Breadcrumb`.
-    pub(super) fn render_crumb(&self, cx: &Context) -> Markup {
+    pub(super) fn render_crumb(&self, cx: &mut Context) -> Markup {
         let label = self.label().using(cx);
         match self.route() {
             Some(route) => html! {

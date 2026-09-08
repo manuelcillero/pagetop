@@ -247,7 +247,7 @@ impl Page {
                 head {
                     (head)
                 }
-                body (self.body_props().unpack(&self.context)) {
+                body (self.body_props().clone().unpack(&mut self.context)) {
                     (body)
                 }
             }

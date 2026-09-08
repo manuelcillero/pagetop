@@ -85,7 +85,7 @@ impl Column {
     // Traduce la etiqueta y, si la columna es ordenable, la envuelve en su enlace con `aria-sort`
     // y las clases `table-sort*` ya resueltas por `table::SortLink`. Sólo lo usa `Table` al
     // renderizar.
-    pub(super) fn render_header(&self, cx: &Context) -> Markup {
+    pub(super) fn render_header(&self, cx: &mut Context) -> Markup {
         let label = self.label().using(cx);
 
         let Some(sort) = self.sort() else {

@@ -113,9 +113,9 @@ async fn extras_not_emitted_in_html() {
     let props = Props::default()
         .with_prop(PropsOp::set_extra("ext.flag", true))
         .with_prop(PropsOp::add_classes("btn"));
-    let cx = Context::default();
+    let mut cx = Context::default();
     assert_eq!(
-        html! { button (props.unpack(&cx)) { "OK" } }.into_string(),
+        html! { button (props.unpack(&mut cx)) { "OK" } }.into_string(),
         r#"<button class="btn">OK</button>"#
     );
 }

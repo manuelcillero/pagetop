@@ -71,7 +71,7 @@ impl PageTopSvg {
     /// [`Lc::none()`]: crate::locale::Lc::none
     /// [`Image`]: crate::base::component::Image
     /// [`image::Source::Logo`]: crate::base::component::image::Source::Logo
-    pub fn markup_with(&self, cx: &Context, props: &Props, label: Lc) -> Markup {
+    pub fn markup_with(&self, cx: &mut Context, props: &Props, label: Lc) -> Markup {
         let label = label.lookup(cx);
         html! {
             svg

@@ -256,7 +256,7 @@ async fn render_zero_min_width_breakpoint_has_no_media_query() {
     let cx = Context::default();
     let mut r = ResponsiveStyles::new();
     r.add_style(Breakpoint::Xs, "col", "flex-basis", "100%");
-    assert_eq!(r.render(&cx).into_string(), ".col { flex-basis: 100% }");
+    assert_eq!(r.render(&cx).into_string(), ".col{flex-basis:100%}");
 }
 
 #[pagetop::test]
@@ -264,7 +264,7 @@ async fn render_none_breakpoint_has_no_media_query() {
     let cx = Context::default();
     let mut r = ResponsiveStyles::new();
     r.add_style(None, "col", "flex-basis", "100%");
-    assert_eq!(r.render(&cx).into_string(), ".col { flex-basis: 100% }");
+    assert_eq!(r.render(&cx).into_string(), ".col{flex-basis:100%}");
 }
 
 #[pagetop::test]
@@ -275,7 +275,7 @@ async fn render_none_comes_before_every_breakpoint() {
     r.add_style(None, "row", "display", "flex");
     assert_eq!(
         r.render(&cx).into_string(),
-        ".row { display: flex }@media (min-width: 768px) { .col { flex-basis: 50% } }"
+        ".row{display:flex}@media(min-width:768px){.col{flex-basis:50%}}"
     );
 }
 
@@ -287,7 +287,7 @@ async fn render_non_zero_breakpoint_wraps_in_media_query() {
     r.add_style(Breakpoint::Md, "col", "flex-basis", "50%");
     assert_eq!(
         r.render(&cx).into_string(),
-        "@media (min-width: 768px) { .col { flex-basis: 50% } }"
+        "@media(min-width:768px){.col{flex-basis:50%}}"
     );
 }
 
@@ -299,7 +299,7 @@ async fn render_groups_multiple_properties_in_the_same_rule() {
     r.add_style(Breakpoint::Md, "col", "margin-inline-start", "0");
     assert_eq!(
         r.render(&cx).into_string(),
-        "@media (min-width: 768px) { .col { flex-basis: 50%; margin-inline-start: 0 } }"
+        "@media(min-width:768px){.col{flex-basis:50%;margin-inline-start:0}}"
     );
 }
 
@@ -311,7 +311,7 @@ async fn render_concatenates_rules_of_different_selectors_in_the_same_breakpoint
     r.add_style(Breakpoint::Md, "row", "display", "flex");
     assert_eq!(
         r.render(&cx).into_string(),
-        "@media (min-width: 768px) { .col { flex-basis: 50% }.row { display: flex } }"
+        "@media(min-width:768px){.col{flex-basis:50%}.row{display:flex}}"
     );
 }
 
@@ -322,7 +322,7 @@ async fn render_converts_multiple_classes_into_a_compound_selector() {
     r.add_style(Breakpoint::Md, "foo bar", "color", "red");
     assert_eq!(
         r.render(&cx).into_string(),
-        "@media (min-width: 768px) { .foo.bar { color: red } }"
+        "@media(min-width:768px){.foo.bar{color:red}}"
     );
 }
 
@@ -335,9 +335,9 @@ async fn render_orders_breakpoints_mobile_first_regardless_of_insertion_order() 
     r.add_style(Breakpoint::Md, "col", "flex-basis", "50%");
     assert_eq!(
         r.render(&cx).into_string(),
-        ".col { flex-basis: 100% }\
-         @media (min-width: 768px) { .col { flex-basis: 50% } }\
-         @media (min-width: 992px) { .col { flex-basis: 33% } }"
+        ".col{flex-basis:100%}\
+         @media(min-width:768px){.col{flex-basis:50%}}\
+         @media(min-width:992px){.col{flex-basis:33%}}"
     );
 }
 
@@ -357,9 +357,9 @@ async fn render_has_no_line_breaks() {
 async fn context_add_responsive_style_feeds_responsives() {
     let cx = Context::default().with_assets(AssetsOp::AddResponsiveStyle(
         Some(Breakpoint::Md),
-        "col",
-        "flex-basis",
-        "50%",
+        "col".into(),
+        "flex-basis".into(),
+        "50%".into(),
     ));
     assert_eq!(
         cx.responsive_styles().get_styles(Breakpoint::Md, "col"),
@@ -372,15 +372,15 @@ async fn context_add_responsive_style_accumulates_across_calls() {
     let cx = Context::default()
         .with_assets(AssetsOp::AddResponsiveStyle(
             Some(Breakpoint::Md),
-            "col",
-            "flex-basis",
-            "50%",
+            "col".into(),
+            "flex-basis".into(),
+            "50%".into(),
         ))
         .with_assets(AssetsOp::AddResponsiveStyle(
             Some(Breakpoint::Md),
-            "col",
-            "margin-inline-start",
-            "0",
+            "col".into(),
+            "margin-inline-start".into(),
+            "0".into(),
         ));
     assert_eq!(
         cx.responsive_styles().get_styles(Breakpoint::Md, "col"),
@@ -399,13 +399,13 @@ async fn context_default_has_no_responsive_styles() {
 async fn render_assets_includes_style_tag_with_responsive_styles() {
     let mut cx = Context::default().with_assets(AssetsOp::AddResponsiveStyle(
         Some(Breakpoint::Xs),
-        "col",
-        "flex-basis",
-        "100%",
+        "col".into(),
+        "flex-basis".into(),
+        "100%".into(),
     ));
     assert_eq!(
         cx.render_assets().into_string(),
-        "<style>.col { flex-basis: 100% }</style>"
+        "<style>.col{flex-basis:100%}</style>"
     );
 }
 
