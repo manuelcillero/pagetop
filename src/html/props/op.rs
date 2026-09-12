@@ -2,6 +2,7 @@ use crate::CowStr;
 use crate::core::TypeInfo;
 use crate::html::flex::FlexItem;
 use crate::html::props::extra::PropsExtra;
+use crate::html::spacing::{Margin, Padding};
 
 use std::any::Any;
 use std::sync::Arc;
@@ -40,8 +41,9 @@ use std::sync::Arc;
 /// se interpretan como si
 /// fueran valores internos del componente para tomar decisiones durante el renderizado.
 ///
-/// Finalmente, [`FlexItem`](Self::FlexItem) aplica un posicionamiento Flexbox a nivel de ítem sobre
-/// cualquier componente.
+/// [`FlexItem`](Self::FlexItem) aplica un posicionamiento Flexbox a nivel de ítem, mientras que
+/// [`Margin`](Self::Margin) y [`Padding`](Self::Padding) aplican márgenes y relleno interno; los
+/// tres sobre cualquier componente.
 #[derive(Clone, Debug)]
 pub enum PropsOp {
     /// Establece el identificador del componente normalizando el valor: recorta espacios, convierte
@@ -113,7 +115,7 @@ pub enum PropsOp {
     /// Elimina el valor extra asociado a la clave indicada, si existe.
     RemoveExtra(&'static str),
     /// Aplica un posicionamiento [`FlexItem`] a un componente particular en un contenedor [`Flex`].
-    /// Añade directamente sus estilos Flexbox al propio componente, sin usar clases CSS.
+    /// Añade directamente sus estilos Flexbox al propio componente, generando clases CSS dinámicas.
     ///
     /// Existe como variante de `PropsOp`, y no como método builder de un componente, porque las
     /// propiedades de un ítem Flexbox tienen sentido sobre **cualquier** componente que pueda
@@ -128,6 +130,15 @@ pub enum PropsOp {
     /// [`Flex`]: crate::html::flex::Flex
     /// [`Container::flex()`]: crate::base::component::Container::flex
     FlexItem(FlexItem),
+    /// Aplica un margen [`Margin`] a un componente particular. Añade directamente sus estilos al
+    /// propio componente, generando clases CSS dinámicas.
+    ///
+    /// Como [`FlexItem`](Self::FlexItem), existe como variante de `PropsOp` y no como método
+    /// builder de un componente, porque el margen tiene sentido sobre **cualquier** componente.
+    Margin(Margin),
+    /// Aplica un relleno interno [`Padding`] a un componente particular, siguiendo los mismos
+    /// criterios que [`Margin`](Self::Margin).
+    Padding(Padding),
 }
 
 impl PropsOp {
@@ -268,5 +279,15 @@ impl PropsOp {
     /// Crea la variante [`FlexItem`](Self::FlexItem) con el posicionamiento indicado.
     pub fn flex_item(placement: FlexItem) -> Self {
         Self::FlexItem(placement)
+    }
+
+    /// Crea la variante [`Margin`](Self::Margin) con el margen indicado.
+    pub fn margin(margin: Margin) -> Self {
+        Self::Margin(margin)
+    }
+
+    /// Crea la variante [`Padding`](Self::Padding) con el relleno interno indicado.
+    pub fn padding(padding: Padding) -> Self {
+        Self::Padding(padding)
     }
 }

@@ -214,7 +214,7 @@ impl FlexItem {
     /// cadenas intermedias.
     #[rustfmt::skip]
     pub(crate) fn apply(self, cx: &mut Context, classes: &mut String) {
-        use super::{apply, responsive_class, styles, value_to_token};
+        use crate::html::responsive::{apply, responsive_class, styles, value_to_token};
 
         apply!(cx, classes, self.grow, "_flex-item-grow_", "flex-grow");
         apply!(cx, classes, self.shrink, "_flex-item-shrink_", "flex-shrink");

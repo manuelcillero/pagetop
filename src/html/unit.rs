@@ -126,6 +126,13 @@ impl UnitValue {
     pub const fn is_measurable(&self) -> bool {
         !matches!(self, UnitValue::None | UnitValue::Auto)
     }
+
+    // Convierte a un valor CSS ya formateado. Da a `UnitValue` la misma forma de acceso (`value()`)
+    // que ya usan propiedades de `html::flex` como `Direction`, `ItemSize`, `ItemOffset`, etc.,
+    // para poder combinarse con su misma macro (`apply!`).
+    pub(crate) fn value(self) -> CowStr {
+        self.into()
+    }
 }
 
 /// Formatea la unidad como cadena CSS.

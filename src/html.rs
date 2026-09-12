@@ -37,6 +37,12 @@ pub use unit::UnitValue;
 
 // **< HTML LAYOUT >********************************************************************************
 
+mod responsive;
+
 pub mod flex;
 #[doc(inline)]
 pub use flex::{Flex, FlexItem};
+
+pub mod spacing;
+#[doc(inline)]
+pub use spacing::{Margin, Padding};

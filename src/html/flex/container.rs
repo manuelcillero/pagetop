@@ -238,7 +238,7 @@ impl Flex {
             return;
         };
 
-        use super::{apply, responsive_class, styles, value_to_token};
+        use crate::html::responsive::{apply, responsive_class, styles, value_to_token};
 
         let (prefix, value) = match display {
             DisplayFlex::Always

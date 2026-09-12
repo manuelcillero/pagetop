@@ -3,6 +3,7 @@ use crate::core::component::Context;
 use crate::html::flex::{Flex, FlexItem};
 use crate::html::maud::{Escaper, RenderAttrs};
 use crate::html::props::{PropsError, PropsExtra, PropsOp};
+use crate::html::spacing::{Margin, Padding};
 use crate::{AutoDefault, CowStr, builder_impl, trace, util};
 
 use std::collections::HashMap;
@@ -190,6 +191,8 @@ pub struct Props {
     attrs: Vec<(CowStr, CowStr)>,
     extras: HashMap<&'static str, PropsExtra>,
     flex_item: FlexItem,
+    margin: Margin,
+    padding: Padding,
 }
 
 #[builder_impl]
@@ -213,7 +216,8 @@ impl Props {
     }
 
     /// Modifica el identificador, las clases, los atributos o los valores extra según la operación
-    /// indicada. El método recomendado para construir cada operación es usar los constructores de
+    /// indicada, incluido el posicionamiento Flexbox y el espaciado (`FlexItem`, `Margin`,
+    /// `Padding`). El método recomendado para construir cada operación es usar los constructores de
     /// [`PropsOp`].
     pub fn with_prop(mut self, op: PropsOp) -> Self {
         match op {
@@ -338,6 +342,12 @@ impl Props {
             }
             PropsOp::FlexItem(placement) => {
                 self.flex_item = self.flex_item.merge(placement);
+            }
+            PropsOp::Margin(margin) => {
+                self.margin = self.margin.merge(margin);
+            }
+            PropsOp::Padding(padding) => {
+                self.padding = self.padding.merge(padding);
             }
         }
         self
@@ -560,9 +570,9 @@ impl Props {
     ///
     /// `Props` no implementa [`RenderAttrs`] directamente. Obliga a pasar siempre el `Context`
     /// vigente en el punto donde se renderiza, aunque no lo necesite ningún atributo propio. Recibe
-    /// `&mut Context` porque aquí, en el momento de extraer los atributos, es donde se resuelve
-    /// [`FlexItem`]: las clases que devuelve se añaden a las del propio componente al escribir el
-    /// atributo `class`.
+    /// `&mut Context` porque aquí, en el momento de extraer los atributos, es donde se resuelven
+    /// [`FlexItem`], [`Margin`] y [`Padding`]: las clases que devuelven se añaden a las del propio
+    /// componente al escribir el atributo `class`.
     ///
     /// Si el propio elemento actúa además como contenedor [`Flex`], utiliza [`unpack_with_flex()`]
     /// en su lugar.
@@ -578,10 +588,14 @@ impl Props {
     /// [`html!`]: crate::html::html
     /// [`Flex`]: crate::html::flex::Flex
     /// [`FlexItem`]: crate::html::flex::FlexItem
+    /// [`Margin`]: crate::html::spacing::Margin
+    /// [`Padding`]: crate::html::spacing::Padding
     /// [`unpack_with_flex()`]: Self::unpack_with_flex
     pub fn unpack<'a>(&'a self, cx: &mut Context) -> impl RenderAttrs + 'a {
         let mut classes = String::new();
         self.flex_item.apply(cx, &mut classes);
+        self.margin.apply(cx, &mut classes);
+        self.padding.apply(cx, &mut classes);
         PropsUnpack {
             props: self,
             classes,
@@ -590,20 +604,23 @@ impl Props {
 
     /// Igual que [`unpack()`], pero además resuelve `flex` con el posicionamiento [`Flex`].
     ///
-    /// A diferencia de [`FlexItem`] (que se acumula con [`PropsOp::FlexItem`] porque cualquier
-    /// componente ajeno puede necesitarlo sin tener un campo propio para ello), `Flex` sólo tiene
-    /// sentido en los contenedores que ya declaran su propio campo `flex: Flex` (`Container`,
-    /// `Navbar`...): se les pasa aquí directamente, ya resuelto (`self.flex()`), sin pasar por
-    /// `PropsOp`.
+    /// A diferencia de [`FlexItem`]/[`Margin`]/[`Padding`] (que se acumulan con sus respectivas
+    /// variantes de `PropsOp` porque cualquier componente ajeno puede necesitarlos sin tener un
+    /// campo propio para ello), `Flex` sólo tiene sentido en los contenedores que ya declaran su
+    /// propio campo `flex: Flex` (como `Container` o `Navbar`). Se les pasa aquí directamente, ya
+    /// resuelto (`self.flex()`), sin pasar por `PropsOp`.
     ///
     /// [`unpack()`]: Self::unpack
     /// [`Flex`]: crate::html::flex::Flex
     /// [`FlexItem`]: crate::html::flex::FlexItem
-    /// [`PropsOp::FlexItem`]: crate::html::props::PropsOp::FlexItem
+    /// [`Margin`]: crate::html::spacing::Margin
+    /// [`Padding`]: crate::html::spacing::Padding
     pub fn unpack_with_flex<'a>(&'a self, cx: &mut Context, flex: Flex) -> impl RenderAttrs + 'a {
         let mut classes = String::new();
         flex.apply(cx, &mut classes);
         self.flex_item.apply(cx, &mut classes);
+        self.margin.apply(cx, &mut classes);
+        self.padding.apply(cx, &mut classes);
         PropsUnpack {
             props: self,
             classes,
@@ -800,8 +817,9 @@ impl Props {
 // **< PropsUnpack >********************************************************************************
 
 // Devuelto por `Props::unpack()`/`Props::unpack_with_flex()`. `classes` son las clases resueltas
-// por `FlexItem::apply()`/`Flex::apply()` (desde el propio `unpack*()` usando el `&mut Context`),
-// pendientes sólo de añadir a las del componente (ver `Props::write_attrs()`).
+// por `Flex::apply()`/`FlexItem::apply()`/`Margin::apply()`/`Padding::apply()` (desde el propio
+// `unpack*()` usando el `&mut Context`), pendientes sólo de añadir a las del componente (ver
+// `Props::write_attrs()`).
 struct PropsUnpack<'a> {
     props: &'a Props,
     classes: String,
