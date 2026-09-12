@@ -142,7 +142,7 @@ async fn form_controls(request: HttpRequest) -> Result<Markup, ErrorPage> {
                                 .with_child(
                                     Container::new()
                                         .with_flex(
-                                            Flex::row()
+                                            Flex::new()
                                                 .with_wrap(flex::Behavior::Wrap)
                                                 .with_gap(flex::Gap::Both(UnitValue::RelRem(0.5))),
                                         )
@@ -262,7 +262,7 @@ async fn form_controls(request: HttpRequest) -> Result<Markup, ErrorPage> {
                                 .with_child(
                                     Container::new()
                                         .with_flex(
-                                            Flex::row()
+                                            Flex::new()
                                                 .with_wrap(flex::Behavior::Wrap)
                                                 .with_gap(flex::Gap::Both(UnitValue::RelRem(0.5))),
                                         )
@@ -442,7 +442,7 @@ fn form_lists() -> Form {
         .with_child(
             Container::new()
                 .with_flex(
-                    Flex::row()
+                    Flex::new()
                         .with_wrap(flex::Behavior::Wrap)
                         .with_gap(flex::Gap::Both(UnitValue::RelRem(0.5))),
                 )

@@ -49,7 +49,7 @@ pub struct Container {
     kind: Kind,
     /// Devuelve el posicionamiento Flexbox como contenedor, si tiene alguno.
     #[getters(copy)]
-    flex: Option<Flex>,
+    flex: Flex,
     /// Devuelve la lista de componentes (`children`) del contenedor.
     children: Children,
 }
@@ -64,25 +64,20 @@ impl Component for Container {
         self.props.get_id()
     }
 
-    fn setup(&mut self, _cx: &mut Context) {
-        if let Some(flex) = self.flex() {
-            flex.apply_to(&mut self.props);
-        }
-    }
-
     #[rustfmt::skip]
     async fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
         let output = self.children().render(cx).await;
         if output.is_empty() {
             return Ok(html! {});
         }
+        let container_props = self.props().unpack_with_flex(cx, self.flex());
         Ok(match self.kind() {
-            Kind::Default => html! { div     (self.props().unpack(cx)) { (output) } },
-            Kind::Main    => html! { main    (self.props().unpack(cx)) { (output) } },
-            Kind::Header  => html! { header  (self.props().unpack(cx)) { (output) } },
-            Kind::Footer  => html! { footer  (self.props().unpack(cx)) { (output) } },
-            Kind::Section => html! { section (self.props().unpack(cx)) { (output) } },
-            Kind::Article => html! { article (self.props().unpack(cx)) { (output) } },
+            Kind::Default => html! { div     (container_props) { (output) } },
+            Kind::Main    => html! { main    (container_props) { (output) } },
+            Kind::Header  => html! { header  (container_props) { (output) } },
+            Kind::Footer  => html! { footer  (container_props) { (output) } },
+            Kind::Section => html! { section (container_props) { (output) } },
+            Kind::Article => html! { article (container_props) { (output) } },
         })
     }
 }
@@ -145,7 +140,7 @@ impl Container {
 
     /// Establece el posicionamiento Flexbox como contenedor (usa `None` para quitarlo).
     pub fn with_flex(mut self, flex: impl Into<Option<Flex>>) -> Self {
-        self.flex = flex.into();
+        self.flex = self.flex.merge(flex);
         self
     }
 

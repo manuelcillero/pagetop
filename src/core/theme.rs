@@ -14,11 +14,11 @@
 //! PageTop permite crear **temas hijo** que refinan el comportamiento de su tema padre,
 //! identificado por [`Theme::parent()`]. Un tema hijo hereda automáticamente todos los métodos del
 //! padre y puede sobrescribirlos selectivamente. Esta herencia determina qué implementación de sus
-//! métodos se usa cuando el tema hijo no los sobrescribe (ya sea el renderizado del `<body>` o del
-//! `<head>`, la definición de los recursos necesarios, la traducción de puntos de corte y colores
-//! por intención vía [`Theme::breakpoint_min_width()`] y [`Theme::intent_color()`], la captura de
-//! componentes para alterar su comportamiento usando [`Theme::setup_component()`] y
-//! [`Theme::render_component()`], las páginas de error, etc.).
+//! métodos se usa cuando el tema hijo no los sobrescribe, ya sea el renderizado del `<body>` o del
+//! `<head>`, la definición de los recursos necesarios, la traducción de puntos de corte con
+//! [`Theme::breakpoint_entry()`] y colores según intención vía [`Theme::intent_color()`], la
+//! captura de componentes para alterar su comportamiento usando [`Theme::setup_component()`] y
+//! [`Theme::render_component()`], las páginas de error, etc.
 //!
 //! Un tema hijo puede ser a su vez padre de otro, basta declararlo cada vez en [`Theme::parent()`].
 //! Como `parent()` se resuelve en tiempo de ejecución, PageTop no puede descartar en compilación
@@ -78,13 +78,14 @@
 //!    variantes de plantilla. Para ajustarlo sin rehacer su marcado (añadir una clase, un
 //!    atributo, etc.), se usa [`Theme::setup_component()`] en su lugar.
 //! 4. **Definir los anchos mínimos *mobile-first* para los puntos de corte** sobrescribiendo
-//!    [`Theme::breakpoint_min_width()`]. Por defecto, [`Breakpoint`] resuelve el ancho mínimo de
-//!    cada variante (`Sm`, `Md`, etc.) como una cadena CSS ya formateada (p. ej. `"768px"`) que
-//!    cada tema puede adaptar. Cuando se genera CSS *responsive* a partir de un [`Breakpoint`], se
-//!    consulta el punto de corte a través de [`Breakpoint::min_width()`], listo para interpolar en
-//!    un `@media (min-width: ...)` sin ningún cálculo adicional. Un tema sin diseño *responsive*
-//!    puede traducir todas las variantes a `""` porque al ser *mobile-first*, un punto de corte sin
-//!    ancho real se aplicará siempre.
+//!    [`Theme::breakpoint_entry()`]. [`Breakpoint`] no define ningún ancho propio; la
+//!    implementación por defecto de este método resuelve el ancho mínimo de cada variante (`Sm`,
+//!    `Md`, etc.) como una cadena CSS ya formateada (p. ej. `"768px"`), que cada tema puede
+//!    sobrescribir. Cuando se genera CSS *responsive* a partir de un [`Breakpoint`], se consulta el
+//!    punto de corte a través de [`Breakpoint::min_width()`], listo para interpolar en un
+//!    `@media (min-width: ...)` sin ningún cálculo adicional. Un tema sin diseño *responsive* puede
+//!    traducir todas las variantes a `""` porque al ser *mobile-first*, un punto de corte sin ancho
+//!    real se aplicará siempre.
 //! 5. **Traducir [`Intent`] a la paleta de colores propia del tema** sobrescribiendo
 //!    [`Theme::intent_color()`]. Por defecto, este método devuelve el vocabulario semántico de
 //!    [`Intent`] (`"primary"`, `"severe"`, etc.); un tema con su propio catálogo de colores (por
@@ -155,7 +156,7 @@ mod intent;
 pub use intent::Intent;
 
 mod breakpoint;
-pub use breakpoint::Breakpoint;
+pub use breakpoint::{Breakpoint, BreakpointEntry, Responsive};
 
 mod layout;
 pub use layout::{CoreRegions, RegionName, RegionRef};

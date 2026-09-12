@@ -363,7 +363,7 @@ fn edit_actions(
 
     let mut container = Container::new()
         .with_flex(
-            Flex::row()
+            Flex::new()
                 .with_wrap(flex::Behavior::Wrap)
                 .with_align(flex::Align::Center)
                 .with_gap(flex::Gap::Both(UnitValue::RelRem(0.5))),

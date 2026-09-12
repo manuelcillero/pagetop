@@ -1,5 +1,6 @@
 use crate::core::TypeInfo;
 use crate::core::component::Context;
+use crate::html::flex::{Flex, FlexItem};
 use crate::html::maud::{Escaper, RenderAttrs};
 use crate::html::props::{PropsError, PropsExtra, PropsOp};
 use crate::{AutoDefault, CowStr, builder_impl, trace, util};
@@ -188,6 +189,7 @@ pub struct Props {
     styles: Vec<(CowStr, CowStr)>,
     attrs: Vec<(CowStr, CowStr)>,
     extras: HashMap<&'static str, PropsExtra>,
+    flex_item: FlexItem,
 }
 
 #[builder_impl]
@@ -335,7 +337,7 @@ impl Props {
                 self.extras.remove(key);
             }
             PropsOp::FlexItem(placement) => {
-                placement.apply_to(self);
+                self.flex_item = self.flex_item.merge(placement);
             }
         }
         self
@@ -578,9 +580,11 @@ impl Props {
     /// [`FlexItem`]: crate::html::flex::FlexItem
     /// [`unpack_with_flex()`]: Self::unpack_with_flex
     pub fn unpack<'a>(&'a self, cx: &mut Context) -> impl RenderAttrs + 'a {
+        let mut classes = String::new();
+        self.flex_item.apply(cx, &mut classes);
         PropsUnpack {
             props: self,
-            classes: self.flex_item.apply(cx),
+            classes,
         }
     }
 
@@ -597,9 +601,12 @@ impl Props {
     /// [`FlexItem`]: crate::html::flex::FlexItem
     /// [`PropsOp::FlexItem`]: crate::html::props::PropsOp::FlexItem
     pub fn unpack_with_flex<'a>(&'a self, cx: &mut Context, flex: Flex) -> impl RenderAttrs + 'a {
+        let mut classes = String::new();
+        flex.apply(cx, &mut classes);
+        self.flex_item.apply(cx, &mut classes);
         PropsUnpack {
             props: self,
-            classes: util::join_pair!(flex.apply(cx), " ", self.flex_item.apply(cx)),
+            classes,
         }
     }
 

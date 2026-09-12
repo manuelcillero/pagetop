@@ -1,17 +1,15 @@
-use crate::html::flex::props_item::{
-    ItemAlign, ItemGrow, ItemOffset, ItemOrder, ItemShrink, ItemSize,
-};
-use crate::html::props::{Props, PropsOp};
-use crate::{AutoDefault, Getters, builder_impl};
-
-// **< FlexItem >***********************************************************************************
+use crate::core::component::Context;
+use crate::core::theme::{Breakpoint, Responsive};
+use crate::html::PropsOp;
+use crate::html::flex::{ItemAlign, ItemGrow, ItemOffset, ItemOrder, ItemShrink, ItemSize};
+use crate::{AutoDefault, Getters, builder_impl, util};
 
 /// Configuración de un elemento como ítem de un contenedor Flexbox.
 ///
 /// A diferencia de [`Flex`](crate::html::flex::Flex), que configura el comportamiento Flexbox
 /// global de un contenedor y sus hijos como grupo, `FlexItem` configura un único elemento en
 /// relación con el contenedor flex padre: crecimiento ([`ItemGrow`]), reducción ([`ItemShrink`]),
-/// alineación individual ([`ItemAlign`]), orden visual ([`ItemOrder`]), ancho ([`ItemSize`]) y
+/// alineación individual ([`ItemAlign`]), orden visual ([`ItemOrder`]), tamaño ([`ItemSize`]) y
 /// desplazamiento ([`ItemOffset`]).
 ///
 /// No tiene un builder dedicado en ningún componente. De hecho, no tendría sentido porque cualquier
@@ -20,7 +18,8 @@ use crate::{AutoDefault, Getters, builder_impl};
 /// exponer cualquier componente.
 ///
 /// Con [`ItemSize`] y [`ItemOffset`] se pueden modelar rejillas de columnas fijas sobre Flexbox,
-/// combinando un ancho en fracción del contenedor con un desplazamiento lateral cuando se necesite.
+/// combinando un tamaño en fracción del contenedor con un desplazamiento lateral cuando se
+/// necesite.
 ///
 /// # Ejemplo
 ///
@@ -28,7 +27,7 @@ use crate::{AutoDefault, Getters, builder_impl};
 /// use pagetop::prelude::*;
 ///
 /// // Crece para ocupar el espacio sobrante, partiendo de ancho cero.
-/// let title = Button::plain(Lc::n("Panel")).with_prop(PropsOp::flex_item(
+/// let panel = Button::plain(Lc::n("Panel")).with_prop(PropsOp::flex_item(
 ///     FlexItem::new()
 ///         .with_grow(flex::ItemGrow::Is1)
 ///         .with_size(flex::ItemSize::Custom(UnitValue::Zero)),
@@ -43,24 +42,24 @@ use crate::{AutoDefault, Getters, builder_impl};
 /// ```
 #[derive(AutoDefault, Clone, Copy, Debug, PartialEq, Getters)]
 pub struct FlexItem {
-    /// Devuelve el factor de crecimiento.
+    /// Devuelve el factor de crecimiento, por punto de corte.
     #[getters(copy)]
-    grow: ItemGrow,
-    /// Devuelve el factor de reducción.
+    grow: Responsive<ItemGrow>,
+    /// Devuelve el factor de reducción, por punto de corte.
     #[getters(copy)]
-    shrink: ItemShrink,
-    /// Devuelve la alineación individual en el eje transversal.
+    shrink: Responsive<ItemShrink>,
+    /// Devuelve la alineación individual en el eje transversal, por punto de corte.
     #[getters(copy)]
-    align_self: ItemAlign,
-    /// Devuelve la posición en el orden visual.
+    align_self: Responsive<ItemAlign>,
+    /// Devuelve la posición en el orden visual, por punto de corte.
     #[getters(copy)]
-    order: ItemOrder,
-    /// Devuelve el ancho como fracción del contenedor.
+    order: Responsive<ItemOrder>,
+    /// Devuelve el tamaño como fracción del contenedor, por punto de corte.
     #[getters(copy)]
-    size: ItemSize,
-    /// Devuelve el desplazamiento respecto al inicio del contenedor.
+    size: Responsive<ItemSize>,
+    /// Devuelve el desplazamiento respecto al inicio del contenedor, por punto de corte.
     #[getters(copy)]
-    offset: ItemOffset,
+    offset: Responsive<ItemOffset>,
 }
 
 #[builder_impl]
@@ -70,80 +69,19 @@ impl FlexItem {
         Self::default()
     }
 
-    // **< FlexItem BUILDER >***********************************************************************
-
-    /// Establece el factor de crecimiento.
-    pub fn with_grow(mut self, grow: ItemGrow) -> Self {
-        self.grow = grow;
-        self
-    }
-
-    /// Establece el factor de reducción.
-    pub fn with_shrink(mut self, shrink: ItemShrink) -> Self {
-        self.shrink = shrink;
-        self
-    }
-
-    /// Establece la alineación individual en el eje transversal.
-    pub fn with_align_self(mut self, align_self: ItemAlign) -> Self {
-        self.align_self = align_self;
-        self
-    }
-
-    /// Establece la posición en el orden visual.
-    pub fn with_order(mut self, order: ItemOrder) -> Self {
-        self.order = order;
-        self
-    }
-
-    /// Establece el ancho como una fracción del contenedor (`flex-basis`). No fuerza
-    /// [`ItemShrink::Is0`](super::ItemShrink::Is0) por sí solo (consulta la documentación de
-    /// [`ItemSize`] antes de combinarlo con [`with_shrink()`](Self::with_shrink) porque con un
-    /// tamaño en porcentaje, forzar `ItemShrink::Is0` sólo es seguro si el contenedor no tiene
-    /// [`Gap`](super::Gap)).
-    pub fn with_size(mut self, size: ItemSize) -> Self {
-        self.size = size;
-        self
-    }
-
-    /// Establece el desplazamiento respecto al inicio del contenedor (`margin-inline-start`). No
-    /// tiene relación con [`push_end()`](Self::push_end) aunque aplican la misma propiedad CSS para
-    /// casos de uso distintos.
-    pub fn with_offset(mut self, offset: ItemOffset) -> Self {
-        self.offset = offset;
-        self
-    }
-}
-
-impl FlexItem {
-    // Aplica esta configuración a un Props como declaraciones de estilo en línea.
-    pub(crate) fn apply_to(self, props: &mut Props) {
-        for (property, value) in [
-            ("flex-grow", self.grow.value()),
-            ("flex-shrink", self.shrink.value()),
-            ("align-self", self.align_self.value()),
-            ("order", self.order.value()),
-            ("flex-basis", self.size.value()),
-            ("margin-inline-start", self.offset.value()),
-        ] {
-            props.alter_prop(PropsOp::add_style(property, value));
-        }
-    }
-
-    /// Separa un elemento (y los que le sigan en el mismo eje principal) del resto, empujándolo
-    /// hacia el extremo final de un contenedor flex.
+    /// Crea una configuración de ítem que empuja el elemento, y los que le sigan, hacia el extremo
+    /// final de un contenedor flex en fila.
     ///
-    /// Se resuelve siempre como margen inicial automático (`margin-inline-start: auto`) en línea,
-    /// igual que el resto de facetas de `FlexItem`. Es el mecanismo estándar de Flexbox para, por
-    /// ejemplo, separar dos menús dentro de una misma [`Navbar`](crate::base::component::Navbar)
-    /// -- uno pegado al inicio, el siguiente empujado al final -- sin que el contenedor necesite
-    /// conocer ninguna distinción entre sus elementos.
+    /// Aplica `margin-inline-start: auto`, un margen automático que absorbe todo el espacio libre
+    /// que quede antes del elemento en el eje de escritura. Con la dirección por defecto
+    /// ([`Direction::Row`](super::Direction::Row)) ese eje es el principal, de ahí el efecto de
+    /// empuje. En un contenedor en columna, en cambio, ese eje es el transversal: el margen ya no
+    /// empuja nada, sólo desplaza ese elemento hacia el final de la línea (a la derecha si se
+    /// escribe de izquierda a derecha).
     ///
-    /// No forma parte de los campos de `FlexItem` (no se combina con `grow`/`shrink`/`align_self`/
-    /// `order`/`size`/`offset` en una misma llamada): es una función asociada independiente porque
-    /// resuelve un caso de uso completo por sí sola, con una sola línea, y vive aquí -- en vez de
-    /// como función suelta del módulo `flex` -- para dejar claro que es una operación de **ítem**,
-    /// no de contenedor.
+    /// Es el mecanismo estándar de Flexbox para, por ejemplo, separar dos menús dentro de un mismo
+    /// [`Navbar`](crate::base::component::Navbar) (uno pegado al inicio, el siguiente empujado al
+    /// final) sin que el contenedor necesite conocer ninguna distinción entre sus elementos.
     ///
     /// # Ejemplo
     ///
@@ -151,12 +89,139 @@ impl FlexItem {
     /// use pagetop::prelude::*;
     ///
     /// let user_menu = Nav::new()
-    ///     .with_prop(FlexItem::push_end())
+    ///     .with_prop(FlexItem::push_end().into())
     ///     .with_item(nav::Item::link(Lc::n("Profile"), "/profile"))
     ///     .with_item(nav::Item::link(Lc::n("Sign out"), "/sign-out"));
     /// ```
-    pub fn push_end() -> PropsOp {
-        PropsOp::add_style("margin-inline-start", "auto")
+    pub fn push_end() -> Self {
+        Self::new().with_offset(ItemOffset::Auto)
+    }
+
+    // **< FlexItem BUILDER >***********************************************************************
+
+    /// Establece el factor de crecimiento.
+    pub fn with_grow(mut self, grow: ItemGrow) -> Self {
+        self.grow = self.grow.set(grow);
+        self
+    }
+
+    /// Establece el factor de crecimiento, a partir del punto de corte indicado.
+    pub fn with_grow_at(mut self, bp: Breakpoint, grow: ItemGrow) -> Self {
+        self.grow = self.grow.set_at(bp, grow);
+        self
+    }
+
+    /// Establece el factor de reducción.
+    pub fn with_shrink(mut self, shrink: ItemShrink) -> Self {
+        self.shrink = self.shrink.set(shrink);
+        self
+    }
+
+    /// Establece el factor de reducción, a partir del punto de corte indicado.
+    pub fn with_shrink_at(mut self, bp: Breakpoint, shrink: ItemShrink) -> Self {
+        self.shrink = self.shrink.set_at(bp, shrink);
+        self
+    }
+
+    /// Establece la alineación individual en el eje transversal.
+    pub fn with_align_self(mut self, align_self: ItemAlign) -> Self {
+        self.align_self = self.align_self.set(align_self);
+        self
+    }
+
+    /// Establece la alineación individual en el eje transversal, a partir del punto de corte
+    /// indicado.
+    pub fn with_align_self_at(mut self, bp: Breakpoint, align_self: ItemAlign) -> Self {
+        self.align_self = self.align_self.set_at(bp, align_self);
+        self
+    }
+
+    /// Establece la posición en el orden visual.
+    pub fn with_order(mut self, order: ItemOrder) -> Self {
+        self.order = self.order.set(order);
+        self
+    }
+
+    /// Establece la posición en el orden visual, a partir del punto de corte indicado.
+    pub fn with_order_at(mut self, bp: Breakpoint, order: ItemOrder) -> Self {
+        self.order = self.order.set_at(bp, order);
+        self
+    }
+
+    /// Establece el tamaño como una fracción del contenedor (`flex-basis`). No fuerza
+    /// [`ItemShrink::Is0`](super::ItemShrink::Is0) por sí solo (consulta la documentación de
+    /// [`ItemSize`] antes de combinarlo con [`with_shrink()`](Self::with_shrink) porque con un
+    /// tamaño en porcentaje, forzar `ItemShrink::Is0` sólo es seguro si el contenedor no tiene
+    /// [`Gap`](super::Gap)).
+    pub fn with_size(mut self, size: ItemSize) -> Self {
+        self.size = self.size.set(size);
+        self
+    }
+
+    /// Establece el tamaño como una fracción del contenedor (`flex-basis`), a partir del punto de
+    /// corte indicado.
+    pub fn with_size_at(mut self, bp: Breakpoint, size: ItemSize) -> Self {
+        self.size = self.size.set_at(bp, size);
+        self
+    }
+
+    /// Establece el desplazamiento respecto al inicio del contenedor (`margin-inline-start`).
+    /// [`push_end()`](Self::push_end) fija este mismo campo a [`ItemOffset::Auto`]; combinar los
+    /// dos deja el que se aplique en último lugar.
+    pub fn with_offset(mut self, offset: ItemOffset) -> Self {
+        self.offset = self.offset.set(offset);
+        self
+    }
+
+    /// Establece el desplazamiento respecto al inicio del contenedor (`margin-inline-start`), a
+    /// partir del punto de corte indicado.
+    pub fn with_offset_at(mut self, bp: Breakpoint, offset: ItemOffset) -> Self {
+        self.offset = self.offset.set_at(bp, offset);
+        self
+    }
+}
+
+impl FlexItem {
+    /// Combina esta configuración con otra `FlexItem`, campo a campo.
+    ///
+    /// La fusión llega al nivel de cada punto de corte; donde `item` tenga un valor establecido,
+    /// sustituye al de `self` y donde no lo tenga, se conserva el que ya hubiera. Por eso un `item`
+    /// que sólo establezca `with_size_at(Breakpoint::Lg, ...)` no borra el `with_size()` base que
+    /// `self` ya tuviera, sólo sustituye la entrada de ese punto de corte.
+    ///
+    /// Es el método que usa [`Props::with_prop()`](crate::html::props::Props::with_prop) para que
+    /// sucesivas [`PropsOp::FlexItem`](crate::html::props::PropsOp::FlexItem) sobre el mismo
+    /// componente vayan completando campos concretos sin repetir los ya establecidos, en vez de
+    /// partir de cero en cada llamada.
+    pub fn merge(mut self, item: FlexItem) -> Self {
+        self.grow = self.grow.merge(item.grow);
+        self.shrink = self.shrink.merge(item.shrink);
+        self.align_self = self.align_self.merge(item.align_self);
+        self.order = self.order.merge(item.order);
+        self.size = self.size.merge(item.size);
+        self.offset = self.offset.merge(item.offset);
+        self
+    }
+
+    /// Aplica esta configuración como clases de utilidad responsive en el [`Context`], igual que
+    /// [`Flex::apply()`](super::Flex::apply): cada faceta con valor añade una declaración de
+    /// estilo (por punto de corte, si se ha establecido alguno) y su propia clase. Un campo sin
+    /// ningún valor establecido, o con un valor cuya variante es la "por defecto" del propio enum
+    /// (p. ej. `ItemGrow::Default`), no añade nada.
+    ///
+    /// Las clases generadas se añaden a `classes`, separadas con un espacio de las que ya hubiera,
+    /// para poder compartir un único acumulador con [`Flex::apply()`](super::Flex::apply) sin
+    /// cadenas intermedias.
+    #[rustfmt::skip]
+    pub(crate) fn apply(self, cx: &mut Context, classes: &mut String) {
+        use super::{apply, responsive_class, styles, value_to_token};
+
+        apply!(cx, classes, self.grow, "_flex-item-grow_", "flex-grow");
+        apply!(cx, classes, self.shrink, "_flex-item-shrink_", "flex-shrink");
+        apply!(cx, classes, self.align_self, "_flex-item-align_", "align-self");
+        apply!(cx, classes, self.order, "_flex-item-order_", "order");
+        apply!(cx, classes, self.size, "_flex-item-basis_", "flex-basis", val);
+        apply!(cx, classes, self.offset, "_flex-item-offset_", "margin-inline-start", val);
     }
 }
 

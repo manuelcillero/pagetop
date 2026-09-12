@@ -83,7 +83,7 @@ pub struct Navbar {
     layout: navbar::Layout,
     /// Devuelve el posicionamiento Flexbox como contenedor, si tiene alguno.
     #[getters(copy)]
-    flex: Option<Flex>,
+    flex: Flex,
     /// Devuelve la lista de contenidos.
     items: Children,
 }
@@ -106,21 +106,6 @@ impl Component for Navbar {
     }
 
     async fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
-        // Botón de despliegue para el contenido colapsable de la barra.
-        fn button(cx: &mut Context, id_content: &str) -> Markup {
-            html! {
-                button
-                    type="button"
-                    class="navbar-toggle"
-                    aria-expanded="false"
-                    aria-controls=(id_content)
-                    aria-label=[Lc::l("navbar_toggle").lookup(cx)]
-                {
-                    span class="navbar-toggle-icon" {}
-                }
-            }
-        }
-
         // Si no hay contenidos, no tiene sentido mostrar una barra vacía.
         let items = self.items().render(cx).await;
         if items.is_empty() {
@@ -131,44 +116,53 @@ impl Component for Navbar {
         let id = self.id().unwrap();
         let id_content = util::join!(id, "-content");
 
+        // Botón de despliegue para el contenido colapsable de la barra.
+        let button = html! {
+            button
+                type="button"
+                class="navbar-toggle"
+                aria-expanded="false"
+                aria-controls=(&id_content)
+                aria-label=[Lc::l("navbar_toggle").lookup(cx)]
+            {
+                span class="navbar-toggle-icon" {}
+            }
+        };
+
         // Posicionamiento Flexbox opcional (no del `<nav>`, cuya estructura la fija `layout()`).
-        let mut content_props = Props::default();
-        if let Some(flex) = self.flex() {
-            flex.apply_to(&mut content_props);
-        }
-        content_props.alter_prop(PropsOp::prepend_classes("navbar-content"));
+        let content_props = Props::classes("navbar-content").with_id(id_content);
 
         Ok(html! {
             nav (self.props().unpack(cx)) {
                 @match self.layout() {
                     // Barra más sencilla: sólo contenido, siempre visible.
                     navbar::Layout::Simple => {
-                        div (content_props.unpack(cx)) { (items) }
+                        div (content_props.unpack_with_flex(cx, self.flex())) { (items) }
                     },
 
                     // Barra sencilla que se puede contraer/expandir.
                     navbar::Layout::SimpleToggle => {
-                        (button(cx, &id_content))
-                        div id=(&id_content) (content_props.unpack(cx)) { (items) }
+                        (button)
+                        div (content_props.unpack_with_flex(cx, self.flex())) { (items) }
                     },
 
                     // Barra con marca, siempre visible, sin botón.
                     navbar::Layout::SimpleBrandLeft(brand) => {
                         (brand.render(cx).await)
-                        div (content_props.unpack(cx)) { (items) }
+                        div (content_props.unpack_with_flex(cx, self.flex())) { (items) }
                     },
 
                     // Barra con marca y botón, en ese orden.
                     navbar::Layout::BrandLeft(brand) => {
                         (brand.render(cx).await)
-                        (button(cx, &id_content))
-                        div id=(&id_content) (content_props.unpack(cx)) { (items) }
+                        (button)
+                        div (content_props.unpack_with_flex(cx, self.flex())) { (items) }
                     },
 
                     // Barra con botón y marca, en ese orden.
                     navbar::Layout::BrandRight(brand) => {
-                        (button(cx, &id_content))
-                        div id=(&id_content) (content_props.unpack(cx)) { (items) }
+                        (button)
+                        div (content_props.unpack_with_flex(cx, self.flex())) { (items) }
                         (brand.render(cx).await)
                     },
                 }
@@ -231,7 +225,7 @@ impl Navbar {
     /// No afecta a la posición de la marca ni del botón de despliegue, que quedan fijados con
     /// [`with_layout()`](Self::with_layout).
     pub fn with_flex(mut self, flex: impl Into<Option<Flex>>) -> Self {
-        self.flex = flex.into();
+        self.flex = self.flex.merge(flex);
         self
     }
 

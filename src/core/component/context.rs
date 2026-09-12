@@ -9,7 +9,7 @@ use crate::html::{Markup, Props, PropsOp, RoutePath, html};
 use crate::locale::Lc;
 use crate::locale::{LangId, LanguageIdentifier, RequestLocale};
 use crate::web::HttpRequest;
-use crate::{builder_impl, util};
+use crate::{CowStr, builder_impl, util};
 
 use parking_lot::Mutex;
 use thiserror::Error;
@@ -42,7 +42,7 @@ pub enum AssetsOp {
     /// Añade una declaración de estilo responsive (`property: value`) para las clases indicadas,
     /// dentro del punto de corte dado (`None` para una regla siempre activa). Ver
     /// [`ResponsiveStyles::add_style()`].
-    AddResponsiveStyle(Option<Breakpoint>, &'static str, &'static str, &'static str),
+    AddResponsiveStyle(Option<Breakpoint>, CowStr, CowStr, CowStr),
 }
 
 /// Errores de acceso a parámetros dinámicos del contexto.

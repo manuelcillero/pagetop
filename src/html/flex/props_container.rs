@@ -207,28 +207,21 @@ pub enum Gap {
 }
 
 impl Gap {
-    // Declaraciones de estilo (propiedad, valor) para este espaciado; vacío si no hay ninguna
-    // medible (`UnitValue::None`/`UnitValue::Auto` no producen ningún estilo).
-    pub(super) fn styles(self) -> Vec<(&'static str, CowStr)> {
+    // Declaraciones de estilo (propiedad, valor) para este espaciado; cada hueco a `None` si no hay
+    // ninguna medible (`UnitValue::None`/`UnitValue::Auto` no producen ningún estilo).
+    pub(super) fn styles(self) -> [Option<(&'static str, CowStr)>; 2] {
         match self {
-            Self::None => Vec::new(),
-            Self::Both(value) => {
-                if value.is_measurable() {
-                    vec![("gap", value.into())]
-                } else {
-                    Vec::new()
-                }
-            }
-            Self::Distinct { row, column } => {
-                let mut styles = Vec::new();
-                if row.is_measurable() {
-                    styles.push(("row-gap", row.into()));
-                }
-                if column.is_measurable() {
-                    styles.push(("column-gap", column.into()));
-                }
-                styles
-            }
+            Self::None => [None, None],
+            Self::Both(value) => [Self::style("gap", value), None],
+            Self::Distinct { row, column } => [
+                Self::style("row-gap", row),
+                Self::style("column-gap", column),
+            ],
         }
+    }
+
+    // Declaración (propiedad, valor) para un valor medible, o `None` si no lo es.
+    fn style(property: &'static str, value: UnitValue) -> Option<(&'static str, CowStr)> {
+        value.is_measurable().then(|| (property, value.into()))
     }
 }

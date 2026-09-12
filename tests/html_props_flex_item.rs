@@ -144,6 +144,39 @@ async fn combines_several_facets_in_one_call() {
 }
 
 #[pagetop::test]
+async fn size_at_a_breakpoint_combines_token_and_suffix() {
+    let mut cx = Context::default();
+    let props = Props::default().with_prop(PropsOp::flex_item(
+        FlexItem::new().with_size_at(Breakpoint::Md, flex::ItemSize::Percent33),
+    ));
+    let html = html! { span (props.unpack(&mut cx)) {} }.into_string();
+    let assets = cx.render_assets().into_string();
+
+    // Both the sanitized value (`33.3333%` -> `33_3333pct`) and the breakpoint suffix are part of
+    // the same class name, and the rule is wrapped in its media query.
+    assert!(html.contains(r#"class="_flex-item-basis_33_3333pct_md_""#));
+    assert!(assets.contains(
+        "@media(min-width:768px){._flex-item-basis_33_3333pct_md_{flex-basis:33.3333%}}"
+    ));
+}
+
+#[pagetop::test]
+async fn base_and_breakpoint_values_generate_one_class_each() {
+    let mut cx = Context::default();
+    let props = Props::default().with_prop(PropsOp::flex_item(
+        FlexItem::new()
+            .with_grow(flex::ItemGrow::Default)
+            .with_size(flex::ItemSize::Percent50)
+            .with_size_at(Breakpoint::Lg, flex::ItemSize::Percent25),
+    ));
+    let html = html! { span (props.unpack(&mut cx)) {} }.into_string();
+
+    // `ItemGrow::Default` resolves to an empty CSS value, so it adds no class at all.
+    assert!(html.contains(r#"class="_flex-item-basis_50pct_ _flex-item-basis_25pct_lg_""#));
+    assert!(!html.contains("_flex-item-grow_"));
+}
+
+#[pagetop::test]
 async fn from_flex_item_for_props_op() {
     let mut cx = Context::default();
     let item = FlexItem::new().with_grow(flex::ItemGrow::Is1);

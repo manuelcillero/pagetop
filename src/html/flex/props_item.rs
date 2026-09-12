@@ -74,6 +74,10 @@ pub enum ItemOffset {
     /// Por defecto, sin desplazamiento (`margin-inline-start: 0` no explícito).
     #[default]
     None,
+    /// Empuja el ítem, y los que le sigan, hacia el extremo final de un contenedor en fila
+    /// (`margin-inline-start: auto`). Ver [`FlexItem::push_end()`](super::FlexItem::push_end), que
+    /// detalla el comportamiento cuando el contenedor está en columna.
+    Auto,
     /// Se desplaza el 10% del ancho del contenedor (`margin-inline-start: 10%`).
     Percent10,
     /// Se desplaza el 20% del ancho del contenedor (`margin-inline-start: 20%`).
@@ -106,6 +110,7 @@ impl ItemOffset {
     pub(super) fn value(self) -> CowStr {
         match self {
             Self::None => "".into(),
+            Self::Auto => "auto".into(),
             Self::Percent10 => "10%".into(),
             Self::Percent20 => "20%".into(),
             Self::Percent25 => "25%".into(),
@@ -217,10 +222,14 @@ impl ItemShrink {
 
 // **< ItemSize >***********************************************************************************
 
-/// Ancho en [`FlexItem`](super::FlexItem) para un ítem como fracción del contenedor.
+/// Tamaño en [`FlexItem`](super::FlexItem) para un ítem como fracción del contenedor.
+///
+/// Dimensiona el eje principal (`flex-basis`). Con la dirección por defecto
+/// ([`Direction::Row`](super::Direction::Row)) fija el ancho, y en un contenedor en columna fija el
+/// alto. El resto de esta documentación describe el caso en fila, que es el habitual.
 ///
 /// Permite maquetar rejillas de columnas fijas. Un ítem con [`ItemSize::Percent33`] ocupa un tercio
-/// del ancho del contenedor con independencia de su contenido.
+/// del contenedor con independencia de su contenido.
 ///
 /// # Cómo combinarlo con `Gap`
 ///
@@ -253,31 +262,31 @@ pub enum ItemSize {
     /// Por defecto, el tamaño se calcula según el contenido (`flex-basis: auto` no explícito).
     #[default]
     Default,
-    /// Ocupa el 10% del ancho del contenedor (`flex-basis: 10%`).
+    /// Ocupa el 10% del contenedor (`flex-basis: 10%`).
     Percent10,
-    /// Ocupa el 20% del ancho del contenedor (`flex-basis: 20%`).
+    /// Ocupa el 20% del contenedor (`flex-basis: 20%`).
     Percent20,
-    /// Ocupa el 25% del ancho del contenedor (`flex-basis: 25%`).
+    /// Ocupa el 25% del contenedor (`flex-basis: 25%`).
     Percent25,
-    /// Ocupa un tercio del ancho del contenedor (`flex-basis: 33.3333%`).
+    /// Ocupa un tercio del contenedor (`flex-basis: 33.3333%`).
     Percent33,
-    /// Ocupa el 40% del ancho del contenedor (`flex-basis: 40%`).
+    /// Ocupa el 40% del contenedor (`flex-basis: 40%`).
     Percent40,
-    /// Ocupa la mitad del ancho del contenedor (`flex-basis: 50%`).
+    /// Ocupa la mitad del contenedor (`flex-basis: 50%`).
     Percent50,
-    /// Ocupa el 60% del ancho del contenedor (`flex-basis: 60%`).
+    /// Ocupa el 60% del contenedor (`flex-basis: 60%`).
     Percent60,
-    /// Ocupa dos tercios del ancho del contenedor (`flex-basis: 66.6667%`).
+    /// Ocupa dos tercios del contenedor (`flex-basis: 66.6667%`).
     Percent66,
-    /// Ocupa el 75% del ancho del contenedor (`flex-basis: 75%`).
+    /// Ocupa el 75% del contenedor (`flex-basis: 75%`).
     Percent75,
-    /// Ocupa el 80% del ancho del contenedor (`flex-basis: 80%`).
+    /// Ocupa el 80% del contenedor (`flex-basis: 80%`).
     Percent80,
-    /// Ocupa el 90% del ancho del contenedor (`flex-basis: 90%`).
+    /// Ocupa el 90% del contenedor (`flex-basis: 90%`).
     Percent90,
-    /// Ocupa el 100% del ancho del contenedor (`flex-basis: 100%`).
+    /// Ocupa el 100% del contenedor (`flex-basis: 100%`).
     Percent100,
-    /// Cualquier otro valor, incluidas unidades absolutas (p. ej. un ancho fijo en píxeles).
+    /// Cualquier otro valor, incluidas unidades absolutas (p. ej. un tamaño fijo en píxeles).
     Custom(UnitValue),
 }
 

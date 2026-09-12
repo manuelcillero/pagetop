@@ -142,13 +142,14 @@ impl ResponsiveStyles {
     /// Renderiza las declaraciones acumuladas como texto CSS.
     ///
     /// Emite primero las declaraciones sin punto de corte (`None`), siempre sin envoltorio. Luego
-    /// recorre los puntos de corte reales en orden *mobile-first* (`Xs` a `Xxl`, omitiendo los que
+    /// recorre los puntos de corte reales en orden *mobile-first* (`Xs` a `Xxxl`, omitiendo los que
     /// no tengan ninguna declaración) y, para cada uno, agrupa las reglas de todas sus entradas
-    /// (`.clases { propiedad: valor; ... }`). Si el ancho mínimo resuelto por el tema activo
+    /// (`.clases{propiedad:valor;...}`). Si el ancho mínimo resuelto por el tema activo
     /// ([`Breakpoint::min_width()`]) es una cadena vacía, las reglas se emiten tal cual, sin punto
-    /// de corte real; en cualquier otro caso se envuelven en `@media (min-width: ...)`.
+    /// de corte real; en cualquier otro caso se envuelven en `@media(min-width:...)`.
     ///
-    /// El resultado no contiene saltos de línea.
+    /// El resultado no contiene espacios ni saltos de línea salvo los que pueda llevar el propio
+    /// valor de una declaración (p. ej. `font-family: "Segoe UI", sans-serif`).
     pub fn render(&self, cx: &Context) -> Markup {
         let mut css = String::new();
 
@@ -164,11 +165,11 @@ impl ResponsiveStyles {
                 css.push_str(&rules);
             } else {
                 css.push_str(&util::join!(
-                    "@media (min-width: ",
+                    "@media(min-width:",
                     min_width,
-                    ") { ",
+                    "){",
                     rules,
-                    " }"
+                    "}"
                 ));
             }
         }
@@ -176,8 +177,8 @@ impl ResponsiveStyles {
         html! { (PreEscaped(css)) }
     }
 
-    // Construye, concatenadas y sin separador, las reglas CSS (`.clases { propiedad: valor; ... }`)
-    // de todas las entradas del punto de corte indicado.
+    // Construye, concatenadas y sin separador, las reglas CSS (`.clases{propiedad:valor;...}`) de
+    // todas las entradas del punto de corte indicado.
     fn render_rules(&self, breakpoint: Option<Breakpoint>) -> String {
         let mut rules = String::new();
         for (_, classes, styles) in self
@@ -188,10 +189,10 @@ impl ResponsiveStyles {
             let selector = classes.replace(' ', ".");
             let declarations = styles
                 .iter()
-                .map(|(property, value)| util::join!(property.as_ref(), ": ", value.as_ref()))
+                .map(|(property, value)| util::join!(property.as_ref(), ":", value.as_ref()))
                 .collect::<Vec<_>>()
-                .join("; ");
-            rules.push_str(&util::join!(".", selector, " { ", declarations, " }"));
+                .join(";");
+            rules.push_str(&util::join!(".", selector, "{", declarations, "}"));
         }
         rules
     }

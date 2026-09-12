@@ -3,7 +3,7 @@ use crate::base::component::{Html, Intro, IntroOpening, layout};
 use crate::core::component::{ChildOp, Component, ComponentError, ComponentRender};
 use crate::core::component::{Context, Contextual};
 use crate::core::extension::Extension;
-use crate::core::theme::{Breakpoint, CoreRegions, Intent};
+use crate::core::theme::{Breakpoint, BreakpointEntry, CoreRegions, Intent};
 use crate::global;
 use crate::html::{Markup, html};
 use crate::locale::Lc;
@@ -65,31 +65,59 @@ pub trait Theme: Extension + Send + Sync {
         None
     }
 
-    /// Traduce un [`Breakpoint`] al punto de corte *responsive*, *mobile-first*, propio del tema.
+    /// Traduce un [`Breakpoint`] a su [`BreakpointEntry`] correspondiente, donde se asocia a cada
+    /// variante su nombre y ancho mínimo *responsive*, *mobile-first*, propios del tema.
     ///
-    /// `Breakpoint` no define ningún valor propio en píxeles. Será cada tema el que decida a qué
-    /// ancho corresponde cada variante como valor CSS ya formateado (p. ej. `"768px"`), listo para
-    /// aplicar en un `@media (min-width: ...)` sin ningún cálculo adicional. La cadena vacía (`""`)
-    /// indica que la variante no representa ningún ancho mínimo y se aplica siempre; es el caso de
-    /// `Xs`.
+    /// `Breakpoint` no define ningún nombre ni ancho mínimo propios. Será cada tema el que decida
+    /// cómo se llama cada variante y a qué ancho corresponde (p. ej. `"768px"`) para aplicar en un
+    /// `@media (min-width: ...)` sin ningún cálculo adicional. La cadena vacía (`""`) en
+    /// `min_width` indica que la variante no representa ningún ancho mínimo y se aplica siempre.
     ///
-    /// Normalmente, para resolver un ancho *responsive* no se llamará a este método directamente,
-    /// sino que se usará [`Breakpoint::min_width()`] a través de [`Context::theme()`].
+    /// **Temas sin puntos de corte.** Devolver `""` como ancho para una variante no la deshabilita,
+    /// de hecho la regla generada para ese punto de corte se sigue renderizando, pero sin incluirla
+    /// en un `@media` (ver [`ResponsiveStyles::render()`]). Por tanto, pasa a aplicarse siempre,
+    /// exactamente igual que si nunca se hubiera pedido ningún punto de corte. Un tema sin diseño
+    /// *responsive* puede traducir así todas las variantes a `""`; no por eso se vuelve un tema
+    /// "desktop-first", sino que cada punto de corte pedido pasa a aplicarse siempre, sin ninguna
+    /// condición de ancho.
     ///
+    /// **Temas con menos puntos de corte que variantes.** Dos variantes consecutivas que devuelvan
+    /// el mismo ancho no vacío se funden en la práctica: ambas generan un `@media (min-width: ...)`
+    /// idéntico, así que no hay forma de distinguir en CSS "a partir de `Md`" de "a partir de `Lg`"
+    /// si las dos resuelven, por ejemplo, a `"992px"`. Es la forma correcta de implementar menos
+    /// puntos de corte reales que las siete variantes de `Breakpoint`: repetir el mismo ancho en
+    /// las variantes consecutivas que no se quieran distinguir. Por ejemplo, un tema con tres
+    /// franjas reales (`Xs`, `Md`-`Lg` y `Xl`-`Xxl`-`Xxxl`) devolvería `""` para `Xs`, el mismo
+    /// ancho para `Md` y `Lg`, y otro ancho mayor, también repetido, para `Xl`, `Xxl` y `Xxxl`.
+    /// Para que el resultado siga siendo coherente, los anchos deben mantenerse no decrecientes en
+    /// el orden *mobile-first* (`Xs` a `Xxxl`); repetir un ancho en variantes no consecutivas, o no
+    /// ordenarlos de menor a mayor, produce puntos de corte confusos o contradictorios, aunque nada
+    /// en tiempo de compilación ni de ejecución lo impida.
+    ///
+    /// Normalmente, para resolver el nombre o el ancho *responsive* de un punto de corte no se
+    /// llamará a este método directamente, sino que se usarán [`Breakpoint::name()`] y
+    /// [`Breakpoint::min_width()`], respectivamente, a través de [`Context::theme()`].
+    ///
+    /// [`Breakpoint::name()`]: crate::core::theme::Breakpoint::name
     /// [`Breakpoint::min_width()`]: crate::core::theme::Breakpoint::min_width
     /// [`Context::theme()`]: crate::core::component::Context::theme
+    /// [`ResponsiveStyles::render()`]: crate::html::ResponsiveStyles::render
     #[rustfmt::skip]
-    fn breakpoint_min_width(&self, bp: Breakpoint) -> &'static str {
+    fn breakpoint_entry(&self, bp: Breakpoint) -> BreakpointEntry {
         if let Some(parent) = self.parent() {
-            return parent.breakpoint_min_width(bp);
+            return parent.breakpoint_entry(bp);
         }
+
+        use Breakpoint::*;
+
         match bp {
-            Breakpoint::Xs  => "",
-            Breakpoint::Sm  => "576px",
-            Breakpoint::Md  => "768px",
-            Breakpoint::Lg  => "992px",
-            Breakpoint::Xl  => "1200px",
-            Breakpoint::Xxl => "1400px",
+            Xs   => BreakpointEntry { breakpoint: Xs,   name: "xs",   min_width: ""       },
+            Sm   => BreakpointEntry { breakpoint: Sm,   name: "sm",   min_width: "576px"  },
+            Md   => BreakpointEntry { breakpoint: Md,   name: "md",   min_width: "768px"  },
+            Lg   => BreakpointEntry { breakpoint: Lg,   name: "lg",   min_width: "992px"  },
+            Xl   => BreakpointEntry { breakpoint: Xl,   name: "xl",   min_width: "1200px" },
+            Xxl  => BreakpointEntry { breakpoint: Xxl,  name: "xxl",  min_width: "1400px" },
+            Xxxl => BreakpointEntry { breakpoint: Xxxl, name: "xxxl", min_width: "1920px" },
         }
     }
 
