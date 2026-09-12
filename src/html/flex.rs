@@ -16,12 +16,12 @@
 //! manera independiente a cualquier tema o framework CSS. El nombre interno de cada clase se deriva
 //! de la propiedad y el valor que representa, así que dos elementos con la misma configuración
 //! comparten la misma regla en vez de duplicarla. Las declaraciones correspondientes se registran
-//! vía [`AssetsOp::AddResponsiveStyle`] y se renderizan como reglas en el `<head>` del documento.
-//! Funciona igual conviva con quien conviva en la misma página, sin necesidad de coordinar nombres
-//! de clase ni orden alguno en la carga de hojas de estilo.
+//! vía [`AssetsOp::add_responsive_style()`] y se renderizan como reglas en el `<head>` del
+//! documento. Funciona igual conviva con quien conviva en la misma página, sin necesidad de
+//! coordinar nombres de clase ni orden alguno en la carga de hojas de estilo.
 //!
 //! [Flexbox]: https://developer.mozilla.org/en-US/docs/Web/CSS/Guides/Flexible_box_layout
-//! [`AssetsOp::AddResponsiveStyle`]: crate::core::component::AssetsOp::AddResponsiveStyle
+//! [`AssetsOp::add_responsive_style()`]: crate::core::component::AssetsOp::add_responsive_style
 //! [`PropsOp::flex_item()`]: crate::html::props::PropsOp::flex_item
 //! [`Container`]: crate::base::component::Container
 //! [`Navbar`]: crate::base::component::Navbar
@@ -72,10 +72,10 @@ fn styles(
     }
     classes.push_str(&class);
 
-    cx.alter_assets(AssetsOp::AddResponsiveStyle(
+    cx.alter_assets(AssetsOp::add_responsive_style(
         entry.map(|e| e.breakpoint),
         class,
-        property.into(),
+        property,
         value,
     ));
 }

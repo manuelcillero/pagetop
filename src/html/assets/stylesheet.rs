@@ -1,23 +1,7 @@
 use crate::core::component::Context;
 use crate::html::assets::Asset;
-use crate::html::{Markup, PreEscaped, html};
+use crate::html::{Markup, html};
 use crate::{AutoDefault, CowStr, Weight, util};
-
-/// Define el origen del recurso CSS y cómo se incluye en el documento.
-///
-/// Los estilos pueden cargarse desde un archivo externo o estar embebidos directamente en una
-/// etiqueta `<style>`.
-///
-/// - [`From`] - Carga la hoja de estilos desde un archivo externo, insertándola mediante una
-///   etiqueta `<link>` con `rel="stylesheet"`.
-/// - [`Inline`] - Inserta directamente el contenido CSS dentro de una etiqueta `<style>`.
-#[derive(AutoDefault)]
-enum Source {
-    #[default]
-    From(CowStr),
-    /// `name`, `closure(&mut Context) -> String`.
-    Inline(CowStr, Box<dyn Fn(&mut Context) -> String + Send + Sync>),
-}
 
 /// Define el medio objetivo para una hoja de estilos.
 ///
@@ -50,9 +34,15 @@ impl TargetMedia {
 
 /// Define un recurso **StyleSheet** para incluir en un documento HTML.
 ///
-/// Este tipo permite incluir hojas de estilo CSS externas o embebidas, con soporte para medios
-/// específicos (`screen`, `print`, etc.) y [pesos](crate::Weight) que determinan el orden de
-/// inserción en el documento.
+/// Este tipo permite incluir hojas de estilo CSS externas, con soporte para medios específicos
+/// (`screen`, `print`, etc.) y [pesos](crate::Weight) que determinan el orden de inserción en el
+/// documento.
+///
+/// Para declarar estilos embebidos en el documento (sin un archivo CSS externo), usar
+/// [`AssetsOp::add_responsive_style()`](crate::core::component::AssetsOp::add_responsive_style) o
+/// [`AssetsOp::add_responsive_styles()`](crate::core::component::AssetsOp::add_responsive_styles),
+/// que asocian declaraciones de estilo `propiedad: valor` a una o varias clases CSS y las agrupan
+/// en un único `<style>` en el `<head>` del documento.
 ///
 /// > **Nota**
 /// > Las hojas de estilo CSS deben estar disponibles en el servidor web de la aplicación. Pueden
@@ -67,18 +57,10 @@ impl TargetMedia {
 ///     .with_version("2.0.1")
 ///     .for_media(TargetMedia::Screen)
 ///     .with_weight(-10);
-///
-/// // Crea una hoja de estilos embebida en el documento HTML.
-/// let embedded = StyleSheet::inline("custom_theme", |_| r#"
-///     body {
-///         background-color: #f5f5f5;
-///         font-family: 'Segoe UI', sans-serif;
-///     }
-/// "#.to_string());
 /// ```
 #[derive(AutoDefault)]
 pub struct StyleSheet {
-    source: Source,     // Fuente y modo de inclusión del CSS.
+    path: CowStr,       // Ruta del recurso CSS externo.
     version: CowStr,    // Versión del recurso para la caché del navegador.
     media: TargetMedia, // Medio objetivo para los estilos (`print`, `screen`, ...).
     weight: Weight,     // Peso que determina el orden.
@@ -90,23 +72,7 @@ impl StyleSheet {
     /// Equivale a `<link rel="stylesheet" href="...">`.
     pub fn from(path: impl Into<CowStr>) -> Self {
         Self {
-            source: Source::From(path.into()),
-            ..Default::default()
-        }
-    }
-
-    /// Crea una hoja de estilos embebida directamente en el documento HTML.
-    ///
-    /// Equivale a `<style>...</style>`. El parámetro `name` se usa como identificador interno del
-    /// recurso.
-    ///
-    /// Un closure recibirá el [`Context`] por si se necesita durante el renderizado.
-    pub fn inline<F>(name: impl Into<CowStr>, f: F) -> Self
-    where
-        F: Fn(&mut Context) -> String + Send + Sync + 'static,
-    {
-        Self {
-            source: Source::Inline(name.into(), Box::new(f)),
+            path: path.into(),
             ..Default::default()
         }
     }
@@ -147,14 +113,9 @@ impl StyleSheet {
 }
 
 impl Asset for StyleSheet {
-    /// Devuelve el nombre del recurso, utilizado como clave única.
-    ///
-    /// Para hojas de estilos externas es la ruta del recurso; para las embebidas, un identificador.
+    /// Devuelve la ruta del recurso, utilizada como clave única.
     fn name(&self) -> &str {
-        match &self.source {
-            Source::From(path) => path,
-            Source::Inline(name, _) => name,
-        }
+        &self.path
     }
 
     fn weight(&self) -> Weight {
@@ -163,17 +124,12 @@ impl Asset for StyleSheet {
 
     // **< StyleSheet RENDER >**********************************************************************
 
-    fn render(&self, cx: &mut Context) -> Markup {
-        match &self.source {
-            Source::From(path) => html! {
-                link
-                    rel="stylesheet"
-                    href=(util::join_pair!(path, "?v=", &self.version))
-                    media=[self.media.as_str()];
-            },
-            Source::Inline(_, f) => html! {
-                style { (PreEscaped((f)(cx))) };
-            },
+    fn render(&self, _cx: &mut Context) -> Markup {
+        html! {
+            link
+                rel="stylesheet"
+                href=(util::join_pair!(&self.path, "?v=", &self.version))
+                media=[self.media.as_str()];
         }
     }
 }

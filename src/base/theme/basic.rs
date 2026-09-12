@@ -14,28 +14,26 @@ impl Extension for Basic {
 #[async_trait]
 impl Theme for Basic {
     fn before_render_page_body(&self, page: &mut Page) {
-        page.alter_assets(AssetsOp::AddStyleSheet(
+        page.alter_assets(
             StyleSheet::from("/pagetop/css/normalize.css")
                 .with_version("8.0.1")
                 .with_weight(-99),
-        ))
-        .alter_assets(AssetsOp::AddStyleSheet(
+        )
+        .alter_assets(
             StyleSheet::from("/pagetop/css/basic.min.css")
                 .with_version(PAGETOP_VERSION)
                 .with_weight(-99),
-        ))
-        .alter_assets(AssetsOp::AddJavaScript(
-            JavaScript::defer("/pagetop/js/basic.menu.min.js").with_version("4.4.0"),
-        ))
-        .alter_assets(AssetsOp::AddJavaScript(
+        )
+        .alter_assets(JavaScript::defer("/pagetop/js/basic.menu.min.js").with_version("4.4.0"))
+        .alter_assets(
             JavaScript::defer("/pagetop/js/basic.dropdown.min.js").with_version(PAGETOP_VERSION),
-        ))
-        .alter_assets(AssetsOp::AddJavaScript(
+        )
+        .alter_assets(
             JavaScript::defer("/pagetop/js/basic.navbar.init.js").with_version(PAGETOP_VERSION),
-        ))
-        .alter_assets(AssetsOp::AddJavaScript(
+        )
+        .alter_assets(
             JavaScript::defer("/pagetop/js/basic.dialog.min.js").with_version(PAGETOP_VERSION),
-        ))
+        )
         .alter_child_in(
             &CoreRegions::Footer,
             ChildOp::AddIfEmpty(PoweredBy::new().into()),

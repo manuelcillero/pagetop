@@ -113,21 +113,21 @@ impl Extension for Aliner {
 #[async_trait]
 impl Theme for Aliner {
     fn before_render_page_body(&self, page: &mut Page) {
-        page.alter_assets(AssetsOp::AddStyleSheet(
+        page.alter_assets(
             StyleSheet::from("/pagetop/css/normalize.css")
                 .with_version("8.0.1")
                 .with_weight(-99),
-        ))
-        .alter_assets(AssetsOp::AddStyleSheet(
+        )
+        .alter_assets(
             StyleSheet::from("/pagetop/css/basic.css")
                 .with_version(PAGETOP_VERSION)
                 .with_weight(-99),
-        ))
-        .alter_assets(AssetsOp::AddStyleSheet(
+        )
+        .alter_assets(
             StyleSheet::from("/aliner/css/styles.css")
                 .with_version(env!("CARGO_PKG_VERSION"))
                 .with_weight(-99),
-        ))
+        )
         .alter_child_in(
             &CoreRegions::Footer,
             ChildOp::AddIfEmpty(PoweredBy::new().into()),

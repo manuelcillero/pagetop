@@ -41,11 +41,11 @@ async fn render_admin(cx: &mut Context) -> Markup {
     cx.alter_body_props(PropsOp::add_classes(
         "layout-fixed sidebar-expand-lg bg-body-tertiary",
     ));
-    cx.alter_assets(AssetsOp::AddJavaScript(
+    cx.alter_assets(
         JavaScript::defer("/bootsier/js/bootsier.shell.min.js")
             .with_version(ADMINLTE_VERSION)
             .with_weight(-88),
-    ));
+    );
     // `CoreRegions::Aside` es una región neutra del core: la usa `pagetop-admin` para su menú de
     // secciones sin que este tema tenga que depender de él. `BootsierRegions::Sidebar` sigue
     // disponible para que cualquier extensión añada elementos propios a mano.

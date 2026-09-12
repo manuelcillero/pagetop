@@ -23,7 +23,7 @@ enum DisplayFlex {
 ///
 /// Se resuelve como clases CSS generadas dinámicamente (`display`, `flex-direction`, `flex-wrap`,
 /// `justify-content`, `align-items`, `align-content`, `gap`), registradas vía
-/// [`AssetsOp::AddResponsiveStyle`] en [`ResponsiveStyles`] y renderizadas como reglas en el
+/// [`AssetsOp::add_responsive_style()`] en [`ResponsiveStyles`] y renderizadas como reglas en el
 /// `<head>` del documento. Son propiedades nativas que no requieren interpretación por parte de los
 /// temas, siempre funcionan igual, sin una sola línea de CSS ni de código específico.
 ///
@@ -32,7 +32,7 @@ enum DisplayFlex {
 /// regla generada en vez de duplicarla, y el nombre generado no coincide por accidente con clases
 /// de terceros.
 ///
-/// [`AssetsOp::AddResponsiveStyle`]: crate::core::component::AssetsOp::AddResponsiveStyle
+/// [`AssetsOp::add_responsive_style()`]: crate::core::component::AssetsOp::add_responsive_style
 /// [`ResponsiveStyles`]: crate::html::ResponsiveStyles
 ///
 /// # Ejemplo

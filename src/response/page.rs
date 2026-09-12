@@ -295,7 +295,7 @@ impl Contextual for Page {
         self
     }
 
-    fn with_assets(mut self, op: AssetsOp) -> Self {
+    fn with_assets(mut self, op: impl Into<AssetsOp>) -> Self {
         self.context.alter_assets(op);
         self
     }

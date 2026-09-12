@@ -178,42 +178,40 @@ impl Theme for Bootsier {
 
         // Las URLs de las fuentes deben coincidir exactamente con las declaradas en @font-face de
         // _bootsier-custom.scss; cualquier discrepancia hace que el navegador descargue dos veces.
-        page.alter_assets(AssetsOp::AddPreload(
-            Preload::font("/bootsier/fonts/bootsier.font.woff2").with_weight(-99),
-        ))
-        .alter_assets(AssetsOp::AddPreload(
-            Preload::font("/bootsier/fonts/bootsier.font.italic.woff2").with_weight(-99),
-        ))
-        .alter_assets(AssetsOp::AddStyleSheet(
-            StyleSheet::from("/bootsier/css/bootsier.min.css")
-                .with_version(ADMINLTE_VERSION)
-                .with_weight(-99),
-        ))
-        .alter_assets(AssetsOp::AddJavaScript(
-            JavaScript::defer("/bootsier/js/bootsier.bundle.min.js")
-                .with_version(BOOTSTRAP_VERSION)
-                .with_weight(-99),
-        ))
-        .alter_assets(AssetsOp::AddJavaScript(
-            JavaScript::defer("/bootsier/js/bootsier.extended.min.js")
-                .with_version(ADMINLTE_VERSION)
-                .with_weight(-99),
-        ))
-        .alter_assets(AssetsOp::AddJavaScript(
-            JavaScript::defer("/bootsier/js/bootsier.dialog.min.js")
-                .with_version(BOOTSTRAP_VERSION)
-                .with_weight(-99),
-        ))
-        .alter_assets(AssetsOp::AddJavaScript(
-            JavaScript::defer("/bootsier/js/bootsier.confirm.min.js")
-                .with_version(BOOTSTRAP_VERSION)
-                .with_weight(-99),
-        ))
-        .alter_body_props(PropsOp::set("data-confirm-ok", confirm_ok))
-        .alter_body_props(PropsOp::set("data-confirm-cancel", confirm_cancel))
-        .alter_child_in(
-            &CoreRegions::Footer,
-            ChildOp::AddIfEmpty(PoweredBy::new().into()),
-        );
+        page.alter_assets(Preload::font("/bootsier/fonts/bootsier.font.woff2").with_weight(-99))
+            .alter_assets(
+                Preload::font("/bootsier/fonts/bootsier.font.italic.woff2").with_weight(-99),
+            )
+            .alter_assets(
+                StyleSheet::from("/bootsier/css/bootsier.min.css")
+                    .with_version(ADMINLTE_VERSION)
+                    .with_weight(-99),
+            )
+            .alter_assets(
+                JavaScript::defer("/bootsier/js/bootsier.bundle.min.js")
+                    .with_version(BOOTSTRAP_VERSION)
+                    .with_weight(-99),
+            )
+            .alter_assets(
+                JavaScript::defer("/bootsier/js/bootsier.extended.min.js")
+                    .with_version(ADMINLTE_VERSION)
+                    .with_weight(-99),
+            )
+            .alter_assets(
+                JavaScript::defer("/bootsier/js/bootsier.dialog.min.js")
+                    .with_version(BOOTSTRAP_VERSION)
+                    .with_weight(-99),
+            )
+            .alter_assets(
+                JavaScript::defer("/bootsier/js/bootsier.confirm.min.js")
+                    .with_version(BOOTSTRAP_VERSION)
+                    .with_weight(-99),
+            )
+            .alter_body_props(PropsOp::set("data-confirm-ok", confirm_ok))
+            .alter_body_props(PropsOp::set("data-confirm-cancel", confirm_cancel))
+            .alter_child_in(
+                &CoreRegions::Footer,
+                ChildOp::AddIfEmpty(PoweredBy::new().into()),
+            );
     }
 }

@@ -154,7 +154,5 @@ impl Extension for Htmx {
 }
 
 fn add_htmx_script(page: &mut Page) {
-    page.alter_assets(AssetsOp::AddJavaScript(
-        JavaScript::defer("/htmx/js/htmx.min.js").with_version("2.0.10"),
-    ));
+    page.alter_assets(JavaScript::defer("/htmx/js/htmx.min.js").with_version("2.0.10"));
 }

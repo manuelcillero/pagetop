@@ -17,7 +17,8 @@ impl Extension for IntroFlex {
 
 async fn intro_flex(request: HttpRequest) -> Result<Markup, ErrorPage> {
     Page::new(request)
-        .with_assets(AssetsOp::AddStyleSheet(demo_styles()))
+        .with_assets(demo_box_styles())
+        .with_assets(demo_row_styles())
         .with_child(
             Intro::default()
                 .with_opening(IntroOpening::Custom)
@@ -478,32 +479,37 @@ fn other_block() -> Block {
 
 // **< HELPERS >************************************************************************************
 
-// Aspecto fijo de las cajas y filas de muestra.
-fn demo_styles() -> StyleSheet {
-    StyleSheet::inline("intro-flex", |_| {
-        util::indoc!(
-            r#"
-            .flex-demo-box {
-                background-color: #0d6efd;
-                color: #fff;
-                min-width: 3rem;
-                width: auto;
-                max-width: none;
-                margin: 0;
-                border-radius: 0.375rem;
-                text-align: center;
-            }
-            .flex-demo-row {
-                background-color: #f1f3f5;
-                width: 100%;
-                max-width: none;
-                margin: 0 0 1.5rem;
-                padding: 0.75rem;
-            }
-            "#
-        )
-        .to_string()
-    })
+// Aspecto fijo de las cajas de muestra.
+fn demo_box_styles() -> AssetsOp {
+    AssetsOp::add_responsive_styles(
+        None,
+        "flex-demo-box",
+        [
+            ("background-color", "#0d6efd"),
+            ("color", "#fff"),
+            ("min-width", "3rem"),
+            ("width", "auto"),
+            ("max-width", "none"),
+            ("margin", "0"),
+            ("border-radius", "0.375rem"),
+            ("text-align", "center"),
+        ],
+    )
+}
+
+// Aspecto fijo de las filas de muestra.
+fn demo_row_styles() -> AssetsOp {
+    AssetsOp::add_responsive_styles(
+        None,
+        "flex-demo-row",
+        [
+            ("background-color", "#f1f3f5"),
+            ("width", "100%"),
+            ("max-width", "none"),
+            ("margin", "0 0 1.5rem"),
+            ("padding", "0.75rem"),
+        ],
+    )
 }
 
 // Caja con fondo azul y relleno vertical configurable, para mostrar diferencias de altura.

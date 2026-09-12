@@ -378,7 +378,7 @@ impl Props {
 
     /// Devuelve el valor de la propiedad de estilo indicada, si existe.
     pub fn get_style(&self, property: impl AsRef<str>) -> Option<String> {
-        let property = property.as_ref().trim().to_ascii_lowercase();
+        let property = util::normalize_property(property)?;
         self.styles
             .iter()
             .find(|(k, _)| k.as_ref() == property)
@@ -639,10 +639,9 @@ impl Props {
     // la documentación de `PropsOp::AddStyle` sobre por qué los valores de estilo no se restringen
     // a ASCII.
     fn set_style(&mut self, property: &str, value: &str) {
-        let Some(property) = util::non_blank(property) else {
+        let Some(property) = util::normalize_property(property) else {
             return;
         };
-        let property = property.to_ascii_lowercase();
         let Some(value) = util::non_blank(value) else {
             return;
         };
@@ -703,8 +702,9 @@ impl Props {
 
     // Elimina la propiedad de estilo indicada, si existe.
     fn remove_style(&mut self, property: &str) {
-        let property = property.trim().to_ascii_lowercase();
-        self.styles.retain(|(k, _)| k.as_ref() != property);
+        if let Some(property) = util::normalize_property(property) {
+            self.styles.retain(|(k, _)| k.as_ref() != property);
+        };
     }
 }
 

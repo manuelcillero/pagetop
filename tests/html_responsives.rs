@@ -105,6 +105,75 @@ async fn add_style_ignores_non_ascii_classes() {
     assert!(r.is_empty());
 }
 
+// **< ResponsiveStyles::add_styles >***************************************************************
+
+#[pagetop::test]
+async fn add_styles_adds_multiple_declarations_in_order() {
+    let mut r = ResponsiveStyles::new();
+    r.add_styles(
+        Breakpoint::Md,
+        "col",
+        [("flex-basis", "50%"), ("margin-inline-start", "0")],
+    );
+    assert_eq!(
+        r.get_styles(Breakpoint::Md, "col"),
+        Some("flex-basis: 50%; margin-inline-start: 0".to_string())
+    );
+}
+
+#[pagetop::test]
+async fn add_styles_merges_into_an_entry_already_created_by_add_style() {
+    // The batch must reuse the entry created by a prior add_style() call, not duplicate it.
+    let mut r = ResponsiveStyles::new();
+    r.add_style(Breakpoint::Md, "col", "flex-basis", "50%");
+    r.add_styles(Breakpoint::Md, "col", [("margin-inline-start", "0")]);
+    assert_eq!(
+        r.get_styles(Breakpoint::Md, "col"),
+        Some("flex-basis: 50%; margin-inline-start: 0".to_string())
+    );
+}
+
+#[pagetop::test]
+async fn add_styles_keeps_first_value_when_property_repeats_within_the_batch() {
+    // Same first-write-wins rule as add_style(), applied within a single batch.
+    let mut r = ResponsiveStyles::new();
+    r.add_styles(
+        Breakpoint::Md,
+        "col",
+        [("flex-basis", "50%"), ("flex-basis", "33%")],
+    );
+    assert_eq!(
+        r.get_styles(Breakpoint::Md, "col"),
+        Some("flex-basis: 50%".to_string())
+    );
+}
+
+#[pagetop::test]
+async fn add_styles_empty_batch_leaves_no_trace() {
+    // A batch that yields no declarations must not create an empty entry.
+    let none: Vec<(&str, &str)> = Vec::new();
+    let mut r = ResponsiveStyles::new();
+    r.add_styles(Breakpoint::Md, "col", none);
+    assert!(r.is_empty());
+}
+
+#[pagetop::test]
+async fn add_styles_ignores_all_invalid_declarations_in_the_batch() {
+    // Same silent-discard rules as add_style(), so a batch with only invalid declarations must
+    // also leave no trace (no empty entry left behind).
+    let mut r = ResponsiveStyles::new();
+    r.add_styles(Breakpoint::Md, "col", [("", "50%"), ("flex-basis", "")]);
+    assert!(r.is_empty());
+}
+
+#[pagetop::test]
+async fn add_styles_ignores_empty_or_non_ascii_classes() {
+    let mut r = ResponsiveStyles::new();
+    r.add_styles(Breakpoint::Md, "", [("flex-basis", "50%")]);
+    r.add_styles(Breakpoint::Md, "cañón", [("flex-basis", "50%")]);
+    assert!(r.is_empty());
+}
+
 // **< Class normalization >************************************************************************
 
 #[pagetop::test]
@@ -355,11 +424,11 @@ async fn render_has_no_line_breaks() {
 
 #[pagetop::test]
 async fn context_add_responsive_style_feeds_responsives() {
-    let cx = Context::default().with_assets(AssetsOp::AddResponsiveStyle(
+    let cx = Context::default().with_assets(AssetsOp::add_responsive_style(
         Some(Breakpoint::Md),
-        "col".into(),
-        "flex-basis".into(),
-        "50%".into(),
+        "col",
+        "flex-basis",
+        "50%",
     ));
     assert_eq!(
         cx.responsive_styles().get_styles(Breakpoint::Md, "col"),
@@ -370,18 +439,31 @@ async fn context_add_responsive_style_feeds_responsives() {
 #[pagetop::test]
 async fn context_add_responsive_style_accumulates_across_calls() {
     let cx = Context::default()
-        .with_assets(AssetsOp::AddResponsiveStyle(
+        .with_assets(AssetsOp::add_responsive_style(
             Some(Breakpoint::Md),
-            "col".into(),
-            "flex-basis".into(),
-            "50%".into(),
+            "col",
+            "flex-basis",
+            "50%",
         ))
-        .with_assets(AssetsOp::AddResponsiveStyle(
+        .with_assets(AssetsOp::add_responsive_style(
             Some(Breakpoint::Md),
-            "col".into(),
-            "margin-inline-start".into(),
-            "0".into(),
+            "col",
+            "margin-inline-start",
+            "0",
         ));
+    assert_eq!(
+        cx.responsive_styles().get_styles(Breakpoint::Md, "col"),
+        Some("flex-basis: 50%; margin-inline-start: 0".to_string())
+    );
+}
+
+#[pagetop::test]
+async fn context_add_responsive_styles_feeds_responsives() {
+    let cx = Context::default().with_assets(AssetsOp::add_responsive_styles(
+        Some(Breakpoint::Md),
+        "col",
+        [("flex-basis", "50%"), ("margin-inline-start", "0")],
+    ));
     assert_eq!(
         cx.responsive_styles().get_styles(Breakpoint::Md, "col"),
         Some("flex-basis: 50%; margin-inline-start: 0".to_string())
@@ -397,11 +479,11 @@ async fn context_default_has_no_responsive_styles() {
 
 #[pagetop::test]
 async fn render_assets_includes_style_tag_with_responsive_styles() {
-    let mut cx = Context::default().with_assets(AssetsOp::AddResponsiveStyle(
+    let mut cx = Context::default().with_assets(AssetsOp::add_responsive_style(
         Some(Breakpoint::Xs),
-        "col".into(),
-        "flex-basis".into(),
-        "100%".into(),
+        "col",
+        "flex-basis",
+        "100%",
     ));
     assert_eq!(
         cx.render_assets().into_string(),

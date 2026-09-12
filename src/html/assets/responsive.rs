@@ -19,9 +19,9 @@ type Entry = (Option<Breakpoint>, CowStr, Vec<(CowStr, CowStr)>);
 /// El punto de corte es opcional, donde `None` declara una regla siempre activa, sin pasar por el
 /// tema ni depender de que resuelva algún [`Breakpoint`]. No ordena ni combina las clases de dos
 /// llamadas que las declaren en distinto orden (por ejemplo, `"foo bar"` y `"bar foo"` generan dos
-/// entradas distintas). La llamada es a través de [`AssetsOp::AddResponsiveStyle`].
+/// entradas distintas). La llamada es a través de [`AssetsOp::add_responsive_style()`].
 ///
-/// [`AssetsOp::AddResponsiveStyle`]: crate::core::component::AssetsOp::AddResponsiveStyle
+/// [`AssetsOp::add_responsive_style()`]: crate::core::component::AssetsOp::add_responsive_style
 #[derive(AutoDefault, Clone, Debug)]
 pub struct ResponsiveStyles(Vec<Entry>);
 
@@ -50,48 +50,92 @@ impl ResponsiveStyles {
         value: impl AsRef<str>,
     ) {
         let breakpoint = breakpoint.into();
-
-        let Some(classes) = util::normalize_ascii(classes.as_ref()) else {
+        let Some(classes) = Self::normalize_classes(classes.as_ref()) else {
             return;
         };
-        if classes.is_empty() {
-            return;
-        }
-        let classes: CowStr = classes.into_owned().into();
-
-        let property_norm = property.as_ref().trim().to_ascii_lowercase();
-        if property_norm.is_empty() {
-            return;
-        }
-        let property: CowStr = property_norm.into();
 
         match self
             .0
             .iter_mut()
             .find(|(bp, cls, _)| *bp == breakpoint && *cls == classes)
         {
-            Some((_, _, styles)) => {
-                // Ya declarada: se descarta sin normalizar `value`, el camino habitual (y que debe
-                // ser barato) cuando muchos componentes comparten la misma clase utilitaria.
-                if styles.iter().any(|(k, _)| *k == property) {
-                    return;
-                }
-                let Some(value) = util::non_blank(value.as_ref()) else {
-                    return;
-                };
-                styles.push((property, value.to_string().into()));
-            }
+            Some((_, _, styles)) => Self::insert_style(styles, property.as_ref(), value.as_ref()),
             None => {
-                let Some(value) = util::non_blank(value.as_ref()) else {
-                    return;
-                };
-                self.0.push((
-                    breakpoint,
-                    classes,
-                    vec![(property, value.to_string().into())],
-                ));
+                let mut styles = Vec::new();
+                Self::insert_style(&mut styles, property.as_ref(), value.as_ref());
+                if !styles.is_empty() {
+                    self.0.push((breakpoint, classes, styles));
+                }
             }
         }
+    }
+
+    /// Añade varias declaraciones de estilo (`property: value`) para las clases indicadas, dentro
+    /// del punto de corte dado, en una única llamada.
+    ///
+    /// Equivale a invocar [`add_style()`](Self::add_style) una vez por cada par `(property,
+    /// value)` de `styles`, con las mismas reglas de normalización y de descarte silencioso, pero
+    /// normalizando `classes` y localizando la entrada una sola vez para todo el lote.
+    pub fn add_styles(
+        &mut self,
+        breakpoint: impl Into<Option<Breakpoint>>,
+        classes: impl AsRef<str>,
+        styles: impl IntoIterator<Item = (impl AsRef<str>, impl AsRef<str>)>,
+    ) {
+        let breakpoint = breakpoint.into();
+        let Some(classes) = Self::normalize_classes(classes.as_ref()) else {
+            return;
+        };
+
+        match self
+            .0
+            .iter_mut()
+            .find(|(bp, cls, _)| *bp == breakpoint && *cls == classes)
+        {
+            Some((_, _, existing)) => {
+                for (property, value) in styles {
+                    Self::insert_style(existing, property.as_ref(), value.as_ref());
+                }
+            }
+            None => {
+                let mut new_styles = Vec::new();
+                for (property, value) in styles {
+                    Self::insert_style(&mut new_styles, property.as_ref(), value.as_ref());
+                }
+                if !new_styles.is_empty() {
+                    self.0.push((breakpoint, classes, new_styles));
+                }
+            }
+        }
+    }
+
+    // Normaliza `classes` para usarla como clave de entrada. Devuelve `None` si contiene caracteres
+    // no ASCII o si el resultado queda vacío tras recortar espacios. Compartida por `add_style()`,
+    // `add_styles()` y `entry()`.
+    fn normalize_classes(classes: &str) -> Option<CowStr> {
+        let classes = util::normalize_ascii(classes)?;
+        if classes.is_empty() {
+            return None;
+        }
+        Some(classes.into_owned().into())
+    }
+
+    // Inserta una declaración (`property: value`) en la lista de destino, ya localizada por el
+    // llamador. Aplica las mismas reglas que `add_style()`: normaliza `property`, descarta si ya
+    // existe una declaración para esa propiedad (sin normalizar `value`, el camino barato cuando
+    // muchos componentes comparten la misma clase utilitaria) y descarta si `property` o `value`
+    // quedan vacíos tras recortar espacios.
+    fn insert_style(styles: &mut Vec<(CowStr, CowStr)>, property: &str, value: &str) {
+        let Some(property) = util::normalize_property(property) else {
+            return;
+        };
+        if styles.iter().any(|(k, _)| k.as_ref() == property) {
+            return;
+        }
+        let Some(value) = util::non_blank(value) else {
+            return;
+        };
+        styles.push((property.into(), value.to_string().into()));
     }
 
     // **< ResponsiveStyles GETTERS >***************************************************************
@@ -105,7 +149,7 @@ impl ResponsiveStyles {
         property: impl AsRef<str>,
     ) -> Option<String> {
         let styles = self.entry(breakpoint.into(), classes.as_ref())?;
-        let property = property.as_ref().trim().to_ascii_lowercase();
+        let property = util::normalize_property(property)?;
         styles
             .iter()
             .find(|(k, _)| k.as_ref() == property)
@@ -197,20 +241,17 @@ impl ResponsiveStyles {
         rules
     }
 
-    // Normaliza `classes` igual que `add_style()` y busca las declaraciones de la entrada
-    // correspondiente al punto de corte y las clases dados.
+    // Normaliza `classes` y busca las declaraciones de la entrada correspondiente al punto de corte
+    // y las clases dados.
     fn entry(
         &self,
         breakpoint: Option<Breakpoint>,
         classes: &str,
     ) -> Option<&Vec<(CowStr, CowStr)>> {
-        let classes = util::normalize_ascii(classes)?;
-        if classes.is_empty() {
-            return None;
-        }
+        let classes = Self::normalize_classes(classes)?;
         self.0
             .iter()
-            .find(|(bp, cls, _)| *bp == breakpoint && cls.as_ref() == classes.as_ref())
+            .find(|(bp, cls, _)| *bp == breakpoint && *cls == classes)
             .map(|(_, _, styles)| styles)
     }
 }

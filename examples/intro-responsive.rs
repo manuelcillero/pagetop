@@ -17,7 +17,9 @@ impl Extension for IntroResponsive {
 
 async fn intro_responsive(request: HttpRequest) -> Result<Markup, ErrorPage> {
     Page::new(request)
-        .with_assets(AssetsOp::AddStyleSheet(demo_styles()))
+        .with_assets(demo_box_styles())
+        .with_assets(demo_row_styles())
+        .with_assets(demo_code_styles())
         .with_child(
             Intro::default()
                 .with_opening(IntroOpening::Custom)
@@ -189,35 +191,42 @@ fn gap_grow_block() -> Block {
 
 // **< HELPERS >************************************************************************************
 
-// Aspecto fijo de las cajas y filas de muestra.
-fn demo_styles() -> StyleSheet {
-    StyleSheet::inline("intro-responsive", |_| {
-        util::indoc!(
-            r#"
-            .flex-demo-box {
-                background-color: #0d6efd;
-                color: #fff;
-                min-width: 3rem;
-                width: auto;
-                max-width: none;
-                margin: 0;
-                border-radius: 0.375rem;
-                text-align: center;
-            }
-            .flex-demo-row {
-                background-color: #f1f3f5;
-                width: 100%;
-                max-width: none;
-                margin: 0 0 1.5rem;
-                padding: 0.75rem;
-            }
-            code {
-                overflow-wrap: anywhere;
-            }
-            "#
-        )
-        .to_string()
-    })
+// Aspecto fijo de las cajas de muestra.
+fn demo_box_styles() -> AssetsOp {
+    AssetsOp::add_responsive_styles(
+        None,
+        "flex-demo-box",
+        [
+            ("background-color", "#0d6efd"),
+            ("color", "#fff"),
+            ("min-width", "3rem"),
+            ("width", "auto"),
+            ("max-width", "none"),
+            ("margin", "0"),
+            ("border-radius", "0.375rem"),
+            ("text-align", "center"),
+        ],
+    )
+}
+
+// Aspecto fijo de las filas de muestra.
+fn demo_row_styles() -> AssetsOp {
+    AssetsOp::add_responsive_styles(
+        None,
+        "flex-demo-row",
+        [
+            ("background-color", "#f1f3f5"),
+            ("width", "100%"),
+            ("max-width", "none"),
+            ("margin", "0 0 1.5rem"),
+            ("padding", "0.75rem"),
+        ],
+    )
+}
+
+// Evita que los fragmentos de código largos desborden su contenedor.
+fn demo_code_styles() -> AssetsOp {
+    AssetsOp::add_responsive_styles(None, "flex-demo-code", [("overflow-wrap", "anywhere")])
 }
 
 // Caja con fondo azul y relleno vertical configurable, para mostrar diferencias de altura.
@@ -250,7 +259,7 @@ fn caption(title: Lc, code: Lc) -> Html {
     Html::with(move |cx| {
         html! {
             h3 { (title.using(cx)) }
-            p { code { (code.using(cx)) } }
+            p { code class="flex-demo-code" { (code.using(cx)) } }
         }
     })
 }

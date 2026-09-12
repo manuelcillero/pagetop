@@ -212,6 +212,20 @@ pub fn normalize_ascii(input: &str) -> Option<Cow<'_, str>> {
     }
 }
 
+/// Recorta espacios y pasa a minúsculas el nombre de una propiedad, tratando el resultado vacío
+/// como ausencia.
+///
+/// # Ejemplo
+///
+/// ```rust
+/// # use pagetop::util;
+/// assert_eq!(util::normalize_property("  Flex-Basis  "), Some("flex-basis".to_string()));
+/// assert_eq!(util::normalize_property("   "), None);
+/// ```
+pub fn normalize_property(property: impl AsRef<str>) -> Option<String> {
+    non_blank(property.as_ref()).map(str::to_ascii_lowercase)
+}
+
 /// Recorta espacios, convierte una cadena vacía en `None` y normaliza el resto.
 ///
 /// Convierte en un único token: en minúsculas y con cada espacio en blanco sustituido por `_`.

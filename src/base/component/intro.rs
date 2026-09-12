@@ -114,11 +114,9 @@ impl Component for Intro {
     }
 
     async fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
-        cx.alter_assets(AssetsOp::AddStyleSheet(
-            StyleSheet::from("/pagetop/css/intro.css").with_version(PAGETOP_VERSION),
-        ));
+        cx.alter_assets(StyleSheet::from("/pagetop/css/intro.css").with_version(PAGETOP_VERSION));
         if *self.opening() == IntroOpening::PageTop {
-            cx.alter_assets(AssetsOp::AddJavaScript(JavaScript::on_load_async("intro-js", |cx|
+            cx.alter_assets(JavaScript::on_load_async("intro-js", |cx|
                 util::indoc!(r#"
                 try {
                     const resp = await fetch("https://crates.io/api/v1/crates/pagetop");
@@ -134,7 +132,7 @@ impl Component for Intro {
                 "#)
                 .replace("LANGID", cx.langid().to_string().as_str())
                 .replace("LABEL", Lc::l("intro_release_label").using(cx).as_str())
-            )));
+            ));
         }
 
         Ok(html! {
