@@ -66,9 +66,8 @@ fn padding_block() -> Block {
         block = block
             .with_child(caption(Lc::t(title_key, &LOC), Lc::n(code)))
             .with_child(
-                demo_row(Flex::new().with_gap(flex::Gap::Both(UnitValue::RelRem(0.5)))).with_child(
-                    demo_box(box_sample()).with_prop(Padding::new().with_all(size).into()),
-                ),
+                demo_row(Flex::new().with_gap(flex::Gap::Both(UnitValue::RelRem(0.5))))
+                    .with_child(demo_box(box_sample()).with_prop(Padding::new().with_all(size))),
             );
     }
 
@@ -90,8 +89,7 @@ fn padding_block() -> Block {
                         .with_top(UnitValue::RelRem(0.25))
                         .with_end(UnitValue::RelRem(2.5))
                         .with_bottom(UnitValue::RelRem(1.5))
-                        .with_start(UnitValue::RelRem(0.5))
-                        .into(),
+                        .with_start(UnitValue::RelRem(0.5)),
                 ),
             ),
         )
@@ -108,8 +106,7 @@ fn layout_block() -> Block {
             demo_row(Flex::new())
                 .with_child(demo_box(box_sample()))
                 .with_child(
-                    demo_box(box_sample())
-                        .with_prop(Margin::new().with_x(UnitValue::RelRem(1.0)).into()),
+                    demo_box(box_sample()).with_prop(Margin::new().with_x(UnitValue::RelRem(1.0))),
                 )
                 .with_child(demo_box(box_sample())),
         )
@@ -120,10 +117,10 @@ fn layout_block() -> Block {
         .with_child(
             demo_row(Flex::new()).with_child(
                 demo_box(box_sample())
-                    .with_prop(Margin::new().with_x(UnitValue::Auto).into())
-                    .with_prop(PropsOp::flex_item(
+                    .with_prop(Margin::new().with_x(UnitValue::Auto))
+                    .with_prop(
                         FlexItem::new().with_size(flex::ItemSize::Custom(UnitValue::RelRem(8.0))),
-                    )),
+                    ),
             ),
         )
 }
@@ -146,8 +143,7 @@ fn responsive_block() -> Block {
                     Padding::new()
                         .with_all(UnitValue::RelRem(0.5))
                         .with_all_at(Breakpoint::Md, UnitValue::RelRem(2.0))
-                        .with_all_at(Breakpoint::Lg, UnitValue::RelRem(4.0))
-                        .into(),
+                        .with_all_at(Breakpoint::Lg, UnitValue::RelRem(4.0)),
                 ),
             ),
         )
@@ -160,16 +156,16 @@ fn combined_block() -> Block {
             Lc::t("spacing_title_combined", &LOC),
             Lc::n(concat!(
                 "Container::new()",
-                ".with_prop(Margin::new().with_y(UnitValue::RelRem(1.0)).into())",
-                ".with_prop(Padding::new().with_all(UnitValue::RelRem(1.5)).into())",
+                ".with_prop(Margin::new().with_y(UnitValue::RelRem(1.0)))",
+                ".with_prop(Padding::new().with_all(UnitValue::RelRem(1.5)))",
             )),
         ))
         .with_child(
             demo_row(Flex::new()).with_child(
                 Container::new()
                     .with_prop(PropsOp::add_classes("spacing-demo-box"))
-                    .with_prop(Margin::new().with_y(UnitValue::RelRem(1.0)).into())
-                    .with_prop(Padding::new().with_all(UnitValue::RelRem(1.5)).into())
+                    .with_prop(Margin::new().with_y(UnitValue::RelRem(1.0)))
+                    .with_prop(Padding::new().with_all(UnitValue::RelRem(1.5)))
                     .with_child(
                         Button::plain(Lc::t("spacing_box_card_button", &LOC))
                             .with_style(button::Style::Solid(Intent::Warning)),

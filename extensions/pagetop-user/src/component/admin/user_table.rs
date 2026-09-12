@@ -104,7 +104,7 @@ impl Component for UserTable {
 impl UserTable {
     // **< UserTable BUILDER >**********************************************************************
 
-    pub(crate) fn with_prop(mut self, op: PropsOp) -> Self {
+    pub(crate) fn with_prop(mut self, op: impl Into<PropsOp>) -> Self {
         self.props.alter_prop(op);
         self
     }

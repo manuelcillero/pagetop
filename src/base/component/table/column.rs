@@ -46,7 +46,7 @@ impl Column {
     }
 
     /// Modifica identificador, clases CSS o atributos HTML de la columna.
-    pub fn with_prop(mut self, op: PropsOp) -> Self {
+    pub fn with_prop(mut self, op: impl Into<PropsOp>) -> Self {
         self.props.alter_prop(op);
         self
     }

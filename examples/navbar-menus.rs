@@ -83,7 +83,7 @@ impl Extension for SuperMenu {
             .with_item(bs::navbar::Item::nav(
                 bs::Nav::new()
                     // Empuja este menú (y lo que le siga) al extremo final de la barra.
-                    .with_prop(FlexItem::push_end().into())
+                    .with_prop(FlexItem::push_end())
                     .with_item(bs::nav::Item::link(
                         Lc::t("menus_item_sign_up", &LOC),
                         "/auth/sign-up",

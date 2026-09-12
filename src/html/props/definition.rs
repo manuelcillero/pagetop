@@ -177,7 +177,7 @@ use std::panic::Location;
 /// #[builder_impl]
 /// impl MyButton {
 ///     /// Modifica identificador, clases CSS, atributos HTML o valores extra del componente.
-///     pub fn with_prop(mut self, op: PropsOp) -> Self {
+///     pub fn with_prop(mut self, op: impl Into<PropsOp>) -> Self {
 ///         self.props.alter_prop(op);
 ///         self
 ///     }
@@ -218,9 +218,10 @@ impl Props {
     /// Modifica el identificador, las clases, los atributos o los valores extra según la operación
     /// indicada, incluido el posicionamiento Flexbox y el espaciado (`FlexItem`, `Margin`,
     /// `Padding`). El método recomendado para construir cada operación es usar los constructores de
-    /// [`PropsOp`].
-    pub fn with_prop(mut self, op: PropsOp) -> Self {
-        match op {
+    /// [`PropsOp`], aunque `FlexItem`, `Margin` y `Padding` pueden pasarse directamente gracias a
+    /// sus `From` hacia `PropsOp`.
+    pub fn with_prop(mut self, op: impl Into<PropsOp>) -> Self {
+        match op.into() {
             PropsOp::SetId(value) => {
                 self.apply_id(value.as_ref());
             }

@@ -14,8 +14,8 @@ use crate::{AutoDefault, Getters, builder_impl, util};
 ///
 /// No tiene un builder dedicado en ningún componente. De hecho, no tendría sentido porque cualquier
 /// componente puede acabar siendo hijo de un contenedor flex, y ninguno debería necesitar un campo
-/// propio para esto. Se aplica con [`PropsOp::flex_item()`] sobre el `with_prop()` que suele
-/// exponer cualquier componente.
+/// propio para esto. Se aplica sobre el `with_prop()` que suele exponer cualquier componente, que
+/// acepta `FlexItem` directamente gracias a su `From` hacia [`PropsOp`].
 ///
 /// Con [`ItemSize`] y [`ItemOffset`] se pueden modelar rejillas de columnas fijas sobre Flexbox,
 /// combinando un tamaño en fracción del contenedor con un desplazamiento lateral cuando se
@@ -27,18 +27,18 @@ use crate::{AutoDefault, Getters, builder_impl, util};
 /// use pagetop::prelude::*;
 ///
 /// // Crece para ocupar el espacio sobrante, partiendo de ancho cero.
-/// let panel = Button::plain(Lc::n("Panel")).with_prop(PropsOp::flex_item(
+/// let panel = Button::plain(Lc::n("Panel")).with_prop(
 ///     FlexItem::new()
 ///         .with_grow(flex::ItemGrow::Is1)
 ///         .with_size(flex::ItemSize::Custom(UnitValue::Zero)),
-/// ));
+/// );
 ///
 /// // Ocupa un tercio del ancho del contenedor, desplazado otro tercio desde el inicio.
-/// let column = Container::new().with_prop(PropsOp::flex_item(
+/// let column = Container::new().with_prop(
 ///     FlexItem::new()
 ///         .with_size(flex::ItemSize::Percent33)
 ///         .with_offset(flex::ItemOffset::Percent33),
-/// ));
+/// );
 /// ```
 #[derive(AutoDefault, Clone, Copy, Debug, PartialEq, Getters)]
 pub struct FlexItem {
@@ -89,7 +89,7 @@ impl FlexItem {
     /// use pagetop::prelude::*;
     ///
     /// let user_menu = Nav::new()
-    ///     .with_prop(FlexItem::push_end().into())
+    ///     .with_prop(FlexItem::push_end())
     ///     .with_item(nav::Item::link(Lc::n("Profile"), "/profile"))
     ///     .with_item(nav::Item::link(Lc::n("Sign out"), "/sign-out"));
     /// ```

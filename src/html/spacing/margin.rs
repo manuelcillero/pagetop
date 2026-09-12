@@ -6,8 +6,8 @@ use crate::{AutoDefault, Getters, builder_impl, util};
 
 /// Configuración de márgenes externos por lado lógico y punto de corte.
 ///
-/// No tiene relación con Flexbox. Se aplica sobre cualquier componente, con [`PropsOp::margin()`]
-/// desde el `with_prop()` que suele exponer cualquier componente.
+/// No tiene relación con Flexbox. Se aplica sobre cualquier componente, pasándolo directamente al
+/// `with_prop()` que suele exponer cualquier componente, gracias a su `From` hacia [`PropsOp`].
 ///
 /// Cada lado admite cualquier [`UnitValue`], incluido [`UnitValue::Auto`] (por ejemplo, para
 /// centrar un bloque con `margin-inline: auto`). Los lados lógicos `start`/`end` se traducen a
@@ -19,11 +19,11 @@ use crate::{AutoDefault, Getters, builder_impl, util};
 /// use pagetop::prelude::*;
 ///
 /// // Centra el bloque horizontalmente y añade espacio inferior.
-/// let panel = Container::new().with_prop(PropsOp::margin(
+/// let panel = Container::new().with_prop(
 ///     Margin::new()
 ///         .with_x(UnitValue::Auto)
 ///         .with_bottom(UnitValue::RelRem(1.5)),
-/// ));
+/// );
 /// ```
 ///
 /// [`Flex`]: crate::html::flex::Flex

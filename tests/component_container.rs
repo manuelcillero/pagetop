@@ -176,9 +176,7 @@ async fn flex_and_flex_item_classes_keep_their_order() {
     let mut container = Container::new()
         .with_prop(PropsOp::add_classes("own"))
         .with_flex(Flex::new().with_direction(flex::Direction::Column))
-        .with_prop(PropsOp::flex_item(
-            FlexItem::new().with_grow(flex::ItemGrow::Is1),
-        ))
+        .with_prop(FlexItem::new().with_grow(flex::ItemGrow::Is1))
         .with_child(Lc::n("x"));
     let html = container.render(&mut cx).await.into_string();
 

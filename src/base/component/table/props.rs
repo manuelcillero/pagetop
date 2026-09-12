@@ -66,7 +66,7 @@ impl SortLink {
 
     /// Modifica los atributos HTML del enlace. Es el punto de extensión para añadir atributos de
     /// interactividad sin que `Table` necesite conocerlos.
-    pub fn with_prop(mut self, op: PropsOp) -> Self {
+    pub fn with_prop(mut self, op: impl Into<PropsOp>) -> Self {
         self.props.alter_prop(op);
         self
     }

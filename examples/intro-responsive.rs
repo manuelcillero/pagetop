@@ -92,12 +92,12 @@ fn grid_block() -> Block {
         row = row.with_child(
             Container::new()
                 .with_prop(PropsOp::add_style("padding", "0.25rem"))
-                .with_prop(PropsOp::flex_item(
+                .with_prop(
                     FlexItem::new()
                         .with_size(flex::ItemSize::Percent100)
                         .with_size_at(Breakpoint::Sm, flex::ItemSize::Percent50)
                         .with_size_at(Breakpoint::Md, flex::ItemSize::Percent33),
-                ))
+                )
                 .with_child(demo_box(card_label(n))),
         );
     }
@@ -154,9 +154,7 @@ fn order_block() -> Block {
             demo_row(Flex::at(Breakpoint::Lg).with_gap(flex::Gap::Both(UnitValue::RelRem(0.5))))
                 .with_child(demo_box(Lc::t("responsive_box_content", &LOC)))
                 .with_child(demo_box(Lc::t("responsive_box_sidebar", &LOC)).with_prop(
-                    PropsOp::flex_item(
-                        FlexItem::new().with_order_at(Breakpoint::Lg, flex::ItemOrder::First),
-                    ),
+                    FlexItem::new().with_order_at(Breakpoint::Lg, flex::ItemOrder::First),
                 )),
         )
 }
@@ -181,11 +179,10 @@ fn gap_grow_block() -> Block {
             )
             .with_child(demo_box(Lc::t("responsive_box_file", &LOC)))
             .with_child(demo_box(Lc::t("responsive_box_edit", &LOC)))
-            .with_child(demo_box(Lc::t("responsive_box_search", &LOC)).with_prop(
-                PropsOp::flex_item(
-                    FlexItem::new().with_grow_at(Breakpoint::Md, flex::ItemGrow::Is1),
-                ),
-            )),
+            .with_child(
+                demo_box(Lc::t("responsive_box_search", &LOC))
+                    .with_prop(FlexItem::new().with_grow_at(Breakpoint::Md, flex::ItemGrow::Is1)),
+            ),
         )
 }
 

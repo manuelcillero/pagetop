@@ -217,9 +217,9 @@ fn align_self_block() -> Block {
                         .with_gap(flex::Gap::Both(UnitValue::RelRem(0.5))),
                 )
                 .with_child(sized_box(Lc::t("flex_box_tall", &LOC), "2.5rem 1rem"))
-                .with_child(demo_box(flex_item("1")).with_prop(PropsOp::flex_item(
-                    FlexItem::new().with_align_self(align_self),
-                )))
+                .with_child(
+                    demo_box(flex_item("1")).with_prop(FlexItem::new().with_align_self(align_self)),
+                )
                 .with_child(sized_box(Lc::t("flex_box_tall", &LOC), "2.5rem 1rem")),
             );
     }
@@ -238,9 +238,10 @@ fn align_self_block() -> Block {
                 sized_box(Lc::t("flex_box_tall", &LOC), "2.5rem 1rem")
                     .with_prop(PropsOp::add_style("font-size", "1.75rem")),
             )
-            .with_child(demo_box(flex_item("1")).with_prop(PropsOp::flex_item(
-                FlexItem::new().with_align_self(flex::ItemAlign::Baseline),
-            )))
+            .with_child(
+                demo_box(flex_item("1"))
+                    .with_prop(FlexItem::new().with_align_self(flex::ItemAlign::Baseline)),
+            )
             .with_child(sized_box(Lc::t("flex_box_tall", &LOC), "2.5rem 1rem")),
         )
 }
@@ -318,9 +319,8 @@ fn grow_shrink_block() -> Block {
             demo_row(Flex::new().with_gap(flex::Gap::Both(UnitValue::RelRem(0.5))))
                 .with_child(demo_box(Lc::t("flex_box_fixed", &LOC)))
                 .with_child(
-                    demo_box(Lc::t("flex_box_grows", &LOC)).with_prop(PropsOp::flex_item(
-                        FlexItem::new().with_grow(flex::ItemGrow::Is1),
-                    )),
+                    demo_box(Lc::t("flex_box_grows", &LOC))
+                        .with_prop(FlexItem::new().with_grow(flex::ItemGrow::Is1)),
                 )
                 .with_child(demo_box(Lc::t("flex_box_fixed", &LOC))),
         )
@@ -337,9 +337,7 @@ fn grow_shrink_block() -> Block {
                 .with_child(
                     demo_box(flex_item("2"))
                         .with_prop(PropsOp::add_style("width", "10.5rem"))
-                        .with_prop(PropsOp::flex_item(
-                            FlexItem::new().with_shrink(flex::ItemShrink::Is0),
-                        )),
+                        .with_prop(FlexItem::new().with_shrink(flex::ItemShrink::Is0)),
                 )
                 .with_child(
                     demo_box(flex_item("3")).with_prop(PropsOp::add_style("width", "10.5rem")),
@@ -359,9 +357,7 @@ fn other_block() -> Block {
             demo_row(Flex::new().with_gap(flex::Gap::Both(UnitValue::RelRem(0.5))))
                 .with_child(demo_box(Lc::t("flex_box_start_1", &LOC)))
                 .with_child(demo_box(Lc::t("flex_box_start_2", &LOC)))
-                .with_child(
-                    demo_box(Lc::t("flex_box_end", &LOC)).with_prop(FlexItem::push_end().into()),
-                ),
+                .with_child(demo_box(Lc::t("flex_box_end", &LOC)).with_prop(FlexItem::push_end())),
         );
 
     let mut wrap_row = demo_row(
@@ -394,15 +390,17 @@ fn other_block() -> Block {
         ))
         .with_child(
             demo_row(Flex::new().with_gap(flex::Gap::Both(UnitValue::RelRem(0.5))))
-                .with_child(demo_box(Lc::n("A")).with_prop(PropsOp::flex_item(
-                    FlexItem::new().with_order(flex::ItemOrder::Last),
-                )))
+                .with_child(
+                    demo_box(Lc::n("A"))
+                        .with_prop(FlexItem::new().with_order(flex::ItemOrder::Last)),
+                )
                 .with_child(demo_box(Lc::n("B")))
                 .with_child(demo_box(Lc::n("C")))
                 .with_child(demo_box(Lc::n("D")))
-                .with_child(demo_box(Lc::n("E")).with_prop(PropsOp::flex_item(
-                    FlexItem::new().with_order(flex::ItemOrder::First),
-                ))),
+                .with_child(
+                    demo_box(Lc::n("E"))
+                        .with_prop(FlexItem::new().with_order(flex::ItemOrder::First)),
+                ),
         )
         .with_child(caption(
             Lc::t("flex_title_gap_none", &LOC),
@@ -430,15 +428,18 @@ fn other_block() -> Block {
         ))
         .with_child(
             demo_row(Flex::new())
-                .with_child(demo_box(Lc::n("1/3")).with_prop(PropsOp::flex_item(
-                    FlexItem::new().with_size(flex::ItemSize::Percent33),
-                )))
-                .with_child(demo_box(Lc::n("1/3")).with_prop(PropsOp::flex_item(
-                    FlexItem::new().with_size(flex::ItemSize::Percent33),
-                )))
-                .with_child(demo_box(Lc::n("1/3")).with_prop(PropsOp::flex_item(
-                    FlexItem::new().with_size(flex::ItemSize::Percent33),
-                ))),
+                .with_child(
+                    demo_box(Lc::n("1/3"))
+                        .with_prop(FlexItem::new().with_size(flex::ItemSize::Percent33)),
+                )
+                .with_child(
+                    demo_box(Lc::n("1/3"))
+                        .with_prop(FlexItem::new().with_size(flex::ItemSize::Percent33)),
+                )
+                .with_child(
+                    demo_box(Lc::n("1/3"))
+                        .with_prop(FlexItem::new().with_size(flex::ItemSize::Percent33)),
+                ),
         )
         .with_child(caption(
             Lc::t("flex_title_grid_offset", &LOC),
@@ -450,11 +451,11 @@ fn other_block() -> Block {
         ))
         .with_child(
             demo_row(Flex::new()).with_child(
-                demo_box(Lc::t("flex_box_half_centered", &LOC)).with_prop(PropsOp::flex_item(
+                demo_box(Lc::t("flex_box_half_centered", &LOC)).with_prop(
                     FlexItem::new()
                         .with_size(flex::ItemSize::Percent50)
                         .with_offset(flex::ItemOffset::Percent25),
-                )),
+                ),
             ),
         )
         .with_child(caption(
@@ -470,9 +471,7 @@ fn other_block() -> Block {
             .with_child(demo_box(Lc::t("flex_box_file", &LOC)))
             .with_child(demo_box(Lc::t("flex_box_edit", &LOC)))
             .with_child(demo_box(Lc::t("flex_box_view", &LOC)))
-            .with_child(
-                demo_box(Lc::t("flex_box_profile", &LOC)).with_prop(FlexItem::push_end().into()),
-            )
+            .with_child(demo_box(Lc::t("flex_box_profile", &LOC)).with_prop(FlexItem::push_end()))
             .with_child(demo_box(Lc::t("flex_box_logout", &LOC))),
         )
 }

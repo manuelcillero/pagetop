@@ -69,7 +69,7 @@ async fn flex_gap_adds_a_style_to_the_content_area() {
 #[pagetop::test]
 async fn push_end_adds_an_automatic_start_margin() {
     let mut cx = Context::default();
-    let mut nav = one_link_nav().with_prop(FlexItem::push_end().into());
+    let mut nav = one_link_nav().with_prop(FlexItem::push_end());
     let html = nav.render(&mut cx).await.into_string();
     let assets = cx.render_assets().into_string();
 

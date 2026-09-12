@@ -7,8 +7,8 @@
 //! [`FlexItem`] configura, en cambio, un único elemento en relación con el contenedor flex de su
 //! padre (crecimiento, reducción, alineación individual, orden, ancho y desplazamiento). No tiene
 //! un builder propio ya que puede acabar aplicándose sobre cualquier componente (no sólo los que
-//! ofrecen `with_flex()`). Por eso se aplica con [`PropsOp::flex_item()`] sobre el `with_prop()`
-//! que normalmente ya expone cualquier componente.
+//! ofrecen `with_flex()`). Por eso se aplica pasándolo directamente al `with_prop()` que
+//! normalmente ya expone cualquier componente, gracias a su `From` hacia [`PropsOp`].
 //!
 //! # Un entorno nativo autosuficiente
 //!
@@ -22,7 +22,7 @@
 //!
 //! [Flexbox]: https://developer.mozilla.org/en-US/docs/Web/CSS/Guides/Flexible_box_layout
 //! [`AssetsOp::add_responsive_style()`]: crate::core::component::AssetsOp::add_responsive_style
-//! [`PropsOp::flex_item()`]: crate::html::props::PropsOp::flex_item
+//! [`PropsOp`]: crate::html::props::PropsOp
 //! [`Container`]: crate::base::component::Container
 //! [`Navbar`]: crate::base::component::Navbar
 

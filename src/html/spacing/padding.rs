@@ -7,7 +7,8 @@ use crate::{AutoDefault, Getters, builder_impl, util};
 /// Configuración de relleno interno por lado lógico y punto de corte.
 ///
 /// Mismo mecanismo y criterio de uso que [`Margin`](super::Margin): no tiene relación con Flexbox,
-/// y se aplica sobre cualquier componente vía [`PropsOp::padding()`] desde su `with_prop()`.
+/// y se aplica sobre cualquier componente pasándolo directamente a su `with_prop()`, gracias a su
+/// `From` hacia [`PropsOp`].
 ///
 /// A diferencia de `Margin`, [`UnitValue::Auto`] no tiene efecto en ningún lado ya que CSS no
 /// admite `padding: auto`, así que un lado establecido a `Auto` se ignora como si no se hubiera
@@ -18,11 +19,11 @@ use crate::{AutoDefault, Getters, builder_impl, util};
 /// ```rust,no_run
 /// use pagetop::prelude::*;
 ///
-/// let card = Container::new().with_prop(PropsOp::padding(
+/// let card = Container::new().with_prop(
 ///     Padding::new()
 ///         .with_all(UnitValue::RelRem(1.0))
 ///         .with_bottom_at(Breakpoint::Md, UnitValue::RelRem(2.0)),
-/// ));
+/// );
 /// ```
 #[derive(AutoDefault, Clone, Copy, Debug, PartialEq, Getters)]
 pub struct Padding {

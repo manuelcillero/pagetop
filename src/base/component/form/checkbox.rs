@@ -159,7 +159,7 @@ impl Checkbox {
     }
 
     /// Modifica identificador, clases CSS, atributos HTML o valores extra del componente.
-    pub fn with_prop(mut self, op: PropsOp) -> Self {
+    pub fn with_prop(mut self, op: impl Into<PropsOp>) -> Self {
         self.props.alter_prop(op);
         self
     }

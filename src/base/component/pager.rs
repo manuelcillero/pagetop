@@ -346,7 +346,7 @@ impl Pager {
     }
 
     /// Modifica identificador, clases CSS o atributos HTML del componente.
-    pub fn with_prop(mut self, op: PropsOp) -> Self {
+    pub fn with_prop(mut self, op: impl Into<PropsOp>) -> Self {
         self.props.alter_prop(op);
         self
     }
