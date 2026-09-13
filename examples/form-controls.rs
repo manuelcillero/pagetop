@@ -144,7 +144,7 @@ async fn form_controls(request: HttpRequest) -> Result<Markup, ErrorPage> {
                                         .with_flex(
                                             Flex::new()
                                                 .with_wrap(flex::Behavior::Wrap)
-                                                .with_gap(flex::Gap::Both(UnitValue::RelRem(0.5))),
+                                                .with_gap(align::Gap::Both(UnitValue::RelRem(0.5))),
                                         )
                                         .with_child(
                                             Button::submit(Lc::t("btn_submit", &LOC))
@@ -264,7 +264,7 @@ async fn form_controls(request: HttpRequest) -> Result<Markup, ErrorPage> {
                                         .with_flex(
                                             Flex::new()
                                                 .with_wrap(flex::Behavior::Wrap)
-                                                .with_gap(flex::Gap::Both(UnitValue::RelRem(0.5))),
+                                                .with_gap(align::Gap::Both(UnitValue::RelRem(0.5))),
                                         )
                                         .with_child(
                                             Button::submit(Lc::t("btn_submit", &LOC))
@@ -444,7 +444,7 @@ fn form_lists() -> Form {
                 .with_flex(
                     Flex::new()
                         .with_wrap(flex::Behavior::Wrap)
-                        .with_gap(flex::Gap::Both(UnitValue::RelRem(0.5))),
+                        .with_gap(align::Gap::Both(UnitValue::RelRem(0.5))),
                 )
                 .with_child(
                     Button::submit(Lc::t("btn_submit", &LOC))

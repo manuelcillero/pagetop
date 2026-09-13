@@ -36,7 +36,7 @@ async fn shrink_adds_flex_shrink_style() {
 async fn align_self_adds_matching_style() {
     let mut cx = Context::default();
     let props =
-        Props::default().with_prop(FlexItem::new().with_align_self(flex::ItemAlign::Center));
+        Props::default().with_prop(FlexItem::new().with_align_self(align::ItemSelf::Center));
     let html = html! { span (props.unpack(&mut cx)) {} }.into_string();
     let assets = cx.render_assets().into_string();
 
@@ -109,7 +109,7 @@ async fn combines_several_facets_in_one_call() {
         FlexItem::new()
             .with_grow(flex::ItemGrow::Is1)
             .with_shrink(flex::ItemShrink::Is0)
-            .with_align_self(flex::ItemAlign::Start)
+            .with_align_self(align::ItemSelf::Start)
             .with_order(flex::ItemOrder::Is2)
             .with_size(flex::ItemSize::Custom(UnitValue::Zero))
             .with_offset(flex::ItemOffset::Percent10),

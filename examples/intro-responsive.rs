@@ -52,7 +52,7 @@ fn activation_block() -> Block {
             Lc::n("Flex::at(Breakpoint::Md)"),
         ))
         .with_child(
-            demo_row(Flex::at(Breakpoint::Md).with_gap(flex::Gap::Both(UnitValue::RelRem(0.5))))
+            demo_row(Flex::at(Breakpoint::Md).with_gap(align::Gap::Both(UnitValue::RelRem(0.5))))
                 .with_child(demo_box(Lc::t("responsive_box_nav_home", &LOC)))
                 .with_child(demo_box(Lc::t("responsive_box_nav_products", &LOC)))
                 .with_child(demo_box(Lc::t("responsive_box_nav_about", &LOC)))
@@ -76,7 +76,7 @@ fn direction_block() -> Block {
                 Flex::new()
                     .with_direction(flex::Direction::Column)
                     .with_direction_at(Breakpoint::Md, flex::Direction::RowReverse)
-                    .with_gap(flex::Gap::Both(UnitValue::RelRem(0.5))),
+                    .with_gap(align::Gap::Both(UnitValue::RelRem(0.5))),
             )
             .with_child(sized_box(
                 Lc::t("responsive_box_image", &LOC),
@@ -124,7 +124,7 @@ fn justify_align_block() -> Block {
                 "Flex::new()",
                 ".with_justify(ContentJustify::Center)",
                 ".with_justify_at(Breakpoint::Md, ContentJustify::SpaceBetween)",
-                ".with_align(Align::Center)",
+                ".with_align(align::Items::Center)",
             )),
         ))
         .with_child(
@@ -132,8 +132,8 @@ fn justify_align_block() -> Block {
                 Flex::new()
                     .with_justify(flex::ContentJustify::Center)
                     .with_justify_at(Breakpoint::Md, flex::ContentJustify::SpaceBetween)
-                    .with_align(flex::Align::Center)
-                    .with_gap(flex::Gap::Both(UnitValue::RelRem(0.5))),
+                    .with_align(align::Items::Center)
+                    .with_gap(align::Gap::Both(UnitValue::RelRem(0.5))),
             )
             .with_child(demo_box(Lc::t("responsive_box_logo", &LOC)))
             .with_child(demo_box(Lc::t("responsive_box_menu", &LOC))),
@@ -151,7 +151,7 @@ fn order_block() -> Block {
             )),
         ))
         .with_child(
-            demo_row(Flex::at(Breakpoint::Lg).with_gap(flex::Gap::Both(UnitValue::RelRem(0.5))))
+            demo_row(Flex::at(Breakpoint::Lg).with_gap(align::Gap::Both(UnitValue::RelRem(0.5))))
                 .with_child(demo_box(Lc::t("responsive_box_content", &LOC)))
                 .with_child(demo_box(Lc::t("responsive_box_sidebar", &LOC)).with_prop(
                     FlexItem::new().with_order_at(Breakpoint::Lg, flex::ItemOrder::First),
@@ -166,7 +166,7 @@ fn gap_grow_block() -> Block {
             Lc::t("responsive_title_gap_grow", &LOC),
             Lc::n(concat!(
                 "Flex::new()",
-                ".with_gap(Gap::Both(RelRem(0.5)))",
+                ".with_gap(align::Gap::Both(RelRem(0.5)))",
                 ".with_gap_at(Breakpoint::Md, Gap::Both(RelRem(1.5)))",
                 " + FlexItem::new().with_grow_at(Breakpoint::Md, ItemGrow::Is1)",
             )),
@@ -174,8 +174,8 @@ fn gap_grow_block() -> Block {
         .with_child(
             demo_row(
                 Flex::new()
-                    .with_gap(flex::Gap::Both(UnitValue::RelRem(0.5)))
-                    .with_gap_at(Breakpoint::Md, flex::Gap::Both(UnitValue::RelRem(1.5))),
+                    .with_gap(align::Gap::Both(UnitValue::RelRem(0.5)))
+                    .with_gap_at(Breakpoint::Md, align::Gap::Both(UnitValue::RelRem(1.5))),
             )
             .with_child(demo_box(Lc::t("responsive_box_file", &LOC)))
             .with_child(demo_box(Lc::t("responsive_box_edit", &LOC)))

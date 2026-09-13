@@ -113,7 +113,7 @@ fn justify_block() -> Block {
                 demo_row(
                     Flex::new()
                         .with_justify(justify)
-                        .with_gap(flex::Gap::Both(UnitValue::RelRem(0.5))),
+                        .with_gap(align::Gap::Both(UnitValue::RelRem(0.5))),
                 )
                 .with_child(demo_box(flex_item("1")))
                 .with_child(demo_box(flex_item("2")))
@@ -126,26 +126,26 @@ fn justify_block() -> Block {
 fn align_block() -> Block {
     let mut block = Block::new().with_title(Lc::t("flex_block_title_align", &LOC));
 
-    let align_variants: [(&str, flex::Align, &str); 4] = [
+    let align_variants: [(&str, align::Items, &str); 4] = [
         (
             "flex_title_align_start",
-            flex::Align::Start,
-            "Flex::new().with_align(Align::Start)",
+            align::Items::Start,
+            "Flex::new().with_align(align::Items::Start)",
         ),
         (
             "flex_title_align_center",
-            flex::Align::Center,
-            "Flex::new().with_align(Align::Center)",
+            align::Items::Center,
+            "Flex::new().with_align(align::Items::Center)",
         ),
         (
             "flex_title_align_end",
-            flex::Align::End,
-            "Flex::new().with_align(Align::End)",
+            align::Items::End,
+            "Flex::new().with_align(align::Items::End)",
         ),
         (
             "flex_title_align_stretch",
-            flex::Align::Stretch,
-            "Flex::new().with_align(Align::Stretch)",
+            align::Items::Stretch,
+            "Flex::new().with_align(align::Items::Stretch)",
         ),
     ];
     for (title_key, align, code) in align_variants {
@@ -155,7 +155,7 @@ fn align_block() -> Block {
                 demo_row(
                     Flex::new()
                         .with_align(align)
-                        .with_gap(flex::Gap::Both(UnitValue::RelRem(0.5))),
+                        .with_gap(align::Gap::Both(UnitValue::RelRem(0.5))),
                 )
                 .with_child(sized_box(Lc::t("flex_box_tall", &LOC), "2.5rem 1rem"))
                 .with_child(demo_box(Lc::t("flex_box_medium", &LOC)))
@@ -165,13 +165,13 @@ fn align_block() -> Block {
     block
         .with_child(caption(
             Lc::t("flex_title_align_baseline", &LOC),
-            Lc::n("Flex::new().with_align(Align::Baseline)"),
+            Lc::n("Flex::new().with_align(align::Items::Baseline)"),
         ))
         .with_child(
             demo_row(
                 Flex::new()
-                    .with_align(flex::Align::Baseline)
-                    .with_gap(flex::Gap::Both(UnitValue::RelRem(0.5))),
+                    .with_align(align::Items::Baseline)
+                    .with_gap(align::Gap::Both(UnitValue::RelRem(0.5))),
             )
             .with_child(
                 sized_box(Lc::t("flex_box_tall", &LOC), "2.5rem 1rem")
@@ -185,26 +185,26 @@ fn align_block() -> Block {
 fn align_self_block() -> Block {
     let mut block = Block::new().with_title(Lc::t("flex_block_title_align_self", &LOC));
 
-    let align_self_variants: [(&str, flex::ItemAlign, &str); 4] = [
+    let align_self_variants: [(&str, align::ItemSelf, &str); 4] = [
         (
             "flex_title_align_self_start",
-            flex::ItemAlign::Start,
-            "FlexItem::new().with_align_self(flex::ItemAlign::Start)",
+            align::ItemSelf::Start,
+            "FlexItem::new().with_align_self(align::ItemSelf::Start)",
         ),
         (
             "flex_title_align_self_end",
-            flex::ItemAlign::End,
-            "FlexItem::new().with_align_self(flex::ItemAlign::End)",
+            align::ItemSelf::End,
+            "FlexItem::new().with_align_self(align::ItemSelf::End)",
         ),
         (
             "flex_title_align_self_center",
-            flex::ItemAlign::Center,
-            "FlexItem::new().with_align_self(flex::ItemAlign::Center)",
+            align::ItemSelf::Center,
+            "FlexItem::new().with_align_self(align::ItemSelf::Center)",
         ),
         (
             "flex_title_align_self_stretch",
-            flex::ItemAlign::Stretch,
-            "FlexItem::new().with_align_self(flex::ItemAlign::Stretch)",
+            align::ItemSelf::Stretch,
+            "FlexItem::new().with_align_self(align::ItemSelf::Stretch)",
         ),
     ];
     for (title_key, align_self, code) in align_self_variants {
@@ -213,8 +213,8 @@ fn align_self_block() -> Block {
             .with_child(
                 demo_row(
                     Flex::new()
-                        .with_align(flex::Align::Start)
-                        .with_gap(flex::Gap::Both(UnitValue::RelRem(0.5))),
+                        .with_align(align::Items::Start)
+                        .with_gap(align::Gap::Both(UnitValue::RelRem(0.5))),
                 )
                 .with_child(sized_box(Lc::t("flex_box_tall", &LOC), "2.5rem 1rem"))
                 .with_child(
@@ -226,13 +226,13 @@ fn align_self_block() -> Block {
     block
         .with_child(caption(
             Lc::t("flex_title_align_self_baseline", &LOC),
-            Lc::n("FlexItem::new().with_align_self(flex::ItemAlign::Baseline)"),
+            Lc::n("FlexItem::new().with_align_self(align::ItemSelf::Baseline)"),
         ))
         .with_child(
             demo_row(
                 Flex::new()
-                    .with_align(flex::Align::Start)
-                    .with_gap(flex::Gap::Both(UnitValue::RelRem(0.5))),
+                    .with_align(align::Items::Start)
+                    .with_gap(align::Gap::Both(UnitValue::RelRem(0.5))),
             )
             .with_child(
                 sized_box(Lc::t("flex_box_tall", &LOC), "2.5rem 1rem")
@@ -240,7 +240,7 @@ fn align_self_block() -> Block {
             )
             .with_child(
                 demo_box(flex_item("1"))
-                    .with_prop(FlexItem::new().with_align_self(flex::ItemAlign::Baseline)),
+                    .with_prop(FlexItem::new().with_align_self(align::ItemSelf::Baseline)),
             )
             .with_child(sized_box(Lc::t("flex_box_tall", &LOC), "2.5rem 1rem")),
         )
@@ -249,41 +249,41 @@ fn align_self_block() -> Block {
 fn align_content_block() -> Block {
     let mut block = Block::new().with_title(Lc::t("flex_block_title_align_content", &LOC));
 
-    let align_content_variants: [(&str, flex::AlignContent, &str); 7] = [
+    let align_content_variants: [(&str, align::Content, &str); 7] = [
         (
             "flex_title_align_content_start",
-            flex::AlignContent::Start,
-            "Flex::new().with_wrap(Behavior::Wrap).with_align_content(AlignContent::Start)",
+            align::Content::Start,
+            "Flex::new().with_wrap(Behavior::Wrap).with_align_content(align::Content::Start)",
         ),
         (
             "flex_title_align_content_end",
-            flex::AlignContent::End,
-            "Flex::new().with_wrap(Behavior::Wrap).with_align_content(AlignContent::End)",
+            align::Content::End,
+            "Flex::new().with_wrap(Behavior::Wrap).with_align_content(align::Content::End)",
         ),
         (
             "flex_title_align_content_center",
-            flex::AlignContent::Center,
-            "Flex::new().with_wrap(Behavior::Wrap).with_align_content(AlignContent::Center)",
+            align::Content::Center,
+            "Flex::new().with_wrap(Behavior::Wrap).with_align_content(align::Content::Center)",
         ),
         (
             "flex_title_align_content_between",
-            flex::AlignContent::SpaceBetween,
-            "Flex::new().with_wrap(Behavior::Wrap).with_align_content(AlignContent::SpaceBetween)",
+            align::Content::SpaceBetween,
+            "Flex::new().with_wrap(Behavior::Wrap).with_align_content(align::Content::SpaceBetween)",
         ),
         (
             "flex_title_align_content_around",
-            flex::AlignContent::SpaceAround,
-            "Flex::new().with_wrap(Behavior::Wrap).with_align_content(AlignContent::SpaceAround)",
+            align::Content::SpaceAround,
+            "Flex::new().with_wrap(Behavior::Wrap).with_align_content(align::Content::SpaceAround)",
         ),
         (
             "flex_title_align_content_evenly",
-            flex::AlignContent::SpaceEvenly,
-            "Flex::new().with_wrap(Behavior::Wrap).with_align_content(AlignContent::SpaceEvenly)",
+            align::Content::SpaceEvenly,
+            "Flex::new().with_wrap(Behavior::Wrap).with_align_content(align::Content::SpaceEvenly)",
         ),
         (
             "flex_title_align_content_stretch",
-            flex::AlignContent::Stretch,
-            "Flex::new().with_wrap(Behavior::Wrap).with_align_content(AlignContent::Stretch)",
+            align::Content::Stretch,
+            "Flex::new().with_wrap(Behavior::Wrap).with_align_content(align::Content::Stretch)",
         ),
     ];
     for (title_key, align_content, code) in align_content_variants {
@@ -291,7 +291,7 @@ fn align_content_block() -> Block {
             Flex::new()
                 .with_wrap(flex::Behavior::Wrap)
                 .with_align_content(align_content)
-                .with_gap(flex::Gap::Both(UnitValue::RelRem(0.5))),
+                .with_gap(align::Gap::Both(UnitValue::RelRem(0.5))),
         )
         .with_prop(PropsOp::add_style("max-width", "21rem"))
         .with_prop(PropsOp::add_style("min-height", "11rem"));
@@ -316,7 +316,7 @@ fn grow_shrink_block() -> Block {
             Lc::n("FlexItem::new().with_grow(flex::ItemGrow::Is1)"),
         ))
         .with_child(
-            demo_row(Flex::new().with_gap(flex::Gap::Both(UnitValue::RelRem(0.5))))
+            demo_row(Flex::new().with_gap(align::Gap::Both(UnitValue::RelRem(0.5))))
                 .with_child(demo_box(Lc::t("flex_box_fixed", &LOC)))
                 .with_child(
                     demo_box(Lc::t("flex_box_grows", &LOC))
@@ -329,7 +329,7 @@ fn grow_shrink_block() -> Block {
             Lc::n("FlexItem::new().with_shrink(flex::ItemShrink::Is0)"),
         ))
         .with_child(
-            demo_row(Flex::new().with_gap(flex::Gap::Both(UnitValue::RelRem(0.5))))
+            demo_row(Flex::new().with_gap(align::Gap::Both(UnitValue::RelRem(0.5))))
                 .with_prop(PropsOp::add_style("max-width", "31rem"))
                 .with_child(
                     demo_box(flex_item("1")).with_prop(PropsOp::add_style("width", "10.5rem")),
@@ -354,7 +354,7 @@ fn other_block() -> Block {
             Lc::n("FlexItem::push_end()"),
         ))
         .with_child(
-            demo_row(Flex::new().with_gap(flex::Gap::Both(UnitValue::RelRem(0.5))))
+            demo_row(Flex::new().with_gap(align::Gap::Both(UnitValue::RelRem(0.5))))
                 .with_child(demo_box(Lc::t("flex_box_start_1", &LOC)))
                 .with_child(demo_box(Lc::t("flex_box_start_2", &LOC)))
                 .with_child(demo_box(Lc::t("flex_box_end", &LOC)).with_prop(FlexItem::push_end())),
@@ -363,8 +363,8 @@ fn other_block() -> Block {
     let mut wrap_row = demo_row(
         Flex::new()
             .with_wrap(flex::Behavior::Wrap)
-            .with_align_content(flex::AlignContent::SpaceBetween)
-            .with_gap(flex::Gap::Both(UnitValue::RelRem(0.5))),
+            .with_align_content(align::Content::SpaceBetween)
+            .with_gap(align::Gap::Both(UnitValue::RelRem(0.5))),
     )
     .with_prop(PropsOp::add_style("max-width", "20rem"))
     .with_prop(PropsOp::add_style("min-height", "11rem"));
@@ -380,7 +380,7 @@ fn other_block() -> Block {
             Lc::n(concat!(
                 "Flex::new()",
                 ".with_wrap(Behavior::Wrap)",
-                ".with_align_content(AlignContent::SpaceBetween)",
+                ".with_align_content(align::Content::SpaceBetween)",
             )),
         ))
         .with_child(wrap_row)
@@ -389,7 +389,7 @@ fn other_block() -> Block {
             Lc::n("FlexItem::new().with_order(ItemOrder::First) / .with_order(ItemOrder::Last)"),
         ))
         .with_child(
-            demo_row(Flex::new().with_gap(flex::Gap::Both(UnitValue::RelRem(0.5))))
+            demo_row(Flex::new().with_gap(align::Gap::Both(UnitValue::RelRem(0.5))))
                 .with_child(
                     demo_box(Lc::n("A"))
                         .with_prop(FlexItem::new().with_order(flex::ItemOrder::Last)),
@@ -404,7 +404,7 @@ fn other_block() -> Block {
         )
         .with_child(caption(
             Lc::t("flex_title_gap_none", &LOC),
-            Lc::n("Flex::new() (Gap::None por defecto)"),
+            Lc::n("Flex::new() (align::Gap::None por defecto)"),
         ))
         .with_child(
             demo_row(Flex::new())
@@ -414,10 +414,10 @@ fn other_block() -> Block {
         )
         .with_child(caption(
             Lc::t("flex_title_gap_some", &LOC),
-            Lc::n("Flex::new().with_gap(flex::Gap::Both(UnitValue::RelRem(1.5)))"),
+            Lc::n("Flex::new().with_gap(align::Gap::Both(UnitValue::RelRem(1.5)))"),
         ))
         .with_child(
-            demo_row(Flex::new().with_gap(flex::Gap::Both(UnitValue::RelRem(1.5))))
+            demo_row(Flex::new().with_gap(align::Gap::Both(UnitValue::RelRem(1.5))))
                 .with_child(demo_box(flex_item("1")))
                 .with_child(demo_box(flex_item("2")))
                 .with_child(demo_box(flex_item("3"))),
@@ -465,8 +465,8 @@ fn other_block() -> Block {
         .with_child(
             demo_row(
                 Flex::new()
-                    .with_align(flex::Align::Center)
-                    .with_gap(flex::Gap::Both(UnitValue::RelRem(0.5))),
+                    .with_align(align::Items::Center)
+                    .with_gap(align::Gap::Both(UnitValue::RelRem(0.5))),
             )
             .with_child(demo_box(Lc::t("flex_box_file", &LOC)))
             .with_child(demo_box(Lc::t("flex_box_edit", &LOC)))

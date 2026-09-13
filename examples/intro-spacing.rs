@@ -66,7 +66,7 @@ fn padding_block() -> Block {
         block = block
             .with_child(caption(Lc::t(title_key, &LOC), Lc::n(code)))
             .with_child(
-                demo_row(Flex::new().with_gap(flex::Gap::Both(UnitValue::RelRem(0.5))))
+                demo_row(Flex::new().with_gap(align::Gap::Both(UnitValue::RelRem(0.5))))
                     .with_child(demo_box(box_sample()).with_prop(Padding::new().with_all(size))),
             );
     }

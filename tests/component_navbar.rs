@@ -55,7 +55,7 @@ async fn flex_adds_its_styles_to_the_content_area() {
 async fn flex_gap_adds_a_style_to_the_content_area() {
     let mut cx = Context::default();
     let mut navbar = Navbar::simple()
-        .with_flex(Flex::new().with_gap(flex::Gap::Both(UnitValue::RelRem(0.5))))
+        .with_flex(Flex::new().with_gap(align::Gap::Both(UnitValue::RelRem(0.5))))
         .with_item(navbar::Item::nav(one_link_nav()));
     let html = navbar.render(&mut cx).await.into_string();
     let assets = cx.render_assets().into_string();
