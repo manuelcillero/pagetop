@@ -125,21 +125,38 @@ impl Extension for Bootsier {
 
 #[async_trait]
 impl Theme for Bootsier {
+    #[rustfmt::skip]
+    fn breakpoint_entry(&self, bp: Breakpoint) -> BreakpointEntry {
+        use Breakpoint::*;
+
+        // Anchos mínimos de la rejilla de Bootstrap (`$grid-breakpoints`). Bootstrap no tiene un
+        // punto de corte por encima de `xxl`, así que `Xxxl` se resuelve como `xxl`.
+        match bp {
+            Xs   => BreakpointEntry { breakpoint: Xs,   name: "xs",   min_width: ""       },
+            Sm   => BreakpointEntry { breakpoint: Sm,   name: "sm",   min_width: "576px"  },
+            Md   => BreakpointEntry { breakpoint: Md,   name: "md",   min_width: "768px"  },
+            Lg   => BreakpointEntry { breakpoint: Lg,   name: "lg",   min_width: "992px"  },
+            Xl   => BreakpointEntry { breakpoint: Xl,   name: "xl",   min_width: "1200px" },
+            Xxl  => BreakpointEntry { breakpoint: Xxl,  name: "xxl",  min_width: "1400px" },
+            Xxxl => BreakpointEntry { breakpoint: Xxxl, name: "xxl",  min_width: "1400px" },
+        }
+    }
+
     fn intent_color(&self, intent: Intent) -> &'static str {
         theme::BootsierColors::from(intent).as_str()
     }
 
-    fn setup_component(&self, component: &mut dyn Component, _cx: &mut Context) {
+    fn setup_component(&self, component: &mut dyn Component, cx: &mut Context) {
         setup_component!(component, {
             Badge               => |c| theme::bs::badge::setup(c),
             Brand               => |c| theme::bs::brand::setup(c),
             Button              => |c| theme::bs::button::setup(c),
-            Container           => |c| theme::bs::container::setup(c),
+            Container           => |c| theme::bs::container::setup(c, cx),
             Dialog              => |c| theme::bs::dialog::setup(c),
             Dropdown            => |c| theme::bs::dropdown::setup(c),
             Image               => |c| theme::bs::image::setup(c),
             Nav                 => |c| theme::bs::nav::setup(c),
-            Navbar              => |c| theme::bs::navbar::setup(c),
+            Navbar              => |c| theme::bs::navbar::setup(c, cx),
             form::input::Field  => |c| theme::bs::form::input::setup(c),
             form::select::Field => |c| theme::bs::form::select::setup(c),
             form::Textarea      => |c| theme::bs::form::textarea::setup(c),

@@ -42,7 +42,7 @@ const EXTRA_EXPAND: &str = "bootsier.navbar.expand";
 /// # use pagetop::prelude::*;
 /// # use pagetop_bootsier::theme::*;
 /// let navbar = bs::Navbar::simple_toggle()
-///     .with_expand(BreakPoint::MD)
+///     .with_expand(Breakpoint::Md)
 ///     .with_item(bs::navbar::Item::nav(
 ///         bs::Nav::new()
 ///             .with_item(bs::nav::Item::link(Lc::n("Home"), "/"))
@@ -88,7 +88,7 @@ const EXTRA_EXPAND: &str = "bootsier.navbar.expand";
 ///     .with_route(Route::from("/"));
 ///
 /// let navbar = bs::Navbar::brand_right(brand)
-///     .with_expand(BreakPoint::LG)
+///     .with_expand(Breakpoint::Lg)
 ///     .with_item(bs::navbar::Item::nav(
 ///         bs::Nav::new()
 ///             .with_kind(bs::nav::Kind::Pills)
@@ -152,7 +152,7 @@ pub trait NavbarBootsier {
     fn offcanvas_brand_right(brand: Brand, oc: bs::Offcanvas) -> Self;
 
     /// Define a partir de qué punto de ruptura la barra de navegación deja de colapsar.
-    fn with_expand(self, bp: BreakPoint) -> Self;
+    fn with_expand(self, bp: Breakpoint) -> Self;
 
     /// Define dónde se mostrará la barra de navegación dentro del documento.
     fn with_position(self, position: bs::navbar::Position) -> Self;
@@ -187,7 +187,7 @@ impl NavbarBootsier for Navbar {
         navbar
     }
 
-    fn with_expand(mut self, bp: BreakPoint) -> Self {
+    fn with_expand(mut self, bp: Breakpoint) -> Self {
         self.alter_prop(PropsOp::set_extra(EXTRA_EXPAND, bp));
         self
     }
@@ -200,15 +200,15 @@ impl NavbarBootsier for Navbar {
 
 // **< Navbar SETUP >*******************************************************************************
 
-pub(crate) fn setup(navbar: &mut Navbar) {
+pub(crate) fn setup(navbar: &mut Navbar, cx: &Context) {
     // Sin `with_expand()`, colapsa por debajo de 768px, igual que el tema Basic (que no tiene
     // punto de ruptura configurable y siempre usa ese umbral, ver `static/css/basic.css`).
-    let expand = navbar.props().extra_or(EXTRA_EXPAND, BreakPoint::MD);
+    let expand = navbar.props().extra_or(EXTRA_EXPAND, Breakpoint::Md);
     let position = navbar
         .props()
         .extra_or(EXTRA_POSITION, bs::navbar::Position::default());
     let mut classes = String::new();
-    expand.push_to(&mut classes, "navbar-expand", "");
+    push_breakpoint_class(cx, expand, &mut classes, "navbar-expand", "");
     position.push_to(&mut classes);
     if !classes.is_empty() {
         navbar.alter_prop(PropsOp::add_classes(classes));

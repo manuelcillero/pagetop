@@ -26,7 +26,7 @@ const EXTRA_WIDTH: &str = "bootsier.container.width";
 ///
 /// let main = bs::Container::main()
 ///     .with_id("main-page")
-///     .with_width(bs::container::Width::From(BreakPoint::LG))
+///     .with_width(bs::container::Width::From(Breakpoint::Lg))
 ///     .with_prop(PropsOp::add_classes(class::Bg::with(BootsierColors::Light)))
 ///     .with_prop(PropsOp::add_classes(class::Text::with(BootsierColors::Dark)))
 ///     .with_prop(PropsOp::add_classes(class::Border::with(ScaleSize::One)))
@@ -61,7 +61,7 @@ pub enum Width {
     Default,
     /// Aplica los anchos máximos predefinidos a partir del punto de ruptura indicado. Por debajo de
     /// ese punto de ruptura ocupa el 100% del ancho disponible.
-    From(BreakPoint),
+    From(Breakpoint),
     /// Ocupa el 100% del ancho disponible siempre.
     Fluid,
     /// Ocupa el 100% del ancho disponible hasta un ancho máximo explícito.
@@ -72,30 +72,34 @@ impl Width {
     const CONTAINER: &str = "container";
 
     /// Añade la clase asociada al ancho del contenedor a la cadena de clases.
+    ///
+    /// El nombre del punto de ruptura se resuelve en el tema activo de `cx`.
     #[inline]
-    pub fn push_to(self, classes: &mut String) {
+    pub fn push_to(self, cx: &Context, classes: &mut String) {
         match self {
-            Self::Default => BreakPoint::None.push_to(classes, Self::CONTAINER, ""),
-            Self::From(bp) => bp.push_to(classes, Self::CONTAINER, ""),
+            Self::Default => {
+                push_breakpoint_class(cx, Breakpoint::Xs, classes, Self::CONTAINER, "")
+            }
+            Self::From(bp) => push_breakpoint_class(cx, bp, classes, Self::CONTAINER, ""),
             Self::Fluid | Self::FluidMax(_) => {
-                BreakPoint::None.push_to(classes, Self::CONTAINER, "fluid")
+                push_breakpoint_class(cx, Breakpoint::Xs, classes, Self::CONTAINER, "fluid")
             }
         }
     }
 
     /// Devuelve la clase asociada al ancho del contenedor.
-    pub fn to_class(self) -> String {
+    pub fn to_class(self, cx: &Context) -> String {
         let mut class = String::new();
-        self.push_to(&mut class);
+        self.push_to(cx, &mut class);
         class
     }
 }
 
 // **< Container SETUP >****************************************************************************
 
-pub(crate) fn setup(container: &mut Container) {
+pub(crate) fn setup(container: &mut Container, cx: &Context) {
     let width = container.props().extra_or(EXTRA_WIDTH, Width::default());
-    container.alter_prop(PropsOp::prepend_classes(width.to_class()));
+    container.alter_prop(PropsOp::prepend_classes(width.to_class(cx)));
     if let Width::FluidMax(w) = width
         && w.is_measurable()
     {

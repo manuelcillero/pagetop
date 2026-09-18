@@ -168,7 +168,7 @@ pub(crate) async fn render(
     let auto_close = auto_close.opt_str();
     let menu_classes = {
         let mut classes = "dropdown-menu".to_string();
-        menu_align.push_to(&mut classes);
+        menu_align.push_to(cx, &mut classes);
         classes
     };
 

@@ -112,65 +112,69 @@ impl Direction {
 /// Alineación horizontal del menú desplegable [`Dropdown`](crate::theme::bs::Dropdown).
 ///
 /// Permite alinear el menú al inicio o al final del botón (respetando LTR/RTL) y añadirle una
-/// alineación diferente a partir de un punto de ruptura ([`BreakPoint`]).
+/// alineación diferente a partir de un punto de ruptura ([`Breakpoint`]).
 #[derive(AutoDefault, Clone, Copy, Debug, PartialEq)]
 pub enum MenuAlign {
     /// Alineación al inicio (comportamiento por defecto).
     #[default]
     Start,
     /// Alineación al inicio a partir del punto de ruptura indicado.
-    StartAt(BreakPoint),
+    StartAt(Breakpoint),
     /// Alineación al inicio por defecto, y al final a partir de un punto de ruptura válido.
-    StartAndEnd(BreakPoint),
+    StartAndEnd(Breakpoint),
     /// Alineación al final.
     End,
     /// Alineación al final a partir del punto de ruptura indicado.
-    EndAt(BreakPoint),
+    EndAt(Breakpoint),
     /// Alineación al final por defecto, y al inicio a partir de un punto de ruptura válido.
-    EndAndStart(BreakPoint),
+    EndAndStart(Breakpoint),
 }
 
 impl MenuAlign {
     /// Añade las clases de alineación a la cadena de clases (sin incluir la base `dropdown-menu`).
+    ///
+    /// El nombre del punto de ruptura se resuelve en el tema activo de `cx`.
     #[inline]
-    pub fn push_to(self, classes: &mut String) {
+    pub fn push_to(self, cx: &Context, classes: &mut String) {
+        const MENU: &str = "dropdown-menu";
+
         match self {
             // Alineación por defecto (start), no añade clases extra.
             Self::Start => {}
 
             // `dropdown-menu-{bp}-start`
             Self::StartAt(bp) => {
-                bp.push_to(classes, "dropdown-menu", "start");
+                push_breakpoint_class(cx, bp, classes, MENU, "start");
             }
 
             // `dropdown-menu-start` + `dropdown-menu-{bp}-end`
             Self::StartAndEnd(bp) => {
-                BreakPoint::None.push_to(classes, "dropdown-menu", "start");
-                bp.push_to(classes, "dropdown-menu", "end");
+                push_breakpoint_class(cx, Breakpoint::Xs, classes, MENU, "start");
+                push_breakpoint_class(cx, bp, classes, MENU, "end");
             }
 
             // `dropdown-menu-end`
             Self::End => {
-                BreakPoint::None.push_to(classes, "dropdown-menu", "end");
+                push_breakpoint_class(cx, Breakpoint::Xs, classes, MENU, "end");
             }
 
             // `dropdown-menu-{bp}-end`
             Self::EndAt(bp) => {
-                bp.push_to(classes, "dropdown-menu", "end");
+                push_breakpoint_class(cx, bp, classes, MENU, "end");
             }
 
             // `dropdown-menu-end` + `dropdown-menu-{bp}-start`
             Self::EndAndStart(bp) => {
-                BreakPoint::None.push_to(classes, "dropdown-menu", "end");
-                bp.push_to(classes, "dropdown-menu", "start");
+                push_breakpoint_class(cx, Breakpoint::Xs, classes, MENU, "end");
+                push_breakpoint_class(cx, bp, classes, MENU, "start");
             }
         }
     }
 
     /// Devuelve las clases de alineación del menú (sin incluir la base `dropdown-menu`).
-    pub fn to_class(self) -> String {
+    pub fn to_class(self, cx: &Context) -> String {
         let mut classes = String::new();
-        self.push_to(&mut classes);
+        self.push_to(cx, &mut classes);
         classes
     }
 }

@@ -11,13 +11,10 @@
 //!
 //! # Plantillas
 //!
-//! Bootsier maqueta las dos plantillas de PageTop
-//! ([`CoreTemplates`](pagetop::prelude::CoreTemplates)): `Standard`, con
-//! cabecera, contenido y pie, que es la plantilla por defecto de cualquier página; y `Admin`, con
-//! la shell completa de AdminLTE 4 (barra superior + barra lateral + área de contenido), que se
-//! activa creando la página con [`Page::admin()`](pagetop::response::Page::admin) en lugar de
-//! [`Page::new()`](pagetop::response::Page::new). No define sus propias variantes de plantilla:
-//! intercepta el componente `Template` en `render_component()` (ver `bs::layout`).
+//! Bootsier maqueta las dos plantillas de PageTop ([`CoreTemplates`]): `Standard`, con cabecera,
+//! contenido y pie, que es la plantilla por defecto de cualquier página; y `Admin`, con la shell
+//! completa de administración (barra superior + barra lateral + área de contenido), que se activa
+//! creando la página con [`Page::admin()`] en lugar de [`Page::new()`].
 //!
 //! ```rust,no_run
 //! use pagetop::prelude::*;
@@ -31,6 +28,10 @@
 //!         .render().await
 //! }
 //! ```
+//!
+//! [`CoreTemplates`]: pagetop::prelude::CoreTemplates
+//! [`Page::admin()`]: pagetop::response::Page::admin
+//! [`Page::new()`]: pagetop::response::Page::new
 //!
 //! # Barra lateral
 //!
@@ -88,6 +89,8 @@
 //!     }));
 //! ```
 
+use pagetop::prelude::*;
+
 pub mod bs;
 
 pub mod class;
@@ -113,3 +116,35 @@ pub use bs::form::textarea::TextareaBootsier;
 pub use bs::nav::NavBootsier;
 #[doc(hidden)]
 pub use bs::navbar::NavbarBootsier;
+
+// Añade la clase de un punto de corte con un prefijo y un sufijo (opcional) a la cadena de clases,
+// separada con un espacio de las que ya hubiera: `prefix-name-suffix`, sin `-suffix` si no hay
+// sufijo, y sin `-name` si el punto de corte aplica siempre.
+//
+// `name` es el nombre del punto de corte según `Theme::breakpoint_entry()` en el tema activo de
+// `cx`. Si el tema no le asocia un ancho mínimo (`Breakpoint::resolved()` devuelve `None`), el
+// punto de corte aplica siempre y se omite `name`, igual que Bootstrap con `container` frente a
+// `container-lg`, o `container-fluid` frente a `container-lg-fluid`.
+pub(crate) fn push_breakpoint_class(
+    cx: &Context,
+    bp: Breakpoint,
+    classes: &mut String,
+    prefix: &str,
+    suffix: &str,
+) {
+    if prefix.is_empty() {
+        return;
+    }
+    if !classes.is_empty() {
+        classes.push(' ');
+    }
+    classes.push_str(prefix);
+    if let Some(entry) = bp.resolved(cx) {
+        classes.push('-');
+        classes.push_str(entry.name);
+    }
+    if !suffix.is_empty() {
+        classes.push('-');
+        classes.push_str(suffix);
+    }
+}

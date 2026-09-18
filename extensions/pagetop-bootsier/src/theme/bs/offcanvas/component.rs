@@ -48,7 +48,7 @@ pub struct Offcanvas {
     /// Devuelve el título del panel.
     title: Lc,
     /// Devuelve el punto de ruptura configurado para cambiar el comportamiento del panel.
-    breakpoint: BreakPoint,
+    breakpoint: Breakpoint,
     /// Devuelve el comportamiento configurado para la capa de fondo.
     backdrop: bs::offcanvas::Backdrop,
     /// Indica si la página principal puede desplazarse mientras el panel está abierto.
@@ -77,8 +77,8 @@ impl Component for Offcanvas {
 
         // Clases CSS por defecto para el panel.
         self.alter_prop(PropsOp::prepend_classes({
-            let mut classes = "offcanvas".to_string();
-            self.breakpoint().push_to(&mut classes, "offcanvas", "");
+            let mut classes = String::new();
+            push_breakpoint_class(cx, *self.breakpoint(), &mut classes, "offcanvas", "");
             self.placement().push_to(&mut classes);
             self.visibility().push_to(&mut classes);
             classes
@@ -118,10 +118,10 @@ impl Offcanvas {
     ///   ([`Offcanvas`]).
     /// - **Por encima**, el contenido del panel se muestra tal cual, integrado en la página.
     ///
-    /// Por ejemplo, con `BreakPoint::Lg`, será *offcanvas* en móviles y tabletas, y visible
-    /// directamente en pantallas grandes. Por defecto usa `BreakPoint::None` para que sea
+    /// Por ejemplo, con `Breakpoint::Lg`, será *offcanvas* en móviles y tabletas, y visible
+    /// directamente en pantallas grandes. Por defecto usa `Breakpoint::Xs` para que sea
     /// *offcanvas* siempre.
-    pub fn with_breakpoint(mut self, bp: BreakPoint) -> Self {
+    pub fn with_breakpoint(mut self, bp: Breakpoint) -> Self {
         self.breakpoint = bp;
         self
     }
