@@ -1,41 +1,5 @@
-//! Enums semánticos que configuran [`FlexItem`](super::FlexItem), a nivel de ítem.
-
 use crate::html::unit::UnitValue;
 use crate::{AutoDefault, CowStr};
-
-// **< ItemAlign >**********************************************************************************
-
-/// Alineación en [`FlexItem`](super::FlexItem) para un ítem, sobrescribiendo la del contenedor.
-#[derive(AutoDefault, Clone, Copy, Debug, PartialEq)]
-pub enum ItemAlign {
-    /// Por defecto, hereda la alineación del contenedor (`align-self: auto` no explícito).
-    #[default]
-    Default,
-    /// Alinea el ítem al inicio del eje transversal (`align-self: flex-start`).
-    Start,
-    /// Alinea el ítem al final del eje transversal (`align-self: flex-end`).
-    End,
-    /// Centra el ítem en el eje transversal (`align-self: center`).
-    Center,
-    /// Alinea el ítem por su línea base de texto (`align-self: baseline`).
-    Baseline,
-    /// Estira el ítem para ocupar todo el eje transversal (`align-self: stretch`).
-    Stretch,
-}
-
-impl ItemAlign {
-    // Devuelve el valor CSS de `align-self`, o "" para el valor por defecto.
-    pub(super) fn value(self) -> CowStr {
-        match self {
-            Self::Default => "".into(),
-            Self::Start => "flex-start".into(),
-            Self::End => "flex-end".into(),
-            Self::Center => "center".into(),
-            Self::Baseline => "baseline".into(),
-            Self::Stretch => "stretch".into(),
-        }
-    }
-}
 
 // **< ItemGrow >***********************************************************************************
 
@@ -197,10 +161,12 @@ impl ItemOrder {
 /// elemento el que ceda (uno con [`ItemGrow::Is1`] y contenido que sí admita reajuste, como texto),
 /// no éste.
 ///
-/// Con [`ItemSize`] en porcentaje, `Is0` es seguro si el contenedor no tiene [`Gap`](super::Gap)
-/// (sin `gap` no hay nada que compensar). Pero **si el contenedor tiene `Gap`, no combines `Is0`
-/// con un tamaño porcentual** porque desactivas la única pieza (el reparto del espacio negativo
-/// entre elementos) que compensa el hueco por ti. La explicación completa está en [`ItemSize`].
+/// Con [`ItemSize`] en porcentaje, `Is0` es seguro si el contenedor no tiene [`align::Gap`] (sin
+/// `gap` no hay nada que compensar). Pero **si el contenedor tiene `Gap`, no combines `Is0` con un
+/// tamaño porcentual** porque desactivas la única pieza (el reparto del espacio negativo entre
+/// elementos) que compensa el hueco por ti. La explicación completa está en [`ItemSize`].
+///
+/// [`align::Gap`]: crate::html::align::Gap
 #[derive(AutoDefault, Clone, Copy, Debug, PartialEq)]
 pub enum ItemShrink {
     /// Por defecto, puede encoger si hace falta (`flex-shrink: 1` no explícito).
@@ -234,10 +200,10 @@ impl ItemShrink {
 /// # Cómo combinarlo con `Gap`
 ///
 /// Un porcentaje se resuelve contra el ancho del contenedor sin contar el espacio que va a ocupar
-/// el [`Gap`](super::Gap). Es una limitación del propio CSS, porque `flex-basis` en porcentaje usa
-/// la misma regla de resolución que cualquier `width: %`. Si los porcentajes de una fila suman el
-/// 100% (una rejilla completa, el caso habitual), el hueco que añade `gap` sobra respecto al ancho
-/// del contenedor.
+/// el [`align::Gap`](crate::html::align::Gap). Es una limitación del propio CSS, porque
+/// `flex-basis` en porcentaje usa la misma regla de resolución que cualquier `width: %`. Si los
+/// porcentajes de una fila suman el 100% (una rejilla completa, el caso habitual), el hueco que
+/// añade `gap` sobra respecto al ancho del contenedor.
 ///
 /// Ese sobrante se compensa solo, sin ningún ajuste manual, siempre que:
 ///

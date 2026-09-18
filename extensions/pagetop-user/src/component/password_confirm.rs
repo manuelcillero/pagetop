@@ -7,7 +7,7 @@ use crate::LOCALES_USER;
 
 /// Campos de contraseña y confirmación, compuestos a partir de
 /// [`form::input::Field::password()`] del core. No valida en ningún momento que ambos valores
-/// coincidan -- eso ocurre en el servidor, tras el envío del formulario -- sólo renderiza los dos
+/// coincidan (eso ocurre en el servidor, tras el envío del formulario), sólo renderiza los dos
 /// campos, uno junto al otro, sin ningún contenedor propio.
 #[derive(AutoDefault, Clone, Debug, Getters)]
 pub(crate) struct PasswordConfirm {

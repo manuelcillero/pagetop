@@ -126,12 +126,15 @@ pub struct BreakpointEntry {
 /// responsabilidad de quien consuma [`by_breakpoint()`], normalmente para acabar registrado en
 /// [`ResponsiveStyles`].
 ///
-/// Uso típico: los campos de [`Flex`]/[`FlexItem`] para el posicionamiento Flexbox de componentes.
+/// Se hace un uso extensivo de esta estructura en los campos de [`Flex`]/[`FlexItem`] y
+/// [`Grid`]/[`GridItem`] para el posicionamiento Flexbox y CSS Grid de componentes.
 ///
 /// [`by_breakpoint()`]: Self::by_breakpoint
 /// [`ResponsiveStyles`]: crate::html::ResponsiveStyles
-/// [`Flex`]: crate::html::Flex
+/// [`Flex`]: crate::base::component::Flex
 /// [`FlexItem`]: crate::html::FlexItem
+/// [`Grid`]: crate::base::component::Grid
+/// [`GridItem`]: crate::html::GridItem
 #[derive(AutoDefault, Clone, Copy, Debug, PartialEq)]
 pub struct Responsive<T> {
     values: [Option<T>; 7],

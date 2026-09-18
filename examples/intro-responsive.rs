@@ -245,10 +245,8 @@ fn card_label(n: usize) -> Lc {
 }
 
 // Fila de demostracion con fondo gris para visualizar los limites del propio contenedor flex.
-fn demo_row(flex: Flex) -> Container {
-    Container::new()
-        .with_prop(PropsOp::add_classes("flex-demo-row"))
-        .with_flex(flex)
+fn demo_row(flex: Flex) -> Flex {
+    flex.with_prop(PropsOp::add_classes("flex-demo-row"))
 }
 
 // Titulo y fragmento de codigo que introducen cada demostracion.

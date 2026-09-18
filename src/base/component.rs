@@ -30,9 +30,15 @@ pub mod dropdown;
 #[doc(inline)]
 pub use dropdown::Dropdown;
 
+mod flex;
+pub use flex::Flex;
+
 pub mod form;
 #[doc(inline)]
 pub use form::Form;
+
+mod grid;
+pub use grid::Grid;
 
 mod html;
 pub use html::Html;

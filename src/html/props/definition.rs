@@ -1,6 +1,7 @@
 use crate::core::TypeInfo;
 use crate::core::component::Context;
-use crate::html::flex::{Flex, FlexItem};
+use crate::html::flex::FlexItem;
+use crate::html::grid::GridItem;
 use crate::html::maud::{Escaper, RenderAttrs};
 use crate::html::props::{PropsError, PropsExtra, PropsOp};
 use crate::html::spacing::{Margin, Padding};
@@ -191,6 +192,7 @@ pub struct Props {
     attrs: Vec<(CowStr, CowStr)>,
     extras: HashMap<&'static str, PropsExtra>,
     flex_item: FlexItem,
+    grid_item: GridItem,
     margin: Margin,
     padding: Padding,
 }
@@ -216,10 +218,10 @@ impl Props {
     }
 
     /// Modifica el identificador, las clases, los atributos o los valores extra según la operación
-    /// indicada, incluido el posicionamiento Flexbox y el espaciado (`FlexItem`, `Margin`,
-    /// `Padding`). El método recomendado para construir cada operación es usar los constructores de
-    /// [`PropsOp`], aunque `FlexItem`, `Margin` y `Padding` pueden pasarse directamente gracias a
-    /// sus `From` hacia `PropsOp`.
+    /// indicada, incluido el posicionamiento Flexbox y Grid y el espaciado (`FlexItem`,
+    /// `GridItem`, `Margin`, `Padding`). El método recomendado para construir cada operación es
+    /// usar los constructores de [`PropsOp`], aunque `FlexItem`, `GridItem`, `Margin` y `Padding`
+    /// pueden pasarse directamente gracias a sus `From` hacia `PropsOp`.
     pub fn with_prop(mut self, op: impl Into<PropsOp>) -> Self {
         match op.into() {
             PropsOp::SetId(value) => {
@@ -344,6 +346,9 @@ impl Props {
             PropsOp::FlexItem(placement) => {
                 self.flex_item = self.flex_item.merge(placement);
             }
+            PropsOp::GridItem(placement) => {
+                self.grid_item = self.grid_item.merge(placement);
+            }
             PropsOp::Margin(margin) => {
                 self.margin = self.margin.merge(margin);
             }
@@ -439,14 +444,19 @@ impl Props {
         self.attrs.is_empty()
     }
 
-    /// Devuelve `true` si no hay ningún identificador, clases, estilos o atributos adicionales
-    /// definidos, sin tener en cuenta los valores extra.
+    /// Devuelve `true` si no hay ningún identificador, clases, estilos, atributos adicionales,
+    /// posicionamiento Flexbox/Grid ni espaciado definidos, sin tener en cuenta los valores extra
+    /// (que nunca se emiten en el HTML, ver [`extra()`](Self::extra)).
     #[inline]
     pub fn is_empty(&self) -> bool {
         self.id.is_none()
             && self.classes.is_empty()
             && self.styles.is_empty()
             && self.attrs.is_empty()
+            && self.flex_item == FlexItem::default()
+            && self.grid_item == GridItem::default()
+            && self.margin == Margin::default()
+            && self.padding == Padding::default()
     }
 
     /// Devuelve `true` si la clase o **alguna** de las clases indicadas está presente.
@@ -572,11 +582,11 @@ impl Props {
     /// `Props` no implementa [`RenderAttrs`] directamente. Obliga a pasar siempre el `Context`
     /// vigente en el punto donde se renderiza, aunque no lo necesite ningún atributo propio. Recibe
     /// `&mut Context` porque aquí, en el momento de extraer los atributos, es donde se resuelven
-    /// [`FlexItem`], [`Margin`] y [`Padding`]: las clases que devuelven se añaden a las del propio
-    /// componente al escribir el atributo `class`.
+    /// [`FlexItem`], [`GridItem`], [`Margin`] y [`Padding`]: las clases que devuelven se añaden a
+    /// las del propio componente al escribir el atributo `class`.
     ///
-    /// Si el propio elemento actúa además como contenedor [`Flex`], utiliza [`unpack_with_flex()`]
-    /// en su lugar.
+    /// [`Flex`] y [`Grid`] resuelven su propio posicionamiento (Flexbox/CSS Grid) directamente: no
+    /// son una propiedad de `Props`, son los únicos componentes que lo ofrecen.
     ///
     /// ```rust
     /// # use pagetop::prelude::*;
@@ -587,48 +597,37 @@ impl Props {
     /// ```
     ///
     /// [`html!`]: crate::html::html
-    /// [`Flex`]: crate::html::flex::Flex
     /// [`FlexItem`]: crate::html::flex::FlexItem
+    /// [`GridItem`]: crate::html::grid::GridItem
     /// [`Margin`]: crate::html::spacing::Margin
     /// [`Padding`]: crate::html::spacing::Padding
-    /// [`unpack_with_flex()`]: Self::unpack_with_flex
+    /// [`Flex`]: crate::base::component::Flex
+    /// [`Grid`]: crate::base::component::Grid
     pub fn unpack<'a>(&'a self, cx: &mut Context) -> impl RenderAttrs + 'a {
-        let mut classes = String::new();
-        self.flex_item.apply(cx, &mut classes);
-        self.margin.apply(cx, &mut classes);
-        self.padding.apply(cx, &mut classes);
-        PropsUnpack {
-            props: self,
-            classes,
-        }
-    }
-
-    /// Igual que [`unpack()`], pero además resuelve `flex` con el posicionamiento [`Flex`].
-    ///
-    /// A diferencia de [`FlexItem`]/[`Margin`]/[`Padding`] (que se acumulan con sus respectivas
-    /// variantes de `PropsOp` porque cualquier componente ajeno puede necesitarlos sin tener un
-    /// campo propio para ello), `Flex` sólo tiene sentido en los contenedores que ya declaran su
-    /// propio campo `flex: Flex` (como `Container` o `Navbar`). Se les pasa aquí directamente, ya
-    /// resuelto (`self.flex()`), sin pasar por `PropsOp`.
-    ///
-    /// [`unpack()`]: Self::unpack
-    /// [`Flex`]: crate::html::flex::Flex
-    /// [`FlexItem`]: crate::html::flex::FlexItem
-    /// [`Margin`]: crate::html::spacing::Margin
-    /// [`Padding`]: crate::html::spacing::Padding
-    pub fn unpack_with_flex<'a>(&'a self, cx: &mut Context, flex: Flex) -> impl RenderAttrs + 'a {
-        let mut classes = String::new();
-        flex.apply(cx, &mut classes);
-        self.flex_item.apply(cx, &mut classes);
-        self.margin.apply(cx, &mut classes);
-        self.padding.apply(cx, &mut classes);
-        PropsUnpack {
-            props: self,
-            classes,
-        }
+        self.unpack_with_classes(cx, String::new())
     }
 
     // **< Props PRIVATE >**************************************************************************
+
+    // Cola común de `unpack()` y del propio `Flex`/`Grid` (`base::component::flex`/`grid`):
+    // resuelve `FlexItem`/`GridItem`/`Margin`/`Padding` sobre las clases ya acumuladas (vacías, o
+    // con las clases del propio contenedor ya calculadas por el llamador) y envuelve el resultado
+    // para `html!`. `pub(crate)` porque `Flex` y `Grid` la usan directamente: cada uno construye
+    // sus propias clases CSS (no hay ningún valor intermedio que aplicar aquí).
+    pub(crate) fn unpack_with_classes<'a>(
+        &'a self,
+        cx: &mut Context,
+        mut classes: String,
+    ) -> impl RenderAttrs + 'a {
+        self.flex_item.apply(cx, &mut classes);
+        self.grid_item.apply(cx, &mut classes);
+        self.margin.apply(cx, &mut classes);
+        self.padding.apply(cx, &mut classes);
+        PropsUnpack {
+            props: self,
+            classes,
+        }
+    }
 
     fn apply_id(&mut self, id: &str) {
         self.id = util::normalize_token(id);
@@ -748,7 +747,7 @@ impl Props {
                 w.push('"');
             }
         }
-        // Clases propias del componente más las que aplica `Props::unpack()`/`unpack_with_flex()`.
+        // Clases propias del componente + las que aplica `Props::unpack()`/`unpack_with_classes()`.
         let mut all_classes: Vec<&str> = self.classes.iter().map(String::as_str).collect();
         all_classes.extend(classes.split_ascii_whitespace());
         if let Some((first, rest)) = all_classes.split_first() {
@@ -817,10 +816,11 @@ impl Props {
 
 // **< PropsUnpack >********************************************************************************
 
-// Devuelto por `Props::unpack()`/`Props::unpack_with_flex()`. `classes` son las clases resueltas
-// por `Flex::apply()`/`FlexItem::apply()`/`Margin::apply()`/`Padding::apply()` (desde el propio
-// `unpack*()` usando el `&mut Context`), pendientes sólo de añadir a las del componente (ver
-// `Props::write_attrs()`).
+// Devuelto por `Props::unpack()` y por `unpack_with_classes()` (usada por `Flex`/`Grid`, y por
+// `unpack()` con un acumulador vacío). `classes` son las clases resueltas por `Flex`/`Grid` (sus
+// métodos privados `flex_classes()`/`grid_classes()`) más las de `FlexItem::apply()`/
+// `GridItem::apply()`/`Margin::apply()`/`Padding::apply()`, pendientes sólo de añadir a las del
+// componente (ver `Props::write_attrs()`).
 struct PropsUnpack<'a> {
     props: &'a Props,
     classes: String,

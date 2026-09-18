@@ -90,9 +90,9 @@ use std::sync::Arc;
 /// let route = Route::with(move |cx| cx.route(format!("/users/{user_id}")));
 /// ```
 ///
-/// Si ya tienes un [`RoutePath`] resuelto -- por ejemplo, combinando
-/// [`Context::route()`] con [`Waypoint::append_to()`](crate::response::Waypoint::append_to) --
-/// se convierte directamente, sin volver a procesarlo:
+/// Si ya tienes un [`RoutePath`] resuelto (por ejemplo, combinando [`Context::route()`] con
+/// [`Waypoint::append_to()`](crate::response::Waypoint::append_to)), se convierte directamente, sin
+/// volver a procesarlo:
 ///
 /// ```rust,no_run
 /// # use pagetop::prelude::*;
@@ -178,7 +178,7 @@ impl Default for Route {
 ///
 /// Ojo: esta conversión asume que el `RoutePath` ya pasó por `Context::route()`. Si construyes uno
 /// a mano (por ejemplo con `RoutePath::new(...)` directamente, sin pasar por `cx.route()`), esta
-/// conversión no añadirá `lang` por ti -- simplemente envuelve el valor tal cual, igual que
+/// conversión no añadirá `lang` por ti; simplemente envuelve el valor tal cual, igual que
 /// [`Route::external()`].
 impl From<RoutePath> for Route {
     fn from(path: RoutePath) -> Self {

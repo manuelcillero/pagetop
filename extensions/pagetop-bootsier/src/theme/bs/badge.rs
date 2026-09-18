@@ -9,8 +9,8 @@ const EXTRA_COLOR: &str = "bootsier.badge.color";
 /// Extensión de Bootsier para [`Badge`].
 ///
 /// Permite forzar un color de la paleta de Bootsier ([`BootsierColors`]) en vez del que le
-/// correspondería por defecto a la [`Intent`] del badge -- por ejemplo, para usar `Light`/`Dark`,
-/// que `Intent` no tiene.
+/// correspondería por defecto a la [`Intent`] del badge (por ejemplo, para usar `Light`/`Dark`,
+/// que `Intent` no tiene).
 ///
 /// ```rust,no_run
 /// use pagetop::prelude::*;
@@ -39,7 +39,7 @@ impl BadgeBootsier for Badge {
 // **< Badge SETUP >********************************************************************************
 
 pub(crate) fn setup(badge: &mut Badge) {
-    // `Badge::setup()` (core) ya ha traducido la intención con `Theme::intent_color()` -- la clase
+    // `Badge::setup()` (core) ya ha traducido la intención con `Theme::intent_color()`. La clase
     // `badge-*` que hay que localizar es siempre la derivada de la `Intent`, con independencia de
     // que `BadgeBootsier::with_color()` fuerce un color distinto para el destino `text-bg-*`.
     let intent_color = BootsierColors::from(badge.intent()).as_str();

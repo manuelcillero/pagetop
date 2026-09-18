@@ -451,9 +451,9 @@ impl Pager {
     // páginas ya cabe sin necesidad de truncar (ver más abajo), devuelve todas las páginas sin
     // elipsis. En caso contrario, siempre incluye la primera y la última página, la ventana de
     // páginas alrededor de la actual (`window` antes y después, recortada a los límites del
-    // listado), y sustituye por una elipsis cualquier tramo oculto de dos o más páginas -- un
-    // tramo de una sola página se muestra directamente, ya que ocultarla tras una elipsis no
-    // ahorra espacio.
+    // listado), y sustituye por una elipsis cualquier tramo oculto de dos o más páginas. Un tramo
+    // de una sola página se muestra directamente, ya que ocultarla tras una elipsis no ahorra
+    // espacio.
     fn page_items(&self, page: u64, total_pages: u64) -> Vec<PageItem> {
         // Acotado a `total_pages`: una ventana mayor no aporta nada (ya se mostrarían todas las
         // páginas) y evita operar con un valor arbitrariamente grande más abajo.

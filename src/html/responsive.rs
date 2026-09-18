@@ -1,12 +1,14 @@
 //! Mecanismo interno compartido para resolver clases CSS nativas *responsive*.
 //!
-//! Usado por [`flex`] y [`spacing`]. Ambos módulos resuelven su configuración generando clases CSS
-//! dinámicamente, de manera independiente a cualquier tema o framework CSS, registradas vía
-//! [`AssetsOp::add_responsive_style()`] y renderizadas como reglas en el `<head>` del documento.
-//! El nombre interno de cada clase se deriva de la propiedad y el valor que representa, así que dos
-//! elementos con la misma configuración comparten la misma regla en vez de duplicarla.
+//! Usado por [`flex`], [`grid`] y [`spacing`]. Los tres módulos resuelven su configuración
+//! generando clases CSS dinámicamente, de manera independiente a cualquier tema o framework CSS,
+//! registradas vía [`AssetsOp::add_responsive_style()`] y renderizadas como reglas en el `<head>`
+//! del documento. El nombre interno de cada clase se deriva de la propiedad y el valor que
+//! representa, así que dos elementos con la misma configuración comparten la misma regla en vez de
+//! duplicarla.
 //!
 //! [`flex`]: crate::html::flex
+//! [`grid`]: crate::html::grid
 //! [`spacing`]: crate::html::spacing
 //! [`AssetsOp::add_responsive_style()`]: crate::core::component::AssetsOp::add_responsive_style
 
@@ -14,11 +16,21 @@ use crate::CowStr;
 use crate::core::component::{AssetsOp, Context, Contextual};
 use crate::core::theme::BreakpointEntry;
 
-// Sustituye, en un valor CSS ya resuelto, los únicos caracteres (`.`, `%`) que no podrían usarse
-// como fragmento de un nombre de clase. Así, `"1.5rem"` sería `"1_5rem"` y `"33.3333%"` quedaría
-// como `"33_3333pct"`.
+// Sustituye, en un valor CSS ya resuelto, los caracteres (`.`, `%`, ` `, `/`) que no podrían usarse
+// como fragmento de un nombre de clase. Así, `"1.5rem"` sería `"1_5rem"`, `"33.3333%"` quedaría en
+// `"33_3333pct"`, `"1fr 1fr 200px"` (varias pistas de `grid::Tracks`) dejaría
+// `"1fr-1fr-200px"`, y `"2 / 4"` (un rango de `grid::ItemPlacement`) quedaría como `"2---4"`.
 pub(crate) fn value_to_token(value: &str) -> String {
-    value.replace('.', "_").replace('%', "pct")
+    let mut token = String::with_capacity(value.len());
+    for c in value.chars() {
+        match c {
+            '.' => token.push('_'),
+            '%' => token.push_str("pct"),
+            ' ' | '/' => token.push('-'),
+            c => token.push(c),
+        }
+    }
+    token
 }
 
 // Añade un estilo (`property: value`) al punto de corte indicado, y la clase a `classes`, separada

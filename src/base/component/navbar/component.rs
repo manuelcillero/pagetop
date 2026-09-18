@@ -58,7 +58,7 @@ use crate::prelude::*;
 ///     ));
 /// ```
 ///
-/// Barra con **botón de despliegue** y **marca de identidad**, en ese orden:
+/// Barra con **botón de despliegue**, contenido y **marca de identidad**:
 ///
 /// ```rust,no_run
 /// # use pagetop::prelude::*;
@@ -81,9 +81,6 @@ pub struct Navbar {
     props: Props,
     /// Devuelve la disposición configurada para la barra de navegación.
     layout: navbar::Layout,
-    /// Devuelve el posicionamiento Flexbox como contenedor, si tiene alguno.
-    #[getters(copy)]
-    flex: Flex,
     /// Devuelve la lista de contenidos.
     items: Children,
 }
@@ -99,8 +96,10 @@ impl Component for Navbar {
     }
 
     fn setup(&mut self, cx: &mut Context) {
-        // Asegura que la barra de navegación tiene un identificador único: lo necesita el botón de
-        // despliegue para referenciar el contenido colapsable con `aria-controls`.
+        // Asegura que la barra de navegación tiene un identificador único: siempre se usa para
+        // derivar el `id` del área de contenido (`id_content`, ver `prepare()`); además, el botón
+        // de despliegue lo necesita para referenciar ese contenido colapsable con `aria-controls`
+        // si el *layout* lo incluye.
         self.alter_prop(PropsOp::ensure_id(cx.build_id::<Self>(1)));
         self.alter_prop(PropsOp::prepend_classes("navbar"));
     }
@@ -124,12 +123,9 @@ impl Component for Navbar {
                 aria-expanded="false"
                 aria-controls=(&id_content)
                 aria-label=[Lc::l("navbar_toggle").lookup(cx)]
-            {
-                span class="navbar-toggle-icon" {}
-            }
+            {}
         };
 
-        // Posicionamiento Flexbox opcional (no del `<nav>`, cuya estructura la fija `layout()`).
         let content_props = Props::classes("navbar-content").with_id(id_content);
 
         Ok(html! {
@@ -137,32 +133,32 @@ impl Component for Navbar {
                 @match self.layout() {
                     // Barra más sencilla: sólo contenido, siempre visible.
                     navbar::Layout::Simple => {
-                        div (content_props.unpack_with_flex(cx, self.flex())) { (items) }
+                        div (content_props.unpack(cx)) { (items) }
                     },
 
                     // Barra sencilla que se puede contraer/expandir.
                     navbar::Layout::SimpleToggle => {
                         (button)
-                        div (content_props.unpack_with_flex(cx, self.flex())) { (items) }
+                        div (content_props.unpack(cx)) { (items) }
                     },
 
                     // Barra con marca, siempre visible, sin botón.
                     navbar::Layout::SimpleBrandLeft(brand) => {
                         (brand.render(cx).await)
-                        div (content_props.unpack_with_flex(cx, self.flex())) { (items) }
+                        div (content_props.unpack(cx)) { (items) }
                     },
 
                     // Barra con marca y botón, en ese orden.
                     navbar::Layout::BrandLeft(brand) => {
                         (brand.render(cx).await)
                         (button)
-                        div (content_props.unpack_with_flex(cx, self.flex())) { (items) }
+                        div (content_props.unpack(cx)) { (items) }
                     },
 
-                    // Barra con botón y marca, en ese orden.
+                    // Barra con botón, contenido y marca (en ese orden).
                     navbar::Layout::BrandRight(brand) => {
                         (button)
-                        div (content_props.unpack_with_flex(cx, self.flex())) { (items) }
+                        div (content_props.unpack(cx)) { (items) }
                         (brand.render(cx).await)
                     },
                 }
@@ -194,8 +190,10 @@ impl Navbar {
         Self::default().with_layout(navbar::Layout::BrandLeft(Embed::with(brand)))
     }
 
-    /// Crea una barra de navegación con **botón de despliegue** y **marca de identidad**, en ese
-    /// orden.
+    /// Crea una barra de navegación con **botón de despliegue**, el contenido y, en último lugar,
+    /// la **marca de identidad**. A diferencia de [`brand_left()`](Self::brand_left), aquí no queda
+    /// junto al botón, sino que se renderiza tras el contenido, para acabar en el extremo derecho
+    /// de la barra (el botón sólo es visible en viewports estrechos).
     pub fn brand_right(brand: Brand) -> Self {
         Self::default().with_layout(navbar::Layout::BrandRight(Embed::with(brand)))
     }
@@ -217,15 +215,6 @@ impl Navbar {
     /// Define el tipo de disposición que tendrá la barra de navegación.
     pub fn with_layout(mut self, layout: navbar::Layout) -> Self {
         self.layout = layout;
-        self
-    }
-
-    /// Establece el posicionamiento Flexbox como contenedor (usa `None` para quitarlo).
-    ///
-    /// No afecta a la posición de la marca ni del botón de despliegue, que quedan fijados con
-    /// [`with_layout()`](Self::with_layout).
-    pub fn with_flex(mut self, flex: impl Into<Option<Flex>>) -> Self {
-        self.flex = self.flex.merge(flex);
         self
     }
 

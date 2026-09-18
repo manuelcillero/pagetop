@@ -1,13 +1,11 @@
-use crate::core::component::Context;
-use crate::core::theme::{Breakpoint, Responsive};
-use crate::html::flex::{Align, AlignContent, Behavior, ContentJustify, Direction, Gap};
-use crate::{AutoDefault, Getters, builder_impl, util};
+use crate::html::align;
+use crate::html::flex::{Behavior, ContentJustify, Direction};
+use crate::prelude::*;
 
 // **< DisplayFlex >********************************************************************************
 
-// Modo de activación del posicionamiento Flexbox de un contenedor `Flex`. Detalle interno de
-// implementación: la API pública sólo expone los constructores `Flex::new()`, `Flex::at()`,
-// `Flex::inline()` e `Flex::inline_at()`, nunca esta variante directamente.
+// Posicionamiento Flexbox del contenedor `Flex`. La API pública sólo expone los constructores
+// `Flex::new()`, `Flex::at()`, `Flex::inline()` y `Flex::inline_at()`, nunca la variante en sí.
 #[derive(AutoDefault, Clone, Copy, Debug, PartialEq)]
 enum DisplayFlex {
     #[default]
@@ -19,46 +17,55 @@ enum DisplayFlex {
 
 // **< Flex >***************************************************************************************
 
-/// Configuración para el posicionamiento Flexbox en un contenedor.
+/// Componente que crea un **contenedor Flexbox** para posicionar componentes.
 ///
-/// Se resuelve como clases CSS generadas dinámicamente (`display`, `flex-direction`, `flex-wrap`,
-/// `justify-content`, `align-items`, `align-content`, `gap`), registradas vía
-/// [`AssetsOp::add_responsive_style()`] en [`ResponsiveStyles`] y renderizadas como reglas en el
-/// `<head>` del documento. Son propiedades nativas que no requieren interpretación por parte de los
-/// temas, siempre funcionan igual, sin una sola línea de CSS ni de código específico.
+/// Es el único componente de PageTop que ofrece posicionamiento Flexbox. Sus hijos pueden ser
+/// **cualquier componente**, no sólo otro `Flex`. Para colocarlos dentro del contenedor
+/// (crecimiento, reducción, alineación individual, orden, tamaño, desplazamiento) se usa
+/// [`flex::FlexItem`] vía `with_prop()`, exactamente igual que en cualquier otro contenedor.
+/// `FlexItem` es una característica de [`PropsOp`], no exige ningún envoltorio propio.
 ///
-/// El nombre de cada clase se deriva de la propiedad y el valor que representa (por ejemplo
-/// `_flex-direction_row_`), así que dos contenedores con la misma configuración comparten la misma
-/// regla generada en vez de duplicarla, y el nombre generado no coincide por accidente con clases
-/// de terceros.
+/// Se aplica con clases CSS generadas dinámicamente (`display`, `flex-direction`, `flex-wrap`,
+/// `justify-content`, `align-items`, `align-content`, `gap`, `row-gap`, `column-gap`), registradas
+/// vía [`AssetsOp::add_responsive_style()`] en [`ResponsiveStyles`] y renderizadas como reglas en
+/// el `<head>` del documento. Son propiedades nativas que no requieren interpretación por parte de
+/// los temas, siempre funcionan igual, sin una sola línea de CSS ni de código específico.
+///
+/// `align`/`align_content`/`gap` usan tipos de [`pagetop::html::align`] ([`align::Items`],
+/// [`align::Content`], [`align::Gap`]), compartidos con [`Grid`], mismo CSS y mismo catálogo de
+/// valores en los dos. Ver la documentación de [`align`](crate::html::align) para el criterio
+/// completo.
+///
+/// Si no contiene elementos, el componente **no se renderiza**.
 ///
 /// [`AssetsOp::add_responsive_style()`]: crate::core::component::AssetsOp::add_responsive_style
+/// [`pagetop::html::align`]: crate::html::align
 /// [`ResponsiveStyles`]: crate::html::ResponsiveStyles
+/// [`flex::FlexItem`]: crate::html::flex::FlexItem
 ///
 /// # Ejemplo
 ///
 /// ```rust,no_run
 /// use pagetop::prelude::*;
 ///
-/// let actions = Container::new()
-///     .with_flex(
-///         Flex::new()
-///             .with_justify(flex::ContentJustify::End)
-///             .with_align(flex::Align::Center)
-///             .with_gap(flex::Gap::Both(UnitValue::RelRem(0.5))),
-///     )
+/// let actions = Flex::new()
+///     .with_justify(flex::ContentJustify::End)
+///     .with_align(align::Items::Center)
+///     .with_gap(align::Gap::Both(UnitValue::RelRem(0.5)))
 ///     .with_child(Button::submit(Lc::n("Save")))
 ///     .with_child(Button::plain(Lc::n("Cancel")));
 /// ```
-#[derive(AutoDefault, Clone, Copy, Debug, PartialEq, Getters)]
+#[derive(AutoDefault, Clone, Debug, Getters)]
 pub struct Flex {
-    // Determina si esta configuración debe aplicarse (y con qué variante de `display`) o si
-    // `Flex` no está en absoluto configurado. `None` es el estado real de ausencia: lo que tiene
-    // un contenedor que nunca ha llamado a `with_flex()`. Sin getter público; `new()`, `at()`,
-    // `inline()` e `inline_at()` son la única forma de activarlo.
+    /// Devuelve identificador, clases CSS, atributos HTML y valores extra del componente.
+    props: Props,
+    // Determina si esta configuración debe aplicarse (y con qué variante de `display`) o si `Flex`
+    // no está en absoluto configurado. `None` es el estado real de ausencia: lo que tiene un
+    // componente que nunca ha llamado a ninguno de sus constructores explícitos. Sin getter
+    // público; `new()`, `at()`, `inline()` e `inline_at()` son la única forma de activarlo.
     #[getters(skip)]
     display: Option<DisplayFlex>,
-    /// Devuelve la dirección del eje principal por punto de corte.
+    /// Devuelve la dirección del eje principal, por punto de corte.
     #[getters(copy)]
     direction: Responsive<Direction>,
     /// Devuelve el comportamiento cuando los elementos no caben en una sola línea, por punto de
@@ -70,18 +77,42 @@ pub struct Flex {
     justify: Responsive<ContentJustify>,
     /// Devuelve la alineación de los elementos en el eje transversal, por punto de corte.
     #[getters(copy)]
-    align: Responsive<Align>,
+    align: Responsive<align::Items>,
     /// Devuelve la alineación de las líneas cuando hay más de una, por punto de corte.
     #[getters(copy)]
-    align_content: Responsive<AlignContent>,
+    align_content: Responsive<align::Content>,
     /// Devuelve el espaciado entre elementos, por punto de corte.
     #[getters(copy)]
-    gap: Responsive<Gap>,
+    gap: Responsive<align::Gap>,
+    /// Devuelve la lista de componentes (`children`) del contenedor.
+    children: Children,
+}
+
+#[async_trait]
+impl Component for Flex {
+    fn new() -> Self {
+        Self::default()
+    }
+
+    fn id(&self) -> Option<String> {
+        self.props.get_id()
+    }
+
+    async fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
+        let output = self.children().render(cx).await;
+        if output.is_empty() {
+            return Ok(html! {});
+        }
+        let mut classes = String::new();
+        self.flex_classes(cx, &mut classes);
+        let container_props = self.props().unpack_with_classes(cx, classes);
+        Ok(html! { div (container_props) { (output) } })
+    }
 }
 
 #[builder_impl]
 impl Flex {
-    /// Define una configuración Flex con `display: flex`, sin punto de corte: se aplica siempre.
+    /// Define una configuración con `display: flex`, sin punto de corte: se aplica siempre.
     pub fn new() -> Self {
         Self {
             display: Some(DisplayFlex::Always),
@@ -89,7 +120,7 @@ impl Flex {
         }
     }
 
-    /// Define una configuración Flex con `display: flex` que se aplica a partir del punto de corte
+    /// Define una configuración con `display: flex` que se aplica a partir del punto de corte
     /// indicado.
     pub fn at(bp: Breakpoint) -> Self {
         Self {
@@ -98,7 +129,7 @@ impl Flex {
         }
     }
 
-    /// Define una configuración Flex con `display: inline-flex`, sin punto de corte: se aplica
+    /// Define una configuración con `display: inline-flex`, sin punto de corte: se aplica
     /// siempre.
     pub fn inline() -> Self {
         Self {
@@ -107,7 +138,7 @@ impl Flex {
         }
     }
 
-    /// Define una configuración Flex con `display: inline-flex` que se aplica a partir del punto de
+    /// Define una configuración con `display: inline-flex` que se aplica a partir del punto de
     /// corte indicado.
     pub fn inline_at(bp: Breakpoint) -> Self {
         Self {
@@ -117,6 +148,18 @@ impl Flex {
     }
 
     // **< Flex BUILDER >***************************************************************************
+
+    /// Establece el identificador único del componente; igual a `with_prop(PropsOp::set_id(id))`.
+    pub fn with_id(mut self, id: impl Into<CowStr>) -> Self {
+        self.props.alter_id(id);
+        self
+    }
+
+    /// Modifica identificador, clases CSS, atributos HTML o valores extra del componente.
+    pub fn with_prop(mut self, op: impl Into<PropsOp>) -> Self {
+        self.props.alter_prop(op);
+        self
+    }
 
     /// Establece la dirección del eje principal.
     pub fn with_direction(mut self, dir: Direction) -> Self {
@@ -157,83 +200,61 @@ impl Flex {
     }
 
     /// Establece la alineación de los elementos en el eje transversal.
-    pub fn with_align(mut self, align: Align) -> Self {
+    pub fn with_align(mut self, align: align::Items) -> Self {
         self.align = self.align.set(align);
         self
     }
 
     /// Establece la alineación de los elementos en el eje transversal, a partir del punto de corte
     /// indicado.
-    pub fn with_align_at(mut self, bp: Breakpoint, align: Align) -> Self {
+    pub fn with_align_at(mut self, bp: Breakpoint, align: align::Items) -> Self {
         self.align = self.align.set_at(bp, align);
         self
     }
 
-    /// Establece la alineación de las líneas cuando hay más de una (ver [`AlignContent`]).
-    pub fn with_align_content(mut self, align_content: AlignContent) -> Self {
+    /// Establece la alineación de las líneas cuando hay más de una (ver
+    /// [`Content`](crate::html::align::Content)).
+    pub fn with_align_content(mut self, align_content: align::Content) -> Self {
         self.align_content = self.align_content.set(align_content);
         self
     }
 
-    /// Establece la alineación de las líneas cuando hay más de una (ver [`AlignContent`]), a partir
-    /// del punto de corte indicado.
-    pub fn with_align_content_at(mut self, bp: Breakpoint, align_content: AlignContent) -> Self {
+    /// Establece la alineación de las líneas cuando hay más de una (ver
+    /// [`Content`](crate::html::align::Content)), a partir del punto de corte indicado.
+    pub fn with_align_content_at(mut self, bp: Breakpoint, align_content: align::Content) -> Self {
         self.align_content = self.align_content.set_at(bp, align_content);
         self
     }
 
     /// Establece el espaciado entre elementos.
-    pub fn with_gap(mut self, gap: Gap) -> Self {
+    pub fn with_gap(mut self, gap: align::Gap) -> Self {
         self.gap = self.gap.set(gap);
         self
     }
 
     /// Establece el espaciado entre elementos, a partir del punto de corte indicado.
-    pub fn with_gap_at(mut self, bp: Breakpoint, gap: Gap) -> Self {
+    pub fn with_gap_at(mut self, bp: Breakpoint, gap: align::Gap) -> Self {
         self.gap = self.gap.set_at(bp, gap);
+        self
+    }
+
+    /// Añade un nuevo componente al contenedor o modifica la lista de componentes (`children`) con
+    /// una operación [`ChildOp`].
+    pub fn with_child(mut self, op: impl Into<ChildOp>) -> Self {
+        self.children.alter_child(op.into());
         self
     }
 }
 
 impl Flex {
-    /// Combina esta configuración con otra `Flex`, campo a campo, o la resetea a los valores por
-    /// defecto si se pasa `None`.
-    ///
-    /// Cada campo de `flex` que tenga un valor sustituye al correspondiente de `self`; los que
-    /// estén a `None` dejan intacto el valor ya presente en `self`. Así, sucesivas llamadas pueden
-    /// ir completando o sobrescribiendo campos concretos sin necesidad de repetir los ya
-    /// establecidos. Es el método recomendado para que un contenedor propio adopte `Flex` de forma
-    /// incremental (ver [`Container::with_flex()`](crate::base::component::Container::with_flex)
-    /// como referencia de uso).
-    pub fn merge(mut self, flex: impl Into<Option<Flex>>) -> Self {
-        let Some(flex) = flex.into() else {
-            return Flex::default();
-        };
-        self.display = flex.display.or(self.display);
-        self.direction = self.direction.merge(flex.direction);
-        self.wrap = self.wrap.merge(flex.wrap);
-        self.justify = self.justify.merge(flex.justify);
-        self.align = self.align.merge(flex.align);
-        self.align_content = self.align_content.merge(flex.align_content);
-        self.gap = self.gap.merge(flex.gap);
-        self
-    }
-
-    /// Aplica esta configuración a un [`Props`] como declaraciones de estilo en línea.
-    ///
-    /// Es el método recomendado para que un componente adopte `Flex`: concentra en un único sitio
-    /// la traducción de la configuración a estilos, para no repetirla en cada componente que la
-    /// use. Precedente: [`Container`](crate::base::component::Container) lo aplica sobre su
-    /// propio `Props`; [`Navbar`](crate::base::component::Navbar), sobre el `Props` de su área de
-    /// contenido.
-    ///
-    /// Las clases generadas se añaden a `classes`, separadas con un espacio de las que ya hubiera,
-    /// para poder compartir un único acumulador con [`FlexItem::apply()`](super::FlexItem::apply)
-    /// sin cadenas intermedias.
+    // Calcula las clases CSS *responsive* de este contenedor Flex y las añade a `classes`,
+    // separadas con un espacio de las que ya hubiera, para poder compartir un único acumulador
+    // con `FlexItem::apply()` (ver `Props::unpack_with_classes()`) sin cadenas intermedias.
     #[rustfmt::skip]
-    pub(crate) fn apply(self, cx: &mut Context, classes: &mut String) {
-        // Sin `display` no hay contenedor Flex: el resto de facetas (`flex-direction`, `gap`...)
-        // no tienen ningún efecto en CSS sin `display: flex`/`inline-flex`, así que ni se generan.
+    fn flex_classes(&self, cx: &mut Context, classes: &mut String) {
+        // Sin `display` no hay contenedor Flex: el resto de propiedades (`flex-direction`, `gap`,
+        // etc.) no tienen ningún efecto en CSS sin `display: flex`/`inline-flex`, así que ni se
+        // generan.
         let Some(display) = self.display else {
             return;
         };

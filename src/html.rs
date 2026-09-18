@@ -38,14 +38,18 @@ pub use unit::UnitValue;
 // **< HTML LAYOUT >********************************************************************************
 
 // Mecanismo interno compartido por `flex` y `grid` para resolver clases CSS nativas *responsive*.
-mod responsive;
+pub(crate) mod responsive;
 
 // Vocabulario de alineación compartido por `flex` y `grid`.
 pub mod align;
 
 pub mod flex;
 #[doc(inline)]
-pub use flex::{Flex, FlexItem};
+pub use flex::FlexItem;
+
+pub mod grid;
+#[doc(inline)]
+pub use grid::GridItem;
 
 pub mod spacing;
 #[doc(inline)]

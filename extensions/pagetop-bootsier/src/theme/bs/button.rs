@@ -75,10 +75,9 @@ impl ButtonBootsier for Button {
 pub(crate) fn setup(button: &mut Button) {
     button.alter_prop(PropsOp::replace_classes("button", "btn"));
 
-    // `Button::setup()` (core) ya ha traducido la intención con `Theme::intent_color()` -- aquí
-    // sólo queda cambiar el prefijo `button-`/`button-outline-` por el equivalente
-    // `btn-`/`btn-outline-` de Bootstrap, conservando el mismo nombre de color salvo que
-    // `with_color()` lo sobrescriba.
+    // `Button::setup()` (core) ya ha traducido la intención con `Theme::intent_color()`. Aquí sólo
+    // queda cambiar el prefijo `button-`/`button-outline-` por el equivalente `btn-`/`btn-outline-`
+    // de Bootstrap, conservando el mismo nombre de color salvo que `with_color()` lo sobrescriba.
     let override_color = button
         .props()
         .extra::<BootsierColors>(EXTRA_COLOR)

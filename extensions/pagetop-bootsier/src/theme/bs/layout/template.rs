@@ -5,10 +5,10 @@ use crate::theme::{ContainerBootsier, bs};
 use crate::{ADMINLTE_VERSION, LOCALES_BOOTSIER};
 
 // Regiones de Bootsier: se renderiza sin el `<div role="region">` envolvente que aplica
-// `layout::Template::prepare()` por defecto -- delega en `render_standard()`/`render_admin()`
-// según la variante de `CoreTemplates` que envuelva el componente. Devuelve `None` si
-// `component` no envuelve una `CoreTemplates`, dejando que el resto de la cadena de temas (o
-// el propio componente) resuelva el renderizado por defecto.
+// `layout::Template::prepare()` por defecto; delega en `render_standard()`/`render_admin()` según
+// la variante de `CoreTemplates` que envuelva el componente. Devuelve `None` si `component` no
+// envuelve una `CoreTemplates`, dejando que el resto de la cadena de temas (o el propio componente)
+// resuelva el renderizado por defecto.
 pub(crate) async fn render(
     component: &layout::Template,
     cx: &mut Context,

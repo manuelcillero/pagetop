@@ -229,10 +229,8 @@ fn box_sample() -> Lc {
 }
 
 // Fila de demostración con fondo gris para visualizar los límites de cada caja.
-fn demo_row(flex: Flex) -> Container {
-    Container::new()
-        .with_prop(PropsOp::add_classes("spacing-demo-row"))
-        .with_flex(flex)
+fn demo_row(flex: Flex) -> Flex {
+    flex.with_prop(PropsOp::add_classes("spacing-demo-row"))
 }
 
 // Título y fragmento de código que introducen cada demostración.

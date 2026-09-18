@@ -9,8 +9,8 @@ use crate::registry;
 /// Renderiza breadcrumb, encabezado (título + acciones locales), tareas locales (pestañas) y el
 /// contenido de la página. No incluye ningún menú de navegación: mostrar las secciones del panel
 /// (el "sidebar" o el "menú superior", según el tema) es responsabilidad del tema que intercepte
-/// [`CoreTemplates::Admin`](pagetop::core::theme::CoreTemplates::Admin) -- por ejemplo
-/// `pagetop-bootsier` -- leyendo directamente [`crate::registry::global()`]. El tema básico de
+/// [`CoreTemplates::Admin`](pagetop::core::theme::CoreTemplates::Admin) (por ejemplo
+/// `pagetop-bootsier`) leyendo directamente [`crate::registry::global()`]. El tema básico de
 /// PageTop no lo hace, y una página de administración sigue siendo completamente navegable sin él,
 /// a través del *dashboard* (`/admin`), las páginas de sección y este mismo breadcrumb.
 ///

@@ -1,14 +1,16 @@
 //! Definiciones para el posicionamiento de componentes con [Flexbox].
 //!
-//! [`Flex`] configura un contenedor y sus hijos como un grupo sobre el que se aplican propiedades
-//! de presentación (dirección, ajuste de línea, alineación, espaciado). Lo usan componentes que
-//! ofrecen su propio `with_flex()`, como [`Container`] o [`Navbar`].
+//! Por un lado está [`Flex`], el **componente contenedor** disponible en
+//! [`pagetop::base::component`] que permite estructurar un conjunto de componentes hijo como un
+//! grupo Flexbox sobre el que se aplican propiedades de presentación (dirección, ajuste de línea,
+//! alineación, espaciado), con sus propios constructores (`new()`, `at()`, `inline()`,
+//! `inline_at()`) y builders (`with_direction()`, `with_gap()`, etc.).
 //!
-//! [`FlexItem`] configura, en cambio, un único elemento en relación con el contenedor flex de su
-//! padre (crecimiento, reducción, alineación individual, orden, ancho y desplazamiento). No tiene
-//! un builder propio ya que puede acabar aplicándose sobre cualquier componente (no sólo los que
-//! ofrecen `with_flex()`). Por eso se aplica pasándolo directamente al `with_prop()` que
-//! normalmente ya expone cualquier componente, gracias a su `From` hacia [`PropsOp`].
+//! Por otro, aquí se define [`FlexItem`], que es la **configuración** que se aplica sobre un único
+//! elemento respecto a su contenedor flex padre (crecimiento, reducción, alineación individual,
+//! orden, ancho y desplazamiento). No tiene un builder propio ya que podría usarse sobre cualquier
+//! componente. Por eso se aplica pasándolo directamente al `with_prop()` que normalmente ya expone
+//! cualquier componente, gracias a su implementación `From` hacia [`PropsOp`].
 //!
 //! # Un entorno nativo autosuficiente
 //!
@@ -20,20 +22,30 @@
 //! documento. Funciona igual conviva con quien conviva en la misma página, sin necesidad de
 //! coordinar nombres de clase ni orden alguno en la carga de hojas de estilo.
 //!
+//! # Alineación y espaciado: ver [`align`]
+//!
+//! `align`/`align_content`/`gap` en [`Flex`] y `align_self` en [`FlexItem`] no tienen tipos propios
+//! de este módulo. Usan [`align::Items`], [`align::Content`], [`align::Gap`] y [`align::ItemSelf`],
+//! tipos declarados en [`pagetop::html::align`] con las propiedades que Flexbox y CSS Grid
+//! resuelven de manera idéntica.
+//!
 //! [Flexbox]: https://developer.mozilla.org/en-US/docs/Web/CSS/Guides/Flexible_box_layout
 //! [`AssetsOp::add_responsive_style()`]: crate::core::component::AssetsOp::add_responsive_style
+//! [`pagetop::html::align`]: crate::html::align
+//! [`align`]: crate::html::align
+//! [`align::Items`]: crate::html::align::Items
+//! [`align::Content`]: crate::html::align::Content
+//! [`align::Gap`]: crate::html::align::Gap
+//! [`align::ItemSelf`]: crate::html::align::ItemSelf
 //! [`PropsOp`]: crate::html::props::PropsOp
-//! [`Container`]: crate::base::component::Container
-//! [`Navbar`]: crate::base::component::Navbar
+//! [`pagetop::base::component`]: crate::base::component
+//! [`Flex`]: crate::base::component::Flex
 
 mod props_container;
-pub use props_container::{Align, AlignContent, Behavior, ContentJustify, Direction, Gap};
+pub use props_container::{Behavior, ContentJustify, Direction};
 
 mod props_item;
-pub use props_item::{ItemAlign, ItemGrow, ItemOffset, ItemOrder, ItemShrink, ItemSize};
-
-mod container;
-pub use container::Flex;
+pub use props_item::{ItemGrow, ItemOffset, ItemOrder, ItemShrink, ItemSize};
 
 mod item;
 pub use item::FlexItem;

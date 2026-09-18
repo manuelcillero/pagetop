@@ -97,8 +97,8 @@ impl RegionName for BootsierRegions {
 // **< Region RENDER >******************************************************************************
 
 // Regiones de Bootsier: se renderizan sin el `<div role="region">` envolvente que aplica
-// `layout::Region::prepare()` por defecto -- sus elementos van directamente dentro del contenedor
-// que los gestiona (sidebar-menu o navbar-nav). Devuelve `None` si `component` no envuelve una
+// `layout::Region::prepare()` por defecto. Sus elementos van directamente dentro del contenedor que
+// los gestiona (sidebar-menu o navbar-nav). Devuelve `None` si `component` no envuelve una
 // `BootsierRegions`, dejando que el resto de la cadena de temas (o el propio componente) resuelva
 // el renderizado por defecto.
 pub(crate) async fn render(

@@ -162,7 +162,7 @@ impl Extension for Admin {
         registry::build();
 
         // Región neutra del core: cualquier tema puede decidir renderizarla (o no) sin que
-        // `pagetop-admin` dependa de ninguno en concreto -- ver `CoreRegions::Aside`.
+        // `pagetop-admin` dependa de ninguno en concreto (ver `CoreRegions::Aside`).
         InRegion::Global(&CoreRegions::Aside).add(component::AdminMenu::new());
     }
 

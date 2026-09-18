@@ -1,6 +1,7 @@
 use crate::CowStr;
 use crate::core::TypeInfo;
 use crate::html::flex::FlexItem;
+use crate::html::grid::GridItem;
 use crate::html::props::extra::PropsExtra;
 use crate::html::spacing::{Margin, Padding};
 
@@ -41,9 +42,10 @@ use std::sync::Arc;
 /// se interpretan como si
 /// fueran valores internos del componente para tomar decisiones durante el renderizado.
 ///
-/// [`FlexItem`](Self::FlexItem) aplica un posicionamiento Flexbox a nivel de ítem, mientras que
+/// [`FlexItem`](Self::FlexItem) aplica un posicionamiento Flexbox a nivel de ítem,
+/// [`GridItem`](Self::GridItem) aplica un posicionamiento CSS Grid a nivel de ítem, y
 /// [`Margin`](Self::Margin) y [`Padding`](Self::Padding) aplican márgenes y relleno interno; los
-/// tres sobre cualquier componente.
+/// cuatro sobre cualquier componente.
 #[derive(Clone, Debug)]
 pub enum PropsOp {
     /// Establece el identificador del componente normalizando el valor: recorta espacios, convierte
@@ -120,21 +122,46 @@ pub enum PropsOp {
     /// Existe como variante de `PropsOp`, y no como método builder de un componente, porque las
     /// propiedades de un ítem Flexbox tienen sentido sobre **cualquier** componente que pueda
     /// añadirse como hijo de un contenedor Flex (por ejemplo `Button`, `Nav`, un componente de
-    /// terceros, incluso otro componente que sea, a su vez, un contenedor Flex para sus propios
-    /// hijos).
+    /// terceros, incluso otro componente que sea, a su vez, un contenedor Flex o [`Grid`] para sus
+    /// propios hijos).
     ///
-    /// No existe una variante equivalente `PropsOp::Flex` para el componente contenedor. No hace
-    /// falta porque los componentes contenedores, como `Container` o `Navbar`, ofrecen su propio
-    /// `with_flex()` tipado y con introspección (p. ej. [`Container::flex()`]).
+    /// No existe una variante equivalente `PropsOp::Flex` para el contenedor, por el mismo motivo
+    /// que no existe `PropsOp::Grid`. El único componente contenedor [`Flex`] ofrece sus propios
+    /// constructores y builders tipados, con introspección (p. ej. [`Flex::direction()`]). Esto no
+    /// afecta a [`GridItem`]; un componente puede llevar las dos variantes a la vez, con
+    /// independencia de qué tipo de contenedor sea él mismo para sus propios hijos.
     ///
-    /// [`Flex`]: crate::html::flex::Flex
-    /// [`Container::flex()`]: crate::base::component::Container::flex
+    /// [`Flex`]: crate::base::component::Flex
+    /// [`Flex::direction()`]: crate::base::component::Flex::direction
+    /// [`Grid`]: crate::base::component::Grid
+    /// [`GridItem`]: Self::GridItem
     FlexItem(FlexItem),
+    /// Aplica un posicionamiento [`GridItem`] a un componente particular en un contenedor
+    /// [`Grid`]. Añade directamente sus estilos CSS Grid al propio componente, generando clases CSS
+    /// dinámicas.
+    ///
+    /// Misma razón de ser que [`FlexItem`]; las propiedades de un ítem Grid tienen sentido sobre
+    /// **cualquier** componente que pueda añadirse como hijo de un contenedor Grid (por ejemplo
+    /// `Button`, `Nav`, un componente de terceros, incluso otro componente que sea, a su vez, un
+    /// contenedor Grid o [`Flex`] para sus propios hijos).
+    ///
+    /// No existe una variante equivalente `PropsOp::Grid` para el contenedor, por el mismo motivo
+    /// que no existe `PropsOp::Flex`. El único componente contenedor [`Grid`] ofrece sus propios
+    /// constructores y builders tipados, con introspección (p. ej. [`Grid::columns()`]). Esto no
+    /// afecta a [`FlexItem`]; un componente puede llevar las dos variantes a la vez, con
+    /// independencia de qué tipo de contenedor sea él mismo para sus propios hijos.
+    ///
+    /// [`Grid`]: crate::base::component::Grid
+    /// [`Grid::columns()`]: crate::base::component::Grid::columns
+    /// [`Flex`]: crate::base::component::Flex
+    /// [`FlexItem`]: Self::FlexItem
+    GridItem(GridItem),
     /// Aplica un margen [`Margin`] a un componente particular. Añade directamente sus estilos al
     /// propio componente, generando clases CSS dinámicas.
     ///
-    /// Como [`FlexItem`](Self::FlexItem), existe como variante de `PropsOp` y no como método
-    /// builder de un componente, porque el margen tiene sentido sobre **cualquier** componente.
+    /// Como [`FlexItem`](Self::FlexItem) y [`GridItem`](Self::GridItem), existe como variante de
+    /// `PropsOp` y no como método builder de un componente, porque el margen tiene sentido sobre
+    /// **cualquier** componente.
     Margin(Margin),
     /// Aplica un relleno interno [`Padding`] a un componente particular, siguiendo los mismos
     /// criterios que [`Margin`](Self::Margin).
@@ -279,6 +306,11 @@ impl PropsOp {
     /// Crea la variante [`FlexItem`](Self::FlexItem) con el posicionamiento indicado.
     pub fn flex_item(placement: FlexItem) -> Self {
         Self::FlexItem(placement)
+    }
+
+    /// Crea la variante [`GridItem`](Self::GridItem) con el posicionamiento indicado.
+    pub fn grid_item(placement: GridItem) -> Self {
+        Self::GridItem(placement)
     }
 
     /// Crea la variante [`Margin`](Self::Margin) con el margen indicado.

@@ -1,25 +1,35 @@
 use crate::core::component::Context;
 use crate::core::theme::{Breakpoint, Responsive};
 use crate::html::PropsOp;
-use crate::html::flex::{ItemAlign, ItemGrow, ItemOffset, ItemOrder, ItemShrink, ItemSize};
+use crate::html::align;
+use crate::html::flex::{ItemGrow, ItemOffset, ItemOrder, ItemShrink, ItemSize};
 use crate::{AutoDefault, Getters, builder_impl, util};
 
 /// Configuración de un elemento como ítem de un contenedor Flexbox.
 ///
-/// A diferencia de [`Flex`](crate::html::flex::Flex), que configura el comportamiento Flexbox
-/// global de un contenedor y sus hijos como grupo, `FlexItem` configura un único elemento en
-/// relación con el contenedor flex padre: crecimiento ([`ItemGrow`]), reducción ([`ItemShrink`]),
-/// alineación individual ([`ItemAlign`]), orden visual ([`ItemOrder`]), tamaño ([`ItemSize`]) y
-/// desplazamiento ([`ItemOffset`]).
+/// A diferencia del componente [`Flex`], que define un contenedor que aplica Flexbox para el
+/// posicionamiento de sus componentes hijo, `FlexItem` se aplica sobre un único elemento en
+/// relación con el contenedor flex padre. Usa el método `with_prop()` que suele exponer cualquier
+/// componente, y acepta `FlexItem` directamente gracias a su `From` hacia [`PropsOp`].
 ///
 /// No tiene un builder dedicado en ningún componente. De hecho, no tendría sentido porque cualquier
 /// componente puede acabar siendo hijo de un contenedor flex, y ninguno debería necesitar un campo
-/// propio para esto. Se aplica sobre el `with_prop()` que suele exponer cualquier componente, que
-/// acepta `FlexItem` directamente gracias a su `From` hacia [`PropsOp`].
+/// propio para esto.
+///
+/// `FlexItem` actúa sobre propiedades del elemento para configurar su crecimiento ([`ItemGrow`]),
+/// reducción ([`ItemShrink`]), alineación individual ([`align::ItemSelf`]), orden visual
+/// ([`ItemOrder`]), tamaño ([`ItemSize`]) y desplazamiento ([`ItemOffset`]).
+///
+/// Un hijo de `Flex` sin ningún `FlexItem` aplicado participa igualmente como ítem flex, sólo que
+/// sin crecimiento, reducción, alineación individual, orden, tamaño ni desplazamiento propios
+/// (todos sus valores por defecto).
 ///
 /// Con [`ItemSize`] y [`ItemOffset`] se pueden modelar rejillas de columnas fijas sobre Flexbox,
 /// combinando un tamaño en fracción del contenedor con un desplazamiento lateral cuando se
 /// necesite.
+///
+/// [`Flex`]: crate::base::component::Flex
+/// [`align::ItemSelf`]: crate::html::align::ItemSelf
 ///
 /// # Ejemplo
 ///
@@ -50,7 +60,7 @@ pub struct FlexItem {
     shrink: Responsive<ItemShrink>,
     /// Devuelve la alineación individual en el eje transversal, por punto de corte.
     #[getters(copy)]
-    align_self: Responsive<ItemAlign>,
+    align_self: Responsive<align::ItemSelf>,
     /// Devuelve la posición en el orden visual, por punto de corte.
     #[getters(copy)]
     order: Responsive<ItemOrder>,
@@ -124,14 +134,14 @@ impl FlexItem {
     }
 
     /// Establece la alineación individual en el eje transversal.
-    pub fn with_align_self(mut self, align_self: ItemAlign) -> Self {
+    pub fn with_align_self(mut self, align_self: align::ItemSelf) -> Self {
         self.align_self = self.align_self.set(align_self);
         self
     }
 
     /// Establece la alineación individual en el eje transversal, a partir del punto de corte
     /// indicado.
-    pub fn with_align_self_at(mut self, bp: Breakpoint, align_self: ItemAlign) -> Self {
+    pub fn with_align_self_at(mut self, bp: Breakpoint, align_self: align::ItemSelf) -> Self {
         self.align_self = self.align_self.set_at(bp, align_self);
         self
     }
@@ -152,7 +162,7 @@ impl FlexItem {
     /// [`ItemShrink::Is0`](super::ItemShrink::Is0) por sí solo (consulta la documentación de
     /// [`ItemSize`] antes de combinarlo con [`with_shrink()`](Self::with_shrink) porque con un
     /// tamaño en porcentaje, forzar `ItemShrink::Is0` sólo es seguro si el contenedor no tiene
-    /// [`Gap`](super::Gap)).
+    /// [`align::Gap`](crate::html::align::Gap)).
     pub fn with_size(mut self, size: ItemSize) -> Self {
         self.size = self.size.set(size);
         self
@@ -189,10 +199,12 @@ impl FlexItem {
     /// que sólo establezca `with_size_at(Breakpoint::Lg, ...)` no borra el `with_size()` base que
     /// `self` ya tuviera, sólo sustituye la entrada de ese punto de corte.
     ///
-    /// Es el método que usa [`Props::with_prop()`](crate::html::props::Props::with_prop) para que
-    /// sucesivas [`PropsOp::FlexItem`](crate::html::props::PropsOp::FlexItem) sobre el mismo
-    /// componente vayan completando campos concretos sin repetir los ya establecidos, en vez de
-    /// partir de cero en cada llamada.
+    /// Es el método que usa [`Props::with_prop()`] para que sucesivas [`PropsOp::FlexItem`] sobre
+    /// el mismo componente vayan completando campos concretos sin repetir los ya establecidos, en
+    /// vez de partir de cero en cada llamada.
+    ///
+    /// [`Props::with_prop()`]: crate::html::props::Props::with_prop
+    /// [`PropsOp::FlexItem`]: crate::html::props::PropsOp::FlexItem
     pub fn merge(mut self, item: FlexItem) -> Self {
         self.grow = self.grow.merge(item.grow);
         self.shrink = self.shrink.merge(item.shrink);
@@ -204,14 +216,13 @@ impl FlexItem {
     }
 
     /// Aplica esta configuración como clases de utilidad responsive en el [`Context`], igual que
-    /// [`Flex::apply()`](super::Flex::apply): cada faceta con valor añade una declaración de
-    /// estilo (por punto de corte, si se ha establecido alguno) y su propia clase. Un campo sin
-    /// ningún valor establecido, o con un valor cuya variante es la "por defecto" del propio enum
-    /// (p. ej. `ItemGrow::Default`), no añade nada.
+    /// hace internamente [`Flex`](crate::base::component::Flex): cada propiedad con valor añade una
+    /// declaración de estilo (por punto de corte, si se ha establecido alguno) y su propia clase.
+    /// Un campo sin ningún valor establecido, o con un valor cuya variante es la "por defecto" del
+    /// propio enum (p. ej. `ItemGrow::Default`), no añade nada.
     ///
     /// Las clases generadas se añaden a `classes`, separadas con un espacio de las que ya hubiera,
-    /// para poder compartir un único acumulador con [`Flex::apply()`](super::Flex::apply) sin
-    /// cadenas intermedias.
+    /// para poder compartir un único acumulador con las de `Flex` sin cadenas intermedias.
     #[rustfmt::skip]
     pub(crate) fn apply(self, cx: &mut Context, classes: &mut String) {
         use crate::html::responsive::{apply, responsive_class, styles, value_to_token};

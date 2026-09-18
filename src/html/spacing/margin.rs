@@ -26,7 +26,7 @@ use crate::{AutoDefault, Getters, builder_impl, util};
 /// );
 /// ```
 ///
-/// [`Flex`]: crate::html::flex::Flex
+/// [`Flex`]: crate::base::component::Flex
 /// [`FlexItem`]: crate::html::flex::FlexItem
 #[derive(AutoDefault, Clone, Copy, Debug, PartialEq, Getters)]
 pub struct Margin {

@@ -330,7 +330,7 @@ fn edit_actions(
     can_toggle_admin: bool,
     waypoint: &Waypoint,
     cx: &mut Context,
-) -> Container {
+) -> Flex {
     let (next_status, label_key) = match status {
         UserStatus::Blocked => ("active", "btn-activate"),
         _ => ("blocked", "btn-block"),
@@ -361,13 +361,10 @@ fn edit_actions(
         status_form = status_form.with_prop(PropsOp::set(hx::CONFIRM, confirm));
     }
 
-    let mut container = Container::new()
-        .with_flex(
-            Flex::new()
-                .with_wrap(flex::Behavior::Wrap)
-                .with_align(flex::Align::Center)
-                .with_gap(flex::Gap::Both(UnitValue::RelRem(0.5))),
-        )
+    let mut container = Flex::new()
+        .with_wrap(flex::Behavior::Wrap)
+        .with_align(align::Items::Center)
+        .with_gap(align::Gap::Both(UnitValue::RelRem(0.5)))
         .with_child(
             Button::submit(Lc::t("btn-save", &LOCALES_USER))
                 .with_style(button::Style::Solid(Intent::Primary))

@@ -140,12 +140,9 @@ async fn form_controls(request: HttpRequest) -> Result<Markup, ErrorPage> {
                                 .with_child(form::Hidden::field("origin", "form-selections"))
                                 // Botonera de acciones.
                                 .with_child(
-                                    Container::new()
-                                        .with_flex(
-                                            Flex::new()
-                                                .with_wrap(flex::Behavior::Wrap)
-                                                .with_gap(align::Gap::Both(UnitValue::RelRem(0.5))),
-                                        )
+                                    Flex::new()
+                                        .with_wrap(flex::Behavior::Wrap)
+                                        .with_gap(align::Gap::Both(UnitValue::RelRem(0.5)))
                                         .with_child(
                                             Button::submit(Lc::t("btn_submit", &LOC))
                                                 .with_style(button::Style::Solid(Intent::Primary)),
@@ -260,12 +257,9 @@ async fn form_controls(request: HttpRequest) -> Result<Markup, ErrorPage> {
                                 .with_child(form::Hidden::field("origin", "form-text"))
                                 // Botonera de acciones.
                                 .with_child(
-                                    Container::new()
-                                        .with_flex(
-                                            Flex::new()
-                                                .with_wrap(flex::Behavior::Wrap)
-                                                .with_gap(align::Gap::Both(UnitValue::RelRem(0.5))),
-                                        )
+                                    Flex::new()
+                                        .with_wrap(flex::Behavior::Wrap)
+                                        .with_gap(align::Gap::Both(UnitValue::RelRem(0.5)))
                                         .with_child(
                                             Button::submit(Lc::t("btn_submit", &LOC))
                                                 .with_style(button::Style::Solid(Intent::Primary)),
@@ -440,12 +434,9 @@ fn form_lists() -> Form {
         .with_child(form::Hidden::field("origin", "form-lists"))
         // Botonera de acciones.
         .with_child(
-            Container::new()
-                .with_flex(
-                    Flex::new()
-                        .with_wrap(flex::Behavior::Wrap)
-                        .with_gap(align::Gap::Both(UnitValue::RelRem(0.5))),
-                )
+            Flex::new()
+                .with_wrap(flex::Behavior::Wrap)
+                .with_gap(align::Gap::Both(UnitValue::RelRem(0.5)))
                 .with_child(
                     Button::submit(Lc::t("btn_submit", &LOC))
                         .with_style(button::Style::Solid(Intent::Primary)),

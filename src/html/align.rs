@@ -1,4 +1,4 @@
-//! Definiciones de alineación compartidas por [`Flex`] y [`Grid`].
+//! Definiciones de alineación compartidas por los contenedores [`Flex`] y [`Grid`].
 //!
 //! Reúne las definiciones CSS que Flexbox y CSS Grid resuelven de forma idéntica, con el mismo
 //! nombre de propiedad y mismo catálogo de valores. La propia especificación CSS no los considera
@@ -24,8 +24,8 @@
 //! comparte y qué no).
 //!
 //! [CSS Box Alignment Module]: https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_box_alignment
-//! [`Flex`]: crate::html::Flex
-//! [`Grid`]: crate::html::Grid
+//! [`Flex`]: crate::base::component::Flex
+//! [`Grid`]: crate::base::component::Grid
 //! [`align::Items`]: crate::html::align::Items
 //! [`align::Content`]: crate::html::align::Content
 //! [`align::ItemSelf`]: crate::html::align::ItemSelf
@@ -39,14 +39,14 @@ use crate::{AutoDefault, CowStr};
 
 /// Alinea los elementos en un contenedor [`Flex`] (eje transversal) o [`Grid`] (eje de filas).
 ///
-/// [`Flex`]: crate::html::Flex
-/// [`Grid`]: crate::html::Grid
+/// [`Flex`]: crate::base::component::Flex
+/// [`Grid`]: crate::base::component::Grid
 #[derive(AutoDefault, Clone, Copy, Debug, PartialEq)]
 pub enum Items {
     /// Por defecto (`align-items: normal` no explícito), mismo efecto que [`Items::Stretch`], salvo
     /// que el elemento tenga su propio tamaño.
     #[default]
-    Default,
+    Normal,
     /// Alinea los elementos al inicio del eje (`align-items: flex-start`).
     Start,
     /// Alinea los elementos al final del eje (`align-items: flex-end`).
@@ -63,7 +63,7 @@ impl Items {
     // Devuelve el valor CSS de `align-items`, o "" para el valor por defecto.
     pub(crate) fn value(self) -> CowStr {
         match self {
-            Self::Default => "".into(),
+            Self::Normal => "".into(),
             Self::Start => "flex-start".into(),
             Self::End => "flex-end".into(),
             Self::Center => "center".into(),
@@ -84,8 +84,8 @@ impl Items {
 /// la suma de las pistas de fila sea menor que la altura del contenedor, sin depender de ningún
 /// ajuste de línea.
 ///
-/// [`Flex`]: crate::html::Flex
-/// [`Grid`]: crate::html::Grid
+/// [`Flex`]: crate::base::component::Flex
+/// [`Grid`]: crate::base::component::Grid
 /// [`Behavior::Wrap`]: crate::html::flex::Behavior::Wrap
 /// [`Behavior::WrapReverse`]: crate::html::flex::Behavior::WrapReverse
 #[derive(AutoDefault, Clone, Copy, Debug, PartialEq)]
@@ -94,7 +94,7 @@ pub enum Content {
     /// o pistas se estiran para ocupar el espacio sobrante, sin efecto visible si no hay ningún
     /// espacio sobrante que repartir (p. ej. una altura `auto` ajustada al contenido).
     #[default]
-    Default,
+    Normal,
     /// Alinea al inicio del eje (`align-content: flex-start`).
     Start,
     /// Alinea al final del eje (`align-content: flex-end`).
@@ -116,7 +116,7 @@ impl Content {
     // Devuelve el valor CSS de `align-content`, o "" para el valor por defecto.
     pub(crate) fn value(self) -> CowStr {
         match self {
-            Self::Default => "".into(),
+            Self::Normal => "".into(),
             Self::Start => "flex-start".into(),
             Self::End => "flex-end".into(),
             Self::Center => "center".into(),
@@ -139,8 +139,8 @@ impl Content {
 /// Esa combinación no aplica a Grid, donde el reparto de espacio entre pistas no tiene el mismo
 /// problema.
 ///
-/// [`Flex`]: crate::html::Flex
-/// [`Grid`]: crate::html::Grid
+/// [`Flex`]: crate::base::component::Flex
+/// [`Grid`]: crate::base::component::Grid
 /// [`ItemSize`]: crate::html::flex::ItemSize
 #[derive(AutoDefault, Clone, Copy, Debug, PartialEq)]
 pub enum Gap {

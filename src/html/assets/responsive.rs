@@ -37,7 +37,7 @@ impl ResponsiveStyles {
     /// Si ya existe una declaración para la misma propiedad, en el mismo punto de corte y con las
     /// mismas clases, la llamada no hace nada: se conserva el valor ya almacenado, no se sustituye.
     /// Pensado para clases utilitarias generadas automáticamente, donde el mismo nombre de clase
-    /// implica siempre el mismo valor -- declararla de nuevo es entonces una operación de sólo
+    /// implica siempre el mismo valor. Declararla de nuevo es entonces una operación de sólo
     /// lectura, sin normalizar `value`, en vez de una escritura.
     ///
     /// Si `classes` contiene caracteres no ASCII, o si `classes`, `property` o `value` quedan
