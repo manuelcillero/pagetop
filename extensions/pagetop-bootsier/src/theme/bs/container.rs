@@ -36,9 +36,9 @@ const EXTRA_WIDTH: &str = "bootsier.container.width";
 pub trait ContainerBootsier {
     /// Establece el comportamiento del ancho para el contenedor.
     ///
-    /// Determina si el contenedor aplica los anchos máximos predefinidos para cada punto de
-    /// ruptura, o si ocupa siempre el 100% del ancho disponible, o lo hace hasta un ancho máximo
-    /// explícito. Ver [`Width`] para las variantes disponibles.
+    /// Determina si el contenedor aplica los anchos máximos predefinidos para cada punto de corte,
+    /// o si ocupa siempre el 100% del ancho disponible, o lo hace hasta un ancho máximo explícito.
+    /// Ver [`Width`] para las variantes disponibles.
     fn with_width(self, width: Width) -> Self;
 }
 
@@ -55,12 +55,12 @@ impl ContainerBootsier for Container {
 /// Define cómo se comporta el ancho de un contenedor ([`Container`]).
 #[derive(AutoDefault, Clone, Copy, Debug, PartialEq)]
 pub enum Width {
-    /// Comportamiento por defecto, aplica los anchos máximos predefinidos para cada punto de
-    /// ruptura. Por debajo del menor punto de ruptura ocupa el 100% del ancho disponible.
+    /// Comportamiento por defecto, aplica los anchos máximos predefinidos para cada punto de corte.
+    /// Por debajo del menor punto de corte ocupa el 100% del ancho disponible.
     #[default]
     Default,
-    /// Aplica los anchos máximos predefinidos a partir del punto de ruptura indicado. Por debajo de
-    /// ese punto de ruptura ocupa el 100% del ancho disponible.
+    /// Aplica los anchos máximos predefinidos a partir del punto de corte indicado. Por debajo de
+    /// ese punto de corte ocupa el 100% del ancho disponible.
     From(Breakpoint),
     /// Ocupa el 100% del ancho disponible siempre.
     Fluid,
@@ -73,7 +73,7 @@ impl Width {
 
     /// Añade la clase asociada al ancho del contenedor a la cadena de clases.
     ///
-    /// El nombre del punto de ruptura se resuelve en el tema activo de `cx`.
+    /// El nombre del punto de corte se resuelve en el tema activo de `cx`.
     #[inline]
     pub fn push_to(self, cx: &Context, classes: &mut String) {
         match self {

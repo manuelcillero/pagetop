@@ -3,7 +3,8 @@ use crate::prelude::*;
 /// Componente para crear una **barra de navegación**.
 ///
 /// Permite mostrar enlaces, menús desplegables ([`nav::Item::dropdown()`]) y una marca de
-/// identidad, en distintas disposiciones controladas por [`navbar::Layout`].
+/// identidad, en distintas disposiciones controladas por [`navbar::Layout`]. El punto de corte a
+/// partir del cual deja de colapsar se define con [`with_expand()`](Self::with_expand).
 ///
 /// Si no contiene elementos, el componente **no se renderiza**.
 ///
@@ -23,11 +24,13 @@ use crate::prelude::*;
 ///     ));
 /// ```
 ///
-/// Barra **colapsable**, con botón de despliegue:
+/// Barra **colapsable**, con botón de despliegue, que muestra su contenido en línea a partir de un
+/// punto de corte (por defecto, [`Breakpoint::Md`]):
 ///
 /// ```rust,no_run
 /// # use pagetop::prelude::*;
 /// let navbar = Navbar::simple_toggle()
+///     .with_expand(Breakpoint::Lg)
 ///     .with_item(navbar::Item::nav(
 ///         Nav::new()
 ///             .with_item(nav::Item::link(Lc::n("Home"), "/"))
@@ -81,6 +84,10 @@ pub struct Navbar {
     props: Props,
     /// Devuelve la disposición configurada para la barra de navegación.
     layout: navbar::Layout,
+    /// Devuelve el punto de corte a partir del cual la barra deja de colapsar.
+    #[default(Breakpoint::Md)]
+    #[getters(copy)]
+    expand: Breakpoint,
     /// Devuelve la lista de contenidos.
     items: Children,
 }
@@ -101,6 +108,12 @@ impl Component for Navbar {
         // de despliegue lo necesita para referenciar ese contenido colapsable con `aria-controls`
         // si el *layout* lo incluye.
         self.alter_prop(PropsOp::ensure_id(cx.build_id::<Self>(1)));
+
+        let class: CowStr = match self.expand().resolved(cx) {
+            Some(entry) => util::join!("navbar-expand-", entry.name).into(),
+            None => "navbar-expand".into(),
+        };
+        self.alter_prop(PropsOp::prepend_classes(class));
         self.alter_prop(PropsOp::prepend_classes("navbar"));
     }
 
@@ -215,6 +228,17 @@ impl Navbar {
     /// Define el tipo de disposición que tendrá la barra de navegación.
     pub fn with_layout(mut self, layout: navbar::Layout) -> Self {
         self.layout = layout;
+        self
+    }
+
+    /// Define a partir de qué punto de corte ([`Breakpoint`]) la barra de navegación deja de
+    /// colapsar y muestra su contenido en línea.
+    ///
+    /// Por debajo de ese punto de corte, en las disposiciones con botón de despliegue el contenido
+    /// queda oculto tras el botón. Con [`Breakpoint::Xs`] la barra nunca colapsa. Por defecto es
+    /// [`Breakpoint::Md`].
+    pub fn with_expand(mut self, bp: Breakpoint) -> Self {
+        self.expand = bp;
         self
     }
 

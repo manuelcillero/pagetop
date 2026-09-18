@@ -1,7 +1,7 @@
 //! Define clases para aplicar en componentes del tema.
 //!
-//! Incluyen puntos de ruptura, colores y niveles de opacidad, escalas de tamaño y lados, necesarios
-//! para crear determinadas clases del tema:
+//! Incluyen colores y niveles de opacidad, escalas de tamaño y lados, necesarios para crear
+//! determinadas clases del tema:
 //!
 //! ```rust,no_run
 //! use pagetop_bootsier::theme::*;

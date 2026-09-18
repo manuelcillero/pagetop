@@ -8,16 +8,18 @@ const TOGGLE_OFFCANVAS: &str = "offcanvas";
 
 const EXTRA_LAYOUT: &str = "bootsier.navbar.layout";
 const EXTRA_POSITION: &str = "bootsier.navbar.position";
-const EXTRA_EXPAND: &str = "bootsier.navbar.expand";
 
-/// Extensión de Bootsier para [`Navbar`](crate::theme::bs::Navbar).
+/// Extensión de Bootsier para [`Navbar`].
 ///
 /// Permite mostrar enlaces, menús y una marca de identidad en distintas disposiciones (simples, con
-/// botón de despliegue o dentro de un [`Offcanvas`](crate::theme::bs::Offcanvas)), controladas por
-/// [`navbar::Layout`](crate::theme::bs::navbar::Layout). También puede fijarse en la parte superior
-/// o inferior del documento mediante [`navbar::Position`](crate::theme::bs::navbar::Position), y
-/// definir a partir de qué punto de ruptura deja de colapsar con
-/// [`with_expand()`](Self::with_expand).
+/// botón de despliegue o dentro de un [`Offcanvas`]), controladas por [`navbar::Layout`]. También
+/// puede fijarse en la parte superior o inferior del documento mediante [`navbar::Position`]. El
+/// punto de corte a partir del cual deja de colapsar se define con [`Navbar::with_expand()`].
+///
+/// [`Navbar`]: crate::theme::bs::Navbar
+/// [`Offcanvas`]: crate::theme::bs::Offcanvas
+/// [`navbar::Layout`]: crate::theme::bs::navbar::Layout
+/// [`navbar::Position`]: crate::theme::bs::navbar::Position
 ///
 /// # Ejemplos
 ///
@@ -42,7 +44,6 @@ const EXTRA_EXPAND: &str = "bootsier.navbar.expand";
 /// # use pagetop::prelude::*;
 /// # use pagetop_bootsier::theme::*;
 /// let navbar = bs::Navbar::simple_toggle()
-///     .with_expand(Breakpoint::Md)
 ///     .with_item(bs::navbar::Item::nav(
 ///         bs::Nav::new()
 ///             .with_item(bs::nav::Item::link(Lc::n("Home"), "/"))
@@ -151,9 +152,6 @@ pub trait NavbarBootsier {
     /// Crea una barra de navegación con **marca de identidad** y contenido en **offcanvas**.
     fn offcanvas_brand_right(brand: Brand, oc: bs::Offcanvas) -> Self;
 
-    /// Define a partir de qué punto de ruptura la barra de navegación deja de colapsar.
-    fn with_expand(self, bp: Breakpoint) -> Self;
-
     /// Define dónde se mostrará la barra de navegación dentro del documento.
     fn with_position(self, position: bs::navbar::Position) -> Self;
 }
@@ -187,11 +185,6 @@ impl NavbarBootsier for Navbar {
         navbar
     }
 
-    fn with_expand(mut self, bp: Breakpoint) -> Self {
-        self.alter_prop(PropsOp::set_extra(EXTRA_EXPAND, bp));
-        self
-    }
-
     fn with_position(mut self, position: bs::navbar::Position) -> Self {
         self.alter_prop(PropsOp::set_extra(EXTRA_POSITION, position));
         self
@@ -200,15 +193,11 @@ impl NavbarBootsier for Navbar {
 
 // **< Navbar SETUP >*******************************************************************************
 
-pub(crate) fn setup(navbar: &mut Navbar, cx: &Context) {
-    // Sin `with_expand()`, colapsa por debajo de 768px, igual que el tema Basic (que no tiene
-    // punto de ruptura configurable y siempre usa ese umbral, ver `static/css/basic.css`).
-    let expand = navbar.props().extra_or(EXTRA_EXPAND, Breakpoint::Md);
+pub(crate) fn setup(navbar: &mut Navbar) {
     let position = navbar
         .props()
         .extra_or(EXTRA_POSITION, bs::navbar::Position::default());
     let mut classes = String::new();
-    push_breakpoint_class(cx, expand, &mut classes, "navbar-expand", "");
     position.push_to(&mut classes);
     if !classes.is_empty() {
         navbar.alter_prop(PropsOp::add_classes(classes));

@@ -14,7 +14,7 @@ use crate::theme::*;
 /// - Se puede configurar el borde de la ventana desde el que se desliza el panel
 ///   ([`with_placement()`](Self::with_placement)).
 /// - Encabezado con título ([`with_title()`](Self::with_title)) y **botón de cierre** integrado.
-/// - Puede cambiar su comportamiento a partir de un punto de ruptura
+/// - Puede cambiar su comportamiento a partir de un punto de corte
 ///   ([`with_breakpoint()`](Self::with_breakpoint)).
 /// - Asocia título y controles de accesibilidad a un identificador único y expone atributos
 ///   adecuados para lectores de pantalla y navegación por teclado.
@@ -47,7 +47,7 @@ pub struct Offcanvas {
     props: Props,
     /// Devuelve el título del panel.
     title: Lc,
-    /// Devuelve el punto de ruptura configurado para cambiar el comportamiento del panel.
+    /// Devuelve el punto de corte configurado para cambiar el comportamiento del panel.
     breakpoint: Breakpoint,
     /// Devuelve el comportamiento configurado para la capa de fondo.
     backdrop: bs::offcanvas::Backdrop,
@@ -112,7 +112,7 @@ impl Offcanvas {
         self
     }
 
-    /// Establece el punto de ruptura a partir del cual cambia el comportamiento del panel.
+    /// Establece el punto de corte a partir del cual cambia el comportamiento del panel.
     ///
     /// - **Por debajo** de ese tamaño de pantalla, el componente actúa como panel deslizante
     ///   ([`Offcanvas`]).

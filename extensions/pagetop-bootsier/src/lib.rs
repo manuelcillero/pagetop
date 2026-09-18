@@ -156,7 +156,7 @@ impl Theme for Bootsier {
             Dropdown            => |c| theme::bs::dropdown::setup(c),
             Image               => |c| theme::bs::image::setup(c),
             Nav                 => |c| theme::bs::nav::setup(c),
-            Navbar              => |c| theme::bs::navbar::setup(c, cx),
+            Navbar              => |c| theme::bs::navbar::setup(c),
             form::input::Field  => |c| theme::bs::form::input::setup(c),
             form::select::Field => |c| theme::bs::form::select::setup(c),
             form::Textarea      => |c| theme::bs::form::textarea::setup(c),

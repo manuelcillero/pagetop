@@ -50,12 +50,22 @@ async fn navbar_expands_at_md_by_default_and_at_the_chosen_breakpoint() {
     let mut navbar = bs::Navbar::simple().with_item(item());
     let html = navbar.render(&mut cx()).await.into_string();
     assert!(html.contains("navbar-expand-md"));
+    // The expansion class comes from the `Navbar` component only, so it is not duplicated.
+    assert_eq!(html.matches("navbar-expand").count(), 1);
 
     let mut navbar = bs::Navbar::simple()
         .with_expand(Breakpoint::Xxxl)
         .with_item(item());
     let html = navbar.render(&mut cx()).await.into_string();
     assert!(html.contains("navbar-expand-xxl"));
+
+    // Bootstrap needs a plain `navbar-expand` to keep the bar always expanded.
+    let mut navbar = bs::Navbar::simple()
+        .with_expand(Breakpoint::Xs)
+        .with_item(item());
+    let html = navbar.render(&mut cx()).await.into_string();
+    assert!(html.contains("navbar-expand"));
+    assert!(!html.contains("navbar-expand-"));
 }
 
 #[pagetop::test]

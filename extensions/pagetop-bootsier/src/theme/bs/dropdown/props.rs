@@ -112,28 +112,28 @@ impl Direction {
 /// Alineación horizontal del menú desplegable [`Dropdown`](crate::theme::bs::Dropdown).
 ///
 /// Permite alinear el menú al inicio o al final del botón (respetando LTR/RTL) y añadirle una
-/// alineación diferente a partir de un punto de ruptura ([`Breakpoint`]).
+/// alineación diferente a partir de un punto de corte ([`Breakpoint`]).
 #[derive(AutoDefault, Clone, Copy, Debug, PartialEq)]
 pub enum MenuAlign {
     /// Alineación al inicio (comportamiento por defecto).
     #[default]
     Start,
-    /// Alineación al inicio a partir del punto de ruptura indicado.
+    /// Alineación al inicio a partir del punto de corte indicado.
     StartAt(Breakpoint),
-    /// Alineación al inicio por defecto, y al final a partir de un punto de ruptura válido.
+    /// Alineación al inicio por defecto, y al final a partir de un punto de corte válido.
     StartAndEnd(Breakpoint),
     /// Alineación al final.
     End,
-    /// Alineación al final a partir del punto de ruptura indicado.
+    /// Alineación al final a partir del punto de corte indicado.
     EndAt(Breakpoint),
-    /// Alineación al final por defecto, y al inicio a partir de un punto de ruptura válido.
+    /// Alineación al final por defecto, y al inicio a partir de un punto de corte válido.
     EndAndStart(Breakpoint),
 }
 
 impl MenuAlign {
     /// Añade las clases de alineación a la cadena de clases (sin incluir la base `dropdown-menu`).
     ///
-    /// El nombre del punto de ruptura se resuelve en el tema activo de `cx`.
+    /// El nombre del punto de corte se resuelve en el tema activo de `cx`.
     #[inline]
     pub fn push_to(self, cx: &Context, classes: &mut String) {
         const MENU: &str = "dropdown-menu";

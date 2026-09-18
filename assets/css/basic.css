@@ -353,11 +353,13 @@ body {
     display: block;
 }
 
+/* Options and headers stay on one line, so the menu grows to fit the longest one. */
 .dropdown-item {
     display: block;
     width: 100%;
     padding: 0.375rem 1rem;
     text-align: left;
+    white-space: nowrap;
     color: var(--val-color--text);
     text-decoration: none;
     background-color: transparent;
@@ -387,6 +389,7 @@ body {
     display: block;
     padding: 0.5rem 1rem 0.25rem;
     margin: 0;
+    white-space: nowrap;
     font-size: 0.8125rem;
     font-weight: 600;
     color: var(--val-color--text--muted);
@@ -672,27 +675,181 @@ input:disabled + label {
     color: var(--val-color--text--muted);
 }
 
-@media (max-width: 767.98px) {
-    .navbar {
+/*
+ * A navbar with a toggle button collapses below the breakpoint set by its `navbar-expand-{name}`
+ * class, added by the `Navbar` component. `navbar-expand` alone (a breakpoint with no minimum
+ * width) never collapses and needs no rules, since the base rules above are the expanded layout.
+ * The widths below match the default `Theme::breakpoint_entry()` table, so a child theme that
+ * renames or resizes the breakpoints must also redefine these classes.
+ *
+ * While collapsed, the `.nav` items are stacked in a column, so a dropdown menu inside it is laid
+ * out in the flow (`position: static`) to push down the following items instead of covering them.
+ */
+@media (max-width: 575.98px) {
+    .navbar-expand-sm {
         flex-wrap: wrap;
     }
-    .navbar:has(.navbar-toggle) .navbar-toggle {
+    .navbar-expand-sm:has(.navbar-toggle) .navbar-toggle {
         display: inline-block;
         order: -1;
     }
-    .navbar:has(.navbar-toggle) .navbar-content {
+    .navbar-expand-sm:has(.navbar-toggle) .navbar-content {
         display: none;
         flex-direction: column;
         align-items: stretch;
         width: 100%;
     }
-    .navbar:has(.navbar-toggle) .navbar-content.show {
+    .navbar-expand-sm:has(.navbar-toggle) .navbar-content.show {
         display: flex;
     }
-    .navbar .nav {
+    .navbar-expand-sm .nav {
         flex-direction: column;
         align-items: stretch;
         width: 100%;
+    }
+    .navbar-expand-sm .nav .dropdown-menu {
+        position: static;
+        box-shadow: none;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .navbar-expand-md {
+        flex-wrap: wrap;
+    }
+    .navbar-expand-md:has(.navbar-toggle) .navbar-toggle {
+        display: inline-block;
+        order: -1;
+    }
+    .navbar-expand-md:has(.navbar-toggle) .navbar-content {
+        display: none;
+        flex-direction: column;
+        align-items: stretch;
+        width: 100%;
+    }
+    .navbar-expand-md:has(.navbar-toggle) .navbar-content.show {
+        display: flex;
+    }
+    .navbar-expand-md .nav {
+        flex-direction: column;
+        align-items: stretch;
+        width: 100%;
+    }
+    .navbar-expand-md .nav .dropdown-menu {
+        position: static;
+        box-shadow: none;
+    }
+}
+
+@media (max-width: 991.98px) {
+    .navbar-expand-lg {
+        flex-wrap: wrap;
+    }
+    .navbar-expand-lg:has(.navbar-toggle) .navbar-toggle {
+        display: inline-block;
+        order: -1;
+    }
+    .navbar-expand-lg:has(.navbar-toggle) .navbar-content {
+        display: none;
+        flex-direction: column;
+        align-items: stretch;
+        width: 100%;
+    }
+    .navbar-expand-lg:has(.navbar-toggle) .navbar-content.show {
+        display: flex;
+    }
+    .navbar-expand-lg .nav {
+        flex-direction: column;
+        align-items: stretch;
+        width: 100%;
+    }
+    .navbar-expand-lg .nav .dropdown-menu {
+        position: static;
+        box-shadow: none;
+    }
+}
+
+@media (max-width: 1199.98px) {
+    .navbar-expand-xl {
+        flex-wrap: wrap;
+    }
+    .navbar-expand-xl:has(.navbar-toggle) .navbar-toggle {
+        display: inline-block;
+        order: -1;
+    }
+    .navbar-expand-xl:has(.navbar-toggle) .navbar-content {
+        display: none;
+        flex-direction: column;
+        align-items: stretch;
+        width: 100%;
+    }
+    .navbar-expand-xl:has(.navbar-toggle) .navbar-content.show {
+        display: flex;
+    }
+    .navbar-expand-xl .nav {
+        flex-direction: column;
+        align-items: stretch;
+        width: 100%;
+    }
+    .navbar-expand-xl .nav .dropdown-menu {
+        position: static;
+        box-shadow: none;
+    }
+}
+
+@media (max-width: 1399.98px) {
+    .navbar-expand-xxl {
+        flex-wrap: wrap;
+    }
+    .navbar-expand-xxl:has(.navbar-toggle) .navbar-toggle {
+        display: inline-block;
+        order: -1;
+    }
+    .navbar-expand-xxl:has(.navbar-toggle) .navbar-content {
+        display: none;
+        flex-direction: column;
+        align-items: stretch;
+        width: 100%;
+    }
+    .navbar-expand-xxl:has(.navbar-toggle) .navbar-content.show {
+        display: flex;
+    }
+    .navbar-expand-xxl .nav {
+        flex-direction: column;
+        align-items: stretch;
+        width: 100%;
+    }
+    .navbar-expand-xxl .nav .dropdown-menu {
+        position: static;
+        box-shadow: none;
+    }
+}
+
+@media (max-width: 1919.98px) {
+    .navbar-expand-xxxl {
+        flex-wrap: wrap;
+    }
+    .navbar-expand-xxxl:has(.navbar-toggle) .navbar-toggle {
+        display: inline-block;
+        order: -1;
+    }
+    .navbar-expand-xxxl:has(.navbar-toggle) .navbar-content {
+        display: none;
+        flex-direction: column;
+        align-items: stretch;
+        width: 100%;
+    }
+    .navbar-expand-xxxl:has(.navbar-toggle) .navbar-content.show {
+        display: flex;
+    }
+    .navbar-expand-xxxl .nav {
+        flex-direction: column;
+        align-items: stretch;
+        width: 100%;
+    }
+    .navbar-expand-xxxl .nav .dropdown-menu {
+        position: static;
+        box-shadow: none;
     }
 }
 
