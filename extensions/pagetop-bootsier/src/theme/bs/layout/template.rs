@@ -1,7 +1,7 @@
 use pagetop::prelude::*;
 
 use crate::config;
-use crate::theme::{ContainerBootsier, bs};
+use crate::theme::bs;
 use crate::{ADMINLTE_VERSION, LOCALES_BOOTSIER};
 
 // Regiones de Bootsier: se renderiza sin el `<div role="region">` envolvente que aplica

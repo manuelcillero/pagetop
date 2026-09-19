@@ -1,5 +1,4 @@
 use pagetop::prelude::*;
-use pagetop_bootsier::theme::*;
 
 include_locales!(LOC from "examples/locale");
 
@@ -16,87 +15,84 @@ impl Extension for SuperMenu {
     }
 
     async fn initialize(&self) {
-        let navbar_menu = bs::Navbar::brand_left(bs::navbar::Brand::new())
-            .with_expand(BreakPoint::LG)
-            .with_item(bs::navbar::Item::nav(
-                bs::Nav::new()
-                    .with_item(bs::nav::Item::link(Lc::t("menus_item_link", &LOC), "/"))
-                    .with_item(bs::nav::Item::link_blank(
+        let navbar_menu = Navbar::brand_left(Brand::new())
+            .with_expand(Breakpoint::Lg)
+            .with_item(navbar::Item::nav(
+                Nav::new()
+                    .with_item(nav::Item::link(Lc::t("menus_item_link", &LOC), "/"))
+                    .with_item(nav::Item::link_blank(
                         Lc::t("menus_item_blank", &LOC),
                         "https://docs.rs/pagetop",
                     ))
-                    .with_item(bs::nav::Item::dropdown(
-                        bs::Dropdown::new()
+                    .with_item(nav::Item::dropdown(
+                        Dropdown::new()
                             .with_title(Lc::t("menus_test_title", &LOC))
-                            .with_item(bs::dropdown::Item::header(Lc::t("menus_dev_header", &LOC)))
-                            .with_item(bs::dropdown::Item::link(
+                            .with_item(dropdown::Item::header(Lc::t("menus_dev_header", &LOC)))
+                            .with_item(dropdown::Item::link(
                                 Lc::t("menus_dev_getting_started", &LOC),
                                 "/dev/getting-started",
                             ))
-                            .with_item(bs::dropdown::Item::link(
+                            .with_item(dropdown::Item::link(
                                 Lc::t("menus_dev_guides", &LOC),
                                 "/dev/guides",
                             ))
-                            .with_item(bs::dropdown::Item::link_blank(
+                            .with_item(dropdown::Item::link_blank(
                                 Lc::t("menus_dev_forum", &LOC),
                                 "https://forum.example.dev",
                             ))
-                            .with_item(bs::dropdown::Item::divider())
-                            .with_item(bs::dropdown::Item::header(Lc::t("menus_sdk_header", &LOC)))
-                            .with_item(bs::dropdown::Item::link(
+                            .with_item(dropdown::Item::divider())
+                            .with_item(dropdown::Item::header(Lc::t("menus_sdk_header", &LOC)))
+                            .with_item(dropdown::Item::link(
                                 Lc::t("menus_sdk_rust", &LOC),
                                 "/dev/sdks/rust",
                             ))
-                            .with_item(bs::dropdown::Item::link(
+                            .with_item(dropdown::Item::link(
                                 Lc::t("menus_sdk_js", &LOC),
                                 "/dev/sdks/js",
                             ))
-                            .with_item(bs::dropdown::Item::link(
+                            .with_item(dropdown::Item::link(
                                 Lc::t("menus_sdk_python", &LOC),
                                 "/dev/sdks/python",
                             ))
-                            .with_item(bs::dropdown::Item::divider())
-                            .with_item(bs::dropdown::Item::header(Lc::t(
-                                "menus_plugin_header",
-                                &LOC,
-                            )))
-                            .with_item(bs::dropdown::Item::link(
+                            .with_item(dropdown::Item::divider())
+                            .with_item(dropdown::Item::header(Lc::t("menus_plugin_header", &LOC)))
+                            .with_item(dropdown::Item::link(
                                 Lc::t("menus_plugin_auth", &LOC),
                                 "/dev/sdks/rust/plugins/auth",
                             ))
-                            .with_item(bs::dropdown::Item::link(
+                            .with_item(dropdown::Item::link(
                                 Lc::t("menus_plugin_cache", &LOC),
                                 "/dev/sdks/rust/plugins/cache",
                             ))
-                            .with_item(bs::dropdown::Item::divider())
-                            .with_item(bs::dropdown::Item::label(Lc::t("menus_item_label", &LOC)))
-                            .with_item(bs::dropdown::Item::link_disabled(
+                            .with_item(dropdown::Item::divider())
+                            .with_item(dropdown::Item::label(Lc::t("menus_item_label", &LOC)))
+                            .with_item(dropdown::Item::link_disabled(
                                 Lc::t("menus_item_disabled", &LOC),
                                 "#",
                             )),
                     ))
-                    .with_item(bs::nav::Item::link_disabled(
+                    .with_item(nav::Item::link_disabled(
                         Lc::t("menus_item_disabled", &LOC),
                         "#",
                     )),
             ))
-            .with_item(bs::navbar::Item::nav(
-                bs::Nav::new()
+            .with_item(navbar::Item::nav(
+                Nav::new()
                     // Empuja este menú (y lo que le siga) al extremo final de la barra.
                     .with_prop(FlexItem::push_end())
-                    .with_item(bs::nav::Item::link(
+                    .with_item(nav::Item::link(
                         Lc::t("menus_item_sign_up", &LOC),
                         "/auth/sign-up",
                     ))
-                    .with_item(bs::nav::Item::link(
+                    .with_item(nav::Item::link(
                         Lc::t("menus_item_login", &LOC),
                         "/auth/login",
                     )),
             ));
 
         InRegion::Global(&CoreRegions::Header).add(
-            bs::Container::new()
-                .with_width(bs::container::Width::FluidMax(UnitValue::RelRem(75.0)))
+            Container::new()
+                .with_width(container::Width::FluidMax(UnitValue::RelRem(75.0)))
                 .with_child(navbar_menu),
         );
     }

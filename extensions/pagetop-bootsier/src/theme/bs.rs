@@ -27,8 +27,6 @@ pub use button::{Button, ButtonBootsier};
 pub mod container;
 #[doc(inline)]
 pub use container::Container;
-#[doc(inline)]
-pub use container::ContainerBootsier;
 
 // Dialog.
 pub mod dialog;

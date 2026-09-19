@@ -103,8 +103,6 @@ pub use bs::badge::BadgeBootsier;
 #[doc(hidden)]
 pub use bs::button::ButtonBootsier;
 #[doc(hidden)]
-pub use bs::container::ContainerBootsier;
-#[doc(hidden)]
 pub use bs::dropdown::DropdownBootsier;
 #[doc(hidden)]
 pub use bs::form::input::InputBootsier;

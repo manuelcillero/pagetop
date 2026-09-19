@@ -1,5 +1,6 @@
-// Verifies that Bootsier builds its breakpoint-based Bootstrap classes from the breakpoint names
-// of `Bootsier::breakpoint_entry()`, and that `Xxxl` (absent in Bootstrap) resolves as `xxl`.
+// Verifies that the breakpoint-based Bootstrap classes of `Container`, `Navbar`, `Dropdown` and
+// `Offcanvas` use the breakpoint names of `Bootsier::breakpoint_entry()`, and that `Xxxl` (absent
+// in Bootstrap) resolves as `xxl`.
 
 use pagetop::prelude::*;
 use pagetop_bootsier::theme::*;
@@ -8,23 +9,43 @@ fn cx() -> Context {
     Context::default().with_theme(&pagetop_bootsier::Bootsier)
 }
 
+async fn container_html(width: impl Into<Option<bs::container::Width>>) -> String {
+    let mut container = bs::Container::new()
+        .with_width(width)
+        .with_child(Html::with(|_| html! { p { "Content" } }));
+    container.render(&mut cx()).await.into_string()
+}
+
+#[pagetop::test]
+async fn container_without_width_gets_the_bootstrap_default() {
+    assert!(container_html(None).await.contains(r#"class="container""#));
+    assert!(
+        container_html(bs::container::Width::Responsive)
+            .await
+            .contains(r#"class="container""#)
+    );
+}
+
 #[pagetop::test]
 async fn container_width_uses_breakpoint_name() {
-    let cx = cx();
-    assert_eq!(bs::container::Width::Default.to_class(&cx), "container");
-    assert_eq!(bs::container::Width::Fluid.to_class(&cx), "container-fluid");
-    assert_eq!(
-        bs::container::Width::From(Breakpoint::Lg).to_class(&cx),
-        "container-lg"
+    assert!(
+        container_html(bs::container::Width::Fluid)
+            .await
+            .contains(r#"class="container-fluid""#)
+    );
+    assert!(
+        container_html(bs::container::Width::From(Breakpoint::Lg))
+            .await
+            .contains(r#"class="container-lg""#)
     );
 }
 
 #[pagetop::test]
 async fn container_width_xxxl_resolves_as_xxl() {
-    let cx = cx();
-    assert_eq!(
-        bs::container::Width::From(Breakpoint::Xxxl).to_class(&cx),
-        "container-xxl"
+    assert!(
+        container_html(bs::container::Width::From(Breakpoint::Xxxl))
+            .await
+            .contains(r#"class="container-xxl""#)
     );
 }
 

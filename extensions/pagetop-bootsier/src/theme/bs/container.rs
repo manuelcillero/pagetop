@@ -1,108 +1,37 @@
 //! Definiciones para crear contenedores de componentes ([`Container`]).
+//!
+//! El comportamiento del ancho del contenedor se establece con [`Container::with_width()`], usando
+//! [`Width`]. Sin él, Bootsier aplica los anchos máximos predefinidos de Bootstrap para cada punto
+//! de corte ([`Width::Responsive`]).
+//!
+//! También se pueden aplicar al componente clases predefinidas para:
+//!
+//! - Modificar el color de fondo ([`Bg`](crate::theme::class::Bg)).
+//! - Definir la apariencia del texto ([`Text`](crate::theme::class::Text)).
+//! - Establecer bordes ([`Border`](crate::theme::class::Border)).
+//! - Redondear las esquinas ([`Rounded`](crate::theme::class::Rounded)).
+//!
+//! ```rust,no_run
+//! use pagetop::prelude::*;
+//! use pagetop_bootsier::theme::*;
+//!
+//! let main = bs::Container::main()
+//!     .with_id("main-page")
+//!     .with_width(bs::container::Width::From(Breakpoint::Lg))
+//!     .with_prop(PropsOp::add_classes(class::Bg::with(BootsierColors::Light)))
+//!     .with_prop(PropsOp::add_classes(class::Text::with(BootsierColors::Dark)))
+//!     .with_prop(PropsOp::add_classes(class::Border::with(ScaleSize::One)))
+//!     .with_prop(PropsOp::add_classes(class::Rounded::new()));
+//! ```
 
 use pagetop::prelude::*;
 
-use crate::theme::*;
-
-pub use pagetop::base::component::container::{Container, Kind};
-
-const EXTRA_WIDTH: &str = "bootsier.container.width";
-
-/// Extensión de Bootsier para [`Container`].
-///
-/// Permite establecer el comportamiento del ancho del contenedor usando el método
-/// [`with_width()`](Self::with_width).
-///
-/// También habilita al componente para aceptar clases predefinidas para:
-///
-/// - Modificar el color de fondo ([`Bg`](crate::theme::class::Bg)).
-/// - Definir la apariencia del texto ([`Text`](crate::theme::class::Text)).
-/// - Establecer bordes ([`Border`](crate::theme::class::Border)).
-/// - Redondear las esquinas ([`Rounded`](crate::theme::class::Rounded)).
-///
-/// ```rust,no_run
-/// use pagetop::prelude::*;
-/// use pagetop_bootsier::theme::*;
-///
-/// let main = bs::Container::main()
-///     .with_id("main-page")
-///     .with_width(bs::container::Width::From(Breakpoint::Lg))
-///     .with_prop(PropsOp::add_classes(class::Bg::with(BootsierColors::Light)))
-///     .with_prop(PropsOp::add_classes(class::Text::with(BootsierColors::Dark)))
-///     .with_prop(PropsOp::add_classes(class::Border::with(ScaleSize::One)))
-///     .with_prop(PropsOp::add_classes(class::Rounded::new()));
-/// ```
-#[builder_impl]
-pub trait ContainerBootsier {
-    /// Establece el comportamiento del ancho para el contenedor.
-    ///
-    /// Determina si el contenedor aplica los anchos máximos predefinidos para cada punto de corte,
-    /// o si ocupa siempre el 100% del ancho disponible, o lo hace hasta un ancho máximo explícito.
-    /// Ver [`Width`] para las variantes disponibles.
-    fn with_width(self, width: Width) -> Self;
-}
-
-#[builder_impl]
-impl ContainerBootsier for Container {
-    fn with_width(mut self, width: Width) -> Self {
-        self.alter_prop(PropsOp::set_extra(EXTRA_WIDTH, width));
-        self
-    }
-}
-
-// **< Width >**************************************************************************************
-
-/// Define cómo se comporta el ancho de un contenedor ([`Container`]).
-#[derive(AutoDefault, Clone, Copy, Debug, PartialEq)]
-pub enum Width {
-    /// Comportamiento por defecto, aplica los anchos máximos predefinidos para cada punto de corte.
-    /// Por debajo del menor punto de corte ocupa el 100% del ancho disponible.
-    #[default]
-    Default,
-    /// Aplica los anchos máximos predefinidos a partir del punto de corte indicado. Por debajo de
-    /// ese punto de corte ocupa el 100% del ancho disponible.
-    From(Breakpoint),
-    /// Ocupa el 100% del ancho disponible siempre.
-    Fluid,
-    /// Ocupa el 100% del ancho disponible hasta un ancho máximo explícito.
-    FluidMax(UnitValue),
-}
-
-impl Width {
-    const CONTAINER: &str = "container";
-
-    /// Añade la clase asociada al ancho del contenedor a la cadena de clases.
-    ///
-    /// El nombre del punto de corte se resuelve en el tema activo de `cx`.
-    #[inline]
-    pub fn push_to(self, cx: &Context, classes: &mut String) {
-        match self {
-            Self::Default => {
-                push_breakpoint_class(cx, Breakpoint::Xs, classes, Self::CONTAINER, "")
-            }
-            Self::From(bp) => push_breakpoint_class(cx, bp, classes, Self::CONTAINER, ""),
-            Self::Fluid | Self::FluidMax(_) => {
-                push_breakpoint_class(cx, Breakpoint::Xs, classes, Self::CONTAINER, "fluid")
-            }
-        }
-    }
-
-    /// Devuelve la clase asociada al ancho del contenedor.
-    pub fn to_class(self, cx: &Context) -> String {
-        let mut class = String::new();
-        self.push_to(cx, &mut class);
-        class
-    }
-}
+pub use pagetop::base::component::container::{Container, Kind, Width};
 
 // **< Container SETUP >****************************************************************************
 
-pub(crate) fn setup(container: &mut Container, cx: &Context) {
-    let width = container.props().extra_or(EXTRA_WIDTH, Width::default());
-    container.alter_prop(PropsOp::prepend_classes(width.to_class(cx)));
-    if let Width::FluidMax(w) = width
-        && w.is_measurable()
-    {
-        container.alter_prop(PropsOp::add_style("max-width", w.to_string()));
+pub(crate) fn setup(container: &mut Container) {
+    if container.width().is_none() {
+        container.alter_prop(PropsOp::prepend_classes("container"));
     }
 }

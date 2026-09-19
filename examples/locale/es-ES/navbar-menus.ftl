@@ -1,7 +1,7 @@
 menus_item_label = Etiqueta
 menus_item_link = Enlace
-menus_item_blank = Enlace externo
-menus_item_disabled = Enlace deshabilitado
+menus_item_blank = Externo
+menus_item_disabled = Deshabilitado
 
 menus_test_title = Desplegable
 

@@ -25,21 +25,51 @@ pub enum Kind {
     Article,
 }
 
+// **< Width >**************************************************************************************
+
+/// Define cómo se comporta el ancho de un contenedor ([`Container`]).
+///
+/// Cada variante se traduce en una clase CSS (`container`, `container-{nombre}` o
+/// `container-fluid`), con el nombre que el tema activo da al punto de corte, y el tema decide qué
+/// anchos máximos le corresponden. [`FluidMax`](Self::FluidMax) añade además un `max-width` en
+/// línea.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum Width {
+    /// Aplica los anchos máximos predefinidos por el tema para cada punto de corte. Por debajo del
+    /// menor punto de corte ocupa el 100% del ancho disponible.
+    Responsive,
+    /// Aplica los anchos máximos predefinidos a partir del punto de corte indicado. Por debajo de
+    /// ese punto de corte ocupa el 100% del ancho disponible.
+    From(Breakpoint),
+    /// Ocupa el 100% del ancho disponible siempre.
+    Fluid,
+    /// Ocupa el 100% del ancho disponible hasta un ancho máximo explícito.
+    FluidMax(UnitValue),
+}
+
 // **< Container >**********************************************************************************
 
 /// Componente para crear un **contenedor de componentes**.
 ///
 /// Envuelve un conjunto de componentes en un contenedor establecido que se crea aplicando uno de
-/// los tipos definidos en [`Kind`].
+/// los tipos definidos en [`Kind`]. Opcionalmente, su ancho se controla con [`Width`] mediante
+/// [`with_width()`](Self::with_width); sin él, el contenedor no añade ninguna clase de ancho.
 ///
 /// Si no contiene elementos, el componente **no se renderiza**.
 ///
-/// # Ejemplo
+/// # Ejemplos
 ///
 /// ```rust,no_run
 /// use pagetop::prelude::*;
 ///
 /// let main = Container::main().with_id("main-page");
+/// ```
+///
+/// Contenedor centrado que ocupa todo el ancho hasta un máximo explícito:
+///
+/// ```rust,no_run
+/// # use pagetop::prelude::*;
+/// let page = Container::new().with_width(container::Width::FluidMax(UnitValue::RelRem(75.0)));
 /// ```
 #[derive(AutoDefault, Clone, Debug, Getters)]
 pub struct Container {
@@ -47,6 +77,9 @@ pub struct Container {
     props: Props,
     /// Devuelve el tipo semántico del contenedor.
     kind: Kind,
+    /// Devuelve el comportamiento del ancho, si se ha fijado.
+    #[getters(copy)]
+    width: Option<Width>,
     /// Devuelve la lista de componentes (`children`) del contenedor.
     children: Children,
 }
@@ -59,6 +92,25 @@ impl Component for Container {
 
     fn id(&self) -> Option<String> {
         self.props.get_id()
+    }
+
+    fn setup(&mut self, cx: &mut Context) {
+        if let Some(width) = self.width() {
+            let class: CowStr = match width {
+                Width::Responsive => "container".into(),
+                Width::From(bp) => match bp.resolved(cx) {
+                    Some(entry) => util::join!("container-", entry.name).into(),
+                    None => "container".into(),
+                },
+                Width::Fluid | Width::FluidMax(_) => "container-fluid".into(),
+            };
+            self.alter_prop(PropsOp::prepend_classes(class));
+            if let Width::FluidMax(max) = width
+                && max.is_measurable()
+            {
+                self.alter_prop(PropsOp::add_style("max-width", max.to_string()));
+            }
+        }
     }
 
     #[rustfmt::skip]
@@ -132,6 +184,15 @@ impl Container {
     /// Modifica identificador, clases CSS, atributos HTML o valores extra del componente.
     pub fn with_prop(mut self, op: impl Into<PropsOp>) -> Self {
         self.props.alter_prop(op);
+        self
+    }
+
+    /// Define el comportamiento del ancho del contenedor. Con `None` no se añade ninguna clase de
+    /// ancho y cada tema decide cómo tratarlo.
+    ///
+    /// Ver [`Width`] para las variantes disponibles.
+    pub fn with_width(mut self, width: impl Into<Option<Width>>) -> Self {
+        self.width = width.into();
         self
     }
 

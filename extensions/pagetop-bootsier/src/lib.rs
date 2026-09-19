@@ -146,12 +146,12 @@ impl Theme for Bootsier {
         theme::BootsierColors::from(intent).as_str()
     }
 
-    fn setup_component(&self, component: &mut dyn Component, cx: &mut Context) {
+    fn setup_component(&self, component: &mut dyn Component, _cx: &mut Context) {
         setup_component!(component, {
             Badge               => |c| theme::bs::badge::setup(c),
             Brand               => |c| theme::bs::brand::setup(c),
             Button              => |c| theme::bs::button::setup(c),
-            Container           => |c| theme::bs::container::setup(c, cx),
+            Container           => |c| theme::bs::container::setup(c),
             Dialog              => |c| theme::bs::dialog::setup(c),
             Dropdown            => |c| theme::bs::dropdown::setup(c),
             Image               => |c| theme::bs::image::setup(c),
