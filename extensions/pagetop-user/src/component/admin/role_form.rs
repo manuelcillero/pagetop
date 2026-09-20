@@ -4,6 +4,7 @@ use pagetop::prelude::*;
 
 use crate::ADMIN_ROLES_PATH;
 use crate::LOCALES_USER;
+use crate::role_path;
 
 use crate::component::error_banner;
 
@@ -35,13 +36,8 @@ impl Component for RoleForm {
 
     async fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
         let action = match self.mode() {
-            RoleFormMode::New => format!("{ADMIN_ROLES_PATH}/new"),
-            RoleFormMode::Edit => {
-                format!(
-                    "{ADMIN_ROLES_PATH}/{}/edit",
-                    self.role_id().copied().unwrap_or_default()
-                )
-            }
+            RoleFormMode::New => util::join!(ADMIN_ROLES_PATH, "/new"),
+            RoleFormMode::Edit => role_path(self.role_id().copied().unwrap_or_default(), "edit"),
         };
         let action = self.waypoint().append_to(cx.route(action));
 

@@ -1,8 +1,6 @@
 //! Gestión de sesiones de usuario (creación, carga, destrucción).
 
-use pagetop::auth::CurrentUser;
-use pagetop::datetime::{Duration, Utc};
-use pagetop::web::http::{HeaderMap, header};
+use pagetop::prelude::*;
 use pagetop_seaorm::db::{
     ActiveModelTrait, ColumnTrait, DbErr, EntityTrait, QueryFilter, Set, dbconn,
 };
@@ -35,32 +33,33 @@ fn bytes_to_hex(bytes: &[u8]) -> String {
 
 /// Construye el valor de la cabecera `Set-Cookie` para la cookie de sesión.
 pub fn build_cookie(sid: &str, remember: bool) -> String {
-    let mut parts = vec![
-        format!("{}={}", SETTINGS.session_cookie_name, sid),
-        "HttpOnly".into(),
-        "SameSite=Lax".into(),
-        "Path=/".into(),
-    ];
+    let mut cookie = util::join!(
+        &SETTINGS.session_cookie_name,
+        "=",
+        sid,
+        "; HttpOnly; SameSite=Lax; Path=/"
+    );
     if SETTINGS.secure_cookie {
-        parts.push("Secure".into());
+        cookie.push_str("; Secure");
     }
     if remember {
-        parts.push(format!("Max-Age={}", SETTINGS.session_ttl_secs));
+        cookie.push_str("; Max-Age=");
+        cookie.push_str(&SETTINGS.session_ttl_secs.to_string());
     }
-    parts.join("; ")
+    cookie
 }
 
 /// Construye la cookie de expiración (Max-Age=0) para borrar la sesión del navegador.
 pub fn expiry_cookie() -> String {
-    format!(
-        "{}=; HttpOnly; SameSite=Lax; Path=/; Max-Age=0",
-        SETTINGS.session_cookie_name
+    util::join!(
+        &SETTINGS.session_cookie_name,
+        "=; HttpOnly; SameSite=Lax; Path=/; Max-Age=0"
     )
 }
 
 /// Extrae el session ID de las cabeceras HTTP de la petición, si existe.
-pub fn extract_sid(headers: Option<&HeaderMap>) -> Option<String> {
-    let cookie_str = headers?.get(header::COOKIE)?.to_str().ok()?;
+pub fn extract_sid(headers: Option<&web::http::HeaderMap>) -> Option<String> {
+    let cookie_str = headers?.get(web::http::header::COOKIE)?.to_str().ok()?;
 
     let name = SETTINGS.session_cookie_name.as_str();
     for part in cookie_str.split(';') {
@@ -78,7 +77,7 @@ pub fn extract_sid(headers: Option<&HeaderMap>) -> Option<String> {
 ///
 /// Si no hay cookie o la sesión ha expirado, devuelve `(CurrentUser::Anonymous, None)`.
 /// Se llama desde el middleware de sesión, que es async.
-pub async fn resolve_session(headers: &HeaderMap) -> (CurrentUser, Option<Account>) {
+pub async fn resolve_session(headers: &web::http::HeaderMap) -> (CurrentUser, Option<Account>) {
     let Some(sid) = extract_sid(Some(headers)) else {
         return (CurrentUser::Anonymous, None);
     };

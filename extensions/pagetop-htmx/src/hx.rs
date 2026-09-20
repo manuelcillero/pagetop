@@ -81,6 +81,8 @@
 //!     .with_prop(PropsOp::set(hx::on_htmx("after-swap"), "console.log('done')"));
 //! ```
 
+use pagetop::prelude::*;
+
 // **< HTTP Methods >*******************************************************************************
 
 /// Realiza una petición GET al servidor y aplica la respuesta al objetivo.
@@ -356,7 +358,7 @@ pub const DISABLE: &str = "hx-disable";
 ///     .with_prop(PropsOp::set(hx::on("mouseenter"), "this.style.opacity='0.8'"));
 /// ```
 pub fn on(event: &str) -> String {
-    format!("hx-on:{event}")
+    util::join!("hx-on:", event)
 }
 
 /// Genera `hx-on::{event}` para escuchar eventos propios de HTMX en línea.
@@ -372,7 +374,7 @@ pub fn on(event: &str) -> String {
 ///     .with_prop(PropsOp::set(hx::on_htmx("after-swap"), "initTooltips()"));
 /// ```
 pub fn on_htmx(event: &str) -> String {
-    format!("hx-on::{event}")
+    util::join!("hx-on::", event)
 }
 
 // **< HTMX Request Headers >***********************************************************************

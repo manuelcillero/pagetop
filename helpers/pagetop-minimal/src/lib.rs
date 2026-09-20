@@ -29,11 +29,6 @@ concatenación de cadenas y el uso rápido de colecciones clave-valor.
 Las macros para texto multilínea **`indoc!`**, **`formatdoc!`** y **`concatdoc!`** se reexportan del
 *crate* [indoc](https://crates.io/crates/indoc) de [David Tolnay](https://crates.io/users/dtolnay).
 
-Las macros para la concatenación de cadenas **`join!`** y **`join_pair!`** se apoyan internamente en
-el *crate* [concat-string](https://crates.io/crates/concat_string), desarrollado por
-[FaultyRAM](https://crates.io/users/FaultyRAM), para evitar el formato de cadenas cuando la
-eficiencia pueda ser relevante.
-
 La macro para generar identificadores dinámicos **`paste!`** se reexporta del *crate*
 [pastey](https://crates.io/crates/pastey), una implementación avanzada y soportada del popular
 `paste!` de [David Tolnay](https://crates.io/users/dtolnay).
@@ -42,9 +37,6 @@ La macro para generar identificadores dinámicos **`paste!`** se reexporta del *
 #![doc(
     html_favicon_url = "https://git.cillero.es/manuelcillero/pagetop/raw/branch/main/assets/favicon.ico"
 )]
-
-#[doc(hidden)]
-pub use concat_string::concat_string;
 
 pub use indoc::{concatdoc, formatdoc, indoc};
 
@@ -60,11 +52,17 @@ pub use pastey::paste;
 // La documentación anterior se copia en `pagetop::util::paste!` porque el *crate* original no la
 // define y `pagetop` no la hereda automáticamente.
 
-/// Concatena eficientemente varios fragmentos en un [`String`].
+/// Concatena varios fragmentos en un [`String`] reservando una sola vez la memoria del resultado.
 ///
-/// Esta macro exporta [`concat_string!`](https://docs.rs/concat-string). Acepta cualquier número de
-/// fragmentos que implementen [`AsRef<str>`] y construye un [`String`] con el tamaño óptimo, de
-/// forma eficiente y evitando el uso de cadenas de formato que penalicen el rendimiento.
+/// Acepta uno o más fragmentos que implementen [`AsRef<str>`] (literales, `&str`, [`String`],
+/// `Cow<str>`...) y construye el resultado con la capacidad exacta, sin pasar por el formateo. Es
+/// la forma preferida de componer texto a partir de fragmentos, y suele ser más rápida que
+/// `format!`.
+///
+/// Cada expresión se evalúa **una sola vez**, por lo que admite llamadas como `n.to_string()` o
+/// cierres con efectos secundarios. Los valores que no son cadenas (números, tipos `Display`) se
+/// convierten antes con `to_string()`. Si hace falta formato real (`{:02}`, `{:?}`, `{:.2}`...),
+/// usar `format!`.
 ///
 /// # Ejemplo
 ///
@@ -81,11 +79,26 @@ pub use pastey::paste;
 /// // Un único fragmento devuelve el mismo valor.
 /// let single_result = join!("Hello");
 /// assert_eq!(single_result, "Hello".to_string());
+///
+/// // Los fragmentos pueden ser de tipos distintos; los números se convierten antes.
+/// let name = String::from("item");
+/// let result_mixed = join!(&name, "-", 7.to_string());
+/// assert_eq!(result_mixed, "item-7".to_string());
+///
+/// // Cada expresión se evalúa una sola vez.
+/// let mut calls = 0;
+/// let mut next = || {
+///     calls += 1;
+///     calls.to_string()
+/// };
+/// let result_once = join!("n", next());
+/// assert_eq!(result_once, "n1".to_string());
+/// assert_eq!(calls, 1);
 /// ```
 #[macro_export]
 macro_rules! join {
-    ($($arg:expr),+) => {
-        $crate::concat_string!($($arg),+)
+    ($($arg:expr),+ $(,)?) => {
+        [$(::core::convert::AsRef::<str>::as_ref(&$arg)),+].concat()
     };
 }
 
@@ -126,15 +139,15 @@ macro_rules! join_pair {
         let second_val = $second;
         let separator_val = $separator;
 
-        let first = AsRef::<str>::as_ref(&first_val);
-        let second = AsRef::<str>::as_ref(&second_val);
+        let first = ::core::convert::AsRef::<str>::as_ref(&first_val);
+        let second = ::core::convert::AsRef::<str>::as_ref(&second_val);
         let separator = if first.is_empty() || second.is_empty() {
             ""
         } else {
-            AsRef::<str>::as_ref(&separator_val)
+            ::core::convert::AsRef::<str>::as_ref(&separator_val)
         };
 
-        $crate::concat_string!(first, separator, second)
+        [first, separator, second].concat()
     }};
 }
 

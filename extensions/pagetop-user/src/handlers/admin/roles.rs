@@ -15,6 +15,7 @@ use crate::config::SETTINGS;
 use crate::entity::role;
 use crate::handlers::admin::{back_link, frame, map_auth_error};
 use crate::permission::{self, UserPermission};
+use crate::role_path;
 use crate::service::role_admin::{self, RolePageParams, RoleSortField};
 
 #[derive(Deserialize)]
@@ -451,7 +452,7 @@ pub(crate) async fn delete_confirm_get(
 
     let mut cx = Context::admin(request);
     let delete_href = cx
-        .route(format!("{ADMIN_ROLES_PATH}/{id}/delete"))
+        .route(role_path(id, "delete"))
         .alter_param(
             "sort",
             RoleSortField::from_query(query.sort.as_deref()).as_str(),

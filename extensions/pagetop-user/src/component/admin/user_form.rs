@@ -4,6 +4,7 @@ use pagetop::prelude::*;
 
 use crate::ADMIN_USERS_PATH;
 use crate::LOCALES_USER;
+use crate::user_path;
 
 use crate::component::{PasswordConfirm, error_banner};
 
@@ -43,13 +44,8 @@ impl Component for UserForm {
 
     async fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
         let action = match self.mode() {
-            UserFormMode::New => format!("{ADMIN_USERS_PATH}/new"),
-            UserFormMode::Edit => {
-                format!(
-                    "{ADMIN_USERS_PATH}/{}/edit",
-                    self.user_id().copied().unwrap_or_default()
-                )
-            }
+            UserFormMode::New => util::join!(ADMIN_USERS_PATH, "/new"),
+            UserFormMode::Edit => user_path(self.user_id().copied().unwrap_or_default(), "edit"),
         };
         let action = self.waypoint().append_to(cx.route(action));
 

@@ -28,11 +28,6 @@ concatenación de cadenas y el uso rápido de colecciones clave-valor.
 Las macros para texto multilínea **`indoc!`**, **`formatdoc!`** y **`concatdoc!`** se reexportan del
 *crate* [indoc](https://crates.io/crates/indoc) de [David Tolnay](https://crates.io/users/dtolnay).
 
-Las macros para la concatenación de cadenas **`join!`** y **`join_pair!`** se apoyan internamente en
-el *crate* [concat-string](https://crates.io/crates/concat_string), desarrollado por
-[FaultyRAM](https://crates.io/users/FaultyRAM), para evitar el formato de cadenas cuando la
-eficiencia pueda ser relevante.
-
 La macro para generar identificadores dinámicos **`paste!`** se reexporta del *crate*
 [pastey](https://crates.io/crates/pastey), una implementación avanzada y soportada del popular
 `paste!` de [David Tolnay](https://crates.io/users/dtolnay).

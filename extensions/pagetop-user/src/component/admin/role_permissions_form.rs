@@ -4,8 +4,8 @@
 
 use pagetop::prelude::*;
 
-use crate::ADMIN_ROLES_PATH;
 use crate::LOCALES_USER;
+use crate::role_path;
 
 use crate::component::admin::PermissionGroups;
 use crate::component::error_banner;
@@ -26,7 +26,7 @@ impl Component for RolePermissionsForm {
     }
 
     async fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
-        let action = format!("{ADMIN_ROLES_PATH}/{}/permissions", self.role_id());
+        let action = role_path(self.role_id(), "permissions");
         let action = self.waypoint().append_to(cx.route(action));
 
         let mut form = Form::new()
@@ -37,12 +37,12 @@ impl Component for RolePermissionsForm {
 
         for (idx, (group_label, perms)) in self.groups().iter().enumerate() {
             let mut field = form::check::Field::new()
-                .with_id(format!("permission-group-{idx}"))
+                .with_id(util::join!("permission-group-", idx.to_string()))
                 .with_name("permission_keys");
             for (key, label, checked) in perms {
                 let text = label.lookup(cx).unwrap_or_default();
                 field = field.with_item(
-                    form::check::Item::new(key, Lc::n(format!("{text} ({key})")))
+                    form::check::Item::new(key, Lc::n(util::join!(text, " (", key, ")")))
                         .with_checked(*checked),
                 );
             }

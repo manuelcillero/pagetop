@@ -202,7 +202,7 @@ impl MenuPosition {
     #[inline]
     pub(crate) fn data_offset(self) -> Option<String> {
         match self {
-            Self::Offset(x, y) => Some(format!("{x},{y}")),
+            Self::Offset(x, y) => Some(util::join!(x.to_string(), ",", y.to_string())),
             _ => None,
         }
     }

@@ -2,8 +2,8 @@
 
 use pagetop::prelude::*;
 
-use crate::ADMIN_USERS_PATH;
 use crate::LOCALES_USER;
+use crate::user_path;
 
 use crate::component::{PasswordConfirm, error_banner};
 
@@ -22,7 +22,7 @@ impl Component for AdminPasswordForm {
     }
 
     async fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
-        let action = format!("{ADMIN_USERS_PATH}/{}/password", self.user_id());
+        let action = user_path(self.user_id(), "password");
         let action = self.waypoint().append_to(cx.route(action));
 
         let mut form = Form::new()

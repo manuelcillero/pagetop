@@ -11,6 +11,7 @@ use crate::LOCALES_USER;
 use crate::account::UserStatus;
 use crate::permission::UserPermission;
 use crate::service::user_admin::{UserListItem, UserSortField};
+use crate::user_path;
 
 #[derive(AutoDefault, Clone, Debug, Getters)]
 pub(crate) struct UserTable {
@@ -84,7 +85,7 @@ impl Component for UserTable {
             );
         }
 
-        let new_href = waypoint.append_to(cx.route(format!("{ADMIN_USERS_PATH}/new")));
+        let new_href = waypoint.append_to(cx.route(util::join!(ADMIN_USERS_PATH, "/new")));
 
         Ok(html! {
             div (self.props().unpack(cx)) {
@@ -191,7 +192,7 @@ fn username_cell(user: &UserListItem, waypoint: &Waypoint) -> Html {
     let id = user.id;
     let waypoint = waypoint.clone();
     Html::with(move |cx| {
-        let view_href = waypoint.append_to(cx.route(format!("{ADMIN_USERS_PATH}/{id}/view")));
+        let view_href = waypoint.append_to(cx.route(user_path(id, "view")));
         html! {
             a href=(view_href) { (username.as_str()) }
         }
@@ -208,7 +209,7 @@ async fn actions_cell(
     cx: &mut Context,
 ) -> Html {
     let id = user.id;
-    let edit_href = waypoint.append_to(cx.route(format!("{ADMIN_USERS_PATH}/{id}/edit")));
+    let edit_href = waypoint.append_to(cx.route(user_path(id, "edit")));
 
     // El botón se renderiza aquí, no dentro del `Html::with()` de abajo: necesita pasar por su
     // propio ciclo de renderizado (`.render().await`) para que el tema activo lo estilice igual
@@ -220,7 +221,7 @@ async fn actions_cell(
         .await;
 
     let roles_button = if can_assign_roles {
-        let roles_href = waypoint.append_to(cx.route(format!("{ADMIN_USERS_PATH}/{id}/roles")));
+        let roles_href = waypoint.append_to(cx.route(user_path(id, "roles")));
         Some(
             Button::anchor(Lc::t("btn-manage-roles", &LOCALES_USER), roles_href)
                 .with_style(button::Style::Solid(Intent::Neutral))

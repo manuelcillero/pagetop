@@ -8,6 +8,7 @@ use pagetop_htmx::hx_table::sort_link;
 
 use crate::ADMIN_ROLES_PATH;
 use crate::LOCALES_USER;
+use crate::role_path;
 use crate::service::role_admin::{RoleListItem, RoleSortField};
 
 #[derive(AutoDefault, Clone, Debug, Getters)]
@@ -108,7 +109,7 @@ impl Component for RoleTable {
             );
         }
 
-        let new_href = waypoint.append_to(cx.route(format!("{ADMIN_ROLES_PATH}/new")));
+        let new_href = waypoint.append_to(cx.route(util::join!(ADMIN_ROLES_PATH, "/new")));
 
         Ok(html! {
             div (self.props().unpack(cx)) {
@@ -212,7 +213,7 @@ fn label_cell(role: &RoleListItem, waypoint: &Waypoint) -> Html {
     let id = role.id;
     let waypoint = waypoint.clone();
     Html::with(move |cx| {
-        let view_href = waypoint.append_to(cx.route(format!("{ADMIN_ROLES_PATH}/{id}/view")));
+        let view_href = waypoint.append_to(cx.route(role_path(id, "view")));
         html! {
             a href=(view_href) { (label.as_str()) }
         }
@@ -234,8 +235,7 @@ async fn actions_cell(
     let locked = role.locked;
     let waypoint = waypoint.clone();
 
-    let permissions_href =
-        waypoint.append_to(cx.route(format!("{ADMIN_ROLES_PATH}/{id}/permissions")));
+    let permissions_href = waypoint.append_to(cx.route(role_path(id, "permissions")));
 
     // Los botones se renderizan aquí, no dentro del `Html::with()` de abajo: necesitan pasar por
     // su propio ciclo de renderizado (`.render().await`) para que el tema activo los estilice
@@ -253,7 +253,7 @@ async fn actions_cell(
     let (edit_button, delete_button) = if locked {
         (None, None)
     } else {
-        let edit_href = waypoint.append_to(cx.route(format!("{ADMIN_ROLES_PATH}/{id}/edit")));
+        let edit_href = waypoint.append_to(cx.route(role_path(id, "edit")));
         let edit_button = Button::anchor(Lc::t("btn-edit", &LOCALES_USER), edit_href)
             .with_style(button::Style::Solid(Intent::Primary))
             .with_size(button::Size::Small)
@@ -263,7 +263,7 @@ async fn actions_cell(
         // Viaja como query string para que, tanto si el borrado falla como si tiene éxito, la
         // tabla vuelva a mostrarse en la misma página/orden en que estaba, en vez de reiniciarse.
         let confirm_href = cx
-            .route(format!("{ADMIN_ROLES_PATH}/{id}/delete/confirm"))
+            .route(role_path(id, "delete/confirm"))
             .alter_param("sort", sort.as_str())
             .alter_param("dir", dir)
             .alter_param("page", page.to_string())

@@ -2,8 +2,7 @@
 //!
 //! Proporciona una API async para leer y escribir valores JSON en la tabla `settings`.
 
-use pagetop::datetime::Utc;
-use pagetop::{Getters, builder_impl};
+use pagetop::prelude::*;
 use pagetop_seaorm::db::{
     ActiveModelTrait, ActiveValue, ColumnTrait, EntityTrait, QueryFilter, dbconn,
 };
@@ -231,6 +230,6 @@ impl SettingsSchema {
 
     /// Devuelve la clave completa de un campo: `"{scope}.{field_name}"`.
     pub fn key_for(&self, field_name: &str) -> String {
-        format!("{}.{}", self.scope, field_name)
+        util::join!(&self.scope, ".", field_name)
     }
 }

@@ -16,6 +16,5 @@ license.workspace = true
 authors.workspace = true
 
 [dependencies]
-concat-string.workspace = true
 indoc.workspace = true
 pastey.workspace = true

@@ -131,6 +131,16 @@ const ADMIN_ROLES_PATH: &str = "/admin/user/roles";
 // Catálogo de permisos registrados, agrupado por extensión (solo lectura).
 const ADMIN_PERMISSIONS_PATH: &str = "/admin/user/permissions";
 
+// Ruta de una acción sobre el usuario `id`: `{ADMIN_USERS_PATH}/{id}/{tail}`.
+fn user_path(id: i32, tail: &str) -> String {
+    util::join!(ADMIN_USERS_PATH, "/", id.to_string(), "/", tail)
+}
+
+// Ruta de una acción sobre el rol `id`: `{ADMIN_ROLES_PATH}/{id}/{tail}`.
+fn role_path(id: i32, tail: &str) -> String {
+    util::join!(ADMIN_ROLES_PATH, "/", id.to_string(), "/", tail)
+}
+
 // **< Registro en pagetop-admin (fijo) >***********************************************************
 
 // Registra las páginas de usuarios, roles y permisos en el portal de `pagetop-admin`, bajo la

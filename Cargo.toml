@@ -31,7 +31,6 @@ base64ct = { version = "1.8", features = ["alloc"] }
 change-detection = "1.2"
 chrono = "0.4"
 colored = "3.1"
-concat-string = "1.0"
 config = { version = "0.15", default-features = false, features = ["toml"] }
 figlet-rs = "1.0"
 fluent-templates = "0.14"

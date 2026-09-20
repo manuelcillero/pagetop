@@ -6,7 +6,6 @@ use pagetop::base::component::table::Row;
 use pagetop::prelude::*;
 use pagetop_htmx::prelude::*;
 
-use crate::ADMIN_ROLES_PATH;
 use crate::ADMIN_USERS_PATH;
 use crate::ANONYMOUS_ROLE_ID;
 use crate::AUTHENTICATED_ROLE_ID;
@@ -22,8 +21,10 @@ use crate::error::AuthError;
 use crate::handlers::admin::{back_link, frame, map_auth_error};
 use crate::password;
 use crate::permission::UserPermission;
+use crate::role_path;
 use crate::service::role_admin;
 use crate::service::user_admin::{self, UserListParams, UserSortField};
+use crate::user_path;
 
 #[derive(Deserialize)]
 pub(crate) struct UsersQuery {
@@ -341,12 +342,10 @@ fn edit_actions(
         ("true", "btn-grant-admin", "confirm-grant-admin")
     };
 
-    let roles_href = waypoint.append_to(cx.route(format!("{ADMIN_USERS_PATH}/{user_id}/roles")));
-    let password_href =
-        waypoint.append_to(cx.route(format!("{ADMIN_USERS_PATH}/{user_id}/password")));
-    let status_action =
-        waypoint.append_to(cx.route(format!("{ADMIN_USERS_PATH}/{user_id}/status")));
-    let admin_action = waypoint.append_to(cx.route(format!("{ADMIN_USERS_PATH}/{user_id}/admin")));
+    let roles_href = waypoint.append_to(cx.route(user_path(user_id, "roles")));
+    let password_href = waypoint.append_to(cx.route(user_path(user_id, "password")));
+    let status_action = waypoint.append_to(cx.route(user_path(user_id, "status")));
+    let admin_action = waypoint.append_to(cx.route(user_path(user_id, "admin")));
 
     let mut status_form = Form::new()
         .with_action(status_action.clone())
@@ -593,9 +592,10 @@ async fn user_view_roles(roles: &[role::Model], cx: &mut Context) -> Block {
                     table.user-admin-table {
                         tbody {
                             @for (id, machine_name, label, system_badge) in &items {
+                                @let href = cx.route(role_path(*id, "view")).to_string();
                                 tr {
                                     td {
-                                        a href=(cx.route(format!("{ADMIN_ROLES_PATH}/{id}/view")).to_string()) {
+                                        a href=(href) {
                                             (label.as_str())
                                         }
                                     }
@@ -744,7 +744,7 @@ pub(crate) async fn status_post(
     match user_admin::set_user_status(id, new_status, account.id).await {
         Ok(()) => {
             let cx = Context::admin(request);
-            let edit_href = waypoint.append_to(cx.route(format!("{ADMIN_USERS_PATH}/{id}/edit")));
+            let edit_href = waypoint.append_to(cx.route(user_path(id, "edit")));
             if is_htmx {
                 Ok(HtmxResponse::empty().redirect(edit_href).into_response())
             } else {
@@ -791,7 +791,7 @@ pub(crate) async fn admin_post(
     match user_admin::set_user_admin(id, new_is_admin, account.id).await {
         Ok(()) => {
             let cx = Context::admin(request);
-            let edit_href = waypoint.append_to(cx.route(format!("{ADMIN_USERS_PATH}/{id}/edit")));
+            let edit_href = waypoint.append_to(cx.route(user_path(id, "edit")));
             if is_htmx {
                 Ok(HtmxResponse::empty().redirect(edit_href).into_response())
             } else {
@@ -816,10 +816,7 @@ pub(crate) async fn password_get(
         return Err(ErrorPage::NotFound(Some(request)));
     }
     let mut page = Page::admin(request);
-    let edit_href = waypoint.append_to(
-        page.context()
-            .route(format!("{ADMIN_USERS_PATH}/{id}/edit")),
-    );
+    let edit_href = waypoint.append_to(page.context().route(user_path(id, "edit")));
     let title = Lc::t("title-admin-user-password", &LOCALES_USER);
     Ok(page
         .with_title(title.clone())
@@ -861,15 +858,12 @@ pub(crate) async fn password_post(
     match result {
         Ok(()) => {
             let cx = Context::admin(request);
-            let edit_href = waypoint.append_to(cx.route(format!("{ADMIN_USERS_PATH}/{id}/edit")));
+            let edit_href = waypoint.append_to(cx.route(user_path(id, "edit")));
             Ok(Redirect::see_other(edit_href).into_response())
         }
         Err(err) => {
             let mut page = Page::admin(request);
-            let edit_href = waypoint.append_to(
-                page.context()
-                    .route(format!("{ADMIN_USERS_PATH}/{id}/edit")),
-            );
+            let edit_href = waypoint.append_to(page.context().route(user_path(id, "edit")));
             let title = Lc::t("title-admin-user-password", &LOCALES_USER);
             Ok(page
                 .with_title(title.clone())
