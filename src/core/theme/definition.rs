@@ -1,5 +1,5 @@
 use crate::async_trait;
-use crate::base::component::{Html, Intro, IntroOpening, layout};
+use crate::base::component::{Html, Intro, layout};
 use crate::core::component::{ChildOp, Component, ComponentError, ComponentRender};
 use crate::core::component::{Context, Contextual};
 use crate::core::extension::Extension;
@@ -413,11 +413,9 @@ pub trait Theme: Extension + Send + Sync {
         page.alter_title(title).alter_child_in(
             &CoreRegions::Content,
             ChildOp::Prepend(
-                Intro::new()
+                Intro::custom()
                     .with_title(Lc::l("error_code").with_arg("code", code.to_string()))
                     .with_slogan(Lc::n(code.to_string()))
-                    .with_button(None)
-                    .with_opening(IntroOpening::Custom)
                     .with_child(Html::with(move |cx| {
                         html! {
                             h1 { (alert.using(cx)) }

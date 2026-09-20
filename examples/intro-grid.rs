@@ -20,11 +20,9 @@ async fn intro_grid(request: HttpRequest) -> Result<Markup, ErrorPage> {
         .with_assets(demo_box_styles())
         .with_assets(demo_row_styles())
         .with_child(
-            Intro::default()
-                .with_opening(IntroOpening::Custom)
+            Intro::custom()
                 .with_title(Lc::n("PageTop"))
                 .with_slogan(Lc::t("grid_slogan", &LOC))
-                .with_button(None::<(Lc, Route)>)
                 .with_child(columns_block())
                 .with_child(rows_gap_block())
                 .with_child(placement_block())
@@ -472,7 +470,8 @@ fn layout_block() -> Block {
 // **< HELPERS >************************************************************************************
 
 // Aspecto fijo de las cajas de muestra: esquinas rectas y borde claro, a diferencia de las cajas
-// redondeadas de `intro-flex.rs`, para distinguir a simple vista los ejemplos de Grid de los de Flex.
+// redondeadas de `intro-flex.rs`, para distinguir a simple vista los ejemplos de Grid de los de
+// Flex.
 fn demo_box_styles() -> AssetsOp {
     AssetsOp::add_responsive_styles(
         None,

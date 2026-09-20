@@ -21,11 +21,9 @@ async fn intro_responsive(request: HttpRequest) -> Result<Markup, ErrorPage> {
         .with_assets(demo_row_styles())
         .with_assets(demo_code_styles())
         .with_child(
-            Intro::default()
-                .with_opening(IntroOpening::Custom)
+            Intro::custom()
                 .with_title(Lc::n("PageTop"))
                 .with_slogan(Lc::t("responsive_slogan", &LOC))
-                .with_button(None::<(Lc, Route)>)
                 .with_child(Html::with(|cx| {
                     html! {
                         p class="intro-text-lead" {

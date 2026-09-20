@@ -19,11 +19,9 @@ impl Extension for FormControls {
 async fn form_controls(request: HttpRequest) -> Result<Markup, ErrorPage> {
     Page::new(request)
         .with_child(
-            Intro::default()
-                .with_opening(IntroOpening::Custom)
+            Intro::custom()
                 .with_title(Lc::t("title", &LOC))
                 .with_slogan(Lc::t("slogan", &LOC))
-                .with_button(None::<(Lc, Route)>)
                 // Bloque 1: casillas, interruptores y botones de opción.
                 .with_child(
                     Block::new()

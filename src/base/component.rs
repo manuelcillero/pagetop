@@ -47,8 +47,9 @@ pub mod image;
 #[doc(inline)]
 pub use image::Image;
 
-mod intro;
-pub use intro::{Intro, IntroOpening};
+pub mod intro;
+#[doc(inline)]
+pub use intro::Intro;
 
 mod messages;
 pub use messages::Messages;

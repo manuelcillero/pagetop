@@ -14,11 +14,9 @@ impl Extension for IntroColors {
 async fn intro_colors(request: HttpRequest) -> Result<Markup, ErrorPage> {
     Page::new(request)
         .with_child(
-            Intro::default()
-                .with_opening(IntroOpening::Custom)
+            Intro::custom()
                 .with_title(Lc::n("PageTop"))
                 .with_slogan(Lc::t("colors_slogan", &LOC))
-                .with_button(None::<(Lc, Route)>)
                 .with_child(
                     Block::new()
                         .with_title(Lc::t("colors_block", &LOC).with_arg("n", "1"))

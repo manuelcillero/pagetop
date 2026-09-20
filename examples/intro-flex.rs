@@ -20,11 +20,9 @@ async fn intro_flex(request: HttpRequest) -> Result<Markup, ErrorPage> {
         .with_assets(demo_box_styles())
         .with_assets(demo_row_styles())
         .with_child(
-            Intro::default()
-                .with_opening(IntroOpening::Custom)
+            Intro::custom()
                 .with_title(Lc::n("PageTop"))
                 .with_slogan(Lc::t("flex_slogan", &LOC))
-                .with_button(None::<(Lc, Route)>)
                 .with_child(direction_block())
                 .with_child(justify_block())
                 .with_child(align_block())
