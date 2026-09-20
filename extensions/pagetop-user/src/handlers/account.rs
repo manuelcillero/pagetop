@@ -1,6 +1,5 @@
 //! Handler HTTP para el perfil del propio usuario autenticado.
 
-use pagetop::base::component::table::Row;
 use pagetop::prelude::*;
 
 use crate::account::UserStatus;
@@ -47,32 +46,32 @@ async fn profile_details(user: &user::Model, status: UserStatus, cx: &mut Contex
     let mut table = Table::new()
         .with_prop(PropsOp::add_classes("user-admin-table"))
         .with_row(
-            Row::new()
+            table::Row::new()
                 .with_cell(Lc::t("field-username-admin", &LOCALES_USER))
                 .with_cell(user.username.as_str()),
         )
         .with_row(
-            Row::new()
+            table::Row::new()
                 .with_cell(Lc::t("field-email", &LOCALES_USER))
                 .with_cell(user.email.as_str()),
         )
         .with_row(
-            Row::new()
+            table::Row::new()
                 .with_cell(Lc::t("field-display-name", &LOCALES_USER))
                 .with_cell(user.display_name.as_deref().unwrap_or("-")),
         )
         .with_row(
-            Row::new()
+            table::Row::new()
                 .with_cell(Lc::t("field-language", &LOCALES_USER))
                 .with_cell(user.language.as_deref().unwrap_or("-")),
         )
         .with_row(
-            Row::new()
+            table::Row::new()
                 .with_cell(Lc::t("field-timezone", &LOCALES_USER))
                 .with_cell(user.timezone.as_deref().unwrap_or("-")),
         )
         .with_row(
-            Row::new()
+            table::Row::new()
                 .with_cell(Lc::t("col-status", &LOCALES_USER))
                 .with_cell(Lc::t(status_key(status), &LOCALES_USER)),
         );
@@ -83,7 +82,7 @@ async fn profile_details(user: &user::Model, status: UserStatus, cx: &mut Contex
             .render(cx)
             .await;
         table = table.with_row(
-            Row::new()
+            table::Row::new()
                 .with_cell("")
                 .with_cell(Html::with(move |_| badge.clone())),
         );

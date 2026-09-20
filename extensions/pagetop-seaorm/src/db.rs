@@ -49,7 +49,7 @@
 //!     pub name: String,
 //! }
 //!
-//! #[derive(Clone, Copy, Debug, EnumIter, DeriveRelation)]
+//! #[derive(Clone, Copy, Debug, DeriveRelation, EnumIter)]
 //! pub enum Relation {}
 //!
 //! // `DeriveEntityModel` genera también `ActiveModel`, `Entity`, `Column` y `PrimaryKey`.
@@ -468,7 +468,7 @@ impl<T> Paginated<T> {
 ///     pub email: String,
 /// }
 ///
-/// #[derive(Clone, Copy, Debug, EnumIter, DeriveRelation)]
+/// #[derive(Clone, Copy, Debug, DeriveRelation, EnumIter)]
 /// pub enum Relation {}
 ///
 /// impl ActiveModelBehavior for ActiveModel {}

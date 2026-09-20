@@ -4,8 +4,7 @@
 //! `Extension::initialize()`, después de `auth::seed_initial_data()`. Si el rol
 //! `demo_role_01` ya existe, la siembra se omite para no duplicar datos en reinicios.
 
-use pagetop::datetime::Utc;
-
+use pagetop::prelude::*;
 use pagetop_seaorm::db::{ActiveValue, ColumnTrait, EntityTrait, QueryFilter, Set, dbconn};
 
 use crate::account::UserStatus;

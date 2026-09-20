@@ -2,7 +2,6 @@
 
 use serde::Deserialize;
 
-use pagetop::auth::CurrentUser;
 use pagetop::prelude::*;
 
 use crate::auth;

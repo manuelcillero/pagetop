@@ -7,7 +7,7 @@
 //! # Atributos estáticos en `html!`
 //!
 //! Para valores conocidos en tiempo de compilación, los atributos `hx-*` pueden escribirse
-//! directamente en la macro `html!` sin necesidad de [`Props`](pagetop::html::Props):
+//! directamente en la macro `html!` sin necesidad de [`Props`]:
 //!
 //! ```rust,no_run
 //! use pagetop::prelude::*;
@@ -17,10 +17,10 @@
 //! };
 //! ```
 //!
-//! # Atributos dinámicos con [`Props`](pagetop::html::Props)
+//! # Atributos dinámicos con [`Props`]
 //!
 //! Cuando los valores se construyen en tiempo de ejecución o se inyectan desde una extensión,
-//! puedes usar [`Props`](pagetop::html::Props) combinado con las constantes de este módulo:
+//! puedes usar [`Props`] combinado con las constantes de este módulo:
 //!
 //! ```rust,no_run
 //! # use pagetop::prelude::*;

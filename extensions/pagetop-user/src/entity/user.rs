@@ -1,6 +1,5 @@
+use pagetop::prelude::*;
 use pagetop_seaorm::db::*;
-
-use pagetop::datetime::NaiveDateTime;
 
 #[derive(Clone, Debug, DeriveEntityModel, PartialEq)]
 #[sea_orm(table_name = "users")]

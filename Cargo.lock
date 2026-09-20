@@ -1875,7 +1875,6 @@ dependencies = [
 name = "pagetop-menu"
 version = "0.1.0"
 dependencies = [
- "chrono",
  "pagetop",
  "pagetop-seaorm",
  "serde",

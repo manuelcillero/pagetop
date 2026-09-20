@@ -1,8 +1,6 @@
 //! Tabla de usuarios: cabeceras ordenables, filas y paginación embebida.
 
 use pagetop::prelude::*;
-
-use pagetop::base::component::table::{Column, Row};
 use pagetop_htmx::hx;
 use pagetop_htmx::hx_table::sort_link;
 
@@ -75,7 +73,7 @@ impl Component for UserTable {
             let status = user.status;
 
             table.alter_row(
-                Row::new()
+                table::Row::new()
                     .with_cell(username_cell(user, &waypoint))
                     .with_cell(user.email.as_str())
                     .with_cell(user.display_name.as_deref().unwrap_or("-"))
@@ -163,7 +161,12 @@ impl UserTable {
     // Construye la cabecera ordenable de una columna: el enlace ya funciona sin HTMX (navega con
     // una petición normal); `pagetop_htmx::hx_table::sort_link()` añade aparte los atributos `hx-*`
     // para que la tabla se actualice sin recargar la página cuando la extensión esté disponible.
-    fn sort_column(&self, cx: &Context, field: UserSortField, label_key: &'static str) -> Column {
+    fn sort_column(
+        &self,
+        cx: &Context,
+        field: UserSortField,
+        label_key: &'static str,
+    ) -> table::Column {
         let is_active = *self.sort() == field;
         let active = is_active.then_some(*self.dir());
         let next_dir = SortDir::next_for(active);
@@ -176,7 +179,7 @@ impl UserTable {
             .alter_param("sort", field.as_str())
             .alter_param("dir", next_dir);
 
-        Column::new(Lc::t(label_key, &LOCALES_USER)).with_sort(sort_link(
+        table::Column::new(Lc::t(label_key, &LOCALES_USER)).with_sort(sort_link(
             route,
             "#user-table-wrapper",
             active,

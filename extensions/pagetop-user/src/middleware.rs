@@ -5,9 +5,7 @@
 //! si el usuario está autenticado, el [`crate::account::Account`] con sus datos ricos en las
 //! extensiones de la petición HTTP.
 
-use pagetop::auth::PermissionRef;
-use pagetop::web::middleware::Next;
-use pagetop::web::{Request, Response};
+use pagetop::prelude::*;
 
 use crate::account::Account;
 use crate::session;
@@ -17,7 +15,10 @@ use crate::session;
 ///
 /// - Siempre inserta [`pagetop::auth::CurrentUser`] (anónimo o autenticado).
 /// - Si hay sesión activa, inserta también el [`Account`] con roles y permisos.
-pub(crate) async fn session_middleware(mut req: Request, next: Next) -> Response {
+pub(crate) async fn session_middleware(
+    mut req: web::Request,
+    next: web::middleware::Next,
+) -> Response {
     let (current_user, maybe_account) = session::resolve_session(req.headers()).await;
 
     req.extensions_mut().insert(current_user);

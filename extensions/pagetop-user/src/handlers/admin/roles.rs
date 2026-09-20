@@ -2,7 +2,6 @@
 
 use serde::Deserialize;
 
-use pagetop::base::component::table::Row;
 use pagetop::prelude::*;
 use pagetop_htmx::prelude::*;
 
@@ -313,22 +312,22 @@ async fn role_view_details(role: &role::Model, cx: &mut Context) -> Block {
     let mut table = Table::new()
         .with_prop(PropsOp::add_classes("user-admin-table"))
         .with_row(
-            Row::new()
+            table::Row::new()
                 .with_cell(Lc::t("field-machine-name", &LOCALES_USER))
                 .with_cell(role.machine_name.as_str()),
         )
         .with_row(
-            Row::new()
+            table::Row::new()
                 .with_cell(Lc::t("field-label", &LOCALES_USER))
                 .with_cell(role.label.as_str()),
         )
         .with_row(
-            Row::new()
+            table::Row::new()
                 .with_cell(Lc::t("field-description", &LOCALES_USER))
                 .with_cell(role.description.as_deref().unwrap_or("-")),
         )
         .with_row(
-            Row::new()
+            table::Row::new()
                 .with_cell(Lc::t("field-weight", &LOCALES_USER))
                 .with_cell(role.weight.to_string()),
         );
@@ -339,7 +338,7 @@ async fn role_view_details(role: &role::Model, cx: &mut Context) -> Block {
             .render(cx)
             .await;
         table = table.with_row(
-            Row::new()
+            table::Row::new()
                 .with_cell("")
                 .with_cell(Html::with(move |_| badge.clone())),
         );

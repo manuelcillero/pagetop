@@ -2,7 +2,6 @@
 
 use std::collections::HashMap;
 
-use pagetop::locale::{Locale, RequestLocale};
 use pagetop::prelude::*;
 
 use crate::cache::FlatMenu;

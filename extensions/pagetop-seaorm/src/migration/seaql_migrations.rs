@@ -1,6 +1,6 @@
 use sea_orm::entity::prelude::*;
 
-#[derive(Clone, Debug, PartialEq, Eq, DeriveEntityModel)]
+#[derive(Clone, Debug, DeriveEntityModel, Eq, PartialEq)]
 // One should override the name of migration table via `MigratorTrait::migration_table_name` method
 #[sea_orm(table_name = "seaql_migrations")]
 pub struct Model {
@@ -9,7 +9,7 @@ pub struct Model {
     pub applied_at: i64,
 }
 
-#[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
+#[derive(Clone, Copy, Debug, DeriveRelation, EnumIter)]
 pub enum Relation {}
 
 impl ActiveModelBehavior for ActiveModel {}

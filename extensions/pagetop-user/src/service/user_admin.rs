@@ -2,9 +2,7 @@
 
 use std::collections::HashMap;
 
-use pagetop::datetime::Utc;
-use pagetop::html::SortDir;
-use pagetop::util;
+use pagetop::prelude::*;
 use pagetop_seaorm::db::{
     ActiveModelTrait, ActiveValue, ColumnTrait, Condition, EntityTrait, Order, Paginated,
     PaginatorTrait, QueryFilter, QueryOrder, Set, TransactionTrait, dbconn, flatten_txn_err,

@@ -1,4 +1,3 @@
-use pagetop::base::component::breadcrumb;
 use pagetop::prelude::*;
 
 use crate::LOCALES_ADMIN;

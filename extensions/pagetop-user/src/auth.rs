@@ -1,7 +1,6 @@
 //! Lógica de autenticación: login, logout, registro, semilla inicial.
 
-use pagetop::datetime::{Duration, NaiveDateTime, Utc};
-
+use pagetop::prelude::*;
 use pagetop_seaorm::db::{
     ActiveModelTrait, ActiveValue, ColumnTrait, Condition, EntityTrait, PaginatorTrait,
     QueryFilter, Set, dbconn,

@@ -1,15 +1,15 @@
 //! Generación y verificación de tokens de un solo uso (reset de contraseña, verificación de
 //! email...).
 
-use pagetop::datetime::{Duration, Utc};
-use sha2::{Digest, Sha256};
-
+use pagetop::prelude::*;
 use pagetop_seaorm::db::{
     ActiveModelTrait, ActiveValue, ColumnTrait, EntityTrait, QueryFilter, Set, dbconn,
 };
 
 use crate::entity::user_token;
 use crate::error::AuthError;
+
+use sha2::{Digest, Sha256};
 
 // **< Generación de tokens >***********************************************************************
 

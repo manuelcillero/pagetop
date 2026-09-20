@@ -4,7 +4,7 @@ use std::future::Future;
 use std::pin::Pin;
 use std::time::SystemTime;
 
-use pagetop::trace::info;
+use pagetop::prelude::*;
 
 use sea_orm::sea_query::{
     self, Alias, Expr, ExprTrait, ForeignKey, IntoIden, Order, Query, SelectStatement, SimpleExpr,
@@ -182,10 +182,10 @@ pub trait MigratorTrait: Send {
     {
         Self::install(db).await?;
 
-        info!("Checking migration status");
+        trace::info!("Checking migration status");
 
         for Migration { migration, status } in Self::get_migration_with_status(db).await? {
-            info!("Migration '{}'... {}", migration.name(), status);
+            trace::info!("Migration '{}'... {}", migration.name(), status);
         }
 
         Ok(())
@@ -284,34 +284,35 @@ where
 
     // Temporarily disable the foreign key check
     if db_backend == DbBackend::Sqlite {
-        info!("Disabling foreign key check");
+        trace::info!("Disabling foreign key check");
         db.execute(Statement::from_string(
             db_backend,
             "PRAGMA foreign_keys = OFF".to_owned(),
         ))
         .await?;
-        info!("Foreign key check disabled");
+        trace::info!("Foreign key check disabled");
     }
 
     // Drop all foreign keys
     if db_backend == DbBackend::MySql {
-        info!("Dropping all foreign keys");
+        trace::info!("Dropping all foreign keys");
         let stmt = query_mysql_foreign_keys(db);
         let rows = db.query_all(db_backend.build(&stmt)).await?;
         for row in rows.into_iter() {
             let constraint_name: String = row.try_get("", "CONSTRAINT_NAME")?;
             let table_name: String = row.try_get("", "TABLE_NAME")?;
-            info!(
+            trace::info!(
                 "Dropping foreign key '{}' from table '{}'",
-                constraint_name, table_name
+                constraint_name,
+                table_name
             );
             let mut stmt = ForeignKey::drop();
             stmt.table(Alias::new(table_name.as_str()))
                 .name(constraint_name.as_str());
             db.execute(db_backend.build(&stmt)).await?;
-            info!("Foreign key '{}' has been dropped", constraint_name);
+            trace::info!("Foreign key '{}' has been dropped", constraint_name);
         }
-        info!("All foreign keys dropped");
+        trace::info!("All foreign keys dropped");
     }
 
     // Drop all tables
@@ -319,39 +320,39 @@ where
     let rows = db.query_all(db_backend.build(&stmt)).await?;
     for row in rows.into_iter() {
         let table_name: String = row.try_get("", "table_name")?;
-        info!("Dropping table '{}'", table_name);
+        trace::info!("Dropping table '{}'", table_name);
         let mut stmt = Table::drop();
         stmt.table(Alias::new(table_name.as_str()))
             .if_exists()
             .cascade();
         db.execute(db_backend.build(&stmt)).await?;
-        info!("Table '{}' has been dropped", table_name);
+        trace::info!("Table '{}' has been dropped", table_name);
     }
 
     // Drop all types
     if db_backend == DbBackend::Postgres {
-        info!("Dropping all types");
+        trace::info!("Dropping all types");
         let stmt = query_pg_types(db);
         let rows = db.query_all(db_backend.build(&stmt)).await?;
         for row in rows {
             let type_name: String = row.try_get("", "typname")?;
-            info!("Dropping type '{}'", type_name);
+            trace::info!("Dropping type '{}'", type_name);
             let mut stmt = Type::drop();
             stmt.name(Alias::new(&type_name));
             db.execute(db_backend.build(&stmt)).await?;
-            info!("Type '{}' has been dropped", type_name);
+            trace::info!("Type '{}' has been dropped", type_name);
         }
     }
 
     // Restore the foreign key check
     if db_backend == DbBackend::Sqlite {
-        info!("Restoring foreign key check");
+        trace::info!("Restoring foreign key check");
         db.execute(Statement::from_string(
             db_backend,
             "PRAGMA foreign_keys = ON".to_owned(),
         ))
         .await?;
-        info!("Foreign key check restored");
+        trace::info!("Foreign key check restored");
     }
 
     // Reapply all migrations
@@ -367,15 +368,15 @@ where
     M::install(db).await?;
     /*
     if let Some(steps) = steps {
-        info!("Applying {} pending migrations", steps);
+        trace::info!("Applying {} pending migrations", steps);
     } else {
-        info!("Applying all pending migrations");
+        trace::info!("Applying all pending migrations");
     }
     */
     let migrations = M::get_pending_migrations(db).await?.into_iter();
     /*
     if migrations.len() == 0 {
-        info!("No pending migrations");
+        trace::info!("No pending migrations");
     }
     */
     for Migration { migration, .. } in migrations {
@@ -385,9 +386,9 @@ where
             }
             *steps -= 1;
         }
-        info!("Applying migration '{}'", migration.name());
+        trace::info!("Applying migration '{}'", migration.name());
         migration.up(manager).await?;
-        info!("Migration '{}' has been applied", migration.name());
+        trace::info!("Migration '{}' has been applied", migration.name());
         let now = SystemTime::now()
             .duration_since(SystemTime::UNIX_EPOCH)
             .expect("SystemTime before UNIX EPOCH!");
@@ -412,14 +413,14 @@ where
     M::install(db).await?;
 
     if let Some(steps) = steps {
-        info!("Rolling back {} applied migrations", steps);
+        trace::info!("Rolling back {} applied migrations", steps);
     } else {
-        info!("Rolling back all applied migrations");
+        trace::info!("Rolling back all applied migrations");
     }
 
     let migrations = M::get_applied_migrations(db).await?.into_iter().rev();
     if migrations.len() == 0 {
-        info!("No applied migrations");
+        trace::info!("No applied migrations");
     }
     for Migration { migration, .. } in migrations {
         if let Some(steps) = steps.as_mut() {
@@ -428,9 +429,9 @@ where
             }
             *steps -= 1;
         }
-        info!("Rolling back migration '{}'", migration.name());
+        trace::info!("Rolling back migration '{}'", migration.name());
         migration.down(manager).await?;
-        info!("Migration '{}' has been rollbacked", migration.name());
+        trace::info!("Migration '{}' has been rollbacked", migration.name());
         seaql_migrations::Entity::delete_many()
             .filter(Expr::col(seaql_migrations::Column::Version).eq(migration.name()))
             .table_name(M::migration_table_name())

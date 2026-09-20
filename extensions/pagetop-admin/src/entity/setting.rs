@@ -1,6 +1,5 @@
+use pagetop::prelude::*;
 use pagetop_seaorm::db::*;
-
-use pagetop::datetime::NaiveDateTime;
 
 /// Entidad SeaORM para la tabla `settings`.
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel)]
@@ -14,7 +13,7 @@ pub struct Model {
     pub updated_by: Option<i32>,
 }
 
-#[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
+#[derive(Clone, Copy, Debug, DeriveRelation, EnumIter)]
 pub enum Relation {}
 
 impl ActiveModelBehavior for ActiveModel {}

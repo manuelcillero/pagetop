@@ -2,7 +2,7 @@
 
 use std::collections::HashSet;
 
-use pagetop::auth::PermissionRef;
+use pagetop::prelude::*;
 
 // **< UserStatus >*********************************************************************************
 
@@ -56,9 +56,9 @@ impl PermissionSet {
 
 /// Datos ricos del usuario autenticado inyectados por el middleware de sesión.
 ///
-/// Se almacena en las extensiones de la petición HTTP durante la fase de middleware y se
-/// accede desde los handlers o desde handlers de [`CheckPermission`](pagetop::auth::CheckPermission)
-/// mediante [`HttpRequest::extension::<Account>()`](pagetop::web::HttpRequest::extension).
+/// Se almacena en las extensiones de la petición HTTP durante la fase de middleware y se accede
+/// desde los handlers o desde handlers de [`CheckPermission`] mediante
+/// [`HttpRequest::extension::<Account>()`](pagetop::web::HttpRequest::extension).
 #[derive(Clone, Debug)]
 pub struct Account {
     pub id: i32,
