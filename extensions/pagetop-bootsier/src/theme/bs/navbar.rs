@@ -8,12 +8,12 @@
 //! que identifique la compañía, producto o nombre del proyecto asociado a la solución web.
 
 mod props;
-pub use props::{Layout, Position};
+pub use props::Layout;
 
 pub use super::Brand;
 
 pub use pagetop::base::component::Navbar;
-pub use pagetop::base::component::navbar::Item;
+pub use pagetop::base::component::navbar::{Item, Position};
 
 mod component;
 pub use component::NavbarBootsier;

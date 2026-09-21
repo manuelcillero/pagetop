@@ -7,7 +7,6 @@ const TOGGLE_COLLAPSE: &str = "collapse";
 const TOGGLE_OFFCANVAS: &str = "offcanvas";
 
 const EXTRA_LAYOUT: &str = "bootsier.navbar.layout";
-const EXTRA_POSITION: &str = "bootsier.navbar.position";
 
 /// Extensión de Bootsier para [`Navbar`].
 ///
@@ -151,9 +150,6 @@ pub trait NavbarBootsier {
 
     /// Crea una barra de navegación con **marca de identidad** y contenido en **offcanvas**.
     fn offcanvas_brand_right(brand: Brand, oc: bs::Offcanvas) -> Self;
-
-    /// Define dónde se mostrará la barra de navegación dentro del documento.
-    fn with_position(self, position: bs::navbar::Position) -> Self;
 }
 
 #[builder_impl]
@@ -184,23 +180,33 @@ impl NavbarBootsier for Navbar {
         ));
         navbar
     }
-
-    fn with_position(mut self, position: bs::navbar::Position) -> Self {
-        self.alter_prop(PropsOp::set_extra(EXTRA_POSITION, position));
-        self
-    }
 }
 
 // **< Navbar SETUP >*******************************************************************************
 
 pub(crate) fn setup(navbar: &mut Navbar) {
-    let position = navbar
+    // Sin botón de despliegue no hay nada que colapsar, así que el punto de corte no debe afectar a
+    // la barra: Bootstrap apilaría igualmente el menú por debajo de él. `navbar-expand` a secas es
+    // su «expandida siempre». Las disposiciones de Bootsier (`EXTRA_LAYOUT`, con `Offcanvas`)
+    // siempre llevan botón; de las de base sólo `Simple` y `SimpleBrandLeft` no lo llevan.
+    let has_toggle = navbar
         .props()
-        .extra_or(EXTRA_POSITION, bs::navbar::Position::default());
-    let mut classes = String::new();
-    position.push_to(&mut classes);
-    if !classes.is_empty() {
-        navbar.alter_prop(PropsOp::add_classes(classes));
+        .extra::<bs::navbar::Layout>(EXTRA_LAYOUT)
+        .is_ok()
+        || !matches!(
+            navbar.layout(),
+            navbar::Layout::Simple | navbar::Layout::SimpleBrandLeft(_)
+        );
+    if !has_toggle {
+        let expand = navbar.props().get_classes().and_then(|classes| {
+            classes
+                .split_whitespace()
+                .find(|class| class.starts_with("navbar-expand-"))
+                .map(String::from)
+        });
+        if let Some(class) = expand {
+            navbar.alter_prop(PropsOp::replace_classes(class, "navbar-expand"));
+        }
     }
 }
 
@@ -268,10 +274,13 @@ pub(crate) async fn render(navbar: &Navbar, cx: &mut Context) -> Result<Markup, 
                         }
                     },
 
-                    // Barra con marca a la izquierda, siempre visible.
+                    // Barra con marca a la izquierda, siempre visible. El contenedor deja los
+                    // contenidos junto a la marca: sin él, el `space-between` de `container-fluid`
+                    // los llevaría al extremo opuesto. Sin `collapse`, `setup()` garantiza
+                    // `navbar-expand` y Bootstrap lo muestra siempre.
                     bs::navbar::Layout::SimpleBrandLeft(brand) => {
                         (brand.render(cx).await)
-                        (items)
+                        div class="navbar-collapse" { (items) }
                     },
 
                     // Barra con marca a la izquierda y botón a la derecha.
@@ -298,32 +307,41 @@ pub(crate) async fn render(navbar: &Navbar, cx: &mut Context) -> Result<Markup, 
 
                     // Barra cuyo contenido se muestra en un offcanvas, sin marca.
                     bs::navbar::Layout::Offcanvas(offcanvas) => {
-                        @let id_content = offcanvas.id().unwrap_or_default();
+                        @let offcanvas = setup_offcanvas(&offcanvas, cx);
+                        @let id_content = offcanvas
+                            .as_ref()
+                            .and_then(|oc| oc.id()).unwrap_or_default();
 
                         (button(cx, TOGGLE_OFFCANVAS, &id_content))
-                        @if let Some(oc) = offcanvas.get() {
+                        @if let Some(oc) = &offcanvas {
                             (oc.render_offcanvas(cx, Some(navbar.items())).await)
                         }
                     },
 
                     // Barra con marca a la izquierda y contenido en offcanvas.
                     bs::navbar::Layout::OffcanvasBrandLeft(brand, offcanvas) => {
-                        @let id_content = offcanvas.id().unwrap_or_default();
+                        @let offcanvas = setup_offcanvas(&offcanvas, cx);
+                        @let id_content = offcanvas
+                            .as_ref()
+                            .and_then(|oc| oc.id()).unwrap_or_default();
 
                         (brand.render(cx).await)
                         (button(cx, TOGGLE_OFFCANVAS, &id_content))
-                        @if let Some(oc) = offcanvas.get() {
+                        @if let Some(oc) = &offcanvas {
                             (oc.render_offcanvas(cx, Some(navbar.items())).await)
                         }
                     },
 
                     // Barra con contenido en offcanvas y marca a la derecha.
                     bs::navbar::Layout::OffcanvasBrandRight(brand, offcanvas) => {
-                        @let id_content = offcanvas.id().unwrap_or_default();
+                        @let offcanvas = setup_offcanvas(&offcanvas, cx);
+                        @let id_content = offcanvas
+                            .as_ref()
+                            .and_then(|oc| oc.id()).unwrap_or_default();
 
                         (button(cx, TOGGLE_OFFCANVAS, &id_content))
                         (brand.render(cx).await)
-                        @if let Some(oc) = offcanvas.get() {
+                        @if let Some(oc) = &offcanvas {
                             (oc.render_offcanvas(cx, Some(navbar.items())).await)
                         }
                     },
@@ -331,6 +349,16 @@ pub(crate) async fn render(navbar: &Navbar, cx: &mut Context) -> Result<Markup, 
             }
         }
     })
+}
+
+// El panel se renderiza con `render_offcanvas()` para inyectarle los contenidos de la barra, así
+// que no pasa por el ciclo de vida normal. Se clona y se le aplica aquí su `setup()`; sin él no
+// tendría `id` (el botón lo necesita para referenciarlo) ni las clases `offcanvas*` que lo ocultan
+// y lo colocan.
+fn setup_offcanvas(offcanvas: &Embed<bs::Offcanvas>, cx: &mut Context) -> Option<bs::Offcanvas> {
+    let mut oc = offcanvas.get()?.clone();
+    oc.setup(cx);
+    Some(oc)
 }
 
 // Traduce el `navbar::Layout` semántico de base (sin `Offcanvas`, sin `Position`/`expand`) a la

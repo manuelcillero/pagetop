@@ -268,20 +268,20 @@ body {
     margin-inline: auto;
     padding-inline: 1rem;
 }
-@media (min-width: 576px) {
+@media (width >= 576px) {
     .container,
     .container-sm {
         max-width: 540px;
     }
 }
-@media (min-width: 768px) {
+@media (width >= 768px) {
     .container,
     .container-sm,
     .container-md {
         max-width: 720px;
     }
 }
-@media (min-width: 992px) {
+@media (width >= 992px) {
     .container,
     .container-sm,
     .container-md,
@@ -289,7 +289,7 @@ body {
         max-width: 960px;
     }
 }
-@media (min-width: 1200px) {
+@media (width >= 1200px) {
     .container,
     .container-sm,
     .container-md,
@@ -298,7 +298,7 @@ body {
         max-width: 1140px;
     }
 }
-@media (min-width: 1400px) {
+@media (width >= 1400px) {
     .container,
     .container-sm,
     .container-md,
@@ -308,7 +308,7 @@ body {
         max-width: 1320px;
     }
 }
-@media (min-width: 1920px) {
+@media (width >= 1920px) {
     .container,
     .container-sm,
     .container-md,
@@ -687,6 +687,13 @@ input:disabled + label {
     color: var(--val-color--text--muted);
     pointer-events: none;
 }
+/* The toggle of a dropdown inside a `Nav` looks like the other links: it drops the border that a
+ * standalone `Dropdown` toggle has (see "Dropdown component"). */
+.nav-link.dropdown-toggle {
+    width: 100%;
+    text-align: start;
+    border: 0;
+}
 
 .nav-start {
     justify-content: flex-start;
@@ -737,15 +744,62 @@ input:disabled + label {
     content: "\2630";
 }
 
+/* Pushes the toggle (`BrandLeft`) or the brand (`BrandRight`) to the far end of the bar. */
+.brand ~ .navbar-toggle,
+.navbar-toggle ~ .brand {
+    margin-inline-start: auto;
+}
+
 .navbar-content {
     display: flex;
     align-items: center;
     gap: 1rem;
     flex: 1 1 auto;
 }
+/* A bar without a toggle button never stacks its `.nav` items in a column, so they wrap onto
+ * another line when they don't fit instead of overflowing the bar. */
+.navbar-content .nav {
+    flex-wrap: wrap;
+}
 
 .navbar-text {
     color: var(--val-color--text--muted);
+}
+
+/*
+ * Navbar position, from the `navbar::Position` classes. `.navbar` has no background of its own, so
+ * a bar taken out of the flow (fixed) or pinned while scrolling (sticky) gets one, or the content
+ * passing underneath would show through.
+ */
+.navbar.fixed-top,
+.navbar.fixed-bottom,
+.navbar.sticky-top,
+.navbar.sticky-bottom {
+    background-color: var(--val-color--bg);
+}
+.navbar.fixed-top,
+.navbar.fixed-bottom {
+    position: fixed;
+    right: 0;
+    left: 0;
+    z-index: 1030;
+}
+.navbar.fixed-top {
+    top: 0;
+}
+.navbar.fixed-bottom {
+    bottom: 0;
+}
+.navbar.sticky-top,
+.navbar.sticky-bottom {
+    position: sticky;
+    z-index: 1020;
+}
+.navbar.sticky-top {
+    top: 0;
+}
+.navbar.sticky-bottom {
+    bottom: 0;
 }
 
 /*
@@ -757,16 +811,17 @@ input:disabled + label {
  *
  * While collapsed, the `.nav` items are stacked in a column, so a dropdown menu inside it is laid
  * out in the flow (`position: static`) to push down the following items instead of covering them.
+ * A navbar without a toggle button has nothing to collapse: its `.nav` items stay in a row.
  */
-@media (max-width: 575.98px) {
+@media (width < 576px) {
     .navbar-expand-sm {
         flex-wrap: wrap;
     }
     .navbar-expand-sm:has(.navbar-toggle) .navbar-toggle {
         display: inline-block;
-        order: -1;
     }
     .navbar-expand-sm:has(.navbar-toggle) .navbar-content {
+        order: 1;
         display: none;
         flex-direction: column;
         align-items: stretch;
@@ -775,26 +830,26 @@ input:disabled + label {
     .navbar-expand-sm:has(.navbar-toggle) .navbar-content.show {
         display: flex;
     }
-    .navbar-expand-sm .nav {
+    .navbar-expand-sm:has(.navbar-toggle) .nav {
         flex-direction: column;
         align-items: stretch;
         width: 100%;
     }
-    .navbar-expand-sm .nav .dropdown-menu {
+    .navbar-expand-sm:has(.navbar-toggle) .nav .dropdown-menu {
         position: static;
         box-shadow: none;
     }
 }
 
-@media (max-width: 767.98px) {
+@media (width < 768px) {
     .navbar-expand-md {
         flex-wrap: wrap;
     }
     .navbar-expand-md:has(.navbar-toggle) .navbar-toggle {
         display: inline-block;
-        order: -1;
     }
     .navbar-expand-md:has(.navbar-toggle) .navbar-content {
+        order: 1;
         display: none;
         flex-direction: column;
         align-items: stretch;
@@ -803,26 +858,26 @@ input:disabled + label {
     .navbar-expand-md:has(.navbar-toggle) .navbar-content.show {
         display: flex;
     }
-    .navbar-expand-md .nav {
+    .navbar-expand-md:has(.navbar-toggle) .nav {
         flex-direction: column;
         align-items: stretch;
         width: 100%;
     }
-    .navbar-expand-md .nav .dropdown-menu {
+    .navbar-expand-md:has(.navbar-toggle) .nav .dropdown-menu {
         position: static;
         box-shadow: none;
     }
 }
 
-@media (max-width: 991.98px) {
+@media (width < 992px) {
     .navbar-expand-lg {
         flex-wrap: wrap;
     }
     .navbar-expand-lg:has(.navbar-toggle) .navbar-toggle {
         display: inline-block;
-        order: -1;
     }
     .navbar-expand-lg:has(.navbar-toggle) .navbar-content {
+        order: 1;
         display: none;
         flex-direction: column;
         align-items: stretch;
@@ -831,26 +886,26 @@ input:disabled + label {
     .navbar-expand-lg:has(.navbar-toggle) .navbar-content.show {
         display: flex;
     }
-    .navbar-expand-lg .nav {
+    .navbar-expand-lg:has(.navbar-toggle) .nav {
         flex-direction: column;
         align-items: stretch;
         width: 100%;
     }
-    .navbar-expand-lg .nav .dropdown-menu {
+    .navbar-expand-lg:has(.navbar-toggle) .nav .dropdown-menu {
         position: static;
         box-shadow: none;
     }
 }
 
-@media (max-width: 1199.98px) {
+@media (width < 1200px) {
     .navbar-expand-xl {
         flex-wrap: wrap;
     }
     .navbar-expand-xl:has(.navbar-toggle) .navbar-toggle {
         display: inline-block;
-        order: -1;
     }
     .navbar-expand-xl:has(.navbar-toggle) .navbar-content {
+        order: 1;
         display: none;
         flex-direction: column;
         align-items: stretch;
@@ -859,26 +914,26 @@ input:disabled + label {
     .navbar-expand-xl:has(.navbar-toggle) .navbar-content.show {
         display: flex;
     }
-    .navbar-expand-xl .nav {
+    .navbar-expand-xl:has(.navbar-toggle) .nav {
         flex-direction: column;
         align-items: stretch;
         width: 100%;
     }
-    .navbar-expand-xl .nav .dropdown-menu {
+    .navbar-expand-xl:has(.navbar-toggle) .nav .dropdown-menu {
         position: static;
         box-shadow: none;
     }
 }
 
-@media (max-width: 1399.98px) {
+@media (width < 1400px) {
     .navbar-expand-xxl {
         flex-wrap: wrap;
     }
     .navbar-expand-xxl:has(.navbar-toggle) .navbar-toggle {
         display: inline-block;
-        order: -1;
     }
     .navbar-expand-xxl:has(.navbar-toggle) .navbar-content {
+        order: 1;
         display: none;
         flex-direction: column;
         align-items: stretch;
@@ -887,26 +942,26 @@ input:disabled + label {
     .navbar-expand-xxl:has(.navbar-toggle) .navbar-content.show {
         display: flex;
     }
-    .navbar-expand-xxl .nav {
+    .navbar-expand-xxl:has(.navbar-toggle) .nav {
         flex-direction: column;
         align-items: stretch;
         width: 100%;
     }
-    .navbar-expand-xxl .nav .dropdown-menu {
+    .navbar-expand-xxl:has(.navbar-toggle) .nav .dropdown-menu {
         position: static;
         box-shadow: none;
     }
 }
 
-@media (max-width: 1919.98px) {
+@media (width < 1920px) {
     .navbar-expand-xxxl {
         flex-wrap: wrap;
     }
     .navbar-expand-xxxl:has(.navbar-toggle) .navbar-toggle {
         display: inline-block;
-        order: -1;
     }
     .navbar-expand-xxxl:has(.navbar-toggle) .navbar-content {
+        order: 1;
         display: none;
         flex-direction: column;
         align-items: stretch;
@@ -915,12 +970,12 @@ input:disabled + label {
     .navbar-expand-xxxl:has(.navbar-toggle) .navbar-content.show {
         display: flex;
     }
-    .navbar-expand-xxxl .nav {
+    .navbar-expand-xxxl:has(.navbar-toggle) .nav {
         flex-direction: column;
         align-items: stretch;
         width: 100%;
     }
-    .navbar-expand-xxxl .nav .dropdown-menu {
+    .navbar-expand-xxxl:has(.navbar-toggle) .nav .dropdown-menu {
         position: static;
         box-shadow: none;
     }

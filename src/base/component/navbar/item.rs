@@ -18,6 +18,8 @@ pub enum Item {
     Brand(Embed<Brand>),
     /// Representa un menú de navegación [`Nav`].
     Nav(Embed<Nav>),
+    /// Representa un formulario [`Form`] (búsqueda, botones...), renderizado tal cual.
+    Form(Embed<Form>),
     /// Representa un *texto localizado* libre.
     Text(Lc),
 }
@@ -33,6 +35,7 @@ impl Component for Item {
             Self::Void => None,
             Self::Brand(brand) => brand.id(),
             Self::Nav(nav) => nav.id(),
+            Self::Form(form) => form.id(),
             Self::Text(_) => None,
         }
     }
@@ -53,6 +56,7 @@ impl Component for Item {
             Self::Void => html! {},
             Self::Brand(brand) => html! { (brand.render(cx).await) },
             Self::Nav(nav) => html! { (nav.render(cx).await) },
+            Self::Form(form) => html! { (form.render(cx).await) },
             Self::Text(text) => html! {
                 span class="navbar-text" {
                     (text.using(cx))
@@ -75,6 +79,27 @@ impl Item {
     /// Crea un elemento de tipo [`Nav`] para añadir al contenido de [`Navbar`](super::Navbar).
     pub fn nav(item: Nav) -> Self {
         Self::Nav(Embed::with(item))
+    }
+
+    /// Crea un elemento de tipo [`Form`] para añadir al contenido de [`Navbar`](super::Navbar).
+    ///
+    /// # Ejemplo
+    ///
+    /// Formulario de búsqueda dentro de la barra:
+    ///
+    /// ```rust,no_run
+    /// # use pagetop::prelude::*;
+    /// let search = Form::new().with_action("/search").with_child(
+    ///     Flex::new()
+    ///         .with_gap(align::Gap::Both(UnitValue::RelRem(0.5)))
+    ///         .with_child(form::input::Field::search().with_name("q"))
+    ///         .with_child(Button::submit(Lc::n("Search"))),
+    /// );
+    ///
+    /// let navbar = Navbar::simple().with_item(navbar::Item::form(search));
+    /// ```
+    pub fn form(form: Form) -> Self {
+        Self::Form(Embed::with(form))
     }
 
     /// Crea un elemento con un *texto localizado*, mostrado sin interacción.

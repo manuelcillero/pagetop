@@ -88,6 +88,9 @@ pub struct Navbar {
     #[default(Breakpoint::Md)]
     #[getters(copy)]
     expand: Breakpoint,
+    /// Devuelve la posición de la barra en el documento.
+    #[getters(copy)]
+    position: navbar::Position,
     /// Devuelve la lista de contenidos.
     items: Children,
 }
@@ -115,6 +118,11 @@ impl Component for Navbar {
         };
         self.alter_prop(PropsOp::prepend_classes(class));
         self.alter_prop(PropsOp::prepend_classes("navbar"));
+
+        let position = self.position().as_str();
+        if !position.is_empty() {
+            self.alter_prop(PropsOp::add_classes(position));
+        }
     }
 
     async fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
@@ -237,8 +245,20 @@ impl Navbar {
     /// Por debajo de ese punto de corte, en las disposiciones con botón de despliegue el contenido
     /// queda oculto tras el botón. Con [`Breakpoint::Xs`] la barra nunca colapsa. Por defecto es
     /// [`Breakpoint::Md`].
+    ///
+    /// Sólo tiene efecto en las disposiciones con botón de despliegue: en
+    /// [`navbar::Layout::Simple`] y [`navbar::Layout::SimpleBrandLeft`] no hay nada que colapsar y
+    /// la barra siempre se muestra en línea.
     pub fn with_expand(mut self, bp: Breakpoint) -> Self {
         self.expand = bp;
+        self
+    }
+
+    /// Define dónde se mostrará la barra de navegación dentro del documento.
+    ///
+    /// Por defecto es [`navbar::Position::Static`], la barra fluye con el documento.
+    pub fn with_position(mut self, position: navbar::Position) -> Self {
+        self.position = position;
         self
     }
 
