@@ -7,7 +7,9 @@ use crate::prelude::*;
 pub enum Size {
     /// Ajuste automático por defecto.
     ///
-    /// La imagen usa su tamaño natural o se ajusta al contenedor donde se publica.
+    /// La imagen usa su tamaño natural o se ajusta al contenedor donde se publica. El logotipo
+    /// ([`Source::Logo`]) toma un tamaño predefinido de `1.25rem` de ancho y alto, salvo que se
+    /// haya fijado alguna de sus dimensiones.
     #[default]
     Auto,
     /// Establece explícitamente el **ancho y alto** de la imagen.
@@ -40,6 +42,10 @@ pub enum Size {
 #[derive(AutoDefault, Clone, Debug, PartialEq)]
 pub enum Source {
     /// Imagen con el logotipo de PageTop.
+    ///
+    /// Se renderiza como un `<svg>` en línea, siempre cuadrado. Sin dimensiones explícitas
+    /// ([`Size::Auto`]) mide `1.25rem` de ancho y alto; si se fija sólo una, la otra se ajusta
+    /// proporcionalmente.
     #[default]
     Logo(PageTopSvg),
     /// Imagen que se adapta automáticamente a su contenedor.

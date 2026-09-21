@@ -44,17 +44,10 @@ impl Component for Image {
 
     fn setup(&mut self, _cx: &mut Context) {
         self.alter_prop(PropsOp::prepend_classes(match self.source() {
-            image::Source::Logo(_) => "image image-fluid",
-            image::Source::Responsive(_) => "image image-fluid",
+            image::Source::Logo(_) | image::Source::Responsive(_) => "image image-fluid",
             image::Source::Thumbnail(_) => "image image-thumbnail",
             image::Source::Plain(_) => "image",
         }));
-
-        // Se asigna un tamaño predefinido para el logotipo que `with_size()` puede sobrescribir.
-        if matches!(self.source(), image::Source::Logo(_)) {
-            self.alter_prop(PropsOp::add_style("width", "1.25em"));
-            self.alter_prop(PropsOp::add_style("height", "1.25em"));
-        }
 
         // El tamaño se aplica como declaraciones `style` individuales sobre `Props`.
         match *self.size() {
@@ -74,6 +67,15 @@ impl Component for Image {
                 self.alter_prop(PropsOp::add_style("height", v.to_string()));
             }
         }
+
+        // El logotipo es cuadrado. Sin `width`/`height` toma un tamaño predefinido.
+        if matches!(self.source(), image::Source::Logo(_))
+            && self.props().get_style("width").is_none()
+            && self.props().get_style("height").is_none()
+        {
+            self.alter_prop(PropsOp::add_style("width", "1.25rem"));
+            self.alter_prop(PropsOp::add_style("height", "1.25rem"));
+        }
     }
 
     async fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
@@ -81,9 +83,9 @@ impl Component for Image {
             image::Source::Logo(svg) => {
                 return Ok(svg.markup_with(cx, self.props(), self.alternative().clone()));
             }
-            image::Source::Responsive(source) => Some(source),
-            image::Source::Thumbnail(source) => Some(source),
-            image::Source::Plain(source) => Some(source),
+            image::Source::Responsive(source)
+            | image::Source::Thumbnail(source)
+            | image::Source::Plain(source) => Some(source),
         };
         Ok(html! {
             img
@@ -121,7 +123,7 @@ impl Image {
         self
     }
 
-    /// Establece el origen de la imagen, influyendo en su disposición en el contenido.
+    /// Establece el origen de la imagen.
     pub fn with_source(mut self, source: image::Source) -> Self {
         self.source = source;
         self
@@ -146,8 +148,8 @@ impl From<image::Source> for Image {
 
 impl From<image::Source> for Option<Image> {
     /// Permite pasar un [`image::Source`] directamente donde se espera `impl Into<Option<Image>>`
-    /// (p. ej. [`Brand::with_image()`](super::super::Brand::with_image)), sin construir la
-    /// [`Image`] a mano.
+    /// (p. ej. [`Brand::with_image()`](crate::base::component::Brand::with_image)), sin construir
+    /// la [`Image`] a mano.
     fn from(source: image::Source) -> Self {
         Some(Image::with(source))
     }
