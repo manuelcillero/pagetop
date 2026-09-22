@@ -11,13 +11,13 @@ const EXTRA_LAYOUT: &str = "bootsier.navbar.layout";
 /// Extensión de Bootsier para [`Navbar`].
 ///
 /// Permite mostrar enlaces, menús y una marca de identidad en distintas disposiciones (simples, con
-/// botón de despliegue o dentro de un [`Offcanvas`]), controladas por [`navbar::Layout`]. También
-/// puede fijarse en la parte superior o inferior del documento mediante [`navbar::Position`]. El
+/// botón de despliegue o dentro de un [`navbar::Panel`]), controladas por [`navbar::Layout`].
+/// También puede fijarse en la parte superior o inferior del documento con [`navbar::Position`]. El
 /// punto de corte a partir del cual deja de colapsar se define con [`Navbar::with_expand()`].
 ///
 /// [`Navbar`]: crate::theme::bs::Navbar
-/// [`Offcanvas`]: crate::theme::bs::Offcanvas
 /// [`navbar::Layout`]: crate::theme::bs::navbar::Layout
+/// [`navbar::Panel`]: crate::theme::bs::navbar::Panel
 /// [`navbar::Position`]: crate::theme::bs::navbar::Position
 ///
 /// # Ejemplos
@@ -102,13 +102,12 @@ const EXTRA_LAYOUT: &str = "bootsier.navbar.layout";
 /// ```rust,no_run
 /// # use pagetop::prelude::*;
 /// # use pagetop_bootsier::theme::*;
-/// let oc = bs::Offcanvas::new()
-///     .with_id("main_offcanvas")
+/// let panel = bs::navbar::Panel::new()
 ///     .with_title(Lc::n("Main menu"))
 ///     .with_placement(bs::offcanvas::Placement::Start)
 ///     .with_backdrop(bs::offcanvas::Backdrop::Enabled);
 ///
-/// let navbar = bs::Navbar::offcanvas(oc)
+/// let navbar = bs::Navbar::offcanvas(panel)
 ///     .with_item(bs::navbar::Item::nav(
 ///         bs::Nav::new()
 ///             .with_item(bs::nav::Item::link(Lc::n("Home"), "/"))
@@ -142,41 +141,43 @@ const EXTRA_LAYOUT: &str = "bootsier.navbar.layout";
 /// ```
 #[builder_impl]
 pub trait NavbarBootsier {
-    /// Crea una barra de navegación cuyo contenido se muestra en un **offcanvas**.
-    fn offcanvas(oc: bs::Offcanvas) -> Self;
+    /// Crea una barra de navegación cuyo contenido se muestra en un panel lateral.
+    fn offcanvas(panel: bs::navbar::Panel) -> Self;
 
-    /// Crea una barra de navegación con **marca de identidad** y contenido en **offcanvas**.
-    fn offcanvas_brand_left(brand: Brand, oc: bs::Offcanvas) -> Self;
+    /// Crea una barra de navegación con **marca de identidad a la izquierda** y contenido en un
+    /// panel lateral.
+    fn offcanvas_brand_left(brand: Brand, panel: bs::navbar::Panel) -> Self;
 
-    /// Crea una barra de navegación con **marca de identidad** y contenido en **offcanvas**.
-    fn offcanvas_brand_right(brand: Brand, oc: bs::Offcanvas) -> Self;
+    /// Crea una barra de navegación con **marca de identidad a la derecha** y contenido en un panel
+    /// lateral.
+    fn offcanvas_brand_right(brand: Brand, panel: bs::navbar::Panel) -> Self;
 }
 
 #[builder_impl]
 impl NavbarBootsier for Navbar {
-    fn offcanvas(oc: bs::Offcanvas) -> Self {
+    fn offcanvas(panel: bs::navbar::Panel) -> Self {
         let mut navbar = Self::new();
         navbar.alter_prop(PropsOp::set_extra(
             EXTRA_LAYOUT,
-            bs::navbar::Layout::Offcanvas(Embed::with(oc)),
+            bs::navbar::Layout::Offcanvas(panel),
         ));
         navbar
     }
 
-    fn offcanvas_brand_left(brand: Brand, oc: bs::Offcanvas) -> Self {
+    fn offcanvas_brand_left(brand: Brand, panel: bs::navbar::Panel) -> Self {
         let mut navbar = Self::new();
         navbar.alter_prop(PropsOp::set_extra(
             EXTRA_LAYOUT,
-            bs::navbar::Layout::OffcanvasBrandLeft(Embed::with(brand), Embed::with(oc)),
+            bs::navbar::Layout::OffcanvasBrandLeft(Embed::with(brand), panel),
         ));
         navbar
     }
 
-    fn offcanvas_brand_right(brand: Brand, oc: bs::Offcanvas) -> Self {
+    fn offcanvas_brand_right(brand: Brand, panel: bs::navbar::Panel) -> Self {
         let mut navbar = Self::new();
         navbar.alter_prop(PropsOp::set_extra(
             EXTRA_LAYOUT,
-            bs::navbar::Layout::OffcanvasBrandRight(Embed::with(brand), Embed::with(oc)),
+            bs::navbar::Layout::OffcanvasBrandRight(Embed::with(brand), panel),
         ));
         navbar
     }
@@ -187,7 +188,7 @@ impl NavbarBootsier for Navbar {
 pub(crate) fn setup(navbar: &mut Navbar) {
     // Sin botón de despliegue no hay nada que colapsar, así que el punto de corte no debe afectar a
     // la barra: Bootstrap apilaría igualmente el menú por debajo de él. `navbar-expand` a secas es
-    // su «expandida siempre». Las disposiciones de Bootsier (`EXTRA_LAYOUT`, con `Offcanvas`)
+    // su «expandida siempre». Las disposiciones de Bootsier (`EXTRA_LAYOUT`, con panel lateral)
     // siempre llevan botón; de las de base sólo `Simple` y `SimpleBrandLeft` no lo llevan.
     let has_toggle = navbar
         .props()
@@ -242,13 +243,16 @@ pub(crate) async fn render(navbar: &Navbar, cx: &mut Context) -> Result<Markup, 
         return Ok(html! {});
     }
 
-    // `Navbar::setup()` (base) garantiza que habrá un `id` antes de renderizar.
+    // `Navbar::setup()` (base) garantiza que habrá un `id` antes de renderizar. El área de
+    // contenido (colapsable o panel lateral) deriva su identificador del de la barra.
     let id = navbar.id().unwrap();
+    let id_content = util::join!(&id, "-content");
 
-    // `with_layout()` (extra propio de Bootsier) tiene prioridad; si no se ha usado, se traduce el
-    // `navbar::Layout` de base que hayan podido fijar los constructores heredados de `Navbar`
-    // (`simple()`, `brand_left()`...), que Bootsier no puede sobrescribir por nombre -las funciones
-    // inherentes de base siempre ganan sobre las de un trait con el mismo nombre-.
+    // El extra `EXTRA_LAYOUT` (fijado por los constructores propios de Bootsier `offcanvas()`,
+    // `offcanvas_brand_left()`, `offcanvas_brand_right()`) tiene prioridad; si no se ha fijado, se
+    // traduce el `navbar::Layout` de base que hayan podido fijar los constructores heredados de
+    // `Navbar` (`simple()`, `brand_left()`...), que Bootsier no puede sobrescribir por nombre -las
+    // funciones inherentes de base siempre ganan sobre las de un trait con el mismo nombre-.
     let layout = navbar
         .props()
         .extra::<bs::navbar::Layout>(EXTRA_LAYOUT)
@@ -266,8 +270,6 @@ pub(crate) async fn render(navbar: &Navbar, cx: &mut Context) -> Result<Markup, 
 
                     // Barra sencilla que se puede contraer/expandir.
                     bs::navbar::Layout::SimpleToggle => {
-                        @let id_content = util::join!(&id, "-content");
-
                         (button(cx, TOGGLE_COLLAPSE, &id_content))
                         div id=(&id_content) class="collapse navbar-collapse" {
                             (items)
@@ -285,8 +287,6 @@ pub(crate) async fn render(navbar: &Navbar, cx: &mut Context) -> Result<Markup, 
 
                     // Barra con marca a la izquierda y botón a la derecha.
                     bs::navbar::Layout::BrandLeft(brand) => {
-                        @let id_content = util::join!(&id, "-content");
-
                         (brand.render(cx).await)
                         (button(cx, TOGGLE_COLLAPSE, &id_content))
                         div id=(&id_content) class="collapse navbar-collapse" {
@@ -296,8 +296,6 @@ pub(crate) async fn render(navbar: &Navbar, cx: &mut Context) -> Result<Markup, 
 
                     // Barra con botón a la izquierda y marca a la derecha.
                     bs::navbar::Layout::BrandRight(brand) => {
-                        @let id_content = util::join!(&id, "-content");
-
                         (button(cx, TOGGLE_COLLAPSE, &id_content))
                         (brand.render(cx).await)
                         div id=(&id_content) class="collapse navbar-collapse" {
@@ -305,60 +303,29 @@ pub(crate) async fn render(navbar: &Navbar, cx: &mut Context) -> Result<Markup, 
                         }
                     },
 
-                    // Barra cuyo contenido se muestra en un offcanvas, sin marca.
-                    bs::navbar::Layout::Offcanvas(offcanvas) => {
-                        @let offcanvas = setup_offcanvas(&offcanvas, cx);
-                        @let id_content = offcanvas
-                            .as_ref()
-                            .and_then(|oc| oc.id()).unwrap_or_default();
-
+                    // Barra cuyo contenido se muestra en un panel lateral, sin marca.
+                    bs::navbar::Layout::Offcanvas(panel) => {
                         (button(cx, TOGGLE_OFFCANVAS, &id_content))
-                        @if let Some(oc) = &offcanvas {
-                            (oc.render_offcanvas(cx, Some(navbar.items())).await)
-                        }
+                        (panel.render_panel(cx, &id_content, &items))
                     },
 
-                    // Barra con marca a la izquierda y contenido en offcanvas.
-                    bs::navbar::Layout::OffcanvasBrandLeft(brand, offcanvas) => {
-                        @let offcanvas = setup_offcanvas(&offcanvas, cx);
-                        @let id_content = offcanvas
-                            .as_ref()
-                            .and_then(|oc| oc.id()).unwrap_or_default();
-
+                    // Barra con marca a la izquierda y contenido en un panel lateral.
+                    bs::navbar::Layout::OffcanvasBrandLeft(brand, panel) => {
                         (brand.render(cx).await)
                         (button(cx, TOGGLE_OFFCANVAS, &id_content))
-                        @if let Some(oc) = &offcanvas {
-                            (oc.render_offcanvas(cx, Some(navbar.items())).await)
-                        }
+                        (panel.render_panel(cx, &id_content, &items))
                     },
 
-                    // Barra con contenido en offcanvas y marca a la derecha.
-                    bs::navbar::Layout::OffcanvasBrandRight(brand, offcanvas) => {
-                        @let offcanvas = setup_offcanvas(&offcanvas, cx);
-                        @let id_content = offcanvas
-                            .as_ref()
-                            .and_then(|oc| oc.id()).unwrap_or_default();
-
+                    // Barra con contenido en un panel lateral y marca a la derecha.
+                    bs::navbar::Layout::OffcanvasBrandRight(brand, panel) => {
                         (button(cx, TOGGLE_OFFCANVAS, &id_content))
                         (brand.render(cx).await)
-                        @if let Some(oc) = &offcanvas {
-                            (oc.render_offcanvas(cx, Some(navbar.items())).await)
-                        }
+                        (panel.render_panel(cx, &id_content, &items))
                     },
                 }
             }
         }
     })
-}
-
-// El panel se renderiza con `render_offcanvas()` para inyectarle los contenidos de la barra, así
-// que no pasa por el ciclo de vida normal. Se clona y se le aplica aquí su `setup()`; sin él no
-// tendría `id` (el botón lo necesita para referenciarlo) ni las clases `offcanvas*` que lo ocultan
-// y lo colocan.
-fn setup_offcanvas(offcanvas: &Embed<bs::Offcanvas>, cx: &mut Context) -> Option<bs::Offcanvas> {
-    let mut oc = offcanvas.get()?.clone();
-    oc.setup(cx);
-    Some(oc)
 }
 
 // Traduce el `navbar::Layout` semántico de base (sin `Offcanvas`, sin `Position`/`expand`) a la

@@ -26,15 +26,15 @@ pub enum Layout {
     /// Barra con botón de despliegue a la izquierda y marca de identidad a la derecha.
     BrandRight(Embed<Brand>),
 
-    /// Contenido en [`Offcanvas`](crate::theme::bs::Offcanvas), con botón de despliegue a la
-    /// izquierda y sin marca de identidad.
-    Offcanvas(Embed<bs::Offcanvas>),
+    /// Contenido en un [`Panel`](crate::theme::bs::navbar::Panel) lateral, con botón de despliegue
+    /// a la izquierda y sin marca de identidad.
+    Offcanvas(bs::navbar::Panel),
 
-    /// Contenido en [`Offcanvas`](crate::theme::bs::Offcanvas), con marca de identidad a la
-    /// izquierda y botón de despliegue a la derecha.
-    OffcanvasBrandLeft(Embed<Brand>, Embed<bs::Offcanvas>),
+    /// Contenido en un [`Panel`](crate::theme::bs::navbar::Panel) lateral, con marca de identidad
+    /// a la izquierda y botón de despliegue a la derecha.
+    OffcanvasBrandLeft(Embed<Brand>, bs::navbar::Panel),
 
-    /// Contenido en [`Offcanvas`](crate::theme::bs::Offcanvas), con botón de despliegue a la
-    /// izquierda y marca de identidad a la derecha.
-    OffcanvasBrandRight(Embed<Brand>, Embed<bs::Offcanvas>),
+    /// Contenido en un [`Panel`](crate::theme::bs::navbar::Panel) lateral, con botón de despliegue
+    /// a la izquierda y marca de identidad a la derecha.
+    OffcanvasBrandRight(Embed<Brand>, bs::navbar::Panel),
 }

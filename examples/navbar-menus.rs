@@ -568,7 +568,7 @@ fn expand_title(name: &'static str, width: &'static str) -> Lc {
 
 fn offcanvas_block() -> Block {
     let panel = |placement, backdrop| {
-        bs::Offcanvas::new()
+        bs::navbar::Panel::new()
             .with_title(Lc::t("menus_offcanvas_title", &LOC))
             .with_placement(placement)
             .with_backdrop(backdrop)
@@ -581,7 +581,10 @@ fn offcanvas_block() -> Block {
                 bs::offcanvas::Placement::Start,
                 bs::offcanvas::Backdrop::Enabled,
             )),
-            "Navbar::offcanvas(Offcanvas::new().with_placement(offcanvas::Placement::Start))",
+            concat!(
+                "Navbar::offcanvas(bs::navbar::Panel::new()",
+                ".with_placement(bs::offcanvas::Placement::Start))",
+            ),
         ),
         (
             "menus_title_offcanvas_brand_left",
@@ -592,7 +595,10 @@ fn offcanvas_block() -> Block {
                     bs::offcanvas::Backdrop::Enabled,
                 ),
             ),
-            "Navbar::offcanvas_brand_left(brand, Offcanvas::new().with_placement(Placement::End))",
+            concat!(
+                "Navbar::offcanvas_brand_left(brand, bs::navbar::Panel::new()",
+                ".with_placement(bs::offcanvas::Placement::End))",
+            ),
         ),
         (
             "menus_title_offcanvas_brand_right",
@@ -604,8 +610,8 @@ fn offcanvas_block() -> Block {
                 ),
             ),
             concat!(
-                "Navbar::offcanvas_brand_right(brand, ",
-                "Offcanvas::new().with_backdrop(Backdrop::Disabled))",
+                "Navbar::offcanvas_brand_right(brand, bs::navbar::Panel::new()",
+                ".with_backdrop(bs::offcanvas::Backdrop::Disabled))",
             ),
         ),
         (
@@ -615,15 +621,14 @@ fn offcanvas_block() -> Block {
                 panel(
                     bs::offcanvas::Placement::End,
                     bs::offcanvas::Backdrop::Static,
-                )
-                .with_prop(PropsOp::set("data-bs-theme", "dark")),
+                ),
             )
             .with_prop(PropsOp::add_classes(class::Bg::with(BootsierColors::Dark)))
             .with_prop(PropsOp::set("data-bs-theme", "dark")),
             concat!(
-                "Navbar::offcanvas_brand_left(brand, Offcanvas::new()",
-                ".with_backdrop(Backdrop::Static)",
-                ".with_prop(PropsOp::set(\"data-bs-theme\", \"dark\")))",
+                "Navbar::offcanvas_brand_left(brand, bs::navbar::Panel::new()",
+                ".with_backdrop(bs::offcanvas::Backdrop::Static))",
+                ".with_prop(PropsOp::set(\"data-bs-theme\", \"dark\"))",
             ),
         ),
     ];

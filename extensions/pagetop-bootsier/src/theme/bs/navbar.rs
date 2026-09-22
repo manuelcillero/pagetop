@@ -15,6 +15,9 @@ pub use super::Brand;
 pub use pagetop::base::component::Navbar;
 pub use pagetop::base::component::navbar::{Item, Position};
 
+mod panel;
+pub use panel::Panel;
+
 mod component;
 pub use component::NavbarBootsier;
 pub(crate) use component::{render, setup};

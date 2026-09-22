@@ -48,14 +48,19 @@ pub struct Offcanvas {
     /// Devuelve el título del panel.
     title: Lc,
     /// Devuelve el punto de corte configurado para cambiar el comportamiento del panel.
+    #[getters(copy)]
     breakpoint: Breakpoint,
     /// Devuelve el comportamiento configurado para la capa de fondo.
+    #[getters(copy)]
     backdrop: bs::offcanvas::Backdrop,
     /// Indica si la página principal puede desplazarse mientras el panel está abierto.
+    #[getters(copy)]
     body_scroll: bs::offcanvas::BodyScroll,
     /// Devuelve la posición de inicio del panel.
+    #[getters(copy)]
     placement: bs::offcanvas::Placement,
     /// Devuelve el estado inicial del panel.
+    #[getters(copy)]
     visibility: bs::offcanvas::Visibility,
     /// Devuelve la lista de componentes (`children`) del panel.
     children: Children,
@@ -78,7 +83,7 @@ impl Component for Offcanvas {
         // Clases CSS por defecto para el panel.
         self.alter_prop(PropsOp::prepend_classes({
             let mut classes = String::new();
-            push_breakpoint_class(cx, *self.breakpoint(), &mut classes, "offcanvas", "");
+            push_breakpoint_class(cx, self.breakpoint(), &mut classes, "offcanvas", "");
             self.placement().push_to(&mut classes);
             self.visibility().push_to(&mut classes);
             classes
@@ -86,7 +91,41 @@ impl Component for Offcanvas {
     }
 
     async fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
-        Ok(self.render_offcanvas(cx, None).await)
+        let body = self.children().render(cx).await;
+        if body.is_empty() {
+            return Ok(html! {});
+        }
+
+        // `setup()` garantiza que habrá un `id` antes de renderizar.
+        let id = self.id().unwrap();
+        let id_label = util::join!(&id, "-label");
+        let title = self.title().using(cx);
+
+        Ok(html! {
+            div
+                (self.props().unpack(cx))
+                tabindex="-1"
+                data-bs-scroll=[self.body_scroll().opt_str()]
+                data-bs-backdrop=[self.backdrop().opt_str()]
+                aria-labelledby=[(!title.is_empty()).then_some(&id_label)]
+            {
+                div class="offcanvas-header" {
+                    @if !title.is_empty() {
+                        h5 id=(&id_label) class="offcanvas-title" { (title) }
+                    }
+                    button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="offcanvas"
+                        data-bs-target=(util::join!("#", &id))
+                        aria-label=[Lc::t("offcanvas_close", &LOCALES_BOOTSIER).lookup(cx)]
+                    {}
+                }
+                div class="offcanvas-body" {
+                    (body)
+                }
+            }
+        })
     }
 }
 
@@ -156,60 +195,5 @@ impl Offcanvas {
     pub fn with_child(mut self, op: impl Into<ChildOp>) -> Self {
         self.children.alter_child(op.into());
         self
-    }
-
-    // **< Offcanvas HELPERS >**********************************************************************
-
-    pub(crate) async fn render_offcanvas(
-        &self,
-        cx: &mut Context,
-        extra: Option<&Children>,
-    ) -> Markup {
-        let body = self.children().render(cx).await;
-        let body_extra = if let Some(c) = extra {
-            c.render(cx).await
-        } else {
-            html! {}
-        };
-        if body.is_empty() && body_extra.is_empty() {
-            return html! {};
-        }
-
-        // `setup()` garantiza que habrá un `id` antes de renderizar.
-        let id = self.id().unwrap();
-        let id_label = util::join!(id, "-label");
-        let id_target = util::join!("#", id);
-
-        let body_scroll = self.body_scroll().opt_str();
-        let backdrop = self.backdrop().opt_str();
-
-        let title = self.title().using(cx);
-
-        html! {
-            div
-                (self.props().unpack(cx))
-                tabindex="-1"
-                data-bs-scroll=[body_scroll]
-                data-bs-backdrop=[backdrop]
-                aria-labelledby=(id_label)
-            {
-                div class="offcanvas-header" {
-                    @if !title.is_empty() {
-                        h5 id=(&id_label) class="offcanvas-title" { (title) }
-                    }
-                    button
-                        type="button"
-                        class="btn-close"
-                        data-bs-dismiss="offcanvas"
-                        data-bs-target=(id_target)
-                        aria-label=[Lc::t("offcanvas_close", &LOCALES_BOOTSIER).lookup(cx)]
-                    {}
-                }
-                div class="offcanvas-body" {
-                    (body)
-                    (body_extra)
-                }
-            }
-        }
     }
 }
