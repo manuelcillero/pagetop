@@ -75,10 +75,12 @@ async fn homepage(request: HttpRequest) -> Result<Markup, ErrorPage> {
 
 ## Plantillas
 
-Bootsier ofrece dos plantillas (`BootsierTemplates`): `Standard`, con cabecera, contenido y pie,
-que es la plantilla por defecto de cualquier página; y `Admin`, con la shell completa de
-AdminLTE 4 (barra superior + barra lateral + área de contenido), que se activa creando la página
-con `Page::admin()` en lugar de `Page::new()`.
+Bootsier maqueta las dos plantillas de PageTop (`CoreTemplates`) con la misma cabecera, contenido
+y pie: `Standard`, la plantilla por defecto de cualquier página; y `Admin`, que se activa creando
+la página con `Page::admin()` en lugar de `Page::new()`. Ambas se maquetan igual hoy -- la
+distinción entre página "normal" y de administración no vive en el maquetado, sino en qué
+extensión registra contenido en cada región y para qué plantilla se autolimita (por ejemplo, el
+menú de `pagetop-admin`, ver más abajo).
 
 ```rust,no_run
 use pagetop::prelude::*;
@@ -93,59 +95,28 @@ async fn about(request: HttpRequest) -> Result<Markup, ErrorPage> {
 }
 ```
 
-## Barra lateral
+## Menú de administración
 
-Registra elementos en `BootsierRegion::Sidebar` para poblar la barra lateral de la shell. Los
-elementos esperados son `theme::sidebar::Item` y `theme::sidebar::Section`.
+`pagetop-admin` (si está presente en la aplicación) registra su propio menú de secciones y
+páginas en `CoreRegions::Aside`, autolimitado a páginas con la plantilla `Admin` -- no requiere
+ningún registro por parte de Bootsier. Se construye con `Navbar`/`Nav`/`Dropdown`, los mismos
+componentes disponibles para cualquier página de la aplicación.
 
-De forma **global** (visibles en todas las páginas de administración):
+## Selector de modo de color
 
-```rust,no_run
-use pagetop::prelude::*;
-use pagetop_bootsier::theme::{BootsierRegion, sidebar};
-
-fn register_navigation() {
-    InRegion::Global(&BootsierRegion::Sidebar)
-        .add(sidebar::Section::titled(Lc::n("Administración")))
-        .add(sidebar::Item::link(Lc::n("Usuarios"), "/users", "people"))
-        .add(sidebar::Item::link(Lc::n("Roles"), "/roles", "shield-check"));
-}
-```
-
-O de forma **por página**:
+`bs::theme_toggle()` crea un ítem de menú con el selector de modo de color (claro / oscuro /
+automático), pensado para añadirse a cualquier `Nav` de la aplicación, no sólo a las páginas de
+administración:
 
 ```rust,no_run
 use pagetop::prelude::*;
-use pagetop_bootsier::theme::{BootsierRegion, sidebar};
+use pagetop_bootsier::theme::*;
 
-async fn settings(request: HttpRequest) -> Result<Markup, ErrorPage> {
-    Page::admin(request)
-        .with_child_in(
-            &BootsierRegion::Sidebar,
-            sidebar::Item::link(Lc::n("Ajustes"), "/settings", "gear"),
-        )
-        .with_child(Html::with(|_| html! { h3 { "Ajustes" } }))
-        .render()
-}
-```
-
-## Barra de navegación superior
-
-La barra superior incluye por defecto los controles de pantalla completa y selector
-de tema. Para añadir elementos adicionales en el lado derecho (por ejemplo, el
-dropdown de usuario de `pagetop-user`), registra componentes en
-`BootsierRegion::Navbar`:
-
-```rust,no_run
-use pagetop::prelude::*;
-use pagetop_bootsier::theme::BootsierRegion;
-
-InRegion::Global(&BootsierRegion::Navbar)
-    .add(Html::with(|_| html! {
-        li class="nav-item" {
-            a class="nav-link" href="/logout" { "Cerrar sesión" }
-        }
-    }));
+let navbar = bs::Navbar::simple().with_item(bs::navbar::Item::nav(
+    bs::Nav::new()
+        .with_item(bs::nav::Item::link(Lc::n("Home"), "/"))
+        .with_item(bs::theme_toggle()),
+));
 ```
 
 ## Créditos

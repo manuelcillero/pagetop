@@ -2,13 +2,14 @@ use pagetop::prelude::*;
 
 use crate::registry;
 
-/// Componente que renderiza el menú de secciones visibles del panel de administración.
+/// Componente que renderiza la barra de navegación del panel de administración.
 ///
-/// Construye el [`Nav`] en cada petición a partir de [`registry::admin_menu()`], ya filtrado por
-/// el usuario de la petición actual. Pensado para que un tema lo registre en su propia región de
-/// navegación (p. ej. `pagetop-bootsier` lo añade a su sidebar) e intercepte `Nav`/`nav::Item` en
+/// Construye la [`Navbar`] en cada petición a partir de [`registry::admin_navbar()`], ya filtrada
+/// por el usuario de la petición actual. Pensado para que un tema la registre en su propia región
+/// de navegación e intercepte `Navbar`/`Nav`/`Dropdown` en
 /// [`Theme::render_component()`](pagetop::core::theme::Theme::render_component) si quiere darle un
-/// aspecto propio; sin intercepción, se renderiza con el marcado por defecto de [`Nav`].
+/// aspecto propio (p. ej. `pagetop-bootsier` la reconoce automáticamente al ser componentes del
+/// núcleo); sin intercepción, se renderiza con el marcado por defecto de cada componente.
 ///
 /// Sólo se renderiza en páginas creadas con
 /// [`Page::admin()`](pagetop::response::Page::admin) (plantilla
@@ -32,6 +33,6 @@ impl Component for AdminMenu {
         ) {
             return Ok(html! {});
         }
-        Ok(registry::admin_menu(cx).render(cx).await)
+        Ok(registry::admin_navbar(cx).render(cx).await)
     }
 }

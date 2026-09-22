@@ -271,25 +271,44 @@ pub fn global() -> &'static AdminRegistry {
 
 // **< Menú de administración >*********************************************************************
 
-/// Construye el menú plano de secciones visibles para el usuario de la petición actual.
+/// Construye la barra de navegación de administración para el usuario de la petición actual: un
+/// enlace al *dashboard* seguido de un desplegable por sección visible, con sus páginas accesibles
+/// dentro.
 ///
-/// Pensado para que un tema lo use como navegación de `CoreTemplates::Admin` (p. ej. un sidebar) --
-/// ver [`crate::component::AdminMenu`]. `pagetop-admin` no impone ningún marcado propio: el
-/// [`Nav`] resultante se renderiza con su aspecto por defecto salvo que el tema lo intercepte en
-/// [`Theme::render_component()`](pagetop::core::theme::Theme::render_component).
-pub fn admin_menu(cx: &Context) -> Nav {
+/// Pensado para que un tema la use como navegación de `CoreTemplates::Admin` -- ver
+/// [`crate::component::AdminMenu`]. `pagetop-admin` no impone ningún marcado propio: la
+/// [`Navbar`] resultante se renderiza con su aspecto por defecto salvo que el tema lo intercepte
+/// en [`Theme::render_component()`](pagetop::core::theme::Theme::render_component). Se construye
+/// enteramente con componentes del núcleo (`Navbar`/`Nav`/`Dropdown`), sin depender de ningún
+/// tema concreto.
+pub fn admin_navbar(cx: &Context) -> Navbar {
     let reg = global();
-    let current_path = cx.request().map(|r| r.path()).unwrap_or("");
 
-    let mut result = Nav::new();
+    let mut nav = Nav::new().with_item(nav::Item::link(
+        Lc::t("dashboard-title", &crate::LOCALES_ADMIN),
+        crate::ADMIN_BASE_PATH,
+    ));
+
     for section in reg.ordered_sections() {
         if !section.is_visible(cx) {
             continue;
         }
-        let active = current_path.starts_with(section.path.as_str());
-        result = result.with_item(
-            nav::Item::link(section.title.clone(), section.path.clone()).with_active(active),
-        );
+        let pages: Vec<_> = reg
+            .pages_for_section(&section.key)
+            .into_iter()
+            .filter(|p| p.is_accessible(cx))
+            .collect();
+        if pages.is_empty() {
+            continue;
+        }
+        let mut menu = Dropdown::new().with_title(section.title.clone());
+        for page in pages {
+            menu = menu.with_item(dropdown::Item::link(page.title.clone(), page.path.clone()));
+        }
+        nav = nav.with_item(nav::Item::dropdown(menu));
     }
-    result
+
+    Navbar::simple()
+        .with_position(navbar::Position::StickyTop)
+        .with_item(navbar::Item::nav(nav))
 }

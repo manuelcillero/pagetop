@@ -3,13 +3,13 @@
 //! Genera el directorio `static/` a partir de `assets/` y embebe su contenido en el binario:
 //!
 //! - `static/css/` - CSS compilado a partir de los archivos SCSS de `assets/`.
-//! - `static/js/` - JS copiado desde `assets/`, renombrando AdminLTE a `bootsier.min.js`.
+//! - `static/js/` - JS copiado o minificado desde `assets/`.
 //! - `static/fonts/` - Fuentes copiadas desde `assets/`.
 //!
 //! Los archivos `.map` se copian a `static/js/` para uso en desarrollo pero no se incluyen en el
 //! binario embebido.
 
-use pagetop_build::{StaticFilesBundle, compile_scss, copy_file, copy_file_replacing, minify_js};
+use pagetop_build::{StaticFilesBundle, compile_scss, copy_file, minify_js};
 
 use std::path::Path;
 
@@ -18,7 +18,7 @@ fn main() -> std::io::Result<()> {
     println!("cargo:rerun-if-changed=assets");
     let _ = std::fs::remove_dir_all("static");
 
-    // CSS: Bootstrap 5.3.8 + AdminLTE 4.0.0 + Bootstrap Icons 1.13.1.
+    // CSS: Bootstrap 5.3.8 + Bootstrap Icons 1.13.1.
     compile_scss("assets/bootsier.scss", "static/css/bootsier.min.css")?;
 
     // JS: Bootstrap bundle.
@@ -30,20 +30,10 @@ fn main() -> std::io::Result<()> {
         "assets/bootstrap-5.3.8/js/bootstrap.bundle.min.js.map",
         "static/js/bootsier.bundle.min.js.map",
     )?;
-    // JS: AdminLTE renombrado a bootsier.extended.min.js.
-    copy_file_replacing(
-        "assets/adminlte-4.0.0/js/adminlte.min.js",
-        "static/js/bootsier.extended.min.js",
-        &[("adminlte.min.js.map", "bootsier.extended.min.js.map")],
-    )?;
-    copy_file(
-        "assets/adminlte-4.0.0/js/adminlte.min.js.map",
-        "static/js/bootsier.extended.min.js.map",
-    )?;
-    // JS: shell de Bootsier.
+    // JS: selector de modo de color (claro / oscuro / automático).
     minify_js(
-        "assets/bootsier.shell.js",
-        "static/js/bootsier.shell.min.js",
+        "assets/bootsier.theme.js",
+        "static/js/bootsier.theme.min.js",
     )?;
     // JS: fix de apilamiento para Dialog.
     minify_js(
@@ -67,11 +57,11 @@ fn main() -> std::io::Result<()> {
     )?;
     // Fuentes: Source Sans 3 (SIL OFL 1.1).
     copy_file(
-        "assets/adminlte-4.0.0/fonts/SourceSans3VF-Upright.otf.woff2",
+        "assets/fonts/SourceSans3VF-Upright.otf.woff2",
         "static/fonts/bootsier.font.woff2",
     )?;
     copy_file(
-        "assets/adminlte-4.0.0/fonts/SourceSans3VF-Italic.otf.woff2",
+        "assets/fonts/SourceSans3VF-Italic.otf.woff2",
         "static/fonts/bootsier.font.italic.woff2",
     )?;
 

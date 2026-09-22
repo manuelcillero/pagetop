@@ -83,7 +83,6 @@ use pagetop::prelude::*;
 
 include_locales!(LOCALES_BOOTSIER);
 
-pub(crate) const ADMINLTE_VERSION: &str = "4.0.0";
 const BOOTSTRAP_VERSION: &str = "5.3.8";
 
 pub mod config;
@@ -169,7 +168,6 @@ impl Theme for Bootsier {
         cx: &mut Context,
     ) -> Option<Result<Markup, ComponentError>> {
         render_component!(component, {
-            layout::Region      => |c| theme::bs::layout::region::render(c, cx).await?,
             layout::Template    => |c| theme::bs::layout::template::render(c, cx).await?,
             Dialog              => |c| theme::bs::dialog::render(c, cx).await,
             Dropdown            => |c| theme::bs::dropdown::render(c, cx).await,
@@ -201,7 +199,7 @@ impl Theme for Bootsier {
             )
             .alter_assets(
                 StyleSheet::from("/bootsier/css/bootsier.min.css")
-                    .with_version(ADMINLTE_VERSION)
+                    .with_version(BOOTSTRAP_VERSION)
                     .with_weight(-99),
             )
             .alter_assets(
@@ -210,8 +208,8 @@ impl Theme for Bootsier {
                     .with_weight(-99),
             )
             .alter_assets(
-                JavaScript::defer("/bootsier/js/bootsier.extended.min.js")
-                    .with_version(ADMINLTE_VERSION)
+                JavaScript::defer("/bootsier/js/bootsier.theme.min.js")
+                    .with_version(BOOTSTRAP_VERSION)
                     .with_weight(-99),
             )
             .alter_assets(

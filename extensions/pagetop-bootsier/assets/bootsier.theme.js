@@ -1,19 +1,8 @@
 (function () {
     'use strict';
 
-    // Fullscreen: keeps maximize/minimize icons in sync with the actual fullscreen state.
-    document.addEventListener('fullscreenchange', function () {
-        var isFs = !!document.fullscreenElement;
-        document.querySelectorAll('[data-lte-icon="maximize"]').forEach(function (el) {
-            el.classList.toggle('d-none', isFs);
-        });
-        document.querySelectorAll('[data-lte-icon="minimize"]').forEach(function (el) {
-            el.classList.toggle('d-none', !isFs);
-        });
-    });
-
     // Color mode selector (light / dark / auto).
-    var STORAGE_KEY = 'lte-theme';
+    var STORAGE_KEY = 'bootsier-theme';
     var getStored = function () { return localStorage.getItem(STORAGE_KEY); };
     var setStored = function (theme) { localStorage.setItem(STORAGE_KEY, theme); };
     var prefersDark = function () {
@@ -39,8 +28,8 @@
             var check = active.querySelector('.bi-check-lg');
             if (check) { check.classList.remove('d-none'); }
         }
-        document.querySelectorAll('[data-lte-theme-icon]').forEach(function (icon) {
-            icon.classList.toggle('d-none', icon.dataset.lteThemeIcon !== theme);
+        document.querySelectorAll('[data-bs-theme-icon]').forEach(function (icon) {
+            icon.classList.toggle('d-none', icon.dataset.bsThemeIcon !== theme);
         });
     };
 

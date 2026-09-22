@@ -1,7 +1,6 @@
 //! Componentes proporcionados por el tema.
 
 pub(crate) mod layout;
-pub use layout::BootsierRegions;
 
 // Badge.
 pub(crate) mod badge;
@@ -81,10 +80,11 @@ pub use offcanvas::Offcanvas;
 // Pager.
 pub use pagetop::base::component::{Pager, PagerAlign, PagerVisibility};
 
-// Sidebar (componentes de navegación de AdminLTE).
-pub mod sidebar;
-
 // Table.
 pub use pagetop::base::component::table;
 #[doc(inline)]
 pub use table::Table;
+
+// Theme toggle.
+mod theme_toggle;
+pub use theme_toggle::theme_toggle;

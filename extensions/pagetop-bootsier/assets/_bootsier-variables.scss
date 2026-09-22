@@ -3,3 +3,9 @@
 
 $font-size-base: 1.125rem;
 $navbar-brand-font-size: 1.75rem;
+
+// Self-hosted Source Sans 3 (SIL OFL 1.1) as the primary font family; see the @font-face
+// declarations in _bootsier-custom.scss.
+$font-family-sans-serif: "Source Sans 3", system-ui, -apple-system, "Segoe UI", Roboto,
+  "Helvetica Neue", "Noto Sans", "Liberation Sans", Arial, sans-serif, "Apple Color Emoji",
+  "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";

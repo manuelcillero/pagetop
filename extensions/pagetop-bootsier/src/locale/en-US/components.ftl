@@ -7,8 +7,7 @@ toggle = Toggle navigation
 # Offcanvas
 offcanvas_close = Close
 
-# Shell AdminLTE (BootsierTemplates::Admin)
-shell_fullscreen = Full screen
+# Theme toggle
 shell_theme_toggle = Color mode selector
 shell_theme_light = Light
 shell_theme_dark = Dark

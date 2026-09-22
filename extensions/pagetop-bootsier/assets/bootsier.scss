@@ -1,12 +1,8 @@
-// AdminLTE v4.0.0 + Bootstrap 5.3.8 - PageTop Bootsier Styles.
+// Bootstrap 5.3.8 - PageTop Bootsier Styles.
 
 // Bootstrap Configuration
 // ---------------------------------------------------
 @import "bootstrap-5.3.8/scss/functions";
-
-// AdminLTE Configuration (little modified are here)
-// ---------------------------------------------------
-@import "adminlte-4.0.0/scss/bootstrap-variables";
 
 // Bootsier Bootstrap variable overrides
 // ---------------------------------------------------
@@ -61,26 +57,6 @@
 
 // Bootstrap Utilities
 @import "bootstrap-5.3.8/scss/utilities/api";
-
-// AdminLTE Configuration
-// ---------------------------------------------------
-@import "adminlte-4.0.0/scss/variables";
-@import "adminlte-4.0.0/scss/variables-dark";
-@import "adminlte-4.0.0/scss/mixins";
-
-// AdminLTE Parts
-// ---------------------------------------------------
-@import "adminlte-4.0.0/scss/parts/core";
-@import "adminlte-4.0.0/scss/parts/components";
-@import "adminlte-4.0.0/scss/parts/extra-components";
-@import "adminlte-4.0.0/scss/parts/pages";
-@import "adminlte-4.0.0/scss/parts/miscellaneous";
-
-// AdminLTE Accessibility Styles - WCAG 2.1 AA Compliance
-@import "adminlte-4.0.0/scss/accessibility";
-
-// AdminLTE Documentation Styles (only applies to pages with body.docs-page)
-@import "adminlte-4.0.0/scss/docs";
 
 // Bootstrap Icons 1.13.1
 // ---------------------------------------------------
