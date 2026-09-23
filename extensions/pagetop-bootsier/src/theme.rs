@@ -38,15 +38,15 @@
 //! # Menú de administración
 //!
 //! `pagetop-admin` (si está presente en la aplicación) registra su propio menú de secciones y
-//! páginas en [`CoreRegions::Aside`](pagetop::core::theme::CoreRegions::Aside), autolimitado a
+//! páginas en [`CoreRegions::Aside`], autolimitado a
 //! páginas con la plantilla `Admin` -- no requiere ningún registro por parte de Bootsier. Se
-//! construye con [`Navbar`](bs::Navbar)/[`Nav`](bs::Nav)/[`Dropdown`](bs::Dropdown), los mismos
+//! construye con [`Navbar`]/[`Nav`]/[`Dropdown`], los mismos
 //! componentes disponibles para cualquier página de la aplicación.
 //!
 //! # Selector de modo de color
 //!
 //! [`bs::theme_toggle()`] crea un ítem de menú con el selector de modo de color (claro / oscuro /
-//! automático), pensado para añadirse a cualquier [`Nav`](bs::Nav) de la aplicación, no sólo a las
+//! automático), pensado para añadirse a cualquier [`Nav`] de la aplicación, no sólo a las
 //! páginas de administración:
 //!
 //! ```rust,no_run

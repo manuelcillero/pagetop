@@ -1872,16 +1872,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "pagetop-menu"
-version = "0.1.0"
-dependencies = [
- "pagetop",
- "pagetop-seaorm",
- "serde",
- "thiserror",
-]
-
-[[package]]
 name = "pagetop-minimal"
 version = "0.1.0"
 dependencies = [

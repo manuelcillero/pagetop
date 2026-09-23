@@ -11,7 +11,6 @@ members = [
     "extensions/pagetop-bootsier",
     "extensions/pagetop-htmx",
     "extensions/pagetop-admin",
-    "extensions/pagetop-menu",
     "extensions/pagetop-seaorm",
     "extensions/pagetop-user",
 ]
@@ -74,7 +73,6 @@ pagetop-admin    = { version = "0.1", path = "extensions/pagetop-admin" }
 pagetop-aliner   = { version = "0.1", path = "extensions/pagetop-aliner" }
 pagetop-bootsier = { version = "0.1", path = "extensions/pagetop-bootsier" }
 pagetop-htmx     = { version = "0.1", path = "extensions/pagetop-htmx" }
-pagetop-menu     = { version = "0.1", path = "extensions/pagetop-menu" }
 pagetop-seaorm   = { version = "0.0", path = "extensions/pagetop-seaorm" }
 pagetop-user     = { version = "0.1", path = "extensions/pagetop-user" }
 # PageTop
