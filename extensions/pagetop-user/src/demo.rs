@@ -102,8 +102,6 @@ async fn create_demo_users(role_ids: &[i32]) -> Result<(), AuthError> {
         let result = user::Entity::insert(new_user).exec(dbconn()).await?;
         let user_id = result.last_insert_id;
 
-        auth::assign_role(user_id, crate::AUTHENTICATED_ROLE_ID).await?;
-
         // Reparte los usuarios de forma cíclica entre los roles de demostración.
         let role_id = role_ids[(n - 1) % role_ids.len()];
         auth::assign_role(user_id, role_id).await?;

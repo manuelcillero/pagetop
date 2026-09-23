@@ -130,7 +130,8 @@ pub async fn load_user_from_session(sid: &str) -> (CurrentUser, Option<Account>)
     let is_admin = user_model.is_admin;
     let role_names: Vec<String> = role_rows.iter().map(|r| r.machine_name.clone()).collect();
 
-    // Cargar permisos de todos los roles (incluido "authenticated", siempre asignado).
+    // Cargar permisos de todos los roles más los del rol implícito "authenticated", que no se
+    // asigna en `user_role` pero se aplica siempre.
     let mut all_role_ids = role_ids;
     if !all_role_ids.contains(&AUTHENTICATED_ROLE_ID) {
         all_role_ids.push(AUTHENTICATED_ROLE_ID);

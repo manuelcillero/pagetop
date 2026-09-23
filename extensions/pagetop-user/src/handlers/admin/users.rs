@@ -112,7 +112,7 @@ fn search_bar(current_query: Option<String>) -> Html {
 // **< available_roles >****************************************************************************
 
 // Roles asignables desde la UI de usuarios: excluye "anonymous" (nunca se asigna explícitamente)
-// y "authenticated" (se envía siempre fijo vía campo oculto).
+// y "authenticated" (implícito, nunca se asigna).
 async fn available_roles(selected: &[i32]) -> Result<Vec<(i32, String, bool)>, AuthError> {
     let items = role_admin::list_roles(&role_admin::RoleListParams {
         sort: role_admin::RoleSortField::Weight,

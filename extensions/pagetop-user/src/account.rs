@@ -66,8 +66,8 @@ pub struct Account {
     pub email: String,
     pub display_name: String,
     pub status: UserStatus,
-    /// Nombres de máquina de los roles asignados, incluido "authenticated" (se asigna
-    /// automáticamente a toda cuenta en el alta, ver `auth::assign_role`).
+    /// Nombres de máquina de los roles asignados explícitamente. No incluye "authenticated", que
+    /// es implícito (ver [`Account::has_role`]).
     pub roles: Vec<String>,
     /// Unión de permisos de todos sus roles.
     pub permissions: PermissionSet,
@@ -90,8 +90,8 @@ impl Account {
         }
     }
 
-    /// Comprueba si la cuenta tiene el rol indicado.
+    /// Comprueba si la cuenta tiene el rol indicado ("authenticated" siempre se cumple).
     pub fn has_role(&self, machine_name: &str) -> bool {
-        self.roles.iter().any(|r| r == machine_name)
+        machine_name == "authenticated" || self.roles.iter().any(|r| r == machine_name)
     }
 }

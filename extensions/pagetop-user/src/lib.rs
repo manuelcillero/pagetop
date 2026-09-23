@@ -182,7 +182,7 @@ fn declare_admin_pages(bag: &mut PageBag) {
 // Sembrados con id fijo en `migration/m20260629_000002_create_roles.rs` y bloqueados (`locked`);
 // no se borran ni cambian de id.
 const ANONYMOUS_ROLE_ID: i32 = 1;
-// Se asigna automáticamente a toda cuenta en el alta (ver `auth::assign_role`).
+// Implícito: nunca se asigna en `user_role`; sus permisos se aplican a toda cuenta autenticada.
 const AUTHENTICATED_ROLE_ID: i32 = 2;
 
 // **< Extension >**********************************************************************************

@@ -200,7 +200,6 @@ pub(crate) async fn create_user(data: NewUserData<'_>) -> Result<i32, AuthError>
     let result = user::Entity::insert(new_user).exec(dbconn()).await?;
     let user_id = result.last_insert_id;
 
-    crate::auth::assign_role(user_id, crate::AUTHENTICATED_ROLE_ID).await?;
     for role_id in data.initial_role_ids {
         crate::auth::assign_role(user_id, *role_id).await?;
     }
@@ -242,14 +241,16 @@ pub(crate) async fn update_user(user_id: i32, data: UserUpdateData<'_>) -> Resul
 
 /// Reemplaza por completo el conjunto de roles asignados a un usuario.
 ///
-/// "authenticated" ([`crate::AUTHENTICATED_ROLE_ID`]) se reintroduce siempre, esté o no en
-/// `role_ids`: la UI no lo ofrece como casilla (ver `available_roles()`), pero toda cuenta
-/// activa lo tiene concedido por definición y debe seguir apareciendo en `Account.roles`.
+/// "authenticated" ([`crate::AUTHENTICATED_ROLE_ID`]) nunca se almacena: es implícito para toda
+/// cuenta autenticada, por lo que se descarta si llega en `role_ids`.
 pub(crate) async fn set_user_roles(user_id: i32, role_ids: &[i32]) -> Result<(), AuthError> {
     find_user(user_id).await?;
 
-    let mut role_ids: Vec<i32> = role_ids.to_vec();
-    role_ids.push(crate::AUTHENTICATED_ROLE_ID);
+    let mut role_ids: Vec<i32> = role_ids
+        .iter()
+        .copied()
+        .filter(|id| *id != crate::AUTHENTICATED_ROLE_ID)
+        .collect();
     role_ids.sort_unstable();
     role_ids.dedup();
 

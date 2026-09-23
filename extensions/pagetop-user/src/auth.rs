@@ -147,8 +147,6 @@ pub async fn register(
     let result = user::Entity::insert(new_user).exec(dbconn()).await?;
     let user_id = result.last_insert_id;
 
-    assign_role(user_id, crate::AUTHENTICATED_ROLE_ID).await?;
-
     Ok(user_id)
 }
 
@@ -259,10 +257,7 @@ async fn do_seed() {
     };
 
     match user::Entity::insert(new_admin).exec(dbconn()).await {
-        Ok(result) => {
-            if let Err(e) = assign_role(result.last_insert_id, crate::AUTHENTICATED_ROLE_ID).await {
-                eprintln!("pagetop-user seed error: {}", e);
-            }
+        Ok(_) => {
             if generated {
                 println!(
                     "\npagetop-user: admin account created.\n  username: {}\n  password: {}\n",
