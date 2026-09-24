@@ -73,16 +73,23 @@ use std::task::{Context, Poll};
 /// impone Axum: un extractor que consuma el cuerpo de la petición (`Form<T>`, `RawForm`, etc.) debe
 /// ir siempre el último.
 #[derive(Clone, Debug)]
-pub struct HttpRequest {
+pub struct HttpRequest(Arc<RequestParts>);
+
+// Datos de la petición. Se guardan tras un `Arc` para que `HttpRequest` ocupe un puntero y clonarlo
+// sea una simple cuenta de referencias: viaja dentro de `ErrorPage` y de los `Result<_, ErrorPage>`
+// de los handlers, donde un tipo grande se copiaría en cada retorno.
+#[derive(Debug)]
+struct RequestParts {
     uri: http::Uri,
     headers: http::HeaderMap,
-    extensions: Arc<http::Extensions>,
+    extensions: http::Extensions,
 }
 
 impl HttpRequest {
     /// Devuelve la URI completa de la petición, incluyendo la *query string* si la hay.
     pub fn uri(&self) -> &str {
-        self.uri
+        self.0
+            .uri
             .path_and_query()
             .map(|pq| pq.as_str())
             .unwrap_or("/")
@@ -90,19 +97,19 @@ impl HttpRequest {
 
     /// Devuelve la ruta (*path*) de la petición, sin la *query string*.
     pub fn path(&self) -> &str {
-        self.uri.path()
+        self.0.uri.path()
     }
 
     /// Devuelve la cadena de consulta (*query string*) de la petición, sin el carácter `?`.
     ///
     /// Devuelve una cadena vacía si la petición no tiene *query string*.
     pub fn query_string(&self) -> &str {
-        self.uri.query().unwrap_or("")
+        self.0.uri.query().unwrap_or("")
     }
 
     /// Devuelve las cabeceras HTTP de la petición.
     pub fn headers(&self) -> &http::HeaderMap {
-        &self.headers
+        &self.0.headers
     }
 
     /// Accede a un valor inyectado por middleware en las extensiones de la petición.
@@ -112,7 +119,7 @@ impl HttpRequest {
     ///
     /// El tipo debe implementar `Send + Sync + 'static` (requisito de [`http::Extensions`]).
     pub fn extension<T: Send + Sync + 'static>(&self) -> Option<&T> {
-        self.extensions.get::<T>()
+        self.0.extensions.get::<T>()
     }
 }
 
@@ -121,17 +128,17 @@ impl<S: Send + Sync> FromRequestParts<S> for HttpRequest {
 
     // Clona (no toma) las extensiones inyectadas por middleware, para que otros extractores del
     // handler (`Path<T>`, `Extension<T>`, etc.) las sigan viendo intactas sin importar en qué
-    // posición se declare `HttpRequest`. El clon se envuelve en un `Arc` compartido para que
+    // posición se declare `HttpRequest`. Todo se guarda tras un `Arc` compartido para que
     // `HttpRequest` sea `Clone` a coste mínimo en el resto de su ciclo de vida.
     async fn from_request_parts(
         parts: &mut http::request::Parts,
         _state: &S,
     ) -> Result<Self, Self::Rejection> {
-        Ok(HttpRequest {
+        Ok(HttpRequest(Arc::new(RequestParts {
             uri: parts.uri.clone(),
             headers: parts.headers.clone(),
-            extensions: Arc::new(parts.extensions.clone()),
-        })
+            extensions: parts.extensions.clone(),
+        })))
     }
 }
 
@@ -417,11 +424,11 @@ pub mod test {
         /// [`Context::new`](crate::core::component::Context::new) en tests unitarios de componentes.
         pub fn to_http_request(self) -> super::HttpRequest {
             let uri = self.uri.parse().unwrap();
-            super::HttpRequest {
+            super::HttpRequest(std::sync::Arc::new(super::RequestParts {
                 uri,
                 headers: self.headers,
-                extensions: std::sync::Arc::new(self.extensions),
-            }
+                extensions: self.extensions,
+            }))
         }
     }
 

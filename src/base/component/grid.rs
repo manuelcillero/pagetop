@@ -2,6 +2,8 @@ use crate::html::align::{Content, Gap, Items};
 use crate::html::grid::{AutoFlow, AxisTrack, ContentJustify, DefaultJustify, Tracks};
 use crate::prelude::*;
 
+use std::sync::Arc;
+
 // **< DisplayGrid >********************************************************************************
 
 // Posicionamiento CSS Grid del contenedor `Grid`. La API pública sólo expone los constructores
@@ -67,12 +69,13 @@ pub struct Grid {
     // público; `new()`, `at()`, `inline()` e `inline_at()` son la única forma de activarlo.
     #[getters(skip)]
     display: Option<DisplayGrid>,
-    /// Devuelve las pistas de columna (`grid-template-columns`), por punto de corte.
-    #[getters(copy)]
-    columns: Responsive<Tracks>,
-    /// Devuelve las pistas de fila (`grid-template-rows`), por punto de corte.
-    #[getters(copy)]
-    rows: Responsive<Tracks>,
+    // Pistas de columna y de fila. Cada `Responsive<Tracks>` ocupa más de 1 KB (doce pistas por
+    // punto de corte), y suma el 80 % del tamaño del componente: se guardan aparte, tras un `Arc`
+    // que sólo se reserva al establecer las primeras. Clonar el `Grid` para renderizarlo sólo suma
+    // una referencia, y `Arc::make_mut` las duplica si se modifican estando compartidas. Sin getter
+    // derivado: `columns()` y `rows()` devuelven el valor por copia, como siempre.
+    #[getters(skip)]
+    templates: Option<Arc<Templates>>,
     /// Devuelve el tamaño de las columnas generadas implícitamente (`grid-auto-columns`), por
     /// punto de corte.
     #[getters(copy)]
@@ -101,6 +104,13 @@ pub struct Grid {
     gap: Responsive<Gap>,
     /// Devuelve la lista de componentes (`children`) del contenedor.
     children: Children,
+}
+
+// Pistas de columna y de fila de un `Grid`; ver `Grid::templates`.
+#[derive(AutoDefault, Clone, Debug)]
+struct Templates {
+    columns: Responsive<Tracks>,
+    rows: Responsive<Tracks>,
 }
 
 #[async_trait]
@@ -178,25 +188,29 @@ impl Grid {
 
     /// Establece las pistas de columna.
     pub fn with_columns(mut self, tracks: Tracks) -> Self {
-        self.columns = self.columns.set(tracks);
+        let templates = self.templates_mut();
+        templates.columns = templates.columns.set(tracks);
         self
     }
 
     /// Establece las pistas de columna a partir del punto de corte indicado.
     pub fn with_columns_at(mut self, bp: Breakpoint, tracks: Tracks) -> Self {
-        self.columns = self.columns.set_at(bp, tracks);
+        let templates = self.templates_mut();
+        templates.columns = templates.columns.set_at(bp, tracks);
         self
     }
 
     /// Establece las pistas de fila.
     pub fn with_rows(mut self, tracks: Tracks) -> Self {
-        self.rows = self.rows.set(tracks);
+        let templates = self.templates_mut();
+        templates.rows = templates.rows.set(tracks);
         self
     }
 
     /// Establece las pistas de fila a partir del punto de corte indicado.
     pub fn with_rows_at(mut self, bp: Breakpoint, tracks: Tracks) -> Self {
-        self.rows = self.rows.set_at(bp, tracks);
+        let templates = self.templates_mut();
+        templates.rows = templates.rows.set_at(bp, tracks);
         self
     }
 
@@ -316,6 +330,30 @@ impl Grid {
 }
 
 impl Grid {
+    // **< Grid GETTERS >***************************************************************************
+
+    /// Devuelve las pistas de columna (`grid-template-columns`), por punto de corte.
+    pub fn columns(&self) -> Responsive<Tracks> {
+        self.templates
+            .as_deref()
+            .map_or_else(Default::default, |t| t.columns)
+    }
+
+    /// Devuelve las pistas de fila (`grid-template-rows`), por punto de corte.
+    pub fn rows(&self) -> Responsive<Tracks> {
+        self.templates
+            .as_deref()
+            .map_or_else(Default::default, |t| t.rows)
+    }
+
+    // **< Grid PRIVATE >***************************************************************************
+
+    // Pistas para modificarlas: las crea con sus valores por defecto si aún no existen y, si están
+    // compartidas con un clon, las duplica antes.
+    fn templates_mut(&mut self) -> &mut Templates {
+        Arc::make_mut(self.templates.get_or_insert_with(Default::default))
+    }
+
     // Calcula las clases CSS *responsive* de este contenedor Grid y las añade a `classes`,
     // separadas con un espacio de las que ya hubiera, para poder compartir un único acumulador con
     // `GridItem::apply()` (ver `Props::unpack_with_classes()`) sin cadenas intermedias.
@@ -347,8 +385,9 @@ impl Grid {
         };
         styles(cx, classes, entry, class, "display", value.into());
 
-        apply!(cx, classes, self.columns, "_grid-columns_", "grid-template-columns", val);
-        apply!(cx, classes, self.rows, "_grid-rows_", "grid-template-rows", val);
+        let (columns, rows) = (self.columns(), self.rows());
+        apply!(cx, classes, columns, "_grid-columns_", "grid-template-columns", val);
+        apply!(cx, classes, rows, "_grid-rows_", "grid-template-rows", val);
         apply!(cx, classes, self.auto_columns, "_grid-auto-columns_", "grid-auto-columns", val);
         apply!(cx, classes, self.auto_rows, "_grid-auto-rows_", "grid-auto-rows", val);
         // `val`: a diferencia de `flex::Behavior` (una sola palabra en cualquier variante),

@@ -10,6 +10,7 @@ use crate::{AutoDefault, CowStr, builder_impl, trace, util};
 use std::collections::HashMap;
 use std::fmt::Write;
 use std::panic::Location;
+use std::sync::Arc;
 
 // **< Props >**************************************************************************************
 
@@ -191,6 +192,17 @@ pub struct Props {
     styles: Vec<(CowStr, CowStr)>,
     attrs: Vec<(CowStr, CowStr)>,
     extras: HashMap<&'static str, PropsExtra>,
+    // Posicionamiento Flexbox/Grid y espaciado. Cada uno lleva un valor por punto de corte, lo que
+    // suma más de 1 KB, y casi ningún componente los usa. Se guardan aparte, tras un `Arc` que sólo
+    // se reserva al establecer el primero. Así `Props` (y con él cada componente, el `Context` y la
+    // `Page`) es diez veces menor, y clonar el componente para renderizarlo no copia esos valores,
+    // sólo cuenta una referencia (`Arc::make_mut` los duplica si se modifican estando compartidos).
+    layout: Option<Arc<Layout>>,
+}
+
+// Posicionamiento y espaciado de un componente; ver `Props::layout`.
+#[derive(AutoDefault, Clone, Debug, PartialEq)]
+struct Layout {
     flex_item: FlexItem,
     grid_item: GridItem,
     margin: Margin,
@@ -344,16 +356,20 @@ impl Props {
                 self.extras.remove(key);
             }
             PropsOp::FlexItem(placement) => {
-                self.flex_item = self.flex_item.merge(placement);
+                let layout = self.layout_mut();
+                layout.flex_item = layout.flex_item.merge(placement);
             }
             PropsOp::GridItem(placement) => {
-                self.grid_item = self.grid_item.merge(placement);
+                let layout = self.layout_mut();
+                layout.grid_item = layout.grid_item.merge(placement);
             }
             PropsOp::Margin(margin) => {
-                self.margin = self.margin.merge(margin);
+                let layout = self.layout_mut();
+                layout.margin = layout.margin.merge(margin);
             }
             PropsOp::Padding(padding) => {
-                self.padding = self.padding.merge(padding);
+                let layout = self.layout_mut();
+                layout.padding = layout.padding.merge(padding);
             }
         }
         self
@@ -453,10 +469,10 @@ impl Props {
             && self.classes.is_empty()
             && self.styles.is_empty()
             && self.attrs.is_empty()
-            && self.flex_item == FlexItem::default()
-            && self.grid_item == GridItem::default()
-            && self.margin == Margin::default()
-            && self.padding == Padding::default()
+            && self
+                .layout
+                .as_deref()
+                .is_none_or(|layout| *layout == Layout::default())
     }
 
     /// Devuelve `true` si la clase o **alguna** de las clases indicadas está presente.
@@ -619,14 +635,22 @@ impl Props {
         cx: &mut Context,
         mut classes: String,
     ) -> impl RenderAttrs + 'a {
-        self.flex_item.apply(cx, &mut classes);
-        self.grid_item.apply(cx, &mut classes);
-        self.margin.apply(cx, &mut classes);
-        self.padding.apply(cx, &mut classes);
+        if let Some(layout) = self.layout.as_deref() {
+            layout.flex_item.apply(cx, &mut classes);
+            layout.grid_item.apply(cx, &mut classes);
+            layout.margin.apply(cx, &mut classes);
+            layout.padding.apply(cx, &mut classes);
+        }
         PropsUnpack {
             props: self,
             classes,
         }
+    }
+
+    // Posicionamiento y espaciado para modificarlos: los crea con sus valores por defecto si aún no
+    // existen y, si están compartidos con un clon, los duplica antes.
+    fn layout_mut(&mut self) -> &mut Layout {
+        Arc::make_mut(self.layout.get_or_insert_with(Default::default))
     }
 
     fn apply_id(&mut self, id: &str) {
