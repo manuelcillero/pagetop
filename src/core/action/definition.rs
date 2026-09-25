@@ -1,57 +1,68 @@
 use crate::core::AnyInfo;
-use crate::{UniqueId, Weight};
+use crate::{Getters, UniqueId, Weight, util};
 
 /// Tipo dinámico para encapsular cualquier acción que implementa [`ActionDispatcher`].
 pub type ActionBox = Box<dyn ActionDispatcher>;
 
-/// Clave para registrar las acciones y seleccionar las funciones asociadas.
+/// Referente de una acción: el tipo de objeto sobre el que actúa (p. ej. un tipo de componente) y,
+/// opcionalmente, el identificador de una instancia concreta.
 ///
-/// Las funciones seleccionadas se van a [despachar](crate::core::action::dispatch_actions) y
-/// ejecutar en un punto concreto del flujo de ejecución.
-#[derive(Eq, PartialEq, Hash)]
-pub struct ActionKey {
-    action_type_id: UniqueId,
-    referer_type_id: Option<UniqueId>,
-    referer_id: Option<String>,
+/// Las acciones con referente se despachan con [`dispatch_referer()`]. Sin identificador afectan a
+/// cualquier objeto del tipo; con identificador, sólo al que lo tiene.
+///
+/// # Ejemplo
+///
+/// ```rust
+/// # use pagetop::prelude::*;
+/// let any_button = ActionReferer::of::<Button>();
+/// assert_eq!(any_button.id(), None);
+///
+/// // El identificador se normaliza; uno en blanco equivale a no tenerlo.
+/// let one = ActionReferer::of::<Button>().with_id("  My Id ");
+/// assert_eq!(one.id(), Some("my_id"));
+/// assert_eq!(one.referer_type_id(), any_button.referer_type_id());
+/// assert_eq!(one.with_id("   "), any_button);
+/// ```
+///
+/// [`dispatch_referer()`]: crate::core::action::dispatch_referer
+#[derive(Clone, Debug, Eq, Getters, PartialEq)]
+pub struct ActionReferer {
+    #[getters(copy)]
+    referer_type_id: UniqueId,
+    #[getters(skip)]
+    id: Option<String>,
 }
 
-impl ActionKey {
-    /// Crea una nueva clave para un tipo de acción.
-    ///
-    /// Se crea con los siguientes campos:
-    ///
-    /// - `action_type_id`: Tipo de la acción.
-    /// - `referer_type_id`: Opcional, identificador de tipo ([`UniqueId`]) del componente referido.
-    /// - `referer_id`: Opcional, identificador de la instancia (p. ej. para asociar la acción a un
-    ///   componente concreto).
-    ///
-    /// Esta clave permitirá seleccionar las funciones a ejecutar para ese tipo de acción, con
-    /// filtros opcionales por componente o por una instancia concreta según su identificador.
-    pub fn new(
-        action_type_id: UniqueId,
-        referer_type_id: Option<UniqueId>,
-        referer_id: Option<String>,
-    ) -> Self {
-        ActionKey {
-            action_type_id,
-            referer_type_id,
-            referer_id,
+impl ActionReferer {
+    /// Referente para cualquier objeto del tipo `R`.
+    pub fn of<R: 'static>() -> Self {
+        ActionReferer {
+            referer_type_id: UniqueId::of::<R>(),
+            id: None,
         }
     }
-}
 
-/// Implementa el filtro predeterminado para despachar las funciones de una acción dada.
-///
-/// Las acciones tienen que sobrescribir los métodos para el filtro que apliquen. Por defecto
-/// implementa un filtro nulo.
-pub trait ActionDispatcher: AnyInfo + Send + Sync {
-    /// Devuelve el identificador de tipo ([`UniqueId`]) del objeto referido.
-    fn referer_type_id(&self) -> Option<UniqueId> {
-        None
+    /// Identificador de la instancia a la que se restringe el referente, si lo hay.
+    pub fn id(&self) -> Option<&str> {
+        self.id.as_deref()
     }
 
-    /// Devuelve el identificador del objeto referido.
-    fn referer_id(&self) -> Option<String> {
+    /// Restringe el referente al objeto con el identificador indicado. Si el identificador queda
+    /// vacío tras normalizarlo, el referente vuelve a aplicarse a cualquier objeto del tipo.
+    pub fn with_id(mut self, id: impl AsRef<str>) -> Self {
+        self.id = util::normalize_token(id);
+        self
+    }
+}
+
+/// Define el comportamiento de una acción con su referente y su peso de ejecución.
+///
+/// Las acciones sobrescriben [`referer()`](Self::referer) si sólo se aplican a un tipo de objeto
+/// (y, opcionalmente, a una instancia concreta). Por defecto no tienen referente.
+pub trait ActionDispatcher: AnyInfo + Send + Sync {
+    /// Devuelve el [`ActionReferer`] de la acción, o `None` si no actúa sobre un tipo de objeto
+    /// concreto.
+    fn referer(&self) -> Option<&ActionReferer> {
         None
     }
 

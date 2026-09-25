@@ -5,14 +5,14 @@
 //! aplicación.
 
 mod definition;
-pub use definition::{ActionBox, ActionDispatcher, ActionKey};
+pub use definition::{ActionBox, ActionDispatcher, ActionReferer};
 
 mod list;
 use list::ActionsList;
 
 mod all;
-pub(crate) use all::add_action;
-pub use all::{dispatch_actions, try_dispatch_actions};
+pub(crate) use all::publish_actions;
+pub use all::{dispatch_actions, dispatch_referer, try_dispatch_actions};
 
 // **< actions! >***********************************************************************************
 

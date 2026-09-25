@@ -1,4 +1,4 @@
-use crate::core::action::add_action;
+use crate::core::action::publish_actions;
 use crate::core::extension::ExtensionRef;
 use crate::core::theme::ThemeRef;
 use crate::core::theme::all::THEMES;
@@ -91,11 +91,14 @@ fn check_theme_parent_chain(theme: ThemeRef) {
 // **< REGISTRO DE LAS ACCIONES >*******************************************************************
 
 pub fn register_actions() {
-    for extension in EXTENSIONS.get().into_iter().flatten() {
-        for a in extension.actions() {
-            add_action(a);
-        }
-    }
+    publish_actions(|| {
+        EXTENSIONS
+            .get()
+            .into_iter()
+            .flatten()
+            .flat_map(|extension| extension.actions())
+            .collect()
+    });
 }
 
 // **< INICIALIZA LAS EXTENSIONES >*****************************************************************

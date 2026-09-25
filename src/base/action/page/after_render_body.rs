@@ -37,9 +37,6 @@ impl AfterRenderBody {
     /// Despacha las acciones.
     #[inline]
     pub(crate) fn dispatch(page: &mut Page) {
-        dispatch_actions(
-            &ActionKey::new(UniqueId::of::<Self>(), None, None),
-            |action: &Self| (action.f)(page),
-        );
+        dispatch_actions(|action: &Self| (action.f)(page));
     }
 }

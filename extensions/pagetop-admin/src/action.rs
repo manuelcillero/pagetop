@@ -117,10 +117,7 @@ impl DeclareAdminSections {
     }
 
     pub(crate) fn dispatch(bag: &mut SectionBag) {
-        dispatch_actions(
-            &ActionKey::new(UniqueId::of::<Self>(), None, None),
-            |action: &Self| (action.f)(bag),
-        );
+        dispatch_actions(|action: &Self| (action.f)(bag));
     }
 }
 
@@ -173,10 +170,7 @@ impl DeclareAdminPages {
     }
 
     pub(crate) fn dispatch(bag: &mut PageBag) {
-        dispatch_actions(
-            &ActionKey::new(UniqueId::of::<Self>(), None, None),
-            |action: &Self| (action.f)(bag),
-        );
+        dispatch_actions(|action: &Self| (action.f)(bag));
     }
 }
 
@@ -229,10 +223,7 @@ impl DeclareAdminTasks {
     }
 
     pub(crate) fn dispatch(bag: &mut TaskBag) {
-        dispatch_actions(
-            &ActionKey::new(UniqueId::of::<Self>(), None, None),
-            |action: &Self| (action.f)(bag),
-        );
+        dispatch_actions(|action: &Self| (action.f)(bag));
     }
 }
 
@@ -283,9 +274,6 @@ impl DeclareAdminActions {
     }
 
     pub(crate) fn dispatch(bag: &mut ActionBag) {
-        dispatch_actions(
-            &ActionKey::new(UniqueId::of::<Self>(), None, None),
-            |action: &Self| (action.f)(bag),
-        );
+        dispatch_actions(|action: &Self| (action.f)(bag));
     }
 }

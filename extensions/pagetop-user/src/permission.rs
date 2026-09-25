@@ -58,10 +58,7 @@ impl DeclarePermissions {
 
     /// Despacha todas las acciones `DeclarePermissions` registradas construyendo el catálogo.
     pub(crate) fn dispatch(registry: &mut PermissionRegistry) {
-        dispatch_actions(
-            &ActionKey::new(UniqueId::of::<Self>(), None, None),
-            |action: &Self| (action.handler)(registry),
-        );
+        dispatch_actions(|action: &Self| (action.handler)(registry));
     }
 }
 

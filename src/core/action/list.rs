@@ -3,20 +3,19 @@ use crate::core::AnyCast;
 use crate::core::action::{ActionBox, ActionDispatcher};
 use crate::trace;
 
-use parking_lot::RwLock;
-
+// Lista de acciones, ordenada por peso.
+//
+// Se construye al registrar las acciones, durante el arranque. A partir de ahí es de sólo lectura y
+// recorrerla no aplica ningún bloqueo (ver `ActionEntry`).
 #[derive(AutoDefault)]
-pub struct ActionsList(RwLock<Vec<ActionBox>>);
+pub struct ActionsList(Vec<ActionBox>);
 
 impl ActionsList {
-    pub fn new() -> Self {
-        Self::default()
-    }
-
+    // Añade la acción y mantiene la lista ordenada por peso. La ordenación es estable: a igual peso
+    // se conserva el orden de registro.
     pub fn add(&mut self, action: ActionBox) {
-        let mut list = self.0.write();
-        list.push(action);
-        list.sort_by_key(|a| a.weight());
+        self.0.push(action);
+        self.0.sort_by_key(|a| a.weight());
     }
 
     pub fn for_each<A, F>(&self, mut f: F)
@@ -24,8 +23,7 @@ impl ActionsList {
         A: ActionDispatcher,
         F: FnMut(&A),
     {
-        let list = self.0.read();
-        for a in list.iter() {
+        for a in self.0.iter() {
             if let Some(action) = (**a).downcast_ref::<A>() {
                 f(action);
             } else {
@@ -39,8 +37,7 @@ impl ActionsList {
         A: ActionDispatcher,
         F: FnMut(&A) -> std::ops::ControlFlow<()>,
     {
-        let list = self.0.read();
-        for a in list.iter() {
+        for a in self.0.iter() {
             if let Some(action) = (**a).downcast_ref::<A>() {
                 if f(action).is_break() {
                     break;

@@ -5,19 +5,14 @@ use super::FnActionWithComponent;
 /// Ejecuta [`FnActionWithComponent`] antes de renderizar el componente.
 pub struct BeforeRender<C: Component> {
     f: FnActionWithComponent<C>,
-    referer_type_id: Option<UniqueId>,
-    referer_id: Option<String>,
+    referer: ActionReferer,
     weight: Weight,
 }
 
 // Filtro para despachar `FnActionWithComponent` antes de renderizar un componente `C`.
 impl<C: Component> ActionDispatcher for BeforeRender<C> {
-    fn referer_type_id(&self) -> Option<UniqueId> {
-        self.referer_type_id
-    }
-
-    fn referer_id(&self) -> Option<String> {
-        self.referer_id.clone()
+    fn referer(&self) -> Option<&ActionReferer> {
+        Some(&self.referer)
     }
 
     fn weight(&self) -> Weight {
@@ -30,8 +25,7 @@ impl<C: Component> BeforeRender<C> {
     pub fn new(f: FnActionWithComponent<C>) -> Self {
         BeforeRender {
             f,
-            referer_type_id: Some(UniqueId::of::<C>()),
-            referer_id: None,
+            referer: ActionReferer::of::<C>(),
             weight: 0,
         }
     }
@@ -39,7 +33,7 @@ impl<C: Component> BeforeRender<C> {
     /// Afina el registro para ejecutar la acción [`FnActionWithComponent`] sólo para el componente
     /// `C` con identificador `id`.
     pub fn filter_by_referer_id(mut self, id: impl AsRef<str>) -> Self {
-        self.referer_id = util::normalize_token(id);
+        self.referer = self.referer.with_id(id);
         self
     }
 
@@ -52,18 +46,6 @@ impl<C: Component> BeforeRender<C> {
     /// Despacha las acciones.
     #[inline]
     pub(crate) fn dispatch(component: &mut C, cx: &mut Context) {
-        // Primero despacha las acciones para el tipo de componente.
-        dispatch_actions(
-            &ActionKey::new(UniqueId::of::<Self>(), Some(UniqueId::of::<C>()), None),
-            |action: &Self| (action.f)(component, cx),
-        );
-
-        // Y luego despacha las aciones para el tipo de componente con un identificador dado.
-        if let Some(id) = component.id() {
-            dispatch_actions(
-                &ActionKey::new(UniqueId::of::<Self>(), Some(UniqueId::of::<C>()), Some(id)),
-                |action: &Self| (action.f)(component, cx),
-            );
-        }
+        dispatch_referer(component, |c| c.id(), |action: &Self, c| (action.f)(c, cx));
     }
 }

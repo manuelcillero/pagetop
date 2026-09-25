@@ -16,11 +16,11 @@
 //!
 //! [`Context`]: crate::core::component::Context
 
-use crate::core::action::{ActionDispatcher, ActionKey, try_dispatch_actions};
+use crate::core::action::{ActionDispatcher, try_dispatch_actions};
 use crate::locale::Lc;
 use crate::response::ErrorPage;
 use crate::web::HttpRequest;
-use crate::{CowStr, UniqueId, Weight};
+use crate::{CowStr, Weight};
 
 // **< CurrentUser >********************************************************************************
 
@@ -205,17 +205,14 @@ impl CheckPermission {
     #[inline]
     pub(crate) fn check(request: &HttpRequest, perm: PermissionRef) -> bool {
         let mut granted = false;
-        try_dispatch_actions(
-            &ActionKey::new(UniqueId::of::<Self>(), None, None),
-            |action: &Self| {
-                (action.f)(request, perm, &mut granted);
-                if granted {
-                    std::ops::ControlFlow::Break(())
-                } else {
-                    std::ops::ControlFlow::Continue(())
-                }
-            },
-        );
+        try_dispatch_actions(|action: &Self| {
+            (action.f)(request, perm, &mut granted);
+            if granted {
+                std::ops::ControlFlow::Break(())
+            } else {
+                std::ops::ControlFlow::Continue(())
+            }
+        });
         granted
     }
 }

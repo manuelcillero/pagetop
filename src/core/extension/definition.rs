@@ -101,9 +101,17 @@ pub trait Extension: AnyInfo + Send + Sync {
 
     /// Devuelve la lista de acciones que la extensión registra.
     ///
-    /// Estas [acciones](crate::core::action) se despachan por orden de registro o por
-    /// [peso](crate::Weight) (ver [`actions!`](crate::actions)), permitiendo
-    /// personalizar el comportamiento de la aplicación en puntos específicos.
+    /// Estas [acciones] se despachan por orden de registro o por [peso] (ver [`actions!`]),
+    /// permitiendo personalizar el comportamiento de la aplicación en puntos específicos.
+    ///
+    /// PageTop lo invoca una sola vez por proceso, al registrar las extensiones y antes de
+    /// [`initialize()`]. La lista queda fija a partir de ahí y no es posible añadir acciones más
+    /// tarde.
+    ///
+    /// [acciones]: crate::core::action
+    /// [peso]: crate::Weight
+    /// [`actions!`]: crate::actions
+    /// [`initialize()`]: Self::initialize
     fn actions(&self) -> Vec<ActionBox> {
         actions![]
     }

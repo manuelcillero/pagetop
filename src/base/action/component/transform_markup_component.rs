@@ -5,19 +5,14 @@ use super::FnActionTransformMarkup;
 /// Ejecuta [`FnActionTransformMarkup`] para alterar el renderizado de componentes.
 pub struct TransformMarkup<C: Component> {
     f: FnActionTransformMarkup<C>,
-    referer_type_id: Option<UniqueId>,
-    referer_id: Option<String>,
+    referer: ActionReferer,
     weight: Weight,
 }
 
 // Filtro para despachar `FnActionTransformMarkup` sobre el renderizado de un componente `C`.
 impl<C: Component> ActionDispatcher for TransformMarkup<C> {
-    fn referer_type_id(&self) -> Option<UniqueId> {
-        self.referer_type_id
-    }
-
-    fn referer_id(&self) -> Option<String> {
-        self.referer_id.clone()
+    fn referer(&self) -> Option<&ActionReferer> {
+        Some(&self.referer)
     }
 
     fn weight(&self) -> Weight {
@@ -30,8 +25,7 @@ impl<C: Component> TransformMarkup<C> {
     pub fn new(f: FnActionTransformMarkup<C>) -> Self {
         TransformMarkup {
             f,
-            referer_type_id: Some(UniqueId::of::<C>()),
-            referer_id: None,
+            referer: ActionReferer::of::<C>(),
             weight: 0,
         }
     }
@@ -39,7 +33,7 @@ impl<C: Component> TransformMarkup<C> {
     /// Afina el registro para ejecutar la acción [`FnActionTransformMarkup`] sólo para el
     /// componente `C` con identificador `id`.
     pub fn filter_by_referer_id(mut self, id: impl AsRef<str>) -> Self {
-        self.referer_id = util::normalize_token(id);
+        self.referer = self.referer.with_id(id);
         self
     }
 
@@ -51,29 +45,16 @@ impl<C: Component> TransformMarkup<C> {
 
     /// Despacha las acciones encadenando el [`Markup`] entre cada una.
     #[inline]
-    pub(crate) fn dispatch(component: &C, cx: &Context, markup: Markup) -> Markup {
+    pub(crate) fn dispatch(component: &mut C, cx: &Context, markup: Markup) -> Markup {
         let mut output = markup;
-
-        // Primero despacha las acciones para el tipo de componente.
-        dispatch_actions(
-            &ActionKey::new(UniqueId::of::<Self>(), Some(UniqueId::of::<C>()), None),
-            |action: &Self| {
+        dispatch_referer(
+            component,
+            |c| c.id(),
+            |action: &Self, c| {
                 let taken = std::mem::replace(&mut output, html! {});
-                output = (action.f)(component, cx, taken);
+                output = (action.f)(c, cx, taken);
             },
         );
-
-        // Y luego despacha las acciones para el tipo de componente con un identificador dado.
-        if let Some(id) = component.id() {
-            dispatch_actions(
-                &ActionKey::new(UniqueId::of::<Self>(), Some(UniqueId::of::<C>()), Some(id)),
-                |action: &Self| {
-                    let taken = std::mem::replace(&mut output, html! {});
-                    output = (action.f)(component, cx, taken);
-                },
-            );
-        }
-
         output
     }
 }
