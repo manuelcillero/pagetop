@@ -58,7 +58,7 @@ async fn homepage(request: HttpRequest) -> Result<Markup, ErrorPage> {
             button hx-get="/api/hello" hx-target="#result" {
                 "Say hello"
             }
-            div #result {}
+            div id="result" {}
         }))
         .render().await
 }
@@ -79,7 +79,7 @@ async fn homepage(request: HttpRequest) -> Result<Markup, ErrorPage> {
     Page::new(request)
         .with_child(Html::with(move |cx| html! {
             button (props.unpack(cx)) { "Say hello" }
-            div #result {}
+            div id="result" {}
         }))
         .render().await
 }

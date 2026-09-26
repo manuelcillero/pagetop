@@ -77,7 +77,7 @@ impl Component for Template {
         }
 
         Ok(html! {
-            div.wrapper {
+            div class="wrapper" {
                 (body)
             }
         })

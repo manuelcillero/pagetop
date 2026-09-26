@@ -240,7 +240,7 @@ impl Component for Pager {
                     @let items_per_page = self.items_per_page().max(1);
                     @let first = (page - 1) * items_per_page + 1;
                     @let last = (page * items_per_page).min(self.total_items());
-                    span.pager-summary {
+                    span class="pager-summary" {
                         (Lc::l("pager_summary")
                             .with_arg("first", first.to_string())
                             .with_arg("last", last.to_string())
@@ -248,14 +248,16 @@ impl Component for Pager {
                             .using(cx))
                     }
                 }
-                ul.pagination {
+                ul class="pagination" {
                     @if show_prev_next {
                         li.page-item.page-previous.disabled[first_disabled] {
-                            a.page-link
+                            a class="page-link"
                                 href=[(!first_disabled).then(|| Self::page_route(&route, page - 1))]
                                 aria-disabled=[first_disabled.then_some("true")]
                                 aria-label=[Lc::l("pager_previous_aria_label").lookup(cx)] {
-                                span.page-link-icon { (Lc::l("pager_previous_label").using(cx)) }
+                                span class="page-link-icon" {
+                                    (Lc::l("pager_previous_label").using(cx))
+                                }
                             }
                         }
                     }
@@ -264,7 +266,7 @@ impl Component for Pager {
                             PageItem::Number(n) => {
                                 @let href = Self::page_route(&route, n);
                                 li.page-item.active[n == page] {
-                                    a.page-link
+                                    a class="page-link"
                                         href=(href)
                                         aria-current=[(n == page).then_some("page")] {
                                         (n.to_string())
@@ -272,19 +274,21 @@ impl Component for Pager {
                                 }
                             }
                             PageItem::Ellipsis => {
-                                li.page-item.page-ellipsis.disabled aria-hidden="true" {
-                                    span.page-link { "…" }
+                                li class="page-item page-ellipsis disabled" aria-hidden="true" {
+                                    span class="page-link" { "…" }
                                 }
                             }
                         }
                     }
                     @if show_prev_next {
                         li.page-item.page-next.disabled[last_disabled] {
-                            a.page-link
+                            a class="page-link"
                                 href=[(!last_disabled).then(|| Self::page_route(&route, page + 1))]
                                 aria-disabled=[last_disabled.then_some("true")]
                                 aria-label=[Lc::l("pager_next_aria_label").lookup(cx)] {
-                                span.page-link-icon { (Lc::l("pager_next_label").using(cx)) }
+                                span class="page-link-icon" {
+                                    (Lc::l("pager_next_label").using(cx))
+                                }
                             }
                         }
                     }

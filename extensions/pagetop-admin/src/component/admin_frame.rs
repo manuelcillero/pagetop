@@ -53,14 +53,14 @@ impl Component for AdminFrame {
 
         Ok(html! {
             (breadcrumbs)
-            header.admin-header {
-                h1.admin-page-title { (self.title().using(cx)) }
+            header class="admin-header" {
+                h1 class="admin-page-title" { (self.title().using(cx)) }
                 (local_acts)
             }
             @if !local_tasks.0.is_empty() {
-                nav.admin-local-tasks { (local_tasks) }
+                nav class="admin-local-tasks" { (local_tasks) }
             }
-            div.admin-content {
+            div class="admin-content" {
                 (body)
             }
         })
@@ -117,7 +117,7 @@ fn render_local_tasks(cx: &Context, current_path: &str) -> Markup {
         return html! {};
     }
     html! {
-        ul.admin-tasks-list {
+        ul class="admin-tasks-list" {
             @for task in tasks {
                 @let is_active = current_path == task.path;
                 li class=(if is_active { "admin-task admin-task-active" } else { "admin-task" }) {
@@ -137,10 +137,12 @@ fn render_local_actions(cx: &Context, current_path: &str) -> Markup {
         return html! {};
     }
     html! {
-        ul.admin-actions-list {
+        ul class="admin-actions-list" {
             @for action in actions {
-                li.admin-action {
-                    a.admin-action-link href=(cx.route(action.url.as_str())) { (action.title.using(cx)) }
+                li class="admin-action" {
+                    a class="admin-action-link" href=(cx.route(action.url.as_str())) {
+                        (action.title.using(cx))
+                    }
                 }
             }
         }

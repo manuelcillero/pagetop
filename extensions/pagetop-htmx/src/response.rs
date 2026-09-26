@@ -21,7 +21,7 @@ use crate::hx;
 /// use pagetop_htmx::prelude::*;
 ///
 /// async fn add_item() -> impl IntoResponse {
-///     let new_item = html! { li #item-42 { "New item" } };
+///     let new_item = html! { li id="item-42" { "New item" } };
 ///
 ///     HtmxResponse::new(new_item)
 ///         .retarget("#list")
@@ -123,7 +123,7 @@ impl HtmxResponse {
     ///
     /// # fn build_response(table: Markup, roles_count: i64) -> HtmxResponse {
     /// let counter = html! {
-    ///     span #roles-count hx-swap-oob="true" { (roles_count) }
+    ///     span id="roles-count" hx-swap-oob="true" { (roles_count) }
     /// };
     /// HtmxResponse::new(table).oob(counter)
     /// # }

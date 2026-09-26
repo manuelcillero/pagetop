@@ -80,7 +80,7 @@ impl Component for Table {
         let colspan = self.columns().len().max(1).to_string();
 
         Ok(html! {
-            div.table-responsive {
+            div class="table-responsive" {
                 table (self.props().unpack(cx)) {
                     @if !self.columns().is_empty() {
                         thead {
@@ -108,7 +108,7 @@ impl Component for Table {
                     {
                         tbody {
                             tr {
-                                td.table-empty colspan=(colspan) { (empty) }
+                                td class="table-empty" colspan=(colspan) { (empty) }
                             }
                         }
                     }

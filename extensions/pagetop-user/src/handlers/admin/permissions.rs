@@ -26,12 +26,12 @@ pub(crate) async fn list_get(request: HttpRequest) -> Result<Response, ErrorPage
         content = content.with_child(Block::new().with_title(group_label.clone()).with_child(
             Html::with(move |cx| {
                 html! {
-                    table.user-admin-table {
+                    table class="user-admin-table" {
                         tbody {
                             @for (key, label) in &items {
                                 tr {
                                     td { (label.using(cx)) }
-                                    td.user-admin-permission-key { (key) }
+                                    td class="user-admin-permission-key" { (key) }
                                 }
                             }
                         }

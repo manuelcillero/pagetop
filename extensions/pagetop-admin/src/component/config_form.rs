@@ -98,20 +98,20 @@ impl Component for ConfigForm {
 
         Ok(html! {
             @if *self.saved() {
-                div.admin-message."admin-message-ok" { (&saved_msg) }
+                div class="admin-message admin-message-ok" { (&saved_msg) }
             }
             @if *self.error() {
-                div.admin-message."admin-message-error" { (&error_msg) }
+                div class="admin-message admin-message-error" { (&error_msg) }
             }
-            form.admin-config-form method="post" action=(action) {
+            form class="admin-config-form" method="post" action=(action) {
                 @for (i, field) in schema.fields().iter().enumerate() {
                     @let pf = &prepared[i];
-                    div.admin-form-field {
-                        label.admin-form-label for=(field.name()) { (field.label()) }
+                    div class="admin-form-field" {
+                        label class="admin-form-label" for=(field.name()) { (field.label()) }
                         @match field.field_type() {
                             SettingFieldType::Text { max_length } => {
                                 @if let Some(max) = max_length {
-                                    input.admin-form-input
+                                    input class="admin-form-input"
                                         type="text"
                                         id=(field.name())
                                         name=(field.name())
@@ -119,7 +119,7 @@ impl Component for ConfigForm {
                                         maxlength=(max)
                                         required[*field.required()];
                                 } @else {
-                                    input.admin-form-input
+                                    input class="admin-form-input"
                                         type="text"
                                         id=(field.name())
                                         name=(field.name())
@@ -129,7 +129,7 @@ impl Component for ConfigForm {
                             }
                             SettingFieldType::Number { min, max } => {
                                 @if let (Some(lo), Some(hi)) = (min, max) {
-                                    input.admin-form-input
+                                    input class="admin-form-input"
                                         type="number"
                                         id=(field.name())
                                         name=(field.name())
@@ -138,7 +138,7 @@ impl Component for ConfigForm {
                                         max=(hi)
                                         required[*field.required()];
                                 } @else if let Some(lo) = min {
-                                    input.admin-form-input
+                                    input class="admin-form-input"
                                         type="number"
                                         id=(field.name())
                                         name=(field.name())
@@ -146,7 +146,7 @@ impl Component for ConfigForm {
                                         min=(lo)
                                         required[*field.required()];
                                 } @else if let Some(hi) = max {
-                                    input.admin-form-input
+                                    input class="admin-form-input"
                                         type="number"
                                         id=(field.name())
                                         name=(field.name())
@@ -154,7 +154,7 @@ impl Component for ConfigForm {
                                         max=(hi)
                                         required[*field.required()];
                                 } @else {
-                                    input.admin-form-input
+                                    input class="admin-form-input"
                                         type="number"
                                         id=(field.name())
                                         name=(field.name())
@@ -163,7 +163,7 @@ impl Component for ConfigForm {
                                 }
                             }
                             SettingFieldType::Boolean => {
-                                input.admin-form-checkbox
+                                input class="admin-form-checkbox"
                                     type="checkbox"
                                     id=(field.name())
                                     name=(field.name())
@@ -171,7 +171,7 @@ impl Component for ConfigForm {
                                     checked[pf.checked];
                             }
                             SettingFieldType::Select { options } => {
-                                select.admin-form-select
+                                select class="admin-form-select"
                                     id=(field.name())
                                     name=(field.name())
                                     required[*field.required()]
@@ -187,12 +187,12 @@ impl Component for ConfigForm {
                             }
                         }
                         @if let Some(help) = field.help_text() {
-                            small.admin-form-help { (help) }
+                            small class="admin-form-help" { (help) }
                         }
                     }
                 }
-                div.admin-form-actions {
-                    button.admin-btn."admin-btn-primary" type="submit" {
+                div class="admin-form-actions" {
+                    button class="admin-btn admin-btn-primary" type="submit" {
                         (&save_label)
                     }
                 }

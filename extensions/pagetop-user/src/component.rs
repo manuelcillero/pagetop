@@ -22,7 +22,7 @@ use pagetop::prelude::*;
 // formularios de autenticación y por los de administración.
 pub(crate) fn error_banner(error: Option<Lc>) -> Html {
     Html::with(move |cx| match &error {
-        Some(e) => html! { div.user-form-error role="alert" { (e.clone().using(cx)) } },
+        Some(e) => html! { div class="user-form-error" role="alert" { (e.clone().using(cx)) } },
         None => html! {},
     })
 }

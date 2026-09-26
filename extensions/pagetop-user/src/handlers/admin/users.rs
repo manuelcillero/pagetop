@@ -92,7 +92,7 @@ fn search_bar(current_query: Option<String>) -> Html {
     let value = current_query.unwrap_or_default();
     Html::with(move |cx| {
         html! {
-            div.user-admin-search {
+            div class="user-admin-search" {
                 input
                     type="search"
                     id="user-admin-search-input"
@@ -588,7 +588,7 @@ async fn user_view_roles(roles: &[role::Model], cx: &mut Context) -> Block {
                 @if items.is_empty() {
                     "-"
                 } @else {
-                    table.user-admin-table {
+                    table class="user-admin-table" {
                         tbody {
                             @for (id, machine_name, label, system_badge) in &items {
                                 @let href = cx.route(role_path(*id, "view")).to_string();

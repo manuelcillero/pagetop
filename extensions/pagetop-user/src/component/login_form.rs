@@ -69,8 +69,8 @@ impl Component for LoginForm {
 
         let form = form.render(cx).await;
         Ok(html! {
-            div.user-login-page {
-                div.user-login-card {
+            div class="user-login-page" {
+                div class="user-login-card" {
                     (form)
                 }
             }
@@ -82,13 +82,13 @@ fn links(allow_registration: bool) -> Html {
     Html::with(move |cx| {
         html! {
             @if allow_registration {
-                p.user-register-link {
+                p class="user-register-link" {
                     a href=(cx.route(REGISTER_PATH)) {
                         (Lc::t("link-register", &LOCALES_USER).using(cx))
                     }
                 }
             }
-            p.user-reset-link {
+            p class="user-reset-link" {
                 a href=(cx.route(PASSWORD_RESET_PATH)) {
                     (Lc::t("link-forgot-password", &LOCALES_USER).using(cx))
                 }

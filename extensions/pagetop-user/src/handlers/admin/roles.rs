@@ -361,12 +361,12 @@ fn role_view_permissions(groups: &PermissionGroups) -> Vec<Block> {
                 .with_title(group_label.clone())
                 .with_child(Html::with(move |cx| {
                     html! {
-                        ul.user-admin-permission-list {
+                        ul class="user-admin-permission-list" {
                             @for (_key, label, granted) in &perms {
                                 @if *granted {
-                                    li.user-admin-permission-granted { (label.using(cx)) }
+                                    li class="user-admin-permission-granted" { (label.using(cx)) }
                                 } @else {
-                                    li.user-admin-permission-missing { (label.using(cx)) }
+                                    li class="user-admin-permission-missing" { (label.using(cx)) }
                                 }
                             }
                         }

@@ -51,7 +51,7 @@ pub(crate) fn back_link(href: impl Into<RoutePath>) -> Html {
     let href = href.into();
     Html::with(move |cx| {
         html! {
-            p.user-admin-back-link {
+            p class="user-admin-back-link" {
                 a href=(href.clone()) { (Lc::t("link-back-to-list", &LOCALES_USER).using(cx)) }
             }
         }

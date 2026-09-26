@@ -111,13 +111,13 @@ impl Component for RoleTable {
 
         Ok(html! {
             div (self.props().unpack(cx)) {
-                div.user-admin-actions {
+                div class="user-admin-actions" {
                     a href=(new_href) {
                         (Lc::t("btn-create-role", &LOCALES_USER).using(cx))
                     }
                 }
                 @if let Some(message) = self.message() {
-                    div.user-form-error role="alert" { (message.clone().using(cx)) }
+                    div class="user-form-error" role="alert" { (message.clone().using(cx)) }
                 }
                 (table.render(cx).await)
                 (pager)

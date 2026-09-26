@@ -19,10 +19,10 @@ impl Component for UserBlock {
         Ok(if user.is_authenticated() {
             let display = user.display_name().unwrap_or("?");
             html! {
-                nav.user-block {
-                    span.user-name { (display) }
+                nav class="user-block" {
+                    span class="user-name" { (display) }
                     " · "
-                    form.user-logout-inline method="post" action=(cx.route(LOGOUT_PATH)) {
+                    form class="user-logout-inline" method="post" action=(cx.route(LOGOUT_PATH)) {
                         button type="submit" {
                             (Lc::t("btn-logout", &LOCALES_USER).using(cx))
                         }
@@ -31,7 +31,7 @@ impl Component for UserBlock {
             }
         } else {
             html! {
-                nav.user-block {
+                nav class="user-block" {
                     a href=(cx.route(LOGIN_PATH)) {
                         (Lc::t("btn-login", &LOCALES_USER).using(cx))
                     }

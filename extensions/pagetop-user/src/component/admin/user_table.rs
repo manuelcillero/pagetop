@@ -87,7 +87,7 @@ impl Component for UserTable {
 
         Ok(html! {
             div (self.props().unpack(cx)) {
-                div.user-admin-actions {
+                div class="user-admin-actions" {
                     a href=(new_href) {
                         (Lc::t("btn-create-user", &LOCALES_USER).using(cx))
                     }

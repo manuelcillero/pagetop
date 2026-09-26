@@ -119,7 +119,7 @@ async fn profile_roles(roles: &[role::Model], cx: &mut Context) -> Block {
                 @if items.is_empty() {
                     "-"
                 } @else {
-                    ul.user-profile-roles {
+                    ul class="user-profile-roles" {
                         @for (label, system_badge) in &items {
                             li {
                                 (label.as_str())

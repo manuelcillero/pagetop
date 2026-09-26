@@ -312,8 +312,8 @@ pub trait Theme: Extension + Send + Sync {
     ///     cx: &mut Context,
     /// ) -> Option<Result<Markup, ComponentError>> {
     ///     render_component!(component, {
-    ///         Button  => |btn| Ok(html! { button.btn.btn-primary { (btn.label()) } }),
-    ///         Heading => |h|   Ok(html! { h2.display-4 { (h.text()) } }),
+    ///         Button  => |btn| Ok(html! { button class="btn btn-primary" { (btn.label()) } }),
+    ///         Heading => |h|   Ok(html! { h2 class="display-4" { (h.text()) } }),
     ///     })
     /// }
     /// ```
@@ -487,13 +487,13 @@ macro_rules! setup_component {
 ///     cx: &mut Context,
 /// ) -> Option<Result<Markup, ComponentError>> {
 ///     render_component!(component, {
-///         Button  => |btn| { Ok(html! { button.btn.btn-primary { (btn.label()) } }) },
+///         Button  => |btn| { Ok(html! { button class="btn btn-primary" { (btn.label()) } }) },
 ///         Heading => |h| self.render_heading(h, cx),
 ///     })
 /// }
 ///
 /// fn render_heading(&self, h: &Heading, cx: &mut Context) -> Result<Markup, ComponentError> {
-///     Ok(html! { h2.display-4 { (h.text()) } })
+///     Ok(html! { h2 class="display-4" { (h.text()) } })
 /// }
 /// ```
 ///
