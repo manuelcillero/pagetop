@@ -169,6 +169,11 @@ pub(crate) async fn item_render(item: &Item, cx: &mut Context) -> Result<Markup,
                         .lookup(cx)
                         .unwrap_or_else(|| "Dropdown".to_string())
                 });
+                let menu_classes = if *dd.menu_end() {
+                    "dropdown-menu dropdown-menu-end"
+                } else {
+                    "dropdown-menu"
+                };
                 html! {
                     li (item.props().unpack(cx)) {
                         a
@@ -181,7 +186,7 @@ pub(crate) async fn item_render(item: &Item, cx: &mut Context) -> Result<Markup,
                         {
                             (title)
                         }
-                        ul class="dropdown-menu" {
+                        ul class=(menu_classes) {
                             (items)
                         }
                     }

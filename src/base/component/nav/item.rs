@@ -163,7 +163,7 @@ impl Component for Item {
                             {
                                 (title)
                             }
-                            ul class="dropdown-menu" {
+                            ul class=(dd.menu_classes()) {
                                 (items)
                             }
                         }

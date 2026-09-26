@@ -425,6 +425,11 @@ body {
 .dropdown-menu.show {
     display: block;
 }
+/* Anchors the menu's right edge to the button's right edge, so it opens inwards. */
+.dropdown-menu-end {
+    left: auto;
+    right: 0;
+}
 
 /* Options and headers stay on one line, so the menu grows to fit the longest one. */
 .dropdown-item {

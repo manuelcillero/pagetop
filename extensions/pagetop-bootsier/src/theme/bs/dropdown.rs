@@ -56,6 +56,11 @@ pub trait DropdownBootsier {
     fn with_direction(self, direction: Direction) -> Self;
 
     /// Configura la alineación horizontal (con posible comportamiento *responsive* adicional).
+    ///
+    /// Si se deja en [`MenuAlign::Start`] (por defecto), se respeta [`with_menu_end()`]; cualquier
+    /// otra alineación prevalece sobre él.
+    ///
+    /// [`with_menu_end()`]: pagetop::base::component::Dropdown::with_menu_end
     fn with_menu_align(self, align: MenuAlign) -> Self;
 
     /// Configura la posición del menú.
@@ -135,9 +140,15 @@ pub(crate) async fn render(
     let direction = dropdown
         .props()
         .extra_or(EXTRA_DIRECTION, Direction::default());
-    let menu_align = dropdown
+    let menu_align = match dropdown
         .props()
-        .extra_or(EXTRA_MENU_ALIGN, MenuAlign::default());
+        .extra_or(EXTRA_MENU_ALIGN, MenuAlign::default())
+    {
+        // `with_menu_end()` del núcleo se traduce a `MenuAlign::End`, pero sólo si no hay una
+        // alineación propia diferente a la predeterminada (`Start`), que prevalece.
+        MenuAlign::Start if *dropdown.menu_end() => MenuAlign::End,
+        align => align,
+    };
     let menu_position = dropdown
         .props()
         .extra_or(EXTRA_MENU_POSITION, MenuPosition::default());

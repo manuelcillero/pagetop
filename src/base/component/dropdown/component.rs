@@ -37,6 +37,8 @@ pub struct Dropdown {
     /// Devuelve el estilo visual del botón.
     #[getters(copy)]
     button_style: button::Style,
+    /// Devuelve si el menú se alinea al final del botón (por defecto, al inicio).
+    menu_end: bool,
     /// Devuelve la lista de elementos del menú.
     items: Children,
 }
@@ -124,9 +126,20 @@ impl Component for Dropdown {
                         (&title)
                     }
                 }
-                ul class="dropdown-menu" { (items) }
+                ul class=(self.menu_classes()) { (items) }
             }
         })
+    }
+}
+
+impl Dropdown {
+    // Clases del `<ul>` del menú, compartidas con el renderizado de `nav::Item::dropdown()`.
+    pub(crate) fn menu_classes(&self) -> &'static str {
+        if *self.menu_end() {
+            "dropdown-menu dropdown-menu-end"
+        } else {
+            "dropdown-menu"
+        }
     }
 }
 
@@ -167,6 +180,16 @@ impl Dropdown {
     /// Establece el estilo visual del botón (usa [`button::Style::None`] para quitarlo).
     pub fn with_button_style(mut self, style: button::Style) -> Self {
         self.button_style = style;
+        self
+    }
+
+    /// Alinea el menú al final del botón (por defecto, al inicio).
+    ///
+    /// Útil cuando el desplegable está pegado al borde final de la página, p. ej. el último de una
+    /// [`Navbar`], para que el menú se abra hacia el interior y no se salga de la pantalla. No
+    /// tiene efecto en un menú sin título, que es estático y no tiene botón al que alinearse.
+    pub fn with_menu_end(mut self, end: bool) -> Self {
+        self.menu_end = end;
         self
     }
 

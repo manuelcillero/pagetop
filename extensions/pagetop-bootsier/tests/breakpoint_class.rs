@@ -63,6 +63,59 @@ async fn dropdown_menu_align_combines_breakpoint_classes() {
     );
 }
 
+async fn dropdown_menu_html(dropdown: bs::Dropdown) -> String {
+    let mut dropdown = dropdown
+        .with_title(Lc::n("Menu"))
+        .with_item(bs::dropdown::Item::link(Lc::n("Home"), "/"));
+    dropdown.render(&mut cx()).await.into_string()
+}
+
+#[pagetop::test]
+async fn dropdown_menu_end_maps_to_the_end_alignment() {
+    let html = dropdown_menu_html(bs::Dropdown::new().with_menu_end(true)).await;
+    assert!(html.contains(r#"<ul class="dropdown-menu dropdown-menu-end">"#));
+
+    // Without `with_menu_end()` the menu keeps the default (start) alignment.
+    let html = dropdown_menu_html(bs::Dropdown::new()).await;
+    assert!(html.contains(r#"<ul class="dropdown-menu">"#));
+    assert!(!html.contains("dropdown-menu-end"));
+}
+
+#[pagetop::test]
+async fn dropdown_menu_end_is_ignored_without_title() {
+    // A titleless menu is static (no button to align to), so it never gets the end alignment.
+    let mut dropdown = bs::Dropdown::new()
+        .with_menu_end(true)
+        .with_item(bs::dropdown::Item::link(Lc::n("Home"), "/"));
+    let html = dropdown.render(&mut cx()).await.into_string();
+    assert!(html.contains(r#"<ul class="dropdown-menu">"#));
+    assert!(!html.contains("dropdown-menu-end"));
+}
+
+#[pagetop::test]
+async fn dropdown_own_menu_align_wins_over_menu_end() {
+    let html = dropdown_menu_html(
+        bs::Dropdown::new()
+            .with_menu_end(true)
+            .with_menu_align(bs::dropdown::MenuAlign::StartAt(Breakpoint::Md)),
+    )
+    .await;
+    assert!(html.contains("dropdown-menu-md-start"));
+    assert!(!html.contains("dropdown-menu-end"));
+}
+
+#[pagetop::test]
+async fn nav_dropdown_menu_end_adds_the_end_class() {
+    let mut nav = bs::Nav::new().with_item(bs::nav::Item::dropdown(
+        bs::Dropdown::new()
+            .with_title(Lc::n("Menu"))
+            .with_menu_end(true)
+            .with_item(bs::dropdown::Item::link(Lc::n("Home"), "/")),
+    ));
+    let html = nav.render(&mut cx()).await.into_string();
+    assert!(html.contains(r#"<ul class="dropdown-menu dropdown-menu-end">"#));
+}
+
 #[pagetop::test]
 async fn navbar_expands_at_md_by_default_and_at_the_chosen_breakpoint() {
     let item =
