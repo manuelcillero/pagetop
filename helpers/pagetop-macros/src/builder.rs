@@ -174,9 +174,11 @@ fn expand_builder(
     // Nombre de la función `alter_...()` como alias de búsqueda.
     let alter_name_str = alter_ident.to_string();
 
-    // Texto introductorio para la documentación adicional de `with_...()`.
+    // Texto introductorio para la documentación adicional de `with_...()`. El enlace se resuelve en
+    // el crate que expande la macro, donde sólo `pagetop` (que la reexporta) está garantizado, no
+    // `pagetop_macros`.
     let with_alter_title = format!(
-        "# {} el método `{}()` generado por [`#[builder_fn]`](pagetop_macros::builder_fn)",
+        "# {} el método `{}()` generado por [`#[builder_fn]`](pagetop::builder_fn)",
         if doc_attrs.is_empty() {
             "Añade"
         } else {
