@@ -269,6 +269,22 @@ pub fn global() -> &'static AdminRegistry {
     REGISTRY.get().expect("AdminRegistry not initialized")
 }
 
+/// Devuelve `true` si el usuario de la petición actual tiene acceso a alguna página del panel, es
+/// decir, si `/admin` no le devolvería un acceso denegado.
+///
+/// Permite a otras extensiones (p. ej. el menú de cuenta de `pagetop-user`) ofrecer el enlace a
+/// la administración sólo cuando procede.
+pub fn can_access_admin(cx: &Context) -> bool {
+    let reg = global();
+    reg.ordered_sections().into_iter().any(|section| {
+        section.is_visible(cx)
+            && reg
+                .pages_for_section(&section.key)
+                .into_iter()
+                .any(|page| page.is_accessible(cx))
+    })
+}
+
 // **< Menú de administración >*********************************************************************
 
 /// Construye la barra de navegación de administración para el usuario de la petición actual: un
@@ -308,7 +324,5 @@ pub fn admin_navbar(cx: &Context) -> Navbar {
         nav = nav.with_item(nav::Item::dropdown(menu));
     }
 
-    Navbar::simple()
-        .with_position(navbar::Position::StickyTop)
-        .with_item(navbar::Item::nav(nav))
+    Navbar::simple().with_item(navbar::Item::nav(nav))
 }

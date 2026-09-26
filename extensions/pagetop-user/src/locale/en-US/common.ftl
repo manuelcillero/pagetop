@@ -34,6 +34,13 @@ link-register        = Create an account
 link-forgot-password = Forgot your password?
 link-back-to-login   = Back to sign in
 
+# **< Account menu >**
+
+menu-account = Account
+menu-admin   = Administration
+menu-login   = Sign in
+menu-profile = Profile
+
 # **< Messages >**
 
 msg-password-reset-sent =
@@ -42,16 +49,16 @@ msg-password-reset-sent =
 
 # **< Error messages >**
 
-error-invalid-credentials   = Invalid username or password.
-error-account-blocked       = Your account is blocked. Please contact the administrator.
-error-account-pending       = Please verify your email address before signing in.
-error-account-locked        = Too many failed attempts. Please try again later.
-error-password-mismatch     = Passwords do not match.
-error-password-too-short    = Password must be at least { $n } characters.
-error-username-taken        = This username is already taken.
-error-email-taken           = This email address is already registered.
-error-token-invalid         = This link is invalid or has expired.
-error-internal              = An unexpected error occurred. Please try again.
+error-invalid-credentials = Invalid username or password.
+error-account-blocked     = Your account is blocked. Please contact the administrator.
+error-account-pending     = Please verify your email address before signing in.
+error-account-locked      = Too many failed attempts. Please try again later.
+error-password-mismatch   = Passwords do not match.
+error-password-too-short  = Password must be at least { $n } characters.
+error-username-taken      = This username is already taken.
+error-email-taken         = This email address is already registered.
+error-token-invalid       = This link is invalid or has expired.
+error-internal            = An unexpected error occurred. Please try again.
 
 # **< Account statuses >**
 
@@ -123,8 +130,8 @@ btn-edit               = Edit
 btn-manage-roles       = Manage roles
 btn-manage-permissions = Manage permissions
 btn-reset-password     = Reset password
-btn-block               = Block
-btn-activate            = Activate
+btn-block              = Block
+btn-activate           = Activate
 btn-grant-admin        = Grant administrator
 btn-revoke-admin       = Revoke administrator
 link-back-to-list      = Back to list
@@ -142,13 +149,13 @@ empty-roles-list      = No roles found.
 
 # **< Admin: error messages >**
 
-error-role-not-found              = Role not found.
-error-role-machine-name-taken     = This machine name is already taken.
-error-invalid-machine-name        = Machine name may only contain lowercase letters, digits and underscores.
+error-role-not-found               = Role not found.
+error-role-machine-name-taken      = This machine name is already taken.
+error-invalid-machine-name         = Machine name may only contain lowercase letters, digits and underscores.
 error-role-locked                  = This role is a system role and cannot be modified.
-error-role-in-use                 = This role has users assigned and cannot be deleted.
-error-last-administrator          = Cannot remove the last administrator.
-error-cannot-block-self           = You cannot block your own account.
+error-role-in-use                  = This role has users assigned and cannot be deleted.
+error-last-administrator           = Cannot remove the last administrator.
+error-cannot-block-self            = You cannot block your own account.
 error-cannot-modify-own-admin-flag = You cannot grant or revoke your own unrestricted access.
-error-user-not-found              = User not found.
-error-unknown-permission          = Unknown permission key.
+error-user-not-found               = User not found.
+error-unknown-permission           = Unknown permission key.

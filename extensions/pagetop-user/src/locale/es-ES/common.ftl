@@ -34,6 +34,13 @@ link-register        = Crear una cuenta
 link-forgot-password = ¿Olvidaste tu contraseña?
 link-back-to-login   = Volver al inicio de sesión
 
+# **< Menú de cuenta >**
+
+menu-account = Cuenta
+menu-admin   = Administración
+menu-login   = Iniciar sesión
+menu-profile = Perfil
+
 # **< Mensajes >**
 
 msg-password-reset-sent =
@@ -42,16 +49,16 @@ msg-password-reset-sent =
 
 # **< Mensajes de error >**
 
-error-invalid-credentials   = Usuario o contraseña incorrectos.
-error-account-blocked       = Tu cuenta está bloqueada. Contacta con el administrador.
-error-account-pending       = Verifica tu dirección de email antes de iniciar sesión.
-error-account-locked        = Demasiados intentos fallidos. Inténtalo de nuevo más tarde.
-error-password-mismatch     = Las contraseñas no coinciden.
-error-password-too-short    = La contraseña debe tener al menos { $n } caracteres.
-error-username-taken        = Este nombre de usuario ya está en uso.
-error-email-taken           = Esta dirección de email ya está registrada.
-error-token-invalid         = Este enlace no es válido o ha caducado.
-error-internal              = Se ha producido un error inesperado. Inténtalo de nuevo.
+error-invalid-credentials = Usuario o contraseña incorrectos.
+error-account-blocked     = Tu cuenta está bloqueada. Contacta con el administrador.
+error-account-pending     = Verifica tu dirección de email antes de iniciar sesión.
+error-account-locked      = Demasiados intentos fallidos. Inténtalo de nuevo más tarde.
+error-password-mismatch   = Las contraseñas no coinciden.
+error-password-too-short  = La contraseña debe tener al menos { $n } caracteres.
+error-username-taken      = Este nombre de usuario ya está en uso.
+error-email-taken         = Esta dirección de email ya está registrada.
+error-token-invalid       = Este enlace no es válido o ha caducado.
+error-internal            = Se ha producido un error inesperado. Inténtalo de nuevo.
 
 # **< Estados de cuenta >**
 
@@ -123,8 +130,8 @@ btn-edit               = Editar
 btn-manage-roles       = Gestionar roles
 btn-manage-permissions = Gestionar permisos
 btn-reset-password     = Restablecer contraseña
-btn-block               = Bloquear
-btn-activate             = Activar
+btn-block              = Bloquear
+btn-activate           = Activar
 btn-grant-admin        = Conceder administrador
 btn-revoke-admin       = Revocar administrador
 link-back-to-list      = Volver al listado
@@ -142,13 +149,13 @@ empty-roles-list      = No se han encontrado roles.
 
 # **< Administración: mensajes de error >**
 
-error-role-not-found              = Rol no encontrado.
-error-role-machine-name-taken     = Este nombre técnico ya está en uso.
-error-invalid-machine-name        = El nombre técnico sólo admite minúsculas, dígitos y guiones bajos.
+error-role-not-found               = Rol no encontrado.
+error-role-machine-name-taken      = Este nombre técnico ya está en uso.
+error-invalid-machine-name         = El nombre técnico sólo admite minúsculas, dígitos y guiones bajos.
 error-role-locked                  = Este rol es de sistema y no se puede modificar.
-error-role-in-use                 = Este rol tiene usuarios asignados y no se puede eliminar.
-error-last-administrator          = No se puede quitar al último administrador.
-error-cannot-block-self           = No puedes bloquear tu propia cuenta.
+error-role-in-use                  = Este rol tiene usuarios asignados y no se puede eliminar.
+error-last-administrator           = No se puede quitar al último administrador.
+error-cannot-block-self            = No puedes bloquear tu propia cuenta.
 error-cannot-modify-own-admin-flag = No puedes conceder ni revocar tu propio acceso irrestricto.
-error-user-not-found              = Usuario no encontrado.
-error-unknown-permission          = Clave de permiso desconocida.
+error-user-not-found               = Usuario no encontrado.
+error-unknown-permission           = Clave de permiso desconocida.

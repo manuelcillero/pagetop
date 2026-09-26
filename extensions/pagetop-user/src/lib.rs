@@ -93,7 +93,8 @@ pub use permission::{DeclarePermissions, PermissionRegistry};
 
 /// Prelude de `pagetop-user`.
 pub mod prelude {
-    pub use crate::component::{LoginForm, UserBlock};
+    pub use crate::component::LoginForm;
+    pub use crate::component::{AccountMenu, account_menu};
     pub use crate::error::AuthError;
     pub use crate::{Account, DeclarePermissions, UserStatus};
 }

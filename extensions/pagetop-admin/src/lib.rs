@@ -100,8 +100,9 @@ use pagetop_seaorm::install_migrations;
 include_locales!(LOCALES_ADMIN);
 
 /// Ruta raíz del panel de administración. No es configurable: otras piezas del ecosistema (p. ej.
-/// las rutas de `pagetop-user`, `/admin/user/...`) ya asumen este valor de forma literal.
-pub(crate) const ADMIN_BASE_PATH: &str = "/admin";
+/// las rutas de `pagetop-user`, `/admin/user/...`) ya asumen este valor de forma literal. Es
+/// pública para que otras extensiones enlacen al panel sin repetir la ruta.
+pub const ADMIN_BASE_PATH: &str = "/admin";
 
 pub mod action;
 pub mod component;

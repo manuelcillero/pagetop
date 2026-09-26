@@ -3,6 +3,7 @@
 use serde::Deserialize;
 
 use pagetop::prelude::*;
+use pagetop_htmx::prelude::*;
 
 use crate::auth;
 use crate::component::{LoginForm, PasswordResetConfirmForm, PasswordResetForm, RegisterForm};
@@ -119,6 +120,22 @@ pub async fn logout_post(request: HttpRequest) -> Response {
         auth::logout(&sid).await.ok();
     }
     let expiry = session::expiry_cookie();
+    if request.is_htmx() {
+        // La petición sale de un elemento con `hx-post` sin destino: `HX-Redirect` fuerza una
+        // navegación real en vez de insertar la página de login dentro del elemento.
+        let mut response = HtmxResponse::empty()
+            .redirect(cx.route(LOGIN_PATH))
+            .into_response();
+        match expiry.parse() {
+            Ok(value) => {
+                response
+                    .headers_mut()
+                    .insert(web::http::header::SET_COOKIE, value);
+            }
+            Err(_) => trace::warn!("logout: invalid session expiry cookie, header discarded"),
+        }
+        return response;
+    }
     redirect_with_cookie(cx.route(LOGIN_PATH), &expiry)
 }
 

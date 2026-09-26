@@ -2,19 +2,19 @@
 
 pub(crate) mod admin;
 
+mod account_menu;
 mod login_form;
 mod password_confirm;
 mod password_reset_confirm_form;
 mod password_reset_form;
 mod register_form;
-mod user_block;
 
+pub use account_menu::{AccountMenu, account_menu};
 pub use login_form::LoginForm;
 pub(crate) use password_confirm::PasswordConfirm;
 pub use password_reset_confirm_form::PasswordResetConfirmForm;
 pub use password_reset_form::PasswordResetForm;
 pub use register_form::RegisterForm;
-pub use user_block::UserBlock;
 
 use pagetop::prelude::*;
 
