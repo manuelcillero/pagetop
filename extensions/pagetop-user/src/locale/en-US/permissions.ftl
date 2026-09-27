@@ -2,7 +2,7 @@
 
 # **< Group: Users >**
 
-group-users = Users
+group-users = User management
 
 perm-login               = Sign in
 perm-register            = Register a new account

@@ -68,9 +68,10 @@ impl ActionDispatcher for DeclarePermissions {}
 
 /// Catálogo mutable de permisos, construido durante la fase de inicialización.
 ///
-/// Un `Vec` basta: el catálogo se construye una sola vez con un puñado de entradas y se recorre
-/// entero en la UI de administración, así que conserva el orden de registro sin estructuras
-/// adicionales y sin el coste de mantenerlas sincronizadas.
+/// Se construye una sola vez con un conjunto de entradas que conserva el orden de registro sin
+/// estructuras adicionales. La UI de administración no usa ese orden de registro. Llama a
+/// [`groups_sorted()`](Self::groups_sorted), que lo reordena alfabéticamente para cada petición
+/// según el idioma activo.
 #[derive(Default)]
 pub struct PermissionRegistry {
     permissions: Vec<PermissionRef>,
@@ -105,8 +106,26 @@ impl PermissionRegistry {
         self.permissions.iter().copied()
     }
 
+    /// Grupos en orden de primer registro, sin traducir ni ordenar alfabéticamente.
+    ///
+    /// Listado de bajo nivel sobre el que se apoya [`groups_sorted()`](Self::groups_sorted); úsalo
+    /// en su lugar sólo cuando el orden de registro sea justo lo que se necesita (por ejemplo, para
+    /// inspeccionar el catálogo en pruebas).
     pub fn groups(&self) -> &[(&'static str, Lc)] {
         &self.groups
+    }
+
+    /// Grupos ordenados alfabéticamente por su título traducido al idioma del contexto, no sensible
+    /// a mayúsculas y, en general, a los acentos (ver [`Lc::collation_key()`] para el criterio
+    /// exacto y sus límites).
+    pub fn groups_sorted(&self, cx: &Context) -> Vec<&(&'static str, Lc)> {
+        let mut groups: Vec<_> = self
+            .groups
+            .iter()
+            .map(|g| (g.1.collation_key(cx), g))
+            .collect();
+        groups.sort_by(|a, b| a.0.cmp(&b.0));
+        groups.into_iter().map(|(_, g)| g).collect()
     }
 
     pub fn by_group<'a>(&'a self, group: &'a str) -> impl Iterator<Item = PermissionRef> + 'a {

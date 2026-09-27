@@ -85,3 +85,51 @@ async fn translated_text_is_not_escaped_when_rendered_as_markup() {
     let markup = lc.using(&Locale::resolve("en-US"));
     assert_eq!(markup.into_string(), "Hello world!");
 }
+
+#[pagetop::test]
+async fn collation_key_is_case_and_accent_insensitive() {
+    setup().await;
+
+    let lower = Lc::n("café").collation_key(&Locale::default());
+    let upper = Lc::n("CAFÉ").collation_key(&Locale::default());
+    assert_eq!(lower, upper);
+}
+
+// `ñ` sorts as its own letter (Spanish/RAE order), between "n..." and "o...", not merged with `n`
+// like the other accented letters.
+#[pagetop::test]
+async fn collation_key_orders_n_tilde_like_spanish() {
+    setup().await;
+
+    let mut words = vec![Lc::n("Ñu"), Lc::n("Nube"), Lc::n("Oso"), Lc::n("Café")];
+    words.sort_by_key(|w| w.collation_key(&Locale::default()));
+
+    let sorted: Vec<_> = words.iter().map(|w| w.get().unwrap()).collect();
+    assert_eq!(sorted, vec!["Café", "Nube", "Ñu", "Oso"]);
+}
+
+// Minimal pair sharing the same prefix ("an-"/"añ-"): the comparison is decided by the second
+// letter alone (`n` < `ñ`), regardless of how the words continue afterwards ("anual" has more
+// letters after the `n` than "año" has after the `ñ`, and still sorts first).
+#[pagetop::test]
+async fn collation_key_orders_n_tilde_before_further_letters() {
+    setup().await;
+
+    let mut words = [Lc::n("Año"), Lc::n("Anzuelo"), Lc::n("Anual")];
+    words.sort_by_key(|w| w.collation_key(&Locale::default()));
+
+    let sorted: Vec<_> = words.iter().map(|w| w.get().unwrap()).collect();
+    assert_eq!(sorted, vec!["Anual", "Anzuelo", "Año"]);
+}
+
+// `collation_key()` sorts the *resolved* translation, not the raw key, so the same `Lc` yields a
+// different key depending on the language passed in.
+#[pagetop::test]
+async fn collation_key_sorts_the_resolved_translation() {
+    setup().await;
+
+    let lc = Lc::l("test_hello_world");
+    let key_en = lc.collation_key(&Locale::resolve("en-US"));
+    let key_es = lc.collation_key(&Locale::resolve("es-ES"));
+    assert_ne!(key_en, key_es);
+}

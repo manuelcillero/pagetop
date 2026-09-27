@@ -2,7 +2,7 @@
 
 # **< Grupo: Usuarios >**
 
-group-users = Usuarios
+group-users = Gestión de usuarios
 
 perm-login               = Iniciar sesión
 perm-register            = Registrar una cuenta nueva

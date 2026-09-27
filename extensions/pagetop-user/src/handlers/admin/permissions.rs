@@ -14,11 +14,13 @@ use crate::permission::{self, UserPermission};
 pub(crate) async fn list_get(request: HttpRequest) -> Result<Response, ErrorPage> {
     require_permission(&request, &UserPermission::AdminPermissions)?;
 
+    let mut page = Page::admin(request);
+
     let registry = permission::registry();
     let title = Lc::t("title-admin-permissions", &LOCALES_USER);
     let mut content = frame(title.clone());
 
-    for (group, group_label) in registry.groups() {
+    for (group, group_label) in registry.groups_sorted(page.context()) {
         let items: Vec<(CowStr, Lc)> = registry
             .by_group(group)
             .map(|permission| (permission.key(), permission.label()))
@@ -41,6 +43,10 @@ pub(crate) async fn list_get(request: HttpRequest) -> Result<Response, ErrorPage
         ));
     }
 
-    let mut page = Page::admin(request).with_title(title).with_child(content);
-    Ok(page.render().await.into_response())
+    Ok(page
+        .with_title(title)
+        .with_child(content)
+        .render()
+        .await
+        .into_response())
 }

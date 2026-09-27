@@ -247,4 +247,56 @@ impl Lc {
             _ => PreEscaped(self.lookup(language).unwrap_or_default()),
         }
     }
+
+    /// Calcula una clave de ordenación alfabética del texto traducido, no sensible a mayúsculas y,
+    /// en general, a los acentos.
+    ///
+    /// Permite ordenar listados de textos traducidos (títulos, etiquetas, etc.) de forma natural
+    /// para quien lee. Reduce a minúsculas y a su letra base las vocales acentuadas y `ç`, criterio
+    /// común a la mayoría de idiomas que las usan.
+    ///
+    /// Tiene en cuenta como caso especial la letra `ñ` en español. Se conserva como letra propia
+    /// entre `n` y `o`. Por ahora no distingue entre idiomas; esta regla, específica del español,
+    /// se aplica también a textos en cualquier otro idioma soportado. No supone un problema en la
+    /// práctica porque `ñ` no aparece en el resto de idiomas salvo en préstamos puntuales, pero no
+    /// es el criterio nativo de otras lenguas (en francés, italiano, alemán o portugués, por
+    /// ejemplo, `ñ` no es una letra propia del alfabeto).
+    ///
+    /// El resultado es una clave a comparar con [`str::cmp()`] o [`String::cmp()`], no un texto
+    /// para mostrar.
+    ///
+    /// # Ejemplo
+    ///
+    /// ```rust
+    /// # use pagetop::prelude::*;
+    /// let mut groups = vec![
+    ///     Lc::n("Ñu"),
+    ///     Lc::n("Nube"),
+    ///     Lc::n("Oso"),
+    ///     Lc::n("Café"),
+    ///     Lc::n("Anual"),
+    ///     Lc::n("Año"),
+    /// ];
+    /// groups.sort_by_key(|g| g.collation_key(&Locale::default()));
+    ///
+    /// let order: Vec<_> = groups.iter().map(|g| g.get().unwrap()).collect();
+    /// assert_eq!(order, vec!["Anual", "Año", "Café", "Nube", "Ñu", "Oso"]);
+    /// ```
+    pub fn collation_key(&self, language: &impl LangId) -> String {
+        let text = self.lookup(language).unwrap_or_default();
+        let mut key = String::with_capacity(text.len());
+        for c in text.chars().flat_map(char::to_lowercase) {
+            match c {
+                'á' | 'à' | 'ä' | 'â' => key.push('a'),
+                'é' | 'è' | 'ë' | 'ê' => key.push('e'),
+                'í' | 'ì' | 'ï' | 'î' => key.push('i'),
+                'ó' | 'ò' | 'ö' | 'ô' => key.push('o'),
+                'ú' | 'ù' | 'ü' | 'û' => key.push('u'),
+                'ç' => key.push('c'),
+                'ñ' => key.push_str("n\u{10ffff}"),
+                _ => key.push(c),
+            }
+        }
+        key
+    }
 }

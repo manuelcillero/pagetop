@@ -157,7 +157,7 @@ pub(crate) async fn new_post(
     }
 }
 
-// **< edit_get / edit_post >************************************************************************
+// **< edit_get / edit_post >***********************************************************************
 
 /// GET /admin/user/roles/{id}/edit - Formulario de edición de rol.
 pub(crate) async fn edit_get(
@@ -286,9 +286,9 @@ pub(crate) async fn view_get(
         Ok(keys) => keys,
         Err(_) => return Err(ErrorPage::InternalError(Some(request))),
     };
-    let groups = build_permission_groups(&selected);
-
     let mut page = Page::admin(request);
+
+    let groups = build_permission_groups(&selected, page.context());
     let back_href = waypoint.or(page.context().route(ADMIN_ROLES_PATH));
     let details_block = role_view_details(&role, page.context()).await;
 
@@ -469,13 +469,13 @@ pub(crate) async fn delete_confirm_get(
     Ok(HtmxResponse::new(button.render(&mut cx).await).into_response())
 }
 
-// **< permissions_get / permissions_post >**********************************************************
+// **< permissions_get / permissions_post >*********************************************************
 
-fn build_permission_groups(selected: &[String]) -> PermissionGroups {
+fn build_permission_groups(selected: &[String], cx: &Context) -> PermissionGroups {
     let registry = permission::registry();
     registry
-        .groups()
-        .iter()
+        .groups_sorted(cx)
+        .into_iter()
         .map(|(group, group_label)| {
             let perms = registry
                 .by_group(group)
@@ -507,9 +507,9 @@ pub(crate) async fn permissions_get(
         Ok(keys) => keys,
         Err(_) => return Err(ErrorPage::InternalError(Some(request))),
     };
-    let groups = build_permission_groups(&selected);
-
     let mut page = Page::admin(request);
+
+    let groups = build_permission_groups(&selected, page.context());
     let back_href = waypoint.or(page.context().route(ADMIN_ROLES_PATH));
 
     let title = Lc::t("title-admin-role-permissions", &LOCALES_USER);
@@ -560,8 +560,9 @@ pub(crate) async fn permissions_post(
             Ok(Redirect::see_other(target).into_response())
         }
         Err(err) => {
-            let groups = build_permission_groups(&form.permission_keys);
             let mut page = Page::admin(request);
+
+            let groups = build_permission_groups(&form.permission_keys, page.context());
             let back_href = waypoint.or(page.context().route(ADMIN_ROLES_PATH));
             let form_component = RolePermissionsForm::new()
                 .with_role_id(id)
