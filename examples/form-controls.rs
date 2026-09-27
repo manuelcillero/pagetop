@@ -12,7 +12,7 @@ impl Extension for FormControls {
     }
 
     fn configure_router(&self, router: Router) -> Router {
-        router.route("/", web::get(form_controls))
+        router.route("/", web::get(form_controls).post(form_controls))
     }
 }
 
