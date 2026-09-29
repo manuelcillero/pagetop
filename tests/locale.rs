@@ -43,12 +43,27 @@ async fn translation_with_plural_and_select() {
     assert!(translation.contains("añadido 3 nuevas fotos de él"));
 }
 
+// `with_arg()` only interpolates text: `photoCount` as a string ("3") can never select the `[one]`
+// plural branch, whatever its value. Only `with_number()` produces a real numeric argument that
+// Fluent's plural rules can match against.
+#[pagetop::test]
+async fn translation_with_number_selects_the_singular_plural_branch() {
+    setup().await;
+
+    let lc = Lc::l("test_shared_photos")
+        .with_arg("userName", "Roberto")
+        .with_number("photoCount", 1)
+        .with_arg("userGender", "male");
+    let translation = lc.lookup(&Locale::resolve("es-ES")).unwrap();
+    assert!(translation.contains("ha añadido una nueva foto de él"));
+}
+
 #[pagetop::test]
 async fn check_fallback_language() {
     setup().await;
 
     let lc = Lc::l("test_hello_world");
-    let translation = lc.lookup(&Locale::resolve("xx-YY")); // Retrocede a "en-US".
+    let translation = lc.lookup(&Locale::resolve("xx-YY")); // Falls back to "en-US".
     assert_eq!(translation, Some("Hello world!".to_string()));
 }
 

@@ -12,6 +12,8 @@ use std::collections::HashMap;
 
 use std::fmt;
 
+// **< LcKind >*************************************************************************************
+
 // Tipo de localización a aplicar.
 //
 // * `None` - No se aplica ninguna localización.
@@ -24,6 +26,31 @@ enum LcKind {
     Text(CowStr),
     Translate(CowStr),
 }
+
+// **< LcArg >**************************************************************************************
+
+// Valor de un argumento de la traducción.
+//
+// `Text` resuelve a `FluentValue::String` para interpolar cualquier texto; pero no aplica el
+// selector de plural de Fluent (`{ $n -> [one] ... *[other] ... }`). Para eso está `Number`, que
+// resuelve a `FluentValue::Number` y es el único tipo con el que Fluent consulta las reglas de
+// plural del idioma.
+#[derive(Clone, Debug)]
+enum LcArg {
+    Text(CowStr),
+    Number(u32),
+}
+
+impl<'a> From<&'a LcArg> for fluent_templates::fluent_bundle::FluentValue<'a> {
+    fn from(arg: &'a LcArg) -> Self {
+        match arg {
+            LcArg::Text(s) => s.as_ref().into(),
+            LcArg::Number(n) => (*n).into(),
+        }
+    }
+}
+
+// **< Lc >*****************************************************************************************
 
 /// Crea instancias para traducir *textos localizados*.
 ///
@@ -81,7 +108,7 @@ pub struct Lc {
     op: LcKind,
     #[default(&LOCALES_PAGETOP)]
     locales: &'static Locales,
-    args: Vec<(CowStr, CowStr)>,
+    args: Vec<(CowStr, LcArg)>,
 }
 
 impl fmt::Debug for Lc {
@@ -141,22 +168,46 @@ impl Lc {
     // **< Lc BUILDER >*****************************************************************************
 
     /// Añade un argumento `{$arg}` => `value` a la traducción.
+    ///
+    /// `value` se interpreta siempre como texto. Si se necesita un argumento numérico que además
+    /// deba seleccionar plural (`{ $n -> [one] ... *[other] ... }`), hay que utilizar en su lugar
+    /// [`with_number()`](Self::with_number).
     pub fn with_arg(mut self, arg: impl Into<CowStr>, value: impl Into<CowStr>) -> Self {
-        self.args.push((arg.into(), value.into()));
+        self.args.push((arg.into(), LcArg::Text(value.into())));
         self
     }
 
-    /// Añade varios argumentos a la traducción de una vez (p. ej. usando la macro
+    /// Añade varios argumentos de texto a la traducción de una vez (p. ej. usando la macro
     /// [`util::kv!`](crate::util::kv) o también `vec![("k", "v")]`, incluso un array de duplas u
-    /// otras colecciones).
+    /// otras colecciones). Aplica sólo a texto, como [`with_arg()`](Self::with_arg).
     pub fn with_args<I, K, V>(mut self, args: I) -> Self
     where
         I: IntoIterator<Item = (K, V)>,
         K: Into<CowStr>,
         V: Into<CowStr>,
     {
-        self.args
-            .extend(args.into_iter().map(|(k, v)| (k.into(), v.into())));
+        self.args.extend(
+            args.into_iter()
+                .map(|(k, v)| (k.into(), LcArg::Text(v.into()))),
+        );
+        self
+    }
+
+    /// Añade un argumento numérico `{$arg}` => `n` a la traducción.
+    ///
+    /// A diferencia de [`with_arg()`](Self::with_arg), `n` se interpola como un número real, el
+    /// único tipo en el que Fluent aplica las reglas de plural del idioma para que un selector
+    /// `{ $n -> [one] ... *[other] ... }` elija correctamente entre singular y plural.
+    ///
+    /// # Ejemplo
+    ///
+    /// ```rust,no_run
+    /// # use pagetop::prelude::*;
+    /// // "1 año" / "3 años", según el idioma y el valor de `n`.
+    /// let text = Lc::l("years_count").with_number("n", 3).get();
+    /// ```
+    pub fn with_number(mut self, arg: impl Into<CowStr>, n: u32) -> Self {
+        self.args.push((arg.into(), LcArg::Number(n)));
         self
     }
 
@@ -211,7 +262,7 @@ impl Lc {
                 } else {
                     let mut args = HashMap::with_capacity(self.args.len());
                     for (k, v) in self.args.iter() {
-                        args.insert(k.clone(), v.as_ref().into());
+                        args.insert(k.clone(), v.into());
                     }
                     self.locales
                         .try_lookup_with_args(language.langid(), key.as_ref(), &args)
