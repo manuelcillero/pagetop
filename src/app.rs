@@ -3,6 +3,7 @@
 mod figfont;
 
 use crate::core::{extension, extension::ExtensionRef};
+use crate::datetime::Timezone;
 use crate::locale::Locale;
 use crate::response::{render_error_pages, response_for_panic, route_not_found};
 use crate::web::Router;
@@ -62,6 +63,9 @@ impl Application {
 
         // Inicializa el idioma predeterminado.
         Locale::init();
+
+        // Inicializa la zona horaria predeterminada.
+        Timezone::init();
 
         // Registra las extensiones de la aplicación.
         extension::all::register_extensions(root_extension);

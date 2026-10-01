@@ -156,7 +156,7 @@ impl Locale {
                 if let Some(langid) = *CONFIG_LANGID {
                     trace::debug!("Default language \"{langid}\" (from config: \"{raw}\")");
                 } else {
-                    trace::debug!(
+                    trace::warn!(
                         "Default language \"{}\" (fallback, invalid config: \"{raw}\")",
                         *FALLBACK_LANGID
                     );

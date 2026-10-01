@@ -24,6 +24,7 @@ use crate::base::component::layout;
 use crate::core::component::{AssetsOp, ChildOp, ComponentRender};
 use crate::core::component::{Context, ContextError, Contextual};
 use crate::core::theme::{CoreRegions, RegionName, RegionRef, TemplateRef, ThemeRef};
+use crate::datetime::Tz;
 use crate::html::{Assets, Favicon, JavaScript, ResponsiveStyles, StyleSheet};
 use crate::html::{DOCTYPE, Markup, html};
 use crate::html::{Props, PropsOp};
@@ -280,6 +281,11 @@ impl Contextual for Page {
         self
     }
 
+    fn with_timezone(mut self, tz: Tz) -> Self {
+        self.context.alter_timezone(tz);
+        self
+    }
+
     fn with_template(mut self, template: TemplateRef) -> Self {
         self.context.alter_template(template);
         self
@@ -324,6 +330,10 @@ impl Contextual for Page {
 
     fn current_user(&self) -> &CurrentUser {
         self.context.current_user()
+    }
+
+    fn timezone(&self) -> Tz {
+        self.context.timezone()
     }
 
     fn template(&self) -> TemplateRef {

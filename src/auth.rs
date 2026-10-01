@@ -17,6 +17,7 @@
 //! [`Context`]: crate::core::component::Context
 
 use crate::core::action::{ActionDispatcher, try_dispatch_actions};
+use crate::datetime::{Timezone, Tz};
 use crate::locale::Lc;
 use crate::response::ErrorPage;
 use crate::web::HttpRequest;
@@ -49,6 +50,10 @@ pub enum CurrentUser {
         id: i32,
         /// Nombre visible del usuario.
         display_name: String,
+        /// Zona horaria del usuario, si tiene una configurada y es válida. En otro caso valdrá
+        /// `None` y [`timezone()`](Self::timezone) devolverá la zona horaria predeterminada de la
+        /// aplicación.
+        timezone: Option<Tz>,
     },
 }
 
@@ -76,6 +81,23 @@ impl CurrentUser {
         match self {
             CurrentUser::Anonymous => None,
             CurrentUser::Authenticated { display_name, .. } => Some(display_name),
+        }
+    }
+
+    /// Devuelve la zona horaria efectiva del usuario.
+    ///
+    /// Un usuario autenticado devuelve la suya si tiene una configurada y es válida; en cualquier
+    /// otro caso (incluido el usuario anónimo), devuelve [`Timezone::default_tz()`].
+    ///
+    /// Normalmente se resuelve una sola vez, al construir el `Context` de la petición. A partir de
+    /// ese momento el renderizado del documento no vuelve a llamarlo porque usa el valor ya
+    /// resuelto vía [`Contextual::timezone()`](crate::core::component::Contextual::timezone).
+    pub fn timezone(&self) -> Tz {
+        match self {
+            CurrentUser::Anonymous => Timezone::default_tz(),
+            CurrentUser::Authenticated { timezone, .. } => {
+                timezone.unwrap_or_else(Timezone::default_tz)
+            }
         }
     }
 }
@@ -283,7 +305,6 @@ pub fn has_permission(request: &HttpRequest, perm: PermissionRef) -> bool {
 /// ```
 // `ErrorPage` incluye `Option<HttpRequest>` en cada variante y es el tipo de error ya establecido
 // para toda la respuesta HTTP; boxearlo aquí sólo para esta función no compensa.
-#[allow(clippy::result_large_err)]
 pub fn require_permission(request: &HttpRequest, perm: PermissionRef) -> Result<(), ErrorPage> {
     if has_permission(request, perm) {
         Ok(())

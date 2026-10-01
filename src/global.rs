@@ -23,6 +23,7 @@ include_config!(SETTINGS: Settings => [
     "app.name"               => "PageTop App",
     "app.theme"              => "Basic",
     "app.lang_negotiation"   => "Full",
+    "app.timezone"           => "UTC",
     "app.startup_banner"     => "Slant",
 
     // [dev]
@@ -76,6 +77,16 @@ pub struct App {
     /// Define las fuentes que intervienen en la negociación del idioma para el renderizado de los
     /// documentos y la generación de URLs. Ver [`LangNegotiation`] para los modos disponibles.
     pub lang_negotiation: LangNegotiation,
+    /// Zona horaria predeterminada de la aplicación (p. ej. *"UTC"* o *"Europe/Madrid"*).
+    ///
+    /// Se usa como zona horaria efectiva para las peticiones de usuarios anónimos o sin zona
+    /// horaria propia. Ver [`Timezone`] y [`CurrentUser::timezone()`].
+    ///
+    /// Si es `None` o no contiene un valor válido, se aplica `UTC`.
+    ///
+    /// [`Timezone`]: crate::datetime::Timezone
+    /// [`CurrentUser::timezone()`]: crate::auth::CurrentUser::timezone
+    pub timezone: Option<String>,
     /// Banner ASCII mostrado al inicio: *"Off"* (desactivado), *"Slant"*, *"Small"*, *"Speed"* o
     /// *"Starwars"*.
     pub startup_banner: StartupBanner,

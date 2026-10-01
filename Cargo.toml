@@ -29,6 +29,7 @@ axum = { version = "0.8" }
 base64ct = { version = "1.8", features = ["alloc"] }
 change-detection = "1.2"
 chrono = "0.4"
+chrono-tz = "0.10"
 colored = "3.1"
 config = { version = "0.15", default-features = false, features = ["toml"] }
 figlet-rs = "1.0"
@@ -111,6 +112,7 @@ testing = []
 async-trait.workspace = true
 axum.workspace = true
 chrono.workspace = true
+chrono-tz.workspace = true
 colored.workspace = true
 config.workspace = true
 figlet-rs.workspace = true

@@ -4,6 +4,7 @@ use crate::core::component::{ChildOp, Component, MessageLevel, StatusMessage};
 use crate::core::theme::all::DEFAULT_THEME;
 use crate::core::theme::{ChildrenInRegions, CoreRegions, CoreTemplates};
 use crate::core::theme::{RegionRef, TemplateRef, ThemeRef};
+use crate::datetime::Tz;
 use crate::html::{Assets, Favicon, JavaScript, Preload, ResponsiveStyles, StyleSheet};
 use crate::html::{Markup, Props, PropsOp, RoutePath, html};
 use crate::locale::Lc;
@@ -30,7 +31,7 @@ pub use contextual::Contextual;
 /// Se crea una sola vez por petición usando [`Context::new()`] (típicamente a través de
 /// [`Page::new()`](crate::response::Page::new) o [`Page::admin()`](crate::response::Page::admin)),
 /// y es la única vía por la que un componente, una acción o el tema activo conocen: la petición
-/// HTTP de origen, el idioma negociado, el usuario autenticado
+/// HTTP de origen, el idioma negociado y la zona horaria efectiva, el usuario autenticado
 /// ([`current_user()`](Contextual::current_user)), la plantilla y el tema en uso, y los recursos
 /// (favicon, hojas de estilo, scripts) acumulados hasta ese momento. Otros datos que los
 /// componentes necesiten durante el renderizado pueden ser parámetros dinámicos tipados con
@@ -97,6 +98,7 @@ pub struct Context {
     request     : Option<HttpRequest>,            // Petición HTTP de origen.
     locale      : RequestLocale,                  // Idioma asociado a la petición.
     current_user: CurrentUser,                    // Identidad del usuario actual.
+    timezone    : Tz,                             // Zona horaria efectiva del documento.
     template    : TemplateRef,                    // Plantilla usada para renderizar.
     theme       : ThemeRef,                       // Referencia al tema usado para renderizar.
     favicon     : Option<Favicon>,                // Favicon, si se ha definido.
@@ -126,10 +128,12 @@ impl Context {
     fn base(request: Option<HttpRequest>, template: TemplateRef) -> Self {
         let locale = RequestLocale::from_request(request.as_ref());
         let current_user = Self::resolve_current_user(request.as_ref());
+        let timezone = current_user.timezone();
         Context {
             request,
             locale,
             current_user,
+            timezone,
             template,
             theme      : *DEFAULT_THEME,
             favicon    : None,
@@ -340,15 +344,21 @@ impl Contextual for Context {
 
     fn with_request(mut self, request: Option<HttpRequest>) -> Self {
         self.request = request;
-        // Recalcula el *locale* y el usuario actual según la nueva petición y la política de
-        // negociación configurada.
+        // Recalcula el *locale*, el usuario actual y la zona horaria según la nueva petición y la
+        // política de negociación configurada.
         self.locale = RequestLocale::from_request(self.request.as_ref());
         self.current_user = Self::resolve_current_user(self.request.as_ref());
+        self.timezone = self.current_user.timezone();
         self
     }
 
     fn with_langid(mut self, language: &impl LangId) -> Self {
         self.locale.with_langid(language);
+        self
+    }
+
+    fn with_timezone(mut self, tz: Tz) -> Self {
+        self.timezone = tz;
         self
     }
 
@@ -436,6 +446,10 @@ impl Contextual for Context {
 
     fn current_user(&self) -> &CurrentUser {
         &self.current_user
+    }
+
+    fn timezone(&self) -> Tz {
+        self.timezone
     }
 
     fn template(&self) -> TemplateRef {

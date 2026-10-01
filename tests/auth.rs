@@ -13,14 +13,27 @@ async fn anonymous_reports_itself_correctly() {
 
 #[pagetop::test]
 async fn authenticated_reports_itself_correctly() {
+    let madrid: Tz = "Europe/Madrid".parse().unwrap();
     let user = CurrentUser::Authenticated {
         id: 42,
         display_name: "Alice".to_owned(),
+        timezone: Some(madrid),
     };
     assert!(!user.is_anonymous());
     assert!(user.is_authenticated());
     assert_eq!(user.id(), Some(42));
     assert_eq!(user.display_name(), Some("Alice"));
+    assert_eq!(user.timezone(), madrid);
+}
+
+#[pagetop::test]
+async fn authenticated_falls_back_to_default_timezone_when_none() {
+    let user = CurrentUser::Authenticated {
+        id: 42,
+        display_name: "Alice".to_owned(),
+        timezone: None,
+    };
+    assert_eq!(user.timezone(), Timezone::default_tz());
 }
 
 // **< Context::current_user() >********************************************************************
@@ -37,6 +50,7 @@ async fn current_user_propagates_from_request_extensions() {
         .with_extension(CurrentUser::Authenticated {
             id: 7,
             display_name: "Bob".to_owned(),
+            timezone: None,
         })
         .to_http_request();
     let cx = Context::new(req);
@@ -60,6 +74,7 @@ async fn request_extension_returns_injected_value() {
         .with_extension(CurrentUser::Authenticated {
             id: 1,
             display_name: "Carol".to_owned(),
+            timezone: None,
         })
         .to_http_request();
 
@@ -79,6 +94,7 @@ async fn page_new_propagates_current_user_from_request_extensions() {
         .with_extension(CurrentUser::Authenticated {
             id: 5,
             display_name: "Dave".to_owned(),
+            timezone: None,
         })
         .to_http_request();
     let page = Page::new(req);
