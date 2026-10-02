@@ -7,6 +7,7 @@ use pagetop_htmx::hx_table::sort_link;
 use crate::ADMIN_USERS_PATH;
 use crate::LOCALES_USER;
 use crate::account::UserStatus;
+use crate::handlers::admin::users::available_roles;
 use crate::permission::UserPermission;
 use crate::service::user_admin::{UserListItem, UserSortField};
 use crate::user_path;
@@ -68,6 +69,11 @@ impl Component for UserTable {
         let can_assign_roles = cx
             .request()
             .is_some_and(|r| has_permission(r, &UserPermission::AssignRoles));
+        // Sólo hace falta consultar si hay algún rol asignable cuando el botón vaya a mostrarse.
+        let has_assignable_roles = can_assign_roles
+            && available_roles(&[])
+                .await
+                .is_ok_and(|roles| !roles.is_empty());
 
         for user in self.items() {
             let status = user.status;
@@ -79,7 +85,10 @@ impl Component for UserTable {
                     .with_cell(user.display_name.as_deref().unwrap_or("-"))
                     .with_cell(roles_cell(user, cx).await)
                     .with_cell(Lc::t(status_key(status), &LOCALES_USER))
-                    .with_cell(actions_cell(user, &waypoint, can_assign_roles, cx).await),
+                    .with_cell(
+                        actions_cell(user, &waypoint, can_assign_roles, has_assignable_roles, cx)
+                            .await,
+                    ),
             );
         }
 
@@ -203,12 +212,14 @@ fn username_cell(user: &UserListItem, waypoint: &Waypoint) -> Html {
 }
 
 // Construye la celda de acciones: editar siempre, y gestionar roles sólo si el usuario autenticado
-// tiene permiso para asignarlos. Devuelve un componente `Html` para que el marcado se genere
-// cuando `Table` renderice la celda, no al construir la fila.
+// tiene permiso para asignarlos; en ese caso, deshabilitado si no hay ningún rol asignable en todo
+// el sistema. Devuelve un componente `Html` para que el marcado se genere cuando `Table` renderice
+// la celda, no al construir la fila.
 async fn actions_cell(
     user: &UserListItem,
     waypoint: &Waypoint,
     can_assign_roles: bool,
+    has_assignable_roles: bool,
     cx: &mut Context,
 ) -> Html {
     let id = user.id;
@@ -229,6 +240,7 @@ async fn actions_cell(
             Button::anchor(Lc::t("btn-manage-roles", &LOCALES_USER), roles_href)
                 .with_style(button::Style::Solid(Intent::Neutral))
                 .with_size(button::Size::Small)
+                .with_disabled(!has_assignable_roles)
                 .render(cx)
                 .await,
         )

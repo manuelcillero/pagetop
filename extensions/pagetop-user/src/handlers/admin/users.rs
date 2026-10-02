@@ -112,8 +112,11 @@ fn search_bar(current_query: Option<String>) -> Html {
 // **< available_roles >****************************************************************************
 
 // Roles asignables desde la UI de usuarios: excluye "anonymous" (nunca se asigna explícitamente)
-// y "authenticated" (implícito, nunca se asigna).
-async fn available_roles(selected: &[i32]) -> Result<Vec<(i32, String, bool)>, AuthError> {
+// y "authenticated" (implícito, nunca se asigna). `pub(crate)` porque también la usa
+// `component::admin::user_table` para decidir si hay algo que gestionar.
+pub(crate) async fn available_roles(
+    selected: &[i32],
+) -> Result<Vec<(i32, String, bool)>, AuthError> {
     let items = role_admin::list_roles(&role_admin::RoleListParams {
         sort: role_admin::RoleSortField::Weight,
         dir: SortDir::Asc,
@@ -276,6 +279,10 @@ async fn render_user_edit(
     let can_toggle_admin = request
         .extension::<Account>()
         .is_some_and(|a| a.is_admin && a.id != id);
+    let has_assignable_roles = match available_roles(&[]).await {
+        Ok(roles) => !roles.is_empty(),
+        Err(_) => return ErrorPage::InternalError(Some(request)).into_response(),
+    };
     let mut page = Page::admin(request);
     let back_href = waypoint.or(page.context().route(ADMIN_USERS_PATH));
     let title = Lc::t("title-admin-user-edit", &LOCALES_USER);
@@ -284,6 +291,7 @@ async fn render_user_edit(
         status,
         user.is_admin,
         can_toggle_admin,
+        has_assignable_roles,
         &waypoint,
         page.context(),
     );
@@ -328,6 +336,7 @@ fn edit_actions(
     status: UserStatus,
     target_is_admin: bool,
     can_toggle_admin: bool,
+    has_assignable_roles: bool,
     waypoint: &Waypoint,
     cx: &mut Context,
 ) -> Flex {
@@ -370,7 +379,8 @@ fn edit_actions(
         )
         .with_child(
             Button::anchor(Lc::t("btn-manage-roles", &LOCALES_USER), roles_href)
-                .with_style(button::Style::Solid(Intent::Neutral)),
+                .with_style(button::Style::Solid(Intent::Neutral))
+                .with_disabled(!has_assignable_roles),
         )
         .with_child(
             Button::anchor(Lc::t("btn-reset-password", &LOCALES_USER), password_href)
