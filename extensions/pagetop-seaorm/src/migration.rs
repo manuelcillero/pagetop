@@ -103,7 +103,7 @@
 //! | `string_uniq(col)`  | `VARCHAR NOT NULL UNIQUE`                           |
 //! | `integer(col)`      | `INTEGER NOT NULL`                                  |
 //! | `boolean(col)`      | `BOOLEAN NOT NULL`                                  |
-//! | `timestamp(col)`    | `TIMESTAMP NOT NULL`                                |
+//! | `timestamp(col)`    | `TIMESTAMP WITH TIME ZONE NOT NULL`                 |
 //! | `uuid(col)`         | `UUID NOT NULL`                                     |
 //!
 //! Estas son sólo las funciones más habituales. El módulo [`schema`] define la lista completa, con

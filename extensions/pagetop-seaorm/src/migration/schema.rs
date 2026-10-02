@@ -329,12 +329,16 @@ pub fn interval_uniq<T: IntoIden>(
     interval(col, fields, precision).unique_key().take()
 }
 
+// Unlike the original helpers, `timestamp()` and `timestamp_null()` create time zone aware
+// columns. Entities store instants as `DateTimeUtc`, which PostgreSQL can only decode from
+// `TIMESTAMPTZ`; a plain `TIMESTAMP` would also store `CURRENT_TIMESTAMP` in server local time.
+// Keep this deviation when syncing with upstream.
 pub fn timestamp<T: IntoIden>(col: T) -> ColumnDef {
-    ColumnDef::new(col).timestamp().not_null().take()
+    timestamp_with_time_zone(col)
 }
 
 pub fn timestamp_null<T: IntoIden>(col: T) -> ColumnDef {
-    ColumnDef::new(col).timestamp().null().take()
+    timestamp_with_time_zone_null(col)
 }
 
 pub fn timestamp_uniq<T: IntoIden>(col: T) -> ColumnDef {
