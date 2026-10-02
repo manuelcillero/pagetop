@@ -12,7 +12,7 @@ use crate::entity::{role, role_permission, user_role};
 use crate::error::AuthError;
 use crate::permission;
 
-// **< listado >**************************************************************************************
+// **< listado >************************************************************************************
 
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub(crate) enum RoleSortField {
@@ -129,7 +129,7 @@ async fn role_items(roles: Vec<role::Model>) -> Result<Vec<RoleListItem>, AuthEr
         .collect())
 }
 
-// **< find_role / role_permission_keys >***************************************************************
+// **< find_role / role_permission_keys >***********************************************************
 
 pub(crate) async fn find_role(role_id: i32) -> Result<role::Model, AuthError> {
     role::Entity::find_by_id(role_id)
@@ -146,7 +146,7 @@ pub(crate) async fn role_permission_keys(role_id: i32) -> Result<Vec<String>, Au
     Ok(rows.into_iter().map(|r| r.permission_key).collect())
 }
 
-// **< create_role >*********************************************************************************
+// **< create_role >********************************************************************************
 
 pub(crate) struct NewRoleData<'a> {
     pub machine_name: &'a str,
@@ -193,7 +193,7 @@ pub(crate) async fn create_role(data: NewRoleData<'_>) -> Result<i32, AuthError>
     Ok(result.last_insert_id)
 }
 
-// **< update_role >*********************************************************************************
+// **< update_role >********************************************************************************
 
 pub(crate) struct RoleUpdateData<'a> {
     pub label: &'a str,
@@ -221,7 +221,7 @@ pub(crate) async fn update_role(role_id: i32, data: RoleUpdateData<'_>) -> Resul
     Ok(())
 }
 
-// **< delete_role >*********************************************************************************
+// **< delete_role >********************************************************************************
 
 pub(crate) async fn delete_role(role_id: i32) -> Result<(), AuthError> {
     let role = find_role(role_id).await?;
@@ -241,7 +241,7 @@ pub(crate) async fn delete_role(role_id: i32) -> Result<(), AuthError> {
     Ok(())
 }
 
-// **< set_role_permissions >************************************************************************
+// **< set_role_permissions >***********************************************************************
 
 /// Reemplaza por completo el conjunto de permisos concedidos a un rol. Permitido aunque el rol
 /// esté bloqueado (`locked`): los roles de sistema también necesitan permisos gestionables.

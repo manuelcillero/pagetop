@@ -43,7 +43,7 @@ impl ItemPlacement {
     }
 }
 
-// **< ItemJustify >*********************************************************************************
+// **< ItemJustify >********************************************************************************
 
 /// Alineación individual en el eje de columnas de un [`GridItem`](super::GridItem).
 ///

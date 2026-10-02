@@ -74,7 +74,7 @@ async fn classes_prepend_ignores_empty_input() {
     assert_classes(&p, Some("a b"));
 }
 
-// **< PropsOp::replace_classes >********************************************************************
+// **< PropsOp::replace_classes >*******************************************************************
 
 #[pagetop::test]
 async fn classes_replace_removes_targets_and_inserts_new_at_min_position() {

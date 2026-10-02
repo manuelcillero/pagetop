@@ -123,7 +123,7 @@ impl Component for Number {
 
 #[builder_impl]
 impl Number {
-    // **< Number BUILDER >************************************************************************
+    // **< Number BUILDER >*************************************************************************
 
     /// Establece el identificador único del componente; igual a `with_prop(PropsOp::set_id(id))`.
     pub fn with_id(mut self, id: impl Into<CowStr>) -> Self {

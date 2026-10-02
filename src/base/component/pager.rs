@@ -341,7 +341,7 @@ impl Component for Pager {
 
 #[builder_impl]
 impl Pager {
-    // **< Pager BUILDER >*************************************************************************
+    // **< Pager BUILDER >**************************************************************************
 
     /// Establece el identificador único del componente; igual a `with_prop(PropsOp::set_id(id))`.
     pub fn with_id(mut self, id: impl Into<CowStr>) -> Self {
@@ -440,7 +440,7 @@ impl Pager {
         self
     }
 
-    // **< Pager HELPERS >*************************************************************************
+    // **< Pager HELPERS >**************************************************************************
 
     /// Número total de páginas según [`total_items()`](Self::total_items) y
     /// [`items_per_page()`](Self::items_per_page). Nunca es cero, aunque `total_items` sea cero:

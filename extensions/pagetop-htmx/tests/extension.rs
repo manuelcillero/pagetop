@@ -42,7 +42,7 @@ async fn htmx_script_is_served_at_the_expected_static_path() {
     assert!(body.contains("htmx"));
 }
 
-// **< Automatic script injection (BeforeRenderBody) >***********************************************
+// **< Automatic script injection (BeforeRenderBody) >**********************************************
 
 #[pagetop::test]
 async fn rendered_pages_automatically_include_the_pinned_htmx_script_tag() {

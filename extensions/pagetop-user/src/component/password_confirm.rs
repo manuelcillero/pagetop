@@ -50,7 +50,7 @@ impl Component for PasswordConfirm {
 
 #[builder_impl]
 impl PasswordConfirm {
-    // **< PasswordConfirm BUILDER >********************************************************************
+    // **< PasswordConfirm BUILDER >****************************************************************
 
     /// Establece la etiqueta del campo de contraseña (por defecto, "field-password").
     pub(crate) fn with_password_label(mut self, label: Lc) -> Self {

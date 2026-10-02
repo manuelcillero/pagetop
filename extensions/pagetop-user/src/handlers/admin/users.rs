@@ -257,7 +257,7 @@ pub(crate) async fn new_post(
     }
 }
 
-// **< edit_get / edit_post >************************************************************************
+// **< edit_get / edit_post >***********************************************************************
 
 async fn render_user_edit(
     request: HttpRequest,
@@ -611,7 +611,7 @@ async fn user_view_roles(roles: &[role::Model], cx: &mut Context) -> Block {
         }))
 }
 
-// **< roles_get / roles_post >**********************************************************************
+// **< roles_get / roles_post >*********************************************************************
 
 /// GET /admin/user/users/{id}/roles - Formulario de asignación de roles de un usuario.
 pub(crate) async fn roles_get(
@@ -801,7 +801,7 @@ pub(crate) async fn admin_post(
     }
 }
 
-// **< password_get / password_post >****************************************************************
+// **< password_get / password_post >***************************************************************
 
 /// GET /admin/user/users/{id}/password - Formulario de restablecimiento de contraseña por un
 /// administrador.

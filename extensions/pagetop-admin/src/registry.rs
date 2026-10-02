@@ -14,7 +14,7 @@ use crate::action::{
 };
 use crate::settings::SettingsSchema;
 
-// **< AdminPermission >*****************************************************************************
+// **< AdminPermission >****************************************************************************
 
 /// Permisos propios de `pagetop-admin`.
 #[derive(Clone, Copy, Debug)]
@@ -43,7 +43,7 @@ impl Permission for AdminPermission {
     }
 }
 
-// **< Tipos del registro >**************************************************************************
+// **< Tipos del registro >*************************************************************************
 
 /// Sección del panel de administración (agrupación en el sidebar).
 #[derive(Clone)]
@@ -143,7 +143,7 @@ pub struct AdminAction {
     pub weight: i32,
 }
 
-// **< AdminRegistry >*******************************************************************************
+// **< AdminRegistry >******************************************************************************
 
 /// Registro global del panel de administración, construido una sola vez en `initialize()`.
 #[derive(Getters)]

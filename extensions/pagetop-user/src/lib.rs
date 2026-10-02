@@ -178,7 +178,7 @@ fn declare_admin_pages(bag: &mut PageBag) {
     });
 }
 
-// **< Roles de sistema (fijos) >********************************************************************
+// **< Roles de sistema (fijos) >*******************************************************************
 
 // Sembrados con id fijo en `migration/m20260629_000002_create_roles.rs` y bloqueados (`locked`);
 // no se borran ni cambian de id.

@@ -310,7 +310,7 @@ async fn get_styles_matches_classes_after_normalization() {
     );
 }
 
-// **< ResponsiveStyles::render >********************************************************************
+// **< ResponsiveStyles::render >*******************************************************************
 
 #[pagetop::test]
 async fn render_is_empty_when_nothing_stored() {
