@@ -54,7 +54,7 @@ pub(crate) async fn seed_demo_data() {
 }
 
 async fn create_demo_roles() -> Result<Vec<i32>, AuthError> {
-    let now = Utc::now().naive_utc();
+    let now = Utc::now();
     let mut role_ids = Vec::with_capacity(ROLE_COUNT);
     for n in 1..=ROLE_COUNT {
         let new_role = role::ActiveModel {
@@ -78,7 +78,7 @@ async fn create_demo_roles() -> Result<Vec<i32>, AuthError> {
 
 async fn create_demo_users(role_ids: &[i32]) -> Result<(), AuthError> {
     let hash = password::hash_password(DEMO_PASSWORD)?;
-    let now = Utc::now().naive_utc();
+    let now = Utc::now();
 
     for n in 1..=USER_COUNT {
         let new_user = user::ActiveModel {

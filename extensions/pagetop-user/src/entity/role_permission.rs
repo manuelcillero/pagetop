@@ -1,4 +1,3 @@
-use pagetop::prelude::*;
 use pagetop_seaorm::db::*;
 
 #[derive(Clone, Debug, DeriveEntityModel, PartialEq)]
@@ -8,7 +7,7 @@ pub struct Model {
     pub role_id: i32,
     #[sea_orm(primary_key, auto_increment = false)]
     pub permission_key: String,
-    pub granted_at: NaiveDateTime,
+    pub granted_at: DateTimeUtc,
 }
 
 #[derive(Clone, Copy, Debug, DeriveRelation, EnumIter)]

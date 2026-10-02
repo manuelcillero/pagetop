@@ -44,7 +44,7 @@ use crate::{CowStr, Weight};
 pub enum CurrentUser {
     /// Usuario no autenticado.
     Anonymous,
-    /// Usuario autenticado con su identificador y nombre visible.
+    /// Usuario autenticado con su identificador, nombre visible y zona horaria propia.
     Authenticated {
         /// Identificador único del usuario en el sistema.
         id: i32,

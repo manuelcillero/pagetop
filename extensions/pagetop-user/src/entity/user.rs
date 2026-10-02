@@ -1,4 +1,3 @@
-use pagetop::prelude::*;
 use pagetop_seaorm::db::*;
 
 #[derive(Clone, Debug, DeriveEntityModel, PartialEq)]
@@ -10,20 +9,20 @@ pub struct Model {
     pub username: String,
     #[sea_orm(unique)]
     pub email: String,
-    pub email_verified_at: Option<NaiveDateTime>,
+    pub email_verified_at: Option<DateTimeUtc>,
     pub password_hash: String,
     pub status: i16,
     pub language: Option<String>,
     pub timezone: Option<String>,
     pub display_name: Option<String>,
-    pub last_login_at: Option<NaiveDateTime>,
-    pub last_access_at: Option<NaiveDateTime>,
+    pub last_login_at: Option<DateTimeUtc>,
+    pub last_access_at: Option<DateTimeUtc>,
     pub failed_login_count: i32,
-    pub locked_until: Option<NaiveDateTime>,
+    pub locked_until: Option<DateTimeUtc>,
     /// Acceso irrestricto al sistema, sin pasar por roles ni permisos.
     pub is_admin: bool,
-    pub created_at: NaiveDateTime,
-    pub updated_at: NaiveDateTime,
+    pub created_at: DateTimeUtc,
+    pub updated_at: DateTimeUtc,
 }
 
 #[derive(Clone, Copy, Debug, DeriveRelation, EnumIter)]

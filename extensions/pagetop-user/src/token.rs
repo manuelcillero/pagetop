@@ -79,7 +79,7 @@ pub async fn create_token(user_id: i32, kind: TokenKind) -> Result<String, AuthE
         .await?;
 
     let token = generate_token();
-    let now = Utc::now().naive_utc();
+    let now = Utc::now();
     let expires_at = now + Duration::seconds(kind.ttl_secs());
 
     let new_token = user_token::ActiveModel {
@@ -102,7 +102,7 @@ pub async fn create_token(user_id: i32, kind: TokenKind) -> Result<String, AuthE
 /// y lo marca como consumido. Devuelve el `user_id` asociado.
 pub async fn consume_token(token: &str, kind: TokenKind) -> Result<i32, AuthError> {
     let hash = hash_token(token);
-    let now = Utc::now().naive_utc();
+    let now = Utc::now();
 
     let row = user_token::Entity::find()
         .filter(user_token::Column::TokenHash.eq(&hash))

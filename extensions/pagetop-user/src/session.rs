@@ -90,7 +90,7 @@ pub async fn resolve_session(headers: &web::http::HeaderMap) -> (CurrentUser, Op
 ///
 /// Devuelve `(CurrentUser::Anonymous, None)` si la sesión no existe o ha expirado.
 pub async fn load_user_from_session(sid: &str) -> (CurrentUser, Option<Account>) {
-    let now = Utc::now().naive_utc();
+    let now = Utc::now();
 
     // Buscar sesión activa y no expirada.
     let Ok(Some(sess)) = session::Entity::find_by_id(sid).one(dbconn()).await else {
@@ -178,9 +178,14 @@ pub async fn load_user_from_session(sid: &str) -> (CurrentUser, Option<Account>)
         permissions,
         is_admin,
     };
+    let timezone = user_model
+        .timezone
+        .as_deref()
+        .and_then(|tz| tz.parse().ok());
     let current_user = CurrentUser::Authenticated {
         id: account.id,
         display_name: visible_name,
+        timezone,
     };
 
     (current_user, Some(account))
@@ -191,7 +196,7 @@ pub async fn load_user_from_session(sid: &str) -> (CurrentUser, Option<Account>)
 /// Crea una nueva sesión en base de datos y devuelve el session ID.
 pub async fn create_session(user_id: i32, remember: bool) -> Result<String, DbErr> {
     let sid = generate_sid();
-    let now = Utc::now().naive_utc();
+    let now = Utc::now();
     let ttl = Duration::seconds(SETTINGS.session_ttl_secs);
     let idle = Duration::seconds(SETTINGS.session_idle_ttl_secs);
     let expires_at = if remember { now + ttl } else { now + idle };

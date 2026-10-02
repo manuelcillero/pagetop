@@ -37,6 +37,9 @@ pub enum AuthError {
     #[error("password must be at least {0} characters")]
     PasswordTooShort(usize),
 
+    #[error("invalid IANA timezone identifier")]
+    InvalidTimezone,
+
     #[error("user not found")]
     UserNotFound,
 

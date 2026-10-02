@@ -178,7 +178,7 @@ pub(crate) async fn create_role(data: NewRoleData<'_>) -> Result<i32, AuthError>
         return Err(AuthError::RoleMachineNameTaken);
     }
 
-    let now = Utc::now().naive_utc();
+    let now = Utc::now();
     let new_role = role::ActiveModel {
         id: ActiveValue::NotSet,
         machine_name: Set(data.machine_name.to_owned()),
@@ -207,7 +207,7 @@ pub(crate) async fn update_role(role_id: i32, data: RoleUpdateData<'_>) -> Resul
         return Err(AuthError::RoleLocked);
     }
 
-    let now = Utc::now().naive_utc();
+    let now = Utc::now();
     role::ActiveModel {
         id: Set(role_id),
         label: Set(data.label.to_owned()),
@@ -258,7 +258,7 @@ pub(crate) async fn set_role_permissions(
         }
     }
 
-    let now = Utc::now().naive_utc();
+    let now = Utc::now();
     let keys = permission_keys.to_vec();
     dbconn()
         .transaction::<_, _, AuthError>(|txn| {

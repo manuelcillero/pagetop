@@ -11,7 +11,7 @@ use serde::{Serialize, de::DeserializeOwned};
 use crate::entity::setting::{ActiveModel, Column, Entity};
 use crate::error::AdminError;
 
-// **< API pública >*********************************************************************************
+// **< API pública >********************************************************************************
 
 /// Lee un valor persistido, devolviendo el `Default` del tipo si no existe.
 pub async fn get<T: DeserializeOwned + Default>(key: &str) -> T {
@@ -40,7 +40,7 @@ pub async fn list_scope(scope: &str) -> Vec<(String, String)> {
     list_scope_async(scope).await.unwrap_or_default()
 }
 
-// **< Implementación asíncrona >********************************************************************
+// **< Implementación asíncrona >*******************************************************************
 
 async fn get_async<T: DeserializeOwned>(key: &str) -> Result<T, AdminError> {
     let model = Entity::find_by_id(key)
@@ -57,7 +57,7 @@ async fn set_async<T: Serialize>(
     user_id: Option<i32>,
 ) -> Result<(), AdminError> {
     let value_json = serde_json::to_string(value)?;
-    let now = Utc::now().naive_utc();
+    let now = Utc::now();
 
     let existing = Entity::find_by_id(key).one(dbconn()).await?;
     if existing.is_some() {
@@ -95,7 +95,7 @@ async fn list_scope_async(scope: &str) -> Result<Vec<(String, String)>, AdminErr
     Ok(rows.into_iter().map(|m| (m.key, m.value)).collect())
 }
 
-// **< Tipos de esquema >****************************************************************************
+// **< Tipos de esquema >***************************************************************************
 
 /// Tipo de campo de configuración para un [`SettingsSchema`].
 #[derive(Clone, Debug)]

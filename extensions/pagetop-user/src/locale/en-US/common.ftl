@@ -55,6 +55,7 @@ error-account-pending     = Please verify your email address before signing in.
 error-account-locked      = Too many failed attempts. Please try again later.
 error-password-mismatch   = Passwords do not match.
 error-password-too-short  = Password must be at least { $n } characters.
+error-invalid-timezone    = Invalid timezone.
 error-username-taken      = This username is already taken.
 error-email-taken         = This email address is already registered.
 error-token-invalid       = This link is invalid or has expired.
@@ -104,17 +105,18 @@ col-users-count  = Users
 
 # **< Admin: field labels >**
 
-field-username-admin = Username
-field-display-name   = Display name
-field-language       = Language
-field-timezone       = Timezone
-field-machine-name   = Machine name
-field-label          = Label
-field-description    = Description
-field-weight         = Weight
-field-roles          = Roles
-field-is-admin       = Administrator (unrestricted access)
-field-search-users   = Search by username, email or name...
+field-username-admin        = Username
+field-display-name          = Display name
+field-language              = Language
+field-timezone              = Timezone
+field-timezone-site-default = Use site timezone ({ $tz })
+field-machine-name          = Machine name
+field-label                 = Label
+field-description           = Description
+field-weight                = Weight
+field-roles                 = Roles
+field-is-admin              = Administrator (unrestricted access)
+field-search-users          = Search by username, email or name...
 
 help-machine-name-immutable =
     Lowercase letters, digits and underscores only. Cannot be changed after creation.

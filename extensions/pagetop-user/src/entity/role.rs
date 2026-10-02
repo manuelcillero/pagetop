@@ -1,4 +1,3 @@
-use pagetop::prelude::*;
 use pagetop_seaorm::db::*;
 
 #[derive(Clone, Debug, DeriveEntityModel, PartialEq)]
@@ -12,8 +11,8 @@ pub struct Model {
     pub description: Option<String>,
     pub weight: i32,
     pub locked: bool,
-    pub created_at: NaiveDateTime,
-    pub updated_at: NaiveDateTime,
+    pub created_at: DateTimeUtc,
+    pub updated_at: DateTimeUtc,
 }
 
 #[derive(Clone, Copy, Debug, DeriveRelation, EnumIter)]

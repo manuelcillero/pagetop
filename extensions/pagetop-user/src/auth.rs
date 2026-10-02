@@ -24,7 +24,7 @@ pub async fn login(
     plain_password: &str,
     remember: bool,
 ) -> Result<String, AuthError> {
-    let now = Utc::now().naive_utc();
+    let now = Utc::now();
 
     // Buscar usuario por username o email.
     let user_model = user::Entity::find()
@@ -119,7 +119,7 @@ pub async fn register(
     }
 
     let hash = password::hash_password(plain_password)?;
-    let now = Utc::now().naive_utc();
+    let now = Utc::now();
     let status = if SETTINGS.require_email_verification {
         UserStatus::Pending
     } else {
@@ -175,7 +175,7 @@ pub async fn assign_role(user_id: i32, role_id: i32) -> Result<(), AuthError> {
 
 async fn register_failed_login(
     user_model: &user::Model,
-    now: NaiveDateTime,
+    now: DateTime<Utc>,
 ) -> Result<(), AuthError> {
     let new_count = user_model.failed_login_count + 1;
     let lock_at = if new_count >= SETTINGS.max_failed_logins {
@@ -236,7 +236,7 @@ async fn do_seed() {
         }
     };
 
-    let now = Utc::now().naive_utc();
+    let now = Utc::now();
     let new_admin = user::ActiveModel {
         id: ActiveValue::NotSet,
         username: Set(cfg.admin_username.clone()),

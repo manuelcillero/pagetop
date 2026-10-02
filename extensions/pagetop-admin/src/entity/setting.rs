@@ -1,4 +1,3 @@
-use pagetop::prelude::*;
 use pagetop_seaorm::db::*;
 
 /// Entidad SeaORM para la tabla `settings`.
@@ -9,7 +8,7 @@ pub struct Model {
     pub key: String,
     pub scope: String,
     pub value: String,
-    pub updated_at: NaiveDateTime,
+    pub updated_at: DateTimeUtc,
     pub updated_by: Option<i32>,
 }
 

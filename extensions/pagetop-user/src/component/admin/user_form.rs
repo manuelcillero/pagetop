@@ -1,5 +1,8 @@
 //! Formulario de alta/edición de usuario.
 
+use std::collections::BTreeMap;
+use std::sync::LazyLock;
+
 use pagetop::prelude::*;
 
 use crate::ADMIN_USERS_PATH;
@@ -9,6 +12,32 @@ use crate::user_path;
 use crate::component::{PasswordConfirm, error_banner};
 
 use super::{USER_ADMIN_FORM_ID, roles_fieldset};
+
+// Regiones de la base IANA que sólo contienen alias heredados (fichero `backward`), todos con una
+// zona canónica equivalente en otra región (p. ej. `US/Eastern` es `America/New_York`).
+const LEGACY_REGIONS: [&str; 5] = ["Brazil", "Canada", "Chile", "Mexico", "US"];
+
+// Zonas horarias IANA canónicas agrupadas por región (lo anterior a la primera `/`), ordenadas por
+// región y nombre. Se descartan los alias heredados: los nombres sin región (`GB`, `Japan`,
+// `EST5EDT`...), los de `LEGACY_REGIONS` y los de `Etc` salvo `Etc/UTC`, cuyo grupo va al final.
+static TZ_BY_REGION: LazyLock<Vec<(&'static str, Vec<&'static str>)>> = LazyLock::new(|| {
+    let mut regions: BTreeMap<&'static str, Vec<&'static str>> = BTreeMap::new();
+    for tz in TZ_VARIANTS.iter() {
+        let name = tz.name();
+        let Some((region, _)) = name.split_once('/') else {
+            continue;
+        };
+        if LEGACY_REGIONS.contains(&region) || (region == "Etc" && name != "Etc/UTC") {
+            continue;
+        }
+        regions.entry(region).or_default().push(name);
+    }
+    for names in regions.values_mut() {
+        names.sort_unstable();
+    }
+    let etc = regions.remove_entry("Etc");
+    regions.into_iter().chain(etc).collect()
+});
 
 #[derive(AutoDefault, Clone, Copy, Debug, PartialEq)]
 pub(crate) enum UserFormMode {
@@ -81,17 +110,13 @@ impl Component for UserForm {
                     .with_value(self.language())
                     .with_label(Lc::t("field-language", &LOCALES_USER)),
             )
-            .with_child(
-                form::input::Field::text()
-                    .with_name("timezone")
-                    .with_value(self.timezone())
-                    .with_label(Lc::t("field-timezone", &LOCALES_USER)),
-            );
+            .with_child(timezone_field(self.timezone()));
 
         if *self.mode() == UserFormMode::New {
-            form = form
-                .with_child(PasswordConfirm::new())
-                .with_child(roles_fieldset(self.roles()));
+            form = form.with_child(PasswordConfirm::new());
+            if !self.roles().is_empty() {
+                form = form.with_child(roles_fieldset(self.roles()));
+            }
 
             if *self.allow_admin_field() {
                 form = form.with_child(
@@ -180,4 +205,30 @@ impl UserForm {
         self.is_admin = is_admin;
         self
     }
+}
+
+// `<select>` de zona horaria: primero la opción de usar la predeterminada de la aplicación y luego
+// un `<optgroup>` por región. La etiqueta de cada opción es el nombre IANA completo.
+fn timezone_field(selected: &str) -> form::select::Field {
+    let mut field = form::select::Field::new()
+        .with_name("timezone")
+        .with_label(Lc::t("field-timezone", &LOCALES_USER))
+        .with_item(
+            form::select::Item::new(
+                "",
+                Lc::t("field-timezone-site-default", &LOCALES_USER)
+                    .with_arg("tz", Timezone::default_tz().name()),
+            )
+            .with_selected(selected.is_empty()),
+        );
+    for (region, names) in TZ_BY_REGION.iter() {
+        let mut group = form::select::Group::new(Lc::n(*region));
+        for name in names {
+            group = group.with_item(
+                form::select::Item::new(*name, Lc::n(*name)).with_selected(*name == selected),
+            );
+        }
+        field = field.with_group(group);
+    }
+    field
 }

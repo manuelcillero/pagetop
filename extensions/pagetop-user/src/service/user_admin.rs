@@ -15,7 +15,7 @@ use crate::error::AuthError;
 use crate::password;
 use crate::session;
 
-// **< listado >**************************************************************************************
+// **< listado >************************************************************************************
 
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub(crate) enum UserSortField {
@@ -126,7 +126,7 @@ async fn user_items(users: Vec<user::Model>) -> Result<Vec<UserListItem>, AuthEr
         .collect())
 }
 
-// **< find_user / user_role_ids >**********************************************************************
+// **< find_user / user_role_ids >******************************************************************
 
 pub(crate) async fn find_user(user_id: i32) -> Result<user::Model, AuthError> {
     user::Entity::find_by_id(user_id)
@@ -152,7 +152,7 @@ pub(crate) async fn user_roles(user_id: i32) -> Result<Vec<role::Model>, AuthErr
         .await?)
 }
 
-// **< create_user >*********************************************************************************
+// **< create_user >********************************************************************************
 
 pub(crate) struct NewUserData<'a> {
     pub username: &'a str,
@@ -173,11 +173,12 @@ pub(crate) struct NewUserData<'a> {
 pub(crate) async fn create_user(data: NewUserData<'_>) -> Result<i32, AuthError> {
     password::validate_strength(data.password)?;
     password::passwords_match(data.password, data.confirm_password)?;
+    let timezone = validate_timezone(data.timezone)?;
     ensure_username_available(data.username, None).await?;
     ensure_email_available(data.email, None).await?;
 
     let hash = password::hash_password(data.password)?;
-    let now = Utc::now().naive_utc();
+    let now = Utc::now();
 
     let new_user = user::ActiveModel {
         id: ActiveValue::NotSet,
@@ -187,7 +188,7 @@ pub(crate) async fn create_user(data: NewUserData<'_>) -> Result<i32, AuthError>
         password_hash: Set(hash),
         status: Set(UserStatus::Active.as_i16()),
         language: Set(data.language.map(str::to_owned)),
-        timezone: Set(data.timezone.map(str::to_owned)),
+        timezone: Set(timezone.map(str::to_owned)),
         display_name: Set(data.display_name.map(str::to_owned)),
         last_login_at: Set(None),
         last_access_at: Set(None),
@@ -207,7 +208,7 @@ pub(crate) async fn create_user(data: NewUserData<'_>) -> Result<i32, AuthError>
     Ok(user_id)
 }
 
-// **< update_user >*********************************************************************************
+// **< update_user >********************************************************************************
 
 pub(crate) struct UserUpdateData<'a> {
     pub username: &'a str,
@@ -218,17 +219,18 @@ pub(crate) struct UserUpdateData<'a> {
 }
 
 pub(crate) async fn update_user(user_id: i32, data: UserUpdateData<'_>) -> Result<(), AuthError> {
+    let timezone = validate_timezone(data.timezone)?;
     ensure_username_available(data.username, Some(user_id)).await?;
     ensure_email_available(data.email, Some(user_id)).await?;
 
-    let now = Utc::now().naive_utc();
+    let now = Utc::now();
     user::ActiveModel {
         id: Set(user_id),
         username: Set(data.username.to_owned()),
         email: Set(data.email.to_owned()),
         display_name: Set(data.display_name.map(str::to_owned)),
         language: Set(data.language.map(str::to_owned)),
-        timezone: Set(data.timezone.map(str::to_owned)),
+        timezone: Set(timezone.map(str::to_owned)),
         updated_at: Set(now),
         ..Default::default()
     }
@@ -237,7 +239,7 @@ pub(crate) async fn update_user(user_id: i32, data: UserUpdateData<'_>) -> Resul
     Ok(())
 }
 
-// **< set_user_roles >******************************************************************************
+// **< set_user_roles >*****************************************************************************
 
 /// Reemplaza por completo el conjunto de roles asignados a un usuario.
 ///
@@ -276,7 +278,7 @@ pub(crate) async fn set_user_roles(user_id: i32, role_ids: &[i32]) -> Result<(),
         .map_err(flatten_txn_err)
 }
 
-// **< set_user_status >*****************************************************************************
+// **< set_user_status >****************************************************************************
 
 /// Cambia el estado de la cuenta. Rechaza que un usuario se bloquee a sí mismo o bloquee al último
 /// administrador. Al bloquear, invalida todas las sesiones activas del usuario.
@@ -296,7 +298,7 @@ pub(crate) async fn set_user_status(
         }
     }
 
-    let now = Utc::now().naive_utc();
+    let now = Utc::now();
     user::ActiveModel {
         id: Set(user_id),
         status: Set(new_status.as_i16()),
@@ -315,7 +317,7 @@ pub(crate) async fn set_user_status(
     Ok(())
 }
 
-// **< set_user_admin >******************************************************************************
+// **< set_user_admin >*****************************************************************************
 
 /// Concede o revoca el acceso irrestricto (`is_admin`). No es un permiso del catálogo: sólo un
 /// administrador puede concederlo o revocarlo (el handler comprueba `account.is_admin`
@@ -336,7 +338,7 @@ pub(crate) async fn set_user_admin(
         return Err(AuthError::CannotModifyOwnAdminFlag);
     }
 
-    let now = Utc::now().naive_utc();
+    let now = Utc::now();
     user::ActiveModel {
         id: Set(user_id),
         is_admin: Set(is_admin),
@@ -348,7 +350,7 @@ pub(crate) async fn set_user_admin(
     Ok(())
 }
 
-// **< admin_reset_password >************************************************************************
+// **< admin_reset_password >***********************************************************************
 
 /// Restablece la contraseña de un usuario como acción administrativa e invalida sus sesiones
 /// activas.
@@ -360,7 +362,7 @@ pub(crate) async fn admin_reset_password(
     password::validate_strength(new_password)?;
     let hash = password::hash_password(new_password)?;
 
-    let now = Utc::now().naive_utc();
+    let now = Utc::now();
     user::ActiveModel {
         id: Set(user_id),
         password_hash: Set(hash),
@@ -376,7 +378,17 @@ pub(crate) async fn admin_reset_password(
     Ok(())
 }
 
-// **< helpers privados >****************************************************************************
+// **< HELPERS >************************************************************************************
+
+// Devuelve la zona sin espacios, tal como debe guardarse. Una zona ausente o en blanco es válida y
+// devuelve `None`: equivale a usar la predeterminada de la aplicación.
+fn validate_timezone(timezone: Option<&str>) -> Result<Option<&str>, AuthError> {
+    let timezone = timezone.and_then(util::non_blank);
+    if let Some(tz) = timezone {
+        tz.parse::<Tz>().map_err(|_| AuthError::InvalidTimezone)?;
+    }
+    Ok(timezone)
+}
 
 async fn ensure_username_available(
     username: &str,

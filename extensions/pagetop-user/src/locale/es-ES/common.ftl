@@ -55,6 +55,7 @@ error-account-pending     = Verifica tu dirección de email antes de iniciar ses
 error-account-locked      = Demasiados intentos fallidos. Inténtalo de nuevo más tarde.
 error-password-mismatch   = Las contraseñas no coinciden.
 error-password-too-short  = La contraseña debe tener al menos { $n } caracteres.
+error-invalid-timezone    = Zona horaria no válida.
 error-username-taken      = Este nombre de usuario ya está en uso.
 error-email-taken         = Esta dirección de email ya está registrada.
 error-token-invalid       = Este enlace no es válido o ha caducado.
@@ -104,17 +105,18 @@ col-users-count  = Usuarios
 
 # **< Administración: etiquetas de campos >**
 
-field-username-admin = Usuario
-field-display-name   = Nombre visible
-field-language       = Idioma
-field-timezone       = Zona horaria
-field-machine-name   = Nombre técnico
-field-label          = Etiqueta
-field-description    = Descripción
-field-weight         = Peso
-field-roles          = Roles
-field-is-admin       = Administrador (acceso irrestricto)
-field-search-users   = Buscar por usuario, email o nombre...
+field-username-admin        = Usuario
+field-display-name          = Nombre visible
+field-language              = Idioma
+field-timezone              = Zona horaria
+field-timezone-site-default = Usar la zona horaria del sitio ({ $tz })
+field-machine-name          = Nombre técnico
+field-label                 = Etiqueta
+field-description           = Descripción
+field-weight                = Peso
+field-roles                 = Roles
+field-is-admin              = Administrador (acceso irrestricto)
+field-search-users          = Buscar por usuario, email o nombre...
 
 help-machine-name-immutable =
     Sólo minúsculas, dígitos y guiones bajos. No se puede cambiar tras crearlo.

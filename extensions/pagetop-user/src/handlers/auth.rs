@@ -247,7 +247,7 @@ pub async fn password_reset_confirm_get(
         use crate::token::hash_token;
         use pagetop_seaorm::db::{ColumnTrait, EntityTrait, QueryFilter, dbconn};
         let hash = hash_token(&token);
-        let now = Utc::now().naive_utc();
+        let now = Utc::now();
         user_token::Entity::find()
             .filter(user_token::Column::TokenHash.eq(&hash))
             .filter(user_token::Column::UserId.eq(uid))
@@ -291,7 +291,7 @@ pub async fn password_reset_confirm_post(
         let user_id = consume_token(&token, TokenKind::PasswordReset).await?;
         password::validate_strength(&form.password)?;
         let hash = password::hash_password(&form.password)?;
-        let now = Utc::now().naive_utc();
+        let now = Utc::now();
         user::ActiveModel {
             id: Set(user_id),
             password_hash: Set(hash),
@@ -333,7 +333,7 @@ pub async fn verify_email_get(
         use crate::entity::user;
         use pagetop_seaorm::db::{ActiveModelTrait, Set, dbconn};
         let user_id = consume_token(&token, TokenKind::EmailVerification).await?;
-        let now = Utc::now().naive_utc();
+        let now = Utc::now();
         user::ActiveModel {
             id: Set(user_id),
             email_verified_at: Set(Some(now)),
@@ -352,7 +352,7 @@ pub async fn verify_email_get(
     }
 }
 
-// **< helpers privados >***************************************************************************
+// **< HELPERS >************************************************************************************
 
 fn redirect_with_cookie(to: impl Into<RoutePath>, cookie: &str) -> Response {
     (
