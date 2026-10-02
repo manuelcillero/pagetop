@@ -142,3 +142,22 @@ async fn disabled_anchor_omits_href_and_sets_aria_disabled() {
     assert!(html.contains(r#"aria-disabled="true""#));
     assert!(html.contains(r#"tabindex="-1""#));
 }
+
+// A disabled `<a>` has no native equivalent to `:disabled` that CSS can hook into, unlike a
+// `<button disabled>`; the `disabled` class is what both Basic (`.button.disabled`) and Bootsier
+// (Bootstrap's own `.btn.disabled`) actually style.
+#[pagetop::test]
+async fn disabled_anchor_gets_the_disabled_class() {
+    let mut button = Button::anchor(Lc::n("Edit"), "/items/1/edit").with_disabled(true);
+    let html = button.render(&mut Context::default()).await.into_string();
+
+    assert!(html.contains(r#"class="button disabled""#));
+}
+
+#[pagetop::test]
+async fn disabled_button_also_gets_the_disabled_class() {
+    let mut button = Button::submit(Lc::n("Save")).with_disabled(true);
+    let html = button.render(&mut Context::default()).await.into_string();
+
+    assert!(html.contains(r#"class="button disabled""#));
+}

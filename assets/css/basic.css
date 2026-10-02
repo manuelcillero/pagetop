@@ -162,9 +162,11 @@ body {
     background-color: color-mix(in srgb, var(--val-color--primary) 85%, black);
     border-color: color-mix(in srgb, var(--val-color--primary) 85%, black);
 }
-.button:disabled {
+.button:disabled,
+.button.disabled {
     opacity: 0.65;
     cursor: default;
+    pointer-events: none;
 }
 .button::-moz-focus-inner {
     border: 0;
@@ -237,7 +239,8 @@ body {
     background-color: transparent;
     border-color: transparent;
 }
-.button-link:disabled {
+.button-link:disabled,
+.button-link.disabled {
     color: var(--val-color--text--muted);
 }
 

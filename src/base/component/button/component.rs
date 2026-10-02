@@ -92,6 +92,12 @@ impl Component for Button {
             Style::Outline(intent) => util::join!("button button-outline-", intent.color(cx)),
             Style::Link => "button button-link".to_string(),
         }));
+
+        // Un `<button disabled>` es deshabilitado por el navegador (`:disabled`), pero un `<a>` sin
+        // `href` (ver `prepare()`) no tiene un estado nativo similar. Por eso la clase `disabled`.
+        if *self.disabled() {
+            self.alter_prop(PropsOp::add_classes("disabled"));
+        }
     }
 
     async fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
