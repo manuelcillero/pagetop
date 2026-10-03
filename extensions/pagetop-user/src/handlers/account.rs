@@ -77,8 +77,7 @@ async fn profile_details(user: &user::Model, status: UserStatus, cx: &mut Contex
         );
 
     if user.is_admin {
-        let badge = Badge::labeled(Lc::t("badge-admin", &LOCALES_USER))
-            .with_prop(PropsOp::add_classes("user-admin-badge-admin"))
+        let badge = Badge::severe(Lc::t("badge-admin", &LOCALES_USER))
             .render(cx)
             .await;
         table = table.with_row(
@@ -101,8 +100,7 @@ async fn profile_roles(roles: &[role::Model], cx: &mut Context) -> Block {
     for r in roles {
         let system_badge = if r.locked {
             Some(
-                Badge::labeled(Lc::t("badge-system-role", &LOCALES_USER))
-                    .with_prop(PropsOp::add_classes("user-admin-badge-system"))
+                Badge::warning(Lc::t("badge-system-role", &LOCALES_USER))
                     .render(cx)
                     .await,
             )

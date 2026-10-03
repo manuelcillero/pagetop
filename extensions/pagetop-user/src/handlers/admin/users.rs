@@ -557,8 +557,7 @@ async fn user_view_details(user: &user::Model, status: UserStatus, cx: &mut Cont
         );
 
     if user.is_admin {
-        let badge = Badge::labeled(Lc::t("badge-admin", &LOCALES_USER))
-            .with_prop(PropsOp::add_classes("user-admin-badge-admin"))
+        let badge = Badge::severe(Lc::t("badge-admin", &LOCALES_USER))
             .render(cx)
             .await;
         table = table.with_row(
@@ -576,49 +575,36 @@ async fn user_view_details(user: &user::Model, status: UserStatus, cx: &mut Cont
 // Bloque de sólo lectura con los roles asignados al usuario, cada uno enlazado a su propia
 // pantalla de vista.
 async fn user_view_roles(roles: &[role::Model], cx: &mut Context) -> Block {
-    let mut items: Vec<(i32, String, String, Option<Markup>)> = Vec::with_capacity(roles.len());
+    let mut table = Table::new()
+        .with_prop(PropsOp::add_classes("user-admin-table"))
+        .with_empty(Lc::n("-"));
+
     for r in roles {
         let system_badge = if r.locked {
             Some(
-                Badge::labeled(Lc::t("badge-system-role", &LOCALES_USER))
-                    .with_prop(PropsOp::add_classes("user-admin-badge-system"))
+                Badge::warning(Lc::t("badge-system-role", &LOCALES_USER))
                     .render(cx)
                     .await,
             )
         } else {
             None
         };
-        items.push((r.id, r.machine_name.clone(), r.label.clone(), system_badge));
+        let (id, label) = (r.id, r.label.clone());
+        table = table.with_row(
+            table::Row::new()
+                .with_cell(Html::with(move |cx| {
+                    html! { a href=(cx.route(role_path(id, "view"))) { (label.as_str()) } }
+                }))
+                .with_cell(r.machine_name.as_str())
+                .with_cell(Html::with(move |_| {
+                    html! { @if let Some(badge) = &system_badge { (badge) } }
+                })),
+        );
     }
 
     Block::new()
         .with_title(Lc::t("field-roles", &LOCALES_USER))
-        .with_child(Html::with(move |cx| {
-            html! {
-                @if items.is_empty() {
-                    "-"
-                } @else {
-                    table class="user-admin-table" {
-                        tbody {
-                            @for (id, machine_name, label, system_badge) in &items {
-                                @let href = cx.route(role_path(*id, "view")).to_string();
-                                tr {
-                                    td {
-                                        a href=(href) {
-                                            (label.as_str())
-                                        }
-                                    }
-                                    td { (machine_name.as_str()) }
-                                    td {
-                                        @if let Some(badge) = system_badge { (badge) }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }))
+        .with_child(table)
 }
 
 // **< roles_get / roles_post >*********************************************************************

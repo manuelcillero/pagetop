@@ -81,8 +81,7 @@ impl Component for RoleTable {
         for role in self.items() {
             let system_badge = if role.locked {
                 Some(
-                    Badge::labeled(Lc::t("badge-system-role", &LOCALES_USER))
-                        .with_prop(PropsOp::add_classes("user-admin-badge-system"))
+                    Badge::warning(Lc::t("badge-system-role", &LOCALES_USER))
                         .render(cx)
                         .await,
                 )
@@ -111,11 +110,7 @@ impl Component for RoleTable {
 
         Ok(html! {
             div (self.props().unpack(cx)) {
-                div class="user-admin-actions" {
-                    a href=(new_href) {
-                        (Lc::t("btn-create-role", &LOCALES_USER).using(cx))
-                    }
-                }
+                (Button::anchor(Lc::t("btn-create-role", &LOCALES_USER), new_href).render(cx).await)
                 @if let Some(message) = self.message() {
                     div class="user-form-error" role="alert" { (message.clone().using(cx)) }
                 }

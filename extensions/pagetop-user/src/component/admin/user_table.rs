@@ -96,11 +96,7 @@ impl Component for UserTable {
 
         Ok(html! {
             div (self.props().unpack(cx)) {
-                div class="user-admin-actions" {
-                    a href=(new_href) {
-                        (Lc::t("btn-create-user", &LOCALES_USER).using(cx))
-                    }
-                }
+                (Button::anchor(Lc::t("btn-create-user", &LOCALES_USER), new_href).render(cx).await)
                 (table.render(cx).await)
                 (pager)
             }
@@ -266,8 +262,7 @@ async fn actions_cell(
 async fn roles_cell(user: &UserListItem, cx: &mut Context) -> Html {
     let admin_badge = if user.is_admin {
         Some(
-            Badge::labeled(Lc::t("badge-admin", &LOCALES_USER))
-                .with_prop(PropsOp::add_classes("user-admin-badge-admin"))
+            Badge::severe(Lc::t("badge-admin", &LOCALES_USER))
                 .render(cx)
                 .await,
         )
@@ -277,12 +272,7 @@ async fn roles_cell(user: &UserListItem, cx: &mut Context) -> Html {
 
     let mut role_badges = Vec::with_capacity(user.roles.len());
     for role in &user.roles {
-        role_badges.push(
-            Badge::labeled(Lc::n(role.clone()))
-                .with_prop(PropsOp::add_classes("user-admin-badge"))
-                .render(cx)
-                .await,
-        );
+        role_badges.push(Badge::neutral(Lc::n(role.clone())).render(cx).await);
     }
 
     let is_admin = user.is_admin;

@@ -21,26 +21,19 @@ pub(crate) async fn list_get(request: HttpRequest) -> Result<Response, ErrorPage
     let mut content = frame(title.clone());
 
     for (group, group_label) in registry.groups_sorted(page.context()) {
-        let items: Vec<(CowStr, Lc)> = registry
-            .by_group(group)
-            .map(|permission| (permission.key(), permission.label()))
-            .collect();
-        content = content.with_child(Block::new().with_title(group_label.clone()).with_child(
-            Html::with(move |cx| {
-                html! {
-                    table class="user-admin-table" {
-                        tbody {
-                            @for (key, label) in &items {
-                                tr {
-                                    td { (label.using(cx)) }
-                                    td class="user-admin-permission-key" { (key) }
-                                }
-                            }
-                        }
-                    }
-                }
-            }),
-        ));
+        let mut table = Table::new().with_prop(PropsOp::add_classes("user-admin-table"));
+        for permission in registry.by_group(group) {
+            table = table.with_row(
+                table::Row::new()
+                    .with_cell(permission.label())
+                    .with_cell(permission.key().as_ref()),
+            );
+        }
+        content = content.with_child(
+            Block::new()
+                .with_title(group_label.clone())
+                .with_child(table),
+        );
     }
 
     Ok(page

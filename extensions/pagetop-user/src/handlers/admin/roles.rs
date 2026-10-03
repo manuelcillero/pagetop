@@ -333,8 +333,7 @@ async fn role_view_details(role: &role::Model, cx: &mut Context) -> Block {
         );
 
     if role.locked {
-        let badge = Badge::labeled(Lc::t("badge-system-role", &LOCALES_USER))
-            .with_prop(PropsOp::add_classes("user-admin-badge-system"))
+        let badge = Badge::warning(Lc::t("badge-system-role", &LOCALES_USER))
             .render(cx)
             .await;
         table = table.with_row(
