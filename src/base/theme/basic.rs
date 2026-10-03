@@ -15,11 +15,6 @@ impl Extension for Basic {
 impl Theme for Basic {
     fn before_render_page_body(&self, page: &mut Page) {
         page.alter_assets(
-            StyleSheet::from("/pagetop/css/normalize.css")
-                .with_version("8.0.1")
-                .with_weight(-99),
-        )
-        .alter_assets(
             StyleSheet::from("/pagetop/css/basic.min.css")
                 .with_version(PAGETOP_VERSION)
                 .with_weight(-99),

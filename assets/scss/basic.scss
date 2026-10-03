@@ -1,0 +1,41 @@
+// PageTop Basic theme styles.
+//
+// Compiled by `build.rs` into `static/css/basic.min.css`. Comments written with `//` never reach
+// the compiled file, so they can be as long as needed.
+//
+// The partials are emitted in the order they are loaded here, which matters when two rules tie on
+// specificity: the later one wins.
+
+// Third-party reset (normalize.css v8.0.1, MIT), copied verbatim. It goes first so that every
+// rule of the theme can override it.
+@use "basic/normalize";
+
+// Custom properties and base styles.
+@use "basic/root";
+@use "basic/base";
+
+// Components, in alphabetical order. `buttons` must go before `dropdown` and `nav`, see the notes
+// in `basic/_buttons.scss`.
+@use "basic/badge";
+@use "basic/brand";
+@use "basic/breadcrumb";
+@use "basic/buttons";
+@use "basic/container";
+@use "basic/dialog";
+@use "basic/dropdown";
+@use "basic/form";
+@use "basic/image";
+@use "basic/messages";
+@use "basic/nav";
+@use "basic/navbar";
+@use "basic/pager";
+@use "basic/table";
+
+// Theme regions.
+@use "basic/regions";
+
+// Styles for the pages of the `pagetop-user` extension.
+@use "basic/user";
+
+// Utilities go last so they win over any component rule they are combined with.
+@use "basic/utilities";

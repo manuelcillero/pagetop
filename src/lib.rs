@@ -110,10 +110,7 @@ use std::ops::Deref;
 ///     fn before_render_page_body(&self, page: &mut Page) {
 ///         page
 ///             .alter_assets(
-///                 StyleSheet::from("/pagetop/css/normalize.css").with_version("8.0.1")
-///             )
-///             .alter_assets(
-///                 StyleSheet::from("/pagetop/css/basic.css").with_version(PAGETOP_VERSION),
+///                 StyleSheet::from("/pagetop/css/basic.min.css").with_version(PAGETOP_VERSION),
 ///             )
 ///             .alter_assets(
 ///                 StyleSheet::from("/mytheme/styles.css").with_version(env!("CARGO_PKG_VERSION")),

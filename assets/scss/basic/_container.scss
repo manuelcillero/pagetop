@@ -1,0 +1,32 @@
+@use "sass:list";
+@use "sass:map";
+@use "breakpoints" as bp;
+
+// Classes added by the `Container` component from `Width`. All of them are centered and fill the
+// available width; `.container` and `.container-{name}` also get a maximum width from the
+// breakpoint they name (`.container` from the first one).
+
+$named: ();
+@each $name in map.keys(bp.$breakpoints) {
+    $named: list.append($named, ".container-#{$name}", comma);
+}
+
+.container,
+.container-fluid,
+#{$named} {
+    width: 100%;
+    margin-inline: auto;
+    padding-inline: 1rem;
+}
+
+// From each breakpoint on, `.container` and every `.container-{name}` up to that breakpoint take
+// its maximum width, while the larger ones stay fluid until their own breakpoint is reached.
+$sized: (".container");
+@each $name, $width in bp.$breakpoints {
+    $sized: list.append($sized, ".container-#{$name}", comma);
+    @media (width >= $width) {
+        #{$sized} {
+            max-width: map.get(bp.$container-max-widths, $name);
+        }
+    }
+}

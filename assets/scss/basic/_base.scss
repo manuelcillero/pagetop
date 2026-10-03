@@ -1,0 +1,23 @@
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: var(--val-font-family);
+    font-size: var(--val-fs--base);
+    font-weight: var(--val-fw--base);
+    line-height: var(--val-lh--base);
+    color: var(--val-color--text);
+    background-color: var(--val-color--bg);
+    -webkit-tap-highlight-color: transparent;
+}
+
+// Header, Aside, Content and Footer are stacked in that order, using the full available width.
+.wrapper {
+    display: flex;
+    flex-direction: column;
+}

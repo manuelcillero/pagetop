@@ -1,0 +1,15 @@
+.image {
+    vertical-align: middle;
+}
+.image-fluid {
+    max-width: 100%;
+    height: auto;
+}
+.image-thumbnail {
+    max-width: 100%;
+    height: auto;
+    padding: 0.25rem;
+    background-color: var(--val-color--bg);
+    border: 1px solid var(--val-color--border);
+    border-radius: 0.375rem;
+}

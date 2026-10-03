@@ -1,0 +1,120 @@
+// Base geometry of .dropdown-button/.dropdown-toggle (the rest is in `_dropdown.scss`). It is
+// declared here, before the button classes, so that .button-sm/.button-lg/.button-* win the
+// specificity tie against it when combined on the same element (CSS resolves a tie by order of
+// appearance in the file, not by the order of the classes in the HTML).
+.dropdown-button,
+.dropdown-toggle {
+    padding: 0.5rem 0.75rem;
+    font: inherit;
+    color: var(--val-color--text);
+    background-color: transparent;
+    border: 1px solid var(--val-color--border);
+    border-radius: 0.375rem;
+    cursor: pointer;
+}
+
+.button {
+    display: inline-block;
+    padding: 0.5rem 1.25rem;
+    font-size: var(--val-fs--base);
+    font-weight: 600;
+    line-height: var(--val-lh--base);
+    color: #fff;
+    background-color: var(--val-color--primary);
+    border: 1px solid var(--val-color--primary);
+    border-radius: 0.375rem;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color .15s ease-in-out, border-color .15s ease-in-out;
+}
+.button:hover {
+    background-color: color-mix(in srgb, var(--val-color--primary) 85%, black);
+    border-color: color-mix(in srgb, var(--val-color--primary) 85%, black);
+}
+.button:disabled,
+.button.disabled {
+    opacity: 0.65;
+    cursor: default;
+    pointer-events: none;
+}
+.button::-moz-focus-inner {
+    border: 0;
+}
+
+.button-sm {
+    padding: 0.25rem 0.75rem;
+    font-size: 0.875rem;
+}
+.button-lg {
+    padding: 0.75rem 1.5rem;
+    font-size: 1.25rem;
+}
+
+.button-primary,
+.button-neutral,
+.button-success,
+.button-severe {
+    color: #fff;
+}
+.button-info,
+.button-warning {
+    color: #000;
+}
+.button-primary   { background-color: var(--val-color--primary);   border-color: var(--val-color--primary); }
+.button-neutral   { background-color: var(--val-color--secondary); border-color: var(--val-color--secondary); }
+.button-success   { background-color: var(--val-color--success);   border-color: var(--val-color--success); }
+.button-info      { background-color: var(--val-color--info);      border-color: var(--val-color--info); }
+.button-warning   { background-color: var(--val-color--warning);   border-color: var(--val-color--warning); }
+.button-severe    { background-color: var(--val-color--danger);    border-color: var(--val-color--danger); }
+
+.button-primary:hover   { background-color: color-mix(in srgb, var(--val-color--primary) 85%, black);   border-color: color-mix(in srgb, var(--val-color--primary) 85%, black); }
+.button-neutral:hover   { background-color: color-mix(in srgb, var(--val-color--secondary) 85%, black); border-color: color-mix(in srgb, var(--val-color--secondary) 85%, black); }
+.button-success:hover   { background-color: color-mix(in srgb, var(--val-color--success) 85%, black);   border-color: color-mix(in srgb, var(--val-color--success) 85%, black); }
+.button-info:hover      { background-color: color-mix(in srgb, var(--val-color--info) 85%, black);      border-color: color-mix(in srgb, var(--val-color--info) 85%, black); }
+.button-warning:hover   { background-color: color-mix(in srgb, var(--val-color--warning) 85%, black);   border-color: color-mix(in srgb, var(--val-color--warning) 85%, black); }
+.button-severe:hover    { background-color: color-mix(in srgb, var(--val-color--danger) 85%, black);    border-color: color-mix(in srgb, var(--val-color--danger) 85%, black); }
+
+.button-outline-primary,
+.button-outline-neutral,
+.button-outline-success,
+.button-outline-info,
+.button-outline-warning,
+.button-outline-severe {
+    background-color: transparent;
+}
+.button-outline-primary   { border-color: var(--val-color--primary);   color: var(--val-color--primary); }
+.button-outline-neutral   { border-color: var(--val-color--secondary); color: var(--val-color--secondary); }
+.button-outline-success   { border-color: var(--val-color--success);   color: var(--val-color--success); }
+.button-outline-info      { border-color: var(--val-color--info);      color: var(--val-color--info); }
+.button-outline-warning   { border-color: var(--val-color--warning);   color: var(--val-color--warning); }
+.button-outline-severe    { border-color: var(--val-color--danger);    color: var(--val-color--danger); }
+
+.button-outline-primary:hover   { background-color: var(--val-color--primary);   border-color: var(--val-color--primary);   color: #fff; }
+.button-outline-neutral:hover   { background-color: var(--val-color--secondary); border-color: var(--val-color--secondary); color: #fff; }
+.button-outline-success:hover   { background-color: var(--val-color--success);   border-color: var(--val-color--success);   color: #fff; }
+.button-outline-info:hover      { background-color: var(--val-color--info);      border-color: var(--val-color--info);      color: #000; }
+.button-outline-warning:hover   { background-color: var(--val-color--warning);   border-color: var(--val-color--warning);   color: #000; }
+.button-outline-severe:hover    { background-color: var(--val-color--danger);    border-color: var(--val-color--danger);    color: #fff; }
+
+.button-link {
+    font-weight: 400;
+    color: var(--val-color--primary);
+    background-color: transparent;
+    border-color: transparent;
+    text-decoration: underline;
+}
+.button-link:hover {
+    color: color-mix(in srgb, var(--val-color--primary) 85%, black);
+    background-color: transparent;
+    border-color: transparent;
+}
+.button-link:disabled,
+.button-link.disabled {
+    color: var(--val-color--text--muted);
+}
+
+.button-set {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}

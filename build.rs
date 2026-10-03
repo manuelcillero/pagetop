@@ -1,14 +1,21 @@
-use pagetop_build::{StaticFilesBundle, compile_scss, copy_dir, minify_js};
+use pagetop_build::{StaticFilesBundle, compile_scss, copy_dir, copy_file, minify_js};
 
 fn main() -> std::io::Result<()> {
     // Regenera `static/` desde cero sólo si hay cambios en `assets/`.
     println!("cargo:rerun-if-changed=assets");
     let _ = std::fs::remove_dir_all("static");
 
-    copy_dir("assets", "static")?;
+    // Copia sin transformar. `assets/scss/` queda fuera porque sólo contiene fuentes SCSS.
+    copy_file("assets/banner.png", "static/banner.png")?;
+    copy_file("assets/favicon.ico", "static/favicon.ico")?;
+    copy_dir("assets/img", "static/img")?;
+    copy_dir("assets/js", "static/js")?;
 
-    // CSS: genera la variante minificada de `basic.css` del tema Basic.
-    compile_scss("assets/css/basic.css", "static/css/basic.min.css")?;
+    // CSS: compila los estilos del tema Basic.
+    compile_scss("assets/scss/basic.scss", "static/css/basic.min.css")?;
+
+    // CSS: compila los estilos del componente `Intro`, independientes del tema.
+    compile_scss("assets/scss/intro.scss", "static/css/intro.min.css")?;
 
     // JS: minifica el manejo de `Dialog` del tema Basic.
     minify_js(

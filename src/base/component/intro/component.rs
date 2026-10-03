@@ -107,7 +107,9 @@ impl Component for Intro {
     }
 
     async fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
-        cx.alter_assets(StyleSheet::from("/pagetop/css/intro.css").with_version(PAGETOP_VERSION));
+        cx.alter_assets(
+            StyleSheet::from("/pagetop/css/intro.min.css").with_version(PAGETOP_VERSION),
+        );
         if *self.kind() == intro::Kind::PageTop {
             cx.alter_assets(JavaScript::on_load_async("intro-js", |cx|
                 util::indoc!(r#"

@@ -1,0 +1,25 @@
+// Breakpoints of the Basic theme, used to generate the responsive classes of `Container` and
+// `Navbar`. They match the default `Theme::breakpoint_entry()` table (`xs` has no minimum width, so
+// it is left out), so a child theme that renames or resizes the breakpoints must also redefine the
+// classes generated from them.
+//
+// This partial emits no CSS on its own.
+
+$breakpoints: (
+    sm: 576px,
+    md: 768px,
+    lg: 992px,
+    xl: 1200px,
+    xxl: 1400px,
+    xxxl: 1920px,
+);
+
+// Maximum width of `.container` and `.container-{name}` from each breakpoint on.
+$container-max-widths: (
+    sm: 540px,
+    md: 720px,
+    lg: 960px,
+    xl: 1140px,
+    xxl: 1320px,
+    xxxl: 1800px,
+);
