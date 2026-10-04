@@ -170,3 +170,4 @@ pub(crate) use regions::ChildrenInRegions;
 pub use regions::InRegion;
 
 pub(crate) mod all;
+pub use all::{default_theme, enabled_themes, theme_by_short_name};

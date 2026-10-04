@@ -1,3 +1,4 @@
+use crate::auth::CurrentUser;
 use crate::global;
 use crate::util;
 use crate::web::HttpRequest;
@@ -16,8 +17,8 @@ use super::{LangId, LanguageIdentifier, Locale};
 ///
 /// [`LangNegotiation`]: crate::global::LangNegotiation
 pub struct RequestLocale {
-    // Idioma elegido por la aplicación para esta petición, combinando la configuración, la cabecera
-    // `Accept-Language` y/o el idioma de respaldo.
+    // Idioma elegido por la aplicación para esta petición, combinando el idioma del usuario, la
+    // configuración, la cabecera `Accept-Language` y/o el idioma de respaldo.
     base: &'static LanguageIdentifier,
     // Idioma finalmente aplicado a la petición (puede coincidir con `base` o no).
     effective: &'static LanguageIdentifier,
@@ -34,19 +35,25 @@ impl RequestLocale {
     ///
     /// - [`LangNegotiation::Full`] determina el idioma en este orden:
     ///   1. Parámetro de *query* `?lang=...`, si existe y corresponde a un idioma soportado.
+    ///   2. Idioma preferido del usuario ([`CurrentUser::language()`]), si tiene uno.
+    ///   3. [`Locale::try_langid()`], si la aplicación tiene un idioma por defecto válido.
+    ///   4. Cabecera `Accept-Language`, si puede resolverse con [`Locale::resolve()`].
+    ///   5. Idioma de respaldo.
+    ///
+    /// - [`LangNegotiation::NoQuery`] descarta el uso del parámetro `?lang=...` y determina el
+    ///   idioma en este orden:
+    ///   1. Idioma preferido del usuario ([`CurrentUser::language()`]), si tiene uno.
     ///   2. [`Locale::try_langid()`], si la aplicación tiene un idioma por defecto válido.
     ///   3. Cabecera `Accept-Language`, si puede resolverse con [`Locale::resolve()`].
     ///   4. Idioma de respaldo.
     ///
-    /// - [`LangNegotiation::NoQuery`] descarta el uso del parámetro `?lang=...` y determina el
-    ///   idioma en este orden:
-    ///   1. [`Locale::try_langid()`], si la aplicación tiene un idioma por defecto válido.
-    ///   2. Cabecera `Accept-Language`, si puede resolverse con [`Locale::resolve()`].
-    ///   3. Idioma de respaldo.
-    ///
     /// - [`LangNegotiation::ConfigOnly`] sólo usa la configuración de la aplicación mediante
-    ///   [`Locale::default_langid()`], sin consultar la cabecera `Accept-Language` ni el parámetro
-    ///   `?lang`. Este modo también aplica el idioma de respaldo si es necesario.
+    ///   [`Locale::default_langid()`], sin consultar el idioma del usuario, la cabecera
+    ///   `Accept-Language` ni el parámetro `?lang`. Este modo también aplica el idioma de respaldo
+    ///   si es necesario.
+    ///
+    /// El idioma del usuario se lee del [`CurrentUser`] que la extensión de autenticación inserta
+    /// en las extensiones de la petición.
     ///
     /// En todos los casos, el idioma resultante es siempre un [`LanguageIdentifier`] soportado por
     /// la aplicación y será el que PageTop utilice para renderizar la respuesta de la petición.
@@ -65,10 +72,14 @@ impl RequestLocale {
                 Locale::default_langid()
             }
             global::LangNegotiation::Full | global::LangNegotiation::NoQuery => {
-                if let Some(default) = Locale::try_langid() {
-                    default
+                let user_language = request
+                    .and_then(|req| req.extension::<CurrentUser>())
+                    .and_then(CurrentUser::language);
+                if let Some(langid) = user_language.or_else(Locale::try_langid) {
+                    langid
                 } else {
-                    // Sin idioma por defecto, se evalúa la cabecera `Accept-Language`.
+                    // Sin idioma del usuario ni por defecto, se evalúa la cabecera
+                    // `Accept-Language`.
                     request
                         .and_then(|req| req.headers().get("Accept-Language"))
                         .and_then(|value| value.to_str().ok())
@@ -147,9 +158,10 @@ impl RequestLocale {
 
     /// Fuerza el idioma que se utilizará para las traducciones de esta petición.
     ///
-    /// Este método permite sustituir el idioma calculado (por configuración, cabecera, `?lang`,
-    /// etc.) por otro idioma. Normalmente se usa cuando quieres que toda la respuesta se genere en
-    /// un idioma concreto, independientemente de cómo se haya llegado a él.
+    /// Este método permite sustituir el idioma calculado (por `?lang`, idioma del usuario,
+    /// configuración, cabecera, etc.) por otro idioma. Normalmente se usa cuando quieres que toda
+    /// la respuesta se genere en un idioma concreto, independientemente de cómo se haya llegado a
+    /// él.
     #[inline]
     pub fn with_langid(&mut self, language: &impl LangId) -> &mut Self {
         self.effective = language.langid();
@@ -162,11 +174,12 @@ impl RequestLocale {
     /// El comportamiento depende de la estrategia configurada en [`LangNegotiation`]:
     ///
     /// - En modo [`LangNegotiation::Full`] devuelve `true` cuando la respuesta se está generando en
-    ///   un idioma distinto del que la aplicación habría elegido automáticamente a partir de la
-    ///   configuración, el navegador y el idioma de respaldo. En la práctica suele significar que
-    ///   el usuario ha pedido expresamente otro idioma (por ejemplo, con `?lang=...`) o que se ha
-    ///   forzado con [`with_langid()`](Self::with_langid), y por tanto es recomendable propagar
-    ///   `lang=...` en los enlaces para mantener esa preferencia mientras se navega.
+    ///   un idioma distinto del que la aplicación habría elegido automáticamente a partir del
+    ///   idioma del usuario, la configuración, el navegador y el idioma de respaldo. En la práctica
+    ///   suele significar que el usuario ha pedido expresamente otro idioma (por ejemplo, con
+    ///   `?lang=...`) o que se ha forzado con [`with_langid()`](Self::with_langid), y por tanto es
+    ///   recomendable propagar `lang=...` en los enlaces para mantener esa preferencia mientras se
+    ///   navega.
     ///
     /// - En modos [`LangNegotiation::NoQuery`] y [`LangNegotiation::ConfigOnly`] siempre devuelve
     ///   `false`, ya que en estas estrategias la aplicación no utiliza el parámetro `?lang=...`

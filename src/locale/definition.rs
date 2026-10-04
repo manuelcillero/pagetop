@@ -1,7 +1,7 @@
 use crate::{global, trace, util};
 
-use super::languages::LANGUAGES;
-use super::{LanguageIdentifier, langid};
+use super::languages::{LANGUAGES, SUPPORTED};
+use super::{LanguageIdentifier, Lc, langid};
 
 use std::sync::LazyLock;
 
@@ -137,6 +137,33 @@ impl Locale {
             Locale::Resolved(l) => Some(l),
             _ => None,
         }
+    }
+
+    /// Devuelve los idiomas soportados por PageTop con su nombre traducible, ordenados por
+    /// identificador.
+    ///
+    /// Incluye una entrada por identificador canónico (p. ej. `"es-ES"`), sin los alias de idioma
+    /// base (`"es"`) que [`Locale::resolve()`] también acepta. El nombre es, por tanto, el de la
+    /// variante regional (p. ej. *"Español (España)"*, no *"Español"*). Útil para ofrecer un
+    /// selector de idioma.
+    ///
+    /// # Ejemplo
+    ///
+    /// ```rust
+    /// # use pagetop::prelude::*;
+    /// let codes: Vec<String> = Locale::supported_languages()
+    ///     .iter()
+    ///     .map(|(langid, _)| langid.to_string())
+    ///     .collect();
+    ///
+    /// assert!(codes.contains(&"es-ES".to_string()));
+    /// assert!(!codes.contains(&"es".to_string()));
+    /// ```
+    pub fn supported_languages() -> Vec<(&'static LanguageIdentifier, Lc)> {
+        SUPPORTED
+            .iter()
+            .map(|(langid, key)| (*langid, Lc::l(*key)))
+            .collect()
     }
 
     // **< Locale HELPERS >*************************************************************************

@@ -23,11 +23,7 @@ async fn resolve_uses_the_timezone_already_resolved_by_the_authenticated_user() 
 
     let madrid: Tz = "Europe/Madrid".parse().unwrap();
     let req = web::test::TestRequest::get()
-        .with_extension(CurrentUser::Authenticated {
-            id: 1,
-            display_name: "Alice".to_owned(),
-            timezone: Some(madrid),
-        })
+        .with_extension(CurrentUser::authenticated(1, "Alice").with_timezone("Europe/Madrid"))
         .to_http_request();
     let cx = Context::new(req);
     assert_eq!(cx.timezone(), madrid);

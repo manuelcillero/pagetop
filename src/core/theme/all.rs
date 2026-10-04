@@ -7,27 +7,50 @@ use std::sync::LazyLock;
 
 // **< TEMAS >**************************************************************************************
 
-pub static THEMES: LazyLock<RwLock<Vec<ThemeRef>>> = LazyLock::new(|| RwLock::new(Vec::new()));
+static THEMES: LazyLock<RwLock<Vec<ThemeRef>>> = LazyLock::new(|| RwLock::new(Vec::new()));
+
+// Registra el tema si no lo estaba ya, para evitar duplicados. Devuelve `true` si lo ha añadido.
+pub(crate) fn register_theme(theme: ThemeRef) -> bool {
+    let mut themes = THEMES.write();
+    if themes.iter().any(|t| t.type_id() == theme.type_id()) {
+        return false;
+    }
+    themes.push(theme);
+    true
+}
+
+/// Devuelve los temas habilitados en la aplicación, en el orden en que se registraron.
+pub fn enabled_themes() -> Vec<ThemeRef> {
+    THEMES.read().clone()
+}
+
+/// Devuelve el tema identificado por su [`short_name()`](crate::core::AnyInfo::short_name), si está
+/// habilitado, sin distinguir mayúsculas y minúsculas.
+pub fn theme_by_short_name(short_name: &str) -> Option<ThemeRef> {
+    THEMES
+        .read()
+        .iter()
+        .find(|t| t.short_name().eq_ignore_ascii_case(short_name))
+        .copied()
+}
 
 // **< TEMA PREDETERMINADO >************************************************************************
 
-pub static DEFAULT_THEME: LazyLock<ThemeRef> =
+static DEFAULT_THEME: LazyLock<ThemeRef> =
     LazyLock::new(|| match theme_by_short_name(&global::SETTINGS.app.theme) {
         Some(theme) => theme,
         None => &crate::base::theme::Basic,
     });
 
-// **< TEMA POR NOMBRE >****************************************************************************
-
-/// Devuelve el tema identificado por su [`short_name()`](AnyInfo::short_name).
-pub fn theme_by_short_name(short_name: &'static str) -> Option<ThemeRef> {
-    let short_name = short_name.to_lowercase();
-    match THEMES
-        .read()
-        .iter()
-        .find(|t| t.short_name().to_lowercase() == short_name)
-    {
-        Some(theme) => Some(*theme),
-        _ => None,
-    }
+/// Devuelve el tema predeterminado de la aplicación: el configurado en `app.theme` si está
+/// habilitado o, en otro caso, [`Basic`](crate::base::theme::Basic).
+///
+/// Es el tema del sitio, no necesariamente el que se usa en una petición concreta: para renderizar,
+/// el tema efectivo es el de [`Contextual::theme()`], que tiene en cuenta el tema preferido del
+/// usuario ([`CurrentUser::theme()`]).
+///
+/// [`Contextual::theme()`]: crate::core::component::Contextual::theme
+/// [`CurrentUser::theme()`]: crate::auth::CurrentUser::theme
+pub fn default_theme() -> ThemeRef {
+    *DEFAULT_THEME
 }

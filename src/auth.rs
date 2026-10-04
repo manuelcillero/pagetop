@@ -17,11 +17,14 @@
 //! [`Context`]: crate::core::component::Context
 
 use crate::core::action::{ActionDispatcher, try_dispatch_actions};
+use crate::core::theme::{ThemeRef, theme_by_short_name};
 use crate::datetime::{Timezone, Tz};
-use crate::locale::Lc;
+use crate::locale::{LanguageIdentifier, Lc, Locale};
 use crate::response::ErrorPage;
 use crate::web::HttpRequest;
-use crate::{CowStr, Weight};
+use crate::{AutoDefault, CowStr, Getters, Weight, builder_impl};
+
+use std::ops::ControlFlow;
 
 // **< CurrentUser >********************************************************************************
 
@@ -29,76 +32,133 @@ use crate::{CowStr, Weight};
 ///
 /// Se almacena automáticamente en el [`Context`] a partir de la petición HTTP. La identidad se
 /// extrae de las extensiones de la petición, que una extensión de autenticación inyecta mediante su
-/// middleware.
+/// middleware. Sin extensión de autenticación, o si ésta no inyecta ninguna identidad, el usuario
+/// es anónimo ([`CurrentUser::anonymous()`], que también es el valor por defecto).
 ///
 /// Se accede usando [`Contextual::current_user()`].
+///
+/// Los usuarios pueden tener idioma, zona horaria y tema preferidos. Se asignan con su valor en
+/// bruto y se validan al asignarlos: un idioma no soportado, una zona horaria desconocida o un tema
+/// no habilitado en la aplicación se descartan y el dato queda sin valor, como si el usuario no
+/// tuviera ninguno. Así, las preferencias de un `CurrentUser` son siempre válidas.
 ///
 /// Los datos extendidos del usuario autenticado (roles, permisos, cuenta completa, ...) son
 /// responsabilidad de la extensión de autenticación y se obtienen a través de
 /// [`HttpRequest::extension`].
 ///
+/// # Ejemplo
+///
+/// ```rust,no_run
+/// # use pagetop::prelude::*;
+/// let user = CurrentUser::authenticated(42, "Alice")
+///     .with_language("es-ES")
+///     .with_timezone("Europe/Madrid");
+/// ```
+///
 /// [`Context`]: crate::core::component::Context
 /// [`Contextual::current_user()`]: crate::core::component::Contextual::current_user
 /// [`HttpRequest::extension`]: crate::web::HttpRequest::extension
-#[derive(Clone, Debug)]
-pub enum CurrentUser {
-    /// Usuario no autenticado.
-    Anonymous,
-    /// Usuario autenticado con su identificador, nombre visible y zona horaria propia.
-    Authenticated {
-        /// Identificador único del usuario en el sistema.
-        id: i32,
-        /// Nombre visible del usuario.
-        display_name: String,
-        /// Zona horaria del usuario, si tiene una configurada y es válida. En otro caso valdrá
-        /// `None` y [`timezone()`](Self::timezone) devolverá la zona horaria predeterminada de la
-        /// aplicación.
-        timezone: Option<Tz>,
-    },
+#[derive(AutoDefault, Clone, Debug, Getters)]
+pub struct CurrentUser {
+    /// Devuelve el identificador del usuario, o `None` si es anónimo.
+    #[getters(copy)]
+    id: Option<i32>,
+    // Siempre `Some` en un usuario autenticado y `None` en uno anónimo, igual que `id`.
+    #[getters(skip)]
+    display_name: Option<String>,
+    /// Devuelve el idioma preferido del usuario, o `None` si no tiene ninguno.
+    ///
+    /// Lo tiene en cuenta [`RequestLocale`](crate::locale::RequestLocale) al decidir el idioma de
+    /// la petición.
+    #[getters(copy)]
+    language: Option<&'static LanguageIdentifier>,
+    // Ver `timezone()`, que devuelve la zona horaria efectiva.
+    #[getters(skip)]
+    timezone: Option<Tz>,
+    /// Devuelve el tema preferido del usuario, o `None` si no tiene ninguno.
+    ///
+    /// Lo tiene en cuenta el [`Context`](crate::core::component::Context) de la petición al elegir
+    /// el tema con el que se renderiza.
+    #[getters(copy)]
+    theme: Option<ThemeRef>,
 }
 
+#[builder_impl]
 impl CurrentUser {
+    /// Crea un usuario anónimo, sin idioma, zona horaria ni tema preferidos.
+    pub fn anonymous() -> Self {
+        Self::default()
+    }
+
+    /// Crea un usuario autenticado, sin idioma, zona horaria ni tema preferidos.
+    pub fn authenticated(id: i32, display_name: impl Into<String>) -> Self {
+        CurrentUser {
+            id: Some(id),
+            display_name: Some(display_name.into()),
+            ..Self::default()
+        }
+    }
+
+    // **< CurrentUser BUILDER >********************************************************************
+
+    /// Asigna el idioma preferido a partir de su identificador (p. ej. `"es-ES"` o `"es"`).
+    ///
+    /// Se resuelve con [`Locale::resolve()`](crate::locale::Locale::resolve); si el idioma no está
+    /// soportado por la aplicación, o es `None`, el usuario queda sin idioma preferido.
+    pub fn with_language<'a>(mut self, language: impl Into<Option<&'a str>>) -> Self {
+        self.language = language
+            .into()
+            .and_then(|language| Locale::resolve(language).as_option());
+        self
+    }
+
+    /// Asigna la zona horaria a partir de su nombre IANA (p. ej. `"Europe/Madrid"`).
+    ///
+    /// Si el nombre no corresponde a ninguna zona horaria conocida, o es `None`, el usuario queda
+    /// sin zona horaria propia.
+    pub fn with_timezone<'a>(mut self, timezone: impl Into<Option<&'a str>>) -> Self {
+        self.timezone = timezone.into().and_then(|timezone| timezone.parse().ok());
+        self
+    }
+
+    /// Asigna el tema preferido a partir de su nombre corto (p. ej. `"basic"`).
+    ///
+    /// Se busca con [`theme_by_short_name()`](crate::core::theme::theme_by_short_name); si el tema
+    /// no está habilitado en la aplicación, o es `None`, el usuario queda sin tema preferido.
+    pub fn with_theme<'a>(mut self, theme: impl Into<Option<&'a str>>) -> Self {
+        self.theme = theme.into().and_then(theme_by_short_name);
+        self
+    }
+
+    // **< CurrentUser GETTERS >********************************************************************
+
     /// Devuelve `true` si el usuario no está autenticado.
     pub fn is_anonymous(&self) -> bool {
-        matches!(self, CurrentUser::Anonymous)
+        self.id.is_none()
     }
 
     /// Devuelve `true` si el usuario está autenticado.
     pub fn is_authenticated(&self) -> bool {
-        matches!(self, CurrentUser::Authenticated { .. })
-    }
-
-    /// Devuelve el identificador del usuario, o `None` si es anónimo.
-    pub fn id(&self) -> Option<i32> {
-        match self {
-            CurrentUser::Anonymous => None,
-            CurrentUser::Authenticated { id, .. } => Some(*id),
-        }
+        self.id.is_some()
     }
 
     /// Devuelve el nombre visible del usuario, o `None` si es anónimo.
     pub fn display_name(&self) -> Option<&str> {
-        match self {
-            CurrentUser::Anonymous => None,
-            CurrentUser::Authenticated { display_name, .. } => Some(display_name),
-        }
+        self.display_name.as_deref()
     }
 
     /// Devuelve la zona horaria efectiva del usuario.
     ///
-    /// Un usuario autenticado devuelve la suya si tiene una configurada y es válida; en cualquier
-    /// otro caso (incluido el usuario anónimo), devuelve [`Timezone::default_tz()`].
+    /// Devuelve la suya si tiene una; en otro caso, devuelve [`Timezone::default_tz()`].
     ///
-    /// Normalmente se resuelve una sola vez, al construir el `Context` de la petición. A partir de
-    /// ese momento el renderizado del documento no vuelve a llamarlo porque usa el valor ya
-    /// resuelto vía [`Contextual::timezone()`](crate::core::component::Contextual::timezone).
+    /// Normalmente se resuelve una sola vez, al construir el [`Context`] de la petición. A partir
+    /// de ese momento el renderizado del documento no vuelve a llamarlo porque usa el valor ya
+    /// resuelto vía [`Contextual::timezone()`].
+    ///
+    /// [`Context`]: crate::core::component::Context
+    /// [`Contextual::timezone()`]: crate::core::component::Contextual::timezone
     pub fn timezone(&self) -> Tz {
-        match self {
-            CurrentUser::Anonymous => Timezone::default_tz(),
-            CurrentUser::Authenticated { timezone, .. } => {
-                timezone.unwrap_or_else(Timezone::default_tz)
-            }
-        }
+        self.timezone.unwrap_or_else(Timezone::default_tz)
     }
 }
 
@@ -113,8 +173,7 @@ impl CurrentUser {
 /// # Ejemplo
 ///
 /// ```rust,no_run
-/// # use pagetop::auth::Permission;
-/// # use pagetop::CowStr;
+/// # use pagetop::prelude::*;
 /// #[derive(Clone, Copy, Debug)]
 /// pub enum MyPermission {
 ///     EditPosts,
@@ -222,21 +281,6 @@ impl CheckPermission {
         self.weight = value;
         self
     }
-
-    // Despacha las acciones registradas con salida anticipada en cuanto una concede el permiso.
-    #[inline]
-    pub(crate) fn check(request: &HttpRequest, perm: PermissionRef) -> bool {
-        let mut granted = false;
-        try_dispatch_actions(|action: &Self| {
-            (action.f)(request, perm, &mut granted);
-            if granted {
-                std::ops::ControlFlow::Break(())
-            } else {
-                std::ops::ControlFlow::Continue(())
-            }
-        });
-        granted
-    }
 }
 
 // **< has_permission >*****************************************************************************
@@ -267,7 +311,17 @@ impl CheckPermission {
 /// }
 /// ```
 pub fn has_permission(request: &HttpRequest, perm: PermissionRef) -> bool {
-    CheckPermission::check(request, perm)
+    // Despacha las acciones registradas con salida anticipada en cuanto una concede el permiso.
+    let mut granted = false;
+    try_dispatch_actions(|action: &CheckPermission| {
+        (action.f)(request, perm, &mut granted);
+        if granted {
+            ControlFlow::Break(())
+        } else {
+            ControlFlow::Continue(())
+        }
+    });
+    granted
 }
 
 // **< require_permission >*************************************************************************
@@ -303,8 +357,6 @@ pub fn has_permission(request: &HttpRequest, perm: PermissionRef) -> bool {
 ///         .await
 /// }
 /// ```
-// `ErrorPage` incluye `Option<HttpRequest>` en cada variante y es el tipo de error ya establecido
-// para toda la respuesta HTTP; boxearlo aquí sólo para esta función no compensa.
 pub fn require_permission(request: &HttpRequest, perm: PermissionRef) -> Result<(), ErrorPage> {
     if has_permission(request, perm) {
         Ok(())

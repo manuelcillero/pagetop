@@ -21,7 +21,7 @@ const ISO_DATETIME: &str = "%Y-%m-%dT%H:%M:%S%:z";
 /// - Almacenar la **petición HTTP** de origen.
 /// - Conocer la **identidad del usuario actual** ([`current_user()`](Self::current_user)) y la
 ///   **zona horaria efectiva** del documento ([`timezone()`](Self::timezone)).
-/// - Seleccionar la **plantilla** y el **tema** de renderizado.
+/// - Seleccionar el **tema** y la **plantilla** de renderizado.
 /// - Administrar **recursos** del documento como el icono [`Favicon`], las hojas de estilo
 ///   [`StyleSheet`] o los scripts [`JavaScript`], directamente o mediante una operación
 ///   [`AssetsOp`].
@@ -40,8 +40,8 @@ const ISO_DATETIME: &str = "%Y-%m-%dT%H:%M:%S%:z";
 /// # use pagetop_aliner::Aliner;
 /// fn prepare_context<C: Contextual>(cx: C) -> C {
 ///     cx.with_langid(&Locale::resolve("es-ES"))
-///       .with_template(&CoreTemplates::Standard)
 ///       .with_theme(&Aliner)
+///       .with_template(&CoreTemplates::Standard)
 ///       .with_assets(Favicon::new().with_icon("/favicon.ico"))
 ///       .with_assets(StyleSheet::from("/css/app.css"))
 ///       .with_assets(JavaScript::defer("/js/app.js"))
@@ -67,21 +67,23 @@ pub trait Contextual: LangId {
     ///
     /// Al asociar la petición, recalcula el idioma ([`RequestLocale::from_request()`]), establece
     /// el usuario actual ([`current_user()`]) y, a partir de éste, asigna la zona horaria efectiva
-    /// ([`timezone()`]), descartando en el proceso cualquier idioma o zona horaria anteriores.
+    /// ([`timezone()`]) y el tema ([`theme()`]), descartando en el proceso cualquier idioma, zona
+    /// horaria o tema anteriores.
     ///
-    /// Si sabes que vas a forzar el idioma o la zona horaria, llama a `with_request()` primero en
-    /// la cadena de construcción, nunca después.
+    /// Si sabes que vas a forzar el idioma, la zona horaria o el tema, llama a `with_request()`
+    /// primero en la cadena de construcción, nunca después.
     ///
     /// [`RequestLocale::from_request()`]: crate::locale::RequestLocale::from_request
     /// [`current_user()`]: Self::current_user
     /// [`timezone()`]: Self::timezone
+    /// [`theme()`]: Self::theme
     fn with_request(self, request: Option<HttpRequest>) -> Self;
-
-    /// Especifica la plantilla para renderizar el documento.
-    fn with_template(self, template: TemplateRef) -> Self;
 
     /// Especifica el tema para renderizar el documento.
     fn with_theme(self, theme: ThemeRef) -> Self;
+
+    /// Especifica la plantilla para renderizar el documento.
+    fn with_template(self, template: TemplateRef) -> Self;
 
     /// Añade o modifica un parámetro dinámico del contexto.
     ///
@@ -125,7 +127,7 @@ pub trait Contextual: LangId {
     ///
     /// Si ninguna extensión de autenticación ha inyectado un
     /// [`CurrentUser`](crate::auth::CurrentUser) en las extensiones de la petición HTTP, devuelve
-    /// `&CurrentUser::Anonymous`.
+    /// un usuario anónimo ([`CurrentUser::anonymous()`](crate::auth::CurrentUser::anonymous)).
     ///
     /// # Ejemplo
     ///
@@ -154,11 +156,11 @@ pub trait Contextual: LangId {
     /// [`CurrentUser::timezone()`]: crate::auth::CurrentUser::timezone
     fn timezone(&self) -> Tz;
 
-    /// Devuelve la plantilla configurada para renderizar el documento.
-    fn template(&self) -> TemplateRef;
-
     /// Devuelve el tema que se usará para renderizar el documento.
     fn theme(&self) -> ThemeRef;
+
+    /// Devuelve la plantilla configurada para renderizar el documento.
+    fn template(&self) -> TemplateRef;
 
     /// Recupera una *referencia tipada* al parámetro solicitado.
     ///

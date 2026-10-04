@@ -286,13 +286,13 @@ impl Contextual for Page {
         self
     }
 
-    fn with_template(mut self, template: TemplateRef) -> Self {
-        self.context.alter_template(template);
+    fn with_theme(mut self, theme: ThemeRef) -> Self {
+        self.context.alter_theme(theme);
         self
     }
 
-    fn with_theme(mut self, theme: ThemeRef) -> Self {
-        self.context.alter_theme(theme);
+    fn with_template(mut self, template: TemplateRef) -> Self {
+        self.context.alter_template(template);
         self
     }
 
@@ -336,12 +336,12 @@ impl Contextual for Page {
         self.context.timezone()
     }
 
-    fn template(&self) -> TemplateRef {
-        self.context.template()
-    }
-
     fn theme(&self) -> ThemeRef {
         self.context.theme()
+    }
+
+    fn template(&self) -> TemplateRef {
+        self.context.template()
     }
 
     fn param<T: 'static>(&self, key: &'static str) -> Result<&T, ContextError> {

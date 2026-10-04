@@ -11,6 +11,27 @@ dropdown_default_title = Dropdown
 # Form components.
 field_required = This field is required
 
+select_language_site_default = Use the site language: { $language }
+select_language_placeholder = Choose a language...
+
+select_theme_site_default = Use the site theme: { $theme }
+select_theme_placeholder = Choose a theme...
+
+select_timezone_site_default = Use the site time zone: { $timezone }
+select_timezone_placeholder = Choose a time zone...
+
+timezone_region_africa = Africa
+timezone_region_america = America
+timezone_region_antarctica = Antarctica
+timezone_region_arctic = Arctic
+timezone_region_asia = Asia
+timezone_region_atlantic = Atlantic
+timezone_region_australia = Australia
+timezone_region_europe = Europe
+timezone_region_indian = Indian Ocean
+timezone_region_pacific = Pacific
+timezone_region_etc = Other
+
 # Intro component.
 intro_default_title = Hello, world!
 intro_default_slogan = Discover⚡{ $app }

@@ -27,3 +27,38 @@ pub(super) static LANGUAGES: LazyLock<HashMap<&str, (LanguageIdentifier, &str)>>
             "es-es" => ( langid!("es-ES"), "spanish_spain" ),
         ]
     });
+
+// Idiomas soportados sin alias: una entrada por identificador canónico (la de `LANGUAGES` cuyo
+// código coincide con él, p. ej. "es-es" y no "es"), ordenadas por identificador, con la clave de
+// su nombre.
+pub(super) static SUPPORTED: LazyLock<Vec<(&'static LanguageIdentifier, &'static str)>> =
+    LazyLock::new(|| {
+        let mut supported: Vec<_> = LANGUAGES
+            .iter()
+            .filter(|(code, (langid, _))| langid.to_string().eq_ignore_ascii_case(code))
+            .map(|(_, (langid, key))| (langid, *key))
+            .collect();
+        supported.sort_by_cached_key(|(langid, _)| langid.to_string());
+        supported
+    });
+
+// Un idioma añadido a `LANGUAGES` sólo con su alias (p. ej. "ca" sin "ca-es") lo aceptaría
+// `Locale::resolve()`, pero quedaría fuera de `SUPPORTED` y, con él, del selector de idioma.
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn every_language_has_its_canonical_entry() {
+        for (code, (langid, _)) in LANGUAGES.iter() {
+            assert_eq!(
+                SUPPORTED
+                    .iter()
+                    .filter(|(supported, _)| *supported == langid)
+                    .count(),
+                1,
+                "language \"{code}\" has no canonical entry \"{langid}\" in LANGUAGES"
+            );
+        }
+    }
+}

@@ -1,8 +1,7 @@
 use crate::auth::CurrentUser;
 use crate::core::TypeInfo;
 use crate::core::component::{ChildOp, Component, MessageLevel, StatusMessage};
-use crate::core::theme::all::DEFAULT_THEME;
-use crate::core::theme::{ChildrenInRegions, CoreRegions, CoreTemplates};
+use crate::core::theme::{ChildrenInRegions, CoreRegions, CoreTemplates, default_theme};
 use crate::core::theme::{RegionRef, TemplateRef, ThemeRef};
 use crate::datetime::Tz;
 use crate::html::{Assets, Favicon, JavaScript, Preload, ResponsiveStyles, StyleSheet};
@@ -32,7 +31,7 @@ pub use contextual::Contextual;
 /// [`Page::new()`](crate::response::Page::new) o [`Page::admin()`](crate::response::Page::admin)),
 /// y es la única vía por la que un componente, una acción o el tema activo conocen: la petición
 /// HTTP de origen, el idioma negociado y la zona horaria efectiva, el usuario autenticado
-/// ([`current_user()`](Contextual::current_user)), la plantilla y el tema en uso, y los recursos
+/// ([`current_user()`](Contextual::current_user)), el tema y la plantilla en uso, y los recursos
 /// (favicon, hojas de estilo, scripts) acumulados hasta ese momento. Otros datos que los
 /// componentes necesiten durante el renderizado pueden ser parámetros dinámicos tipados con
 /// [`with_param()`](Contextual::with_param)/[`param()`](Contextual::param).
@@ -99,8 +98,8 @@ pub struct Context {
     locale      : RequestLocale,                  // Idioma asociado a la petición.
     current_user: CurrentUser,                    // Identidad del usuario actual.
     timezone    : Tz,                             // Zona horaria efectiva del documento.
-    template    : TemplateRef,                    // Plantilla usada para renderizar.
     theme       : ThemeRef,                       // Referencia al tema usado para renderizar.
+    template    : TemplateRef,                    // Plantilla usada para renderizar.
     favicon     : Option<Favicon>,                // Favicon, si se ha definido.
     preloads    : Assets<Preload>,                // Recursos para precarga.
     stylesheets : Assets<StyleSheet>,             // Hojas de estilo CSS.
@@ -129,13 +128,14 @@ impl Context {
         let locale = RequestLocale::from_request(request.as_ref());
         let current_user = Self::resolve_current_user(request.as_ref());
         let timezone = current_user.timezone();
+        let theme = current_user.theme().unwrap_or_else(default_theme);
         Context {
             request,
             locale,
             current_user,
             timezone,
+            theme,
             template,
-            theme      : *DEFAULT_THEME,
             favicon    : None,
             preloads   : Assets::<Preload>::new(),
             stylesheets: Assets::<StyleSheet>::new(),
@@ -169,12 +169,12 @@ impl Context {
     }
 
     // Extrae el `CurrentUser` inyectado por middleware en las extensiones de la petición, o
-    // `CurrentUser::Anonymous` si no hay petición o ninguna extensión de autenticación está activa.
+    // un usuario anónimo si no hay petición o ninguna extensión de autenticación está activa.
     fn resolve_current_user(request: Option<&HttpRequest>) -> CurrentUser {
         request
             .and_then(|r| r.extension::<CurrentUser>())
             .cloned()
-            .unwrap_or(CurrentUser::Anonymous)
+            .unwrap_or_default()
     }
 
     // **< Context RENDER >*************************************************************************
@@ -320,8 +320,9 @@ impl Context {
 
 /// Permite a [`Context`] actuar como proveedor de idioma.
 ///
-/// Internamente delega en [`RequestLocale`], que tiene en cuenta la petición HTTP, la configuración
-/// global de idioma de la aplicación, la cabecera `Accept-Language` y/o el idioma de respaldo.
+/// Internamente delega en [`RequestLocale`], que tiene en cuenta la petición HTTP (parámetro
+/// `?lang` e idioma preferido del usuario), la configuración global de idioma de la aplicación, la
+/// cabecera `Accept-Language` y/o el idioma de respaldo.
 ///
 /// Todo ello según la negociación indicada en [`global::SETTINGS.app.lang_negotiation`]. Esto
 /// permite que el [`Context`] se use como fuente de idioma coherente en [`Lc::lookup()`] o
@@ -344,11 +345,12 @@ impl Contextual for Context {
 
     fn with_request(mut self, request: Option<HttpRequest>) -> Self {
         self.request = request;
-        // Recalcula el *locale*, el usuario actual y la zona horaria según la nueva petición y la
-        // política de negociación configurada.
+        // Recalcula el *locale*, el usuario actual, la zona horaria y el tema según la nueva
+        // petición y la política de negociación configurada.
         self.locale = RequestLocale::from_request(self.request.as_ref());
         self.current_user = Self::resolve_current_user(self.request.as_ref());
         self.timezone = self.current_user.timezone();
+        self.theme = self.current_user.theme().unwrap_or_else(default_theme);
         self
     }
 
@@ -362,13 +364,13 @@ impl Contextual for Context {
         self
     }
 
-    fn with_template(mut self, template: TemplateRef) -> Self {
-        self.template = template;
+    fn with_theme(mut self, theme: ThemeRef) -> Self {
+        self.theme = theme;
         self
     }
 
-    fn with_theme(mut self, theme: ThemeRef) -> Self {
-        self.theme = theme;
+    fn with_template(mut self, template: TemplateRef) -> Self {
+        self.template = template;
         self
     }
 
@@ -452,12 +454,12 @@ impl Contextual for Context {
         self.timezone
     }
 
-    fn template(&self) -> TemplateRef {
-        self.template
-    }
-
     fn theme(&self) -> ThemeRef {
         self.theme
+    }
+
+    fn template(&self) -> TemplateRef {
+        self.template
     }
 
     fn param<T: 'static>(&self, key: &'static str) -> Result<&T, ContextError> {

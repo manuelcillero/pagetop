@@ -431,6 +431,12 @@ pub trait Theme: Extension + Send + Sync {
 /// Referencia estática a un tema.
 pub type ThemeRef = &'static dyn Theme;
 
+impl std::fmt::Debug for dyn Theme {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(self.short_name())
+    }
+}
+
 // **< setup_component! >***************************************************************************
 
 /// Modifica un componente dentro de [`Theme::setup_component()`].

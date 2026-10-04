@@ -11,6 +11,27 @@ dropdown_default_title = Menú desplegable
 # Form components.
 field_required = Este campo es obligatorio
 
+select_language_site_default = Usar el idioma del sitio: { $language }
+select_language_placeholder = Elige un idioma...
+
+select_theme_site_default = Usar el tema del sitio: { $theme }
+select_theme_placeholder = Elige un tema...
+
+select_timezone_site_default = Usar la zona horaria del sitio: { $timezone }
+select_timezone_placeholder = Elige una zona horaria...
+
+timezone_region_africa = África
+timezone_region_america = América
+timezone_region_antarctica = Antártida
+timezone_region_arctic = Ártico
+timezone_region_asia = Asia
+timezone_region_atlantic = Atlántico
+timezone_region_australia = Australia
+timezone_region_europe = Europa
+timezone_region_indian = Océano Índico
+timezone_region_pacific = Pacífico
+timezone_region_etc = Otras
+
 # Intro component.
 intro_default_title = ¡Hola, mundo!
 intro_default_slogan = Descubre⚡{ $app }

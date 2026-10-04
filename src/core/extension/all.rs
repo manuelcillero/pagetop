@@ -1,7 +1,7 @@
 use crate::core::action::publish_actions;
 use crate::core::extension::ExtensionRef;
 use crate::core::theme::ThemeRef;
-use crate::core::theme::all::THEMES;
+use crate::core::theme::all::register_theme;
 use crate::web::Router;
 use crate::{global, serve_static_files, trace, web};
 
@@ -47,14 +47,7 @@ fn add_to_enabled(list: &mut Vec<ExtensionRef>, extension: ExtensionRef) {
         // Comprueba si la extensión tiene un tema asociado que deba registrarse.
         if let Some(theme) = extension.theme() {
             check_theme_parent_chain(theme);
-
-            let mut registered_themes = THEMES.write();
-            // Asegura que el tema no esté ya registrado para evitar duplicados.
-            if !registered_themes
-                .iter()
-                .any(|t| t.type_id() == theme.type_id())
-            {
-                registered_themes.push(theme);
+            if register_theme(theme) {
                 trace::debug!("Enabling \"{}\" theme", theme.short_name());
             }
         } else {
