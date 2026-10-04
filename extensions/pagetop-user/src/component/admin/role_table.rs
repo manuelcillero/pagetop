@@ -88,6 +88,15 @@ impl Component for RoleTable {
             } else {
                 None
             };
+            let no_permissions_badge = if role.locked || role.has_permissions {
+                None
+            } else {
+                Some(
+                    Badge::neutral(Lc::t("badge-no-permissions", &LOCALES_USER))
+                        .render(cx)
+                        .await,
+                )
+            };
 
             table.alter_row(
                 table::Row::new()
@@ -96,6 +105,7 @@ impl Component for RoleTable {
                     .with_cell(Html::with(move |_cx| {
                         html! {
                             @if let Some(badge) = &system_badge { (badge) }
+                            @if let Some(badge) = &no_permissions_badge { (badge) }
                         }
                     }))
                     .with_cell(role.user_count.to_string())
@@ -166,10 +176,9 @@ impl RoleTable {
         self
     }
 
-    // URL del listado con el estado actual (orden, página): es el valor que viaja como
-    // `waypoint` en los enlaces de ver/editar/permisos, para poder volver exactamente a este
-    // mismo estado. Se construye con `cx.route()` para que preserve el parámetro `lang` cuando
-    // corresponda.
+    // URL del listado con el estado actual (orden, página): es el valor que viaja como `waypoint`
+    // en los enlaces de ver/editar/permisos, para poder volver exactamente a este mismo estado. Se
+    // construye con `cx.route()` para que preserve el parámetro `lang` cuando corresponda.
     fn list_href(&self, cx: &Context) -> String {
         cx.route(ADMIN_ROLES_PATH)
             .alter_param("sort", self.sort().as_str())
@@ -219,8 +228,8 @@ fn label_cell(role: &RoleListItem, waypoint: &Waypoint) -> Html {
 }
 
 // Construye la celda de acciones: gestionar permisos siempre, y editar/borrar sólo si el rol no
-// está bloqueado por el sistema. Devuelve un componente `Html` para que el marcado se genere
-// cuando `Table` renderice la celda, no al construir la fila.
+// está bloqueado por el sistema. Devuelve un componente `Html` para que el marcado se genere cuando
+// `Table` renderice la celda, no al construir la fila.
 async fn actions_cell(
     role: &RoleListItem,
     waypoint: &Waypoint,
@@ -235,10 +244,10 @@ async fn actions_cell(
 
     let permissions_href = waypoint.append_to(cx.route(role_path(id, "permissions")));
 
-    // Los botones se renderizan aquí, no dentro del `Html::with()` de abajo: necesitan pasar por
-    // su propio ciclo de renderizado (`.render().await`) para que el tema activo los estilice
-    // igual (ver `pagetop-bootsier::theme::bs::button`), incluida la traducción de `data-dialog-*`
-    // que usa el botón de borrado.
+    // Los botones se renderizan aquí, no dentro del `Html::with()` de abajo: necesitan pasar por su
+    // propio ciclo de renderizado (`.render().await`) para que el tema activo los estilice igual
+    // (ver `pagetop-bootsier::theme::bs::button`), incluida la traducción de `data-dialog-*` que
+    // usa el botón de borrado.
     let permissions_button = Button::anchor(
         Lc::t("btn-manage-permissions", &LOCALES_USER),
         permissions_href,
@@ -258,8 +267,8 @@ async fn actions_cell(
             .render(cx)
             .await;
 
-        // Viaja como query string para que, tanto si el borrado falla como si tiene éxito, la
-        // tabla vuelva a mostrarse en la misma página/orden en que estaba, en vez de reiniciarse.
+        // Viaja como query string para que, tanto si el borrado falla como si tiene éxito, la tabla
+        // vuelva a mostrarse en la misma página/orden en que estaba, en vez de reiniciarse.
         let confirm_href = cx
             .route(role_path(id, "delete/confirm"))
             .alter_param("sort", sort.as_str())

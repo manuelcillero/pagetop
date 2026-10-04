@@ -140,14 +140,16 @@ link-back-to-list      = Back to list
 
 # **< Admin: confirmations and badges >**
 
-confirm-delete-role   = Delete this role? This cannot be undone.
-confirm-change-status = Change this account's status?
-confirm-grant-admin   = Grant unrestricted access to this account?
-confirm-revoke-admin  = Revoke this account's unrestricted access?
-badge-system-role     = System
-badge-admin           = Administrator
-empty-users-list      = No users found.
-empty-roles-list      = No roles found.
+confirm-delete-role    = Delete this role? This cannot be undone.
+confirm-change-status  = Change this account's status?
+confirm-grant-admin    = Grant unrestricted access to this account?
+confirm-revoke-admin   = Revoke this account's unrestricted access?
+badge-system-role      = System
+badge-admin            = Administrator
+badge-no-permissions   = No permissions
+empty-users-list       = No users found.
+empty-roles-list       = No roles found.
+empty-role-permissions = This role has no permissions.
 
 # **< Admin: error messages >**
 

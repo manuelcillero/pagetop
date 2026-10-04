@@ -348,31 +348,33 @@ async fn role_view_details(role: &role::Model, cx: &mut Context) -> Block {
         .with_child(table)
 }
 
-// Un bloque por grupo del catálogo de permisos: cada permiso concedido se marca con la clase
-// `user-admin-permission-granted` (negrita, vía CSS del tema); el resto con
-// `user-admin-permission-missing` (gris claro, vía CSS del tema).
+// Un bloque por grupo del catálogo con los permisos concedidos al rol; los grupos sin ninguno no se
+// muestran. Si el rol no tiene ningún permiso, un único bloque lo indica.
 fn role_view_permissions(groups: &PermissionGroups) -> Vec<Block> {
-    groups
+    let blocks: Vec<Block> = groups
         .iter()
+        .filter(|(_, perms)| perms.iter().any(|(_, _, granted)| *granted))
         .map(|(group_label, perms)| {
-            let perms = perms.clone();
+            let mut table = Table::new().with_prop(PropsOp::add_classes("user-admin-table"));
+            for (_key, label, _) in perms.iter().filter(|(_, _, granted)| *granted) {
+                table = table.with_row(table::Row::new().with_cell(label.clone()));
+            }
             Block::new()
                 .with_title(group_label.clone())
-                .with_child(Html::with(move |cx| {
-                    html! {
-                        ul class="user-admin-permission-list" {
-                            @for (_key, label, granted) in &perms {
-                                @if *granted {
-                                    li class="user-admin-permission-granted" { (label.using(cx)) }
-                                } @else {
-                                    li class="user-admin-permission-missing" { (label.using(cx)) }
-                                }
-                            }
-                        }
-                    }
-                }))
+                .with_child(table)
         })
-        .collect()
+        .collect();
+
+    if blocks.is_empty() {
+        return vec![
+            Block::new()
+                .with_title(Lc::t("title-admin-permissions", &LOCALES_USER))
+                .with_child(
+                    Table::new().with_empty(Lc::t("empty-role-permissions", &LOCALES_USER)),
+                ),
+        ];
+    }
+    blocks
 }
 
 // **< delete_post >********************************************************************************
@@ -537,8 +539,8 @@ pub(crate) struct RolePermissionsFormData {
 
 /// POST /admin/user/roles/{id}/permissions - Reemplaza el conjunto de permisos de un rol.
 ///
-/// Usa `RawForm` + `serde_qs` en lugar de `axum::extract::Form` (basado en `serde_urlencoded`,
-/// que no deserializa claves repetidas como `permission_keys=a&permission_keys=b` en un `Vec<T>`).
+/// Usa `RawForm` + `serde_qs` en lugar de `axum::extract::Form` (basado en `serde_urlencoded`, que
+/// no deserializa claves repetidas como `permission_keys=a&permission_keys=b` en un `Vec<T>`).
 pub(crate) async fn permissions_post(
     request: HttpRequest,
     web::Path(id): web::Path<i32>,

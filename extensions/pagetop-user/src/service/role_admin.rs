@@ -1,6 +1,6 @@
 //! Servicio de administración de roles: listado, CRUD y permisos.
 
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 use pagetop::prelude::*;
 use pagetop_seaorm::db::{
@@ -47,6 +47,7 @@ pub(crate) struct RoleListItem {
     pub label: String,
     pub locked: bool,
     pub user_count: u64,
+    pub has_permissions: bool,
 }
 
 pub(crate) struct RoleListParams {
@@ -104,7 +105,7 @@ pub(crate) async fn list_roles_page(
 async fn role_items(roles: Vec<role::Model>) -> Result<Vec<RoleListItem>, AuthError> {
     let role_ids: Vec<i32> = roles.iter().map(|r| r.id).collect();
     let counts: Vec<(i32, i64)> = user_role::Entity::find()
-        .filter(user_role::Column::RoleId.is_in(role_ids))
+        .filter(user_role::Column::RoleId.is_in(role_ids.clone()))
         .select_only()
         .column(user_role::Column::RoleId)
         .column_as(user_role::Column::RoleId.count(), "count")
@@ -116,11 +117,22 @@ async fn role_items(roles: Vec<role::Model>) -> Result<Vec<RoleListItem>, AuthEr
         .into_iter()
         .map(|(role_id, count)| (role_id, count as u64))
         .collect();
+    let with_permissions: HashSet<i32> = role_permission::Entity::find()
+        .filter(role_permission::Column::RoleId.is_in(role_ids))
+        .select_only()
+        .column(role_permission::Column::RoleId)
+        .distinct()
+        .into_tuple()
+        .all(dbconn())
+        .await?
+        .into_iter()
+        .collect();
 
     Ok(roles
         .into_iter()
         .map(|role| RoleListItem {
             user_count: counts_by_role.get(&role.id).copied().unwrap_or(0),
+            has_permissions: with_permissions.contains(&role.id),
             id: role.id,
             machine_name: role.machine_name,
             label: role.label,

@@ -140,14 +140,16 @@ link-back-to-list      = Volver al listado
 
 # **< Administración: confirmaciones y distintivos >**
 
-confirm-delete-role   = ¿Eliminar este rol? Esta acción no se puede deshacer.
-confirm-change-status = ¿Cambiar el estado de esta cuenta?
-confirm-grant-admin   = ¿Conceder acceso irrestricto a esta cuenta?
-confirm-revoke-admin  = ¿Revocar el acceso irrestricto de esta cuenta?
-badge-system-role     = Sistema
-badge-admin           = Administrador
-empty-users-list      = No se han encontrado usuarios.
-empty-roles-list      = No se han encontrado roles.
+confirm-delete-role    = ¿Eliminar este rol? Esta acción no se puede deshacer.
+confirm-change-status  = ¿Cambiar el estado de esta cuenta?
+confirm-grant-admin    = ¿Conceder acceso irrestricto a esta cuenta?
+confirm-revoke-admin   = ¿Revocar el acceso irrestricto de esta cuenta?
+badge-system-role      = Sistema
+badge-admin            = Administrador
+badge-no-permissions   = Sin permisos
+empty-users-list       = No se han encontrado usuarios.
+empty-roles-list       = No se han encontrado roles.
+empty-role-permissions = Este rol no tiene permisos.
 
 # **< Administración: mensajes de error >**
 
