@@ -50,7 +50,7 @@ fn declare_pages(bag: &mut PageBag) {
         title:       Lc::n("My App"),
         description: Some(Lc::n("Configure My App.")),
         weight:      0,
-        permission:  Some(&MyPermission::Config),
+        permission:  &MyPermission::Config,
         kind:        AdminPageKind::View,
     });
 }
@@ -63,7 +63,7 @@ enum MyPermission {
 impl Permission for MyPermission {
     fn key(&self) -> CowStr {
         match self {
-            Self::Config => "myapp.config".into(),
+            Self::Config => "myapp:config".into(),
         }
     }
 }

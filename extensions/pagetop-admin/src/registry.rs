@@ -14,38 +14,12 @@ use crate::action::{
 };
 use crate::settings::SettingsSchema;
 
-// **< AdminPermission >****************************************************************************
-
-/// Permisos propios de `pagetop-admin`.
-#[derive(Clone, Copy, Debug)]
-pub enum AdminPermission {
-    /// Acceso por defecto a una página de administración que no declara un permiso propio.
-    Access,
-    /// Acceso a la sección integrada "people".
-    AccessPeople,
-    /// Acceso a la sección integrada "structure".
-    AccessStructure,
-    /// Acceso a la sección integrada "config".
-    AccessConfig,
-    /// Acceso a la sección integrada "reports".
-    AccessReports,
-}
-
-impl Permission for AdminPermission {
-    fn key(&self) -> CowStr {
-        match self {
-            Self::Access => "admin:access".into(),
-            Self::AccessPeople => "admin.access_people".into(),
-            Self::AccessStructure => "admin.access_structure".into(),
-            Self::AccessConfig => "admin.access_config".into(),
-            Self::AccessReports => "admin.access_reports".into(),
-        }
-    }
-}
-
 // **< Tipos del registro >*************************************************************************
 
-/// Sección del panel de administración (agrupación en el sidebar).
+/// Sección del panel de administración (agrupación de páginas en el menú y en el *dashboard*).
+///
+/// Una sección no tiene permiso propio: se muestra a quien pueda acceder a alguna de sus páginas, y
+/// se oculta si no le queda ninguna.
 #[derive(Clone)]
 pub struct AdminSection {
     /// Identificador único de la sección (p. ej. `"config"`).
@@ -54,22 +28,8 @@ pub struct AdminSection {
     pub path: String,
     /// Título visible en el sidebar.
     pub title: Lc,
-    /// Permiso requerido para ver la sección (`None` = siempre visible).
-    pub permission: Option<PermissionRef>,
     /// Peso para ordenar en el sidebar (menor = antes).
     pub weight: i32,
-}
-
-impl AdminSection {
-    /// Devuelve `true` si el usuario actual puede ver esta sección.
-    pub fn is_visible(&self, cx: &Context) -> bool {
-        match self.permission {
-            None => true,
-            Some(permission) => cx
-                .request()
-                .is_some_and(|request| has_permission(request, permission)),
-        }
-    }
 }
 
 /// Página del panel de administración.
@@ -85,22 +45,18 @@ pub struct AdminPage {
     pub description: Option<Lc>,
     /// Peso dentro de la sección (menor = antes).
     pub weight: i32,
-    /// Permiso requerido para acceder (`None` = requiere [`AdminPermission::Access`]).
-    pub permission: Option<PermissionRef>,
+    /// Permiso requerido para acceder. Es obligatorio: cada página declara el suyo, y es también
+    /// el que decide si su sección se muestra.
+    pub permission: PermissionRef,
     /// Tipo de página y datos asociados.
     pub kind: AdminPageKind,
 }
 
 impl AdminPage {
-    /// Permiso efectivo: el declarado, o [`AdminPermission::Access`] si no se especificó ninguno.
-    pub fn permission_key(&self) -> PermissionRef {
-        self.permission.unwrap_or(&AdminPermission::Access)
-    }
-
     /// Devuelve `true` si el usuario actual puede acceder a esta página.
     pub fn is_accessible(&self, cx: &Context) -> bool {
         cx.request()
-            .is_some_and(|request| has_permission(request, self.permission_key()))
+            .is_some_and(|request| has_permission(request, self.permission))
     }
 }
 
@@ -277,11 +233,9 @@ pub fn global() -> &'static AdminRegistry {
 pub fn can_access_admin(cx: &Context) -> bool {
     let reg = global();
     reg.ordered_sections().into_iter().any(|section| {
-        section.is_visible(cx)
-            && reg
-                .pages_for_section(&section.key)
-                .into_iter()
-                .any(|page| page.is_accessible(cx))
+        reg.pages_for_section(&section.key)
+            .into_iter()
+            .any(|page| page.is_accessible(cx))
     })
 }
 
@@ -306,9 +260,6 @@ pub fn admin_navbar(cx: &Context) -> Navbar {
     ));
 
     for section in reg.ordered_sections() {
-        if !section.is_visible(cx) {
-            continue;
-        }
         let pages: Vec<_> = reg
             .pages_for_section(&section.key)
             .into_iter()

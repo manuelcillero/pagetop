@@ -87,9 +87,8 @@ impl ActionBag {
 ///     bag.add(AdminSection {
 ///         key:        "tools".to_owned(),
 ///         path:       "/admin/tools".to_owned(),
-///         title:      Lc::n("Tools"),
-///         permission: None,
-///         weight:     60,
+///         title:  Lc::n("Tools"),
+///         weight: 60,
 ///     });
 /// }
 /// // En Extension::actions():
@@ -130,9 +129,17 @@ impl DeclareAdminSections {
 /// # Ejemplo
 ///
 /// ```rust,no_run
-/// use pagetop::locale::Lc;
+/// use pagetop::prelude::*;
 /// use pagetop_admin::action::{DeclareAdminPages, PageBag};
 /// use pagetop_admin::registry::{AdminPage, AdminPageKind};
+///
+/// struct ExportPermission;
+///
+/// impl Permission for ExportPermission {
+///     fn key(&self) -> CowStr {
+///         "tools:export".into()
+///     }
+/// }
 ///
 /// fn declare_pages(bag: &mut PageBag) {
 ///     bag.add(AdminPage {
@@ -141,7 +148,7 @@ impl DeclareAdminSections {
 ///         title:       Lc::n("Export"),
 ///         description: Some(Lc::n("Export site data.")),
 ///         weight:      0,
-///         permission:  None,
+///         permission:  &ExportPermission,
 ///         kind:        AdminPageKind::View,
 ///     });
 /// }

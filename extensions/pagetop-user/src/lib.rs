@@ -155,7 +155,7 @@ fn declare_admin_pages(bag: &mut PageBag) {
         title: Lc::t("title-admin-users", &LOCALES_USER),
         description: Some(Lc::t("description-admin-users", &LOCALES_USER)),
         weight: 0,
-        permission: Some(&permission::UserPermission::AdminUsers),
+        permission: &permission::UserPermission::AdminUsers,
         kind: AdminPageKind::View,
     });
     bag.add(AdminPage {
@@ -164,7 +164,7 @@ fn declare_admin_pages(bag: &mut PageBag) {
         title: Lc::t("title-admin-roles", &LOCALES_USER),
         description: Some(Lc::t("description-admin-roles", &LOCALES_USER)),
         weight: 10,
-        permission: Some(&permission::UserPermission::AdminRoles),
+        permission: &permission::UserPermission::AdminRoles,
         kind: AdminPageKind::View,
     });
     bag.add(AdminPage {
@@ -173,7 +173,7 @@ fn declare_admin_pages(bag: &mut PageBag) {
         title: Lc::t("title-admin-permissions", &LOCALES_USER),
         description: Some(Lc::t("description-admin-permissions", &LOCALES_USER)),
         weight: 20,
-        permission: Some(&permission::UserPermission::AdminPermissions),
+        permission: &permission::UserPermission::AdminPermissions,
         kind: AdminPageKind::View,
     });
 }

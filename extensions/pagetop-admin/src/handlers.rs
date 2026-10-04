@@ -69,7 +69,6 @@ fn render_sections(cx: &Context, candidates: &[&'static AdminSection]) -> Option
     let sections_with_pages: Vec<_> = candidates
         .iter()
         .copied()
-        .filter(|section| section.is_visible(cx))
         .map(|section| {
             let pages: Vec<_> = reg
                 .pages_for_section(&section.key)
@@ -131,7 +130,7 @@ pub async fn config_form_get(request: HttpRequest) -> Result<Markup, ErrorPage> 
         return Err(ErrorPage::NotFound(Some(request.clone())));
     };
 
-    require_permission(&request, page.permission_key())?;
+    require_permission(&request, page.permission)?;
 
     let title = page.title.clone();
     let mut form = ConfigForm::with_schema(schema.clone());
@@ -170,7 +169,7 @@ pub async fn config_form_post(
         return Err(ErrorPage::NotFound(Some(request.clone())));
     };
 
-    require_permission(&request, page.permission_key())?;
+    require_permission(&request, page.permission)?;
 
     let mut save_error = false;
 
