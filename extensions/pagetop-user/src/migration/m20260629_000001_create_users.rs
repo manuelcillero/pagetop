@@ -17,7 +17,10 @@ impl MigrationTrait for Migration {
                     .col(small_integer(Users::Status).default(1))
                     .col(string_len_null(Users::Language, 16))
                     .col(string_len_null(Users::Timezone, 64))
+                    .col(string_len_null(Users::Theme, 64))
                     .col(string_len_null(Users::DisplayName, 128))
+                    // Texto libre "Sobre mí" que el propio usuario escribe en su perfil.
+                    .col(text_null(Users::About))
                     .col(timestamp_null(Users::LastLoginAt))
                     .col(timestamp_null(Users::LastAccessAt))
                     .col(integer(Users::FailedLoginCount).default(0))
@@ -47,7 +50,9 @@ pub enum Users {
     Status,
     Language,
     Timezone,
+    Theme,
     DisplayName,
+    About,
     LastLoginAt,
     LastAccessAt,
     FailedLoginCount,

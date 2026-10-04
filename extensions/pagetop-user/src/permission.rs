@@ -162,17 +162,22 @@ pub fn registry() -> &'static PermissionRegistry {
 /// Permisos propios de `pagetop-user`.
 #[derive(Clone, Copy, Debug)]
 pub enum UserPermission {
-    /// Iniciar sesión.
-    Login,
-    /// Registrar una cuenta nueva.
-    Register,
-    /// Ver perfiles de otros usuarios.
+    /// Ver el perfil público de otros usuarios (`/user/{id}`): nombre de usuario, nombre visible,
+    /// "Sobre mí" y fecha de alta.
     ViewProfiles,
-    /// Editar el perfil propio.
+    /// Editar los datos del perfil propio: email, nombre visible, "Sobre mí", idioma, zona horaria
+    /// y tema. Nunca los roles, el estado de la cuenta ni el acceso irrestricto.
     EditOwnProfile,
+    /// Cambiar el nombre de usuario propio. Complementa a `EditOwnProfile`: el campo está en el
+    /// mismo formulario, así que sin aquel no tiene efecto.
+    ChangeOwnUsername,
     /// Cambiar la contraseña propia.
     ChangeOwnPassword,
-    /// Acceder al mantenimiento de usuarios (listado, alta, edición).
+    /// Acceder al mantenimiento de usuarios (listado, alta, edición, asignación de roles,
+    /// restablecimiento de contraseñas).
+    ///
+    /// Es un permiso sensible: quien lo tiene puede asignar cualquier rol y hacerse con cualquier
+    /// cuenta que no sea de administrador, así que sólo debe concederse a personas de confianza.
     AdminUsers,
     /// Acceder al mantenimiento de roles (listado, alta, edición, borrado).
     AdminRoles,
@@ -180,70 +185,59 @@ pub enum UserPermission {
     AdminPermissions,
     /// Bloquear y desbloquear cuentas de usuario.
     BlockAccounts,
-    /// Asignar roles a usuarios.
-    AssignRoles,
 }
 
 impl UserPermission {
     /// Todas las variantes, usado para registrarlas en el catálogo.
     pub const ALL: &'static [Self] = &[
-        Self::Login,
-        Self::Register,
         Self::ViewProfiles,
         Self::EditOwnProfile,
+        Self::ChangeOwnUsername,
         Self::ChangeOwnPassword,
         Self::AdminUsers,
         Self::AdminRoles,
         Self::AdminPermissions,
         Self::BlockAccounts,
-        Self::AssignRoles,
     ];
 }
 
 impl Permission for UserPermission {
     fn key(&self) -> CowStr {
         match self {
-            Self::Login => "user:login".into(),
-            Self::Register => "user:register".into(),
             Self::ViewProfiles => "user:view_profiles".into(),
             Self::EditOwnProfile => "user:edit_own_profile".into(),
+            Self::ChangeOwnUsername => "user:change_own_username".into(),
             Self::ChangeOwnPassword => "user:change_own_password".into(),
             Self::AdminUsers => "user:admin_users".into(),
             Self::AdminRoles => "user:admin_roles".into(),
             Self::AdminPermissions => "user:admin_permissions".into(),
             Self::BlockAccounts => "user:block_accounts".into(),
-            Self::AssignRoles => "user:assign_roles".into(),
         }
     }
 
     fn label(&self) -> Lc {
         let key = match self {
-            Self::Login => "perm-login",
-            Self::Register => "perm-register",
             Self::ViewProfiles => "perm-view-profiles",
             Self::EditOwnProfile => "perm-edit-own-profile",
+            Self::ChangeOwnUsername => "perm-change-own-username",
             Self::ChangeOwnPassword => "perm-change-own-password",
             Self::AdminUsers => "perm-admin-users",
             Self::AdminRoles => "perm-admin-roles",
             Self::AdminPermissions => "perm-admin-permissions",
             Self::BlockAccounts => "perm-block-accounts",
-            Self::AssignRoles => "perm-assign-roles",
         };
         Lc::t(key, &LOCALES_USER)
     }
 
     fn group(&self) -> &'static str {
         match self {
-            Self::Login
-            | Self::Register
-            | Self::ViewProfiles
+            Self::ViewProfiles
             | Self::EditOwnProfile
+            | Self::ChangeOwnUsername
             | Self::ChangeOwnPassword => GROUP_USERS,
-            Self::AdminUsers
-            | Self::AdminRoles
-            | Self::AdminPermissions
-            | Self::BlockAccounts
-            | Self::AssignRoles => GROUP_ADMINISTRATION,
+            Self::AdminUsers | Self::AdminRoles | Self::AdminPermissions | Self::BlockAccounts => {
+                GROUP_ADMINISTRATION
+            }
         }
     }
 

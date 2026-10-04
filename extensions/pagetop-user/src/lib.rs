@@ -94,6 +94,7 @@ pub use permission::{DeclarePermissions, PermissionRegistry};
 /// Prelude de `pagetop-user`.
 pub mod prelude {
     pub use crate::component::LoginForm;
+    pub use crate::component::UserName;
     pub use crate::component::{AccountMenu, account_menu};
     pub use crate::error::AuthError;
     pub use crate::{Account, DeclarePermissions, UserStatus};
@@ -114,6 +115,15 @@ const LOGOUT_PATH: &str = "/user/logout";
 const REGISTER_PATH: &str = "/user/register";
 // GET - perfil del usuario autenticado; redirige a LOGIN_PATH si no hay sesión activa.
 const PROFILE_PATH: &str = "/user";
+// Con el sufijo `/{id}`: GET - perfil público del usuario (requiere `user:view_profiles`, salvo el
+//                            propio).
+// GET - muestra el formulario de edición del perfil propio (requiere `user:edit_own_profile`).
+// POST - guarda los cambios.
+const PROFILE_EDIT_PATH: &str = "/user/edit";
+// GET - muestra el formulario de cambio de la contraseña propia (requiere
+//       `user:change_own_password`).
+// POST - aplica la nueva contraseña tras comprobar la actual.
+const PROFILE_PASSWORD_PATH: &str = "/user/password";
 // GET - muestra el formulario de solicitud de restablecimiento.
 // POST - inicia el flujo (envío del token).
 // Con el sufijo `/{uid}/{token}`: GET - muestra el formulario de nueva contraseña.
@@ -131,6 +141,11 @@ const ADMIN_USERS_PATH: &str = "/admin/user/users";
 const ADMIN_ROLES_PATH: &str = "/admin/user/roles";
 // Catálogo de permisos registrados, agrupado por extensión (solo lectura).
 const ADMIN_PERMISSIONS_PATH: &str = "/admin/user/permissions";
+
+// Ruta del perfil público del usuario `id`: `{PROFILE_PATH}/{id}`.
+fn profile_path(id: i32) -> String {
+    util::join!(PROFILE_PATH, "/", id.to_string())
+}
 
 // Ruta de una acción sobre el usuario `id`: `{ADMIN_USERS_PATH}/{id}/{tail}`.
 fn user_path(id: i32, tail: &str) -> String {
@@ -248,6 +263,19 @@ impl Extension for User {
             )
             .route(PROFILE_PATH, web::get(handlers::account::profile_get))
             .route(
+                &format!("{}/{{id}}", PROFILE_PATH),
+                web::get(handlers::account::public_profile_get),
+            )
+            .route(
+                PROFILE_EDIT_PATH,
+                web::get(handlers::account::profile_edit_get)
+                    .post(handlers::account::profile_edit_post),
+            )
+            .route(
+                PROFILE_PASSWORD_PATH,
+                web::get(handlers::account::password_get).post(handlers::account::password_post),
+            )
+            .route(
                 PASSWORD_RESET_PATH,
                 web::get(handlers::auth::password_reset_get)
                     .post(handlers::auth::password_reset_post),
@@ -273,11 +301,6 @@ impl Extension for User {
             .route(
                 &format!("{}/{{id}}/view", ADMIN_USERS_PATH),
                 web::get(handlers::admin::users::view_get),
-            )
-            .route(
-                &format!("{}/{{id}}/roles", ADMIN_USERS_PATH),
-                web::get(handlers::admin::users::roles_get)
-                    .post(handlers::admin::users::roles_post),
             )
             .route(
                 &format!("{}/{{id}}/status", ADMIN_USERS_PATH),

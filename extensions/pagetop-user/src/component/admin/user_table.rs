@@ -6,9 +6,7 @@ use pagetop_htmx::hx_table::sort_link;
 
 use crate::ADMIN_USERS_PATH;
 use crate::LOCALES_USER;
-use crate::account::UserStatus;
-use crate::handlers::admin::users::available_roles;
-use crate::permission::UserPermission;
+use crate::account::{Account, UserStatus};
 use crate::service::user_admin::{UserListItem, UserSortField};
 use crate::user_path;
 
@@ -66,14 +64,10 @@ impl Component for UserTable {
             .with_empty(Lc::t("empty-users-list", &LOCALES_USER));
 
         let waypoint = Waypoint::from(self.list_href(cx));
-        let can_assign_roles = cx
+        let viewer_is_admin = cx
             .request()
-            .is_some_and(|r| has_permission(r, &UserPermission::AssignRoles));
-        // Sólo hace falta consultar si hay algún rol asignable cuando el botón vaya a mostrarse.
-        let has_assignable_roles = can_assign_roles
-            && available_roles(&[])
-                .await
-                .is_ok_and(|roles| !roles.is_empty());
+            .and_then(|r| r.extension::<Account>())
+            .is_some_and(|a| a.is_admin());
 
         for user in self.items() {
             let status = user.status;
@@ -85,10 +79,7 @@ impl Component for UserTable {
                     .with_cell(user.display_name.as_deref().unwrap_or("-"))
                     .with_cell(roles_cell(user, cx).await)
                     .with_cell(Lc::t(status_key(status), &LOCALES_USER))
-                    .with_cell(
-                        actions_cell(user, &waypoint, can_assign_roles, has_assignable_roles, cx)
-                            .await,
-                    ),
+                    .with_cell(actions_cell(user, &waypoint, viewer_is_admin, cx).await),
             );
         }
 
@@ -207,19 +198,20 @@ fn username_cell(user: &UserListItem, waypoint: &Waypoint) -> Html {
     })
 }
 
-// Construye la celda de acciones: editar siempre, y gestionar roles sólo si el usuario autenticado
-// tiene permiso para asignarlos; en ese caso, deshabilitado si no hay ningún rol asignable en todo
-// el sistema. Devuelve un componente `Html` para que el marcado se genere cuando `Table` renderice
-// la celda, no al construir la fila.
+// Construye la celda de acciones con el botón de edición, salvo en la cuenta de un administrador
+// si quien mira no lo es (no puede gestionarla, ver `handlers::admin::users::require_manageable`).
+// Devuelve un componente `Html` para que el marcado se genere cuando `Table` renderice la celda, no
+// al construir la fila.
 async fn actions_cell(
     user: &UserListItem,
     waypoint: &Waypoint,
-    can_assign_roles: bool,
-    has_assignable_roles: bool,
+    viewer_is_admin: bool,
     cx: &mut Context,
 ) -> Html {
-    let id = user.id;
-    let edit_href = waypoint.append_to(cx.route(user_path(id, "edit")));
+    if user.is_admin && !viewer_is_admin {
+        return Html::default();
+    }
+    let edit_href = waypoint.append_to(cx.route(user_path(user.id, "edit")));
 
     // El botón se renderiza aquí, no dentro del `Html::with()` de abajo: necesita pasar por su
     // propio ciclo de renderizado (`.render().await`) para que el tema activo lo estilice igual
@@ -230,62 +222,33 @@ async fn actions_cell(
         .render(cx)
         .await;
 
-    let roles_button = if can_assign_roles {
-        let roles_href = waypoint.append_to(cx.route(user_path(id, "roles")));
-        Some(
-            Button::anchor(Lc::t("btn-manage-roles", &LOCALES_USER), roles_href)
-                .with_style(button::Style::Solid(Intent::Neutral))
-                .with_size(button::Size::Small)
-                .with_disabled(!has_assignable_roles)
-                .render(cx)
-                .await,
-        )
-    } else {
-        None
-    };
-
-    Html::with(move |_cx| {
-        html! {
-            (edit_button)
-            @if let Some(roles_button) = &roles_button {
-                " "
-                (roles_button)
-            }
-        }
-    })
+    Html::with(move |_cx| edit_button.clone())
 }
 
-// Construye la celda de roles: la insignia de administrador y las insignias de cada rol asignado,
-// o "-" si el usuario no tiene ningún rol ni es administrador. Los badges se renderizan aquí mismo
-// (con el `cx` del ciclo de renderizado de `Table`); el resto del marcado se difiere al `Html` que
-// se devuelve, igual que el resto de celdas.
+// Construye la celda de roles: sólo la insignia de administrador si lo es (tiene acceso sin
+// restricciones, así que sus roles no añaden nada), o las insignias de cada rol asignado, o "-" si
+// no tiene ninguno. Los badges se renderizan aquí mismo (con el `cx` del ciclo de renderizado de
+// `Table`); el resto del marcado se difiere al `Html` que se devuelve, igual que el resto de celdas.
 async fn roles_cell(user: &UserListItem, cx: &mut Context) -> Html {
-    let admin_badge = if user.is_admin {
-        Some(
+    let mut badges = Vec::with_capacity(user.roles.len().max(1));
+    if user.is_admin {
+        badges.push(
             Badge::severe(Lc::t("badge-admin", &LOCALES_USER))
                 .render(cx)
                 .await,
-        )
+        );
     } else {
-        None
-    };
-
-    let mut role_badges = Vec::with_capacity(user.roles.len());
-    for role in &user.roles {
-        role_badges.push(Badge::neutral(Lc::n(role.clone())).render(cx).await);
+        for role in &user.roles {
+            badges.push(Badge::neutral(Lc::n(role.clone())).render(cx).await);
+        }
     }
 
-    let is_admin = user.is_admin;
     Html::with(move |_cx| {
         html! {
-            @if let Some(badge) = &admin_badge {
-                (badge)
-                " "
-            }
-            @if role_badges.is_empty() {
-                @if !is_admin { "-" }
+            @if badges.is_empty() {
+                "-"
             } @else {
-                @for badge in &role_badges {
+                @for badge in &badges {
                     (badge)
                     " "
                 }

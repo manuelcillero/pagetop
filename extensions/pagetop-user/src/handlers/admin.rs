@@ -29,6 +29,11 @@ pub(crate) fn map_auth_error(err: &AuthError) -> Lc {
         }
         AuthError::PasswordMismatch => Lc::t("error-password-mismatch", &LOCALES_USER),
         AuthError::InvalidTimezone => Lc::t("error-invalid-timezone", &LOCALES_USER),
+        AuthError::InvalidLanguage => Lc::t("error-invalid-language", &LOCALES_USER),
+        AuthError::InvalidTheme => Lc::t("error-invalid-theme", &LOCALES_USER),
+        AuthError::AboutTooLong(n) => {
+            Lc::t("error-about-too-long", &LOCALES_USER).with_arg("n", n.to_string())
+        }
         AuthError::UsernameTaken => Lc::t("error-username-taken", &LOCALES_USER),
         AuthError::EmailTaken => Lc::t("error-email-taken", &LOCALES_USER),
         AuthError::UserNotFound => Lc::t("error-user-not-found", &LOCALES_USER),

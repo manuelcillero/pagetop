@@ -1,5 +1,5 @@
 //! Par de campos "contraseña" + "confirmar contraseña", reutilizado en los formularios de
-//! registro, alta y restablecimiento de contraseña.
+//! registro, alta, restablecimiento y cambio de contraseña.
 
 use pagetop::prelude::*;
 
@@ -20,8 +20,8 @@ pub(crate) struct PasswordConfirm {
 #[async_trait]
 impl Component for PasswordConfirm {
     // Las etiquetas por defecto cubren los dos casos más habituales (alta de cuenta, alta de
-    // usuario desde administración); `with_password_label()` cubre el caso distinto
-    // (restablecimiento de contraseña por un administrador).
+    // usuario desde administración); `with_password_label()` cubre los casos distintos
+    // (restablecimiento por un administrador y cambio de la contraseña propia).
     fn new() -> Self {
         Self {
             password_label: Lc::t("field-password", &LOCALES_USER),

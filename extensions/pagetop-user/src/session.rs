@@ -75,11 +75,11 @@ pub fn extract_sid(headers: Option<&web::http::HeaderMap>) -> Option<String> {
 
 /// Lee la cookie de sesión de las cabeceras y resuelve el par `(CurrentUser, Option<Account>)`.
 ///
-/// Si no hay cookie o la sesión ha expirado, devuelve `(CurrentUser::Anonymous, None)`.
+/// Si no hay cookie o la sesión ha expirado, devuelve `(CurrentUser::anonymous(), None)`.
 /// Se llama desde el middleware de sesión, que es async.
 pub async fn resolve_session(headers: &web::http::HeaderMap) -> (CurrentUser, Option<Account>) {
     let Some(sid) = extract_sid(Some(headers)) else {
-        return (CurrentUser::Anonymous, None);
+        return (CurrentUser::anonymous(), None);
     };
     load_user_from_session(&sid).await
 }
@@ -88,24 +88,25 @@ pub async fn resolve_session(headers: &web::http::HeaderMap) -> (CurrentUser, Op
 
 /// Carga el par `(CurrentUser, Option<Account>)` a partir de un session ID.
 ///
-/// Devuelve `(CurrentUser::Anonymous, None)` si la sesión no existe o ha expirado.
+/// Devuelve `(CurrentUser::anonymous(), None)` si la sesión no existe o ha expirado.
 pub async fn load_user_from_session(sid: &str) -> (CurrentUser, Option<Account>) {
     let now = Utc::now();
 
     // Buscar sesión activa y no expirada.
     let Ok(Some(sess)) = session::Entity::find_by_id(sid).one(dbconn()).await else {
-        return (CurrentUser::Anonymous, None);
+        return (CurrentUser::anonymous(), None);
     };
     if sess.expires_at < now {
-        return (CurrentUser::Anonymous, None);
+        return (CurrentUser::anonymous(), None);
     }
 
     // Cargar usuario con estado activo.
-    let Ok(Some(user_model)) = user::Entity::find_by_id(sess.user_id).one(dbconn()).await else {
-        return (CurrentUser::Anonymous, None);
+    let Ok(Some(mut user_model)) = user::Entity::find_by_id(sess.user_id).one(dbconn()).await
+    else {
+        return (CurrentUser::anonymous(), None);
     };
     if UserStatus::from_i16(user_model.status) != UserStatus::Active {
-        return (CurrentUser::Anonymous, None);
+        return (CurrentUser::anonymous(), None);
     }
 
     // Cargar roles explícitos del usuario.
@@ -114,7 +115,7 @@ pub async fn load_user_from_session(sid: &str) -> (CurrentUser, Option<Account>)
         .all(dbconn())
         .await
     else {
-        return (CurrentUser::Anonymous, None);
+        return (CurrentUser::anonymous(), None);
     };
 
     let role_ids: Vec<i32> = user_role_rows.iter().map(|ur| ur.role_id).collect();
@@ -124,7 +125,7 @@ pub async fn load_user_from_session(sid: &str) -> (CurrentUser, Option<Account>)
         .all(dbconn())
         .await
     else {
-        return (CurrentUser::Anonymous, None);
+        return (CurrentUser::anonymous(), None);
     };
 
     let is_admin = user_model.is_admin;
@@ -145,7 +146,7 @@ pub async fn load_user_from_session(sid: &str) -> (CurrentUser, Option<Account>)
             .all(dbconn())
             .await
         else {
-            return (CurrentUser::Anonymous, None);
+            return (CurrentUser::anonymous(), None);
         };
         PermissionSet::new(perm_rows.into_iter().map(|p| p.permission_key))
     };
@@ -162,31 +163,14 @@ pub async fn load_user_from_session(sid: &str) -> (CurrentUser, Option<Account>)
         let _ = active.update(dbconn()).await;
     }
 
-    let display_name = user_model.display_name.unwrap_or_default();
-    let visible_name = if display_name.is_empty() {
-        user_model.username.clone()
-    } else {
-        display_name.clone()
-    };
-    let account = Account {
-        id: user_model.id,
-        username: user_model.username,
-        email: user_model.email,
-        display_name,
-        status: UserStatus::from_i16(user_model.status),
-        roles: role_names,
-        permissions,
-        is_admin,
-    };
-    let timezone = user_model
-        .timezone
-        .as_deref()
-        .and_then(|tz| tz.parse().ok());
-    let current_user = CurrentUser::Authenticated {
-        id: account.id,
-        display_name: visible_name,
-        timezone,
-    };
+    let language = user_model.language.take();
+    let timezone = user_model.timezone.take();
+    let theme = user_model.theme.take();
+    let account = Account::new(user_model, role_names, permissions);
+    let current_user = CurrentUser::authenticated(account.id(), account.display())
+        .with_language(language.as_deref())
+        .with_timezone(timezone.as_deref())
+        .with_theme(theme.as_deref());
 
     (current_user, Some(account))
 }
@@ -223,6 +207,17 @@ pub async fn destroy_session(sid: &str) -> Result<(), DbErr> {
 pub async fn destroy_user_sessions(user_id: i32) -> Result<(), DbErr> {
     session::Entity::delete_many()
         .filter(session::Column::UserId.eq(user_id))
+        .exec(dbconn())
+        .await?;
+    Ok(())
+}
+
+/// Destruye todas las sesiones de un usuario salvo `keep_sid` (p. ej. cuando el propio usuario
+/// cambia su contraseña, para no cerrarle la sesión desde la que lo hace).
+pub async fn destroy_other_sessions(user_id: i32, keep_sid: &str) -> Result<(), DbErr> {
+    session::Entity::delete_many()
+        .filter(session::Column::UserId.eq(user_id))
+        .filter(session::Column::Sid.ne(keep_sid))
         .exec(dbconn())
         .await?;
     Ok(())

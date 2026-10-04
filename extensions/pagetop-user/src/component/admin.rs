@@ -7,7 +7,6 @@ mod role_form;
 mod role_permissions_form;
 mod role_table;
 mod user_form;
-mod user_roles_form;
 mod user_table;
 
 pub(crate) use admin_password_form::AdminPasswordForm;
@@ -15,7 +14,6 @@ pub(crate) use role_form::{RoleForm, RoleFormMode};
 pub(crate) use role_permissions_form::RolePermissionsForm;
 pub(crate) use role_table::RoleTable;
 pub(crate) use user_form::{UserForm, UserFormMode};
-pub(crate) use user_roles_form::UserRolesForm;
 pub(crate) use user_table::{UserTable, status_key};
 
 use pagetop::prelude::*;
@@ -41,10 +39,10 @@ pub(crate) type PermissionGroups = Vec<(Lc, Vec<PermissionItem>)>;
 
 // **< HELPERS >************************************************************************************
 
-// `Fieldset` con las casillas para asignar roles (usado en el alta de usuario y en la pantalla de
-// asignación de roles). El rol "authenticated" no se lista como casilla ni se envía: todo usuario
-// autenticado lo tiene concedido por definición (ver `session::load_user_from_session`), sin
-// necesidad de una fila en `user_role`.
+// `Fieldset` con las casillas para asignar roles (usado en el alta y en la edición de usuario). El
+// rol "authenticated" no se lista como casilla ni se envía: todo usuario autenticado lo tiene
+// concedido por definición (ver `session::load_user_from_session`), sin necesidad de una fila en
+// `user_role`.
 pub(crate) fn roles_fieldset(roles: &[(i32, String, bool)]) -> form::Fieldset {
     let mut field = form::check::Field::new().with_name("role_ids");
     for (role_id, label, checked) in roles {

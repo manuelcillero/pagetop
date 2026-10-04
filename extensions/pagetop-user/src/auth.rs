@@ -1,4 +1,4 @@
-//! Lógica de autenticación: login, logout, registro, semilla inicial.
+//! Lógica de autenticación: login, logout, registro, cambio de contraseña, semilla inicial.
 
 use pagetop::prelude::*;
 use pagetop_seaorm::db::{
@@ -8,9 +8,10 @@ use pagetop_seaorm::db::{
 
 use crate::account::UserStatus;
 use crate::config::SETTINGS;
-use crate::entity::{user, user_role};
+use crate::entity::{role_permission, user, user_role};
 use crate::error::AuthError;
 use crate::password;
+use crate::permission::UserPermission;
 use crate::session;
 
 // **< login >**************************************************************************************
@@ -135,7 +136,9 @@ pub async fn register(
         status: Set(status.as_i16()),
         language: Set(None),
         timezone: Set(None),
+        theme: Set(None),
         display_name: Set(None),
+        about: Set(None),
         last_login_at: Set(None),
         last_access_at: Set(None),
         failed_login_count: Set(0),
@@ -171,6 +174,44 @@ pub async fn assign_role(user_id: i32, role_id: i32) -> Result<(), AuthError> {
     Ok(())
 }
 
+// **< change_own_password >************************************************************************
+
+/// Cambia la contraseña del propio usuario tras comprobar la actual, y cierra el resto de sus
+/// sesiones abiertas conservando la indicada en `current_sid` (la de quien hace el cambio).
+///
+/// Devuelve [`AuthError::InvalidCredentials`] si la contraseña actual no es correcta.
+pub(crate) async fn change_own_password(
+    user_id: i32,
+    current_password: &str,
+    new_password: &str,
+    current_sid: Option<&str>,
+) -> Result<(), AuthError> {
+    let user_model = user::Entity::find_by_id(user_id)
+        .one(dbconn())
+        .await?
+        .ok_or(AuthError::UserNotFound)?;
+    if !password::verify_password(current_password, &user_model.password_hash) {
+        return Err(AuthError::InvalidCredentials);
+    }
+    password::validate_strength(new_password)?;
+    let hash = password::hash_password(new_password)?;
+
+    user::ActiveModel {
+        id: Set(user_id),
+        password_hash: Set(hash),
+        updated_at: Set(Utc::now()),
+        ..Default::default()
+    }
+    .update(dbconn())
+    .await?;
+
+    match current_sid {
+        Some(sid) => session::destroy_other_sessions(user_id, sid).await?,
+        None => session::destroy_user_sessions(user_id).await?,
+    }
+    Ok(())
+}
+
 // **< register_failed_login >**********************************************************************
 
 async fn register_failed_login(
@@ -197,11 +238,15 @@ async fn register_failed_login(
 
 // **< seed_initial_data >**************************************************************************
 
-/// Crea el usuario administrador inicial si no existe ningún usuario en la base de datos.
+/// Prepara una instalación nueva si no existe ningún usuario en la base de datos.
 ///
 /// Se llama desde `Extension::initialize()`. Si la tabla está vacía, crea el administrador
 /// con las credenciales configuradas en `[user.seed]`. La contraseña se genera aleatoriamente
 /// si no está configurada, y se imprime por stdout una sola vez para que el operador la recoja.
+///
+/// Concede además al rol "authenticated" los permisos que todo usuario espera tener sobre su
+/// propia cuenta: editar su perfil y cambiar su contraseña. Sólo en la instalación nueva; después
+/// los gestiona el administrador desde la interfaz.
 pub(crate) async fn seed_initial_data() {
     do_seed().await;
 }
@@ -246,7 +291,9 @@ async fn do_seed() {
         status: Set(UserStatus::Active.as_i16()),
         language: Set(None),
         timezone: Set(None),
+        theme: Set(None),
         display_name: Set(Some("Administrator".into())),
+        about: Set(None),
         last_login_at: Set(None),
         last_access_at: Set(None),
         failed_login_count: Set(0),
@@ -265,6 +312,28 @@ async fn do_seed() {
                 );
             }
         }
-        Err(e) => eprintln!("pagetop-user seed error: {}", e),
+        Err(e) => {
+            eprintln!("pagetop-user seed error: {}", e);
+            return;
+        }
+    }
+
+    let defaults = [
+        UserPermission::EditOwnProfile,
+        UserPermission::ChangeOwnPassword,
+    ];
+    let rows = defaults.map(|perm| role_permission::ActiveModel {
+        role_id: Set(crate::AUTHENTICATED_ROLE_ID),
+        permission_key: Set(perm.key().into_owned()),
+        granted_at: Set(now),
+    });
+    if let Err(e) = role_permission::Entity::insert_many(rows)
+        .exec(dbconn())
+        .await
+    {
+        eprintln!(
+            "pagetop-user seed error: failed to grant default permissions: {}",
+            e
+        );
     }
 }

@@ -7,11 +7,13 @@ extension_description = Identidad de usuario, autenticación, roles y permisos p
 
 # **< Títulos de página >**
 
-title-login          = Iniciar sesión
-title-register       = Crear cuenta
-title-password-reset = Recuperar contraseña
-title-new-password   = Establecer nueva contraseña
-title-profile        = Mi perfil
+title-login            = Iniciar sesión
+title-register         = Crear cuenta
+title-password-reset   = Recuperar contraseña
+title-new-password     = Establecer nueva contraseña
+title-profile          = Mi perfil
+title-profile-edit     = Editar mi perfil
+title-profile-password = Cambiar mi contraseña
 
 # **< Etiquetas de campos >**
 
@@ -20,6 +22,7 @@ field-password         = Contraseña
 field-email            = Dirección de email
 field-confirm-password = Confirmar contraseña
 field-new-password     = Nueva contraseña
+field-current-password = Contraseña actual
 field-remember-me      = Recuérdame
 
 # **< Botones y enlaces >**
@@ -29,6 +32,7 @@ btn-logout          = Cerrar sesión
 btn-register        = Crear cuenta
 btn-send-reset-link = Enviar enlace
 btn-set-password    = Cambiar contraseña
+btn-edit-profile    = Editar perfil
 
 link-register        = Crear una cuenta
 link-forgot-password = ¿Olvidaste tu contraseña?
@@ -56,9 +60,13 @@ error-account-locked      = Demasiados intentos fallidos. Inténtalo de nuevo m�
 error-password-mismatch   = Las contraseñas no coinciden.
 error-password-too-short  = La contraseña debe tener al menos { $n } caracteres.
 error-invalid-timezone    = Zona horaria no válida.
+error-invalid-language    = Idioma no válido.
+error-invalid-theme       = Tema no válido.
+error-about-too-long      = El texto «Sobre mí» no puede superar { $n } caracteres.
 error-username-taken      = Este nombre de usuario ya está en uso.
 error-email-taken         = Esta dirección de email ya está registrada.
 error-token-invalid       = Este enlace no es válido o ha caducado.
+error-current-password    = La contraseña actual no es correcta.
 error-internal            = Se ha producido un error inesperado. Inténtalo de nuevo.
 
 # **< Estados de cuenta >**
@@ -73,7 +81,6 @@ title-admin-users            = Usuarios
 title-admin-user-new         = Nuevo usuario
 title-admin-user-edit        = Editar usuario
 title-admin-user-view        = Ver usuario
-title-admin-user-roles       = Roles del usuario
 title-admin-user-password    = Restablecer contraseña
 title-admin-roles            = Roles
 title-admin-role-new         = Nuevo rol
@@ -107,9 +114,12 @@ col-users-count  = Usuarios
 
 field-username-admin        = Usuario
 field-display-name          = Nombre visible
+field-about                 = Sobre mí
+field-member-since          = Miembro desde
 field-language              = Idioma
 field-timezone              = Zona horaria
-field-timezone-site-default = Usar la zona horaria del sitio ({ $tz })
+field-theme                 = Tema
+value-theme-site-default    = Tema del sitio: { $theme }
 field-machine-name          = Nombre técnico
 field-label                 = Etiqueta
 field-description           = Descripción
@@ -121,6 +131,9 @@ field-search-users          = Buscar por usuario, email o nombre...
 help-machine-name-immutable =
     Sólo minúsculas, dígitos y guiones bajos. No se puede cambiar tras crearlo.
 
+help-admin-roles =
+    Como administrador tiene todos los permisos. Estos roles se aplicarán si deja de serlo.
+
 # **< Administración: botones y enlaces >**
 
 btn-save               = Guardar
@@ -129,7 +142,6 @@ btn-create-role        = Nuevo rol
 btn-delete             = Eliminar
 btn-cancel             = Cancelar
 btn-edit               = Editar
-btn-manage-roles       = Gestionar roles
 btn-manage-permissions = Gestionar permisos
 btn-reset-password     = Restablecer contraseña
 btn-block              = Bloquear

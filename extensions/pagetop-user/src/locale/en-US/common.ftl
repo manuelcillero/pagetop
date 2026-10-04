@@ -7,11 +7,13 @@ extension_description = User identity, authentication, roles and permissions for
 
 # **< Page titles >**
 
-title-login          = Sign in
-title-register       = Create account
-title-password-reset = Reset password
-title-new-password   = Set new password
-title-profile        = My profile
+title-login            = Sign in
+title-register         = Create account
+title-password-reset   = Reset password
+title-new-password     = Set new password
+title-profile          = My profile
+title-profile-edit     = Edit my profile
+title-profile-password = Change my password
 
 # **< Field labels >**
 
@@ -20,6 +22,7 @@ field-password         = Password
 field-email            = Email address
 field-confirm-password = Confirm password
 field-new-password     = New password
+field-current-password = Current password
 field-remember-me      = Remember me
 
 # **< Buttons and links >**
@@ -29,6 +32,7 @@ btn-logout          = Sign out
 btn-register        = Create account
 btn-send-reset-link = Send reset link
 btn-set-password    = Change password
+btn-edit-profile    = Edit profile
 
 link-register        = Create an account
 link-forgot-password = Forgot your password?
@@ -56,9 +60,13 @@ error-account-locked      = Too many failed attempts. Please try again later.
 error-password-mismatch   = Passwords do not match.
 error-password-too-short  = Password must be at least { $n } characters.
 error-invalid-timezone    = Invalid timezone.
+error-invalid-language    = Invalid language.
+error-invalid-theme       = Invalid theme.
+error-about-too-long      = The "About me" text must be at most { $n } characters.
 error-username-taken      = This username is already taken.
 error-email-taken         = This email address is already registered.
 error-token-invalid       = This link is invalid or has expired.
+error-current-password    = The current password is incorrect.
 error-internal            = An unexpected error occurred. Please try again.
 
 # **< Account statuses >**
@@ -73,7 +81,6 @@ title-admin-users            = Users
 title-admin-user-new         = New user
 title-admin-user-edit        = Edit user
 title-admin-user-view        = View user
-title-admin-user-roles       = User roles
 title-admin-user-password    = Reset password
 title-admin-roles            = Roles
 title-admin-role-new         = New role
@@ -107,9 +114,12 @@ col-users-count  = Users
 
 field-username-admin        = Username
 field-display-name          = Display name
+field-about                 = About me
+field-member-since          = Member since
 field-language              = Language
 field-timezone              = Timezone
-field-timezone-site-default = Use site timezone ({ $tz })
+field-theme                 = Theme
+value-theme-site-default    = Site theme: { $theme }
 field-machine-name          = Machine name
 field-label                 = Label
 field-description           = Description
@@ -121,6 +131,9 @@ field-search-users          = Search by username, email or name...
 help-machine-name-immutable =
     Lowercase letters, digits and underscores only. Cannot be changed after creation.
 
+help-admin-roles =
+    As an administrator they have every permission. These roles will apply if they stop being one.
+
 # **< Admin: buttons and links >**
 
 btn-save               = Save
@@ -129,7 +142,6 @@ btn-create-role        = New role
 btn-delete             = Delete
 btn-cancel             = Cancel
 btn-edit               = Edit
-btn-manage-roles       = Manage roles
 btn-manage-permissions = Manage permissions
 btn-reset-password     = Reset password
 btn-block              = Block

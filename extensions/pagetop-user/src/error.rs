@@ -40,6 +40,15 @@ pub enum AuthError {
     #[error("invalid IANA timezone identifier")]
     InvalidTimezone,
 
+    #[error("unsupported language identifier")]
+    InvalidLanguage,
+
+    #[error("unknown or disabled theme")]
+    InvalidTheme,
+
+    #[error("about text must be at most {0} characters")]
+    AboutTooLong(usize),
+
     #[error("user not found")]
     UserNotFound,
 

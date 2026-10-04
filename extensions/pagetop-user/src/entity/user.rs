@@ -14,7 +14,11 @@ pub struct Model {
     pub status: i16,
     pub language: Option<String>,
     pub timezone: Option<String>,
+    /// Nombre corto del tema preferido (p. ej. `"Bootsier"`), si tiene uno.
+    pub theme: Option<String>,
     pub display_name: Option<String>,
+    /// Texto libre "Sobre mí" que el propio usuario escribe en su perfil.
+    pub about: Option<String>,
     pub last_login_at: Option<DateTimeUtc>,
     pub last_access_at: Option<DateTimeUtc>,
     pub failed_login_count: i32,

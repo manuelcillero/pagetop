@@ -162,6 +162,7 @@ pub(crate) struct NewUserData<'a> {
     pub display_name: Option<&'a str>,
     pub language: Option<&'a str>,
     pub timezone: Option<&'a str>,
+    pub theme: Option<&'a str>,
     pub initial_role_ids: &'a [i32],
     /// El *caller* es responsable de comprobar que sólo un administrador puede pasar `true`.
     pub is_admin: bool,
@@ -173,7 +174,9 @@ pub(crate) struct NewUserData<'a> {
 pub(crate) async fn create_user(data: NewUserData<'_>) -> Result<i32, AuthError> {
     password::validate_strength(data.password)?;
     password::passwords_match(data.password, data.confirm_password)?;
+    let language = validate_language(data.language)?;
     let timezone = validate_timezone(data.timezone)?;
+    let theme = validate_theme(data.theme)?;
     ensure_username_available(data.username, None).await?;
     ensure_email_available(data.email, None).await?;
 
@@ -187,9 +190,11 @@ pub(crate) async fn create_user(data: NewUserData<'_>) -> Result<i32, AuthError>
         email_verified_at: Set(Some(now)),
         password_hash: Set(hash),
         status: Set(UserStatus::Active.as_i16()),
-        language: Set(data.language.map(str::to_owned)),
+        language: Set(language.map(str::to_owned)),
         timezone: Set(timezone.map(str::to_owned)),
+        theme: Set(theme.map(str::to_owned)),
         display_name: Set(data.display_name.map(str::to_owned)),
+        about: Set(None),
         last_login_at: Set(None),
         last_access_at: Set(None),
         failed_login_count: Set(0),
@@ -210,16 +215,35 @@ pub(crate) async fn create_user(data: NewUserData<'_>) -> Result<i32, AuthError>
 
 // **< update_user >********************************************************************************
 
+/// Longitud máxima, en caracteres, del texto "Sobre mí". `u16` porque también limita el campo del
+/// formulario (`maxlength`).
+pub(crate) const ABOUT_MAX_CHARS: u16 = 2000;
+
 pub(crate) struct UserUpdateData<'a> {
     pub username: &'a str,
     pub email: &'a str,
     pub display_name: Option<&'a str>,
+    pub about: Option<&'a str>,
     pub language: Option<&'a str>,
     pub timezone: Option<&'a str>,
+    pub theme: Option<&'a str>,
 }
 
 pub(crate) async fn update_user(user_id: i32, data: UserUpdateData<'_>) -> Result<(), AuthError> {
+    let language = validate_language(data.language)?;
     let timezone = validate_timezone(data.timezone)?;
+    let theme = validate_theme(data.theme)?;
+    // El navegador envía los saltos de línea de un `<textarea>` como `\r\n`, pero `maxlength` puede
+    // contarlos como un único carácter: se normalizan antes de medir para no rechazar un texto que
+    // el formulario sí admitió.
+    let about = data.about.map(|about| about.replace("\r\n", "\n"));
+    let max_about = usize::from(ABOUT_MAX_CHARS);
+    if about
+        .as_deref()
+        .is_some_and(|about| about.chars().count() > max_about)
+    {
+        return Err(AuthError::AboutTooLong(max_about));
+    }
     ensure_username_available(data.username, Some(user_id)).await?;
     ensure_email_available(data.email, Some(user_id)).await?;
 
@@ -229,8 +253,10 @@ pub(crate) async fn update_user(user_id: i32, data: UserUpdateData<'_>) -> Resul
         username: Set(data.username.to_owned()),
         email: Set(data.email.to_owned()),
         display_name: Set(data.display_name.map(str::to_owned)),
-        language: Set(data.language.map(str::to_owned)),
+        about: Set(about),
+        language: Set(language.map(str::to_owned)),
         timezone: Set(timezone.map(str::to_owned)),
+        theme: Set(theme.map(str::to_owned)),
         updated_at: Set(now),
         ..Default::default()
     }
@@ -320,7 +346,7 @@ pub(crate) async fn set_user_status(
 // **< set_user_admin >*****************************************************************************
 
 /// Concede o revoca el acceso irrestricto (`is_admin`). No es un permiso del catálogo: sólo un
-/// administrador puede concederlo o revocarlo (el handler comprueba `account.is_admin`
+/// administrador puede concederlo o revocarlo (el handler comprueba `account.is_admin()`
 /// directamente, sin pasar por `require_permission`).
 ///
 /// Rechaza que un administrador se automodifique el flag. No hace falta proteger aparte al
@@ -380,12 +406,44 @@ pub(crate) async fn admin_reset_password(
 
 // **< HELPERS >************************************************************************************
 
-// Devuelve la zona sin espacios, tal como debe guardarse. Una zona ausente o en blanco es válida y
-// devuelve `None`: equivale a usar la predeterminada de la aplicación.
+// Devuelve el idioma sin espacios, tal como debe guardarse. Ha de ser uno de los identificadores
+// que ofrece el selector (`Locale::supported_languages()`); uno ausente o en blanco es válido y
+// devuelve `None`: equivale a usar el predeterminado de la aplicación.
+fn validate_language(language: Option<&str>) -> Result<Option<&str>, AuthError> {
+    let language = language.and_then(util::non_blank);
+    if let Some(code) = language
+        && !Locale::supported_languages()
+            .iter()
+            .any(|(langid, _)| langid.to_string() == code)
+    {
+        return Err(AuthError::InvalidLanguage);
+    }
+    Ok(language)
+}
+
+// Devuelve el nombre corto del tema tal como debe guardarse, el que declara el propio tema aunque
+// llegue con otras mayúsculas. Ha de ser uno de los temas habilitados; uno ausente o en blanco es
+// válido y devuelve `None`: equivale a usar el predeterminado de la aplicación.
+fn validate_theme(theme: Option<&str>) -> Result<Option<&'static str>, AuthError> {
+    match theme.and_then(util::non_blank) {
+        Some(name) => theme_by_short_name(name)
+            .map(|theme| Some(theme.short_name()))
+            .ok_or(AuthError::InvalidTheme),
+        None => Ok(None),
+    }
+}
+
+// Devuelve la zona sin espacios, tal como debe guardarse. Ha de ser una de las que ofrece el
+// selector (`Timezone::supported_by_region()`); una ausente o en blanco es válida y devuelve
+// `None`: equivale a usar la predeterminada de la aplicación.
 fn validate_timezone(timezone: Option<&str>) -> Result<Option<&str>, AuthError> {
     let timezone = timezone.and_then(util::non_blank);
-    if let Some(tz) = timezone {
-        tz.parse::<Tz>().map_err(|_| AuthError::InvalidTimezone)?;
+    if let Some(tz) = timezone
+        && !Timezone::supported_by_region()
+            .iter()
+            .any(|(_, names)| names.contains(&tz))
+    {
+        return Err(AuthError::InvalidTimezone);
     }
     Ok(timezone)
 }
