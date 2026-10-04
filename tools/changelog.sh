@@ -63,11 +63,17 @@ case "$CRATE" in
             --exclude-path "helpers/pagetop-minimal/**/*"
             --exclude-path "helpers/pagetop-statics/**/*"
             # Extensions
+            --exclude-path "extensions/pagetop-admin/**/*"
             --exclude-path "extensions/pagetop-aliner/**/*"
             --exclude-path "extensions/pagetop-bootsier/**/*"
             --exclude-path "extensions/pagetop-htmx/**/*"
             --exclude-path "extensions/pagetop-seaorm/**/*"
+            --exclude-path "extensions/pagetop-user/**/*"
         )
+        ;;
+    pagetop-admin)
+        CHANGELOG_FILE="extensions/pagetop-admin/CHANGELOG.md"
+        PATH_FLAGS=(--include-path "extensions/pagetop-admin/**/*")
         ;;
     pagetop-aliner)
         CHANGELOG_FILE="extensions/pagetop-aliner/CHANGELOG.md"
@@ -84,6 +90,10 @@ case "$CRATE" in
     pagetop-seaorm)
         CHANGELOG_FILE="extensions/pagetop-seaorm/CHANGELOG.md"
         PATH_FLAGS=(--include-path "extensions/pagetop-seaorm/**/*")
+        ;;
+    pagetop-user)
+        CHANGELOG_FILE="extensions/pagetop-user/CHANGELOG.md"
+        PATH_FLAGS=(--include-path "extensions/pagetop-user/**/*")
         ;;
     *)
         echo "Error: unsupported crate '$CRATE'" >&2
