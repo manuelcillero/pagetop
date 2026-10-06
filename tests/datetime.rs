@@ -319,3 +319,58 @@ async fn format_until_is_symmetric_to_format_since() {
         "hasta el 3 de junio de 2026"
     );
 }
+
+// **< TzRegion::from_name() >**********************************************************************
+
+#[pagetop::test]
+async fn region_names_are_parsed_ignoring_case_and_blanks() {
+    assert_eq!(TzRegion::from_name(" europe "), Some(TzRegion::Europe));
+    assert_eq!(TzRegion::from_name("PACIFIC"), Some(TzRegion::Pacific));
+    assert_eq!(TzRegion::from_name("US"), None);
+    assert_eq!(TzRegion::from_name("Mars"), None);
+    assert_eq!(TzRegion::from_name(""), None);
+}
+
+// **< Timezone::supported_by_region() >************************************************************
+
+#[pagetop::test]
+async fn supported_regions_put_the_site_first_and_etc_last() {
+    setup().await;
+
+    let regions = Timezone::supported_by_region();
+    let site = Timezone::default_tz();
+    if global::SETTINGS.app.timezone_order == global::TimezoneOrder::Nearest
+        && let Some(site_region) = site
+            .name()
+            .split_once('/')
+            .and_then(|(region, _)| TzRegion::from_name(region))
+        && site_region != TzRegion::Etc
+    {
+        assert_eq!(
+            regions.first().map(|(region, _)| *region),
+            Some(site_region)
+        );
+    }
+    assert_eq!(regions.last(), Some(&(TzRegion::Etc, &["Etc/UTC"][..])));
+    for (region, names) in regions {
+        assert!(
+            names.is_sorted(),
+            "zones of {region:?} are not sorted by name"
+        );
+    }
+}
+
+// **< Timezone::is_supported_in() >****************************************************************
+
+#[pagetop::test]
+async fn is_supported_in_applies_the_same_rules_as_the_offered_list() {
+    let europe = [TzRegion::Europe];
+    assert!(Timezone::is_supported_in("Europe/Madrid", &europe));
+    assert!(Timezone::is_supported_in("Etc/UTC", &europe));
+    assert!(!Timezone::is_supported_in("Asia/Tokyo", &europe));
+    assert!(Timezone::is_supported_in("Asia/Tokyo", &[]));
+    assert!(!Timezone::is_supported_in("US/Eastern", &[]));
+    assert!(!Timezone::is_supported_in("Etc/GMT+1", &[]));
+    assert!(!Timezone::is_supported_in("Europe/Atlantis", &[]));
+    assert!(!Timezone::is_supported_in("UTC", &[]));
+}

@@ -3,6 +3,7 @@
 use pagetop::prelude::*;
 
 use crate::LOCALES_USER;
+use crate::config::{user_language_applies, user_timezone_applies};
 use crate::user_path;
 use crate::{ADMIN_USERS_PATH, PROFILE_EDIT_PATH};
 
@@ -86,25 +87,33 @@ impl Component for UserForm {
                     .with_name("display_name")
                     .with_value(self.display_name())
                     .with_label(Lc::t("field-display-name", &LOCALES_USER)),
-            )
-            .with_child(
+            );
+
+        // Sólo se ofrecen si se aplican (ver `config::user_language_applies()` y
+        // `config::user_timezone_applies()`).
+        if user_language_applies() {
+            form = form.with_child(
                 form::SelectLanguage::new()
                     .with_name("language")
                     .with_label(Lc::t("field-language", &LOCALES_USER))
                     .with_selected(self.language()),
-            )
-            .with_child(
+            );
+        }
+        if user_timezone_applies() {
+            form = form.with_child(
                 form::SelectTimezone::new()
                     .with_name("timezone")
                     .with_label(Lc::t("field-timezone", &LOCALES_USER))
+                    .with_utc_offset(true)
                     .with_selected(self.timezone()),
-            )
-            .with_child(
-                form::SelectTheme::new()
-                    .with_name("theme")
-                    .with_label(Lc::t("field-theme", &LOCALES_USER))
-                    .with_selected(self.theme()),
             );
+        }
+        form = form.with_child(
+            form::SelectTheme::new()
+                .with_name("theme")
+                .with_label(Lc::t("field-theme", &LOCALES_USER))
+                .with_selected(self.theme()),
+        );
 
         if *self.mode() == UserFormMode::New {
             form = form.with_child(PasswordConfirm::new());

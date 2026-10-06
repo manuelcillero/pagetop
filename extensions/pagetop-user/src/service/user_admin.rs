@@ -10,6 +10,7 @@ use pagetop_seaorm::db::{
 };
 
 use crate::account::UserStatus;
+use crate::config::{user_language_applies, user_timezone_applies};
 use crate::entity::{role, user, user_role};
 use crate::error::AuthError;
 use crate::password;
@@ -174,8 +175,18 @@ pub(crate) struct NewUserData<'a> {
 pub(crate) async fn create_user(data: NewUserData<'_>) -> Result<i32, AuthError> {
     password::validate_strength(data.password)?;
     password::passwords_match(data.password, data.confirm_password)?;
-    let language = validate_language(data.language)?;
-    let timezone = validate_timezone(data.timezone)?;
+    // El idioma y la zona horaria que no se aplican no se ofrecen en el formulario: se ignora lo
+    // que pudiera llegar y el usuario se crea sin ellos.
+    let language = if user_language_applies() {
+        validate_language(data.language)?
+    } else {
+        None
+    };
+    let timezone = if user_timezone_applies() {
+        validate_timezone(data.timezone)?
+    } else {
+        None
+    };
     let theme = validate_theme(data.theme)?;
     ensure_username_available(data.username, None).await?;
     ensure_email_available(data.email, None).await?;
@@ -230,8 +241,24 @@ pub(crate) struct UserUpdateData<'a> {
 }
 
 pub(crate) async fn update_user(user_id: i32, data: UserUpdateData<'_>) -> Result<(), AuthError> {
-    let language = validate_language(data.language)?;
-    let timezone = validate_timezone(data.timezone)?;
+    // El idioma y la zona horaria que no se aplican tampoco se ofrecen en el formulario, así que no
+    // llegan: se conserva lo guardado por si se vuelven a aplicar.
+    let language = if user_language_applies() {
+        Set(validate_language(data.language)?.map(str::to_owned))
+    } else {
+        ActiveValue::NotSet
+    };
+    let timezone = if user_timezone_applies() {
+        let timezone = match validate_timezone(data.timezone) {
+            Err(AuthError::InvalidTimezone) => {
+                keep_current_timezone(user_id, data.timezone).await?
+            }
+            result => result?,
+        };
+        Set(timezone.map(str::to_owned))
+    } else {
+        ActiveValue::NotSet
+    };
     let theme = validate_theme(data.theme)?;
     // El navegador envía los saltos de línea de un `<textarea>` como `\r\n`, pero `maxlength` puede
     // contarlos como un único carácter: se normalizan antes de medir para no rechazar un texto que
@@ -254,8 +281,8 @@ pub(crate) async fn update_user(user_id: i32, data: UserUpdateData<'_>) -> Resul
         email: Set(data.email.to_owned()),
         display_name: Set(data.display_name.map(str::to_owned)),
         about: Set(about),
-        language: Set(language.map(str::to_owned)),
-        timezone: Set(timezone.map(str::to_owned)),
+        language,
+        timezone,
         theme: Set(theme.map(str::to_owned)),
         updated_at: Set(now),
         ..Default::default()
@@ -446,6 +473,22 @@ fn validate_timezone(timezone: Option<&str>) -> Result<Option<&str>, AuthError> 
         return Err(AuthError::InvalidTimezone);
     }
     Ok(timezone)
+}
+
+// Acepta una zona que ya no se ofrece si es la que el usuario tenía guardada: el selector la sigue
+// mostrando para que volver a guardar el formulario sin tocarla no la descarte. Sólo se consulta la
+// base de datos cuando la zona recibida no se ofrece.
+async fn keep_current_timezone(
+    user_id: i32,
+    timezone: Option<&str>,
+) -> Result<Option<&str>, AuthError> {
+    let timezone = timezone.and_then(util::non_blank);
+    let current = find_user(user_id).await?.timezone;
+    if timezone.is_some() && timezone == current.as_deref() {
+        Ok(timezone)
+    } else {
+        Err(AuthError::InvalidTimezone)
+    }
 }
 
 async fn ensure_username_available(

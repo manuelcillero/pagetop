@@ -134,3 +134,17 @@ impl Default for AdminConfig {
         AdminConfig { list_page_size: 20 }
     }
 }
+
+// **< Preferencias del usuario >*******************************************************************
+
+// Si se aplica el idioma propio del usuario: no con `lang_negotiation = "ConfigOnly"`, que usa
+// siempre el de la configuración. Si no se aplica, no se ofrece elegirlo ni se borra el guardado.
+pub(crate) fn user_language_applies() -> bool {
+    global::SETTINGS.app.lang_negotiation != global::LangNegotiation::ConfigOnly
+}
+
+// Si se aplica la zona horaria propia del usuario (`app.timezone_per_user`). Si no se aplica, no se
+// ofrece elegirla ni se borra la guardada.
+pub(crate) fn user_timezone_applies() -> bool {
+    global::SETTINGS.app.timezone_per_user
+}

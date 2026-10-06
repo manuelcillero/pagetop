@@ -9,6 +9,7 @@ use crate::account::{Account, UserStatus};
 use crate::auth;
 use crate::component::admin::{UserForm, UserFormMode, status_key};
 use crate::component::{ChangePasswordForm, language_name, multiline_text, theme_name};
+use crate::config::{user_language_applies, user_timezone_applies};
 use crate::entity::{role, user};
 use crate::error::AuthError;
 use crate::handlers::admin::map_auth_error;
@@ -119,17 +120,23 @@ async fn profile_details(user: &user::Model, status: UserStatus, cx: &mut Contex
                 .with_cell(multiline_text(
                     user.about.clone().unwrap_or_else(|| "-".into()),
                 )),
-        )
-        .with_row(
+        );
+    // Sólo se muestran si se aplican, igual que en el formulario de edición.
+    if user_language_applies() {
+        table = table.with_row(
             table::Row::new()
                 .with_cell(Lc::t("field-language", &LOCALES_USER))
                 .with_cell(language_name(user.language.as_deref())),
-        )
-        .with_row(
+        );
+    }
+    if user_timezone_applies() {
+        table = table.with_row(
             table::Row::new()
                 .with_cell(Lc::t("field-timezone", &LOCALES_USER))
                 .with_cell(user.timezone.as_deref().unwrap_or("-")),
-        )
+        );
+    }
+    table = table
         .with_row(
             table::Row::new()
                 .with_cell(Lc::t("field-theme", &LOCALES_USER))

@@ -30,6 +30,9 @@ pub enum LangNegotiation {
     /// Usa sólo la configuración o, en su defecto, el idioma de respaldo; ignora el idioma del
     /// usuario, la cabecera `Accept-Language` y el parámetro de la URL. Este modo proporciona un
     /// comportamiento estable con idioma fijo.
+    ///
+    /// Las extensiones que gestionan usuarios no deben ofrecer elegir idioma en este modo; el
+    /// idioma que el usuario tenga guardado se conserva por si se cambia de modo.
     ConfigOnly,
 }
 

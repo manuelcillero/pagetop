@@ -22,7 +22,7 @@ use crate::datetime::{Timezone, Tz};
 use crate::locale::{LanguageIdentifier, Lc, Locale};
 use crate::response::ErrorPage;
 use crate::web::HttpRequest;
-use crate::{AutoDefault, CowStr, Getters, Weight, builder_impl};
+use crate::{AutoDefault, CowStr, Getters, Weight, builder_impl, global};
 
 use std::ops::ControlFlow;
 
@@ -149,16 +149,21 @@ impl CurrentUser {
 
     /// Devuelve la zona horaria efectiva del usuario.
     ///
-    /// Devuelve la suya si tiene una; en otro caso, devuelve [`Timezone::default_tz()`].
+    /// Devuelve su zona horaria si tiene una y [`global::SETTINGS.app.timezone_per_user`] lo
+    /// permite; en otro caso, devuelve [`Timezone::default_tz()`].
     ///
     /// Normalmente se resuelve una sola vez, al construir el [`Context`] de la petición. A partir
     /// de ese momento el renderizado del documento no vuelve a llamarlo porque usa el valor ya
     /// resuelto vía [`Contextual::timezone()`].
     ///
+    /// [`global::SETTINGS.app.timezone_per_user`]: crate::global::App::timezone_per_user
     /// [`Context`]: crate::core::component::Context
     /// [`Contextual::timezone()`]: crate::core::component::Contextual::timezone
     pub fn timezone(&self) -> Tz {
-        self.timezone.unwrap_or_else(Timezone::default_tz)
+        match self.timezone {
+            Some(tz) if global::SETTINGS.app.timezone_per_user => tz,
+            _ => Timezone::default_tz(),
+        }
     }
 }
 

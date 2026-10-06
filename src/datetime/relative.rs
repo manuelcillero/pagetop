@@ -171,8 +171,8 @@ mod tests {
 
     #[test]
     fn breakdown_clamps_month_end_across_a_leap_year() {
-        // 31 ene 2024 (bisiesto) + 1 mes = 29 feb (checked_add_months hace el *clamping*); de ahí
-        // a 1 mar queda 1 día más: 1 mes y 1 día, no "1 mes y -1 día" ni "2 meses".
+        // Jan 31, 2024 (leap year) + 1 month = Feb 29 (checked_add_months clamps it); from there to
+        // Mar 1 there is 1 more day: 1 month and 1 day, not "1 month and -1 day" nor "2 months".
         assert_eq!(breakdown(date(2024, 1, 31), date(2024, 3, 1)), (0, 1, 1));
     }
 
@@ -186,7 +186,7 @@ mod tests {
     #[test]
     fn apply_truncates_after_filtering_zero_components() {
         let today = date(2026, 6, 15);
-        let target = date(2024, 6, 12); // 2 años, 0 meses, 3 días.
+        let target = date(2024, 6, 12); // 2 years, 0 months, 3 days.
         let en = Locale::resolve("en-US");
 
         assert_eq!(
@@ -197,7 +197,7 @@ mod tests {
             RelativeFormat::Medium.apply(target, today, &en),
             "2 years and 3 days ago"
         );
-        // Sin un tercer componente disponible (meses = 0), `Long` coincide con `Medium`.
+        // With no third component available (months = 0), `Long` matches `Medium`.
         assert_eq!(
             RelativeFormat::Long.apply(target, today, &en),
             "2 years and 3 days ago"
@@ -207,7 +207,7 @@ mod tests {
     #[test]
     fn apply_shows_three_components_in_spanish() {
         let today = date(2026, 6, 15);
-        let target = date(2023, 4, 5); // 3 años, 2 meses, 10 días.
+        let target = date(2023, 4, 5); // 3 years, 2 months, 10 days.
         let es = Locale::resolve("es-ES");
 
         assert_eq!(
@@ -219,7 +219,7 @@ mod tests {
     #[test]
     fn apply_handles_future_dates_and_singular_units() {
         let today = date(2026, 6, 15);
-        let target = date(2026, 6, 16); // dentro de 1 día.
+        let target = date(2026, 6, 16); // in 1 day.
         let es = Locale::resolve("es-ES");
 
         assert_eq!(

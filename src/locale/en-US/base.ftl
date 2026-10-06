@@ -19,6 +19,7 @@ select_theme_placeholder = Choose a theme...
 
 select_timezone_site_default = Use the site time zone: { $timezone }
 select_timezone_placeholder = Choose a time zone...
+select_timezone_current = Current time zone
 
 timezone_region_africa = Africa
 timezone_region_america = America

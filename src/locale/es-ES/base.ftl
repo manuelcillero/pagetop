@@ -19,6 +19,7 @@ select_theme_placeholder = Elige un tema...
 
 select_timezone_site_default = Usar la zona horaria del sitio: { $timezone }
 select_timezone_placeholder = Elige una zona horaria...
+select_timezone_current = Zona horaria actual
 
 timezone_region_africa = África
 timezone_region_america = América
@@ -28,7 +29,7 @@ timezone_region_asia = Asia
 timezone_region_atlantic = Atlántico
 timezone_region_australia = Australia
 timezone_region_europe = Europa
-timezone_region_indian = Océano Índico
+timezone_region_indian = Índico
 timezone_region_pacific = Pacífico
 timezone_region_etc = Otras
 

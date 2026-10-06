@@ -64,7 +64,7 @@ impl Application {
         // Inicializa el idioma predeterminado.
         Locale::init();
 
-        // Inicializa la zona horaria predeterminada.
+        // Inicializa la zona horaria predeterminada y las regiones para elegir.
         Timezone::init();
 
         // Registra las extensiones de la aplicación.

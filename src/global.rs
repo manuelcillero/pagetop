@@ -10,6 +10,9 @@ pub use lang_negotiation::LangNegotiation;
 mod startup_banner;
 pub use startup_banner::StartupBanner;
 
+mod timezone_order;
+pub use timezone_order::TimezoneOrder;
+
 mod log_rolling;
 pub use log_rolling::LogRolling;
 
@@ -24,6 +27,9 @@ include_config!(SETTINGS: Settings => [
     "app.theme"              => "Basic",
     "app.lang_negotiation"   => "Full",
     "app.timezone"           => "UTC",
+    "app.timezone_regions"   => "",
+    "app.timezone_order"     => "Nearest",
+    "app.timezone_per_user"  => true,
     "app.startup_banner"     => "Slant",
 
     // [dev]
@@ -80,13 +86,59 @@ pub struct App {
     /// Zona horaria predeterminada de la aplicación (p. ej. *"UTC"* o *"Europe/Madrid"*).
     ///
     /// Se usa como zona horaria efectiva para las peticiones de usuarios anónimos o sin zona
-    /// horaria propia. Ver [`Timezone`] y [`CurrentUser::timezone()`].
+    /// horaria propia, y para todos si [`timezone_per_user`] es *false*. Ver [`Timezone`] y
+    /// [`CurrentUser::timezone()`].
     ///
     /// Si es `None` o no contiene un valor válido, se aplica `UTC`.
     ///
+    /// [`timezone_per_user`]: Self::timezone_per_user
     /// [`Timezone`]: crate::datetime::Timezone
     /// [`CurrentUser::timezone()`]: crate::auth::CurrentUser::timezone
     pub timezone: Option<String>,
+    /// Regiones de zonas horarias que se ofrecen para elegir, separadas por comas (p. ej.
+    /// *"Europe, America"*); da igual escribirlas en mayúsculas o minúsculas.
+    ///
+    /// Limita las zonas horarias de [`Timezone::supported_by_region()`] a las de esas regiones (ver
+    /// [`TzRegion`]): *"Africa"*, *"America"*, *"Antarctica"*, *"Arctic"*, *"Asia"*, *"Atlantic"*,
+    /// *"Australia"*, *"Europe"*, *"Indian"* y *"Pacific"*. Los nombres desconocidos se ignoran con
+    /// un aviso al arrancar. El grupo *"Etc"*, sólo con `Etc/UTC`, se ofrece siempre, se indique o
+    /// no; por eso *"Etc"* como único valor deja `Etc/UTC` como la única zona horaria disponible.
+    /// Si está vacío, o ninguna de las indicadas es válida, se ofrecen todas.
+    ///
+    /// Es el valor por defecto de [`form::SelectTimezone`], que puede cambiarse para un componente
+    /// concreto con `with_regions()`.
+    ///
+    /// Restringir las regiones no cambia las zonas horarias que los usuarios ya tengan asignadas:
+    /// se les siguen aplicando ([`CurrentUser::timezone()`]) aunque queden fuera, y
+    /// [`form::SelectTimezone`] las sigue mostrando como zona horaria actual para que volver a
+    /// guardar el formulario no las descarte. Sólo dejan de ofrecerse para nuevas elecciones; quien
+    /// valide el valor recibido contra [`Timezone::supported_by_region()`] debe aceptar también,
+    /// sin cambios, el que ya estuviera guardado.
+    ///
+    /// [`Timezone::supported_by_region()`]: crate::datetime::Timezone::supported_by_region
+    /// [`TzRegion`]: crate::datetime::TzRegion
+    /// [`CurrentUser::timezone()`]: crate::auth::CurrentUser::timezone
+    /// [`form::SelectTimezone`]: crate::base::component::form::SelectTimezone
+    pub timezone_regions: String,
+    /// Orden de las regiones de zonas horarias que se ofrecen para elegir: *"Nearest"*,
+    /// *"Alphabetical"* o *"Listed"*.
+    ///
+    /// Ver [`TimezoneOrder`] para los criterios disponibles. Es el valor por defecto de
+    /// [`form::SelectTimezone`], que puede cambiarse para un componente concreto con
+    /// `with_order()`.
+    ///
+    /// [`form::SelectTimezone`]: crate::base::component::form::SelectTimezone
+    pub timezone_order: TimezoneOrder,
+    /// Si cada usuario puede tener su propia zona horaria (*true*) o se usa siempre la de la
+    /// aplicación (*false*).
+    ///
+    /// Con *false*, [`CurrentUser::timezone()`] devuelve siempre la zona horaria de la aplicación
+    /// ([`timezone`](Self::timezone)), aunque el usuario tenga otra guardada, y las extensiones que
+    /// gestionan usuarios no deben ofrecer elegirla; la zona guardada se conserva por si se vuelve
+    /// a activar. Es el equivalente de [`LangNegotiation::ConfigOnly`] para el idioma.
+    ///
+    /// [`CurrentUser::timezone()`]: crate::auth::CurrentUser::timezone
+    pub timezone_per_user: bool,
     /// Banner ASCII mostrado al inicio: *"Off"* (desactivado), *"Slant"*, *"Small"*, *"Speed"* o
     /// *"Starwars"*.
     pub startup_banner: StartupBanner,
