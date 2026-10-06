@@ -3,8 +3,10 @@ use crate::prelude::*;
 /// Componente para **elegir un idioma** de la lista de idiomas soportados por PageTop.
 ///
 /// Ofrece un elemento por cada idioma de [`Locale::supported_languages()`], con su identificador
-/// como valor (p. ej. `"es-ES"`) y su nombre traducido como etiqueta, ordenados por ese nombre en
-/// el idioma de la página. Se renderiza como cualquier [`form::select::Field`].
+/// como valor (p. ej. `"es-ES"`) y su nombre escrito en ese mismo idioma como etiqueta (p. ej.
+/// *"Español (España)"* o *"English (United States)"*), sea cual sea el idioma de la página; así
+/// cualquiera reconoce el suyo aunque no entienda el de la página. Se ordenan por ese nombre, sin
+/// distinguir mayúsculas ni acentos. Se renderiza como cualquier [`form::select::Field`].
 ///
 /// La primera opción, con valor vacío, depende de si el campo es obligatorio:
 ///
@@ -46,8 +48,16 @@ impl Component for SelectLanguage {
 
     async fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
         let mut field = self.field().clone();
-        let mut languages = Locale::supported_languages();
-        languages.sort_by_cached_key(|(_, name)| name.collation_key(&*cx));
+        let mut languages: Vec<_> = Locale::supported_languages()
+            .into_iter()
+            .map(|(langid, name)| {
+                let own = name
+                    .lookup(&Locale::Resolved(langid))
+                    .unwrap_or_else(|| langid.to_string());
+                (langid, own)
+            })
+            .collect();
+        languages.sort_by_cached_key(|(_, name)| Lc::n(name.clone()).collation_key(&*cx));
 
         let selected = Locale::resolve(self.selected()).as_option();
         let known = selected.is_some();
@@ -56,8 +66,7 @@ impl Component for SelectLanguage {
             let default_name = languages
                 .iter()
                 .find(|(langid, _)| *langid == default_langid)
-                .and_then(|(_, name)| name.lookup(cx))
-                .unwrap_or_else(|| default_langid.to_string());
+                .map_or_else(|| default_langid.to_string(), |(_, name)| name.clone());
             let label = Lc::l("select_language_site_default").with_arg("language", default_name);
             field.alter_item(form::select::Item::new("", label).with_selected(!known));
         } else if !known {
@@ -66,7 +75,7 @@ impl Component for SelectLanguage {
         }
 
         for (langid, name) in languages {
-            let item = form::select::Item::new(langid.to_string(), name);
+            let item = form::select::Item::new(langid.to_string(), Lc::n(name));
             field.alter_item(item.with_selected(selected == Some(langid)));
         }
         Ok(field.render(cx).await)

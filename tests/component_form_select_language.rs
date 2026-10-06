@@ -75,27 +75,32 @@ async fn unknown_selected_value_falls_back_to_the_empty_option() {
     assert!(html.contains(r#"<option value="" selected>Choose a language...</option>"#));
 }
 
+// Languages are sorted by their own name, so the order is the same for every page language.
 #[pagetop::test]
-async fn languages_are_sorted_by_their_translated_name() {
+async fn languages_are_sorted_by_their_own_name() {
     let mut field = form::SelectLanguage::new();
+    for page in ["en-US", "es-ES"] {
+        let mut cx = Context::default().with_langid(&Locale::resolve(page));
+        let html = field.render(&mut cx).await.into_string();
+        let english = html
+            .find(">English (United States)</option>")
+            .expect("English name");
+        let spanish = html
+            .find(">Español (España)</option>")
+            .expect("Spanish name");
+        assert!(english < spanish);
+    }
+}
 
-    let mut cx = Context::default().with_langid(&Locale::resolve("es-ES"));
-    let html = field.render(&mut cx).await.into_string();
-    let spanish = html
-        .find(">Español (España)</option>")
-        .expect("Spanish name");
-    let english = html
-        .find(">Inglés (Estados Unidos)</option>")
-        .expect("English name");
-    assert!(spanish < english);
+// Each language is labelled in its own language, whatever the language of the page.
+#[pagetop::test]
+async fn languages_are_labelled_in_their_own_language() {
+    for page in ["en-US", "es-ES"] {
+        let mut field = form::SelectLanguage::new();
+        let mut cx = Context::default().with_langid(&Locale::resolve(page));
+        let html = field.render(&mut cx).await.into_string();
 
-    let mut cx = Context::default().with_langid(&Locale::resolve("en-US"));
-    let html = field.render(&mut cx).await.into_string();
-    let spanish = html
-        .find(">Spanish (Spain)</option>")
-        .expect("Spanish name");
-    let english = html
-        .find(">English (United States)</option>")
-        .expect("English name");
-    assert!(english < spanish);
+        assert!(html.contains(r#"<option value="es-ES">Español (España)</option>"#));
+        assert!(html.contains(r#"<option value="en-US">English (United States)</option>"#));
+    }
 }
