@@ -1,0 +1,149 @@
+# ==================================================================================================
+# Referencia de opciones de configuración de PageTop y sus extensiones.
+#
+# Este fichero NO se carga: sólo documenta todas las opciones disponibles con su valor por defecto.
+# Para usarlas, copia las que necesites en alguno de los ficheros de la cascada de configuración,
+# que se aplican en este orden (cada uno sobrescribe al anterior):
+#
+#   1. config/common.toml         -> ajustes comunes a todos los entornos.
+#   2. config/{rm}.toml           -> ajustes del modo de ejecución (p. ej. default.toml).
+#   3. config/local.{rm}.toml     -> ajustes locales del modo de ejecución (no se versiona).
+#   4. config/local.toml          -> ajustes locales para cualquier entorno (no se versiona).
+#
+# Donde {rm} es el valor de la variable de entorno PAGETOP_RUN_MODE ("default" si no se define).
+# El directorio config/ puede cambiarse con la variable de entorno CONFIG_DIR. No hay más
+# variables de entorno: el resto de opciones sólo se leen de estos ficheros.
+#
+# Las opciones comentadas no tienen valor por defecto; se muestran con un valor de ejemplo.
+# ==================================================================================================
+
+
+# **< PageTop (núcleo) >****************************************************************************
+
+[app]
+name              = "PageTop App"   # Nombre de la aplicación.
+theme             = "Basic"         # Tema predeterminado: "Basic" o el de una extensión enlazada
+                                    # por la aplicación ("Aliner", "Bootsier"...).
+#language         = "es-ES"         # Idioma predeterminado (BCP 47: "es-ES", "en-US"...). Sin
+                                    # valor, o si no es válido, el idioma se negocia con otras
+                                    # fuentes (cabecera Accept-Language, idioma de respaldo).
+lang_negotiation  = "Full"          # Estrategia para resolver el idioma de cada petición:
+                                    #   "Full"       -> ?lang de la URL, idioma del usuario,
+                                    #                   'language', Accept-Language y respaldo.
+                                    #   "NoQuery"    -> igual que "Full" pero sin ?lang.
+                                    #   "ConfigOnly" -> sólo 'language' o el idioma de respaldo
+                                    #                   (no se ofrece elegir idioma al usuario).
+timezone          = "UTC"           # Zona horaria del sitio (IANA: "UTC", "Europe/Madrid"...);
+                                    # da igual escribirla en mayúsculas o minúsculas.
+                                    # Se aplica a anónimos y a usuarios sin zona horaria propia,
+                                    # y a todos si 'timezone_per_user' es false.
+timezone_regions  = ""              # Regiones de zonas horarias que se ofrecen, separadas por
+                                    # comas (p. ej. "Europe, America"): "Africa", "America",
+                                    # "Antarctica", "Arctic", "Asia", "Atlantic", "Australia",
+                                    # "Europe", "Indian" y "Pacific". "Etc" (Etc/UTC) se ofrece
+                                    # siempre. Vacío -> todas. Los nombres desconocidos se ignoran
+                                    # con un aviso al arrancar. No cambia las zonas ya asignadas a
+                                    # los usuarios (las conservan), sólo las nuevas elecciones.
+                                    # Es el valor por defecto del selector de zona horaria; la
+                                    # aplicación puede cambiarlo en un formulario concreto.
+timezone_order    = "Nearest"       # Orden de esas regiones al elegir zona horaria:
+                                    #   "Nearest"      -> la del sitio primero, si tiene región, y
+                                    #                     luego por cercanía de su desfase horario.
+                                    #   "Alphabetical" -> por el nombre de la región traducido al
+                                    #                     idioma de la página.
+                                    #   "Listed"       -> en el orden de 'timezone_regions' (sin
+                                    #                     regiones, como "Alphabetical").
+                                    # Es el valor por defecto del selector de zona horaria; la
+                                    # aplicación puede cambiarlo en un formulario concreto.
+timezone_per_user = true            # Si cada usuario puede tener su propia zona horaria (true) o
+                                    # se usa siempre 'timezone' (false). Con false no se ofrece
+                                    # elegirla y la guardada se conserva por si se reactiva.
+startup_banner    = "Slant"         # Banner ASCII al arrancar: "Off", "Slant", "Small", "Speed"
+                                    # o "Starwars".
+
+[dev]
+pagetop_static_dir = ""             # Directorio static/ de PageTop para servir sus archivos
+                                    # estáticos desde disco (editables sin recompilar). Ruta
+                                    # absoluta o relativa al proyecto o al binario. Vacío -> se
+                                    # sirven los incluidos en el binario.
+bootsier_static_dir = ""            # Igual que el anterior, para los archivos estáticos de
+                                    # pagetop-bootsier.
+
+[log]
+enabled = true                      # Activa (true) o desactiva (false) las trazas.
+tracing = "Info"                    # Filtro de trazas: "Error", "Warn", "Info", "Debug" o
+                                    # "Trace", o combinaciones separadas por comas por módulo,
+                                    # p. ej. "Info,pagetop=Debug,sqlx=Warn".
+rolling = "Stdout"                  # Salida de las trazas:
+                                    #   "Stdout"   -> terminal, sin archivos.
+                                    #   "Daily", "Hourly", "Minutely" -> archivos con rotación.
+                                    #   "Endless"  -> un único archivo, sin rotación.
+path    = "log"                     # Directorio de los archivos de traza (si rolling != Stdout).
+prefix  = "tracing.log"             # Prefijo de los archivos de traza (si rolling != Stdout).
+format  = "Full"                    # Formato: "Full", "Compact", "Pretty" o "Json".
+
+[server]
+bind_address = "localhost"          # Dirección de enlace del servidor web.
+bind_port    = 8080                 # Puerto de escucha del servidor web.
+
+
+# **< pagetop-seaorm >******************************************************************************
+
+[database]
+db_type       = ""                  # Motor: "mysql" (o "mariadb"), "postgres" (o "postgresql")
+                                    # o "sqlite". Obligatorio: sin él la aplicación no arranca.
+db_name       = ""                  # Nombre (mysql/postgres) o referencia (sqlite) de la BD.
+db_user       = ""                  # Usuario de conexión (mysql/postgres).
+db_pass       = ""                  # Contraseña de conexión (mysql/postgres).
+db_host       = "localhost"         # Servidor de la base de datos (mysql/postgres).
+#db_port      = 5432                # Puerto (mysql/postgres). Sin valor -> 3306 para MySQL y
+                                    # 5432 para PostgreSQL.
+max_pool_size = 5                   # Número máximo de conexiones simultáneas.
+
+
+# **< pagetop-user >********************************************************************************
+
+[user]
+allow_registration         = true   # Permite que los visitantes creen su propia cuenta.
+require_email_verification = false  # Las cuentas nuevas quedan pendientes ("Pending") en lugar
+                                    # de activas hasta verificar el correo.
+
+session_cookie_name   = "pgt_session" # Nombre de la cookie de sesión.
+session_ttl_secs      = 1209600     # Duración de la sesión en segundos si se marca "recordarme"
+                                    # al acceder (14 días).
+session_idle_ttl_secs = 7200        # Duración de la sesión en segundos sin "recordarme" (2
+                                    # horas). Se cuenta desde el acceso, no desde la última
+                                    # actividad.
+secure_cookie         = false       # Marca la cookie como Secure (sólo HTTPS). Activar en
+                                    # producción.
+
+max_failed_logins        = 5        # Intentos fallidos de acceso antes de bloquear la cuenta.
+failed_login_window_secs = 900      # Ventana de recuento de intentos fallidos (15 minutos).
+                                    # Reservada: todavía no tiene efecto.
+locked_for_secs          = 600      # Duración del bloqueo de la cuenta en segundos (10 minutos).
+
+login_strict = false                # Dificulta que el navegador recuerde o autorrellene las
+                                    # credenciales en el formulario de acceso.
+
+[user.password]                     # Contraseñas, cifradas con Argon2id.
+argon2_m_cost = 19456               # Coste de memoria en KiB. Si cambia, las contraseñas se
+                                    # vuelven a cifrar en el siguiente acceso de cada usuario.
+argon2_t_cost = 2                   # Coste de tiempo (número de iteraciones).
+argon2_p_cost = 1                   # Grado de paralelismo (número de hilos).
+min_length    = 8                   # Longitud mínima de las contraseñas.
+
+[user.seed]                         # Primer administrador, creado si no existe ningún usuario.
+admin_username  = "admin"           # Nombre de usuario.
+admin_email     = "admin@example.com" # Correo electrónico.
+#admin_password = "cambiar"         # Contraseña. Sin valor -> se genera una aleatoria y se
+                                    # muestra una sola vez por la salida estándar al crearlo.
+
+[user.admin]
+list_page_size = 20                 # Filas por página en los listados de administración
+                                    # (usuarios, roles...).
+
+
+# **< pagetop-bootsier >****************************************************************************
+
+[bootsier]
+max_width = "1440px"                # Ancho máximo de la página ("100%", "90rem", "1440px"...).
