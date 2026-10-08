@@ -99,8 +99,8 @@
 //!    [`PropsOp::set_extra()`] para consumirlos en el `setup()` vía [`Theme::setup_component()`] o
 //!    en el `render()` vía [`Theme::render_component()`]), o aportar componentes propios.
 //!    `pagetop-bootsier` combina las tres estrategias: reexporta `Form`/`Fieldset` sin cambios,
-//!    extiende `Button`/`Badge`/`Dropdown`/`Nav`/`Navbar` con sus propios traits (`ButtonBootsier`,
-//!    `BadgeBootsier`, etc.), y añade componentes propios como `Offcanvas`.
+//!    extiende `Button`/`Badge`/`Dropdown`/`Nav`/`Navbar` con sus propios traits (`ButtonBsExt`,
+//!    `BadgeBsExt`, etc.), y añade componentes propios como `Offcanvas`.
 //!
 //! Para forzar una plantilla completamente distinta en una página concreta, se puede llamar
 //! manualmente a [`with_template()`].

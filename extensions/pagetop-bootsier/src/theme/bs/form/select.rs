@@ -25,7 +25,7 @@ const EXTRA_FLOATING_LABEL: &str = "bootsier.form.select.floating_label";
 ///     .with_item(bs::form::select::Item::new("en", Lc::n("English")));
 /// ```
 #[builder_impl]
-pub trait SelectBootsier {
+pub trait SelectBsExt {
     /// Establece si la etiqueta se muestra flotante sobre el campo.
     ///
     /// Cuando está activo, la etiqueta se superpone al control y permanece flotante siempre que
@@ -38,7 +38,7 @@ pub trait SelectBootsier {
 }
 
 #[builder_impl]
-impl SelectBootsier for Field {
+impl SelectBsExt for Field {
     fn with_floating_label(mut self, floating: bool) -> Self {
         self.alter_prop(PropsOp::set_extra(EXTRA_FLOATING_LABEL, floating));
         self

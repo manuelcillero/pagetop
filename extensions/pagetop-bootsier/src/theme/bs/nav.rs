@@ -19,8 +19,8 @@ pub use pagetop::base::component::nav::{Item, ItemKind};
 
 const EXTRA_KIND: &str = "bootsier.nav.kind";
 
-// Marca interna (nunca expuesta en `NavBootsier`) que `theme::bs::navbar::item` fija sobre el clon
-// de un `Nav` embebido en una `Navbar`, para que use `navbar-nav` en vez de `nav` como clase base.
+// Marca interna (nunca expuesta en `NavBsExt`) que `theme::bs::navbar::item` fija sobre el clon de
+// un `Nav` embebido en una `Navbar`, para que use `navbar-nav` en vez de `nav` como clase base.
 pub(crate) const EXTRA_IN_NAVBAR: &str = "bootsier.nav.in_navbar";
 
 /// Extensión de Bootsier para [`Nav`].
@@ -47,13 +47,13 @@ pub(crate) const EXTRA_IN_NAVBAR: &str = "bootsier.nav.in_navbar";
 ///     .with_item(bs::nav::Item::link_disabled(Lc::n("Disabled"), "#"));
 /// ```
 #[builder_impl]
-pub trait NavBootsier {
+pub trait NavBsExt {
     /// Cambia el estilo del menú (*Tabs*, *Pills*, *Underline* o *Default*).
     fn with_kind(self, kind: Kind) -> Self;
 }
 
 #[builder_impl]
-impl NavBootsier for Nav {
+impl NavBsExt for Nav {
     fn with_kind(mut self, kind: Kind) -> Self {
         self.alter_prop(PropsOp::set_extra(EXTRA_KIND, kind));
         self

@@ -70,21 +70,21 @@ mod token;
 pub use token::*;
 
 #[doc(hidden)]
-pub use bs::badge::BadgeBootsier;
+pub use bs::badge::BadgeBsExt;
 #[doc(hidden)]
-pub use bs::button::ButtonBootsier;
+pub use bs::button::ButtonBsExt;
 #[doc(hidden)]
-pub use bs::dropdown::DropdownBootsier;
+pub use bs::dropdown::DropdownBsExt;
 #[doc(hidden)]
-pub use bs::form::input::InputBootsier;
+pub use bs::form::input::InputBsExt;
 #[doc(hidden)]
-pub use bs::form::select::SelectBootsier;
+pub use bs::form::select::SelectBsExt;
 #[doc(hidden)]
-pub use bs::form::textarea::TextareaBootsier;
+pub use bs::form::textarea::TextareaBsExt;
 #[doc(hidden)]
-pub use bs::nav::NavBootsier;
+pub use bs::nav::NavBsExt;
 #[doc(hidden)]
-pub use bs::navbar::NavbarBootsier;
+pub use bs::navbar::NavbarBsExt;
 
 // Añade la clase de un punto de corte con un prefijo y un sufijo (opcional) a la cadena de clases,
 // separada con un espacio de las que ya hubiera: `prefix-name-suffix`, sin `-suffix` si no hay

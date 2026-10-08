@@ -14,16 +14,16 @@ pub use pagetop::base::component::form::radio;
 
 pub mod select;
 #[doc(inline)]
-pub use select::SelectBootsier;
+pub use select::SelectBsExt;
 
 pub mod input;
 #[doc(inline)]
-pub use input::InputBootsier;
+pub use input::InputBsExt;
 
 pub mod textarea;
 pub use textarea::Textarea;
 #[doc(inline)]
-pub use textarea::TextareaBootsier;
+pub use textarea::TextareaBsExt;
 
 pub use pagetop::base::component::form::Number;
 

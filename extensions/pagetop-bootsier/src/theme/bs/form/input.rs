@@ -23,7 +23,7 @@ const EXTRA_FLOATING_LABEL: &str = "bootsier.form.input.floating_label";
 ///     .with_floating_label(true);
 /// ```
 #[builder_impl]
-pub trait InputBootsier {
+pub trait InputBsExt {
     /// Establece si la etiqueta se muestra flotante sobre el campo.
     ///
     /// Cuando está activo, la etiqueta se superpone al campo y asciende al enfocarlo o cuando tiene
@@ -33,7 +33,7 @@ pub trait InputBootsier {
 }
 
 #[builder_impl]
-impl InputBootsier for Field {
+impl InputBsExt for Field {
     fn with_floating_label(mut self, floating: bool) -> Self {
         self.alter_prop(PropsOp::set_extra(EXTRA_FLOATING_LABEL, floating));
         self

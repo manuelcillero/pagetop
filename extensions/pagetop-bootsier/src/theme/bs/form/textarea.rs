@@ -23,7 +23,7 @@ const EXTRA_FLOATING_LABEL: &str = "bootsier.form.textarea.floating_label";
 ///     .with_floating_label(true);
 /// ```
 #[builder_impl]
-pub trait TextareaBootsier {
+pub trait TextareaBsExt {
     /// Establece si la etiqueta se muestra flotante sobre el campo.
     ///
     /// Cuando está activo, la etiqueta se superpone al área de texto y asciende al enfocarlo o
@@ -36,7 +36,7 @@ pub trait TextareaBootsier {
 }
 
 #[builder_impl]
-impl TextareaBootsier for Textarea {
+impl TextareaBsExt for Textarea {
     fn with_floating_label(mut self, floating: bool) -> Self {
         self.alter_prop(PropsOp::set_extra(EXTRA_FLOATING_LABEL, floating));
         self

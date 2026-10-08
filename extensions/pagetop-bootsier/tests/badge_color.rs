@@ -1,4 +1,4 @@
-// Verifies `BadgeBootsier::with_color()`: it overrides the Bootstrap color that `Badge` would
+// Verifies `BadgeBsExt::with_color()`: it overrides the Bootstrap color that `Badge` would
 // otherwise derive from its `Intent`, without disturbing the class that `Badge::setup()` (core)
 // already generated from that `Intent`.
 

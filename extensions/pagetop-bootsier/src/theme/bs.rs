@@ -4,7 +4,7 @@ pub(crate) mod layout;
 
 // Badge.
 pub(crate) mod badge;
-pub use badge::{Badge, BadgeBootsier};
+pub use badge::{Badge, BadgeBsExt};
 
 // Block.
 pub use pagetop::base::component::Block;
@@ -20,7 +20,7 @@ pub use pagetop::base::component::breadcrumb;
 
 // Button.
 pub mod button;
-pub use button::{Button, ButtonBootsier};
+pub use button::{Button, ButtonBsExt};
 
 // Container.
 pub mod container;
@@ -37,18 +37,18 @@ pub mod dropdown;
 #[doc(inline)]
 pub use dropdown::Dropdown;
 #[doc(inline)]
-pub use dropdown::DropdownBootsier;
+pub use dropdown::DropdownBsExt;
 
 // Form.
 pub mod form;
 #[doc(inline)]
 pub use form::Form;
 #[doc(inline)]
-pub use form::input::InputBootsier;
+pub use form::input::InputBsExt;
 #[doc(inline)]
-pub use form::select::SelectBootsier;
+pub use form::select::SelectBsExt;
 #[doc(inline)]
-pub use form::textarea::TextareaBootsier;
+pub use form::textarea::TextareaBsExt;
 
 // Image.
 pub mod image;
@@ -63,14 +63,14 @@ pub mod nav;
 #[doc(inline)]
 pub use nav::Nav;
 #[doc(inline)]
-pub use nav::NavBootsier;
+pub use nav::NavBsExt;
 
 // Navbar.
 pub mod navbar;
 #[doc(inline)]
 pub use navbar::Navbar;
 #[doc(inline)]
-pub use navbar::NavbarBootsier;
+pub use navbar::NavbarBsExt;
 
 // Offcanvas.
 pub mod offcanvas;

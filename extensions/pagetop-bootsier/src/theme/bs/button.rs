@@ -10,7 +10,7 @@ const EXTRA_ACTIVE: &str = "bootsier.button.active";
 const EXTRA_FULL_WIDTH: &str = "bootsier.button.full_width";
 const EXTRA_COLOR: &str = "bootsier.button.color";
 
-// **< ButtonBootsier >*****************************************************************************
+// **< ButtonBsExt >********************************************************************************
 
 /// Extensión de Bootsier para [`Button`].
 ///
@@ -36,7 +36,7 @@ const EXTRA_COLOR: &str = "bootsier.button.color";
 ///     .with_color(BootsierColors::Light);
 /// ```
 #[builder_impl]
-pub trait ButtonBootsier {
+pub trait ButtonBsExt {
     /// Marca el botón como activo (`.active`, `aria-pressed="true"`).
     fn with_active(self, active: bool) -> Self;
 
@@ -50,7 +50,7 @@ pub trait ButtonBootsier {
 }
 
 #[builder_impl]
-impl ButtonBootsier for Button {
+impl ButtonBsExt for Button {
     fn with_active(mut self, active: bool) -> Self {
         self.alter_prop(PropsOp::set_extra(EXTRA_ACTIVE, active));
         self

@@ -19,14 +19,14 @@ const EXTRA_COLOR: &str = "bootsier.badge.color";
 /// let badge = bs::Badge::labeled(Lc::n("Beta")).with_color(BootsierColors::Dark);
 /// ```
 #[builder_impl]
-pub trait BadgeBootsier {
+pub trait BadgeBsExt {
     /// Fuerza un color de la paleta de Bootsier, ignorando el que le correspondería a la `Intent`
     /// del badge. `None` restablece el comportamiento por defecto (color derivado de la `Intent`).
     fn with_color(self, color: impl Into<Option<BootsierColors>>) -> Self;
 }
 
 #[builder_impl]
-impl BadgeBootsier for Badge {
+impl BadgeBsExt for Badge {
     fn with_color(mut self, color: impl Into<Option<BootsierColors>>) -> Self {
         match color.into() {
             Some(color) => self.alter_prop(PropsOp::set_extra(EXTRA_COLOR, color)),
@@ -41,7 +41,7 @@ impl BadgeBootsier for Badge {
 pub(crate) fn setup(badge: &mut Badge) {
     // `Badge::setup()` (core) ya ha traducido la intención con `Theme::intent_color()`. La clase
     // `badge-*` que hay que localizar es siempre la derivada de la `Intent`, con independencia de
-    // que `BadgeBootsier::with_color()` fuerce un color distinto para el destino `text-bg-*`.
+    // que `BadgeBsExt::with_color()` fuerce un color distinto para el destino `text-bg-*`.
     let intent_color = BootsierColors::from(badge.intent()).as_str();
     let color = badge
         .props()

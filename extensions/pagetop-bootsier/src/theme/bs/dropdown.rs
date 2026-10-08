@@ -45,7 +45,7 @@ const EXTRA_MENU_POSITION: &str = "bootsier.dropdown.menu_position";
 ///     .with_item(bs::dropdown::Item::button(Lc::n("Sign out")));
 /// ```
 #[builder_impl]
-pub trait DropdownBootsier {
+pub trait DropdownBsExt {
     /// Indica si el botón del menú está integrado en un grupo de botones.
     fn with_button_grouped(self, grouped: bool) -> Self;
 
@@ -68,7 +68,7 @@ pub trait DropdownBootsier {
 }
 
 #[builder_impl]
-impl DropdownBootsier for Dropdown {
+impl DropdownBsExt for Dropdown {
     fn with_button_grouped(mut self, grouped: bool) -> Self {
         self.alter_prop(PropsOp::set_extra(EXTRA_BUTTON_GROUPED, grouped));
         self

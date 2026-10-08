@@ -19,7 +19,7 @@ mod panel;
 pub use panel::Panel;
 
 mod component;
-pub use component::NavbarBootsier;
+pub use component::NavbarBsExt;
 pub(crate) use component::{render, setup};
 
 mod item;

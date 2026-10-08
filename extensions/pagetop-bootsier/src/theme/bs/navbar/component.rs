@@ -140,7 +140,7 @@ const EXTRA_LAYOUT: &str = "bootsier.navbar.layout";
 ///     ));
 /// ```
 #[builder_impl]
-pub trait NavbarBootsier {
+pub trait NavbarBsExt {
     /// Crea una barra de navegación cuyo contenido se muestra en un panel lateral.
     fn offcanvas(panel: bs::navbar::Panel) -> Self;
 
@@ -154,7 +154,7 @@ pub trait NavbarBootsier {
 }
 
 #[builder_impl]
-impl NavbarBootsier for Navbar {
+impl NavbarBsExt for Navbar {
     fn offcanvas(panel: bs::navbar::Panel) -> Self {
         let mut navbar = Self::new();
         navbar.alter_prop(PropsOp::set_extra(
