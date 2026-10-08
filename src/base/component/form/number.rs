@@ -85,6 +85,7 @@ impl Component for Number {
     async fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
         let container_id = self.id();
         let input_id = container_id.as_deref().map(|id| util::join!(id, "-input"));
+        let help = form::FieldHelp::new(self.help_text(), input_id.as_deref(), cx);
         Ok(html! {
             div (self.props().unpack(cx)) {
                 @if let Some(label) = self.label().lookup(cx) {
@@ -103,6 +104,7 @@ impl Component for Number {
                 input
                     type="number"
                     id=[input_id.as_deref()]
+                    aria-describedby=[help.id()]
                     class="form-control"
                     name=[self.name().as_deref()]
                     min=[self.min()]
@@ -113,9 +115,7 @@ impl Component for Number {
                     readonly[*self.readonly()]
                     required[*self.required()]
                     disabled[*self.disabled()];
-                @if let Some(description) = self.help_text().lookup(cx) {
-                    div class="form-text" { (description) }
-                }
+                (help)
             }
         })
     }

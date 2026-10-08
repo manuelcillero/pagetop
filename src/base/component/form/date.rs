@@ -148,7 +148,6 @@ impl Component for Field {
     async fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
         let container_id = self.id();
         let input_id = container_id.as_deref().map(|id| util::join!(id, "-input"));
-        let format_id = input_id.as_deref().map(|id| util::join!(id, "-format"));
         let tz = cx.timezone();
         let value = match (self.kind(), &self.value) {
             (_, Value::Text(text)) => Some(text.clone()),
@@ -163,6 +162,14 @@ impl Component for Field {
             Kind::DateTime => input::datetime_hint(cx),
         };
         let format = Lc::l("input_format_help").with_arg("format", hint.clone());
+        let format = form::FieldHelp::suffixed(&format, input_id.as_deref(), "-format", cx);
+        let help = form::FieldHelp::new(self.help_text(), input_id.as_deref(), cx);
+        // El formato y, si lo hay, el texto de ayuda describen el campo, en ese orden.
+        let described_by = util::join_pair!(
+            format.id().unwrap_or_default(),
+            " ",
+            help.id().unwrap_or_default()
+        );
         // Sin autocompletado explícito se desactiva: el navegador sugeriría fechas escritas antes
         // en otros formularios, que rara vez son las que se quieren introducir.
         let autocomplete = self.autocomplete().unwrap_or(&form::Autocomplete::Off);
@@ -188,18 +195,14 @@ impl Component for Field {
                     name=[self.name().as_deref()]
                     value=[value]
                     placeholder=(hint)
-                    aria-describedby=[format_id.as_deref()]
+                    aria-describedby=[util::non_blank(&described_by)]
                     autocomplete=(autocomplete)
                     autofocus[*self.autofocus()]
                     readonly[*self.readonly()]
                     required[*self.required()]
                     disabled[*self.disabled()];
-                @if let Some(format) = format.lookup(cx) {
-                    div id=[format_id.as_deref()] class="form-text" { (format) }
-                }
-                @if let Some(description) = self.help_text().lookup(cx) {
-                    div class="form-text" { (description) }
-                }
+                (format)
+                (help)
             }
         })
     }

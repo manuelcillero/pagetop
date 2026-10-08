@@ -240,6 +240,7 @@ impl Component for Field {
     async fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
         let container_id = self.id();
         let select_id = container_id.as_deref().map(|id| util::join!(id, "-select"));
+        let help = form::FieldHelp::new(self.help_text(), select_id.as_deref(), cx);
 
         Ok(html! {
             div (self.props().unpack(cx)) {
@@ -258,6 +259,7 @@ impl Component for Field {
                 }
                 select
                     id=[select_id.as_deref()]
+                    aria-describedby=[help.id()]
                     class="form-select"
                     name=[self.name().as_deref()]
                     multiple[*self.multiple()]
@@ -297,9 +299,7 @@ impl Component for Field {
                         }
                     }
                 }
-                @if let Some(description) = self.help_text().lookup(cx) {
-                    div class="form-text" { (description) }
-                }
+                (help)
             }
         })
     }

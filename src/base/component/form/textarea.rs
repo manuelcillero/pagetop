@@ -93,6 +93,7 @@ impl Component for Textarea {
         let textarea_id = container_id
             .as_deref()
             .map(|id| util::join!(id, "-textarea"));
+        let help = form::FieldHelp::new(self.help_text(), textarea_id.as_deref(), cx);
 
         Ok(html! {
             div (self.props().unpack(cx)) {
@@ -111,6 +112,7 @@ impl Component for Textarea {
                 }
                 textarea
                     id=[textarea_id.as_deref()]
+                    aria-describedby=[help.id()]
                     class="form-control"
                     name=[self.name().as_deref()]
                     rows=[self.rows()]
@@ -127,9 +129,7 @@ impl Component for Textarea {
                         (value)
                     }
                 }
-                @if let Some(description) = self.help_text().lookup(cx) {
-                    div class="form-text" { (description) }
-                }
+                (help)
             }
         })
     }

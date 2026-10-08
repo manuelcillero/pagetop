@@ -61,6 +61,7 @@ pub(crate) fn render(field: &Textarea, cx: &mut Context) -> Result<Markup, Compo
     let textarea_id = container_id
         .as_deref()
         .map(|id| util::join!(id, "-textarea"));
+    let help = form::FieldHelp::new(field.help_text(), textarea_id.as_deref(), cx);
     let floating = field.props().extra_or(EXTRA_FLOATING_LABEL, false);
     // La etiqueta flotante requiere `placeholder` para animar la etiqueta; si no está definido se
     // fuerza `placeholder=""`.
@@ -90,6 +91,7 @@ pub(crate) fn render(field: &Textarea, cx: &mut Context) -> Result<Markup, Compo
             @if !floating { (label) }
             textarea
                 id=[textarea_id.as_deref()]
+                aria-describedby=[help.id()]
                 class="form-control"
                 name=[field.name().as_deref()]
                 rows=[field.rows()]
@@ -105,9 +107,7 @@ pub(crate) fn render(field: &Textarea, cx: &mut Context) -> Result<Markup, Compo
                 @if let Some(value) = field.value().as_deref() { (value) }
             }
             @if floating { (label) }
-            @if let Some(description) = field.help_text().lookup(cx) {
-                div class="form-text" { (description) }
-            }
+            (help)
         }
     })
 }

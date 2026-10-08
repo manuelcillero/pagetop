@@ -220,6 +220,7 @@ impl Component for Field {
     async fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
         let container_id = self.id();
         let input_id = container_id.as_deref().map(|id| util::join!(id, "-input"));
+        let help = form::FieldHelp::new(self.help_text(), input_id.as_deref(), cx);
         let input_class = if *self.plaintext() {
             "form-control-plaintext"
         } else {
@@ -251,6 +252,7 @@ impl Component for Field {
                 input
                     type=(self.kind())
                     id=[input_id.as_deref()]
+                    aria-describedby=[help.id()]
                     class=(input_class)
                     name=[self.name().as_deref()]
                     value=[self.value().as_deref()]
@@ -267,9 +269,7 @@ impl Component for Field {
                     onfocus=[strict.then_some("this.removeAttribute('readonly')")]
                     required[*self.required()]
                     disabled[*self.disabled()];
-                @if let Some(description) = self.help_text().lookup(cx) {
-                    div class="form-text" { (description) }
-                }
+                (help)
             }
         })
     }

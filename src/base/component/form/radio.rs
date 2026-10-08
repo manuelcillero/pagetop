@@ -142,11 +142,20 @@ impl Component for Field {
         // En `setup()` se garantiza que `name` e `id` están definidos antes del renderizado.
         let name = self.name().as_deref().unwrap();
         let container_id = self.id().unwrap();
+        // El contenedor agrupa las opciones: su etiqueta y su texto de ayuda describen al grupo.
+        let label = self.label().lookup(cx);
+        let label_id = label.as_ref().map(|_| util::join!(&container_id, "-label"));
+        let help = form::FieldHelp::new(self.help_text(), Some(&container_id), cx);
 
         Ok(html! {
-            div (self.props().unpack(cx)) {
-                @if let Some(label) = self.label().lookup(cx) {
-                    label class="form-label" {
+            div
+                (self.props().unpack(cx))
+                role="group"
+                aria-labelledby=[label_id.as_deref()]
+                aria-describedby=[help.id()]
+            {
+                @if let Some(label) = label {
+                    label id=[label_id.as_deref()] class="form-label" {
                         (label)
                         @if *self.required() {
                             span
@@ -187,9 +196,7 @@ impl Component for Field {
                         }
                     }
                 }
-                @if let Some(description) = self.help_text().lookup(cx) {
-                    div class="form-text" { (description) }
-                }
+                (help)
             }
         })
     }

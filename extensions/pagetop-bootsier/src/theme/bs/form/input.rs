@@ -55,6 +55,7 @@ pub(crate) fn setup(field: &mut Field) {
 pub(crate) fn render(field: &Field, cx: &mut Context) -> Result<Markup, ComponentError> {
     let container_id = field.id();
     let input_id = container_id.as_deref().map(|id| util::join!(id, "-input"));
+    let help = form::FieldHelp::new(field.help_text(), input_id.as_deref(), cx);
     let input_class = if *field.plaintext() {
         "form-control-plaintext"
     } else {
@@ -99,6 +100,7 @@ pub(crate) fn render(field: &Field, cx: &mut Context) -> Result<Markup, Componen
             input
                 type=(field.kind())
                 id=[input_id.as_deref()]
+                aria-describedby=[help.id()]
                 class=(input_class)
                 name=[field.name().as_deref()]
                 value=[field.value().as_deref()]
@@ -116,9 +118,7 @@ pub(crate) fn render(field: &Field, cx: &mut Context) -> Result<Markup, Componen
                 required[*field.required()]
                 disabled[*field.disabled()];
             @if floating { (label) }
-            @if let Some(description) = field.help_text().lookup(cx) {
-                div class="form-text" { (description) }
-            }
+            (help)
         }
     })
 }

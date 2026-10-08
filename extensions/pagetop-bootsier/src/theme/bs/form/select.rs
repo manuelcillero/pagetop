@@ -62,6 +62,7 @@ pub(crate) fn setup(field: &mut Field) {
 pub(crate) fn render(field: &Field, cx: &mut Context) -> Result<Markup, ComponentError> {
     let container_id = field.id();
     let select_id = container_id.as_deref().map(|id| util::join!(id, "-select"));
+    let help = form::FieldHelp::new(field.help_text(), select_id.as_deref(), cx);
     let floating = field.props().extra_or(EXTRA_FLOATING_LABEL, false);
     let label = match field.label().lookup(cx) {
         Some(text) => html! {
@@ -84,6 +85,7 @@ pub(crate) fn render(field: &Field, cx: &mut Context) -> Result<Markup, Componen
             @if !floating { (label) }
             select
                 id=[select_id.as_deref()]
+                aria-describedby=[help.id()]
                 class="form-select"
                 name=[field.name().as_deref()]
                 multiple[*field.multiple()]
@@ -124,9 +126,7 @@ pub(crate) fn render(field: &Field, cx: &mut Context) -> Result<Markup, Componen
                 }
             }
             @if floating { (label) }
-            @if let Some(description) = field.help_text().lookup(cx) {
-                div class="form-text" { (description) }
-            }
+            (help)
         }
     })
 }

@@ -82,6 +82,7 @@ impl Component for Range {
     async fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
         let container_id = self.id();
         let range_id = container_id.as_deref().map(|id| util::join!(id, "-range"));
+        let help = form::FieldHelp::new(self.help_text(), range_id.as_deref(), cx);
         Ok(html! {
             div (self.props().unpack(cx)) {
                 @if let Some(label) = self.label().lookup(cx) {
@@ -90,6 +91,7 @@ impl Component for Range {
                 input
                     type="range"
                     id=[range_id.as_deref()]
+                    aria-describedby=[help.id()]
                     class="form-range"
                     name=[self.name().as_deref()]
                     min=[self.min()]
@@ -98,9 +100,7 @@ impl Component for Range {
                     value=[self.value()]
                     autofocus[*self.autofocus()]
                     disabled[*self.disabled()];
-                @if let Some(description) = self.help_text().lookup(cx) {
-                    div class="form-text" { (description) }
-                }
+                (help)
             }
         })
     }

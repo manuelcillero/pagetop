@@ -6,6 +6,9 @@ pub use props::{Autocomplete, AutofillField, CheckboxKind, Method};
 mod component;
 pub use component::Form;
 
+mod field_help;
+pub use field_help::FieldHelp;
+
 mod fieldset;
 pub use fieldset::Fieldset;
 
