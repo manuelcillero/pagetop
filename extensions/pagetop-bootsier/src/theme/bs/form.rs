@@ -16,6 +16,12 @@ pub mod select;
 #[doc(inline)]
 pub use select::SelectBsExt;
 
+pub use pagetop::base::component::form::SelectLanguage;
+
+pub use pagetop::base::component::form::SelectTheme;
+
+pub use pagetop::base::component::form::SelectTimezone;
+
 pub mod input;
 #[doc(inline)]
 pub use input::InputBsExt;
@@ -24,6 +30,8 @@ pub mod textarea;
 pub use textarea::Textarea;
 #[doc(inline)]
 pub use textarea::TextareaBsExt;
+
+pub use pagetop::base::component::form::date;
 
 pub use pagetop::base::component::form::Number;
 

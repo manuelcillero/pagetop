@@ -5,7 +5,7 @@ use crate::builder_impl;
 use crate::core::component::ChildOp;
 use crate::core::theme::{RegionRef, TemplateRef, ThemeRef};
 use crate::datetime::{DateFormat, DatePrecision, RelativeFormat, TimeFormat};
-use crate::datetime::{DateTime, NaiveDate, Tz, Utc};
+use crate::datetime::{DateInputError, DateTime, NaiveDate, NaiveTime, Tz, Utc};
 use crate::html::{Assets, Favicon, JavaScript, Props, PropsOp, ResponsiveStyles, StyleSheet};
 use crate::locale::{LangId, Lc};
 use crate::web::HttpRequest;
@@ -397,6 +397,79 @@ pub trait Contextual: LangId {
         Self: Sized,
     {
         precision.apply_until(date, self)
+    }
+
+    /// Lee una fecha sin hora escrita por el usuario (p. ej. en un
+    /// [`form::date::Field::date()`](crate::base::component::form::date::Field::date)).
+    ///
+    /// Acepta el formato de fecha del idioma efectivo del documento (p. ej. `dd/mm/aaaa` en
+    /// español o `mm/dd/yyyy` en inglés de Estados Unidos), con día y mes de una o dos cifras y el
+    /// año siempre con cuatro, y también el formato ISO 8601 (`aaaa-mm-dd`). Es el mismo formato
+    /// con el que el campo muestra el valor. Una fecha sin hora no se convierte de zona horaria
+    /// (ver [`format_date()`](Self::format_date)).
+    ///
+    /// Devuelve `Ok(None)` si el texto está en blanco; comprobar si el campo es obligatorio queda
+    /// a cargo de quien llama.
+    ///
+    /// # Ejemplo
+    ///
+    /// ```rust,no_run
+    /// # use pagetop::prelude::*;
+    /// # fn read(cx: &Context, text: &str) -> Result<(), Lc> {
+    /// let expires: Option<NaiveDate> = cx.parse_date(text).map_err(|e| e.message())?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    fn parse_date(&self, text: &str) -> Result<Option<NaiveDate>, DateInputError>
+    where
+        Self: Sized,
+    {
+        crate::datetime::input::parse_date(text, self)
+    }
+
+    /// Lee una hora del día escrita por el usuario (p. ej. en un
+    /// [`form::date::Field::time()`](crate::base::component::form::date::Field::time)).
+    ///
+    /// Acepta el formato de hora del idioma efectivo (p. ej. `hh:mm`), con la hora y los minutos de
+    /// una o dos cifras, y también `hh:mm` en ISO 8601. No se convierte de zona horaria: es una
+    /// hora civil. Devuelve `Ok(None)` si el texto está en blanco.
+    fn parse_time(&self, text: &str) -> Result<Option<NaiveTime>, DateInputError>
+    where
+        Self: Sized,
+    {
+        crate::datetime::input::parse_time(text, self)
+    }
+
+    /// Lee una fecha y hora escrita por el usuario en su hora local (p. ej. en un
+    /// [`form::date::Field::datetime()`](crate::base::component::form::date::Field::datetime)) y
+    /// la convierte a UTC, que es como se graban siempre los instantes.
+    ///
+    /// Acepta el formato del idioma efectivo (la fecha y la hora separadas por un espacio, p. ej.
+    /// `dd/mm/aaaa hh:mm`) y también ISO 8601 (`aaaa-mm-ddThh:mm`, con `T` o con un espacio entre
+    /// la fecha y la hora), y lo interpreta en la zona horaria efectiva del documento
+    /// ([`timezone()`](Self::timezone)). Devuelve `Ok(None)` si el texto está en blanco.
+    ///
+    /// En los cambios de hora:
+    ///
+    /// - Una hora que no existe, porque el reloj se adelanta (p. ej. las 02:30 del último domingo
+    ///   de marzo en Madrid), devuelve [`DateInputError::NonexistentTime`].
+    /// - Una hora que existe dos veces, porque el reloj se retrasa (p. ej. las 02:30 del último
+    ///   domingo de octubre en Madrid), se interpreta como la primera de las dos.
+    ///
+    /// # Ejemplo
+    ///
+    /// ```rust,no_run
+    /// # use pagetop::prelude::*;
+    /// # fn read(cx: &Context, text: &str) -> Result<(), Lc> {
+    /// let extracted: Option<DateTime<Utc>> = cx.parse_datetime(text).map_err(|e| e.message())?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    fn parse_datetime(&self, text: &str) -> Result<Option<DateTime<Utc>>, DateInputError>
+    where
+        Self: Sized,
+    {
+        crate::datetime::input::parse_datetime(text, self, self.timezone())
     }
 
     /// Elimina un parámetro del contexto. Devuelve `true` si la clave existía y se eliminó.

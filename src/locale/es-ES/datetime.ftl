@@ -8,6 +8,19 @@ time_format_short = { $hour }:{ $minute }
 time_format_long = { $hour }:{ $minute }:{ $second }
 datetime_join = { $date }, { $time }
 
+# Date and time input. `date_input_format` and `time_input_format` are strftime patterns (%d day,
+# %m month, %Y four-digit year, %H hour, %M minute), not text: they are used both to show a value
+# and to read what the user types. Keep the date one in the same order as `date_format_medium`.
+date_input_format = %d/%m/%Y
+date_input_hint = dd/mm/aaaa
+time_input_format = %H:%M
+time_input_hint = hh:mm
+input_format_help = Formato: { $format }
+date_input_invalid = Fecha no válida: usa el formato { $format }.
+time_input_invalid = Hora no válida: usa el formato { $format }.
+datetime_input_invalid = Fecha y hora no válidas: usa el formato { $format }.
+datetime_input_nonexistent = Esa hora no existe en tu zona horaria: coincide con el adelanto del reloj al horario de verano.
+
 # Relative dates.
 relative_today = hoy
 relative_years = { $n ->

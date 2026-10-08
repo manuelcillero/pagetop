@@ -23,6 +23,12 @@
 //! (`src/locale/{lang}/datetime.ftl`), con el mismo mecanismo que cualquier otro texto traducido de
 //! PageTop.
 //!
+//! Las fechas y horas que escribe el usuario se leen en el formato del idioma efectivo (p. ej.
+//! `dd/mm/aaaa` en español) y, si son instantes, en su hora local, para grabarlas en UTC. Los
+//! campos de [`form::date::Field`] las muestran así, y [`Contextual::parse_date()`],
+//! [`Contextual::parse_time()`] y [`Contextual::parse_datetime()`] las leen y devuelven un
+//! [`DateInputError`] si no se pueden interpretar.
+//!
 //! [`RelativeFormat`] muestra una fecha en relación al momento actual ("hace 3 años", "dentro de 5
 //! días") en vez de como fecha absoluta, con el mismo mecanismo de claves Fluent, vía
 //! [`Contextual::format_relative()`].
@@ -33,12 +39,20 @@
 //! [ISO 8601]: https://en.wikipedia.org/wiki/ISO_8601
 //! [chrono]: https://docs.rs/chrono
 //! [chrono-tz]: https://docs.rs/chrono-tz
-//! [`CurrentUser::timezone()`]: crate::auth::CurrentUser::timezone
 //! [`timezone_per_user`]: crate::global::App::timezone_per_user
+//! [`CurrentUser::timezone()`]: crate::auth::CurrentUser::timezone
+//! [`form::date::Field`]: crate::base::component::form::date::Field
 //! [`Contextual::format_datetime()`]: crate::core::component::Contextual::format_datetime
 //! [`Contextual::format_relative()`]: crate::core::component::Contextual::format_relative
 //! [`Contextual::format_since()`]: crate::core::component::Contextual::format_since
 //! [`Contextual::format_until()`]: crate::core::component::Contextual::format_until
+//! [`Contextual::parse_date()`]: crate::core::component::Contextual::parse_date
+//! [`Contextual::parse_time()`]: crate::core::component::Contextual::parse_time
+//! [`Contextual::parse_datetime()`]: crate::core::component::Contextual::parse_datetime
+
+use crate::locale::Lc;
+
+use thiserror::Error;
 
 // Reexportado para que el resto del código y las extensiones se refieran siempre a `datetime::X`,
 // nunca a `chrono` directamente (mismo criterio que `Tz`/`TZ_VARIANTS` más abajo). No es todo el
@@ -79,3 +93,62 @@ pub use relative::RelativeFormat;
 
 mod precision;
 pub use precision::DatePrecision;
+
+pub(crate) mod input;
+
+/// Errores al leer una fecha u hora escrita por el usuario.
+///
+/// Los devuelven [`Contextual::parse_date()`], [`Contextual::parse_time()`] y
+/// [`Contextual::parse_datetime()`]. [`message()`](Self::message) da un mensaje traducido para
+/// mostrarlo junto al formulario.
+///
+/// [`Contextual::parse_date()`]: crate::core::component::Contextual::parse_date
+/// [`Contextual::parse_time()`]: crate::core::component::Contextual::parse_time
+/// [`Contextual::parse_datetime()`]: crate::core::component::Contextual::parse_datetime
+#[derive(Clone, Debug, Error, PartialEq)]
+pub enum DateInputError {
+    /// La fecha no está escrita en el formato del idioma (`hint`, p. ej. `dd/mm/aaaa`) ni en el
+    /// formato ISO 8601, o no es una fecha válida (p. ej. `31/02/2026`).
+    #[error("invalid date, expected format {hint}")]
+    InvalidDate {
+        /// Indicación del formato esperado, en el idioma del usuario.
+        hint: String,
+    },
+    /// La hora no está escrita en el formato del idioma (`hint`, p. ej. `hh:mm`) ni en el formato
+    /// ISO 8601, o no es una hora válida (p. ej. `25:00`).
+    #[error("invalid time, expected format {hint}")]
+    InvalidTime {
+        /// Indicación del formato esperado, en el idioma del usuario.
+        hint: String,
+    },
+    /// La fecha y hora no está escrita en el formato del idioma (`hint`, p. ej. `dd/mm/aaaa hh:mm`)
+    /// ni en el formato ISO 8601, o no es una fecha y hora válida.
+    #[error("invalid date and time, expected format {hint}")]
+    InvalidDateTime {
+        /// Indicación del formato esperado, en el idioma del usuario.
+        hint: String,
+    },
+    /// La hora no existe en la zona horaria en la que se interpreta (la efectiva del documento)
+    /// porque coincide con el adelanto del reloj al horario de verano (p. ej. las 02:30 del último
+    /// domingo de marzo en Madrid).
+    #[error("nonexistent local time due to a daylight saving time change")]
+    NonexistentTime,
+}
+
+impl DateInputError {
+    /// Devuelve un mensaje traducido para el usuario, con el formato esperado si procede.
+    pub fn message(&self) -> Lc {
+        match self {
+            Self::InvalidDate { hint } => {
+                Lc::l("date_input_invalid").with_arg("format", hint.clone())
+            }
+            Self::InvalidTime { hint } => {
+                Lc::l("time_input_invalid").with_arg("format", hint.clone())
+            }
+            Self::InvalidDateTime { hint } => {
+                Lc::l("datetime_input_invalid").with_arg("format", hint.clone())
+            }
+            Self::NonexistentTime => Lc::l("datetime_input_nonexistent"),
+        }
+    }
+}

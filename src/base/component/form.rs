@@ -29,6 +29,8 @@ pub use select_timezone::SelectTimezone;
 
 pub mod input;
 
+pub mod date;
+
 mod number;
 pub use number::Number;
 
