@@ -240,23 +240,13 @@ impl Component for Field {
     async fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
         let container_id = self.id();
         let select_id = container_id.as_deref().map(|id| util::join!(id, "-select"));
-        let help = form::FieldHelp::new(self.help_text(), select_id.as_deref(), cx);
+        let help = form::parts::Help::new(self.help_text(), select_id.as_deref());
+        let label = form::parts::Label::new(self.label(), select_id.as_deref())
+            .with_required(*self.required());
 
         Ok(html! {
             div (self.props().unpack(cx)) {
-                @if let Some(label) = self.label().lookup(cx) {
-                    label for=[select_id.as_deref()] class="form-label" {
-                        (label)
-                        @if *self.required() {
-                            span
-                                class="form-required"
-                                title=[Lc::l("field_required").lookup(cx)]
-                            {
-                                "*"
-                            }
-                        }
-                    }
-                }
+                (label.render(cx))
                 select
                     id=[select_id.as_deref()]
                     aria-describedby=[help.id()]
@@ -299,7 +289,7 @@ impl Component for Field {
                         }
                     }
                 }
-                (help)
+                (help.render(cx))
             }
         })
     }

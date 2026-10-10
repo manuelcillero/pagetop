@@ -55,7 +55,7 @@ pub(crate) fn setup(field: &mut Field) {
 pub(crate) fn render(field: &Field, cx: &mut Context) -> Result<Markup, ComponentError> {
     let container_id = field.id();
     let input_id = container_id.as_deref().map(|id| util::join!(id, "-input"));
-    let help = form::FieldHelp::new(field.help_text(), input_id.as_deref(), cx);
+    let help = form::parts::Help::new(field.help_text(), input_id.as_deref());
     let input_class = if *field.plaintext() {
         "form-control-plaintext"
     } else {
@@ -77,26 +77,12 @@ pub(crate) fn render(field: &Field, cx: &mut Context) -> Result<Markup, Componen
     } else {
         field.placeholder().lookup(cx)
     };
-    let label = match field.label().lookup(cx) {
-        Some(text) => html! {
-            label for=[input_id.as_deref()] class="form-label" {
-                (text)
-                @if *field.required() {
-                    span
-                        class="form-required"
-                        title=[Lc::l("field_required").lookup(cx)]
-                    {
-                        "*"
-                    }
-                }
-            }
-        },
-        None => html! {},
-    };
+    let label = form::parts::Label::new(field.label(), input_id.as_deref())
+        .with_required(*field.required());
 
     Ok(html! {
         div (field.props().unpack(cx)) {
-            @if !floating { (label) }
+            @if !floating { (label.render(cx)) }
             input
                 type=(field.kind())
                 id=[input_id.as_deref()]
@@ -117,8 +103,8 @@ pub(crate) fn render(field: &Field, cx: &mut Context) -> Result<Markup, Componen
                 onfocus=[strict.then_some("this.removeAttribute('readonly')")]
                 required[*field.required()]
                 disabled[*field.disabled()];
-            @if floating { (label) }
-            (help)
+            @if floating { (label.render(cx)) }
+            (help.render(cx))
         }
     })
 }

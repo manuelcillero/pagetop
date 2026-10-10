@@ -143,20 +143,17 @@ impl Component for Field {
         let name = self.name().as_deref().unwrap();
         let container_id = self.id().unwrap();
         // El contenedor agrupa las opciones: su etiqueta y su texto de ayuda describen al grupo.
-        let label = self.label().lookup(cx);
-        let label_id = label.as_ref().map(|_| util::join!(&container_id, "-label"));
-        let help = form::FieldHelp::new(self.help_text(), Some(&container_id), cx);
+        let label = form::parts::Label::group(self.label(), &container_id);
+        let help = form::parts::Help::new(self.help_text(), Some(&container_id));
 
         Ok(html! {
             div
                 (self.props().unpack(cx))
                 role="group"
-                aria-labelledby=[label_id.as_deref()]
+                aria-labelledby=[label.id()]
                 aria-describedby=[help.id()]
             {
-                @if let Some(label) = label {
-                    label id=[label_id.as_deref()] class="form-label" { (label) }
-                }
+                (label.render(cx))
                 @let item_classes = if *self.inline() {
                     "form-check form-check-inline"
                 } else {
@@ -179,7 +176,7 @@ impl Component for Field {
                         }
                     }
                 }
-                (help)
+                (help.render(cx))
             }
         })
     }

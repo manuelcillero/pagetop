@@ -102,6 +102,8 @@ impl Component for Checkbox {
         let container_id = self.id().unwrap();
 
         let checkbox_id = util::join!(&container_id, "-checkbox");
+        let label = form::parts::Label::check(self.label(), Some(&checkbox_id))
+            .with_required(*self.required());
         let is_switch = *self.checkbox_kind() == form::CheckboxKind::Switch;
 
         Ok(html! {
@@ -117,19 +119,7 @@ impl Component for Checkbox {
                     autofocus[*self.autofocus()]
                     required[*self.required()]
                     disabled[*self.disabled()];
-                @if let Some(label) = self.label().lookup(cx) {
-                    label class="form-check-label" for=(&checkbox_id) {
-                        (label)
-                        @if *self.required() {
-                            span
-                                class="form-required"
-                                title=[Lc::l("field_required").lookup(cx)]
-                            {
-                                "*"
-                            }
-                        }
-                    }
-                }
+                (label.render(cx))
             }
         })
     }

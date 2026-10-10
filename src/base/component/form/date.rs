@@ -162,8 +162,10 @@ impl Component for Field {
             Kind::DateTime => input::datetime_hint(cx),
         };
         let format = Lc::l("input_format_help").with_arg("format", hint.clone());
-        let format = form::FieldHelp::suffixed(&format, input_id.as_deref(), "-format", cx);
-        let help = form::FieldHelp::new(self.help_text(), input_id.as_deref(), cx);
+        let format = form::parts::Help::suffixed(&format, input_id.as_deref(), "-format");
+        let help = form::parts::Help::new(self.help_text(), input_id.as_deref());
+        let label = form::parts::Label::new(self.label(), input_id.as_deref())
+            .with_required(*self.required());
         // El formato y, si lo hay, el texto de ayuda describen el campo, en ese orden.
         let described_by = util::join_pair!(
             format.id().unwrap_or_default(),
@@ -175,19 +177,7 @@ impl Component for Field {
         let autocomplete = self.autocomplete().unwrap_or(&form::Autocomplete::Off);
         Ok(html! {
             div (self.props().unpack(cx)) {
-                @if let Some(label) = self.label().lookup(cx) {
-                    label for=[input_id.as_deref()] class="form-label" {
-                        (label)
-                        @if *self.required() {
-                            span
-                                class="form-required"
-                                title=[Lc::l("field_required").lookup(cx)]
-                            {
-                                "*"
-                            }
-                        }
-                    }
-                }
+                (label.render(cx))
                 input
                     type="text"
                     id=[input_id.as_deref()]
@@ -201,8 +191,8 @@ impl Component for Field {
                     readonly[*self.readonly()]
                     required[*self.required()]
                     disabled[*self.disabled()];
-                (format)
-                (help)
+                (format.render(cx))
+                (help.render(cx))
             }
         })
     }

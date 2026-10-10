@@ -119,32 +119,58 @@ async fn checks_and_radios_are_labelled_groups_with_help_text() {
     }
 }
 
-// **< form::FieldHelp >****************************************************************************
+// **< form::parts::Help >**************************************************************************
 
 #[pagetop::test]
-async fn field_help_links_only_when_there_is_text_and_an_anchor() {
+async fn help_links_only_when_there_is_text_and_an_anchor() {
     let cx = Context::default();
+    let text = help();
+    let none = Lc::none();
 
-    let field = form::FieldHelp::new(&help(), Some("edit-x-input"), &cx);
+    let field = form::parts::Help::new(&text, Some("edit-x-input"));
     assert_eq!(field.id(), Some("edit-x-input-help"));
     assert_eq!(
-        field.render().into_string(),
+        field.render(&cx).into_string(),
         r#"<div id="edit-x-input-help" class="form-text">Help</div>"#
     );
 
     // Without an anchor the text is still shown, but there is no id to point to.
-    let field = form::FieldHelp::new(&help(), None, &cx);
+    let field = form::parts::Help::new(&text, None);
     assert_eq!(field.id(), None);
     assert_eq!(
-        field.render().into_string(),
+        field.render(&cx).into_string(),
         r#"<div class="form-text">Help</div>"#
     );
 
     // Without text there is nothing to show nor to link.
-    let field = form::FieldHelp::new(&Lc::none(), Some("edit-x-input"), &cx);
+    let field = form::parts::Help::new(&none, Some("edit-x-input"));
     assert_eq!(field.id(), None);
-    assert_eq!(field.render().into_string(), "");
+    assert_eq!(field.render(&cx).into_string(), "");
 
-    let format = form::FieldHelp::suffixed(&help(), Some("edit-x-input"), "-format", &cx);
+    let format = form::parts::Help::suffixed(&text, Some("edit-x-input"), "-format");
     assert_eq!(format.id(), Some("edit-x-input-format"));
+}
+
+#[pagetop::test]
+async fn help_class_can_be_replaced() {
+    let cx = Context::default();
+    let text = help();
+    let field = form::parts::Help::new(&text, Some("edit-x-input")).with_class("hint small");
+    assert_eq!(
+        field.render(&cx).into_string(),
+        r#"<div id="edit-x-input-help" class="hint small">Help</div>"#
+    );
+}
+
+#[pagetop::test]
+async fn help_without_translation_keeps_the_linked_element() {
+    let cx = Context::default();
+    // A missing translation still renders the element, so `aria-describedby` never dangles.
+    let missing = Lc::l("no_such_key_for_help");
+    let field = form::parts::Help::new(&missing, Some("edit-x-input"));
+    assert_eq!(field.id(), Some("edit-x-input-help"));
+    assert_eq!(
+        field.render(&cx).into_string(),
+        r#"<div id="edit-x-input-help" class="form-text"></div>"#
+    );
 }

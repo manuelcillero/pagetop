@@ -213,6 +213,20 @@ impl Lc {
 
     // **< Lc GETTERS >*****************************************************************************
 
+    /// Indica si la instancia está **sin contenido** ([`Lc::none()`]).
+    ///
+    /// Que no lo esté no garantiza que haya traducción: una clave sin traducir también devuelve
+    /// `None` con [`lookup()`](Self::lookup).
+    ///
+    /// ```rust
+    /// # use pagetop::prelude::*;
+    /// assert!(Lc::none().is_none());
+    /// assert!(!Lc::n("Hello").is_none());
+    /// ```
+    pub fn is_none(&self) -> bool {
+        matches!(self.op, LcKind::None)
+    }
+
     /// Resuelve la traducción usando el idioma por defecto o, si no procede, el de respaldo de la
     /// aplicación.
     ///

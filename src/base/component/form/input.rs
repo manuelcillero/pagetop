@@ -220,7 +220,9 @@ impl Component for Field {
     async fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
         let container_id = self.id();
         let input_id = container_id.as_deref().map(|id| util::join!(id, "-input"));
-        let help = form::FieldHelp::new(self.help_text(), input_id.as_deref(), cx);
+        let help = form::parts::Help::new(self.help_text(), input_id.as_deref());
+        let label = form::parts::Label::new(self.label(), input_id.as_deref())
+            .with_required(*self.required());
         let input_class = if *self.plaintext() {
             "form-control-plaintext"
         } else {
@@ -236,19 +238,7 @@ impl Component for Field {
 
         Ok(html! {
             div (self.props().unpack(cx)) {
-                @if let Some(label) = self.label().lookup(cx) {
-                    label for=[input_id.as_deref()] class="form-label" {
-                        (label)
-                        @if *self.required() {
-                            span
-                                class="form-required"
-                                title=[Lc::l("field_required").lookup(cx)]
-                            {
-                                "*"
-                            }
-                        }
-                    }
-                }
+                (label.render(cx))
                 input
                     type=(self.kind())
                     id=[input_id.as_deref()]
@@ -269,7 +259,7 @@ impl Component for Field {
                     onfocus=[strict.then_some("this.removeAttribute('readonly')")]
                     required[*self.required()]
                     disabled[*self.disabled()];
-                (help)
+                (help.render(cx))
             }
         })
     }
