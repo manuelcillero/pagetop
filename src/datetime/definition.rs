@@ -196,6 +196,13 @@ fn angle(tz: &Tz) -> f64 {
     f64::from(seconds) / 86_400.0 * TAU
 }
 
+// Región de una zona horaria, o `None` si su nombre no tiene región (`UTC`, `Japan`...).
+fn region_of(tz: Tz) -> Option<TzRegion> {
+    tz.name()
+        .split_once('/')
+        .and_then(|(region, _)| TzRegion::from_name(region))
+}
+
 // Si la región se ofrece con la lista dada: con una lista vacía se ofrecen todas; si no, sólo las
 // indicadas y `Etc`, que se mantiene siempre porque `Etc/UTC` equivale a `UTC`, la zona horaria de
 // respaldo.
@@ -207,10 +214,7 @@ fn is_offered(region: TzRegion, list: &[TzRegion]) -> bool {
 // siempre al final. `site` es la referencia de `Nearest`, que mide la cercanía con media y
 // distancia circulares.
 fn regions_by(order: TimezoneOrder, list: &[TzRegion], site: Tz) -> Vec<&'static Region> {
-    let site_region = site
-        .name()
-        .split_once('/')
-        .and_then(|(region, _)| TzRegion::from_name(region));
+    let site_region = region_of(site);
     let site_angle = angle(&site);
     let mut sorted: Vec<_> = ALL_REGIONS
         .iter()
@@ -258,8 +262,10 @@ impl Timezone {
     //
     // Debe llamarse durante la inicialización para indicar si la zona horaria por defecto procede
     // de la configuración, de una configuración no válida o de la zona horaria de respaldo, y para
-    // avisar de las regiones de `app.timezone_regions` que no existan. De paso, calcula al arrancar
-    // las zonas horarias que se ofrecen, en vez de esperar a la primera petición que las necesite.
+    // avisar de las regiones de `app.timezone_regions` que no existan, de que no haya ninguna
+    // válida y de que la región de la zona horaria por defecto no se ofrezca. De paso, calcula al
+    // arrancar las zonas horarias que se ofrecen, en vez de esperar a la primera petición que las
+    // necesite.
     pub(crate) fn init() {
         trace::debug!(
             "Timezone database: IANA tzdata {}",
@@ -278,10 +284,28 @@ impl Timezone {
             None => trace::debug!("Default timezone \"{FALLBACK_TZ}\" (fallback, no config)"),
         }
 
+        let mut listed = false;
         for name in global::SETTINGS.app.timezone_regions.split(',') {
-            if !name.trim().is_empty() && TzRegion::from_name(name).is_none() {
-                trace::warn!("Ignored unknown timezone region \"{}\"", name.trim());
+            let name = name.trim();
+            if name.is_empty() {
+                continue;
             }
+            listed = true;
+            if TzRegion::from_name(name).is_none() {
+                trace::warn!("Ignored unknown timezone region \"{name}\"");
+            }
+        }
+        if listed && CONFIG_REGIONS.is_empty() {
+            trace::warn!("No valid timezone region in [app].timezone_regions, offering all");
+        }
+        let site = Self::default_tz();
+        if let Some(region) = region_of(site)
+            && !is_offered(region, &CONFIG_REGIONS)
+        {
+            trace::warn!(
+                "Default timezone \"{site}\" is in region \"{}\", which is not offered",
+                region.as_str()
+            );
         }
         let regions: Vec<_> = Self::supported_by_region()
             .iter()
