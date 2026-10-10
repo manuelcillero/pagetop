@@ -14,8 +14,8 @@ use chrono::{Months, NaiveDate};
 /// y coincide con `Medium`).
 ///
 /// La unidad mínima es el día: la comparación se hace entre fechas civiles (la de `dt`, convertida
-/// a la zona horaria efectiva, y la de "ahora"), no entre instantes. Un valor de hace unos minutos o
-/// dentro de unos minutos, si cae en la misma fecha civil que "ahora", se muestra como "hoy"
+/// a la zona horaria efectiva, y la de "ahora"), no entre instantes. Un valor de hace unos minutos
+/// o dentro de unos minutos, si cae en la misma fecha civil que "ahora", se muestra como "hoy"
 /// (clave Fluent `relative_today`), sin necesidad de ningún umbral de minutos u horas.
 ///
 /// El texto completo ("hace 3 años y 2 meses" / "3 years and 2 months ago") se compone enteramente
@@ -28,8 +28,8 @@ use chrono::{Months, NaiveDate};
 /// ```rust,no_run
 /// # use pagetop::prelude::*;
 /// # fn show(cx: &Context, dt: DateTime<Utc>) {
-/// let short = cx.format_relative(dt, RelativeFormat::Short); // p. ej. "hace 3 años"
-/// let long = cx.format_relative(dt, RelativeFormat::Long); // p. ej. "hace 3 años, 2 meses y 10 días"
+/// let short = cx.format_relative(dt, RelativeFormat::Short); // "hace 3 años"
+/// let long = cx.format_relative(dt, RelativeFormat::Long); // "hace 3 años, 2 meses y 10 días"
 /// # }
 /// ```
 #[derive(Clone, Copy, Debug)]
