@@ -11,10 +11,10 @@ use crate::AUTHENTICATED_ROLE_ID;
 use crate::LOCALES_USER;
 use crate::account::{Account, UserStatus};
 use crate::component::admin::{
-    AdminPasswordForm, USER_ADMIN_FORM_ID, UserForm, UserFormMode, UserTable, status_key,
+    AdminPasswordForm, USER_ADMIN_FORM_ID, UserForm, UserFormMode, UserTable,
 };
-use crate::component::{language_name, multiline_text, theme_name};
-use crate::config::{SETTINGS, user_language_applies, user_timezone_applies};
+use crate::component::user_details;
+use crate::config::SETTINGS;
 use crate::entity::{role, user};
 use crate::error::AuthError;
 use crate::handlers::admin::{back_link, frame, map_auth_error};
@@ -543,11 +543,10 @@ pub(crate) async fn view_get(
         Ok(roles) => roles,
         Err(_) => return Err(ErrorPage::InternalError(Some(request))),
     };
-    let status = UserStatus::from_i16(user.status);
 
     let mut page = Page::admin(request);
     let back_href = waypoint.or(page.context().route(ADMIN_USERS_PATH));
-    let details_block = user_view_details(&user, status, page.context()).await;
+    let details_block = user_details(&user, page.context()).await;
     let roles_block = user_view_roles(&roles, user.is_admin, page.context()).await;
 
     let title = Lc::t("title-admin-user-view", &LOCALES_USER);
@@ -562,83 +561,6 @@ pub(crate) async fn view_get(
         .render()
         .await
         .into_response())
-}
-
-// Bloque de sólo lectura con los datos de perfil del usuario.
-async fn user_view_details(user: &user::Model, status: UserStatus, cx: &mut Context) -> Block {
-    let mut table = Table::new()
-        .with_prop(PropsOp::add_classes("user-admin-table"))
-        .with_row(
-            table::Row::new()
-                .with_cell(Lc::t("field-username-admin", &LOCALES_USER))
-                .with_cell(user.username.as_str()),
-        )
-        .with_row(
-            table::Row::new()
-                .with_cell(Lc::t("field-email", &LOCALES_USER))
-                .with_cell(user.email.as_str()),
-        )
-        .with_row(
-            table::Row::new()
-                .with_cell(Lc::t("field-display-name", &LOCALES_USER))
-                .with_cell(user.display_name.as_deref().unwrap_or("-")),
-        )
-        .with_row(
-            table::Row::new()
-                .with_cell(Lc::t("field-about", &LOCALES_USER))
-                .with_cell(multiline_text(
-                    user.about.clone().unwrap_or_else(|| "-".into()),
-                )),
-        );
-    // Sólo se muestran si se aplican, igual que en el formulario de edición.
-    if user_language_applies() {
-        table = table.with_row(
-            table::Row::new()
-                .with_cell(Lc::t("field-language", &LOCALES_USER))
-                .with_cell(language_name(user.language.as_deref())),
-        );
-    }
-    if user_timezone_applies() {
-        table = table.with_row(
-            table::Row::new()
-                .with_cell(Lc::t("field-timezone", &LOCALES_USER))
-                .with_cell(user.timezone.as_deref().unwrap_or("-")),
-        );
-    }
-    table = table
-        .with_row(
-            table::Row::new()
-                .with_cell(Lc::t("field-theme", &LOCALES_USER))
-                .with_cell(theme_name(user.theme.as_deref())),
-        )
-        .with_row(
-            table::Row::new()
-                .with_cell(Lc::t("col-status", &LOCALES_USER))
-                .with_cell(Lc::t(status_key(status), &LOCALES_USER)),
-        )
-        .with_row(
-            table::Row::new()
-                .with_cell(Lc::t("field-member-since", &LOCALES_USER))
-                .with_cell(cx.format_date(
-                    user.created_at.with_timezone(&cx.timezone()).date_naive(),
-                    DateFormat::Long,
-                )),
-        );
-
-    if user.is_admin {
-        let badge = Badge::severe(Lc::t("badge-admin", &LOCALES_USER))
-            .render(cx)
-            .await;
-        table = table.with_row(
-            table::Row::new()
-                .with_cell("")
-                .with_cell(Html::with(move |_| badge.clone())),
-        );
-    }
-
-    Block::new()
-        .with_title(Lc::t("title-user-details", &LOCALES_USER))
-        .with_child(table)
 }
 
 // Bloque de sólo lectura con los roles asignados al usuario, cada uno enlazado a su propia
