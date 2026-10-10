@@ -1,4 +1,4 @@
-use crate::AutoDefault;
+use crate::{AutoDefault, trace};
 
 use serde::{Deserialize, Deserializer};
 
@@ -33,17 +33,7 @@ impl<'de> Deserialize<'de> for StartupBanner {
             "small" => Self::Small,
             "speed" => Self::Speed,
             "starwars" => Self::Starwars,
-            _ => {
-                let default = Self::default();
-                println!(
-                    concat!(
-                        "\nInvalid value \"{}\" for [app].startup_banner. ",
-                        "Using \"{:?}\". Check settings.",
-                    ),
-                    raw, default,
-                );
-                default
-            }
+            _ => trace::warn_invalid_setting("[app].startup_banner", &raw, Self::default()),
         };
         Ok(result)
     }

@@ -15,6 +15,10 @@
 # variables de entorno: el resto de opciones sólo se leen de estos ficheros.
 #
 # Las opciones comentadas no tienen valor por defecto; se muestran con un valor de ejemplo.
+#
+# En las opciones del núcleo con valores fijos ("Full", "Nearest"...) da igual escribir el valor en
+# mayúsculas o minúsculas; uno no válido se sustituye por el valor por defecto, con un aviso al
+# arrancar.
 # ==================================================================================================
 
 
@@ -37,15 +41,18 @@ timezone          = "UTC"           # Zona horaria del sitio (IANA: "UTC", "Euro
                                     # da igual escribirla en mayúsculas o minúsculas.
                                     # Se aplica a anónimos y a usuarios sin zona horaria propia,
                                     # y a todos si 'timezone_per_user' es false.
-timezone_regions  = ""              # Regiones de zonas horarias que se ofrecen, separadas por
-                                    # comas (p. ej. "Europe, America"): "Africa", "America",
-                                    # "Antarctica", "Arctic", "Asia", "Atlantic", "Australia",
-                                    # "Europe", "Indian" y "Pacific". "Etc" (Etc/UTC) se ofrece
-                                    # siempre. Vacío -> todas. Los nombres desconocidos se ignoran
-                                    # con un aviso al arrancar. No cambia las zonas ya asignadas a
-                                    # los usuarios (las conservan), sólo las nuevas elecciones.
-                                    # Es el valor por defecto del selector de zona horaria; la
-                                    # aplicación puede cambiarlo en un formulario concreto.
+timezone_regions  = ""              # Regiones de las zonas horarias que se ofrecen, separadas por
+                                    # comas (p. ej. "Europe, America"), elegidas entre "Africa",
+                                    # "America", "Antarctica", "Arctic", "Asia", "Atlantic",
+                                    # "Australia", "Europe", "Indian" y "Pacific". "Etc" (Etc/UTC)
+                                    # se ofrece siempre. Si está vacío se ofrecen todas. Los nombres
+                                    # desconocidos se ignoran con un aviso al arrancar; si ninguno
+                                    # es válido se ofrecen todas, y se avisa también si la región de
+                                    # 'timezone' queda fuera de las ofrecidas. No cambia las zonas
+                                    # ya asignadas a los usuarios (las conservan), sólo las nuevas
+                                    # elecciones. Es el valor por defecto del selector de zona
+                                    # horaria; la aplicación puede cambiarlo en un formulario
+                                    # concreto.
 timezone_order    = "Nearest"       # Orden de esas regiones al elegir zona horaria:
                                     #   "Nearest"      -> la del sitio primero, si tiene región, y
                                     #                     luego por cercanía de su desfase horario.
@@ -73,7 +80,8 @@ bootsier_static_dir = ""            # Igual que el anterior, para los archivos e
 enabled = true                      # Activa (true) o desactiva (false) las trazas.
 tracing = "Info"                    # Filtro de trazas: "Error", "Warn", "Info", "Debug" o
                                     # "Trace", o combinaciones separadas por comas por módulo,
-                                    # p. ej. "Info,pagetop=Debug,sqlx=Warn".
+                                    # p. ej. "Info,pagetop=Debug,sqlx=Warn". Si no es válido se
+                                    # usa "Info", con un aviso al arrancar.
 rolling = "Stdout"                  # Salida de las trazas:
                                     #   "Stdout"   -> terminal, sin archivos.
                                     #   "Daily", "Hourly", "Minutely" -> archivos con rotación.

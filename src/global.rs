@@ -103,7 +103,9 @@ pub struct App {
     /// *"Australia"*, *"Europe"*, *"Indian"* y *"Pacific"*. Los nombres desconocidos se ignoran con
     /// un aviso al arrancar. El grupo *"Etc"*, sólo con `Etc/UTC`, se ofrece siempre, se indique o
     /// no; por eso *"Etc"* como único valor deja `Etc/UTC` como la única zona horaria disponible.
-    /// Si está vacío, o ninguna de las indicadas es válida, se ofrecen todas.
+    /// Si está vacío se ofrecen todas, y también si ninguna de las indicadas es válida, con un
+    /// aviso al arrancar. Se avisa igualmente si la región de [`timezone`] queda fuera de las
+    /// ofrecidas.
     ///
     /// Es el valor por defecto de [`form::SelectTimezone`], que puede cambiarse para un componente
     /// concreto con `with_regions()`.
@@ -119,6 +121,7 @@ pub struct App {
     /// [`TzRegion`]: crate::datetime::TzRegion
     /// [`CurrentUser::timezone()`]: crate::auth::CurrentUser::timezone
     /// [`form::SelectTimezone`]: crate::base::component::form::SelectTimezone
+    /// [`timezone`]: Self::timezone
     pub timezone_regions: String,
     /// Orden de las regiones de zonas horarias que se ofrecen para elegir: *"Nearest"*,
     /// *"Alphabetical"* o *"Listed"*.
@@ -167,7 +170,8 @@ pub struct Log {
     pub enabled: bool,
     /// Opciones, o combinación de opciones separadas por comas, para filtrar las trazas: *"Error"*,
     /// *"Warn"*, *"Info"*, *"Debug"* o *"Trace"*.
-    /// Ejemplo: *"Error,tower_http=Debug,axum::rejection=trace"*.
+    /// Ejemplo: *"Error,tower_http=Debug,axum::rejection=trace"*. Si no es válido se usa *"Info"*,
+    /// con un aviso al arrancar.
     pub tracing: String,
     /// Muestra los mensajes de traza en el terminal (*"Stdout"*) o los vuelca en archivos con
     /// rotación: *"Daily"*, *"Hourly"*, *"Minutely"* o *"Endless"*.

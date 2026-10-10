@@ -1,4 +1,4 @@
-use crate::AutoDefault;
+use crate::{AutoDefault, trace};
 
 use serde::{Deserialize, Deserializer};
 
@@ -9,10 +9,11 @@ use serde::{Deserialize, Deserializer};
 /// El valor configurado no distingue entre mayúsculas y minúsculas.
 #[derive(AutoDefault, Clone, Copy, Debug, Eq, PartialEq)]
 pub enum LogRolling {
-    /// Escribe las trazas en la salida estándar (sin rotación de archivos).
+    /// Escribe las trazas en la salida estándar (sin rotación de archivos). Es el valor por
+    /// defecto.
+    #[default]
     Stdout,
     /// Rotación diaria de archivos de traza.
-    #[default]
     Daily,
     /// Rotación horaria de archivos de traza.
     Hourly,
@@ -34,17 +35,7 @@ impl<'de> Deserialize<'de> for LogRolling {
             "hourly" => Self::Hourly,
             "minutely" => Self::Minutely,
             "endless" => Self::Endless,
-            _ => {
-                let default = Self::default();
-                println!(
-                    concat!(
-                        "\nInvalid value \"{}\" for [log].rolling. ",
-                        "Using \"{:?}\". Check settings.",
-                    ),
-                    raw, default,
-                );
-                default
-            }
+            _ => trace::warn_invalid_setting("[log].rolling", &raw, Self::default()),
         };
         Ok(result)
     }

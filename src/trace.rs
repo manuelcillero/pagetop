@@ -22,29 +22,59 @@ pub use tracing::{debug_span, error_span, info_span, trace_span, warn_span};
 use tracing_appender::non_blocking::WorkerGuard;
 use tracing_subscriber::EnvFilter;
 
-use std::sync::LazyLock;
+use std::fmt;
+use std::sync::{LazyLock, Mutex, PoisonError};
+
+// Avisos generados antes de iniciar las trazas. La configuración se lee antes, porque las trazas
+// dependen de la sección `[log]`, así que sus avisos se guardan aquí y se emiten al iniciarlas.
+static DEFERRED_WARNINGS: Mutex<Vec<String>> = Mutex::new(Vec::new());
+
+// Guarda el aviso de un valor no válido para la opción `key` y devuelve `default`, el valor que se
+// usa en su lugar. Lo usan las opciones enumeradas de la configuración al leerse.
+pub(crate) fn warn_invalid_setting<T: fmt::Debug>(key: &str, raw: &str, default: T) -> T {
+    DEFERRED_WARNINGS
+        .lock()
+        .unwrap_or_else(PoisonError::into_inner)
+        .push(format!(
+            "Invalid value \"{raw}\" for {key}, using \"{default:?}\". Check settings"
+        ));
+    default
+}
 
 /// Trazado y registro de eventos de la aplicación.
 ///
-/// Para aumentar el rendimiento, un hilo dedicado utiliza un sistema de escritura no bloqueante que
-/// actúa de forma periódica en lugar de enviar cada traza o evento al instante. Si el programa
-/// termina abruptamente (por ejemplo, debido a un `panic!` o a una llamada a `std::process::exit`),
-/// es posible que algunas trazas o eventos no se envíen.
+/// La escritura no es bloqueante: el código que genera una traza o un evento la deja en una cola y
+/// sigue, y un hilo dedicado la escribe en el destino configurado en cuanto la recibe.
 ///
-/// Dado que las trazas o eventos registrados poco antes de un fallo suelen ser cruciales para
-/// diagnosticar la causa, `Lazy<WorkerGuard>` garantiza que todos los registros almacenados se
-/// envíen antes de finalizar la ejecución.
+/// El [`WorkerGuard`] vuelca las trazas pendientes al destruirse, pero un `static` no se destruye
+/// nunca, así que al terminar el programa pueden perderse las últimas que quedaran en la cola.
 pub(crate) static TRACING: LazyLock<WorkerGuard> = LazyLock::new(|| {
-    if !global::SETTINGS.log.enabled || cfg!(test) || cfg!(feature = "testing") {
+    let enabled = global::SETTINGS.log.enabled && !cfg!(test) && !cfg!(feature = "testing");
+    // Al leer `SETTINGS` en la línea anterior ya se han guardado los avisos de la configuración.
+    let mut warnings = std::mem::take(
+        &mut *DEFERRED_WARNINGS
+            .lock()
+            .unwrap_or_else(PoisonError::into_inner),
+    );
+    if !enabled {
         // Tracing desactivado, se instala un subscriber nulo.
         tracing::subscriber::set_global_default(tracing::subscriber::NoSubscriber::default())
             .expect("Failed to install global NoSubscriber (tracing disabled)");
         let (_, guard) = tracing_appender::non_blocking(std::io::sink());
+        // Los avisos pendientes salen por la salida estándar para que no se pierdan.
+        for message in warnings {
+            println!("\n{message}");
+        }
         return guard;
     }
 
-    let env_filter = EnvFilter::try_new(&global::SETTINGS.log.tracing)
-        .unwrap_or_else(|_| EnvFilter::new("Info"));
+    let filter = &global::SETTINGS.log.tracing;
+    let env_filter = EnvFilter::try_new(filter).unwrap_or_else(|_| {
+        warnings.push(format!(
+            "Invalid value \"{filter}\" for [log].tracing, using \"Info\". Check settings"
+        ));
+        EnvFilter::new("Info")
+    });
 
     let rolling = global::SETTINGS.log.rolling;
 
@@ -75,5 +105,8 @@ pub(crate) static TRACING: LazyLock<WorkerGuard> = LazyLock::new(|| {
         LogFormat::Pretty => subscriber.pretty().init(),
     }
 
+    for message in warnings {
+        warn!(target: "pagetop::global", "{message}");
+    }
     guard
 });

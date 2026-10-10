@@ -1,4 +1,4 @@
-use crate::AutoDefault;
+use crate::{AutoDefault, trace};
 
 use serde::{Deserialize, Deserializer};
 
@@ -34,17 +34,7 @@ impl<'de> Deserialize<'de> for LogFormat {
             "full" => Self::Full,
             "compact" => Self::Compact,
             "pretty" => Self::Pretty,
-            _ => {
-                let default = Self::default();
-                println!(
-                    concat!(
-                        "\nInvalid value \"{}\" for [log].format. ",
-                        "Using \"{:?}\". Check settings.",
-                    ),
-                    raw, default,
-                );
-                default
-            }
+            _ => trace::warn_invalid_setting("[log].format", &raw, Self::default()),
         };
         Ok(result)
     }

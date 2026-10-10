@@ -1,4 +1,4 @@
-use crate::AutoDefault;
+use crate::{AutoDefault, trace};
 
 use serde::{Deserialize, Deserializer};
 
@@ -46,17 +46,7 @@ impl<'de> Deserialize<'de> for LangNegotiation {
             "full" => Self::Full,
             "noquery" => Self::NoQuery,
             "configonly" => Self::ConfigOnly,
-            _ => {
-                let default = Self::default();
-                println!(
-                    concat!(
-                        "\nInvalid value \"{}\" for [app].lang_negotiation. ",
-                        "Using \"{:?}\". Check settings.",
-                    ),
-                    raw, default,
-                );
-                default
-            }
+            _ => trace::warn_invalid_setting("[app].lang_negotiation", &raw, Self::default()),
         };
         Ok(result)
     }
