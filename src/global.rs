@@ -64,7 +64,9 @@ pub struct Settings {
 pub struct App {
     /// Nombre de la aplicación.
     pub name: String,
-    /// Tema predeterminado.
+    /// Tema predeterminado: *"Basic"* o el de una extensión enlazada por la aplicación, sin
+    /// distinguir mayúsculas y minúsculas. Si no está habilitado se usa *"Basic"*, con un aviso al
+    /// arrancar. Ver [`default_theme()`](crate::core::theme::default_theme).
     pub theme: String,
     /// Idioma predeterminado de la aplicación (p. ej., *"es-ES"* o *"en-US"*).
     ///

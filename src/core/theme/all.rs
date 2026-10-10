@@ -1,5 +1,5 @@
 use crate::core::theme::ThemeRef;
-use crate::global;
+use crate::{global, trace};
 
 use parking_lot::RwLock;
 
@@ -42,8 +42,28 @@ static DEFAULT_THEME: LazyLock<ThemeRef> =
         None => &crate::base::theme::Basic,
     });
 
+// Fija el tema predeterminado y avisa si el configurado en `app.theme` no está habilitado. Debe
+// llamarse después de registrar las extensiones, porque son las que habilitan los temas; si se
+// fijara antes, sólo encontraría `Basic`.
+pub(crate) fn init_default_theme() {
+    let raw = &global::SETTINGS.app.theme;
+    let theme = default_theme();
+    if theme.short_name().eq_ignore_ascii_case(raw) {
+        trace::debug!(
+            "Default theme \"{}\" (from config: \"{raw}\")",
+            theme.short_name()
+        );
+    } else {
+        trace::warn!(
+            "Default theme \"{}\" (fallback, theme not enabled: \"{raw}\")",
+            theme.short_name()
+        );
+    }
+}
+
 /// Devuelve el tema predeterminado de la aplicación: el configurado en `app.theme` si está
-/// habilitado o, en otro caso, [`Basic`](crate::base::theme::Basic).
+/// habilitado o, en otro caso, [`Basic`](crate::base::theme::Basic). Se fija una sola vez, al
+/// arrancar la aplicación, una vez habilitadas las extensiones.
 ///
 /// Es el tema del sitio, no necesariamente el que se usa en una petición concreta: para renderizar,
 /// el tema efectivo es el de [`Contextual::theme()`], que tiene en cuenta el tema preferido del

@@ -2,7 +2,7 @@
 
 mod figfont;
 
-use crate::core::{extension, extension::ExtensionRef};
+use crate::core::{extension, extension::ExtensionRef, theme};
 use crate::datetime::Timezone;
 use crate::locale::Locale;
 use crate::response::{render_error_pages, response_for_panic, route_not_found};
@@ -69,6 +69,9 @@ impl Application {
 
         // Registra las extensiones de la aplicación.
         extension::all::register_extensions(root_extension);
+
+        // Inicializa el tema predeterminado, que ya puede ser el de una extensión.
+        theme::all::init_default_theme();
 
         // Registra las acciones de las extensiones.
         extension::all::register_actions();

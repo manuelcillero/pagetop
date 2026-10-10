@@ -27,7 +27,8 @@
 [app]
 name              = "PageTop App"   # Nombre de la aplicación.
 theme             = "Basic"         # Tema predeterminado: "Basic" o el de una extensión enlazada
-                                    # por la aplicación ("Aliner", "Bootsier"...).
+                                    # por la aplicación ("Aliner", "Bootsier"...). Si no está
+                                    # habilitado se usa "Basic", con un aviso al arrancar.
 #language         = "es-ES"         # Idioma predeterminado (BCP 47: "es-ES", "en-US"...). Sin
                                     # valor, o si no es válido, el idioma se negocia con otras
                                     # fuentes (cabecera Accept-Language, idioma de respaldo).
