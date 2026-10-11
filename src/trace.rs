@@ -23,7 +23,8 @@ use tracing_appender::non_blocking::WorkerGuard;
 use tracing_subscriber::EnvFilter;
 
 use std::fmt;
-use std::sync::{LazyLock, Mutex, PoisonError};
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::{Mutex, PoisonError};
 
 // Avisos generados antes de iniciar las trazas. La configuración se lee antes, porque las trazas
 // dependen de la sección `[log]`, así que sus avisos se guardan aquí y se emiten al iniciarlas.
@@ -41,14 +42,26 @@ pub(crate) fn warn_invalid_setting<T: fmt::Debug>(key: &str, raw: &str, default:
     default
 }
 
-/// Trazado y registro de eventos de la aplicación.
-///
-/// La escritura no es bloqueante: el código que genera una traza o un evento la deja en una cola y
-/// sigue, y un hilo dedicado la escribe en el destino configurado en cuanto la recibe.
-///
-/// El [`WorkerGuard`] vuelca las trazas pendientes al destruirse, pero un `static` no se destruye
-/// nunca, así que al terminar el programa pueden perderse las últimas que quedaran en la cola.
-pub(crate) static TRACING: LazyLock<WorkerGuard> = LazyLock::new(|| {
+// Inicia las trazas y el registro de eventos de la aplicación, sólo la primera vez que se llama.
+//
+// La escritura no es bloqueante: el código que genera una traza o un evento la deja en una cola y
+// sigue, y un hilo dedicado la escribe en el destino configurado en cuanto la recibe. Devuelve el
+// `WorkerGuard` que vuelca las trazas pendientes al destruirse, y que debe vivir mientras la
+// aplicación: `Application` lo guarda y lo destruye al terminar `run()`. Devuelve `None` en las
+// llamadas siguientes y si las trazas están desactivadas.
+//
+// Si el programa termina sin destruirlo (con `std::process::exit()`, como hace una segunda Ctrl+C,
+// con `SIGKILL` o con un `panic!` compilado con `panic = "abort"`), pueden perderse las últimas
+// trazas de la cola.
+pub(crate) fn init() -> Option<WorkerGuard> {
+    // Si ya se han iniciado las trazas: el *subscriber* global sólo puede instalarse una vez por
+    // proceso, y las pruebas pueden preparar varias aplicaciones.
+    static STARTED: AtomicBool = AtomicBool::new(false);
+
+    if STARTED.swap(true, Ordering::SeqCst) {
+        return None;
+    }
+
     let enabled = global::SETTINGS.log.enabled && !cfg!(test) && !cfg!(feature = "testing");
     // Al leer `SETTINGS` en la línea anterior ya se han guardado los avisos de la configuración.
     let mut warnings = std::mem::take(
@@ -60,12 +73,11 @@ pub(crate) static TRACING: LazyLock<WorkerGuard> = LazyLock::new(|| {
         // Tracing desactivado, se instala un subscriber nulo.
         tracing::subscriber::set_global_default(tracing::subscriber::NoSubscriber::default())
             .expect("Failed to install global NoSubscriber (tracing disabled)");
-        let (_, guard) = tracing_appender::non_blocking(std::io::sink());
         // Los avisos pendientes salen por la salida estándar para que no se pierdan.
         for message in warnings {
             println!("\n{message}");
         }
-        return guard;
+        return None;
     }
 
     let filter = &global::SETTINGS.log.tracing;
@@ -108,5 +120,6 @@ pub(crate) static TRACING: LazyLock<WorkerGuard> = LazyLock::new(|| {
     for message in warnings {
         warn!(target: "pagetop::global", "{message}");
     }
-    guard
-});
+
+    Some(guard)
+}

@@ -10,15 +10,20 @@ use crate::web::Router;
 use crate::{PAGETOP_VERSION, global, trace};
 
 use tower_http::catch_panic::CatchPanicLayer;
+use tracing_appender::non_blocking::WorkerGuard;
 
 use std::io::Error;
-use std::sync::LazyLock;
 
 /// Punto de entrada de una aplicación PageTop.
 ///
 /// Orquesta el arranque de la aplicación. Primero se instancia con [`Application::new()`] o
 /// [`Application::prepare()`], y después se ejecuta usando [`run()`](Application::run). Si se está
 /// preparando un entorno de pruebas, se usa [`test()`](Application::test).
+///
+/// Hay **una aplicación por proceso**: la configuración, las extensiones habilitadas, el tema
+/// predeterminado y las trazas se inician una sola vez, con la primera que se prepara. Preparar más
+/// en el mismo proceso, como hacen las pruebas de integración para obtener su router, reutilizaría
+/// todos estos recursos.
 ///
 /// Los **errores controlados** (403, 404, o un fallo que un handler devuelva explícitamente como
 /// [`ErrorPage`](crate::response::ErrorPage)) se renderizan usando el tema activo (ver
@@ -29,7 +34,10 @@ use std::sync::LazyLock;
 /// La última capa del router captura cualquier **fallo catastrófico** (`panic!`) de la aplicación
 /// en lugar de abortar la conexión. Devuelve una respuesta mínima HTTP 500 que es independiente del
 /// tema y del ciclo de renderizado de componentes.
-pub struct Application;
+pub struct Application {
+    // Vuelca las trazas pendientes al destruirse, cuando termina `run()` (ver `trace::init()`).
+    tracing: Option<WorkerGuard>,
+}
 
 impl Application {
     /// Crea una instancia mínima de la aplicación, sin extensión raíz.
@@ -59,7 +67,7 @@ impl Application {
         Self::show_banner();
 
         // Inicia gestión de trazas y registro de eventos (logging).
-        LazyLock::force(&trace::TRACING);
+        let tracing = trace::init();
 
         // Inicializa el idioma predeterminado.
         Locale::init();
@@ -79,7 +87,7 @@ impl Application {
         // Inicializa las extensiones.
         extension::all::initialize_extensions().await;
 
-        Self
+        Self { tracing }
     }
 
     // Muestra la cabecera de arranque si está habilitada en la configuración.
@@ -134,8 +142,14 @@ impl Application {
     /// Arranca el servidor web de la aplicación.
     ///
     /// Enlaza el puerto del servidor web (puede fallar con [`std::io::Error`] si el puerto ya está
-    /// en uso o el proceso carece de permisos) y ejecuta el bucle de atención de peticiones. El
-    /// patrón habitual es:
+    /// en uso o el proceso carece de permisos) y ejecuta el bucle de atención de peticiones.
+    ///
+    /// Se detiene de forma ordenada con Ctrl+C o, en Unix, con la señal `SIGTERM` (la que envían
+    /// `systemd` o Docker al detener un servicio). En ese momento deja de aceptar conexiones,
+    /// termina las peticiones en curso y vuelca las trazas pendientes antes de volver. Una segunda
+    /// Ctrl+C lo detiene en el acto, sin esperar a las peticiones en curso.
+    ///
+    /// El patrón habitual es:
     ///
     /// ```rust,no_run
     /// use pagetop::prelude::*;
@@ -164,11 +178,60 @@ impl Application {
         let router = Self::build_router();
 
         let listener = tokio::net::TcpListener::from_std(std_listener)?;
-        axum::serve(listener, router).await
+        let result = axum::serve(listener, router)
+            .with_graceful_shutdown(shutdown_signal())
+            .await;
+
+        // Detenido el servidor, vuelca las trazas pendientes.
+        drop(self.tracing);
+        result
     }
 
     /// Devuelve el servidor web configurado para usarlo en pruebas de integración.
     pub fn test(self) -> Router {
         Self::build_router()
     }
+}
+
+// Espera la señal para detener el servidor: Ctrl+C o, en Unix, `SIGTERM`. Si no se puede escuchar
+// alguna, espera sólo a la otra en lugar de detener el servidor nada más arrancar.
+async fn shutdown_signal() {
+    let ctrl_c = async {
+        if let Err(err) = tokio::signal::ctrl_c().await {
+            trace::error!("Cannot listen for Ctrl+C: {err}");
+            std::future::pending::<()>().await;
+        }
+    };
+
+    #[cfg(unix)]
+    let terminate = async {
+        use tokio::signal::unix::{SignalKind, signal};
+        match signal(SignalKind::terminate()) {
+            Ok(mut sigterm) => {
+                sigterm.recv().await;
+            }
+            Err(err) => {
+                trace::error!("Cannot listen for SIGTERM: {err}");
+                std::future::pending::<()>().await;
+            }
+        }
+    };
+    #[cfg(not(unix))]
+    let terminate = std::future::pending::<()>();
+
+    tokio::select! {
+        () = ctrl_c => {}
+        () = terminate => {}
+    }
+    trace::info!("Shutting down, finishing the requests in progress");
+
+    // Una vez capturada, Ctrl+C ya no detiene el proceso por sí sola: una segunda lo detiene en el
+    // acto si alguna petición en curso no termina. El aviso va directamente a la salida de errores
+    // porque `process::exit()` no deja volcar las trazas.
+    tokio::spawn(async {
+        if tokio::signal::ctrl_c().await.is_ok() {
+            eprintln!("\nSecond Ctrl+C, stopping without waiting for the requests in progress");
+            std::process::exit(130);
+        }
+    });
 }
