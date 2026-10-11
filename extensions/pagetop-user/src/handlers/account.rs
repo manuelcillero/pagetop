@@ -180,7 +180,7 @@ fn public_profile_details(user: &user::Model, cx: &Context) -> Block {
         DateFormat::Long,
     );
     let table = Table::new()
-        .with_prop(PropsOp::add_classes("user-admin-table"))
+        .with_prop(PropsOp::add_classes("user-details-table"))
         .with_row(
             table::Row::new()
                 .with_cell(Lc::t("field-username-admin", &LOCALES_USER))

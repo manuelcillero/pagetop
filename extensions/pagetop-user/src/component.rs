@@ -90,7 +90,7 @@ pub(crate) fn error_banner(error: Option<Lc>) -> Html {
 pub(crate) async fn user_details(user: &user::Model, cx: &mut Context) -> Block {
     let status = UserStatus::from_i16(user.status);
     let mut table = Table::new()
-        .with_prop(PropsOp::add_classes("user-admin-table"))
+        .with_prop(PropsOp::add_classes("user-details-table"))
         .with_row(
             table::Row::new()
                 .with_cell(Lc::t("field-username-admin", &LOCALES_USER))
