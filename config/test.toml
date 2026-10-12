@@ -1,0 +1,9 @@
+[app]
+name = "Testing"
+
+[server]
+bind_port = 9000
+
+[test]
+string_value = "Modified value"
+float_value = 8.7654

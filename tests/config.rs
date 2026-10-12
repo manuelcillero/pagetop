@@ -22,7 +22,8 @@ pub struct Test {
 
 // The `testing` *feature* (active with `cargo ts` / `cargo tw`) fixes the "test" mode at compile
 // time inside `config::CONFIG_VALUES`, so that `global::SETTINGS` and any local `include_config!`
-// automatically load the "test" mode configuration.
+// automatically load the "test" mode configuration from `config/test.toml` (versioned, unlike the
+// `local.*.toml` files).
 
 #[pagetop::test]
 async fn check_global_config() {
