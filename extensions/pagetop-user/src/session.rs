@@ -2,7 +2,7 @@
 
 use pagetop::prelude::*;
 use pagetop_seaorm::db::query::Expr;
-use pagetop_seaorm::db::{ColumnTrait, DbErr, EntityTrait, QueryFilter, Set, dbconn};
+use pagetop_seaorm::db::{ColumnTrait, DbErr, EntityTrait, QueryFilter, QuerySelect, Set, dbconn};
 
 use crate::AUTHENTICATED_ROLE_ID;
 use crate::account::{Account, PermissionSet, UserStatus};
@@ -100,63 +100,51 @@ pub async fn resolve_session(
 pub async fn load_user_from_session(sid: &str) -> (CurrentUser, Option<Account>, Option<String>) {
     let now = Utc::now();
 
-    // Buscar sesión activa y no expirada.
-    let Ok(Some(sess)) = session::Entity::find_by_id(sid).one(dbconn()).await else {
-        return (CurrentUser::anonymous(), None, None);
-    };
-    if sess.expires_at < now {
-        return (CurrentUser::anonymous(), None, None);
-    }
-
-    // Cargar usuario con estado activo.
-    let Ok(Some(mut user_model)) = user::Entity::find_by_id(sess.user_id).one(dbconn()).await
-    else {
-        return (CurrentUser::anonymous(), None, None);
-    };
-    if UserStatus::from_i16(user_model.status) != UserStatus::Active {
-        return (CurrentUser::anonymous(), None, None);
-    }
-
-    // Cargar roles explícitos del usuario.
-    let Ok(user_role_rows) = user_role::Entity::find()
-        .filter(user_role::Column::UserId.eq(sess.user_id))
-        .all(dbconn())
+    // Sesión y usuario en una sola consulta. La sesión debe seguir vigente y el usuario, activo.
+    let Ok(Some((sess, Some(mut user_model)))) = session::Entity::find_by_id(sid)
+        .find_also_related(user::Entity)
+        .one(dbconn())
         .await
     else {
         return (CurrentUser::anonymous(), None, None);
     };
+    if sess.expires_at < now || UserStatus::from_i16(user_model.status) != UserStatus::Active {
+        return (CurrentUser::anonymous(), None, None);
+    }
 
-    let role_ids: Vec<i32> = user_role_rows.iter().map(|ur| ur.role_id).collect();
-
+    // Roles explícitos del usuario, leyendo sólo las columnas que se usan.
     let Ok(role_rows) = role::Entity::find()
-        .filter(role::Column::Id.is_in(role_ids.clone()))
+        .select_only()
+        .columns([role::Column::Id, role::Column::MachineName])
+        .inner_join(user_role::Entity)
+        .filter(user_role::Column::UserId.eq(sess.user_id))
+        .into_tuple::<(i32, String)>()
         .all(dbconn())
         .await
     else {
         return (CurrentUser::anonymous(), None, None);
     };
+    let (mut role_ids, role_names): (Vec<i32>, Vec<String>) = role_rows.into_iter().unzip();
 
-    let is_admin = user_model.is_admin;
-    let role_names: Vec<String> = role_rows.iter().map(|r| r.machine_name.clone()).collect();
-
-    // Cargar permisos de todos los roles más los del rol implícito "authenticated", que no se
-    // asigna en `user_role` pero se aplica siempre.
-    let mut all_role_ids = role_ids;
-    if !all_role_ids.contains(&AUTHENTICATED_ROLE_ID) {
-        all_role_ids.push(AUTHENTICATED_ROLE_ID);
-    }
-
-    let permissions = if is_admin {
+    // Permisos de los roles del usuario más los del rol implícito "authenticated", que no se
+    // asigna en `user_role` pero se aplica siempre. Un administrador los tiene todos.
+    let permissions = if user_model.is_admin {
         PermissionSet::default()
     } else {
-        let Ok(perm_rows) = role_permission::Entity::find()
-            .filter(role_permission::Column::RoleId.is_in(all_role_ids))
+        if !role_ids.contains(&AUTHENTICATED_ROLE_ID) {
+            role_ids.push(AUTHENTICATED_ROLE_ID);
+        }
+        let Ok(keys) = role_permission::Entity::find()
+            .select_only()
+            .column(role_permission::Column::PermissionKey)
+            .filter(role_permission::Column::RoleId.is_in(role_ids))
+            .into_tuple::<String>()
             .all(dbconn())
             .await
         else {
             return (CurrentUser::anonymous(), None, None);
         };
-        PermissionSet::new(perm_rows.into_iter().map(|p| p.permission_key))
+        PermissionSet::new(keys)
     };
 
     let mut renewed_cookie = None;
