@@ -2,12 +2,15 @@
 
 mod figfont;
 
-use crate::core::{extension, extension::ExtensionRef, theme};
+use crate::core::extension;
+use crate::core::extension::ExtensionRef;
+use crate::core::extension::all::StartupError;
+use crate::core::theme;
 use crate::datetime::Timezone;
 use crate::locale::Locale;
 use crate::response::{render_error_pages, response_for_panic, route_not_found};
 use crate::web::Router;
-use crate::{BoxError, PAGETOP_VERSION, global, trace};
+use crate::{PAGETOP_VERSION, global, trace};
 
 use tower_http::catch_panic::CatchPanicLayer;
 use tracing_appender::non_blocking::WorkerGuard;
@@ -57,9 +60,11 @@ impl Application {
     /// Es `async` porque cada extensión puede realizar operaciones asíncronas en su `initialize()`
     /// (conexión a base de datos, migraciones, semillas de datos, etc.).
     ///
-    /// Si alguna extensión devuelve un error al inicializarse, detiene el arranque y termina el
-    /// proceso con el código de salida `1` (ver [`Extension::initialize()`]).
+    /// Si los ajustes de alguna extensión no se pueden cargar o alguna extensión devuelve un error
+    /// al inicializarse, detiene el arranque y termina el proceso con el código de salida `1` (ver
+    /// [`Extension::settings()`] y [`Extension::initialize()`]).
     ///
+    /// [`Extension::settings()`]: crate::core::extension::Extension::settings
     /// [`Extension::initialize()`]: crate::core::extension::Extension::initialize
     pub async fn prepare(root_extension: ExtensionRef) -> Self {
         Self::internal_prepare(Some(root_extension)).await
@@ -83,7 +88,9 @@ impl Application {
         extension::all::register_extensions(root_extension);
 
         // Carga los ajustes de las extensiones. Un error de configuración detiene aquí el arranque.
-        extension::all::load_settings();
+        if let Err(err) = extension::all::load_settings() {
+            Self::abort_startup(tracing, err);
+        }
 
         // Inicializa el tema predeterminado, que ya puede ser el de una extensión.
         theme::all::init_default_theme();
@@ -92,23 +99,23 @@ impl Application {
         extension::all::register_actions();
 
         // Inicializa las extensiones. Si alguna falla, detiene aquí el arranque.
-        if let Err((name, err)) = extension::all::initialize_extensions().await {
-            Self::abort_startup(tracing, name, err);
+        if let Err(err) = extension::all::initialize_extensions().await {
+            Self::abort_startup(tracing, err);
         }
 
         Self { tracing }
     }
 
-    // Detiene el arranque cuando una extensión falla al inicializarse. Escribe el error, con todas
-    // sus causas, en las trazas y en la salida de errores, que es lo único que ve quien arranca la
-    // aplicación si las trazas se escriben en archivos. Vuelca las trazas antes de terminar,
-    // porque `process::exit()` no ejecuta los destructores.
+    // Detiene el arranque cuando falla la carga de los ajustes o la inicialización de una
+    // extensión. Escribe el error, con todas sus causas, en las trazas y en la salida de errores,
+    // que es lo único que ve quien arranca la aplicación si las trazas se escriben en archivos.
+    // Vuelca las trazas antes de terminar, porque `process::exit()` no ejecuta los destructores.
     //
     // Muchos errores terminan ya con el texto de su causa (p. ej. los de SeaORM), así que se omite
     // cada causa con la que ya termina el mensaje.
-    fn abort_startup(tracing: Option<WorkerGuard>, name: &str, err: BoxError) -> ! {
-        let mut message = format!("Extension \"{name}\" failed to initialize: {err}");
-        let mut source = err.source();
+    fn abort_startup(tracing: Option<WorkerGuard>, err: StartupError) -> ! {
+        let mut message = err.to_string();
+        let mut source = std::error::Error::source(&err);
         while let Some(cause) = source {
             let cause_text = cause.to_string();
             if !message.ends_with(&cause_text) {

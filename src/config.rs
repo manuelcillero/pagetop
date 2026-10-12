@@ -126,7 +126,7 @@
 //!
 //! Los ajustes globales de PageTop están en [`global::SETTINGS`](crate::global::SETTINGS).
 
-use crate::{trace, util};
+use crate::{AutoDefault, BoxError, trace, util};
 
 use config::{Config, ConfigError, File, FileFormat};
 use serde::de::{DeserializeOwned, IgnoredAny};
@@ -135,7 +135,7 @@ use std::collections::HashMap;
 use std::env;
 use std::ops::Deref;
 use std::path::PathBuf;
-use std::sync::LazyLock;
+use std::sync::{LazyLock, OnceLock};
 
 // Nombre del directorio de configuración por defecto.
 const DEFAULT_CONFIG_DIR: &str = "config";
@@ -246,8 +246,7 @@ fn section_from<T: SettingsSection>(config: &Config) -> Result<T, ConfigError> {
 
 /// Variable con los ajustes de una sección de la configuración.
 ///
-/// Se declara como `static` y los ajustes se cargan al arrancar la aplicación (o, fuera de ella, en
-/// el primer acceso). Como buena práctica, se declara en el módulo `config` de la extensión
+/// Se declara como `static`. Como buena práctica, se declara en el módulo `config` de la extensión
 /// (archivo `config.rs`), junto a las estructuras de sus ajustes:
 ///
 /// ```rust,ignore
@@ -264,32 +263,34 @@ fn section_from<T: SettingsSection>(config: &Config) -> Result<T, ConfigError> {
 /// Las claves ausentes toman su valor por defecto, y si falta la sección entera se usan los valores
 /// por defecto de todos los campos.
 ///
+/// Si la extensión devuelve la variable en [`Extension::settings()`], los ajustes se cargan al
+/// arrancar y una sección que no puede deserializarse (un valor no válido o una clave desconocida)
+/// detiene el arranque. Si no, se cargan en el primer acceso.
+///
 /// # Panics
 ///
-/// Al cargarse, si la sección no puede deserializarse (un valor no válido o una clave desconocida),
-/// con un mensaje que indica la sección y el problema.
-pub struct LazySettings<T: SettingsSection>(LazyLock<T>);
+/// En el primer acceso a unos ajustes aún no cargados, si la sección no puede deserializarse, con
+/// un mensaje que indica la sección y el problema. Ocurre si la extensión no los devuelve en
+/// `Extension::settings()`, si se accede a ellos antes de cargarlos al arrancar (p. ej. desde
+/// `Extension::dependencies()`) o si se usan fuera de una aplicación (p. ej. en una prueba).
+///
+/// [`Extension::settings()`]: crate::core::extension::Extension::settings
+#[derive(AutoDefault)]
+pub struct LazySettings<T: SettingsSection>(OnceLock<T>);
 
 impl<T: SettingsSection> LazySettings<T> {
     /// Crea la variable de ajustes de la sección [`SettingsSection::SECTION`] de `T`.
     pub const fn new() -> Self {
-        Self(LazyLock::new(load::<T>))
-    }
-}
-
-// A mano y no derivado: el `Default` de `LazyLock` usaría `T::default()` en lugar de cargar los
-// ajustes de la configuración.
-impl<T: SettingsSection> Default for LazySettings<T> {
-    fn default() -> Self {
-        Self::new()
+        Self(OnceLock::new())
     }
 }
 
 impl<T: SettingsSection> Deref for LazySettings<T> {
     type Target = T;
 
+    #[inline]
     fn deref(&self) -> &T {
-        &self.0
+        self.0.get_or_init(load::<T>)
     }
 }
 
@@ -302,15 +303,24 @@ impl<T: SettingsSection> Deref for LazySettings<T> {
 /// [`Extension::settings()`](crate::core::extension::Extension::settings).
 pub trait LoadSettings: Sync {
     /// Carga los ajustes si aún no se han cargado.
-    fn load(&self);
+    ///
+    /// Devuelve un error si los ajustes no se pueden cargar, lo que detiene el arranque de la
+    /// aplicación.
+    fn load(&self) -> Result<(), BoxError>;
 
     /// Sección de la configuración a la que corresponden los ajustes.
     fn section(&self) -> &'static str;
 }
 
 impl<T: SettingsSection> LoadSettings for LazySettings<T> {
-    fn load(&self) {
-        LazyLock::force(&self.0);
+    // Devuelve el error en lugar del `panic!` del primer acceso. Si otro hilo guarda antes los
+    // ajustes (las pruebas preparan aplicaciones en paralelo), se conservan los suyos, que son los
+    // mismos.
+    fn load(&self) -> Result<(), BoxError> {
+        if self.0.get().is_none() {
+            let _ = self.0.set(section_from::<T>(&CONFIG_VALUES)?);
+        }
+        Ok(())
     }
 
     fn section(&self) -> &'static str {

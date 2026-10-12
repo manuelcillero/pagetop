@@ -9,6 +9,30 @@ use std::sync::OnceLock;
 
 static EXTENSIONS: OnceLock<Vec<ExtensionRef>> = OnceLock::new();
 
+/// Errores de las extensiones que detienen el arranque de la aplicación.
+#[derive(Debug, thiserror::Error)]
+pub enum StartupError {
+    /// Dos extensiones, o una extensión y PageTop, reclaman la misma sección de la configuración:
+    /// cada una la leería con su propia estructura de ajustes.
+    #[error("Settings section [{0}] is already claimed by PageTop or another extension")]
+    DuplicateSection(&'static str),
+    /// Los ajustes de una sección no se pueden cargar (p. ej. por un valor no válido o una clave
+    /// desconocida).
+    #[error("Invalid settings in section [{section}]")]
+    InvalidSettings {
+        section: &'static str,
+        #[source]
+        source: BoxError,
+    },
+    /// Una extensión ha devuelto un error en su `initialize()`.
+    #[error("Extension \"{name}\" failed to initialize")]
+    Initialize {
+        name: &'static str,
+        #[source]
+        source: BoxError,
+    },
+}
+
 // **< REGISTRO DE LAS EXTENSIONES >****************************************************************
 
 pub fn register_extensions(root_extension: Option<ExtensionRef>) {
@@ -98,28 +122,25 @@ pub fn register_actions() {
 
 /// Carga los ajustes de configuración de todas las extensiones, en el orden en que se registraron.
 ///
-/// Avisa además de las secciones de los archivos de configuración que no corresponden a PageTop ni
-/// a ninguna extensión, que suelen ser erratas.
-///
-/// # Panics
-///
-/// Si dos extensiones, o una extensión y PageTop, reclaman la misma sección: cada una la leería con
-/// su propia estructura de ajustes.
-pub fn load_settings() {
+/// Se detiene en el primer error: una sección reclamada por más de una extensión o unos ajustes que
+/// no se pueden cargar. Si todo va bien, avisa de las secciones de los archivos de configuración
+/// que no corresponden a PageTop ni a ninguna extensión, que suelen ser erratas.
+pub fn load_settings() -> Result<(), StartupError> {
+    load_settings_of(EXTENSIONS.get().map(Vec::as_slice).unwrap_or_default())
+}
+
+// Separada de `load_settings()` para poder probarla sin el registro global de extensiones.
+fn load_settings_of(extensions: &[ExtensionRef]) -> Result<(), StartupError> {
     trace::info!("Loading settings for all extensions");
     let mut known: Vec<&str> = global::SECTIONS.to_vec();
-    for settings in EXTENSIONS
-        .get()
-        .into_iter()
-        .flatten()
-        .filter_map(|e| e.settings())
-    {
+    for settings in extensions.iter().filter_map(|e| e.settings()) {
         let section = settings.section();
-        assert!(
-            !known.contains(&section),
-            "Settings section [{section}] is claimed by more than one extension"
-        );
-        settings.load();
+        if known.contains(&section) {
+            return Err(StartupError::DuplicateSection(section));
+        }
+        settings
+            .load()
+            .map_err(|source| StartupError::InvalidSettings { section, source })?;
         known.push(section);
     }
     for section in config::sections() {
@@ -127,17 +148,23 @@ pub fn load_settings() {
             trace::warn!("Unknown settings section [{section}], ignored. Check settings");
         }
     }
+    Ok(())
 }
 
 // **< INICIALIZA LAS EXTENSIONES >*****************************************************************
 
 /// Inicializa las extensiones en el orden en que se registraron.
 ///
-/// Se detiene en la primera que falle y devuelve su nombre corto junto con el error.
-pub async fn initialize_extensions() -> Result<(), (&'static str, BoxError)> {
+/// Se detiene en la primera que falle.
+pub async fn initialize_extensions() -> Result<(), StartupError> {
     trace::info!("Calling application bootstrap");
     for e in EXTENSIONS.get().into_iter().flatten() {
-        e.initialize().await.map_err(|err| (e.short_name(), err))?;
+        e.initialize()
+            .await
+            .map_err(|source| StartupError::Initialize {
+                name: e.short_name(),
+                source,
+            })?;
     }
     Ok(())
 }
@@ -190,4 +217,92 @@ pub fn configure_static_files(router: Router) -> Router {
     serve_static_files!(router, [&global::SETTINGS.dev.pagetop_static_dir, assets] => "/pagetop");
 
     router
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{StartupError, load_settings_of};
+    use crate::config::LoadSettings;
+    use crate::core::extension::Extension;
+    use crate::{BoxError, async_trait};
+
+    // Settings for a given section that load fine or fail, without touching the configuration.
+    struct FakeSettings {
+        section: &'static str,
+        fails: bool,
+    }
+
+    impl LoadSettings for FakeSettings {
+        fn load(&self) -> Result<(), BoxError> {
+            if self.fails {
+                Err("bad value".into())
+            } else {
+                Ok(())
+            }
+        }
+
+        fn section(&self) -> &'static str {
+            self.section
+        }
+    }
+
+    struct Claims(&'static FakeSettings);
+
+    #[async_trait]
+    impl Extension for Claims {
+        fn settings(&self) -> Option<&'static dyn LoadSettings> {
+            Some(self.0)
+        }
+    }
+
+    static APP: Claims = Claims(&FakeSettings {
+        section: "app",
+        fails: false,
+    });
+    static FIRST: Claims = Claims(&FakeSettings {
+        section: "fake",
+        fails: false,
+    });
+    static SECOND: Claims = Claims(&FakeSettings {
+        section: "fake",
+        fails: false,
+    });
+    static BROKEN: Claims = Claims(&FakeSettings {
+        section: "broken",
+        fails: true,
+    });
+
+    #[test]
+    fn valid_settings_load() {
+        assert!(load_settings_of(&[&FIRST]).is_ok());
+    }
+
+    #[test]
+    fn a_section_of_pagetop_cannot_be_claimed() {
+        let err = load_settings_of(&[&APP]).unwrap_err();
+        assert!(matches!(err, StartupError::DuplicateSection("app")));
+    }
+
+    #[test]
+    fn a_section_cannot_be_claimed_twice() {
+        let err = load_settings_of(&[&FIRST, &SECOND]).unwrap_err();
+        assert!(matches!(err, StartupError::DuplicateSection("fake")));
+    }
+
+    #[test]
+    fn invalid_settings_stop_with_their_section_and_cause() {
+        let err = load_settings_of(&[&FIRST, &BROKEN]).unwrap_err();
+        assert!(matches!(
+            err,
+            StartupError::InvalidSettings {
+                section: "broken",
+                ..
+            }
+        ));
+        assert_eq!(err.to_string(), "Invalid settings in section [broken]");
+        assert_eq!(
+            std::error::Error::source(&err).unwrap().to_string(),
+            "bad value"
+        );
+    }
 }

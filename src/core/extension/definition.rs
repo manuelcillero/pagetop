@@ -160,10 +160,10 @@ pub trait Extension: AnyInfo + Send + Sync {
     ///
     /// Se cargan en el orden en que se registran las extensiones y antes de llamar a
     /// [`initialize()`]. Así, un error de la configuración (como un valor no válido o una clave
-    /// desconocida) detiene el arranque. Cada extensión debe usar una sección propia: si dos
-    /// extensiones reclaman la misma, el arranque también se detiene. Ver [`pagetop::config`] para
-    /// saber cómo declarar los ajustes usando [`#[settings]`](crate::settings). La implementación
-    /// por defecto devuelve `None`.
+    /// desconocida) detiene el arranque, igual que un error en [`initialize()`]. Cada extensión
+    /// debe usar una sección propia: si dos extensiones reclaman la misma, el arranque también se
+    /// detiene. Ver [`pagetop::config`] para saber cómo declarar los ajustes usando
+    /// [`#[settings]`](crate::settings). La implementación por defecto devuelve `None`.
     ///
     /// # Ejemplo
     ///

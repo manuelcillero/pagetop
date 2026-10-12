@@ -32,8 +32,9 @@ static STARTUP_LOADED: AtomicBool = AtomicBool::new(false);
 struct StartupSettings;
 
 impl LoadSettings for StartupSettings {
-    fn load(&self) {
+    fn load(&self) -> Result<(), BoxError> {
         STARTUP_LOADED.store(true, Ordering::SeqCst);
+        Ok(())
     }
 
     fn section(&self) -> &'static str {
@@ -46,6 +47,12 @@ impl LoadSettings for StartupSettings {
 pub struct AbsentSettings {
     #[default = 7]
     pub value: u8,
+}
+
+// Only one of the keys of `[test]` in `config/test.toml`: the other one is unknown.
+#[settings(section = "test")]
+pub struct PartialTestSettings {
+    pub float_value: f32,
 }
 
 // `EXTENSIONS` is a global `OnceLock`: all tests in this file share the same root extension.
@@ -112,4 +119,21 @@ async fn load_from_str_rejects_unknown_keys() {
         .expect_err("unknown key accepted")
         .to_string();
     assert!(error.contains("string_valu"));
+}
+
+#[pagetop::test]
+async fn load_reports_invalid_settings_instead_of_panicking() {
+    let settings = LazySettings::<PartialTestSettings>::new();
+    let error = settings
+        .load()
+        .expect_err("unknown key accepted")
+        .to_string();
+    assert!(error.contains("string_value"), "{error}");
+}
+
+#[pagetop::test]
+async fn load_keeps_the_settings_it_reads() {
+    let settings = LazySettings::<TestSettings>::new();
+    settings.load().expect("valid settings rejected");
+    assert_eq!(settings.string_value, "Modified value");
 }
