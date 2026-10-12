@@ -1,9 +1,10 @@
-//! Middleware Tower para la resolución de sesión de usuario.
+//! Middleware para la resolución de sesión de usuario.
 //!
 //! Se registra globalmente en [`crate::User::configure_middleware`] y se ejecuta en todas las
-//! peticiones entrantes antes de que lleguen al handler. Inserta [`pagetop::auth::CurrentUser`] y,
-//! si el usuario está autenticado, el [`crate::account::Account`] con sus datos ricos en las
-//! extensiones de la petición HTTP.
+//! peticiones a rutas de la aplicación antes de que lleguen al handler, excepto en las de archivos
+//! estáticos (ver [`pagetop::core::extension::Extension::configure_static_files`]). Inserta
+//! [`pagetop::auth::CurrentUser`] y, si el usuario está autenticado, el [`crate::account::Account`]
+//! con sus datos ricos en las extensiones de la petición HTTP.
 
 use pagetop::prelude::*;
 

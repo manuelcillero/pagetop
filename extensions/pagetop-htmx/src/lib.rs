@@ -147,7 +147,7 @@ impl Extension for Htmx {
         actions![action::page::BeforeRenderBody::new(add_htmx_script)]
     }
 
-    fn configure_router(&self, router: Router) -> Router {
+    fn configure_static_files(&self, router: Router) -> Router {
         serve_static_files!(router, [htmx] => "/htmx");
         router
     }

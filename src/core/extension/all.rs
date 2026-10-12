@@ -113,27 +113,42 @@ pub fn configure_routes(router: Router) -> Router {
         web::get(|| async { web::http::StatusCode::NOT_FOUND }),
     );
 
-    let router = EXTENSIONS
+    EXTENSIONS
         .get()
         .into_iter()
         .flatten()
-        .fold(router, |r, e| e.configure_router(r));
-
-    serve_static_files!(router, [&global::SETTINGS.dev.pagetop_static_dir, assets] => "/pagetop");
-
-    router
+        .fold(router, |r, e| e.configure_router(r))
 }
 
 // **< CONFIGURA EL MIDDLEWARE GLOBAL >*************************************************************
 
 /// Aplica las capas de middleware globales de todas las extensiones sobre el router ya enrutado.
 ///
-/// Se llama después de [`configure_routes`] para garantizar que las capas envuelven todas las
-/// rutas de la aplicación, independientemente del orden de las extensiones.
+/// Se llama después de [`configure_routes`] para que las capas envuelvan todas sus rutas,
+/// independientemente del orden de las extensiones, y antes de [`configure_static_files`], cuyas
+/// rutas quedan fuera.
 pub fn configure_middleware(router: Router) -> Router {
     EXTENSIONS
         .get()
         .into_iter()
         .flatten()
         .fold(router, |r, e| e.configure_middleware(r))
+}
+
+// **< CONFIGURA LOS ARCHIVOS ESTÁTICOS >***********************************************************
+
+/// Añade los archivos estáticos de PageTop y de todas las extensiones.
+///
+/// Se llama después de [`configure_middleware`], para que estas rutas no pasen por las capas de
+/// middleware de las extensiones.
+pub fn configure_static_files(router: Router) -> Router {
+    let router = EXTENSIONS
+        .get()
+        .into_iter()
+        .flatten()
+        .fold(router, |r, e| e.configure_static_files(r));
+
+    serve_static_files!(router, [&global::SETTINGS.dev.pagetop_static_dir, assets] => "/pagetop");
+
+    router
 }

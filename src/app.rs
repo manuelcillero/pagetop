@@ -126,13 +126,21 @@ impl Application {
         }
     }
 
-    // Construye el router con las rutas y el middleware de todas las extensiones habilitadas.
+    // Construye el router con las rutas, el middleware y los archivos estáticos de todas las
+    // extensiones habilitadas.
     //
-    // Con `CatchPanicLayer` en la última capa se capturan incluso los `panic!` que se produzcan
-    // dentro del propio renderizado de una página de error.
+    // Las capas del servidor web sólo envuelven las rutas registradas antes de añadirlas, así que
+    // los archivos estáticos se registran después del middleware de las extensiones para no pasar
+    // por él. Una página con muchos recursos repetiría, si no, el mismo trabajo (resolver la
+    // sesión, etc.) por cada uno.
+    //
+    // En cambio, las capas de páginas de error y `CatchPanicLayer` sí los cubren, porque se añaden
+    // al final. Con `CatchPanicLayer` en la última capa se capturan incluso los `panic!` que se
+    // produzcan dentro del propio renderizado de una página de error.
     fn build_router() -> Router {
         let router = extension::all::configure_routes(Router::new());
         let router = extension::all::configure_middleware(router);
+        let router = extension::all::configure_static_files(router);
         router
             .fallback(route_not_found)
             .layer(axum::middleware::from_fn(render_error_pages))

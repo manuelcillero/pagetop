@@ -104,7 +104,7 @@ impl Extension for Aliner {
         Some(&Self)
     }
 
-    fn configure_router(&self, router: Router) -> Router {
+    fn configure_static_files(&self, router: Router) -> Router {
         serve_static_files!(router, [aliner] => "/aliner");
         router
     }

@@ -155,8 +155,10 @@ pub trait Extension: AnyInfo + Send + Sync {
     /// |----------------------------------|----------------------------------------------------|
     /// | Ruta HTTP                        | `.route("/path", web::get(handler))`               |
     /// | Rutas bajo prefijo común         | `.nest("/prefix", sub_router)`                     |
-    /// | Archivos estáticos               | `serve_static_files!(router, [assets] => "/path")` |
     /// | Estado compartido entre handlers | `.with_state(my_state)`                            |
+    ///
+    /// Los archivos estáticos se registran normalmente en [`configure_static_files`], donde no
+    /// pasan por el middleware de las extensiones.
     ///
     /// # Ejemplos
     ///
@@ -226,13 +228,65 @@ pub trait Extension: AnyInfo + Send + Sync {
     /// }
     /// ```
     ///
-    /// Para middleware que deba cubrir **todas** las rutas, usar
-    /// [`configure_middleware`](Self::configure_middleware).
+    /// Para el middleware que deba cubrir las rutas de **todas** las extensiones, usar
+    /// [`configure_middleware`].
     ///
-    /// ## Archivos estáticos
+    /// [`configure_static_files`]: Self::configure_static_files
+    /// [`configure_middleware`]: Self::configure_middleware
+    fn configure_router(&self, router: Router) -> Router {
+        router
+    }
+
+    /// Añade capas de middleware globales a las rutas de la aplicación.
+    ///
+    /// Se invoca **después** de que todas las extensiones hayan registrado sus rutas con
+    /// [`configure_router`](Self::configure_router), de modo que las capas añadidas aquí se aplican
+    /// a **todas** esas rutas, independientemente del orden de las extensiones. **No** se aplican a
+    /// los archivos estáticos de [`configure_static_files`](Self::configure_static_files), que se
+    /// registran después.
+    ///
+    /// Usar este método cuando el middleware deba interceptar todas las peticiones a rutas de la
+    /// aplicación (p. ej. resolución de sesión, autenticación, etc.). Una capa que deba cubrir
+    /// también los archivos estáticos (p. ej. ciertas cabeceras de seguridad) no puede añadirse
+    /// aquí; una alternativa es aplicarla en el proxy inverso.
+    ///
+    /// # Ejemplo
+    ///
+    /// ```rust,no_run
+    /// # use pagetop::prelude::*;
+    /// # async fn session_middleware(req: web::Request, next: web::middleware::Next) -> Response {
+    /// #     next.run(req).await
+    /// # }
+    /// pub struct MyAuth;
+    ///
+    /// #[async_trait]
+    /// impl Extension for MyAuth {
+    ///     fn configure_middleware(&self, router: Router) -> Router {
+    ///         router.layer(web::middleware::from_fn(session_middleware))
+    ///     }
+    /// }
+    /// ```
+    fn configure_middleware(&self, router: Router) -> Router {
+        router
+    }
+
+    /// Registra los archivos estáticos de la extensión (hojas de estilo, *scripts*, fuentes,
+    /// imágenes, etc.) en el servidor web de la aplicación.
+    ///
+    /// Es un paso aparte de [`configure_router`](Self::configure_router) porque las capas de
+    /// middleware sólo envuelven las rutas registradas antes de añadirlas. Este método se invoca
+    /// **después** de [`configure_middleware`](Self::configure_middleware), así que estas rutas
+    /// **no** pasan por las capas de middleware de las extensiones (p. ej. la resolución de
+    /// sesión). Una página carga muchos recursos; sin esta separación, cada uno repetiría ese
+    /// trabajo, que no necesita. La implementación por defecto devuelve las rutas sin cambios.
+    ///
+    /// Si algún archivo sí debe pasar por el middleware (p. ej. descargas que requieran una sesión
+    /// iniciada), se registra en [`configure_router`](Self::configure_router).
     ///
     /// La macro [`serve_static_files!`](crate::serve_static_files) sombrea `router` internamente,
     /// por lo que el parámetro no necesita `mut`. Sí es necesario devolverlo al final.
+    ///
+    /// # Ejemplo
     ///
     /// ```rust,ignore
     /// # use pagetop::prelude::*;
@@ -240,44 +294,13 @@ pub trait Extension: AnyInfo + Send + Sync {
     ///
     /// #[async_trait]
     /// impl Extension for MyExtension {
-    ///     fn configure_router(&self, router: Router) -> Router {
+    ///     fn configure_static_files(&self, router: Router) -> Router {
     ///         serve_static_files!(router, [assets] => "/static");
     ///         router
     ///     }
     /// }
     /// ```
-    fn configure_router(&self, router: Router) -> Router {
-        router
-    }
-
-    /// Añade capas de middleware globales al router ya completamente preparado.
-    ///
-    /// Se invoca **después** de que todas las extensiones hayan registrado sus rutas con
-    /// [`configure_router`](Self::configure_router), de modo que las capas añadidas aquí se aplican
-    /// a **todas** las rutas de la aplicación, independientemente del orden de las extensiones.
-    ///
-    /// Usar este método cuando el middleware deba interceptar cualquier petición entrante (p. ej.
-    /// resolución de sesión, autenticación, cabeceras de seguridad, ...).
-    ///
-    /// # Ejemplo
-    ///
-    /// ```rust,no_run
-    /// # use pagetop::prelude::*;
-    /// # use axum::middleware;
-    /// # async fn session_middleware(
-    /// #     req: axum::extract::Request,
-    /// #     next: middleware::Next,
-    /// # ) -> axum::response::Response { next.run(req).await }
-    /// pub struct MyAuth;
-    ///
-    /// #[async_trait]
-    /// impl Extension for MyAuth {
-    ///     fn configure_middleware(&self, router: Router) -> Router {
-    ///         router.layer(middleware::from_fn(session_middleware))
-    ///     }
-    /// }
-    /// ```
-    fn configure_middleware(&self, router: Router) -> Router {
+    fn configure_static_files(&self, router: Router) -> Router {
         router
     }
 }

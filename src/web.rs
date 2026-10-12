@@ -147,6 +147,28 @@ impl<S: Send + Sync> FromRequestParts<S> for HttpRequest {
 // Servicio para archivos estáticos en disco.
 pub use tower_http::services::ServeDir;
 
+// Valor de `Cache-Control` para los archivos estáticos: el navegador puede guardarlos, pero debe
+// revalidarlos antes de reutilizarlos. Las versiones de las URL (`?v=...`) no siguen el contenido
+// de cada archivo, así que una caché con caducidad podría servir recursos obsoletos tras desplegar.
+const STATIC_CACHE_CONTROL: http::HeaderValue = http::HeaderValue::from_static("no-cache");
+
+/// Servicio para archivos estáticos en disco con la política de caché de PageTop.
+///
+/// Lo usa la macro [`serve_static_files!`](crate::serve_static_files). [`ServeDir`] ya envía
+/// `Last-Modified` y `ETag`, y responde `304 Not Modified` cuando corresponde; este servicio añade
+/// `Cache-Control: no-cache` para que el navegador revalide los archivos en lugar de reutilizarlos
+/// sin preguntar.
+#[doc(hidden)]
+pub fn serve_dir(
+    dir: impl AsRef<std::path::Path>,
+) -> tower_http::set_header::SetResponseHeader<ServeDir, http::HeaderValue> {
+    tower_http::set_header::SetResponseHeader::if_not_present(
+        ServeDir::new(dir),
+        http::header::CACHE_CONTROL,
+        STATIC_CACHE_CONTROL,
+    )
+}
+
 // **< ServeEmbedded >******************************************************************************
 
 /// Servicio para archivos estáticos embebidos en el binario.
@@ -156,20 +178,67 @@ pub use tower_http::services::ServeDir;
 /// (p. ej. `"css/style.css"`). Si se solicita la raíz o una ruta que termina en `/`, el servicio
 /// devuelve el `index.html` raíz si existe; no busca por subdirectorio.
 ///
+/// Cada respuesta incluye un `ETag` calculado sobre el contenido del recurso y
+/// `Cache-Control: no-cache`, de modo que el navegador guarda el recurso pero lo revalida antes de
+/// reutilizarlo; si no ha cambiado, el servicio responde `304 Not Modified` sin cuerpo.
+///
 /// Implementa [`Clone`] para clonar el servicio por petición, pero internamente comparte el mapa de
 /// recursos con un [`Arc`] para evitar copias innecesarias.
 #[derive(Clone)]
 pub struct ServeEmbedded {
-    files: std::sync::Arc<HashMap<&'static str, StaticFile>>,
+    files: Arc<HashMap<&'static str, EmbeddedFile>>,
+}
+
+// Recurso embebido con su `ETag`, calculado una sola vez al crear el servicio.
+struct EmbeddedFile {
+    data: &'static [u8],
+    mime_type: &'static str,
+    etag: http::HeaderValue,
 }
 
 impl ServeEmbedded {
     /// Crea un nuevo servicio a partir del mapa de recursos embebidos generado por `build.rs`.
     pub fn new(files: HashMap<&'static str, StaticFile>) -> Self {
+        let files = files
+            .into_iter()
+            .map(|(path, file)| {
+                let embedded = EmbeddedFile {
+                    data: file.data,
+                    mime_type: file.mime_type,
+                    etag: etag_for(file.data),
+                };
+                (path, embedded)
+            })
+            .collect();
         Self {
-            files: std::sync::Arc::new(files),
+            files: Arc::new(files),
         }
     }
+}
+
+// `ETag` de un recurso a partir de su contenido. `DefaultHasher::new()` usa siempre las mismas
+// claves, así que el valor sólo cambia si cambia el contenido (o el algoritmo, al actualizar Rust,
+// lo que únicamente obliga a descargar de nuevo los recursos).
+fn etag_for(data: &[u8]) -> http::HeaderValue {
+    use std::hash::{DefaultHasher, Hasher};
+    let mut hasher = DefaultHasher::new();
+    hasher.write(data);
+    http::HeaderValue::try_from(format!("\"{:016x}\"", hasher.finish()))
+        .expect("a quoted hexadecimal string is always a valid header value")
+}
+
+// Si alguna etiqueta de `If-None-Match` coincide con `etag`. La comparación es débil, como exige
+// RFC 9110 para `If-None-Match`: se ignora el prefijo `W/`.
+fn matches_etag(req: &http::Request<Body>, etag: &http::HeaderValue) -> bool {
+    req.headers()
+        .get_all(http::header::IF_NONE_MATCH)
+        .iter()
+        .filter_map(|value| value.to_str().ok())
+        .flat_map(|tags| tags.split(','))
+        .map(str::trim)
+        .any(|tag| {
+            tag == "*" || tag.strip_prefix("W/").unwrap_or(tag).as_bytes() == etag.as_bytes()
+        })
 }
 
 impl tower::Service<http::Request<Body>> for ServeEmbedded {
@@ -197,9 +266,17 @@ impl tower::Service<http::Request<Body>> for ServeEmbedded {
         });
 
         let response = match resource {
-            Some(r) => http::Response::builder()
-                .header(header::CONTENT_TYPE, r.mime_type)
-                .body(Body::from(r.data))
+            Some(file) if matches_etag(&req, &file.etag) => http::Response::builder()
+                .status(http::StatusCode::NOT_MODIFIED)
+                .header(header::ETAG, file.etag.clone())
+                .header(header::CACHE_CONTROL, STATIC_CACHE_CONTROL)
+                .body(Body::empty())
+                .unwrap(),
+            Some(file) => http::Response::builder()
+                .header(header::CONTENT_TYPE, file.mime_type)
+                .header(header::ETAG, file.etag.clone())
+                .header(header::CACHE_CONTROL, STATIC_CACHE_CONTROL)
+                .body(Body::from(file.data))
                 .unwrap(),
             None => http::Response::builder()
                 .status(http::StatusCode::NOT_FOUND)
@@ -214,6 +291,9 @@ impl tower::Service<http::Request<Body>> for ServeEmbedded {
 // **< serve_static_files! >************************************************************************
 
 /// Configura el servidor web para publicar archivos estáticos.
+///
+/// Se usa normalmente en el método [`configure_static_files()`] de las extensiones, para que estas
+/// rutas no pasen por su middleware.
 ///
 /// La macro añade rutas al [`Router`] del primer argumento usando uno de los tres modos posibles:
 ///
@@ -240,7 +320,7 @@ impl tower::Service<http::Request<Body>> for ServeEmbedded {
 ///
 /// #[async_trait]
 /// impl Extension for MyExtension {
-///     fn configure_router(&self, router: Router) -> Router {
+///     fn configure_static_files(&self, router: Router) -> Router {
 ///         // Forma 1) Sistema de ficheros o embebido.
 ///         serve_static_files!(router, ["/var/www/static", assets] => "/public");
 ///
@@ -254,6 +334,8 @@ impl tower::Service<http::Request<Body>> for ServeEmbedded {
 ///     }
 /// }
 /// ```
+///
+/// [`configure_static_files()`]: crate::core::extension::Extension::configure_static_files
 #[macro_export]
 macro_rules! serve_static_files {
     // Forma 1: primero intenta servir desde el sistema de ficheros; si falla, sirve embebido.
@@ -269,7 +351,7 @@ macro_rules! serve_static_files {
             let mut served_from_fs = false;
             if !::std::path::Path::new(&$dir).as_os_str().is_empty() {
                 if let Ok(absolute) = $crate::util::resolve_absolute_dir($dir) {
-                    __r = __r.nest_service($path, $crate::web::ServeDir::new(absolute));
+                    __r = __r.nest_service($path, $crate::web::serve_dir(absolute));
                     served_from_fs = true;
                 }
             }
@@ -321,7 +403,7 @@ macro_rules! serve_static_files {
             )
             .entered();
             match $crate::util::resolve_absolute_dir($dir) {
-                Ok(absolute) => $router.nest_service($path, $crate::web::ServeDir::new(absolute)),
+                Ok(absolute) => $router.nest_service($path, $crate::web::serve_dir(absolute)),
                 Err(e) => {
                     $crate::trace::warn!(
                         "Static dir not found or invalid for route `{}`: {} ({e})",
