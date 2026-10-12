@@ -79,7 +79,7 @@ impl ActionBag {
 /// # Ejemplo
 ///
 /// ```rust,no_run
-/// use pagetop::locale::Lc;
+/// use pagetop::prelude::*;
 /// use pagetop_admin::action::{DeclareAdminSections, SectionBag};
 /// use pagetop_admin::registry::AdminSection;
 ///
@@ -191,7 +191,7 @@ impl DeclareAdminPages {
 /// # Ejemplo
 ///
 /// ```rust,no_run
-/// use pagetop::locale::Lc;
+/// use pagetop::prelude::*;
 /// use pagetop_admin::action::{DeclareAdminTasks, TaskBag};
 /// use pagetop_admin::registry::AdminTask;
 ///
@@ -244,7 +244,7 @@ impl DeclareAdminTasks {
 /// # Ejemplo
 ///
 /// ```rust,no_run
-/// use pagetop::locale::Lc;
+/// use pagetop::prelude::*;
 /// use pagetop_admin::action::{DeclareAdminActions, ActionBag};
 /// use pagetop_admin::registry::AdminAction;
 ///

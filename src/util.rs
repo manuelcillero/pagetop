@@ -59,7 +59,7 @@ pub enum NormalizeAsciiError {
 /// # Ejemplo
 ///
 /// ```rust
-/// # use pagetop::util;
+/// # use pagetop::prelude::*;
 /// assert_eq!(util::non_blank("  hello  "), Some("hello"));
 /// assert_eq!(util::non_blank("   "), None);
 /// assert_eq!(util::non_blank(""), None);
@@ -94,7 +94,7 @@ pub fn non_blank(s: &str) -> Option<&str> {
 /// # Ejemplo
 ///
 /// ```rust
-/// # use pagetop::util;
+/// # use pagetop::prelude::*;
 /// assert_eq!(
 ///     util::normalize_ascii_non_blank("  Foo\tBAR  CLi\r\n").unwrap().as_ref(),
 ///     "foo bar cli"
@@ -185,7 +185,7 @@ pub fn normalize_ascii_non_blank(input: &str) -> Result<Cow<'_, str>, NormalizeA
 /// # Ejemplo
 ///
 /// ```rust
-/// # use pagetop::util;
+/// # use pagetop::prelude::*;
 /// assert_eq!(
 ///     util::normalize_ascii("  Foo\tBAR  CLi\r\n").unwrap().as_ref(),
 ///     "foo bar cli"
@@ -219,7 +219,7 @@ pub fn normalize_ascii(input: &str) -> Option<Cow<'_, str>> {
 /// # Ejemplo
 ///
 /// ```rust
-/// # use pagetop::util;
+/// # use pagetop::prelude::*;
 /// assert_eq!(util::normalize_property("  Flex-Basis  "), Some("flex-basis".to_string()));
 /// assert_eq!(util::normalize_property("   "), None);
 /// ```
@@ -241,7 +241,7 @@ pub fn normalize_property(property: impl AsRef<str>) -> Option<String> {
 /// # Ejemplo
 ///
 /// ```rust
-/// # use pagetop::util;
+/// # use pagetop::prelude::*;
 /// assert_eq!(util::normalize_token("  My Id  "), Some("my_id".to_string()));
 /// assert_eq!(util::normalize_token("AÑO\tNuevo"), Some("año_nuevo".to_string()));
 /// assert_eq!(util::normalize_token("a   b"), Some("a___b".to_string()));
@@ -270,7 +270,7 @@ pub fn normalize_token(s: impl AsRef<str>) -> Option<String> {
 /// # Ejemplo
 ///
 /// ```rust
-/// # use pagetop::util;
+/// # use pagetop::prelude::*;
 /// assert!(util::url_looks_external("https://example.com"));
 /// assert!(util::url_looks_external("mailto:info@example.com"));
 /// assert!(util::url_looks_external("HTTPS://EXAMPLE.COM"));

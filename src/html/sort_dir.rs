@@ -25,8 +25,7 @@ impl SortDir {
     /// reconocido) se interpreta como [`Asc`](Self::Asc).
     ///
     /// ```rust
-    /// use pagetop::html::SortDir;
-    ///
+    /// # use pagetop::prelude::*;
     /// assert_eq!(SortDir::from_query(Some("desc")), SortDir::Desc);
     /// assert_eq!(SortDir::from_query(Some("asc")), SortDir::Asc);
     /// assert_eq!(SortDir::from_query(Some("")), SortDir::Asc);
@@ -44,8 +43,7 @@ impl SortDir {
     /// (`"asc"`/`"desc"`).
     ///
     /// ```rust
-    /// use pagetop::html::SortDir;
-    ///
+    /// # use pagetop::prelude::*;
     /// assert_eq!(SortDir::Asc.as_str(), "asc");
     /// assert_eq!(SortDir::Desc.as_str(), "desc");
     /// ```
@@ -60,8 +58,7 @@ impl SortDir {
     /// Devuelve la dirección contraria a esta.
     ///
     /// ```rust
-    /// use pagetop::html::SortDir;
-    ///
+    /// # use pagetop::prelude::*;
     /// assert_eq!(SortDir::Asc.toggled(), SortDir::Desc);
     /// assert_eq!(SortDir::Desc.toggled(), SortDir::Asc);
     /// ```
@@ -81,8 +78,7 @@ impl SortDir {
     /// [`Asc`](Self::Asc), sea cual sea la dirección vigente del listado en conjunto.
     ///
     /// ```rust
-    /// use pagetop::html::SortDir;
-    ///
+    /// # use pagetop::prelude::*;
     /// // Otro campo determina el orden vigente: el próximo clic aquí empieza en ascendente.
     /// assert_eq!(SortDir::next_for(None), SortDir::Asc);
     ///
@@ -104,8 +100,7 @@ impl SortDir {
 /// equivalente `alter_param()`, sin tener que escribir `.as_str()` a mano.
 ///
 /// ```rust
-/// use pagetop::html::SortDir;
-///
+/// # use pagetop::prelude::*;
 /// assert_eq!(SortDir::Asc.as_ref(), "asc");
 /// assert_eq!(SortDir::Desc.as_ref(), "desc");
 /// ```
@@ -120,8 +115,7 @@ impl AsRef<str> for SortDir {
 /// escribir `as_str().to_owned()` a mano.
 ///
 /// ```rust
-/// use pagetop::html::SortDir;
-///
+/// # use pagetop::prelude::*;
 /// assert_eq!(String::from(SortDir::Asc), "asc");
 /// assert_eq!(String::from(SortDir::Desc), "desc");
 /// ```

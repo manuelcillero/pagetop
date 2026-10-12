@@ -10,10 +10,9 @@ use crate::prelude::*;
 /// sería necesario llamar a [`Column::new()`] de forma explícita.
 ///
 /// ```rust
-/// use pagetop::locale::Lc;
-/// use pagetop::base::component::table::Column;
+/// use pagetop::prelude::*;
 ///
-/// let column: Column = Lc::n("User").into();
+/// let column: table::Column = Lc::n("User").into();
 /// assert_eq!(column.label().get(), Some("User".to_string()));
 /// assert!(column.sort().is_none());
 /// ```

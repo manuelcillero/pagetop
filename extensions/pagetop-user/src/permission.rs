@@ -25,8 +25,7 @@ use crate::LOCALES_USER;
 /// # Ejemplo
 ///
 /// ```rust,no_run
-/// # use pagetop::auth::Permission;
-/// # use pagetop::CowStr;
+/// # use pagetop::prelude::*;
 /// # use pagetop_user::permission::{DeclarePermissions, PermissionRegistry};
 /// #[derive(Clone, Copy, Debug)]
 /// enum MyPermission {
