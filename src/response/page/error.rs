@@ -131,13 +131,24 @@ pub(crate) async fn route_not_found(request: HttpRequest) -> Result<Markup, Erro
 
 // Intercepta respuestas con un [`ErrorPage`] pendiente y las convierte en páginas HTML.
 //
+// La página renderizada sustituye a la respuesta original, pero conserva las cabeceras que le hayan
+// añadido el handler o el middleware (p. ej. una cookie de sesión renovada), salvo las que
+// describen el cuerpo sustituido (`Content-*`) y las que ya fija la propia página.
+//
 // Se registra globalmente sobre el router principal desde [`Application`](crate::Application).
 pub(crate) async fn render_error_pages(request: Request, next: Next) -> Response {
     let mut response = next.run(request).await;
-    if let Some(error_page) = response.extensions_mut().remove::<ErrorPage>() {
-        return error_page.render_html().await;
+    let Some(error_page) = response.extensions_mut().remove::<ErrorPage>() else {
+        return response;
+    };
+    let mut rendered = error_page.render_html().await;
+    let own: Vec<http::HeaderName> = rendered.headers().keys().cloned().collect();
+    for (name, value) in response.headers() {
+        if !name.as_str().starts_with("content-") && !own.contains(name) {
+            rendered.headers_mut().append(name, value.clone());
+        }
     }
-    response
+    rendered
 }
 
 // **< Fallo catastrófico >*************************************************************************

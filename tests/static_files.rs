@@ -6,6 +6,20 @@ const ASSET: &str = "/pagetop/css/basic.min.css";
 // Header added by the global middleware of the test extension.
 const MARK: &str = "x-global-middleware";
 
+// Paths seen by the global middleware, to check whether it ran independently of what ends up in
+// the response headers.
+static SEEN_PATHS: std::sync::Mutex<Vec<String>> = std::sync::Mutex::new(Vec::new());
+
+// Whether the global middleware has seen `path`. The lock is released before the caller asserts,
+// so that a failing test does not poison it for the rest of the tests running in parallel.
+fn middleware_saw(path: &str) -> bool {
+    SEEN_PATHS
+        .lock()
+        .unwrap_or_else(std::sync::PoisonError::into_inner)
+        .iter()
+        .any(|seen| seen == path)
+}
+
 // `EXTENSIONS` is a global `OnceLock`: all tests in this file share the same root extension.
 struct MarkingExtension;
 
@@ -21,10 +35,21 @@ impl Extension for MarkingExtension {
 }
 
 async fn mark_response(request: web::Request, next: web::middleware::Next) -> Response {
+    SEEN_PATHS
+        .lock()
+        .unwrap_or_else(std::sync::PoisonError::into_inner)
+        .push(request.uri().path().to_owned());
     let mut response = next.run(request).await;
-    response
-        .headers_mut()
-        .insert(MARK, web::http::HeaderValue::from_static("1"));
+    let headers = response.headers_mut();
+    headers.insert(MARK, web::http::HeaderValue::from_static("1"));
+    headers.append(
+        web::http::header::SET_COOKIE,
+        web::http::HeaderValue::from_static("a=1"),
+    );
+    headers.append(
+        web::http::header::SET_COOKIE,
+        web::http::HeaderValue::from_static("b=2"),
+    );
     response
 }
 
@@ -45,10 +70,37 @@ async fn routes_go_through_global_middleware() {
 }
 
 #[pagetop::test]
+async fn unknown_routes_go_through_global_middleware() {
+    // The 404 page must see what the middleware adds to the request (e.g. the current user).
+    let resp = get("/does-not-exist", None).await;
+    assert_eq!(resp.status(), web::http::StatusCode::NOT_FOUND);
+    assert!(middleware_saw("/does-not-exist"));
+}
+
+#[pagetop::test]
+async fn error_pages_keep_headers_added_by_middleware() {
+    // The rendered 404 page replaces the response, but keeps the middleware headers.
+    let resp = get("/does-not-exist", None).await;
+    let headers = resp.headers();
+    assert_eq!(resp.status(), web::http::StatusCode::NOT_FOUND);
+    assert!(headers.contains_key(MARK));
+    assert_eq!(
+        headers
+            .get_all(web::http::header::SET_COOKIE)
+            .iter()
+            .count(),
+        2
+    );
+    let content_type = headers.get(web::http::header::CONTENT_TYPE).unwrap();
+    assert!(content_type.to_str().unwrap().starts_with("text/html"));
+}
+
+#[pagetop::test]
 async fn static_files_skip_global_middleware() {
     let resp = get(ASSET, None).await;
     assert_eq!(resp.status(), web::http::StatusCode::OK);
     assert!(!resp.headers().contains_key(MARK));
+    assert!(!middleware_saw(ASSET));
 }
 
 #[pagetop::test]
