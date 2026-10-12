@@ -15,6 +15,8 @@ impl MigrationTrait for Migration {
                     .col(integer(Sessions::UserId))
                     // Datos de sesión en JSON (flash messages, etc.)
                     .col(text(Sessions::Data).default("{}"))
+                    // Iniciada con "recordarme": determina el tiempo de inactividad permitido.
+                    .col(boolean(Sessions::Remember).default(false))
                     .col(timestamp_null(Sessions::LastActivityAt))
                     .col(timestamp(Sessions::ExpiresAt).default(Expr::current_timestamp()))
                     .col(timestamp(Sessions::CreatedAt).default(Expr::current_timestamp()))
@@ -65,6 +67,7 @@ pub enum Sessions {
     Sid,
     UserId,
     Data,
+    Remember,
     LastActivityAt,
     ExpiresAt,
     CreatedAt,

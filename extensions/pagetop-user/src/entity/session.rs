@@ -7,6 +7,7 @@ pub struct Model {
     pub sid: String,
     pub user_id: i32,
     pub data: String,
+    pub remember: bool,
     pub last_activity_at: Option<DateTimeUtc>,
     pub expires_at: DateTimeUtc,
     pub created_at: DateTimeUtc,

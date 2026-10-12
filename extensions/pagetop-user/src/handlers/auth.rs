@@ -117,7 +117,7 @@ pub async fn login_post(
 pub async fn logout_post(request: HttpRequest) -> Response {
     let cx = Context::new(request.clone());
     if let Some(sid) = session::extract_sid(Some(request.headers())) {
-        auth::logout(&sid).await.ok();
+        auth::logout(sid).await.ok();
     }
     let expiry = session::expiry_cookie();
     if request.is_htmx() {

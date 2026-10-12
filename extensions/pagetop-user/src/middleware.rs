@@ -15,18 +15,37 @@ use crate::session;
 ///
 /// - Siempre inserta [`pagetop::auth::CurrentUser`] (anónimo o autenticado).
 /// - Si hay sesión activa, inserta también el [`Account`] con roles y permisos.
+/// - Si se ha prorrogado una sesión iniciada con "recordarme", renueva su cookie en la respuesta.
 pub(crate) async fn session_middleware(
     mut req: web::Request,
     next: web::middleware::Next,
 ) -> Response {
-    let (current_user, maybe_account) = session::resolve_session(req.headers()).await;
+    let (current_user, maybe_account, renewed_cookie) =
+        session::resolve_session(req.headers()).await;
 
     req.extensions_mut().insert(current_user);
     if let Some(account) = maybe_account {
         req.extensions_mut().insert(account);
     }
 
-    next.run(req).await
+    let mut response = next.run(req).await;
+
+    // No se pisa una cookie que ya fije el handler (p. ej. la de expiración al cerrar sesión).
+    if let Some(cookie) = renewed_cookie
+        && !response
+            .headers()
+            .contains_key(web::http::header::SET_COOKIE)
+    {
+        match web::http::HeaderValue::try_from(cookie) {
+            Ok(value) => {
+                response
+                    .headers_mut()
+                    .insert(web::http::header::SET_COOKIE, value);
+            }
+            Err(_) => trace::warn!("session: invalid renewed cookie, header discarded"),
+        }
+    }
+    response
 }
 
 // **< check_rbac_permission >**********************************************************************

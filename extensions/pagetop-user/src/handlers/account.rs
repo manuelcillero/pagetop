@@ -342,10 +342,7 @@ pub(crate) async fn password_post(
 
     let sid = session::extract_sid(Some(request.headers()));
     let result = match password::passwords_match(&form.password, &form.confirm_password) {
-        Ok(()) => {
-            auth::change_own_password(id, &form.current_password, &form.password, sid.as_deref())
-                .await
-        }
+        Ok(()) => auth::change_own_password(id, &form.current_password, &form.password, sid).await,
         Err(err) => Err(err),
     };
 
