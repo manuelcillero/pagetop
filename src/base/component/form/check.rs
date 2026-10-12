@@ -81,8 +81,8 @@ impl Item {
 /// si el usuario marca "Technology" y "Science", `interests=tech&interests=science`) y ninguna si
 /// no marca ninguna. El servidor no necesita conocer de antemano qué opciones existían, lo que hace
 /// de `Field` la opción adecuada también para listas de opciones dinámicas (por ejemplo, cargadas
-/// de una base de datos). `axum::extract::Form` (basado en `serde_urlencoded`) no deserializa
-/// claves repetidas en un `Vec<T>`; hace falta un extractor que sí lo haga, como [`serde_qs`]:
+/// de una base de datos). [`web::Form`] (basado en `serde_urlencoded`) no deserializa claves
+/// repetidas en un `Vec<T>`; hace falta un extractor que sí lo haga, como [`serde_qs`]:
 ///
 /// ```rust,ignore
 /// #[derive(serde::Deserialize)]

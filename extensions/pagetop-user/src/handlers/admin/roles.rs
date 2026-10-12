@@ -539,8 +539,8 @@ pub(crate) struct RolePermissionsFormData {
 
 /// POST /admin/user/roles/{id}/permissions - Reemplaza el conjunto de permisos de un rol.
 ///
-/// Usa `RawForm` + `serde_qs` en lugar de `axum::extract::Form` (basado en `serde_urlencoded`, que
-/// no deserializa claves repetidas como `permission_keys=a&permission_keys=b` en un `Vec<T>`).
+/// Usa `web::RawForm` + `serde_qs` en lugar de `web::Form` (basado en `serde_urlencoded`, que no
+/// deserializa claves repetidas como `permission_keys=a&permission_keys=b` en un `Vec<T>`).
 pub(crate) async fn permissions_post(
     request: HttpRequest,
     web::Path(id): web::Path<i32>,

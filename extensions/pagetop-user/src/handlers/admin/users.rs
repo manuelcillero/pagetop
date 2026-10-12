@@ -208,8 +208,8 @@ pub(crate) struct NewUserFormData {
 
 /// POST /admin/user/users/new - Crea un usuario.
 ///
-/// Usa `RawForm` + `serde_qs` en lugar de `axum::extract::Form` (basado en `serde_urlencoded`,
-/// que no deserializa claves repetidas como `role_ids=2&role_ids=3` en un `Vec<T>`).
+/// Usa `web::RawForm` + `serde_qs` en lugar de `web::Form` (basado en `serde_urlencoded`, que no
+/// deserializa claves repetidas como `role_ids=2&role_ids=3` en un `Vec<T>`).
 pub(crate) async fn new_post(
     request: HttpRequest,
     web::Query(waypoint): web::Query<Waypoint>,
