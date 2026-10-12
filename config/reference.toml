@@ -10,9 +10,10 @@
 #   3. config/local.{rm}.toml     -> ajustes locales del modo de ejecución (no se versiona).
 #   4. config/local.toml          -> ajustes locales para cualquier entorno (no se versiona).
 #
-# Donde {rm} es el valor de la variable de entorno PAGETOP_RUN_MODE ("default" si no se define).
-# El directorio config/ puede cambiarse con la variable de entorno CONFIG_DIR. No hay más
-# variables de entorno: el resto de opciones sólo se leen de estos ficheros.
+# Donde {rm} es el valor de la variable de entorno PAGETOP_RUN_MODE ("default" si no se define o
+# está vacía). El directorio config/ puede cambiarse con la variable de entorno CONFIG_DIR (vacía
+# equivale a no definirla). No hay más variables de entorno: el resto de opciones sólo se leen de
+# estos ficheros.
 #
 # Las opciones comentadas no tienen valor por defecto; se muestran con un valor de ejemplo.
 #
@@ -117,15 +118,6 @@ allow_registration         = true   # Permite que los visitantes creen su propia
 require_email_verification = false  # Las cuentas nuevas quedan pendientes ("Pending") en lugar
                                     # de activas hasta verificar el correo.
 
-session_cookie_name   = "pgt_session" # Nombre de la cookie de sesión.
-session_ttl_secs      = 1209600     # Duración de la sesión en segundos si se marca "recordarme"
-                                    # al acceder (14 días).
-session_idle_ttl_secs = 7200        # Duración de la sesión en segundos sin "recordarme" (2
-                                    # horas). Se cuenta desde el acceso, no desde la última
-                                    # actividad.
-secure_cookie         = false       # Marca la cookie como Secure (sólo HTTPS). Activar en
-                                    # producción.
-
 max_failed_logins        = 5        # Intentos fallidos de acceso antes de bloquear la cuenta.
 failed_login_window_secs = 900      # Ventana de recuento de intentos fallidos (15 minutos).
                                     # Reservada: todavía no tiene efecto.
@@ -133,6 +125,22 @@ locked_for_secs          = 600      # Duración del bloqueo de la cuenta en segu
 
 login_strict = false                # Dificulta que el navegador recuerde o autorrellene las
                                     # credenciales en el formulario de acceso.
+
+[user.session]                      # Sesiones de usuario.
+cookie_name         = "pagetop"     # Nombre de la cookie de sesión.
+secure_cookie       = false         # Marca la cookie como Secure (sólo HTTPS). Activar en
+                                    # producción.
+idle_secs           = 7200          # Segundos sin uso tras los que caduca la sesión si no se marca
+                                    # "recordarme" al acceder (2 horas). Se cuentan desde la última
+                                    # petición.
+remember_idle_secs  = 1209600       # Segundos sin uso tras los que caduca la sesión si se marca
+                                    # "recordarme" al acceder (14 días). Se cuentan igual.
+write_interval_secs = 60            # Segundos mínimos entre dos escrituras de la misma sesión en la
+                                    # base de datos para prorrogarla. La sesión puede caducar hasta
+                                    # este tiempo antes de lo configurado. Subirlo (p. ej. 180)
+                                    # reduce escrituras con mucho tráfico o una base de datos lenta;
+                                    # bajarlo (o 0, escribir siempre) da más precisión si las
+                                    # sesiones caducan tras pocos minutos sin uso.
 
 [user.password]                     # Contraseñas, cifradas con Argon2id.
 argon2_m_cost = 19456               # Coste de memoria en KiB. Si cambia, las contraseñas se

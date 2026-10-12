@@ -1,4 +1,4 @@
-use crate::{AutoDefault, trace};
+use crate::{AutoDefault, config};
 
 use serde::{Deserialize, Deserializer};
 
@@ -34,7 +34,7 @@ impl<'de> Deserialize<'de> for LogFormat {
             "full" => Self::Full,
             "compact" => Self::Compact,
             "pretty" => Self::Pretty,
-            _ => trace::warn_invalid_setting("[log].format", &raw, Self::default()),
+            _ => config::invalid_setting("[log].format", &raw, Self::default()),
         };
         Ok(result)
     }

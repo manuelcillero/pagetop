@@ -1,17 +1,26 @@
 //! Carga las opciones de configuración de la aplicación.
 //!
 //! Estos ajustes se obtienen de archivos [TOML](https://toml.io) como pares `clave = valor` que se
-//! mapean a estructuras **fuertemente tipadas** y valores predefinidos.
+//! deserializan en estructuras **fuertemente tipadas**, con valores por defecto para las claves que
+//! no se definan.
 //!
-//! Siguiendo la metodología [Twelve-Factor App](https://12factor.net/config), PageTop separa el
-//! **código** de la **configuración**, lo que permite tener configuraciones diferentes para cada
-//! despliegue, como *dev*, *staging* o *production*, sin modificar el código fuente.
+//! Separar la configuración del código permite que cada despliegue (*dev*, *staging*, *production*,
+//! etc.) tenga su propia configuración sin recompilar. Los ajustes sólo se leen de archivos; las
+//! variables de entorno no los sobrescriben, únicamente eligen qué archivos cargar (`CONFIG_DIR` y
+//! `PAGETOP_RUN_MODE`, cuyo valor queda además en `app.run_mode`).
 //!
 //! # Orden de carga
 //!
 //! Si tu aplicación necesita archivos de configuración, crea un directorio `config` en la raíz del
-//! proyecto, al mismo nivel que el archivo *Cargo.toml* o que el binario de la aplicación. Puedes
-//! cambiar esta ubicación mediante la variable de entorno `CONFIG_DIR`.
+//! proyecto, al mismo nivel que el archivo *Cargo.toml*. Puedes cambiar esta ubicación mediante la
+//! variable de entorno `CONFIG_DIR` (vacía equivale a no definirla); si no apunta a un directorio
+//! existente, se avisa al arrancar.
+//!
+//! Una ruta relativa, como la predeterminada, se resuelve respecto al directorio del proyecto si
+//! está definida la variable de entorno `CARGO_MANIFEST_DIR` (*cargo* la define al ejecutar con
+//! `cargo run` o `cargo test`) o, en su defecto, respecto al directorio de trabajo actual. Al
+//! ejecutar el binario, lánzalo desde el directorio que contiene `config` o define `CONFIG_DIR` con
+//! una ruta absoluta.
 //!
 //! PageTop carga en este orden, y siempre de forma opcional, los siguientes archivos TOML:
 //!
@@ -20,8 +29,11 @@
 //!
 //! 2. **config/{rm}.toml**, donde `{rm}` es el valor de la variable de entorno `PAGETOP_RUN_MODE`:
 //!
-//!    * Si `PAGETOP_RUN_MODE` no está definida, se asume el valor `default`, y PageTop intentará
-//!      cargar *config/default.toml* si el archivo existe.
+//!    * Si `PAGETOP_RUN_MODE` no está definida, o está vacía, se asume el valor `default`, y
+//!      PageTop intentará cargar *config/default.toml* si el archivo existe.
+//!
+//!    * Si se activa la *feature* `testing`, el modo de ejecución es siempre `test` y se ignora
+//!      `PAGETOP_RUN_MODE`.
 //!
 //!    * Permite definir configuraciones específicas por entorno, garantizando que cada uno (p. ej.,
 //!      *dev*, *staging* o *production*) disponga de sus propias opciones, como claves de API, URLs
@@ -39,8 +51,8 @@
 //! 4. **config/local.toml**, para ajustes locales válidos en cualquier entorno, ideal para cambios
 //!    rápidos o valores temporales que no dependan de un entorno concreto.
 //!
-//! Los archivos se combinan en el orden anterior, cada archivo sobrescribe a los anteriores en caso
-//! de conflicto.
+//! Los archivos se combinan clave a clave en el orden anterior. Cada archivo sobrescribe a los
+//! anteriores sólo en las claves que define.
 //!
 //! # Cómo añadir opciones de configuración a tu código
 //!
@@ -85,8 +97,16 @@
 //! Se recomienda proporcionar siempre valores por defecto o usar `Option<T>` para los ajustes
 //! opcionales.
 //!
-//! Si la configuración no se inicializa correctamente, la aplicación lanzará *panic* y detendrá la
-//! ejecución.
+//! Los valores por defecto se declaran **sólo** en [`include_config!`](crate::include_config).
+//!
+//! Las estructuras de configuración no necesitan implementar `Default` (ni derivar `AutoDefault`).
+//! La deserialización nunca lo usa, y declararlo duplicaría los valores en un segundo sitio que
+//! puede quedar desincronizado sin que nada lo detecte.
+//!
+//! Los ajustes se cargan la primera vez que se accede a la variable generada. Si no pueden cargarse
+//! (un archivo TOML mal formado, una clave obligatoria sin valor o un valor de tipo incorrecto),
+//! ese primer acceso lanza *panic*: si ocurre al arrancar, detiene la aplicación; si ocurre dentro
+//! de una petición, ésta responde con un error y cada acceso posterior vuelve a fallar.
 //!
 //! Las estructuras de configuración son de **sólo lectura** durante la ejecución.
 //!
@@ -111,12 +131,13 @@
 //! }
 //! ```
 
-use crate::util;
+use crate::{trace, util};
 
 use config::builder::DefaultState;
 use config::{Config, ConfigBuilder, File};
 
 use std::env;
+use std::fmt;
 use std::path::PathBuf;
 use std::sync::LazyLock;
 
@@ -126,19 +147,41 @@ const DEFAULT_CONFIG_DIR: &str = "config";
 // Modo de ejecución por defecto.
 const DEFAULT_RUN_MODE: &str = "default";
 
-/// Valores originales de los archivos de configuración como pares `clave = valor`.
+/// Fuentes comunes de la configuración.
+///
+/// Se obtienen de los archivos TOML en el orden de carga y el modo de ejecución (`app.run_mode`).
+///
+/// Es la base sobre la que [`include_config!`](crate::include_config) aplica sus valores por
+/// defecto antes de deserializar. Los archivos se leen cada vez que se construye la configuración.
 pub static CONFIG_VALUES: LazyLock<ConfigBuilder<DefaultState>> = LazyLock::new(|| {
-    // CONFIG_DIR (si existe) o DEFAULT_CONFIG_DIR. Si no se puede resolver, se usa tal cual.
-    let dir = env::var_os("CONFIG_DIR").unwrap_or_else(|| DEFAULT_CONFIG_DIR.into());
-    let config_dir = util::resolve_absolute_dir(&dir).unwrap_or_else(|_| PathBuf::from(&dir));
+    // CONFIG_DIR (si existe) o DEFAULT_CONFIG_DIR. Si no se puede resolver, se usa tal cual. Sólo
+    // se avisa si CONFIG_DIR está definida: que falte el directorio predeterminado es normal en una
+    // aplicación sin configuración propia, pero un CONFIG_DIR erróneo podría dejar la aplicación
+    // sólo con los valores por defecto sin que nada lo indicara.
+    let custom_dir = env::var_os("CONFIG_DIR").filter(|dir| !dir.is_empty());
+    let warn_if_unresolved = custom_dir.is_some();
+    let dir = custom_dir.unwrap_or_else(|| DEFAULT_CONFIG_DIR.into());
+    let config_dir = util::resolve_absolute_dir(&dir).unwrap_or_else(|err| {
+        let dir = PathBuf::from(&dir);
+        if warn_if_unresolved {
+            trace::defer_warning(format!(
+                "CONFIG_DIR \"{}\" cannot be resolved ({err}), using it as given. Check settings",
+                dir.display()
+            ));
+        }
+        dir
+    });
 
     // Modo de ejecución. Con la *feature* `testing` activa (usada por `cargo ts` y `cargo tw`), se
     // fija en "test" en tiempo de compilación, sin manipular el entorno. En caso contrario se lee
-    // de PAGETOP_RUN_MODE, o se usa DEFAULT_RUN_MODE si la variable no está definida.
+    // de PAGETOP_RUN_MODE, o se usa DEFAULT_RUN_MODE si la variable no está definida o está vacía.
     let rm = if cfg!(feature = "testing") {
         "test".to_string()
     } else {
-        env::var("PAGETOP_RUN_MODE").unwrap_or_else(|_| DEFAULT_RUN_MODE.into())
+        env::var("PAGETOP_RUN_MODE")
+            .ok()
+            .filter(|rm| !rm.is_empty())
+            .unwrap_or_else(|| DEFAULT_RUN_MODE.into())
     };
 
     Config::builder()
@@ -155,13 +198,25 @@ pub static CONFIG_VALUES: LazyLock<ConfigBuilder<DefaultState>> = LazyLock::new(
         .expect("Failed to set application run mode")
 });
 
+// Guarda el aviso de un valor no válido para la opción `key` y devuelve `default`, el valor que se
+// usa en su lugar. Lo usan las opciones enumeradas de la configuración al leerse.
+pub(crate) fn invalid_setting<T: fmt::Debug>(key: &str, raw: &str, default: T) -> T {
+    trace::defer_warning(format!(
+        "Invalid value \"{raw}\" for {key}, using \"{default:?}\". Check settings"
+    ));
+    default
+}
+
 // **< include_config! >****************************************************************************
 
-/// Incluye los ajustes necesarios de la configuración anticipando valores por defecto.
+/// Declara una variable global con los ajustes de configuración.
+///
+/// Incluye los ajustes necesarios de la configuración, aplicando valores por defecto a las claves
+/// que no definan los archivos TOML.
 ///
 /// # Sintaxis
 ///
-/// Hay que añadir en nuestra librería el siguiente código:
+/// Se declara en el código de la extensión o de la aplicación así:
 ///
 /// ```rust,ignore
 /// include_config!(SETTINGS_NAME: SettingsType => [
@@ -177,7 +232,9 @@ pub static CONFIG_VALUES: LazyLock<ConfigBuilder<DefaultState>> = LazyLock::new(
 /// * **`SettingsType`** es la estructura que define los tipos para deserializar la configuración.
 ///   Debe implementar `Deserialize` (derivable con `#[derive(Deserialize)]`).
 /// * **Lista de pares** con las claves TOML que requieran valores por defecto. Siguen la notación
-///   `"seccion.subclave"` para coincidir con el árbol TOML.
+///   del árbol TOML, con un punto por nivel (`"blog.title"`, `"blog.comments.enabled"`...). La
+///   lista se muestra además en la documentación generada de la variable, con todos los valores
+///   por defecto de un vistazo.
 ///
 /// # Ejemplo básico
 ///
@@ -200,7 +257,7 @@ pub static CONFIG_VALUES: LazyLock<ConfigBuilder<DefaultState>> = LazyLock::new(
 /// pub struct Blog {
 ///     pub title: String,
 ///     pub description: Option<String>,
-///     pub port:  u16,
+///     pub port: u16,
 /// }
 ///
 /// fn print_title() {
@@ -212,21 +269,26 @@ pub static CONFIG_VALUES: LazyLock<ConfigBuilder<DefaultState>> = LazyLock::new(
 /// # Buenas prácticas
 ///
 /// * **Valores por defecto**. Declara un valor por defecto para cada clave obligatoria. Las claves
-///   opcionales pueden ser `Option<T>`.
+///   opcionales pueden ser `Option<T>`. Los valores de esta lista se aplican con `set_default()`
+///   antes de deserializar, y sólo en las claves que no defina ningún TOML, así que las estructuras
+///   de ajustes no necesitan implementar `Default` ni derivar `AutoDefault`. Si falta una clave
+///   obligatoria en los TOML y en la lista, la deserialización falla.
 ///
 /// * **Secciones únicas**. Agrupa tus claves dentro de una sección exclusiva (p. ej. `[blog]`) para
-///   evitar colisiones con otras librerías.
+///   evitar colisiones con otras extensiones.
 ///
 /// * **Sólo lectura**. La variable generada es inmutable durante toda la vida del programa. Para
-///   configurar distintos entornos (*dev*, *staging*, *prod*) usa los archivos TOML descritos en la
-///   documentación de [`config`](crate::config).
+///   configurar distintos entornos (*dev*, *staging*, *production*) usa los archivos TOML descritos
+///   en la documentación de [`config`](crate::config).
 ///
-/// * **Errores explícitos**. Si la deserialización falla, la macro lanzará un `panic!` con un
-///   mensaje que indica la estructura problemática, facilitando la depuración.
+/// * **Errores explícitos**. Si la configuración no puede cargarse, el primer acceso a la variable
+///   lanza un `panic!` con un mensaje que nombra la estructura de ajustes y el error de origen
+///   (normalmente la clave problemática).
 ///
 /// # Requisitos
 ///
-/// * Las claves deben coincidir con los campos (*snake case*) de la estructura de ajustes.
+/// * Cada nivel de las claves debe coincidir con un campo (*snake case*) de la estructura de
+///   ajustes o de sus estructuras anidadas.
 /// * Añade `serde` con la *feature* `derive` en *Cargo.toml*:
 ///
 /// ```toml

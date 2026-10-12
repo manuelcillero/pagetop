@@ -22,24 +22,28 @@ pub use tracing::{debug_span, error_span, info_span, trace_span, warn_span};
 use tracing_appender::non_blocking::WorkerGuard;
 use tracing_subscriber::EnvFilter;
 
-use std::fmt;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Mutex, PoisonError};
 
 // Avisos generados antes de iniciar las trazas. La configuración se lee antes, porque las trazas
 // dependen de la sección `[log]`, así que sus avisos se guardan aquí y se emiten al iniciarlas.
-static DEFERRED_WARNINGS: Mutex<Vec<String>> = Mutex::new(Vec::new());
+// Vale `None` cuando `init()` ya los ha procesado.
+static DEFERRED_WARNINGS: Mutex<Option<Vec<String>>> = Mutex::new(Some(Vec::new()));
 
-// Guarda el aviso de un valor no válido para la opción `key` y devuelve `default`, el valor que se
-// usa en su lugar. Lo usan las opciones enumeradas de la configuración al leerse.
-pub(crate) fn warn_invalid_setting<T: fmt::Debug>(key: &str, raw: &str, default: T) -> T {
-    DEFERRED_WARNINGS
+// Guarda un aviso para emitirlo al iniciar las trazas. Sólo debe usarse antes de iniciarlas, lo que
+// basta para la configuración global, que `init()` lee antes de recoger los avisos. Usarla después
+// es un error de programación: se emite como `error!` con el aviso incluido, para que no se pierda.
+pub(crate) fn defer_warning(message: String) {
+    let mut deferred = DEFERRED_WARNINGS
         .lock()
-        .unwrap_or_else(PoisonError::into_inner)
-        .push(format!(
-            "Invalid value \"{raw}\" for {key}, using \"{default:?}\". Check settings"
-        ));
-    default
+        .unwrap_or_else(PoisonError::into_inner);
+    match deferred.as_mut() {
+        Some(warnings) => warnings.push(message),
+        None => {
+            drop(deferred);
+            error!("defer_warning() called after tracing started: {message}");
+        }
+    }
 }
 
 // Inicia las trazas y el registro de eventos de la aplicación, sólo la primera vez que se llama.
@@ -64,11 +68,11 @@ pub(crate) fn init() -> Option<WorkerGuard> {
 
     let enabled = global::SETTINGS.log.enabled && !cfg!(test) && !cfg!(feature = "testing");
     // Al leer `SETTINGS` en la línea anterior ya se han guardado los avisos de la configuración.
-    let mut warnings = std::mem::take(
-        &mut *DEFERRED_WARNINGS
-            .lock()
-            .unwrap_or_else(PoisonError::into_inner),
-    );
+    let mut warnings = DEFERRED_WARNINGS
+        .lock()
+        .unwrap_or_else(PoisonError::into_inner)
+        .take() // Deja `None`, desde ahora, `defer_warning()` trata cualquier aviso como mal uso.
+        .unwrap_or_default();
     if !enabled {
         // Tracing desactivado, se instala un subscriber nulo.
         tracing::subscriber::set_global_default(tracing::subscriber::NoSubscriber::default())

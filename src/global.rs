@@ -148,7 +148,7 @@ pub struct App {
     /// *"Starwars"*.
     pub startup_banner: StartupBanner,
     /// Modo de ejecución, dado por la variable de entorno `PAGETOP_RUN_MODE`, o *"default"* si no
-    /// está definido.
+    /// está definida o está vacía. Con la *feature* `testing` activa es siempre *"test"*.
     pub run_mode: String,
 }
 

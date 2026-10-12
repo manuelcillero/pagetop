@@ -1,4 +1,4 @@
-use crate::{AutoDefault, trace};
+use crate::{AutoDefault, config};
 
 use serde::{Deserialize, Deserializer};
 
@@ -40,7 +40,7 @@ impl<'de> Deserialize<'de> for TimezoneOrder {
             "nearest" => Self::Nearest,
             "alphabetical" => Self::Alphabetical,
             "listed" => Self::Listed,
-            _ => trace::warn_invalid_setting("[app].timezone_order", &raw, Self::default()),
+            _ => config::invalid_setting("[app].timezone_order", &raw, Self::default()),
         };
         Ok(result)
     }

@@ -1,4 +1,4 @@
-use crate::{AutoDefault, trace};
+use crate::{AutoDefault, config};
 
 use serde::{Deserialize, Deserializer};
 
@@ -33,7 +33,7 @@ impl<'de> Deserialize<'de> for StartupBanner {
             "small" => Self::Small,
             "speed" => Self::Speed,
             "starwars" => Self::Starwars,
-            _ => trace::warn_invalid_setting("[app].startup_banner", &raw, Self::default()),
+            _ => config::invalid_setting("[app].startup_banner", &raw, Self::default()),
         };
         Ok(result)
     }

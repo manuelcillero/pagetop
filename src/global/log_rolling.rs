@@ -1,4 +1,4 @@
-use crate::{AutoDefault, trace};
+use crate::{AutoDefault, config};
 
 use serde::{Deserialize, Deserializer};
 
@@ -35,7 +35,7 @@ impl<'de> Deserialize<'de> for LogRolling {
             "hourly" => Self::Hourly,
             "minutely" => Self::Minutely,
             "endless" => Self::Endless,
-            _ => trace::warn_invalid_setting("[log].rolling", &raw, Self::default()),
+            _ => config::invalid_setting("[log].rolling", &raw, Self::default()),
         };
         Ok(result)
     }
