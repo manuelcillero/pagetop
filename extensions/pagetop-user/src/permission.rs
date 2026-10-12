@@ -72,7 +72,7 @@ impl ActionDispatcher for DeclarePermissions {}
 /// estructuras adicionales. La UI de administración no usa ese orden de registro. Llama a
 /// [`groups_sorted()`](Self::groups_sorted), que lo reordena alfabéticamente para cada petición
 /// según el idioma activo.
-#[derive(Default)]
+#[derive(AutoDefault)]
 pub struct PermissionRegistry {
     permissions: Vec<PermissionRef>,
     /// `(identificador de grupo, título traducible)`, en orden de primer registro.

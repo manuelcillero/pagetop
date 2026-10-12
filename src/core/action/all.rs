@@ -1,5 +1,5 @@
-use crate::UniqueId;
 use crate::core::action::{ActionBox, ActionDispatcher, ActionReferer, ActionsList};
+use crate::{AutoDefault, UniqueId};
 
 use std::collections::HashMap;
 use std::hash::{BuildHasherDefault, Hasher};
@@ -28,7 +28,7 @@ struct Slot {
 
 // Acciones de un tipo para un tipo de referente: las generales y, aparte, las filtradas por
 // identificador. Es de sólo lectura y se obtiene ya construida del registro, sin bloqueos.
-#[derive(Default)]
+#[derive(AutoDefault)]
 pub(crate) struct ActionEntry {
     general: ActionsList,
     by_id: HashMap<String, ActionsList>,
@@ -92,7 +92,7 @@ pub(crate) fn publish_actions(collect: impl FnOnce() -> Vec<ActionBox>) {
 
 // Función de *hash* rápida para claves formadas por `TypeId` (multiplicación y rotación, como
 // FxHash). No es apta para claves controladas por un atacante; aquí las claves son tipos.
-#[derive(Default)]
+#[derive(AutoDefault)]
 struct FastHasher(u64);
 
 impl FastHasher {

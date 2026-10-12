@@ -37,7 +37,7 @@ impl UserStatus {
 // **< PermissionSet >******************************************************************************
 
 /// Conjunto de permisos resuelto para un usuario concreto.
-#[derive(Clone, Debug, Default)]
+#[derive(AutoDefault, Clone, Debug)]
 pub struct PermissionSet(HashSet<String>);
 
 impl PermissionSet {

@@ -14,7 +14,7 @@ use crate::permission;
 
 // **< listado >************************************************************************************
 
-#[derive(Clone, Copy, Debug, Default, PartialEq)]
+#[derive(AutoDefault, Clone, Copy, Debug, PartialEq)]
 pub(crate) enum RoleSortField {
     #[default]
     Weight,

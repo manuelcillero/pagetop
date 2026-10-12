@@ -18,7 +18,7 @@ use crate::session;
 
 // **< listado >************************************************************************************
 
-#[derive(Clone, Copy, Debug, Default, PartialEq)]
+#[derive(AutoDefault, Clone, Copy, Debug, PartialEq)]
 pub(crate) enum UserSortField {
     #[default]
     Username,
