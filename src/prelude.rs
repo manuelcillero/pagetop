@@ -6,7 +6,7 @@ pub use crate::PAGETOP_VERSION;
 
 pub use crate::{async_trait, builder_fn, builder_impl, html, main, settings, test};
 
-pub use crate::{AutoDefault, CowStr, Getters, StaticResources, UniqueId, Weight};
+pub use crate::{AutoDefault, BoxError, CowStr, Getters, StaticResources, UniqueId, Weight};
 
 // MACROS.
 

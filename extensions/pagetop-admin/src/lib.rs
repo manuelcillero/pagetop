@@ -158,13 +158,14 @@ impl Extension for Admin {
         actions![action::DeclareAdminSections::new(seed::declare_default_sections).with_weight(-99),]
     }
 
-    async fn initialize(&self) {
-        install_migrations!(m20260629_000001_create_settings);
+    async fn initialize(&self) -> Result<(), BoxError> {
+        install_migrations!(m20260629_000001_create_settings)?;
         registry::build();
 
         // Región neutra del core: cualquier tema puede decidir renderizarla (o no) sin que
         // `pagetop-admin` dependa de ninguno en concreto (ver `CoreRegions::Aside`).
         InRegion::Global(&CoreRegions::Aside).add(component::AdminMenu::new());
+        Ok(())
     }
 
     fn configure_router(&self, router: Router) -> Router {

@@ -7,7 +7,7 @@ use crate::datetime::Timezone;
 use crate::locale::Locale;
 use crate::response::{render_error_pages, response_for_panic, route_not_found};
 use crate::web::Router;
-use crate::{PAGETOP_VERSION, global, trace};
+use crate::{BoxError, PAGETOP_VERSION, global, trace};
 
 use tower_http::catch_panic::CatchPanicLayer;
 use tracing_appender::non_blocking::WorkerGuard;
@@ -54,9 +54,13 @@ impl Application {
     /// que no dependen de ninguna otra, luego las que dependen de extensiones ya habilitadas, y así
     /// hasta habilitar la extensión raíz.
     ///
-    /// Es `async` porque cada extensión puede realizar operaciones asíncronas en su
-    /// [`initialize()`](crate::core::extension::Extension::initialize) (conexión a base de datos,
-    /// migraciones, semillas de datos...).
+    /// Es `async` porque cada extensión puede realizar operaciones asíncronas en su `initialize()`
+    /// (conexión a base de datos, migraciones, semillas de datos, etc.).
+    ///
+    /// Si alguna extensión devuelve un error al inicializarse, detiene el arranque y termina el
+    /// proceso con el código de salida `1` (ver [`Extension::initialize()`]).
+    ///
+    /// [`Extension::initialize()`]: crate::core::extension::Extension::initialize
     pub async fn prepare(root_extension: ExtensionRef) -> Self {
         Self::internal_prepare(Some(root_extension)).await
     }
@@ -87,10 +91,36 @@ impl Application {
         // Registra las acciones de las extensiones.
         extension::all::register_actions();
 
-        // Inicializa las extensiones.
-        extension::all::initialize_extensions().await;
+        // Inicializa las extensiones. Si alguna falla, detiene aquí el arranque.
+        if let Err((name, err)) = extension::all::initialize_extensions().await {
+            Self::abort_startup(tracing, name, err);
+        }
 
         Self { tracing }
+    }
+
+    // Detiene el arranque cuando una extensión falla al inicializarse. Escribe el error, con todas
+    // sus causas, en las trazas y en la salida de errores, que es lo único que ve quien arranca la
+    // aplicación si las trazas se escriben en archivos. Vuelca las trazas antes de terminar,
+    // porque `process::exit()` no ejecuta los destructores.
+    //
+    // Muchos errores terminan ya con el texto de su causa (p. ej. los de SeaORM), así que se omite
+    // cada causa con la que ya termina el mensaje.
+    fn abort_startup(tracing: Option<WorkerGuard>, name: &str, err: BoxError) -> ! {
+        let mut message = format!("Extension \"{name}\" failed to initialize: {err}");
+        let mut source = err.source();
+        while let Some(cause) = source {
+            let cause_text = cause.to_string();
+            if !message.ends_with(&cause_text) {
+                message.push_str(": ");
+                message.push_str(&cause_text);
+            }
+            source = cause.source();
+        }
+        trace::error!("{message}");
+        drop(tracing);
+        eprintln!("{message}");
+        std::process::exit(1);
     }
 
     // Muestra la cabecera de arranque si está habilitada en la configuración.

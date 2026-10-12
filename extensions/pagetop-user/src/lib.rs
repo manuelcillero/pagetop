@@ -239,7 +239,7 @@ impl Extension for User {
         ]
     }
 
-    async fn initialize(&self) {
+    async fn initialize(&self) -> Result<(), BoxError> {
         install_migrations!(
             m20260629_000001_create_users,
             m20260629_000002_create_roles,
@@ -247,11 +247,12 @@ impl Extension for User {
             m20260629_000004_create_role_permissions,
             m20260629_000005_create_sessions,
             m20260629_000006_create_user_tokens,
-        );
+        )?;
         permission::build_registry();
         auth::seed_initial_data().await;
         #[cfg(feature = "demo-data")]
         demo::seed_demo_data().await;
+        Ok(())
     }
 
     fn configure_router(&self, router: Router) -> Router {

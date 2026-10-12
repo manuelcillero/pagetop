@@ -24,5 +24,6 @@ pagetop.workspace = true
 sea-orm.workspace = true
 sea-schema.workspace = true
 serde.workspace = true
+thiserror.workspace = true
 tokio.workspace = true
 url.workspace = true

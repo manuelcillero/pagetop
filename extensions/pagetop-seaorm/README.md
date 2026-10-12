@@ -78,8 +78,9 @@ impl Extension for MyApp {
         ]
     }
 
-    async fn initialize(&self) {
-        install_migrations!(m20240101_000001_create_users);
+    async fn initialize(&self) -> Result<(), BoxError> {
+        install_migrations!(m20240101_000001_create_users)?;
+        Ok(())
     }
 }
 

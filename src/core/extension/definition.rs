@@ -1,3 +1,4 @@
+use crate::BoxError;
 use crate::actions;
 use crate::async_trait;
 use crate::config::LoadSettings;
@@ -119,16 +120,20 @@ pub trait Extension: AnyInfo + Send + Sync {
 
     /// Inicializa la extensión durante la fase de arranque de la aplicación.
     ///
-    /// La firma extendida que se muestra es el resultado de aplicar la macro
-    /// [`pagetop::async_trait`](pagetop::async_trait) a la declaración del método:
+    /// La firma extendida que muestra este método es el resultado de aplicar la macro
+    /// [`pagetop::async_trait`] a la declaración:
     ///
     /// ```text
-    /// async fn initialize(&self) {}
+    /// async fn initialize(&self) -> Result<(), BoxError> { Ok(()) }
     /// ```
     ///
     /// Solo es necesario sobrescribir este método **cuando la extensión necesita ejecutar alguna
-    /// lógica de inicialización**. PageTop lo invoca una sola vez, después de que todas las
-    /// dependencias se han inicializado y antes de aceptar cualquier petición HTTP.
+    /// lógica de inicialización**. PageTop lo invoca después de que todas las dependencias se han
+    /// inicializado y antes de aceptar cualquier petición HTTP.
+    ///
+    /// Si devuelve un error, el arranque se detiene: PageTop lo registra en las trazas junto con
+    /// sus causas, lo muestra en la salida de errores y termina el proceso con el código de salida
+    /// `1`. El tipo [`BoxError`] permite propagar con `?` cualquier tipo de error.
     ///
     /// ```rust,no_run
     /// use pagetop::prelude::*;
@@ -137,12 +142,18 @@ pub trait Extension: AnyInfo + Send + Sync {
     ///
     /// #[async_trait]
     /// impl Extension for MyExtension {
-    ///     async fn initialize(&self) {
+    ///     async fn initialize(&self) -> Result<(), BoxError> {
     ///         // lógica de inicialización...
+    ///         Ok(())
     ///     }
     /// }
     /// ```
-    async fn initialize(&self) {}
+    ///
+    /// [`pagetop::async_trait`]: pagetop::async_trait
+    /// [`BoxError`]: crate::BoxError
+    async fn initialize(&self) -> Result<(), BoxError> {
+        Ok(())
+    }
 
     /// Devuelve los ajustes de configuración de la extensión, para cargarlos en el arranque de la
     /// aplicación.

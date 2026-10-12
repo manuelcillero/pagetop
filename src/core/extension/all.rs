@@ -3,7 +3,7 @@ use crate::core::extension::ExtensionRef;
 use crate::core::theme::ThemeRef;
 use crate::core::theme::all::register_theme;
 use crate::web::Router;
-use crate::{config, global, serve_static_files, trace, web};
+use crate::{BoxError, config, global, serve_static_files, trace, web};
 
 use std::sync::OnceLock;
 
@@ -131,11 +131,15 @@ pub fn load_settings() {
 
 // **< INICIALIZA LAS EXTENSIONES >*****************************************************************
 
-pub async fn initialize_extensions() {
+/// Inicializa las extensiones en el orden en que se registraron.
+///
+/// Se detiene en la primera que falle y devuelve su nombre corto junto con el error.
+pub async fn initialize_extensions() -> Result<(), (&'static str, BoxError)> {
     trace::info!("Calling application bootstrap");
     for e in EXTENSIONS.get().into_iter().flatten() {
-        e.initialize().await;
+        e.initialize().await.map_err(|err| (e.short_name(), err))?;
     }
+    Ok(())
 }
 
 // **< CONFIGURA LAS RUTAS >************************************************************************

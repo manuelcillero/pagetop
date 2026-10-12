@@ -13,7 +13,7 @@ impl Extension for NavbarDemo {
         ]
     }
 
-    async fn initialize(&self) {
+    async fn initialize(&self) -> Result<(), BoxError> {
         let brand = Brand::new()
             .with_image(image::Source::logo(PageTopSvg::Color))
             .with_title(Lc::n("PageTop"))
@@ -46,6 +46,7 @@ impl Extension for NavbarDemo {
         let navbar = Navbar::brand_left(brand).with_item(navbar::Item::nav(main_nav));
 
         InRegion::Global(&CoreRegions::Header).add(navbar);
+        Ok(())
     }
 }
 

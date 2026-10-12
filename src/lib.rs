@@ -170,6 +170,12 @@ impl Deref for StaticResources {
     }
 }
 
+/// Alias para un error cualquiera, `Box<dyn std::error::Error + Send + Sync>`.
+///
+/// Lo devuelve [`Extension::initialize()`](crate::core::extension::Extension::initialize) para que
+/// cada extensión pueda propagar con `?` sus propios tipos de error sin convertirlos.
+pub type BoxError = Box<dyn std::error::Error + Send + Sync>;
+
 /// Alias para `Cow<'static, str>`.
 ///
 /// Es un puntero inteligente con semántica *copy-on-write* para cadenas. Permite reutilizar

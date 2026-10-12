@@ -79,8 +79,9 @@ impl Extension for MyApp {
         ]
     }
 
-    async fn initialize(&self) {
-        install_migrations!(m20240101_000001_create_users);
+    async fn initialize(&self) -> Result<(), BoxError> {
+        install_migrations!(m20240101_000001_create_users)?;
+        Ok(())
     }
 }
 
@@ -176,7 +177,7 @@ use pagetop::prelude::*;
 
 include_locales!(LOCALES_SEAORM);
 
-use sea_orm::{ConnectOptions, Database, DatabaseConnection};
+use sea_orm::{ConnectOptions, Database, DatabaseConnection, DbErr};
 use url::Url;
 
 use std::sync::OnceLock;
@@ -188,6 +189,30 @@ pub mod db;
 pub mod migration;
 
 static DBCONN: OnceLock<DatabaseConnection> = OnceLock::new();
+
+/// Errores que detienen el arranque de la aplicación al conectar con la base de datos o al aplicar
+/// las migraciones.
+#[derive(Debug, thiserror::Error)]
+pub enum DbError {
+    /// No se ha configurado el motor de base de datos (`database.db_type`).
+    #[error("database.db_type is not configured: use \"mysql\", \"postgres\" or \"sqlite\"")]
+    TypeNotConfigured,
+    /// No se puede construir la URL de conexión con los ajustes de la sección `[database]`.
+    #[error("invalid database URL: check db_host and db_name in config")]
+    InvalidUrl,
+    /// No se puede conectar con la base de datos.
+    #[error("cannot connect to database \"{name}\"")]
+    Connection {
+        /// Nombre de la base de datos (`database.db_name`).
+        name: String,
+        /// Error devuelto al conectar.
+        #[source]
+        source: DbErr,
+    },
+    /// Una migración, o su reversión, ha fallado.
+    #[error("migration failed")]
+    Migration(#[source] DbErr),
+}
 
 /// Implementa la extensión.
 pub struct SeaORM;
@@ -206,57 +231,60 @@ impl Extension for SeaORM {
         Some(&config::SETTINGS)
     }
 
-    async fn initialize(&self) {
-        trace::info!(
-            "Connecting to database \"{}\" using a pool of {} connections",
-            &config::SETTINGS.db_name,
-            &config::SETTINGS.max_pool_size
-        );
-
-        let db_uri: String = match config::SETTINGS.db_type {
-            config::DbType::Unset => panic!(
-                "database.db_type is not configured: use \"mysql\", \"postgres\" or \"sqlite\""
-            ),
-            config::DbType::Mysql | config::DbType::Postgres => {
-                let scheme = if matches!(config::SETTINGS.db_type, config::DbType::Mysql) {
-                    "mysql"
-                } else {
-                    "postgres"
-                };
-                let mut tmp_uri = Url::parse(&format!(
-                    "{}://{}/{}",
-                    scheme,
-                    &config::SETTINGS.db_host,
-                    &config::SETTINGS.db_name
-                ))
-                .expect("Invalid database URL: check db_host and db_name in config");
-                tmp_uri
-                    .set_username(config::SETTINGS.db_user.as_str())
-                    .expect("Failed to set db_user in connection URL");
-                tmp_uri
-                    // https://github.com/launchbadge/sqlx/issues/1624
-                    .set_password(Some(config::SETTINGS.db_pass.as_str()))
-                    .expect("Failed to set db_pass in connection URL");
-                if let Some(port) = config::SETTINGS.db_port {
-                    tmp_uri
-                        .set_port(Some(port))
-                        .expect("Failed to set db_port in connection URL");
-                }
-                tmp_uri.to_string()
-            }
-            config::DbType::Sqlite => {
-                format!("sqlite://{}", &config::SETTINGS.db_name)
-            }
-        };
-
-        let conn = Database::connect::<ConnectOptions>({
-            let mut db_opt = ConnectOptions::new(db_uri);
-            db_opt.max_connections(config::SETTINGS.max_pool_size);
-            db_opt
-        })
-        .await
-        .expect("Failed to connect to database");
-
-        DBCONN.set(conn).expect("DBCONN already initialized");
+    async fn initialize(&self) -> Result<(), BoxError> {
+        // Preparar la aplicación varias veces en el mismo proceso (las pruebas lo hacen) reutiliza
+        // la conexión ya abierta.
+        if DBCONN.get().is_none() {
+            let conn = connect().await?;
+            // Si otra preparación simultánea se adelanta, se queda la suya y se descarta ésta.
+            let _ = DBCONN.set(conn);
+        }
+        Ok(())
     }
+}
+
+// Abre el pool de conexiones con los ajustes de la sección `[database]`.
+async fn connect() -> Result<DatabaseConnection, DbError> {
+    let settings = &*config::SETTINGS;
+    let db_uri: String = match settings.db_type {
+        config::DbType::Unset => return Err(DbError::TypeNotConfigured),
+        config::DbType::Mysql | config::DbType::Postgres => {
+            let scheme = if matches!(settings.db_type, config::DbType::Mysql) {
+                "mysql"
+            } else {
+                "postgres"
+            };
+            let mut uri = Url::parse(&format!(
+                "{}://{}/{}",
+                scheme, settings.db_host, settings.db_name
+            ))
+            .map_err(|_| DbError::InvalidUrl)?;
+            // Sin servidor en la URL (p. ej. con `db_host` vacío) no se pueden fijar el usuario,
+            // la contraseña ni el puerto.
+            uri.set_username(&settings.db_user)
+                .map_err(|()| DbError::InvalidUrl)?;
+            // https://github.com/launchbadge/sqlx/issues/1624
+            uri.set_password(Some(&settings.db_pass))
+                .map_err(|()| DbError::InvalidUrl)?;
+            if let Some(port) = settings.db_port {
+                uri.set_port(Some(port)).map_err(|()| DbError::InvalidUrl)?;
+            }
+            uri.to_string()
+        }
+        config::DbType::Sqlite => format!("sqlite://{}", settings.db_name),
+    };
+
+    trace::info!(
+        "Connecting to database \"{}\" using a pool of {} connections",
+        settings.db_name,
+        settings.max_pool_size
+    );
+    let mut options = ConnectOptions::new(db_uri);
+    options.max_connections(settings.max_pool_size);
+    Database::connect(options)
+        .await
+        .map_err(|source| DbError::Connection {
+            name: settings.db_name.clone(),
+            source,
+        })
 }

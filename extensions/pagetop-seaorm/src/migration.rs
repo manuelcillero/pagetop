@@ -162,6 +162,8 @@ pub use sea_orm::sea_query::*;
 
 use pagetop::core::TypeInfo;
 
+use crate::DbError;
+
 impl<M: MigrationTrait> MigrationName for M {
     fn name(&self) -> &str {
         // Extrae el módulo contenedor, descartando el segmento final "Migration".
@@ -181,30 +183,27 @@ pub type MigrationItem = Box<dyn MigrationTrait>;
 pub trait MigratorBase {
     /// Ejecuta las migraciones pendientes en orden ascendente.
     ///
-    /// Provoca un `panic!` si alguna migración falla, evitando que la aplicación arranque con un
-    /// esquema de base de datos inconsistente.
-    async fn run_up();
+    /// Devuelve [`DbError::Migration`] si alguna migración falla. Propagado desde
+    /// [`Extension::initialize()`](pagetop::core::extension::Extension::initialize), detiene el
+    /// arranque y evita que la aplicación funcione con un esquema de base de datos inconsistente.
+    async fn run_up() -> Result<(), DbError>;
 
     /// Revierte todas las migraciones en orden descendente.
     ///
-    /// Provoca un `panic!` si alguna reversión falla.
-    async fn run_down();
+    /// Devuelve [`DbError::Migration`] si alguna reversión falla.
+    async fn run_down() -> Result<(), DbError>;
 }
 
 #[pagetop::async_trait]
 impl<M: MigratorTrait> MigratorBase for M {
-    async fn run_up() {
+    async fn run_up() -> Result<(), DbError> {
         let conn = SchemaManagerConnection::Connection(super::db::dbconn());
-        if let Err(e) = Self::up(conn, None).await {
-            panic!("Migration upgrade failed: {e}");
-        }
+        Self::up(conn, None).await.map_err(DbError::Migration)
     }
 
-    async fn run_down() {
+    async fn run_down() -> Result<(), DbError> {
         let conn = SchemaManagerConnection::Connection(super::db::dbconn());
-        if let Err(e) = Self::down(conn, None).await {
-            panic!("Migration downgrade failed: {e}");
-        }
+        Self::down(conn, None).await.map_err(DbError::Migration)
     }
 }
 
@@ -213,6 +212,9 @@ impl<M: MigratorTrait> MigratorBase for M {
 /// Recibe uno o más nombres de módulo de migración y ejecuta el método `up` de los que aún no estén
 /// registrados en la tabla `seaql_migrations`. Se invoca habitualmente desde
 /// [`Extension::initialize`](pagetop::core::extension::Extension::initialize).
+///
+/// Devuelve `Result<(), DbError>`: con `?`, una migración que falla ([`DbError::Migration`])
+/// detiene el arranque de la aplicación.
 ///
 /// **Requisito:** cada módulo de migración debe declararse como submódulo público bajo un módulo
 /// `migration` accesible desde el punto de llamada, y exportar `pub struct Migration` que
@@ -231,11 +233,12 @@ impl<M: MigratorTrait> MigratorBase for M {
 ///
 /// #[async_trait]
 /// impl Extension for MyExt {
-///     async fn initialize(&self) {
+///     async fn initialize(&self) -> Result<(), BoxError> {
 ///         install_migrations!(
 ///             m20240101_000001_create_users,
 ///             m20240115_000002_add_email_index,
-///         );
+///         )?;
+///         Ok(())
 ///     }
 /// }
 /// ```
@@ -254,31 +257,31 @@ macro_rules! install_migrations {
                 m
             }
         }
-        Migrator::run_up().await;
+        Migrator::run_up().await
     }};
 }
 
 /// Revierte las migraciones de una extensión en orden inverso al de su aplicación.
 ///
-/// Ejecuta el método `down` de cada migración indicada. Si el método `down` de alguna migración
-/// devuelve un error, provoca un `panic!`. Complementario a
-/// [`install_migrations!`](crate::install_migrations).
+/// Ejecuta el método `down` de cada migración indicada y devuelve `Result<(), DbError>`. Si el
+/// método `down` de alguna migración devuelve un error, devuelve [`DbError::Migration`].
+/// Complementario a [`install_migrations!`](crate::install_migrations).
 ///
 /// **Requisito:** los módulos de migración deben declararse como en
 /// [`install_migrations!`](crate::install_migrations). Todos los módulos indicados **deben
-/// implementar `down`**; la implementación por defecto devuelve error, lo que provoca un pánico en
-/// `run_down`.
+/// implementar `down`**; la implementación por defecto devuelve un error.
 ///
 /// En `src/lib.rs`:
 /// ```rust,ignore
-/// #[async_trait]
-/// impl Extension for MyExt {
-///     async fn uninitialize(&self) {
-///         uninstall_migrations!(
-///             m20240101_000001_create_users,
-///             m20240115_000002_add_email_index,
-///         );
-///     }
+/// use pagetop_seaorm::DbError;
+///
+/// mod migration;
+///
+/// async fn reset_schema() -> Result<(), DbError> {
+///     uninstall_migrations!(
+///         m20240101_000001_create_users,
+///         m20240115_000002_add_email_index,
+///     )
 /// }
 /// ```
 #[macro_export]
@@ -296,6 +299,6 @@ macro_rules! uninstall_migrations {
                 m
             }
         }
-        Migrator::run_down().await;
+        Migrator::run_down().await
     }};
 }

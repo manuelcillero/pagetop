@@ -1898,6 +1898,7 @@ dependencies = [
  "sea-orm",
  "sea-schema",
  "serde",
+ "thiserror",
  "tokio",
  "url",
 ]

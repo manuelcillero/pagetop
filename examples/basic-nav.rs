@@ -8,7 +8,7 @@ impl Extension for NavDemo {
         vec![&pagetop::base::extension::Welcome]
     }
 
-    async fn initialize(&self) {
+    async fn initialize(&self) -> Result<(), BoxError> {
         let main_nav = Nav::new()
             .with_item(nav::Item::link(Lc::n("Home"), "/"))
             .with_item(nav::Item::link_blank(
@@ -37,6 +37,7 @@ impl Extension for NavDemo {
 
         InRegion::Global(&CoreRegions::Header).add(main_nav);
         InRegion::Global(&CoreRegions::Aside).add(user_menu);
+        Ok(())
     }
 }
 
