@@ -180,6 +180,11 @@ impl Context {
     // **< Context RENDER >*************************************************************************
 
     /// Renderiza los recursos del contexto.
+    ///
+    /// Si no se ha definido ningún [`Favicon`], declara un icono vacío para evitar que el navegador
+    /// pida `/favicon.ico` en cada página, una ruta que normalmente no existe y que respondería con
+    /// una página de error completa. Con el icono vacío no hace ninguna petición y muestra su icono
+    /// genérico.
     pub fn render_assets(&mut self) -> Markup {
         use std::mem::take as mem_take;
 
@@ -193,6 +198,8 @@ impl Context {
         let markup = html! {
             @if let Some(fi) = &favicon {
                 (fi.render(self))
+            } @else {
+                link rel="icon" href="data:,";
             }
             // Primero los recursos para precarga para iniciar las descargas inmediatamente.
             (preloads.render(self))

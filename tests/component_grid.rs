@@ -202,7 +202,7 @@ async fn grid_without_display_adds_no_class_of_its_own() {
     let html = container.render(&mut cx).await.into_string();
 
     assert!(html.contains(r#"class="own""#));
-    assert!(cx.render_assets().into_string().is_empty());
+    assert!(cx.responsive_styles().is_empty());
 }
 
 #[pagetop::test]

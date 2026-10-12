@@ -7,7 +7,7 @@ async fn default_flex_item_adds_nothing() {
     let html = html! { span (props.unpack(&mut cx)) {} }.into_string();
 
     assert_eq!(html, "<span></span>");
-    assert!(cx.render_assets().into_string().is_empty());
+    assert!(cx.responsive_styles().is_empty());
 }
 
 #[pagetop::test]

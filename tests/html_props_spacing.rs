@@ -7,7 +7,7 @@ async fn default_margin_adds_nothing() {
     let html = html! { span (props.unpack(&mut cx)) {} }.into_string();
 
     assert_eq!(html, "<span></span>");
-    assert!(cx.render_assets().into_string().is_empty());
+    assert!(cx.responsive_styles().is_empty());
 }
 
 #[pagetop::test]
@@ -17,7 +17,7 @@ async fn default_padding_adds_nothing() {
     let html = html! { span (props.unpack(&mut cx)) {} }.into_string();
 
     assert_eq!(html, "<span></span>");
-    assert!(cx.render_assets().into_string().is_empty());
+    assert!(cx.responsive_styles().is_empty());
 }
 
 #[pagetop::test]
@@ -147,7 +147,7 @@ async fn padding_auto_is_ignored() {
     let html = html! { span (props.unpack(&mut cx)) {} }.into_string();
 
     assert_eq!(html, "<span></span>");
-    assert!(cx.render_assets().into_string().is_empty());
+    assert!(cx.responsive_styles().is_empty());
 }
 
 #[pagetop::test]

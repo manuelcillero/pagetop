@@ -15,6 +15,10 @@ use crate::{AutoDefault, CowStr};
 /// > Los archivos de los iconos deben estar disponibles en el servidor web de la aplicación. Pueden
 /// > servirse usando [`serve_static_files!`](crate::serve_static_files).
 ///
+/// Si una página no declara ningún *favicon*, PageTop declara un icono vacío para que el navegador
+/// no pida `/favicon.ico` en cada página. Por eso un icono servido en `/favicon.ico` no se muestra
+/// si no se declara con este tipo.
+///
 /// # Ejemplo
 ///
 /// ```rust,no_run

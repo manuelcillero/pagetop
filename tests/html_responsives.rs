@@ -485,14 +485,15 @@ async fn render_assets_includes_style_tag_with_responsive_styles() {
         "flex-basis",
         "100%",
     ));
+    let baseline = Context::default().render_assets().into_string();
     assert_eq!(
         cx.render_assets().into_string(),
-        "<style>.col{flex-basis:100%}</style>"
+        format!("{baseline}<style>.col{{flex-basis:100%}}</style>")
     );
 }
 
 #[pagetop::test]
 async fn render_assets_omits_style_tag_when_no_responsive_styles() {
     let mut cx = Context::default();
-    assert_eq!(cx.render_assets().into_string(), "");
+    assert!(!cx.render_assets().into_string().contains("<style"));
 }
