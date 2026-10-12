@@ -29,9 +29,7 @@ pub(crate) async fn render(
 async fn render_standard(cx: &mut Context) -> Markup {
     bs::Container::new()
         .with_prop(PropsOp::add_classes("container-wrapper"))
-        .with_width(bs::container::Width::FluidMax(
-            config::SETTINGS.bootsier.max_width,
-        ))
+        .with_width(bs::container::Width::FluidMax(config::SETTINGS.max_width))
         .with_child(layout::Region::header())
         .with_child(layout::Region::aside())
         .with_child(layout::Region::default())

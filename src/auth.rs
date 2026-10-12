@@ -156,7 +156,7 @@ impl CurrentUser {
     /// de ese momento el renderizado del documento no vuelve a llamarlo porque usa el valor ya
     /// resuelto vía [`Contextual::timezone()`].
     ///
-    /// [`global::SETTINGS.app.timezone_per_user`]: crate::global::App::timezone_per_user
+    /// [`global::SETTINGS.app.timezone_per_user`]: crate::global::AppSettings::timezone_per_user
     /// [`Context`]: crate::core::component::Context
     /// [`Contextual::timezone()`]: crate::core::component::Contextual::timezone
     pub fn timezone(&self) -> Tz {

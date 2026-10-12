@@ -53,7 +53,7 @@ use chrono::Offset;
 ///
 /// [`TimezoneOrder::Alphabetical`]: crate::global::TimezoneOrder::Alphabetical
 /// [`TimezoneOrder::Listed`]: crate::global::TimezoneOrder::Listed
-/// [`global::SETTINGS.app.timezone_per_user`]: crate::global::App::timezone_per_user
+/// [`global::SETTINGS.app.timezone_per_user`]: crate::global::AppSettings::timezone_per_user
 /// [`with_utc_offset(true)`]: Self::with_utc_offset
 /// [`with_required(true)`]: Self::with_required
 /// [`with_regions()`]: Self::with_regions
@@ -68,11 +68,11 @@ pub struct SelectTimezone {
     /// Devuelve si las etiquetas muestran el desfase actual respecto a UTC.
     utc_offset: bool,
     /// Devuelve las regiones que se ofrecen, junto a `Etc`, que se ofrece siempre; por defecto, las
-    /// de [`global::SETTINGS.app.timezone_regions`](crate::global::App::timezone_regions).
+    /// de [`global::SETTINGS.app.timezone_regions`](crate::global::AppSettings::timezone_regions).
     #[default(_code = "Timezone::configured_regions()")]
     regions: Vec<TzRegion>,
     /// Devuelve el orden de las regiones; por defecto, el de
-    /// [`global::SETTINGS.app.timezone_order`](crate::global::App::timezone_order).
+    /// [`global::SETTINGS.app.timezone_order`](crate::global::AppSettings::timezone_order).
     #[default(_code = "global::SETTINGS.app.timezone_order")]
     order: global::TimezoneOrder,
 }

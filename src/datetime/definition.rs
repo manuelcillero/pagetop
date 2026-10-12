@@ -252,7 +252,7 @@ fn regions_by(order: TimezoneOrder, list: &[TzRegion], site: Tz) -> Vec<&'static
 /// además las zonas horarias que se pueden elegir ([`supported_by_region()`],
 /// [`is_supported_in()`]).
 ///
-/// [`global::SETTINGS.app.timezone`]: crate::global::App::timezone
+/// [`global::SETTINGS.app.timezone`]: crate::global::AppSettings::timezone
 /// [`supported_by_region()`]: Self::supported_by_region
 /// [`is_supported_in()`]: Self::is_supported_in
 pub struct Timezone;
@@ -375,8 +375,8 @@ impl Timezone {
     /// assert!(!is_supported("US/Eastern"));
     /// ```
     ///
-    /// [`global::SETTINGS.app.timezone_order`]: crate::global::App::timezone_order
-    /// [`global::SETTINGS.app.timezone_regions`]: crate::global::App::timezone_regions
+    /// [`global::SETTINGS.app.timezone_order`]: crate::global::AppSettings::timezone_order
+    /// [`global::SETTINGS.app.timezone_regions`]: crate::global::AppSettings::timezone_regions
     /// [`form::SelectTimezone`]: crate::base::component::form::SelectTimezone
     pub fn supported_by_region() -> &'static [(TzRegion, &'static [&'static str])] {
         &TZ_BY_REGION

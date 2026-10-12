@@ -39,7 +39,7 @@
 //! [ISO 8601]: https://en.wikipedia.org/wiki/ISO_8601
 //! [chrono]: https://docs.rs/chrono
 //! [chrono-tz]: https://docs.rs/chrono-tz
-//! [`timezone_per_user`]: crate::global::App::timezone_per_user
+//! [`timezone_per_user`]: crate::global::AppSettings::timezone_per_user
 //! [`CurrentUser::timezone()`]: crate::auth::CurrentUser::timezone
 //! [`form::date::Field`]: crate::base::component::form::date::Field
 //! [`Contextual::format_datetime()`]: crate::core::component::Contextual::format_datetime

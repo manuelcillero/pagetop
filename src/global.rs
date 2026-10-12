@@ -1,8 +1,8 @@
-//! Opciones de configuración globales.
+//! Ajustes de configuración globales de PageTop.
 
-use crate::include_config;
+use crate::{config, settings};
 
-use serde::Deserialize;
+use std::sync::LazyLock;
 
 mod lang_negotiation;
 pub use lang_negotiation::LangNegotiation;
@@ -21,52 +21,47 @@ pub use log_format::LogFormat;
 
 // **< SETTINGS >***********************************************************************************
 
-include_config!(SETTINGS: Settings => [
-    // [app]
-    "app.name"               => "PageTop App",
-    "app.theme"              => "Basic",
-    "app.lang_negotiation"   => "Full",
-    "app.timezone"           => "UTC",
-    "app.timezone_regions"   => "",
-    "app.timezone_order"     => "Nearest",
-    "app.timezone_per_user"  => true,
-    "app.startup_banner"     => "Slant",
-
-    // [dev]
-    "dev.pagetop_static_dir" => "",
-
-    // [log]
-    "log.enabled"            => true,
-    "log.tracing"            => "Info",
-    "log.rolling"            => "Stdout",
-    "log.path"               => "log",
-    "log.prefix"             => "tracing.log",
-    "log.format"             => "Full",
-
-    // [server]
-    "server.bind_address"    => "localhost",
-    "server.bind_port"       => 8080,
-]);
+/// Ajustes de las secciones `[app]`, `[dev]`, `[log]` y `[server]`.
+///
+/// Se cargan al arrancar la aplicación, antes que los ajustes de las extensiones.
+pub static SETTINGS: LazyLock<Settings> = LazyLock::new(|| Settings {
+    app: config::load(),
+    dev: config::load(),
+    log: config::load(),
+    server: config::load(),
+});
 
 // **< Settings >***********************************************************************************
 
-/// Ajustes para las secciones globales [`App`], [`Dev`], [`Log`] y [`Server`] de [`SETTINGS`].
-#[derive(Debug, Deserialize)]
+/// Ajustes globales de [`SETTINGS`].
+///
+/// Secciones [`AppSettings`], [`DevSettings`], [`LogSettings`] y [`ServerSettings`].
+#[derive(Debug)]
 pub struct Settings {
-    pub app: App,
-    pub dev: Dev,
-    pub log: Log,
-    pub server: Server,
+    pub app: AppSettings,
+    pub dev: DevSettings,
+    pub log: LogSettings,
+    pub server: ServerSettings,
 }
 
+// Secciones de los ajustes globales, para reconocerlas en los archivos de configuración.
+pub(crate) const SECTIONS: [&str; 4] = [
+    <AppSettings as config::SettingsSection>::SECTION,
+    <DevSettings as config::SettingsSection>::SECTION,
+    <LogSettings as config::SettingsSection>::SECTION,
+    <ServerSettings as config::SettingsSection>::SECTION,
+];
+
 /// Sección **`[app]`** de la configuración. Forma parte de [`Settings`].
-#[derive(Debug, Deserialize)]
-pub struct App {
+#[settings(section = "app")]
+pub struct AppSettings {
     /// Nombre de la aplicación.
+    #[default = "PageTop App"]
     pub name: String,
     /// Tema predeterminado: *"Basic"* o el de una extensión enlazada por la aplicación, sin
     /// distinguir mayúsculas y minúsculas. Si no está habilitado se usa *"Basic"*, con un aviso al
     /// arrancar. Ver [`default_theme()`](crate::core::theme::default_theme).
+    #[default = "Basic"]
     pub theme: String,
     /// Idioma predeterminado de la aplicación (p. ej., *"es-ES"* o *"en-US"*).
     ///
@@ -84,6 +79,7 @@ pub struct App {
     ///
     /// Define las fuentes que intervienen en la negociación del idioma para el renderizado de los
     /// documentos y la generación de URLs. Ver [`LangNegotiation`] para los modos disponibles.
+    #[default(LangNegotiation::Full)]
     pub lang_negotiation: LangNegotiation,
     /// Zona horaria predeterminada de la aplicación (p. ej. *"UTC"* o *"Europe/Madrid"*).
     ///
@@ -133,6 +129,7 @@ pub struct App {
     /// `with_order()`.
     ///
     /// [`form::SelectTimezone`]: crate::base::component::form::SelectTimezone
+    #[default(TimezoneOrder::Nearest)]
     pub timezone_order: TimezoneOrder,
     /// Si cada usuario puede tener su propia zona horaria (*true*) o se usa siempre la de la
     /// aplicación (*false*).
@@ -143,9 +140,11 @@ pub struct App {
     /// a activar. Es el equivalente de [`LangNegotiation::ConfigOnly`] para el idioma.
     ///
     /// [`CurrentUser::timezone()`]: crate::auth::CurrentUser::timezone
+    #[default = true]
     pub timezone_per_user: bool,
     /// Banner ASCII mostrado al inicio: *"Off"* (desactivado), *"Slant"*, *"Small"*, *"Speed"* o
     /// *"Starwars"*.
+    #[default(StartupBanner::Slant)]
     pub startup_banner: StartupBanner,
     /// Modo de ejecución, dado por la variable de entorno `PAGETOP_RUN_MODE`, o *"default"* si no
     /// está definida o está vacía. Con la *feature* `testing` activa es siempre *"test"*.
@@ -153,44 +152,85 @@ pub struct App {
 }
 
 /// Sección **`[dev]`** de la configuración. Forma parte de [`Settings`].
-#[derive(Debug, Deserialize)]
-pub struct Dev {
+#[settings(section = "dev")]
+pub struct DevSettings {
     /// Directorio raíz de `static/` para servir los archivos estáticos propios de PageTop.
     ///
-    /// Si se indica una ruta válida, absoluta o relativa al directorio del proyecto o del binario
-    /// en ejecución, los archivos estáticos se servirán desde disco. Útil para poder modificar los
-    /// archivos estáticos mientras la aplicación está en ejecución, sin necesidad de recompilar.
+    /// Si se indica una ruta válida, absoluta o relativa al directorio del proyecto (o, al ejecutar
+    /// el binario, al directorio de trabajo actual), los archivos estáticos se servirán desde
+    /// disco. Útil para poder modificar los archivos estáticos mientras la aplicación está en
+    /// ejecución, sin necesidad de recompilar.
     ///
     /// Si la cadena está vacía, se ignora este ajuste.
     pub pagetop_static_dir: String,
 }
 
 /// Sección **`[log]`** de la configuración. Forma parte de [`Settings`].
-#[derive(Debug, Deserialize)]
-pub struct Log {
+#[settings(section = "log")]
+pub struct LogSettings {
     /// Gestión de trazas y registro de eventos activada (*true*) o desactivada (*false*).
+    #[default = true]
     pub enabled: bool,
     /// Opciones, o combinación de opciones separadas por comas, para filtrar las trazas: *"Error"*,
     /// *"Warn"*, *"Info"*, *"Debug"* o *"Trace"*.
     /// Ejemplo: *"Error,tower_http=Debug,axum::rejection=trace"*. Si no es válido se usa *"Info"*,
     /// con un aviso al arrancar.
+    #[default = "Info"]
     pub tracing: String,
     /// Muestra los mensajes de traza en el terminal (*"Stdout"*) o los vuelca en archivos con
     /// rotación: *"Daily"*, *"Hourly"*, *"Minutely"* o *"Endless"*.
+    #[default(LogRolling::Stdout)]
     pub rolling: LogRolling,
     /// Directorio para los archivos de traza (si [`rolling`](Self::rolling) ≠ *"Stdout"*).
+    #[default = "log"]
     pub path: String,
     /// Prefijo para los archivos de traza (si [`rolling`](Self::rolling) ≠ *"Stdout"*).
+    #[default = "tracing.log"]
     pub prefix: String,
     /// Formato de salida de las trazas. Opciones: *"Full"*, *"Compact"*, *"Pretty"* o *"Json"*.
+    #[default(LogFormat::Full)]
     pub format: LogFormat,
 }
 
 /// Sección **`[server]`** de la configuración. Forma parte de [`Settings`].
-#[derive(Debug, Deserialize)]
-pub struct Server {
+#[settings(section = "server")]
+pub struct ServerSettings {
     /// Dirección de enlace para el servidor web.
+    #[default = "localhost"]
     pub bind_address: String,
     /// Puerto de escucha del servidor web.
+    #[default = 8080]
     pub bind_port: u16,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{AppSettings, DevSettings, LogSettings, ServerSettings, config};
+
+    // `reference.toml` documents every option; with unknown keys rejected, loading it proves that
+    // it only documents keys that exist, with values of the right type.
+    const REFERENCE: &str = include_str!("../config/reference.toml");
+
+    #[test]
+    fn reference_toml_documents_only_existing_keys() {
+        config::load_from_str::<AppSettings>(REFERENCE).unwrap();
+        config::load_from_str::<DevSettings>(REFERENCE).unwrap();
+        config::load_from_str::<LogSettings>(REFERENCE).unwrap();
+        config::load_from_str::<ServerSettings>(REFERENCE).unwrap();
+    }
+
+    #[test]
+    fn enum_values_are_case_insensitive() {
+        let log = config::load_from_str::<LogSettings>("[log]\nrolling = \"daily\"\n").unwrap();
+        assert_eq!(log.rolling, super::LogRolling::Daily);
+    }
+
+    #[test]
+    fn invalid_enum_values_are_rejected() {
+        let error = config::load_from_str::<LogSettings>("[log]\nrolling = \"Daly\"\n")
+            .expect_err("invalid value accepted")
+            .to_string();
+        assert!(error.contains("Daly"));
+        assert!(error.contains("Daily"));
+    }
 }

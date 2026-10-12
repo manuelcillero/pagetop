@@ -36,6 +36,7 @@ cada proyecto PageTop.
 
 mod builder;
 mod maud;
+mod settings;
 mod smart_default;
 
 use proc_macro::TokenStream;
@@ -112,6 +113,49 @@ pub fn derive_auto_default(input: TokenStream) -> TokenStream {
         Ok(output) => output.into(),
         Err(error) => error.to_compile_error().into(),
     }
+}
+
+/// Macro (*attribute*) que convierte una estructura en ajustes de configuración.
+///
+/// Los valores por defecto se declaran en los propios campos, con `#[default = valor]` o
+/// `#[default(expresión)]`, igual que en [`AutoDefault`](macro@AutoDefault). Los campos sin valor
+/// por defecto toman el de su tipo (`None` en un `Option<T>`, o los de otra estructura de ajustes
+/// anidada).
+///
+/// La macro añade a la estructura:
+///
+/// - `#[derive(AutoDefault, Debug, Deserialize)]`, por lo que no hay que derivarlos de nuevo
+///   (hacerlo daría un error de implementación duplicada).
+/// - `#[serde(default, deny_unknown_fields)]`: las claves ausentes toman su valor por defecto y una
+///   clave desconocida (p. ej. una errata) es un error al cargar la configuración.
+/// - Una línea con el valor por defecto en la documentación de cada campo que lo declare.
+///
+/// Con `section = "nombre"` la estructura corresponde a esa sección del archivo de configuración y
+/// sus ajustes se declaran con `pagetop::config::LazySettings`. Sin ella, es una subsección que
+/// forma parte de otra estructura de ajustes.
+///
+/// # Ejemplo
+///
+/// ```rust,ignore
+/// #[settings(section = "blog")]
+/// pub struct BlogSettings {
+///     /// Título del blog.
+///     #[default = "Mi Blog"]
+///     pub title: String,
+///     /// Comentarios, en la subsección `[blog.comments]`.
+///     pub comments: CommentsSettings,
+/// }
+///
+/// #[settings]
+/// pub struct CommentsSettings {
+///     /// Si se admiten comentarios.
+///     #[default = true]
+///     pub enabled: bool,
+/// }
+/// ```
+#[proc_macro_attribute]
+pub fn settings(attr: TokenStream, item: TokenStream) -> TokenStream {
+    settings::expand(attr.into(), item.into()).into()
 }
 
 /// Macro (*attribute*) que asocia un método *builder* `with_` con un método `alter_`.

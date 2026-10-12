@@ -212,8 +212,9 @@ pub fn normalize_ascii(input: &str) -> Option<Cow<'_, str>> {
     }
 }
 
-/// Recorta espacios y pasa a minúsculas el nombre de una propiedad, tratando el resultado vacío
-/// como ausencia.
+/// Recorta espacios y pasa a minúsculas el nombre de una propiedad.
+///
+/// Si el resultado queda vacío, devuelve `None`.
 ///
 /// # Ejemplo
 ///

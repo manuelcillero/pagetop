@@ -23,7 +23,7 @@ use crate::prelude::*;
 /// ```
 ///
 /// [`with_route()`]: Self::with_route
-/// [`global::SETTINGS.app.name`]: crate::global::App::name
+/// [`global::SETTINGS.app.name`]: crate::global::AppSettings::name
 #[derive(AutoDefault, Clone, Debug, Getters)]
 pub struct Brand {
     /// Devuelve identificador, clases CSS, atributos HTML y valores extra del componente.

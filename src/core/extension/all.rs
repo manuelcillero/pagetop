@@ -3,7 +3,7 @@ use crate::core::extension::ExtensionRef;
 use crate::core::theme::ThemeRef;
 use crate::core::theme::all::register_theme;
 use crate::web::Router;
-use crate::{global, serve_static_files, trace, web};
+use crate::{config, global, serve_static_files, trace, web};
 
 use std::sync::OnceLock;
 
@@ -92,6 +92,41 @@ pub fn register_actions() {
             .flat_map(|extension| extension.actions())
             .collect()
     });
+}
+
+// **< CARGA LOS AJUSTES >**************************************************************************
+
+/// Carga los ajustes de configuración de todas las extensiones, en el orden en que se registraron.
+///
+/// Avisa además de las secciones de los archivos de configuración que no corresponden a PageTop ni
+/// a ninguna extensión, que suelen ser erratas.
+///
+/// # Panics
+///
+/// Si dos extensiones, o una extensión y PageTop, reclaman la misma sección: cada una la leería con
+/// su propia estructura de ajustes.
+pub fn load_settings() {
+    trace::info!("Loading settings for all extensions");
+    let mut known: Vec<&str> = global::SECTIONS.to_vec();
+    for settings in EXTENSIONS
+        .get()
+        .into_iter()
+        .flatten()
+        .filter_map(|e| e.settings())
+    {
+        let section = settings.section();
+        assert!(
+            !known.contains(&section),
+            "Settings section [{section}] is claimed by more than one extension"
+        );
+        settings.load();
+        known.push(section);
+    }
+    for section in config::sections() {
+        if !known.contains(&section.as_str()) {
+            trace::warn!("Unknown settings section [{section}], ignored. Check settings");
+        }
+    }
 }
 
 // **< INICIALIZA LAS EXTENSIONES >*****************************************************************

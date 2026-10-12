@@ -1,5 +1,6 @@
 use crate::actions;
 use crate::async_trait;
+use crate::config::LoadSettings;
 use crate::core::AnyInfo;
 use crate::core::action::ActionBox;
 use crate::core::theme::ThemeRef;
@@ -142,6 +143,38 @@ pub trait Extension: AnyInfo + Send + Sync {
     /// }
     /// ```
     async fn initialize(&self) {}
+
+    /// Devuelve los ajustes de configuración de la extensión, para cargarlos en el arranque de la
+    /// aplicación.
+    ///
+    /// Se cargan en el orden en que se registran las extensiones y antes de llamar a
+    /// [`initialize()`]. Así, un error de la configuración (como un valor no válido o una clave
+    /// desconocida) detiene el arranque. Cada extensión debe usar una sección propia: si dos
+    /// extensiones reclaman la misma, el arranque también se detiene. Ver [`pagetop::config`] para
+    /// saber cómo declarar los ajustes usando [`#[settings]`](crate::settings). La implementación
+    /// por defecto devuelve `None`.
+    ///
+    /// # Ejemplo
+    ///
+    /// ```rust,ignore
+    /// # use pagetop::prelude::*;
+    /// pub mod config;
+    ///
+    /// pub struct Blog;
+    ///
+    /// #[async_trait]
+    /// impl Extension for Blog {
+    ///     fn settings(&self) -> Option<&'static dyn LoadSettings> {
+    ///         Some(&config::SETTINGS)
+    ///     }
+    /// }
+    /// ```
+    ///
+    /// [`initialize()`]: Self::initialize
+    /// [`pagetop::config`]: crate::config
+    fn settings(&self) -> Option<&'static dyn LoadSettings> {
+        None
+    }
 
     /// Registra rutas, servicios y capas de la extensión en el servidor web de la aplicación.
     ///

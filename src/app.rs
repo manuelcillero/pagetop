@@ -78,6 +78,9 @@ impl Application {
         // Registra las extensiones de la aplicación.
         extension::all::register_extensions(root_extension);
 
+        // Carga los ajustes de las extensiones. Un error de configuración detiene aquí el arranque.
+        extension::all::load_settings();
+
         // Inicializa el tema predeterminado, que ya puede ser el de una extensión.
         theme::all::init_default_theme();
 

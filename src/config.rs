@@ -54,90 +54,86 @@
 //! Los archivos se combinan clave a clave en el orden anterior. Cada archivo sobrescribe a los
 //! anteriores sólo en las claves que define.
 //!
-//! # Cómo añadir opciones de configuración a tu código
+//! # Cómo declarar ajustes
 //!
-//! Añade [*serde*](https://docs.rs/serde) en tu archivo *Cargo.toml* con la *feature* `derive`:
+//! Cada extensión declara sus ajustes en una estructura con el atributo
+//! [`#[settings]`](crate::settings), que corresponde a una sección propia del archivo de
+//! configuración. Los valores por defecto se escriben en los propios campos con `#[default = ...]`,
+//! así que el compilador comprueba sus tipos, y la documentación de cada campo muestra el suyo.
 //!
-//! ```toml
-//! [dependencies]
-//! serde = { version = "1.0", features = ["derive"] }
-//! ```
-//!
-//! Y usa la macro [`include_config!`](crate::include_config) para inicializar tus ajustes en una
-//! estructura con tipos seguros. Por ejemplo:
+//! Lo habitual es definirlos en un archivo `config.rs` de la extensión con algo como esto:
 //!
 //! ```rust,no_run
 //! use pagetop::prelude::*;
-//! use serde::Deserialize;
 //!
-//! include_config!(SETTINGS: Settings => [
-//!     // [myapp]
-//!     "myapp.name"   => "Value Name",
-//!     "myapp.width"  => 900,
-//!     "myapp.height" => 320,
-//! ]);
+//! /// Ajustes de la sección `[blog]`, cargados al arrancar la aplicación.
+//! pub static SETTINGS: LazySettings<BlogSettings> = LazySettings::new();
 //!
-//! #[derive(Debug, Deserialize)]
-//! pub struct Settings {
-//!     pub myapp: MyApp,
+//! /// Sección **`[blog]`** de la configuración.
+//! #[settings(section = "blog")]
+//! pub struct BlogSettings {
+//!     /// Título del blog.
+//!     #[default = "Mi Blog"]
+//!     pub title: String,
+//!     /// Descripción opcional (sin valor por defecto: `None`).
+//!     pub description: Option<String>,
+//!     /// Comentarios, en la subsección `[blog.comments]`.
+//!     pub comments: CommentsSettings,
 //! }
 //!
-//! #[derive(Debug, Deserialize)]
-//! pub struct MyApp {
-//!     pub name: String,
-//!     pub description: Option<String>,
-//!     pub width: u16,
-//!     pub height: u16,
+//! /// Subsección **`[blog.comments]`** de la configuración.
+//! #[settings]
+//! pub struct CommentsSettings {
+//!     /// Si se admiten comentarios.
+//!     #[default = true]
+//!     pub enabled: bool,
+//!     /// Número máximo de comentarios por página.
+//!     #[default = 20]
+//!     pub page_size: u32,
 //! }
 //! ```
 //!
-//! De esta forma estás añadiendo una nueva sección `[myapp]` a la configuración, igual que existen
-//! `[app]` o `[server]` en las opciones globales de [`Settings`](crate::global::Settings).
+//! [`LazySettings`] lee la sección indicada en `section`; las claves que falten toman su valor por
+//! defecto, y si falta la sección entera se usan los valores por defecto de todos los campos.
 //!
-//! Se recomienda proporcionar siempre valores por defecto o usar `Option<T>` para los ajustes
-//! opcionales.
-//!
-//! Los valores por defecto se declaran **sólo** en [`include_config!`](crate::include_config).
-//!
-//! Las estructuras de configuración no necesitan implementar `Default` (ni derivar `AutoDefault`).
-//! La deserialización nunca lo usa, y declararlo duplicaría los valores en un segundo sitio que
-//! puede quedar desincronizado sin que nada lo detecte.
-//!
-//! Los ajustes se cargan la primera vez que se accede a la variable generada. Si no pueden cargarse
-//! (un archivo TOML mal formado, una clave obligatoria sin valor o un valor de tipo incorrecto),
-//! ese primer acceso lanza *panic*: si ocurre al arrancar, detiene la aplicación; si ocurre dentro
-//! de una petición, ésta responde con un error y cada acceso posterior vuelve a fallar.
-//!
-//! Las estructuras de configuración son de **sólo lectura** durante la ejecución.
-//!
-//! # Usando tus opciones de configuración
-//!
-//! Los ajustes de cada extensión y los globales de PageTop
-//! ([`global::SETTINGS`](crate::global::SETTINGS)) conviven sin conflicto: cada cual vive en su
-//! propia sección del TOML y pueden combinarse libremente cuando se necesiten.
+//! Para que los ajustes se carguen al arrancar, la extensión los devuelve en
+//! [`Extension::settings()`](crate::core::extension::Extension::settings):
 //!
 //! ```rust,ignore
-//! use pagetop::prelude::*;
-//! use crate::config;
+//! pub mod config;
 //!
-//! fn global_settings() {
-//!     println!("Nombre de la app: {}", &global::SETTINGS.app.name);
-//!     println!("Run mode: {}",         &global::SETTINGS.app.run_mode);
-//! }
-//!
-//! fn extension_settings() {
-//!     println!("{}", &config::SETTINGS.myapp.name);
-//!     println!("{}", &config::SETTINGS.myapp.width);
+//! impl Extension for Blog {
+//!     fn settings(&self) -> Option<&'static dyn LoadSettings> {
+//!         Some(&config::SETTINGS)
+//!     }
 //! }
 //! ```
+//!
+//! Desde cualquier parte del código se leen como `config::SETTINGS.title` o
+//! `config::SETTINGS.comments.enabled`. Son de **sólo lectura** durante la ejecución.
+//!
+//! # Carga y errores
+//!
+//! PageTop carga los ajustes de todas las extensiones durante el arranque, en el orden en que se
+//! registran y antes de inicializarlas. Si unos ajustes no pueden cargarse, la aplicación se
+//! detiene con un mensaje que indica el problema: el archivo y la línea si un TOML está mal
+//! formado, o la sección y el valor no válido o la **clave desconocida** (típicamente una errata).
+//! También avisa al arrancar de las secciones de los archivos que no corresponden a PageTop ni a
+//! ninguna extensión.
+//!
+//! Fuera de una aplicación en marcha (p. ej. en pruebas unitarias) los ajustes se cargan en el
+//! primer acceso a la variable, con las mismas reglas.
+//!
+//! Los ajustes globales de PageTop están en [`global::SETTINGS`](crate::global::SETTINGS).
 
 use crate::{trace, util};
 
-use config::builder::DefaultState;
-use config::{Config, ConfigBuilder, File};
+use config::{Config, ConfigError, File, FileFormat};
+use serde::de::{DeserializeOwned, IgnoredAny};
 
+use std::collections::HashMap;
 use std::env;
-use std::fmt;
+use std::ops::Deref;
 use std::path::PathBuf;
 use std::sync::LazyLock;
 
@@ -147,13 +143,10 @@ const DEFAULT_CONFIG_DIR: &str = "config";
 // Modo de ejecución por defecto.
 const DEFAULT_RUN_MODE: &str = "default";
 
-/// Fuentes comunes de la configuración.
-///
-/// Se obtienen de los archivos TOML en el orden de carga y el modo de ejecución (`app.run_mode`).
-///
-/// Es la base sobre la que [`include_config!`](crate::include_config) aplica sus valores por
-/// defecto antes de deserializar. Los archivos se leen cada vez que se construye la configuración.
-pub static CONFIG_VALUES: LazyLock<ConfigBuilder<DefaultState>> = LazyLock::new(|| {
+// Configuración combinada de los archivos TOML en el orden de carga, más el modo de ejecución
+// (`app.run_mode`). Se construye una sola vez, en el primer acceso, y sólo la leen las funciones de
+// este módulo: así ningún ajuste se salta las comprobaciones de `#[settings]`.
+static CONFIG_VALUES: LazyLock<Config> = LazyLock::new(|| {
     // CONFIG_DIR (si existe) o DEFAULT_CONFIG_DIR. Si no se puede resolver, se usa tal cual. Sólo
     // se avisa si CONFIG_DIR está definida: que falte el directorio predeterminado es normal en una
     // aplicación sin configuración propia, pero un CONFIG_DIR erróneo podría dejar la aplicación
@@ -195,132 +188,132 @@ pub static CONFIG_VALUES: LazyLock<ConfigBuilder<DefaultState>> = LazyLock::new(
         .add_source(File::from(config_dir.join("local.toml")).required(false))
         // Guarda el modo de ejecución explícitamente.
         .set_override("app.run_mode", rm)
-        .expect("Failed to set application run mode")
+        .and_then(|builder| builder.build())
+        .unwrap_or_else(|err| panic!("Failed to read the configuration files: {err}"))
 });
 
-// Guarda el aviso de un valor no válido para la opción `key` y devuelve `default`, el valor que se
-// usa en su lugar. Lo usan las opciones enumeradas de la configuración al leerse.
-pub(crate) fn invalid_setting<T: fmt::Debug>(key: &str, raw: &str, default: T) -> T {
-    trace::defer_warning(format!(
-        "Invalid value \"{raw}\" for {key}, using \"{default:?}\". Check settings"
-    ));
-    default
+// Secciones del primer nivel de la configuración.
+pub(crate) fn sections() -> Vec<String> {
+    CONFIG_VALUES
+        .clone()
+        .try_deserialize::<HashMap<String, IgnoredAny>>()
+        .map(|sections| sections.into_keys().collect())
+        .unwrap_or_default()
 }
 
-// **< include_config! >****************************************************************************
+// **< Ajustes >************************************************************************************
 
-/// Declara una variable global con los ajustes de configuración.
+/// Estructura de ajustes asociada a una sección del archivo de configuración.
 ///
-/// Incluye los ajustes necesarios de la configuración, aplicando valores por defecto a las claves
-/// que no definan los archivos TOML.
+/// La implementa el atributo [`#[settings(section = "...")]`](crate::settings); no es necesario
+/// implementarla a mano.
+pub trait SettingsSection: DeserializeOwned + Default + Send + Sync + 'static {
+    /// Nombre de la sección en el archivo de configuración (p. ej. `"blog"` para `[blog]`).
+    const SECTION: &'static str;
+}
+
+// Carga los ajustes de la sección `T::SECTION` de la configuración. Las claves ausentes toman su
+// valor por defecto, y si falta la sección entera se usan los de todos los campos. Si la sección no
+// puede deserializarse (un valor no válido o una clave desconocida), lanza `panic!` con un mensaje
+// que indica la sección y el problema.
+pub(crate) fn load<T: SettingsSection>() -> T {
+    section_from(&CONFIG_VALUES)
+        .unwrap_or_else(|err| panic!("Invalid settings in section [{}]: {err}", T::SECTION))
+}
+
+/// Carga los ajustes de la sección [`SettingsSection::SECTION`] a partir de un texto TOML, con las
+/// mismas reglas que [`LazySettings`].
 ///
-/// # Sintaxis
+/// Pensada para pruebas, p. ej. para comprobar que un archivo de configuración de referencia sólo
+/// documenta claves que existen. No forma parte de la API pública.
+#[doc(hidden)]
+pub fn load_from_str<T: SettingsSection>(toml: &str) -> Result<T, ConfigError> {
+    let config = Config::builder()
+        .add_source(File::from_str(toml, FileFormat::Toml))
+        .build()?;
+    section_from(&config)
+}
+
+// Lee la sección de `T` de una configuración; si falta entera, usa los valores por defecto.
+fn section_from<T: SettingsSection>(config: &Config) -> Result<T, ConfigError> {
+    match config.get::<T>(T::SECTION) {
+        Err(ConfigError::NotFound(_)) => Ok(T::default()),
+        result => result,
+    }
+}
+
+// **< LazySettings >*******************************************************************************
+
+/// Variable con los ajustes de una sección de la configuración.
 ///
-/// Se declara en el código de la extensión o de la aplicación así:
+/// Se declara como `static` y los ajustes se cargan al arrancar la aplicación (o, fuera de ella, en
+/// el primer acceso). Como buena práctica, se declara en el módulo `config` de la extensión
+/// (archivo `config.rs`), junto a las estructuras de sus ajustes:
 ///
 /// ```rust,ignore
-/// include_config!(SETTINGS_NAME: SettingsType => [
-///     "ruta.clave" => valor,
-///     // ...
-/// ]);
+/// pub static SETTINGS: LazySettings<BlogSettings> = LazySettings::new();
 /// ```
 ///
-/// donde:
+/// Y desde el resto del código se accede a los ajustes a través de la variable, cualificada con el
+/// módulo:
 ///
-/// * **`SETTINGS_NAME`** es el nombre de la variable global que se usará para referenciar los
-///   ajustes. Se recomienda usar `SETTINGS`, aunque no es obligatorio.
-/// * **`SettingsType`** es la estructura que define los tipos para deserializar la configuración.
-///   Debe implementar `Deserialize` (derivable con `#[derive(Deserialize)]`).
-/// * **Lista de pares** con las claves TOML que requieran valores por defecto. Siguen la notación
-///   del árbol TOML, con un punto por nivel (`"blog.title"`, `"blog.comments.enabled"`...). La
-///   lista se muestra además en la documentación generada de la variable, con todos los valores
-///   por defecto de un vistazo.
-///
-/// # Ejemplo básico
-///
-/// ```rust,no_run
-/// use pagetop::prelude::*;
-/// use serde::Deserialize;
-///
-/// include_config!(SETTINGS: BlogSettings => [
-///     // [blog]
-///     "blog.title" => "Mi Blog",
-///     "blog.port"  => 8080,
-/// ]);
-///
-/// #[derive(Debug, Deserialize)]
-/// pub struct BlogSettings {
-///     pub blog: Blog,
-/// }
-///
-/// #[derive(Debug, Deserialize)]
-/// pub struct Blog {
-///     pub title: String,
-///     pub description: Option<String>,
-///     pub port: u16,
-/// }
-///
-/// fn print_title() {
-///     // Lectura en tiempo de ejecución.
-///     println!("Título: {}", SETTINGS.blog.title);
-/// }
+/// ```rust,ignore
+/// let title = &config::SETTINGS.title;
 /// ```
 ///
-/// # Buenas prácticas
+/// Las claves ausentes toman su valor por defecto, y si falta la sección entera se usan los valores
+/// por defecto de todos los campos.
 ///
-/// * **Valores por defecto**. Declara un valor por defecto para cada clave obligatoria. Las claves
-///   opcionales pueden ser `Option<T>`. Los valores de esta lista se aplican con `set_default()`
-///   antes de deserializar, y sólo en las claves que no defina ningún TOML, así que las estructuras
-///   de ajustes no necesitan implementar `Default` ni derivar `AutoDefault`. Si falta una clave
-///   obligatoria en los TOML y en la lista, la deserialización falla.
+/// # Panics
 ///
-/// * **Secciones únicas**. Agrupa tus claves dentro de una sección exclusiva (p. ej. `[blog]`) para
-///   evitar colisiones con otras extensiones.
+/// Al cargarse, si la sección no puede deserializarse (un valor no válido o una clave desconocida),
+/// con un mensaje que indica la sección y el problema.
+pub struct LazySettings<T: SettingsSection>(LazyLock<T>);
+
+impl<T: SettingsSection> LazySettings<T> {
+    /// Crea la variable de ajustes de la sección [`SettingsSection::SECTION`] de `T`.
+    pub const fn new() -> Self {
+        Self(LazyLock::new(load::<T>))
+    }
+}
+
+// A mano y no derivado: el `Default` de `LazyLock` usaría `T::default()` en lugar de cargar los
+// ajustes de la configuración.
+impl<T: SettingsSection> Default for LazySettings<T> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl<T: SettingsSection> Deref for LazySettings<T> {
+    type Target = T;
+
+    fn deref(&self) -> &T {
+        &self.0
+    }
+}
+
+// **< LoadSettings >*******************************************************************************
+
+/// Ajustes que PageTop carga durante el arranque.
 ///
-/// * **Sólo lectura**. La variable generada es inmutable durante toda la vida del programa. Para
-///   configurar distintos entornos (*dev*, *staging*, *production*) usa los archivos TOML descritos
-///   en la documentación de [`config`](crate::config).
-///
-/// * **Errores explícitos**. Si la configuración no puede cargarse, el primer acceso a la variable
-///   lanza un `panic!` con un mensaje que nombra la estructura de ajustes y el error de origen
-///   (normalmente la clave problemática).
-///
-/// # Requisitos
-///
-/// * Cada nivel de las claves debe coincidir con un campo (*snake case*) de la estructura de
-///   ajustes o de sus estructuras anidadas.
-/// * Añade `serde` con la *feature* `derive` en *Cargo.toml*:
-///
-/// ```toml
-/// [dependencies]
-/// serde = { version = "1.0", features = ["derive"] }
-/// ```
-#[macro_export]
-macro_rules! include_config {
-    ( $SETTINGS_NAME:ident : $settings_type:ty => [ $( $k:literal => $v:expr ),* $(,)? ] ) => {
-        #[doc = concat!(
-            "Carga [`", stringify!($settings_type), "`] ",
-            "(y aplica **valores por defecto** en claves no definidas)."
-        )]
-        #[doc = ""]
-        #[doc = "Valores predeterminados que se aplican en ausencia de configuración:"]
-        #[doc = "```text"]
-        $(
-            #[doc = concat!($k, " = ", stringify!($v))]
-        )*
-        #[doc = "```"]
-        pub static $SETTINGS_NAME: std::sync::LazyLock<$settings_type> =
-            std::sync::LazyLock::new(|| {
-                let mut settings = $crate::config::CONFIG_VALUES.clone();
-                $(
-                    settings = settings.set_default($k, $v)
-                        .expect(concat!("Failed to set default for key ", $k));
-                )*
-                settings
-                    .build()
-                    .expect(concat!("Failed to build config for ", stringify!($settings_type)))
-                    .try_deserialize::<$settings_type>()
-                    .expect(concat!("Error parsing settings for ", stringify!($settings_type)))
-            });
-    };
+/// Lo implementa [`LazySettings<T>`] con `T` declarado con
+/// [`#[settings(section = "...")]`](crate::settings), y las extensiones devuelven esa variable en
+/// [`Extension::settings()`](crate::core::extension::Extension::settings).
+pub trait LoadSettings: Sync {
+    /// Carga los ajustes si aún no se han cargado.
+    fn load(&self);
+
+    /// Sección de la configuración a la que corresponden los ajustes.
+    fn section(&self) -> &'static str;
+}
+
+impl<T: SettingsSection> LoadSettings for LazySettings<T> {
+    fn load(&self) {
+        LazyLock::force(&self.0);
+    }
+
+    fn section(&self) -> &'static str {
+        T::SECTION
+    }
 }

@@ -18,8 +18,11 @@
 # Las opciones comentadas no tienen valor por defecto; se muestran con un valor de ejemplo.
 #
 # En las opciones del núcleo con valores fijos ("Full", "Nearest"...) da igual escribir el valor en
-# mayúsculas o minúsculas; uno no válido se sustituye por el valor por defecto, con un aviso al
-# arrancar.
+# mayúsculas o minúsculas.
+#
+# Una clave desconocida dentro de una sección (p. ej. una errata) o un valor no válido impiden
+# arrancar la aplicación, con un mensaje que indica el problema. Una sección que no corresponde a
+# PageTop ni a ninguna extensión habilitada se ignora, con un aviso al arrancar.
 # ==================================================================================================
 
 
@@ -73,10 +76,9 @@ startup_banner    = "Slant"         # Banner ASCII al arrancar: "Off", "Slant", 
 [dev]
 pagetop_static_dir = ""             # Directorio static/ de PageTop para servir sus archivos
                                     # estáticos desde disco (editables sin recompilar). Ruta
-                                    # absoluta o relativa al proyecto o al binario. Vacío -> se
-                                    # sirven los incluidos en el binario.
-bootsier_static_dir = ""            # Igual que el anterior, para los archivos estáticos de
-                                    # pagetop-bootsier.
+                                    # absoluta o relativa al proyecto (o, al ejecutar el binario,
+                                    # al directorio de trabajo). Vacío -> se sirven los incluidos
+                                    # en el binario.
 
 [log]
 enabled = true                      # Activa (true) o desactiva (false) las trazas.
@@ -163,4 +165,6 @@ list_page_size = 20                 # Filas por página en los listados de admin
 # **< pagetop-bootsier >****************************************************************************
 
 [bootsier]
-max_width = "1440px"                # Ancho máximo de la página ("100%", "90rem", "1440px"...).
+max_width  = "1440px"               # Ancho máximo de la página ("100%", "90rem", "1440px"...).
+static_dir = ""                     # Directorio static/ de pagetop-bootsier para servir sus
+                                    # archivos estáticos desde disco, como pagetop_static_dir.

@@ -1,13 +1,17 @@
-use crate::{AutoDefault, config};
+use crate::AutoDefault;
 
+use serde::de::Error;
 use serde::{Deserialize, Deserializer};
 
 /// Modos disponibles para negociar el idioma de una petición HTTP.
 ///
-/// El ajuste [`global::SETTINGS.app.lang_negotiation`](crate::global::App::lang_negotiation)
-/// determina qué fuentes intervienen en la resolución del idioma efectivo utilizado por
-/// [`RequestLocale`](crate::locale::RequestLocale) y en la generación de URLs mediante
-/// [`Context::route()`](crate::core::component::Context::route).
+/// El ajuste [`global::SETTINGS.app.lang_negotiation`] determina qué fuentes intervienen en la
+/// resolución del idioma efectivo utilizado por [`RequestLocale`] y en la generación de URLs
+/// mediante [`Context::route()`].
+///
+/// [`global::SETTINGS.app.lang_negotiation`]: crate::global::AppSettings::lang_negotiation
+/// [`RequestLocale`]: crate::locale::RequestLocale
+/// [`Context::route()`]: crate::core::component::Context::route
 #[derive(AutoDefault, Clone, Copy, Debug, Eq, PartialEq)]
 pub enum LangNegotiation {
     /// Usa todas las fuentes disponibles para determinar el idioma, en este orden: comprueba el
@@ -18,7 +22,7 @@ pub enum LangNegotiation {
     /// comportamiento por defecto.
     ///
     /// [`CurrentUser::language()`]: crate::auth::CurrentUser::language
-    /// [`global::SETTINGS.app.language`]: crate::global::App::language
+    /// [`global::SETTINGS.app.language`]: crate::global::AppSettings::language
     #[default]
     Full,
 
@@ -42,12 +46,14 @@ impl<'de> Deserialize<'de> for LangNegotiation {
         D: Deserializer<'de>,
     {
         let raw = String::deserialize(deserializer)?;
-        let result = match raw.trim().to_ascii_lowercase().as_str() {
-            "full" => Self::Full,
-            "noquery" => Self::NoQuery,
-            "configonly" => Self::ConfigOnly,
-            _ => config::invalid_setting("[app].lang_negotiation", &raw, Self::default()),
-        };
-        Ok(result)
+        match raw.trim().to_ascii_lowercase().as_str() {
+            "full" => Ok(Self::Full),
+            "noquery" => Ok(Self::NoQuery),
+            "configonly" => Ok(Self::ConfigOnly),
+            _ => Err(D::Error::unknown_variant(
+                &raw,
+                &["Full", "NoQuery", "ConfigOnly"],
+            )),
+        }
     }
 }

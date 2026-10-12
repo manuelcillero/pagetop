@@ -1,14 +1,16 @@
-use crate::{AutoDefault, config};
+use crate::AutoDefault;
 
+use serde::de::Error;
 use serde::{Deserialize, Deserializer};
 
 /// Criterios para ordenar las regiones de zonas horarias que se ofrecen para elegir.
 ///
-/// Se obtiene de [`global::SETTINGS.app.timezone_order`](crate::global::App::timezone_order) y
-/// determina el orden de los grupos de [`Timezone::supported_by_region()`]. Es también el orden
-/// por defecto de [`form::SelectTimezone`], que puede cambiarse con `with_order()`. En todos los
-/// casos el grupo *"Etc"* (`Etc/UTC`) va siempre al final.
+/// Se obtiene de [`global::SETTINGS.app.timezone_order`] y determina el orden de los grupos de
+/// [`Timezone::supported_by_region()`]. Es también el orden por defecto de
+/// [`form::SelectTimezone`], que puede cambiarse con `with_order()`. En todos los casos el grupo
+/// *"Etc"* (`Etc/UTC`) va siempre al final.
 ///
+/// [`global::SETTINGS.app.timezone_order`]: crate::global::AppSettings::timezone_order
 /// [`Timezone::supported_by_region()`]: crate::datetime::Timezone::supported_by_region
 /// [`form::SelectTimezone`]: crate::base::component::form::SelectTimezone
 #[derive(AutoDefault, Clone, Copy, Debug, Eq, PartialEq)]
@@ -23,10 +25,11 @@ pub enum TimezoneOrder {
     ///
     /// [`form::SelectTimezone`]: crate::base::component::form::SelectTimezone
     Alphabetical,
-    /// En el orden en que se indican las regiones, en
-    /// [`global::SETTINGS.app.timezone_regions`](crate::global::App::timezone_regions) o con
-    /// `SelectTimezone::with_regions()`; si no se indica ninguna región válida, por nombre, como
-    /// `TimezoneOrder::Alphabetical`.
+    /// En el orden en que se indican las regiones, en [`global::SETTINGS.app.timezone_regions`] o
+    /// con `SelectTimezone::with_regions()`; si no se indica ninguna región válida, por nombre,
+    /// como `TimezoneOrder::Alphabetical`.
+    ///
+    /// [`global::SETTINGS.app.timezone_regions`]: crate::global::AppSettings::timezone_regions
     Listed,
 }
 
@@ -36,12 +39,14 @@ impl<'de> Deserialize<'de> for TimezoneOrder {
         D: Deserializer<'de>,
     {
         let raw = String::deserialize(deserializer)?;
-        let result = match raw.trim().to_ascii_lowercase().as_str() {
-            "nearest" => Self::Nearest,
-            "alphabetical" => Self::Alphabetical,
-            "listed" => Self::Listed,
-            _ => config::invalid_setting("[app].timezone_order", &raw, Self::default()),
-        };
-        Ok(result)
+        match raw.trim().to_ascii_lowercase().as_str() {
+            "nearest" => Ok(Self::Nearest),
+            "alphabetical" => Ok(Self::Alphabetical),
+            "listed" => Ok(Self::Listed),
+            _ => Err(D::Error::unknown_variant(
+                &raw,
+                &["Nearest", "Alphabetical", "Listed"],
+            )),
+        }
     }
 }

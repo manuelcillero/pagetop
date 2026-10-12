@@ -4,14 +4,12 @@
 
 pub use crate::PAGETOP_VERSION;
 
-pub use crate::{async_trait, builder_fn, builder_impl, html, main, test};
+pub use crate::{async_trait, builder_fn, builder_impl, html, main, settings, test};
 
 pub use crate::{AutoDefault, CowStr, Getters, StaticResources, UniqueId, Weight};
 
 // MACROS.
 
-// crate::config
-pub use crate::include_config;
 // crate::locale
 pub use crate::include_locales;
 // crate::web
@@ -24,6 +22,9 @@ pub use crate::{render_component, setup_component};
 // API.
 
 pub use crate::util;
+
+pub use crate::config;
+pub use crate::config::{LazySettings, LoadSettings};
 
 pub use crate::global;
 

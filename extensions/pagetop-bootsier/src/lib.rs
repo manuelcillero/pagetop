@@ -106,8 +106,12 @@ impl Extension for Bootsier {
         Some(&Self)
     }
 
+    fn settings(&self) -> Option<&'static dyn LoadSettings> {
+        Some(&config::SETTINGS)
+    }
+
     fn configure_static_files(&self, router: Router) -> Router {
-        let base = &config::SETTINGS.dev.bootsier_static_dir;
+        let base = &config::SETTINGS.static_dir;
         let subdir = |s: &str| {
             if base.is_empty() {
                 String::new()

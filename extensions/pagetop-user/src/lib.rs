@@ -216,6 +216,10 @@ impl Extension for User {
         Lc::t("extension_description", &LOCALES_USER)
     }
 
+    fn settings(&self) -> Option<&'static dyn LoadSettings> {
+        Some(&config::SETTINGS)
+    }
+
     fn dependencies(&self) -> Vec<ExtensionRef> {
         vec![
             &pagetop_admin::Admin,

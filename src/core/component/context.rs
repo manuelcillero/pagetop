@@ -336,7 +336,7 @@ impl Context {
 /// [`Lc::using()`].
 ///
 /// [`Context`]: crate::core::component::Context
-/// [`global::SETTINGS.app.lang_negotiation`]: crate::global::App::lang_negotiation
+/// [`global::SETTINGS.app.lang_negotiation`]: crate::global::AppSettings::lang_negotiation
 /// [`Lc::lookup()`]: crate::locale::Lc::lookup
 /// [`Lc::using()`]: crate::locale::Lc::using
 impl LangId for Context {

@@ -1,12 +1,13 @@
-use crate::{AutoDefault, config};
+use crate::AutoDefault;
 
+use serde::de::Error;
 use serde::{Deserialize, Deserializer};
 
 /// Modos de salida y rotación para el registro de trazas.
 ///
-/// El valor se obtiene de [`global::SETTINGS.log.rolling`](crate::global::Log::rolling) y
-/// determina si las trazas se muestran por pantalla o se vuelcan en archivos con rotación.
-/// El valor configurado no distingue entre mayúsculas y minúsculas.
+/// El valor se obtiene de [`global::SETTINGS.log.rolling`](crate::global::LogSettings::rolling) y
+/// determina si las trazas se muestran por pantalla o se vuelcan en archivos con rotación. El valor
+/// configurado no distingue entre mayúsculas y minúsculas.
 #[derive(AutoDefault, Clone, Copy, Debug, Eq, PartialEq)]
 pub enum LogRolling {
     /// Escribe las trazas en la salida estándar (sin rotación de archivos). Es el valor por
@@ -29,14 +30,16 @@ impl<'de> Deserialize<'de> for LogRolling {
         D: Deserializer<'de>,
     {
         let raw = String::deserialize(deserializer)?;
-        let result = match raw.trim().to_ascii_lowercase().as_str() {
-            "stdout" => Self::Stdout,
-            "daily" => Self::Daily,
-            "hourly" => Self::Hourly,
-            "minutely" => Self::Minutely,
-            "endless" => Self::Endless,
-            _ => config::invalid_setting("[log].rolling", &raw, Self::default()),
-        };
-        Ok(result)
+        match raw.trim().to_ascii_lowercase().as_str() {
+            "stdout" => Ok(Self::Stdout),
+            "daily" => Ok(Self::Daily),
+            "hourly" => Ok(Self::Hourly),
+            "minutely" => Ok(Self::Minutely),
+            "endless" => Ok(Self::Endless),
+            _ => Err(D::Error::unknown_variant(
+                &raw,
+                &["Stdout", "Daily", "Hourly", "Minutely", "Endless"],
+            )),
+        }
     }
 }

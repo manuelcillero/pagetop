@@ -1,12 +1,13 @@
-use crate::{AutoDefault, config};
+use crate::AutoDefault;
 
+use serde::de::Error;
 use serde::{Deserialize, Deserializer};
 
 /// Formatos disponibles para mostrar las trazas.
 ///
-/// El valor se obtiene de [`global::SETTINGS.log.format`](crate::global::Log::format) y determina
-/// la representación textual de los eventos registrados por `tracing`.
-/// El valor configurado no distingue entre mayúsculas y minúsculas.
+/// El valor se obtiene de [`global::SETTINGS.log.format`](crate::global::LogSettings::format) y
+/// determina la representación textual de los eventos registrados por `tracing`. El valor
+/// configurado no distingue entre mayúsculas y minúsculas.
 #[derive(AutoDefault, Clone, Copy, Debug, Eq, PartialEq)]
 pub enum LogFormat {
     /// Formato JSON estructurado.
@@ -29,13 +30,15 @@ impl<'de> Deserialize<'de> for LogFormat {
         D: Deserializer<'de>,
     {
         let raw = String::deserialize(deserializer)?;
-        let result = match raw.trim().to_ascii_lowercase().as_str() {
-            "json" => Self::Json,
-            "full" => Self::Full,
-            "compact" => Self::Compact,
-            "pretty" => Self::Pretty,
-            _ => config::invalid_setting("[log].format", &raw, Self::default()),
-        };
-        Ok(result)
+        match raw.trim().to_ascii_lowercase().as_str() {
+            "json" => Ok(Self::Json),
+            "full" => Ok(Self::Full),
+            "compact" => Ok(Self::Compact),
+            "pretty" => Ok(Self::Pretty),
+            _ => Err(D::Error::unknown_variant(
+                &raw,
+                &["Json", "Full", "Compact", "Pretty"],
+            )),
+        }
     }
 }

@@ -52,12 +52,12 @@ pub use pastey::paste;
 // La documentación anterior se copia en `pagetop::util::paste!` porque el *crate* original no la
 // define y `pagetop` no la hereda automáticamente.
 
-/// Concatena varios fragmentos en un [`String`] reservando una sola vez la memoria del resultado.
+/// Concatena varios fragmentos en un [`String`].
 ///
 /// Acepta uno o más fragmentos que implementen [`AsRef<str>`] (literales, `&str`, [`String`],
-/// `Cow<str>`...) y construye el resultado con la capacidad exacta, sin pasar por el formateo. Es
-/// la forma preferida de componer texto a partir de fragmentos, y suele ser más rápida que
-/// `format!`.
+/// `Cow<str>`...) y construye el resultado reservando la memoria una sola vez, con la capacidad
+/// exacta, sin pasar por el formateo. Es la forma preferida de componer texto a partir de
+/// fragmentos, y suele ser más rápida que `format!`.
 ///
 /// Cada expresión se evalúa **una sola vez**, por lo que admite llamadas como `n.to_string()` o
 /// cierres con efectos secundarios. Los valores que no son cadenas (números, tipos `Display`) se

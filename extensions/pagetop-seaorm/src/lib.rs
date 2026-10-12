@@ -202,19 +202,23 @@ impl Extension for SeaORM {
         Lc::t("extension_description", &LOCALES_SEAORM)
     }
 
+    fn settings(&self) -> Option<&'static dyn LoadSettings> {
+        Some(&config::SETTINGS)
+    }
+
     async fn initialize(&self) {
         trace::info!(
             "Connecting to database \"{}\" using a pool of {} connections",
-            &config::SETTINGS.database.db_name,
-            &config::SETTINGS.database.max_pool_size
+            &config::SETTINGS.db_name,
+            &config::SETTINGS.max_pool_size
         );
 
-        let db_uri: String = match config::SETTINGS.database.db_type {
+        let db_uri: String = match config::SETTINGS.db_type {
             config::DbType::Unset => panic!(
                 "database.db_type is not configured: use \"mysql\", \"postgres\" or \"sqlite\""
             ),
             config::DbType::Mysql | config::DbType::Postgres => {
-                let scheme = if matches!(config::SETTINGS.database.db_type, config::DbType::Mysql) {
+                let scheme = if matches!(config::SETTINGS.db_type, config::DbType::Mysql) {
                     "mysql"
                 } else {
                     "postgres"
@@ -222,18 +226,18 @@ impl Extension for SeaORM {
                 let mut tmp_uri = Url::parse(&format!(
                     "{}://{}/{}",
                     scheme,
-                    &config::SETTINGS.database.db_host,
-                    &config::SETTINGS.database.db_name
+                    &config::SETTINGS.db_host,
+                    &config::SETTINGS.db_name
                 ))
                 .expect("Invalid database URL: check db_host and db_name in config");
                 tmp_uri
-                    .set_username(config::SETTINGS.database.db_user.as_str())
+                    .set_username(config::SETTINGS.db_user.as_str())
                     .expect("Failed to set db_user in connection URL");
                 tmp_uri
                     // https://github.com/launchbadge/sqlx/issues/1624
-                    .set_password(Some(config::SETTINGS.database.db_pass.as_str()))
+                    .set_password(Some(config::SETTINGS.db_pass.as_str()))
                     .expect("Failed to set db_pass in connection URL");
-                if let Some(port) = config::SETTINGS.database.db_port {
+                if let Some(port) = config::SETTINGS.db_port {
                     tmp_uri
                         .set_port(Some(port))
                         .expect("Failed to set db_port in connection URL");
@@ -241,13 +245,13 @@ impl Extension for SeaORM {
                 tmp_uri.to_string()
             }
             config::DbType::Sqlite => {
-                format!("sqlite://{}", &config::SETTINGS.database.db_name)
+                format!("sqlite://{}", &config::SETTINGS.db_name)
             }
         };
 
         let conn = Database::connect::<ConnectOptions>({
             let mut db_opt = ConnectOptions::new(db_uri);
-            db_opt.max_connections(config::SETTINGS.database.max_pool_size);
+            db_opt.max_connections(config::SETTINGS.max_pool_size);
             db_opt
         })
         .await

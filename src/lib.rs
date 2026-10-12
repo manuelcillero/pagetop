@@ -137,7 +137,12 @@ pub const PAGETOP_VERSION: &str = env!("CARGO_PKG_VERSION");
 /// [`impl Extension`](crate::core::extension::Extension).
 pub use async_trait::async_trait;
 
-pub use pagetop_macros::{AutoDefault, builder_fn, builder_impl, html, main, test};
+pub use pagetop_macros::{AutoDefault, builder_fn, builder_impl, html, main, settings, test};
+
+// Lo usa el código que genera `#[settings]`, para que las extensiones no necesiten declarar `serde`
+// como dependencia sólo para sus ajustes.
+#[doc(hidden)]
+pub use serde;
 
 pub use pagetop_statics::{StaticFile, resource};
 
