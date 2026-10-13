@@ -1,13 +1,14 @@
 //! Gestión de sesiones de usuario (creación, carga, prórroga y destrucción).
 //!
-//! Y también de los permisos de las peticiones sin sesión.
+//! Incluye también los permisos del rol "anonymous", que se aplican a las peticiones sin sesión.
 
 use std::sync::{Arc, PoisonError, RwLock};
 use std::time::Instant;
 
 use pagetop::prelude::*;
-use pagetop_seaorm::db::query::Expr;
-use pagetop_seaorm::db::{ColumnTrait, DbErr, EntityTrait, QueryFilter, QuerySelect, Set, dbconn};
+use pagetop_seaorm::db::query::{Expr, Query};
+use pagetop_seaorm::db::{ColumnTrait, EntityTrait, QueryFilter, QuerySelect};
+use pagetop_seaorm::db::{Condition, DbErr, Set, dbconn};
 
 use crate::account::{Account, PermissionSet, UserStatus};
 use crate::config::SETTINGS;
@@ -16,7 +17,7 @@ use crate::{ANONYMOUS_ROLE_ID, AUTHENTICATED_ROLE_ID};
 
 // **< Generación de session ID >*******************************************************************
 
-/// Genera un session ID de 64 caracteres hex (32 bytes aleatorios via OsRng).
+/// Genera un session ID de 64 caracteres hex (32 bytes aleatorios vía OsRng).
 pub fn generate_sid() -> String {
     use rand_core::{OsRng, RngCore};
     let mut bytes = [0u8; 32];
@@ -25,10 +26,11 @@ pub fn generate_sid() -> String {
 }
 
 fn bytes_to_hex(bytes: &[u8]) -> String {
-    use std::fmt::Write;
+    const HEX: &[u8; 16] = b"0123456789abcdef";
     let mut s = String::with_capacity(bytes.len() * 2);
     for b in bytes {
-        write!(s, "{:02x}", b).unwrap();
+        s.push(char::from(HEX[usize::from(b >> 4)]));
+        s.push(char::from(HEX[usize::from(b & 0x0f)]));
     }
     s
 }
@@ -106,51 +108,68 @@ pub async fn load_user_from_session(sid: &str) -> (CurrentUser, Option<Account>,
     let now = Utc::now();
 
     // Sesión y usuario en una sola consulta. La sesión debe seguir vigente y el usuario, activo.
-    let Ok(Some((sess, Some(mut user_model)))) = session::Entity::find_by_id(sid)
+    let found = session::Entity::find_by_id(sid)
         .find_also_related(user::Entity)
         .one(dbconn())
-        .await
-    else {
-        return (CurrentUser::anonymous(), None, None);
+        .await;
+    let (sess, mut user_model) = match found {
+        Ok(Some((sess, Some(user_model)))) => (sess, user_model),
+        Ok(_) => return (CurrentUser::anonymous(), None, None),
+        Err(err) => {
+            trace::warn!("session: failed to load session: {err}");
+            return (CurrentUser::anonymous(), None, None);
+        }
     };
     if sess.expires_at < now || UserStatus::from_i16(user_model.status) != UserStatus::Active {
         return (CurrentUser::anonymous(), None, None);
     }
 
-    // Roles explícitos del usuario, leyendo sólo las columnas que se usan.
-    let Ok(role_rows) = role::Entity::find()
+    // Roles explícitos del usuario más el implícito "authenticated" (no se asigna en `user_role`
+    // pero se aplica siempre), con sus permisos, en una sola consulta: una fila por permiso, o una
+    // sin permiso si el rol no tiene ninguno. "anonymous" se excluye aunque figure en `user_role`
+    // (p. ej. insertado directamente en la base de datos): sus permisos nunca llegan a una cuenta.
+    let rows = role::Entity::find()
         .select_only()
         .columns([role::Column::Id, role::Column::MachineName])
-        .inner_join(user_role::Entity)
-        .filter(user_role::Column::UserId.eq(sess.user_id))
-        .into_tuple::<(i32, String)>()
+        .column(role_permission::Column::PermissionKey)
+        .left_join(role_permission::Entity)
+        .filter(
+            Condition::any()
+                .add(
+                    role::Column::Id.in_subquery(
+                        Query::select()
+                            .column(user_role::Column::RoleId)
+                            .from(user_role::Entity)
+                            .and_where(user_role::Column::UserId.eq(sess.user_id))
+                            .and_where(user_role::Column::RoleId.ne(ANONYMOUS_ROLE_ID))
+                            .to_owned(),
+                    ),
+                )
+                .add(role::Column::Id.eq(AUTHENTICATED_ROLE_ID)),
+        )
+        .into_tuple::<(i32, String, Option<String>)>()
         .all(dbconn())
-        .await
-    else {
-        return (CurrentUser::anonymous(), None, None);
-    };
-    let (mut role_ids, role_names): (Vec<i32>, Vec<String>) = role_rows.into_iter().unzip();
-
-    // Permisos de los roles del usuario más los del rol implícito "authenticated", que no se
-    // asigna en `user_role` pero se aplica siempre. Un administrador los tiene todos.
-    let permissions = if user_model.is_admin {
-        PermissionSet::default()
-    } else {
-        if !role_ids.contains(&AUTHENTICATED_ROLE_ID) {
-            role_ids.push(AUTHENTICATED_ROLE_ID);
-        }
-        let Ok(keys) = role_permission::Entity::find()
-            .select_only()
-            .column(role_permission::Column::PermissionKey)
-            .filter(role_permission::Column::RoleId.is_in(role_ids))
-            .into_tuple::<String>()
-            .all(dbconn())
-            .await
-        else {
+        .await;
+    let rows = match rows {
+        Ok(rows) => rows,
+        Err(err) => {
+            trace::warn!("session: failed to load roles and permissions: {err}");
             return (CurrentUser::anonymous(), None, None);
-        };
-        PermissionSet::new(keys)
+        }
     };
+
+    // Un administrador tiene todos los permisos: no hace falta guardar los de sus roles.
+    let is_admin = user_model.is_admin;
+    let mut role_names: Vec<String> = Vec::new();
+    let mut permissions = PermissionSet::default();
+    for (role_id, machine_name, key) in rows {
+        if role_id != AUTHENTICATED_ROLE_ID && !role_names.contains(&machine_name) {
+            role_names.push(machine_name);
+        }
+        if !is_admin {
+            permissions.extend(key);
+        }
+    }
 
     let mut renewed_cookie = None;
     if let Some(expires_at) = renewed_expiry(
@@ -185,6 +204,74 @@ pub async fn load_user_from_session(sid: &str) -> (CurrentUser, Option<Account>,
         .with_theme(theme.as_deref());
 
     (current_user, Some(account), renewed_cookie)
+}
+
+// Tiempo sin uso tras el que caduca una sesión, según se iniciara o no con "recordarme".
+fn idle_period(remember: bool) -> Duration {
+    Duration::seconds(if remember {
+        SETTINGS.session.remember_idle_secs
+    } else {
+        SETTINGS.session.idle_secs
+    })
+}
+
+// Nueva caducidad de una sesión usada en `now`, o `None` si se prorrogó hace menos de `interval`.
+fn renewed_expiry(
+    last_activity: Option<DateTime<Utc>>,
+    now: DateTime<Utc>,
+    idle: Duration,
+    interval: Duration,
+) -> Option<DateTime<Utc>> {
+    match last_activity {
+        Some(t) if now - t < interval => None,
+        _ => Some(now + idle),
+    }
+}
+
+// **< create_session >*****************************************************************************
+
+/// Crea una nueva sesión en base de datos y devuelve el session ID.
+pub async fn create_session(user_id: i32, remember: bool) -> Result<String, DbErr> {
+    let sid = generate_sid();
+    let now = Utc::now();
+
+    let new_session = session::ActiveModel {
+        sid: Set(sid.clone()),
+        user_id: Set(user_id),
+        data: Set("{}".into()),
+        remember: Set(remember),
+        last_activity_at: Set(Some(now)),
+        expires_at: Set(now + idle_period(remember)),
+        created_at: Set(now),
+    };
+    session::Entity::insert(new_session).exec(dbconn()).await?;
+    Ok(sid)
+}
+
+/// Destruye la sesión indicada (logout).
+pub async fn destroy_session(sid: &str) -> Result<(), DbErr> {
+    session::Entity::delete_by_id(sid).exec(dbconn()).await?;
+    Ok(())
+}
+
+/// Destruye todas las sesiones de un usuario (p. ej. al cambiar contraseña).
+pub async fn destroy_user_sessions(user_id: i32) -> Result<(), DbErr> {
+    session::Entity::delete_many()
+        .filter(session::Column::UserId.eq(user_id))
+        .exec(dbconn())
+        .await?;
+    Ok(())
+}
+
+/// Destruye todas las sesiones de un usuario salvo `keep_sid` (p. ej. cuando el propio usuario
+/// cambia su contraseña, para no cerrarle la sesión desde la que lo hace).
+pub async fn destroy_other_sessions(user_id: i32, keep_sid: &str) -> Result<(), DbErr> {
+    session::Entity::delete_many()
+        .filter(session::Column::UserId.eq(user_id))
+        .filter(session::Column::Sid.ne(keep_sid))
+        .exec(dbconn())
+        .await?;
+    Ok(())
 }
 
 // **< anonymous_permissions >**********************************************************************
@@ -257,79 +344,14 @@ pub(crate) fn invalidate_anonymous_permissions() {
     cache.loaded = None;
 }
 
-// Tiempo sin uso tras el que caduca una sesión, según se iniciara o no con "recordarme".
-fn idle_period(remember: bool) -> Duration {
-    Duration::seconds(if remember {
-        SETTINGS.session.remember_idle_secs
-    } else {
-        SETTINGS.session.idle_secs
-    })
-}
-
-// Nueva caducidad de una sesión usada en `now`, o `None` si se prorrogó hace menos de `interval`.
-fn renewed_expiry(
-    last_activity: Option<DateTime<Utc>>,
-    now: DateTime<Utc>,
-    idle: Duration,
-    interval: Duration,
-) -> Option<DateTime<Utc>> {
-    match last_activity {
-        Some(t) if now - t < interval => None,
-        _ => Some(now + idle),
-    }
-}
-
-// **< create_session >*****************************************************************************
-
-/// Crea una nueva sesión en base de datos y devuelve el session ID.
-pub async fn create_session(user_id: i32, remember: bool) -> Result<String, DbErr> {
-    let sid = generate_sid();
-    let now = Utc::now();
-
-    let new_session = session::ActiveModel {
-        sid: Set(sid.clone()),
-        user_id: Set(user_id),
-        data: Set("{}".into()),
-        remember: Set(remember),
-        last_activity_at: Set(Some(now)),
-        expires_at: Set(now + idle_period(remember)),
-        created_at: Set(now),
-    };
-    session::Entity::insert(new_session).exec(dbconn()).await?;
-    Ok(sid)
-}
-
-/// Destruye la sesión indicada (logout).
-pub async fn destroy_session(sid: &str) -> Result<(), DbErr> {
-    session::Entity::delete_by_id(sid).exec(dbconn()).await?;
-    Ok(())
-}
-
-/// Destruye todas las sesiones de un usuario (p. ej. al cambiar contraseña).
-pub async fn destroy_user_sessions(user_id: i32) -> Result<(), DbErr> {
-    session::Entity::delete_many()
-        .filter(session::Column::UserId.eq(user_id))
-        .exec(dbconn())
-        .await?;
-    Ok(())
-}
-
-/// Destruye todas las sesiones de un usuario salvo `keep_sid` (p. ej. cuando el propio usuario
-/// cambia su contraseña, para no cerrarle la sesión desde la que lo hace).
-pub async fn destroy_other_sessions(user_id: i32, keep_sid: &str) -> Result<(), DbErr> {
-    session::Entity::delete_many()
-        .filter(session::Column::UserId.eq(user_id))
-        .filter(session::Column::Sid.ne(keep_sid))
-        .exec(dbconn())
-        .await?;
-    Ok(())
-}
-
 // **< Tests >**************************************************************************************
 
 #[cfg(test)]
 mod tests {
-    use super::{DateTime, Duration, SETTINGS, Utc, extract_sid, renewed_expiry, web};
+    use super::{
+        DateTime, Duration, SETTINGS, Utc, bytes_to_hex, extract_sid, generate_sid, renewed_expiry,
+        web,
+    };
 
     const IDLE_SECS: i64 = 7_200;
     const INTERVAL_SECS: i64 = 60;
@@ -374,6 +396,21 @@ mod tests {
         assert_eq!(
             renew(Some(0), used, INTERVAL_SECS),
             Some(at(used + IDLE_SECS))
+        );
+    }
+
+    #[test]
+    fn encodes_bytes_as_lowercase_hex() {
+        assert_eq!(bytes_to_hex(&[0x00, 0x0f, 0xa5, 0xff]), "000fa5ff");
+    }
+
+    #[test]
+    fn generated_sid_has_the_format_extract_sid_accepts() {
+        let sid = generate_sid();
+        assert_eq!(sid.len(), 64);
+        assert!(
+            sid.bytes()
+                .all(|b| b.is_ascii_digit() || (b'a'..=b'f').contains(&b))
         );
     }
 
