@@ -11,6 +11,7 @@ use pagetop_seaorm::db::{
 use crate::entity::{role, role_permission, user_role};
 use crate::error::AuthError;
 use crate::permission;
+use crate::session;
 
 // **< listado >************************************************************************************
 
@@ -292,5 +293,10 @@ pub(crate) async fn set_role_permissions(
             })
         })
         .await
-        .map_err(flatten_txn_err)
+        .map_err(flatten_txn_err)?;
+
+    if role_id == crate::ANONYMOUS_ROLE_ID {
+        session::invalidate_anonymous_permissions();
+    }
+    Ok(())
 }

@@ -196,10 +196,18 @@ fn declare_admin_pages(bag: &mut PageBag) {
 // **< Roles de sistema (fijos) >*******************************************************************
 
 // Sembrados con id fijo en `migration/m20260629_000002_create_roles.rs` y bloqueados (`locked`);
-// no se borran ni cambian de id.
+// no se borran ni cambian de id. Ninguno se asigna en `user_role` (ver `is_system_role()`).
+
+// Implícito para las peticiones sin sesión; sus permisos no se aplican a ninguna cuenta.
 const ANONYMOUS_ROLE_ID: i32 = 1;
-// Implícito: nunca se asigna en `user_role`; sus permisos se aplican a toda cuenta autenticada.
+// Implícito para toda cuenta autenticada; sus permisos se aplican a todas ellas.
 const AUTHENTICATED_ROLE_ID: i32 = 2;
+
+// Un rol de sistema no se asigna a ningún usuario: si "anonymous" llegara a `user_role`, esa cuenta
+// recibiría los permisos pensados sólo para peticiones sin sesión.
+fn is_system_role(role_id: i32) -> bool {
+    role_id == ANONYMOUS_ROLE_ID || role_id == AUTHENTICATED_ROLE_ID
+}
 
 // **< Extension >**********************************************************************************
 
@@ -249,6 +257,9 @@ impl Extension for User {
             m20260629_000006_create_user_tokens,
         )?;
         permission::build_registry();
+        // Los permisos de "anonymous" en memoria sobreviven a una nueva preparación en el mismo
+        // proceso (las pruebas lo hacen), que puede usar otra base de datos.
+        session::invalidate_anonymous_permissions();
         auth::seed_initial_data().await;
         #[cfg(feature = "demo-data")]
         demo::seed_demo_data().await;

@@ -1,13 +1,18 @@
 //! Gestión de sesiones de usuario (creación, carga, prórroga y destrucción).
+//!
+//! Y también de los permisos de las peticiones sin sesión.
+
+use std::sync::{Arc, PoisonError, RwLock};
+use std::time::Instant;
 
 use pagetop::prelude::*;
 use pagetop_seaorm::db::query::Expr;
 use pagetop_seaorm::db::{ColumnTrait, DbErr, EntityTrait, QueryFilter, QuerySelect, Set, dbconn};
 
-use crate::AUTHENTICATED_ROLE_ID;
 use crate::account::{Account, PermissionSet, UserStatus};
 use crate::config::SETTINGS;
 use crate::entity::{role, role_permission, session, user, user_role};
+use crate::{ANONYMOUS_ROLE_ID, AUTHENTICATED_ROLE_ID};
 
 // **< Generación de session ID >*******************************************************************
 
@@ -180,6 +185,76 @@ pub async fn load_user_from_session(sid: &str) -> (CurrentUser, Option<Account>,
         .with_theme(theme.as_deref());
 
     (current_user, Some(account), renewed_cookie)
+}
+
+// **< anonymous_permissions >**********************************************************************
+
+// Los permisos de "anonymous" son los mismos para todas las peticiones sin sesión y cambian muy
+// poco: se guardan en memoria para no consultarlos en cada una. Al cambiarlos se invalidan en esta
+// instancia; en las demás (o si se editan directamente en la base de datos) caducan tras
+// `ANONYMOUS_TTL`. La generación evita guardar una carga que empezó antes de una invalidación.
+const ANONYMOUS_TTL: std::time::Duration = std::time::Duration::from_secs(60);
+
+struct AnonymousCache {
+    generation: u64,
+    loaded: Option<(Instant, Arc<PermissionSet>)>,
+}
+
+static ANONYMOUS_CACHE: RwLock<AnonymousCache> = RwLock::new(AnonymousCache {
+    generation: 0,
+    loaded: None,
+});
+
+/// Devuelve los permisos del rol "anonymous", que se aplican a las peticiones sin sesión.
+///
+/// Un usuario autenticado no los hereda: recibe los de "authenticated" y los de sus roles. Si la
+/// consulta falla, devuelve un conjunto vacío (no concede nada), lo registra como aviso y lo vuelve
+/// a intentar en la siguiente petición.
+pub(crate) async fn anonymous_permissions() -> Arc<PermissionSet> {
+    let generation = {
+        let cache = ANONYMOUS_CACHE
+            .read()
+            .unwrap_or_else(PoisonError::into_inner);
+        if let Some((loaded_at, permissions)) = &cache.loaded
+            && loaded_at.elapsed() < ANONYMOUS_TTL
+        {
+            return Arc::clone(permissions);
+        }
+        cache.generation
+    };
+
+    let keys = role_permission::Entity::find()
+        .select_only()
+        .column(role_permission::Column::PermissionKey)
+        .filter(role_permission::Column::RoleId.eq(ANONYMOUS_ROLE_ID))
+        .into_tuple::<String>()
+        .all(dbconn())
+        .await;
+    let permissions = match keys {
+        Ok(keys) => Arc::new(PermissionSet::new(keys)),
+        Err(err) => {
+            trace::warn!("session: failed to load anonymous permissions: {err}");
+            return Arc::default();
+        }
+    };
+
+    let mut cache = ANONYMOUS_CACHE
+        .write()
+        .unwrap_or_else(PoisonError::into_inner);
+    if cache.generation == generation {
+        cache.loaded = Some((Instant::now(), Arc::clone(&permissions)));
+    }
+    permissions
+}
+
+/// Descarta los permisos de "anonymous" guardados en memoria, para que la siguiente petición sin
+/// sesión los vuelva a leer. Se llama al cambiar los permisos de ese rol.
+pub(crate) fn invalidate_anonymous_permissions() {
+    let mut cache = ANONYMOUS_CACHE
+        .write()
+        .unwrap_or_else(PoisonError::into_inner);
+    cache.generation = cache.generation.wrapping_add(1);
+    cache.loaded = None;
 }
 
 // Tiempo sin uso tras el que caduca una sesión, según se iniciara o no con "recordarme".

@@ -156,7 +156,12 @@ pub async fn register(
 // **< assign_role >********************************************************************************
 
 /// Asigna un rol a un usuario (sin error si ya está asignado).
+///
+/// Los roles de sistema ("anonymous" y "authenticated") no se asignan nunca: se ignoran.
 pub async fn assign_role(user_id: i32, role_id: i32) -> Result<(), AuthError> {
+    if crate::is_system_role(role_id) {
+        return Ok(());
+    }
     let already = user_role::Entity::find()
         .filter(user_role::Column::UserId.eq(user_id))
         .filter(user_role::Column::RoleId.eq(role_id))

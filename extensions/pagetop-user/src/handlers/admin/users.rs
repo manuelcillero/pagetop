@@ -6,8 +6,6 @@ use pagetop::prelude::*;
 use pagetop_htmx::prelude::*;
 
 use crate::ADMIN_USERS_PATH;
-use crate::ANONYMOUS_ROLE_ID;
-use crate::AUTHENTICATED_ROLE_ID;
 use crate::LOCALES_USER;
 use crate::account::{Account, UserStatus};
 use crate::component::admin::{
@@ -111,8 +109,7 @@ fn search_bar(current_query: Option<String>) -> Html {
 
 // **< available_roles >****************************************************************************
 
-// Roles asignables desde la UI de usuarios: excluye "anonymous" (nunca se asigna explícitamente)
-// y "authenticated" (implícito, nunca se asigna).
+// Roles asignables desde la UI de usuarios: todos salvo los de sistema, que nunca se asignan.
 async fn available_roles(selected: &[i32]) -> Result<Vec<(i32, String, bool)>, AuthError> {
     let items = role_admin::list_roles(&role_admin::RoleListParams {
         sort: role_admin::RoleSortField::Weight,
@@ -121,7 +118,7 @@ async fn available_roles(selected: &[i32]) -> Result<Vec<(i32, String, bool)>, A
     .await?;
     Ok(items
         .into_iter()
-        .filter(|r| r.id != ANONYMOUS_ROLE_ID && r.id != AUTHENTICATED_ROLE_ID)
+        .filter(|r| !crate::is_system_role(r.id))
         .map(|r| {
             let checked = selected.contains(&r.id);
             (r.id, r.label, checked)

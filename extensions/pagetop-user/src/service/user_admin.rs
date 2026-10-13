@@ -296,15 +296,16 @@ pub(crate) async fn update_user(user_id: i32, data: UserUpdateData<'_>) -> Resul
 
 /// Reemplaza por completo el conjunto de roles asignados a un usuario.
 ///
-/// "authenticated" ([`crate::AUTHENTICATED_ROLE_ID`]) nunca se almacena: es implícito para toda
-/// cuenta autenticada, por lo que se descarta si llega en `role_ids`.
+/// Los roles de sistema nunca se almacenan, por lo que se descartan si llegan en `role_ids`:
+/// "authenticated" es implícito para toda cuenta autenticada y "anonymous" sólo se aplica a las
+/// peticiones sin sesión.
 pub(crate) async fn set_user_roles(user_id: i32, role_ids: &[i32]) -> Result<(), AuthError> {
     find_user(user_id).await?;
 
     let mut role_ids: Vec<i32> = role_ids
         .iter()
         .copied()
-        .filter(|id| *id != crate::AUTHENTICATED_ROLE_ID)
+        .filter(|id| !crate::is_system_role(*id))
         .collect();
     role_ids.sort_unstable();
     role_ids.dedup();
