@@ -12,7 +12,7 @@ use pagetop_seaorm::db::{Condition, DbErr, Set, dbconn};
 
 use crate::account::{Account, PermissionSet, UserStatus};
 use crate::config::SETTINGS;
-use crate::entity::{role, role_permission, session, user, user_role};
+use crate::entity::{role_permission, session, user, user_role};
 use crate::{ANONYMOUS_ROLE_ID, AUTHENTICATED_ROLE_ID};
 
 // **< Generación de session ID >*******************************************************************
@@ -84,8 +84,8 @@ pub fn extract_sid(headers: Option<&web::http::HeaderMap>) -> Option<&str> {
 /// Lee la cookie de sesión de las cabeceras y resuelve la terna
 /// `(CurrentUser, Option<Account>, Option<String>)` de [`load_user_from_session`].
 ///
-/// Si no hay una cookie de sesión válida, o la sesión no existe o ha expirado, devuelve
-/// `(CurrentUser::anonymous(), None, None)`. Se llama desde el middleware de sesión, que es async.
+/// Si no hay una cookie de sesión válida, o [`load_user_from_session`] no resuelve la sesión,
+/// devuelve `(CurrentUser::anonymous(), None, None)`. Se llama desde el middleware de sesión.
 pub async fn resolve_session(
     headers: &web::http::HeaderMap,
 ) -> (CurrentUser, Option<Account>, Option<String>) {
@@ -103,7 +103,8 @@ pub async fn resolve_session(
 /// Devuelve la terna `(CurrentUser, Option<Account>, Option<String>)`, cuyo tercer elemento es la
 /// cabecera `Set-Cookie` que renueva la cookie persistente cuando se prorroga una sesión iniciada
 /// con "recordarme". Devuelve `(CurrentUser::anonymous(), None, None)` si la sesión no existe o ha
-/// expirado.
+/// expirado, si la cuenta no está activa (p. ej. bloqueada tras iniciar la sesión) o si falla la
+/// consulta, que se registra como aviso.
 pub async fn load_user_from_session(sid: &str) -> (CurrentUser, Option<Account>, Option<String>) {
     let now = Utc::now();
 
@@ -124,52 +125,42 @@ pub async fn load_user_from_session(sid: &str) -> (CurrentUser, Option<Account>,
         return (CurrentUser::anonymous(), None, None);
     }
 
-    // Roles explícitos del usuario más el implícito "authenticated" (no se asigna en `user_role`
-    // pero se aplica siempre), con sus permisos, en una sola consulta: una fila por permiso, o una
-    // sin permiso si el rol no tiene ninguno. "anonymous" se excluye aunque figure en `user_role`
-    // (p. ej. insertado directamente en la base de datos): sus permisos nunca llegan a una cuenta.
-    let rows = role::Entity::find()
-        .select_only()
-        .columns([role::Column::Id, role::Column::MachineName])
-        .column(role_permission::Column::PermissionKey)
-        .left_join(role_permission::Entity)
-        .filter(
-            Condition::any()
-                .add(
-                    role::Column::Id.in_subquery(
-                        Query::select()
-                            .column(user_role::Column::RoleId)
-                            .from(user_role::Entity)
-                            .and_where(user_role::Column::UserId.eq(sess.user_id))
-                            .and_where(user_role::Column::RoleId.ne(ANONYMOUS_ROLE_ID))
-                            .to_owned(),
-                    ),
-                )
-                .add(role::Column::Id.eq(AUTHENTICATED_ROLE_ID)),
-        )
-        .into_tuple::<(i32, String, Option<String>)>()
-        .all(dbconn())
-        .await;
-    let rows = match rows {
-        Ok(rows) => rows,
-        Err(err) => {
-            trace::warn!("session: failed to load roles and permissions: {err}");
-            return (CurrentUser::anonymous(), None, None);
+    // Un administrador tiene todos los permisos (ver `Account::has_permission`): no se cargan.
+    // Si no, se leen en una sola consulta los de sus roles más los del implícito "authenticated",
+    // que no se asigna en `user_role` pero se aplica siempre. "anonymous" se excluye aunque figure
+    // en `user_role` (p. ej. insertado directamente en la base de datos): sus permisos nunca llegan
+    // a una cuenta.
+    let permissions = if user_model.is_admin {
+        PermissionSet::default()
+    } else {
+        let keys = role_permission::Entity::find()
+            .select_only()
+            .column(role_permission::Column::PermissionKey)
+            .filter(
+                Condition::any()
+                    .add(
+                        role_permission::Column::RoleId.in_subquery(
+                            Query::select()
+                                .column(user_role::Column::RoleId)
+                                .from(user_role::Entity)
+                                .and_where(user_role::Column::UserId.eq(sess.user_id))
+                                .and_where(user_role::Column::RoleId.ne(ANONYMOUS_ROLE_ID))
+                                .to_owned(),
+                        ),
+                    )
+                    .add(role_permission::Column::RoleId.eq(AUTHENTICATED_ROLE_ID)),
+            )
+            .into_tuple::<String>()
+            .all(dbconn())
+            .await;
+        match keys {
+            Ok(keys) => PermissionSet::new(keys),
+            Err(err) => {
+                trace::warn!("session: failed to load permissions: {err}");
+                return (CurrentUser::anonymous(), None, None);
+            }
         }
     };
-
-    // Un administrador tiene todos los permisos: no hace falta guardar los de sus roles.
-    let is_admin = user_model.is_admin;
-    let mut role_names: Vec<String> = Vec::new();
-    let mut permissions = PermissionSet::default();
-    for (role_id, machine_name, key) in rows {
-        if role_id != AUTHENTICATED_ROLE_ID && !role_names.contains(&machine_name) {
-            role_names.push(machine_name);
-        }
-        if !is_admin {
-            permissions.extend(key);
-        }
-    }
 
     let mut renewed_cookie = None;
     if let Some(expires_at) = renewed_expiry(
@@ -197,7 +188,7 @@ pub async fn load_user_from_session(sid: &str) -> (CurrentUser, Option<Account>,
     let language = user_model.language.take();
     let timezone = user_model.timezone.take();
     let theme = user_model.theme.take();
-    let account = Account::new(user_model, role_names, permissions);
+    let account = Account::new(user_model, permissions);
     let current_user = CurrentUser::authenticated(account.id(), account.display())
         .with_language(language.as_deref())
         .with_timezone(timezone.as_deref())

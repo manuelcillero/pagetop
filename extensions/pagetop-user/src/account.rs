@@ -36,21 +36,18 @@ impl UserStatus {
 
 // **< PermissionSet >******************************************************************************
 
-/// Conjunto de permisos resuelto para un usuario concreto.
+// Conjunto de permisos resuelto para una petición: los de una cuenta autenticada o, sin sesión, los
+// del rol "anonymous".
 #[derive(AutoDefault, Clone, Debug)]
-pub struct PermissionSet(HashSet<String>);
+pub(crate) struct PermissionSet(HashSet<String>);
 
 impl PermissionSet {
-    pub fn new(keys: impl IntoIterator<Item = String>) -> Self {
+    pub(crate) fn new(keys: impl IntoIterator<Item = String>) -> Self {
         PermissionSet(keys.into_iter().collect())
     }
 
-    pub fn contains(&self, key: &str) -> bool {
+    pub(crate) fn contains(&self, key: &str) -> bool {
         self.0.contains(key)
-    }
-
-    pub fn extend(&mut self, keys: impl IntoIterator<Item = String>) {
-        self.0.extend(keys);
     }
 }
 
@@ -74,9 +71,6 @@ pub struct Account {
     /// Estado de la cuenta.
     #[getters(copy)]
     status: UserStatus,
-    /// Nombres de máquina de los roles asignados explícitamente. No incluye "authenticated", que
-    /// es implícito (ver [`Account::has_role`]).
-    roles: Vec<String>,
     // Unión de permisos de sus roles y del rol implícito "authenticated". Vacío si es
     // administrador: no se cargan porque `has_permission()` ya concede todos. Sin getter para que
     // la única consulta posible sea `has_permission()`.
@@ -91,14 +85,13 @@ pub struct Account {
 impl Account {
     // Sólo se construye desde la carga de sesión, para que ningún otro crate pueda fabricar una
     // cuenta e inyectarla en la petición.
-    pub(crate) fn new(user: user::Model, roles: Vec<String>, permissions: PermissionSet) -> Self {
+    pub(crate) fn new(user: user::Model, permissions: PermissionSet) -> Self {
         Account {
             id: user.id,
             username: user.username,
             email: user.email,
             display_name: user.display_name.unwrap_or_default(),
             status: UserStatus::from_i16(user.status),
-            roles,
             permissions,
             is_admin: user.is_admin,
         }
@@ -116,10 +109,5 @@ impl Account {
         } else {
             self.display_name()
         }
-    }
-
-    /// Comprueba si la cuenta tiene el rol indicado ("authenticated" siempre se cumple).
-    pub fn has_role(&self, machine_name: &str) -> bool {
-        machine_name == "authenticated" || self.roles().iter().any(|r| r == machine_name)
     }
 }

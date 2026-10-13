@@ -23,8 +23,8 @@ struct AnonymousPermissions(Arc<PermissionSet>);
 /// petición HTTP.
 ///
 /// - Siempre inserta [`pagetop::auth::CurrentUser`] (anónimo o autenticado).
-/// - Si hay sesión activa, inserta también el [`Account`] con roles y permisos; si no, los permisos
-///   del rol "anonymous".
+/// - Si hay sesión activa, inserta también el [`Account`] con sus permisos; si no, los permisos del
+///   rol "anonymous".
 /// - Si se ha prorrogado una sesión iniciada con "recordarme", renueva su cookie en la respuesta.
 pub(crate) async fn session_middleware(
     mut req: web::Request,
