@@ -4,9 +4,9 @@ use std::collections::HashMap;
 
 use pagetop::prelude::*;
 use pagetop_seaorm::db::{
-    ActiveModelTrait, ActiveValue, ColumnTrait, Condition, EntityTrait, Order, Paginated,
-    PaginatorTrait, QueryFilter, QueryOrder, Set, TransactionTrait, dbconn, flatten_txn_err,
-    paginate,
+    ActiveModelTrait, ActiveValue, ColumnTrait, Condition, DatabaseTransaction, DbErr, EntityTrait,
+    Order, Paginated, PaginatorTrait, QueryFilter, QueryOrder, Set, TransactionTrait, dbconn,
+    flatten_txn_err, paginate,
 };
 
 use crate::account::UserStatus;
@@ -171,7 +171,10 @@ pub(crate) struct NewUserData<'a> {
 
 /// Da de alta un usuario administrativamente. A diferencia de `auth::register`, el usuario queda
 /// activo y con el email verificado de inmediato (lo crea un administrador de confianza), y admite
-/// asignar roles iniciales.
+/// asignar roles iniciales (los de sistema se descartan, ver [`set_user_roles`]).
+///
+/// El usuario y sus roles se crean en una sola transacción: si falla cualquier inserción (p. ej.
+/// porque se ha eliminado uno de los roles mientras tanto), no se crea nada.
 pub(crate) async fn create_user(data: NewUserData<'_>) -> Result<i32, AuthError> {
     password::validate_strength(data.password)?;
     password::passwords_match(data.password, data.confirm_password)?;
@@ -214,14 +217,21 @@ pub(crate) async fn create_user(data: NewUserData<'_>) -> Result<i32, AuthError>
         created_at: Set(now),
         updated_at: Set(now),
     };
-    let result = user::Entity::insert(new_user).exec(dbconn()).await?;
-    let user_id = result.last_insert_id;
+    let role_ids = assignable_roles(data.initial_role_ids);
 
-    for role_id in data.initial_role_ids {
-        crate::auth::assign_role(user_id, *role_id).await?;
-    }
-
-    Ok(user_id)
+    dbconn()
+        .transaction::<_, _, AuthError>(|txn| {
+            Box::pin(async move {
+                let user_id = user::Entity::insert(new_user)
+                    .exec(txn)
+                    .await?
+                    .last_insert_id;
+                insert_user_roles(txn, user_id, role_ids).await?;
+                Ok(user_id)
+            })
+        })
+        .await
+        .map_err(flatten_txn_err)
 }
 
 // **< update_user >********************************************************************************
@@ -301,14 +311,7 @@ pub(crate) async fn update_user(user_id: i32, data: UserUpdateData<'_>) -> Resul
 /// peticiones sin sesión.
 pub(crate) async fn set_user_roles(user_id: i32, role_ids: &[i32]) -> Result<(), AuthError> {
     find_user(user_id).await?;
-
-    let mut role_ids: Vec<i32> = role_ids
-        .iter()
-        .copied()
-        .filter(|id| !crate::is_system_role(*id))
-        .collect();
-    role_ids.sort_unstable();
-    role_ids.dedup();
+    let role_ids = assignable_roles(role_ids);
 
     dbconn()
         .transaction::<_, _, AuthError>(|txn| {
@@ -317,19 +320,42 @@ pub(crate) async fn set_user_roles(user_id: i32, role_ids: &[i32]) -> Result<(),
                     .filter(user_role::Column::UserId.eq(user_id))
                     .exec(txn)
                     .await?;
-                for role_id in role_ids {
-                    user_role::Entity::insert(user_role::ActiveModel {
-                        user_id: Set(user_id),
-                        role_id: Set(role_id),
-                    })
-                    .exec(txn)
-                    .await?;
-                }
+                insert_user_roles(txn, user_id, role_ids).await?;
                 Ok(())
             })
         })
         .await
         .map_err(flatten_txn_err)
+}
+
+// Roles de `role_ids` que pueden asignarse a un usuario: sin los de sistema y sin repetidos.
+fn assignable_roles(role_ids: &[i32]) -> Vec<i32> {
+    let mut role_ids: Vec<i32> = role_ids
+        .iter()
+        .copied()
+        .filter(|id| !crate::is_system_role(*id))
+        .collect();
+    role_ids.sort_unstable();
+    role_ids.dedup();
+    role_ids
+}
+
+// Asigna los roles al usuario en una sola sentencia, dentro de la transacción indicada.
+async fn insert_user_roles(
+    txn: &DatabaseTransaction,
+    user_id: i32,
+    role_ids: Vec<i32>,
+) -> Result<(), DbErr> {
+    if role_ids.is_empty() {
+        return Ok(());
+    }
+    user_role::Entity::insert_many(role_ids.into_iter().map(|role_id| user_role::ActiveModel {
+        user_id: Set(user_id),
+        role_id: Set(role_id),
+    }))
+    .exec_without_returning(txn)
+    .await?;
+    Ok(())
 }
 
 // **< set_user_status >****************************************************************************

@@ -8,8 +8,7 @@ use pagetop::prelude::*;
 use pagetop_seaorm::db::{ActiveValue, ColumnTrait, EntityTrait, QueryFilter, Set, dbconn};
 
 use crate::account::UserStatus;
-use crate::auth;
-use crate::entity::{role, user};
+use crate::entity::{role, user, user_role};
 use crate::error::AuthError;
 use crate::password;
 
@@ -105,8 +104,12 @@ async fn create_demo_users(role_ids: &[i32]) -> Result<(), AuthError> {
         let user_id = result.last_insert_id;
 
         // Reparte los usuarios de forma cíclica entre los roles de demostración.
-        let role_id = role_ids[(n - 1) % role_ids.len()];
-        auth::assign_role(user_id, role_id).await?;
+        user_role::Entity::insert(user_role::ActiveModel {
+            user_id: Set(user_id),
+            role_id: Set(role_ids[(n - 1) % role_ids.len()]),
+        })
+        .exec_without_returning(dbconn())
+        .await?;
     }
     Ok(())
 }

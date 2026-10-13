@@ -8,7 +8,7 @@ use pagetop_seaorm::db::{
 
 use crate::account::UserStatus;
 use crate::config::SETTINGS;
-use crate::entity::{role_permission, user, user_role};
+use crate::entity::{role_permission, user};
 use crate::error::AuthError;
 use crate::password;
 use crate::permission::UserPermission;
@@ -151,32 +151,6 @@ pub async fn register(
     let user_id = result.last_insert_id;
 
     Ok(user_id)
-}
-
-// **< assign_role >********************************************************************************
-
-/// Asigna un rol a un usuario (sin error si ya está asignado).
-///
-/// Los roles de sistema ("anonymous" y "authenticated") no se asignan nunca: se ignoran.
-pub async fn assign_role(user_id: i32, role_id: i32) -> Result<(), AuthError> {
-    if crate::is_system_role(role_id) {
-        return Ok(());
-    }
-    let already = user_role::Entity::find()
-        .filter(user_role::Column::UserId.eq(user_id))
-        .filter(user_role::Column::RoleId.eq(role_id))
-        .one(dbconn())
-        .await?;
-
-    if already.is_none() {
-        user_role::Entity::insert(user_role::ActiveModel {
-            user_id: Set(user_id),
-            role_id: Set(role_id),
-        })
-        .exec(dbconn())
-        .await?;
-    }
-    Ok(())
 }
 
 // **< change_own_password >************************************************************************
