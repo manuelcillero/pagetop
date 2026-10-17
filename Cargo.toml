@@ -19,6 +19,7 @@ members = [
 repository = "https://git.cillero.es/manuelcillero/pagetop"
 homepage = "https://pagetop.cillero.es"
 edition = "2024"
+rust-version = "1.88"
 license = "MIT OR Apache-2.0"
 authors = ["Manuel Cillero <manuel@cillero.es>"]
 
@@ -101,6 +102,7 @@ keywords = ["pagetop", "web", "framework", "frontend", "ssr"]
 repository.workspace = true
 homepage.workspace = true
 edition.workspace = true
+rust-version.workspace = true
 license.workspace = true
 authors.workspace = true
 

@@ -11,6 +11,7 @@ keywords = ["pagetop", "theme", "css"]
 repository.workspace = true
 homepage.workspace = true
 edition.workspace = true
+rust-version.workspace = true
 license.workspace = true
 authors.workspace = true
 
