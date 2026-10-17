@@ -124,6 +124,25 @@ use std::sync::Arc;
 /// assert_eq!(markup.into_string(), r#"<span title="literal">OK</span>"#);
 /// ```
 ///
+/// Con `class` ocurre lo mismo. Si el elemento escribe alguna clase propia, con `class="..."` o con
+/// la forma abreviada (`.clase`, `.clase[cond]`), se omiten **todas** las clases de `Props`. Para
+/// combinar las clases del componente con las que se añadan con `with_prop()`, el componente debe
+/// incorporarlas a sus `Props` en su `setup()`, por ejemplo con [`PropsOp::prepend_classes()`], y
+/// no las escribe en el elemento.
+///
+/// ```rust
+/// # use pagetop::prelude::*;
+/// # let mut cx = Context::default();
+/// let props = Props::classes("extra");
+///
+/// let markup = html! { div class="card" (props.unpack(&mut cx)) {} };
+/// assert_eq!(markup.into_string(), r#"<div class="card"></div>"#);
+///
+/// let props = props.with_prop(PropsOp::prepend_classes("card"));
+/// let markup = html! { div (props.unpack(&mut cx)) {} };
+/// assert_eq!(markup.into_string(), r#"<div class="card extra"></div>"#);
+/// ```
+///
 /// # Valores extra
 ///
 /// Las variantes [`SetExtra`](PropsOp::SetExtra) y [`RemoveExtra`](PropsOp::RemoveExtra), usando

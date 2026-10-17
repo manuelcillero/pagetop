@@ -250,7 +250,7 @@ impl Component for Pager {
                 }
                 ul class="pagination" {
                     @if show_prev_next {
-                        li.page-item.page-previous.disabled[first_disabled] {
+                        li class="page-item page-previous" .disabled[first_disabled] {
                             a class="page-link"
                                 href=[(!first_disabled).then(|| Self::page_route(&route, page - 1))]
                                 aria-disabled=[first_disabled.then_some("true")]
@@ -265,7 +265,7 @@ impl Component for Pager {
                         @match item {
                             PageItem::Number(n) => {
                                 @let href = Self::page_route(&route, n);
-                                li.page-item.active[n == page] {
+                                li class="page-item" .active[n == page] {
                                     a class="page-link"
                                         href=(href)
                                         aria-current=[(n == page).then_some("page")] {
@@ -281,7 +281,7 @@ impl Component for Pager {
                         }
                     }
                     @if show_prev_next {
-                        li.page-item.page-next.disabled[last_disabled] {
+                        li class="page-item page-next" .disabled[last_disabled] {
                             a class="page-link"
                                 href=[(!last_disabled).then(|| Self::page_route(&route, page + 1))]
                                 aria-disabled=[last_disabled.then_some("true")]

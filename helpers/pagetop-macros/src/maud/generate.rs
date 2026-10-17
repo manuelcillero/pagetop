@@ -150,7 +150,7 @@ impl Generator {
     }
 
     fn attrs(&self, attrs: Vec<Attribute>, build: &mut Builder) {
-        let (classes, id, named_attrs, spliced) = split_attrs(attrs);
+        let (classes, id, mut named_attrs, spliced) = split_attrs(attrs);
 
         // Must run before `classes`/`id`/`named_attrs` are consumed below.
         let literal_attr_names: Vec<LitStr> = {
@@ -170,21 +170,54 @@ impl Generator {
         if !classes.is_empty() {
             let mut toggle_class_exprs = vec![];
 
+            // A `class="..."` (or `class=[...]`) next to shorthand classes (`.a`, `.a[cond]`) is
+            // merged with them into a single attribute, with its value first; otherwise the
+            // element would end up with two `class` attributes.
+            let class_value = named_attrs
+                .iter()
+                .position(|(name, attr_type)| {
+                    name.to_string() == "class" && !matches!(attr_type, AttributeType::Empty(_))
+                })
+                .map(|i| named_attrs.remove(i).1);
+            let has_value = class_value.is_some();
+
             build.push_str(" ");
             self.name(parse_quote!(class), build);
             build.push_str("=\"");
-            for (i, (name, toggler)) in classes.into_iter().enumerate() {
+            match class_value {
+                Some(AttributeType::Normal { value, .. }) => self.markup(value, build),
+                Some(AttributeType::Optional {
+                    toggler: Toggler { cond, .. },
+                    ..
+                }) => {
+                    let inner_value: Expr = parse_quote!(inner_value);
+                    let body = {
+                        let mut build = self.builder();
+                        self.splice(inner_value.clone(), &mut build);
+                        build.finish()
+                    };
+                    build.push_tokens(quote!(if let Some(#inner_value) = (#cond) { #body }));
+                }
+                _ => {}
+            }
+            // Static classes are written before toggled ones, so the separator depends on the
+            // writing order, not on the position in the source: a toggled class gets a leading
+            // space if the `class` value, a static class or another toggled class precedes it.
+            let mut written = has_value;
+            for (name, toggler) in classes {
                 if let Some(toggler) = toggler {
-                    toggle_class_exprs.push((i > 0, name, toggler));
+                    toggle_class_exprs.push((name, toggler));
                 } else {
-                    if i > 0 {
+                    if written {
                         build.push_str(" ");
                     }
                     self.name_or_markup(name, build);
+                    written = true;
                 }
             }
 
-            for (not_first, name, toggler) in toggle_class_exprs {
+            for (i, (name, toggler)) in toggle_class_exprs.into_iter().enumerate() {
+                let not_first = written || i > 0;
                 let body = {
                     let mut build = self.builder();
                     if not_first {
