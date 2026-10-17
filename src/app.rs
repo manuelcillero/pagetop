@@ -72,6 +72,11 @@ impl Application {
 
     // Secuencia de arranque común a new() y prepare().
     async fn internal_prepare(root_extension: Option<ExtensionRef>) -> Self {
+        // Comprueba la configuración global antes de usarla. Un error detiene aquí el arranque.
+        if let Err(err) = global::check_settings() {
+            Self::abort_startup(None, err);
+        }
+
         // Al arrancar muestra una cabecera para la aplicación.
         Self::show_banner();
 

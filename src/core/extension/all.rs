@@ -12,6 +12,9 @@ static EXTENSIONS: OnceLock<Vec<ExtensionRef>> = OnceLock::new();
 /// Errores de las extensiones que detienen el arranque de la aplicación.
 #[derive(Debug, thiserror::Error)]
 pub enum StartupError {
+    /// Los archivos de configuración no se pueden leer (p. ej. un TOML mal formado).
+    #[error("Failed to read the configuration files")]
+    ReadConfig(#[source] BoxError),
     /// Dos extensiones, o una extensión y PageTop, reclaman la misma sección de la configuración:
     /// cada una la leería con su propia estructura de ajustes.
     #[error("Settings section [{0}] is already claimed by PageTop or another extension")]

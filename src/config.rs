@@ -144,9 +144,10 @@ const DEFAULT_CONFIG_DIR: &str = "config";
 const DEFAULT_RUN_MODE: &str = "default";
 
 // Configuración combinada de los archivos TOML en el orden de carga, más el modo de ejecución
-// (`app.run_mode`). Se construye una sola vez, en el primer acceso, y sólo la leen las funciones de
-// este módulo: así ningún ajuste se salta las comprobaciones de `#[settings]`.
-static CONFIG_VALUES: LazyLock<Config> = LazyLock::new(|| {
+// (`app.run_mode`), o el texto del error si no se pudieron leer (`ConfigError` no implementa
+// `Clone`). Se construye una sola vez, en el primer acceso, y sólo la leen las funciones de este
+// módulo: así ningún ajuste se salta las comprobaciones de `#[settings]`.
+static CONFIG_VALUES: LazyLock<Result<Config, String>> = LazyLock::new(|| {
     // CONFIG_DIR (si existe) o DEFAULT_CONFIG_DIR. Si no se puede resolver, se usa tal cual. Sólo
     // se avisa si CONFIG_DIR está definida: que falte el directorio predeterminado es normal en una
     // aplicación sin configuración propia, pero un CONFIG_DIR erróneo podría dejar la aplicación
@@ -189,14 +190,38 @@ static CONFIG_VALUES: LazyLock<Config> = LazyLock::new(|| {
         // Guarda el modo de ejecución explícitamente.
         .set_override("app.run_mode", rm)
         .and_then(|builder| builder.build())
-        .unwrap_or_else(|err| panic!("Failed to read the configuration files: {err}"))
+        .map_err(|err| err.to_string())
 });
+
+// Configuración combinada, o el error que impidió leer los archivos.
+fn config_values() -> Result<&'static Config, ConfigError> {
+    CONFIG_VALUES
+        .as_ref()
+        .map_err(|message| ConfigError::Message(message.clone()))
+}
+
+// Comprueba que los archivos de configuración se pueden leer (p. ej. que ningún TOML está mal
+// formado), para detener el arranque con un error en lugar del `panic!` del primer acceso.
+pub(crate) fn check_files() -> Result<(), ConfigError> {
+    config_values().map(|_| ())
+}
+
+// Comprueba, sin guardarlos, que los ajustes de la sección de `T` se pueden cargar. Sirve para los
+// ajustes que se guardan en otra variable, como los globales de PageTop.
+pub(crate) fn check<T: SettingsSection>() -> Result<(), ConfigError> {
+    section_from::<T>(config_values()?).map(|_| ())
+}
 
 // Secciones del primer nivel de la configuración.
 pub(crate) fn sections() -> Vec<String> {
-    CONFIG_VALUES
-        .clone()
-        .try_deserialize::<HashMap<String, IgnoredAny>>()
+    config_values()
+        .ok()
+        .and_then(|config| {
+            config
+                .clone()
+                .try_deserialize::<HashMap<String, IgnoredAny>>()
+                .ok()
+        })
         .map(|sections| sections.into_keys().collect())
         .unwrap_or_default()
 }
@@ -213,11 +238,14 @@ pub trait SettingsSection: DeserializeOwned + Default + Send + Sync + 'static {
 }
 
 // Carga los ajustes de la sección `T::SECTION` de la configuración. Las claves ausentes toman su
-// valor por defecto, y si falta la sección entera se usan los de todos los campos. Si la sección no
-// puede deserializarse (un valor no válido o una clave desconocida), lanza `panic!` con un mensaje
-// que indica la sección y el problema.
+// valor por defecto, y si falta la sección entera se usan los de todos los campos. Si los archivos
+// no se pueden leer o la sección no puede deserializarse (un valor no válido o una clave
+// desconocida), lanza `panic!` con un mensaje que indica el problema. Al arrancar no llega a
+// ocurrir: la aplicación lo comprueba antes y se detiene con un error.
 pub(crate) fn load<T: SettingsSection>() -> T {
-    section_from(&CONFIG_VALUES)
+    let config = config_values()
+        .unwrap_or_else(|err| panic!("Failed to read the configuration files: {err}"));
+    section_from(config)
         .unwrap_or_else(|err| panic!("Invalid settings in section [{}]: {err}", T::SECTION))
 }
 
@@ -318,7 +346,7 @@ impl<T: SettingsSection> LoadSettings for LazySettings<T> {
     // mismos.
     fn load(&self) -> Result<(), BoxError> {
         if self.0.get().is_none() {
-            let _ = self.0.set(section_from::<T>(&CONFIG_VALUES)?);
+            let _ = self.0.set(section_from::<T>(config_values()?)?);
         }
         Ok(())
     }
