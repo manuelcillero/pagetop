@@ -438,26 +438,42 @@ pub mod test {
         uri: String,
         headers: http::HeaderMap,
         extensions: http::Extensions,
+        body: String,
     }
 
     impl TestRequest {
         /// Crea una petición GET.
         pub fn get() -> Self {
-            Self {
-                method: http::Method::GET,
-                uri: "/".to_owned(),
-                headers: http::HeaderMap::new(),
-                extensions: http::Extensions::new(),
-            }
+            Self::with_method(http::Method::GET)
         }
 
         /// Crea una petición POST.
         pub fn post() -> Self {
+            Self::with_method(http::Method::POST)
+        }
+
+        /// Crea una petición PUT.
+        pub fn put() -> Self {
+            Self::with_method(http::Method::PUT)
+        }
+
+        /// Crea una petición PATCH.
+        pub fn patch() -> Self {
+            Self::with_method(http::Method::PATCH)
+        }
+
+        /// Crea una petición DELETE.
+        pub fn delete() -> Self {
+            Self::with_method(http::Method::DELETE)
+        }
+
+        fn with_method(method: http::Method) -> Self {
             Self {
-                method: http::Method::POST,
+                method,
                 uri: "/".to_owned(),
                 headers: http::HeaderMap::new(),
                 extensions: http::Extensions::new(),
+                body: String::new(),
             }
         }
 
@@ -481,6 +497,14 @@ pub mod test {
             self
         }
 
+        /// Envía como cuerpo los campos de un formulario, ya codificados (p. ej.
+        /// `"title=Plant+lettuces&done=on"`), con la cabecera
+        /// `Content-Type: application/x-www-form-urlencoded`, como lo envía un navegador.
+        pub fn form(mut self, fields: impl Into<String>) -> Self {
+            self.body = fields.into();
+            self.header("content-type", "application/x-www-form-urlencoded")
+        }
+
         /// Inserta un valor en las extensiones de la petición.
         ///
         /// Útil para simular lo que un middleware haría en producción antes de que el handler
@@ -495,7 +519,7 @@ pub mod test {
             let mut req = http::Request::builder()
                 .method(self.method)
                 .uri(self.uri)
-                .body(Body::empty())
+                .body(Body::from(self.body))
                 .unwrap();
             *req.headers_mut() = self.headers;
             *req.extensions_mut() = self.extensions;
