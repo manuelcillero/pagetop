@@ -9,13 +9,11 @@
 
 ## Guía rápida
 
-Declara la dependencia en tu `Cargo.toml`, activando en `pagetop-seaorm` el motor de base de
-datos que vayas a usar:
+Declara la dependencia en tu `Cargo.toml`:
 
 ```toml
 [dependencies]
 pagetop-user = "..."
-pagetop-seaorm = { version = "...", features = ["postgres"] }
 ```
 
 Añade `&pagetop_user::User` a las dependencias de tu extensión. El usuario actual se inyecta

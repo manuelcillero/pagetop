@@ -9,11 +9,11 @@
 
 ## Guía rápida
 
-Declara la dependencia en tu `Cargo.toml` activando el motor de base de datos:
+Declara la dependencia en tu `Cargo.toml`:
 
 ```toml
 [dependencies]
-pagetop-admin = { version = "...", features = ["sqlite"] }
+pagetop-admin = "..."
 ```
 
 Añade `&pagetop_admin::Admin` a las dependencias de tu extensión y declara tus
