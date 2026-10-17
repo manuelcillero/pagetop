@@ -27,7 +27,8 @@
 //! - **Transacciones**: [`TransactionTrait`], [`DatabaseTransaction`], [`flatten_txn_err`]
 //!   (para convertir [`TransactionError<E>`] a `E`).
 //! - **Modelos activos**: [`ActiveModelTrait`], [`ActiveValue`] ([`ActiveValue::Set`],
-//!   [`ActiveValue::Unchanged`], [`ActiveValue::NotSet`]).
+//!   [`ActiveValue::Unchanged`], [`ActiveValue::NotSet`]), [`IntoActiveModel`] (para modificar un
+//!   modelo leído: `model.into_active_model()`).
 //! - **Macros de derivación**: [`DeriveEntityModel`], [`DeriveColumn`], [`DerivePrimaryKey`],
 //!   [`DeriveRelation`], [`EnumIter`].
 //! - **Errores**: [`DbErr`], [`TransactionError`].
@@ -167,8 +168,8 @@ pub use sea_orm::prelude::*;
 pub use sea_orm;
 
 pub use sea_orm::{
-    ActiveValue, Condition, DatabaseTransaction, DbBackend, ExecResult, NotSet, Order, QueryOrder,
-    QuerySelect, Set, TransactionError, TransactionTrait, Unchanged,
+    ActiveValue, Condition, DatabaseTransaction, DbBackend, ExecResult, IntoActiveModel, NotSet,
+    Order, QueryOrder, QuerySelect, Set, TransactionError, TransactionTrait, Unchanged,
 };
 
 /// Re-exporta `sea_query` para construir sentencias SQL en tiempo de ejecución.

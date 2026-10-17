@@ -3,7 +3,8 @@
 
 use pagetop::prelude::*;
 use pagetop_seaorm::db::{
-    ActiveModelTrait, ActiveValue, ColumnTrait, EntityTrait, QueryFilter, Set, dbconn,
+    ActiveModelTrait, ActiveValue, ColumnTrait, EntityTrait, IntoActiveModel, QueryFilter, Set,
+    dbconn,
 };
 
 use crate::entity::user_token;
@@ -116,7 +117,7 @@ pub async fn consume_token(token: &str, kind: TokenKind) -> Result<i32, AuthErro
     }
 
     let user_id = row.user_id;
-    let mut active: user_token::ActiveModel = row.into();
+    let mut active = row.into_active_model();
     active.consumed_at = Set(Some(now));
     active.updated_at = Set(now);
     active.update(dbconn()).await?;

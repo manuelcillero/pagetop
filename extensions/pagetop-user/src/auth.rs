@@ -2,8 +2,8 @@
 
 use pagetop::prelude::*;
 use pagetop_seaorm::db::{
-    ActiveModelTrait, ActiveValue, ColumnTrait, Condition, EntityTrait, PaginatorTrait,
-    QueryFilter, Set, dbconn,
+    ActiveModelTrait, ActiveValue, ColumnTrait, Condition, EntityTrait, IntoActiveModel,
+    PaginatorTrait, QueryFilter, Set, dbconn,
 };
 
 use crate::account::UserStatus;
@@ -61,7 +61,7 @@ pub async fn login(
     // Actualizar last_login_at y resetear contador de fallos.
     let user_id = user_model.id;
     let needs_rehash = password::needs_rehash(&user_model.password_hash);
-    let mut active: user::ActiveModel = user_model.into();
+    let mut active = user_model.into_active_model();
     active.last_login_at = Set(Some(now));
     active.last_access_at = Set(Some(now));
     active.failed_login_count = Set(0);
