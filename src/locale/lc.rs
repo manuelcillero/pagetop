@@ -7,6 +7,7 @@ include_locales!(LOCALES_PAGETOP);
 
 use fluent_templates::Loader;
 use fluent_templates::StaticLoader as Locales;
+use fluent_templates::fluent_bundle::FluentValue;
 
 use std::collections::HashMap;
 
@@ -34,18 +35,22 @@ enum LcKind {
 // `Text` resuelve a `FluentValue::String` para interpolar cualquier texto; pero no aplica el
 // selector de plural de Fluent (`{ $n -> [one] ... *[other] ... }`). Para eso está `Number`, que
 // resuelve a `FluentValue::Number` y es el único tipo con el que Fluent consulta las reglas de
-// plural del idioma.
+// plural del idioma. `Markup` es marcado HTML de confianza, que `using()` no escapa.
 #[derive(Clone, Debug)]
 enum LcArg {
     Text(CowStr),
     Number(u32),
+    Markup(String),
 }
 
-impl<'a> From<&'a LcArg> for fluent_templates::fluent_bundle::FluentValue<'a> {
-    fn from(arg: &'a LcArg) -> Self {
-        match arg {
+impl LcArg {
+    // Valor para Fluent. Con `escape`, el texto se escapa para insertarse en marcado HTML.
+    fn to_fluent(&self, escape: bool) -> FluentValue<'_> {
+        match self {
+            LcArg::Text(s) if escape => s.as_ref().render().into_string().into(),
             LcArg::Text(s) => s.as_ref().into(),
             LcArg::Number(n) => (*n).into(),
+            LcArg::Markup(s) => s.as_str().into(),
         }
     }
 }
@@ -79,8 +84,8 @@ impl<'a> From<&'a LcArg> for fluent_templates::fluent_bundle::FluentValue<'a> {
 /// - [`using()`](Self::using) devuelve [`Markup`] para presentar al usuario, listo para insertarse
 ///   en el contenido de una plantilla (`(x.using(cx))` dentro de [`html!`](crate::html::html)).
 ///   Nunca devuelve `None`, por lo que una traducción no encontrada se convierte en marcado vacío.
-///   Para `n()` se escapa el texto para evitar HTML no controlado. Para valores de atributo, usa
-///   siempre [`lookup()`](Self::lookup).
+///   Para `n()` se escapa el texto, y también los argumentos de texto de `l()`/`t()`, para evitar
+///   HTML no controlado. Para valores de atributo, usa siempre [`lookup()`](Self::lookup).
 ///
 /// # Ejemplo
 ///
@@ -169,9 +174,11 @@ impl Lc {
 
     /// Añade un argumento `{$arg}` => `value` a la traducción.
     ///
-    /// `value` se interpreta siempre como texto. Si se necesita un argumento numérico que además
-    /// deba seleccionar plural (`{ $n -> [one] ... *[other] ... }`), hay que utilizar en su lugar
-    /// [`with_number()`](Self::with_number).
+    /// `value` se interpreta siempre como texto: [`using()`](Self::using) lo escapa, así que puede
+    /// venir de datos de usuario sin riesgo de inyectar marcado. Para insertar marcado HTML de
+    /// confianza hay que utilizar [`with_markup()`](Self::with_markup). Si se necesita un argumento
+    /// numérico que además deba seleccionar plural (`{ $n -> [one] ... *[other] ... }`), hay que
+    /// utilizar [`with_number()`](Self::with_number).
     pub fn with_arg(mut self, arg: impl Into<CowStr>, value: impl Into<CowStr>) -> Self {
         self.args.push((arg.into(), LcArg::Text(value.into())));
         self
@@ -208,6 +215,30 @@ impl Lc {
     /// ```
     pub fn with_number(mut self, arg: impl Into<CowStr>, n: u32) -> Self {
         self.args.push((arg.into(), LcArg::Number(n)));
+        self
+    }
+
+    /// Añade un argumento `{$arg}` => `markup` con marcado HTML de confianza, que
+    /// [`using()`](Self::using) inserta sin escapar.
+    ///
+    /// A diferencia de [`with_arg()`](Self::with_arg), sirve para incluir en la traducción un
+    /// fragmento HTML generado por la aplicación, como un enlace. No debe contener datos de usuario
+    /// sin escapar (construirlo con [`html!`](crate::html::html) los escapa): permitirían inyectar
+    /// marcado, p. ej. un enlace fraudulento en un correo legítimo de la aplicación. Con
+    /// [`get()`](Self::get) y [`lookup()`](Self::lookup) el marcado se interpola como texto.
+    ///
+    /// # Ejemplo
+    ///
+    /// ```rust,no_run
+    /// # use pagetop::prelude::*;
+    /// let link = html! { a href="https://pagetop.cillero.es" { "PageTop" } };
+    /// let text = Lc::l("poweredby_pagetop")
+    ///     .with_markup("pagetop_link", link)
+    ///     .using(&Locale::resolve("es"));
+    /// ```
+    pub fn with_markup(mut self, arg: impl Into<CowStr>, markup: Markup) -> Self {
+        self.args
+            .push((arg.into(), LcArg::Markup(markup.into_string())));
         self
     }
 
@@ -267,22 +298,7 @@ impl Lc {
     /// let text = Lc::l("greeting").with_arg("name", "Usuario").lookup(&r);
     /// ```
     pub fn lookup(&self, language: &impl LangId) -> Option<String> {
-        match &self.op {
-            LcKind::None => None,
-            LcKind::Text(text) => Some(text.clone().into_owned()),
-            LcKind::Translate(key) => {
-                if self.args.is_empty() {
-                    self.locales.try_lookup(language.langid(), key.as_ref())
-                } else {
-                    let mut args = HashMap::with_capacity(self.args.len());
-                    for (k, v) in self.args.iter() {
-                        args.insert(k.clone(), v.into());
-                    }
-                    self.locales
-                        .try_lookup_with_args(language.langid(), key.as_ref(), &args)
-                }
-            }
-        }
+        self.resolve(language, false)
     }
 
     /// Traduce el texto y lo devuelve como [`Markup`] usando la fuente de idioma proporcionada.
@@ -291,9 +307,11 @@ impl Lc {
     ///
     /// Las claves de traducción (`l()`/`t()`) son texto de confianza, con traducciones en ficheros
     /// `.ftl` que pueden incluir marcado HTML (p. ej. `<strong>`, enlaces, etc.) que se insertan
-    /// tal cual. El texto literal (`n()`), en cambio, suele venir de datos en tiempo de ejecución
-    /// que no debe interpretarse como marcado, por lo que se escapa igual que cualquier otro valor
-    /// interpolado con [`html!`](crate::html::html).
+    /// tal cual. El texto literal (`n()`) y los argumentos de texto
+    /// ([`with_arg()`](Self::with_arg)), en cambio, suelen venir de datos en tiempo de ejecución
+    /// que no deben interpretarse como marcado, por lo que se escapan igual que cualquier otro
+    /// valor interpolado con [`html!`](crate::html::html). El marcado de confianza que se pasa como
+    /// argumento con [`with_markup()`](Self::with_markup) se inserta sin escapar.
     ///
     /// No debe usarse para un valor de atributo (`attr=[...]` en [`html!`](crate::html::html)): el
     /// marcado de confianza que se aplica en `l()`/`t()` no tiene sentido ahí, y podría romper el
@@ -309,7 +327,27 @@ impl Lc {
     pub fn using(&self, language: &impl LangId) -> Markup {
         match &self.op {
             LcKind::Text(text) => text.render(),
-            _ => PreEscaped(self.lookup(language).unwrap_or_default()),
+            _ => PreEscaped(self.resolve(language, true).unwrap_or_default()),
+        }
+    }
+
+    // Resuelve la traducción. Con `escape`, los argumentos de texto se escapan para `using()`.
+    fn resolve(&self, language: &impl LangId, escape: bool) -> Option<String> {
+        match &self.op {
+            LcKind::None => None,
+            LcKind::Text(text) => Some(text.clone().into_owned()),
+            LcKind::Translate(key) => {
+                if self.args.is_empty() {
+                    self.locales.try_lookup(language.langid(), key.as_ref())
+                } else {
+                    let mut args = HashMap::with_capacity(self.args.len());
+                    for (k, v) in self.args.iter() {
+                        args.insert(k.clone(), v.to_fluent(escape));
+                    }
+                    self.locales
+                        .try_lookup_with_args(language.langid(), key.as_ref(), &args)
+                }
+            }
         }
     }
 

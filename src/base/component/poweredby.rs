@@ -1,15 +1,5 @@
 use crate::prelude::*;
 
-// Enlace a la página oficial de PageTop.
-const PAGETOP_LINK: &str = concat!(
-    "<a ",
-    "href=\"https://pagetop.cillero.es\" ",
-    "target=\"_blank\" ",
-    "rel=\"noopener noreferrer\">",
-    "PageTop",
-    "</a>",
-);
-
 /// Componente que muestra el típico mensaje *Powered by* (*Funciona con*) en el pie de página.
 ///
 /// Por defecto, usando [`default()`](Self::default) sólo se muestra un reconocimiento a PageTop.
@@ -34,13 +24,18 @@ impl Component for PoweredBy {
     }
 
     async fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
+        let pagetop_link = html! {
+            a href="https://pagetop.cillero.es" target="_blank" rel="noopener noreferrer" {
+                "PageTop"
+            }
+        };
         Ok(html! {
             div id=[self.id()] class="poweredby" {
                 @if let Some(c) = self.copyright() {
                     span class="poweredby__copyright" { (c) "." } " "
                 }
                 span class="poweredby__pagetop" {
-                    (Lc::l("poweredby_pagetop").with_arg("pagetop_link", PAGETOP_LINK).using(cx))
+                    (Lc::l("poweredby_pagetop").with_markup("pagetop_link", pagetop_link).using(cx))
                 }
             }
         })

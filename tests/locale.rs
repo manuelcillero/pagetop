@@ -30,6 +30,42 @@ async fn translation_with_args() {
     assert_eq!(translation, Some("¡Hola, Manuel!".to_string()));
 }
 
+// Text arguments may come from user data: `using()` must not let them inject markup.
+#[pagetop::test]
+async fn using_escapes_text_args() {
+    setup().await;
+
+    let lc = Lc::l("test_hello_user").with_arg("userName", r#"<a href="x">Ana & "Luis"</a>"#);
+    assert_eq!(
+        lc.using(&Locale::resolve("es-ES")).into_string(),
+        "¡Hola, &lt;a href=&quot;x&quot;&gt;Ana &amp; &quot;Luis&quot;&lt;/a&gt;!"
+    );
+}
+
+// `lookup()` returns plain text, escaped later where it is used (e.g. in an attribute).
+#[pagetop::test]
+async fn lookup_does_not_escape_text_args() {
+    setup().await;
+
+    let lc = Lc::l("test_hello_user").with_arg("userName", "Ana & <Luis>");
+    assert_eq!(
+        lc.lookup(&Locale::resolve("es-ES")),
+        Some("¡Hola, Ana & <Luis>!".to_string())
+    );
+}
+
+#[pagetop::test]
+async fn using_keeps_markup_args() {
+    setup().await;
+
+    let name = "Ana & Luis";
+    let lc = Lc::l("test_hello_user").with_markup("userName", html! { strong { (name) } });
+    assert_eq!(
+        lc.using(&Locale::resolve("es-ES")).into_string(),
+        "¡Hola, <strong>Ana &amp; Luis</strong>!"
+    );
+}
+
 #[pagetop::test]
 async fn translation_with_plural_and_select() {
     setup().await;
