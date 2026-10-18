@@ -47,12 +47,18 @@ impl LcArg {
     // Valor para Fluent. Con `escape`, el texto se escapa para insertarse en marcado HTML.
     fn to_fluent(&self, escape: bool) -> FluentValue<'_> {
         match self {
-            LcArg::Text(s) if escape => s.as_ref().render().into_string().into(),
+            LcArg::Text(s) if escape && needs_escape(s) => s.as_ref().render().into_string().into(),
             LcArg::Text(s) => s.as_ref().into(),
             LcArg::Number(n) => (*n).into(),
             LcArg::Markup(s) => s.as_str().into(),
         }
     }
+}
+
+// Indica si el texto contiene algún carácter que Maud escapa. Sin ninguno, el texto escapado es
+// idéntico al original y se interpola prestado, sin reservar memoria para una copia.
+fn needs_escape(text: &str) -> bool {
+    text.bytes().any(|b| matches!(b, b'&' | b'<' | b'>' | b'"'))
 }
 
 // **< Lc >*****************************************************************************************
@@ -410,5 +416,21 @@ impl Lc {
             }
         }
         key
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // `needs_escape()` must flag every character that Maud escapes; otherwise `using()` would
+    // interpolate it unescaped. Compares every character up to U+02FF with Maud's own escaping.
+    #[test]
+    fn needs_escape_matches_maud() {
+        for c in (0..=0x2ffu32).filter_map(char::from_u32) {
+            let text = c.to_string();
+            let escaped = text.as_str().render().into_string();
+            assert_eq!(needs_escape(&text), escaped != text, "mismatch for {c:?}");
+        }
     }
 }
