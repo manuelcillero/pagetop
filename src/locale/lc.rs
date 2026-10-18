@@ -337,16 +337,25 @@ impl Lc {
             LcKind::None => None,
             LcKind::Text(text) => Some(text.clone().into_owned()),
             LcKind::Translate(key) => {
-                if self.args.is_empty() {
-                    self.locales.try_lookup(language.langid(), key.as_ref())
-                } else {
+                let langid = language.langid();
+                let args = (!self.args.is_empty()).then(|| {
                     let mut args = HashMap::with_capacity(self.args.len());
                     for (k, v) in self.args.iter() {
                         args.insert(k.clone(), v.to_fluent(escape));
                     }
-                    self.locales
-                        .try_lookup_with_args(language.langid(), key.as_ref(), &args)
-                }
+                    args
+                });
+                // `try_lookup_complete()` negocia el idioma en cada llamada, con varias reservas de
+                // memoria, aunque `langid` sea casi siempre un idioma disponible. Se prueba antes
+                // el idioma exacto, que es lo primero que elige la negociación, por lo que el
+                // resultado no cambia; sólo si falla se recorre la cadena de idiomas de respaldo.
+                self.locales
+                    .lookup_single_language(langid, key.as_ref(), args.as_ref())
+                    .ok()
+                    .or_else(|| {
+                        self.locales
+                            .try_lookup_complete(langid, key.as_ref(), args.as_ref())
+                    })
             }
         }
     }
