@@ -1,0 +1,35 @@
+[package]
+name = "pagetop-mail"
+version = "0.1.0"
+
+description = """
+    Envío de correo electrónico para aplicaciones PageTop: SMTP, plantillas, HTML y adjuntos.
+"""
+categories = ["email", "web-programming"]
+keywords = ["pagetop", "email", "smtp", "mail", "ssr"]
+
+repository.workspace = true
+homepage.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[dependencies]
+pagetop.workspace = true
+mime_guess.workspace = true
+serde.workspace = true
+thiserror.workspace = true
+tokio.workspace = true
+
+[dependencies.lettre]
+workspace = true
+features = [
+    "builder",
+    "hostname",
+    "pool",
+    "smtp-transport",
+    "sendmail-transport",
+    "file-transport",
+    "tokio1-native-tls",
+]

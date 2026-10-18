@@ -1,0 +1,8 @@
+# Configuración para las pruebas de este crate: guarda los correos en memoria en lugar de enviarlos
+# y ofrece las vistas previas.
+
+[mail]
+transport = "memory"
+from      = "PageTop Tests <tests@example.com>"
+base_url  = "https://example.com/"
+previews  = true

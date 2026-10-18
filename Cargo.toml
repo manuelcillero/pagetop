@@ -11,6 +11,7 @@ members = [
     "extensions/pagetop-bootsier",
     "extensions/pagetop-htmx",
     "extensions/pagetop-admin",
+    "extensions/pagetop-mail",
     "extensions/pagetop-seaorm",
     "extensions/pagetop-user",
 ]
@@ -40,6 +41,7 @@ grass = "0.13"
 indexmap = "2.14"
 indoc = "2.0"
 itoa = "1.0"
+lettre = { version = "0.11", default-features = false }
 mime_guess = "2.0"
 minify-js = "0.6"
 parking_lot = "0.12"
@@ -75,6 +77,7 @@ pagetop-admin    = { version = "0.1", path = "extensions/pagetop-admin" }
 pagetop-aliner   = { version = "0.1", path = "extensions/pagetop-aliner" }
 pagetop-bootsier = { version = "0.1", path = "extensions/pagetop-bootsier" }
 pagetop-htmx     = { version = "0.1", path = "extensions/pagetop-htmx" }
+pagetop-mail     = { version = "0.1", path = "extensions/pagetop-mail" }
 pagetop-seaorm   = { version = "0.0", path = "extensions/pagetop-seaorm" }
 pagetop-user     = { version = "0.1", path = "extensions/pagetop-user" }
 # PageTop
