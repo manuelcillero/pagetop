@@ -20,6 +20,10 @@ async fn waypoint_rejects_open_redirect_targets() {
         "//evil.example",
         "/\\evil.example",
         "javascript:alert(1)",
+        // Browsers strip tabs and newlines from URLs, turning these into `//evil.example`.
+        "/\t/evil.example",
+        "/\n/evil.example",
+        "/\r\n/evil.example",
     ] {
         let w = Waypoint::from(target.to_owned());
         assert_eq!(w.as_deref(), None, "expected {target:?} to be rejected");

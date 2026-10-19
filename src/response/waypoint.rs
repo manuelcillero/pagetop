@@ -52,7 +52,7 @@ impl Waypoint {
     /// Crea un valor explícito.
     ///
     /// Sólo acepta una ruta local que empiece por `/`, pero no por `//` ni `/\` que el navegador
-    /// interpretaría como una URL *protocol-relative*. Una cadena vacía, una URL absoluta
+    /// interpretaría como una URL *protocol-relative*, y sin caracteres de control. Una cadena vacía, una URL absoluta
     /// (`https://...`), un esquema arbitrario (`javascript:...`) o cualquier otro valor que no
     /// cumpla esa forma se trata igual que `None`.
     ///
@@ -64,12 +64,15 @@ impl Waypoint {
         Self {
             waypoint: waypoint.into().filter(|d| {
                 // Sólo acepta `/algo`. Rechaza cadenas vacías, esquemas (`https:`, `javascript:`) y
-                // las URLs *protocol-relative* (`//evil.example`, `/\evil.example`).
+                // las URLs *protocol-relative* (`//evil.example`, `/\evil.example`). También los
+                // caracteres de control: el navegador descarta tabuladores y saltos de línea de una
+                // URL, así que `/\t/evil.example` se convertiría en `//evil.example`.
                 let mut chars = d.chars();
-                match chars.next() {
+                let local = match chars.next() {
                     Some('/') => !matches!(chars.next(), Some('/') | Some('\\')),
                     _ => false,
-                }
+                };
+                local && !d.chars().any(char::is_control)
             }),
         }
     }
