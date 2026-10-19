@@ -110,7 +110,8 @@ impl Email {
     /// Envía el correo y espera a que se entregue (al servidor SMTP, a *sendmail*, al archivo...).
     ///
     /// Falla si alguna dirección o el tipo MIME de algún adjunto no son válidos, si falta el
-    /// remitente o los destinatarios, o si la entrega falla.
+    /// remitente (salvo con `transport = "log"`, que sólo escribe el correo en las trazas) o los
+    /// destinatarios, o si la entrega falla.
     pub async fn send(self) -> Result<(), MailError> {
         transport::deliver(self).await
     }
@@ -270,9 +271,14 @@ impl Email {
         self
     }
 
-    /// Establece el asunto.
+    /// Establece el asunto. Los caracteres de control (saltos de línea, tabuladores...) se cambian
+    /// por espacios: el asunto puede incluir datos de usuario, y una cabecera es una sola línea.
     pub fn with_subject(mut self, subject: impl Into<String>) -> Self {
-        self.subject = subject.into();
+        self.subject = subject
+            .into()
+            .chars()
+            .map(|c| if c.is_control() { ' ' } else { c })
+            .collect();
         self
     }
 

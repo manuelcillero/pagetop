@@ -51,6 +51,11 @@ pub(crate) fn mailer() -> Result<&'static Mailer, MailError> {
 pub(crate) async fn deliver(email: Email) -> Result<(), MailError> {
     let mailer = mailer()?;
     let email = email.prepare(mailer.from.as_ref(), mailer.reply_to.as_ref());
+    // Escribirlo en las trazas no necesita remitente: así una aplicación sin configurar muestra sus
+    // correos aunque no tenga `mail.from`.
+    if let Transport::Log = mailer.transport {
+        return log_email(&email, mailer.redirect_to.as_ref());
+    }
     let message = email.to_message()?;
     let envelope = match &mailer.redirect_to {
         Some(address) => Envelope::new(message.envelope().from().cloned(), vec![address.clone()])
@@ -76,25 +81,43 @@ pub(crate) async fn deliver(email: Email) -> Result<(), MailError> {
                 .await
                 .map_err(MailError::File)?;
         }
-        Transport::Log => {
-            let body = email
-                .text()
-                .cloned()
-                .or_else(|| email.html().map(|html| html.as_str().to_owned()))
-                .unwrap_or_default();
-            trace::info!(
-                "Email not delivered (mail.transport = \"log\")\n\
-                 From: {}\nTo: {}\nSubject: {}\n\n{}",
-                email.from().map(ToString::to_string).unwrap_or_default(),
-                recipients(&envelope).join(", "),
-                email.subject(),
-                body
-            );
-        }
         Transport::Memory => {
             outbox::push(email, recipients(&envelope), raw);
         }
+        Transport::Log => unreachable!("log transport is handled before building the message"),
     }
+    Ok(())
+}
+
+// Escribe el correo en las trazas en lugar de enviarlo (`transport = "log"`). Valida las
+// direcciones igual que al enviar, salvo que falte el remitente.
+fn log_email(email: &Email, redirect_to: Option<&Address>) -> Result<(), MailError> {
+    for mailbox in email.from().into_iter().chain(email.reply_to()) {
+        mailbox.to_lettre()?;
+    }
+    let mut recipients = Vec::new();
+    for mailbox in email.to().iter().chain(email.cc()).chain(email.bcc()) {
+        recipients.push(mailbox.to_lettre()?.email.to_string());
+    }
+    if recipients.is_empty() {
+        return Err(MailError::NoRecipients);
+    }
+    if let Some(address) = redirect_to {
+        recipients = vec![address.to_string()];
+    }
+    let body = email
+        .text()
+        .cloned()
+        .or_else(|| email.html().map(|html| html.as_str().to_owned()))
+        .unwrap_or_default();
+    trace::info!(
+        "Email not delivered (mail.transport = \"log\")\n\
+         From: {}\nTo: {}\nSubject: {}\n\n{}",
+        email.from().map(ToString::to_string).unwrap_or_default(),
+        recipients.join(", "),
+        email.subject(),
+        body
+    );
     Ok(())
 }
 

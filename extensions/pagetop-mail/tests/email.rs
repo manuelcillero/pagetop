@@ -79,6 +79,8 @@ async fn control_characters_in_names_cannot_inject_headers() {
     .await;
     assert_eq!(sent.envelope_to(), &["control@example.com".to_string()]);
     assert!(!sent.raw().contains("\r\nBcc:"));
+    // A subject is a single line: control characters become spaces.
+    assert_eq!(sent.email().subject(), "Hi  Bcc: evil@example.com");
 }
 
 // **< Composition >********************************************************************************
