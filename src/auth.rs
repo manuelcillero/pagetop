@@ -188,14 +188,16 @@ impl CurrentUser {
 /// impl Permission for MyPermission {
 ///     fn key(&self) -> CowStr {
 ///         match self {
-///             Self::EditPosts => "my_extension.edit_posts".into(),
-///             Self::DeletePosts => "my_extension.delete_posts".into(),
+///             Self::EditPosts => "my_extension:edit_posts".into(),
+///             Self::DeletePosts => "my_extension:delete_posts".into(),
 ///         }
 ///     }
 /// }
 /// ```
 pub trait Permission: Send + Sync {
-    /// Clave única del permiso (p. ej. `"my_extension.edit_posts"`).
+    /// Clave única del permiso. Por convención, el nombre de la extensión y el del permiso
+    /// separados por `:` (p. ej. `"my_extension:edit_posts"`), para que no coincida con la de otra
+    /// extensión.
     fn key(&self) -> CowStr;
 
     /// Descripción breve para humanos (p. ej. en una pantalla de asignación de permisos a roles).
@@ -306,7 +308,7 @@ impl CheckPermission {
 /// # #[derive(Clone, Copy, Debug)]
 /// # enum MyPermission { Edit }
 /// # impl Permission for MyPermission {
-/// #     fn key(&self) -> CowStr { "myapp.edit".into() }
+/// #     fn key(&self) -> CowStr { "myapp:edit".into() }
 /// # }
 /// async fn my_handler(request: HttpRequest) -> Result<Markup, ErrorPage> {
 ///     if !has_permission(&request, &MyPermission::Edit) {
@@ -349,7 +351,7 @@ pub fn has_permission(request: &HttpRequest, perm: PermissionRef) -> bool {
 /// # #[derive(Clone, Copy, Debug)]
 /// # enum MyPermission { Edit }
 /// # impl Permission for MyPermission {
-/// #     fn key(&self) -> CowStr { "myapp.edit".into() }
+/// #     fn key(&self) -> CowStr { "myapp:edit".into() }
 /// # }
 /// async fn my_handler(request: HttpRequest) -> Result<Markup, ErrorPage> {
 ///     // Comprueba si la petición está autorizada.
