@@ -10,9 +10,10 @@ use crate::component::{LoginForm, PasswordResetConfirmForm, PasswordResetForm, R
 use crate::config::SETTINGS;
 use crate::error::AuthError;
 use crate::handlers::admin::map_auth_error;
+use crate::mail::send_token_mail;
 use crate::password;
 use crate::session;
-use crate::token::{TokenKind, consume_token, create_token};
+use crate::token::{TokenKind, consume_token, create_token, is_valid_token};
 use crate::{LOCALES_USER, LOGIN_PATH, PROFILE_PATH};
 
 // **< Tipos de formularios >***********************************************************************
@@ -101,6 +102,7 @@ pub async fn login_post(
                 .with_title(Lc::t("title-login", &LOCALES_USER))
                 .with_child(
                     LoginForm::new()
+                        .with_username(form.username)
                         .with_error(Lc::t(error_key, &LOCALES_USER))
                         .with_waypoint(waypoint),
                 )
@@ -172,24 +174,29 @@ pub async fn register_post(
     )
     .await;
     match result {
-        Ok(_user_id) => Redirect::see_other(cx.route(LOGIN_PATH)),
-        Err(err) => {
-            let error_lc = match &err {
-                AuthError::PasswordTooShort(n) => {
-                    Lc::t("error-password-too-short", &LOCALES_USER).with_arg("n", n.to_string())
-                }
-                AuthError::PasswordMismatch => Lc::t("error-password-mismatch", &LOCALES_USER),
-                AuthError::UsernameTaken => Lc::t("error-username-taken", &LOCALES_USER),
-                AuthError::EmailTaken => Lc::t("error-email-taken", &LOCALES_USER),
-                _ => Lc::t("error-internal", &LOCALES_USER),
-            };
+        Ok(user_id) if SETTINGS.require_email_verification => {
+            send_verification_mail(&request, user_id).await;
             Page::new(request)
                 .with_title(Lc::t("title-register", &LOCALES_USER))
-                .with_child(RegisterForm::new().with_error(error_lc))
+                .with_child(Html::with(|cx| {
+                    html! { p { (Lc::t("msg-verification-sent", &LOCALES_USER).using(cx)) } }
+                }))
                 .render()
                 .await
                 .into_response()
         }
+        Ok(_) => Redirect::see_other(cx.route(LOGIN_PATH)),
+        Err(err) => Page::new(request)
+            .with_title(Lc::t("title-register", &LOCALES_USER))
+            .with_child(
+                RegisterForm::new()
+                    .with_username(form.username)
+                    .with_email(form.email)
+                    .with_error(map_auth_error(&err)),
+            )
+            .render()
+            .await
+            .into_response(),
     }
 }
 
@@ -211,21 +218,36 @@ pub async fn password_reset_post(
     request: HttpRequest,
     web::Form(form): web::Form<PasswordResetFormData>,
 ) -> Result<Markup, ErrorPage> {
-    // Respondemos igual exista o no el email para no revelar qué emails están registrados.
-    {
+    // Respondemos igual exista o no el email para no revelar qué emails están registrados, también
+    // en el tiempo de respuesta: la búsqueda, el token y el correo se resuelven en segundo plano.
+    // Sólo a cuentas activas: una pendiente o bloqueada no podría iniciar sesión con la nueva
+    // contraseña.
+    let mail_request = request.clone();
+    tokio::spawn(async move {
+        use crate::account::UserStatus;
         use crate::entity::user;
+        use crate::identity::email_key;
         use pagetop_seaorm::db::{ColumnTrait, EntityTrait, QueryFilter, dbconn};
-        if let Ok(Some(user_model)) = user::Entity::find()
-            .filter(user::Column::Email.eq(&form.email))
+        let found = user::Entity::find()
+            .filter(user::Column::EmailKey.eq(email_key(&form.email)))
+            .filter(user::Column::Status.eq(UserStatus::Active.as_i16()))
             .one(dbconn())
-            .await
-        {
-            create_token(user_model.id, TokenKind::PasswordReset)
-                .await
-                .ok();
-            // TODO: enviar email con el token al usuario.
+            .await;
+        let user_model = match found {
+            Ok(Some(user_model)) => user_model,
+            Ok(None) => return,
+            Err(err) => {
+                trace::error!("Cannot look up account for password reset: {err}");
+                return;
+            }
+        };
+        match create_token(user_model.id, TokenKind::PasswordReset).await {
+            Ok(token) => {
+                send_token_mail(&mail_request, TokenKind::PasswordReset, &user_model, &token);
+            }
+            Err(err) => trace::error!("Cannot create password reset token: {err}"),
         }
-    }
+    });
     Page::new(request)
         .with_title(Lc::t("title-password-reset", &LOCALES_USER))
         .with_child(Html::with(|cx| {
@@ -242,23 +264,10 @@ pub async fn password_reset_confirm_get(
     request: HttpRequest,
     web::Path((uid, token)): web::Path<(i32, String)>,
 ) -> Result<Markup, ErrorPage> {
-    let valid = {
-        use crate::entity::user_token;
-        use crate::token::hash_token;
-        use pagetop_seaorm::db::{ColumnTrait, EntityTrait, QueryFilter, dbconn};
-        let hash = hash_token(&token);
-        let now = Utc::now();
-        user_token::Entity::find()
-            .filter(user_token::Column::TokenHash.eq(&hash))
-            .filter(user_token::Column::UserId.eq(uid))
-            .filter(user_token::Column::ConsumedAt.is_null())
-            .one(dbconn())
-            .await
-            .ok()
-            .flatten()
-            .is_some_and(|r| r.expires_at > now)
-    };
-    if !valid {
+    if !is_valid_token(uid, &token, TokenKind::PasswordReset)
+        .await
+        .unwrap_or(false)
+    {
         return Err(ErrorPage::NotFound(Some(request)));
     }
     Page::new(request)
@@ -271,36 +280,36 @@ pub async fn password_reset_confirm_get(
 // **< password_reset_confirm_post >****************************************************************
 
 /// POST /user/password/reset/{uid}/{token} - Aplica la nueva contraseña.
+///
+/// La contraseña se valida antes de consumir el token: si no es válida, el mismo enlace sirve para
+/// intentarlo de nuevo. Al aplicarla se cierran todas las sesiones del usuario y se levanta el
+/// bloqueo temporal por intentos fallidos, porque quien abre el enlace ha demostrado ser el titular
+/// de la dirección.
 pub async fn password_reset_confirm_post(
     request: HttpRequest,
-    web::Path((_uid, token)): web::Path<(i32, String)>,
+    web::Path((uid, token)): web::Path<(i32, String)>,
     web::Form(form): web::Form<PasswordResetConfirmFormData>,
 ) -> Response {
     let cx = Context::new(request.clone());
-    if let Err(err) = password::passwords_match(&form.password, &form.confirm_password) {
-        return Page::new(request)
-            .with_title(Lc::t("title-new-password", &LOCALES_USER))
-            .with_child(PasswordResetConfirmForm::new().with_error(map_auth_error(&err)))
-            .render()
-            .await
-            .into_response();
-    }
     let result = async {
         use crate::entity::user;
         use pagetop_seaorm::db::{ActiveModelTrait, Set, dbconn};
-        let user_id = consume_token(&token, TokenKind::PasswordReset).await?;
+        password::passwords_match(&form.password, &form.confirm_password)?;
         password::validate_strength(&form.password)?;
-        let hash = password::hash_password(&form.password)?;
-        let now = Utc::now();
+        let hash = password::hash_password_async(&form.password).await?;
+        consume_token(uid, &token, TokenKind::PasswordReset).await?;
         user::ActiveModel {
-            id: Set(user_id),
+            id: Set(uid),
             password_hash: Set(hash),
-            updated_at: Set(now),
+            failed_login_count: Set(0),
+            failed_login_at: Set(None),
+            locked_until: Set(None),
+            updated_at: Set(Utc::now()),
             ..Default::default()
         }
         .update(dbconn())
         .await?;
-        session::destroy_user_sessions(user_id)
+        session::destroy_user_sessions(uid)
             .await
             .map_err(AuthError::Database)?;
         Ok::<(), AuthError>(())
@@ -308,41 +317,87 @@ pub async fn password_reset_confirm_post(
     .await;
     match result {
         Ok(()) => Redirect::see_other(cx.route(LOGIN_PATH)),
-        Err(_) => Page::new(request)
-            .with_title(Lc::t("title-new-password", &LOCALES_USER))
-            .with_child(
-                PasswordResetConfirmForm::new()
-                    .with_error(Lc::t("error-token-invalid", &LOCALES_USER)),
-            )
-            .render()
-            .await
-            .into_response(),
+        Err(err) => {
+            let error = match err {
+                AuthError::InvalidToken => Lc::t("error-token-invalid", &LOCALES_USER),
+                err => map_auth_error(&err),
+            };
+            Page::new(request)
+                .with_title(Lc::t("title-new-password", &LOCALES_USER))
+                .with_child(PasswordResetConfirmForm::new().with_error(error))
+                .render()
+                .await
+                .into_response()
+        }
     }
 }
 
-// **< verify_email_get >***************************************************************************
+// **< verify_email_get / verify_email_post >*******************************************************
 
-/// GET /user/verify/{uid}/{token} - Confirma la dirección de email.
+/// GET /user/verify/{uid}/{token} - Pide confirmar la dirección de email con un botón.
+///
+/// Abrir el enlace no verifica nada: los servidores de correo y los antivirus abren por su cuenta
+/// los enlaces de los correos para analizarlos, y así quedaría verificada una cuenta creada con la
+/// dirección de otra persona sin que ésta haya hecho nada. Sólo el envío del formulario
+/// ([`verify_email_post()`]) consume el token.
 pub async fn verify_email_get(
     request: HttpRequest,
-    web::Path((_uid, token)): web::Path<(i32, String)>,
+    web::Path((uid, token)): web::Path<(i32, String)>,
+) -> Result<Markup, ErrorPage> {
+    if !is_valid_token(uid, &token, TokenKind::EmailVerification)
+        .await
+        .unwrap_or(false)
+    {
+        return Err(ErrorPage::NotFound(Some(request)));
+    }
+    // Sin `with_action()`: se envía a la propia URL, que incluye el `{uid}/{token}`.
+    let form = Form::new()
+        .with_id("user-verify-email-form")
+        .with_method(form::Method::Post)
+        .with_child(Html::with(|cx| {
+            html! { p { (Lc::t("msg-verify-email", &LOCALES_USER).using(cx)) } }
+        }))
+        .with_child(
+            Button::submit(Lc::t("btn-verify-email", &LOCALES_USER))
+                .with_style(button::Style::Solid(Intent::Primary)),
+        );
+    Page::new(request)
+        .with_title(Lc::t("title-verify-email", &LOCALES_USER))
+        .with_child(form)
+        .render()
+        .await
+}
+
+/// POST /user/verify/{uid}/{token} - Confirma la dirección de email.
+///
+/// Activa la cuenta si estaba pendiente de esta verificación; una cuenta bloqueada sigue bloqueada.
+pub async fn verify_email_post(
+    request: HttpRequest,
+    web::Path((uid, token)): web::Path<(i32, String)>,
 ) -> Response {
     let cx = Context::new(request.clone());
     let result = async {
         use crate::account::UserStatus;
         use crate::entity::user;
-        use pagetop_seaorm::db::{ActiveModelTrait, Set, dbconn};
-        let user_id = consume_token(&token, TokenKind::EmailVerification).await?;
+        use pagetop_seaorm::db::query::Expr;
+        use pagetop_seaorm::db::{ColumnTrait, EntityTrait, QueryFilter, dbconn};
+        consume_token(uid, &token, TokenKind::EmailVerification).await?;
         let now = Utc::now();
-        user::ActiveModel {
-            id: Set(user_id),
-            email_verified_at: Set(Some(now)),
-            status: Set(UserStatus::Active.as_i16()),
-            updated_at: Set(now),
-            ..Default::default()
-        }
-        .update(dbconn())
-        .await?;
+        user::Entity::update_many()
+            .col_expr(user::Column::EmailVerifiedAt, Expr::value(now))
+            .col_expr(user::Column::UpdatedAt, Expr::value(now))
+            .filter(user::Column::Id.eq(uid))
+            .exec(dbconn())
+            .await?;
+        user::Entity::update_many()
+            .col_expr(
+                user::Column::Status,
+                Expr::value(UserStatus::Active.as_i16()),
+            )
+            .filter(user::Column::Id.eq(uid))
+            .filter(user::Column::Status.eq(UserStatus::Pending.as_i16()))
+            .exec(dbconn())
+            .await?;
         Ok::<(), AuthError>(())
     }
     .await;
@@ -353,6 +408,30 @@ pub async fn verify_email_get(
 }
 
 // **< HELPERS >************************************************************************************
+
+// Envía el correo para verificar la dirección de la cuenta recién creada. Un fallo no impide el
+// registro: la cuenta queda pendiente y un administrador puede activarla.
+//
+// La dirección todavía no está verificada: cualquiera puede registrarse con la de otra persona y
+// hacer que le llegue este correo, que sale del dominio de la aplicación y con su diseño, así que
+// pasa los filtros y resulta creíble. Por eso no incluye nada que elija quien se registra, ni
+// siquiera el nombre de usuario: bastaría para colar un texto o un enlace engañoso (*phishing*).
+async fn send_verification_mail(request: &HttpRequest, user_id: i32) {
+    use crate::entity::user;
+    use pagetop_seaorm::db::{EntityTrait, dbconn};
+    let user = match user::Entity::find_by_id(user_id).one(dbconn()).await {
+        Ok(Some(user)) => user,
+        Ok(None) => return,
+        Err(err) => {
+            trace::error!("Cannot load new user {user_id} to send verification email: {err}");
+            return;
+        }
+    };
+    match create_token(user_id, TokenKind::EmailVerification).await {
+        Ok(token) => send_token_mail(request, TokenKind::EmailVerification, &user, &token),
+        Err(err) => trace::error!("Cannot create email verification token: {err}"),
+    }
+}
 
 fn redirect_with_cookie(to: impl Into<RoutePath>, cookie: &str) -> Response {
     (

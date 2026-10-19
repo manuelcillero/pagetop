@@ -3,7 +3,7 @@
 use pagetop::prelude::*;
 
 use crate::LOCALES_USER;
-use crate::component::error_banner;
+use crate::component::{PasswordConfirm, error_banner};
 
 #[derive(AutoDefault, Clone, Debug)]
 pub struct PasswordResetConfirmForm {
@@ -24,19 +24,8 @@ impl Component for PasswordResetConfirmForm {
             .with_method(form::Method::Post)
             .with_child(error_banner(self.error.clone()))
             .with_child(
-                form::input::Field::password()
-                    .with_name("password")
-                    .with_label(Lc::t("field-new-password", &LOCALES_USER))
-                    .with_autocomplete(Some(form::Autocomplete::new_password()))
-                    .with_autofocus(true)
-                    .with_required(true),
-            )
-            .with_child(
-                form::input::Field::password()
-                    .with_name("confirm_password")
-                    .with_label(Lc::t("field-confirm-password", &LOCALES_USER))
-                    .with_autocomplete(Some(form::Autocomplete::new_password()))
-                    .with_required(true),
+                PasswordConfirm::new()
+                    .with_password_label(Lc::t("field-new-password", &LOCALES_USER)),
             )
             .with_child(Button::submit(Lc::t("btn-set-password", &LOCALES_USER)));
 

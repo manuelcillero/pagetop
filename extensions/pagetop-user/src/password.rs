@@ -6,6 +6,8 @@ use argon2::{
 };
 use rand_core::OsRng;
 
+use std::sync::LazyLock;
+
 use crate::config::SETTINGS;
 use crate::error::AuthError;
 
@@ -38,25 +40,51 @@ pub fn verify_password(plain: &str, phc: &str) -> bool {
         .is_ok()
 }
 
-/// Indica si el hash necesita actualizarse (parámetros de coste han cambiado).
+// Versiones de `hash_password()` y `verify_password()` para las peticiones: el cálculo se hace en
+// el *pool* de hilos bloqueantes de Tokio. Con los costes por defecto tarda decenas de milisegundos,
+// que retendrían un hilo del *runtime* asíncrono y retrasarían las demás peticiones (p. ej. durante
+// un intento de fuerza bruta contra el inicio de sesión).
+pub(crate) async fn hash_password_async(plain: &str) -> Result<String, AuthError> {
+    let plain = plain.to_owned();
+    tokio::task::spawn_blocking(move || hash_password(&plain))
+        .await
+        .map_err(|err| AuthError::PasswordHash(err.to_string()))?
+}
+
+pub(crate) async fn verify_password_async(plain: &str, phc: &str) -> bool {
+    let (plain, phc) = (plain.to_owned(), phc.to_owned());
+    tokio::task::spawn_blocking(move || verify_password(&plain, &phc))
+        .await
+        .unwrap_or(false)
+}
+
+// Verifica la contraseña contra un *hash* que no corresponde a ninguna cuenta. Cuando no existe la
+// cuenta, iguala el tiempo de respuesta al de una contraseña errónea: si no, la diferencia
+// revelaría qué cuentas existen.
+pub(crate) async fn verify_password_without_account(plain: &str) {
+    static DUMMY_HASH: LazyLock<String> =
+        LazyLock::new(|| hash_password("pagetop-user-dummy-password").unwrap_or_default());
+    verify_password_async(plain, DUMMY_HASH.as_str()).await;
+}
+
+/// Indica si el hash necesita actualizarse: no es de Argon2id o se cifró con otros parámetros de
+/// coste que los configurados.
 pub fn needs_rehash(phc: &str) -> bool {
     let Ok(parsed) = PasswordHash::new(phc) else {
         return true;
     };
-    // Compara el coste de memoria con el configurado.
-    if let Some(m_cost) = parsed.params.get_str("m") {
-        let current: u32 = m_cost.parse().unwrap_or(0);
-        if current != SETTINGS.password.argon2_m_cost {
-            return true;
-        }
-    }
-    false
+    let cost = |name: &str| parsed.params.get_decimal(name);
+    let password = &SETTINGS.password;
+    parsed.algorithm != argon2::Algorithm::Argon2id.ident()
+        || cost("m") != Some(password.argon2_m_cost)
+        || cost("t") != Some(password.argon2_t_cost)
+        || cost("p") != Some(password.argon2_p_cost)
 }
 
-/// Valida la longitud mínima y devuelve error si no se cumple.
+/// Valida la longitud mínima, en caracteres, y devuelve error si no se cumple.
 pub fn validate_strength(plain: &str) -> Result<(), AuthError> {
     let min = SETTINGS.password.min_length;
-    if plain.len() < min {
+    if plain.chars().count() < min {
         Err(AuthError::PasswordTooShort(min))
     } else {
         Ok(())

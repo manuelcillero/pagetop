@@ -168,19 +168,37 @@ pub(crate) struct NewRoleData<'a> {
     pub weight: i32,
 }
 
+/// Longitud máxima, en caracteres, del nombre técnico de un rol, la de su columna. `u16` porque
+/// también limita el campo del formulario (`maxlength`), igual que [`ROLE_LABEL_MAX_CHARS`].
+pub(crate) const ROLE_MACHINE_NAME_MAX_CHARS: u16 = 64;
+
+/// Longitud máxima, en caracteres, de la etiqueta de un rol, la de su columna.
+pub(crate) const ROLE_LABEL_MAX_CHARS: u16 = 128;
+
 // Sólo minúsculas ASCII, dígitos y guiones bajos (ver el texto de ayuda del formulario,
 // "help-machine-name-immutable"); el machine_name es inmutable tras la creación.
 fn is_valid_machine_name(name: &str) -> bool {
-    !name.is_empty()
+    (1..=usize::from(ROLE_MACHINE_NAME_MAX_CHARS)).contains(&name.len())
         && name
             .bytes()
             .all(|b| b.is_ascii_lowercase() || b.is_ascii_digit() || b == b'_')
+}
+
+// Etiqueta sin espacios en los extremos; no puede quedar vacía ni superar la longitud máxima.
+fn validate_label(label: &str) -> Result<&str, AuthError> {
+    let label = label.trim();
+    let max = usize::from(ROLE_LABEL_MAX_CHARS);
+    if label.is_empty() || label.chars().count() > max {
+        return Err(AuthError::InvalidRoleLabel(max));
+    }
+    Ok(label)
 }
 
 pub(crate) async fn create_role(data: NewRoleData<'_>) -> Result<i32, AuthError> {
     if !is_valid_machine_name(data.machine_name) {
         return Err(AuthError::InvalidMachineName);
     }
+    let label = validate_label(data.label)?;
 
     if role::Entity::find()
         .filter(role::Column::MachineName.eq(data.machine_name))
@@ -195,7 +213,7 @@ pub(crate) async fn create_role(data: NewRoleData<'_>) -> Result<i32, AuthError>
     let new_role = role::ActiveModel {
         id: ActiveValue::NotSet,
         machine_name: Set(data.machine_name.to_owned()),
-        label: Set(data.label.to_owned()),
+        label: Set(label.to_owned()),
         description: Set(data.description.map(str::to_owned)),
         weight: Set(data.weight),
         locked: Set(false),
@@ -219,11 +237,12 @@ pub(crate) async fn update_role(role_id: i32, data: RoleUpdateData<'_>) -> Resul
     if role.locked {
         return Err(AuthError::RoleLocked);
     }
+    let label = validate_label(data.label)?;
 
     let now = Utc::now();
     role::ActiveModel {
         id: Set(role_id),
-        label: Set(data.label.to_owned()),
+        label: Set(label.to_owned()),
         description: Set(data.description.map(str::to_owned)),
         weight: Set(data.weight),
         updated_at: Set(now),
@@ -272,7 +291,18 @@ pub(crate) async fn set_role_permissions(
     }
 
     let now = Utc::now();
-    let keys = permission_keys.to_vec();
+    // Sin repetidos: una clave repetida en el formulario violaría la clave primaria.
+    let mut keys = permission_keys.to_vec();
+    keys.sort_unstable();
+    keys.dedup();
+    let rows: Vec<_> = keys
+        .into_iter()
+        .map(|key| role_permission::ActiveModel {
+            role_id: Set(role_id),
+            permission_key: Set(key),
+            granted_at: Set(now),
+        })
+        .collect();
     dbconn()
         .transaction::<_, _, AuthError>(|txn| {
             Box::pin(async move {
@@ -280,14 +310,10 @@ pub(crate) async fn set_role_permissions(
                     .filter(role_permission::Column::RoleId.eq(role_id))
                     .exec(txn)
                     .await?;
-                for key in keys {
-                    role_permission::Entity::insert(role_permission::ActiveModel {
-                        role_id: Set(role_id),
-                        permission_key: Set(key),
-                        granted_at: Set(now),
-                    })
-                    .exec(txn)
-                    .await?;
+                if !rows.is_empty() {
+                    role_permission::Entity::insert_many(rows)
+                        .exec_without_returning(txn)
+                        .await?;
                 }
                 Ok(())
             })

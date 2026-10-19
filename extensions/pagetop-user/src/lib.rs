@@ -32,7 +32,7 @@ enum MyPermission {
 impl Permission for MyPermission {
     fn key(&self) -> CowStr {
         match self {
-            Self::SeeDashboard => "myapp.see_dashboard".into(),
+            Self::SeeDashboard => "myapp:see_dashboard".into(),
         }
     }
 }
@@ -59,6 +59,37 @@ async fn dashboard(request: HttpRequest) -> Result<Markup, ErrorPage> {
         .render().await
 }
 ```
+
+## Nombres de usuario y email
+
+Cada cuenta tiene un nombre de usuario y un email, obligatorios y únicos; se puede iniciar sesión
+con cualquiera de los dos. Qué nombres de usuario se aceptan lo decide `identity_policy` en la
+sección `[user]`:
+
+```toml
+[user]
+identity_policy = "unicode"     # "strict" (por defecto), "unicode" o "permissive".
+```
+
+Con cualquier política, un nombre de usuario nunca contiene `@`, no se distinguen mayúsculas (`Ana`
+y `ana` son el mismo usuario) y no se admiten nombres que se confunden a simple vista con otro
+existente (`rnaria` si existe `maria`, o `аdmin` con una `а` cirílica). Las reglas completas de
+cada política, y las del email, están en [`IdentityPolicy`](config::IdentityPolicy).
+
+## Correos
+
+La recuperación de contraseña y, con `require_email_verification`, la verificación de las cuentas
+nuevas envían un correo con un enlace de un solo uso mediante [`pagetop_mail`]. Configura el envío
+en la sección `[mail]`, incluidos el remitente (`mail.from`), que estos correos no indican, y la
+URL pública de los enlaces (`mail.base_url`): sin configurar, los correos se escriben en las trazas
+en lugar de enviarse.
+
+La recuperación de contraseña sólo se envía a cuentas activas. Mientras una dirección no está
+verificada podría ser de otra persona, así que sus correos no incluyen nada que elija quien creó
+la cuenta, ni el nombre de usuario ni el nombre visible. Una dirección queda verificada al
+confirmarla desde el enlace del correo de verificación (abrirlo no basta: hay que pulsar un botón,
+porque los servidores de correo abren los enlaces para analizarlos) o cuando la fija un
+administrador, y deja de estarlo si el usuario la cambia en su perfil.
 */
 
 use pagetop::prelude::*;
@@ -76,6 +107,8 @@ pub(crate) mod auth;
 pub(crate) mod demo;
 pub(crate) mod entity;
 pub(crate) mod handlers;
+pub(crate) mod identity;
+pub(crate) mod mail;
 pub(crate) mod middleware;
 pub(crate) mod migration;
 pub(crate) mod service;
@@ -127,7 +160,8 @@ const PROFILE_PASSWORD_PATH: &str = "/user/password";
 // Con el sufijo `/{uid}/{token}`: GET - muestra el formulario de nueva contraseña.
 //                                 POST - la aplica.
 const PASSWORD_RESET_PATH: &str = "/user/password/reset";
-// Con el sufijo `/{uid}/{token}`: confirma la dirección de email del usuario.
+// Con el sufijo `/{uid}/{token}`: GET - pide confirmar la dirección de email del usuario.
+//                                 POST - la confirma.
 const VERIFY_PATH: &str = "/user/verify";
 
 // **< Rutas de administración (fijas) >************************************************************
@@ -231,6 +265,7 @@ impl Extension for User {
             &pagetop_admin::Admin,
             &pagetop_seaorm::SeaORM,
             &pagetop_htmx::Htmx,
+            &pagetop_mail::Mail,
         ]
     }
 
@@ -242,6 +277,8 @@ impl Extension for User {
             DeclarePermissions::new(permission::declare_builtin_permissions),
             // Registra las páginas de usuarios, roles y permisos en el portal de pagetop-admin.
             DeclareAdminPages::new(declare_admin_pages),
+            // Declara las vistas previas de los correos de recuperación y verificación.
+            pagetop_mail::DeclareMailPreviews::new(mail::declare_previews),
         ]
     }
 
@@ -258,7 +295,7 @@ impl Extension for User {
         // Los permisos de "anonymous" en memoria sobreviven a una nueva preparación en el mismo
         // proceso (las pruebas lo hacen), que puede usar otra base de datos.
         session::invalidate_anonymous_permissions();
-        auth::seed_initial_data().await;
+        auth::seed_initial_data().await?;
         #[cfg(feature = "demo-data")]
         demo::seed_demo_data().await;
         Ok(())
@@ -301,7 +338,7 @@ impl Extension for User {
             )
             .route(
                 &format!("{}/{{uid}}/{{token}}", VERIFY_PATH),
-                web::get(handlers::auth::verify_email_get),
+                web::get(handlers::auth::verify_email_get).post(handlers::auth::verify_email_post),
             )
             .route(ADMIN_USERS_PATH, web::get(handlers::admin::users::list_get))
             .route(

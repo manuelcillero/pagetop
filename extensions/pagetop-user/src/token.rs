@@ -2,10 +2,8 @@
 //! email...).
 
 use pagetop::prelude::*;
-use pagetop_seaorm::db::{
-    ActiveModelTrait, ActiveValue, ColumnTrait, EntityTrait, IntoActiveModel, QueryFilter, Set,
-    dbconn,
-};
+use pagetop_seaorm::db::query::Expr;
+use pagetop_seaorm::db::{ActiveValue, ColumnTrait, EntityTrait, QueryFilter, Set, dbconn};
 
 use crate::entity::user_token;
 use crate::error::AuthError;
@@ -97,30 +95,42 @@ pub async fn create_token(user_id: i32, kind: TokenKind) -> Result<String, AuthE
     Ok(token)
 }
 
-// **< consume_token >******************************************************************************
+// **< is_valid_token / consume_token >*************************************************************
 
-/// Verifica que el token en claro sea válido (existe, no ha expirado y no ha sido consumido)
-/// y lo marca como consumido. Devuelve el `user_id` asociado.
-pub async fn consume_token(token: &str, kind: TokenKind) -> Result<i32, AuthError> {
-    let hash = hash_token(token);
-    let now = Utc::now();
-
+/// Comprueba, sin consumirlo, que el token en claro sea válido para el usuario: existe, es del tipo
+/// indicado, no ha caducado y no se ha consumido.
+pub async fn is_valid_token(user_id: i32, token: &str, kind: TokenKind) -> Result<bool, AuthError> {
     let row = user_token::Entity::find()
-        .filter(user_token::Column::TokenHash.eq(&hash))
+        .filter(user_token::Column::TokenHash.eq(hash_token(token)))
+        .filter(user_token::Column::UserId.eq(user_id))
         .filter(user_token::Column::Kind.eq(kind.as_str()))
+        .filter(user_token::Column::ConsumedAt.is_null())
+        .filter(user_token::Column::ExpiresAt.gt(Utc::now()))
         .one(dbconn())
-        .await?
-        .ok_or(AuthError::InvalidToken)?;
+        .await?;
+    Ok(row.is_some())
+}
 
-    if row.consumed_at.is_some() || row.expires_at < now {
-        return Err(AuthError::InvalidToken);
+/// Consume el token en claro del usuario si es válido (ver [`is_valid_token()`]).
+///
+/// Falla con [`AuthError::InvalidToken`] si no lo es. Se marca como consumido en una sola
+/// sentencia condicionada a que siga sin consumir: dos peticiones simultáneas con el mismo enlace
+/// no pueden usarlo las dos.
+pub async fn consume_token(user_id: i32, token: &str, kind: TokenKind) -> Result<(), AuthError> {
+    let now = Utc::now();
+    let result = user_token::Entity::update_many()
+        .col_expr(user_token::Column::ConsumedAt, Expr::value(now))
+        .col_expr(user_token::Column::UpdatedAt, Expr::value(now))
+        .filter(user_token::Column::TokenHash.eq(hash_token(token)))
+        .filter(user_token::Column::UserId.eq(user_id))
+        .filter(user_token::Column::Kind.eq(kind.as_str()))
+        .filter(user_token::Column::ConsumedAt.is_null())
+        .filter(user_token::Column::ExpiresAt.gt(now))
+        .exec(dbconn())
+        .await?;
+    if result.rows_affected == 1 {
+        Ok(())
+    } else {
+        Err(AuthError::InvalidToken)
     }
-
-    let user_id = row.user_id;
-    let mut active = row.into_active_model();
-    active.consumed_at = Set(Some(now));
-    active.updated_at = Set(now);
-    active.update(dbconn()).await?;
-
-    Ok(user_id)
 }

@@ -28,6 +28,19 @@ pub enum AuthError {
     #[error("username is already taken")]
     UsernameTaken,
 
+    #[error("username does not meet the identity policy (user.identity_policy)")]
+    InvalidUsername,
+
+    #[error("invalid email address")]
+    InvalidEmail,
+
+    #[error("invalid setting \"{key}\"")]
+    InvalidSetting {
+        key: &'static str,
+        #[source]
+        source: Box<AuthError>,
+    },
+
     #[error("email is already registered")]
     EmailTaken,
 
@@ -49,6 +62,9 @@ pub enum AuthError {
     #[error("about text must be at most {0} characters")]
     AboutTooLong(usize),
 
+    #[error("display name must be at most {0} characters")]
+    DisplayNameTooLong(usize),
+
     #[error("user not found")]
     UserNotFound,
 
@@ -58,8 +74,13 @@ pub enum AuthError {
     #[error("role machine name is already taken")]
     RoleMachineNameTaken,
 
-    #[error("role machine name must contain only lowercase letters, digits and underscores")]
+    #[error(
+        "role machine name must contain only lowercase letters, digits and underscores, up to 64"
+    )]
     InvalidMachineName,
+
+    #[error("role label must not be blank and must be at most {0} characters")]
+    InvalidRoleLabel(usize),
 
     #[error("role is locked and cannot be modified or deleted")]
     RoleLocked,

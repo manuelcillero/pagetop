@@ -9,8 +9,15 @@ impl MigrationTrait for Migration {
             .create_table(
                 table_auto(Users::Table)
                     .col(pk_auto(Users::Id))
-                    .col(string_len_uniq(Users::Username, 64))
-                    .col(string_len_uniq(Users::Email, 254))
+                    // El nombre de usuario y el email con sus mayúsculas (ver `identity.rs`).
+                    .col(string_len(Users::Username, 64))
+                    .col(string_len(Users::Email, 254))
+                    // Formas para buscar y comparar sin distinguir mayúsculas, que pueden ser más
+                    // largas que el original (en minúsculas, un carácter puede ocupar dos), y
+                    // *hash* del esqueleto de confusión del nombre (ver `identity.rs`).
+                    .col(string_len_uniq(Users::UsernameKey, 255))
+                    .col(char_len_uniq(Users::UsernameSkeleton, 64))
+                    .col(string_len_uniq(Users::EmailKey, 255))
                     .col(timestamp_null(Users::EmailVerifiedAt))
                     .col(string(Users::PasswordHash))
                     // 0=Blocked, 1=Active, 2=Pending
@@ -24,6 +31,7 @@ impl MigrationTrait for Migration {
                     .col(timestamp_null(Users::LastLoginAt))
                     .col(timestamp_null(Users::LastAccessAt))
                     .col(integer(Users::FailedLoginCount).default(0))
+                    .col(timestamp_null(Users::FailedLoginAt))
                     .col(timestamp_null(Users::LockedUntil))
                     // Acceso irrestricto al sistema, sin pasar por roles ni permisos.
                     .col(boolean(Users::IsAdmin).default(false))
@@ -45,6 +53,9 @@ pub enum Users {
     Id,
     Username,
     Email,
+    UsernameKey,
+    UsernameSkeleton,
+    EmailKey,
     EmailVerifiedAt,
     PasswordHash,
     Status,
@@ -56,6 +67,7 @@ pub enum Users {
     LastLoginAt,
     LastAccessAt,
     FailedLoginCount,
+    FailedLoginAt,
     LockedUntil,
     IsAdmin,
 }

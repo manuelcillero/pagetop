@@ -183,6 +183,15 @@ pub async fn load_user_from_session(sid: &str) -> (CurrentUser, Option<Account>,
         if let Err(err) = result {
             trace::warn!("session: failed to renew expiry: {err}");
         }
+        // Último acceso del usuario, con la misma precisión que la prórroga de la sesión.
+        let result = user::Entity::update_many()
+            .col_expr(user::Column::LastAccessAt, Expr::value(now))
+            .filter(user::Column::Id.eq(sess.user_id))
+            .exec(dbconn())
+            .await;
+        if let Err(err) = result {
+            trace::warn!("session: failed to record last access: {err}");
+        }
     }
 
     let language = user_model.language.take();
@@ -222,9 +231,18 @@ fn renewed_expiry(
 // **< create_session >*****************************************************************************
 
 /// Crea una nueva sesión en base de datos y devuelve el session ID.
+///
+/// Borra antes las sesiones caducadas del usuario: las que se abandonan sin cerrar sesión no se
+/// borran de otro modo, y así no se acumulan con cada inicio de sesión.
 pub async fn create_session(user_id: i32, remember: bool) -> Result<String, DbErr> {
     let sid = generate_sid();
     let now = Utc::now();
+
+    session::Entity::delete_many()
+        .filter(session::Column::UserId.eq(user_id))
+        .filter(session::Column::ExpiresAt.lt(now))
+        .exec(dbconn())
+        .await?;
 
     let new_session = session::ActiveModel {
         sid: Set(sid.clone()),

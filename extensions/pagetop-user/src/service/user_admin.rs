@@ -3,6 +3,7 @@
 use std::collections::HashMap;
 
 use pagetop::prelude::*;
+use pagetop_seaorm::db::query::{Expr, Func, LikeExpr};
 use pagetop_seaorm::db::{
     ActiveModelTrait, ActiveValue, ColumnTrait, Condition, DatabaseTransaction, DbErr, EntityTrait,
     Order, Paginated, PaginatorTrait, QueryFilter, QueryOrder, Set, TransactionTrait, dbconn,
@@ -10,9 +11,10 @@ use pagetop_seaorm::db::{
 };
 
 use crate::account::UserStatus;
-use crate::config::{user_language_applies, user_timezone_applies};
+use crate::config::{SETTINGS, user_language_applies, user_timezone_applies};
 use crate::entity::{role, user, user_role};
 use crate::error::AuthError;
+use crate::identity::{self, Email, Username};
 use crate::password;
 use crate::session;
 
@@ -70,11 +72,23 @@ pub(crate) async fn list_users(
     let mut select = user::Entity::find();
 
     if let Some(q) = params.query.as_deref().and_then(util::non_blank) {
+        // Sin distinguir mayúsculas: las claves ya están en minúsculas y el nombre visible se
+        // compara en minúsculas, igual en cualquier base de datos (con `LIKE`, PostgreSQL las
+        // distingue y SQLite o MySQL no).
         select = select.filter(
             Condition::any()
-                .add(user::Column::Username.contains(q))
-                .add(user::Column::Email.contains(q))
-                .add(user::Column::DisplayName.contains(q)),
+                .add(
+                    Expr::col(user::Column::UsernameKey)
+                        .like(contains_pattern(&identity::username_key(q))),
+                )
+                .add(
+                    Expr::col(user::Column::EmailKey)
+                        .like(contains_pattern(&identity::email_key(q))),
+                )
+                .add(
+                    Expr::expr(Func::lower(Expr::col(user::Column::DisplayName)))
+                        .like(contains_pattern(&q.to_lowercase())),
+                ),
         );
     }
 
@@ -84,8 +98,8 @@ pub(crate) async fn list_users(
         Order::Asc
     };
     select = match params.sort {
-        UserSortField::Username => select.order_by(user::Column::Username, order),
-        UserSortField::Email => select.order_by(user::Column::Email, order),
+        UserSortField::Username => select.order_by(user::Column::UsernameKey, order),
+        UserSortField::Email => select.order_by(user::Column::EmailKey, order),
         UserSortField::CreatedAt => select.order_by(user::Column::CreatedAt, order),
     };
 
@@ -93,6 +107,22 @@ pub(crate) async fn list_users(
         .await?
         .map_items(user_items)
         .await
+}
+
+// Patrón `LIKE` que busca `text` en cualquier posición, con los comodines `%` y `_` escapados para
+// que se busquen tal cual (p. ej. el `_` de `demo_user`). Se escapan con `!`, no con `\`, que
+// MySQL interpreta también dentro de las cadenas.
+fn contains_pattern(text: &str) -> LikeExpr {
+    let mut pattern = String::with_capacity(text.len() + 2);
+    pattern.push('%');
+    for c in text.chars() {
+        if matches!(c, '%' | '_' | '!') {
+            pattern.push('!');
+        }
+        pattern.push(c);
+    }
+    pattern.push('%');
+    LikeExpr::new(pattern).escape('!')
 }
 
 async fn user_items(users: Vec<user::Model>) -> Result<Vec<UserListItem>, AuthError> {
@@ -176,6 +206,8 @@ pub(crate) struct NewUserData<'a> {
 /// El usuario y sus roles se crean en una sola transacción: si falla cualquier inserción (p. ej.
 /// porque se ha eliminado uno de los roles mientras tanto), no se crea nada.
 pub(crate) async fn create_user(data: NewUserData<'_>) -> Result<i32, AuthError> {
+    let username = identity::username(data.username, SETTINGS.identity_policy, None)?;
+    let email = identity::email(data.email)?;
     password::validate_strength(data.password)?;
     password::passwords_match(data.password, data.confirm_password)?;
     // El idioma y la zona horaria que no se aplican no se ofrecen en el formulario: se ignora lo
@@ -191,16 +223,15 @@ pub(crate) async fn create_user(data: NewUserData<'_>) -> Result<i32, AuthError>
         None
     };
     let theme = validate_theme(data.theme)?;
-    ensure_username_available(data.username, None).await?;
-    ensure_email_available(data.email, None).await?;
+    validate_display_name(data.display_name)?;
+    ensure_username_available(&username, None).await?;
+    ensure_email_available(&email, None).await?;
 
-    let hash = password::hash_password(data.password)?;
+    let hash = password::hash_password_async(data.password).await?;
     let now = Utc::now();
 
-    let new_user = user::ActiveModel {
+    let mut new_user = user::ActiveModel {
         id: ActiveValue::NotSet,
-        username: Set(data.username.to_owned()),
-        email: Set(data.email.to_owned()),
         email_verified_at: Set(Some(now)),
         password_hash: Set(hash),
         status: Set(UserStatus::Active.as_i16()),
@@ -216,7 +247,10 @@ pub(crate) async fn create_user(data: NewUserData<'_>) -> Result<i32, AuthError>
         is_admin: Set(data.is_admin),
         created_at: Set(now),
         updated_at: Set(now),
+        ..Default::default()
     };
+    username.set_on(&mut new_user);
+    email.set_on(&mut new_user);
     let role_ids = assignable_roles(data.initial_role_ids);
 
     dbconn()
@@ -240,6 +274,18 @@ pub(crate) async fn create_user(data: NewUserData<'_>) -> Result<i32, AuthError>
 /// formulario (`maxlength`).
 pub(crate) const ABOUT_MAX_CHARS: u16 = 2000;
 
+/// Longitud máxima, en caracteres, del nombre visible, la de su columna.
+pub(crate) const DISPLAY_NAME_MAX_CHARS: u16 = 128;
+
+// Comprueba que el nombre visible no supere la longitud de su columna.
+fn validate_display_name(display_name: Option<&str>) -> Result<(), AuthError> {
+    let max = usize::from(DISPLAY_NAME_MAX_CHARS);
+    if display_name.is_some_and(|name| name.chars().count() > max) {
+        return Err(AuthError::DisplayNameTooLong(max));
+    }
+    Ok(())
+}
+
 pub(crate) struct UserUpdateData<'a> {
     pub username: &'a str,
     pub email: &'a str,
@@ -248,9 +294,21 @@ pub(crate) struct UserUpdateData<'a> {
     pub language: Option<&'a str>,
     pub timezone: Option<&'a str>,
     pub theme: Option<&'a str>,
+    /// Si un email nuevo se da por verificado: `true` cuando lo cambia un administrador, que da fe
+    /// de él igual que al dar de alta (ver [`create_user`]). Si lo cambia el propio usuario, queda
+    /// sin verificar hasta que se compruebe que la dirección es suya.
+    pub email_verified: bool,
 }
 
 pub(crate) async fn update_user(user_id: i32, data: UserUpdateData<'_>) -> Result<(), AuthError> {
+    // Un nombre que no cambia no se valida de nuevo con la política (ver `identity::username()`).
+    let current = find_user(user_id).await?;
+    let username = identity::username(
+        data.username,
+        SETTINGS.identity_policy,
+        Some(&current.username_key),
+    )?;
+    let email = identity::email(data.email)?;
     // El idioma y la zona horaria que no se aplican tampoco se ofrecen en el formulario, así que no
     // llegan: se conserva lo guardado por si se vuelven a aplicar.
     let language = if user_language_applies() {
@@ -261,7 +319,7 @@ pub(crate) async fn update_user(user_id: i32, data: UserUpdateData<'_>) -> Resul
     let timezone = if user_timezone_applies() {
         let timezone = match validate_timezone(data.timezone) {
             Err(AuthError::InvalidTimezone) => {
-                keep_current_timezone(user_id, data.timezone).await?
+                keep_current_timezone(data.timezone, current.timezone.as_deref())?
             }
             result => result?,
         };
@@ -270,6 +328,7 @@ pub(crate) async fn update_user(user_id: i32, data: UserUpdateData<'_>) -> Resul
         ActiveValue::NotSet
     };
     let theme = validate_theme(data.theme)?;
+    validate_display_name(data.display_name)?;
     // El navegador envía los saltos de línea de un `<textarea>` como `\r\n`, pero `maxlength` puede
     // contarlos como un único carácter: se normalizan antes de medir para no rechazar un texto que
     // el formulario sí admitió.
@@ -281,14 +340,12 @@ pub(crate) async fn update_user(user_id: i32, data: UserUpdateData<'_>) -> Resul
     {
         return Err(AuthError::AboutTooLong(max_about));
     }
-    ensure_username_available(data.username, Some(user_id)).await?;
-    ensure_email_available(data.email, Some(user_id)).await?;
+    ensure_username_available(&username, Some(user_id)).await?;
+    ensure_email_available(&email, Some(user_id)).await?;
 
     let now = Utc::now();
-    user::ActiveModel {
+    let mut model = user::ActiveModel {
         id: Set(user_id),
-        username: Set(data.username.to_owned()),
-        email: Set(data.email.to_owned()),
         display_name: Set(data.display_name.map(str::to_owned)),
         about: Set(about),
         language,
@@ -296,9 +353,13 @@ pub(crate) async fn update_user(user_id: i32, data: UserUpdateData<'_>) -> Resul
         theme: Set(theme.map(str::to_owned)),
         updated_at: Set(now),
         ..Default::default()
+    };
+    if *email.key() != current.email_key {
+        model.email_verified_at = Set(data.email_verified.then_some(now));
     }
-    .update(dbconn())
-    .await?;
+    username.set_on(&mut model);
+    email.set_on(&mut model);
+    model.update(dbconn()).await?;
     Ok(())
 }
 
@@ -432,20 +493,23 @@ pub(crate) async fn set_user_admin(
 
 // **< admin_reset_password >***********************************************************************
 
-/// Restablece la contraseña de un usuario como acción administrativa e invalida sus sesiones
-/// activas.
+/// Restablece la contraseña de un usuario como acción administrativa, invalida sus sesiones
+/// activas y levanta el bloqueo temporal por intentos fallidos.
 pub(crate) async fn admin_reset_password(
     user_id: i32,
     new_password: &str,
 ) -> Result<(), AuthError> {
     find_user(user_id).await?;
     password::validate_strength(new_password)?;
-    let hash = password::hash_password(new_password)?;
+    let hash = password::hash_password_async(new_password).await?;
 
     let now = Utc::now();
     user::ActiveModel {
         id: Set(user_id),
         password_hash: Set(hash),
+        failed_login_count: Set(0),
+        failed_login_at: Set(None),
+        locked_until: Set(None),
         updated_at: Set(now),
         ..Default::default()
     }
@@ -502,27 +566,28 @@ fn validate_timezone(timezone: Option<&str>) -> Result<Option<&str>, AuthError> 
     Ok(timezone)
 }
 
-// Acepta una zona que ya no se ofrece si es la que el usuario tenía guardada: el selector la sigue
-// mostrando para que volver a guardar el formulario sin tocarla no la descarte. Sólo se consulta la
-// base de datos cuando la zona recibida no se ofrece.
-async fn keep_current_timezone(
-    user_id: i32,
-    timezone: Option<&str>,
-) -> Result<Option<&str>, AuthError> {
+// Acepta una zona que ya no se ofrece si es la que el usuario tenía guardada (`current`): el
+// selector la sigue mostrando para que volver a guardar el formulario sin tocarla no la descarte.
+fn keep_current_timezone<'a>(
+    timezone: Option<&'a str>,
+    current: Option<&str>,
+) -> Result<Option<&'a str>, AuthError> {
     let timezone = timezone.and_then(util::non_blank);
-    let current = find_user(user_id).await?.timezone;
-    if timezone.is_some() && timezone == current.as_deref() {
+    if timezone.is_some() && timezone == current {
         Ok(timezone)
     } else {
         Err(AuthError::InvalidTimezone)
     }
 }
 
-async fn ensure_username_available(
-    username: &str,
+// Comprueba que no exista otra cuenta con el mismo nombre de usuario o con uno que se confunda con
+// él: los dos casos comparten el esqueleto.
+pub(crate) async fn ensure_username_available(
+    username: &Username,
     exclude_id: Option<i32>,
 ) -> Result<(), AuthError> {
-    let mut query = user::Entity::find().filter(user::Column::Username.eq(username));
+    let mut query =
+        user::Entity::find().filter(user::Column::UsernameSkeleton.eq(username.skeleton()));
     if let Some(id) = exclude_id {
         query = query.filter(user::Column::Id.ne(id));
     }
@@ -532,8 +597,12 @@ async fn ensure_username_available(
     Ok(())
 }
 
-async fn ensure_email_available(email: &str, exclude_id: Option<i32>) -> Result<(), AuthError> {
-    let mut query = user::Entity::find().filter(user::Column::Email.eq(email));
+// Comprueba que no exista otra cuenta con el mismo email, sin distinguir mayúsculas.
+pub(crate) async fn ensure_email_available(
+    email: &Email,
+    exclude_id: Option<i32>,
+) -> Result<(), AuthError> {
+    let mut query = user::Entity::find().filter(user::Column::EmailKey.eq(email.key()));
     if let Some(id) = exclude_id {
         query = query.filter(user::Column::Id.ne(id));
     }

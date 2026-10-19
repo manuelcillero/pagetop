@@ -124,7 +124,8 @@ transport    = "log"                # Entrega de los correos:
                                     #   "memory"   -> se guardan en memoria (sólo pruebas).
 #from        = "Mi Aplicación <no-reply@example.com>"
                                     # Remitente por defecto, con o sin nombre. Sin valor, cada
-                                    # correo debe indicar el suyo.
+                                    # correo debe indicar el suyo para enviarse (salvo con "log").
+                                    # Los de pagetop-user no lo indican: configúralo siempre.
 #reply_to    = "soporte@example.com" # Dirección de respuesta por defecto.
 #redirect_to = "pruebas@example.com" # Entrega todos los correos sólo a esta dirección, sin
                                     # cambiar sus cabeceras (entornos de pruebas o preproducción).
@@ -161,12 +162,23 @@ dir = "mail"                        # Directorio de los archivos .eml. Se crea s
 [user]
 allow_registration         = true   # Permite que los visitantes creen su propia cuenta.
 require_email_verification = false  # Las cuentas nuevas quedan pendientes ("Pending") en lugar
-                                    # de activas hasta verificar el correo.
+                                    # de activas hasta confirmar la dirección desde el enlace del
+                                    # correo de verificación que se envía al registrarse.
+identity_policy            = "strict" # Nombres de usuario que se aceptan:
+                                    #   "strict"     -> letras ASCII sin tildes, dígitos, ".", "_"
+                                    #                   y "-", de 3 a 32 caracteres.
+                                    #   "unicode"    -> letras y dígitos de cualquier alfabeto, sin
+                                    #                   mezclarlos, ".", "_" y "-", de 3 a 32.
+                                    #   "permissive" -> como "unicode", más espacios simples, "'"
+                                    #                   y "+", de 3 a 60.
+                                    # Con cualquiera: nunca "@", sin distinguir mayúsculas y sin
+                                    # nombres que se confundan con otro existente.
 
-max_failed_logins        = 5        # Intentos fallidos de acceso antes de bloquear la cuenta.
-failed_login_window_secs = 900      # Ventana de recuento de intentos fallidos (15 minutos).
-                                    # Reservada: todavía no tiene efecto.
+max_failed_logins        = 5        # Intentos fallidos seguidos que bloquean la cuenta. 0 -> nunca.
+failed_login_window_secs = 900      # Segundos desde el último fallo en los que el siguiente se
+                                    # suma al recuento (15 minutos); si no, empieza de nuevo.
 locked_for_secs          = 600      # Duración del bloqueo de la cuenta en segundos (10 minutos).
+                                    # Después se dispone otra vez de todos los intentos.
 
 login_strict = false                # Dificulta que el navegador recuerde o autorrellene las
                                     # credenciales en el formulario de acceso.
@@ -187,15 +199,16 @@ write_interval_secs = 60            # Segundos mínimos entre dos escrituras de 
                                     # bajarlo (o 0, escribir siempre) da más precisión si las
                                     # sesiones caducan tras pocos minutos sin uso.
 
-[user.password]                     # Contraseñas, cifradas con Argon2id.
-argon2_m_cost = 19456               # Coste de memoria en KiB. Si cambia, las contraseñas se
-                                    # vuelven a cifrar en el siguiente acceso de cada usuario.
+[user.password]                     # Contraseñas, cifradas con Argon2id. Si cambia cualquiera de
+                                    # los tres costes, cada contraseña se vuelve a cifrar en el
+                                    # siguiente acceso de su usuario.
+argon2_m_cost = 19456               # Coste de memoria en KiB.
 argon2_t_cost = 2                   # Coste de tiempo (número de iteraciones).
 argon2_p_cost = 1                   # Grado de paralelismo (número de hilos).
-min_length    = 8                   # Longitud mínima de las contraseñas.
+min_length    = 8                   # Longitud mínima de las contraseñas, en caracteres.
 
 [user.seed]                         # Primer administrador, creado si no existe ningún usuario.
-admin_username  = "admin"           # Nombre de usuario.
+admin_username  = "admin"           # Nombre de usuario, válido según "identity_policy".
 admin_email     = "admin@example.com" # Correo electrónico.
 #admin_password = "cambiar"         # Contraseña. Sin valor -> se genera una aleatoria y se
                                     # muestra una sola vez por la salida estándar al crearlo.

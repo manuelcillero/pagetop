@@ -66,6 +66,9 @@ tracing = "0.1"
 tracing-appender = "0.2"
 tracing-subscriber = { version = "0.3", features = ["json", "env-filter"] }
 unic-langid = { version = "0.9", features = ["macros"] }
+unicode-ident = "1.0"
+unicode-normalization = "0.1"
+unicode-security = "0.1"
 url = "2.5"
 # Helpers
 pagetop-build = { version = "0.3", path = "helpers/pagetop-build" }

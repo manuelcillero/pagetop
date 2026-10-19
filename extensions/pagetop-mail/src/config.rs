@@ -44,7 +44,9 @@ pub struct MailSettings {
     pub transport: MailTransport,
     /// Remitente por defecto, para los correos que no indican uno propio. Admite la dirección sola
     /// (`"no-reply@example.com"`) o con nombre (`"Mi Aplicación <no-reply@example.com>"`). Sin
-    /// valor, cada correo debe indicar su remitente.
+    /// valor, cada correo debe indicar su remitente para enviarse, salvo con
+    /// [`MailTransport::Log`], que sólo lo escribe en las trazas. Los correos de otras extensiones,
+    /// como los de `pagetop-user`, no lo indican: conviene configurarlo siempre.
     pub from: Option<String>,
     /// Dirección de respuesta por defecto, para los correos que no indican una propia.
     pub reply_to: Option<String>,

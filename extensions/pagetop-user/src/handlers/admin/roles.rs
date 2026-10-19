@@ -412,7 +412,7 @@ pub(crate) async fn delete_post(
             .with_per_page(page_result.per_page)
             .with_total(page_result.total)
             .with_message(message);
-        let mut cx = Context::new(request);
+        let mut cx = Context::admin(request);
         Ok(HtmxResponse::new(table.render(&mut cx).await).into_response())
     } else {
         let cx = Context::new(request);

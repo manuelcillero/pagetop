@@ -8,8 +8,10 @@ use pagetop::prelude::*;
 use pagetop_seaorm::db::{ActiveValue, ColumnTrait, EntityTrait, QueryFilter, Set, dbconn};
 
 use crate::account::UserStatus;
+use crate::config::SETTINGS;
 use crate::entity::{role, user, user_role};
 use crate::error::AuthError;
+use crate::identity;
 use crate::password;
 
 const ROLE_COUNT: usize = 25;
@@ -80,10 +82,11 @@ async fn create_demo_users(role_ids: &[i32]) -> Result<(), AuthError> {
     let now = Utc::now();
 
     for n in 1..=USER_COUNT {
-        let new_user = user::ActiveModel {
+        let username =
+            identity::username(&format!("demo_user_{n:02}"), SETTINGS.identity_policy, None)?;
+        let email = identity::email(&format!("demo_user_{n:02}@example.com"))?;
+        let mut new_user = user::ActiveModel {
             id: ActiveValue::NotSet,
-            username: Set(format!("demo_user_{n:02}")),
-            email: Set(format!("demo_user_{n:02}@example.com")),
             email_verified_at: Set(Some(now)),
             password_hash: Set(hash.clone()),
             status: Set(UserStatus::Active.as_i16()),
@@ -99,7 +102,10 @@ async fn create_demo_users(role_ids: &[i32]) -> Result<(), AuthError> {
             is_admin: Set(false),
             created_at: Set(now),
             updated_at: Set(now),
+            ..Default::default()
         };
+        username.set_on(&mut new_user);
+        email.set_on(&mut new_user);
         let result = user::Entity::insert(new_user).exec(dbconn()).await?;
         let user_id = result.last_insert_id;
 

@@ -7,6 +7,7 @@ use crate::LOCALES_USER;
 use crate::role_path;
 
 use crate::component::error_banner;
+use crate::service::role_admin::{ROLE_LABEL_MAX_CHARS, ROLE_MACHINE_NAME_MAX_CHARS};
 
 #[derive(AutoDefault, Clone, Copy, Debug, PartialEq)]
 pub(crate) enum RoleFormMode {
@@ -48,7 +49,7 @@ impl Component for RoleForm {
                 .with_label(Lc::t("field-machine-name", &LOCALES_USER))
                 .with_help_text(Lc::t("help-machine-name-immutable", &LOCALES_USER))
                 .with_required(true)
-                .with_maxlength(Some(64)),
+                .with_maxlength(ROLE_MACHINE_NAME_MAX_CHARS),
             RoleFormMode::Edit => form::input::Field::text()
                 .with_name("machine_name")
                 .with_value(self.machine_name())
@@ -68,7 +69,7 @@ impl Component for RoleForm {
                     .with_value(self.label())
                     .with_label(Lc::t("field-label", &LOCALES_USER))
                     .with_required(true)
-                    .with_maxlength(Some(128)),
+                    .with_maxlength(ROLE_LABEL_MAX_CHARS),
             )
             .with_child(
                 form::Textarea::new()

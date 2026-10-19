@@ -11,6 +11,7 @@ title-login            = Sign in
 title-register         = Create account
 title-password-reset   = Reset password
 title-new-password     = Set new password
+title-verify-email     = Confirm your email
 title-profile          = My profile
 title-profile-edit     = Edit my profile
 title-profile-password = Change my password
@@ -32,6 +33,7 @@ btn-logout          = Sign out
 btn-register        = Create account
 btn-send-reset-link = Send reset link
 btn-set-password    = Change password
+btn-verify-email    = Confirm my email
 btn-edit-profile    = Edit profile
 
 link-register        = Create an account
@@ -51,23 +53,55 @@ msg-password-reset-sent =
     If an account with that email exists, we have sent a reset link.
     Please check your inbox.
 
+msg-verify-email = Press the button to confirm your email address and activate your account.
+
+msg-verification-sent =
+    We have sent you an email to confirm your address.
+    Open the link it contains and confirm your address to activate your account.
+
+# **< Emails >**
+
+mail-greeting = Hello { $username },
+mail-greeting-plain = Hello,
+mail-link-expires =
+    { $hours ->
+        [one] The link expires in one hour.
+       *[other] The link expires in { $hours } hours.
+    }
+
+mail-reset-subject = Reset your { $app } password
+mail-reset-intro   = We received a request to reset the password of your account. To choose a new one, open this link:
+mail-reset-action  = Choose a new password
+mail-reset-ignore  = If you did not request it, ignore this email: your password will not change.
+
+mail-verify-subject = Confirm your email for { $app }
+mail-verify-intro   = Thank you for signing up. To activate your account, confirm your email address by opening this link:
+mail-verify-action  = Confirm my email
+mail-verify-ignore  = If you did not create an account, ignore this email.
+
+mail-preview-reset  = Password reset
+mail-preview-verify = Email verification on sign-up
+
 # **< Error messages >**
 
-error-invalid-credentials = Invalid username or password.
-error-account-blocked     = Your account is blocked. Please contact the administrator.
-error-account-pending     = Please verify your email address before signing in.
-error-account-locked      = Too many failed attempts. Please try again later.
-error-password-mismatch   = Passwords do not match.
-error-password-too-short  = Password must be at least { $n } characters.
-error-invalid-timezone    = Invalid timezone.
-error-invalid-language    = Invalid language.
-error-invalid-theme       = Invalid theme.
-error-about-too-long      = The "About me" text must be at most { $n } characters.
-error-username-taken      = This username is already taken.
-error-email-taken         = This email address is already registered.
-error-token-invalid       = This link is invalid or has expired.
-error-current-password    = The current password is incorrect.
-error-internal            = An unexpected error occurred. Please try again.
+error-invalid-credentials   = Invalid username or password.
+error-account-blocked       = Your account is blocked. Please contact the administrator.
+error-account-pending       = Please verify your email address before signing in.
+error-account-locked        = Too many failed attempts. Please try again later.
+error-password-mismatch     = Passwords do not match.
+error-password-too-short    = Password must be at least { $n } characters.
+error-invalid-timezone      = Invalid timezone.
+error-invalid-language      = Invalid language.
+error-invalid-theme         = Invalid theme.
+error-about-too-long        = The "About me" text must be at most { $n } characters.
+error-display-name-too-long = The display name must be at most { $n } characters.
+error-username-taken        = This username is already taken or can be mistaken for an existing one.
+error-invalid-username      = The username is not valid: check the rules shown below the field.
+error-invalid-email         = The email address is not valid.
+error-email-taken           = This email address is already registered.
+error-token-invalid         = This link is invalid or has expired.
+error-current-password      = The current password is incorrect.
+error-internal              = An unexpected error occurred. Please try again.
 
 # **< Account statuses >**
 
@@ -128,11 +162,27 @@ field-roles                 = Roles
 field-is-admin              = Administrator (unrestricted access)
 field-search-users          = Search by username, email or name...
 
+help-username-strict =
+    { $min } to { $max } characters: unaccented letters, digits, period, hyphen or underscore,
+    starting with a letter or digit. Case is ignored when signing in.
+
+help-username-unicode =
+    { $min } to { $max } characters: letters of any alphabet (without mixing them), digits, period,
+    hyphen or underscore, starting with a letter or digit. Case is ignored when signing in.
+
+help-username-permissive =
+    { $min } to { $max } characters: letters of any alphabet (without mixing them), digits, single
+    spaces, period, hyphen, underscore, apostrophe or "+", starting with a letter or digit. Case is
+    ignored when signing in.
+
+help-password-min-length = At least { $n } characters.
+
 help-machine-name-immutable =
     Lowercase letters, digits and underscores only. Cannot be changed after creation.
 
 help-admin-roles =
-    As an administrator they have every permission. These roles will apply if they stop being one.
+    This is an administrator account with every permission. These roles will apply if it stops
+    being one.
 
 # **< Admin: buttons and links >**
 
@@ -167,7 +217,8 @@ empty-role-permissions = This role has no permissions.
 
 error-role-not-found               = Role not found.
 error-role-machine-name-taken      = This machine name is already taken.
-error-invalid-machine-name         = Machine name may only contain lowercase letters, digits and underscores.
+error-invalid-machine-name         = Machine name may only contain lowercase letters, digits and underscores, up to { $n } characters.
+error-invalid-role-label           = The label must not be blank or longer than { $n } characters.
 error-role-locked                  = This role is a system role and cannot be modified.
 error-role-in-use                  = This role has users assigned and cannot be deleted.
 error-last-administrator           = Cannot remove the last administrator.

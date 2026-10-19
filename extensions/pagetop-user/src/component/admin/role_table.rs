@@ -6,6 +6,7 @@ use pagetop_htmx::hx_table::sort_link;
 
 use crate::ADMIN_ROLES_PATH;
 use crate::LOCALES_USER;
+use crate::permission::UserPermission;
 use crate::role_path;
 use crate::service::role_admin::{RoleListItem, RoleSortField};
 
@@ -227,8 +228,8 @@ fn label_cell(role: &RoleListItem, waypoint: &Waypoint) -> Html {
     })
 }
 
-// Construye la celda de acciones: gestionar permisos siempre, y editar/borrar sólo si el rol no
-// está bloqueado por el sistema. Devuelve un componente `Html` para que el marcado se genere cuando
+// Construye la celda de acciones: gestionar permisos si se tiene `user:admin_permissions`, y
+// editar/borrar sólo si el rol no está bloqueado por el sistema. Devuelve un componente `Html` para que el marcado se genere cuando
 // `Table` renderice la celda, no al construir la fila.
 async fn actions_cell(
     role: &RoleListItem,
@@ -242,20 +243,29 @@ async fn actions_cell(
     let locked = role.locked;
     let waypoint = waypoint.clone();
 
-    let permissions_href = waypoint.append_to(cx.route(role_path(id, "permissions")));
+    let can_manage_permissions = cx
+        .request()
+        .is_some_and(|request| has_permission(request, &UserPermission::AdminPermissions));
 
     // Los botones se renderizan aquí, no dentro del `Html::with()` de abajo: necesitan pasar por su
     // propio ciclo de renderizado (`.render().await`) para que el tema activo los estilice igual
     // (ver `pagetop-bootsier::theme::bs::button`), incluida la traducción de `data-dialog-*` que
     // usa el botón de borrado.
-    let permissions_button = Button::anchor(
-        Lc::t("btn-manage-permissions", &LOCALES_USER),
-        permissions_href,
-    )
-    .with_style(button::Style::Solid(Intent::Neutral))
-    .with_size(button::Size::Small)
-    .render(cx)
-    .await;
+    let permissions_button = if can_manage_permissions {
+        let permissions_href = waypoint.append_to(cx.route(role_path(id, "permissions")));
+        Some(
+            Button::anchor(
+                Lc::t("btn-manage-permissions", &LOCALES_USER),
+                permissions_href,
+            )
+            .with_style(button::Style::Solid(Intent::Neutral))
+            .with_size(button::Size::Small)
+            .render(cx)
+            .await,
+        )
+    } else {
+        None
+    };
 
     let (edit_button, delete_button) = if locked {
         (None, None)
@@ -290,15 +300,11 @@ async fn actions_cell(
     };
 
     Html::with(move |_cx| {
+        let buttons = [&permissions_button, &edit_button, &delete_button];
         html! {
-            (permissions_button)
-            @if let Some(edit_button) = &edit_button {
-                " "
-                (edit_button)
-            }
-            @if let Some(delete_button) = &delete_button {
-                " "
-                (delete_button)
+            @for (i, button) in buttons.into_iter().flatten().enumerate() {
+                @if i > 0 { " " }
+                (button)
             }
         }
     })

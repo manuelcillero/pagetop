@@ -26,10 +26,12 @@ fn current_user_id(request: &HttpRequest) -> Option<i32> {
     request.extension::<Account>().map(|a| a.id())
 }
 
-// Redirección al formulario de inicio de sesión conservando `next` como URL de retorno.
+// Redirección al formulario de inicio de sesión con `next` como `waypoint`: la ruta a la que
+// volver tras iniciar sesión.
 fn login_redirect(request: HttpRequest, next: &'static str) -> Response {
     let cx = Context::new(request);
-    Redirect::see_other(cx.route(LOGIN_PATH).with_param("next", next)).into_response()
+    let waypoint = Waypoint::new(cx.route(next).to_string());
+    Redirect::see_other(waypoint.append_to(cx.route(LOGIN_PATH))).into_response()
 }
 
 // **< profile_get >********************************************************************************
@@ -277,6 +279,7 @@ pub(crate) async fn profile_edit_post(
             language: util::non_blank(&form.language),
             timezone: util::non_blank(&form.timezone),
             theme: util::non_blank(&form.theme),
+            email_verified: false,
         },
     )
     .await;

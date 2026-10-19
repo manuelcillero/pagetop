@@ -327,6 +327,8 @@ async fn render_edit_page(
     let can_toggle_admin = request
         .extension::<Account>()
         .is_some_and(|a| a.is_admin() && a.id() != id);
+    // Bloquear y activar exige además `user:block_accounts` (ver `status_post`).
+    let can_change_status = has_permission(&request, &UserPermission::BlockAccounts);
     let mut page = Page::admin(request);
     let back_href = waypoint.or(page.context().route(ADMIN_USERS_PATH));
     let title = Lc::t("title-admin-user-edit", &LOCALES_USER);
@@ -335,6 +337,7 @@ async fn render_edit_page(
         status,
         is_admin,
         can_toggle_admin,
+        can_change_status,
         &waypoint,
         page.context(),
     );
@@ -355,8 +358,9 @@ async fn render_edit_page(
         .into_response()
 }
 
-// Enlace a la pantalla de restablecer contraseña y botones de bloqueo/activación y de
-// concesión/revocación de acceso irrestricto (este último sólo si `can_toggle_admin`). El listado
+// Enlace a la pantalla de restablecer contraseña y botones de bloqueo/activación (sólo si
+// `can_change_status`) y de concesión/revocación de acceso irrestricto (sólo si
+// `can_toggle_admin`). El listado
 // de origen (`waypoint`) se arrastra a todas ellas para que, al volver aquí, esta misma pantalla
 // siga sabiendo devolver al listado en el estado en que se dejó.
 //
@@ -372,12 +376,15 @@ fn edit_actions(
     status: UserStatus,
     target_is_admin: bool,
     can_toggle_admin: bool,
+    can_change_status: bool,
     waypoint: &Waypoint,
     cx: &mut Context,
 ) -> Flex {
+    // Una cuenta pendiente de verificar su email también se puede activar directamente, p. ej. si
+    // el correo de verificación no llegó.
     let (next_status, label_key) = match status {
-        UserStatus::Blocked => ("active", "btn-activate"),
-        _ => ("blocked", "btn-block"),
+        UserStatus::Active => ("blocked", "btn-block"),
+        UserStatus::Blocked | UserStatus::Pending => ("active", "btn-activate"),
     };
     let (next_is_admin, admin_label_key, admin_confirm_key) = if target_is_admin {
         ("false", "btn-revoke-admin", "confirm-revoke-admin")
@@ -414,8 +421,10 @@ fn edit_actions(
         .with_child(
             Button::anchor(Lc::t("btn-reset-password", &LOCALES_USER), password_href)
                 .with_style(button::Style::Solid(Intent::Neutral)),
-        )
-        .with_child(status_form);
+        );
+    if can_change_status {
+        container = container.with_child(status_form);
+    }
 
     if can_toggle_admin {
         let admin_button = Button::submit(Lc::t(admin_label_key, &LOCALES_USER))
@@ -490,6 +499,7 @@ pub(crate) async fn edit_post(
             language: util::non_blank(&form.language),
             timezone: util::non_blank(&form.timezone),
             theme: util::non_blank(&form.theme),
+            email_verified: true,
         },
     )
     .await;

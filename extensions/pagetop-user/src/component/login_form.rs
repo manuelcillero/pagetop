@@ -9,6 +9,8 @@ use crate::{LOCALES_USER, LOGIN_PATH, PASSWORD_RESET_PATH, REGISTER_PATH};
 #[derive(AutoDefault, Clone, Debug, Getters)]
 pub struct LoginForm {
     error: Option<Lc>,
+    /// Usuario o email con el que se rellena el campo.
+    username: String,
     /// Página a la que volver tras iniciar sesión.
     waypoint: Waypoint,
 }
@@ -32,6 +34,7 @@ impl Component for LoginForm {
             form::input::Field::text().with_autocomplete(Some(form::Autocomplete::username()))
         }
         .with_name(if strict { "ident" } else { "username" })
+        .with_value(self.username())
         .with_label(Lc::t("field-username", &LOCALES_USER))
         .with_autofocus(true)
         .with_required(true);
@@ -101,6 +104,12 @@ fn links(allow_registration: bool) -> Html {
 impl LoginForm {
     pub fn with_error(mut self, error: impl Into<Option<Lc>>) -> Self {
         self.error = error.into();
+        self
+    }
+
+    /// Rellena el usuario o email, p. ej. con el enviado si el inicio de sesión falla.
+    pub fn with_username(mut self, username: impl Into<String>) -> Self {
+        self.username = username.into();
         self
     }
 

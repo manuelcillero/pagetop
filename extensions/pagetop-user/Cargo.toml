@@ -23,10 +23,17 @@ pagetop.workspace = true
 pagetop-admin.workspace = true
 pagetop-seaorm.workspace = true
 pagetop-htmx.workspace = true
+pagetop-mail.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 serde_qs.workspace = true
 thiserror.workspace = true
+tokio.workspace = true
+
+# Nombres de usuario
+unicode-ident.workspace = true
+unicode-normalization.workspace = true
+unicode-security.workspace = true
 
 # Criptografía
 argon2.workspace = true

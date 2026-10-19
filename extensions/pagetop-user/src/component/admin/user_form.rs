@@ -3,12 +3,13 @@
 use pagetop::prelude::*;
 
 use crate::LOCALES_USER;
-use crate::config::{user_language_applies, user_timezone_applies};
+use crate::config::{SETTINGS, user_language_applies, user_timezone_applies};
 use crate::user_path;
 use crate::{ADMIN_USERS_PATH, PROFILE_EDIT_PATH};
 
 use crate::component::{PasswordConfirm, error_banner};
-use crate::service::user_admin::ABOUT_MAX_CHARS;
+use crate::identity::{EMAIL_MAX_CHARS, USERNAME_MIN_CHARS, username_help, username_max_chars};
+use crate::service::user_admin::{ABOUT_MAX_CHARS, DISPLAY_NAME_MAX_CHARS};
 
 use super::{USER_ADMIN_FORM_ID, roles_fieldset};
 
@@ -71,22 +72,30 @@ impl Component for UserForm {
                     .with_name("username")
                     .with_value(self.username())
                     .with_label(Lc::t("field-username-admin", &LOCALES_USER))
+                    .with_help_text(if username_readonly {
+                        Lc::none()
+                    } else {
+                        username_help(SETTINGS.identity_policy)
+                    })
                     .with_required(true)
                     .with_readonly(username_readonly)
-                    .with_maxlength(Some(64)),
+                    .with_minlength(USERNAME_MIN_CHARS)
+                    .with_maxlength(username_max_chars(SETTINGS.identity_policy)),
             )
             .with_child(
                 form::input::Field::email()
                     .with_name("email")
                     .with_value(self.email())
                     .with_label(Lc::t("field-email", &LOCALES_USER))
-                    .with_required(true),
+                    .with_required(true)
+                    .with_maxlength(EMAIL_MAX_CHARS),
             )
             .with_child(
                 form::input::Field::text()
                     .with_name("display_name")
                     .with_value(self.display_name())
-                    .with_label(Lc::t("field-display-name", &LOCALES_USER)),
+                    .with_label(Lc::t("field-display-name", &LOCALES_USER))
+                    .with_maxlength(DISPLAY_NAME_MAX_CHARS),
             );
 
         // Sólo se ofrecen si se aplican (ver `config::user_language_applies()` y

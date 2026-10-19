@@ -180,9 +180,14 @@ pub enum UserPermission {
     AdminUsers,
     /// Acceder al mantenimiento de roles (listado, alta, edición, borrado).
     AdminRoles,
-    /// Acceder al listado de permisos y a la asignación de permisos a roles.
+    /// Acceder al listado de permisos y, junto con `AdminRoles`, a la asignación de permisos a
+    /// roles.
+    ///
+    /// Es el permiso más sensible del catálogo: con `AdminRoles`, quien lo tiene puede conceder
+    /// cualquier permiso al rol "authenticated", que tienen todas las cuentas, incluida la suya.
     AdminPermissions,
-    /// Bloquear y desbloquear cuentas de usuario.
+    /// Bloquear y activar cuentas de usuario, desde la edición del usuario; requiere también
+    /// `AdminUsers`.
     BlockAccounts,
 }
 
@@ -253,7 +258,7 @@ fn builtin_group_label(group: &str) -> Lc {
     let key = match group {
         GROUP_USERS => "group-users",
         GROUP_ADMINISTRATION => "group-administration",
-        _ => unreachable!("grupo de permisos integrado desconocido: {group}"),
+        _ => unreachable!("unknown built-in permission group: {group}"),
     };
     Lc::t(key, &LOCALES_USER)
 }

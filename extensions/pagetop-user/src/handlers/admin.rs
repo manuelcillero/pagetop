@@ -1,8 +1,8 @@
 //! Handlers HTTP para el mantenimiento de usuarios, roles y permisos.
 //!
-//! Accesibles sólo por URL directa (sin entradas de menú). Cada handler comprueba el permiso
-//! correspondiente con [`require_permission()`](pagetop::auth::require_permission) antes de
-//! construir la página.
+//! Las páginas de usuarios, roles y permisos se registran en el portal de `pagetop-admin` (ver
+//! `declare_admin_pages()`). Cada handler comprueba el permiso correspondiente con
+//! [`require_permission()`](pagetop::auth::require_permission) antes de construir la página.
 
 pub(crate) mod permissions;
 pub(crate) mod roles;
@@ -13,6 +13,7 @@ use pagetop_admin::component::AdminFrame;
 
 use crate::LOCALES_USER;
 use crate::error::AuthError;
+use crate::service::role_admin::ROLE_MACHINE_NAME_MAX_CHARS;
 
 // Envuelve el contenido de una página de administración en el frame de `pagetop-admin`:
 // breadcrumb, tareas y acciones locales registradas para la ruta actual en su `AdminRegistry`.
@@ -34,12 +35,21 @@ pub(crate) fn map_auth_error(err: &AuthError) -> Lc {
         AuthError::AboutTooLong(n) => {
             Lc::t("error-about-too-long", &LOCALES_USER).with_arg("n", n.to_string())
         }
+        AuthError::DisplayNameTooLong(n) => {
+            Lc::t("error-display-name-too-long", &LOCALES_USER).with_arg("n", n.to_string())
+        }
         AuthError::UsernameTaken => Lc::t("error-username-taken", &LOCALES_USER),
+        AuthError::InvalidUsername => Lc::t("error-invalid-username", &LOCALES_USER),
+        AuthError::InvalidEmail => Lc::t("error-invalid-email", &LOCALES_USER),
         AuthError::EmailTaken => Lc::t("error-email-taken", &LOCALES_USER),
         AuthError::UserNotFound => Lc::t("error-user-not-found", &LOCALES_USER),
         AuthError::RoleNotFound => Lc::t("error-role-not-found", &LOCALES_USER),
         AuthError::RoleMachineNameTaken => Lc::t("error-role-machine-name-taken", &LOCALES_USER),
-        AuthError::InvalidMachineName => Lc::t("error-invalid-machine-name", &LOCALES_USER),
+        AuthError::InvalidMachineName => Lc::t("error-invalid-machine-name", &LOCALES_USER)
+            .with_number("n", u32::from(ROLE_MACHINE_NAME_MAX_CHARS)),
+        AuthError::InvalidRoleLabel(n) => {
+            Lc::t("error-invalid-role-label", &LOCALES_USER).with_arg("n", n.to_string())
+        }
         AuthError::RoleLocked => Lc::t("error-role-locked", &LOCALES_USER),
         AuthError::RoleInUse => Lc::t("error-role-in-use", &LOCALES_USER),
         AuthError::LastAdministrator => Lc::t("error-last-administrator", &LOCALES_USER),
