@@ -111,10 +111,11 @@ impl Application {
         Self { tracing }
     }
 
-    // Detiene el arranque cuando falla la carga de los ajustes o la inicialización de una
-    // extensión. Escribe el error, con todas sus causas, en las trazas y en la salida de errores,
-    // que es lo único que ve quien arranca la aplicación si las trazas se escriben en archivos.
-    // Vuelca las trazas antes de terminar, porque `process::exit()` no ejecuta los destructores.
+    // Detiene el arranque cuando falla la carga de los ajustes, la inicialización de una extensión
+    // o el arranque de sus servicios. Escribe el error, con todas sus causas, en las trazas y en la
+    // salida de errores, que es lo único que ve quien arranca la aplicación si las trazas se
+    // escriben en archivos. Vuelca las trazas antes de terminar, porque `process::exit()` no
+    // ejecuta los destructores.
     //
     // Muchos errores terminan ya con el texto de su causa (p. ej. los de SeaORM), así que se omite
     // cada causa con la que ya termina el mensaje.
@@ -171,6 +172,74 @@ impl Application {
         }
     }
 
+    /// Arranca el servidor web de la aplicación.
+    ///
+    /// Enlaza el puerto del servidor web (puede fallar con [`std::io::Error`] si el puerto ya está
+    /// en uso o el proceso carece de permisos) y ejecuta el bucle de atención de peticiones.
+    ///
+    /// Antes de atender la primera petición arranca los servicios en segundo plano de las
+    /// extensiones (ver [`Extension::start()`]). Si alguna falla, detiene las que ya arrancaron y
+    /// termina el proceso con el código de salida `1`, igual que un error al preparar la
+    /// aplicación.
+    ///
+    /// Se detiene de forma ordenada con Ctrl+C o, en Unix, con la señal `SIGTERM` (la que envían
+    /// `systemd` o Docker al detener un servicio). En ese momento deja de aceptar conexiones,
+    /// termina las peticiones en curso, detiene los servicios de las extensiones (ver
+    /// [`Extension::shutdown()`]) y vuelca las trazas pendientes antes de volver. Una segunda
+    /// Ctrl+C lo detiene en el acto, sin esperar a las peticiones ni a los servicios en curso.
+    ///
+    /// El patrón habitual es:
+    ///
+    /// ```rust,no_run
+    /// use pagetop::prelude::*;
+    ///
+    /// struct MyApp;
+    ///
+    /// #[async_trait]
+    /// impl Extension for MyApp {}
+    ///
+    /// #[pagetop::main]
+    /// async fn main() -> std::io::Result<()> {
+    ///     Application::prepare(&MyApp).await.run().await
+    /// }
+    /// ```
+    ///
+    /// [`Extension::start()`]: crate::core::extension::Extension::start
+    /// [`Extension::shutdown()`]: crate::core::extension::Extension::shutdown
+    pub async fn run(mut self) -> Result<(), Error> {
+        let addr = format!(
+            "{}:{}",
+            global::SETTINGS.server.bind_address,
+            global::SETTINGS.server.bind_port
+        );
+
+        // Enlaza el puerto de forma síncrona para detectar errores.
+        let std_listener = std::net::TcpListener::bind(&addr)?;
+        std_listener.set_nonblocking(true)?;
+
+        let router = Self::build_router();
+
+        // Con el puerto ya enlazado, arranca los servicios en segundo plano de las extensiones.
+        if let Err(err) = extension::all::start_extensions().await {
+            Self::abort_startup(self.tracing.take(), err);
+        }
+
+        let listener = tokio::net::TcpListener::from_std(std_listener)?;
+        let result = axum::serve(listener, router)
+            .with_graceful_shutdown(shutdown_signal())
+            .await;
+
+        // Detenido el servidor, detiene los servicios de las extensiones y vuelca las trazas.
+        extension::all::shutdown_extensions().await;
+        drop(self.tracing);
+        result
+    }
+
+    /// Devuelve el servidor web configurado para usarlo en pruebas de integración.
+    pub fn test(self) -> Router {
+        Self::build_router()
+    }
+
     // Construye el router con las rutas, el middleware y los archivos estáticos de todas las
     // extensiones habilitadas.
     //
@@ -191,59 +260,6 @@ impl Application {
         router
             .layer(axum::middleware::from_fn(render_error_pages))
             .layer(CatchPanicLayer::custom(response_for_panic))
-    }
-
-    /// Arranca el servidor web de la aplicación.
-    ///
-    /// Enlaza el puerto del servidor web (puede fallar con [`std::io::Error`] si el puerto ya está
-    /// en uso o el proceso carece de permisos) y ejecuta el bucle de atención de peticiones.
-    ///
-    /// Se detiene de forma ordenada con Ctrl+C o, en Unix, con la señal `SIGTERM` (la que envían
-    /// `systemd` o Docker al detener un servicio). En ese momento deja de aceptar conexiones,
-    /// termina las peticiones en curso y vuelca las trazas pendientes antes de volver. Una segunda
-    /// Ctrl+C lo detiene en el acto, sin esperar a las peticiones en curso.
-    ///
-    /// El patrón habitual es:
-    ///
-    /// ```rust,no_run
-    /// use pagetop::prelude::*;
-    ///
-    /// struct MyApp;
-    ///
-    /// #[async_trait]
-    /// impl Extension for MyApp {}
-    ///
-    /// #[pagetop::main]
-    /// async fn main() -> std::io::Result<()> {
-    ///     Application::prepare(&MyApp).await.run().await
-    /// }
-    /// ```
-    pub async fn run(self) -> Result<(), Error> {
-        let addr = format!(
-            "{}:{}",
-            global::SETTINGS.server.bind_address,
-            global::SETTINGS.server.bind_port
-        );
-
-        // Enlaza el puerto de forma síncrona para detectar errores.
-        let std_listener = std::net::TcpListener::bind(&addr)?;
-        std_listener.set_nonblocking(true)?;
-
-        let router = Self::build_router();
-
-        let listener = tokio::net::TcpListener::from_std(std_listener)?;
-        let result = axum::serve(listener, router)
-            .with_graceful_shutdown(shutdown_signal())
-            .await;
-
-        // Detenido el servidor, vuelca las trazas pendientes.
-        drop(self.tracing);
-        result
-    }
-
-    /// Devuelve el servidor web configurado para usarlo en pruebas de integración.
-    pub fn test(self) -> Router {
-        Self::build_router()
     }
 }
 
@@ -284,7 +300,7 @@ async fn shutdown_signal() {
     // porque `process::exit()` no deja volcar las trazas.
     tokio::spawn(async {
         if tokio::signal::ctrl_c().await.is_ok() {
-            eprintln!("\nSecond Ctrl+C, stopping without waiting for the requests in progress");
+            eprintln!("\nSecond Ctrl+C, not waiting for requests or services in progress");
             std::process::exit(130);
         }
     });

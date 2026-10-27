@@ -122,8 +122,7 @@ use std::ops::Deref;
 /// referencia a la versión del *crate* que lo usa.
 pub const PAGETOP_VERSION: &str = env!("CARGO_PKG_VERSION");
 
-/// Re-exporta el atributo [`async_trait`](https://docs.rs/async-trait) para implementar traits con
-/// métodos `async`.
+/// Re-exporta el atributo [`async_trait`] para implementar traits con métodos `async`.
 ///
 /// Si en el ámbito se declara `use pagetop::prelude::*` o `use pagetop::async_trait;` basta con
 /// usar el nombre corto `#[async_trait]`. Otra opción es usar su forma cualificada
@@ -133,8 +132,13 @@ pub const PAGETOP_VERSION: &str = env!("CARGO_PKG_VERSION");
 /// `Cargo.toml` del proyecto.
 ///
 /// En proyectos que crean extensiones de PageTop, su uso es necesario cuando se sobrescribe
-/// [`initialize()`](crate::core::extension::Extension::initialize) en un bloque
-/// [`impl Extension`](crate::core::extension::Extension).
+/// [`initialize()`], [`start()`] o [`shutdown()`] en un bloque [`impl Extension`].
+///
+/// [`async_trait`]: https://docs.rs/async-trait
+/// [`initialize()`]: crate::core::extension::Extension::initialize
+/// [`start()`]: crate::core::extension::Extension::start
+/// [`shutdown()`]: crate::core::extension::Extension::shutdown
+/// [`impl Extension`]: crate::core::extension::Extension
 pub use async_trait::async_trait;
 
 pub use pagetop_macros::{AutoDefault, builder_fn, builder_impl, html, main, settings, test};
@@ -172,8 +176,9 @@ impl Deref for StaticResources {
 
 /// Alias para un error cualquiera, `Box<dyn std::error::Error + Send + Sync>`.
 ///
-/// Lo devuelve [`Extension::initialize()`](crate::core::extension::Extension::initialize) para que
-/// cada extensión pueda propagar con `?` sus propios tipos de error sin convertirlos.
+/// Lo devuelven [`Extension::initialize()`](crate::core::extension::Extension::initialize) y
+/// [`Extension::start()`](crate::core::extension::Extension::start) para que cada extensión pueda
+/// propagar con `?` sus propios tipos de error sin convertirlos.
 pub type BoxError = Box<dyn std::error::Error + Send + Sync>;
 
 /// Alias para `Cow<'static, str>`.

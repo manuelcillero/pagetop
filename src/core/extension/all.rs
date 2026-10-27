@@ -34,6 +34,13 @@ pub enum StartupError {
         #[source]
         source: BoxError,
     },
+    /// Una extensión ha devuelto un error en su `start()`.
+    #[error("Extension \"{name}\" failed to start")]
+    Start {
+        name: &'static str,
+        #[source]
+        source: BoxError,
+    },
 }
 
 // **< REGISTRO DE LAS EXTENSIONES >****************************************************************
@@ -172,6 +179,41 @@ pub async fn initialize_extensions() -> Result<(), StartupError> {
     Ok(())
 }
 
+// **< ARRANCA Y DETIENE LOS SERVICIOS >************************************************************
+
+/// Arranca los servicios en segundo plano de las extensiones, en el orden en que se registraron.
+///
+/// Se detiene en la primera que falle, y antes de devolver el error detiene, en orden inverso, las
+/// que ya habían arrancado.
+pub async fn start_extensions() -> Result<(), StartupError> {
+    start_extensions_of(EXTENSIONS.get().map(Vec::as_slice).unwrap_or_default()).await
+}
+
+// Separada de `start_extensions()` para poder probarla sin el registro global de extensiones.
+async fn start_extensions_of(extensions: &[ExtensionRef]) -> Result<(), StartupError> {
+    for (i, e) in extensions.iter().enumerate() {
+        if let Err(source) = e.start().await {
+            let name = e.short_name();
+            if i > 0 {
+                // El error completo lo registra quien lo recibe; aquí sólo se explica la espera.
+                trace::warn!("Extension \"{name}\" failed to start, stopping the ones started");
+                for started in extensions[..i].iter().rev() {
+                    started.shutdown().await;
+                }
+            }
+            return Err(StartupError::Start { name, source });
+        }
+    }
+    Ok(())
+}
+
+/// Detiene los servicios en segundo plano de las extensiones, en orden inverso al de registro.
+pub async fn shutdown_extensions() {
+    for e in EXTENSIONS.get().into_iter().flatten().rev() {
+        e.shutdown().await;
+    }
+}
+
 // **< CONFIGURA LAS RUTAS >************************************************************************
 
 pub fn configure_routes(router: Router) -> Router {
@@ -224,10 +266,12 @@ pub fn configure_static_files(router: Router) -> Router {
 
 #[cfg(test)]
 mod tests {
-    use super::{StartupError, load_settings_of};
+    use super::{StartupError, load_settings_of, start_extensions_of};
     use crate::config::LoadSettings;
     use crate::core::extension::Extension;
     use crate::{BoxError, async_trait};
+
+    use std::sync::Mutex;
 
     // Settings for a given section that load fine or fail, without touching the configuration.
     struct FakeSettings {
@@ -307,5 +351,112 @@ mod tests {
             std::error::Error::source(&err).unwrap().to_string(),
             "bad value"
         );
+    }
+
+    // Records its `start()` and `shutdown()` calls in a log shared with the other services of the
+    // same test, so that parallel tests do not mix their calls.
+    struct Service {
+        name: &'static str,
+        fails: bool,
+        log: &'static Mutex<Vec<String>>,
+    }
+
+    #[async_trait]
+    impl Extension for Service {
+        async fn start(&self) -> Result<(), BoxError> {
+            self.log
+                .lock()
+                .unwrap()
+                .push(format!("start {}", self.name));
+            if self.fails {
+                Err("cannot start".into())
+            } else {
+                Ok(())
+            }
+        }
+
+        async fn shutdown(&self) {
+            self.log
+                .lock()
+                .unwrap()
+                .push(format!("shutdown {}", self.name));
+        }
+    }
+
+    fn calls(log: &Mutex<Vec<String>>) -> Vec<String> {
+        log.lock().unwrap().clone()
+    }
+
+    #[tokio::test]
+    async fn all_services_start_in_order_without_shutdown() {
+        static LOG: Mutex<Vec<String>> = Mutex::new(Vec::new());
+        static A: Service = Service {
+            name: "a",
+            fails: false,
+            log: &LOG,
+        };
+        static B: Service = Service {
+            name: "b",
+            fails: false,
+            log: &LOG,
+        };
+
+        assert!(start_extensions_of(&[&A, &B]).await.is_ok());
+        assert_eq!(calls(&LOG), ["start a", "start b"]);
+    }
+
+    #[tokio::test]
+    async fn a_failed_start_shuts_down_the_started_ones_in_reverse_order() {
+        static LOG: Mutex<Vec<String>> = Mutex::new(Vec::new());
+        static A: Service = Service {
+            name: "a",
+            fails: false,
+            log: &LOG,
+        };
+        static B: Service = Service {
+            name: "b",
+            fails: false,
+            log: &LOG,
+        };
+        static C: Service = Service {
+            name: "c",
+            fails: true,
+            log: &LOG,
+        };
+        static D: Service = Service {
+            name: "d",
+            fails: false,
+            log: &LOG,
+        };
+
+        let err = start_extensions_of(&[&A, &B, &C, &D]).await.unwrap_err();
+        assert!(matches!(err, StartupError::Start { .. }));
+        assert_eq!(
+            std::error::Error::source(&err).unwrap().to_string(),
+            "cannot start"
+        );
+        // The failing service is not shut down, and the ones after it never start.
+        assert_eq!(
+            calls(&LOG),
+            ["start a", "start b", "start c", "shutdown b", "shutdown a"]
+        );
+    }
+
+    #[tokio::test]
+    async fn a_failed_first_start_shuts_down_nothing() {
+        static LOG: Mutex<Vec<String>> = Mutex::new(Vec::new());
+        static A: Service = Service {
+            name: "a",
+            fails: true,
+            log: &LOG,
+        };
+        static B: Service = Service {
+            name: "b",
+            fails: false,
+            log: &LOG,
+        };
+
+        assert!(start_extensions_of(&[&A, &B]).await.is_err());
+        assert_eq!(calls(&LOG), ["start a"]);
     }
 }

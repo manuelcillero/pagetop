@@ -155,6 +155,65 @@ pub trait Extension: AnyInfo + Send + Sync {
         Ok(())
     }
 
+    /// Arranca los servicios propios de la extensión cuando el servidor web empieza a atender
+    /// peticiones.
+    ///
+    /// La firma extendida, como en [`initialize()`], es el resultado de aplicar la macro
+    /// [`pagetop::async_trait`] a la declaración:
+    ///
+    /// ```text
+    /// async fn start(&self) -> Result<(), BoxError> { Ok(()) }
+    /// ```
+    ///
+    /// A diferencia de [`initialize()`], que prepara los recursos de la extensión y se ejecuta
+    /// cada vez que se prepara la aplicación (también en las pruebas), este método sólo lo invoca
+    /// [`Application::run()`], una vez enlazado el puerto del servidor y antes de atender la
+    /// primera petición, en el orden en que se inicializaron las extensiones. Es el lugar para
+    /// lanzar tareas que deben vivir mientras la aplicación está en marcha, como un planificador
+    /// de tareas o un proceso que vacía una cola; así no se lanzan en las pruebas, que obtienen el
+    /// servidor con [`Application::test()`] sin ejecutarlo.
+    ///
+    /// Las tareas deben lanzarse con `tokio::spawn()` para que el método termine enseguida: el
+    /// servidor no atiende peticiones hasta que vuelven todas las extensiones. Si devuelve un
+    /// error, la aplicación se detiene igual que con un error en [`initialize()`], pero antes
+    /// llama a [`shutdown()`] de las extensiones que ya arrancaron, en orden inverso. No lo llama
+    /// en la extensión que falla: si había lanzado algo antes del error, debe detenerlo ella misma
+    /// antes de devolverlo.
+    ///
+    /// [`initialize()`]: Self::initialize
+    /// [`shutdown()`]: Self::shutdown
+    /// [`pagetop::async_trait`]: pagetop::async_trait
+    /// [`Application::run()`]: crate::app::Application::run
+    /// [`Application::test()`]: crate::app::Application::test
+    async fn start(&self) -> Result<(), BoxError> {
+        Ok(())
+    }
+
+    /// Detiene de forma ordenada los servicios que la extensión lanzó en [`start()`].
+    ///
+    /// La firma extendida, como en [`initialize()`], es el resultado de aplicar la macro
+    /// [`pagetop::async_trait`] a la declaración:
+    ///
+    /// ```text
+    /// async fn shutdown(&self) {}
+    /// ```
+    ///
+    /// [`Application::run()`] lo invoca cuando el servidor se detiene (con Ctrl+C o la señal
+    /// `SIGTERM`), una vez terminadas las peticiones en curso y antes de volcar las trazas
+    /// pendientes, en orden inverso al de inicialización: una extensión se detiene antes que las
+    /// extensiones de las que depende. También lo invoca, en las extensiones que ya arrancaron, si
+    /// falla el [`start()`] de otra posterior.
+    ///
+    /// Es el momento de avisar a las tareas en segundo plano y de esperar, con un tiempo máximo, a
+    /// que terminen su trabajo. No devuelve errores: si algo falla, la extensión lo registra en las
+    /// trazas.
+    ///
+    /// [`start()`]: Self::start
+    /// [`initialize()`]: Self::initialize
+    /// [`pagetop::async_trait`]: pagetop::async_trait
+    /// [`Application::run()`]: crate::app::Application::run
+    async fn shutdown(&self) {}
+
     /// Devuelve los ajustes de configuración de la extensión, para cargarlos en el arranque de la
     /// aplicación.
     ///
