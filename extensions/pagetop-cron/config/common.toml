@@ -1,0 +1,19 @@
+# Configuración para las pruebas de este crate: zona horaria de Madrid, modo externo, para probar
+# la ruta de las llamadas externas, y ajustes propios de algunos trabajos de prueba.
+
+[app]
+timezone = "Europe/Madrid"
+
+[cron]
+mode          = "external"
+trigger_token = "test-token-0123456789"
+
+[cron.jobs."test.disabled"]
+enabled = false
+
+[cron.jobs."test.overridden"]
+schedule     = "@delay 90s"
+timeout_secs = 0
+
+[cron.jobs."test.not_declared"]
+enabled = false

@@ -11,6 +11,7 @@ members = [
     "extensions/pagetop-bootsier",
     "extensions/pagetop-htmx",
     "extensions/pagetop-admin",
+    "extensions/pagetop-cron",
     "extensions/pagetop-mail",
     "extensions/pagetop-seaorm",
     "extensions/pagetop-user",
@@ -34,6 +35,7 @@ chrono = "0.4"
 chrono-tz = "0.10"
 colored = "3.1"
 config = { version = "0.15", default-features = false, features = ["toml"] }
+croner = { version = "4.0", default-features = false, features = ["chrono"] }
 figlet-rs = "1.0"
 fluent-templates = "0.14"
 getter-methods = "2.0"
@@ -79,6 +81,7 @@ pagetop-statics = { version = "0.1", path = "helpers/pagetop-statics" }
 pagetop-admin    = { version = "0.1", path = "extensions/pagetop-admin" }
 pagetop-aliner   = { version = "0.1", path = "extensions/pagetop-aliner" }
 pagetop-bootsier = { version = "0.1", path = "extensions/pagetop-bootsier" }
+pagetop-cron     = { version = "0.1", path = "extensions/pagetop-cron" }
 pagetop-htmx     = { version = "0.1", path = "extensions/pagetop-htmx" }
 pagetop-mail     = { version = "0.1", path = "extensions/pagetop-mail" }
 pagetop-seaorm   = { version = "0.0", path = "extensions/pagetop-seaorm" }

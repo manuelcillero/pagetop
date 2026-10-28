@@ -157,6 +157,33 @@ accept_invalid_certs = false        # Acepta certificados no válidos. PELIGROSO
 dir = "mail"                        # Directorio de los archivos .eml. Se crea si no existe.
 
 
+# **< pagetop-cron >********************************************************************************
+
+[cron]
+mode                  = "internal"  # Cómo se ejecutan los trabajos programados:
+                                    #   "internal" -> con el planificador de la propia aplicación.
+                                    #   "external" -> cuando un programa externo (crontab, systemd)
+                                    #                 llama a POST /cron con la cabecera
+                                    #                 "Authorization: Bearer {trigger_token}".
+                                    #   "off"      -> nunca de forma automática, sólo bajo demanda.
+                                    # Con varias instancias, "internal" sólo en una ("off" en las
+                                    # demás), o "external" en todas.
+#trigger_token        = "..."       # Clave secreta del modo "external": 16 o más letras,
+                                    # dígitos, "-" o "_" (p. ej. de "openssl rand -hex 32").
+                                    # Mejor en config/local.toml.
+trigger_interval_secs = 60          # Segundos entre dos llamadas del modo "external": cada una
+                                    # ejecuta lo programado en el último intervalo, así que debe
+                                    # llegar una, y sólo una, por intervalo.
+shutdown_timeout_secs = 30          # Espera máxima, al detener la aplicación, a que terminen los
+                                    # trabajos en curso.
+
+[cron.jobs."shop.cleanup"]          # Ajustes de un trabajo, por su clave (opcional).
+enabled       = true                # false -> no se ejecuta de forma automática.
+#schedule     = "*/10 * * * *"      # Sustituye su programación: expresión cron, "@daily",
+                                    # "@every 5m" (cada 5 min) o "@delay 30s" (30 s tras terminar).
+#timeout_secs = 600                 # Sustituye su tiempo máximo por ejecución. 0 -> sin límite.
+
+
 # **< pagetop-user >********************************************************************************
 
 [user]

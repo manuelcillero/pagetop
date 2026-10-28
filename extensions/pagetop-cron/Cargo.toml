@@ -1,0 +1,24 @@
+[package]
+name = "pagetop-cron"
+version = "0.1.0"
+
+description = """
+    Programación de tareas para aplicaciones PageTop: expresiones cron, intervalos y ejecución bajo
+    demanda.
+"""
+categories = ["date-and-time", "web-programming"]
+keywords = ["pagetop", "cron", "scheduler", "jobs", "ssr"]
+
+repository.workspace = true
+homepage.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[dependencies]
+pagetop.workspace = true
+croner.workspace = true
+serde.workspace = true
+thiserror.workspace = true
+tokio.workspace = true
