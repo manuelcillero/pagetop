@@ -29,284 +29,293 @@
 # **< PageTop (núcleo) >****************************************************************************
 
 [app]
-name              = "PageTop App"   # Nombre de la aplicación.
-theme             = "Basic"         # Tema predeterminado: "Basic" o el de una extensión enlazada
-                                    # por la aplicación ("Aliner", "Bootsier"...). Si no está
-                                    # habilitado se usa "Basic", con un aviso al arrancar.
-#language         = "es-ES"         # Idioma predeterminado (BCP 47: "es-ES", "en-US"...). Sin
-                                    # valor, o si no es válido, el idioma se negocia con otras
-                                    # fuentes (cabecera Accept-Language, idioma de respaldo).
-lang_negotiation  = "Full"          # Estrategia para resolver el idioma de cada petición:
-                                    #   "Full"       -> ?lang de la URL, idioma del usuario,
-                                    #                   'language', Accept-Language y respaldo.
-                                    #   "NoQuery"    -> igual que "Full" pero sin ?lang.
-                                    #   "ConfigOnly" -> sólo 'language' o el idioma de respaldo
-                                    #                   (no se ofrece elegir idioma al usuario).
-timezone          = "UTC"           # Zona horaria del sitio (IANA: "UTC", "Europe/Madrid"...);
-                                    # da igual escribirla en mayúsculas o minúsculas.
-                                    # Se aplica a anónimos y a usuarios sin zona horaria propia,
-                                    # y a todos si 'timezone_per_user' es false.
-timezone_regions  = ""              # Regiones de las zonas horarias que se ofrecen, separadas por
-                                    # comas (p. ej. "Europe, America"), elegidas entre "Africa",
-                                    # "America", "Antarctica", "Arctic", "Asia", "Atlantic",
-                                    # "Australia", "Europe", "Indian" y "Pacific". "Etc" (Etc/UTC)
-                                    # se ofrece siempre. Si está vacío se ofrecen todas. Los nombres
-                                    # desconocidos se ignoran con un aviso al arrancar; si ninguno
-                                    # es válido se ofrecen todas, y se avisa también si la región de
-                                    # 'timezone' queda fuera de las ofrecidas. No cambia las zonas
-                                    # ya asignadas a los usuarios (las conservan), sólo las nuevas
-                                    # elecciones. Es el valor por defecto del selector de zona
-                                    # horaria; la aplicación puede cambiarlo en un formulario
-                                    # concreto.
-timezone_order    = "Nearest"       # Orden de esas regiones al elegir zona horaria:
-                                    #   "Nearest"      -> la del sitio primero, si tiene región, y
-                                    #                     luego por cercanía de su desfase horario.
-                                    #   "Alphabetical" -> por el nombre de la región traducido al
-                                    #                     idioma de la página.
-                                    #   "Listed"       -> en el orden de 'timezone_regions' (sin
-                                    #                     regiones, como "Alphabetical").
-                                    # Es el valor por defecto del selector de zona horaria; la
-                                    # aplicación puede cambiarlo en un formulario concreto.
-timezone_per_user = true            # Si cada usuario puede tener su propia zona horaria (true) o
-                                    # se usa siempre 'timezone' (false). Con false no se ofrece
-                                    # elegirla y la guardada se conserva por si se reactiva.
-startup_banner    = "Slant"         # Banner ASCII al arrancar: "Off", "Slant", "Small", "Speed"
-                                    # o "Starwars".
+name              = "PageTop App"      # Nombre de la aplicación.
+theme             = "Basic"            # Tema predeterminado: "Basic" o el de una extensión enlazada
+                                       # por la aplicación ("Aliner", "Bootsier"...). Si no está
+                                       # habilitado se usa "Basic", con un aviso al arrancar.
+#language         = "es-ES"            # Idioma predeterminado (BCP 47: "es-ES", "en-US"...). Sin
+                                       # valor, o si no es válido, el idioma se negocia con otras
+                                       # fuentes (cabecera Accept-Language, idioma de respaldo).
+lang_negotiation  = "Full"             # Estrategia para resolver el idioma de cada petición:
+                                       #   "Full"       -> ?lang de la URL, idioma del usuario,
+                                       #                   'language', Accept-Language y respaldo.
+                                       #   "NoQuery"    -> igual que "Full" pero sin ?lang.
+                                       #   "ConfigOnly" -> sólo 'language' o el idioma de respaldo
+                                       #                   (no se ofrece elegir idioma al usuario).
+timezone          = "UTC"              # Zona horaria del sitio (IANA: "UTC", "Europe/Madrid"...);
+                                       # da igual escribirla en mayúsculas o minúsculas.
+                                       # Se aplica a anónimos y a usuarios sin zona horaria propia,
+                                       # y a todos si 'timezone_per_user' es false.
+timezone_regions  = ""                 # Regiones de las zonas horarias que se ofrecen, separadas
+                                       # por comas (p. ej. "Europe, America"), elegidas entre
+                                       # "Africa", "America", "Antarctica", "Arctic", "Asia",
+                                       # "Atlantic", "Australia", "Europe", "Indian" y "Pacific".
+                                       # "Etc" (Etc/UTC) se ofrece siempre. Si está vacío se ofrecen
+                                       # todas. Los nombres desconocidos se ignoran con un aviso al
+                                       # arrancar; si ninguno es válido se ofrecen todas, y se avisa
+                                       # también si la región de 'timezone' queda fuera de las
+                                       # ofrecidas. No cambia las zonas ya asignadas a los usuarios
+                                       # (las conservan), sólo las nuevas elecciones. Es el valor
+                                       # por defecto del selector de zona horaria; la aplicación
+                                       # puede cambiarlo en un formulario concreto.
+timezone_order    = "Nearest"          # Orden de esas regiones al elegir zona horaria:
+                                       #   "Nearest"      -> la del sitio primero, si tiene
+                                       #                     región, y luego por cercanía de su
+                                       #                     desfase horario.
+                                       #   "Alphabetical" -> por el nombre de la región traducido al
+                                       #                     idioma de la página.
+                                       #   "Listed"       -> en el orden de 'timezone_regions' (sin
+                                       #                     regiones, como "Alphabetical").
+                                       # Es el valor por defecto del selector de zona horaria; la
+                                       # aplicación puede cambiarlo en un formulario concreto.
+timezone_per_user = true               # Si cada usuario puede tener su propia zona horaria (true) o
+                                       # se usa siempre 'timezone' (false). Con false no se ofrece
+                                       # elegirla y la guardada se conserva por si se reactiva.
+startup_banner    = "Slant"            # Banner ASCII al arrancar: "Off", "Slant", "Small", "Speed"
+                                       # o "Starwars".
 
 [dev]
-pagetop_static_dir = ""             # Directorio static/ de PageTop para servir sus archivos
-                                    # estáticos desde disco (editables sin recompilar). Ruta
-                                    # absoluta o relativa al proyecto (o, al ejecutar el binario,
-                                    # al directorio de trabajo). Vacío -> se sirven los incluidos
-                                    # en el binario.
+pagetop_static_dir = ""                # Directorio static/ de PageTop para servir sus archivos
+                                       # estáticos desde disco (editables sin recompilar). Ruta
+                                       # absoluta o relativa al proyecto (o, al ejecutar el binario,
+                                       # al directorio de trabajo). Vacío -> se sirven los incluidos
+                                       # en el binario.
 
 [log]
-enabled = true                      # Activa (true) o desactiva (false) las trazas.
-tracing = "Info"                    # Filtro de trazas: "Error", "Warn", "Info", "Debug" o
-                                    # "Trace", o combinaciones separadas por comas por módulo,
-                                    # p. ej. "Info,pagetop=Debug,sqlx=Warn". Si no es válido se
-                                    # usa "Info", con un aviso al arrancar.
-rolling = "Stdout"                  # Salida de las trazas:
-                                    #   "Stdout"   -> terminal, sin archivos.
-                                    #   "Daily", "Hourly", "Minutely" -> archivos con rotación.
-                                    #   "Endless"  -> un único archivo, sin rotación.
-path    = "log"                     # Directorio de los archivos de traza (si rolling != Stdout).
-prefix  = "tracing.log"             # Prefijo de los archivos de traza (si rolling != Stdout).
-format  = "Full"                    # Formato: "Full", "Compact", "Pretty" o "Json".
+enabled = true                         # Activa (true) o desactiva (false) las trazas.
+tracing = "Info"                       # Filtro de trazas: "Error", "Warn", "Info", "Debug" o
+                                       # "Trace", o combinaciones separadas por comas por módulo,
+                                       # p. ej. "Info,pagetop=Debug,sqlx=Warn". Si no es válido se
+                                       # usa "Info", con un aviso al arrancar.
+rolling = "Stdout"                     # Salida de las trazas:
+                                       #   "Stdout"   -> terminal, sin archivos.
+                                       #   "Daily", "Hourly", "Minutely" -> archivos con rotación.
+                                       #   "Endless"  -> un único archivo, sin rotación.
+path    = "log"                        # Directorio de los archivos de traza (si rolling != Stdout).
+prefix  = "tracing.log"                # Prefijo de los archivos de traza (si rolling != Stdout).
+format  = "Full"                       # Formato: "Full", "Compact", "Pretty" o "Json".
 
 [server]
-bind_address = "localhost"          # Dirección de enlace del servidor web.
-bind_port    = 8080                 # Puerto de escucha del servidor web.
+bind_address = "localhost"             # Dirección de enlace del servidor web.
+bind_port    = 8080                    # Puerto de escucha del servidor web.
 
 
 # **< pagetop-seaorm >******************************************************************************
 
 [database]
-db_type       = ""                  # Motor: "mysql" (o "mariadb"), "postgres" (o "postgresql")
-                                    # o "sqlite". Obligatorio: sin él la aplicación no arranca.
-db_name       = ""                  # Nombre (mysql/postgres) o referencia (sqlite) de la BD.
-db_user       = ""                  # Usuario de conexión (mysql/postgres).
-db_pass       = ""                  # Contraseña de conexión (mysql/postgres).
-db_host       = "localhost"         # Servidor de la base de datos (mysql/postgres).
-#db_port      = 5432                # Puerto (mysql/postgres). Sin valor -> 3306 para MySQL y
-                                    # 5432 para PostgreSQL.
-max_pool_size = 5                   # Número máximo de conexiones simultáneas.
+db_type       = ""                     # Motor: "mysql" (o "mariadb"), "postgres" (o "postgresql")
+                                       # o "sqlite". Obligatorio: sin él la aplicación no arranca.
+db_name       = ""                     # Nombre (mysql/postgres) o referencia (sqlite) de la BD.
+db_user       = ""                     # Usuario de conexión (mysql/postgres).
+db_pass       = ""                     # Contraseña de conexión (mysql/postgres).
+db_host       = "localhost"            # Servidor de la base de datos (mysql/postgres).
+#db_port      = 5432                   # Puerto (mysql/postgres). Sin valor -> 3306 para MySQL y
+                                       # 5432 para PostgreSQL.
+max_pool_size = 5                      # Número máximo de conexiones simultáneas.
 
 
 # **< pagetop-mail >********************************************************************************
 
 [mail]
-transport             = "log"       # Entrega de los correos:
-                                    #   "smtp"     -> servidor SMTP ([mail.smtp]).
-                                    #   "sendmail" -> programa sendmail local ([mail.sendmail]).
-                                    #   "file"     -> un archivo .eml por correo ([mail.file]).
-                                    #   "log"      -> se escriben en las trazas, sin enviarlos.
-                                    #   "memory"   -> se guardan en memoria (sólo pruebas).
+transport             = "log"          # Entrega de los correos:
+                                       #   "smtp"     -> servidor SMTP ([mail.smtp]).
+                                       #   "sendmail" -> programa sendmail local ([mail.sendmail]).
+                                       #   "file"     -> un archivo .eml por correo ([mail.file]).
+                                       #   "log"      -> se escriben en las trazas, sin enviarlos.
+                                       #   "memory"   -> se guardan en memoria (sólo pruebas).
 #from                 = "Mi Aplicación <no-reply@example.com>"
-                                    # Remitente por defecto, con o sin nombre. Sin valor, cada
-                                    # correo debe indicar el suyo para enviarse (salvo con "log").
-                                    # Los de pagetop-user no lo indican: configúralo siempre.
+                                       # Remitente por defecto, con o sin nombre. Sin valor, cada
+                                       # correo debe indicar el suyo para enviarse (salvo con
+                                       # "log"). Los de pagetop-user no lo indican: configúralo
+                                       # siempre.
 #reply_to             = "soporte@example.com"
-                                    # Dirección de respuesta por defecto.
+                                       # Dirección de respuesta por defecto.
 #redirect_to          = "pruebas@example.com"
-                                    # Entrega todos los correos sólo a esta dirección, sin
-                                    # cambiar sus cabeceras (entornos de pruebas o preproducción).
+                                       # Entrega todos los correos sólo a esta dirección, sin
+                                       # cambiar sus cabeceras (entornos de pruebas o
+                                       # preproducción).
 #base_url             = "https://example.com"
-                                    # URL pública para los enlaces de los correos. Sin valor,
-                                    # http://{bind_address}:{bind_port} (sólo para desarrollo).
-previews              = false       # Vistas previas de los correos en /mail/preview. Sólo en
-                                    # desarrollo: cualquiera que conozca la ruta las ve.
-delivery_timeout_secs = 300         # Tiempo máximo de cada entrega, en segundos (1 a 86400),
-                                    # incluida la espera de turno. Recomendado: 300. Reducirlo (60
-                                    # o 120) con un servidor cercano y rápido detecta antes los
-                                    # fallos, pero debe superar con holgura 2 x timeout_secs de
-                                    # [mail.smtp], y da por fallidos más correos que un servidor
-                                    # lento sí acepta (con la cola, se entregan por duplicado).
-                                    # Aumentarlo sólo con servidores muy lentos o adjuntos grandes:
-                                    # los correos retienen su turno más tiempo y, con la cola, una
-                                    # entrega interrumpida espera el triple de este tiempo para
-                                    # reintentarse.
-max_waiting           = 100         # Correos que pueden esperar turno por cada envío simultáneo
-                                    # (pool_max_size o max_concurrent); con más, la entrega falla
-                                    # enseguida (con la feature "queue", send_later() los deja en
-                                    # la cola). 0 -> ninguno espera. No se recomiendan valores
-                                    # mayores: cada correo en espera ocupa memoria con sus
-                                    # adjuntos, y la espera cuenta en delivery_timeout_secs, así
-                                    # que los últimos fallarían igualmente. Con poca memoria o
-                                    # adjuntos grandes, conviene reducirlo.
+                                       # URL pública para los enlaces de los correos. Sin valor,
+                                       # http://{bind_address}:{bind_port} (sólo para desarrollo).
+previews              = false          # Vistas previas de los correos en /mail/preview. Sólo en
+                                       # desarrollo: cualquiera que conozca la ruta las ve.
+delivery_timeout_secs = 300            # Tiempo máximo de cada entrega, en segundos (1 a 86400),
+                                       # incluida la espera de turno. Recomendado: 300. Reducirlo
+                                       # (60 o 120) con un servidor cercano y rápido detecta antes
+                                       # los fallos, pero debe superar con holgura 2 x timeout_secs
+                                       # de [mail.smtp], y da por fallidos más correos que un
+                                       # servidor lento sí acepta (con la cola, se entregan por
+                                       # duplicado). Aumentarlo sólo con servidores muy lentos o
+                                       # adjuntos grandes: los correos retienen su turno más tiempo
+                                       # y, con la cola, una entrega interrumpida espera el triple
+                                       # de este tiempo para reintentarse.
+max_waiting           = 100            # Correos que pueden esperar turno por cada envío simultáneo
+                                       # (pool_max_size o max_concurrent); con más, la entrega falla
+                                       # enseguida (con la feature "queue", send_later() los deja en
+                                       # la cola). 0 -> ninguno espera. No se recomiendan valores
+                                       # mayores: cada correo en espera ocupa memoria con sus
+                                       # adjuntos, y la espera cuenta en delivery_timeout_secs, así
+                                       # que los últimos fallarían igualmente. Con poca memoria o
+                                       # adjuntos grandes, conviene reducirlo.
 
-[mail.smtp]                         # Servidor SMTP (transport = "smtp").
-host                 = "localhost"  # Servidor.
-#port                = 587          # Puerto. Sin valor -> 465 con "tls", 587 con "starttls" y 25
-                                    # en otro caso.
-security             = "starttls"   # Cifrado de la conexión:
-                                    #   "none"          -> sin cifrar (servidores de pruebas).
-                                    #   "opportunistic" -> STARTTLS si el servidor lo ofrece.
-                                    #   "starttls"      -> STARTTLS obligatorio (puerto 587).
-                                    #   "tls"           -> cifrada desde el inicio (puerto 465).
+[mail.smtp]                            # Servidor SMTP (transport = "smtp").
+host                 = "localhost"     # Servidor.
+#port                = 587             # Puerto. Sin valor -> 465 con "tls", 587 con "starttls" y 25
+                                       # en otro caso.
+security             = "starttls"      # Cifrado de la conexión:
+                                       #   "none"          -> sin cifrar (servidores de pruebas).
+                                       #   "opportunistic" -> STARTTLS si el servidor lo ofrece.
+                                       #   "starttls"      -> STARTTLS obligatorio (puerto 587).
+                                       #   "tls"           -> cifrada desde el inicio (puerto 465).
 #username            = "no-reply@example.com" # Usuario. Sin valor, no se autentica.
-#password            = "secreto"    # Contraseña. Mejor en config/local.toml (no se versiona).
-#hello_name          = "example.com" # Nombre para EHLO. Sin valor, el nombre del equipo.
-timeout_secs         = 60           # Espera máxima de cada orden al servidor, en segundos. Cada
-                                    # entrega tiene además delivery_timeout_secs de [mail]. Con
-                                    # security = "tls" no cubre el saludo TLS: un servidor que no
-                                    # responde ahí retiene un envío simultáneo. Si el servidor lo
-                                    # admite, es preferible security = "starttls".
-pool_max_size        = 10           # Envíos simultáneos como máximo (los demás esperan turno, y
-                                    # la espera cuenta en delivery_timeout_secs), y conexiones que
-                                    # se conservan para reutilizarlas. Por cada envío esperan como
-                                    # mucho max_waiting correos; con más, falla enseguida.
-accept_invalid_certs = false        # Acepta certificados no válidos. PELIGROSO: sólo pruebas.
+#password            = "secreto"       # Contraseña. Mejor en config/local.toml (no se versiona).
+#hello_name          = "example.com"   # Nombre para EHLO. Sin valor, el nombre del equipo.
+timeout_secs         = 60              # Espera máxima de cada orden al servidor, en segundos. Cada
+                                       # entrega tiene además delivery_timeout_secs de [mail]. Con
+                                       # security = "tls" no cubre el saludo TLS: un servidor que no
+                                       # responde ahí retiene un envío simultáneo. Si el servidor lo
+                                       # admite, es preferible security = "starttls".
+pool_max_size        = 10              # Envíos simultáneos como máximo (los demás esperan turno, y
+                                       # la espera cuenta en delivery_timeout_secs), y conexiones
+                                       # que se conservan para reutilizarlas. Por cada envío esperan
+                                       # como mucho max_waiting correos; con más, falla enseguida.
+accept_invalid_certs = false           # Acepta certificados no válidos. PELIGROSO: sólo pruebas.
 
-[mail.sendmail]                     # Programa sendmail (transport = "sendmail").
-#command       = "/usr/sbin/sendmail" # Programa. Sin valor, "sendmail" del PATH.
-max_concurrent = 10                 # Correos que se entregan a la vez, cada uno con su proceso
-                                    # sendmail; los demás esperan turno (max_waiting por entrega
-                                    # como mucho; con más, la entrega falla enseguida). Con un
-                                    # servidor de correo local no se recomiendan valores mayores:
-                                    # apenas aceleran el envío, porque acepta cada correo al
-                                    # momento, y en una avalancha multiplican los procesos que
-                                    # compiten con la aplicación por memoria y CPU, y los correos
-                                    # en espera. Si el programa envía cada correo a un servidor
-                                    # remoto (msmtp, ssmtp), no superar el límite de conexiones
-                                    # simultáneas de ese servidor.
+[mail.sendmail]                        # Programa sendmail (transport = "sendmail").
+#command       = "/usr/sbin/sendmail"  # Programa. Sin valor, "sendmail" del PATH.
+max_concurrent = 10                    # Correos que se entregan a la vez, cada uno con su proceso
+                                       # sendmail; los demás esperan turno (max_waiting por entrega
+                                       # como mucho; con más, la entrega falla enseguida). Con un
+                                       # servidor de correo local no se recomiendan valores mayores:
+                                       # apenas aceleran el envío, porque acepta cada correo al
+                                       # momento, y en una avalancha multiplican los procesos que
+                                       # compiten con la aplicación por memoria y CPU, y los correos
+                                       # en espera. Si el programa envía cada correo a un servidor
+                                       # remoto (msmtp, ssmtp), no superar el límite de conexiones
+                                       # simultáneas de ese servidor.
 
-[mail.file]                         # Archivos de correo (transport = "file").
-dir            = "mail"             # Directorio de los archivos .eml. Se crea si no existe.
-max_concurrent = 10                 # Correos que se guardan a la vez; los demás esperan turno
-                                    # (max_waiting por cada uno como mucho; con más, la entrega
-                                    # falla enseguida). No se recomiendan valores mayores: apenas
-                                    # aceleran el guardado en el mismo disco, y en una avalancha
-                                    # ocupan más hilos de la aplicación, compartidos con otras
-                                    # tareas (p. ej. el cálculo de contraseñas), y más correos en
-                                    # espera.
+[mail.file]                            # Archivos de correo (transport = "file").
+dir            = "mail"                # Directorio de los archivos .eml. Se crea si no existe.
+max_concurrent = 10                    # Correos que se guardan a la vez; los demás esperan turno
+                                       # (max_waiting por cada uno como mucho; con más, la entrega
+                                       # falla enseguida). No se recomiendan valores mayores: apenas
+                                       # aceleran el guardado en el mismo disco, y en una avalancha
+                                       # ocupan más hilos de la aplicación, compartidos con otras
+                                       # tareas (p. ej. el cálculo de contraseñas), y más correos en
+                                       # espera.
 
-[mail.queue]                        # Cola de envío (sólo con la feature "queue"). El ritmo es el
-                                    # del trabajo "mail.queue" en [cron.jobs."mail.queue"].
-batch_size       = 50               # Correos como máximo en cada ejecución, uno tras otro.
-max_attempts     = 5                # Intentos de cada correo, contando el primero.
-retry_base_secs  = 60               # Espera tras el primer fallo; se duplica en cada intento,
-                                    # hasta max_retry_secs.
-max_retry_secs   = 86400            # Espera máxima entre dos intentos (1 a 31536000, un año).
-                                    # Recomendado: 86400 (un día); con los demás valores por
-                                    # defecto no se alcanza. Reducirlo reintenta antes tras una
-                                    # caída larga, con más intentos mientras dura; aumentarlo
-                                    # puede entregar correos con días de retraso, cuando quizá ya
-                                    # no sirven (enlaces caducados).
-keep_failed_days = 30               # Días que se conservan los fallidos (0 = siempre).
+[mail.queue]                           # Cola de envío (sólo con la feature "queue"). El ritmo es el
+                                       # del trabajo "mail.queue" en [cron.jobs."mail.queue"].
+batch_size       = 50                  # Correos como máximo en cada ejecución, uno tras otro.
+max_attempts     = 5                   # Intentos de cada correo, contando el primero.
+retry_base_secs  = 60                  # Espera tras el primer fallo; se duplica en cada intento,
+                                       # hasta max_retry_secs.
+max_retry_secs   = 86400               # Espera máxima entre dos intentos (1 a 31536000, un año).
+                                       # Recomendado: 86400 (un día); con los demás valores por
+                                       # defecto no se alcanza. Reducirlo reintenta antes tras una
+                                       # caída larga, con más intentos mientras dura; aumentarlo
+                                       # puede entregar correos con días de retraso, cuando quizá ya
+                                       # no sirven (enlaces caducados).
+keep_failed_days = 30                  # Días que se conservan los fallidos (0 = siempre).
 
 
 # **< pagetop-cron >********************************************************************************
 
 [cron]
-mode                  = "internal"  # Cómo se ejecutan los trabajos programados:
-                                    #   "internal" -> con el planificador de la propia aplicación.
-                                    #   "external" -> cuando un programa externo (crontab, systemd)
-                                    #                 llama a POST /cron con la cabecera
-                                    #                 "Authorization: Bearer {trigger_token}".
-                                    #   "off"      -> nunca de forma automática, sólo bajo demanda.
-                                    # Con varias instancias, "internal" sólo en una ("off" en las
-                                    # demás), o "external" en todas.
-#trigger_token        = "..."       # Clave secreta del modo "external": 16 o más letras,
-                                    # dígitos, "-" o "_" (p. ej. de "openssl rand -hex 32").
-                                    # Mejor en config/local.toml.
-trigger_interval_secs = 60          # Segundos entre dos llamadas del modo "external": cada una
-                                    # ejecuta lo programado en el último intervalo, así que debe
-                                    # llegar una, y sólo una, por intervalo.
-shutdown_timeout_secs = 30          # Espera máxima, al detener la aplicación, a que terminen los
-                                    # trabajos en curso.
+mode                  = "internal"     # Cómo se ejecutan los trabajos programados:
+                                       #   "internal" -> con el planificador de la
+                                       #                 propia aplicación.
+                                       #   "external" -> cuando un programa externo (crontab,
+                                       #                 systemd) llama a POST /cron con la cabecera
+                                       #                 "Authorization: Bearer {trigger_token}".
+                                       #   "off"      -> nunca de forma automática,
+                                       #                 sólo bajo demanda.
+                                       # Con varias instancias, "internal" sólo en una ("off" en las
+                                       # demás), o "external" en todas.
+#trigger_token        = "..."          # Clave secreta del modo "external": 16 o más letras,
+                                       # dígitos, "-" o "_" (p. ej. de "openssl rand -hex 32").
+                                       # Mejor en config/local.toml.
+trigger_interval_secs = 60             # Segundos entre dos llamadas del modo "external": cada una
+                                       # ejecuta lo programado en el último intervalo, así que debe
+                                       # llegar una, y sólo una, por intervalo.
+shutdown_timeout_secs = 30             # Espera máxima, al detener la aplicación, a que terminen los
+                                       # trabajos en curso.
 
-[cron.jobs."shop.cleanup"]          # Ajustes de un trabajo, por su clave (opcional).
-enabled       = true                # false -> no se ejecuta de forma automática.
-#schedule     = "*/10 * * * *"      # Sustituye su programación: expresión cron, "@daily",
-                                    # "@every 5m" (cada 5 min) o "@delay 30s" (30 s tras terminar).
-#timeout_secs = 600                 # Sustituye su tiempo máximo por ejecución. 0 -> sin límite.
+[cron.jobs."shop.cleanup"]             # Ajustes de un trabajo, por su clave (opcional).
+enabled       = true                   # false -> no se ejecuta de forma automática.
+#schedule     = "*/10 * * * *"         # Sustituye su programación: expresión cron, "@daily",
+                                       # "@every 5m" (cada 5 min) o "@delay 30s"
+                                       # (30 s tras terminar).
+#timeout_secs = 600                    # Sustituye su tiempo máximo por ejecución. 0 -> sin límite.
 
 
 # **< pagetop-user >********************************************************************************
 
 [user]
-allow_registration         = true   # Permite que los visitantes creen su propia cuenta.
-require_email_verification = false  # Las cuentas nuevas quedan pendientes ("Pending") en lugar
-                                    # de activas hasta confirmar la dirección desde el enlace del
-                                    # correo de verificación que se envía al registrarse.
-identity_policy            = "strict" # Nombres de usuario que se aceptan:
-                                    #   "strict"     -> letras ASCII sin tildes, dígitos, ".", "_"
-                                    #                   y "-", de 3 a 32 caracteres.
-                                    #   "unicode"    -> letras y dígitos de cualquier alfabeto, sin
-                                    #                   mezclarlos, ".", "_" y "-", de 3 a 32.
-                                    #   "permissive" -> como "unicode", más espacios simples, "'"
-                                    #                   y "+", de 3 a 60.
-                                    # Con cualquiera: nunca "@", sin distinguir mayúsculas y sin
-                                    # nombres que se confundan con otro existente.
+allow_registration         = true      # Permite que los visitantes creen su propia cuenta.
+require_email_verification = false     # Las cuentas nuevas quedan pendientes ("Pending") en lugar
+                                       # de activas hasta confirmar la dirección desde el enlace del
+                                       # correo de verificación que se envía al registrarse.
+identity_policy            = "strict"  # Nombres de usuario que se aceptan:
+                                       #   "strict"     -> letras ASCII sin tildes, dígitos, ".",
+                                       #                   "_" y "-", de 3 a 32 caracteres.
+                                       #   "unicode"    -> letras y dígitos de cualquier alfabeto,
+                                       #                   sin mezclarlos, ".", "_" y "-",
+                                       #                   de 3 a 32.
+                                       #   "permissive" -> como "unicode", más espacios simples, "'"
+                                       #                   y "+", de 3 a 60.
+                                       # Con cualquiera: nunca "@", sin distinguir mayúsculas y sin
+                                       # nombres que se confundan con otro existente.
 
-max_failed_logins        = 5        # Intentos fallidos seguidos que bloquean la cuenta. 0 -> nunca.
-failed_login_window_secs = 900      # Segundos desde el último fallo en los que el siguiente se
-                                    # suma al recuento (15 minutos); si no, empieza de nuevo.
-locked_for_secs          = 600      # Duración del bloqueo de la cuenta en segundos (10 minutos).
-                                    # Después se dispone otra vez de todos los intentos.
+max_failed_logins        = 5           # Intentos fallidos seguidos que bloquean la
+                                       # cuenta. 0 -> nunca.
+failed_login_window_secs = 900         # Segundos desde el último fallo en los que el siguiente se
+                                       # suma al recuento (15 minutos); si no, empieza de nuevo.
+locked_for_secs          = 600         # Duración del bloqueo de la cuenta en segundos (10 minutos).
+                                       # Después se dispone otra vez de todos los intentos.
 
-login_strict = false                # Dificulta que el navegador recuerde o autorrellene las
-                                    # credenciales en el formulario de acceso.
+login_strict = false                   # Dificulta que el navegador recuerde o autorrellene las
+                                       # credenciales en el formulario de acceso.
 
-[user.session]                      # Sesiones de usuario.
-cookie_name         = "pagetop"     # Nombre de la cookie de sesión.
-secure_cookie       = false         # Marca la cookie como Secure (sólo HTTPS). Activar en
-                                    # producción.
-idle_secs           = 7200          # Segundos sin uso tras los que caduca la sesión si no se marca
-                                    # "recordarme" al acceder (2 horas). Se cuentan desde la última
-                                    # petición.
-remember_idle_secs  = 1209600       # Segundos sin uso tras los que caduca la sesión si se marca
-                                    # "recordarme" al acceder (14 días). Se cuentan igual.
-write_interval_secs = 60            # Segundos mínimos entre dos escrituras de la misma sesión en la
-                                    # base de datos para prorrogarla. La sesión puede caducar hasta
-                                    # este tiempo antes de lo configurado. Subirlo (p. ej. 180)
-                                    # reduce escrituras con mucho tráfico o una base de datos lenta;
-                                    # bajarlo (o 0, escribir siempre) da más precisión si las
-                                    # sesiones caducan tras pocos minutos sin uso.
+[user.session]                         # Sesiones de usuario.
+cookie_name         = "pagetop"        # Nombre de la cookie de sesión.
+secure_cookie       = false            # Marca la cookie como Secure (sólo HTTPS). Activar en
+                                       # producción.
+idle_secs           = 7200             # Segundos sin uso tras los que caduca la sesión si no se
+                                       # marca "recordarme" al acceder (2 horas). Se cuentan desde
+                                       # la última petición.
+remember_idle_secs  = 1209600          # Segundos sin uso tras los que caduca la sesión si se marca
+                                       # "recordarme" al acceder (14 días). Se cuentan igual.
+write_interval_secs = 60               # Segundos mínimos entre dos escrituras de la misma sesión en
+                                       # la base de datos para prorrogarla. La sesión puede caducar
+                                       # hasta este tiempo antes de lo configurado. Subirlo (p. ej.
+                                       # 180) reduce escrituras con mucho tráfico o una base de
+                                       # datos lenta; bajarlo (o 0, escribir siempre) da más
+                                       # precisión si las sesiones caducan tras pocos minutos sin
+                                       # uso.
 
-[user.password]                     # Contraseñas, cifradas con Argon2id. Si cambia cualquiera de
-                                    # los tres costes, cada contraseña se vuelve a cifrar en el
-                                    # siguiente acceso de su usuario.
-argon2_m_cost = 19456               # Coste de memoria en KiB.
-argon2_t_cost = 2                   # Coste de tiempo (número de iteraciones).
-argon2_p_cost = 1                   # Grado de paralelismo (número de hilos).
-min_length    = 8                   # Longitud mínima de las contraseñas, en caracteres.
+[user.password]                        # Contraseñas, cifradas con Argon2id. Si cambia cualquiera de
+                                       # los tres costes, cada contraseña se vuelve a cifrar en el
+                                       # siguiente acceso de su usuario.
+argon2_m_cost = 19456                  # Coste de memoria en KiB.
+argon2_t_cost = 2                      # Coste de tiempo (número de iteraciones).
+argon2_p_cost = 1                      # Grado de paralelismo (número de hilos).
+min_length    = 8                      # Longitud mínima de las contraseñas, en caracteres.
 
-[user.seed]                         # Primer administrador, creado si no existe ningún usuario.
-admin_username  = "admin"           # Nombre de usuario, válido según "identity_policy".
-admin_email     = "admin@example.com" # Correo electrónico.
-#admin_password = "cambiar"         # Contraseña. Sin valor -> se genera una aleatoria y se
-                                    # muestra una sola vez por la salida estándar al crearlo.
+[user.seed]                            # Primer administrador, creado si no existe ningún usuario.
+admin_username  = "admin"              # Nombre de usuario, válido según "identity_policy".
+admin_email     = "admin@example.com"  # Correo electrónico.
+#admin_password = "cambiar"            # Contraseña. Sin valor -> se genera una aleatoria y se
+                                       # muestra una sola vez por la salida estándar al crearlo.
 
 [user.admin]
-list_page_size = 20                 # Filas por página en los listados de administración
-                                    # (usuarios, roles...).
+list_page_size = 20                    # Filas por página en los listados de administración
+                                       # (usuarios, roles...).
 
 
 # **< pagetop-bootsier >****************************************************************************
 
 [bootsier]
-max_width  = "1440px"               # Ancho máximo de la página ("100%", "90rem", "1440px"...).
-static_dir = ""                     # Directorio static/ de pagetop-bootsier para servir sus
-                                    # archivos estáticos desde disco, como pagetop_static_dir.
+max_width  = "1440px"                  # Ancho máximo de la página ("100%", "90rem", "1440px"...).
+static_dir = ""                        # Directorio static/ de pagetop-bootsier para servir sus
+                                       # archivos estáticos desde disco, como pagetop_static_dir.
