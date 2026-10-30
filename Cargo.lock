@@ -2236,6 +2236,8 @@ dependencies = [
  "lettre",
  "mime_guess",
  "pagetop",
+ "pagetop-cron",
+ "pagetop-seaorm",
  "serde",
  "thiserror",
  "tokio",

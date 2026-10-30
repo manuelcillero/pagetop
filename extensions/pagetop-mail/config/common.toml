@@ -6,3 +6,15 @@ transport = "memory"
 from      = "PageTop Tests <tests@example.com>"
 base_url  = "https://example.com/"
 previews  = true
+
+# Lotes pequeños para comprobar en las pruebas de la cola (`--features queue`) que cada ejecución
+# envía como mucho `batch_size` correos.
+[mail.queue]
+batch_size = 2
+
+# Base de datos de las pruebas de la cola: SQLite en memoria, nueva en cada ejecución, con una sola
+# conexión para que todas las consultas la compartan. Sin la feature `queue` no se usa.
+[database]
+db_type       = "sqlite"
+db_name       = "mail-tests?mode=memory"
+max_pool_size = 1

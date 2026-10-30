@@ -175,6 +175,41 @@ cabeceras, HTML con el diseño común, texto plano y adjuntos, sin enviar nada.
 Si un correo sólo tiene HTML, al enviarlo se genera su texto plano a partir del contenido: bloques
 separados por líneas, listas con guiones, y la dirección de cada enlace entre paréntesis.
 
+## Cola de envío
+
+Con la *feature* `queue`, los correos se guardan en una cola en la base de datos (con
+`pagetop-seaorm`) y el trabajo `mail.queue` de `pagetop-cron` los envía por lotes:
+
+```toml
+[dependencies]
+pagetop-mail = { version = "...", features = ["queue"] }
+```
+
+La cola usa la base de datos que la aplicación configura en `[database]` para `pagetop-seaorm`, con
+la *feature* de su motor (`postgres`, `mysql` o `sqlite`), y crea en ella la tabla `mail_queue` al
+arrancar. La tabla guarda cada mensaje completo y sin cifrar hasta entregarlo, o durante
+`keep_failed_days` si falla: puede contener datos personales y enlaces de un solo uso, también en
+las copias de seguridad de la base de datos.
+
+- `Email::send_later()` guarda el correo y lo intenta enseguida. Si falla por un error temporal,
+  queda en la cola y se reintenta más tarde, también tras un reinicio.
+- `Email::queue()` sólo lo guarda: cada ejecución del trabajo envía, uno tras otro, como mucho
+  `batch_size` correos, para que los envíos masivos no sobrecarguen el equipo ni el servidor de
+  correo.
+
+La espera entre reintentos se duplica en cada intento; un rechazo definitivo del servidor (SMTP
+5xx) o el último intento dejan el correo como fallido. Si el servidor no responde, el lote se
+interrumpe y los demás correos esperan a la siguiente ejecución, sin gastar intentos. Los ajustes
+van en `[mail.queue]`, y el ritmo, en la programación del trabajo:
+
+```toml
+[mail.queue]
+batch_size = 50
+
+[cron.jobs."mail.queue"]
+schedule = "@delay 30s"     # 30 s después de terminar cada lote (por defecto, 1 minuto).
+```
+
 ## Transportes
 
 Se elige en `mail.transport`:

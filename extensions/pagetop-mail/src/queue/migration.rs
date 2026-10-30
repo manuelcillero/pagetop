@@ -1,0 +1,1 @@
+pub mod m20261028_000001_create_mail_queue;

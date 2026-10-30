@@ -3,6 +3,8 @@ extension_description = Sends emails over SMTP, sendmail or files, with template
 
 mail_footer = Message sent by { $app }.
 
+queue_job_title = Send queued emails
+
 # **< Email previews >**
 
 preview_title       = Email previews

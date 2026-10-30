@@ -174,6 +174,41 @@ cabeceras, HTML con el diseño común, texto plano y adjuntos, sin enviar nada. 
 Si un correo sólo tiene HTML, al enviarlo se genera su texto plano a partir del contenido: bloques
 separados por líneas, listas con guiones, y la dirección de cada enlace entre paréntesis.
 
+## Cola de envío
+
+Con la *feature* `queue`, los correos se guardan en una cola en la base de datos (con
+`pagetop-seaorm`) y el trabajo `mail.queue` de `pagetop-cron` los envía por lotes:
+
+```toml
+[dependencies]
+pagetop-mail = { version = "...", features = ["queue"] }
+```
+
+La cola usa la base de datos que la aplicación configura en `[database]` para `pagetop-seaorm`, con
+la *feature* de su motor (`postgres`, `mysql` o `sqlite`), y crea en ella la tabla `mail_queue` al
+arrancar. La tabla guarda cada mensaje completo y sin cifrar hasta entregarlo, o durante
+`keep_failed_days` si falla: puede contener datos personales y enlaces de un solo uso, también en
+las copias de seguridad de la base de datos.
+
+- [`Email::send_later()`] guarda el correo y lo intenta enseguida. Si falla por un error temporal,
+  queda en la cola y se reintenta más tarde, también tras un reinicio.
+- `Email::queue()` sólo lo guarda: cada ejecución del trabajo envía, uno tras otro, como mucho
+  `batch_size` correos, para que los envíos masivos no sobrecarguen el equipo ni el servidor de
+  correo.
+
+La espera entre reintentos se duplica en cada intento; un rechazo definitivo del servidor (SMTP
+5xx) o el último intento dejan el correo como fallido. Si el servidor no responde, el lote se
+interrumpe y los demás correos esperan a la siguiente ejecución, sin gastar intentos. Los ajustes
+van en `[mail.queue]`, y el ritmo, en la programación del trabajo:
+
+```toml
+[mail.queue]
+batch_size = 50
+
+[cron.jobs."mail.queue"]
+schedule = "@delay 30s"     # 30 s después de terminar cada lote (por defecto, 1 minuto).
+```
+
 ## Transportes
 
 Se elige en `mail.transport`:
@@ -203,6 +238,7 @@ security = "none"
 ```
 */
 
+#![cfg_attr(docsrs, feature(doc_cfg))]
 #![doc(
     html_favicon_url = "https://git.cillero.es/manuelcillero/pagetop/raw/branch/main/assets/favicon.ico"
 )]
@@ -240,6 +276,9 @@ mod text;
 
 mod transport;
 
+#[cfg(feature = "queue")]
+mod queue;
+
 include_locales!(LOCALES_MAIL);
 
 /// Prelude de `pagetop-mail`.
@@ -262,6 +301,16 @@ impl Extension for Mail {
         Lc::t("extension_description", &LOCALES_MAIL)
     }
 
+    #[cfg(feature = "queue")]
+    fn dependencies(&self) -> Vec<ExtensionRef> {
+        vec![&pagetop_seaorm::SeaORM, &pagetop_cron::Cron]
+    }
+
+    #[cfg(feature = "queue")]
+    fn actions(&self) -> Vec<ActionBox> {
+        actions![pagetop_cron::DeclareCronJobs::new(queue::declare_jobs)]
+    }
+
     fn settings(&self) -> Option<&'static dyn LoadSettings> {
         Some(&config::SETTINGS)
     }
@@ -270,6 +319,8 @@ impl Extension for Mail {
         // Construir el transporte al arrancar valida los ajustes; preparar la aplicación varias
         // veces en el mismo proceso (las pruebas lo hacen) reutiliza el ya construido.
         transport::mailer()?.log_startup();
+        #[cfg(feature = "queue")]
+        queue::install().await?;
         Ok(())
     }
 

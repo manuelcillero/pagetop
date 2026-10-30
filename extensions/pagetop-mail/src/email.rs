@@ -12,9 +12,10 @@ use std::time::{SystemTime, UNIX_EPOCH};
 
 /// Correo electrónico listo para enviar.
 ///
-/// Se compone con los métodos `with_*()` y se envía con [`send()`](Self::send), que espera a que
-/// el servidor lo acepte, o con [`send_later()`](Self::send_later), que lo envía en segundo plano.
-/// También puede crearse a partir de una plantilla con [`from_template()`](Self::from_template).
+/// Se compone con los métodos `with_*()` y se envía con [`send()`](Self::send), que espera a que el
+/// servidor lo acepte, o con [`send_later()`](Self::send_later), que lo envía en segundo plano. Con
+/// la *feature* `queue`, `queue()` lo guarda en la cola de envío para el siguiente lote. También
+/// puede crearse a partir de una plantilla con [`from_template()`](Self::from_template).
 ///
 /// Un correo puede tener texto plano, HTML o ambos (los clientes de correo muestran el que
 /// prefieran), además de archivos adjuntos y de imágenes incrustadas en el HTML (ver
@@ -65,8 +66,7 @@ pub struct Email {
     subject: String,
     /// Texto plano, si lo tiene.
     text: Option<String>,
-    /// HTML, si lo tiene: el contenido mientras se compone y el documento completo una vez
-    /// enviado.
+    /// HTML, si lo tiene: el contenido mientras se compone y el documento completo una vez enviado.
     html: Option<Markup>,
     #[getters(skip)]
     html_is_document: bool,
@@ -111,7 +111,9 @@ impl Email {
     ///
     /// Falla si alguna dirección o el tipo MIME de algún adjunto no son válidos, si falta el
     /// remitente (salvo con `transport = "log"`, que sólo escribe el correo en las trazas) o los
-    /// destinatarios, o si la entrega falla.
+    /// destinatarios, si la entrega falla o no termina en el tiempo máximo
+    /// (`mail.delivery_timeout_secs`, [`MailError::Timeout`]), o si ya hay demasiados correos
+    /// esperando turno ([`MailError::Overloaded`]).
     pub async fn send(self) -> Result<(), MailError> {
         transport::deliver(self).await
     }
@@ -121,22 +123,75 @@ impl Email {
     ///
     /// La respuesta de la petición no espera al servidor de correo, y su tiempo no revela si el
     /// correo se ha enviado (p. ej., si existe la cuenta para la que se pide recuperar la
-    /// contraseña). A cambio, los correos pendientes se pierden si la aplicación se detiene antes
-    /// de enviarlos, y no se reintentan si fallan.
+    /// contraseña).
+    ///
+    /// Sin la *feature* `queue`, los correos pendientes se pierden si la aplicación se detiene
+    /// antes de enviarlos, y no se reintentan si fallan. Con ella, el correo se guarda primero en
+    /// la cola de envío y se intenta enseguida, sin esperar al trabajo que la vacía: si falla por
+    /// un error temporal, queda en la cola para reintentarlo (ver `queue()`). Si no se puede
+    /// guardar en la cola, se envía igualmente sin ella y se avisa en las trazas.
+    ///
+    /// Si llegan más correos de los que el servidor despacha y ya hay demasiados esperando turno
+    /// ([`MailError::Overloaded`]), sin la *feature* `queue` el correo se descarta, y con ella
+    /// queda en la cola para el siguiente lote.
     pub fn send_later(self) {
         tokio::spawn(async move {
             let subject = self.subject.clone();
-            if let Err(err) = self.send().await {
-                let mut message = err.to_string();
-                let mut source = std::error::Error::source(&err);
-                while let Some(cause) = source {
-                    message.push_str(": ");
-                    message.push_str(&cause.to_string());
-                    source = cause.source();
-                }
-                trace::error!("Cannot send email \"{subject}\": {message}");
+            #[cfg(feature = "queue")]
+            let result = crate::queue::send_later(self).await;
+            #[cfg(not(feature = "queue"))]
+            let result = self.send().await;
+            if let Err(err) = result {
+                trace::error!("Cannot send email \"{subject}\": {}", err.describe());
             }
         });
+    }
+
+    /// Guarda el correo en la cola de envío, que lo envía en el siguiente lote. Requiere la
+    /// *feature* `queue`.
+    ///
+    /// Pensado para los envíos masivos (avisos a todos los usuarios, informes periódicos...): el
+    /// trabajo `mail.queue` de `pagetop-cron` envía en cada ejecución, uno tras otro, como mucho
+    /// `mail.queue.batch_size` correos, así que muchos correos no sobrecargan el equipo ni el
+    /// servidor de correo. Para los que no pueden esperar al siguiente lote, como los de
+    /// recuperación de contraseña, usa [`send_later()`](Self::send_later).
+    ///
+    /// El correo se completa y se compone al guardarlo, con el diseño común y en su idioma. Falla
+    /// aquí por los mismos motivos que [`send()`](Self::send) antes de la entrega (direcciones o
+    /// tipos MIME de los adjuntos no válidos, sin remitente o sin destinatarios), o si no se puede
+    /// guardar en la base de datos. Ya en la cola, un fallo temporal se reintenta con una espera
+    /// creciente, y un rechazo definitivo del servidor (SMTP 5xx) o el último intento fallido lo
+    /// dejan como fallido. Los correos guardados sobreviven a un reinicio.
+    ///
+    /// La entrega es *al menos una vez*: si la aplicación se detiene justo después de que el
+    /// servidor acepte un correo y antes de anotarlo como enviado, se volverá a enviar. Lo mismo
+    /// ocurre si el servidor lo acepta pero tarda tanto en confirmarlo que se agota el tiempo
+    /// máximo de la entrega ([`MailError::Timeout`]), o si se cancela el trabajo a mitad de una
+    /// entrega (por su `timeout_secs` en `[cron.jobs."mail.queue"]` o por el tiempo máximo de
+    /// espera al detener la aplicación).
+    ///
+    /// Con `transport = "log"` no se usa la cola: el correo se escribe enseguida en las trazas.
+    ///
+    /// # Ejemplo
+    ///
+    /// ```rust,no_run
+    /// # use pagetop::prelude::*;
+    /// # use pagetop_mail::prelude::*;
+    /// async fn notify_all(addresses: Vec<String>) -> Result<(), MailError> {
+    ///     for address in addresses {
+    ///         Email::new()
+    ///             .with_to(address)
+    ///             .with_subject("Parada programada")
+    ///             .with_text("El servicio se detendrá el sábado de 8:00 a 10:00.")
+    ///             .queue()
+    ///             .await?;
+    ///     }
+    ///     Ok(())
+    /// }
+    /// ```
+    #[cfg(feature = "queue")]
+    pub async fn queue(self) -> Result<(), MailError> {
+        crate::queue::push(self).await
     }
 
     // Completa el correo antes de enviarlo: remitente y dirección de respuesta por defecto, el

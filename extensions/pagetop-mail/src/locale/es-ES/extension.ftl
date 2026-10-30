@@ -3,6 +3,8 @@ extension_description = Envía correos por SMTP, sendmail o archivos, con planti
 
 mail_footer = Mensaje enviado por { $app }.
 
+queue_job_title = Enviar los correos de la cola
+
 # **< Vistas previas de correos >**
 
 preview_title       = Vistas previas de correos

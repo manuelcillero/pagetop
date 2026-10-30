@@ -26,6 +26,11 @@
 //!
 //! Las pruebas de un mismo binario se ejecutan en paralelo y comparten estos correos: con
 //! [`take_to()`] cada prueba recoge sólo los de sus destinatarios, sin llevarse los de otras.
+//!
+//! Con la *feature* `queue`, los correos de `Email::queue()` sólo llegan aquí cuando se ejecuta el
+//! trabajo que vacía la cola. En las pruebas no se ejecuta solo: hay que lanzarlo con
+//! `pagetop_cron::run_now("mail.queue")`. Los de [`Email::send_later()`] no esperan al trabajo,
+//! pero llegan en segundo plano, como sin la cola.
 
 use pagetop::prelude::*;
 
@@ -84,4 +89,25 @@ pub(crate) fn push(email: Email, envelope_to: Vec<String>, raw: Vec<u8>) {
 // Una prueba que falla con el bloqueo tomado no debe impedir que las demás sigan usándolo.
 fn lock() -> MutexGuard<'static, Vec<SentEmail>> {
     OUTBOX.lock().unwrap_or_else(PoisonError::into_inner)
+}
+
+// Correos completos de la cola de envío pendientes de entregar con este transporte, por su
+// identificador en la cola. La cola sólo guarda el mensaje compuesto, y las pruebas necesitan el
+// correo completo para consultarlo con `SentEmail::email()`.
+#[cfg(feature = "queue")]
+static QUEUED: Mutex<Vec<(i32, Email)>> = Mutex::new(Vec::new());
+
+#[cfg(feature = "queue")]
+pub(crate) fn hold(id: i32, email: Email) {
+    QUEUED
+        .lock()
+        .unwrap_or_else(PoisonError::into_inner)
+        .push((id, email));
+}
+
+#[cfg(feature = "queue")]
+pub(crate) fn release(id: i32) -> Option<Email> {
+    let mut queued = QUEUED.lock().unwrap_or_else(PoisonError::into_inner);
+    let index = queued.iter().position(|(queued_id, _)| *queued_id == id)?;
+    Some(queued.swap_remove(index).1)
 }

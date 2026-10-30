@@ -15,8 +15,18 @@ rust-version.workspace = true
 license.workspace = true
 authors.workspace = true
 
+[package.metadata.docs.rs]
+# Documenta también la API de la cola de envío (`Email::queue()`, `MailError::Queue`).
+features = ["queue"]
+
+[features]
+# Cola de envío persistente en la base de datos, con reintentos y envío por lotes.
+queue = ["dep:pagetop-cron", "dep:pagetop-seaorm"]
+
 [dependencies]
 pagetop.workspace = true
+pagetop-cron = { workspace = true, optional = true }
+pagetop-seaorm = { workspace = true, optional = true }
 mime_guess.workspace = true
 serde.workspace = true
 thiserror.workspace = true
@@ -33,3 +43,10 @@ features = [
     "file-transport",
     "tokio1-native-tls",
 ]
+
+[dev-dependencies]
+pagetop-seaorm = { workspace = true, features = ["sqlite"] }
+
+[[test]]
+name = "queue"
+required-features = ["queue"]

@@ -116,23 +116,44 @@ max_pool_size = 5                   # Número máximo de conexiones simultáneas
 # **< pagetop-mail >********************************************************************************
 
 [mail]
-transport    = "log"                # Entrega de los correos:
+transport             = "log"       # Entrega de los correos:
                                     #   "smtp"     -> servidor SMTP ([mail.smtp]).
                                     #   "sendmail" -> programa sendmail local ([mail.sendmail]).
                                     #   "file"     -> un archivo .eml por correo ([mail.file]).
                                     #   "log"      -> se escriben en las trazas, sin enviarlos.
                                     #   "memory"   -> se guardan en memoria (sólo pruebas).
-#from        = "Mi Aplicación <no-reply@example.com>"
+#from                 = "Mi Aplicación <no-reply@example.com>"
                                     # Remitente por defecto, con o sin nombre. Sin valor, cada
                                     # correo debe indicar el suyo para enviarse (salvo con "log").
                                     # Los de pagetop-user no lo indican: configúralo siempre.
-#reply_to    = "soporte@example.com" # Dirección de respuesta por defecto.
-#redirect_to = "pruebas@example.com" # Entrega todos los correos sólo a esta dirección, sin
+#reply_to             = "soporte@example.com"
+                                    # Dirección de respuesta por defecto.
+#redirect_to          = "pruebas@example.com"
+                                    # Entrega todos los correos sólo a esta dirección, sin
                                     # cambiar sus cabeceras (entornos de pruebas o preproducción).
-#base_url    = "https://example.com" # URL pública para los enlaces de los correos. Sin valor,
+#base_url             = "https://example.com"
+                                    # URL pública para los enlaces de los correos. Sin valor,
                                     # http://{bind_address}:{bind_port} (sólo para desarrollo).
-previews     = false                # Vistas previas de los correos en /mail/preview. Sólo en
+previews              = false       # Vistas previas de los correos en /mail/preview. Sólo en
                                     # desarrollo: cualquiera que conozca la ruta las ve.
+delivery_timeout_secs = 300         # Tiempo máximo de cada entrega, en segundos (1 a 86400),
+                                    # incluida la espera de turno. Recomendado: 300. Reducirlo (60
+                                    # o 120) con un servidor cercano y rápido detecta antes los
+                                    # fallos, pero debe superar con holgura 2 x timeout_secs de
+                                    # [mail.smtp], y da por fallidos más correos que un servidor
+                                    # lento sí acepta (con la cola, se entregan por duplicado).
+                                    # Aumentarlo sólo con servidores muy lentos o adjuntos grandes:
+                                    # los correos retienen su turno más tiempo y, con la cola, una
+                                    # entrega interrumpida espera el triple de este tiempo para
+                                    # reintentarse.
+max_waiting           = 100         # Correos que pueden esperar turno por cada envío simultáneo
+                                    # (pool_max_size o max_concurrent); con más, la entrega falla
+                                    # enseguida (con la feature "queue", send_later() los deja en
+                                    # la cola). 0 -> ninguno espera. No se recomiendan valores
+                                    # mayores: cada correo en espera ocupa memoria con sus
+                                    # adjuntos, y la espera cuenta en delivery_timeout_secs, así
+                                    # que los últimos fallarían igualmente. Con poca memoria o
+                                    # adjuntos grandes, conviene reducirlo.
 
 [mail.smtp]                         # Servidor SMTP (transport = "smtp").
 host                 = "localhost"  # Servidor.
@@ -146,15 +167,53 @@ security             = "starttls"   # Cifrado de la conexión:
 #username            = "no-reply@example.com" # Usuario. Sin valor, no se autentica.
 #password            = "secreto"    # Contraseña. Mejor en config/local.toml (no se versiona).
 #hello_name          = "example.com" # Nombre para EHLO. Sin valor, el nombre del equipo.
-timeout_secs         = 60           # Espera máxima de cada orden al servidor, en segundos.
-pool_max_size        = 10           # Conexiones abiertas como máximo, reutilizadas entre envíos.
+timeout_secs         = 60           # Espera máxima de cada orden al servidor, en segundos. Cada
+                                    # entrega tiene además delivery_timeout_secs de [mail]. Con
+                                    # security = "tls" no cubre el saludo TLS: un servidor que no
+                                    # responde ahí retiene un envío simultáneo. Si el servidor lo
+                                    # admite, es preferible security = "starttls".
+pool_max_size        = 10           # Envíos simultáneos como máximo (los demás esperan turno, y
+                                    # la espera cuenta en delivery_timeout_secs), y conexiones que
+                                    # se conservan para reutilizarlas. Por cada envío esperan como
+                                    # mucho max_waiting correos; con más, falla enseguida.
 accept_invalid_certs = false        # Acepta certificados no válidos. PELIGROSO: sólo pruebas.
 
 [mail.sendmail]                     # Programa sendmail (transport = "sendmail").
-#command = "/usr/sbin/sendmail"     # Programa. Sin valor, "sendmail" del PATH.
+#command       = "/usr/sbin/sendmail" # Programa. Sin valor, "sendmail" del PATH.
+max_concurrent = 10                 # Correos que se entregan a la vez, cada uno con su proceso
+                                    # sendmail; los demás esperan turno (max_waiting por entrega
+                                    # como mucho; con más, la entrega falla enseguida). Con un
+                                    # servidor de correo local no se recomiendan valores mayores:
+                                    # apenas aceleran el envío, porque acepta cada correo al
+                                    # momento, y en una avalancha multiplican los procesos que
+                                    # compiten con la aplicación por memoria y CPU, y los correos
+                                    # en espera. Si el programa envía cada correo a un servidor
+                                    # remoto (msmtp, ssmtp), no superar el límite de conexiones
+                                    # simultáneas de ese servidor.
 
 [mail.file]                         # Archivos de correo (transport = "file").
-dir = "mail"                        # Directorio de los archivos .eml. Se crea si no existe.
+dir            = "mail"             # Directorio de los archivos .eml. Se crea si no existe.
+max_concurrent = 10                 # Correos que se guardan a la vez; los demás esperan turno
+                                    # (max_waiting por cada uno como mucho; con más, la entrega
+                                    # falla enseguida). No se recomiendan valores mayores: apenas
+                                    # aceleran el guardado en el mismo disco, y en una avalancha
+                                    # ocupan más hilos de la aplicación, compartidos con otras
+                                    # tareas (p. ej. el cálculo de contraseñas), y más correos en
+                                    # espera.
+
+[mail.queue]                        # Cola de envío (sólo con la feature "queue"). El ritmo es el
+                                    # del trabajo "mail.queue" en [cron.jobs."mail.queue"].
+batch_size       = 50               # Correos como máximo en cada ejecución, uno tras otro.
+max_attempts     = 5                # Intentos de cada correo, contando el primero.
+retry_base_secs  = 60               # Espera tras el primer fallo; se duplica en cada intento,
+                                    # hasta max_retry_secs.
+max_retry_secs   = 86400            # Espera máxima entre dos intentos (1 a 31536000, un año).
+                                    # Recomendado: 86400 (un día); con los demás valores por
+                                    # defecto no se alcanza. Reducirlo reintenta antes tras una
+                                    # caída larga, con más intentos mientras dura; aumentarlo
+                                    # puede entregar correos con días de retraso, cuando quizá ya
+                                    # no sirven (enlaces caducados).
+keep_failed_days = 30               # Días que se conservan los fallidos (0 = siempre).
 
 
 # **< pagetop-cron >********************************************************************************
