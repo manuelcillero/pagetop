@@ -60,6 +60,41 @@ impl SentEmail {
             .iter()
             .any(|to| to.eq_ignore_ascii_case(address.trim()))
     }
+
+    /// Devuelve las direcciones de los enlaces del HTML (atributos `href`), en el orden en que
+    /// aparecen y ya sin escapar, para seguirlos en las pruebas (p. ej. un enlace de un solo uso).
+    ///
+    /// Incluye los del diseño común, si los tiene. Lee los atributos tal como los genera `html!`,
+    /// entre comillas dobles; los de un documento propio escritos de otra forma no se encuentran.
+    /// Sin HTML devuelve una lista vacía.
+    pub fn links(&self) -> Vec<String> {
+        const ATTR: &str = " href=\"";
+        let Some(html) = self.email.html() else {
+            return Vec::new();
+        };
+        let mut links = Vec::new();
+        let mut rest = html.as_str();
+        // Con el espacio delante no coinciden otros atributos que acaban igual (`data-href`).
+        while let Some(start) = rest.find(ATTR) {
+            rest = &rest[start + ATTR.len()..];
+            let Some(end) = rest.find('"') else {
+                break;
+            };
+            links.push(unescape(&rest[..end]));
+            rest = &rest[end..];
+        }
+        links
+    }
+}
+
+// Deshace el escapado de un valor de atributo HTML generado con `html!`.
+fn unescape(value: &str) -> String {
+    value
+        .replace("&quot;", "\"")
+        .replace("&lt;", "<")
+        .replace("&gt;", ">")
+        .replace("&#39;", "'")
+        .replace("&amp;", "&")
 }
 
 /// Recoge todos los correos guardados, en el orden en que se enviaron.

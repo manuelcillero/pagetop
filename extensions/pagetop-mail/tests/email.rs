@@ -109,6 +109,9 @@ async fn text_email_uses_default_sender_and_reaches_every_recipient() {
             .any(|line| line.starts_with("Message-ID: <") && line.ends_with("@example.com>")),
         "Message-ID must use the sender domain"
     );
+    // Marks the email as automatic so that out-of-office replies are not sent back.
+    assert!(sent.email().auto_submitted());
+    assert!(sent.raw().contains("Auto-Submitted: auto-generated\r\n"));
     assert!(sent.raw().contains("Content-Type: text/plain"));
     // Bcc recipients get the email but must not appear in its headers.
     assert!(!sent.raw().contains("text-bcc@example.com"));
@@ -187,6 +190,42 @@ async fn html_document_is_sent_without_layout() {
     assert_eq!(
         sent.email().html().unwrap().as_str(),
         "<html><body>Own document</body></html>"
+    );
+}
+
+#[pagetop::test]
+async fn auto_submitted_header_can_be_left_out() {
+    // E.g. a contact form message: some help desks suspend or reject automatic emails.
+    let sent = send_one(
+        Email::new()
+            .with_to("human@example.com")
+            .with_text("Written by a person")
+            .with_auto_submitted(false),
+        "human@example.com",
+    )
+    .await;
+    assert!(!sent.raw().contains("Auto-Submitted"));
+}
+
+#[pagetop::test]
+async fn links_are_extracted_unescaped_in_order() {
+    let sent = send_one(
+        Email::new()
+            .with_to("links@example.com")
+            .with_html_document(html! {
+                html { body {
+                    a href="https://example.com/a?x=1&y=2" { "First" }
+                    // Other attributes ending in "href" are not links.
+                    a data-href="https://example.com/no" href="https://example.com/b" { "Second" }
+                } }
+            }),
+        "links@example.com",
+    )
+    .await;
+
+    assert_eq!(
+        sent.links(),
+        ["https://example.com/a?x=1&y=2", "https://example.com/b"]
     );
 }
 

@@ -5,6 +5,7 @@ use pagetop::prelude::*;
 use crate::{Attachment, MailError, MailTemplate, Mailbox, layout, text, transport};
 
 use lettre::Message;
+use lettre::message::header::{HeaderName, HeaderValue};
 use lettre::message::{MultiPart, MultiPartBuilder, SinglePart};
 
 use std::sync::atomic::{AtomicU64, Ordering};
@@ -29,6 +30,10 @@ use std::time::{SystemTime, UNIX_EPOCH};
 ///
 /// Si no se indica el remitente o la dirección de respuesta se usan los de la configuración
 /// (`mail.from` y `mail.reply_to`). Las direcciones se validan al enviar.
+///
+/// Por defecto, los correos llevan la cabecera `Auto-Submitted: auto-generated`: los envía la
+/// aplicación, no una persona, así que no deben recibir respuestas automáticas (avisos de
+/// ausencia...). Ver [`with_auto_submitted()`](Self::with_auto_submitted).
 ///
 /// # Ejemplo
 ///
@@ -74,6 +79,10 @@ pub struct Email {
     attachments: Vec<Attachment>,
     #[getters(skip)]
     langid: Option<&'static LanguageIdentifier>,
+    /// Si lleva la cabecera `Auto-Submitted: auto-generated` (por defecto, sí).
+    #[default = true]
+    #[getters(copy)]
+    auto_submitted: bool,
 }
 
 impl Email {
@@ -231,10 +240,11 @@ impl Email {
         }
 
         let from = from.to_lettre()?;
-        let mut builder = Message::builder()
-            .message_id(Some(message_id(from.email.domain())))
-            .from(from)
-            .subject(self.subject.as_str());
+        let mut builder = Message::builder().message_id(Some(message_id(from.email.domain())));
+        if self.auto_submitted {
+            builder = builder.raw_header(auto_submitted_header());
+        }
+        builder = builder.from(from).subject(self.subject.as_str());
         if let Some(reply_to) = &self.reply_to {
             builder = builder.reply_to(reply_to.to_lettre()?);
         }
@@ -369,6 +379,20 @@ impl Email {
         self.langid = Some(language.langid());
         self
     }
+
+    /// Indica si el correo lleva la cabecera `Auto-Submitted: auto-generated` (RFC 3834), que lo
+    /// marca como enviado por un programa. Por defecto la llevan todos: así los contestadores
+    /// automáticos que siguen el RFC (avisos de ausencia, de vacaciones...) no responden a la
+    /// dirección del remitente.
+    ///
+    /// Quítala (`false`) en los correos que escribe una persona y que deben tratarse como suyos,
+    /// como los de un formulario de contacto dirigidos a una dirección de soporte: hay sistemas de
+    /// atención al cliente que suspenden o rechazan los correos marcados como automáticos, para no
+    /// abrir incidencias con ellos.
+    pub fn with_auto_submitted(mut self, auto_submitted: bool) -> Self {
+        self.auto_submitted = auto_submitted;
+        self
+    }
 }
 
 // Genera la cabecera `Message-ID`, que los filtros de correo no deseado penalizan si falta. Sólo
@@ -382,6 +406,14 @@ fn message_id(domain: &str) -> String {
         .map_or(0, |elapsed| elapsed.as_nanos());
     let count = COUNTER.fetch_add(1, Ordering::Relaxed);
     format!("<{nanos:x}.{count:x}.{:x}@{domain}>", std::process::id())
+}
+
+// Cabecera `Auto-Submitted: auto-generated` (ver `Email::with_auto_submitted()`).
+fn auto_submitted_header() -> HeaderValue {
+    HeaderValue::new(
+        HeaderName::new_from_ascii_str("Auto-Submitted"),
+        "auto-generated".to_owned(),
+    )
 }
 
 // Parte de un mensaje MIME: simple o compuesta por otras partes.
