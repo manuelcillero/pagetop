@@ -101,12 +101,17 @@ prefix  = "tracing.log"                # Prefijo de los archivos de traza (si ro
 format  = "Full"                       # Formato: "Full", "Compact", "Pretty" o "Json".
 
 [server]
-bind_address  = "localhost"            # Dirección de enlace del servidor web.
-bind_port     = 8080                   # Puerto de escucha del servidor web.
-max_body_size = 2_097_152              # Tamaño máximo en bytes del cuerpo de una petición que se lee
-                                       # entero en memoria (2 MiB): formularios, JSON... y la suma de
-                                       # los campos de texto de un formulario con archivos. Una
-                                       # petición mayor se rechaza con 413. 0 -> sin límite.
+bind_address     = "localhost"         # Dirección de enlace del servidor web.
+bind_port        = 8080                # Puerto de escucha del servidor web.
+max_body_size    = 2_097_152           # Tamaño máximo en bytes del cuerpo de una petición que se
+                                       # lee entero en memoria (2 MiB): formularios, JSON... y la
+                                       # suma de los campos de texto de un formulario con archivos.
+                                       # Una petición mayor se rechaza con 413. 0 -> sin límite.
+client_ip_header = ""                  # Cabecera con la IP del cliente tras un proxy inverso:
+                                       # "X-Forwarded-For", "X-Real-IP"... (con varias direcciones
+                                       # vale la última; "Forwarded" no se admite). Vacía -> la IP
+                                       # de la conexión. Sólo si todas las peticiones pasan por el
+                                       # proxy y éste escribe siempre la cabecera.
 
 [upload]
 dir              = "uploads"           # Directorio de los archivos subidos, absoluto o relativo al

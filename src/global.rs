@@ -1,7 +1,11 @@
 //! Ajustes de configuración globales de PageTop.
 
 use crate::core::extension::all::StartupError;
+use crate::web::http::HeaderName;
 use crate::{config, settings};
+
+use serde::de::Error;
+use serde::{Deserialize, Deserializer};
 
 use std::sync::LazyLock;
 
@@ -227,16 +231,59 @@ pub struct ServerSettings {
     /// Tamaño máximo en bytes del cuerpo de una petición que se lee entero en memoria (por defecto
     /// 2 MiB, el mismo que aplica Axum). Con *0* no hay límite.
     ///
-    /// Se aplica a los extractores que leen el cuerpo completo, como [`Form`](crate::web::Form),
-    /// [`RawForm`](crate::web::RawForm) o el `Json` de Axum, y también a la suma de los campos de
-    /// texto de un formulario con archivos recibido con
-    /// [`Upload::receive()`](crate::web::Upload::receive). Los envíos `multipart/form-data`
-    /// completos, con sus archivos, los limita en cambio
-    /// [`max_request_size`](UploadSettings::max_request_size) de `[upload]`, porque los archivos se
-    /// escriben en disco a medida que llegan. Una petición mayor se rechaza con
-    /// `413 Payload Too Large`.
+    /// Se aplica a los extractores que leen el cuerpo completo, como [`Form`], [`RawForm`] o
+    /// [`Json`], y también a la suma de los campos de texto de un formulario con archivos recibido
+    /// con [`Upload::receive()`]. Los envíos `multipart/form-data` completos, con sus archivos, los
+    /// limita en cambio [`max_request_size`] de `[upload]`, porque los archivos se escriben en
+    /// disco a medida que llegan. Una petición mayor se rechaza con `413 Payload Too Large`.
+    ///
+    /// [`Form`]: crate::web::Form
+    /// [`RawForm`]: crate::web::RawForm
+    /// [`Json`]: crate::response::Json
+    /// [`Upload::receive()`]: crate::web::Upload::receive
+    /// [`max_request_size`]: UploadSettings::max_request_size
     #[default = 2_097_152]
     pub max_body_size: usize,
+    /// Cabecera con la dirección IP del cliente, cuando la aplicación está detrás de un *proxy*
+    /// inverso o de un balanceador (p. ej. `"X-Forwarded-For"` o `"X-Real-IP"`). Vacía, la
+    /// dirección es la de la conexión. Ver [`HttpRequest::client_ip()`].
+    ///
+    /// Si la cabecera tiene varias direcciones, vale la última, la que añade el *proxy* más cercano
+    /// a la aplicación. Con varios *proxies* encadenados, esa última sería la del anterior: usa
+    /// entonces una cabecera con una única dirección que escriba el primero, el que recibe la
+    /// conexión del cliente.
+    ///
+    /// Configúrala sólo si todas las peticiones pasan por el *proxy* y éste escribe siempre la
+    /// cabecera, sustituyendo o completando la que llegue: si no, cualquiera podría enviarla con la
+    /// dirección que quisiera.
+    ///
+    /// Debe ser un nombre de cabecera HTTP válido; si no, la aplicación no arranca. Tampoco admite
+    /// `Forwarded` (RFC 7239), cuyos valores (`for=...;proto=...`) no son sólo direcciones.
+    ///
+    /// [`HttpRequest::client_ip()`]: crate::web::HttpRequest::client_ip
+    #[default = ""]
+    #[serde(deserialize_with = "header_name")]
+    pub client_ip_header: String,
+}
+
+// Nombre de cabecera para `client_ip_header`: vacío o un nombre de cabecera HTTP válido, sin
+// espacios en los extremos. Un nombre que no lo fuera nunca encontraría la cabecera, y
+// `HttpRequest::client_ip()` devolvería siempre `None` sin que nada lo indicase.
+fn header_name<'de, D: Deserializer<'de>>(deserializer: D) -> Result<String, D::Error> {
+    let raw = String::deserialize(deserializer)?;
+    let name = raw.trim();
+    if name.eq_ignore_ascii_case("forwarded") {
+        return Err(D::Error::custom(
+            "the Forwarded header (RFC 7239) is not supported; use one with only addresses, such \
+             as X-Forwarded-For or X-Real-IP",
+        ));
+    }
+    if !name.is_empty() && HeaderName::from_bytes(name.as_bytes()).is_err() {
+        return Err(D::Error::custom(format!(
+            "invalid HTTP header name \"{name}\""
+        )));
+    }
+    Ok(name.to_owned())
 }
 
 /// Sección **`[upload]`** de la configuración. Forma parte de [`Settings`].
@@ -304,5 +351,19 @@ mod tests {
             .to_string();
         assert!(error.contains("Daly"));
         assert!(error.contains("Daily"));
+    }
+
+    #[test]
+    fn client_ip_header_must_be_a_valid_header_name() {
+        let load = |value: &str| {
+            let toml = format!("[server]\nclient_ip_header = \"{value}\"\n");
+            config::load_from_str::<ServerSettings>(&toml)
+        };
+        assert_eq!(load(" X-Real-IP ").unwrap().client_ip_header, "X-Real-IP");
+        assert_eq!(load("").unwrap().client_ip_header, "");
+        let error = load("X Real IP").expect_err("invalid name accepted");
+        assert!(error.to_string().contains("X Real IP"), "{error}");
+        // Its values are not plain addresses, so it would never give one.
+        assert!(load("Forwarded").is_err());
     }
 }

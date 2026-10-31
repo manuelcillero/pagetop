@@ -2,16 +2,16 @@
 //!
 //! Define rutas y handlers: el [`Router`], las operaciones HTTP ([`get`], [`post`], [`put`],
 //! [`delete`], [`patch`]), los extractores ([`Path`], [`Query`], [`Form`], [`RawForm`],
-//! [`Multipart`], [`Request`]) e [`IntoResponse`], el módulo [`middleware`] para *middlewares* de
-//! función, y re-exporta el módulo `http` para tipos de bajo nivel como `StatusCode`, `HeaderName`
-//! o `Method`. También ofrece utilidades para servir archivos estáticos, [`ServeDir`] y
-//! [`ServeEmbedded`], para recibir y guardar los archivos subidos en formularios, [`Upload`], y
-//! para servirlos después con control de acceso, [`Download`].
+//! [`Multipart`], [`Request`], [`ConnectInfo`]) e [`IntoResponse`], el módulo [`middleware`] para
+//! *middlewares* de función, y re-exporta el módulo `http` para tipos de bajo nivel como
+//! `StatusCode`, `HeaderName` o `Method`. También ofrece utilidades para servir archivos estáticos,
+//! [`ServeDir`] y [`ServeEmbedded`], para recibir y guardar los archivos subidos en formularios,
+//! [`Upload`], y para servirlos después con control de acceso, [`Download`].
 //!
 //! Los handlers son las funciones asíncronas que el servidor invoca al recibir una petición HTTP en
 //! una ruta concreta.
 
-use crate::StaticFile;
+use crate::{StaticFile, global};
 
 #[doc(inline)]
 pub use axum::http;
@@ -20,7 +20,7 @@ pub use axum::http;
 pub use axum::Router;
 
 // Extractores de petición.
-pub use axum::extract::{Form, Multipart, Path, Query, RawForm, Request};
+pub use axum::extract::{ConnectInfo, Form, Multipart, Path, Query, RawForm, Request};
 
 // Partes y errores del extractor `Multipart`.
 pub use axum::extract::multipart;
@@ -47,6 +47,7 @@ use axum::extract::FromRequestParts;
 
 use std::collections::HashMap;
 use std::convert::Infallible;
+use std::net::{IpAddr, SocketAddr};
 use std::sync::Arc;
 use std::task::{Context, Poll};
 
@@ -134,6 +135,43 @@ impl HttpRequest {
     pub fn extension<T: Send + Sync + 'static>(&self) -> Option<&T> {
         self.0.extensions.get::<T>()
     }
+
+    /// Devuelve la dirección IP del cliente que hace la petición, si se conoce.
+    ///
+    /// Por defecto es la dirección desde la que llega la conexión. Detrás de un *proxy* inverso o
+    /// de un balanceador, esa dirección es siempre la del *proxy*: entonces hay que indicar en
+    /// [`client_ip_header`](crate::global::ServerSettings::client_ip_header) de `[server]` la
+    /// cabecera en la que el *proxy* escribe la dirección del cliente.
+    ///
+    /// Las direcciones IPv4 se devuelven siempre como tales, también las que llegan en forma IPv6
+    /// (`::ffff:192.0.2.1`), como ocurre al escuchar en `"::"`: así una misma dirección es siempre
+    /// el mismo valor.
+    ///
+    /// Devuelve `None` si la cabecera configurada falta o no contiene una dirección válida (nunca
+    /// la de la conexión, que sería la del *proxy*), y en las pruebas, que no abren conexiones
+    /// (salvo que la petición incluya [`ConnectInfo`]).
+    pub fn client_ip(&self) -> Option<IpAddr> {
+        let header = global::SETTINGS.server.client_ip_header.as_str();
+        let ip = if header.is_empty() {
+            self.extension::<ConnectInfo<SocketAddr>>()
+                .map(|ConnectInfo(addr)| addr.ip())
+        } else {
+            ip_from_header(&self.0.headers, header)
+        };
+        ip.map(|ip| ip.to_canonical())
+    }
+}
+
+// Dirección IP de la cabecera `name`. Si la cabecera se repite o tiene varias direcciones separadas
+// por comas (como `X-Forwarded-For`), vale la última: la que añadió el último *proxy*, el de la
+// propia aplicación. Las anteriores las envía el cliente y puede inventarlas.
+fn ip_from_header(headers: &http::HeaderMap, name: &str) -> Option<IpAddr> {
+    let value = headers.get_all(name).iter().next_back()?.to_str().ok()?;
+    let last = value.rsplit(',').next()?.trim();
+    last.parse().ok().or_else(|| {
+        // Una dirección IPv4 o IPv6 con puerto (`203.0.113.7:4711`, `[2001:db8::1]:4711`).
+        last.parse::<SocketAddr>().ok().map(|addr| addr.ip())
+    })
 }
 
 impl<S: Send + Sync> FromRequestParts<S> for HttpRequest {
@@ -571,5 +609,69 @@ pub mod test {
             .await
             .unwrap();
         String::from_utf8(bytes.to_vec()).unwrap()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn headers(values: &[&str]) -> http::HeaderMap {
+        let mut headers = http::HeaderMap::new();
+        for value in values {
+            headers.append("x-forwarded-for", value.parse().unwrap());
+        }
+        headers
+    }
+
+    fn ip(value: &str) -> Option<IpAddr> {
+        Some(value.parse().unwrap())
+    }
+
+    #[test]
+    fn the_last_address_of_the_header_wins() {
+        let from = |values| ip_from_header(&headers(values), "X-Forwarded-For");
+        assert_eq!(from(&["203.0.113.7"]), ip("203.0.113.7"));
+        // Earlier addresses are sent by the client and may be forged.
+        assert_eq!(from(&["10.0.0.1, 203.0.113.7"]), ip("203.0.113.7"));
+        assert_eq!(from(&["10.0.0.1", "203.0.113.7"]), ip("203.0.113.7"));
+        assert_eq!(from(&["2001:db8::1"]), ip("2001:db8::1"));
+        assert_eq!(from(&["203.0.113.7:4711"]), ip("203.0.113.7"));
+        assert_eq!(from(&["[2001:db8::1]:4711"]), ip("2001:db8::1"));
+    }
+
+    #[test]
+    fn a_missing_or_invalid_header_gives_no_address() {
+        assert_eq!(ip_from_header(&headers(&[]), "X-Forwarded-For"), None);
+        assert_eq!(
+            ip_from_header(&headers(&["203.0.113.7, unknown"]), "X-Forwarded-For"),
+            None
+        );
+    }
+
+    #[test]
+    fn without_a_header_the_connection_address_is_used() {
+        let request = test::TestRequest::get()
+            .with_extension(ConnectInfo(SocketAddr::from(([198, 51, 100, 2], 4711))))
+            .to_http_request();
+        assert_eq!(request.client_ip(), ip("198.51.100.2"));
+        assert_eq!(test::TestRequest::get().to_http_request().client_ip(), None);
+    }
+
+    #[test]
+    fn ipv4_addresses_seen_through_ipv6_are_returned_as_ipv4() {
+        // A dual-stack socket ("::") sees IPv4 clients as IPv4-mapped IPv6 addresses.
+        let mapped: SocketAddr = "[::ffff:198.51.100.2]:4711".parse().unwrap();
+        let request = test::TestRequest::get()
+            .with_extension(ConnectInfo(mapped))
+            .to_http_request();
+        assert_eq!(request.client_ip(), ip("198.51.100.2"));
+        let request = test::TestRequest::get()
+            .with_extension(ConnectInfo(SocketAddr::from((
+                [0x2001, 0xdb8, 0, 0, 0, 0, 0, 1],
+                80,
+            ))))
+            .to_http_request();
+        assert_eq!(request.client_ip(), ip("2001:db8::1"));
     }
 }

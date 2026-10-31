@@ -228,7 +228,9 @@ impl Application {
         }
 
         let listener = tokio::net::TcpListener::from_std(std_listener)?;
-        let result = axum::serve(listener, router)
+        // Con la dirección de cada conexión, para `HttpRequest::client_ip()`.
+        let service = router.into_make_service_with_connect_info::<std::net::SocketAddr>();
+        let result = axum::serve(listener, service)
             .with_graceful_shutdown(shutdown_signal())
             .await;
 
