@@ -66,3 +66,16 @@ poweredby_pagetop = Funciona con { $pagetop_link }
 
 # Table component.
 table_empty = No hay datos que mostrar
+
+# File uploads (web::Upload and web::Download).
+upload_too_large = «{ $file }» supera el tamaño máximo de { $size } por archivo.
+upload_extension_not_allowed = «{ $file }» no es de un tipo de archivo permitido ({ $allowed }).
+upload_too_many_files = { $limit ->
+    [one] Sólo se puede enviar un archivo a la vez.
+   *[other] Sólo se pueden enviar { $limit } archivos a la vez.
+}
+upload_fields_too_large = Los campos del formulario superan el tamaño máximo de { $size }.
+upload_body_too_large = El envío supera el tamaño máximo de { $size }.
+upload_not_found = El archivo no existe o ya no está disponible.
+upload_invalid = El envío del formulario no es válido. Inténtalo de nuevo.
+upload_failed = No se ha podido procesar el archivo. Inténtalo más tarde.

@@ -9,9 +9,12 @@ use crate::core::theme;
 use crate::datetime::Timezone;
 use crate::locale::Locale;
 use crate::response::{render_error_pages, response_for_panic, route_not_found};
-use crate::web::Router;
+use crate::web::{Request, Response, Router, http};
 use crate::{PAGETOP_VERSION, global, trace};
 
+use axum::extract::DefaultBodyLimit;
+use axum::middleware::Next;
+use tower::{Layer, ServiceExt};
 use tower_http::catch_panic::CatchPanicLayer;
 use tracing_appender::non_blocking::WorkerGuard;
 
@@ -250,6 +253,9 @@ impl Application {
     // cambio, se registra antes: la página 404 debe ver lo que el middleware añade a la petición
     // (p. ej. el usuario actual).
     //
+    // El límite del cuerpo de las peticiones (`limit_body()`) sustituye al de Axum en todas las
+    // rutas.
+    //
     // Las capas de páginas de error y `CatchPanicLayer` cubren todo, porque se añaden al final. Con
     // `CatchPanicLayer` en la última capa se capturan incluso los `panic!` que se produzcan dentro
     // del propio renderizado de una página de error.
@@ -258,9 +264,36 @@ impl Application {
         let router = extension::all::configure_middleware(router);
         let router = extension::all::configure_static_files(router);
         router
+            .layer(axum::middleware::from_fn(limit_body))
             .layer(axum::middleware::from_fn(render_error_pages))
             .layer(CatchPanicLayer::custom(response_for_panic))
     }
+}
+
+// Fija el límite del cuerpo de la petición según su tipo de contenido. Un envío
+// `multipart/form-data` escribe sus archivos en disco a medida que llegan, así que admite
+// `upload.max_request_size`; el resto de cuerpos se leen enteros en memoria y se limitan con
+// `server.max_body_size`. Otro tipo de contenido no se beneficia del límite mayor: el extractor
+// `Multipart` exige `multipart/form-data`, y `Form` o `Json` rechazan la petición sin leer el
+// cuerpo si no llega con el suyo.
+async fn limit_body(request: Request, next: Next) -> Response {
+    let multipart = request
+        .headers()
+        .get(http::header::CONTENT_TYPE)
+        .and_then(|value| value.to_str().ok())
+        .and_then(|value| value.get(..19))
+        .is_some_and(|essence| essence.eq_ignore_ascii_case("multipart/form-data"));
+    let max = if multipart {
+        global::SETTINGS.upload.max_request_size
+    } else {
+        global::SETTINGS.server.max_body_size
+    };
+    let limit = match max {
+        0 => DefaultBodyLimit::disable(),
+        max => DefaultBodyLimit::max(max),
+    };
+    let Ok(response) = limit.layer(next).oneshot(request).await;
+    response
 }
 
 // Espera la señal para detener el servidor: Ctrl+C o, en Unix, `SIGTERM`. Si no se puede escuchar

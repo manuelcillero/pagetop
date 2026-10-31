@@ -166,6 +166,8 @@ async fn form_controls(request: HttpRequest) -> Result<Markup, ErrorPage> {
                                 .with_id("form-text")
                                 .with_action("/")
                                 .with_method(form::Method::Post)
+                                // Necesaria para enviar los archivos de form::File.
+                                .with_enctype(form::Enctype::Multipart)
                                 // Campos de texto (form::input::Field).
                                 .with_child(
                                     form::Fieldset::new()
@@ -249,6 +251,26 @@ async fn form_controls(request: HttpRequest) -> Result<Markup, ErrorPage> {
                                                 .with_step(Some(1.0))
                                                 .with_value(Some(5.0))
                                                 .with_help_text(Lc::t("help_rating", &LOC)),
+                                        ),
+                                )
+                                // Selección de archivos (form::File).
+                                .with_child(
+                                    form::Fieldset::new()
+                                        .with_legend(Lc::t("fieldset_file", &LOC))
+                                        .with_child(
+                                            form::File::new()
+                                                .with_name("photo")
+                                                .with_label(Lc::t("label_photo", &LOC))
+                                                .with_accept("image/jpeg,image/png")
+                                                .with_help_text(Lc::t("help_photo", &LOC)),
+                                        )
+                                        .with_child(
+                                            form::File::new()
+                                                .with_name("attachments")
+                                                .with_label(Lc::t("label_attachments", &LOC))
+                                                .with_accept(".pdf")
+                                                .with_multiple(true)
+                                                .with_help_text(Lc::t("help_attachments", &LOC)),
                                         ),
                                 )
                                 // Campo oculto (form::Hidden).

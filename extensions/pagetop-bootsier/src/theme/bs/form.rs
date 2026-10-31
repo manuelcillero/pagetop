@@ -1,6 +1,8 @@
 //! Definiciones para crear formularios ([`Form`]).
 
-pub use pagetop::base::component::form::{Autocomplete, AutofillField, CheckboxKind, Method};
+pub use pagetop::base::component::form::{
+    Autocomplete, AutofillField, CheckboxKind, Enctype, Method,
+};
 
 pub use pagetop::base::component::form::Form;
 
@@ -36,5 +38,7 @@ pub use pagetop::base::component::form::date;
 pub use pagetop::base::component::form::Number;
 
 pub use pagetop::base::component::form::Range;
+
+pub use pagetop::base::component::form::File;
 
 pub use pagetop::base::component::form::Hidden;

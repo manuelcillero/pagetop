@@ -96,8 +96,27 @@ prefix  = "tracing.log"                # Prefijo de los archivos de traza (si ro
 format  = "Full"                       # Formato: "Full", "Compact", "Pretty" o "Json".
 
 [server]
-bind_address = "localhost"             # Dirección de enlace del servidor web.
-bind_port    = 8080                    # Puerto de escucha del servidor web.
+bind_address  = "localhost"            # Dirección de enlace del servidor web.
+bind_port     = 8080                   # Puerto de escucha del servidor web.
+max_body_size = 2_097_152              # Tamaño máximo en bytes del cuerpo de una petición que se lee
+                                       # entero en memoria (2 MiB): formularios, JSON... y la suma de
+                                       # los campos de texto de un formulario con archivos. Una
+                                       # petición mayor se rechaza con 413. 0 -> sin límite.
+
+[upload]
+dir              = "uploads"           # Directorio de los archivos subidos, absoluto o relativo al
+                                       # directorio de trabajo. Se crea al guardar el primero.
+max_request_size = 33_554_432          # Tamaño máximo en bytes de un envío 'multipart/form-data'
+                                       # completo (32 MiB), con todos sus archivos y campos; sustituye
+                                       # a 'server.max_body_size' en estas peticiones. Para admitir
+                                       # varios archivos debe ser varias veces mayor que
+                                       # 'max_file_size'. Uno mayor se rechaza con 413. 0 -> sin
+                                       # límite.
+max_file_size    = 8_388_608           # Tamaño máximo en bytes de cada archivo por separado
+                                       # (8 MiB). La aplicación puede cambiarlo en una subida
+                                       # concreta. 0 -> sólo limita 'max_request_size'.
+max_files        = 20                  # Número máximo de archivos de un mismo envío. La aplicación
+                                       # puede cambiarlo en una subida concreta. 0 -> sin límite.
 
 
 # **< pagetop-seaorm >******************************************************************************

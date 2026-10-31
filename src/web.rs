@@ -2,9 +2,11 @@
 //!
 //! Define rutas y handlers: el [`Router`], las operaciones HTTP ([`get`], [`post`], [`put`],
 //! [`delete`], [`patch`]), los extractores ([`Path`], [`Query`], [`Form`], [`RawForm`],
-//! [`Request`]) e [`IntoResponse`], el módulo [`middleware`] para *middlewares* de función, y
-//! re-exporta el módulo `http` para tipos de bajo nivel como `StatusCode`, `HeaderName` o `Method`.
-//! También ofrece utilidades para servir archivos estáticos, [`ServeDir`] y [`ServeEmbedded`].
+//! [`Multipart`], [`Request`]) e [`IntoResponse`], el módulo [`middleware`] para *middlewares* de
+//! función, y re-exporta el módulo `http` para tipos de bajo nivel como `StatusCode`, `HeaderName`
+//! o `Method`. También ofrece utilidades para servir archivos estáticos, [`ServeDir`] y
+//! [`ServeEmbedded`], para recibir y guardar los archivos subidos en formularios, [`Upload`], y
+//! para servirlos después con control de acceso, [`Download`].
 //!
 //! Los handlers son las funciones asíncronas que el servidor invoca al recibir una petición HTTP en
 //! una ruta concreta.
@@ -18,7 +20,10 @@ pub use axum::http;
 pub use axum::Router;
 
 // Extractores de petición.
-pub use axum::extract::{Form, Path, Query, RawForm, Request};
+pub use axum::extract::{Form, Multipart, Path, Query, RawForm, Request};
+
+// Partes y errores del extractor `Multipart`.
+pub use axum::extract::multipart;
 
 // Para implementar respuestas.
 pub use axum::response::{IntoResponse, Response};
@@ -28,6 +33,14 @@ pub use axum::routing::{delete, get, patch, post, put};
 
 // Middlewares de función (`from_fn`) y tipos asociados (`Next`).
 pub use axum::middleware;
+
+// Guardado de los archivos subidos en formularios `multipart/form-data`.
+mod upload;
+pub use upload::{Upload, UploadError, UploadedFile, UploadedForm};
+
+// Respuestas con los archivos subidos.
+mod download;
+pub use download::Download;
 
 use axum::body::Body;
 use axum::extract::FromRequestParts;
@@ -503,6 +516,15 @@ pub mod test {
         pub fn form(mut self, fields: impl Into<String>) -> Self {
             self.body = fields.into();
             self.header("content-type", "application/x-www-form-urlencoded")
+        }
+
+        /// Envía como cuerpo de la petición el texto indicado, tal cual.
+        ///
+        /// Combinado con [`header()`](Self::header) para fijar `Content-Type`, permite probar
+        /// cuerpos con otros formatos, como los formularios `multipart/form-data` con archivos.
+        pub fn body(mut self, body: impl Into<String>) -> Self {
+            self.body = body.into();
+            self
         }
 
         /// Inserta un valor en las extensiones de la petición.

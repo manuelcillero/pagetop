@@ -66,3 +66,16 @@ poweredby_pagetop = Powered by { $pagetop_link }
 
 # Table component.
 table_empty = No data to display
+
+# File uploads (web::Upload and web::Download).
+upload_too_large = "{ $file }" exceeds the maximum size of { $size } per file.
+upload_extension_not_allowed = "{ $file }" is not an allowed file type ({ $allowed }).
+upload_too_many_files = { $limit ->
+    [one] Only one file can be sent at a time.
+   *[other] Only { $limit } files can be sent at a time.
+}
+upload_fields_too_large = The form fields exceed the maximum size of { $size }.
+upload_body_too_large = The submission exceeds the maximum size of { $size }.
+upload_not_found = The file does not exist or is no longer available.
+upload_invalid = The form submission is not valid. Please try again.
+upload_failed = The file could not be processed. Please try again later.

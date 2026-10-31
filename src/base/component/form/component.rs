@@ -10,6 +10,8 @@ use crate::base::component::form;
 /// - `classes`: clases CSS adicionales (p. ej. utilidades CSS).
 /// - `action`: URL/ruta de destino para el envío.
 /// - `method`: método usado por el formulario para el envío de los datos (ver [`form::Method`]).
+/// - `enctype`: codificación de los datos enviados (ver [`form::Enctype`]); los formularios con
+///   archivos necesitan [`form::Enctype::Multipart`].
 /// - `accept-charset`: juego de caracteres aceptado (por defecto es `"UTF-8"`).
 /// - `children`: contenido del formulario.
 ///
@@ -50,6 +52,8 @@ pub struct Form {
     action: Route,
     /// Devuelve el método para enviar el formulario.
     method: form::Method,
+    /// Devuelve la codificación de los datos enviados por el formulario.
+    enctype: form::Enctype,
     /// Devuelve el juego de caracteres aceptado por el formulario.
     #[default(_code = "AttrValue::new(\"UTF-8\")")]
     charset: AttrValue,
@@ -76,11 +80,16 @@ impl Component for Form {
             form::Method::Post => Some("post"),
             form::Method::Get => None,
         };
+        let enctype = match self.enctype() {
+            form::Enctype::UrlEncoded => None,
+            form::Enctype::Multipart => Some("multipart/form-data"),
+        };
         Ok(html! {
             form
                 (self.props().unpack(cx))
                 action=[self.action().try_resolve(cx)]
                 method=[method]
+                enctype=[enctype]
                 accept-charset=[self.charset().as_deref()]
             {
                 (self.children().render(cx).await)
@@ -120,6 +129,15 @@ impl Form {
     /// - `POST`: se establece `method="post"`.
     pub fn with_method(mut self, method: form::Method) -> Self {
         self.method = method;
+        self
+    }
+
+    /// Establece la codificación de los datos enviados por el formulario.
+    ///
+    /// - `UrlEncoded`: el atributo `enctype` se omite (por defecto).
+    /// - `Multipart`: se establece `enctype="multipart/form-data"`, necesario para subir archivos.
+    pub fn with_enctype(mut self, enctype: form::Enctype) -> Self {
+        self.enctype = enctype;
         self
     }
 

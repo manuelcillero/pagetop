@@ -73,6 +73,12 @@ fieldset_range = Slider
 label_rating = Overall rating
 help_rating = From 1 (very poor) to 10 (excellent).
 
+fieldset_file = Files
+label_photo = Profile picture
+help_photo = JPEG or PNG image. This example does not save it.
+label_attachments = Attachments
+help_attachments = You can choose several PDF files.
+
 btn_submit = Submit
 btn_reset = Reset
 btn_cancel = Cancel

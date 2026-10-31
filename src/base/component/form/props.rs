@@ -468,8 +468,8 @@ impl AutofillField {
 ///   cifran** por sí mismos; por eso es esencial el uso de HTTPS.
 /// - **Tamaño**: GET está limitado por la longitud máxima de URL que acepten el navegador y el
 ///   servidor. POST es más flexible para cargas grandes.
-/// - **Ficheros**: la subida de ficheros requiere `method="post"` y un `enctype` adecuado
-///   (habitualmente `multipart/form-data`).
+/// - **Archivos**: la subida de archivos requiere `method="post"` y la codificación
+///   [`Enctype::Multipart`].
 #[derive(AutoDefault, Clone, Copy, Debug, PartialEq)]
 pub enum Method {
     /// Envía los datos en el cuerpo de la petición.
@@ -483,4 +483,29 @@ pub enum Method {
     ///
     /// Recomendado para búsquedas y operaciones que no modifican datos ni el estado del sistema.
     Get,
+}
+
+// **< Enctype >************************************************************************************
+
+/// Codificación usada por un [`Form`](super::Form) para enviar los datos con el método
+/// [`Method::Post`].
+///
+/// Corresponde al atributo `enctype` del formulario. El navegador lo ignora con [`Method::Get`],
+/// que siempre codifica los datos en la URL.
+#[derive(AutoDefault, Clone, Copy, Debug, PartialEq)]
+pub enum Enctype {
+    /// Pares `name=value` codificados como en una URL (`application/x-www-form-urlencoded`). Es la
+    /// **codificación por defecto**, y el atributo `enctype` se omite.
+    ///
+    /// En el servidor se reciben con los extractores [`web::Form`] o [`web::RawForm`].
+    #[default]
+    UrlEncoded,
+
+    /// Cada campo en una parte propia del cuerpo (`multipart/form-data`). **Imprescindible para
+    /// subir archivos** con [`form::File`](super::File); sin ella, el navegador envía sólo el nombre
+    /// del archivo.
+    ///
+    /// En el servidor se recibe con el extractor [`web::Multipart`], y los archivos se guardan con
+    /// [`web::Upload`].
+    Multipart,
 }

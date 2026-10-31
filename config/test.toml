@@ -4,6 +4,9 @@ name = "Testing"
 [server]
 bind_port = 9000
 
+[upload]
+dir = "target/test-uploads"
+
 [test]
 string_value = "Modified value"
 float_value = 8.7654

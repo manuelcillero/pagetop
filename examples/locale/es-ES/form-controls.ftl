@@ -73,6 +73,12 @@ fieldset_range = Control deslizante
 label_rating = Valoración general
 help_rating = De 1 (muy malo) a 10 (excelente).
 
+fieldset_file = Archivos
+label_photo = Foto de perfil
+help_photo = Imagen JPEG o PNG. En este ejemplo no se guarda.
+label_attachments = Documentos adjuntos
+help_attachments = Puedes elegir varios archivos PDF.
+
 btn_submit = Enviar
 btn_reset = Restablecer
 btn_cancel = Cancelar

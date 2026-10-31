@@ -1,7 +1,7 @@
 //! Definiciones para crear formularios ([`Form`]).
 
 mod props;
-pub use props::{Autocomplete, AutofillField, CheckboxKind, Method};
+pub use props::{Autocomplete, AutofillField, CheckboxKind, Enctype, Method};
 
 mod component;
 pub use component::Form;
@@ -41,6 +41,9 @@ pub use range::Range;
 
 mod textarea;
 pub use textarea::Textarea;
+
+mod file;
+pub use file::File;
 
 mod hidden;
 pub use hidden::Hidden;

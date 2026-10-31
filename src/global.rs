@@ -22,7 +22,7 @@ pub use log_format::LogFormat;
 
 // **< SETTINGS >***********************************************************************************
 
-/// Ajustes de las secciones `[app]`, `[dev]`, `[log]` y `[server]`.
+/// Ajustes de las secciones `[app]`, `[dev]`, `[log]`, `[server]` y `[upload]`.
 ///
 /// Se cargan al arrancar la aplicación, antes que los ajustes de las extensiones.
 pub static SETTINGS: LazyLock<Settings> = LazyLock::new(|| Settings {
@@ -30,6 +30,7 @@ pub static SETTINGS: LazyLock<Settings> = LazyLock::new(|| Settings {
     dev: config::load(),
     log: config::load(),
     server: config::load(),
+    upload: config::load(),
 });
 
 // Comprueba que los archivos de configuración se pueden leer y que los ajustes globales son válidos.
@@ -39,7 +40,8 @@ pub(crate) fn check_settings() -> Result<(), StartupError> {
     check_section::<AppSettings>()?;
     check_section::<DevSettings>()?;
     check_section::<LogSettings>()?;
-    check_section::<ServerSettings>()
+    check_section::<ServerSettings>()?;
+    check_section::<UploadSettings>()
 }
 
 fn check_section<T: config::SettingsSection>() -> Result<(), StartupError> {
@@ -53,21 +55,24 @@ fn check_section<T: config::SettingsSection>() -> Result<(), StartupError> {
 
 /// Ajustes globales de [`SETTINGS`].
 ///
-/// Secciones [`AppSettings`], [`DevSettings`], [`LogSettings`] y [`ServerSettings`].
+/// Secciones [`AppSettings`], [`DevSettings`], [`LogSettings`], [`ServerSettings`] y
+/// [`UploadSettings`].
 #[derive(Debug)]
 pub struct Settings {
     pub app: AppSettings,
     pub dev: DevSettings,
     pub log: LogSettings,
     pub server: ServerSettings,
+    pub upload: UploadSettings,
 }
 
 // Secciones de los ajustes globales, para reconocerlas en los archivos de configuración.
-pub(crate) const SECTIONS: [&str; 4] = [
+pub(crate) const SECTIONS: [&str; 5] = [
     <AppSettings as config::SettingsSection>::SECTION,
     <DevSettings as config::SettingsSection>::SECTION,
     <LogSettings as config::SettingsSection>::SECTION,
     <ServerSettings as config::SettingsSection>::SECTION,
+    <UploadSettings as config::SettingsSection>::SECTION,
 ];
 
 /// Sección **`[app]`** de la configuración. Forma parte de [`Settings`].
@@ -219,11 +224,59 @@ pub struct ServerSettings {
     /// Puerto de escucha del servidor web.
     #[default = 8080]
     pub bind_port: u16,
+    /// Tamaño máximo en bytes del cuerpo de una petición que se lee entero en memoria (por defecto
+    /// 2 MiB, el mismo que aplica Axum). Con *0* no hay límite.
+    ///
+    /// Se aplica a los extractores que leen el cuerpo completo, como [`Form`](crate::web::Form),
+    /// [`RawForm`](crate::web::RawForm) o el `Json` de Axum, y también a la suma de los campos de
+    /// texto de un formulario con archivos recibido con
+    /// [`Upload::receive()`](crate::web::Upload::receive). Los envíos `multipart/form-data`
+    /// completos, con sus archivos, los limita en cambio
+    /// [`max_request_size`](UploadSettings::max_request_size) de `[upload]`, porque los archivos se
+    /// escriben en disco a medida que llegan. Una petición mayor se rechaza con
+    /// `413 Payload Too Large`.
+    #[default = 2_097_152]
+    pub max_body_size: usize,
+}
+
+/// Sección **`[upload]`** de la configuración. Forma parte de [`Settings`].
+///
+/// Ajustes para guardar en el servidor los archivos subidos con [`Upload`](crate::web::Upload).
+#[settings(section = "upload")]
+pub struct UploadSettings {
+    /// Directorio donde se guardan los archivos subidos, absoluto o relativo al directorio de
+    /// trabajo. Se crea, junto con sus subdirectorios, al guardar el primer archivo.
+    #[default = "uploads"]
+    pub dir: String,
+    /// Tamaño máximo en bytes de una petición `multipart/form-data` completa, con todos sus
+    /// archivos y campos (por defecto 32 MiB). Con *0* no hay límite.
+    ///
+    /// Sustituye a [`max_body_size`](ServerSettings::max_body_size) de `[server]` en las peticiones
+    /// con ese tipo de contenido. Para admitir varios archivos en un envío debe ser varias veces
+    /// mayor que [`max_file_size`](Self::max_file_size). Una petición mayor se rechaza con
+    /// `413 Payload Too Large`.
+    #[default = 33_554_432]
+    pub max_request_size: usize,
+    /// Tamaño máximo en bytes de cada archivo (por defecto 8 MiB). Con *0* sólo limita
+    /// [`max_request_size`](Self::max_request_size), que acota además la suma de todos los archivos
+    /// de un mismo envío.
+    ///
+    /// Es el valor por defecto de [`Upload`](crate::web::Upload), que puede cambiarse para una
+    /// subida concreta con `with_max_size()`.
+    #[default = 8_388_608]
+    pub max_file_size: u64,
+    /// Número máximo de archivos de un mismo envío (por defecto 20). Con *0* no se limita.
+    ///
+    /// Lo aplica [`Upload::receive()`](crate::web::Upload::receive) para que un envío con cientos
+    /// de archivos diminutos, que cabrían en `max_request_size`, no llene el disco de archivos.
+    /// Puede cambiarse para una subida concreta con `with_max_files()`.
+    #[default = 20]
+    pub max_files: usize,
 }
 
 #[cfg(test)]
 mod tests {
-    use super::{AppSettings, DevSettings, LogSettings, ServerSettings, config};
+    use super::{AppSettings, DevSettings, LogSettings, ServerSettings, UploadSettings, config};
 
     // `reference.toml` documents every option; with unknown keys rejected, loading it proves that
     // it only documents keys that exist, with values of the right type.
@@ -235,6 +288,7 @@ mod tests {
         config::load_from_str::<DevSettings>(REFERENCE).unwrap();
         config::load_from_str::<LogSettings>(REFERENCE).unwrap();
         config::load_from_str::<ServerSettings>(REFERENCE).unwrap();
+        config::load_from_str::<UploadSettings>(REFERENCE).unwrap();
     }
 
     #[test]

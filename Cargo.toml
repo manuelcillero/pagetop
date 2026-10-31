@@ -121,7 +121,7 @@ testing = []
 
 [dependencies]
 async-trait.workspace = true
-axum.workspace = true
+axum = { workspace = true, features = ["multipart"] }
 chrono.workspace = true
 chrono-tz.workspace = true
 colored.workspace = true
@@ -136,6 +136,7 @@ pagetop-macros.workspace = true
 pagetop-minimal.workspace = true
 pagetop-statics.workspace = true
 serde.workspace = true
+serde_qs.workspace = true
 terminal_size.workspace = true
 thiserror.workspace = true
 tokio.workspace = true
