@@ -1,4 +1,5 @@
-//! Lógica de autenticación: login, logout, registro, cambio de contraseña, semilla inicial.
+//! Lógica de autenticación: login, logout, registro, cambio de contraseña y de email, semilla
+//! inicial.
 
 use pagetop::prelude::*;
 use pagetop_seaorm::db::{
@@ -15,6 +16,7 @@ use crate::password;
 use crate::permission::UserPermission;
 use crate::service::user_admin::{ensure_email_available, ensure_username_available};
 use crate::session;
+use crate::token::{self, TokenKind};
 
 // **< login >**************************************************************************************
 
@@ -154,22 +156,20 @@ pub async fn register(
 // **< change_own_password >************************************************************************
 
 /// Cambia la contraseña del propio usuario tras comprobar la actual, y cierra el resto de sus
-/// sesiones abiertas conservando la indicada en `current_sid` (la de quien hace el cambio).
+/// sesiones abiertas conservando la indicada en `current_sid` (la de quien hace el cambio). Anula
+/// los enlaces de recuperación que tuviera sin usar. Devuelve la cuenta, para avisar del cambio a
+/// su dirección.
 ///
-/// Devuelve [`AuthError::InvalidCredentials`] si la contraseña actual no es correcta.
+/// Devuelve [`AuthError::InvalidCredentials`] si la contraseña actual no es correcta, y
+/// [`AuthError::AccountLocked`] si la cuenta está bloqueada por intentos fallidos (ver
+/// `checked_user()`).
 pub(crate) async fn change_own_password(
     user_id: i32,
     current_password: &str,
     new_password: &str,
     current_sid: Option<&str>,
-) -> Result<(), AuthError> {
-    let user_model = user::Entity::find_by_id(user_id)
-        .one(dbconn())
-        .await?
-        .ok_or(AuthError::UserNotFound)?;
-    if !password::verify_password_async(current_password, &user_model.password_hash).await {
-        return Err(AuthError::InvalidCredentials);
-    }
+) -> Result<user::Model, AuthError> {
+    let user_model = checked_user(user_id, current_password).await?;
     password::validate_strength(new_password)?;
     let hash = password::hash_password_async(new_password).await?;
 
@@ -186,7 +186,151 @@ pub(crate) async fn change_own_password(
         Some(sid) => session::destroy_other_sessions(user_id, sid).await?,
         None => session::destroy_user_sessions(user_id).await?,
     }
-    Ok(())
+    // Un enlace de recuperación pedido antes no debe deshacer el cambio.
+    token::revoke_tokens(user_id, TokenKind::PasswordReset).await?;
+    Ok(user_model)
+}
+
+// Cuenta del usuario, si `plain_password` es su contraseña actual; si no,
+// `AuthError::InvalidCredentials`.
+//
+// Los fallos cuentan para el bloqueo por intentos fallidos, como en `login()`, y con la cuenta
+// bloqueada se rechaza también la contraseña correcta (`AuthError::AccountLocked`): si no, quien
+// tuviera una sesión robada podría adivinar la contraseña desde estos formularios sin límite, y
+// pedirla no protegería el cambio de la contraseña ni el del email.
+async fn checked_user(user_id: i32, plain_password: &str) -> Result<user::Model, AuthError> {
+    let user_model = user::Entity::find_by_id(user_id)
+        .one(dbconn())
+        .await?
+        .ok_or(AuthError::UserNotFound)?;
+    let now = Utc::now();
+    if let Some(locked_until) = user_model.locked_until
+        && locked_until > now
+    {
+        return Err(AuthError::AccountLocked);
+    }
+    if !password::verify_password_async(plain_password, &user_model.password_hash).await {
+        register_failed_login(&user_model, now).await?;
+        return Err(AuthError::InvalidCredentials);
+    }
+    Ok(user_model)
+}
+
+// **< request_email_change / confirm_email_change >************************************************
+
+/// Pide cambiar la dirección de email del propio usuario tras comprobar su contraseña actual.
+///
+/// La nueva dirección no se aplica todavía: queda pendiente (`pending_email`) hasta que se confirme
+/// con el enlace de un solo uso que se envía a ella ([`confirm_email_change()`]), y así nadie puede
+/// asignar a su cuenta una dirección que no es suya. El enlace sólo vale para esa dirección: si se
+/// pide otro cambio, el anterior ya no puede aplicar la nueva. Pedir la contraseña impide que quien
+/// sólo ha conseguido una sesión abierta se quede la cuenta cambiando la dirección y recuperando
+/// después la contraseña. Devuelve la cuenta antes del cambio, la nueva dirección y el token en
+/// claro.
+///
+/// Falla con [`AuthError::InvalidCredentials`] si la contraseña no es correcta,
+/// [`AuthError::AccountLocked`] si la cuenta está bloqueada por intentos fallidos,
+/// [`AuthError::SameEmail`] si la dirección es la actual (sin distinguir mayúsculas) y
+/// [`AuthError::EmailTaken`] si la usa otra cuenta.
+pub(crate) async fn request_email_change(
+    user_id: i32,
+    current_password: &str,
+    new_email: &str,
+) -> Result<(user::Model, String, String), AuthError> {
+    let user_model = checked_user(user_id, current_password).await?;
+    let email = identity::email(new_email)?;
+    if *email.key() == user_model.email_key {
+        return Err(AuthError::SameEmail);
+    }
+    ensure_email_available(&email, Some(user_id)).await?;
+
+    let new_email = email.value().to_owned();
+    user::ActiveModel {
+        id: Set(user_id),
+        pending_email: Set(Some(new_email.clone())),
+        updated_at: Set(Utc::now()),
+        ..Default::default()
+    }
+    .update(dbconn())
+    .await?;
+    let token = token::create_bound_token(user_id, TokenKind::EmailChange, email.key()).await?;
+    Ok((user_model, new_email, token))
+}
+
+/// Aplica la dirección pendiente del usuario si el token es válido para ella, y la da por
+/// verificada: quien abre el enlace ha demostrado recibir los correos de esa dirección. Anula los
+/// enlaces enviados a la dirección anterior (ver [`revoke_address_tokens()`]).
+///
+/// Falla con [`AuthError::InvalidToken`] si el token no es válido, ya no hay ningún cambio
+/// pendiente o el pendiente es otro, y con [`AuthError::EmailTaken`] si otra cuenta ha empezado a
+/// usar la dirección mientras tanto.
+pub(crate) async fn confirm_email_change(user_id: i32, plain_token: &str) -> Result<(), AuthError> {
+    let email = pending_email(user_id).await?;
+    token::consume_bound_token(user_id, plain_token, TokenKind::EmailChange, email.key()).await?;
+    ensure_email_available(&email, Some(user_id)).await?;
+
+    let now = Utc::now();
+    let mut model = user::ActiveModel {
+        id: Set(user_id),
+        email_verified_at: Set(Some(now)),
+        pending_email: Set(None),
+        updated_at: Set(now),
+        ..Default::default()
+    };
+    email.set_on(&mut model);
+    model.update(dbconn()).await?;
+    revoke_address_tokens(user_id).await
+}
+
+/// Indica, sin consumirlo, si el token sirve para confirmar el cambio de dirección pendiente del
+/// usuario (ver [`confirm_email_change()`]).
+pub(crate) async fn is_valid_email_change_token(
+    user_id: i32,
+    plain_token: &str,
+) -> Result<bool, AuthError> {
+    let email = match pending_email(user_id).await {
+        Ok(email) => email,
+        Err(AuthError::InvalidToken) => return Ok(false),
+        Err(err) => return Err(err),
+    };
+    token::is_valid_bound_token(user_id, plain_token, TokenKind::EmailChange, email.key()).await
+}
+
+// Dirección pendiente de confirmar del usuario, o `AuthError::InvalidToken` si no tiene ninguna.
+async fn pending_email(user_id: i32) -> Result<Email, AuthError> {
+    let user_model = user::Entity::find_by_id(user_id)
+        .one(dbconn())
+        .await?
+        .ok_or(AuthError::InvalidToken)?;
+    let pending = user_model.pending_email.ok_or(AuthError::InvalidToken)?;
+    identity::email(&pending)
+}
+
+/// Anula los enlaces de recuperación de contraseña y de verificación que el usuario tenga sin
+/// usar. Se llama cuando cambia su dirección: se enviaron a la anterior, y quien siga recibiendo
+/// sus correos (p. ej. la empresa que la gestionaba) no debe poder usarlos para quedarse la cuenta.
+pub(crate) async fn revoke_address_tokens(user_id: i32) -> Result<(), AuthError> {
+    token::revoke_tokens(user_id, TokenKind::PasswordReset).await?;
+    token::revoke_tokens(user_id, TokenKind::EmailVerification).await
+}
+
+/// Descarta el cambio de dirección pendiente del usuario, si lo hay, y anula su enlace.
+///
+/// Se llama al restablecer la contraseña, porque el aviso de cambio de dirección pide hacerlo a
+/// quien no lo ha pedido, para que la cuenta conserve su dirección; y cuando un administrador fija
+/// otra dirección.
+pub(crate) async fn cancel_email_change(user_id: i32) -> Result<(), AuthError> {
+    use pagetop_seaorm::db::query::Expr;
+    user::Entity::update_many()
+        .col_expr(
+            user::Column::PendingEmail,
+            Expr::value(Option::<String>::None),
+        )
+        .filter(user::Column::Id.eq(user_id))
+        .filter(user::Column::PendingEmail.is_not_null())
+        .exec(dbconn())
+        .await?;
+    token::revoke_tokens(user_id, TokenKind::EmailChange).await
 }
 
 // **< register_failed_login >**********************************************************************

@@ -50,7 +50,9 @@ pub struct UserSettings {
     /// Qué nombres de usuario se aceptan. Ver [`IdentityPolicy`].
     pub identity_policy: IdentityPolicy,
 
-    /// Intentos fallidos de acceso seguidos que bloquean temporalmente la cuenta.
+    /// Intentos fallidos de acceso seguidos que bloquean temporalmente la cuenta. Cuentan también
+    /// los fallos de la contraseña actual al cambiar la contraseña o el email: así nadie con una
+    /// sesión robada puede adivinarla desde esos formularios.
     ///
     /// Un fallo se suma a los anteriores si llega antes de
     /// [`failed_login_window_secs`](Self::failed_login_window_secs) desde el último; si no, el
@@ -80,6 +82,30 @@ pub struct UserSettings {
     /// Segundos en los que se cuentan las solicitudes de recuperación de contraseña de una cuenta.
     #[default = 3_600]
     pub password_reset_window_secs: i64,
+
+    /// Solicitudes que envían un correo o crean una cuenta (registros, recuperaciones de
+    /// contraseña y cambios de email) que se admiten desde una misma dirección IP en
+    /// [`ip_request_window_secs`](Self::ip_request_window_secs).
+    ///
+    /// Complementa a [`max_password_resets`](Self::max_password_resets), que limita las de cada
+    /// cuenta: sin este límite, cualquiera podría usar la aplicación para enviar correos a muchas
+    /// direcciones ajenas, registrándolas o pidiendo su recuperación. Alcanzado el límite, el
+    /// registro y el cambio de email muestran un error, y la recuperación no envía nada, con la
+    /// misma respuesta de siempre. Las direcciones IPv6 cuentan por su red `/64`, que suele ser la
+    /// de un mismo equipo o red local.
+    ///
+    /// La dirección es la que da [`pagetop::web::HttpRequest::client_ip()`]: detrás de un *proxy*
+    /// inverso hay que configurar `server.client_ip_header`, o todas las peticiones contarían como
+    /// de la misma dirección. Las peticiones de dirección desconocida no se limitan. Cada proceso
+    /// lleva su propia cuenta, en memoria: con varias instancias, el límite es por instancia. Con
+    /// `0` no hay límite.
+    ///
+    /// [`pagetop::web::HttpRequest::client_ip()`]: pagetop::web::HttpRequest::client_ip
+    #[default = 20]
+    pub max_ip_requests: u32,
+    /// Segundos en los que se cuentan las solicitudes de una misma dirección IP.
+    #[default = 3_600]
+    pub ip_request_window_secs: i64,
 
     /// Sesiones, en la subsección `[user.session]`.
     pub session: SessionSettings,

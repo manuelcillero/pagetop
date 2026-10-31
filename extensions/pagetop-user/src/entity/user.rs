@@ -20,6 +20,9 @@ pub struct Model {
     #[sea_orm(unique)]
     pub email_key: String,
     pub email_verified_at: Option<DateTimeUtc>,
+    /// Nueva dirección pedida por el propio usuario, que no se aplica hasta que la confirma desde
+    /// el enlace que se le envía.
+    pub pending_email: Option<String>,
     pub password_hash: String,
     pub status: i16,
     pub language: Option<String>,

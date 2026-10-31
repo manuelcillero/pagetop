@@ -1,5 +1,5 @@
-//! Handlers HTTP para el perfil del propio usuario autenticado (consulta, edición de sus datos y
-//! cambio de contraseña) y para el perfil público de cualquier usuario.
+//! Handlers HTTP para el perfil del propio usuario autenticado (consulta, edición de sus datos,
+//! cambio de contraseña y de email) y para el perfil público de cualquier usuario.
 
 use serde::Deserialize;
 
@@ -8,15 +8,20 @@ use pagetop::prelude::*;
 use crate::account::{Account, UserStatus};
 use crate::auth;
 use crate::component::admin::{UserForm, UserFormMode};
-use crate::component::{ChangePasswordForm, multiline_text, user_details};
+use crate::component::{ChangeEmailForm, ChangePasswordForm, multiline_text, user_details};
 use crate::entity::{role, user};
 use crate::error::AuthError;
 use crate::handlers::admin::map_auth_error;
+use crate::handlers::{confirm_page, message_page, no_referrer};
+use crate::mail::{Notice, send_email_change_mail, send_notice};
 use crate::password;
 use crate::permission::UserPermission;
 use crate::service::user_admin;
 use crate::session;
-use crate::{LOCALES_USER, LOGIN_PATH, PROFILE_EDIT_PATH, PROFILE_PASSWORD_PATH, PROFILE_PATH};
+use crate::throttle;
+use crate::{
+    EMAIL_PATH, LOCALES_USER, LOGIN_PATH, PROFILE_EDIT_PATH, PROFILE_PASSWORD_PATH, PROFILE_PATH,
+};
 
 // **< current_user_id / login_redirect >***********************************************************
 
@@ -68,8 +73,9 @@ pub(crate) async fn profile_get(request: HttpRequest) -> Response {
         .into_response()
 }
 
-// Botones para editar el perfil y cambiar la contraseña, cada uno sólo si se tiene el permiso.
-// Sin ninguno de los dos, el contenedor queda vacío y no se renderiza.
+// Botones para editar el perfil, cambiar el email y cambiar la contraseña, cada uno sólo si se
+// tiene el permiso (el email, con el de editar el perfil). Sin ninguno, el contenedor queda vacío y
+// no se renderiza.
 fn profile_actions(can_edit: bool, can_change_password: bool, cx: &Context) -> Flex {
     let mut actions = Flex::new()
         .with_wrap(flex::Behavior::Wrap)
@@ -81,6 +87,13 @@ fn profile_actions(can_edit: bool, can_change_password: bool, cx: &Context) -> F
                 cx.route(PROFILE_EDIT_PATH),
             )
             .with_style(button::Style::Solid(Intent::Primary)),
+        );
+        actions = actions.with_child(
+            Button::anchor(
+                Lc::t("btn-change-email", &LOCALES_USER),
+                cx.route(EMAIL_PATH),
+            )
+            .with_style(button::Style::Solid(Intent::Neutral)),
         );
     }
     if can_change_password {
@@ -235,7 +248,6 @@ pub(crate) async fn profile_edit_get(request: HttpRequest) -> Result<Response, E
 pub(crate) struct ProfileFormData {
     #[serde(default)]
     username: String,
-    email: String,
     #[serde(default)]
     display_name: String,
     #[serde(default)]
@@ -249,7 +261,8 @@ pub(crate) struct ProfileFormData {
 }
 
 /// POST /user/edit - Guarda los datos del perfil propio. El nombre de usuario sólo cambia con
-/// `user:change_own_username`; roles, estado y acceso irrestricto no se tocan nunca desde aquí.
+/// `user:change_own_username`; el email, desde [`email_get()`]; roles, estado y acceso
+/// irrestricto no se tocan nunca desde aquí.
 pub(crate) async fn profile_edit_post(
     request: HttpRequest,
     web::Form(form): web::Form<ProfileFormData>,
@@ -273,13 +286,12 @@ pub(crate) async fn profile_edit_post(
         id,
         user_admin::UserUpdateData {
             username: &username,
-            email: &form.email,
+            email: &user.email,
             display_name: util::non_blank(&form.display_name),
             about: util::non_blank(&form.about),
             language: util::non_blank(&form.language),
             timezone: util::non_blank(&form.timezone),
             theme: util::non_blank(&form.theme),
-            email_verified: false,
         },
     )
     .await;
@@ -292,7 +304,7 @@ pub(crate) async fn profile_edit_post(
         Err(err) => {
             let form = UserForm::new()
                 .with_username(username)
-                .with_email(form.email)
+                .with_email(user.email)
                 .with_display_name(form.display_name)
                 .with_about(form.about)
                 .with_language(form.language)
@@ -332,8 +344,8 @@ pub(crate) struct ChangePasswordFormData {
     confirm_password: String,
 }
 
-/// POST /user/password - Cambia la contraseña propia tras comprobar la actual y cierra el resto de
-/// sesiones abiertas del usuario, conservando la actual.
+/// POST /user/password - Cambia la contraseña propia tras comprobar la actual, cierra el resto de
+/// sesiones abiertas del usuario, conservando la actual, y avisa del cambio a su dirección.
 pub(crate) async fn password_post(
     request: HttpRequest,
     web::Form(form): web::Form<ChangePasswordFormData>,
@@ -350,7 +362,8 @@ pub(crate) async fn password_post(
     };
 
     match result {
-        Ok(()) => {
+        Ok(user) => {
+            send_notice(&request, Notice::PasswordChanged, &user);
             let cx = Context::new(request);
             Ok(Redirect::see_other(cx.route(PROFILE_PATH)).into_response())
         }
@@ -363,6 +376,125 @@ pub(crate) async fn password_post(
             let form = ChangePasswordForm::new().with_error(error);
             Ok(render_profile_page(request, title, form).await)
         }
+    }
+}
+
+// **< email_get / email_post >*********************************************************************
+
+/// GET /user/email - Formulario de cambio del email propio.
+pub(crate) async fn email_get(request: HttpRequest) -> Result<Response, ErrorPage> {
+    let Some(id) = current_user_id(&request) else {
+        return Ok(login_redirect(request, EMAIL_PATH));
+    };
+    require_permission(&request, &UserPermission::EditOwnProfile)?;
+    let Ok(user) = user_admin::find_user(id).await else {
+        return Err(ErrorPage::NotFound(Some(request)));
+    };
+    let title = Lc::t("title-profile-email", &LOCALES_USER);
+    let form = ChangeEmailForm::new().with_pending_email(user.pending_email);
+    Ok(render_profile_page(request, title, form).await)
+}
+
+#[derive(Deserialize)]
+pub(crate) struct ChangeEmailFormData {
+    email: String,
+    current_password: String,
+}
+
+/// POST /user/email - Pide cambiar el email propio tras comprobar la contraseña actual: envía a la
+/// nueva dirección el enlace para confirmarla y avisa a la actual (ver
+/// `auth::request_email_change()`).
+pub(crate) async fn email_post(
+    request: HttpRequest,
+    web::Form(form): web::Form<ChangeEmailFormData>,
+) -> Result<Response, ErrorPage> {
+    let Some(id) = current_user_id(&request) else {
+        return Ok(login_redirect(request, EMAIL_PATH));
+    };
+    require_permission(&request, &UserPermission::EditOwnProfile)?;
+
+    let result = if throttle::allow(&request) {
+        auth::request_email_change(id, &form.current_password, &form.email).await
+    } else {
+        Err(AuthError::TooManyRequests)
+    };
+    match result {
+        Ok((user, new_email, token)) => {
+            send_email_change_mail(&request, &user, &new_email, &token);
+            send_notice(&request, Notice::EmailChangeRequested, &user);
+            let title = Lc::t("title-profile-email", &LOCALES_USER);
+            Ok(message_page(
+                request,
+                title,
+                Lc::t("msg-email-change-sent", &LOCALES_USER),
+            )
+            .await)
+        }
+        Err(err) => {
+            let error = match err {
+                AuthError::InvalidCredentials => Lc::t("error-current-password", &LOCALES_USER),
+                err => map_auth_error(&err),
+            };
+            let pending = user_admin::find_user(id)
+                .await
+                .ok()
+                .and_then(|user| user.pending_email);
+            let title = Lc::t("title-profile-email", &LOCALES_USER);
+            let form = ChangeEmailForm::new()
+                .with_email(form.email)
+                .with_pending_email(pending)
+                .with_error(error);
+            Ok(render_profile_page(request, title, form).await)
+        }
+    }
+}
+
+// **< email_confirm_get / email_confirm_post >*****************************************************
+
+/// GET /user/email/{uid}/{token} - Pide confirmar la nueva dirección con un botón.
+///
+/// Como en la verificación del email al registrarse, abrir el enlace no confirma nada: los
+/// servidores de correo abren los enlaces para analizarlos. Sólo el envío del formulario
+/// ([`email_confirm_post()`]) consume el token. No exige sesión: el enlace basta para demostrar que
+/// se reciben los correos de la nueva dirección.
+pub(crate) async fn email_confirm_get(
+    request: HttpRequest,
+    web::Path((uid, token)): web::Path<(i32, String)>,
+) -> Result<Response, ErrorPage> {
+    if !auth::is_valid_email_change_token(uid, &token)
+        .await
+        .unwrap_or(false)
+    {
+        return Err(ErrorPage::NotFound(Some(request)));
+    }
+    Ok(no_referrer(
+        confirm_page(
+            request,
+            Lc::t("title-confirm-email-change", &LOCALES_USER),
+            Lc::t("msg-confirm-email-change", &LOCALES_USER),
+            Lc::t("btn-confirm-email-change", &LOCALES_USER),
+        )
+        .await,
+    ))
+}
+
+/// POST /user/email/{uid}/{token} - Aplica la nueva dirección y la da por verificada.
+pub(crate) async fn email_confirm_post(
+    request: HttpRequest,
+    web::Path((uid, token)): web::Path<(i32, String)>,
+) -> Response {
+    match auth::confirm_email_change(uid, &token).await {
+        Ok(()) => {
+            let cx = Context::new(request);
+            Redirect::see_other(cx.route(PROFILE_PATH)).into_response()
+        }
+        Err(AuthError::EmailTaken) => {
+            let title = Lc::t("title-confirm-email-change", &LOCALES_USER);
+            no_referrer(
+                message_page(request, title, Lc::t("error-email-taken", &LOCALES_USER)).await,
+            )
+        }
+        Err(_) => ErrorPage::NotFound(Some(request)).into_response(),
     }
 }
 

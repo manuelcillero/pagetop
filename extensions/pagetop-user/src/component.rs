@@ -3,6 +3,7 @@
 pub(crate) mod admin;
 
 mod account_menu;
+mod change_email_form;
 mod change_password_form;
 mod login_form;
 mod password_confirm;
@@ -12,6 +13,7 @@ mod register_form;
 mod user_name;
 
 pub use account_menu::{AccountMenu, account_menu};
+pub(crate) use change_email_form::ChangeEmailForm;
 pub(crate) use change_password_form::ChangePasswordForm;
 pub use login_form::LoginForm;
 pub(crate) use password_confirm::PasswordConfirm;

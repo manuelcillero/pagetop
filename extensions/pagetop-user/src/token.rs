@@ -41,6 +41,16 @@ pub fn hash_token(token: &str) -> String {
     s
 }
 
+// Hash que se guarda de un token ligado a `binding` (ver `create_bound_token()`). Sin `binding`, el
+// de `hash_token()`. El token es base64url, sin saltos de línea: el separador no es ambiguo.
+fn bound_hash(token: &str, binding: &str) -> String {
+    if binding.is_empty() {
+        hash_token(token)
+    } else {
+        hash_token(&util::join!(token, "\n", binding))
+    }
+}
+
 // **< TokenKind >**********************************************************************************
 
 /// Tipos de token que emite `pagetop-user`.
@@ -48,6 +58,8 @@ pub fn hash_token(token: &str) -> String {
 pub enum TokenKind {
     PasswordReset,
     EmailVerification,
+    /// Confirma la nueva dirección pedida en el perfil (`pending_email`).
+    EmailChange,
 }
 
 impl TokenKind {
@@ -55,6 +67,7 @@ impl TokenKind {
         match self {
             TokenKind::PasswordReset => "password_reset",
             TokenKind::EmailVerification => "email_verification",
+            TokenKind::EmailChange => "email_change",
         }
     }
 
@@ -63,6 +76,7 @@ impl TokenKind {
         match self {
             TokenKind::PasswordReset => 3600,          // 1 hora
             TokenKind::EmailVerification => 86400 * 3, // 3 días
+            TokenKind::EmailChange => 86400,           // 1 día
         }
     }
 
@@ -71,7 +85,7 @@ impl TokenKind {
     fn keep_secs(self) -> i64 {
         match self {
             TokenKind::PasswordReset => self.ttl_secs().max(SETTINGS.password_reset_window_secs),
-            TokenKind::EmailVerification => self.ttl_secs(),
+            TokenKind::EmailVerification | TokenKind::EmailChange => self.ttl_secs(),
         }
     }
 }
@@ -83,18 +97,22 @@ impl TokenKind {
 /// Anula los tokens del mismo tipo que el usuario tenga sin consumir, de modo que sólo vale el
 /// último enlace enviado.
 pub async fn create_token(user_id: i32, kind: TokenKind) -> Result<String, AuthError> {
+    create_bound_token(user_id, kind, "").await
+}
+
+/// Como [`create_token()`], pero el token sólo vale junto con `binding` (p. ej. la dirección a la
+/// que se envía): [`is_valid_bound_token()`] y [`consume_bound_token()`] lo rechazan con otro
+/// valor. Así un enlace no sirve para lo que haya cambiado después de enviarlo.
+pub async fn create_bound_token(
+    user_id: i32,
+    kind: TokenKind,
+    binding: &str,
+) -> Result<String, AuthError> {
     let now = Utc::now();
 
     // Los anteriores se anulan en lugar de borrarse para que sigan contando en
     // `count_tokens_since()`; sólo se borran los que ya no pueden usarse ni cuentan.
-    user_token::Entity::update_many()
-        .col_expr(user_token::Column::ConsumedAt, Expr::value(now))
-        .col_expr(user_token::Column::UpdatedAt, Expr::value(now))
-        .filter(user_token::Column::UserId.eq(user_id))
-        .filter(user_token::Column::Kind.eq(kind.as_str()))
-        .filter(user_token::Column::ConsumedAt.is_null())
-        .exec(dbconn())
-        .await?;
+    revoke_tokens(user_id, kind).await?;
     user_token::Entity::delete_many()
         .filter(user_token::Column::UserId.eq(user_id))
         .filter(user_token::Column::Kind.eq(kind.as_str()))
@@ -109,7 +127,7 @@ pub async fn create_token(user_id: i32, kind: TokenKind) -> Result<String, AuthE
         id: ActiveValue::NotSet,
         user_id: Set(user_id),
         kind: Set(kind.as_str().to_owned()),
-        token_hash: Set(hash_token(&token)),
+        token_hash: Set(bound_hash(&token, binding)),
         expires_at: Set(expires_at),
         consumed_at: Set(None),
         created_at: Set(now),
@@ -117,6 +135,21 @@ pub async fn create_token(user_id: i32, kind: TokenKind) -> Result<String, AuthE
     };
     user_token::Entity::insert(new_token).exec(dbconn()).await?;
     Ok(token)
+}
+
+/// Anula los tokens del tipo indicado que el usuario tenga sin consumir: sus enlaces dejan de
+/// valer.
+pub async fn revoke_tokens(user_id: i32, kind: TokenKind) -> Result<(), AuthError> {
+    let now = Utc::now();
+    user_token::Entity::update_many()
+        .col_expr(user_token::Column::ConsumedAt, Expr::value(now))
+        .col_expr(user_token::Column::UpdatedAt, Expr::value(now))
+        .filter(user_token::Column::UserId.eq(user_id))
+        .filter(user_token::Column::Kind.eq(kind.as_str()))
+        .filter(user_token::Column::ConsumedAt.is_null())
+        .exec(dbconn())
+        .await?;
+    Ok(())
 }
 
 /// Cuenta los tokens del tipo indicado creados para el usuario desde `since`, consumidos o no.
@@ -143,8 +176,18 @@ pub async fn count_tokens_since(
 /// Comprueba, sin consumirlo, que el token en claro sea válido para el usuario: existe, es del tipo
 /// indicado, no ha caducado y no se ha consumido.
 pub async fn is_valid_token(user_id: i32, token: &str, kind: TokenKind) -> Result<bool, AuthError> {
+    is_valid_bound_token(user_id, token, kind, "").await
+}
+
+/// Como [`is_valid_token()`], para un token creado con [`create_bound_token()`] y `binding`.
+pub async fn is_valid_bound_token(
+    user_id: i32,
+    token: &str,
+    kind: TokenKind,
+    binding: &str,
+) -> Result<bool, AuthError> {
     let row = user_token::Entity::find()
-        .filter(user_token::Column::TokenHash.eq(hash_token(token)))
+        .filter(user_token::Column::TokenHash.eq(bound_hash(token, binding)))
         .filter(user_token::Column::UserId.eq(user_id))
         .filter(user_token::Column::Kind.eq(kind.as_str()))
         .filter(user_token::Column::ConsumedAt.is_null())
@@ -160,11 +203,21 @@ pub async fn is_valid_token(user_id: i32, token: &str, kind: TokenKind) -> Resul
 /// sentencia condicionada a que siga sin consumir: dos peticiones simultáneas con el mismo enlace
 /// no pueden usarlo las dos.
 pub async fn consume_token(user_id: i32, token: &str, kind: TokenKind) -> Result<(), AuthError> {
+    consume_bound_token(user_id, token, kind, "").await
+}
+
+/// Como [`consume_token()`], para un token creado con [`create_bound_token()`] y `binding`.
+pub async fn consume_bound_token(
+    user_id: i32,
+    token: &str,
+    kind: TokenKind,
+    binding: &str,
+) -> Result<(), AuthError> {
     let now = Utc::now();
     let result = user_token::Entity::update_many()
         .col_expr(user_token::Column::ConsumedAt, Expr::value(now))
         .col_expr(user_token::Column::UpdatedAt, Expr::value(now))
-        .filter(user_token::Column::TokenHash.eq(hash_token(token)))
+        .filter(user_token::Column::TokenHash.eq(bound_hash(token, binding)))
         .filter(user_token::Column::UserId.eq(user_id))
         .filter(user_token::Column::Kind.eq(kind.as_str()))
         .filter(user_token::Column::ConsumedAt.is_null())

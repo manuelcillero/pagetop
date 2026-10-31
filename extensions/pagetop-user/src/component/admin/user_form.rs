@@ -60,6 +60,9 @@ impl Component for UserForm {
         };
         let username_readonly =
             *self.mode() == UserFormMode::Profile && !*self.allow_username_field();
+        // El propio usuario cambia su email en otra pantalla, que pide su contraseña y confirma la
+        // nueva dirección antes de aplicarla.
+        let email_readonly = *self.mode() == UserFormMode::Profile;
         let action = self.waypoint().append_to(cx.route(action));
 
         let mut form = Form::new()
@@ -87,7 +90,13 @@ impl Component for UserForm {
                     .with_name("email")
                     .with_value(self.email())
                     .with_label(Lc::t("field-email", &LOCALES_USER))
+                    .with_help_text(if email_readonly {
+                        Lc::t("help-email-readonly", &LOCALES_USER)
+                    } else {
+                        Lc::none()
+                    })
                     .with_required(true)
+                    .with_readonly(email_readonly)
                     .with_maxlength(EMAIL_MAX_CHARS),
             )
             .with_child(

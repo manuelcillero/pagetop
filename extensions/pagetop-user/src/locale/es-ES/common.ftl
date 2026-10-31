@@ -7,20 +7,23 @@ extension_description = Identidad de usuario, autenticación, roles y permisos p
 
 # **< Títulos de página >**
 
-title-login            = Iniciar sesión
-title-register         = Crear cuenta
-title-password-reset   = Recuperar contraseña
-title-new-password     = Establecer nueva contraseña
-title-verify-email     = Confirmar tu correo
-title-profile          = Mi perfil
-title-profile-edit     = Editar mi perfil
-title-profile-password = Cambiar mi contraseña
+title-login                = Iniciar sesión
+title-register             = Crear cuenta
+title-password-reset       = Recuperar contraseña
+title-new-password         = Establecer nueva contraseña
+title-verify-email         = Confirmar tu correo
+title-confirm-email-change = Confirmar tu nuevo correo
+title-profile              = Mi perfil
+title-profile-edit         = Editar mi perfil
+title-profile-password     = Cambiar mi contraseña
+title-profile-email        = Cambiar mi email
 
 # **< Etiquetas de campos >**
 
 field-username         = Usuario o email
 field-password         = Contraseña
 field-email            = Dirección de email
+field-new-email        = Nueva dirección de email
 field-confirm-password = Confirmar contraseña
 field-new-password     = Nueva contraseña
 field-current-password = Contraseña actual
@@ -28,13 +31,15 @@ field-remember-me      = Recuérdame
 
 # **< Botones y enlaces >**
 
-btn-login           = Entrar
-btn-logout          = Cerrar sesión
-btn-register        = Crear cuenta
-btn-send-reset-link = Enviar enlace
-btn-set-password    = Cambiar contraseña
-btn-verify-email    = Confirmar mi correo
-btn-edit-profile    = Editar perfil
+btn-login                = Entrar
+btn-logout               = Cerrar sesión
+btn-register             = Crear cuenta
+btn-send-reset-link      = Enviar enlace
+btn-set-password         = Cambiar contraseña
+btn-verify-email         = Confirmar mi correo
+btn-edit-profile         = Editar perfil
+btn-change-email         = Cambiar email
+btn-confirm-email-change = Confirmar la nueva dirección
 
 link-register        = Crear una cuenta
 link-forgot-password = ¿Olvidaste tu contraseña?
@@ -59,6 +64,16 @@ msg-verification-sent =
     Te hemos enviado un correo para confirmar tu dirección.
     Abre el enlace que contiene y confirma tu dirección para activar tu cuenta.
 
+msg-email-change-sent =
+    Te hemos enviado un enlace a la nueva dirección. Ábrelo y confírmala para aplicar el cambio;
+    hasta entonces, tu cuenta conserva la dirección actual.
+
+msg-email-change-pending =
+    Tienes pendiente de confirmar el cambio a { $email }. Si pides otro, el enlace anterior dejará
+    de valer.
+
+msg-confirm-email-change = Pulsa el botón para usar esta dirección de correo en tu cuenta.
+
 # **< Correos >**
 
 mail-greeting = Hola, { $username }:
@@ -79,8 +94,27 @@ mail-verify-intro   = Gracias por registrarte. Para activar tu cuenta, confirma 
 mail-verify-action  = Confirmar mi correo
 mail-verify-ignore  = Si no has creado ninguna cuenta, ignora este correo.
 
-mail-preview-reset  = Recuperación de contraseña
-mail-preview-verify = Verificación del correo al registrarse
+mail-email-change-subject = Confirma tu nuevo correo en { $app }
+mail-email-change-intro   = Se ha pedido usar esta dirección de correo en una cuenta. Para confirmarla, abre este enlace:
+mail-email-change-action  = Confirmar la nueva dirección
+mail-email-change-ignore  = Si no lo has pedido tú, ignora este correo: la cuenta conservará su dirección actual.
+
+mail-password-changed-subject     = Se ha cambiado tu contraseña de { $app }
+mail-password-changed-intro       = Se acaba de cambiar la contraseña de tu cuenta. Si no has sido tú, restablécela cuanto antes desde este enlace:
+mail-password-changed-admin-intro = Un administrador acaba de cambiar la contraseña de tu cuenta. Si no lo esperabas, restablécela desde este enlace:
+
+mail-email-change-requested-subject = Se ha pedido cambiar tu correo de { $app }
+mail-email-change-requested-intro   = Se ha pedido cambiar la dirección de correo de tu cuenta por otra. El cambio se aplicará cuando se confirme desde la nueva dirección. Si no has sido tú, restablece tu contraseña cuanto antes: así se cancela el cambio y se cierran todas las sesiones de tu cuenta.
+
+mail-notice-action = Restablecer mi contraseña
+mail-notice-ignore = Si ya lo sabías, no tienes que hacer nada.
+
+mail-preview-reset                  = Recuperación de contraseña
+mail-preview-verify                 = Verificación del correo al registrarse
+mail-preview-email-change           = Confirmación de una nueva dirección
+mail-preview-email-change-requested = Aviso de cambio de dirección pedido
+mail-preview-password-changed       = Aviso de cambio de contraseña
+mail-preview-password-changed-admin = Aviso de cambio de contraseña por un administrador
 
 # **< Mensajes de error >**
 
@@ -99,6 +133,8 @@ error-username-taken        = Este nombre de usuario ya está en uso o se confun
 error-invalid-username      = El nombre de usuario no es válido: revisa las reglas indicadas bajo el campo.
 error-invalid-email         = La dirección de correo no es válida.
 error-email-taken           = Esta dirección de email ya está registrada.
+error-same-email            = La nueva dirección es la misma que la actual.
+error-too-many-requests     = Demasiadas solicitudes desde tu conexión. Inténtalo de nuevo más tarde.
 error-token-invalid         = Este enlace no es válido o ha caducado.
 error-current-password      = La contraseña actual no es correcta.
 error-internal              = Se ha producido un error inesperado. Inténtalo de nuevo.
@@ -177,6 +213,8 @@ help-username-permissive =
     número. No se distinguen mayúsculas al iniciar sesión.
 
 help-password-min-length = Al menos { $n } caracteres.
+
+help-email-readonly = Para cambiarla, usa «Cambiar email» en tu perfil.
 
 help-machine-name-immutable =
     Sólo minúsculas, dígitos y guiones bajos. No se puede cambiar tras crearlo.

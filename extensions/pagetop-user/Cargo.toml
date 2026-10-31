@@ -40,3 +40,6 @@ argon2.workspace = true
 base64ct.workspace = true
 sha2.workspace = true
 rand_core.workspace = true
+
+[dev-dependencies]
+pagetop-seaorm = { workspace = true, features = ["sqlite"] }

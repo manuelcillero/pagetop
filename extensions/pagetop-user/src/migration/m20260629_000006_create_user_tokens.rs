@@ -10,7 +10,7 @@ impl MigrationTrait for Migration {
                 table_auto(UserTokens::Table)
                     .col(pk_auto(UserTokens::Id))
                     .col(integer(UserTokens::UserId))
-                    // "email_verification" | "password_reset"
+                    // "email_verification" | "password_reset" | "email_change"
                     .col(string_len(UserTokens::Kind, 32))
                     // SHA-256 del token plano (nunca se almacena el token en claro)
                     .col(char_len_uniq(UserTokens::TokenHash, 64))

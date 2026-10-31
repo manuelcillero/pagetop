@@ -1,0 +1,31 @@
+# Configuración para las pruebas de este crate: base de datos SQLite en memoria y correos guardados
+# en memoria en lugar de enviarlos.
+
+[app]
+language = "en-US"
+
+# Nueva en cada ejecución, con una sola conexión para que todas las consultas la compartan.
+[database]
+db_type       = "sqlite"
+db_name       = "user-tests?mode=memory"
+max_pool_size = 1
+
+[mail]
+transport = "memory"
+from      = "PageTop Tests <tests@example.com>"
+base_url  = "https://example.com/"
+
+[user]
+require_email_verification = true
+max_failed_logins          = 3
+max_ip_requests            = 3
+
+# Costes mínimos de Argon2id: las pruebas cifran muchas contraseñas.
+[user.password]
+argon2_m_cost = 64
+argon2_t_cost = 1
+
+[user.seed]
+admin_username = "admin"
+admin_email    = "admin@example.com"
+admin_password = "admin-password"

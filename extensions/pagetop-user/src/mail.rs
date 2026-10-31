@@ -1,11 +1,14 @@
-//! Correos con enlaces de un solo uso: recuperación de contraseña y verificación de email.
+//! Correos de `pagetop-user`: los que llevan un enlace de un solo uso (recuperación de contraseña,
+//! verificación del email y confirmación de una nueva dirección) y los avisos de seguridad (cambio
+//! de contraseña y petición de cambio de dirección).
 
 use pagetop::prelude::*;
 use pagetop_mail::prelude::*;
 
 use crate::config;
+use crate::entity::user;
 use crate::token::TokenKind;
-use crate::{LOCALES_USER, PASSWORD_RESET_PATH, VERIFY_PATH};
+use crate::{EMAIL_PATH, LOCALES_USER, PASSWORD_RESET_PATH, VERIFY_PATH};
 
 // Estilo del enlace principal, con aspecto de botón.
 const BUTTON_STYLE: &str = concat!(
@@ -13,19 +16,37 @@ const BUTTON_STYLE: &str = concat!(
     "background-color: #2563eb; color: #ffffff; text-decoration: none; font-weight: 600;"
 );
 
-// Correo con el enlace que consume un token del usuario.
-struct TokenMail {
-    kind: TokenKind,
+// **< Notice >*************************************************************************************
+
+/// Avisos de seguridad que se envían a la dirección actual de la cuenta.
+#[derive(Clone, Copy, Debug)]
+pub(crate) enum Notice {
+    /// El propio usuario ha cambiado su contraseña.
+    PasswordChanged,
+    /// Un administrador ha cambiado la contraseña del usuario.
+    PasswordChangedByAdmin,
+    /// Se ha pedido cambiar la dirección de la cuenta por otra, pendiente de confirmar.
+    EmailChangeRequested,
+}
+
+// **< UserMail >***********************************************************************************
+
+// Correo con un enlace principal: el que consume un token o, en los avisos, el de la recuperación
+// de contraseña.
+struct UserMail {
+    // Claves del asunto, la introducción, el texto del enlace y la nota final.
+    keys: [&'static str; 4],
     // Nombre de usuario para el saludo, sólo si la dirección está verificada (ver `recipient()`).
     username: Option<String>,
     link: String,
+    // Horas que vale el enlace, si caduca.
+    expires_hours: Option<u32>,
 }
 
-impl TokenMail {
-    // Claves de los textos propios de cada tipo de token: asunto, introducción, texto del enlace y
-    // aviso para quien no lo haya solicitado.
-    fn keys(&self) -> [&'static str; 4] {
-        match self.kind {
+impl UserMail {
+    // Correo con el enlace que consume un token del tipo indicado.
+    fn token(kind: TokenKind, username: Option<String>, link: String) -> Self {
+        let keys = match kind {
             TokenKind::PasswordReset => [
                 "mail-reset-subject",
                 "mail-reset-intro",
@@ -38,25 +59,56 @@ impl TokenMail {
                 "mail-verify-action",
                 "mail-verify-ignore",
             ],
+            TokenKind::EmailChange => [
+                "mail-email-change-subject",
+                "mail-email-change-intro",
+                "mail-email-change-action",
+                "mail-email-change-ignore",
+            ],
+        };
+        UserMail {
+            keys,
+            username,
+            link,
+            expires_hours: Some(u32::try_from(kind.ttl_secs() / 3600).unwrap_or(u32::MAX)),
         }
     }
 
-    fn expires(&self) -> Lc {
-        let hours = u32::try_from(self.kind.ttl_secs() / 3600).unwrap_or(u32::MAX);
-        Lc::t("mail-link-expires", &LOCALES_USER).with_number("hours", hours)
+    // Aviso de seguridad, con el enlace a la recuperación de contraseña.
+    fn notice(notice: Notice, username: Option<String>, link: String) -> Self {
+        let [subject, intro] = match notice {
+            Notice::PasswordChanged => [
+                "mail-password-changed-subject",
+                "mail-password-changed-intro",
+            ],
+            Notice::PasswordChangedByAdmin => [
+                "mail-password-changed-subject",
+                "mail-password-changed-admin-intro",
+            ],
+            Notice::EmailChangeRequested => [
+                "mail-email-change-requested-subject",
+                "mail-email-change-requested-intro",
+            ],
+        };
+        UserMail {
+            keys: [subject, intro, "mail-notice-action", "mail-notice-ignore"],
+            username,
+            link,
+            expires_hours: None,
+        }
     }
 }
 
-impl MailTemplate for TokenMail {
+impl MailTemplate for UserMail {
     fn subject(&self, cx: &Context) -> String {
-        Lc::t(self.keys()[0], &LOCALES_USER)
+        Lc::t(self.keys[0], &LOCALES_USER)
             .with_arg("app", &global::SETTINGS.app.name)
             .lookup(cx)
             .unwrap_or_default()
     }
 
     fn html(&self, cx: &Context) -> Option<Markup> {
-        let [_, intro, action, ignore] = self.keys();
+        let [_, intro, action, note] = self.keys;
         let greeting = match &self.username {
             // El nombre de usuario lo elige quien creó la cuenta: va con `with_arg()`, que lo
             // escapa, nunca con `with_markup()`.
@@ -65,38 +117,73 @@ impl MailTemplate for TokenMail {
             }
             None => Lc::t("mail-greeting-plain", &LOCALES_USER),
         };
+        let expires = self
+            .expires_hours
+            .map(|hours| Lc::t("mail-link-expires", &LOCALES_USER).with_number("hours", hours));
         Some(html! {
             p { (greeting.using(cx)) }
             p { (Lc::t(intro, &LOCALES_USER).using(cx)) }
             p style="margin: 24px 0;" {
                 a href=(self.link) style=(BUTTON_STYLE) { (Lc::t(action, &LOCALES_USER).using(cx)) }
             }
-            p { (self.expires().using(cx)) }
-            p style="color: #6b7280;" { (Lc::t(ignore, &LOCALES_USER).using(cx)) }
+            @if let Some(expires) = expires {
+                p { (expires.using(cx)) }
+            }
+            p style="color: #6b7280;" { (Lc::t(note, &LOCALES_USER).using(cx)) }
         })
     }
 }
 
-// Envía en segundo plano el correo con el enlace que consume `token`.
-//
-// El correo sale en el idioma propio del usuario si lo tiene (y se aplica), o en el de la petición
-// en curso. Se envía en segundo plano para que el tiempo de respuesta no revele si existe la
-// cuenta, y porque un fallo del servidor de correo no debe impedir completar la petición: se
-// registra en las trazas.
+// **< Envío >**************************************************************************************
+
+// Todos se envían en segundo plano: el tiempo de respuesta no debe revelar si existe la cuenta, y
+// un fallo del servidor de correo no debe impedir completar la petición (se registra en las
+// trazas). Salen en el idioma propio del usuario si lo tiene (y se aplica), o en el de la petición.
+
+// Envía el correo con el enlace que consume `token` a la dirección actual del usuario.
 pub(crate) fn send_token_mail(
     request: &HttpRequest,
     kind: TokenKind,
-    user: &crate::entity::user::Model,
+    user: &user::Model,
     token: &str,
 ) {
+    let cx = user_context(request, user);
+    let (username, to) = recipient(user);
+    token_email(&cx, kind, user.id, username, to, token).send_later();
+}
+
+// Envía a `new_email` el enlace para confirmarla como nueva dirección del usuario.
+//
+// La dirección la ha escrito quien está en la cuenta y puede ser de otra persona: como con una
+// dirección sin verificar (ver `recipient()`), el correo no incluye nada que haya elegido, ni
+// siquiera el nombre de usuario.
+pub(crate) fn send_email_change_mail(
+    request: &HttpRequest,
+    user: &user::Model,
+    new_email: &str,
+    token: &str,
+) {
+    let cx = user_context(request, user);
+    let to = Mailbox::new(new_email);
+    token_email(&cx, TokenKind::EmailChange, user.id, None, to, token).send_later();
+}
+
+// Envía un aviso de seguridad a la dirección actual del usuario.
+pub(crate) fn send_notice(request: &HttpRequest, notice: Notice, user: &user::Model) {
+    let cx = user_context(request, user);
+    let (username, to) = recipient(user);
+    notice_email(&cx, notice, username, to).send_later();
+}
+
+// Contexto de la petición con el idioma propio del usuario, si lo tiene y se aplica.
+fn user_context(request: &HttpRequest, user: &user::Model) -> Context {
     let mut cx = Context::new(request.clone());
     if config::user_language_applies()
         && let Some(locale @ Locale::Resolved(_)) = user.language.as_deref().map(Locale::resolve)
     {
         cx.alter_langid(&locale);
     }
-    let (username, to) = recipient(user);
-    token_email(&cx, kind, user.id, username, to, token).send_later();
+    cx
 }
 
 // Destinatario del correo y nombre de usuario para el saludo.
@@ -108,7 +195,7 @@ pub(crate) fn send_token_mail(
 // quien creó la cuenta, ni el nombre de usuario ni el nombre visible (tampoco en la cabecera `To`),
 // porque bastaría para colar un texto o un enlace engañoso (*phishing*). Se puede iniciar sesión
 // con el email, así que el nombre de usuario no hace falta para recuperar el acceso.
-fn recipient(user: &crate::entity::user::Model) -> (Option<String>, Mailbox) {
+fn recipient(user: &user::Model) -> (Option<String>, Mailbox) {
     if user.email_verified_at.is_none() {
         return (None, Mailbox::new(user.email.as_str()));
     }
@@ -132,14 +219,17 @@ fn token_email(
     let base = match kind {
         TokenKind::PasswordReset => PASSWORD_RESET_PATH,
         TokenKind::EmailVerification => VERIFY_PATH,
+        TokenKind::EmailChange => EMAIL_PATH,
     };
     let path = util::join!(base, "/", user_id.to_string(), "/", token);
-    let template = TokenMail {
-        kind,
-        username,
-        link: absolute_url(cx.route(path)),
-    };
+    let template = UserMail::token(kind, username, absolute_url(cx.route(path)));
     Email::from_template(&template, cx).with_to(to)
+}
+
+// Compone un aviso de seguridad, con el enlace a la recuperación de contraseña.
+fn notice_email(cx: &Context, notice: Notice, username: Option<String>, to: Mailbox) -> Email {
+    let link = absolute_url(cx.route(PASSWORD_RESET_PATH));
+    Email::from_template(&UserMail::notice(notice, username, link), cx).with_to(to)
 }
 
 // **< Vistas previas >*****************************************************************************
@@ -149,26 +239,57 @@ pub(crate) fn declare_previews(previews: &mut MailPreviews) {
     previews.add(
         "user.email_verification",
         Lc::t("mail-preview-verify", &LOCALES_USER),
-        |cx| sample(cx, TokenKind::EmailVerification),
+        |cx| sample_token(cx, TokenKind::EmailVerification),
     );
     previews.add(
         "user.password_reset",
         Lc::t("mail-preview-reset", &LOCALES_USER),
-        |cx| sample(cx, TokenKind::PasswordReset),
+        |cx| sample_token(cx, TokenKind::PasswordReset),
+    );
+    previews.add(
+        "user.email_change",
+        Lc::t("mail-preview-email-change", &LOCALES_USER),
+        |cx| sample_token(cx, TokenKind::EmailChange),
+    );
+    previews.add(
+        "user.email_change_requested",
+        Lc::t("mail-preview-email-change-requested", &LOCALES_USER),
+        |cx| sample_notice(cx, Notice::EmailChangeRequested),
+    );
+    previews.add(
+        "user.password_changed",
+        Lc::t("mail-preview-password-changed", &LOCALES_USER),
+        |cx| sample_notice(cx, Notice::PasswordChanged),
+    );
+    previews.add(
+        "user.password_changed_by_admin",
+        Lc::t("mail-preview-password-changed-admin", &LOCALES_USER),
+        |cx| sample_notice(cx, Notice::PasswordChangedByAdmin),
     );
 }
 
-// La verificación se envía a una dirección sin verificar (sin nombre); la recuperación, a la de una
-// cuenta verificada (ver `recipient()`).
-fn sample(cx: &Context, kind: TokenKind) -> Email {
+// La verificación y la confirmación de una nueva dirección se envían a una dirección sin verificar
+// (sin nombre); el resto, a la de una cuenta verificada (ver `recipient()`).
+fn sample_token(cx: &Context, kind: TokenKind) -> Email {
     let (username, to) = match kind {
-        TokenKind::EmailVerification => (None, Mailbox::new("ana@example.com")),
-        TokenKind::PasswordReset => (
-            Some("ana".to_owned()),
-            Mailbox::from(("Ana Pérez", "ana@example.com")),
-        ),
+        TokenKind::EmailVerification | TokenKind::EmailChange => {
+            (None, Mailbox::new("ana@example.com"))
+        }
+        TokenKind::PasswordReset => sample_verified(),
     };
     token_email(cx, kind, 42, username, to, "EXAMPLE-TOKEN")
+}
+
+fn sample_notice(cx: &Context, notice: Notice) -> Email {
+    let (username, to) = sample_verified();
+    notice_email(cx, notice, username, to)
+}
+
+fn sample_verified() -> (Option<String>, Mailbox) {
+    (
+        Some("ana".to_owned()),
+        Mailbox::from(("Ana Pérez", "ana@example.com")),
+    )
 }
 
 #[cfg(test)]
@@ -178,11 +299,11 @@ mod tests {
     const USERNAME: &str = r#"<a href="https://evil.example">ana</a>"#;
 
     fn html(username: Option<&str>) -> String {
-        let mail = TokenMail {
-            kind: TokenKind::PasswordReset,
-            username: username.map(str::to_owned),
-            link: "https://example.com/user/token".to_owned(),
-        };
+        let mail = UserMail::token(
+            TokenKind::PasswordReset,
+            username.map(str::to_owned),
+            "https://example.com/user/token".to_owned(),
+        );
         mail.html(&Context::default()).unwrap().into_string()
     }
 
@@ -206,5 +327,18 @@ mod tests {
             !html.contains("evil.example"),
             "username must not appear: {html}"
         );
+    }
+
+    // Notices link to the password reset page and have no expiry line.
+    #[pagetop::test]
+    async fn notices_link_to_password_reset_without_expiry() {
+        let mail = UserMail::notice(
+            Notice::PasswordChanged,
+            None,
+            "https://example.com/user/password/reset".to_owned(),
+        );
+        assert!(mail.expires_hours.is_none());
+        let html = mail.html(&Context::default()).unwrap().into_string();
+        assert!(html.contains("href=\"https://example.com/user/password/reset\""));
     }
 }

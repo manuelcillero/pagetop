@@ -16,6 +16,7 @@ use crate::config::SETTINGS;
 use crate::entity::{role, user};
 use crate::error::AuthError;
 use crate::handlers::admin::{back_link, frame, map_auth_error};
+use crate::mail::{Notice, send_notice};
 use crate::password;
 use crate::permission::UserPermission;
 use crate::role_path;
@@ -499,7 +500,6 @@ pub(crate) async fn edit_post(
             language: util::non_blank(&form.language),
             timezone: util::non_blank(&form.timezone),
             theme: util::non_blank(&form.theme),
-            email_verified: true,
         },
     )
     .await;
@@ -759,8 +759,8 @@ pub(crate) struct AdminPasswordFormData {
     confirm_password: String,
 }
 
-/// POST /admin/user/users/{id}/password - Aplica la nueva contraseña e invalida las sesiones
-/// activas del usuario.
+/// POST /admin/user/users/{id}/password - Aplica la nueva contraseña, invalida las sesiones
+/// activas del usuario y le avisa del cambio por correo.
 pub(crate) async fn password_post(
     request: HttpRequest,
     web::Path(id): web::Path<i32>,
@@ -776,7 +776,8 @@ pub(crate) async fn password_post(
     };
 
     match result {
-        Ok(()) => {
+        Ok(user) => {
+            send_notice(&request, Notice::PasswordChangedByAdmin, &user);
             let cx = Context::admin(request);
             let edit_href = waypoint.append_to(cx.route(user_path(id, "edit")));
             Ok(Redirect::see_other(edit_href).into_response())

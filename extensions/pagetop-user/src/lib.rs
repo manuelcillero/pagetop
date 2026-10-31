@@ -78,18 +78,36 @@ cada política, y las del email, están en [`IdentityPolicy`](config::IdentityPo
 
 ## Correos
 
-La recuperación de contraseña y, con `require_email_verification`, la verificación de las cuentas
-nuevas envían un correo con un enlace de un solo uso mediante [`pagetop_mail`]. Configura el envío
-en la sección `[mail]`, incluidos el remitente (`mail.from`), que estos correos no indican, y la
-URL pública de los enlaces (`mail.base_url`): sin configurar, los correos se escriben en las trazas
-en lugar de enviarse.
+La recuperación de contraseña, la confirmación de una nueva dirección y, con
+`require_email_verification`, la verificación de las cuentas nuevas envían un correo con un enlace
+de un solo uso mediante [`pagetop_mail`]. Además, se avisa a la dirección de la cuenta cuando
+cambia su contraseña (la cambie el usuario o un administrador) y cuando se pide cambiar su
+dirección. Configura el envío en la sección `[mail]`, incluidos el remitente (`mail.from`), que
+estos correos no indican, y la URL pública de los enlaces (`mail.base_url`): sin configurar, los
+correos se escriben en las trazas en lugar de enviarse.
 
 La recuperación de contraseña sólo se envía a cuentas activas. Mientras una dirección no está
 verificada podría ser de otra persona, así que sus correos no incluyen nada que elija quien creó
 la cuenta, ni el nombre de usuario ni el nombre visible. Una dirección queda verificada al
 confirmarla desde el enlace del correo de verificación (abrirlo no basta: hay que pulsar un botón,
 porque los servidores de correo abren los enlaces para analizarlos) o cuando la fija un
-administrador, y deja de estarlo si el usuario la cambia en su perfil.
+administrador.
+
+Para cambiar su dirección, el usuario indica la nueva y su contraseña actual. La nueva no se aplica
+hasta que se confirma desde el enlace que se le envía, y entonces queda verificada; mientras tanto,
+la cuenta conserva la anterior, que recibe un aviso. Restablecer la contraseña descarta el cambio
+pendiente: es lo que el aviso pide hacer a quien no lo ha pedido. También lo descarta un
+administrador que fije otra dirección. Cada enlace sirve sólo para la dirección a la que se envió,
+y los enlaces sin usar de recuperación y de verificación dejan de valer cuando cambia la dirección
+de la cuenta; los de recuperación, también cuando cambia su contraseña.
+
+Cambiar la contraseña o el email exige la contraseña actual, y sus fallos cuentan para el bloqueo
+por intentos fallidos (`max_failed_logins`), como los del inicio de sesión.
+
+Para que nadie pueda usar la aplicación para enviar correos a direcciones ajenas, las
+recuperaciones de contraseña se limitan por cuenta (`max_password_resets`), y ellas, los registros
+y los cambios de dirección, también por dirección IP (`max_ip_requests`). Detrás de un *proxy*
+inverso, el límite por IP requiere configurar `server.client_ip_header`.
 */
 
 use pagetop::prelude::*;
@@ -113,6 +131,7 @@ pub(crate) mod middleware;
 pub(crate) mod migration;
 pub(crate) mod service;
 pub(crate) mod session;
+pub(crate) mod throttle;
 pub(crate) mod token;
 
 pub mod component;
@@ -155,6 +174,11 @@ const PROFILE_EDIT_PATH: &str = "/user/edit";
 //       `user:change_own_password`).
 // POST - aplica la nueva contraseña tras comprobar la actual.
 const PROFILE_PASSWORD_PATH: &str = "/user/password";
+// GET - muestra el formulario de cambio del email propio (requiere `user:edit_own_profile`).
+// POST - comprueba la contraseña y envía el enlace de confirmación a la nueva dirección.
+// Con el sufijo `/{uid}/{token}`: GET - pide confirmar la nueva dirección.
+//                                 POST - la aplica.
+const EMAIL_PATH: &str = "/user/email";
 // GET - muestra el formulario de solicitud de restablecimiento.
 // POST - inicia el flujo (envío del token).
 // Con el sufijo `/{uid}/{token}`: GET - muestra el formulario de nueva contraseña.
@@ -325,6 +349,15 @@ impl Extension for User {
             .route(
                 PROFILE_PASSWORD_PATH,
                 web::get(handlers::account::password_get).post(handlers::account::password_post),
+            )
+            .route(
+                EMAIL_PATH,
+                web::get(handlers::account::email_get).post(handlers::account::email_post),
+            )
+            .route(
+                &format!("{}/{{uid}}/{{token}}", EMAIL_PATH),
+                web::get(handlers::account::email_confirm_get)
+                    .post(handlers::account::email_confirm_post),
             )
             .route(
                 PASSWORD_RESET_PATH,

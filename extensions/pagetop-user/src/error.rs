@@ -44,6 +44,12 @@ pub enum AuthError {
     #[error("email is already registered")]
     EmailTaken,
 
+    #[error("new email is the same as the current one")]
+    SameEmail,
+
+    #[error("too many requests from the same address")]
+    TooManyRequests,
+
     #[error("passwords do not match")]
     PasswordMismatch,
 

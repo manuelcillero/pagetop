@@ -19,6 +19,8 @@ impl MigrationTrait for Migration {
                     .col(char_len_uniq(Users::UsernameSkeleton, 64))
                     .col(string_len_uniq(Users::EmailKey, 255))
                     .col(timestamp_null(Users::EmailVerifiedAt))
+                    // Nueva dirección pedida en el perfil, hasta que se confirma desde ella.
+                    .col(string_len_null(Users::PendingEmail, 254))
                     .col(string(Users::PasswordHash))
                     // 0=Blocked, 1=Active, 2=Pending
                     .col(small_integer(Users::Status).default(1))
@@ -57,6 +59,7 @@ pub enum Users {
     UsernameSkeleton,
     EmailKey,
     EmailVerifiedAt,
+    PendingEmail,
     PasswordHash,
     Status,
     Language,

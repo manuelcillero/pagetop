@@ -7,20 +7,23 @@ extension_description = User identity, authentication, roles and permissions for
 
 # **< Page titles >**
 
-title-login            = Sign in
-title-register         = Create account
-title-password-reset   = Reset password
-title-new-password     = Set new password
-title-verify-email     = Confirm your email
-title-profile          = My profile
-title-profile-edit     = Edit my profile
-title-profile-password = Change my password
+title-login                = Sign in
+title-register             = Create account
+title-password-reset       = Reset password
+title-new-password         = Set new password
+title-verify-email         = Confirm your email
+title-confirm-email-change = Confirm your new email
+title-profile              = My profile
+title-profile-edit         = Edit my profile
+title-profile-password     = Change my password
+title-profile-email        = Change my email
 
 # **< Field labels >**
 
 field-username         = Username or email
 field-password         = Password
 field-email            = Email address
+field-new-email        = New email address
 field-confirm-password = Confirm password
 field-new-password     = New password
 field-current-password = Current password
@@ -28,13 +31,15 @@ field-remember-me      = Remember me
 
 # **< Buttons and links >**
 
-btn-login           = Sign in
-btn-logout          = Sign out
-btn-register        = Create account
-btn-send-reset-link = Send reset link
-btn-set-password    = Change password
-btn-verify-email    = Confirm my email
-btn-edit-profile    = Edit profile
+btn-login                = Sign in
+btn-logout               = Sign out
+btn-register             = Create account
+btn-send-reset-link      = Send reset link
+btn-set-password         = Change password
+btn-verify-email         = Confirm my email
+btn-edit-profile         = Edit profile
+btn-change-email         = Change email
+btn-confirm-email-change = Confirm the new address
 
 link-register        = Create an account
 link-forgot-password = Forgot your password?
@@ -59,6 +64,16 @@ msg-verification-sent =
     We have sent you an email to confirm your address.
     Open the link it contains and confirm your address to activate your account.
 
+msg-email-change-sent =
+    We have sent a link to the new address. Open it and confirm the address to apply the change;
+    until then, your account keeps its current address.
+
+msg-email-change-pending =
+    The change to { $email } is pending confirmation. If you request another one, the previous link
+    will no longer work.
+
+msg-confirm-email-change = Press the button to use this email address in your account.
+
 # **< Emails >**
 
 mail-greeting = Hello { $username },
@@ -79,8 +94,27 @@ mail-verify-intro   = Thank you for signing up. To activate your account, confir
 mail-verify-action  = Confirm my email
 mail-verify-ignore  = If you did not create an account, ignore this email.
 
-mail-preview-reset  = Password reset
-mail-preview-verify = Email verification on sign-up
+mail-email-change-subject = Confirm your new email for { $app }
+mail-email-change-intro   = Someone asked to use this email address in an account. To confirm it, open this link:
+mail-email-change-action  = Confirm the new address
+mail-email-change-ignore  = If you did not request it, ignore this email: the account will keep its current address.
+
+mail-password-changed-subject     = Your { $app } password has changed
+mail-password-changed-intro       = The password of your account has just been changed. If it was not you, reset it as soon as possible from this link:
+mail-password-changed-admin-intro = An administrator has just changed the password of your account. If you did not expect it, reset it from this link:
+
+mail-email-change-requested-subject = A change of your { $app } email was requested
+mail-email-change-requested-intro   = Someone asked to change the email address of your account to another one. The change will apply once it is confirmed from the new address. If it was not you, reset your password as soon as possible: this cancels the change and signs out every session of your account.
+
+mail-notice-action = Reset my password
+mail-notice-ignore = If you already knew, you do not need to do anything.
+
+mail-preview-reset                  = Password reset
+mail-preview-verify                 = Email verification on sign-up
+mail-preview-email-change           = Confirmation of a new address
+mail-preview-email-change-requested = Notice of a requested address change
+mail-preview-password-changed       = Notice of a password change
+mail-preview-password-changed-admin = Notice of a password change by an administrator
 
 # **< Error messages >**
 
@@ -99,6 +133,8 @@ error-username-taken        = This username is already taken or can be mistaken 
 error-invalid-username      = The username is not valid: check the rules shown below the field.
 error-invalid-email         = The email address is not valid.
 error-email-taken           = This email address is already registered.
+error-same-email            = The new address is the same as the current one.
+error-too-many-requests     = Too many requests from your connection. Please try again later.
 error-token-invalid         = This link is invalid or has expired.
 error-current-password      = The current password is incorrect.
 error-internal              = An unexpected error occurred. Please try again.
@@ -176,6 +212,8 @@ help-username-permissive =
     ignored when signing in.
 
 help-password-min-length = At least { $n } characters.
+
+help-email-readonly = To change it, use "Change email" in your profile.
 
 help-machine-name-immutable =
     Lowercase letters, digits and underscores only. Cannot be changed after creation.

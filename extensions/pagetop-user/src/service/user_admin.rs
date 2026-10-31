@@ -294,12 +294,17 @@ pub(crate) struct UserUpdateData<'a> {
     pub language: Option<&'a str>,
     pub timezone: Option<&'a str>,
     pub theme: Option<&'a str>,
-    /// Si un email nuevo se da por verificado: `true` cuando lo cambia un administrador, que da fe
-    /// de él igual que al dar de alta (ver [`create_user`]). Si lo cambia el propio usuario, queda
-    /// sin verificar hasta que se compruebe que la dirección es suya.
-    pub email_verified: bool,
 }
 
+/// Guarda los datos de la cuenta. Un email distinto del actual se da por verificado: sólo lo
+/// cambia así un administrador, que da fe de él igual que al dar de alta (ver [`create_user`]). El
+/// propio usuario conserva aquí el suyo y lo cambia con `auth::request_email_change()`, que no lo
+/// aplica hasta que se confirma desde la nueva dirección.
+///
+/// La dirección que fija el administrador descarta la que el usuario tuviera pendiente de
+/// confirmar (ver `auth::cancel_email_change()`): si la corrige porque otra persona pidió
+/// cambiarla, el enlace de esa petición no debe deshacer la corrección. También anula los enlaces
+/// enviados a la dirección anterior (ver `auth::revoke_address_tokens()`).
 pub(crate) async fn update_user(user_id: i32, data: UserUpdateData<'_>) -> Result<(), AuthError> {
     // Un nombre que no cambia no se valida de nuevo con la política (ver `identity::username()`).
     let current = find_user(user_id).await?;
@@ -354,12 +359,17 @@ pub(crate) async fn update_user(user_id: i32, data: UserUpdateData<'_>) -> Resul
         updated_at: Set(now),
         ..Default::default()
     };
-    if *email.key() != current.email_key {
-        model.email_verified_at = Set(data.email_verified.then_some(now));
+    let email_changed = *email.key() != current.email_key;
+    if email_changed {
+        model.email_verified_at = Set(Some(now));
     }
     username.set_on(&mut model);
     email.set_on(&mut model);
     model.update(dbconn()).await?;
+    if email_changed {
+        crate::auth::cancel_email_change(user_id).await?;
+        crate::auth::revoke_address_tokens(user_id).await?;
+    }
     Ok(())
 }
 
@@ -494,12 +504,15 @@ pub(crate) async fn set_user_admin(
 // **< admin_reset_password >***********************************************************************
 
 /// Restablece la contraseña de un usuario como acción administrativa, invalida sus sesiones
-/// activas y levanta el bloqueo temporal por intentos fallidos.
+/// activas, levanta el bloqueo temporal por intentos fallidos, descarta el cambio de email que
+/// tuviera pendiente (ver `auth::cancel_email_change()`) y anula los enlaces de recuperación que
+/// tuviera sin usar. Devuelve la cuenta, para avisar del
+/// cambio a su dirección.
 pub(crate) async fn admin_reset_password(
     user_id: i32,
     new_password: &str,
-) -> Result<(), AuthError> {
-    find_user(user_id).await?;
+) -> Result<user::Model, AuthError> {
+    let user_model = find_user(user_id).await?;
     password::validate_strength(new_password)?;
     let hash = password::hash_password_async(new_password).await?;
 
@@ -519,7 +532,10 @@ pub(crate) async fn admin_reset_password(
     session::destroy_user_sessions(user_id)
         .await
         .map_err(AuthError::Database)?;
-    Ok(())
+    crate::auth::cancel_email_change(user_id).await?;
+    // Un enlace de recuperación pedido antes no debe deshacer el cambio.
+    crate::token::revoke_tokens(user_id, crate::token::TokenKind::PasswordReset).await?;
+    Ok(user_model)
 }
 
 // **< HELPERS >************************************************************************************

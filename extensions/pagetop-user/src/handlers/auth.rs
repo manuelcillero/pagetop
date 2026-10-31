@@ -10,9 +10,11 @@ use crate::component::{LoginForm, PasswordResetConfirmForm, PasswordResetForm, R
 use crate::config::SETTINGS;
 use crate::error::AuthError;
 use crate::handlers::admin::map_auth_error;
+use crate::handlers::{confirm_page, message_page, no_referrer};
 use crate::mail::send_token_mail;
 use crate::password;
 use crate::session;
+use crate::throttle;
 use crate::token::{TokenKind, consume_token, count_tokens_since, create_token, is_valid_token};
 use crate::{LOCALES_USER, LOGIN_PATH, PROFILE_PATH};
 
@@ -166,24 +168,27 @@ pub async fn register_post(
         return ErrorPage::NotFound(Some(request)).into_response();
     }
     let cx = Context::new(request.clone());
-    let result = auth::register(
-        &form.username,
-        &form.email,
-        &form.password,
-        &form.confirm_password,
-    )
-    .await;
+    let result = if throttle::allow(&request) {
+        auth::register(
+            &form.username,
+            &form.email,
+            &form.password,
+            &form.confirm_password,
+        )
+        .await
+    } else {
+        Err(AuthError::TooManyRequests)
+    };
     match result {
         Ok(user_id) if SETTINGS.require_email_verification => {
             send_verification_mail(&request, user_id).await;
-            Page::new(request)
-                .with_title(Lc::t("title-register", &LOCALES_USER))
-                .with_child(Html::with(|cx| {
-                    html! { p { (Lc::t("msg-verification-sent", &LOCALES_USER).using(cx)) } }
-                }))
-                .render()
-                .await
-                .into_response()
+            let title = Lc::t("title-register", &LOCALES_USER);
+            message_page(
+                request,
+                title,
+                Lc::t("msg-verification-sent", &LOCALES_USER),
+            )
+            .await
         }
         Ok(_) => Redirect::see_other(cx.route(LOGIN_PATH)),
         Err(err) => Page::new(request)
@@ -217,11 +222,16 @@ pub async fn password_reset_get(request: HttpRequest) -> Result<Markup, ErrorPag
 pub async fn password_reset_post(
     request: HttpRequest,
     web::Form(form): web::Form<PasswordResetFormData>,
-) -> Result<Markup, ErrorPage> {
+) -> Response {
     // Respondemos igual exista o no el email para no revelar qué emails están registrados, también
     // en el tiempo de respuesta: la búsqueda, el token y el correo se resuelven en segundo plano.
     // Sólo a cuentas activas: una pendiente o bloqueada no podría iniciar sesión con la nueva
-    // contraseña.
+    // contraseña. Superado el límite de solicitudes de la dirección IP, tampoco se envía nada.
+    let title = Lc::t("title-password-reset", &LOCALES_USER);
+    let sent = Lc::t("msg-password-reset-sent", &LOCALES_USER);
+    if !throttle::allow(&request) {
+        return message_page(request, title, sent).await;
+    }
     let mail_request = request.clone();
     tokio::spawn(async move {
         use crate::account::UserStatus;
@@ -263,13 +273,7 @@ pub async fn password_reset_post(
             Err(err) => trace::error!("Cannot create password reset token: {err}"),
         }
     });
-    Page::new(request)
-        .with_title(Lc::t("title-password-reset", &LOCALES_USER))
-        .with_child(Html::with(|cx| {
-            html! { p { (Lc::t("msg-password-reset-sent", &LOCALES_USER).using(cx)) } }
-        }))
-        .render()
-        .await
+    message_page(request, title, sent).await
 }
 
 // **< password_reset_confirm_get >*****************************************************************
@@ -278,18 +282,19 @@ pub async fn password_reset_post(
 pub async fn password_reset_confirm_get(
     request: HttpRequest,
     web::Path((uid, token)): web::Path<(i32, String)>,
-) -> Result<Markup, ErrorPage> {
+) -> Result<Response, ErrorPage> {
     if !is_valid_token(uid, &token, TokenKind::PasswordReset)
         .await
         .unwrap_or(false)
     {
         return Err(ErrorPage::NotFound(Some(request)));
     }
-    Page::new(request)
+    let page = Page::new(request)
         .with_title(Lc::t("title-new-password", &LOCALES_USER))
         .with_child(PasswordResetConfirmForm::new())
         .render()
-        .await
+        .await?;
+    Ok(no_referrer(page.into_response()))
 }
 
 // **< password_reset_confirm_post >****************************************************************
@@ -297,9 +302,10 @@ pub async fn password_reset_confirm_get(
 /// POST /user/password/reset/{uid}/{token} - Aplica la nueva contraseña.
 ///
 /// La contraseña se valida antes de consumir el token: si no es válida, el mismo enlace sirve para
-/// intentarlo de nuevo. Al aplicarla se cierran todas las sesiones del usuario y se levanta el
+/// intentarlo de nuevo. Al aplicarla se cierran todas las sesiones del usuario, se levanta el
 /// bloqueo temporal por intentos fallidos, porque quien abre el enlace ha demostrado ser el titular
-/// de la dirección.
+/// de la dirección, y se descarta el cambio de dirección pendiente, si lo hay: el aviso de ese
+/// cambio pide restablecer la contraseña a quien no lo ha pedido.
 pub async fn password_reset_confirm_post(
     request: HttpRequest,
     web::Path((uid, token)): web::Path<(i32, String)>,
@@ -327,6 +333,7 @@ pub async fn password_reset_confirm_post(
         session::destroy_user_sessions(uid)
             .await
             .map_err(AuthError::Database)?;
+        auth::cancel_email_change(uid).await?;
         Ok::<(), AuthError>(())
     }
     .await;
@@ -337,12 +344,14 @@ pub async fn password_reset_confirm_post(
                 AuthError::InvalidToken => Lc::t("error-token-invalid", &LOCALES_USER),
                 err => map_auth_error(&err),
             };
-            Page::new(request)
-                .with_title(Lc::t("title-new-password", &LOCALES_USER))
-                .with_child(PasswordResetConfirmForm::new().with_error(error))
-                .render()
-                .await
-                .into_response()
+            no_referrer(
+                Page::new(request)
+                    .with_title(Lc::t("title-new-password", &LOCALES_USER))
+                    .with_child(PasswordResetConfirmForm::new().with_error(error))
+                    .render()
+                    .await
+                    .into_response(),
+            )
         }
     }
 }
@@ -358,29 +367,22 @@ pub async fn password_reset_confirm_post(
 pub async fn verify_email_get(
     request: HttpRequest,
     web::Path((uid, token)): web::Path<(i32, String)>,
-) -> Result<Markup, ErrorPage> {
+) -> Result<Response, ErrorPage> {
     if !is_valid_token(uid, &token, TokenKind::EmailVerification)
         .await
         .unwrap_or(false)
     {
         return Err(ErrorPage::NotFound(Some(request)));
     }
-    // Sin `with_action()`: se envía a la propia URL, que incluye el `{uid}/{token}`.
-    let form = Form::new()
-        .with_id("user-verify-email-form")
-        .with_method(form::Method::Post)
-        .with_child(Html::with(|cx| {
-            html! { p { (Lc::t("msg-verify-email", &LOCALES_USER).using(cx)) } }
-        }))
-        .with_child(
-            Button::submit(Lc::t("btn-verify-email", &LOCALES_USER))
-                .with_style(button::Style::Solid(Intent::Primary)),
-        );
-    Page::new(request)
-        .with_title(Lc::t("title-verify-email", &LOCALES_USER))
-        .with_child(form)
-        .render()
-        .await
+    Ok(no_referrer(
+        confirm_page(
+            request,
+            Lc::t("title-verify-email", &LOCALES_USER),
+            Lc::t("msg-verify-email", &LOCALES_USER),
+            Lc::t("btn-verify-email", &LOCALES_USER),
+        )
+        .await,
+    ))
 }
 
 /// POST /user/verify/{uid}/{token} - Confirma la dirección de email.

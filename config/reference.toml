@@ -296,8 +296,9 @@ identity_policy            = "strict"  # Nombres de usuario que se aceptan:
                                        # Con cualquiera: nunca "@", sin distinguir mayúsculas y sin
                                        # nombres que se confundan con otro existente.
 
-max_failed_logins        = 5           # Intentos fallidos seguidos que bloquean la
-                                       # cuenta. 0 -> nunca.
+max_failed_logins        = 5           # Intentos fallidos seguidos que bloquean la cuenta, también
+                                       # los de la contraseña actual al cambiar la contraseña o el
+                                       # email. 0 -> nunca.
 failed_login_window_secs = 900         # Segundos desde el último fallo en los que el siguiente se
                                        # suma al recuento (15 minutos); si no, empieza de nuevo.
 locked_for_secs          = 600         # Duración del bloqueo de la cuenta en segundos (10 minutos).
@@ -306,6 +307,12 @@ locked_for_secs          = 600         # Duración del bloqueo de la cuenta en s
 max_password_resets        = 3         # Solicitudes de recuperación de contraseña por cuenta en la
                                        # ventana; las siguientes no envían correo. 0 -> sin límite.
 password_reset_window_secs = 3600      # Segundos en los que se cuentan las solicitudes (1 hora).
+
+max_ip_requests        = 20            # Registros, recuperaciones de contraseña y cambios de email
+                                       # desde una misma IP (IPv6 por su red /64) en la ventana.
+                                       # Tras un proxy inverso requiere 'server.client_ip_header'.
+                                       # Cada instancia cuenta las suyas. 0 -> sin límite.
+ip_request_window_secs = 3600          # Segundos en los que se cuentan las solicitudes (1 hora).
 
 login_strict = false                   # Dificulta que el navegador recuerde o autorrellene las
                                        # credenciales en el formulario de acceso.
