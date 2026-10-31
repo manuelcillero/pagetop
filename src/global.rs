@@ -33,10 +33,10 @@ pub static SETTINGS: LazyLock<Settings> = LazyLock::new(|| Settings {
     upload: config::load(),
 });
 
-// Comprueba que los archivos de configuración se pueden leer y que los ajustes globales son válidos.
+// Comprueba que la configuración se puede leer y que los ajustes globales son válidos.
 // La aplicación lo llama al arrancar, antes del primer acceso a `SETTINGS`, que lanzaría `panic!`.
 pub(crate) fn check_settings() -> Result<(), StartupError> {
-    config::check_files().map_err(|err| StartupError::ReadConfig(err.into()))?;
+    config::check_sources().map_err(|err| StartupError::ReadConfig(err.into()))?;
     check_section::<AppSettings>()?;
     check_section::<DevSettings>()?;
     check_section::<LogSettings>()?;

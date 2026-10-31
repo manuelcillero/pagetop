@@ -206,7 +206,8 @@ una clave secreta, una ruta expuesta) y pierde precisión. Mejor `"internal"`.
 ```toml
 [cron]
 mode                  = "external"
-trigger_token         = "..."   # Clave secreta propia, mejor en config/local.toml.
+trigger_token         = "..."   # Clave secreta propia, mejor en config/local.toml o en
+                                # PAGETOP_CRON__TRIGGER_TOKEN.
 trigger_interval_secs = 60      # Una llamada por minuto (el valor por defecto).
 ```
 

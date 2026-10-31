@@ -152,7 +152,8 @@ pub struct SmtpSettings {
     pub security: SmtpSecurity,
     /// Usuario para autenticarse en el servidor. Sin valor, no se autentica.
     pub username: Option<String>,
-    /// Contraseña del usuario. Conviene guardarla en `config/local.toml`, que no se versiona.
+    /// Contraseña del usuario. Conviene guardarla en `config/local.toml`, que no se versiona, o
+    /// pasarla con la variable de entorno `PAGETOP_MAIL__SMTP__PASSWORD`.
     pub password: Option<String>,
     /// Nombre con el que se presenta la aplicación al servidor (`EHLO`). Sin valor, el nombre del
     /// equipo.

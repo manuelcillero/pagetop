@@ -59,7 +59,8 @@ base_url  = "https://example.com"
 host     = "smtp.example.com"
 security = "starttls"           # "none", "opportunistic", "starttls" o "tls".
 username = "no-reply@example.com"
-password = "secreto"            # Mejor en config/local.toml, que no se versiona.
+password = "secreto"            # Mejor en config/local.toml, que no se versiona, o en la
+                                # variable de entorno PAGETOP_MAIL__SMTP__PASSWORD.
 ```
 
 Sin configurar, los correos se escriben en las trazas en lugar de enviarse (`transport = "log"`),

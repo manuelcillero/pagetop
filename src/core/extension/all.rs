@@ -12,8 +12,9 @@ static EXTENSIONS: OnceLock<Vec<ExtensionRef>> = OnceLock::new();
 /// Errores de las extensiones que detienen el arranque de la aplicación.
 #[derive(Debug, thiserror::Error)]
 pub enum StartupError {
-    /// Los archivos de configuración no se pueden leer (p. ej. un TOML mal formado).
-    #[error("Failed to read the configuration files")]
+    /// La configuración no se puede leer (p. ej. un TOML mal formado o una variable de entorno de
+    /// ajustes cuyo valor no es Unicode válido).
+    #[error("Failed to read the configuration")]
     ReadConfig(#[source] BoxError),
     /// Dos extensiones, o una extensión y PageTop, reclaman la misma sección de la configuración:
     /// cada una la leería con su propia estructura de ajustes.
@@ -142,6 +143,13 @@ pub fn load_settings() -> Result<(), StartupError> {
 // Separada de `load_settings()` para poder probarla sin el registro global de extensiones.
 fn load_settings_of(extensions: &[ExtensionRef]) -> Result<(), StartupError> {
     trace::info!("Loading settings for all extensions");
+    let env_keys = config::env_keys();
+    if !env_keys.is_empty() {
+        trace::info!(
+            "Settings from environment variables: {}",
+            env_keys.join(", ")
+        );
+    }
     let mut known: Vec<&str> = global::SECTIONS.to_vec();
     for settings in extensions.iter().filter_map(|e| e.settings()) {
         let section = settings.section();

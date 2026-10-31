@@ -47,7 +47,8 @@ pub struct CronSettings {
     /// Clave secreta que autoriza las llamadas a `POST /cron` con [`CronMode::External`], enviada
     /// en la cabecera `Authorization: Bearer <clave>`. Obligatoria en ese modo, con 16 caracteres
     /// o más (letras, dígitos, `-` o `_`), o la aplicación no arranca. Conviene guardarla en
-    /// `config/local.toml`, que no se versiona.
+    /// `config/local.toml`, que no se versiona, o pasarla con la variable de entorno
+    /// `PAGETOP_CRON__TRIGGER_TOKEN`.
     pub trigger_token: Option<String>,
     /// Segundos entre dos llamadas a `POST /cron` con [`CronMode::External`]. Cada llamada ejecuta
     /// los trabajos programados en el último intervalo de esta duración, contado en múltiplos

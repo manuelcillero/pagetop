@@ -12,8 +12,13 @@
 #
 # Donde {rm} es el valor de la variable de entorno PAGETOP_RUN_MODE ("default" si no se define o
 # está vacía). El directorio config/ puede cambiarse con la variable de entorno CONFIG_DIR (vacía
-# equivale a no definirla). No hay más variables de entorno: el resto de opciones sólo se leen de
-# estos ficheros.
+# equivale a no definirla).
+#
+# Por último, las variables de entorno con el prefijo PAGETOP_ sobrescriben cualquier opción de los
+# ficheros: sección y clave en mayúsculas, con cada nivel separado por dos guiones bajos (p. ej.
+# PAGETOP_DATABASE__DB_PASS para db_pass de [database], o PAGETOP_MAIL__SMTP__PASSWORD para password
+# de [mail.smtp]). Una variable vacía equivale a no definirla. No sirven para listas ni para claves
+# con punto, como "mail.queue" en [cron.jobs."mail.queue"].
 #
 # Las opciones comentadas no tienen valor por defecto; se muestran con un valor de ejemplo.
 #
