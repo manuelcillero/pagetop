@@ -67,6 +67,20 @@ pub struct UserSettings {
     #[default = 600]
     pub locked_for_secs: i64,
 
+    /// Solicitudes de recuperación de contraseña que puede recibir una misma cuenta en
+    /// [`password_reset_window_secs`](Self::password_reset_window_secs).
+    ///
+    /// Cada solicitud envía un correo con un enlace nuevo que anula los anteriores. Alcanzado el
+    /// límite, las siguientes no envían nada hasta que la más antigua de la ventana queda fuera de
+    /// ella, y la respuesta es la misma para no revelar si la cuenta existe. Así nadie puede
+    /// inundar el buzón de otra persona ni dañar la reputación del servidor de correo. Con `0` no
+    /// hay límite.
+    #[default = 3]
+    pub max_password_resets: u32,
+    /// Segundos en los que se cuentan las solicitudes de recuperación de contraseña de una cuenta.
+    #[default = 3_600]
+    pub password_reset_window_secs: i64,
+
     /// Sesiones, en la subsección `[user.session]`.
     pub session: SessionSettings,
 

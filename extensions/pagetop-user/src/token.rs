@@ -3,8 +3,11 @@
 
 use pagetop::prelude::*;
 use pagetop_seaorm::db::query::Expr;
-use pagetop_seaorm::db::{ActiveValue, ColumnTrait, EntityTrait, QueryFilter, Set, dbconn};
+use pagetop_seaorm::db::{
+    ActiveValue, ColumnTrait, EntityTrait, PaginatorTrait, QueryFilter, Set, dbconn,
+};
 
+use crate::config::SETTINGS;
 use crate::entity::user_token;
 use crate::error::AuthError;
 
@@ -62,23 +65,44 @@ impl TokenKind {
             TokenKind::EmailVerification => 86400 * 3, // 3 días
         }
     }
+
+    // Segundos que se conserva un token desde su creación: hasta que caduca y, los de recuperación,
+    // mientras cuentan para el límite de solicitudes.
+    fn keep_secs(self) -> i64 {
+        match self {
+            TokenKind::PasswordReset => self.ttl_secs().max(SETTINGS.password_reset_window_secs),
+            TokenKind::EmailVerification => self.ttl_secs(),
+        }
+    }
 }
 
 // **< create_token >*******************************************************************************
 
 /// Crea un token en BD y devuelve el valor en claro para enviarlo al usuario.
 ///
-/// Si el usuario ya tiene un token del mismo tipo vigente, lo reemplaza.
+/// Anula los tokens del mismo tipo que el usuario tenga sin consumir, de modo que sólo vale el
+/// último enlace enviado.
 pub async fn create_token(user_id: i32, kind: TokenKind) -> Result<String, AuthError> {
-    // Invalidar tokens anteriores del mismo tipo para este usuario.
+    let now = Utc::now();
+
+    // Los anteriores se anulan en lugar de borrarse para que sigan contando en
+    // `count_tokens_since()`; sólo se borran los que ya no pueden usarse ni cuentan.
+    user_token::Entity::update_many()
+        .col_expr(user_token::Column::ConsumedAt, Expr::value(now))
+        .col_expr(user_token::Column::UpdatedAt, Expr::value(now))
+        .filter(user_token::Column::UserId.eq(user_id))
+        .filter(user_token::Column::Kind.eq(kind.as_str()))
+        .filter(user_token::Column::ConsumedAt.is_null())
+        .exec(dbconn())
+        .await?;
     user_token::Entity::delete_many()
         .filter(user_token::Column::UserId.eq(user_id))
         .filter(user_token::Column::Kind.eq(kind.as_str()))
+        .filter(user_token::Column::CreatedAt.lt(now - Duration::seconds(kind.keep_secs())))
         .exec(dbconn())
         .await?;
 
     let token = generate_token();
-    let now = Utc::now();
     let expires_at = now + Duration::seconds(kind.ttl_secs());
 
     let new_token = user_token::ActiveModel {
@@ -93,6 +117,25 @@ pub async fn create_token(user_id: i32, kind: TokenKind) -> Result<String, AuthE
     };
     user_token::Entity::insert(new_token).exec(dbconn()).await?;
     Ok(token)
+}
+
+/// Cuenta los tokens del tipo indicado creados para el usuario desde `since`, consumidos o no.
+///
+/// Los tokens se conservan al menos durante su tiempo de vida o, en los de recuperación de
+/// contraseña, durante
+/// [`password_reset_window_secs`](crate::config::UserSettings::password_reset_window_secs) si es
+/// mayor. Con un `since` más antiguo el recuento puede quedarse corto.
+pub async fn count_tokens_since(
+    user_id: i32,
+    kind: TokenKind,
+    since: DateTime<Utc>,
+) -> Result<u64, AuthError> {
+    Ok(user_token::Entity::find()
+        .filter(user_token::Column::UserId.eq(user_id))
+        .filter(user_token::Column::Kind.eq(kind.as_str()))
+        .filter(user_token::Column::CreatedAt.gte(since))
+        .count(dbconn())
+        .await?)
 }
 
 // **< is_valid_token / consume_token >*************************************************************
