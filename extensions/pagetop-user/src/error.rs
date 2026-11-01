@@ -47,7 +47,7 @@ pub enum AuthError {
     #[error("new email is the same as the current one")]
     SameEmail,
 
-    #[error("too many requests from the same address")]
+    #[error("too many requests")]
     TooManyRequests,
 
     #[error("passwords do not match")]

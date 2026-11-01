@@ -230,8 +230,12 @@ async fn checked_user(user_id: i32, plain_password: &str) -> Result<user::Model,
 ///
 /// Falla con [`AuthError::InvalidCredentials`] si la contraseña no es correcta,
 /// [`AuthError::AccountLocked`] si la cuenta está bloqueada por intentos fallidos,
-/// [`AuthError::SameEmail`] si la dirección es la actual (sin distinguir mayúsculas) y
-/// [`AuthError::EmailTaken`] si la usa otra cuenta.
+/// [`AuthError::TooManyRequests`] si la cuenta ya ha pedido [`max_email_changes`] cambios en
+/// [`email_change_window_secs`], [`AuthError::SameEmail`] si la dirección es la actual (sin
+/// distinguir mayúsculas) y [`AuthError::EmailTaken`] si la usa otra cuenta.
+///
+/// [`max_email_changes`]: crate::config::UserSettings::max_email_changes
+/// [`email_change_window_secs`]: crate::config::UserSettings::email_change_window_secs
 pub(crate) async fn request_email_change(
     user_id: i32,
     current_password: &str,
@@ -244,6 +248,16 @@ pub(crate) async fn request_email_change(
     }
     ensure_email_available(&email, Some(user_id)).await?;
 
+    // Después de la contraseña (quien no la tenga no sabe nada del límite) y antes de guardar la
+    // dirección: rechazado, el cambio pendiente y su enlace siguen como estaban.
+    let token = match token::create_bound_token(user_id, TokenKind::EmailChange, email.key()).await
+    {
+        Err(AuthError::TooManyRequests) => {
+            trace::warn!("Email change limit reached for user {user_id}");
+            return Err(AuthError::TooManyRequests);
+        }
+        result => result?,
+    };
     let new_email = email.value().to_owned();
     user::ActiveModel {
         id: Set(user_id),
@@ -253,7 +267,6 @@ pub(crate) async fn request_email_change(
     }
     .update(dbconn())
     .await?;
-    let token = token::create_bound_token(user_id, TokenKind::EmailChange, email.key()).await?;
     Ok((user_model, new_email, token))
 }
 

@@ -73,21 +73,37 @@ pub struct UserSettings {
     /// [`password_reset_window_secs`](Self::password_reset_window_secs).
     ///
     /// Cada solicitud envía un correo con un enlace nuevo que anula los anteriores. Alcanzado el
-    /// límite, las siguientes no envían nada hasta que la más antigua de la ventana queda fuera de
-    /// ella, y la respuesta es la misma para no revelar si la cuenta existe. Así nadie puede
+    /// límite, las siguientes no envían nada hasta que la más antigua de las contadas deja de
+    /// contar, y la respuesta es la misma para no revelar si la cuenta existe. Así nadie puede
     /// inundar el buzón de otra persona ni dañar la reputación del servidor de correo. Con `0` no
     /// hay límite.
     #[default = 3]
     pub max_password_resets: u32,
-    /// Segundos en los que se cuentan las solicitudes de recuperación de contraseña de una cuenta.
+    /// Periodo en segundos, hacia atrás desde cada solicitud, en el que se cuentan las de
+    /// recuperación de contraseña de una cuenta: cada una deja de contar al cumplirse este tiempo.
     #[default = 3_600]
     pub password_reset_window_secs: i64,
 
+    /// Cambios de email que puede pedir una misma cuenta en
+    /// [`email_change_window_secs`](Self::email_change_window_secs).
+    ///
+    /// Cada petición envía dos correos: el enlace de confirmación a la nueva dirección, que puede
+    /// ser de otra persona, y un aviso a la actual. Alcanzado el límite, el formulario muestra un
+    /// error y no se envía nada hasta que la más antigua de las contadas deja de contar. Así nadie
+    /// puede usar una cuenta para enviar confirmaciones a muchas direcciones ajenas, aunque reparta
+    /// las peticiones entre muchas direcciones IP. Con `0` no hay límite.
+    #[default = 3]
+    pub max_email_changes: u32,
+    /// Periodo en segundos, hacia atrás desde cada petición, en el que se cuentan los cambios de
+    /// email pedidos por una cuenta: cada uno deja de contar al cumplirse este tiempo.
+    #[default = 3_600]
+    pub email_change_window_secs: i64,
+
     /// Solicitudes que envían un correo o crean una cuenta (registros, recuperaciones de
     /// contraseña y cambios de email) que se admiten desde una misma dirección IP en
-    /// [`ip_request_window_secs`](Self::ip_request_window_secs).
+    /// [`ip_request_window_secs`].
     ///
-    /// Complementa a [`max_password_resets`](Self::max_password_resets), que limita las de cada
+    /// Complementa a [`max_password_resets`] y [`max_email_changes`], que limitan las de cada
     /// cuenta: sin este límite, cualquiera podría usar la aplicación para enviar correos a muchas
     /// direcciones ajenas, registrándolas o pidiendo su recuperación. Alcanzado el límite, el
     /// registro y el cambio de email muestran un error, y la recuperación no envía nada, con la
@@ -100,10 +116,14 @@ pub struct UserSettings {
     /// lleva su propia cuenta, en memoria: con varias instancias, el límite es por instancia. Con
     /// `0` no hay límite.
     ///
+    /// [`ip_request_window_secs`]: Self::ip_request_window_secs
+    /// [`max_email_changes`]: Self::max_email_changes
+    /// [`max_password_resets`]: Self::max_password_resets
     /// [`pagetop::web::HttpRequest::client_ip()`]: pagetop::web::HttpRequest::client_ip
     #[default = 20]
     pub max_ip_requests: u32,
-    /// Segundos en los que se cuentan las solicitudes de una misma dirección IP.
+    /// Periodo en segundos, hacia atrás desde cada solicitud, en el que se cuentan las de una misma
+    /// dirección IP: cada una deja de contar al cumplirse este tiempo.
     #[default = 3_600]
     pub ip_request_window_secs: i64,
 

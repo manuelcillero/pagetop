@@ -15,7 +15,7 @@ use crate::mail::send_token_mail;
 use crate::password;
 use crate::session;
 use crate::throttle;
-use crate::token::{TokenKind, consume_token, count_tokens_since, create_token, is_valid_token};
+use crate::token::{TokenKind, consume_token, create_token, is_valid_token};
 use crate::{LOCALES_USER, LOGIN_PATH, PROFILE_PATH};
 
 // **< Tipos de formularios >***********************************************************************
@@ -251,24 +251,12 @@ pub async fn password_reset_post(
                 return;
             }
         };
-        let max = SETTINGS.max_password_resets;
-        if max > 0 {
-            let since = Utc::now() - Duration::seconds(SETTINGS.password_reset_window_secs);
-            match count_tokens_since(user_model.id, TokenKind::PasswordReset, since).await {
-                Ok(count) if count >= u64::from(max) => {
-                    trace::warn!("Password reset limit reached for user {}", user_model.id);
-                    return;
-                }
-                Ok(_) => {}
-                Err(err) => {
-                    trace::error!("Cannot count password reset requests: {err}");
-                    return;
-                }
-            }
-        }
         match create_token(user_model.id, TokenKind::PasswordReset).await {
             Ok(token) => {
                 send_token_mail(&mail_request, TokenKind::PasswordReset, &user_model, &token);
+            }
+            Err(AuthError::TooManyRequests) => {
+                trace::warn!("Password reset limit reached for user {}", user_model.id);
             }
             Err(err) => trace::error!("Cannot create password reset token: {err}"),
         }

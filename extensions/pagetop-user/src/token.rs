@@ -80,13 +80,26 @@ impl TokenKind {
         }
     }
 
-    // Segundos que se conserva un token desde su creación: hasta que caduca y, los de recuperación,
-    // mientras cuentan para el límite de solicitudes.
-    fn keep_secs(self) -> i64 {
+    // Límite de tokens de este tipo que puede pedir una cuenta: cuántos (0 = sin límite) y en
+    // cuántos segundos.
+    fn limit(self) -> (u32, i64) {
         match self {
-            TokenKind::PasswordReset => self.ttl_secs().max(SETTINGS.password_reset_window_secs),
-            TokenKind::EmailVerification | TokenKind::EmailChange => self.ttl_secs(),
+            TokenKind::PasswordReset => (
+                SETTINGS.max_password_resets,
+                SETTINGS.password_reset_window_secs,
+            ),
+            TokenKind::EmailChange => (
+                SETTINGS.max_email_changes,
+                SETTINGS.email_change_window_secs,
+            ),
+            TokenKind::EmailVerification => (0, 0),
         }
+    }
+
+    // Segundos que se conserva un token desde su creación: hasta que caduca y mientras cuenta para
+    // el límite de su tipo.
+    fn keep_secs(self) -> i64 {
+        self.ttl_secs().max(self.limit().1)
     }
 }
 
@@ -94,8 +107,17 @@ impl TokenKind {
 
 /// Crea un token en BD y devuelve el valor en claro para enviarlo al usuario.
 ///
-/// Anula los tokens del mismo tipo que el usuario tenga sin consumir, de modo que sólo vale el
-/// último enlace enviado.
+/// Anula los tokens anteriores del mismo tipo que el usuario tenga sin consumir, de modo que sólo
+/// vale el último enlace enviado. Falla con [`AuthError::TooManyRequests`] si el usuario ya ha
+/// pedido todos los que admite el límite de su tipo:
+/// [`max_password_resets`](crate::config::UserSettings::max_password_resets) en
+/// [`password_reset_window_secs`](crate::config::UserSettings::password_reset_window_secs) los de
+/// recuperación de contraseña, y
+/// [`max_email_changes`](crate::config::UserSettings::max_email_changes) en
+/// [`email_change_window_secs`](crate::config::UserSettings::email_change_window_secs) los de
+/// cambio de email. Cuentan todos los creados en ese tiempo, consumidos o anulados también, pero no
+/// los rechazados; los de verificación de email no tienen límite. Rechazado, los anteriores siguen
+/// valiendo.
 pub async fn create_token(user_id: i32, kind: TokenKind) -> Result<String, AuthError> {
     create_bound_token(user_id, kind, "").await
 }
@@ -109,31 +131,58 @@ pub async fn create_bound_token(
     binding: &str,
 ) -> Result<String, AuthError> {
     let now = Utc::now();
+    let token = generate_token();
+    let new_token = user_token::ActiveModel {
+        id: ActiveValue::NotSet,
+        user_id: Set(user_id),
+        kind: Set(kind.as_str().to_owned()),
+        token_hash: Set(bound_hash(&token, binding)),
+        expires_at: Set(now + Duration::seconds(kind.ttl_secs())),
+        consumed_at: Set(None),
+        created_at: Set(now),
+        updated_at: Set(now),
+    };
+    let id = user_token::Entity::insert(new_token)
+        .exec(dbconn())
+        .await?
+        .last_insert_id;
 
-    // Los anteriores se anulan en lugar de borrarse para que sigan contando en
-    // `count_tokens_since()`; sólo se borran los que ya no pueden usarse ni cuentan.
-    revoke_tokens(user_id, kind).await?;
+    // Se cuenta después de guardarlo y contándolo a él: si varias peticiones simultáneas guardan el
+    // suyo antes de contar, la última en contar los ve todos, así que nunca se admiten más de las
+    // que permite el límite (como mucho, se rechaza alguna de más). El rechazado se borra para que
+    // no cuente.
+    let (max, window_secs) = kind.limit();
+    if max > 0 {
+        let count = user_token::Entity::find()
+            .filter(user_token::Column::UserId.eq(user_id))
+            .filter(user_token::Column::Kind.eq(kind.as_str()))
+            .filter(user_token::Column::CreatedAt.gte(now - Duration::seconds(window_secs)))
+            .count(dbconn())
+            .await?;
+        if count > u64::from(max) {
+            user_token::Entity::delete_by_id(id).exec(dbconn()).await?;
+            return Err(AuthError::TooManyRequests);
+        }
+    }
+
+    // Sólo los anteriores a éste: si dos peticiones simultáneas se anularan entre sí, no valdría
+    // ningún enlace. Se anulan en lugar de borrarse para que sigan contando para el límite; sólo se
+    // borran los que ya no pueden usarse ni cuentan.
+    user_token::Entity::update_many()
+        .col_expr(user_token::Column::ConsumedAt, Expr::value(now))
+        .col_expr(user_token::Column::UpdatedAt, Expr::value(now))
+        .filter(user_token::Column::UserId.eq(user_id))
+        .filter(user_token::Column::Kind.eq(kind.as_str()))
+        .filter(user_token::Column::ConsumedAt.is_null())
+        .filter(user_token::Column::Id.lt(id))
+        .exec(dbconn())
+        .await?;
     user_token::Entity::delete_many()
         .filter(user_token::Column::UserId.eq(user_id))
         .filter(user_token::Column::Kind.eq(kind.as_str()))
         .filter(user_token::Column::CreatedAt.lt(now - Duration::seconds(kind.keep_secs())))
         .exec(dbconn())
         .await?;
-
-    let token = generate_token();
-    let expires_at = now + Duration::seconds(kind.ttl_secs());
-
-    let new_token = user_token::ActiveModel {
-        id: ActiveValue::NotSet,
-        user_id: Set(user_id),
-        kind: Set(kind.as_str().to_owned()),
-        token_hash: Set(bound_hash(&token, binding)),
-        expires_at: Set(expires_at),
-        consumed_at: Set(None),
-        created_at: Set(now),
-        updated_at: Set(now),
-    };
-    user_token::Entity::insert(new_token).exec(dbconn()).await?;
     Ok(token)
 }
 
@@ -150,25 +199,6 @@ pub async fn revoke_tokens(user_id: i32, kind: TokenKind) -> Result<(), AuthErro
         .exec(dbconn())
         .await?;
     Ok(())
-}
-
-/// Cuenta los tokens del tipo indicado creados para el usuario desde `since`, consumidos o no.
-///
-/// Los tokens se conservan al menos durante su tiempo de vida o, en los de recuperación de
-/// contraseña, durante
-/// [`password_reset_window_secs`](crate::config::UserSettings::password_reset_window_secs) si es
-/// mayor. Con un `since` más antiguo el recuento puede quedarse corto.
-pub async fn count_tokens_since(
-    user_id: i32,
-    kind: TokenKind,
-    since: DateTime<Utc>,
-) -> Result<u64, AuthError> {
-    Ok(user_token::Entity::find()
-        .filter(user_token::Column::UserId.eq(user_id))
-        .filter(user_token::Column::Kind.eq(kind.as_str()))
-        .filter(user_token::Column::CreatedAt.gte(since))
-        .count(dbconn())
-        .await?)
 }
 
 // **< is_valid_token / consume_token >*************************************************************

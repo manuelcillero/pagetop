@@ -1,6 +1,7 @@
 // End-to-end account flows against a real database. `config/common.toml` gives these tests an
 // in-memory SQLite database with a single connection, the memory mail transport, email
-// verification on sign-up, `max_failed_logins = 3` and `max_ip_requests = 3`.
+// verification on sign-up, `max_failed_logins = 3`, `max_ip_requests = 3` and
+// `max_email_changes = 2` (`max_password_resets` keeps its default, 3).
 //
 // Every scenario shares the same database, so they run one after another in a single test (and a
 // single runtime, which also keeps the database connection alive). Each one uses its own accounts
@@ -191,6 +192,8 @@ async fn account_flows() {
     email_changes_revoke_links_sent_to_the_old_address(&client).await;
     email_change_links_are_bound_to_their_address(&client).await;
     wrong_current_passwords_lock_the_account(&client).await;
+    email_changes_are_limited_by_account(&client).await;
+    password_resets_are_limited_by_account(&client).await;
     requests_are_limited_by_address(&client).await;
 }
 
@@ -649,6 +652,61 @@ async fn wrong_current_passwords_lock_the_account(client: &Client) {
     no_mail_to("kim.new@example.com").await;
     no_mail_to("kim@example.com").await;
     assert_eq!(client.login("kim", "kim-password").await, None);
+}
+
+async fn email_changes_are_limited_by_account(client: &Client) {
+    verified_account(client, "mar", "mar@example.com", "mar-password").await;
+    let session = client.login("mar", "mar-password").await.unwrap();
+    let request = |email| form(&[("email", email), ("current_password", "mar-password")]);
+    let mut confirm = String::new();
+    for email in ["mar.one@example.com", "mar.two@example.com"] {
+        let reply = client
+            .post("/user/email", &request(email), Some(&session))
+            .await;
+        assert_eq!(reply.status, Status::OK);
+        confirm = link(&mail_to(email).await, "/user/email/");
+        mail_to("mar@example.com").await;
+    }
+    // `max_email_changes = 2`: the third request sends nothing, to either address.
+    let reply = client
+        .post(
+            "/user/email",
+            &request("mar.three@example.com"),
+            Some(&session),
+        )
+        .await;
+    assert!(reply.body.contains("Too many requests"));
+    no_mail_to("mar.three@example.com").await;
+    no_mail_to("mar@example.com").await;
+
+    // The refused request leaves the pending change and its link as they were.
+    let reply = client.post(path(&confirm), "", None).await;
+    assert_eq!(reply.status, Status::SEE_OTHER);
+    assert!(
+        client
+            .login("mar.two@example.com", "mar-password")
+            .await
+            .is_some()
+    );
+}
+
+async fn password_resets_are_limited_by_account(client: &Client) {
+    verified_account(client, "nora", "nora@example.com", "nora-password").await;
+    let mut reset = String::new();
+    for _ in 0..3 {
+        client
+            .post("/user/password/reset", "email=nora%40example.com", None)
+            .await;
+        reset = link(&mail_to("nora@example.com").await, "/user/password/reset/");
+    }
+    // `max_password_resets` is 3 by default: the fourth request sends nothing, with the same
+    // answer, and the last link still works.
+    let reply = client
+        .post("/user/password/reset", "email=nora%40example.com", None)
+        .await;
+    assert_eq!(reply.status, Status::OK);
+    no_mail_to("nora@example.com").await;
+    assert_eq!(client.get(&reset, None).await.status, Status::OK);
 }
 
 async fn requests_are_limited_by_address(client: &Client) {

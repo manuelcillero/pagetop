@@ -304,15 +304,22 @@ failed_login_window_secs = 900         # Segundos desde el último fallo en los 
 locked_for_secs          = 600         # Duración del bloqueo de la cuenta en segundos (10 minutos).
                                        # Después se dispone otra vez de todos los intentos.
 
-max_password_resets        = 3         # Solicitudes de recuperación de contraseña por cuenta en la
-                                       # ventana; las siguientes no envían correo. 0 -> sin límite.
-password_reset_window_secs = 3600      # Segundos en los que se cuentan las solicitudes (1 hora).
+max_password_resets        = 3         # Máximo de solicitudes de recuperación de contraseña de una
+                                       # misma cuenta en un periodo de 'password_reset_window_secs'
+                                       # segundos; las siguientes no envían correo. 0 -> sin límite.
+password_reset_window_secs = 3600      # Duración del periodo en segundos (1 hora).
 
-max_ip_requests        = 20            # Registros, recuperaciones de contraseña y cambios de email
-                                       # desde una misma IP (IPv6 por su red /64) en la ventana.
-                                       # Tras un proxy inverso requiere 'server.client_ip_header'.
-                                       # Cada instancia cuenta las suyas. 0 -> sin límite.
-ip_request_window_secs = 3600          # Segundos en los que se cuentan las solicitudes (1 hora).
+max_email_changes        = 3           # Máximo de cambios de email que puede pedir una misma cuenta
+                                       # en un periodo de 'email_change_window_secs' segundos; los
+                                       # siguientes dan error y no envían correo. 0 -> sin límite.
+email_change_window_secs = 3600        # Duración del periodo en segundos (1 hora).
+
+max_ip_requests        = 20            # Máximo de registros, recuperaciones de contraseña y cambios
+                                       # de email desde una misma IP (IPv6 por su red /64) en un
+                                       # periodo de 'ip_request_window_secs' segundos. Tras un proxy
+                                       # inverso requiere 'server.client_ip_header'. Cada instancia
+                                       # cuenta las suyas. 0 -> sin límite.
+ip_request_window_secs = 3600          # Duración del periodo en segundos (1 hora).
 
 login_strict = false                   # Dificulta que el navegador recuerde o autorrellene las
                                        # credenciales en el formulario de acceso.

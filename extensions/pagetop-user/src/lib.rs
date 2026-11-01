@@ -5,20 +5,52 @@
 
 <p>Gestión de usuarios, autenticación, roles y permisos para <strong>PageTop</strong>.</p>
 
+[![Doc API](https://img.shields.io/docsrs/pagetop-user?label=Doc%20API&style=for-the-badge&logo=Docs.rs)](https://docs.rs/pagetop-user)
+[![Crates.io](https://img.shields.io/crates/v/pagetop-user.svg?style=for-the-badge&logo=ipfs)](https://crates.io/crates/pagetop-user)
+[![Descargas](https://img.shields.io/crates/d/pagetop-user.svg?label=Descargas&style=for-the-badge&logo=transmission)](https://crates.io/crates/pagetop-user)
+[![Licencia](https://img.shields.io/badge/license-MIT%2FApache-blue.svg?label=Licencia&style=for-the-badge)](https://git.cillero.es/manuelcillero/pagetop/src/branch/main/extensions/pagetop-user#licencia)
+
 </div>
+
+Añade cuentas de usuario a una aplicación PageTop: registro, inicio de sesión con sesiones en la
+base de datos, perfil propio, recuperación de contraseña y verificación del email por correo, y
+control de acceso con roles y permisos. Incluye las páginas de administración de usuarios, roles y
+permisos sobre `pagetop-admin`, hechas sólo con componentes del núcleo para que funcionen con
+cualquier tema.
+
+## Sobre PageTop
+
+[PageTop](https://docs.rs/pagetop) es un entorno de desarrollo que reivindica la esencia de la web
+clásica para crear soluciones web SSR (*renderizadas en el servidor*) modulares, extensibles y
+configurables, basadas en HTML, CSS y JavaScript.
 
 ## Guía rápida
 
-Declara la dependencia en tu `Cargo.toml`:
+**Añade la dependencia** a tu `Cargo.toml`:
 
 ```toml
 [dependencies]
 pagetop-user = "..."
 ```
 
-Añade `&pagetop_user::User` a las dependencias de tu extensión. El usuario actual se inyecta
-automáticamente en el contexto de cada [`Page`] al crearla con [`Page::new()`], sin necesidad de
-llamadas adicionales. Usa las helpers del core para acceder a él:
+Los usuarios y las sesiones se guardan con [`pagetop_seaorm`]: la aplicación elige el motor de base
+de datos con su *feature* (`postgres`, `mysql` o `sqlite`) y configura la conexión en la sección
+`[database]`.
+
+**Declara la extensión** como dependencia de tu aplicación o de la extensión que la requiera
+(`&pagetop_user::User`, como en el ejemplo de más abajo). Al arrancar crea sus tablas y, si no hay
+ninguna cuenta, el primer administrador, con los datos de `[user.seed]`:
+
+```toml
+[user.seed]
+admin_username = "admin"
+admin_email    = "admin@example.com"
+# Sin 'admin_password', se genera una aleatoria y se muestra una sola vez al crearlo.
+```
+
+**Comprueba los permisos** en tus *handlers*. El usuario actual se inyecta automáticamente en el
+contexto de cada [`Page`] al crearla con [`Page::new()`], y las funciones del núcleo, como
+[`has_permission()`], lo consultan:
 
 ```rust,no_run
 use pagetop::prelude::*;
@@ -59,6 +91,18 @@ async fn dashboard(request: HttpRequest) -> Result<Markup, ErrorPage> {
         .render().await
 }
 ```
+
+## Páginas
+
+| Ruta                      | Uso                                                          |
+|---------------------------|--------------------------------------------------------------|
+| `/user/login`             | Inicio de sesión, con el nombre de usuario o el email.       |
+| `/user/register`          | Registro, si lo permite `allow_registration`.                |
+| `/user`                   | Perfil propio: editarlo, cambiar la contraseña o el email.   |
+| `/user/password/reset`    | Recuperación de la contraseña por correo.                    |
+| `/admin/user/users`       | Administración de usuarios: alta, edición, roles, bloqueo... |
+| `/admin/user/roles`       | Administración de roles y de sus permisos.                   |
+| `/admin/user/permissions` | Catálogo de los permisos que declaran las extensiones.       |
 
 ## Nombres de usuario y email
 
@@ -104,10 +148,10 @@ de la cuenta; los de recuperación, también cuando cambia su contraseña.
 Cambiar la contraseña o el email exige la contraseña actual, y sus fallos cuentan para el bloqueo
 por intentos fallidos (`max_failed_logins`), como los del inicio de sesión.
 
-Para que nadie pueda usar la aplicación para enviar correos a direcciones ajenas, las
-recuperaciones de contraseña se limitan por cuenta (`max_password_resets`), y ellas, los registros
-y los cambios de dirección, también por dirección IP (`max_ip_requests`). Detrás de un *proxy*
-inverso, el límite por IP requiere configurar `server.client_ip_header`.
+Para que nadie pueda usar la aplicación para enviar correos a direcciones ajenas, las recuperaciones
+de contraseña y los cambios de dirección se limitan por cuenta (`max_password_resets` y
+`max_email_changes`), y ellos y los registros, también por dirección IP (`max_ip_requests`). Detrás
+de un *proxy* inverso, el límite por IP requiere configurar `server.client_ip_header`.
 */
 
 use pagetop::prelude::*;
