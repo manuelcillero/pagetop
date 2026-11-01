@@ -23,14 +23,6 @@ configurables, basadas en HTML, CSS y JavaScript.
 Este *crate* permite incluir archivos estáticos en el ejecutable de las aplicaciones PageTop para
 servirlos de forma eficiente vía web, con detección de cambios que optimizan el tiempo de
 compilación.
-
-## Créditos
-
-Para ello, adapta el código de [static-files](https://crates.io/crates/static_files) (versión
-[0.2.5](https://github.com/static-files-rs/static-files/tree/v0.2.5)) desarrollado por
-[Alexander Korolev](https://crates.io/users/kilork), bajo licencia MIT/Apache 2.0. La implementación
-se integra en PageTop para evitar que cada proyecto tenga que declarar `static-files` manualmente
-como dependencia en su `Cargo.toml`.
 */
 
 #![doc(test(no_crate_inject))]

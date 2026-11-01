@@ -169,7 +169,8 @@ de otras extensiones, registrando la acción `RenderMailLayout`.
 
 Con `previews = true` en `[mail]` (sólo en desarrollo), `/mail/preview` lista los correos que las
 extensiones declaran con la acción `DeclareMailPreviews`, y muestra cada uno con datos de ejemplo:
-cabeceras, HTML con el diseño común, texto plano y adjuntos, sin enviar nada.
+cabeceras, HTML con el diseño común, texto plano y adjuntos, sin enviar nada. Ver el módulo
+`preview`.
 
 ## Texto plano automático
 

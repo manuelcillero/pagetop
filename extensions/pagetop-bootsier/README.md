@@ -75,12 +75,12 @@ async fn homepage(request: HttpRequest) -> Result<Markup, ErrorPage> {
 
 ## Plantillas
 
-Bootsier maqueta las dos plantillas de PageTop (`CoreTemplates`) con la misma cabecera, contenido
-y pie: `Standard`, la plantilla por defecto de cualquier página; y `Admin`, que se activa creando
-la página con `Page::admin()` en lugar de `Page::new()`. Ambas se maquetan igual hoy -- la
-distinción entre página "normal" y de administración no vive en el maquetado, sino en qué
-extensión registra contenido en cada región y para qué plantilla se autolimita (por ejemplo, el
-menú de `pagetop-admin`, ver más abajo).
+Bootsier maqueta las dos plantillas de PageTop (`CoreTemplates`) con las mismas regiones (cabecera,
+lateral, contenido y pie): `Standard`, la plantilla por defecto de cualquier página; y `Admin`, que
+se activa creando la página con `Page::admin()` en lugar de `Page::new()`. Ambas se maquetan igual
+hoy -- la distinción entre página "normal" y de administración no vive en el maquetado, sino en qué
+extensión registra contenido en cada región y para qué plantilla se autolimita (por ejemplo, el menú
+de `pagetop-admin`, ver más abajo).
 
 ```rust,no_run
 use pagetop::prelude::*;
@@ -91,7 +91,7 @@ async fn about(request: HttpRequest) -> Result<Markup, ErrorPage> {
             h1 { "Sobre nosotros" }
             p { "Texto de presentación." }
         }))
-        .render()
+        .render().await
 }
 ```
 
@@ -124,6 +124,11 @@ let navbar = bs::Navbar::simple().with_item(bs::navbar::Item::nav(
 Este *crate* integra la biblioteca de estilos [Bootstrap 5.3.8](https://getbootstrap.com/) para
 definir el comportamiento, la apariencia y los componentes de la interfaz. Bootstrap se distribuye
 bajo licencia [MIT](https://github.com/twbs/bootstrap/blob/main/LICENSE).
+
+Los iconos son los de [Bootstrap Icons 1.13.1](https://icons.getbootstrap.com/), bajo licencia
+[MIT](https://github.com/twbs/icons/blob/main/LICENSE), y la tipografía es
+[Source Sans 3](https://github.com/adobe-fonts/source-sans), de Adobe, bajo licencia
+[SIL Open Font License 1.1](https://github.com/adobe-fonts/source-sans/blob/release/LICENSE.md).
 
 ## Advertencia
 

@@ -319,12 +319,6 @@ Para mantenerse sencilla, la extensión no guarda nada fuera de la memoria:
 
 [`Application::run()`]: pagetop::app::Application::run
 [`Application::test()`]: pagetop::app::Application::test
-
-## Créditos
-
-Las expresiones cron se interpretan con [croner](https://github.com/hexagon/croner-rust), la misma
-biblioteca que usa *tokio-cron-scheduler*, distribuida bajo licencia
-[MIT](https://github.com/hexagon/croner-rust/blob/master/LICENSE).
 */
 
 #![doc(

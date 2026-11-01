@@ -23,15 +23,6 @@ configurables, basadas en HTML, CSS y JavaScript.
 Este *crate* proporciona un conjunto básico de macros que se integran en las utilidades de PageTop
 para optimizar operaciones habituales relacionadas con la composición estructurada de texto, la
 concatenación de cadenas y el uso rápido de colecciones clave-valor.
-
-## Créditos
-
-Las macros para texto multilínea **`indoc!`**, **`formatdoc!`** y **`concatdoc!`** se reexportan del
-*crate* [indoc](https://crates.io/crates/indoc) de [David Tolnay](https://crates.io/users/dtolnay).
-
-La macro para generar identificadores dinámicos **`paste!`** se reexporta del *crate*
-[pastey](https://crates.io/crates/pastey), una implementación avanzada y soportada del popular
-`paste!` de [David Tolnay](https://crates.io/users/dtolnay).
 */
 
 #![doc(

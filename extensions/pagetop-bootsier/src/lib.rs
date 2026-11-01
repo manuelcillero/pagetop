@@ -73,6 +73,52 @@ async fn homepage(request: HttpRequest) -> Result<Markup, ErrorPage> {
         .render().await
 }
 ```
+
+## Plantillas
+
+Bootsier maqueta las dos plantillas de PageTop (`CoreTemplates`) con las mismas regiones (cabecera,
+lateral, contenido y pie): `Standard`, la plantilla por defecto de cualquier página; y `Admin`, que
+se activa creando la página con `Page::admin()` en lugar de `Page::new()`. Ambas se maquetan igual
+hoy -- la distinción entre página "normal" y de administración no vive en el maquetado, sino en qué
+extensión registra contenido en cada región y para qué plantilla se autolimita (por ejemplo, el menú
+de `pagetop-admin`, ver más abajo).
+
+```rust,no_run
+use pagetop::prelude::*;
+
+async fn about(request: HttpRequest) -> Result<Markup, ErrorPage> {
+    Page::new(request)
+        .with_child(Html::with(|_| html! {
+            h1 { "Sobre nosotros" }
+            p { "Texto de presentación." }
+        }))
+        .render().await
+}
+```
+
+## Menú de administración
+
+`pagetop-admin` (si está presente en la aplicación) registra su propio menú de secciones y
+páginas en `CoreRegions::Aside`, autolimitado a páginas con la plantilla `Admin` -- no requiere
+ningún registro por parte de Bootsier. Se construye con `Navbar`/`Nav`/`Dropdown`, los mismos
+componentes disponibles para cualquier página de la aplicación.
+
+## Selector de modo de color
+
+`bs::theme_toggle()` crea un ítem de menú con el selector de modo de color (claro / oscuro /
+automático), pensado para añadirse a cualquier `Nav` de la aplicación, no sólo a las páginas de
+administración:
+
+```rust,no_run
+use pagetop::prelude::*;
+use pagetop_bootsier::theme::*;
+
+let navbar = bs::Navbar::simple().with_item(bs::navbar::Item::nav(
+    bs::Nav::new()
+        .with_item(bs::nav::Item::link(Lc::n("Home"), "/"))
+        .with_item(bs::theme_toggle()),
+));
+```
 */
 
 #![doc(

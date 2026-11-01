@@ -5,19 +5,39 @@
 
 <p>Panel de administración extensible para <strong>PageTop</strong>.</p>
 
+[![Doc API](https://img.shields.io/docsrs/pagetop-admin?label=Doc%20API&style=for-the-badge&logo=Docs.rs)](https://docs.rs/pagetop-admin)
+[![Crates.io](https://img.shields.io/crates/v/pagetop-admin.svg?style=for-the-badge&logo=ipfs)](https://crates.io/crates/pagetop-admin)
+[![Descargas](https://img.shields.io/crates/d/pagetop-admin.svg?label=Descargas&style=for-the-badge&logo=transmission)](https://crates.io/crates/pagetop-admin)
+[![Licencia](https://img.shields.io/badge/license-MIT%2FApache-blue.svg?label=Licencia&style=for-the-badge)](https://git.cillero.es/manuelcillero/pagetop/src/branch/main/extensions/pagetop-admin#licencia)
+
 </div>
+
+Añade a una aplicación PageTop un panel de administración en `/admin` que cada extensión amplía con
+sus propias secciones, páginas, pestañas y botones, declarados con acciones. Trae las secciones
+habituales (personas, estructura, configuración, informes y ayuda), formularios de configuración
+que se guardan en la base de datos y un menú de navegación hecho sólo con componentes del núcleo,
+para que funcione con cualquier tema.
+
+## Sobre PageTop
+
+[PageTop](https://docs.rs/pagetop) es un entorno de desarrollo que reivindica la esencia de la web
+clásica para crear soluciones web SSR (*renderizadas en el servidor*) modulares, extensibles y
+configurables, basadas en HTML, CSS y JavaScript.
 
 ## Guía rápida
 
-Declara la dependencia en tu `Cargo.toml`:
+**Añade la dependencia** a tu `Cargo.toml`:
 
 ```toml
 [dependencies]
 pagetop-admin = "..."
 ```
 
-Añade `&pagetop_admin::Admin` a las dependencias de tu extensión y declara tus
-secciones, páginas o configuración:
+La configuración se guarda con `pagetop-seaorm`: la aplicación elige el motor de base de datos con
+su *feature* (`postgres`, `mysql` o `sqlite`) y configura la conexión en la sección `[database]`.
+
+**Declara la extensión** como dependencia de la tuya (`&pagetop_admin::Admin`) y **añade al panel**
+tus secciones, páginas o formularios de configuración:
 
 ```rust,no_run
 use pagetop::prelude::*;
@@ -89,9 +109,9 @@ async fn config_handler(request: HttpRequest) -> Result<Markup, ErrorPage> {
 }
 ```
 
-Para formularios de configuración enteramente automáticos (GET y POST gestionados
-por `pagetop-admin`), usa `AdminPageKind::ConfigForm(schema)` en lugar de `View` y
-no registres la ruta tú mismo.
+Para formularios de configuración enteramente automáticos (GET y POST gestionados por
+`pagetop-admin`), usa `AdminPageKind::ConfigForm(schema)` en lugar de `View` y no registres la ruta
+tú mismo.
 */
 
 use pagetop::prelude::*;

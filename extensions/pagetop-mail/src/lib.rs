@@ -146,7 +146,7 @@ del nombre. Con [`Attachment::with_content_id()`] se incrusta en el HTML, que lo
 ```rust,no_run
 # use pagetop::prelude::*;
 # use pagetop_mail::prelude::*;
-# async fn example(png: Vec<u8>) -> Result<(), MailError> {
+# async fn report(png: Vec<u8>) -> Result<(), MailError> {
 Email::new()
     .with_to("ana@example.com")
     .with_subject("Informe")

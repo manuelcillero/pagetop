@@ -101,6 +101,10 @@ El código se organiza en un *workspace* donde actualmente se incluyen los sigui
 
 ### Extensiones
 
+  * **[pagetop-admin](https://git.cillero.es/manuelcillero/pagetop/src/branch/main/extensions/pagetop-admin)**,
+    panel de administración extensible, al que cada extensión añade sus secciones, páginas y
+    formularios de configuración.
+
   * **[pagetop-aliner](https://git.cillero.es/manuelcillero/pagetop/src/branch/main/extensions/pagetop-aliner)**,
     es un tema para demos y pruebas que muestra esquemáticamente la composición de las páginas HTML.
 
@@ -108,8 +112,23 @@ El código se organiza en un *workspace* donde actualmente se incluyen los sigui
     tema basado en [Bootstrap](https://getbootstrap.com) para integrar su catálogo de estilos y
     componentes flexibles.
 
+  * **[pagetop-cron](https://git.cillero.es/manuelcillero/pagetop/src/branch/main/extensions/pagetop-cron)**,
+    programa trabajos periódicos con expresiones cron o intervalos, y los ejecuta también bajo
+    demanda.
+
+  * **[pagetop-htmx](https://git.cillero.es/manuelcillero/pagetop/src/branch/main/extensions/pagetop-htmx)**,
+    integra [HTMX](https://htmx.org) para enriquecer las páginas con interacciones dinámicas sin
+    escribir JavaScript.
+
+  * **[pagetop-mail](https://git.cillero.es/manuelcillero/pagetop/src/branch/main/extensions/pagetop-mail)**,
+    envía correo electrónico por SMTP o *sendmail*, con plantillas traducidas, HTML y archivos
+    adjuntos.
+
   * **[pagetop-seaorm](https://git.cillero.es/manuelcillero/pagetop/src/branch/main/extensions/pagetop-seaorm)**,
     integra [SeaORM](https://www.sea-ql.org/SeaORM) para acceder a bases de datos relacionales.
+
+  * **[pagetop-user](https://git.cillero.es/manuelcillero/pagetop/src/branch/main/extensions/pagetop-user)**,
+    gestiona usuarios, autenticación, roles y permisos, con su administración en `pagetop-admin`.
 
 ## Pruebas
 
