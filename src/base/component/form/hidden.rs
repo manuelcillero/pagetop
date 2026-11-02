@@ -3,22 +3,24 @@ use crate::prelude::*;
 /// Componente para crear un **campo oculto** del formulario.
 ///
 /// Renderiza un campo sin ningún marcado visible. Su valor se envía al servidor junto con el resto
-/// del formulario, pero el usuario no puede verlo ni modificarlo.
+/// del formulario, aunque el usuario no lo vea en la página.
 ///
-/// Es útil para transportar datos de estado, tokens CSRF, identificadores o cualquier valor que
-/// deba incluirse en el envío sin ser accesible al usuario.
+/// Es útil para transportar datos de estado, identificadores o cualquier valor que deba incluirse
+/// en el envío sin mostrarse. **No es un dato protegido**: el usuario puede verlo en el código de
+/// la página y cambiarlo antes de enviar el formulario, así que el servidor debe validarlo como
+/// cualquier otro campo.
 ///
 /// # Ejemplo
 ///
 /// ```rust,no_run
 /// use pagetop::prelude::*;
 ///
-/// let token = form::Hidden::new()
-///     .with_name("csrf_token")
-///     .with_value("a1b2c3d4e5");
+/// let item = form::Hidden::new()
+///     .with_name("item_id")
+///     .with_value("42");
 ///
 /// // Equivalente, cuando `name` y `value` se conocen de antemano:
-/// let token = form::Hidden::field("csrf_token", "a1b2c3d4e5");
+/// let item = form::Hidden::field("item_id", "42");
 /// ```
 ///
 /// Al enviar el formulario el navegador transmite `name=valor`. En el servidor se deserializa
@@ -27,7 +29,7 @@ use crate::prelude::*;
 /// ```rust,ignore
 /// #[derive(serde::Deserialize)]
 /// struct FormData {
-///     csrf_token: String,
+///     item_id: String,
 /// }
 /// ```
 #[derive(AutoDefault, Clone, Debug, Getters)]

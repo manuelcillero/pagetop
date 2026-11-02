@@ -1,7 +1,7 @@
 //! Ajustes de configuración globales de PageTop.
 
 use crate::core::extension::all::StartupError;
-use crate::web::http::HeaderName;
+use crate::web::http::{HeaderName, Uri};
 use crate::{config, settings};
 
 use serde::de::Error;
@@ -264,6 +264,48 @@ pub struct ServerSettings {
     #[default = ""]
     #[serde(deserialize_with = "header_name")]
     pub client_ip_header: String,
+    /// Otros orígenes desde los que un navegador puede enviar peticiones que cambian estado
+    /// (`POST`, `PUT`, `PATCH`, `DELETE`...), p. ej. `["https://app.example.com"]`.
+    ///
+    /// PageTop rechaza con `403 Forbidden` esas peticiones cuando el navegador indica que llegan
+    /// desde otro origen, también desde otro subdominio del mismo sitio, para proteger la
+    /// aplicación frente a CSRF (*Cross-Site Request Forgery*). Esta lista sólo hace falta si otra
+    /// aplicación propia, servida desde otro origen, envía formularios o peticiones `fetch` a ésta.
+    /// Las peticiones que no hace un navegador (`curl`, otros servidores...) no se ven afectadas.
+    ///
+    /// Cada origen es `esquema://servidor[:puerto]`, sin ruta. Uno no válido impide arrancar.
+    #[serde(deserialize_with = "origins")]
+    pub trusted_origins: Vec<String>,
+}
+
+// Orígenes para `trusted_origins`, tal y como los envía un navegador en la cabecera `Origin`: en
+// minúsculas, sin `/` final y sin el puerto por defecto del esquema. Un origen con ruta, consulta,
+// fragmento o credenciales nunca coincidiría con esa cabecera, y quedaría sin efecto sin que nada
+// lo indicase.
+fn origins<'de, D: Deserializer<'de>>(deserializer: D) -> Result<Vec<String>, D::Error> {
+    Vec::<String>::deserialize(deserializer)?
+        .iter()
+        .map(|raw| {
+            let origin = raw.trim().trim_end_matches('/').to_ascii_lowercase();
+            let Some(uri) = origin.parse::<Uri>().ok().filter(|uri| {
+                matches!(uri.scheme_str(), Some("http" | "https"))
+                    && uri.authority().is_some_and(|a| !a.as_str().contains('@'))
+                    && uri.path_and_query().is_none_or(|pq| pq.as_str() == "/")
+                    && !origin.contains('#')
+            }) else {
+                return Err(D::Error::custom(format!(
+                    "invalid origin \"{raw}\", expected scheme://host[:port] (e.g. \
+                     \"https://app.example.com\")"
+                )));
+            };
+            match (uri.scheme_str(), uri.port_u16()) {
+                (Some("http"), Some(80)) | (Some("https"), Some(443)) => Ok(origin
+                    .rsplit_once(':')
+                    .map_or(origin.clone(), |(o, _)| o.to_owned())),
+                _ => Ok(origin),
+            }
+        })
+        .collect()
 }
 
 // Nombre de cabecera para `client_ip_header`: vacío o un nombre de cabecera HTTP válido, sin
@@ -365,5 +407,43 @@ mod tests {
         assert!(error.to_string().contains("X Real IP"), "{error}");
         // Its values are not plain addresses, so it would never give one.
         assert!(load("Forwarded").is_err());
+    }
+
+    #[test]
+    fn trusted_origins_are_normalized_and_validated() {
+        let load = |value: &str| {
+            let toml = format!("[server]\ntrusted_origins = [\"{value}\"]\n");
+            config::load_from_str::<ServerSettings>(&toml)
+        };
+        let origins = |value| load(value).unwrap().trusted_origins;
+        // Browsers send the Origin header in lowercase and without a trailing slash.
+        assert_eq!(
+            origins(" HTTPS://App.Example.com/ "),
+            ["https://app.example.com"]
+        );
+        assert_eq!(origins("http://localhost:3000"), ["http://localhost:3000"]);
+        // Nor with the default port of the scheme, which they leave out.
+        assert_eq!(
+            origins("https://app.example.com:443"),
+            ["https://app.example.com"]
+        );
+        assert_eq!(origins("http://[::1]:80"), ["http://[::1]"]);
+        assert_eq!(
+            origins("http://app.example.com:443"),
+            ["http://app.example.com:443"]
+        );
+        // None of these could ever match an Origin header.
+        for invalid in [
+            "app.example.com",
+            "ftp://app.example.com",
+            "https://app.example.com/path",
+            "https://app.example.com?x=1",
+            "https://user@app.example.com",
+            "https://app.example.com#top",
+            "",
+        ] {
+            let error = load(invalid).expect_err(invalid);
+            assert!(error.to_string().contains("invalid origin"), "{error}");
+        }
     }
 }

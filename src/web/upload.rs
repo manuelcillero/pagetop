@@ -147,7 +147,9 @@ impl UploadError {
 
 // **< UploadedFile >*******************************************************************************
 
-/// Archivo subido y guardado en el servidor por [`Upload::save()`] o [`Upload::receive()`].
+/// Archivo subido y guardado en el servidor.
+///
+/// Lo devuelven [`Upload::save()`] y [`Upload::receive()`].
 #[derive(Clone, Debug, Getters)]
 pub struct UploadedFile {
     /// Devuelve el nombre del campo del formulario en el que llegó el archivo.
@@ -173,8 +175,9 @@ pub struct UploadedFile {
 
 // **< UploadedForm >*******************************************************************************
 
-/// Envío `multipart/form-data` recibido con [`Upload::receive()`]: los campos de texto
-/// deserializados en `T` y los archivos ya guardados.
+/// Envío `multipart/form-data` recibido con [`Upload::receive()`].
+///
+/// Contiene los campos de texto, deserializados en `T`, y los archivos ya guardados.
 ///
 /// **Los archivos se borran al descartar el `UploadedForm`** (al terminar el handler, al salir
 /// antes con `?`...) salvo que se conserven con [`keep()`](Self::keep). Basta con llamar a `keep()`

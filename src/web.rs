@@ -10,6 +10,28 @@
 //!
 //! Los handlers son las funciones asíncronas que el servidor invoca al recibir una petición HTTP en
 //! una ruta concreta.
+//!
+//! # Protección frente a CSRF
+//!
+//! Todas las rutas están protegidas frente a CSRF (*Cross-Site Request Forgery*), sin *tokens* en
+//! los formularios: una petición que puede cambiar estado (cualquier método salvo `GET`, `HEAD` y
+//! `OPTIONS`) se rechaza con `403 Forbidden` si el navegador indica que llega desde otro origen
+//! (cabeceras `Sec-Fetch-Site` y `Origin`), incluido otro subdominio del mismo sitio. Funciona
+//! igual con formularios, HTMX o `fetch`, y no afecta a las peticiones que no hace un navegador
+//! (`curl`, otros servidores...), que no llevan esas cabeceras.
+//!
+//! Dos consecuencias para las aplicaciones:
+//!
+//! - **Un handler `GET` nunca debe cambiar estado** (borrar, cerrar sesión, confirmar...): esas
+//!   acciones van siempre con `POST` u otro método no seguro.
+//! - Si otra aplicación propia, servida desde otro origen, envía peticiones a ésta, su origen debe
+//!   añadirse a [`trusted_origins`](crate::global::ServerSettings::trusted_origins) de `[server]`.
+//!
+//! Detrás de un *proxy* inverso, éste debe conservar la cabecera `Host` original (p. ej.
+//! `proxy_set_header Host $host;` en nginx): los navegadores que no envían `Sec-Fetch-Site` (o las
+//! conexiones HTTP sin cifrar fuera de `localhost`) se comprueban comparando `Origin` con `Host`.
+//!
+//! Ninguna protección frente a CSRF resiste un fallo de XSS en la propia aplicación.
 
 use crate::{StaticFile, global};
 
@@ -42,6 +64,10 @@ pub use upload::{Upload, UploadError, UploadedFile, UploadedForm};
 // Respuestas con los archivos subidos.
 mod download;
 pub use download::Download;
+
+// Protección frente a CSRF, aplicada a todas las rutas por `Application`.
+mod csrf;
+pub(crate) use csrf::reject_cross_origin;
 
 use axum::body::Body;
 use axum::extract::FromRequestParts;

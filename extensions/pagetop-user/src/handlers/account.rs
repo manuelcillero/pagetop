@@ -486,7 +486,11 @@ pub(crate) async fn email_confirm_post(
     match auth::confirm_email_change(uid, &token).await {
         Ok(()) => {
             let cx = Context::new(request);
-            Redirect::see_other(cx.route(PROFILE_PATH)).into_response()
+            Redirect::see_other(cx.route(PROFILE_PATH)).with_message(
+                &cx,
+                MessageLevel::Info,
+                Lc::t("msg-email-changed", &LOCALES_USER),
+            )
         }
         Err(AuthError::EmailTaken) => {
             let title = Lc::t("title-confirm-email-change", &LOCALES_USER);

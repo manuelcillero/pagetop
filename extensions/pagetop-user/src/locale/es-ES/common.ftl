@@ -74,6 +74,11 @@ msg-email-change-pending =
 
 msg-confirm-email-change = Pulsa el botón para usar esta dirección de correo en tu cuenta.
 
+msg-account-created = Tu cuenta se ha creado. Ya puedes iniciar sesión.
+msg-email-verified = Tu dirección de correo se ha confirmado.
+msg-password-reset-done = Tu contraseña se ha cambiado. Inicia sesión con la nueva.
+msg-email-changed = Tu dirección de correo se ha cambiado.
+
 # **< Correos >**
 
 mail-greeting = Hola, { $username }:

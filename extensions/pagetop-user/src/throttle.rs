@@ -1,4 +1,5 @@
-//! Límite de solicitudes por dirección IP (`user.max_ip_requests`).
+//! Límites de solicitudes por dirección IP: las que envían un correo o crean una cuenta
+//! (`user.max_ip_requests`) y los inicios de sesión fallidos (`user.max_ip_failed_logins`).
 
 use pagetop::prelude::*;
 
@@ -15,12 +16,20 @@ struct Requests {
     purged_at: Instant,
 }
 
-static REQUESTS: LazyLock<Mutex<Requests>> = LazyLock::new(|| {
-    Mutex::new(Requests {
-        by_ip: HashMap::new(),
-        purged_at: Instant::now(),
+// Cada límite lleva su propia cuenta.
+type Log = LazyLock<Mutex<Requests>>;
+
+const fn new_log() -> Log {
+    LazyLock::new(|| {
+        Mutex::new(Requests {
+            by_ip: HashMap::new(),
+            purged_at: Instant::now(),
+        })
     })
-});
+}
+
+static REQUESTS: Log = new_log();
+static FAILED_LOGINS: Log = new_log();
 
 /// Anota una solicitud de la dirección del cliente y devuelve si se admite, según
 /// [`max_ip_requests`](crate::config::UserSettings::max_ip_requests).
@@ -31,14 +40,12 @@ pub(crate) fn allow(request: &HttpRequest) -> bool {
     let Some(ip) = request.client_ip() else {
         return true;
     };
-    let window =
-        StdDuration::from_secs(u64::try_from(SETTINGS.ip_request_window_secs).unwrap_or(0));
     let allowed = allow_at(
-        &mut REQUESTS.lock().unwrap_or_else(PoisonError::into_inner),
+        &mut lock(&REQUESTS),
         network(ip),
         Instant::now(),
         SETTINGS.max_ip_requests,
-        window,
+        window(SETTINGS.ip_request_window_secs),
     );
     if !allowed {
         trace::warn!("Request limit reached for address {ip}");
@@ -46,6 +53,44 @@ pub(crate) fn allow(request: &HttpRequest) -> bool {
     allowed
 }
 
+/// Anota un intento de inicio de sesión de la dirección del cliente y devuelve si se admite, según
+/// [`max_ip_failed_logins`](crate::config::UserSettings::max_ip_failed_logins).
+///
+/// El intento se anota antes de comprobar la contraseña, para que varios intentos simultáneos no
+/// puedan superar el límite; si no resulta fallido, se retira con [`forget_login()`].
+pub(crate) fn allow_login(request: &HttpRequest) -> bool {
+    let Some(ip) = request.client_ip() else {
+        return true;
+    };
+    let allowed = allow_at(
+        &mut lock(&FAILED_LOGINS),
+        network(ip),
+        Instant::now(),
+        SETTINGS.max_ip_failed_logins,
+        window(SETTINGS.ip_failed_login_window_secs),
+    );
+    if !allowed {
+        trace::warn!("Failed login limit reached for address {ip}");
+    }
+    allowed
+}
+
+/// Retira un intento anotado por [`allow_login()`] que no ha resultado fallido.
+pub(crate) fn forget_login(request: &HttpRequest) {
+    if let Some(ip) = request.client_ip() {
+        forget_at(&mut lock(&FAILED_LOGINS), network(ip));
+    }
+}
+
+fn lock(log: &Log) -> std::sync::MutexGuard<'_, Requests> {
+    log.lock().unwrap_or_else(PoisonError::into_inner)
+}
+
+fn window(secs: i64) -> StdDuration {
+    StdDuration::from_secs(u64::try_from(secs).unwrap_or(0))
+}
+
+// Anota la solicitud si se admite.
 fn allow_at(
     requests: &mut Requests,
     ip: IpAddr,
@@ -74,6 +119,13 @@ fn allow_at(
     }
     times.push_back(now);
     true
+}
+
+// Retira la solicitud más reciente de la dirección. Todas cuentan igual, así que da lo mismo cuál.
+fn forget_at(requests: &mut Requests, ip: IpAddr) {
+    if let Some(times) = requests.by_ip.get_mut(&ip) {
+        times.pop_back();
+    }
 }
 
 // Una dirección IPv6 cuenta por su red `/64`: un mismo equipo o red local suele disponer de una red
@@ -119,6 +171,18 @@ mod tests {
         // A rejected request is not counted: the first one expires at 60 s.
         assert!(allow_at(&mut log, ip("192.0.2.1"), at(60), 2, WINDOW));
         assert!(!allow_at(&mut log, ip("192.0.2.1"), at(61), 2, WINDOW));
+    }
+
+    #[pagetop::test]
+    async fn forgotten_requests_free_their_place() {
+        let start = Instant::now();
+        let mut log = requests(start);
+        assert!(allow_at(&mut log, ip("192.0.2.1"), start, 1, WINDOW));
+        forget_at(&mut log, ip("192.0.2.1"));
+        assert!(allow_at(&mut log, ip("192.0.2.1"), start, 1, WINDOW));
+        assert!(!allow_at(&mut log, ip("192.0.2.1"), start, 1, WINDOW));
+        // Unknown addresses are ignored.
+        forget_at(&mut log, ip("192.0.2.2"));
     }
 
     #[pagetop::test]

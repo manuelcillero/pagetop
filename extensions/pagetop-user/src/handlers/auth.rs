@@ -87,7 +87,16 @@ pub async fn login_post(
 ) -> Response {
     let cx = Context::new(request.clone());
     let next = waypoint.or(cx.route("/"));
-    let result = auth::login(&form.username, &form.password, form.remember).await;
+    // Una dirección que ya ha fallado demasiadas veces no llega a comprobar la contraseña (Argon2).
+    let result = if throttle::allow_login(&request) {
+        let result = auth::login(&form.username, &form.password, form.remember).await;
+        if !matches!(result, Err(AuthError::InvalidCredentials)) {
+            throttle::forget_login(&request);
+        }
+        result
+    } else {
+        Err(AuthError::TooManyRequests)
+    };
     match result {
         Ok(sid) => {
             let cookie = session::build_cookie(&sid, form.remember);
@@ -98,6 +107,7 @@ pub async fn login_post(
                 AuthError::AccountBlocked => "error-account-blocked",
                 AuthError::AccountPending => "error-account-pending",
                 AuthError::AccountLocked => "error-account-locked",
+                AuthError::TooManyRequests => "error-too-many-requests",
                 _ => "error-invalid-credentials",
             };
             Page::new(request)
@@ -190,7 +200,11 @@ pub async fn register_post(
             )
             .await
         }
-        Ok(_) => Redirect::see_other(cx.route(LOGIN_PATH)),
+        Ok(_) => Redirect::see_other(cx.route(LOGIN_PATH)).with_message(
+            &cx,
+            MessageLevel::Info,
+            Lc::t("msg-account-created", &LOCALES_USER),
+        ),
         Err(err) => Page::new(request)
             .with_title(Lc::t("title-register", &LOCALES_USER))
             .with_child(
@@ -326,7 +340,11 @@ pub async fn password_reset_confirm_post(
     }
     .await;
     match result {
-        Ok(()) => Redirect::see_other(cx.route(LOGIN_PATH)),
+        Ok(()) => Redirect::see_other(cx.route(LOGIN_PATH)).with_message(
+            &cx,
+            MessageLevel::Info,
+            Lc::t("msg-password-reset-done", &LOCALES_USER),
+        ),
         Err(err) => {
             let error = match err {
                 AuthError::InvalidToken => Lc::t("error-token-invalid", &LOCALES_USER),
@@ -407,7 +425,11 @@ pub async fn verify_email_post(
     }
     .await;
     match result {
-        Ok(()) => Redirect::see_other(cx.route(LOGIN_PATH)),
+        Ok(()) => Redirect::see_other(cx.route(LOGIN_PATH)).with_message(
+            &cx,
+            MessageLevel::Info,
+            Lc::t("msg-email-verified", &LOCALES_USER),
+        ),
         Err(_) => ErrorPage::NotFound(Some(request)).into_response(),
     }
 }

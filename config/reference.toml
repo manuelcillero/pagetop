@@ -112,6 +112,10 @@ client_ip_header = ""                  # Cabecera con la IP del cliente tras un 
                                        # vale la última; "Forwarded" no se admite). Vacía -> la IP
                                        # de la conexión. Sólo si todas las peticiones pasan por el
                                        # proxy y éste escribe siempre la cabecera.
+trusted_origins  = []                  # Otros orígenes desde los que un navegador puede enviar
+                                       # peticiones que cambian estado (POST, PUT...), p. ej.
+                                       # ["https://app.example.com"]. Sin ellos, se rechazan con 403
+                                       # (protección CSRF). Formato: esquema://servidor[:puerto].
 
 [upload]
 dir              = "uploads"           # Directorio de los archivos subidos, absoluto o relativo al
@@ -320,6 +324,11 @@ max_ip_requests        = 20            # Máximo de registros, recuperaciones de
                                        # inverso requiere 'server.client_ip_header'. Cada instancia
                                        # cuenta las suyas. 0 -> sin límite.
 ip_request_window_secs = 3600          # Duración del periodo en segundos (1 hora).
+max_ip_failed_logins   = 30            # Máximo de inicios de sesión fallidos desde una misma IP en
+                                       # un periodo de 'ip_failed_login_window_secs' segundos; los
+                                       # siguientes se rechazan sin comprobar la contraseña. Frena
+                                       # probar contraseñas en muchas cuentas. 0 -> sin límite.
+ip_failed_login_window_secs = 900      # Duración del periodo en segundos (15 minutos).
 
 login_strict = false                   # Dificulta que el navegador recuerde o autorrellene las
                                        # credenciales en el formulario de acceso.

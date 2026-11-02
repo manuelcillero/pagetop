@@ -10,7 +10,7 @@ use crate::datetime::Timezone;
 use crate::locale::Locale;
 use crate::response::route_not_found;
 use crate::response::{keep_flash_messages, render_error_pages, response_for_panic};
-use crate::web::{Request, Response, Router, http};
+use crate::web::{Request, Response, Router, http, reject_cross_origin};
 use crate::{PAGETOP_VERSION, global, trace};
 
 use axum::extract::DefaultBodyLimit;
@@ -259,6 +259,9 @@ impl Application {
     // Los mensajes *flash* (`keep_flash_messages()`) se registran junto al middleware de las
     // extensiones, también antes de los archivos estáticos, que no los muestran.
     //
+    // La protección CSRF (`web::reject_cross_origin()`) va por fuera del middleware de las
+    // extensiones: una petición rechazada no llega a resolver la sesión.
+    //
     // El límite del cuerpo de las peticiones (`limit_body()`) sustituye al de Axum en todas las
     // rutas.
     //
@@ -271,6 +274,7 @@ impl Application {
             .layer(axum::middleware::from_fn(keep_flash_messages));
         let router = extension::all::configure_static_files(router);
         router
+            .layer(axum::middleware::from_fn(reject_cross_origin))
             .layer(axum::middleware::from_fn(limit_body))
             .layer(axum::middleware::from_fn(render_error_pages))
             .layer(CatchPanicLayer::custom(response_for_panic))

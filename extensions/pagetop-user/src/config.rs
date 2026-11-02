@@ -126,6 +126,30 @@ pub struct UserSettings {
     /// dirección IP: cada una deja de contar al cumplirse este tiempo.
     #[default = 3_600]
     pub ip_request_window_secs: i64,
+    /// Inicios de sesión fallidos que se admiten desde una misma dirección IP en
+    /// [`ip_failed_login_window_secs`].
+    ///
+    /// Complementa a [`max_failed_logins`], que bloquea una cuenta tras varios fallos: sin este
+    /// límite, cualquiera podría probar unas pocas contraseñas habituales en muchas cuentas
+    /// distintas sin llegar a bloquear ninguna. Alcanzado el límite, el formulario rechaza los
+    /// intentos de esa dirección, sin comprobar la contraseña, hasta que el fallo más antiguo de
+    /// los contados deja de contar. Los accesos correctos no cuentan ni ponen el recuento a cero.
+    /// Las direcciones IPv6 cuentan por su red `/64`.
+    ///
+    /// Como en [`max_ip_requests`], la dirección es la de
+    /// [`pagetop::web::HttpRequest::client_ip()`], las peticiones de dirección desconocida no se
+    /// limitan, y con varias instancias el límite es por instancia. Con `0` no hay límite.
+    ///
+    /// [`ip_failed_login_window_secs`]: Self::ip_failed_login_window_secs
+    /// [`max_failed_logins`]: Self::max_failed_logins
+    /// [`max_ip_requests`]: Self::max_ip_requests
+    /// [`pagetop::web::HttpRequest::client_ip()`]: pagetop::web::HttpRequest::client_ip
+    #[default = 30]
+    pub max_ip_failed_logins: u32,
+    /// Periodo en segundos, hacia atrás desde cada intento, en el que se cuentan los inicios de
+    /// sesión fallidos de una misma dirección IP.
+    #[default = 900]
+    pub ip_failed_login_window_secs: i64,
 
     /// Sesiones, en la subsección `[user.session]`.
     pub session: SessionSettings,

@@ -150,8 +150,12 @@ por intentos fallidos (`max_failed_logins`), como los del inicio de sesión.
 
 Para que nadie pueda usar la aplicación para enviar correos a direcciones ajenas, las recuperaciones
 de contraseña y los cambios de dirección se limitan por cuenta (`max_password_resets` y
-`max_email_changes`), y ellos y los registros, también por dirección IP (`max_ip_requests`). Detrás
-de un *proxy* inverso, el límite por IP requiere configurar `server.client_ip_header`.
+`max_email_changes`), y ellos y los registros, también por dirección IP (`max_ip_requests`).
+
+Los inicios de sesión fallidos se limitan también por dirección IP (`max_ip_failed_logins`), para
+frenar a quien prueba unas pocas contraseñas habituales en muchas cuentas sin llegar a bloquear
+ninguna. Detrás de un *proxy* inverso, los límites por IP requieren configurar
+`server.client_ip_header`.
 */
 
 use pagetop::prelude::*;

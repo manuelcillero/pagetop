@@ -1,7 +1,8 @@
 // End-to-end account flows against a real database. `config/common.toml` gives these tests an
 // in-memory SQLite database with a single connection, the memory mail transport, email
-// verification on sign-up, `max_failed_logins = 3`, `max_ip_requests = 3` and
-// `max_email_changes = 2` (`max_password_resets` keeps its default, 3).
+// verification on sign-up, `max_failed_logins = 3`, `max_ip_requests = 3`,
+// `max_ip_failed_logins = 3` and `max_email_changes = 2` (`max_password_resets` keeps its
+// default, 3).
 //
 // Every scenario shares the same database, so they run one after another in a single test (and a
 // single runtime, which also keeps the database connection alive). Each one uses its own accounts
@@ -195,6 +196,7 @@ async fn account_flows() {
     email_changes_are_limited_by_account(&client).await;
     password_resets_are_limited_by_account(&client).await;
     requests_are_limited_by_address(&client).await;
+    failed_logins_are_limited_by_address(&client).await;
 }
 
 async fn registration_requires_confirming_the_address(client: &Client) {
@@ -223,6 +225,10 @@ async fn registration_requires_confirming_the_address(client: &Client) {
     let reply = client.post(path(&verify), "", None).await;
     assert_eq!(reply.status, Status::SEE_OTHER);
     assert_eq!(path(reply.location()), "/user/login");
+    // The login page tells so.
+    let flash = reply.header("set-cookie").split(';').next().unwrap();
+    let page = client.get("/user/login", Some(flash)).await;
+    assert!(page.body.contains("Your email address has been confirmed"));
     assert!(client.login("ana", "ana-password").await.is_some());
     assert!(
         client
@@ -233,6 +239,21 @@ async fn registration_requires_confirming_the_address(client: &Client) {
 
     // The link is single use.
     assert_eq!(client.get(&verify, None).await.status, Status::NOT_FOUND);
+}
+
+// Deferred components leave a mark (`<!-- placeholder ... -->`) with a value of its own on every
+// page, so two answers are never identical byte for byte.
+fn without_marks(body: &str) -> String {
+    let mut rest = body;
+    let mut out = String::with_capacity(body.len());
+    while let Some(start) = rest.find("<!-- placeholder ") {
+        out.push_str(&rest[..start]);
+        rest = rest[start..]
+            .split_once(" -->")
+            .map_or("", |(_, after)| after);
+    }
+    out.push_str(rest);
+    out
 }
 
 async fn password_reset_links_are_single_use(client: &Client) {
@@ -246,7 +267,7 @@ async fn password_reset_links_are_single_use(client: &Client) {
         .post("/user/password/reset", "email=bea%40example.com", None)
         .await;
     assert_eq!(unknown.status, Status::OK);
-    assert_eq!(unknown.body, reply.body);
+    assert_eq!(without_marks(&unknown.body), without_marks(&reply.body));
     no_mail_to("nobody@example.com").await;
     let reset = link(&mail_to("bea@example.com").await, "/user/password/reset/");
 
@@ -744,4 +765,35 @@ async fn requests_are_limited_by_address(client: &Client) {
     // Other addresses keep their own count.
     let reply = client.send(register([192, 0, 2, 10])).await;
     assert!(!reply.body.contains("Too many requests"));
+}
+
+async fn failed_logins_are_limited_by_address(client: &Client) {
+    verified_account(client, "iris", "iris@example.com", "iris-password").await;
+    let login = |ip: [u8; 4], username: &str, password: &str| {
+        web::test::TestRequest::post()
+            .with_extension(web::ConnectInfo(SocketAddr::from((ip, 4711))))
+            .uri("/user/login")
+            .form(form(&[("username", username), ("password", password)]))
+    };
+    // One guess on each of several accounts: none of them gets locked.
+    for username in ["iris", "nobody", "carla"] {
+        let reply = client
+            .send(login([192, 0, 2, 20], username, "123456"))
+            .await;
+        assert_eq!(reply.status, Status::OK);
+        assert!(!reply.body.contains("Too many requests"));
+    }
+
+    // The address is refused, even with the right password.
+    let reply = client
+        .send(login([192, 0, 2, 20], "iris", "iris-password"))
+        .await;
+    assert_eq!(reply.status, Status::OK);
+    assert!(reply.body.contains("Too many requests"));
+
+    // Other addresses keep their own count, and the account was never locked.
+    let reply = client
+        .send(login([192, 0, 2, 21], "iris", "iris-password"))
+        .await;
+    assert_eq!(reply.status, Status::SEE_OTHER);
 }

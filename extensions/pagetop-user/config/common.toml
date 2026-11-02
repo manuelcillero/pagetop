@@ -19,6 +19,7 @@ base_url  = "https://example.com/"
 require_email_verification = true
 max_failed_logins          = 3
 max_ip_requests            = 3
+max_ip_failed_logins       = 3
 max_email_changes          = 2
 
 # Costes mínimos de Argon2id: las pruebas cifran muchas contraseñas.
