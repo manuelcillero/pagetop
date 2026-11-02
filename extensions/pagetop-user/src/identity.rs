@@ -55,10 +55,10 @@ pub(crate) struct Username {
 
 impl Username {
     // Guarda el nombre de usuario en el modelo.
-    pub(crate) fn set_on(self, model: &mut user::ActiveModel) {
-        model.username = Set(self.value);
-        model.username_key = Set(self.key);
-        model.username_skeleton = Set(self.skeleton);
+    pub(crate) fn set_on(&self, model: &mut user::ActiveModel) {
+        model.username = Set(self.value.clone());
+        model.username_key = Set(self.key.clone());
+        model.username_skeleton = Set(self.skeleton.clone());
     }
 }
 
@@ -154,9 +154,9 @@ pub(crate) struct Email {
 
 impl Email {
     // Guarda el email en el modelo.
-    pub(crate) fn set_on(self, model: &mut user::ActiveModel) {
-        model.email = Set(self.value);
-        model.email_key = Set(self.key);
+    pub(crate) fn set_on(&self, model: &mut user::ActiveModel) {
+        model.email = Set(self.value.clone());
+        model.email_key = Set(self.key.clone());
     }
 }
 

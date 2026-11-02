@@ -2,10 +2,7 @@
 //! inicial.
 
 use pagetop::prelude::*;
-use pagetop_seaorm::db::{
-    ActiveModelTrait, ActiveValue, ColumnTrait, EntityTrait, IntoActiveModel, PaginatorTrait,
-    QueryFilter, Set, dbconn,
-};
+use pagetop_seaorm::db::*;
 
 use crate::account::UserStatus;
 use crate::config::SETTINGS;
@@ -14,7 +11,9 @@ use crate::error::AuthError;
 use crate::identity::{self, Email, Username};
 use crate::password;
 use crate::permission::UserPermission;
-use crate::service::user_admin::{ensure_email_available, ensure_username_available};
+use crate::service::user_admin::{
+    ensure_email_available, ensure_username_available, taken_on_conflict,
+};
 use crate::session;
 use crate::token::{self, TokenKind};
 
@@ -147,10 +146,10 @@ pub async fn register(
     };
     username.set_on(&mut new_user);
     email.set_on(&mut new_user);
-    let result = user::Entity::insert(new_user).exec(dbconn()).await?;
-    let user_id = result.last_insert_id;
-
-    Ok(user_id)
+    match user::Entity::insert(new_user).exec(dbconn()).await {
+        Ok(result) => Ok(result.last_insert_id),
+        Err(err) => Err(taken_on_conflict(err.into(), Some(&username), &email, None).await),
+    }
 }
 
 // **< change_own_password >************************************************************************
@@ -291,7 +290,9 @@ pub(crate) async fn confirm_email_change(user_id: i32, plain_token: &str) -> Res
         ..Default::default()
     };
     email.set_on(&mut model);
-    model.update(dbconn()).await?;
+    if let Err(err) = model.update(dbconn()).await {
+        return Err(taken_on_conflict(err.into(), None, &email, Some(user_id)).await);
+    }
     revoke_address_tokens(user_id).await
 }
 

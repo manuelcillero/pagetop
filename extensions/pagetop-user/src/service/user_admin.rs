@@ -3,12 +3,7 @@
 use std::collections::HashMap;
 
 use pagetop::prelude::*;
-use pagetop_seaorm::db::query::{Expr, Func, LikeExpr};
-use pagetop_seaorm::db::{
-    ActiveModelTrait, ActiveValue, ColumnTrait, Condition, DatabaseTransaction, DbErr, EntityTrait,
-    Order, Paginated, PaginatorTrait, QueryFilter, QueryOrder, Set, TransactionTrait, dbconn,
-    flatten_txn_err, paginate,
-};
+use pagetop_seaorm::db::*;
 
 use crate::account::UserStatus;
 use crate::config::{SETTINGS, user_language_applies, user_timezone_applies};
@@ -78,16 +73,18 @@ pub(crate) async fn list_users(
         select = select.filter(
             Condition::any()
                 .add(
-                    Expr::col(user::Column::UsernameKey)
+                    query::Expr::col(user::Column::UsernameKey)
                         .like(contains_pattern(&identity::username_key(q))),
                 )
                 .add(
-                    Expr::col(user::Column::EmailKey)
+                    query::Expr::col(user::Column::EmailKey)
                         .like(contains_pattern(&identity::email_key(q))),
                 )
                 .add(
-                    Expr::expr(Func::lower(Expr::col(user::Column::DisplayName)))
-                        .like(contains_pattern(&q.to_lowercase())),
+                    query::Expr::expr(query::Func::lower(query::Expr::col(
+                        user::Column::DisplayName,
+                    )))
+                    .like(contains_pattern(&q.to_lowercase())),
                 ),
         );
     }
@@ -112,7 +109,7 @@ pub(crate) async fn list_users(
 // Patrón `LIKE` que busca `text` en cualquier posición, con los comodines `%` y `_` escapados para
 // que se busquen tal cual (p. ej. el `_` de `demo_user`). Se escapan con `!`, no con `\`, que
 // MySQL interpreta también dentro de las cadenas.
-fn contains_pattern(text: &str) -> LikeExpr {
+fn contains_pattern(text: &str) -> query::LikeExpr {
     let mut pattern = String::with_capacity(text.len() + 2);
     pattern.push('%');
     for c in text.chars() {
@@ -122,7 +119,7 @@ fn contains_pattern(text: &str) -> LikeExpr {
         pattern.push(c);
     }
     pattern.push('%');
-    LikeExpr::new(pattern).escape('!')
+    query::LikeExpr::new(pattern).escape('!')
 }
 
 async fn user_items(users: Vec<user::Model>) -> Result<Vec<UserListItem>, AuthError> {
@@ -253,7 +250,7 @@ pub(crate) async fn create_user(data: NewUserData<'_>) -> Result<i32, AuthError>
     email.set_on(&mut new_user);
     let role_ids = assignable_roles(data.initial_role_ids);
 
-    dbconn()
+    let result = dbconn()
         .transaction::<_, _, AuthError>(|txn| {
             Box::pin(async move {
                 let user_id = user::Entity::insert(new_user)
@@ -265,7 +262,11 @@ pub(crate) async fn create_user(data: NewUserData<'_>) -> Result<i32, AuthError>
             })
         })
         .await
-        .map_err(flatten_txn_err)
+        .map_err(flatten_txn_err);
+    match result {
+        Err(err) => Err(taken_on_conflict(err, Some(&username), &email, None).await),
+        ok => ok,
+    }
 }
 
 // **< update_user >********************************************************************************
@@ -365,7 +366,9 @@ pub(crate) async fn update_user(user_id: i32, data: UserUpdateData<'_>) -> Resul
     }
     username.set_on(&mut model);
     email.set_on(&mut model);
-    model.update(dbconn()).await?;
+    if let Err(err) = model.update(dbconn()).await {
+        return Err(taken_on_conflict(err.into(), Some(&username), &email, Some(user_id)).await);
+    }
     if email_changed {
         crate::auth::cancel_email_change(user_id).await?;
         crate::auth::revoke_address_tokens(user_id).await?;
@@ -626,6 +629,33 @@ pub(crate) async fn ensure_email_available(
         return Err(AuthError::EmailTaken);
     }
     Ok(())
+}
+
+// Traduce el error al guardar una cuenta si otra petición ha ocupado el nombre de usuario o el email
+// entre la comprobación (`ensure_username_available()`, `ensure_email_available()`) y la escritura.
+// Ante la violación de un índice único repite la comprobación, para devolver `UsernameTaken` o
+// `EmailTaken` en lugar de un error interno; cualquier otro error se devuelve tal cual.
+pub(crate) async fn taken_on_conflict(
+    err: AuthError,
+    username: Option<&Username>,
+    email: &Email,
+    exclude_id: Option<i32>,
+) -> AuthError {
+    let AuthError::Database(db_err) = &err else {
+        return err;
+    };
+    if !matches!(db_err.sql_err(), Some(SqlErr::UniqueConstraintViolation(_))) {
+        return err;
+    }
+    if let Some(username) = username
+        && let Err(taken) = ensure_username_available(username, exclude_id).await
+    {
+        return taken;
+    }
+    match ensure_email_available(email, exclude_id).await {
+        Err(taken) => taken,
+        Ok(()) => err,
+    }
 }
 
 // Comprueba si `user_id` es actualmente el único usuario con `is_admin = true`.

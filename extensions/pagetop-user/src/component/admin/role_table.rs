@@ -217,13 +217,13 @@ impl RoleTable {
 // rol. Devuelve un componente `Html` para que el marcado se genere cuando `Table` renderice la
 // celda, no al construir la fila.
 fn label_cell(role: &RoleListItem, waypoint: &Waypoint) -> Html {
-    let label = role.label.clone();
+    let label = crate::role_label(role.id, &role.label);
     let id = role.id;
     let waypoint = waypoint.clone();
     Html::with(move |cx| {
         let view_href = waypoint.append_to(cx.route(role_path(id, "view")));
         html! {
-            a href=(view_href) { (label.as_str()) }
+            a href=(view_href) { (label.using(cx)) }
         }
     })
 }

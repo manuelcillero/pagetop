@@ -31,7 +31,13 @@
 //!   modelo leído: `model.into_active_model()`).
 //! - **Macros de derivación**: [`DeriveEntityModel`], [`DeriveColumn`], [`DerivePrimaryKey`],
 //!   [`DeriveRelation`], [`EnumIter`].
-//! - **Errores**: [`DbErr`], [`TransactionError`].
+//! - **Errores**: [`DbErr`], [`TransactionError`], [`SqlErr`] (para reconocer con
+//!   [`DbErr::sql_err()`] la violación de una restricción única o de clave ajena).
+//! - **Fechas**: [`DateTime`] es el de PageTop ([`pagetop::datetime::DateTime`]), no el alias de
+//!   `NaiveDateTime` que exporta SeaORM con ese nombre, para que `db::*` y el preludio de PageTop
+//!   puedan importarse juntos. Para las columnas de fecha y hora de una entidad se usa
+//!   [`DateTimeUtc`] o [`DateTimeWithTimeZone`] (con zona horaria) o
+//!   [`pagetop::datetime::NaiveDateTime`] (sin ella).
 //! - **Resultados**: [`QueryResult`] (filas sin tipar), [`ExecResult`] (INSERT/UPDATE/DELETE),
 //!   [`Paginated`] (página de resultados).
 //!
@@ -153,6 +159,11 @@
 
 pub use sea_orm::prelude::*;
 
+// Sustituye al `DateTime` del prelude de SeaORM (alias de `NaiveDateTime`): al ser el mismo
+// elemento que el del preludio de PageTop, el nombre no es ambiguo al importar ambos con `*`.
+#[doc(no_inline)]
+pub use pagetop::datetime::DateTime;
+
 // Re-exporta el crate `sea_orm` íntegro como puerta de acceso a su API completa.
 //
 // Útil para tipos o utilidades que no están expuestos directamente en `db::*`; la inmensa mayoría
@@ -169,7 +180,7 @@ pub use sea_orm;
 
 pub use sea_orm::{
     ActiveValue, Condition, DatabaseTransaction, DbBackend, ExecResult, IntoActiveModel, NotSet,
-    Order, QueryOrder, QuerySelect, Set, TransactionError, TransactionTrait, Unchanged,
+    Order, QueryOrder, QuerySelect, Set, SqlErr, TransactionError, TransactionTrait, Unchanged,
 };
 
 /// Re-exporta `sea_query` para construir sentencias SQL en tiempo de ejecución.

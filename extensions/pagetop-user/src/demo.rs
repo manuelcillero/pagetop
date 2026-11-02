@@ -2,10 +2,12 @@
 //!
 //! Sólo se compila con la feature `demo-data`. Se ejecuta una vez desde
 //! `Extension::initialize()`, después de `auth::seed_initial_data()`. Si el rol
-//! `demo_role_01` ya existe, la siembra se omite para no duplicar datos en reinicios.
+//! `demo_role_01` ya existe, la siembra se omite para no duplicar datos en reinicios. Roles y
+//! usuarios se crean en una sola transacción: si algo falla, no queda nada sembrado y se vuelve a
+//! intentar en el siguiente arranque.
 
 use pagetop::prelude::*;
-use pagetop_seaorm::db::{ActiveValue, ColumnTrait, EntityTrait, QueryFilter, Set, dbconn};
+use pagetop_seaorm::db::*;
 
 use crate::account::UserStatus;
 use crate::config::SETTINGS;
@@ -31,30 +33,34 @@ pub(crate) async fn seed_demo_data() {
         return;
     }
 
-    let role_ids = match create_demo_roles().await {
-        Ok(ids) => ids,
+    let hash = match password::hash_password(DEMO_PASSWORD) {
+        Ok(hash) => hash,
         Err(e) => {
-            eprintln!(
-                "pagetop-user demo-data error: failed to create roles: {}",
-                e
-            );
+            eprintln!("pagetop-user demo-data error: failed to hash password: {e}");
             return;
         }
     };
 
-    match create_demo_users(&role_ids).await {
+    let result = dbconn()
+        .transaction::<_, _, AuthError>(|txn| {
+            Box::pin(async move {
+                let role_ids = create_demo_roles(txn).await?;
+                create_demo_users(txn, &role_ids, &hash).await
+            })
+        })
+        .await
+        .map_err(flatten_txn_err);
+
+    match result {
         Ok(()) => println!(
             "\npagetop-user: demo data created ({ROLE_COUNT} roles, {USER_COUNT} users).\n  \
              password: {DEMO_PASSWORD}\n"
         ),
-        Err(e) => eprintln!(
-            "pagetop-user demo-data error: failed to create users: {}",
-            e
-        ),
+        Err(e) => eprintln!("pagetop-user demo-data error: failed to create demo data: {e}"),
     }
 }
 
-async fn create_demo_roles() -> Result<Vec<i32>, AuthError> {
+async fn create_demo_roles(txn: &DatabaseTransaction) -> Result<Vec<i32>, AuthError> {
     let now = Utc::now();
     let mut role_ids = Vec::with_capacity(ROLE_COUNT);
     for n in 1..=ROLE_COUNT {
@@ -71,14 +77,17 @@ async fn create_demo_roles() -> Result<Vec<i32>, AuthError> {
             created_at: Set(now),
             updated_at: Set(now),
         };
-        let result = role::Entity::insert(new_role).exec(dbconn()).await?;
+        let result = role::Entity::insert(new_role).exec(txn).await?;
         role_ids.push(result.last_insert_id);
     }
     Ok(role_ids)
 }
 
-async fn create_demo_users(role_ids: &[i32]) -> Result<(), AuthError> {
-    let hash = password::hash_password(DEMO_PASSWORD)?;
+async fn create_demo_users(
+    txn: &DatabaseTransaction,
+    role_ids: &[i32],
+    hash: &str,
+) -> Result<(), AuthError> {
     let now = Utc::now();
 
     for n in 1..=USER_COUNT {
@@ -88,7 +97,7 @@ async fn create_demo_users(role_ids: &[i32]) -> Result<(), AuthError> {
         let mut new_user = user::ActiveModel {
             id: ActiveValue::NotSet,
             email_verified_at: Set(Some(now)),
-            password_hash: Set(hash.clone()),
+            password_hash: Set(hash.to_owned()),
             status: Set(UserStatus::Active.as_i16()),
             language: Set(None),
             timezone: Set(None),
@@ -106,7 +115,7 @@ async fn create_demo_users(role_ids: &[i32]) -> Result<(), AuthError> {
         };
         username.set_on(&mut new_user);
         email.set_on(&mut new_user);
-        let result = user::Entity::insert(new_user).exec(dbconn()).await?;
+        let result = user::Entity::insert(new_user).exec(txn).await?;
         let user_id = result.last_insert_id;
 
         // Reparte los usuarios de forma cíclica entre los roles de demostración.
@@ -114,7 +123,7 @@ async fn create_demo_users(role_ids: &[i32]) -> Result<(), AuthError> {
             user_id: Set(user_id),
             role_id: Set(role_ids[(n - 1) % role_ids.len()]),
         })
-        .exec_without_returning(dbconn())
+        .exec_without_returning(txn)
         .await?;
     }
     Ok(())

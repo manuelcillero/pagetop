@@ -150,6 +150,11 @@ status-active  = Active
 status-blocked = Blocked
 status-pending = Pending email verification
 
+# **< System roles >**
+
+role-anonymous     = Anonymous
+role-authenticated = Authenticated
+
 # **< Admin: page titles >**
 
 title-admin-users            = Users

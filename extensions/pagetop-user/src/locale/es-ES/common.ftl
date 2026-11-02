@@ -150,6 +150,11 @@ status-active  = Activo
 status-blocked = Bloqueado
 status-pending = Pendiente de verificación de email
 
+# **< Roles de sistema >**
+
+role-anonymous     = Anónimo
+role-authenticated = Autenticado
+
 # **< Administración: títulos de página >**
 
 title-admin-users            = Usuarios

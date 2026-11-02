@@ -117,7 +117,7 @@ async fn profile_roles(roles: &[role::Model], cx: &mut Context) -> Block {
         return Block::new();
     }
 
-    let mut items: Vec<(String, Option<Markup>)> = Vec::with_capacity(roles.len());
+    let mut items: Vec<(Lc, Option<Markup>)> = Vec::with_capacity(roles.len());
     for r in roles {
         let system_badge = if r.locked {
             Some(
@@ -128,17 +128,17 @@ async fn profile_roles(roles: &[role::Model], cx: &mut Context) -> Block {
         } else {
             None
         };
-        items.push((r.label.clone(), system_badge));
+        items.push((crate::role_label(r.id, &r.label), system_badge));
     }
 
     Block::new()
         .with_title(Lc::t("field-roles", &LOCALES_USER))
-        .with_child(Html::with(move |_cx| {
+        .with_child(Html::with(move |cx| {
             html! {
                 ul class="user-profile-roles" {
                     @for (label, system_badge) in &items {
                         li {
-                            (label.as_str())
+                            (label.using(cx))
                             @if let Some(badge) = system_badge {
                                 " "
                                 (badge)

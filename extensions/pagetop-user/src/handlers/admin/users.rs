@@ -590,11 +590,11 @@ async fn user_view_roles(roles: &[role::Model], is_admin: bool, cx: &mut Context
         } else {
             None
         };
-        let (id, label) = (r.id, r.label.clone());
+        let (id, label) = (r.id, crate::role_label(r.id, &r.label));
         table = table.with_row(
             table::Row::new()
                 .with_cell(Html::with(move |cx| {
-                    html! { a href=(cx.route(role_path(id, "view"))) { (label.as_str()) } }
+                    html! { a href=(cx.route(role_path(id, "view"))) { (label.using(cx)) } }
                 }))
                 .with_cell(r.machine_name.as_str())
                 .with_cell(Html::with(move |_| {

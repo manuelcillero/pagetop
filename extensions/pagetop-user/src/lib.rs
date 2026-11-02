@@ -313,6 +313,16 @@ fn is_system_role(role_id: i32) -> bool {
     role_id == ANONYMOUS_ROLE_ID || role_id == AUTHENTICATED_ROLE_ID
 }
 
+// Etiqueta visible de un rol. Las de los roles de sistema se traducen: la migración las guarda en
+// inglés y, al estar bloqueados, no se pueden editar.
+fn role_label(role_id: i32, label: &str) -> Lc {
+    match role_id {
+        ANONYMOUS_ROLE_ID => Lc::t("role-anonymous", &LOCALES_USER),
+        AUTHENTICATED_ROLE_ID => Lc::t("role-authenticated", &LOCALES_USER),
+        _ => Lc::n(label.to_owned()),
+    }
+}
+
 // **< Extension >**********************************************************************************
 
 /// Implementa la extensión `pagetop-user`.

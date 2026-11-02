@@ -319,7 +319,7 @@ async fn role_view_details(role: &role::Model, cx: &mut Context) -> Block {
         .with_row(
             table::Row::new()
                 .with_cell(Lc::t("field-label", &LOCALES_USER))
-                .with_cell(role.label.as_str()),
+                .with_cell(crate::role_label(role.id, &role.label)),
         )
         .with_row(
             table::Row::new()
