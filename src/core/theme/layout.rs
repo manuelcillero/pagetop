@@ -80,7 +80,31 @@ pub enum CoreRegions {
     /// Región principal de **contenido**, de nombre `"content"`.
     ///
     /// Es la región donde se renderiza el contenido principal del documento. En general será la
-    /// región mínima imprescindible para que una página tenga sentido.
+    /// región mínima imprescindible para que una página tenga sentido, y la única que cualquier
+    /// plantilla debe incluir.
+    ///
+    /// [`Region`] le añade por defecto un componente [`Messages`] al inicio, para mostrar al
+    /// usuario los mensajes acumulados en el [`Context`] (ver [`Context::push_message()`]),
+    /// incluidos los que llegan de la página anterior (ver [`ResponseExt::with_message()`]). Las
+    /// aplicaciones no tienen que añadirlo.
+    ///
+    /// Para poder mostrar todos los mensajes, este componente [`Messages`] se renderiza al final,
+    /// cuando ya se han renderizado los demás componentes de la página y se han acumulado sus
+    /// mensajes. Aun así, se muestra en su sitio, al inicio de la región.
+    ///
+    /// Cada componente [`Messages`] retira los mensajes que muestra, para que no se repitan. Si la
+    /// página incluye otro (por ejemplo, junto a un formulario), éste muestra los acumulados hasta
+    /// el momento de renderizarse, esté donde esté, y el del inicio de la región sólo los que se
+    /// añadan después; si no queda ninguno, no muestra nada. Un [`Messages`] aplazado (ver
+    /// [`Messages::with_deferred()`]) colocado antes de esta región se renderiza antes que éste y
+    /// se queda con todos.
+    ///
+    /// [`Region`]: crate::base::component::layout::Region
+    /// [`Messages`]: crate::base::component::Messages
+    /// [`Messages::with_deferred()`]: crate::base::component::Messages::with_deferred
+    /// [`Context`]: crate::core::component::Context
+    /// [`Context::push_message()`]: crate::core::component::Context::push_message
+    /// [`ResponseExt::with_message()`]: crate::response::ResponseExt::with_message
     #[default]
     Content,
 

@@ -8,7 +8,8 @@ use crate::core::extension::all::StartupError;
 use crate::core::theme;
 use crate::datetime::Timezone;
 use crate::locale::Locale;
-use crate::response::{render_error_pages, response_for_panic, route_not_found};
+use crate::response::route_not_found;
+use crate::response::{keep_flash_messages, render_error_pages, response_for_panic};
 use crate::web::{Request, Response, Router, http};
 use crate::{PAGETOP_VERSION, global, trace};
 
@@ -255,6 +256,9 @@ impl Application {
     // cambio, se registra antes: la página 404 debe ver lo que el middleware añade a la petición
     // (p. ej. el usuario actual).
     //
+    // Los mensajes *flash* (`keep_flash_messages()`) se registran junto al middleware de las
+    // extensiones, también antes de los archivos estáticos, que no los muestran.
+    //
     // El límite del cuerpo de las peticiones (`limit_body()`) sustituye al de Axum en todas las
     // rutas.
     //
@@ -263,7 +267,8 @@ impl Application {
     // del propio renderizado de una página de error.
     fn build_router() -> Router {
         let router = extension::all::configure_routes(Router::new()).fallback(route_not_found);
-        let router = extension::all::configure_middleware(router);
+        let router = extension::all::configure_middleware(router)
+            .layer(axum::middleware::from_fn(keep_flash_messages));
         let router = extension::all::configure_static_files(router);
         router
             .layer(axum::middleware::from_fn(limit_body))

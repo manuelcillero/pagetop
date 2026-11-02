@@ -75,8 +75,11 @@
 //!    [`AnyCast::downcast_ref()`](crate::core::AnyCast::downcast_ref) hacia el tipo concreto (por
 //!    ejemplo, [`CoreTemplates`] o el propio *enum* del tema). `pagetop-bootsier` hace exactamente
 //!    esto para maquetar `Standard` y `Admin` de forma distinta, sin necesitar sus propias
-//!    variantes de plantilla. Para ajustarlo sin rehacer su marcado (añadir una clase, un
-//!    atributo, etc.), se usa [`Theme::setup_component()`] en su lugar.
+//!    variantes de plantilla. Un tema que componga su propia plantilla debe incluir al menos
+//!    `Content`, renderizada con el componente [`Region`], que por defecto incluye al inicio de la
+//!    región el componente [`Messages`] para mostrar automáticamente los mensajes al usuario. Para
+//!    ajustarlo sin rehacer su marcado (añadir una clase, un atributo, etc.), se usa
+//!    [`Theme::setup_component()`] en su lugar.
 //! 4. **Definir los anchos mínimos *mobile-first* para los puntos de corte** sobrescribiendo
 //!    [`Theme::breakpoint_entry()`]. [`Breakpoint`] no define ningún ancho propio; la
 //!    implementación por defecto de este método resuelve el ancho mínimo de cada variante (`Sm`,
@@ -151,6 +154,7 @@
 //! [`is_renderable()`]: crate::core::component::Component::is_renderable
 //! [`Template`]: crate::base::component::layout::Template
 //! [`Region`]: crate::base::component::layout::Region
+//! [`Messages`]: crate::base::component::Messages
 
 mod intent;
 pub use intent::Intent;

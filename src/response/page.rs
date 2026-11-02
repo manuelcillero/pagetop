@@ -190,28 +190,40 @@ impl Page {
     ///
     /// El proceso de renderizado de la página sigue esta secuencia:
     ///
-    /// 1. Ejecuta
-    ///    [`Theme::before_render_page_body()`](crate::core::theme::Theme::before_render_page_body)
-    ///    para que el tema pueda ejecutar acciones específicas antes de renderizar el `<body>`.
+    /// 1. Ejecuta [`Theme::before_render_page_body()`] para que el tema pueda ejecutar acciones
+    ///    específicas antes de renderizar el `<body>`.
     /// 2. Despacha [`action::page::BeforeRenderBody`] para que otras extensiones puedan realizar
     ///    ajustes previos sobre la página.
     /// 3. **Construye el contenido del `<body>`**:
     ///    - Renderiza la región reservada superior ([`ReservedRegions::PageTop`]).
-    ///    - Llama a [`Theme::render_page_body()`](crate::core::theme::Theme::render_page_body) para
-    ///      renderizar las regiones del cuerpo principal de la página.
+    ///    - Llama a [`Theme::render_page_body()`] para renderizar las regiones del cuerpo principal
+    ///      de la página.
     ///    - Renderiza la región reservada inferior ([`ReservedRegions::PageBottom`]).
-    /// 4. Ejecuta
-    ///    [`Theme::after_render_page_body()`](crate::core::theme::Theme::after_render_page_body)
-    ///    para que el tema pueda aplicar ajustes finales.
+    ///
+    ///    Los componentes que se aplazan ([`Component::is_deferred()`]), como el componente
+    ///    [`Messages`] que encabeza la región [`CoreRegions::Content`], dejan de momento una marca
+    ///    en su lugar.
+    /// 4. Ejecuta [`Theme::after_render_page_body()`] para que el tema pueda aplicar ajustes
+    ///    finales.
     /// 5. Despacha [`action::page::AfterRenderBody`] para permitir que otras extensiones realicen
     ///    sus últimos ajustes tras generar el `<body>`.
-    /// 6. Renderiza el `<head>` llamando a
-    ///    [`Theme::render_page_head()`](crate::core::theme::Theme::render_page_head).
-    /// 7. Obtiene el idioma y la dirección del texto a partir de
-    ///    [`Context::langid()`](crate::core::component::Context::langid) e inserta los atributos
-    ///    `lang` y `dir` en la etiqueta `<html>`.
-    /// 8. Compone el documento HTML completo (`<!DOCTYPE html>`, `<html>`, `<head>`, `<body>`) y
+    /// 6. Renderiza los componentes aplazados y sustituye sus marcas por el resultado; si alguno no
+    ///    genera nada, su marca se queda. Así muestran también lo que se haya acumulado en el
+    ///    contexto en los pasos anteriores (por ejemplo, los mensajes para el usuario).
+    /// 7. Renderiza el `<head>` llamando a [`Theme::render_page_head()`].
+    /// 8. Obtiene el idioma y la dirección del texto a partir de [`Context::langid()`] e inserta
+    ///    los atributos `lang` y `dir` en la etiqueta `<html>`.
+    /// 9. Compone el documento HTML completo (`<!DOCTYPE html>`, `<html>`, `<head>`, `<body>`) y
     ///    devuelve un [`Result`] con el [`Markup`] final.
+    ///
+    /// [`Theme::before_render_page_body()`]: crate::core::theme::Theme::before_render_page_body
+    /// [`Theme::render_page_body()`]: crate::core::theme::Theme::render_page_body
+    /// [`Theme::after_render_page_body()`]: crate::core::theme::Theme::after_render_page_body
+    /// [`Theme::render_page_head()`]: crate::core::theme::Theme::render_page_head
+    /// [`CoreRegions::Content`]: crate::core::theme::CoreRegions::Content
+    /// [`Component::is_deferred()`]: crate::core::component::Component::is_deferred
+    /// [`Context::langid()`]: crate::core::component::Context::langid
+    /// [`Messages`]: crate::base::component::Messages
     pub async fn render(&mut self) -> Result<Markup, ErrorPage> {
         // Acciones específicas del tema antes de renderizar el <body>.
         self.context.theme().before_render_page_body(self);
@@ -219,7 +231,8 @@ impl Page {
         // Acciones de las extensiones antes de renderizar el <body>.
         action::page::BeforeRenderBody::dispatch(self);
 
-        // Renderiza el <body>.
+        // Renderiza el <body>, aplazando los componentes que lo pidan.
+        self.context.start_deferring();
         let body = html! {
             (layout::Region::of(&ReservedRegions::PageTop).render(&mut self.context).await)
             (self.context.theme().render_page_body(self).await)
@@ -231,6 +244,9 @@ impl Page {
 
         // Acciones de las extensiones después de renderizar el <body>.
         action::page::AfterRenderBody::dispatch(self);
+
+        // Renderiza los componentes aplazados, antes del <head> para que lleguen sus recursos.
+        let body = self.context.render_deferred(body).await;
 
         // Renderiza el <head>.
         let head = self.context.theme().render_page_head(self).await;

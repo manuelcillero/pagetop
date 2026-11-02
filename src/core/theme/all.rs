@@ -24,8 +24,9 @@ pub fn enabled_themes() -> Vec<ThemeRef> {
     THEMES.read().clone()
 }
 
-/// Devuelve el tema identificado por su [`short_name()`](crate::core::AnyInfo::short_name), si está
-/// habilitado, sin distinguir mayúsculas y minúsculas.
+/// Devuelve el tema identificado por su [`short_name()`](crate::core::AnyInfo::short_name).
+///
+/// No distingue mayúsculas y minúsculas, y devuelve `None` si el tema no está habilitado.
 pub fn theme_by_short_name(short_name: &str) -> Option<ThemeRef> {
     THEMES
         .read()
@@ -61,14 +62,16 @@ pub(crate) fn init_default_theme() {
     }
 }
 
-/// Devuelve el tema predeterminado de la aplicación: el configurado en `app.theme` si está
-/// habilitado o, en otro caso, [`Basic`](crate::base::theme::Basic). Se fija una sola vez, al
-/// arrancar la aplicación, una vez habilitadas las extensiones.
+/// Devuelve el tema predeterminado de la aplicación.
+///
+/// El configurado en `app.theme` si está habilitado o, en otro caso, [`Basic`]. Se fija una sola
+/// vez, al arrancar la aplicación, una vez habilitadas las extensiones.
 ///
 /// Es el tema del sitio, no necesariamente el que se usa en una petición concreta: para renderizar,
 /// el tema efectivo es el de [`Contextual::theme()`], que tiene en cuenta el tema preferido del
 /// usuario ([`CurrentUser::theme()`]).
 ///
+/// [`Basic`]: crate::base::theme::Basic
 /// [`Contextual::theme()`]: crate::core::component::Contextual::theme
 /// [`CurrentUser::theme()`]: crate::auth::CurrentUser::theme
 pub fn default_theme() -> ThemeRef {

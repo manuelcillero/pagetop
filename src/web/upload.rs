@@ -739,7 +739,7 @@ fn file_extension(name: &str) -> Option<String> {
 
 // Codifica como `%XX` todos los bytes salvo los no reservados de RFC 3986, igual que un navegador
 // codifica los campos de un formulario; vale también para `filename*` de `Content-Disposition`.
-pub(super) fn push_percent_encoded(out: &mut String, value: impl AsRef<[u8]>) {
+pub(crate) fn push_percent_encoded(out: &mut String, value: impl AsRef<[u8]>) {
     const HEX: &[u8; 16] = b"0123456789ABCDEF";
     for &byte in value.as_ref() {
         match byte {

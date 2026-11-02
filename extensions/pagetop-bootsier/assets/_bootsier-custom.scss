@@ -87,6 +87,12 @@ fieldset > legend {
   margin-left: 1rem;
 }
 
+// A region holding only comments (such as the mark of a deferred component that rendered nothing)
+// matches `:empty`, so it takes no space.
+.region:empty {
+  display: none;
+}
+
 // Footer region.
 .region-footer {
   padding: 0.75rem 0 3rem;

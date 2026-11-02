@@ -5,9 +5,10 @@ use crate::core::theme::{ChildrenInRegions, CoreRegions, CoreTemplates, default_
 use crate::core::theme::{RegionRef, TemplateRef, ThemeRef};
 use crate::datetime::Tz;
 use crate::html::{Assets, Favicon, JavaScript, Preload, ResponsiveStyles, StyleSheet};
-use crate::html::{Markup, Props, PropsOp, RoutePath, html};
+use crate::html::{Markup, PreEscaped, Props, PropsOp, RoutePath, html};
 use crate::locale::Lc;
 use crate::locale::{LangId, LanguageIdentifier, RequestLocale};
+use crate::response::read_flash_messages;
 use crate::web::HttpRequest;
 use crate::{builder_impl, util};
 
@@ -107,9 +108,18 @@ pub struct Context {
     responsives : ResponsiveStyles,               // Estilos *responsive*.
     body_props  : Props,                          // Id, clases CSS y atributos del <body>.
     regions     : ChildrenInRegions,              // Regiones de componentes para renderizar.
+    deferred    : Option<Deferred>,               // Componentes de renderizado aplazado.
     params      : HashMap<&'static str, (Box<dyn Any + Send + Sync>, &'static str)>, // Parámetros.
     id_counters : Mutex<HashMap<TypeId, usize>>,  // Mutex permite mutar desde build_id(&self).
     messages    : Vec<StatusMessage>,             // Mensajes de usuario acumulados.
+}
+
+// Componentes aplazados mientras se renderiza el `<body>` de una página, cada uno con la marca que
+// ocupa su lugar. El valor aleatorio de las marcas las distingue de cualquier comentario HTML que
+// traiga el contenido.
+struct Deferred {
+    nonce: u32,
+    components: Vec<(String, Box<dyn Component>)>,
 }
 
 impl Default for Context {
@@ -129,6 +139,10 @@ impl Context {
         let current_user = Self::resolve_current_user(request.as_ref());
         let timezone = current_user.timezone();
         let theme = current_user.theme().unwrap_or_else(default_theme);
+        let messages = request
+            .as_ref()
+            .map(|request| read_flash_messages(request.headers()))
+            .unwrap_or_default();
         Context {
             request,
             locale,
@@ -143,9 +157,10 @@ impl Context {
             responsives: ResponsiveStyles::new(),
             body_props : Props::default(),
             regions    : ChildrenInRegions::default(),
+            deferred   : None,
             params     : HashMap::default(),
             id_counters: Mutex::new(HashMap::new()),
-            messages   : Vec::new(),
+            messages,
         }
     }
 
@@ -232,6 +247,66 @@ impl Context {
             .await
     }
 
+    // Empieza a aplazar los componentes que lo pidan (`Component::is_deferred()`), mientras
+    // `Page::render()` renderiza el `<body>`.
+    pub(crate) fn start_deferring(&mut self) {
+        use std::hash::{BuildHasher, Hasher, RandomState};
+
+        self.deferred = Some(Deferred {
+            nonce: RandomState::new().build_hasher().finish() as u32,
+            components: Vec::new(),
+        });
+    }
+
+    // Guarda un clon del componente para renderizarlo cuando termine el resto del `<body>`, y
+    // devuelve la marca que ocupa su lugar, o `None` si no se está renderizando una página.
+    pub(crate) fn defer(&mut self, component: &dyn Component) -> Option<Markup> {
+        let deferred = self.deferred.as_mut()?;
+        let mark = format!(
+            "<!-- placeholder {} {:08x}-{} -->",
+            component.short_name(),
+            deferred.nonce,
+            deferred.components.len()
+        );
+        // Se guarda una copia de la marca para buscarla después: clonarla cuesta menos que volver
+        // a formatearla.
+        deferred
+            .components
+            .push((mark.clone(), component.clone_box()));
+        Some(PreEscaped(mark))
+    }
+
+    // Deja de aplazar, renderiza los componentes aplazados y sustituye sus marcas en `body`. Un
+    // componente aplazado que contenga otro lo renderiza ya en el momento.
+    pub(crate) async fn render_deferred(&mut self, body: Markup) -> Markup {
+        let Some(deferred) = self.deferred.take() else {
+            return body;
+        };
+        let mut body = body.into_string();
+        for (mark, mut component) in deferred.components {
+            let markup = component.render(self).await.into_string();
+            // Sin nada que mostrar, la marca se queda: es un comentario HTML, y así no hay que
+            // buscarla ni copiar el cuerpo, que es lo habitual (p. ej. `Messages` sin mensajes).
+            if markup.is_empty() {
+                continue;
+            }
+            // Una transformación del marcado que quite los comentarios (p. ej. un minificador) la
+            // haría desaparecer, y sin este aviso el componente no se vería.
+            let Some(start) = body.find(&mark) else {
+                crate::trace::warn!(
+                    path = self.request().map(|r| r.path()).unwrap_or("<unknown>"),
+                    component = component.name(),
+                    "deferred component mark not found in the page body, component not shown"
+                );
+                continue;
+            };
+            // Una sola reserva con la longitud exacta. `String::replace_range()` sería más lento,
+            // porque copia la inserción byte a byte.
+            body = util::join!(&body[..start], markup, &body[start + mark.len()..]);
+        }
+        PreEscaped(body)
+    }
+
     // **< Context HELPERS >************************************************************************
 
     /// Construye una ruta aplicada al contexto actual.
@@ -300,8 +375,11 @@ impl Context {
     /// Acumula un [`StatusMessage`] en el contexto para notificar al usuario.
     ///
     /// Pueden generarse en cualquier punto del ciclo de una petición web (handlers, renderizado,
-    /// lógica de negocio, etc.) que tengan acceso al contexto, y mostrarlos luego, por ejemplo, en
-    /// la página final devuelta al usuario.
+    /// lógica de negocio, etc.) que tengan acceso al contexto. Los muestra, y los retira, el primer
+    /// componente [`Messages`](crate::base::component::Messages) que se renderice después de
+    /// añadirlos: uno propio de la página, si lo hay, o el que encabeza la región
+    /// [`CoreRegions::Content`], que se renderiza una vez renderizado el resto del `<body>` y
+    /// recoge los que queden.
     ///
     /// # Ejemplo
     ///
@@ -314,14 +392,21 @@ impl Context {
         self.messages.push(StatusMessage::new(level, text));
     }
 
-    /// Devuelve todos los mensajes de usuario acumulados.
+    /// Devuelve los mensajes de usuario acumulados que aún no ha mostrado ningún componente
+    /// [`Messages`](crate::base::component::Messages).
     pub fn messages(&self) -> &[StatusMessage] {
         &self.messages
     }
 
-    /// Indica si hay mensajes de usuario acumulados.
+    /// Indica si hay mensajes de usuario acumulados que aún no ha mostrado ningún componente
+    /// [`Messages`](crate::base::component::Messages).
     pub fn has_messages(&self) -> bool {
         !self.messages.is_empty()
+    }
+
+    // Retira los mensajes acumulados, para que el componente `Messages` los muestre una sola vez.
+    pub(crate) fn take_messages(&mut self) -> Vec<StatusMessage> {
+        std::mem::take(&mut self.messages)
     }
 }
 
@@ -351,6 +436,13 @@ impl Contextual for Context {
     // **< Contextual BUILDER >*********************************************************************
 
     fn with_request(mut self, request: Option<HttpRequest>) -> Self {
+        // Los mensajes para la página siguiente se leen una sola vez, con la primera petición (las
+        // páginas de error, p. ej., parten de un contexto sin petición).
+        if self.request.is_none()
+            && let Some(request) = &request
+        {
+            self.messages.extend(read_flash_messages(request.headers()));
+        }
         self.request = request;
         // Recalcula el *locale*, el usuario actual, la zona horaria y el tema según la nueva
         // petición y la política de negociación configurada.

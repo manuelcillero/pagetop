@@ -36,6 +36,7 @@ pub use axum::middleware;
 
 // Guardado de los archivos subidos en formularios `multipart/form-data`.
 mod upload;
+pub(crate) use upload::push_percent_encoded;
 pub use upload::{Upload, UploadError, UploadedFile, UploadedForm};
 
 // Respuestas con los archivos subidos.

@@ -87,6 +87,43 @@ pub trait Component: AnyInfo + ComponentClone + ComponentRender + Send + Sync {
         true
     }
 
+    /// Indica si el renderizado del componente se aplaza hasta haber renderizado el resto de la
+    /// página.
+    ///
+    /// Si devuelve `true` y el componente forma parte del `<body>` de una página
+    /// ([`Page::render()`]), su [ciclo de renderizado](ComponentRender) completo se aplaza hasta
+    /// que se ha renderizado el resto del `<body>`, y el resultado se coloca en el mismo lugar que
+    /// ocupa el componente. Se aplaza el *momento* del renderizado, no la *posición*. El componente
+    /// se muestra en su sitio, no al final de la página. Si no se trata de una página, se
+    /// renderiza en el momento, como cualquier otro componente.
+    ///
+    /// Mientras tanto, en su lugar queda una marca en forma de comentario HTML usando el patrón
+    /// `<!-- placeholder ... -->`. Los componentes que lo contienen ven la marca y no su HTML
+    /// final, y la tratan como contenido aunque el componente acabe sin generar nada. Sus acciones
+    /// y transformaciones no pueden alterar el resultado del componente, sólo la marca, que deben
+    /// conservar. Si finalmente el componente no genera nada, la marca se queda en la página. Un
+    /// contenedor que sólo tenga la marca cumple el selector CSS `:empty`, así que los estilos
+    /// pueden ocultarlo (ver [`Region`]). Si una transformación de un componente que lo contiene
+    /// quita la marca (por ejemplo, un minificador que elimine los comentarios), el resultado del
+    /// componente no se muestra y se registra un aviso en la traza.
+    ///
+    /// Los componentes aplazados se renderizan en el orden en que se encontraron al renderizar el
+    /// `<body>` (normalmente, el orden en que aparecen en la página). Un componente aplazado no
+    /// debe añadir mensajes para el usuario: si se renderiza después del componente [`Messages`]
+    /// que encabeza la región [`CoreRegions::Content`], no se mostrarán. Un componente aplazado
+    /// dentro de otro también aplazado no espera: se renderiza en el momento, con el que lo
+    /// contiene.
+    ///
+    /// Por defecto, ningún componente se aplaza (`false`).
+    ///
+    /// [`Page::render()`]: crate::response::Page::render
+    /// [`Region`]: crate::base::component::layout::Region
+    /// [`Messages`]: crate::base::component::Messages
+    /// [`CoreRegions::Content`]: crate::core::theme::CoreRegions::Content
+    fn is_deferred(&self) -> bool {
+        false
+    }
+
     /// Configura el estado interno del componente antes de generar el marcado.
     ///
     /// Segundo paso del [ciclo de renderizado](ComponentRender). Se ejecuta tras comprobar
@@ -164,7 +201,10 @@ impl<T: Component + Clone + 'static> ComponentClone for T {
 
 /// Implementa [`render()`] para todos los componentes.
 ///
-/// El proceso de renderizado de cada componente sigue esta secuencia:
+/// Si el componente se aplaza ([`is_deferred()`]) y se está renderizando el `<body>` de una página,
+/// devuelve una marca que [`Page::render()`] sustituirá por el resultado de este mismo proceso una
+/// vez renderizado el resto del `<body>` (si no genera nada, la marca se queda). Si no, el proceso
+/// de renderizado de cada componente sigue esta secuencia:
 ///
 /// 1. Ejecuta [`is_renderable()`] para ver si puede renderizarse en el contexto actual. Si no es
 ///    así, devuelve un [`Markup`] vacío.
@@ -183,7 +223,9 @@ impl<T: Component + Clone + 'static> ComponentClone for T {
 /// 7. Devuelve el [`Markup`] resultante.
 ///
 /// [`render()`]: ComponentRender::render
+/// [`Page::render()`]: crate::response::Page::render
 /// [`is_renderable()`]: Component::is_renderable
+/// [`is_deferred()`]: Component::is_deferred
 /// [`setup()`]: Component::setup
 /// [`Component::prepare()`]: Component::prepare
 /// [`action::component::BeforeRender<C>`]: crate::base::action::component::BeforeRender
@@ -194,6 +236,13 @@ impl<T: Component + Clone + 'static> ComponentClone for T {
 #[async_trait]
 impl<C: Component> ComponentRender for C {
     async fn render(&mut self, cx: &mut Context) -> Markup {
+        // Si se aplaza, deja una marca y se renderiza al terminar el resto del <body>.
+        if self.is_deferred()
+            && let Some(mark) = cx.defer(&*self)
+        {
+            return mark;
+        }
+
         // Si no es renderizable, devuelve un bloque HTML vacío.
         if !self.is_renderable(cx) {
             return html! {};

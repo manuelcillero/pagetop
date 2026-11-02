@@ -23,6 +23,13 @@ pub type FnActionWithComponent<C> = fn(component: &mut C, cx: &mut Context);
 ///
 /// Devuelve el nuevo [`Markup`] transformado, que se encadena como entrada para la siguiente acción
 /// registrada, si la hay.
+///
+/// Dentro de una página, el [`Markup`] puede contener marcas asociadas a componentes aplazados (en
+/// forma de comentarios HTML `<!-- placeholder ... -->`, ver [`Component::is_deferred()`]) en lugar
+/// de su HTML correspondiente. Una transformación debe respetarlas para que estos componentes se
+/// muestren en su sitio al renderizarse.
+///
+/// [`Component::is_deferred()`]: crate::core::component::Component::is_deferred
 pub type FnActionTransformMarkup<C> = fn(component: &C, cx: &Context, markup: Markup) -> Markup;
 
 mod before_render_component;
