@@ -192,7 +192,9 @@ pub trait Theme: Extension + Send + Sync {
             parent.render_page_body(page).await
         } else {
             let template = page.template();
-            layout::Template::of(template).render(page.context()).await
+            layout::Template::of(template)
+                .render(page.context_mut())
+                .await
         }
     }
 
@@ -240,13 +242,13 @@ pub trait Theme: Extension + Send + Sync {
         html! {
             meta charset="utf-8";
 
-            @if let Some(title) = page.title() {
+            @if let Some(title) = page.title().lookup(page) {
                 title { (global::SETTINGS.app.name) (" | ") (title) }
             } @else {
                 title { (global::SETTINGS.app.name) }
             }
 
-            @if let Some(description) = page.description() {
+            @if let Some(description) = page.description().lookup(page) {
                 meta name="description" content=(description);
             }
 
@@ -260,7 +262,7 @@ pub trait Theme: Extension + Send + Sync {
                 meta property=(property) content=(content) {}
             }
 
-            (page.context().render_assets())
+            (page.context_mut().render_assets())
         }
     }
 

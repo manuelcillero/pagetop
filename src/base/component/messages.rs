@@ -3,7 +3,7 @@ use crate::prelude::*;
 /// Componente que muestra los **mensajes de usuario** acumulados en el contexto.
 ///
 /// No recibe ningún contenido de quien lo construye. Lo obtiene directamente del [`Context`] (ver
-/// [`Context::push_message()`](Context::push_message)) en el momento de renderizarse, y retira los
+/// [`push_message()`](Contextual::push_message)) en el momento de renderizarse, y retira los
 /// mensajes que muestra para que no se repitan. Si no hay ninguno acumulado, no renderiza nada.
 ///
 /// [`Region`] añade uno al inicio de la región [`CoreRegions::Content`], así que no hace falta
@@ -36,8 +36,7 @@ use crate::prelude::*;
 ///
 /// async fn homepage(request: HttpRequest) -> Result<Markup, ErrorPage> {
 ///     let mut page = Page::new(request);
-///     page.context()
-///         .push_message(MessageLevel::Info, Lc::n("Settings saved."));
+///     page.push_message(MessageLevel::Info, Lc::n("Settings saved."));
 ///     page.with_child(Html::with(|_| html! { p { "..." } }))
 ///         .render()
 ///         .await

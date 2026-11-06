@@ -52,9 +52,9 @@ impl Waypoint {
     /// Crea un valor explícito.
     ///
     /// Sólo acepta una ruta local que empiece por `/`, pero no por `//` ni `/\` que el navegador
-    /// interpretaría como una URL *protocol-relative*, y sin caracteres de control. Una cadena vacía, una URL absoluta
-    /// (`https://...`), un esquema arbitrario (`javascript:...`) o cualquier otro valor que no
-    /// cumpla esa forma se trata igual que `None`.
+    /// interpretaría como una URL *protocol-relative*, y sin caracteres de control. Una cadena
+    /// vacía, una URL absoluta (`https://...`), un esquema arbitrario (`javascript:...`) o
+    /// cualquier otro valor que no cumpla esa forma se trata igual que `None`.
     ///
     /// Este filtro protege contra *open redirect*; el `waypoint` viaja en la *query string* de la
     /// petición, así que un cliente malicioso lo controla por completo. Por eso se aplica siempre,
@@ -96,7 +96,7 @@ impl Waypoint {
     /// hacia otras pantallas (ver el ejemplo).
     ///
     /// Preserva cualquier *query string* ya presente en `route` sin romperla (como `lang=...` si
-    /// `route` se construyó con [`Context::route()`](crate::core::component::Context::route)).
+    /// `route` se construyó con [`Context::route()`](crate::core::component::Contextual::route)).
     ///
     /// # Ejemplo
     ///

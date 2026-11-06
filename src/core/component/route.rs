@@ -1,4 +1,4 @@
-use crate::core::component::Context;
+use crate::core::component::{Context, Contextual};
 use crate::html::RoutePath;
 use crate::util;
 

@@ -61,7 +61,7 @@ struct Pending(Vec<(MessageLevel, String)>);
 /// }
 /// ```
 ///
-/// [`Context::push_message()`]: crate::core::component::Context::push_message
+/// [`Context::push_message()`]: crate::core::component::Contextual::push_message
 /// [`CoreRegions::Content`]: crate::core::theme::CoreRegions::Content
 /// [`Messages`]: crate::base::component::Messages
 pub trait ResponseExt {

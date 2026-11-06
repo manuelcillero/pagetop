@@ -262,7 +262,7 @@ pub fn normalize_token(s: impl AsRef<str>) -> Option<String> {
 ///
 /// La usan [`RoutePath::is_external()`](crate::html::RoutePath::is_external) y las conversiones
 /// `From<&str>`/`From<String>` de [`Route`](crate::core::component::Route) para decidir si una
-/// ruta debe evitar [`Context::route()`](crate::core::component::Context::route).
+/// ruta debe evitar [`Context::route()`](crate::core::component::Contextual::route).
 ///
 /// Cualquier otro código que necesite el mismo criterio (por ejemplo, para decidir si un enlace
 /// debe llevar `target="_blank"`) puede usarla en lugar de reimplementar su propia versión.

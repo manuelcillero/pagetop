@@ -18,19 +18,14 @@ mod error;
 pub use error::ErrorPage;
 pub(crate) use error::{render_error_pages, response_for_panic, route_not_found};
 
-use crate::auth::CurrentUser;
+use crate::AutoDefault;
 use crate::base::action;
 use crate::base::component::layout;
-use crate::core::component::{AssetsOp, ChildOp, ComponentRender};
-use crate::core::component::{Context, ContextError, Contextual};
-use crate::core::theme::{CoreRegions, RegionName, RegionRef, TemplateRef, ThemeRef};
-use crate::datetime::Tz;
-use crate::html::{Assets, Favicon, JavaScript, ResponsiveStyles, StyleSheet};
+use crate::core::component::{ComponentRender, Context, Contextual};
+use crate::core::theme::RegionName;
 use crate::html::{DOCTYPE, Markup, html};
-use crate::html::{Props, PropsOp};
-use crate::locale::{CharacterDirection, LangId, LanguageIdentifier, Lc};
+use crate::locale::{CharacterDirection, LangId, Lc};
 use crate::web::HttpRequest;
-use crate::{AutoDefault, builder_impl};
 
 // **< ReservedRegions >****************************************************************************
 
@@ -83,35 +78,34 @@ impl RegionName for ReservedRegions {
 
 /// Representa una página HTML completa lista para renderizar.
 ///
-/// Una instancia de `Page` se compone dinámicamente permitiendo establecer título, descripción,
-/// regiones donde disponer los componentes, atributos de `<body>` y otros aspectos del contexto de
-/// renderizado.
-#[rustfmt::skip]
+/// Envuelve el [`Context`] de renderizado de la página e implementa [`Contextual`] sobre él, así
+/// que una página se mantiene con los mismos métodos que un contexto: título, descripción, regiones
+/// donde disponer los componentes, atributos de `<body>`, recursos, etc. Lo que añade `Page` es el
+/// renderizado del documento completo ([`Page::render()`]).
 #[derive(AutoDefault)]
 pub struct Page {
-    title      : Lc,
-    description: Lc,
-    metadata   : Vec<(&'static str, &'static str)>,
-    properties : Vec<(&'static str, &'static str)>,
-    context    : Context,
+    context: Context,
 }
 
-#[builder_impl]
 impl Page {
     /// Crea una nueva instancia de página.
     ///
     /// La petición HTTP se guarda en el contexto de renderizado, que extrae automáticamente el
-    /// [`CurrentUser`] inyectado por middleware en sus extensiones (ver
+    /// [`CurrentUser`](crate::auth::CurrentUser) inyectado por middleware en sus extensiones (ver
     /// [`Context::new`](crate::core::component::Context::new)). Cualquier handler tiene acceso al
     /// usuario actual desde el momento en que se crea la página, sin llamadas adicionales.
     pub fn new(request: HttpRequest) -> Self {
         Page {
             context: Context::new(request),
-            ..Default::default()
         }
     }
 
     /// Crea una nueva instancia de página con la plantilla [`CoreTemplates::Admin`].
+    ///
+    /// Es la forma de crear una página del panel de administración: la plantilla añade la
+    /// navegación del panel y, alrededor del contenido, las migas de pan, el título
+    /// ([`with_title()`](Contextual::with_title)) y las pestañas y botones declarados para su ruta
+    /// (ver el módulo [`admin`](crate::admin)).
     ///
     /// Cada tema puede maquetarla de forma distinta capturando [`Template`] vía
     /// [`Theme::render_component()`], pero la plantilla en sí es la misma constante para cualquier
@@ -123,68 +117,8 @@ impl Page {
     pub fn admin(request: HttpRequest) -> Self {
         Page {
             context: Context::admin(request),
-            ..Default::default()
         }
     }
-
-    // **< Page BUILDER >***************************************************************************
-
-    /// Establece el título de la página como un valor traducible.
-    pub fn with_title(mut self, title: Lc) -> Self {
-        self.title = title;
-        self
-    }
-
-    /// Establece la descripción de la página como un valor traducible.
-    pub fn with_description(mut self, description: Lc) -> Self {
-        self.description = description;
-        self
-    }
-
-    /// Añade una entrada `<meta name="..." content="...">` al `<head>`.
-    pub fn with_metadata(mut self, name: &'static str, content: &'static str) -> Self {
-        self.metadata.push((name, content));
-        self
-    }
-
-    /// Añade una entrada `<meta property="..." content="...">` al `<head>`.
-    pub fn with_property(mut self, property: &'static str, content: &'static str) -> Self {
-        self.properties.push((property, content));
-        self
-    }
-
-    // **< Page GETTERS >***************************************************************************
-
-    /// Devuelve el título traducido para el idioma de la página, si existe.
-    pub fn title(&self) -> Option<String> {
-        self.title.lookup(&self.context)
-    }
-
-    /// Devuelve la descripción traducida para el idioma de la página, si existe.
-    pub fn description(&self) -> Option<String> {
-        self.description.lookup(&self.context)
-    }
-
-    /// Devuelve la lista de metadatos `<meta name=...>`.
-    pub fn metadata(&self) -> &Vec<(&'static str, &'static str)> {
-        &self.metadata
-    }
-
-    /// Devuelve la lista de propiedades `<meta property=...>`.
-    pub fn properties(&self) -> &Vec<(&'static str, &'static str)> {
-        &self.properties
-    }
-
-    /// Devuelve una referencia mutable al [`Context`] de la página.
-    ///
-    /// El [`Context`] actúa como intermediario para muchos métodos de `Page` (idioma, tema,
-    /// *layout*, recursos, petición HTTP, etc.). Resulta especialmente útil cuando un componente
-    /// o un tema necesita recibir el contexto como parámetro.
-    pub fn context(&mut self) -> &mut Context {
-        &mut self.context
-    }
-
-    // **< Page RENDER >****************************************************************************
 
     /// Renderiza la página completa en formato HTML.
     ///
@@ -222,7 +156,7 @@ impl Page {
     /// [`Theme::render_page_head()`]: crate::core::theme::Theme::render_page_head
     /// [`CoreRegions::Content`]: crate::core::theme::CoreRegions::Content
     /// [`Component::is_deferred()`]: crate::core::component::Component::is_deferred
-    /// [`Context::langid()`]: crate::core::component::Context::langid
+    /// [`Context::langid()`]: crate::locale::LangId::langid
     /// [`Messages`]: crate::base::component::Messages
     pub async fn render(&mut self) -> Result<Markup, ErrorPage> {
         // Acciones específicas del tema antes de renderizar el <body>.
@@ -272,121 +206,14 @@ impl Page {
     }
 }
 
-/// Permite a [`Page`] actuar como proveedor de idioma usando el [`Context`] de la página.
-///
-/// Resulta útil para usar [`Page`] directamente como fuente de traducción en [`Lc::lookup()`] o
-/// [`Lc::using()`].
-impl LangId for Page {
-    #[inline]
-    fn langid(&self) -> &'static LanguageIdentifier {
-        self.context.langid()
-    }
-}
-
-#[builder_impl]
 impl Contextual for Page {
-    // **< Contextual BUILDER >*********************************************************************
-
-    fn with_request(mut self, request: Option<HttpRequest>) -> Self {
-        self.context.alter_request(request);
-        self
+    #[inline]
+    fn context(&self) -> &Context {
+        &self.context
     }
 
-    fn with_langid(mut self, language: &impl LangId) -> Self {
-        self.context.alter_langid(language);
-        self
-    }
-
-    fn with_timezone(mut self, tz: Tz) -> Self {
-        self.context.alter_timezone(tz);
-        self
-    }
-
-    fn with_theme(mut self, theme: ThemeRef) -> Self {
-        self.context.alter_theme(theme);
-        self
-    }
-
-    fn with_template(mut self, template: TemplateRef) -> Self {
-        self.context.alter_template(template);
-        self
-    }
-
-    fn with_param<T: Send + Sync + 'static>(mut self, key: &'static str, value: T) -> Self {
-        self.context.alter_param(key, value);
-        self
-    }
-
-    fn with_assets(mut self, op: impl Into<AssetsOp>) -> Self {
-        self.context.alter_assets(op);
-        self
-    }
-
-    fn with_body_props(mut self, op: PropsOp) -> Self {
-        self.context.alter_body_props(op);
-        self
-    }
-
-    fn with_child(mut self, op: impl Into<ChildOp>) -> Self {
-        self.context
-            .alter_child_in(&CoreRegions::Content, op.into());
-        self
-    }
-
-    fn with_child_in(mut self, region: RegionRef, op: impl Into<ChildOp>) -> Self {
-        self.context.alter_child_in(region, op.into());
-        self
-    }
-
-    // **< Contextual GETTERS >*********************************************************************
-
-    fn request(&self) -> Option<&HttpRequest> {
-        self.context.request()
-    }
-
-    fn current_user(&self) -> &CurrentUser {
-        self.context.current_user()
-    }
-
-    fn timezone(&self) -> Tz {
-        self.context.timezone()
-    }
-
-    fn theme(&self) -> ThemeRef {
-        self.context.theme()
-    }
-
-    fn template(&self) -> TemplateRef {
-        self.context.template()
-    }
-
-    fn param<T: 'static>(&self, key: &'static str) -> Result<&T, ContextError> {
-        self.context.param(key)
-    }
-
-    fn favicon(&self) -> Option<&Favicon> {
-        self.context.favicon()
-    }
-
-    fn stylesheets(&self) -> &Assets<StyleSheet> {
-        self.context.stylesheets()
-    }
-
-    fn javascripts(&self) -> &Assets<JavaScript> {
-        self.context.javascripts()
-    }
-
-    fn responsive_styles(&self) -> &ResponsiveStyles {
-        self.context.responsive_styles()
-    }
-
-    fn body_props(&self) -> &Props {
-        self.context.body_props()
-    }
-
-    // **< Contextual HELPERS >*********************************************************************
-
-    fn remove_param(&mut self, key: &'static str) -> bool {
-        self.context.remove_param(key)
+    #[inline]
+    fn context_mut(&mut self) -> &mut Context {
+        &mut self.context
     }
 }

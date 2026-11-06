@@ -11,7 +11,7 @@ use serde::{Deserialize, Deserializer};
 ///
 /// [`global::SETTINGS.app.lang_negotiation`]: crate::global::AppSettings::lang_negotiation
 /// [`RequestLocale`]: crate::locale::RequestLocale
-/// [`Context::route()`]: crate::core::component::Context::route
+/// [`Context::route()`]: crate::core::component::Contextual::route
 #[derive(AutoDefault, Clone, Copy, Debug, Eq, PartialEq)]
 pub enum LangNegotiation {
     /// Usa todas las fuentes disponibles para determinar el idioma, en este orden: comprueba el
