@@ -78,10 +78,8 @@ async fn homepage(request: HttpRequest) -> Result<Markup, ErrorPage> {
 
 Bootsier maqueta las dos plantillas de PageTop (`CoreTemplates`) con las mismas regiones (cabecera,
 lateral, contenido y pie): `Standard`, la plantilla por defecto de cualquier página; y `Admin`, que
-se activa creando la página con `Page::admin()` en lugar de `Page::new()`. Ambas se maquetan igual
-hoy -- la distinción entre página "normal" y de administración no vive en el maquetado, sino en qué
-extensión registra contenido en cada región y para qué plantilla se autolimita (por ejemplo, el menú
-de `pagetop-admin`, ver más abajo).
+se activa creando la página con `Page::admin()` en lugar de `Page::new()` y añade el panel de
+administración (ver más abajo).
 
 ```rust,no_run
 use pagetop::prelude::*;
@@ -96,12 +94,12 @@ async fn about(request: HttpRequest) -> Result<Markup, ErrorPage> {
 }
 ```
 
-## Menú de administración
+## Panel de administración
 
-`pagetop-admin` (si está presente en la aplicación) registra su propio menú de secciones y
-páginas en `CoreRegions::Aside`, autolimitado a páginas con la plantilla `Admin` -- no requiere
-ningún registro por parte de Bootsier. Se construye con `Navbar`/`Nav`/`Dropdown`, los mismos
-componentes disponibles para cualquier página de la aplicación.
+En la plantilla `Admin`, Bootsier sigue la composición del núcleo: tras la cabecera pinta la
+navegación del panel (`AdminMenu`) y, en lugar del contenido, el marco de la página (`AdminFrame`:
+migas, título, botones y pestañas). Los dos se construyen con componentes del núcleo
+(`Navbar`/`Nav`/`Dropdown`, `Breadcrumb`), que Bootsier ya pinta con su aspecto.
 
 ## Selector de modo de color
 
@@ -156,7 +154,7 @@ impl Extension for Bootsier {
         Some(&config::SETTINGS)
     }
 
-    fn configure_static_files(&self, router: Router) -> Router {
+    fn configure_static_files(&self, files: StaticFiles) -> StaticFiles {
         let base = &config::SETTINGS.static_dir;
         let subdir = |s: &str| {
             if base.is_empty() {
@@ -165,10 +163,10 @@ impl Extension for Bootsier {
                 format!("{base}/{s}")
             }
         };
-        serve_static_files!(router, [subdir("css"),   bootsier_css]   => "/bootsier/css");
-        serve_static_files!(router, [subdir("js"),    bootsier_js]    => "/bootsier/js");
-        serve_static_files!(router, [subdir("fonts"), bootsier_fonts] => "/bootsier/fonts");
-        router
+        serve_static_files!(files, [subdir("css"),   bootsier_css]   => "/bootsier/css");
+        serve_static_files!(files, [subdir("js"),    bootsier_js]    => "/bootsier/js");
+        serve_static_files!(files, [subdir("fonts"), bootsier_fonts] => "/bootsier/fonts");
+        files
     }
 }
 
@@ -234,12 +232,8 @@ impl Theme for Bootsier {
         // Etiquetas de los botones del modal de confirmación que sustituye al `confirm()` nativo
         // de htmx (ver `bootsier.confirm.js`); se leen aquí porque este es el único punto con
         // acceso al `Context` para resolverlas antes de escribirlas en el `<body>`.
-        let confirm_ok = Lc::l("confirm_ok")
-            .lookup(page.context())
-            .unwrap_or_default();
-        let confirm_cancel = Lc::l("confirm_cancel")
-            .lookup(page.context())
-            .unwrap_or_default();
+        let confirm_ok = Lc::l("confirm_ok").lookup(page).unwrap_or_default();
+        let confirm_cancel = Lc::l("confirm_cancel").lookup(page).unwrap_or_default();
 
         // Las URLs de las fuentes deben coincidir exactamente con las declaradas en @font-face de
         // _bootsier-custom.scss; cualquier discrepancia hace que el navegador descargue dos veces.

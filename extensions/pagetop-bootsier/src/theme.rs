@@ -13,10 +13,8 @@
 //!
 //! Bootsier maqueta las dos plantillas de PageTop ([`CoreTemplates`]) con la misma cabecera,
 //! contenido y pie: `Standard`, la plantilla por defecto de cualquier página; y `Admin`, que se
-//! activa creando la página con [`Page::admin()`] en lugar de [`Page::new()`]. Ambas se maquetan
-//! igual hoy -- la distinción entre página "normal" y de administración no vive en el maquetado,
-//! sino en qué extensión registra contenido en cada región y para qué plantilla se autolimita (ver
-//! más abajo `pagetop-admin`).
+//! activa creando la página con [`Page::admin()`] en lugar de [`Page::new()`] y añade el panel de
+//! administración (ver más abajo).
 //!
 //! ```rust,no_run
 //! use pagetop::prelude::*;
@@ -35,13 +33,12 @@
 //! [`Page::admin()`]: pagetop::response::Page::admin
 //! [`Page::new()`]: pagetop::response::Page::new
 //!
-//! # Menú de administración
+//! # Panel de administración
 //!
-//! `pagetop-admin` (si está presente en la aplicación) registra su propio menú de secciones y
-//! páginas en [`CoreRegions::Aside`], autolimitado a
-//! páginas con la plantilla `Admin` -- no requiere ningún registro por parte de Bootsier. Se
-//! construye con [`Navbar`]/[`Nav`]/[`Dropdown`], los mismos
-//! componentes disponibles para cualquier página de la aplicación.
+//! En la plantilla `Admin`, Bootsier sigue la composición del núcleo: tras la cabecera pinta la
+//! navegación del panel ([`AdminMenu`]) y, en lugar del contenido, el marco de la página
+//! ([`AdminFrame`]: migas, título, botones y pestañas). Los dos se construyen con componentes del
+//! núcleo ([`Navbar`]/[`Nav`]/[`Dropdown`], [`Breadcrumb`]), que Bootsier ya pinta con su aspecto.
 //!
 //! # Selector de modo de color
 //!
