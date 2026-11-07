@@ -391,11 +391,11 @@ impl Extension for Cron {
         scheduler::shutdown().await;
     }
 
-    fn configure_router(&self, router: Router) -> Router {
+    fn configure_router(&self, routes: Routes) -> Routes {
         if config::SETTINGS.mode != config::CronMode::External {
-            return router;
+            return routes;
         }
-        router.route(TRIGGER_PATH, web::post(trigger_post).fallback(not_found))
+        routes.public_route(TRIGGER_PATH, web::post(trigger_post).fallback(not_found))
     }
 }
 

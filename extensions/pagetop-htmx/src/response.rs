@@ -141,7 +141,7 @@ impl HtmxResponse {
     /// objetivo definido por el destino. Para personalizar `target`, `swap`, `select` o `values`,
     /// usa [`location_json()`](Self::location_json).
     ///
-    /// Usa [`Context::route()`](pagetop::core::component::Context::route) en lugar de un literal
+    /// Usa [`Context::route()`](pagetop::core::component::Contextual::route) en lugar de un literal
     /// para que la URL preserve el parámetro `lang` cuando corresponda:
     ///
     /// ```rust,no_run
@@ -213,7 +213,7 @@ impl HtmxResponse {
     /// El usuario podrá navegar hacia atrás hasta esa URL. Usar `"false"` para desactivar el empuje
     /// aunque esté habilitado por el atributo `hx-push-url` del elemento.
     ///
-    /// Usa [`Context::route()`](pagetop::core::component::Context::route) en lugar de un literal
+    /// Usa [`Context::route()`](pagetop::core::component::Contextual::route) en lugar de un literal
     /// para que la URL preserve el parámetro `lang` cuando corresponda:
     ///
     /// ```rust,no_run
@@ -231,7 +231,7 @@ impl HtmxResponse {
     /// Reemplaza la URL actual en el historial sin añadir una nueva entrada.
     ///
     /// Usar `"false"` para desactivar el reemplazo. Usa
-    /// [`Context::route()`](pagetop::core::component::Context::route) en lugar de un literal para
+    /// [`Context::route()`](pagetop::core::component::Contextual::route) en lugar de un literal para
     /// que la URL preserve el parámetro `lang` cuando corresponda.
     pub fn replace_url(self, url: impl Into<RoutePath>) -> Self {
         self.set_header(hx::response::REPLACE_URL.as_bytes(), url.into().to_string())
@@ -242,7 +242,7 @@ impl HtmxResponse {
     /// A diferencia de [`location()`](Self::location), esta redirección recarga la página por
     /// completo, como un `window.location.href = url` en JavaScript.
     ///
-    /// Usa [`Context::route()`](pagetop::core::component::Context::route) en lugar de un literal
+    /// Usa [`Context::route()`](pagetop::core::component::Contextual::route) en lugar de un literal
     /// para que la URL preserve el parámetro `lang` cuando corresponda:
     ///
     /// ```rust,no_run

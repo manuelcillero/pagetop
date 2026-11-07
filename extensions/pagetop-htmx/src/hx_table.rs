@@ -70,7 +70,7 @@ use crate::hx;
 /// [`SortLink`]: pagetop::base::component::table::SortLink
 /// [`SortLink::with_prop()`]: pagetop::base::component::table::SortLink::with_prop
 /// [`SortLink::with_dir()`]: pagetop::base::component::table::SortLink::with_dir
-/// [`Context::route()`]: pagetop::core::component::Context::route
+/// [`Context::route()`]: pagetop::core::component::Contextual::route
 pub fn sort_link(
     href: impl Into<RoutePath>,
     target: impl AsRef<str>,

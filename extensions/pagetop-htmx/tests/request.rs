@@ -5,8 +5,8 @@ struct TestApp;
 
 #[async_trait]
 impl Extension for TestApp {
-    fn configure_router(&self, router: Router) -> Router {
-        router.route("/echo", web::get(echo_request))
+    fn configure_router(&self, routes: Routes) -> Routes {
+        routes.public_route("/echo", web::get(echo_request))
     }
 }
 

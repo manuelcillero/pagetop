@@ -9,8 +9,8 @@ impl Extension for TestApp {
         vec![&Htmx]
     }
 
-    fn configure_router(&self, router: Router) -> Router {
-        router.route("/page", web::get(render_page))
+    fn configure_router(&self, routes: Routes) -> Routes {
+        routes.public_route("/page", web::get(render_page))
     }
 }
 
