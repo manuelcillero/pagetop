@@ -55,12 +55,12 @@ async fn default_template_identity_is_independent_of_theme() {
 
 #[pagetop::test]
 async fn admin_template_identity_is_independent_of_theme() {
-    let mut page = Page::admin(web::test::TestRequest::get().to_http_request());
-    assert_eq!(page.context().template().name(), "admin");
+    let page = Page::admin(web::test::TestRequest::get().to_http_request());
+    assert_eq!(page.template().name(), "admin");
 
-    let mut page =
+    let page =
         Page::admin(web::test::TestRequest::get().to_http_request()).with_theme(&MarkerTheme);
-    assert_eq!(page.context().template().name(), "admin");
+    assert_eq!(page.template().name(), "admin");
 }
 
 #[pagetop::test]
@@ -115,4 +115,22 @@ async fn page_admin_render_reflects_the_active_theme_template() {
         .into_string();
 
     assert!(html.contains("marker-template-output"));
+}
+
+#[pagetop::test]
+async fn core_templates_have_translated_labels() {
+    let es = Locale::resolve("es-ES");
+    let en = Locale::resolve("en-US");
+    assert_eq!(
+        CoreTemplates::Standard.label().lookup(&es).as_deref(),
+        Some("Estándar")
+    );
+    assert_eq!(
+        CoreTemplates::Admin.label().lookup(&es).as_deref(),
+        Some("Administración")
+    );
+    assert_eq!(
+        CoreTemplates::Admin.label().lookup(&en).as_deref(),
+        Some("Administration")
+    );
 }

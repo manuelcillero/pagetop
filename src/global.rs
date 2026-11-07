@@ -169,6 +169,15 @@ pub struct AppSettings {
     /// [`CurrentUser::timezone()`]: crate::auth::CurrentUser::timezone
     #[default = true]
     pub timezone_per_user: bool,
+    /// Ruta raíz del panel de administración (p. ej. *"/admin"* o *"/manage"*).
+    ///
+    /// Las secciones y páginas del panel se declaran con rutas relativas a ella, y
+    /// [`admin_path()`](crate::admin::admin_path) devuelve la ruta completa. Debe empezar por `/`,
+    /// sin `/` final, y cada tramo sólo puede tener letras y dígitos ASCII, `-`, `_`, `.` y `~`,
+    /// sin ser `.` ni `..`; si no, la aplicación no arranca.
+    #[default = "/admin"]
+    #[serde(deserialize_with = "admin_path")]
+    pub admin_path: String,
     /// Banner ASCII mostrado al inicio: *"Off"* (desactivado), *"Slant"*, *"Small"*, *"Speed"* o
     /// *"Starwars"*.
     #[default(StartupBanner::Slant)]
@@ -308,6 +317,29 @@ fn origins<'de, D: Deserializer<'de>>(deserializer: D) -> Result<Vec<String>, D:
         .collect()
 }
 
+// Ruta para `admin_path`: absoluta, sin `/` final ni tramos vacíos, `.` o `..` (el navegador los
+// resolvería antes de pedirla), y sin caracteres que el enrutador interprete (`{`, `}`, `*`...) o
+// que haya que codificar en una URL.
+fn admin_path<'de, D: Deserializer<'de>>(deserializer: D) -> Result<String, D::Error> {
+    let raw = String::deserialize(deserializer)?;
+    let path = raw.trim();
+    let valid = path.strip_prefix('/').is_some_and(|rest| {
+        rest.split('/').all(|segment| {
+            !matches!(segment, "" | "." | "..")
+                && segment
+                    .bytes()
+                    .all(|b| b.is_ascii_alphanumeric() || b"-_.~".contains(&b))
+        })
+    });
+    if !valid {
+        return Err(D::Error::custom(format!(
+            "invalid admin path \"{raw}\", expected an absolute path without a trailing slash \
+             (e.g. \"/admin\")"
+        )));
+    }
+    Ok(path.to_owned())
+}
+
 // Nombre de cabecera para `client_ip_header`: vacío o un nombre de cabecera HTTP válido, sin
 // espacios en los extremos. Un nombre que no lo fuera nunca encontraría la cabecera, y
 // `HttpRequest::client_ip()` devolvería siempre `None` sin que nada lo indicase.
@@ -407,6 +439,30 @@ mod tests {
         assert!(error.to_string().contains("X Real IP"), "{error}");
         // Its values are not plain addresses, so it would never give one.
         assert!(load("Forwarded").is_err());
+    }
+
+    #[test]
+    fn admin_path_must_be_an_absolute_path_without_a_trailing_slash() {
+        let load = |value: &str| {
+            let toml = format!("[app]\nadmin_path = \"{value}\"\n");
+            config::load_from_str::<AppSettings>(&toml)
+        };
+        assert_eq!(load(" /manage ").unwrap().admin_path, "/manage");
+        assert_eq!(load("/site/admin-2").unwrap().admin_path, "/site/admin-2");
+        for invalid in [
+            "",
+            "/",
+            "admin",
+            "/admin/",
+            "/site//admin",
+            "/.",
+            "/site/../admin",
+            "/{admin}",
+            "/ad min",
+        ] {
+            let error = load(invalid).expect_err(invalid);
+            assert!(error.to_string().contains("invalid admin path"), "{error}");
+        }
     }
 
     #[test]

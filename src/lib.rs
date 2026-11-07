@@ -219,6 +219,8 @@ pub mod datetime;
 pub mod core;
 // Identidad del usuario y sistema de autorización extensible.
 pub mod auth;
+// Secciones y páginas del panel de administración que declaran las extensiones.
+pub mod admin;
 // Respuestas a peticiones web en sus diferentes formatos.
 pub mod response;
 // Gestión del servidor y rutas web.

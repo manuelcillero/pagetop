@@ -10,6 +10,10 @@ use std::fmt;
 /// su gusto (por ejemplo, usando CSS Grid, para que `Aside` se muestre como columna lateral junto a
 /// `Content`). Si `Aside`, o cualquier otra región, no tiene contenido, no se renderiza.
 ///
+/// [`CoreTemplates::Admin`] añade el panel de administración: tras `Header` pinta la navegación
+/// del panel ([`AdminMenu`]) y, en lugar de `Content`, el marco de la página ([`AdminFrame`]), que
+/// contiene la región; el contenedor lleva además la clase `wrapper-admin`.
+///
 /// No incluye las regiones reservadas ([`ReservedRegions::PageTop`] y
 /// [`ReservedRegions::PageBottom`]) porque el propio [`Page::render()`] las añade antes y después
 /// del resultado de [`Theme::render_page_body()`] para que se rendericen siempre,
@@ -65,11 +69,25 @@ impl Component for Template {
     }
 
     async fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
-        let body = html! {
-            (layout::Region::header().render(cx).await)
-            (layout::Region::aside().render(cx).await)
-            (layout::Region::content().render(cx).await)
-            (layout::Region::footer().render(cx).await)
+        let admin = matches!(
+            self.template().downcast_ref::<CoreTemplates>(),
+            Some(CoreTemplates::Admin)
+        );
+        let body = if admin {
+            html! {
+                (layout::Region::header().render(cx).await)
+                (AdminMenu::new().render(cx).await)
+                (layout::Region::aside().render(cx).await)
+                (AdminFrame::new().render(cx).await)
+                (layout::Region::footer().render(cx).await)
+            }
+        } else {
+            html! {
+                (layout::Region::header().render(cx).await)
+                (layout::Region::aside().render(cx).await)
+                (layout::Region::content().render(cx).await)
+                (layout::Region::footer().render(cx).await)
+            }
         };
 
         if body.is_empty() {
@@ -77,7 +95,7 @@ impl Component for Template {
         }
 
         Ok(html! {
-            div class="wrapper" {
+            div class="wrapper" .wrapper-admin[admin] {
                 (body)
             }
         })

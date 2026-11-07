@@ -4,6 +4,10 @@ region_content = Content
 region_footer = Footer
 region_aside = Aside
 
+# Templates.
+template_standard = Standard
+template_admin = Administration
+
 # Error Messages.
 error_code = Error { $code }
 

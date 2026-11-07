@@ -4,6 +4,10 @@ region_content = Contenido
 region_footer = Pie de página
 region_aside = Barra lateral
 
+# Templates.
+template_standard = Estándar
+template_admin = Administración
+
 # Error Messages.
 error_code = Error { $code }
 

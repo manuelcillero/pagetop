@@ -103,7 +103,7 @@ pub enum CoreRegions {
     /// [`Messages`]: crate::base::component::Messages
     /// [`Messages::with_deferred()`]: crate::base::component::Messages::with_deferred
     /// [`Context`]: crate::core::component::Context
-    /// [`Context::push_message()`]: crate::core::component::Context::push_message
+    /// [`Context::push_message()`]: crate::core::component::Contextual::push_message
     /// [`ResponseExt::with_message()`]: crate::response::ResponseExt::with_message
     #[default]
     Content,
@@ -177,7 +177,13 @@ pub enum CoreTemplates {
 
     /// Plantilla para la **interfaz de administración**, de nombre `"admin"`.
     ///
-    /// Se utiliza para páginas de administración o paneles de control.
+    /// Se utiliza para las páginas del panel de administración ([`Page::admin()`]): además de las
+    /// regiones de `Standard`, pinta la navegación del panel ([`AdminMenu`]) y el marco de la
+    /// página ([`AdminFrame`]) alrededor de la región de contenido.
+    ///
+    /// [`Page::admin()`]: crate::response::Page::admin
+    /// [`AdminMenu`]: crate::base::component::AdminMenu
+    /// [`AdminFrame`]: crate::base::component::AdminFrame
     Admin,
 }
 
@@ -193,8 +199,8 @@ impl TemplateName for CoreTemplates {
     #[inline]
     fn label(&self) -> Lc {
         match self {
-            Self::Standard => Lc::l("template-standard"),
-            Self::Admin => Lc::l("template-admin"),
+            Self::Standard => Lc::l("template_standard"),
+            Self::Admin => Lc::l("template_admin"),
         }
     }
 }

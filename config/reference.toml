@@ -76,6 +76,10 @@ timezone_order    = "Nearest"          # Orden de esas regiones al elegir zona h
 timezone_per_user = true               # Si cada usuario puede tener su propia zona horaria (true) o
                                        # se usa siempre 'timezone' (false). Con false no se ofrece
                                        # elegirla y la guardada se conserva por si se reactiva.
+admin_path        = "/admin"           # Ruta raíz del panel de administración. Debe empezar por
+                                       # "/", sin "/" final; cada tramo sólo admite letras y dígitos
+                                       # ASCII, "-", "_", "." y "~" (sin ser "." ni ".."). Una no
+                                       # válida impide arrancar.
 startup_banner    = "Slant"            # Banner ASCII al arrancar: "Off", "Slant", "Small", "Speed"
                                        # o "Starwars".
 
@@ -121,11 +125,11 @@ trusted_origins  = []                  # Otros orígenes desde los que un navega
 dir              = "uploads"           # Directorio de los archivos subidos, absoluto o relativo al
                                        # directorio de trabajo. Se crea al guardar el primero.
 max_request_size = 33_554_432          # Tamaño máximo en bytes de un envío 'multipart/form-data'
-                                       # completo (32 MiB), con todos sus archivos y campos; sustituye
-                                       # a 'server.max_body_size' en estas peticiones. Para admitir
-                                       # varios archivos debe ser varias veces mayor que
-                                       # 'max_file_size'. Uno mayor se rechaza con 413. 0 -> sin
-                                       # límite.
+                                       # completo (32 MiB), con todos sus archivos y campos;
+                                       # sustituye a 'server.max_body_size' en estas peticiones.
+                                       # Para admitir varios archivos debe ser varias veces mayor
+                                       # que 'max_file_size'. Uno mayor se rechaza con 413. 0 ->
+                                       # sin límite.
 max_file_size    = 8_388_608           # Tamaño máximo en bytes de cada archivo por separado
                                        # (8 MiB). La aplicación puede cambiarlo en una subida
                                        # concreta. 0 -> sólo limita 'max_request_size'.
