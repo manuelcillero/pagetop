@@ -25,12 +25,12 @@ struct MarkingExtension;
 
 #[async_trait]
 impl Extension for MarkingExtension {
-    fn configure_router(&self, router: Router) -> Router {
-        router.route("/page", web::get(|| async { "page" }))
+    fn configure_router(&self, routes: Routes) -> Routes {
+        routes.public_route("/page", web::get(|| async { "page" }))
     }
 
-    fn configure_middleware(&self, router: Router) -> Router {
-        router.layer(web::middleware::from_fn(mark_response))
+    fn configure_middleware(&self, layers: Layers) -> Layers {
+        layers.layer(web::middleware::from_fn(mark_response))
     }
 }
 

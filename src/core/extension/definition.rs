@@ -6,7 +6,7 @@ use crate::core::AnyInfo;
 use crate::core::action::ActionBox;
 use crate::core::theme::ThemeRef;
 use crate::locale::Lc;
-use crate::web::Router;
+use crate::web::{Layers, Routes, StaticFiles};
 
 /// Interfaz común que debe implementar cualquier extensión de PageTop.
 ///
@@ -246,29 +246,30 @@ pub trait Extension: AnyInfo + Send + Sync {
         None
     }
 
-    /// Registra rutas, servicios y capas de la extensión en el servidor web de la aplicación.
+    /// Registra las rutas de la extensión en el servidor web de la aplicación.
     ///
-    /// Recibe las rutas acumuladas hasta ese momento, añade lo que la extensión necesite y retorna
-    /// las rutas con las nuevas modificaciones. La implementación por defecto devuelve las rutas
-    /// sin cambios.
+    /// Recibe las rutas acumuladas hasta ese momento, añade las de la extensión y las devuelve. La
+    /// implementación por defecto las devuelve sin cambios.
     ///
-    /// # Operaciones disponibles
+    /// Cada ruta se monta con su acceso ([`Access`]): quién puede llegar a su *handler*, que
+    /// PageTop comprueba antes. No hay forma de montar una sin indicarlo; una ruta pública se
+    /// monta con [`Routes::public_route()`], que equivale a [`Access::Public`]. Ver [`Routes`] para
+    /// las operaciones disponibles.
     ///
-    /// | Operación                        | Llamada sobre `router`                             |
-    /// |----------------------------------|----------------------------------------------------|
-    /// | Ruta HTTP                        | `.route("/path", web::get(handler))`               |
-    /// | Rutas bajo prefijo común         | `.nest("/prefix", sub_router)`                     |
-    /// | Estado compartido entre handlers | `.with_state(my_state)`                            |
-    ///
-    /// Los archivos estáticos se registran normalmente en [`configure_static_files`], donde no
-    /// pasan por el middleware de las extensiones.
+    /// Los archivos estáticos se registran en [`configure_static_files`], donde no pasan por el
+    /// middleware de las extensiones.
     ///
     /// # Ejemplos
     ///
-    /// ## Rutas HTTP básicas
+    /// ## Rutas con su acceso
     ///
     /// ```rust,no_run
     /// # use pagetop::prelude::*;
+    /// # #[derive(Clone, Copy, Debug)]
+    /// # enum BlogPermission { Publish }
+    /// # impl Permission for BlogPermission {
+    /// #     fn key(&self) -> CowStr { "blog:publish".into() }
+    /// # }
     /// # async fn list_posts() -> &'static str { "" }
     /// # async fn view_post() -> &'static str { "" }
     /// # async fn create_post() -> &'static str { "" }
@@ -276,45 +277,20 @@ pub trait Extension: AnyInfo + Send + Sync {
     ///
     /// #[async_trait]
     /// impl Extension for Blog {
-    ///     fn configure_router(&self, router: Router) -> Router {
-    ///         router
-    ///             .route("/posts",      web::get(list_posts))
-    ///             .route("/posts/{id}", web::get(view_post))
-    ///             .route("/posts/new",  web::post(create_post))
+    ///     fn configure_router(&self, routes: Routes) -> Routes {
+    ///         let publish = Access::Permission(&BlogPermission::Publish);
+    ///         routes
+    ///             .public_route("/posts", web::get(list_posts))
+    ///             .public_route("/posts/{id}", web::get(view_post))
+    ///             .route("/posts/new", publish, web::post(create_post))
     ///     }
     /// }
     /// ```
     ///
-    /// ## Rutas agrupadas bajo un prefijo
+    /// ## Rutas agrupadas con su propio middleware
     ///
-    /// ```rust,no_run
-    /// # use pagetop::prelude::*;
-    /// # async fn dashboard() -> &'static str { "" }
-    /// # async fn list_users() -> &'static str { "" }
-    /// pub struct Admin;
-    ///
-    /// #[async_trait]
-    /// impl Extension for Admin {
-    ///     fn configure_router(&self, router: Router) -> Router {
-    ///         let admin = Router::new()
-    ///             .route("/dashboard", web::get(dashboard))
-    ///             .route("/users",     web::get(list_users));
-    ///
-    ///         router.nest("/admin", admin)
-    ///     }
-    /// }
-    /// ```
-    ///
-    /// ## Rutas con middleware acotado a esta extensión
-    ///
-    /// Cada `Router` mantiene su propia pila de middleware independiente. Cuando se crea un
-    /// `Router::new()` separado y se llama a `.layer()` sobre él, esa capa sólo se aplica a las
-    /// rutas de ese router concreto. Al fusionarlo con `.merge()` en el `router` principal, cada
-    /// ruta se añade con su middleware asociado, sin tocar las demás.
-    ///
-    /// Otra cosa es llamar a `.layer()` directamente sobre el `router` principal que se recibe como
-    /// parámetro, porque ese objeto ya contiene todas las rutas acumuladas por extensiones
-    /// anteriores, y la capa se aplica a todas las rutas, no sólo a las propias.
+    /// Un `Router::new()` aparte, con sus capas, se añade bajo un prefijo con
+    /// [`Routes::nest()`]: sus capas sólo envuelven sus rutas, y todas comparten el mismo acceso.
     ///
     /// ```rust,ignore
     /// # use pagetop::prelude::*;
@@ -322,11 +298,11 @@ pub trait Extension: AnyInfo + Send + Sync {
     ///
     /// #[async_trait]
     /// impl Extension for Api {
-    ///     fn configure_router(&self, router: Router) -> Router {
+    ///     fn configure_router(&self, routes: Routes) -> Routes {
     ///         let api = Router::new()
-    ///             .route("/api/data", web::get(get_data))
-    ///             .layer(auth_layer());
-    ///         router.merge(api)
+    ///             .route("/data", web::get(get_data))
+    ///             .layer(api_key_layer());
+    ///         routes.nest("/api", Access::Public, api)
     ///     }
     /// }
     /// ```
@@ -334,10 +310,15 @@ pub trait Extension: AnyInfo + Send + Sync {
     /// Para el middleware que deba cubrir las rutas de **todas** las extensiones, usar
     /// [`configure_middleware`].
     ///
+    /// [`Access`]: crate::auth::Access
+    /// [`Access::Public`]: crate::auth::Access::Public
+    /// [`Routes`]: crate::web::Routes
+    /// [`Routes::public_route()`]: crate::web::Routes::public_route
+    /// [`Routes::nest()`]: crate::web::Routes::nest
     /// [`configure_static_files`]: Self::configure_static_files
     /// [`configure_middleware`]: Self::configure_middleware
-    fn configure_router(&self, router: Router) -> Router {
-        router
+    fn configure_router(&self, routes: Routes) -> Routes {
+        routes
     }
 
     /// Añade capas de middleware globales a las rutas de la aplicación.
@@ -364,13 +345,16 @@ pub trait Extension: AnyInfo + Send + Sync {
     ///
     /// #[async_trait]
     /// impl Extension for MyAuth {
-    ///     fn configure_middleware(&self, router: Router) -> Router {
-    ///         router.layer(web::middleware::from_fn(session_middleware))
+    ///     fn configure_middleware(&self, layers: Layers) -> Layers {
+    ///         layers.layer(web::middleware::from_fn(session_middleware))
     ///     }
     /// }
     /// ```
-    fn configure_middleware(&self, router: Router) -> Router {
-        router
+    ///
+    /// Sólo admite capas ([`Layers`](crate::web::Layers)): las rutas se registran en
+    /// [`configure_router`](Self::configure_router), con su acceso.
+    fn configure_middleware(&self, layers: Layers) -> Layers {
+        layers
     }
 
     /// Registra los archivos estáticos de la extensión (hojas de estilo, *scripts*, fuentes,
@@ -381,12 +365,13 @@ pub trait Extension: AnyInfo + Send + Sync {
     /// **después** de [`configure_middleware`](Self::configure_middleware), así que estas rutas
     /// **no** pasan por las capas de middleware de las extensiones (p. ej. la resolución de
     /// sesión). Una página carga muchos recursos; sin esta separación, cada uno repetiría ese
-    /// trabajo, que no necesita. La implementación por defecto devuelve las rutas sin cambios.
+    /// trabajo, que no necesita. Por eso son siempre públicos. La implementación por defecto los
+    /// devuelve sin cambios.
     ///
-    /// Si algún archivo sí debe pasar por el middleware (p. ej. descargas que requieran una sesión
-    /// iniciada), se registra en [`configure_router`](Self::configure_router).
+    /// Si algún archivo debe pasar por el middleware o exigir un acceso (p. ej. descargas que
+    /// requieran una sesión iniciada), se registra en [`configure_router`](Self::configure_router).
     ///
-    /// La macro [`serve_static_files!`](crate::serve_static_files) sombrea `router` internamente,
+    /// La macro [`serve_static_files!`](crate::serve_static_files) sombrea `files` internamente,
     /// por lo que el parámetro no necesita `mut`. Sí es necesario devolverlo al final.
     ///
     /// # Ejemplo
@@ -397,14 +382,14 @@ pub trait Extension: AnyInfo + Send + Sync {
     ///
     /// #[async_trait]
     /// impl Extension for MyExtension {
-    ///     fn configure_static_files(&self, router: Router) -> Router {
-    ///         serve_static_files!(router, [assets] => "/static");
-    ///         router
+    ///     fn configure_static_files(&self, files: StaticFiles) -> StaticFiles {
+    ///         serve_static_files!(files, [assets] => "/static");
+    ///         files
     ///     }
     /// }
     /// ```
-    fn configure_static_files(&self, router: Router) -> Router {
-        router
+    fn configure_static_files(&self, files: StaticFiles) -> StaticFiles {
+        files
     }
 }
 

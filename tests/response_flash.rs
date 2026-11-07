@@ -6,15 +6,15 @@ struct FlashExtension;
 
 #[async_trait]
 impl Extension for FlashExtension {
-    fn configure_router(&self, router: Router) -> Router {
-        router
-            .route("/save", web::post(save))
-            .route(
+    fn configure_router(&self, routes: Routes) -> Routes {
+        routes
+            .public_route("/save", web::post(save))
+            .public_route(
                 "/again",
                 web::get(|| async { Redirect::see_other("/done") }),
             )
-            .route("/done", web::get(done))
-            .route("/file", web::get(|| async { "plain text" }))
+            .public_route("/done", web::get(done))
+            .public_route("/file", web::get(|| async { "plain text" }))
     }
 }
 

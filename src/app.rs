@@ -2,6 +2,7 @@
 
 mod figfont;
 
+use crate::admin;
 use crate::core::extension;
 use crate::core::extension::ExtensionRef;
 use crate::core::extension::all::StartupError;
@@ -221,7 +222,10 @@ impl Application {
         let std_listener = std::net::TcpListener::bind(&addr)?;
         std_listener.set_nonblocking(true)?;
 
-        let router = Self::build_router();
+        let router = match Self::build_router() {
+            Ok(router) => router,
+            Err(err) => Self::abort_startup(self.tracing.take(), err),
+        };
 
         // Con el puerto ya enlazado, arranca los servicios en segundo plano de las extensiones.
         if let Err(err) = extension::all::start_extensions().await {
@@ -242,8 +246,13 @@ impl Application {
     }
 
     /// Devuelve el servidor web configurado para usarlo en pruebas de integración.
+    ///
+    /// # Panics
+    ///
+    /// Si alguna ruta del panel de administración está mal montada (ver
+    /// [`Routes`](crate::web::Routes)), que con [`run()`](Self::run) detendría el arranque.
     pub fn test(self) -> Router {
-        Self::build_router()
+        Self::build_router().unwrap_or_else(|err| panic!("{err}"))
     }
 
     // Construye el router con las rutas, el middleware y los archivos estáticos de todas las
@@ -255,6 +264,10 @@ impl Application {
     // trabajo (resolver la sesión, etc.) por cada uno. El `fallback` de rutas inexistentes, en
     // cambio, se registra antes: la página 404 debe ver lo que el middleware añade a la petición
     // (p. ej. el usuario actual).
+    //
+    // Cada ruta comprueba su acceso (`web::Routes`) después de pasar por el middleware de las
+    // extensiones, cuando éste ya ha resuelto el usuario actual. Si alguna ruta del panel de
+    // administración está mal montada, se devuelve un error y la aplicación no arranca.
     //
     // Los mensajes *flash* (`keep_flash_messages()`) se registran junto al middleware de las
     // extensiones, también antes de los archivos estáticos, que no los muestran.
@@ -268,16 +281,17 @@ impl Application {
     // Las capas de páginas de error y `CatchPanicLayer` cubren todo, porque se añaden al final. Con
     // `CatchPanicLayer` en la última capa se capturan incluso los `panic!` que se produzcan dentro
     // del propio renderizado de una página de error.
-    fn build_router() -> Router {
-        let router = extension::all::configure_routes(Router::new()).fallback(route_not_found);
+    fn build_router() -> Result<Router, StartupError> {
+        let router = extension::all::configure_routes(Router::new())?;
+        let router = admin::configure_routes(router).fallback(route_not_found);
         let router = extension::all::configure_middleware(router)
             .layer(axum::middleware::from_fn(keep_flash_messages));
         let router = extension::all::configure_static_files(router);
-        router
+        Ok(router
             .layer(axum::middleware::from_fn(reject_cross_origin))
             .layer(axum::middleware::from_fn(limit_body))
             .layer(axum::middleware::from_fn(render_error_pages))
-            .layer(CatchPanicLayer::custom(response_for_panic))
+            .layer(CatchPanicLayer::custom(response_for_panic)))
     }
 }
 

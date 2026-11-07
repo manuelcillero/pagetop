@@ -10,8 +10,8 @@ impl Extension for IntroResponsive {
         vec![&pagetop_bootsier::Bootsier]
     }
 
-    fn configure_router(&self, router: Router) -> Router {
-        router.route("/", web::get(intro_responsive))
+    fn configure_router(&self, routes: Routes) -> Routes {
+        routes.public_route("/", web::get(intro_responsive))
     }
 }
 

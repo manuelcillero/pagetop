@@ -18,8 +18,8 @@ struct Echo;
 
 #[async_trait]
 impl Extension for Echo {
-    fn configure_router(&self, router: Router) -> Router {
-        router.route(
+    fn configure_router(&self, routes: Routes) -> Routes {
+        routes.public_route(
             "/item",
             web::get(|| async { "get" })
                 .post(echo)

@@ -6,8 +6,8 @@ struct IntroColors;
 
 #[async_trait]
 impl Extension for IntroColors {
-    fn configure_router(&self, router: Router) -> Router {
-        router.route("/", web::get(intro_colors))
+    fn configure_router(&self, routes: Routes) -> Routes {
+        routes.public_route("/", web::get(intro_colors))
     }
 }
 

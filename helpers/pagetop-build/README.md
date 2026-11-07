@@ -98,9 +98,9 @@ pub struct MyExtension;
 
 #[async_trait]
 impl Extension for MyExtension {
-    fn configure_static_files(&self, router: Router) -> Router {
-        serve_static_files!(router, ["./static/css", app_css] => "/public/css");
-        router
+    fn configure_static_files(&self, files: StaticFiles) -> StaticFiles {
+        serve_static_files!(files, ["./static/css", app_css] => "/public/css");
+        files
     }
 }
 ```

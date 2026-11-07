@@ -6,8 +6,8 @@ struct PanicExtension;
 
 #[async_trait]
 impl Extension for PanicExtension {
-    fn configure_router(&self, router: Router) -> Router {
-        router.route("/boom", web::get(boom))
+    fn configure_router(&self, routes: Routes) -> Routes {
+        routes.public_route("/boom", web::get(boom))
     }
 }
 

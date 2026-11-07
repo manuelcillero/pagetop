@@ -18,15 +18,15 @@ struct ActionExtension;
 
 #[async_trait]
 impl Extension for ActionExtension {
-    fn configure_router(&self, router: Router) -> Router {
-        router.route(
+    fn configure_router(&self, routes: Routes) -> Routes {
+        routes.public_route(
             "/action/{name}",
             web::get(|| async { "read" }).post(|| async { "done" }),
         )
     }
 
-    fn configure_middleware(&self, router: Router) -> Router {
-        router.layer(web::middleware::from_fn(record_path))
+    fn configure_middleware(&self, layers: Layers) -> Layers {
+        layers.layer(web::middleware::from_fn(record_path))
     }
 }
 

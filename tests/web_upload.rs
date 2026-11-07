@@ -78,15 +78,15 @@ struct Uploads;
 
 #[async_trait]
 impl Extension for Uploads {
-    fn configure_router(&self, router: Router) -> Router {
-        router
-            .route(
+    fn configure_router(&self, routes: Routes) -> Routes {
+        routes
+            .public_route(
                 "/plain",
                 web::post(|multipart: web::Multipart| {
                     save_all(web::Upload::new().with_subdir("plain"), multipart)
                 }),
             )
-            .route(
+            .public_route(
                 "/images",
                 web::post(|multipart: web::Multipart| {
                     let upload = web::Upload::new()
@@ -95,20 +95,20 @@ impl Extension for Uploads {
                     save_all(upload, multipart)
                 }),
             )
-            .route(
+            .public_route(
                 "/small",
                 web::post(|multipart: web::Multipart| {
                     let upload = web::Upload::new().with_subdir("small").with_max_size(4);
                     save_all(upload, multipart)
                 }),
             )
-            .route(
+            .public_route(
                 "/escape",
                 web::post(|multipart: web::Multipart| {
                     save_all(web::Upload::new().with_subdir("../escape"), multipart)
                 }),
             )
-            .route(
+            .public_route(
                 "/receive/{subdir}",
                 web::post(
                     |web::Path(subdir): web::Path<String>, multipart: web::Multipart| {
@@ -116,7 +116,7 @@ impl Extension for Uploads {
                     },
                 ),
             )
-            .route(
+            .public_route(
                 "/form",
                 web::post(
                     |web::Form(form): web::Form<Vec<(String, String)>>| async move {
@@ -124,13 +124,13 @@ impl Extension for Uploads {
                     },
                 ),
             )
-            .route(
+            .public_route(
                 "/files/{*path}",
                 web::get(|request: HttpRequest, web::Path(path): web::Path<String>| {
                     serve(request, web::Download::new(path))
                 }),
             )
-            .route(
+            .public_route(
                 "/named/{*path}",
                 web::get(|request: HttpRequest, web::Path(path): web::Path<String>| {
                     serve(
@@ -139,7 +139,7 @@ impl Extension for Uploads {
                     )
                 }),
             )
-            .route(
+            .public_route(
                 "/attach/{*path}",
                 web::get(|request: HttpRequest, web::Path(path): web::Path<String>| {
                     serve(request, web::Download::new(path).with_attachment(true))

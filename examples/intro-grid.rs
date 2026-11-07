@@ -10,8 +10,8 @@ impl Extension for IntroGrid {
         vec![&pagetop_bootsier::Bootsier]
     }
 
-    fn configure_router(&self, router: Router) -> Router {
-        router.route("/", web::get(intro_grid))
+    fn configure_router(&self, routes: Routes) -> Routes {
+        routes.public_route("/", web::get(intro_grid))
     }
 }
 

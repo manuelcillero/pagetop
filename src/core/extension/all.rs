@@ -1,8 +1,10 @@
+use crate::admin::build_admin_registry;
+use crate::auth::build_permission_registry;
 use crate::core::action::publish_actions;
 use crate::core::extension::ExtensionRef;
 use crate::core::theme::ThemeRef;
 use crate::core::theme::all::register_theme;
-use crate::web::Router;
+use crate::web::{Layers, Router, Routes, StaticFiles};
 use crate::{BoxError, config, global, serve_static_files, trace, web};
 
 use std::sync::OnceLock;
@@ -42,6 +44,14 @@ pub enum StartupError {
         #[source]
         source: BoxError,
     },
+    /// Rutas del panel de administración montadas sin
+    /// [`Routes::admin_route()`](crate::web::Routes::admin_route), o que no cuelgan de una página
+    /// declarada.
+    #[error(
+        "Administration routes must use admin_route() and hang from a declared page: {}",
+        .0.join(", ")
+    )]
+    InvalidAdminRoutes(Vec<String>),
 }
 
 // **< REGISTRO DE LAS EXTENSIONES >****************************************************************
@@ -127,6 +137,12 @@ pub fn register_actions() {
             .flat_map(|extension| extension.actions())
             .collect()
     });
+    // El catálogo de permisos se construye con las acciones ya publicadas y antes de inicializar
+    // las extensiones, que pueden consultarlo en `initialize()`.
+    build_permission_registry();
+    // Luego el registro del panel, cuyas acciones de declaración pueden consultar ya el catálogo
+    // de permisos.
+    build_admin_registry();
 }
 
 // **< CARGA LOS AJUSTES >**************************************************************************
@@ -224,7 +240,11 @@ pub async fn shutdown_extensions() {
 
 // **< CONFIGURA LAS RUTAS >************************************************************************
 
-pub fn configure_routes(router: Router) -> Router {
+/// Añade las rutas de todas las extensiones, cada una con su acceso.
+///
+/// Devuelve un error si alguna ruta del panel de administración no se monta con
+/// [`Routes::admin_route()`](crate::web::Routes::admin_route) o no cuelga de una página declarada.
+pub fn configure_routes(router: Router) -> Result<Router, StartupError> {
     // Sólo compila durante el desarrollo, para evitar errores 400 en la traza de eventos.
     #[cfg(debug_assertions)]
     let router = router.route(
@@ -236,7 +256,9 @@ pub fn configure_routes(router: Router) -> Router {
         .get()
         .into_iter()
         .flatten()
-        .fold(router, |r, e| e.configure_router(r))
+        .fold(Routes::new(router), |r, e| e.configure_router(r))
+        .into_router()
+        .map_err(StartupError::InvalidAdminRoutes)
 }
 
 // **< CONFIGURA EL MIDDLEWARE GLOBAL >*************************************************************
@@ -251,7 +273,8 @@ pub fn configure_middleware(router: Router) -> Router {
         .get()
         .into_iter()
         .flatten()
-        .fold(router, |r, e| e.configure_middleware(r))
+        .fold(Layers::new(router), |l, e| e.configure_middleware(l))
+        .into_router()
 }
 
 // **< CONFIGURA LOS ARCHIVOS ESTÁTICOS >***********************************************************
@@ -261,15 +284,15 @@ pub fn configure_middleware(router: Router) -> Router {
 /// Se llama después de [`configure_middleware`], para que estas rutas no pasen por las capas de
 /// middleware de las extensiones.
 pub fn configure_static_files(router: Router) -> Router {
-    let router = EXTENSIONS
+    let files = EXTENSIONS
         .get()
         .into_iter()
         .flatten()
-        .fold(router, |r, e| e.configure_static_files(r));
+        .fold(StaticFiles::new(router), |f, e| e.configure_static_files(f));
 
-    serve_static_files!(router, [&global::SETTINGS.dev.pagetop_static_dir, assets] => "/pagetop");
+    serve_static_files!(files, [&global::SETTINGS.dev.pagetop_static_dir, assets] => "/pagetop");
 
-    router
+    files.into_router()
 }
 
 #[cfg(test)]

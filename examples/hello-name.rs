@@ -4,8 +4,8 @@ struct HelloName;
 
 #[async_trait]
 impl Extension for HelloName {
-    fn configure_router(&self, router: Router) -> Router {
-        router.route("/hello/{name}", web::get(hello_name))
+    fn configure_router(&self, routes: Routes) -> Routes {
+        routes.public_route("/hello/{name}", web::get(hello_name))
     }
 }
 

@@ -21,8 +21,8 @@ impl Extension for Welcome {
         Lc::l("welcome_extension_description")
     }
 
-    fn configure_router(&self, router: Router) -> Router {
-        router.route("/", web::get(home))
+    fn configure_router(&self, routes: Routes) -> Routes {
+        routes.public_route("/", web::get(home))
     }
 }
 

@@ -53,8 +53,8 @@ struct HelloWorld;
 
 #[async_trait]
 impl Extension for HelloWorld {
-    fn configure_router(&self, router: Router) -> Router {
-        router.route("/", web::get(hello_world))
+    fn configure_router(&self, routes: Routes) -> Routes {
+        routes.public_route("/", web::get(hello_world))
     }
 }
 
@@ -102,8 +102,8 @@ El código se organiza en un *workspace* donde actualmente se incluyen los sigui
 ### Extensiones
 
   * **[pagetop-admin](https://git.cillero.es/manuelcillero/pagetop/src/branch/main/extensions/pagetop-admin)**,
-    panel de administración extensible, al que cada extensión añade sus secciones, páginas y
-    formularios de configuración.
+    páginas de ajustes del panel de administración que se guardan en la base de datos y se cambian
+    desde el propio panel.
 
   * **[pagetop-aliner](https://git.cillero.es/manuelcillero/pagetop/src/branch/main/extensions/pagetop-aliner)**,
     es un tema para demos y pruebas que muestra esquemáticamente la composición de las páginas HTML.
@@ -128,7 +128,7 @@ El código se organiza en un *workspace* donde actualmente se incluyen los sigui
     integra [SeaORM](https://www.sea-ql.org/SeaORM) para acceder a bases de datos relacionales.
 
   * **[pagetop-user](https://git.cillero.es/manuelcillero/pagetop/src/branch/main/extensions/pagetop-user)**,
-    gestiona usuarios, autenticación, roles y permisos, con su administración en `pagetop-admin`.
+    gestiona usuarios, autenticación, roles y permisos, con su administración en el panel.
 
 ## Pruebas
 

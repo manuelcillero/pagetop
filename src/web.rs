@@ -51,7 +51,7 @@ pub use axum::extract::multipart;
 pub use axum::response::{IntoResponse, Response};
 
 // Operaciones HTTP para registrar rutas.
-pub use axum::routing::{delete, get, patch, post, put};
+pub use axum::routing::{MethodRouter, delete, get, patch, post, put};
 
 // Middlewares de función (`from_fn`) y tipos asociados (`Next`).
 pub use axum::middleware;
@@ -68,6 +68,10 @@ pub use download::Download;
 // Protección frente a CSRF, aplicada a todas las rutas por `Application`.
 mod csrf;
 pub(crate) use csrf::reject_cross_origin;
+
+// Rutas de las extensiones con su acceso, capas globales y archivos estáticos.
+mod routes;
+pub use routes::{Layers, Routes, StaticFiles};
 
 use axum::body::Body;
 use axum::extract::FromRequestParts;
@@ -212,11 +216,18 @@ impl<S: Send + Sync> FromRequestParts<S> for HttpRequest {
         parts: &mut http::request::Parts,
         _state: &S,
     ) -> Result<Self, Self::Rejection> {
-        Ok(HttpRequest(Arc::new(RequestParts {
+        Ok(HttpRequest::from_parts(parts))
+    }
+}
+
+impl HttpRequest {
+    // También la usa el *middleware* que comprueba el acceso de las rutas, antes del *handler*.
+    pub(crate) fn from_parts(parts: &http::request::Parts) -> Self {
+        HttpRequest(Arc::new(RequestParts {
             uri: parts.uri.clone(),
             headers: parts.headers.clone(),
             extensions: parts.extensions.clone(),
-        })))
+        }))
     }
 }
 
@@ -373,7 +384,8 @@ impl tower::Service<http::Request<Body>> for ServeEmbedded {
 /// Se usa normalmente en el método [`configure_static_files()`] de las extensiones, para que estas
 /// rutas no pasen por su middleware.
 ///
-/// La macro añade rutas al [`Router`] del primer argumento usando uno de los tres modos posibles:
+/// La macro añade los archivos a los [`StaticFiles`] del primer argumento, siempre públicos, usando
+/// uno de los tres modos posibles:
 ///
 /// - **Sistema de ficheros o embebido** (`[$dir, $bundle]`): intenta servir los archivos desde el
 ///   directorio `$dir`; si está vacío, no existe o no es un directorio, usa el conjunto de recursos
@@ -385,7 +397,7 @@ impl tower::Service<http::Request<Body>> for ServeEmbedded {
 ///
 /// # Argumentos
 ///
-/// * `$router` - Variable de tipo [`Router`] donde registrar las rutas.
+/// * `$router` - Variable de tipo [`StaticFiles`] donde registrar los archivos.
 /// * `$dir`    - Ruta al directorio local con los archivos estáticos.
 /// * `$bundle` - Nombre del conjunto de recursos embebidos generado por `build.rs`.
 /// * `$path`   - Prefijo URL bajo el que se publicarán los archivos.
@@ -398,17 +410,17 @@ impl tower::Service<http::Request<Body>> for ServeEmbedded {
 ///
 /// #[async_trait]
 /// impl Extension for MyExtension {
-///     fn configure_static_files(&self, router: Router) -> Router {
+///     fn configure_static_files(&self, files: StaticFiles) -> StaticFiles {
 ///         // Forma 1) Sistema de ficheros o embebido.
-///         serve_static_files!(router, ["/var/www/static", assets] => "/public");
+///         serve_static_files!(files, ["/var/www/static", assets] => "/public");
 ///
 ///         // Forma 2) Siempre embebido.
-///         serve_static_files!(router, [assets] => "/public");
+///         serve_static_files!(files, [assets] => "/public");
 ///
 ///         // Forma 3) Sólo sistema de ficheros (no requiere `assets`).
-///         serve_static_files!(router, "/var/www/static" => "/public");
+///         serve_static_files!(files, "/var/www/static" => "/public");
 ///
-///         router
+///         files
 ///     }
 /// }
 /// ```
@@ -614,7 +626,8 @@ pub mod test {
         }
 
         /// Construye un [`HttpRequest`](super::HttpRequest) listo para pasarlo a
-        /// [`Context::new`](crate::core::component::Context::new) en tests unitarios de componentes.
+        /// [`Context::new`](crate::core::component::Context::new) en tests unitarios de
+        /// componentes.
         pub fn to_http_request(self) -> super::HttpRequest {
             let uri = self.uri.parse().unwrap();
             super::HttpRequest(std::sync::Arc::new(super::RequestParts {
