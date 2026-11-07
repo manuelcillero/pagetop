@@ -41,30 +41,48 @@ fn login_redirect(request: HttpRequest, next: &'static str) -> Response {
 }
 
 // Respuesta a un usuario anónimo sin acceso a una ruta (acción `AnonymousDenied`): el formulario de
-// inicio de sesión, que vuelve después a la ruta pedida.
+// inicio de sesión, que vuelve después a la página de la que venía (ver `return_path()`). Si
+// enviaba algo, se le avisa de que no se ha guardado: el envío se pierde, y no se repite al volver.
 //
 // Una petición HTMX seguiría la redirección sin avisar y pintaría el formulario dentro del
 // fragmento que esperaba, así que se le pide con `HX-Redirect` que cargue la página completa.
-// Vuelve después a la página que tenía abierta el navegador (`HX-Current-URL`), no a la ruta del
-// fragmento, que puede no admitir `GET`.
 pub(crate) fn offer_login(request: &HttpRequest) -> Option<Response> {
-    let is_htmx = request.is_htmx();
-    let waypoint = if is_htmx {
-        Waypoint::new(
-            request
-                .hx_current_url()
-                .and_then(|url| url.parse::<web::http::Uri>().ok())
-                .and_then(|uri| uri.path_and_query().map(|pq| pq.as_str().to_owned())),
-        )
-    } else {
-        Waypoint::new(request.uri().to_owned())
-    };
-    let login = waypoint.append_to(Context::new(request.clone()).route(LOGIN_PATH));
-    Some(if is_htmx {
+    let cx = Context::new(request.clone());
+    let login = Waypoint::new(return_path(request)).append_to(cx.route(LOGIN_PATH));
+    let response = if request.is_htmx() {
         HtmxResponse::empty().redirect(login).into_response()
     } else {
         Redirect::see_other(login).into_response()
+    };
+    Some(if request.method().is_safe() {
+        response
+    } else {
+        response.with_message(
+            &cx,
+            MessageLevel::Warning,
+            Lc::t("msg-login-required", &LOCALES_USER),
+        )
     })
+}
+
+// Ruta a la que volver tras iniciar sesión: la pedida, si se puede abrir de nuevo. La de un
+// fragmento HTMX o la de un envío puede no admitir `GET`, así que entonces es la página que tenía
+// abierta el navegador (`HX-Current-URL` o `Referer`). Un `Referer` de otro sitio, posible con
+// `server.trusted_origins`, no dice nada de esta aplicación: se vuelve sin destino.
+fn return_path(request: &HttpRequest) -> Option<String> {
+    use web::http::{Uri, header};
+
+    let path_of = |uri: Uri| uri.path_and_query().map(|pq| pq.as_str().to_owned());
+    if request.is_htmx() {
+        return path_of(request.hx_current_url()?.parse().ok()?);
+    }
+    if request.method().is_safe() {
+        return Some(request.uri().to_owned());
+    }
+    let headers = request.headers();
+    let referer: Uri = headers.get(header::REFERER)?.to_str().ok()?.parse().ok()?;
+    let host = headers.get(header::HOST)?.to_str().ok()?;
+    (referer.authority()?.as_str() == host).then(|| path_of(referer))?
 }
 
 // **< profile_get >********************************************************************************
@@ -187,8 +205,8 @@ pub(crate) async fn public_profile_get(
     request: HttpRequest,
     web::Path(id): web::Path<i32>,
 ) -> Result<Response, ErrorPage> {
-    // El permiso se comprueba antes de buscar al usuario para no revelar qué ids existen. Sin él, la
-    // misma respuesta que una ruta sin acceso: el inicio de sesión a un anónimo y 403 al resto.
+    // El permiso se comprueba antes de buscar al usuario para no revelar qué ids existen. Sin él,
+    // la misma respuesta que una ruta sin acceso: el inicio de sesión a un anónimo y 403 al resto.
     if current_user_id(&request) != Some(id)
         && !has_permission(&request, &UserPermission::ViewProfiles)
     {

@@ -74,6 +74,7 @@ msg-email-change-pending =
 
 msg-confirm-email-change = Pulsa el botón para usar esta dirección de correo en tu cuenta.
 
+msg-login-required = Inicia sesión para continuar. Lo que acabas de enviar no se ha guardado.
 msg-account-created = Tu cuenta se ha creado. Ya puedes iniciar sesión.
 msg-email-verified = Tu dirección de correo se ha confirmado.
 msg-password-reset-done = Tu contraseña se ha cambiado. Inicia sesión con la nueva.

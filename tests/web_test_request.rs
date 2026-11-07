@@ -70,3 +70,10 @@ async fn a_form_request_without_fields_is_rejected() {
     let (status, _) = send(web::test::TestRequest::post()).await;
     assert!(status.is_client_error());
 }
+
+#[pagetop::test]
+async fn http_request_exposes_the_method() {
+    let request = web::test::TestRequest::post().to_http_request();
+    assert_eq!(request.method(), web::http::Method::POST);
+    assert!(!request.method().is_safe());
+}

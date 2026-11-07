@@ -125,12 +125,18 @@ pub struct HttpRequest(Arc<RequestParts>);
 // de los handlers, donde un tipo grande se copiaría en cada retorno.
 #[derive(Debug)]
 struct RequestParts {
+    method: http::Method,
     uri: http::Uri,
     headers: http::HeaderMap,
     extensions: http::Extensions,
 }
 
 impl HttpRequest {
+    /// Devuelve el método HTTP de la petición.
+    pub fn method(&self) -> &http::Method {
+        &self.0.method
+    }
+
     /// Devuelve la URI completa de la petición, incluyendo la *query string* si la hay.
     pub fn uri(&self) -> &str {
         self.0
@@ -224,6 +230,7 @@ impl HttpRequest {
     // También la usa el *middleware* que comprueba el acceso de las rutas, antes del *handler*.
     pub(crate) fn from_parts(parts: &http::request::Parts) -> Self {
         HttpRequest(Arc::new(RequestParts {
+            method: parts.method.clone(),
             uri: parts.uri.clone(),
             headers: parts.headers.clone(),
             extensions: parts.extensions.clone(),
@@ -631,6 +638,7 @@ pub mod test {
         pub fn to_http_request(self) -> super::HttpRequest {
             let uri = self.uri.parse().unwrap();
             super::HttpRequest(std::sync::Arc::new(super::RequestParts {
+                method: self.method,
                 uri,
                 headers: self.headers,
                 extensions: self.extensions,

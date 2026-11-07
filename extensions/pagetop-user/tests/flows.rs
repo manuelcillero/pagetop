@@ -828,4 +828,51 @@ async fn anonymous_visitors_are_offered_to_sign_in(client: &Client) {
         reply.header("hx-redirect"),
         "/user/login?waypoint=%2Fadmin%2Fuser%2Fusers%3Fsort%3Dname"
     );
+    // Reading a page or a fragment loses nothing, so there is nothing to warn about.
+    assert_eq!(reply.header("set-cookie"), "");
+
+    // A submission returns to the page it came from: its own route may only accept `POST`.
+    let submit = || {
+        web::test::TestRequest::post()
+            .uri("/admin/user/users/new")
+            .header("host", "app.example")
+    };
+    let reply = client
+        .send(submit().header("referer", "https://app.example/admin/user/users?page=2"))
+        .await;
+    assert_eq!(reply.status, Status::SEE_OTHER);
+    assert_eq!(
+        reply.location(),
+        "/user/login?waypoint=%2Fadmin%2Fuser%2Fusers%3Fpage%3D2"
+    );
+    // The login page warns that it was not saved.
+    let flash = reply.header("set-cookie").split(';').next().unwrap();
+    let page = client.get("/user/login", Some(flash)).await;
+    assert!(page.body.contains("Sign in to continue"), "{}", page.body);
+
+    // Without a page to return to, or with one of another site, it signs in without a destination.
+    for reply in [
+        client.send(submit()).await,
+        client
+            .send(submit().header("referer", "https://other.example/admin/user/users"))
+            .await,
+    ] {
+        assert_eq!(reply.status, Status::SEE_OTHER);
+        assert_eq!(reply.location(), "/user/login");
+        assert!(reply.header("set-cookie").starts_with("pagetop_flash="));
+    }
+
+    // With HTMX, a submission also warns, and returns to the page open in the browser.
+    let reply = client
+        .send(
+            submit()
+                .header("hx-request", "true")
+                .header("hx-current-url", "https://app.example/admin/user/users"),
+        )
+        .await;
+    assert_eq!(
+        reply.header("hx-redirect"),
+        "/user/login?waypoint=%2Fadmin%2Fuser%2Fusers"
+    );
+    assert!(reply.header("set-cookie").starts_with("pagetop_flash="));
 }
