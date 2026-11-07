@@ -28,66 +28,49 @@ fn grant_tools(_: &HttpRequest, perm: PermissionRef, granted: &mut bool) {
 }
 
 fn declare_pages(bag: &mut AdminPageBag) {
-    bag.add(AdminPage {
-        path: "config/export".to_owned(),
-        section: "config".to_owned(),
-        title: Lc::n("Export"),
-        description: Lc::none(),
-        weight: 0,
-        permission: &ToolsPermission,
-    });
-    bag.add(AdminPage {
-        path: "reports/audit".to_owned(),
-        section: "reports".to_owned(),
-        title: Lc::n("Audit"),
-        description: Lc::none(),
-        weight: 0,
-        permission: &AuditPermission,
-    });
+    bag.add(AdminPage::new(
+        "config/export",
+        "config",
+        Lc::n("Export"),
+        &ToolsPermission,
+    ));
+    bag.add(AdminPage::new(
+        "reports/audit",
+        "reports",
+        Lc::n("Audit"),
+        &AuditPermission,
+    ));
 }
 
 fn declare_tasks(bag: &mut AdminTaskBag) {
-    bag.add(AdminTask {
-        path: "config/export".to_owned(),
-        parent_path: "config/export".to_owned(),
-        title: Lc::n("All"),
-        weight: 0,
-        is_default: true,
-        permission: None,
-    });
-    bag.add(AdminTask {
-        path: "config/export/csv".to_owned(),
-        parent_path: "config/export".to_owned(),
-        title: Lc::n("CSV"),
-        weight: 1,
-        is_default: false,
-        permission: None,
-    });
-    bag.add(AdminTask {
-        path: "config/export/log".to_owned(),
-        parent_path: "config/export".to_owned(),
-        title: Lc::n("Log"),
-        weight: 2,
-        is_default: false,
-        permission: Some(&AuditPermission),
-    });
+    bag.add(AdminTask::new(
+        "config/export",
+        "config/export",
+        Lc::n("All"),
+    ));
+    bag.add(AdminTask::new("config/export/csv", "config/export", Lc::n("CSV")).with_weight(1));
+    bag.add(
+        AdminTask::new("config/export/log", "config/export", Lc::n("Log"))
+            .with_weight(2)
+            .with_permission(&AuditPermission),
+    );
 }
 
 fn declare_actions(bag: &mut AdminActionBag) {
-    bag.add(AdminAction {
-        url: "config/export/new".to_owned(),
-        for_path: "config/export".to_owned(),
-        title: Lc::n("New export"),
-        weight: 0,
-        permission: None,
-    });
-    bag.add(AdminAction {
-        url: "config/export/purge".to_owned(),
-        for_path: "config/export".to_owned(),
-        title: Lc::n("Purge exports"),
-        weight: 1,
-        permission: Some(&AuditPermission),
-    });
+    bag.add(AdminAction::new(
+        "config/export/new",
+        "config/export",
+        Lc::n("New export"),
+    ));
+    bag.add(
+        AdminAction::new(
+            "config/export/purge",
+            "config/export",
+            Lc::n("Purge exports"),
+        )
+        .with_weight(1)
+        .with_permission(&AuditPermission),
+    );
 }
 
 struct Ext;

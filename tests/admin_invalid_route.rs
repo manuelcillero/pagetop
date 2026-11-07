@@ -11,14 +11,12 @@ impl Permission for ToolsPermission {
 }
 
 fn declare_pages(bag: &mut AdminPageBag) {
-    bag.add(AdminPage {
-        path: "config/export".to_owned(),
-        section: "config".to_owned(),
-        title: Lc::n("Export"),
-        description: Lc::none(),
-        weight: 0,
-        permission: &ToolsPermission,
-    });
+    bag.add(AdminPage::new(
+        "config/export",
+        "config",
+        Lc::n("Export"),
+        &ToolsPermission,
+    ));
 }
 
 struct Ext;

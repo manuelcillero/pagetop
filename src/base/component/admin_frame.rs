@@ -49,9 +49,9 @@ impl Component for AdminFrame {
         // Sin título propio, la página declarada aporta el suyo, también al `<head>` (que se
         // renderiza después del `<body>`).
         if cx.title().is_none()
-            && let Some(page) = AdminRegistry::global().pages().get(&path)
+            && let Some(page) = AdminRegistry::global().page(&path)
         {
-            cx.alter_title(page.title.clone());
+            cx.alter_title(page.title().clone());
         }
 
         let breadcrumbs = breadcrumbs(cx, &path).render(cx).await;
@@ -89,26 +89,26 @@ fn breadcrumbs(cx: &Context, path: &str) -> Breadcrumb {
         admin_path(""),
     ));
     if let Some(page) = registry.nearest_page(path) {
-        if let Some(section) = registry.sections().get(&page.section) {
+        if let Some(section) = registry.section(page.section()) {
             bc = bc.with_crumb(breadcrumb::Crumb::new(
-                section.title.clone(),
-                admin_path(&section.path),
+                section.title().clone(),
+                admin_path(section.path()),
             ));
         }
-        if page.path == path {
-            bc = bc.with_crumb(breadcrumb::Crumb::current(page.title.clone()));
+        if page.path() == path {
+            bc = bc.with_crumb(breadcrumb::Crumb::current(page.title().clone()));
         } else {
             bc = bc.with_crumb(breadcrumb::Crumb::new(
-                page.title.clone(),
-                admin_path(&page.path),
+                page.title().clone(),
+                admin_path(page.path()),
             ));
             if !cx.title().is_none() {
                 bc = bc.with_crumb(breadcrumb::Crumb::current(cx.title().clone()));
             }
         }
-    } else if let Some(section) = registry.sections().values().find(|s| s.path == path) {
+    } else if let Some(section) = registry.section_by_path(path) {
         // La ruta es la propia sección (su página de aterrizaje), no una página declarada en ella.
-        bc = bc.with_crumb(breadcrumb::Crumb::current(section.title.clone()));
+        bc = bc.with_crumb(breadcrumb::Crumb::current(section.title().clone()));
     }
     bc
 }
@@ -117,16 +117,11 @@ fn breadcrumbs(cx: &Context, path: &str) -> Breadcrumb {
 // permiso que el usuario no tiene no se muestran.
 fn local_tasks(cx: &Context, path: &str) -> Markup {
     let registry = AdminRegistry::global();
-    let parent = registry
-        .tasks()
-        .values()
-        .flatten()
-        .find(|task| task.path == path)
-        .map_or(path, |task| task.parent_path.as_str());
+    let parent = registry.task(path).map_or(path, |task| task.parent_path());
     let tasks: Vec<_> = registry
         .tasks_for(parent)
-        .into_iter()
-        .filter(|task| is_granted(cx, task.permission))
+        .iter()
+        .filter(|task| is_granted(cx, task.permission()))
         .collect();
     if tasks.is_empty() {
         return html! {};
@@ -134,8 +129,8 @@ fn local_tasks(cx: &Context, path: &str) -> Markup {
     html! {
         ul class="admin-tasks-list" {
             @for task in tasks {
-                li class="admin-task" .admin-task-active[task.path == path] {
-                    a href=(cx.route(admin_path(&task.path))) { (task.title.using(cx)) }
+                li class="admin-task" .admin-task-active[task.path() == path] {
+                    a href=(cx.route(admin_path(task.path()))) { (task.title().using(cx)) }
                 }
             }
         }
@@ -147,8 +142,8 @@ fn local_tasks(cx: &Context, path: &str) -> Markup {
 fn local_actions(cx: &Context, path: &str) -> Markup {
     let actions: Vec<_> = AdminRegistry::global()
         .actions_for(path)
-        .into_iter()
-        .filter(|action| is_granted(cx, action.permission))
+        .iter()
+        .filter(|action| is_granted(cx, action.permission()))
         .collect();
     if actions.is_empty() {
         return html! {};
@@ -157,8 +152,8 @@ fn local_actions(cx: &Context, path: &str) -> Markup {
         ul class="admin-actions-list" {
             @for action in actions {
                 li class="admin-action" {
-                    a class="admin-action-link" href=(cx.route(admin_path(&action.url))) {
-                        (action.title.using(cx))
+                    a class="admin-action-link" href=(cx.route(admin_path(action.url()))) {
+                        (action.title().using(cx))
                     }
                 }
             }

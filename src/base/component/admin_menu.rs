@@ -32,20 +32,20 @@ impl Component for AdminMenu {
 
         let mut nav =
             Nav::new().with_item(nav::Item::link(Lc::l("admin_dashboard"), admin_path("")));
-        for section in registry.ordered_sections() {
+        for section in registry.sections() {
             let pages: Vec<_> = registry
-                .pages_for_section(&section.key)
-                .into_iter()
+                .pages_for_section(section.key())
+                .iter()
                 .filter(|p| p.is_accessible(cx))
                 .collect();
             if pages.is_empty() {
                 continue;
             }
-            let mut menu = Dropdown::new().with_title(section.title.clone());
+            let mut menu = Dropdown::new().with_title(section.title().clone());
             for page in pages {
                 menu = menu.with_item(dropdown::Item::link(
-                    page.title.clone(),
-                    admin_path(&page.path),
+                    page.title().clone(),
+                    admin_path(page.path()),
                 ));
             }
             nav = nav.with_item(nav::Item::dropdown(menu));

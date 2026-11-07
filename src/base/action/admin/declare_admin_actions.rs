@@ -4,20 +4,14 @@ use super::FnActionDeclareAdminActions;
 
 /// Acción para declarar acciones locales (botones de acción) en páginas del panel.
 ///
-/// Cada [`AdminAction`] indica en `for_path` la página en la que aparece el botón.
+/// Cada [`AdminAction`] indica la página en la que aparece el botón.
 ///
 /// # Ejemplo
 ///
 /// ```rust,no_run
 /// # use pagetop::prelude::*;
 /// fn declare_actions(bag: &mut AdminActionBag) {
-///     bag.add(AdminAction {
-///         url: "config/export/new".to_owned(),
-///         for_path: "config/export".to_owned(),
-///         title: Lc::n("Add export"),
-///         weight: 0,
-///         permission: None,
-///     });
+///     bag.add(AdminAction::new("config/export/new", "config/export", Lc::n("Add export")));
 /// }
 /// // En Extension::actions():
 /// // action::admin::DeclareAdminActions::new(declare_actions)

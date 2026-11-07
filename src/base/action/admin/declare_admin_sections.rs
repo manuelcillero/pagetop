@@ -12,12 +12,7 @@ use super::FnActionDeclareAdminSections;
 /// ```rust,no_run
 /// # use pagetop::prelude::*;
 /// fn declare_sections(bag: &mut AdminSectionBag) {
-///     bag.add(AdminSection {
-///         key: "tools".to_owned(),
-///         path: "tools".to_owned(),
-///         title: Lc::n("Tools"),
-///         weight: 60,
-///     });
+///     bag.add(AdminSection::new("tools", Lc::n("Tools")).with_weight(60));
 /// }
 /// // En Extension::actions():
 /// // action::admin::DeclareAdminSections::new(declare_sections)

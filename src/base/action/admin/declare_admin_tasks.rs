@@ -4,21 +4,16 @@ use super::FnActionDeclareAdminTasks;
 
 /// Acción para declarar tareas (pestañas) locales en páginas del panel.
 ///
-/// Cada [`AdminTask`] indica en `parent_path` la página a la que pertenece.
+/// Cada [`AdminTask`] indica la página a la que pertenece; la pestaña con la ruta de la propia
+/// página es la activa al entrar en ella.
 ///
 /// # Ejemplo
 ///
 /// ```rust,no_run
 /// # use pagetop::prelude::*;
 /// fn declare_tasks(bag: &mut AdminTaskBag) {
-///     bag.add(AdminTask {
-///         path: "config/export/csv".to_owned(),
-///         parent_path: "config/export".to_owned(),
-///         title: Lc::n("CSV"),
-///         weight: 0,
-///         is_default: true,
-///         permission: None,
-///     });
+///     bag.add(AdminTask::new("config/export", "config/export", Lc::n("All")));
+///     bag.add(AdminTask::new("config/export/csv", "config/export", Lc::n("CSV")).with_weight(1));
 /// }
 /// // En Extension::actions():
 /// // action::admin::DeclareAdminTasks::new(declare_tasks)

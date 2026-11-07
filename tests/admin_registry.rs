@@ -12,55 +12,33 @@ impl Permission for ToolsPermission {
 }
 
 fn declare_sections(bag: &mut AdminSectionBag) {
-    bag.add(AdminSection {
-        key: "tools".to_owned(),
-        path: "tools".to_owned(),
-        title: Lc::n("Tools"),
-        weight: 35,
-    });
+    bag.add(AdminSection::new("tools", Lc::n("Tools")).with_weight(35));
     // Replaces the built-in section with the same key.
-    bag.add(AdminSection {
-        key: "help".to_owned(),
-        path: "support".to_owned(),
-        title: Lc::n("Support"),
-        weight: 5,
-    });
+    bag.add(
+        AdminSection::new("help", Lc::n("Support"))
+            .with_path("support")
+            .with_weight(5),
+    );
 }
 
 fn declare_pages(bag: &mut AdminPageBag) {
     for (path, weight) in [("tools/export", 10), ("/tools/import/", 0)] {
-        bag.add(AdminPage {
-            path: path.to_owned(),
-            section: "tools".to_owned(),
-            title: Lc::n(path),
-            description: Lc::none(),
-            weight,
-            permission: &ToolsPermission,
-        });
+        bag.add(AdminPage::new(path, "tools", Lc::n(path), &ToolsPermission).with_weight(weight));
     }
 }
 
 fn declare_tasks(bag: &mut AdminTaskBag) {
     for (path, weight) in [("tools/export/json", 1), ("tools/export/csv", 0)] {
-        bag.add(AdminTask {
-            path: path.to_owned(),
-            parent_path: "/tools/export".to_owned(),
-            title: Lc::n(path),
-            weight,
-            is_default: weight == 0,
-            permission: None,
-        });
+        bag.add(AdminTask::new(path, "/tools/export", Lc::n(path)).with_weight(weight));
     }
 }
 
 fn declare_actions(bag: &mut AdminActionBag) {
-    bag.add(AdminAction {
-        url: "tools/export/new/".to_owned(),
-        for_path: "tools/export".to_owned(),
-        title: Lc::n("New export"),
-        weight: 0,
-        permission: None,
-    });
+    bag.add(AdminAction::new(
+        "tools/export/new/",
+        "tools/export",
+        Lc::n("New export"),
+    ));
 }
 
 struct Ext;
@@ -87,9 +65,9 @@ async fn start() {
 async fn built_in_sections_come_first_and_can_be_replaced() {
     start().await;
     let keys: Vec<_> = AdminRegistry::global()
-        .ordered_sections()
-        .into_iter()
-        .map(|s| (s.key.as_str(), s.path.as_str()))
+        .sections()
+        .iter()
+        .map(|s| (s.key(), s.path()))
         .collect();
     assert_eq!(
         keys,
@@ -110,21 +88,21 @@ async fn paths_are_kept_relative_without_surrounding_slashes() {
     let registry = AdminRegistry::global();
     let pages: Vec<_> = registry
         .pages_for_section("tools")
-        .into_iter()
-        .map(|p| p.path.as_str())
+        .iter()
+        .map(|p| p.path())
         .collect();
     assert_eq!(pages, ["tools/import", "tools/export"]);
 
     let tasks: Vec<_> = registry
         .tasks_for("tools/export")
-        .into_iter()
-        .map(|t| t.path.as_str())
+        .iter()
+        .map(|t| t.path())
         .collect();
     assert_eq!(tasks, ["tools/export/csv", "tools/export/json"]);
 
     let actions = registry.actions_for("tools/export");
     assert_eq!(actions.len(), 1);
-    assert_eq!(actions[0].url, "tools/export/new");
+    assert_eq!(actions[0].url(), "tools/export/new");
 }
 
 #[pagetop::test]

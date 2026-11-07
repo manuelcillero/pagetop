@@ -44,14 +44,10 @@
 //! }
 //!
 //! fn declare_pages(bag: &mut AdminPageBag) {
-//!     bag.add(AdminPage {
-//!         path: "config/export".to_owned(),
-//!         section: "config".to_owned(),
-//!         title: Lc::n("Export"),
-//!         description: Lc::n("Export site data."),
-//!         weight: 0,
-//!         permission: &ToolsPermission::Export,
-//!     });
+//!     bag.add(
+//!         AdminPage::new("config/export", "config", Lc::n("Export"), &ToolsPermission::Export)
+//!             .with_description(Lc::n("Export site data.")),
+//!     );
 //! }
 //!
 //! // PageTop ya ha comprobado el permiso de la página antes de llegar aquí.
@@ -137,6 +133,6 @@ pub fn can_access_admin(cx: &Context) -> bool {
     let registry = AdminRegistry::global();
     registry
         .pages()
-        .values()
-        .any(|page| registry.sections().contains_key(&page.section) && page.is_accessible(cx))
+        .iter()
+        .any(|page| registry.section(page.section()).is_some() && page.is_accessible(cx))
 }
