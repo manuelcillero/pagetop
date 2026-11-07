@@ -2308,7 +2308,6 @@ dependencies = [
  "argon2",
  "base64ct",
  "pagetop",
- "pagetop-admin",
  "pagetop-htmx",
  "pagetop-mail",
  "pagetop-seaorm",

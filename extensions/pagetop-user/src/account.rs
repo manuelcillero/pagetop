@@ -58,6 +58,8 @@ impl PermissionSet {
 /// Se almacena en las extensiones de la petición HTTP durante la fase de middleware y se accede
 /// desde los handlers o desde handlers de [`CheckPermission`] mediante
 /// [`HttpRequest::extension::<Account>()`](pagetop::web::HttpRequest::extension).
+///
+/// [`CheckPermission`]: pagetop::base::action::auth::CheckPermission
 #[derive(Clone, Debug, Getters)]
 pub struct Account {
     /// Identificador del usuario.

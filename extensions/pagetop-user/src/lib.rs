@@ -15,8 +15,8 @@
 Añade cuentas de usuario a una aplicación PageTop: registro, inicio de sesión con sesiones en la
 base de datos, perfil propio, recuperación de contraseña y verificación del email por correo, y
 control de acceso con roles y permisos. Incluye las páginas de administración de usuarios, roles y
-permisos sobre `pagetop-admin`, hechas sólo con componentes del núcleo para que funcionen con
-cualquier tema.
+permisos en el panel de administración del núcleo, hechas sólo con componentes del núcleo para que
+funcionen con cualquier tema.
 
 ## Sobre PageTop
 
@@ -48,9 +48,11 @@ admin_email    = "admin@example.com"
 # Sin 'admin_password', se genera una aleatoria y se muestra una sola vez al crearlo.
 ```
 
-**Comprueba los permisos** en tus *handlers*. El usuario actual se inyecta automáticamente en el
-contexto de cada [`Page`] al crearla con [`Page::new()`], y las funciones del núcleo, como
-[`has_permission()`], lo consultan:
+**Protege tus rutas** con su acceso (`Access`): PageTop lo comprueba antes de llegar al *handler*
+con los permisos que concede esta extensión, y a un usuario anónimo sin acceso le ofrece el inicio
+de sesión. Dentro del *handler*, el usuario actual está en el contexto de cada [`Page`] al crearla
+con [`Page::new()`], y funciones del núcleo como [`has_permission()`] lo consultan para las
+comprobaciones más concretas:
 
 ```rust,no_run
 use pagetop::prelude::*;
@@ -77,15 +79,16 @@ impl Extension for MyApp {
         vec![&pagetop_user::User]
     }
 
-    fn configure_router(&self, router: Router) -> Router {
-        router.route("/dashboard", web::get(dashboard))
+    fn configure_router(&self, routes: Routes) -> Routes {
+        routes.route(
+            "/dashboard",
+            Access::Permission(&MyPermission::SeeDashboard),
+            web::get(dashboard),
+        )
     }
 }
 
 async fn dashboard(request: HttpRequest) -> Result<Markup, ErrorPage> {
-    if !has_permission(&request, &MyPermission::SeeDashboard) {
-        return Err(ErrorPage::NotFound(Some(request)));
-    }
     Page::new(request)
         .with_child(Html::with(|_| html! { h1 { "Panel" } }))
         .render().await
@@ -159,8 +162,9 @@ ninguna. Detrás de un *proxy* inverso, los límites por IP requieren configurar
 */
 
 use pagetop::prelude::*;
-use pagetop_admin::prelude::*;
 use pagetop_seaorm::install_migrations;
+
+use std::sync::LazyLock;
 
 pub mod account;
 pub mod config;
@@ -187,7 +191,6 @@ pub mod component;
 include_locales!(LOCALES_USER);
 
 pub use account::{Account, UserStatus};
-pub use permission::{DeclarePermissions, PermissionRegistry};
 
 /// Prelude de `pagetop-user`.
 pub mod prelude {
@@ -195,7 +198,7 @@ pub mod prelude {
     pub use crate::component::UserName;
     pub use crate::component::{AccountMenu, account_menu};
     pub use crate::error::AuthError;
-    pub use crate::{Account, DeclarePermissions, UserStatus};
+    pub use crate::{Account, UserStatus};
 }
 
 // **< Rutas HTTP (fijas) >*************************************************************************
@@ -236,15 +239,20 @@ const PASSWORD_RESET_PATH: &str = "/user/password/reset";
 //                                 POST - la confirma.
 const VERIFY_PATH: &str = "/user/verify";
 
-// **< Rutas de administración (fijas) >************************************************************
+// **< Rutas de administración >********************************************************************
+
+// Relativas a la raíz del panel de administración, como se declaran sus páginas, y completas (ver
+// `admin_path()`), para montar las rutas y enlazar.
 
 // Listado, alta, edición, asignación de roles, bloqueo/activación y restablecimiento de contraseña
 // de usuarios.
-const ADMIN_USERS_PATH: &str = "/admin/user/users";
+const ADMIN_USERS: &str = "user/users";
+static ADMIN_USERS_PATH: LazyLock<String> = LazyLock::new(|| admin_path(ADMIN_USERS));
 // Listado, alta, edición, eliminación y asignación de permisos de roles.
-const ADMIN_ROLES_PATH: &str = "/admin/user/roles";
+const ADMIN_ROLES: &str = "user/roles";
+static ADMIN_ROLES_PATH: LazyLock<String> = LazyLock::new(|| admin_path(ADMIN_ROLES));
 // Catálogo de permisos registrados, agrupado por extensión (solo lectura).
-const ADMIN_PERMISSIONS_PATH: &str = "/admin/user/permissions";
+const ADMIN_PERMISSIONS: &str = "user/permissions";
 
 // Ruta del perfil público del usuario `id`: `{PROFILE_PATH}/{id}`.
 fn profile_path(id: i32) -> String {
@@ -253,48 +261,49 @@ fn profile_path(id: i32) -> String {
 
 // Ruta de una acción sobre el usuario `id`: `{ADMIN_USERS_PATH}/{id}/{tail}`.
 fn user_path(id: i32, tail: &str) -> String {
-    util::join!(ADMIN_USERS_PATH, "/", id.to_string(), "/", tail)
+    util::join!(ADMIN_USERS_PATH.as_str(), "/", id.to_string(), "/", tail)
 }
 
 // Ruta de una acción sobre el rol `id`: `{ADMIN_ROLES_PATH}/{id}/{tail}`.
 fn role_path(id: i32, tail: &str) -> String {
-    util::join!(ADMIN_ROLES_PATH, "/", id.to_string(), "/", tail)
+    util::join!(ADMIN_ROLES_PATH.as_str(), "/", id.to_string(), "/", tail)
 }
 
-// **< Registro en pagetop-admin (fijo) >***********************************************************
+// **< Páginas del panel de administración >********************************************************
 
-// Registra las páginas de usuarios, roles y permisos en el portal de `pagetop-admin`, bajo la
-// sección integrada "people". Las rutas y sus handlers ya están registrados en
-// `configure_router()`; este registro sólo aporta el metadato (título, sección, permiso) para que
-// aparezcan en la portada `/admin`.
-fn declare_admin_pages(bag: &mut PageBag) {
-    bag.add(AdminPage {
-        path: ADMIN_USERS_PATH.to_owned(),
-        section: "people".to_owned(),
-        title: Lc::t("title-admin-users", &LOCALES_USER),
-        description: Some(Lc::t("description-admin-users", &LOCALES_USER)),
-        weight: 0,
-        permission: &permission::UserPermission::AdminUsers,
-        kind: AdminPageKind::View,
-    });
-    bag.add(AdminPage {
-        path: ADMIN_ROLES_PATH.to_owned(),
-        section: "people".to_owned(),
-        title: Lc::t("title-admin-roles", &LOCALES_USER),
-        description: Some(Lc::t("description-admin-roles", &LOCALES_USER)),
-        weight: 10,
-        permission: &permission::UserPermission::AdminRoles,
-        kind: AdminPageKind::View,
-    });
-    bag.add(AdminPage {
-        path: ADMIN_PERMISSIONS_PATH.to_owned(),
-        section: "people".to_owned(),
-        title: Lc::t("title-admin-permissions", &LOCALES_USER),
-        description: Some(Lc::t("description-admin-permissions", &LOCALES_USER)),
-        weight: 20,
-        permission: &permission::UserPermission::AdminPermissions,
-        kind: AdminPageKind::View,
-    });
+// Declara las páginas de usuarios, roles y permisos en el panel de administración, bajo la sección
+// integrada "people". Las rutas y sus handlers ya están registrados en `configure_router()`; esta
+// declaración sólo aporta el metadato (título, sección, permiso) para que aparezcan en el panel.
+fn declare_admin_pages(bag: &mut AdminPageBag) {
+    bag.add(
+        AdminPage::new(
+            ADMIN_USERS,
+            "people",
+            Lc::t("title-admin-users", &LOCALES_USER),
+            &permission::UserPermission::AdminUsers,
+        )
+        .with_description(Lc::t("description-admin-users", &LOCALES_USER)),
+    );
+    bag.add(
+        AdminPage::new(
+            ADMIN_ROLES,
+            "people",
+            Lc::t("title-admin-roles", &LOCALES_USER),
+            &permission::UserPermission::AdminRoles,
+        )
+        .with_description(Lc::t("description-admin-roles", &LOCALES_USER))
+        .with_weight(10),
+    );
+    bag.add(
+        AdminPage::new(
+            ADMIN_PERMISSIONS,
+            "people",
+            Lc::t("title-admin-permissions", &LOCALES_USER),
+            &permission::UserPermission::AdminPermissions,
+        )
+        .with_description(Lc::t("description-admin-permissions", &LOCALES_USER))
+        .with_weight(20),
+    );
 }
 
 // **< Roles de sistema (fijos) >*******************************************************************
@@ -344,7 +353,6 @@ impl Extension for User {
 
     fn dependencies(&self) -> Vec<ExtensionRef> {
         vec![
-            &pagetop_admin::Admin,
             &pagetop_seaorm::SeaORM,
             &pagetop_htmx::Htmx,
             &pagetop_mail::Mail,
@@ -354,11 +362,13 @@ impl Extension for User {
     fn actions(&self) -> Vec<ActionBox> {
         actions![
             // Comprueba permisos mediante el modelo RBAC almacenado en BD.
-            CheckPermission::new(middleware::check_rbac_permission),
+            action::auth::CheckPermission::new(middleware::check_rbac_permission),
+            // Ofrece el inicio de sesión a un usuario anónimo sin acceso a una ruta.
+            action::auth::AnonymousDenied::new(handlers::account::offer_login),
             // Registra los permisos propios de pagetop-user.
-            DeclarePermissions::new(permission::declare_builtin_permissions),
-            // Registra las páginas de usuarios, roles y permisos en el portal de pagetop-admin.
-            DeclareAdminPages::new(declare_admin_pages),
+            action::auth::DeclarePermissions::new(permission::declare_builtin_permissions),
+            // Declara las páginas de usuarios, roles y permisos en el panel de administración.
+            action::admin::DeclareAdminPages::new(declare_admin_pages),
             // Declara las vistas previas de los correos de recuperación y verificación.
             pagetop_mail::DeclareMailPreviews::new(mail::declare_previews),
         ]
@@ -373,7 +383,6 @@ impl Extension for User {
             m20260629_000005_create_sessions,
             m20260629_000006_create_user_tokens,
         )?;
-        permission::build_registry();
         // Los permisos de "anonymous" en memoria sobreviven a una nueva preparación en el mismo
         // proceso (las pruebas lo hacen), que puede usar otra base de datos.
         session::invalidate_anonymous_permissions();
@@ -383,113 +392,123 @@ impl Extension for User {
         Ok(())
     }
 
-    fn configure_router(&self, router: Router) -> Router {
-        router
-            .route(
+    fn configure_router(&self, routes: Routes) -> Routes {
+        let edit_own_profile = Access::Permission(&permission::UserPermission::EditOwnProfile);
+        let change_own_password =
+            Access::Permission(&permission::UserPermission::ChangeOwnPassword);
+        routes
+            .public_route(
                 LOGIN_PATH,
                 web::get(handlers::auth::login_get).post(handlers::auth::login_post),
             )
-            .route(LOGOUT_PATH, web::post(handlers::auth::logout_post))
-            .route(
+            .public_route(LOGOUT_PATH, web::post(handlers::auth::logout_post))
+            .public_route(
                 REGISTER_PATH,
                 web::get(handlers::auth::register_get).post(handlers::auth::register_post),
             )
-            .route(PROFILE_PATH, web::get(handlers::account::profile_get))
             .route(
+                PROFILE_PATH,
+                Access::Authenticated,
+                web::get(handlers::account::profile_get),
+            )
+            .public_route(
                 &format!("{}/{{id}}", PROFILE_PATH),
                 web::get(handlers::account::public_profile_get),
             )
             .route(
                 PROFILE_EDIT_PATH,
+                edit_own_profile,
                 web::get(handlers::account::profile_edit_get)
                     .post(handlers::account::profile_edit_post),
             )
             .route(
                 PROFILE_PASSWORD_PATH,
+                change_own_password,
                 web::get(handlers::account::password_get).post(handlers::account::password_post),
             )
             .route(
                 EMAIL_PATH,
+                edit_own_profile,
                 web::get(handlers::account::email_get).post(handlers::account::email_post),
             )
-            .route(
+            .public_route(
                 &format!("{}/{{uid}}/{{token}}", EMAIL_PATH),
                 web::get(handlers::account::email_confirm_get)
                     .post(handlers::account::email_confirm_post),
             )
-            .route(
+            .public_route(
                 PASSWORD_RESET_PATH,
                 web::get(handlers::auth::password_reset_get)
                     .post(handlers::auth::password_reset_post),
             )
-            .route(
+            .public_route(
                 &format!("{}/{{uid}}/{{token}}", PASSWORD_RESET_PATH),
                 web::get(handlers::auth::password_reset_confirm_get)
                     .post(handlers::auth::password_reset_confirm_post),
             )
-            .route(
+            .public_route(
                 &format!("{}/{{uid}}/{{token}}", VERIFY_PATH),
                 web::get(handlers::auth::verify_email_get).post(handlers::auth::verify_email_post),
             )
-            .route(ADMIN_USERS_PATH, web::get(handlers::admin::users::list_get))
-            .route(
-                &format!("{}/new", ADMIN_USERS_PATH),
+            .admin_route(ADMIN_USERS, web::get(handlers::admin::users::list_get))
+            .admin_route(
+                &format!("{ADMIN_USERS}/new"),
                 web::get(handlers::admin::users::new_get).post(handlers::admin::users::new_post),
             )
-            .route(
-                &format!("{}/{{id}}/edit", ADMIN_USERS_PATH),
+            .admin_route(
+                &format!("{ADMIN_USERS}/{{id}}/edit"),
                 web::get(handlers::admin::users::edit_get).post(handlers::admin::users::edit_post),
             )
-            .route(
-                &format!("{}/{{id}}/view", ADMIN_USERS_PATH),
+            .admin_route(
+                &format!("{ADMIN_USERS}/{{id}}/view"),
                 web::get(handlers::admin::users::view_get),
             )
-            .route(
-                &format!("{}/{{id}}/status", ADMIN_USERS_PATH),
+            .admin_route(
+                &format!("{ADMIN_USERS}/{{id}}/status"),
                 web::post(handlers::admin::users::status_post),
             )
-            .route(
-                &format!("{}/{{id}}/admin", ADMIN_USERS_PATH),
+            .admin_route(
+                &format!("{ADMIN_USERS}/{{id}}/admin"),
                 web::post(handlers::admin::users::admin_post),
             )
-            .route(
-                &format!("{}/{{id}}/password", ADMIN_USERS_PATH),
+            .admin_route(
+                &format!("{ADMIN_USERS}/{{id}}/password"),
                 web::get(handlers::admin::users::password_get)
                     .post(handlers::admin::users::password_post),
             )
-            .route(ADMIN_ROLES_PATH, web::get(handlers::admin::roles::list_get))
-            .route(
-                &format!("{}/new", ADMIN_ROLES_PATH),
+            .admin_route(ADMIN_ROLES, web::get(handlers::admin::roles::list_get))
+            .admin_route(
+                &format!("{ADMIN_ROLES}/new"),
                 web::get(handlers::admin::roles::new_get).post(handlers::admin::roles::new_post),
             )
-            .route(
-                &format!("{}/{{id}}/edit", ADMIN_ROLES_PATH),
+            .admin_route(
+                &format!("{ADMIN_ROLES}/{{id}}/edit"),
                 web::get(handlers::admin::roles::edit_get).post(handlers::admin::roles::edit_post),
             )
-            .route(
-                &format!("{}/{{id}}/view", ADMIN_ROLES_PATH),
+            .admin_route(
+                &format!("{ADMIN_ROLES}/{{id}}/view"),
                 web::get(handlers::admin::roles::view_get),
             )
-            .route(
-                &format!("{}/{{id}}/delete", ADMIN_ROLES_PATH),
+            .admin_route(
+                &format!("{ADMIN_ROLES}/{{id}}/delete"),
                 web::post(handlers::admin::roles::delete_post),
             )
-            .route(
-                &format!("{}/{{id}}/delete/confirm", ADMIN_ROLES_PATH),
+            .admin_route(
+                &format!("{ADMIN_ROLES}/{{id}}/delete/confirm"),
                 web::get(handlers::admin::roles::delete_confirm_get),
             )
-            .route(
-                &format!("{}/{{id}}/permissions", ADMIN_ROLES_PATH),
+            .admin_route(
+                &format!("{ADMIN_ROLES}/{{id}}/permissions"),
                 web::get(handlers::admin::roles::permissions_get)
                     .post(handlers::admin::roles::permissions_post),
             )
-            .route(
-                ADMIN_PERMISSIONS_PATH,
+            .admin_route(
+                ADMIN_PERMISSIONS,
                 web::get(handlers::admin::permissions::list_get),
             )
     }
 
-    fn configure_middleware(&self, router: Router) -> Router {
-        router.layer(web::middleware::from_fn(middleware::session_middleware))
+    fn configure_middleware(&self, layers: Layers) -> Layers {
+        layers.layer(web::middleware::from_fn(middleware::session_middleware))
     }
 }

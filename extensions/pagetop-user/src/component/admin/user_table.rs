@@ -39,7 +39,7 @@ impl Component for UserTable {
 
     async fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
         let pager = Pager::new()
-            .with_base_path(ADMIN_USERS_PATH)
+            .with_base_path(ADMIN_USERS_PATH.as_str())
             .with_extra_query("q", self.query().cloned().unwrap_or_default())
             .with_extra_query("sort", self.sort().as_str())
             .with_extra_query("dir", *self.dir())
@@ -83,7 +83,7 @@ impl Component for UserTable {
             );
         }
 
-        let new_href = waypoint.append_to(cx.route(util::join!(ADMIN_USERS_PATH, "/new")));
+        let new_href = waypoint.append_to(cx.route(util::join!(ADMIN_USERS_PATH.as_str(), "/new")));
 
         Ok(html! {
             div (self.props().unpack(cx)) {
@@ -143,7 +143,7 @@ impl UserTable {
     // `waypoint` en los enlaces de ver/editar, para poder volver exactamente a este mismo estado.
     // Se construye con `cx.route()` para que preserve el parámetro `lang` cuando corresponda.
     fn list_href(&self, cx: &Context) -> String {
-        let mut route = cx.route(ADMIN_USERS_PATH);
+        let mut route = cx.route(ADMIN_USERS_PATH.as_str());
         if let Some(q) = self.query().filter(|q| !q.is_empty()) {
             route.alter_param("q", q);
         }
@@ -167,7 +167,7 @@ impl UserTable {
         let active = is_active.then_some(*self.dir());
         let next_dir = SortDir::next_for(active);
 
-        let mut route = cx.route(ADMIN_USERS_PATH);
+        let mut route = cx.route(ADMIN_USERS_PATH.as_str());
         if let Some(q) = self.query().filter(|q| !q.is_empty()) {
             route.alter_param("q", q);
         }
@@ -228,7 +228,7 @@ async fn actions_cell(
 // Construye la celda de roles: sólo la insignia de administrador si lo es (tiene acceso sin
 // restricciones, así que sus roles no añaden nada), o las insignias de cada rol asignado, o "-" si
 // no tiene ninguno. Los badges se renderizan aquí mismo (con el `cx` del ciclo de renderizado de
-// `Table`); el resto del marcado se difiere al `Html` que se devuelve, igual que el resto de celdas.
+// `Table`); el resto del marcado se difiere al `Html` que se devuelve, como en las demás celdas.
 async fn roles_cell(user: &UserListItem, cx: &mut Context) -> Html {
     let mut badges = Vec::with_capacity(user.roles.len().max(1));
     if user.is_admin {

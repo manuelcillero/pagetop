@@ -10,7 +10,6 @@ use pagetop_seaorm::db::{
 
 use crate::entity::{role, role_permission, user_role};
 use crate::error::AuthError;
-use crate::permission;
 use crate::session;
 
 // **< listado >************************************************************************************
@@ -283,7 +282,7 @@ pub(crate) async fn set_role_permissions(
 ) -> Result<(), AuthError> {
     find_role(role_id).await?;
 
-    let registry = permission::registry();
+    let registry = PermissionRegistry::global();
     for key in permission_keys {
         if !registry.has_key(key) {
             return Err(AuthError::UnknownPermission(key.clone()));

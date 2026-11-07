@@ -7,20 +7,16 @@
 use pagetop::prelude::*;
 
 use crate::LOCALES_USER;
-use crate::handlers::admin::frame;
-use crate::permission::{self, UserPermission};
 
 /// GET /admin/user/permissions - Catálogo de permisos agrupado.
 pub(crate) async fn list_get(request: HttpRequest) -> Result<Response, ErrorPage> {
-    require_permission(&request, &UserPermission::AdminPermissions)?;
+    let page = Page::admin(request);
 
-    let mut page = Page::admin(request);
+    let registry = PermissionRegistry::global();
+    let groups = registry.groups_sorted(page.context());
+    let mut page = page.with_title(Lc::t("title-admin-permissions", &LOCALES_USER));
 
-    let registry = permission::registry();
-    let title = Lc::t("title-admin-permissions", &LOCALES_USER);
-    let mut content = frame(title.clone());
-
-    for (group, group_label) in registry.groups_sorted(page.context()) {
+    for (group, group_label) in groups {
         let mut table = Table::new().with_prop(PropsOp::add_classes("user-admin-table"));
         for permission in registry.by_group(group) {
             table = table.with_row(
@@ -29,17 +25,12 @@ pub(crate) async fn list_get(request: HttpRequest) -> Result<Response, ErrorPage
                     .with_cell(permission.key().as_ref()),
             );
         }
-        content = content.with_child(
+        page = page.with_child(
             Block::new()
                 .with_title(group_label.clone())
                 .with_child(table),
         );
     }
 
-    Ok(page
-        .with_title(title)
-        .with_child(content)
-        .render()
-        .await
-        .into_response())
+    Ok(page.render().await.into_response())
 }

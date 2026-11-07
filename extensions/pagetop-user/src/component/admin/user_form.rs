@@ -54,7 +54,7 @@ impl Component for UserForm {
 
     async fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
         let action = match self.mode() {
-            UserFormMode::New => util::join!(ADMIN_USERS_PATH, "/new"),
+            UserFormMode::New => util::join!(ADMIN_USERS_PATH.as_str(), "/new"),
             UserFormMode::Edit => user_path(self.user_id().copied().unwrap_or_default(), "edit"),
             UserFormMode::Profile => PROFILE_EDIT_PATH.into(),
         };

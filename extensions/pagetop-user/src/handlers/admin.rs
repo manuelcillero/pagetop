@@ -1,25 +1,19 @@
 //! Handlers HTTP para el mantenimiento de usuarios, roles y permisos.
 //!
-//! Las páginas de usuarios, roles y permisos se registran en el portal de `pagetop-admin` (ver
-//! `declare_admin_pages()`). Cada handler comprueba el permiso correspondiente con
-//! [`require_permission()`](pagetop::auth::require_permission) antes de construir la página.
+//! Las páginas de usuarios, roles y permisos se declaran en el panel de administración (ver
+//! `declare_admin_pages()`), y sus rutas exigen el permiso de su página, que PageTop comprueba
+//! antes de llegar al handler. Los handlers sólo comprueban los permisos más concretos (bloquear
+//! cuentas, asignar permisos a un rol).
 
 pub(crate) mod permissions;
 pub(crate) mod roles;
 pub(crate) mod users;
 
 use pagetop::prelude::*;
-use pagetop_admin::component::AdminFrame;
 
 use crate::LOCALES_USER;
 use crate::error::AuthError;
 use crate::service::role_admin::ROLE_MACHINE_NAME_MAX_CHARS;
-
-// Envuelve el contenido de una página de administración en el frame de `pagetop-admin`:
-// breadcrumb, tareas y acciones locales registradas para la ruta actual en su `AdminRegistry`.
-pub(crate) fn frame(title: Lc) -> AdminFrame {
-    AdminFrame::new().with_title(title)
-}
 
 // Traduce un `AuthError` a su clave Lc, para mostrarlo en el formulario que falló. Cubre tanto
 // los errores de autenticación existentes como los nuevos de administración.

@@ -14,8 +14,8 @@
 Añade cuentas de usuario a una aplicación PageTop: registro, inicio de sesión con sesiones en la
 base de datos, perfil propio, recuperación de contraseña y verificación del email por correo, y
 control de acceso con roles y permisos. Incluye las páginas de administración de usuarios, roles y
-permisos sobre `pagetop-admin`, hechas sólo con componentes del núcleo para que funcionen con
-cualquier tema.
+permisos en el panel de administración del núcleo, hechas sólo con componentes del núcleo para que
+funcionen con cualquier tema.
 
 ## Sobre PageTop
 
@@ -47,9 +47,11 @@ admin_email    = "admin@example.com"
 # Sin 'admin_password', se genera una aleatoria y se muestra una sola vez al crearlo.
 ```
 
-**Comprueba los permisos** en tus *handlers*. El usuario actual se inyecta automáticamente en el
-contexto de cada `Page` al crearla con `Page::new()`, y las funciones del núcleo, como
-`has_permission()`, lo consultan:
+**Protege tus rutas** con su acceso (`Access`): PageTop lo comprueba antes de llegar al *handler*
+con los permisos que concede esta extensión, y a un usuario anónimo sin acceso le ofrece el inicio
+de sesión. Dentro del *handler*, el usuario actual está en el contexto de cada `Page` al crearla
+con `Page::new()`, y funciones del núcleo como `has_permission()` lo consultan para las
+comprobaciones más concretas:
 
 ```rust,no_run
 use pagetop::prelude::*;
@@ -76,15 +78,16 @@ impl Extension for MyApp {
         vec![&pagetop_user::User]
     }
 
-    fn configure_router(&self, router: Router) -> Router {
-        router.route("/dashboard", web::get(dashboard))
+    fn configure_router(&self, routes: Routes) -> Routes {
+        routes.route(
+            "/dashboard",
+            Access::Permission(&MyPermission::SeeDashboard),
+            web::get(dashboard),
+        )
     }
 }
 
 async fn dashboard(request: HttpRequest) -> Result<Markup, ErrorPage> {
-    if !has_permission(&request, &MyPermission::SeeDashboard) {
-        return Err(ErrorPage::NotFound(Some(request)));
-    }
     Page::new(request)
         .with_child(Html::with(|_| html! { h1 { "Panel" } }))
         .render().await

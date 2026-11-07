@@ -67,7 +67,8 @@ pub(crate) async fn session_middleware(
 
 // **< check_rbac_permission >**********************************************************************
 
-/// Handler de la acción [`pagetop::auth::CheckPermission`] para el modelo RBAC de `pagetop-user`.
+/// Handler de la acción [`CheckPermission`](pagetop::base::action::auth::CheckPermission) para el
+/// modelo RBAC de `pagetop-user`.
 ///
 /// Lee el [`Account`] inyectado por el middleware de sesión desde las extensiones de la petición
 /// HTTP y concede el permiso si el account lo tiene (un administrador lo tiene concedido siempre,

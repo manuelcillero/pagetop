@@ -1,7 +1,6 @@
 //! Menú de cuenta (iniciar y cerrar sesión).
 
 use pagetop::prelude::*;
-use pagetop_admin::registry::can_access_admin;
 use pagetop_htmx::prelude::*;
 
 use crate::config::SETTINGS;
@@ -49,7 +48,7 @@ pub fn account_menu(cx: &Context) -> Nav {
         if can_access_admin(cx) {
             menu = menu.with_item(dropdown::Item::link(
                 Lc::t("menu-admin", &LOCALES_USER),
-                cx.route(pagetop_admin::ADMIN_BASE_PATH),
+                cx.route(admin_path("")),
             ));
         }
         nav.with_item(nav::Item::dropdown(

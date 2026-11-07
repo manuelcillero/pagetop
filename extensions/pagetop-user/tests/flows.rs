@@ -197,6 +197,7 @@ async fn account_flows() {
     password_resets_are_limited_by_account(&client).await;
     requests_are_limited_by_address(&client).await;
     failed_logins_are_limited_by_address(&client).await;
+    anonymous_visitors_are_offered_to_sign_in(&client).await;
 }
 
 async fn registration_requires_confirming_the_address(client: &Client) {
@@ -796,4 +797,35 @@ async fn failed_logins_are_limited_by_address(client: &Client) {
         .send(login([192, 0, 2, 21], "iris", "iris-password"))
         .await;
     assert_eq!(reply.status, Status::SEE_OTHER);
+}
+
+// A route that needs a session or a permission sends an anonymous visitor to the login form, which
+// returns to that route afterwards. An HTMX request gets the same login as a full-page redirect,
+// returning to the page open in the browser, instead of the form inside the fragment it expected.
+async fn anonymous_visitors_are_offered_to_sign_in(client: &Client) {
+    let reply = client.get("/user/edit?tab=1", None).await;
+    assert_eq!(reply.status, Status::SEE_OTHER);
+    assert_eq!(
+        reply.location(),
+        "/user/login?waypoint=%2Fuser%2Fedit%3Ftab%3D1"
+    );
+    // A public profile checks its permission in the handler, with the same answer.
+    let reply = client.get("/user/1", None).await;
+    assert_eq!(reply.status, Status::SEE_OTHER);
+    assert_eq!(reply.location(), "/user/login?waypoint=%2Fuser%2F1");
+
+    let request = web::test::TestRequest::get()
+        .uri("/admin/user/users?page=2")
+        .header("hx-request", "true")
+        .header(
+            "hx-current-url",
+            "http://localhost:8080/admin/user/users?sort=name",
+        );
+    let reply = client.send(request).await;
+    assert_eq!(reply.status, Status::OK);
+    assert!(reply.body.is_empty(), "{}", reply.body);
+    assert_eq!(
+        reply.header("hx-redirect"),
+        "/user/login?waypoint=%2Fadmin%2Fuser%2Fusers%3Fsort%3Dname"
+    );
 }

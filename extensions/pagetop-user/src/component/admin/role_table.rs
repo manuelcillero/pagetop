@@ -40,7 +40,7 @@ impl Component for RoleTable {
 
     async fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
         let pager = Pager::new()
-            .with_base_path(ADMIN_ROLES_PATH)
+            .with_base_path(ADMIN_ROLES_PATH.as_str())
             .with_extra_query("sort", self.sort().as_str())
             .with_extra_query("dir", *self.dir())
             .with_current_page(self.page())
@@ -117,7 +117,7 @@ impl Component for RoleTable {
             );
         }
 
-        let new_href = waypoint.append_to(cx.route(util::join!(ADMIN_ROLES_PATH, "/new")));
+        let new_href = waypoint.append_to(cx.route(util::join!(ADMIN_ROLES_PATH.as_str(), "/new")));
 
         Ok(html! {
             div (self.props().unpack(cx)) {
@@ -181,7 +181,7 @@ impl RoleTable {
     // en los enlaces de ver/editar/permisos, para poder volver exactamente a este mismo estado. Se
     // construye con `cx.route()` para que preserve el parámetro `lang` cuando corresponda.
     fn list_href(&self, cx: &Context) -> String {
-        cx.route(ADMIN_ROLES_PATH)
+        cx.route(ADMIN_ROLES_PATH.as_str())
             .alter_param("sort", self.sort().as_str())
             .alter_param("dir", *self.dir())
             .alter_param("page", self.page().to_string())
@@ -200,7 +200,7 @@ impl RoleTable {
         let is_active = *self.sort() == field;
         let active = is_active.then_some(*self.dir());
         let next_dir = SortDir::next_for(active);
-        let mut route = cx.route(ADMIN_ROLES_PATH);
+        let mut route = cx.route(ADMIN_ROLES_PATH.as_str());
         route
             .alter_param("sort", field.as_str())
             .alter_param("dir", next_dir);
@@ -229,8 +229,8 @@ fn label_cell(role: &RoleListItem, waypoint: &Waypoint) -> Html {
 }
 
 // Construye la celda de acciones: gestionar permisos si se tiene `user:admin_permissions`, y
-// editar/borrar sólo si el rol no está bloqueado por el sistema. Devuelve un componente `Html` para que el marcado se genere cuando
-// `Table` renderice la celda, no al construir la fila.
+// editar/borrar sólo si el rol no está bloqueado por el sistema. Devuelve un componente `Html` para
+// que el marcado se genere cuando `Table` renderice la celda, no al construir la fila.
 async fn actions_cell(
     role: &RoleListItem,
     waypoint: &Waypoint,

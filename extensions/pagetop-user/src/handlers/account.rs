@@ -4,6 +4,7 @@
 use serde::Deserialize;
 
 use pagetop::prelude::*;
+use pagetop_htmx::prelude::*;
 
 use crate::account::{Account, UserStatus};
 use crate::auth;
@@ -39,6 +40,33 @@ fn login_redirect(request: HttpRequest, next: &'static str) -> Response {
     Redirect::see_other(waypoint.append_to(cx.route(LOGIN_PATH))).into_response()
 }
 
+// Respuesta a un usuario anónimo sin acceso a una ruta (acción `AnonymousDenied`): el formulario de
+// inicio de sesión, que vuelve después a la ruta pedida.
+//
+// Una petición HTMX seguiría la redirección sin avisar y pintaría el formulario dentro del
+// fragmento que esperaba, así que se le pide con `HX-Redirect` que cargue la página completa.
+// Vuelve después a la página que tenía abierta el navegador (`HX-Current-URL`), no a la ruta del
+// fragmento, que puede no admitir `GET`.
+pub(crate) fn offer_login(request: &HttpRequest) -> Option<Response> {
+    let is_htmx = request.is_htmx();
+    let waypoint = if is_htmx {
+        Waypoint::new(
+            request
+                .hx_current_url()
+                .and_then(|url| url.parse::<web::http::Uri>().ok())
+                .and_then(|uri| uri.path_and_query().map(|pq| pq.as_str().to_owned())),
+        )
+    } else {
+        Waypoint::new(request.uri().to_owned())
+    };
+    let login = waypoint.append_to(Context::new(request.clone()).route(LOGIN_PATH));
+    Some(if is_htmx {
+        HtmxResponse::empty().redirect(login).into_response()
+    } else {
+        Redirect::see_other(login).into_response()
+    })
+}
+
 // **< profile_get >********************************************************************************
 
 /// GET /user - Perfil del usuario autenticado. Redirige al formulario de inicio de sesión si no hay
@@ -60,8 +88,8 @@ pub(crate) async fn profile_get(request: HttpRequest) -> Response {
     let can_change_password = has_permission(&request, &UserPermission::ChangeOwnPassword);
 
     let mut page = Page::new(request);
-    let details_block = user_details(&user, page.context()).await;
-    let roles_block = profile_roles(&roles, page.context()).await;
+    let details_block = user_details(&user, page.context_mut()).await;
+    let roles_block = profile_roles(&roles, page.context_mut()).await;
     let actions = profile_actions(can_edit, can_change_password, page.context());
 
     page.with_title(Lc::t("title-profile", &LOCALES_USER))
@@ -159,9 +187,12 @@ pub(crate) async fn public_profile_get(
     request: HttpRequest,
     web::Path(id): web::Path<i32>,
 ) -> Result<Response, ErrorPage> {
-    // El permiso se comprueba antes de buscar al usuario para no revelar qué ids existen.
-    if current_user_id(&request) != Some(id) {
-        require_permission(&request, &UserPermission::ViewProfiles)?;
+    // El permiso se comprueba antes de buscar al usuario para no revelar qué ids existen. Sin él, la
+    // misma respuesta que una ruta sin acceso: el inicio de sesión a un anónimo y 403 al resto.
+    if current_user_id(&request) != Some(id)
+        && !has_permission(&request, &UserPermission::ViewProfiles)
+    {
+        return Ok(deny_access(request));
     }
     let Ok(user) = user_admin::find_user(id).await else {
         return Err(ErrorPage::NotFound(Some(request)));
@@ -176,7 +207,7 @@ pub(crate) async fn public_profile_get(
         Some(name) => name.to_owned(),
         None => user.username.clone(),
     };
-    let mut page = Page::new(request);
+    let page = Page::new(request);
     let details = public_profile_details(&user, page.context());
 
     Ok(page
@@ -228,7 +259,6 @@ pub(crate) async fn profile_edit_get(request: HttpRequest) -> Result<Response, E
     let Some(id) = current_user_id(&request) else {
         return Ok(login_redirect(request, PROFILE_EDIT_PATH));
     };
-    require_permission(&request, &UserPermission::EditOwnProfile)?;
     let Ok(user) = user_admin::find_user(id).await else {
         return Err(ErrorPage::NotFound(Some(request)));
     };
@@ -270,7 +300,6 @@ pub(crate) async fn profile_edit_post(
     let Some(id) = current_user_id(&request) else {
         return Ok(login_redirect(request, PROFILE_EDIT_PATH));
     };
-    require_permission(&request, &UserPermission::EditOwnProfile)?;
     let Ok(user) = user_admin::find_user(id).await else {
         return Err(ErrorPage::NotFound(Some(request)));
     };
@@ -332,7 +361,6 @@ pub(crate) async fn password_get(request: HttpRequest) -> Result<Response, Error
     if current_user_id(&request).is_none() {
         return Ok(login_redirect(request, PROFILE_PASSWORD_PATH));
     }
-    require_permission(&request, &UserPermission::ChangeOwnPassword)?;
     let title = Lc::t("title-profile-password", &LOCALES_USER);
     Ok(render_profile_page(request, title, ChangePasswordForm::new()).await)
 }
@@ -353,7 +381,6 @@ pub(crate) async fn password_post(
     let Some(id) = current_user_id(&request) else {
         return Ok(login_redirect(request, PROFILE_PASSWORD_PATH));
     };
-    require_permission(&request, &UserPermission::ChangeOwnPassword)?;
 
     let sid = session::extract_sid(Some(request.headers()));
     let result = match password::passwords_match(&form.password, &form.confirm_password) {
@@ -386,7 +413,6 @@ pub(crate) async fn email_get(request: HttpRequest) -> Result<Response, ErrorPag
     let Some(id) = current_user_id(&request) else {
         return Ok(login_redirect(request, EMAIL_PATH));
     };
-    require_permission(&request, &UserPermission::EditOwnProfile)?;
     let Ok(user) = user_admin::find_user(id).await else {
         return Err(ErrorPage::NotFound(Some(request)));
     };
@@ -411,7 +437,6 @@ pub(crate) async fn email_post(
     let Some(id) = current_user_id(&request) else {
         return Ok(login_redirect(request, EMAIL_PATH));
     };
-    require_permission(&request, &UserPermission::EditOwnProfile)?;
 
     let result = if throttle::allow(&request) {
         auth::request_email_change(id, &form.current_password, &form.email).await
@@ -510,11 +535,8 @@ async fn render_profile_page(
     title: Lc,
     form: impl Component + 'static,
 ) -> Response {
-    let mut page = Page::new(request);
-    let cancel = Button::anchor(
-        Lc::t("btn-cancel", &LOCALES_USER),
-        page.context().route(PROFILE_PATH),
-    );
+    let page = Page::new(request);
+    let cancel = Button::anchor(Lc::t("btn-cancel", &LOCALES_USER), page.route(PROFILE_PATH));
     page.with_title(title.clone())
         .with_child(
             Block::new()

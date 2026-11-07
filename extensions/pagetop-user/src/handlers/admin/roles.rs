@@ -12,8 +12,8 @@ use crate::component::admin::{
 };
 use crate::config::SETTINGS;
 use crate::entity::role;
-use crate::handlers::admin::{back_link, frame, map_auth_error};
-use crate::permission::{self, UserPermission};
+use crate::handlers::admin::{back_link, map_auth_error};
+use crate::permission::UserPermission;
 use crate::role_path;
 use crate::service::role_admin::{self, RolePageParams, RoleSortField};
 
@@ -34,8 +34,6 @@ pub(crate) async fn list_get(
     request: HttpRequest,
     web::Query(query): web::Query<RolesQuery>,
 ) -> Result<Response, ErrorPage> {
-    require_permission(&request, &UserPermission::AdminRoles)?;
-
     let params = RolePageParams {
         sort: RoleSortField::from_query(query.sort.as_deref()),
         dir: SortDir::from_query(query.dir.as_deref()),
@@ -62,8 +60,8 @@ pub(crate) async fn list_get(
     } else {
         let title = Lc::t("title-admin-roles", &LOCALES_USER);
         Ok(Page::admin(request)
-            .with_title(title.clone())
-            .with_child(frame(title).with_child(table))
+            .with_title(title)
+            .with_child(table)
             .render()
             .await
             .into_response())
@@ -77,21 +75,17 @@ pub(crate) async fn new_get(
     request: HttpRequest,
     web::Query(waypoint): web::Query<Waypoint>,
 ) -> Result<Response, ErrorPage> {
-    require_permission(&request, &UserPermission::AdminRoles)?;
-    let mut page = Page::admin(request);
-    let back_href = waypoint.or(page.context().route(ADMIN_ROLES_PATH));
+    let page = Page::admin(request);
+    let back_href = waypoint.or(page.route(ADMIN_ROLES_PATH.as_str()));
     let title = Lc::t("title-admin-role-new", &LOCALES_USER);
     Ok(page
-        .with_title(title.clone())
+        .with_title(title)
         .with_child(
-            frame(title)
-                .with_child(
-                    RoleForm::new()
-                        .with_mode(RoleFormMode::New)
-                        .with_waypoint(waypoint),
-                )
-                .with_child(back_link(back_href)),
+            RoleForm::new()
+                .with_mode(RoleFormMode::New)
+                .with_waypoint(waypoint),
         )
+        .with_child(back_link(back_href))
         .render()
         .await
         .into_response())
@@ -113,8 +107,6 @@ pub(crate) async fn new_post(
     web::Query(waypoint): web::Query<Waypoint>,
     web::Form(form): web::Form<NewRoleFormData>,
 ) -> Result<Response, ErrorPage> {
-    require_permission(&request, &UserPermission::AdminRoles)?;
-
     let weight: i32 = form.weight.trim().parse().unwrap_or(0);
 
     let result = role_admin::create_role(role_admin::NewRoleData {
@@ -128,12 +120,12 @@ pub(crate) async fn new_post(
     match result {
         Ok(_) => {
             let cx = Context::admin(request);
-            let target = waypoint.or(cx.route(ADMIN_ROLES_PATH));
+            let target = waypoint.or(cx.route(ADMIN_ROLES_PATH.as_str()));
             Ok(Redirect::see_other(target).into_response())
         }
         Err(err) => {
-            let mut page = Page::admin(request);
-            let back_href = waypoint.or(page.context().route(ADMIN_ROLES_PATH));
+            let page = Page::admin(request);
+            let back_href = waypoint.or(page.route(ADMIN_ROLES_PATH.as_str()));
             let form_component = RoleForm::new()
                 .with_mode(RoleFormMode::New)
                 .with_machine_name(form.machine_name)
@@ -144,12 +136,9 @@ pub(crate) async fn new_post(
                 .with_waypoint(waypoint);
             let title = Lc::t("title-admin-role-new", &LOCALES_USER);
             Ok(page
-                .with_title(title.clone())
-                .with_child(
-                    frame(title)
-                        .with_child(form_component)
-                        .with_child(back_link(back_href)),
-                )
+                .with_title(title)
+                .with_child(form_component)
+                .with_child(back_link(back_href))
                 .render()
                 .await
                 .into_response())
@@ -165,8 +154,6 @@ pub(crate) async fn edit_get(
     web::Path(id): web::Path<i32>,
     web::Query(waypoint): web::Query<Waypoint>,
 ) -> Result<Response, ErrorPage> {
-    require_permission(&request, &UserPermission::AdminRoles)?;
-
     let role = match role_admin::find_role(id).await {
         Ok(role) => role,
         Err(_) => return Err(ErrorPage::NotFound(Some(request))),
@@ -175,26 +162,23 @@ pub(crate) async fn edit_get(
         return Err(ErrorPage::AccessDenied(Some(request)));
     }
 
-    let mut page = Page::admin(request);
-    let back_href = waypoint.or(page.context().route(ADMIN_ROLES_PATH));
+    let page = Page::admin(request);
+    let back_href = waypoint.or(page.route(ADMIN_ROLES_PATH.as_str()));
 
     let title = Lc::t("title-admin-role-edit", &LOCALES_USER);
     Ok(page
-        .with_title(title.clone())
+        .with_title(title)
         .with_child(
-            frame(title)
-                .with_child(
-                    RoleForm::new()
-                        .with_mode(RoleFormMode::Edit)
-                        .with_role_id(Some(id))
-                        .with_machine_name(role.machine_name)
-                        .with_label(role.label)
-                        .with_description(role.description.unwrap_or_default())
-                        .with_weight(role.weight)
-                        .with_waypoint(waypoint),
-                )
-                .with_child(back_link(back_href)),
+            RoleForm::new()
+                .with_mode(RoleFormMode::Edit)
+                .with_role_id(Some(id))
+                .with_machine_name(role.machine_name)
+                .with_label(role.label)
+                .with_description(role.description.unwrap_or_default())
+                .with_weight(role.weight)
+                .with_waypoint(waypoint),
         )
+        .with_child(back_link(back_href))
         .render()
         .await
         .into_response())
@@ -216,8 +200,6 @@ pub(crate) async fn edit_post(
     web::Query(waypoint): web::Query<Waypoint>,
     web::Form(form): web::Form<EditRoleFormData>,
 ) -> Result<Response, ErrorPage> {
-    require_permission(&request, &UserPermission::AdminRoles)?;
-
     let weight: i32 = form.weight.trim().parse().unwrap_or(0);
 
     let result = role_admin::update_role(
@@ -233,7 +215,7 @@ pub(crate) async fn edit_post(
     match result {
         Ok(()) => {
             let cx = Context::admin(request);
-            let target = waypoint.or(cx.route(ADMIN_ROLES_PATH));
+            let target = waypoint.or(cx.route(ADMIN_ROLES_PATH.as_str()));
             Ok(Redirect::see_other(target).into_response())
         }
         Err(err) => {
@@ -241,8 +223,8 @@ pub(crate) async fn edit_post(
                 .await
                 .map(|role| role.machine_name)
                 .unwrap_or_default();
-            let mut page = Page::admin(request);
-            let back_href = waypoint.or(page.context().route(ADMIN_ROLES_PATH));
+            let page = Page::admin(request);
+            let back_href = waypoint.or(page.route(ADMIN_ROLES_PATH.as_str()));
             let form_component = RoleForm::new()
                 .with_mode(RoleFormMode::Edit)
                 .with_role_id(Some(id))
@@ -254,12 +236,9 @@ pub(crate) async fn edit_post(
                 .with_waypoint(waypoint);
             let title = Lc::t("title-admin-role-edit", &LOCALES_USER);
             Ok(page
-                .with_title(title.clone())
-                .with_child(
-                    frame(title)
-                        .with_child(form_component)
-                        .with_child(back_link(back_href)),
-                )
+                .with_title(title)
+                .with_child(form_component)
+                .with_child(back_link(back_href))
                 .render()
                 .await
                 .into_response())
@@ -276,8 +255,6 @@ pub(crate) async fn view_get(
     web::Path(id): web::Path<i32>,
     web::Query(waypoint): web::Query<Waypoint>,
 ) -> Result<Response, ErrorPage> {
-    require_permission(&request, &UserPermission::AdminRoles)?;
-
     let role = match role_admin::find_role(id).await {
         Ok(role) => role,
         Err(_) => return Err(ErrorPage::NotFound(Some(request))),
@@ -289,19 +266,17 @@ pub(crate) async fn view_get(
     let mut page = Page::admin(request);
 
     let groups = build_permission_groups(&selected, page.context());
-    let back_href = waypoint.or(page.context().route(ADMIN_ROLES_PATH));
-    let details_block = role_view_details(&role, page.context()).await;
+    let back_href = waypoint.or(page.route(ADMIN_ROLES_PATH.as_str()));
+    let details_block = role_view_details(&role, page.context_mut()).await;
 
     let title = Lc::t("title-admin-role-view", &LOCALES_USER);
-    let mut content = frame(title.clone()).with_child(details_block);
+    let mut page = page.with_title(title).with_child(details_block);
     for group_block in role_view_permissions(&groups) {
-        content = content.with_child(group_block);
+        page = page.with_child(group_block);
     }
-    content = content.with_child(back_link(back_href));
 
     Ok(page
-        .with_title(title)
-        .with_child(content)
+        .with_child(back_link(back_href))
         .render()
         .await
         .into_response())
@@ -389,8 +364,6 @@ pub(crate) async fn delete_post(
     web::Path(id): web::Path<i32>,
     web::Query(query): web::Query<RolesQuery>,
 ) -> Result<Response, ErrorPage> {
-    require_permission(&request, &UserPermission::AdminRoles)?;
-
     let result = role_admin::delete_role(id).await;
 
     if request.is_htmx() {
@@ -419,7 +392,7 @@ pub(crate) async fn delete_post(
         match result {
             Ok(()) => {
                 let target = cx
-                    .route(ADMIN_ROLES_PATH)
+                    .route(ADMIN_ROLES_PATH.as_str())
                     .alter_param(
                         "sort",
                         RoleSortField::from_query(query.sort.as_deref()).as_str(),
@@ -448,8 +421,6 @@ pub(crate) async fn delete_confirm_get(
     web::Path(id): web::Path<i32>,
     web::Query(query): web::Query<RolesQuery>,
 ) -> Result<Response, ErrorPage> {
-    require_permission(&request, &UserPermission::AdminRoles)?;
-
     let mut cx = Context::admin(request);
     let delete_href = cx
         .route(role_path(id, "delete"))
@@ -473,7 +444,7 @@ pub(crate) async fn delete_confirm_get(
 // **< permissions_get / permissions_post >*********************************************************
 
 fn build_permission_groups(selected: &[String], cx: &Context) -> PermissionGroups {
-    let registry = permission::registry();
+    let registry = PermissionRegistry::global();
     registry
         .groups_sorted(cx)
         .into_iter()
@@ -498,7 +469,6 @@ pub(crate) async fn permissions_get(
     web::Path(id): web::Path<i32>,
     web::Query(waypoint): web::Query<Waypoint>,
 ) -> Result<Response, ErrorPage> {
-    require_permission(&request, &UserPermission::AdminRoles)?;
     require_permission(&request, &UserPermission::AdminPermissions)?;
 
     if role_admin::find_role(id).await.is_err() {
@@ -508,24 +478,21 @@ pub(crate) async fn permissions_get(
         Ok(keys) => keys,
         Err(_) => return Err(ErrorPage::InternalError(Some(request))),
     };
-    let mut page = Page::admin(request);
+    let page = Page::admin(request);
 
     let groups = build_permission_groups(&selected, page.context());
-    let back_href = waypoint.or(page.context().route(ADMIN_ROLES_PATH));
+    let back_href = waypoint.or(page.route(ADMIN_ROLES_PATH.as_str()));
 
     let title = Lc::t("title-admin-role-permissions", &LOCALES_USER);
     Ok(page
-        .with_title(title.clone())
+        .with_title(title)
         .with_child(
-            frame(title)
-                .with_child(
-                    RolePermissionsForm::new()
-                        .with_role_id(id)
-                        .with_groups(groups)
-                        .with_waypoint(waypoint),
-                )
-                .with_child(back_link(back_href)),
+            RolePermissionsForm::new()
+                .with_role_id(id)
+                .with_groups(groups)
+                .with_waypoint(waypoint),
         )
+        .with_child(back_link(back_href))
         .render()
         .await
         .into_response())
@@ -547,7 +514,6 @@ pub(crate) async fn permissions_post(
     web::Query(waypoint): web::Query<Waypoint>,
     raw: web::RawForm,
 ) -> Result<Response, ErrorPage> {
-    require_permission(&request, &UserPermission::AdminRoles)?;
     require_permission(&request, &UserPermission::AdminPermissions)?;
 
     let Ok(form) = serde_qs::from_bytes::<RolePermissionsFormData>(&raw.0) else {
@@ -557,14 +523,14 @@ pub(crate) async fn permissions_post(
     match role_admin::set_role_permissions(id, &form.permission_keys).await {
         Ok(()) => {
             let cx = Context::admin(request);
-            let target = waypoint.or(cx.route(ADMIN_ROLES_PATH));
+            let target = waypoint.or(cx.route(ADMIN_ROLES_PATH.as_str()));
             Ok(Redirect::see_other(target).into_response())
         }
         Err(err) => {
-            let mut page = Page::admin(request);
+            let page = Page::admin(request);
 
             let groups = build_permission_groups(&form.permission_keys, page.context());
-            let back_href = waypoint.or(page.context().route(ADMIN_ROLES_PATH));
+            let back_href = waypoint.or(page.route(ADMIN_ROLES_PATH.as_str()));
             let form_component = RolePermissionsForm::new()
                 .with_role_id(id)
                 .with_groups(groups)
@@ -572,12 +538,9 @@ pub(crate) async fn permissions_post(
                 .with_waypoint(waypoint);
             let title = Lc::t("title-admin-role-permissions", &LOCALES_USER);
             Ok(page
-                .with_title(title.clone())
-                .with_child(
-                    frame(title)
-                        .with_child(form_component)
-                        .with_child(back_link(back_href)),
-                )
+                .with_title(title)
+                .with_child(form_component)
+                .with_child(back_link(back_href))
                 .render()
                 .await
                 .into_response())

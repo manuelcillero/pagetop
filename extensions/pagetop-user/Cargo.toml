@@ -20,7 +20,6 @@ demo-data = []
 
 [dependencies]
 pagetop.workspace = true
-pagetop-admin.workspace = true
 pagetop-seaorm.workspace = true
 pagetop-htmx.workspace = true
 pagetop-mail.workspace = true

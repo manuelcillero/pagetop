@@ -15,7 +15,7 @@ use crate::component::user_details;
 use crate::config::SETTINGS;
 use crate::entity::{role, user};
 use crate::error::AuthError;
-use crate::handlers::admin::{back_link, frame, map_auth_error};
+use crate::handlers::admin::{back_link, map_auth_error};
 use crate::mail::{Notice, send_notice};
 use crate::password;
 use crate::permission::UserPermission;
@@ -43,8 +43,6 @@ pub(crate) async fn list_get(
     request: HttpRequest,
     web::Query(query): web::Query<UsersQuery>,
 ) -> Result<Response, ErrorPage> {
-    require_permission(&request, &UserPermission::AdminUsers)?;
-
     let params = UserListParams {
         query: query.q.clone(),
         sort: UserSortField::from_query(query.sort.as_deref()),
@@ -73,12 +71,9 @@ pub(crate) async fn list_get(
     } else {
         let title = Lc::t("title-admin-users", &LOCALES_USER);
         Ok(Page::admin(request)
-            .with_title(title.clone())
-            .with_child(
-                frame(title)
-                    .with_child(search_bar(query.q))
-                    .with_child(table),
-            )
+            .with_title(title)
+            .with_child(search_bar(query.q))
+            .with_child(table)
             .render()
             .await
             .into_response())
@@ -98,7 +93,7 @@ fn search_bar(current_query: Option<String>) -> Html {
                     name="q"
                     value=(value.as_str())
                     placeholder=[Lc::t("field-search-users", &LOCALES_USER).lookup(cx)]
-                    hx-get=(cx.route(ADMIN_USERS_PATH).to_string())
+                    hx-get=(cx.route(ADMIN_USERS_PATH.as_str()).to_string())
                     hx-trigger="keyup changed delay:400ms, search"
                     hx-target="#user-table-wrapper"
                     hx-swap=(hx::swap::OUTER_HTML_SCROLL_TOP)
@@ -155,7 +150,6 @@ pub(crate) async fn new_get(
     request: HttpRequest,
     web::Query(waypoint): web::Query<Waypoint>,
 ) -> Result<Response, ErrorPage> {
-    require_permission(&request, &UserPermission::AdminUsers)?;
     let roles = match available_roles(&[]).await {
         Ok(roles) => roles,
         Err(_) => return Err(ErrorPage::InternalError(Some(request))),
@@ -163,22 +157,19 @@ pub(crate) async fn new_get(
     // El campo "administrador" sólo se ofrece si quien da de alta ya es administrador: no es un
     // permiso del catálogo (igual que conceder/revocar en la edición, ver `set_user_admin`).
     let allow_admin_field = request.extension::<Account>().is_some_and(|a| a.is_admin());
-    let mut page = Page::admin(request);
-    let back_href = waypoint.or(page.context().route(ADMIN_USERS_PATH));
+    let page = Page::admin(request);
+    let back_href = waypoint.or(page.route(ADMIN_USERS_PATH.as_str()));
     let title = Lc::t("title-admin-user-new", &LOCALES_USER);
     Ok(page
-        .with_title(title.clone())
+        .with_title(title)
         .with_child(
-            frame(title)
-                .with_child(
-                    UserForm::new()
-                        .with_mode(UserFormMode::New)
-                        .with_roles(roles)
-                        .with_allow_admin_field(allow_admin_field)
-                        .with_waypoint(waypoint),
-                )
-                .with_child(back_link(back_href)),
+            UserForm::new()
+                .with_mode(UserFormMode::New)
+                .with_roles(roles)
+                .with_allow_admin_field(allow_admin_field)
+                .with_waypoint(waypoint),
         )
+        .with_child(back_link(back_href))
         .render()
         .await
         .into_response())
@@ -213,7 +204,6 @@ pub(crate) async fn new_post(
     web::Query(waypoint): web::Query<Waypoint>,
     raw: web::RawForm,
 ) -> Result<Response, ErrorPage> {
-    require_permission(&request, &UserPermission::AdminUsers)?;
     let Ok(form) = serde_qs::from_bytes::<NewUserFormData>(&raw.0) else {
         return Err(ErrorPage::BadRequest(Some(request)));
     };
@@ -240,13 +230,13 @@ pub(crate) async fn new_post(
     match result {
         Ok(_) => {
             let cx = Context::admin(request);
-            let target = waypoint.or(cx.route(ADMIN_USERS_PATH));
+            let target = waypoint.or(cx.route(ADMIN_USERS_PATH.as_str()));
             Ok(Redirect::see_other(target).into_response())
         }
         Err(err) => {
             let roles = available_roles(&role_ids).await.unwrap_or_default();
-            let mut page = Page::admin(request);
-            let back_href = waypoint.or(page.context().route(ADMIN_USERS_PATH));
+            let page = Page::admin(request);
+            let back_href = waypoint.or(page.route(ADMIN_USERS_PATH.as_str()));
             let form_component = UserForm::new()
                 .with_mode(UserFormMode::New)
                 .with_username(form.username)
@@ -262,12 +252,9 @@ pub(crate) async fn new_post(
                 .with_waypoint(waypoint);
             let title = Lc::t("title-admin-user-new", &LOCALES_USER);
             Ok(page
-                .with_title(title.clone())
-                .with_child(
-                    frame(title)
-                        .with_child(form_component)
-                        .with_child(back_link(back_href)),
-                )
+                .with_title(title)
+                .with_child(form_component)
+                .with_child(back_link(back_href))
                 .render()
                 .await
                 .into_response())
@@ -331,7 +318,7 @@ async fn render_edit_page(
     // Bloquear y activar exige además `user:block_accounts` (ver `status_post`).
     let can_change_status = has_permission(&request, &UserPermission::BlockAccounts);
     let mut page = Page::admin(request);
-    let back_href = waypoint.or(page.context().route(ADMIN_USERS_PATH));
+    let back_href = waypoint.or(page.route(ADMIN_USERS_PATH.as_str()));
     let title = Lc::t("title-admin-user-edit", &LOCALES_USER);
     let actions = edit_actions(
         id,
@@ -340,20 +327,17 @@ async fn render_edit_page(
         can_toggle_admin,
         can_change_status,
         &waypoint,
-        page.context(),
+        page.context_mut(),
     );
 
-    page.with_title(title.clone())
+    page.with_title(title)
         .with_child(
-            frame(title)
-                .with_child(
-                    form.with_mode(UserFormMode::Edit)
-                        .with_user_id(Some(id))
-                        .with_waypoint(waypoint.clone()),
-                )
-                .with_child(actions)
-                .with_child(back_link(back_href)),
+            form.with_mode(UserFormMode::Edit)
+                .with_user_id(Some(id))
+                .with_waypoint(waypoint.clone()),
         )
+        .with_child(actions)
+        .with_child(back_link(back_href))
         .render()
         .await
         .into_response()
@@ -451,7 +435,6 @@ pub(crate) async fn edit_get(
     web::Path(id): web::Path<i32>,
     web::Query(waypoint): web::Query<Waypoint>,
 ) -> Result<Response, ErrorPage> {
-    require_permission(&request, &UserPermission::AdminUsers)?;
     require_manageable(&request, id).await?;
     Ok(render_user_edit(request, id, None, waypoint).await)
 }
@@ -483,7 +466,6 @@ pub(crate) async fn edit_post(
     web::Query(waypoint): web::Query<Waypoint>,
     raw: web::RawForm,
 ) -> Result<Response, ErrorPage> {
-    require_permission(&request, &UserPermission::AdminUsers)?;
     let user = require_manageable(&request, id).await?;
     let Ok(form) = serde_qs::from_bytes::<EditUserFormData>(&raw.0) else {
         return Err(ErrorPage::BadRequest(Some(request)));
@@ -510,7 +492,7 @@ pub(crate) async fn edit_post(
     match result {
         Ok(()) => {
             let cx = Context::admin(request);
-            let target = waypoint.or(cx.route(ADMIN_USERS_PATH));
+            let target = waypoint.or(cx.route(ADMIN_USERS_PATH.as_str()));
             Ok(Redirect::see_other(target).into_response())
         }
         Err(err) => {
@@ -540,8 +522,6 @@ pub(crate) async fn view_get(
     web::Path(id): web::Path<i32>,
     web::Query(waypoint): web::Query<Waypoint>,
 ) -> Result<Response, ErrorPage> {
-    require_permission(&request, &UserPermission::AdminUsers)?;
-
     let user = match user_admin::find_user(id).await {
         Ok(user) => user,
         Err(_) => return Err(ErrorPage::NotFound(Some(request))),
@@ -552,19 +532,16 @@ pub(crate) async fn view_get(
     };
 
     let mut page = Page::admin(request);
-    let back_href = waypoint.or(page.context().route(ADMIN_USERS_PATH));
-    let details_block = user_details(&user, page.context()).await;
-    let roles_block = user_view_roles(&roles, user.is_admin, page.context()).await;
+    let back_href = waypoint.or(page.route(ADMIN_USERS_PATH.as_str()));
+    let details_block = user_details(&user, page.context_mut()).await;
+    let roles_block = user_view_roles(&roles, user.is_admin, page.context_mut()).await;
 
     let title = Lc::t("title-admin-user-view", &LOCALES_USER);
     Ok(page
-        .with_title(title.clone())
-        .with_child(
-            frame(title)
-                .with_child(details_block)
-                .with_child(roles_block)
-                .with_child(back_link(back_href)),
-        )
+        .with_title(title)
+        .with_child(details_block)
+        .with_child(roles_block)
+        .with_child(back_link(back_href))
         .render()
         .await
         .into_response())
@@ -645,7 +622,6 @@ pub(crate) async fn status_post(
     web::Query(waypoint): web::Query<Waypoint>,
     web::Form(form): web::Form<StatusFormData>,
 ) -> Result<Response, ErrorPage> {
-    require_permission(&request, &UserPermission::AdminUsers)?;
     require_permission(&request, &UserPermission::BlockAccounts)?;
     require_manageable(&request, id).await?;
     let Some(account) = request.extension::<Account>().cloned() else {
@@ -731,23 +707,19 @@ pub(crate) async fn password_get(
     web::Path(id): web::Path<i32>,
     web::Query(waypoint): web::Query<Waypoint>,
 ) -> Result<Response, ErrorPage> {
-    require_permission(&request, &UserPermission::AdminUsers)?;
     let user = require_manageable(&request, id).await?;
-    let mut page = Page::admin(request);
-    let edit_href = waypoint.append_to(page.context().route(user_path(id, "edit")));
+    let page = Page::admin(request);
+    let edit_href = waypoint.append_to(page.route(user_path(id, "edit")));
     let title = Lc::t("title-admin-user-password", &LOCALES_USER);
     Ok(page
-        .with_title(title.clone())
+        .with_title(title)
+        .with_child(user_summary(&user))
         .with_child(
-            frame(title)
-                .with_child(user_summary(&user))
-                .with_child(
-                    AdminPasswordForm::new()
-                        .with_user_id(id)
-                        .with_waypoint(waypoint),
-                )
-                .with_child(back_link(edit_href)),
+            AdminPasswordForm::new()
+                .with_user_id(id)
+                .with_waypoint(waypoint),
         )
+        .with_child(back_link(edit_href))
         .render()
         .await
         .into_response())
@@ -767,7 +739,6 @@ pub(crate) async fn password_post(
     web::Query(waypoint): web::Query<Waypoint>,
     web::Form(form): web::Form<AdminPasswordFormData>,
 ) -> Result<Response, ErrorPage> {
-    require_permission(&request, &UserPermission::AdminUsers)?;
     let user = require_manageable(&request, id).await?;
 
     let result = match password::passwords_match(&form.password, &form.confirm_password) {
@@ -783,22 +754,19 @@ pub(crate) async fn password_post(
             Ok(Redirect::see_other(edit_href).into_response())
         }
         Err(err) => {
-            let mut page = Page::admin(request);
-            let edit_href = waypoint.append_to(page.context().route(user_path(id, "edit")));
+            let page = Page::admin(request);
+            let edit_href = waypoint.append_to(page.route(user_path(id, "edit")));
             let title = Lc::t("title-admin-user-password", &LOCALES_USER);
             Ok(page
-                .with_title(title.clone())
+                .with_title(title)
+                .with_child(user_summary(&user))
                 .with_child(
-                    frame(title)
-                        .with_child(user_summary(&user))
-                        .with_child(
-                            AdminPasswordForm::new()
-                                .with_user_id(id)
-                                .with_error(map_auth_error(&err))
-                                .with_waypoint(waypoint),
-                        )
-                        .with_child(back_link(edit_href)),
+                    AdminPasswordForm::new()
+                        .with_user_id(id)
+                        .with_error(map_auth_error(&err))
+                        .with_waypoint(waypoint),
                 )
+                .with_child(back_link(edit_href))
                 .render()
                 .await
                 .into_response())
