@@ -3,10 +3,19 @@
 //! Define el tipo [`CurrentUser`] que PageTop inyecta en el [`Context`] con la información mínima
 //! sobre el usuario que ejecuta la petición actual ([`HttpRequest`]).
 //!
-//! Incluye la acción [`CheckPermission`] para que las extensiones puedan implementar sus propios
-//! modelos de permisos. Y también las funciones auxiliares [`has_permission()`] y
-//! [`require_permission()`] para validar en el comienzo de cada handler, antes de construir ni
-//! ejecutar nada, si la petición está autorizada.
+//! Las extensiones se conectan con este sistema mediante las acciones de [`action::auth`]: con
+//! [`CheckPermission`] implementan su propio modelo de permisos. Define también [`Access`], el
+//! acceso con el que se monta cada ruta: PageTop lo comprueba antes de llegar al *handler* y
+//! responde a quien no lo cumple con [`deny_access()`], la página de acceso denegado (403). A un
+//! usuario anónimo le ofrece en su lugar el inicio de sesión sólo si una extensión de autenticación
+//! lo prepara con [`AnonymousDenied`]. Dentro del *handler*, [`has_permission()`] y
+//! [`require_permission()`] sirven para lo que el acceso de la ruta no expresa: mostrar u ocultar
+//! partes de la página, o exigir un permiso más concreto.
+//!
+//! Las extensiones declaran además sus permisos con la acción [`DeclarePermissions`], y PageTop los
+//! reúne al arrancar en un catálogo ([`PermissionRegistry`]) para que una extensión de
+//! autenticación pueda mostrarlos, por ejemplo, en una pantalla de asignación de permisos a roles.
+//! El catálogo sólo dice qué permisos existen; a quién se conceden lo decide la extensión.
 //!
 //! La resolución concreta del usuario (sesión en BD, LDAP, OAuth, ...) y la lógica de permisos
 //! (RBAC, grupos LDAP, ...) son responsabilidad de las extensiones de autenticación. Un concepto
@@ -15,16 +24,18 @@
 //! [`CheckPermission`].
 //!
 //! [`Context`]: crate::core::component::Context
+//! [`action::auth`]: crate::base::action::auth
 
-use crate::core::action::{ActionDispatcher, try_dispatch_actions};
+use crate::base::action::auth::{AnonymousDenied, CheckPermission, DeclarePermissions};
+use crate::core::component::Context;
 use crate::core::theme::{ThemeRef, theme_by_short_name};
 use crate::datetime::{Timezone, Tz};
 use crate::locale::{LanguageIdentifier, Lc, Locale};
 use crate::response::ErrorPage;
-use crate::web::HttpRequest;
-use crate::{AutoDefault, CowStr, Getters, Weight, builder_impl, global};
+use crate::web::{HttpRequest, IntoResponse, Response};
+use crate::{AutoDefault, CowStr, Getters, builder_impl, global};
 
-use std::ops::ControlFlow;
+use std::sync::OnceLock;
 
 // **< CurrentUser >********************************************************************************
 
@@ -202,8 +213,8 @@ pub trait Permission: Send + Sync {
 
     /// Descripción breve para humanos (p. ej. en una pantalla de asignación de permisos a roles).
     ///
-    /// Por defecto devuelve la propia clave; una extensión que registre sus permisos en un catálogo
-    /// visible debería sobrescribirlo con un texto traducible.
+    /// Por defecto devuelve la propia clave; una extensión que declare sus permisos en el catálogo
+    /// ([`DeclarePermissions`]) debería sobrescribirlo con un texto traducible.
     fn label(&self) -> Lc {
         Lc::n(self.key())
     }
@@ -227,68 +238,6 @@ pub trait Permission: Send + Sync {
 /// Es el tipo que recorre toda la API de autorización ([`has_permission()`],
 /// [`require_permission()`] o [`CheckPermission`]).
 pub type PermissionRef = &'static dyn Permission;
-
-// **< CheckPermission >****************************************************************************
-
-/// Tipo de función para comprobar si el usuario actual tiene un permiso concreto.
-///
-/// Se invoca con:
-///
-/// - `request`: petición HTTP desde la que se accede a los datos inyectados por el middleware de
-///   autenticación.
-/// - `perm`: permiso a comprobar; el handler usará [`Permission::key()`] para identificarlo contra
-///   su propio modelo de permisos.
-/// - `granted`: referencia mutable; el handler debe asignarla a `true` si concede el permiso.
-pub type FnActionCheckPerm = fn(request: &HttpRequest, perm: PermissionRef, granted: &mut bool);
-
-/// Acción para comprobar si el usuario actual tiene un permiso concreto.
-///
-/// Las extensiones de autenticación pueden registrar su handler sobre esta acción para implementar
-/// su modelo de permisos. Los handlers son aditivos de tal forma que si cualquiera de ellos asigna
-/// `granted = true`, el permiso se concede.
-///
-/// # Ejemplo
-///
-/// ```rust,no_run
-/// # use pagetop::prelude::*;
-/// fn check_my_permissions(request: &HttpRequest, perm: PermissionRef, granted: &mut bool) {
-///     // Leer los datos extendidos de autenticación inyectados en la petición.
-///     // Comparar `perm.key()` contra el modelo propio.
-///     // Si concede el permiso, asignar `*granted = true`.
-/// }
-///
-/// pub struct MyAuth;
-///
-/// #[async_trait]
-/// impl Extension for MyAuth {
-///     fn actions(&self) -> Vec<ActionBox> {
-///         actions![CheckPermission::new(check_my_permissions)]
-///     }
-/// }
-/// ```
-pub struct CheckPermission {
-    f: FnActionCheckPerm,
-    weight: Weight,
-}
-
-impl ActionDispatcher for CheckPermission {
-    fn weight(&self) -> Weight {
-        self.weight
-    }
-}
-
-impl CheckPermission {
-    /// Registra una nueva acción para la comprobación de permisos.
-    pub fn new(f: FnActionCheckPerm) -> Self {
-        CheckPermission { f, weight: 0 }
-    }
-
-    /// Opcional. Acciones con pesos más bajos se aplican antes. Se pueden usar valores negativos.
-    pub fn with_weight(mut self, value: Weight) -> Self {
-        self.weight = value;
-        self
-    }
-}
 
 // **< has_permission >*****************************************************************************
 
@@ -318,26 +267,18 @@ impl CheckPermission {
 /// }
 /// ```
 pub fn has_permission(request: &HttpRequest, perm: PermissionRef) -> bool {
-    // Despacha las acciones registradas con salida anticipada en cuanto una concede el permiso.
-    let mut granted = false;
-    try_dispatch_actions(|action: &CheckPermission| {
-        (action.f)(request, perm, &mut granted);
-        if granted {
-            ControlFlow::Break(())
-        } else {
-            ControlFlow::Continue(())
-        }
-    });
-    granted
+    CheckPermission::dispatch(request, perm)
 }
 
 // **< require_permission >*************************************************************************
 
 /// Comprueba un permiso y devuelve `Err(ErrorPage::AccessDenied)` si se deniega.
 ///
-/// Ejecuta [`has_permission()`] para el caso más habitual: detener un handler con una respuesta 403
-/// en cuanto falta el permiso, sin repetir el `if`/`return` en cada punto de comprobación. Se hace
-/// directamente sobre la petición, antes de construir ni ejecutar nada (`Context`, `Page`,
+/// Ejecuta [`has_permission()`] para detener un *handler* con una respuesta 403 en cuanto falta el
+/// permiso, sin repetir el `if`/`return` en cada punto de comprobación. El acceso de la ruta
+/// ([`Access`]) ya se ha comprobado antes de llegar al *handler*; esta función es para un permiso
+/// más concreto que ése (p. ej. una acción que no todos los que ven la página pueden hacer). Se
+/// llama directamente sobre la petición, antes de construir ni ejecutar nada (`Context`, `Page`,
 /// consultas a datos, etc.), para no hacer ningún trabajo si la petición no está autorizada.
 ///
 /// Si la aplicación necesita ocultar la existencia del recurso a quien no tiene permiso (devolver
@@ -354,7 +295,7 @@ pub fn has_permission(request: &HttpRequest, perm: PermissionRef) -> bool {
 /// #     fn key(&self) -> CowStr { "myapp:edit".into() }
 /// # }
 /// async fn my_handler(request: HttpRequest) -> Result<Markup, ErrorPage> {
-///     // Comprueba si la petición está autorizada.
+///     // La ruta ya exige su acceso; este permiso es más concreto.
 ///     require_permission(&request, &MyPermission::Edit)?;
 ///
 ///     // Ejecuta las instrucciones propias de la petición.
@@ -370,4 +311,164 @@ pub fn require_permission(request: &HttpRequest, perm: PermissionRef) -> Result<
     } else {
         Err(ErrorPage::AccessDenied(Some(request.clone())))
     }
+}
+
+// **< Access >*************************************************************************************
+
+/// Quién puede acceder a una ruta.
+///
+/// Toda ruta se monta con el suyo ([`Routes::route()`](crate::web::Routes::route)), y PageTop lo
+/// comprueba antes de llegar al *handler*, que sólo comprueba permisos más concretos, si los hay
+/// (p. ej. que el usuario sea el autor de lo que edita). A quien no tiene acceso se le responde
+/// con [`deny_access()`].
+#[derive(Clone, Copy)]
+pub enum Access {
+    /// Cualquiera, también un usuario anónimo.
+    ///
+    /// Es el acceso de las páginas públicas y de las rutas que se protegen por otra vía, que su
+    /// *handler* comprueba (p. ej. un enlace con un *token* de un solo uso).
+    Public,
+    /// Cualquier usuario autenticado, sin exigir ningún permiso.
+    Authenticated,
+    /// Quien tenga el permiso indicado (ver [`has_permission()`]).
+    Permission(PermissionRef),
+}
+
+impl Access {
+    /// Devuelve `true` si la petición cumple este acceso.
+    pub fn allows(&self, request: &HttpRequest) -> bool {
+        match self {
+            Self::Public => true,
+            Self::Authenticated => is_authenticated(request),
+            Self::Permission(perm) => has_permission(request, *perm),
+        }
+    }
+}
+
+// Sin una extensión de autenticación, la petición no lleva `CurrentUser` y el usuario es anónimo.
+fn is_authenticated(request: &HttpRequest) -> bool {
+    request
+        .extension::<CurrentUser>()
+        .is_some_and(CurrentUser::is_authenticated)
+}
+
+// **< deny_access >********************************************************************************
+
+/// Responde a una petición sin acceso a la ruta pedida.
+///
+/// A un usuario anónimo le responde la primera acción [`AnonymousDenied`] que lo haga (p. ej. con
+/// el inicio de sesión); a uno autenticado, o si ninguna acción responde, la página de acceso
+/// denegado (403). Es lo que hace PageTop con una ruta cuyo [`Access`] no se cumple, y lo puede
+/// usar un *handler* que compruebe el acceso por su cuenta.
+pub fn deny_access(request: HttpRequest) -> Response {
+    if !is_authenticated(&request)
+        && let Some(response) = AnonymousDenied::dispatch(&request)
+    {
+        return response;
+    }
+    ErrorPage::AccessDenied(Some(request)).into_response()
+}
+
+// **< PermissionRegistry >*************************************************************************
+
+/// Catálogo de los permisos declarados por las extensiones.
+///
+/// Se construye una sola vez al arrancar con las acciones [`DeclarePermissions`] y se consulta con
+/// [`PermissionRegistry::global()`]. Vive sólo en memoria: a quién se concede cada permiso lo
+/// guarda, si hace falta, la extensión de autenticación.
+///
+/// Conserva el orden de registro. Para mostrar los grupos en pantalla,
+/// [`groups_sorted()`](Self::groups_sorted) los ordena alfabéticamente según el idioma activo.
+#[derive(AutoDefault)]
+pub struct PermissionRegistry {
+    permissions: Vec<PermissionRef>,
+    // `(identificador de grupo, título traducible)`, en orden de primer registro.
+    groups: Vec<(&'static str, Lc)>,
+}
+
+static PERMISSIONS: OnceLock<PermissionRegistry> = OnceLock::new();
+
+static EMPTY_PERMISSIONS: PermissionRegistry = PermissionRegistry {
+    permissions: Vec::new(),
+    groups: Vec::new(),
+};
+
+impl PermissionRegistry {
+    /// Devuelve el catálogo global de permisos.
+    ///
+    /// Fuera de una aplicación, o antes de que ésta registre las acciones de sus extensiones,
+    /// devuelve un catálogo vacío.
+    pub fn global() -> &'static PermissionRegistry {
+        PERMISSIONS.get().unwrap_or(&EMPTY_PERMISSIONS)
+    }
+
+    /// Registra un permiso. Se ignora si ya hay uno con la misma clave.
+    pub fn register(&mut self, perm: PermissionRef) {
+        if self.has(perm) {
+            return;
+        }
+        let group = perm.group();
+        if !self.groups.iter().any(|(g, _)| *g == group) {
+            self.groups.push((group, perm.group_label()));
+        }
+        self.permissions.push(perm);
+    }
+
+    /// Comprueba si un permiso está en el catálogo.
+    pub fn has(&self, perm: PermissionRef) -> bool {
+        self.has_key(&perm.key())
+    }
+
+    /// Comprueba si una clave textual (p. ej. procedente de un formulario) corresponde a un
+    /// permiso del catálogo.
+    pub fn has_key(&self, key: &str) -> bool {
+        self.permissions.iter().any(|p| p.key() == key)
+    }
+
+    /// Todos los permisos, en orden de registro.
+    pub fn all(&self) -> impl Iterator<Item = PermissionRef> + '_ {
+        self.permissions.iter().copied()
+    }
+
+    /// Grupos en orden de primer registro, sin traducir ni ordenar alfabéticamente.
+    ///
+    /// Listado de bajo nivel sobre el que se apoya [`groups_sorted()`](Self::groups_sorted); úsalo
+    /// en su lugar sólo cuando el orden de registro sea justo lo que se necesita (por ejemplo, para
+    /// inspeccionar el catálogo en pruebas).
+    pub fn groups(&self) -> &[(&'static str, Lc)] {
+        &self.groups
+    }
+
+    /// Grupos ordenados alfabéticamente por su título traducido al idioma del contexto, no sensible
+    /// a mayúsculas y, en general, a los acentos (ver [`Lc::collation_key()`] para el criterio
+    /// exacto y sus límites).
+    pub fn groups_sorted(&self, cx: &Context) -> Vec<&(&'static str, Lc)> {
+        let mut groups: Vec<_> = self
+            .groups
+            .iter()
+            .map(|g| (g.1.collation_key(cx), g))
+            .collect();
+        groups.sort_by(|a, b| a.0.cmp(&b.0));
+        groups.into_iter().map(|(_, g)| g).collect()
+    }
+
+    /// Permisos de un grupo, en orden de registro.
+    pub fn by_group<'a>(&'a self, group: &'a str) -> impl Iterator<Item = PermissionRef> + 'a {
+        self.permissions
+            .iter()
+            .copied()
+            .filter(move |p| p.group() == group)
+    }
+}
+
+// Construye el catálogo global despachando las acciones `DeclarePermissions`. Se llama al
+// arrancar, justo después de registrar las acciones de las extensiones; si ya está construido (p.
+// ej. por otra llamada a `Application::prepare()` en el mismo proceso, como hacen las pruebas), no
+// hace nada.
+pub(crate) fn build_permission_registry() {
+    PERMISSIONS.get_or_init(|| {
+        let mut registry = PermissionRegistry::default();
+        DeclarePermissions::dispatch(&mut registry);
+        registry
+    });
 }
