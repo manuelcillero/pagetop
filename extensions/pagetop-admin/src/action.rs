@@ -1,286 +1,119 @@
-//! Tipos de acción que `pagetop-admin` expone para que otras extensiones registren
-//! secciones, páginas, tareas y acciones en el panel de administración.
-//!
-//! El flujo de `registry::build()` despacha estas acciones en este orden:
-//!
-//! 1. `DeclareAdminSections` - secciones (agrupaciones del sidebar).
-//! 2. `DeclareAdminPages` - páginas del panel.
-//! 3. `DeclareAdminTasks` - tareas (pestañas) locales por página.
-//! 4. `DeclareAdminActions` - acciones locales (botones) por página.
+//! Acción para declarar páginas de ajustes que `pagetop-admin` pinta y guarda por sí solo.
 
 use pagetop::prelude::*;
 
-use crate::registry::{AdminAction, AdminPage, AdminSection, AdminTask};
+use std::collections::BTreeMap;
+use std::sync::OnceLock;
 
-// **< Tipo de callbacks >**************************************************************************
+use crate::settings::SettingsSchema;
 
-pub type FnSectionBag = fn(&mut SectionBag);
-pub type FnPageBag = fn(&mut PageBag);
-pub type FnTaskBag = fn(&mut TaskBag);
-pub type FnActionBag = fn(&mut ActionBag);
+// **< ConfigFormPage >*****************************************************************************
 
-// **< Bolsas de declaración >**********************************************************************
-
-/// Bolsa de secciones para [`DeclareAdminSections`].
-pub struct SectionBag {
-    pub(crate) sections: Vec<AdminSection>,
-}
-
-impl SectionBag {
-    /// Añade una sección al registro.
-    pub fn add(&mut self, section: AdminSection) {
-        self.sections.push(section);
-    }
-}
-
-/// Bolsa de páginas para [`DeclareAdminPages`].
-pub struct PageBag {
-    pub(crate) pages: Vec<AdminPage>,
-}
-
-impl PageBag {
-    /// Añade una página al registro.
-    pub fn add(&mut self, page: AdminPage) {
-        self.pages.push(page);
-    }
-}
-
-/// Bolsa de tareas para [`DeclareAdminTasks`].
-pub struct TaskBag {
-    pub(crate) tasks: Vec<AdminTask>,
-}
-
-impl TaskBag {
-    /// Añade una tarea local al registro.
-    pub fn add(&mut self, task: AdminTask) {
-        self.tasks.push(task);
-    }
-}
-
-/// Bolsa de acciones locales para [`DeclareAdminActions`].
-pub struct ActionBag {
-    pub(crate) actions: Vec<AdminAction>,
-}
-
-impl ActionBag {
-    /// Añade una acción local al registro.
-    pub fn add(&mut self, action: AdminAction) {
-        self.actions.push(action);
-    }
-}
-
-// **< DeclareAdminSections >***********************************************************************
-
-/// Acción para declarar secciones del panel de administración.
+/// Página de ajustes del panel: una [`AdminPage`] y el esquema de su formulario.
 ///
-/// Se despacha durante `registry::build()` (dentro de `initialize()`). El callback
-/// recibe un [`SectionBag`] y puede llamar a `add()` para registrar secciones.
+/// `pagetop-admin` la añade al registro del panel como cualquier otra página, monta su ruta y
+/// responde a su `GET` (el formulario con los valores guardados) y a su `POST` (los guarda en la
+/// base de datos). La extensión que la declara no registra ninguna ruta.
+#[derive(Clone)]
+pub struct ConfigFormPage {
+    /// Página del panel, con su ruta relativa a la raíz del panel.
+    pub page: AdminPage,
+    /// Esquema del formulario.
+    pub schema: SettingsSchema,
+}
+
+/// Bolsa de páginas de ajustes para [`DeclareConfigForms`].
+pub struct ConfigFormBag {
+    forms: Vec<ConfigFormPage>,
+}
+
+impl ConfigFormBag {
+    /// Añade una página de ajustes.
+    pub fn add(&mut self, form: ConfigFormPage) {
+        self.forms.push(form);
+    }
+}
+
+// **< DeclareConfigForms >*************************************************************************
+
+/// Tipo de función para declarar páginas de ajustes.
+pub type FnActionDeclareConfigForms = fn(bag: &mut ConfigFormBag);
+
+/// Acción para declarar páginas de ajustes que gestiona `pagetop-admin` (ver [`ConfigFormPage`]).
 ///
 /// # Ejemplo
 ///
 /// ```rust,no_run
 /// use pagetop::prelude::*;
-/// use pagetop_admin::action::{DeclareAdminSections, SectionBag};
-/// use pagetop_admin::registry::AdminSection;
+/// use pagetop_admin::prelude::*;
 ///
-/// fn declare_sections(bag: &mut SectionBag) {
-///     bag.add(AdminSection {
-///         key:        "tools".to_owned(),
-///         path:       "/admin/tools".to_owned(),
-///         title:  Lc::n("Tools"),
-///         weight: 60,
-///     });
+/// #[derive(Clone, Copy, Debug)]
+/// enum MyPermission {
+///     Config,
 /// }
-/// // En Extension::actions():
-/// // DeclareAdminSections::new(declare_sections)
-/// ```
-pub struct DeclareAdminSections {
-    f: FnSectionBag,
-    weight: Weight,
-}
-
-impl ActionDispatcher for DeclareAdminSections {
-    fn weight(&self) -> Weight {
-        self.weight
-    }
-}
-
-impl DeclareAdminSections {
-    pub fn new(f: FnSectionBag) -> Self {
-        DeclareAdminSections { f, weight: 0 }
-    }
-
-    pub fn with_weight(mut self, w: Weight) -> Self {
-        self.weight = w;
-        self
-    }
-
-    pub(crate) fn dispatch(bag: &mut SectionBag) {
-        dispatch_actions(|action: &Self| (action.f)(bag));
-    }
-}
-
-// **< DeclareAdminPages >**************************************************************************
-
-/// Acción para declarar páginas del panel de administración.
 ///
-/// Se despacha durante `registry::build()`. El callback recibe un [`PageBag`].
-///
-/// # Ejemplo
-///
-/// ```rust,no_run
-/// use pagetop::prelude::*;
-/// use pagetop_admin::action::{DeclareAdminPages, PageBag};
-/// use pagetop_admin::registry::{AdminPage, AdminPageKind};
-///
-/// struct ExportPermission;
-///
-/// impl Permission for ExportPermission {
+/// impl Permission for MyPermission {
 ///     fn key(&self) -> CowStr {
-///         "tools:export".into()
+///         "myapp:config".into()
 ///     }
 /// }
 ///
-/// fn declare_pages(bag: &mut PageBag) {
-///     bag.add(AdminPage {
-///         path:        "/admin/tools/export".to_owned(),
-///         section:     "tools".to_owned(),
-///         title:       Lc::n("Export"),
-///         description: Some(Lc::n("Export site data.")),
-///         weight:      0,
-///         permission:  &ExportPermission,
-///         kind:        AdminPageKind::View,
+/// fn declare_forms(bag: &mut ConfigFormBag) {
+///     bag.add(ConfigFormPage {
+///         page: AdminPage::new("config/myapp", "config", Lc::n("My App"), &MyPermission::Config)
+///             .with_description(Lc::n("Configure My App.")),
+///         schema: SettingsSchema::new("myapp.config").with_field(
+///             SettingField::text("site_name", Lc::n("Site name")).with_required(true),
+///         ),
 ///     });
 /// }
 /// // En Extension::actions():
-/// // DeclareAdminPages::new(declare_pages)
+/// // DeclareConfigForms::new(declare_forms)
 /// ```
-pub struct DeclareAdminPages {
-    f: FnPageBag,
+pub struct DeclareConfigForms {
+    f: FnActionDeclareConfigForms,
     weight: Weight,
 }
 
-impl ActionDispatcher for DeclareAdminPages {
+impl ActionDispatcher for DeclareConfigForms {
     fn weight(&self) -> Weight {
         self.weight
     }
 }
 
-impl DeclareAdminPages {
-    pub fn new(f: FnPageBag) -> Self {
-        DeclareAdminPages { f, weight: 0 }
+impl DeclareConfigForms {
+    /// Registra una nueva acción para declarar páginas de ajustes.
+    pub fn new(f: FnActionDeclareConfigForms) -> Self {
+        DeclareConfigForms { f, weight: 0 }
     }
 
-    pub fn with_weight(mut self, w: Weight) -> Self {
-        self.weight = w;
+    /// Opcional. Acciones con pesos más bajos se aplican antes. Se pueden usar valores negativos.
+    pub fn with_weight(mut self, value: Weight) -> Self {
+        self.weight = value;
         self
     }
-
-    pub(crate) fn dispatch(bag: &mut PageBag) {
-        dispatch_actions(|action: &Self| (action.f)(bag));
-    }
 }
 
-// **< DeclareAdminTasks >**************************************************************************
+// **< Registro de las páginas de ajustes >*********************************************************
 
-/// Acción para declarar tareas (pestañas) locales en páginas del panel.
-///
-/// Se despacha durante `registry::build()`. El callback recibe un [`TaskBag`].
-/// Cada [`AdminTask`] indica en `parent_path` la página a la que pertenece.
-///
-/// # Ejemplo
-///
-/// ```rust,no_run
-/// use pagetop::prelude::*;
-/// use pagetop_admin::action::{DeclareAdminTasks, TaskBag};
-/// use pagetop_admin::registry::AdminTask;
-///
-/// fn declare_tasks(bag: &mut TaskBag) {
-///     bag.add(AdminTask {
-///         path:        "/admin/tools/export/csv".to_owned(),
-///         parent_path: "/admin/tools/export".to_owned(),
-///         title:       Lc::n("CSV"),
-///         weight:      0,
-///         is_default:  true,
-///         permission:  None,
-///     });
-/// }
-/// // En Extension::actions():
-/// // DeclareAdminTasks::new(declare_tasks)
-/// ```
-pub struct DeclareAdminTasks {
-    f: FnTaskBag,
-    weight: Weight,
+// Esquemas de las páginas de ajustes, por su ruta relativa a la raíz del panel.
+static CONFIG_FORMS: OnceLock<BTreeMap<String, SettingsSchema>> = OnceLock::new();
+
+// Añade las páginas de ajustes al registro del panel. `pagetop-admin` lo registra como una acción
+// `DeclareAdminPages`, así que se ejecuta una sola vez, cuando el núcleo construye el registro.
+pub(crate) fn declare_config_form_pages(bag: &mut AdminPageBag) {
+    let mut forms = ConfigFormBag { forms: Vec::new() };
+    dispatch_actions(|action: &DeclareConfigForms| (action.f)(&mut forms));
+    let mut schemas = BTreeMap::new();
+    for form in forms.forms {
+        schemas.insert(form.page.path().to_owned(), form.schema);
+        bag.add(form.page);
+    }
+    let _ = CONFIG_FORMS.set(schemas);
 }
 
-impl ActionDispatcher for DeclareAdminTasks {
-    fn weight(&self) -> Weight {
-        self.weight
-    }
-}
-
-impl DeclareAdminTasks {
-    pub fn new(f: FnTaskBag) -> Self {
-        DeclareAdminTasks { f, weight: 0 }
-    }
-
-    pub fn with_weight(mut self, w: Weight) -> Self {
-        self.weight = w;
-        self
-    }
-
-    pub(crate) fn dispatch(bag: &mut TaskBag) {
-        dispatch_actions(|action: &Self| (action.f)(bag));
-    }
-}
-
-// **< DeclareAdminActions >************************************************************************
-
-/// Acción para declarar acciones locales (botones de acción) en páginas del panel.
-///
-/// Se despacha durante `registry::build()`. El callback recibe un [`ActionBag`].
-/// Cada [`AdminAction`] indica en `for_path` la página en la que aparece el botón.
-///
-/// # Ejemplo
-///
-/// ```rust,no_run
-/// use pagetop::prelude::*;
-/// use pagetop_admin::action::{DeclareAdminActions, ActionBag};
-/// use pagetop_admin::registry::AdminAction;
-///
-/// fn declare_actions(bag: &mut ActionBag) {
-///     bag.add(AdminAction {
-///         url:      "/admin/tools/export/new".to_owned(),
-///         for_path: "/admin/tools/export".to_owned(),
-///         title:    Lc::n("Add export"),
-///         weight:   0,
-///     });
-/// }
-/// // En Extension::actions():
-/// // DeclareAdminActions::new(declare_actions)
-/// ```
-pub struct DeclareAdminActions {
-    f: FnActionBag,
-    weight: Weight,
-}
-
-impl ActionDispatcher for DeclareAdminActions {
-    fn weight(&self) -> Weight {
-        self.weight
-    }
-}
-
-impl DeclareAdminActions {
-    pub fn new(f: FnActionBag) -> Self {
-        DeclareAdminActions { f, weight: 0 }
-    }
-
-    pub fn with_weight(mut self, w: Weight) -> Self {
-        self.weight = w;
-        self
-    }
-
-    pub(crate) fn dispatch(bag: &mut ActionBag) {
-        dispatch_actions(|action: &Self| (action.f)(bag));
-    }
+// Esquemas de las páginas de ajustes, por su ruta relativa a la raíz del panel.
+pub(crate) fn config_forms() -> &'static BTreeMap<String, SettingsSchema> {
+    static EMPTY: BTreeMap<String, SettingsSchema> = BTreeMap::new();
+    CONFIG_FORMS.get().unwrap_or(&EMPTY)
 }

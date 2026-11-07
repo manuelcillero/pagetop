@@ -3,212 +3,128 @@ use std::collections::HashMap;
 use pagetop::prelude::*;
 
 use crate::LOCALES_ADMIN;
-use crate::component::{AdminFrame, ConfigForm};
-use crate::registry::{self, AdminPageKind, AdminSection};
-use crate::settings;
+use crate::action::config_forms;
+use crate::component::ConfigForm;
+use crate::settings::{self, SettingFieldType, SettingsSchema};
 
-// **< Dashboard >**********************************************************************************
+// **< Config form >********************************************************************************
 
-/// GET /admin - Dashboard de administración: lista todas las secciones disponibles.
-///
-/// Devuelve [`ErrorPage::AccessDenied`] si el usuario actual no tiene acceso a ninguna página.
-pub async fn dashboard(request: HttpRequest) -> Result<Markup, ErrorPage> {
-    let cx = Context::new(request.clone());
-    let sections = registry::global().ordered_sections();
-
-    let title = Lc::t("dashboard-title", &LOCALES_ADMIN);
-    let content = render_sections(&cx, &sections)
-        .ok_or_else(|| ErrorPage::AccessDenied(Some(request.clone())))?;
-
-    Page::admin(request)
-        .with_title(title.clone())
-        .with_child(AdminFrame::new().with_title(title).with_child(content))
-        .render()
-        .await
-}
-
-// **< Sección >************************************************************************************
-
-/// GET /admin/{section} - Página de aterrizaje de una sección: lista sus páginas.
-///
-/// Sólo se monta (ver `configure_router()` en `lib.rs`) para las secciones cuyo `path` no coincida
-/// con ninguna [`AdminPage`](crate::registry::AdminPage) registrada explícitamente por una
-/// extensión; si una extensión reclama esa ruta con su propia página, esa página gana y este
-/// handler nunca llega a montarse para ella.
-///
-/// Devuelve [`ErrorPage::AccessDenied`] si el usuario actual no tiene acceso a ninguna de sus
-/// páginas.
-pub async fn section_page(request: HttpRequest) -> Result<Markup, ErrorPage> {
-    let path = request.path().to_owned();
-    let reg = registry::global();
-    let section = reg
-        .sections()
-        .values()
-        .find(|s| s.path == path)
-        .ok_or_else(|| ErrorPage::NotFound(Some(request.clone())))?;
-
-    let cx = Context::new(request.clone());
-    let title = section.title.clone();
-    let content = render_sections(&cx, &[section])
-        .ok_or_else(|| ErrorPage::AccessDenied(Some(request.clone())))?;
-
-    Page::admin(request)
-        .with_title(title.clone())
-        .with_child(AdminFrame::new().with_title(title).with_child(content))
-        .render()
-        .await
-}
-
-// **< Render compartido >**************************************************************************
-
-// Rejilla de secciones con sus páginas (título + descripción). La usan tanto `dashboard()` (todas
-// las secciones) como `section_page()` (una sola), filtrando siempre por permiso del usuario
-// actual. Devuelve `None` si no queda ninguna sección visible con páginas accesibles.
-fn render_sections(cx: &Context, candidates: &[&'static AdminSection]) -> Option<Container> {
-    let reg = registry::global();
-    let sections_with_pages: Vec<_> = candidates
-        .iter()
-        .copied()
-        .map(|section| {
-            let pages: Vec<_> = reg
-                .pages_for_section(&section.key)
-                .into_iter()
-                .filter(|p| p.is_accessible(cx))
-                .collect();
-            (section, pages)
-        })
-        .filter(|(_, pages)| !pages.is_empty())
-        .collect();
-    if sections_with_pages.is_empty() {
-        return None;
-    }
-    let mut sections = Container::new().with_prop(PropsOp::add_classes("admin-dashboard-sections"));
-    for (section, pages) in sections_with_pages {
-        sections = sections.with_child(
-            Container::new()
-                .with_prop(PropsOp::add_classes("admin-dashboard-section"))
-                .with_child(Html::with(move |cx| {
-                    html! {
-                        h2 class="admin-dashboard-section-title" {
-                            a href=(cx.route(section.path.as_str())) { (section.title.using(cx)) }
-                        }
-                        ul class="admin-dashboard-section-links" {
-                            @for page in &pages {
-                                li class="admin-dashboard-link" {
-                                    a href=(cx.route(page.path.as_str())) {
-                                        (page.title.using(cx))
-                                    }
-                                    @if let Some(description) = &page.description {
-                                        span class="admin-dashboard-link-desc" {
-                                            " - " (description.using(cx))
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                })),
-        );
-    }
-    Some(sections)
+// Página del registro y esquema de la página de ajustes de la petición.
+fn config_form_page(
+    request: &HttpRequest,
+) -> Result<(&'static AdminPage, &'static SettingsSchema), ErrorPage> {
+    let not_found = || ErrorPage::NotFound(Some(request.clone()));
+    let path = strip_admin_path(request.path()).ok_or_else(not_found)?;
+    let page = AdminRegistry::global().page(path).ok_or_else(not_found)?;
+    let schema = config_forms().get(path).ok_or_else(not_found)?;
+    Ok((page, schema))
 }
 
 // **< Config form - GET >**************************************************************************
 
-/// GET de una página [`AdminPageKind::ConfigForm`].
-///
-/// Lee el schema del registro y renderiza el formulario con los valores actuales.
+// GET de una página de ajustes: el formulario con los valores guardados.
 pub async fn config_form_get(request: HttpRequest) -> Result<Markup, ErrorPage> {
-    let path = request.path().to_owned();
-    let reg = registry::global();
-    let page = reg
-        .pages()
-        .get(&path)
-        .ok_or_else(|| ErrorPage::NotFound(Some(request.clone())))?;
-
-    let AdminPageKind::ConfigForm(ref schema) = page.kind else {
-        return Err(ErrorPage::NotFound(Some(request.clone())));
-    };
-
-    require_permission(&request, page.permission)?;
-
-    let title = page.title.clone();
-    let mut form = ConfigForm::with_schema(schema.clone());
-    let mut cx = Context::new(request.clone());
-    let content = form.render(&mut cx).await;
+    let (page, schema) = config_form_page(&request)?;
 
     Page::admin(request)
-        .with_title(title.clone())
-        .with_child(
-            AdminFrame::new()
-                .with_title(title)
-                .with_child(Html::with(move |_| content.clone())),
-        )
+        .with_title(page.title().clone())
+        .with_child(ConfigForm::with_schema(schema.clone()))
         .render()
         .await
 }
 
 // **< Config form - POST >*************************************************************************
 
-/// POST de una página [`AdminPageKind::ConfigForm`].
-///
-/// Valida y persiste los valores en `settings`, luego redirige al GET con
-/// estado `saved=true`.
+// POST de una página de ajustes: guarda los valores enviados y vuelve a mostrar el formulario con
+// un mensaje. Si falta algún campo obligatorio no guarda ninguno.
 pub async fn config_form_post(
     request: HttpRequest,
     web::Form(data): web::Form<HashMap<String, String>>,
 ) -> Result<Markup, ErrorPage> {
-    let path = request.path().to_owned();
-    let reg = registry::global();
-    let page = reg
-        .pages()
-        .get(&path)
-        .ok_or_else(|| ErrorPage::NotFound(Some(request.clone())))?;
+    let (page, schema) = config_form_page(&request)?;
+    let mut admin = Page::admin(request).with_title(page.title().clone());
 
-    let AdminPageKind::ConfigForm(ref schema) = page.kind else {
-        return Err(ErrorPage::NotFound(Some(request.clone())));
-    };
-
-    require_permission(&request, page.permission)?;
-
-    let mut save_error = false;
-
-    for field in schema.fields() {
-        let key = schema.key_for(field.name());
-
-        // Los checkbox HTML sólo envían el campo si están marcados.
-        let raw = match field.field_type() {
-            crate::settings::SettingFieldType::Boolean => data
-                .get(field.name())
-                .map(|s| s.as_str())
-                .unwrap_or("false")
-                .to_owned(),
-            _ => {
-                let Some(raw) = data.get(field.name()) else {
-                    if *field.required() {
-                        save_error = true;
-                    }
-                    continue;
-                };
-                raw.clone()
+    let (level, message) = match submitted_values(schema, &data) {
+        None => (MessageLevel::Error, "config-required"),
+        Some(values) => {
+            let user_id = admin.current_user().id();
+            let mut saved = true;
+            for (key, value) in values {
+                if let Err(error) = settings::set(&key, &value, schema.scope(), user_id).await {
+                    trace::error!("Failed to save the setting \"{key}\": {error}");
+                    saved = false;
+                    break;
+                }
             }
-        };
+            if saved {
+                (MessageLevel::Info, "config-saved-ok")
+            } else {
+                (MessageLevel::Error, "config-saved-error")
+            }
+        }
+    };
+    admin.push_message(level, Lc::t(message, &LOCALES_ADMIN));
 
-        settings::set::<String>(&key, &raw, schema.scope(), None).await;
-    }
-
-    let title = page.title.clone();
-    let mut form = ConfigForm::with_schema(schema.clone()).with_saved(!save_error, save_error);
-    let mut cx = Context::new(request.clone());
-    let content = form.render(&mut cx).await;
-
-    Page::admin(request)
-        .with_title(title.clone())
-        .with_child(
-            AdminFrame::new()
-                .with_title(title)
-                .with_child(Html::with(move |_| content.clone())),
-        )
+    admin
+        .with_child(ConfigForm::with_schema(schema.clone()))
         .render()
         .await
+}
+
+// Clave y valor de cada campo del esquema en el envío, o `None` si falta un campo obligatorio o
+// llega vacío. Una casilla sin marcar no se envía, así que vale `"false"`.
+fn submitted_values(
+    schema: &SettingsSchema,
+    data: &HashMap<String, String>,
+) -> Option<Vec<(String, String)>> {
+    let mut values = Vec::with_capacity(schema.fields().len());
+    for field in schema.fields() {
+        let value = match (field.field_type(), data.get(field.name())) {
+            (SettingFieldType::Boolean, value) => value.map_or("false", String::as_str),
+            (_, Some(value)) if !value.trim().is_empty() => value,
+            (_, _) if *field.required() => return None,
+            (_, value) => value.map_or("", String::as_str),
+        };
+        values.push((schema.key_for(field.name()), value.to_owned()));
+    }
+    Some(values)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::settings::SettingField;
+
+    fn schema() -> SettingsSchema {
+        SettingsSchema::new("garden")
+            .with_field(SettingField::text("name", Lc::n("Name")).with_required(true))
+            .with_field(SettingField::text("notice", Lc::n("Notice")))
+            .with_field(SettingField::boolean("open", Lc::n("Open")))
+    }
+
+    fn data(pairs: &[(&str, &str)]) -> HashMap<String, String> {
+        pairs
+            .iter()
+            .map(|(k, v)| (k.to_string(), v.to_string()))
+            .collect()
+    }
+
+    #[pagetop::test]
+    async fn values_are_keyed_by_scope_and_an_unchecked_box_is_false() {
+        let values = submitted_values(&schema(), &data(&[("name", "Ours"), ("notice", "")]));
+        assert_eq!(
+            values.unwrap(),
+            [
+                ("garden.name".to_owned(), "Ours".to_owned()),
+                ("garden.notice".to_owned(), String::new()),
+                ("garden.open".to_owned(), "false".to_owned()),
+            ]
+        );
+    }
+
+    #[pagetop::test]
+    async fn a_required_field_missing_or_blank_saves_nothing() {
+        assert!(submitted_values(&schema(), &data(&[("notice", "Hi")])).is_none());
+        assert!(submitted_values(&schema(), &data(&[("name", "  ")])).is_none());
+    }
 }

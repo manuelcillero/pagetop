@@ -25,32 +25,9 @@ pub async fn get_or<T: DeserializeOwned>(key: &str, default: T) -> T {
 
 /// Escribe un valor en la tabla `settings`.
 ///
-/// Si la clave no existe se inserta; si existe, se actualiza.
-pub async fn set<T: Serialize>(key: &str, value: &T, scope: &str, user_id: Option<i32>) {
-    set_async(key, value, scope, user_id).await.ok();
-}
-
-/// Elimina una entrada de `settings` por clave.
-pub async fn delete(key: &str) {
-    delete_async(key).await.ok();
-}
-
-/// Devuelve todos los pares `(key, value_json)` de un `scope` dado.
-pub async fn list_scope(scope: &str) -> Vec<(String, String)> {
-    list_scope_async(scope).await.unwrap_or_default()
-}
-
-// **< Implementación asíncrona >*******************************************************************
-
-async fn get_async<T: DeserializeOwned>(key: &str) -> Result<T, AdminError> {
-    let model = Entity::find_by_id(key)
-        .one(dbconn())
-        .await?
-        .ok_or_else(|| AdminError::NotFound(key.to_owned()))?;
-    Ok(serde_json::from_str(&model.value)?)
-}
-
-async fn set_async<T: Serialize>(
+/// Si la clave no existe se inserta; si existe, se actualiza. Devuelve el error si no se puede
+/// guardar.
+pub async fn set<T: Serialize>(
     key: &str,
     value: &T,
     scope: &str,
@@ -82,9 +59,25 @@ async fn set_async<T: Serialize>(
     Ok(())
 }
 
-async fn delete_async(key: &str) -> Result<(), AdminError> {
+/// Elimina una entrada de `settings` por clave. Devuelve el error si no se puede eliminar.
+pub async fn delete(key: &str) -> Result<(), AdminError> {
     Entity::delete_by_id(key).exec(dbconn()).await?;
     Ok(())
+}
+
+/// Devuelve todos los pares `(key, value_json)` de un `scope` dado.
+pub async fn list_scope(scope: &str) -> Vec<(String, String)> {
+    list_scope_async(scope).await.unwrap_or_default()
+}
+
+// **< Implementación asíncrona >*******************************************************************
+
+async fn get_async<T: DeserializeOwned>(key: &str) -> Result<T, AdminError> {
+    let model = Entity::find_by_id(key)
+        .one(dbconn())
+        .await?
+        .ok_or_else(|| AdminError::NotFound(key.to_owned()))?;
+    Ok(serde_json::from_str(&model.value)?)
 }
 
 async fn list_scope_async(scope: &str) -> Result<Vec<(String, String)>, AdminError> {
@@ -107,7 +100,7 @@ pub enum SettingFieldType {
     /// Casilla de verificación (booleano).
     Boolean,
     /// Lista de opciones `(valor, etiqueta)`.
-    Select { options: Vec<(String, String)> },
+    Select { options: Vec<(String, Lc)> },
 }
 
 /// Definición de un campo dentro de un [`SettingsSchema`].
@@ -116,70 +109,66 @@ pub struct SettingField {
     /// Devuelve el nombre del campo (clave dentro del scope, p. ej. `"site_name"`).
     name: String,
     /// Devuelve la etiqueta visible en el formulario.
-    label: String,
+    label: Lc,
     /// Devuelve el tipo de campo.
     field_type: SettingFieldType,
     /// Devuelve si el campo es obligatorio.
     required: bool,
-    /// Devuelve el texto de ayuda opcional bajo el campo.
-    help_text: Option<String>,
-    /// Devuelve el valor por defecto como cadena JSON.
+    /// Devuelve el texto de ayuda bajo el campo, o [`Lc::none()`] si no tiene.
+    help_text: Lc,
+    /// Devuelve el valor por defecto, como texto, igual que guarda el formulario los valores.
     default_value: Option<String>,
 }
 
 #[builder_impl]
 impl SettingField {
     /// Crea un campo de texto con nombre y etiqueta.
-    pub fn text(name: impl Into<String>, label: impl Into<String>) -> Self {
+    pub fn text(name: impl Into<String>, label: Lc) -> Self {
         SettingField {
             name: name.into(),
-            label: label.into(),
+            label,
             field_type: SettingFieldType::Text { max_length: None },
             required: false,
-            help_text: None,
+            help_text: Lc::none(),
             default_value: None,
         }
     }
 
     /// Crea un campo numérico con nombre y etiqueta.
-    pub fn number(name: impl Into<String>, label: impl Into<String>) -> Self {
+    pub fn number(name: impl Into<String>, label: Lc) -> Self {
         SettingField {
             name: name.into(),
-            label: label.into(),
+            label,
             field_type: SettingFieldType::Number {
                 min: None,
                 max: None,
             },
             required: false,
-            help_text: None,
+            help_text: Lc::none(),
             default_value: None,
         }
     }
 
     /// Crea un campo booleano con nombre y etiqueta.
-    pub fn boolean(name: impl Into<String>, label: impl Into<String>) -> Self {
+    pub fn boolean(name: impl Into<String>, label: Lc) -> Self {
         SettingField {
             name: name.into(),
-            label: label.into(),
+            label,
             field_type: SettingFieldType::Boolean,
             required: false,
-            help_text: None,
+            help_text: Lc::none(),
             default_value: None,
         }
     }
 
     /// Crea un campo de selección con nombre, etiqueta y opciones.
-    pub fn select(
-        name: impl Into<String>,
-        label: impl Into<String>,
-        options: Vec<(String, String)>,
-    ) -> Self {
+    pub fn select(name: impl Into<String>, label: Lc, options: Vec<(String, Lc)>) -> Self {
         SettingField {
             name: name.into(),
-            label: label.into(),
+            label,
             field_type: SettingFieldType::Select { options },
             required: false,
-            help_text: None,
+            help_text: Lc::none(),
             default_value: None,
         }
     }
@@ -191,14 +180,20 @@ impl SettingField {
     }
 
     /// Añade texto de ayuda bajo el campo.
-    pub fn with_help(mut self, text: impl Into<String>) -> Self {
-        self.help_text = Some(text.into());
+    pub fn with_help(mut self, text: Lc) -> Self {
+        self.help_text = text;
         self
     }
 
-    /// Establece el valor por defecto (como valor JSON serializado).
+    /// Establece el valor por defecto, el que muestra el formulario mientras no se guarde otro.
+    ///
+    /// Se guarda como texto, igual que los valores que envía el formulario: un número o un
+    /// booleano, con su forma habitual (`42`, `true`), y una cadena, tal cual, sin comillas.
     pub fn with_default<T: Serialize>(mut self, value: &T) -> Self {
-        self.default_value = serde_json::to_string(value).ok();
+        self.default_value = serde_json::to_value(value).ok().map(|value| match value {
+            serde_json::Value::String(text) => text,
+            other => other.to_string(),
+        });
         self
     }
 }

@@ -3,7 +3,7 @@
 
 <h1>PageTop Admin</h1>
 
-<p>Panel de administración extensible para <strong>PageTop</strong>.</p>
+<p>Ajustes guardados en la base de datos para el panel de administración de <strong>PageTop</strong>.</p>
 
 [![Doc API](https://img.shields.io/docsrs/pagetop-admin?label=Doc%20API&style=for-the-badge&logo=Docs.rs)](https://docs.rs/pagetop-admin)
 [![Crates.io](https://img.shields.io/crates/v/pagetop-admin.svg?style=for-the-badge&logo=ipfs)](https://crates.io/crates/pagetop-admin)
@@ -12,17 +12,44 @@
 
 </div>
 
-Añade a una aplicación PageTop un panel de administración en `/admin` que cada extensión amplía con
-sus propias secciones, páginas, pestañas y botones, declarados con acciones. Trae las secciones
-habituales (personas, estructura, configuración, informes y ayuda), formularios de configuración
-que se guardan en la base de datos y un menú de navegación hecho sólo con componentes del núcleo,
-para que funcione con cualquier tema.
+Añade al panel de administración de PageTop **ajustes que se guardan en la base de datos** y que un
+administrador cambia desde el propio panel, con la aplicación en marcha.
 
 ## Sobre PageTop
 
 [PageTop](https://docs.rs/pagetop) es un entorno de desarrollo que reivindica la esencia de la web
 clásica para crear soluciones web SSR (*renderizadas en el servidor*) modulares, extensibles y
 configurables, basadas en HTML, CSS y JavaScript.
+
+## Qué aporta
+
+- **Páginas de ajustes sin código propio.** Una extensión describe los campos con un
+  [`SettingsSchema`] y declara la página con [`DeclareConfigForms`]. `pagetop-admin` monta su ruta,
+  pinta el formulario con los valores guardados y guarda lo que se envía, salvo que falte algún
+  campo obligatorio o llegue vacío.
+- **El almacén de los valores.** La tabla `settings`, que crea al arrancar, y las funciones del
+  módulo [`settings`](mod@settings) para leerlos ([`settings::get_or()`] y compañía) y
+  escribirlos desde código.
+- **El formulario** ([`ConfigForm`]), por si una página propia quiere mostrar el de un esquema.
+
+## En qué se apoya
+
+El panel en sí es de PageTop (el módulo [`pagetop::admin`]): su página de inicio, sus secciones, la
+navegación, las migas de pan y la plantilla de administración ([`Page::admin()`]). Cada página de
+ajustes es una [`AdminPage`] del núcleo, así que aparece en el panel como cualquier otra, con su
+sección y su permiso, y se pinta con cualquier tema. Una extensión que sólo añade páginas propias al
+panel, sin ajustes, no necesita `pagetop-admin`.
+
+## Cuándo usarlo
+
+Para valores que decide quien administra el sitio y que cambian con el tiempo: un aviso en la
+portada, un número de plazas, abrir o cerrar las inscripciones... Lo que fija quien despliega la
+aplicación (la base de datos, el servidor de correo, los límites) va en los archivos de
+configuración (ver [`pagetop::config`]), que no se pueden cambiar desde el panel y exigen
+reiniciar.
+
+Los valores que envía el formulario se guardan como texto, también los de los campos numéricos y las
+casillas (`"42"`, `"true"`): se leen como `String` y se convierten al usarlos.
 
 ## Guía rápida
 
@@ -33,16 +60,15 @@ configurables, basadas en HTML, CSS y JavaScript.
 pagetop-admin = "..."
 ```
 
-La configuración se guarda con `pagetop-seaorm`: la aplicación elige el motor de base de datos con
-su *feature* (`postgres`, `mysql` o `sqlite`) y configura la conexión en la sección `[database]`.
+Los ajustes se guardan con `pagetop-seaorm`: la aplicación elige el motor de base de datos con su
+*feature* (`postgres`, `mysql` o `sqlite`) y configura la conexión en la sección `[database]`.
 
-**Declara la extensión** como dependencia de la tuya (`&pagetop_admin::Admin`) y **añade al panel**
-tus secciones, páginas o formularios de configuración:
+**Declara la extensión** como dependencia de la tuya (`&pagetop_admin::Admin`); si no, sus páginas
+de ajustes no se montan. Después **declara tus páginas de ajustes**, cada una con su permiso:
 
 ```rust,no_run
 use pagetop::prelude::*;
 use pagetop_admin::prelude::*;
-use pagetop_admin::settings::{SettingField, SettingsSchema};
 
 pub struct MyApp;
 
@@ -53,25 +79,17 @@ impl Extension for MyApp {
     }
 
     fn actions(&self) -> Vec<ActionBox> {
-        actions![
-            DeclareAdminPages::new(declare_pages),
-        ]
-    }
-
-    fn configure_router(&self, router: Router) -> Router {
-        router.route("/admin/config/myapp", web::get(config_handler))
+        actions![DeclareConfigForms::new(declare_forms)]
     }
 }
 
-fn declare_pages(bag: &mut PageBag) {
-    bag.add(AdminPage {
-        path:        "/admin/config/myapp".to_owned(),
-        section:     "config".to_owned(),
-        title:       Lc::n("My App"),
-        description: Some(Lc::n("Configure My App.")),
-        weight:      0,
-        permission:  &MyPermission::Config,
-        kind:        AdminPageKind::View,
+fn declare_forms(bag: &mut ConfigFormBag) {
+    bag.add(ConfigFormPage {
+        page: AdminPage::new("config/myapp", "config", Lc::n("My App"), &MyPermission::Config)
+            .with_description(Lc::n("Name of the site.")),
+        schema: SettingsSchema::new("myapp").with_field(
+            SettingField::text("site_name", Lc::n("Site name")).with_required(true),
+        ),
     });
 }
 
@@ -88,30 +106,11 @@ impl Permission for MyPermission {
     }
 }
 
-async fn config_handler(request: HttpRequest) -> Result<Markup, ErrorPage> {
-    let schema = SettingsSchema::new("myapp.config")
-        .with_field(SettingField::text("site_name", "Site name").with_required(true));
-
-    let title   = "My App configuration";
-    let mut form = ConfigForm::with_schema(schema);
-    let mut cx   = Context::new(request.clone());
-    let content  = form.render(&mut cx).await;
-
-    Page::admin(request)
-        .with_title(Lc::n(title))
-        .with_child(
-            AdminFrame::new()
-                .with_title(Lc::n(title))
-                .with_child(Html::with(move |_| content.clone())),
-        )
-        .render()
-        .await
+// Los valores se guardan con la clave `<ámbito>.<campo>`.
+async fn site_name() -> String {
+    pagetop_admin::settings::get_or("myapp.site_name", String::new()).await
 }
 ```
-
-Para formularios de configuración enteramente automáticos (GET y POST gestionados por
-`pagetop-admin`), usa `AdminPageKind::ConfigForm(schema)` en lugar de `View` y no registres la ruta
-tú mismo.
 */
 
 use pagetop::prelude::*;
@@ -119,39 +118,24 @@ use pagetop_seaorm::install_migrations;
 
 include_locales!(LOCALES_ADMIN);
 
-/// Ruta raíz del panel de administración. No es configurable: otras piezas del ecosistema (p. ej.
-/// las rutas de `pagetop-user`, `/admin/user/...`) ya asumen este valor de forma literal. Es
-/// pública para que otras extensiones enlacen al panel sin repetir la ruta.
-pub const ADMIN_BASE_PATH: &str = "/admin";
-
 pub mod action;
 pub mod component;
 pub mod error;
-pub mod registry;
 pub mod settings;
 
 pub(crate) mod entity;
 pub(crate) mod handlers;
 pub(crate) mod migration;
-pub(crate) mod seed;
 
-pub use action::{
-    ActionBag, DeclareAdminActions, DeclareAdminPages, DeclareAdminSections, DeclareAdminTasks,
-    PageBag, SectionBag, TaskBag,
-};
-pub use component::{AdminFrame, AdminMenu, ConfigForm};
-pub use registry::{AdminAction, AdminPage, AdminPageKind, AdminSection, AdminTask};
+pub use action::{ConfigFormBag, ConfigFormPage, DeclareConfigForms};
+pub use component::ConfigForm;
 pub use settings::{SettingField, SettingFieldType, SettingsSchema};
 
 /// Prelude de `pagetop-admin`.
 pub mod prelude {
-    pub use crate::action::{
-        ActionBag, DeclareAdminActions, DeclareAdminPages, DeclareAdminSections, DeclareAdminTasks,
-        PageBag, SectionBag, TaskBag,
-    };
-    pub use crate::component::{AdminFrame, AdminMenu, ConfigForm};
+    pub use crate::action::{ConfigFormBag, ConfigFormPage, DeclareConfigForms};
+    pub use crate::component::ConfigForm;
     pub use crate::error::AdminError;
-    pub use crate::registry::{AdminAction, AdminPage, AdminPageKind, AdminSection, AdminTask};
     pub use crate::settings::{SettingField, SettingFieldType, SettingsSchema};
 }
 
@@ -175,42 +159,22 @@ impl Extension for Admin {
     }
 
     fn actions(&self) -> Vec<ActionBox> {
-        actions![action::DeclareAdminSections::new(seed::declare_default_sections).with_weight(-99),]
+        actions![pagetop::base::action::admin::DeclareAdminPages::new(
+            action::declare_config_form_pages
+        )]
     }
 
     async fn initialize(&self) -> Result<(), BoxError> {
         install_migrations!(m20260629_000001_create_settings)?;
-        registry::build();
-
-        // Región neutra del core: cualquier tema puede decidir renderizarla (o no) sin que
-        // `pagetop-admin` dependa de ninguno en concreto (ver `CoreRegions::Aside`).
-        InRegion::Global(&CoreRegions::Aside).add(component::AdminMenu::new());
         Ok(())
     }
 
-    fn configure_router(&self, router: Router) -> Router {
-        let base = ADMIN_BASE_PATH;
-        let reg = registry::global();
-
-        let mut r = router.route(base, web::get(handlers::dashboard));
-
-        // Página de aterrizaje de cada sección, salvo que una extensión ya haya reclamado esa
-        // misma ruta con su propia `AdminPage` (esa página gana y se monta más abajo).
-        for section in reg.sections().values() {
-            if !reg.pages().contains_key(&section.path) {
-                r = r.route(section.path.as_str(), web::get(handlers::section_page));
-            }
-        }
-
-        for (path, page) in reg.pages() {
-            if let AdminPageKind::ConfigForm(_) = &page.kind {
-                r = r.route(
-                    path.as_str(),
-                    web::get(handlers::config_form_get).post(handlers::config_form_post),
-                );
-            }
-        }
-
-        r
+    fn configure_router(&self, routes: Routes) -> Routes {
+        action::config_forms().keys().fold(routes, |routes, path| {
+            routes.admin_route(
+                path,
+                web::get(handlers::config_form_get).post(handlers::config_form_post),
+            )
+        })
     }
 }

@@ -3,35 +3,27 @@ use pagetop::prelude::*;
 use crate::LOCALES_ADMIN;
 use crate::settings::{SettingFieldType, SettingsSchema, get_or};
 
-/// Componente que renderiza un formulario de configuración persistente.
+/// Formulario de un [`SettingsSchema`], con los valores guardados en la tabla `settings`.
 ///
-/// Genera campos HTML a partir de un [`SettingsSchema`] y carga los valores
-/// actuales desde `settings`. El POST es procesado por el handler interno
-/// `config_form_post`.
+/// En las páginas declaradas con [`DeclareConfigForms`](crate::action::DeclareConfigForms),
+/// `pagetop-admin` lo muestra y guarda lo que se envía. En una página propia sólo lo muestra: el
+/// envío llega a la ruta de la página, o a la de [`with_action_path()`](Self::with_action_path), y
+/// lo guarda su *handler* (ver [`settings::set()`](crate::settings::set)).
 ///
 /// # Ejemplo
 ///
 /// ```rust,no_run
 /// use pagetop::prelude::*;
-/// use pagetop_admin::component::{AdminFrame, ConfigForm};
+/// use pagetop_admin::component::ConfigForm;
 /// use pagetop_admin::settings::{SettingField, SettingsSchema};
 ///
 /// async fn settings_handler(request: HttpRequest) -> Result<Markup, ErrorPage> {
 ///     let schema = SettingsSchema::new("myapp.general")
-///         .with_field(SettingField::text("site_name", "Site name").with_required(true));
-///
-///     let title    = "General settings";
-///     let mut form = ConfigForm::with_schema(schema);
-///     let mut cx   = Context::new(request.clone());
-///     let content  = form.render(&mut cx).await;
+///         .with_field(SettingField::text("site_name", Lc::n("Site name")).with_required(true));
 ///
 ///     Page::admin(request)
-///         .with_title(Lc::n(title))
-///         .with_child(
-///             AdminFrame::new()
-///                 .with_title(Lc::n(title))
-///                 .with_child(Html::with(move |_| content.clone())),
-///         )
+///         .with_title(Lc::n("General settings"))
+///         .with_child(ConfigForm::with_schema(schema))
 ///         .render()
 ///         .await
 /// }
@@ -42,10 +34,6 @@ pub struct ConfigForm {
     schema: Option<SettingsSchema>,
     /// Devuelve la ruta de destino del formulario, si se ha personalizado.
     action_path: Option<Route>,
-    /// Devuelve si el último envío se guardó correctamente.
-    saved: bool,
-    /// Devuelve si el último envío produjo un error al guardar.
-    error: bool,
 }
 
 #[async_trait]
@@ -64,22 +52,11 @@ impl Component for ConfigForm {
             None => cx.route(cx.request().map(|r| r.path()).unwrap_or("/")),
         };
 
-        let save_label = Lc::t("config-save-label", &LOCALES_ADMIN)
-            .lookup(cx)
-            .unwrap_or_else(|| "Save configuration".into());
-
-        let saved_msg = Lc::t("config-saved-ok", &LOCALES_ADMIN)
-            .lookup(cx)
-            .unwrap_or_else(|| "Configuration saved.".into());
-
-        let error_msg = Lc::t("config-saved-error", &LOCALES_ADMIN)
-            .lookup(cx)
-            .unwrap_or_else(|| "Could not save configuration.".into());
-
-        // Pre-computa los valores de BD para cada campo antes del macro html! (que es síncrono).
+        // Pre-computa los valores de BD para cada campo antes del macro html! (que es síncrono). El
+        // formulario guarda todos los valores como texto (`"42"`, `"true"`), así que se leen como
+        // texto también los de los campos numéricos y las casillas.
         struct FieldVals {
             raw_val: String,
-            num_val: String,
             checked: bool,
         }
         let mut prepared: Vec<FieldVals> = Vec::with_capacity(schema.fields().len());
@@ -87,27 +64,18 @@ impl Component for ConfigForm {
             let key = schema.key_for(field.name());
             let raw_val =
                 get_or::<String>(&key, field.default_value().cloned().unwrap_or_default()).await;
-            let num_val = get_or::<f64>(&key, 0.0).await.to_string();
-            let checked = get_or::<bool>(&key, false).await;
-            prepared.push(FieldVals {
-                raw_val,
-                num_val,
-                checked,
-            });
+            let checked = raw_val == "true";
+            prepared.push(FieldVals { raw_val, checked });
         }
 
         Ok(html! {
-            @if *self.saved() {
-                div class="admin-message admin-message-ok" { (&saved_msg) }
-            }
-            @if *self.error() {
-                div class="admin-message admin-message-error" { (&error_msg) }
-            }
             form class="admin-config-form" method="post" action=(action) {
                 @for (i, field) in schema.fields().iter().enumerate() {
                     @let pf = &prepared[i];
                     div class="admin-form-field" {
-                        label class="admin-form-label" for=(field.name()) { (field.label()) }
+                        label class="admin-form-label" for=(field.name()) {
+                            (field.label().using(cx))
+                        }
                         @match field.field_type() {
                             SettingFieldType::Text { max_length } => {
                                 @if let Some(max) = max_length {
@@ -133,7 +101,7 @@ impl Component for ConfigForm {
                                         type="number"
                                         id=(field.name())
                                         name=(field.name())
-                                        value=(&pf.num_val)
+                                        value=(&pf.raw_val)
                                         min=(lo)
                                         max=(hi)
                                         required[*field.required()];
@@ -142,7 +110,7 @@ impl Component for ConfigForm {
                                         type="number"
                                         id=(field.name())
                                         name=(field.name())
-                                        value=(&pf.num_val)
+                                        value=(&pf.raw_val)
                                         min=(lo)
                                         required[*field.required()];
                                 } @else if let Some(hi) = max {
@@ -150,7 +118,7 @@ impl Component for ConfigForm {
                                         type="number"
                                         id=(field.name())
                                         name=(field.name())
-                                        value=(&pf.num_val)
+                                        value=(&pf.raw_val)
                                         max=(hi)
                                         required[*field.required()];
                                 } @else {
@@ -158,7 +126,7 @@ impl Component for ConfigForm {
                                         type="number"
                                         id=(field.name())
                                         name=(field.name())
-                                        value=(&pf.num_val)
+                                        value=(&pf.raw_val)
                                         required[*field.required()];
                                 }
                             }
@@ -178,22 +146,22 @@ impl Component for ConfigForm {
                                 {
                                     @for (val, label) in options {
                                         @if &pf.raw_val == val {
-                                            option value=(val) selected { (label) }
+                                            option value=(val) selected { (label.using(cx)) }
                                         } @else {
-                                            option value=(val) { (label) }
+                                            option value=(val) { (label.using(cx)) }
                                         }
                                     }
                                 }
                             }
                         }
-                        @if let Some(help) = field.help_text() {
-                            small class="admin-form-help" { (help) }
+                        @if !field.help_text().is_none() {
+                            small class="admin-form-help" { (field.help_text().using(cx)) }
                         }
                     }
                 }
                 div class="admin-form-actions" {
                     button class="admin-btn admin-btn-primary" type="submit" {
-                        (&save_label)
+                        (Lc::t("config-save-label", &LOCALES_ADMIN).using(cx))
                     }
                 }
             }
@@ -212,17 +180,10 @@ impl ConfigForm {
         }
     }
 
-    pub fn with_action_path(mut self, v: impl Into<Option<Route>>) -> Self {
-        if let Some(v) = v.into() {
-            self.action_path = Some(v);
-        }
-        self
-    }
-
-    #[builder_skip]
-    pub(crate) fn with_saved(mut self, saved: bool, error: bool) -> Self {
-        self.saved = saved;
-        self.error = error;
+    /// Establece la ruta a la que se envía el formulario, o `None` para enviarlo a la de la
+    /// página.
+    pub fn with_action_path(mut self, path: impl Into<Option<Route>>) -> Self {
+        self.action_path = path.into();
         self
     }
 }

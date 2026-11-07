@@ -1,6 +1,6 @@
 [package]
 name        = "pagetop-admin"
-description = "Panel de administración extensible para PageTop."
+description = "Ajustes guardados en la base de datos para el panel de administración de PageTop."
 version     = "0.1.0"
 categories  = ["web-programming", "development-tools"]
 keywords    = ["pagetop", "admin", "cms", "settings", "ssr"]
