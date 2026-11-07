@@ -172,6 +172,16 @@ extensiones declaran con la acción `DeclareMailPreviews`, y muestra cada uno co
 cabeceras, HTML con el diseño común, texto plano y adjuntos, sin enviar nada. Ver el módulo
 `preview`.
 
+## Correo de prueba desde el panel de administración
+
+`pagetop-mail` añade al panel de administración de PageTop la página **Configuración > Correo
+electrónico** (`config/mail`, bajo la raíz del panel). Muestra el transporte, el remitente y el
+servidor configurados, nunca las credenciales, y envía un correo de prueba a la dirección que se
+indique, esperando al resultado: al volver a la página se ve si se ha enviado o el error del
+transporte. Sirve para comprobar la configuración en producción sin enviar correos reales a nadie
+más. Exige el permiso `mail:send_test` (`MailPermission::SendTest`), que concede la extensión de
+autenticación (p. ej. asignándolo a un rol con `pagetop-user`).
+
 ## Texto plano automático
 
 Si un correo sólo tiene HTML, al enviarlo se genera su texto plano a partir del contenido: bloques

@@ -170,6 +170,16 @@ Con `previews = true` en `[mail]` (sólo en desarrollo), `/mail/preview` lista l
 extensiones declaran con la acción [`DeclareMailPreviews`], y muestra cada uno con datos de ejemplo:
 cabeceras, HTML con el diseño común, texto plano y adjuntos, sin enviar nada. Ver [`preview`].
 
+## Correo de prueba desde el panel de administración
+
+`pagetop-mail` añade al panel de administración de PageTop la página **Configuración > Correo
+electrónico** (`config/mail`, bajo la raíz del panel). Muestra el transporte, el remitente y el
+servidor configurados, nunca las credenciales, y envía un correo de prueba a la dirección que se
+indique, esperando al resultado: al volver a la página se ve si se ha enviado o el error del
+transporte. Sirve para comprobar la configuración en producción sin enviar correos reales a nadie
+más. Exige el permiso `mail:send_test` ([`MailPermission::SendTest`]), que concede la extensión de
+autenticación (p. ej. asignándolo a un rol con `pagetop-user`).
+
 ## Texto plano automático
 
 Si un correo sólo tiene HTML, al enviarlo se genera su texto plano a partir del contenido: bloques
@@ -273,6 +283,9 @@ pub mod outbox;
 pub mod preview;
 pub use preview::{DeclareMailPreviews, MailPreviews};
 
+mod admin;
+pub use admin::MailPermission;
+
 mod text;
 
 mod transport;
@@ -307,9 +320,21 @@ impl Extension for Mail {
         vec![&pagetop_seaorm::SeaORM, &pagetop_cron::Cron]
     }
 
+    #[cfg(not(feature = "queue"))]
+    fn actions(&self) -> Vec<ActionBox> {
+        actions![
+            action::auth::DeclarePermissions::new(admin::declare_permissions),
+            action::admin::DeclareAdminPages::new(admin::declare_pages),
+        ]
+    }
+
     #[cfg(feature = "queue")]
     fn actions(&self) -> Vec<ActionBox> {
-        actions![pagetop_cron::DeclareCronJobs::new(queue::declare_jobs)]
+        actions![
+            action::auth::DeclarePermissions::new(admin::declare_permissions),
+            action::admin::DeclareAdminPages::new(admin::declare_pages),
+            pagetop_cron::DeclareCronJobs::new(queue::declare_jobs),
+        ]
     }
 
     fn settings(&self) -> Option<&'static dyn LoadSettings> {
@@ -325,13 +350,16 @@ impl Extension for Mail {
         Ok(())
     }
 
-    fn configure_router(&self, router: Router) -> Router {
+    fn configure_router(&self, routes: Routes) -> Routes {
+        let routes = admin::configure_router(routes);
+        // Las vistas previas son públicas: sólo se montan con `mail.previews`, pensado para el
+        // desarrollo y que avisa al arrancar, y muestran los correos con datos de ejemplo.
         if !config::SETTINGS.previews {
-            return router;
+            return routes;
         }
-        router
-            .route(preview::PREVIEW_PATH, web::get(preview::list_get))
-            .route(
+        routes
+            .public_route(preview::PREVIEW_PATH, web::get(preview::list_get))
+            .public_route(
                 &util::join!(preview::PREVIEW_PATH, "/{key}"),
                 web::get(preview::preview_get),
             )
