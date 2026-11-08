@@ -42,7 +42,8 @@ pub enum ItemKind {
 /// asociada, manteniendo una interfaz común para renderizar todos los elementos del menú.
 ///
 /// Un enlace no se renderiza si el usuario actual no puede acceder a su ruta (ver [`Endpoint`]).
-/// Los encabezados y separadores no dependen de ningún enlace y se muestran aunque queden solos.
+/// Tampoco se muestra un encabezado si su grupo no tiene ningún elemento visible, ni un separador
+/// que no quede entre elementos visibles (ver [`dropdown::Items`](super::Items)).
 #[derive(AutoDefault, Clone, Debug, Getters)]
 pub struct Item {
     /// Devuelve identificador, clases CSS, atributos HTML y valores extra del componente.

@@ -5,3 +5,6 @@ pub use component::Dropdown;
 
 mod item;
 pub use item::{Item, ItemKind};
+
+mod items;
+pub use items::Items;

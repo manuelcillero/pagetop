@@ -69,6 +69,15 @@ async fn child_id_returns_component_id() {
 }
 
 #[pagetop::test]
+async fn child_downcast_ref_returns_the_component_only_with_its_type() {
+    let child = Child::with(TestComp::text("hello"));
+    let component = child.downcast_ref::<TestComp>().expect("a TestComp");
+    assert_eq!(component.text, "hello");
+    assert!(child.downcast_ref::<Html>().is_none());
+    assert!(Child::default().downcast_ref::<TestComp>().is_none());
+}
+
+#[pagetop::test]
 async fn child_from_component_is_equivalent_to_with() {
     let child: Child = TestComp::text("from-trait").into();
     assert_eq!(
@@ -255,6 +264,19 @@ async fn children_iter_by_id_yields_all_matching_children() {
     assert_eq!(c.iter_by_id("rep").count(), 2);
     assert_eq!(c.iter_by_id("other").count(), 1);
     assert_eq!(c.iter_by_id("none").count(), 0);
+}
+
+#[pagetop::test]
+async fn children_iter_yields_all_children_in_order() {
+    let c = Children::new()
+        .with_child(TestComp::text("a"))
+        .with_child(TestComp::text("b"));
+    let texts: Vec<&str> = c
+        .iter()
+        .filter_map(|child| child.downcast_ref::<TestComp>())
+        .map(|component| component.text.as_str())
+        .collect();
+    assert_eq!(texts, ["a", "b"]);
 }
 
 #[pagetop::test]

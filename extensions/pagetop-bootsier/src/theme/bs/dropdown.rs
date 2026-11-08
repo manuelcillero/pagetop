@@ -15,7 +15,7 @@ mod props;
 pub use props::{AutoClose, Direction, MenuAlign, MenuPosition};
 
 pub use pagetop::base::component::Dropdown;
-pub use pagetop::base::component::dropdown::{Item, ItemKind};
+pub use pagetop::base::component::dropdown::{Item, ItemKind, Items};
 
 const EXTRA_BUTTON_GROUPED: &str = "bootsier.dropdown.button_grouped";
 const EXTRA_AUTO_CLOSE: &str = "bootsier.dropdown.auto_close";

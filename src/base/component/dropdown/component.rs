@@ -2,13 +2,15 @@ use crate::prelude::*;
 
 /// Componente para crear un **menú desplegable**.
 ///
-/// Renderiza un botón (único o desdoblado, ver [`with_button_split()`](Self::with_button_split))
-/// que despliega u oculta una lista de elementos [`dropdown::Item`](super::Item).
+/// Renderiza un botón (único o desdoblado, ver [`with_button_split()`]) que despliega u oculta una
+/// lista de elementos [`dropdown::Item`].
 ///
-/// Sin título (ver [`with_title()`](Self::with_title)), se muestra únicamente la lista de
-/// elementos, sin ningún botón para interactuar, sólo un menú contextual estático.
+/// Sin título (ver [`with_title()`]), se muestra únicamente la lista de elementos, sin ningún botón
+/// para interactuar, sólo un menú contextual estático.
 ///
-/// Si no contiene elementos, el componente **no se renderiza**.
+/// Un encabezado sólo se muestra si su grupo tiene algún elemento visible, y un separador sólo
+/// entre elementos visibles (ver [`dropdown::Items`]). Si no quedan elementos para mostrar, el
+/// componente **no se renderiza**.
 ///
 /// # Ejemplo
 ///
@@ -23,6 +25,11 @@ use crate::prelude::*;
 ///     .with_item(dropdown::Item::header(Lc::n("User session")))
 ///     .with_item(dropdown::Item::button(Lc::n("Sign out")));
 /// ```
+///
+/// [`with_title()`]: Self::with_title
+/// [`with_button_split()`]: Self::with_button_split
+/// [`dropdown::Item`]: super::Item
+/// [`dropdown::Items`]: super::Items
 #[derive(AutoDefault, Clone, Debug, Getters)]
 pub struct Dropdown {
     /// Devuelve identificador, clases CSS, atributos HTML y valores extra del componente.
@@ -40,7 +47,7 @@ pub struct Dropdown {
     /// Devuelve si el menú se alinea al final del botón (por defecto, al inicio).
     menu_end: bool,
     /// Devuelve la lista de elementos del menú.
-    items: Children,
+    items: dropdown::Items,
 }
 
 #[async_trait]
@@ -210,7 +217,7 @@ impl Dropdown {
     ///     ]));
     /// ```
     pub fn with_item(mut self, op: impl Into<TypedOp<dropdown::Item>>) -> Self {
-        self.items.alter_child(op.into());
+        self.items.alter_item(op.into());
         self
     }
 }

@@ -66,6 +66,9 @@ fn menu() -> Nav {
         .with_item(bs::nav::Item::dropdown(
             Dropdown::new()
                 .with_title(Lc::n("dropdown-partial"))
+                .with_item(dropdown::Item::header(Lc::n("header-empty")))
+                .with_item(dropdown::Item::link(Lc::n("x"), TestRoute::Forbidden))
+                .with_item(dropdown::Item::divider())
                 .with_item(dropdown::Item::link(
                     Lc::n("in-allowed"),
                     TestRoute::Allowed,
@@ -97,9 +100,18 @@ fn assert_only_allowed_links(html: &str) {
     for shown in ["nav-allowed", "dropdown-partial", "in-allowed"] {
         assert!(html.contains(shown), "`{shown}` is missing in {html}");
     }
-    for hidden in ["nav-forbidden", "dropdown-empty", "in-forbidden"] {
+    for hidden in [
+        "nav-forbidden",
+        "dropdown-empty",
+        "in-forbidden",
+        "header-empty",
+    ] {
         assert!(!html.contains(hidden), "`{hidden}` is shown in {html}");
     }
+    assert!(
+        !html.contains("dropdown-divider"),
+        "a divider is shown in {html}"
+    );
 }
 
 #[pagetop::test]

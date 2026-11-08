@@ -1,3 +1,4 @@
+use crate::core::AnyCast;
 use crate::core::component::{Component, Context};
 use crate::html::{Markup, html};
 use crate::{AutoDefault, UniqueId, builder_impl};
@@ -69,6 +70,24 @@ impl Child {
                 component.render(cx).await
             }
         }
+    }
+
+    /// Devuelve una referencia al componente si es del tipo `C`, o `None` si es de otro tipo o el
+    /// `Child` está vacío.
+    ///
+    /// Permite consultar el estado de un componente concreto de una lista sin renderizarlo (p. ej.
+    /// el tipo de cada [`dropdown::Item`](crate::base::component::dropdown::Item)).
+    ///
+    /// # Ejemplo
+    ///
+    /// ```rust
+    /// # use pagetop::prelude::*;
+    /// let child = Child::with(Html::with(|_| html! { "Prueba" }));
+    /// assert!(child.downcast_ref::<Html>().is_some());
+    /// assert!(child.downcast_ref::<Button>().is_none());
+    /// ```
+    pub fn downcast_ref<C: Component>(&self) -> Option<&C> {
+        self.0.as_deref().and_then(|c| c.downcast_ref::<C>())
     }
 
     // **< Child HELPERS >**************************************************************************
@@ -438,6 +457,11 @@ impl Children {
     /// indicado.
     pub fn iter_by_type_id(&self, type_id: UniqueId) -> impl Iterator<Item = &Child> {
         self.0.iter().filter(move |c| c.type_id() == Some(type_id))
+    }
+
+    /// Devuelve un iterador sobre todos los componentes hijo, en orden.
+    pub fn iter(&self) -> impl Iterator<Item = &Child> {
+        self.0.iter()
     }
 
     // **< Children RENDER >************************************************************************
