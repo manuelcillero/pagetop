@@ -1,6 +1,6 @@
 use crate::admin::{AdminRegistry, admin_path, strip_admin_path, undeclared_permission};
 use crate::auth::{Access, PermissionRegistry, deny_access};
-use crate::web::{HttpRequest, IntoResponse, Request, Response, Router, middleware};
+use crate::web::{Endpoint, HttpRequest, IntoResponse, Request, Response, Router, middleware};
 use crate::{global, trace};
 
 use axum::extract::State;
@@ -18,6 +18,9 @@ use std::convert::Infallible;
 /// forma de montar una ruta sin indicar quién puede acceder a ella ([`Access`]): PageTop lo
 /// comprueba antes de llegar al *handler* y responde con [`deny_access()`] a quien no lo cumple.
 /// Una ruta [`Access::Public`] no añade ninguna comprobación.
+///
+/// Las rutas que se enlazan desde otros sitios se declaran mejor con [`Endpoint`] y se montan con
+/// [`endpoint()`](Self::endpoint): así, sus enlaces conocen el acceso sin repetirlo.
 ///
 /// Las rutas del panel de administración (bajo [`admin_path`]) se montan con [`admin_route()`], que
 /// exige el permiso de la página declarada ([`AdminPage`]) de la que cuelgan: el permiso se declara
@@ -109,6 +112,13 @@ impl Routes {
     /// acceso llega en una variable.
     pub fn public_route(self, path: &str, method_router: MethodRouter) -> Self {
         self.route(path, Access::Public, method_router)
+    }
+
+    /// Añade una ruta declarada con [`Endpoint`], con sus *handlers* por método.
+    ///
+    /// Equivale a [`route()`](Self::route) con la ruta y el acceso que declara.
+    pub fn endpoint(self, endpoint: impl Endpoint, method_router: MethodRouter) -> Self {
+        self.route(&endpoint.path(), endpoint.access(), method_router)
     }
 
     /// Añade una ruta del panel de administración, relativa a su raíz, con sus *handlers* por

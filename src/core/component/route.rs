@@ -1,6 +1,9 @@
+use crate::CowStr;
+use crate::auth::Access;
 use crate::core::component::{Context, Contextual};
 use crate::html::RoutePath;
 use crate::util;
+use crate::web::Endpoint;
 
 use std::fmt;
 use std::sync::Arc;
@@ -64,6 +67,13 @@ use std::sync::Arc;
 /// [`Route::external()`] explícitamente cuando quieras dejar clara la intención sin ambigüedad, o
 /// para esquemas que la heurística aplicada no reconozca.
 ///
+/// # Rutas con acceso
+///
+/// Una `Route` creada a partir de un [`Endpoint`] lleva además el acceso de esa ruta, y
+/// [`is_accessible()`](Self::is_accessible) dice si el usuario actual lo cumple. Los enlaces de los
+/// menús y [`Button::anchor()`](crate::base::component::Button::anchor) lo usan para no mostrarse a
+/// quien no podría entrar. Cualquier otra `Route` se considera pública.
+///
 /// # Ejemplos
 ///
 /// El caso más común es una ruta relativa dependiente del contexto, normalmente usando
@@ -118,7 +128,10 @@ use std::sync::Arc;
 /// let route = Route::external("ftp://files.example.com");
 /// ```
 #[derive(Clone)]
-pub struct Route(Arc<dyn Fn(&Context) -> RoutePath + Send + Sync>);
+pub struct Route {
+    resolver: Arc<dyn Fn(&Context) -> RoutePath + Send + Sync>,
+    access: Access,
+}
 
 impl Route {
     /// Crea una `Route` a partir de un closure que resuelve la ruta según el contexto.
@@ -126,7 +139,10 @@ impl Route {
     where
         F: Fn(&Context) -> RoutePath + Send + Sync + 'static,
     {
-        Route(Arc::new(f))
+        Route {
+            resolver: Arc::new(f),
+            access: Access::Public,
+        }
     }
 
     /// Crea una `Route` para una URL externa fija.
@@ -142,7 +158,7 @@ impl Route {
 
     /// Invoca el closure interno para obtener la [`RoutePath`] final.
     pub fn resolve(&self, cx: &Context) -> RoutePath {
-        (self.0)(cx)
+        (self.resolver)(cx)
     }
 
     /// Como [`resolve()`](Self::resolve), pero devuelve `None` cuando la ruta calculada está vacía.
@@ -152,6 +168,27 @@ impl Route {
     pub fn try_resolve(&self, cx: &Context) -> Option<RoutePath> {
         let route = self.resolve(cx);
         (!route.is_empty()).then_some(route)
+    }
+
+    /// Devuelve `true` si el usuario actual puede acceder a esta ruta.
+    ///
+    /// Sirve para decidir qué se muestra: la ruta ya se protege con su propio acceso. Sólo una ruta
+    /// creada a partir de un [`Endpoint`] lleva acceso; cualquier otra es pública.
+    pub fn is_accessible(&self, cx: &Context) -> bool {
+        match self.access {
+            Access::Public => true,
+            access => cx.request().is_some_and(|request| access.allows(request)),
+        }
+    }
+
+    // Enlace a una ruta de un `Endpoint`, con su acceso: lo crean la conversión desde un `Endpoint`
+    // y `Endpoint::to()`.
+    pub(crate) fn endpoint(path: impl Into<CowStr>, access: Access) -> Self {
+        let path = path.into();
+        Route {
+            resolver: Arc::new(move |cx| cx.route(RoutePath::new(path.clone()))),
+            access,
+        }
     }
 }
 
@@ -183,6 +220,21 @@ impl Default for Route {
 impl From<RoutePath> for Route {
     fn from(path: RoutePath) -> Self {
         Route::with(move |_| path.clone())
+    }
+}
+
+/// Enlaza con una ruta declarada con [`Endpoint`], conservando su acceso.
+///
+/// Una ruta con parámetro se enlaza con [`Endpoint::to()`]; en desarrollo y en las pruebas, esta
+/// conversión falla si se olvida.
+impl<E: Endpoint> From<E> for Route {
+    fn from(endpoint: E) -> Self {
+        let path = endpoint.path();
+        debug_assert!(
+            !path.contains('{'),
+            "route `{path}` needs its parameter, link to it with `to()`"
+        );
+        Route::endpoint(path, endpoint.access())
     }
 }
 

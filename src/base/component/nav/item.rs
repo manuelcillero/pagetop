@@ -52,6 +52,8 @@ impl ItemKind {
 ///
 /// Permite definir el identificador, las clases de estilo adicionales y el tipo de interacción
 /// asociada, manteniendo una interfaz común para renderizar todos los elementos del menú.
+///
+/// Un enlace no se renderiza si el usuario actual no puede acceder a su ruta (ver [`Endpoint`]).
 #[derive(AutoDefault, Clone, Debug, Getters)]
 pub struct Item {
     /// Devuelve identificador, clases CSS, atributos HTML y valores extra del componente.
@@ -75,6 +77,13 @@ impl Component for Item {
 
     fn id(&self) -> Option<String> {
         self.props.get_id()
+    }
+
+    fn is_renderable(&self, cx: &Context) -> bool {
+        match self.item_kind() {
+            ItemKind::Link { route, .. } => route.is_accessible(cx),
+            _ => true,
+        }
     }
 
     fn setup(&mut self, _cx: &mut Context) {

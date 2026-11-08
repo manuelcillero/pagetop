@@ -5,7 +5,8 @@ use crate::prelude::*;
 /// Presenta una lista de elementos [`nav::Item`](super::Item), donde alguno puede desplegar un
 /// [`Dropdown`](super::super::Dropdown) embebido.
 ///
-/// Si no contiene elementos, el componente **no se renderiza**.
+/// Si no contiene elementos, o si ninguno se muestra (ver [`Endpoint`]), el componente **no se
+/// renderiza**.
 ///
 /// # Ejemplo
 ///

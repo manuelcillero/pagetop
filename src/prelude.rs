@@ -36,8 +36,9 @@ pub use crate::locale::*;
 
 pub use crate::datetime::*;
 
-pub use crate::web;
-pub use crate::web::{HttpRequest, IntoResponse, Layers, Response, Router, Routes, StaticFiles};
+pub use crate::web::{
+    self, Endpoint, HttpRequest, IntoResponse, Layers, Response, Router, Routes, StaticFiles,
+};
 
 pub use crate::core::{AnyCast, AnyInfo, TypeInfo};
 

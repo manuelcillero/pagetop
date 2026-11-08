@@ -250,6 +250,11 @@ pub type PermissionRef = &'static dyn Permission;
 /// La decisión de conceder o denegar permisos al usuario anónimo también es responsabilidad de cada
 /// extensión.
 ///
+/// Sirve para mostrar u ocultar lo que no se puede usar. Una ruta se protege con el acceso que se
+/// indica al montarla ([`Access`]), y un enlace a ella se oculta solo si se declara con
+/// [`Endpoint`](crate::web::Endpoint); para un permiso más concreto dentro del *handler* está
+/// [`require_permission()`].
+///
 /// # Ejemplo
 ///
 /// ```rust,no_run
@@ -260,10 +265,12 @@ pub type PermissionRef = &'static dyn Permission;
 /// #     fn key(&self) -> CowStr { "myapp:edit".into() }
 /// # }
 /// async fn my_handler(request: HttpRequest) -> Result<Markup, ErrorPage> {
-///     if !has_permission(&request, &MyPermission::Edit) {
-///         return Err(ErrorPage::NotFound(Some(request)));
+///     let can_edit = has_permission(&request, &MyPermission::Edit);
+///     let mut page = Page::new(request);
+///     if can_edit {
+///         page.push_message(MessageLevel::Info, Lc::n("You can edit this page."));
 ///     }
-///     Page::new(request).render().await
+///     page.render().await
 /// }
 /// ```
 pub fn has_permission(request: &HttpRequest, perm: PermissionRef) -> bool {
@@ -321,6 +328,9 @@ pub fn require_permission(request: &HttpRequest, perm: PermissionRef) -> Result<
 /// comprueba antes de llegar al *handler*, que sólo comprueba permisos más concretos, si los hay
 /// (p. ej. que el usuario sea el autor de lo que edita). A quien no tiene acceso se le responde
 /// con [`deny_access()`].
+///
+/// El acceso con el que se monta una ruta no se puede consultar después. Para que sus enlaces lo
+/// conozcan sin repetirlo, ruta y acceso se declaran juntos con [`Endpoint`](crate::web::Endpoint).
 #[derive(Clone, Copy)]
 pub enum Access {
     /// Cualquiera, también un usuario anónimo.

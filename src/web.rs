@@ -73,6 +73,10 @@ pub(crate) use csrf::reject_cross_origin;
 mod routes;
 pub use routes::{Layers, Routes, StaticFiles};
 
+// Rutas declaradas junto con su acceso, para montarlas y enlazarlas sin repetirlo.
+mod endpoint;
+pub use endpoint::Endpoint;
+
 use axum::body::Body;
 use axum::extract::FromRequestParts;
 

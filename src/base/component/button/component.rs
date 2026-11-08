@@ -78,6 +78,10 @@ impl Component for Button {
         self.props.get_id()
     }
 
+    fn is_renderable(&self, cx: &Context) -> bool {
+        self.href().is_accessible(cx)
+    }
+
     fn setup(&mut self, cx: &mut Context) {
         use button::{Size, Style};
 
@@ -182,6 +186,8 @@ impl Button {
     /// [`with_style()`](Self::with_style)), por lo que el tema activo puede mostrarlo igual que
     /// cualquier otra variante de `Button`. No confundir con [`button::Style::Link`], que es sólo
     /// un estilo visual sobre un `<button>`.
+    ///
+    /// No se renderiza si el usuario actual no puede acceder a la ruta (ver [`Endpoint`]).
     pub fn anchor(label: Lc, route: impl Into<Route>) -> Self {
         Self {
             label,

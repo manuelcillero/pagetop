@@ -287,6 +287,9 @@ pub trait Extension: AnyInfo + Send + Sync {
     /// }
     /// ```
     ///
+    /// Las rutas que se enlazan desde otros sitios se declaran mejor con [`Endpoint`] y se montan
+    /// con [`Routes::endpoint()`]: sus enlaces se ocultan solos a quien no tiene acceso.
+    ///
     /// ## Rutas agrupadas con su propio middleware
     ///
     /// Un `Router::new()` aparte, con sus capas, se añade bajo un prefijo con
@@ -314,7 +317,9 @@ pub trait Extension: AnyInfo + Send + Sync {
     /// [`Access::Public`]: crate::auth::Access::Public
     /// [`Routes`]: crate::web::Routes
     /// [`Routes::public_route()`]: crate::web::Routes::public_route
+    /// [`Routes::endpoint()`]: crate::web::Routes::endpoint
     /// [`Routes::nest()`]: crate::web::Routes::nest
+    /// [`Endpoint`]: crate::web::Endpoint
     /// [`configure_static_files`]: Self::configure_static_files
     /// [`configure_middleware`]: Self::configure_middleware
     fn configure_router(&self, routes: Routes) -> Routes {
