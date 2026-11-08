@@ -33,7 +33,7 @@ use crate::datetime::{Timezone, Tz};
 use crate::locale::{LanguageIdentifier, Lc, Locale};
 use crate::response::ErrorPage;
 use crate::web::{HttpRequest, IntoResponse, Response};
-use crate::{AutoDefault, CowStr, Getters, builder_impl, global};
+use crate::{AutoDefault, CowStr, Getters, builder_impl, global, trace};
 
 use std::sync::OnceLock;
 
@@ -288,6 +288,8 @@ pub fn has_permission(request: &HttpRequest, perm: PermissionRef) -> bool {
 /// llama directamente sobre la petición, antes de construir ni ejecutar nada (`Context`, `Page`,
 /// consultas a datos, etc.), para no hacer ningún trabajo si la petición no está autorizada.
 ///
+/// La denegación queda en las trazas igual que en [`deny_access()`].
+///
 /// Si la aplicación necesita ocultar la existencia del recurso a quien no tiene permiso (devolver
 /// un 404 en vez de un 403), no se puede reutilizar esta función: hay que llamar a
 /// `has_permission()` directamente, como en su propio ejemplo.
@@ -316,6 +318,7 @@ pub fn require_permission(request: &HttpRequest, perm: PermissionRef) -> Result<
     if has_permission(request, perm) {
         Ok(())
     } else {
+        trace_denied(request);
         Err(ErrorPage::AccessDenied(Some(request.clone())))
     }
 }
@@ -370,13 +373,27 @@ fn is_authenticated(request: &HttpRequest) -> bool {
 /// el inicio de sesión); a uno autenticado, o si ninguna acción responde, la página de acceso
 /// denegado (403). Es lo que hace PageTop con una ruta cuyo [`Access`] no se cumple, y lo puede
 /// usar un *handler* que compruebe el acceso por su cuenta.
+///
+/// Deja constancia en las trazas con el método y la ruta: en el nivel *info*, con el identificador
+/// del usuario, si está autenticado, y en *debug* si es anónimo.
 pub fn deny_access(request: HttpRequest) -> Response {
+    trace_denied(&request);
     if !is_authenticated(&request)
         && let Some(response) = AnonymousDenied::dispatch(&request)
     {
         return response;
     }
     ErrorPage::AccessDenied(Some(request)).into_response()
+}
+
+// Los anónimos van en `debug` porque bots y sesiones caducadas los hacen frecuentes y poco
+// significativos. Sin la *query string*, donde pueden viajar datos personales.
+fn trace_denied(request: &HttpRequest) {
+    let (method, path) = (request.method(), request.path());
+    match request.extension::<CurrentUser>().and_then(CurrentUser::id) {
+        Some(id) => trace::info!("Access denied: {method} {path} (user {id})"),
+        None => trace::debug!("Access denied: {method} {path} (anonymous)"),
+    }
 }
 
 // **< PermissionRegistry >*************************************************************************
