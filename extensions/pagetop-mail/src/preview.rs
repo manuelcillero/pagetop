@@ -159,7 +159,7 @@ pub(crate) async fn preview_get(
 ) -> Result<Markup, ErrorPage> {
     let previews = MailPreviews::collect();
     let Some(preview) = previews.previews.iter().find(|p| p.key == key) else {
-        return Err(ErrorPage::NotFound(Some(request)));
+        return Err(ErrorPage::NotFound(request));
     };
     let cx = Context::new(request.clone());
     let email = transport::prepare_preview((preview.build)(&cx));

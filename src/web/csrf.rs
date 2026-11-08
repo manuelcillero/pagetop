@@ -45,7 +45,7 @@ pub(crate) async fn reject_cross_origin(request: Request, next: Next) -> Respons
     );
     let (mut parts, _) = request.into_parts();
     let Ok(request) = HttpRequest::from_request_parts(&mut parts, &()).await;
-    ErrorPage::AccessDenied(Some(request)).into_response()
+    ErrorPage::AccessDenied(request).into_response()
 }
 
 // Con HTTP/2 el servidor llega en la URI (`:authority`) y no siempre en `Host`.

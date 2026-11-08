@@ -411,7 +411,7 @@ async fn trigger_post(request: HttpRequest) -> Response {
         .filter(|(scheme, _)| scheme.eq_ignore_ascii_case("Bearer"))
         .map(|(_, token)| token.trim_start());
     if !token.is_some_and(scheduler::token_matches) {
-        return ErrorPage::NotFound(Some(request)).into_response();
+        return ErrorPage::NotFound(request).into_response();
     }
     // Siempre `200 OK`, aunque falle algún trabajo: un reintento del programa externo podría
     // llegar a otra instancia y repetir también los que terminaron bien. Sólo se indica el tipo de
@@ -433,5 +433,5 @@ async fn trigger_post(request: HttpRequest) -> Response {
 }
 
 async fn not_found(request: HttpRequest) -> ErrorPage {
-    ErrorPage::NotFound(Some(request))
+    ErrorPage::NotFound(request)
 }

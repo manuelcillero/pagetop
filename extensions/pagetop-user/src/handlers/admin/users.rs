@@ -53,7 +53,7 @@ pub(crate) async fn list_get(
 
     let result = match user_admin::list_users(&params).await {
         Ok(result) => result,
-        Err(_) => return Err(ErrorPage::InternalError(Some(request))),
+        Err(_) => return Err(ErrorPage::InternalError(request)),
     };
 
     let mut table = UserTable::new()
@@ -135,10 +135,10 @@ fn parse_role_ids(role_ids: &[String]) -> Vec<i32> {
 // un administrador puede conceder.
 async fn require_manageable(request: &HttpRequest, id: i32) -> Result<user::Model, ErrorPage> {
     let Ok(user) = user_admin::find_user(id).await else {
-        return Err(ErrorPage::NotFound(Some(request.clone())));
+        return Err(ErrorPage::NotFound(request.clone()));
     };
     if user.is_admin && !request.extension::<Account>().is_some_and(|a| a.is_admin()) {
-        return Err(ErrorPage::AccessDenied(Some(request.clone())));
+        return Err(ErrorPage::AccessDenied(request.clone()));
     }
     Ok(user)
 }
@@ -152,7 +152,7 @@ pub(crate) async fn new_get(
 ) -> Result<Response, ErrorPage> {
     let roles = match available_roles(&[]).await {
         Ok(roles) => roles,
-        Err(_) => return Err(ErrorPage::InternalError(Some(request))),
+        Err(_) => return Err(ErrorPage::InternalError(request)),
     };
     // El campo "administrador" sólo se ofrece si quien da de alta ya es administrador: no es un
     // permiso del catálogo (igual que conceder/revocar en la edición, ver `set_user_admin`).
@@ -205,7 +205,7 @@ pub(crate) async fn new_post(
     raw: web::RawForm,
 ) -> Result<Response, ErrorPage> {
     let Ok(form) = serde_qs::from_bytes::<NewUserFormData>(&raw.0) else {
-        return Err(ErrorPage::BadRequest(Some(request)));
+        return Err(ErrorPage::BadRequest(request));
     };
     let allow_admin_field = request.extension::<Account>().is_some_and(|a| a.is_admin());
     // Nunca fiarse sólo de que el campo esté presente en el formulario: sólo se concede si quien
@@ -273,15 +273,15 @@ async fn render_user_edit(
 ) -> Response {
     let user = match user_admin::find_user(id).await {
         Ok(user) => user,
-        Err(_) => return ErrorPage::NotFound(Some(request)).into_response(),
+        Err(_) => return ErrorPage::NotFound(request).into_response(),
     };
     let current = match user_admin::user_role_ids(id).await {
         Ok(ids) => ids,
-        Err(_) => return ErrorPage::InternalError(Some(request)).into_response(),
+        Err(_) => return ErrorPage::InternalError(request).into_response(),
     };
     let roles = match available_roles(&current).await {
         Ok(roles) => roles,
-        Err(_) => return ErrorPage::InternalError(Some(request)).into_response(),
+        Err(_) => return ErrorPage::InternalError(request).into_response(),
     };
     let status = UserStatus::from_i16(user.status);
     let is_admin = user.is_admin;
@@ -468,7 +468,7 @@ pub(crate) async fn edit_post(
 ) -> Result<Response, ErrorPage> {
     let user = require_manageable(&request, id).await?;
     let Ok(form) = serde_qs::from_bytes::<EditUserFormData>(&raw.0) else {
-        return Err(ErrorPage::BadRequest(Some(request)));
+        return Err(ErrorPage::BadRequest(request));
     };
     let role_ids = parse_role_ids(&form.role_ids);
 
@@ -524,11 +524,11 @@ pub(crate) async fn view_get(
 ) -> Result<Response, ErrorPage> {
     let user = match user_admin::find_user(id).await {
         Ok(user) => user,
-        Err(_) => return Err(ErrorPage::NotFound(Some(request))),
+        Err(_) => return Err(ErrorPage::NotFound(request)),
     };
     let roles = match user_admin::user_roles(id).await {
         Ok(roles) => roles,
-        Err(_) => return Err(ErrorPage::InternalError(Some(request))),
+        Err(_) => return Err(ErrorPage::InternalError(request)),
     };
 
     let mut page = Page::admin(request);
@@ -625,7 +625,7 @@ pub(crate) async fn status_post(
     require_permission(&request, &UserPermission::BlockAccounts)?;
     require_manageable(&request, id).await?;
     let Some(account) = request.extension::<Account>().cloned() else {
-        return Err(ErrorPage::AccessDenied(Some(request)));
+        return Err(ErrorPage::AccessDenied(request));
     };
 
     let new_status = match form.status.as_str() {
@@ -670,10 +670,10 @@ pub(crate) async fn admin_post(
     web::Form(form): web::Form<AdminFormData>,
 ) -> Result<Response, ErrorPage> {
     let Some(account) = request.extension::<Account>().cloned() else {
-        return Err(ErrorPage::AccessDenied(Some(request)));
+        return Err(ErrorPage::AccessDenied(request));
     };
     if !account.is_admin() {
-        return Err(ErrorPage::AccessDenied(Some(request)));
+        return Err(ErrorPage::AccessDenied(request));
     }
 
     let new_is_admin = form.is_admin == "true";

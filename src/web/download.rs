@@ -65,8 +65,8 @@ const FORWARDED_HEADERS: [http::HeaderName; 6] = [
 ///         .serve(&request)
 ///         .await
 ///         .map_err(|err| match err {
-///             web::UploadError::NotFound(_) => ErrorPage::NotFound(Some(request)),
-///             _ => ErrorPage::InternalError(Some(request)),
+///             web::UploadError::NotFound(_) => ErrorPage::NotFound(request),
+///             _ => ErrorPage::InternalError(request),
 ///         })
 /// }
 /// ```

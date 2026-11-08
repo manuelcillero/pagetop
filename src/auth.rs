@@ -319,7 +319,7 @@ pub fn require_permission(request: &HttpRequest, perm: PermissionRef) -> Result<
         Ok(())
     } else {
         trace_denied(request);
-        Err(ErrorPage::AccessDenied(Some(request.clone())))
+        Err(ErrorPage::AccessDenied(request.clone()))
     }
 }
 
@@ -383,7 +383,7 @@ pub fn deny_access(request: HttpRequest) -> Response {
     {
         return response;
     }
-    ErrorPage::AccessDenied(Some(request)).into_response()
+    ErrorPage::AccessDenied(request).into_response()
 }
 
 // Los anónimos van en `debug` porque bots y sesiones caducadas los hacen frecuentes y poco

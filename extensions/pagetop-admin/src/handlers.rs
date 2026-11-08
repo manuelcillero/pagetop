@@ -13,7 +13,7 @@ use crate::settings::{self, SettingFieldType, SettingsSchema};
 fn config_form_page(
     request: &HttpRequest,
 ) -> Result<(&'static AdminPage, &'static SettingsSchema), ErrorPage> {
-    let not_found = || ErrorPage::NotFound(Some(request.clone()));
+    let not_found = || ErrorPage::NotFound(request.clone());
     let path = strip_admin_path(request.path()).ok_or_else(not_found)?;
     let page = AdminRegistry::global().page(path).ok_or_else(not_found)?;
     let schema = config_forms().get(path).ok_or_else(not_found)?;

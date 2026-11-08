@@ -43,7 +43,7 @@ pub(crate) async fn list_get(
 
     let result = match role_admin::list_roles_page(&params).await {
         Ok(result) => result,
-        Err(_) => return Err(ErrorPage::InternalError(Some(request))),
+        Err(_) => return Err(ErrorPage::InternalError(request)),
     };
 
     let mut table = RoleTable::new()
@@ -156,10 +156,10 @@ pub(crate) async fn edit_get(
 ) -> Result<Response, ErrorPage> {
     let role = match role_admin::find_role(id).await {
         Ok(role) => role,
-        Err(_) => return Err(ErrorPage::NotFound(Some(request))),
+        Err(_) => return Err(ErrorPage::NotFound(request)),
     };
     if role.locked {
-        return Err(ErrorPage::AccessDenied(Some(request)));
+        return Err(ErrorPage::AccessDenied(request));
     }
 
     let page = Page::admin(request);
@@ -257,11 +257,11 @@ pub(crate) async fn view_get(
 ) -> Result<Response, ErrorPage> {
     let role = match role_admin::find_role(id).await {
         Ok(role) => role,
-        Err(_) => return Err(ErrorPage::NotFound(Some(request))),
+        Err(_) => return Err(ErrorPage::NotFound(request)),
     };
     let selected = match role_admin::role_permission_keys(id).await {
         Ok(keys) => keys,
-        Err(_) => return Err(ErrorPage::InternalError(Some(request))),
+        Err(_) => return Err(ErrorPage::InternalError(request)),
     };
     let mut page = Page::admin(request);
 
@@ -388,9 +388,9 @@ pub(crate) async fn delete_post(
         let mut cx = Context::admin(request);
         Ok(HtmxResponse::new(table.render(&mut cx).await).into_response())
     } else {
-        let cx = Context::new(request);
         match result {
             Ok(()) => {
+                let cx = Context::new(request);
                 let target = cx
                     .route(ADMIN_ROLES_PATH.as_str())
                     .alter_param(
@@ -402,7 +402,7 @@ pub(crate) async fn delete_post(
                     .to_string();
                 Ok(Redirect::see_other(target).into_response())
             }
-            Err(_) => Err(ErrorPage::BadRequest(cx.request().cloned())),
+            Err(_) => Err(ErrorPage::BadRequest(request)),
         }
     }
 }
@@ -472,11 +472,11 @@ pub(crate) async fn permissions_get(
     require_permission(&request, &UserPermission::AdminPermissions)?;
 
     if role_admin::find_role(id).await.is_err() {
-        return Err(ErrorPage::NotFound(Some(request)));
+        return Err(ErrorPage::NotFound(request));
     }
     let selected = match role_admin::role_permission_keys(id).await {
         Ok(keys) => keys,
-        Err(_) => return Err(ErrorPage::InternalError(Some(request))),
+        Err(_) => return Err(ErrorPage::InternalError(request)),
     };
     let page = Page::admin(request);
 
@@ -517,7 +517,7 @@ pub(crate) async fn permissions_post(
     require_permission(&request, &UserPermission::AdminPermissions)?;
 
     let Ok(form) = serde_qs::from_bytes::<RolePermissionsFormData>(&raw.0) else {
-        return Err(ErrorPage::BadRequest(Some(request)));
+        return Err(ErrorPage::BadRequest(request));
     };
 
     match role_admin::set_role_permissions(id, &form.permission_keys).await {

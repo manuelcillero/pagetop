@@ -362,7 +362,7 @@ impl Drop for SavedFiles {
 ///             // Volver a mostrar el formulario con `err.message()`...
 ///             # todo!()
 ///         }
-///         Err(_) => return Err(ErrorPage::InternalError(Some(request))),
+///         Err(_) => return Err(ErrorPage::InternalError(request)),
 ///     };
 ///     let Some(photo) = sent.file("photo") else {
 ///         // Campo obligatorio sin archivo: volver a mostrar el formulario...

@@ -96,11 +96,11 @@ pub(crate) async fn profile_get(request: HttpRequest) -> Response {
 
     let user = match user_admin::find_user(id).await {
         Ok(user) => user,
-        Err(_) => return ErrorPage::NotFound(Some(request)).into_response(),
+        Err(_) => return ErrorPage::NotFound(request).into_response(),
     };
     let roles = match user_admin::user_roles(id).await {
         Ok(roles) => roles,
-        Err(_) => return ErrorPage::InternalError(Some(request)).into_response(),
+        Err(_) => return ErrorPage::InternalError(request).into_response(),
     };
     let can_edit = has_permission(&request, &UserPermission::EditOwnProfile);
     let can_change_password = has_permission(&request, &UserPermission::ChangeOwnPassword);
@@ -213,12 +213,12 @@ pub(crate) async fn public_profile_get(
         return Ok(deny_access(request));
     }
     let Ok(user) = user_admin::find_user(id).await else {
-        return Err(ErrorPage::NotFound(Some(request)));
+        return Err(ErrorPage::NotFound(request));
     };
     if UserStatus::from_i16(user.status) != UserStatus::Active
         && !has_permission(&request, &UserPermission::AdminUsers)
     {
-        return Err(ErrorPage::NotFound(Some(request)));
+        return Err(ErrorPage::NotFound(request));
     }
 
     let title = match util::non_blank(user.display_name.as_deref().unwrap_or_default()) {
@@ -278,7 +278,7 @@ pub(crate) async fn profile_edit_get(request: HttpRequest) -> Result<Response, E
         return Ok(login_redirect(request, PROFILE_EDIT_PATH));
     };
     let Ok(user) = user_admin::find_user(id).await else {
-        return Err(ErrorPage::NotFound(Some(request)));
+        return Err(ErrorPage::NotFound(request));
     };
 
     let form = UserForm::new()
@@ -319,7 +319,7 @@ pub(crate) async fn profile_edit_post(
         return Ok(login_redirect(request, PROFILE_EDIT_PATH));
     };
     let Ok(user) = user_admin::find_user(id).await else {
-        return Err(ErrorPage::NotFound(Some(request)));
+        return Err(ErrorPage::NotFound(request));
     };
 
     // Sin permiso se conserva el nombre actual, aunque la petición se haya manipulado a mano.
@@ -432,7 +432,7 @@ pub(crate) async fn email_get(request: HttpRequest) -> Result<Response, ErrorPag
         return Ok(login_redirect(request, EMAIL_PATH));
     };
     let Ok(user) = user_admin::find_user(id).await else {
-        return Err(ErrorPage::NotFound(Some(request)));
+        return Err(ErrorPage::NotFound(request));
     };
     let title = Lc::t("title-profile-email", &LOCALES_USER);
     let form = ChangeEmailForm::new().with_pending_email(user.pending_email);
@@ -508,7 +508,7 @@ pub(crate) async fn email_confirm_get(
         .await
         .unwrap_or(false)
     {
-        return Err(ErrorPage::NotFound(Some(request)));
+        return Err(ErrorPage::NotFound(request));
     }
     Ok(no_referrer(
         confirm_page(
@@ -541,7 +541,7 @@ pub(crate) async fn email_confirm_post(
                 message_page(request, title, Lc::t("error-email-taken", &LOCALES_USER)).await,
             )
         }
-        Err(_) => ErrorPage::NotFound(Some(request)).into_response(),
+        Err(_) => ErrorPage::NotFound(request).into_response(),
     }
 }
 

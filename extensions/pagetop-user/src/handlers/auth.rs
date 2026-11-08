@@ -158,7 +158,7 @@ pub async fn logout_post(request: HttpRequest) -> Response {
 /// GET /user/register - Formulario de registro de cuenta.
 pub async fn register_get(request: HttpRequest) -> Result<Markup, ErrorPage> {
     if !SETTINGS.allow_registration {
-        return Err(ErrorPage::NotFound(Some(request)));
+        return Err(ErrorPage::NotFound(request));
     }
     Page::new(request)
         .with_title(Lc::t("title-register", &LOCALES_USER))
@@ -175,7 +175,7 @@ pub async fn register_post(
     web::Form(form): web::Form<RegisterFormData>,
 ) -> Response {
     if !SETTINGS.allow_registration {
-        return ErrorPage::NotFound(Some(request)).into_response();
+        return ErrorPage::NotFound(request).into_response();
     }
     let cx = Context::new(request.clone());
     let result = if throttle::allow(&request) {
@@ -289,7 +289,7 @@ pub async fn password_reset_confirm_get(
         .await
         .unwrap_or(false)
     {
-        return Err(ErrorPage::NotFound(Some(request)));
+        return Err(ErrorPage::NotFound(request));
     }
     let page = Page::new(request)
         .with_title(Lc::t("title-new-password", &LOCALES_USER))
@@ -378,7 +378,7 @@ pub async fn verify_email_get(
         .await
         .unwrap_or(false)
     {
-        return Err(ErrorPage::NotFound(Some(request)));
+        return Err(ErrorPage::NotFound(request));
     }
     Ok(no_referrer(
         confirm_page(
@@ -430,7 +430,7 @@ pub async fn verify_email_post(
             MessageLevel::Info,
             Lc::t("msg-email-verified", &LOCALES_USER),
         ),
-        Err(_) => ErrorPage::NotFound(Some(request)).into_response(),
+        Err(_) => ErrorPage::NotFound(request).into_response(),
     }
 }
 

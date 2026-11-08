@@ -50,7 +50,7 @@ async fn dashboard(request: HttpRequest) -> Response {
 async fn section_page(request: HttpRequest) -> Response {
     let path = strip_admin_path(request.path()).unwrap_or_default();
     let Some(section) = AdminRegistry::global().section_by_path(path) else {
-        return ErrorPage::NotFound(Some(request)).into_response();
+        return ErrorPage::NotFound(request).into_response();
     };
 
     let page = Page::admin(request.clone());
