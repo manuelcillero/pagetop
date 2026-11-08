@@ -62,9 +62,10 @@ async fn extra_or_returns_default_on_missing() {
 }
 
 #[pagetop::test]
-async fn extra_or_returns_default_on_type_mismatch() {
+#[should_panic(expected = "type mismatch")]
+async fn extra_or_fails_on_type_mismatch() {
     let props = Props::default().with_prop(PropsOp::set_extra("ext.flag", true));
-    assert_eq!(props.extra_or("ext.flag", 0_u32), 0_u32);
+    let _ = props.extra_or("ext.flag", 0_u32);
 }
 
 // **< Props::extra_or_default >********************************************************************

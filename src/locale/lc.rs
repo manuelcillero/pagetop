@@ -355,13 +355,21 @@ impl Lc {
                 // memoria, aunque `langid` sea casi siempre un idioma disponible. Se prueba antes
                 // el idioma exacto, que es lo primero que elige la negociación, por lo que el
                 // resultado no cambia; sólo si falla se recorre la cadena de idiomas de respaldo.
-                self.locales
+                let text = self
+                    .locales
                     .lookup_single_language(langid, key.as_ref(), args.as_ref())
                     .ok()
                     .or_else(|| {
                         self.locales
                             .try_lookup_complete(langid, key.as_ref(), args.as_ref())
-                    })
+                    });
+                // Sin `panic!`: `lookup()` devuelve `None` por contrato. Sólo en desarrollo, porque
+                // una clave ausente se repetiría en cada renderizado.
+                #[cfg(debug_assertions)]
+                if text.is_none() {
+                    crate::trace::warn!("No translation for key \"{key}\" in \"{langid}\"");
+                }
+                text
             }
         }
     }

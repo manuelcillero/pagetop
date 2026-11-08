@@ -586,14 +586,16 @@ pub mod test {
 
         /// Añade una cabecera a la petición.
         ///
-        /// Si `name` o `value` no son válidos como cabecera HTTP, se descarta en silencio en lugar
-        /// de entrar en pánico.
+        /// Falla si `name` o `value` no son válidos como cabecera HTTP, para que una prueba no pase
+        /// sin la cabecera que cree enviar (compilando con *debug assertions*; sin ellas, se
+        /// descarta).
         pub fn header(mut self, name: impl AsRef<str>, value: impl AsRef<str>) -> Self {
-            if let (Ok(n), Ok(v)) = (
-                http::HeaderName::from_bytes(name.as_ref().as_bytes()),
-                http::HeaderValue::from_str(value.as_ref()),
-            ) {
-                self.headers.insert(n, v);
+            let (name, value) = (name.as_ref(), value.as_ref());
+            let parsed = http::HeaderName::from_bytes(name.as_bytes()).ok();
+            let parsed = parsed.zip(http::HeaderValue::from_str(value).ok());
+            debug_assert!(parsed.is_some(), "invalid header `{name}: {value}`");
+            if let Some((name, value)) = parsed {
+                self.headers.insert(name, value);
             }
             self
         }

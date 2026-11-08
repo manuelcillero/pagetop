@@ -215,16 +215,20 @@ impl Tracks {
         Self::default()
     }
 
-    /// Añade una pista al final de la lista. Si ya hay [`MAX_TRACKS`] pistas, la llamada se ignora.
+    /// Añade una pista al final de la lista. Si ya hay [`MAX_TRACKS`] pistas, falla en desarrollo y
+    /// en pruebas, y en producción la llamada se ignora.
     pub fn with_track(mut self, track: AxisTrack) -> Self {
-        if let Some(slot) = self.tracks.iter_mut().find(|t| t.is_none()) {
+        let slot = self.tracks.iter_mut().find(|t| t.is_none());
+        debug_assert!(slot.is_some(), "a grid admits up to {MAX_TRACKS} tracks");
+        if let Some(slot) = slot {
             *slot = Some(track);
         }
         self
     }
 
     /// Repite la misma pista `count` veces (equivalente a `repeat(count, track)` en CSS, para el
-    /// caso de uso más común con pistas idénticas). Trunca a [`MAX_TRACKS`] si `count` lo supera.
+    /// caso de uso más común con pistas idénticas). Si `count` supera [`MAX_TRACKS`], falla en
+    /// desarrollo y en pruebas, y en producción se trunca.
     ///
     /// ```rust
     /// # use pagetop::prelude::*;
@@ -232,6 +236,10 @@ impl Tracks {
     /// assert_eq!(tracks.to_string(), "1fr 1fr 1fr");
     /// ```
     pub fn repeat(count: usize, track: AxisTrack) -> Self {
+        debug_assert!(
+            count <= MAX_TRACKS,
+            "a grid admits up to {MAX_TRACKS} tracks, got {count}"
+        );
         let mut tracks = Self::new();
         for _ in 0..count.min(MAX_TRACKS) {
             tracks = tracks.with_track(track);

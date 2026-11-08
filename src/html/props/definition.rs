@@ -162,9 +162,6 @@ use std::sync::Arc;
 ///
 /// assert!(props.extra_or(EXT_ENABLED, false));
 /// assert_eq!(props.extra_or(EXT_LABEL, String::new()), "flotante");
-///
-/// // Tipo incorrecto devuelve el valor por defecto indicado:
-/// assert_eq!(props.extra_or(EXT_ENABLED, 0_u8), 0);
 /// ```
 ///
 /// Los valores extra no se emiten en el HTML al renderizar; son exclusivamente para uso interno de
@@ -556,7 +553,10 @@ impl Props {
             })
     }
 
-    /// Devuelve el valor extra clonado o el **valor `default`** si no existe o el tipo no coincide.
+    /// Devuelve el valor extra clonado o el **valor `default`** si no existe.
+    ///
+    /// En desarrollo y en pruebas falla si existe con otro tipo; en producción devuelve también
+    /// `default`.
     ///
     /// ```rust
     /// # use pagetop::prelude::*;
@@ -569,11 +569,13 @@ impl Props {
     /// assert!(!props.extra_or(EXT_OTHER, false));
     /// ```
     pub fn extra_or<T: Clone + 'static>(&self, key: &'static str, default: T) -> T {
-        self.extra::<T>(key).ok().cloned().unwrap_or(default)
+        self.extra_cloned(key).unwrap_or(default)
     }
 
-    /// Devuelve el valor extra clonado o el **valor por defecto del tipo** si no existe o el tipo
-    /// no coincide.
+    /// Devuelve el valor extra clonado o el **valor por defecto del tipo** si no existe.
+    ///
+    /// En desarrollo y en pruebas falla si existe con otro tipo; en producción devuelve también el
+    /// valor por defecto.
     ///
     /// ```rust
     /// # use pagetop::prelude::*;
@@ -586,11 +588,12 @@ impl Props {
     /// assert_eq!(props.extra_or_default::<i32>(EXT_COUNT), 0);
     /// ```
     pub fn extra_or_default<T: Clone + Default + 'static>(&self, key: &'static str) -> T {
-        self.extra::<T>(key).ok().cloned().unwrap_or_default()
+        self.extra_cloned(key).unwrap_or_default()
     }
 
-    /// Devuelve el valor extra clonado o el **valor evaluado por la función `f`** si no existe o el
-    /// tipo no coincide.
+    /// Devuelve el valor extra clonado o el **valor evaluado por la función `f`** si no existe.
+    ///
+    /// En desarrollo y en pruebas falla si existe con otro tipo; en producción evalúa también `f`.
     ///
     /// ```rust
     /// # use pagetop::prelude::*;
@@ -606,7 +609,21 @@ impl Props {
         key: &'static str,
         f: F,
     ) -> T {
-        self.extra::<T>(key).ok().cloned().unwrap_or_else(f)
+        self.extra_cloned(key).unwrap_or_else(f)
+    }
+
+    // Un valor ausente es normal; pedirlo con un tipo distinto del guardado es un error de
+    // programación.
+    fn extra_cloned<T: Clone + 'static>(&self, key: &'static str) -> Option<T> {
+        self.extra::<T>(key)
+            .inspect_err(|err| {
+                debug_assert!(
+                    !matches!(err, PropsError::ExtraTypeMismatch { .. }),
+                    "{err}"
+                );
+            })
+            .ok()
+            .cloned()
     }
 
     // **< Props RENDER >***************************************************************************

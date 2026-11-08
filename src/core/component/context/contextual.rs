@@ -352,19 +352,28 @@ pub trait Contextual {
             })
     }
 
-    /// Devuelve el parámetro clonado o el **valor por defecto del tipo** (`T::default()`).
+    /// Devuelve el parámetro clonado o el **valor por defecto del tipo** (`T::default()`) si no
+    /// existe.
+    ///
+    /// En desarrollo y en pruebas falla si existe con otro tipo; en producción devuelve también el
+    /// valor por defecto.
     fn param_or_default<T: Clone + Default + 'static>(&self, key: &'static str) -> T {
-        self.param::<T>(key).ok().cloned().unwrap_or_default()
+        checked_param(self.param::<T>(key)).unwrap_or_default()
     }
 
     /// Devuelve el parámetro clonado o un **valor por defecto** si no existe.
+    ///
+    /// En desarrollo y en pruebas falla si existe con otro tipo; en producción devuelve también el
+    /// valor por defecto.
     fn param_or<T: Clone + 'static>(&self, key: &'static str, default: T) -> T {
-        self.param::<T>(key).ok().cloned().unwrap_or(default)
+        checked_param(self.param::<T>(key)).unwrap_or(default)
     }
 
     /// Devuelve el parámetro clonado o el **valor evaluado** por la función `f` si no existe.
+    ///
+    /// En desarrollo y en pruebas falla si existe con otro tipo; en producción evalúa también `f`.
     fn param_or_else<T: Clone + 'static, F: FnOnce() -> T>(&self, key: &'static str, f: F) -> T {
-        self.param::<T>(key).ok().cloned().unwrap_or_else(f)
+        checked_param(self.param::<T>(key)).unwrap_or_else(f)
     }
 
     /// Devuelve el Favicon de los recursos del contexto.
@@ -794,4 +803,17 @@ impl<T: Contextual> LangId for T {
     fn langid(&self) -> &'static LanguageIdentifier {
         self.context().locale.langid()
     }
+}
+
+// Un parámetro ausente es normal; pedirlo con un tipo distinto al guardado es error de desarrollo.
+fn checked_param<T: Clone>(param: Result<&T, ContextError>) -> Option<T> {
+    param
+        .inspect_err(|err| {
+            debug_assert!(
+                !matches!(err, ContextError::ParamTypeMismatch { .. }),
+                "{err}"
+            );
+        })
+        .ok()
+        .cloned()
 }

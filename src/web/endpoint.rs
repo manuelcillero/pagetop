@@ -100,7 +100,7 @@ pub trait Endpoint {
     /// resuelve `.` y `..` como otra ruta: los identificadores numéricos o validados no tienen ese
     /// problema.
     ///
-    /// En desarrollo y en las pruebas falla si la ruta no tiene exactamente un parámetro.
+    /// En desarrollo y en pruebas falla si la ruta no tiene exactamente un parámetro.
     fn to(&self, param: impl fmt::Display) -> Route {
         let pattern = self.path();
         let parts = pattern

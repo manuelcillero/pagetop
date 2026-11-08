@@ -5,7 +5,7 @@ use crate::core::extension::ExtensionRef;
 use crate::core::theme::ThemeRef;
 use crate::core::theme::all::register_theme;
 use crate::web::{Layers, Router, Routes, StaticFiles};
-use crate::{BoxError, config, global, serve_static_files, trace, web};
+use crate::{BoxError, config, global, serve_static_files, trace};
 
 use std::sync::OnceLock;
 
@@ -249,7 +249,7 @@ pub fn configure_routes(router: Router) -> Result<Router, StartupError> {
     #[cfg(debug_assertions)]
     let router = router.route(
         "/.well-known/appspecific/com.chrome.devtools.json",
-        web::get(|| async { web::http::StatusCode::NOT_FOUND }),
+        crate::web::get(|| async { crate::web::http::StatusCode::NOT_FOUND }),
     );
 
     EXTENSIONS

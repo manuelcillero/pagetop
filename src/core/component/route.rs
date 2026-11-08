@@ -225,7 +225,7 @@ impl From<RoutePath> for Route {
 
 /// Enlaza con una ruta declarada con [`Endpoint`], conservando su acceso.
 ///
-/// Una ruta con parámetro se enlaza con [`Endpoint::to()`]; en desarrollo y en las pruebas, esta
+/// Una ruta con parámetro se enlaza con [`Endpoint::to()`]; en desarrollo y en pruebas, esta
 /// conversión falla si se olvida.
 impl<E: Endpoint> From<E> for Route {
     fn from(endpoint: E) -> Self {

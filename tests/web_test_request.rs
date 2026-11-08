@@ -77,3 +77,9 @@ async fn http_request_exposes_the_method() {
     assert_eq!(request.method(), web::http::Method::POST);
     assert!(!request.method().is_safe());
 }
+
+#[pagetop::test]
+#[should_panic(expected = "invalid header")]
+async fn an_invalid_header_is_an_error() {
+    let _ = web::test::TestRequest::get().header("bad name", "value");
+}

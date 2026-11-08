@@ -9,8 +9,6 @@
 
 use pagetop::prelude::*;
 
-use crate::LOCALES_BOOTSIER;
-
 mod props;
 pub use props::Kind;
 
@@ -165,9 +163,9 @@ pub(crate) async fn item_render(item: &Item, cx: &mut Context) -> Result<Markup,
                     return Ok(html! {});
                 }
                 let title = dd.title().lookup(cx).unwrap_or_else(|| {
-                    Lc::t("dropdown", &LOCALES_BOOTSIER)
+                    Lc::l("dropdown_default_title")
                         .lookup(cx)
-                        .unwrap_or_else(|| "Dropdown".to_string())
+                        .unwrap_or_default()
                 });
                 let menu_classes = if *dd.menu_end() {
                     "dropdown-menu dropdown-menu-end"

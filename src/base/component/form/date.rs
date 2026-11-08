@@ -245,24 +245,39 @@ impl Field {
     }
 
     /// Establece la fecha inicial de un campo de [`Field::date()`] (`None` para dejarlo vacío). En
-    /// un campo de otro tipo se ignora.
+    /// un campo de otro tipo falla en desarrollo y en pruebas, y en producción se ignora.
     pub fn with_date(mut self, date: impl Into<Option<NaiveDate>>) -> Self {
-        self.value = date.into().map_or(Value::None, Value::Date);
+        let date = date.into();
+        debug_assert!(
+            date.is_none() || matches!(self.kind, Kind::Date),
+            "with_date() needs a field created with Field::date()"
+        );
+        self.value = date.map_or(Value::None, Value::Date);
         self
     }
 
     /// Establece la hora inicial de un campo de [`Field::time()`] (`None` para dejarlo vacío). En
-    /// un campo de otro tipo se ignora.
+    /// un campo de otro tipo falla en desarrollo y en pruebas, y en producción se ignora.
     pub fn with_time(mut self, time: impl Into<Option<NaiveTime>>) -> Self {
-        self.value = time.into().map_or(Value::None, Value::Time);
+        let time = time.into();
+        debug_assert!(
+            time.is_none() || matches!(self.kind, Kind::Time),
+            "with_time() needs a field created with Field::time()"
+        );
+        self.value = time.map_or(Value::None, Value::Time);
         self
     }
 
     /// Establece el instante inicial de un campo de [`Field::datetime()`] (`None` para dejarlo
-    /// vacío). Se muestra en la zona horaria efectiva del documento. En un campo de otro tipo se
-    /// ignora.
+    /// vacío). Se muestra en la zona horaria efectiva del documento. En un campo de otro tipo falla
+    /// en desarrollo y en pruebas, y en producción se ignora.
     pub fn with_datetime(mut self, dt: impl Into<Option<DateTime<Utc>>>) -> Self {
-        self.value = dt.into().map_or(Value::None, Value::DateTime);
+        let dt = dt.into();
+        debug_assert!(
+            dt.is_none() || matches!(self.kind, Kind::DateTime),
+            "with_datetime() needs a field created with Field::datetime()"
+        );
+        self.value = dt.map_or(Value::None, Value::DateTime);
         self
     }
 

@@ -221,3 +221,16 @@ async fn grid_breakpoints_add_their_suffix_and_wrap_rules_in_media_queries() {
     assert!(assets.contains("@media(min-width:768px){._grid_md_{display:grid}}"));
     assert!(assets.contains("@media(min-width:992px){._grid-columns_1fr-1fr-1fr_lg_"));
 }
+
+#[pagetop::test]
+#[should_panic(expected = "up to 12 tracks")]
+async fn repeating_more_tracks_than_allowed_is_an_error() {
+    let _ = grid::Tracks::repeat(grid::MAX_TRACKS + 1, grid::AxisTrack::Fraction(1.0));
+}
+
+#[pagetop::test]
+#[should_panic(expected = "up to 12 tracks")]
+async fn adding_more_tracks_than_allowed_is_an_error() {
+    let track = grid::AxisTrack::Fraction(1.0);
+    let _ = grid::Tracks::repeat(grid::MAX_TRACKS, track).with_track(track);
+}

@@ -70,9 +70,17 @@ async fn text_is_shown_as_written_and_empty_fields_have_no_value() {
 }
 
 #[pagetop::test]
-async fn a_value_of_another_kind_is_ignored() {
+#[should_panic(expected = "needs a field created with")]
+async fn a_value_of_another_kind_is_an_error() {
     let date = NaiveDate::from_ymd_opt(2026, 10, 6).unwrap();
-    let mut field = form::date::Field::time().with_name("at").with_date(date);
+    let _ = form::date::Field::time().with_date(date);
+}
+
+#[pagetop::test]
+async fn no_value_is_valid_for_any_kind() {
+    let mut field = form::date::Field::time()
+        .with_name("at")
+        .with_date(None::<NaiveDate>);
     let html = field.render(&mut cx("es-ES", "UTC")).await.into_string();
     assert!(!html.contains("value="));
 }

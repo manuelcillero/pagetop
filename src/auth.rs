@@ -429,9 +429,13 @@ impl PermissionRegistry {
         PERMISSIONS.get().unwrap_or(&EMPTY_PERMISSIONS)
     }
 
-    /// Registra un permiso. Se ignora si ya hay uno con la misma clave.
+    /// Registra un permiso. Si ya hay uno con la misma clave se ignora, con un aviso en las trazas.
     pub fn register(&mut self, perm: PermissionRef) {
         if self.has(perm) {
+            trace::warn!(
+                "Permission \"{}\" declared more than once, keeping the first one",
+                perm.key()
+            );
             return;
         }
         let group = perm.group();

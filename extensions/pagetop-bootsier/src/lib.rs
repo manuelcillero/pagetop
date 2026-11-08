@@ -232,8 +232,12 @@ impl Theme for Bootsier {
         // Etiquetas de los botones del modal de confirmación que sustituye al `confirm()` nativo
         // de htmx (ver `bootsier.confirm.js`); se leen aquí porque este es el único punto con
         // acceso al `Context` para resolverlas antes de escribirlas en el `<body>`.
-        let confirm_ok = Lc::l("confirm_ok").lookup(page).unwrap_or_default();
-        let confirm_cancel = Lc::l("confirm_cancel").lookup(page).unwrap_or_default();
+        let confirm_ok = Lc::t("confirm_ok", &LOCALES_BOOTSIER)
+            .lookup(page)
+            .unwrap_or_default();
+        let confirm_cancel = Lc::t("confirm_cancel", &LOCALES_BOOTSIER)
+            .lookup(page)
+            .unwrap_or_default();
 
         // Las URLs de las fuentes deben coincidir exactamente con las declaradas en @font-face de
         // _bootsier-custom.scss; cualquier discrepancia hace que el navegador descargue dos veces.
