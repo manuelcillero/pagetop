@@ -1,7 +1,5 @@
 //! Prepara y ejecuta una aplicación creada con PageTop.
 
-mod figfont;
-
 use crate::admin;
 use crate::core::extension;
 use crate::core::extension::ExtensionRef;
@@ -16,6 +14,7 @@ use crate::{PAGETOP_VERSION, global, trace};
 
 use axum::extract::DefaultBodyLimit;
 use axum::middleware::Next;
+use figlet_rs::FIGlet;
 use tower::{Layer, ServiceExt};
 use tower_http::catch_panic::CatchPanicLayer;
 use tracing_appender::non_blocking::WorkerGuard;
@@ -146,7 +145,7 @@ impl Application {
         use colored::Colorize;
         use terminal_size::{Width, terminal_size};
 
-        if global::SETTINGS.app.startup_banner != global::StartupBanner::Off {
+        if global::SETTINGS.app.startup_banner {
             // Nombre de la aplicación, ajustado al ancho del terminal si es necesario.
             let mut app_ff = String::new();
             let app_name = &global::SETTINGS.app.name;
@@ -158,7 +157,10 @@ impl Application {
                 if app_name.chars().count() > maxlen {
                     app = format!("{app}...");
                 }
-                if let Some(ff) = figfont::FIGFONT.convert(&app) {
+                // Esta fuente incluye la `ñ` y las vocales con tilde.
+                if let Ok(font) = FIGlet::from_content(include_str!("../assets/figfonts/slant.flf"))
+                    && let Some(ff) = font.convert(&app)
+                {
                     app_ff = ff.to_string();
                 }
             }

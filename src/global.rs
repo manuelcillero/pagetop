@@ -12,9 +12,6 @@ use std::sync::LazyLock;
 mod lang_negotiation;
 pub use lang_negotiation::LangNegotiation;
 
-mod startup_banner;
-pub use startup_banner::StartupBanner;
-
 mod timezone_order;
 pub use timezone_order::TimezoneOrder;
 
@@ -178,10 +175,9 @@ pub struct AppSettings {
     #[default = "/admin"]
     #[serde(deserialize_with = "admin_path")]
     pub admin_path: String,
-    /// Banner ASCII mostrado al inicio: *"Off"* (desactivado), *"Slant"*, *"Small"*, *"Speed"* o
-    /// *"Starwars"*.
-    #[default(StartupBanner::Slant)]
-    pub startup_banner: StartupBanner,
+    /// Muestra al iniciar un *banner* ASCII con el nombre de la aplicación (*true*) o no (*false*).
+    #[default = true]
+    pub startup_banner: bool,
     /// Modo de ejecución, dado por la variable de entorno `PAGETOP_RUN_MODE`, o *"default"* si no
     /// está definida o está vacía. Con la *feature* `testing` activa es siempre *"test"*.
     pub run_mode: String,

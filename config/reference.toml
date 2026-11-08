@@ -80,8 +80,8 @@ admin_path        = "/admin"           # Ruta raíz del panel de administración
                                        # "/", sin "/" final; cada tramo sólo admite letras y dígitos
                                        # ASCII, "-", "_", "." y "~" (sin ser "." ni ".."). Una no
                                        # válida impide arrancar.
-startup_banner    = "Slant"            # Banner ASCII al arrancar: "Off", "Slant", "Small", "Speed"
-                                       # o "Starwars".
+startup_banner    = true               # Muestra al arrancar un banner ASCII con el nombre de la
+                                       # aplicación (true) o no (false).
 
 [dev]
 pagetop_static_dir = ""                # Directorio static/ de PageTop para servir sus archivos
