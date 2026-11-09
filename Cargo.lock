@@ -2174,7 +2174,6 @@ dependencies = [
  "pagetop-macros",
  "pagetop-minimal",
  "pagetop-statics",
- "parking_lot",
  "serde",
  "serde_json",
  "serde_qs",

@@ -2,10 +2,8 @@ use crate::core::component::{Child, ChildOp, Children, Component};
 use crate::core::theme::{CoreRegions, RegionRef, ThemeRef};
 use crate::{AutoDefault, UniqueId, builder_impl};
 
-use parking_lot::RwLock;
-
 use std::collections::HashMap;
-use std::sync::{Arc, LazyLock};
+use std::sync::{Arc, LazyLock, RwLock};
 
 // Lista de prototipos de componentes por nombre de región.
 //
@@ -90,7 +88,7 @@ impl ChildrenInRegions {
         let region_name = region.name();
 
         // 1. Prototipos globales comunes.
-        if let Some(global_protos) = COMMON_REGIONS.read().get(region_name) {
+        if let Some(global_protos) = COMMON_REGIONS.read().unwrap().get(region_name) {
             result.add_many(
                 global_protos
                     .iter()
@@ -102,7 +100,7 @@ impl ChildrenInRegions {
             result.add_many(page_children);
         }
         // 3. Prototipos del tema activo.
-        if let Some(theme_region) = THEME_REGIONS.read().get(&theme.type_id())
+        if let Some(theme_region) = THEME_REGIONS.read().unwrap().get(&theme.type_id())
             && let Some(theme_protos) = theme_region.get(region_name)
         {
             result.add_many(
@@ -190,6 +188,7 @@ impl InRegion {
             InRegion::ForTheme(theme, region) => {
                 THEME_REGIONS
                     .write()
+                    .unwrap()
                     .entry(theme.type_id())
                     .or_default()
                     .push((*region).name(), proto);
@@ -200,6 +199,6 @@ impl InRegion {
 
     #[inline]
     fn add_to_common(region: RegionRef, proto: Arc<dyn Component>) {
-        COMMON_REGIONS.write().push(region.name(), proto);
+        COMMON_REGIONS.write().unwrap().push(region.name(), proto);
     }
 }

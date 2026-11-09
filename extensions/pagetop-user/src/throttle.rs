@@ -7,7 +7,7 @@ use crate::config::SETTINGS;
 
 use std::collections::{HashMap, VecDeque};
 use std::net::{IpAddr, Ipv6Addr};
-use std::sync::{LazyLock, Mutex, PoisonError};
+use std::sync::{LazyLock, Mutex};
 use std::time::{Duration as StdDuration, Instant};
 
 // Momentos de las solicitudes de cada dirección dentro de la ventana, y última limpieza.
@@ -41,7 +41,7 @@ pub(crate) fn allow(request: &HttpRequest) -> bool {
         return true;
     };
     let allowed = allow_at(
-        &mut lock(&REQUESTS),
+        &mut REQUESTS.lock().unwrap(),
         network(ip),
         Instant::now(),
         SETTINGS.max_ip_requests,
@@ -63,7 +63,7 @@ pub(crate) fn allow_login(request: &HttpRequest) -> bool {
         return true;
     };
     let allowed = allow_at(
-        &mut lock(&FAILED_LOGINS),
+        &mut FAILED_LOGINS.lock().unwrap(),
         network(ip),
         Instant::now(),
         SETTINGS.max_ip_failed_logins,
@@ -78,12 +78,8 @@ pub(crate) fn allow_login(request: &HttpRequest) -> bool {
 /// Retira un intento anotado por [`allow_login()`] que no ha resultado fallido.
 pub(crate) fn forget_login(request: &HttpRequest) {
     if let Some(ip) = request.client_ip() {
-        forget_at(&mut lock(&FAILED_LOGINS), network(ip));
+        forget_at(&mut FAILED_LOGINS.lock().unwrap(), network(ip));
     }
-}
-
-fn lock(log: &Log) -> std::sync::MutexGuard<'_, Requests> {
-    log.lock().unwrap_or_else(PoisonError::into_inner)
 }
 
 fn window(secs: i64) -> StdDuration {

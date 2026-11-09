@@ -1,9 +1,7 @@
 use crate::core::theme::ThemeRef;
 use crate::{global, trace};
 
-use parking_lot::RwLock;
-
-use std::sync::LazyLock;
+use std::sync::{LazyLock, RwLock};
 
 // **< TEMAS >**************************************************************************************
 
@@ -11,7 +9,7 @@ static THEMES: LazyLock<RwLock<Vec<ThemeRef>>> = LazyLock::new(|| RwLock::new(Ve
 
 // Registra el tema si no lo estaba ya, para evitar duplicados. Devuelve `true` si lo ha añadido.
 pub(crate) fn register_theme(theme: ThemeRef) -> bool {
-    let mut themes = THEMES.write();
+    let mut themes = THEMES.write().unwrap();
     if themes.iter().any(|t| t.type_id() == theme.type_id()) {
         return false;
     }
@@ -21,7 +19,7 @@ pub(crate) fn register_theme(theme: ThemeRef) -> bool {
 
 /// Devuelve los temas habilitados en la aplicación, en el orden en que se registraron.
 pub fn enabled_themes() -> Vec<ThemeRef> {
-    THEMES.read().clone()
+    THEMES.read().unwrap().clone()
 }
 
 /// Devuelve el tema identificado por su [`short_name()`](crate::core::AnyInfo::short_name).
@@ -30,6 +28,7 @@ pub fn enabled_themes() -> Vec<ThemeRef> {
 pub fn theme_by_short_name(short_name: &str) -> Option<ThemeRef> {
     THEMES
         .read()
+        .unwrap()
         .iter()
         .find(|t| t.short_name().eq_ignore_ascii_case(short_name))
         .copied()

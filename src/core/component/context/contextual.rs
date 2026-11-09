@@ -481,7 +481,7 @@ pub trait Contextual {
             segments
         };
         let count = {
-            let mut map = self.context().id_counters.lock();
+            let mut map = self.context().id_counters.lock().unwrap();
             let n = map.entry(TypeId::of::<C>()).or_insert(0);
             *n += 1;
             *n

@@ -282,8 +282,9 @@ impl Entry {
         }
     }
 
-    // Un `panic!` sólo puede ocurrir fuera de la sección protegida (se ejecutan en otra tarea),
-    // así que el estado sigue siendo coherente aunque el `Mutex` quede envenenado.
+    // Los trabajos se ejecutan en otra tarea, fuera de la sección protegida. Dentro sólo podría
+    // fallar el cálculo de fechas de `take_due()`, que no deja el estado incoherente, así que un
+    // `Mutex` envenenado no debe detener el trabajo.
     fn state(&self) -> MutexGuard<'_, State> {
         self.state.lock().unwrap_or_else(PoisonError::into_inner)
     }

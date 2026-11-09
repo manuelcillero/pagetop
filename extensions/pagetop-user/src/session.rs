@@ -2,7 +2,7 @@
 //!
 //! Incluye también los permisos del rol "anonymous", que se aplican a las peticiones sin sesión.
 
-use std::sync::{Arc, PoisonError, RwLock};
+use std::sync::{Arc, RwLock};
 use std::time::Instant;
 
 use pagetop::prelude::*;
@@ -308,9 +308,7 @@ static ANONYMOUS_CACHE: RwLock<AnonymousCache> = RwLock::new(AnonymousCache {
 /// a intentar en la siguiente petición.
 pub(crate) async fn anonymous_permissions() -> Arc<PermissionSet> {
     let generation = {
-        let cache = ANONYMOUS_CACHE
-            .read()
-            .unwrap_or_else(PoisonError::into_inner);
+        let cache = ANONYMOUS_CACHE.read().unwrap();
         if let Some((loaded_at, permissions)) = &cache.loaded
             && loaded_at.elapsed() < ANONYMOUS_TTL
         {
@@ -334,9 +332,7 @@ pub(crate) async fn anonymous_permissions() -> Arc<PermissionSet> {
         }
     };
 
-    let mut cache = ANONYMOUS_CACHE
-        .write()
-        .unwrap_or_else(PoisonError::into_inner);
+    let mut cache = ANONYMOUS_CACHE.write().unwrap();
     if cache.generation == generation {
         cache.loaded = Some((Instant::now(), Arc::clone(&permissions)));
     }
@@ -346,9 +342,7 @@ pub(crate) async fn anonymous_permissions() -> Arc<PermissionSet> {
 /// Descarta los permisos de "anonymous" guardados en memoria, para que la siguiente petición sin
 /// sesión los vuelva a leer. Se llama al cambiar los permisos de ese rol.
 pub(crate) fn invalidate_anonymous_permissions() {
-    let mut cache = ANONYMOUS_CACHE
-        .write()
-        .unwrap_or_else(PoisonError::into_inner);
+    let mut cache = ANONYMOUS_CACHE.write().unwrap();
     cache.generation = cache.generation.wrapping_add(1);
     cache.loaded = None;
 }

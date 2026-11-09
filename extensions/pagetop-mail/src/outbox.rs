@@ -36,7 +36,7 @@ use pagetop::prelude::*;
 
 use crate::Email;
 
-use std::sync::{Mutex, MutexGuard, PoisonError};
+use std::sync::Mutex;
 
 static OUTBOX: Mutex<Vec<SentEmail>> = Mutex::new(Vec::new());
 
@@ -99,13 +99,13 @@ fn unescape(value: &str) -> String {
 
 /// Recoge todos los correos guardados, en el orden en que se enviaron.
 pub fn take() -> Vec<SentEmail> {
-    std::mem::take(&mut *lock())
+    std::mem::take(&mut *OUTBOX.lock().unwrap())
 }
 
 /// Recoge los correos entregados a la dirección dada, en el orden en que se enviaron, y deja los
 /// demás.
 pub fn take_to(address: &str) -> Vec<SentEmail> {
-    let mut outbox = lock();
+    let mut outbox = OUTBOX.lock().unwrap();
     let (taken, kept) = outbox
         .drain(..)
         .partition(|sent: &SentEmail| sent.is_delivered_to(address));
@@ -114,16 +114,11 @@ pub fn take_to(address: &str) -> Vec<SentEmail> {
 }
 
 pub(crate) fn push(email: Email, envelope_to: Vec<String>, raw: Vec<u8>) {
-    lock().push(SentEmail {
+    OUTBOX.lock().unwrap().push(SentEmail {
         email,
         envelope_to,
         raw: String::from_utf8_lossy(&raw).into_owned(),
     });
-}
-
-// Una prueba que falla con el bloqueo tomado no debe impedir que las demás sigan usándolo.
-fn lock() -> MutexGuard<'static, Vec<SentEmail>> {
-    OUTBOX.lock().unwrap_or_else(PoisonError::into_inner)
 }
 
 // Correos completos de la cola de envío pendientes de entregar con este transporte, por su
@@ -134,15 +129,12 @@ static QUEUED: Mutex<Vec<(i32, Email)>> = Mutex::new(Vec::new());
 
 #[cfg(feature = "queue")]
 pub(crate) fn hold(id: i32, email: Email) {
-    QUEUED
-        .lock()
-        .unwrap_or_else(PoisonError::into_inner)
-        .push((id, email));
+    QUEUED.lock().unwrap().push((id, email));
 }
 
 #[cfg(feature = "queue")]
 pub(crate) fn release(id: i32) -> Option<Email> {
-    let mut queued = QUEUED.lock().unwrap_or_else(PoisonError::into_inner);
+    let mut queued = QUEUED.lock().unwrap();
     let index = queued.iter().position(|(queued_id, _)| *queued_id == id)?;
     Some(queued.swap_remove(index).1)
 }

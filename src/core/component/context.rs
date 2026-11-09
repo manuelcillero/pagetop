@@ -11,10 +11,9 @@ use crate::response::read_flash_messages;
 use crate::web::HttpRequest;
 use crate::{CowStr, util};
 
-use parking_lot::Mutex;
-
 use std::any::{Any, TypeId};
 use std::collections::HashMap;
+use std::sync::Mutex;
 
 mod assets_op;
 pub use assets_op::AssetsOp;
