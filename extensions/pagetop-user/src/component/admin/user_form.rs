@@ -7,7 +7,7 @@ use crate::config::{SETTINGS, user_language_applies, user_timezone_applies};
 use crate::user_path;
 use crate::{ADMIN_USERS_PATH, PROFILE_EDIT_PATH};
 
-use crate::component::{PasswordConfirm, error_banner};
+use crate::component::{PasswordConfirm, error_banner, form_actions, profile_form_actions};
 use crate::identity::{EMAIL_MAX_CHARS, USERNAME_MIN_CHARS, username_help, username_max_chars};
 use crate::service::user_admin::{ABOUT_MAX_CHARS, DISPLAY_NAME_MAX_CHARS};
 
@@ -159,14 +159,18 @@ impl Component for UserForm {
             );
         }
 
-        // En modo `Edit`, "Guardar" se renderiza fuera del formulario, junto al resto de acciones
-        // de la pantalla (ver `USER_ADMIN_FORM_ID`); en los demás modos no hay ninguna botonera con
-        // la que agruparlo, así que se queda aquí, dentro del propio `<form>`.
-        if *self.mode() != UserFormMode::Edit {
-            form = form.with_child(
-                Button::submit(Lc::t("btn-save", &LOCALES_USER))
-                    .with_style(button::Style::Solid(Intent::Primary)),
-            );
+        // En modo `Edit`, "Guardar" y "Cancelar" se renderizan fuera del formulario, junto al resto
+        // de acciones de la pantalla (ver `USER_ADMIN_FORM_ID`).
+        let save = Lc::t("btn-save", &LOCALES_USER);
+        match self.mode() {
+            UserFormMode::Edit => {}
+            UserFormMode::Profile => {
+                form = form.with_child(profile_form_actions(save, cx));
+            }
+            UserFormMode::New => {
+                let cancel = self.waypoint().or(cx.route(ADMIN_USERS_PATH.as_str()));
+                form = form.with_child(form_actions(save, cancel));
+            }
         }
 
         Ok(form.render(cx).await)

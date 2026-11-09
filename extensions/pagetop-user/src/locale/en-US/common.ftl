@@ -247,7 +247,7 @@ btn-block              = Block
 btn-activate           = Activate
 btn-grant-admin        = Grant administrator
 btn-revoke-admin       = Revoke administrator
-link-back-to-list      = Back to list
+link-back              = Back
 
 # **< Admin: confirmations and badges >**
 

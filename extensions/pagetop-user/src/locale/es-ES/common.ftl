@@ -248,7 +248,7 @@ btn-block              = Bloquear
 btn-activate           = Activar
 btn-grant-admin        = Conceder administrador
 btn-revoke-admin       = Revocar administrador
-link-back-to-list      = Volver al listado
+link-back              = Volver
 
 # **< Administración: confirmaciones y distintivos >**
 

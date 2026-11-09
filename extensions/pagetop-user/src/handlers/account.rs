@@ -547,21 +547,15 @@ pub(crate) async fn email_confirm_post(
 
 // **< render_profile_page >************************************************************************
 
-// Página del perfil propio con un formulario y un botón para volver al perfil sin guardar.
+// Página del perfil propio con un formulario.
 async fn render_profile_page(
     request: HttpRequest,
     title: Lc,
     form: impl Component + 'static,
 ) -> Response {
-    let page = Page::new(request);
-    let cancel = Button::anchor(Lc::t("btn-cancel", &LOCALES_USER), page.route(PROFILE_PATH));
-    page.with_title(title.clone())
-        .with_child(
-            Block::new()
-                .with_title(title)
-                .with_child(form)
-                .with_child(cancel),
-        )
+    Page::new(request)
+        .with_title(title.clone())
+        .with_child(Block::new().with_title(title).with_child(form))
         .render()
         .await
         .into_response()

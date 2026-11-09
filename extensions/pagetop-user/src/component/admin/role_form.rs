@@ -6,7 +6,7 @@ use crate::ADMIN_ROLES_PATH;
 use crate::LOCALES_USER;
 use crate::role_path;
 
-use crate::component::error_banner;
+use crate::component::{error_banner, form_actions};
 use crate::service::role_admin::{ROLE_LABEL_MAX_CHARS, ROLE_MACHINE_NAME_MAX_CHARS};
 
 #[derive(AutoDefault, Clone, Copy, Debug, PartialEq)]
@@ -86,10 +86,10 @@ impl Component for RoleForm {
                     .with_inputmode(Some(form::input::Mode::Numeric)),
             );
 
-        form = form.with_child(
-            Button::submit(Lc::t("btn-save", &LOCALES_USER))
-                .with_style(button::Style::Solid(Intent::Primary)),
-        );
+        form = form.with_child(form_actions(
+            Lc::t("btn-save", &LOCALES_USER),
+            self.waypoint().or(cx.route(ADMIN_ROLES_PATH.as_str())),
+        ));
 
         Ok(form.render(cx).await)
     }

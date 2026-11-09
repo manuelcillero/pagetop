@@ -76,7 +76,6 @@ pub(crate) async fn new_get(
     web::Query(waypoint): web::Query<Waypoint>,
 ) -> Result<Response, ErrorPage> {
     let page = Page::admin(request);
-    let back_href = waypoint.or(page.route(ADMIN_ROLES_PATH.as_str()));
     let title = Lc::t("title-admin-role-new", &LOCALES_USER);
     Ok(page
         .with_title(title)
@@ -85,7 +84,6 @@ pub(crate) async fn new_get(
                 .with_mode(RoleFormMode::New)
                 .with_waypoint(waypoint),
         )
-        .with_child(back_link(back_href))
         .render()
         .await
         .into_response())
@@ -125,7 +123,6 @@ pub(crate) async fn new_post(
         }
         Err(err) => {
             let page = Page::admin(request);
-            let back_href = waypoint.or(page.route(ADMIN_ROLES_PATH.as_str()));
             let form_component = RoleForm::new()
                 .with_mode(RoleFormMode::New)
                 .with_machine_name(form.machine_name)
@@ -138,7 +135,6 @@ pub(crate) async fn new_post(
             Ok(page
                 .with_title(title)
                 .with_child(form_component)
-                .with_child(back_link(back_href))
                 .render()
                 .await
                 .into_response())
@@ -163,7 +159,6 @@ pub(crate) async fn edit_get(
     }
 
     let page = Page::admin(request);
-    let back_href = waypoint.or(page.route(ADMIN_ROLES_PATH.as_str()));
 
     let title = Lc::t("title-admin-role-edit", &LOCALES_USER);
     Ok(page
@@ -178,7 +173,6 @@ pub(crate) async fn edit_get(
                 .with_weight(role.weight)
                 .with_waypoint(waypoint),
         )
-        .with_child(back_link(back_href))
         .render()
         .await
         .into_response())
@@ -224,7 +218,6 @@ pub(crate) async fn edit_post(
                 .map(|role| role.machine_name)
                 .unwrap_or_default();
             let page = Page::admin(request);
-            let back_href = waypoint.or(page.route(ADMIN_ROLES_PATH.as_str()));
             let form_component = RoleForm::new()
                 .with_mode(RoleFormMode::Edit)
                 .with_role_id(Some(id))
@@ -238,7 +231,6 @@ pub(crate) async fn edit_post(
             Ok(page
                 .with_title(title)
                 .with_child(form_component)
-                .with_child(back_link(back_href))
                 .render()
                 .await
                 .into_response())
@@ -481,7 +473,6 @@ pub(crate) async fn permissions_get(
     let page = Page::admin(request);
 
     let groups = build_permission_groups(&selected, page.context());
-    let back_href = waypoint.or(page.route(ADMIN_ROLES_PATH.as_str()));
 
     let title = Lc::t("title-admin-role-permissions", &LOCALES_USER);
     Ok(page
@@ -492,7 +483,6 @@ pub(crate) async fn permissions_get(
                 .with_groups(groups)
                 .with_waypoint(waypoint),
         )
-        .with_child(back_link(back_href))
         .render()
         .await
         .into_response())
@@ -530,7 +520,6 @@ pub(crate) async fn permissions_post(
             let page = Page::admin(request);
 
             let groups = build_permission_groups(&form.permission_keys, page.context());
-            let back_href = waypoint.or(page.route(ADMIN_ROLES_PATH.as_str()));
             let form_component = RolePermissionsForm::new()
                 .with_role_id(id)
                 .with_groups(groups)
@@ -540,7 +529,6 @@ pub(crate) async fn permissions_post(
             Ok(page
                 .with_title(title)
                 .with_child(form_component)
-                .with_child(back_link(back_href))
                 .render()
                 .await
                 .into_response())

@@ -5,7 +5,7 @@ use pagetop::prelude::*;
 use crate::LOCALES_USER;
 use crate::user_path;
 
-use crate::component::{PasswordConfirm, error_banner};
+use crate::component::{PasswordConfirm, error_banner, form_actions};
 
 #[derive(AutoDefault, Clone, Debug, Getters)]
 pub(crate) struct AdminPasswordForm {
@@ -34,10 +34,11 @@ impl Component for AdminPasswordForm {
                 PasswordConfirm::new()
                     .with_password_label(Lc::t("field-new-password", &LOCALES_USER)),
             )
-            .with_child(
-                Button::submit(Lc::t("btn-save", &LOCALES_USER))
-                    .with_style(button::Style::Solid(Intent::Primary)),
-            );
+            .with_child(form_actions(
+                Lc::t("btn-save", &LOCALES_USER),
+                self.waypoint()
+                    .append_to(cx.route(user_path(self.user_id(), "edit"))),
+            ));
 
         Ok(form.render(cx).await)
     }

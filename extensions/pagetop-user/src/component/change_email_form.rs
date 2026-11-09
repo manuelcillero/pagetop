@@ -4,7 +4,7 @@ use pagetop::prelude::*;
 
 use crate::{EMAIL_PATH, LOCALES_USER};
 
-use crate::component::error_banner;
+use crate::component::{error_banner, profile_form_actions};
 use crate::identity::EMAIL_MAX_CHARS;
 
 /// Pide la nueva dirección y la contraseña actual. Si ya hay un cambio pendiente de confirmar, lo
@@ -56,10 +56,10 @@ impl Component for ChangeEmailForm {
                     .with_autocomplete(Some(form::Autocomplete::current_password()))
                     .with_required(true),
             )
-            .with_child(
-                Button::submit(Lc::t("btn-change-email", &LOCALES_USER))
-                    .with_style(button::Style::Solid(Intent::Primary)),
-            );
+            .with_child(profile_form_actions(
+                Lc::t("btn-change-email", &LOCALES_USER),
+                cx,
+            ));
 
         Ok(form.render(cx).await)
     }

@@ -59,14 +59,7 @@ pub(crate) fn map_auth_error(err: &AuthError) -> Lc {
     }
 }
 
-// Enlace de vuelta al listado, usado en las pantallas de alta/edición/asignación.
-pub(crate) fn back_link(href: impl Into<RoutePath>) -> Html {
-    let href = href.into();
-    Html::with(move |cx| {
-        html! {
-            p class="user-admin-back-link" {
-                a href=(href.clone()) { (Lc::t("link-back-to-list", &LOCALES_USER).using(cx)) }
-            }
-        }
-    })
+// Enlace para salir de una ficha de sólo lectura. Los formularios tienen `form_actions()`.
+pub(crate) fn back_link(route: impl Into<Route>) -> Button {
+    Button::anchor(Lc::t("link-back", &LOCALES_USER), route).with_style(button::Style::Link)
 }

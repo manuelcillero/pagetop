@@ -87,7 +87,10 @@ impl Component for UserTable {
 
         Ok(html! {
             div (self.props().unpack(cx)) {
-                (Button::anchor(Lc::t("btn-create-user", &LOCALES_USER), new_href).render(cx).await)
+                (Button::anchor(Lc::t("btn-create-user", &LOCALES_USER), new_href)
+                    .with_style(button::Style::Solid(Intent::Primary))
+                    .render(cx)
+                    .await)
                 (table.render(cx).await)
                 (pager)
             }

@@ -121,7 +121,10 @@ impl Component for RoleTable {
 
         Ok(html! {
             div (self.props().unpack(cx)) {
-                (Button::anchor(Lc::t("btn-create-role", &LOCALES_USER), new_href).render(cx).await)
+                (Button::anchor(Lc::t("btn-create-role", &LOCALES_USER), new_href)
+                    .with_style(button::Style::Solid(Intent::Primary))
+                    .render(cx)
+                    .await)
                 @if let Some(message) = self.message() {
                     div class="user-form-error" role="alert" { (message.clone().using(cx)) }
                 }

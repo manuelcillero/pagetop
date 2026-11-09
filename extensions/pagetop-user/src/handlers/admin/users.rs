@@ -11,7 +11,7 @@ use crate::account::{Account, UserStatus};
 use crate::component::admin::{
     AdminPasswordForm, USER_ADMIN_FORM_ID, UserForm, UserFormMode, UserTable,
 };
-use crate::component::user_details;
+use crate::component::{cancel_link, user_details};
 use crate::config::SETTINGS;
 use crate::entity::{role, user};
 use crate::error::AuthError;
@@ -70,9 +70,11 @@ pub(crate) async fn list_get(
         Ok(HtmxResponse::new(table.render(&mut cx).await).into_response())
     } else {
         let title = Lc::t("title-admin-users", &LOCALES_USER);
-        Ok(Page::admin(request)
+        let page = Page::admin(request);
+        let search = search_bar(page.route(ADMIN_USERS_PATH.as_str()), query.q);
+        Ok(page
             .with_title(title)
-            .with_child(search_bar(query.q))
+            .with_child(search)
             .with_child(table)
             .render()
             .await
@@ -82,25 +84,24 @@ pub(crate) async fn list_get(
 
 // **< search_bar >*********************************************************************************
 
-fn search_bar(current_query: Option<String>) -> Html {
-    let value = current_query.unwrap_or_default();
-    Html::with(move |cx| {
-        html! {
-            div class="user-admin-search" {
-                input
-                    type="search"
-                    id="user-admin-search-input"
-                    name="q"
-                    value=(value.as_str())
-                    placeholder=[Lc::t("field-search-users", &LOCALES_USER).lookup(cx)]
-                    hx-get=(cx.route(ADMIN_USERS_PATH.as_str()).to_string())
-                    hx-trigger="keyup changed delay:400ms, search"
-                    hx-target="#user-table-wrapper"
-                    hx-swap=(hx::swap::OUTER_HTML_SCROLL_TOP)
-                    hx-push-url="true";
-            }
-        }
-    })
+// Los atributos HTMX van en el formulario porque `with_prop()` de un campo los pondría en su
+// contenedor, que no enviaría el valor. `input` cubre también vaciar con la "x" del navegador.
+fn search_bar(route: RoutePath, current_query: Option<String>) -> Form {
+    Form::new()
+        .with_action(route.clone())
+        .with_method(form::Method::Get)
+        .with_prop(PropsOp::set(hx::GET, route.to_string()))
+        .with_prop(PropsOp::set(hx::TRIGGER, "input delay:400ms, submit"))
+        .with_prop(PropsOp::set(hx::TARGET, "#user-table-wrapper"))
+        .with_prop(PropsOp::set(hx::SWAP, hx::swap::OUTER_HTML_SCROLL_TOP))
+        .with_prop(PropsOp::set(hx::PUSH_URL, "true"))
+        .with_child(
+            form::input::Field::search()
+                .with_id("user-admin-search")
+                .with_name("q")
+                .with_value(current_query.unwrap_or_default())
+                .with_placeholder(Lc::t("field-search-users", &LOCALES_USER)),
+        )
 }
 
 // **< available_roles >****************************************************************************
@@ -158,7 +159,6 @@ pub(crate) async fn new_get(
     // permiso del catálogo (igual que conceder/revocar en la edición, ver `set_user_admin`).
     let allow_admin_field = request.extension::<Account>().is_some_and(|a| a.is_admin());
     let page = Page::admin(request);
-    let back_href = waypoint.or(page.route(ADMIN_USERS_PATH.as_str()));
     let title = Lc::t("title-admin-user-new", &LOCALES_USER);
     Ok(page
         .with_title(title)
@@ -169,7 +169,6 @@ pub(crate) async fn new_get(
                 .with_allow_admin_field(allow_admin_field)
                 .with_waypoint(waypoint),
         )
-        .with_child(back_link(back_href))
         .render()
         .await
         .into_response())
@@ -236,7 +235,6 @@ pub(crate) async fn new_post(
         Err(err) => {
             let roles = available_roles(&role_ids).await.unwrap_or_default();
             let page = Page::admin(request);
-            let back_href = waypoint.or(page.route(ADMIN_USERS_PATH.as_str()));
             let form_component = UserForm::new()
                 .with_mode(UserFormMode::New)
                 .with_username(form.username)
@@ -254,7 +252,6 @@ pub(crate) async fn new_post(
             Ok(page
                 .with_title(title)
                 .with_child(form_component)
-                .with_child(back_link(back_href))
                 .render()
                 .await
                 .into_response())
@@ -318,7 +315,6 @@ async fn render_edit_page(
     // Bloquear y activar exige además `user:block_accounts` (ver `status_post`).
     let can_change_status = has_permission(&request, &UserPermission::BlockAccounts);
     let mut page = Page::admin(request);
-    let back_href = waypoint.or(page.route(ADMIN_USERS_PATH.as_str()));
     let title = Lc::t("title-admin-user-edit", &LOCALES_USER);
     let actions = edit_actions(
         id,
@@ -337,25 +333,22 @@ async fn render_edit_page(
                 .with_waypoint(waypoint.clone()),
         )
         .with_child(actions)
-        .with_child(back_link(back_href))
         .render()
         .await
         .into_response()
 }
 
-// Enlace a la pantalla de restablecer contraseña y botones de bloqueo/activación (sólo si
-// `can_change_status`) y de concesión/revocación de acceso irrestricto (sólo si
-// `can_toggle_admin`). El listado
-// de origen (`waypoint`) se arrastra a todas ellas para que, al volver aquí, esta misma pantalla
-// siga sabiendo devolver al listado en el estado en que se dejó.
+// Botonera de la edición: "Guardar", "Cancelar", el enlace a la pantalla de restablecer contraseña
+// y los botones de bloqueo/activación (sólo si `can_change_status`) y de concesión/revocación de
+// acceso irrestricto (sólo si `can_toggle_admin`). El listado de origen (`waypoint`) se arrastra a
+// todas ellas para que, al volver aquí, esta misma pantalla siga sabiendo devolver al listado en el
+// estado en que se dejó.
 //
-// "Guardar" (envía el `<form>` de `UserForm` vía el atributo `form`, ver `USER_ADMIN_FORM_ID`) y
-// "Restablecer contraseña" son botones sueltos; bloqueo/activación y concesión/revocación de admin
-// (este último sólo si `can_toggle_admin`) van cada uno en su propio `Form`, con un campo `Hidden`
-// para el nuevo valor, para conservar el envío nativo sin JavaScript, mejorado con
-// `hx-post`/`hx-confirm`. Todos son hijos directos del mismo `Container` con Flex, que los alinea
-// en fila con espaciado uniforme sin que ninguno tenga que ser forzosamente un `Button` suelto (ver
-// PAGETOP.md, "Preferir componentes a `html!` en bruto").
+// "Guardar" (envía el `<form>` de `UserForm` vía el atributo `form`, ver `USER_ADMIN_FORM_ID`),
+// "Cancelar" y "Restablecer contraseña" son botones sueltos; bloqueo/activación y
+// concesión/revocación de admin van cada uno en su propio `Form`, con un campo `Hidden` para el
+// nuevo valor, para conservar el envío nativo sin JavaScript, mejorado con `hx-post`/`hx-confirm`.
+// Todos son hijos directos del mismo `Flex`, que los alinea en fila con espaciado uniforme.
 fn edit_actions(
     user_id: i32,
     status: UserStatus,
@@ -403,6 +396,9 @@ fn edit_actions(
                 .with_style(button::Style::Solid(Intent::Primary))
                 .with_prop(PropsOp::set("form", USER_ADMIN_FORM_ID)),
         )
+        .with_child(cancel_link(
+            waypoint.or(cx.route(ADMIN_USERS_PATH.as_str())),
+        ))
         .with_child(
             Button::anchor(Lc::t("btn-reset-password", &LOCALES_USER), password_href)
                 .with_style(button::Style::Solid(Intent::Neutral)),
@@ -709,7 +705,6 @@ pub(crate) async fn password_get(
 ) -> Result<Response, ErrorPage> {
     let user = require_manageable(&request, id).await?;
     let page = Page::admin(request);
-    let edit_href = waypoint.append_to(page.route(user_path(id, "edit")));
     let title = Lc::t("title-admin-user-password", &LOCALES_USER);
     Ok(page
         .with_title(title)
@@ -719,7 +714,6 @@ pub(crate) async fn password_get(
                 .with_user_id(id)
                 .with_waypoint(waypoint),
         )
-        .with_child(back_link(edit_href))
         .render()
         .await
         .into_response())
@@ -755,7 +749,6 @@ pub(crate) async fn password_post(
         }
         Err(err) => {
             let page = Page::admin(request);
-            let edit_href = waypoint.append_to(page.route(user_path(id, "edit")));
             let title = Lc::t("title-admin-user-password", &LOCALES_USER);
             Ok(page
                 .with_title(title)
@@ -766,7 +759,6 @@ pub(crate) async fn password_post(
                         .with_error(map_auth_error(&err))
                         .with_waypoint(waypoint),
                 )
-                .with_child(back_link(edit_href))
                 .render()
                 .await
                 .into_response())

@@ -4,7 +4,7 @@ use pagetop::prelude::*;
 
 use crate::{LOCALES_USER, PROFILE_PASSWORD_PATH};
 
-use crate::component::{PasswordConfirm, error_banner};
+use crate::component::{PasswordConfirm, error_banner, profile_form_actions};
 
 /// Pide la contraseña actual además de la nueva y su confirmación, a diferencia del
 /// restablecimiento por un administrador.
@@ -36,10 +36,10 @@ impl Component for ChangePasswordForm {
                 PasswordConfirm::new()
                     .with_password_label(Lc::t("field-new-password", &LOCALES_USER)),
             )
-            .with_child(
-                Button::submit(Lc::t("btn-set-password", &LOCALES_USER))
-                    .with_style(button::Style::Solid(Intent::Primary)),
-            );
+            .with_child(profile_form_actions(
+                Lc::t("btn-set-password", &LOCALES_USER),
+                cx,
+            ));
 
         Ok(form.render(cx).await)
     }
