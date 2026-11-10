@@ -9,3 +9,8 @@ $navbar-brand-font-size: 1.75rem;
 $font-family-sans-serif: "Source Sans 3", system-ui, -apple-system, "Segoe UI", Roboto,
   "Helvetica Neue", "Noto Sans", "Liberation Sans", Arial, sans-serif, "Apple Color Emoji",
   "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+
+// Table cells centered vertically, as in the Basic theme: with Bootstrap's default (top), a cell
+// holding a button is taller and the text of the other cells sticks to the top of the row. Header
+// cells keep Bootstrap's bottom alignment.
+$table-cell-vertical-align: middle;
