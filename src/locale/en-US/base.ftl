@@ -48,6 +48,18 @@ intro_text2 = PageTop brings back the essence of the classic web, renders on the
 intro_code = Code
 intro_have_fun = Coding is creating
 
+# ListFilter component.
+list_filter_submit = Filter
+list_filter_reset = Clear
+list_filter_pending = There are filters not applied yet
+
+# ListView component.
+list_view_summary = { $count ->
+    [0] No results
+    [one] 1 result
+   *[other] { $count } results
+}
+
 # Navbar component.
 navbar_toggle = Toggle navigation
 

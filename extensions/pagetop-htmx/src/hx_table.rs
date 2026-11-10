@@ -23,9 +23,14 @@ use crate::hx;
 ///
 /// [`Table`] y `SortLink` no requieren HTMX. Cada extensión que quiera aplicar una navegación sin
 /// recarga debe añadir sus propios atributos `hx-*` usando [`SortLink::with_prop()`]. Como esos
-/// cuatro atributos son siempre los mismos para cualquier cabecera ordenable (`hx-get` igual al
-/// `href`, `hx-swap="outerHTML scroll:top"` y `hx-push-url="true"`, y sólo `hx-target` cambia según
-/// la tabla), [`sort_link()`] evita reescribirlos en cada columna de cada listado.
+/// atributos son siempre los mismos para cualquier cabecera ordenable (`hx-get` igual al `href`,
+/// `hx-swap="outerHTML scroll:top"` y `hx-push-url="true"`, y sólo `hx-target` cambia según la
+/// tabla), [`sort_link()`] evita reescribirlos en cada columna de cada listado.
+///
+/// Para que las peticiones no se pisen, una nueva petición contra `target` (desde los filtros, el
+/// paginador o una cabecera) cancela la que estuviera en curso (`hx::SYNC`). Y mientras llega la
+/// respuesta, `target` recibe la clase `htmx-request` (`hx::INDICATOR`), con la que la extensión
+/// atenúa el listado ([`ListView`]).
 ///
 /// El enlace resultante funciona igual con o sin HTMX: `href` es siempre la URL real del nuevo
 /// estado de orden, así que navega correctamente aunque HTMX no esté disponible en el cliente.
@@ -80,9 +85,12 @@ pub fn sort_link(
     // `RoutePath` en `SortLink::new()` (vía `href.as_str()`) y como `CowStr` en `PropsOp::set()`.
     let href = href.into().to_string();
     let target = target.as_ref().to_owned();
+    let sync = util::join!(target.as_str(), ":replace");
     table::SortLink::new(href.as_ref())
         .with_dir(dir)
         .with_prop(PropsOp::set(hx::GET, href))
+        .with_prop(PropsOp::set(hx::SYNC, sync))
+        .with_prop(PropsOp::set(hx::INDICATOR, target.clone()))
         .with_prop(PropsOp::set(hx::TARGET, target))
         .with_prop(PropsOp::set(hx::SWAP, hx::swap::OUTER_HTML_SCROLL_TOP))
         .with_prop(PropsOp::set(hx::PUSH_URL, "true"))

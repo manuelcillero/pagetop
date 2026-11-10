@@ -70,11 +70,9 @@ pub(crate) async fn list_get(
         Ok(HtmxResponse::new(table.render(&mut cx).await).into_response())
     } else {
         let title = Lc::t("title-admin-users", &LOCALES_USER);
-        let page = Page::admin(request);
-        let search = search_bar(page.route(ADMIN_USERS_PATH.as_str()), query.q);
-        Ok(page
+        Ok(Page::admin(request)
             .with_title(title)
-            .with_child(search)
+            .with_child(search_filter(query.q))
             .with_child(table)
             .render()
             .await
@@ -82,26 +80,21 @@ pub(crate) async fn list_get(
     }
 }
 
-// **< search_bar >*********************************************************************************
+// **< search_filter >******************************************************************************
 
-// Los atributos HTMX van en el formulario porque `with_prop()` de un campo los pondría en su
-// contenedor, que no enviaría el valor. `input` cubre también vaciar con la "x" del navegador.
-fn search_bar(route: RoutePath, current_query: Option<String>) -> Form {
-    Form::new()
-        .with_action(route.clone())
-        .with_method(form::Method::Get)
-        .with_prop(PropsOp::set(hx::GET, route.to_string()))
-        .with_prop(PropsOp::set(hx::TRIGGER, "input delay:400ms, submit"))
-        .with_prop(PropsOp::set(hx::TARGET, "#user-table-wrapper"))
-        .with_prop(PropsOp::set(hx::SWAP, hx::swap::OUTER_HTML_SCROLL_TOP))
-        .with_prop(PropsOp::set(hx::PUSH_URL, "true"))
-        .with_child(
-            form::input::Field::search()
-                .with_id("user-admin-search")
-                .with_name("q")
-                .with_value(current_query.unwrap_or_default())
-                .with_placeholder(Lc::t("field-search-users", &LOCALES_USER)),
-        )
+fn search_filter(current_query: Option<String>) -> ListFilter {
+    hx_filter::boost(
+        ListFilter::new()
+            .with_filter_action(ADMIN_USERS_PATH.as_str())
+            .with_field(
+                form::input::Field::search()
+                    .with_id("user-admin-search")
+                    .with_name("q")
+                    .with_value(current_query.unwrap_or_default())
+                    .with_placeholder(Lc::t("field-search-users", &LOCALES_USER)),
+            ),
+        "#user-table-wrapper",
+    )
 }
 
 // **< available_roles >****************************************************************************

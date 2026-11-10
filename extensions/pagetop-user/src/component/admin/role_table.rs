@@ -1,8 +1,8 @@
-//! Tabla de roles: cabeceras ordenables y filas con acciones.
+//! Listado de roles: cabeceras ordenables y filas con acciones, en un `ListView`.
 
 use pagetop::prelude::*;
-use pagetop_htmx::hx;
 use pagetop_htmx::hx_table::sort_link;
+use pagetop_htmx::{hx, hx_pager};
 
 use crate::ADMIN_ROLES_PATH;
 use crate::LOCALES_USER;
@@ -12,7 +12,6 @@ use crate::service::role_admin::{RoleListItem, RoleSortField};
 
 #[derive(AutoDefault, Clone, Debug, Getters)]
 pub(crate) struct RoleTable {
-    props: Props,
     items: Vec<RoleListItem>,
     sort: RoleSortField,
     dir: SortDir,
@@ -29,15 +28,6 @@ impl Component for RoleTable {
         Self::default()
     }
 
-    fn id(&self) -> Option<String> {
-        self.props.get_id()
-    }
-
-    fn setup(&mut self, _cx: &mut Context) {
-        self.alter_prop(PropsOp::set_id("role-table-wrapper"));
-        self.alter_prop(PropsOp::prepend_classes("user-admin-table-wrapper"));
-    }
-
     async fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
         let pager = Pager::new()
             .with_base_path(ADMIN_ROLES_PATH.as_str())
@@ -45,13 +35,7 @@ impl Component for RoleTable {
             .with_extra_query("dir", *self.dir())
             .with_current_page(self.page())
             .with_items_per_page(self.per_page())
-            .with_total_items(self.total())
-            .with_prop(PropsOp::set(hx::BOOST, "true"))
-            .with_prop(PropsOp::set(hx::TARGET, "#role-table-wrapper"))
-            .with_prop(PropsOp::set(hx::SWAP, hx::swap::OUTER_HTML_SCROLL_TOP))
-            .with_prop(PropsOp::set(hx::PUSH_URL, "true"))
-            .render(cx)
-            .await;
+            .with_total_items(self.total());
 
         let mut table = Table::new()
             .with_prop(PropsOp::add_classes("user-admin-table"))
@@ -61,21 +45,6 @@ impl Component for RoleTable {
             .with_column(Lc::t("col-users-count", &LOCALES_USER))
             .with_column(Lc::t("col-actions", &LOCALES_USER))
             .with_empty(Lc::t("empty-roles-list", &LOCALES_USER));
-
-        let confirm_dialog = Dialog::new()
-            .with_id("confirm-delete-role")
-            .with_child(Html::with(|cx| {
-                html! { p { (Lc::t("confirm-delete-role", &LOCALES_USER).using(cx)) } }
-            }))
-            .with_footer(
-                Button::plain(Lc::t("btn-cancel", &LOCALES_USER))
-                    .with_prop(PropsOp::set("data-dialog-dismiss", "modal")),
-            )
-            .with_footer(Html::with(
-                |_cx| html! { span id="role-delete-confirm-action" {} },
-            ))
-            .render(cx)
-            .await;
 
         let waypoint = Waypoint::from(self.list_href(cx));
 
@@ -119,31 +88,42 @@ impl Component for RoleTable {
 
         let new_href = waypoint.append_to(cx.route(util::join!(ADMIN_ROLES_PATH.as_str(), "/new")));
 
-        Ok(html! {
-            div (self.props().unpack(cx)) {
-                (Button::anchor(Lc::t("btn-create-role", &LOCALES_USER), new_href)
-                    .with_style(button::Style::Solid(Intent::Primary))
-                    .render(cx)
-                    .await)
-                @if let Some(message) = self.message() {
-                    div class="user-form-error" role="alert" { (message.clone().using(cx)) }
-                }
-                (table.render(cx).await)
-                (pager)
-                (confirm_dialog)
-            }
-        })
+        if let Some(message) = self.message() {
+            cx.push_message(MessageLevel::Error, message.clone());
+        }
+        let mut list = ListView::new()
+            .with_id("role-table-wrapper")
+            .with_action(
+                Button::anchor(Lc::t("btn-create-role", &LOCALES_USER), new_href)
+                    .with_style(button::Style::Solid(Intent::Primary)),
+            )
+            .with_table(table)
+            .with_pager(hx_pager::boost(pager, "#role-table-wrapper"));
+        Ok(list.render(cx).await)
     }
+}
+
+// Diálogo de confirmación de borrado, compartido por todas las filas: el botón de borrar de cada
+// una lo abre y carga en él su botón de confirmación (ver `delete_confirm_get` en los *handlers* de
+// roles). Va en la página, fuera del listado, para que HTMX no lo reemplace al actualizarlo.
+pub(crate) fn delete_dialog() -> Dialog {
+    Dialog::new()
+        .with_id("confirm-delete-role")
+        .with_child(Html::with(|cx| {
+            html! { p { (Lc::t("confirm-delete-role", &LOCALES_USER).using(cx)) } }
+        }))
+        .with_footer(
+            Button::plain(Lc::t("btn-cancel", &LOCALES_USER))
+                .with_prop(PropsOp::set("data-dialog-dismiss", "modal")),
+        )
+        .with_footer(Html::with(
+            |_cx| html! { span id="role-delete-confirm-action" {} },
+        ))
 }
 
 #[builder_impl]
 impl RoleTable {
     // **< RoleTable BUILDER >**********************************************************************
-
-    pub(crate) fn with_prop(mut self, op: impl Into<PropsOp>) -> Self {
-        self.props.alter_prop(op);
-        self
-    }
 
     pub(crate) fn with_items(mut self, items: Vec<RoleListItem>) -> Self {
         self.items = items;

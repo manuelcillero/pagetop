@@ -1,7 +1,7 @@
-//! Tabla de usuarios: cabeceras ordenables, filas y paginación embebida.
+//! Listado de usuarios: cabeceras ordenables, filas y paginación, en un `ListView`.
 
 use pagetop::prelude::*;
-use pagetop_htmx::hx;
+use pagetop_htmx::hx_pager;
 use pagetop_htmx::hx_table::sort_link;
 
 use crate::ADMIN_USERS_PATH;
@@ -12,7 +12,6 @@ use crate::user_path;
 
 #[derive(AutoDefault, Clone, Debug, Getters)]
 pub(crate) struct UserTable {
-    props: Props,
     items: Vec<UserListItem>,
     sort: UserSortField,
     dir: SortDir,
@@ -28,15 +27,6 @@ impl Component for UserTable {
         Self::default()
     }
 
-    fn id(&self) -> Option<String> {
-        self.props.get_id()
-    }
-
-    fn setup(&mut self, _cx: &mut Context) {
-        self.alter_prop(PropsOp::set_id("user-table-wrapper"));
-        self.alter_prop(PropsOp::prepend_classes("user-admin-table-wrapper"));
-    }
-
     async fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
         let pager = Pager::new()
             .with_base_path(ADMIN_USERS_PATH.as_str())
@@ -45,13 +35,7 @@ impl Component for UserTable {
             .with_extra_query("dir", *self.dir())
             .with_current_page(self.page())
             .with_items_per_page(self.per_page())
-            .with_total_items(self.total())
-            .with_prop(PropsOp::set(hx::BOOST, "true"))
-            .with_prop(PropsOp::set(hx::TARGET, "#user-table-wrapper"))
-            .with_prop(PropsOp::set(hx::SWAP, hx::swap::OUTER_HTML_SCROLL_TOP))
-            .with_prop(PropsOp::set(hx::PUSH_URL, "true"))
-            .render(cx)
-            .await;
+            .with_total_items(self.total());
 
         let mut table = Table::new()
             .with_prop(PropsOp::add_classes("user-admin-table"))
@@ -85,27 +69,21 @@ impl Component for UserTable {
 
         let new_href = waypoint.append_to(cx.route(util::join!(ADMIN_USERS_PATH.as_str(), "/new")));
 
-        Ok(html! {
-            div (self.props().unpack(cx)) {
-                (Button::anchor(Lc::t("btn-create-user", &LOCALES_USER), new_href)
-                    .with_style(button::Style::Solid(Intent::Primary))
-                    .render(cx)
-                    .await)
-                (table.render(cx).await)
-                (pager)
-            }
-        })
+        let mut list = ListView::new()
+            .with_id("user-table-wrapper")
+            .with_action(
+                Button::anchor(Lc::t("btn-create-user", &LOCALES_USER), new_href)
+                    .with_style(button::Style::Solid(Intent::Primary)),
+            )
+            .with_table(table)
+            .with_pager(hx_pager::boost(pager, "#user-table-wrapper"));
+        Ok(list.render(cx).await)
     }
 }
 
 #[builder_impl]
 impl UserTable {
     // **< UserTable BUILDER >**********************************************************************
-
-    pub(crate) fn with_prop(mut self, op: impl Into<PropsOp>) -> Self {
-        self.props.alter_prop(op);
-        self
-    }
 
     pub(crate) fn with_items(mut self, items: Vec<UserListItem>) -> Self {
         self.items = items;

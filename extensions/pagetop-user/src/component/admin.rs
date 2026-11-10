@@ -12,7 +12,7 @@ mod user_table;
 pub(crate) use admin_password_form::AdminPasswordForm;
 pub(crate) use role_form::{RoleForm, RoleFormMode};
 pub(crate) use role_permissions_form::RolePermissionsForm;
-pub(crate) use role_table::RoleTable;
+pub(crate) use role_table::{RoleTable, delete_dialog};
 pub(crate) use user_form::{UserForm, UserFormMode};
 pub(crate) use user_table::{UserTable, status_key};
 

@@ -47,7 +47,9 @@ impl Extension for MyApp {
 ```
 
 A partir de ese momento, todas las páginas de la aplicación incluirán automáticamente el script de
-HTMX 2. Puedes usar los atributos `hx-*` directamente en tus componentes o el código HTML generado:
+HTMX 2, y las que tengan algún listado (`ListView`), unos pocos estilos que lo atenúan mientras
+se actualiza. Puedes usar los atributos `hx-*` directamente en tus componentes o el código HTML
+generado:
 
 ```rust
 use pagetop::prelude::*;

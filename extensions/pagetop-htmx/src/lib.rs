@@ -48,7 +48,9 @@ impl Extension for MyApp {
 ```
 
 A partir de ese momento, todas las páginas de la aplicación incluirán automáticamente el script de
-HTMX 2. Puedes usar los atributos `hx-*` directamente en tus componentes o el código HTML generado:
+HTMX 2, y las que tengan algún listado ([`ListView`]), unos pocos estilos que lo atenúan mientras
+se actualiza. Puedes usar los atributos `hx-*` directamente en tus componentes o el código HTML
+generado:
 
 ```rust
 use pagetop::prelude::*;
@@ -92,6 +94,7 @@ use pagetop::prelude::*;
 include_locales!(LOCALES_HTMX);
 
 pub mod hx;
+pub mod hx_filter;
 pub mod hx_pager;
 pub mod hx_table;
 pub mod request;
@@ -100,6 +103,7 @@ pub mod response;
 /// Prelude de `pagetop-htmx`.
 pub mod prelude {
     pub use crate::hx;
+    pub use crate::hx_filter;
     pub use crate::hx_pager;
     pub use crate::hx_table;
     pub use crate::request::HtmxRequestExt;
@@ -110,8 +114,9 @@ pub mod prelude {
 ///
 /// Poner esta extensión en [`dependencies()`](pagetop::core::extension::Extension::dependencies)
 /// hace que todas las páginas de la aplicación incluyan automáticamente el script de HTMX mediante
-/// un atributo [`defer`](pagetop::html::JavaScript::defer). No es necesaria ninguna configuración
-/// adicional.
+/// un atributo [`defer`](pagetop::html::JavaScript::defer), y las que tienen algún listado
+/// ([`ListView`]), los estilos con los que se atenúa mientras se actualiza. No es necesaria ninguna
+/// configuración adicional.
 ///
 /// # Ejemplo
 ///
@@ -144,7 +149,10 @@ impl Extension for Htmx {
     }
 
     fn actions(&self) -> Vec<ActionBox> {
-        actions![action::page::BeforeRenderBody::new(add_htmx_script)]
+        actions![
+            action::page::BeforeRenderBody::new(add_htmx_script),
+            action::component::BeforeRender::<ListView>::new(add_list_loading_styles),
+        ]
     }
 
     fn configure_static_files(&self, files: StaticFiles) -> StaticFiles {
@@ -155,4 +163,20 @@ impl Extension for Htmx {
 
 fn add_htmx_script(page: &mut Page) {
     page.alter_assets(JavaScript::defer("/htmx/js/htmx.min.js").with_version("2.0.10"));
+}
+
+// Mientras los helpers de listado (filtros, paginador, cabeceras ordenables) esperan una respuesta,
+// HTMX pone la clase `htmx-request` en el listado: se atenúa para que se vea que está cargando. El
+// retardo evita el parpadeo cuando la respuesta es rápida. Sólo en las páginas con algún listado.
+fn add_list_loading_styles(_list: &mut ListView, cx: &mut Context) {
+    cx.alter_assets(AssetsOp::add_responsive_styles(
+        None,
+        "list-view",
+        [("transition", "opacity 0.2s ease-in-out 0.15s")],
+    ));
+    cx.alter_assets(AssetsOp::add_responsive_styles(
+        None,
+        "list-view htmx-request",
+        [("opacity", "0.5")],
+    ));
 }

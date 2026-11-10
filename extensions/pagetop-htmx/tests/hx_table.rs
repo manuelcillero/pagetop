@@ -15,7 +15,7 @@ async fn render_column(column: table::Column) -> String {
 // **< sort_link() - htmx attributes >**************************************************************
 
 #[pagetop::test]
-async fn sort_link_sets_the_four_fixed_htmx_attributes() {
+async fn sort_link_sets_the_fixed_htmx_attributes() {
     let column = table::Column::new(Lc::n("User")).with_sort(hx_table::sort_link(
         "/admin/users",
         "#user-table",

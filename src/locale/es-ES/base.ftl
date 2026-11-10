@@ -48,6 +48,18 @@ intro_text2 = PageTop reivindica la esencia de la web clásica, renderiza en el 
 intro_code = Código
 intro_have_fun = Programar es crear
 
+# ListFilter component.
+list_filter_submit = Filtrar
+list_filter_reset = Limpiar
+list_filter_pending = Hay filtros sin aplicar
+
+# ListView component.
+list_view_summary = { $count ->
+    [0] Ningún resultado
+    [one] 1 resultado
+   *[other] { $count } resultados
+}
+
 # Navbar component.
 navbar_toggle = Alternar navegación
 

@@ -57,6 +57,12 @@ pub mod intro;
 #[doc(inline)]
 pub use intro::Intro;
 
+mod list_filter;
+pub use list_filter::ListFilter;
+
+mod list_view;
+pub use list_view::ListView;
+
 mod messages;
 pub use messages::Messages;
 

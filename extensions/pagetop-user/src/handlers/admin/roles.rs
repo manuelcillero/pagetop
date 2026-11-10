@@ -8,7 +8,7 @@ use pagetop_htmx::prelude::*;
 use crate::ADMIN_ROLES_PATH;
 use crate::LOCALES_USER;
 use crate::component::admin::{
-    PermissionGroups, RoleForm, RoleFormMode, RolePermissionsForm, RoleTable,
+    PermissionGroups, RoleForm, RoleFormMode, RolePermissionsForm, RoleTable, delete_dialog,
 };
 use crate::config::SETTINGS;
 use crate::entity::role;
@@ -62,6 +62,7 @@ pub(crate) async fn list_get(
         Ok(Page::admin(request)
             .with_title(title)
             .with_child(table)
+            .with_child(delete_dialog())
             .render()
             .await
             .into_response())
@@ -403,7 +404,7 @@ pub(crate) async fn delete_post(
 
 /// GET /admin/user/roles/{id}/delete/confirm - Botón de confirmación de borrado para esta fila,
 /// insertado vía htmx en el diálogo de confirmación compartido por toda la tabla (ver
-/// `RoleTable`), con la URL de borrado de este rol ya incrustada.
+/// `delete_dialog()`), con la URL de borrado de este rol ya incrustada.
 ///
 /// Propaga `sort`/`dir`/`page` (recibidos como query string desde la propia fila) hacia la URL de
 /// borrado, para que `delete_post` pueda volver a mostrar la misma página tras el borrado, en vez

@@ -1,0 +1,59 @@
+// List filters (ListFilter): fields and button on one row, wrapping when there is no room.
+.list-filter {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 0.5rem 1rem;
+    margin-bottom: 1rem;
+}
+
+.list-filter > .form-field {
+    margin-bottom: 0;
+}
+
+// Marks of changed filters not applied yet (filters with a button), set by `list-filter.js`. Only
+// colors and opacity change, never sizes: the dot always takes its room, hidden, so nothing moves
+// when it shows up. A vivid orange, set apart from the primary color of the button, darkened just
+// enough to keep a 3:1 contrast against the background. Every changed field gets the dot by its
+// label, once per field (on the title of a group); text fields and dropdowns also show a gray
+// background.
+.list-filter {
+    --list-filter-mark: color-mix(in srgb, #fd7e14 85%, black);
+}
+
+.list-filter .form-field > .form-label::after,
+.list-filter .form-field.form-check > .form-check-label::after {
+    content: "\25CF" / "";
+    margin-left: 0.25em;
+    color: var(--list-filter-mark);
+    opacity: 0;
+}
+
+.list-filter .list-filter-changed > .form-label::after,
+.list-filter .list-filter-changed.form-check > .form-check-label::after {
+    opacity: 1;
+}
+
+.list-filter .list-filter-changed .form-control,
+.list-filter .list-filter-changed .form-select {
+    background-color: color-mix(in srgb, var(--val-color--bg--muted) 60%, #fff);
+}
+
+// Native checkboxes only take a color when checked; a switch is drawn by the theme.
+.list-filter .list-filter-changed .form-check-input {
+    accent-color: var(--list-filter-mark);
+}
+
+.list-filter .list-filter-changed.form-switch .form-check-input:checked {
+    background-color: var(--list-filter-mark);
+}
+
+.list-filter-pending > button[type="submit"] {
+    background-color: var(--val-color--primary);
+    border-color: var(--val-color--primary);
+}
+
+.list-filter-pending > button[type="submit"]:hover {
+    background-color: color-mix(in srgb, var(--val-color--primary) 85%, black);
+    border-color: color-mix(in srgb, var(--val-color--primary) 85%, black);
+}

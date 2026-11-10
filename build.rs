@@ -23,6 +23,12 @@ fn main() -> std::io::Result<()> {
         "static/js/basic.dialog.min.js",
     )?;
 
+    // JS: minifica el aviso del resumen de `ListView` a los lectores de pantalla.
+    minify_js("assets/js/list-view.js", "static/js/list-view.min.js")?;
+
+    // JS: minifica las marcas de cambios sin aplicar de `ListFilter`, independientes del tema.
+    minify_js("assets/js/list-filter.js", "static/js/list-filter.min.js")?;
+
     // JS: minifica la integración de `Dropdown` con `accessible-menu` del tema Basic.
     minify_js(
         "assets/js/basic.dropdown.init.js",

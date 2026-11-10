@@ -10,13 +10,22 @@ impl Extension for TestApp {
     }
 
     fn configure_router(&self, routes: Routes) -> Routes {
-        routes.public_route("/page", web::get(render_page))
+        routes
+            .public_route("/page", web::get(render_page))
+            .public_route("/list", web::get(render_list))
     }
 }
 
 async fn render_page(request: HttpRequest) -> Result<Markup, ErrorPage> {
     Page::new(request)
         .with_child(Html::with(|_| html! { p { "hello" } }))
+        .render()
+        .await
+}
+
+async fn render_list(request: HttpRequest) -> Result<Markup, ErrorPage> {
+    Page::new(request)
+        .with_child(ListView::new().with_table(Table::new().with_column(Lc::n("Name"))))
         .render()
         .await
 }
@@ -59,4 +68,23 @@ async fn rendered_pages_automatically_include_the_pinned_htmx_script_tag() {
     assert!(body.contains(r#"src="/htmx/js/htmx.min.js?v=2.0.10""#));
     assert!(body.contains("defer"));
     assert!(body.contains("<p>hello</p>"));
+}
+
+// **< List loading styles >************************************************************************
+
+#[pagetop::test]
+async fn pages_with_a_list_embed_the_list_loading_styles_and_others_do_not() {
+    let app = web::test::init_router(Application::prepare(&TestApp).await.test());
+
+    let req = web::test::TestRequest::get().uri("/list").to_request();
+    let body = web::test::read_body_text(web::test::send_request(&app, req).await).await;
+    // HTMX sets `htmx-request` on the element named by `hx-indicator`: the list.
+    assert!(
+        body.contains(".list-view.htmx-request{opacity:0.5}"),
+        "{body}"
+    );
+
+    let req = web::test::TestRequest::get().uri("/page").to_request();
+    let body = web::test::read_body_text(web::test::send_request(&app, req).await).await;
+    assert!(!body.contains("htmx-request"), "{body}");
 }
