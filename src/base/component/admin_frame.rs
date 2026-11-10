@@ -1,7 +1,6 @@
 use crate::prelude::*;
 
-/// Marco de una página del panel de administración, alrededor de la región
-/// [`CoreRegions::Content`].
+/// Marco de las páginas de administración, alrededor de [`CoreRegions::Content`].
 ///
 /// Pinta, para la ruta de la petición actual, las migas de pan del panel, el título de la página
 /// ([`Contextual::title()`]) con sus botones de acción ([`AdminAction`]), las pestañas de la
