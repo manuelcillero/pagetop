@@ -21,13 +21,16 @@ use crate::base::component::form;
 ///
 /// Por defecto, los filtros **no** se envían solos: se aplican al pulsar el botón (o Enter en un
 /// campo de texto), de modo que se pueden ajustar varios campos y pedir el listado una sola vez.
-/// Con [`with_auto_submit(true)`](Self::with_auto_submit) se aplican en cuanto cambia cualquier
-/// campo, sin botón.
+/// Con [`with_auto_submit(true)`] se aplican en cuanto cambia cualquier campo, sin botón.
 ///
-/// Junto al botón aparece por defecto el enlace "Limpiar", que vuelve a la ruta del filtro sin
-/// ningún parámetro: el listado tal como se ve al entrar, también sin orden ni página. Recarga la
-/// página entera, para que los campos del filtro se vacíen también. Se quita con
-/// [`with_reset(false)`](Self::with_reset).
+/// Junto al botón aparece por defecto el enlace "Limpiar", que muestra el listado limpio: sin
+/// filtros y con el orden y la página por defecto. Recarga la página entera para que también se
+/// vacíen los campos del filtro. Se puede quitar con [`with_reset(false)`].
+///
+/// "Limpiar" apunta a la ruta del filtro con el parámetro `reset` (p. ej. `/items?reset`, más
+/// `lang` si la ruta lo lleva). Si el listado se monta con [`web::remember_query()`], ese parámetro
+/// hace además que olvide el estado que recordaba. Si no, el *handler* lo recibe como un parámetro
+/// más y lo ignora, salvo que rechace los desconocidos (`#[serde(deny_unknown_fields)]`).
 ///
 /// Con el botón, y si hay JavaScript, cada campo cuyo valor ya no coincide con el del filtro
 /// aplicado se marca (clase `list-filter-changed` en su contenedor, `list-filter-pending` en el
@@ -57,6 +60,9 @@ use crate::base::component::form;
 ///
 /// [`with_filter_action()`]: Self::with_filter_action
 /// [`with_prop()`]: Self::with_prop
+/// [`with_auto_submit(true)`]: Self::with_auto_submit
+/// [`with_reset(false)`]: Self::with_reset
+/// [`web::remember_query()`]: crate::web::remember_query
 #[derive(AutoDefault, Clone, Debug, Getters)]
 pub struct ListFilter {
     /// Devuelve identificador, clases CSS, atributos HTML y valores extra del componente.
@@ -111,7 +117,7 @@ impl Component for ListFilter {
         // campos, que no se volverían a pintar si sólo se actualizara el listado.
         let reset = match (&action, self.reset()) {
             (Some(route), true) => Some(
-                Button::anchor(Lc::l("list_filter_reset"), route.clone())
+                Button::anchor(Lc::l("list_filter_reset"), route.clone().with_flag("reset"))
                     .with_style(button::Style::Link)
                     .with_prop(PropsOp::set("target", "_top"))
                     .render(cx)

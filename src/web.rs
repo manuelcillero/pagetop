@@ -77,6 +77,10 @@ pub use routes::{Layers, Routes, StaticFiles};
 mod endpoint;
 pub use endpoint::Endpoint;
 
+// Estado de los listados (filtros, orden, página) recordado entre pantallas.
+mod remember;
+pub use remember::remember_query;
+
 use axum::body::Body;
 use axum::extract::FromRequestParts;
 

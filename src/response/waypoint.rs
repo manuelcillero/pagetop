@@ -12,10 +12,12 @@ use crate::html::RoutePath;
 /// página a la que ir para continuar.
 ///
 /// `Waypoint` transporta ese valor a través de la cadena de pantallas. Se extrae de la petición
-/// entrante con [`web::Query`](crate::web::Query), igual que cualquier otro parámetro, y se repone
-/// en cada enlace o acción de formulario intermedia con [`append_to()`](Self::append_to) para que
-/// sobreviva a la siguiente petición. Se resuelve con [`or()`](Self::or) al decidir el destino de
-/// un enlace de vuelta o de una redirección.
+/// entrante con [`web::Query`], igual que cualquier otro parámetro, y se repone en cada enlace o
+/// acción de formulario intermedia con [`append_to()`] para que sobreviva a la siguiente petición.
+/// Se resuelve con [`or()`] al decidir el destino de un enlace de vuelta o de una redirección.
+///
+/// Para volver a un listado con los filtros, el orden y la página en que se dejó no hace falta
+/// transportarlo: basta con montar su ruta con [`web::remember_query()`].
 ///
 /// # Ejemplo
 ///
@@ -42,6 +44,11 @@ use crate::html::RoutePath;
 ///     Redirect::see_other(waypoint.or(ITEMS_PATH))
 /// }
 /// ```
+///
+/// [`append_to()`]: Self::append_to
+/// [`or()`]: Self::or
+/// [`web::Query`]: crate::web::Query
+/// [`web::remember_query()`]: crate::web::remember_query
 #[derive(AutoDefault, Clone, Debug, Deserialize)]
 #[serde(from = "RawWaypoint")]
 pub struct Waypoint {

@@ -77,7 +77,8 @@ async fn the_reset_link_goes_back_to_the_list_with_no_filters() {
         .find("<a")
         .map(|start| &html[start..])
         .expect("reset link");
-    assert!(link.contains(r#"href="/items""#), "{html}");
+    // `reset` also forgets the state a list may remember with `web::remember_query()`.
+    assert!(link.contains(r#"href="/items?reset""#), "{html}");
     // Not intercepted by libraries that load only part of the page, so the fields are emptied too.
     assert!(link.contains(r#"target="_top""#), "{html}");
 }
