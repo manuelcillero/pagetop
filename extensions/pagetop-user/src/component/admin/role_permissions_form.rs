@@ -17,8 +17,6 @@ pub(crate) struct RolePermissionsForm {
     role_id: i32,
     error: Option<Lc>,
     groups: PermissionGroups,
-    /// Listado de origen al que volver tras guardar (orden).
-    waypoint: Waypoint,
 }
 
 #[async_trait]
@@ -29,7 +27,7 @@ impl Component for RolePermissionsForm {
 
     async fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
         let action = role_path(self.role_id(), "permissions");
-        let action = self.waypoint().append_to(cx.route(action));
+        let action = cx.route(action);
 
         let mut form = Form::new()
             .with_id("role-permissions-form")
@@ -56,7 +54,7 @@ impl Component for RolePermissionsForm {
 
         form = form.with_child(form_actions(
             Lc::t("btn-save", &LOCALES_USER),
-            self.waypoint().or(cx.route(ADMIN_ROLES_PATH.as_str())),
+            cx.route(ADMIN_ROLES_PATH.as_str()),
         ));
 
         Ok(form.render(cx).await)
@@ -79,11 +77,6 @@ impl RolePermissionsForm {
 
     pub(crate) fn with_groups(mut self, groups: PermissionGroups) -> Self {
         self.groups = groups;
-        self
-    }
-
-    pub(crate) fn with_waypoint(mut self, waypoint: impl Into<Waypoint>) -> Self {
-        self.waypoint = waypoint.into();
         self
     }
 }

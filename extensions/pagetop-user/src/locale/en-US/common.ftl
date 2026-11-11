@@ -226,6 +226,8 @@ help-password-min-length = At least { $n } characters.
 
 help-email-readonly = To change it, use "Change email" in your profile.
 
+help-remember-me = Keeps you signed in using a cookie. Do not check on a shared device.
+
 help-machine-name-immutable =
     Lowercase letters, digits and underscores only. Cannot be changed after creation.
 

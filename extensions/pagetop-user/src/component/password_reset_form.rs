@@ -30,7 +30,10 @@ impl Component for PasswordResetForm {
                     .with_autofocus(true)
                     .with_required(true),
             )
-            .with_child(Button::submit(Lc::t("btn-send-reset-link", &LOCALES_USER)))
+            .with_child(
+                Button::submit(Lc::t("btn-send-reset-link", &LOCALES_USER))
+                    .with_style(button::Style::Solid(Intent::Primary)),
+            )
             .with_child(back_to_login());
 
         Ok(form.render(cx).await)

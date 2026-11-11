@@ -27,7 +27,10 @@ impl Component for PasswordResetConfirmForm {
                 PasswordConfirm::new()
                     .with_password_label(Lc::t("field-new-password", &LOCALES_USER)),
             )
-            .with_child(Button::submit(Lc::t("btn-set-password", &LOCALES_USER)));
+            .with_child(
+                Button::submit(Lc::t("btn-set-password", &LOCALES_USER))
+                    .with_style(button::Style::Solid(Intent::Primary)),
+            );
 
         Ok(form.render(cx).await)
     }

@@ -125,7 +125,7 @@ fn parse_role_ids(role_ids: &[String]) -> Vec<i32> {
 
 // Carga el usuario y comprueba que quien hace la petición puede gestionarlo. La cuenta de un
 // administrador sólo la gestiona otro administrador: si no, quien administra usuarios podría
-// apoderarse de ella (p. ej. restableciendo su contraseña) y obtener acceso irrestricto, que sólo
+// apoderarse de ella (p. ej. restableciendo su contraseña) y obtener acceso total, que sólo
 // un administrador puede conceder.
 async fn require_manageable(request: &HttpRequest, id: i32) -> Result<user::Model, ErrorPage> {
     let Ok(user) = user_admin::find_user(id).await else {
@@ -140,10 +140,7 @@ async fn require_manageable(request: &HttpRequest, id: i32) -> Result<user::Mode
 // **< new_get / new_post >*************************************************************************
 
 /// GET /admin/user/users/new - Formulario de alta de usuario.
-pub(crate) async fn new_get(
-    request: HttpRequest,
-    web::Query(waypoint): web::Query<Waypoint>,
-) -> Result<Response, ErrorPage> {
+pub(crate) async fn new_get(request: HttpRequest) -> Result<Response, ErrorPage> {
     let roles = match available_roles(&[]).await {
         Ok(roles) => roles,
         Err(_) => return Err(ErrorPage::InternalError(request)),
@@ -159,8 +156,7 @@ pub(crate) async fn new_get(
             UserForm::new()
                 .with_mode(UserFormMode::New)
                 .with_roles(roles)
-                .with_allow_admin_field(allow_admin_field)
-                .with_waypoint(waypoint),
+                .with_allow_admin_field(allow_admin_field),
         )
         .render()
         .await
@@ -193,7 +189,6 @@ pub(crate) struct NewUserFormData {
 /// deserializa claves repetidas como `role_ids=2&role_ids=3` en un `Vec<T>`).
 pub(crate) async fn new_post(
     request: HttpRequest,
-    web::Query(waypoint): web::Query<Waypoint>,
     raw: web::RawForm,
 ) -> Result<Response, ErrorPage> {
     let Ok(form) = serde_qs::from_bytes::<NewUserFormData>(&raw.0) else {
@@ -222,7 +217,7 @@ pub(crate) async fn new_post(
     match result {
         Ok(_) => {
             let cx = Context::admin(request);
-            let target = waypoint.or(cx.route(ADMIN_USERS_PATH.as_str()));
+            let target = cx.route(ADMIN_USERS_PATH.as_str());
             Ok(Redirect::see_other(target).into_response())
         }
         Err(err) => {
@@ -239,8 +234,7 @@ pub(crate) async fn new_post(
                 .with_roles(roles)
                 .with_allow_admin_field(allow_admin_field)
                 .with_is_admin(is_admin)
-                .with_error(map_auth_error(&err))
-                .with_waypoint(waypoint);
+                .with_error(map_auth_error(&err));
             let title = Lc::t("title-admin-user-new", &LOCALES_USER);
             Ok(page
                 .with_title(title)
@@ -255,12 +249,7 @@ pub(crate) async fn new_post(
 // **< edit_get / edit_post >***********************************************************************
 
 // Pantalla de edición con el formulario relleno con los datos guardados del usuario.
-async fn render_user_edit(
-    request: HttpRequest,
-    id: i32,
-    error: Option<Lc>,
-    waypoint: Waypoint,
-) -> Response {
+async fn render_user_edit(request: HttpRequest, id: i32, error: Option<Lc>) -> Response {
     let user = match user_admin::find_user(id).await {
         Ok(user) => user,
         Err(_) => return ErrorPage::NotFound(request).into_response(),
@@ -285,7 +274,7 @@ async fn render_user_edit(
         .with_theme(user.theme.unwrap_or_default())
         .with_roles(roles)
         .with_error(error);
-    render_edit_page(request, id, status, is_admin, form, waypoint).await
+    render_edit_page(request, id, status, is_admin, form).await
 }
 
 // Pantalla de edición del usuario `id` con `form` ya relleno, sea con los datos guardados o con los
@@ -297,7 +286,6 @@ async fn render_edit_page(
     status: UserStatus,
     is_admin: bool,
     form: UserForm,
-    waypoint: Waypoint,
 ) -> Response {
     // El botón de conceder/revocar sólo se muestra si quien lo ve ya es administrador y no está
     // viendo su propio perfil: no es un permiso del catálogo, y nadie puede automodificarse el flag
@@ -315,16 +303,11 @@ async fn render_edit_page(
         is_admin,
         can_toggle_admin,
         can_change_status,
-        &waypoint,
         page.context_mut(),
     );
 
     page.with_title(title)
-        .with_child(
-            form.with_mode(UserFormMode::Edit)
-                .with_user_id(Some(id))
-                .with_waypoint(waypoint.clone()),
-        )
+        .with_child(form.with_mode(UserFormMode::Edit).with_user_id(Some(id)))
         .with_child(actions)
         .render()
         .await
@@ -333,9 +316,7 @@ async fn render_edit_page(
 
 // Botonera de la edición: "Guardar", "Cancelar", el enlace a la pantalla de restablecer contraseña
 // y los botones de bloqueo/activación (sólo si `can_change_status`) y de concesión/revocación de
-// acceso irrestricto (sólo si `can_toggle_admin`). El listado de origen (`waypoint`) se arrastra a
-// todas ellas para que, al volver aquí, esta misma pantalla siga sabiendo devolver al listado en el
-// estado en que se dejó.
+// acceso total (sólo si `can_toggle_admin`).
 //
 // "Guardar" (envía el `<form>` de `UserForm` vía el atributo `form`, ver `USER_ADMIN_FORM_ID`),
 // "Cancelar" y "Restablecer contraseña" son botones sueltos; bloqueo/activación y
@@ -348,7 +329,6 @@ fn edit_actions(
     target_is_admin: bool,
     can_toggle_admin: bool,
     can_change_status: bool,
-    waypoint: &Waypoint,
     cx: &mut Context,
 ) -> Flex {
     // Una cuenta pendiente de verificar su email también se puede activar directamente, p. ej. si
@@ -363,9 +343,9 @@ fn edit_actions(
         ("true", "btn-grant-admin", "confirm-grant-admin")
     };
 
-    let password_href = waypoint.append_to(cx.route(user_path(user_id, "password")));
-    let status_action = waypoint.append_to(cx.route(user_path(user_id, "status")));
-    let admin_action = waypoint.append_to(cx.route(user_path(user_id, "admin")));
+    let password_href = cx.route(user_path(user_id, "password"));
+    let status_action = cx.route(user_path(user_id, "status"));
+    let admin_action = cx.route(user_path(user_id, "admin"));
 
     let mut status_form = Form::new()
         .with_action(status_action.clone())
@@ -389,9 +369,7 @@ fn edit_actions(
                 .with_style(button::Style::Solid(Intent::Primary))
                 .with_prop(PropsOp::set("form", USER_ADMIN_FORM_ID)),
         )
-        .with_child(cancel_link(
-            waypoint.or(cx.route(ADMIN_USERS_PATH.as_str())),
-        ))
+        .with_child(cancel_link(cx.route(ADMIN_USERS_PATH.as_str())))
         .with_child(
             Button::anchor(Lc::t("btn-reset-password", &LOCALES_USER), password_href)
                 .with_style(button::Style::Solid(Intent::Neutral)),
@@ -422,10 +400,9 @@ fn edit_actions(
 pub(crate) async fn edit_get(
     request: HttpRequest,
     web::Path(id): web::Path<i32>,
-    web::Query(waypoint): web::Query<Waypoint>,
 ) -> Result<Response, ErrorPage> {
     require_manageable(&request, id).await?;
-    Ok(render_user_edit(request, id, None, waypoint).await)
+    Ok(render_user_edit(request, id, None).await)
 }
 
 #[derive(Deserialize)]
@@ -452,7 +429,6 @@ pub(crate) struct EditUserFormData {
 pub(crate) async fn edit_post(
     request: HttpRequest,
     web::Path(id): web::Path<i32>,
-    web::Query(waypoint): web::Query<Waypoint>,
     raw: web::RawForm,
 ) -> Result<Response, ErrorPage> {
     let user = require_manageable(&request, id).await?;
@@ -481,7 +457,7 @@ pub(crate) async fn edit_post(
     match result {
         Ok(()) => {
             let cx = Context::admin(request);
-            let target = waypoint.or(cx.route(ADMIN_USERS_PATH.as_str()));
+            let target = cx.route(ADMIN_USERS_PATH.as_str());
             Ok(Redirect::see_other(target).into_response())
         }
         Err(err) => {
@@ -497,7 +473,7 @@ pub(crate) async fn edit_post(
                 .with_theme(form.theme)
                 .with_roles(roles)
                 .with_error(map_auth_error(&err));
-            Ok(render_edit_page(request, id, status, user.is_admin, form, waypoint).await)
+            Ok(render_edit_page(request, id, status, user.is_admin, form).await)
         }
     }
 }
@@ -509,7 +485,6 @@ pub(crate) async fn edit_post(
 pub(crate) async fn view_get(
     request: HttpRequest,
     web::Path(id): web::Path<i32>,
-    web::Query(waypoint): web::Query<Waypoint>,
 ) -> Result<Response, ErrorPage> {
     let user = match user_admin::find_user(id).await {
         Ok(user) => user,
@@ -521,7 +496,7 @@ pub(crate) async fn view_get(
     };
 
     let mut page = Page::admin(request);
-    let back_href = waypoint.or(page.route(ADMIN_USERS_PATH.as_str()));
+    let back_href = page.route(ADMIN_USERS_PATH.as_str());
     let details_block = user_details(&user, page.context_mut()).await;
     let roles_block = user_view_roles(&roles, user.is_admin, page.context_mut()).await;
 
@@ -608,7 +583,6 @@ pub(crate) struct StatusFormData {
 pub(crate) async fn status_post(
     request: HttpRequest,
     web::Path(id): web::Path<i32>,
-    web::Query(waypoint): web::Query<Waypoint>,
     web::Form(form): web::Form<StatusFormData>,
 ) -> Result<Response, ErrorPage> {
     require_permission(&request, &UserPermission::BlockAccounts)?;
@@ -629,14 +603,14 @@ pub(crate) async fn status_post(
     match user_admin::set_user_status(id, new_status, account.id()).await {
         Ok(()) => {
             let cx = Context::admin(request);
-            let edit_href = waypoint.append_to(cx.route(user_path(id, "edit")));
+            let edit_href = cx.route(user_path(id, "edit"));
             if is_htmx {
                 Ok(HtmxResponse::empty().redirect(edit_href).into_response())
             } else {
                 Ok(Redirect::see_other(edit_href).into_response())
             }
         }
-        Err(err) => Ok(render_user_edit(request, id, Some(map_auth_error(&err)), waypoint).await),
+        Err(err) => Ok(render_user_edit(request, id, Some(map_auth_error(&err))).await),
     }
 }
 
@@ -647,7 +621,7 @@ pub(crate) struct AdminFormData {
     is_admin: String,
 }
 
-/// POST /admin/user/users/{id}/admin - Concede o revoca el acceso irrestricto (`is_admin`).
+/// POST /admin/user/users/{id}/admin - Concede o revoca el acceso total (`is_admin`).
 ///
 /// No pasa por `require_permission`: conceder o revocar este flag no es un permiso del catálogo,
 /// se comprueba directamente contra `account.is_admin()` para que sólo un administrador pueda
@@ -655,7 +629,6 @@ pub(crate) struct AdminFormData {
 pub(crate) async fn admin_post(
     request: HttpRequest,
     web::Path(id): web::Path<i32>,
-    web::Query(waypoint): web::Query<Waypoint>,
     web::Form(form): web::Form<AdminFormData>,
 ) -> Result<Response, ErrorPage> {
     let Some(account) = request.extension::<Account>().cloned() else {
@@ -676,14 +649,14 @@ pub(crate) async fn admin_post(
     match user_admin::set_user_admin(id, new_is_admin, account.id()).await {
         Ok(()) => {
             let cx = Context::admin(request);
-            let edit_href = waypoint.append_to(cx.route(user_path(id, "edit")));
+            let edit_href = cx.route(user_path(id, "edit"));
             if is_htmx {
                 Ok(HtmxResponse::empty().redirect(edit_href).into_response())
             } else {
                 Ok(Redirect::see_other(edit_href).into_response())
             }
         }
-        Err(err) => Ok(render_user_edit(request, id, Some(map_auth_error(&err)), waypoint).await),
+        Err(err) => Ok(render_user_edit(request, id, Some(map_auth_error(&err))).await),
     }
 }
 
@@ -694,7 +667,6 @@ pub(crate) async fn admin_post(
 pub(crate) async fn password_get(
     request: HttpRequest,
     web::Path(id): web::Path<i32>,
-    web::Query(waypoint): web::Query<Waypoint>,
 ) -> Result<Response, ErrorPage> {
     let user = require_manageable(&request, id).await?;
     let page = Page::admin(request);
@@ -702,11 +674,7 @@ pub(crate) async fn password_get(
     Ok(page
         .with_title(title)
         .with_child(user_summary(&user))
-        .with_child(
-            AdminPasswordForm::new()
-                .with_user_id(id)
-                .with_waypoint(waypoint),
-        )
+        .with_child(AdminPasswordForm::new().with_user_id(id))
         .render()
         .await
         .into_response())
@@ -723,7 +691,6 @@ pub(crate) struct AdminPasswordFormData {
 pub(crate) async fn password_post(
     request: HttpRequest,
     web::Path(id): web::Path<i32>,
-    web::Query(waypoint): web::Query<Waypoint>,
     web::Form(form): web::Form<AdminPasswordFormData>,
 ) -> Result<Response, ErrorPage> {
     let user = require_manageable(&request, id).await?;
@@ -737,7 +704,7 @@ pub(crate) async fn password_post(
         Ok(user) => {
             send_notice(&request, Notice::PasswordChangedByAdmin, &user);
             let cx = Context::admin(request);
-            let edit_href = waypoint.append_to(cx.route(user_path(id, "edit")));
+            let edit_href = cx.route(user_path(id, "edit"));
             Ok(Redirect::see_other(edit_href).into_response())
         }
         Err(err) => {
@@ -749,8 +716,7 @@ pub(crate) async fn password_post(
                 .with_child(
                     AdminPasswordForm::new()
                         .with_user_id(id)
-                        .with_error(map_auth_error(&err))
-                        .with_waypoint(waypoint),
+                        .with_error(map_auth_error(&err)),
                 )
                 .render()
                 .await

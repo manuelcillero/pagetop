@@ -27,8 +27,6 @@ pub(crate) struct UserForm {
     mode: UserFormMode,
     error: Option<Lc>,
     user_id: Option<i32>,
-    /// Listado de origen al que volver tras guardar (orden, búsqueda, página).
-    waypoint: Waypoint,
     username: String,
     email: String,
     display_name: String,
@@ -63,7 +61,7 @@ impl Component for UserForm {
         // El propio usuario cambia su email en otra pantalla, que pide su contraseña y confirma la
         // nueva dirección antes de aplicarla.
         let email_readonly = *self.mode() == UserFormMode::Profile;
-        let action = self.waypoint().append_to(cx.route(action));
+        let action = cx.route(action);
 
         let mut form = Form::new()
             .with_id(USER_ADMIN_FORM_ID)
@@ -168,7 +166,7 @@ impl Component for UserForm {
                 form = form.with_child(profile_form_actions(save, cx));
             }
             UserFormMode::New => {
-                let cancel = self.waypoint().or(cx.route(ADMIN_USERS_PATH.as_str()));
+                let cancel = cx.route(ADMIN_USERS_PATH.as_str());
                 form = form.with_child(form_actions(save, cancel));
             }
         }
@@ -193,11 +191,6 @@ impl UserForm {
 
     pub(crate) fn with_user_id(mut self, user_id: impl Into<Option<i32>>) -> Self {
         self.user_id = user_id.into();
-        self
-    }
-
-    pub(crate) fn with_waypoint(mut self, waypoint: impl Into<Waypoint>) -> Self {
-        self.waypoint = waypoint.into();
         self
     }
 

@@ -11,8 +11,6 @@ use crate::component::{PasswordConfirm, error_banner, form_actions};
 pub(crate) struct AdminPasswordForm {
     user_id: i32,
     error: Option<Lc>,
-    /// Listado de origen al que volver tras guardar (orden, búsqueda, página).
-    waypoint: Waypoint,
 }
 
 #[async_trait]
@@ -23,7 +21,7 @@ impl Component for AdminPasswordForm {
 
     async fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
         let action = user_path(self.user_id(), "password");
-        let action = self.waypoint().append_to(cx.route(action));
+        let action = cx.route(action);
 
         let mut form = Form::new()
             .with_id("user-admin-password-form")
@@ -36,8 +34,7 @@ impl Component for AdminPasswordForm {
             )
             .with_child(form_actions(
                 Lc::t("btn-save", &LOCALES_USER),
-                self.waypoint()
-                    .append_to(cx.route(user_path(self.user_id(), "edit"))),
+                cx.route(user_path(self.user_id(), "edit")),
             ));
 
         Ok(form.render(cx).await)
@@ -55,11 +52,6 @@ impl AdminPasswordForm {
 
     pub(crate) fn with_error(mut self, error: impl Into<Option<Lc>>) -> Self {
         self.error = error.into();
-        self
-    }
-
-    pub(crate) fn with_waypoint(mut self, waypoint: impl Into<Waypoint>) -> Self {
-        self.waypoint = waypoint.into();
         self
     }
 }

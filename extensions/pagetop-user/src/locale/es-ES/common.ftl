@@ -206,7 +206,7 @@ field-label                 = Etiqueta
 field-description           = Descripción
 field-weight                = Peso
 field-roles                 = Roles
-field-is-admin              = Administrador (acceso irrestricto)
+field-is-admin              = Administrador (acceso total)
 field-search-users          = Buscar por usuario, email o nombre...
 
 help-username-strict =
@@ -226,6 +226,8 @@ help-username-permissive =
 help-password-min-length = Al menos { $n } caracteres.
 
 help-email-readonly = Para cambiarla, usa «Cambiar email» en tu perfil.
+
+help-remember-me = Mantiene la sesión abierta usando una cookie. No marcar en un equipo compartido.
 
 help-machine-name-immutable =
     Sólo minúsculas, dígitos y guiones bajos. No se puede cambiar tras crearlo.
@@ -254,8 +256,8 @@ link-back              = Volver
 
 confirm-delete-role    = ¿Eliminar este rol? Esta acción no se puede deshacer.
 confirm-change-status  = ¿Cambiar el estado de esta cuenta?
-confirm-grant-admin    = ¿Conceder acceso irrestricto a esta cuenta?
-confirm-revoke-admin   = ¿Revocar el acceso irrestricto de esta cuenta?
+confirm-grant-admin    = ¿Conceder acceso total a esta cuenta?
+confirm-revoke-admin   = ¿Revocar el acceso total de esta cuenta?
 badge-system-role      = Sistema
 badge-admin            = Administrador
 badge-no-permissions   = Sin permisos
@@ -273,6 +275,6 @@ error-role-locked                  = Este rol es de sistema y no se puede modifi
 error-role-in-use                  = Este rol tiene usuarios asignados y no se puede eliminar.
 error-last-administrator           = No se puede quitar al último administrador.
 error-cannot-block-self            = No puedes bloquear tu propia cuenta.
-error-cannot-modify-own-admin-flag = No puedes conceder ni revocar tu propio acceso irrestricto.
+error-cannot-modify-own-admin-flag = No puedes conceder ni revocar tu propio acceso total.
 error-user-not-found               = Usuario no encontrado.
 error-unknown-permission           = Clave de permiso desconocida.

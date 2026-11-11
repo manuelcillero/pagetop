@@ -22,6 +22,11 @@ max_ip_requests            = 3
 max_ip_failed_logins       = 3
 max_email_changes          = 2
 
+# Sesiones con "Recuérdame" renovadas en cada petición, para probar que la renovación convive con
+# otras cookies de la respuesta.
+[user.session]
+write_interval_secs = 0
+
 # Costes mínimos de Argon2id: las pruebas cifran muchas contraseñas.
 [user.password]
 argon2_m_cost = 64

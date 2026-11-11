@@ -46,8 +46,6 @@ impl Component for RoleTable {
             .with_column(Lc::t("col-actions", &LOCALES_USER))
             .with_empty(Lc::t("empty-roles-list", &LOCALES_USER));
 
-        let waypoint = Waypoint::from(self.list_href(cx));
-
         for role in self.items() {
             let system_badge = if role.locked {
                 Some(
@@ -71,7 +69,7 @@ impl Component for RoleTable {
             table.alter_row(
                 table::Row::new()
                     .with_cell(role.machine_name.as_str())
-                    .with_cell(label_cell(role, &waypoint))
+                    .with_cell(label_cell(role))
                     .with_cell(Html::with(move |_cx| {
                         html! {
                             @if let Some(badge) = &system_badge { (badge) }
@@ -80,13 +78,12 @@ impl Component for RoleTable {
                     }))
                     .with_cell(role.user_count.to_string())
                     .with_cell(
-                        actions_cell(role, &waypoint, *self.sort(), *self.dir(), self.page(), cx)
-                            .await,
+                        actions_cell(role, *self.sort(), *self.dir(), self.page(), cx).await,
                     ),
             );
         }
 
-        let new_href = waypoint.append_to(cx.route(util::join!(ADMIN_ROLES_PATH.as_str(), "/new")));
+        let new_href = cx.route(util::join!(ADMIN_ROLES_PATH.as_str(), "/new"));
 
         if let Some(message) = self.message() {
             cx.push_message(MessageLevel::Error, message.clone());
@@ -160,17 +157,6 @@ impl RoleTable {
         self
     }
 
-    // URL del listado con el estado actual (orden, página): es el valor que viaja como `waypoint`
-    // en los enlaces de ver/editar/permisos, para poder volver exactamente a este mismo estado. Se
-    // construye con `cx.route()` para que preserve el parámetro `lang` cuando corresponda.
-    fn list_href(&self, cx: &Context) -> String {
-        cx.route(ADMIN_ROLES_PATH.as_str())
-            .alter_param("sort", self.sort().as_str())
-            .alter_param("dir", *self.dir())
-            .alter_param("page", self.page().to_string())
-            .to_string()
-    }
-
     // Construye la cabecera ordenable de una columna: el enlace ya funciona sin HTMX (navega con
     // una petición normal); `pagetop_htmx::hx_table::sort_link()` añade aparte los atributos `hx-*`
     // para que la tabla se actualice sin recargar la página cuando la extensión esté disponible.
@@ -199,12 +185,11 @@ impl RoleTable {
 // Construye la celda de etiqueta: enlaza a la pantalla de sólo lectura con todos los permisos del
 // rol. Devuelve un componente `Html` para que el marcado se genere cuando `Table` renderice la
 // celda, no al construir la fila.
-fn label_cell(role: &RoleListItem, waypoint: &Waypoint) -> Html {
+fn label_cell(role: &RoleListItem) -> Html {
     let label = crate::role_label(role.id, &role.label);
     let id = role.id;
-    let waypoint = waypoint.clone();
     Html::with(move |cx| {
-        let view_href = waypoint.append_to(cx.route(role_path(id, "view")));
+        let view_href = cx.route(role_path(id, "view"));
         html! {
             a href=(view_href) { (label.using(cx)) }
         }
@@ -216,7 +201,6 @@ fn label_cell(role: &RoleListItem, waypoint: &Waypoint) -> Html {
 // que el marcado se genere cuando `Table` renderice la celda, no al construir la fila.
 async fn actions_cell(
     role: &RoleListItem,
-    waypoint: &Waypoint,
     sort: RoleSortField,
     dir: SortDir,
     page: u64,
@@ -224,7 +208,6 @@ async fn actions_cell(
 ) -> Html {
     let id = role.id;
     let locked = role.locked;
-    let waypoint = waypoint.clone();
 
     let can_manage_permissions = cx
         .request()
@@ -235,7 +218,7 @@ async fn actions_cell(
     // (ver `pagetop-bootsier::theme::bs::button`), incluida la traducción de `data-dialog-*` que
     // usa el botón de borrado.
     let permissions_button = if can_manage_permissions {
-        let permissions_href = waypoint.append_to(cx.route(role_path(id, "permissions")));
+        let permissions_href = cx.route(role_path(id, "permissions"));
         Some(
             Button::anchor(
                 Lc::t("btn-manage-permissions", &LOCALES_USER),
@@ -253,7 +236,7 @@ async fn actions_cell(
     let (edit_button, delete_button) = if locked {
         (None, None)
     } else {
-        let edit_href = waypoint.append_to(cx.route(role_path(id, "edit")));
+        let edit_href = cx.route(role_path(id, "edit"));
         let edit_button = Button::anchor(Lc::t("btn-edit", &LOCALES_USER), edit_href)
             .with_style(button::Style::Solid(Intent::Primary))
             .with_size(button::Size::Small)

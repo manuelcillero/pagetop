@@ -310,7 +310,7 @@ pub(crate) struct ProfileFormData {
 
 /// POST /user/edit - Guarda los datos del perfil propio. El nombre de usuario sólo cambia con
 /// `user:change_own_username`; el email, desde [`email_get()`]; roles, estado y acceso
-/// irrestricto no se tocan nunca desde aquí.
+/// total no se tocan nunca desde aquí.
 pub(crate) async fn profile_edit_post(
     request: HttpRequest,
     web::Form(form): web::Form<ProfileFormData>,

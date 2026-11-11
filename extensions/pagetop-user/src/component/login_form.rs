@@ -59,9 +59,13 @@ impl Component for LoginForm {
             .with_child(
                 form::Checkbox::check()
                     .with_name("remember")
-                    .with_label(Lc::t("field-remember-me", &LOCALES_USER)),
+                    .with_label(Lc::t("field-remember-me", &LOCALES_USER))
+                    .with_help_text(Lc::t("help-remember-me", &LOCALES_USER)),
             )
-            .with_child(Button::submit(Lc::t("btn-login", &LOCALES_USER)))
+            .with_child(
+                Button::submit(Lc::t("btn-login", &LOCALES_USER))
+                    .with_style(button::Style::Solid(Intent::Primary)),
+            )
             .with_child(links(SETTINGS.allow_registration));
 
         if strict {

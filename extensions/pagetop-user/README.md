@@ -159,6 +159,25 @@ frenar a quien prueba unas pocas contraseñas habituales en muchas cuentas sin l
 ninguna. Detrás de un *proxy* inverso, los límites por IP requieren configurar
 `server.client_ip_header`.
 
+## Cookies
+
+Al iniciar sesión se crea la *cookie* de sesión (`cookie_name` de `[user.session]`, `pagetop` por
+defecto). Es propia, `HttpOnly` y con un identificador aleatorio que la aplicación guarda en la base
+de datos. Se borra al cerrar sesión.
+
+Sin marcar "Recuérdame", el navegador la borra al cerrarse, y la sesión deja de valer tras
+`idle_secs` sin uso. Es una *cookie* de autenticación para un servicio que el propio usuario pide,
+así que en España y en la Unión Europea no requiere su aceptación: las normas y guías en que se basa
+están en la sección *Cookies* del módulo `web` de PageTop.
+
+Con "Recuérdame", la sesión se conserva aunque se cierre el navegador, hasta `remember_idle_secs`
+sin uso (14 días por defecto). El dictamen 04/2012 del Grupo de Trabajo del Artículo 29 (WP194) no
+exime estas *cookies* de inicio de sesión persistente, pero considera suficiente que sea el usuario
+quien la pida marcando expresamente la casilla, siempre que sepa que se usa una *cookie*. Por eso el
+formulario de acceso lo indica en el texto de ayuda de la casilla, que además desaconseja marcarla
+en un equipo compartido. La aplicación sólo tiene que declararla también en su política de
+*cookies*.
+
 ## Créditos
 
 Este *crate* guarda las contraseñas con el algoritmo Argon2 mediante

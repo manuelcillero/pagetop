@@ -41,7 +41,7 @@ pub struct Model {
     /// Último intento fallido, para saber si el siguiente cae dentro de la misma ventana.
     pub failed_login_at: Option<DateTimeUtc>,
     pub locked_until: Option<DateTimeUtc>,
-    /// Acceso irrestricto al sistema, sin pasar por roles ni permisos.
+    /// Acceso total al sistema, sin pasar por roles ni permisos.
     pub is_admin: bool,
     pub created_at: DateTimeUtc,
     pub updated_at: DateTimeUtc,

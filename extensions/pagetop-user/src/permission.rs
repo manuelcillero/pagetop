@@ -16,7 +16,7 @@ pub enum UserPermission {
     /// "Sobre mí" y fecha de alta.
     ViewProfiles,
     /// Editar los datos del perfil propio: email, nombre visible, "Sobre mí", idioma, zona horaria
-    /// y tema. Nunca los roles, el estado de la cuenta ni el acceso irrestricto.
+    /// y tema. Nunca los roles, el estado de la cuenta ni el acceso total.
     EditOwnProfile,
     /// Cambiar el nombre de usuario propio. Complementa a `EditOwnProfile`: el campo está en el
     /// mismo formulario, así que sin aquel no tiene efecto.

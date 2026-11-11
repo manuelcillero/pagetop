@@ -21,8 +21,6 @@ pub(crate) struct RoleForm {
     mode: RoleFormMode,
     error: Option<Lc>,
     role_id: Option<i32>,
-    /// Listado de origen al que volver tras guardar (orden).
-    waypoint: Waypoint,
     machine_name: String,
     label: String,
     description: String,
@@ -40,7 +38,7 @@ impl Component for RoleForm {
             RoleFormMode::New => util::join!(ADMIN_ROLES_PATH.as_str(), "/new"),
             RoleFormMode::Edit => role_path(self.role_id().copied().unwrap_or_default(), "edit"),
         };
-        let action = self.waypoint().append_to(cx.route(action));
+        let action = cx.route(action);
 
         let machine_name_field = match self.mode() {
             RoleFormMode::New => form::input::Field::text()
@@ -88,7 +86,7 @@ impl Component for RoleForm {
 
         form = form.with_child(form_actions(
             Lc::t("btn-save", &LOCALES_USER),
-            self.waypoint().or(cx.route(ADMIN_ROLES_PATH.as_str())),
+            cx.route(ADMIN_ROLES_PATH.as_str()),
         ));
 
         Ok(form.render(cx).await)
@@ -111,11 +109,6 @@ impl RoleForm {
 
     pub(crate) fn with_role_id(mut self, role_id: impl Into<Option<i32>>) -> Self {
         self.role_id = role_id.into();
-        self
-    }
-
-    pub(crate) fn with_waypoint(mut self, waypoint: impl Into<Waypoint>) -> Self {
-        self.waypoint = waypoint.into();
         self
     }
 

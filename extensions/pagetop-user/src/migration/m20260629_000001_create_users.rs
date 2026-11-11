@@ -35,7 +35,7 @@ impl MigrationTrait for Migration {
                     .col(integer(Users::FailedLoginCount).default(0))
                     .col(timestamp_null(Users::FailedLoginAt))
                     .col(timestamp_null(Users::LockedUntil))
-                    // Acceso irrestricto al sistema, sin pasar por roles ni permisos.
+                    // Acceso total al sistema, sin pasar por roles ni permisos.
                     .col(boolean(Users::IsAdmin).default(false))
                     .to_owned(),
             )

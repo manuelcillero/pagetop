@@ -72,19 +72,12 @@ pub(crate) async fn list_get(
 // **< new_get / new_post >*************************************************************************
 
 /// GET /admin/user/roles/new - Formulario de alta de rol.
-pub(crate) async fn new_get(
-    request: HttpRequest,
-    web::Query(waypoint): web::Query<Waypoint>,
-) -> Result<Response, ErrorPage> {
+pub(crate) async fn new_get(request: HttpRequest) -> Result<Response, ErrorPage> {
     let page = Page::admin(request);
     let title = Lc::t("title-admin-role-new", &LOCALES_USER);
     Ok(page
         .with_title(title)
-        .with_child(
-            RoleForm::new()
-                .with_mode(RoleFormMode::New)
-                .with_waypoint(waypoint),
-        )
+        .with_child(RoleForm::new().with_mode(RoleFormMode::New))
         .render()
         .await
         .into_response())
@@ -103,7 +96,6 @@ pub(crate) struct NewRoleFormData {
 /// POST /admin/user/roles/new - Crea un rol.
 pub(crate) async fn new_post(
     request: HttpRequest,
-    web::Query(waypoint): web::Query<Waypoint>,
     web::Form(form): web::Form<NewRoleFormData>,
 ) -> Result<Response, ErrorPage> {
     let weight: i32 = form.weight.trim().parse().unwrap_or(0);
@@ -119,7 +111,7 @@ pub(crate) async fn new_post(
     match result {
         Ok(_) => {
             let cx = Context::admin(request);
-            let target = waypoint.or(cx.route(ADMIN_ROLES_PATH.as_str()));
+            let target = cx.route(ADMIN_ROLES_PATH.as_str());
             Ok(Redirect::see_other(target).into_response())
         }
         Err(err) => {
@@ -130,8 +122,7 @@ pub(crate) async fn new_post(
                 .with_label(form.label)
                 .with_description(form.description)
                 .with_weight(weight)
-                .with_error(map_auth_error(&err))
-                .with_waypoint(waypoint);
+                .with_error(map_auth_error(&err));
             let title = Lc::t("title-admin-role-new", &LOCALES_USER);
             Ok(page
                 .with_title(title)
@@ -149,7 +140,6 @@ pub(crate) async fn new_post(
 pub(crate) async fn edit_get(
     request: HttpRequest,
     web::Path(id): web::Path<i32>,
-    web::Query(waypoint): web::Query<Waypoint>,
 ) -> Result<Response, ErrorPage> {
     let role = match role_admin::find_role(id).await {
         Ok(role) => role,
@@ -171,8 +161,7 @@ pub(crate) async fn edit_get(
                 .with_machine_name(role.machine_name)
                 .with_label(role.label)
                 .with_description(role.description.unwrap_or_default())
-                .with_weight(role.weight)
-                .with_waypoint(waypoint),
+                .with_weight(role.weight),
         )
         .render()
         .await
@@ -192,7 +181,6 @@ pub(crate) struct EditRoleFormData {
 pub(crate) async fn edit_post(
     request: HttpRequest,
     web::Path(id): web::Path<i32>,
-    web::Query(waypoint): web::Query<Waypoint>,
     web::Form(form): web::Form<EditRoleFormData>,
 ) -> Result<Response, ErrorPage> {
     let weight: i32 = form.weight.trim().parse().unwrap_or(0);
@@ -210,7 +198,7 @@ pub(crate) async fn edit_post(
     match result {
         Ok(()) => {
             let cx = Context::admin(request);
-            let target = waypoint.or(cx.route(ADMIN_ROLES_PATH.as_str()));
+            let target = cx.route(ADMIN_ROLES_PATH.as_str());
             Ok(Redirect::see_other(target).into_response())
         }
         Err(err) => {
@@ -226,8 +214,7 @@ pub(crate) async fn edit_post(
                 .with_label(form.label)
                 .with_description(form.description)
                 .with_weight(weight)
-                .with_error(map_auth_error(&err))
-                .with_waypoint(waypoint);
+                .with_error(map_auth_error(&err));
             let title = Lc::t("title-admin-role-edit", &LOCALES_USER);
             Ok(page
                 .with_title(title)
@@ -246,7 +233,6 @@ pub(crate) async fn edit_post(
 pub(crate) async fn view_get(
     request: HttpRequest,
     web::Path(id): web::Path<i32>,
-    web::Query(waypoint): web::Query<Waypoint>,
 ) -> Result<Response, ErrorPage> {
     let role = match role_admin::find_role(id).await {
         Ok(role) => role,
@@ -259,7 +245,7 @@ pub(crate) async fn view_get(
     let mut page = Page::admin(request);
 
     let groups = build_permission_groups(&selected, page.context());
-    let back_href = waypoint.or(page.route(ADMIN_ROLES_PATH.as_str()));
+    let back_href = page.route(ADMIN_ROLES_PATH.as_str());
     let details_block = role_view_details(&role, page.context_mut()).await;
 
     let title = Lc::t("title-admin-role-view", &LOCALES_USER);
@@ -460,7 +446,6 @@ fn build_permission_groups(selected: &[String], cx: &Context) -> PermissionGroup
 pub(crate) async fn permissions_get(
     request: HttpRequest,
     web::Path(id): web::Path<i32>,
-    web::Query(waypoint): web::Query<Waypoint>,
 ) -> Result<Response, ErrorPage> {
     require_permission(&request, &UserPermission::AdminPermissions)?;
 
@@ -481,8 +466,7 @@ pub(crate) async fn permissions_get(
         .with_child(
             RolePermissionsForm::new()
                 .with_role_id(id)
-                .with_groups(groups)
-                .with_waypoint(waypoint),
+                .with_groups(groups),
         )
         .render()
         .await
@@ -502,7 +486,6 @@ pub(crate) struct RolePermissionsFormData {
 pub(crate) async fn permissions_post(
     request: HttpRequest,
     web::Path(id): web::Path<i32>,
-    web::Query(waypoint): web::Query<Waypoint>,
     raw: web::RawForm,
 ) -> Result<Response, ErrorPage> {
     require_permission(&request, &UserPermission::AdminPermissions)?;
@@ -514,7 +497,7 @@ pub(crate) async fn permissions_post(
     match role_admin::set_role_permissions(id, &form.permission_keys).await {
         Ok(()) => {
             let cx = Context::admin(request);
-            let target = waypoint.or(cx.route(ADMIN_ROLES_PATH.as_str()));
+            let target = cx.route(ADMIN_ROLES_PATH.as_str());
             Ok(Redirect::see_other(target).into_response())
         }
         Err(err) => {
@@ -524,8 +507,7 @@ pub(crate) async fn permissions_post(
             let form_component = RolePermissionsForm::new()
                 .with_role_id(id)
                 .with_groups(groups)
-                .with_error(map_auth_error(&err))
-                .with_waypoint(waypoint);
+                .with_error(map_auth_error(&err));
             let title = Lc::t("title-admin-role-permissions", &LOCALES_USER);
             Ok(page
                 .with_title(title)

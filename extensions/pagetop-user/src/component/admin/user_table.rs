@@ -47,7 +47,6 @@ impl Component for UserTable {
             .with_column(Lc::t("col-actions", &LOCALES_USER))
             .with_empty(Lc::t("empty-users-list", &LOCALES_USER));
 
-        let waypoint = Waypoint::from(self.list_href(cx));
         let viewer_is_admin = cx
             .request()
             .and_then(|r| r.extension::<Account>())
@@ -58,16 +57,16 @@ impl Component for UserTable {
 
             table.alter_row(
                 table::Row::new()
-                    .with_cell(username_cell(user, &waypoint))
+                    .with_cell(username_cell(user))
                     .with_cell(user.email.as_str())
                     .with_cell(user.display_name.as_deref().unwrap_or("-"))
                     .with_cell(roles_cell(user, cx).await)
                     .with_cell(Lc::t(status_key(status), &LOCALES_USER))
-                    .with_cell(actions_cell(user, &waypoint, viewer_is_admin, cx).await),
+                    .with_cell(actions_cell(user, viewer_is_admin, cx).await),
             );
         }
 
-        let new_href = waypoint.append_to(cx.route(util::join!(ADMIN_USERS_PATH.as_str(), "/new")));
+        let new_href = cx.route(util::join!(ADMIN_USERS_PATH.as_str(), "/new"));
 
         let mut list = ListView::new()
             .with_id("user-table-wrapper")
@@ -120,21 +119,6 @@ impl UserTable {
         self
     }
 
-    // URL del listado con el estado actual (búsqueda, orden, página): es el valor que viaja como
-    // `waypoint` en los enlaces de ver/editar, para poder volver exactamente a este mismo estado.
-    // Se construye con `cx.route()` para que preserve el parámetro `lang` cuando corresponda.
-    fn list_href(&self, cx: &Context) -> String {
-        let mut route = cx.route(ADMIN_USERS_PATH.as_str());
-        if let Some(q) = self.query().filter(|q| !q.is_empty()) {
-            route.alter_param("q", q);
-        }
-        route
-            .alter_param("sort", self.sort().as_str())
-            .alter_param("dir", *self.dir())
-            .alter_param("page", self.page().to_string())
-            .to_string()
-    }
-
     // Construye la cabecera ordenable de una columna: el enlace ya funciona sin HTMX (navega con
     // una petición normal); `pagetop_htmx::hx_table::sort_link()` añade aparte los atributos `hx-*`
     // para que la tabla se actualice sin recargar la página cuando la extensión esté disponible.
@@ -167,12 +151,11 @@ impl UserTable {
 // Construye la celda de usuario: el nombre enlaza a la pantalla de sólo lectura con todos sus
 // datos y roles. Devuelve un componente `Html` para que el marcado se genere cuando `Table`
 // renderice la celda, no al construir la fila.
-fn username_cell(user: &UserListItem, waypoint: &Waypoint) -> Html {
+fn username_cell(user: &UserListItem) -> Html {
     let username = user.username.clone();
     let id = user.id;
-    let waypoint = waypoint.clone();
     Html::with(move |cx| {
-        let view_href = waypoint.append_to(cx.route(user_path(id, "view")));
+        let view_href = cx.route(user_path(id, "view"));
         html! {
             a href=(view_href) { (username.as_str()) }
         }
@@ -183,16 +166,11 @@ fn username_cell(user: &UserListItem, waypoint: &Waypoint) -> Html {
 // si quien mira no lo es (no puede gestionarla, ver `handlers::admin::users::require_manageable`).
 // Devuelve un componente `Html` para que el marcado se genere cuando `Table` renderice la celda, no
 // al construir la fila.
-async fn actions_cell(
-    user: &UserListItem,
-    waypoint: &Waypoint,
-    viewer_is_admin: bool,
-    cx: &mut Context,
-) -> Html {
+async fn actions_cell(user: &UserListItem, viewer_is_admin: bool, cx: &mut Context) -> Html {
     if user.is_admin && !viewer_is_admin {
         return Html::default();
     }
-    let edit_href = waypoint.append_to(cx.route(user_path(user.id, "edit")));
+    let edit_href = cx.route(user_path(user.id, "edit"));
 
     // El botón se renderiza aquí, no dentro del `Html::with()` de abajo: necesita pasar por su
     // propio ciclo de renderizado (`.render().await`) para que el tema activo lo estilice igual

@@ -1,8 +1,8 @@
 // End-to-end account flows against a real database. `config/common.toml` gives these tests an
 // in-memory SQLite database with a single connection, the memory mail transport, email
 // verification on sign-up, `max_failed_logins = 3`, `max_ip_requests = 3`,
-// `max_ip_failed_logins = 3` and `max_email_changes = 2` (`max_password_resets` keeps its
-// default, 3).
+// `max_ip_failed_logins = 3`, `max_email_changes = 2` (`max_password_resets` keeps its default,
+// 3) and `write_interval_secs = 0`, so "remember me" sessions renew their cookie on every request.
 //
 // Every scenario shares the same database, so they run one after another in a single test (and a
 // single runtime, which also keeps the database connection alive). Each one uses its own accounts
@@ -198,6 +198,8 @@ async fn account_flows() {
     requests_are_limited_by_address(&client).await;
     failed_logins_are_limited_by_address(&client).await;
     anonymous_visitors_are_offered_to_sign_in(&client).await;
+    user_and_role_lists_remember_their_state(&client).await;
+    remembered_sessions_are_renewed_alongside_other_cookies(&client).await;
 }
 
 async fn registration_requires_confirming_the_address(client: &Client) {
@@ -875,4 +877,62 @@ async fn anonymous_visitors_are_offered_to_sign_in(client: &Client) {
         "/user/login?waypoint=%2Fadmin%2Fuser%2Fusers"
     );
     assert!(reply.header("set-cookie").starts_with("pagetop_flash="));
+}
+
+// The lists of users and roles remember their search, order and page: coming back to them without
+// parameters, as the back links and the redirections after saving do, restores the state, and
+// "Clear" forgets it.
+async fn user_and_role_lists_remember_their_state(client: &Client) {
+    let admin = client.login("admin", "admin-password").await.unwrap();
+    for (list, state) in [
+        ("/admin/user/users", "q=gil&sort=email&dir=desc&page=1"),
+        ("/admin/user/roles", "sort=label&dir=desc&page=1"),
+    ] {
+        let filtered = client.get(&format!("{list}?{state}"), Some(&admin)).await;
+        assert_eq!(filtered.status, Status::OK, "{list}");
+        let saved = filtered.header("set-cookie").split(';').next().unwrap();
+        assert!(saved.starts_with("pagetop_list_"), "{list}: {saved}");
+        let cookies = format!("{admin}; {saved}");
+
+        let back = client.get(list, Some(&cookies)).await;
+        assert_eq!(back.status, Status::SEE_OTHER, "{list}");
+        assert_eq!(back.location(), format!("{list}?{state}"));
+
+        let reset = client.get(&format!("{list}?reset"), Some(&cookies)).await;
+        assert_eq!(reset.location(), list);
+    }
+}
+
+// A "remember me" session renews its cookie even when the response sets another one, such as the
+// state of a list: otherwise the cookie would expire in the browser before the session does.
+async fn remembered_sessions_are_renewed_alongside_other_cookies(client: &Client) {
+    let fields = form(&[
+        ("username", "admin"),
+        ("password", "admin-password"),
+        ("remember", "true"),
+    ]);
+    let login = client.post("/user/login", &fields, None).await;
+    assert_eq!(login.status, Status::SEE_OTHER);
+    let session = login.session_cookie().expect("login sets the cookie");
+
+    let reply = client
+        .get("/admin/user/users?q=renewal", Some(&session))
+        .await;
+    assert_eq!(reply.status, Status::OK);
+    let cookies: Vec<&str> = reply
+        .headers
+        .get_all("set-cookie")
+        .iter()
+        .filter_map(|value| value.to_str().ok())
+        .collect();
+    assert!(
+        cookies.iter().any(|c| c.starts_with("pagetop_list_")),
+        "{cookies:?}"
+    );
+    assert!(
+        cookies
+            .iter()
+            .any(|c| c.starts_with(&format!("{session};")) && c.contains("Max-Age=")),
+        "{cookies:?}"
+    );
 }

@@ -12,6 +12,7 @@ use std::sync::Arc;
 use pagetop::prelude::*;
 
 use crate::account::{Account, PermissionSet};
+use crate::config::SETTINGS;
 use crate::session;
 
 // Permisos del rol "anonymous", insertados en las peticiones sin sesión. Un tipo propio para que no
@@ -47,22 +48,35 @@ pub(crate) async fn session_middleware(
 
     let mut response = next.run(req).await;
 
-    // No se pisa una cookie que ya fije el handler (p. ej. la de expiración al cerrar sesión).
+    // No se pisa la cookie de sesión que ya fije el handler (p. ej. la de expiración al cerrar
+    // sesión). Las demás (mensajes, estado de un listado) conviven con la renovación: si la
+    // impidieran, la cookie caducaría en el navegador antes que la sesión.
     if let Some(cookie) = renewed_cookie
-        && !response
-            .headers()
-            .contains_key(web::http::header::SET_COOKIE)
+        && !sets_cookie(response.headers(), &SETTINGS.session.cookie_name)
     {
         match web::http::HeaderValue::try_from(cookie) {
             Ok(value) => {
                 response
                     .headers_mut()
-                    .insert(web::http::header::SET_COOKIE, value);
+                    .append(web::http::header::SET_COOKIE, value);
             }
             Err(_) => trace::warn!("session: invalid renewed cookie, header discarded"),
         }
     }
     response
+}
+
+// Si la respuesta ya fija (o borra) la cookie `name`.
+fn sets_cookie(headers: &web::http::HeaderMap, name: &str) -> bool {
+    headers
+        .get_all(web::http::header::SET_COOKIE)
+        .iter()
+        .any(|value| {
+            value
+                .as_bytes()
+                .strip_prefix(name.as_bytes())
+                .is_some_and(|rest| rest.starts_with(b"="))
+        })
 }
 
 // **< check_rbac_permission >**********************************************************************
@@ -86,5 +100,35 @@ pub(crate) fn check_rbac_permission(
     };
     if has_permission {
         *granted = true;
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn headers(cookies: &[&'static str]) -> web::http::HeaderMap {
+        let mut headers = web::http::HeaderMap::new();
+        for cookie in cookies {
+            headers.append(
+                web::http::header::SET_COOKIE,
+                web::http::HeaderValue::from_static(cookie),
+            );
+        }
+        headers
+    }
+
+    #[pagetop::test]
+    async fn only_the_session_cookie_itself_blocks_its_renewal() {
+        // Other cookies (flash messages, the state of a list) must not stop the renewal.
+        let others = headers(&[
+            "pagetop_flash=iSaved; Path=/",
+            "pagetop_list_0=q=a; Path=/x",
+        ]);
+        assert!(!sets_cookie(&others, "session"));
+        let logout = headers(&["pagetop_flash=iBye; Path=/", "session=; Path=/; Max-Age=0"]);
+        assert!(sets_cookie(&logout, "session"));
+        // A cookie whose name only starts like the session one is a different cookie.
+        assert!(!sets_cookie(&headers(&["session_old=x"]), "session"));
     }
 }

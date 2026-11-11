@@ -49,7 +49,10 @@ impl Component for RegisterForm {
                     .with_required(true),
             )
             .with_child(PasswordConfirm::new())
-            .with_child(Button::submit(Lc::t("btn-register", &LOCALES_USER)));
+            .with_child(
+                Button::submit(Lc::t("btn-register", &LOCALES_USER))
+                    .with_style(button::Style::Solid(Intent::Primary)),
+            );
 
         Ok(form.render(cx).await)
     }

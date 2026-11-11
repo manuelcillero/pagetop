@@ -473,7 +473,7 @@ pub(crate) async fn set_user_status(
 
 // **< set_user_admin >*****************************************************************************
 
-/// Concede o revoca el acceso irrestricto (`is_admin`). No es un permiso del catálogo: sólo un
+/// Concede o revoca el acceso total (`is_admin`). No es un permiso del catálogo: sólo un
 /// administrador puede concederlo o revocarlo (el handler comprueba `account.is_admin()`
 /// directamente, sin pasar por `require_permission`).
 ///
