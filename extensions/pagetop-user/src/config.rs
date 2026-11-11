@@ -8,7 +8,7 @@
 //! identity_policy    = "unicode"
 //!
 //! [user.session]
-//! secure_cookie = true
+//! idle_secs = 3600
 //!
 //! [user.password]
 //! min_length = 10
@@ -272,11 +272,13 @@ pub enum IdentityPolicy {
 #[settings]
 pub struct SessionSettings {
     /// Nombre de la cookie de sesión.
+    ///
+    /// La cookie se marca como `Secure` según [`secure_cookies`] de `[server]`, común a todas las
+    /// cookies de la aplicación.
+    ///
+    /// [`secure_cookies`]: pagetop::global::ServerSettings::secure_cookies
     #[default = "pagetop"]
     pub cookie_name: String,
-    /// Marca la cookie de sesión como `Secure` (sólo HTTPS). Debe activarse en producción.
-    #[default = false]
-    pub secure_cookie: bool,
     /// Segundos sin uso tras los que caduca una sesión iniciada sin "recordarme". El tiempo se
     /// cuenta desde la última petición, con la precisión que fija
     /// [`write_interval_secs`](Self::write_interval_secs).

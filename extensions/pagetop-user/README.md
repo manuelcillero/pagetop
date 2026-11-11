@@ -163,7 +163,8 @@ ninguna. Detrás de un *proxy* inverso, los límites por IP requieren configurar
 
 Al iniciar sesión se crea la *cookie* de sesión (`cookie_name` de `[user.session]`, `pagetop` por
 defecto). Es propia, `HttpOnly` y con un identificador aleatorio que la aplicación guarda en la base
-de datos. Se borra al cerrar sesión.
+de datos. Se borra al cerrar sesión. Con `secure_cookies` de `[server]` activado, como debe estar si
+la aplicación se sirve por HTTPS, sólo viaja por HTTPS.
 
 Sin marcar "Recuérdame", el navegador la borra al cerrarse, y la sesión deja de valer tras
 `idle_secs` sin uso. Es una *cookie* de autenticación para un servicio que el propio usuario pide,

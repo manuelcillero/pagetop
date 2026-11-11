@@ -930,9 +930,9 @@ async fn remembered_sessions_are_renewed_alongside_other_cookies(client: &Client
         "{cookies:?}"
     );
     assert!(
-        cookies
-            .iter()
-            .any(|c| c.starts_with(&format!("{session};")) && c.contains("Max-Age=")),
+        cookies.iter().any(|c| c.starts_with(&format!("{session};"))
+            && c.contains("; Secure")
+            && c.contains("Max-Age=")),
         "{cookies:?}"
     );
 }

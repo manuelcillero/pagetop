@@ -22,6 +22,10 @@ max_ip_requests            = 3
 max_ip_failed_logins       = 3
 max_email_changes          = 2
 
+# Cookies con `Secure`, para probar que todas siguen el ajuste.
+[server]
+secure_cookies = true
+
 # Sesiones con "Recuérdame" renovadas en cada petición, para probar que la renovación convive con
 # otras cookies de la respuesta.
 [user.session]

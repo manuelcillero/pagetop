@@ -38,29 +38,18 @@ fn bytes_to_hex(bytes: &[u8]) -> String {
 // **< Cookie helpers >*****************************************************************************
 
 /// Construye el valor de la cabecera `Set-Cookie` para la cookie de sesión.
+///
+/// Con `remember`, la cookie dura `remember_idle_secs`; sin él, es de sesión del navegador. Se marca
+/// como `Secure` según `secure_cookies` de `[server]`.
 pub fn build_cookie(sid: &str, remember: bool) -> String {
-    let mut cookie = util::join!(
-        &SETTINGS.session.cookie_name,
-        "=",
-        sid,
-        "; HttpOnly; SameSite=Lax; Path=/"
-    );
-    if SETTINGS.session.secure_cookie {
-        cookie.push_str("; Secure");
-    }
-    if remember {
-        cookie.push_str("; Max-Age=");
-        cookie.push_str(&SETTINGS.session.remember_idle_secs.to_string());
-    }
-    cookie
+    let max_age =
+        remember.then(|| u64::try_from(SETTINGS.session.remember_idle_secs).unwrap_or_default());
+    web::cookie_header(&SETTINGS.session.cookie_name, sid, "/", max_age)
 }
 
 /// Construye la cookie de expiración (Max-Age=0) para borrar la sesión del navegador.
 pub fn expiry_cookie() -> String {
-    util::join!(
-        &SETTINGS.session.cookie_name,
-        "=; HttpOnly; SameSite=Lax; Path=/; Max-Age=0"
-    )
+    web::cookie_header(&SETTINGS.session.cookie_name, "", "/", Some(0))
 }
 
 /// Extrae el session ID de las cabeceras HTTP de la petición, si existe y tiene el formato de los
