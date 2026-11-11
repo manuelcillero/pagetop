@@ -358,3 +358,41 @@ fieldset > legend {
   border-bottom-color: var(--bs-primary);
   font-weight: 600;
 }
+
+// Login page (pagetop-user `LoginForm`): the form inside a centered card, as in Bootstrap's sign-in
+// example. The submit button takes the full width of the card.
+.user-login-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 70vh;
+  padding: $spacer * 2 $spacer;
+  background-color: var(--bs-tertiary-bg);
+}
+
+.user-login-card {
+  width: 100%;
+  max-width: 24rem;
+  padding: $spacer * 2;
+  background-color: var(--bs-body-bg);
+  border: var(--bs-border-width) solid var(--bs-border-color-translucent);
+  border-radius: var(--bs-border-radius-lg);
+  box-shadow: var(--bs-box-shadow);
+}
+
+.user-login-card .btn[type="submit"] {
+  width: 100%;
+  margin-top: $spacer * .5;
+}
+
+.user-register-link,
+.user-reset-link {
+  margin: $spacer 0 0;
+  text-align: center;
+}
+
+// Form errors of pagetop-user, with the palette of Bootstrap's own alerts.
+.user-form-error {
+  @extend .alert;
+  @extend .alert-danger;
+}
