@@ -100,6 +100,7 @@ async fn a_list_remembers_its_state_and_restores_it_when_requested_without_it() 
     );
     assert!(cookie.contains("Path=/items;"), "{cookie}");
     assert!(cookie.contains("HttpOnly"), "{cookie}");
+    assert!(cookie.contains("; Secure"), "{cookie}");
     assert!(!cookie.contains("Max-Age"), "a session cookie: {cookie}");
     let cookie = list_cookie(&filtered);
 

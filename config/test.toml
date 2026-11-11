@@ -4,6 +4,7 @@ name = "Testing"
 [server]
 bind_port = 9000
 trusted_origins = ["https://Trusted.example/"]
+secure_cookies = true
 
 [upload]
 dir = "target/test-uploads"

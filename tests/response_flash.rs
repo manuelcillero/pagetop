@@ -63,13 +63,17 @@ fn flash_cookie(response: &Response) -> String {
 async fn messages_are_shown_on_the_next_page_and_then_cleared() {
     let saved = send(web::test::TestRequest::post().uri("/save")).await;
     assert_eq!(saved.status(), StatusCode::SEE_OTHER);
-    assert!(set_cookie(&saved).unwrap().contains("Max-Age=60"));
+    assert!(
+        set_cookie(&saved)
+            .unwrap()
+            .ends_with("; Secure; Max-Age=60")
+    );
     let cookie = flash_cookie(&saved);
 
     let page = send(get("/done", Some(&cookie))).await;
     assert_eq!(
         set_cookie(&page),
-        Some("pagetop_flash=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0")
+        Some("pagetop_flash=; Path=/; HttpOnly; SameSite=Lax; Secure; Max-Age=0")
     );
     let body = web::test::read_body_text(page).await;
     // Shown once, as plain text, before the content.

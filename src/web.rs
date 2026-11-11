@@ -45,6 +45,11 @@
 //!
 //! Las extensiones pueden añadir las suyas; `pagetop-user`, por ejemplo, la de la sesión iniciada.
 //!
+//! Las de PageTop y sus extensiones propias se crean con [`cookie_header()`], que les da los
+//! mismos atributos: `HttpOnly`, `SameSite=Lax` y, si la aplicación se sirve por HTTPS y así se
+//! indica en [`secure_cookies`](crate::global::ServerSettings::secure_cookies) de `[server]`,
+//! `Secure`.
+//!
 //! ## Sin aceptación de *cookies*
 //!
 //! PageTop y sus extensiones propias (las que se publican con él, como `pagetop-user`) están
@@ -163,6 +168,10 @@ pub use routes::{Layers, Routes, StaticFiles};
 // Rutas declaradas junto con su acceso, para montarlas y enlazarlas sin repetirlo.
 mod endpoint;
 pub use endpoint::Endpoint;
+
+// Cabecera `Set-Cookie` común a todas las *cookies* de PageTop y sus extensiones.
+mod cookie;
+pub use cookie::cookie_header;
 
 // Estado de los listados (filtros, orden, página) recordado entre pantallas.
 mod remember;

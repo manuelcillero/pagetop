@@ -7,15 +7,14 @@ use crate::core::component::{Context, MessageLevel, StatusMessage};
 use crate::locale::Lc;
 use crate::response::ErrorPage;
 use crate::trace;
-use crate::web::{Request, Response, http, push_percent_encoded};
+use crate::web::{Request, Response, cookie_header, http, push_percent_encoded};
 
 use axum::middleware::Next;
 
 const COOKIE_NAME: &str = "pagetop_flash";
 
-// Atributos de la *cookie*. Basta con un minuto: es el tiempo de seguir una redirección.
-const COOKIE_ATTRS: &str = "; Path=/; HttpOnly; SameSite=Lax; Max-Age=60";
-const EXPIRED_COOKIE: &str = "pagetop_flash=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0";
+// Duración de la *cookie*. Basta con un minuto: es el tiempo de seguir una redirección.
+const COOKIE_MAX_AGE: u64 = 60;
 
 // Los navegadores admiten al menos 4096 bytes por *cookie*, contando nombre y atributos.
 const MAX_VALUE_LEN: usize = 3800;
@@ -126,12 +125,9 @@ pub(crate) async fn keep_flash_messages(request: Request, next: Next) -> Respons
     for (level, text) in pending.map(|pending| pending.0).unwrap_or_default() {
         push_message(&mut value, level, &text);
     }
-    let cookie = if value.is_empty() {
-        EXPIRED_COOKIE.to_owned()
-    } else {
-        crate::util::join!(COOKIE_NAME, "=", value, COOKIE_ATTRS)
-    };
-    if let Ok(cookie) = http::HeaderValue::from_str(&cookie) {
+    let max_age = if value.is_empty() { 0 } else { COOKIE_MAX_AGE };
+    let cookie = cookie_header(COOKIE_NAME, &value, "/", Some(max_age));
+    if let Ok(cookie) = http::HeaderValue::try_from(cookie) {
         response
             .headers_mut()
             .append(http::header::SET_COOKIE, cookie);

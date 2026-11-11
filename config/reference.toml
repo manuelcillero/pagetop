@@ -120,6 +120,10 @@ trusted_origins  = []                  # Otros orígenes desde los que un navega
                                        # peticiones que cambian estado (POST, PUT...), p. ej.
                                        # ["https://app.example.com"]. Sin ellos, se rechazan con 403
                                        # (protección CSRF). Formato: esquema://servidor[:puerto].
+secure_cookies   = false               # Marca las cookies como Secure, para que sólo viajen por
+                                       # HTTPS. Activar si la aplicación se sirve por HTTPS, aunque
+                                       # el HTTPS lo atienda un proxy inverso; si es por HTTP, el
+                                       # navegador no las guardaría (algunos sí en localhost).
 
 [upload]
 dir              = "uploads"           # Directorio de los archivos subidos, absoluto o relativo al
@@ -338,9 +342,8 @@ login_strict = false                   # Dificulta que el navegador recuerde o a
                                        # credenciales en el formulario de acceso.
 
 [user.session]                         # Sesiones de usuario.
-cookie_name         = "pagetop"        # Nombre de la cookie de sesión.
-secure_cookie       = false            # Marca la cookie como Secure (sólo HTTPS). Activar en
-                                       # producción.
+cookie_name         = "pagetop"        # Nombre de la cookie de sesión. Se marca como Secure
+                                       # según 'server.secure_cookies'.
 idle_secs           = 7200             # Segundos sin uso tras los que caduca la sesión si no se
                                        # marca "recordarme" al acceder (2 horas). Se cuentan desde
                                        # la última petición.

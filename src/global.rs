@@ -281,6 +281,21 @@ pub struct ServerSettings {
     /// Cada origen es `esquema://servidor[:puerto]`, sin ruta. Uno no válido impide arrancar.
     #[serde(deserialize_with = "origins")]
     pub trusted_origins: Vec<String>,
+    /// Marca las *cookies* de la aplicación como `Secure`, para que el navegador sólo las envíe por
+    /// HTTPS.
+    ///
+    /// Debe activarse cuando la aplicación se sirve por HTTPS, aunque el HTTPS lo atienda un
+    /// *proxy* inverso: si no, la *cookie* de una sesión iniciada viajaría también en cualquier
+    /// petición por HTTP sin cifrar. Afecta a las *cookies* de PageTop y a las de las extensiones
+    /// que usan [`web::cookie_header()`](crate::web::cookie_header), como la sesión de
+    /// `pagetop-user`.
+    ///
+    /// No debe activarse si la aplicación se sirve por HTTP: el navegador no guardaría las
+    /// *cookies* (algunos, como Chrome o Firefox, sí en `localhost`) y dejarían de funcionar el
+    /// inicio de sesión, los mensajes tras una redirección y los filtros recordados de los
+    /// listados.
+    #[default = false]
+    pub secure_cookies: bool,
 }
 
 // Orígenes para `trusted_origins`, tal y como los envía un navegador en la cabecera `Origin`: en

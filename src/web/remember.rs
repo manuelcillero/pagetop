@@ -1,7 +1,7 @@
 use std::borrow::Cow;
 
 use crate::web::http::{HeaderMap, HeaderName, HeaderValue, Method, StatusCode, header};
-use crate::web::{IntoResponse, MethodRouter, Request, Response};
+use crate::web::{IntoResponse, MethodRouter, Request, Response, cookie_header};
 
 use axum::extract::OriginalUri;
 use axum::middleware::{self, Next};
@@ -13,9 +13,6 @@ const COOKIE_PREFIX: &str = "pagetop_list_";
 const NAME_LEN: usize = COOKIE_PREFIX.len() + 16;
 
 const SEC_FETCH_SITE: HeaderName = HeaderName::from_static("sec-fetch-site");
-
-// Atributos comunes. Sin `Max-Age` es una *cookie* de sesión.
-const COOKIE_ATTRS: &str = "; HttpOnly; SameSite=Lax";
 
 // Estado más largo que esto no se recuerda: un listado no necesita tanto y la *cookie* viaja en
 // cada petición a su ruta y a las que cuelgan de ella.
@@ -311,17 +308,12 @@ fn cookie_value<'a>(headers: &'a HeaderMap, name: &[u8]) -> Option<&'a [u8]> {
 }
 
 fn set_cookie(response: &mut Response, name: &[u8], value: &str, path: &str, expired: bool) {
-    let mut cookie = String::with_capacity(NAME_LEN + value.len() + path.len() + 40);
-    // El nombre es ASCII: el prefijo y cifras hexadecimales.
-    cookie.extend(name.iter().map(|&b| char::from(b)));
-    cookie.push('=');
-    cookie.push_str(value);
-    cookie.push_str("; Path=");
-    cookie.push_str(path);
-    cookie.push_str(COOKIE_ATTRS);
-    if expired {
-        cookie.push_str("; Max-Age=0");
-    }
+    // El nombre es ASCII (el prefijo y cifras hexadecimales), así que siempre es UTF-8 válido.
+    let Ok(name) = str::from_utf8(name) else {
+        return;
+    };
+    // Sin `Max-Age` es una *cookie* de sesión.
+    let cookie = cookie_header(name, value, path, expired.then_some(0));
     if let Ok(cookie) = HeaderValue::try_from(cookie) {
         response.headers_mut().append(header::SET_COOKIE, cookie);
     }
