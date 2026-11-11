@@ -41,9 +41,9 @@ struct Pending(Vec<(MessageLevel, String)>);
 /// La *cookie* (`pagetop_flash`) sólo se crea cuando una respuesta usa este método; una aplicación
 /// que no lo usa no envía ninguna. Es una *cookie* técnica: surge de una acción del usuario, dura
 /// como mucho un minuto, se borra en cuanto se muestran los mensajes y no contiene datos que lo
-/// identifiquen. Como *cookie* estrictamente necesaria para el servicio que el usuario ha pedido,
-/// suele quedar exenta de consentimiento, aunque conviene declararla en la política de *cookies* de
-/// la aplicación.
+/// identifiquen. En España y en la Unión Europea no requiere la aceptación del usuario, aunque
+/// conviene declararla en la política de *cookies* de la aplicación (ver
+/// [*Cookies*](crate::web#cookies) en el módulo `web`).
 ///
 /// El texto se muestra siempre como texto plano: el marcado que tenga una traducción aparecería
 /// tal cual. Cada mensaje debe ser breve; los que no quepan en la *cookie* (unos 3,8 KB entre

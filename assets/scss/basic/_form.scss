@@ -9,7 +9,9 @@
 }
 
 .form-text {
-    font-size: 0.9375rem;
+    font-size: 0.875rem;
+    font-style: italic;
+    line-height: 1.3;
     color: var(--val-color--text--muted);
 }
 
@@ -33,23 +35,37 @@ fieldset > legend {
 }
 
 .form-check {
-    display: flex;
+    display: grid;
+    grid-template-columns: auto 1fr;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.25rem 0.5rem;
     min-height: 1.5rem;
     margin-bottom: 0.25rem;
 }
+// A single checkbox has no label above it to give it room, as the other fields do.
+.form-field.form-check:not(.form-check-inline) {
+    margin-top: 1em;
+}
 .form-check-inline {
-    display: inline-flex;
+    display: inline-grid;
     margin-right: 1rem;
 }
 .form-check-reverse {
-    flex-direction: row-reverse;
-    justify-content: flex-start;
+    grid-template-columns: 1fr auto;
     text-align: right;
 }
+.form-check-reverse > .form-check-input {
+    grid-column: 2;
+    grid-row: 1;
+}
+// Help text goes below the label, aligned with it.
+.form-check > .form-text {
+    grid-column: 2;
+}
+.form-check-reverse > .form-text {
+    grid-column: 1;
+}
 .form-check-input {
-    flex-shrink: 0;
     cursor: pointer;
 }
 .form-check-label {

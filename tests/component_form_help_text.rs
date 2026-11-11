@@ -18,7 +18,7 @@ fn help() -> Lc {
 
 #[pagetop::test]
 async fn single_controls_point_to_their_help_text() {
-    let cases: [(String, &str); 5] = [
+    let cases: [(String, &str); 6] = [
         (
             render(
                 &mut form::input::Field::text()
@@ -48,6 +48,15 @@ async fn single_controls_point_to_their_help_text() {
             )
             .await,
             "edit-e-select-help",
+        ),
+        (
+            render(
+                &mut form::Checkbox::check()
+                    .with_name("g")
+                    .with_help_text(help()),
+            )
+            .await,
+            "edit-g-checkbox-help",
         ),
     ];
     for (html, id) in cases {

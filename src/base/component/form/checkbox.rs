@@ -47,6 +47,8 @@ pub struct Checkbox {
     name: AttrName,
     /// Devuelve la etiqueta del control.
     label: Lc,
+    /// Devuelve el texto de ayuda del control.
+    help_text: Lc,
     /// Devuelve si el control debe estar marcado/activo por defecto.
     checked: bool,
     /// Devuelve si el control recibe el foco automáticamente al cargar la página.
@@ -104,6 +106,7 @@ impl Component for Checkbox {
         let checkbox_id = util::join!(&container_id, "-checkbox");
         let label = form::parts::Label::check(self.label(), Some(&checkbox_id))
             .with_required(*self.required());
+        let help = form::parts::Help::new(self.help_text(), Some(&checkbox_id));
         let is_switch = *self.checkbox_kind() == form::CheckboxKind::Switch;
 
         Ok(html! {
@@ -118,8 +121,10 @@ impl Component for Checkbox {
                     checked[*self.checked()]
                     autofocus[*self.autofocus()]
                     required[*self.required()]
-                    disabled[*self.disabled()];
+                    disabled[*self.disabled()]
+                    aria-describedby=[help.id()];
                 (label.render(cx))
+                (help.render(cx))
             }
         })
     }
@@ -172,6 +177,12 @@ impl Checkbox {
     /// Establece la etiqueta visible del control (usa [`Lc::none()`] para quitarla).
     pub fn with_label(mut self, label: Lc) -> Self {
         self.label = label;
+        self
+    }
+
+    /// Establece el texto de ayuda del control (usa [`Lc::none()`] para quitarlo).
+    pub fn with_help_text(mut self, help_text: Lc) -> Self {
+        self.help_text = help_text;
         self
     }
 

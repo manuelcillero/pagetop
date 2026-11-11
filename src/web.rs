@@ -32,6 +32,93 @@
 //! conexiones HTTP sin cifrar fuera de `localhost`) se comprueban comparando `Origin` con `Host`.
 //!
 //! Ninguna protección frente a CSRF resiste un fallo de XSS en la propia aplicación.
+//!
+//! # *Cookies*
+//!
+//! PageTop sólo crea dos *cookies*, ambas propias (de la aplicación, no de terceros) y únicamente
+//! cuando las provoca una acción del usuario:
+//!
+//! | *Cookie*         | Para qué                                                       | Duración                                                        |
+//! |------------------|----------------------------------------------------------------|-----------------------------------------------------------------|
+//! | `pagetop_flash`  | Mensajes para la página siguiente ([`ResponseExt`])            | Un minuto como máximo; se borra al mostrar los mensajes         |
+//! | `pagetop_list_*` | Filtros, orden y página de un listado ([`remember_query()`])   | La sesión del navegador; se borra al limpiar los filtros        |
+//!
+//! Las extensiones pueden añadir las suyas; `pagetop-user`, por ejemplo, la de la sesión iniciada.
+//!
+//! ## Sin aceptación de *cookies*
+//!
+//! PageTop y sus extensiones propias (las que se publican con él, como `pagetop-user`) están
+//! pensados para que una aplicación no tenga que pedir la aceptación de *cookies* sólo por usarlos.
+//! Para ello, todas las *cookies* que crean cumplen los criterios que las principales normas de
+//! privacidad del mundo tratan como necesarias para el servicio:
+//!
+//! - Son propias de la aplicación; ninguna es de terceros.
+//! - Sólo existen para prestar algo que el usuario pide, y se crean por una acción suya.
+//! - No identifican al usuario fuera de la aplicación ni sirven para seguirlo entre sitios. No se
+//!   usan para analítica, publicidad ni perfiles, y no se venden ni se comparten.
+//! - Duran lo imprescindible para su función.
+//!
+//! Las normas que exigen consentimiento previo (las de la Unión Europea y otras de inspiración
+//! europea) eximen expresamente las *cookies* necesarias para el servicio que pide el usuario. Las
+//! que sólo obligan a ofrecer al usuario la posibilidad de oponerse (las de varios estados de
+//! Estados Unidos, por ejemplo) se dirigen a la venta o el intercambio de datos y a la publicidad
+//! dirigida, que estas *cookies* no hacen. En unas y otras, lo que sí se exige casi siempre es
+//! informar: describirlas en la política de *cookies* o de privacidad de la aplicación (nombre,
+//! finalidad, duración y si son propias), y la tabla anterior sirve para ello.
+//!
+//! La única que no queda exenta por sí sola es la de la sesión de `pagetop-user` cuando el usuario
+//! marca "Recuérdame", porque se conserva aunque cierre el navegador. Pero es él quien la pide, y
+//! marcar la casilla sabiendo que usa una *cookie* es ya su consentimiento. Es el criterio para
+//! cualquier función que necesite una *cookie* que el usuario deba aceptar: el consentimiento se
+//! pide en el propio gesto que la activa, nunca con un aviso aparte.
+//!
+//! La exención depende del uso: si una aplicación aprovechara estas *cookies* para otra cosa, o
+//! alargara su duración, dejaría de valer. Las que añada cada aplicación (analítica, publicidad...)
+//! sí suelen necesitar consentimiento.
+//!
+//! ## Unión Europea y España
+//!
+//! Es el marco más exigente y el que se ha tomado como referencia. La norma europea es una
+//! directiva: no se aplica directamente, sino que cada Estado miembro (y también Islandia,
+//! Liechtenstein y Noruega, del Espacio Económico Europeo) la incorpora a su propia ley, y la
+//! autoridad de protección de datos de cada país publica sus propias guías, de modo que los
+//! detalles pueden variar de un país a otro. Aquí se analizan la ley española y la guía de la
+//! autoridad española.
+//!
+//! Guardar o leer información en el dispositivo del usuario exige su consentimiento previo, salvo
+//! cuando es estrictamente necesario para prestar un servicio que el propio usuario ha pedido
+//! (artículo 5.3 de la Directiva 2002/58/CE, la «Directiva ePrivacy», modificada por la Directiva
+//! 2009/136/CE; en España, artículo 22.2 de la Ley 34/2002, de servicios de la sociedad de la
+//! información, LSSI). El dictamen 04/2012 del Grupo de Trabajo del Artículo 29 sobre la exención
+//! del requisito de consentimiento de las *cookies* (WP194), criterio que mantiene el Comité
+//! Europeo de Protección de Datos, y la *Guía sobre el uso de las cookies* de la Agencia Española
+//! de Protección de Datos (AEPD) concretan esa excepción. Entre sus ejemplos de *cookies* exentas
+//! están las que recuerdan lo que el usuario ha hecho durante la sesión y las de personalización de
+//! la interfaz que él mismo elige.
+//!
+//! Las dos de PageTop encajan en esa excepción, así que **no requieren la aceptación del usuario**
+//! ni un aviso de *cookies* que la pida:
+//!
+//! - `pagetop_flash` completa una acción que el usuario acaba de pedir (guardar un formulario,
+//!   iniciar sesión...): lleva el aviso del resultado a la página siguiente y desaparece en cuanto
+//!   se muestra.
+//! - `pagetop_list_*` es una personalización de la interfaz que el usuario activa al filtrar,
+//!   ordenar o paginar un listado, y dura lo que la sesión del navegador.
+//!
+//! El texto de un filtro puede contener datos personales (un nombre buscado), pero queda sólo en el
+//! navegador de quien lo escribió. La AEPD recomienda describir también las *cookies* exentas en la
+//! política de *cookies* de la aplicación.
+//!
+//! ## Otros países
+//!
+//! Fuera de la Unión Europea, los criterios anteriores se basan en lo que comparten las normas más
+//! extendidas, no en un análisis país por país. Antes de desplegar en un país concreto conviene
+//! contrastarlos con su normativa, que además cambia con frecuencia.
+//!
+//! Es el criterio de las normas y guías citadas, no un asesoramiento jurídico: en un despliegue con
+//! exigencias legales concretas, el responsable del tratamiento debe confirmarlo.
+//!
+//! [`ResponseExt`]: crate::response::ResponseExt
 
 use crate::{StaticFile, global};
 

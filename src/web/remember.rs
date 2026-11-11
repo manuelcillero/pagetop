@@ -73,9 +73,9 @@ const RESET_PARAM: &str = "reset";
 /// código derivado de la ruta, limitada a esa ruta con `Path`), sin nada en el servidor. Es una
 /// *cookie* técnica de sesión: sólo se crea cuando el usuario filtra, ordena o pagina, sólo
 /// contiene los parámetros del listado y el navegador la borra al cerrarse (salvo los que restauran
-/// la sesión anterior al abrirse de nuevo, que la conservan). Como *cookie* de personalización de
-/// la interfaz que el propio usuario solicita, suele quedar exenta de consentimiento, aunque
-/// conviene declararla en la política de *cookies* de la aplicación. Las ventanas y pestañas del
+/// la sesión anterior al abrirse de nuevo, que la conservan). En España y en la Unión Europea no
+/// requiere la aceptación del usuario, aunque conviene declararla en la política de *cookies* de la
+/// aplicación (ver [*Cookies*](crate::web#cookies) en el módulo `web`). Las ventanas y pestañas del
 /// navegador comparten el mismo estado. No se recuerda un estado de más de 1024 caracteres ni uno
 /// con caracteres que una *cookie* no admite (los navegadores ya los codifican en la URL).
 ///
