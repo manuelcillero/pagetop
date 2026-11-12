@@ -185,8 +185,12 @@ pub(crate) async fn user_roles(user_id: i32) -> Result<Vec<role::Model>, AuthErr
 pub(crate) struct NewUserData<'a> {
     pub username: &'a str,
     pub email: &'a str,
-    pub password: &'a str,
-    pub confirm_password: &'a str,
+    /// Contraseña y su confirmación. Sin ellas, la cuenta no tiene contraseña local: la de una
+    /// cuenta que entrará con un proveedor de autenticación.
+    pub password: Option<(&'a str, &'a str)>,
+    /// Proveedor de autenticación que podrá vincular la cuenta cuando la persona inicie sesión
+    /// con este nombre de usuario (ver `provider::allow_linking()`). Nunca con `is_admin`.
+    pub link_provider: Option<&'a str>,
     pub display_name: Option<&'a str>,
     pub language: Option<&'a str>,
     pub timezone: Option<&'a str>,
@@ -200,13 +204,19 @@ pub(crate) struct NewUserData<'a> {
 /// activo y con el email verificado de inmediato (lo crea un administrador de confianza), y admite
 /// asignar roles iniciales (los de sistema se descartan, ver [`set_user_roles`]).
 ///
-/// El usuario y sus roles se crean en una sola transacción: si falla cualquier inserción (p. ej.
-/// porque se ha eliminado uno de los roles mientras tanto), no se crea nada.
+/// El usuario, sus roles y, con `link_provider`, la marca de vinculación se crean en una sola
+/// transacción: si falla cualquier inserción (p. ej. porque se ha eliminado uno de los roles
+/// mientras tanto), no se crea nada.
 pub(crate) async fn create_user(data: NewUserData<'_>) -> Result<i32, AuthError> {
+    if data.link_provider.is_some() && data.is_admin {
+        return Err(AuthError::ProtectedAccount);
+    }
     let username = identity::username(data.username, SETTINGS.identity_policy, None)?;
     let email = identity::email(data.email)?;
-    password::validate_strength(data.password)?;
-    password::passwords_match(data.password, data.confirm_password)?;
+    if let Some((plain, confirm)) = data.password {
+        password::validate_strength(plain)?;
+        password::passwords_match(plain, confirm)?;
+    }
     // El idioma y la zona horaria que no se aplican no se ofrecen en el formulario: se ignora lo
     // que pudiera llegar y el usuario se crea sin ellos.
     let language = if user_language_applies() {
@@ -224,7 +234,10 @@ pub(crate) async fn create_user(data: NewUserData<'_>) -> Result<i32, AuthError>
     ensure_username_available(&username, None).await?;
     ensure_email_available(&email, None).await?;
 
-    let hash = password::hash_password_async(data.password).await?;
+    let hash = match data.password {
+        Some((plain, _)) => password::hash_password_async(plain).await?,
+        None => password::UNUSABLE_HASH.to_owned(),
+    };
     let now = Utc::now();
 
     let mut new_user = user::ActiveModel {
@@ -249,6 +262,9 @@ pub(crate) async fn create_user(data: NewUserData<'_>) -> Result<i32, AuthError>
     username.set_on(&mut new_user);
     email.set_on(&mut new_user);
     let role_ids = assignable_roles(data.initial_role_ids);
+    let link = data
+        .link_provider
+        .map(|provider| (provider.to_owned(), username.value().to_owned()));
 
     let result = dbconn()
         .transaction::<_, _, AuthError>(|txn| {
@@ -258,6 +274,12 @@ pub(crate) async fn create_user(data: NewUserData<'_>) -> Result<i32, AuthError>
                     .await?
                     .last_insert_id;
                 insert_user_roles(txn, user_id, role_ids).await?;
+                if let Some((provider, expected)) = link {
+                    let identity = crate::provider::pending_identity(user_id, &provider, &expected);
+                    crate::entity::user_identity::Entity::insert(identity)
+                        .exec(txn)
+                        .await?;
+                }
                 Ok(user_id)
             })
         })
@@ -278,8 +300,18 @@ pub(crate) const ABOUT_MAX_CHARS: u16 = 2000;
 /// Longitud máxima, en caracteres, del nombre visible, la de su columna.
 pub(crate) const DISPLAY_NAME_MAX_CHARS: u16 = 128;
 
+// Comprueba que el texto "Sobre mí", con los saltos de línea ya normalizados, no supere su longitud
+// máxima.
+pub(crate) fn validate_about(about: Option<&str>) -> Result<(), AuthError> {
+    let max = usize::from(ABOUT_MAX_CHARS);
+    if about.is_some_and(|about| about.chars().count() > max) {
+        return Err(AuthError::AboutTooLong(max));
+    }
+    Ok(())
+}
+
 // Comprueba que el nombre visible no supere la longitud de su columna.
-fn validate_display_name(display_name: Option<&str>) -> Result<(), AuthError> {
+pub(crate) fn validate_display_name(display_name: Option<&str>) -> Result<(), AuthError> {
     let max = usize::from(DISPLAY_NAME_MAX_CHARS);
     if display_name.is_some_and(|name| name.chars().count() > max) {
         return Err(AuthError::DisplayNameTooLong(max));
@@ -339,13 +371,7 @@ pub(crate) async fn update_user(user_id: i32, data: UserUpdateData<'_>) -> Resul
     // contarlos como un único carácter: se normalizan antes de medir para no rechazar un texto que
     // el formulario sí admitió.
     let about = data.about.map(|about| about.replace("\r\n", "\n"));
-    let max_about = usize::from(ABOUT_MAX_CHARS);
-    if about
-        .as_deref()
-        .is_some_and(|about| about.chars().count() > max_about)
-    {
-        return Err(AuthError::AboutTooLong(max_about));
-    }
+    validate_about(about.as_deref())?;
     ensure_username_available(&username, Some(user_id)).await?;
     ensure_email_available(&email, Some(user_id)).await?;
 
@@ -378,14 +404,32 @@ pub(crate) async fn update_user(user_id: i32, data: UserUpdateData<'_>) -> Resul
 
 // **< set_user_roles >*****************************************************************************
 
-/// Reemplaza por completo el conjunto de roles asignados a un usuario.
+/// Reemplaza por completo el conjunto de roles asignados a un usuario, salvo los de `managed`.
 ///
 /// Los roles de sistema nunca se almacenan, por lo que se descartan si llegan en `role_ids`:
 /// "authenticated" es implícito para toda cuenta autenticada y "anonymous" sólo se aplica a las
-/// peticiones sin sesión.
-pub(crate) async fn set_user_roles(user_id: i32, role_ids: &[i32]) -> Result<(), AuthError> {
+/// peticiones sin sesión. Los de `managed` los asigna y retira el proveedor que gestiona la cuenta
+/// (ver `AccountPolicy::managed_roles()`): se conservan tal como estén, llegue lo que llegue.
+pub(crate) async fn set_user_roles(
+    user_id: i32,
+    role_ids: &[i32],
+    managed: &[i32],
+) -> Result<(), AuthError> {
     find_user(user_id).await?;
-    let role_ids = assignable_roles(role_ids);
+    let mut role_ids: Vec<i32> = role_ids
+        .iter()
+        .copied()
+        .filter(|id| !managed.contains(id))
+        .collect();
+    if !managed.is_empty() {
+        role_ids.extend(
+            user_role_ids(user_id)
+                .await?
+                .into_iter()
+                .filter(|id| managed.contains(id)),
+        );
+    }
+    let role_ids = assignable_roles(&role_ids);
 
     dbconn()
         .transaction::<_, _, AuthError>(|txn| {
@@ -441,7 +485,7 @@ pub(crate) async fn set_user_status(
     new_status: UserStatus,
     acting_user_id: i32,
 ) -> Result<(), AuthError> {
-    find_user(user_id).await?;
+    let before = UserStatus::from_i16(find_user(user_id).await?.status);
 
     if new_status == UserStatus::Blocked {
         if user_id == acting_user_id {
@@ -467,6 +511,9 @@ pub(crate) async fn set_user_status(
             .await
             .map_err(AuthError::Database)?;
     }
+    if before != new_status {
+        crate::actions::AfterUserStatusChanged::dispatch(user_id, before, new_status);
+    }
 
     Ok(())
 }
@@ -481,6 +528,10 @@ pub(crate) async fn set_user_status(
 /// "último administrador": para llegar aquí quien actúa ya tiene que ser administrador, así que si
 /// sólo queda uno, sólo él podría revocarse a sí mismo, y eso ya lo bloquea la comprobación
 /// anterior.
+///
+/// Tampoco concede el acceso total a una cuenta vinculada a un proveedor de autenticación
+/// ([`AuthError::ProtectedAccount`]): quien controlara la persona en el proveedor lo tendría. Hay
+/// que desvincularla antes, igual que un proveedor nunca vincula una cuenta de administrador.
 pub(crate) async fn set_user_admin(
     user_id: i32,
     is_admin: bool,
@@ -490,6 +541,9 @@ pub(crate) async fn set_user_admin(
 
     if user_id == acting_user_id {
         return Err(AuthError::CannotModifyOwnAdminFlag);
+    }
+    if is_admin && !crate::provider::linked_providers(user_id).await?.is_empty() {
+        return Err(AuthError::ProtectedAccount);
     }
 
     let now = Utc::now();
@@ -538,6 +592,7 @@ pub(crate) async fn admin_reset_password(
     crate::auth::cancel_email_change(user_id).await?;
     // Un enlace de recuperación pedido antes no debe deshacer el cambio.
     crate::token::revoke_tokens(user_id, crate::token::TokenKind::PasswordReset).await?;
+    crate::throttle::forget_account(&user_model.username, &user_model.email);
     Ok(user_model)
 }
 
@@ -546,7 +601,7 @@ pub(crate) async fn admin_reset_password(
 // Devuelve el idioma sin espacios, tal como debe guardarse. Ha de ser uno de los identificadores
 // que ofrece el selector (`Locale::supported_languages()`); uno ausente o en blanco es válido y
 // devuelve `None`: equivale a usar el predeterminado de la aplicación.
-fn validate_language(language: Option<&str>) -> Result<Option<&str>, AuthError> {
+pub(crate) fn validate_language(language: Option<&str>) -> Result<Option<&str>, AuthError> {
     let language = language.and_then(util::non_blank);
     if let Some(code) = language
         && !Locale::supported_languages()
@@ -561,7 +616,7 @@ fn validate_language(language: Option<&str>) -> Result<Option<&str>, AuthError> 
 // Devuelve el nombre corto del tema tal como debe guardarse, el que declara el propio tema aunque
 // llegue con otras mayúsculas. Ha de ser uno de los temas habilitados; uno ausente o en blanco es
 // válido y devuelve `None`: equivale a usar el predeterminado de la aplicación.
-fn validate_theme(theme: Option<&str>) -> Result<Option<&'static str>, AuthError> {
+pub(crate) fn validate_theme(theme: Option<&str>) -> Result<Option<&'static str>, AuthError> {
     match theme.and_then(util::non_blank) {
         Some(name) => theme_by_short_name(name)
             .map(|theme| Some(theme.short_name()))
@@ -573,7 +628,7 @@ fn validate_theme(theme: Option<&str>) -> Result<Option<&'static str>, AuthError
 // Devuelve la zona sin espacios, tal como debe guardarse. Ha de ser una de las que ofrece el
 // selector (`Timezone::supported_by_region()`); una ausente o en blanco es válida y devuelve
 // `None`: equivale a usar la predeterminada de la aplicación.
-fn validate_timezone(timezone: Option<&str>) -> Result<Option<&str>, AuthError> {
+pub(crate) fn validate_timezone(timezone: Option<&str>) -> Result<Option<&str>, AuthError> {
     let timezone = timezone.and_then(util::non_blank);
     if let Some(tz) = timezone
         && !Timezone::supported_by_region()

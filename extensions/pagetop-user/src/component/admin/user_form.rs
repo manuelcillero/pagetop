@@ -9,6 +9,7 @@ use crate::{ADMIN_USERS_PATH, PROFILE_EDIT_PATH};
 
 use crate::component::{PasswordConfirm, error_banner, form_actions, profile_form_actions};
 use crate::identity::{EMAIL_MAX_CHARS, USERNAME_MIN_CHARS, username_help, username_max_chars};
+use crate::provider::{AccountPolicy, UserField};
 use crate::service::user_admin::{ABOUT_MAX_CHARS, DISPLAY_NAME_MAX_CHARS};
 
 use super::{USER_ADMIN_FORM_ID, roles_fieldset};
@@ -42,6 +43,11 @@ pub(crate) struct UserForm {
     /// En modo `Profile`, si el nombre de usuario es editable; si no, se muestra de sólo lectura.
     allow_username_field: bool,
     is_admin: bool,
+    /// Política del proveedor que gestiona la cuenta, si lo hay: los datos que gestiona se muestran
+    /// de sólo lectura (y quien recibe el formulario los ignora).
+    policy: Option<AccountPolicy>,
+    /// En modo `New`, el proveedor con el que entrará la cuenta (`(id, nombre)`): sin contraseña.
+    provider: Option<(String, String)>,
 }
 
 #[async_trait]
@@ -56,11 +62,29 @@ impl Component for UserForm {
             UserFormMode::Edit => user_path(self.user_id().copied().unwrap_or_default(), "edit"),
             UserFormMode::Profile => PROFILE_EDIT_PATH.into(),
         };
-        let username_readonly =
-            *self.mode() == UserFormMode::Profile && !*self.allow_username_field();
+        let policy = self.policy();
+        let managed = |field: UserField| policy.is_some_and(|p| p.manages(field));
+        let managed_help = match policy {
+            Some(p) => Lc::t("help-managed-by", &LOCALES_USER).with_arg(
+                "provider",
+                p.provider_label().lookup(cx).unwrap_or_default(),
+            ),
+            None => Lc::none(),
+        };
+        let help = |readonly: bool| {
+            if readonly {
+                managed_help.clone()
+            } else {
+                Lc::none()
+            }
+        };
+        let username_managed = policy.is_some_and(|p| !p.username().is_editable());
+        let username_readonly = username_managed
+            || (*self.mode() == UserFormMode::Profile && !*self.allow_username_field());
         // El propio usuario cambia su email en otra pantalla, que pide su contraseña y confirma la
         // nueva dirección antes de aplicarla.
-        let email_readonly = *self.mode() == UserFormMode::Profile;
+        let email_managed = policy.is_some_and(|p| !p.email().is_editable());
+        let email_readonly = email_managed || *self.mode() == UserFormMode::Profile;
         let action = cx.route(action);
 
         let mut form = Form::new()
@@ -73,7 +97,9 @@ impl Component for UserForm {
                     .with_name("username")
                     .with_value(self.username())
                     .with_label(Lc::t("field-username-admin", &LOCALES_USER))
-                    .with_help_text(if username_readonly {
+                    .with_help_text(if username_managed {
+                        managed_help.clone()
+                    } else if username_readonly {
                         Lc::none()
                     } else {
                         username_help(SETTINGS.identity_policy)
@@ -88,7 +114,9 @@ impl Component for UserForm {
                     .with_name("email")
                     .with_value(self.email())
                     .with_label(Lc::t("field-email", &LOCALES_USER))
-                    .with_help_text(if email_readonly {
+                    .with_help_text(if email_managed {
+                        managed_help.clone()
+                    } else if email_readonly {
                         Lc::t("help-email-readonly", &LOCALES_USER)
                     } else {
                         Lc::none()
@@ -102,6 +130,8 @@ impl Component for UserForm {
                     .with_name("display_name")
                     .with_value(self.display_name())
                     .with_label(Lc::t("field-display-name", &LOCALES_USER))
+                    .with_help_text(help(managed(UserField::DisplayName)))
+                    .with_readonly(managed(UserField::DisplayName))
                     .with_maxlength(DISPLAY_NAME_MAX_CHARS),
             );
 
@@ -112,6 +142,7 @@ impl Component for UserForm {
                 form::SelectLanguage::new()
                     .with_name("language")
                     .with_label(Lc::t("field-language", &LOCALES_USER))
+                    .with_disabled(managed(UserField::Language))
                     .with_selected(self.language()),
             );
         }
@@ -121,6 +152,7 @@ impl Component for UserForm {
                     .with_name("timezone")
                     .with_label(Lc::t("field-timezone", &LOCALES_USER))
                     .with_utc_offset(true)
+                    .with_disabled(managed(UserField::Timezone))
                     .with_selected(self.timezone()),
             );
         }
@@ -128,24 +160,47 @@ impl Component for UserForm {
             form::SelectTheme::new()
                 .with_name("theme")
                 .with_label(Lc::t("field-theme", &LOCALES_USER))
+                .with_disabled(managed(UserField::Theme))
                 .with_selected(self.theme()),
         );
 
-        if *self.mode() == UserFormMode::New {
-            form = form.with_child(PasswordConfirm::new());
-        } else {
-            form = form.with_child(
-                form::Textarea::new()
-                    .with_name("about")
-                    .with_value(self.about())
-                    .with_label(Lc::t("field-about", &LOCALES_USER))
-                    .with_rows(Some(5))
-                    .with_maxlength(Some(ABOUT_MAX_CHARS)),
-            );
+        match (self.mode(), self.provider()) {
+            // Una cuenta que entrará con un proveedor no tiene contraseña local.
+            (UserFormMode::New, Some((id, name))) => {
+                form = form
+                    .with_child(form::Hidden::field("provider", id.as_str()))
+                    .with_child(Html::with({
+                        let note = Lc::t("help-external-user", &LOCALES_USER)
+                            .with_arg("provider", name.clone());
+                        move |cx| html! { p { (note.using(cx)) } }
+                    }));
+            }
+            (UserFormMode::New, None) => {
+                form = form.with_child(PasswordConfirm::new());
+            }
+            _ => {
+                form = form.with_child(
+                    form::Textarea::new()
+                        .with_name("about")
+                        .with_value(self.about())
+                        .with_label(Lc::t("field-about", &LOCALES_USER))
+                        .with_help_text(help(managed(UserField::About)))
+                        .with_readonly(managed(UserField::About))
+                        .with_rows(Some(5))
+                        .with_maxlength(Some(ABOUT_MAX_CHARS)),
+                );
+            }
         }
 
         if *self.mode() != UserFormMode::Profile && !self.roles().is_empty() {
-            form = form.with_child(roles_fieldset(self.roles()));
+            let (managed_roles, provider) = match policy {
+                Some(p) => (
+                    p.managed_roles(),
+                    p.provider_label().lookup(cx).unwrap_or_default(),
+                ),
+                None => (&[][..], String::new()),
+            };
+            form = form.with_child(roles_fieldset(self.roles(), managed_roles, &provider));
         }
 
         if *self.mode() == UserFormMode::New && *self.allow_admin_field() {
@@ -246,6 +301,16 @@ impl UserForm {
 
     pub(crate) fn with_is_admin(mut self, is_admin: bool) -> Self {
         self.is_admin = is_admin;
+        self
+    }
+
+    pub(crate) fn with_policy(mut self, policy: Option<AccountPolicy>) -> Self {
+        self.policy = policy;
+        self
+    }
+
+    pub(crate) fn with_provider(mut self, provider: Option<(String, String)>) -> Self {
+        self.provider = provider;
         self
     }
 }

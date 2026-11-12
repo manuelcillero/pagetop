@@ -6,12 +6,12 @@ use crate::Account;
 use crate::permission::UserPermission;
 use crate::profile_path;
 
-/// Componente para mostrar el **nombre de un usuario**, enlazado a su perfil público cuando quien
-/// mira puede verlo.
+/// Componente para mostrar el **nombre de un usuario**.
 ///
-/// Se renderiza como enlace a `/user/{id}` si quien hace la petición tiene `user:view_profiles` o
-/// es el propio usuario; si no, como texto. Las propiedades del componente (identificador, clases,
-/// atributos) se aplican en ambos casos.
+/// Enlaza con su perfil público, siempre que quien mira pueda verlo. Se renderiza como enlace a
+/// `/user/{id}` si quien hace la petición tiene `user:view_profiles` o es el propio usuario; si no,
+/// como texto. Las propiedades del componente (identificador, clases, atributos) se aplican en
+/// ambos casos.
 ///
 /// Recibe el identificador y el nombre que el llamador ya tiene de su propia consulta, así que no
 /// consulta la base de datos al renderizarse. El nombre suele ser el nombre visible del usuario o,

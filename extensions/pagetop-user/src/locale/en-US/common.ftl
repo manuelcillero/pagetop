@@ -115,12 +115,17 @@ mail-email-change-requested-intro   = Someone asked to change the email address 
 mail-notice-action = Reset my password
 mail-notice-ignore = If you already knew, you do not need to do anything.
 
+mail-reset-external-subject = Your { $app } password
+mail-reset-external-intro   = We have received a request to reset the password of your account, but its password is not managed by this application: it is managed by { $provider }. Please change it there.
+mail-reset-external-action  = How to change my password
+
 mail-preview-reset                  = Password reset
 mail-preview-verify                 = Email verification on sign-up
 mail-preview-email-change           = Confirmation of a new address
 mail-preview-email-change-requested = Notice of a requested address change
 mail-preview-password-changed       = Notice of a password change
 mail-preview-password-changed-admin = Notice of a password change by an administrator
+mail-preview-reset-external         = Notice of a password managed elsewhere
 
 # **< Error messages >**
 
@@ -144,12 +149,20 @@ error-too-many-requests     = Too many requests. Please try again later.
 error-token-invalid         = This link is invalid or has expired.
 error-current-password      = The current password is incorrect.
 error-internal              = An unexpected error occurred. Please try again.
+error-account-awaiting-approval = Your account is waiting for an administrator to approve it.
+error-external-unavailable      = Your password cannot be checked right now. Please try again later.
+error-login-disallowed          = Your account has no access to this application.
+error-login-not-registered      = You have no account in this application. Ask to be registered.
+error-login-conflict            = You cannot sign in with this account. Please contact the administrator.
+error-password-expired          = Your password has expired. Change it before signing in.
+error-password-managed          = The password of this account is not managed by this application.
 
 # **< Account statuses >**
 
-status-active  = Active
-status-blocked = Blocked
-status-pending = Pending email verification
+status-active            = Active
+status-blocked           = Blocked
+status-pending           = Pending email verification
+status-awaiting-approval = Awaiting approval
 
 # **< System roles >**
 
@@ -201,6 +214,10 @@ field-language              = Language
 field-timezone              = Timezone
 field-theme                 = Theme
 value-theme-site-default    = Site theme: { $theme }
+field-origin                = Origin
+value-origin-local          = Local account
+value-origin-pending        = Local account, may be linked with { $provider }
+value-role-managed          = { $role } (managed by { $provider })
 field-machine-name          = Machine name
 field-label                 = Label
 field-description           = Description
@@ -226,6 +243,11 @@ help-password-min-length = At least { $n } characters.
 
 help-email-readonly = To change it, use "Change email" in your profile.
 
+help-managed-by       = Managed by { $provider }.
+help-account-managed  = Your account is managed by { $provider }: change your password and the data that comes from there in { $provider }.
+help-password-managed = The password of this account is managed by { $provider } and cannot be changed here.
+help-external-user    = The account will have no password in this application: it will be linked with { $provider } the first time the person signs in with this username.
+
 help-remember-me = Keeps you signed in using a cookie. Do not check on a shared device.
 
 help-machine-name-immutable =
@@ -247,6 +269,10 @@ btn-manage-permissions = Manage permissions
 btn-reset-password     = Reset password
 btn-block              = Block
 btn-activate           = Activate
+btn-create-external-user = New { $provider } account
+btn-approve              = Approve
+btn-allow-linking        = Allow linking with { $provider }
+btn-cancel-linking       = Do not link with { $provider }
 btn-grant-admin        = Grant administrator
 btn-revoke-admin       = Revoke administrator
 link-back              = Back
@@ -277,3 +303,6 @@ error-cannot-block-self            = You cannot block your own account.
 error-cannot-modify-own-admin-flag = You cannot grant or revoke your own unrestricted access.
 error-user-not-found               = User not found.
 error-unknown-permission           = Unknown permission key.
+error-identity-taken               = Another account is already linked to that identity.
+error-protected-account            = An administrator account cannot be linked to an authentication provider.
+error-not-pending-identity         = The account is not waiting to be linked.

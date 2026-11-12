@@ -7,6 +7,7 @@ use pagetop_htmx::hx_table::sort_link;
 use crate::ADMIN_USERS_PATH;
 use crate::LOCALES_USER;
 use crate::account::{Account, UserStatus};
+use crate::provider;
 use crate::service::user_admin::{UserListItem, UserSortField};
 use crate::user_path;
 
@@ -68,12 +69,23 @@ impl Component for UserTable {
 
         let new_href = cx.route(util::join!(ADMIN_USERS_PATH.as_str(), "/new"));
 
-        let mut list = ListView::new()
-            .with_id("user-table-wrapper")
-            .with_action(
-                Button::anchor(Lc::t("btn-create-user", &LOCALES_USER), new_href)
-                    .with_style(button::Style::Solid(Intent::Primary)),
-            )
+        let mut list = ListView::new().with_id("user-table-wrapper").with_action(
+            Button::anchor(Lc::t("btn-create-user", &LOCALES_USER), new_href.clone())
+                .with_style(button::Style::Solid(Intent::Primary)),
+        );
+        // Alta de una cuenta que entrará con un proveedor de autenticación (ver `new_get()`).
+        for provider in provider::active_providers() {
+            let name = provider.label().lookup(cx).unwrap_or_default();
+            let href = new_href.clone().with_param("provider", provider.id());
+            list = list.with_action(
+                Button::anchor(
+                    Lc::t("btn-create-external-user", &LOCALES_USER).with_arg("provider", name),
+                    href,
+                )
+                .with_style(button::Style::Solid(Intent::Neutral)),
+            );
+        }
+        let mut list = list
             .with_table(table)
             .with_pager(hx_pager::boost(pager, "#user-table-wrapper"));
         Ok(list.render(cx).await)
@@ -221,5 +233,6 @@ pub(crate) fn status_key(status: UserStatus) -> &'static str {
         UserStatus::Active => "status-active",
         UserStatus::Blocked => "status-blocked",
         UserStatus::Pending => "status-pending",
+        UserStatus::AwaitingApproval => "status-awaiting-approval",
     }
 }

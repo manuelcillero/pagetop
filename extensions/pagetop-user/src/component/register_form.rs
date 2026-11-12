@@ -8,6 +8,11 @@ use crate::component::{PasswordConfirm, error_banner};
 use crate::config::SETTINGS;
 use crate::identity::{EMAIL_MAX_CHARS, USERNAME_MIN_CHARS, username_help, username_max_chars};
 
+/// Formulario de registro de una cuenta nueva.
+///
+/// Pide el nombre de usuario (con las reglas de la política de identidad configurada), el email y
+/// la contraseña con su confirmación, y se envía a `/user/register`, que sólo admite registros con
+/// [`allow_registration`](crate::config::UserSettings::allow_registration).
 #[derive(AutoDefault, Clone, Debug)]
 pub struct RegisterForm {
     error: Option<Lc>,
@@ -60,6 +65,7 @@ impl Component for RegisterForm {
 
 #[builder_impl]
 impl RegisterForm {
+    /// Mensaje de error sobre el formulario, p. ej. el del envío que ha fallado.
     pub fn with_error(mut self, error: impl Into<Option<Lc>>) -> Self {
         self.error = error.into();
         self

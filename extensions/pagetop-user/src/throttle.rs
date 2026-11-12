@@ -1,35 +1,44 @@
 //! Límites de solicitudes por dirección IP: las que envían un correo o crean una cuenta
-//! (`user.max_ip_requests`) y los inicios de sesión fallidos (`user.max_ip_failed_logins`).
+//! (`user.max_ip_requests`) y los inicios de sesión fallidos (`user.max_ip_failed_logins`), y de
+//! los inicios de sesión fallidos por identificador tecleado (`user.max_failed_logins`).
 
 use pagetop::prelude::*;
 
 use crate::config::SETTINGS;
 
 use std::collections::{HashMap, VecDeque};
+use std::hash::Hash;
 use std::net::{IpAddr, Ipv6Addr};
-use std::sync::{LazyLock, Mutex};
+use std::sync::{LazyLock, Mutex, PoisonError};
 use std::time::{Duration as StdDuration, Instant};
 
-// Momentos de las solicitudes de cada dirección dentro de la ventana, y última limpieza.
-struct Requests {
-    by_ip: HashMap<IpAddr, VecDeque<Instant>>,
+// Claves distintas que se siguen como mucho en cada límite. Sin tope, quien enviara intentos con
+// identificadores siempre distintos haría crecer la tabla sin medida; alcanzado, una clave nueva no
+// se anota (los límites por dirección IP siguen aplicándose).
+const MAX_TRACKED_KEYS: usize = 100_000;
+
+// Momentos de las solicitudes de cada clave dentro de la ventana, y última limpieza.
+struct Requests<K> {
+    by_key: HashMap<K, VecDeque<Instant>>,
     purged_at: Instant,
 }
 
 // Cada límite lleva su propia cuenta.
-type Log = LazyLock<Mutex<Requests>>;
+type Log<K> = LazyLock<Mutex<Requests<K>>>;
 
-const fn new_log() -> Log {
+const fn new_log<K>() -> Log<K> {
     LazyLock::new(|| {
         Mutex::new(Requests {
-            by_ip: HashMap::new(),
+            by_key: HashMap::new(),
             purged_at: Instant::now(),
         })
     })
 }
 
-static REQUESTS: Log = new_log();
-static FAILED_LOGINS: Log = new_log();
+static REQUESTS: Log<IpAddr> = new_log();
+static FAILED_LOGINS: Log<IpAddr> = new_log();
+static FAILED_IDENTIFIERS: Log<String> = new_log();
+static FAILED_ANYWHERE: Log<()> = new_log();
 
 /// Anota una solicitud de la dirección del cliente y devuelve si se admite, según
 /// [`max_ip_requests`](crate::config::UserSettings::max_ip_requests).
@@ -41,7 +50,7 @@ pub(crate) fn allow(request: &HttpRequest) -> bool {
         return true;
     };
     let allowed = allow_at(
-        &mut REQUESTS.lock().unwrap(),
+        &mut lock(&REQUESTS),
         network(ip),
         Instant::now(),
         SETTINGS.max_ip_requests,
@@ -53,33 +62,112 @@ pub(crate) fn allow(request: &HttpRequest) -> bool {
     allowed
 }
 
-/// Anota un intento de inicio de sesión de la dirección del cliente y devuelve si se admite, según
-/// [`max_ip_failed_logins`](crate::config::UserSettings::max_ip_failed_logins).
-///
-/// El intento se anota antes de comprobar la contraseña, para que varios intentos simultáneos no
-/// puedan superar el límite; si no resulta fallido, se retira con [`forget_login()`].
-pub(crate) fn allow_login(request: &HttpRequest) -> bool {
-    let Some(ip) = request.client_ip() else {
-        return true;
-    };
-    let allowed = allow_at(
-        &mut FAILED_LOGINS.lock().unwrap(),
-        network(ip),
-        Instant::now(),
-        SETTINGS.max_ip_failed_logins,
-        window(SETTINGS.ip_failed_login_window_secs),
-    );
-    if !allowed {
-        trace::warn!("Failed login limit reached for address {ip}");
-    }
-    allowed
+// Límites que se aplican a un intento de inicio de sesión: por dirección IP (o, sin dirección
+// conocida y con un proveedor de autenticación activo, el global) y por identificador tecleado.
+pub(crate) struct LoginKeys {
+    ip: Option<IpAddr>,
+    anywhere: bool,
+    identifier: String,
 }
 
-/// Retira un intento anotado por [`allow_login()`] que no ha resultado fallido.
-pub(crate) fn forget_login(request: &HttpRequest) {
-    if let Some(ip) = request.client_ip() {
-        forget_at(&mut FAILED_LOGINS.lock().unwrap(), network(ip));
+impl LoginKeys {
+    pub(crate) fn new(request: &HttpRequest, identifier: &str) -> Self {
+        let ip = request.client_ip().map(network);
+        LoginKeys {
+            ip,
+            // Sin dirección conocida no hay límite por IP. Con sólo cuentas locales queda el
+            // bloqueo de cada cuenta; con un proveedor, cada intento llega además a un servicio
+            // externo (p. ej. el directorio, que bloquearía la cuenta), así que se limita en
+            // conjunto.
+            anywhere: ip.is_none() && crate::provider::active_providers().next().is_some(),
+            identifier: crate::identity::login_key(identifier),
+        }
     }
+}
+
+/// Anota un intento de inicio de sesión y devuelve si se admite: según
+/// [`max_ip_failed_logins`](crate::config::UserSettings::max_ip_failed_logins) para la dirección
+/// del cliente y según [`max_failed_logins`](crate::config::UserSettings::max_failed_logins) para
+/// el identificador tecleado, exista o no la cuenta.
+///
+/// El intento se anota antes de comprobar la contraseña, para que varios intentos simultáneos no
+/// puedan superar el límite; si resulta correcto, se retira con [`forget_login()`]. Rechazado, no
+/// se anota en ningún límite.
+pub(crate) fn allow_login(keys: &LoginKeys) -> bool {
+    let now = Instant::now();
+    let ip_window = window(SETTINGS.ip_failed_login_window_secs);
+    let ip_allowed = match keys.ip {
+        Some(ip) => allow_at(
+            &mut lock(&FAILED_LOGINS),
+            ip,
+            now,
+            SETTINGS.max_ip_failed_logins,
+            ip_window,
+        ),
+        None if keys.anywhere => allow_at(
+            &mut lock(&FAILED_ANYWHERE),
+            (),
+            now,
+            SETTINGS.max_ip_failed_logins,
+            ip_window,
+        ),
+        None => true,
+    };
+    if !ip_allowed {
+        match keys.ip {
+            Some(ip) => trace::warn!("Failed login limit reached for address {ip}"),
+            None => trace::warn!("Failed login limit reached for requests of unknown address"),
+        }
+        return false;
+    }
+    let max = u32::try_from(SETTINGS.max_failed_logins).unwrap_or(0);
+    let identifier_allowed = allow_at(
+        &mut lock(&FAILED_IDENTIFIERS),
+        keys.identifier.clone(),
+        now,
+        max,
+        window(SETTINGS.failed_login_window_secs),
+    );
+    if !identifier_allowed {
+        trace::warn!("Failed login limit reached for an identifier");
+        forget_ip(keys);
+    }
+    identifier_allowed
+}
+
+/// Retira un intento anotado por [`allow_login()`] con la contraseña correcta. Como un acceso
+/// correcto pone a cero el recuento de fallos de la cuenta, también borra el del identificador.
+pub(crate) fn forget_login(keys: &LoginKeys) {
+    forget_ip(keys);
+    lock(&FAILED_IDENTIFIERS).by_key.remove(&keys.identifier);
+}
+
+/// Retira el intento anotado por [`allow_login()`] para el identificador, pero no el de la
+/// dirección IP. Para un intento que no se ha podido comprobar (un proveedor que no responde).
+pub(crate) fn forget_identifier(keys: &LoginKeys) {
+    forget_at(&mut lock(&FAILED_IDENTIFIERS), &keys.identifier);
+}
+
+/// Borra los fallos anotados para el nombre de usuario y el email de una cuenta. Se llama al
+/// restablecer su contraseña, que también levanta el bloqueo de la cuenta.
+pub(crate) fn forget_account(username: &str, email: &str) {
+    let mut failed = lock(&FAILED_IDENTIFIERS);
+    failed.by_key.remove(&crate::identity::login_key(username));
+    failed.by_key.remove(&crate::identity::login_key(email));
+}
+
+fn forget_ip(keys: &LoginKeys) {
+    match keys.ip {
+        Some(ip) => forget_at(&mut lock(&FAILED_LOGINS), &ip),
+        None if keys.anywhere => forget_at(&mut lock(&FAILED_ANYWHERE), &()),
+        None => {}
+    }
+}
+
+// Una tabla envenenada sigue siendo válida: cada operación la deja consistente antes de cualquier
+// punto en que pudiera fallar.
+fn lock<K>(log: &'static Log<K>) -> std::sync::MutexGuard<'static, Requests<K>> {
+    log.lock().unwrap_or_else(PoisonError::into_inner)
 }
 
 fn window(secs: i64) -> StdDuration {
@@ -87,9 +175,9 @@ fn window(secs: i64) -> StdDuration {
 }
 
 // Anota la solicitud si se admite.
-fn allow_at(
-    requests: &mut Requests,
-    ip: IpAddr,
+fn allow_at<K: Eq + Hash>(
+    requests: &mut Requests<K>,
+    key: K,
     now: Instant,
     max: u32,
     window: StdDuration,
@@ -98,15 +186,19 @@ fn allow_at(
         return true;
     }
     let expired = |at: &Instant| now.duration_since(*at) >= window;
-    // Sin limpiar, la tabla guardaría todas las direcciones vistas desde el arranque. Basta con
-    // hacerlo una vez por ventana: sólo quedan las direcciones con solicitudes recientes.
-    if now.duration_since(requests.purged_at) >= window {
+    // Sin limpiar, la tabla guardaría todas las claves vistas desde el arranque. Basta con hacerlo
+    // una vez por ventana (o al llenarse): sólo quedan las claves con solicitudes recientes.
+    let full = requests.by_key.len() >= MAX_TRACKED_KEYS;
+    if full || now.duration_since(requests.purged_at) >= window {
         requests
-            .by_ip
+            .by_key
             .retain(|_, times| times.back().is_some_and(|at| !expired(at)));
         requests.purged_at = now;
     }
-    let times = requests.by_ip.entry(ip).or_default();
+    if requests.by_key.len() >= MAX_TRACKED_KEYS && !requests.by_key.contains_key(&key) {
+        return true;
+    }
+    let times = requests.by_key.entry(key).or_default();
     while times.front().is_some_and(expired) {
         times.pop_front();
     }
@@ -117,9 +209,9 @@ fn allow_at(
     true
 }
 
-// Retira la solicitud más reciente de la dirección. Todas cuentan igual, así que da lo mismo cuál.
-fn forget_at(requests: &mut Requests, ip: IpAddr) {
-    if let Some(times) = requests.by_ip.get_mut(&ip) {
+// Retira la solicitud más reciente de la clave. Todas cuentan igual, así que da lo mismo cuál.
+fn forget_at<K: Eq + Hash>(requests: &mut Requests<K>, key: &K) {
+    if let Some(times) = requests.by_key.get_mut(key) {
         times.pop_back();
     }
 }
@@ -143,9 +235,9 @@ mod tests {
 
     const WINDOW: StdDuration = StdDuration::from_secs(60);
 
-    fn requests(start: Instant) -> Requests {
+    fn requests(start: Instant) -> Requests<IpAddr> {
         Requests {
-            by_ip: HashMap::new(),
+            by_key: HashMap::new(),
             purged_at: start,
         }
     }
@@ -174,11 +266,11 @@ mod tests {
         let start = Instant::now();
         let mut log = requests(start);
         assert!(allow_at(&mut log, ip("192.0.2.1"), start, 1, WINDOW));
-        forget_at(&mut log, ip("192.0.2.1"));
+        forget_at(&mut log, &ip("192.0.2.1"));
         assert!(allow_at(&mut log, ip("192.0.2.1"), start, 1, WINDOW));
         assert!(!allow_at(&mut log, ip("192.0.2.1"), start, 1, WINDOW));
         // Unknown addresses are ignored.
-        forget_at(&mut log, ip("192.0.2.2"));
+        forget_at(&mut log, &ip("192.0.2.2"));
     }
 
     #[pagetop::test]
@@ -188,7 +280,7 @@ mod tests {
         for _ in 0..10 {
             assert!(allow_at(&mut log, ip("192.0.2.1"), start, 0, WINDOW));
         }
-        assert!(log.by_ip.is_empty());
+        assert!(log.by_key.is_empty());
     }
 
     #[pagetop::test]
@@ -197,13 +289,27 @@ mod tests {
         let mut log = requests(start);
         allow_at(&mut log, ip("192.0.2.1"), start, 5, WINDOW);
         allow_at(&mut log, ip("192.0.2.2"), start + WINDOW, 5, WINDOW);
-        assert_eq!(log.by_ip.len(), 1);
-        assert!(log.by_ip.contains_key(&ip("192.0.2.2")));
+        assert_eq!(log.by_key.len(), 1);
+        assert!(log.by_key.contains_key(&ip("192.0.2.2")));
     }
 
     #[pagetop::test]
     async fn ipv6_addresses_count_by_their_64_network() {
         assert_eq!(network(ip("2001:db8:1:2:aaaa::1")), ip("2001:db8:1:2::"));
         assert_eq!(network(ip("192.0.2.1")), ip("192.0.2.1"));
+    }
+
+    #[pagetop::test]
+    async fn keys_of_any_type_are_limited_and_forgotten() {
+        let start = Instant::now();
+        let mut log: Requests<String> = Requests {
+            by_key: HashMap::new(),
+            purged_at: start,
+        };
+        assert!(allow_at(&mut log, "ana".to_owned(), start, 1, WINDOW));
+        assert!(!allow_at(&mut log, "ana".to_owned(), start, 1, WINDOW));
+        assert!(allow_at(&mut log, "bea".to_owned(), start, 1, WINDOW));
+        forget_at(&mut log, &"ana".to_owned());
+        assert!(allow_at(&mut log, "ana".to_owned(), start, 1, WINDOW));
     }
 }

@@ -11,11 +11,12 @@ use crate::config::SETTINGS;
 use crate::error::AuthError;
 use crate::handlers::admin::map_auth_error;
 use crate::handlers::{confirm_page, message_page, no_referrer};
-use crate::mail::send_token_mail;
+use crate::mail::{send_external_password_notice, send_token_mail};
 use crate::password;
+use crate::provider::{self, RejectReason, ResetPolicy};
 use crate::session;
 use crate::throttle;
-use crate::token::{TokenKind, consume_token, create_token, is_valid_token};
+use crate::token::{TokenKind, consume_token, create_token, is_valid_token, revoke_tokens};
 use crate::{LOCALES_USER, LOGIN_PATH, PROFILE_PATH};
 
 // **< Tipos de formularios >***********************************************************************
@@ -28,7 +29,7 @@ pub struct LoginFormData {
     username: String,
     // Acepta también `token`, el nombre de campo usado en el modo de login estricto.
     #[serde(alias = "token")]
-    password: String,
+    password: util::SecretStr,
     #[serde(default)]
     remember: bool,
 }
@@ -37,8 +38,8 @@ pub struct LoginFormData {
 pub struct RegisterFormData {
     username: String,
     email: String,
-    password: String,
-    confirm_password: String,
+    password: util::SecretStr,
+    confirm_password: util::SecretStr,
 }
 
 #[derive(Deserialize)]
@@ -48,8 +49,8 @@ pub struct PasswordResetFormData {
 
 #[derive(Deserialize)]
 pub struct PasswordResetConfirmFormData {
-    password: String,
-    confirm_password: String,
+    password: util::SecretStr,
+    confirm_password: util::SecretStr,
 }
 
 // **< login_get >**********************************************************************************
@@ -87,27 +88,63 @@ pub async fn login_post(
 ) -> Response {
     let cx = Context::new(request.clone());
     let next = waypoint.or(cx.route("/"));
-    // Una dirección que ya ha fallado demasiadas veces no llega a comprobar la contraseña (Argon2).
-    let result = if throttle::allow_login(&request) {
-        let result = auth::login(&form.username, &form.password, form.remember).await;
-        if !matches!(result, Err(AuthError::InvalidCredentials)) {
-            throttle::forget_login(&request);
+    let result = if auth::acceptable_credentials(&form.username, &form.password) {
+        // Una dirección o un identificador que ya han fallado demasiadas veces no llegan a
+        // comprobar la contraseña (ni Argon2 ni un proveedor externo).
+        let keys = throttle::LoginKeys::new(&request, &form.username);
+        if throttle::allow_login(&keys) {
+            let result = auth::login(
+                &form.username,
+                &form.password,
+                form.remember,
+                request.client_ip(),
+            )
+            .await;
+            // Sólo se retira el intento si la contraseña era correcta: un acceso, o un rechazo
+            // que sólo se revela con ella. Si un proveedor no ha respondido, no cuenta para el
+            // identificador (no es culpa de quien entra), pero sí para la dirección IP.
+            match &result {
+                Ok(_)
+                | Err(
+                    AuthError::ExternalRejected(_)
+                    | AuthError::AccountBlocked
+                    | AuthError::AccountPending
+                    | AuthError::AccountAwaitingApproval,
+                ) => throttle::forget_login(&keys),
+                Err(AuthError::ExternalUnavailable) => throttle::forget_identifier(&keys),
+                Err(_) => {}
+            }
+            result
+        } else {
+            Err(AuthError::TooManyRequests)
         }
-        result
     } else {
-        Err(AuthError::TooManyRequests)
+        Err(AuthError::InvalidCredentials)
     };
     match result {
-        Ok(sid) => {
-            let cookie = session::build_cookie(&sid, form.remember);
+        Ok(session) => {
+            let cookie = session::build_cookie(&session.sid, session.remember);
             redirect_with_cookie(next, &cookie)
         }
         Err(err) => {
+            let mut help = None;
             let error_key = match &err {
                 AuthError::AccountBlocked => "error-account-blocked",
                 AuthError::AccountPending => "error-account-pending",
+                AuthError::AccountAwaitingApproval => "error-account-awaiting-approval",
                 AuthError::AccountLocked => "error-account-locked",
                 AuthError::TooManyRequests => "error-too-many-requests",
+                AuthError::ExternalUnavailable => "error-external-unavailable",
+                AuthError::ExternalRejected(reason) => match reason {
+                    RejectReason::Disallowed => "error-login-disallowed",
+                    RejectReason::NotRegistered => "error-login-not-registered",
+                    RejectReason::AwaitingApproval => "error-account-awaiting-approval",
+                    RejectReason::Conflict => "error-login-conflict",
+                    RejectReason::PasswordExpired { help: link } => {
+                        help = link.clone();
+                        "error-password-expired"
+                    }
+                },
                 _ => "error-invalid-credentials",
             };
             Page::new(request)
@@ -116,6 +153,7 @@ pub async fn login_post(
                     LoginForm::new()
                         .with_username(form.username)
                         .with_error(Lc::t(error_key, &LOCALES_USER))
+                        .with_help(help)
                         .with_waypoint(waypoint),
                 )
                 .render()
@@ -182,8 +220,8 @@ pub async fn register_post(
         auth::register(
             &form.username,
             &form.email,
-            &form.password,
-            &form.confirm_password,
+            form.password.expose(),
+            form.confirm_password.expose(),
         )
         .await
     } else {
@@ -265,10 +303,31 @@ pub async fn password_reset_post(
                 return;
             }
         };
+        // Una cuenta cuya contraseña se gestiona fuera recibe un aviso en lugar del enlace. El
+        // token se crea igualmente y se anula enseguida, para que el aviso cuente para el mismo
+        // límite de solicitudes por cuenta.
+        let forbidden = match provider::account_policy(&user_model).await {
+            Some(policy) => match policy.password_reset() {
+                ResetPolicy::Forbidden { help } => {
+                    Some((policy.provider_label().clone(), help.clone()))
+                }
+                ResetPolicy::Allowed => None,
+            },
+            None => None,
+        };
         match create_token(user_model.id, TokenKind::PasswordReset).await {
-            Ok(token) => {
-                send_token_mail(&mail_request, TokenKind::PasswordReset, &user_model, &token);
-            }
+            Ok(token) => match forbidden {
+                None => {
+                    send_token_mail(&mail_request, TokenKind::PasswordReset, &user_model, &token);
+                }
+                Some((label, help)) => {
+                    if let Err(err) = revoke_tokens(user_model.id, TokenKind::PasswordReset).await {
+                        trace::error!("Cannot revoke a password reset token: {err}");
+                        return;
+                    }
+                    send_external_password_notice(&mail_request, &user_model, label, help);
+                }
+            },
             Err(AuthError::TooManyRequests) => {
                 trace::warn!("Password reset limit reached for user {}", user_model.id);
             }
@@ -288,6 +347,7 @@ pub async fn password_reset_confirm_get(
     if !is_valid_token(uid, &token, TokenKind::PasswordReset)
         .await
         .unwrap_or(false)
+        || reset_forbidden(uid).await
     {
         return Err(ErrorPage::NotFound(request));
     }
@@ -317,9 +377,13 @@ pub async fn password_reset_confirm_post(
     let result = async {
         use crate::entity::user;
         use pagetop_seaorm::db::{ActiveModelTrait, Set, dbconn};
-        password::passwords_match(&form.password, &form.confirm_password)?;
-        password::validate_strength(&form.password)?;
-        let hash = password::hash_password_async(&form.password).await?;
+        // Un enlace anterior a que un proveedor gestionara la cuenta ya no vale.
+        if reset_forbidden(uid).await {
+            return Err(AuthError::InvalidToken);
+        }
+        password::passwords_match(form.password.expose(), form.confirm_password.expose())?;
+        password::validate_strength(form.password.expose())?;
+        let hash = password::hash_password_async(form.password.expose()).await?;
         consume_token(uid, &token, TokenKind::PasswordReset).await?;
         user::ActiveModel {
             id: Set(uid),
@@ -336,6 +400,9 @@ pub async fn password_reset_confirm_post(
             .await
             .map_err(AuthError::Database)?;
         auth::cancel_email_change(uid).await?;
+        if let Ok(user) = crate::service::user_admin::find_user(uid).await {
+            throttle::forget_account(&user.username, &user.email);
+        }
         Ok::<(), AuthError>(())
     }
     .await;
@@ -435,6 +502,22 @@ pub async fn verify_email_post(
 }
 
 // **< HELPERS >************************************************************************************
+
+// Si la cuenta no puede recuperar su contraseña por correo porque la gestiona un proveedor. Ante un
+// error de la base de datos, se considera que no puede.
+async fn reset_forbidden(user_id: i32) -> bool {
+    use crate::service::user_admin::find_user;
+    match find_user(user_id).await {
+        Ok(user) => matches!(
+            provider::account_policy(&user)
+                .await
+                .map(|policy| policy.password_reset().clone()),
+            Some(ResetPolicy::Forbidden { .. })
+        ),
+        Err(AuthError::UserNotFound) => false,
+        Err(_) => true,
+    }
+}
 
 // Envía el correo para verificar la dirección de la cuenta recién creada. Un fallo no impide el
 // registro: la cuenta queda pendiente y un administrador puede activarla.

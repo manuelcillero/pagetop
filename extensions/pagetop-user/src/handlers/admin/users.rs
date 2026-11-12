@@ -8,6 +8,7 @@ use pagetop_htmx::prelude::*;
 use crate::ADMIN_USERS_PATH;
 use crate::LOCALES_USER;
 use crate::account::{Account, UserStatus};
+use crate::actions::AdminUserFormExtras;
 use crate::component::admin::{
     AdminPasswordForm, USER_ADMIN_FORM_ID, UserForm, UserFormMode, UserTable,
 };
@@ -15,10 +16,12 @@ use crate::component::{cancel_link, user_details};
 use crate::config::SETTINGS;
 use crate::entity::{role, user};
 use crate::error::AuthError;
+use crate::handlers::account::managed_or;
 use crate::handlers::admin::{back_link, map_auth_error};
 use crate::mail::{Notice, send_notice};
 use crate::password;
 use crate::permission::UserPermission;
+use crate::provider::{self, UserField};
 use crate::role_path;
 use crate::service::role_admin;
 use crate::service::user_admin::{self, UserListParams, UserSortField};
@@ -139,16 +142,39 @@ async fn require_manageable(request: &HttpRequest, id: i32) -> Result<user::Mode
 
 // **< new_get / new_post >*************************************************************************
 
+#[derive(Deserialize)]
+pub(crate) struct NewUserQuery {
+    #[serde(default)]
+    provider: Option<String>,
+}
+
+// Proveedor activo con el que entrará la cuenta que se da de alta, como `(id, nombre)`.
+fn external_provider(id: Option<&str>, cx: &Context) -> Option<(String, String)> {
+    let provider = provider::active_provider(id?)?;
+    let name = provider.label().lookup(cx).unwrap_or_default();
+    Some((provider.id().to_owned(), name))
+}
+
 /// GET /admin/user/users/new - Formulario de alta de usuario.
-pub(crate) async fn new_get(request: HttpRequest) -> Result<Response, ErrorPage> {
+///
+/// Con `?provider={id}`, el alta es de una cuenta que entrará con ese proveedor de autenticación:
+/// sin contraseña local y marcada para que el proveedor la vincule cuando la persona inicie sesión
+/// con el mismo nombre de usuario (ver `provider::allow_linking()`).
+pub(crate) async fn new_get(
+    request: HttpRequest,
+    web::Query(query): web::Query<NewUserQuery>,
+) -> Result<Response, ErrorPage> {
     let roles = match available_roles(&[]).await {
         Ok(roles) => roles,
         Err(_) => return Err(ErrorPage::InternalError(request)),
     };
     // El campo "administrador" sólo se ofrece si quien da de alta ya es administrador: no es un
-    // permiso del catálogo (igual que conceder/revocar en la edición, ver `set_user_admin`).
-    let allow_admin_field = request.extension::<Account>().is_some_and(|a| a.is_admin());
+    // permiso del catálogo (igual que conceder/revocar en la edición, ver `set_user_admin`). Una
+    // cuenta de proveedor nunca puede serlo.
+    let viewer_is_admin = request.extension::<Account>().is_some_and(|a| a.is_admin());
     let page = Page::admin(request);
+    let provider = external_provider(query.provider.as_deref(), page.context());
+    let allow_admin_field = provider.is_none() && viewer_is_admin;
     let title = Lc::t("title-admin-user-new", &LOCALES_USER);
     Ok(page
         .with_title(title)
@@ -156,7 +182,8 @@ pub(crate) async fn new_get(request: HttpRequest) -> Result<Response, ErrorPage>
             UserForm::new()
                 .with_mode(UserFormMode::New)
                 .with_roles(roles)
-                .with_allow_admin_field(allow_admin_field),
+                .with_allow_admin_field(allow_admin_field)
+                .with_provider(provider),
         )
         .render()
         .await
@@ -167,8 +194,12 @@ pub(crate) async fn new_get(request: HttpRequest) -> Result<Response, ErrorPage>
 pub(crate) struct NewUserFormData {
     username: String,
     email: String,
-    password: String,
-    confirm_password: String,
+    #[serde(default)]
+    password: util::SecretStr,
+    #[serde(default)]
+    confirm_password: util::SecretStr,
+    #[serde(default)]
+    provider: String,
     #[serde(default)]
     display_name: String,
     #[serde(default)]
@@ -194,17 +225,29 @@ pub(crate) async fn new_post(
     let Ok(form) = serde_qs::from_bytes::<NewUserFormData>(&raw.0) else {
         return Err(ErrorPage::BadRequest(request));
     };
-    let allow_admin_field = request.extension::<Account>().is_some_and(|a| a.is_admin());
+    let cx = Context::admin(request.clone());
+    let provider = match util::non_blank(&form.provider) {
+        Some(id) => match external_provider(Some(id), &cx) {
+            Some(provider) => Some(provider),
+            None => return Err(ErrorPage::BadRequest(request)),
+        },
+        None => None,
+    };
+    let allow_admin_field =
+        provider.is_none() && request.extension::<Account>().is_some_and(|a| a.is_admin());
     // Nunca fiarse sólo de que el campo esté presente en el formulario: sólo se concede si quien
     // envía la petición ya es administrador, aunque alguien manipulase la petición a mano.
     let is_admin = form.is_admin && allow_admin_field;
     let role_ids = parse_role_ids(&form.role_ids);
 
+    let password = provider
+        .is_none()
+        .then(|| (form.password.expose(), form.confirm_password.expose()));
     let result = user_admin::create_user(user_admin::NewUserData {
         username: &form.username,
         email: &form.email,
-        password: &form.password,
-        confirm_password: &form.confirm_password,
+        password,
+        link_provider: provider.as_ref().map(|(id, _)| id.as_str()),
         display_name: util::non_blank(&form.display_name),
         language: util::non_blank(&form.language),
         timezone: util::non_blank(&form.timezone),
@@ -216,7 +259,6 @@ pub(crate) async fn new_post(
 
     match result {
         Ok(_) => {
-            let cx = Context::admin(request);
             let target = cx.route(ADMIN_USERS_PATH.as_str());
             Ok(Redirect::see_other(target).into_response())
         }
@@ -225,6 +267,7 @@ pub(crate) async fn new_post(
             let page = Page::admin(request);
             let form_component = UserForm::new()
                 .with_mode(UserFormMode::New)
+                .with_provider(provider)
                 .with_username(form.username)
                 .with_email(form.email)
                 .with_display_name(form.display_name)
@@ -262,9 +305,11 @@ async fn render_user_edit(request: HttpRequest, id: i32, error: Option<Lc>) -> R
         Ok(roles) => roles,
         Err(_) => return ErrorPage::InternalError(request).into_response(),
     };
+    let policy = provider::account_policy(&user).await;
     let status = UserStatus::from_i16(user.status);
     let is_admin = user.is_admin;
     let form = UserForm::new()
+        .with_policy(policy)
         .with_username(user.username)
         .with_email(user.email)
         .with_display_name(user.display_name.unwrap_or_default())
@@ -279,7 +324,8 @@ async fn render_user_edit(request: HttpRequest, id: i32, error: Option<Lc>) -> R
 
 // Pantalla de edición del usuario `id` con `form` ya relleno, sea con los datos guardados o con los
 // enviados que no se pudieron guardar. Siempre lleva la botonera de `edit_actions()`, porque en
-// modo `Edit` el botón "Guardar" está en ella y no dentro del formulario.
+// modo `Edit` el botón "Guardar" está en ella y no dentro del formulario, y lo que añadan otras
+// extensiones con `AdminUserFormExtras`.
 async fn render_edit_page(
     request: HttpRequest,
     id: i32,
@@ -287,31 +333,79 @@ async fn render_edit_page(
     is_admin: bool,
     form: UserForm,
 ) -> Response {
+    let can_reset_password = form
+        .policy()
+        .is_none_or(|policy| policy.password().is_editable());
+    let linking = linking_options(id, is_admin).await;
     // El botón de conceder/revocar sólo se muestra si quien lo ve ya es administrador y no está
     // viendo su propio perfil: no es un permiso del catálogo, y nadie puede automodificarse el flag
-    // (ver `set_user_admin`).
+    // (ver `set_user_admin`). Tampoco para conceder el acceso total a una cuenta que gestiona un
+    // proveedor, que `set_user_admin` rechaza.
     let can_toggle_admin = request
         .extension::<Account>()
-        .is_some_and(|a| a.is_admin() && a.id() != id);
+        .is_some_and(|a| a.is_admin() && a.id() != id)
+        && (is_admin || form.policy().is_none());
     // Bloquear y activar exige además `user:block_accounts` (ver `status_post`).
     let can_change_status = has_permission(&request, &UserPermission::BlockAccounts);
     let mut page = Page::admin(request);
     let title = Lc::t("title-admin-user-edit", &LOCALES_USER);
     let actions = edit_actions(
         id,
-        status,
-        is_admin,
-        can_toggle_admin,
-        can_change_status,
+        EditActions {
+            status,
+            target_is_admin: is_admin,
+            can_toggle_admin,
+            can_change_status,
+            can_reset_password,
+            linking,
+        },
         page.context_mut(),
     );
 
     page.with_title(title)
         .with_child(form.with_mode(UserFormMode::Edit).with_user_id(Some(id)))
         .with_child(actions)
+        .with_child(ChildOp::AddMany(AdminUserFormExtras::collect(id)))
         .render()
         .await
         .into_response()
+}
+
+// Proveedores con los que un administrador puede permitir (o dejar de permitir) que se vincule una
+// cuenta: los activos, si la cuenta no es de administrador y no está vinculada ya a ninguno. Cada
+// uno con su nombre y si ya está permitido.
+async fn linking_options(user_id: i32, is_admin: bool) -> Vec<(&'static str, Lc, bool)> {
+    if is_admin || provider::active_providers().next().is_none() {
+        return Vec::new();
+    }
+    let identities = match provider::identities_of(user_id).await {
+        Ok(identities) => identities,
+        Err(err) => {
+            trace::error!("Cannot load the identities of user {user_id}: {err}");
+            return Vec::new();
+        }
+    };
+    if identities.iter().any(|identity| !identity.pending) {
+        return Vec::new();
+    }
+    provider::active_providers()
+        .map(|p| {
+            let pending = identities
+                .iter()
+                .any(|identity| identity.provider == p.id());
+            (p.id(), p.label(), pending)
+        })
+        .collect()
+}
+
+// Estado de la cuenta que decide qué botones lleva la edición.
+struct EditActions {
+    status: UserStatus,
+    target_is_admin: bool,
+    can_toggle_admin: bool,
+    can_change_status: bool,
+    can_reset_password: bool,
+    linking: Vec<(&'static str, Lc, bool)>,
 }
 
 // Botonera de la edición: "Guardar", "Cancelar", el enlace a la pantalla de restablecer contraseña
@@ -323,21 +417,15 @@ async fn render_edit_page(
 // concesión/revocación de admin van cada uno en su propio `Form`, con un campo `Hidden` para el
 // nuevo valor, para conservar el envío nativo sin JavaScript, mejorado con `hx-post`/`hx-confirm`.
 // Todos son hijos directos del mismo `Flex`, que los alinea en fila con espaciado uniforme.
-fn edit_actions(
-    user_id: i32,
-    status: UserStatus,
-    target_is_admin: bool,
-    can_toggle_admin: bool,
-    can_change_status: bool,
-    cx: &mut Context,
-) -> Flex {
+fn edit_actions(user_id: i32, state: EditActions, cx: &mut Context) -> Flex {
     // Una cuenta pendiente de verificar su email también se puede activar directamente, p. ej. si
-    // el correo de verificación no llegó.
-    let (next_status, label_key) = match status {
+    // el correo de verificación no llegó; una pendiente de aprobación se aprueba.
+    let (next_status, label_key) = match state.status {
         UserStatus::Active => ("blocked", "btn-block"),
         UserStatus::Blocked | UserStatus::Pending => ("active", "btn-activate"),
+        UserStatus::AwaitingApproval => ("active", "btn-approve"),
     };
-    let (next_is_admin, admin_label_key, admin_confirm_key) = if target_is_admin {
+    let (next_is_admin, admin_label_key, admin_confirm_key) = if state.target_is_admin {
         ("false", "btn-revoke-admin", "confirm-revoke-admin")
     } else {
         ("true", "btn-grant-admin", "confirm-grant-admin")
@@ -369,16 +457,39 @@ fn edit_actions(
                 .with_style(button::Style::Solid(Intent::Primary))
                 .with_prop(PropsOp::set("form", USER_ADMIN_FORM_ID)),
         )
-        .with_child(cancel_link(cx.route(ADMIN_USERS_PATH.as_str())))
-        .with_child(
+        .with_child(cancel_link(cx.route(ADMIN_USERS_PATH.as_str())));
+    if state.can_reset_password {
+        container = container.with_child(
             Button::anchor(Lc::t("btn-reset-password", &LOCALES_USER), password_href)
                 .with_style(button::Style::Solid(Intent::Neutral)),
         );
-    if can_change_status {
+    }
+    if state.can_change_status {
         container = container.with_child(status_form);
     }
 
-    if can_toggle_admin {
+    let identity_action = cx.route(user_path(user_id, "identity"));
+    for (provider, label, pending) in state.linking {
+        let name = label.lookup(cx).unwrap_or_default();
+        let (op, key) = if pending {
+            ("cancel", "btn-cancel-linking")
+        } else {
+            ("allow", "btn-allow-linking")
+        };
+        container = container.with_child(
+            Form::new()
+                .with_action(identity_action.clone())
+                .with_method(form::Method::Post)
+                .with_child(form::Hidden::field("provider", provider))
+                .with_child(form::Hidden::field("op", op))
+                .with_child(
+                    Button::submit(Lc::t(key, &LOCALES_USER).with_arg("provider", name))
+                        .with_style(button::Style::Solid(Intent::Neutral)),
+                ),
+        );
+    }
+
+    if state.can_toggle_admin {
         let admin_button = Button::submit(Lc::t(admin_label_key, &LOCALES_USER))
             .with_style(button::Style::Solid(Intent::Severe));
         let mut admin_form = Form::new()
@@ -436,22 +547,39 @@ pub(crate) async fn edit_post(
         return Err(ErrorPage::BadRequest(request));
     };
     let role_ids = parse_role_ids(&form.role_ids);
+    let policy = provider::account_policy(&user).await;
 
+    // Lo que gestiona un proveedor se conserva como está, llegue lo que llegue del formulario.
+    let keep = |editable: bool, submitted: &'_ str, current: &'_ str| -> String {
+        if editable { submitted } else { current }.to_owned()
+    };
+    let username = keep(
+        policy.as_ref().is_none_or(|p| p.username().is_editable()),
+        &form.username,
+        &user.username,
+    );
+    let email = keep(
+        policy.as_ref().is_none_or(|p| p.email().is_editable()),
+        &form.email,
+        &user.email,
+    );
+    let field = |field, submitted| managed_or(policy.as_ref(), field, submitted, &user);
     let mut result = user_admin::update_user(
         id,
         user_admin::UserUpdateData {
-            username: &form.username,
-            email: &form.email,
-            display_name: util::non_blank(&form.display_name),
-            about: util::non_blank(&form.about),
-            language: util::non_blank(&form.language),
-            timezone: util::non_blank(&form.timezone),
-            theme: util::non_blank(&form.theme),
+            username: &username,
+            email: &email,
+            display_name: field(UserField::DisplayName, &form.display_name),
+            about: field(UserField::About, &form.about),
+            language: field(UserField::Language, &form.language),
+            timezone: field(UserField::Timezone, &form.timezone),
+            theme: field(UserField::Theme, &form.theme),
         },
     )
     .await;
     if result.is_ok() {
-        result = user_admin::set_user_roles(id, &role_ids).await;
+        let managed = policy.as_ref().map_or(&[][..], |p| p.managed_roles());
+        result = user_admin::set_user_roles(id, &role_ids, managed).await;
     }
 
     match result {
@@ -464,8 +592,9 @@ pub(crate) async fn edit_post(
             let roles = available_roles(&role_ids).await.unwrap_or_default();
             let status = UserStatus::from_i16(user.status);
             let form = UserForm::new()
-                .with_username(form.username)
-                .with_email(form.email)
+                .with_policy(policy)
+                .with_username(username)
+                .with_email(email)
                 .with_display_name(form.display_name)
                 .with_about(form.about)
                 .with_language(form.language)
@@ -505,6 +634,7 @@ pub(crate) async fn view_get(
         .with_title(title)
         .with_child(details_block)
         .with_child(roles_block)
+        .with_child(ChildOp::AddMany(AdminUserFormExtras::collect(id)))
         .with_child(back_link(back_href))
         .render()
         .await
@@ -671,19 +801,33 @@ pub(crate) async fn password_get(
     let user = require_manageable(&request, id).await?;
     let page = Page::admin(request);
     let title = Lc::t("title-admin-user-password", &LOCALES_USER);
-    Ok(page
-        .with_title(title)
-        .with_child(user_summary(&user))
-        .with_child(AdminPasswordForm::new().with_user_id(id))
-        .render()
-        .await
-        .into_response())
+    let page = page.with_title(title).with_child(user_summary(&user));
+    let mut page = match external_password(&user).await {
+        Some(note) => page.with_child(note),
+        None => page.with_child(AdminPasswordForm::new().with_user_id(id)),
+    };
+    Ok(page.render().await.into_response())
+}
+
+// Nota en lugar del formulario de restablecimiento, si la contraseña de la cuenta la gestiona un
+// proveedor de autenticación.
+async fn external_password(user: &user::Model) -> Option<Html> {
+    let policy = provider::account_policy(user).await?;
+    if policy.password().is_editable() {
+        return None;
+    }
+    let label = policy.provider_label().clone();
+    Some(Html::with(move |cx| {
+        let note = Lc::t("help-password-managed", &LOCALES_USER)
+            .with_arg("provider", label.lookup(cx).unwrap_or_default());
+        html! { p { (note.using(cx)) } }
+    }))
 }
 
 #[derive(Deserialize)]
 pub(crate) struct AdminPasswordFormData {
-    password: String,
-    confirm_password: String,
+    password: util::SecretStr,
+    confirm_password: util::SecretStr,
 }
 
 /// POST /admin/user/users/{id}/password - Aplica la nueva contraseña, invalida las sesiones
@@ -695,9 +839,13 @@ pub(crate) async fn password_post(
 ) -> Result<Response, ErrorPage> {
     let user = require_manageable(&request, id).await?;
 
-    let result = match password::passwords_match(&form.password, &form.confirm_password) {
-        Ok(()) => user_admin::admin_reset_password(id, &form.password).await,
-        Err(err) => Err(err),
+    let result = if external_password(&user).await.is_some() {
+        Err(AuthError::PasswordManagedExternally)
+    } else {
+        match password::passwords_match(form.password.expose(), form.confirm_password.expose()) {
+            Ok(()) => user_admin::admin_reset_password(id, form.password.expose()).await,
+            Err(err) => Err(err),
+        }
     };
 
     match result {
@@ -722,5 +870,43 @@ pub(crate) async fn password_post(
                 .await
                 .into_response())
         }
+    }
+}
+
+// **< identity_post >******************************************************************************
+
+#[derive(Deserialize)]
+pub(crate) struct IdentityFormData {
+    provider: String,
+    op: String,
+}
+
+/// POST /admin/user/users/{id}/identity - Permite (`op=allow`) o deja de permitir (`op=cancel`)
+/// que un proveedor de autenticación vincule la cuenta cuando la persona con su nombre de usuario
+/// inicie sesión con él.
+///
+/// Es la única forma de que una cuenta existente acabe vinculada a un proveedor: si bastara con
+/// que coincidieran los nombres, quien consiguiera en el proveedor el nombre de una cuenta local
+/// se quedaría con ella. Nunca para una cuenta de administrador.
+pub(crate) async fn identity_post(
+    request: HttpRequest,
+    web::Path(id): web::Path<i32>,
+    web::Form(form): web::Form<IdentityFormData>,
+) -> Result<Response, ErrorPage> {
+    let user = require_manageable(&request, id).await?;
+    let Some(provider) = provider::active_provider(&form.provider) else {
+        return Err(ErrorPage::BadRequest(request));
+    };
+    let result = match form.op.as_str() {
+        "allow" => provider::allow_linking(id, provider.id(), &user.username).await,
+        "cancel" => provider::cancel_linking(id, provider.id()).await,
+        _ => return Err(ErrorPage::BadRequest(request)),
+    };
+    match result {
+        Ok(()) => {
+            let cx = Context::admin(request);
+            Ok(Redirect::see_other(cx.route(user_path(id, "edit"))).into_response())
+        }
+        Err(err) => Ok(render_user_edit(request, id, Some(map_auth_error(&err))).await),
     }
 }

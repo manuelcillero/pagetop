@@ -22,7 +22,7 @@ impl MigrationTrait for Migration {
                     // Nueva dirección pedida en el perfil, hasta que se confirma desde ella.
                     .col(string_len_null(Users::PendingEmail, 254))
                     .col(string(Users::PasswordHash))
-                    // 0=Blocked, 1=Active, 2=Pending
+                    // 0=Blocked, 1=Active, 2=Pending, 3=AwaitingApproval
                     .col(small_integer(Users::Status).default(1))
                     .col(string_len_null(Users::Language, 16))
                     .col(string_len_null(Users::Timezone, 64))

@@ -9,27 +9,40 @@ use crate::entity::user;
 // **< UserStatus >*********************************************************************************
 
 /// Estado de la cuenta de usuario.
+///
+/// Sólo una cuenta [`Active`](Self::Active) puede iniciar sesión.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum UserStatus {
+    /// Puede iniciar sesión.
     Active,
+    /// Bloqueada por un administrador (o por el proveedor que la gestiona).
     Blocked,
+    /// Pendiente de que su titular confirme el email (ver
+    /// [`require_email_verification`](crate::config::UserSettings::require_email_verification)).
     Pending,
+    /// Creada por un proveedor de autenticación y pendiente de que un administrador la apruebe.
+    AwaitingApproval,
 }
 
 impl UserStatus {
+    /// Estado a partir del valor guardado en la base de datos. Un valor desconocido se trata como
+    /// bloqueada.
     pub fn from_i16(v: i16) -> Self {
         match v {
             1 => UserStatus::Active,
             2 => UserStatus::Pending,
+            3 => UserStatus::AwaitingApproval,
             _ => UserStatus::Blocked,
         }
     }
 
+    /// Valor que se guarda en la base de datos.
     pub fn as_i16(self) -> i16 {
         match self {
             UserStatus::Blocked => 0,
             UserStatus::Active => 1,
             UserStatus::Pending => 2,
+            UserStatus::AwaitingApproval => 3,
         }
     }
 }

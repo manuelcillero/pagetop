@@ -43,12 +43,28 @@ pub(crate) type PermissionGroups = Vec<(Lc, Vec<PermissionItem>)>;
 // rol "authenticated" no se lista como casilla ni se envía: todo usuario autenticado lo tiene
 // concedido por definición (ver `session::load_user_from_session`), sin necesidad de una fila en
 // `user_role`.
-pub(crate) fn roles_fieldset(roles: &[(i32, String, bool)]) -> form::Fieldset {
+//
+// Los roles de `managed` los asigna el proveedor `provider` que gestiona la cuenta: se muestran
+// deshabilitados, con una nota, y quien recibe el formulario los conserva como estén.
+pub(crate) fn roles_fieldset(
+    roles: &[(i32, String, bool)],
+    managed: &[i32],
+    provider: &str,
+) -> form::Fieldset {
     let mut field = form::check::Field::new().with_name("role_ids");
     for (role_id, label, checked) in roles {
+        let is_managed = managed.contains(role_id);
+        let label = if is_managed {
+            Lc::t("value-role-managed", &LOCALES_USER)
+                .with_arg("role", label.clone())
+                .with_arg("provider", provider.to_owned())
+        } else {
+            Lc::n(label.clone())
+        };
         field = field.with_item(
-            form::check::Item::new(role_id.to_string(), Lc::n(label.clone()))
-                .with_checked(*checked),
+            form::check::Item::new(role_id.to_string(), label)
+                .with_checked(*checked)
+                .with_disabled(is_managed),
         );
     }
     form::Fieldset::new()

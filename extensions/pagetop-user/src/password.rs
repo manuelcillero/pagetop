@@ -1,5 +1,7 @@
 //! Hashing de contraseñas con Argon2id.
 
+use pagetop::prelude::*;
+
 use argon2::{
     Argon2, ParamsBuilder, PasswordHash, PasswordHasher, PasswordVerifier,
     password_hash::SaltString,
@@ -10,6 +12,12 @@ use std::sync::LazyLock;
 
 use crate::config::SETTINGS;
 use crate::error::AuthError;
+
+// Lo que se guarda como contraseña de una cuenta sin contraseña local (las que gestiona un
+// proveedor de autenticación). No es un *hash* PHC válido, así que `verify_password()` siempre
+// devuelve `false`; y nunca se recalcula, porque `needs_rehash()` sólo se consulta tras verificar
+// la contraseña.
+pub(crate) const UNUSABLE_HASH: &str = "!external";
 
 /// Genera el hash PHC de una contraseña usando Argon2id con los parámetros configurados.
 pub fn hash_password(plain: &str) -> Result<String, AuthError> {
@@ -44,16 +52,18 @@ pub fn verify_password(plain: &str, phc: &str) -> bool {
 // el *pool* de hilos bloqueantes de Tokio. Con los costes por defecto tarda decenas de milisegundos,
 // que retendrían un hilo del *runtime* asíncrono y retrasarían las demás peticiones (p. ej. durante
 // un intento de fuerza bruta contra el inicio de sesión).
+//
+// La copia de la contraseña que viaja al hilo va en un `SecretStr`, que la borra al terminar.
 pub(crate) async fn hash_password_async(plain: &str) -> Result<String, AuthError> {
-    let plain = plain.to_owned();
-    tokio::task::spawn_blocking(move || hash_password(&plain))
+    let plain = util::SecretStr::new(plain);
+    tokio::task::spawn_blocking(move || hash_password(plain.expose()))
         .await
         .map_err(|err| AuthError::PasswordHash(err.to_string()))?
 }
 
 pub(crate) async fn verify_password_async(plain: &str, phc: &str) -> bool {
-    let (plain, phc) = (plain.to_owned(), phc.to_owned());
-    tokio::task::spawn_blocking(move || verify_password(&plain, &phc))
+    let (plain, phc) = (util::SecretStr::new(plain), phc.to_owned());
+    tokio::task::spawn_blocking(move || verify_password(plain.expose(), &phc))
         .await
         .unwrap_or(false)
 }
@@ -67,8 +77,9 @@ pub(crate) async fn verify_password_without_account(plain: &str) {
     verify_password_async(plain, DUMMY_HASH.as_str()).await;
 }
 
-/// Indica si el hash necesita actualizarse: no es de Argon2id o se cifró con otros parámetros de
-/// coste que los configurados.
+/// Indica si el hash necesita actualizarse.
+///
+/// No es de Argon2id o se cifró con otros parámetros de coste que los configurados.
 pub fn needs_rehash(phc: &str) -> bool {
     let Ok(parsed) = PasswordHash::new(phc) else {
         return true;
@@ -97,5 +108,17 @@ pub fn passwords_match(password: &str, confirm_password: &str) -> Result<(), Aut
         Ok(())
     } else {
         Err(AuthError::PasswordMismatch)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[pagetop::test]
+    async fn the_unusable_hash_never_verifies() {
+        assert!(PasswordHash::new(UNUSABLE_HASH).is_err());
+        assert!(!verify_password("", UNUSABLE_HASH));
+        assert!(!verify_password("!external", UNUSABLE_HASH));
     }
 }

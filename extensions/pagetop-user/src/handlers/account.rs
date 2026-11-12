@@ -17,6 +17,7 @@ use crate::handlers::{confirm_page, message_page, no_referrer};
 use crate::mail::{Notice, send_email_change_mail, send_notice};
 use crate::password;
 use crate::permission::UserPermission;
+use crate::provider::{self, AccountPolicy, FieldPolicy, UserField};
 use crate::service::user_admin;
 use crate::session;
 use crate::throttle;
@@ -102,16 +103,29 @@ pub(crate) async fn profile_get(request: HttpRequest) -> Response {
         Ok(roles) => roles,
         Err(_) => return ErrorPage::InternalError(request).into_response(),
     };
+    // Con la cuenta gestionada por un proveedor, la contraseña y el email que no son editables no
+    // se ofrecen: se indica quién los gestiona y, si lo hay, el enlace de ayuda.
+    let policy = provider::account_policy(&user).await;
+    let editable =
+        |f: fn(&AccountPolicy) -> FieldPolicy| policy.as_ref().is_none_or(|p| f(p).is_editable());
     let can_edit = has_permission(&request, &UserPermission::EditOwnProfile);
-    let can_change_password = has_permission(&request, &UserPermission::ChangeOwnPassword);
+    let can_change_email = can_edit && editable(AccountPolicy::email);
+    let can_change_password = has_permission(&request, &UserPermission::ChangeOwnPassword)
+        && editable(AccountPolicy::password);
 
     let mut page = Page::new(request);
     let details_block = user_details(&user, page.context_mut()).await;
     let roles_block = profile_roles(&roles, page.context_mut()).await;
-    let actions = profile_actions(can_edit, can_change_password, page.context());
+    let actions = profile_actions(
+        can_edit,
+        can_change_email,
+        can_change_password,
+        page.context(),
+    );
 
     page.with_title(Lc::t("title-profile", &LOCALES_USER))
         .with_child(details_block)
+        .with_child(managed_note(policy.as_ref()))
         .with_child(actions)
         .with_child(roles_block)
         .render()
@@ -119,10 +133,64 @@ pub(crate) async fn profile_get(request: HttpRequest) -> Response {
         .into_response()
 }
 
+// Nota «Tu cuenta se gestiona en ...», con el enlace de ayuda del proveedor si lo hay. Sin
+// proveedor, no pinta nada.
+fn managed_note(policy: Option<&AccountPolicy>) -> Html {
+    let note = policy.map(|p| (p.provider_label().clone(), p.help().cloned()));
+    Html::with(move |cx| {
+        let Some((label, help)) = &note else {
+            return html! {};
+        };
+        let text = Lc::t("help-account-managed", &LOCALES_USER)
+            .with_arg("provider", label.lookup(cx).unwrap_or_default());
+        html! {
+            p class="user-managed-note" {
+                (text.using(cx))
+                @if let Some(help) = help {
+                    " "
+                    a href=(help.url()) {
+                        @match help.text().lookup(cx) {
+                            Some(text) => (text),
+                            None => (help.url()),
+                        }
+                    }
+                }
+            }
+        }
+    })
+}
+
+// Página informativa en lugar de un formulario que la política de la cuenta no permite.
+async fn managed_page(request: HttpRequest, title: Lc, policy: &AccountPolicy) -> Response {
+    let note = managed_note(Some(policy));
+    Page::new(request)
+        .with_title(title.clone())
+        .with_child(Block::new().with_title(title).with_child(note))
+        .render()
+        .await
+        .into_response()
+}
+
+// Política de la cuenta si gestiona el campo de forma que el usuario no puede cambiarlo.
+async fn locked_by_policy(
+    user_id: i32,
+    field: fn(&AccountPolicy) -> FieldPolicy,
+) -> Option<AccountPolicy> {
+    let user = user_admin::find_user(user_id).await.ok()?;
+    provider::account_policy(&user)
+        .await
+        .filter(|policy| !field(policy).is_editable())
+}
+
 // Botones para editar el perfil, cambiar el email y cambiar la contraseña, cada uno sólo si se
-// tiene el permiso (el email, con el de editar el perfil). Sin ninguno, el contenedor queda vacío y
-// no se renderiza.
-fn profile_actions(can_edit: bool, can_change_password: bool, cx: &Context) -> Flex {
+// tiene el permiso (el email, con el de editar el perfil) y la cuenta lo permite. Sin ninguno, el
+// contenedor queda vacío y no se renderiza.
+fn profile_actions(
+    can_edit: bool,
+    can_change_email: bool,
+    can_change_password: bool,
+    cx: &Context,
+) -> Flex {
     let mut actions = Flex::new()
         .with_wrap(flex::Behavior::Wrap)
         .with_gap(align::Gap::Both(UnitValue::RelRem(0.5)));
@@ -134,6 +202,8 @@ fn profile_actions(can_edit: bool, can_change_password: bool, cx: &Context) -> F
             )
             .with_style(button::Style::Solid(Intent::Primary)),
         );
+    }
+    if can_change_email {
         actions = actions.with_child(
             Button::anchor(
                 Lc::t("btn-change-email", &LOCALES_USER),
@@ -281,7 +351,9 @@ pub(crate) async fn profile_edit_get(request: HttpRequest) -> Result<Response, E
         return Err(ErrorPage::NotFound(request));
     };
 
+    let policy = provider::account_policy(&user).await;
     let form = UserForm::new()
+        .with_policy(policy)
         .with_username(user.username)
         .with_email(user.email)
         .with_display_name(user.display_name.unwrap_or_default())
@@ -322,23 +394,28 @@ pub(crate) async fn profile_edit_post(
         return Err(ErrorPage::NotFound(request));
     };
 
-    // Sin permiso se conserva el nombre actual, aunque la petición se haya manipulado a mano.
-    let username = if has_permission(&request, &UserPermission::ChangeOwnUsername) {
+    // Sin permiso se conserva el nombre actual, aunque la petición se haya manipulado a mano; y lo
+    // que gestiona un proveedor, también.
+    let policy = provider::account_policy(&user).await;
+    let username = if has_permission(&request, &UserPermission::ChangeOwnUsername)
+        && policy.as_ref().is_none_or(|p| p.username().is_editable())
+    {
         form.username
     } else {
-        user.username
+        user.username.clone()
     };
 
+    let field = |field, submitted| managed_or(policy.as_ref(), field, submitted, &user);
     let result = user_admin::update_user(
         id,
         user_admin::UserUpdateData {
             username: &username,
             email: &user.email,
-            display_name: util::non_blank(&form.display_name),
-            about: util::non_blank(&form.about),
-            language: util::non_blank(&form.language),
-            timezone: util::non_blank(&form.timezone),
-            theme: util::non_blank(&form.theme),
+            display_name: field(UserField::DisplayName, &form.display_name),
+            about: field(UserField::About, &form.about),
+            language: field(UserField::Language, &form.language),
+            timezone: field(UserField::Timezone, &form.timezone),
+            theme: field(UserField::Theme, &form.theme),
         },
     )
     .await;
@@ -350,6 +427,7 @@ pub(crate) async fn profile_edit_post(
         }
         Err(err) => {
             let form = UserForm::new()
+                .with_policy(policy)
                 .with_username(username)
                 .with_email(user.email)
                 .with_display_name(form.display_name)
@@ -376,18 +454,21 @@ async fn render_profile_edit(request: HttpRequest, form: UserForm) -> Response {
 
 /// GET /user/password - Formulario de cambio de la contraseña propia.
 pub(crate) async fn password_get(request: HttpRequest) -> Result<Response, ErrorPage> {
-    if current_user_id(&request).is_none() {
+    let Some(id) = current_user_id(&request) else {
         return Ok(login_redirect(request, PROFILE_PASSWORD_PATH));
-    }
+    };
     let title = Lc::t("title-profile-password", &LOCALES_USER);
+    if let Some(policy) = locked_by_policy(id, AccountPolicy::password).await {
+        return Ok(managed_page(request, title, &policy).await);
+    }
     Ok(render_profile_page(request, title, ChangePasswordForm::new()).await)
 }
 
 #[derive(Deserialize)]
 pub(crate) struct ChangePasswordFormData {
-    current_password: String,
-    password: String,
-    confirm_password: String,
+    current_password: util::SecretStr,
+    password: util::SecretStr,
+    confirm_password: util::SecretStr,
 }
 
 /// POST /user/password - Cambia la contraseña propia tras comprobar la actual, cierra el resto de
@@ -399,12 +480,19 @@ pub(crate) async fn password_post(
     let Some(id) = current_user_id(&request) else {
         return Ok(login_redirect(request, PROFILE_PASSWORD_PATH));
     };
+    if let Some(policy) = locked_by_policy(id, AccountPolicy::password).await {
+        let title = Lc::t("title-profile-password", &LOCALES_USER);
+        return Ok(managed_page(request, title, &policy).await);
+    }
 
     let sid = session::extract_sid(Some(request.headers()));
-    let result = match password::passwords_match(&form.password, &form.confirm_password) {
-        Ok(()) => auth::change_own_password(id, &form.current_password, &form.password, sid).await,
-        Err(err) => Err(err),
-    };
+    let result =
+        match password::passwords_match(form.password.expose(), form.confirm_password.expose()) {
+            Ok(()) => {
+                auth::change_own_password(id, &form.current_password, &form.password, sid).await
+            }
+            Err(err) => Err(err),
+        };
 
     match result {
         Ok(user) => {
@@ -435,6 +523,12 @@ pub(crate) async fn email_get(request: HttpRequest) -> Result<Response, ErrorPag
         return Err(ErrorPage::NotFound(request));
     };
     let title = Lc::t("title-profile-email", &LOCALES_USER);
+    if let Some(policy) = provider::account_policy(&user)
+        .await
+        .filter(|policy| !policy.email().is_editable())
+    {
+        return Ok(managed_page(request, title, &policy).await);
+    }
     let form = ChangeEmailForm::new().with_pending_email(user.pending_email);
     Ok(render_profile_page(request, title, form).await)
 }
@@ -442,7 +536,7 @@ pub(crate) async fn email_get(request: HttpRequest) -> Result<Response, ErrorPag
 #[derive(Deserialize)]
 pub(crate) struct ChangeEmailFormData {
     email: String,
-    current_password: String,
+    current_password: util::SecretStr,
 }
 
 /// POST /user/email - Pide cambiar el email propio tras comprobar la contraseña actual: envía a la
@@ -455,6 +549,10 @@ pub(crate) async fn email_post(
     let Some(id) = current_user_id(&request) else {
         return Ok(login_redirect(request, EMAIL_PATH));
     };
+    if let Some(policy) = locked_by_policy(id, AccountPolicy::email).await {
+        let title = Lc::t("title-profile-email", &LOCALES_USER);
+        return Ok(managed_page(request, title, &policy).await);
+    }
 
     let result = if throttle::allow(&request) {
         auth::request_email_change(id, &form.current_password, &form.email).await
@@ -559,4 +657,25 @@ async fn render_profile_page(
         .render()
         .await
         .into_response()
+}
+
+// Valor de un dato del perfil para guardar: el enviado o, si lo gestiona el proveedor de la cuenta,
+// el guardado.
+pub(crate) fn managed_or<'a>(
+    policy: Option<&AccountPolicy>,
+    field: UserField,
+    submitted: &'a str,
+    user: &'a user::Model,
+) -> Option<&'a str> {
+    if !policy.is_some_and(|p| p.manages(field)) {
+        return util::non_blank(submitted);
+    }
+    match field {
+        UserField::DisplayName => user.display_name.as_deref(),
+        UserField::About => user.about.as_deref(),
+        UserField::Language => user.language.as_deref(),
+        UserField::Timezone => user.timezone.as_deref(),
+        UserField::Theme => user.theme.as_deref(),
+        UserField::Email => Some(user.email.as_str()),
+    }
 }

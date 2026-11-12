@@ -310,7 +310,10 @@ identity_policy            = "strict"  # Nombres de usuario que se aceptan:
 
 max_failed_logins        = 5           # Intentos fallidos seguidos que bloquean la cuenta, también
                                        # los de la contraseña actual al cambiar la contraseña o el
-                                       # email. 0 -> nunca.
+                                       # email. Limita también los fallos de cada identificador
+                                       # tecleado, exista o no la cuenta. Con un proveedor externo
+                                       # (LDAP...), debe ser menor que su propio umbral de bloqueo.
+                                       # 0 -> nunca.
 failed_login_window_secs = 900         # Segundos desde el último fallo en los que el siguiente se
                                        # suma al recuento (15 minutos); si no, empieza de nuevo.
 locked_for_secs          = 600         # Duración del bloqueo de la cuenta en segundos (10 minutos).
@@ -335,10 +338,23 @@ ip_request_window_secs = 3600          # Duración del periodo en segundos (1 ho
 max_ip_failed_logins   = 30            # Máximo de inicios de sesión fallidos desde una misma IP en
                                        # un periodo de 'ip_failed_login_window_secs' segundos; los
                                        # siguientes se rechazan sin comprobar la contraseña. Frena
-                                       # probar contraseñas en muchas cuentas. 0 -> sin límite.
+                                       # probar contraseñas en muchas cuentas. Sin IP conocida y
+                                       # con un proveedor externo activo, es el máximo para todas
+                                       # esas peticiones juntas. 0 -> sin límite.
 ip_failed_login_window_secs = 900      # Duración del periodo en segundos (15 minutos).
 
-login_strict = false                   # Dificulta que el navegador recuerde o autorrellene las
+[user.login]                           # Inicio de sesión.
+sources        = ["local"]             # Fuentes que comprueban las credenciales, en orden: "local"
+                                       # (la contraseña guardada en PageTop) y los proveedores de
+                                       # autenticación declarados (p. ej. "ldap"). Uno desconocido
+                                       # o repetido, o la lista vacía, impiden arrancar.
+local_fallback = "released"            # Si "local" no está en 'sources', qué cuentas pueden aún
+                                       # entrar con su contraseña local:
+                                       #   "none"     -> ninguna.
+                                       #   "released" -> las que un proveedor libera.
+                                       #   "admins"   -> además, cualquier administrador (acceso
+                                       #                 de emergencia si el proveedor cae).
+strict         = false                 # Dificulta que el navegador recuerde o autorrellene las
                                        # credenciales en el formulario de acceso.
 
 [user.session]                         # Sesiones de usuario.

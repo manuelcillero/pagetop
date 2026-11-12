@@ -6,70 +6,214 @@ use pagetop_seaorm::db::*;
 
 use crate::account::UserStatus;
 use crate::config::SETTINGS;
-use crate::entity::{role_permission, user};
+use crate::entity::{role_permission, user, user_identity};
 use crate::error::AuthError;
 use crate::identity::{self, Email, Username};
 use crate::password;
 use crate::permission::UserPermission;
+use crate::provider::{
+    self, AuthProvider, LoginAttempt, LoginVia, ProviderOutcome, ReauthOutcome, Source, UserRef,
+};
 use crate::service::user_admin::{
     ensure_email_available, ensure_username_available, taken_on_conflict,
 };
 use crate::session;
 use crate::token::{self, TokenKind};
 
+use pagetop_seaorm::db::query::Expr;
+
+use std::net::IpAddr;
+
 // **< login >**************************************************************************************
 
-/// Valida las credenciales y crea una sesión. Devuelve el session ID.
+// Topes de lo que se teclea para iniciar sesión. Más allá no hay ninguna cuenta posible (un email
+// tiene como mucho 254 caracteres), y una contraseña enorme sólo serviría para hacer trabajar a
+// Argon2 o al proveedor externo.
+const MAX_IDENTIFIER_CHARS: usize = 255;
+const MAX_PASSWORD_BYTES: usize = 1024;
+
+// Plazo para `AuthProvider::after_login()`: su trabajo no debe retrasar el inicio de sesión.
+const AFTER_LOGIN_TIMEOUT: std::time::Duration = std::time::Duration::from_secs(5);
+
+/// Si lo tecleado puede ser una credencial: un identificador de hasta 255 caracteres sin
+/// caracteres de control y una contraseña de hasta 1024 bytes sin NUL. Si no, se rechaza sin
+/// consultar ninguna fuente.
+pub(crate) fn acceptable_credentials(identifier: &str, password: &util::SecretStr) -> bool {
+    identifier.chars().count() <= MAX_IDENTIFIER_CHARS
+        && !identifier.chars().any(char::is_control)
+        && password.len() <= MAX_PASSWORD_BYTES
+        && !password.expose().contains('\0')
+}
+
+/// Sesión creada por [`login()`].
+pub(crate) struct NewSession {
+    /// Identificador de la sesión, para la *cookie*.
+    pub(crate) sid: String,
+    /// Si se ha aplicado "Recuérdame": se pidió y la fuente que autenticó lo admite.
+    pub(crate) remember: bool,
+}
+
+/// Comprueba las credenciales con las fuentes de
+/// [`[user.login] sources`](crate::config::LoginSettings::sources) y, si alguna las acepta, crea
+/// una sesión.
 ///
-/// Acepta nombre de usuario o email como primer parámetro. Aplica la política de bloqueo
-/// por intentos fallidos y rehashea la contraseña si los parámetros de coste han cambiado.
+/// Acepta nombre de usuario o email como identificador. Las fuentes se prueban en orden: la
+/// contraseña local (`"local"`) y los proveedores de autenticación activos; una cuenta vinculada a
+/// un proveedor sólo se prueba con él. El primer acierto decide la cuenta, y entonces se comprueban
+/// **su** bloqueo por intentos fallidos y **su** estado. Si ninguna acierta, el intento fallido se
+/// anota una sola vez, en la cuenta de lo tecleado o, si no la hay, en la que indicó un proveedor;
+/// si un proveedor no ha respondido, sólo cuando otra fuente ha rechazado la contraseña.
 ///
 /// Sólo con la contraseña correcta se informa de que la cuenta está bloqueada
-/// ([`AuthError::AccountBlocked`]) o pendiente de verificar ([`AuthError::AccountPending`]): sin
-/// ella, cualquiera sabría así qué cuentas existen y en qué estado están. Por lo mismo, sin cuenta
-/// se tarda lo mismo que con una contraseña errónea.
-pub async fn login(
-    username_or_email: &str,
-    plain_password: &str,
+/// ([`AuthError::AccountBlocked`]), pendiente de verificar ([`AuthError::AccountPending`]) o de
+/// aprobar ([`AuthError::AccountAwaitingApproval`]), o de que un proveedor deniega el acceso
+/// ([`AuthError::ExternalRejected`]): sin ella, cualquiera sabría así qué cuentas existen y en qué
+/// estado están. Por lo mismo, sin cuenta se tarda lo mismo que con una contraseña errónea, y si un
+/// proveedor no está disponible se responde [`AuthError::ExternalUnavailable`] exista o no la
+/// cuenta.
+pub(crate) async fn login(
+    identifier: &str,
+    password: &util::SecretStr,
     remember: bool,
-) -> Result<String, AuthError> {
+    client_ip: Option<IpAddr>,
+) -> Result<NewSession, AuthError> {
+    if !acceptable_credentials(identifier, password) {
+        return Err(AuthError::InvalidCredentials);
+    }
     let now = Utc::now();
 
-    // Buscar usuario por email o por username, sin distinguir mayúsculas. Un nombre de usuario
-    // nunca contiene `@`, así que la entrada sólo puede ser uno de los dos.
-    let filter = if username_or_email.contains('@') {
-        user::Column::EmailKey.eq(identity::email_key(username_or_email))
+    // Un nombre de usuario nunca contiene `@`, así que la entrada sólo puede ser uno de los dos.
+    let filter = if identifier.contains('@') {
+        user::Column::EmailKey.eq(identity::email_key(identifier))
     } else {
-        user::Column::UsernameKey.eq(identity::username_key(username_or_email))
+        user::Column::UsernameKey.eq(identity::username_key(identifier))
     };
-    let Some(user_model) = user::Entity::find().filter(filter).one(dbconn()).await? else {
-        password::verify_password_without_account(plain_password).await;
-        return Err(AuthError::InvalidCredentials);
-    };
-
-    // Comprobar bloqueo temporal por intentos fallidos.
-    if let Some(locked_until) = user_model.locked_until
-        && locked_until > now
+    let local_model = user::Entity::find().filter(filter).one(dbconn()).await?;
+    if let Some(model) = &local_model
+        && model.locked_until.is_some_and(|until| until > now)
     {
         return Err(AuthError::AccountLocked);
     }
+    let local = local_model.as_ref().map(UserRef::from);
+    let has_providers = provider::active_providers().next().is_some();
+    let linked = match &local {
+        Some(user) if has_providers => provider::linked_providers(user.id()).await?,
+        _ => Vec::new(),
+    };
 
-    // Verificar contraseña.
-    if !password::verify_password_async(plain_password, &user_model.password_hash).await {
-        register_failed_login(&user_model, now).await?;
-        return Err(AuthError::InvalidCredentials);
+    let fallback = SETTINGS.login.local_fallback;
+    let mut released = false;
+    if let Some(user) = local
+        .as_ref()
+        .filter(|_| provider::needs_release_check(fallback, local.as_ref()))
+    {
+        for p in provider::active_providers() {
+            if p.releases(user).await {
+                released = true;
+                break;
+            }
+        }
+    }
+    let chain = provider::login_chain(
+        provider::active_sources(),
+        fallback,
+        local.as_ref(),
+        released,
+    );
+
+    let attempt = LoginAttempt::new(identifier, password, local.as_ref(), client_ip);
+    let mut checked = false;
+    // Si alguna fuente ha comprobado la contraseña y la ha rechazado de verdad. Una cuenta sin
+    // contraseña local (la de un proveedor) no rechaza nada con `"local"`: así, si el proveedor no
+    // responde, sus intentos no cuentan para el bloqueo de la cuenta.
+    let mut rejected = false;
+    let mut unavailable = false;
+    let mut failed_user = None;
+    let mut success = None;
+    for source in chain {
+        match source {
+            Source::Local => {
+                let Some(model) = &local_model else {
+                    continue;
+                };
+                // Sin contraseña local no se calcula Argon2: no cuenta como comprobada, para que
+                // tarde lo mismo que una cuenta inexistente.
+                let usable = model.password_hash != password::UNUSABLE_HASH;
+                checked |= usable;
+                if password::verify_password_async(password.expose(), &model.password_hash).await {
+                    success = Some((model.id, None));
+                    break;
+                }
+                rejected |= usable;
+            }
+            Source::Provider(p) => {
+                if !linked.is_empty() && !linked.iter().any(|id| id == p.id()) {
+                    continue;
+                }
+                checked = true;
+                match p.authenticate(&attempt).await {
+                    ProviderOutcome::NotFound => {}
+                    ProviderOutcome::InvalidCredentials { user_id } => {
+                        rejected = true;
+                        failed_user = failed_user.or(user_id);
+                    }
+                    ProviderOutcome::Unavailable => unavailable = true,
+                    ProviderOutcome::Rejected(reason) => {
+                        return Err(AuthError::ExternalRejected(reason));
+                    }
+                    ProviderOutcome::Authenticated { user_id } => {
+                        success = Some((user_id, Some(p)));
+                        break;
+                    }
+                }
+            }
+        }
     }
 
-    // Comprobar estado de la cuenta.
+    let Some((user_id, via)) = success else {
+        let failed = match (local_model, failed_user) {
+            (Some(model), _) => Some(model),
+            (None, Some(id)) => user::Entity::find_by_id(id).one(dbconn()).await?,
+            (None, None) => None,
+        };
+        // Con un proveedor que no responde, sólo cuenta si otra fuente la ha rechazado.
+        if let Some(model) = failed
+            && (rejected || !unavailable)
+        {
+            register_failed_login(&model, now).await?;
+        }
+        if !checked {
+            password::verify_password_without_account(password.expose()).await;
+        }
+        return Err(if unavailable {
+            AuthError::ExternalUnavailable
+        } else {
+            AuthError::InvalidCredentials
+        });
+    };
+
+    // La cuenta que ha resultado, que con un proveedor puede no ser la de lo tecleado, o haber
+    // cambiado al resolverla: se comprueban su bloqueo y su estado, no los de otra.
+    let user_model = match (via, local_model) {
+        (None, Some(model)) => model,
+        _ => user::Entity::find_by_id(user_id)
+            .one(dbconn())
+            .await?
+            .ok_or(AuthError::UserNotFound)?,
+    };
+    if user_model.locked_until.is_some_and(|until| until > now) {
+        return Err(AuthError::AccountLocked);
+    }
     match UserStatus::from_i16(user_model.status) {
         UserStatus::Blocked => return Err(AuthError::AccountBlocked),
         UserStatus::Pending => return Err(AuthError::AccountPending),
+        UserStatus::AwaitingApproval => return Err(AuthError::AccountAwaitingApproval),
         UserStatus::Active => {}
     }
 
-    // Actualizar last_login_at y resetear contador de fallos.
-    let user_id = user_model.id;
-    let needs_rehash = password::needs_rehash(&user_model.password_hash);
+    // Último acceso y contador de fallos a cero. La contraseña local sólo se vuelve a cifrar si se
+    // ha usado: es la única ocasión en que se conoce.
+    let needs_rehash = via.is_none() && password::needs_rehash(&user_model.password_hash);
     let mut active = user_model.into_active_model();
     active.last_login_at = Set(Some(now));
     active.last_access_at = Set(Some(now));
@@ -77,15 +221,49 @@ pub async fn login(
     active.failed_login_at = Set(None);
     active.locked_until = Set(None);
     if needs_rehash {
-        let new_hash = password::hash_password_async(plain_password).await?;
-        active.password_hash = Set(new_hash);
+        active.password_hash = Set(password::hash_password_async(password.expose()).await?);
     }
     active.update(dbconn()).await?;
 
-    // Crear sesión y devolver el SID.
-    session::create_session(user_id, remember)
+    let remember = remember && via.is_none_or(|p| p.allows_remember());
+    let sid = session::create_session(user_id, remember)
         .await
-        .map_err(AuthError::Database)
+        .map_err(AuthError::Database)?;
+
+    if has_providers {
+        let (providers, login_via): (Vec<&'static dyn AuthProvider>, _) = match via {
+            Some(p) => (vec![p], LoginVia::Provider),
+            None => (
+                provider::active_providers()
+                    .filter(|p| linked.iter().any(|id| id == p.id()))
+                    .collect(),
+                LoginVia::Local,
+            ),
+        };
+        for p in providers {
+            if tokio::time::timeout(AFTER_LOGIN_TIMEOUT, p.after_login(user_id, login_via))
+                .await
+                .is_err()
+            {
+                trace::warn!(
+                    "Provider \"{}\" took too long after the login of user {user_id}",
+                    p.id()
+                );
+            }
+        }
+        // La sesión ya está creada: un fallo aquí no debe impedir el inicio de sesión.
+        if let Err(err) = user_identity::Entity::update_many()
+            .col_expr(user_identity::Column::LastLoginAt, Expr::value(now))
+            .filter(user_identity::Column::UserId.eq(user_id))
+            .filter(user_identity::Column::Pending.eq(false))
+            .exec(dbconn())
+            .await
+        {
+            trace::error!("Cannot record the login of user {user_id} in its identities: {err}");
+        }
+    }
+
+    Ok(NewSession { sid, remember })
 }
 
 // **< logout >*************************************************************************************
@@ -164,13 +342,13 @@ pub async fn register(
 /// `checked_user()`).
 pub(crate) async fn change_own_password(
     user_id: i32,
-    current_password: &str,
-    new_password: &str,
+    current_password: &util::SecretStr,
+    new_password: &util::SecretStr,
     current_sid: Option<&str>,
 ) -> Result<user::Model, AuthError> {
     let user_model = checked_user(user_id, current_password).await?;
-    password::validate_strength(new_password)?;
-    let hash = password::hash_password_async(new_password).await?;
+    password::validate_strength(new_password.expose())?;
+    let hash = password::hash_password_async(new_password.expose()).await?;
 
     user::ActiveModel {
         id: Set(user_id),
@@ -190,14 +368,17 @@ pub(crate) async fn change_own_password(
     Ok(user_model)
 }
 
-// Cuenta del usuario, si `plain_password` es su contraseña actual; si no,
+// Cuenta del usuario, si `password` es su contraseña actual; si no,
 // `AuthError::InvalidCredentials`.
 //
 // Los fallos cuentan para el bloqueo por intentos fallidos, como en `login()`, y con la cuenta
 // bloqueada se rechaza también la contraseña correcta (`AuthError::AccountLocked`): si no, quien
 // tuviera una sesión robada podría adivinar la contraseña desde estos formularios sin límite, y
 // pedirla no protegería el cambio de la contraseña ni el del email.
-async fn checked_user(user_id: i32, plain_password: &str) -> Result<user::Model, AuthError> {
+//
+// La de una cuenta que gestiona un proveedor la comprueba el proveedor
+// (`AuthProvider::reauthenticate()`), con los mismos contadores de fallos.
+async fn checked_user(user_id: i32, password: &util::SecretStr) -> Result<user::Model, AuthError> {
     let user_model = user::Entity::find_by_id(user_id)
         .one(dbconn())
         .await?
@@ -208,7 +389,18 @@ async fn checked_user(user_id: i32, plain_password: &str) -> Result<user::Model,
     {
         return Err(AuthError::AccountLocked);
     }
-    if !password::verify_password_async(plain_password, &user_model.password_hash).await {
+    let valid = match provider::managing_provider(user_id).await? {
+        Some(p) => match p
+            .reauthenticate(&UserRef::from(&user_model), password)
+            .await
+        {
+            ReauthOutcome::Valid => true,
+            ReauthOutcome::Invalid => false,
+            ReauthOutcome::Unavailable => return Err(AuthError::ExternalUnavailable),
+        },
+        None => password::verify_password_async(password.expose(), &user_model.password_hash).await,
+    };
+    if !valid {
         register_failed_login(&user_model, now).await?;
         return Err(AuthError::InvalidCredentials);
     }
@@ -237,7 +429,7 @@ async fn checked_user(user_id: i32, plain_password: &str) -> Result<user::Model,
 /// [`email_change_window_secs`]: crate::config::UserSettings::email_change_window_secs
 pub(crate) async fn request_email_change(
     user_id: i32,
-    current_password: &str,
+    current_password: &util::SecretStr,
     new_email: &str,
 ) -> Result<(user::Model, String, String), AuthError> {
     let user_model = checked_user(user_id, current_password).await?;
@@ -450,11 +642,14 @@ async fn do_seed(username: Username, email: Email) {
             use rand_core::{OsRng, RngCore};
             let mut bytes = [0u8; 15];
             OsRng.fill_bytes(&mut bytes);
-            (Base64UrlUnpadded::encode_string(&bytes), true)
+            (
+                util::SecretStr::new(Base64UrlUnpadded::encode_string(&bytes)),
+                true,
+            )
         }
     };
 
-    let hash = match password::hash_password(&admin_password) {
+    let hash = match password::hash_password(admin_password.expose()) {
         Ok(h) => h,
         Err(e) => {
             eprintln!(
@@ -494,7 +689,8 @@ async fn do_seed(username: Username, email: Email) {
             if generated {
                 println!(
                     "\npagetop-user: admin account created.\n  username: {}\n  password: {}\n",
-                    admin_username, admin_password
+                    admin_username,
+                    admin_password.expose()
                 );
             }
         }

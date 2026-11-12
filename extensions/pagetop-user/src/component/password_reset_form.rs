@@ -5,6 +5,11 @@ use pagetop::prelude::*;
 use crate::component::error_banner;
 use crate::{LOCALES_USER, LOGIN_PATH, PASSWORD_RESET_PATH};
 
+/// Formulario para pedir la recuperación de la contraseña.
+///
+/// Pide el email de la cuenta y lo envía a `/user/password/reset`, que, si es de una cuenta activa,
+/// manda por correo el enlace para elegir una nueva (o un aviso, si la contraseña la gestiona un
+/// proveedor de autenticación). La respuesta es la misma exista o no la cuenta.
 #[derive(AutoDefault, Clone, Debug)]
 pub struct PasswordResetForm {
     error: Option<Lc>,
@@ -54,6 +59,7 @@ fn back_to_login() -> Html {
 
 #[builder_impl]
 impl PasswordResetForm {
+    /// Mensaje de error sobre el formulario, p. ej. el del envío que ha fallado.
     pub fn with_error(mut self, error: impl Into<Option<Lc>>) -> Self {
         self.error = error.into();
         self

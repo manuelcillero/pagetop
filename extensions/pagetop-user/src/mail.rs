@@ -7,6 +7,7 @@ use pagetop_mail::prelude::*;
 
 use crate::config;
 use crate::entity::user;
+use crate::provider::HelpLink;
 use crate::token::TokenKind;
 use crate::{EMAIL_PATH, LOCALES_USER, PASSWORD_RESET_PATH, VERIFY_PATH};
 
@@ -27,6 +28,9 @@ pub(crate) enum Notice {
     PasswordChangedByAdmin,
     /// Se ha pedido cambiar la dirección de la cuenta por otra, pendiente de confirmar.
     EmailChangeRequested,
+    /// Se ha pedido recuperar la contraseña de una cuenta cuya contraseña se gestiona fuera de la
+    /// aplicación (ver `ResetPolicy::Forbidden`).
+    PasswordManagedExternally,
 }
 
 // **< UserMail >***********************************************************************************
@@ -38,9 +42,12 @@ struct UserMail {
     keys: [&'static str; 4],
     // Nombre de usuario para el saludo, sólo si la dirección está verificada (ver `recipient()`).
     username: Option<String>,
-    link: String,
+    // Enlace principal; sin él, no se pinta el botón.
+    link: Option<String>,
     // Horas que vale el enlace, si caduca.
     expires_hours: Option<u32>,
+    // Nombre del proveedor que gestiona la cuenta, para la introducción (`$provider`).
+    provider: Option<String>,
 }
 
 impl UserMail {
@@ -69,8 +76,9 @@ impl UserMail {
         UserMail {
             keys,
             username,
-            link,
+            link: Some(link),
             expires_hours: Some(u32::try_from(kind.ttl_secs() / 3600).unwrap_or(u32::MAX)),
+            provider: None,
         }
     }
 
@@ -89,13 +97,34 @@ impl UserMail {
                 "mail-email-change-requested-subject",
                 "mail-email-change-requested-intro",
             ],
+            Notice::PasswordManagedExternally => {
+                return UserMail {
+                    keys: [
+                        "mail-reset-external-subject",
+                        "mail-reset-external-intro",
+                        "mail-reset-external-action",
+                        "mail-reset-ignore",
+                    ],
+                    username,
+                    link: None,
+                    expires_hours: None,
+                    provider: None,
+                }
+                .with_link(link);
+            }
         };
         UserMail {
             keys: [subject, intro, "mail-notice-action", "mail-notice-ignore"],
             username,
-            link,
+            link: Some(link),
             expires_hours: None,
+            provider: None,
         }
+    }
+
+    fn with_link(mut self, link: String) -> Self {
+        self.link = util::non_blank(&link).map(str::to_owned);
+        self
     }
 }
 
@@ -120,11 +149,17 @@ impl MailTemplate for UserMail {
         let expires = self
             .expires_hours
             .map(|hours| Lc::t("mail-link-expires", &LOCALES_USER).with_number("hours", hours));
+        let mut intro = Lc::t(intro, &LOCALES_USER);
+        if let Some(provider) = &self.provider {
+            intro = intro.with_arg("provider", provider.clone());
+        }
         Some(html! {
             p { (greeting.using(cx)) }
-            p { (Lc::t(intro, &LOCALES_USER).using(cx)) }
-            p style="margin: 24px 0;" {
-                a href=(self.link) style=(BUTTON_STYLE) { (Lc::t(action, &LOCALES_USER).using(cx)) }
+            p { (intro.using(cx)) }
+            @if let Some(link) = &self.link {
+                p style="margin: 24px 0;" {
+                    a href=(link) style=(BUTTON_STYLE) { (Lc::t(action, &LOCALES_USER).using(cx)) }
+                }
             }
             @if let Some(expires) = expires {
                 p { (expires.using(cx)) }
@@ -173,6 +208,33 @@ pub(crate) fn send_notice(request: &HttpRequest, notice: Notice, user: &user::Mo
     let cx = user_context(request, user);
     let (username, to) = recipient(user);
     notice_email(&cx, notice, username, to).send_later();
+}
+
+// Avisa a la cuenta de que su contraseña se gestiona fuera de la aplicación, con el enlace de ayuda
+// del proveedor si lo hay, en lugar del enlace de recuperación.
+pub(crate) fn send_external_password_notice(
+    request: &HttpRequest,
+    user: &user::Model,
+    provider_label: Lc,
+    help: Option<HelpLink>,
+) {
+    let cx = user_context(request, user);
+    let (username, to) = recipient(user);
+    external_notice_email(&cx, provider_label, help, username, to).send_later();
+}
+
+// Compone el aviso de `send_external_password_notice()`.
+fn external_notice_email(
+    cx: &Context,
+    provider_label: Lc,
+    help: Option<HelpLink>,
+    username: Option<String>,
+    to: Mailbox,
+) -> Email {
+    let link = help.map(|help| help.url().to_owned()).unwrap_or_default();
+    let mut template = UserMail::notice(Notice::PasswordManagedExternally, username, link);
+    template.provider = Some(provider_label.lookup(cx).unwrap_or_default());
+    Email::from_template(&template, cx).with_to(to)
 }
 
 // Contexto de la petición con el idioma propio del usuario, si lo tiene y se aplica.
@@ -262,6 +324,15 @@ pub(crate) fn declare_previews(previews: &mut MailPreviews) {
         |cx| sample_notice(cx, Notice::PasswordChanged),
     );
     previews.add(
+        "user.password_managed_externally",
+        Lc::t("mail-preview-reset-external", &LOCALES_USER),
+        |cx| {
+            let (username, to) = sample_verified();
+            let help = HelpLink::new("https://help.example.com/password", Lc::none());
+            external_notice_email(cx, Lc::n("Corporate directory"), help, username, to)
+        },
+    );
+    previews.add(
         "user.password_changed_by_admin",
         Lc::t("mail-preview-password-changed-admin", &LOCALES_USER),
         |cx| sample_notice(cx, Notice::PasswordChangedByAdmin),
@@ -338,6 +409,7 @@ mod tests {
             "https://example.com/user/password/reset".to_owned(),
         );
         assert!(mail.expires_hours.is_none());
+        assert!(mail.link.is_some());
         let html = mail.html(&Context::default()).unwrap().into_string();
         assert!(html.contains("href=\"https://example.com/user/password/reset\""));
     }

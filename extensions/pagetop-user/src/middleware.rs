@@ -12,6 +12,7 @@ use std::sync::Arc;
 use pagetop::prelude::*;
 
 use crate::account::{Account, PermissionSet};
+use crate::actions::AfterSessionResolved;
 use crate::config::SETTINGS;
 use crate::session;
 
@@ -26,6 +27,8 @@ struct AnonymousPermissions(Arc<PermissionSet>);
 /// - Siempre inserta [`pagetop::auth::CurrentUser`] (anónimo o autenticado).
 /// - Si hay sesión activa, inserta también el [`Account`] con sus permisos; si no, los permisos del
 ///   rol "anonymous".
+/// - Con sesión, despacha [`AfterSessionResolved`]: si una acción responde, la petición no llega al
+///   *handler*.
 /// - Si se ha prorrogado una sesión iniciada con "recordarme", renueva su cookie en la respuesta.
 pub(crate) async fn session_middleware(
     mut req: web::Request,
@@ -35,18 +38,25 @@ pub(crate) async fn session_middleware(
         session::resolve_session(req.headers()).await;
 
     req.extensions_mut().insert(current_user);
-    match maybe_account {
+    let early = match maybe_account {
         Some(account) => {
+            // Antes de insertar la cuenta, para no clonarla: la acción la recibe aparte.
+            let early = AfterSessionResolved::dispatch(&mut req, &account);
             req.extensions_mut().insert(account);
+            early
         }
         None => {
             let permissions = session::anonymous_permissions().await;
             req.extensions_mut()
                 .insert(AnonymousPermissions(permissions));
+            None
         }
-    }
+    };
 
-    let mut response = next.run(req).await;
+    let mut response = match early {
+        Some(response) => response,
+        None => next.run(req).await,
+    };
 
     // No se pisa la cookie de sesión que ya fije el handler (p. ej. la de expiración al cerrar
     // sesión). Las demás (mensajes, estado de un listado) conviven con la renovación: si la

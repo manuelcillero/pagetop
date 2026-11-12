@@ -28,6 +28,7 @@ use crate::account::UserStatus;
 use crate::component::admin::status_key;
 use crate::config::{user_language_applies, user_timezone_applies};
 use crate::entity::user;
+use crate::provider;
 use crate::{LOCALES_USER, PROFILE_PATH};
 
 // Texto libre de varias líneas como contenido seguro: cada salto de línea se convierte en `<br>`,
@@ -171,6 +172,15 @@ pub(crate) async fn user_details(user: &user::Model, cx: &mut Context) -> Block 
                 )),
         );
 
+    // El origen de la cuenta sólo dice algo si hay proveedores de autenticación activos.
+    if provider::active_providers().next().is_some() {
+        table = table.with_row(
+            table::Row::new()
+                .with_cell(Lc::t("field-origin", &LOCALES_USER))
+                .with_cell(account_origin(user.id, cx).await),
+        );
+    }
+
     if user.is_admin {
         let badge = Badge::severe(Lc::t("badge-admin", &LOCALES_USER))
             .render(cx)
@@ -185,4 +195,29 @@ pub(crate) async fn user_details(user: &user::Model, cx: &mut Context) -> Block 
     Block::new()
         .with_title(Lc::t("title-user-details", &LOCALES_USER))
         .with_child(table)
+}
+
+// Origen de la cuenta: local, vinculada a un proveedor o local a la espera de vincularse con uno.
+async fn account_origin(user_id: i32, cx: &Context) -> Lc {
+    let identities = match provider::identities_of(user_id).await {
+        Ok(identities) => identities,
+        Err(err) => {
+            trace::error!("Cannot load the identities of user {user_id}: {err}");
+            return Lc::n("-");
+        }
+    };
+    let label = |id: &str| {
+        provider::active_provider(id).map_or_else(|| Lc::n(id.to_owned()), |p| p.label())
+    };
+    if let Some(linked) = identities.iter().find(|identity| !identity.pending) {
+        return label(&linked.provider);
+    }
+    match identities.first() {
+        // Los argumentos de `Lc` son texto fijo: la etiqueta del proveedor se traduce ya.
+        Some(pending) => Lc::t("value-origin-pending", &LOCALES_USER).with_arg(
+            "provider",
+            label(&pending.provider).lookup(cx).unwrap_or_default(),
+        ),
+        None => Lc::t("value-origin-local", &LOCALES_USER),
+    }
 }

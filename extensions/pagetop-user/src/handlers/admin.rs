@@ -55,6 +55,14 @@ pub(crate) fn map_auth_error(err: &AuthError) -> Lc {
             Lc::t("error-cannot-modify-own-admin-flag", &LOCALES_USER)
         }
         AuthError::UnknownPermission(_) => Lc::t("error-unknown-permission", &LOCALES_USER),
+        AuthError::AccountAwaitingApproval => {
+            Lc::t("error-account-awaiting-approval", &LOCALES_USER)
+        }
+        AuthError::ExternalUnavailable => Lc::t("error-external-unavailable", &LOCALES_USER),
+        AuthError::PasswordManagedExternally => Lc::t("error-password-managed", &LOCALES_USER),
+        AuthError::IdentityTaken => Lc::t("error-identity-taken", &LOCALES_USER),
+        AuthError::ProtectedAccount => Lc::t("error-protected-account", &LOCALES_USER),
+        AuthError::NotPendingIdentity => Lc::t("error-not-pending-identity", &LOCALES_USER),
         _ => Lc::t("error-internal", &LOCALES_USER),
     }
 }

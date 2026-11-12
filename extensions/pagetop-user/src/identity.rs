@@ -91,6 +91,16 @@ pub(crate) fn username_key(raw: &str) -> String {
     raw.trim().nfkc().collect::<String>().to_lowercase()
 }
 
+// Clave con la que se busca una cuenta a partir de lo que se teclea para iniciar sesión: la del
+// email si lleva `@` (un nombre de usuario nunca lo lleva) y la del nombre de usuario si no.
+pub(crate) fn login_key(raw: &str) -> String {
+    if raw.contains('@') {
+        email_key(raw)
+    } else {
+        username_key(raw)
+    }
+}
+
 // *Hash* SHA-256, en hexadecimal, del esqueleto de confusión (UTS #39) de la clave del nombre.
 fn skeleton_hash(key: &str) -> String {
     let digest = Sha256::digest(skeleton(key).collect::<String>().as_bytes());

@@ -5,6 +5,10 @@ use pagetop::prelude::*;
 use crate::LOCALES_USER;
 use crate::component::{PasswordConfirm, error_banner};
 
+/// Formulario para elegir la nueva contraseña desde el enlace de recuperación.
+///
+/// Pide la contraseña y su confirmación, y se envía a la propia página del enlace, cuya dirección
+/// lleva la cuenta y el *token*: sólo funciona dentro de ella.
 #[derive(AutoDefault, Clone, Debug)]
 pub struct PasswordResetConfirmForm {
     error: Option<Lc>,
@@ -38,6 +42,7 @@ impl Component for PasswordResetConfirmForm {
 
 #[builder_impl]
 impl PasswordResetConfirmForm {
+    /// Mensaje de error sobre el formulario, p. ej. el del envío que ha fallado.
     pub fn with_error(mut self, error: impl Into<Option<Lc>>) -> Self {
         self.error = error.into();
         self

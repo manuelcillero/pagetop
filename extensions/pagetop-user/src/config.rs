@@ -23,7 +23,8 @@
 //! ```
 //!
 //! Todas las opciones, con su valor por defecto, se documentan en [`UserSettings`] y sus
-//! subsecciones ([`SessionSettings`], [`PasswordSettings`], [`SeedSettings`] y [`AdminSettings`]).
+//! subsecciones ([`SessionSettings`], [`PasswordSettings`], [`SeedSettings`], [`AdminSettings`] y
+//! [`LoginSettings`]).
 //! Las reglas de los nombres de usuario y del email se explican en [`IdentityPolicy`].
 //!
 //! Consulta [`pagetop::config`] para ver cómo PageTop lee los archivos de configuración y aplica
@@ -163,14 +164,71 @@ pub struct UserSettings {
     /// Listados de administración, en la subsección `[user.admin]`.
     pub admin: AdminSettings,
 
-    /// Activa las medidas para dificultar que el navegador recuerde o autorrellene las
-    /// credenciales en la pantalla de login (gestor de contraseñas, autocompletado agresivo...).
-    #[default = false]
-    pub login_strict: bool,
+    /// Inicio de sesión, en la subsección `[user.login]`.
+    pub login: LoginSettings,
 }
 
-/// Política de identidad: qué nombres de usuario se aceptan al crear una cuenta o al cambiar su
-/// nombre. Usado en [`UserSettings::identity_policy`].
+/// Subsección **`[user.login]`** de la configuración.
+///
+/// Decide con qué se comprueban las credenciales del formulario de inicio de sesión: con la
+/// contraseña guardada en PageTop (`"local"`) o con los proveedores de autenticación que declaren
+/// otras extensiones (un directorio LDAP, por ejemplo; ver
+/// [`AuthProvider`](crate::provider::AuthProvider)).
+///
+/// | Quiero... | `sources` | `local_fallback` |
+/// |---|---|---|
+/// | Sólo cuentas locales (por defecto) | `["local"]` | - |
+/// | Las dos, primero las locales | `["local", "ldap"]` | - |
+/// | Las dos, primero el proveedor | `["ldap", "local"]` | - |
+/// | Sólo el proveedor, con administradores locales de emergencia | `["ldap"]` | `"admins"` |
+/// | Sólo el proveedor, salvo las cuentas que libere | `["ldap"]` | `"released"` |
+/// | Sólo el proveedor, sin excepciones | `["ldap"]` | `"none"` |
+#[settings]
+pub struct LoginSettings {
+    /// Fuentes de credenciales, en el orden en que se comprueban: `"local"` es la contraseña
+    /// guardada en PageTop, y el resto, identificadores de proveedores declarados
+    /// ([`AuthProvider::id()`](crate::provider::AuthProvider::id)).
+    ///
+    /// Un identificador desconocido o repetido, o una lista vacía, impiden arrancar. Un proveedor
+    /// declarado que no esté en la lista no autentica a nadie (se avisa al arrancar).
+    ///
+    /// Una cuenta vinculada a un proveedor sólo se autentica con él (y con `"local"`, si está en la
+    /// lista o lo permite [`local_fallback`](Self::local_fallback)). Poner primero el proveedor
+    /// evita calcular la contraseña local (Argon2, unas decenas de milisegundos) a quien entra con
+    /// él.
+    #[default(vec!["local".to_owned()])]
+    pub sources: Vec<String>,
+    /// Qué cuentas pueden aún entrar con su contraseña local cuando `"local"` no está en
+    /// [`sources`](Self::sources). Ver [`LocalFallback`].
+    pub local_fallback: LocalFallback,
+    /// Activa las medidas para dificultar que el navegador recuerde o autorrellene las
+    /// credenciales en la pantalla de inicio de sesión (gestor de contraseñas, autocompletado
+    /// agresivo...).
+    #[default = false]
+    pub strict: bool,
+}
+
+/// Define qué cuentas pueden entrar con su contraseña local.
+///
+/// Sólo se aplica cuando `"local"` no está en [`LoginSettings::sources`].
+#[derive(AutoDefault, Clone, Copy, Debug, Deserialize, Eq, PartialEq)]
+#[serde(rename_all = "lowercase")]
+pub enum LocalFallback {
+    /// Ninguna: sólo entran las cuentas que autentique un proveedor.
+    None,
+    /// Las que algún proveedor de `sources` libera (p. ej. las que excluye de su gestión, o los
+    /// administradores si así lo decide). Es el valor por defecto.
+    #[default]
+    Released,
+    /// Además de las liberadas, cualquier cuenta de administrador: un acceso de emergencia si el
+    /// proveedor deja de responder.
+    Admins,
+}
+
+/// Define la política de identidad.
+///
+/// Establece qué nombres de usuario se aceptan al crear una cuenta o al cambiar su nombre. Usado en
+/// [`UserSettings::identity_policy`].
 ///
 /// Cada nivel admite todo lo del anterior y algo más:
 ///
@@ -344,7 +402,7 @@ pub struct SeedSettings {
     pub admin_email: String,
     /// Contraseña del primer administrador. Sin valor, se genera una aleatoria y se muestra una
     /// sola vez por la salida estándar al crearlo.
-    pub admin_password: Option<String>,
+    pub admin_password: Option<util::SecretStr>,
 }
 
 /// Subsección **`[user.admin]`** de la configuración.

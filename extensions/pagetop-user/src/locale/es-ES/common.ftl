@@ -115,12 +115,17 @@ mail-email-change-requested-intro   = Se ha pedido cambiar la dirección de corr
 mail-notice-action = Restablecer mi contraseña
 mail-notice-ignore = Si ya lo sabías, no tienes que hacer nada.
 
+mail-reset-external-subject = Tu contraseña de { $app }
+mail-reset-external-intro   = Hemos recibido una solicitud para restablecer la contraseña de tu cuenta, pero su contraseña no se gestiona en esta aplicación, sino en { $provider }. Cámbiala allí.
+mail-reset-external-action  = Cómo cambiar mi contraseña
+
 mail-preview-reset                  = Recuperación de contraseña
 mail-preview-verify                 = Verificación del correo al registrarse
 mail-preview-email-change           = Confirmación de una nueva dirección
 mail-preview-email-change-requested = Aviso de cambio de dirección pedido
 mail-preview-password-changed       = Aviso de cambio de contraseña
 mail-preview-password-changed-admin = Aviso de cambio de contraseña por un administrador
+mail-preview-reset-external         = Aviso de contraseña gestionada fuera
 
 # **< Mensajes de error >**
 
@@ -144,12 +149,20 @@ error-too-many-requests     = Demasiadas solicitudes. Inténtalo de nuevo más t
 error-token-invalid         = Este enlace no es válido o ha caducado.
 error-current-password      = La contraseña actual no es correcta.
 error-internal              = Se ha producido un error inesperado. Inténtalo de nuevo.
+error-account-awaiting-approval = Tu cuenta está pendiente de que un administrador la apruebe.
+error-external-unavailable      = No se puede comprobar tu contraseña en este momento. Inténtalo de nuevo más tarde.
+error-login-disallowed          = Tu cuenta no tiene acceso a esta aplicación.
+error-login-not-registered      = No tienes una cuenta en esta aplicación. Pide que te den de alta.
+error-login-conflict            = No se puede iniciar sesión con esta cuenta. Contacta con el administrador.
+error-password-expired          = Tu contraseña ha caducado. Cámbiala antes de iniciar sesión.
+error-password-managed          = La contraseña de esta cuenta no se gestiona en esta aplicación.
 
 # **< Estados de cuenta >**
 
-status-active  = Activo
-status-blocked = Bloqueado
-status-pending = Pendiente de verificación de email
+status-active            = Activo
+status-blocked           = Bloqueado
+status-pending           = Pendiente de verificación de email
+status-awaiting-approval = Pendiente de aprobación
 
 # **< Roles de sistema >**
 
@@ -201,6 +214,10 @@ field-language              = Idioma
 field-timezone              = Zona horaria
 field-theme                 = Tema
 value-theme-site-default    = Tema del sitio: { $theme }
+field-origin                = Origen
+value-origin-local          = Cuenta local
+value-origin-pending        = Cuenta local, puede vincularse con { $provider }
+value-role-managed          = { $role } (gestionado por { $provider })
 field-machine-name          = Nombre técnico
 field-label                 = Etiqueta
 field-description           = Descripción
@@ -227,6 +244,11 @@ help-password-min-length = Al menos { $n } caracteres.
 
 help-email-readonly = Para cambiarla, usa «Cambiar email» en tu perfil.
 
+help-managed-by       = Gestionado por { $provider }.
+help-account-managed  = Tu cuenta se gestiona en { $provider }: la contraseña y los datos que vienen de allí se cambian allí.
+help-password-managed = La contraseña de esta cuenta se gestiona en { $provider } y no se puede cambiar desde aquí.
+help-external-user    = La cuenta no tendrá contraseña en esta aplicación: se vinculará con { $provider } la primera vez que la persona inicie sesión con este nombre de usuario.
+
 help-remember-me = Mantiene la sesión abierta usando una cookie. No marcar en un equipo compartido.
 
 help-machine-name-immutable =
@@ -248,6 +270,10 @@ btn-manage-permissions = Gestionar permisos
 btn-reset-password     = Restablecer contraseña
 btn-block              = Bloquear
 btn-activate           = Activar
+btn-create-external-user = Nueva cuenta de { $provider }
+btn-approve              = Aprobar
+btn-allow-linking        = Permitir vincular con { $provider }
+btn-cancel-linking       = No vincular con { $provider }
 btn-grant-admin        = Conceder administrador
 btn-revoke-admin       = Revocar administrador
 link-back              = Volver
@@ -278,3 +304,6 @@ error-cannot-block-self            = No puedes bloquear tu propia cuenta.
 error-cannot-modify-own-admin-flag = No puedes conceder ni revocar tu propio acceso total.
 error-user-not-found               = Usuario no encontrado.
 error-unknown-permission           = Clave de permiso desconocida.
+error-identity-taken               = Otra cuenta ya está vinculada a esa identidad.
+error-protected-account            = Una cuenta de administrador no puede estar vinculada a un proveedor de autenticación.
+error-not-pending-identity         = La cuenta no está a la espera de vincularse.

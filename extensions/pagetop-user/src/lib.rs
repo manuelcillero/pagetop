@@ -12,17 +12,19 @@
 
 </div>
 
-Añade cuentas de usuario a una aplicación PageTop: registro, inicio de sesión con sesiones en la
-base de datos, perfil propio, recuperación de contraseña y verificación del email por correo, y
-control de acceso con roles y permisos. Incluye las páginas de administración de usuarios, roles y
-permisos en el panel de administración del núcleo, hechas sólo con componentes del núcleo para que
-funcionen con cualquier tema.
-
 ## Sobre PageTop
 
 [PageTop](https://docs.rs/pagetop) es un entorno de desarrollo que reivindica la esencia de la web
 clásica para crear soluciones web SSR (*renderizadas en el servidor*) modulares, extensibles y
 configurables, basadas en HTML, CSS y JavaScript.
+
+## Descripción general
+
+Añade cuentas de usuario a una aplicación PageTop: registro, inicio de sesión con sesiones en la
+base de datos, perfil propio, recuperación de contraseña y verificación del email por correo, y
+control de acceso con roles y permisos. Incluye las páginas de administración de usuarios, roles y
+permisos en el panel de administración del núcleo, hechas sólo con componentes del núcleo para que
+funcionen con cualquier tema.
 
 ## Guía rápida
 
@@ -123,6 +125,43 @@ y `ana` son el mismo usuario) y no se admiten nombres que se confunden a simple 
 existente (`rnaria` si existe `maria`, o `аdmin` con una `а` cirílica). Las reglas completas de
 cada política, y las del email, están en [`IdentityPolicy`](config::IdentityPolicy).
 
+## Proveedores de autenticación
+
+Otras extensiones pueden comprobar las credenciales del inicio de sesión con un servicio externo,
+como un directorio LDAP o Active Directory. Cada una declara su proveedor con la acción
+[`DeclareAuthProviders`](provider::DeclareAuthProviders), y la configuración decide con qué
+fuentes, y en qué orden, se comprueban las credenciales. Por ejemplo, las dos, primero el
+directorio y después la contraseña local:
+
+```toml
+[user.login]
+sources = ["ldap", "local"]
+```
+
+O sólo el directorio, salvo los administradores, que conservan su contraseña local como acceso de
+emergencia por si el directorio no responde (`local_fallback` sólo se aplica cuando `"local"` no
+está en `sources`):
+
+```toml
+[user.login]
+sources        = ["ldap"]
+local_fallback = "admins"
+```
+
+Los límites de intentos, el bloqueo de cuentas, el estado de cada cuenta y las sesiones son los de
+`pagetop-user` para todas las fuentes. Una cuenta vinculada a un proveedor sólo se autentica con él,
+y lo que su titular puede cambiar (contraseña, email, datos del perfil, roles) lo decide el
+proveedor. La contraseña tecleada nunca se guarda ni se escribe en las trazas: el proveedor sólo la
+recibe para comprobarla ([`pagetop::util::SecretStr`]).
+
+Las operaciones que crean cuentas, las vinculan con su identidad externa o cambian sus roles no son
+funciones públicas: son métodos de un [`ProviderHandle`](provider::ProviderHandle) que sólo
+`pagetop-user` construye y que entrega a cada proveedor activo. Así sus reglas viven en un único
+sitio: un proveedor sólo actúa sobre sus propias cuentas, una cuenta existente sólo se vincula si un
+administrador lo ha permitido en su ficha (y nunca la de un administrador), y nadie puede conceder
+el acceso total. Protege de errores en un proveedor, no de código malicioso compilado en la misma
+aplicación. Los detalles están en el módulo [`provider`].
+
 ## Correos
 
 La recuperación de contraseña, la confirmación de una nueva dirección y, con
@@ -187,10 +226,12 @@ use pagetop_seaorm::install_migrations;
 use std::sync::LazyLock;
 
 pub mod account;
+pub mod actions;
 pub mod config;
 pub mod error;
 pub mod password;
 pub mod permission;
+pub mod provider;
 
 pub(crate) mod auth;
 #[cfg(feature = "demo-data")]
@@ -402,7 +443,9 @@ impl Extension for User {
             m20260629_000004_create_role_permissions,
             m20260629_000005_create_sessions,
             m20260629_000006_create_user_tokens,
+            m20261111_000007_create_user_identities,
         )?;
+        provider::initialize()?;
         // Los permisos de "anonymous" en memoria sobreviven a una nueva preparación en el mismo
         // proceso (las pruebas lo hacen), que puede usar otra base de datos.
         session::invalidate_anonymous_permissions();
@@ -493,6 +536,10 @@ impl Extension for User {
             .admin_route(
                 &format!("{ADMIN_USERS}/{{id}}/admin"),
                 web::post(handlers::admin::users::admin_post),
+            )
+            .admin_route(
+                &format!("{ADMIN_USERS}/{{id}}/identity"),
+                web::post(handlers::admin::users::identity_post),
             )
             .admin_route(
                 &format!("{ADMIN_USERS}/{{id}}/password"),

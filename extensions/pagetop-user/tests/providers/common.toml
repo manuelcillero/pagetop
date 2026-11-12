@@ -1,0 +1,34 @@
+# Configuration for `tests/providers.rs`, which points `CONFIG_DIR` here: the same as the crate's
+# `config/common.toml`, plus a fake authentication provider checked before the local passwords.
+
+[app]
+language = "en-US"
+
+# New on every run, with a single connection so that every query shares it.
+[database]
+db_type       = "sqlite"
+db_name       = "user-provider-tests?mode=memory"
+max_pool_size = 1
+
+[mail]
+transport = "memory"
+from      = "PageTop Tests <tests@example.com>"
+base_url  = "https://example.com/"
+
+[user]
+allow_registration   = false
+max_failed_logins    = 3
+max_ip_failed_logins = 50
+
+[user.login]
+sources = ["fake", "local"]
+
+# Minimal Argon2id costs: the tests hash many passwords.
+[user.password]
+argon2_m_cost = 64
+argon2_t_cost = 1
+
+[user.seed]
+admin_username = "admin"
+admin_email    = "admin@example.com"
+admin_password = "admin-password"
