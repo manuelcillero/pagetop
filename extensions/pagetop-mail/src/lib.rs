@@ -12,17 +12,19 @@
 
 </div>
 
-Envía correos en texto plano y HTML, con archivos adjuntos e imágenes incrustadas, por SMTP, con el
-programa *sendmail* o a archivos `.eml`, todo configurado en los archivos TOML de la aplicación.
-Los correos pueden crearse con plantillas que traducen sus textos al idioma del destinatario, y
-comparten un diseño HTML común que la aplicación puede cambiar. Para las pruebas, los correos pueden
-guardarse en memoria en lugar de enviarse.
-
 ## Sobre PageTop
 
 [PageTop](https://docs.rs/pagetop) es un entorno de desarrollo que reivindica la esencia de la web
 clásica para crear soluciones web SSR (*renderizadas en el servidor*) modulares, extensibles y
 configurables, basadas en HTML, CSS y JavaScript.
+
+## Descripción general
+
+Envía correos en texto plano y HTML, con archivos adjuntos e imágenes incrustadas, por SMTP, con el
+programa *sendmail* o a archivos `.eml`, todo configurado en los archivos TOML de la aplicación.
+Los correos pueden crearse con plantillas que traducen sus textos al idioma del destinatario, y
+comparten un diseño HTML común que la aplicación puede cambiar. Para las pruebas, los correos pueden
+guardarse en memoria en lugar de enviarse.
 
 ## Guía rápida
 

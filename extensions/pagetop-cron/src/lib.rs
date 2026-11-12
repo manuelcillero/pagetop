@@ -12,17 +12,19 @@
 
 </div>
 
-Ejecuta trabajos periódicos en segundo plano mientras la aplicación está en marcha: cada noche a
-las 4:30, cada diez minutos, el último día de cada mes, o unos segundos después de terminar la
-ejecución anterior. Cada extensión declara sus trabajos en el código con una acción, y quien
-administra la aplicación decide en los archivos de configuración cómo se ejecutan, y puede cambiar
-cuándo se ejecuta cada trabajo o desactivarlo sin recompilar.
-
 ## Sobre PageTop
 
 [PageTop](https://docs.rs/pagetop) es un entorno de desarrollo que reivindica la esencia de la web
 clásica para crear soluciones web SSR (*renderizadas en el servidor*) modulares, extensibles y
 configurables, basadas en HTML, CSS y JavaScript.
+
+## Descripción general
+
+Ejecuta trabajos periódicos en segundo plano mientras la aplicación está en marcha: cada noche a
+las 4:30, cada diez minutos, el último día de cada mes, o unos segundos después de terminar la
+ejecución anterior. Cada extensión declara sus trabajos en el código con una acción, y quien
+administra la aplicación decide en los archivos de configuración cómo se ejecutan, y puede cambiar
+cuándo se ejecuta cada trabajo o desactivarlo sin recompilar.
 
 ## Guía rápida
 

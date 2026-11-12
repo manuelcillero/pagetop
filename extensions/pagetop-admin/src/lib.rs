@@ -12,14 +12,16 @@
 
 </div>
 
-Añade al panel de administración de PageTop **ajustes que se guardan en la base de datos** y que un
-administrador cambia desde el propio panel, con la aplicación en marcha.
-
 ## Sobre PageTop
 
 [PageTop](https://docs.rs/pagetop) es un entorno de desarrollo que reivindica la esencia de la web
 clásica para crear soluciones web SSR (*renderizadas en el servidor*) modulares, extensibles y
 configurables, basadas en HTML, CSS y JavaScript.
+
+## Descripción general
+
+Añade al panel de administración de PageTop **ajustes que se guardan en la base de datos** y que un
+administrador cambia desde el propio panel, con la aplicación en marcha.
 
 ## Qué aporta
 
