@@ -3,7 +3,7 @@ name = "pagetop-aliner"
 version = "0.1.0"
 
 description = """
-    Tema de PageTop que muestra esquemáticamente la composición de las páginas HTML
+    Tema de PageTop que muestra esquemáticamente la composición de las páginas HTML.
 """
 categories = ["web-programming", "gui"]
 keywords = ["pagetop", "theme", "css"]
