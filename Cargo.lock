@@ -2187,6 +2187,7 @@ dependencies = [
  "tracing-appender",
  "tracing-subscriber",
  "unic-langid",
+ "zeroize",
 ]
 
 [[package]]

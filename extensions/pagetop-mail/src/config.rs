@@ -154,7 +154,7 @@ pub struct SmtpSettings {
     pub username: Option<String>,
     /// Contraseña del usuario. Conviene guardarla en `config/local.toml`, que no se versiona, o
     /// pasarla con la variable de entorno `PAGETOP_MAIL__SMTP__PASSWORD`.
-    pub password: Option<String>,
+    pub password: Option<util::SecretStr>,
     /// Nombre con el que se presenta la aplicación al servidor (`EHLO`). Sin valor, el nombre del
     /// equipo.
     pub hello_name: Option<String>,

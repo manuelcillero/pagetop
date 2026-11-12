@@ -331,8 +331,13 @@ impl<S: Send + Sync> FromRequestParts<S> for HttpRequest {
 }
 
 impl HttpRequest {
-    // También la usa el *middleware* que comprueba el acceso de las rutas, antes del *handler*.
-    pub(crate) fn from_parts(parts: &http::request::Parts) -> Self {
+    /// Crea la petición a partir de las partes de una petición de Axum, para usarla en un
+    /// *middleware* antes de que llegue al *handler*. Es lo mismo que hace el extractor con el que
+    /// la recibe un *handler*.
+    ///
+    /// Copia las cabeceras y las extensiones que haya en ese momento: lo que se inserte después en
+    /// `parts` no aparecerá en la `HttpRequest` creada.
+    pub fn from_parts(parts: &http::request::Parts) -> Self {
         HttpRequest(Arc::new(RequestParts {
             method: parts.method.clone(),
             uri: parts.uri.clone(),

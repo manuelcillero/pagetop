@@ -71,6 +71,7 @@ unicode-ident = "1.0"
 unicode-normalization = "0.1"
 unicode-security = "0.1"
 url = "2.5"
+zeroize = "1.8"
 # Helpers
 pagetop-build = { version = "0.3", path = "helpers/pagetop-build" }
 pagetop-macros = { version = "0.3", path = "helpers/pagetop-macros" }
@@ -144,6 +145,7 @@ tracing.workspace = true
 tracing-appender.workspace = true
 tracing-subscriber.workspace = true
 unic-langid.workspace = true
+zeroize.workspace = true
 
 [dev-dependencies]
 pagetop-aliner.workspace = true

@@ -264,7 +264,7 @@ async fn connect() -> Result<DatabaseConnection, DbError> {
             uri.set_username(&settings.db_user)
                 .map_err(|()| DbError::InvalidUrl)?;
             // https://github.com/launchbadge/sqlx/issues/1624
-            uri.set_password(Some(&settings.db_pass))
+            uri.set_password(Some(settings.db_pass.expose()))
                 .map_err(|()| DbError::InvalidUrl)?;
             if let Some(port) = settings.db_port {
                 uri.set_port(Some(port)).map_err(|()| DbError::InvalidUrl)?;

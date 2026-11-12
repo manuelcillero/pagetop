@@ -46,7 +46,7 @@ pub struct DatabaseSettings {
     /// Usuario de conexión a la base de datos (para mysql/postgres).
     pub db_user: String,
     /// Contraseña para la conexión a la base de datos (para mysql/postgres).
-    pub db_pass: String,
+    pub db_pass: util::SecretStr,
     /// Servidor de conexión a la base de datos (para mysql/postgres).
     #[default = "localhost"]
     pub db_host: String,

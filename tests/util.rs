@@ -354,3 +354,35 @@ mod windows {
         Ok(())
     }
 }
+
+// **< Testing SecretStr >**************************************************************************
+
+#[derive(Debug, serde::Deserialize)]
+struct WithSecret {
+    password: util::SecretStr,
+    optional: Option<util::SecretStr>,
+}
+
+#[pagetop::test]
+async fn secret_str_debug_never_shows_the_value() {
+    let secret = util::SecretStr::new("hunter2");
+    assert_eq!(format!("{secret:?}"), "***");
+    assert_eq!(format!("{:?}", Some(&secret)), "Some(***)");
+    assert_eq!(secret.expose(), "hunter2");
+    assert_eq!(secret.len(), 7);
+    assert!(util::SecretStr::default().is_empty());
+}
+
+#[pagetop::test]
+async fn secret_str_is_hidden_in_deserialized_settings() {
+    let settings: WithSecret =
+        serde_json::from_str(r#"{ "password": "db-s3cr3t", "optional": "smtp-s3cr3t" }"#).unwrap();
+    assert_eq!(settings.password.expose(), "db-s3cr3t");
+    assert_eq!(
+        settings.optional.as_ref().map(|s| s.expose()),
+        Some("smtp-s3cr3t")
+    );
+
+    let shown = format!("{settings:?}");
+    assert!(!shown.contains("s3cr3t"), "secret printed: {shown}");
+}

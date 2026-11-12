@@ -431,7 +431,10 @@ fn smtp_transport(smtp: &SmtpSettings) -> Result<SmtpTransport, MailError> {
     if let Some(username) = smtp.username.as_deref().and_then(util::non_blank) {
         builder = builder.credentials(Credentials::new(
             username.to_owned(),
-            smtp.password.clone().unwrap_or_default(),
+            smtp.password
+                .as_ref()
+                .map_or("", util::SecretStr::expose)
+                .to_owned(),
         ));
     }
     if let Some(name) = smtp.hello_name.as_deref().and_then(util::non_blank) {

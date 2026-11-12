@@ -1,4 +1,4 @@
-//! Macros y funciones útiles.
+//! Macros, tipos y funciones útiles.
 
 use crate::trace;
 
@@ -23,6 +23,11 @@ pub use pagetop_minimal::{concatdoc, formatdoc, indoc, join, join_pair, kv};
 pub use pagetop_minimal::paste;
 // La documentación anterior está copiada de `pagetop_minimal::paste!` porque el *crate* original
 // no la define y la de `pagetop_minimal` no se hereda automáticamente.
+
+// **< TIPOS ÚTILES >*******************************************************************************
+
+mod secret;
+pub use secret::SecretStr;
 
 // **< FUNCIONES ÚTILES >***************************************************************************
 
